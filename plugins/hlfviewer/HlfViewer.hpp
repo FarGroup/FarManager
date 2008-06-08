@@ -1,9 +1,9 @@
 struct RegistryStr
 {
- TCHAR *sss;
- TCHAR *EditorKey;
- TCHAR *ProcessEditorInput;
- TCHAR *Style;
+ const TCHAR *sss;
+ const TCHAR *EditorKey;
+ const TCHAR *ProcessEditorInput;
+ const TCHAR *Style;
 } REGStr= {
  _T("%s%s%s"),
  _T("EditorKey"),
@@ -13,9 +13,9 @@ struct RegistryStr
 
 struct HELPIDS
 {
- TCHAR *Contents;
- TCHAR *cmd;
- TCHAR *Config;
+ const TCHAR *Contents;
+ const TCHAR *cmd;
+ const TCHAR *Config;
 } HlfId=
 {
  _T("Contents"),
@@ -27,7 +27,7 @@ void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueDat
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,DWORD ValueSize);
 
@@ -50,7 +50,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   DWORD Flags;
   int DefaultButton;
-  TCHAR *Data;
+  const TCHAR *Data;
 };
 
 struct Options

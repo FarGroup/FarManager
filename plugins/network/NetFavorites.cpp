@@ -7,7 +7,7 @@
 #define SZ_USERNAME           _T("UserName")
 #define SZ_USERPASS           _T("Password")
 
-TCHAR* szFavProv = _T("Far Favorites Provider");
+TCHAR szFavProv[] = _T("Far Favorites Provider");
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 {
@@ -95,7 +95,7 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
   return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
-BOOL GetResourceKey(TCHAR* lpRemoteName, TCHAR* rootKey, TCHAR* lpResourceKey, size_t *cSize)
+BOOL GetResourceKey(TCHAR* lpRemoteName, const TCHAR* rootKey, TCHAR* lpResourceKey, size_t *cSize)
 {
   // We should be sure that "Favorites" is a folder
   SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, _T("1"));
@@ -474,14 +474,14 @@ BOOL RecursiveSetValue (HKEY hKey, TCHAR* lpSubKey)
   return ERROR_SUCCESS == RegSetValue(hKey, lpSubKey, REG_SZ, _T("1"), 2);
 }
 
-TCHAR *g_szInvalidChars=_T("\\/");
+const TCHAR *g_szInvalidChars=_T("\\/");
 
 BOOL ValidatePath(const TCHAR *szPath)
 {
   if(!szPath||!*szPath)
     return FALSE;
   for(const TCHAR *p=szPath;*p;p++)
-    for(TCHAR *p1=g_szInvalidChars;*p1;p1++)
+    for(const TCHAR *p1=g_szInvalidChars;*p1;p1++)
       if(*p1==*p)
         return FALSE;
   return TRUE;

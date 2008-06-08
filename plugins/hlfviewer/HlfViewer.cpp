@@ -255,7 +255,7 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
   {
   /*00*/{DI_DOUBLEBOX,3,1,70,10,0,0,0,0,(TCHAR *)MTitle},
   /*01*/{DI_CHECKBOX,5,2,0,0,TRUE,0,0,0,(TCHAR *)MProcessEditorInput},
-  /*02*/{DI_FIXEDIT,10+lstrlen(GetMsg(MProcessEditorInput)),2,68,2,0,0,0,0,KeyNameFromReg},
+  /*02*/{DI_FIXEDIT,10,2,68,2,0,0,0,0,KeyNameFromReg},
   /*03*/{DI_TEXT,0,3,0,0,0,0,DIF_SEPARATOR,0,_T("")},
   /*04*/{DI_TEXT,5,4,0,0,0,0,0,0,(TCHAR *)MStyle},
   /*05*/{DI_RADIOBUTTON,5,5,0,0,0,0,DIF_GROUP,0,(TCHAR *)MStr1},
@@ -270,6 +270,7 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
   int ret=FALSE;
 
   DialogItems[1].Selected=Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
+  DialogItems[2].X1+=lstrlen(GetMsg(MProcessEditorInput));
   Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
   DialogItems[5].Selected=DialogItems[6].Selected=DialogItems[7].Selected=0;
   DialogItems[5+(Opt.Style>2?0:Opt.Style)].Selected=1;

@@ -143,8 +143,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
         break;
 
       default:
-        if (KeyCode>=VK_PRIOR && KeyCode<=VK_DOWN ||
-            KeyCode>=VK_NUMPAD0 && KeyCode<=VK_NUMPAD9)
+        if ((KeyCode>=VK_PRIOR && KeyCode<=VK_DOWN) ||
+            (KeyCode>=VK_NUMPAD0 && KeyCode<=VK_NUMPAD9))
         {
           if(rec.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
             ProcessShiftKey(KeyCode,LineWidth);
@@ -172,13 +172,13 @@ void SetTitle(int LineWidth,int IDTitle)
   struct KeyBarTitles Kbt;
   for(I=0; I < 12; ++I)
   {
-    Kbt.Titles[I]="";
-    Kbt.CtrlTitles[I]="";
-    Kbt.AltTitles[I]="";
-    Kbt.ShiftTitles[I]="";
-    Kbt.CtrlShiftTitles[I]="";
-    Kbt.AltShiftTitles[I]="";
-    Kbt.CtrlAltTitles[I]="";
+    Kbt.Titles[I]=(char *)"";
+    Kbt.CtrlTitles[I]=(char *)"";
+    Kbt.AltTitles[I]=(char *)"";
+    Kbt.ShiftTitles[I]=(char *)"";
+    Kbt.CtrlShiftTitles[I]=(char *)"";
+    Kbt.AltShiftTitles[I]=(char *)"";
+    Kbt.CtrlAltTitles[I]=(char *)"";
   }
   Kbt.Titles[1-1]=(char *)GetMsg(MHelp);
   Kbt.Titles[2-1]=(char *)GetMsg((LineWidth==1)?MDouble:MSingle);

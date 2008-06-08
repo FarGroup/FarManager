@@ -193,12 +193,12 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
           B24=Opt.Brackets2[idxBrackets2+3];
           if(Bracket == B21 || Bracket == B22 || Bracket == B23 || Bracket == B24)
           {
-            if (Bracket==B21 && Bracket1==B22 || Bracket==B22 && Bracket_1==B21)
+            if ((Bracket==B21 && Bracket1==B22) || (Bracket==B22 && Bracket_1==B21))
             {
               types=BrTwo;
               Direction=1;
             }
-            else if (Bracket_1==B23 && Bracket==B24 || Bracket==B23 && Bracket1==B24)
+            else if ((Bracket_1==B23 && Bracket==B24) || (Bracket==B23 && Bracket1==B24))
             {
               types=BrTwo;
               Direction=-1;
@@ -312,8 +312,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
       {
         if(Ch == Bracket)
         {
-          if (Bracket_1=='\\' && Ch_1=='\\' ||
-              Bracket_1!='\\' && Ch_1!='\\'
+          if ((Bracket_1=='\\' && Ch_1=='\\') ||
+              (Bracket_1!='\\' && Ch_1!='\\')
              )
             found=TRUE;
         }
@@ -327,11 +327,11 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
         {
           MatchCount++;
         }
-        else if (Ch==B21 && Bracket_1==B22 || Ch==B22 && Bracket_1==B21)
+        else if ((Ch==B21 && Bracket_1==B22) || (Ch==B22 && Bracket_1==B21))
         {
           --MatchCount;
-          if(Direction ==  1 && MatchCount == 0 ||
-             Direction == -1 && MatchCount == 1)
+          if((Direction ==  1 && MatchCount == 0) ||
+             (Direction == -1 && MatchCount == 1))
             found=TRUE;
         }
         break;
@@ -344,7 +344,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
         {
           MatchCount++;
         }
-        else if (Ch==B21 && Bracket==B22 || Ch==B22 && Bracket==B21)
+        else if ((Ch==B21 && Bracket==B22) || (Ch==B22 && Bracket==B21))
         {
           if(--MatchCount==0)
             found=TRUE;
@@ -357,22 +357,22 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
       case BrTwo:
       {
         if((Direction == 1 &&
-           (Bracket==B21 && Ch==B21 && Ch1  == B22 ||
-           Bracket==B22 && Ch==B22 && Ch_1 == B21)
+           ((Bracket==B21 && Ch==B21 && Ch1  == B22) ||
+           (Bracket==B22 && Ch==B22 && Ch_1 == B21))
            ) ||
            (Direction == -1 &&
-           (Bracket==B23 && Ch==B23 && Ch1  == B24 ||
-           Bracket==B24 && Ch==B24 && Ch_1 == B23)
+           ((Bracket==B23 && Ch==B23 && Ch1  == B24) ||
+           (Bracket==B24 && Ch==B24 && Ch_1 == B23))
            )
           )
         {
           MatchCount++;
         }
         else if (
-                 Bracket==B21 && Ch==B23 && Bracket1 ==B22 && Ch1 ==B24 ||
-                 Bracket==B22 && Ch==B24 && Bracket_1==B21 && Ch_1==B23 ||
-                 Bracket==B23 && Ch==B21 && Bracket1 ==B24 && Ch1 ==B22 ||
-                 Bracket==B24 && Ch==B22 && Bracket_1==B23 && Ch_1==B21
+                 (Bracket==B21 && Ch==B23 && Bracket1 ==B22 && Ch1 ==B24) ||
+                 (Bracket==B22 && Ch==B24 && Bracket_1==B21 && Ch_1==B23) ||
+                 (Bracket==B23 && Ch==B21 && Bracket1 ==B24 && Ch1 ==B22) ||
+                 (Bracket==B24 && Ch==B22 && Bracket_1==B23 && Ch_1==B21)
                 )
         {
           if(--MatchCount==0)

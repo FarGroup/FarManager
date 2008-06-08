@@ -1,3 +1,7 @@
+t-rex 08.06.2008 18:45:51 +0200 - build 8
+
+1. gcc 4.3.0 warnings removed.
+
 drkns 28.11.2007 07:26:07 +0200 - build 7
 
 1. Работа с новым DialogAPI в 1.8.

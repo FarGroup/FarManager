@@ -1,3 +1,7 @@
+t-rex 08.06.2008 17:37:05 +0200 - build 26
+
+1. gcc 4.3.0 warnings removed.
+
 drkns 18.11.2007 14:16:38 +0300 - build 25
 
 1. Не работала команда "Same folder" (unicode)

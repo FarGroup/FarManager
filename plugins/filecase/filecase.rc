@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 VERSIONINFO_1 VERSIONINFO
 
-FILEVERSION    FAR_MAJOR_VER, FAR_MINOR_VER, 0, 8
+FILEVERSION    FAR_MAJOR_VER, FAR_MINOR_VER, 0, 9
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEFLAGSMASK  0x0
 FILEFLAGS      0x0
@@ -17,10 +17,10 @@ FILESUBTYPE    0x0
   {
       VALUE "CompanyName", FARCOMPANYNAME
       VALUE "FileDescription",   "File names case conversion for FAR Manager\0"
-      VALUE "FileVersion",       "1.71 build 8\0"
+      VALUE "FileVersion",       "1.71 build 9\0"
       VALUE "InternalName",      "FileCase\0"
       VALUE "LegalCopyright", FARCOPYRIGHT
-      VALUE "OriginalFilename",  "FILECASE.DLL\0"
+      VALUE "OriginalFilename",  "FileCase.dll\0"
       VALUE "ProductName", FARPRODUCTNAME
       VALUE "ProductVersion", FARPRODUCTVERSION
   }

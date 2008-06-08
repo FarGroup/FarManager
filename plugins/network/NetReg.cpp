@@ -4,9 +4,9 @@
 HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key);
 HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key);
 
-TCHAR *FmtSSS=_T("%s%s%s");
+const TCHAR *FmtSSS=_T("%s%s%s");
 
-void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData)
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,const TCHAR *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
@@ -30,7 +30,7 @@ void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueDat
 }
 
 
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize)
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type;

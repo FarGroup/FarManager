@@ -29,7 +29,7 @@ void __fastcall TStrList::Clear()
   DeleteList();
 }
 
-BOOL __fastcall TStrList::Insert(TCHAR *String,int Index)
+BOOL __fastcall TStrList::Insert(const TCHAR *String,int Index)
 {
   int i;
   int len=lstrlen(String);
@@ -55,7 +55,7 @@ BOOL __fastcall TStrList::Insert(TCHAR *String,int Index)
   return TRUE;
 }
 
-BOOL __fastcall TStrList::Add(TCHAR *String)
+BOOL __fastcall TStrList::Add(const TCHAR *String)
 {
   return(Insert(String,Count));
 }
@@ -89,7 +89,7 @@ BOOL __fastcall TStrList::Delete(int Index)
   return FALSE;
 }
 
-BOOL __fastcall TStrList::SetText(TCHAR *String,int Index)
+BOOL __fastcall TStrList::SetText(const TCHAR *String,int Index)
 {
   int len=lstrlen(String);
 

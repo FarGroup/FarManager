@@ -64,7 +64,7 @@ void __fastcall TReg::SetRootKey(HKEY Value)
     CloseKey();
 }
 
-void __fastcall TReg::ChangeKey(HKEY Value, TCHAR *Path)
+void __fastcall TReg::ChangeKey(HKEY Value, const TCHAR *Path)
 {
   CloseKey();
   CurrentKey=Value;
@@ -87,7 +87,7 @@ void __fastcall TReg::SetCurrentKey(HKEY Value)
   CurrentKey=Value;
 }
 
-BOOL __fastcall TReg::CreateKey(TCHAR *Key)
+BOOL __fastcall TReg::CreateKey(const TCHAR *Key)
 {
   DWORD Disposition;
 
@@ -98,10 +98,12 @@ BOOL __fastcall TReg::CreateKey(TCHAR *Key)
     S[0]=0;
   BOOL Relative=IsRelative(S);
   if (!Relative)
+  {
     if (Key)
       lstrcpy(S,&Key[1]);
     else
       S[0]=0;
+  }
   BOOL Result=RegCreateKeyEx(GetBaseKey(Relative),S,0,NULL,
     REG_OPTION_NON_VOLATILE,KEY_ALL_ACCESS,NULL,&TempKey,
     &Disposition)==ERROR_SUCCESS;
@@ -110,7 +112,7 @@ BOOL __fastcall TReg::CreateKey(TCHAR *Key)
   return Result;
 }
 
-BOOL __fastcall TReg::OpenKey(TCHAR *Key, BOOL CanCreate)
+BOOL __fastcall TReg::OpenKey(const TCHAR *Key, BOOL CanCreate)
 {
   DWORD Disposition;
   BOOL Result;
@@ -121,10 +123,12 @@ BOOL __fastcall TReg::OpenKey(TCHAR *Key, BOOL CanCreate)
     S[0]=0;
   BOOL Relative=IsRelative(S);
   if (!Relative)
+  {
     if (Key)
       lstrcpy(S,&Key[1]);
     else
       S[0]=0;
+  }
   HKEY TempKey=0;
   if ((!CanCreate) || (S[0]==0))
     Result=RegOpenKeyEx(GetBaseKey(Relative),S,0,KEY_ALL_ACCESS,&TempKey)==ERROR_SUCCESS;
@@ -147,7 +151,7 @@ BOOL __fastcall TReg::OpenKey(TCHAR *Key, BOOL CanCreate)
   return Result;
 }
 
-BOOL __fastcall TReg::DeleteKey(TCHAR *Key)
+BOOL __fastcall TReg::DeleteKey(const TCHAR *Key)
 {
   TCHAR KeyName[MAX_PATH_LEN];
   DWORD i,len;
@@ -159,10 +163,12 @@ BOOL __fastcall TReg::DeleteKey(TCHAR *Key)
     S[0]=0;
   BOOL Relative=IsRelative(S);
   if (!Relative)
+  {
     if (Key)
       lstrcpy(S,&Key[1]);
     else
       S[0]=0;
+  }
   HKEY OldKey=CurrentKey;
   HKEY DeleteKey=GetKey(Key);
   if (DeleteKey!=0)
@@ -188,7 +194,7 @@ BOOL __fastcall TReg::DeleteKey(TCHAR *Key)
   return Result;
 }
 
-BOOL __fastcall TReg::DeleteValue(TCHAR *Name)
+BOOL __fastcall TReg::DeleteValue(const TCHAR *Name)
 {
   return(RegDeleteValue(CurrentKey,Name)==ERROR_SUCCESS);
 }
@@ -243,7 +249,7 @@ BOOL TReg::GetValueNames(TStrList *&List)
   return FALSE;
 }
 
-BOOL TReg::GetDataInfo(/*const */TCHAR *ValueName,TRegDataInfo &Value)
+BOOL TReg::GetDataInfo(const TCHAR *ValueName,TRegDataInfo &Value)
 {
   DWORD DataType;
 
@@ -254,7 +260,7 @@ BOOL TReg::GetDataInfo(/*const */TCHAR *ValueName,TRegDataInfo &Value)
   return Result;
 }
 
-int __fastcall TReg::GetDataSize(/*const */TCHAR *ValueName)
+int __fastcall TReg::GetDataSize(const TCHAR *ValueName)
 {
   TRegDataInfo Info;
 
@@ -264,7 +270,7 @@ int __fastcall TReg::GetDataSize(/*const */TCHAR *ValueName)
     return -1;
 }
 
-TRegDataType TReg::GetDataType(TCHAR *ValueName)
+TRegDataType TReg::GetDataType(const TCHAR *ValueName)
 {
   TRegDataInfo Info;
 
@@ -279,7 +285,7 @@ BOOL __fastcall TReg::WriteString(const TCHAR *Name,const TCHAR *Value)
   return(PutData(Name,(const BYTE *)Value,(lstrlen(Value)+1)*sizeof(TCHAR),rdString));
 }
 
-TCHAR *__fastcall TReg::ReadString(/*const */TCHAR *Name,TCHAR *Str,int size)
+TCHAR *__fastcall TReg::ReadString(const TCHAR *Name,TCHAR *Str,int size)
 {
   int Len;
   TRegDataType RegData;
@@ -297,12 +303,12 @@ TCHAR *__fastcall TReg::ReadString(/*const */TCHAR *Name,TCHAR *Str,int size)
   return Str;
 }
 
-BOOL __fastcall TReg::WriteInteger(TCHAR *Name,DWORD Value)
+BOOL __fastcall TReg::WriteInteger(const TCHAR *Name,DWORD Value)
 {
   return(PutData(Name,(const BYTE *)&Value,sizeof(Value),rdInteger));
 }
 
-int __fastcall TReg::ReadInteger(TCHAR *Name)
+int __fastcall TReg::ReadInteger(const TCHAR *Name)
 {
   TRegDataType RegData;
   int Result;
@@ -313,12 +319,12 @@ int __fastcall TReg::ReadInteger(TCHAR *Name)
   return Result;
 }
 
-BOOL __fastcall TReg::WriteBinaryData(TCHAR *Name,void *Buffer,int BufSize)
+BOOL __fastcall TReg::WriteBinaryData(const TCHAR *Name,void *Buffer,int BufSize)
 {
   return(PutData(Name,(const BYTE *)Buffer,BufSize,rdBinary));
 }
 
-int __fastcall TReg::ReadBinaryData(TCHAR *Name,void *Buffer,int BufSize)
+int __fastcall TReg::ReadBinaryData(const TCHAR *Name,void *Buffer,int BufSize)
 {
   TRegDataType RegData;
   TRegDataInfo Info;
@@ -346,7 +352,7 @@ BOOL TReg::PutData(const TCHAR *Name,const BYTE *Buffer,DWORD BufSize,TRegDataTy
   return((RegSetValueEx(CurrentKey,Name,0,DataType,Buffer,BufSize))==ERROR_SUCCESS);
 }
 
-int TReg::GetData(/*const */TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData)
+int TReg::GetData(const TCHAR *Name,void *Buffer,DWORD BufSize,TRegDataType &RegData)
 {
   DWORD DataType;
   int Result;
@@ -370,13 +376,13 @@ BOOL TReg::HasSubKeys()
     return FALSE;
 }
 
-BOOL __fastcall TReg::ValueExists(TCHAR *Name)
+BOOL __fastcall TReg::ValueExists(const TCHAR *Name)
 {
   TRegDataInfo Info;
   return(GetDataInfo(Name, Info));
 }
 
-HKEY __fastcall TReg::GetKey(TCHAR *Key)
+HKEY __fastcall TReg::GetKey(const TCHAR *Key)
 {
   HKEY Rkey;
   BOOL Relative;
@@ -387,17 +393,19 @@ HKEY __fastcall TReg::GetKey(TCHAR *Key)
     S[0]=0;
   Relative=IsRelative(S);
   if (!Relative)
+  {
     if (Key)
       lstrcpy(S,&Key[1]);
     else
       S[0]=0;
+  }
   Rkey=0;
   RegOpenKeyEx(GetBaseKey(Relative),S,0,KEY_ALL_ACCESS,&Rkey);
   return Rkey;
 }
 
 #ifdef CREATE_REG_FILE
-  BOOL __fastcall TReg::SaveKey(TCHAR *Key, TCHAR *FileName)
+  BOOL __fastcall TReg::SaveKey(const TCHAR *Key, TCHAR *FileName)
   {
     HKEY SaveKey;
 
@@ -412,7 +420,7 @@ HKEY __fastcall TReg::GetKey(TCHAR *Key)
   }
 #endif
 
-BOOL __fastcall TReg::KeyExists(TCHAR *Key)
+BOOL __fastcall TReg::KeyExists(const TCHAR *Key)
 {
   HKEY TempKey;
   TempKey=GetKey(Key);
@@ -421,7 +429,7 @@ BOOL __fastcall TReg::KeyExists(TCHAR *Key)
   return (TempKey!=0);
 }
 
-void __fastcall TReg::RenameValue(TCHAR *OldName,TCHAR *NewName)
+void __fastcall TReg::RenameValue(const TCHAR *OldName,const TCHAR *NewName)
 {
   int Len;
   TRegDataType RegData;
@@ -440,7 +448,7 @@ void __fastcall TReg::RenameValue(TCHAR *OldName,TCHAR *NewName)
   }
 }
 
-void __fastcall TReg::MoveValue(HKEY SrcKey,HKEY DestKey,TCHAR *Name)
+void __fastcall TReg::MoveValue(HKEY SrcKey,HKEY DestKey,const TCHAR *Name)
 {
   int Len;
   HKEY OldKey,PrevKey;
@@ -527,7 +535,7 @@ void __fastcall TReg::CopyKeys(HKEY SrcKey,HKEY DestKey)
   SetCurrentKey(OldKey);
 }
 
-void __fastcall TReg::MoveKey(TCHAR *OldName,TCHAR *NewName,BOOL Delete)
+void __fastcall TReg::MoveKey(const TCHAR *OldName,const TCHAR *NewName,BOOL Delete)
 {
   HKEY SrcKey,DestKey;
 

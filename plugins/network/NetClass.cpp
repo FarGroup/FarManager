@@ -717,16 +717,16 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   ColumnTitles[1]=GetMsg(MColumnDisk);
   ColumnTitles[2]=GetMsg(MColumnComment);
 
-  PanelModesArray[3].ColumnTypes=_T("N,C0,C1");
-  PanelModesArray[3].ColumnWidths=_T("0,2,0");
+  PanelModesArray[3].ColumnTypes=(TCHAR *)_T("N,C0,C1");
+  PanelModesArray[3].ColumnWidths=(TCHAR *)_T("0,2,0");
   PanelModesArray[3].ColumnTitles=ColumnTitles;
   PanelModesArray[3].FullScreen=FALSE;
-  PanelModesArray[4].ColumnTypes=_T("N,C0");
-  PanelModesArray[4].ColumnWidths=_T("0,2");
+  PanelModesArray[4].ColumnTypes=(TCHAR *)_T("N,C0");
+  PanelModesArray[4].ColumnWidths=(TCHAR *)_T("0,2");
   PanelModesArray[4].ColumnTitles=ColumnTitles;
   PanelModesArray[4].FullScreen=FALSE;
-  PanelModesArray[5].ColumnTypes=_T("N,C0,C1");
-  PanelModesArray[5].ColumnWidths=_T("0,2,0");
+  PanelModesArray[5].ColumnTypes=(TCHAR *)_T("N,C0,C1");
+  PanelModesArray[5].ColumnWidths=(TCHAR *)_T("0,2,0");
   PanelModesArray[5].ColumnTitles=ColumnTitles;
   PanelModesArray[5].FullScreen=TRUE;
 
@@ -734,10 +734,10 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   Info->PanelModesNumber=ArraySize(PanelModesArray);
   Info->StartPanelMode=*(LPDWORD)&PanelMode;//_T('3');  // TODO Panel mode should be read from the registry
   static struct KeyBarTitles KeyBar={
-    {NULL,NULL,_T(""),_T(""),_T(""),_T(""),_T(""),_T(""),NULL,NULL,NULL,NULL},
-    {NULL,NULL,NULL,NULL,_T(""),_T(""),NULL,NULL,NULL,NULL,NULL,NULL},
-    {NULL,NULL,_T(""),_T(""),_T(""),_T(""),NULL,NULL,NULL,NULL,NULL,NULL},
-    {_T(""),_T(""),_T(""),_T(""),_T(""),_T(""),_T(""),_T(""),NULL,NULL,NULL,NULL}
+    {NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL},
+    {NULL,NULL,NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL,NULL,NULL},
+    {NULL,NULL,(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL,NULL,NULL},
+    {(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),(TCHAR *)_T(""),NULL,NULL,NULL,NULL}
   };
   if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
   {
@@ -752,17 +752,17 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   else
   {
     if(PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN)
-      KeyBar.Titles[4-1]=GetMsg(MF4);
+      KeyBar.Titles[4-1]=(TCHAR *)GetMsg(MF4);
     else
-      KeyBar.Titles[4-1]=_T("");
-    KeyBar.Titles[5-1]=_T("");
-    KeyBar.Titles[6-1]=_T("");
-    KeyBar.ShiftTitles[5-1]=_T("");
-    KeyBar.ShiftTitles[6-1]=_T("");
+      KeyBar.Titles[4-1]=(TCHAR *)_T("");
+    KeyBar.Titles[5-1]=(TCHAR *)_T("");
+    KeyBar.Titles[6-1]=(TCHAR *)_T("");
+    KeyBar.ShiftTitles[5-1]=(TCHAR *)_T("");
+    KeyBar.ShiftTitles[6-1]=(TCHAR *)_T("");
     if(CheckFavoriteItem(PCurResource))
-      KeyBar.Titles[8-1] = GetMsg(MF8Fav);
+      KeyBar.Titles[8-1] = (TCHAR *)GetMsg(MF8Fav);
     else
-      KeyBar.Titles[8-1]=_T("");
+      KeyBar.Titles[8-1]=(TCHAR *)_T("");
   }
   Info->KeyBar=&KeyBar;
 }
@@ -1089,9 +1089,6 @@ BOOL NetBrowser::GetResourceInfo(TCHAR *SrcName,LPNETRESOURCE DstNetResource)
   nr.dwType        = RESOURCETYPE_ANY;
   nr.dwUsage       = RESOURCEUSAGE_ALL;
   nr.lpRemoteName  = SrcName;
-  nr.lpLocalName   = _T("");
-  nr.lpComment     = _T("");
-  nr.lpProvider    = _T("");
 
   DWORD dwError=FWNetGetResourceInformation(&nr,lpnrOut,&cbBuffer,&pszSystem);
 

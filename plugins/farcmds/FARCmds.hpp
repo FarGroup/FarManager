@@ -1,14 +1,14 @@
-struct RegistryStr {TCHAR *Add2PlugMenu; TCHAR *Add2DisksMenu; TCHAR *sss;
-                    TCHAR *Separator; TCHAR *DisksMenuDigit; TCHAR *ShowCmdOutput;
-                    TCHAR *CatchMode; TCHAR *ViewZeroFiles; TCHAR *EditNewFiles;};
+struct RegistryStr {const TCHAR *Add2PlugMenu; const TCHAR *Add2DisksMenu; const TCHAR *sss;
+                    const TCHAR *Separator; const TCHAR *DisksMenuDigit; const TCHAR *ShowCmdOutput;
+                    const TCHAR *CatchMode; const TCHAR *ViewZeroFiles; const TCHAR *EditNewFiles;};
 
-struct HELPIDS {TCHAR *CMD; TCHAR *Config;};
+struct HELPIDS {const TCHAR *CMD; const TCHAR *Config;};
 
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
 int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,BYTE *ValueData,DWORD ValueSize);
 
@@ -24,7 +24,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   DWORD Flags;
   int DefaultButton;
-  TCHAR *Data;
+  const TCHAR *Data;
 };
 
 struct Options{

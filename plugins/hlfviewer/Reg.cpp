@@ -52,7 +52,7 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,TCHAR *Default,DWORD DataSize)
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type;
@@ -64,7 +64,7 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueDat
       lstrcpy(ValueData,Default);
       return(FALSE);
   } else
-    ValueData[DataSize] = 0;    
+    ValueData[DataSize] = 0;
   return(TRUE);
 }
 

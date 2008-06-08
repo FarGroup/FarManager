@@ -136,7 +136,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
           int Pos1=(int)Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,0,(LONG_PTR)&ListPos);
           if (Pos1>=0)
           {
-            for (i=Pos1;(Macro->Conf.MenuCycle && i<0)?i=Macro->MenuItemsNumber-1:i>=0;i--)
+            for (i=Pos1; i>=0; (Macro->Conf.MenuCycle && i-1<0)?i=Macro->MenuItemsNumber-1:i--)
             {
               MenuData *MData1=(MenuData *)Info.SendDlgMessage(hDlg,DM_LISTGETDATA,0,(LONG_PTR)i);
               if (*MData1->Group && *MData1->Key)
@@ -208,7 +208,7 @@ LONG_PTR WINAPI MenuDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
     }
     case DN_HELP:
     {
-      TCHAR *Topic[]={_T("Contents"),_T("MacroView")};
+      const TCHAR *Topic[]={_T("Contents"),_T("MacroView")};
       Macro->HelpActivated=TRUE;
       if (Macro->HelpInvoked)
         return (LONG_PTR)Topic[1];
@@ -919,7 +919,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
           if (Key!=KEY_NONE && Key!=KEY_IDLE)
           {
             CKey=(Key & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT);
-            if (CKey<KEY_END_FKEY && CKey>=0x20 || CKey==0x08 || CKey==0x09 || CKey==0x0d || CKey==0x1b)
+            if ((CKey<KEY_END_FKEY && CKey>=0x20) || CKey==0x08 || CKey==0x09 || CKey==0x0d || CKey==0x1b)
             {
               if (CKey==0x0d && (KeyState & SHIFT_PRESSED)) // Shift-Enter
                 Key|=KEY_SHIFT;
@@ -944,7 +944,7 @@ BOOL __fastcall ProcessPeekKey(PINPUT_RECORD ir)
           if (Key!=KEY_NONE && Key!=KEY_IDLE)
           {
             CKey=(Key & ~KEY_CTRL & ~KEY_ALT & ~KEY_SHIFT & ~KEY_RCTRL & ~KEY_RALT);
-            if (CKey<KEY_END_FKEY && CKey>=0x20 || CKey==0x08 || CKey==0x09 || CKey==0x0d || CKey==0x1b)
+            if ((CKey<KEY_END_FKEY && CKey>=0x20) || CKey==0x08 || CKey==0x09 || CKey==0x0d || CKey==0x1b)
             {
               if (CKey==0x0d && (KeyState & SHIFT_PRESSED)) // Shift-Enter
                 Key|=KEY_SHIFT;
@@ -1444,7 +1444,7 @@ void __fastcall TMacroView::WriteKeyBar(int kbType)
 BOOL __fastcall TMacroView::CreateDirs(TCHAR *Dir)
 {
   TCHAR Str[MAX_PATH_LEN];
-  TCHAR *ErrorCreateFolder[]=
+  const TCHAR *ErrorCreateFolder[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateFolder),
@@ -1595,31 +1595,31 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
 {
   TCHAR lKey[MAX_KEY_LEN];
   TCHAR lGroup[MAX_KEY_LEN];
-  TCHAR *TmpPrfx=_T("mvu");
+  const TCHAR *TmpPrfx=_T("mvu");
   HANDLE fname;
 
-  TCHAR *ErrorRun[]=
+  const TCHAR *ErrorRun[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorRun),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ErrorCreateTemp[]=
+  const TCHAR *ErrorCreateTemp[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateTemp),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ErrorReadTemp[]=
+  const TCHAR *ErrorReadTemp[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorReadTemp),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ErrorInsertStrEditor[]=
+  const TCHAR *ErrorInsertStrEditor[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorInsertStrEditor),
@@ -1804,22 +1804,22 @@ void __fastcall TMacroView::ExportMacroToFile(BOOL AllMacros)
 #ifdef UNICODE
   wchar_t _group[MAX_PATH_LEN], _fname[MAX_PATH_LEN];
 #endif
-  TCHAR *TmpPrfx=_T("mvu");
+  const TCHAR *TmpPrfx=_T("mvu");
 
-  TCHAR *ErrorRun[]=
+  const TCHAR *ErrorRun[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorRun),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ErrorExists[]=
+  const TCHAR *ErrorExists[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningFileExists),
     S,_T("\x1"),sDest,_T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroRename),GetMsg(MMacroCancel)
   };
-  TCHAR *ErrorCreateFile[]=
+  const TCHAR *ErrorCreateFile[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorCreateFile),
@@ -2085,7 +2085,7 @@ void TMacroView::SwitchOver(const TCHAR *Group,const TCHAR *Key)
 }
 
 
-BOOL TMacroView::DeletingMacro(TCHAR **Items,int ItemsSize,TCHAR *HelpTopic)
+BOOL TMacroView::DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *HelpTopic)
 {
   TCHAR lKey[MAX_KEY_LEN];
   int lCode;
@@ -2146,28 +2146,28 @@ BOOL __fastcall TMacroView::CopyMoveMacro(int Op)
   // Индекс области копирования.
   GroupPos=0;
 
-  TCHAR *ItemsErrorConf[]=
+  const TCHAR *ItemsErrorConf[]=
   {
     GetMsg(MMacroError),
     GetMsg(MMacroErrorSelectConfiguration),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsCopy[]=
+  const TCHAR *ItemsCopy[]=
   {
     GetMsg(MMacroWarning),
     S,
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsExist[]=
+  const TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
     _T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
   };
-  TCHAR *ItemsKeyEmp[]=
+  const TCHAR *ItemsKeyEmp[]=
   {
     GetMsg(MMacroWarning),
     S,
@@ -3100,13 +3100,13 @@ void __fastcall TMacroView::ExportMacro(BOOL AllMacros)
   int eCode;
   TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
-  TCHAR *ItemsSave1[]=
+  const TCHAR *ItemsSave1[]=
   {
     GetMsg(MMacroExport),GetMsg(MMacroWhere),S,
     _T("\x1"),
     GetMsg(MMacroInsertEditor),GetMsg(MMacroSaveToFile),GetMsg(MMacroCancel),
   };
-  TCHAR *ItemsSave2[]=
+  const TCHAR *ItemsSave2[]=
   {
     GetMsg(MMacroExport),GetMsg(MMacroAllWhere),
     _T("\x1"),
@@ -3163,7 +3163,7 @@ BOOL __fastcall TMacroView::DeleteMacro()
     wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningRest));
   else
     wsprintf(Str,GetMsg(MMacroWarningDeleteThisKey),GetMsg(MMacroWarningDel));
-  TCHAR *ItemsDel[]=
+  const TCHAR *ItemsDel[]=
   {
     GetMsg(MMacroWarningDelete),Str,
     S,
@@ -3200,20 +3200,20 @@ BOOL __fastcall TMacroView::InsertMacro()
 
   TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
 
-  TCHAR *ItemsInsEmp[]=
+  const TCHAR *ItemsInsEmp[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningInsertEmpty1),
     GetMsg(MMacroWarningInsertEmpty2),
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsEdit[]=
+  const TCHAR *ItemsEdit[]=
   {
     GetMsg(MMacroWarningEdit),GetMsg(MMacroWarningEditThisKey),
     _T("\x1"),
     GetMsg(MMacroOk),GetMsg(MMacroCancel)
   };
-  TCHAR *ItemsExist[]=
+  const TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
@@ -3430,48 +3430,48 @@ BOOL __fastcall TMacroView::EditMacro()
   TCHAR lGroup[MAX_KEY_LEN]; //длинное название текущего раздела макроса
   int i;
 
-  TCHAR *ItemsError[]=
+  const TCHAR *ItemsError[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorRead),
     S,
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsErrorData[]=
+  const TCHAR *ItemsErrorData[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorData),
     S,
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsDelEmp[]=
+  const TCHAR *ItemsDelEmp[]=
   {
     GetMsg(MMacroWarningDelete),GetMsg(MMacroWarningDeleteKey),
     S,
     _T("\x1"),
     GetMsg(MMacroDelete),Button,GetMsg(MMacroCancel)
   };
-  TCHAR *ItemsEdit[]=
+  const TCHAR *ItemsEdit[]=
   {
     GetMsg(MMacroWarningEdit),GetMsg(MMacroWarningEditThisKey),
     _T("\x1"),
     GetMsg(MMacroOk),GetMsg(MMacroCancel)
   };
-  TCHAR *ItemsExist[]=
+  const TCHAR *ItemsExist[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningExist),
     S,
     _T("\x1"),
     GetMsg(MMacroOverwrite),GetMsg(MMacroCancel)
   };
-  TCHAR *ItemsErrorWrite[]=
+  const TCHAR *ItemsErrorWrite[]=
   {
     GetMsg(MMacroError),GetMsg(MMacroErrorWrite),
     S,
     _T("\x1"),
     GetMsg(MMacroOk),
   };
-  TCHAR *ItemsEditEmp[]=
+  const TCHAR *ItemsEditEmp[]=
   {
     GetMsg(MMacroWarning),GetMsg(MMacroWarningInsertEmpty0),
     GetMsg(MMacroWarningInsertEmpty2),

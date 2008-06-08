@@ -25,7 +25,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  char *Data;
+  const char *Data;
 };
 
 const char *GetMsg(int MsgId);
@@ -41,7 +41,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;

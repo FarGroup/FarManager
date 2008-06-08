@@ -1,7 +1,10 @@
+t-rex 08.06.2008 19:06:32 +0200 - build 41
+
+1. gcc 4.3.0 warnings removed.
+
 yjh 17.11.2007 21:04:05 +0300 - build 40
 
 1. Был не скорректирован GetMinFARVersion для 1.80
-
 
 t-rex 17.11.2007 13:13:48 +0200 - build 39
 

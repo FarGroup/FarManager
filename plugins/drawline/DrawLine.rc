@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 1 VERSIONINFO
-FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 6
+FILEVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, 7
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
@@ -11,10 +11,10 @@ FILETYPE 2
   {
       VALUE "CompanyName", FARCOMPANYNAME
       VALUE "FileDescription",   "Draw lines for FAR Manager\0"
-      VALUE "FileVersion",       "1.71 build 6\0"
+      VALUE "FileVersion",       "1.71 build 7\0"
       VALUE "InternalName",      "DrawLine\0"
       VALUE "LegalCopyright", FARCOPYRIGHT
-      VALUE "OriginalFilename",  "DRAWLINE.DLL\0"
+      VALUE "OriginalFilename",  "DrawLine.dll\0"
       VALUE "ProductName", FARPRODUCTNAME
       VALUE "ProductVersion", FARPRODUCTVERSION
   }

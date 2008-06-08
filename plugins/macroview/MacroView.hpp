@@ -56,7 +56,7 @@ const wchar_t *Users_KEY=L"\\Software\\Far18\\Users";
 #endif
 
 //----
-TCHAR *MacroGroupShort[]=
+const TCHAR *MacroGroupShort[]=
 {
   _T("Dialog"),_T("Disks"),_T("Editor"),_T("Help"),_T("Info"),_T("MainMenu"),
   _T("Menu"),_T("QView"),_T("Search"),_T("Shell"),_T("Tree"),_T("Viewer"),
@@ -125,7 +125,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   int Flags;
   int DefaultButton;
-  TCHAR *Data;
+  const TCHAR *Data;
 };
 
 
@@ -219,7 +219,7 @@ class TMacroView
                   HelpInvoked,
                   HelpActivated,
                   EditInMove,
-          MultiLine;
+                  MultiLine;
     HANDLE        hand,
                   EditDlg,
                   MenuDlg,
@@ -297,7 +297,7 @@ class TMacroView
     void          __fastcall InsertMacroToEditor(BOOL AllMacros);
     void          __fastcall ExportMacroToFile(BOOL AllMacros=FALSE);
     void          SwitchOver(const TCHAR *Group,const TCHAR *Key);
-    int           DeletingMacro(TCHAR **Items,int ItemsSize,TCHAR *HelpTopic);
+    int           DeletingMacro(const TCHAR **Items,int ItemsSize,const TCHAR *HelpTopic);
     BOOL          __fastcall CopyMoveMacro(int Op);
     void          MoveTildeInKey(TStrList *&NameList,BOOL doit=FALSE);
     void          PrepareDependentSort(TStrList *&NameList,BOOL doit=FALSE);

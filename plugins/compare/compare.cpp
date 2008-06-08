@@ -250,7 +250,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     unsigned char X1, Y1, X2, Y2;
     int           Data;
     int           DefaultRegValue;
-    TCHAR         *SelectedRegValue;
+    const TCHAR   *SelectedRegValue;
     unsigned int  Flags;
     int          *StoreTo;
   } InitItems[] = {
@@ -442,10 +442,12 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   {
     for (i = 0; i < ArraySize(InitItems); i++)
       if (InitItems[i].StoreTo)
+      {
         if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
           *InitItems[i].StoreTo = (DWORD)GetCheck((int)i);
         else if (InitItems[i].Type == DI_FIXEDIT)
           *InitItems[i].StoreTo = FSF.atoi(GetDataPtr((int)i));
+      }
 #ifndef UNICODE
 #undef PtrData
 #endif
@@ -511,6 +513,7 @@ static bool CheckForEsc(void)
     if ( rec.EventType == KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE &&
          rec.Event.KeyEvent.bKeyDown )
       // Опциональное подтверждение прерывания по Esc
+    {
       if ( Info.AdvControl(Info.ModuleNumber, ACTL_GETCONFIRMATIONS, NULL) & FCS_INTERRUPTOPERATION )
       {
         const TCHAR *MsgItems[] = {
@@ -525,6 +528,7 @@ static bool CheckForEsc(void)
       }
       else
         return bBrokenByEsc = true;
+    }
   }
 
   return false;
@@ -1091,7 +1095,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
     PluginRootKey = NULL;
   }
 
-  if (PluginRootKey = (TCHAR*)malloc(sizeof(TCHAR)*(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1)))
+  if ((PluginRootKey = (TCHAR*)malloc(sizeof(TCHAR)*(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1))) != NULL)
   {
     lstrcpy(PluginRootKey, Info->RootKey);
     lstrcat(PluginRootKey, cpPlugRegKey);

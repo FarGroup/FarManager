@@ -30,7 +30,7 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  TCHAR *Data;
+  const TCHAR *Data;
 };
 
 extern struct Options
