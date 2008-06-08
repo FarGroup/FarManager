@@ -84,10 +84,28 @@ you should also specify its version and command lines for it.
 4.2. A little test archive necessary to reproduce the problem (no more
 than 30k), or a link to such an archive, will be appreciated.
 
-5. A general notice concerning files attached - it is specific to the
+5. Additions concerning FTP
+
+5.1. When describing FTP plugin errors, you should also specify its version.
+     Получить ее можно следующими способами:
+      а) из информации версии основного файла плагина (FarFtp.dll);
+      б) из меню утилит, которое всплывает при нажатии Shift+F1 на
+         активной панели плагина.
+
+5.2. Лог файл плагина.
+     Для генерации полного лога файла нужно:
+      а) задать имя лог файла в настройках плагина;
+      б) включить параметр настройки:
+         [x] Log directory contents
+
+5.3 Если проблема происходит в процессе работы с сервером, то необходима
+    информация о программном обеспечении и операционной системе на стороне
+    сервера а также желательно предоставить доступ к такому серверу.
+
+6. A general notice concerning files attached - it is specific to the
 mailserver that any files attached with .exe, .dll, .sys, .bat, .cmd,
 .pif, .cpl, .com, .vbs, and .js extensions are removed. So, before sending
-such files to any address at farmanager.com, you should archive them first.
+such files, you should archive them first.
 
 
                                      [FAR manager development group]
