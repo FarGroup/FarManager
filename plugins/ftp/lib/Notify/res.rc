@@ -1,22 +1,29 @@
-#define VERSIONINFO_1   1
-
-VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 71, 0, 0
-PRODUCTVERSION 1, 71, 0, 0
+#include "ftpversion.hpp"
+1 VERSIONINFO
+FILEVERSION 1, 0, 0, 0
+PRODUCTVERSION FTP_MAJOR_VER, FTP_MINOR_VER, 0, FTP_BUILD
 FILEOS 4
-FILETYPE 2 {
- BLOCK "StringFileInfo" {
-  BLOCK "000004E4" {
-   VALUE "FileDescription",  "FTP IO Notify sub-plugin\000"
-   VALUE "InternalName",     "ftpNotify\000"
-   VALUE "LegalCopyright",   "Copyright © Eugene Roshal 1996-2000, Copyright © FAR Group 2000\000\000"
+FILETYPE 2
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000004E4"
+  {
+   VALUE "CompanyName", FTPCOMPANYNAME
+   VALUE "FileDescription", "FTP IO Notify sub-plugin\000"
+   VALUE "FileVersion", "1.0\000\000"
+   VALUE "InternalName", "ftpNotify\000"
+   VALUE "LegalCopyright", FTPCOPYRIGHT
    VALUE "OriginalFilename", "ftpNotify.fll\000"
-   VALUE "ProductVersion",   "FTP client for FAR Manager v1.7\000\000"
-
-   VALUE "FileVersion",      "v1.0 build 07.05.2004\000\000"
+   VALUE "ProductName", FTPPRODUCTNAME
+   VALUE "ProductVersion", FTPPRODUCTVERSION
   }
+
  }
- BLOCK "VarFileInfo" {
-  VALUE "Translation", 0, 0x4e4
+
+ BLOCK "VarFileInfo"
+ {
+   VALUE "Translation", 0, 0x4e4
  }
+
 }

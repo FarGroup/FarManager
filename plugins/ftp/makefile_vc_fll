@@ -41,6 +41,8 @@ LIBS=$(LIBS) $(FLL_LIBS)
 
 !include ..\makefile_vc_target_inc
 
+$(RES): ftpversion.hpp
+
 !ifndef __MAKE__
 {lib/$(FLL)}.cpp{$(OBJDIR)}.obj::
 	$(CC) @<<
