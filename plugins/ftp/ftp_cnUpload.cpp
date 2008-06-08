@@ -141,6 +141,21 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
     case TYPE_L:
     case TYPE_A: if ( fsz != 0 ) {
 
+                  if ( fsz >= 64*1024 && Host.IOBuffSize >= 64*1024 ) { // 64K
+                    unsigned sz, osz = Host.IOBuffSize;
+                    if ( fsz < osz ) osz = (unsigned)fsz;
+                    if (osz < 1024*1024) {
+                      sz = 64*1024;
+                      while ( sz < osz ) sz *= 2;
+                      osz = sz;
+                    }
+                    if ( osz > 1024*1024 ) osz = 1024*1024; // 1M
+                    sz = 0;
+                    int len = sizeof(sz);
+                    if ( getsockopt(dout, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) || sz < osz )
+                      setsockopt(dout, SOL_SOCKET, SO_SNDBUF, (char*)osz, sizeof(osz));
+                  }
+
                   if ( PluginAvailable(PLUGIN_NOTIFY) ) FTPNotify().Notify( &ni );
 
                   Log(( "Uploading %s->%s from %I64u",local,remote,restart_point ));
@@ -153,8 +168,8 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
                     hi = 0;
            Log(( "read %d",Host.IOBuffSize ));
                     if ( !ReadFile(fin.Handle,IOBuff,Host.IOBuffSize,(LPDWORD)&hi,NULL) ) {
-                      Log(("pf: !read buff" ));
                       ErrorCode = GetLastError();
+                      Log(("pf: !read buff" ));
                       goto abort;
                     }
 

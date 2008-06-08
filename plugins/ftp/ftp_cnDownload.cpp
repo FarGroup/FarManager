@@ -4,6 +4,22 @@
 #include "ftp_Int.h"
 
 //--------------------------------------------------------------------------------
+static unsigned get_cluster_size(const char *fname)
+{
+    char root[MAX_PATH];
+
+    if(   GetFullPathName(fname, sizeof(root), root, NULL)
+       && root[1] == ':' && root[2] == '\\')
+    {
+      DWORD t1, t2, bps = 0, spc = 0;
+      root[3] = '\0';
+      spc = bps = 0;
+      if(GetDiskFreeSpace(root, &spc, &bps, &t1, &t2)) return(spc*bps);
+    }
+    return(0);
+}
+
+//--------------------------------------------------------------------------------
 void Connection::recvrequest(char *cmd, char *local, char *remote, char *mode )
   {  //??SaveConsoleTitle _title;
 
@@ -40,15 +56,16 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
     ;
   } else {
     fout.Handle = Fopen( local, mode, Opt.SetHiddenOnAbort ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_NORMAL );
-    Log(("recv file [%d] \"%s\"=%p",Host.IOBuffSize,local,fout.Handle ));
     if ( !fout.Handle ) {
       ErrorCode = GetLastError();
       Log(( "!Fopen [%s] %s",mode,FIO_ERROR ));
+
       if ( !ConnectMessage( MErrorOpenFile,local,-MRetry ) )
         ErrorCode = ERROR_CANCELLED;
       //goto abort;
       return;
     }
+    Log(("recv file [%d] \"%s\"=%p",Host.IOBuffSize,local,fout.Handle ));
 
     if ( restart_point != -1 ) {
       if ( !Fmove( fout.Handle,restart_point ) ) {
@@ -130,64 +147,114 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
   case TYPE_A:
   case TYPE_I:
   case TYPE_L: {
-
-      __int64 totalValue = 0;
-      TIME_TYPE b,e;
-      GET_TIME(b);
       FtpSetBreakable( this, FALSE );
       CurrentState = fcsProcessFile;
 
       if ( fout.Handle && PluginAvailable(PLUGIN_NOTIFY) )
         FTPNotify().Notify( &ni );
 
+      TIME_TYPE b,e,bw;
+      __int64 totalValue;
+      DWORD ind, b_done, b_ost = Host.IOBuffSize,
+            wsz = get_cluster_size(local)*2;
+      if ( !wsz || (wsz > b_ost && (wsz /= 2) > b_ost) ) wsz = 512;
+
+      ind = min(1024*1024, max(4*wsz, 256*1024));  // 256K - 1M
+      setsockopt(din, SOL_SOCKET, SO_RCVBUF, (char*)&ind, sizeof(ind));
+      b_done = ind = 0;
+      totalValue = 0;
+
+      GET_TIME(b);
+      bw = b;
       while( 1 ) {
+        if ( wsz != 512 && b_done >= wsz ) {  // pseudo ansync io
+          DWORD off = 0, rdy = 0, ost = b_done % wsz, top = b_done - ost;
+          while ( ioctlsocket(din, FIONREAD, &rdy) && !rdy) {
+            if ( Fwrite(fout.Handle,IOBuff+off,wsz) != wsz ) goto write_error;
+            if ( (off += wsz) >= top ) break;
+          }
+          if (off) {
+            b_done -= off;
+            if ( b_done ) memmove(IOBuff, IOBuff+off, b_done);
+            b_ost = Host.IOBuffSize - b_done;
+          }
+        }
        //Recv
-        int c = nb_recv(&din, IOBuff, Host.IOBuffSize, 0);
-        if ( c < 0 ) {
-          Log(("gf(%d,%s)=%I64u: !read buff",code,GetSocketErrorSTR(),totalValue ));
-          code = RPL_TRANSFERERROR;
-          goto NormExit;
-        } else
-        if ( c == 0 ) {
+        int c = nb_recv(&din, IOBuff+b_done, b_ost, 0);
+        if ( c <= 0 ) {
+          if ( b_done && Fwrite(fout.Handle,IOBuff,b_done) != b_done ) goto write_error;
+          if ( c < 0 ) {
+            Log(("gf(%d,%s)=%I64u: !read buff",code,GetSocketErrorSTR(),totalValue ));
+            code = RPL_TRANSFERERROR;
+            goto NormExit;
+          }
           Log(("gf(%d,%s)=%I64u: read zero",code,GetSocketErrorSTR(),totalValue ));
           break;
         }
+
         totalValue += c;
 
+        GET_TIME( e );
         if ( !fout.Handle ) {
           //Add readed to buffer
           Log(( "AddOutput: +%d bytes", c ));
           AddOutput( (BYTE*)IOBuff,c );
-        } else
-        if ( Fwrite(fout.Handle,IOBuff,c) != c ) {
-        //Write to file
-          Log(("!write local"));
-          ErrorCode = GetLastError();
-          goto abort;
+        } else {  //Write to file
+          b_done += c;
+          b_ost -= c;
+          if ( b_ost < wsz || CMP_TIME(e,bw) >= 3.0 ) {
+            DWORD ost = 0;
+            if (wsz == 512) { // very small buffer :)
+              if ( Fwrite(fout.Handle,IOBuff,b_done) != b_done ) goto write_error;
+            } else {
+              // scatter-gatter for RAID in win32 is very bad on large buffer
+              // and when work without RAID synchronous write speed is independ
+              // if buffer size is >= 2*cluster size
+              DWORD off = 0;
+              ost = b_done % wsz;
+              b_done -= ost;
+              do
+                if ( Fwrite(fout.Handle,IOBuff+off,wsz) != wsz ) goto write_error;
+              while( (off += wsz) < b_done);
+              if ( ost ) memmove(IOBuff, IOBuff+b_done, ost);
+            }
+            b_done = ost;
+            b_ost = Host.IOBuffSize - ost;
+            GET_TIME( e );
+            bw = e;
+          }
         }
 
-        //Call user CB
-        if ( IOCallback ) {
-          if ( !TrafficInfo->Callback(c) ) {
-            Log(("gf: canceled by CB" ));
-            ErrorCode = ERROR_CANCELLED;
-            goto abort;
-          }
-        } else
-        //Show Quite progressing
-        if ( Opt.ShowIdle && !remote ) {
-          char   digit[ 20 ];
-          String str;
-          GET_TIME( e );
-          if ( CMP_TIME(e,b) > 0.5 ) {
+        ind += c;
+        if ( CMP_TIME(e,b) >= 0.5 ) {
+          b = e;
+          c = ind;
+          ind = 0;
+
+          //Call user CB
+          if ( IOCallback ) {
+            if ( !TrafficInfo->Callback(c) ) {
+              Log(("gf: canceled by CB" ));
+do_cancel:
+              ErrorCode = ERROR_CANCELLED;
+              if ( b_done && Fwrite(fout.Handle,IOBuff,b_done) != b_done ) {
+write_error:
+                ErrorCode = GetLastError();
+                if (ErrorCode == ERROR_SUCCESS)
+                  ErrorCode = ERROR_WRITE_FAULT;  // for non equal counter
+                Log(("!write local"));
+              }
+              goto abort;
+            }
+          } else
+          //Show Quite progressing
+          if ( Opt.ShowIdle && !remote) {
+            char   digit[ 20 ];
+            String str;
             str.printf( "%s%s ", FP_GetMsg(MReaded), FCps(digit,(double)totalValue) );
             SetLastError( ERROR_SUCCESS );
             IdleMessage( str.c_str(),Opt.ProcessColor );
-            b = e;
-            if ( CheckForEsc(FALSE) ) {
-              ErrorCode = ERROR_CANCELLED;
-              goto abort;
-            }
+            if ( CheckForEsc(FALSE) ) goto do_cancel;
           }
         }
       }
