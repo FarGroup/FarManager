@@ -43,7 +43,7 @@ BOOL InsertHostsCmd( HANDLE h,BOOL full )
 }
 
 int FTP::ProcessKey(int Key,unsigned int ControlState)
-  {  PROC(( "FTP::ProcessKey", "k:%08X(%c), sh:%08X",Key,isprint(Key)?((char)Key):' ',ControlState ))
+  {  PROC(( "FTP::ProcessKey", "k:%08X(%c), sh:%08X",Key,__isascii(Key)&&isprint(Key)?((char)Key):' ',ControlState ))
      PanelRedrawInfo  ri;
      PanelInfo        pi,otherPI;
      FTPHost          h,*p;
