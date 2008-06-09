@@ -132,7 +132,7 @@ static void init_hook(void)
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL
-       || *(LPDWORD)ur.p == 0x24086 // push 240h
+       || *(LPDWORD)ur.p != 0x24068 // push 240h
        || ((LPBYTE)ur.p)[sizeof(DWORD)]) return;
 
     data.off -= ur.d;
