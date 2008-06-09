@@ -1,6 +1,6 @@
-#include <dos.h>
 #include "multiarc.hpp"
 #include "marclng.hpp"
+#include <dos.h>
 
 BOOL FileExists(const char* Name)
 {

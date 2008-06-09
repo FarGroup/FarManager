@@ -3,6 +3,10 @@
 
 #if (defined(_MSC_VER) && _MSC_VER > 1000)
 #pragma once
+#if _MSC_VER >= 1400
+#undef _USE_DECLSPECS_FOR_SAL
+#define _USE_DECLSPECS_FOR_SAL 1
+#endif
 #endif
 
 #include <stdlib.h>

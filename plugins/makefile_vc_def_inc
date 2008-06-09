@@ -117,7 +117,7 @@ COMMONLIB = $(COMMON)\libCRT64.lib
 !ifdef EXCLUDECRT
 !undef COMMONLIB
 !endif
-CPP_PROJ_NO=/nologo /c /W3 /Gy /GF /Zp8 /J /Wp64 /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
+CPP_PROJ_NO=/nologo /c /W3 /Gy /GF /Zp8 /J $(COMPAT64) /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
 ULOUT=-Tpd+
 !ELSE
 COMMONLIB = $(COMMON)\libCRT.lib
@@ -157,7 +157,7 @@ NOENTRY = /noentry
 !ifndef NEEDDEFLIB
 NODEFLIB = /nodefaultlib
 !endif
-LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text /opt:nowin98 $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=/nologo /dll /release /merge:.rdata=.text $(NOWIN98) $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LINK_DEBUG=-v
 CPP_DEBUG=/Z7

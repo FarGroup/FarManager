@@ -18,9 +18,17 @@ MASM_OPT=/coff
 OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
 
+!ifdef VC9
+!undef VC7
+!else
+COMPAT64=/Wp64
+NOWIN98=/OPT:NOWIN98
+!endif
+
 !ifndef VC7
 VC8OPT=/GS- /D_CRT_SECURE_NO_DEPRECATE
 !endif
+
 
 !IF "$(CPU)" != "AMD64" && !defined(AMD64)
 LINK32_OBJS = \
@@ -83,7 +91,7 @@ $(OBJDIR)\aliases.obj
 
 CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3 $(ENV_INC_OPT)
 !IF "$(CPU)" == "AMD64" || defined(AMD64)
-CPP_PROJ=$(CPP_BASE) /Zp8 /Wp64
+CPP_PROJ=$(CPP_BASE) /Zp8 $(COMPAT64)
 !ELSE
 CPP_PROJ=$(CPP_BASE)
 !ENDIF
