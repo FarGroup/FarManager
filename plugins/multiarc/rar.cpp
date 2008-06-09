@@ -3,8 +3,8 @@
 
   Second-level plugin module for FAR Manager and MultiArc plugin
 
-  Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2006 FAR group
+  Copyright (c) 1996 Eugene Roshal
+  Copyrigth (c) 2000 FAR group
 */
 
 #define STRICT

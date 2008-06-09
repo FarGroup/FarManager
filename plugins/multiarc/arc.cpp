@@ -3,7 +3,7 @@
 
   Second-level plugin module for FAR Manager and MultiArc plugin
 
-  Copyrigth (c) 2004-2006 FAR group
+  Copyrigth (c) 2004 FAR group
 */
 
 #include <windows.h>

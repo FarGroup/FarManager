@@ -3,8 +3,8 @@
 
   Second-level plugin module for FAR Manager and MultiArc plugin
 
-  Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2006 FAR group
+  Copyright (c) 1996 Eugene Roshal
+  Copyrigth (c) 2000 FAR group
 */
 
 #include <windows.h>
@@ -60,8 +60,9 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 
 static HANDLE ArcHandle;
-static DWORD SFXSize,NextPosition,FileSize;
-static int ArcComment,Truncated,FirstRecord;
+static ULARGE_INTEGER SFXSize,NextPosition,FileSize;
+static int ArcComment,FirstRecord;
+static bool bTruncated;
 
 struct ZipHeader
 {
@@ -92,11 +93,19 @@ inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEn
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
+ULONGLONG GetFilePosition(HANDLE Handle)
+{
+  ULARGE_INTEGER ul;
+  ul.QuadPart=0;
+  ul.u.LowPart=SetFilePointer(Handle, 0, (PLONG)&ul.u.HighPart, FILE_CURRENT);
+  return ul.QuadPart;
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
   {
-    SFXSize=0;
+    SFXSize.QuadPart=0;
     return(TRUE);
   }
   if (DataSize<(int)MIN_HEADER_LEN) return FALSE;
@@ -106,7 +115,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   {
     if (IsValidHeader(CurData, DataEnd))
     {
-      SFXSize=(DWORD)(CurData-Data);
+      SFXSize.QuadPart=(DWORD)(CurData-Data);
       return(TRUE);
     }
   }
@@ -125,39 +134,50 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   ArcComment=FALSE;
   FirstRecord=TRUE;
 
-  FileSize=GetFileSize(ArcHandle,NULL);
+  FileSize.u.LowPart=GetFileSize(ArcHandle,&FileSize.u.HighPart);
 
   char ReadBuf[1024];
-  DWORD CurPos,ReadSize;
-  int Buf,Found=0;
-  CurPos=NextPosition=SetFilePointer(ArcHandle,0,NULL,FILE_END);
-  if (CurPos<sizeof(ReadBuf)-18)
-    CurPos=0;
-  else
-    CurPos-=sizeof(ReadBuf)-18;
-  for (Buf=0;Buf<64 && !Found;Buf++)
+  DWORD ReadSize;
+  int Buf;
+  bool bFound=false, bLast=false;
+
+  if (FileSize.QuadPart<sizeof(ReadBuf)-18)
   {
-    SetFilePointer(ArcHandle,CurPos,NULL,FILE_BEGIN);
+    SetFilePointer(ArcHandle,0,NULL,FILE_BEGIN);
+    bLast=true;
+  }
+  else
+    SetFilePointer(ArcHandle,-((signed)(sizeof(ReadBuf)-18)),NULL,FILE_END);
+
+  for (Buf=0; Buf<64 && !bFound; Buf++)
+  {
     ReadFile(ArcHandle,ReadBuf,sizeof(ReadBuf),&ReadSize,NULL);
-    for (int I=ReadSize-4;I>=0;I--)
+    for (int I=ReadSize-4; I>=0; I--)
+    {
       if (ReadBuf[I]==0x50 && ReadBuf[I+1]==0x4b && ReadBuf[I+2]==0x05 &&
           ReadBuf[I+3]==0x06)
       {
-        SetFilePointer(ArcHandle,CurPos+I+16,NULL,FILE_BEGIN);
-        ReadFile(ArcHandle,&NextPosition,sizeof(NextPosition),&ReadSize,NULL);
-        Found=TRUE;
+        SetFilePointer(ArcHandle,I+16-ReadSize,NULL,FILE_CURRENT);
+        ReadFile(ArcHandle,&NextPosition.u.LowPart,sizeof(NextPosition.u.LowPart),&ReadSize,NULL);
+        NextPosition.u.HighPart=0;
+        bFound=true;
         break;
       }
-    if (CurPos==0)
+    }
+    if (bFound || bLast)
       break;
-    if (CurPos<sizeof(ReadBuf)-4)
-      CurPos=0;
-    else
-      CurPos-=sizeof(ReadBuf)-4;
+
+    if (SetFilePointer(ArcHandle,-((signed)(sizeof(ReadBuf)-4))-((signed)(ReadSize)),NULL,FILE_CURRENT) == INVALID_SET_FILE_POINTER
+        && GetLastError() != NO_ERROR)
+    {
+      SetFilePointer(ArcHandle,0,NULL,FILE_BEGIN);
+      bLast=true;
+    }
   }
-  Truncated=!Found;
-  if (Truncated)
-    NextPosition=SFXSize;
+
+  bTruncated=!bFound;
+  if (bTruncated)
+    NextPosition.QuadPart=SFXSize.QuadPart;
   return(TRUE);
 }
 
@@ -203,12 +223,12 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   DWORD ReadSize;
 
-  NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
-  if (NextPosition==0xFFFFFFFF)
+  NextPosition.u.LowPart=SetFilePointer(ArcHandle,NextPosition.u.LowPart,(PLONG)&NextPosition.u.HighPart,FILE_BEGIN);
+  if (NextPosition.u.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
     return(GETARC_READERROR);
-  if (NextPosition>FileSize)
+  if (NextPosition.QuadPart>FileSize.QuadPart)
     return(GETARC_UNEXPEOF);
-  if (Truncated)
+  if (bTruncated)
   {
     if (!ReadFile(ArcHandle,&ZipHd1,sizeof(ZipHd1),&ReadSize,NULL))
       return(GETARC_READERROR);
@@ -230,17 +250,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (FirstRecord)
       {
-        if (SFXSize>0)
+        if (SFXSize.QuadPart>0)
         {
-          NextPosition+=SFXSize;
-          SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
+          NextPosition.QuadPart+=SFXSize.QuadPart;
+          SetFilePointer(ArcHandle,NextPosition.u.LowPart,(PLONG)&NextPosition.u.HighPart,FILE_BEGIN);
           if (!ReadFile(ArcHandle,&ZipHeader,sizeof(ZipHeader),&ReadSize,NULL))
             return(GETARC_READERROR);
         }
         if (ZipHeader.Mark!=0x02014b50 && ZipHeader.Mark!=0x06054b50)
         {
-          Truncated=TRUE;
-          NextPosition=SFXSize;
+          bTruncated=true;
+          NextPosition.QuadPart=SFXSize.QuadPart;
           return(GetArcItem(Item,Info));
         }
       }
@@ -252,9 +272,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   FirstRecord=FALSE;
 
   if (ReadSize==0 || ZipHeader.Mark==0x06054b50 ||
-      (Truncated && ZipHeader.Mark==0x02014b50))
+      (bTruncated && ZipHeader.Mark==0x02014b50))
   {
-    if (!Truncated && *(WORD *)((char *)&ZipHeader+20)!=0)
+    if (!bTruncated && *(WORD *)((char *)&ZipHeader+20)!=0)
       ArcComment=TRUE;
     return(GETARC_EOF);
   }
@@ -271,16 +291,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       *EndPos = '\\';
     EndPos++;
   }
-
-/*// Commented out as since NTFS file times support scans the extra field
-  // and the file comment is also readed.
-  // ZipHeader.PackSize is skipped later (see below)
-
-  long SeekLen=ZipHeader.AddLen+ZipHeader.CommLen;
-  if (Truncated)
-    SeekLen+=ZipHeader.PackSize;
-  NextPosition=SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
-*/
 
   Item->FindData.dwFileAttributes=ZipHeader.Attr & 0x3f;
   Item->FindData.nFileSizeLow=ZipHeader.UnpSize;
@@ -309,12 +319,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 //NTFS file times support
 
   // Search for NTFS extra block
-  DWORD dwExtraFieldEnd;
+  ULARGE_INTEGER ExtraFieldEnd;
 
-  for(dwExtraFieldEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
-          +ZipHeader.AddLen;
-        dwExtraFieldEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT);
-  )
+  for( ExtraFieldEnd.QuadPart = GetFilePosition(ArcHandle) + ZipHeader.AddLen;
+       ExtraFieldEnd.QuadPart > GetFilePosition(ArcHandle); )
   {
     struct ExtraBlockHeader
     {
@@ -334,10 +342,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       SetFilePointer(ArcHandle, 4, NULL, FILE_CURRENT); // Skip the reserved 4 bytes
 
+      ULARGE_INTEGER NTFSExtraBlockEnd;
       // Search for file times attribute
-      for(  DWORD dwNTFSExtraBlockEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
-              -4+BlockHead.Length;
-            dwNTFSExtraBlockEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT);
+      for( NTFSExtraBlockEnd.QuadPart = GetFilePosition(ArcHandle) - 4 + BlockHead.Length;
+           NTFSExtraBlockEnd.QuadPart > GetFilePosition(ArcHandle);
       )
       {
         struct NTFSAttributeHeader
@@ -373,13 +381,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           Item->FindData.ftCreationTime = Times.Creation;
 
           // Interrupt search
-          SetFilePointer(ArcHandle, dwExtraFieldEnd, NULL, FILE_BEGIN);
+          SetFilePointer(ArcHandle, ExtraFieldEnd.u.LowPart, (PLONG)&ExtraFieldEnd.u.HighPart, FILE_BEGIN);
         }
       }
     }
   }
   // ZipHeader.AddLen is more reliable than the sum of all BlockHead.Length
-  SetFilePointer(ArcHandle, dwExtraFieldEnd, NULL, FILE_BEGIN);
+  SetFilePointer(ArcHandle, ExtraFieldEnd.u.LowPart, (PLONG)&ExtraFieldEnd.u.HighPart, FILE_BEGIN);
 // End of NTFS file times support
 
 // Read the in-archive file comment if any
@@ -394,13 +402,12 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     // Skip comment tail
     SetFilePointer(ArcHandle, ZipHeader.CommLen-ReadSize,NULL,FILE_CURRENT);
   }
-//
-
 
   long SeekLen=0;
-  if (Truncated)
+  if (bTruncated)
     SeekLen+=ZipHeader.PackSize;
-  NextPosition=SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
+  SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
+  NextPosition.QuadPart=GetFilePosition(ArcHandle);
 
   return(GETARC_SUCCESS);
 }
@@ -410,7 +417,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    Info->SFXSize=SFXSize;
+    Info->SFXSize=(int)SFXSize.QuadPart;
     Info->Comment=ArcComment;
   }
   return(CloseHandle(ArcHandle));
@@ -418,7 +425,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 
 DWORD WINAPI _export GetSFXPos(void)
 {
-  return SFXSize;
+  return (DWORD)SFXSize.QuadPart;
 }
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
