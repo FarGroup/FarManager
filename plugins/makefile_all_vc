@@ -18,7 +18,7 @@ ALLDIRS = align compare editcase emenu farcmds hlfviewer macroview network \
 
 !ifndef WIDE
 ALLDIRS = $(ALLDIRS) \
-          autowrap brackets drawline ftp filecase multiarc tmppanel
+          autowrap brackets drawline filecase ftp multiarc tmppanel
 !endif
 
 #############################################################################
