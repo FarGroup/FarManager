@@ -28,10 +28,10 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "AlignMix.cpp"
 
 #ifndef UNICODE
-//#define GetCheck(i) DialogItems[i].Selected
+#define GetCheck(i) DialogItems[i].Selected
 #define GetDataPtr(i) DialogItems[i].Data
 #else
-//#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 #endif
 
@@ -94,9 +94,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   if (ExitCode!=7)
     goto done;
   RightMargin=FSF.atoi(GetDataPtr(1));
-  Reformat=DialogItems[3].Selected;
-  SmartMode=DialogItems[4].Selected;
-  Justify=DialogItems[5].Selected;
+  Reformat=GetCheck(3);
+  SmartMode=GetCheck(4);
+  Justify=GetCheck(5);
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Reformat"),Reformat);
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),RightMargin);
   SetRegKey(HKEY_CURRENT_USER,_T(""),_T("SmartMode"),SmartMode);
