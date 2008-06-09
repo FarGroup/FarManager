@@ -140,7 +140,12 @@ static void init_hook(void)
       register HANDLE cp = GetCurrentProcess();
       if(   !WriteProcessMemory(cp, ur.p, &data, sizeof(data), &data.off)
          || data.off != sizeof(data)) return;
+
+      // manual unprotect needed for BUG in 2003x64 32bit kernel32.dll
+      if(!VirtualProtect((void*)&wow, PAGE_READWRITE, sizeof(wow), &data.off))
+        return;
       WriteProcessMemory(cp, (void*)&wow, &rwow, sizeof(wow), &data.off);
+      VirtualProtect((void*)&wow, data.off, sizeof(wow), &ur.d);
     }
 }
 
