@@ -43,7 +43,7 @@ static const char REGStr[17][8]=
 struct COptionsList
 {
   void *Option;
-  char *pStr;
+  const char *pStr;
   unsigned int DialogItem;
 };
 

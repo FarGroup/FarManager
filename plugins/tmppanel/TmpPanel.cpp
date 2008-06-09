@@ -358,13 +358,17 @@ void ShowMenuFromList(char *Name)
       int bShellExecute=BreakCode!=-1;
 
       if(!bShellExecute)
+      {
         if(TmpPanel::CheckForCorrect(p,&FindData,FALSE))
+        {
           if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,p);
           else
             bShellExecute=TRUE;
+        }
         else
           Info.Control(INVALID_HANDLE_VALUE,FCTL_SETCMDLINE,p);
+      }
       if(bShellExecute)
         ShellExecute(NULL,"open",p,NULL,NULL,SW_SHOW);
     }
