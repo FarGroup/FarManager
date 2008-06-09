@@ -58,6 +58,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
     fout.Handle = Fopen( local, mode, Opt.SetHiddenOnAbort ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_NORMAL );
     if ( !fout.Handle ) {
       ErrorCode = GetLastError();
+      SysError = TRUE;
       Log(( "!Fopen [%s] %s",mode,FIO_ERROR ));
 
       if ( !ConnectMessage( MErrorOpenFile,local,-MRetry ) )
@@ -70,6 +71,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
     if ( restart_point != -1 ) {
       if ( !Fmove( fout.Handle,restart_point ) ) {
         ErrorCode = GetLastError();
+        SysError = TRUE;
         if ( !ConnectMessage( MErrorPosition,local,-MRetry ) )
           ErrorCode = ERROR_CANCELLED;
         return;
@@ -239,6 +241,7 @@ do_cancel:
               ErrorCode = ERROR_CANCELLED;
               if ( b_done && Fwrite(fout.Handle,IOBuff,b_done) != b_done ) {
 write_error:
+                SysError = TRUE;
                 ErrorCode = GetLastError();
                 if (ErrorCode == ERROR_SUCCESS)
                   ErrorCode = ERROR_WRITE_FAULT;  // for non equal counter

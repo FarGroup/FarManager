@@ -197,6 +197,7 @@ STRUCT( Connection )
     int           SystemInfoFilled;
     int           TableNum;
     int           ErrorCode;
+    BOOL          SysError;
     BOOL          Breakable;
   public:
 //
@@ -289,6 +290,7 @@ STRUCT( Connection )
     BOOL           GetExitCode();
     int            GetResultCode( void )          { return code; }
     int            GetErrorCode( void )           { return ErrorCode; }
+    BOOL           SysErr( void )                 { return SysError; }
 
     void           AddCmdLine( CONSTSTR str );
     int            ConnectMessage( int Msg = MNone__,CONSTSTR HostName = NULL,int BtnMsg = MNone__,int btn1 = MNone__, int btn2 = MNone__ );

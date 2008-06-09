@@ -61,6 +61,7 @@ int Connection::ProcessCommand( CONSTSTR LineToProcess )
       brk_flag  = FALSE;
       code      = 0;
       ErrorCode = 0;
+      SysError  = FALSE;
       ExecCmdTab(c, margc, margv);
       rc = GetExitCode();
 

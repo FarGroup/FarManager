@@ -45,12 +45,14 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
   HANDLE ff = FindFirstFile(local,&ffi);
   if ( ff == INVALID_HANDLE_VALUE ) {
     ErrorCode = ERROR_OPEN_FAILED;
+    SysError = TRUE;
     return;
   }
   FindClose(ff);
 
   if ( IS_FLAG(ffi.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
     ErrorCode = ERROR_OPEN_FAILED;
+    SysError = TRUE;
     Log(( "local is directory [%s]",local ));
     if ( !ConnectMessage( MNotPlainFile,local,-MRetry ) )
       ErrorCode = ERROR_CANCELLED;
@@ -61,6 +63,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
   if ( !fin.Handle ) {
     Log(( "!open local" ));
     ErrorCode = ERROR_OPEN_FAILED;
+    SysError = TRUE;
     if ( !ConnectMessage( MErrorOpenFile,local,-MRetry ) )
       ErrorCode = ERROR_CANCELLED;
     return;
@@ -97,6 +100,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
       Log(( "restart_point %I64u",restart_point ));
 
       if ( !Fmove( fin.Handle, restart_point ) ) {
+        SysError = TRUE;
         ErrorCode = GetLastError();
         Log(( "!setfilepointer(%I64u)",restart_point ));
         if ( !ConnectMessage( MErrorPosition,local,-MRetry ) )
@@ -168,6 +172,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
                     hi = 0;
            Log(( "read %d",Host.IOBuffSize ));
                     if ( !ReadFile(fin.Handle,IOBuff,Host.IOBuffSize,(LPDWORD)&hi,NULL) ) {
+                      SysError = TRUE;
                       ErrorCode = GetLastError();
                       Log(("pf: !read buff" ));
                       goto abort;
@@ -175,6 +180,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
 
                     if ( hi == 0 ) {
                       ErrorCode = GetLastError();
+                      SysError = ErrorCode != ERROR_SUCCESS;
                       break;
                     }
 

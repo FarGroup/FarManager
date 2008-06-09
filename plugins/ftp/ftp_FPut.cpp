@@ -46,6 +46,9 @@ int FTP::_FtpPutFile( CONSTSTR lpszLocalFile,CONSTSTR lpszNewRemoteFile,BOOL Rep
          return IS_SILENT(FP_LastOpMode) ? (-1) : FALSE;
        }
 
+        if ( hConnect->SysErr() )
+          return IS_SILENT(FP_LastOpMode) ? (-1) : FALSE;
+
        int num = FtpGetRetryCount(hConnect);
        if ( Opt.RetryCount > 0 && num >= Opt.RetryCount )
          return FALSE;

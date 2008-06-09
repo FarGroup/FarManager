@@ -63,6 +63,10 @@ $(OBJLIB)\fstd_exit.obj $(OBJLIB)\fstd_HotKey.obj $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj $(OBJLIB)\fstd_CharDraw.obj $(OBJLIB)\fstd_OEM.obj \
 $(OBJLIB)\fstd_Utils.obj $(OBJLIB)\fstd_FUtils.obj
 
+
+DEP_HDR=ftp_int.h FStdLib\fstdlib.h lib/ftp_Plugin.h ftp_Plugins.h ftp_Cfg.h \
+ftp_JM.h ftp_var.h ftp_Connect.h ftp_FtpAPI.h ftp_Ftp.h
+
 ##########
 
 USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USEASSERT__=1 \
@@ -82,6 +86,8 @@ All: fstdlib flls
 	-255 @copy /Y lib\*.reg $(OUTDIR)\lib\ >NUL 2>NUL
 
 fstdlib: $(FSTDLIB)
+
+$(LINK_OBJS) : $(DEP_HDR)
 
 ##########
 $(OBJLIB): $(OBJDIR)
