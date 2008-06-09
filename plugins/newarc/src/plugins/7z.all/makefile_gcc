@@ -14,7 +14,7 @@ CP = cp -f
 M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir
-CXXFLAGS = -Wall -Wno-parentheses -I ../../lib.part/Include -Os -fno-strict-aliasing -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
+CXXFLAGS = -Wall -I ../../lib.part/Include -Os -fno-strict-aliasing -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
 LNKFLAGS = -s -nostartfiles -nodefaultlibs -enable-stdcall-fixup $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32 -loleaut32 -lcrtdll -lgcc
 
 all: $(DLLFULLNAME)

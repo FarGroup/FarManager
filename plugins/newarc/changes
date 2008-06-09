@@ -15,6 +15,12 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[09/06/2008]
+
+[=] GCC. [all] [AY]
+
+[=] Перенёс 7z.headers в папку 7z.all так как теперь тока один 7z плагин есть. [7z.all] [AY]
+
 [07/06/2008]
 
 [*] Опять новые заглушки. Почти чистый C. [all] [WI]

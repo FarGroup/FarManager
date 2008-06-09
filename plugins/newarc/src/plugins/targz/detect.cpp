@@ -20,8 +20,8 @@ int IsTarHeader(const unsigned char *Data,int DataSize)
     if (I==sizeof(Header->name) || Header->name[I]<' ')
       return(FALSE);
   for (I=0;I<&Header->typeflag-Header->mode;I++)
-    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
-        Header->mode[I]!=' ')
+    if (Header->mode[I]>'7' || (Header->mode[I]<'0' && Header->mode[I]!=0 &&
+        Header->mode[I]!=' '))
       return(FALSE);
   if(strcmp(Header->name,"././@LongLink"))
   {

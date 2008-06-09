@@ -130,7 +130,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-    static char *pCommands[]={
+    static const char *pCommands[]={
     /*Extract               */"ace32 x {-p%%P} -y -c- -std {%%S} %%A @%%LN",
     /*Extract without paths */"ace32 e -av- {-p%%P} -y -c- -std {%%S} %%A @%%LN",
     /*Test                  */"ace32 t -y {-p%%P} -c- -std {%%S} %%A",

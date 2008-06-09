@@ -14,8 +14,8 @@ int IsRarHeader(const unsigned char *Data,int DataSize)
 	{
 		const unsigned char *D=Data+I;
 		if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e &&
-			(I==0 || DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
-			Data[30]==0x46 && Data[31]==0x58))
+			(I==0 || (DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
+			Data[30]==0x46 && Data[31]==0x58)))
 			//if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e)
 		{
 			//OldFormat=TRUE;
