@@ -1065,7 +1065,7 @@ int Help::Search(int Next)
   if (!Next)
     if(!GetSearchReplaceString(FALSE,SearchStr,sizeof(SearchStr),
                    NULL,0,NULL,NULL,
-                   NULL/*&Case*/,NULL/*&WholeWords*/,NULL/*&ReverseSearch*/))
+                   NULL/*&Case*/,NULL/*&WholeWords*/,NULL/*&ReverseSearch*/,NULL))
       return FALSE;
 
   xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));

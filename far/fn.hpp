@@ -934,7 +934,8 @@ int WINAPI GetSearchReplaceString (
          const wchar_t *ReplaceHistoryName,
          int *Case,
          int *WholeWords,
-         int *Reverse);
+         int *Reverse,
+         int *SelectFound);
 
 
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);

@@ -85,6 +85,8 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   LastSearchCase=GlobalSearchCase;
   LastSearchWholeWords=GlobalSearchWholeWords;
   LastSearchReverse=GlobalSearchReverse;
+  LastSearchSelFound=GlobalSearchSelFound;
+  SuccessfulSearch=0;
 
   Pasting=0;
   NumLine=0;
@@ -1146,6 +1148,14 @@ int Editor::ProcessKey(int Key)
     }
   }
 
+  if( Key != KEY_F7 && Key != KEY_SHIFTF7 && Key != KEY_ALTF7 &&
+      Key != KEY_SHIFT && Key != KEY_CTRL && Key != KEY_ALT &&
+      Key != KEY_RCTRL && Key != KEY_RALT )
+  {
+  	// Reset flag to allow search from cursor position
+  	SuccessfulSearch = 0;
+  }
+  
   switch(Key)
   {
     case KEY_CTRLSHIFTPGUP:   case KEY_CTRLSHIFTNUMPAD9:
@@ -3531,8 +3541,9 @@ BOOL Editor::Search(int Next)
   static int LastSuccessfulReplaceMode=0;
   string strMsgStr;
   const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-  int CurPos,Count,Case,WholeWords,ReverseSearch,Match,NewNumLine,UserBreak;
-
+  int CurPos,Count,Case,WholeWords,ReverseSearch,SelectFound,Match,NewNumLine,UserBreak;
+  int iPosCorrection = 0;
+  
   if (Next && strLastSearchStr.IsEmpty() )
     return TRUE;
 
@@ -3542,13 +3553,18 @@ BOOL Editor::Search(int Next)
   Case=LastSearchCase;
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
-
+  SelectFound=LastSearchSelFound;
+  
   if (!Next)
     if(!GetSearchReplaceString(ReplaceMode,&strSearchStr,
                    &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
-                   &Case,&WholeWords,&ReverseSearch))
+                   &Case,&WholeWords,&ReverseSearch,&SelectFound))
       return FALSE;
+
+  // Cheack if need to modify current pos
+  if( LastSearchSelFound && SuccessfulSearch )
+    iPosCorrection = (int)strLastSearchStr.GetLength();
 
   strLastSearchStr = strSearchStr;
   strLastReplaceStr = strReplaceStr;
@@ -3556,6 +3572,7 @@ BOOL Editor::Search(int Next)
   LastSearchCase=Case;
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
+  LastSearchSelFound=SelectFound;
 
   if ( strSearchStr.IsEmpty() )
     return TRUE;
@@ -3565,7 +3582,7 @@ BOOL Editor::Search(int Next)
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
-  if (!EdOpt.PersistentBlocks)
+  if(!EdOpt.PersistentBlocks || SelectFound)
     UnmarkBlock();
 
   {
@@ -3580,8 +3597,16 @@ BOOL Editor::Search(int Next)
 
     Count=0;
     Match=0;
+    SuccessfulSearch=0;
     UserBreak=0;
     CurPos=CurLine->GetCurPos();
+
+    //++ Modify current position in select found mode   
+    if( iPosCorrection != 0 )
+    {
+      CurPos -= (iPosCorrection);
+      CurLine->SetCurPos( CurPos );
+    }
 
     /* $ 16.10.2000 tran
        CurPos увеличивается при следующем поиске
@@ -3618,6 +3643,18 @@ BOOL Editor::Search(int Next)
 
       if (CurPtr->Search(SearchStr,CurPos,Case,WholeWords,ReverseSearch))
       {
+        if( SelectFound )
+        {
+          Flags.Set(FEDITOR_MARKINGBLOCK);
+          int iFoundPos = CurPtr->GetCurPos();
+          CurPtr->Select( iFoundPos, iFoundPos+SearchLength );
+          BlockStart = CurPtr;
+          BlockStartLine = NewNumLine;
+          // Set cursor after selection
+          iFoundPos += SearchLength;
+          CurPtr->SetCurPos(iFoundPos);
+        }
+    
         int Skip=FALSE;
         /* $ 24.01.2003 KM
            ! По окончании поиска отступим от верха экрана на треть отображаемой высоты.
@@ -3795,7 +3832,7 @@ BOOL Editor::Search(int Next)
             Pasting--;
           }
         }
-        Match=1;
+        SuccessfulSearch=Match=1;
         if (!ReplaceMode)
           break;
         CurPos=CurLine->GetCurPos();

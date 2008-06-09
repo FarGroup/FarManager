@@ -166,7 +166,8 @@ class Editor:public ScreenObject
     /* $ 30.07.2000 KM
        Новая переменная для поиска "Whole words"
     */
-    int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
+    int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchSelFound;
+    int SuccessfulSearch; // successful search indicator
 
     int m_codepage; //BUGBUG
 

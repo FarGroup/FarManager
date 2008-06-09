@@ -85,6 +85,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       Указатель на переменную, указывающую на значение опции "Reverse search"
       Если = NULL, то принимается значение 0 (прямой поиск)
 
+    *SelectFound
+      Указатель на переменную, указывающую на значение опции "Select found"
+      Если = NULL, то принимается значение 0 (не выделять найденное)
+      
   Возвращаемое значение:
     TRUE  - пользователь подтвердил свои намериния
     FALSE - пользователь отказался от диалога (Esc)
@@ -98,7 +102,8 @@ int WINAPI GetSearchReplaceString (
          const wchar_t *ReplaceHistoryName,
          int *Case,
          int *WholeWords,
-         int *Reverse)
+         int *Reverse,
+         int *SelectFound)
 {
   if(!pSearchStr || (IsReplaceMode && !pReplaceStr))
     return FALSE;
@@ -262,9 +267,10 @@ int WINAPI GetSearchReplaceString (
     /*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchCase,
     /*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
     /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-    /*  7 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /*  8 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
-    /*  9 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
+    /*  7 */DI_CHECKBOX,27,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchSelFound,
+    /*  8 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+    /*  9 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
+    /* 10 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel
     };
     MakeDialogItemsEx(SearchDlgData,SearchDlg);
     HeightDialog=12;
@@ -320,11 +326,25 @@ int WINAPI GetSearchReplaceString (
         SearchDlg[I].Y2--;
       }
     }
-
+	
+    if(SelectFound)
+      SearchDlg[7].Selected=*SelectFound;
+    else
+    {
+      HeightDialog--;
+      SearchDlg[0].Y2--;
+      SearchDlg[7].Type=DI_TEXT;
+      for(I=8; I < (int)countof(SearchDlgData); ++I)
+      {
+        SearchDlg[I].Y1--;
+        SearchDlg[I].Y2--;
+      }
+    }
+    
     // нам не нужны 2 разделительных линии
     if(HeightDialog == 9)
     {
-      for(I=7; I < (int)countof(SearchDlgData); ++I)
+      for(I=8; I < (int)countof(SearchDlgData); ++I)
       {
         SearchDlg[I].Y1--;
         SearchDlg[I].Y2--;
@@ -334,7 +354,7 @@ int WINAPI GetSearchReplaceString (
       Dialog Dlg(SearchDlg,countof(SearchDlg));
       Dlg.SetPosition(-1,-1,76,HeightDialog);
       Dlg.Process();
-      if (Dlg.GetExitCode()!=8)
+      if (Dlg.GetExitCode()!=9)
         return FALSE;
     }
 
@@ -343,6 +363,7 @@ int WINAPI GetSearchReplaceString (
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;
     if(Reverse)    *Reverse=SearchDlg[6].Selected;
+    if(SelectFound) *SelectFound=SearchDlg[7].Selected;
   }
   return TRUE;
 }
