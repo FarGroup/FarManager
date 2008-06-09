@@ -85,10 +85,10 @@ Compilation
 
    To build with VC9(VS2008), the following should be added to custom.vc...bat:
    ---->8----
-   set NMAKE_OPTS=USE_VC9
+   set NMAKE_OPTS=USE_VC9=1
    ----8<----
 
-   By setting NMAKE_OPTS you can pass command line arguments to nmake
+   By setting NMAKE_OPTS you can pass command line arguments to nmake.
 
 
 2. To compile with GCC there is a makefile_gcc that does everything.
