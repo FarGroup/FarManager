@@ -1,4 +1,4 @@
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -16,9 +16,23 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->History=(const char *)PInit->Selected;
+    PItem->History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    lstrcpy(PItem->Data,((unsigned int)(DWORD_PTR)PInit->Data<2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data);
+#ifdef UNICODE
+    PItem->MaxLen=0;
+#endif
+    if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+#ifndef UNICODE
+      lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
+#else
+      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+#endif
+    else
+#ifndef UNICODE
+      lstrcpy(PItem->Data,PInit->Data);
+#else
+      PItem->PtrData = PInit->Data;
+#endif
   }
 }

@@ -1,7 +1,7 @@
-HKEY CreateRegKey(HKEY hRoot,const char *Key);
-HKEY OpenRegKey(HKEY hRoot,const char *Key);
+HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key);
+HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key);
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
   RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
@@ -9,7 +9,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
 }
 
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData)
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(CONST BYTE *)ValueData,lstrlen(ValueData)+1);
@@ -17,7 +17,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData)
 }
 
 
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type,Size=sizeof(ValueData);
@@ -32,7 +32,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DW
 }
 
 
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default)
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(hRoot,Key,ValueName,ValueData,Default);
@@ -40,7 +40,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(hRoot,Key);
   DWORD Type;
@@ -55,15 +55,15 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,c
 }
 
 
-HKEY CreateRegKey(HKEY hRoot,const char *Key)
+HKEY CreateRegKey(HKEY hRoot,const TCHAR *Key)
 {
   HKEY hKey;
   DWORD Disposition;
-  char FullKeyName[512];
+  TCHAR FullKeyName[512];
   lstrcpy(FullKeyName,PluginRootKey);
   if (*Key)
   {
-    lstrcat(FullKeyName,"\\");
+    lstrcat(FullKeyName,_T("\\"));
     lstrcat(FullKeyName,Key);
   }
   RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
@@ -72,14 +72,14 @@ HKEY CreateRegKey(HKEY hRoot,const char *Key)
 }
 
 
-HKEY OpenRegKey(HKEY hRoot,const char *Key)
+HKEY OpenRegKey(HKEY hRoot,const TCHAR *Key)
 {
   HKEY hKey;
-  char FullKeyName[512];
+  TCHAR FullKeyName[512];
   lstrcpy(FullKeyName,PluginRootKey);
   if (*Key)
   {
-    lstrcat(FullKeyName,"\\");
+    lstrcat(FullKeyName,_T("\\"));
     lstrcat(FullKeyName,Key);
   }
   if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)

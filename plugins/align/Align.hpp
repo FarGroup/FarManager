@@ -6,18 +6,18 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  const char *Data;
+  const TCHAR *Data;
 };
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
-const char *GetMsg(int MsgId);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
+const TCHAR *GetMsg(int MsgId);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 
 
 static struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
-char PluginRootKey[80];
+TCHAR PluginRootKey[80];
