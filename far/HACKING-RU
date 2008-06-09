@@ -85,6 +85,11 @@
    set NMAKE_OPTS=USE_VC8_32=1 LINK_ULINK=1
    ----8<----
 
+   Для использования VC9(VS2008), то в custom.vc...bat нужно включить строку
+   ---->8----
+   set NMAKE_OPTS=USE_VC9
+   ----8<----
+   
    Через задание NMAKE_OPTS можно передавать так же и ключи nmake
 
 
