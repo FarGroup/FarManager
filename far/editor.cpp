@@ -2804,7 +2804,7 @@ int Editor::ProcessKey(int Key)
           return(TRUE);
         }
 
-        if (((!EdOpt.CursorBeyondEOL && Key==KEY_RIGHT) || Key==KEY_NUMPAD6 || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD6) &&
+        if (((!EdOpt.CursorBeyondEOL && (Key==KEY_RIGHT || Key==KEY_NUMPAD6)) || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD6) &&
             CurLine->GetCurPos()>=CurLine->GetLength() &&
             CurLine->m_next!=NULL)
         {
