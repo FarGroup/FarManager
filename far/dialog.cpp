@@ -415,11 +415,11 @@ void Dialog::ProcessCenterGroup(void)
       unsigned J;
       Length=0;
 
-      for (J=I, JCurItem = Item[J]; J < ItemCount &&
-                (JCurItem->Flags & DIF_CENTERGROUP) &&
-                JCurItem->Y1==CurItem->Y1; J++, JCurItem = Item[J])
+      for (J=I;
+           J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==CurItem->Y1;
+           J++)
       {
-          //JCurItem = Item[J];
+        JCurItem = Item[J];
         Length+=LenStrItem(J);
 
 //        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
@@ -456,11 +456,11 @@ void Dialog::ProcessCenterGroup(void)
       if (StartX<0)
         StartX=0;
 
-      for (J=I, JCurItem = Item[J]; J < ItemCount &&
-                (JCurItem->Flags & DIF_CENTERGROUP) &&
-                JCurItem->Y1==CurItem->Y1; J++, JCurItem = Item[J])
+      for (J=I;
+           J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==CurItem->Y1;
+           J++)
       {
-         //JCurItem = Item[J];
+        JCurItem = Item[J];
         JCurItem->X1=StartX;
         StartX+=LenStrItem(J);
 
