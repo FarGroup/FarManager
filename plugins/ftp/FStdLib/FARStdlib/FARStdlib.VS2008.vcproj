@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)\debug.32.vc"
+			OutputDirectory="$(ProjectDir)debug.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="4"
 			CharacterSet="2"
@@ -51,7 +51,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				DefaultCharIsUnsigned="true"
 				RuntimeTypeInfo="false"
@@ -92,7 +91,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)\debug.64.vc"
+			OutputDirectory="$(ProjectDir)debug.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="4"
 			CharacterSet="2"
@@ -164,7 +163,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\final.32.vc"
+			OutputDirectory="$(ProjectDir)final.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="4"
 			CharacterSet="2"
@@ -195,7 +194,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				DefaultCharIsUnsigned="true"
@@ -237,7 +235,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\final.64.vc"
+			OutputDirectory="$(ProjectDir)final.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="4"
 			CharacterSet="2"
@@ -565,14 +563,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\farcolor.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\farkeys.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\fmt.hpp"
 				>
 			</File>
@@ -606,10 +596,6 @@
 			</File>
 			<File
 				RelativePath=".\pack4.h"
-				>
-			</File>
-			<File
-				RelativePath=".\plugin.hpp"
 				>
 			</File>
 			<File

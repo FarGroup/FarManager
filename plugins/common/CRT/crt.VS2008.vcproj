@@ -54,7 +54,6 @@
 				MinimalRebuild="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="1"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				DefaultCharIsUnsigned="true"
 				RuntimeTypeInfo="false"
@@ -173,7 +172,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\obj.32.vc"
+			OutputDirectory="$(ProjectDir)obj.32.vc"
 			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="4"
 			CharacterSet="0"
@@ -209,7 +208,6 @@
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				DefaultCharIsUnsigned="true"
@@ -253,7 +251,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\obj.64.vc"
+			OutputDirectory="$(ProjectDir)obj.64.vc"
 			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="4"
 			CharacterSet="0"

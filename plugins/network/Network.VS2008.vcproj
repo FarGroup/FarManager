@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)\debug.32.vc"
+			OutputDirectory="$(ProjectDir)debug.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -52,7 +52,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				DefaultCharIsUnsigned="true"
 				RuntimeTypeInfo="false"
@@ -113,7 +112,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)\debug.64.vc"
+			OutputDirectory="$(ProjectDir)debug.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -206,7 +205,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\final.32.vc"
+			OutputDirectory="$(ProjectDir)final.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -239,7 +238,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				DefaultCharIsUnsigned="true"
@@ -304,7 +302,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\final.64.vc"
+			OutputDirectory="$(ProjectDir)final.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -403,7 +401,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release Unicode|Win32"
-			OutputDirectory="$(ProjectDir)\final.32W.vc"
+			OutputDirectory="$(ProjectDir)final.32W.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -500,7 +498,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release Unicode|x64"
-			OutputDirectory="$(ProjectDir)\final.64W.vc"
+			OutputDirectory="$(ProjectDir)final.64W.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -598,7 +596,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Unicode|Win32"
-			OutputDirectory="$(ProjectDir)\debug.32W.vc"
+			OutputDirectory="$(ProjectDir)debug.32W.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -689,7 +687,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Unicode|x64"
-			OutputDirectory="$(ProjectDir)\debug.64W.vc"
+			OutputDirectory="$(ProjectDir)debug.64W.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="2"
 			CharacterSet="1"

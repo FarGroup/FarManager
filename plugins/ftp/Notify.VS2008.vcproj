@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)\debug.32.vc\lib"
+			OutputDirectory="$(ProjectDir)debug.32.vc\lib"
 			IntermediateDirectory="$(OutDir)\obj\Notify"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -51,7 +51,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				DefaultCharIsUnsigned="true"
 				RuntimeTypeInfo="false"
@@ -105,7 +104,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)\debug.64.vc\lib"
+			OutputDirectory="$(ProjectDir)debug.64.vc\lib"
 			IntermediateDirectory="$(OutDir)\obj\Notify"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -190,7 +189,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\final.32.vc\lib"
+			OutputDirectory="$(ProjectDir)final.32.vc\lib"
 			IntermediateDirectory="$(OutDir)\obj\Notify"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -221,7 +220,6 @@
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
-				StructMemberAlignment="1"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				DefaultCharIsUnsigned="true"
@@ -278,7 +276,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\final.64.vc\lib"
+			OutputDirectory="$(ProjectDir)final.64.vc\lib"
 			IntermediateDirectory="$(OutDir)\obj\Notify"
 			ConfigurationType="2"
 			CharacterSet="2"

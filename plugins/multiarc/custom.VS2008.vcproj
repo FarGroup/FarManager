@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)\debug.32.vc\Formats"
+			OutputDirectory="$(ProjectDir)debug.32.vc\Formats"
 			IntermediateDirectory="$(OutDir)\obj\custom"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -114,7 +114,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)\debug.64.vc\Formats"
+			OutputDirectory="$(ProjectDir)debug.64.vc\Formats"
 			IntermediateDirectory="$(OutDir)\obj\custom"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -208,7 +208,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\final.32.vc\Formats"
+			OutputDirectory="$(ProjectDir)final.32.vc\Formats"
 			IntermediateDirectory="$(OutDir)\obj\custom"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -307,7 +307,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\final.64.vc\Formats"
+			OutputDirectory="$(ProjectDir)final.64.vc\Formats"
 			IntermediateDirectory="$(OutDir)\obj\custom"
 			ConfigurationType="2"
 			CharacterSet="0"

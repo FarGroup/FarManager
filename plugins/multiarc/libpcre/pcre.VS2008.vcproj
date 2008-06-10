@@ -172,7 +172,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)\obj.32.vc"
+			OutputDirectory="$(ProjectDir)obj.32.vc"
 			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="4"
 			CharacterSet="0"
@@ -251,7 +251,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)\obj.64.vc"
+			OutputDirectory="$(ProjectDir)obj.64.vc"
 			IntermediateDirectory="$(OutDir)"
 			ConfigurationType="4"
 			CharacterSet="0"
