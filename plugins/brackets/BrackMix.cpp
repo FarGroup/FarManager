@@ -1,4 +1,4 @@
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -19,24 +19,40 @@ void InitDialogItems(const struct InitDialogItem *Init,
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->Param.History=(const char *)PInit->Selected;
+    PItem->Param.History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
+#ifdef UNICODE
+    PItem->MaxLen=0;
+#endif
     if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+#ifndef UNICODE
       lstrcpy(PItem->Data.Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
+#else
+      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+#endif
     else
+#ifndef UNICODE
       lstrcpy(PItem->Data.Data,PInit->Data);
+#else
+      PItem->PtrData = PInit->Data;
+#endif
   }
 }
 
 int ShowMenu(int Type)
 {
   struct FarMenuItem shMenu[4]={0};
-  static const char *HelpTopic[2]={"Find","Direct"};
-  lstrcpy(shMenu[0].Text,GetMsg((Type?MBForward:MBrackMath)));
-  lstrcpy(shMenu[1].Text,GetMsg((Type?MBBackward:MBrackSelect)));
+  static const TCHAR *HelpTopic[2]={_T("Find"),_T("Direct")};
+#ifndef UNICODE
+#define SET_MENUITEM(n,v)  lstrcpy(shMenu[n].Text, v)
+#else
+#define SET_MENUITEM(n,v)  shMenu[n].Text = v
+#endif
+  SET_MENUITEM(0,GetMsg((Type?MBForward:MBrackMath)));
+  SET_MENUITEM(1,GetMsg((Type?MBBackward:MBrackSelect)));
   shMenu[2].Separator=1;
-  lstrcpy(shMenu[3].Text,GetMsg(MConfigure));
+  SET_MENUITEM(3,GetMsg(MConfigure));
 
   int Ret;
   while(1)
@@ -44,7 +60,7 @@ int ShowMenu(int Type)
     if((Ret=Info.Menu(Info.ModuleNumber,
              -1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,
              HelpTopic[Type&1],NULL,NULL,shMenu,
-             sizeof(shMenu)/sizeof(shMenu[0]))) == 3)
+             ArraySize(shMenu))) == 3)
       Config();
     else
       break;

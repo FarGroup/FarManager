@@ -6,20 +6,20 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   int DefaultButton;
-  const char *Data;
+  const TCHAR *Data;
 };
 
 struct Options{
-  short IgnoreQuotes; // Правило: "Игнорировать скобки, заключенные в кавычки"
-  short IgnoreAfter;    // Правило: "Игнорировать за скобкой"
-  short BracketPrior; // Правило: "Приоритет скобок"
-  short JumpToPair;     // Правило: "Перейти на парную скобку при отметке блока"
+  short IgnoreQuotes;   // ╧Ёртшыю: "╚уэюЁшЁютрЄ№ ёъюсъш, чръы■ўхээ√х т ърт√ўъш"
+  short IgnoreAfter;    // ╧Ёртшыю: "╚уэюЁшЁютрЄ№ чр ёъюсъющ"
+  short BracketPrior;   // ╧Ёртшыю: "╧ЁшюЁшЄхЄ ёъюсюъ"
+  short JumpToPair;     // ╧Ёртшыю: "╧хЁхщЄш эр ярЁэє■ ёъюсъє яЁш юЄьхЄъх сыюър"
   short Beep;
   short Reserved[2];
-  char  QuotesType[21]; // типы кавычек
-  char  Brackets1[21];  // одинарные скобки
-  char  Brackets2[41];  // двойные скобки
-  char  Dummy;
+  TCHAR  QuotesType[21]; // Єшя√ ърт√ўхъ
+  TCHAR  Brackets1[21];  // юфшэрЁэ√х ёъюсъш
+  TCHAR  Brackets2[41];  // фтющэ√х ёъюсъш
+  TCHAR  Dummy;
 } Opt;
 
 enum{
@@ -31,6 +31,6 @@ enum{
 };
 
 static struct PluginStartupInfo Info;
-static char PluginRootKey[80];
+static TCHAR PluginRootKey[80];
 
 int Config();

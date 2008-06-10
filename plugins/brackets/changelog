@@ -1,3 +1,7 @@
+yjh 10.06.2008 06:57:57 +0300 - build 7
+
+1. Портировано в 1.8
+
 t-rex 08.06.2008 17:23:27 +0200 - build 6
 
 1. gcc 4.3.0 warnings removed. 1 left, but it is really a stupid warnings.

@@ -27,11 +27,11 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "BrackMix.cpp"
 #include "BrackCfg.cpp"
 
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,"\\Brackets");
+  lstrcat(PluginRootKey,_T("\\Brackets"));
 
   HKEY hKey;
   DWORD Type;
@@ -40,7 +40,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
          KEY_QUERY_VALUE,&hKey))==ERROR_SUCCESS)
   {
     DataSize=sizeof(Opt);
-    RegQueryValueEx(hKey,"Options",0,&Type,(LPBYTE)&Opt,&DataSize);
+    RegQueryValueEx(hKey,_T("Options"),0,&Type,(LPBYTE)&Opt,&DataSize);
     RegCloseKey(hKey);
   }
 
@@ -51,30 +51,30 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     Opt.BracketPrior=1;
     Opt.JumpToPair=1;
     Opt.Beep=0;
-    lstrcpy(Opt.QuotesType,"''\"\"`'``");
-    lstrcpy(Opt.Brackets1,"<>{}[]()\"\"''%%");
-    lstrcpy(Opt.Brackets2,"/**/<\?\?><%%>");
+    lstrcpy(Opt.QuotesType,_T("''\"\"`'``"));
+    lstrcpy(Opt.Brackets1,_T("<>{}[]()\"\"''%%"));
+    lstrcpy(Opt.Brackets2,_T("/**/<\?\?><%%>"));
   }
 }
 
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
-  static const char *PluginMenuStrings[1]={0};
+  static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MTitle);
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
   Info->DiskMenuStringsNumber=0;
-  static const char *PluginCfgStrings[1];
+  static const TCHAR *PluginCfgStrings[1];
   PluginCfgStrings[0]=GetMsg(MTitle);
   Info->PluginConfigStrings=PluginCfgStrings;
-  Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
+  Info->PluginConfigStringsNumber=ArraySize(PluginCfgStrings);
 }
 
 
-int WINAPI _export Configure(int ItemNumber)
+int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
   if(!ItemNumber)
     return(Config());
@@ -82,16 +82,16 @@ int WINAPI _export Configure(int ItemNumber)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   struct EditorInfo ei;
   struct EditorGetString egs;
   struct EditorSetPosition esp,espo;
   struct EditorSelect es;
 
-  char Bracket,Bracket1,Bracket_1;
-  char Ch,Ch1,Ch_1;
-  char B21=0,B22=0,B23=0,B24=0;
+  TCHAR Bracket,Bracket1,Bracket_1;
+  TCHAR Ch,Ch1,Ch_1;
+  TCHAR B21=0,B22=0,B23=0,B24=0;
 
   int nQuotes=0;
   int isSelect=-1;
@@ -133,8 +133,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
 
   isSelect=isSelect == 1;
 
-  Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:'\0');
-  Bracket1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:'\0');
+  Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
+  Bracket1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:_T('\0'));
 
   if(!Opt.QuotesType[0])
     Opt.IgnoreQuotes=1;
@@ -160,7 +160,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
       return(INVALID_HANDLE_VALUE);
   }
 
-  Bracket=(CurPos == egs.StringLength)?'\0':egs.StringText[CurPos];
+  Bracket=(CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos];
 
   if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
   {
@@ -289,9 +289,9 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
     if (CurPos > egs.StringLength || CurPos < 0)
       continue;
 
-    Ch=((CurPos == egs.StringLength)?'\0':egs.StringText[CurPos]);
-    Ch_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:'\0');
-    Ch1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:'\0');
+    Ch=((CurPos == egs.StringLength)?_T('\0'):egs.StringText[CurPos]);
+    Ch_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:_T('\0'));
+    Ch1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:_T('\0'));
 
     if(Opt.IgnoreQuotes == 0)
     {
@@ -312,8 +312,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
       {
         if(Ch == Bracket)
         {
-          if ((Bracket_1=='\\' && Ch_1=='\\') ||
-              (Bracket_1!='\\' && Ch_1!='\\')
+          if ((Bracket_1==_T('\\') && Ch_1==_T('\\')) ||
+              (Bracket_1!=_T('\\') && Ch_1!=_T('\\'))
              )
             found=TRUE;
         }
