@@ -47,12 +47,12 @@ BOOL DECLSPEC FP_CopyRegKeyAll( HKEY hTargParent, CONSTSTR szTargKey, HKEY hSrcP
         nSize     = nMaxValueNameLen;
         nDataSize = nMaxValueLen;
 
-        while( RegEnumValue(hSrcKey, nIndex++, szValueName, &nSize,NULL, NULL, pData, &nDataSize) == ERROR_SUCCESS ) {
+        while( RegEnumValue(hSrcKey, nIndex++, szValueName, &nSize, NULL, NULL, pData, &nDataSize) == ERROR_SUCCESS ) {
             nRes = RegQueryValueEx(hSrcKey, szValueName, NULL, &nType, pData, &nDataSize);
             if(nRes != ERROR_SUCCESS)
                 break;
 
-            nRes = RegSetValueEx(hTargKey, szValueName, NULL, nType, pData, nDataSize);
+            nRes = RegSetValueEx(hTargKey, szValueName, 0, nType, pData, nDataSize);
             if(nRes != ERROR_SUCCESS)
                 break;
 

@@ -73,7 +73,7 @@ void FP_ItemList::Copy( PluginPanelItem *dest,const PluginPanelItem *src,int cn 
           dest->UserData = (DWORD_PTR)_Alloc( sz+1 );
           MemMove( (char*)dest->UserData,(char*)src->UserData,sz );
         } else {
-          dest->UserData = NULL;
+          dest->UserData = 0;
           CLR_FLAG(dest->Flags,PPIF_USERDATA);
         }
       }
@@ -133,8 +133,8 @@ void FP_ItemList::Free( PluginPanelItem *List,int count )
       //Additionals
       if ( FPIL_ADDEXIST(List) ) {
         _Del( FPIL_ADDDATA(List) );
-        List->Reserved[0] = NULL;
-        List->Reserved[1] = NULL;
+        List->Reserved[0] = 0;
+        List->Reserved[1] = 0;
       }
     }
     _Del(p);
