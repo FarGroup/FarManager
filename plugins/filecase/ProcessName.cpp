@@ -2,17 +2,17 @@
 //     ProcessName - convert case of given filename
 //                   use all options from `Opt`
 //                   Call recurse for subdirectories
-void ProcessName(char *OldFullName, DWORD FileAttributes)
+void ProcessName(TCHAR *OldFullName, DWORD FileAttributes)
 {
-  char NewFullName[NM];
-  char NewName[NM];
-  char NewExt[NM];
-  char *ExtPtr;
+  TCHAR NewFullName[NM];
+  TCHAR NewName[NM];
+  TCHAR NewExt[NM];
+  TCHAR *ExtPtr;
 
   lstrcpy(NewFullName, OldFullName);
 
   // Path
-  ExtPtr = strrchr(NewFullName,'\\');
+  ExtPtr = _tcsrchr(NewFullName,_T('\\'));
   if(ExtPtr)
     ExtPtr[1] = 0;
   else
@@ -22,7 +22,7 @@ void ProcessName(char *OldFullName, DWORD FileAttributes)
   lstrcpy(NewName,GetOnlyName(OldFullName));
 
   //Ext
-  ExtPtr = strrchr(NewName,'.');
+  ExtPtr = _tcsrchr(NewName,_T('.'));
 
   if(ExtPtr)
   {
@@ -33,8 +33,8 @@ void ProcessName(char *OldFullName, DWORD FileAttributes)
     NewExt[0] = 0;
 
   if (*NewExt==0 && (*NewName==0 ||
-     (*NewName=='.' && NewName[1]==0) ||
-     (*NewName=='.' && NewName[1]=='.' && NewName[2]==0)))
+     (*NewName==_T('.') && NewName[1]==0) ||
+     (*NewName==_T('.') && NewName[1]==_T('.') && NewName[2]==0)))
     return;
 
   //Check need to convert
@@ -54,7 +54,7 @@ void ProcessName(char *OldFullName, DWORD FileAttributes)
 
     if (NewExt[0])
     {
-      lstrcat(NewFullName,".");
+      lstrcat(NewFullName,_T("."));
       lstrcat(NewFullName,NewExt);
     }
 
@@ -64,19 +64,33 @@ void ProcessName(char *OldFullName, DWORD FileAttributes)
   //Recurce to directories
   if( Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
   {
-    struct PluginPanelItem *PanelItems;
+#ifndef UNICODE
+    struct PluginPanelItem *Items;
+#define FILE_NAME(i)  Items[i].FindData.cFileName
+#define FILE_ATTR(i)  Items[i].FindData.dwFileAttributes
+#else
+    FAR_FIND_DATA *Items;
+#define FILE_NAME(i)  Items[i].lpwszFileName
+#define FILE_ATTR(i)  Items[i].dwFileAttributes
+#endif
     int ItemsNumber,DirList;
 
-    DirList = Info.GetDirList(OldFullName,&PanelItems,&ItemsNumber);
+    DirList = Info.GetDirList(OldFullName,&Items,&ItemsNumber);
 
     if(DirList && ItemsNumber)
     {
       for (int I=0; I < ItemsNumber; I++)
       {
-        GetFullName(NewFullName,OldFullName,PanelItems[I].FindData.cFileName);
-        ProcessName(NewFullName,PanelItems[I].FindData.dwFileAttributes);
+        GetFullName(NewFullName,OldFullName,FILE_NAME(I));
+        ProcessName(NewFullName,FILE_ATTR(I));
       }
     }
-    Info.FreeDirList(PanelItems);
+#undef FILE_NAME
+#undef FILE_ATTR
+    Info.FreeDirList(Items
+#ifdef UNICODE
+                          , ItemsNumber
+#endif
+                    );
   }
 }

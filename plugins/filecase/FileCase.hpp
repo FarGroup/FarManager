@@ -13,7 +13,7 @@ struct Options
   int SkipMixedCase;
   int ProcessSubDir;
   int ProcessDir;
-  char WordDiv[512];
+  TCHAR WordDiv[512];
   int WordDivLen;
 } Opt;
 
@@ -25,25 +25,25 @@ struct InitDialogItem
   DWORD_PTR Selected;
   unsigned int Flags;
   unsigned char DefaultButton;
-  const char *Data;
+  const TCHAR *Data;
 };
 
-const char *GetMsg(int MsgId);
+const TCHAR *GetMsg(int MsgId);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
-int IsCaseMixed(const char *Str);
-char *GetOnlyName(char *FullName);
-char *GetFullName(char *Dest,const char *Dir,char *Name);
-void CaseWord( char *nm, int Type );
-void ProcessName(char *OldFullName, DWORD FileAttributes);
+int IsCaseMixed(const TCHAR *Str);
+TCHAR *GetOnlyName(TCHAR *FullName);
+TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,TCHAR *Name);
+void CaseWord( TCHAR *nm, int Type );
+void ProcessName(TCHAR *OldFullName, DWORD FileAttributes);
 
 
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD ValueData);
+void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,DWORD Default);
+int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueData,const TCHAR *Default,DWORD DataSize);
 
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-char PluginRootKey[80];
+TCHAR PluginRootKey[80];
 BOOL IsOldFar;
