@@ -9,12 +9,6 @@
     During porting to other compillers or targets, please add new macro
     names and change sources used this macroses.
 
-    @section fsdComp Compatibility
-     - __USE_165_HEADER__ If defined library will use "plugin.hpp" header. \n
-                          With this version many futures are not accessible.
-     @note To write plugin compatible with both versions you must use FAR_STRING_PARAM and
-           FAR_MESSAGE_PARAM to convert text passed to FAR structures and functions.
-
     @section fsdPlatform Platform macroses
     Macroses define on witch platform cources compilled.
      - __HWIN__ Defined on win32 platform.
@@ -24,6 +18,7 @@
      - __BORLAND   Defined if compilled by Borland C compiller.
      - __MSOFT     Defined if compilled by Visual C compiller.
      - __SYMANTEC  Defined if compilled by Symantec C compiller.
+     - __GNU       Defined if compilled by GCC compiller.
 
     @section fsdCompillerType Macroses for compiller types
     Macroses define witch type of compiller used to compile sources.
@@ -31,29 +26,19 @@
      - __BCB1__    Defined if used Borland C Builder version 1.x.
      - __MSWIN32__ Defined if used Visual C compiller on Win32 platform.
      - __SCWIN32__ Defined if used Symantec C compiller on Win32 platform.
+     - __GWIN32__  Defined if used GCC compiller on Win32 platform.
 
     @section fsdOther Different macroses
     Different macroses globally affected to sources.
      - __DEBUG__         Defined if debug compilling turned ON.
      - __HCONSOLE__      Allways defined on current FAR platform.
-     - __USE_TRAPLOGER__ If defined by plugin the Assert macro will be expanded to
-                         generate trap log using ExcDump library.
 
     @section fsdMem Memory management
      - __HEAP_MEMORY__   If defined the memory allocator will use HeapXXX windows API functions for
                          memory allocations.
-     - __BMM_MEMORY__    If defined the memory allocator will use borland memory allocation library
-                         (borlndmm.dll) for memory allocations.
      - __STD_MEMORY__    If defined the memory allocator will use RTL malloc\free for memory allocations.
 */
 
-/*
-    Define USE_ALL_LIB for use FStdLib with stdS library, otherwise
-    header independ of this library.
-*/
-#if defined( USE_ALL_LIB )
-  #include <all_lib.h>
-#else
 // --------------------------------------------------------------
 //Global compiller types
 #undef __BORLAND    //Borland
@@ -61,6 +46,7 @@
 #undef __MSOFT      //Microsoft
 #undef __DMC        //Digital Mars Compoller
 #undef __INTEL      //Intel compiller
+#undef __GNU        //GCC
 
 //Global targets models
 #undef __HWIN__
@@ -132,37 +118,23 @@
   #pragma option -w-inl              //Disable: "cannot expand inline..." warnings
 #endif
 
-#endif //else (USE_ALL_LIB)
-
 // Plugin exported functions
-#if defined( USE_ALL_LIB )
-    #define FAR_EXTERN      EXTERN_C
-  #if defined(__BORLAND)
-    #define FAR_DECLSPEC    WINAPI DECLSPEC_EXP
-  #else
-    #define FAR_DECLSPEC    WINAPI
-  #endif
-    #define DECLSPEC        MYRTLEXP
-    #define DECLSPEC_PT     MYRTLEXP_PT
-#else //USE_ALL_LIB
-  #if defined(__BORLAND)
-    #define FAR_EXTERN      extern "C"
-    #define FAR_DECLSPEC    WINAPI __declspec(dllexport)
-    #define DECLSPEC_PT     _cdecl
-    #define DECLSPEC        WINAPI
-  #else
-  #if defined(__MSOFT) || defined(__INTEL) || defined(__DMC) || defined(__GNU)
-    #define FAR_EXTERN      extern "C"
-    #define FAR_DECLSPEC    WINAPI
-    #define DECLSPEC_PT     _cdecl
-    #define DECLSPEC        WINAPI
-  #else
-    #error "Unknown platform"
-  #endif
-  #endif
+#if defined(__BORLAND)
+  #define FAR_EXTERN      extern "C"
+  #define FAR_DECLSPEC    WINAPI __declspec(dllexport)
+  #define DECLSPEC_PT     _cdecl
+  #define DECLSPEC        WINAPI
+#else
+#if defined(__MSOFT) || defined(__INTEL) || defined(__DMC) || defined(__GNU)
+  #define FAR_EXTERN      extern "C"
+  #define FAR_DECLSPEC    WINAPI
+  #define DECLSPEC_PT     _cdecl
+  #define DECLSPEC        WINAPI
+#else
+  #error "Unknown platform"
+#endif
 #endif
 
-#if !defined( USE_ALL_LIB )
 //! HEADERS
 #include <windows.h>
 
@@ -332,11 +304,7 @@ typedef const BYTE   *LPCBYTE;
 //- MK_ID
 #define MK_ID( v,v1,v2,v3 ) MK_DWORD( MK_WORD(v3,v2),MK_WORD(v1,v) )
 
-#if defined(__USE_TRAPLOGER__)
-  #define HAbort __TrapLog
-#else
-  #define HAbort __WinAbort
-#endif
+#define HAbort __WinAbort
 #define THROW_ERROR(err,fl,nm)      HAbort( "Assertion...\nConditin: \"%s\"\nAt file: \"%s:%d\"",err,fl,nm )
 
 #if defined(__DEBUG__) || defined(__USEASSERT__)
@@ -550,11 +518,8 @@ enum accTypes  {
 
 //- ASSERT
 #if !defined(__FP_NOT_FUNCTIONS__)
-#if !defined(USE_ALL_LIB)
 //[fstd_asrt.cpp]
 extern void         DECLSPEC_PT __WinAbort( CONSTSTR msg,... );
-//[fstd_Trap.cpp]
-extern void         DECLSPEC_PT __TrapLog( CONSTSTR msg,... );
 //[fstd_err.cpp]
 extern const char  *DECLSPEC_PT __WINError( void );
 //[fstd_exit.cpp]
@@ -562,7 +527,6 @@ typedef void (RTL_CALLBACK *AbortProc)(void);
 
 extern AbortProc DECLSPEC    AtExit( AbortProc p );
 extern void      DECLSPEC    CallAtExit( void );
-#endif
 #endif
 
 // --------------------------------------------------------------
@@ -604,7 +568,6 @@ STRUCT( FPPeriod )
     Wrapers for stdlib functions and some usefull extended stdlib functions.
 */
 #if !defined(__FP_NOT_FUNCTIONS__)
-#if !defined(USE_ALL_LIB)
   //Allocators [fstd_mem.inc]
   extern LPVOID DECLSPEC _Alloc( SIZE_T sz );
   extern LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz );
@@ -649,7 +612,6 @@ STRUCT( FPPeriod )
   #define TStrCpy( d, s ) StrCpy( d, s, sizeof(d) )
   #define TStrCat( d, s ) StrCat( d, s, sizeof(d) )
 #endif
-#endif
 
 // --------------------------------------------------------------
   template <class T> T AtoI( CONSTSTR str,T Def )
@@ -680,7 +642,6 @@ STRUCT( FPPeriod )
 
 //Args
 #if !defined(__FP_NOT_FUNCTIONS__)
-#if !defined(USE_ALL_LIB)
 extern void     DECLSPEC CTArgInit( int argc, char **argv,BOOL CaseSensitive = FALSE );
 extern pchar    DECLSPEC CTArgGet( int num );                   //get base argument
 extern pchar    DECLSPEC CTArgGetArg( int num );                //get`s argument that not switch
@@ -709,9 +670,6 @@ extern CONSTSTR DECLSPEC FPath( CONSTSTR nm, char Slash = SLASH_CHAR);
 extern CONSTSTR DECLSPEC FName( CONSTSTR nm, char Slash = SLASH_CHAR);
 extern CONSTSTR DECLSPEC FExtOnly( CONSTSTR nm, char Slash = SLASH_CHAR);
 #endif
-#endif
-
-#endif //USE_ALL_LIB
 
 // --------------------------------------------------------------
 /** @defgroup Log Logging and debug
@@ -720,9 +678,6 @@ extern CONSTSTR DECLSPEC FExtOnly( CONSTSTR nm, char Slash = SLASH_CHAR);
     [fstd_InProc.cpp]
     Helpers for logging and debug purposes.
 */
-#if defined(USE_ALL_LIB)
-  #define FARINProc INProc
-#else
 CLASS( FARINProc )
   static  int Counter;
   CONSTSTR Name;
@@ -740,18 +695,5 @@ extern int FP_LogErrorStringLength;
 extern void               DECLSPEC_PT FP_FILELog( CONSTSTR msg,... );            ///< Writes text to current log file.
 extern CONSTSTR           DECLSPEC    FP_GetLogFullFileName( void );             ///< Returns full current file log.
 /**@} Log*/
-#endif //USE_ALL_LIB
-
-#if defined(USE_ALL_LIB)
-  #define FP_PeriodCreate           PRPeriodCreate
-  #define FP_PeriodEnd              PRPeriodEnd
-  #define FP_PeriodTime             PRPeriodTime
-  #define FP_PeriodDestroy          PRPeriodDestroy
-  #define FP_PeriodReset            PRPeriodReset
-
-  #define FP_FILELog                FILELog
-  #define FP_GetLogFullFileName     GetLogFullFileName
-  #define FCps                      FormatCps
-#endif
 
 #endif

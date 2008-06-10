@@ -19,13 +19,8 @@ BOOL DECLSPEC FP_InPattern( CONSTSTR patt,CONSTSTR nm )
         if ( strchr(str,'.') == NULL )
           StrCat( str,".*",sizeof(str) );
 
-#if !defined(__USE_165_HEADER__)
         if ( FP_Info->CmpName(str,nm,TRUE) )
           return TRUE;
-#else
-        if ( StrCmp( str,nm,-1,FALSE ) == 0 )
-          return TRUE;
-#endif
     }while( c );
 
  return FALSE;

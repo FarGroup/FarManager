@@ -3,8 +3,6 @@
 
 #include "fstdlib.h"
 
-#if !defined(__USE_165_HEADER__)
-
 //--------------------------------------------------------------------------------
 //-- Color dialog
 //--------------------------------------------------------------------------------
@@ -122,5 +120,3 @@ int DECLSPEC FP_GetColorDialog( int color,PFLngColorDialog p,CONSTSTR Help )
 
  return color;
 }
-
-#endif

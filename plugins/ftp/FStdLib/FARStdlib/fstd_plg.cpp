@@ -10,11 +10,7 @@ char                       *FP_PluginStartPath = NULL;
 OSVERSIONINFO              *FP_WinVer        = NULL;
 HMODULE                     FP_HModule       = NULL;
 int                         FP_LastOpMode    = 0;
-BOOL                        FP_IsOldFar;
 DWORD                       FP_WinVerDW;
-#if !defined(USE_ALL_LIB)
-PHEX_DumpInfo               HEX_Info         = NULL;
-#endif
 
 static void RTL_CALLBACK idAtExit( void )
   {
@@ -36,14 +32,8 @@ void DECLSPEC FP_SetStartupInfo( const PluginStartupInfo *Info,const char *KeyNa
     MemCpy( FP_Info,Info,sizeof(*Info) );
 
 //FSF
-    FP_IsOldFar = TRUE;
-    if( Info->StructSize >= FAR_SIZE_170 ) {
-#if !defined(__USE_165_HEADER__)
-      FP_FSF = new FarStandardFunctions;
-      MemCpy( FP_FSF,Info->FSF,sizeof(*FP_FSF) );
-#endif
-      FP_IsOldFar = FALSE;
-    }
+    FP_FSF = new FarStandardFunctions;
+    MemCpy( FP_FSF,Info->FSF,sizeof(*FP_FSF) );
 
 //Version
     FP_WinVer = new OSVERSIONINFO;
@@ -63,67 +53,13 @@ void DECLSPEC FP_SetStartupInfo( const PluginStartupInfo *Info,const char *KeyNa
     FP_PluginStartPath[ GetModuleFileName( FP_HModule,FP_PluginStartPath,MAX_PATH_SIZE ) ] = 0;
     char *m = strrchr(FP_PluginStartPath,'\\');
     if ( m ) *m = 0;
-
-//ExcDUMP
-#if !defined(USE_ALL_LIB)
-    HMODULE md;
-    char    Path[ MAX_PATH_SIZE ];
-
-    //ExcDump
-    do{
-      md = LoadLibrary( "ExcDump.dll" );
-      if ( md ) break;
-
-      StrCpy( Path, FP_PluginStartPath, sizeof(Path) );
-      StrCat( Path, "\\ExcDump.dll", sizeof(Path) );
-      md = LoadLibrary( Path );
-      if ( md ) break;
-
-    }while( 0 );
-
-    HEX_Info = NULL;
-
-    if ( md ) {
-      HT_QueryInterface_t p = (HT_QueryInterface_t)GetProcAddress( md,"HEX_QueryInterface" );
-      if ( !p || (HEX_Info=p()) == NULL )
-        FreeLibrary( md );
-    }
-#endif
 }
-
-#if defined(USE_ALL_LIB)
-static char LogFileName[ MAX_PATH_SIZE ];
-
-static CONSTSTR RTL_CALLBACK idGetLog( void ) { return LogFileName; }
-
-void SetLogProc( void )
-  {  CONSTSTR m = FP_GetPluginLogName();
-
-     if ( !m || !m[0] ) {
-       LogFileName[0] = 0;
-       return;
-     }
-
-     SetLogNameProc( idGetLog );
-
-     if ( IsAbsolutePath(m) ) {
-       TStrCpy( LogFileName, m );
-       return;
-     }
-
-     LogFileName[ GetModuleFileName( FP_HModule, LogFileName, sizeof(LogFileName) ) ] = 0;
-     strcpy( strrchr(LogFileName,'\\')+1, m );
-}
-#else
-#define SetLogProc()
-#endif
 
 #if defined(__BORLAND)
 BOOL WINAPI DllEntryPoint( HINSTANCE hinst, DWORD reason, LPVOID ptr )
   {
     if ( reason == DLL_PROCESS_ATTACH ) {
       FP_HModule = GetModuleHandle( FP_GetPluginName() );
-      SetLogProc();
       AtExit( idAtExit );
     }
 
@@ -141,7 +77,6 @@ BOOL WINAPI DllMain( HINSTANCE hinst, DWORD reason, LPVOID ptr )
   {
     if ( reason == DLL_PROCESS_ATTACH ) {
       FP_HModule = GetModuleHandle( FP_GetPluginName() );
-      SetLogProc();
       AtExit( idAtExit );
     }
 
@@ -159,7 +94,6 @@ BOOL WINAPI DllMain(HANDLE hDll,DWORD reason,LPVOID lpReserved)
 {
     if ( reason == DLL_PROCESS_ATTACH ) {
       FP_HModule = GetModuleHandle( FP_GetPluginName() );
-      SetLogProc();
       AtExit( idAtExit );
     }
 

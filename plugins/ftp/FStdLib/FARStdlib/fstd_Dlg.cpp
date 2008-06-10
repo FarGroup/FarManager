@@ -33,7 +33,6 @@ void DECLSPEC FP_InitDialogItem( const FP_DialogItem *Init,FarDialogItem *Item )
 
     Item->DefaultButton = IS_FLAG(Init->Type,FFDI_DEFAULT);
 
-#if !defined(__USE_165_HEADER__)
     if ( IS_FLAG(Init->Type,FFDI_MASKED) ) {
       Item->Data[0]  = 0;
       Item->Mask     = (char*)Init->Text;
@@ -42,7 +41,6 @@ void DECLSPEC FP_InitDialogItem( const FP_DialogItem *Init,FarDialogItem *Item )
       Item->Data[0]  = 0;
       Item->History  = (char*)Init->Text;
     } else
-#endif
     { Item->Selected     = IS_FLAG(Init->Type,FFDI_SELECTED);
       StrCpy( Item->Data,FP_GetMsg(Init->Text),sizeof(Item->Data) );
     }

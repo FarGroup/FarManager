@@ -156,10 +156,7 @@ void DECLSPEC ReadCfg( void )
      GCMD( "xcmdSTAT", "STAT", cmdStat )
 
 //ProcessColor
-     if ( FP_Info->StructSize >= FAR_SIZE_170 )
-       val = (int)FP_Info->AdvControl( FP_Info->ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGBOX );
-      else
-       val = FAR_COLOR(fccBLACK,fccLIGHTGRAY);
+     val = (int)FP_Info->AdvControl( FP_Info->ModuleNumber,ACTL_GETCOLOR,(void*)COL_DIALOGBOX );
      Opt.ProcessColor = FP_GetRegKey("ProcessColor",val );
 
 //dDelimit && dDelimiter

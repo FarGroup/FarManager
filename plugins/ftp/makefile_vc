@@ -47,7 +47,7 @@ $(OBJLIB)\fstd_Dialog.obj $(OBJLIB)\fstd_Dlg.obj $(OBJLIB)\fstd_Editor.obj \
 $(OBJLIB)\fstd_err.obj $(OBJLIB)\fstd_exSCAT.obj $(OBJLIB)\fstd_exSCHC.obj \
 $(OBJLIB)\fstd_exSCMP.obj $(OBJLIB)\fstd_exSCPY.obj $(OBJLIB)\fstd_exSNCH.obj \
 $(OBJLIB)\fstd_exSPCH.obj $(OBJLIB)\fstd_exSPS.obj $(OBJLIB)\fstd_ilist.obj \
-$(OBJLIB)\fstd_INProc.obj $(OBJLIB)\fstd_log.obj $(OBJLIB)\fstd_memb.obj \
+$(OBJLIB)\fstd_INProc.obj $(OBJLIB)\fstd_log.obj \
 $(OBJLIB)\fstd_mems.obj $(OBJLIB)\fstd_memh.obj $(OBJLIB)\fstd_menu.obj \
 $(OBJLIB)\fstd_mesg.obj $(OBJLIB)\fstd_mklog.obj $(OBJLIB)\fstd_Msg.obj \
 $(OBJLIB)\fstd_Multiline.obj $(OBJLIB)\fstd_Patt.obj $(OBJLIB)\fstd_per.obj \
@@ -58,7 +58,7 @@ $(OBJLIB)\fstd_RegRn.obj $(OBJLIB)\fstd_RegSB.obj $(OBJLIB)\fstd_RegSC.obj \
 $(OBJLIB)\fstd_RegSI.obj $(OBJLIB)\fstd_SCol.obj $(OBJLIB)\fstd_scr.obj \
 $(OBJLIB)\fstd_String.obj $(OBJLIB)\fstd_stdlibCS.obj \
 $(OBJLIB)\fstd_stdlibME.obj $(OBJLIB)\fstd_stdlibSP.obj \
-$(OBJLIB)\fstd_stdlibST.obj $(OBJLIB)\fstd_SText.obj $(OBJLIB)\fstd_Trap.obj \
+$(OBJLIB)\fstd_stdlibST.obj $(OBJLIB)\fstd_SText.obj \
 $(OBJLIB)\fstd_exit.obj $(OBJLIB)\fstd_HotKey.obj $(OBJLIB)\fstd_Con.obj \
 $(OBJLIB)\fstd_FMsg.obj $(OBJLIB)\fstd_CharDraw.obj $(OBJLIB)\fstd_OEM.obj \
 $(OBJLIB)\fstd_Utils.obj $(OBJLIB)\fstd_FUtils.obj

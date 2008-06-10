@@ -26,24 +26,11 @@ void *__cdecl operator new[]( size_t sz )   { void *p = _Alloc(sz); if (!p) retu
  *******************************************************************/
 #if defined(__DEBUG__)
   static BOOL InTrap = FALSE;
-  #define CHK_MEM   if ( !InTrap && !_HeapCheck() ) { InTrap = TRUE; __TrapLog( "Heap corrupt. Found at caller." ); }
+  #define CHK_MEM   if ( !InTrap && !_HeapCheck() ) { InTrap = TRUE; __WinAbort( "Heap corrupt. Found at caller." ); }
 #else
   #define CHK_MEM
 #endif
 
-#if defined(__BMM_MEMORY__)
-  extern LPVOID DECLSPEC __Alloc_B( SIZE_T sz );
-  extern LPVOID DECLSPEC __Realloc_B( LPVOID ptr,SIZE_T sz );
-  extern void   DECLSPEC __Del_B( LPVOID ptr );
-  extern SIZE_T DECLSPEC __PtrSize_B( LPVOID ptr );
-  extern BOOL   DECLSPEC __HeapCheck_B( void );
-
-  LPVOID DECLSPEC _Alloc( SIZE_T sz )             { CHK_MEM return __Alloc_B( sz ); }
-  LPVOID DECLSPEC _Realloc( LPVOID ptr,SIZE_T sz ){ CHK_MEM return __Realloc_B( ptr,sz ); }
-  void   DECLSPEC _Del( LPVOID ptr )              { CHK_MEM __Del_B( ptr ); }
-  SIZE_T DECLSPEC _PtrSize( LPVOID ptr )          { CHK_MEM return __PtrSize_B( ptr ); }
-  BOOL   DECLSPEC _HeapCheck( void )              { return __HeapCheck_B(); }
-#else
 #if defined(__HEAP_MEMORY__)
   extern LPVOID DECLSPEC __Alloc_H( SIZE_T sz );
   extern LPVOID DECLSPEC __Realloc_H( LPVOID ptr,SIZE_T sz );
@@ -71,6 +58,5 @@ void *__cdecl operator new[]( size_t sz )   { void *p = _Alloc(sz); if (!p) retu
   BOOL   DECLSPEC _HeapCheck( void )              { return __HeapCheck_S(); }
 #else
   #error "Memory allocation types not defined"
-#endif
 #endif
 #endif

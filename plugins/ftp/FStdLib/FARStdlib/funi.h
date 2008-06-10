@@ -2,21 +2,8 @@
 #define __FAR_PLUGIN_UNIPLACE_HEADER
 
 //- FAR types
-#if defined(__USE_165_HEADER__)
-  struct FarStandardFunctions {};
-
-  typedef char *FAR_STRING_PARAM;
-  typedef char **FAR_MESSAGE_PARAM;
-
-  #define EEREDRAW_ALL    (void*)0
-  #define EEREDRAW_CHANGE (void*)1
-  #define EEREDRAW_LINE   (void*)2
-
-  #define DIF_DISABLE     0x80000000UL
-#else
-  typedef const char *FAR_STRING_PARAM;
-  typedef const char *const *FAR_MESSAGE_PARAM;
-#endif
+typedef const char *FAR_STRING_PARAM;
+typedef const char *const *FAR_MESSAGE_PARAM;
 
 typedef PluginStartupInfo    *PPluginStartupInfo;
 typedef FarStandardFunctions *PFarStandardFunctions;
@@ -47,18 +34,6 @@ typedef FAR_FIND_DATA        *LPFAR_FIND_DATA;
 #define FAR_MAX_MSGLINE                      13
 #define FAR_MAX_CAPTION                      512
 #define FAR_MAX_DLGITEM                      512
-
-//- FAR PluginStartupInfo sizes for different versions
-#define FAR_SIZE_1x                          (FAR_SIZE_150-3*sizeof(void(*)(void)))
-#define FAR_SIZE_150                         (FAR_SIZE_152-2*sizeof(void(*)(void)))
-#define FAR_SIZE_152                         (FAR_SIZE_160-1*sizeof(void(*)(void)))
-#define FAR_SIZE_160                         (FAR_SIZE_170-9*sizeof(void(*)(void)))
-#define FAR_SIZE_170                         362
-
-#define FAR_VER_17B2                         321
-#define FAR_VER_17B3                         591
-#define FAR_VER_17B4                         1282
-#define FAR_VER_17B5                         1500
 
 //Turn off fake NM const, use FAR_MAX_PATHNAME instead
 #undef NM
@@ -187,7 +162,6 @@ extern int DECLSPEC FP_Color( int far_color_num );
   extern DWORD                       FP_WinVerDW;
   extern int                         FP_LastOpMode;
   extern char                       *FP_PluginStartPath;
-  extern PHEX_DumpInfo               HEX_Info;
 #endif
 /** @brief Return name of plugin DLL
 

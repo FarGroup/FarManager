@@ -38,35 +38,16 @@
       - Borland C compiller version 5.xx
       - Visual C compiller version 6.xx
       - Symantec  compiller version 7.2
+      - GCC
 */
 
 #define _FAR_USE_FARFINDDATA 1
 
-#if defined(__USE_165_HEADER__)
-  #include <FARStdlib\plugin_165.hpp>
-#else
-  #include <plugin.hpp>
-#endif
-
+#include <plugin.hpp>
 #include <farcolor.hpp>
 #include <farkeys.hpp>
 
 #include <FARStdlib\pack1.h>
-
-// --------------------------------------------------------------
-#undef _USE_EXCDUMP
-#if defined(__USE_TRAPLOGER__)
-  #define _USE_EXCDUMP 1
-#endif
-
-/** @page ExcDump Exception dump library
-    @ingroup FAR
-
-    Libary can use ExcDump external library if you set __USE_TRAPLOGER__ compilation macro. \n
-    This library used instead windows popup message to expand Assert macro by generating
-    call stack from assertion place.
-*/
-#include "ExcDump.h"
 
 // --------------------------------------------------------------
 #include <FARStdlib\funi.h>
@@ -332,7 +313,6 @@ CLASS( FP_Editor )
 /** @brief FP_Dialog
     [fstd_Dialog.cpp]
 */
-#if !defined(__USE_165_HEADER__)
 STRUCT( FP_Dialog )
    HANDLE Handle;
    int    LockCount;
@@ -372,7 +352,6 @@ STRUCT( FP_Dialog )
     CONSTSTR GetText( int num )                      const;
     int      GetText( int num,char *buff,int bSz )   const;
 };
-#endif
 #endif // !defined(__FP_NOT_FUNCTIONS__)
 
 // ------------------------------------------------------------------------
@@ -436,9 +415,7 @@ STRUCTBASE( FP_SizeItemList, public FP_ItemList )
 
 // MULTILINE EDITOR
 #if !defined(__FP_NOT_FUNCTIONS__)
-#if !defined(__USE_165_HEADER__)
   #include <FARStdlib\fstd_Multiline.h>
-#endif
   #include <FARStdlib\fstd_CharDraw.h>
 #endif
 
@@ -474,18 +451,10 @@ STRUCT( FLngColorDialog )
     @return Selected color value of -1 if user cancels selection.
 */
 #if !defined(__FP_NOT_FUNCTIONS__)
-#if !defined(__USE_165_HEADER__)
 extern int DECLSPEC FP_GetColorDialog( int CurrentColor,PFLngColorDialog LngDescriptions,CONSTSTR Help );
-#endif
 #endif
 
 /**@} Dialogs*/
-
-#if defined( USE_ALL_LIB )
-  #include <sFARLib/fpanel.h>
-  #include <sFARLib/fextmode.h>
-  #include <sFARLib/fdialog.h>
-#endif
 
 #include <FARStdlib\pop.h>
 

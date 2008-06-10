@@ -71,11 +71,7 @@ void CreateFTPInterface( void )
      Interface.GetMsgStr       = FP_GetMsgSTR;
 
 //Debug
-#if defined(__USE_TRAPLOGER__)
-     Interface.Assertion       = __TrapLog;
-#else
      Interface.Assertion       = __WinAbort;
-#endif
      Interface.SayLog          = FARINProc::Say;
      Interface.LogProcStart    = idProcStart;
      Interface.LogProcEnd      = idProcEnd;

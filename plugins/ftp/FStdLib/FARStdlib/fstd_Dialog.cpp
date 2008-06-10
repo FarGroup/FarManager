@@ -3,8 +3,6 @@
 
 #include "fstdlib.h"
 
-#if !defined(__USE_165_HEADER__)
-
 //------------------------------------------------------------------------
 FP_Dialog::FP_Dialog( HANDLE h )
   {
@@ -63,5 +61,3 @@ int FP_Dialog::GetText( int num,char *buff,int bSz ) const
 
  return rc;
 }
-
-#endif

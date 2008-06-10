@@ -140,7 +140,11 @@ int FTP::ProcessKey(int Key,unsigned int ControlState)
 #if defined(__SYMANTEC)
   #define CCNAME "Symantec"
 #else
+#if defined(__GNU)
+  #define CCNAME "GCC"
+#else
   #define CCNAME "Unknown"
+#endif
 #endif
 #endif
 #endif
