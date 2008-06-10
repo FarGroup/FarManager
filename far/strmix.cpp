@@ -1302,24 +1302,24 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
     I=J=CurPos;
 
     // копаем влево
-    DistLeft=-1;
+    DistLeft=(DWORD)-1;
     while(I >= 0 && IsWordDiv(TableSet,WordDiv,Str[I]))
     {
       DistLeft++;
       I--;
     }
     if(I < 0)
-      DistLeft=-1;
+      DistLeft=(DWORD)-1;
 
     // копаем вправо
-    DistRight=-1;
+    DistRight=(DWORD)-1;
     while(J < StrSize && IsWordDiv(TableSet,WordDiv,Str[J]))
     {
       DistRight++;
       J++;
     }
     if(J >= StrSize)
-      DistRight=-1;
+      DistRight=(DWORD)-1;
 
     if(DistLeft > DistRight) // ?? >=
       EndWPos=StartWPos=J;

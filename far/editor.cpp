@@ -354,17 +354,17 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
       if ((++Count & 0xfff)==0 && clock()-StartTime>500)
       {
-		if (CheckForEscSilent())
-		{
-	  		if ( ConfirmAbortOp() )
-  			{
-  				UserBreak = 1;
-  				fclose(EditFile);
-  				SetPreRedrawFunc(NULL);
-	  			return FALSE;
-			}
-			MessageShown=FALSE;
-		}
+        if (CheckForEscSilent())
+        {
+          if ( ConfirmAbortOp() )
+          {
+            UserBreak = 1;
+            fclose(EditFile);
+            SetPreRedrawFunc(NULL);
+            return FALSE;
+          }
+          MessageShown=FALSE;
+        }
         if (!MessageShown)
         {
           CursorShow=false;
@@ -1022,7 +1022,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
       __int64 Ret=_i64(-1);
       long Val[1];
       EditorBookMarks ebm={0};
-      int iMode=(int)((__int64)vParam);
+      int iMode=(int)((INT_PTR)vParam);
       switch(iMode)
       {
         case 0: ebm.Line=Val;  break;

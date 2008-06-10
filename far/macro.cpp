@@ -3000,7 +3000,7 @@ done:
          f=fo;
 
        if(f)
-         Result=f->VMProcess(Key,(void*)p2.i(),p1.i());
+         Result=f->VMProcess(Key,(void*)(INT_PTR)p2.i(),p1.i());
 
        VMStack.Push(Result);
        goto begin;
