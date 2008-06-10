@@ -75,7 +75,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   DialogItems[1].PtrData = marstr;
   FSF.sprintf(marstr,L"%d",RightMargin);
 #else
-  FSF.sprintf(DialogItems[1].Data,"%d",RightMargin);  //#####
+  FSF.sprintf(DialogItems[1].Data,"%d",RightMargin);
 #endif
   DialogItems[3].Selected=Reformat;
   DialogItems[4].Selected=SmartMode;
