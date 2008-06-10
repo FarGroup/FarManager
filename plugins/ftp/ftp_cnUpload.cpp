@@ -145,19 +145,26 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
     case TYPE_L:
     case TYPE_A: if ( fsz != 0 ) {
 
-                  if ( fsz >= 64*1024 && Host.IOBuffSize >= 64*1024 ) { // 64K
-                    unsigned sz, osz = Host.IOBuffSize;
-                    if ( fsz < osz ) osz = (unsigned)fsz;
-                    if (osz < 1024*1024) {
-                      sz = 64*1024;
-                      while ( sz < osz ) sz *= 2;
-                      osz = sz;
-                    }
-                    if ( osz > 1024*1024 ) osz = 1024*1024; // 1M
-                    sz = 0;
-                    int len = sizeof(sz);
-                    if ( getsockopt(dout, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) || sz < osz )
+                  unsigned rsz = Host.IOBuffSize;
+                  if (rsz < fsz && (rsz & 511) && rsz > 512) rsz &= ~511;
+
+                  {
+                    unsigned osz = 0, sz = sizeof(osz);
+                    if ( getsockopt(dout, SOL_SOCKET, SO_SNDBUF, (char*)&sz, (int*)&sz) )
+                      osz = 8*1024; // default - 8K
+
+                    if ( rsz >= osz && fsz >= osz ) {
+                      if (rsz > 1024*1024) rsz = 1024*1024; // 1M
+                      osz = rsz;
+                      if ( fsz < osz ) osz = (unsigned)fsz;
+                      ++osz;
                       setsockopt(dout, SOL_SOCKET, SO_SNDBUF, (char*)osz, sizeof(osz));
+                    }
+                  }
+
+                  if ( rsz >= fsz || rsz > 64*1024 ) {  // 64K (start winsize)
+                    BOOL one = TRUE;
+                    setsockopt(dout, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(one));
                   }
 
                   if ( PluginAvailable(PLUGIN_NOTIFY) ) FTPNotify().Notify( &ni );
@@ -167,11 +174,14 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
                   FTPConnectionBreakable _brk( this,FALSE );
                   CurrentState = fcsProcessFile;
                   //-------- READ
+                  DWORD ind = 0;
+                  TIME_TYPE b,e;
+                  GET_TIME(b);
                   while( 1 ) {
 
                     hi = 0;
-           Log(( "read %d",Host.IOBuffSize ));
-                    if ( !ReadFile(fin.Handle,IOBuff,Host.IOBuffSize,(LPDWORD)&hi,NULL) ) {
+           Log(( "read %d",rsz ));
+                    if ( !ReadFile(fin.Handle,IOBuff,rsz,(LPDWORD)&hi,NULL) ) {
                       SysError = TRUE;
                       ErrorCode = GetLastError();
                       Log(("pf: !read buff" ));
@@ -199,10 +209,18 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
                       }
            Log(( "sent %d",d ));
 
-                      if (IOCallback && !TrafficInfo->Callback( (int)d ) ) {
-                        Log(("pf(%d,%s): canceled",code,GetSocketErrorSTR() ));
-                        ErrorCode = ERROR_CANCELLED;
-                        goto abort;
+                      ind += d;
+                      GET_TIME(e);
+                      if ( CMP_TIME(e,b) >= 0.5 ) {
+                        b = e;
+                        d = ind;
+                        ind = 0;
+
+                        if (IOCallback && !TrafficInfo->Callback( (int)d ) ) {
+                          Log(("pf(%d,%s): canceled",code,GetSocketErrorSTR() ));
+                          ErrorCode = ERROR_CANCELLED;
+                          goto abort;
+                        }
                       }
                     }//-- SEND
            Log(( "sended" ));
