@@ -1,4 +1,4 @@
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -17,36 +17,50 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->History=(const char *)PInit->Selected;
+    PItem->History=(const TCHAR *)PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    lstrcpy(PItem->Data,((unsigned int)(DWORD_PTR)PInit->Data<2000)?GetMsg((unsigned int)(DWORD_PTR)PInit->Data):PInit->Data);
+#ifdef UNICODE
+    PItem->MaxLen=0;
+#endif
+    if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+#ifndef UNICODE
+      lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
+#else
+      PItem->PtrData = GetMsg((unsigned int)(DWORD_PTR)PInit->Data);
+#endif
+    else
+#ifndef UNICODE
+      lstrcpy(PItem->Data,PInit->Data);
+#else
+      PItem->PtrData = PInit->Data;
+#endif
   }
 }
 
-char *GetCommaWord(const char *Src,char *Word)
+TCHAR *GetCommaWord(const TCHAR *Src,TCHAR *Word)
 {
   int WordPos,SkipBrackets;
-  if (*Src==0)
+  if (*Src==_T('\0'))
     return(NULL);
   SkipBrackets=FALSE;
-  for (WordPos=0;*Src!=0;Src++,WordPos++)
+  for (WordPos=0;*Src!=_T('\0');Src++,WordPos++)
   {
-    if (*Src=='[' && strchr(Src+1,']')!=NULL)
+    if (*Src==_T('[') && _tcschr(Src+1,_T(']'))!=NULL)
       SkipBrackets=TRUE;
-    if (*Src==']')
+    if (*Src==_T(']'))
       SkipBrackets=FALSE;
-    if (*Src==',' && !SkipBrackets)
+    if (*Src==_T(',') && !SkipBrackets)
     {
       Word[WordPos]=0;
       Src++;
-      while (isspace(*Src))
+      while (_istspace(*Src))
         Src++;
-      return((char*)Src);
+      return((TCHAR*)Src);
     }
     else
       Word[WordPos]=*Src;
   }
   Word[WordPos]=0;
-  return((char*)Src);
+  return((TCHAR*)Src);
 }

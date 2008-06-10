@@ -25,60 +25,92 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "wrapreg.cpp"
 #include "wrapmix.cpp"
 
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Selected
+#define GetDataPtr(i) DialogItems[i].Data
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
+
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
   lstrcpy(PluginRootKey,Info->RootKey);
-  lstrcat(PluginRootKey,"\\AutoWrap");
-  Opt.Wrap=GetRegKey(HKEY_CURRENT_USER,"","Wrap",0);
-  Opt.RightMargin=GetRegKey(HKEY_CURRENT_USER,"","RightMargin",75);
-  GetRegKey(HKEY_CURRENT_USER,"","FileMasks",Opt.FileMasks,"*.*",sizeof(Opt.FileMasks));
-  GetRegKey(HKEY_CURRENT_USER,"","ExcludeFileMasks",Opt.ExcludeFileMasks,"",sizeof(Opt.ExcludeFileMasks));
+  lstrcat(PluginRootKey,_T("\\AutoWrap"));
+  Opt.Wrap=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),0);
+  Opt.RightMargin=GetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),75);
+  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks,_T("*.*"),ArraySize(Opt.FileMasks));
+  GetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks,_T(""),ArraySize(Opt.ExcludeFileMasks));
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   struct InitDialogItem InitItems[]={
-    {DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MAutoWrap},
-    {DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MEnableWrap},
-    {DI_EDIT,5,3,7,3,0,0,0,0,""},
-    {DI_TEXT,9,3,0,0,0,0,0,0,(char *)MRightMargin},
-    {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-    {DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFileMasks},
-    {DI_EDIT,5,6,70,6,0,0,0,0,""},
-    {DI_TEXT,5,7,0,0,0,0,0,0,(char *)MExcludeFileMasks},
-    {DI_EDIT,5,8,70,6,0,0,0,0,""},
-    {DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
-    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
+    {DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(TCHAR *)MAutoWrap},
+    {DI_CHECKBOX,5,2,0,0,1,0,0,0,(TCHAR *)MEnableWrap},
+    {DI_EDIT,5,3,7,3,0,0,0,0,_T("")},
+    {DI_TEXT,9,3,0,0,0,0,0,0,(TCHAR *)MRightMargin},
+    {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+    {DI_TEXT,5,5,0,0,0,0,0,0,(TCHAR *)MFileMasks},
+    {DI_EDIT,5,6,70,6,0,0,0,0,_T("")},
+    {DI_TEXT,5,7,0,0,0,0,0,0,(TCHAR *)MExcludeFileMasks},
+    {DI_EDIT,5,8,70,6,0,0,0,0,_T("")},
+    {DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
+    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
 
-  struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+  struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
   DialogItems[1].Selected=Opt.Wrap;
-  lstrcpy(DialogItems[6].Data,Opt.FileMasks);
-  lstrcpy(DialogItems[8].Data,Opt.ExcludeFileMasks);
+#ifndef UNICODE
+#define SET_DLGITEM(n,v)  lstrcpy(DialogItems[n].Data, v)
+#else
+#define SET_DLGITEM(n,v)  DialogItems[n].PtrData = v
+#endif
+  SET_DLGITEM(6,Opt.FileMasks);
+  SET_DLGITEM(8,Opt.ExcludeFileMasks);
+#ifdef UNICODE
+  wchar_t marstr[32];
+  DialogItems[2].PtrData = marstr;
+  FSF.sprintf(marstr,L"%d",Opt.RightMargin);
+#else
   FSF.sprintf(DialogItems[2].Data,"%d",Opt.RightMargin);
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+#endif
+#ifndef UNICODE
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,
+                           ArraySize(DialogItems));
+#else
+  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,
+                                ArraySize(DialogItems),0,0,NULL,0);
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return INVALID_HANDLE_VALUE;
+
+  int ExitCode=Info.DialogRun(hDlg);
+#endif
   if (ExitCode==10)
   {
-    Opt.Wrap=DialogItems[1].Selected;
-    Opt.RightMargin=FSF.atoi(DialogItems[2].Data);
-    lstrcpy(Opt.FileMasks,DialogItems[6].Data);
-    lstrcpy(Opt.ExcludeFileMasks,DialogItems[8].Data);
-    SetRegKey(HKEY_CURRENT_USER,"","Wrap",Opt.Wrap);
-    SetRegKey(HKEY_CURRENT_USER,"","RightMargin",Opt.RightMargin);
-    SetRegKey(HKEY_CURRENT_USER,"","FileMasks",Opt.FileMasks);
-    SetRegKey(HKEY_CURRENT_USER,"","ExcludeFileMasks",Opt.ExcludeFileMasks);
+    Opt.Wrap=GetCheck(1);
+    Opt.RightMargin=FSF.atoi(GetDataPtr(2));
+    lstrcpy(Opt.FileMasks,GetDataPtr(6));
+    lstrcpy(Opt.ExcludeFileMasks,GetDataPtr(8));
+    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("Wrap"),Opt.Wrap);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("RightMargin"),Opt.RightMargin);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("FileMasks"),Opt.FileMasks);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ExcludeFileMasks"),Opt.ExcludeFileMasks);
   }
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
   return(INVALID_HANDLE_VALUE);
 }
 
 
-int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
+int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 {
   if (!Opt.Wrap)
     return(FALSE);
@@ -109,7 +141,7 @@ int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
       if (ei.CurLine!=startei.CurLine)
         return(TRUE);
       int Found=FALSE;
-      char FileMask[NM],*MaskPtr=Opt.FileMasks;
+      TCHAR FileMask[NM],*MaskPtr=Opt.FileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
         if (Info.CmpName(FileMask,ei.FileName,TRUE))
         {
@@ -133,7 +165,7 @@ int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
     egs.StringNumber=ei.CurLine;
     Info.EditorControl(ECTL_GETSTRING,&egs);
 
-    int TabPresent=memchr(egs.StringText,'\t',egs.StringLength)!=NULL;
+    int TabPresent=_tmemchr(egs.StringText,_T('\t'),egs.StringLength)!=NULL;
     int TabLength=egs.StringLength;
     if (TabPresent)
     {
@@ -150,7 +182,7 @@ int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
       int SpacePos=-1;
       int I;
       for (I=egs.StringLength-1;I>0;I--)
-        if (egs.StringText[I]==' ' || egs.StringText[I]=='\t')
+        if (egs.StringText[I]==_T(' ') || egs.StringText[I]==_T('\t'))
         {
           SpacePos=I;
           int TabPos=I;
@@ -171,7 +203,7 @@ int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
 
       int SpaceOnly=TRUE;
       for (I=0;I<SpacePos;I++)
-        if (egs.StringText[I]!=' ' && egs.StringText[I]!='\t')
+        if (egs.StringText[I]!=_T(' ') && egs.StringText[I]!=_T('\t'))
         {
           SpaceOnly=FALSE;
           break;
@@ -210,14 +242,14 @@ int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
 }
 
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
   Info->DiskMenuStringsNumber=0;
-  static const char *PluginMenuStrings[1];
+  static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MAutoWrap);
   Info->PluginMenuStrings=PluginMenuStrings;
-  Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+  Info->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
   Info->PluginConfigStringsNumber=0;
 }

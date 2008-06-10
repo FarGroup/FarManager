@@ -13,12 +13,12 @@
 #CPU=AMD64 - for 64bit build
 #
 #############################################################################
-ALLDIRS = align compare editcase emenu farcmds hlfviewer macroview network \
-          proclist
+ALLDIRS = align autowrap compare editcase emenu farcmds hlfviewer macroview \
+	  network proclist
 
 !ifndef WIDE
 ALLDIRS = $(ALLDIRS) \
-          autowrap brackets drawline filecase ftp multiarc tmppanel
+          brackets drawline filecase ftp multiarc tmppanel
 !endif
 
 #############################################################################
