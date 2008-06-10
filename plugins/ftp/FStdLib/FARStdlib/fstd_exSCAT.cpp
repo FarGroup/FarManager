@@ -3,6 +3,7 @@
 
 #include "fstdlib.h"
 
+/*
 static void DECLSPEC _strncat( char *dest,const char *src,int dest_sz )
   {
     if ( !dest || !dest[0] || !src || !src[0] ) return;
@@ -14,6 +15,7 @@ static void DECLSPEC _strncat( char *dest,const char *src,int dest_sz )
        *dest++ = *src++;
     *dest = 0;
 }
+*/
 
 char *DECLSPEC StrCat( char *dest,CONSTSTR src,int dest_sz )
   {

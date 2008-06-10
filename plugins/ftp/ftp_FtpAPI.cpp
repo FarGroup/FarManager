@@ -87,7 +87,7 @@ BOOL FtpFindFirstFile( Connection *hConnect, CONSTSTR lpszSearchFile,PFTPFileInf
      String Command;
      int    AllFiles = StrCmp(lpszSearchFile,"*")==0 ||
                        StrCmp(lpszSearchFile,"*.*")==0;
-     int    FromCache;
+     int    FromCache = 0;
 
      if ( ResetCache && *ResetCache == TRUE ) {
        hConnect->CacheReset();

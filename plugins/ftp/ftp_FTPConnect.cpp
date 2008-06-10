@@ -6,8 +6,8 @@
 BOOL FTP::DoFtpConnect( int blocked )
   {  char  hst[FAR_MAX_NAME],
            usr[FAR_MAX_NAME],
-           pwd[FAR_MAX_NAME],
-          *m;
+           pwd[FAR_MAX_NAME];
+     const char *m;
      BOOL  askPwd = Host.AskLogin;
 
     hConnect = NULL;
@@ -51,7 +51,7 @@ BOOL FTP::DoFtpConnect( int blocked )
          // Find port
          m = strrchr( hst,':' );
          if ( m ) {
-           *m = 0;
+           *(char *)m = 0;
            m++;
          } else
            m = "0";

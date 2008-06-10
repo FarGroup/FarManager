@@ -56,7 +56,7 @@ int Connection::empty(struct fd_set *mask, int sec)
 
 //--------------------------------------------------------------------------------
 /*VARARGS1*/
-int Connection::command(char *fmt, ...)
+int Connection::command(const char *fmt, ...)
   {  PROC(( "Connection::command", "%s", fmt ));
      va_list ap;
      int     r;

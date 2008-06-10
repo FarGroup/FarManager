@@ -251,7 +251,7 @@ BOOL DECLSPEC DoCreateDirectory(char *directoryPath) {
     return TRUE;
 
   // Step by step create all directoriesPath structure (maybe SHCreateDirectoryEx?)
-  char ch;
+  char ch=0;
   do {
     directoriesPath = StrChr(++directoriesPath, SLASH_CHAR);
     if (directoriesPath) {

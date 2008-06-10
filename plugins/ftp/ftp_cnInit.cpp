@@ -21,7 +21,7 @@ BOOL Connection::Init( CONSTSTR Host, CONSTSTR Port, CONSTSTR User, CONSTSTR Pas
 
      char *argv[5];
 
-     argv[0] = "open";
+     argv[0] = (char*)"open";
      argv[1] = (char*)Host;
      argv[2] = (char*)Port;
      argv[3] = (char*)User;

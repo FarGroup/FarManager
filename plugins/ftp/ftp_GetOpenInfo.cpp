@@ -15,7 +15,7 @@ void SetTitles( char *cols[], CONSTSTR fmt,int cn )
          switch( *fmt ) {
            case '0': cols[n] = (char*)FP_GetMsg(MFileMode); break;
            case '1': cols[n] = (char*)FP_GetMsg(MLink); break;
-            default: cols[n] = "<unk>";
+            default: cols[n] = (char*)"<unk>";
          }
        } else
          cols[n] = NULL;
@@ -224,8 +224,8 @@ FTP
     ColumnTitles[0] = (char*)FP_GetMsg(MHostColumn);
 
     //==1
-    PanelModesArray[1].ColumnTypes   = "C0";
-    PanelModesArray[1].ColumnWidths  = "0";
+    PanelModesArray[1].ColumnTypes   = (char *)"C0";
+    PanelModesArray[1].ColumnWidths  = (char *)"0";
 
     //==2
     num = 1;
@@ -271,10 +271,10 @@ FTP
     ColumnTitles2[1] = (char*)FP_GetMsg(MDescColumn);
 
     if ( !dizLen ) {
-      PanelModesArray[3].ColumnTypes   = "C0";
-      PanelModesArray[3].ColumnWidths  = "0";
+      PanelModesArray[3].ColumnTypes   = (char *)"C0";
+      PanelModesArray[3].ColumnWidths  = (char *)"0";
     } else {
-      PanelModesArray[3].ColumnTypes   = "C0,Z";
+      PanelModesArray[3].ColumnTypes   = (char *)"C0,Z";
       PanelModesArray[3].ColumnWidths  = ModeSz2;
       Sprintf( ModeSz2,"%d,0",Min( (int)(thisPInfo.PanelRect.right-thisPInfo.PanelRect.left)/2,hstLen) );
     }
@@ -318,9 +318,9 @@ FTP
   static struct KeyBarTitles KeyBar;
   MemSet(&KeyBar,0,sizeof(KeyBar));
 
-  KeyBar.ShiftTitles[1-1] = "";
-  KeyBar.ShiftTitles[2-1] = "";
-  KeyBar.ShiftTitles[3-1] = "";
+  KeyBar.ShiftTitles[1-1] = (char *)"";
+  KeyBar.ShiftTitles[2-1] = (char *)"";
+  KeyBar.ShiftTitles[3-1] = (char *)"";
 
   KeyBar.AltTitles[6-1]   = (char*)FP_GetMsg(MAltF6);
 

@@ -20,7 +20,7 @@ struct comvars {
  * Format of command table.
  */
 struct cmd {
-  char *c_name;         /* name of command */
+  const char *c_name;   /* name of command */
   BYTE  c_conn;         /* must be connected to use command */
   BYTE  c_proxy;        /* proxy server may execute */
   BYTE  c_args;         /* minimal parameters number */
@@ -75,7 +75,7 @@ STRUCT( Connection )
     void       get(int argc, char *argv[]);
     cmd       *getcmd(register char *name);
     int        gethdir(char *home);
-    int        getit(int argc, char *argv[], int restartit, char *mode);
+    int        getit(int argc, char *argv[], int restartit, const char *mode);
     int        getreply( BOOL expecteof, DWORD tm = MAX_DWORD );
     void       ginit(char **agargv);
     BOOL       hookup( char *host, int port );
@@ -97,8 +97,8 @@ STRUCT( Connection )
     void       pwd();
     void       quit();
     void       quote(int argc, char *argv[]);
-    void       recvrequestINT(char *cmd, char *local, char *remote, char *mode );
-    void       recvrequest(char *cmd, char *local, char *remote, char *mode );
+    void       recvrequestINT(char *cmd, char *local, char *remote, const char *mode );
+    void       recvrequest(char *cmd, char *local, char *remote, const char *mode );
     void       reget(int argc, char *argv[]);
     void       removedir(int argc, char *argv[]);
     void       renamefile(int argc, char *argv[]);
@@ -123,7 +123,7 @@ STRUCT( Connection )
 
     void       site(int argc, char *argv[]);
     void       sizecmd(int argc, char *argv[]);
-    char      *slurpstring();
+    const char *slurpstring();
     char*      strend(register char *cp);
     char*      strspl(register char *cp, register char *dp);
     void       syst();
@@ -251,7 +251,7 @@ STRUCT( Connection )
     void           InitIOBuff( void );
     BOOL           Init( CONSTSTR Host,CONSTSTR Port,CONSTSTR User,CONSTSTR Password );
 
-    int            command(char *fmt, ...);
+    int            command(const char *fmt, ...);
     int            ProcessCommand( CONSTSTR LineToProcess);
     int            ProcessCommand( String& s ) { return ProcessCommand( s.c_str() ); }
     void           CheckResume( void );

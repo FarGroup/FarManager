@@ -89,6 +89,12 @@
   #define __MSWIN32__  1
 #endif
 
+#if defined(__GNUC__) && defined( __WIN32__ )
+  #define __HWIN__     1
+  #define __GNU        1
+  #define __GWIN32__   1
+#endif
+
 //! DMC compiller
 #if defined(__DMC__) && defined(_WIN32)
   #define __HWIN__     1
@@ -145,7 +151,7 @@
     #define DECLSPEC_PT     _cdecl
     #define DECLSPEC        WINAPI
   #else
-  #if defined(__MSOFT) || defined(__INTEL) || defined(__DMC)
+  #if defined(__MSOFT) || defined(__INTEL) || defined(__DMC) || defined(__GNU)
     #define FAR_EXTERN      extern "C"
     #define FAR_DECLSPEC    WINAPI
     #define DECLSPEC_PT     _cdecl
@@ -200,7 +206,7 @@
       #define RTL_CALLBACK _USERENTRY
       #define DLL_CALLBACK WINAPI
   #else
-  #if defined( __MSOFT ) || defined(__INTEL) || defined( __SYMANTEC )
+  #if defined( __MSOFT ) || defined(__INTEL) || defined( __SYMANTEC ) || defined(__GNU)
       #define RTL_CALLBACK _cdecl
       #define DLL_CALLBACK WINAPI
   #else
@@ -472,7 +478,7 @@ enum accTypes  {
    #define FIO_SETERRORN(v)             SetLastError( (DWORD)(v) )
    #define FIO_ALLFILES                 (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_DIREC | FA_ARCH)
 #else
-#if defined(__MSOFT) || defined(__INTEL)
+#if defined(__MSOFT) || defined(__INTEL) || defined(__GNU)
    #define ALL_FILES                    "*.*"
    #define SLASH_CHAR                   '\\'
    #define SLASH_STR                    "\\"
@@ -514,7 +520,9 @@ enum accTypes  {
 
    #define EZERO         0             /*0    Error 0                          */
    #define EINVFNC       EPERM         /*1    Invalid function number          */
+  #ifndef ENOFILE
    #define ENOFILE       ENOENT        /*2    File not found                   */
+  #endif
    #define ENOPATH       ESRCH         /*3    Path not found                   */
    #define ECONTR        E2BIG         /*7    Memory blocks destroyed          */
    #define EINVMEM       EBADF         /*9    Invalid memory block address     */
@@ -527,11 +535,13 @@ enum accTypes  {
    #define ENOTSAM       EEXIST        /*17    Not same device                  */
    #define ENMFILE       EXDEV         /*18    No more files                    */
    #define ETXTBSY       26            /*26    UNIX - not MSDOS                 */
+  #ifndef EDEADLOCK
    #define EDEADLOCK     EDEADLK       /*36    Locking violation                */
+  #endif
    #define ENOTBLK       43            /*43    UNIX - not MSDOS                 */
    #define EUCLEAN       47            /*47    UNIX - not MSDOS                 */
 #else
-   #error "Unknown platform. Please correct \fstdlib.h\" for compiller you use"
+   #error "Unknown platform. Please correct \"fstdlib.h\" for compiller you use"
 #endif //MSOFT
 #endif //BORLAND
 #endif //SCWIN32
@@ -546,7 +556,7 @@ extern void         DECLSPEC_PT __WinAbort( CONSTSTR msg,... );
 //[fstd_Trap.cpp]
 extern void         DECLSPEC_PT __TrapLog( CONSTSTR msg,... );
 //[fstd_err.cpp]
-extern char        *DECLSPEC_PT __WINError( void );
+extern const char  *DECLSPEC_PT __WINError( void );
 //[fstd_exit.cpp]
 typedef void (RTL_CALLBACK *AbortProc)(void);
 
@@ -720,7 +730,7 @@ CLASS( FARINProc )
    FARINProc( CONSTSTR nm,CONSTSTR s,... );
    ~FARINProc();
 
-   static void DECLSPEC Say( CONSTSTR s,... );
+   static void DECLSPEC_PT Say( CONSTSTR s,... );
 };
 
 extern int FP_LogErrorStringLength;

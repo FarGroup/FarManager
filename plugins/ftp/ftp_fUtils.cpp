@@ -234,7 +234,7 @@ int FTP::ExpandListINT( PluginPanelItem *pi,int icn,PFP_SizeItemList il,BOOL Fro
      int              DirItemsNumber,res;
      char            *CurName,*m;
      int              n,num;
-     __int64          lSz,lCn;
+     __int64          lSz=0,lCn=0;
      String           curp;
 
     if ( !icn )

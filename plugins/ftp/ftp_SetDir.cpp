@@ -53,7 +53,7 @@ BOOL FTP::SetDirectoryStepped( CONSTSTR Dir, BOOL update )
 
   //Try change to directory one-by-one
     char     str[ FAR_MAX_PATHSIZE ];
-    CONSTSTR m;
+    CONSTSTR m = NULL;
     int      num;
 
     do{

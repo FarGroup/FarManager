@@ -164,7 +164,7 @@ void FP_Multiline::DeleteSelectionText( int num )
 
      SRect r = Selections[num].Rect;
      int   n,len,
-           x,x1,y = -1,y1;
+           x,x1,y = -1,y1 = 0;
      char *m;
 
      if ( r.isNull() )
@@ -411,7 +411,7 @@ void FP_Multiline::SetItems( void )
 }
 
 void FP_Multiline::ParseText( char *m,char **tLines,int& tCount,int tMaxCount )
-  {  char  ch1;
+  {  char  ch1 = 0;
      char *str;
 
     tCount = 0;

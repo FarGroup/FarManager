@@ -14,11 +14,11 @@ BOOL   DECLSPEC __HeapCheck_S( void )               { return heapcheck() == _HEA
 #if defined(__QNX__)
 BOOL   DECLSPEC __HeapCheck_S( void )               { return _heapchk() == _HEAPOK; }
 #else
-#if defined(__MSOFT)
+#if defined(__MSOFT) || defined(__GNU)
 BOOL   DECLSPEC __HeapCheck_S( void )               { return _heapchk() == _HEAPOK; }
 #else
 #if defined(__SYMANTEC)
-BOOL   DECLSPEC __HeapCheck_S( void )               { return ??/*_heapchk() == _HEAPOK*/; }
+#error "BOOL   DECLSPEC __HeapCheck_S( void )               { return /*_heapchk() == _HEAPOK*/; }"
 #endif //__BORLAND
 #endif //__QNX
 #endif //__MSOFT

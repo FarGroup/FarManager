@@ -104,12 +104,12 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
       StrCpy( tmp.FindData.cFileName,"..");
       tmp.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
       if ( !IS_SILENT(OpMode) ) {
-        tmp.Description               = "..";
+        tmp.Description               = (char *)"..";
         tmp.CustomColumnNumber        = 3;
         tmp.CustomColumnData          = Data;
-        tmp.CustomColumnData[0]       = "..";
-        tmp.CustomColumnData[1]       = "..";
-        tmp.CustomColumnData[2]       = "..";
+        tmp.CustomColumnData[0]       = (char *)"..";
+        tmp.CustomColumnData[1]       = (char *)"..";
+        tmp.CustomColumnData[2]       = (char *)"..";
        }
       if ( !il.Add(&tmp) )
         return FALSE;
@@ -155,13 +155,13 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
 //FTP
   FP_Screen _scr;
 
+  FTPFileInfo FileInfo;
+
   if ( !hConnect ) {
     goto AskConnect;
   }
 
 Restart:
-
-  FTPFileInfo FileInfo;
 
   if ( !FtpFindFirstFile( hConnect, "*", &FileInfo, &ResetCache ) ) {
     if ( GetLastError() == ERROR_NO_MORE_FILES ) {

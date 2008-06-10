@@ -20,7 +20,7 @@ static FTPInterface Interface;
 static BOOL         InterfaceInited = FALSE;
 
 //------------------------------------------------------------------------
-HANDLE DECLSPEC idProcStart( CONSTSTR FunctionName,CONSTSTR Format,... )
+HANDLE DECLSPEC_PT idProcStart( CONSTSTR FunctionName,CONSTSTR Format,... )
   {  String str;
      va_list argptr;
 
@@ -151,7 +151,7 @@ STRUCT( FTPPluginsInfo )
 
 //------------------------------------------------------------------------
 BOOL InitPlugins( void )
-  {  HMODULE m;
+  {  HMODULE m = NULL;
      char    str[ FAR_MAX_PATHSIZE ],*tmp;
      int     n;
 

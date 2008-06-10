@@ -20,14 +20,14 @@ static unsigned get_cluster_size(const char *fname)
 }
 
 //--------------------------------------------------------------------------------
-void Connection::recvrequest(char *cmd, char *local, char *remote, char *mode )
+void Connection::recvrequest(char *cmd, char *local, char *remote, const char *mode )
   {  //??SaveConsoleTitle _title;
 
      recvrequestINT( cmd,local,remote,mode );
      IdleMessage( NULL,0 );
 }
 
-void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode )
+void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char *mode )
 {
   int              oldtype = 0,
                    is_retr;
@@ -169,6 +169,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
       GET_TIME(b);
       bw = b;
       while( 1 ) {
+        int c;
         if ( wsz != 512 && b_done >= wsz ) {  // pseudo ansync io
           DWORD off = 0, rdy = 0, ost = b_done % wsz, top = b_done - ost;
           while ( ioctlsocket(din, FIONREAD, &rdy) && !rdy) {
@@ -182,7 +183,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
           }
         }
        //Recv
-        int c = nb_recv(&din, IOBuff+b_done, b_ost, 0);
+        c = nb_recv(&din, IOBuff+b_done, b_ost, 0);
         if ( c <= 0 ) {
           if ( b_done && Fwrite(fout.Handle,IOBuff,b_done) != b_done ) goto write_error;
           if ( c < 0 ) {

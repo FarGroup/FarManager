@@ -63,7 +63,7 @@ void RTL_CALLBACK CloseUp( void )
        Log(( "CloseUp.FreeBackups" ));
        for( n = 0; n < FTP::BackupCount; n++ )
          delete FTP::Backups[n];
-       FTP::BackupCount = NULL;
+       FTP::BackupCount = 0;
      }
      Log(( "CloseUp.FreePlugins" ));
      FreePlugins();

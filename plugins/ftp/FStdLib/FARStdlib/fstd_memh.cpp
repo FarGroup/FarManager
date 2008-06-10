@@ -11,11 +11,15 @@ BOOL DECLSPEC __HeapCheck_H( void )
   {  BOOL rc;
 
     CHH
+#ifndef __GNU
     __try{
+#endif
       rc = HeapValidate(Heap,0,NULL);
+#ifndef __GNU
     }__except( EXCEPTION_EXECUTE_HANDLER ) {
       rc = FALSE;
     }
+#endif
 
  return rc;
 }

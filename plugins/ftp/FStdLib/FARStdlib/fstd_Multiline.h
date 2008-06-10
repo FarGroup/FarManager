@@ -85,7 +85,7 @@ CLASS( FP_Multiline )
   public:
    FP_Multiline( int *itms,int maxLines = 100 );
    FP_Multiline( int from,int to,int maxLines = 100 );
-   ~FP_Multiline();
+   virtual ~FP_Multiline();
 
    virtual BOOL DlgProc( PFP_Dialog d, int Msg, int Param1, LONG_PTR Param2, long& rc );
    virtual void SetChanged( bool ch );

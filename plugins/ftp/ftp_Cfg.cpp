@@ -97,8 +97,8 @@ void DECLSPEC ReadCfg( void )
      GCMD( "ServerDateFormat", "%*s %04d%02d%02d%02d%02d%02d", fmtDateFormat )
 
 //Months
-     static char *Months[12]={ "Jan","Feb","Mar","Apr","May","Jun",
-                               "Jul","Aug","Sep","Oct","Nov","Dec" };
+     static const char *Months[12]={ "Jan","Feb","Mar","Apr","May","Jun",
+                                     "Jul","Aug","Sep","Oct","Nov","Dec" };
 
 
      for ( n = 0; n < 12; n++ ) {

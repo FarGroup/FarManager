@@ -154,6 +154,25 @@ BOOL WINAPI DllMain( HINSTANCE hinst, DWORD reason, LPVOID ptr )
  return res;
 }
 #else
+#if defined(__GNU)
+BOOL WINAPI DllMain(HANDLE hDll,DWORD reason,LPVOID lpReserved)
+{
+    if ( reason == DLL_PROCESS_ATTACH ) {
+      FP_HModule = GetModuleHandle( FP_GetPluginName() );
+      SetLogProc();
+      AtExit( idAtExit );
+    }
+
+    BOOL res = FP_PluginStartup(reason);
+
+    if ( reason == DLL_PROCESS_DETACH ) {
+      CallAtExit();
+    }
+
+ return res;
+}
+#else
   #error "Define plugin DLL entry point procedure for your  compiller"
+#endif
 #endif
 #endif

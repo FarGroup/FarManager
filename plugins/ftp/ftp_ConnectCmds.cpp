@@ -151,7 +151,7 @@ void Connection::newer(int argc, char *argv[])
 /*
  * Receive one file.
  */
-int Connection::getit(int argc, char *argv[], int restartit, char *mode)
+int Connection::getit(int argc, char *argv[], int restartit, const char *mode)
   {  PROC(( "getit"," %d %s %d [%s,%s,%s]",restartit,mode,argc,(argc>=1)?argv[0]:"nil",(argc>=2)?argv[1]:"nil",(argc>=3)?argv[2]:"nil" ));
 
      if (argc == 2) {
@@ -239,7 +239,7 @@ void Connection::ls(int argc, char *argv[])
     argc++, argv[1] = NULL;
 
   if (argc < 3)
-    argc++, argv[2] = "-";
+    argc++, argv[2] = (char *)"-";
 
   if (argc > 3) {
     code = -1;
@@ -454,7 +454,7 @@ void Connection::disconnect()
 void Connection::account(int argc,char **argv)
   {  PROC(( "account","%d [%s,%s,%s]",argc,(argc>=1)?argv[0]:"nil",(argc>=2)?argv[1]:"nil",(argc>=3)?argv[2]:"nil" ));
      String  acct;
-     char   *ap;
+     const char *ap;
 
      if (argc > 1) {
        ++argv;

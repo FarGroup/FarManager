@@ -69,7 +69,7 @@ FARINProc::~FARINProc()
     SetLastError(err);
 }
 
-void FARINProc::Say( CONSTSTR s,... )
+void DECLSPEC_PT FARINProc::Say( CONSTSTR s,... )
   {  va_list ap;
      char    str[500];
      int     rc;

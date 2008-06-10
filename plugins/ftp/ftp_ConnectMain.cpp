@@ -75,7 +75,7 @@ int Connection::ProcessCommand( CONSTSTR LineToProcess )
 
 struct cmd *Connection::getcmd(register char *name)
 {
-        register char *p, *q;
+        register const char *p, *q;
         register struct cmd *c, *found;
         register int nmatches, longest;
 
@@ -112,9 +112,9 @@ struct cmd *Connection::getcmd(register char *name)
 
 void Connection::makeargv()
 {
-        char **argp;
+        const char **argp;
         margc = 0;
-        argp = margv;
+        argp = (const char **)margv;
         stringbase = line.c_str();  /* scan from first of buffer */
         argbuf.Alloc( line.Length()+100 );
         argbase = argbuf.c_str();           /* store from first of buffer */
@@ -128,7 +128,7 @@ void Connection::makeargv()
  * implemented with FSM to
  * handle quoting and strings
  */
-char *Connection::slurpstring()
+const char *Connection::slurpstring()
 {
         int got_one = 0;
         register char *sb = stringbase;

@@ -3,7 +3,7 @@
 
 #include "fstdlib.h"
 
-static char     *CT_Def_argv[] = { "",NULL };
+static char     *CT_Def_argv[] = { (char*)"",NULL };
 static char    **CT_argv = CT_Def_argv;
 static int       CT_argc = 1;
 static BOOL      CT_CaseSensitive;

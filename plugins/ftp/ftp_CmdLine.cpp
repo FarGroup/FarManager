@@ -105,7 +105,7 @@ BOOL FTP::DoCommand( CONSTSTR str, int type, DWORD flags )
   {  FP_Screen _scr;
      BOOL ext = hConnect->Host.ExtCmdView,
           dex = Opt.DoNotExpandErrors;
-     int  rc;
+     int  rc=0;
      char *m;
 
      hConnect->Host.ExtCmdView = TRUE;

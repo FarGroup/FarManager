@@ -3,9 +3,9 @@
 
 #include "fstdlib.h"
 
-#if defined(__SYMANTEC) || defined(__BORLAND) || defined(__MSOFT)
+#if defined(__SYMANTEC) || defined(__BORLAND) || defined(__MSOFT) || defined(__GNU)
 
-char *DECLSPEC_PT __WINError( void )
+const char *DECLSPEC_PT __WINError( void )
   {  static char *WinEBuff = NULL;
      DWORD err = GetLastError();
 

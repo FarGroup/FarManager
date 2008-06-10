@@ -1,0 +1,25 @@
+NAME = FarFtp
+SRCS = ftp_AskOver.cpp ftp_Cfg.cpp ftp_CmdLine.cpp ftp_cnDownload.cpp ftp_cnInit.cpp \
+       ftp_cnUpload.cpp ftp_Connect.cpp ftp_ConnectCmds.cpp ftp_ConnectIO.cpp ftp_ConnectMain.cpp \
+       ftp_ConnectNB.cpp ftp_ConnectSock.cpp ftp_DeleteFile.cpp ftp_EnumHost.cpp ftp_Event.cpp \
+       ftp_FAR.cpp ftp_FGet.cpp ftp_FileList.cpp ftp_FPut.cpp ftp_Ftp.cpp ftp_FtpAPI.cpp ftp_FTPBlock.cpp \
+       ftp_FTPConnect.cpp ftp_FtpDlg.cpp ftp_FTPHost.cpp ftp_fUtils.cpp ftp_GetOpenInfo.cpp ftp_HGet.cpp \
+       ftp_HPut.cpp ftp_JM.cpp ftp_Key.cpp ftp_MakeDir.cpp ftp_Mem.cpp ftp_Mix.cpp ftp_Plugin.cpp ftp_Queque.cpp \
+       ftp_SetDir.cpp ftp_Shortcut.cpp ftp_sock.cpp ftp_Url.cpp
+DOCS = FtpEng.hlf FtpRus.hlf FtpEng.lng FtpRus.lng TechInfo.reg TechInfo_rus.reg FtpCmds.txt FtpCmds_rus.txt Notes.txt Notes_rus.txt
+
+NEEDDEFLIB=1
+NEEDENTRY=1
+EXCLUDECRT=1
+
+USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__HEAP_MEMORY__=1 -D__USEASSERT__=1 -D__NOVCL__=1 -D_CONSOLE=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
+USERLIBSFIRST = -L $(OBJDIR) -lFARStd
+USERLIBS = -lwsock32 -lwinmm
+
+include ../makefile_gcc_def_inc
+
+LNKFLAGS = -mno-cygwin -mdll -s -lgcc $(USERLIBSFIRST) -L $(COMMON) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+
+include ../makefile_gcc_target_inc
+
+$(RES): ftpversion.hpp
