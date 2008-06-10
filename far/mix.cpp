@@ -366,6 +366,14 @@ int GetDirInfo(char *Title,
       // в противном случае это будем делать в подсчёте количества файлов
       if (!(Flags&GETDIRINFO_USEFILTER))
         DirCount++;
+      else
+      {
+        // Если стоит отрицательный фильтр с атрибутом каталога, то каталог
+        // надо полностью пропустить - иначе при включенном подсчёте total
+        // он учтётся (mantiss 551)
+        if (Filter->FileInFilter(&FindData, true))
+          ScTree.SkipDir();
+      }
     }
     else
     {
