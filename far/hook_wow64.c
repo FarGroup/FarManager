@@ -140,10 +140,10 @@ static void init_hook(void)
        || data.off != sizeof(data)) return;
 
     // don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-    if(!VirtualProtect((void*)&wow, PAGE_READWRITE, sizeof(wow), &data.off))
+    if(!VirtualProtect((void*)&wow, sizeof(wow), PAGE_READWRITE, &data.off))
       return;
     *(WOW*)&wow = rwow;
-    VirtualProtect((void*)&wow, data.off, sizeof(wow), &ur.d);
+    VirtualProtect((void*)&wow, sizeof(wow), data.off, &ur.d);
 }
 
 //-----------------------------------------------------------------------------
