@@ -421,10 +421,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_memb.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\fstd_memh.cpp"
 				>
 			</File>
@@ -549,10 +545,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Trap.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\fstd_Utils.cpp"
 				>
 			</File>
@@ -562,10 +554,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\fmt.hpp"
-				>
-			</File>
 			<File
 				RelativePath=".\fstd_CharDraw.h"
 				>
@@ -583,10 +571,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ida-plugin.h"
-				>
-			</File>
-			<File
 				RelativePath=".\pack1.h"
 				>
 			</File>
@@ -596,10 +580,6 @@
 			</File>
 			<File
 				RelativePath=".\pack4.h"
-				>
-			</File>
-			<File
-				RelativePath=".\plugin_165.hpp"
 				>
 			</File>
 			<File
