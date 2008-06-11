@@ -2,8 +2,7 @@ NAME = TmpPanel
 SRCS = TmpPanel.cpp \
 TmpCfg.cpp \
 TmpClass.cpp \
-TmpMix.cpp \
-TmpReg.cpp
+TmpMix.cpp
 DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng shortcuts.eng.reg shortcuts.rus.reg disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp
 
 include ../makefile_gcc_def_inc
