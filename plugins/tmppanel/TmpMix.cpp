@@ -7,7 +7,7 @@ Temporary panel miscellaneous utility functions
 
 #include "TmpPanel.hpp"
 
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -29,29 +29,45 @@ void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,
     PItem->Focus=0;
     PItem->History=0;
     PItem->DefaultButton=0;
+#ifdef UNICODE
+    PItem->MaxLen=0;
+#endif
+#ifndef UNICODE
     lstrcpy(PItem->Data,PInit->Data!=-1 ? GetMsg(PInit->Data) : "");
+#else
+    PItem->PtrData = PInit->Data!=-1 ? GetMsg(PInit->Data) : L"";
+#endif
   }
 }
 
 void FreePanelItems(PluginPanelItem *Items, DWORD Total)
 {
   if(Items){
-    for (DWORD I=0;I<Total;I++)
+    for (DWORD I=0;I<Total;I++) {
       if (Items[I].Owner)
         free (Items[I].Owner);
+#ifdef UNICODE
+      if (Items[I].FindData.lpwszFileName)
+        free ((wchar_t*)Items[I].FindData.lpwszFileName);
+/*
+      if (Items[I].FindData.lpwszAlternateFileName)
+        free ((wchar_t*)Items[I].FindData.lpwszAlternateFileName);
+*/
+#endif
+    }
     free (Items);
   }
 }
 
-char *ParseParam(char *& str)
+TCHAR *ParseParam(TCHAR *& str)
 {
-  char* p=str;
-  char* parm=NULL;
-  if(*p=='|'){
+  TCHAR* p=str;
+  TCHAR* parm=NULL;
+  if(*p==_T('|')){
     parm=++p;
-    p=strchr(p,'|');
+    p=_tcschr(p,_T('|'));
     if(p){
-      *p='\0';
+      *p=_T('\0');
       str=p+1;
       FSF.LTrim(str);
       return parm;
@@ -60,22 +76,30 @@ char *ParseParam(char *& str)
   return NULL;
 }
 
-void GoToFile(const char *Target, BOOL AnotherPanel)
+void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
 {
+#ifndef UNICODE
   int FCTL_SetPanelDir = AnotherPanel?FCTL_SETANOTHERPANELDIR:FCTL_SETPANELDIR;
   int FCTL_GetPanelInfo = AnotherPanel?FCTL_GETANOTHERPANELINFO:FCTL_GETPANELINFO;
   int FCTL_RedrawPanel = AnotherPanel?FCTL_REDRAWANOTHERPANEL:FCTL_REDRAWPANEL;
+#define _PANEL_HANDLE  INVALID_HANDLE_VALUE
+#else
+#define FCTL_SetPanelDir  FCTL_SETPANELDIR
+#define FCTL_GetPanelInfo FCTL_GETPANELINFO
+#define FCTL_RedrawPanel  FCTL_REDRAWPANEL
+  HANDLE  _PANEL_HANDLE = AnotherPanel?ANOTHER_PANEL:INVALID_HANDLE_VALUE;
+#endif
 
   PanelRedrawInfo PRI;
   PanelInfo PInfo;
-  char Name[NM], Dir[NM*5];
+  TCHAR Name[NM], Dir[NM*5];
   int pathlen;
 
-  lstrcpy(Name,FSF.PointToName(const_cast<char*>(Target)));
-  pathlen=(int)(FSF.PointToName(const_cast<char*>(Target))-Target);
+  lstrcpy(Name,FSF.PointToName(const_cast<TCHAR*>(Target)));
+  pathlen=(int)(FSF.PointToName(const_cast<TCHAR*>(Target))-Target);
   if(pathlen)
-    memcpy(Dir,Target,pathlen);
-  Dir[pathlen]=0;
+    memcpy(Dir,Target,pathlen*sizeof(TCHAR));
+  Dir[pathlen]=_T('\0');
 
   FSF.Trim(Name);
   FSF.Trim(Dir);
@@ -83,23 +107,31 @@ void GoToFile(const char *Target, BOOL AnotherPanel)
   FSF.Unquote(Dir);
 
   if(*Dir)
-    Info.Control(INVALID_HANDLE_VALUE,FCTL_SetPanelDir,&Dir);
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_GetPanelInfo,&PInfo);
+    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,&Dir);
+  Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,&PInfo);
 
   PRI.CurrentItem=PInfo.CurrentItem;
   PRI.TopPanelItem=PInfo.TopPanelItem;
 
   for(int J=0; J < PInfo.ItemsNumber; J++)
   {
+#ifdef UNICODE
+#define cFileName lpwszFileName
+#endif
     if(!FSF.LStricmp(Name,
        FSF.PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+#undef cFileName
     {
       PRI.CurrentItem=J;
       PRI.TopPanelItem=J;
       break;
     }
   }
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_RedrawPanel,&PRI);
+  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,&PRI);
+#undef _PANEL_HANDLE
+#undef FCTL_SetPanelDir
+#undef FCTL_GetPanelInfo
+#undef FCTL_RedrawPanel
 }
 
 void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
@@ -108,10 +140,25 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
   ffd.ftCreationTime=wfd.ftCreationTime;
   ffd.ftLastAccessTime=wfd.ftLastAccessTime;
   ffd.ftLastWriteTime=wfd.ftLastWriteTime;
+#ifndef UNICODE
   ffd.nFileSizeHigh=wfd.nFileSizeHigh;
   ffd.nFileSizeLow=wfd.nFileSizeLow;
+#else
+  ffd.nFileSize = wfd.nFileSizeHigh;
+  ffd.nFileSize <<= 32;
+  ffd.nFileSize |= wfd.nFileSizeLow;
+#endif
+#ifndef UNICODE
   ffd.dwReserved0=wfd.dwReserved0;
   ffd.dwReserved1=wfd.dwReserved1;
+#else
+  ffd.nPackSize = 0;
+#endif
+#ifndef UNICODE
   lstrcpy(ffd.cFileName,wfd.cFileName);
   lstrcpy(ffd.cAlternateFileName,wfd.cAlternateFileName);
+#else
+  ffd.lpwszFileName = wcsdup(wfd.cFileName);
+  ffd.lpwszAlternateFileName = NULL;  // wcsdup(wfd.cAlternateFileName);
+#endif
 }

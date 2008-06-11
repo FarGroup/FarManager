@@ -14,11 +14,11 @@
 #
 #############################################################################
 ALLDIRS = align autowrap brackets compare editcase emenu farcmds filecase \
-	  hlfviewer macroview network proclist
+	  hlfviewer macroview network proclist tmppanel
 
 !ifndef WIDE
 ALLDIRS = $(ALLDIRS) \
-          drawline ftp multiarc tmppanel
+          drawline ftp multiarc
 !endif
 
 #############################################################################

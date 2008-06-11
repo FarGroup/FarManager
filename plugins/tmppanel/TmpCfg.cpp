@@ -7,6 +7,14 @@ Temporary panel configuration
 
 #include "TmpPanel.hpp"
 
+#ifndef UNICODE
+#define GetCheck(i) DialogItems[i].Selected
+#define GetDataPtr(i) DialogItems[i].Data
+#else
+#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
+#define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#endif
+
 enum
 {
   AddToDisksMenu,
@@ -30,45 +38,45 @@ enum
 
 options_t Opt;
 
-static const char REGStr[17][8]=
+static const TCHAR REGStr[17][8]=
 {
- "InDisks","InPlug",
- "Common","Safe","Any","Contens",
- "Mode","Menu","NewP",
- "Full",
- "ColT","ColW","StatT","StatW",
- "DigitV","Mask","Prefix"
+ _T("InDisks"), _T("InPlug"),
+ _T("Common"),  _T("Safe"),   _T("Any"),    _T("Contens"),
+ _T("Mode"),    _T("Menu"),   _T("NewP"),
+ _T("Full"),
+ _T("ColT"),    _T("ColW"),   _T("StatT"),  _T("StatW"),
+ _T("DigitV"),  _T("Mask"),   _T("Prefix")
 };
 
 struct COptionsList
 {
   void *Option;
-  const char *pStr;
+  const TCHAR *pStr;
   unsigned int DialogItem;
 };
 
 static const struct COptionsList OptionsList[]={
-  {&Opt.AddToDisksMenu    , ""         ,  1},
-  {&Opt.AddToPluginsMenu  , ""         ,  4},
+  {&Opt.AddToDisksMenu    , _T("")          ,  1},
+  {&Opt.AddToPluginsMenu  , _T("")          ,  4},
 
-  {&Opt.CommonPanel       , ""         ,  6},
-  {&Opt.SafeModePanel     , NULL       ,  7},
-  {&Opt.AnyInPanel        , NULL       ,  8},
-  {&Opt.CopyContents      , NULL       ,  9},
-  {&Opt.Mode              , ""         , 10},
-  {&Opt.MenuForFilelist   , NULL       , 11},
-  {&Opt.NewPanelForSearchResults, NULL , 12},
+  {&Opt.CommonPanel       , _T("")          ,  6},
+  {&Opt.SafeModePanel     , NULL            ,  7},
+  {&Opt.AnyInPanel        , NULL            ,  8},
+  {&Opt.CopyContents      , NULL            ,  9},
+  {&Opt.Mode              , _T("")          , 10},
+  {&Opt.MenuForFilelist   , NULL            , 11},
+  {&Opt.NewPanelForSearchResults, NULL      , 12},
 
-  {&Opt.FullScreenPanel   , NULL       , 22},
+  {&Opt.FullScreenPanel   , NULL            , 22},
 
-  {Opt.ColumnTypes        , "N,S"      , 15},
-  {Opt.ColumnWidths       , "0,8"      , 17},
-  {Opt.StatusColumnTypes  , "NR,SC,D,T", 19},
-  {Opt.StatusColumnWidths , "0,8,0,5"  , 21},
+  {Opt.ColumnTypes        , _T("N,S")       , 15},
+  {Opt.ColumnWidths       , _T("0,8")       , 17},
+  {Opt.StatusColumnTypes  , _T("NR,SC,D,T") , 19},
+  {Opt.StatusColumnWidths , _T("0,8,0,5")   , 21},
 
-  {Opt.DisksMenuDigit     , "1"        ,  2},
-  {Opt.Mask               , "*.temp"   , 25},
-  {Opt.Prefix             , "tmp"      , 27},
+  {Opt.DisksMenuDigit     , _T("1")         ,  2},
+  {Opt.Mask               , _T("*.temp")    , 25},
+  {Opt.Prefix             , _T("tmp")       , 27},
 };
 
 int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
@@ -78,7 +86,7 @@ void GetOptions(void)
   for(int i=AddToDisksMenu;i<=Prefix;i++)
   {
     DWORD Type,Size,IntValueData;
-    static char StrValueData[256];
+    static TCHAR StrValueData[256];
     HKEY hKey;
     RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey);
     if (i<ColumnTypes)
@@ -92,10 +100,10 @@ void GetOptions(void)
     else
     {
       Type=REG_SZ;
-      Size=sizeof(StrValueData);
-      lstrcpy((char*)OptionsList[i].Option,
+      Size=sizeof(CHAR)*ArraySize(StrValueData);
+      lstrcpy((TCHAR*)OptionsList[i].Option,
         RegQueryValueEx(hKey,REGStr[i],0,&Type,(BYTE*)StrValueData,&Size)==ERROR_SUCCESS?
-        (char*)StrValueData:OptionsList[i].pStr);
+        (TCHAR*)StrValueData:OptionsList[i].pStr);
     }
     RegCloseKey(hKey);
   }
@@ -150,9 +158,9 @@ int Config()
   };
 
   int i;
-  static struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+  static struct FarDialogItem DialogItems[ArraySize(InitItems)];
 
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+  InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
   DialogItems[29].DefaultButton=1;
   DialogItems[2].Focus=1;
 
@@ -161,13 +169,25 @@ int Config()
     if (i<ColumnTypes)
       DialogItems[OptionsList[i].DialogItem].Selected=*(int*)(OptionsList[i].Option);
     else
+#ifndef UNICODE
       lstrcpy(DialogItems[OptionsList[i].DialogItem].Data,(char*)OptionsList[i].Option);
+#else
+      DialogItems[OptionsList[i].DialogItem].PtrData = (TCHAR*)OptionsList[i].Option;
+#endif
 
+#ifndef UNICODE
   int Ret=Info.Dialog(Info.ModuleNumber,-1,-1,DIALOG_WIDTH,DIALOG_HEIGHT,"Config",
-    DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+                      DialogItems,ArraySize(DialogItems));
+#else
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber,-1,-1,DIALOG_WIDTH,DIALOG_HEIGHT,
+                      L"Config",DialogItems,ArraySize(DialogItems),0,0,NULL,0);
+  if (hDlg == INVALID_HANDLE_VALUE)
+    return FALSE;
 
-  if(Ret==sizeof(InitItems)/sizeof(InitItems[0]) || Ret<0)
-    return(FALSE);
+  int Ret=Info.DialogRun(hDlg);
+#endif
+
+  if((unsigned)Ret >= ArraySize(InitItems)) goto done;
 
   for(i=AddToDisksMenu;i<=Prefix;i++)
   {
@@ -177,23 +197,27 @@ int Config()
                    &hKey,&Disposition);
     if (i<ColumnTypes)
     {
-      *((int*)OptionsList[i].Option)=DialogItems[OptionsList[i].DialogItem].Selected;
+      *((int*)OptionsList[i].Option)=GetCheck(OptionsList[i].DialogItem);
       RegSetValueEx(hKey,REGStr[i],0,REG_DWORD,(BYTE*)OptionsList[i].Option,
         sizeof(int));
     }
     else
     {
-      FSF.Trim(lstrcpy((char*)OptionsList[i].Option,DialogItems[OptionsList[i].DialogItem].Data));
+      FSF.Trim(lstrcpy((TCHAR*)OptionsList[i].Option,GetDataPtr(OptionsList[i].DialogItem)));
       RegSetValueEx(hKey,REGStr[i],0,REG_SZ,(BYTE*)OptionsList[i].Option,
-        lstrlen((char*)OptionsList[i].Option)+1);
+        sizeof(TCHAR)*(lstrlen((TCHAR*)OptionsList[i].Option)+1));
     }
     RegCloseKey(hKey);
   }
   if(StartupOptFullScreenPanel!=Opt.FullScreenPanel ||
      StartupOptCommonPanel!=Opt.CommonPanel)
   {
-    const char *MsgItems[]={GetMsg(MTempPanel),GetMsg(MConfigNewOption),GetMsg(MOk)};
-    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    const TCHAR *MsgItems[]={GetMsg(MTempPanel),GetMsg(MConfigNewOption),GetMsg(MOk)};
+    Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),1);
   }
-  return(TRUE);
+done:
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+  return((unsigned)Ret<ArraySize(InitItems));
 }

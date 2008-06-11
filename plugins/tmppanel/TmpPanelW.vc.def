@@ -1,0 +1,17 @@
+LIBRARY TmpPanel
+EXPORTS
+  ClosePluginW
+  ConfigureW
+  ExitFARW
+  GetFindDataW
+  GetOpenPluginInfoW
+  GetPluginInfoW
+  OpenFilePluginW
+  OpenPluginW
+  ProcessEventW
+  ProcessKeyW
+  PutFilesW
+  SetDirectoryW
+  SetFindListW
+  SetStartupInfoW
+  GetMinFarVersionW

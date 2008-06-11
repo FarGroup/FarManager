@@ -42,17 +42,23 @@ extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
 
 extern int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
-extern char PluginRootKey[80];
+extern TCHAR PluginRootKey[80];
 
-const char *GetMsg(int MsgId);
+const TCHAR *GetMsg(int MsgId);
 void InitDialogItems(const MyInitDialogItem *Init,struct FarDialogItem *Item,int ItemsNumber);
 
 int Config();
-void GoToFile(const char *Target, BOOL AnotherPanel);
+void GoToFile(const TCHAR *Target, BOOL AnotherPanel);
 void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 
-char *ParseParam(char *& str);
+TCHAR *ParseParam(TCHAR *& str);
 void GetOptions(void);
 void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
+
+#ifndef UNICODE
+#define ExpandEnvStrs   FSF.ExpandEnvironmentStr
+#else
+#define ExpandEnvStrs   ExpandEnvironmentStrings
+#endif
 
 #endif /* __TMPPANEL_HPP__ */

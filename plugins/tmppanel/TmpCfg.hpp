@@ -15,13 +15,13 @@ typedef struct options_s
   int FullScreenPanel;
   int LastSearchResultsPanel;
   int SelectedCopyContents;
-  char ColumnTypes[64];
-  char ColumnWidths[64];
-  char StatusColumnTypes[64];
-  char StatusColumnWidths[64];
-  char DisksMenuDigit[1];
-  char Mask[512];
-  char Prefix[16];
+  TCHAR ColumnTypes[64];
+  TCHAR ColumnWidths[64];
+  TCHAR StatusColumnTypes[64];
+  TCHAR StatusColumnWidths[64];
+  TCHAR DisksMenuDigit[1];
+  TCHAR Mask[512];
+  TCHAR Prefix[16];
 } options_t;
 
 extern options_t Opt;

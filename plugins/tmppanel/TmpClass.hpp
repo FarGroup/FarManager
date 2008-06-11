@@ -24,8 +24,8 @@ class TmpPanel
     void ProcessPanelSwitchMenu();
     void SwitchToPanel (int NewPanelIndex);
     void FindSearchResultsPanel();
-    void SaveListFile (const char *Path);
-    int IsCurrentFileCorrect (char *pCurFileName);
+    void SaveListFile (const TCHAR *Path);
+    int IsCurrentFileCorrect (TCHAR *pCurFileName);
 
     PluginPanelItem *TmpPanelItem;
     int TmpItemsNumber;
@@ -39,7 +39,7 @@ class TmpPanel
 //    int OpenFrom;
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
-    int SetDirectory(const char *Dir,int OpMode);
+    int SetDirectory(const TCHAR *Dir,int OpMode);
 
     int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
     HANDLE BeginPutFiles();
@@ -49,7 +49,7 @@ class TmpPanel
     int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
     int ProcessEvent(int Event,void *Param);
     int ProcessKey(int Key,unsigned int ControlState);
-    static int CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int OpenFrom);
+    static int CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int OpenFrom);
     void IfOptCommonPanel(void);
 
 };
