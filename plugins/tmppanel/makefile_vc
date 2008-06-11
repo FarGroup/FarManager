@@ -6,8 +6,7 @@ NAME = TmpPanel
 LINK_OBJS = $(OBJDIR)\TmpPanel.obj \
 $(OBJDIR)\TmpCfg.obj \
 $(OBJDIR)\TmpClass.obj \
-$(OBJDIR)\TmpMix.obj \
-$(OBJDIR)\TmpReg.obj
+$(OBJDIR)\TmpMix.obj
 
 !include ..\makefile_vc_def_inc
 
