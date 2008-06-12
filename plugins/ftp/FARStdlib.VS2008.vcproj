@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)debug.32.vc"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(ProjectDir)debug.32.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;..\..\..\common\ascii"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
 				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -72,6 +72,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -91,8 +92,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(ProjectDir)debug.64.vc"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(ProjectDir)debug.64.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -115,7 +116,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;..\..\..\common\ascii"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
 				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -144,6 +145,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -163,8 +165,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)final.32.vc"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(ProjectDir)final.32.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
 			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -188,7 +190,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..;..\..\..\common\ascii"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
 				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -201,7 +203,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				CallingConvention="1"
 				DisableSpecificWarnings="4985;4996"
 			/>
@@ -216,6 +218,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -235,8 +238,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(ProjectDir)final.64.vc"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(ProjectDir)final.64.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
 			ConfigurationType="4"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -261,7 +264,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..;..\..\..\common\ascii"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
 				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
 				StringPooling="true"
 				ExceptionHandling="0"
@@ -275,7 +278,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				CallingConvention="1"
 				DisableSpecificWarnings="4985;4996"
 			/>
@@ -290,6 +293,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -317,235 +321,235 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\fstd_Arg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Arg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_asrt.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_asrt.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_cDialog.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_cDialog.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_CharDraw.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_CharDraw.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_ClpS.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_ClpS.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Con.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Con.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_crc32.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_crc32.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Dbg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Dbg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Dialog.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Dialog.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Dlg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Dlg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Editor.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Editor.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_err.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_err.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exit.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exit.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSCAT.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSCAT.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSCHC.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSCHC.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSCMP.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSCMP.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSCPY.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSCPY.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSNCH.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSNCH.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSPCH.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSPCH.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_exSPS.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_exSPS.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_FMsg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_FMsg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_FUtils.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_FUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_HotKey.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_HotKey.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_ilist.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_ilist.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_INProc.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_INProc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_log.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_log.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_memh.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_memh.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_mems.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_mems.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_menu.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_menu.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_mesg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_mesg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_mklog.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_mklog.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Msg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Msg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Multiline.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Multiline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_OEM.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_OEM.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Patt.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Patt.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_per.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_per.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_plg.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_plg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegCh.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegCh.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegCp.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegCp.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegCr.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegCr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegDl.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegDl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegDla.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegDla.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegGB.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegGB.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegGI.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegGI.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegOp.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegOp.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegRn.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegRn.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegSB.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegSB.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegSC.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegSC.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_RegSI.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_RegSI.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_SCol.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_SCol.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_scr.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_scr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_stdlibCS.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibCS.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_stdlibME.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibME.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_stdlibSP.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibSP.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_stdlibST.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_stdlibST.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_SText.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_SText.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_String.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_String.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Utils.cpp"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Utils.cpp"
 				>
 			</File>
 		</Filter>
@@ -555,35 +559,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\fstd_CharDraw.h"
+				RelativePath=".\FStdLib\FARStdlib\fstd_CharDraw.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_Multiline.h"
+				RelativePath=".\FStdLib\FARStdlib\fstd_Multiline.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fstd_String.h"
+				RelativePath=".\FStdLib\FARStdlib\fstd_String.h"
 				>
 			</File>
 			<File
-				RelativePath=".\funi.h"
+				RelativePath=".\FStdLib\FARStdlib\funi.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pack1.h"
+				RelativePath=".\FStdLib\FARStdlib\pack1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pack2.h"
+				RelativePath=".\FStdLib\FARStdlib\pack2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pack4.h"
+				RelativePath=".\FStdLib\FARStdlib\pack4.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pop.h"
+				RelativePath=".\FStdLib\FARStdlib\pop.h"
 				>
 			</File>
 		</Filter>
