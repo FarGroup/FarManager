@@ -161,7 +161,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ftp", "ftp\ftp.VS2008.vcpro
 		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F} = {6A6E122A-4151-4AF2-BBCB-2B4603CF029F}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FARStdlib", "ftp\FStdLib\FARStdlib\FARStdlib.VS2008.vcproj", "{6A6E122A-4151-4AF2-BBCB-2B4603CF029F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FARStdlib", "ftp\FARStdlib.VS2008.vcproj", "{6A6E122A-4151-4AF2-BBCB-2B4603CF029F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

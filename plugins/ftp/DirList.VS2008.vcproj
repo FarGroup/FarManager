@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(ProjectDir)debug.32.vc\lib"
-			IntermediateDirectory="$(OutDir)\obj\DirList"
+			IntermediateDirectory="$(OutDir)\..\obj\DirList"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -106,7 +106,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="$(ProjectDir)debug.64.vc\lib"
-			IntermediateDirectory="$(OutDir)\obj\DirList"
+			IntermediateDirectory="$(OutDir)\..\obj\DirList"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -192,7 +192,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(ProjectDir)final.32.vc\lib"
-			IntermediateDirectory="$(OutDir)\obj\DirList"
+			IntermediateDirectory="$(OutDir)\..\obj\DirList"
 			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -229,7 +229,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				DisableSpecificWarnings="4985;4996"
 			/>
 			<Tool
@@ -280,7 +280,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="$(ProjectDir)final.64.vc\lib"
-			IntermediateDirectory="$(OutDir)\obj\DirList"
+			IntermediateDirectory="$(OutDir)\..\obj\DirList"
 			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -319,7 +319,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				DisableSpecificWarnings="4985;4996"
 			/>
 			<Tool

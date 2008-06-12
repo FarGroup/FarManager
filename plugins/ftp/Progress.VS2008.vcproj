@@ -192,7 +192,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(ProjectDir)final.32.vc\lib"
-			IntermediateDirectory="$(OutDir)\obj\Progress"
+			IntermediateDirectory="$(OutDir)\..\obj\Progress"
 			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -229,7 +229,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				DisableSpecificWarnings="4985;4996"
 			/>
 			<Tool
@@ -319,7 +319,7 @@
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="all_far.h"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				DisableSpecificWarnings="4985;4996"
 			/>
 			<Tool
