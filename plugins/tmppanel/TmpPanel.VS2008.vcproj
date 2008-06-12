@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -200,7 +200,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -297,7 +297,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -396,7 +396,387 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Unicode|Win32"
+			OutputDirectory="$(ProjectDir)debug.32W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="4"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="TmpPanelW.vc.def"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				SubSystem="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Unicode|x64"
+			OutputDirectory="$(ProjectDir)debug.64W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="TmpPanelW.vc.def"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				SubSystem="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release Unicode|Win32"
+			OutputDirectory="$(ProjectDir)final.32W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="TmpPanelW.vc.def"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release Unicode|x64"
+			OutputDirectory="$(ProjectDir)final.64W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="TmpPanelW.vc.def"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.temp &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -429,40 +809,8 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TmpReg.cpp"
+				RelativePath=".\TmpPanelW.vc.def"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -525,6 +873,38 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						AdditionalIncludeDirectories="..\common\ascii"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
 					/>
 				</FileConfiguration>
 			</File>
