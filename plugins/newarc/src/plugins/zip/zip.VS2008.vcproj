@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="zip"
 	ProjectGUID="{25E705A3-FA09-403D-94B0-8D142453307B}"
+	RootNamespace="zip"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -62,8 +63,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\zip.module"
+				OutputFile="&quot;C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\zip.module&quot; "
 				LinkIncremental="2"
+				GenerateManifest="false"
+				ModuleDefinitionFile="zip.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/zip.pdb"
 				SubSystem="2"
@@ -147,6 +150,7 @@
 				Name="VCLinkerTool"
 				OutputFile="..\..\..\bin\plugins\zip.module"
 				LinkIncremental="1"
+				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="false"
 				ModuleDefinitionFile="zip.def"
 				GenerateDebugInformation="false"
@@ -217,7 +221,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Include\zip.Class.h"
+				RelativePath=".\zip.Class.H"
+				>
+			</File>
+			<File
+				RelativePath=".\zip.h"
 				>
 			</File>
 		</Filter>

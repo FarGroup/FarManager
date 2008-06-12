@@ -239,7 +239,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\bin\plugins\7z.all\7z_all.module"
+				OutputFile="&quot;C:\System Independent Files\Manager\Far\Plugins\newarc\plugins\7z.all\7z_all.module&quot; "
 				LinkIncremental="1"
 				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="false"

@@ -265,7 +265,12 @@ bool __stdcall ZipArchive::pExtract (
 
 						strcat (lpDestName, lpName);
 
-						Callback (AM_PROCESS_FILE, (dword)&pItems[i], (dword)lpDestName);
+						ProcessFileStruct pfs;
+
+						pfs.lpDestFileName = lpDestName;
+						pfs.pItem = &pItems[i];
+
+						Callback (AM_PROCESS_FILE, 0, (LONG_PTR)&pfs);
 
 						CreateDirs (lpDestName);
 
@@ -308,7 +313,7 @@ bool __stdcall ZipArchive::pExtract (
 									{
 										WriteFile(hFile, pBuffer, nRead, &dwWritten, NULL);
 
-										if ( !Callback (AM_PROCESS_DATA, (int)pBuffer, (int)nRead) )
+										if ( !Callback (AM_PROCESS_DATA, 0, (LONG_PTR)nRead) )
 										{
 											bAborted = true;
 											break;
@@ -349,7 +354,7 @@ l_1:
 	return (bool)nProcessed;
 }
 
-int ZipArchive::Callback (int nMsg, int nParam1, int nParam2)
+LONG_PTR ZipArchive::Callback (int nMsg, int nParam1, LONG_PTR nParam2)
 {
 	if ( m_pfnCallback )
 		return m_pfnCallback (nMsg, nParam1, nParam2);
