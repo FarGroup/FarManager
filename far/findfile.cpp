@@ -675,7 +675,7 @@ FindFiles::FindFiles()
       if( FindAskDlg[2].strData.IsEmpty() )             // если строка с масками пуста,
          FindAskDlg[2].strData = L"*"; // то считаем, что маска есть "*"
 
-      if(FileMaskForFindFile.Set(FindAskDlg[2].strData, FMF_ADDASTERISK))
+      if(FileMaskForFindFile.Set(FindAskDlg[2].strData, 0))
            break;
     }
 
