@@ -1207,9 +1207,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       if(!FPanels)
         return FALSE;
 
-      if ( (hPlugin == CURRENT_PANEL) || (hPlugin == ANOTHER_PANEL) )
+      if ( (hPlugin == PANEL_ACTIVE) || (hPlugin == PANEL_PASSIVE) )
       {
-         Panel *pPanel = (hPlugin == CURRENT_PANEL)?FPanels->ActivePanel:FPanels->GetAnotherPanel (FPanels->ActivePanel);
+         Panel *pPanel = (hPlugin == PANEL_ACTIVE)?FPanels->ActivePanel:FPanels->GetAnotherPanel (FPanels->ActivePanel);
 
          if ( pPanel )
          {
@@ -1366,6 +1366,27 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       return FALSE;
     }
 
+    case FCTL_ISACTIVEPANEL:
+    {
+    	if ( hPlugin == PANEL_ACTIVE )
+    		return TRUE;
+
+    	Panel *pPanel = FPanels->ActivePanel;	
+		PluginHandle *PlHandle;
+
+		if ( pPanel && (pPanel->GetMode() == PLUGIN_PANEL) )
+		{
+			PlHandle = (PluginHandle *)pPanel->GetPluginHandle();
+
+			if ( PlHandle && !IsBadReadPtr(PlHandle, sizeof(PluginHandle)) )
+			{
+				if ( PlHandle->hPlugin == hPlugin )
+					return TRUE;
+			}
+		}
+
+		return FALSE;
+    }
   }
   return(FALSE);
 }

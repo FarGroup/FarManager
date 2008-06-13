@@ -2010,7 +2010,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
 	oldfar::PanelInfo* CurrentPanelInfoA=&PanelInfoA;
-	HANDLE hPluginW = CURRENT_PANEL;
+	HANDLE hPluginW = PANEL_ACTIVE;
 
 	switch (Command)
 	{
@@ -2028,157 +2028,217 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		}
 
 		case oldfar::FCTL_GETANOTHERPANELINFO:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
 			CurrentPanelInfoA=&AnotherPanelInfoA;
+
 		case oldfar::FCTL_GETPANELINFO:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
 			PanelInfo PIW;
+
 			int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
-			if (ret)
+
+			if ( ret )
 			{
 				FreeAnsiPanelInfo(CurrentPanelInfoA);
 				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, FALSE);
 				*pPIA=*CurrentPanelInfoA;
 			}
+
 			return ret;
 		}
 
 		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
 			CurrentPanelInfoA=&AnotherPanelInfoA;
+
 		case oldfar::FCTL_GETPANELSHORTINFO:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
 			PanelInfo PIW;
+
 			int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
-			if (ret)
+
+			if ( ret )
 			{
 				FreeAnsiPanelInfo(CurrentPanelInfoA);
 				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, TRUE);
 				*pPIA=*CurrentPanelInfoA;
 			}
+
 			return ret;
 		}
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_REDRAWPANEL:
 		{
-			if(!Param) return FarControl(hPluginW, FCTL_REDRAWPANEL, NULL);
+			if ( !Param ) 
+				return FarControl(hPluginW, FCTL_REDRAWPANEL, NULL);
+
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
 			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
+
 			return FarControl(hPluginW, FCTL_REDRAWPANEL, &pri);
 		}
 
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_SETNUMERICSORT:
 			return FarControl(hPluginW, FCTL_SETNUMERICSORT, Param);
 
 		case oldfar::FCTL_SETANOTHERPANELDIR:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_SETPANELDIR:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
 			int ret = FarControl(hPluginW, FCTL_SETPANELDIR, Dir);
 			xf_free(Dir);
+
 			return ret;
 		}
 
 		case oldfar::FCTL_SETANOTHERSELECTION:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_SETSELECTION:
 			return FALSE; //BUGBUG
 
 		case oldfar::FCTL_SETANOTHERSORTMODE:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTMODE:
-			if(!Param) return FALSE;
+
+			if ( !Param ) 
+				return FALSE;
+
 			return FarControl(hPluginW, FCTL_SETSORTMODE, Param);
 
 		case oldfar::FCTL_SETANOTHERSORTORDER:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_SETSORTORDER:
 			return FarControl(hPluginW, FCTL_SETSORTORDER, Param);
 
 		case oldfar::FCTL_SETANOTHERVIEWMODE:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_SETVIEWMODE:
 			return FarControl(hPluginW, FCTL_SETVIEWMODE, Param);
 
 		case oldfar::FCTL_UPDATEANOTHERPANEL:
-			hPluginW = ANOTHER_PANEL;
+			hPluginW = PANEL_PASSIVE;
+
 		case oldfar::FCTL_UPDATEPANEL:
 			return FarControl(hPluginW, FCTL_UPDATEPANEL, Param);
 
 
 		case oldfar::FCTL_GETCMDLINE:
 		{
-			if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
+			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) ) 
+				return FALSE;
+
 			wchar_t s[1024];
+
 			int ret = FarControl(hPluginW, FCTL_GETCMDLINE, &s);
-			if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
+
+			if ( ret ) 
+				UnicodeToAnsi(s, (char*)Param, 1024-1);
+
 			return ret;
 		}
 
 		case oldfar::FCTL_GETCMDLINEPOS:
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			return FarControl(hPluginW,FCTL_GETCMDLINEPOS,Param);
 
 		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 		{
-			if(!Param || IsBadWritePtr(Param, sizeof(char) * 1024)) return FALSE;
+			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) ) 
+				return FALSE;
+
 			wchar_t s[1024];
+
 			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTEDTEXT, &s);
-			if(ret) UnicodeToAnsi(s, (char*)Param, 1024-1);
+
+			if ( ret ) 
+				UnicodeToAnsi(s, (char*)Param, 1024-1);
+
 			return ret;
 		}
 
 		case oldfar::FCTL_GETCMDLINESELECTION:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			CmdLineSelect cls;
+
 			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTION, &cls);
-			if (ret)
+
+			if ( ret )
 			{
 				oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 				clsA->SelStart = cls.SelStart;
 				clsA->SelEnd = cls.SelEnd;
-			};
+			}
+
 			return ret;
 		}
 
 		case oldfar::FCTL_INSERTCMDLINE:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			wchar_t* s = AnsiToUnicode((const char*)Param);
+
 			int ret = FarControl(hPluginW, FCTL_INSERTCMDLINE, s);
+
 			xf_free(s);
 			return ret;
 		}
 
 		case oldfar::FCTL_SETCMDLINE:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			wchar_t* s = AnsiToUnicode((const char*)Param);
+
 			int ret = FarControl(hPluginW, FCTL_SETCMDLINE, s);
+
 			xf_free(s);
 			return ret;
 		}
 
 		case oldfar::FCTL_SETCMDLINEPOS:
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			return FarControl(hPluginW, FCTL_SETCMDLINEPOS, Param);
 
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
-			if(!Param) return FALSE;
+			if ( !Param ) 
+				return FALSE;
+
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
+
 			return FarControl(hPluginW, FCTL_SETCMDLINESELECTION, &cls);
 		}
 
