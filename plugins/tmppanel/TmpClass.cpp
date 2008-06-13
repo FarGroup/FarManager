@@ -141,7 +141,7 @@ static inline int cmp_names(const WIN32_FIND_DATA &wfd, const FAR_FIND_DATA &ffd
 }
 
 
-int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
+int TmpPanel::PutOneFile(PluginPanelItem &PanelItem)
 {
   TCHAR CurDir[NM];
   GetCurrentDirectory(ArraySize(CurDir),CurDir);
@@ -161,17 +161,17 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
 #define CurName PanelItem.FindData.cFileName
   if(CheckForCorrect(CurName,&CurPanelItem->FindData,Opt.AnyInPanel))
   {
-    int NameOnly=(FSF.PointToName(CurName)!=CurName);
+    int NameOnly=(FSF.PointToName(CurName)==CurName);
 #undef CurName
 
 #ifndef UNICODE
-    lstrcpy(CurPanelItem->FindData.cFileName, NameOnly ? "" : CurDir);
+    lstrcpy(CurPanelItem->FindData.cFileName, NameOnly ? CurDir : "");
     lstrcat(CurPanelItem->FindData.cFileName,PanelItem.FindData.cFileName);
 #else
     size_t wlen = lstrlen(PanelItem.FindData.lpwszFileName);
-    if (!NameOnly) wlen += lstrlen(CurDir);
-    register wchar_t *wp = (wchar_t*)malloc(wlen+1);
-    lstrcpy(wp, NameOnly ? L"" : CurDir);
+    if (NameOnly) wlen += lstrlen(CurDir);
+    register wchar_t *wp = (wchar_t*)malloc((wlen+1)*sizeof(wchar_t));
+    lstrcpy(wp, NameOnly ? CurDir : L"");
     lstrcat(wp, PanelItem.FindData.lpwszFileName);
     CurPanelItem->FindData.lpwszFileName = wp;
 #endif
@@ -195,12 +195,7 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
                             &DirItems,
                             &DirItemsNumber))
         {
-#ifdef UNICODE
-          for(int i = 0; i < TmpItemsNumber; i++)
-            free((wchar_t*)TmpPanelItem[i].FindData.lpwszFileName);
-#endif
-          free(TmpPanelItem);
-          TmpPanelItem=NULL;
+          FreePanelItems(TmpPanelItem, TmpItemsNumber);
           TmpItemsNumber=0;
           return FALSE;
         }
@@ -221,7 +216,7 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
           lstrcat(CurPanelItem->FindData.cFileName,DirItems[i].FindData.cFileName);
 #else
           CurPanelItem->FindData=DirItems[i];
-          wp = (wchar_t*)malloc(wlen + lstrlen(DirItems[i].lpwszFileName));
+          wp = (wchar_t*)malloc((wlen+lstrlen(DirItems[i].lpwszFileName))*sizeof(wchar_t));
           lstrcpy(wp, CurDir);
           lstrcat(wp, DirItems[i].lpwszFileName);
           CurPanelItem->FindData.lpwszFileName = wp;
@@ -253,16 +248,22 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
 {
   HANDLE hScreen = BeginPutFiles();
   FindSearchResultsPanel();
-  if(TmpPanelItem) free(TmpPanelItem);
-  TmpPanelItem=(PluginPanelItem*) malloc(sizeof(PluginPanelItem)*ItemsNumber+1);
-  if(TmpPanelItem==NULL)
-    TmpItemsNumber=0;
-  else
+  FreePanelItems(TmpPanelItem, TmpItemsNumber);
+  TmpItemsNumber = 0;
+  TmpPanelItem=(PluginPanelItem*) malloc(sizeof(PluginPanelItem)*ItemsNumber);
+  if(TmpPanelItem)
   {
     TmpItemsNumber=ItemsNumber;
     memcpy(TmpPanelItem,PanelItem,ItemsNumber*sizeof(*TmpPanelItem));
-    for(int i=0;i<ItemsNumber;++i)
+    for(int i=0;i<ItemsNumber;++i) {
       TmpPanelItem[i].Flags&=~PPIF_SELECTED;
+      if(TmpPanelItem[i].Owner)
+        TmpPanelItem[i].Owner = _tcsdup(TmpPanelItem[i].Owner);
+#ifdef UNICODE
+      if(TmpPanelItem[i].FindData.lpwszFileName)
+        TmpPanelItem[i].FindData.lpwszFileName = wcsdup(TmpPanelItem[i].FindData.lpwszFileName);
+#endif
+    }
   }
   CommitPutFiles (hScreen, TRUE);
   UpdateNotNeeded=TRUE;
@@ -335,8 +336,16 @@ void TmpPanel::RemoveEmptyItems()
   for(int i=0;i<TmpItemsNumber;i++,CurItem++)
     if(CurItem->Flags & REMOVE_FLAG)
     {
-      if(CurItem->Owner)
-        free (CurItem->Owner);
+      if(CurItem->Owner) {
+        free(CurItem->Owner);
+        CurItem->Owner = NULL;
+      }
+#ifdef UNICODE
+      if(CurItem->FindData.lpwszFileName) {
+        free((wchar_t*)CurItem->FindData.lpwszFileName);
+        CurItem->FindData.lpwszFileName = NULL;
+      }
+#endif
       EmptyCount++;
     }
     else if(EmptyCount>0)
@@ -431,7 +440,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
         TCHAR Owner[80];
         if(CurItem->Owner)
         {
-          free (CurItem->Owner);
+          free(CurItem->Owner);
           CurItem->Owner=NULL;
         }
         if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner))
@@ -730,38 +739,34 @@ void TmpPanel::SwitchToPanel (int NewPanelIndex)
 
 void TmpPanel::ProcessPanelSwitchMenu()
 {
-  FarMenuItem *fmi=(FarMenuItem*)malloc(COMMONPANELSNUMBER*sizeof(FarMenuItem));
-  if(fmi)
-  {
-    const TCHAR *txt=GetMsg(MSwitchMenuTxt);
+  FarMenuItem fmi[COMMONPANELSNUMBER];
+  const TCHAR *txt=GetMsg(MSwitchMenuTxt);
 #ifdef UNICODE
-    wchar_t tmpstr[128][COMMONPANELSNUMBER];
+  wchar_t tmpstr[128][COMMONPANELSNUMBER];
 #endif
-    static const TCHAR fmt1[]=_T("&%c. %s %d");
-    for(unsigned int i=0;i<COMMONPANELSNUMBER;++i)
-    {
+  static const TCHAR fmt1[]=_T("&%c. %s %d");
+  for(unsigned int i=0;i<COMMONPANELSNUMBER;++i)
+  {
 #ifndef UNICODE
 #define _OUT  fmi[i].Text
 #else
 #define _OUT  tmpstr[i]
-      fmi[i].Text = tmpstr[i];
+    fmi[i].Text = tmpstr[i];
 #endif
-      if(i<10)
-        FSF.sprintf(_OUT,fmt1,_T('0')+i,txt,CommonPanels[i].ItemsNumber);
-      else if(i<36)
-        FSF.sprintf(_OUT,fmt1,_T('A')-10+i,txt,CommonPanels[i].ItemsNumber);
-      else
-        FSF.sprintf(_OUT,_T("   %s %d"),txt,CommonPanels[i].ItemsNumber);
+    if(i<10)
+      FSF.sprintf(_OUT,fmt1,_T('0')+i,txt,CommonPanels[i].ItemsNumber);
+    else if(i<36)
+      FSF.sprintf(_OUT,fmt1,_T('A')-10+i,txt,CommonPanels[i].ItemsNumber);
+    else
+      FSF.sprintf(_OUT,_T("   %s %d"),txt,CommonPanels[i].ItemsNumber);
 #undef _OUT
-    }
-    fmi[PanelIndex].Selected=TRUE;
-    int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,
-      FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-      GetMsg(MSwitchMenuTitle),NULL,NULL,
-      NULL,NULL,fmi,COMMONPANELSNUMBER);
-    free(fmi);
-    SwitchToPanel (ExitCode);
   }
+  fmi[PanelIndex].Selected=TRUE;
+  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,
+    FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+    GetMsg(MSwitchMenuTitle),NULL,NULL,
+    NULL,NULL,fmi,COMMONPANELSNUMBER);
+  SwitchToPanel (ExitCode);
 }
 
 
