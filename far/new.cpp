@@ -18,11 +18,13 @@ extern long CallNewDelete;
 
 
 #if defined(_MSC_VER)
+/*
 extern _PNH _pnhHeap;
 
 extern "C" {
 void * __cdecl  _nh_malloc(size_t, int);
 };
+*/
 
 void * operator new( size_t cb )
 {

@@ -617,11 +617,7 @@ int _cdecl main(int Argc, char *Argv[])
 
   TConsoleRestore __ConsoleRestore(RectoreConsole);
 
-#if _MSC_VER>=1300
-  _set_new_handler(0);
-#else
-  set_new_handler(0);
-#endif
+  std::set_new_handler(0);
 
   /* $ 08.01.2003 SVS
      BugZ#765 - Ключи командной строки парсятся неоднозначно.
