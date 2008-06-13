@@ -61,4 +61,10 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
 #define ExpandEnvStrs   ExpandEnvironmentStrings
 #endif
 
+#ifdef UNICODE
+#define BOM_UCS2     0xFEFF
+#define BOM_UCS2_BE  0xFFFE
+#define BOM_UTF8     0xBFBBEF
+#endif
+
 #endif /* __TMPPANEL_HPP__ */

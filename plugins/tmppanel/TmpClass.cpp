@@ -34,7 +34,7 @@ TmpPanel::~TmpPanel()
 int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
 {
   IfOptCommonPanel();
-  static struct PanelInfo PInfo;
+  struct PanelInfo PInfo;
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
   UpdateItems(IsOwnersDisplayed (PInfo),IsLinksDisplayed (PInfo));
   *pPanelItem=TmpPanelItem;
@@ -57,12 +57,12 @@ void TmpPanel::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   Info->Format=(TCHAR*)GetMsg(MTempPanel);
 
   static TCHAR Title[MAX_PATH];
-  static TCHAR PanelMode[16];
-  lstrcpy(PanelMode, Opt.SafeModePanel ? _T("(R) ") : _T(""));
+#define PANEL_MODE  (Opt.SafeModePanel ? _T("(R) ") : _T(""))
   if(StartupOptCommonPanel)
-    FSF.sprintf(Title,GetMsg(MTempPanelTitleNum),PanelMode,PanelIndex);
+    FSF.sprintf(Title,GetMsg(MTempPanelTitleNum),PANEL_MODE,PanelIndex);
   else
-    FSF.sprintf(Title,_T(" %s%s "),PanelMode,GetMsg(MTempPanel));
+    FSF.sprintf(Title,_T(" %s%s "),PANEL_MODE,GetMsg(MTempPanel));
+#undef PANEL_MODE
 
   Info->PanelTitle=Title;
 
@@ -143,7 +143,7 @@ static inline int cmp_names(const WIN32_FIND_DATA &wfd, const FAR_FIND_DATA &ffd
 
 int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
 {
-  static TCHAR CurDir[NM];
+  TCHAR CurDir[NM];
   GetCurrentDirectory(ArraySize(CurDir),CurDir);
   FSF.AddEndSlash(CurDir);
 
@@ -365,8 +365,8 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
   struct PluginPanelItem *CurItem=TmpPanelItem;
   for(int i=0;i<TmpItemsNumber;i++,CurItem++)
   {
+    TCHAR FullName[NM];
     HANDLE FindHandle;
-    static TCHAR FullName[NM];
     lstrcpy(FullName,CurItem->FindData.cFileName);
 
     TCHAR *Slash=_tcsrchr(/*(const TCHAR*)*/FullName,_T('\\'));
@@ -428,17 +428,14 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
     {
       if(ShowOwners)
       {
-        static TCHAR Owner[80];
+        TCHAR Owner[80];
         if(CurItem->Owner)
         {
           free (CurItem->Owner);
           CurItem->Owner=NULL;
         }
         if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner))
-        {
-          CurItem->Owner=(TCHAR *) malloc((lstrlen(Owner)+1)*sizeof(TCHAR));
-          if(CurItem->Owner) lstrcpy(CurItem->Owner,Owner);
-        }
+          CurItem->Owner=_tcsdup(Owner);
       }
       if(ShowLinks)
         CurItem->NumberOfLinks=FSF.GetNumberOfLinks(CurItem->FindData.cFileName);
@@ -453,7 +450,7 @@ int TmpPanel::ProcessEvent(int Event,void *)
   if(Event==FE_CHANGEVIEWMODE)
   {
     IfOptCommonPanel();
-    static struct PanelInfo PInfo;
+    struct PanelInfo PInfo;
     Info.Control(this,FCTL_GETPANELINFO,&PInfo);
     int UpdateOwners=IsOwnersDisplayed (PInfo) && !LastOwnersRead;
     int UpdateLinks=IsLinksDisplayed (PInfo) && !LastLinksRead;
@@ -470,8 +467,8 @@ int TmpPanel::ProcessEvent(int Event,void *)
 
 int TmpPanel::IsCurrentFileCorrect (TCHAR *pCurFileName)
 {
-  static struct PanelInfo PInfo;
-  static TCHAR CurFileName[NM];
+  struct PanelInfo PInfo;
+  TCHAR CurFileName[NM];
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
   lstrcpy(CurFileName, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
 
@@ -507,7 +504,7 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
     TCHAR CurFileName [NM];
     if (IsCurrentFileCorrect(CurFileName))
     {
-      static struct PanelInfo PInfo;
+      struct PanelInfo PInfo;
       Info.Control(this,FCTL_GETPANELINFO,&PInfo);
       if (lstrcmp(CurFileName,_T(".."))!=0)
       {
@@ -599,7 +596,7 @@ void TmpPanel::ProcessRemoveKey()
 {
   IfOptCommonPanel();
 
-  static struct PanelInfo PInfo;
+  struct PanelInfo PInfo;
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
 
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
@@ -643,7 +640,7 @@ void TmpPanel::ProcessSaveListKey()
   Info.Control (_HANDLE, _GET, &PInfo);
 
   // default path: opposite panel directory\panel<index>.<mask extension>
-  static TCHAR ListPath [NM];
+  TCHAR ListPath [NM];
 #ifdef UNICODE
 #define CurDir  lpwszCurDir
 #endif
@@ -654,7 +651,7 @@ void TmpPanel::ProcessSaveListKey()
   if (Opt.CommonPanel)
     FSF.itoa (PanelIndex, ListPath + lstrlen (ListPath), 10);
 
-  static TCHAR ExtBuf [NM];
+  TCHAR ExtBuf [NM];
   lstrcpy (ExtBuf, Opt.Mask);
   TCHAR *comma = _tcschr (ExtBuf, _T(','));
   if (comma)
@@ -679,6 +676,11 @@ void TmpPanel::ProcessSaveListKey()
 
 void TmpPanel::SaveListFile (const TCHAR *Path)
 {
+  IfOptCommonPanel();
+
+  if (!TmpItemsNumber)
+    return;
+
   HANDLE hFile = CreateFile (Path, GENERIC_WRITE, 0, NULL,
     CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (hFile == INVALID_HANDLE_VALUE)
@@ -689,16 +691,18 @@ void TmpPanel::SaveListFile (const TCHAR *Path)
     return;
   }
 
-  IfOptCommonPanel();
-
-  for (int i=0; i<TmpItemsNumber; i++)
-  {
-    const TCHAR *CRLF = _T("\r\n");
-    DWORD BytesWritten;
+  DWORD BytesWritten;
+#ifdef UNICODE
+  static const unsigned short bom = BOM_UCS2;
+  WriteFile (hFile, &bom, sizeof(bom), &BytesWritten, NULL);
+#endif
+  int i = 0;
+  do {
+    static const TCHAR *CRLF = _T("\r\n");
     const TCHAR *FName = TmpPanelItem [i].FindData.cFileName;
     WriteFile (hFile, FName, sizeof(TCHAR)*lstrlen(FName), &BytesWritten, NULL);
     WriteFile (hFile, CRLF, 2*sizeof(TCHAR), &BytesWritten, NULL);
-  }
+  }while(++i < TmpItemsNumber);
   CloseHandle (hFile);
 }
 
@@ -797,7 +801,7 @@ inline bool isDevice(const TCHAR* FileName, const TCHAR* dev_begin)
 
 int TmpPanel::CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int Any)
 {
-  static TCHAR TempDir[MAX_PATH], SavedDir[MAX_PATH];
+  TCHAR TempDir[MAX_PATH], SavedDir[MAX_PATH];
   ExpandEnvStrs(Dir,TempDir,ArraySize(TempDir));
   WIN32_FIND_DATA wfd;
 
@@ -834,7 +838,7 @@ int TmpPanel::CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int Any)
     {
       TCHAR *t = p + lstrlen(p) - 1;
       if (*t == _T('\\')) *t = 0;
-      static TCHAR TMP[MAX_PATH];
+      TCHAR TMP[MAX_PATH];
       fff=FindFirstFile(lstrcat(lstrcpy(TMP, p),_T("\\*.*")),&wfd);
       if(fff != INVALID_HANDLE_VALUE)
       {

@@ -86,7 +86,7 @@ void GetOptions(void)
   for(int i=AddToDisksMenu;i<=Prefix;i++)
   {
     DWORD Type,Size,IntValueData;
-    static TCHAR StrValueData[256];
+    TCHAR StrValueData[256];
     HKEY hKey;
     RegOpenKeyEx(HKEY_CURRENT_USER,PluginRootKey,0,KEY_QUERY_VALUE,&hKey);
     if (i<ColumnTypes)
@@ -158,7 +158,7 @@ int Config()
   };
 
   int i;
-  static struct FarDialogItem DialogItems[ArraySize(InitItems)];
+  struct FarDialogItem DialogItems[ArraySize(InitItems)];
 
   InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
   DialogItems[29].DefaultButton=1;

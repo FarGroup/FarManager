@@ -115,7 +115,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         k++;
         argv++;
       }
-      static TCHAR TMP[MAX_PATH];
+      TCHAR TMP[MAX_PATH];
       lstrcpyn(TMP,argv-k,k+1);
 
       for(int i=0;i<OPT_COUNT;i++)
@@ -171,7 +171,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
   TCHAR *tempDir=ParseParam(argv);
 
   BOOL allOK=FALSE;
-  static TCHAR tempfilename[NM*5],cmdparams[NM*5],fullcmd[NM*5];
+  TCHAR tempfilename[NM*5],cmdparams[NM*5],fullcmd[NM*5];
   FSF.MkTemp(tempfilename,
 #ifdef UNICODE
              ArraySize(tempfilename),
@@ -181,7 +181,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
   lstrcat(cmdparams,argv);
   ExpandEnvStrs(cmdparams,fullcmd,ArraySize(fullcmd));
 
-  static SECURITY_ATTRIBUTES sa;
+  SECURITY_ATTRIBUTES sa;
   memset(&sa, 0, sizeof(sa));
   sa.nLength=sizeof(sa);
   sa.bInheritHandle=TRUE;
@@ -192,7 +192,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
 
   if(FileHandle!=INVALID_HANDLE_VALUE)
   {
-    static STARTUPINFO si;
+    STARTUPINFO si;
     memset(&si,0,sizeof(si));
     si.cb=sizeof(si);
     si.dwFlags=STARTF_USESTDHANDLES;
@@ -200,10 +200,10 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     si.hStdOutput=FileHandle;
     si.hStdError=FileHandle;
 
-    static PROCESS_INFORMATION pi;
+    PROCESS_INFORMATION pi;
     memset(&pi,0,sizeof(pi));
 
-    static TCHAR SaveDir[NM],workDir[NM];
+    TCHAR SaveDir[NM],workDir[NM];
 
     if(tempDir)
     {
@@ -212,7 +212,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
       SetCurrentDirectory(workDir);
     }
 
-    static TCHAR consoleTitle[255];
+    TCHAR consoleTitle[255];
     DWORD tlen = GetConsoleTitle(consoleTitle, ArraySize(consoleTitle));
     SetConsoleTitle(argv);
 
@@ -246,45 +246,88 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, TCHAR **argv, TCHAR *
   *numchars = 0;
   *numargs = 0;
 
-  TCHAR *FileData=(TCHAR *)MapViewOfFile(hFileMapping,FILE_MAP_READ,0,0,FileSizeLow);
+  char *FileData=(char *)MapViewOfFile(hFileMapping,FILE_MAP_READ,0,0,FileSizeLow);
+  if (!FileData)
+    return;
 
-  if(FileData!=NULL)
-  {
-    static TCHAR TMP[MAX_PATH];
-    int Len,Pos=0,Size=FileSizeLow;
+  TCHAR TMP[MAX_PATH];
+  DWORD Len,Pos=0,Size=FileSizeLow;
 
-    while(Pos<Size)
-    {
-      while(Pos<Size && (FileData[Pos]==_T('\r') || FileData[Pos]==_T('\n'))) Pos++;
-      Len=0;
-      while(Pos<Size && FileData[Pos]!=_T('\r') && FileData[Pos]!=_T('\n'))
-      {
-        Len++;
-        Pos++;
+#ifdef UNICODE
+  bool  ucs2 = false;
+  if (Size >= 2) switch(*(LPWORD)FileData) {
+    case (BOM_UTF8 & 0xFFFF):
+      if (Size >= 3 && ((LPBYTE)FileData)[2] == (BYTE)(BOM_UTF8>>16)) {
+    case BOM_UCS2_BE:
+        goto done;
       }
-
-      Len=(Len<ArraySize(TMP))?Len:(ArraySize(TMP)-1);
-      memcpy(&TMP, &FileData[Pos-Len], sizeof(TCHAR*)*Len);
-      TMP[Len]=0;
-      FSF.Trim(TMP);
-      FSF.Unquote(TMP);
-
-#ifndef UNICODE
-      if(ANSI) CharToOem(TMP,TMP);
+    default:
+      break;
+    case BOM_UCS2:
+      ucs2 = true;
+      Pos += 2;
+      break;
+  }
 #endif
 
-      if(argv) *argv++ = args;
-      if(args)
-      {
-        lstrcpy(args,TMP);
-        args+=Len+1;
-      }
-
-      (*numchars)+=Len+1;
-      ++*numargs;
+  while(Pos<Size)
+  {
+#ifdef UNICODE
+    if (!ucs2) {
+#endif
+      char c;
+      while(Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n')) Pos++;
+      DWORD Off = Pos;
+      while(Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n') Pos++;
+      Len = Pos - Off;
+#ifndef UNICODE
+      if(Len >= sizeof(TMP)) Len = sizeof(TMP)-1;
+      memcpy(TMP, &FileData[Off], Len);
+#else // UNICODE
+      Len = MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
+                                &FileData[Off], Len, TMP, ArraySize(TMP)-1);
+    } else {
+      wchar_t c;
+      --Size;
+      while(Pos<Size && ((c = *(wchar_t*)&FileData[Pos]) == L'\r' || c == L'\n'))
+        Pos += sizeof(wchar_t);
+      DWORD Off = Pos;
+      while(Pos<Size && (c = *(wchar_t*)&FileData[Pos]) != L'\r' && c != L'\n')
+        Pos += sizeof(wchar_t);
+      if(Pos < Size) ++Size;
+      Len = (Pos-Off)/sizeof(wchar_t);
+      if(Len >= ArraySize(TMP)) Len = ArraySize(TMP)-1;
+      memcpy(TMP, &FileData[Off], Len*sizeof(wchar_t));
     }
-    UnmapViewOfFile((LPVOID)FileData);
+#endif
+    if (!Len) continue;
+
+    TMP[Len]=0;
+
+    FSF.Trim(TMP);
+    FSF.Unquote(TMP);
+
+#ifndef UNICODE
+    if(ANSI) CharToOem(TMP,TMP);
+#endif
+
+    Len = lstrlen(TMP);
+    if (!Len) continue;
+
+    if(argv) *argv++ = args;
+    if(args)
+    {
+      lstrcpy(args,TMP);
+      args+=Len+1;
+    }
+
+    (*numchars)+=Len+1;
+    ++*numargs;
   }
+#ifdef UNICODE
+done:
+#endif
+  UnmapViewOfFile((LPVOID)FileData);
 }
 
 static void ReadFileList (TCHAR *filename, int *argc, TCHAR ***argv WITH_ANSI_PARAM)
@@ -304,13 +347,10 @@ static void ReadFileList (TCHAR *filename, int *argc, TCHAR ***argv WITH_ANSI_PA
     if(hFileMapping != NULL)
     {
       UINT i;
-#ifdef UNICODE
-      FileSizeLow &= ~1;
-#endif
-      ReadFileLines (hFileMapping, FileSizeLow, NULL,NULL,(UINT *) argc,&i WITH_ANSI_ARG);
-      *argv = (TCHAR**)malloc(*argc * sizeof(TCHAR*) + (i+1)*sizeof(TCHAR));
-      ReadFileLines (hFileMapping, FileSizeLow,
-          *argv, ((TCHAR*)*argv) + sizeof(TCHAR*) * *argc,(UINT*)argc, &i WITH_ANSI_ARG);
+      ReadFileLines(hFileMapping, FileSizeLow, NULL, NULL, (UINT*)argc, &i WITH_ANSI_ARG);
+      *argv = (TCHAR**)malloc(*argc*sizeof(TCHAR*) + i*sizeof(TCHAR));
+      ReadFileLines(hFileMapping, FileSizeLow, *argv, (TCHAR*)&(*argv)[*argc],
+                    (UINT*)argc, &i WITH_ANSI_ARG);
       CloseHandle(hFileMapping);
     }
   }
@@ -333,7 +373,7 @@ static void ProcessList(HANDLE hPlugin, TCHAR *Name, int Mode WITH_ANSI_PARAM)
 
   HANDLE hScreen = Panel->BeginPutFiles();
 
-  static struct PluginPanelItem ppi;
+  struct PluginPanelItem ppi;
   memset(&ppi,0,sizeof(ppi));
   for(UINT i=0;(int)i<argc;i++)
     if(Panel->CheckForCorrect(argv[i],&ppi.FindData,Opt.AnyInPanel))
@@ -359,7 +399,7 @@ void ShowMenuFromList(TCHAR *Name)
   FarMenuItem *fmi=(FarMenuItem*)malloc(argc*sizeof(FarMenuItem));
   if(fmi)
   {
-    static TCHAR TMP[MAX_PATH];
+    TCHAR TMP[MAX_PATH];
     for(int i=0;i<argc;++i)
     {
       TCHAR *param,*p=TMP;
@@ -378,7 +418,7 @@ void ShowMenuFromList(TCHAR *Name)
     }
 //    fmi[0].Selected=TRUE;
 
-    static TCHAR Title[MAX_PATH];
+    TCHAR Title[MAX_PATH];
     FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,_T("*.")),
 #ifdef UNICODE
                     ArraySize(Title),
