@@ -1298,11 +1298,6 @@ $ #Find file #
 folders matching one or more ~wildcards~@FileMasks@ (delimited with commas). It
 may also be used with file systems emulated by ~plugins~@Plugins@.
 
-    Remark: if the mask, entered by the user, does not contain
-            the symbols '?', '*' and '.', then FAR will add the
-            '*' symbol to the user value and will conduct the
-            search with the modified mask.
-
     Optional text string may be specified to find only files containing this
 text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
@@ -2406,7 +2401,6 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F7#                      Search
    #Ctrl-F7#                 Replace
    #Shift-F7#                Continue search/replace
-   #Alt-F7#                  Continue search/replace in "reverse" mode
    #F8#                      Toggle DOS/Windows text
    #Shift-F8#                Select custom character table
                            (see notes below)
