@@ -68,7 +68,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
     StartupOptCommonPanel=Opt.CommonPanel;
     CurrentCommonPanel=0;
     memset(CommonPanels, 0, sizeof(CommonPanels));
-    CommonPanels[0].Items=(PluginPanelItem*)malloc(sizeof(PluginPanelItem));
+    CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
     Opt.LastSearchResultsPanel = 0;
   }
 }
@@ -362,7 +362,7 @@ static void ProcessList(HANDLE hPlugin, TCHAR *Name, int Mode WITH_ANSI_PARAM)
   {
     FreePanelItems(CommonPanels[CurrentCommonPanel].Items,
                    CommonPanels[CurrentCommonPanel].ItemsNumber);
-    CommonPanels[CurrentCommonPanel].Items=(PluginPanelItem*)malloc(sizeof(PluginPanelItem));
+    CommonPanels[CurrentCommonPanel].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
     CommonPanels[CurrentCommonPanel].ItemsNumber=0;
   }
   TmpPanel *Panel=(TmpPanel*)hPlugin;

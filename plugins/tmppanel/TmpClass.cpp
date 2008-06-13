@@ -203,13 +203,13 @@ int TmpPanel::PutOneFile(PluginPanelItem &PanelItem)
         if(NewPanelItem==NULL)
           return FALSE;
         TmpPanelItem=NewPanelItem;
+        memset(&TmpPanelItem[TmpItemsNumber],0,sizeof(*TmpPanelItem)*DirItemsNumber);
 #ifdef UNICODE
         wlen = lstrlen(CurDir) + 1;
 #endif
         for(int i=0;i<DirItemsNumber;i++)
         {
           struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber++];
-          memset(CurPanelItem,0,sizeof(*CurPanelItem));
 #ifndef UNICODE
           CurPanelItem->FindData=DirItems[i].FindData;
           lstrcpy(CurPanelItem->FindData.cFileName,CurDir);
@@ -348,8 +348,10 @@ void TmpPanel::RemoveEmptyItems()
 #endif
       EmptyCount++;
     }
-    else if(EmptyCount>0)
+    else if(EmptyCount>0) {
       *(CurItem-EmptyCount)=*CurItem;
+      memset(CurItem, 0, sizeof(*CurItem));
+    }
   TmpItemsNumber-=EmptyCount;
   if(StartupOptCommonPanel)
   {
@@ -724,7 +726,7 @@ void TmpPanel::SwitchToPanel (int NewPanelIndex)
     if(!CommonPanels[NewPanelIndex].Items)
     {
       CommonPanels[NewPanelIndex].ItemsNumber=0;
-      CommonPanels[NewPanelIndex].Items=(PluginPanelItem*)malloc(sizeof(PluginPanelItem));
+      CommonPanels[NewPanelIndex].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
     }
     if(CommonPanels[NewPanelIndex].Items)
     {
