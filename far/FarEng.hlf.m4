@@ -1313,11 +1313,6 @@ $ #Find file #
 folders matching one or more ~wildcards~@FileMasks@ (delimited with commas). It
 may also be used with file systems emulated by ~plugins~@Plugins@.
 
-    Remark: if the mask, entered by the user, does not contain
-            the symbols '?', '*' and '.', then FAR will add the
-            '*' symbol to the user value and will conduct the
-            search with the modified mask.
-
     Optional text string may be specified to find only files containing this
 text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
@@ -1508,11 +1503,11 @@ rule sets.
                    #[?]# - ignore this attribute.
 
                    The #Compressed#, #Encrypted#, #Not indexed#,
-                   #Sparse#, #Temporary# and #Offline# attributes 
+                   #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
-                   Although the #Encrypted# and #Offline# attributes 
+                   Although the #Encrypted# and #Offline# attributes
                    are used only in Windows 2000/XP/2003/Vista/2008.
-                   #Virtual# attribute is used only in Windows 
+                   #Virtual# attribute is used only in Windows
                    Vista/2008.
 
 
@@ -2906,9 +2901,9 @@ folders, all checkboxes will always be 3-state.
     Only those attributes will be changed for which the state of the
 corresponding checkboxes was changed from the initial state.
 
-    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and 
+    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and
 "Offline" attributes are available only on NTFS drives. The "Encrypted" and
-"Offline" attributes can be used in Windows 2000/XP/2003/Vista/2008 only. 
+"Offline" attributes can be used in Windows 2000/XP/2003/Vista/2008 only.
 The "Virtual" attribute can be used in Windows Vista/2008 only.
 The "Compressed" and "Encrypted" attributes are mutually exclusive, that is,
 you can set only one of them.
@@ -3106,7 +3101,7 @@ characters, delimited with commas. Allowed column types are:
 
     A          - file attributes
     Z          - file descriptions
-    
+
     O[L]       - file owner
                  where: L - show domain name;
 
@@ -3134,7 +3129,7 @@ the file panel will be displayed in multicolumn form.
 "Encrypted" attribute is shown instead of 'C' as a file/folder can not
 have both attributes ("Compressed" and "Encrypted") set at the same time.
 By default the size of the attributes column is 6 characters. To display
-the additional 'T', 'I', 'O' and 'V' attributes it is necessary to 
+the additional 'T', 'I', 'O' and 'V' attributes it is necessary to
 manually set the size of the column to 10 characters.
 
   - #Column widths# - used to change width of panel columns.

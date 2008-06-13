@@ -120,7 +120,8 @@ SRCS = 	cddrv.cpp \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \
-	xlat.cpp
+	xlat.cpp \
+	hook_wow64.c
 
 
 CXX = g++

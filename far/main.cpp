@@ -526,13 +526,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   TConsoleRestore __ConsoleRestore(RectoreConsole);
 
-#if _MSC_VER>=1300
   std::set_new_handler(0);
-#elif __GNUC__ >= 3
-  std::set_new_handler(0);
-#else
-  set_new_handler(0);
-#endif
 
   /* $ 08.01.2003 SVS
      BugZ#765 - Ключи командной строки парсятся неоднозначно.
