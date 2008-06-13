@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 496
+  Plugin API for FAR Manager 1.80 build 508
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 496
+#define FARMANAGERVERSION_BUILD 508
 
 #ifndef RC_INVOKED
 
@@ -741,8 +741,9 @@ struct CmdLineSelect
   int SelEnd;
 };
 
-#define CURRENT_PANEL (HANDLE)(-1)
-#define ANOTHER_PANEL (HANDLE)(-2)
+#define PANEL_NONE		(HANDLE)(-1)
+#define PANEL_ACTIVE	(HANDLE)(-1)
+#define PANEL_PASSIVE	(HANDLE)(-2)
 
 enum FILE_CONTROL_COMMANDS{
   FCTL_CLOSEPLUGIN,
@@ -768,6 +769,7 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_SETNUMERICSORT,
   FCTL_FREEPANELINFO,
   FCTL_GETUSERSCREEN,
+  FCTL_ISACTIVEPANEL
 };
 
 typedef int (WINAPI *FARAPICONTROL)(
