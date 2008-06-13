@@ -87,7 +87,7 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
 #define FCTL_SetPanelDir  FCTL_SETPANELDIR
 #define FCTL_GetPanelInfo FCTL_GETPANELINFO
 #define FCTL_RedrawPanel  FCTL_REDRAWPANEL
-  HANDLE  _PANEL_HANDLE = AnotherPanel?ANOTHER_PANEL:CURRENT_PANEL;
+  HANDLE  _PANEL_HANDLE = AnotherPanel?PANEL_PASSIVE:PANEL_ACTIVE;
 #endif
 
   PanelRedrawInfo PRI;

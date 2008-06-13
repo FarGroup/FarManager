@@ -890,7 +890,7 @@ void Plist::Reread()
 #ifndef UNICODE
     Control(FCTL_GETANOTHERPANELINFO,&PInfo);
 #else
-    Info.Control(ANOTHER_PANEL, FCTL_GETPANELINFO, &PInfo);
+    Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO, &PInfo);
 #endif
     if (PInfo.PanelType==PTYPE_QVIEWPANEL)
     {
@@ -898,8 +898,8 @@ void Plist::Reread()
         Control(FCTL_UPDATEANOTHERPANEL,(void *)1);
         Control(FCTL_REDRAWANOTHERPANEL,NULL);
 #else
-        Info.Control(ANOTHER_PANEL, FCTL_UPDATEPANEL, (void *)1);
-        Info.Control(ANOTHER_PANEL, FCTL_REDRAWPANEL, NULL);
+        Info.Control(PANEL_PASSIVE, FCTL_UPDATEPANEL, (void *)1);
+        Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
 #endif
     }
 }

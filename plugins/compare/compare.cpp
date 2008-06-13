@@ -1155,8 +1155,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   if (   !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo)
       || !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELINFO, &PInfo) )
 #else
-  if (   !Info.Control(CURRENT_PANEL, FCTL_GETPANELINFO, &AInfo)
-      || !Info.Control(ANOTHER_PANEL, FCTL_GETPANELINFO, &PInfo) )
+  if (   !Info.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, &AInfo)
+      || !Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO, &PInfo) )
 #endif
   {
     return INVALID_HANDLE_VALUE;
@@ -1250,10 +1250,10 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWPANEL, NULL);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWANOTHERPANEL, NULL);
 #else
-    Info.Control(CURRENT_PANEL, FCTL_SETSELECTION, &AInfo);
-    Info.Control(ANOTHER_PANEL, FCTL_SETSELECTION, &PInfo);
-    Info.Control(CURRENT_PANEL, FCTL_REDRAWPANEL, NULL);
-    Info.Control(ANOTHER_PANEL, FCTL_REDRAWPANEL, NULL);
+    Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION, &AInfo);
+    Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION, &PInfo);
+    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, NULL);
+    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
 #endif
     if (bDifferenceNotFound && Opt.MessageWhenNoDiff)
     {

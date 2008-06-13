@@ -513,7 +513,7 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
 #define _SET    FCTL_SETANOTHERPANELDIR
 #define _REDRAW FCTL_REDRAWANOTHERPANEL
 #else
-#define _HANDLE ANOTHER_PANEL
+#define _HANDLE PANEL_PASSIVE
 #define _SET    FCTL_SETPANELDIR
 #define _REDRAW FCTL_REDRAWPANEL
 #endif
@@ -617,7 +617,7 @@ void TmpPanel::ProcessRemoveKey()
 #define _REDRAW FCTL_REDRAWANOTHERPANEL
 #define _GET    FCTL_GETANOTHERPANELINFO
 #else
-#define _HANDLE ANOTHER_PANEL
+#define _HANDLE PANEL_PASSIVE
 #define _UPDATE FCTL_UPDATEPANEL
 #define _REDRAW FCTL_REDRAWPANEL
 #define _GET    FCTL_GETPANELINFO
