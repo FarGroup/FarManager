@@ -27,6 +27,7 @@ delete.cpp \
 delete_array.cpp \
 free.cpp \
 malloc.cpp \
+calloc.cpp \
 new.cpp \
 new_array.cpp \
 realloc.cpp

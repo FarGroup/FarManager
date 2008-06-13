@@ -96,6 +96,7 @@ extern "C"
   char * __cdecl _ui64toa(unsigned __int64 val, char *buf, int radix);
   wchar_t * __cdecl _ui64tow(unsigned __int64 val, wchar_t *buf, int radix);
   void * __cdecl malloc(size_t size);
+  void * __cdecl calloc(size_t nmemb, size_t size);
   _CONST_RETURN void * __cdecl memchr(const void *buf, int chr, size_t cnt);
   _CONST_RETURN_W wchar_t * __cdecl_inline wmemchr(const wchar_t *buf, wchar_t chr, size_t cnt);
   int __cdecl memcmp(const void *buf1, const void *buf2, size_t count);

@@ -52,6 +52,7 @@ $(OBJDIR)\free.obj \
 $(OBJDIR)\i64toa.obj \
 $(OBJDIRW)\i64toa.obj \
 $(OBJDIR)\malloc.obj \
+$(OBJDIR)\calloc.obj \
 $(OBJDIR)\memchr.obj \
 $(OBJDIR)\memcmp.obj \
 $(OBJDIR)\memcpy.obj \
