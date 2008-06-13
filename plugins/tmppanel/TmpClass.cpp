@@ -161,7 +161,7 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
 #define CurName PanelItem.FindData.cFileName
   if(CheckForCorrect(CurName,&CurPanelItem->FindData,Opt.AnyInPanel))
   {
-    int NameOnly=(FSF.PointToName(CurName)==CurName);
+    int NameOnly=(FSF.PointToName(CurName)!=CurName);
 #undef CurName
 
 #ifndef UNICODE
