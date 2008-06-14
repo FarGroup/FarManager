@@ -1,9 +1,9 @@
 #define STRICT
 
 #include <windows.h>
+#include <CRT/crt.hpp>
 #include <tchar.h>
 #include <stdio.h>
-#include <CRT/crt.hpp>
 #define _FAR_USE_FARFINDDATA
 #include <plugin.hpp>
 

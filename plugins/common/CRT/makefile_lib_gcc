@@ -5,14 +5,15 @@ DLLDIR = ..
 DLLNAME = libCRT.a
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = memchr.cpp \
-memcmp.cpp \
-memcpy.cpp \
-memicmp.cpp \
 memset.cpp \
+memcpy.cpp \
+memcmp.cpp \
+memicmp.cpp \
 memmove.cpp \
 strpbrk.cpp \
 strstr.cpp \
 strchr.cpp \
+strcpy.cpp \
 strcspn.cpp \
 strdup.cpp \
 stricmp.cpp \
@@ -33,7 +34,10 @@ new_array.cpp \
 realloc.cpp
 
 SRCSW = i64toa.cpp \
+memset.cpp \
+memcpy.cpp \
 strchr.cpp \
+strcpy.cpp \
 strdup.cpp \
 stricmp.cpp \
 strncat.cpp \

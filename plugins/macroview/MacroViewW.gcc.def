@@ -1,0 +1,8 @@
+EXPORTS
+   ClosePluginW=ClosePluginW@4
+   ConfigureW=ConfigureW@4
+   GetPluginInfoW=GetPluginInfoW@4
+   OpenPluginW=OpenPluginW@8
+   SetStartupInfoW=SetStartupInfoW@4
+   ExitFARW=ExitFARW@0
+   GetMinFarVersionW=GetMinFarVersionW@0

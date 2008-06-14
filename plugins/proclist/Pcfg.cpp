@@ -90,12 +90,13 @@ int Config()
                              DialogItems,ArraySize(DialogItems));
 #define _REF  DialogItems
 #else
+  int ExitCode;
   HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,16,_T("Config"),
                                 DialogItems,ArraySize(DialogItems),0,0,NULL,0);
   if(hDlg == INVALID_HANDLE_VALUE)
     goto done;
 
-  int ExitCode = Info.DialogRun(hDlg);
+  ExitCode = Info.DialogRun(hDlg);
 #define _REF  hDlg
 #endif
   if (ExitCode == ArraySize(DialogItems) - 2)

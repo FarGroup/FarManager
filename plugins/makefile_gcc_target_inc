@@ -12,8 +12,9 @@ $(OBJDIR)/%.o: %.cpp
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(RES): $(NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
+	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	$(WINDRES) -I $(COMINC) -i $< -o $@
+	@$(WINDRES) $(RCFLAGS) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@

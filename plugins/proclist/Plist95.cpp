@@ -286,7 +286,7 @@ BOOL GetModuleNameFromExe(LPCTSTR szFileName,LPTSTR szModuleName,WORD cbLen)
 #else
     int n = MultiByteToWideChar(CP_ACP, 0,
                                 (const char*)pNEHdr + pNEHdr->ne_restab + 1,
-                                (BYTE)*((LPCBYTE)pNEHdr + pNEHdr->ne_restab) + 1,
+                                (BYTE)*((const LPBYTE)pNEHdr + pNEHdr->ne_restab) + 1,
                                 szModuleName, cbLen);
     if (n) {
       szModuleName[n] = 0;

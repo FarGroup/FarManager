@@ -1,0 +1,16 @@
+EXPORTS
+   GetMinFarVersionW=GetMinFarVersionW@0
+   ClosePluginW=ClosePluginW@4
+   ConfigureW=ConfigureW@4
+   GetFindDataW=GetFindDataW@16
+   GetOpenPluginInfoW=GetOpenPluginInfoW@8
+   GetPluginInfoW=GetPluginInfoW@4
+   OpenPluginW=OpenPluginW@8
+   ProcessKeyW=ProcessKeyW@12
+   SetStartupInfoW=SetStartupInfoW@4
+   FreeFindDataW=FreeFindDataW@12
+   DeleteFilesW=DeleteFilesW@16
+   GetFilesW=GetFilesW@24
+   ProcessEventW=ProcessEventW@12
+   CompareW=CompareW@16
+   ExitFARW=ExitFARW@0
