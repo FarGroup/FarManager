@@ -3,8 +3,5 @@
 
 void * __cdecl calloc(size_t nmemb, size_t size)
 {
-  size *= nmemb;
-  void *p = HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,size);
-  if (p) memset(p, 0, size);
-  return p;
+  return HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,size*nmemb);
 }

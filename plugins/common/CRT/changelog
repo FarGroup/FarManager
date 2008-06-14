@@ -1,3 +1,7 @@
+yjh 14.06.2008 07:20:43 +0300
+
+1, Убран ненужный memset (Thanks Alexey Samlyukov)
+
 yjh 14.06.2008 02:56:01 +0300
 
 1, Добавим calloc
