@@ -109,7 +109,11 @@ headers.hpp
  #if defined(__BORLANDC__) && !defined(_WIN64)
   #pragma option -p-
  #endif
+ #if (defined(__BORLANDC__) && !defined(_WIN64)) || (defined(_MSC_VER) && _MSC_VER < 1400)
+  #include <new.h>
+ #else
   #include <new>
+ #endif
  #if defined(__BORLANDC__) && !defined(_WIN64)
   #pragma option -p.
  #endif

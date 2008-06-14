@@ -29,6 +29,13 @@ MSVC
     при компил€ции в гу€х. ≈сли не так - то нужно на SVN`е обновить эти файлы... 
 
 
+  Microsoft Visual C++ 8.0 (VC2005) _MSC_VER = 1400
+  Microsoft Visual C++ 7.1 (VC2003) _MSC_VER = 1310
+  Microsoft Visual C++ 7.0 (VC2002) _MSC_VER = 1300
+  Microsoft Visual C++ 6.0 _MSC_VER = 1200
+  Microsoft Visual C++ 5.0 _MSC_VER = 1100
+
+
 
 GCC
 ~~~
