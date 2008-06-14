@@ -397,6 +397,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\calloc.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\delete.cpp"
 				>
 			</File>
