@@ -249,8 +249,8 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
   HANDLE hScreen = BeginPutFiles();
   FindSearchResultsPanel();
   FreePanelItems(TmpPanelItem, TmpItemsNumber);
-  TmpItemsNumber = 0;
-  TmpPanelItem=(PluginPanelItem*) malloc(sizeof(PluginPanelItem)*ItemsNumber);
+  TmpItemsNumber=0;
+  TmpPanelItem=(PluginPanelItem*)malloc(sizeof(PluginPanelItem)*ItemsNumber);
   if(TmpPanelItem)
   {
     TmpItemsNumber=ItemsNumber;
@@ -414,9 +414,18 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
           if((CurItem[J].Flags & 1) && cmp_names(FindData, CurItem[J].FindData)==0)
           {
             CurItem[J].Flags&=~REMOVE_FLAG;
+#ifndef UNICODE
             lstrcpy(FullName,CurItem[J].FindData.cFileName);
+#else
+            wchar_t *save = CurItem[J].FindData.lpwszFileName;
+#endif
             WFD2FFD(FindData,CurItem[J].FindData);
+#ifndef UNICODE
             lstrcpy(CurItem[J].FindData.cFileName,FullName);
+#else
+            free((wchar_t*)CurItem[J].FindData.lpwszFileName);
+            CurItem[J].FindData.lpwszFileName = save;
+#endif
             break;
           }
           Done=!FindNextFile(FindHandle,&FindData);
@@ -818,17 +827,21 @@ int TmpPanel::CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int Any)
 
   if (!FSF.LStrnicmp(p, _T("\\\\.\\"), 4) && FSF.LIsAlpha(p[4]) && p[5]==_T(':') && p[6]==0)
   {
-    lstrcpy(FindData->cFileName,p);
+copy_name_set_attr:
     FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
+copy_name:
+#ifndef UNICODE
+    lstrcpy(FindData->cFileName,p);
+#else
+    if(FindData->lpwszFileName)
+      free(FindData->lpwszFileName);
+    FindData->lpwszFileName = wcsdup(p);
+#endif
     return(TRUE);
   }
 
   if (isDevice(p, _T("\\\\.\\PhysicalDrive")) || isDevice(p, _T("\\\\.\\cdrom")))
-  {
-    lstrcpy(FindData->cFileName,p);
-    FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
-    return(TRUE);
-  }
+    goto copy_name_set_attr;
 
   if(lstrlen(p) && lstrcmp(p,_T("\\"))!=0 && lstrcmp(p,_T(".."))!=0)
   {
@@ -838,8 +851,7 @@ int TmpPanel::CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int Any)
     {
       WFD2FFD(wfd,*FindData);
       FindClose(fff);
-      lstrcpy(FindData->cFileName,p);
-      return(TRUE);
+      goto copy_name;
     }
     else
     {
@@ -852,16 +864,11 @@ int TmpPanel::CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int Any)
         WFD2FFD(wfd,*FindData);
         FindClose(fff);
         FindData->dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-        lstrcpy(FindData->cFileName,SavedDir);
-        return(TRUE);
+        goto copy_name;
       }
     }
     if(Any)
-    {
-      FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
-      lstrcpy(FindData->cFileName,p);
-      return(TRUE);
-    }
+      goto copy_name_set_attr;
   }
   return(FALSE);
 }
