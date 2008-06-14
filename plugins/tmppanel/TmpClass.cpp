@@ -11,17 +11,13 @@ static int _cdecl SortListCmp(const void *el1,const void *el2);
 
 TmpPanel::TmpPanel()
 {
-  PanelIndex=CurrentCommonPanel;
-  IfOptCommonPanel();
-  if(!StartupOptCommonPanel)
-  {
-    TmpPanelItem=NULL;
-    TmpItemsNumber=0;
-  }
-
   LastOwnersRead=FALSE;
   LastLinksRead=FALSE;
   UpdateNotNeeded=FALSE;
+  TmpPanelItem=NULL;
+  TmpItemsNumber=0;
+  PanelIndex=CurrentCommonPanel;
+  IfOptCommonPanel();
 }
 
 
@@ -295,10 +291,14 @@ void TmpPanel::FindSearchResultsPanel()
         if (Opt.LastSearchResultsPanel >= COMMONPANELSNUMBER)
           Opt.LastSearchResultsPanel = 0;
       }
-      PanelIndex = SearchResultsPanel;
-      CurrentCommonPanel=PanelIndex;
-      TmpPanelItem = CommonPanels[PanelIndex].Items;
-      TmpItemsNumber = CommonPanels[PanelIndex].ItemsNumber;
+      if(PanelIndex != SearchResultsPanel) {
+        CommonPanels[PanelIndex].Items = TmpPanelItem;
+        CommonPanels[PanelIndex].ItemsNumber = TmpItemsNumber;
+        PanelIndex = SearchResultsPanel;
+        TmpPanelItem = CommonPanels[PanelIndex].Items;
+        TmpItemsNumber = CommonPanels[PanelIndex].ItemsNumber;
+      }
+      CurrentCommonPanel = PanelIndex;
     }
   }
 }
@@ -348,11 +348,15 @@ void TmpPanel::RemoveEmptyItems()
 #endif
       EmptyCount++;
     }
-    else if(EmptyCount>0) {
+    else if(EmptyCount) {
       *(CurItem-EmptyCount)=*CurItem;
       memset(CurItem, 0, sizeof(*CurItem));
     }
+
   TmpItemsNumber-=EmptyCount;
+  if(EmptyCount>1)
+    TmpPanelItem=(struct PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+1));
+
   if(StartupOptCommonPanel)
   {
     CommonPanels[PanelIndex].Items=TmpPanelItem;
@@ -728,7 +732,7 @@ void TmpPanel::SaveListFile (const TCHAR *Path)
 
 void TmpPanel::SwitchToPanel (int NewPanelIndex)
 {
-  if(NewPanelIndex>-1 && NewPanelIndex<COMMONPANELSNUMBER && NewPanelIndex!=(int)PanelIndex)
+  if((unsigned)NewPanelIndex<COMMONPANELSNUMBER && NewPanelIndex!=(int)PanelIndex)
   {
     CommonPanels[PanelIndex].Items=TmpPanelItem;
     CommonPanels[PanelIndex].ItemsNumber=TmpItemsNumber;
@@ -739,8 +743,7 @@ void TmpPanel::SwitchToPanel (int NewPanelIndex)
     }
     if(CommonPanels[NewPanelIndex].Items)
     {
-      CurrentCommonPanel=NewPanelIndex;
-      PanelIndex=NewPanelIndex;
+      CurrentCommonPanel = PanelIndex = NewPanelIndex;
       Info.Control(this,FCTL_UPDATEPANEL,NULL);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
     }
