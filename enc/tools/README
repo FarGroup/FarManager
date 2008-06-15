@@ -1,0 +1,4 @@
+To build the the CHM files run
+perl tool.make_chm.pl
+
+All the needed html and HCW project file will be created under "..\enc".
