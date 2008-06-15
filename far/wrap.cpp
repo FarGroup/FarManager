@@ -162,9 +162,18 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iC
 
 				if (pnmA[i].ColumnTypes)
 				{
-					for (char *pc=pnmA[i].ColumnTypes;*pc;pc++)
-						if (*pc==',') iColumnCount++;
-					iColumnCount++;
+					char *lpTypes = strdup(pnmA[i].ColumnTypes);
+
+					const char *lpToken = strtok(lpTypes, ",");
+
+					while ( lpToken && *lpToken )
+					{
+						iColumnCount++;
+
+						lpToken = strtok(NULL, ",");
+					}
+
+					xf_free (lpTypes);
 				}
 
 				pnmW[i].ColumnTypes		=	(pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):NULL;
