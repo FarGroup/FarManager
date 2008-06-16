@@ -524,6 +524,7 @@ void Viewer::ShowPage (int nMode)
   switch ( nMode )
   {
     case SHOW_HEX:
+      CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
       ShowHex ();
       break;
 
