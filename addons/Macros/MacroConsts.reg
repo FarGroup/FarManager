@@ -35,10 +35,10 @@ REGEDIT4
 "DLGGETVALUE_IS_DEFAULT"             =dword:00000009
 "DLGGETVALUE_TEXT"                   =dword:0000000A
 
-"FPLIT_DISK"                         =dword:00000001
-"FPLIT_PATH"                         =dword:00000002
-"FPLIT_NAME"                         =dword:00000004
-"FPLIT_EXT"                          =dword:00000008
+"FSPLIT_DISK"                        =dword:00000001
+"FSPLIT_PATH"                        =dword:00000002
+"FSPLIT_NAME"                        =dword:00000004
+"FSPLIT_EXT"                         =dword:00000008
 
 "PROMPT_ENABLEEMPTY"                 =dword:00000001
 "PROMPT_PASSWORD"                    =dword:00000002
