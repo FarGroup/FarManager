@@ -191,7 +191,7 @@ $ # FAR: command line switches#
         started.
 
   #/ma#   Macros with the "Run after FAR start" option set
-        will not be run upon starting FAR.
+        will not be run when FAR is started.
 
   #/u <username>#
         Allows to have separate settings for different users.
