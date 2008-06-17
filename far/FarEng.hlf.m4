@@ -2149,7 +2149,7 @@ special code words in the #Set command line prompt format# input field
 of the ~Interface settings~@InterfSettings@ dialog, this will allow showing
 additional information in the command prompt.
 
-   It is allow to use environment variables and the following special
+   It is allowed to use environment variables and the following special
 code words:
 
      $a - the & character
