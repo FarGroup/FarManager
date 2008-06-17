@@ -527,12 +527,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     while (!ChDisk.Done())
     {
       //_D(SysLog("ExitCode=%i",ChDisk.GetExitCode()));
-      int SelPos=ChDisk.GetSelectPos();
       int Key;
       {
         ChangeMacroMode MacroMode(MACRO_DISKS);
         Key=ChDisk.ReadInput();
       }
+      int SelPos=ChDisk.GetSelectPos();
+
       switch(Key)
       {
         // Shift-Enter в меню выбора дисков вызывает проводник для данного диска

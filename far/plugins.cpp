@@ -2402,10 +2402,11 @@ void PluginsSet::Configure(int StartPos)
       PluginList.Show();
       while (!PluginList.Done())
       {
+        DWORD Key=PluginList.ReadInput();
         int SelPos=PluginList.GetSelectPos();
         Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,SelPos);
         char RegKey[512];
-        switch(PluginList.ReadInput())
+        switch(Key)
         {
           case KEY_SHIFTF1:
             char PluginModuleName[NM*2];
@@ -2597,11 +2598,12 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 
       while (!PluginList.Done())
       {
+        DWORD Key=PluginList.ReadInput();
         int SelPos=PluginList.GetSelectPos();
         char RegKey[512];
 
         Data=(DWORD)(DWORD_PTR)PluginList.GetUserData(NULL,0,SelPos);
-        switch(PluginList.ReadInput())
+        switch(Key)
         {
         /* $ 18.12.2000 SVS
         Shift-F1 в списке плагинов вызывает хелп по данному плагину

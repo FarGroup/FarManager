@@ -747,6 +747,7 @@ const char *_ECTL_ToName(int Command);
 const char *_EE_ToName(int Command);
 const char *_EEREDRAW_ToName(int Command);
 const char *_ESPT_ToName(int Command);
+const char *_VE_ToName(int Command);
 const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);

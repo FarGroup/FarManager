@@ -522,8 +522,9 @@ void EditFileTypes()
           TypesMenu.Show();
           MenuModified=FALSE;
         }
+        DWORD Key=TypesMenu.ReadInput();
         MenuPos=TypesMenu.GetSelectPos();
-        switch(TypesMenu.ReadInput())
+        switch(Key)
         {
           case KEY_NUMDEL:
           case KEY_DEL:

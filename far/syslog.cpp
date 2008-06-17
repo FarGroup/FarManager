@@ -797,6 +797,7 @@ const char *_EE_ToName(int Command)
     const char *Name;
   } EE[]={
     DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
+    DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
   };
   int I;
   static char Name[512];
@@ -870,6 +871,33 @@ const char *_ESPT_ToName(int Command)
   return "";
 #endif
 }
+
+const char *_VE_ToName(int Command)
+{
+#if defined(SYSLOG)
+#define DEF_VE_(m) { VE_##m , #m }
+  static struct VEName{
+    int Msg;
+    const char *Name;
+  } VE[]={
+    DEF_VE_(READ),     DEF_VE_(CLOSE),
+    DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(VE)/sizeof(VE[0]); ++I)
+    if(VE[I].Msg == Command)
+    {
+      sprintf(Name,"\"VE_%s\" [%d/0x%04X]",VE[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"VE_????\" [%d/0x%04X]",Command,Command);
+  return Name;
+#else
+  return "";
+#endif
+}
+
 
 const char *_FCTL_ToName(int Command)
 {

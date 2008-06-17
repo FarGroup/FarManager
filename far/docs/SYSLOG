@@ -108,6 +108,9 @@
     ESPT в текст
      const char *_ESPT_ToName(int Command);
 
+    VE-команду в текст
+     const char *_VE_ToName(int Command);
+
     Сообщение/события диалоговые в текст
      const char *_DLGMSG_ToName(int Msg);
 
