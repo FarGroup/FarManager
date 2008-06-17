@@ -17,10 +17,8 @@ System
     effects are no longer applied to FAR (you can find out more about
     virtualization here:
     http://technet.microsoft.com/en-us/magazine/cc160882.aspx).
-[!] Added a Hook that enables 32-bit FAR version to work correctly with with
-    file systems in Win64 (disables WOW64-fs redirection). По умолчанию Hook
-    отключен и включается только на моменты загрузки DLL или запуска задач (для
-    "штатной" работы 32х-битных процессов).
+[!] 32-bit FAR version works correctly with file systems in Win64 (disables
+    WOW64-fs redirection).
     ATTENTION: If you are using a plugin that provides similar functionality,
     it is highly recommended to remove this plugin to prevent possible
     conflicts.
@@ -34,28 +32,27 @@ System
     "maximized" by pressing F5.
 [+] Mouse wheel support in Find folder (Alt-F10).
 [+] Keybar processing in Find folder (Alt-F10).
-[+] Добавлено правило TechInfo#75, позволяющее управлять поведением стрелок
-    влево/вправо (на основной и дополнительной клавиатуре) в панелях.
-[+] В панелях символ '^' после буквы режима сортировки показывает включенный
-    режим "Помеченные файлы вперед" ("Show selected first").
-[+] Добавлено правило TechInfo#76, позволяющее "обходить" ограничения
-    при работе с каталогами, в именах которых содержатся символы, некорректно
-    преобразованные из ANSI в OEM.
-[+] Добавлено правило TechInfo#77, позволяющее переопределять подписи к
-    функциональным клавишам без правки LNG-файлов.
-[+] В панелях добавлена комбинация клавиш Ctrl-Shift-Numpad5: "Восстановить
-    высоту панелей по умолчанию".
-[+] Добавлены метасимволы "!=\" и "!=/" - текущий путь с учетом символических
-    связей.
-[+] Новое правило TechInfo#74, позволяющее задавать вид заголовка консоли при
-    запуске изполняемых файлов.
+[+] TechInfo#72, allows to save plugin paths in history.
+[+] TechInfo#73, allows to define a list of file extensions which will be used
+    to distinguish batch files.
+[+] TechInfo#74, allows to set the console window title format for file
+    execution.
+[+] TechInfo#75, allows to control the behavior of left/right arrow keys in
+    file panels.
+[+] The '^' character is shown after the sorting mode letter in file panels
+    when "Show selected first" is enabled.
+[+] TechInfo#76, allows to bypass limitations when working with folders that
+    contain characters incorrectly mapped from ANSI to OEM.
+[+] TechInfo#77, allows to overload keybar buttons titles without editing the
+    LNG-files.
+[+] Ctrl-Shift-Numpad5 in panels: "Restore default panels height".
+[+] "!=\" and "!=/" special symbols - current path considering symbolic links.
 [+] При попытке открытия из истории редактирования несуществующего файла
     предлагается создать этот файл.
 [+] Дополнительный режим показа размера дисков (Ctrl-5) в меню выбора диска -
     в стиле Windows Explorer. По умолчанию включен.
 [+] Режим показа параметром для сетевых дисков (Ctrl-9) в меню дисков. По
     умолчанию выключен.
-[+] TechInfo#72 - позволяет сохранять в истории плагиновые папки.
 [+] Цвета текста, фона и символа пометки в раскраске файлов могут быть
     прозрачны.
 [+] В меню выбора диска комбинация клавиш Shift-Del на USB-диске позволяет
@@ -65,15 +62,13 @@ System
 [+] В настройки диалогов добавлена опция "Del удаляет блоки в строках ввода".
 [+] Возможность пропустить ошибки в процессе создания папок при включенной
     опции "Обрабатывать несколько имен папок".
-[+] Добавлено правило TechInfo#73, позволяющее определять расширения пакетных
-    файлов.
-[+] Добавлены параметры командной строки:
-     /m - при старте FAR не будет загружать макросы из реестра;
-     /ma - при старте ФАР не будет исполнять автостартующие макросы.
+[+] Command line arguments:
+     /m - FAR will not load macros from the registry when started;
+     /ma - Macros with the "Run after FAR start" option set will not be run
+           when FAR is started.
 [+] Нажатие на кнопку максимизации консольного окна "распахивает" консольное
     окно до максимально возможного размера (аналог Alt-F9). Также учитывается
     состояние окна консоли при старте (start /max, настройка ярлыка и т. п.).
-[+] В диалог подтверждения перезаписи файла добавлена кнопка "Append all".
 [+] Новый флаг для типа колонки "владелец файла": 'L' - отображать домен.
 [+] Для форматирования чисел теперь по умолчанию используются региональные
     настройки ОС, а не жестко заданные точка и запятая.
@@ -199,6 +194,7 @@ Find File
 
 Copy/Move
 ~~~~~~~~~
+[+] "Append all" in overwrite confirmation dialog.
 [*] При копировании с разрешённым созданием символических связей и включенным
     общим индикатором копирования размер содержимого связей не подсчитывается.
 [*] Запрос подтверждения при перемещении/переименовании папки, содержащей
@@ -214,10 +210,9 @@ Copy/Move
 
 File attributes
 ~~~~~~~~~~~~~~~
-[+] Добавлена обработка атрибутов "виртуальный", "разреженный", "временный" и
-    "автономный".
-[-] При вызове диалога установки атрибутов на плагиновых панелях все атрибуты
-    отображались как установленные.
+[+] Support of the following file attributes: "Virtual", "Sparse", "Temporary"
+    and "Offline".
+[-] Attributes dialog showed all attributes as set in plugin panels.
 
 Editor
 ~~~~~~

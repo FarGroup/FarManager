@@ -714,7 +714,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System\Executor]
    "FullTitle":REG_DWORD
-   The key "System/Executor/FullTitle" of  type  DWORD  allow  to  set  the
+   The key "System/Executor/FullTitle" of type  DWORD  allows  to  set  the
    console window title format for file execution.
    Possible values:
      0 - console title shows what the user has typed.
