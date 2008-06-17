@@ -16,36 +16,24 @@ FAR 1.71 (build 2387) (16.06.2008)
 [!] В структуре PluginPanelItem теперь по умолчанию вместо структуры
     WIN32_FIND_DATA используется структура FAR_FIND_DATA. Чтоб вернуть старое
     поведение необходимо определить _FAR_USE_WIN32_FIND_DATA.
-
 [!] Приведение PluginAPI к совместимости c x64.
-
 [+] Меню плагинов можно вызывать по F11 из диалогов. Для этого плагин должен
     использовать новый флаг PF_DIALOG и уметь обрабатывать OPEN_DIALOG в
     функции OpenPlugin().
-
 [+] Флаг KSFLAGS_REG_MULTI_SZ.
-
 [+] Добавлена команда ACTL_REDRAWALL - перерисовка всех фреймов FAR.
-
 [+] В перечисление FarDialogSettings добавлены константы:
      FDIS_DELREMOVESBLOCKS - Del удаляет блоки в строках ввода
      FDIS_MOUSECLICKOUTSIDECLOSESDIALOG - Клик мыши вне диалога закрывает его.
-
 [+] Легализован метод вызова плагина из панели - OPEN_FILEPANEL.
-
 [+] Новая команда MCMD_GETSTATE для ACTL_KEYMACRO, возвращает статус работы
     макродвижка.
-
 [+] В Message длинные поля не усекаются, а автоматически заменяются на элемент
     DI_EDIT, что позволяет прокрутить/скопировать название пути/файла.
-
 [+] Две новых "клавиши" для колеса мыши - KEY_MSWHEEL_LEFT/KEY_MSWHEEL_RIGHT.
-
 [+] Добавлена функция FSF.snprintf.
-
 [+] В структуре WindowInfo для окна помощи поле Name содержит полный путь к
     файлу.
-
 [+] В палитру добавлены новые цвета:
      COL_DIALOGLISTARROWS,
      COL_DIALOGLISTARROWSSELECTED,
@@ -57,119 +45,87 @@ FAR 1.71 (build 2387) (16.06.2008)
      COL_WARNDIALOGCOMBOARROWSSELECTED,
      COL_MENUARROWS,
      COL_MENUARROWSSELECTED.
-
 [*] ACTL_KEYMACRO::MCMD_SAVEALL теперь работает при воспроизведения макроса
     (FARCmds: Теперь при исполнения макроса работает команда "macro:save").
-
 [-] Некорректный цвет у Message без кнопок с флагом MSG_WARNING.
-
 [-] Некорректная прорисовка экрана после вызова функций Editor и Viewer с
     выставленным флагом ?F_IMMEDIATERETURN.
 
 Редактор
 ~~~~~~~~
 [+] События EE_GOTFOCUS и EE_KILLFOCUS.
-
 [+] Добавлены команды управления позициями навигации в редакторе:
     ECTL_DELETESTACKBOOKMARK и ECTL_GETSTACKBOOKMARKS.
-
 [-] Не посылался EE_CLOSE для "?New file?". Теперь EE_CLOSE посылается всегда,
     если был послан EE_READ (во избежание утечек памяти в плагинах).
-
 [-] После вызова EditorControl(ECTL_SELECT) с установленным значением поля
     BlockStartLine = -1, последующий вызов ECTL_GETINFO так же возвращал -1 в
     поле BlockStartLine.
-
 [-] ECTL_SAVEFILE в EE_READ для существующего файла приводило к неверному
     сообщению об изменение файла извне.
-
 [-] Команда ECTL_GETINFO могла вернуть BlockStartLine = -1.
 
 Программа просмотра
 ~~~~~~~~~~~~~~~~~~~
+[+] События VE_GOTFOCUS и VE_KILLFOCUS.
 [+] Добавлена команда VCTL_SETMODE.
-
 [*] Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap.
-
 [-] Закрытие панели быстрого просмотра на папке вызывало VE_CLOSE без VE_READ.
 
 Диалоги
 ~~~~~~~
 [+] Новая экспортируемая функция для плагинов ProcessDialogEvent - обработка
     поступающих в диалог событий.
-
 [+] Добавлен флаг DIF_NOAUTOCOMPLETE, позволяющий отключать автодополнение для
     строк ввода в диалогах.
-
 [+] Новый флаг DIF_NOTCVTUSERCONTROL - не конвертировать символы виртуального
     буфера элемента DI_USERCONTROL.
-
 [+] Для элемента DI_VTEXT добавлена обработка флагов DIF_CENTERGROUP,
     DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
-
 [+] При открытом DI_COMBOBOX в диалоговую процедуру могут посылаться события
     DN_KEY или DN_MOUSEEVENT. Управлять этим поведением можно с помощью
     сообщений DM_SETCOMBOBOXEVENT и DM_GETCOMBOBOXEVENT.
-
 [+] Добавлены команды DM_GETEDITPOSITION и DM_SETEDITPOSITION - управление
     позицией строки в строках ввода в диалогах.
-
 [*] В диалогах сразу после DN_INITDIALOG приходит DN_GOTFOCUS для того
     элемента, у которого поле Focus=1.
-
 [-] Неправильная ширина DIF_SEPARATOR для диалогов без рамки.
-
 [-] DM_LISTGETCURPOS возвращал неправильное значение после открытия
     комбинированного списка и навигации по нему с последующим отказом
     от выбора (нажали Esc).
-
 [-] Для элементов типа DI_LISTBOX в диалоговую процедуру не поступали события
     DN_MOUSECLICK, отличные от FROM_LEFT_1ST_BUTTON_PRESSED.
-
 [-] Когда в комбинированном списке применялись горячие клавиши, то в строку
     редактирования также попадал символ '&'.
-
 [-] В обработчике DefDlgProc для события DN_BTNCLICK не учитывался флаг
     DIF_BTNNOCLOSE.
-
 [-] Некорректная отрисовка элемента DI_TEXT для сочетания условий:
     DIF_CENTERTEXT + DIF_SEPARATOR + X1 не равен "-1".
-
 [-] Если плагин для списка отключал реакцию слежения за курсором мыши
     (LMRT_NEVER), то в диалоговую процедуру не приходило событие DN_MOUSECLICK
     для двойного клика мыши.
-
 [-] Некорректная отрисовка диалога после закрытия в случае, если фокусным
     элементом был комбинированный список.
-
 [-] Некорректные возвращаемые значения у DM_LISTADDSTR и DM_LISTINSERT.
-
 [-] Исправлена ширину DIF_SEPARATOR для диалогов без рамки.
-
 [-] Комбинированный список, открытый по горячей клавише, при закрытии получал
     DN_EDITCHANGE с параметрами предыдущего фокусного элемента.
 
 Меню
 ~~~~
 [+] Добавлены флаги FMENU_TRUNCPATH, FMENU_TRUNCSTR, FMENU_TRUNCSTREND.
-
 [-] Не освобождалась память для пункта меню с выставленным флагом
     MIF_USETEXTPTR.
 
 Панели
 ~~~~~~
 [+] В структуру PanelInfo добавлены флаги PFLAGS_PANELLEFT, PFLAGS_PANELRIGHT.
-
 [+] События FE_GOTFOCUS и FE_KILLFOCUS.
-
 [+] Новая команда FCTL_GETUSERSCREEN - отображение буфера пользовательского
     экрана FAR. Теперь плагины могут эмулировать запуск программ, используя
     FCTL_GETUSERSCREEN и FCTL_SETUSERSCREEN.
-
 [-] При использовании FCTL_SETUSERSCREEN терялась последняя строка экрана.
-
 [-] Переполнение массива при использовании FCTL_GET*PANEL*INFO .
-
 [-] Для элемента ".." в PluginPanelItem заполнялись только поля
     FindData.dwFileAttributes и FindData.cFileName, остальные элементы
     структуры обнулялись.
