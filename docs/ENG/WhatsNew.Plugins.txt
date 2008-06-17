@@ -21,12 +21,12 @@ EMenu
 
 FARCmds
 ~~~~~~~
-[-] При отключенной опции "Открывать на просмотр/редактирование пустые файлы"
-    после команд view:filename или edit:filename удалялся пустой файл.
-[-] Не создавался новый файл при вызове edit:filename.
-[-] Дублированные горячие клавиши в диалоге настройки плагина.
-[-] Некорректная обработка кавычек в командных строках, направляющих вывод
-    результатов в программу просмотра и редактор.
+[-] Empty files opened using view:filename or edit:filename were deleted if the
+    "View/edit empty files" option was disabled.
+[-] New files couldn't be created by edit:filename.
+[-] Duplicated hotkeys in configuration dialog.
+[-] Incorrect handling of quotes in commands which output was redirected to the
+    viewer/editor.
 
 FTP
 ~~~
@@ -48,18 +48,13 @@ MultiArc
 [-] rar.fmt: the password was sent in the wrong encoding when using unrar.dll.
 [-] zip.fmt: more accurate archive detection.
 [-] zip.fmt: didn't work with files bigger than 2 GB.
-[-] Resetting settings were done incorrectly.
+[-] Reset of archivers command line settings was done incorrectly.
 
 Network
 ~~~~~~~
-[+] Плагин понимает командные строки, содержащие имена переменных окружения,
-    указанные в форме %VARIABLENAME%.
-[*] Косметика в диалоге ввода пароля к сетевому ресурсу.
-[-] Исправлено следующее неверное поведение: когда плагин открывается из
-    сетевого каталога, а затем пользователь закрывает плагин путем нажатия
-    Ctrl+PgUp в списке провайдеров или другим способом пытается перейти на
-    уровень выше, текущим каталогом становится опять же сетевой путь, что
-    вводит пользователя в недоумение.
+[+] Environment variables (%VARIABLENAME%) can be used in command line.
+[*] Cosmetic changes in login dialog.
+[-] Ctrl+PgUp now works correctly in all cases.
 
 ProcList
 ~~~~~~~~
@@ -69,12 +64,11 @@ ProcList
 
 TempPanel
 ~~~~~~~~~
-[*] Плагин загружается в память при запуске FAR, чтобы можно было использовать
-    его функции из других плагинов.
-[-] Неработоспособность режима "любой элемент в панели".
-[-] Элементы файла-списка вида \\.\cdrom0 и т.д. отображаются как файлы, а не
-    как каталоги.
-[-] Исправления в диалоге конфигурации.
+[*] Plugin is always loaded when FAR starts (not cached) so its functionality
+    can be used from other plugins.
+[-] The "Any element in panel" mode did not work correctly.
+[-] Paths like "\\.\cdrom0" and similar are shown as files, not folders.
+[-] Several fixes in the configuration dialog.
 
 
 ---------------------------------------------------------------------------

@@ -13,21 +13,21 @@ FAR 1.71 (build 2387) (16.06.2008)
 ---------------------------------------------------------------------------
 Система
 ~~~~~~~
-[!] При работе в среде Windows Vista под ограниченной учетной записью к FAR
-    более не применяются эффекты виртуализации ОС (о том, что это такое, можно
-    прочитать, например, здесь:
+[!] When working in Windows Vista under a limited account, OS virtualization
+    effects are no longer applied to FAR (you can find out more about
+    virtualization here:
     http://technet.microsoft.com/en-us/magazine/cc160882.aspx).
 
-[!] Добавлен Hook, позволяющий 32-битной версии FAR корректно работать с
-    файловой системой в Win64 (отключение перенаправления WOW64-fs). По
-    умолчанию Hook отключен и включается только на моменты загрузки DLL или
-    запуска задач (для "штатной" работы 32х-битных процессов).
-    ВНИМАНИЕ: Если у кого-то был установлен плагин, занимающийся тем же самым,
-    то _крайне_ желательно такой плагин удалить, во избежание "интерференции".
+[!] Added a Hook that enables 32-bit FAR version to work correctly with with
+    file systems in Win64 (disables WOW64-fs redirection). По умолчанию Hook
+    отключен и включается только на моменты загрузки DLL или запуска задач (для
+    "штатной" работы 32х-битных процессов).
+    ATTENTION: If you are using a plugin that provides similar functionality,
+    it is highly recommended to remove this plugin to prevent possible
+    conflicts.
 
-[!] При установке атрибутов каталога на файловых системах FAT и FAT32 
-    компоненты даты и времени устанавливаются только в том случае, если такая
-    возможность поддерживается операционной системой.
+[!] On FAT and FAT32 file systems, file date and time are set only if this
+    operation is supported by the operating system.
 
 [!] TechInfo#48 по умолчанию включено, для Numpad5 TechInfo#48 игнорируется.
 
@@ -338,7 +338,7 @@ FAR 1.71 (build 2387) (16.06.2008)
 ~~~~~~~~
 [+] Комбинация клавиш Ctrl-Shift-B переключает отображение статусной строки.
 
-[+] Правильная обработка файлов, содержащих окончания строк в формате 
+[+] Правильная обработка файлов, содержащих окончания строк в формате
     <CR><CR><LF>
 
 [*] Автоблокировка опции "Сохранять закладки" при отключении "Сохранять
