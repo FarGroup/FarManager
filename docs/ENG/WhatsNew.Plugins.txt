@@ -17,7 +17,7 @@ the standard plugins will function correctly with different FAR versions.
 
 EMenu
 ~~~~~
-[+] В некоторых случаях отобржается текст и для самоотрисовывающихся пунктов.
+[+] In some cases meaningful text is displayed for "owner draw" items.
 
 FARCmds
 ~~~~~~~
@@ -30,28 +30,25 @@ FARCmds
 
 FTP
 ~~~
-[+] Ограниченная поддержка UTF-8 (настраивается в свойствах учётной записи).
-[+] DirList: Поддержка листинга OS/400 серверов.
-[*] Значительные улучшения скорости download и upload.
-[-] Некорректная обработка ftp-ссылок, содержащих национальные символы.
-[-] С FTP-сервера не копировались файлы, содержащие в имени символ '%'.
-[-] Проблемы с копированием когда путь назначения являлся UNC путём.
-[-] Курсор не позиционировался на созданной папке.
-[-] DirList: Проблемы с датой 29 Февраля.
-[-] Для перехода на папку вверх используем CDUP.
+[+] Limited UTF-8 support (can be configured in host record properties).
+[+] DirList: Support for OS/400 server listings.
+[*] Significant improvement of download and upload speeds.
+[-] FTP-links containing national characters were handled incorrectly.
+[-] Files with '%' in their name couldn't be downloaded.
+[-] Problems copying files when destination path was a UNC path.
+[-] Cursor was not positioned on a newly created folder.
+[-] DirList: Problems with the 29th of February dates.
+[-] CDUP is now used to change to the parent folder.
 
 MultiArc
 ~~~~~~~~
-[+] custom.ini: Поддержка innounp (http://innounp.sourceforge.net/).
-[-] ace.fmt: падение на битых архивах.
-[-] arj.fmt: некорректная обработка редкого вида архивов.
-[-] rar.fmt: при использовании unrar.dll пароль передавался в неверной
-    кодировке.
-[-] zip.fmt: более корректное опознание архивов.
-[-] zip.fmt: Не работал с файлами, размер которых превышал 2 Гб.
-[-] Некорректный сброс настроек.
-[-] Неправильно работало сохранение и восстановление параметров командной строки
-    архиваторов в диалоге архивации.
+[+] custom.ini: innounp support (http://innounp.sourceforge.net/).
+[-] ace.fmt: crashed on corrupted archives.
+[-] arj.fmt: some rare archive types were incorrectly processed.
+[-] rar.fmt: the password was sent in the wrong encoding when using unrar.dll.
+[-] zip.fmt: more accurate archive detection.
+[-] zip.fmt: didn't work with files bigger than 2 GB.
+[-] Resetting settings were done incorrectly.
 
 Network
 ~~~~~~~
@@ -66,9 +63,9 @@ Network
 
 ProcList
 ~~~~~~~~
-[+] 32-хбитные процессы помечаются атрибутом "только для чтения" в Win64.
-[-] Неправильное отображение имён процессов на удалённом компьютере.
-[-] Неправильное отображение миллисекунд во времени процессов.
+[+] 32-bit processes are marked "read only" in Win64.
+[-] Names of remote processes were displayed incorrectly.
+[-] Milliseconds in process time were calculated incorrectly.
 
 TempPanel
 ~~~~~~~~~

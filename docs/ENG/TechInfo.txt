@@ -40,8 +40,9 @@ the main help file, that is actual for the current FAR Manager version.
    The     data     from     [HKCU\Software\Far]     is     copied     into
    [HKCU\Software\Far\Users] only if the following registry branch  doesn't
    exist:
-   [HKCU\Software\Far\Users\<username>]. Копируются все данные, кроме
-   [HKCU\Software\Far\Users] и [HKCU\Software\Far\PluginsCache].
+   [HKCU\Software\Far\Users\<username>]. Only the  following  branches  are
+   not copied:
+   [HKCU\Software\Far\Users] and [HKCU\Software\Far\PluginsCache].
    That means that changing parameters  described  below  will  not  affect
    existing user profiles.  Setting  for  "<username>"  should  be  changed
    relative to the branch [HKCU\Software\Far\Users\<username>].
@@ -518,8 +519,8 @@ the main help file, that is actual for the current FAR Manager version.
    from the panels (Enter or Ctrl-PgDn) was made. The  data  read  will  be
    passed to plugins to determine which plugin  supports  a  file  of  this
    type.
-   Минимальное значение - 0x1000. Максимальное - 0xFFFFFFFF.
-   Не рекомендуется выставлять значение этого параметра больше 5 Mb.
+   Minimum value - 0x1000. Maximum value - 0xFFFFFFFF.
+   Setting a value above 5 MB is not recommended.
    The default value is 0x20000.
 
 1.2.24.(TechInfo #68)
@@ -884,7 +885,7 @@ the main help file, that is actual for the current FAR Manager version.
    "FormatNumberSeparators":REG_DWORD
    The  key  "Interface/FormatNumberSeparators"  of  DWORD  type  allows to
    redefine decimal and digit grouping symbols.
-   High word - code of digit grouping symbol. 
+   High word - code of digit grouping symbol.
    Low word - code of decimal symbol.
    The default value is 0 (use OS regional settings).
 

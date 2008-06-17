@@ -124,7 +124,7 @@ for supporting these archive types and does not require any additional
 archivers.
 
    Advantages: it is not required to install the archivers separately, and
-consequently, the plugin can be used for creating and modifying archivers
+consequently, the plugin can be used for creating and modifying archives
 almost immediately after the installation. Can be used together with
 MultiArc.
 

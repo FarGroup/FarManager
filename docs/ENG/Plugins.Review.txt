@@ -47,7 +47,7 @@ be used to search for specific plugins, one can recommend:
   - PlugRinG site
     http://plugring.farmanager.com
   - Online forum
-    http://enforum.farmanager.com
+    http://forum.farmanager.com
   - USENET echo conference
     news:fido7.far.support
     Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
