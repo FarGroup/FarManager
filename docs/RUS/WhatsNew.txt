@@ -16,8 +16,7 @@ FAR 1.71 (build 2387) (16.06.2008)
 [!] При работе в среде Windows Vista под ограниченной учетной записью к FAR
     более не применяются эффекты виртуализации ОС (о том, что это такое, можно
     прочитать, например, здесь:
-    http://technet.microsoft.com/ru-ru/magazine/cc160882.aspx
-    http://technet.microsoft.com/en-us/magazine/cc160882.aspx).
+    http://technet.microsoft.com/ru-ru/magazine/cc160882.aspx).
 
 [!] Добавлен Hook, позволяющий 32-битной версии FAR корректно работать с
     файловой системой в Win64 (отключение перенаправления WOW64-fs). По
