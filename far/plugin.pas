@@ -1180,6 +1180,8 @@ type
 const
    VE_READ  = 0;
    VE_CLOSE = 1;
+   VE_GOTFOCUS   =6;
+   VE_KILLFOCUS  =7;
 
 { EDITOR_EVENTS }
 
@@ -1188,6 +1190,8 @@ const
    EE_SAVE   = 1;
    EE_REDRAW = 2;
    EE_CLOSE  = 3;
+   EE_GOTFOCUS   =6;
+   EE_KILLFOCUS  =7;
 
 const
    EEREDRAW_ALL    = Pointer(0);

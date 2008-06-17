@@ -513,3 +513,11 @@ void FileViewer::ShowStatus()
   if (Opt.ViewerEditorClock && IsFullScreen())
     ShowTime(FALSE);
 }
+
+void FileViewer::OnChangeFocus (int focus)
+{
+  Frame::OnChangeFocus (focus);
+  CtrlObject->Plugins.CurViewer=&View;
+  int FCurViewerID=View.ViewerID;
+  CtrlObject->Plugins.ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,&FCurViewerID);
+}

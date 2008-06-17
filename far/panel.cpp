@@ -649,13 +649,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	while ( !ChDisk.Done() )
 	{
-		int SelPos=ChDisk.GetSelectPos();
 		int Key;
 
 		{ //очередная фигня
 			ChangeMacroMode MacroMode(MACRO_DISKS);
 			Key=ChDisk.ReadInput();
 		}
+
+		int SelPos=ChDisk.GetSelectPos();
 
 		PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(NULL,0);
 

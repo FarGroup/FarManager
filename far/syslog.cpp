@@ -823,6 +823,7 @@ string __EE_ToName(int Command)
   #define DEF_EE_(m) { EE_##m , L#m }
   struct __XXX_Name EE[]={
     DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
+    DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
   };
 
   return _XXX_ToName(Command,L"EE",EE,sizeof(EE)/sizeof(EE[0]));
@@ -861,6 +862,21 @@ string __ESPT_ToName(int Command)
     DEF_ESPT_(SETWORDDIV),
   };
   return _XXX_ToName(Command,L"ESPT",ESPT,sizeof(ESPT)/sizeof(ESPT[0]));
+#else
+  return L"";
+#endif
+}
+
+string __VE_ToName(int Command)
+{
+#if defined(SYSLOG)
+  #define DEF_VE_(m) { VE_##m , L#m }
+  struct __XXX_Name VE[]={
+    DEF_VE_(READ),     DEF_VE_(CLOSE),
+    DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
+  };
+
+  return _XXX_ToName(Command,L"VE",VE,sizeof(VE)/sizeof(VE[0]));
 #else
   return L"";
 #endif

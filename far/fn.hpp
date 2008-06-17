@@ -678,6 +678,8 @@ string __EEREDRAW_ToName(int Command);
 #define _EEREDRAW_ToName(K) (const wchar_t*)__EEREDRAW_ToName(K)
 string __ESPT_ToName(int Command);
 #define _ESPT_ToName(K) (const wchar_t*)__ESPT_ToName(K)
+string __VE_ToName(int Command);
+#define _VE_ToName(K) (const wchar_t*)__VE_ToName(K)
 string __FCTL_ToName(int Command);
 #define _FCTL_ToName(K) (const wchar_t*)__FCTL_ToName(K)
 string __DLGMSG_ToName(int Msg);

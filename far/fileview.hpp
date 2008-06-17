@@ -83,6 +83,7 @@ class FileViewer:public Frame
     */
     void SetTempViewName(const wchar_t *Name,BOOL DeleteFolder=TRUE);
     virtual void OnDestroy();
+    virtual void OnChangeFocus (int focus);
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual const wchar_t *GetTypeName(){return L"[FileView]";}; ///

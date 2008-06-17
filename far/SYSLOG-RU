@@ -102,6 +102,9 @@
     ESPT-* в текст
      string __ESPT_ToName(int Command)
 
+    VE-команду в текст
+     string __VE_ToName(int Command)
+
     Сообщение/события диалоговые в текст
      string __DLGMSG_ToName(int Msg)
 

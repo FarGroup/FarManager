@@ -1192,11 +1192,12 @@ void PluginManager::Configure(int StartPos)
 
       while (!PluginList.Done())
       {
+        DWORD Key=PluginList.ReadInput();
         int SelPos=PluginList.GetSelectPos();
 
         PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
         string strRegKey;
-        switch(PluginList.ReadInput())
+        switch(Key)
         {
           case KEY_SHIFTF1:
 
@@ -1393,11 +1394,12 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
       while (!PluginList.Done())
       {
+        DWORD Key=PluginList.ReadInput();
         int SelPos=PluginList.GetSelectPos();
 
         PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
 
-        switch(PluginList.ReadInput())
+        switch(Key)
         {
         case KEY_SHIFTF1:
           {

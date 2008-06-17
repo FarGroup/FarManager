@@ -65,7 +65,9 @@ static BOOL IsKeyRCASPressed=FALSE; // Right CtrlAltShift - нажато или нет?
 
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
-//static int AltEnter=-1;
+#if defined(DETECT_ALT_ENTER)
+static int AltEnter=-1;
+#endif
 static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */

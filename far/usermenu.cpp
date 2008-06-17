@@ -512,8 +512,8 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
             UserMenu.Show();
             MenuNeedRefresh=FALSE;
           }
-          MenuPos=UserMenu.GetSelectPos();
           int Key=UserMenu.ReadInput();
+          MenuPos=UserMenu.GetSelectPos();
           if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F12)
           {
             int FuncItemPos;

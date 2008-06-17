@@ -196,8 +196,8 @@ static int ShowFolderShortcutMenu(int Pos)
 
     while (!FolderList.Done())
     {
-      int SelPos=FolderList.GetSelectPos();
       DWORD Key=FolderList.ReadInput();
+      int SelPos=FolderList.GetSelectPos();
       switch(Key)
       {
         case KEY_NUMDEL:

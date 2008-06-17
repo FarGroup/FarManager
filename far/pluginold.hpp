@@ -1287,6 +1287,9 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
 enum VIEWER_EVENTS {
   VE_READ       =0,
   VE_CLOSE      =1,
+
+  VE_GOTFOCUS   =6,
+  VE_KILLFOCUS  =7,
 };
 
 

@@ -487,11 +487,10 @@ void HighlightFiles::HiEdit(int MenuPos)
   {
     while (!HiMenu.Done())
     {
+      int Key=HiMenu.ReadInput();
       int SelectPos=HiMenu.GetSelectPos();
-      int Key;
 
       NeedUpdate=FALSE;
-      Key=HiMenu.ReadInput();
       switch(Key)
       {
         /* $ 07.07.2000 IS
