@@ -731,7 +731,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           break;
 
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
-          Cond=Flags&CheckCode?1:0;
+          Cond=LockScr?1:0;
           break;
 
         case MCODE_C_WINDOWEDMODE: // Windowed?
