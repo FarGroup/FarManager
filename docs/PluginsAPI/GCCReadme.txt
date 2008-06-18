@@ -9,13 +9,13 @@ This document is derived from VCReadme.txt by Michael Yutsis.
 
 Explanation:
 ------------
-1. Exported names required by FAR are "naked", without underscores and other
-extra characters in names. When GCC compiles functions with the WINAPI
-descriptor (which is defined as __stdcall), it converts your names to
-something like this: _OpenPlugin@8 . You can see these names in your .o
-files. To make it understandable by FAR, you must have them exported with
-names like this: OpenPlugin. You can do this using a .def file.
-The .def looks as below. Before you use it, you should delete all the lines
+1. Exported names are required by FAR to be "naked", without underscores and
+other extra characters. When GCC compiles functions with the WINAPI call
+convention (which is defined as __stdcall), it converts the names to something
+like this: "_OpenPlugin@8". You can see those names in your object (*.o) files.
+To make them understandable by FAR, you must have them exported with names like
+this: "OpenPlugin". You can do this using a "def" file. Example of a typical
+"def" file is given below. Before you use it, you should delete all the lines
 with names that you don't use, otherwise you'll get linker errors.
 
 ========= Begin plugin.def =============
@@ -50,7 +50,7 @@ EXPORTS
    SetStartupInfo=_SetStartupInfo@4
 =========================================
 
-2. You may found following Makefile useful as reference:
+2. You may find the following Makefile to be a useful reference:
 
 ========= Begin Makefile ================
 DLLNAME = filecase.dll
@@ -69,29 +69,29 @@ OBJS = $(patsubst %.def,%.o,$(patsubst %.cpp,%.o,$(filter %.cpp %.def,$(SRCS))))
 DEPS = $(patsubst %.cpp,%.d,$(filter %.cpp,$(SRCS)))
 
 %.d: %.cpp
-	@echo making depends for $<
-	@$(SHELL) -ec '$(CXX) -c -M $(CXXFLAGS) $< \
-		| sed '\''s;\($*\).o[ :]*;\1.o $@: ;g'\'' > $@; [ -s $@ ] || rm -f $@'
+        @echo making depends for $<
+        @$(SHELL) -ec '$(CXX) -c -M $(CXXFLAGS) $< \
+                | sed '\''s;\($*\).o[ :]*;\1.o $@: ;g'\'' > $@; [ -s $@ ] || rm -f $@'
 
 %.o: %.cpp
-	@echo compiling $<
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+        @echo compiling $<
+        @$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o: %.def
-	@echo creating export file
-	@dlltool -e $@ -d $<
+        @echo creating export file
+        @dlltool -e $@ -d $<
 
 $(DLLNAME): $(OBJS)
-	@echo linking
-	@$(CXX) -mdll -o nul -Xlinker --base-file -Xlinker $@.base $^ $(LNKFLAGS)
-	@$(DLLTOOL) --dllname $@ --base-file $@.base --output-exp $@.exp --def $(DEF)
-	@$(CXX) -mdll  -o $@ $^ $@.exp $(LNKFLAGS)
-	@$(RM) $@.base
-	@$(RM) $@.exp
+        @echo linking
+        @$(CXX) -mdll -o nul -Xlinker --base-file -Xlinker $@.base $^ $(LNKFLAGS)
+        @$(DLLTOOL) --dllname $@ --base-file $@.base --output-exp $@.exp --def $(DEF)
+        @$(CXX) -mdll  -o $@ $^ $@.exp $(LNKFLAGS)
+        @$(RM) $@.base
+        @$(RM) $@.exp
 
 -include $(DEPS)
 
 clean:
-	@echo cleaning up
-	@rm -f $(DEPS) $(OBJS)
+        @echo cleaning up
+        @rm -f $(DEPS) $(OBJS)
 =========================================
