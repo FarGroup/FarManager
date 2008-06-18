@@ -215,7 +215,8 @@ private:
     void  InsertString(const wchar_t *Str);
     void  InsertBinaryString(const wchar_t *Str,int Length);
 
-    int   Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Reverse);
+    int   Search(const string& Str,int Position,int Case,int WholeWords,int Reverse);
+
     void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
     int   GetClearFlag(void) {return Flags.Check(FEDITLINE_CLEARFLAG);}
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}

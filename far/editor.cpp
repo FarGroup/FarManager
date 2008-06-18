@@ -3578,9 +3578,6 @@ BOOL Editor::Search(int Next)
   if ( strSearchStr.IsEmpty() )
     return TRUE;
 
-  wchar_t *SearchStr = xf_wcsdup (strSearchStr); //RAVE!!!
-  wchar_t *ReplaceStr = xf_wcsdup (strReplaceStr); //BUGBUG!!!
-
   LastSuccessfulReplaceMode=ReplaceMode;
 
   if(!EdOpt.PersistentBlocks || SelectFound)
@@ -3602,7 +3599,7 @@ BOOL Editor::Search(int Next)
     UserBreak=0;
     CurPos=CurLine->GetCurPos();
 
-    //++ Modify current position in select found mode
+    // Modify current position in 'select found' mode
     if( iPosCorrection != 0 )
     {
       CurPos -= (iPosCorrection);
@@ -3642,7 +3639,7 @@ BOOL Editor::Search(int Next)
         break;
       }
 
-      if (CurPtr->Search(SearchStr,CurPos,Case,WholeWords,ReverseSearch))
+      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
       {
         if( SelectFound )
         {
@@ -3727,16 +3724,16 @@ BOOL Editor::Search(int Next)
               If Replace string doesn't contain control symbols (tab and return),
               processed with fast method, otherwise use improved old one.
             */
-            if(wcschr(ReplaceStr,L'\t') || wcschr(ReplaceStr,13)) //BUGBUG!!
+            if( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(13) )
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
               CurLine->SetOvertypeMode(TRUE);
               //int CurPos=CurLine->GetCurPos();
               int I;
-              for (I=0;SearchStr[I]!=0 && ReplaceStr[I]!=0;I++)
+              for (I=0;strSearchStr[I]!=0 && strReplaceStr[I]!=0;I++)
               {
-                int Ch=ReplaceStr[I];
+                int Ch=strReplaceStr[I];
                 if (Ch==KEY_TAB)
                 {
                   Flags.Clear(FEDITOR_OVERTYPE);
@@ -3759,26 +3756,26 @@ BOOL Editor::Search(int Next)
                 if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                   ProcessKey(Ch);
               }
-              if(SearchStr[I]==0)
+              if(strSearchStr[I]==0)
               {
                 Flags.Clear(FEDITOR_OVERTYPE);
                 CurLine->SetOvertypeMode(FALSE);
-                for (;ReplaceStr[I]!=0;I++)
+                for (;strReplaceStr[I]!=0;I++)
                 {
-                  int Ch=ReplaceStr[I];
+                  int Ch=strReplaceStr[I];
                   if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                     ProcessKey(Ch);
                 }
               }else
               {
-                for (;SearchStr[I]!=0;I++)
+                for (;strSearchStr[I]!=0;I++)
                 {
                   ProcessKey(KEY_DEL);
                 }
               }
               int Cnt=0;
-              wchar_t *Tmp=(wchar_t*)ReplaceStr;
-              while((Tmp=wcschr(Tmp,13)) != NULL)
+              const wchar_t *Tmp=(const wchar_t*)strReplaceStr;
+              while( (Tmp=wcschr(Tmp,13)) != NULL )
               {
                 Cnt++;
                 Tmp++;
@@ -3806,7 +3803,7 @@ BOOL Editor::Search(int Next)
               wchar_t *NewStr=new wchar_t[NewStrLen+1];
               int CurPos=CurLine->GetCurPos();
               wmemcpy(NewStr,Str,CurPos);
-              wmemcpy(NewStr+CurPos,ReplaceStr,RStrLen);
+              wmemcpy(NewStr+CurPos,strReplaceStr,RStrLen);
 
               /*if(UseDecodeTable)
               {
@@ -3863,9 +3860,6 @@ BOOL Editor::Search(int Next)
   if (!Match && !UserBreak)
     Message(MSG_DOWN|MSG_WARNING,1,UMSG(MEditSearchTitle),UMSG(MEditNotFound),
             strMsgStr,UMSG(MOk));
-
-  xf_free (SearchStr); //RAVE!!!
-  xf_free (ReplaceStr); //BUGBUG!!!
 
   return TRUE;
 }

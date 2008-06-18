@@ -1838,9 +1838,11 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Reverse)
+int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse)
 {
-  int I,J,Length=StrLength(Str);
+  int I, J;
+  int Length = (int)Str.GetLength();
+
   if (Reverse)
   {
     Position--;
@@ -1849,7 +1851,7 @@ int Edit::Search(const wchar_t *Str,int Position,int Case,int WholeWords,int Rev
     if (Position<0)
       return(FALSE);
   }
-  if (Position<StrSize && *Str)
+  if (Position<StrSize && !Str.IsEmpty() )
     for (I=Position;(Reverse && I>=0) || (!Reverse && I<StrSize);Reverse ? I--:I++)
     {
       for (J=0;;J++)
