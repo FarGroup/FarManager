@@ -4,7 +4,6 @@
 <title>ProcessViewerEvent</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -31,26 +30,39 @@ int WINAPI ProcessViewerEvent(
     <div class=dfndescr>Тип события.<br>
       Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
-<td class="cont" width="60%">Одно из окон программы просмотра закрывается.
-  Плагин может использовать это сообщение для освобождения внутренних
-  структур данных. Заметьте, что несколько окон программы просмотра
-  могут работать одновременно. Параметр <var>Param</var> указывает на
-  переменную, содержащую значение ViewerID закрываемой программы просмотра.
-  ViewerID может быть получен ранее с использованием
-  <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a>
-  команды <a href="../service_functions/viewercontrol.html">ViewerControl</a>.
-  Но плагин не должен вызывать ViewerControl при обработке этого
-  сообщения потому что программа просмотра уже закрыта.<br>
-  Функция должна вернуть 0.
-</td></tr>
+ <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
+ <td class="cont" width="60%">Одно из окон программы просмотра закрывается.
+   Плагин может использовать это сообщение для освобождения внутренних
+   структур данных. Заметьте, что несколько окон программы просмотра
+   могут работать одновременно. Параметр <var>Param</var> указывает на
+   переменную, содержащую значение ViewerID закрываемой программы просмотра.
+   ViewerID может быть получен ранее с использованием
+   <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a>
+   команды <a href="../service_functions/viewercontrol.html">ViewerControl</a>.
+   Но плагин не должен вызывать ViewerControl при обработке этого
+   сообщения потому что программа просмотра уже закрыта.<br>
+   Функция должна вернуть 0.
+ </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="VE_READ" title="0">VE_READ</a></td>
-<td class="cont" width="60%">Новый файл загружен в программу просмотра.<br>
-  <i>Param</i> = NULL.<br>
-  Функция должна вернуть 0.
-</td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a name="VE_READ" title="0">VE_READ</a></td>
+ <td class="cont" width="60%">Новый файл загружен в программу просмотра.<br>
+   <i>Param</i> = NULL.<br>
+   Функция должна вернуть 0.
+ </td></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a name="VE_KILLFOCUS">VE_KILLFOCUS</a></td>
+ <td class="cont" width="60%">Программа просмотра потеряла фокус ввода.<br>
+   <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, теряющего фокус.<br>
+   Функция должна вернуть 0.
+ </td></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a name="VE_GOTFOCUS">VE_GOTFOCUS</a></td>
+ <td class="cont" width="60%">Программа просмотра получила фокус ввода.<br>
+   <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, получающего фокус.<br>
+   Функция должна вернуть 0.
+ </td></tr>
+
 </table>
     </div>
     <div class=dfn>Param</div>
