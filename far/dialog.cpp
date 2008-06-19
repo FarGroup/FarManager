@@ -2749,7 +2749,7 @@ int Dialog::ProcessKey(int Key)
             if(!(Item[FocusPos].Flags & DIF_NOAUTOCOMPLETE))
                         if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
                ((Item[FocusPos].Flags & DIF_HISTORY) || Item[FocusPos].Type == DI_COMBOBOX))
-            if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
+            if((Opt.Dialogs.AutoComplete && Key && Key < 0x10000 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {

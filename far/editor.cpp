@@ -2763,7 +2763,7 @@ int Editor::ProcessKey(int Key)
         }
 
         if (!Pasting && !EdOpt.PersistentBlocks && BlockStart!=NULL)
-          if ((Key>=32 && Key<256) || Key==KEY_ADD || Key==KEY_SUBTRACT ||
+          if ((Key>=32 && Key<0x10000) || Key==KEY_ADD || Key==KEY_SUBTRACT || // ??? 256 ???
               Key==KEY_MULTIPLY || Key==KEY_DIVIDE || Key==KEY_TAB)
           {
             DeleteBlock();
@@ -2835,7 +2835,7 @@ int Editor::ProcessKey(int Key)
         CurLine->GetBinaryString(&Str,NULL,Length);
         CurPos=CurLine->GetCurPos();
 
-        if (Key<256 && CurPos>0 && Length==0)
+        if (Key<0x10000 && CurPos>0 && Length==0)
         {
           Edit *PrevLine=CurLine->m_prev;
           while (PrevLine!=NULL && PrevLine->GetLength()==0)

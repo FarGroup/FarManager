@@ -569,7 +569,6 @@ int Edit::ProcessKey(int Key)
     Show();
     return(TRUE);
   }
-
   int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
   // $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
   if (!ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
@@ -577,7 +576,7 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
       Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
       Key!=KEY_KILLFOCUS && Key != KEY_GOTFOCUS &&
-      ((Key&(~0xFF000000)) != KEY_LWIN && (Key&(~0xFF000000)) != KEY_RWIN && (Key&(~0xFF000000)) != KEY_APPS)
+      ((Key&(~KEY_CTRLMASK)) != KEY_LWIN && (Key&(~KEY_CTRLMASK)) != KEY_RWIN && (Key&(~KEY_CTRLMASK)) != KEY_APPS)
      )
   {
     Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
@@ -600,7 +599,7 @@ int Edit::ProcessKey(int Key)
 
   }
 
-//  if (!EditEncodeDisabled && Key<256 && TableSet && !ReturnAltValue) BUGBUG
+//  if (!EditEncodeDisabled && Key<0xFFFF && TableSet && !ReturnAltValue) BUGBUG
 //    Key=TableSet->EncodeTable[Key];
 
   /* $ 11.09.2000 SVS
@@ -620,8 +619,7 @@ int Edit::ProcessKey(int Key)
     SelStart=0;
     SelEnd=StrSize;
   }
-
-  if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key<256 && Key!=KEY_BS) || Key==KEY_CTRLBRACKET ||
+  if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key <= 0xFFFF && Key!=KEY_BS) || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
       Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
   {
@@ -640,7 +638,7 @@ int Edit::ProcessKey(int Key)
   if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_SHIFTNUMPAD0 && Key!=KEY_CTRLINS &&
       ((unsigned int)Key<KEY_F1 || (unsigned int)Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-      (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
+      (Key<KEY_ALT_BASE || Key > KEY_ALT_BASE+0xFFFF) && // ???? 256 ???
       !(((unsigned int)Key>=KEY_MACRO_BASE && (unsigned int)Key<=KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
