@@ -1120,19 +1120,29 @@ BOOL IsLocalRootPath(const char *Path)
   return (Path && isalpha(*Path) && Path[1]==':' && Path[2] == '\\' && !Path[3]);
 }
 
+bool PathPrefix(const char *Path)
+{
+/*
+	\\?\
+	\\.\
+	\??\
+*/
+	return Path && Path[0] == '\\' && (Path[1] == '\\' || Path[1] == '?') && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\';
+}
+
 BOOL IsLocalPrefixPath(const char *Path)
 {
-  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && isalpha(Path[4]) && Path[5] == ':' && Path[6] == '\\');
+	return PathPrefix(Path) && isalpha(Path[4]) && Path[5] == ':' && Path[6] == '\\';
 }
 
 BOOL IsLocalVolumePath(const char *Path)
 {
-  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && !strnicmp(&Path[4],"Volume{",7));
+	return PathPrefix(Path) && !strnicmp(&Path[4],"Volume{",7) && Path[47] == '}';
 }
 
 BOOL IsLocalVolumeRootPath(const char *Path)
 {
-  return (Path && Path[0] == '\\' && Path[1] == '\\' && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\' && !strnicmp(&Path[4],"Volume{",7) && Path[47] == '}' && !Path[48]);
+	return IsLocalVolumePath(Path) && !Path[48];
 }
 
 //  осметические преобразовани€ строки пути.

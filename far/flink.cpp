@@ -925,8 +925,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
               strcat(TempJunc,JuncName);
               xstrncpy(JuncName,TempJunc,sizeof(JuncName)-1);
             }
-
-            if(!Reenter)
+            if(!Reenter && !IsLocalVolumePath(JuncName))
               _GetPathRoot(JuncName+offset,Root,TRUE);
             else
               GetPathRootOne(JuncName+offset,Root);
