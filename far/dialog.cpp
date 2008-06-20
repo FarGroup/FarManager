@@ -2095,20 +2095,27 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
         return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
       return 0;
     }
+
     case MCODE_V_DLGITEMTYPE:
+    {
       switch(Item[FocusPos]->Type)
       {
-        case DI_EDIT:            return (__int64)(DropDownOpened?0x8001:1);
-        case DI_PSWEDIT:         return _i64(2);
-        case DI_FIXEDIT:         return _i64(3);
-        case DI_BUTTON:          return _i64(4);
-        case DI_CHECKBOX:        return _i64(5);
-        case DI_RADIOBUTTON:     return _i64(6);
-        case DI_COMBOBOX:        return (__int64)(DropDownOpened?0x8007:7);
-        case DI_LISTBOX:         return _i64(8);
-        case DI_USERCONTROL:     return _i64(9);
+        case DI_BUTTON:      return _i64(7); // Кнопка (Push Button).
+        case DI_CHECKBOX:    return _i64(8); // Контрольный переключатель (Check Box).
+        case DI_COMBOBOX:    return (__int64)(DropDownOpened?0x800A:10); // Комбинированный список.
+        case DI_DOUBLEBOX:   return _i64(3); // Двойная рамка.
+        case DI_EDIT:        return (__int64)(DropDownOpened?0x8004:4); // Поле ввода.
+        case DI_FIXEDIT:     return _i64(6); // Поле ввода фиксированного размера.
+        case DI_LISTBOX:     return _i64(11); // Окно списка.
+        case DI_PSWEDIT:     return _i64(5); // Поле ввода пароля.
+        case DI_RADIOBUTTON: return _i64(9); // Селекторная кнопка (Radio Button).
+        case DI_SINGLEBOX:   return _i64(2); // Одиночная рамка.
+        case DI_TEXT:        return _i64(0); // Текстовая строка.
+        case DI_USERCONTROL: return _i64(255); // Элемент управления, определяемый программистом.
+        case DI_VTEXT:       return _i64(1); // Вертикальная текстовая строка.
       }
       return _i64(0);
+    }
 
     case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
     {
