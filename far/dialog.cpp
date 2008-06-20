@@ -2114,7 +2114,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
         case DI_USERCONTROL: return _i64(255); // Элемент управления, определяемый программистом.
         case DI_VTEXT:       return _i64(1); // Вертикальная текстовая строка.
       }
-      return _i64(0);
+      return _i64(-1);
     }
 
     case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
