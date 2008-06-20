@@ -865,7 +865,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
         {
           if(GetJunctionPointInfo(TempRoot,strJuncName))
           {
-             if(!Reenter)
+             if(!Reenter && !IsLocalVolumePath(strJuncName))
                _GetPathRoot((const wchar_t*)strJuncName+4,strRoot,TRUE);
              else
                GetPathRootOne((const wchar_t*)strJuncName+4,strRoot);
