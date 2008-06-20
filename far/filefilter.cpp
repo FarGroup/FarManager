@@ -25,7 +25,6 @@ static int _cdecl ExtSort(const void *el1,const void *el2);
 
 static TPointerArray<FileFilterParams> FilterData, TempFilterData;
 static FileFilterParams FoldersFilter;
-static BitFlags FolderFlags; //флаги для разрешения фильтрации папок
 
 FileFilter::FileFilter(Panel *HostPanel, enumFileFilterType FilterType)
 {
@@ -42,18 +41,7 @@ bool FileFilter::FilterEdit()
   struct MenuItem ListItem;
   int ExitCode;
   bool bNeedUpdate=false;
-  VMenu FilterList("",NULL,0,ScrY-6);
-
-  {
-    DWORD Inc,Exc;
-    GetIncludeExcludeFlags(Inc,Exc);
-    if (FolderFlags.Check(Inc))
-      FilterList.SetTitle(MSG(MFilterTitle_IncFolders));
-    else if (FolderFlags.Check(Exc))
-      FilterList.SetTitle(MSG(MFilterTitle_ExcFolders));
-    else
-      FilterList.SetTitle(MSG(MFilterTitle_FilterFolders));
-  }
+  VMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
 
   FilterList.SetHelp("FiltersMenu");
   FilterList.SetPosition(-1,-1,0,0);
@@ -190,7 +178,6 @@ bool FileFilter::FilterEdit()
         break;
       }
 
-      case KEY_SHIFTSUBTRACT:
       case KEY_SHIFTBS:
       {
         for (int I=0; I < FilterList.GetItemCount(); I++)
@@ -199,36 +186,14 @@ bool FileFilter::FilterEdit()
         }
         FilterList.SetUpdateRequired(TRUE);
         FilterList.FastShow();
-        if (Key!=KEY_SHIFTSUBTRACT)
-          break;
       }
+
       case KEY_CTRLF:
       {
-        DWORD Inc,Exc;
-        GetIncludeExcludeFlags(Inc,Exc);
-        if (Key==KEY_CTRLF)
-        {
-          if (m_FilterType == FFT_SELECT)
-            FolderFlags.Swap(Exc);
-          else
-            FolderFlags.Swap(Inc);
-        }
-        else
-        {
-          if (m_FilterType == FFT_SELECT)
-            FolderFlags.Set(Exc);
-          else
-            FolderFlags.Set(Inc);
-        }
-        if (FolderFlags.Check(Inc))
-          FilterList.SetTitle(MSG(MFilterTitle_IncFolders));
-        else if (FolderFlags.Check(Exc))
-          FilterList.SetTitle(MSG(MFilterTitle_ExcFolders));
-        else
-          FilterList.SetTitle(MSG(MFilterTitle_FilterFolders));
+        //Позиционируем курсор на FoldersFilter
+        FilterList.SetSelectPos(FilterData.getCount()+2,1);
         FilterList.SetUpdateRequired(TRUE);
-        FilterList.SetPosition(-1,-1,0,0);
-        FilterList.Show();
+        FilterList.FastShow();
         bNeedUpdate=true;
         break;
       }
@@ -582,14 +547,6 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  if (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-  {
-    if (FolderFlags.Check(Inc))
-      return !IsExcludeDir;
-    if (FolderFlags.Check(Exc))
-      return false;
-  }
-
   bool flag=false;
   bool bInc=false;
   bool bExc=false;
@@ -624,6 +581,14 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
       if (CurFilterData->FileInFilter(fd))
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
+  }
+
+  //Если папка и она не попала ни под какой exclude фильтр
+  //то самое логичное будет сделать ей include,
+  //кроме как в Select где логичней всего работать чисто по заданому фильтру.
+  if (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && !bExc && m_FilterType!=FFT_SELECT)
+  {
+    bInc = true;
   }
 
   if(IsExcludeDir) return bExc;
@@ -743,8 +708,6 @@ void FileFilter::InitFilter()
   FoldersFilter.SetMask(0,"");
   FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
   FoldersFilter.Flags.Set((DWORD)GetRegKey("Filters","FoldersFilterFlags",0));
-
-  FolderFlags.Set((DWORD)GetRegKey("Filters","FolderFlags",FFF_RPANELINCLUDE|FFF_LPANELINCLUDE|FFF_FINDFILEINCLUDE|FFF_COPYINCLUDE|FFF_SELECTEXCLUDE));
 }
 
 
@@ -819,7 +782,6 @@ void FileFilter::SaveFilters()
   }
 
   SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
-  SetRegKey("Filters","FolderFlags",FolderFlags.Flags);
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
@@ -856,18 +818,6 @@ void FileFilter::SwapFilter()
 
   for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     SwapPanelFlags(TempFilterData.getItem(i));
-
-  DWORD flags=0;
-  if (FolderFlags.Check(FFF_LPANELINCLUDE))
-  {
-    flags|=FFF_RPANELINCLUDE;
-  }
-  if (FolderFlags.Check(FFF_RPANELINCLUDE))
-  {
-    flags|=FFF_LPANELINCLUDE;
-  }
-  FolderFlags.Clear(FFF_RPANELINCLUDE|FFF_LPANELINCLUDE);
-  FolderFlags.Set(flags);
 }
 
 int FileFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount,int Check)

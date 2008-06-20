@@ -2980,18 +2980,11 @@ masks) the following commands are available:
                        and files that match then will not be
                        processed.
 
-   #Ctrl-F#              Allow or disable filtration of folders.
-                       If folder filtration is allowed then the menu
-                       title will contain the string "D?", otherwise
-                       it will contain "D+".
+   #Ctrl-F#              Position cursor on the "Folders" item.
 
    #Backspace#           Clear selection from the current item.
 
    #Shift-Backspace#     Clear selection from all items.
-
-   #Shift-<Gray Minus>#  Reset the menu to default state.
-                       (disable filtration of folders and clear
-                       selection from all items).
 
 
     Filters selection is stored in the FAR configuration.

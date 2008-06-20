@@ -1912,10 +1912,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     }
   }
 
-  /* 17.04.2005 KM
-     Отфильтруем файлы не попадающие в действующий фильтр,
-     каталоги же пропускаем всегда
-  */
   if (UseFilter)
   {
     // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
@@ -1925,7 +1921,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     if(Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData, isDir) == isDir)
       return COPY_NEXT;
   }
-  /* KM $ */
 
   strcpy(DestPath,Dest);
 
