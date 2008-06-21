@@ -513,6 +513,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       {
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
       }
@@ -522,6 +523,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
       }
 
       return TRUE;
@@ -544,40 +546,46 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)Date);
+        int relative = (int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
+        int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
+        int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
+
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)Date);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)Time);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)Date);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)Date);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)Time);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,ID_FF_DATEAFTEREDIT,0);
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
         COORD r;
         r.X=r.Y=0;
-        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,ID_FF_DATEAFTEREDIT,(LONG_PTR)&r);
+        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,da,(LONG_PTR)&r);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
       }
       else if (Param1==ID_FF_RESET) // Reset
       {
-        // очистка диалога
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(LONG_PTR)"*");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)"");
 
-        /* 14.06.2004 KM
-           Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
-           случае это будет логичнее, т.с. дефолтное значение
-        */
-        for(int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
+        for (int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
+        {
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+        }
+        if (!ColorConfig)
+          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
 
-        // 6, 13 - позиции в списке
         struct FarListPos LPos={0,0};
         Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
 
@@ -585,7 +593,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,BSTATE_UNCHECKED);
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,BSTATE_UNCHECKED);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,BSTATE_UNCHECKED);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
@@ -605,6 +613,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         {
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
         }
@@ -614,6 +623,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
         }
         break;
       }
@@ -662,7 +672,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       break;
 
     case DN_CLOSE:
-      if (Param1 == ID_FF_OK)
+      if (Param1 == ID_FF_OK && Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_MATCHSIZE,0))
       {
         char temp[512];
         Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)temp);
@@ -671,8 +681,8 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         bTemp = bTemp && (!*temp || CheckFileSizeStringFormat(temp));
         if (!bTemp)
         {
-          Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_TITLE,(LONG_PTR)temp);
-          Message(MSG_WARNING,1,temp,MSG(MBadFileSizeFormat),MSG(MOk));
+          LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+          Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));
           return FALSE;
         }
       }
@@ -963,7 +973,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FilterDlg[i].Flags|=DIF_DISABLE;
   }
 
-  Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FileFilterConfigDlgProc,(LONG_PTR)&Colors);
+  Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:NULL));
 
   Dlg.SetHelp(ColorConfig?"HighlightEdit":"Filter");
   Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
