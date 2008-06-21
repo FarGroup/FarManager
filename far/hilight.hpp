@@ -20,6 +20,7 @@ class HighlightFiles
   private:
     TPointerArray<FileFilterParams> HiData;
     int FirstCount, UpperCount, LowerCount, LastCount;
+    unsigned __int64 CurrentTime;
 
   private:
     void InitHighlightFiles();
@@ -34,6 +35,7 @@ class HighlightFiles
     ~HighlightFiles();
 
   public:
+    void UpdateCurrentTime();
     void GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *Colors,bool UseAttrHighlighting=false);
     void GetHiColor(struct FileListItem *FileItem,int FileCount,bool UseAttrHighlighting=false);
     int  GetGroup(WIN32_FIND_DATA *fd);

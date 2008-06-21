@@ -598,6 +598,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       Dlg.ClearDone();
       Dlg.Process();
       DlgExitCode=Dlg.GetExitCode();
+
+      //Рефреш текущему времени для фильтра сразу после выхода из диалога
+      Filter->UpdateCurrentTime();
+
       if(DlgExitCode == ID_SC_BTNCOPY)
       {
         /* $ 03.08.2001 IS
@@ -631,6 +635,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       else
         break;
     }
+
     /* IS $ */
     if(DlgExitCode == ID_SC_BTNCANCEL || DlgExitCode < 0 || (CopyDlg[ID_SC_BTNCOPY].Flags&DIF_DISABLE))
     {

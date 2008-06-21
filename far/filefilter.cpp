@@ -30,6 +30,7 @@ FileFilter::FileFilter(Panel *HostPanel, enumFileFilterType FilterType)
 {
   m_HostPanel=HostPanel;
   m_FilterType=FilterType;
+  UpdateCurrentTime();
 }
 
 FileFilter::~FileFilter()
@@ -524,6 +525,20 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
   }
 }
 
+void FileFilter::UpdateCurrentTime()
+{
+  SYSTEMTIME cst;
+  FILETIME cft;
+  GetSystemTime(&cst);
+  SystemTimeToFileTime(&cst, &cft);
+
+  ULARGE_INTEGER current;
+  current.u.LowPart  = cft.dwLowDateTime;
+  current.u.HighPart = cft.dwHighDateTime;
+
+  CurrentTime = current.QuadPart;
+}
+
 bool FileFilter::FileInFilter(FileListItem *fli)
 {
   WIN32_FIND_DATA fd;
@@ -559,7 +574,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
     if (CurFilterData->Flags.Check(Inc|Exc))
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
-      if (CurFilterData->FileInFilter(fd))
+      if (CurFilterData->FileInFilter(fd, CurrentTime))
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }
@@ -567,7 +582,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
   if (FoldersFilter.Flags.Check(Inc|Exc))
   {
     flag = flag || FoldersFilter.Flags.Check(Inc);
-    if (FoldersFilter.FileInFilter(fd))
+    if (FoldersFilter.FileInFilter(fd, CurrentTime))
       FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
   }
 
@@ -578,7 +593,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
     if (CurFilterData->Flags.Check(Inc|Exc))
     {
       flag = flag || CurFilterData->Flags.Check(Inc);
-      if (CurFilterData->FileInFilter(fd))
+      if (CurFilterData->FileInFilter(fd, CurrentTime))
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
     }
   }

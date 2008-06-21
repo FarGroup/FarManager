@@ -26,6 +26,7 @@ class FileFilter
   private:
     Panel *m_HostPanel;
     enumFileFilterType m_FilterType;
+    unsigned __int64 CurrentTime;
 
     int  ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount,int Check);
     void ProcessSelection(VMenu *FilterList);
@@ -38,6 +39,7 @@ class FileFilter
     ~FileFilter();
 
     bool FilterEdit();
+    void UpdateCurrentTime();
     bool FileInFilter(FileListItem *fli);
     bool FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir = false);
     bool IsEnabledOnPanel();

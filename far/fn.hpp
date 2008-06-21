@@ -394,6 +394,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
+void ConvertRelativeDate(const FILETIME &ft,char *DaysText,char *TimeText);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
 // Registry

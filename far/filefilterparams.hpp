@@ -118,8 +118,8 @@ class FileFilterParams
     // попадает ли файл fd под условие установленного фильтра.
     // Возвращает true  - попадает;
     //            false - не попадает.
-    bool FileInFilter(WIN32_FIND_DATA *fd);
-    bool FileInFilter(FileListItem *fli);
+    bool FileInFilter(WIN32_FIND_DATA *fd, unsigned __int64 CurrentTime);
+    bool FileInFilter(FileListItem *fli, unsigned __int64 CurrentTime);
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);

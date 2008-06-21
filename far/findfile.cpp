@@ -655,6 +655,9 @@ FindFiles::FindFiles()
         Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT);
         Dlg.Process();
         ExitCode=Dlg.GetExitCode();
+
+        //Рефреш текущему времени для фильтра сразу после выхода из диалога
+        Filter->UpdateCurrentTime();
       }
 
       if (ExitCode!=31)

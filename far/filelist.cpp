@@ -164,13 +164,13 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
 
 void FileList::DeleteAllDataToDelete()
 {
-	DataToDelete.toEnd();
-	while(!DataToDelete.empty())
-	{
-		DataToDeleteItem item=*DataToDelete.getItem();
-		DataToDelete.removeToBegin();
-		DeletePluginItemList(item.Item,item.Size);
-	}
+  DataToDelete.toEnd();
+  while(!DataToDelete.empty())
+  {
+    DataToDeleteItem item=*DataToDelete.getItem();
+    DataToDelete.removeToBegin();
+    DeletePluginItemList(item.Item,item.Size);
+  }
 }
 
 
@@ -3088,6 +3088,8 @@ void FileList::SelectFiles(int Mode)
             Dlg.Process();
             if (Dlg.GetExitCode()==4 && Filter.FilterEdit())
             {
+              //Рефреш текущему времени для фильтра сразу после выхода из диалога
+              Filter.UpdateCurrentTime();
               bUseFilter = true;
               break;
             }
@@ -3939,6 +3941,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
     }
   }
   /* OT $*/
+
+  //Рефреш текущему времени для фильтра перед началом операции
+  Filter->UpdateCurrentTime();
 
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
   {

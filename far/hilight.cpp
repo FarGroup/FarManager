@@ -58,6 +58,7 @@ static const char SortGroupsKeyName[]="SortGroups";
 HighlightFiles::HighlightFiles()
 {
   InitHighlightFiles();
+  UpdateCurrentTime();
 }
 
 void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *Mask, int SortGroup, bool bSortGroup)
@@ -263,6 +264,20 @@ void ApplyFinalColors(HighlightDataColor *Colors)
   ApplyBlackOnBlackColors(Colors);
 }
 
+void HighlightFiles::UpdateCurrentTime()
+{
+  SYSTEMTIME cst;
+  FILETIME cft;
+  GetSystemTime(&cst);
+  SystemTimeToFileTime(&cst, &cft);
+
+  ULARGE_INTEGER current;
+  current.u.LowPart  = cft.dwLowDateTime;
+  current.u.HighPart = cft.dwHighDateTime;
+
+  CurrentTime = current.QuadPart;
+}
+
 void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *Colors,bool UseAttrHighlighting)
 {
   FileFilterParams *CurHiData;
@@ -276,7 +291,7 @@ void HighlightFiles::GetHiColor(WIN32_FIND_DATA *fd,struct HighlightDataColor *C
     if (UseAttrHighlighting && CurHiData->GetMask(NULL))
       continue;
 
-    if (CurHiData->FileInFilter(fd))
+    if (CurHiData->FileInFilter(fd, CurrentTime))
     {
       HighlightDataColor TempColors;
       CurHiData->GetColors(&TempColors);
@@ -307,7 +322,7 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount,bool
       if (UseAttrHighlighting && CurHiData->GetMask(NULL))
         continue;
 
-      if (CurHiData->FileInFilter(FileItem))
+      if (CurHiData->FileInFilter(FileItem, CurrentTime))
       {
         HighlightDataColor TempColors;
         CurHiData->GetColors(&TempColors);
@@ -326,14 +341,14 @@ int HighlightFiles::GetGroup(WIN32_FIND_DATA *fd)
   for (int i=FirstCount; i<FirstCount+UpperCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd))
+    if(CurGroupData->FileInFilter(fd, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 
   for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd))
+    if(CurGroupData->FileInFilter(fd, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
   return DEFAULT_SORT_GROUP;
@@ -344,14 +359,14 @@ int HighlightFiles::GetGroup(FileListItem *fli)
   for (int i=FirstCount; i<FirstCount+UpperCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fli))
+    if(CurGroupData->FileInFilter(fli, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 
   for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fli))
+    if(CurGroupData->FileInFilter(fli, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 

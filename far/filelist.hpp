@@ -118,12 +118,12 @@ class FileList:public Panel
     /* SVS $ */
     int AccessTimeUpdateRequired;
 
-	struct DataToDeleteItem
-	{
-		PluginPanelItem* Item;
-		int Size;
-	};
-	TList<DataToDeleteItem> DataToDelete;
+    struct DataToDeleteItem
+    {
+      PluginPanelItem* Item;
+      int Size;
+    };
+    TList<DataToDeleteItem> DataToDelete;
 
     int UpdateRequired,UpdateRequiredMode;
     int SortGroupsRead;
@@ -205,7 +205,7 @@ class FileList:public Panel
     void ProcessPluginCommand();
     void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
-    void ReadSortGroups();
+    void ReadSortGroups(bool UpdateFilterCurrentTime=true);
     void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
     int  ProcessOneHostFile(int Idx);
 
@@ -298,12 +298,7 @@ class FileList:public Panel
                             char *Dest,int SizeDest,int UNC,int ShortNameAsIs=TRUE);
 
     virtual BOOL GetItem(int Index,void *Dest);
-    /* $ 30.04.2001 DJ
-       добавлен UpdateKeyBar()
-    */
     virtual BOOL UpdateKeyBar();
-    /* DJ $ */
-    void UpdateColorItems(void);
 
     virtual void IfGoHome(char Drive);
 

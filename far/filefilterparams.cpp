@@ -183,7 +183,7 @@ int FileFilterParams::GetMarkChar() const
   return FHighlight.Colors.MarkChar;
 }
 
-bool FileFilterParams::FileInFilter(FileListItem *fli)
+bool FileFilterParams::FileInFilter(FileListItem *fli, unsigned __int64 CurrentTime)
 {
   WIN32_FIND_DATA fd;
 
@@ -198,10 +198,10 @@ bool FileFilterParams::FileInFilter(FileListItem *fli)
   xstrncpy(fd.cFileName,fli->Name,sizeof(fd.cFileName)-1);
   xstrncpy(fd.cAlternateFileName,fli->ShortName,sizeof(fd.cAlternateFileName)-1);
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd, CurrentTime);
 }
 
-bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
+bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd, unsigned __int64 CurrentTime)
 {
   // Пустое значение?
   //if (fd==NULL)
@@ -272,20 +272,11 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd)
 
       if (FDate.bRelative)
       {
-        SYSTEMTIME cst;
-        FILETIME cft;
-        GetSystemTime(&cst);
-        SystemTimeToFileTime(&cst, &cft);
-
-        ULARGE_INTEGER current;
-        current.u.LowPart  = cft.dwLowDateTime;
-        current.u.HighPart = cft.dwHighDateTime;
-
         if (after.QuadPart!=_ui64(0))
-          after.QuadPart = current.QuadPart - after.QuadPart;
+          after.QuadPart = CurrentTime - after.QuadPart;
 
         if (before.QuadPart!=_ui64(0))
-          before.QuadPart = current.QuadPart - before.QuadPart;
+          before.QuadPart = CurrentTime - before.QuadPart;
       }
 
       // Есть введённая пользователем начальная дата?
@@ -503,29 +494,37 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
   }
 }
 
+void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg)
+{
+  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+  if (Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0))
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
+  }
+  else
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
+  }
+
+  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+}
+
 LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   switch(Msg)
   {
     case DN_INITDIALOG:
     {
-      if (Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0))
-      {
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
-      }
-      else
-      {
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
-      }
-
+      FilterDlgRelativeDateItemsUpdate(hDlg);
       return TRUE;
     }
 
@@ -609,22 +608,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       }
       else if (Param1==ID_FF_DATERELATIVE)
       {
-        if (Param2)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
-        }
-        else
-        {
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
-        }
+        FilterDlgRelativeDateItemsUpdate(hDlg);
         break;
       }
     }
@@ -914,32 +898,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   if (bRelative)
   {
-    WORD d,h,m,s;
-    ULARGE_INTEGER time;
-
-    time.u.LowPart  = DateAfter.dwLowDateTime;
-    time.u.HighPart = DateAfter.dwHighDateTime;
-    d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
-    h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
-    m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
-    s = (WORD)(time.QuadPart / _ui64(10000000));
-    itoa(d, FilterDlg[ID_FF_DAYSAFTEREDIT].Data, 10);
-    sprintf(FilterDlg[ID_FF_TIMEAFTEREDIT].Data, "%02d%c%02d%c%02d", h,GetTimeSeparator(),m,GetTimeSeparator(),s);
-
-    time.u.LowPart  = DateBefore.dwLowDateTime;
-    time.u.HighPart = DateBefore.dwHighDateTime;
-    d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
-    h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
-    m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
-    time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
-    s = (WORD)(time.QuadPart / _ui64(10000000));
-    itoa(d, FilterDlg[ID_FF_DAYSBEFOREEDIT].Data, 10);
-    sprintf(FilterDlg[ID_FF_TIMEBEFOREEDIT].Data, "%02d%c%02d%c%02d", h,GetTimeSeparator(),m,GetTimeSeparator(),s);
+    ConvertRelativeDate(DateAfter, FilterDlg[ID_FF_DAYSAFTEREDIT].Data, FilterDlg[ID_FF_TIMEAFTEREDIT].Data);
+    ConvertRelativeDate(DateBefore, FilterDlg[ID_FF_DAYSBEFOREEDIT].Data, FilterDlg[ID_FF_TIMEBEFOREEDIT].Data);
   }
   else
   {

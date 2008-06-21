@@ -339,6 +339,25 @@ void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength
   }
 }
 
+void ConvertRelativeDate(const FILETIME &ft,char *DaysText,char *TimeText)
+{
+  WORD d,h,m,s;
+  ULARGE_INTEGER time;
+
+  time.u.LowPart  = ft.dwLowDateTime;
+  time.u.HighPart = ft.dwHighDateTime;
+
+  d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
+  h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
+  m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
+  s = (WORD)(time.QuadPart / _ui64(10000000));
+
+  itoa(d, DaysText, 10);
+  sprintf(TimeText, "%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
+}
 
 int GetDateFormat()
 {
