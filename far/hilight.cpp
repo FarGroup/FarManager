@@ -33,7 +33,7 @@ struct HighlightStrings
        *MarkChar,
        *ContinueProcessing,
        *UseDate,*DateType,*DateAfter,*DateBefore, *DateRelative,
-       *UseSize,*SizeType,*SizeAbove,*SizeBelow,
+       *UseSize,*SizeAbove,*SizeBelow,
        *HighlightEdit,*HighlightList;
 };
 static const HighlightStrings HLS=
@@ -45,7 +45,7 @@ static const HighlightStrings HLS=
   "MarkChar",
   "ContinueProcessing",
   "UseDate","DateType","DateAfter","DateBefore", "DateRelative",
-  "UseSize","SizeType","SizeAbove","SizeBelow",
+  "UseSize","SizeAboveS","SizeBelowS",
   "HighlightEdit","HighlightList"
 };
 
@@ -80,10 +80,13 @@ void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *
                   DateBefore,
                   GetRegKey(RegKey,HLS.DateRelative,0)?true:false);
 
+  char SizeAbove[FILEFILTER_SIZE_SIZE];
+  char SizeBelow[FILEFILTER_SIZE_SIZE];
+  GetRegKey(RegKey,HLS.SizeAbove,SizeAbove,"",sizeof(SizeAbove));
+  GetRegKey(RegKey,HLS.SizeBelow,SizeBelow,"",sizeof(SizeBelow));
   HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
-                  (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
-                  GetRegKey64(RegKey,HLS.SizeAbove,(unsigned __int64)_i64(-1)),
-                  GetRegKey64(RegKey,HLS.SizeBelow,(unsigned __int64)_i64(-1)));
+                  SizeAbove,
+                  SizeBelow);
 
   if (bSortGroup)
   {
@@ -678,12 +681,10 @@ void SaveFilterToReg(FileFilterParams *CurHiData, const char *RegKey, bool bSort
   SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
   SetRegKey(RegKey,HLS.DateRelative,bRelative?1:0);
 
-  DWORD SizeType;
-  __int64 SizeAbove, SizeBelow;
-  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-  SetRegKey(RegKey,HLS.SizeType,SizeType);
-  SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
-  SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
+  const char *SizeAbove, *SizeBelow;
+  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow));
+  SetRegKey(RegKey,HLS.SizeAbove,SizeAbove);
+  SetRegKey(RegKey,HLS.SizeBelow,SizeBelow);
 
   DWORD AttrSet, AttrClear;
   SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));

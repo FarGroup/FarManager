@@ -1368,6 +1368,13 @@ range at the begining of the file, defined by the #Search only in the first#
 property. If the specified value is less than the file size, the rest of the
 file will be ignored even if the required sequence exists there.
 
+The following file size suffixes can be used:
+B - for bytes (no suffix also means bytes);
+K - for kilobytes;
+M - for megabytes;
+G - for gigabytes;
+T - for terabytes.
+
 
 @FindFileResult
 $ #Find file: control keys#
@@ -1446,8 +1453,13 @@ rule sets.
                    ignored.
 
 
-   #Size#            Minimum and maximum files size in #bytes#,
-                   #kilobytes#, #megabytes# or #gigabytes#.
+   #Size#            Minimum and maximum files size. The following
+                   file size suffixes can be used:
+                   B - for bytes (no suffix also means bytes);
+                   K - for kilobytes;
+                   M - for megabytes;
+                   G - for gigabytes;
+                   T - for terabytes.
 
                    Filter conditions are met if file size analysis
                    is on, and it is inside the given range.

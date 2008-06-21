@@ -15,6 +15,7 @@ filefilterparams.hpp
 struct FileListItem;
 
 #define FILEFILTER_MASK_SIZE 2048
+#define FILEFILTER_SIZE_SIZE 32
 
 enum FileFilterFlags
 {
@@ -37,16 +38,6 @@ enum FDateType
   FDATE_OPENED,
 
   FDATE_COUNT, // всегда последний !!!
-};
-
-enum FSizeType
-{
-  FSIZE_INBYTES=0,
-  FSIZE_INKBYTES,
-  FSIZE_INMBYTES,
-  FSIZE_INGBYTES,
-
-  FSIZE_COUNT, // всегда последний !!!
 };
 
 class FileFilterParams
@@ -74,9 +65,8 @@ class FileFilterParams
     struct
     {
       DWORD Used;
-      FSizeType SizeType;
-      __int64 SizeAbove; // Здесь всегда будет размер в SizeType или -1 для игнор
-      __int64 SizeBelow; // Здесь всегда будет размер в SizeType или -1 для игнор
+      char SizeAbove[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
+      char SizeBelow[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
       unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
       unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
     } FSize;
@@ -108,7 +98,7 @@ class FileFilterParams
     void SetTitle(const char *Title);
     void SetMask(DWORD Used, const char *Mask);
     void SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
-    void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
+    void SetSize(DWORD Used, const char *SizeAbove, const char *SizeBelow);
     void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
     void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
@@ -117,7 +107,7 @@ class FileFilterParams
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
     DWORD GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
-    DWORD GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *SizeBelow) const;
+    DWORD GetSize(const char **SizeAbove, const char **SizeBelow) const;
     DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
     void  GetColors(HighlightDataColor *Colors) const;
     int   GetMarkChar() const;

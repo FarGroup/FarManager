@@ -1403,3 +1403,58 @@ int __cdecl NumStrcmp(const char *s1, const char *s2)
     return (int)(strlen(ts2)-strlen(ts1));
   return *s1 - *s2;
 }
+
+bool CheckFileSizeStringFormat(const char *FileSizeStr)
+{
+//проверяет если формат строки такой: [0-9]+[BbKkMmGgTt]?
+
+  const char *p = FileSizeStr;
+
+  while (isdigit(*p))
+    p++;
+
+  if (p == FileSizeStr)
+    return false;
+
+  if (*p)
+  {
+    if (*(p+1))
+      return false;
+
+    if (!LocalStrstri("BKMGT", p))
+      return false;
+  }
+
+  return true;
+}
+
+unsigned __int64 ConvertFileSizeString(const char *FileSizeStr)
+{
+  if (!CheckFileSizeStringFormat(FileSizeStr))
+    return _ui64(0);
+
+  unsigned __int64 n = _atoi64(FileSizeStr);
+
+  int c = LocalUpper(FileSizeStr[strlen(FileSizeStr)-1]);
+
+  switch (c)
+  {
+    case 'K':
+      n <<= 10;
+      break;
+
+    case 'M':
+      n <<= 20;
+      break;
+
+    case 'G':
+      n <<= 30;
+      break;
+
+    case 'T':
+      n <<= 40;
+      break;
+  }
+
+  return n;
+}

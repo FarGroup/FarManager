@@ -85,7 +85,7 @@ static int PluginMode;
 static HANDLE hPluginMutex;
 
 static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0;
-static int SearchInFirstIndex=0,EnableSearchInFirst=FALSE;
+static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
 static struct CharTableSet TableSet;
 
@@ -439,9 +439,6 @@ FindFiles::FindFiles()
   SearchMode=Opt.FindOpt.FileSearchMode;
   UseFilter=Opt.FindOpt.UseFilter;
 
-  // Индекс типа размера, в котором производить ограничение поиска в файле
-  SearchInFirstIndex=Opt.FindOpt.SearchInFirst;
-
   // По-умолчанию дополнительные параметры не используются
   EnableSearchInFirst=FALSE;
 
@@ -739,19 +736,19 @@ FindFiles::FindFiles()
       GlobalSearchHex=SearchHex;
     }
     if (FindAskDlg[20].Selected)
-      SearchMode=SEARCH_ALL;
+      SearchMode=FFSEARCH_ALL;
     if (FindAskDlg[21].Selected)
-      SearchMode=SEARCH_ALL_BUTNETWORK;
+      SearchMode=FFSEARCH_ALL_BUTNETWORK;
     if (FindAskDlg[22].Selected)
-      SearchMode=SEARCH_INPATH;
+      SearchMode=FFSEARCH_INPATH;
     if (FindAskDlg[23].Selected)
-      SearchMode=SEARCH_ROOT;
+      SearchMode=FFSEARCH_ROOT;
     if (FindAskDlg[24].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=FFSEARCH_FROM_CURRENT;
     if (FindAskDlg[25].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=FFSEARCH_CURRENT_ONLY;
     if (FindAskDlg[26].Selected)
-        SearchMode=SEARCH_SELECTED;
+        SearchMode=FFSEARCH_SELECTED;
     if (SearchFromChanged)
     {
       Opt.FindOpt.FileSearchMode=SearchMode;
@@ -778,15 +775,10 @@ FindFiles::FindFiles()
 
 FindFiles::~FindFiles()
 {
-  /* $ 02.07.2001 IS
-     Освободим память.
-  */
   FileMaskForFindFile.Free();
-  /* IS $ */
   ClearAllLists();
   ScrBuf.ResetShadow();
 
-  // Уничтожим объект фильтра
   if(Filter)
     delete Filter;
 }
@@ -795,67 +787,39 @@ LONG_PTR WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_P
 {
   switch(Msg)
   {
-    case DN_INITDIALOG:
-    {
-      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
-    }
-    case DN_LISTCHANGE:
-    {
-      /* $ 11.12.2005 KM
-        Запомним индекс типа размера
-      */
-      if (Param1==3)
+    case DN_CLOSE:
+      if (Param1 == 4)
       {
-        SearchInFirstIndex=(int)Param2;
+        char temp[512];
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,2,(LONG_PTR)temp);
+        if (!CheckFileSizeStringFormat(temp))
+        {
+          Message(MSG_WARNING,1,MSG(MFindFileAdvancedTitle),MSG(MBadFileSizeFormat),MSG(MOk));
+          return FALSE;
+        }
       }
-      return TRUE;
-    }
+      break;
   }
+
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 void FindFiles::AdvancedDialog()
 {
-  /* $ 10.04.2005 KM
-     Список единиц измерения, используя которые проводится поиск
-     в первых байтах (килобайтах, мегабайтах или гигабайтах) файлов
-  */
-  FarList SizeList;
-  FarListItem *SizeItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
-  SizeList.Items=SizeItem;
-  SizeList.ItemsNumber=4;
-
-  memset(SizeItem,0,sizeof(FarListItem)*4);
-  xstrncpy(SizeItem[0].Text,MSG(MFindFileSearchInBytes),sizeof(SizeItem[0].Text)-1);
-  xstrncpy(SizeItem[1].Text,MSG(MFindFileSearchInKBytes),sizeof(SizeItem[2].Text)-1);
-  xstrncpy(SizeItem[2].Text,MSG(MFindFileSearchInMBytes),sizeof(SizeItem[3].Text)-1);
-  xstrncpy(SizeItem[3].Text,MSG(MFindFileSearchInGBytes),sizeof(SizeItem[4].Text)-1);
-  /* KM $ */
-
-  const char *DigitMask="99999999999999999999";
-
   static struct DialogData AdvancedDlgData[]=
   {
     /* 00 */DI_DOUBLEBOX,3,1,38,6,0,0,0,0,(char *)MFindFileAdvancedTitle,
     /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(char *)MFindFileSearchFirst,
-    /* 02 */DI_FIXEDIT,5,3,24,3,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,"",
-    /* 03 */DI_COMBOBOX,26,3,36,13,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-    /* 04 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 05 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    /* 06 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+    /* 02 */DI_EDIT,5,3,36,3,0,0,0,0,"",
+    /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 04 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    /* 05 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
 
   MakeDialogItems(AdvancedDlgData,AdvancedDlg);
 
-  // Установим размер, который будет использован для ограничения поиска
-  // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
+  // Установим размер, который будет использован для ограничения поиска строки
   xstrncpy(AdvancedDlg[2].Data,Opt.FindOpt.SearchInFirstSize,sizeof(AdvancedDlg[2].Data)-1);
-
-  // Установим единицу измерения, в которых будет считаться размер ограничения поиска
-  // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
-  xstrncpy(AdvancedDlg[3].Data,SizeItem[Opt.FindOpt.SearchInFirst].Text,sizeof(AdvancedDlg[3].Data)-1);
-
-  AdvancedDlg[3].ListItems=&SizeList;
 
   Dialog Dlg(AdvancedDlg,sizeof(AdvancedDlg)/sizeof(AdvancedDlg[0]),AdvancedDlgProc);
 
@@ -864,21 +828,12 @@ void FindFiles::AdvancedDialog()
   Dlg.Process();
   int ExitCode=Dlg.GetExitCode();
 
-  if (ExitCode==5) // OK
+  if (ExitCode==4) // OK
   {
-    /* $ 11.04.2005 KM
-      Запомним параметры, относящиеся к поиску в первых
-      байтах (Кб,Мб или Гб) после поиска.
-    */
-    Opt.FindOpt.SearchInFirst=SearchInFirstIndex;
     xstrncpy(Opt.FindOpt.SearchInFirstSize,AdvancedDlg[2].Data,sizeof(Opt.FindOpt.SearchInFirstSize)-1);
-
     // Получим максимальный размер чтения из файла при поиске
-    SearchInFirst=GetSearchInFirst(AdvancedDlg[2].Data);
-    /* KM $ */
+    SearchInFirst=ConvertFileSizeString(Opt.FindOpt.SearchInFirstSize);
   }
-
-  xf_free(SizeItem);
 }
 
 int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
@@ -1684,10 +1639,10 @@ int FindFiles::FindFilesProcess()
           /* $ 19.01.2003 KM
              Уточнение перехода в нужный каталог плагина.
           */
-          if (SearchMode==SEARCH_ROOT ||
-              SearchMode==SEARCH_ALL ||
-              SearchMode==SEARCH_ALL_BUTNETWORK ||
-              SearchMode==SEARCH_INPATH)
+          if (SearchMode==FFSEARCH_ROOT ||
+              SearchMode==FFSEARCH_ALL ||
+              SearchMode==FFSEARCH_ALL_BUTNETWORK ||
+              SearchMode==FFSEARCH_INPATH)
             CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
           SetPluginDirectory(FileName,hPlugin,TRUE);
           /* KM $ */
@@ -1809,17 +1764,17 @@ void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 
 void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* FullName, size_t cbFullName)
 {
-        ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
+        ScanTree ScTree(FALSE,!(SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH),SearchInSymLink);
 
         char SelName[NM];
         int FileAttr;
-        if (SearchMode==SEARCH_SELECTED)
+        if (SearchMode==FFSEARCH_SELECTED)
           CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
 
         while (1)
         {
           char CurRoot[2*NM];
-          if (SearchMode==SEARCH_SELECTED)
+          if (SearchMode==FFSEARCH_SELECTED)
           {
             if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
               break;
@@ -1888,7 +1843,7 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
               ArchiveSearch(FullName);
             /* KM $ */
           }
-          if (SearchMode!=SEARCH_SELECTED)
+          if (SearchMode!=FFSEARCH_SELECTED)
             break;
         }
       }
@@ -1905,7 +1860,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
     DWORD DiskMask=FarGetLogicalDrives();
     CtrlObject->CmdLine->GetCurDir(Root);
 
-    if(SearchMode==SEARCH_INPATH)
+    if(SearchMode==FFSEARCH_INPATH)
     {
       DWORD SizeStr=GetEnvironmentVariable("PATH",NULL,0);
       if((PathEnv=(char *)alloca(SizeStr+2)) != NULL)
@@ -1925,8 +1880,8 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
     for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
     {
-      if (SearchMode==SEARCH_ALL ||
-          SearchMode==SEARCH_ALL_BUTNETWORK)
+      if (SearchMode==FFSEARCH_ALL ||
+          SearchMode==FFSEARCH_ALL_BUTNETWORK)
       {
         if(DiskMask==0)
           break;
@@ -1936,15 +1891,15 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
         sprintf(Root,"%c:\\",'A'+CurrentDisk);
         int DriveType=FAR_GetDriveType(Root);
         if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
-           (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
+           (DriveType==DRIVE_REMOTE && SearchMode==FFSEARCH_ALL_BUTNETWORK))
           if (DiskMask==1)
             break;
           else
             continue;
       }
-      else if (SearchMode==SEARCH_ROOT)
+      else if (SearchMode==FFSEARCH_ROOT)
         GetPathRootOne(Root,Root);
-      else if(SearchMode==SEARCH_INPATH)
+      else if(SearchMode==FFSEARCH_INPATH)
       {
         if(!*Ptr)
           break;
@@ -1954,7 +1909,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
       DoScanTree(Root, FindData, FullName, sizeof(FullName));
 
-      if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK && SearchMode!=SEARCH_INPATH)
+      if (SearchMode!=FFSEARCH_ALL && SearchMode!=FFSEARCH_ALL_BUTNETWORK && SearchMode!=FFSEARCH_INPATH)
         break;
     } // END: for (...
 
@@ -2027,7 +1982,7 @@ void FindFiles::ArchiveSearch(char *ArcName)
   int SaveSearchMode=SearchMode;
   DWORD SaveArcIndex = FindFileArcIndex;
   {
-    SearchMode=SEARCH_FROM_CURRENT;
+    SearchMode=FFSEARCH_FROM_CURRENT;
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
     FindFileArcIndex = AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir);
@@ -2642,20 +2597,20 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     xstrncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
     WaitForSingleObject(hPluginMutex,INFINITE);
-    if (SearchMode==SEARCH_ROOT ||
-        SearchMode==SEARCH_ALL ||
-        SearchMode==SEARCH_ALL_BUTNETWORK ||
-        SearchMode==SEARCH_INPATH)
+    if (SearchMode==FFSEARCH_ROOT ||
+        SearchMode==FFSEARCH_ALL ||
+        SearchMode==FFSEARCH_ALL_BUTNETWORK ||
+        SearchMode==FFSEARCH_INPATH)
       CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
     ReleaseMutex(hPluginMutex);
     RecurseLevel=0;
     ScanPluginTree(hPlugin,ArcList[FindFileArcIndex].Flags);
     /* VVM $ */
     WaitForSingleObject(hPluginMutex,INFINITE);
-    if (SearchMode==SEARCH_ROOT ||
-        SearchMode==SEARCH_ALL ||
-        SearchMode==SEARCH_ALL_BUTNETWORK ||
-        SearchMode==SEARCH_INPATH)
+    if (SearchMode==FFSEARCH_ROOT ||
+        SearchMode==FFSEARCH_ALL ||
+        SearchMode==FFSEARCH_ALL_BUTNETWORK ||
+        SearchMode==FFSEARCH_INPATH)
       CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
     ReleaseMutex(hPluginMutex);
     while (!StopSearch && FindMessageReady)
@@ -2711,7 +2666,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
   /* KM $ */
   /* KM $ */
 
-  if (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1)
+  if (SearchMode!=FFSEARCH_SELECTED || RecurseLevel!=1)
   {
     for (int I=0;I<ItemCount && !StopSearch;I++)
     {
@@ -2767,7 +2722,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       /* KM $ */
     }
   }
-  if (SearchMode!=SEARCH_CURRENT_ONLY)
+  if (SearchMode!=FFSEARCH_CURRENT_ONLY)
   {
     for (int I=0;I<ItemCount && !StopSearch;I++)
     {
@@ -2778,7 +2733,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
           strcmp(CurName,".")!=0 && !TestParentFolderName(CurName) &&
           (!UseFilter || !Filter->FileInFilter(&CurPanelItem->FindData, true)) &&
-          (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
+          (SearchMode!=FFSEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(CurName)))
       {
         WaitForSingleObject(hPluginMutex,INFINITE);
@@ -3067,44 +3022,3 @@ char *FindFiles::RemovePseudoBackSlash(char *FileName)
   }
   return FileName;
 }
-
-
-/* $ 12.05.2004 KM
-   Получим размер, в котором будет производиться поиск,
-   согласно выбранным единицам измерения
-*/
-__int64 __fastcall FindFiles::GetSearchInFirst(char *DigitStr)
-{
-    __int64 LocalSize=_i64(0);
-
-  if (*DigitStr)
-  {
-    switch(SearchInFirstIndex)
-    {
-      case FSIZE_INBYTES:
-        LocalSize=_atoi64(DigitStr);
-        break;
-      case FSIZE_INKBYTES:
-        // Размер введён в килобайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*_i64(1024);
-        break;
-      case FSIZE_INMBYTES:
-        // Размер введён в мегабайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*_i64(1024)*_i64(1024);
-        break;
-      case FSIZE_INGBYTES:
-        // Размер введён в гигабайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*_i64(1024)*_i64(1024)*_i64(1024);
-        break;
-      default:
-        break;
-    }
-  }
-  else
-  {
-    LocalSize=_i64(0);
-  }
-
-  return LocalSize;
-}
-/* KM $ */

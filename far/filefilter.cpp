@@ -665,10 +665,13 @@ void FileFilter::InitFilter()
                          DateBefore,
                          GetRegKey(RegKey,"RelativeDate",0)?true:false);
 
+      char SizeAbove[FILEFILTER_SIZE_SIZE];
+      char SizeBelow[FILEFILTER_SIZE_SIZE];
+      GetRegKey(RegKey,"SizeAboveS",SizeAbove,"",sizeof(SizeAbove));
+      GetRegKey(RegKey,"SizeBelowS",SizeBelow,"",sizeof(SizeBelow));
       NewFilter->SetSize((DWORD)GetRegKey(RegKey,"UseSize",0),
-                         (DWORD)GetRegKey(RegKey,"SizeType",0),
-                         GetRegKey64(RegKey,"SizeAbove",(unsigned __int64)_i64(-1)),
-                         GetRegKey64(RegKey,"SizeBelow",(unsigned __int64)_i64(-1)));
+                         SizeAbove,
+                         SizeBelow);
 
       NewFilter->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",1),
                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
@@ -739,7 +742,6 @@ void FileFilter::SaveFilters()
     SetRegKey(RegKey,"UseMask",CurFilterData->GetMask(&Mask));
     SetRegKey(RegKey,"Mask",Mask);
 
-
     DWORD DateType;
     FILETIME DateAfter, DateBefore;
     bool bRelative;
@@ -749,14 +751,10 @@ void FileFilter::SaveFilters()
     SetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
     SetRegKey(RegKey,"RelativeDate",bRelative?1:0);
 
-
-    DWORD SizeType;
-    __int64 SizeAbove, SizeBelow;
-    SetRegKey(RegKey,"UseSize",CurFilterData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-    SetRegKey(RegKey,"SizeType",SizeType);
-    SetRegKey64(RegKey,"SizeAbove",SizeAbove);
-    SetRegKey64(RegKey,"SizeBelow",SizeBelow);
-
+    const char *SizeAbove, *SizeBelow;
+    SetRegKey(RegKey,"UseSize",CurFilterData->GetSize(&SizeAbove, &SizeBelow));
+    SetRegKey(RegKey,"SizeAboveS",SizeAbove);
+    SetRegKey(RegKey,"SizeBelowS",SizeBelow);
 
     DWORD AttrSet, AttrClear;
     SetRegKey(RegKey,"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));

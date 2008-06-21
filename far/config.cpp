@@ -1076,10 +1076,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
   {1, REG_DWORD,  NKeySystem,"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
-  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
+  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,FFSEARCH_FROM_CURRENT, 0},
   {0, REG_DWORD,  NKeySystem,"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
   /* $ 11.10.2005 KM */
-  {1, REG_DWORD,  NKeySystem,"SearchInFirst",&Opt.FindOpt.SearchInFirst,0,0},
   {1, REG_SZ,     NKeySystem,"SearchInFirstSize",Opt.FindOpt.SearchInFirstSize,sizeof(Opt.FindOpt.SearchInFirstSize),""},
   /* KM $ */
   /* $ 24.10.2001 KM

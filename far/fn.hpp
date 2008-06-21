@@ -1162,4 +1162,7 @@ BOOL GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator);
 BOOL StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
 int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,char *OSrcDate,char *OSrcTime);
 
+bool CheckFileSizeStringFormat(const char *FileSizeStr);
+unsigned __int64 ConvertFileSizeString(const char *FileSizeStr);
+
 #endif  // __FARFUNC_HPP__
