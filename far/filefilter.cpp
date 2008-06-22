@@ -562,9 +562,11 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
   DWORD Inc,Exc;
   GetIncludeExcludeFlags(Inc,Exc);
 
-  bool flag=false;
+  bool bFound=false; //поиск фильтра идёт до первого попадания
+  bool bAnyIncludeFound=false;
   bool bInc=false;
   bool bExc=false;
+  bool bFolder=fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY?true:false;
   FileFilterParams *CurFilterData;
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
@@ -573,44 +575,65 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
 
     if (CurFilterData->Flags.Check(Inc|Exc))
     {
-      flag = flag || CurFilterData->Flags.Check(Inc);
+      bAnyIncludeFound = bAnyIncludeFound || CurFilterData->Flags.Check(Inc);
       if (CurFilterData->FileInFilter(fd, CurrentTime))
+      {
         CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
+        bFound=true;
+        break;
+      }
     }
   }
 
-  if (FoldersFilter.Flags.Check(Inc|Exc))
+  if (!bFound && bFolder && FoldersFilter.Flags.Check(Inc|Exc))
   {
-    flag = flag || FoldersFilter.Flags.Check(Inc);
+    bAnyIncludeFound = bAnyIncludeFound || FoldersFilter.Flags.Check(Inc);
     if (FoldersFilter.FileInFilter(fd, CurrentTime))
+    {
       FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
+      bFound=true;
+    }
   }
 
-  for (unsigned int i=0; i<TempFilterData.getCount(); i++)
+  if (!bFound && !bFolder) //авто-фильтры никогда не могут быть для папок
   {
-    CurFilterData = TempFilterData.getItem(i);
-
-    if (CurFilterData->Flags.Check(Inc|Exc))
+    for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     {
-      flag = flag || CurFilterData->Flags.Check(Inc);
-      if (CurFilterData->FileInFilter(fd, CurrentTime))
-        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
+      CurFilterData = TempFilterData.getItem(i);
+
+      if (CurFilterData->Flags.Check(Inc|Exc))
+      {
+        bAnyIncludeFound = bAnyIncludeFound || CurFilterData->Flags.Check(Inc);
+        if (CurFilterData->FileInFilter(fd, CurrentTime))
+        {
+          CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
+          bFound=true;
+          break;
+        }
+      }
     }
   }
 
   //Если папка и она не попала ни под какой exclude фильтр
   //то самое логичное будет сделать ей include,
-  //кроме как в Select где логичней всего работать чисто по заданому фильтру.
-  if (fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && !bExc && m_FilterType!=FFT_SELECT)
+  //кроме как в Select где логичней всего работать чисто по заданному фильтру.
+  if (bFolder && !bExc && m_FilterType!=FFT_SELECT)
   {
     bInc = true;
   }
 
-  if(IsExcludeDir) return bExc;
+  //При IsExcludeDir нас интересует только если папка попала или нет под Exclude фильтр
+  if (IsExcludeDir) return bExc;
 
+  //Элемент попал под Exclude фильтр
   if (bExc) return false;
+
+  //Элемент попал под Include фильтр
   if (bInc) return true;
-  return !flag;
+
+  //Если элемент не попал ни под один фильтр то он будет включен
+  //только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
+  return !bAnyIncludeFound;
 }
 
 bool FileFilter::IsEnabledOnPanel()
