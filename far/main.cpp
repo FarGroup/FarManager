@@ -382,7 +382,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               Opt.CleanAscii=TRUE;
               break;
             case L'G':
-              Opt.NoGraphics=TRUE;
+              if(!Argv[I][3])
+                Opt.NoGraphics=TRUE;
               break;
           }
           break;
@@ -414,7 +415,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               RegOpt=TRUE;
               break;
             case L'C':
-              RectoreConsole=TRUE;
+              if(!Argv[I][3])
+                RectoreConsole=TRUE;
               break;
           }
           break;
@@ -425,7 +427,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
               Opt.DisableMacro|=MDOL_ALL;
               break;
             case L'A':
-              Opt.DisableMacro|=MDOL_AUTOSTART;
+              if(!Argv[I][3])
+                Opt.DisableMacro|=MDOL_AUTOSTART;
               break;
           }
           break;
@@ -435,7 +438,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         case L'X':
           Opt.ExceptRules=0;
 #if defined(_DEBUGEXC)
-          if ( Upper(Argv[I][2])==L'D' )
+          if ( Upper(Argv[I][2])==L'D' && !Argv[I][3] )
             Opt.ExceptRules=1;
 #endif
           break;
@@ -485,7 +488,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           break;
         }
         case L'C':
-            if (Upper(Argv[I][2])==L'O')
+            if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
             {
               Opt.LoadPlug.PluginsCacheOnly=TRUE;
               Opt.LoadPlug.PluginsPersonal=FALSE;
@@ -498,7 +501,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           exit(0);
 #ifdef DIRECT_RT
         case L'D':
-          if ( Upper(Argv[I][2])==L'O' )
+          if ( Upper(Argv[I][2])==L'O' && !Argv[I][3])
             DirectRT=1;
           break;
 #endif
