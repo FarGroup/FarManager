@@ -415,7 +415,8 @@ int _cdecl main(int Argc, char *Argv[])
               Opt.CleanAscii=TRUE;
               break;
             case 'G':
-              Opt.NoGraphics=TRUE;
+              if(!Argv[I][3])
+                Opt.NoGraphics=TRUE;
               break;
           }
           break;
@@ -445,7 +446,8 @@ int _cdecl main(int Argc, char *Argv[])
           switch (toupper(Argv[I][2]))
           {
             case 'A':
-              Opt.FarAnsi=TRUE;
+              if(!Argv[I][3])
+                Opt.FarAnsi=TRUE;
               break;
           }
           break;
@@ -466,7 +468,8 @@ int _cdecl main(int Argc, char *Argv[])
               RegOpt=TRUE;
               break;
             case 'C':
-              RectoreConsole=TRUE;
+              if(!Argv[I][3])
+                RectoreConsole=TRUE;
               break;
           }
           break;
@@ -477,7 +480,8 @@ int _cdecl main(int Argc, char *Argv[])
               Opt.DisableMacro|=MDOL_ALL;
               break;
             case 'A':
-              Opt.DisableMacro|=MDOL_AUTOSTART;
+              if(!Argv[I][3])
+                Opt.DisableMacro|=MDOL_AUTOSTART;
               break;
           }
           break;
@@ -487,7 +491,7 @@ int _cdecl main(int Argc, char *Argv[])
         case 'X':
           Opt.ExceptRules=0;
 #if defined(_DEBUGEXC)
-          if ( toupper(Argv[I][2])=='D' )
+          if ( toupper(Argv[I][2])=='D' && !Argv[I][3])
             Opt.ExceptRules=1;
 #endif
           break;
@@ -554,13 +558,13 @@ int _cdecl main(int Argc, char *Argv[])
         /* $ 01.09.2000 tran
            /co switch support */
         case 'C':
-            if (toupper(Argv[I][2])=='O')
+            if (toupper(Argv[I][2])=='O' && !Argv[I][3] )
             {
               Opt.LoadPlug.PluginsCacheOnly=TRUE;
               Opt.LoadPlug.PluginsPersonal=FALSE;
             }
 #ifdef _DEBUGEXC
-            else if (toupper(Argv[I][2])=='R')
+            else if (toupper(Argv[I][2])=='R' && !Argv[I][3] )
               CheckRegistration=FALSE;
 #endif
             break;
@@ -576,7 +580,7 @@ int _cdecl main(int Argc, char *Argv[])
         /* SVS $ */
 #ifdef DIRECT_RT
         case 'D':
-          if ( toupper(Argv[I][2])=='O' )
+          if ( toupper(Argv[I][2])=='O' && !Argv[I][3] )
             DirectRT=1;
           break;
 #endif
