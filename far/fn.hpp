@@ -976,13 +976,13 @@ void ShowHotplugDevice ();
    Функции работы с атрибутами файлов "опубликованы"
 */
 int GetEncryptFunctions(void);
-int ESetFileAttributes(const char *Name,int Attr);
-int ESetFileCompression(const char *Name,int State,int FileAttr);
-int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent=0);
-#define ESetFileEncryptionSilent(Name,State,FileAttr) ESetFileEncryption(Name,State,FileAttr,1)
+int ESetFileAttributes(const char *Name,int Attr,int SkipMode=-1);
+int ESetFileCompression(const char *Name,int State,int FileAttr,int SkipMode=-1);
+int ESetFileEncryption(const char *Name,int State,int FileAttr,int SkipMode=-1,int Silent=0);
+#define ESetFileEncryptionSilent(Name,State,FileAttr,SkipMode) ESetFileEncryption(Name,State,FileAttr,SkipMode,1)
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
-                  int FileAttr);
+                  int FileAttr,int SkipMode=-1);
 /* SVS $ */
 int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 

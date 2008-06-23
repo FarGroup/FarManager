@@ -2330,8 +2330,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
 
-      if( !(ShellCopy::Flags & FCOPY_SKIPSETATTRFLD) &&
-           ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) )
+      if((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
       {
         // не будем выставлять компрессию, если мылимся в каталог
         // с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
@@ -2343,15 +2342,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         {
           while(1)
           {
-            int MsgCode=ESetFileCompression(DestPath,1,0);
+            int MsgCode=ESetFileCompression(DestPath,1,0,SkipMode);
             if(MsgCode)
             {
-              if(MsgCode == 2)
+              if(MsgCode == SETATTR_RET_SKIP)
                 ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+              else if(MsgCode == SETATTR_RET_SKIPALL)
+              {
+                ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+                this->SkipMode=SETATTR_RET_SKIP;
+              }
               break;
             }
-            if(MsgCode != 1)
-              return (MsgCode==2) ? COPY_NEXT:COPY_CANCEL;
+            if(MsgCode != SETATTR_RET_OK)
+              return (MsgCode==SETATTR_RET_SKIP || MsgCode==SETATTR_RET_SKIPALL) ? COPY_NEXT:COPY_CANCEL;
           }
         }
 #if 0
@@ -2394,7 +2398,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           }
         }
       }
-      else if((SetAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+      else if( !(ShellCopy::Flags & FCOPY_SKIPSETATTRFLD) && ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
       {
         while(!ShellSetAttr(DestPath,SetAttr))
         {
@@ -4609,21 +4613,29 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
   }
   if((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))
   {
-    if(!ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED)))
+    int Ret=ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED),SkipMode);
+    if(Ret==SETATTR_RET_ERROR)
     {
-      _LOGCOPYR(SysLog("return 0 -> %d ESetFileEncryption('%s',1,0) == 0",__LINE__,Dest));
+      _LOGCOPYR(SysLog("return 0 -> %d ESetFileCompression('%s',1,0) == 0",__LINE__,Dest));
       return FALSE;
     }
+    else if(Ret==SETATTR_RET_SKIPALL)
+      this->SkipMode=SETATTR_RET_SKIP;
   }
-    // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
-    // для каталога, если он есть
+  // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
+  // для каталога, если он есть
   if (GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
      (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
-    if (!ESetFileEncryption(Dest,1,0))
+  {
+    int Ret=ESetFileEncryption(Dest,1,0,SkipMode);
+    if (Ret==SETATTR_RET_ERROR)
     {
       _LOGCOPYR(SysLog("return 0 -> %d ESetFileEncryption('%s',1,0) == 0",__LINE__,Dest));
       return FALSE;
     }
+    else if(Ret==SETATTR_RET_SKIPALL)
+      SkipMode=SETATTR_RET_SKIP;
+  }
   _LOGCOPYR(SysLog("return 1 -> %d",__LINE__));
   return TRUE;
   /* VVM $ */

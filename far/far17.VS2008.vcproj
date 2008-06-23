@@ -4666,14 +4666,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="common.hpp"
-				>
-			</File>
-			<File
-				RelativePath="const.hpp"
-				>
-			</File>
-			<File
 				RelativePath="constitle.hpp"
 				>
 			</File>
@@ -5007,10 +4999,6 @@
 			</File>
 			<File
 				RelativePath="syntax.hpp"
-				>
-			</File>
-			<File
-				RelativePath="syslog.hpp"
 				>
 			</File>
 			<File

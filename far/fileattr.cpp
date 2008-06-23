@@ -22,6 +22,7 @@ static PDecryptFileA pDecryptFileA=NULL;
 static int SetFileEncryption(const char *Name,int State);
 static int SetFileCompression(const char *Name,int State);
 
+static int SkipMode=-1;
 
 // получим функции криптования
 int GetEncryptFunctions(void)
@@ -51,22 +52,31 @@ int GetEncryptFunctions(void)
   return IsCryptFileASupport;
 }
 
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileAttributes(const char *Name,int Attr)
+int ESetFileAttributes(const char *Name,int Attr,int SkipMode)
 {
 //_SVS(SysLog("Attr=0x%08X",Attr));
   while (!SetFileAttributes(Name,Attr))
   {
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-             MSG(MSetAttrCannotFor),(char *)Name,MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
-    if (Code==1 || Code<0)
-      return 2;
-    if (Code==2)
-      return 0;
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+             MSG(MSetAttrCannotFor),(char *)Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+    switch(Code)
+    {
+    case -2:
+    case -1:
+    case 1:
+      return SETATTR_RET_SKIP;
+    case 2:
+      return SETATTR_RET_SKIPALL;
+    case 3:
+      return SETATTR_RET_ERROR;
+    }
   }
-  return 1;
+  return SETATTR_RET_OK;
 }
-
 
 static int SetFileCompression(const char *Name,int State)
 {
@@ -87,13 +97,12 @@ static int SetFileCompression(const char *Name,int State)
   Для безусловного выставления атрибута FILE_ATTRIBUTE_COMPRESSED
   необходимо в качестве параметра FileAttr передать значение 0
 */
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileCompression(const char *Name,int State,int FileAttr)
+int ESetFileCompression(const char *Name,int State,int FileAttr,int SkipMode)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
-    return 1;
+    return SETATTR_RET_OK;
 
-  int Ret=1;
+  int Ret=SETATTR_RET_OK;
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
 
@@ -105,20 +114,29 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
     {
-      Ret=1;
+      Ret=SETATTR_RET_OK;
       break;
     }
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
                 MSG(MSetAttrCompressedCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     if (Code==1 || Code<0)
     {
-      Ret=2;
+      Ret=SETATTR_RET_SKIP;
       break;
     }
-    if (Code==2)
+    else if (Code==2)
     {
-      Ret=0;
+      Ret=SETATTR_RET_SKIPALL;
+      break;
+    }
+    else if (Code==3)
+    {
+      Ret=SETATTR_RET_ERROR;
       break;
     }
   }
@@ -129,9 +147,8 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
 }
 
 /* $ 20.10.2000 SVS
-   Новый атрибут Encripted
+   Новый атрибут Encrypted
 */
-
 static int SetFileEncryption(const char *Name,int State)
 {
   class ApisToANSI{
@@ -155,16 +172,15 @@ static int SetFileEncryption(const char *Name,int State)
   Для безусловного выставления атрибута FILE_ATTRIBUTE_ENCRYPTED
   необходимо в качестве параметра FileAttr передать значение 0
 */
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
+int ESetFileEncryption(const char *Name,int State,int FileAttr,int SkipMode,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-    return 1;
+    return SETATTR_RET_OK;
 
   if(!IsCryptFileASupport)
-    return 1;
+    return SETATTR_RET_OK;
 
-  int Ret=1;
+  int Ret=SETATTR_RET_OK;
 
   // Drop Compress
   // Этот кусок не нужен, т.к. функция криптования сама умеет
@@ -180,23 +196,32 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
   {
     if(Silent)
     {
-      Ret=0;
+      Ret=SETATTR_RET_ERROR;
       break;
     }
 
     if ((_localLastError=GetLastError())==ERROR_INVALID_FUNCTION)
       break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
                 MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     if (Code==1 || Code<0)
     {
-      Ret=2;
+      Ret=SETATTR_RET_SKIP;
       break;
     }
     if (Code==2)
     {
-      Ret=0;
+      Ret=SETATTR_RET_SKIPALL;
+      break;
+    }
+    if (Code==3)
+    {
+      Ret=SETATTR_RET_ERROR;
       break;
     }
   }
@@ -208,13 +233,12 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
   return(Ret);
 }
 
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
-                  FILETIME *LastAccessTime,int FileAttr)
+                  FILETIME *LastAccessTime,int FileAttr,int SkipMode)
 {
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
       ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
-    return 1;
+    return SETATTR_RET_OK;
 
   while (1)
   {
@@ -251,15 +275,24 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
 
     if (SetTime)
       break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
                 MSG(MSetAttrTimeCannotFor),(char *)Name,MSG(MHRetry),
-                MSG(MHSkip),MSG(MHCancel));
-    if (Code<0)
-      return 0; //???
-    if(Code == 1)
-      return 2;
-    if(Code == 2)
-      return 0;
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+    switch(Code)
+    {
+    case -2:
+    case -1:
+    case 3:
+      return SETATTR_RET_ERROR;
+    case 2:
+      return SETATTR_RET_SKIPALL;
+    case 1:
+      return SETATTR_RET_SKIP;
+    }
   }
-  return 1;
+  return SETATTR_RET_OK;
 }
