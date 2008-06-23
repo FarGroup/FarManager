@@ -212,6 +212,7 @@ File attributes
 ~~~~~~~~~~~~~~~
 [+] Support of the following file attributes: "Virtual", "Sparse", "Temporary"
     and "Offline".
+[+] В диалог ошибки установки атрибутов добавлена кнопка "Пропустить все".
 [-] Attributes dialog showed all attributes as set in plugin panels.
 
 Editor
