@@ -48,6 +48,8 @@ static PDecryptFileW pDecryptFileW=NULL;
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
 
+static int SkipMode=-1;
+
 // получим функции криптования
 int GetEncryptFunctions(void)
 {
@@ -72,22 +74,31 @@ int GetEncryptFunctions(void)
   return IsCryptFileASupport;
 }
 
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileAttributes(const wchar_t *Name,int Attr)
+int ESetFileAttributes(const wchar_t *Name,int Attr,int SkipMode)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
   while (!SetFileAttributesW(Name,Attr))
   {
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-             UMSG(MSetAttrCannotFor),Name,UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
-    if (Code==1 || Code<0)
-      return 2;
-    if (Code==2)
-      return 0;
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
+             UMSG(MSetAttrCannotFor),Name,UMSG(MHRetry),UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+    switch(Code)
+    {
+    case -2:
+    case -1:
+    case 1:
+      return SETATTR_RET_SKIP;
+    case 2:
+      return SETATTR_RET_SKIPALL;
+    case 3:
+      return SETATTR_RET_ERROR;
+    }
   }
-  return 1;
+  return SETATTR_RET_OK;
 }
-
 
 static int SetFileCompression(const wchar_t *Name,int State)
 {
@@ -105,12 +116,12 @@ static int SetFileCompression(const wchar_t *Name,int State)
 }
 
 
-int ESetFileCompression(const wchar_t *Name,int State,int FileAttr)
+int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
-    return 1;
+    return SETATTR_RET_OK;
 
-  int Ret=1;
+  int Ret=SETATTR_RET_OK;
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
 
@@ -122,20 +133,29 @@ int ESetFileCompression(const wchar_t *Name,int State,int FileAttr)
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
     {
-      Ret=1;
+      Ret=SETATTR_RET_OK;
       break;
     }
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                 UMSG(MSetAttrCompressedCannotFor),Name,UMSG(MHRetry),
-                UMSG(MHSkip),UMSG(MHCancel));
+                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
     if (Code==1 || Code<0)
     {
-      Ret=2;
+      Ret=SETATTR_RET_SKIP;
       break;
     }
-    if (Code==2)
+    else if (Code==2)
     {
-      Ret=0;
+      Ret=SETATTR_RET_SKIPALL;
+      break;
+    }
+    else if (Code==3)
+    {
+      Ret=SETATTR_RET_ERROR;
       break;
     }
   }
@@ -156,15 +176,15 @@ static int SetFileEncryption(const wchar_t *Name,int State)
 }
 
 
-int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent)
+int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-    return 1;
+    return SETATTR_RET_OK;
 
   if(!IsCryptFileASupport)
-    return 1;
+    return SETATTR_RET_OK;
 
-  int Ret=1;
+  int Ret=SETATTR_RET_OK;
 
   // Drop ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
@@ -177,21 +197,29 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent)
 
     if(Silent)
     {
-      Ret=0;
+      Ret=SETATTR_RET_ERROR;
       break;
     }
-
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                 UMSG(MSetAttrEncryptedCannotFor),Name,UMSG(MHRetry), //BUGBUG
-                UMSG(MHSkip),UMSG(MHCancel));
+                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
     if (Code==1 || Code<0)
     {
-      Ret=2;
+      Ret=SETATTR_RET_SKIP;
       break;
     }
     if (Code==2)
     {
-      Ret=0;
+      Ret=SETATTR_RET_SKIPALL;
+      break;
+    }
+    if (Code==3)
+    {
+      Ret=SETATTR_RET_ERROR;
       break;
     }
   }
@@ -205,11 +233,11 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int Silent)
 
 
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
-                  FILETIME *LastAccessTime,int FileAttr)
+                  FILETIME *LastAccessTime,int FileAttr,int SkipMode)
 {
   if ((LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL) ||
       ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
-    return 1;
+    return SETATTR_RET_OK;
 
   while (1)
   {
@@ -246,15 +274,24 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 
     if (SetTime)
       break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    int Code;
+    if(SkipMode!=-1)
+      Code=SkipMode;
+    else
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                 UMSG(MSetAttrTimeCannotFor),Name,UMSG(MHRetry), //BUGBUG
-                UMSG(MHSkip),UMSG(MHCancel));
-    if (Code<0)
-      return 0; //???
-    if(Code == 1)
-      return 2;
-    if(Code == 2)
-      return 0;
+                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+    switch(Code)
+    {
+    case -2:
+    case -1:
+    case 3:
+      return SETATTR_RET_ERROR;
+    case 2:
+      return SETATTR_RET_SKIPALL;
+    case 1:
+      return SETATTR_RET_SKIP;
+    }
   }
-  return 1;
+  return SETATTR_RET_OK;
 }

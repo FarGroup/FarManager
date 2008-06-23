@@ -127,7 +127,7 @@ struct SetAttrDlgParam{
   }
 };
 
-static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
+static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg, int SkipMode);
 static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *FileTime,
                        const wchar_t *OSrcDate, const wchar_t *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
@@ -427,6 +427,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 
 int ShellSetFileAttributes(Panel *SrcPanel)
 {
+  int SkipMode=-1;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 /*MSetAttrJunction
 00                                             00
@@ -467,7 +468,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 07 */DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSystem,
   /* 08 */DI_CHECKBOX,5, 9,0,9,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrCompressed,
   /* 09 */DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
-  /* 10 */DI_CHECKBOX,5,11,0,11,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrNotIndexed,
+  /* 10 */DI_CHECKBOX,5,11,0,11,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrNotIndexed,
 
   /* 11 */DI_CHECKBOX,35, 5,0,5,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
   /* 12 */DI_CHECKBOX,35, 6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
@@ -529,8 +530,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   }
   else
   {
-    string strFSysName;
-    if (apiGetVolumeInformation(NULL,NULL,NULL,NULL,&DlgParam.FileSystemFlags,&strFSysName))
+    string strRootPathName,strFSysName;
+    apiGetCurrentDirectory(strRootPathName);
+    GetPathRoot(strRootPathName,strRootPathName);
+    if (apiGetVolumeInformation(strRootPathName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
     {
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
@@ -538,8 +541,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-      if(!StrCmpI(strFSysName,L"NTFS"))
-        AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
+      if(StrCmpI(strFSysName,L"NTFS"))
+        AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
     }
     DlgParam.strFSysName=strFSysName;
   }
@@ -689,13 +692,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           */
           DlgParam.FileSystemFlags=0;
           GetPathRoot(strSelName,strJuncName);
-          if (apiGetVolumeInformation (strJuncName,NULL,NULL,NULL,&DlgParam.FileSystemFlags,NULL))
+          string strFSysName;
+          if (apiGetVolumeInformation (strJuncName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
           {
             if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
               AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
             if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
               AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
+
+            if(StrCmpI(strFSysName,L"NTFS"))
+              AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
           }
           /* SVS $ */
         }
@@ -838,7 +845,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
-      if(IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
+      if(IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor,SkipMode) == 1)
       {
         int NewAttr;
         NewAttr=FileAttr & FA_DIREC;
@@ -871,29 +878,39 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
   //_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-          SetWriteTimeRetCode=ESetFileTime(strSelName,
+        {
+          if(SkipMode!=-1)
+            SetWriteTimeRetCode=SkipMode;
+          else
+            SetWriteTimeRetCode=ESetFileTime(strSelName,
                                            (SetWriteTime ? &LastWriteTime:NULL),
                                            (SetCreationTime ? &CreationTime:NULL),
                                            (SetLastAccessTime ? &LastAccessTime:NULL),
-                                           FileAttr);
+                                           FileAttr,SkipMode);
+        }
         else
-          SetWriteTimeRetCode=TRUE;
+          SetWriteTimeRetCode=SETATTR_RET_OK;
 
   //      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
-        if(SetWriteTimeRetCode == 1) // если время удалось выставить...
+        if(SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
         {
+          int Ret=SETATTR_RET_OK;
           if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompression(strSelName,1,FileAttr);
+            Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
           else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            ESetFileCompression(strSelName,0,FileAttr);
+            Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
 
           if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryption(strSelName,1,FileAttr);
+            Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
           else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            ESetFileEncryption(strSelName,0,FileAttr);
+            Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
 
-          ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+          Ret=ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)),SkipMode);
+          if(Ret==SETATTR_RET_SKIPALL)
+            SkipMode=SETATTR_RET_SKIP;
         }
+        else if(SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
+          SkipMode=SETATTR_RET_SKIP;
       }
     }
 
@@ -971,11 +988,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (CheckForEsc())
           break;
 
-        RetCode=IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor);
-        if(!RetCode)
+        RetCode=IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor,SkipMode);
+        if(RetCode==SETATTR_RET_ERROR)
           break;
-        if(RetCode == 2)
+        else if(RetCode == SETATTR_RET_SKIP)
           continue;
+        else if(RetCode == SETATTR_RET_SKIPALL)
+        {
+          SkipMode=SETATTR_RET_SKIP;
+          continue;
+        }
 
         SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
         SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
@@ -985,42 +1007,65 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
           //  RetCode=1;
           //else
+          if(SkipMode!=-1)
+            RetCode=SkipMode;
+          else
             RetCode=ESetFileTime(strSelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
-                 FileAttr);
-          if(!RetCode)
+                 FileAttr,SkipMode);
+          if(RetCode == SETATTR_RET_ERROR)
             break;
-          if(RetCode == 2)
+          else if(RetCode == SETATTR_RET_SKIP)
             continue;
+          else if(RetCode == SETATTR_RET_SKIPALL)
+          {
+            SkipMode=SETATTR_RET_SKIP;
+            continue;
+          }
         }
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
           if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
           {
-            RetCode=ESetFileCompression(strSelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr);
-            if(!RetCode) // неудача сжать :-(
+            RetCode=ESetFileCompression(strSelName,AttrDlg[SETATTR_COMPRESSED].Selected,FileAttr,SkipMode);
+            if(RetCode == SETATTR_RET_ERROR)
               break;
-            if(RetCode == 2)
+            else if(RetCode == SETATTR_RET_SKIP)
               continue;
+            else if(RetCode == SETATTR_RET_SKIPALL)
+            {
+              SkipMode=SETATTR_RET_SKIP;
+              continue;
+            }
           }
           if (AttrDlg[SETATTR_ENCRYPTED].Selected != 2) // +E -C
           {
             if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
             {
-              RetCode=ESetFileEncryption(strSelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr);
-              if(!RetCode) // неудача зашифровать :-(
+              RetCode=ESetFileEncryption(strSelName,AttrDlg[SETATTR_ENCRYPTED].Selected,FileAttr,SkipMode);
+              if(RetCode == SETATTR_RET_ERROR)
                 break;
-              if(RetCode == 2)
+              else if(RetCode == SETATTR_RET_SKIP)
                 continue;
+              else if(RetCode == SETATTR_RET_SKIPALL)
+              {
+                SkipMode=SETATTR_RET_SKIP;
+                continue;
+              }
             }
           }
-          RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)));
-          if(!RetCode)
+          RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
+          if(RetCode == SETATTR_RET_ERROR)
             break;
-          if(RetCode == 2)
+          else if(RetCode == SETATTR_RET_SKIP)
             continue;
+          else if(RetCode == SETATTR_RET_SKIPALL)
+          {
+            SkipMode=SETATTR_RET_SKIP;
+            continue;
+          }
         }
 
         if ((FileAttr & FA_DIREC) && AttrDlg[SETATTR_SUBFOLDERS].Selected)
@@ -1038,14 +1083,19 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               break;
             }
 
-            RetCode=IsFileWritable(strFullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor);
-            if(!RetCode)
+            RetCode=IsFileWritable(strFullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor,SkipMode);
+            if(RetCode==SETATTR_RET_ERROR)
             {
               Cancel=1;
               break;
             }
-            if(RetCode == 2)
+            else if(RetCode == SETATTR_RET_SKIP)
               continue;
+            else if(RetCode == SETATTR_RET_SKIPALL)
+            {
+              SkipMode=SETATTR_RET_SKIP;
+              continue;
+            }
 
             SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[SETATTR_MDATE].strData,AttrDlg[SETATTR_MTIME].strData);
             SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData);
@@ -1058,51 +1108,71 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 RetCode=ESetFileTime(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
-                           FindData.dwFileAttributes);
-              if(RetCode == 0)
+                           FindData.dwFileAttributes,SkipMode);
+              if(RetCode == SETATTR_RET_ERROR)
               {
                 Cancel=1;
                 break;
               }
-              if(RetCode == 2)
+              else if(RetCode == SETATTR_RET_SKIP)
                 continue;
+              else if(RetCode == SETATTR_RET_SKIPALL)
+              {
+                SkipMode=SETATTR_RET_SKIP;
+                continue;
+              }
             }
             if(((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
                  FindData.dwFileAttributes)
             {
               if (AttrDlg[SETATTR_COMPRESSED].Selected != 2)
               {
-                RetCode=ESetFileCompression(strFullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes);
-                if(RetCode == 0)
+                RetCode=ESetFileCompression(strFullName,AttrDlg[SETATTR_COMPRESSED].Selected,FindData.dwFileAttributes,SkipMode);
+                if(RetCode == SETATTR_RET_ERROR)
                 {
                   Cancel=1;
-                  break; // неудача сжать :-(
+                  break;
                 }
-                if(RetCode == 2)
+                else if(RetCode == SETATTR_RET_SKIP)
                   continue;
+                else if(RetCode == SETATTR_RET_SKIPALL)
+                {
+                  SkipMode=SETATTR_RET_SKIP;
+                  continue;
+                }
               }
               if (AttrDlg[SETATTR_ENCRYPTED].Selected != 2) // +E -C
               {
                 if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
                 {
-                  RetCode=ESetFileEncryption(strFullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes);
-                  if (RetCode == 0)
+                  RetCode=ESetFileEncryption(strFullName,AttrDlg[SETATTR_ENCRYPTED].Selected,FindData.dwFileAttributes,SkipMode);
+                  if (RetCode == SETATTR_RET_ERROR)
                   {
                     Cancel=1;
-                    break; // неудача зашифровать :-(
+                    break;
                   }
-                  if(RetCode == 2)
+                  else if(RetCode == SETATTR_RET_SKIP)
                     continue;
+                  else if(RetCode == SETATTR_RET_SKIPALL)
+                  {
+                    SkipMode=SETATTR_RET_SKIP;
+                    continue;
+                  }
                 }
               }
-              RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
-              if (RetCode == 0)
+              RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr),SkipMode);
+              if (RetCode == SETATTR_RET_ERROR)
               {
                 Cancel=1;
                 break;
               }
-              if(RetCode == 2)
+              else if(RetCode == SETATTR_RET_SKIP)
                 continue;
+              else if(RetCode == SETATTR_RET_SKIPALL)
+              {
+                SkipMode=SETATTR_RET_SKIP;
+                continue;
+              }
             }
           }
         }
@@ -1226,11 +1296,10 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
   return TRUE;
 }
 
-// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
+static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg,int SkipMode)
 {
   if ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    return 1;
+    return SETATTR_RET_OK;
 
   while (1)
   {
@@ -1254,18 +1323,28 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
 
     int Code;
     if(IsShowErrMsg)
-        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
+    {
+      if(SkipMode!=-1)
+        Code=SkipMode;
+      else
+        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                      UMSG(Msg),Name,
-                     UMSG(MHRetry),UMSG(MHSkip),UMSG(MHCancel));
+                     UMSG(MHRetry),UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+    }
     else
-       return 0;
+       return SETATTR_RET_ERROR;
 
-    if (Code<0)
-      return 0;
-    if(Code == 1)
-      return 2;
-    if(Code == 2)
-      return 0;
+    switch(Code)
+    {
+    case -2:
+    case -1:
+    case 3:
+      return SETATTR_RET_ERROR;
+    case 1:
+      return SETATTR_RET_SKIP;
+    case 2:
+      return SETATTR_RET_SKIPALL;
+    }
   }
-  return 1;
+  return SETATTR_RET_OK;
 }
