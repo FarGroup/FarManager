@@ -14,7 +14,8 @@ filefilter.hpp
 class VMenu;
 class Panel;
 
-enum enumFileFilterType {
+enum enumFileFilterType
+{
   FFT_PANEL = 0,
   FFT_FINDFILE,
   FFT_COPY,
@@ -30,7 +31,7 @@ class FileFilter
 
     int  ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount,int Check);
     void ProcessSelection(VMenu *FilterList);
-    void GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc);
+    enumFileFilterFlagsType GetFFFT();
     int  GetCheck(FileFilterParams *FFP);
     static void SwapPanelFlags(FileFilterParams *CurFilterData);
 
@@ -41,7 +42,7 @@ class FileFilter
     bool FilterEdit();
     void UpdateCurrentTime();
     bool FileInFilter(FileListItem *fli);
-    bool FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir = false);
+    bool FileInFilter(WIN32_FIND_DATA *fd);
     bool IsEnabledOnPanel();
 
     static void InitFilter();

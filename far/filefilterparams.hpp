@@ -17,21 +17,28 @@ struct FileListItem;
 #define FILEFILTER_MASK_SIZE 2048
 #define FILEFILTER_SIZE_SIZE 32
 
-enum FileFilterFlags
+enum enumFileFilterFlagsType
 {
-  FFF_RPANELINCLUDE = 1,
-  FFF_RPANELEXCLUDE = 2,
-  FFF_LPANELINCLUDE = 4,
-  FFF_LPANELEXCLUDE = 8,
-  FFF_FINDFILEINCLUDE = 16,
-  FFF_FINDFILEEXCLUDE = 32,
-  FFF_COPYINCLUDE = 64,
-  FFF_COPYEXCLUDE = 128,
-  FFF_SELECTINCLUDE = 256,
-  FFF_SELECTEXCLUDE = 512,
+  FFFT_FIRST = 0, //обязан быть первым
+
+  FFFT_LEFTPANEL = FFFT_FIRST,
+  FFFT_RIGHTPANEL,
+  FFFT_FINDFILE,
+  FFFT_COPY,
+  FFFT_SELECT,
+
+  FFFT_COUNT, //обязан быть последним
 };
 
-enum FDateType
+enum enumFileFilterFlags
+{
+  FFF_NONE    = 0x00000000,
+  FFF_INCLUDE = 0x00000001,
+  FFF_EXCLUDE = 0x00000002,
+  FFF_STRONG  = 0x10000000
+};
+
+enum enumFDateType
 {
   FDATE_MODIFIED=0,
   FDATE_CREATED,
@@ -56,7 +63,7 @@ class FileFilterParams
     struct
     {
       DWORD Used;
-      FDateType DateType;
+      enumFDateType DateType;
       FILETIME DateAfter;
       FILETIME DateBefore;
       bool bRelative;
@@ -85,9 +92,7 @@ class FileFilterParams
       bool bContinueProcessing;
     } FHighlight;
 
-  public:
-
-    BitFlags Flags; // Флаги фильтра
+    DWORD FFlags[FFFT_COUNT];
 
   public:
 
@@ -103,6 +108,8 @@ class FileFilterParams
     void SetColors(HighlightDataColor *Colors);
     void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
     void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
+    void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
+    void ClearAllFlags() { memset(FFlags,0,sizeof(FFlags)); }
 
     const char *GetTitle() const;
     DWORD GetMask(const char **Mask) const;
@@ -113,6 +120,7 @@ class FileFilterParams
     int   GetMarkChar() const;
     int   GetSortGroup() const { return FHighlight.SortGroup; }
     bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
+    DWORD GetFlags(enumFileFilterFlagsType FType) { return FFlags[FType]; }
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.

@@ -73,13 +73,12 @@ bool FileFilter::FilterEdit()
   int ExtCount=0;
 
   {
-    DWORD Inc,Exc;
-    GetIncludeExcludeFlags(Inc,Exc);
+    enumFileFilterFlagsType FFFT = GetFFFT();
     for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     {
       //AY: Будем показывать только те выбранные авто фильтры
       //(для которых нету файлов на панели) которые выбраны в области данного меню
-      if (!TempFilterData.getItem(i)->Flags.Check(Inc|Exc))
+      if (!TempFilterData.getItem(i)->GetFlags(FFFT))
         continue;
       const char *FMask;
       TempFilterData.getItem(i)->GetMask(&FMask);
@@ -148,12 +147,18 @@ bool FileFilter::FilterEdit()
       Key='+';
     else if (Key==KEY_SUBTRACT)
       Key='-';
+    else if (Key=='i')
+      Key='I';
+    else if (Key=='x')
+      Key='X';
 
     switch(Key)
     {
-      case KEY_SPACE:
       case '+':
       case '-':
+      case 'I':
+      case 'X':
+      case KEY_SPACE:
       case KEY_BS:
       {
         int SelPos=FilterList.GetSelectPos();
@@ -161,15 +166,15 @@ bool FileFilter::FilterEdit()
         if (SelPos==FilterData.getCount())
           break;
 
-        int Check=FilterList.GetSelection(SelPos),NewCheck;
-        if (Key=='-')
-          NewCheck=(Check=='-') ? 0:'-';
-        else if (Key=='+')
-          NewCheck=(Check=='+') ? 0:'+';
-        else if (Key==KEY_BS)
-          NewCheck=0;
+        int Check=FilterList.GetSelection(SelPos);
+        int NewCheck;
+
+        if (Key==KEY_BS)
+          NewCheck = 0;
+        else if (Key==KEY_SPACE)
+          NewCheck = Check ? 0 : '+';
         else
-          NewCheck=Check ? 0:'+';
+          NewCheck = (Check == Key) ? 0 : Key;
 
         FilterList.SetSelection(NewCheck,SelPos);
         FilterList.SetSelectPos(SelPos,1);
@@ -250,14 +255,14 @@ bool FileFilter::FilterEdit()
             *NewFilter = *FilterData.getItem(SelPos2);
 
             NewFilter->SetTitle("");
-            NewFilter->Flags.ClearAll();
+            NewFilter->ClearAllFlags();
           }
           else if (SelPos2 == (FilterData.getCount()+2))
           {
             *NewFilter = FoldersFilter;
 
             NewFilter->SetTitle("");
-            NewFilter->Flags.ClearAll();
+            NewFilter->ClearAllFlags();
           }
           else if (SelPos2 > (int)(FilterData.getCount()+2))
           {
@@ -390,55 +395,56 @@ bool FileFilter::FilterEdit()
   return (ExitCode!=-1);
 }
 
-void FileFilter::GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc)
+enumFileFilterFlagsType FileFilter::GetFFFT()
 {
   if (m_FilterType == FFT_PANEL)
   {
     if (m_HostPanel==CtrlObject->Cp()->RightPanel)
     {
-      Inc = FFF_RPANELINCLUDE;
-      Exc = FFF_RPANELEXCLUDE;
+      return FFFT_RIGHTPANEL;
     }
     else
     {
-      Inc = FFF_LPANELINCLUDE;
-      Exc = FFF_LPANELEXCLUDE;
+      return FFFT_LEFTPANEL;
     }
   }
   else if (m_FilterType == FFT_COPY)
   {
-    Inc = FFF_COPYINCLUDE;
-    Exc = FFF_COPYEXCLUDE;
+    return FFFT_COPY;
   }
   else if (m_FilterType == FFT_FINDFILE)
   {
-    Inc = FFF_FINDFILEINCLUDE;
-    Exc = FFF_FINDFILEEXCLUDE;
+    return FFFT_FINDFILE;
   }
-  else
-  {
-    Inc = FFF_SELECTINCLUDE;
-    Exc = FFF_SELECTEXCLUDE;
-  }
+//  else if (m_FilterType == FFT_SELECT)
+//  {
+    return FFFT_SELECT;
+//  }
 }
 
 int FileFilter::GetCheck(FileFilterParams *FFP)
 {
-  DWORD Inc,Exc;
-  GetIncludeExcludeFlags(Inc,Exc);
+  DWORD Flags = FFP->GetFlags(GetFFFT());
 
-  if (FFP->Flags.Check(Inc))
+  if (Flags&FFF_INCLUDE)
+  {
+    if (Flags&FFF_STRONG)
+      return 'I';
     return '+';
-  else if (FFP->Flags.Check(Exc))
+  }
+  else if (Flags&FFF_EXCLUDE)
+  {
+    if (Flags&FFF_STRONG)
+      return 'X';
     return '-';
+  }
 
   return 0;
 }
 
 void FileFilter::ProcessSelection(VMenu *FilterList)
 {
-  DWORD Inc,Exc;
-  GetIncludeExcludeFlags(Inc,Exc);
+  enumFileFilterFlagsType FFFT = GetFFFT();
 
   FileFilterParams *CurFilterData;
   for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
@@ -484,13 +490,29 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
       {
         if (!LocalStricmp(Mask,FMask))
         {
-          if (!Check && !CurFilterData->Flags.Check(~(Inc|Exc)))
+          if (!Check)
           {
-            TempFilterData.deleteItem(j);
-            continue;
+            bool bCheckedNowhere = true;
+
+            for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+            {
+              if (i != FFFT && CurFilterData->GetFlags((enumFileFilterFlagsType)i))
+              {
+                bCheckedNowhere = false;
+                break;
+              }
+            }
+
+            if (bCheckedNowhere)
+            {
+              TempFilterData.deleteItem(j);
+              continue;
+            }
           }
           else
+          {
             j++;
+          }
         }
         else
           CurFilterData=NULL;
@@ -517,11 +539,15 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
     if (!CurFilterData)
       continue;
 
-    CurFilterData->Flags.Clear(Inc|Exc);
+    CurFilterData->SetFlags(FFFT, FFF_NONE);
     if (Check=='+')
-      CurFilterData->Flags.Set(Inc);
+      CurFilterData->SetFlags(FFFT, FFF_INCLUDE);
     else if (Check=='-')
-      CurFilterData->Flags.Set(Exc);
+      CurFilterData->SetFlags(FFFT, FFF_EXCLUDE);
+    else if (Check=='I')
+      CurFilterData->SetFlags(FFFT, FFF_INCLUDE|FFF_STRONG);
+    else if (Check=='X')
+      CurFilterData->SetFlags(FFFT, FFF_EXCLUDE|FFF_STRONG);
   }
 }
 
@@ -557,79 +583,109 @@ bool FileFilter::FileInFilter(FileListItem *fli)
   return FileInFilter(&fd);
 }
 
-bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd, bool IsExcludeDir)
+bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
 {
-  DWORD Inc,Exc;
-  GetIncludeExcludeFlags(Inc,Exc);
+  enumFileFilterFlagsType FFFT = GetFFFT();
 
-  bool bFound=false; //поиск фильтра идёт до первого попадания
+  bool bFound=false;
   bool bAnyIncludeFound=false;
+  bool bAnyFolderIncludeFound=false;
   bool bInc=false;
-  bool bExc=false;
   bool bFolder=fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY?true:false;
   FileFilterParams *CurFilterData;
+  DWORD AttrSet;
+  DWORD Flags;
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
     CurFilterData = FilterData.getItem(i);
+    Flags = CurFilterData->GetFlags(FFFT);
 
-    if (CurFilterData->Flags.Check(Inc|Exc))
+    if (Flags)
     {
-      bAnyIncludeFound = bAnyIncludeFound || CurFilterData->Flags.Check(Inc);
+      if (bFound && !(Flags&FFF_STRONG))
+        continue;
+
+      if (Flags&FFF_INCLUDE)
+      {
+        bAnyIncludeFound = true;
+
+        if (CurFilterData->GetAttr(&AttrSet,NULL))
+          bAnyFolderIncludeFound = bAnyFolderIncludeFound || (AttrSet&FILE_ATTRIBUTE_DIRECTORY);
+      }
+
       if (CurFilterData->FileInFilter(fd, CurrentTime))
       {
-        CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
-        bFound=true;
-        break;
+        bFound = true;
+        if (Flags&FFF_INCLUDE)
+          bInc = true;
+        else
+          bInc = false;
+        if (Flags&FFF_STRONG)
+          goto final;
       }
     }
   }
 
-  if (!bFound && bFolder && FoldersFilter.Flags.Check(Inc|Exc))
+  if (bFolder)
   {
-    bAnyIncludeFound = bAnyIncludeFound || FoldersFilter.Flags.Check(Inc);
-    if (FoldersFilter.FileInFilter(fd, CurrentTime))
+    Flags = FoldersFilter.GetFlags(FFFT);
+
+    if (Flags && (!bFound || (Flags&FFF_STRONG)))
     {
-      FoldersFilter.Flags.Check(Inc)?bInc=true:bExc=true;
-      bFound=true;
+      bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
+
+      if (FoldersFilter.FileInFilter(fd, CurrentTime))
+      {
+        bFound = true;
+        if (Flags&FFF_INCLUDE)
+          bInc = true;
+        else
+          bInc = false;
+        if (Flags&FFF_STRONG)
+          goto final;
+      }
     }
   }
-
-  if (!bFound && !bFolder) //авто-фильтры никогда не могут быть для папок
+  else //авто-фильтры никогда не могут быть для папок
   {
     for (unsigned int i=0; i<TempFilterData.getCount(); i++)
     {
       CurFilterData = TempFilterData.getItem(i);
+      Flags = CurFilterData->GetFlags(FFFT);
 
-      if (CurFilterData->Flags.Check(Inc|Exc))
+      if (Flags)
       {
-        bAnyIncludeFound = bAnyIncludeFound || CurFilterData->Flags.Check(Inc);
+        if (bFound && !(Flags&FFF_STRONG))
+          continue;
+
+        bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
+
         if (CurFilterData->FileInFilter(fd, CurrentTime))
         {
-          CurFilterData->Flags.Check(Inc)?bInc=true:bExc=true;
-          bFound=true;
-          break;
+          bFound = true;
+          if (Flags&FFF_INCLUDE)
+            bInc = true;
+          else
+            bInc = false;
+          if (Flags&FFF_STRONG)
+            goto final;
         }
       }
     }
   }
 
-  //Если папка и она не попала ни под какой exclude фильтр
-  //то самое логичное будет сделать ей include,
-  //кроме как в Select где логичней всего работать чисто по заданному фильтру.
-  if (bFolder && !bExc && m_FilterType!=FFT_SELECT)
+  //Если папка и она не попала ни под какой exclude фильтр то самое логичное
+  //будет сделать ей include если небыло дугих include фильтров на папки.
+  //А вот Select логичней всего работать чисто по заданному фильтру.
+  if (!bFound && bFolder && !bAnyFolderIncludeFound && m_FilterType!=FFT_SELECT)
   {
-    bInc = true;
+    return true;
   }
 
-  //При IsExcludeDir нас интересует только если папка попала или нет под Exclude фильтр
-  if (IsExcludeDir) return bExc;
+final:
 
-  //Элемент попал под Exclude фильтр
-  if (bExc) return false;
-
-  //Элемент попал под Include фильтр
-  if (bInc) return true;
+  if (bFound) return bInc;
 
   //Если элемент не попал ни под один фильтр то он будет включен
   //только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
@@ -641,21 +697,20 @@ bool FileFilter::IsEnabledOnPanel()
   if (m_FilterType != FFT_PANEL)
     return false;
 
-  DWORD Inc,Exc;
-  GetIncludeExcludeFlags(Inc,Exc);
+  enumFileFilterFlagsType FFFT = GetFFFT();
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
-    if (FilterData.getItem(i)->Flags.Check(Inc|Exc))
+    if (FilterData.getItem(i)->GetFlags(FFFT))
       return true;
   }
 
-  if (FoldersFilter.Flags.Check(Inc|Exc))
+  if (FoldersFilter.GetFlags(FFFT))
     return true;
 
   for (unsigned int i=0; i<TempFilterData.getCount(); i++)
   {
-    if (TempFilterData.getItem(i)->Flags.Check(Inc|Exc))
+    if (TempFilterData.getItem(i)->GetFlags(FFFT))
       return true;
   }
 
@@ -715,7 +770,10 @@ void FileFilter::InitFilter()
                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
                          (DWORD)GetRegKey(RegKey,"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
 
-      NewFilter->Flags.Set((DWORD)GetRegKey(RegKey,"Flags",0));
+      DWORD Flags[FFFT_COUNT];
+      GetRegKey(RegKey,"FFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+      for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+        NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
     }
     else
       break;
@@ -740,15 +798,23 @@ void FileFilter::InitFilter()
       //Авто фильтры они только для файлов, папки не должны к ним подходить
       NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 
-      NewFilter->Flags.Set((DWORD)GetRegKey(RegKey,"Flags",0));
+      DWORD Flags[FFFT_COUNT];
+      GetRegKey(RegKey,"FFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+      for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+        NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
     }
     else
       break;
   }
 
-  FoldersFilter.SetMask(0,"");
-  FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
-  FoldersFilter.Flags.Set((DWORD)GetRegKey("Filters","FoldersFilterFlags",0));
+  {
+    FoldersFilter.SetMask(0,"");
+    FoldersFilter.SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
+    DWORD Flags[FFFT_COUNT];
+    GetRegKey("Filters","FoldersFilterFFlags",(BYTE *)Flags,NULL,sizeof(Flags));
+    for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+      FoldersFilter.SetFlags((enumFileFilterFlagsType)i, Flags[i]);
+  }
 }
 
 
@@ -799,7 +865,10 @@ void FileFilter::SaveFilters()
     SetRegKey(RegKey,"AttrSet",AttrSet);
     SetRegKey(RegKey,"AttrClear",AttrClear);
 
-    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+    DWORD Flags[FFFT_COUNT];
+    for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+      Flags[i] = CurFilterData->GetFlags((enumFileFilterFlagsType)i);
+    SetRegKey(RegKey,"FFlags",(BYTE *)Flags,sizeof(Flags));
   }
 
   strcpy(RegKey,"Filters\\PanelMask");
@@ -814,35 +883,26 @@ void FileFilter::SaveFilters()
     CurFilterData->GetMask(&Mask);
     SetRegKey(RegKey,"Mask",Mask);
 
-    SetRegKey(RegKey,"Flags",CurFilterData->Flags.Flags);
+    DWORD Flags[FFFT_COUNT];
+    for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+      Flags[i] = CurFilterData->GetFlags((enumFileFilterFlagsType)i);
+    SetRegKey(RegKey,"FFlags",(BYTE *)Flags,sizeof(Flags));
   }
 
-  SetRegKey("Filters","FoldersFilterFlags",FoldersFilter.Flags.Flags);
+  {
+    DWORD Flags[FFFT_COUNT];
+    for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
+      Flags[i] = FoldersFilter.GetFlags((enumFileFilterFlagsType)i);
+    SetRegKey("Filters","FoldersFilterFFlags",(BYTE *)Flags,sizeof(Flags));
+  }
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
 {
-  DWORD flags=0;
-
-  if (CurFilterData->Flags.Check(FFF_LPANELINCLUDE))
-  {
-    flags|=FFF_RPANELINCLUDE;
-  }
-  if (CurFilterData->Flags.Check(FFF_RPANELINCLUDE))
-  {
-    flags|=FFF_LPANELINCLUDE;
-  }
-  if (CurFilterData->Flags.Check(FFF_LPANELEXCLUDE))
-  {
-    flags|=FFF_RPANELEXCLUDE;
-  }
-  if (CurFilterData->Flags.Check(FFF_RPANELEXCLUDE))
-  {
-    flags|=FFF_LPANELEXCLUDE;
-  }
-
-  CurFilterData->Flags.Clear(FFF_RPANELEXCLUDE|FFF_LPANELEXCLUDE|FFF_RPANELINCLUDE|FFF_LPANELINCLUDE);
-  CurFilterData->Flags.Set(flags);
+  DWORD LPFlags = CurFilterData->GetFlags(FFFT_LEFTPANEL);
+  DWORD RPFlags = CurFilterData->GetFlags(FFFT_RIGHTPANEL);
+  CurFilterData->SetFlags(FFFT_LEFTPANEL,  RPFlags);
+  CurFilterData->SetFlags(FFFT_RIGHTPANEL, LPFlags);
 }
 
 void FileFilter::SwapFilter()

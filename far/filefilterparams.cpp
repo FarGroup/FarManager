@@ -29,7 +29,7 @@ FileFilterParams::FileFilterParams()
   memset(&FHighlight.Colors,0,sizeof(FHighlight.Colors));
   FHighlight.SortGroup=DEFAULT_SORT_GROUP;
   FHighlight.bContinueProcessing=false;
-  Flags.ClearAll();
+  ClearAllFlags();
 }
 
 const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
@@ -44,7 +44,7 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
   FF.GetColors(&FHighlight.Colors);
   FHighlight.SortGroup=FF.GetSortGroup();
   FHighlight.bContinueProcessing=FF.GetContinueProcessing();
-  Flags.Flags=FF.Flags.Flags;
+  memcpy(FFlags,FF.FFlags,sizeof(FFlags));
   return *this;
 }
 
@@ -101,7 +101,7 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
 void FileFilterParams::SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative)
 {
   FDate.Used=Used;
-  FDate.DateType=(FDateType)DateType;
+  FDate.DateType=(enumFDateType)DateType;
   if (DateType>=FDATE_COUNT)
     FDate.DateType=FDATE_MODIFIED;
   FDate.DateAfter=DateAfter;

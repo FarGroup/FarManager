@@ -2992,6 +2992,9 @@ masks) the following commands are available:
                        and files that match then will not be
                        processed.
 
+   #I# and #X#             Similar to #Plus# and #Minus# respectively,
+                       but have higher priority when matching.
+
    #Ctrl-F#              Position cursor on the "Folders" item.
 
    #Backspace#           Clear selection from the current item.

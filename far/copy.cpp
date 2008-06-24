@@ -1717,8 +1717,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         {
           // Просто пропустить каталог недостаточно - если каталог помечен в
           // фильтре как некопируемый, то следует пропускать и его и всё его
-          // содержимое. Но проверять надо ТОЛЬКО на фильтры "с запретом"
-          if (Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData, true))
+          // содержимое.
+          if (!Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData))
           {
             ScTree.SkipDir();
             continue;
@@ -1919,11 +1919,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   if (UseFilter)
   {
-    // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
-    // делать, то копируются каталоги помеченные в фильтре как некопируемые.
-    // Поэтому для каталогов проверяем на соотвествие фильтру "с запретом"
-    bool isDir = (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
-    if(Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData, isDir) == isDir)
+    if (!Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData))
       return COPY_NEXT;
   }
 

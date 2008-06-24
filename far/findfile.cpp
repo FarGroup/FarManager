@@ -1811,14 +1811,9 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
             */
             if (UseFilter)
             {
-              // Если имеется фильтр "с запретом" и под его действие попадает
-              // каталог, то пропускаем  не только сам катаолог но и всё что
-              // ниже (по дереву). Прочие типы фильтров для каталогов не
-              // перепроверяем - всё равно в них заходить надо
-              bool isDir = (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-              if (Filter->FileInFilter(&FindData, isDir) == isDir)
+              if (!Filter->FileInFilter(&FindData))
               {
-                if(isDir)
+                if (FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
                   ScTree.SkipDir();
                 continue;
               }
@@ -2731,11 +2726,9 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
     {
       PluginPanelItem *CurPanelItem=PanelData+I;
       char *CurName=CurPanelItem->FindData.cFileName;
-      // Если имеется фильтр "с запретом" и под его действие попадает каталог,
-      // то пропускаем  не только сам катаолог но и всё что ниже (по дереву)
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
           strcmp(CurName,".")!=0 && !TestParentFolderName(CurName) &&
-          (!UseFilter || !Filter->FileInFilter(&CurPanelItem->FindData, true)) &&
+          (!UseFilter || Filter->FileInFilter(&CurPanelItem->FindData)) &&
           (SearchMode!=FFSEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(CurName)))
       {

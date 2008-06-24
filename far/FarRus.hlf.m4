@@ -3095,6 +3095,9 @@ $ #Меню фильтров#
                        помечаются символом '-', и все удовлетворяющие
                        им файлы не будут обработаны.
 
+   #I# и #X#               Similar to #Plus# and #Minus# respectively,
+                       but have higher priority when matching.
+
    #Ctrl-F#              Переводит курсор на пункт меню "Папки".
 
    #Backspace#           Снять пометку с выбранного объекта.

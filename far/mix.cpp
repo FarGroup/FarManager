@@ -368,10 +368,10 @@ int GetDirInfo(char *Title,
         DirCount++;
       else
       {
-        // Если стоит отрицательный фильтр с атрибутом каталога, то каталог
-        // надо полностью пропустить - иначе при включенном подсчёте total
+        // Если каталог не попадает под фильтр то его надо полностью
+        // пропустить - иначе при включенном подсчёте total
         // он учтётся (mantiss 551)
-        if (Filter->FileInFilter(&FindData, true))
+        if (!Filter->FileInFilter(&FindData))
           ScTree.SkipDir();
       }
     }
@@ -1123,26 +1123,26 @@ BOOL IsLocalRootPath(const char *Path)
 bool PathPrefix(const char *Path)
 {
 /*
-	\\?\
-	\\.\
-	\??\
+  \\?\
+  \\.\
+  \??\
 */
-	return Path && Path[0] == '\\' && (Path[1] == '\\' || Path[1] == '?') && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\';
+  return Path && Path[0] == '\\' && (Path[1] == '\\' || Path[1] == '?') && (Path[2] == '?' || Path[2] == '.') && Path[3] == '\\';
 }
 
 BOOL IsLocalPrefixPath(const char *Path)
 {
-	return PathPrefix(Path) && isalpha(Path[4]) && Path[5] == ':' && Path[6] == '\\';
+  return PathPrefix(Path) && isalpha(Path[4]) && Path[5] == ':' && Path[6] == '\\';
 }
 
 BOOL IsLocalVolumePath(const char *Path)
 {
-	return PathPrefix(Path) && !strnicmp(&Path[4],"Volume{",7) && Path[47] == '}';
+  return PathPrefix(Path) && !strnicmp(&Path[4],"Volume{",7) && Path[47] == '}';
 }
 
 BOOL IsLocalVolumeRootPath(const char *Path)
 {
-	return IsLocalVolumePath(Path) && !Path[48];
+  return IsLocalVolumePath(Path) && !Path[48];
 }
 
 // Косметические преобразования строки пути.
