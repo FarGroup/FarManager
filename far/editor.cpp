@@ -3590,7 +3590,7 @@ BOOL Editor::Search(int Next)
 
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,-1);
-    //SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
 
     Count=0;
@@ -3630,13 +3630,30 @@ BOOL Editor::Search(int Next)
 
     NewNumLine=NumLine;
     CurPtr=CurLine;
+    BOOL MessageShown=FALSE;
 
     while (CurPtr!=NULL)
     {
-      if ((++Count & 0xfff)==0 && CheckForEsc())
+      if ((++Count & 0xfff)==0)
       {
-        UserBreak=TRUE;
-        break;
+        if( CheckForEscSilent() )
+        {
+          if ( ConfirmAbortOp() )
+          {
+            UserBreak=TRUE;
+            break;
+          }
+          MessageShown=FALSE;
+        }
+
+        if (!MessageShown)
+        {
+          strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
+          SetCursorType(FALSE,-1);
+          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+          EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
+          MessageShown=TRUE;
+        }
       }
 
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
@@ -3854,8 +3871,9 @@ BOOL Editor::Search(int Next)
           NewNumLine++;
         }
     }
-    //SetPreRedrawFunc(NULL);
+    SetPreRedrawFunc(NULL);
   }
+
   Show();
   if (!Match && !UserBreak)
     Message(MSG_DOWN|MSG_WARNING,1,UMSG(MEditSearchTitle),UMSG(MEditNotFound),
