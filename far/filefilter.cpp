@@ -364,7 +364,7 @@ bool FileFilter::FilterEdit()
         FilterList.ProcessInput();
 
         //заставляем хоткеи позиционировать курсор на пункте но не закрывать меню
-        if (Key!=KEY_NUMENTER && Key!=KEY_ENTER && Key!=KEY_ESC && Key!=KEY_F10)
+        if (Key!=KEY_NUMENTER && Key!=KEY_ENTER && Key!=KEY_ESC && Key!=KEY_F10 && ((Key>0x20 && Key<0xFF) || Key&(KEY_ALT|KEY_RALT)))
           FilterList.ClearDone();
       }
     }
