@@ -3098,8 +3098,6 @@ $ #Меню фильтров#
    #I# и #X#               Similar to #Plus# and #Minus# respectively,
                        but have higher priority when matching.
 
-   #Ctrl-F#              Переводит курсор на пункт меню "Папки".
-
    #Backspace#           Снять пометку с выбранного объекта.
 
    #Shift-Backspace#     Снять пометку со всех выбранных объектов.

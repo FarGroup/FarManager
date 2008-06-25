@@ -96,7 +96,7 @@ bool FileFilter::FilterEdit()
 
   memset(&ListItem,0,sizeof(ListItem));
   FoldersFilter.SetTitle(MSG(MFolderFileType));
-  MenuString(ListItem.Name,&FoldersFilter);
+  MenuString(ListItem.Name,&FoldersFilter,false,'0');
   int Check = GetCheck(&FoldersFilter);
   if (Check)
     ListItem.SetCheck(Check);
@@ -128,10 +128,10 @@ bool FileFilter::FilterEdit()
 
   memset(&ListItem,0,sizeof(ListItem));
 
-  for (int i=0; i<ExtCount; i++)
+  for (int i=0, h='1'; i<ExtCount; i++, (h=='9'?h='A':(h=='Z'||h==0?h=0:h++)))
   {
     char *CurExtPtr=ExtPtr+i*NM;
-    MenuString(ListItem.Name,NULL,false,true,CurExtPtr,MSG(MPanelFileType));
+    MenuString(ListItem.Name,NULL,false,h,true,CurExtPtr,MSG(MPanelFileType));
     ListItem.SetCheck(CurExtPtr[strlen(CurExtPtr)+1]);
     FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
@@ -192,16 +192,6 @@ bool FileFilter::FilterEdit()
         }
         FilterList.SetUpdateRequired(TRUE);
         FilterList.FastShow();
-      }
-
-      case KEY_CTRLF:
-      {
-        //Позиционируем курсор на FoldersFilter
-        FilterList.SetSelectPos(FilterData.getCount()+2,1);
-        FilterList.SetUpdateRequired(TRUE);
-        FilterList.FastShow();
-        bNeedUpdate=true;
-        break;
       }
 
       case KEY_F4:

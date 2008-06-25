@@ -313,7 +313,7 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd, unsigned __int64 Curren
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType, bool bPanelType, const char *FMask, const char *Title)
+void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const char *FMask, const char *Title)
 {
   const char  AttrC[] = "RAHSDCEI$TLOV";
   const DWORD AttrF[] = {
@@ -336,6 +336,8 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType, bool bPan
   const unsigned char DownArrow=0x019;
   const char Format1a[] = "%-21.21s %c %-26.26s %-2.2s %c %-60.60s";
   const char Format1b[] = "%-22.22s %c %-26.26s %-2.2s %c %-60.60s";
+  const char Format1c[] = "&%c. %-18.18s %c %-26.26s %-2.2s %c %-60.60s";
+  const char Format1d[] = "   %-18.18s %c %-26.26s %-2.2s %c %-60.60s";
   const char Format2[] = "%-3.3s %c %-26.26s %-3.3s %c %-77.77s";
 
   const char *Name, *Mask;
@@ -401,7 +403,18 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType, bool bPan
   else
   {
     SizeDate[2]=0;
-    sprintf(dest, strstr(Name, "&") ? Format1b : Format1a, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+
+    if (!Hotkey && !bPanelType)
+    {
+      sprintf(dest, strstr(Name, "&") ? Format1b : Format1a, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+    }
+    else
+    {
+      if (Hotkey)
+        sprintf(dest, Format1c, Hotkey, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+      else
+        sprintf(dest, Format1d, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+    }
   }
 
   RemoveTrailingSpaces(dest);

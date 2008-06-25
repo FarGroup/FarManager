@@ -2995,8 +2995,6 @@ masks) the following commands are available:
    #I# and #X#             Similar to #Plus# and #Minus# respectively,
                        but have higher priority when matching.
 
-   #Ctrl-F#              Position cursor on the "Folders" item.
-
    #Backspace#           Clear selection from the current item.
 
    #Shift-Backspace#     Clear selection from all items.

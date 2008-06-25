@@ -133,6 +133,6 @@ class FileFilterParams
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType=false, bool bPanelType=false, const char *FMask=NULL, const char *Title=NULL);
+void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const char *FMask=NULL, const char *Title=NULL);
 
 #endif //__FILEFILTERPARAMS_HPP__
