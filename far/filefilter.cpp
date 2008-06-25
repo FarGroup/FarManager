@@ -192,6 +192,7 @@ bool FileFilter::FilterEdit()
         }
         FilterList.SetUpdateRequired(TRUE);
         FilterList.FastShow();
+        break;
       }
 
       case KEY_F4:
