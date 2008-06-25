@@ -47,7 +47,7 @@ bool FileFilter::FilterEdit()
   FilterList.SetHelp("FiltersMenu");
   FilterList.SetPosition(-1,-1,0,0);
   FilterList.SetBottomTitle(MSG(MFilterBottom));
-  FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+  FilterList.SetFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
   {
@@ -371,6 +371,10 @@ bool FileFilter::FilterEdit()
       default:
       {
         FilterList.ProcessInput();
+
+        //заставляем хоткеи позиционировать курсор на пункте но не закрывать меню
+        if (Key!=KEY_NUMENTER && Key!=KEY_ENTER && Key!=KEY_ESC && Key!=KEY_F10)
+          FilterList.ClearDone();
       }
     }
   }
@@ -591,7 +595,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   bool bAnyIncludeFound=false;
   bool bAnyFolderIncludeFound=false;
   bool bInc=false;
-  bool bFolder=fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY?true:false;
+  bool bFolder=(fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
   FileFilterParams *CurFilterData;
   DWORD AttrSet;
   DWORD Flags;
@@ -746,27 +750,27 @@ void FileFilter::InitFilter()
 
       char Mask[FILEFILTER_MASK_SIZE];
       GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask));
-      NewFilter->SetMask((DWORD)GetRegKey(RegKey,"UseMask",1),
+      NewFilter->SetMask(GetRegKey(RegKey,"UseMask",1)!=0,
                          Mask);
 
       FILETIME DateAfter, DateBefore;
       GetRegKey(RegKey,"DateAfter",(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
       GetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-      NewFilter->SetDate((DWORD)GetRegKey(RegKey,"UseDate",0),
+      NewFilter->SetDate(GetRegKey(RegKey,"UseDate",0)!=0,
                          (DWORD)GetRegKey(RegKey,"DateType",0),
                          DateAfter,
                          DateBefore,
-                         GetRegKey(RegKey,"RelativeDate",0)?true:false);
+                         GetRegKey(RegKey,"RelativeDate",0)!=0);
 
       char SizeAbove[FILEFILTER_SIZE_SIZE];
       char SizeBelow[FILEFILTER_SIZE_SIZE];
       GetRegKey(RegKey,"SizeAboveS",SizeAbove,"",sizeof(SizeAbove));
       GetRegKey(RegKey,"SizeBelowS",SizeBelow,"",sizeof(SizeBelow));
-      NewFilter->SetSize((DWORD)GetRegKey(RegKey,"UseSize",0),
+      NewFilter->SetSize(GetRegKey(RegKey,"UseSize",0)!=0,
                          SizeAbove,
                          SizeBelow);
 
-      NewFilter->SetAttr((DWORD)GetRegKey(RegKey,"UseAttr",1),
+      NewFilter->SetAttr(GetRegKey(RegKey,"UseAttr",1)!=0,
                          (DWORD)GetRegKey(RegKey,"AttrSet",0),
                          (DWORD)GetRegKey(RegKey,"AttrClear",FILE_ATTRIBUTE_DIRECTORY));
 
@@ -843,25 +847,25 @@ void FileFilter::SaveFilters()
     SetRegKey(RegKey,"Title",CurFilterData->GetTitle());
 
     const char *Mask;
-    SetRegKey(RegKey,"UseMask",CurFilterData->GetMask(&Mask));
+    SetRegKey(RegKey,"UseMask",CurFilterData->GetMask(&Mask)?1:0);
     SetRegKey(RegKey,"Mask",Mask);
 
     DWORD DateType;
     FILETIME DateAfter, DateBefore;
     bool bRelative;
-    SetRegKey(RegKey,"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative));
+    SetRegKey(RegKey,"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
     SetRegKey(RegKey,"DateType",DateType);
     SetRegKey(RegKey,"DateAfter",(BYTE *)&DateAfter,sizeof(DateAfter));
     SetRegKey(RegKey,"DateBefore",(BYTE *)&DateBefore,sizeof(DateBefore));
     SetRegKey(RegKey,"RelativeDate",bRelative?1:0);
 
     const char *SizeAbove, *SizeBelow;
-    SetRegKey(RegKey,"UseSize",CurFilterData->GetSize(&SizeAbove, &SizeBelow));
+    SetRegKey(RegKey,"UseSize",CurFilterData->GetSize(&SizeAbove, &SizeBelow)?1:0);
     SetRegKey(RegKey,"SizeAboveS",SizeAbove);
     SetRegKey(RegKey,"SizeBelowS",SizeBelow);
 
     DWORD AttrSet, AttrClear;
-    SetRegKey(RegKey,"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear));
+    SetRegKey(RegKey,"UseAttr",CurFilterData->GetAttr(&AttrSet, &AttrClear)?1:0);
     SetRegKey(RegKey,"AttrSet",AttrSet);
     SetRegKey(RegKey,"AttrClear",AttrClear);
 

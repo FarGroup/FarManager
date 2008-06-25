@@ -67,37 +67,37 @@ void LoadFilterFromReg(FileFilterParams *HData, const char *RegKey, const char *
   //настройки старых версий фара.
 
   if (bSortGroup)
-    HData->SetMask((DWORD)GetRegKey(RegKey,HLS.UseMask,1), Mask);
+    HData->SetMask(GetRegKey(RegKey,HLS.UseMask,1)!=0, Mask);
   else
-    HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1), Mask);
+    HData->SetMask(GetRegKey(RegKey,HLS.IgnoreMask,0)==0, Mask);
 
 
   FILETIME DateAfter, DateBefore;
   GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
   GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-  HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
-                  (DWORD)GetRegKey(RegKey,HLS.DateType,0),
-                  DateAfter,
-                  DateBefore,
-                  GetRegKey(RegKey,HLS.DateRelative,0)?true:false);
+  HData->SetDate(GetRegKey(RegKey,HLS.UseDate,0)!=0,
+                 (DWORD)GetRegKey(RegKey,HLS.DateType,0),
+                 DateAfter,
+                 DateBefore,
+                 GetRegKey(RegKey,HLS.DateRelative,0)!=0);
 
   char SizeAbove[FILEFILTER_SIZE_SIZE];
   char SizeBelow[FILEFILTER_SIZE_SIZE];
   GetRegKey(RegKey,HLS.SizeAbove,SizeAbove,"",sizeof(SizeAbove));
   GetRegKey(RegKey,HLS.SizeBelow,SizeBelow,"",sizeof(SizeBelow));
-  HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
-                  SizeAbove,
-                  SizeBelow);
+  HData->SetSize(GetRegKey(RegKey,HLS.UseSize,0)!=0,
+                 SizeAbove,
+                 SizeBelow);
 
   if (bSortGroup)
   {
-    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+    HData->SetAttr(GetRegKey(RegKey,HLS.UseAttr,1)!=0,
                    (DWORD)GetRegKey(RegKey,HLS.AttrSet,0),
                    (DWORD)GetRegKey(RegKey,HLS.AttrClear,FILE_ATTRIBUTE_DIRECTORY));
   }
   else
   {
-    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+    HData->SetAttr(GetRegKey(RegKey,HLS.UseAttr,1)!=0,
                    (DWORD)GetRegKey(RegKey,HLS.IncludeAttributes,0),
                    (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
   }
@@ -153,7 +153,7 @@ void HighlightFiles::InitHighlightFiles()
 
       if(HData)
       {
-        LoadFilterFromReg(HData,RegKey,Mask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
+        LoadFilterFromReg(HData,RegKey,Mask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),GroupDelta[j]!=DEFAULT_SORT_GROUP);
 
         (*(Count[j]))++;
       }
@@ -679,30 +679,30 @@ void HighlightFiles::HiEdit(int MenuPos)
 void SaveFilterToReg(FileFilterParams *CurHiData, const char *RegKey, bool bSortGroup)
 {
   if (bSortGroup)
-    SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(NULL));
+    SetRegKey(RegKey,HLS.UseMask,CurHiData->GetMask(NULL)?1:0);
   else
   {
     const char *Mask;
-    SetRegKey(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask) ? 0 : 1));
+    SetRegKey(RegKey,HLS.IgnoreMask,(CurHiData->GetMask(&Mask)?0:1));
     SetRegKey(RegKey,HLS.Mask,Mask);
   }
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
   bool bRelative;
-  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative));
+  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
   SetRegKey(RegKey,HLS.DateType,DateType);
   SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
   SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
   SetRegKey(RegKey,HLS.DateRelative,bRelative?1:0);
 
   const char *SizeAbove, *SizeBelow;
-  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow));
+  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow)?1:0);
   SetRegKey(RegKey,HLS.SizeAbove,SizeAbove);
   SetRegKey(RegKey,HLS.SizeBelow,SizeBelow);
 
   DWORD AttrSet, AttrClear;
-  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
+  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
   SetRegKey(RegKey,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
   SetRegKey(RegKey,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 
@@ -718,7 +718,7 @@ void SaveFilterToReg(FileFilterParams *CurHiData, const char *RegKey, bool bSort
   SetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
   SetRegKey(RegKey,HLS.MarkChar,(DWORD)Colors.MarkChar);
 
-  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing() ? 1 : 0));
+  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing()?1:0));
 }
 
 void HighlightFiles::SaveHiData()
@@ -787,26 +787,26 @@ void SetHighlighting()
   static struct DefaultData
   {
     const char *Mask;
-    int IgnoreMask;
+    bool IgnoreMask;
     DWORD IncludeAttr;
     BYTE NormalColor;
     BYTE CursorColor;
   }
   StdHighlightData[]=
   { /*
-             Mask                NormalColor
-                          IncludeAttributes
-                       IgnoreMask       CursorColor             */
-     /* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
-     /* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
-     /* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
-     /* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
-     /* 4 */{CmdExt,   0, 0x0000, 0x1A, 0x3A},
-     /* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
-     /* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
+             Mask                     NormalColor
+                              IncludeAttributes
+                       IgnoreMask           CursorColor             */
+     /* 0 */{Masks[0], false, 0x0002, 0x13, 0x38},
+     /* 1 */{Masks[0], false, 0x0004, 0x13, 0x38},
+     /* 2 */{Masks[3], false, 0x0010, 0x1F, 0x3F},
+     /* 3 */{Masks[4], false, 0x0010, 0x00, 0x00},
+     /* 4 */{CmdExt,   false, 0x0000, 0x1A, 0x3A},
+     /* 5 */{Masks[1], false, 0x0000, 0x1D, 0x3D},
+     /* 6 */{Masks[2], false, 0x0000, 0x16, 0x36},
             // это настройка для каталогов на тех панелях, которые должны раскрашиваться
             // без учета масок (например, список хостов в "far navigator")
-     /* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
+     /* 7 */{Masks[0], true,  0x0010, 0x1F, 0x3F},
   };
 
   // для NT добавляем CMD
@@ -818,7 +818,7 @@ void SetHighlighting()
   {
     itoa(I,Ptr,10);
     SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].Mask);
-    SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
+    SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask?1:0);
     SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
     SetRegKey(RegKey,HLS.NormalColor,StdHighlightData[I].NormalColor);
     SetRegKey(RegKey,HLS.CursorColor,StdHighlightData[I].CursorColor);

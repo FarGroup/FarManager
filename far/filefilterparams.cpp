@@ -53,7 +53,7 @@ void FileFilterParams::SetTitle(const char *Title)
   xstrncpy(m_Title,Title,sizeof(m_Title)-1);
 }
 
-void FileFilterParams::SetMask(DWORD Used, const char *Mask)
+void FileFilterParams::SetMask(bool Used, const char *Mask)
 {
   FMask.Used = Used;
   xstrncpy(FMask.Mask,Mask,sizeof(FMask.Mask)-1);
@@ -98,7 +98,7 @@ void FileFilterParams::SetMask(DWORD Used, const char *Mask)
   }
 }
 
-void FileFilterParams::SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative)
+void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative)
 {
   FDate.Used=Used;
   FDate.DateType=(enumFDateType)DateType;
@@ -109,7 +109,7 @@ void FileFilterParams::SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, F
   FDate.bRelative=bRelative;
 }
 
-void FileFilterParams::SetSize(DWORD Used, const char *SizeAbove, const char *SizeBelow)
+void FileFilterParams::SetSize(bool Used, const char *SizeAbove, const char *SizeBelow)
 {
   FSize.Used=Used;
   xstrncpy(FSize.SizeAbove,SizeAbove,sizeof(FSize.SizeAbove)-1);
@@ -118,7 +118,7 @@ void FileFilterParams::SetSize(DWORD Used, const char *SizeAbove, const char *Si
   FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
 
-void FileFilterParams::SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear)
+void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 {
   FAttr.Used=Used;
   FAttr.AttrSet=AttrSet;
@@ -135,14 +135,14 @@ const char *FileFilterParams::GetTitle() const
   return m_Title;
 }
 
-DWORD FileFilterParams::GetMask(const char **Mask) const
+bool FileFilterParams::GetMask(const char **Mask) const
 {
   if (Mask)
     *Mask=FMask.Mask;
   return FMask.Used;
 }
 
-DWORD FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const
+bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const
 {
   if (DateType)
     *DateType=FDate.DateType;
@@ -155,7 +155,7 @@ DWORD FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *
   return FDate.Used;
 }
 
-DWORD FileFilterParams::GetSize(const char **SizeAbove, const char **SizeBelow) const
+bool FileFilterParams::GetSize(const char **SizeAbove, const char **SizeBelow) const
 {
   if (SizeAbove)
     *SizeAbove=FSize.SizeAbove;
@@ -164,7 +164,7 @@ DWORD FileFilterParams::GetSize(const char **SizeAbove, const char **SizeBelow) 
   return FSize.Used;
 }
 
-DWORD FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
+bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 {
   if (AttrSet)
     *AttrSet=FAttr.AttrSet;
@@ -313,7 +313,7 @@ bool FileFilterParams::FileInFilter(WIN32_FIND_DATA *fd, unsigned __int64 Curren
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPanelType, const char *FMask, const char *Title)
+void MenuString(char *dest, FileFilterParams *FF, bool bHighlightType, bool bPanelType, const char *FMask, const char *Title)
 {
   const char  AttrC[] = "RAHSDCEI$TLOV";
   const DWORD AttrF[] = {
@@ -333,22 +333,24 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPane
                         };
 
   const unsigned char VerticalLine=0x0B3;
-  const char Format1[] = "%-21.21s %c %-26.26s %-2.2s %c %-60.60s";
-  const char Format2[] = "%-3.3s %c %-26.26s %-2.2s %c %-78.78s";
+  const unsigned char DownArrow=0x019;
+  const char Format1a[] = "%-21.21s %c %-26.26s %-2.2s %c %-60.60s";
+  const char Format1b[] = "%-22.22s %c %-26.26s %-2.2s %c %-60.60s";
+  const char Format2[] = "%-3.3s %c %-26.26s %-3.3s %c %-77.77s";
 
   const char *Name, *Mask;
   char MarkChar[]="\" \"";
   DWORD IncludeAttr, ExcludeAttr;
-  DWORD UseMask, UseSize, UseDate;
+  bool UseMask, UseSize, UseDate, RelativeDate;
 
   if (bPanelType)
   {
     Name=Title;
-    UseMask=1;
+    UseMask=true;
     Mask=FMask;
     IncludeAttr=0;
     ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
-    UseDate=UseSize=0;
+    RelativeDate=UseDate=UseSize=false;
   }
   else
   {
@@ -360,7 +362,7 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPane
     if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
       IncludeAttr=ExcludeAttr=0;
     UseSize=FF->GetSize(NULL,NULL);
-    UseDate=FF->GetDate(NULL,NULL,NULL,NULL);
+    UseDate=FF->GetDate(NULL,NULL,NULL,&RelativeDate);
   }
 
   char Attr[sizeof(AttrC)*2] = {0};
@@ -376,16 +378,32 @@ void MenuString(char *dest, FileFilterParams *FF, bool bHighightType, bool bPane
       *Ptr=*(Ptr+1)='.';
   }
 
-  char SizeDate[3] = "..";
+  char SizeDate[4] = "...";
   if (UseSize)
+  {
     SizeDate[0]='S';
+  }
   if (UseDate)
-    SizeDate[1]='D';
+  {
+    if (RelativeDate)
+      SizeDate[1]='R';
+    else
+      SizeDate[1]='D';
+  }
 
-  if (bHighightType)
+  if (bHighlightType)
+  {
+    if (FF->GetContinueProcessing())
+      SizeDate[2]=DownArrow;
+
     sprintf(dest, Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+  }
   else
-    sprintf(dest, Format1, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+  {
+    SizeDate[2]=0;
+    sprintf(dest, strstr(Name, "&") ? Format1b : Format1a, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : "");
+  }
+
   RemoveTrailingSpaces(dest);
 }
 
@@ -514,6 +532,13 @@ void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg)
     Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
     Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
   }
+
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)"");
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)"");
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)"");
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)"");
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)"");
+  Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)"");
 
   Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
@@ -859,7 +884,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   xstrncpy(FilterDlg[ID_FF_NAMEEDIT].Data,FF->GetTitle(),sizeof(FilterDlg[ID_FF_NAMEEDIT].Data));
 
   const char *FMask;
-  FilterDlg[ID_FF_MATCHMASK].Selected=FF->GetMask(&FMask);
+  FilterDlg[ID_FF_MATCHMASK].Selected=FF->GetMask(&FMask)?1:0;
   char Mask[FILEFILTER_MASK_SIZE];
   xstrncpy(Mask,FMask,sizeof(Mask)-1);
   FilterDlg[ID_FF_MASKEDIT].Ptr.PtrData=Mask;
@@ -869,7 +894,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     FilterDlg[ID_FF_MASKEDIT].Flags|=DIF_DISABLE;
 
   const char *SizeAbove, *SizeBelow;
-  FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeAbove,&SizeBelow);
+  FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeAbove,&SizeBelow)?1:0;
   xstrncpy(FilterDlg[ID_FF_SIZEFROMEDIT].Data,SizeAbove,sizeof(FilterDlg[ID_FF_SIZEFROMEDIT].Data)-1);
   xstrncpy(FilterDlg[ID_FF_SIZETOEDIT].Data,SizeBelow,sizeof(FilterDlg[ID_FF_SIZETOEDIT].Data)-1);
 
@@ -891,7 +916,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
   bool bRelative;
-  FilterDlg[ID_FF_MATCHDATE].Selected=FF->GetDate(&DateType,&DateAfter,&DateBefore,&bRelative);
+  FilterDlg[ID_FF_MATCHDATE].Selected=FF->GetDate(&DateType,&DateAfter,&DateBefore,&bRelative)?1:0;
   FilterDlg[ID_FF_DATERELATIVE].Selected=bRelative?1:0;
   FilterDlg[ID_FF_DATETYPE].ListItems=&DateList;
   TableItemDate[DateType].Flags=LIF_SELECTED;
@@ -912,7 +937,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FilterDlg[i].Flags|=DIF_DISABLE;
 
   DWORD AttrSet, AttrClear;
-  FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear);
+  FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear)?1:0;
   FilterDlg[ID_FF_READONLY].Selected=(AttrSet & FILE_ATTRIBUTE_READONLY?1:AttrClear & FILE_ATTRIBUTE_READONLY?0:2);
   FilterDlg[ID_FF_ARCHIVE].Selected=(AttrSet & FILE_ATTRIBUTE_ARCHIVE?1:AttrClear & FILE_ATTRIBUTE_ARCHIVE?0:2);
   FilterDlg[ID_FF_HIDDEN].Selected=(AttrSet & FILE_ATTRIBUTE_HIDDEN?1:AttrClear & FILE_ATTRIBUTE_HIDDEN?0:2);
@@ -993,18 +1018,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
       FF->SetTitle(FilterDlg[ID_FF_NAMEEDIT].Data);
 
-      FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected,
+      FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected!=0,
                   (char *)FilterDlg[ID_FF_MASKEDIT].Ptr.PtrData);
 
-      FF->SetSize(FilterDlg[ID_FF_MATCHSIZE].Selected,
+      FF->SetSize(FilterDlg[ID_FF_MATCHSIZE].Selected!=0,
                   FilterDlg[ID_FF_SIZEFROMEDIT].Data,
                   FilterDlg[ID_FF_SIZETOEDIT].Data);
 
-      bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected?true:false;
+      bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected!=0;
       StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSAFTEREDIT:ID_FF_DATEAFTEREDIT].Data,FilterDlg[ID_FF_TIMEAFTEREDIT].Data,DateAfter,DateFormat,DateSeparator,TimeSeparator,bRelative);
       StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSBEFOREEDIT:ID_FF_DATEBEFOREEDIT].Data,FilterDlg[ID_FF_TIMEBEFOREEDIT].Data,DateBefore,DateFormat,DateSeparator,TimeSeparator,bRelative);
 
-      FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected,
+      FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected!=0,
                   FilterDlg[ID_FF_DATETYPE].ListPos,
                   DateAfter,
                   DateBefore,
@@ -1041,7 +1066,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
       AttrClear|=(FilterDlg[ID_FF_VIRTUAL].Selected==0?FILE_ATTRIBUTE_VIRTUAL:0);
 
-      FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected,
+      FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected!=0,
                   AttrSet,
                   AttrClear);
 

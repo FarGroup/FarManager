@@ -347,6 +347,13 @@ void ConvertRelativeDate(const FILETIME &ft,char *DaysText,char *TimeText)
   time.u.LowPart  = ft.dwLowDateTime;
   time.u.HighPart = ft.dwHighDateTime;
 
+  if (time.QuadPart == _ui64(0))
+  {
+    *DaysText=0;
+    *TimeText=0;
+    return;
+  }
+
   d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
   time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
   h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
