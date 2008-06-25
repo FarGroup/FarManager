@@ -1065,6 +1065,7 @@ int  __getMacroErrorCode(int *nErr=NULL);
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+void ConvertNameToUNC(string &strFileName);
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 

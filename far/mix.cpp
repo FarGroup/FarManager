@@ -1944,9 +1944,12 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
   DWORD SrcFileSystemFlags, DestFileSystemFlags;
   DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 
-
-  GetPathRoot(SrcPath,strSrcRoot);
-  GetPathRoot(DestPath,strDestRoot);
+  strSrcRoot=SrcPath;
+  strDestRoot=DestPath;
+  ConvertNameToUNC(strSrcRoot);
+  ConvertNameToUNC(strDestRoot);
+  GetPathRoot(strSrcRoot,strSrcRoot);
+  GetPathRoot(strDestRoot,strDestRoot);
 
   SrcDriveType=FAR_GetDriveType(strSrcRoot,NULL,TRUE);
   DestDriveType=FAR_GetDriveType(strDestRoot,NULL,TRUE);
@@ -2060,4 +2063,56 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 	A.u.HighPart = ft->dwHighDateTime;
 
 	return A.QuadPart;
+}
+
+void ConvertNameToUNC(string &strFileName)
+{
+	// ѕосмотрим на тип файловой системы
+	string strFileSystemName;
+	string strTemp;
+	GetPathRoot(strFileName,strTemp);
+
+	if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
+		strFileSystemName=L"";
+
+	DWORD uniSize = 1024;
+	UNIVERSAL_NAME_INFOW *uni=(UNIVERSAL_NAME_INFOW*)xf_malloc(uniSize);
+
+	// примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
+	if (StrCmpI(strFileSystemName,L"NWFS"))
+	{
+		DWORD dwRet=WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
+		switch(dwRet)
+		{
+		case NO_ERROR:
+			strFileName = uni->lpUniversalName;
+			break;
+		case ERROR_MORE_DATA:
+			uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
+			if(WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+				strFileName = uni->lpUniversalName;
+			break;
+		}
+	}
+	else if(strFileName.At(1) == L':')
+	{
+		// BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
+		// «десь, если не получилось получить UniversalName и если это
+		// мапленный диск - получаем как дл€ меню выбора дисков
+
+		if(!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
+		{
+			const wchar_t *NamePtr;
+			if((NamePtr=wcschr(strFileName, L'/')) == NULL)
+				NamePtr=wcschr(strFileName, L'\\');
+			if(NamePtr != NULL)
+			{
+				AddEndSlash(strTemp);
+				strTemp += &NamePtr[1];
+			}
+			strFileName = strTemp;
+		}
+	}
+	xf_free(uni);
+	ConvertNameToReal(strFileName,strFileName);
 }
