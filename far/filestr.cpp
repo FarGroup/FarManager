@@ -101,6 +101,7 @@ int GetFileString::GetAnsiString(char **DestStr,int &Length)
   int Eol=0;
   char EOL[16];
   char *PtrEol=EOL;
+  int x=0;
 
   memset(EOL,0,sizeof(EOL));
   Length=0;
@@ -136,11 +137,12 @@ int GetFileString::GetAnsiString(char **DestStr,int &Length)
 
     if (CurLength>=m_nStrLength-1)
     {
-      char *NewStr=(char *)xf_realloc(Str,m_nStrLength+1024);
+      char *NewStr=(char *)xf_realloc(Str,m_nStrLength+(1024<<x));
       if (NewStr==NULL)
         return(-1);
       Str=NewStr;
-      m_nStrLength+=1024;
+      m_nStrLength+=1024<<x;
+      x++;
     }
     Str[CurLength++]=Ch;
     if(Eol && (Ch == '\n' || Ch == '\r') && (!strcmp(EOL,WIN_EOL_fmtA) || !strcmp(EOL,DOS_EOL_fmtA) || !strcmp(EOL,UNIX_EOL_fmtA)))
@@ -159,6 +161,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
   int Eol=0;
   wchar_t EOL[16];
   wchar_t *PtrEol=EOL;
+  int x=0;
 
   memset(EOL,0,sizeof(EOL));
   Length=0;
@@ -191,11 +194,12 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr,int &Length)
     ReadPos += sizeof (wchar_t);
     if (CurLength>=m_nStrLength-1)
     {
-      wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+1024)*sizeof (wchar_t));
+      wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+(1024<<x))*sizeof (wchar_t));
       if (NewStr==NULL)
         return(-1);
       wStr=NewStr;
-      m_nStrLength+=1024;
+      m_nStrLength+=1024<<x;
+      x++;
     }
     wStr[CurLength++]=Ch;
     if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))
@@ -214,6 +218,7 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 	int Eol=0;
 	wchar_t EOL[16];
 	wchar_t *PtrEol=EOL;
+	int x=0;
 
 	memset(EOL,0,sizeof(EOL));
 	Length=0;
@@ -247,11 +252,12 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 		ReadPos += sizeof (wchar_t);
 		if (CurLength>=m_nStrLength-1)
 		{
-			wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+1024)*sizeof (wchar_t));
+			wchar_t *NewStr=(wchar_t *)xf_realloc(wStr,(m_nStrLength+(1024<<x))*sizeof (wchar_t));
 			if (NewStr==NULL)
 				return(-1);
 			wStr=NewStr;
-			m_nStrLength+=1024;
+			m_nStrLength+=1024<<x;
+			x++;
 		}
 		wStr[CurLength++]=Ch;
 		if(Eol && (Ch == L'\n' || Ch == L'\r') && (!StrCmp(EOL,WIN_EOL_fmt) || !StrCmp(EOL,DOS_EOL_fmt) || !StrCmp(EOL,UNIX_EOL_fmt)))

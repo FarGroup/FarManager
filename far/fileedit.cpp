@@ -1574,11 +1574,12 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 
 		const wchar_t *CurEOL;
+		int Offset = StrLength > 3 ? StrLength - 3 : 0;
 
 		if ( !LastLineCR &&
 			 (
-			  (CurEOL = wmemchr(Str,L'\r',StrLength)) != NULL ||
-			  (CurEOL = wmemchr(Str,L'\n',StrLength)) != NULL
+			  (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset)) != NULL ||
+			  (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)) != NULL
 			 )
 		   )
 		{

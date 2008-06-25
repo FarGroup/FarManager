@@ -347,8 +347,9 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       }
 
       const wchar_t *CurEOL;
-      if (!LastLineCR && ((CurEOL=wmemchr(Str,L'\r',StrLength))!=NULL ||
-          (CurEOL=wmemchr(Str,L'\n',StrLength))!=NULL))
+      int Offset = StrLength > 3 ? StrLength - 3 : 0;
+      if (!LastLineCR && ((CurEOL=wmemchr(Str+Offset,L'\r',StrLength-Offset))!=NULL ||
+          (CurEOL=wmemchr(Str+Offset,L'\n',StrLength-Offset))!=NULL))
       {
         xwcsncpy(GlobalEOL,CurEOL,countof(GlobalEOL)-1);
         GlobalEOL[countof(GlobalEOL)-1]=0;
@@ -601,8 +602,9 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       LastLineCR=0;
 
       char *CurEOL;
-      if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
-          (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
+      int Offset = StrLength > 3 ? StrLength - 3 : 0;
+      if (!LastLineCR && ((CurEOL=(char *)memchr(Str+Offset,'\r',StrLength-Offset))!=NULL ||
+          (CurEOL=(char *)memchr(Str+Offset,'\n',StrLength-Offset))!=NULL))
       {
         xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
