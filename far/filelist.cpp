@@ -3518,41 +3518,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
   /* $ 29.01.2001 VVM
     + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
   if (UNC)
-  {
-    // Посмотрим на тип файловой системы
-    char FileSystemName[NM];
-    GetPathRoot(FileName,Temp);
-    if(!GetVolumeInformation(Temp,NULL,0,NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
-      *FileSystemName=0;
-
-    DWORD uniSize = sizeof(Temp);
-    // применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-    if (stricmp(FileSystemName,"NWFS") != 0 &&
-        WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,&Temp, &uniSize) == NOERROR)
-    {
-      UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&Temp;
-      xstrncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
-    }
-    else if(FileName[1] == ':')
-    {
-      // BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
-      // Здесь, если не получилось получить UniversalName и если это
-      // мапленный диск - получаем как для меню выбора дисков
-      if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
-      {
-        if((NamePtr=strchr(FileName, '/')) == NULL)
-          NamePtr=strchr(FileName, '\\');
-        if(NamePtr != NULL)
-        {
-          AddEndSlash(Temp);
-          strcat(Temp,++NamePtr);
-        }
-        xstrncpy(FileName, Temp, sizeof(FileName)-1);
-      }
-    }
-
-    ConvertNameToReal(FileName,FileName, sizeof(FileName));
-  } /* if */
+    ConvertNameToUNC(FileName,sizeof(FileName));
   /* VVM $ */
   // $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
   if(Opt.PanelCtrlFRule)

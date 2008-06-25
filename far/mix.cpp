@@ -1681,9 +1681,12 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
   DWORD SrcFileSystemFlags, DestFileSystemFlags;
   DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 
-
-  GetPathRoot(SrcPath,SrcRoot);
-  GetPathRoot(DestPath,DestRoot);
+  strncpy(SrcRoot,SrcPath,sizeof(SrcRoot)-1);
+  strncpy(DestRoot,DestPath,sizeof(DestRoot)-1);
+  ConvertNameToUNC(SrcRoot,sizeof(SrcRoot)-1);
+  ConvertNameToUNC(DestRoot,sizeof(DestRoot)-1);
+  GetPathRoot(SrcRoot,SrcRoot);
+  GetPathRoot(DestRoot,DestRoot);
 
   SrcDriveType=FAR_GetDriveType(SrcRoot,NULL,TRUE);
   DestDriveType=FAR_GetDriveType(DestRoot,NULL,TRUE);
@@ -1733,4 +1736,39 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
   }
 
   return TRUE;
+}
+
+void ConvertNameToUNC(char *FileName, int Size)
+{
+	char Temp[4906];
+	// ѕосмотрим на тип файловой системы
+	char FileSystemName[NM];
+	GetPathRoot(FileName,Temp);
+	if(!GetVolumeInformation(Temp,NULL,0,NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
+		*FileSystemName=0;
+
+	DWORD uniSize = sizeof(Temp);
+	// примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
+	if (stricmp(FileSystemName,"NWFS") != 0 &&
+	    WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, &Temp, &uniSize) == NO_ERROR)
+		xstrncpy(FileName,((UNIVERSAL_NAME_INFO*)Temp)->lpUniversalName,Size-1);
+	else if(FileName[1] == ':')
+	{
+		// BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
+		// «десь, если не получилось получить UniversalName и если это
+		// мапленный диск - получаем как дл€ меню выбора дисков
+		if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
+		{
+			const char *NamePtr;
+			if((NamePtr=strchr(FileName, '/')) == NULL)
+				NamePtr=strchr(FileName, '\\');
+			if(NamePtr != NULL)
+			{
+				AddEndSlash(Temp);
+				strcat(Temp,&NamePtr[1]);
+			}
+			xstrncpy(FileName, Temp, Size-1);
+		}
+	}
+	ConvertNameToReal(FileName,FileName, Size);
 }
