@@ -35,6 +35,7 @@ int GetFileString::GetString(char **DestStr,int &Length)
   int Eol=0;
   char EOL[16];
   char *PtrEol=EOL;
+  int x=0;
 
   memset(EOL,0,sizeof(EOL));
   Length=0;
@@ -71,11 +72,12 @@ int GetFileString::GetString(char **DestStr,int &Length)
     ReadPos++; // Mantis#295
     if (CurLength>=StrLength-1)
     {
-      char *NewStr=(char *)xf_realloc(Str,StrLength+1024);
+      char *NewStr=(char *)xf_realloc(Str,StrLength+(1024<<x));
       if (NewStr==NULL)
         return(-1);
       Str=NewStr;
-      StrLength+=1024;
+      StrLength+=1024<<x;
+      x++;
     }
     Str[CurLength++]=Ch;
 #if 0
