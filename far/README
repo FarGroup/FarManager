@@ -107,7 +107,7 @@
    set FARSYSLOG=-DSYSLOG_TREX %FARSYSLOG%
    ----8<----
 
-   Если 32хбитовые версии должны собираться VC8(VS2005), то в custom.vc...bat 
+   Если 32хбитовые версии должны собираться VC8(VS2005), то в custom.vc...bat
    нужно включить строку
    ---->8----
    set NMAKE_OPTS=USE_VC8_32=1
@@ -117,10 +117,10 @@
    vc.build.debug.64.bat --> custom.vc.debug.64.bat
    vc.build.release.64.bat --> custom.vc.release.64.bat
 
-   Если версии должны собираться VC9(VS2008), то в custom.vc...bat нужно 
+   Если версии должны собираться VC9(VS2008), то в custom.vc...bat нужно
    включить строку
    ---->8----
-   set NMAKE_OPTS=USE_VC9
+   set NMAKE_OPTS=USE_VC9=1
    ----8<----
 
    Если в качестве линкера хочется использовать ulink, то в custom.vc...bat
@@ -134,7 +134,7 @@
    ----8<----
    или (для любых версий компилируемых VC9)
    ---->8----
-   set NMAKE_OPTS=USE_VC9 LINK_ULINK=1
+   set NMAKE_OPTS=USE_VC9=1 LINK_ULINK=1
    ----8<----
 
    Через задание NMAKE_OPTS можно передавать так же и ключи nmake
