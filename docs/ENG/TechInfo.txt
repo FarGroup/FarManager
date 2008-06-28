@@ -596,6 +596,20 @@ the main help file, that is actual for the current FAR Manager version.
       1 - так же использовать короткие имена;
    По умолчанию значение = 0 (работать только с длинными именами каталогов)
 
+1.2.27.(TechInfo #79)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\System]
+   "ExcludeCmdHistory":REG_DWORD
+   Параметр "System/ExcludeCmdHistory" с типом DWORD позволяет определять,
+   какие типы команд не будут помещаться в историю. Проверка идет по битовой
+   маске.
+   Если бит установлен, данный тип команд в историю не помещается.
+    Номера битов:
+     0 - не помещать в историю команды ассоциаций Windows
+     1 - не помещать в историю команды ассоциаций FAR
+     2 - не помещать в историю команды запуска с панели
+     3 - не помещать в историю команды запуска из командной строки
+   По умолчанию значение = 0 (помещать в историю все команды).
 
 ======================
   1.3. Executor.
@@ -1029,7 +1043,7 @@ the main help file, that is actual for the current FAR Manager version.
    1, forward search (F7, the option "Reverse  search"  is  not  set)  will
    start from the next cursor position, if it is equal  to  0,  the  search
    will start from the current cursor position.
-   The default value is 0.
+   The default value is 1.
 
 1.8.3.(TechInfo #19)
 ~~~~~~~~~~~~~~~~~~~~

@@ -28,10 +28,6 @@ System
 [!] Extended selection of command prompt format symbols.
 [!] Numpad keys '*' and '/' are now called "Multiply" and "Divide"
     respectively. Those names will be used in macros.
-[+] Find folder window (Alt-F10 in panels and copy/move dialog) can be
-    "maximized" by pressing F5.
-[+] Mouse wheel support in Find folder (Alt-F10).
-[+] Keybar processing in Find folder (Alt-F10).
 [+] TechInfo#72, allows to save plugin paths in history.
 [+] TechInfo#73, allows to define a list of file extensions which will be used
     to distinguish batch files.
@@ -39,12 +35,20 @@ System
     execution.
 [+] TechInfo#75, allows to control the behavior of left/right arrow keys in
     file panels.
-[+] The '^' character is shown after the sorting mode letter in file panels
-    when "Show selected first" is enabled.
 [+] TechInfo#76, allows to bypass limitations when working with folders that
     contain characters incorrectly mapped from ANSI to OEM.
 [+] TechInfo#77, allows to overload keybar buttons titles without editing the
     LNG-files.
+[+] Правило TechInfo#78, позволяющее определять символы, используемые
+    в качестве разделителей групп разрядов и целой/дробной части чисел.
+[+] Правило TechInfo#79, позволяющее определять типы команд, которые не будут
+    помещаться в историю.
+[+] Find folder window (Alt-F10 in panels and copy/move dialog) can be
+    "maximized" by pressing F5.
+[+] Mouse wheel support in Find folder (Alt-F10).
+[+] Keybar processing in Find folder (Alt-F10).
+[+] The '^' character is shown after the sorting mode letter in file panels
+    when "Show selected first" is enabled.
 [+] Ctrl-Shift-Numpad5 in panels: "Restore default panels height".
 [+] "!=\" and "!=/" special symbols - current path considering symbolic links.
 [+] При попытке открытия из истории редактирования несуществующего файла
@@ -72,8 +76,6 @@ System
 [+] Новый флаг для типа колонки "владелец файла": 'L' - отображать домен.
 [+] Для форматирования чисел теперь по умолчанию используются региональные
     настройки ОС, а не жестко заданные точка и запятая.
-[+] Добавлено правило TechInfo#78 - позволяет определять символы, используемые
-    в качестве разделителей групп разрядов и целой/дробной части чисел.
 [+] В "Системные параметры" добавлена опция "Удалять символические связи",
     позволяющая исправить ситуацию с потерей содержимого удалённой в корзину
     символической связи.
