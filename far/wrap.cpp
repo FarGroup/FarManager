@@ -966,9 +966,9 @@ void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 	if(li->Flags&LIF_DELETEUSERDATA) liA->Flags|=oldfar::LIF_DELETEUSERDATA;
 }
 
-int GetAnsiVBufSize(oldfar::FarDialogItem *diA)
+int GetAnsiVBufSize(oldfar::FarDialogItem &diA)
 {
-	return (diA->X2-diA->X1+1)*(diA->Y2-diA->Y1+1);
+	return (diA.X2-diA.X1+1)*(diA.Y2-diA.Y1+1);
 }
 
 CHAR_INFO *GetAnsiVBufPtr(CHAR_INFO *VBuf, int iSize)
@@ -996,17 +996,17 @@ void AnsiVBufToUnicode (CHAR_INFO *VBufA, CHAR_INFO *VBuf, int iSize,bool NoCvt)
 	}
 }
 
-CHAR_INFO *AnsiVBufToUnicode (oldfar::FarDialogItem *diA)
+CHAR_INFO *AnsiVBufToUnicode (oldfar::FarDialogItem &diA)
 {
 	CHAR_INFO *VBuf = NULL;
-	if(diA->Param.VBuf)
+	if(diA.Param.VBuf)
 	{
 		int iSize = GetAnsiVBufSize(diA);
 		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*));
 		if (VBuf)
 		{
-			AnsiVBufToUnicode(diA->Param.VBuf, VBuf, iSize,(diA->Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
-			SetAnsiVBufPtr(VBuf, diA->Param.VBuf, iSize);
+			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, iSize,(diA.Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
+			SetAnsiVBufPtr(VBuf, diA.Param.VBuf, iSize);
 		}
 	}
 	return VBuf;
@@ -1028,176 +1028,239 @@ void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 	if(liA->Flags&oldfar::LIF_DELETEUSERDATA) li->Flags|=LIF_DELETEUSERDATA;
 }
 
-void AnsiDialogItemToUnicode(oldfar::FarDialogItem *diA, FarDialogItem *di)
+void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 {
-	memset(di,0,sizeof(FarDialogItem));
-
-	switch(diA->Type)
+	switch(diA.Type)
 	{
-		case oldfar::DI_TEXT:       di->Type=DI_TEXT;        break;
-		case oldfar::DI_VTEXT:      di->Type=DI_VTEXT;       break;
-		case oldfar::DI_SINGLEBOX:  di->Type=DI_SINGLEBOX;   break;
-		case oldfar::DI_DOUBLEBOX:  di->Type=DI_DOUBLEBOX;   break;
-		case oldfar::DI_EDIT:       di->Type=DI_EDIT;        break;
-		case oldfar::DI_PSWEDIT:    di->Type=DI_PSWEDIT;     break;
-		case oldfar::DI_FIXEDIT:    di->Type=DI_FIXEDIT;     break;
-		case oldfar::DI_BUTTON:     di->Type=DI_BUTTON;      break;
-		case oldfar::DI_CHECKBOX:   di->Type=DI_CHECKBOX;    break;
-		case oldfar::DI_RADIOBUTTON:di->Type=DI_RADIOBUTTON; break;
-		case oldfar::DI_COMBOBOX:   di->Type=DI_COMBOBOX;    break;
-		case oldfar::DI_LISTBOX:    di->Type=DI_LISTBOX;     break;
+		case oldfar::DI_TEXT:
+			di.Type=DI_TEXT;
+			break;
+		case oldfar::DI_VTEXT:
+			di.Type=DI_VTEXT;
+			break;
+		case oldfar::DI_SINGLEBOX:
+			di.Type=DI_SINGLEBOX;
+			break;
+		case oldfar::DI_DOUBLEBOX:
+			di.Type=DI_DOUBLEBOX;
+			break;
+		case oldfar::DI_EDIT:
+			di.Type=DI_EDIT;
+			break;
+		case oldfar::DI_PSWEDIT:
+			di.Type=DI_PSWEDIT;
+			break;
+		case oldfar::DI_FIXEDIT:
+			di.Type=DI_FIXEDIT;
+			break;
+		case oldfar::DI_BUTTON:
+			di.Type=DI_BUTTON;
+			di.Param.Selected=diA.Param.Selected;
+			break;
+		case oldfar::DI_CHECKBOX:
+			di.Type=DI_CHECKBOX;
+			di.Param.Selected=diA.Param.Selected;
+			break;
+		case oldfar::DI_RADIOBUTTON:
+			di.Type=DI_RADIOBUTTON;
+			di.Param.Selected=diA.Param.Selected;
+			break;
+		case oldfar::DI_COMBOBOX:
+			di.Type=DI_COMBOBOX;
+			di.Param.ListPos=diA.Param.ListPos;
+			break;
+		case oldfar::DI_LISTBOX:
+			di.Type=DI_LISTBOX;
+			di.Param.ListPos=diA.Param.ListPos;
+			break;
 #ifdef FAR_USE_INTERNALS
-		case oldfar::DI_MEMOEDIT:   di->Type=DI_MEMOEDIT;    break;
+		case oldfar::DI_MEMOEDIT:
+			di.Type=DI_MEMOEDIT;
+			break;
 #endif // END FAR_USE_INTERNALS
-		case oldfar::DI_USERCONTROL:di->Type=DI_USERCONTROL; break;
+		case oldfar::DI_USERCONTROL:
+			di.Type=DI_USERCONTROL;
+			break;
 	}
+	di.X1=diA.X1;
+	di.Y1=diA.Y1;
+	di.X2=diA.X2;
+	di.Y2=diA.Y2;
+	di.Focus=diA.Focus;
+	di.Flags=0;
+	if(diA.Flags)
+	{
+		if(diA.Flags&oldfar::DIF_SETCOLOR)
+			di.Flags|=DIF_SETCOLOR|(diA.Flags&oldfar::DIF_COLORMASK);
+		if(diA.Flags&oldfar::DIF_BOXCOLOR)
+			di.Flags|=DIF_BOXCOLOR;
+		if(diA.Flags&oldfar::DIF_GROUP)
+			di.Flags|=DIF_GROUP;
+		if(diA.Flags&oldfar::DIF_LEFTTEXT)
+			di.Flags|=DIF_LEFTTEXT;
+		if(diA.Flags&oldfar::DIF_MOVESELECT)
+			di.Flags|=DIF_MOVESELECT;
+		if(diA.Flags&oldfar::DIF_SHOWAMPERSAND)
+			di.Flags|=DIF_SHOWAMPERSAND;
+		if(diA.Flags&oldfar::DIF_CENTERGROUP)
+			di.Flags|=DIF_CENTERGROUP;
+		if(diA.Flags&oldfar::DIF_NOBRACKETS)
+			di.Flags|=DIF_NOBRACKETS;
+		if(diA.Flags&oldfar::DIF_MANUALADDHISTORY)
+			di.Flags|=DIF_MANUALADDHISTORY;
+		if(diA.Flags&oldfar::DIF_SEPARATOR)
+			di.Flags|=DIF_SEPARATOR;
+		if(diA.Flags&oldfar::DIF_SEPARATOR2)
+			di.Flags|=DIF_SEPARATOR2;
+		if(diA.Flags&oldfar::DIF_EDITOR)
+			di.Flags|=DIF_EDITOR;
+		if(diA.Flags&oldfar::DIF_LISTNOAMPERSAND)
+			di.Flags|=DIF_LISTNOAMPERSAND;
+		if(diA.Flags&oldfar::DIF_LISTNOBOX)
+			di.Flags|=DIF_LISTNOBOX;
+		if(diA.Flags&oldfar::DIF_HISTORY)
+			di.Flags|=DIF_HISTORY;
+		if(diA.Flags&oldfar::DIF_BTNNOCLOSE)
+			di.Flags|=DIF_BTNNOCLOSE;
+		if(diA.Flags&oldfar::DIF_CENTERTEXT)
+			di.Flags|=DIF_CENTERTEXT;
+		if(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)
+			di.Flags|=DIF_NOTCVTUSERCONTROL;
+#ifdef FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_SEPARATORUSER)
+			di.Flags|=DIF_SEPARATORUSER;
+#endif // END FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_EDITEXPAND)
+			di.Flags|=DIF_EDITEXPAND;
+		if(diA.Flags&oldfar::DIF_DROPDOWNLIST)
+			di.Flags|=DIF_DROPDOWNLIST;
+		if(diA.Flags&oldfar::DIF_USELASTHISTORY)
+			di.Flags|=DIF_USELASTHISTORY;
+		if(diA.Flags&oldfar::DIF_MASKEDIT)
+			di.Flags|=DIF_MASKEDIT;
+		if(diA.Flags&oldfar::DIF_SELECTONENTRY)
+			di.Flags|=DIF_SELECTONENTRY;
+		if(diA.Flags&oldfar::DIF_3STATE)
+			di.Flags|=DIF_3STATE;
+#ifdef FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_EDITPATH)
+			di.Flags|=DIF_EDITPATH;
+#endif // END FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_LISTWRAPMODE)
+			di.Flags|=DIF_LISTWRAPMODE;
+		if(diA.Flags&oldfar::DIF_LISTAUTOHIGHLIGHT)
+			di.Flags|=DIF_LISTAUTOHIGHLIGHT;
+#ifdef FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_AUTOMATION)
+			di.Flags|=DIF_AUTOMATION;
+#endif // END FAR_USE_INTERNALS
+		if(diA.Flags&oldfar::DIF_HIDDEN)
+			di.Flags|=DIF_HIDDEN;
+		if(diA.Flags&oldfar::DIF_READONLY)
+			di.Flags|=DIF_READONLY;
+		if(diA.Flags&oldfar::DIF_NOFOCUS)
+			di.Flags|=DIF_NOFOCUS;
+		if(diA.Flags&oldfar::DIF_DISABLE)
+			di.Flags|=DIF_DISABLE;
+	}
+	di.DefaultButton=diA.DefaultButton;
+}
 
-	di->X1=diA->X1;
-	di->Y1=diA->Y1;
-	di->X2=diA->X2;
-	di->Y2=diA->Y2;
-
-	di->Focus=diA->Focus;
-
-	switch(di->Type)
+void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di)
+{
+	memset(&di,0,sizeof(FarDialogItem));
+	AnsiDialogItemToUnicodeSafe(diA,di);
+	switch(di.Type)
 	{
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA->Param.ListItems && !IsBadReadPtr(diA->Param.ListItems,sizeof(oldfar::FarList)))
+			if (diA.Param.ListItems && !IsBadReadPtr(diA.Param.ListItems,sizeof(oldfar::FarList)))
 			{
-				di->Param.ListItems=(FarList *)xf_malloc(sizeof(FarList));
-				di->Param.ListItems->Items = (FarListItem *)xf_malloc(diA->Param.ListItems->ItemsNumber*sizeof(FarListItem));
-				di->Param.ListItems->ItemsNumber = diA->Param.ListItems->ItemsNumber;
-				for(int j=0;j<di->Param.ListItems->ItemsNumber;j++)
-					AnsiListItemToUnicode(&diA->Param.ListItems->Items[j], &di->Param.ListItems->Items[j]);
+				di.Param.ListItems=(FarList *)xf_malloc(sizeof(FarList));
+				di.Param.ListItems->Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
+				di.Param.ListItems->ItemsNumber = diA.Param.ListItems->ItemsNumber;
+				for(int j=0;j<di.Param.ListItems->ItemsNumber;j++)
+					AnsiListItemToUnicode(&diA.Param.ListItems->Items[j], &di.Param.ListItems->Items[j]);
 			}
 			break;
 		}
 		case DI_USERCONTROL:
-			di->Param.VBuf = AnsiVBufToUnicode(diA);
+			di.Param.VBuf = AnsiVBufToUnicode(diA);
 			break;
 		case DI_EDIT:
 		case DI_FIXEDIT:
 		{
-			if (diA->Flags&oldfar::DIF_HISTORY && diA->Param.History)
-				di->Param.History=AnsiToUnicode(diA->Param.History);
-			else if (diA->Flags&oldfar::DIF_MASKEDIT && diA->Param.Mask)
-				di->Param.Mask=AnsiToUnicode(diA->Param.Mask);
+			if (diA.Flags&oldfar::DIF_HISTORY && diA.Param.History)
+				di.Param.History=AnsiToUnicode(diA.Param.History);
+			else if (diA.Flags&oldfar::DIF_MASKEDIT && diA.Param.Mask)
+				di.Param.Mask=AnsiToUnicode(diA.Param.Mask);
 			break;
 		}
 	}
 
-	if(diA->Flags)
+	if (diA.Type==oldfar::DI_USERCONTROL)
 	{
-		if (diA->Flags&oldfar::DIF_SETCOLOR)
-			di->Flags|=DIF_SETCOLOR|(diA->Flags&DIF_COLORMASK);
-		if (diA->Flags&oldfar::DIF_BOXCOLOR)         di->Flags|=DIF_BOXCOLOR;
-		if (diA->Flags&oldfar::DIF_GROUP)            di->Flags|=DIF_GROUP;
-		if (diA->Flags&oldfar::DIF_LEFTTEXT)         di->Flags|=DIF_LEFTTEXT;
-		if (diA->Flags&oldfar::DIF_MOVESELECT)       di->Flags|=DIF_MOVESELECT;
-		if (diA->Flags&oldfar::DIF_SHOWAMPERSAND)    di->Flags|=DIF_SHOWAMPERSAND;
-		if (diA->Flags&oldfar::DIF_CENTERGROUP)      di->Flags|=DIF_CENTERGROUP;
-		if (diA->Flags&oldfar::DIF_NOBRACKETS)       di->Flags|=DIF_NOBRACKETS;
-		if (diA->Flags&oldfar::DIF_MANUALADDHISTORY) di->Flags|=DIF_MANUALADDHISTORY;
-		if (diA->Flags&oldfar::DIF_SEPARATOR)        di->Flags|=DIF_SEPARATOR;
-		if (diA->Flags&oldfar::DIF_SEPARATOR2)       di->Flags|=DIF_SEPARATOR2;
-		if (diA->Flags&oldfar::DIF_EDITOR)           di->Flags|=DIF_EDITOR;
-		if (diA->Flags&oldfar::DIF_LISTNOAMPERSAND)  di->Flags|=DIF_LISTNOAMPERSAND;
-		if (diA->Flags&oldfar::DIF_LISTNOBOX)        di->Flags|=DIF_LISTNOBOX;
-		if (diA->Flags&oldfar::DIF_HISTORY)          di->Flags|=DIF_HISTORY;
-		if (diA->Flags&oldfar::DIF_BTNNOCLOSE)       di->Flags|=DIF_BTNNOCLOSE;
-		if (diA->Flags&oldfar::DIF_CENTERTEXT)       di->Flags|=DIF_CENTERTEXT;
-		if (diA->Flags&oldfar::DIF_NOTCVTUSERCONTROL)di->Flags|=DIF_NOTCVTUSERCONTROL;
-#ifdef FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_SEPARATORUSER)    di->Flags|=DIF_SEPARATORUSER;
-#endif // END FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_EDITEXPAND)       di->Flags|=DIF_EDITEXPAND;
-		if (diA->Flags&oldfar::DIF_DROPDOWNLIST)     di->Flags|=DIF_DROPDOWNLIST;
-		if (diA->Flags&oldfar::DIF_USELASTHISTORY)   di->Flags|=DIF_USELASTHISTORY;
-		if (diA->Flags&oldfar::DIF_MASKEDIT)         di->Flags|=DIF_MASKEDIT;
-		if (diA->Flags&oldfar::DIF_SELECTONENTRY)    di->Flags|=DIF_SELECTONENTRY;
-		if (diA->Flags&oldfar::DIF_3STATE)           di->Flags|=DIF_3STATE;
-#ifdef FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_EDITPATH)         di->Flags|=DIF_EDITPATH;
-#endif // END FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_LISTWRAPMODE)     di->Flags|=DIF_LISTWRAPMODE;
-		if (diA->Flags&oldfar::DIF_LISTAUTOHIGHLIGHT)di->Flags|=DIF_LISTAUTOHIGHLIGHT;
-#ifdef FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_AUTOMATION)       di->Flags|=DIF_AUTOMATION;
-#endif // END FAR_USE_INTERNALS
-		if (diA->Flags&oldfar::DIF_HIDDEN)           di->Flags|=DIF_HIDDEN;
-		if (diA->Flags&oldfar::DIF_READONLY)         di->Flags|=DIF_READONLY;
-		if (diA->Flags&oldfar::DIF_NOFOCUS)          di->Flags|=DIF_NOFOCUS;
-		if (diA->Flags&oldfar::DIF_DISABLE)          di->Flags|=DIF_DISABLE;
+		di.PtrData = (wchar_t*)xf_malloc(sizeof(diA.Data.Data));
+		if (di.PtrData) memcpy((char*)di.PtrData,diA.Data.Data,sizeof(diA.Data.Data));
+		di.MaxLen = 0;
 	}
-
-	di->DefaultButton=diA->DefaultButton;
-
-	if (diA->Type==oldfar::DI_USERCONTROL)
-	{
-		di->PtrData = (wchar_t*)xf_malloc(sizeof(diA->Data.Data));
-		if (di->PtrData) memcpy((char*)di->PtrData,diA->Data.Data,sizeof(diA->Data.Data));
-		di->MaxLen = 0;
-	}
-	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
-		di->PtrData = AnsiToUnicode(diA->Data.Ptr.PtrData);
+	else if ((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) && diA.Flags&oldfar::DIF_VAREDIT)
+		di.PtrData = AnsiToUnicode(diA.Data.Ptr.PtrData);
 	else
-		di->PtrData = AnsiToUnicode(diA->Data.Data);
+		di.PtrData = AnsiToUnicode(diA.Data.Data);
 	//BUGBUG тут надо придумать как сделать лучше: maxlen=513 например и также подумать что делать для DIF_VAREDIT
 	//di->MaxLen = 0;
 }
 
-void FreeUnicodeDialogItem(FarDialogItem *di)
+void FreeUnicodeDialogItem(FarDialogItem &di)
 {
-	switch(di->Type)
+	switch(di.Type)
 	{
 		case DI_EDIT:
 		case DI_FIXEDIT:
-			if((di->Flags&DIF_HISTORY) && di->Param.History)
-				xf_free((void *)di->Param.History);
-			else if((di->Flags&DIF_MASKEDIT) && di->Param.Mask)
-				xf_free((void *)di->Param.Mask);
+			if((di.Flags&DIF_HISTORY) && di.Param.History)
+				xf_free((void *)di.Param.History);
+			else if((di.Flags&DIF_MASKEDIT) && di.Param.Mask)
+				xf_free((void *)di.Param.Mask);
 			break;
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
-			if(di->Param.ListItems)
+			if(di.Param.ListItems && di.Param.ListPos!=-1) //BUGBUG?
 			{
-				if(di->Param.ListItems->Items)
+				if(di.Param.ListItems->Items)
 				{
-					for(int i=0;i<di->Param.ListItems->ItemsNumber;i++)
+					for(int i=0;i<di.Param.ListItems->ItemsNumber;i++)
 					{
-						if(di->Param.ListItems->Items[i].Text)
-							xf_free((void *)di->Param.ListItems->Items[i].Text);
+						if(di.Param.ListItems->Items[i].Text)
+							xf_free((void *)di.Param.ListItems->Items[i].Text);
 					}
-					xf_free(di->Param.ListItems->Items);
+					xf_free(di.Param.ListItems->Items);
 				}
-				xf_free(di->Param.ListItems);
+				xf_free(di.Param.ListItems);
 			}
 			break;
 		case DI_USERCONTROL:
-			if(di->Param.VBuf)
-				xf_free(di->Param.VBuf);
+			if(di.Param.VBuf)
+				xf_free(di.Param.VBuf);
 			break;
 	}
-	if (di->PtrData)
-		xf_free((void *)di->PtrData);
+	if (di.PtrData)
+		xf_free((void *)di.PtrData);
 }
 
-void FreeAnsiDialogItem(oldfar::FarDialogItem *diA)
+void FreeAnsiDialogItem(oldfar::FarDialogItem &diA)
 {
-	if(!diA)
-		return;
-	if((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_FIXEDIT) &&
-	   (diA->Flags&oldfar::DIF_HISTORY ||diA->Flags&oldfar::DIF_MASKEDIT) &&
-	    diA->Param.History)
-		xf_free((void*)diA->Param.History);
+	if((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_FIXEDIT) &&
+	   (diA.Flags&oldfar::DIF_HISTORY ||diA.Flags&oldfar::DIF_MASKEDIT) &&
+	    diA.Param.History)
+		xf_free((void*)diA.Param.History);
 
-	if((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) &&
-	    diA->Flags&oldfar::DIF_VAREDIT && diA->Data.Ptr.PtrData)
-		xf_free(diA->Data.Ptr.PtrData);
+	if((diA.Type==oldfar::DI_EDIT || diA.Type==oldfar::DI_COMBOBOX) &&
+	    diA.Flags&oldfar::DIF_VAREDIT && diA.Data.Ptr.PtrData)
+		xf_free(diA.Data.Ptr.PtrData);
 
-	memset(diA,0,sizeof(oldfar::FarDialogItem));
+	memset(&diA,0,sizeof(oldfar::FarDialogItem));
 }
 
 void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
@@ -1254,10 +1317,16 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			diA.Type=oldfar::DI_USERCONTROL;
 			break;
 	}
+	diA.X1=di.X1;
+	diA.Y1=di.Y1;
+	diA.X2=di.X2;
+	diA.Y2=di.Y2;
+	diA.Focus=di.Focus;
+	diA.Flags=0;
 	if(di.Flags)
 	{
 		if(di.Flags&DIF_SETCOLOR)
-			diA.Flags|=oldfar::DIF_SETCOLOR|(di.Flags&oldfar::DIF_COLORMASK);
+			diA.Flags|=oldfar::DIF_SETCOLOR|(di.Flags&DIF_COLORMASK);
 		if(di.Flags&DIF_BOXCOLOR)
 			diA.Flags|=oldfar::DIF_BOXCOLOR;
 		if(di.Flags&DIF_GROUP)
@@ -1329,15 +1398,10 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 		if(di.Flags&DIF_DISABLE)
 			diA.Flags|=oldfar::DIF_DISABLE;
 	}
-	diA.X1=di.X1;
-	diA.Y1=di.Y1;
-	diA.X2=di.X2;
-	diA.Y2=di.Y2;
 	diA.DefaultButton=di.DefaultButton;
-	diA.Focus=di.Focus;
 }
 
-oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int ItemNumber)
+oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int ItemNumber)
 {
 	oldfar::FarDialogItem *diA=CurrentDialogItemA(hDlg,ItemNumber);
 	if(!diA)
@@ -1348,35 +1412,35 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem* di,HANDLE hDlg,int
 		memset(OneDialogItem,0,sizeof(oldfar::FarDialogItem));
 		diA=OneDialogItem;
 	}
-	FreeAnsiDialogItem(diA);
+	FreeAnsiDialogItem(*diA);
+	UnicodeDialogItemToAnsiSafe(di,*diA);
 	switch(diA->Type)
 	{
 		case oldfar::DI_USERCONTROL:
-			diA->Param.VBuf=GetAnsiVBufPtr(di->Param.VBuf, GetAnsiVBufSize(diA));
+			diA->Param.VBuf=GetAnsiVBufPtr(di.Param.VBuf, GetAnsiVBufSize(*diA));
 			break;
 		case oldfar::DI_EDIT:
 		case oldfar::DI_FIXEDIT:
 			{
-				if (di->Flags&DIF_HISTORY)
-					diA->Param.History=UnicodeToAnsi(di->Param.History);
-				else if (di->Flags&DIF_MASKEDIT)
-					diA->Param.Mask=UnicodeToAnsi(di->Param.Mask);
+				if (di.Flags&DIF_HISTORY)
+					diA->Param.History=UnicodeToAnsi(di.Param.History);
+				else if (di.Flags&DIF_MASKEDIT)
+					diA->Param.Mask=UnicodeToAnsi(di.Param.Mask);
 			}
 			break;
 	}
-	UnicodeDialogItemToAnsiSafe(*di,*diA);
 	if (diA->Type==oldfar::DI_USERCONTROL)
 	{
-		if (di->PtrData) memcpy(diA->Data.Data,(char*)di->PtrData,sizeof(diA->Data.Data));
+		if (di.PtrData) memcpy(diA->Data.Data,(char*)di.PtrData,sizeof(diA->Data.Data));
 	}
 	else if ((diA->Type==oldfar::DI_EDIT || diA->Type==oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		diA->Data.Ptr.PtrLength=StrLength(di->PtrData);
+		diA->Data.Ptr.PtrLength=StrLength(di.PtrData);
 		diA->Data.Ptr.PtrData=(char*)xf_malloc(diA->Data.Ptr.PtrLength+1);
-		UnicodeToAnsi(di->PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
+		UnicodeToAnsi(di.PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
 	}
 	else
-		UnicodeToAnsi(di->PtrData,diA->Data.Data,sizeof(diA->Data.Data)-1);
+		UnicodeToAnsi(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data)-1);
 	return diA;
 }
 
@@ -1396,20 +1460,20 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		{
 			Msg=oldfar::DN_DRAWDLGITEM;
 			FarDialogItem *di = (FarDialogItem *)Param2;
-			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(di,hDlg,Param1);
+			oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 
 			LONG_PTR ret = CurrentDlgProc(hDlg, Msg, Param1, (LONG_PTR)FarDiA);
 
 			if (ret && (di->Type==DI_USERCONTROL) && (di->Param.VBuf))
 			{
-				AnsiVBufToUnicode(FarDiA->Param.VBuf, di->Param.VBuf, GetAnsiVBufSize(FarDiA),(FarDiA->Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
+				AnsiVBufToUnicode(FarDiA->Param.VBuf, di->Param.VBuf, GetAnsiVBufSize(*FarDiA),(FarDiA->Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
 			}
 			return ret;
 		}
 
 		case DN_EDITCHANGE:
 			Msg=oldfar::DN_EDITCHANGE;
-			return Param2?CurrentDlgProc(hDlg,Msg,Param1,(LONG_PTR)UnicodeDialogItemToAnsi((FarDialogItem *)Param2,hDlg,Param1)):FALSE;
+			return Param2?CurrentDlgProc(hDlg,Msg,Param1,(LONG_PTR)UnicodeDialogItemToAnsi(*((FarDialogItem *)Param2),hDlg,Param1)):FALSE;
 
 		case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 		case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
@@ -1480,7 +1544,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 			if (di)
 			{
-				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(di,hDlg,Param1);
+				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
 				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
 
 				memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
@@ -1536,10 +1600,10 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FALSE;
 
 			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
-			FreeUnicodeDialogItem(di);
+			FreeUnicodeDialogItem(*di);
 
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
-			AnsiDialogItemToUnicode(diA,di);
+			AnsiDialogItemToUnicode(*diA,*di);
 			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (LONG_PTR)di);
 		}
 
@@ -1905,7 +1969,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
-		AnsiDialogItemToUnicode(&Item[i],&di[i]);
+		AnsiDialogItemToUnicode(Item[i],di[i]);
 	}
 
 	DWORD DlgFlags = 0;
@@ -1951,16 +2015,16 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				if(pdi->Type==DI_USERCONTROL)
 				{
 					di[i].Param.VBuf=pdi->Param.VBuf;
-					Item[i].Param.VBuf=GetAnsiVBufPtr(pdi->Param.VBuf,GetAnsiVBufSize(&Item[i]));
+					Item[i].Param.VBuf=GetAnsiVBufPtr(pdi->Param.VBuf,GetAnsiVBufSize(Item[i]));
 				}
 				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)pdi);
 			}
-			FreeAnsiDialogItem(&diA[i]);
+			FreeAnsiDialogItem(diA[i]);
 		}
 		FarDialogFree(hDlg);
 
 		for (int i=0; i<ItemsNumber; i++)
-			FreeUnicodeDialogItem(&di[i]);
+			FreeUnicodeDialogItem(di[i]);
 	}
 
 	DlgData* TmpDlgData=DialogData;
