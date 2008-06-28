@@ -32,7 +32,7 @@ Compilation
 ~~~~~~~~~~~
 1. There is a set of batch files to compile using VC:
 
-   Do not edit those batch file directly!!!!!!!!!
+   Do not edit those batch files directly!!!!!!!!!
    Only for permanent changes concerning all project members.
    Read the explanation below - everything is taken into account.
 

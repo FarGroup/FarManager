@@ -825,8 +825,6 @@ void Editor::ShowEditor(int CurLineOnly)
     {
       CurLine->SetCurPos(Length);
       CurLine->SetLeftPos(0);
-      //_D(SysLog(L"call CurLine->FastShow()"));
-      //CurLine->FastShow();
       CurPos=CurLine->GetTabCurPos();
     }
   }
@@ -868,7 +866,7 @@ void Editor::ShowEditor(int CurLineOnly)
   if (!CurLineOnly)
   {
     LeftPos=CurLine->GetLeftPos();
-#if 1
+#if 0
     // крайне эксперементальный кусок!
     if(CurPos+LeftPos < X2 )
       LeftPos=0;
@@ -893,10 +891,7 @@ void Editor::ShowEditor(int CurLineOnly)
       }
       else
       {
-        //GotoXY(X1,Y);
-        //SetColor(COL_EDITORTEXT);
-        //mprintf("%*s",ObjWidth,"");
-        SetScreen(X1,Y,X2,Y,L' ',COL_EDITORTEXT); //??
+        SetScreen(X1,Y,X2,Y,L' ',COL_EDITORTEXT); //Пустые строки после конца текста
       }
   }
 
@@ -4270,6 +4265,8 @@ void Editor::GoToLine(int Line)
     bool bReverse = false;
     int LastNumLine=NumLine;
     int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
+    int CurPos=CurLine->GetTabCurPos();
+    int LeftPos=CurLine->GetLeftPos();
 
     if (Line < NumLine)
     {
@@ -4308,6 +4305,9 @@ void Editor::GoToLine(int Line)
 
     if (CurScrLine<0 || CurScrLine>Y2-Y1)
       TopScreen=CurLine;
+
+    CurLine->SetLeftPos(LeftPos);
+    CurLine->SetTabCurPos(CurPos);
   }
 
 // <GOTO_UNMARK:2>

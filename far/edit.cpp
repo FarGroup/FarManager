@@ -277,6 +277,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 void Edit::FastShow()
 {
   int EditLength=ObjWidth;
+
   if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
     CurPos=StrSize;
   if (MaxLength!=-1)
@@ -324,8 +325,6 @@ void Edit::FastShow()
   }
 
   CursorPos=TabCurPos;
-  if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && TabCurPos-LeftPos>EditLength-1)
-    LeftPos=TabCurPos-EditLength+1;
   int RealLeftPos=TabPosToReal(LeftPos);
   int OutStrLength=min(EditLength,StrSize-RealLeftPos);
   if (OutStrLength < 0)
