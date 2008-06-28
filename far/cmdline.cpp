@@ -81,15 +81,15 @@ void CommandLine::DisplayObject()
   SetColor(COL_COMMANDLINEPREFIX);
   Text(strTruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-  CmdStr.SetLeftPos(0);
+  //CmdStr.SetLeftPos(0);
   CmdStr.SetPosition(X1+(int)strTruncDir.GetLength(),Y1,X2,Y2);
   CmdStr.Show();
 }
 
 
-void CommandLine::SetCurPos(int Pos)
+void CommandLine::SetCurPos(int Pos, int LeftPos)
 {
-  CmdStr.SetLeftPos(0);
+  CmdStr.SetLeftPos(LeftPos);
   CmdStr.SetCurPos(Pos);
   CmdStr.Redraw();
 }
@@ -352,22 +352,16 @@ int CommandLine::ProcessKey(int Key)
 
 BOOL CommandLine::SetCurDir(const wchar_t *CurDir)
 {
-    strCurDir = CurDir;
-    PrepareDiskPath(strCurDir);
-    return TRUE;
+	strCurDir = CurDir;
+	PrepareDiskPath(strCurDir);
+	return TRUE;
 }
 
 
 int CommandLine::GetCurDir(string &strCurDir)
 {
-    strCurDir = CommandLine::strCurDir;
-    return (int)strCurDir.GetLength();
-}
-
-
-void CommandLine::GetString(string &strStr)
-{
-  CmdStr.GetString(strStr);
+	strCurDir = CommandLine::strCurDir;
+	return (int)strCurDir.GetLength();
 }
 
 
@@ -379,7 +373,6 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
   if(Redraw)
     CmdStr.Show();
 }
-
 
 
 void CommandLine::ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow,
@@ -405,12 +398,12 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void add_char (string &str, wchar_t c) //BUGBUG
 {
-    wchar_t cc[2];
+	wchar_t cc[2];
 
-    cc[0] = c;
-    cc[1] = 0;
+	cc[0] = c;
+	cc[1] = 0;
 
-    str += (const wchar_t*)&cc;
+	str += (const wchar_t*)&cc;
 }
 
 void CommandLine::GetPrompt(string &strDestStr)
@@ -608,12 +601,6 @@ void CommandLine::ShowViewEditHistory()
       SetString(strStr);
 }
 
-int CommandLine::GetCurPos()
-{
-  return(CmdStr.GetCurPos());
-}
-
-
 void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
 {
   if (BackgroundScreen) {
@@ -647,20 +634,4 @@ void CommandLine::ResizeConsole()
 {
   BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
 //  this->DisplayObject();
-}
-
-void CommandLine::GetSelString(string &strStr)
-{
-  CmdStr.GetSelString(strStr);
-}
-
-
-void CommandLine::Select(int Start,int End)
-{
-  CmdStr.Select(Start,End);
-}
-
-void CommandLine::GetSelection(int &Start,int &End)
-{
-  CmdStr.GetSelection(Start,End);
 }

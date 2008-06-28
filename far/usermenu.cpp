@@ -677,12 +677,12 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     int CurLine=0;
 
     string strCmdLineDir;
-
     CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
 
     string strOldCmdLine;
-
     CtrlObject->CmdLine->GetString(strOldCmdLine);
+    int OldCmdLineCurPos = CtrlObject->CmdLine->GetCurPos();
+    int OldCmdLineLeftPos = CtrlObject->CmdLine->GetLeftPos();
     int OldCmdLineSelStart, OldCmdLineSelEnd;
     CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
     CtrlObject->CmdLine->LockUpdatePanel(TRUE);
@@ -751,10 +751,9 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
     CtrlObject->CmdLine->LockUpdatePanel(FALSE);
     if( !strOldCmdLine.IsEmpty() ) // восстановим сохраненную командную строку
     {
-
-
-       CtrlObject->CmdLine->SetString(strOldCmdLine,FrameManager->IsPanelsActive());
-       CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
+       CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
+       CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
+       CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
     }
 
     /* $ 01.05.2001 IS

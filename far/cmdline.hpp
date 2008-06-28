@@ -49,7 +49,7 @@ class CommandLine:public ScreenObject
     SaveScreen *BackgroundScreen;
     string strCurDir;
     string strLastCmdStr;
-    int  LastCmdPartLength;
+    int LastCmdPartLength;
 
   private:
     virtual void DisplayObject();
@@ -70,27 +70,25 @@ class CommandLine:public ScreenObject
     int GetCurDir(string &strCurDir);
     BOOL SetCurDir(const wchar_t *CurDir);
 
-    void GetString (string &strStr);
-
+    void GetString (string &strStr) { CmdStr.GetString(strStr); };
+    int GetLength() { return CmdStr.GetLength(); };
     void SetString(const wchar_t *Str,BOOL Redraw=TRUE);
-    int GetLength() {return(CmdStr.GetLength());};
+    void InsertString(const wchar_t *Str);
+
     void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
 
     void ShowViewEditHistory();
 
-    void InsertString(const wchar_t *Str);
-
-    void SetCurPos(int Pos);
-    int GetCurPos();
+    void SetCurPos(int Pos, int LeftPos=0);
+    int GetCurPos() { return CmdStr.GetCurPos(); };
+    int GetLeftPos() { return CmdStr.GetLeftPos(); };
 
     void SetPersistentBlocks(int Mode);
 
-    void GetSelString(string &strStr);
+    void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
+    void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };
+    void Select(int Start, int End) { CmdStr.Select(Start,End); };
 
-
-    void Select(int,int);
-
-    void GetSelection(int &Start,int &End);
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();
