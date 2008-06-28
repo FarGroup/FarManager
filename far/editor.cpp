@@ -5523,7 +5523,6 @@ int Editor::EditorControl(int Command,void *Param)
         Lock ();
 
         int CurPos=CurLine->GetCurPos();
-        int LeftPos=CurLine->GetLeftPos();
 
         // выставим флаг об изменении поз (если надо)
         if ((Pos->CurLine >= 0 || Pos->CurPos >= 0)&&
