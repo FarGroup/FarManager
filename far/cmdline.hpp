@@ -46,33 +46,23 @@ class CommandLine:public ScreenObject
     void GetString(char *Str,int MaxSize);
     const char *GetStringAddr();
     void SetString(const char *Str,BOOL Redraw=TRUE);
-    int GetLength() {return(CmdStr.GetLength());};
     void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
-    /* $ 10.05.2001 DJ */
     void ShowViewEditHistory();
-    /* DJ $ */
     void InsertString(const char *Str);
-    void SetCurPos(int Pos);
-    int GetCurPos();
-    /* $ 11.05.2001 OT */
-
-    /* $ 09.09.2001 IS
-       установить/сбросить постоянные блоки */
+    void SetCurPos(int Pos, int LeftPos=0);
     void SetPersistentBlocks(int Mode);
-    /* IS $ */
-
-    /*$ 13.08.2001 SKV*/
-    void GetSelString(char*,int);
-    void Select(int,int);
-    /* SKV$*/
-    void GetSelection(int &Start,int &End);
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();
     void CorrectRealScreenCoord();
-    /* OT $ */
     virtual void ResizeConsole();
     void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
+    int GetCurPos() { return CmdStr.GetCurPos(); };
+    int GetLeftPos() { return CmdStr.GetLeftPos(); };
+    int GetLength() { return CmdStr.GetLength(); };
+    void GetSelString(char* Buffer, int MaxLength) { CmdStr.GetSelString(Buffer,MaxLength); };
+    void Select(int Start,int End) { CmdStr.Select(Start,End); };
+    void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };
 };
 
 #endif  // __COMMANDLINE_HPP__

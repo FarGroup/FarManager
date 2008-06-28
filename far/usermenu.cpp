@@ -684,6 +684,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
          При выполнении команды меню не теряем старую командную строку.
     */
     char *OldCmdLine=xf_strdup(CtrlObject->CmdLine->GetStringAddr());
+    int OldCmdLineCurPos = CtrlObject->CmdLine->GetCurPos();
+    int OldCmdLineLeftPos = CtrlObject->CmdLine->GetLeftPos();
     int OldCmdLineSelStart, OldCmdLineSelEnd;
     CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
     CtrlObject->CmdLine->LockUpdatePanel(TRUE);
@@ -750,8 +752,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     CtrlObject->CmdLine->LockUpdatePanel(FALSE);
     if(OldCmdLine) // восстановим сохраненную командную строку
     {
-       CtrlObject->CmdLine->SetString(OldCmdLine,FrameManager->IsPanelsActive());
-       CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
+       CtrlObject->CmdLine->SetString(OldCmdLine, FrameManager->IsPanelsActive());
+       CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
+       CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
        xf_free(OldCmdLine);
        OldCmdLine=NULL;
     }

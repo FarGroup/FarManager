@@ -63,15 +63,15 @@ void CommandLine::DisplayObject()
   SetColor(COL_COMMANDLINEPREFIX);
   Text(TruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-  CmdStr.SetLeftPos(0);
+  //CmdStr.SetLeftPos(0);
   CmdStr.SetPosition(X1+(int)strlen(TruncDir),Y1,X2,Y2);
   CmdStr.Show();
 }
 
 
-void CommandLine::SetCurPos(int Pos)
+void CommandLine::SetCurPos(int Pos, int LeftPos)
 {
-  CmdStr.SetLeftPos(0);
+  CmdStr.SetLeftPos(LeftPos);
   CmdStr.SetCurPos(Pos);
   CmdStr.Redraw();
 }
@@ -554,7 +554,6 @@ void CommandLine::GetPrompt(char *DestStr)
 /* $ 10.05.2001 DJ
    показ history по Alt-F11 вынесен в отдельную функцию
 */
-
 void CommandLine::ShowViewEditHistory()
 {
   char Str[1024], ItemTitle[256];
@@ -615,13 +614,6 @@ void CommandLine::ShowViewEditHistory()
       SetString(Str);
 }
 
-/* DJ $ */
-int CommandLine::GetCurPos()
-{
-  return(CmdStr.GetCurPos());
-}
-
-
 void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
 {
   if (BackgroundScreen) {
@@ -655,21 +647,4 @@ void CommandLine::ResizeConsole()
 {
   BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
 //  this->DisplayObject();
-}
-
-/*$ 13.08.2001 SKV */
-void CommandLine::GetSelString(char* Buffer,int MaxLength)
-{
-  CmdStr.GetSelString(Buffer,MaxLength);
-}
-
-void CommandLine::Select(int Start,int End)
-{
-  CmdStr.Select(Start,End);
-}
-/* SKV$*/
-
-void CommandLine::GetSelection(int &Start,int &End)
-{
-  CmdStr.GetSelection(Start,End);
 }
