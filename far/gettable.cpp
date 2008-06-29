@@ -24,7 +24,6 @@ int DistrTableExist(void)
 {
  return (CheckRegValue("CodeTables","Distribution"));
 }
-/* IS $ */
 
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
@@ -34,28 +33,26 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   if (AnsiText)
   {
-    /* $ 07.08.2001 IS
-       + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
-       ! Исключим лишний цикл
-    */
     char toUpper[2], toLower[2], decode[2], encode[2];
     toUpper[1] = toLower[1] = decode[1] = encode[1] = 0;
     for (I=0;I<256;I++)
     {
-       *toUpper=*toLower=*decode=*encode=I;
-       FAR_CharToOem(decode, decode);
-       FAR_OemToChar(encode, encode);
-       if(IsCharAlpha(I))
-       {
-         CharUpper(toUpper);
-         CharLower(toLower);
-       }
-       TableSet->EncodeTable[I] = *encode;
-       TableSet->DecodeTable[I] = *decode;
-       TableSet->UpperTable[I] = *toUpper;
-       TableSet->LowerTable[I] = *toLower;
+      *toUpper=*toLower=*decode=*encode=I;
+      if (I > 127) //AY: символы до 128 не должны перекодироватся
+      {
+        FAR_CharToOem(decode, decode);
+        FAR_OemToChar(encode, encode);
+      }
+      if(IsCharAlpha(I))
+      {
+        CharUpper(toUpper);
+        CharLower(toLower);
+      }
+      TableSet->EncodeTable[I] = *encode;
+      TableSet->DecodeTable[I] = *decode;
+      TableSet->UpperTable[I] = *toUpper;
+      TableSet->LowerTable[I] = *toLower;
     }
-    /* IS $ */
     strcpy(TableSet->TableName,"Win");
     return(TRUE);
   }
@@ -309,9 +306,6 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
       EncodeSet[Ch]=TRUE;
     }
   }
-  /* $ 07.08.2001 IS
-     + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
-  */
   for (I=0;I<256;I++)
   {
     int Ch=(BYTE)TableSet->DecodeTable[I];
@@ -321,7 +315,5 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
       TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];
     }
   }
-  /* IS $ */
   return(TRUE);
 }
-/* IS 17.03.2002 $ */
