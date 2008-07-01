@@ -64,8 +64,8 @@ class FileFilterParams
     {
       bool Used;
       enumFDateType DateType;
-      FILETIME DateAfter;
-      FILETIME DateBefore;
+      ULARGE_INTEGER DateAfter;
+      ULARGE_INTEGER DateBefore;
       bool bRelative;
     } FDate;
 
