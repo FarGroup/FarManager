@@ -1741,6 +1741,7 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
 void ConvertNameToUNC(char *FileName, int Size)
 {
 	char Temp[4906];
+	ConvertNameToFull(FileName,FileName,Size);
 	// Посмотрим на тип файловой системы
 	char FileSystemName[NM];
 	GetPathRoot(FileName,Temp);
