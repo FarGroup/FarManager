@@ -2067,6 +2067,7 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 
 void ConvertNameToUNC(string &strFileName)
 {
+	ConvertNameToFull(strFileName,strFileName);
 	// Посмотрим на тип файловой системы
 	string strFileSystemName;
 	string strTemp;
