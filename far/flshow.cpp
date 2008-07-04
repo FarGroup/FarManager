@@ -252,6 +252,7 @@ void FileList::ShowFileList(int Fast)
     CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
     CtrlObject->CmdLine->Show();
   }
+
   int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
   int TruncSize=TitleX2-X1-3;
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
@@ -260,12 +261,14 @@ void FileList::ShowFileList(int Fast)
   GetTitle(Title,TruncSize,2);//(PanelMode==PLUGIN_PANEL?0:2));
 
   Length=(int)strlen(Title);
+
   int ClockCorrection=FALSE;
   if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)
   {
     ClockCorrection=TRUE;
     TitleX2+=4;
   }
+
   int TitleX=X1+(TitleX2-X1+1-Length)/2;
   if (ClockCorrection)
   {
@@ -273,9 +276,11 @@ void FileList::ShowFileList(int Fast)
     if (Overlap>0)
       TitleX-=Overlap;
   }
+
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
   GotoXY(TitleX,Y1);
   Text(Title);
+
   if (FileCount==0)
   {
     SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
@@ -283,23 +288,36 @@ void FileList::ShowFileList(int Fast)
     //GotoXY(X1+1,Y2-1);
     //mprintf("%*s",X2-X1-1,"");
   }
+
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
-    struct FileListItem *CurPtr=ListData+CurFile;
-    if (!TestParentFolderName(CurPtr->Name))
+    if (*Info.CurDir)
     {
-      strcpy(CurDir,CurPtr->Name);
-      char *NamePtr=strrchr(CurDir,'\\');
-      if (NamePtr!=NULL && NamePtr!=CurDir)
-        if (*(NamePtr-1)!=':')
-          *NamePtr=0;
-        else
-          *(NamePtr+1)=0;
-      if (GetFocus())
+      strcpy(CurDir,Info.CurDir);
+    }
+    else
+    {
+      struct FileListItem *CurPtr=ListData+CurFile;
+
+      if (!TestParentFolderName(CurPtr->Name))
       {
-        CtrlObject->CmdLine->SetCurDir(CurDir);
-        CtrlObject->CmdLine->Show();
+        strcpy(CurDir,CurPtr->Name);
+        char *NamePtr=strrchr(CurDir,'\\');
+
+        if (NamePtr!=NULL && NamePtr!=CurDir)
+        {
+          if (*(NamePtr-1)!=':')
+            *NamePtr=0;
+          else
+            *(NamePtr+1)=0;
+        }
       }
+    }
+
+    if (GetFocus())
+    {
+      CtrlObject->CmdLine->SetCurDir(CurDir);
+      CtrlObject->CmdLine->Show();
     }
   }
 
