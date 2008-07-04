@@ -314,30 +314,34 @@ void FileList::ShowFileList(int Fast)
 
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
-    struct FileListItem *CurPtr=ListData[CurFile];
-    if (!TestParentFolderName(CurPtr->strName))
+    if (*Info.CurDir) {
+      strCurDir = Info.CurDir;
+    }
+    else {
+      struct FileListItem *CurPtr=ListData[CurFile];
+      if (!TestParentFolderName(CurPtr->strName))
+      {
+        strCurDir = CurPtr->strName;
+
+        wchar_t *NamePtr = strCurDir.GetBuffer ();
+
+        NamePtr = wcsrchr(NamePtr,L'\\');
+
+        if (NamePtr!=NULL && NamePtr!=strCurDir) //BUGBUG, bad
+        {
+          if (*(NamePtr-1)!=L':')
+            *NamePtr=0;
+          else
+            *(NamePtr+1)=0;
+        }
+
+        strCurDir.ReleaseBuffer ();
+      }
+    }
+    if (GetFocus())
     {
-      strCurDir = CurPtr->strName;
-
-      wchar_t *NamePtr = strCurDir.GetBuffer ();
-
-      NamePtr = wcsrchr(NamePtr,L'\\');
-
-      if (NamePtr!=NULL && NamePtr!=strCurDir) //BUGBUG, bad
-      {
-        if (*(NamePtr-1)!=L':')
-          *NamePtr=0;
-        else
-          *(NamePtr+1)=0;
-      }
-
-      strCurDir.ReleaseBuffer ();
-
-      if (GetFocus())
-      {
-        CtrlObject->CmdLine->SetCurDir(strCurDir);
-        CtrlObject->CmdLine->Show();
-      }
+      CtrlObject->CmdLine->SetCurDir(strCurDir);
+      CtrlObject->CmdLine->Show();
     }
   }
 
