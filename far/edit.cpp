@@ -326,7 +326,7 @@ void Edit::FastShow()
 
   CursorPos=TabCurPos;
   int RealLeftPos=TabPosToReal(LeftPos);
-  int OutStrLength=min(EditLength,StrSize-RealLeftPos);
+  int OutStrLength=Min(EditLength,StrSize-RealLeftPos);
   if (OutStrLength < 0)
   {
     OutStrLength=0;

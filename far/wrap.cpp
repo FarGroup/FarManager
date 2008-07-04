@@ -704,7 +704,7 @@ int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 		return (int)strDest.GetLength();
 	else
 		strDest.GetCharString(Dest,DestSize);
-	return min((int)strDest.GetLength(),DestSize);
+	return Min((int)strDest.GetLength(),DestSize);
 }
 
 typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
@@ -754,7 +754,7 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 	string strS(src), strD;
 
 	apiExpandEnvironmentStrings(strS,strD);
-	DWORD len = (DWORD)min(strD.GetLength(),size-1);
+	DWORD len = (DWORD)Min(strD.GetLength(),size-1);
 
 	strD.GetCharString(dest,len+1);
 	dest[len]=0;
@@ -2944,7 +2944,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 							char *olddiv = UnicodeToAnsi(newsp.Param.cParam);
 							if (olddiv)
 							{
-								int l = min((int)strlen (olddiv),255);
+								int l = Min((int)strlen (olddiv),255);
 								memcpy(oldsp->Param.cParam,olddiv,l);
 								oldsp->Param.cParam[l+1]=0;
 								xf_free(olddiv);

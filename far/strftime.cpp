@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lang.hpp"
 
-#define range(low,item,hi) max(low,min(item,hi))
+#define range(low,item,hi) Max(low,Min(item,hi))
 
 string AMonth[2][12],AWeekday[2][7],Month[2][12],Weekday[2][7];
 

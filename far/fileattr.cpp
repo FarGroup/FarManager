@@ -48,8 +48,6 @@ static PDecryptFileW pDecryptFileW=NULL;
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
 
-static int SkipMode=-1;
-
 // получим функции криптования
 int GetEncryptFunctions(void)
 {

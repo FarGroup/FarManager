@@ -527,7 +527,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
     wmemcpy(lpwszDest+DotPos,DotPtr+1,DotLength);
   }
   else
-    wmemcpy(lpwszDest,SrcName,min(SrcLength, MaxLength));
+    wmemcpy(lpwszDest,SrcName,Min(SrcLength, MaxLength));
   lpwszDest[MaxLength]=0;
 
   strDest.ReleaseBuffer ();

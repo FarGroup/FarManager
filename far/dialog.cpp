@@ -3228,12 +3228,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             else
               my=MouseY-MsY;
 
-            mx=max(0,min(mx,ScrX-(X2-X1)));
+            mx=Max(0,Min(mx,ScrX-(X2-X1)));
             NX2=mx+(X2-X1);
             NX1=mx;
             AdjX=NX1-X0;
 
-            my=max(0,min(my,ScrY-(Y2-Y1)));
+            my=Max(0,Min(my,ScrY-(Y2-Y1)));
             NY2=my+(Y2-Y1);
             NY1=my;
             AdjY=NY1-Y0;

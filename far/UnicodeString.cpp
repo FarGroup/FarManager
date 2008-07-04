@@ -46,7 +46,7 @@ size_t UnicodeString::Inflate(size_t nSize)
   else
   {
     UnicodeStringData *pNewData = new UnicodeStringData(nSize);
-    size_t nNewLength = min(m_pData->GetLength(),nSize-1);
+    size_t nNewLength = Min(m_pData->GetLength(),nSize-1);
 
     wmemcpy(pNewData->GetData(),m_pData->GetData(),nNewLength);
 

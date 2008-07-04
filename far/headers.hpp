@@ -80,12 +80,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #endif
 #endif
 
-#if defined(__GNUC__) && __GNUC__ > 3 && defined(__cplusplus)
-  #include <algorithm>
-  using std::min;
-  using std::max;
-#endif
-
 #include <winioctl.h>
 
 #if !defined(FILE_ATTRIBUTE_ENCRYPTED)
