@@ -22,8 +22,6 @@ static PDecryptFileA pDecryptFileA=NULL;
 static int SetFileEncryption(const char *Name,int State);
 static int SetFileCompression(const char *Name,int State);
 
-static int SkipMode=-1;
-
 // получим функции криптования
 int GetEncryptFunctions(void)
 {

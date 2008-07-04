@@ -12,7 +12,7 @@ strftime.cpp
 #include "global.hpp"
 #include "lang.hpp"
 
-#define range(low, item, hi)    max(low, min(item, hi))
+#define range(low, item, hi)    Max(low, Min(item, hi))
 
 //extern char  *const _tzname[2];
 static const char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};

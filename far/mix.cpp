@@ -1354,7 +1354,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
     {
       *(char *)Buffer=0;
       L=(int)strlen(ConvStr);
-      N=min((BufLen-1)/2,L);
+      N=Min((BufLen-1)/2,L);
       for (I=0,J=0;I<N;I++,J+=2)
       {
         // "%02X" - два выходящих символа на каждый один входящий
@@ -1387,7 +1387,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
       }
 
       L=(int)strlen(NewStr);
-      N=min(BufLen-1,L);
+      N=Min(BufLen-1,L);
       for (I=0,J=0;I<N;I+=2,J++)
       {
         // "HH" - два входящих символа на каждый один выходящий

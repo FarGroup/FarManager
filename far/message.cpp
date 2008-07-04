@@ -372,7 +372,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   if(Title && *Title)
   {
     char TempTitle[2048];
-    xstrncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
+    xstrncpy(TempTitle,Title,Min((int)sizeof(TempTitle)-1,(int)MaxLength));
     GotoXY(X1+(X2-X1-1-(int)strlen(TempTitle))/2,Y1+1);
     mprintf(" %s ",TempTitle);
   }

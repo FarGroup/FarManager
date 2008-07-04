@@ -40,12 +40,6 @@ headers.hpp
 
 #include <winioctl.h>
 
-#if defined(__GNUC__) && __GNUC__ > 3 && defined(__cplusplus)
-  #include <algorithm>
-  using std::min;
-  using std::max;
-#endif
-
 #undef FILE_ATTRIBUTE_ENCRYPTED
 #define FILE_ATTRIBUTE_ENCRYPTED     0x00004000
 //#define FILE_ATTRIBUTE_ENCRYPTED     0x00000040
