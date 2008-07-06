@@ -230,7 +230,8 @@ void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
 
 int ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
-int WINAPI ConvertNameToReal(const wchar_t *Src, string &strDest);
+int WINAPI OldConvertNameToReal(const wchar_t *Src, string &strDest);
+int WINAPI ConvertNameToReal(const wchar_t *Src, string &strDest, bool Internal=true);
 void ConvertNameToShort(const wchar_t *Src, string &strDest); //BUGBUG, int
 void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 

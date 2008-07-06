@@ -96,7 +96,7 @@ int ConvertNameToFull (
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
   Если OS ниже, то вызывается обычный ConvertNameToFull()
 */
-int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
+int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
 {
   string strTempDest;
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
@@ -174,7 +174,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
             GetPathRootOne(strTempDest2, strJuncRoot);
             // ...но в любом случае пишем полностью.
             // (поправка - если букву не получили - вернём точку монтирования)
-            strTempDest2 = strJuncRoot.At(1)==L':'?strJuncRoot:TempDest;
+            strTempDest2 = (strJuncRoot.At(1)==L':'||!Internal)?strJuncRoot:TempDest;
           }
           DeleteEndSlash(strTempDest2);
           // Буфер симлинка
@@ -238,6 +238,10 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest)
   return Ret;
 }
 
+int WINAPI OldConvertNameToReal(const wchar_t *Src, string &strDest)
+{
+	return ConvertNameToReal(Src,strDest,false);
+}
 
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
