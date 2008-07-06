@@ -296,7 +296,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
   Если OS ниже, то вызывается обычный ConvertNameToFull()
 */
-int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
+int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize, bool Internal)
 {
   _SVS(CleverSysLog Clev("ConvertNameToReal()"));
   _SVS(SysLog("Params: Src='%s'",Src));
@@ -387,7 +387,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
               GetPathRootOne(TempDest2+offset,JuncRoot);
               // ...но в любом случае пишем полностью.
               // (поправка - если букву не получили - вернём точку монтирования)
-              strcpy(TempDest2+offset,JuncRoot[1]==':'?JuncRoot:TempDest);
+              strcpy(TempDest2+offset,(JuncRoot[1]==':'||!Internal)?JuncRoot:TempDest);
             }
             // небольшая метаморфоза с именем, дабы удалить ведущие "\??\"
             // но для "Volume{" начало всегда будет корректным!
@@ -444,6 +444,11 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
     xstrncpy(Dest,TempDest,DestSize-1);
   _SVS(SysLog("return Dest='%s'",Dest));
   return Ret;
+}
+
+int WINAPI OldConvertNameToReal(const char *Src,char *Dest, int DestSize)
+{
+	return ConvertNameToReal(Src,Dest,DestSize,false);
 }
 
 void ConvertNameToShort(const char *Src,char *Dest,int DestSize)

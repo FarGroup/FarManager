@@ -931,7 +931,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
     StandardFunctions.ProcessName=ProcessName;
     /* IS $ */
     StandardFunctions.MkLink=FarMkLink;
-    StandardFunctions.ConvertNameToReal=ConvertNameToReal;
+    StandardFunctions.ConvertNameToReal=OldConvertNameToReal;
     StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo;
   }
 
