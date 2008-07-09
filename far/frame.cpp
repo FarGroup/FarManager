@@ -83,7 +83,7 @@ void Frame::OnChangeFocus (int focus)
     Frame *iModal=NextModal;
     while (iModal)
     {
-      if (!(iModal->GetType()==MODALTYPE_COMBOBOX))
+      if (iModal->GetType()!=MODALTYPE_COMBOBOX && iModal->IsVisible())
         iModal->Show();
       iModal=iModal->NextModal;
     }

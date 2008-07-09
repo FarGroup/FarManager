@@ -5407,7 +5407,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog(L"}"));
 
         UnmarkBlock();
-        if (Sel->BlockType==BTYPE_NONE)
+        if (Sel->BlockType==BTYPE_NONE || Sel->BlockStartPos==-1)
           return(TRUE);
 
         Edit *CurPtr=GetStringByNumber(Sel->BlockStartLine);
