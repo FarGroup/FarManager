@@ -1660,11 +1660,11 @@ static bool _fattrFunc(int Type)
     TVar Str = VMStack.Pop();
 
     WIN32_FIND_DATA FindData;
-    UINT  PrevErrMode;
+    //UINT  PrevErrMode;
     // дабы не выскакивал гуевый диалог, если диск эжектед.
-    PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+    //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     GetFileWin32FindData((char *)Str.toString(),&FindData);
-    SetErrorMode(PrevErrMode);
+    //SetErrorMode(PrevErrMode);
     Ret=true;
     FileAttr=FindData.dwFileAttributes;
   }

@@ -3264,7 +3264,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
 //  unsigned __int64 WrittenSize=0;
   int   AbortOp = FALSE;
-  UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
+  //UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
   unsigned __int64 FileSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
 
   while (1)
@@ -3300,7 +3300,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         }
       }
       _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-      SetErrorMode(OldErrMode);
+      //SetErrorMode(OldErrMode);
       return COPY_CANCEL;
     }
     DWORD BytesRead,BytesWritten;
@@ -3338,7 +3338,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       }
       ShowBar(0,0,false);
       ShowTitle(FALSE);
-      SetErrorMode(OldErrMode);
+      //SetErrorMode(OldErrMode);
       SetLastError(_localLastError=LastError);
       // return COPY_FAILUREREAD;
       _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
@@ -3384,7 +3384,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                   FAR_DeleteFile(DestName);
                 }
                 _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                SetErrorMode(OldErrMode);
+                //SetErrorMode(OldErrMode);
                 return COPY_FAILURE;
               }
               if (MsgCode==0)
@@ -3423,7 +3423,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
           {
             CloseHandle(SrcHandle);
-            SetErrorMode(OldErrMode);
+            //SetErrorMode(OldErrMode);
             _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
             return(COPY_CANCEL);
           }
@@ -3450,7 +3450,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             DWORD LastError=GetLastError();
             CloseHandle(SrcHandle);
             CloseHandle(DestHandle);
-            SetErrorMode(OldErrMode);
+            //SetErrorMode(OldErrMode);
             SetLastError(_localLastError=LastError);
             _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
             return COPY_FAILURE;
@@ -3478,7 +3478,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           }
           ShowBar(0,0,false);
           ShowTitle(FALSE);
-          SetErrorMode(OldErrMode);
+          //SetErrorMode(OldErrMode);
           SetLastError(_localLastError=LastError);
           if (SplitSkipped)
           {
@@ -3526,7 +3526,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
     /* VVM $ */
   } /* while */
-  SetErrorMode(OldErrMode);
+  //SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {

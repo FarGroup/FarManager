@@ -165,11 +165,11 @@ BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo)
 {
   WIN32_FIND_DATA WFD_Info;
 
-  UINT  PrevErrMode;
+  //UINT  PrevErrMode;
   // дабы не выскакивал гуевый диалог, если диск эжектед.
-  PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+  //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
   HANDLE FindHandle=FindFirstFile(Name,&WFD_Info);
-  SetErrorMode(PrevErrMode);
+  //SetErrorMode(PrevErrMode);
   if(FindHandle!=INVALID_HANDLE_VALUE)
   {
     FindClose(FindHandle);

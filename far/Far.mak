@@ -4,7 +4,7 @@ CFG=far - Win32 Release
 !MESSAGE No configuration specified. Defaulting to far - Win32 Release.
 !ENDIF
 
-!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug"
+!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug" && "$(CFG)" != "far - WinIA64 Release" && "$(CFG)" != "far - WinIA64 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
@@ -15,6 +15,10 @@ CFG=far - Win32 Release
 !MESSAGE
 !MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "far - Win64 Release" (based on "Win32 (x64) Console Application")
+!MESSAGE "far - Win64 Debug" (based on "Win32 (x64) Console Application")
+!MESSAGE "far - WinIA64 Release" (based on "Win32 (IA64) Console Application")
+!MESSAGE "far - WinIA64 Debug" (based on "Win32 (IA64) Console Application")
 !MESSAGE
 !ERROR An invalid configuration is specified.
 !ENDIF
@@ -42,17 +46,21 @@ ULINK=ulink.exe
 # Пути
 FARINCLUDE=.\Include
 
-_BUILD64=0
+_BUILD64=1
 !IF  "$(CFG)" == "far - Win32 Release"
+_BUILD64=0
 OUTDIR=.\Release.vc
 !ELSEIF  "$(CFG)" == "far - Win32 Debug"
+_BUILD64=0
 OUTDIR=.\Debug.vc
 !ELSEIF  "$(CFG)" == "far - Win64 Release"
 OUTDIR=.\Release.64.vc
-_BUILD64=1
 !ELSEIF  "$(CFG)" == "far - Win64 Debug"
 OUTDIR=.\Debug.64.vc
-_BUILD64=1
+!ELSEIF  "$(CFG)" == "far - WinIA64 Release"
+OUTDIR=.\Release.IA64.vc
+!ELSEIF  "$(CFG)" == "far - WinIA64 Debug"
+OUTDIR=.\Debug.IA64.vc
 !ENDIF
 
 !if $(_BUILD64)
@@ -149,9 +157,9 @@ LINK32_OBJS= \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
-!if $(_BUILD64)
-        "$(INTDIR)\deb64_ud2.obj" \
-!endif
+# !if $(_BUILD64)
+#         "$(INTDIR)\deb64_ud2.obj" \
+# !endif
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
 	"$(INTDIR)\mix.obj" \
@@ -206,9 +214,9 @@ LINK32_OBJS= \
 !ifndef USE_VC9
 COMPAT64=/Wp64
 NOWIN98=/OPT:NOWIN98
-!else
-!undef USE_VC8_32
-USE_VC8_32=1
+#!else
+#!undef USE_VC8_32
+#USE_VC8_32=1
 !endif
 
 !ifndef USE_VC8_32
@@ -218,6 +226,10 @@ CPP_ADD_32=/GS- /GR-
 !endif
 
 LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
+# Для случая ошибки линкера "error LNK2001" при сборке под IA64
+#!IF  "$(CFG)" == "far - WinIA64 Release" || "$(CFG)" == "far - WinIA64 Debug"
+#LINK32_LIBS=$(LINK32_LIBS) bufferoverflowu.lib
+#!endif
 
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 
@@ -245,6 +257,15 @@ CPP_PROJ=$(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI
 LINK32_FLAGS=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 ULINK_FLAGS=-Tpe+
 
+!ELSEIF "$(CFG)" == "far - WinIA64 Release"
+!MESSAGE far - WinIA64 Release.
+
+USEDEBUG=NDEBUG
+C_PROJ=$(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /O1 /Gy /GF /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\c_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=$(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) $(MT) /Zp8 /O1 /Gy /GF /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\cpp_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS =$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:IA64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+
 !ELSEIF "$(CFG)" == "far - Win64 Debug"
 !MESSAGE far - Win64 Debug.
 
@@ -258,12 +279,23 @@ CPP_PROJ=$(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI
 LINK32_FLAGS=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /debug /machine:amd64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
 ULINK_FLAGS=-Tpe+ -v
 
+!ELSEIF "$(CFG)" == "far - WinIA64 Debug"
+!MESSAGE far - WinIA64 Debug.
+
+USEDEBUG=_DEBUG
+
+LINK32_LIBS=$(LINK32_LIBS)
+
+C_PROJ=  $(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /Gy /GF /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\c_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=$(COMPAT64) /W3 /GS- /GR- $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /Gy /GF /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\cpp_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /debug /machine:IA64 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /release $(NODEFAULTLIB)
+
 !ELSE
 !MESSAGE far - Win32 Debug.
 
 USEDEBUG=_DEBUG
 
-#CPP_PROJ=/W3 $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Fp"$(INTDIR)\far.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_ADD_32)
 C_PROJ=$(COMPAT64) /W3 $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /Gy /GF /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\c_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_ADD_32)
 CPP_PROJ=$(COMPAT64) /W3 $(FAR_MSVCRT) $(USE_WFUNC) /nologo $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) $(MT)d /Gy /GF /Gm /Zi /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_CRT_SECURE_NO_DEPRECATE" /D "_CRT_NONSTDC_NO_DEPRECATE" /D "_CRT_NON_CONFORMING_SWPRINTFS" /Yc /Fp"$(INTDIR)\cpp_headers.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\" $(CPP_ADD_32)
 
@@ -279,7 +311,7 @@ ALL : AllDirs \
 .PHONY: AllDirs
 
 AllDirs:
-        @if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
 	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
@@ -363,7 +395,7 @@ AllDirs:
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release"
+!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release" || "$(CFG)" == "far - WinIA64 Release"
 !IF EXISTS("far.release.dep")
 !INCLUDE "far.release.dep"
 !ELSE

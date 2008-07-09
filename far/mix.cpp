@@ -1262,10 +1262,10 @@ BOOL IsDiskInDrive(const char *Root)
 
   strcpy(Drive,Root);
   AddEndSlash(Drive);
-  UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
+  //UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
   //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
   BOOL Res = GetVolumeInformation (Drive, VolName, sizeof(VolName), NULL, &MaxComSize, &Flags, FS, sizeof(FS));
-  SetErrorMode(ErrMode);
+  //SetErrorMode(ErrMode);
   return Res;
 }
 

@@ -720,6 +720,11 @@ int _cdecl main(int Argc, char *Argv[])
 #endif
 
   int Result=0;
+  SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | SEM_NOGPFAULTERRORBOX
+#if defined (_M_IA64) && defined (_WIN64)
+  | (GetRegKey("System\\Exception","IgnoreDataAlignmentFaults",0)? SEM_NOALIGNMENTFAULTEXCEPT:0)
+#endif
+  );
   if(Opt.ExceptRules)
   {
     Result=main_sehed(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
