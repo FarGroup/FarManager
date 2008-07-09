@@ -214,9 +214,9 @@ LINK32_OBJS= \
 !ifndef USE_VC9
 COMPAT64=/Wp64
 NOWIN98=/OPT:NOWIN98
-#!else
-#!undef USE_VC8_32
-#USE_VC8_32=1
+!else
+!undef USE_VC8_32
+USE_VC8_32=1
 !endif
 
 !ifndef USE_VC8_32
