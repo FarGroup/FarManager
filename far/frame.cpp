@@ -61,7 +61,7 @@ void Frame::OnChangeFocus (int focus)
           Если модальный объект - комбобокс, то
           не отображаем его.
       */
-      if (!(iModal->GetType()==MODALTYPE_COMBOBOX))
+      if (iModal->GetType()!=MODALTYPE_COMBOBOX && iModal->IsVisible())
         iModal->Show();
       /* KM $ */
       iModal=iModal->NextModal;
