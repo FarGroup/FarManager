@@ -757,6 +757,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
        CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
        xf_free(OldCmdLine);
        OldCmdLine=NULL;
+       FrameManager->GetCurrentFrame()->Redraw();
     }
     /* IS $ */
     /* $ 01.05.2001 IS
