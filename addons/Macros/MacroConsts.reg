@@ -78,7 +78,7 @@ REGEDIT4
 "EDITORSET_CHARCODEBASE"             =dword:00000009
 "EDITORSET_SAVEPOS"                  =dword:0000000A
 "EDITORSET_SAVESHORTPOS"             =dword:0000000B
-"EDITORSET_CHAR WORDDIV"             =dword:0000000C
+"EDITORSET_CHAR_WORDDIV"             =dword:0000000C
 "EDITORSET_F7RULES"                  =dword:0000000D
 "EDITORSET_ALLOWEMPTYSPACEAFTEREOF"  =dword:0000000E
 
@@ -122,19 +122,22 @@ REGEDIT4
 "FATTR_ENCRYPTED"                    =dword:00004000
 "FATTR_VIRTUAL"                      =dword:00010000
 
-"DLGGETVALUE_DI_BUTTON"              =dword:00000007
-"DLGGETVALUE_DI_CHECKBOX"            =dword:00000008
-"DLGGETVALUE_DI_COMBOBOX"            =dword:0000000A
-"DLGGETVALUE_DI_DOUBLEBOX"           =dword:00000003
-"DLGGETVALUE_DI_EDIT"                =dword:00000004
-"DLGGETVALUE_DI_FIXEDIT"             =dword:00000006
-"DLGGETVALUE_DI_LISTBOX"             =dword:0000000B
-"DLGGETVALUE_DI_PSWEDIT"             =dword:00000005
-"DLGGETVALUE_DI_RADIOBUTTON"         =dword:00000009
-"DLGGETVALUE_DI_SINGLEBOX"           =dword:00000002
-"DLGGETVALUE_DI_TEXT"                =dword:00000000
-"DLGGETVALUE_DI_USERCONTROL"         =dword:000000FF
-"DLGGETVALUE_DI_VTEXT"               =dword:00000001
+"DLGITEMTYPE_ERROR"                  =dword:FFFFFFFF
+"DLGITEMTYPE_TEXT"                   =dword:00000000
+"DLGITEMTYPE_VTEXT"                  =dword:00000001
+"DLGITEMTYPE_SINGLEBOX"              =dword:00000002
+"DLGITEMTYPE_DOUBLEBOX"              =dword:00000003
+"DLGITEMTYPE_EDIT"                   =dword:00000004
+"DLGITEMTYPE_PSWEDIT"                =dword:00000005
+"DLGITEMTYPE_FIXEDIT"                =dword:00000006
+"DLGITEMTYPE_BUTTON"                 =dword:00000007
+"DLGITEMTYPE_CHECKBOX"               =dword:00000008
+"DLGITEMTYPE_RADIOBUTTON"            =dword:00000009
+"DLGITEMTYPE_COMBOBOX"               =dword:0000000A
+"DLGITEMTYPE_LISTBOX"                =dword:0000000B
+"DLGITEMTYPE_USERCONTROL"            =dword:000000FF
+"DLGITEMTYPE_HIST_EDIT"              =dword:00008001
+"DLGITEMTYPE_HIST_COMBO"             =dword:00008007
 
 "PANELTYPE_FILES"                    =dword:00000000
 "PANELTYPE_TREE"                     =dword:00000001
