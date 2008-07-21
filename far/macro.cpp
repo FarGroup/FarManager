@@ -2991,10 +2991,12 @@ done:
        goto begin;
     }
 
-    case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey()
+    case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
     {
        _KEYMACRO(CleverSysLog Clev(L"MCODE_F_MENU_GETHOTKEY"));
        tmpVar=VMStack.Pop();
+       if(!tmpVar.isInteger())
+         tmpVar=_i64(0);
        int CurMMode=CtrlObject->Macro.GetMode();
        if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
        {

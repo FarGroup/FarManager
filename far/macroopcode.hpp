@@ -139,7 +139,7 @@ enum MACRO_OP_CODE {
   MCODE_F_LEN,                      // N=len(S)
   MCODE_F_MAX,                      // N=max(N1,N2)
   MCODE_F_MENU_CHECKHOTKEY,         // N=checkhotkey(S)
-  MCODE_F_MENU_GETHOTKEY,           // S=gethotkey(N)
+  MCODE_F_MENU_GETHOTKEY,           // S=gethotkey([N])
   MCODE_F_MENU_SELECT,              // N=Menu.Select(S[,N])
   MCODE_F_MIN,                      // N=min(N1,N2)
   MCODE_F_MOD,                      // N=mod(a,b) == a %  b
