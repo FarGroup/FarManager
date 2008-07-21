@@ -283,7 +283,7 @@ static TMacroFunction macroFunction[]={
   {"FEXIST",           1, 0,   MCODE_F_FEXIST},              // N=fexist(S)
   {"FLOCK",            2, 0,   MCODE_F_FLOCK},               // N=FLock(N,N)
   {"FSPLIT",           2, 0,   MCODE_F_FSPLIT},              // S=fsplit(S,N)
-  {"GETHOTKEY",        1, 0,   MCODE_F_MENU_GETHOTKEY},      // S=gethotkey(N)
+  {"GETHOTKEY",        1, 1,   MCODE_F_MENU_GETHOTKEY},      // S=gethotkey([N])
   {"IIF",              3, 0,   MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
   {"INDEX",            2, 0,   MCODE_F_INDEX},               // S=index(S1,S2)
   {"INT",              1, 0,   MCODE_F_INT},                 // N=int(V)
@@ -1062,7 +1062,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_MAX,              "N=max(N1,N2)"},
     {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
     {MCODE_F_MENU_SELECT,      "N=Menu.Select(S[,N])"},
-    {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey()"},
+    {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey([N])"},
     {MCODE_F_MIN,              "N=min(N1,N2)"},
     {MCODE_F_MOD,              "N=mod(N1,N2)"},
     {MCODE_F_MSAVE,            "N=msave(S)"},
