@@ -254,3 +254,30 @@ intrin.h
    VC9 нету сейчас под рукой, посему там, возможно, не нужно эти прототипы объ€вл€ть.
 
    Zuz 09.07.2008 16:00:17 +0500
+
+scrbuf.cpp
+   FAR слабо адаптирован к работе на больших разрешени€х консоли, например
+   размер редактора 1024 символа, вывод имен файлов не до конца
+   прорисовывает курсор в случае если колона с именем файла больше 256
+   (260) символов и т.п. “ак же валитс€ иногда, например, в редаторе. Ќужно
+   в эту сторону поопать.
+
+   ѕроблемы отсюда росли, остальное слишком малые буферы или подобное:
+
+   BOOL WINAPI WriteConsoleOutput(    
+     __in HANDLE hConsoleOutput,      
+     __in const CHAR_INFO *lpBuffer,  
+     __in COORD dwBufferSize,         
+     __in COORD dwBufferCoord,        
+     __inout PSMALL_RECT lpWriteRegion
+   );                                 
+                                      
+...
+
+   lpBuffer [in]                                                           
+   The data to be written to the console screen buffer. This pointer is    
+   treated as the origin of a two-dimensional array of CHAR_INFO structures
+   whose size is specified by the dwBufferSize parameter. The total size of
+   the array must be less than __64K__.                                    
+
+   Zuz 22.07.2008 20:47:38 +0500
