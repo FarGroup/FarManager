@@ -356,7 +356,36 @@ void ScreenBuf::Flush()
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
 
-      WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+      if (BufX*BufY*sizeof(CHAR_INFO)>0xFFFF) // See REMINDER file section scrbuf.cpp
+      {
+        Corner.Y=0;
+        PCHAR_INFO BufPtr;
+        int maxY;
+
+        for (int yy=WriteY1; yy<=WriteY2;)
+        {
+          Coord.Top=yy;
+          BufPtr=Buf+yy*BufX;
+          maxY=0xFFFF/(BufX*sizeof(CHAR_INFO));
+          if (maxY==0)
+          {
+            maxY=1;
+          }
+          else if (maxY-1+yy>WriteY2)
+          {
+            maxY=WriteY2-yy+1;
+          }
+          Size.Y=maxY;
+          yy+=maxY;
+          Coord.Bottom=yy-1;
+
+          WriteConsoleOutputW (hScreen, BufPtr, Size, Corner, &Coord);
+        }
+      }
+      else
+      {
+      	WriteConsoleOutputW (hScreen, Buf, Size, Corner, &Coord);
+      }
 
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
     }
