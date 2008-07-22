@@ -372,35 +372,35 @@ void ScreenBuf::Flush()
 
       if (BufX*BufY*sizeof(CHAR_INFO)>0xFFFF) // See REMINDER file section scrbuf.cpp
       {
-          Corner.Y=0;
-          PCHAR_INFO BufPtr;
-          int maxY;
+        Corner.Y=0;
+        PCHAR_INFO BufPtr;
+        int maxY;
 
-          for (int yy=WriteY1; yy<=WriteY2;)
+        for (int yy=WriteY1; yy<=WriteY2;)
+        {
+          Coord.Top=yy;
+          BufPtr=Buf+yy*BufX;
+          maxY=0xFFFF/(BufX*sizeof(CHAR_INFO));
+          if (maxY==0)
           {
-            Coord.Top=yy;
-            BufPtr=Buf+yy*BufX;
-            maxY=0xFFFF/(BufX*sizeof(CHAR_INFO));
-            if (maxY==0)
-            {
-              maxY=1;
-            }
-            else if (maxY-1+yy>WriteY2)
-            {
-              maxY=WriteY2-yy+1;
-            }
-            Size.Y=maxY;
-            yy+=maxY;
-            Coord.Bottom=yy-1;
-#if defined(USE_WFUNC)
-            if (Opt.UseUnicodeConsole)
-              WriteConsoleOutputW (hScreen, BufPtr, Size, Corner, &Coord);
-            else
-              WriteConsoleOutputA (hScreen, BufPtr, Size, Corner, &Coord);
-#else
-            WriteConsoleOutput (hScreen, Buf, Size, Corner, &Coord);
-#endif
+            maxY=1;
           }
+          else if (maxY-1+yy>WriteY2)
+          {
+            maxY=WriteY2-yy+1;
+          }
+          Size.Y=maxY;
+          yy+=maxY;
+          Coord.Bottom=yy-1;
+#if defined(USE_WFUNC)
+          if (Opt.UseUnicodeConsole)
+            WriteConsoleOutputW (hScreen, BufPtr, Size, Corner, &Coord);
+          else
+            WriteConsoleOutputA (hScreen, BufPtr, Size, Corner, &Coord);
+#else
+          WriteConsoleOutput (hScreen, BufPtr, Size, Corner, &Coord);
+#endif
+        }
       }
       else
       {
