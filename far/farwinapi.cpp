@@ -313,7 +313,6 @@ BOOL WINAPI FAR_SetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLA
 {
   typedef BOOL (WINAPI *PSetFilePointerEx)(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod);
   static PSetFilePointerEx pSetFilePointerEx=NULL;
-  BOOL Ret=FALSE;
 
   if(!pSetFilePointerEx)
     pSetFilePointerEx=(PSetFilePointerEx)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"SetFilePointerEx");
@@ -325,7 +324,7 @@ BOOL WINAPI FAR_SetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLA
   else
   {
     LONG HighPart=liDistanceToMove.u.HighPart;
-    LONG LowPart=SetFilePointer(hFile,liDistanceToMove.u.LowPart,&HighPart,dwMoveMethod);
+    DWORD LowPart=SetFilePointer(hFile,liDistanceToMove.u.LowPart,&HighPart,dwMoveMethod);
     if(LowPart==INVALID_SET_FILE_POINTER && GetLastError()!=NO_ERROR)
       return FALSE;
     if(lpNewFilePointer)
