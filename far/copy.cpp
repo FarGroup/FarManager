@@ -3008,7 +3008,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         if(CopySparse)
         {
           DWORD Temp;
-          DeviceIoControl(DestHandle,FSCTL_SET_SPARSE,NULL,0,NULL,0,&Temp,NULL);
+          if(!DeviceIoControl(DestHandle,FSCTL_SET_SPARSE,NULL,0,NULL,0,&Temp,NULL))
+            CopySparse=false;
         }
       }
     }
@@ -3103,7 +3104,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 //    if (CopyBufSize < CopyBufferSize)
 //      StartTime=clock();
-        while (!ReadFile(SrcHandle,CopyBuffer,(CopySparse?(DWORD)min(CopyBufSize,iSize.QuadPart):CopyBufSize),&BytesRead,NULL))
+        while (!ReadFile(SrcHandle,CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufSize,iSize.QuadPart):CopyBufSize),&BytesRead,NULL))
         {
           int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
                                 UMSG(MCopyReadError),SrcName,
