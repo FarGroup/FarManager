@@ -31,7 +31,7 @@ PreserveLongName::PreserveLongName(char *ShortName,int Preserve)
 
 PreserveLongName::~PreserveLongName()
 {
-  if (Preserve && GetFileAttributes(SaveShortName)!=0xFFFFFFFF)
+  if (Preserve && GetFileAttributes(SaveShortName)!=INVALID_FILE_ATTRIBUTES)
   {
     WIN32_FIND_DATA FindData;
     HANDLE FindHandle;

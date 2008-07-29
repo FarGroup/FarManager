@@ -979,7 +979,7 @@ void Manager::PluginsMenu()
          {
            DWORD Attr=GetFileAttributes(CurFileName);
            // интересуют только обычные файлы
-           if(Attr!=0xFFFFFFFF && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+           if(Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
              curType=MODALTYPE_VIEWER;
          }
       }

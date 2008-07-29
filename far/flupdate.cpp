@@ -258,7 +258,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         TotalFileSize+=MKUINT64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
         int Compressed=FALSE;
-        if (ReadPacked && (fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
+        if (ReadPacked && ((fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (fdata.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)))
         {
           NewPtr->PackSize=GetCompressedFileSize(fdata.cFileName,&NewPtr->PackSizeHigh);
           if (CurPtr->PackSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)

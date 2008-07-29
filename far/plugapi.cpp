@@ -859,9 +859,7 @@ int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
 // Функция FarDefDlgProc обработки диалога по умолчанию
 LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  if(hDlg)  // исключаем лишний вызов для hDlg=0
-    return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-  return 0;
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 /* $ 28.07.2000 SVS
@@ -871,9 +869,7 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 // Посылка сообщения диалогу
 LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  if(hDlg) // исключаем лишний вызов для hDlg=0
-    return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
-  return 0;
+  return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
 }
 /* SVS $ */
 

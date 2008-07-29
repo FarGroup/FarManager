@@ -5075,6 +5075,9 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
+  if(!hDlg)
+    return 0;
+
   FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
   if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
     return de.Result;
@@ -5088,8 +5091,6 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   int Type=0;
   _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
   _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
-  if(!Dlg)
-    return 0;
 
   switch(Msg)
   {
@@ -5218,6 +5219,9 @@ LONG_PTR Dialog::CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2)
 */
 LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
+  if(!hDlg)
+    return 0;
+
   Dialog* Dlg=(Dialog*)hDlg;
 
   CriticalSectionLock Lock (Dlg->CS);
@@ -5226,9 +5230,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
   _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
-
-  if ( !Dlg )
-    return 0;
 
   // Сообщения, касаемые только диалога и не затрагивающие элементы
   switch(Msg)

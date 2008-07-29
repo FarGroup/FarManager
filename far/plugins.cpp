@@ -277,7 +277,7 @@ void PluginsSet::LoadPlugins()
         GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
         if (*PluginName==0)
           break;
-        if (GetFileAttributes(PluginName)==0xFFFFFFFF)
+        if (GetFileAttributes(PluginName)==INVALID_FILE_ATTRIBUTES)
         {
           DeleteKeyRecord(FmtPluginsCache_PluginD,I);
           I--;

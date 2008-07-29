@@ -1564,7 +1564,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributes(ExpandedDir);
-    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
+    if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
     {
       ReplaceStrings(ExpandedDir,"/","\\",-1);
       SetPanel->SetCurDir(ExpandedDir,TRUE);

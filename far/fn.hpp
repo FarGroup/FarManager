@@ -214,6 +214,8 @@ BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
 
 BOOL FAR_GetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
+BOOL WINAPI FAR_SetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod);
+
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);

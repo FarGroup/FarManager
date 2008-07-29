@@ -217,7 +217,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->ReadDiz();
 
   SrcPanel->GetDizName(DizName);
-  DizPresent=(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF);
+  DizPresent=(*DizName && GetFileAttributes(DizName)!=INVALID_FILE_ATTRIBUTES);
 
   DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
 
@@ -460,7 +460,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   }
 
   if (UpdateDiz)
-    if (DizPresent==(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF))
+    if (DizPresent==(*DizName && GetFileAttributes(DizName)!=INVALID_FILE_ATTRIBUTES))
       SrcPanel->FlushDiz();
 
   delete DeleteTitle;

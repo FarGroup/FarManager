@@ -40,6 +40,10 @@ headers.hpp
 
 #include <winioctl.h>
 
+#ifndef INVALID_FILE_ATTRIBUTES
+#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+#endif
+
 #undef FILE_ATTRIBUTE_ENCRYPTED
 #define FILE_ATTRIBUTE_ENCRYPTED     0x00004000
 //#define FILE_ATTRIBUTE_ENCRYPTED     0x00000040

@@ -189,7 +189,7 @@ int FolderTree::ProcessKey(int Key)
     case KEY_NUMENTER:
     case KEY_ENTER:
       Tree->GetCurDir(NewFolder);
-      if (GetFileAttributes(NewFolder)!=0xFFFFFFFF)
+      if (GetFileAttributes(NewFolder)!=INVALID_FILE_ATTRIBUTES)
       {
         FrameManager->DeleteFrame();
         SetExitCode (XC_MODIFIED);

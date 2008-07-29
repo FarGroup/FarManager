@@ -1352,7 +1352,7 @@ int FileList::ProcessKey(int Key)
 
               FarGetCurDir(sizeof(SaveDir),SaveDir);
 
-              if (GetFileAttributes(TempName)==0xffffffff)
+              if (GetFileAttributes(TempName)==INVALID_FILE_ATTRIBUTES)
               {
                 char FindName[NM*2];
                 strcpy(FindName,TempName);

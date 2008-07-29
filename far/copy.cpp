@@ -82,6 +82,7 @@ static int StaticMove;
 static char TotalCopySizeText[32];
 static ConsoleTitle *StaticCopyTitle=NULL;
 static BOOL NT5, NT;
+static bool CopySparse;
 
 /* $ 15.04.2005 KM
    Указатель на объект фильтра операций
@@ -893,7 +894,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             char DestDizName[NM*2];
             DestDiz.GetDizName(DestDizName);
             DWORD Attr=GetFileAttributes(DestDizName);
-            int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
+            int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FA_RDONLY));
             if(DestList.IsEmpty()) // Скидываем только во время последней Op.
               if (WorkMove && !DestReadOnly)
                 SrcPanel->FlushDiz();
@@ -921,7 +922,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       char DestDizName[NM+32];
       DestDiz.GetDizName(DestDizName);
       DWORD Attr=GetFileAttributes(DestDizName);
-      int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
+      int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FA_RDONLY));
       if (Move && !DestReadOnly)
         SrcPanel->FlushDiz();
       DestDiz.Flush(DestDizPath);
@@ -1419,7 +1420,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           LocalStrupr(NewPath);
 
         DWORD Attr=GetFileAttributes(NewPath);
-        if (Attr==0xFFFFFFFF)
+        if (Attr==INVALID_FILE_ATTRIBUTES)
         {
           if (CreateDirectory(NewPath,NULL))
             TreeList::AddTreeName(NewPath);
@@ -3219,8 +3220,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   }
 
   HANDLE DestHandle=INVALID_HANDLE_VALUE;
-  DWORD AppendPos=0;
-  LONG  AppendPosHigh=0;
+  LARGE_INTEGER AppendPos={0};
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
@@ -3246,19 +3246,42 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       return COPY_FAILURE;
     }
 
+    char DriveRoot[NM];
+    GetPathRoot(SrcName,DriveRoot);
+    DWORD VolFlags=0;
+    GetVolumeInformation(DriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+    CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
+    if(CopySparse)
+    {
+      GetPathRoot(DestName,DriveRoot);
+      VolFlags=0;
+      GetVolumeInformation(DriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+      CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
+      if(CopySparse)
+      {
+        BY_HANDLE_FILE_INFORMATION bhfi;
+        GetFileInformationByHandle(SrcHandle, &bhfi);
+        CopySparse=((bhfi.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)==FILE_ATTRIBUTE_SPARSE_FILE);
+        if(CopySparse)
+        {
+          DWORD Temp;
+          DeviceIoControl(DestHandle,FSCTL_SET_SPARSE,NULL,0,NULL,0,&Temp,NULL);
+        }
+      }
+    }
+
     if (Append)
     {
-      AppendPos=SetFilePointer(DestHandle,0,&AppendPosHigh,FILE_END);
-      _localLastError=GetLastError();
-      if(AppendPos == (DWORD)0xFFFFFFFF && _localLastError != NO_ERROR)
+      LARGE_INTEGER Pos={0};
+      if(!FAR_SetFilePointerEx(DestHandle,Pos,&AppendPos,FILE_END))
       {
+        _localLastError=GetLastError();
         CloseHandle(SrcHandle);
         CloseHandle(DestHandle);
         SetLastError(_localLastError);
-        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d FAR_SetFilePointerEx() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
         return COPY_FAILURE;
       }
-      SetLastError(_localLastError);
     }
   }
 
@@ -3267,234 +3290,268 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   //UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
   unsigned __int64 FileSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
 
-  while (1)
+  BOOL SparseQueryResult=TRUE;
+  LARGE_INTEGER iFileSize;
+  iFileSize.QuadPart=FileSize;
+  FILE_ALLOCATED_RANGE_BUFFER queryrange;
+  FILE_ALLOCATED_RANGE_BUFFER ranges[1024];
+  queryrange.FileOffset.QuadPart = 0;
+  queryrange.Length = iFileSize;
+
+  do
   {
-    BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
-    if (CheckForEscSilent())
+    DWORD n=0,nbytes=0;
+    if(CopySparse)
     {
-      AbortOp = ConfirmAbortOp();
-      IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
-    }
-    if(IsChangeConsole)
-    {
-      ShellCopy::PR_ShellCopyMsg();
-      OrigScrX=ScrX;
-      OrigScrY=ScrY;
+      SparseQueryResult=DeviceIoControl(SrcHandle,FSCTL_QUERY_ALLOCATED_RANGES,&queryrange,sizeof(queryrange),ranges,sizeof(ranges),&nbytes,NULL);
+      if(!SparseQueryResult && GetLastError()!=ERROR_MORE_DATA)
+        break;
+      n=nbytes/sizeof(FILE_ALLOCATED_RANGE_BUFFER);
     }
 
-    if (AbortOp)
+    for(DWORD i=0;i<(CopySparse?n:i+1);i++)
     {
-      CloseHandle(SrcHandle);
-      if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
+      LARGE_INTEGER iSize;
+      if(CopySparse)
       {
-        if (Append)
-        {
-          SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
-          SetEndOfFile(DestHandle);
-        }
-        CloseHandle(DestHandle);
-        if (!Append)
-        {
-          SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
-          FAR_DeleteFile(DestName);
-        }
+        iSize=ranges[i].Length;
+        FAR_SetFilePointerEx(SrcHandle,ranges[i].FileOffset,NULL,FILE_BEGIN);
+        LARGE_INTEGER DestPos=ranges[i].FileOffset;
+        if(Append)
+          DestPos.QuadPart+=AppendPos.QuadPart;
+        FAR_SetFilePointerEx(DestHandle,DestPos,NULL,FILE_BEGIN);
       }
-      _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-      //SetErrorMode(OldErrMode);
-      return COPY_CANCEL;
-    }
-    DWORD BytesRead,BytesWritten;
-
-    /* $ 23.10.2000 VVM
-       + Динамический буфер копирования */
-
-    /* $ 25.04.2003 VVM
-       - Отменим пока это буфер */
-//    if (CopyBufSize < CopyBufferSize)
-//      StartTime=clock();
-    while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
-    {
-      int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-                            MSG(MCopyReadError),SrcName,
-                            MSG(MRetry),MSG(MCancel));
-      ShellCopy::PR_ShellCopyMsg();
-      if (MsgCode==0)
-        continue;
-      DWORD LastError=GetLastError();
-      CloseHandle(SrcHandle);
-      if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
+      DWORD BytesRead,BytesWritten;
+      while (CopySparse?(iSize.QuadPart>0):true)
       {
-        if (Append)
+        BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
+        if (CheckForEscSilent())
         {
-          SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
-          SetEndOfFile(DestHandle);
+          AbortOp = ConfirmAbortOp();
+          IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
         }
-        CloseHandle(DestHandle);
-        if (!Append)
+        if(IsChangeConsole)
         {
-          SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
-          FAR_DeleteFile(DestName);
+          ShellCopy::PR_ShellCopyMsg();
+          OrigScrX=ScrX;
+          OrigScrY=ScrY;
         }
-      }
-      ShowBar(0,0,false);
-      ShowTitle(FALSE);
-      //SetErrorMode(OldErrMode);
-      SetLastError(_localLastError=LastError);
-      // return COPY_FAILUREREAD;
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-      CurCopiedSize = 0; // Сбросить текущий прогресс
-      return COPY_FAILURE;
-    }
-    if (BytesRead==0)
-      break;
 
-    if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
-    {
-      while (!WriteFile(DestHandle,CopyBuffer,BytesRead,&BytesWritten,NULL))
-      {
-        DWORD LastError=GetLastError();
-        int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
-        if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
-            DestName[0]!=0 && DestName[1]==':')
+        if (AbortOp)
         {
-          char DriveRoot[NM];
-          GetPathRoot(DestName,DriveRoot);
-
-          DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-          if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,
-                               &FreeClusters,&Clusters))
+          CloseHandle(SrcHandle);
+          if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
           {
-            DWORD FreeSize=SectorsPerCluster*BytesPerSector*FreeClusters;
-            if (FreeSize<BytesRead &&
-                WriteFile(DestHandle,CopyBuffer,FreeSize,&BytesWritten,NULL) &&
-                SetFilePointer(SrcHandle,FreeSize-BytesRead,NULL,FILE_CURRENT)!=0xFFFFFFFF)
+            if (Append)
             {
-              CloseHandle(DestHandle);
-              SetMessageHelp("CopyFiles");
-              int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
-                                  MSG(MErrorInsufficientDiskSpace),DestName,
-                                  MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
-              ShellCopy::PR_ShellCopyMsg();
-              if (MsgCode==2)
-              {
-                CloseHandle(SrcHandle);
-                if (!Append)
-                {
-                  SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
-                  FAR_DeleteFile(DestName);
-                }
-                _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                //SetErrorMode(OldErrMode);
-                return COPY_FAILURE;
-              }
-              if (MsgCode==0)
-              {
-                Split=TRUE;
-                while (1)
-                {
-                  if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
-                    if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
-                    {
-                      int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
-                                            MSG(MCopyErrorDiskFull),DestName,
-                                            MSG(MRetry),MSG(MCancel));
-                      ShellCopy::PR_ShellCopyMsg();
-                      if (MsgCode!=0)
-                      {
-                        Split=FALSE;
-                        SplitCancelled=TRUE;
-                      }
-                      else
-                        continue;
-                    }
-                  break;
-                }
-              }
-              if (MsgCode==1)
-                SplitSkipped=TRUE;
-              if (MsgCode==-1 || MsgCode==3)
-                SplitCancelled=TRUE;
+              FAR_SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+              SetEndOfFile(DestHandle);
+            }
+            CloseHandle(DestHandle);
+            if (!Append)
+            {
+              SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+              FAR_DeleteFile(DestName);
             }
           }
+          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+          //SetErrorMode(OldErrMode);
+          return COPY_CANCEL;
         }
-        if (Split)
-        {
-          int RetCode;
-          if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
-          {
-            CloseHandle(SrcHandle);
-            //SetErrorMode(OldErrMode);
-            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-            return(COPY_CANCEL);
-          }
-          char DestDir[NM],*ChPtr;
-          strcpy(DestDir,DestName);
-          if ((ChPtr=strrchr(DestDir,'\\'))!=NULL)
-          {
-            *ChPtr=0;
-            CreatePath(DestDir);
-          }
-          DestHandle=FAR_CreateFile (
-              DestName,
-              GENERIC_WRITE,
-              FILE_SHARE_READ,
-              NULL,
-              (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-              SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,
-              NULL
-              );
 
-          if (DestHandle==INVALID_HANDLE_VALUE ||
-              Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==0xFFFFFFFF)
-          {
-            DWORD LastError=GetLastError();
-            CloseHandle(SrcHandle);
-            CloseHandle(DestHandle);
-            //SetErrorMode(OldErrMode);
-            SetLastError(_localLastError=LastError);
-            _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-            return COPY_FAILURE;
-          }
-        }
-        else
+      /* $ 23.10.2000 VVM
+         + Динамический буфер копирования */
+
+      /* $ 25.04.2003 VVM
+         - Отменим пока это буфер */
+//      if (CopyBufSize < CopyBufferSize)
+//        StartTime=clock();
+        while (!ReadFile(SrcHandle,CopyBuffer,(CopySparse?(DWORD)min(CopyBufSize,iSize.QuadPart):CopyBufSize),&BytesRead,NULL))
         {
-          if (!SplitCancelled && !SplitSkipped &&
-              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-              MSG(MCopyWriteError),DestName,MSG(MRetry),MSG(MCancel))==0)
-          {
+          int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                              MSG(MCopyReadError),SrcName,
+                              MSG(MRetry),MSG(MCancel));
+          ShellCopy::PR_ShellCopyMsg();
+          if (MsgCode==0)
             continue;
-          }
+          DWORD LastError=GetLastError();
           CloseHandle(SrcHandle);
-          if (Append)
+          if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
           {
-            SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
-            SetEndOfFile(DestHandle);
-          }
-          CloseHandle(DestHandle);
-          if (!Append)
-          {
-            SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
-            FAR_DeleteFile(DestName);
+            if (Append)
+            {
+              FAR_SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+              SetEndOfFile(DestHandle);
+            }
+            CloseHandle(DestHandle);
+            if (!Append)
+            {
+              SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+              FAR_DeleteFile(DestName);
+            }
           }
           ShowBar(0,0,false);
           ShowTitle(FALSE);
           //SetErrorMode(OldErrMode);
           SetLastError(_localLastError=LastError);
-          if (SplitSkipped)
-          {
-            _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
-            return COPY_NEXT;
-          }
-          _LOGCOPYR(SysLog("return (%d ? COPY_CANCEL:COPY_FAILURE) -> %d",SplitCancelled,__LINE__));
-          return(SplitCancelled ? COPY_CANCEL:COPY_FAILURE);
+          // return COPY_FAILUREREAD;
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+          CurCopiedSize = 0; // Сбросить текущий прогресс
+          return COPY_FAILURE;
         }
-        break;
-      }
-    }
-    else
-    {
-      BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
-    }
+        if (BytesRead==0)
+        {
+          SparseQueryResult=FALSE;
+          break;
+        }
+
+        if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
+        {
+          while (!WriteFile(DestHandle,CopyBuffer,BytesRead,&BytesWritten,NULL))
+          {
+            DWORD LastError=GetLastError();
+            int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
+            if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
+                DestName[0]!=0 && DestName[1]==':')
+            {
+              char DriveRoot[NM];
+              GetPathRoot(DestName,DriveRoot);
+
+              DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
+              if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,
+                                   &FreeClusters,&Clusters))
+              {
+                DWORD FreeSize=SectorsPerCluster*BytesPerSector*FreeClusters;
+                if (FreeSize<BytesRead &&
+                    WriteFile(DestHandle,CopyBuffer,FreeSize,&BytesWritten,NULL) &&
+                    SetFilePointer(SrcHandle,FreeSize-BytesRead,NULL,FILE_CURRENT)!=INVALID_SET_FILE_POINTER)
+                {
+                  CloseHandle(DestHandle);
+                  SetMessageHelp("CopyFiles");
+                  int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
+                                      MSG(MErrorInsufficientDiskSpace),DestName,
+                                      MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
+                  ShellCopy::PR_ShellCopyMsg();
+                  if (MsgCode==2)
+                  {
+                    CloseHandle(SrcHandle);
+                    if (!Append)
+                    {
+                      SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+                      FAR_DeleteFile(DestName);
+                    }
+                    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                    //SetErrorMode(OldErrMode);
+                    return COPY_FAILURE;
+                  }
+                  if (MsgCode==0)
+                  {
+                    Split=TRUE;
+                    while (1)
+                    {
+                      if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+                        if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
+                        {
+                          int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
+                                                MSG(MCopyErrorDiskFull),DestName,
+                                                MSG(MRetry),MSG(MCancel));
+                          ShellCopy::PR_ShellCopyMsg();
+                          if (MsgCode!=0)
+                          {
+                            Split=FALSE;
+                            SplitCancelled=TRUE;
+                          }
+                          else
+                            continue;
+                        }
+                      break;
+                    }
+                  }
+                  if (MsgCode==1)
+                    SplitSkipped=TRUE;
+                  if (MsgCode==-1 || MsgCode==3)
+                    SplitCancelled=TRUE;
+                }
+              }
+            }
+            if (Split)
+            {
+              int RetCode;
+              if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+              {
+                CloseHandle(SrcHandle);
+                //SetErrorMode(OldErrMode);
+                _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+                return(COPY_CANCEL);
+              }
+              char DestDir[NM],*ChPtr;
+              strcpy(DestDir,DestName);
+              if ((ChPtr=strrchr(DestDir,'\\'))!=NULL)
+              {
+                *ChPtr=0;
+                CreatePath(DestDir);
+              }
+              DestHandle=FAR_CreateFile (
+                  DestName,
+                  GENERIC_WRITE,
+                  FILE_SHARE_READ,
+                  NULL,
+                  (Append ? OPEN_EXISTING:CREATE_ALWAYS),
+                  SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,
+                  NULL
+                  );
+
+              if (DestHandle==INVALID_HANDLE_VALUE ||
+                  Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==INVALID_SET_FILE_POINTER)
+              {
+                DWORD LastError=GetLastError();
+                CloseHandle(SrcHandle);
+                CloseHandle(DestHandle);
+                //SetErrorMode(OldErrMode);
+                SetLastError(_localLastError=LastError);
+                _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                return COPY_FAILURE;
+              }
+            }
+            else
+            {
+              if (!SplitCancelled && !SplitSkipped &&
+                  Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                  MSG(MCopyWriteError),DestName,MSG(MRetry),MSG(MCancel))==0)
+              {
+                continue;
+              }
+              CloseHandle(SrcHandle);
+              if (Append)
+              {
+                FAR_SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+                SetEndOfFile(DestHandle);
+              }
+              CloseHandle(DestHandle);
+              if (!Append)
+              {
+                SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+                FAR_DeleteFile(DestName);
+              }
+              ShowBar(0,0,false);
+              ShowTitle(FALSE);
+              //SetErrorMode(OldErrMode);
+              SetLastError(_localLastError=LastError);
+              if (SplitSkipped)
+              {
+                _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+                return COPY_NEXT;
+              }
+              _LOGCOPYR(SysLog("return (%d ? COPY_CANCEL:COPY_FAILURE) -> %d",SplitCancelled,__LINE__));
+              return(SplitCancelled ? COPY_CANCEL:COPY_FAILURE);
+            }
+            break;
+          }
+        }
+        else
+        {
+          BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
+        }
 
 //    if ((CopyBufSize < CopyBufferSize) && (BytesWritten==CopyBufSize))
 //   {
@@ -3509,29 +3566,55 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     /* VVM $ */
     /* VVM $ */
 
-    CurCopiedSize+=BytesWritten;
-    if (ShowTotalCopySize)
-      TotalCopiedSize+=BytesWritten;
+        CurCopiedSize+=BytesWritten;
+        if (ShowTotalCopySize)
+          TotalCopiedSize+=BytesWritten;
 
-    /* $ 14.09.2002 VVM
-      + Показывать прогресс не чаще 5 раз в секунду */
-    if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > COPY_TIMEOUT))
+        /* $ 14.09.2002 VVM
+          + Показывать прогресс не чаще 5 раз в секунду */
+        if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > COPY_TIMEOUT))
+        {
+          ShowBar(CurCopiedSize,FileSize,false);
+          if (ShowTotalCopySize)
+          {
+            ShowBar(TotalCopiedSize,TotalCopySize,true);
+            ShowTitle(FALSE);
+          }
+        }
+        /* VVM $ */
+        if(CopySparse)
+          iSize.QuadPart -= BytesRead;
+      }
+      if(!CopySparse || !SparseQueryResult)
+        break;
+    } /* for */
+    if(!SparseQueryResult)
+      break;
+    if(CopySparse)
     {
-      ShowBar(CurCopiedSize,FileSize,false);
-      if (ShowTotalCopySize)
+      if(!SparseQueryResult && n>0)
       {
-        ShowBar(TotalCopiedSize,TotalCopySize,true);
-        ShowTitle(FALSE);
+        queryrange.FileOffset.QuadPart=ranges[n-1].FileOffset.QuadPart+ranges[n-1].Length.QuadPart;
+        queryrange.Length.QuadPart = iFileSize.QuadPart-queryrange.FileOffset.QuadPart;
       }
     }
-    /* VVM $ */
-  } /* while */
+  }
+  while(!SparseQueryResult && CopySparse);
   //SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
     SetFileTime(DestHandle,NULL,NULL,&SrcData.ftLastWriteTime);
     CloseHandle(SrcHandle);
+    if(CopySparse)
+    {
+      LARGE_INTEGER Pos;
+      Pos.QuadPart=iFileSize.QuadPart;
+      if(Append)
+        Pos.QuadPart+=AppendPos.QuadPart;
+      FAR_SetFilePointerEx(DestHandle,Pos,NULL,FILE_BEGIN);
+      SetEndOfFile(DestHandle);
+    }
     CloseHandle(DestHandle);
 
     // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
@@ -3702,8 +3785,8 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
     return TRUE;
   }
 
-  if (DestAttr==0xFFFFFFFF)
-    if ((DestAttr=GetFileAttributes(DestName))==0xFFFFFFFF)
+  if (DestAttr==INVALID_FILE_ATTRIBUTES)
+    if ((DestAttr=GetFileAttributes(DestName))==INVALID_FILE_ATTRIBUTES)
       return(TRUE);
 
   if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)

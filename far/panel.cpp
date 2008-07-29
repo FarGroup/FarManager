@@ -1528,7 +1528,7 @@ int  Panel::SetCurPath()
     }
   }
 
-  if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==0xFFFFFFFF)
+  if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==INVALID_FILE_ATTRIBUTES)
   {
    // здесь на выбор :-)
 #if 1

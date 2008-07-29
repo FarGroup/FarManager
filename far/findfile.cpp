@@ -1660,9 +1660,6 @@ int FindFiles::FindFilesProcess()
         if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
           FileName[Length-1]=0;
 
-        #if !defined(INVALID_FILE_ATTRIBUTES)
-        #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
-        #endif
         if ( (GetFileAttributes(FileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {

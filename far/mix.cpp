@@ -408,11 +408,11 @@ int GetDirInfo(char *Title,
       FileCount++;
       unsigned __int64 CurSize=MKUINT64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
       FileSize+=CurSize;
-      if (FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
+      if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
       {
         DWORD CompressedSize,CompressedSizeHigh;
         CompressedSize=GetCompressedFileSize(FullName,&CompressedSizeHigh);
-        if (CompressedSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
+        if (CompressedSize!=INVALID_FILE_SIZE || GetLastError()==NO_ERROR)
           CurSize=MKUINT64(CompressedSizeHigh,CompressedSize);
       }
       CompressedFileSize+=CurSize;
@@ -509,7 +509,7 @@ int CheckFolder(const char *Path)
     if(!strcmp(Path,FindPath))
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-      if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+      if(GetFileAttributes(FindPath)!=INVALID_FILE_ATTRIBUTES)
       {
         if(lstError.Get() == ERROR_ACCESS_DENIED)
           return CHKFLD_NOTACCESS;
@@ -523,12 +523,12 @@ int CheckFolder(const char *Path)
         return CHKFLD_NOTFOUND;
 #if 0
       DWORD Attr=GetFileAttributes(Path);
-      if(Attr != 0xFFFFFFFF && (Attr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      if(Attr != INVALID_FILE_ATTRIBUTES && (Attr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {
         ConvertNameToFull(Path,FindPath,LenFindPath);
         GetPathRoot(FindPath,FindPath);
         // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-        if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+        if(GetFileAttributes(FindPath)!=INVALID_FILE_ATTRIBUTES)
           return CHKFLD_EMPTY;
       }
 #endif
