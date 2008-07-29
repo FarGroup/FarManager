@@ -1353,7 +1353,7 @@ int FileList::ProcessKey(int Key)
 
               FarGetCurDir(strSaveDir);
 
-              if (GetFileAttributesW(strTempName)==0xffffffff)
+              if (GetFileAttributesW(strTempName)==INVALID_FILE_ATTRIBUTES)
               {
                 string strFindName;
                 string strPath;

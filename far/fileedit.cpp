@@ -2240,7 +2240,7 @@ DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 {
 	FileAttributes=::GetFileAttributesW(Name);
 	int ind=0;
-	if(0xFFFFFFFF!=FileAttributes)
+	if(FileAttributes!=INVALID_FILE_ATTRIBUTES)
 	{
 		if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
 		if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';

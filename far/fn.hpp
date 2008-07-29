@@ -1105,6 +1105,8 @@ void apiFreeFindData (FAR_FIND_DATA *pData);
 BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData);
 BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
+BOOL WINAPI apiSetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod);
+
 //junk
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName);

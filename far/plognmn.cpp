@@ -56,7 +56,7 @@ PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
 
 PreserveLongName::~PreserveLongName()
 {
-	if (Preserve && GetFileAttributesW(strSaveShortName)!=0xFFFFFFFF)
+	if (Preserve && GetFileAttributesW(strSaveShortName)!=INVALID_FILE_ATTRIBUTES)
 	{
 		FAR_FIND_DATA_EX FindData;
 

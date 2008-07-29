@@ -333,7 +333,7 @@ DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff
      Для нелокальных дисков получить корректную информацию о связи
      не представляется возможным
   */
-  if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
+  if (FileAttr == INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
       || !IsLocalDrive(szMountDir))
   {
     SetLastError(ERROR_PATH_NOT_FOUND);

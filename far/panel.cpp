@@ -1713,7 +1713,7 @@ int  Panel::SetCurPath()
     }
   }
 
-  if (!FarChDir(strCurDir) || GetFileAttributesW(strCurDir)==0xFFFFFFFF)
+  if (!FarChDir(strCurDir) || GetFileAttributesW(strCurDir)==INVALID_FILE_ATTRIBUTES)
   {
    // здесь на выбор :-)
 #if 1

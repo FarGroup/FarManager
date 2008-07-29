@@ -1687,9 +1687,6 @@ int FindFiles::FindFilesProcess()
         if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
           strFileName.SetLength(Length-1);
 
-        #if !defined(INVALID_FILE_ATTRIBUTES)
-        #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
-        #endif
         if ( (GetFileAttributesW(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {

@@ -403,7 +403,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
   if (((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
       Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
       (Info.HostFile==NULL || *Info.HostFile==0 || DestPanel->GetModalMode() ||
-      GetFileAttributesW(Info.HostFile)!=0xFFFFFFFF))
+      GetFileAttributesW(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
   {
     CtrlObject->Cp()->LeftPanel->ReadDiz();
     CtrlObject->Cp()->RightPanel->ReadDiz();

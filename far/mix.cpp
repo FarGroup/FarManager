@@ -666,11 +666,11 @@ int GetDirInfo(const wchar_t *Title,
 
       unsigned __int64 CurSize = FindData.nFileSize;
       FileSize+=CurSize;
-      if (FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
+      if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
       {
         DWORD CompressedSize,CompressedSizeHigh;
         CompressedSize=GetCompressedFileSizeW(strFullName,&CompressedSizeHigh);
-        if (CompressedSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
+        if (CompressedSize!=INVALID_FILE_SIZE || GetLastError()==NO_ERROR)
           CurSize = CompressedSizeHigh*_ui64(0x100000000)+CompressedSize;
       }
       CompressedFileSize+=CurSize;
@@ -773,7 +773,7 @@ int CheckFolder(const wchar_t *Path)
     if(!StrCmp(Path,strFindPath))
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-      if(GetFileAttributesW(strFindPath)!=0xFFFFFFFF)
+      if(GetFileAttributesW(strFindPath)!=INVALID_FILE_ATTRIBUTES)
         return CHKFLD_EMPTY;
     }
 
