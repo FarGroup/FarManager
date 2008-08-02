@@ -145,7 +145,7 @@ struct DialogItemEx
 
   WORD ID;
   BitFlags IFlags;
-  int AutoCount;   // Автоматизация
+  unsigned AutoCount;   // Автоматизация
   struct DialogItemAutomation* AutoPtr;
   DWORD_PTR UserData; // ассоциированные данные
 
@@ -268,16 +268,16 @@ class Dialog: public Frame
     void DeleteDialogObjects();
     int  LenStrItem(int ID, const wchar_t *lpwszStr = NULL);
 
-    void ShowDialog(int ID=-1);  //    ID=-1 - отрисовать весь диалог
+    void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
     LONG_PTR CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
     /* $ 28.07.2000 SVS
        + Изменяет фокус ввода между двумя элементами.
          Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
     */
-    int ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
+    unsigned ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
 
-    int ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
+    unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
     BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr,int MaxLen);
     int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
     int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
@@ -285,18 +285,18 @@ class Dialog: public Frame
 
     void ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex); // обработка DIF_USELASTHISTORY
 
-    int ProcessHighlighting(int Key,int FocusPos,int Translate);
+    int ProcessHighlighting(int Key,unsigned FocusPos,int Translate);
     BOOL CheckHighlights(WORD Chr);
 
-    void SelectOnEntry(int Pos,BOOL Selected);
+    void SelectOnEntry(unsigned Pos,BOOL Selected);
 
     void CheckDialogCoord(void);
-    BOOL GetItemRect(int I,RECT& Rect);
+    BOOL GetItemRect(unsigned I,RECT& Rect);
 
     // возвращает заголовок диалога (текст первого текста или фрейма)
     const wchar_t *GetDialogTitle();
 
-    BOOL SetItemRect(int ID,SMALL_RECT *Rect);
+    BOOL SetItemRect(unsigned ID,SMALL_RECT *Rect);
 
     /* $ 23.06.2001 KM
        + Функции программного открытия/закрытия комбобокса и хистори
@@ -306,11 +306,11 @@ class Dialog: public Frame
     volatile int GetDropDownOpened(){ return DropDownOpened; }
 
     void ProcessCenterGroup(void);
-    int ProcessRadioButton(int);
+    unsigned ProcessRadioButton(unsigned);
 
-    int InitDialogObjects(int ID=-1);
+    unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 
-    int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,int CurFocusPos);
+    int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,unsigned CurFocusPos);
     int ProcessMoveDialog(DWORD Key);
 
     int Do_ProcessTab(int Next);
@@ -383,8 +383,8 @@ class Dialog: public Frame
 
     // For MACRO
     const struct DialogItemEx **GetAllItem(){return (const DialogItemEx**)Item;};
-    int GetAllItemCount(){return ItemCount;};              // количество элементов диалога
-    int GetDlgFocusPos(){return FocusPos;};
+    unsigned GetAllItemCount(){return ItemCount;};              // количество элементов диалога
+    unsigned GetDlgFocusPos(){return FocusPos;};
 
 
     int SetAutomation(WORD IDParent,WORD id,

@@ -1771,15 +1771,15 @@ static bool dlggetvalueFunc()
   TVar Ret(-1);
 
   int TypeInf=(int)VMStack.Pop().toInteger();
-  int Index=(int)VMStack.Pop().toInteger()-1;
+  unsigned Index=(unsigned)VMStack.Pop().toInteger()-1;
 
   Frame* CurFrame=FrameManager->GetCurrentFrame();
 
   if(CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
   {
-    int DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
+    unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
     const struct DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
-    if(Index == -1)
+    if(Index == (unsigned)-1)
     {
       SMALL_RECT Rect;
       if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(LONG_PTR)&Rect))

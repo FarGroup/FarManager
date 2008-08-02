@@ -3407,9 +3407,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
     unsigned WorkTime = clock() - CopyStartTime;
-    unsigned __int64 SizeLeft = OldTotalSize - OldWrittenSize;
-    if (SizeLeft < 0)
-      SizeLeft = 0;
+    unsigned __int64 SizeLeft = (OldTotalSize>OldWrittenSize)?(OldTotalSize-OldWrittenSize):0;
 
     unsigned CalcTime = OldCalcTime;
     if (WaitUserTime != -1) // -1 => находимся в процессе ожидания ответа юзера

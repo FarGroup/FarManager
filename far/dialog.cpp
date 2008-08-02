@@ -310,7 +310,7 @@ void Dialog::InitDialog(void)
   {                      //  элементы инициализируются при первом вызове.
     CheckDialogCoord();
 
-    int InitFocus=InitDialogObjects();
+    unsigned InitFocus=InitDialogObjects();
 
     int Result=(int)DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog);
     if(ExitCode == -1)
@@ -498,7 +498,7 @@ void Dialog::ProcessCenterGroup(void)
   TODO: Необходимо применить ProcessRadioButton для исправления
         кривых рук некоторых плагинописателей (а надо?)
 */
-int Dialog::InitDialogObjects(int ID)
+unsigned Dialog::InitDialogObjects(unsigned ID)
 {
   CriticalSectionLock Lock(CS);
 
@@ -510,10 +510,10 @@ int Dialog::InitDialogObjects(int ID)
 
   _DIALOG(CleverSysLog CL(L"Init Dialog"));
 
-  if((unsigned)(ID+1) > ItemCount)
-    return -1;
+  if(ID+1 > ItemCount)
+    return (unsigned)-1;
 
-  if(ID == -1) // инициализируем все?
+  if(ID == (unsigned)-1) // инициализируем все?
   {
     ID=0;
     InitItemCount=ItemCount;
@@ -524,7 +524,7 @@ int Dialog::InitDialogObjects(int ID)
   }
 
   //   если FocusPos в пределах и элемент задисаблен, то ищем сначала.
-  if(FocusPos < ItemCount &&
+  if(FocusPos!=(unsigned)-1 && FocusPos < ItemCount &&
      (Item[FocusPos]->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
     FocusPos = (unsigned)-1; // будем искать сначала!
 
@@ -892,11 +892,11 @@ void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
 
 
 //   Изменение координат и/или размеров итема диалога.
-BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
+BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 {
   CriticalSectionLock Lock(CS);
 
-  if ((unsigned)ID >= ItemCount)
+  if (ID >= ItemCount)
     return FALSE;
 
   DialogItemEx *CurItem=Item[ID];
@@ -942,17 +942,17 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
 
   if(DialogMode.Check(DMODE_SHOW))
   {
-    ShowDialog(-1);
+    ShowDialog((unsigned)-1);
     ScrBuf.Flush();
   }
   return TRUE;
 }
 
-BOOL Dialog::GetItemRect(int I,RECT& Rect)
+BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
 {
   CriticalSectionLock Lock(CS);
 
-  if((unsigned)I >= ItemCount)
+  if(I >= ItemCount)
     return FALSE;
 
   struct DialogItemEx *CurItem=Item[I];
@@ -1428,7 +1428,7 @@ LONG_PTR Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 /* Private:
    Отрисовка элементов диалога на экране.
 */
-void Dialog::ShowDialog(int ID)
+void Dialog::ShowDialog(unsigned ID)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1441,12 +1441,12 @@ void Dialog::ShowDialog(int ID)
 
   struct DialogItemEx *CurItem;
   int X,Y;
-  int I,DrawItemCount;
+  unsigned I,DrawItemCount;
   DWORD Attr;
 
   //   Если не разрешена отрисовка, то вываливаем.
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
-     ((unsigned)(ID+1) > ItemCount) ||             // а номер в рамках дозволенного?
+     (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
      DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
      !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
      !DialogMode.Check(DMODE_INITOBJECTS))
@@ -1456,7 +1456,7 @@ void Dialog::ShowDialog(int ID)
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  if(ID == -1) // рисуем все?
+  if(ID == (unsigned)-1) // рисуем все?
   {
     //   Перед прорисовкой диалога посылаем сообщение в обработчик
     if(!DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0))
@@ -1493,7 +1493,7 @@ void Dialog::ShowDialog(int ID)
   */
   {
     int CursorVisible=0,CursorSize=0;
-    if(ID != -1 && FocusPos != (unsigned)ID)
+    if(ID != (unsigned)-1 && FocusPos != ID)
     {
       if(Item[FocusPos]->Type == DI_USERCONTROL && Item[FocusPos]->UCData->CursorPos.X != -1 && Item[FocusPos]->UCData->CursorPos.Y != -1)
       {
@@ -1855,7 +1855,7 @@ void Dialog::ShowDialog(int ID)
           CurItem->ListPtr->Show();
 
           // .. а теперь восстановим!
-          if(FocusPos != (unsigned)I)
+          if(FocusPos != I)
             SetCursorType(CurSorVisible,CurSorSize);
         }
         break;
@@ -1869,7 +1869,7 @@ void Dialog::ShowDialog(int ID)
         {
           PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
           // не забудем переместить курсор, если он позиционирован.
-          if(FocusPos == (unsigned)I)
+          if(FocusPos == I)
           {
             if(CurItem->UCData->CursorPos.X != -1 &&
                CurItem->UCData->CursorPos.Y != -1)
@@ -1891,7 +1891,7 @@ void Dialog::ShowDialog(int ID)
 
   // КОСТЫЛЬ!
   // но работает ;-)
-  for (I=0; (unsigned)I < ItemCount; I++)
+  for (I=0; I < ItemCount; I++)
   {
     CurItem=Item[I];
     if(CurItem->ListPtr && GetDropDownOpened() && CurItem->ListPtr->IsVisible())
@@ -2840,7 +2840,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   CriticalSectionLock Lock(CS);
 
-  int I;
+  unsigned I;
   int MsX,MsY;
   int Type;
   RECT Rect;
@@ -2861,7 +2861,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsY=MouseEvent->dwMousePosition.Y;
 
   //for (I=0;I<ItemCount;I++)
-  for (I=ItemCount-1;I>=0;I--)
+  for (I=ItemCount-1;I!=(unsigned)-1;I--)
   {
     if(Item[I]->Flags&(DIF_DISABLE|DIF_HIDDEN))
       continue;
@@ -2875,7 +2875,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       int CheckedListItem=List->GetSelection(-1);
       if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
       {
-        if(FocusPos != (unsigned)I)
+        if(FocusPos != I)
         {
           ChangeFocus2(FocusPos,I);
           ShowDialog();
@@ -2938,9 +2938,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       {
         if( !MouseEvent->dwButtonState || SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(LONG_PTR)MouseEvent) )
         {
-          if(((unsigned)I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS))
+          if((I == FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONFOCUS))
               ||
-             ((unsigned)I != FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS))
+             (I != FocusPos && (Item[I]->IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS))
             )
           {
             List->ProcessMouse(MouseEvent);
@@ -2992,7 +2992,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   {
     // первый цикл - все за исключением рамок.
     //for (I=0; I < ItemCount;I++)
-    for (I=ItemCount-1;I>=0;I--)
+    for (I=ItemCount-1;I!=(unsigned)-1;I--)
     {
       if(Item[I]->Flags&(DIF_DISABLE|DIF_HIDDEN))
         continue;
@@ -3047,8 +3047,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
     {
       //for (I=0;I<ItemCount;I++)
-      int OldFocusPos=FocusPos;
-      for (I=ItemCount-1;I>=0;I--)
+      unsigned OldFocusPos=FocusPos;
+      for (I=ItemCount-1;I!=(unsigned)-1;I--)
       {
         //   Исключаем из списка оповещаемых о мыши недоступные элементы
         if(Item[I]->Flags&(DIF_DISABLE|DIF_HIDDEN))
@@ -3298,7 +3298,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFocusPos)
+int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned CurFocusPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -3337,11 +3337,11 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, int CurFo
   return(TRUE);
 }
 
-int Dialog::ProcessRadioButton(int CurRB)
+unsigned Dialog::ProcessRadioButton(unsigned CurRB)
 {
   CriticalSectionLock Lock(CS);
 
-  int PrevRB=CurRB, J;
+  unsigned PrevRB=CurRB, J;
   unsigned I;
 
   for (I=CurRB;;I--)
@@ -3422,13 +3422,13 @@ int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 {
   CriticalSectionLock Lock(CS);
 
-  int OldPos=FocusPos;
-  int PrevPos=0;
+  unsigned OldPos=FocusPos;
+  unsigned PrevPos=0;
 
   if (IsEdit(Item[FocusPos]->Type) && (Item[FocusPos]->Flags & DIF_EDITOR))
     PrevPos=((DlgEdit *)(Item[FocusPos]->ObjPtr))->GetCurPos();
 
-  int I=ChangeFocus(FocusPos,Up? -1:1,FALSE);
+  unsigned I=ChangeFocus(FocusPos,Up? -1:1,FALSE);
   Item[FocusPos]->Focus=0;
   Item[I]->Focus=1;
   ChangeFocus2(FocusPos,I);
@@ -3451,7 +3451,7 @@ int Dialog::Do_ProcessTab(int Next)
 {
   CriticalSectionLock Lock(CS);
 
-  int I;
+  unsigned I;
   if(ItemCount > 1)
   {
     // Здесь с фокусом ОООЧЕНЬ ТУМАННО!!!
@@ -3474,7 +3474,7 @@ int Dialog::Do_ProcessTab(int Next)
   else
     I=FocusPos;
 
-  int oldFocus=FocusPos;
+  unsigned oldFocus=FocusPos;
   ChangeFocus2(FocusPos,I);
   if(oldFocus != I)
   {
@@ -3537,7 +3537,7 @@ int Dialog::Do_ProcessSpace()
 /* $ 24.08.2000 SVS
    Добавка для DI_USERCONTROL
 */
-int Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
+unsigned Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
 {
   CriticalSectionLock Lock(CS);
 
@@ -3591,7 +3591,7 @@ int Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
    Изменяет фокус ввода между двумя элементами.
    Вынесен отдельно с тем, чтобы обработать DN_KILLFOCUS & DM_SETFOCUS
 */
-int Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
+unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -3674,7 +3674,7 @@ int Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
   Функция SelectOnEntry - выделение строки редактирования
   Обработка флага DIF_SELECTONENTRY
 */
-void Dialog::SelectOnEntry(int Pos,BOOL Selected)
+void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
 {
   if(!DialogMode.Check(DMODE_SHOW))
      return;
@@ -3902,7 +3902,7 @@ int Dialog::SelectFromComboBox(
   string strStr;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest, OriginalPos;
-  int CurFocusPos=FocusPos;
+  unsigned CurFocusPos=FocusPos;
 
   //if((Str=(char*)xf_malloc(MaxLen)) != NULL)
   {
@@ -4552,7 +4552,7 @@ BOOL Dialog::CheckHighlights(WORD CheckSymbol)
 /* Private:
    Если жмакнули Alt-???
 */
-int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
+int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 {
   CriticalSectionLock Lock(CS);
 
@@ -4605,7 +4605,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
           break; // сказали не продолжать обработку...
         ChangeFocus2(FocusPos,I); //??
-        if(FocusPos != (int)I)
+        if(FocusPos != I)
         {
           ShowDialog(FocusPos);
           ShowDialog(I);
@@ -5023,7 +5023,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
   CriticalSectionLock Lock (Dlg->CS);
 
-  int I;
+  unsigned I;
 
   _DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
   _DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -5084,7 +5084,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           Dlg->DialogMode.Set(DMODE_DRAWING);
           DialogItemEx *Item;
           SMALL_RECT Rect;
-          for (I=0; (unsigned)I<Dlg->ItemCount; I++)
+          for (I=0; I<Dlg->ItemCount; I++)
           {
             Item=Dlg->Item[I];
             if(Item->Flags&DIF_HIDDEN)
@@ -5249,7 +5249,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       int *KeyArray=(int*)Param2;
       Dlg->DialogMode.Set(DMODE_KEY);
-      for(I=0; I < Param1; ++I)
+      for(I=0; I < (unsigned)Param1; ++I)
         Dlg->ProcessKey(KeyArray[I]);
       Dlg->DialogMode.Clear(DMODE_KEY);
       return 0;
@@ -6005,7 +6005,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return FALSE;
       if(Dlg->FocusPos == (unsigned)Param1) // уже и так установлено все!
         return TRUE;
-      if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == Param1)
+      if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == (unsigned)Param1)
       {
         Dlg->ShowDialog();
         return TRUE;
