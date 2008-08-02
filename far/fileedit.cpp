@@ -1681,7 +1681,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     Flags.Clear(FFILEEDIT_SAVEWQUESTIONS);
 
     NewFile=FALSE;
-    if (FileAttributes & FA_RDONLY)
+    if (FileAttributes & FILE_ATTRIBUTE_READONLY)
     {
         //BUGBUG
       int AskOverwrite=Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRO),
@@ -1689,11 +1689,11 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
-      SetFileAttributesW(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      SetFileAttributesW(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
       FileAttributesModified=true;
     }
 
-    if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
+    if (FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
     {
       SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
       FileAttributesModified=true;
@@ -1938,7 +1938,7 @@ end:
 
   if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
   {
-    SetFileAttributesW(Name,FileAttributes|FA_ARCH);
+    SetFileAttributesW(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
   }
 
   apiGetFindDataEx (strFullFileName,&FileInfo);

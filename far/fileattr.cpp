@@ -106,7 +106,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
   if (hFile==INVALID_HANDLE_VALUE)
     return(FALSE);
   USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
-  UDWORD Result;
+  DWORD Result;
   int RetCode=DeviceIoControl(hFile,FSCTL_SET_COMPRESSION,&NewState,
                               sizeof(NewState),NULL,0,&Result,NULL);
   CloseHandle(hFile);
@@ -120,8 +120,8 @@ int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode)
     return SETATTR_RET_OK;
 
   int Ret=SETATTR_RET_OK;
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+  if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
+    SetFileAttributesW(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
@@ -158,7 +158,7 @@ int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode)
     }
   }
   // Set ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
+  if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributesW(Name,FileAttr);
   return(Ret);
 }
@@ -185,8 +185,8 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,i
   int Ret=SETATTR_RET_OK;
 
   // Drop ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+  if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
+    SetFileAttributesW(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
   while (!SetFileEncryption(Name,State))
   {
@@ -223,7 +223,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,i
   }
 
   // Set ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
+  if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributesW(Name,FileAttr);
 
   return(Ret);
@@ -234,17 +234,17 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
                   FILETIME *LastAccessTime,int FileAttr,int SkipMode)
 {
   if ((LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL) ||
-      ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
+      ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
     return SETATTR_RET_OK;
 
   while (1)
   {
-    if (FileAttr & FA_RDONLY)
-      SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
+    if (FileAttr & FILE_ATTRIBUTE_READONLY)
+      SetFileAttributesW(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
     HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
-                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+                 (FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;
     DWORD LastError=0;
     if (hFile==INVALID_HANDLE_VALUE)
@@ -258,7 +258,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
       LastError=GetLastError();
       CloseHandle(hFile);
 
-      if ( (FileAttr & FA_DIREC) && LastError==ERROR_NOT_SUPPORTED ) // FIX: Mantis#223
+      if ( (FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED ) // FIX: Mantis#223
       {
         string strDriveRoot;
         GetPathRoot (Name, strDriveRoot);
@@ -266,7 +266,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
       }
     }
 
-    if (FileAttr & FA_RDONLY)
+    if (FileAttr & FILE_ATTRIBUTE_READONLY)
       SetFileAttributesW(Name,FileAttr);
     SetLastError(LastError);
 

@@ -1147,12 +1147,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           else
           {
             strSearchFileName = FindList[ItemIndex]->FindData.strFileName;
-            if(GetFileAttributesW(strSearchFileName) == (DWORD)-1 && GetFileAttributesW(FindList[ItemIndex]->FindData.strAlternateFileName) != (DWORD)-1)
+            if(GetFileAttributesW(strSearchFileName) == INVALID_FILE_ATTRIBUTES && GetFileAttributesW(FindList[ItemIndex]->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
               strSearchFileName = FindList[ItemIndex]->FindData.strAlternateFileName;
           }
 
           DWORD FileAttr;
-          if ((FileAttr=GetFileAttributesW(strSearchFileName))!=(DWORD)-1)
+          if ((FileAttr=GetFileAttributesW(strSearchFileName))!=INVALID_FILE_ATTRIBUTES)
           {
             string strOldTitle;
             apiGetConsoleTitle (strOldTitle);
@@ -1788,10 +1788,6 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
   strName.ReleaseBuffer();
 }
 
-
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
 void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
 	{
@@ -1973,10 +1969,6 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
   DoPrepareFileList(strRoot, FindData, strFullName);
 
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
-
 
 void FindFiles::ArchiveSearch(const wchar_t *ArcName)
 {
@@ -2675,18 +2667,13 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
     TerminateProcess( GetCurrentProcess(), 1);
   }
 }
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
+
 void _cdecl FindFiles::PreparePluginList(void *Param)
 {
   string strSaveDir;
 
   DoPreparePluginList(Param, strSaveDir);
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
 
 void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 {

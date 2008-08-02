@@ -571,9 +571,6 @@ struct Options
   int ExecuteFullTitle;
   string strExecuteBatchType;
 
-#if defined(FAR_ANSI)
-  int FarAnsi;
-#endif
   DWORD PluginMaxReadData;
   int UseNumPad;
   int ScanJunction;
@@ -746,9 +743,6 @@ struct Options
     ExecuteFullTitle=0;
     strExecuteBatchType=L"";
 
-  #if defined(FAR_ANSI)
-    FarAnsi=0;
-  #endif
     PluginMaxReadData=0;
     UseNumPad=0;
     ScanJunction=0;

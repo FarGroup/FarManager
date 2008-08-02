@@ -620,7 +620,7 @@ int GetDirInfo(const wchar_t *Title,
       MsgOut=1;
     }
 
-    if (FindData.dwFileAttributes & FA_DIREC)
+    if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       // —чЄтчик каталогов наращиваем только если не включен фильтр,
       // в противном случае это будем делать в подсчЄте количества файлов
@@ -704,7 +704,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
   {
     for (int I=0;I<ItemsNumber;I++)
     {
-      if (PanelItem[I].FindData.dwFileAttributes & FA_DIREC)
+      if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         DirCount++;
       else
       {
@@ -1286,7 +1286,7 @@ void CreatePath(string &strPath)
 
       *ChPtr = 0;
 
-      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributesW(strPath) == (DWORD)-1) //BUGBUG
+      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributesW(strPath) == INVALID_FILE_ATTRIBUTES) //BUGBUG
         CharUpperW (DirPart);
 
       if ( CreateDirectoryW(strPath, NULL) )
@@ -1851,7 +1851,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 
             {
                 if(NeedRealName)
-                    SrcFilePanel->CreateFullPathName(strPathName, strPathName,FA_DIREC, strPathName,TRUE,ShortNameAsIs);
+                    SrcFilePanel->CreateFullPathName(strPathName, strPathName,FILE_ATTRIBUTE_DIRECTORY, strPathName,TRUE,ShortNameAsIs);
             }
 
 

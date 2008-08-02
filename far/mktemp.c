@@ -26,14 +26,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop
 
 #if defined(_MSC_VER)
 #pragma intrinsic (strcmp)       /* don't use the unsafe version */
-#elif defined(__BORLANDC__)
-#pragma intrinsic -strcmp       /* don't use the unsafe version */
 #endif
 /*---------------------------------------------------------------------*
 

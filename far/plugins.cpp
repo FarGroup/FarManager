@@ -507,7 +507,7 @@ void PluginManager::LoadPlugins()
       while (ScTree.GetNextName(&FindData,strFullName))
       {
         if ( CmpName(L"*.dll",FindData.strFileName,FALSE) &&
-        	 (FindData.dwFileAttributes & FA_DIREC)==0 )
+        	 (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0 )
         	LoadPlugin (strFullName, &FindData);
       } // end while
     }
@@ -840,7 +840,7 @@ int PluginManager::GetFile (
 		int Done=0;
 		while (!Done)
 		{
-			if ((fdata.dwFileAttributes & FA_DIREC)==0)
+			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
 				break;
 			Done=!apiFindNextFile(FindHandle,&fdata);
 		}
@@ -1882,9 +1882,7 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 /* $ 23.10.2000 SVS
    Функция TestPluginInfo - проверка на вшивость переданных плагином данных
 */
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
+
 BOOL PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 {
   if(!Opt.ExceptRules)
@@ -1922,16 +1920,11 @@ BOOL PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
   }
   return I;
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
 
 /* $ 31.10.2000 SVS
    Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
 */
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
+
 BOOL PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 {
   if(!Opt.ExceptRules)
@@ -1973,6 +1966,3 @@ BOOL PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
   }
   return I;
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif

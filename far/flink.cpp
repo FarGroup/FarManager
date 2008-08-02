@@ -40,100 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "flink.hpp"
 
-//#if defined(__BORLANDC__)
-// current thread's ANSI code page
-#define CP_THREAD_ACP             3
-
-#if !defined(__GNUC__)
-
-#define FILE_ANY_ACCESS                 0
-#define FILE_SPECIAL_ACCESS    (FILE_ANY_ACCESS)
-
-#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
-// Predefined reparse tags.
-// These tags need to avoid conflicting with IO_REMOUNT defined in ntos\inc\io.h
-#define IO_REPARSE_TAG_RESERVED_ZERO             (0)
-#define IO_REPARSE_TAG_RESERVED_ONE              (1)
-#ifndef IO_REPARSE_TAG_MOUNT_POINT
-#define IO_REPARSE_TAG_MOUNT_POINT               (0xA0000003)
-#endif
-
-// The value of the following constant needs to satisfy the following conditions:
-//  (1) Be at least as large as the largest of the reserved tags.
-//  (2) Be strictly smaller than all the tags in use.
-#define IO_REPARSE_TAG_RESERVED_RANGE            IO_REPARSE_TAG_RESERVED_ONE
-// The following constant represents the bits that are valid to use in
-// reparse tags.
-#define IO_REPARSE_TAG_VALID_VALUES     (0xE000FFFF)
-// Macro to determine whether a reparse tag is a valid tag.
-#define IsReparseTagValid(_tag) (                               \
-                  !((_tag) & ~IO_REPARSE_TAG_VALID_VALUES) &&   \
-                  ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
-                 )
-#define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
-#define FSCTL_SET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 41, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
-#define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define FSCTL_DELETE_REPARSE_POINT      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 43, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
-
-#endif //!defined(__GNUC__)
-
-//#ifndef _MSC_VER
-#ifndef REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
-//   For non-Microsoft reparse point drivers, a fixed header must be
-//used, with the remainder of the reparse point tag belonging to the
-//driver itself. The format for this information is:
-typedef struct _REPARSE_GUID_DATA_BUFFER {
-  DWORD  ReparseTag;
-  WORD   ReparseDataLength;
-  WORD   Reserved;
-/*
-#define IO_REPARSE_TAG_IFSTEST_CONGRUENT        (0x00000009L)
-#define IO_REPARSE_TAG_ARKIVIO                  (0x0000000CL)
-#define IO_REPARSE_TAG_SOLUTIONSOFT             (0x2000000DL)
-#define IO_REPARSE_TAG_COMMVAULT                (0x0000000EL)
-*/
-  GUID   ReparseGuid;
-  struct {
-      BYTE   DataBuffer[1];
-  } GenericReparseBuffer;
-} REPARSE_GUID_DATA_BUFFER, *PREPARSE_GUID_DATA_BUFFER;
-
-#define REPARSE_GUID_DATA_BUFFER_HEADER_SIZE   FIELD_OFFSET(REPARSE_GUID_DATA_BUFFER, GenericReparseBuffer)
-#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
-// REPARSE_DATA_BUFFER
-//#endif
-#endif // REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
-
-/*
-// http://www.osr.com/ntinsider/2003/reparse.htm
-// The format for Microsoft-defined reparse points (from ntifs.h) is:
-
-typedef struct _REPARSE_DATA_BUFFER {
-    ULONG  ReparseTag;
-    USHORT ReparseDataLength;
-    USHORT Reserved;
-    union {
-        struct {
-            USHORT SubstituteNameOffset;
-            USHORT SubstituteNameLength;
-            USHORT PrintNameOffset;
-            USHORT PrintNameLength;
-            WCHAR PathBuffer[1];
-        } SymbolicLinkReparseBuffer;
-        struct {
-            USHORT SubstituteNameOffset;
-            USHORT SubstituteNameLength;
-            USHORT PrintNameOffset;
-            USHORT PrintNameLength;
-            WCHAR PathBuffer[1];
-        } MountPointReparseBuffer;
-        struct {
-            UCHAR  DataBuffer[1];
-        } GenericReparseBuffer;
-    };
-} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
-
-*/
 struct TMN_REPARSE_DATA_BUFFER
 {
   DWORD  ReparseTag;
@@ -637,9 +543,6 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 }
 
 */
-#if defined(__BORLANDC__)
-#pragma option -a.
-#endif
 
 /*
    Функция DelSubstDrive - удаление Subst драйвера

@@ -177,7 +177,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
         QuoteSpaceOnly(strFileNameL);
 // ¬от здесь фиг его знает - нужно/ненужно...
 //   если будет нужно - раскомментируем :-)
-//          if(FileAttrL & FA_DIREC)
+//          if(FileAttrL & FILE_ATTRIBUTE_DIRECTORY)
 //            AddEndSlash(FileNameL);
       // ј нужен ли нам пробел в самом начале?
       if (First)

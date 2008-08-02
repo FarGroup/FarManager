@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "colors.hpp"
 #include "dialog.hpp"
-#include "farftp.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"
 

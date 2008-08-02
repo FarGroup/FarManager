@@ -262,10 +262,6 @@ void FileList::SortFileList(int KeepPosition)
   }
 }
 
-#if defined(__BORLANDC__)
-#pragma intrinsic strcmp
-#endif
-
 int _cdecl SortList(const void *el1,const void *el2)
 {
   int RetCode;
@@ -290,9 +286,9 @@ int _cdecl SortList(const void *el1,const void *el2)
     return((SPtr1->Position>SPtr2->Position) ? ListSortOrder:-ListSortOrder);
   }
 
-  if ((SPtr1->FileAttr & FA_DIREC) < (SPtr2->FileAttr & FA_DIREC))
+  if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) < (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     return(1);
-  if ((SPtr1->FileAttr & FA_DIREC) > (SPtr2->FileAttr & FA_DIREC))
+  if ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) > (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     return(-1);
   if (ListSelectedFirst && SPtr1->Selected!=SPtr2->Selected)
     return(SPtr1->Selected>SPtr2->Selected ? -1:1);
@@ -320,7 +316,7 @@ int _cdecl SortList(const void *el1,const void *el2)
   }
 
   // НЕ СОРТИРУЕМ КАТАЛОГИ В РЕЖИМЕ "ПО РАСШИРЕНИЮ" (Опционально!)
-  if(!(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FA_DIREC)))
+  if(!(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     switch(ListSortMode)
     {
@@ -417,9 +413,6 @@ int _cdecl SortSearchList(const void *el1,const void *el2)
   return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
 //  return NumStrcmp(SPtr1->Name,SPtr2->Name);
 }
-#if defined(__BORLANDC__)
-#pragma intrinsic -strcmp
-#endif
 
 void FileList::SetFocus()
 {
@@ -733,7 +726,7 @@ int FileList::ProcessKey(int Key)
         for (int I=0; I < FileCount; I++)
         {
           CurPtr = ListData[I];
-          if ((CurPtr->FileAttr & FA_DIREC)==0 || Opt.SelectFolders)
+          if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || Opt.SelectFolders)
             Select(CurPtr,1);
         }
       }
@@ -878,10 +871,10 @@ int FileList::ProcessKey(int Key)
               {
                 /* $ 13.10.2000 tran
                   по Ctrl-f имя должно отвечать условиям на панели */
-                if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
+                if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
                   strFileName.Lower ();
                 if (ViewSettings.FileUpperToLowerCase)
-                  if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(strFileName))
+                  if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
                      strFileName.Lower();
               }
               strFullName += strFileName;
@@ -1172,7 +1165,7 @@ int FileList::ProcessKey(int Key)
                   wchar_t wChr=Ptr[1];
                   Ptr[1]=0;
                   DWORD CheckFAttr=GetFileAttributesW(lpwszStart);
-                  if(CheckFAttr == (DWORD)-1)
+                  if(CheckFAttr == INVALID_FILE_ATTRIBUTES)
                   {
                     SetMessageHelp(L"WarnEditorPath");
                     if (Message(MSG_WARNING,2,UMSG(MWarning),
@@ -1208,7 +1201,7 @@ int FileList::ProcessKey(int Key)
         {
           CurPtr=ListData[CurFile];
 
-          if (CurPtr->FileAttr & FA_DIREC)
+          if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
           {
             if (Edit)
               return ProcessKey(KEY_CTRLA);
@@ -1311,7 +1304,7 @@ int FileList::ProcessKey(int Key)
                 if (!PluginMode)
                 {
                   for (int I=0;I<FileCount;I++)
-                    if ((ListData[I]->FileAttr & FA_DIREC)==0)
+                    if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
                       EditList.AddName(ListData[I]->strName, ListData[I]->strShortName);
 
                   EditList.SetCurDir(strCurDir);
@@ -1370,7 +1363,7 @@ int FileList::ProcessKey(int Key)
                 bool Done=((FindHandle=apiFindFirstFile(strFindName,&FindData))==INVALID_HANDLE_VALUE);
                 while (!Done)
                 {
-                  if ((FindData.dwFileAttributes & FA_DIREC)==0)
+                  if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
                   {
                     strTempName = strPath+FindData.strFileName;
                     break;
@@ -1416,7 +1409,7 @@ int FileList::ProcessKey(int Key)
                 if (!PluginMode)
                 {
                   for (int I=0;I<FileCount;I++)
-                    if ((ListData[I]->FileAttr & FA_DIREC)==0)
+                    if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
                       ViewList.AddName(ListData[I]->strName,ListData[I]->strShortName);
 
                   ViewList.SetCurDir(strCurDir);
@@ -1938,7 +1931,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   else
     strShortFileName = CurPtr->strName;
 
-  if (CurPtr->FileAttr & FA_DIREC)
+  if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
   {
     BOOL IsRealName=FALSE;
     if(PanelMode==PLUGIN_PANEL)
@@ -1967,7 +1960,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       }
       QuoteSpace(strFullPath);
 
-      Execute(strFullPath,FALSE,SeparateWindow?2:0,TRUE,CurPtr->FileAttr&FA_DIREC);
+      Execute(strFullPath,FALSE,SeparateWindow?2:0,TRUE,CurPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY);
     }
     else
     {
@@ -2761,7 +2754,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(strMask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
-        if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
+        if (!DirFind || (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
         {
           CmpNameSearchMode=FALSE;
           CurFile=I;
@@ -2778,7 +2771,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
     CurPtr = ListData[I];
     if (CmpName(strMask,CurPtr->strName,TRUE))
       if (!TestParentFolderName(CurPtr->strName))
-        if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
+        if (!DirFind || (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
         {
           CurFile=I;
           CurTopFile=CurFile-(Y2-Y1)/2;
@@ -3164,7 +3157,7 @@ void FileList::SelectFiles(int Mode)
             Selection=!CurPtr->Selected;
             break;
         }
-        if (bUseFilter || (CurPtr->FileAttr & FA_DIREC)==0 || Opt.SelectFolders ||
+        if (bUseFilter || (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || Opt.SelectFolders ||
             Selection==0 || RawSelection || Mode==SELECT_INVERTALL)
           Select(CurPtr,Selection);
       }
@@ -3193,7 +3186,7 @@ void FileList::UpdateViewPanel()
         ViewPanel->ShowFile(CurPtr->strName,FALSE,NULL);
     }
     else
-      if ((CurPtr->FileAttr & FA_DIREC)==0)
+      if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
       {
         string strTempDir,strFileName;
         strFileName = CurPtr->strName;
@@ -3248,7 +3241,7 @@ void FileList::CompareDir()
   for (I=0; I < FileCount; I++)
   {
     CurPtr = ListData[I];
-    if((CurPtr->FileAttr & FA_DIREC)==0)
+    if((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
       Select(CurPtr,TRUE);
   }
 
@@ -3256,7 +3249,7 @@ void FileList::CompareDir()
   for (J=0; J < Another->FileCount; J++)
   {
     AnotherCurPtr = Another->ListData[J];
-    if((AnotherCurPtr->FileAttr & FA_DIREC)==0)
+    if((AnotherCurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
       Another->Select(AnotherCurPtr,TRUE);
   }
 
@@ -3439,10 +3432,10 @@ void FileList::CopyNames(int FillPathName,int UNC)
         if(Opt.PanelCtrlFRule)
         {
           // имя должно отвечать условиям на панели
-          if (ViewSettings.FileLowerCase && !(FileAttr & FA_DIREC))
+          if (ViewSettings.FileLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
             strQuotedName.Lower();
           if (ViewSettings.FileUpperToLowerCase)
-            if (!(FileAttr & FA_DIREC) && !IsCaseMixed(strQuotedName))
+            if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
                strQuotedName.Lower();
         }
         strFullName += strQuotedName;
@@ -3535,7 +3528,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       по Ctrl-f имя должно отвечать условиям на панели */
     if (ViewSettings.FolderUpperCase)
     {
-      if ( FileAttr & FA_DIREC )
+      if ( FileAttr & FILE_ATTRIBUTE_DIRECTORY )
         strFileName.Upper();
       else
       {
@@ -3557,7 +3550,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       }
     }
     if (ViewSettings.FileUpperToLowerCase)
-      if (!(FileAttr & FA_DIREC) && wcsrchr(strFileName,L'\\') && !IsCaseMixed(wcsrchr(strFileName,L'\\')))
+      if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && wcsrchr(strFileName,L'\\') && !IsCaseMixed(wcsrchr(strFileName,L'\\')))
       {
           wchar_t *lpwszFileName = strFileName.GetBuffer();
 
@@ -3566,7 +3559,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 
           strFileName.ReleaseBuffer();
       }
-    if ( ViewSettings.FileLowerCase && wcsrchr(strFileName,L'\\') && !(FileAttr & FA_DIREC))
+    if ( ViewSettings.FileLowerCase && wcsrchr(strFileName,L'\\') && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
         wchar_t *lpwszFileName = strFileName.GetBuffer();
 
@@ -3911,7 +3904,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
       for (I=0; I < FileCount; I++)
       {
         CurPtr = ListData[I];
-        if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
+        if (CurPtr->Selected && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
         {
           DoubleDotDir = NULL;
           break;
@@ -3931,7 +3924,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
       for (I=1; I < FileCount; I++)
       {
         CurPtr = ListData[I];
-        if (CurPtr->FileAttr & FA_DIREC)
+        if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
         {
           if (GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
           {
@@ -3951,7 +3944,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
   for (I=0; I < FileCount; I++)
   {
     CurPtr = ListData[I];
-    if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
+    if (CurPtr->Selected && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
       SelDirCount++;
       if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
@@ -4093,7 +4086,7 @@ void FileList::ProcessCopyKeys(int Key)
     {
       FileList *AnotherFilePanel=(FileList *)AnotherPanel;
       if (AnotherFilePanel->FileCount>0 &&
-          (AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->FileAttr & FA_DIREC) &&
+          (AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
           !TestParentFolderName(AnotherFilePanel->ListData[AnotherFilePanel->CurFile]->strName))
       {
         AnotherDir=TRUE;

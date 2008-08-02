@@ -177,7 +177,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
   }
 
-  if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
+  if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     const wchar_t *DelMsg;
     const wchar_t *TitleMsg=UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
@@ -185,7 +185,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
        ! Косметика в сообщениях - разные сообщения в зависимости от того,
          какие и сколько элементов выделено.
     */
-    BOOL folder=(FileAttr & FA_DIREC);
+    BOOL folder=(FileAttr & FILE_ATTRIBUTE_DIRECTORY);
 
     if (SelCount==1)
     {
@@ -275,7 +275,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       if (Length==0 || (strSelName.At(0)==L'\\' && Length<2) ||
           (strSelName.At(1)==L':' && Length<4))
         continue;
-      if (FileAttr & FA_DIREC)
+      if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
       {
         if (!DeleteAllFolders)
         {
@@ -329,11 +329,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 strShortName += FindData.strAlternateFileName; //???
             }
 
-            if (FindData.dwFileAttributes & FA_DIREC)
+            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
-                if (FindData.dwFileAttributes & FA_RDONLY)
+                if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
@@ -375,7 +375,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
               if (ScTree.IsDirSearchDone())
               {
-                if (FindData.dwFileAttributes & FA_RDONLY)
+                if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
@@ -413,7 +413,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if (!Cancel)
         {
           ShellDeleteMsg(strSelName,Wipe);
-          if (FileAttr & FA_RDONLY)
+          if (FileAttr & FILE_ATTRIBUTE_READONLY)
             SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
           // нефига здесь выделываться, а надо учесть, что удаление
@@ -523,7 +523,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe)
 int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 {
   int MsgCode;
-  if ((Attr & FA_RDONLY)==0)
+  if ((Attr & FILE_ATTRIBUTE_READONLY)==0)
     return(DELETE_YES);
   if (ReadOnlyDeleteMode!=-1)
     MsgCode=ReadOnlyDeleteMode;
@@ -708,7 +708,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
   ConvertNameToFull(Name, strFullName);
 
   // При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributesW(Name) == FA_DIREC)
+  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributesW(Name) == FILE_ATTRIBUTE_DIRECTORY)
   {
     string strFullName2;
     FAR_FIND_DATA_EX FindData;
@@ -877,7 +877,7 @@ void DeleteDirTree(const wchar_t *Dir)
   while (ScTree.GetNextName(&FindData, strFullName))
   {
     SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
-    if (FindData.dwFileAttributes & FA_DIREC)
+    if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       if (ScTree.IsDirSearchDone())
         apiRemoveDirectory(strFullName);

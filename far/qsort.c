@@ -31,13 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop
 
-#if defined(__BORLANDC__)
-#pragma intrinsic memcpy
-#elif defined(_MSC_VER)
+#ifdef _MSC_VER
 #pragma intrinsic (memcpy)
 #endif
 
@@ -698,8 +695,6 @@ static void  swap_m(
    memcpy(b, t, width);
 }
 
-#if defined(__BORLANDC__)
-#pragma intrinsic -memcpy
-#else
+#if 1
 //#pragma intrinsic -(memcpy)
 #endif

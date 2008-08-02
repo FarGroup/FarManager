@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fn.hpp"
 
-#if defined(__BORLANDC__) || defined(__GNUC__)
+#ifdef __GNUC__
 typedef int __cdecl (*TARRAYCMPFUNC)(const void *el1,const void *el2);
 #else
 typedef int (*TARRAYCMPFUNC)(const void *el1,const void *el2);

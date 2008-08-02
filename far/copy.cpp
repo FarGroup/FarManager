@@ -910,7 +910,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             string strDestDizName;
             DestDiz.GetDizName(strDestDizName);
             DWORD Attr=GetFileAttributesW(strDestDizName);
-            int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FA_RDONLY));
+            int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
             if(DestList.IsEmpty()) // Скидываем только во время последней Op.
               if (WorkMove && !DestReadOnly)
                 SrcPanel->FlushDiz();
@@ -935,7 +935,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       string strDestDizName;
       DestDiz.GetDizName(strDestDizName);
       DWORD Attr=GetFileAttributesW(strDestDizName);
-      int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FA_RDONLY));
+      int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
       if (Move && !DestReadOnly)
         SrcPanel->FlushDiz();
       DestDiz.Flush(strDestDizPath);
@@ -1803,7 +1803,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
               if (ScTree.IsDirSearchDone() ||
                   ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
               {
-                if (SrcData.dwFileAttributes & FA_RDONLY)
+                if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
                   SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
 remove_moved_directory:
                 if (apiRemoveDirectory(strFullName))
@@ -1825,7 +1825,7 @@ remove_moved_directory:
 
       if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
       {
-        if (FileAttr & FA_RDONLY)
+        if (FileAttr & FILE_ATTRIBUTE_READONLY)
           SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
 
         if (apiRemoveDirectory(strSelName))
@@ -2106,8 +2106,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
         {
           DWORD SetAttr=SrcData.dwFileAttributes;
-          if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
-            SetAttr&=~FA_RDONLY;
+          if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FILE_ATTRIBUTE_READONLY))
+            SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
           if (SetAttr!=DestAttr)
             ShellSetAttr(strDestPath,SetAttr);
@@ -2217,8 +2217,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
       DWORD SetAttr=SrcData.dwFileAttributes;
 
-      if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
-        SetAttr&=~FA_RDONLY;
+      if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FILE_ATTRIBUTE_READONLY))
+        SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
       if((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
       {
@@ -2386,7 +2386,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         ConvertNameToFull(Src,strSrcFullName);
 
         if (NWFS_Attr)
-          SetFileAttributesW(strSrcFullName,SrcData.dwFileAttributes&(~FA_RDONLY));
+          SetFileAttributesW(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
 
         SECURITY_ATTRIBUTES sa;
         IsSetSecuty=FALSE;
@@ -2478,8 +2478,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
 
         if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
-            (SrcData.dwFileAttributes & FA_RDONLY))
-          ShellSetAttr(strDestPath,SrcData.dwFileAttributes & (~FA_RDONLY));
+            (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+          ShellSetAttr(strDestPath,SrcData.dwFileAttributes & (~FILE_ATTRIBUTE_READONLY));
 
         TotalFiles++;
         if (AskDelete && DeleteAfterMove(Src,SrcData.dwFileAttributes)==COPY_CANCEL)
@@ -2498,8 +2498,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
         {
           if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
-              (SrcData.dwFileAttributes & FA_RDONLY))
-            ShellSetAttr(strDestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
+              (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+            ShellSetAttr(strDestPath,SrcData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 
           if (DestAttr!=INVALID_FILE_ATTRIBUTES && StrCmpI(strCopiedName,DestData.strFileName)==0 &&
               StrCmp(strCopiedName,DestData.strFileName)!=0)
@@ -2785,7 +2785,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 
 int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
 {
-  if (Attr & FA_RDONLY)
+  if (Attr & FILE_ATTRIBUTE_READONLY)
   {
     int MsgCode;
     if (ReadOnlyDelMode!=-1)
@@ -2812,7 +2812,7 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
     }
     SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
   }
-  while((Attr&FA_DIREC)?!apiRemoveDirectory(Name):_wremove(Name)!=0)
+  while((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):_wremove(Name)!=0)
   {
     int MsgCode;
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
@@ -3333,7 +3333,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
     // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
-        (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
+        (SrcData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_READONLY)))
       ShellSetAttr(DestName,SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)));
     ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
   }
@@ -3586,7 +3586,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
       RetCode=COPY_CANCEL;
       return(FALSE);
   }
-  if ((DestAttr & FA_RDONLY) && !(ShellCopy::Flags&FCOPY_OVERWRITENEXT))
+  if ((DestAttr & FILE_ATTRIBUTE_READONLY) && !(ShellCopy::Flags&FCOPY_OVERWRITENEXT))
   {
     int MsgCode;
     if (SameName)
@@ -3656,7 +3656,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         return(FALSE);
     }
   }
-  if (!SameName && (DestAttr & (FA_RDONLY|FA_HIDDEN|FA_SYSTEM)))
+  if (!SameName && (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
     SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
   return(TRUE);
 }
@@ -3802,9 +3802,6 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;
-#ifndef COPY_FILE_ALLOW_DECRYPTED_DESTINATION
-#define COPY_FILE_ALLOW_DECRYPTED_DESTINATION 0x00000008
-#endif
     if (!apiCopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,
          ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
     {
@@ -3832,14 +3829,6 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
     return(COPY_CANCEL);
   return(COPY_SUCCESS);
 }
-
-
-#define PROGRESS_CONTINUE  0
-#define PROGRESS_CANCEL    1
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
-
 
 DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
       LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
@@ -3884,12 +3873,6 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   }
   return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
-
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
-
-
 
 int ShellCopy::IsSameDisk(const wchar_t *SrcPath,const wchar_t *DestPath)
 {

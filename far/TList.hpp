@@ -33,10 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if defined(__BORLANDC__)
-  #pragma warn -inl
-#endif
-
 template <class Object>
 class TList
 {
@@ -264,9 +260,5 @@ class TList
     TList& operator=(const TList& rhs); /* чтобы не генерировалось */
     TList(const TList& rhs);            /* по умолчанию            */
 };
-
-#if defined(__BORLANDC__)
-  #pragma warn .inl
-#endif
 
 #endif // __TLIST_HPP__

@@ -251,8 +251,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   for (FileCount=0; !Done; )
   {
     if ((fdata.strFileName.At(0) != L'.' || fdata.strFileName.At(1) != 0) &&
-        (Opt.ShowHidden || (fdata.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM))==0) &&
-        (//(fdata.dwFileAttributes & FA_DIREC) ||
+        (Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) &&
+        (//(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
         Filter->FileInFilter(&fdata)))
     {
       int UpperDir=FALSE;
@@ -295,7 +295,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       NewPtr->Position=FileCount++;
       NewPtr->NumberOfLinks=1;
 
-      if ((fdata.dwFileAttributes & FA_DIREC) == 0)
+      if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
       {
         TotalFileSize += NewPtr->UnpSize;
         int Compressed=FALSE;
@@ -305,7 +305,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
           dwLoPart = GetCompressedFileSizeW (fdata.strFileName, &dwHighPart);
 
-          if ( (dwLoPart != (DWORD)-1) || (GetLastError () != NO_ERROR) )
+          if ( (dwLoPart != INVALID_FILE_SIZE) || (GetLastError () != NO_ERROR) )
           {
             NewPtr->PackSize = dwHighPart*_ui64(0x100000000)+dwLoPart;
             Compressed=TRUE;
@@ -330,7 +330,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       if (NeedHighlight)
         CtrlObject->HiFiles->GetHiColor(&NewPtr,1);
 
-      if (!UpperDir && (fdata.dwFileAttributes & FA_DIREC)==0)
+      if (!UpperDir && (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         TotalFileCount++;
 
       //memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
@@ -445,7 +445,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
           CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(&fdata);
-          if (!TestParentFolderName(fdata.lpwszFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
+          if (!TestParentFolderName(fdata.lpwszFileName) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
             TotalFileCount++;
         }
         // цветовую боевую раскраску в самом конце, за один раз
@@ -712,10 +712,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CurListData->Clear ();
 
     if (Info.Flags & OPIF_USEFILTER)
-      //if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
+      //if ((CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         if (!Filter->FileInFilter(&CurPanelData->FindData))
           continue;
-    if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM)))
+    if (!Opt.ShowHidden && (CurPanelData->FindData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
       continue;
 
 
@@ -728,7 +728,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
-    if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FA_DIREC)==0*/)
+    if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0*/)
       CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&CurPanelData->FindData);
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
@@ -740,10 +740,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     if (TestParentFolderName(CurListData->strName))
     {
       DotsPresent=TRUE;
-      CurListData->FileAttr|=FA_DIREC;
+      CurListData->FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
     }
     else
-      if ((CurListData->FileAttr & FA_DIREC)==0)
+      if ((CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
         TotalFileCount++;
     TotalFileSize += CurListData->UnpSize;
     FileListCount++;
@@ -896,7 +896,7 @@ void FileList::ReadSortGroups()
   for (int I=0;I<FileCount;I++)
   {
       CurPtr = ListData[I];
-    //if ((CurPtr->FileAttr & FA_DIREC)==0)
+    //if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
       CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
     //else
       //CurPtr->SortGroup=DEFAULT_SORT_GROUP;

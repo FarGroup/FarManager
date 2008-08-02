@@ -42,15 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern FarQueue<DWORD> *KeyQueue;
 #endif
 
-#if defined(__BORLANDC__)
- #ifdef __TIME_H
- extern clock_t StartIdleTime;
- extern clock_t StartExecTime;
- #endif
-#else
- extern clock_t StartIdleTime;
- extern clock_t StartExecTime;
-#endif
+extern clock_t StartIdleTime;
+extern clock_t StartExecTime;
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H)
 extern DWORD InitialConsoleMode;

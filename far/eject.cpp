@@ -72,11 +72,7 @@ typedef struct _DIOC_REGISTERS {
 //-----------------------------------------------------------------------
 // DOS IOCTL function support
 
-#if defined(__BORLANDC__)
-#pragma option -a1
-#else
 #pragma pack(1)
-#endif
 
 // Parameters for locking/unlocking removable media
 typedef struct _PARAMBLOCK {
@@ -84,11 +80,7 @@ typedef struct _PARAMBLOCK {
    BYTE bNumLocks;
 } PARAMBLOCK, *PPARAMBLOCK;
 
-#if defined(__BORLANDC__)
-#pragma option -a.
-#else
 #pragma pack()
-#endif
 
 /*-----------------------------------------------------------------------
 UnlockMedia (hVWin32, bDrive)

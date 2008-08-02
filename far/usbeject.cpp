@@ -34,60 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#if defined(__BORLANDC__)
-#if (__BORLANDC__ <= 0x0520)
-#ifndef _BASETSD_H_
-#include <basetsd.h>
-#endif
-#endif
-#endif
-
 //#define USED_USB_DETECT_AND_EJECT
 
 #if defined(USED_USB_DETECT_AND_EJECT)
-
-#if defined(__BORLANDC__)
-#if (__BORLANDC__ <= 0x0520)
-#ifndef _NTDEF_
-//#include <ntdef.h>
-
-//
-// Neutral ANSI/UNICODE types and macros
-//
-#ifdef  UNICODE                     // r_winnt
-
-#ifndef _TCHAR_DEFINED
-typedef WCHAR TCHAR, *PTCHAR;
-typedef WCHAR TUCHAR, *PTUCHAR;
-#define _TCHAR_DEFINED
-#endif /* !_TCHAR_DEFINED */
-
-typedef LPWSTR LPTCH, PTCH;
-typedef LPWSTR PTSTR, LPTSTR;
-typedef LPCWSTR PCTSTR, LPCTSTR;
-typedef LPUWSTR PUTSTR, LPUTSTR;
-typedef LPCUWSTR PCUTSTR, LPCUTSTR;
-typedef LPWSTR LP;
-#define __TEXT(quote) L##quote      // r_winnt
-
-#else   /* UNICODE */               // r_winnt
-
-#ifndef _TCHAR_DEFINED
-typedef char TCHAR, *PTCHAR;
-typedef unsigned char TUCHAR, *PTUCHAR;
-#define _TCHAR_DEFINED
-#endif /* !_TCHAR_DEFINED */
-
-typedef LPSTR LPTCH, PTCH;
-typedef LPSTR PTSTR, LPTSTR, PUTSTR, LPUTSTR;
-typedef LPCSTR PCTSTR, LPCTSTR, PCUTSTR, LPCUTSTR;
-#define __TEXT(quote) quote         // r_winnt
-
-#endif /* UNICODE */                // r_winnt
-
-#endif
-#endif
-#endif
 
 #include <setupapi.h> // Это находится в SDK
 #include <cfgmgr32.h> // Это находится в SDK. Правда ему требуется еще cfg.h, которого в моем sdk
@@ -311,16 +260,6 @@ BOOL IsDriveUsb(
 {
 
 #if defined(USED_USB_DETECT_AND_EJECT)
-
-#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x0520)
-const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b } };
-#define VolumeClassGuid             GUID_DEVINTERFACE_VOLUME
-
-#define DIGCF_DEVICEINTERFACE   0x00000010
-#define ERROR_INVALID_DRIVE_OBJECT       4321L
-
-#endif
-
 
   HDEVINFO hDevs;
   char dosDev[7];

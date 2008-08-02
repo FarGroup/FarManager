@@ -34,9 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "headers.hpp"
-#if defined(__BORLANDC__)
-	#pragma hdrstop
-#endif
 
 class GuardLastError
 {

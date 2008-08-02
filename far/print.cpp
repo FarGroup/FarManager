@@ -72,11 +72,11 @@ void PrintFiles(Panel *SrcPanel)
   }
 
   // проверка каталогов
-  _ALGO(SysLog(L"Check for FA_DIREC"));
+  _ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
   SrcPanel->GetSelName(NULL,FileAttr);
   while (SrcPanel->GetSelName(&strSelName,FileAttr))
   {
-    if (TestParentFolderName(strSelName) || (FileAttr & FA_DIREC))
+    if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
       DirsCount++;
   }
 
@@ -173,7 +173,7 @@ void PrintFiles(Panel *SrcPanel)
     SrcPanel->GetSelName(NULL,FileAttr);
     while (SrcPanel->GetSelName(&strSelName,FileAttr))
     {
-      if (TestParentFolderName(strSelName) || (FileAttr & FA_DIREC))
+      if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
         continue;
       int Success=FALSE;
 

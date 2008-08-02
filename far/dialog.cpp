@@ -524,7 +524,7 @@ int Dialog::InitDialogObjects(int ID)
   }
 
   //   если FocusPos в пределах и элемент задисаблен, то ищем сначала.
-  if(FocusPos >= 0 && (unsigned)FocusPos < ItemCount &&
+  if(FocusPos < ItemCount &&
      (Item[FocusPos]->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
     FocusPos = (unsigned)-1; // будем искать сначала!
 

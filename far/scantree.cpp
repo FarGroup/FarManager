@@ -94,12 +94,12 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
     {
       if (Data[FindHandleCount].Flags.Check(FSCANTREE_SECONDPASS))
       {
-        if (!Done && (fdata->dwFileAttributes & FA_DIREC)==0)
+        if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
           continue;
       }
       else
       {
-        if (!Done && (fdata->dwFileAttributes & FA_DIREC))
+        if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
           continue;
         if (Done)
         {
@@ -161,7 +161,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
        то в него не ломимся.
     */
     if (Flags.Check(FSCANTREE_RECUR) &&
-      ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
+      ((fdata->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) == FILE_ATTRIBUTE_DIRECTORY ||
           ((fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
     {
       CutToSlash(strFindPath);

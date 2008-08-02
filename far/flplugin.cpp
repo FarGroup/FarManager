@@ -259,7 +259,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
 
 HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 {
-  if(!FileName || !*FileName || (FileAttr&FA_DIREC))
+  if(!FileName || !*FileName || (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
     return(INVALID_HANDLE_VALUE);
 
   SetCurPath();
@@ -330,14 +330,14 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
     memset(ItemList,0,sizeof(struct PluginPanelItem) * (SelFileCount+1));
     GetSelName(NULL,FileAttr);
     while (GetSelName(&strSelName,FileAttr))
-      if (((FileAttr & FA_DIREC)==0 || !TestParentFolderName(strSelName))
+      if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || !TestParentFolderName(strSelName))
           && LastSelPosition>=0 && LastSelPosition<FileCount)
       {
         FileListToPluginItem(ListData[LastSelPosition],ItemList+ItemNumber);
         ItemNumber++;
       }
 
-    if(AddTwoDot && !ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
+    if(AddTwoDot && !ItemNumber && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
     {
       FileListToPluginItem(ListData[0],ItemList+ItemNumber);
       //ItemList->FindData.lpwszFileName = xf_wcsdup (ListData[0]->strName);

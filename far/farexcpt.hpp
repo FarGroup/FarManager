@@ -35,15 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugins.hpp"
 
-#if defined(__BORLANDC__)
-  #pragma option -a2
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+#if defined(__GNUC__)
   #pragma pack(2)
 #else
   #pragma pack(push,2)
 #endif
-
-#define FAR_LOG_VERSION  1
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
@@ -200,9 +196,7 @@ struct FARExceptionState {
   struct RECHEADER   *Head;
 };
 
-#if defined(__BORLANDC__)
-  #pragma option -a.
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+#if defined(__GNUC__)
   #pragma pack()
 #else
   #pragma pack(pop)

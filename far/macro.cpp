@@ -929,8 +929,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           if(SelPanel!=NULL)
           {
             SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-            if(FileAttr != (DWORD)-1)
-              Cond=(FileAttr&FA_DIREC)?1:0;
+            if(FileAttr != INVALID_FILE_ATTRIBUTES)
+              Cond=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:0;
           }
           break;
         }
@@ -957,7 +957,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           if ( SelPanel != NULL )
           {
             SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-            if ( FileAttr != (DWORD)-1 )
+            if ( FileAttr != INVALID_FILE_ATTRIBUTES )
               Cond = (const wchar_t*)strFileName;
           }
           break;
@@ -4366,12 +4366,12 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassiveP
   {
     if(IsPassivePanel)
     {
-      if(((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_PNOFILES)))
+      if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFILES)))
         return FALSE;
     }
     else
     {
-      if(((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFILES)))
+      if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFILES)))
         return FALSE;
     }
   }

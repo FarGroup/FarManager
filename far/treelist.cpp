@@ -392,7 +392,7 @@ void TreeList::Update(int Mode)
     SyncDir();
 
     struct TreeItem *CurPtr=ListData[CurFile];
-    if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
+    if (GetFileAttributesW(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
     {
       DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);
@@ -492,7 +492,7 @@ int TreeList::ReadTree()
       ListData = TmpListData;
     }
 
-    if (!(fdata.dwFileAttributes & FA_DIREC))
+    if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       continue;
 
     ListData[TreeCount] = new TreeItem;
@@ -1178,10 +1178,6 @@ void TreeList::CorrectPosition()
     CurTopFile=CurFile-(Height-1);
 }
 
-
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
 BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
   if (TreeCount==0)
@@ -1198,12 +1194,6 @@ BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
   }
   return TRUE; //???
 }
-
-
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
-
 
 int TreeList::SetDirPosition(const wchar_t *NewDir)
 {
@@ -1336,7 +1326,7 @@ void TreeList::ProcessEnter()
   struct TreeItem *CurPtr;
   DWORD Attr;
   CurPtr=ListData[CurFile];
-  if ((Attr=GetFileAttributesW(CurPtr->strName))!=(DWORD)-1 && (Attr & FA_DIREC))
+  if ((Attr=GetFileAttributesW(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
   {
     if (!ModalMode && FarChDir(CurPtr->strName))
     {
@@ -1513,7 +1503,7 @@ int TreeList::GetSelName(string *strName,DWORD &FileAttr,string *strShortName,FA
     GetCurDir(*strName);
     if ( strShortName != NULL)
       *strShortName = *strName;
-    FileAttr=FA_DIREC;
+    FileAttr=FILE_ATTRIBUTE_DIRECTORY;
     GetSelPosition++;
     return(TRUE);
   }
@@ -1659,9 +1649,10 @@ void TreeList::ReadSubTree(const wchar_t *Path)
   string strDirName;
   string strFullName;
 
-  int Count=0,FileAttr;
+  int Count=0;
+  DWORD FileAttr;
 
-  if ((FileAttr=GetFileAttributesW(Path))==-1 || (FileAttr & FA_DIREC)==0)
+  if ((FileAttr=GetFileAttributesW(Path))==INVALID_FILE_ATTRIBUTES || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     return;
 
   ConvertNameToFull(Path, strDirName);
@@ -1679,7 +1670,7 @@ void TreeList::ReadSubTree(const wchar_t *Path)
 
   while (ScTree.GetNextName(&fdata, strFullName))
   {
-    if (fdata.dwFileAttributes & FA_DIREC)
+    if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       TreeList::MsgReadTree(Count+1,FirstCall);
       if (CheckForEscSilent())
@@ -1855,7 +1846,7 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 
   strName = ListData[Pos]->strName;
 
-  FileAttr=FA_DIREC|GetFileAttributesW(ListData[Pos]->strName);
+  FileAttr=FILE_ATTRIBUTE_DIRECTORY|GetFileAttributesW(ListData[Pos]->strName);
 
   return TRUE;
 }
@@ -1946,7 +1937,7 @@ void TreeList::KillFocus()
   if (CurFile<TreeCount)
   {
     struct TreeItem *CurPtr=ListData[CurFile];
-    if (GetFileAttributesW(CurPtr->strName)==(DWORD)-1)
+    if (GetFileAttributesW(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
     {
       DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);

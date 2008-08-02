@@ -316,9 +316,6 @@ int QuickView::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return(FALSE);
 }
 
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
 void QuickView::Update(int Mode)
 {
   if (!EnableUpdate)
@@ -327,10 +324,6 @@ void QuickView::Update(int Mode)
     CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
   Redraw();
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
-
 
 void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
@@ -363,7 +356,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
         strCurFileType=L"";
     }
   }
-  if (hDirPlugin || ((FileAttr=GetFileAttributesW(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FA_DIREC)))
+  if (hDirPlugin || ((FileAttr=GetFileAttributesW(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
     strCurFileType=L"";
@@ -456,7 +449,7 @@ void QuickView::QViewDelTempName()
       QView=NULL;
     }
 
-    SetFileAttributesW (strTempName, FILE_ATTRIBUTE_ARCHIVE); //was chmod(TempName,S_IREAD|S_IWRITE);
+    SetFileAttributesW (strTempName, FILE_ATTRIBUTE_ARCHIVE);
     DeleteFileW (strTempName); //BUGBUG
 
     CutToSlash(strTempName);

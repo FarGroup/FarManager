@@ -396,7 +396,7 @@ int CheckFolder(const wchar_t *Name);
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
-UDWORD NTTimeToDos(FILETIME *ft);
+DWORD NTTimeToDos(FILETIME *ft);
 int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 #endif
 

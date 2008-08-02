@@ -1183,14 +1183,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       };
       DWORD WriteCount;
       TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-      #if defined(USE_WFUNC_IN)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
         WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
       else
         WriteConsoleInputA(hConInp,TempRec,2,&WriteCount);
-      #else
-      WriteConsoleInput(hConInp,TempRec,2,&WriteCount);
-      #endif
     }
 */
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));

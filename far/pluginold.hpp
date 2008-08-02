@@ -85,8 +85,6 @@ namespace oldfar
   #endif
 #endif
 
-//#define NM 260
-
 //#define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
 #ifdef FAR_USE_INTERNALS

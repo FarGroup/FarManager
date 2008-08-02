@@ -177,18 +177,18 @@ void ProcessUserMenu(int EditMenu)
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      int FileAttr=GetFileAttributesW(strMenuFileFullPath);
-      if (FileAttr!=-1)
+      DWORD FileAttr=GetFileAttributesW(strMenuFileFullPath);
+      if (FileAttr!=INVALID_FILE_ATTRIBUTES)
       {
-        if (FileAttr & FA_RDONLY)
+        if (FileAttr & FILE_ATTRIBUTE_READONLY)
         {
           int AskOverwrite;
           AskOverwrite=Message(MSG_WARNING,2,UMSG(MUserMenuTitle),LocalMenuFileName,
                        UMSG(MEditRO),UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
           if (AskOverwrite==0)
-            SetFileAttributesW(strMenuFileFullPath,FileAttr & ~FA_RDONLY);
+            SetFileAttributesW(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
         }
-        if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
+        if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
           SetFileAttributesW(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
       }
       if ((MenuFile=_wfopen(strMenuFileFullPath,L"wb"))!=NULL)

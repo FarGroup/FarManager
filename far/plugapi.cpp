@@ -155,9 +155,6 @@ BOOL WINAPI FarShowHelp (
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
   struct Opt2Flags{
@@ -664,9 +661,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
   }
   return FALSE;
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
 
 int WINAPI FarMenuFn (
 		INT_PTR PluginNumber,
@@ -1695,13 +1689,13 @@ void ScanPluginDir()
 	for (I=0;I<ItemCount && !StopSearch;I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+I;
-		if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC)==0)
+		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
 			CopyPluginDirItem (CurPanelItem);
 	}
 	for (I=0;I<ItemCount && !StopSearch;I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+I;
-		if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
+		if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
 				StrCmp(CurPanelItem->FindData.lpwszFileName,L".")!=0 &&
 				!TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
 
@@ -1780,10 +1774,6 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
   xf_free((void*)PanelItem);
 }
 
-
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags)
 {
@@ -1972,10 +1962,6 @@ int WINAPI FarEditor(
   }
   return ExitCode;
 }
-#if defined(__BORLANDC__)
-#pragma warn +par
-#endif
-
 
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 {

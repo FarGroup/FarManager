@@ -288,9 +288,9 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
     }
   }
   {
-    DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):(DWORD)-1;
+    DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):INVALID_FILE_ATTRIBUTES;
     if((EdOpt.ReadOnlyLock&1) &&
-       FileAttributes != -1 &&
+       FileAttributes != INVALID_FILE_ATTRIBUTES &&
        (FileAttributes &
           (FILE_ATTRIBUTE_READONLY|
              ((EdOpt.ReadOnlyLock&0x60)>>4)

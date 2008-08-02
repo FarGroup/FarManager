@@ -602,7 +602,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     if (SelCount==1)
     {
-      if((FileAttr & FA_DIREC))
+      if((FileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
         if(!DlgParam.Plugin && strSelName.At(strSelName.GetLength()-1) != L'\\')
         {
@@ -621,10 +621,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
             ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
           }
-          AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
-          AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
-          AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FA_HIDDEN)!=0;
-          AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FA_SYSTEM)!=0;
+          AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
+          AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
+          AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
+          AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
           AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
           AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
           AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
@@ -717,10 +717,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_NAME].strData = strSelName;
       TruncStr(AttrDlg[SETATTR_NAME].strData,54);
 
-      AttrDlg[SETATTR_RO].Selected=(FileAttr & FA_RDONLY)!=0;
-      AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FA_ARCH)!=0;
-      AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FA_HIDDEN)!=0;
-      AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FA_SYSTEM)!=0;
+      AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
+      AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
+      AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
+      AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
       AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
       AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
       AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
@@ -769,16 +769,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData))
       {
-        if(!J && (FileAttr & FA_DIREC))
+        if(!J && (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
         {
           FolderPresent=TRUE;
           AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
           J++;
         }
-        AttrDlg[SETATTR_RO].Selected+=(FileAttr & FA_RDONLY)?1:0;
-        AttrDlg[SETATTR_ARCHIVE].Selected+=(FileAttr & FA_ARCH)?1:0;
-        AttrDlg[SETATTR_HIDDEN].Selected+=(FileAttr & FA_HIDDEN)?1:0;
-        AttrDlg[SETATTR_SYSTEM].Selected+=(FileAttr & FA_SYSTEM)?1:0;
+        AttrDlg[SETATTR_RO].Selected+=(FileAttr & FILE_ATTRIBUTE_READONLY)?1:0;
+        AttrDlg[SETATTR_ARCHIVE].Selected+=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)?1:0;
+        AttrDlg[SETATTR_HIDDEN].Selected+=(FileAttr & FILE_ATTRIBUTE_HIDDEN)?1:0;
+        AttrDlg[SETATTR_SYSTEM].Selected+=(FileAttr & FILE_ATTRIBUTE_SYSTEM)?1:0;
         AttrDlg[SETATTR_COMPRESSED].Selected+=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)?1:0;
         AttrDlg[SETATTR_ENCRYPTED].Selected+=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?1:0;
         AttrDlg[SETATTR_INDEXED].Selected+=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)?1:0;
@@ -823,7 +823,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       DlgParam.OriginalCBFlag[I-SETATTR_ATTR_FIRST]=AttrDlg[I].Flags;
     }
 
-    DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FA_DIREC)==0)?0:(SelCount==1?1:2));
+    DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)?0:(SelCount==1?1:2));
     DlgParam.strSelName=strSelName;
     DlgParam.OStateF_12=AttrDlg[SETATTR_SUBFOLDERS].Selected;
     DlgParam.OStateC_8=AttrDlg[SETATTR_COMPRESSED].Selected;
@@ -843,16 +843,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
     ShellSetFileAttributesMsg(SelCount==1?(const wchar_t*)strSelName:NULL);
 
-    if (SelCount==1 && (FileAttr & FA_DIREC)==0)
+    if (SelCount==1 && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     {
       if(IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor,SkipMode) == 1)
       {
         int NewAttr;
-        NewAttr=FileAttr & FA_DIREC;
-        if (AttrDlg[SETATTR_RO].Selected)         NewAttr|=FA_RDONLY;
-        if (AttrDlg[SETATTR_ARCHIVE].Selected)    NewAttr|=FA_ARCH;
-        if (AttrDlg[SETATTR_HIDDEN].Selected)     NewAttr|=FA_HIDDEN;
-        if (AttrDlg[SETATTR_SYSTEM].Selected)     NewAttr|=FA_SYSTEM;
+        NewAttr=FileAttr & FILE_ATTRIBUTE_DIRECTORY;
+        if (AttrDlg[SETATTR_RO].Selected)         NewAttr|=FILE_ATTRIBUTE_READONLY;
+        if (AttrDlg[SETATTR_ARCHIVE].Selected)    NewAttr|=FILE_ATTRIBUTE_ARCHIVE;
+        if (AttrDlg[SETATTR_HIDDEN].Selected)     NewAttr|=FILE_ATTRIBUTE_HIDDEN;
+        if (AttrDlg[SETATTR_SYSTEM].Selected)     NewAttr|=FILE_ATTRIBUTE_SYSTEM;
         if (AttrDlg[SETATTR_COMPRESSED].Selected) NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
         if (AttrDlg[SETATTR_ENCRYPTED].Selected)  NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
         if (AttrDlg[SETATTR_INDEXED].Selected)    NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
@@ -891,7 +891,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         else
           SetWriteTimeRetCode=SETATTR_RET_OK;
 
-  //      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
+  //      if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
         if(SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
         {
           int Ret=SETATTR_RET_OK;
@@ -924,14 +924,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       SetAttr=0;  ClearAttr=0;
 
-      if (AttrDlg[SETATTR_RO].Selected == 1)         SetAttr|=FA_RDONLY;
-      else if (!AttrDlg[SETATTR_RO].Selected)        ClearAttr|=FA_RDONLY;
-      if (AttrDlg[SETATTR_ARCHIVE].Selected == 1)    SetAttr|=FA_ARCH;
-      else if (!AttrDlg[SETATTR_ARCHIVE].Selected)   ClearAttr|=FA_ARCH;
-      if (AttrDlg[SETATTR_HIDDEN].Selected == 1)     SetAttr|=FA_HIDDEN;
-      else if (!AttrDlg[SETATTR_HIDDEN].Selected)    ClearAttr|=FA_HIDDEN;
-      if (AttrDlg[SETATTR_SYSTEM].Selected == 1)     SetAttr|=FA_SYSTEM;
-      else if (!AttrDlg[SETATTR_SYSTEM].Selected)    ClearAttr|=FA_SYSTEM;
+      if (AttrDlg[SETATTR_RO].Selected == 1)         SetAttr|=FILE_ATTRIBUTE_READONLY;
+      else if (!AttrDlg[SETATTR_RO].Selected)        ClearAttr|=FILE_ATTRIBUTE_READONLY;
+      if (AttrDlg[SETATTR_ARCHIVE].Selected == 1)    SetAttr|=FILE_ATTRIBUTE_ARCHIVE;
+      else if (!AttrDlg[SETATTR_ARCHIVE].Selected)   ClearAttr|=FILE_ATTRIBUTE_ARCHIVE;
+      if (AttrDlg[SETATTR_HIDDEN].Selected == 1)     SetAttr|=FILE_ATTRIBUTE_HIDDEN;
+      else if (!AttrDlg[SETATTR_HIDDEN].Selected)    ClearAttr|=FILE_ATTRIBUTE_HIDDEN;
+      if (AttrDlg[SETATTR_SYSTEM].Selected == 1)     SetAttr|=FILE_ATTRIBUTE_SYSTEM;
+      else if (!AttrDlg[SETATTR_SYSTEM].Selected)    ClearAttr|=FILE_ATTRIBUTE_SYSTEM;
 
       if (AttrDlg[SETATTR_COMPRESSED].Selected == 1)
       {
@@ -1004,7 +1004,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+          //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
           //  RetCode=1;
           //else
           if(SkipMode!=-1)
@@ -1068,7 +1068,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           }
         }
 
-        if ((FileAttr & FA_DIREC) && AttrDlg[SETATTR_SUBFOLDERS].Selected)
+        if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SETATTR_SUBFOLDERS].Selected)
         {
           string strFullName;
           ScanTree ScTree(FALSE);
@@ -1102,7 +1102,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FA_DIREC))
+              //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
               //  RetCode=1;
               //else
                 RetCode=ESetFileTime(strFullName,SetWriteTime ? &LastWriteTime:NULL,
@@ -1219,7 +1219,7 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
     // получаем инфу про оригинальную дату и время файла.
     HANDLE hFile= apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
-                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+                 (FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     if (hFile==INVALID_HANDLE_VALUE)
       return(FALSE);
     GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
@@ -1298,15 +1298,15 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
 
 static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg,int SkipMode)
 {
-  if ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+  if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     return SETATTR_RET_OK;
 
   while (1)
   {
-    if (FileAttr & FA_RDONLY)
-      SetFileAttributesW(Name,FileAttr & ~FA_RDONLY);
+    if (FileAttr & FILE_ATTRIBUTE_READONLY)
+      SetFileAttributesW(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
-    HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     BOOL Writable=TRUE;
     if(hFile == INVALID_HANDLE_VALUE)
       Writable=FALSE;
@@ -1314,7 +1314,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
       CloseHandle(hFile);
 
     DWORD LastError=GetLastError();
-    if (FileAttr & FA_RDONLY)
+    if (FileAttr & FILE_ATTRIBUTE_READONLY)
       SetFileAttributesW(Name,FileAttr);
     SetLastError(LastError);
 

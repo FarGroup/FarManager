@@ -534,7 +534,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
         return TRUE;
     }
     else
-        pFindData->dwFileAttributes = (DWORD)-1; //BUGBUG
+        pFindData->dwFileAttributes = INVALID_FILE_ATTRIBUTES; //BUGBUG
 
     return FALSE;
 }

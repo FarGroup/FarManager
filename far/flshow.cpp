@@ -511,7 +511,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
   }
   const wchar_t *DotPtr;
   if (!ShowStatus &&
-      ((!(FileAttr&FA_DIREC) && ViewSettings.AlignExtensions) || ((FileAttr&FA_DIREC) && ViewSettings.FolderAlignExtensions))
+      ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.AlignExtensions) || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && ViewSettings.FolderAlignExtensions))
       && SrcLength<=MaxLength &&
       (DotPtr=wcsrchr(SrcName,L'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!=L'.' || SrcName[2]!=0) && wcschr(DotPtr+1,L' ')==NULL)
@@ -918,11 +918,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!ShowStatus)
                 {
                   if (!ShowShortNames && ViewSettings.FileUpperToLowerCase)
-                    if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(NameCopy))
+                    if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
                       strName.Lower ();
-                  if ((ShowShortNames || ViewSettings.FolderUpperCase) && (CurPtr->FileAttr & FA_DIREC))
+                  if ((ShowShortNames || ViewSettings.FolderUpperCase) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
                     strName.Upper ();
-                  if ((ShowShortNames || ViewSettings.FileLowerCase) && (CurPtr->FileAttr & FA_DIREC)==0)
+                  if ((ShowShortNames || ViewSettings.FileLowerCase) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
                     strName.Lower ();
                 }
                 Text(strName);

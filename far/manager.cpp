@@ -748,8 +748,6 @@ int  Manager::ProcessKey(DWORD Key)
 #elif defined(_MSC_VER)
           _asm _emit 0xF
           _asm _emit 0xB
-#elif defined(__BORLANDC__)
-          __emit__(0xF, 0xB);
 #else
 #error "Unsupported compiler"
 #endif

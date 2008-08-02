@@ -1,8 +1,7 @@
 @echo off
 
 rem set misc far compilation options
-set FAR_MSVCRT=
-set USE_WFUNC=/D "USE_WFUNC" /D "USE_WFUNC_ALW" /D "USE_WFUNC_IN"
+set FAR_ALPHA_VERSION=/D "FAR_ALPHA_VERSION"
 set FARTRY=/EHs-c-
 set CFG_0=Release
 

@@ -39,19 +39,6 @@ const wchar_t VerticalLine=0x2502;
 #define HelpEndLink L'>'
 #define HelpFormatLink L"<%s\\>%s"
 
-typedef unsigned char    UBYTE;
-typedef unsigned short   UWORD;
-typedef unsigned long    UDWORD;
-
-typedef union {
-  __int64 i64;
-  struct {
-    DWORD LowPart;
-    LONG  HighPart;
-  } Part;
-} FAR_INT64;
-
-
 //#define  Min(x,y) (((x)<(y)) ? (x):(y))
 template <class T>
 inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
@@ -64,9 +51,6 @@ inline int IsSpaceA(int x) { return x==' ' || x=='\t'; }
 inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t'; }
 inline int IsEolA(int x)  { return x=='\r' || x=='\n'; }
 inline int IsEol(wchar_t x)  { return x==L'\r' || x==L'\n'; }
-
-#define  FALSE        0
-#define  TRUE         1
 
 #define  NM          260
 
@@ -246,19 +230,12 @@ enum ReadDizFlags {
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
 #define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
 
-#if defined(__BORLANDC__)
-#define TRY      try
-#else
-  #if defined(__GNUC__)
-  #define TRY
-  #else
-  #define TRY   __try
-  #endif
-#endif
 #if defined(__GNUC__)
-#define EXCEPT(a) if (0)
+ #define TRY
+ #define EXCEPT(a) if (0)
 #else
-#define EXCEPT __except
+ #define TRY    __try
+ #define EXCEPT __except
 #endif
 
 enum {
@@ -324,17 +301,6 @@ enum FlagsNameAndPassword{
   GNP_NOOEMTOCHAR  = 0x00000002UL, // не конвертировать имя и пароль OEM->CHAR
 };
 
-/* $ 13.04.2001 VVM
-  + 2000 посылает консольному окну событие с dwEventFlags == MOUSE_WHEELED */
-#ifndef MOUSE_WHEELED
-#define MOUSE_WHEELED 0x0004
-#endif
-
-// Vista посылает консольному окну событие с dwEventFlags == MOUSE_HWHEELED
-#ifndef MOUSE_HWHEELED
-#define MOUSE_HWHEELED 0x0008
-#endif
-
 enum {
     XC_QUIT                = (unsigned long) -777,
     XC_OPEN_ERROR          = 0,
@@ -343,10 +309,6 @@ enum {
     XC_LOADING_INTERRUPTED = 3,
     XC_EXISTS              = 4,
 };
-
-
-#define ENABLE_SWITCH TRUE
-#define DISABLE_SWITCH FALSE
 
 // Размер истории - как для класса History, так и для диалогов!
 #define HISTORY_COUNT    64

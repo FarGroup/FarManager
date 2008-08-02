@@ -26,7 +26,6 @@ Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
 **    Oct. 1978, and Corrigendum, Comm. ACM, June 1979.
 */
 
-#define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop
 

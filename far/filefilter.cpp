@@ -897,7 +897,7 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check)
 {
-  if (!StrCmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FA_DIREC))
+  if (!StrCmp(FileName,L".") || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     return -1;
 
   const wchar_t *DotPtr=wcsrchr(FileName,L'.');
