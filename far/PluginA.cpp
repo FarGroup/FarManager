@@ -172,6 +172,7 @@ PluginA::~PluginA()
 	if (RootKey) xf_free(RootKey);
 	FreePluginInfo();
 	FreeOpenPluginInfo();
+	memset(&OPIA,0,sizeof(oldfar::OpenPluginInfo));
 	Lang.Close();
 }
 
@@ -482,7 +483,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.FarNameToKey=KeyNameToKeyA;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
     //StandardFunctions.XLat=XlatA;
-    //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
+    StandardFunctions.GetFileOwner=GetFileOwnerA;
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearchA;
     StandardFunctions.MkTemp=FarMkTempA;
@@ -1275,7 +1276,7 @@ void PluginA::ClosePlugin (
 	}
 
 	FreeOpenPluginInfo();
-
+	memset(&OPIA,0,sizeof(oldfar::OpenPluginInfo));
 //	m_pManager->m_pCurrentPlugin = (Plugin*)-1;
 }
 
@@ -1350,54 +1351,57 @@ void PluginA::FreeOpenPluginInfo()
 
 void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest)
 {
-	FreeOpenPluginInfo();
-
-	OPI.StructSize = sizeof(OPI);
-	OPI.Flags = Src.Flags;
-
-	if (Src.CurDir)
-		OPI.CurDir = AnsiToUnicode(Src.CurDir);
-
-	if (Src.HostFile)
-		OPI.HostFile = AnsiToUnicode(Src.HostFile);
-
-	if (Src.Format)
-		OPI.Format = AnsiToUnicode(Src.Format);
-
-	if (Src.PanelTitle)
-		OPI.PanelTitle = AnsiToUnicode(Src.PanelTitle);
-
-	if (Src.InfoLines && Src.InfoLinesNumber)
+	if(memcmp(&OPIA,&Src,sizeof(oldfar::OpenPluginInfo)))
 	{
-		ConvertInfoPanelLinesA(Src.InfoLines, (InfoPanelLine**)&OPI.InfoLines, Src.InfoLinesNumber);
-		OPI.InfoLinesNumber = Src.InfoLinesNumber;
+		FreeOpenPluginInfo();
+
+		OPI.StructSize = sizeof(OPI);
+		OPI.Flags = Src.Flags;
+
+		if (Src.CurDir)
+			OPI.CurDir = AnsiToUnicode(Src.CurDir);
+
+		if (Src.HostFile)
+			OPI.HostFile = AnsiToUnicode(Src.HostFile);
+
+		if (Src.Format)
+			OPI.Format = AnsiToUnicode(Src.Format);
+
+		if (Src.PanelTitle)
+			OPI.PanelTitle = AnsiToUnicode(Src.PanelTitle);
+
+		if (Src.InfoLines && Src.InfoLinesNumber)
+		{
+			ConvertInfoPanelLinesA(Src.InfoLines, (InfoPanelLine**)&OPI.InfoLines, Src.InfoLinesNumber);
+			OPI.InfoLinesNumber = Src.InfoLinesNumber;
+		}
+
+		if (Src.DescrFiles && Src.DescrFilesNumber)
+		{
+			OPI.DescrFiles = ArrayAnsiToUnicode((char**)Src.DescrFiles, Src.DescrFilesNumber);
+			OPI.DescrFilesNumber = Src.DescrFilesNumber;
+		}
+
+		if (Src.PanelModesArray && Src.PanelModesNumber)
+		{
+			ConvertPanelModesA(Src.PanelModesArray, (PanelMode**)&OPI.PanelModesArray, Src.PanelModesNumber);
+			OPI.PanelModesNumber	= Src.PanelModesNumber;
+			OPI.StartPanelMode		= Src.StartPanelMode;
+			OPI.StartSortMode			= Src.StartSortMode;
+			OPI.StartSortOrder		= Src.StartSortOrder;
+		}
+
+		if (Src.KeyBar)
+		{
+			OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
+			ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPluginInfo));
+		}
+
+		//if (Src.ShortcutData)
+			//OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
+		memcpy(&OPIA,&Src,sizeof(oldfar::OpenPluginInfo));
 	}
-
-	if (Src.DescrFiles && Src.DescrFilesNumber)
-	{
-		OPI.DescrFiles = ArrayAnsiToUnicode((char**)Src.DescrFiles, Src.DescrFilesNumber);
-		OPI.DescrFilesNumber = Src.DescrFilesNumber;
-	}
-
-	if (Src.PanelModesArray && Src.PanelModesNumber)
-	{
-		ConvertPanelModesA(Src.PanelModesArray, (PanelMode**)&OPI.PanelModesArray, Src.PanelModesNumber);
-		OPI.PanelModesNumber	= Src.PanelModesNumber;
-		OPI.StartPanelMode		= Src.StartPanelMode;
-		OPI.StartSortMode			= Src.StartSortMode;
-		OPI.StartSortOrder		= Src.StartSortOrder;
-	}
-
-	if (Src.KeyBar)
-	{
-		OPI.KeyBar=(KeyBarTitles*) xf_malloc (sizeof(KeyBarTitles));
-		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPluginInfo));
-	}
-
-	//if (Src.ShortcutData)
-		//OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
-
-  memcpy(Dest,&OPI,sizeof(*Dest));
+	memcpy(Dest,&OPI,sizeof(OpenPluginInfo));
 }
 
 void PluginA::GetOpenPluginInfo (
@@ -1473,6 +1477,8 @@ void PluginA::FreePluginInfo()
 
 void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 {
+#define ANSI_MARK
+
 	FreePluginInfo();
 
 	PI.StructSize = sizeof(PI);
@@ -1482,7 +1488,16 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
+#ifdef ANSI_MARK
+		{
+			string strLabel=Src.DiskMenuStrings[i];
+			strLabel+=L" [A]";
+			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
+			wcscpy(p[i],strLabel);
+		}
+#else
 			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
+#endif
 		PI.DiskMenuStrings = p;
 		PI.DiskMenuNumbers = Src.DiskMenuNumbers;
 		PI.DiskMenuStringsNumber = Src.DiskMenuStringsNumber;
@@ -1491,7 +1506,16 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
+#ifdef ANSI_MARK
+		{
+			string strLabel=Src.PluginMenuStrings[i];
+			strLabel+=L" [A]";
+			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
+			wcscpy(p[i],strLabel);
+		}
+#else
 			p[i] = AnsiToUnicode(Src.PluginMenuStrings[i]);
+#endif
 		PI.PluginMenuStrings = p;
 		PI.PluginMenuStringsNumber = Src.PluginMenuStringsNumber;
   }
@@ -1499,7 +1523,16 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
+#ifdef ANSI_MARK
+		{
+			string strLabel=Src.PluginConfigStrings[i];
+			strLabel+=L" [A]";
+			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
+			wcscpy(p[i],strLabel);
+		}
+#else
 			p[i] = AnsiToUnicode(Src.PluginConfigStrings[i]);
+#endif
 		PI.PluginConfigStrings = p;
 		PI.PluginConfigStringsNumber = Src.PluginConfigStringsNumber;
   }

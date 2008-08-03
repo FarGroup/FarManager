@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="far18"
 	ProjectGUID="{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}"
 	RootNamespace="far18"
@@ -211,7 +211,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="c:\newf"
+			OutputDirectory=".\Debug.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -220,7 +220,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;&#x0D;&#x0A;"
+				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -256,7 +256,6 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				EnablePREfast="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

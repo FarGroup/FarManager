@@ -2112,3 +2112,11 @@ int __stdcall farIsAlphaNum(wchar_t Ch)
 {
 	return IsAlphaNum(Ch);
 }
+
+int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner)
+{
+	string strOwner;
+	int Ret=GetFileOwner(Computer,Name,strOwner);
+	wcsncpy(Owner,strOwner,NM);
+	return Ret;
+}

@@ -3118,3 +3118,11 @@ int WINAPI FarCharTableA(int Command,char *Buffer,int BufferSize) //BUGBUG
 {
  	return FarCharTable(Command,Buffer,BufferSize);
 }
+
+int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
+{
+	string strComputer=Computer,strName=Name,strOwner;
+	int Ret=GetFileOwner(strComputer,strName,strOwner);
+	strOwner.GetCharString(Owner,NM);
+	return Ret;
+}

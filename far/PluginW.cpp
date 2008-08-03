@@ -491,7 +491,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.FarNameToKey=KeyNameToKeyW;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
     StandardFunctions.XLat=XlatA;
-    //StandardFunctions.GetFileOwner=GetFileOwner; //BUGBUG
+    StandardFunctions.GetFileOwner=farGetFileOwner;
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
     StandardFunctions.MkTemp=FarMkTemp;

@@ -1946,7 +1946,7 @@ struct OpenPluginInfo
   int                   StartSortOrder;
   const struct KeyBarTitles *KeyBar;
   const wchar_t           *ShortcutData;
-  long                  Reserverd;
+  long                  Reserved;
 };
 
 enum OPENPLUGIN_OPENFROM{

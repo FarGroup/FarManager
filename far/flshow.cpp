@@ -285,6 +285,8 @@ void FileList::ShowFileList(int Fast)
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
     TruncSize-=2;
 
+  // BUGBUG - внутри GetTitle ещё один вызов GetOpenPluginInfo(), при текущем методе хранения
+  // указателей OpenPluginInfo для ansi-плагинов (см. PluginA::ConvertOpenPluginInfo) - это потенциально чревато.
   GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
   Length=(int)strTitle.GetLength();
   int ClockCorrection=FALSE;

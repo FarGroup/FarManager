@@ -450,6 +450,7 @@ int __stdcall farIsUpper(wchar_t Ch);
 int __stdcall farIsAlpha(wchar_t Ch);
 int __stdcall farIsAlphaNum(wchar_t Ch);
 
+int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner);
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
