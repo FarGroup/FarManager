@@ -64,9 +64,11 @@ static int ViewerID=0;
 
 static const wchar_t BorderLine[]={0x2502,0x020,0x00};
 
-Viewer::Viewer()
+Viewer::Viewer(bool bQuickView)
 {
   _OT(SysLog(L"[%p] Viewer::Viewer()", this));
+
+  m_bQuickView = bQuickView;
 
   memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
 
@@ -454,7 +456,7 @@ void Viewer::AdjustWidth()
   Width=X2-X1+1;
   XX2=X2;
 
-  if ( ViOpt.ShowScrollbar )
+  if ( ViOpt.ShowScrollbar && !m_bQuickView )
   {
      Width--;
      XX2--;
@@ -884,7 +886,7 @@ void Viewer::DrawScrollbar()
   if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2,Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+    ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
   }
 }
 
