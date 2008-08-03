@@ -37,36 +37,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+#include "imports.hpp"
 
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 
 HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
-
-/*
-    dwFlags - Specifies the display mode. Options are:
-
-        CONSOLE_FULLSCREEN_MODE - data is displayed fullscreen
-        CONSOLE_WINDOWED_MODE - data is displayed in a window
-
-    lpNewScreenBufferDimensions - On output, contains the new dimensions of
-        the screen buffer.  The dimensions are in rows and columns for
-        textmode screen buffers.
-
-Return Values
-  If the function succeeds, the return value is nonzero
-*/
-typedef BOOL (WINAPI *PROCSETCONSOLEDISPLAYMODEELLWND)(HANDLE hConsoleOutput,DWORD dwFlags,PCOORD lpNewScreenBufferDimensions);
-
-/*
-lpModeFlags - [out] Display mode of the console. This parameter can be one or more of the following values.
-  CONSOLE_FULLSCREEN Full-screen console. The console is in this mode as soon as the window is maximized. At this point, the transition to full-screen mode can still fail.
-  CONSOLE_FULLSCREEN_HARDWARE Full-screen console communicating directly with the video hardware. This mode is set after the console is in CONSOLE_FULLSCREEN mode to indicate that the transition to full-screen mode has completed.
-*/
-typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD lpModeFlags);
-static PROCSETCONSOLEDISPLAYMODEELLWND pfnSetConsoleDisplayMode=NULL;
-//static PROCGETCONSOLEDISPLAYMODE pfnGetConsoleDisplayMode=NULL;
 
 void DetectWindowedMode()
 {
@@ -116,10 +93,8 @@ void FindFarWndByTitle()
 
 void InitDetectWindowedMode()
 {
-  typedef HWND WINAPI GetConsoleWindow_t(VOID);
-  static GetConsoleWindow_t *GetConsoleWindow_f=(GetConsoleWindow_t*)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetConsoleWindow");
-  if(GetConsoleWindow_f)
-    hFarWnd=GetConsoleWindow_f();
+  if( ifn.pfnGetConsoleWindow )
+    hFarWnd = ifn.pfnGetConsoleWindow();
   else
   {
     // попытка найти окно по pid
@@ -190,29 +165,37 @@ void RestoreIcons()
 */
 int FarAltEnter(int mode)
 {
-  if(mode != FAR_CONSOLE_GET_MODE)
-  {
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    {
-      COORD dwOldMode;
-      if(!pfnSetConsoleDisplayMode)
-      {
-        HMODULE hKernel32 = GetModuleHandleW(L"KERNEL32.DLL");
-        pfnSetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
-        //pfnGetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
-      }
-      pfnSetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
-           (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),&dwOldMode);
-    }
-    else if (hFarWnd) // win9x
-    {
-      //Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
-      //когда пользователь нажимает ALT+ENTER:
-      #define ID_SWITCH_CONSOLEMODE 0xE00F
-      SendMessageW(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
-           (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1));
-    }
-  }
-  DetectWindowedMode();
-  return IsWindowed()?FAR_CONSOLE_WINDOWED:FAR_CONSOLE_FULLSCREEN;
+	if ( mode != FAR_CONSOLE_GET_MODE )
+	{
+		if ( WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT )
+		{
+			COORD dwOldMode;
+			
+			if ( !ifn.pfnSetConsoleDisplayMode )
+				ifn.pfnSetConsoleDisplayMode (
+					GetStdHandle(STD_OUTPUT_HANDLE),
+					(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),
+					&dwOldMode
+					);
+		}
+		else 
+		{
+			if ( hFarWnd ) // win9x
+			{
+				//Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
+				//когда пользователь нажимает ALT+ENTER:
+				#define ID_SWITCH_CONSOLEMODE 0xE00F
+				SendMessageW (
+						hFarWnd,
+						WM_COMMAND,
+						ID_SWITCH_CONSOLEMODE,
+						(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1)
+						);
+			}
+		}
+	}
+
+	DetectWindowedMode();
+
+	return IsWindowed()?FAR_CONSOLE_WINDOWED:FAR_CONSOLE_FULLSCREEN;
 }

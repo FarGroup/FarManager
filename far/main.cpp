@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "language.hpp"
 #include "farexcpt.hpp"
+#include "imports.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -116,6 +117,7 @@ wprintf(
 L" /do  Direct output.\n");
 #endif
 }
+
 
 static int MainProcess(
         const wchar_t *lpwszEditName,
@@ -308,6 +310,8 @@ int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string
 }
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
+  ifn.Load();
+
   _OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 
   string strEditName;
@@ -337,17 +341,13 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #if defined(_DEBUGEXC)
   Opt.ExceptRules=-1;
 #else
-  if(!pIsDebuggerPresent)
-    pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"IsDebuggerPresent");
-  Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
+  Opt.ExceptRules=(ifn.pfnIsDebuggerPresent && ifn.pfnIsDebuggerPresent()?0:-1);
 #endif
 
 
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog(L"Opt.ExceptRules=%d",Opt.ExceptRules));
 
-  // Проинициализируем функции работы с атрибутами Encryped сразу после старта FAR
-  GetEncryptFunctions();
 
   SetRegRootKey(HKEY_CURRENT_USER);
   Opt.strRegRoot = L"Software\\Far18";
@@ -520,8 +520,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     }
   }
 
-  InitializeSetupAPI ();
-
   //Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
   InitKeysArray();
 
@@ -575,7 +573,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   UsedInternalClipboard=TRUE;
   FAR_EmptyClipboard();
 
-  FinalizeSetupAPI ();
 
   doneMacroVarTable(1);
 

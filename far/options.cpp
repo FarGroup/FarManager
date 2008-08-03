@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "history.hpp"
+#include "imports.hpp"
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -188,7 +189,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   int HItem,VItem;
 
   // дисаблим
-  CmdMenu[19].SetDisable(!CheckInitSetupAPI());
+  CmdMenu[19].SetDisable(!ifn.bSetupAPIFunctions);
 
   if (Opt.Policies.DisabledOptions)
     for(size_t I=0; I < countof(OptionsMenu); ++I)

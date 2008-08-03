@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 #include "filefilter.hpp"
+#include "imports.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -3796,7 +3797,7 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
 
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
 
-  if (Init_CopyFileEx())
+  if ( ifn.pfnCopyFileEx )
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;

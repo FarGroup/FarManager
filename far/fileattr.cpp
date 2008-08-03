@@ -38,39 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "lang.hpp"
 #include "flink.hpp"
-
-typedef BOOL (WINAPI *PEncryptFileW)(const wchar_t *lpwszFileName);
-typedef BOOL (WINAPI *PDecryptFileW)(const wchar_t *lpwszFileName, DWORD dwReserved);
-
-static PEncryptFileW pEncryptFileW=NULL;
-static PDecryptFileW pDecryptFileW=NULL;
+#include "imports.hpp"
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
 
-// получим функции криптования
-int GetEncryptFunctions(void)
-{
-  if(!pEncryptFileW)
-  {
-    // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
-    pEncryptFileW = (PEncryptFileW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"), "EncryptFileW");
-    if(!pEncryptFileW)
-      pEncryptFileW = (PEncryptFileW)GetProcAddress(GetModuleHandleW(L"ADVAPI32.DLL"), "EncryptFileW");
-  }
-
-  if(!pDecryptFileW)
-  {
-    pDecryptFileW = (PDecryptFileW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"), "DecryptFileW");
-    if(!pDecryptFileW)
-      pDecryptFileW = (PDecryptFileW)GetProcAddress(GetModuleHandleW(L"ADVAPI32.DLL"), "DecryptFileW");
-  }
-
-  if(pDecryptFileW && pEncryptFileW)
-    IsCryptFileASupport=TRUE;
-
-  return IsCryptFileASupport;
-}
 
 int ESetFileAttributes(const wchar_t *Name,int Attr,int SkipMode)
 {
@@ -166,11 +138,15 @@ int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode)
 
 static int SetFileEncryption(const wchar_t *Name,int State)
 {
-  // заодно и проверяется успешность получения адреса API...
-  if(State)
-     return pEncryptFileW ? (*pEncryptFileW)(Name) : FALSE;
-  else
-     return pDecryptFileW ? (*pDecryptFileW)(Name, 0) : FALSE;
+	if ( ifn.bEncryptFunctions )
+	{
+		if ( State )
+			return ifn.pfnEncryptFile(Name);
+		else
+			return ifn.pfnDecryptFile(Name, 0);
+	}
+
+	return FALSE;
 }
 
 
@@ -201,7 +177,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,i
     int Code;
     if(SkipMode!=-1)
       Code=SkipMode;
-    else
+    else            
       Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
                 UMSG(MSetAttrEncryptedCannotFor),Name,UMSG(MHRetry), //BUGBUG
                 UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));

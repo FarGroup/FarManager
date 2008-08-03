@@ -121,6 +121,7 @@ SRCS = 	cddrv.cpp \
 	viewer.cpp \
 	vmenu.cpp \
 	xlat.cpp \
+	imports.cpp \
 	hook_wow64.c
 
 

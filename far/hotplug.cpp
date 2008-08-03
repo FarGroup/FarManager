@@ -34,36 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#if defined(__GNUC__)  || (defined(_MSC_VER) && _MSC_VER <= 1200)
-
-#define __NTDDK_H
-#if defined(__GNUC__)
-#include <ddk/cfgmgr32.h>
-#else
-#include <cfgmgr32.h>
-#endif
-#ifdef __cplusplus
-  #define MY_EXTERN_C extern "C"
-#else
-  #define MY_EXTERN_C extern
-#endif
-#define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-  MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
-#define VolumeClassGuid             GUID_DEVINTERFACE_VOLUME
-MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
-#define CM_DRP_FRIENDLYNAME         (0x0000000D)
-#define CM_DRP_DEVICEDESC           (0x00000001)
-#define CM_DRP_CAPABILITIES         (0x00000010)
-#define CM_DEVCAP_REMOVABLE         (0x00000004)
-#define CM_DEVCAP_SURPRISEREMOVALOK (0x00000080)
-#define CM_DEVCAP_DOCKDEVICE        (0x00000008)
-
-#else
-#include <cfgmgr32.h>
-#endif
-
-#include <setupapi.h>
-
 #include "lang.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
@@ -71,6 +41,7 @@ MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2
 #include "help.hpp"
 #include "vmenu.hpp"
 #include "BlockExtKey.hpp"
+#include "imports.hpp"
 
 struct DeviceInfo {
   DEVINST hDevInst; // device instance
@@ -86,106 +57,6 @@ static int __RemoveHotplugDevice (DEVINST hDevInst);
 static int RemoveHotplugDevice(DEVINST hDevInst,DWORD DevMasks,DWORD Flags);
 static DeviceInfo *EnumHotPlugDevice(LPARAM lParam);
 
-
-HMODULE g_hSetupAPI = NULL;
-
-typedef BOOL (__stdcall *GETVOLUMENAMEFORVOLUMEMOUNTPOINT) (
-    const wchar_t *lpszVolumeMountPoint,
-    wchar_t *lpszVolumeName,
-    DWORD cchBufferLength
-    );
-
-typedef DWORD (__stdcall *CMGETDEVNODEREGISTRYPROPERTY) (
-    DEVINST dnDevInst,
-    ULONG ulProperty,
-    PULONG pulRegDataType,
-    PVOID Buffer,
-    PULONG pulLength,
-    ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVNODESTATUS) (
-    OUT PULONG pulStatus,
-    OUT PULONG pulProblemNumber,
-    IN DEVINST dnDevInst,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVICEID) (
-    IN DEVINST dnDevInst,
-    OUT wchar_t *Buffer,
-    IN ULONG BufferLen,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVICEIDLISTSIZE) (
-    OUT PULONG pulLen,
-    IN const wchar_t *pszFilter,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVICEIDLIST) (
-    IN const wchar_t *pszFilter,
-    OUT wchar_t *Buffer,
-    IN ULONG BufferLen,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVICEINTERFACELISTSIZE) (
-    IN PULONG pulLen,
-    IN LPGUID InterfaceClassGuid,
-    IN DEVINSTID_W pDeviceID,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETDEVICEINTERFACELIST) (
-    IN LPGUID InterfaceClassGuid,
-    IN DEVINSTID_W pDeviceID,
-    OUT wchar_t *Buffer,
-    IN ULONG BufferLen,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMLOCATEDEVNODE) (
-    OUT PDEVINST pdnDevInst,
-    IN DEVINSTID_W pDeviceID,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMGETCHILD) (
-    OUT PDEVINST pdnDevInst,
-    IN DEVINST DevInst,
-    IN ULONG ulFlags
-    );
-
-
-typedef CONFIGRET (__stdcall *CMGETSIBLING) (
-    OUT PDEVINST pdnDevInst,
-    IN DEVINST DevInst,
-    IN ULONG ulFlags
-    );
-
-typedef CONFIGRET (__stdcall *CMREQUESTDEVICEEJECT) (
-    IN DEVINST dnDevInst,
-    OUT PPNP_VETO_TYPE pVetoType,
-    OUT wchar_t *pszVetoName,
-    IN ULONG ulNameLength,
-    IN ULONG ulFlags
-    );
-
-
-CMGETDEVNODEREGISTRYPROPERTY pfnGetDevNodeRegistryProperty;
-CMGETDEVNODESTATUS pfnGetDevNodeStatus;
-CMGETDEVICEID pfnGetDeviceID;
-CMGETDEVICEIDLISTSIZE pfnGetDeviceIDListSize;
-CMGETDEVICEIDLIST pfnGetDeviceIDList;
-CMGETDEVICEINTERFACELISTSIZE pfnGetDeviceInterfaceListSize;
-CMGETDEVICEINTERFACELIST pfnGetDeviceInterfaceList;
-CMLOCATEDEVNODE pfnLocateDevNode;
-CMGETCHILD pfnGetChild;
-CMGETSIBLING pfnGetSibling;
-CMREQUESTDEVICEEJECT pfnRequestDeviceEject;
-GETVOLUMENAMEFORVOLUMEMOUNTPOINT pfnGetVolumeNameForVolumeMountPoint;
 
 DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 {
@@ -253,7 +124,7 @@ static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
 
 void ShowHotplugDevice ()
 {
-  if( !g_hSetupAPI )
+  if( !ifn.bSetupAPIFunctions )
   {
     SetLastError(ERROR_INVALID_FUNCTION);
     return;
@@ -331,7 +202,7 @@ int ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags)
 
   DWORD SavedLastError=ERROR_SUCCESS;
 
-  if ( !g_hSetupAPI )
+  if ( !ifn.bSetupAPIFunctions )
   {
     SetLastError(ERROR_INVALID_FUNCTION);
     return -1; //???
@@ -359,110 +230,7 @@ int ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags)
   return bResult;
 }
 
-bool CheckInitSetupAPI ()
-{
-  return g_hSetupAPI != NULL;
-}
 
-bool InitializeSetupAPI ()
-{
-  bool bResult = false;
-
-  if ( !g_hSetupAPI )
-  {
-    g_hSetupAPI = LoadLibraryW (L"setupapi.dll");
-
-    if ( g_hSetupAPI )
-    {
-      pfnGetVolumeNameForVolumeMountPoint = (GETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress (
-          GetModuleHandleW (L"KERNEL32.DLL"),
-          "GetVolumeNameForVolumeMountPointW"
-          );
-
-      pfnGetDevNodeRegistryProperty = (CMGETDEVNODEREGISTRYPROPERTY)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_DevNode_Registry_PropertyW"
-          );
-
-      pfnGetDevNodeStatus = (CMGETDEVNODESTATUS)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_DevNode_Status"
-          );
-
-      pfnGetDeviceID = (CMGETDEVICEID)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Device_IDW"
-          );
-
-      pfnGetDeviceIDListSize = (CMGETDEVICEIDLISTSIZE)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Device_ID_List_SizeW"
-          );
-
-      pfnGetDeviceIDList = (CMGETDEVICEIDLIST)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Device_ID_ListW"
-          );
-
-      pfnGetDeviceInterfaceListSize = (CMGETDEVICEINTERFACELISTSIZE)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Device_Interface_List_SizeW"
-          );
-
-      pfnGetDeviceInterfaceList = (CMGETDEVICEINTERFACELIST)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Device_Interface_ListW"
-          );
-
-      pfnLocateDevNode = (CMLOCATEDEVNODE)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Locate_DevNodeW"
-          );
-
-      pfnGetChild = (CMGETCHILD)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Child"
-          );
-
-      pfnGetSibling  = (CMGETCHILD)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Get_Sibling"
-          );
-
-      pfnRequestDeviceEject = (CMREQUESTDEVICEEJECT)GetProcAddress (
-          g_hSetupAPI,
-          "CM_Request_Device_EjectW"
-          );
-
-      if ( pfnGetVolumeNameForVolumeMountPoint &&
-         pfnGetDevNodeRegistryProperty &&
-         pfnGetDevNodeStatus &&
-         pfnGetDeviceID &&
-         pfnGetDeviceIDListSize &&
-         pfnGetDeviceIDList &&
-         pfnGetDeviceInterfaceListSize &&
-         pfnGetDeviceInterfaceList &&
-         pfnLocateDevNode &&
-         pfnGetChild &&
-         pfnGetSibling &&
-         pfnRequestDeviceEject )
-        bResult = true;
-      else
-      {
-        FreeLibrary (g_hSetupAPI);
-        g_hSetupAPI = NULL;
-      }
-    }
-  }
-
-  return bResult;
-}
-
-void FinalizeSetupAPI ()
-{
-  FreeLibrary (g_hSetupAPI);
-  g_hSetupAPI = NULL;
-}
 
 /**+
 A device is considered a HotPlug device if the following are TRUE:
@@ -491,7 +259,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
 
   Len = sizeof(Capabilities);
 
-  if ( pfnGetDevNodeRegistryProperty (
+  if ( ifn.pfnGetDevNodeRegistryProperty (
       hDevInst,
       CM_DRP_CAPABILITIES,
       NULL,
@@ -500,7 +268,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
       0
       ) == CR_SUCCESS )
   {
-    if ( pfnGetDevNodeStatus (
+    if ( ifn.pfnGetDevNodeStatus (
         &Status,
         &Problem,
         hDevInst,
@@ -534,7 +302,7 @@ DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
   {
     wszMountPoint[0] = Letter;
 
-    pfnGetVolumeNameForVolumeMountPoint (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
+    ifn.pfnGetVolumeNameForVolumeMountPoint (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
 
     if ( !StrCmpI (wszCurrentVolumeName, lpwszVolumeName) )
       return (1 << (Letter-L'A'));
@@ -548,7 +316,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
   DWORD dwMask = 0;
   wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
 
-  if ( pfnGetDeviceID (
+  if ( ifn.pfnGetDeviceID (
       hDevInst,
       szDeviceID,
       sizeof(szDeviceID)/sizeof (wchar_t),
@@ -557,7 +325,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
   {
     DWORD dwSize = 0;
 
-    if ( pfnGetDeviceInterfaceListSize (
+    if ( ifn.pfnGetDeviceInterfaceListSize (
         &dwSize,
         (LPGUID)&VolumeClassGuid,
         (DEVINSTID_W)&szDeviceID,
@@ -568,7 +336,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
       {
         wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
 
-        if ( pfnGetDeviceInterfaceList (
+        if ( ifn.pfnGetDeviceInterfaceList (
             (LPGUID)&VolumeClassGuid,
             (DEVINSTID_W)&szDeviceID,
             lpwszDeviceInterfaceList,
@@ -589,7 +357,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
             wchar_t wszVolumeName[MAX_PATH];
 
-            if ( pfnGetVolumeNameForVolumeMountPoint (
+            if ( ifn.pfnGetVolumeNameForVolumeMountPoint (
                 lpwszMountPoint,
                 (wchar_t*)&wszVolumeName,
                 MAX_PATH
@@ -616,7 +384,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
   DEVINST hRelationDevInst;
   wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
 
-  if ( pfnGetDeviceID (
+  if ( ifn.pfnGetDeviceID (
       hDevInst,
       szDeviceID,
       sizeof (szDeviceID)/sizeof (wchar_t),
@@ -625,7 +393,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
   {
     DWORD dwSize = 0;
 
-    if ( pfnGetDeviceIDListSize (
+    if ( ifn.pfnGetDeviceIDListSize (
         &dwSize,
         szDeviceID,
         CM_GETIDLIST_FILTER_REMOVALRELATIONS
@@ -635,7 +403,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
       {
         wchar_t *lpDeviceIdList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
 
-        if ( pfnGetDeviceIDList (
+        if ( ifn.pfnGetDeviceIDList (
             szDeviceID,
             lpDeviceIdList,
             dwSize,
@@ -646,7 +414,7 @@ DWORD GetRelationDrivesMask (DEVINST hDevInst)
 
           while ( *p )
           {
-            if ( pfnLocateDevNode (
+            if ( ifn.pfnLocateDevNode (
                 &hRelationDevInst,
                 p,
                 0
@@ -677,7 +445,7 @@ DWORD GetDriveMaskForDeviceInternal (DEVINST hDevInst)
       dwMask |= GetDriveMaskFromMountPoints (hDevInst);
       dwMask |= GetRelationDrivesMask (hDevInst);
 
-      if ( pfnGetChild (
+      if ( ifn.pfnGetChild (
           &hDevChild,
           hDevInst,
           0
@@ -685,7 +453,7 @@ DWORD GetDriveMaskForDeviceInternal (DEVINST hDevInst)
         dwMask |= GetDriveMaskForDeviceInternal (hDevChild);
     }
 
-  } while ( pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
+  } while ( ifn.pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
 
   return dwMask;
 }
@@ -699,7 +467,7 @@ DWORD GetDriveMaskForDevice (DEVINST hDevInst)
   dwMask |= GetDriveMaskFromMountPoints (hDevInst);
   dwMask |= GetRelationDrivesMask (hDevInst);
 
-  if ( pfnGetChild (
+  if ( ifn.pfnGetChild (
       &hDevChild,
       hDevInst,
       0
@@ -726,14 +494,14 @@ int GetHotplugDriveDeviceInfoInternal (DEVINST hDevInst, DeviceInfo **pInfo, int
         pItem->hDevInst = hDevInst;
     }
 
-      if ( pfnGetChild (
+      if ( ifn.pfnGetChild (
           &hDevChild,
           hDevInst,
           0
           ) == CR_SUCCESS )
         nCount = GetHotplugDriveDeviceInfoInternal (hDevChild, pInfo, nCount);
 
-  } while ( pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
+  } while ( ifn.pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
 
   return nCount;
 }
@@ -744,11 +512,11 @@ int GetHotplugDevicesInfo (DeviceInfo **pInfo)
   {
     *pInfo = NULL;
 
-    if ( g_hSetupAPI )
+    if ( ifn.bSetupAPIFunctions )
     {
       DEVNODE hDevRoot;
 
-      if ( pfnLocateDevNode (
+      if ( ifn.pfnLocateDevNode (
           &hDevRoot,
           NULL,
           CM_LOCATE_DEVNODE_NORMAL
@@ -756,7 +524,7 @@ int GetHotplugDevicesInfo (DeviceInfo **pInfo)
       {
         DEVINST hDevChild;
 
-        if ( pfnGetChild (
+        if ( ifn.pfnGetChild (
             &hDevChild,
             hDevRoot,
             0
@@ -783,12 +551,12 @@ bool GetDeviceProperty (
 {
   bool bResult = false;
 
-  if ( g_hSetupAPI )
+  if ( ifn.bSetupAPIFunctions )
   {
     DWORD dwSize = 0;
     CONFIGRET crResult;
 
-    crResult = pfnGetDevNodeRegistryProperty (
+    crResult = ifn.pfnGetDevNodeRegistryProperty (
         hDevInst,
         nProperty,//CM_DRP_FRIENDLYNAME,
         NULL,
@@ -803,7 +571,7 @@ bool GetDeviceProperty (
       {
         DEVINST hDevChild;
 
-        if ( pfnGetChild (&hDevChild, hDevInst, 0) == CR_SUCCESS )
+        if ( ifn.pfnGetChild (&hDevChild, hDevInst, 0) == CR_SUCCESS )
           bResult = GetDeviceProperty (hDevChild, nProperty, strValue, bSearchChild);
       }
     }
@@ -811,7 +579,7 @@ bool GetDeviceProperty (
     {
       wchar_t *lpwszBuffer = strValue.GetBuffer (dwSize+1);
 
-      crResult = pfnGetDevNodeRegistryProperty (
+      crResult = ifn.pfnGetDevNodeRegistryProperty (
           hDevInst,
           nProperty,//CM_DRP_FRIENDLYNAME,
           NULL,
@@ -838,7 +606,7 @@ int __RemoveHotplugDevice (DEVINST hDevInst)
   wchar_t wszDescription[MAX_PATH]; //BUGBUG
   memset (wszDescription, 0, MAX_PATH*sizeof (wchar_t));
 
-  crResult = pfnRequestDeviceEject (
+  crResult = ifn.pfnRequestDeviceEject (
       hDevInst,
       &pvtVeto,
       (wchar_t*)&wszDescription,

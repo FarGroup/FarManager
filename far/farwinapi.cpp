@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "global.hpp"
 #include "fn.hpp"
+#include "imports.hpp"
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
@@ -157,44 +158,6 @@ BOOL apiCopyFile (
 			);
 }
 
-typedef BOOL (__stdcall *COPYFILEEX) (
-		LPCTSTR lpExistingFileName,
-		LPCTSTR lpNewFileName,
-		void *lpProgressRoutine,
-		LPVOID lpData,LPBOOL pbCancel,
-		DWORD dwCopyFlags
-		);
-
-typedef BOOL (__stdcall *COPYFILEEXW) (
-		const wchar_t *lpwszExistingFileName,
-		const wchar_t *lpwszNewFileName,
-		void *lpProgressRoutine,
-		LPVOID lpData,
-		LPBOOL pbCancel,
-		DWORD dwCopyFlags
-		);
-
-//static COPYFILEEX pCopyFileEx=NULL;
-static COPYFILEEXW pCopyFileExW=NULL;
-
-BOOL Init_CopyFileEx(void)
-{
-  static int LoadAttempt=FALSE;
-
-  if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-  {
-    HMODULE hKernel=GetModuleHandleW(L"KERNEL32.DLL");
-    if (hKernel)
-    {
-      pCopyFileExW=(COPYFILEEXW)GetProcAddress(hKernel,"CopyFileExW");
-    }
-    IsFn_FAR_CopyFileEx=(pCopyFileExW != NULL);
-    LoadAttempt=TRUE;
-  }
-
-  return IsFn_FAR_CopyFileEx;
-}
-
 BOOL apiCopyFileEx (
 		const wchar_t *lpwszExistingFileName,
 		const wchar_t *lpwszNewFileName,
@@ -204,8 +167,8 @@ BOOL apiCopyFileEx (
 		DWORD dwCopyFlags
 		)
 {
-	if ( pCopyFileExW )
-		return pCopyFileExW (
+	if ( ifn.pfnCopyFileEx )
+		return ifn.pfnCopyFileEx (
 				lpwszExistingFileName,
 				lpwszNewFileName,
 				lpProgressRoutine,
@@ -250,40 +213,41 @@ BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
   return rc;
 }
 
-BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
+BOOL __stdcall FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
 {
-  typedef BOOL (WINAPI *PGlobalMemoryStatusEx)(LPMEMORYSTATUSEX lpBuffer);
-  static PGlobalMemoryStatusEx pGlobalMemoryStatusEx=NULL;
-  BOOL Ret=FALSE;
+	BOOL Ret=FALSE;
 
-  if(!pGlobalMemoryStatusEx)
-    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GlobalMemoryStatusEx");
+	if( ifn.pfnGlobalMemoryStatusEx )
+	{
+		MEMORYSTATUSEX ms;
+		ms.dwLength=sizeof(ms);
 
-  if(pGlobalMemoryStatusEx)
-  {
-    MEMORYSTATUSEX ms;
-    ms.dwLength=sizeof(ms);
-    Ret=pGlobalMemoryStatusEx(&ms);
-    if(Ret)
-      memcpy(lpBuffer,&ms,sizeof(ms));
-  }
-  else
-  {
-    MEMORYSTATUS ms;
-    ms.dwLength=sizeof(ms);
-    GlobalMemoryStatus(&ms);
-    lpBuffer->dwLength=sizeof(MEMORYSTATUSEX);
-    lpBuffer->dwMemoryLoad=ms.dwMemoryLoad;
-    lpBuffer->ullTotalPhys           =(DWORDLONG)ms.dwTotalPhys;
-    lpBuffer->ullAvailPhys           =(DWORDLONG)ms.dwAvailPhys;
-    lpBuffer->ullTotalPageFile       =(DWORDLONG)ms.dwTotalPageFile;
-    lpBuffer->ullAvailPageFile       =(DWORDLONG)ms.dwAvailPageFile;
-    lpBuffer->ullTotalVirtual        =(DWORDLONG)ms.dwTotalVirtual;
-    lpBuffer->ullAvailVirtual        =(DWORDLONG)ms.dwAvailVirtual;
-    lpBuffer->ullAvailExtendedVirtual=0;
-    Ret=TRUE;
-  }
-  return Ret;
+		Ret = ifn.pfnGlobalMemoryStatusEx(&ms);
+
+		if ( Ret )
+			memcpy(lpBuffer,&ms,sizeof(ms));
+	}
+	else
+	{
+		MEMORYSTATUS ms;
+
+		ms.dwLength=sizeof(ms);
+		GlobalMemoryStatus(&ms);
+
+		lpBuffer->dwLength=sizeof(MEMORYSTATUSEX);
+		lpBuffer->dwMemoryLoad=ms.dwMemoryLoad;
+		lpBuffer->ullTotalPhys           =(DWORDLONG)ms.dwTotalPhys;
+		lpBuffer->ullAvailPhys           =(DWORDLONG)ms.dwAvailPhys;
+		lpBuffer->ullTotalPageFile       =(DWORDLONG)ms.dwTotalPageFile;
+		lpBuffer->ullAvailPageFile       =(DWORDLONG)ms.dwAvailPageFile;
+		lpBuffer->ullTotalVirtual        =(DWORDLONG)ms.dwTotalVirtual;
+		lpBuffer->ullAvailVirtual        =(DWORDLONG)ms.dwAvailVirtual;
+		lpBuffer->ullAvailExtendedVirtual=0;
+
+		Ret=TRUE;
+	}
+
+	return Ret;
 }
 
 
@@ -559,29 +523,29 @@ BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize)
 	}
 }
 
-BOOL WINAPI apiSetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod)
+BOOL apiSetFilePointerEx (
+		HANDLE hFile,
+		LARGE_INTEGER liDistanceToMove,
+		PLARGE_INTEGER lpNewFilePointer,
+		DWORD dwMoveMethod
+		)
 {
-  typedef BOOL (WINAPI *PSetFilePointerEx)(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLARGE_INTEGER lpNewFilePointer,DWORD dwMoveMethod);
-  static PSetFilePointerEx pSetFilePointerEx=NULL;
+	if ( ifn.pfnSetFilePointerEx )
+		return ifn.pfnSetFilePointerEx(hFile,liDistanceToMove,lpNewFilePointer,dwMoveMethod);
+	else
+	{
+		LONG HighPart = liDistanceToMove.u.HighPart;
+		DWORD LowPart = SetFilePointer(hFile,liDistanceToMove.u.LowPart,&HighPart,dwMoveMethod);
 
-  if(!pSetFilePointerEx)
-    pSetFilePointerEx=(PSetFilePointerEx)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"SetFilePointerEx");
+		if ( LowPart==INVALID_SET_FILE_POINTER && GetLastError()!=NO_ERROR )
+			return FALSE;
 
-  if(pSetFilePointerEx)
-  {
-    return pSetFilePointerEx(hFile,liDistanceToMove,lpNewFilePointer,dwMoveMethod);
-  }
-  else
-  {
-    LONG HighPart=liDistanceToMove.u.HighPart;
-    DWORD LowPart=SetFilePointer(hFile,liDistanceToMove.u.LowPart,&HighPart,dwMoveMethod);
-    if(LowPart==INVALID_SET_FILE_POINTER && GetLastError()!=NO_ERROR)
-      return FALSE;
-    if(lpNewFilePointer)
-    {
-      lpNewFilePointer->u.HighPart=HighPart;
-      lpNewFilePointer->u.LowPart=LowPart;
-    }
-    return TRUE;
-  }
+		if ( lpNewFilePointer )
+		{
+			lpNewFilePointer->u.HighPart=HighPart;
+			lpNewFilePointer->u.LowPart=LowPart;
+		}
+
+		return TRUE;
+	}
 }

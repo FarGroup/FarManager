@@ -199,7 +199,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
-	"$(INTDIR)\xlat.obj"
+	"$(INTDIR)\xlat.obj" \
+	"$(INTDIR)\imports.obj"
 
 !ifndef USE_VC9
 COMPAT64=/Wp64

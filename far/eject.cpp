@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "lang.hpp"
 #include "global.hpp"
+#include "imports.hpp"
 
 /* $ 14.12.2000 SVS
    Добавлен код для выполнения Eject съемных носителей для
@@ -418,17 +419,14 @@ CLEANUP_AND_EXIT_APP:
       char cmd[100];
       sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", Upper(Letter)-L'A'+'A');
 
-      typedef MCIERROR (WINAPI *PMCISENDSTRING)(LPCSTR lpstrCommand, LPSTR lpstrReturnString, UINT uReturnLength, HWND hwndCallback);
-      static PMCISENDSTRING pmciSendString=NULL;
-      if(!pmciSendString)
-        pmciSendString=(PMCISENDSTRING)GetProcAddress(LoadLibraryW(L"WINMM.DLL"),"mciSendStringA");
 
-      if(!pmciSendString)
+      if (!ifn.pfnmciSendString )
         return FALSE;
 
-      pmciSendString(cmd, 0, 0, 0);
-      pmciSendString("set ejcd door closed", 0, 0, 0);
-      pmciSendString("close ejcd", 0, 0, 0);
+      ifn.pfnmciSendString(cmd, 0, 0, 0);
+      ifn.pfnmciSendString("set ejcd door closed", 0, 0, 0);
+      ifn.pfnmciSendString("close ejcd", 0, 0, 0);
+
       Ret = TRUE;
    }
    if (hVWin32 != INVALID_HANDLE_VALUE)

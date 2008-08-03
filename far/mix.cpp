@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "RefreshFrameManager.hpp"
 #include "filefilter.hpp"
+#include "imports.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -814,14 +815,6 @@ const wchar_t* GetUnicodeLanguageString (int nID)
 
 BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
-  typedef BOOL (WINAPI *GETDISKFREESPACEEXW)(
-    const wchar_t *lpwszDirectoryName,
-    PULARGE_INTEGER lpFreeBytesAvailableToCaller,
-    PULARGE_INTEGER lpTotalNumberOfBytes,
-    PULARGE_INTEGER lpTotalNumberOfFreeBytes
-   );
-  static GETDISKFREESPACEEXW pGetDiskFreeSpaceExW=NULL;
-  static int LoadAttempt=FALSE;
   int ExitCode=0;
 
 #if 0
@@ -832,21 +825,14 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   uiTotalSize.QuadPart = 0;
   uiTotalFree.QuadPart = 0;
 
-  if (!LoadAttempt && pGetDiskFreeSpaceExW==NULL)
+  if ( ifn.pfnGetDiskFreeSpaceEx )
   {
-    HMODULE hKernel=GetModuleHandleW(L"KERNEL32.DLL");
-    if (hKernel!=NULL)
-      pGetDiskFreeSpaceExW=(GETDISKFREESPACEEXW)GetProcAddress(hKernel,"GetDiskFreeSpaceExW");
-    LoadAttempt=TRUE;
-  }
-  if (pGetDiskFreeSpaceExW!=NULL)
-  {
-    ExitCode=pGetDiskFreeSpaceExW(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
+    ExitCode = ifn.pfnGetDiskFreeSpaceEx(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
     if (uiUserFree.QuadPart > uiTotalFree.QuadPart)
       uiUserFree.QuadPart=uiTotalFree.QuadPart;
   }
 
-  if (pGetDiskFreeSpaceExW==NULL || ExitCode==0 || uiTotalSize.QuadPart==0)
+  if ( !ifn.pfnGetDiskFreeSpaceEx || ExitCode==0 || uiTotalSize.QuadPart==0)
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,
@@ -868,17 +854,10 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   uiTotalSize=_i64(0);
   uiTotalFree=_i64(0);
 
-  if (!LoadAttempt && pGetDiskFreeSpaceExW==NULL)
-  {
-    HMODULE hKernel=GetModuleHandleW(L"KERNEL32.DLL");
-    if (hKernel!=NULL)
-      pGetDiskFreeSpaceExW=(GETDISKFREESPACEEXW)GetProcAddress(hKernel,"GetDiskFreeSpaceExW");
-    LoadAttempt=TRUE;
-  }
-  if (pGetDiskFreeSpaceExW!=NULL)
-    ExitCode=pGetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+  if ( ifn.pfnGetDiskFreeSpaceEx )
+    ExitCode=ifn.pfnGetDiskFreeSpaceEx(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-  if (pGetDiskFreeSpaceExW==NULL || ExitCode==0 || uiTotalSize == _i64(0))
+  if ( !ifn.pfnGetDiskFreeSpaceEx || ExitCode==0 || uiTotalSize == _i64(0) )
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
@@ -1734,21 +1713,8 @@ BOOL ProcessOSAliases(string &strStr)
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     return FALSE;
 
-  typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
-    LPWSTR lpSource,
-    LPWSTR lpTargetBuffer,
-    DWORD TargetBufferLength,
-    LPWSTR lpExeName
-  );
-
-
-  static PGETCONSOLEALIAS GetConsoleAlias=NULL;
-  if(!GetConsoleAlias)
-  {
-    GetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandleW(L"kernel32"),"GetConsoleAliasW");
-    if(!GetConsoleAlias)
-      return FALSE;
-  }
+  if(!ifn.pfnGetConsoleAlias)
+    return FALSE;
 
   string strNewCmdStr;
   string strNewCmdPar;
@@ -1760,13 +1726,13 @@ BOOL ProcessOSAliases(string &strStr)
   const wchar_t* lpwszExeName=PointToName(strModuleName);
   int nSize=(int)strNewCmdStr.GetLength()+4096;
   wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-  int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+  int ret=ifn.pfnGetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
   if(!ret)
   {
     if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
     {
       lpwszExeName=PointToName(strModuleName);
-      ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+      ret=ifn.pfnGetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
     }
   }
   strNewCmdStr.ReleaseBuffer();

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
+#include "imports.hpp"
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -1809,27 +1810,11 @@ int IsShiftKey(DWORD Key)
 
 BOOL FARGetKeybLayoutNameW (string &strDest)
 {
-  static int LoadedGCKLM=0;
+  static WCHAR WBuffer[100]; //BUGBUG, why static?
 
-  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEW)(WCHAR*);
-  static PGETCONSOLEKEYBOARDLAYOUTNAMEW pGetConsoleKeyboardLayoutNameW=NULL;
-  static WCHAR WBuffer[100];
-
-  if(!LoadedGCKLM) // && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT
+  if ( ifn.pfnGetConsoleKeyboardLayoutName )
   {
-    LoadedGCKLM=-1;
-
-    if(!pGetConsoleKeyboardLayoutNameW)
-    {
-      pGetConsoleKeyboardLayoutNameW = (PGETCONSOLEKEYBOARDLAYOUTNAMEW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameW");
-      if(pGetConsoleKeyboardLayoutNameW)
-        LoadedGCKLM=1;
-    }
-  }
-
-  if ( LoadedGCKLM == 1 )
-  {
-    if(pGetConsoleKeyboardLayoutNameW(WBuffer))
+    if( ifn.pfnGetConsoleKeyboardLayoutName(WBuffer) )
     {
       strDest = WBuffer;
       return TRUE;

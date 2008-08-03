@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
+#include "imports.hpp"
 
 struct TMN_REPARSE_DATA_BUFFER
 {
@@ -59,23 +60,6 @@ struct TMN_REPARSE_DATA_BUFFER
   //int BytesForIoControl() const;
 };
 
-typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
-          const wchar_t *lpwszVolumeMountPoint);  // volume mount point path
-
-typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
-          const wchar_t *lpwszVolumeMountPoint, // volume mount point or directory
-          wchar_t *lpwszVolumeName,        // volume name buffer
-          DWORD cchBufferLength);       // size of volume name buffer
-
-typedef BOOL (WINAPI *PSETVOLUMEMOUNTPOINT)(
-          const wchar_t *lpwszVolumeMountPoint, // mount point
-          const wchar_t *lpwszVolumeName);        // volume to be mounted
-
-
-static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
-//static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
-static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
-
 /*
  SrcVolume
    Pointer to a string that indicates the volume mount point where the
@@ -86,26 +70,21 @@ static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 
 int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder)
 {
-   wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
+	wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
 
-   if(!pGetVolumeNameForVolumeMountPoint)
-      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
+	if ( !ifn.bVolumeMountPointFunctions )
+		return 3;
 
-   if(!pSetVolumeMountPoint)
-      pSetVolumeMountPoint=(PSETVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"SetVolumeMountPointW");
+	// We should do some error checking on the inputs. Make sure
+	// there are colons and backslashes in the right places, etc.
 
-   if(!pGetVolumeNameForVolumeMountPoint || !pSetVolumeMountPoint)
-     return(3);
+	if ( !ifn.pfnGetVolumeNameForVolumeMountPoint(SrcVolume, Buf, 50) )
+		return 1;
 
-   // We should do some error checking on the inputs. Make sure
-   // there are colons and backslashes in the right places, etc.
-   if( pGetVolumeNameForVolumeMountPoint(SrcVolume, Buf, 50) != TRUE)
-      return (1);
+	if ( !ifn.pfnSetVolumeMountPoint(LinkFolder, Buf) ) // volume to be mounted
+		return 2;
 
-   if(!pSetVolumeMountPoint(LinkFolder, Buf)) // volume to be mounted
-     return (2);
-
-   return (0);
+	return 0;
 }
 
 
@@ -342,27 +321,17 @@ int WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest)
   ConvertNameToFull(Src,strFileSource);
   ConvertNameToFull(Dest,strFileDest);
 
+
   BOOL bSuccess=FALSE;
 
   // этот кусок для Win2K
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-     WinVer.dwMajorVersion >= 5
-     //&& FAR_GetDriveType(FileSource) == DRIVE_FIXED
-    )
-  {
-    typedef BOOL (WINAPI *PCREATEHARDLINKW)(
-       const wchar_t *lpFileName,                         // new file name
-       const wchar_t *lpExistingFileName,                 // extant file name
-       LPSECURITY_ATTRIBUTES lpSecurityAttributes  // SD
-    );
-    static PCREATEHARDLINKW PCreateHardLinkW=NULL;
-    if(!PCreateHardLinkW)
-      PCreateHardLinkW=(PCREATEHARDLINKW)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"CreateHardLinkW");
-    if(PCreateHardLinkW)
-    {
-      bSuccess=PCreateHardLinkW(strFileDest, strFileSource, NULL) != 0;
-    }
-  }
+	if ( (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT) && 
+		 (WinVer.dwMajorVersion >= 5) ) //BUGBUG, а не достаточно ли просто проверить на наличие CreateHardLink?
+	{
+		if ( ifn.pfnCreateHardLink )
+			bSuccess = ifn.pfnCreateHardLink(strFileDest, strFileSource, NULL) != 0;
+	}
+
 
   if(bSuccess)
     return bSuccess;
@@ -631,12 +600,8 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 
 	if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
 	{
-		if(!pGetVolumeNameForVolumeMountPoint)
-			// работает только под Win2000!
-			pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandleW(L"KERNEL32.DLL"),"GetVolumeNameForVolumeMountPointW");
-
 		// обработка mounted volume
-		if(pGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
+		if( ifn.pfnGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
 		{
 			// For the maximum size of the volume ID
 			// see http://msdn2.microsoft.com/en-us/library/aa364994(VS.85).aspx
@@ -647,7 +612,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 			for (wchar_t chDrive = L'A'; chDrive <= L'Z';  chDrive++ )
 			{
 				*szDrive = chDrive;
-				if ( pGetVolumeNameForVolumeMountPoint(
+				if ( ifn.pfnGetVolumeNameForVolumeMountPoint(
 								szDrive,            // input volume mount point or directory
 								pVolumeName,        // output volume name buffer
 								MAX_VOLUME_ID       // size of volume name buffer

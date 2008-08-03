@@ -1,3 +1,4 @@
+imports.hpp
 array.hpp
 BaseFileMask.hpp
 bitflags.hpp
@@ -134,6 +135,7 @@ help.cpp
 hilight.cpp
 history.cpp
 hmenu.cpp
+imports.cpp
 infolist.cpp
 int64.cpp
 interf.cpp
