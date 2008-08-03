@@ -388,7 +388,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   {
     if (*CurFileName)
     {
-      QView=new Viewer;
+      QView=new Viewer(true);
       QView->SetRestoreScreenMode(FALSE);
       QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
       QView->SetStatusMode(0);

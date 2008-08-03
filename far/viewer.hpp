@@ -142,6 +142,8 @@ class Viewer:public ScreenObject
     FileViewer *HostFileViewer;
     bool AdjustSelPosition;
 
+    bool m_bQuickView;
+
   private:
     virtual void DisplayObject();
 
@@ -173,7 +175,7 @@ class Viewer:public ScreenObject
     void SetFileSize();
 
   public:
-    Viewer();
+    Viewer(bool bQuickView = false);
     virtual  ~Viewer();
 
 

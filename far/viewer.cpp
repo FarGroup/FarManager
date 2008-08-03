@@ -41,12 +41,13 @@ static int ViewerID=0;
 
 static char BorderLine[]={0x0B3,0x020,0x00};
 
-Viewer::Viewer()
+Viewer::Viewer(bool bQuickView)
 {
   _OT(SysLog("[%p] Viewer::Viewer()", this));
   /* $ 29.03.2001 IS
        "Наследуем" некоторые глобальные
   */
+  m_bQuickView = bQuickView;
 
   memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
   /* IS $ */
@@ -899,7 +900,7 @@ void Viewer::DrawScrollbar()
     /* $ 27.04.2001 DJ
        если status line выключена, рисуем скроллбар до верха окна
     */
-    ScrollBar(X2,Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+    ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
   }
 }
 
