@@ -883,11 +883,15 @@ void Viewer::ShowHex()
 
 void Viewer::DrawScrollbar()
 {
-  if ( ViOpt.ShowScrollbar )
-  {
-    SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
-  }
+	if ( ViOpt.ShowScrollbar )
+	{
+		if ( m_bQuickView )
+			SetColor(COL_PANELSCROLLBAR);
+		else
+			SetColor(COL_VIEWERSCROLLBAR);
+
+		ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+	}
 }
 
 
@@ -1235,6 +1239,10 @@ int Viewer::ProcessKey(int Key)
     {
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
         Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
+
+        if ( m_bQuickView )
+			CtrlObject->Cp()->ActivePanel->Redraw();
+
         Show();
         return (TRUE);
     }
