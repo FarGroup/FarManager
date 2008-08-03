@@ -1,40 +1,40 @@
 #ifndef __IMPORTS_HPP__
 #define __IMPORTS_HPP__
+/*
+imports.hpp
 
+импортируемые функции
+*/
+/*
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#if defined(__GNUC__)  || (defined(_MSC_VER) && _MSC_VER <= 1200)
-
-#define __NTDDK_H
-#if defined(__GNUC__)
-#include <ddk/cfgmgr32.h>
-#else
-#include <cfgmgr32.h>
-#endif
-#ifdef __cplusplus
-  #define MY_EXTERN_C extern "C"
-#else
-  #define MY_EXTERN_C extern
-#endif
-#define MY_DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-  MY_EXTERN_C const GUID name = { l, w1, w2, { b1, b2,  b3,  b4,  b5,  b6,  b7,  b8 } }
-#define VolumeClassGuid             GUID_DEVINTERFACE_VOLUME
-MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
-#define CM_DRP_FRIENDLYNAME         (0x0000000D)
-#define CM_DRP_DEVICEDESC           (0x00000001)
-#define CM_DRP_CAPABILITIES         (0x00000010)
-#define CM_DEVCAP_REMOVABLE         (0x00000004)
-#define CM_DEVCAP_SURPRISEREMOVALOK (0x00000080)
-#define CM_DEVCAP_DOCKDEVICE        (0x00000008)
-
-#else
-#include <cfgmgr32.h>
-#endif
-
-#include <setupapi.h>
-
 
 typedef BOOL (__stdcall *PISDEBUGGERPRESENT)();
 

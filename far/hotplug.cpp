@@ -43,12 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BlockExtKey.hpp"
 #include "imports.hpp"
 
+DEFINE_GUID(GUID_DEVINTERFACE_VOLUME,0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b)=
+                                    {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
+
 struct DeviceInfo {
   DEVINST hDevInst; // device instance
   DWORD dwDriveMask; // mask of associated drives
 };
-
-
 
 static int  GetHotplugDevicesInfo (DeviceInfo **pInfo);
 static void FreeHotplugDevicesInfo (DeviceInfo *pInfo);
@@ -327,7 +328,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
     if ( ifn.pfnGetDeviceInterfaceListSize (
         &dwSize,
-        (LPGUID)&VolumeClassGuid,
+        (LPGUID)&GUID_DEVINTERFACE_VOLUME,
         (DEVINSTID_W)&szDeviceID,
         0
         ) == CR_SUCCESS )
@@ -337,7 +338,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
         wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
 
         if ( ifn.pfnGetDeviceInterfaceList (
-            (LPGUID)&VolumeClassGuid,
+            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
             (DEVINSTID_W)&szDeviceID,
             lpwszDeviceInterfaceList,
             dwSize,

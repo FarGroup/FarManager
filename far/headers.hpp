@@ -92,6 +92,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mmsystem.h>
 #include <wininet.h>
 #include <wchar.h>
+#include <setupapi.h>
+
+#ifdef __GNUC__
+ #define __NTDDK_H
+ #include <ddk\cfgmgr32.h>
+#else
+ #include <cfgmgr32.h>
+#endif
 
 #ifdef __GNUC__
  #define ultoa _ultoa
