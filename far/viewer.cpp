@@ -463,7 +463,7 @@ void Viewer::AdjustWidth()
   Width=X2-X1+1;
   XX2=X2;
 
-  if ( ViOpt.ShowScrollbar )
+  if ( ViOpt.ShowScrollbar && !m_bQuickView )
   {
      Width--;
      XX2--;
