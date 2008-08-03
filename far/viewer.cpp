@@ -886,22 +886,17 @@ void Viewer::ShowHex()
   }
 }
 
-/* $ 27.04.2001 DJ
-   отрисовка скроллбара - в отдельную функцию
-*/
-
 void Viewer::DrawScrollbar()
 {
-  /* $ 18.07.2000 tran
-     рисование скролбара */
-  if ( ViOpt.ShowScrollbar )
-  {
-    SetColor(COL_VIEWERSCROLLBAR);
-    /* $ 27.04.2001 DJ
-       если status line выключена, рисуем скроллбар до верха окна
-    */
-    ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
-  }
+	if ( ViOpt.ShowScrollbar )
+	{
+	    if ( m_bQuickView )
+		    SetColor(COL_PANELSCROLLBAR);
+		else
+			SetColor(COL_VIEWERSCROLLBAR);
+
+		ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+	}
 }
 
 
@@ -1258,12 +1253,15 @@ int Viewer::ProcessKey(int Key)
     case KEY_CTRLS:
     {
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
-        /* $ 10.03.2002 tran
-           Bugz#275 - CtrlS должне работать глобально */
+
         Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
-        /* tran $ */
+
+        if ( m_bQuickView )
+			CtrlObject->Cp()->ActivePanel->Redraw();
+
         Show();
-        return (TRUE);
+
+        return TRUE;
     }
     /* tran 18.07.2000 $ */
 
