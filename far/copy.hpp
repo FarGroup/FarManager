@@ -139,7 +139,7 @@ class ShellCopy
 
     int  ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
 
-    int  DeleteAfterMove(const wchar_t *Name,int Attr);
+    int  DeleteAfterMove(const wchar_t *Name,DWORD Attr);
 
     void SetDestDizPath(const wchar_t *DestPath);
 

@@ -2784,7 +2784,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 }
 
 
-int ShellCopy::DeleteAfterMove(const wchar_t *Name,int Attr)
+int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
 {
   if (Attr & FILE_ATTRIBUTE_READONLY)
   {

@@ -913,13 +913,13 @@ void ShowHotplugDevice ();
 
 int GetEncryptFunctions(void);
 
-int ESetFileAttributes(const wchar_t *Name,int Attr,int SkipMode=-1);
-int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode=-1);
-int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode=-1,int Silent=0);
+int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
+int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
+int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
 #define ESetFileEncryptionSilent(Name,State,FileAttr,SkipMode) ESetFileEncryptionW(Name,State,FileAttr,SkipMode,1)
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
-                  int FileAttr,int SkipMode=-1);
+                  DWORD FileAttr,int SkipMode=-1);
 
 //int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);

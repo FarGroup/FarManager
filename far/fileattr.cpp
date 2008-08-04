@@ -44,7 +44,7 @@ static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
 
 
-int ESetFileAttributes(const wchar_t *Name,int Attr,int SkipMode)
+int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
   while (!SetFileAttributesW(Name,Attr))
@@ -86,7 +86,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 }
 
 
-int ESetFileCompression(const wchar_t *Name,int State,int FileAttr,int SkipMode)
+int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
     return SETATTR_RET_OK;
@@ -150,7 +150,7 @@ static int SetFileEncryption(const wchar_t *Name,int State)
 }
 
 
-int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,int Silent)
+int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return SETATTR_RET_OK;
@@ -207,7 +207,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,int FileAttr,int SkipMode,i
 
 
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
-                  FILETIME *LastAccessTime,int FileAttr,int SkipMode)
+                  FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode)
 {
   if ((LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL) ||
       ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))

@@ -15,6 +15,8 @@ CFG=far - Win32 Release
 !MESSAGE
 !MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "far - Win64 Release" (based on "Win32 (x64) Console Application")
+!MESSAGE "far - Win64 Debug" (based on "Win32 (x64) Console Application")
 !MESSAGE
 !ERROR An invalid configuration is specified.
 !ENDIF
@@ -277,7 +279,7 @@ ALL : AllDirs \
 .PHONY: AllDirs
 
 AllDirs:
-        @if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
 	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
@@ -315,11 +317,11 @@ AllDirs:
 # ************************************************************************
 "$(INTDIR)\headers.c.pch" : headers.c.c
 	@echo making precompiled headers for C
-	@$(CPP) $(CPP_PROJ) headers.c.c /Yc /Fp"$(INTDIR)\headers.c.pch" > nul
+	@$(CPP) $(CPP_PROJ) headers.c.c /Yc /Fp"$(INTDIR)\headers.c.pch"
 
 "$(INTDIR)\headers.cpp.pch" : headers.cpp.cpp
 	@echo making precompiled headers for C++
-	@$(CPP) $(CPP_PROJ) headers.cpp.cpp /Yc /Fp"$(INTDIR)\headers.cpp.pch" > nul
+	@$(CPP) $(CPP_PROJ) headers.cpp.cpp /Yc /Fp"$(INTDIR)\headers.cpp.pch"
 
 .c{$(INTDIR)}.obj::
 	$(CPP) @<<
