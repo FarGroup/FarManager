@@ -1,4 +1,3 @@
-#define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop
 

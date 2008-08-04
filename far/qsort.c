@@ -5,7 +5,6 @@ To implement the qsort() routine for sorting arrays.
 
 */
 
-#define __NEW_H
 #include "headers.hpp"
 #pragma hdrstop
 

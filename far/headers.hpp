@@ -117,7 +117,7 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
   #include <dir.h>  // chdir
  #endif
 #endif //__DIR_H
-#if !defined(__NEW_H) && !defined(_NEW)
+#ifdef __cplusplus
  #if defined(__BORLANDC__) && !defined(_WIN64)
   #pragma option -p-
  #endif
@@ -129,7 +129,7 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
  #if defined(__BORLANDC__) && !defined(_WIN64)
   #pragma option -p.
  #endif
-#endif  //!defined(__NEW_H)
+#endif
 #if !defined(__MALLOC_H) && !defined(_MALLOC_H_)
 #include <malloc.h>
 #endif
