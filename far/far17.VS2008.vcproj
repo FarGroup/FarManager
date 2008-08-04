@@ -45,7 +45,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/D &quot;_CRT_SECURE_NO_WARNINGS&quot; /D &quot;CRT_SECURE_NO_DEPRECATE&quot; /D &quot;_CRT_NONSTDC_NO_WARNINGS&quot; /D &quot;_CRT_NON_CONFORMING_SWPRINTFS&quot;"
+				AdditionalOptions="/MP"
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;FARTRY;CREATE_JUNCTION;USE_WFUNC;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
@@ -53,9 +53,9 @@
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
 				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile="$(IntDir)\cpp_headers.pch"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/D &quot;_CRT_SECURE_NO_WARNINGS&quot; /D &quot;CRT_SECURE_NO_DEPRECATE&quot; /D &quot;_CRT_NONSTDC_NO_WARNINGS&quot; /D &quot;_CRT_NON_CONFORMING_SWPRINTFS&quot;"
+				AdditionalOptions="/MP"
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;FARTRY;CREATE_JUNCTION;USE_WFUNC;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
@@ -147,9 +147,9 @@
 				RuntimeLibrary="0"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile="$(IntDir)\cpp_headers.pch"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -233,18 +233,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/D &quot;_CRT_SECURE_NO_WARNINGS&quot; /D &quot;CRT_SECURE_NO_DEPRECATE&quot; /D &quot;_CRT_NONSTDC_NO_WARNINGS&quot; /D &quot;_CRT_NON_CONFORMING_SWPRINTFS&quot;"
+				AdditionalOptions="/MP"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;FARTRY;CREATE_JUNCTION;DIRECT_RT;SYSLOG;SYSLOG_FARSYSLOG;SYSLOG_SVS;USE_WFUNC;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
-				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile="$(IntDir)\cpp_headers.pch"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -331,18 +330,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/D &quot;_CRT_SECURE_NO_WARNINGS&quot; /D &quot;CRT_SECURE_NO_DEPRECATE&quot; /D &quot;_CRT_NONSTDC_NO_WARNINGS&quot; /D &quot;_CRT_NON_CONFORMING_SWPRINTFS&quot;"
+				AdditionalOptions="/MP"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;FARTRY;CREATE_JUNCTION;DIRECT_RT;SYSLOG;SYSLOG_FARSYSLOG;SYSLOG_SVS;USE_WFUNC;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
-				MinimalRebuild="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
-				UsePrecompiledHeader="1"
-				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile="$(IntDir)\cpp_headers.pch"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -2251,6 +2249,82 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\headers.c.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\headers.cpp.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="help.cpp"
 				>
 				<FileConfiguration
@@ -2402,7 +2476,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2411,7 +2485,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2419,7 +2493,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2428,7 +2502,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -2985,7 +3059,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2994,7 +3068,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3003,7 +3077,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3012,7 +3086,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3425,7 +3499,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3434,7 +3508,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3443,7 +3517,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3452,7 +3526,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3465,7 +3539,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3474,7 +3548,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3483,7 +3557,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3492,7 +3566,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -3973,7 +4047,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3982,7 +4056,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3991,7 +4065,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4000,7 +4074,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -4085,7 +4159,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4094,7 +4168,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4103,7 +4177,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4112,7 +4186,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
@@ -4125,7 +4199,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4134,7 +4208,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4143,7 +4217,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4152,7 +4226,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						PrecompiledHeaderFile="$(IntDir)\c_headers.pch"
+						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
 					/>
 				</FileConfiguration>
 			</File>
