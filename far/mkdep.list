@@ -194,3 +194,5 @@ hotplug.cpp
 timefunc.cpp
 TVMStack.hpp
 TVMStack.cpp
+headers.c.c
+headers.cpp.cpp
