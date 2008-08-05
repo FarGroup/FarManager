@@ -198,3 +198,5 @@ viewer.cpp
 vmenu.cpp
 xlat.cpp
 TVMStack.cpp
+headers.c.c
+headers.cpp.cpp

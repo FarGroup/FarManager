@@ -1241,9 +1241,10 @@ static bool substrFunc()
   bool Ret=false;
 
   int len = StrLength(p);
-  if ( ( p1 >= 0 ) && ( p1 < len ) )
+  if ( ( p1 > 0 || p1 < 0) && ( p1 < len ) )
   {
-    p += p1;
+    if(p1 > 0)
+      p += p1;
     len = StrLength(p);
     if ( ( p2 > 0 ) && ( p2 < len ) )
       p[p2] = 0;
@@ -1602,14 +1603,20 @@ static bool promptFunc()
   return Ret;
 }
 
-// N=msgbox("Title","Text"[,flags])
+// N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc()
 {
   DWORD Flags = (DWORD)VMStack.Pop().toInteger();
   TVar ValB = VMStack.Pop();
   TVar ValT = VMStack.Pop();
-  const wchar_t *title=NullToEmpty(ValT.toString());
-  const wchar_t *text =NullToEmpty(ValB.toString());
+
+  const wchar_t *title = L"";
+  if(!ValT.isInteger())
+    title=NullToEmpty(ValT.toString());
+
+  const wchar_t *text  = L"";
+  if(!ValB.isInteger())
+    text =NullToEmpty(ValB.toString());
 
   Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
   Flags|=FMSG_ALLINONE;
@@ -2602,6 +2609,17 @@ done:
   if(Work.ExecLIBPos==0)
     Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
+
+  // Mantis#0000581: Добавить возможность прервать выполнение макроса
+  {
+    INPUT_RECORD rec;
+    if(PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
+    {
+      GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
+      goto done;                  // ...и завершаем макрос.
+    }
+  }
+
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
   string value;
@@ -3556,6 +3574,9 @@ Common        0
 // подобных макросов, то именно сюды!
 void KeyMacro::RunStartMacro()
 {
+  if(Opt.DisableMacro&MDOL_ALL)
+    return;
+
   if(Opt.DisableMacro&MDOL_AUTOSTART)
     return;
 

@@ -93,7 +93,7 @@ enum DIZUPDATETYPE {
 
 // *** Macros ***
 enum MACRODISABLEONLOAD{
-  MDOL_ALL            = 0xFFFFFFFF, // дисаблим все макросы при загрузке
+  MDOL_ALL            = 0x80000000, // дисаблим все макросы при загрузке
   MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
 };
 

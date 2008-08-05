@@ -267,7 +267,7 @@ static TMacroFunction macroFunction[]={
   {L"MENU.SELECT",      2, 1,   MCODE_F_MENU_SELECT},         // N=Menu.Select(S[,N])
   {L"MOD",              2, 0,   MCODE_F_MOD},                 // N=mod(a,b) == a %  b
   {L"MSAVE",            1, 0,   MCODE_F_MSAVE},               // N=msave(S)
-  {L"MSGBOX",           3, 1,   MCODE_F_MSGBOX},              // N=msgbox("Title","Text"[,flags])
+  {L"MSGBOX",           3, 3,   MCODE_F_MSGBOX},              // N=msgbox(["Title"[,"Text"[,flags]]])
   {L"MIN",              2, 0,   MCODE_F_MIN},                 // N=min(N1,N2)
   {L"PANEL.FATTR",      2, 0,   MCODE_F_PANEL_FATTR},         // N=Panel.FAttr(panelType,fileMask)
   {L"PANEL.FEXIST",     2, 0,   MCODE_F_PANEL_FEXIST},        // N=Panel.FExist(panelType,fileMask)
@@ -1043,7 +1043,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_MIN,              L"N=min(N1,N2)"},
     {MCODE_F_MOD,              L"N=mod(N1,N2)"},
     {MCODE_F_MSAVE,            L"N=msave(S)"},
-    {MCODE_F_MSGBOX,           L"N=msgbox(sTitle,sText[,flags])"},
+    {MCODE_F_MSGBOX,           L"N=msgbox([sTitle[,sText[,flags]]])"},
     {MCODE_F_PANEL_FATTR,      L"N=panel.fattr(panelType,S)"},
     {MCODE_F_PANEL_FEXIST,     L"S=panel.fexist(panelType,S)"},
     {MCODE_F_PANEL_SETPATH,    L"N=panel.SetPath(panelType,pathName[,fileName])"},
