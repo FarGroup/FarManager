@@ -84,6 +84,11 @@ headers.hpp
 #endif
 #define IO_REPARSE_TAG_DFSR                     (0x80000012L)
 
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#define FILE_ANY_ACCESS                 0
+#define FILE_SPECIAL_ACCESS    (FILE_ANY_ACCESS)
+#endif
+
 #ifndef FSCTL_SET_SPARSE
 #define FSCTL_SET_SPARSE                CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 49, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 #endif
