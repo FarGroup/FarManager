@@ -1842,7 +1842,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     /* $ 01.09.2000 SVS
        Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
     */
-    if (MsY == Y1+1)
+    if (MsY == Y1)
       while (IsMouseButtonPressed())
         ProcessKey(KEY_UP);
     else if (MsY==Y2)
@@ -1853,7 +1853,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         ProcessKey(KEY_DOWN);
       }
     }
-    else if(MsY == Y1+2)
+    else if(MsY == Y1+1)
       ProcessKey(KEY_CTRLHOME);
     else if(MsY == Y2-1)
       ProcessKey(KEY_CTRLEND);
@@ -1905,7 +1905,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 12.10.2001 SKV
     угу, а только если он нсть, statusline...
   */
-  if ( MsY==Y1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
+  if ( MsY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
   {
     int XTable, XPos, NameLength;
     NameLength=ObjWidth-40;
@@ -1921,7 +1921,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     MsX=MouseX;
     MsY=MouseY;
 
-    if (MsY!=Y1)
+    if (MsY != Y1-1)
       return(TRUE);
 
     //_D(SysLog(L"MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
@@ -3064,7 +3064,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=strFullFileName;
         Info->WindowSizeX=ObjWidth;
-        Info->WindowSizeY=Y2-Y1;
+        Info->WindowSizeY=Y2-Y1+1;
         Info->FilePos.i64=FilePos;
         Info->FileSize.i64=FileSize;
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));

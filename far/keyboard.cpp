@@ -381,7 +381,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     NotMacros=CalcKey&0x80000000?1:0;
     CalcKey&=~0x80000000;
     //???
-    if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
+    if(!ExcludeMacro && CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
     {
       if(CtrlObject->Macro.ProcessKey(CalcKey))
       {
@@ -395,7 +395,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     if (!NotMacros)
     {
       _KEYMACRO(CleverSysLog Clev(L"CALL(1) CtrlObject->Macro.ProcessKey()"));
-      if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+      if (!ExcludeMacro && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
       {
         rec->EventType=0;
         CalcKey=KEY_NONE;
@@ -1406,8 +1406,8 @@ int CheckForEscSilent()
   // если в "макросе"...
   if(CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
   {
-    // ...но Ё“ќ конец последовательности...
-    if(CtrlObject->Macro.IsExecutingLastKey() && CtrlObject->Macro.PeekKey() == KEY_NONE)
+    // ...но Ё“ќ конец последовательности (не Op-код)...
+    if(CtrlObject->Macro.IsExecutingLastKey() && !CtrlObject->Macro.IsOpCode(CtrlObject->Macro.PeekKey()))
       CtrlObject->Macro.GetKey(); // ...то "завершим" макрос
     else
       Processed=FALSE;

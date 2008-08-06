@@ -281,6 +281,7 @@ static TMacroFunction macroFunction[]={
   {L"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)
   {L"STRING",           1, 0,   MCODE_F_STRING},              // S=string(V)
   {L"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
+  {L"TRIM",             2, 1,   MCODE_F_TRIM},                // S=trim(S[,N])
   {L"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
   {L"WAITKEY",          1, 1,   MCODE_F_WAITKEY},             // S=waitkey([N])
   {L"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
@@ -313,7 +314,7 @@ static void calcFunc(void)
     if ( nParam )
     {
       int i=0;
-      if (nParam > oParam)
+      if (nParam >= oParam)
       {
         for ( ; i < nParam ; i++ )
         {
@@ -344,7 +345,11 @@ static void calcFunc(void)
         for( ; i < nParam-1; ++i)
         {
           put(MCODE_OP_PUSHINT);
-          put64(_i64(0));
+          // исключение для substr
+          if(nFunc == MCODE_F_SUBSTR)
+            put64(_i64(-1));
+          else
+            put64(_i64(0));
         }
       }
     }
@@ -1067,6 +1072,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_STAT,          L"N=BM.Stat([N])"},
     {MCODE_F_BM_GET,           L"N=BM.Get(Idx,M)"},
     {MCODE_F_BM_DEL,           L"N=BM.Del([Idx])"},
+    {MCODE_F_TRIM,             L"S=trim(S[,N])"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
