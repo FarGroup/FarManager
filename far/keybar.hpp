@@ -45,6 +45,7 @@ enum {
   KBL_CTRLSHIFT,
   KBL_ALTSHIFT,
   KBL_CTRLALT,
+  KBL_CTRLALTSHIFT,
 
   KBL_GROUP_COUNT
 };
@@ -101,6 +102,7 @@ class KeyBar: public ScreenObject
     void SetCtrlShift(const wchar_t * const *Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
     void SetAltShift(const wchar_t * const *Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
     void SetCtrlAlt(const wchar_t **Key,int KeyCount)            { SetGroup (KBL_CTRLALT, Key, KeyCount); }
+    void SetCtrlAltShift(const wchar_t **Key,int KeyCount)       { SetGroup (KBL_CTRLALTSHIFT, Key, KeyCount); }
 
     void SetDisableMask(int Mask);
     void Change(const wchar_t *NewStr,int Pos)                   { Change (KBL_MAIN, NewStr, Pos); }

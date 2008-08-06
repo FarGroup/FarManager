@@ -1963,9 +1963,10 @@ BOOL TreeList::UpdateKeyBar()
   KB->SetAllGroup (KBL_SHIFT, MKBTreeShiftF1, 12);
   KB->SetAllGroup (KBL_ALT, MKBTreeAltF1, 12);
   KB->SetAllGroup (KBL_CTRL, MKBTreeCtrlF1, 12);
-  KB->ClearGroup (KBL_CTRLSHIFT);
-  KB->ClearGroup (KBL_CTRLALT);
-  KB->ClearGroup (KBL_ALTSHIFT);
+  KB->SetAllGroup (KBL_CTRLSHIFT, MKBTreeCtrlShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALT, MKBTreeCtrlAltF1, 12);
+  KB->SetAllGroup (KBL_ALTSHIFT, MKBTreeAltShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALTSHIFT, MKBTreeCtrlAltShiftF1, 12);
 
   DynamicUpdateKeyBar();
 

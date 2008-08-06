@@ -91,6 +91,11 @@ void KeyBar::DisplayObject()
           if (I<KeyCounts [KBL_CTRLSHIFT])
             Label=KeyTitles [KBL_CTRLSHIFT][I];
         }
+        else if(!(Opt.CASRule&1) || !(Opt.CASRule&2))
+        {
+          if (I<KeyCounts [KBL_CTRLALTSHIFT])
+            Label=KeyTitles [KBL_CTRLALTSHIFT][I];
+        }
       }
       else if (AltPressed)
       {
@@ -183,13 +188,14 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
         {
           size_t J;
           static DWORD Area[][2]={
-            { KBL_MAIN,        0 },
-            { KBL_SHIFT,       KEY_SHIFT },
-            { KBL_CTRL,        KEY_CTRL },
-            { KBL_ALT,         KEY_ALT },
-            { KBL_CTRLSHIFT,   KEY_CTRL|KEY_SHIFT },
-            { KBL_ALTSHIFT,    KEY_ALT|KEY_SHIFT },
-            { KBL_CTRLALT,     KEY_CTRL|KEY_ALT },
+            { KBL_MAIN,         0 },
+            { KBL_SHIFT,        KEY_SHIFT },
+            { KBL_CTRL,         KEY_CTRL },
+            { KBL_ALT,          KEY_ALT },
+            { KBL_CTRLSHIFT,    KEY_CTRL|KEY_SHIFT },
+            { KBL_ALTSHIFT,     KEY_ALT|KEY_SHIFT },
+            { KBL_CTRLALT,      KEY_CTRL|KEY_ALT },
+            { KBL_CTRLALTSHIFT, KEY_CTRL|KEY_ALT|KEY_SHIFT },
           };
           for(J=0; J < countof(Area); ++J)
             if(Area[J][1] == Ctrl)

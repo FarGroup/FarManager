@@ -545,9 +545,10 @@ BOOL QuickView::UpdateKeyBar()
   KB->SetAllGroup (KBL_SHIFT, MQViewShiftF1, 12);
   KB->SetAllGroup (KBL_ALT, MQViewAltF1, 12);
   KB->SetAllGroup (KBL_CTRL, MQViewCtrlF1, 12);
-  KB->ClearGroup (KBL_CTRLSHIFT);
-  KB->ClearGroup (KBL_CTRLALT);
-  KB->ClearGroup (KBL_ALTSHIFT);
+  KB->SetAllGroup (KBL_CTRLSHIFT, MQViewCtrlShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALT, MQViewCtrlAltF1, 12);
+  KB->SetAllGroup (KBL_ALTSHIFT, MQViewAltShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALTSHIFT, MQViewCtrlAltShiftF1, 12);
 
   DynamicUpdateKeyBar();
 

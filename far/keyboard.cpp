@@ -2353,7 +2353,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
         return(KEY_SHIFT|KEY_CTRLALT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_MULTIPLY);
-      case VK_PAUSE:
+      case VK_CANCEL:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
     }
     if (Char.UnicodeChar)

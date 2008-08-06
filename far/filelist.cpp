@@ -4189,6 +4189,7 @@ BOOL FileList::UpdateKeyBar()
   KB->SetAllGroup (KBL_CTRLSHIFT, MCtrlShiftF1, 12);
   KB->SetAllGroup (KBL_CTRLALT, MCtrlAltF1, 12);
   KB->SetAllGroup (KBL_ALTSHIFT, MAltShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALTSHIFT, MCtrlAltShiftF1, 12);
 
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
     KB->Change(KBL_ALT,L"",6-1);

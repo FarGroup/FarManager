@@ -2048,9 +2048,10 @@ void Help::InitKeyBar(void)
   HelpKeyBar.SetAllGroup (KBL_SHIFT, MHelpShiftF1, 12);
   HelpKeyBar.SetAllGroup (KBL_ALT, MHelpAltF1, 12);
   HelpKeyBar.SetAllGroup (KBL_CTRL, MHelpCtrlF1, 12);
-  HelpKeyBar.ClearGroup (KBL_CTRLSHIFT);
-  HelpKeyBar.ClearGroup (KBL_CTRLALT);
-  HelpKeyBar.ClearGroup (KBL_ALTSHIFT);
+  HelpKeyBar.SetAllGroup (KBL_CTRLSHIFT, MHelpCtrlShiftF1, 12);
+  HelpKeyBar.SetAllGroup (KBL_CTRLALT, MHelpCtrlAltF1, 12);
+  HelpKeyBar.SetAllGroup (KBL_ALTSHIFT, MHelpAltShiftF1, 12);
+  HelpKeyBar.SetAllGroup (KBL_CTRLALTSHIFT, MHelpCtrlAltShiftF1, 12);
 
   // Уберем лишнее с глаз долой
 #if !defined(WORK_HELP_DOCUMS)

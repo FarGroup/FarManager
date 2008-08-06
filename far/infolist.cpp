@@ -658,9 +658,10 @@ BOOL InfoList::UpdateKeyBar()
   KB->SetAllGroup (KBL_SHIFT, MInfoShiftF1, 12);
   KB->SetAllGroup (KBL_ALT, MInfoAltF1, 12);
   KB->SetAllGroup (KBL_CTRL, MInfoCtrlF1, 12);
-  KB->ClearGroup (KBL_CTRLSHIFT);
-  KB->ClearGroup (KBL_CTRLALT);
-  KB->ClearGroup (KBL_ALTSHIFT);
+  KB->SetAllGroup (KBL_CTRLSHIFT, MInfoCtrlShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALT, MInfoCtrlAltF1, 12);
+  KB->SetAllGroup (KBL_ALTSHIFT, MInfoAltShiftF1, 12);
+  KB->SetAllGroup (KBL_CTRLALTSHIFT, MInfoCtrlAltShiftF1, 12);
   DynamicUpdateKeyBar();
 
   return TRUE;
