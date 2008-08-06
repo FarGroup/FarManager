@@ -18,6 +18,7 @@ enum {
   KBL_CTRLSHIFT,
   KBL_ALTSHIFT,
   KBL_CTRLALT,
+  KBL_CTRLALTSHIFT,
 
   KBL_GROUP_COUNT
 };
@@ -67,13 +68,14 @@ class KeyBar: public ScreenObject
     // Групповая установка идущих подряд строк LNG для указанной группы
     void SetAllGroup (int Group, int StartIndex, int Count);
 
-    void Set(const char **Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
-    void SetShift(const char **Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
-    void SetAlt(const char **Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
-    void SetCtrl(const char **Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
-    void SetCtrlShift(const char **Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
-    void SetAltShift(const char **Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
-    void SetCtrlAlt(const char **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
+    void Set(const char **Key,int KeyCount)             { SetGroup (KBL_MAIN, Key, KeyCount); }
+    void SetShift(const char **Key,int KeyCount)        { SetGroup (KBL_SHIFT, Key, KeyCount); }
+    void SetAlt(const char **Key,int KeyCount)          { SetGroup (KBL_ALT, Key, KeyCount); }
+    void SetCtrl(const char **Key,int KeyCount)         { SetGroup (KBL_CTRL, Key, KeyCount); }
+    void SetCtrlShift(const char **Key,int KeyCount)    { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
+    void SetAltShift(const char **Key,int KeyCount)     { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
+    void SetCtrlAlt(const char **Key,int KeyCount)      { SetGroup (KBL_CTRLALT, Key, KeyCount); }
+    void SetCtrlAltShift(const char **Key,int KeyCount) { SetGroup (KBL_CTRLALTSHIFT, Key, KeyCount); }
 
     void Change(const char *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
 

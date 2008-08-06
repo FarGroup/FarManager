@@ -2625,7 +2625,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_SHIFT|KEY_CTRLALT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_MULTIPLY);
-      case VK_PAUSE:
+      case VK_CANCEL:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
     }
     if (Char.AsciiChar)
