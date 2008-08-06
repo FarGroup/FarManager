@@ -98,7 +98,14 @@
     <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
     <td class="cont" width="60%">¬озвращает подстроку из выражени€ <em>V</em>
       начина€ с позиции <em>N1</em> длинной <em>N2</em>.<br>
-      ≈сли параметр <em>N2</em> не указан или равен 0, то вернетс€ подстрока от позиции <em>N1</em> до конца строки.
+      ≈сли параметр <em>N2</em> не указан или равен -1, то вернетс€ подстрока от позиции <em>N1</em> до конца строки.<br>
+      ≈сли параметр <em>N2</em> равен 0, то вернетс€ пуста€ строка.<br>
+      </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="trim">trim</a></dfn>(V[,N])</td>
+    <td class="cont" width="60%">”дал€ет все пробельные символы (пробелы, табул€ции,
+      переводы строк и возвраты каретки) из строки <em>V</em> снаружи (<em>N</em>=0 или не указан), слева (<em>N</em>=1) или справа (<em>N</em>=2).
       </td>
   </tr>
   <tr class="cont">
@@ -436,7 +443,7 @@ $End
     <th class="cont" width="60%">ќписание</th>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>([Title[,Text[,Flags]]])</td>
     <td class="cont" width="60%">
       ѕоказывает сообщение <em>Text</em> с заголовком <em>Title</em>.
       ¬ параметре <em>Text</em> строки разбиваютс€ символом '\n'.<br>

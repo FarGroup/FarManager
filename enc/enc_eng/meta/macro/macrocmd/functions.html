@@ -98,8 +98,15 @@
     <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
     <td class="cont" width="60%">Returns the substring of the expression <em>V</em>
     beginning from position <em>N1</em> with the length of <em>N2</em>.<br>
-    If <em>N2</em> is omitted or equals 0, a substring from <em>N1</em> to the end of the string will be returned.
+      Если параметр <em>N2</em> не указан или равен -1, то вернется подстрока от позиции <em>N1</em> до конца строки.<br>
+      Если параметр <em>N2</em> равен 0, то вернется пустая строка.<br>
     </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="trim">trim</a></dfn>(V[,N])</td>
+    <td class="cont" width="60%">Удаляет все пробельные символы (пробелы, табуляции,
+      переводы строк и возвраты каретки) из строки <em>V</em> снаружи (<em>N</em>=0 или не указан), слева (<em>N</em>=1) или справа (<em>N</em>=2).
+      </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
@@ -435,7 +442,7 @@ $End
     <th class="cont" width="60%">Description</th>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text[,Flags])</td>
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>([Title[,Text[,Flags]]])</td>
     <td class="cont" width="60%">Shows up the message box with the <em>Text</em> and the <em>Title</em>.
     Lines in the <em>Text</em> argument should be delimited by '\n'.<br>
       <em>Flags</em> can be a combination of the following values:
