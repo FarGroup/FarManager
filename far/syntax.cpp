@@ -308,6 +308,7 @@ static TMacroFunction macroFunction[]={
   {"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)
   {"STRING",           1, 0,   MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
+  {"TRIM",             2, 1,   MCODE_F_TRIM},                // S=trim(S[,N])
   {"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
   {"WAITKEY",          1, 1,   MCODE_F_WAITKEY},             // S=waitkey([N])
   {"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
@@ -341,7 +342,7 @@ static void calcFunc(void)
     if ( nParam )
     {
       int i=0;
-      if (nParam > oParam)
+      if (nParam >= oParam)
       {
         for ( ; i < nParam ; i++ )
         {
@@ -375,7 +376,11 @@ static void calcFunc(void)
         {
           _KEYMACRO_PARSE(SysLog("Optional params [%d] ==> currTok=%s, MCODE_OP_PUSHINT 0",i,_MacroParserToken_ToName(currTok)));
           put(MCODE_OP_PUSHINT);
-          put64(_i64(0));
+          // исключение для substr
+          if(nFunc == MCODE_F_SUBSTR)
+            put64(_i64(-1));
+          else
+            put64(_i64(0));
         }
       }
     }
@@ -1090,6 +1095,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_STAT,          "N=BM.Stat([N])"},
     {MCODE_F_BM_GET,           "N=BM.Get(Idx,M)"},
     {MCODE_F_BM_DEL,           "N=BM.Del([Idx])"},
+    {MCODE_F_TRIM,             "S=trim(S[,N])"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)

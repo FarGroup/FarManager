@@ -1846,11 +1846,8 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
 
-  /* $ 18.07.2000 tran
-     просто для сокращения кода*/
   int MsX=MouseEvent->dwMousePosition.X;
   int MsY=MouseEvent->dwMousePosition.Y;
-  /* tran 18.07.2000 $ */
 
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
@@ -1873,10 +1870,11 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     /* $ 01.09.2000 SVS
        Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
     */
-    if (MsY == Y1+1)
+    if (MsY == Y1)// +1
+    {
       while (IsMouseButtonPressed())
         ProcessKey(KEY_UP);
-    /* SVS $*/
+    }
     else if (MsY==Y2)
     {
       while (IsMouseButtonPressed())
@@ -1885,7 +1883,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         ProcessKey(KEY_DOWN);
       }
     }
-    else if(MsY == Y1+2)
+    else if(MsY == Y1+1) //+2
       ProcessKey(KEY_CTRLHOME);
     else if(MsY == Y2-1)
       ProcessKey(KEY_CTRLEND);
@@ -1897,8 +1895,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         /* $ 14.05.2001 DJ
            более точное позиционирование; корректная работа на больших файлах
         */
-        FilePos=(FileSize-1)/(Y2-Y1-1)*(MsY-Y1);
-        /* DJ $ */
+        FilePos=(FileSize-1)/(Y2-Y1-1)*(MsY-Y1); //???
         int Perc;
         if(FilePos > FileSize)
         {
@@ -1924,7 +1921,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           */
           AdjustFilePos();
           Show();
-          /* DJ $ */
         }
         GetInputRecord(&rec);
         MsX=rec.Event.MouseEvent.dwMousePosition.X;
@@ -1933,16 +1929,13 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     return (TRUE);
   }
-  /* SVS 02.10.2000 $ */
-  /* SVS $*/
-  /* tran 18.07.2000 $ */
 
   /* $ 16.12.2000 tran
      шелчок мышью на статус баре */
   /* $ 12.10.2001 SKV
     угу, а только если он нсть, statusline...
   */
-  if ( MsY==Y1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
+  if ( MsY==Y1-1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
   /* SKV$*/
   {
     int XTable, XPos, NameLength;
@@ -1959,7 +1952,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     MsX=MouseX;
     MsY=MouseY;
 
-    if (MsY!=Y1)
+    if (MsY!=Y1-1)
       return(TRUE);
 
     //_D(SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
@@ -1974,7 +1967,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         return (TRUE);
     }
   }
-  /* tran $ */
+
   if (MsX<X1 || MsX>X2 || MsY<Y1 || MsY>Y2)
     return(FALSE);
 
@@ -3182,11 +3175,10 @@ int Viewer::ViewerControl(int Command,void *Param)
           - баг - затирался StructSize
         */
         memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
-        /* IS */
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=FullFileName;
         Info->WindowSizeX=ObjWidth;
-        Info->WindowSizeY=Y2-Y1;
+        Info->WindowSizeY=Y2-Y1+1;
         Info->FilePos.i64=FilePos;
         Info->FileSize.i64=FileSize;
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));

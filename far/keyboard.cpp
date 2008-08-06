@@ -379,7 +379,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     CtrlObject->Macro.RunStartMacro();
 
     int MacroKey=CtrlObject->Macro.GetKey();
-    _KEYMACRO(SysLog("Macro) [%d] MacroKey =%s",__LINE__,_FARKEY_ToName(MacroKey)));
+    _KEYMACRO(SysLog("Macro) [%d] MacroKey =%s",__LINE__,(!(MacroKey&KEY_MACRO_BASE)?_FARKEY_ToName(MacroKey):_MCODE_ToName(MacroKey))));
     if (MacroKey)
     {
       ScrBuf.Flush();
@@ -387,8 +387,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || MacroKey>=KEY_OP_BASE && MacroKey <=KEY_OP_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
-      _KEYMACRO(SysLog("Macro) [%d] MacroKey1 =%s",__LINE__,_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
+      _KEYMACRO(SysLog("[%d] return MacroKey =%s",__LINE__,(!(MacroKey&KEY_MACRO_BASE)?_FARKEY_ToName(MacroKey):_MCODE_ToName(MacroKey))));
       return(MacroKey);
     }
   }
@@ -396,10 +396,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
   if(KeyQueue && KeyQueue->Peek())
   {
     CalcKey=KeyQueue->Get();
+    _KEYMACRO(SysLog("[%d] KeyQueue->Get() ==> %s, KeyQueue->isEmpty() ==> %d",__LINE__,(!(CalcKey&KEY_MACRO_BASE)?_FARKEY_ToName(CalcKey):_MCODE_ToName(CalcKey)),KeyQueue->isEmpty()));
     NotMacros=CalcKey&0x80000000?1:0;
     CalcKey&=~0x80000000;
     //???
-    if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
+    if(!ExcludeMacro && CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
     {
       if(CtrlObject->Macro.ProcessKey(CalcKey))
       {
@@ -407,18 +408,20 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
         rec->EventType=0;
         CalcKey=KEY_NONE;
       }
+      _KEYMACRO(SysLog("[%d] return CalcKey=%s",__LINE__,(!(CalcKey&KEY_MACRO_BASE)?_FARKEY_ToName(CalcKey):_MCODE_ToName(CalcKey))));
       return(CalcKey);
     }
 
     if (!NotMacros)
     {
       _KEYMACRO(CleverSysLog Clev("Macro) CALL(1) CtrlObject->Macro.ProcessKey()"));
-      if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+      if (!ExcludeMacro && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
       {
         rec->EventType=0;
         CalcKey=KEY_NONE;
       }
     }
+    _KEYMACRO(SysLog("[%d] return CalcKey=%s",__LINE__,(!(CalcKey&KEY_MACRO_BASE)?_FARKEY_ToName(CalcKey):_MCODE_ToName(CalcKey))));
     return(CalcKey);
   }
 
@@ -1558,6 +1561,7 @@ int WriteInput(int Key,DWORD Flags)
 
 int CheckForEscSilent()
 {
+  _KEYMACRO(CleverSysLog Clev("int CheckForEscSilent()"));
   INPUT_RECORD rec;
   int Key;
   BOOL Processed=TRUE;
@@ -1569,8 +1573,10 @@ int CheckForEscSilent()
   // если в "макросе"...
   if(CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
   {
-    // ...но Ё“ќ конец последовательности...
-    if(CtrlObject->Macro.IsExecutingLastKey() && CtrlObject->Macro.PeekKey() == KEY_NONE)
+    _KEYMACRO(DWORD m_PeekKey=CtrlObject->Macro.PeekKey());
+    _KEYMACRO(SysLog("IsExecutingLastKey() ==> %d, CtrlObject->Macro.PeekKey() ==> %s",CtrlObject->Macro.IsExecutingLastKey(),(!(m_PeekKey&KEY_MACRO_BASE)?_FARKEY_ToName(m_PeekKey):_MCODE_ToName(m_PeekKey))));
+    // ...но Ё“ќ конец последовательности (не Op-код)...
+    if(CtrlObject->Macro.IsExecutingLastKey() && !CtrlObject->Macro.IsOpCode(CtrlObject->Macro.PeekKey()))
       CtrlObject->Macro.GetKey(); // ...то "завершим" макрос
     else
       Processed=FALSE;

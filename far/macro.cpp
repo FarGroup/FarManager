@@ -1222,6 +1222,27 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
   return Cond;
 }
 
+// S=trim(S[,N])
+static bool trimFunc()
+{
+  int  mode = (int) VMStack.Pop().toInteger();
+  TVar Val= VMStack.Pop();
+
+  char *p = (char *)Val.toString();
+  bool Ret=true;
+
+  switch(mode)
+  {
+    case 0: p=RemoveExternalSpaces(p); break;  // alltrim
+    case 1: p=RemoveLeadingSpaces(p); break;   // ltrim
+    case 2: p=RemoveTrailingSpaces(p); break;  // rtrim
+    default: Ret=false;
+  }
+
+  VMStack.Push((const char*)p);
+  return Ret;
+}
+
 // S=substr(S,N1[,N2])
 static bool substrFunc()
 {
@@ -1233,7 +1254,7 @@ static bool substrFunc()
   bool Ret=false;
 
   int len = (int)strlen(p);
-  if ( ( p1 > 0 || p1 < 0) && ( p1 < len ) )
+  if ( p2 != 0 && p1 >= 0 &&  p1 < len )
   {
     if(p1 > 0)
       p += p1;
@@ -1244,6 +1265,7 @@ static bool substrFunc()
   }
   else
     p="";
+
   VMStack.Push((const char*)p);
   return Ret;
 }
@@ -1572,18 +1594,18 @@ static bool promptFunc()
   TVar Result("");
   bool Ret=false;
 
-  if(!ValTitle.isInteger())
+  if(!(ValTitle.isInteger() && !ValTitle.i()))
   {
     const char *history=NULL;
-    if(!ValHistory.isInteger())
+    if(!(ValHistory.isInteger() && !ValHistory.i()))
       history=ValHistory.s();
 
     const char *src="";
-    if(!ValSrc.isInteger())
+    if(!(ValSrc.isInteger() && !ValSrc.i()))
        src=ValSrc.s();
 
     const char *prompt="";
-    if(!ValPrompt.isInteger())
+    if(!(ValPrompt.isInteger() && !ValPrompt.i()))
        prompt=ValPrompt.s();
 
     const char *title=NullToEmpty(ValTitle.toString());
@@ -1612,11 +1634,11 @@ static bool msgBoxFunc()
   TVar ValT = VMStack.Pop();
 
   const char *title = "";
-  if(!ValT.isInteger())
+  if(!(ValT.isInteger() && !ValT.i()))
     title=NullToEmpty(ValT.toString());
 
   const char *text = "";
-  if(!ValB.isInteger())
+  if(!(ValB.isInteger() && !ValB.i()))
     text =NullToEmpty(ValB.toString());
 
   bool Ret=false;
@@ -2163,7 +2185,7 @@ static bool panelsetpathFunc()
   int typePanel=(int)VMStack.Pop().toInteger();
   __int64 Ret=_i64(0);
 
-  if(!Val.isInteger())
+  if(!(Val.isInteger() && !Val.i()))
   {
     const char *pathName=Val.s();
 
@@ -2632,18 +2654,20 @@ done:
     INPUT_RECORD rec;
     if(PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
     {
+      _SVS(SysLog("Mantis#0000581"));
       GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
+      Work.KeyProcess=0;
       goto done;                  // ...и завершаем макрос.
     }
   }
 
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
-  _KEYMACRO(SysLog("[%d] IP=%d Op=%08X ==> %s or %s",__LINE__,Work.ExecLIBPos-1,Key,_MCODE_ToName(Key),_FARKEY_ToName(Key)));
+  _KEYMACRO(SysLog("[%d] IP=%d Op=%08X ==> %s",__LINE__,Work.ExecLIBPos-1,Key,((Key&KEY_MACRO_BASE)?_MCODE_ToName(Key):_FARKEY_ToName(Key))));
 
   if(Work.KeyProcess && Key != MCODE_OP_ENDKEYS)
   {
-    _KEYMACRO(SysLog("[%d] IP=%d  %s (Work.KeyProcess && Key != MCODE_OP_ENDKEYS)",__LINE__,Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
+    _KEYMACRO(SysLog("[%d] IP=%d  %s (Work.KeyProcess && Key != MCODE_OP_ENDKEYS)",__LINE__,Work.ExecLIBPos-1,((Key&KEY_MACRO_BASE)?_MCODE_ToName(Key):_FARKEY_ToName(Key))));
     goto return_func;
   }
 
@@ -3136,6 +3160,7 @@ done:
         {MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
         {MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
         {MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
+        {MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
         {MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2)
         {MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
         {MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
@@ -4652,6 +4677,7 @@ void KeyMacro::DropProcess()
   }
 }
 
+
 void MacroState::Init(TVarTable *tbl)
 {
   KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
@@ -4718,4 +4744,10 @@ void doneMacroVarTable(int global)
 BOOL KeyMacro::GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3)
 {
   return __getMacroParseError(ErrMsg1,ErrMsg2,ErrMsg3);
+}
+
+// это OpCode (за исключением MCODE_OP_ENDKEYS)?
+bool KeyMacro::IsOpCode(DWORD p)
+{
+  return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
 }

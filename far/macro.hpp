@@ -111,6 +111,7 @@ class KeyMacro
     int ProcessKey(int Key);
     int GetKey();
     int PeekKey();
+    bool IsOpCode(DWORD p);
 
     int PushState(bool CopyLocalVars=FALSE);
     int PopState();

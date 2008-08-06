@@ -1013,6 +1013,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_FLOCK),
      DEF_MCODE_(F_FSPLIT),
      DEF_MCODE_(F_REPLACE),
+     DEF_MCODE_(F_TRIM),
      DEF_MCODE_(F_IIF),
      DEF_MCODE_(F_INDEX),
      DEF_MCODE_(F_INT),
