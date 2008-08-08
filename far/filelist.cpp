@@ -599,6 +599,7 @@ int FileList::ProcessKey(int Key)
     {
       if (GetShortcutFolder(Key,ShortcutFolder,SizeFolderNameShortcut+NM,PluginModule,PluginFile,PluginData))
       {
+        int CheckFullScreen=IsFullScreen();
         if(*PluginModule)
         {
           if(*PluginFile)
@@ -689,7 +690,12 @@ int FileList::ProcessKey(int Key)
             return TRUE;
         }
         SetCurDir(ShortcutFolder,TRUE);
+
+        if(CheckFullScreen)
+          CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+
         Show();
+
         delete[] ShortcutFolder;
         return(TRUE);
       }
