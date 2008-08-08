@@ -584,6 +584,7 @@ int FileList::ProcessKey(int Key)
 
       if (GetShortcutFolder(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
       {
+        int CheckFullScreen=IsFullScreen();
         if( !strPluginModule.IsEmpty() )
         {
           if( !strPluginFile.IsEmpty() )
@@ -671,6 +672,10 @@ int FileList::ProcessKey(int Key)
             return TRUE;
         }
         SetCurDir(strShortcutFolder,TRUE);
+
+        if(CheckFullScreen)
+          CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+
         Show();
         return(TRUE);
       }
