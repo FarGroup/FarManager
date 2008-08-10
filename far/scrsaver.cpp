@@ -59,7 +59,7 @@ int ScreenSaver(int EnableExit)
     SaveScreen SaveScr;
     SetCursorType(0,10);
     randomize();
-    SetScreen(0,0,ScrX,ScrY,' ',COL_COMMANDLINEUSERSCREEN);
+    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
 
     for (int I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
     {
