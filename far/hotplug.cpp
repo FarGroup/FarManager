@@ -336,14 +336,21 @@ void ShowHotplugDevice ()
         {
           BlockExtKey blockExtKey;
 
+          int bResult;
           I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
-          if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
+          if((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
           {
             HotPlugList.Hide();
             if(pInfo)
               FreeHotplugDevicesInfo (pInfo);
             pInfo=NULL;
             RefreshHotplugMenu(pInfo,HotPlugList);
+          }
+          else if (bResult != -1)
+          {
+             SetLastError(ERROR_DRIVE_LOCKED); // ...î "The disk is in use or locked by another process."
+             Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->Name,MSG(MOk));
           }
         }
         break;

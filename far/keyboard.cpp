@@ -1573,6 +1573,7 @@ int CheckForEscSilent()
   // если в "макросе"...
   if(CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
   {
+#if 0
     _KEYMACRO(DWORD m_PeekKey=CtrlObject->Macro.PeekKey());
     _KEYMACRO(SysLog("IsExecutingLastKey() ==> %d, CtrlObject->Macro.PeekKey() ==> %s",CtrlObject->Macro.IsExecutingLastKey(),(!(m_PeekKey&KEY_MACRO_BASE)?_FARKEY_ToName(m_PeekKey):_MCODE_ToName(m_PeekKey))));
     // ...но Ё“ќ конец последовательности (не Op-код)...
@@ -1580,8 +1581,11 @@ int CheckForEscSilent()
       CtrlObject->Macro.GetKey(); // ...то "завершим" макрос
     else
       Processed=FALSE;
+#else
+    if(CtrlObject->Macro.IsDsableOutput())
+      Processed=FALSE;
+#endif
   }
-
 
   if (Processed && PeekInputRecord(&rec))
   {
@@ -1605,6 +1609,10 @@ int CheckForEscSilent()
     if(Key==KEY_ESC || Key==KEY_BREAK)
       return(TRUE);
   }
+
+  if(!Processed && CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+    ScrBuf.Flush();
+
   return(FALSE);
 }
 
