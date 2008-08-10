@@ -6055,7 +6055,7 @@ void Editor::Xlat()
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
-      AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT);
       BlockUndo=TRUE;
       ::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,CurPtr->TableSet,Opt.XLat.Flags);
     }
@@ -6078,7 +6078,7 @@ void Editor::Xlat()
           break;
         if(EndSel == -1)
           EndSel=StrLength(CurPtr->Str);
-        AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,0,UNDO_EDIT);
+        AddUndoData(CurPtr->GetStringAddrW(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT);
         ::Xlat(CurPtr->Str,StartSel,EndSel,CurPtr->TableSet,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
