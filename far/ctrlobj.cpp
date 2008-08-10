@@ -84,7 +84,7 @@ void ControlObject::Init()
   TreeList::ClearCache(0);
   FileFilter::InitFilter();
 
-  SetColor(F_LIGHTGRAY|B_BLACK);
+  SetColor(COL_COMMANDLINEUSERSCREEN);
   GotoXY(0,ScrY-3);
   ShowCopyright();
   GotoXY(0,ScrY-2);
@@ -217,7 +217,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
   }
   else
   {
-    ScrollScreen(2+Line2?1:0);
+    ScrollScreen(2+(Line2?1:0));
     if(Line2)
     {
       GotoXY(0,ScrY-4);

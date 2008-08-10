@@ -886,7 +886,7 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
       strExecLine += L"\"";
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль
-    SetRealColor (F_LIGHTGRAY|B_BLACK);
+    SetRealColor (COL_COMMANDLINEUSERSCREEN);
 
     if ( CreateProcessW (
         NULL,
@@ -1398,7 +1398,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     if(strCmdLine.At(3))
       return FALSE;
 
-    ClearScreen(F_LIGHTGRAY|B_BLACK);
+    ClearScreen(COL_COMMANDLINEUSERSCREEN);
     return TRUE;
   }
 

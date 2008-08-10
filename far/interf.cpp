@@ -957,7 +957,7 @@ int GetColor()
 void ScrollScreen(int Count)
 {
   ScrBuf.Scroll(Count);
-  ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,' ',FarColorToReal(F_LIGHTGRAY|B_BLACK));
+  ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,' ',FarColorToReal(COL_COMMANDLINEUSERSCREEN));
 }
 
 

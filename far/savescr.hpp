@@ -37,17 +37,16 @@ class SaveScreen
 {
   friend class Grabber;
   private:
-    char *ScreenBuf;
+    PCHAR_INFO ScreenBuf;
     int CurPosX,CurPosY,CurVisible,CurSize;
     int X1,Y1,X2,Y2;
     int RealScreen;
 
   private:
-    void CleanupBuffer(char *Buffer, int Height, int Width);
-    int ScreenBufSize();
-    int ScreenBufSize(int Width,int Height);
-    void CharCopy(char *ToBuffer,int ToIndex, char *FromBuffer, int FromIndex, int Count);
-    CHAR_INFO* GetBufferAddress() {return((CHAR_INFO *)ScreenBuf);};
+    void CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize);
+    int ScreenBufCharCount();
+    void CharCopy(PCHAR_INFO ToBuffer,PCHAR_INFO FromBuffer,int Count);
+    CHAR_INFO* GetBufferAddress() {return ScreenBuf;};
 
   public:
     SaveScreen();

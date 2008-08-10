@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "savescr.hpp"
 #include "fn.hpp"
+#include "colors.hpp"
 #include "global.hpp"
 
 SaveScreen::SaveScreen()
@@ -118,8 +119,7 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
   SaveScreen::Y1=Y1;
   SaveScreen::X2=X2;
   SaveScreen::Y2=Y2;
-  int _ScreenBufSize=ScreenBufSize();
-  ScreenBuf=new char[_ScreenBufSize];
+  ScreenBuf=new CHAR_INFO[ScreenBufCharCount()];
   if (!ScreenBuf)
     return;
   if (RealScreen)
@@ -130,7 +130,7 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
   }
   else
   {
-    GetText(X1,Y1,X2,Y2,ScreenBuf,_ScreenBufSize);
+    GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
     GetCursorPos(CurPosX,CurPosY);
     GetCursorType(CurVisible,CurSize);
   }
@@ -148,7 +148,7 @@ void SaveScreen::SaveArea()
   }
   else
   {
-    GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufSize());
+    GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufCharCount()*sizeof(CHAR_INFO));
     GetCursorPos(CurPosX,CurPosY);
     GetCursorType(CurVisible,CurSize);
   }
@@ -164,7 +164,7 @@ void SaveScreen::CorrectRealScreenCoord()
 
 void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
-  CHAR_INFO *Buf=(CHAR_INFO *)ScreenBuf,*NewBuf=(CHAR_INFO *)NewArea->ScreenBuf;
+  CHAR_INFO *Buf=ScreenBuf,*NewBuf=NewArea->ScreenBuf;
   if (Buf==NULL || NewBuf==NULL)
     return;
   for (int X=X1;X<=X2;X++)
@@ -187,8 +187,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
 
   int NX1,NX2,NY1,NY2;
   NX1=NX2=NY1=NY2=0;
-  char *NewBuf = new char[ScreenBufSize(NewX,NewY)];
-  CleanupBuffer(NewBuf,NewX,NewY);
+  PCHAR_INFO NewBuf = new CHAR_INFO[NewX*NewY];
+  CleanupBuffer(NewBuf,NewX*NewY);
   int NewWidth=Min(OWi,NewX);
   int NewHeight=Min(OHe,NewY);
   int iYReal;
@@ -223,7 +223,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
         ToIndex+=NewX-OWi;
       }
     }
-    CharCopy(NewBuf, ToIndex, ScreenBuf, FromIndex, NewWidth);
+    CharCopy(&NewBuf[ToIndex],&ScreenBuf[FromIndex],NewWidth);
   }
   delete [] ScreenBuf;
   ScreenBuf=NewBuf;
@@ -232,26 +232,23 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
 }
 
 
-int SaveScreen::ScreenBufSize()
+int SaveScreen::ScreenBufCharCount()
 {
-  return ScreenBufSize( X2-X1+1, Y2-Y1+1);
+  return (X2-X1+1)*(Y2-Y1+1);
 }
 
-int SaveScreen::ScreenBufSize(int Width,int Height)
+void SaveScreen::CharCopy(PCHAR_INFO ToBuffer,PCHAR_INFO FromBuffer,int Count)
 {
-  return Height*Width*sizeof(CHAR_INFO);
+  memcpy(ToBuffer,FromBuffer,Count*sizeof(CHAR_INFO));
 }
 
-void SaveScreen::CharCopy(char *ToBuffer,int ToIndex, char *FromBuffer, int FromIndex, int Count)
+void SaveScreen::CleanupBuffer(PCHAR_INFO Buffer, size_t BufSize)
 {
-  memcpy(ToBuffer+ToIndex*sizeof(CHAR_INFO),FromBuffer+FromIndex*sizeof(CHAR_INFO),Count*sizeof(CHAR_INFO));
-}
-
-void SaveScreen::CleanupBuffer(char *Buffer, int Height, int Width)
-{
-  int BufSize=Height*Width;
-  for (int i=0;i<BufSize;i++){
-    *(int*)&Buffer[i*sizeof(CHAR_INFO)]=0x00070020;
+  WORD Attr=FarColorToReal(COL_COMMANDLINEUSERSCREEN);
+  for (size_t i=0;i<BufSize;i++)
+  {
+    Buffer[i].Attributes=Attr;
+    Buffer[i].Char.UnicodeChar=L' ';
   }
 }
 

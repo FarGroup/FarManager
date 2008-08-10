@@ -296,10 +296,11 @@ void SetColors()
   {
     (const wchar_t *)MSetColorCommandLineNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorCommandLineSelected,0,0,
-    (const wchar_t *)MSetColorCommandLinePrefix,0,0
+    (const wchar_t *)MSetColorCommandLinePrefix,0,0,
+    (const wchar_t *)MSetColorCommandLineUserScreen,0,0,
   };
   int CommandLinePaletteItems[]={
-    COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX
+    COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX,COL_COMMANDLINEUSERSCREEN
   };
 
   struct MenuDataEx ClockItems[]=

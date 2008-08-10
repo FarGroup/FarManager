@@ -133,6 +133,10 @@ static int MainProcess(
     ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
     ControlObject CtrlObj;
 
+    CONSOLE_SCREEN_BUFFER_INFO InitCsbi;
+    GetConsoleScreenBufferInfo(hConOut,&InitCsbi);
+    SetRealColor(COL_COMMANDLINEUSERSCREEN);
+
     // учтем настройки максимизации окна при старте
     if(IsZoomed(hFarWnd)) ChangeVideoMode(1);
 
@@ -275,7 +279,8 @@ static int MainProcess(
     }
 
     // очистим за собой!
-    SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
+    SetScreen(0,0,ScrX,ScrY,L' ',COL_COMMANDLINEUSERSCREEN);
+    SetConsoleTextAttribute(hConOut,InitCsbi.wAttributes);
     ScrBuf.ResetShadow();
     ScrBuf.Flush();
     MoveRealCursor(0,0);
