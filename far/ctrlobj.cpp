@@ -62,7 +62,7 @@ void ControlObject::Init()
   TreeList::ClearCache(0);
   FileFilter::InitFilter();
 
-  SetColor(F_LIGHTGRAY|B_BLACK);
+  SetColor(COL_COMMANDLINEUSERSCREEN);
   GotoXY(0,ScrY-3);
   while (RegVer==-1)
     Sleep(0);
@@ -225,7 +225,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 #ifdef BETA
     mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
 #else
-    ScrollScreen(2+Line2?1:0);
+    ScrollScreen(2+(Line2?1:0));
     if(Line2)
     {
       GotoXY(0,ScrY-4);
