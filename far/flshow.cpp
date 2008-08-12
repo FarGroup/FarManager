@@ -91,6 +91,7 @@ void FileList::ShowFileList(int Fast)
     return;
   }
   string strTitle;
+  string strInfoCurDir;
   int Length;
   struct OpenPluginInfo Info;
 
@@ -99,6 +100,7 @@ void FileList::ShowFileList(int Fast)
     if (ProcessPluginEvent(FE_REDRAW,NULL))
       return;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+    strInfoCurDir=Info.CurDir;
   }
 
   int CurFullScreen=IsFullScreen();
@@ -285,8 +287,6 @@ void FileList::ShowFileList(int Fast)
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabledOnPanel())
     TruncSize-=2;
 
-  // BUGBUG - внутри GetTitle ещё один вызов GetOpenPluginInfo(), при текущем методе хранения
-  // указателей OpenPluginInfo для ansi-плагинов (см. PluginA::ConvertOpenPluginInfo) - это потенциально чревато.
   GetTitle(strTitle,TruncSize,2);//,(PanelMode==PLUGIN_PANEL?0:2));
   Length=(int)strTitle.GetLength();
   int ClockCorrection=FALSE;
@@ -316,8 +316,8 @@ void FileList::ShowFileList(int Fast)
 
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
-    if (*Info.CurDir) {
-      strCurDir = Info.CurDir;
+    if (!strInfoCurDir.IsEmpty()) {
+      strCurDir = strInfoCurDir;
     }
     else {
       struct FileListItem *CurPtr=ListData[CurFile];

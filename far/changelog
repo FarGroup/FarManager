@@ -1,3 +1,10 @@
+drkns 12.08.2008 16:29:00 +0200 - build 548
+
+1. Пляски с OpenPluginInfo во враппере (b539) получились не совсем удачными, попробуем иначе.
+   Как следствие, Mantis#587: entering '..' inside an archive exits archive instead of going up 1 level
+
+2. В UnicodeString::SetData добавлен NullToEmpty, дабы не писать его в куче других мест.
+
 drkns 11.08.2008 00:19:22 +0200 - build 547
 
 1. Цвет пользовательского буфера теперь настраивается.

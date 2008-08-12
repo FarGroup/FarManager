@@ -568,9 +568,9 @@ int FileList::ProcessKey(int Key)
       struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-      strPluginFile = NullToEmpty(Info.HostFile);
-      strShortcutFolder = NullToEmpty(Info.CurDir);
-      strPluginData = NullToEmpty(Info.ShortcutData);
+      strPluginFile = Info.HostFile;
+      strShortcutFolder = Info.CurDir;
+      strPluginData = Info.ShortcutData;
     }
     else
     {
@@ -864,7 +864,7 @@ int FileList::ProcessKey(int Key)
               CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF);
             else
             {
-              string strFullName = NullToEmpty(Info.CurDir);
+              string strFullName = Info.CurDir;
 
               if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
                 strFullName.Upper ();
@@ -1112,6 +1112,9 @@ int FileList::ProcessKey(int Key)
         string strFileName;
         string strShortFileName;
 
+        string strHostFile=Info.HostFile;
+        string strCurDir=Info.CurDir;
+
         int PluginMode=PanelMode==PLUGIN_PANEL &&
             !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
@@ -1120,7 +1123,7 @@ int FileList::ProcessKey(int Key)
           if(Info.Flags & OPIF_REALNAMES)
             PluginMode=FALSE;
           else
-            strPluginData.Format (L"<%s:%s>",NullToEmpty(Info.HostFile),NullToEmpty(Info.CurDir));
+            strPluginData.Format (L"<%s:%s>",(const wchar_t*)strHostFile,(const wchar_t*)strCurDir);
         }
 
         if(!PluginMode)
@@ -2127,12 +2130,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     /* $ 16.01.2002 VVM
       + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 
-    string strInfoCurDir;
-    string strInfoFormat;
-
-    strInfoCurDir = NullToEmpty(Info.CurDir);
-    strInfoFormat = NullToEmpty(Info.Format);
-
+    string strInfoCurDir=Info.CurDir;
+    string strInfoFormat=Info.Format;
+    string strInfoHostFile=Info.HostFile;
     CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,strInfoFormat,1,
                                (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
 
@@ -2141,13 +2141,13 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     */
     BOOL SetDirectorySuccess = TRUE;
     int UpperFolder=TestParentFolderName(strSetDir);
-    if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
+    if (UpperFolder && strInfoCurDir.IsEmpty())
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return(TRUE);
       PluginClosed=TRUE;
 
-      strFindDir = NullToEmpty(Info.HostFile);
+      strFindDir = strInfoHostFile;
       if ( strFindDir.IsEmpty() && (Info.Flags & OPIF_REALNAMES) && CurFile<FileCount)
       {
         strFindDir = ListData[CurFile]->strName;
@@ -2160,7 +2160,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     }
     else
     {
-      strFindDir = NullToEmpty(Info.CurDir);
+      strFindDir = strInfoCurDir;
       SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,strSetDir,0);
     }
     ProcessPluginCommand();
@@ -3392,6 +3392,8 @@ void FileList::CopyNames(int FillPathName,int UNC)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   }
 
+  string strFullName = Info.CurDir;
+
   GetSelName(NULL,FileAttr);
   while (GetSelName(&strSelName,FileAttr,&strSelShortName))
   {
@@ -3426,8 +3428,6 @@ void FileList::CopyNames(int FillPathName,int UNC)
       }
       else
       {
-        string strFullName = NullToEmpty(Info.CurDir);
-
         if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
           strFullName.Upper();
 
@@ -3592,7 +3592,7 @@ void FileList::SetTitle()
 
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-      string strPluginTitle = NullToEmpty(Info.PanelTitle);
+      string strPluginTitle = Info.PanelTitle;
 
       RemoveExternalSpaces(strPluginTitle);
 

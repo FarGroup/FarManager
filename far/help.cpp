@@ -207,7 +207,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 
   CtrlTabSize = 8;
 
-  StackData.strHelpMask = NullToEmpty(Mask); // сохраним маску файла
+  StackData.strHelpMask = Mask; // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;

@@ -1832,7 +1832,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
             CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
             FileList::AddPluginPrefix(SrcFilePanel,strPathName);
 
-            strPathName += NullToEmpty(Info.CurDir);
+            strPathName += Info.CurDir;
 
           }
           AddEndSlash(strPathName);

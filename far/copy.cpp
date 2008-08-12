@@ -539,7 +539,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           struct OpenPluginInfo Info;
           DestPanel->GetOpenPluginInfo(&Info);
 
-          string strFormat = NullToEmpty(Info.Format);
+          string strFormat = Info.Format;
 
           CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
           while (CopyDlg[ID_SC_TARGETEDIT].strData.GetLength ()<2)

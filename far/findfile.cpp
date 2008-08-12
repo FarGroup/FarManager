@@ -2960,10 +2960,10 @@ DWORD FindFiles::AddArcListItem(const wchar_t *ArcName, HANDLE hPlugin,
 
   ArcList[ArcListCount] = new _ARCLIST;
 
-  ArcList[ArcListCount]->strArcName = NullToEmpty(ArcName);
+  ArcList[ArcListCount]->strArcName = ArcName;
   ArcList[ArcListCount]->hPlugin = hPlugin;
   ArcList[ArcListCount]->Flags = dwFlags;
-  ArcList[ArcListCount]->strRootPath =  NullToEmpty(RootPath);
+  ArcList[ArcListCount]->strRootPath = RootPath;
   AddEndSlash(ArcList[ArcListCount]->strRootPath);
   return(ArcListCount++);
 }

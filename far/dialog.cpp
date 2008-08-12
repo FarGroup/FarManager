@@ -3752,7 +3752,7 @@ bool Dialog::ConvertItemEx (
 			Data->Flags = Item->Flags;
 			Data->DefaultButton = Item->DefaultButton;
 
-			Data->strData = NullToEmpty (Item->PtrData);
+			Data->strData = Item->PtrData;
 			Data->Type = Item->Type;
 			Data->nMaxLength = Item->MaxLen;
 			if (Data->nMaxLength > 0)

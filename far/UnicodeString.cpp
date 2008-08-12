@@ -81,6 +81,7 @@ const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 
 const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 {
+	lpwszData=NullToEmpty(lpwszData);
 	size_t nLength = StrLength(lpwszData);
 	if (m_pData && m_pData->GetRef() == 1 && nLength + 1 <= m_pData->GetSize())
 	{

@@ -1185,7 +1185,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      g_strDirToSet = NullToEmpty((wchar_t *)Param);
+      g_strDirToSet = (wchar_t *)Param;
 
     case FCTL_GETPANELINFO:
     case FCTL_GETPANELSHORTINFO:

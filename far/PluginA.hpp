@@ -96,7 +96,6 @@ private:
 
 	PluginInfo PI;
 	OpenPluginInfo OPI;
-	oldfar::OpenPluginInfo OPIA;
 
 	oldfar::PluginPanelItem  *pFDPanelItemA;
 

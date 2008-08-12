@@ -50,7 +50,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 {
   PluginsStackItem *stItem = new PluginsStackItem;
   stItem->hPlugin=hPlugin;
-  stItem->strHostFile = NullToEmpty(HostFile); //??NULL??
+  stItem->strHostFile = HostFile; //??NULL??
   stItem->Modified=FALSE;
   stItem->PrevViewMode=ViewMode;
   stItem->PrevSortMode=SortMode;
@@ -206,10 +206,10 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
 
 void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
-  fi->strName = NullToEmpty(pi->FindData.lpwszFileName);
-  fi->strShortName = NullToEmpty(pi->FindData.lpwszAlternateFileName);
+  fi->strName = pi->FindData.lpwszFileName;
+  fi->strShortName = pi->FindData.lpwszAlternateFileName;
 
-  fi->strOwner = NullToEmpty(pi->Owner);
+  fi->strOwner = pi->Owner;
   if (pi->Description)
   {
     fi->DizText=new wchar_t[StrLength(pi->Description)+1];

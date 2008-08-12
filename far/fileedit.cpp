@@ -2123,7 +2123,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 
 void FileEditor::SetTitle(const wchar_t *Title)
 {
-	strTitle = NullToEmpty(Title);
+	strTitle = Title;
 }
 
 void FileEditor::ChangeEditKeyBar()
@@ -2276,7 +2276,7 @@ BOOL FileEditor::UpdateFileList()
 
 void FileEditor::SetPluginData(const wchar_t *PluginData)
 {
-  FileEditor::strPluginData = NullToEmpty(PluginData);
+  FileEditor::strPluginData = PluginData;
 }
 
 /* $ 14.06.2002 IS
@@ -2417,7 +2417,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 		case ECTL_SETTITLE:
 		{
-			strPluginTitle = NullToEmpty((const wchar_t*)Param);
+			strPluginTitle = (const wchar_t*)Param;
 
 			ShowStatus();
 			ScrBuf.Flush(); //???

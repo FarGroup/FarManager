@@ -1157,7 +1157,7 @@ void PluginManager::Configure(int StartPos)
               MenuItemEx ListItem;
 
               ListItem.Clear();
-              string strName = NullToEmpty(Info.PluginConfigStrings[J]);
+              string strName = Info.PluginConfigStrings[J];
               if (!HotKeysPresent)
                 ListItem.strName = strName;
               else
@@ -1361,7 +1361,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
                 GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
               MenuItemEx ListItem;
               ListItem.Clear();
-              string strName = NullToEmpty(Info.PluginMenuStrings[J]);
+              string strName = Info.PluginMenuStrings[J];
               if (!HotKeysPresent)
                 ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
               else
@@ -1739,7 +1739,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
       PluginInfo Info;
       if (GetPluginInfo(PData,&Info))
       {
-        strPluginPrefix = NullToEmpty(Info.CommandPrefix);
+        strPluginPrefix = Info.CommandPrefix;
         PluginFlags = Info.Flags;
       }
       else

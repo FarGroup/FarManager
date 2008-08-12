@@ -245,7 +245,7 @@ int WINAPI OldConvertNameToReal(const wchar_t *Src, string &strDest)
 
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
-	string strCopy = NullToEmpty(Src);
+	string strCopy = Src;
 
 	int nSize = GetShortPathNameW (strCopy, NULL, 0);
 
@@ -265,7 +265,7 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 
 void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
-	string strCopy = NullToEmpty(Src);
+	string strCopy = Src;
 
 	int nSize = GetLongPathNameW (strCopy, NULL, 0);
 
