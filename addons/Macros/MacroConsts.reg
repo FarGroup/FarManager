@@ -136,8 +136,8 @@ REGEDIT4
 "DLGITEMTYPE_COMBOBOX"               =dword:0000000A
 "DLGITEMTYPE_LISTBOX"                =dword:0000000B
 "DLGITEMTYPE_USERCONTROL"            =dword:000000FF
-"DLGITEMTYPE_HIST_EDIT"              =dword:00008001
-"DLGITEMTYPE_HIST_COMBO"             =dword:00008007
+"DLGITEMTYPE_HIST_EDIT"              =dword:00008004
+"DLGITEMTYPE_HIST_COMBO"             =dword:0000800A
 
 "PANELTYPE_FILES"                    =dword:00000000
 "PANELTYPE_TREE"                     =dword:00000001
