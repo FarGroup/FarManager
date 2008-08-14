@@ -225,7 +225,12 @@ void ControlObject::ShowCopyright(DWORD Flags)
 #ifdef BETA
     mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
 #else
-    ScrollScreen(2+(Line2?1:0));
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConOut,&csbi);
+    int FreeSpace=csbi.dwSize.Y-csbi.dwCursorPosition.Y-1;
+    int LineCount=4+(Line2?1:0);
+    if(FreeSpace<LineCount)
+      ScrollScreen(LineCount-FreeSpace);
     if(Line2)
     {
       GotoXY(0,ScrY-4);
