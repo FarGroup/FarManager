@@ -3076,7 +3076,7 @@ int PluginsSet::CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char
 
     bool isEditor=OpenFrom==OPEN_EDITOR;
     bool isViewer=OpenFrom==OPEN_VIEWER;
-    bool isActivePanel=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL;
+    bool isActivePanel=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL || OpenFrom == OPEN_SHORTCUT;
 
     if (hNewPlugin!=INVALID_HANDLE_VALUE && !(isEditor || isViewer))
     {
@@ -3097,7 +3097,7 @@ int PluginsSet::CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(DestPanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hNewPlugin,"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
-      if (OpenFrom == OPEN_FILEPANEL && Folder && *Folder)
+      if ((OpenFrom == OPEN_FILEPANEL || OpenFrom == OPEN_SHORTCUT) && Folder && *Folder)
         SetDirectory(hNewPlugin,Folder,0);
 
       if(needUpdatePanel)
