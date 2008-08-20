@@ -4237,6 +4237,7 @@ int KeyMacro::PushState(bool CopyLocalVars)
   if(CurPCStack+1 >= STACKLEVEL)
     return FALSE;
   ++CurPCStack;
+  Work.UsedInternalClipboard=::UsedInternalClipboard;
   memcpy(PCStack+CurPCStack,&Work,sizeof(struct MacroState));
   Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
   return TRUE;
@@ -4247,6 +4248,7 @@ int KeyMacro::PopState()
   if(CurPCStack < 0)
     return FALSE;
   memcpy(&Work,PCStack+CurPCStack,sizeof(struct MacroState));
+  ::UsedInternalClipboard=Work.UsedInternalClipboard;
   CurPCStack--;
   return TRUE;
 }

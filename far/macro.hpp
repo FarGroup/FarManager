@@ -59,6 +59,7 @@ struct MacroState
   int MacroPC;
   int ExecLIBPos;
   int MacroWORKCount;
+  int UsedInternalClipboard;
   struct MacroRecord *MacroWORK; // т.н. текущее исполнение
 
   bool AllocVarTable;
