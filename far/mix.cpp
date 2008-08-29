@@ -1300,7 +1300,6 @@ int PathMayBeAbsolute(const wchar_t *Path)
          );
 }
 
-
 BOOL IsNetworkPath(const wchar_t *Path)
 {
   return (Path && Path[0] == L'\\' && Path[1] == L'\\' && Path[2] != L'\\' && wcsrchr(Path+2,L'\\'));
@@ -1348,23 +1347,50 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
 	if( !strPath.IsEmpty() )
 	{
-		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')) && !IsLocalVolumePath(strPath))
+		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
 		{
 			if(CheckFullPath)
 			{
-				ConvertNameToShort (strPath, strPath);
-				ConvertNameToLong (strPath, strPath); //??? а почему не convert to full?
+				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath,*Dst=lpwszPath;
+				if(IsLocalPath(lpwszPath))
+				{
+					Src+=3;
+					Dst+=3;
+				}
+				for(wchar_t c=*Src;c;Src++,c=*Src)
+				{
+					if (!c||c==L'\\'||c==L'/')
+					{
+						*Src=0;
+						FAR_FIND_DATA_EX fd;
+						BOOL find=apiGetFindDataEx(lpwszPath,&fd);
+						*Src=c;
+						if(find)
+						{
+							wcsncpy(Dst,fd.strFileName,fd.strFileName.GetLength());
+							Dst+=fd.strFileName.GetLength();
+							Dst++;
+							Src=Dst;
+						}
+						else
+						{
+							Src++;
+							Dst=Src;
+						}
+					}
+				}
+				strPath.ReleaseBuffer();
 			}
 
 			wchar_t *lpwszPath = strPath.GetBuffer ();
 
 			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
 			{
-				wchar_t *ptr=&lpwszPath[2];
-				if (*ptr == L'?' && ptr[1] == L'\\' && ptr[2] == L'\\') {
-					if (ptr[3] && ptr[4] == L':')
-						ptr[3] = Upper(ptr[3]);
-				} else {
+				if(IsLocalPrefixPath(lpwszPath))
+					lpwszPath[4] = Upper(lpwszPath[4]);
+				else
+				{
+					wchar_t *ptr=&lpwszPath[2];
 					while (*ptr && *ptr!=L'\\')
 					{
 						*ptr=Upper(*ptr);

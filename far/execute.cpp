@@ -1276,7 +1276,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           }
           strFullPath += strExpandedStr;
           DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-          if(wcspbrk(strExpandedStr,L"*?")) // это маска?
+          if(wcspbrk(&strExpandedStr[PathPrefix(strExpandedStr)?4:0],L"*?")) // это маска?
           {
             FAR_FIND_DATA_EX wfd;
 
@@ -1491,7 +1491,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       DeleteEndSlash(strExpandedDir);
     }
 
-    if(wcspbrk(strExpandedDir,L"?*")) // это маска?
+    if(wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
     {
       FAR_FIND_DATA_EX wfd;
       HANDLE hFile=apiFindFirstFile(strExpandedDir, &wfd);

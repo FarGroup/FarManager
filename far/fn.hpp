@@ -1042,6 +1042,7 @@ UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
 UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
 
+bool PathPrefix(const wchar_t *Path);
 BOOL IsNetworkPath(const wchar_t *Path);
 BOOL IsLocalPath(const wchar_t *Path);
 BOOL IsLocalRootPath(const wchar_t *Path);
