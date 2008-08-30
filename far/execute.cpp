@@ -1292,7 +1292,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
           }
           strcat(FullPath,ExpandedStr);
           DWORD FileAttr=(DWORD)-1;
-          if(strpbrk(ExpandedStr,"*?")) // это маска?
+          if(strpbrk(&ExpandedStr[PathPrefix(ExpandedStr)?4:0],"*?")) // это маска?
           {
             WIN32_FIND_DATA wfd;
             HANDLE hFile=FindFirstFile(FullPath, &wfd);
@@ -1539,7 +1539,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       DeleteEndSlash(ExpandedDir);
     }
 
-    if(strpbrk(ExpandedDir,"?*")) // это маска?
+    if(strpbrk(&ExpandedDir[PathPrefix(ExpandedDir)?4:0],"?*")) // это маска?
     {
       WIN32_FIND_DATA wfd;
       HANDLE hFile=FindFirstFile(ExpandedDir, &wfd);

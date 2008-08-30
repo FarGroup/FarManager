@@ -1149,42 +1149,61 @@ BOOL IsLocalVolumeRootPath(const char *Path)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
-  if(Path)
-  {
-    if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')) && !IsLocalVolumePath(Path))
-    {
-      if(CheckFullPath)
-      {
-        char NPath[1024];
-        *NPath=0;
-        RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
-        if(*NPath)
-          xstrncpy(Path,NPath,MaxSize);
-      }
-      /* $ 03.12.2001 DJ
-         RawConvertShortNameToLongName() не апперкейсит первую букву Path
-         => уберем else
-      */
-      if (Path[0]=='\\' && Path[1]=='\\')
-      {
-        char *ptr=&Path[2];
-        if (*ptr == '?' && ptr[1] == '\\' && ptr[2] == '\\') {
-          if (ptr[3] && ptr[4] == ':')
-              ptr[3] = toupper(ptr[3]);
-        } else {
-          while (*ptr && *ptr!='\\')
-          {
-            *ptr=toupper(*ptr);
-            ptr++;
-          }
-        }
-      }
-      else
-        Path[0]=toupper(Path[0]);
-      /* DJ $ */
-    }
-  }
-  return Path;
+	if(Path && *Path)
+	{
+		if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')))
+		{
+			if(CheckFullPath)
+			{
+				char *Src=Path,*Dst=Path;
+				if(IsLocalPath(Path))
+				{
+					Src+=3;
+					Dst+=3;
+				}
+				for(char c=*Src;c;Src++,c=*Src)
+				{
+					if (!c||c=='\\'||c=='/')
+					{
+						*Src=0;
+						WIN32_FIND_DATA fd;
+						BOOL find=GetFileWin32FindData(Path,&fd);
+						*Src=c;
+						if(find)
+						{
+							int n=strlen(fd.cFileName);
+							strncpy(Dst,fd.cFileName,n);
+							Dst+=n;
+							Dst++;
+							Src=Dst;
+						}
+						else
+						{
+							Src++;
+							Dst=Src;
+						}
+					}
+				}
+			}
+			if (Path[0]=='\\' && Path[1]=='\\')
+			{
+				if(IsLocalPrefixPath(Path))
+					Path[4] = toupper(Path[4]);
+				else
+				{
+					char *ptr=&Path[2];
+					while (*ptr && *ptr!='\\')
+					{
+						*ptr=toupper(*ptr);
+						ptr++;
+					}
+				}
+			}
+			else
+				Path[0]=toupper(Path[0]);
+		}
+	}
+	return Path;
 }
 
 /*
