@@ -171,7 +171,8 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       return;
     }
   }
-  TotalString[TotalLength++]=_T(' ');
+  if(TotalString)
+    TotalString[TotalLength++]=_T(' ');
 
   if (IndentSize>=RightMargin)
     IndentSize=RightMargin-1;
