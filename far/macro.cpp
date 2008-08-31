@@ -3769,9 +3769,12 @@ M1:
     _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KeyMacro *MacroDlg=KMParam->Handle;
 
-    // -- if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
-    if((Param2&0x00FFFFFF) > 0 && (Param2&0x00FFFFFF) < 0xFFFF)
+    if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFFFF)
       Param2=LocalKeyToKey((int)(Param2&0x0000FFFF))|(DWORD)(Param2&(~0x0000FFFF));
+
+    //косметика
+    Param2=Upper(Param2&0x0000FFFF)|(Param2&(~0x0000FFFF));
+
     _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KMParam->Key=(DWORD)Param2;
     KeyToText((int)Param2,strKeyText);

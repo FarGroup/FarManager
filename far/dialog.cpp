@@ -4490,9 +4490,9 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   if (Key < 0xFFFF)
   {
     int KeyToKey=LocalKeyToKey(Key);
-    return(UpperStrKey == (int)Upper(Key) ||
-      (Translate && (!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey))) ||
-         (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
+    return UpperStrKey == (int)Upper(Key) ||
+           (Translate && ((!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey)) ||
+           (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey)));
   }
 
   if(Key&KEY_ALT)
