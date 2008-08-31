@@ -3,7 +3,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.80 build 508
+  Inside KeyName for FAR Manager 1.80 build 552
 */
 
 /*
@@ -37,41 +37,6 @@ EXCEPTION:
 Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
-
-
-//from WinUser.h
-#define VK_BROWSER_BACK                  0xA6
-#define VK_BROWSER_FORWARD               0xA7
-#define VK_BROWSER_REFRESH               0xA8
-#define VK_BROWSER_STOP                  0xA9
-#define VK_BROWSER_SEARCH                0xAA
-#define VK_BROWSER_FAVORITES             0xAB
-#define VK_BROWSER_HOME                  0xAC
-#define VK_VOLUME_MUTE                   0xAD
-#define VK_VOLUME_DOWN                   0xAE
-#define VK_VOLUME_UP                     0xAF
-#define VK_MEDIA_NEXT_TRACK              0xB0
-#define VK_MEDIA_PREV_TRACK              0xB1
-#define VK_MEDIA_STOP                    0xB2
-#define VK_MEDIA_PLAY_PAUSE              0xB3
-#define VK_LAUNCH_MAIL                   0xB4
-#define VK_LAUNCH_MEDIA_SELECT           0xB5
-#define VK_LAUNCH_APP1                   0xB6
-#define VK_LAUNCH_APP2                   0xB7
-#define VK_OEM_1                         0xBA   // ';:' for US
-#define VK_OEM_PLUS                      0xBB   // '+' any country
-#define VK_OEM_COMMA                     0xBC   // ',' any country
-#define VK_OEM_MINUS                     0xBD   // '-' any country
-#define VK_OEM_PERIOD                    0xBE   // '.' any country
-#define VK_OEM_2                         0xBF   // '/?' for US
-#define VK_OEM_3                         0xC0   // '`~' for US
-#define VK_OEM_4                         0xDB  //  '[{' for US
-#define VK_OEM_5                         0xDC  //  '\|' for US
-#define VK_OEM_6                         0xDD  //  ']}' for US
-#define VK_OEM_7                         0xDE  //  ''"' for US
-#define VK_OEM_8                         0xDF
-#define VK_OEM_AX                        0xE1  //  'AX' key on Japanese AX kbd
-#define VK_OEM_102                       0xE2  //  "<>" or "\|" on RT 102-key kbd.
 
 
 #define EXTENDED_KEY_BASE   0x00010000

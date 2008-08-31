@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 508
+  Plugin API for FAR Manager 1.80 build 552
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 508
+#define FARMANAGERVERSION_BUILD 552
 
 #ifndef RC_INVOKED
 
@@ -1193,6 +1193,9 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
 enum VIEWER_EVENTS {
   VE_READ       =0,
   VE_CLOSE      =1,
+
+  VE_GOTFOCUS   =6,
+  VE_KILLFOCUS  =7,
 };
 
 
@@ -1760,7 +1763,7 @@ struct OpenPluginInfo
   int                   StartSortOrder;
   const struct KeyBarTitles *KeyBar;
   const wchar_t           *ShortcutData;
-  long                  Reserverd;
+  long                  Reserved;
 };
 
 enum OPENPLUGIN_OPENFROM{
@@ -1808,13 +1811,13 @@ int    WINAPI _export DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelI
 void   WINAPI _export ExitFARW(void);
 void   WINAPI _export FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 int    WINAPI _export GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 int    WINAPI _export GetMinFarVersionW(void);
 void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfoW(struct PluginInfo *Info);
 int    WINAPI _export GetVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const wchar_t *Path);
-int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,wchar_t *Name,int OpMode);
+int    WINAPI _export MakeDirectoryW(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 HANDLE WINAPI _export OpenFilePluginW(const wchar_t *Name,const unsigned char *Data,int DataSize,int OpMode);
 HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item);
 int    WINAPI _export ProcessDialogEventW(int Event,void *Param);
