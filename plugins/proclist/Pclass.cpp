@@ -534,7 +534,7 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
     delete PanelItem;
 }
 
-int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST TCHAR *DestPath,int OpMode, _Opt& Opt)
+int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST WTYPE DestPath,int OpMode, _Opt& Opt)
 {
     static const TCHAR invalid_chars[] = _T(":*?\\/\"<>;|");
     if (ItemsNumber==0)
@@ -567,7 +567,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
         }
         // may be 0 if called from FindFile
         TCHAR FileName[MAX_PATH];
-        lstrcpyn(FileName, DestPath, ArraySize(FileName));
+        lstrcpyn(FileName, WDEREF DestPath, ArraySize(FileName));
         if(!(OpMode&0x10000)) {
             FSF.AddEndSlash(FileName);
 #ifdef UNICODE
@@ -1072,7 +1072,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         FSF.MkTemp(FileName, ArraySize(FileName), _T("prc"));
 #endif
 
-        if(!GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, FileName, OPM_VIEW|0x10000, LocalOpt))
+        WCONST TCHAR *lpFileName=FileName;
+        if(!GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
             return TRUE;
         //TODO: viewer crashed on exit!
         Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);

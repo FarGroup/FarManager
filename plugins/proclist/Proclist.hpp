@@ -16,9 +16,15 @@
 #endif
 
 #ifdef UNICODE
-#define WCONST  const
+#define WCONST const
+#define WTYPE wchar_t**
+#define WDEREF *
+#define WADDR &
 #else
 #define WCONST
+#define WTYPE char*
+#define WDEREF
+#define WADDR
 #endif
 
 #ifdef _MSC_VER
@@ -118,7 +124,7 @@ class Plist
     void GetOpenPluginInfo(OpenPluginInfo *Info);
     int SetDirectory(TCHAR *Dir,int OpMode);
     int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-        int Move,WCONST TCHAR *DestPath,int OpMode, _Opt& opt=::Opt);
+        int Move,WCONST WTYPE DestPath,int OpMode, _Opt& opt=::Opt);
     int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                     int OpMode);
     int ProcessEvent(int Event,void *Param);
