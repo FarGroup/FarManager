@@ -1554,7 +1554,9 @@ int FileList::ProcessKey(int Key)
         if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
         {
           string strDirName;
-          int MakeCode=CtrlObject->Plugins.MakeDirectory(hPlugin,strDirName,0);
+          const wchar_t *lpwszDirName=strDirName;
+          int MakeCode=CtrlObject->Plugins.MakeDirectory(hPlugin,&lpwszDirName,0);
+          strDirName=lpwszDirName;
           if (!MakeCode)
             Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strDirName,UMSG(MOk));
           Update(UPDATE_KEEP_SELECTION);
@@ -4144,8 +4146,9 @@ void FileList::ProcessCopyKeys(int Key)
                 }
               }
             }
-
-            PluginGetFiles(strDestPath,Move);
+            const wchar_t *lpwszDestPath=strDestPath;
+            PluginGetFiles(&lpwszDestPath,Move);
+            strDestPath=lpwszDestPath;
           }
         }
       }

@@ -976,7 +976,7 @@ int PluginA::GetFiles (
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
 		int Move,
-		const wchar_t *DestPath,
+		const wchar_t **DestPath,
 		int OpMode
 		)
 {
@@ -991,10 +991,13 @@ int PluginA::GetFiles (
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
 		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
-		char DestA[33*1024];
-		UnicodeToAnsi(DestPath,DestA,sizeof(DestA));
+		char DestA[NM];
+		UnicodeToOEM(*DestPath,DestA,sizeof(DestA));
 
 		EXECUTE_FUNCTION_EX(pGetFiles(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
+		static wchar_t DestW[NM];
+		OEMToUnicode(DestA,DestW,countof(DestW));
+		*DestPath=DestW;
 
 		FreePanelItemA(PanelItemA,ItemsNumber);
 
@@ -1067,7 +1070,7 @@ int PluginA::DeleteFiles (
 
 int PluginA::MakeDirectory (
 		HANDLE hPlugin,
-		const wchar_t *Name,
+		const wchar_t **Name,
 		int OpMode
 		)
 {
@@ -1080,11 +1083,14 @@ int PluginA::MakeDirectory (
 		es.id = EXCEPT_MAKEDIRECTORY;
 		es.nDefaultResult = -1;
 
-		char NameA[33*1024];
-		UnicodeToAnsi(Name,NameA,sizeof(NameA));
+		char NameA[NM];
+		UnicodeToOEM(*Name,NameA,sizeof(NameA));
 
 		EXECUTE_FUNCTION_EX(pMakeDirectory(hPlugin, NameA, OpMode), es);
 
+		static wchar_t NameW[NM];
+		OEMToUnicode(NameA,NameW,countof(NameW));
+		*Name=NameW;
 		nResult = (int)es.nResult;
 	}
 

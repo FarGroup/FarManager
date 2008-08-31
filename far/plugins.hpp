@@ -201,10 +201,10 @@ public:
 	void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);
 	int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
 	int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
-	int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *DestPath,int OpMode);
+	int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
 	int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 	int DeleteFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-	int MakeDirectory(HANDLE hPlugin,const wchar_t *Name,int OpMode);
+	int MakeDirectory(HANDLE hPlugin,const wchar_t **Name,int OpMode);
 	int ProcessHostFile(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 	int ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 	int ProcessEvent(HANDLE hPlugin,int Event,void *Param);

@@ -960,7 +960,7 @@ int PluginW::GetFiles (
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
 		int Move,
-		const wchar_t *DestPath,
+		const wchar_t **DestPath,
 		int OpMode
 		)
 {
@@ -1034,7 +1034,7 @@ int PluginW::DeleteFiles (
 
 int PluginW::MakeDirectory (
 		HANDLE hPlugin,
-		const wchar_t *Name,
+		const wchar_t **Name,
 		int OpMode
 		)
 {

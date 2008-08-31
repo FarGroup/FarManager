@@ -465,7 +465,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
 }
 
 
-void FileList::PluginGetFiles(const wchar_t *DestPath,int Move)
+void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 {
   _ALGO(CleverSysLog clv(L"FileList::PluginGetFiles()"));
   struct PluginPanelItem *ItemList, *PList;
@@ -489,14 +489,14 @@ void FileList::PluginGetFiles(const wchar_t *DestPath,int Move)
           {
             CtrlObject->Cp()->LeftPanel->ReadDiz();
             CtrlObject->Cp()->RightPanel->ReadDiz();
-            DestDiz.Read(DestPath);
+            DestDiz.Read(*DestPath);
             DizFound=TRUE;
           }
           string strName = PList->FindData.lpwszFileName;
           string strShortName = PList->FindData.lpwszAlternateFileName;
           CopyDiz(strName,strShortName,strName,strName,&DestDiz);
         }
-      DestDiz.Flush(DestPath);
+      DestDiz.Flush(*DestPath);
     }
     if (GetCode==1)
     {
@@ -539,7 +539,9 @@ void FileList::PluginToPluginFiles(int Move)
   CreatePluginItemList(ItemList,ItemNumber);
   if (ItemList!=NULL && ItemNumber>0)
   {
-    int PutCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,FALSE,strTempDir,OPM_SILENT);
+    const wchar_t *lpwszTempDir=strTempDir;
+    int PutCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,FALSE,&lpwszTempDir,OPM_SILENT);
+    strTempDir=lpwszTempDir;
     if (PutCode==1 || PutCode==2)
     {
       string strSaveDir;
@@ -622,7 +624,9 @@ void FileList::PluginHostGetFiles()
       if (CtrlObject->Plugins.GetFindData(hCurPlugin,&ItemList,&ItemNumber,0))
       {
         _ALGO(SysLog(L"call Plugins.GetFiles()"));
-        ExitLoop=CtrlObject->Plugins.GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,strDestPath,OpMode)!=1;
+        const wchar_t *lpwszDestPath=strDestPath;
+        ExitLoop=CtrlObject->Plugins.GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,&lpwszDestPath,OpMode)!=1;
+        strDestPath=lpwszDestPath;
         if (!ExitLoop)
         {
           _ALGO(SysLog(L"call ClearLastGetSelection()"));

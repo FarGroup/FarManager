@@ -287,7 +287,7 @@ class FileList:public Panel
     void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemList,
                         int ItemNumber,int Delete,int Move,DizList *SrcDiz,
                         DizList *DestDiz);
-    void PluginGetFiles(const wchar_t *DestPath,int Move);
+    void PluginGetFiles(const wchar_t **DestPath,int Move);
     void PluginToPluginFiles(int Move);
     void PluginHostGetFiles();
     void PluginPutFilesToNew();

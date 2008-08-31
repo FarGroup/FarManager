@@ -99,10 +99,10 @@ public:
 	virtual int GetFindData (HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode) = 0;
 	virtual int GetVirtualFindData (HANDLE hPlugin, PluginPanelItem **pPanelItem, int *pItemsNumber, const wchar_t *Path) = 0;
 	virtual int SetDirectory (HANDLE hPlugin, const wchar_t *Dir, int OpMode) = 0;
-	virtual int GetFiles (HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t *DestPath, int OpMode) = 0;
+	virtual int GetFiles (HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t **DestPath, int OpMode) = 0;
 	virtual int PutFiles (HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int Move, int OpMode) = 0;
 	virtual int DeleteFiles (HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode) = 0;
-	virtual int MakeDirectory (HANDLE hPlugin, const wchar_t *Name, int OpMode) = 0;
+	virtual int MakeDirectory (HANDLE hPlugin, const wchar_t **Name, int OpMode) = 0;
 	virtual int ProcessHostFile (HANDLE hPlugin, PluginPanelItem *PanelItem, int ItemsNumber, int OpMode) = 0;
 	virtual int ProcessKey (HANDLE hPlugin, int Key, unsigned int dwControlState) = 0;
 	virtual int ProcessEvent (HANDLE hPlugin, int Event, PVOID Param) = 0;

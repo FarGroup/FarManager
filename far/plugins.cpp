@@ -823,7 +823,7 @@ int PluginManager::GetFile (
 
 	UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
 
-	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, DestPath, OpMode);
+	int GetCode = ph->pPlugin->GetFiles(ph->hPlugin, PanelItem, 1, 0, &DestPath, OpMode);
 
 	string strFindPath;
 
@@ -893,7 +893,7 @@ int PluginManager::DeleteFiles (
 
 int PluginManager::MakeDirectory (
 		HANDLE hPlugin,
-		const wchar_t *Name,
+		const wchar_t **Name,
 		int OpMode
 		)
 {
@@ -939,7 +939,7 @@ int PluginManager::GetFiles (
 		PluginPanelItem *PanelItem,
 		int ItemsNumber,
 		int Move,
-		const wchar_t *DestPath,
+		const wchar_t **DestPath,
 		int OpMode
 		)
 {
