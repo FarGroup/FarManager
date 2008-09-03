@@ -3761,8 +3761,8 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 */
 void Dialog::SelectOnEntry(int Pos,BOOL Selected)
 {
-  if(!DialogMode.Check(DMODE_SHOW))
-     return;
+//  if(!DialogMode.Check(DMODE_SHOW))
+//     return;
   if(IsEdit(Item[Pos].Type) &&
      (Item[Pos].Flags&DIF_SELECTONENTRY)
 //     && PrevFocusPos != -1 && PrevFocusPos != Pos

@@ -1863,28 +1863,18 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
 
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
-  /* $ 12.07.2000 IS
-   Проверка флагов редактора (раньше они игнорировались) и открытие
-   немодального редактора, если есть соответствующий флаг
-  */
-  /* $ 21.03.2001 VVM
-    + Обработка флага EF_CREATENEW */
-  int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
-  /* VVM $ */
-  /* $ 09.09.2001 IS */
+
+  int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;           // $ 21.03.2001 VVM Обработка флага EF_CREATENEW
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
   int Locked=(Flags & EF_LOCKED)?TRUE:FALSE;
-  /* $ 14.06.2002 IS
-     Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
-     приоритет по сравнению с EF_DELETEONCLOSE
-  */
+
+  // $ 14.06.2002 IS - Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий приоритет по сравнению с EF_DELETEONCLOSE
   int DeleteOnClose = 0;
   if(Flags & EF_DELETEONCLOSE)
     DeleteOnClose = 1;
   else if(Flags & EF_DELETEONLYFILEONCLOSE)
     DeleteOnClose = 2;
-  /* IS 14.06.2002 $ */
-  /* IS 09.09.2001 $ */
+
   int OpMode=FEOPMODE_QUERY;
 
   if((Flags&EF_OPENMODE_MASK) != 0)
@@ -1898,7 +1888,8 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   {
     Flags&=~EF_NONMODAL;
   }
-  /* SKV $ */
+
+  int editorExitCode;
 
   int ExitCode=EEC_OPEN_ERROR;
   if (Flags & EF_NONMODAL)
@@ -1909,25 +1900,21 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
-    /* IS $ */
-    // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
-    if (Editor && (Editor->GetExitCode() == XC_OPEN_ERROR || Editor->GetExitCode() == XC_LOADING_INTERRUPTED))
-    {
-      delete Editor;
-      Editor=NULL;
-    }
-
     if (Editor)
     {
-      /* $ 12.05.2001 DJ */
+      editorExitCode=Editor->GetExitCode();
+      // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
+      if ((editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED))
+      {
+        delete Editor;
+        Editor=NULL;
+        return editorExitCode;
+      }
+
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-      /* DJ $ */
       Editor->SetPluginTitle(Title);
-      /* $ 21.05.2002 SKV
-        Запускаем свой цикл, только если
-        не был указан флаг.
-      */
-      if(!(Flags&EF_IMMEDIATERETURN))
+
+      if(!(Flags&EF_IMMEDIATERETURN)) // $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг.
       {
         FrameManager->ExecuteNonModal();
       }
@@ -1937,7 +1924,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
           GlobalSaveScrPtr->Discard();
         FrameManager->PluginCommit();
       }
-      /* SKV $ */
+
       ExitCode=XC_MODIFIED;
     }
   }
@@ -1949,26 +1936,29 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
-    /* IS $ */
+
+    editorExitCode=Editor.GetExitCode();
 
     // выполним предпроверку (ошибки разные могут быть)
-    if(Editor.GetExitCode() != XC_OPEN_ERROR)
+    if(editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+      ExitCode=editorExitCode;
+    else
     {
       Editor.SetDynamicallyBorn(false);
-      /* $ 12.05.2001 DJ */
       Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-      /* DJ $ */
       Editor.SetPluginTitle(Title);
       SetConsoleTitle(OldTitle);
+
       /* $ 15.05.2002 SKV
         Зафиксируем вход и выход в/из модального редактора.
       */
       FrameManager->EnterModalEV();
       FrameManager->ExecuteModal();
       FrameManager->ExitModalEV();
-      /* SKV $ */
+
       ExitCode = Editor.GetExitCode();
-      if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+
+      if (ExitCode)
       {
 #if 0
          if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
@@ -1978,9 +1968,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
            ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
       }
     }
+
   }
   return ExitCode;
-  /* IS $ */
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -2060,11 +2050,7 @@ void WINAPI FarText(int X,int Y,int Color,const char *Str)
   }
   else
   {
-    /* $ 22.08.2000 SVS
-       Исключаем ненужные вызовы из FarText.
-    */
     Text(X,Y,Color,Str);
-    /* SVS $ */
   }
 }
 
@@ -2085,4 +2071,3 @@ int WINAPI FarViewerControl(int Command,void *Param)
     return(0);
   return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }
-/* SVS $ */
