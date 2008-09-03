@@ -6334,6 +6334,45 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
 
   //m_codepage = pp->Table; //BUGBUG!!!, LoadFile do it itself
 
+  if ( StartLine == -2) // from Viewer!
+  {
+    Edit *CurPtr=TopList;
+    long TotalSize=0;
+
+    while (CurPtr!=NULL && CurPtr->m_next!=NULL)
+    {
+      const wchar_t *SaveStr,*EndSeq;
+      int Length;
+
+      CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
+      TotalSize+=Length+StrLength(EndSeq);
+
+      if (TotalSize>StartChar)
+        break;
+
+      CurPtr=CurPtr->m_next;
+      NumLine++;
+    }
+
+    TopScreen=CurLine=CurPtr;
+
+    if (NumLine == pp->Line - pp->ScreenLine)
+    {
+      Lock ();
+
+      for (DWORD I=0; I < (DWORD)pp->ScreenLine; I++)
+        ProcessKey(KEY_DOWN);
+
+      CurLine->SetTabCurPos(pp->LinePos);
+
+      Unlock ();
+    }
+
+    CurLine->SetLeftPos(pp->LeftPos);
+
+    return;
+  }
+
   if ( pp->ScreenLine > ObjHeight)//ScrY //BUGBUG
     pp->ScreenLine=ObjHeight;//ScrY;
 
