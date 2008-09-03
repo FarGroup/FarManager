@@ -1365,7 +1365,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     	if ( hPlugin == PANEL_ACTIVE )
     		return TRUE;
 
-    	Panel *pPanel = FPanels->ActivePanel;	
+    	Panel *pPanel = FPanels->ActivePanel;
 		PluginHandle *PlHandle;
 
 		if ( pPanel && (pPanel->GetMode() == PLUGIN_PANEL) )
@@ -1892,6 +1892,8 @@ int WINAPI FarEditor(
     Flags&=~EF_NONMODAL;
   }
 
+  int editorExitCode;
+
   int ExitCode=EEC_OPEN_ERROR;
   if (Flags & EF_NONMODAL)
   {
@@ -1900,21 +1902,22 @@ int WINAPI FarEditor(
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
-    // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
-    if (Editor && (Editor->GetExitCode() == XC_OPEN_ERROR || Editor->GetExitCode() == XC_LOADING_INTERRUPTED))
-    {
-      delete Editor;
-      Editor=NULL;
-    }
-
     if (Editor)
     {
+      editorExitCode=Editor->GetExitCode();
+
+      // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
+      if (editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+      {
+        delete Editor;
+        Editor=NULL;
+        return editorExitCode;
+      }
+
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       Editor->SetPluginTitle(Title);
-      /* $ 21.05.2002 SKV
-        «апускаем свой цикл, только если
-        не был указан флаг.
-      */
+
+      /* $ 21.05.2002 SKV - «апускаем свой цикл, только если не был указан флаг. */
       if(!(Flags&EF_IMMEDIATERETURN))
       {
         FrameManager->ExecuteNonModal();
@@ -1925,8 +1928,10 @@ int WINAPI FarEditor(
           GlobalSaveScrPtr->Discard();
         FrameManager->PluginCommit();
       }
+
       ExitCode=XC_MODIFIED;
     }
+
   }
   else
   {
@@ -1936,8 +1941,12 @@ int WINAPI FarEditor(
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
 
+    editorExitCode=Editor.GetExitCode();
+
     // выполним предпроверку (ошибки разные могут быть)
-    if(Editor.GetExitCode() != XC_OPEN_ERROR)
+    if(editorExitCode == XC_OPEN_ERROR || editorExitCode == XC_LOADING_INTERRUPTED)
+      ExitCode=editorExitCode;
+    else
     {
       Editor.SetDynamicallyBorn(false);
       Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
@@ -1948,8 +1957,10 @@ int WINAPI FarEditor(
       FrameManager->EnterModalEV();
       FrameManager->ExecuteModal();
       FrameManager->ExitModalEV();
+
       ExitCode = Editor.GetExitCode();
-      if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+
+      if (ExitCode)
       {
 #if 0
          if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)

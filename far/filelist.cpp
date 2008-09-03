@@ -1273,6 +1273,7 @@ int FileList::ProcessKey(int Key)
         {
           if (Edit)
           {
+            int editorExitCode;
             int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
                 (Key==KEY_ALTF4 && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
             /* $ 02.08.2001 IS обработаем ассоциации дл€ alt-f4 */
@@ -1295,6 +1296,7 @@ int FileList::ProcessKey(int Key)
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
 
                 FileEditor ShellEditor (strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,strPluginData);
+                editorExitCode=ShellEditor.GetExitCode();
                 ShellEditor.SetDynamicallyBorn(false);
                 FrameManager->EnterModalEV();
                 FrameManager->ExecuteModal();//OT
@@ -1308,42 +1310,36 @@ int FileList::ProcessKey(int Key)
               }
               else
               {
-                NamesList EditList;
-                if (!PluginMode)
-                {
-                  for (int I=0;I<FileCount;I++)
-                    if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
-                      EditList.AddName(ListData[I]->strName, ListData[I]->strShortName);
-
-                  EditList.SetCurDir(strCurDir);
-                  EditList.SetCurName(strFileName);
-                }
-
                 FileEditor *ShellEditor=new FileEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6);
-                /* TODO: BUG BUG BUG!!! проблема в том, что если...
-                если была ошибка - то ShellEditor в список манагера не попадает, получаетс€ утечка пам€ти
-                */
-#if 0
 
-                if(ShellEditor->GetExitCode() == XC_OPEN_ERROR) // и прочие коды с ошибками!!!
-                  delete ShellEditor;
-                else
+                if(ShellEditor)
                 {
-                  ShellEditor->SetNamesList (&EditList);
-                  FrameManager->ExecuteModal();//OT
+                  editorExitCode=ShellEditor->GetExitCode();
+
+                  if (editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR)
+                  {
+                    delete ShellEditor;
+                  }
+                  else
+                  {
+                    if (!PluginMode)
+                    {
+                      NamesList EditList;
+
+                      for (int I=0;I<FileCount;I++)
+                        if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+                          EditList.AddName(ListData[I]->strName, ListData[I]->strShortName);
+
+                      EditList.SetCurDir(strCurDir);
+                      EditList.SetCurName(strFileName);
+
+                      ShellEditor->SetNamesList (&EditList);
+                    }
+
+                    FrameManager->ExecuteModal();
+                  }
                 }
-#else
-                if (ShellEditor->GetExitCode() == XC_LOADING_INTERRUPTED
-                  || ShellEditor->GetExitCode() == XC_OPEN_ERROR)
-                {
-                  delete ShellEditor;
-                }
-                else
-                {
-                  ShellEditor->SetNamesList (&EditList);
-                  FrameManager->ExecuteModal();//OT
-                }
-#endif
+
               }
             }
 

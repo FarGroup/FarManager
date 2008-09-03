@@ -3773,7 +3773,7 @@ M1:
       Param2=LocalKeyToKey((int)(Param2&0x0000FFFF))|(DWORD)(Param2&(~0x0000FFFF));
 
     //косметика
-    Param2=Upper(Param2&0x0000FFFF)|(Param2&(~0x0000FFFF));
+    Param2=Upper((wchar_t)(Param2&0x0000FFFF))|(Param2&(~0x0000FFFF));
 
     _SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)Param2),LastKey?_FARKEY_ToName(LastKey):L""));
     KMParam->Key=(DWORD)Param2;

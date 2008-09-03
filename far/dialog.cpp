@@ -3676,8 +3676,8 @@ unsigned Dialog::ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos)
 */
 void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
 {
-  if(!DialogMode.Check(DMODE_SHOW))
-     return;
+  //if(!DialogMode.Check(DMODE_SHOW))
+  //   return;
   if(IsEdit(Item[Pos]->Type) &&
      (Item[Pos]->Flags&DIF_SELECTONENTRY)
 //     && PrevFocusPos != -1 && PrevFocusPos != Pos
