@@ -1,3 +1,12 @@
+svs 04.09.2008 17:08:57 +0300 - build 556
+
+1. В Editor::SetCacheParams, FileEditor::LoadFromCache и FileEditor::SaveToCache 
+   восстановлен баланс сил - запоминание/восстановление шорткатов, позиций, etc. как в 1.7.
+
+2. Mantis#0000603: не работает StartChar в Editor()
+   В FileEditor::LoadFile функцию Editor::SetCacheParams вызываем всегда.
+
+
 svs 04.09.2008 01:30:32 +0300 - build 555
 
 1. Bug. Открыть файл во вьювере, перейти в конец/середину/etc., нажать F6.

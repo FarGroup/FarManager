@@ -6347,7 +6347,7 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
       CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
       TotalSize+=Length+StrLength(EndSeq);
 
-      if (TotalSize>StartChar)
+      if (TotalSize > StartChar)
         break;
 
       CurPtr=CurPtr->m_next;
@@ -6370,25 +6370,35 @@ void Editor::SetCacheParams (EditorCacheParams *pp)
 
     CurLine->SetLeftPos(pp->LeftPos);
 
-    return;
   }
-
-  if ( pp->ScreenLine > ObjHeight)//ScrY //BUGBUG
-    pp->ScreenLine=ObjHeight;//ScrY;
-
-  if ( pp->Line >= pp->ScreenLine)
+  else if (StartLine != -1 || EdOpt.SavePos)
   {
-    Lock ();
-    GoToLine (pp->Line-pp->ScreenLine);
-    TopScreen = CurLine;
+    if (StartLine!=-1)
+    {
+      pp->Line = StartLine-1;
+      pp->ScreenLine = ObjHeight/2; //ScrY
+      if (pp->ScreenLine > pp->Line)
+        pp->ScreenLine = pp->Line;
+      pp->LinePos = ( StartChar > 0 ) ? StartChar-1 : 0;
+    }
 
-    for (int I=0; I < pp->ScreenLine; I++)
-      ProcessKey(KEY_DOWN);
+    if ( pp->ScreenLine > ObjHeight)//ScrY //BUGBUG
+      pp->ScreenLine=ObjHeight;//ScrY;
 
-    CurLine->SetTabCurPos(pp->LinePos);
-    CurLine->SetLeftPos(pp->LeftPos);
+    if ( pp->Line >= pp->ScreenLine)
+    {
+      Lock ();
+      GoToLine (pp->Line-pp->ScreenLine);
+      TopScreen = CurLine;
 
-    Unlock ();
+      for (int I=0; I < pp->ScreenLine; I++)
+        ProcessKey(KEY_DOWN);
+
+      CurLine->SetTabCurPos(pp->LinePos);
+      CurLine->SetLeftPos(pp->LeftPos);
+
+      Unlock ();
+    }
   }
 }
 

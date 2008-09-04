@@ -1604,7 +1604,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	fclose (EditFile);
 
-	if ( bCached )
+	//if ( bCached )
 		m_editor->SetCacheParams (&cp);
 
 	SysErrorCode=GetLastError();
@@ -2659,6 +2659,14 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 
 	TPosCache32 PosCache={0};
 
+	if( Opt.EdOpt.SaveShortPos )
+	{
+		PosCache.Position[0] = pp->SavePos.Line;
+		PosCache.Position[1] = pp->SavePos.Cursor;
+		PosCache.Position[2] = pp->SavePos.ScreenLine;
+		PosCache.Position[3] = pp->SavePos.LeftPos;
+	}
+
 	if ( CtrlObject->EditorPosCache->GetPosition(
 			strCacheName,
 			&PosCache
@@ -2705,11 +2713,14 @@ void FileEditor::SaveToCache ()
 		PosCache.Param[3] = cp.LeftPos;
 		PosCache.Param[4] = cp.Table;
 
-		//if no position saved these are nulls
-		PosCache.Position[0] = cp.SavePos.Line;
-		PosCache.Position[1] = cp.SavePos.Cursor;
-		PosCache.Position[2] = cp.SavePos.ScreenLine;
-		PosCache.Position[3] = cp.SavePos.LeftPos;
+		if( Opt.EdOpt.SaveShortPos )
+		{
+			//if no position saved these are nulls
+			PosCache.Position[0] = cp.SavePos.Line;
+			PosCache.Position[1] = cp.SavePos.Cursor;
+			PosCache.Position[2] = cp.SavePos.ScreenLine;
+			PosCache.Position[3] = cp.SavePos.LeftPos;
+		}
 
 		CtrlObject->EditorPosCache->AddPosition(strCacheName, &PosCache);
 	}
