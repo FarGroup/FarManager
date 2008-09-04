@@ -16,6 +16,7 @@ fileedit.cpp
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "poscache.hpp"
+#include "chgprior.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "dialog.hpp"
@@ -23,6 +24,7 @@ fileedit.cpp
 #include "help.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "filestr.hpp"
 #include "namelist.hpp"
 #include "history.hpp"
 #include "cmdline.hpp"
@@ -93,46 +95,7 @@ FileEditor::~FileEditor()
   //AY: флаг оповещающий закрытие редактора.
   bClosing = true;
 
-  if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
-  {
-    int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
-    int CurPos=FEdit->CurLine->GetTabCurPos();
-    int LeftPos=FEdit->CurLine->GetLeftPos();
-    char CacheName[NM*3];
-    if (*PluginData)
-      sprintf(CacheName,"%s%s",PluginData,PointToName(FullFileName));
-    else
-      strcpy(CacheName,FullFileName);
-
-    unsigned int Table=0;
-    if (FEdit->Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
-    {
-      Table=1;
-      if (FEdit->AnsiText)
-        Table=2;
-      else
-        if (FEdit->UseDecodeTable)
-          Table=FEdit->TableNum+2;
-    }
-
-    if (!FEdit->Flags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
-    {
-      struct TPosCache32 PosCache={0};
-      PosCache.Param[0]=FEdit->NumLine;
-      PosCache.Param[1]=ScreenLinePos;
-      PosCache.Param[2]=CurPos;
-      PosCache.Param[3]=LeftPos;
-      PosCache.Param[4]=Table;
-      if(Opt.EdOpt.SaveShortPos)
-      {
-        PosCache.Position[0]=FEdit->SavePos.Line;
-        PosCache.Position[1]=FEdit->SavePos.Cursor;
-        PosCache.Position[2]=FEdit->SavePos.ScreenLine;
-        PosCache.Position[3]=FEdit->SavePos.LeftPos;
-      }
-      CtrlObject->EditorPosCache->AddPosition(CacheName,&PosCache);
-    }
-  }
+  SaveToCache ();
 
   BitFlags FEditFlags=FEdit->Flags;
   int FEditEditorID=FEdit->EditorID;
@@ -145,20 +108,20 @@ FileEditor::~FileEditor()
     CtrlObject->Plugins.CurEditor = save;
   }
 
-  if (!FEditFlags.Check(FEDITOR_OPENFAILED))
+  if (!Flags.Check(FFILEEDIT_OPENFAILED))
   {
     /* $ 11.10.2001 IS
        Удалим файл вместе с каталогом, если это просится и файла с таким же
        именем не открыто в других фреймах.
     */
     /* $ 14.06.2001 IS
-       Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
-       FEDITOR_DELETEONCLOSE, то удаляем только файл.
+       Если установлен FFILEEDIT_DELETEONLYFILEONCLOSE и сброшен
+       FFILEEDIT_DELETEONCLOSE, то удаляем только файл.
     */
-    if (FEditFlags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
+    if (Flags.Check(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE) &&
        !FrameManager->CountFramesWithName(FullFileName))
     {
-       if(FEditFlags.Check(FEDITOR_DELETEONCLOSE))
+       if(Flags.Check(FFILEEDIT_DELETEONCLOSE))
          DeleteFileWithFolder(FullFileName);
        else
        {
@@ -166,8 +129,6 @@ FileEditor::~FileEditor()
          remove(FullFileName);
        }
     }
-    /* IS 14.06.2002 $ */
-    /* IS 11.10.2001 $ */
   }
 
   if(FEdit)
@@ -186,6 +147,7 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
+  Flags.Set(FFILEEDIT_OPENFAILED); // Файл еще не открыт
   SysErrorCode=0;
   int BlankFileName=!strcmp(Name,MSG(MNewFileName));
 
@@ -374,11 +336,11 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   if(Flags.Check(FFILEEDIT_LOCKED))
     FEdit->Flags.Set(FEDITOR_LOCKMODE);
 
-  if (!ReadFile(FullFileName,UserBreak))
+  if (!LoadFile(FullFileName,UserBreak))
   {
     if(BlankFileName)
     {
-      FEdit->Flags.Clear(FEDITOR_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
+      Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
       UserBreak=0;
     }
 
@@ -424,22 +386,18 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   _ECTLLOG(SysLog("} return From ProcessEditorEvent(EE_READ,NULL)"));
   bEE_READ_Sent = true;
 
-  /* IS $ */
   ShowConsoleTitle();
   EditKeyBar.SetOwner(this);
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 
-  /* $ 07.08.2000 SVS
-    ! Код, касаемый KeyBar вынесен в отдельную функцию */
   InitKeyBar();
-  /* SVS $*/
 
   if ( Opt.EdOpt.ShowKeyBar==0 )
     EditKeyBar.Hide0();
 
   MacroMode=MACRO_EDITOR;
   CtrlObject->Macro.SetMode(MACRO_EDITOR);
-/*& OT */
+
   if (Flags.Check(FFILEEDIT_ENABLEF6))
   {
     FrameManager->InsertFrame(this);
@@ -449,8 +407,6 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   {
     FrameManager->ExecuteFrame(this);
   }
-/* OT &*/
-
 }
 
 void FileEditor::InitKeyBar(void)
@@ -539,7 +495,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
     DWORD MacroEditState=0;
     MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
     MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
-    MacroEditState|=FEdit->Flags.Flags&FEDITOR_DELETEONCLOSE?0x00000004:0;
+    MacroEditState|=Flags.Flags&FFILEEDIT_DELETEONCLOSE?0x00000004:0;
     MacroEditState|=FEdit->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
     MacroEditState|=FEdit->BlockStart?0x00000010:0;
     MacroEditState|=FEdit->VBlockStart?0x00000020:0;
@@ -1132,13 +1088,220 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 }
 
 
-// сюды плавно переносить код из Editor::ReadFile()
-int FileEditor::ReadFile(const char *Name,int &UserBreak)
+int FileEditor::LoadFile(const char *Name,int &UserBreak)
 {
-  int Ret=FEdit->ReadFile(Name,UserBreak);
-  SysErrorCode=GetLastError();
-  GetFileWin32FindData(Name,&FileInfo);
-  return Ret;
+  FILE *EditFile;
+  EditorCacheParams cp;
+
+  UserBreak=0;
+  Flags.Clear(FFILEEDIT_OPENFAILED);
+  GetFileWin32FindData(Name,&FileInfo); //???
+
+  DWORD FileFlags=FILE_FLAG_SEQUENTIAL_SCAN;
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
+
+  HANDLE hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
+
+  if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+
+  if (hEdit==INVALID_HANDLE_VALUE)
+  {
+    SysErrorCode=GetLastError();
+    SetLastError(SysErrorCode);
+    if (SysErrorCode!=ERROR_FILE_NOT_FOUND && SysErrorCode!=ERROR_PATH_NOT_FOUND)
+    {
+      UserBreak=-1;
+      Flags.Set(FFILEEDIT_OPENFAILED);
+    }
+    return(FALSE);
+  }
+
+  int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
+  if (EditHandle==-1)
+  {
+    SysErrorCode=GetLastError();
+    SetLastError(SysErrorCode);
+    CloseHandle(hEdit);
+    return(FALSE);
+  }
+
+  if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
+  {
+    SysErrorCode=GetLastError();
+    SetLastError(SysErrorCode);
+    _close(EditHandle);
+    return(FALSE);
+  }
+
+  if (GetFileType(hEdit)!=FILE_TYPE_DISK)
+  {
+    fclose(EditFile);
+    SetLastError(SysErrorCode=ERROR_INVALID_NAME);
+    UserBreak=-1;
+    Flags.Set(FFILEEDIT_OPENFAILED);
+    return(FALSE);
+  }
+
+  /* $ 29.11.2000 SVS
+   + Проверка на минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открытия подобного
+     файла на редактирование
+  */
+  if(FEdit->EdOpt.FileSizeLimitLo || FEdit->EdOpt.FileSizeLimitHi)
+  {
+    unsigned __int64 RealSizeFile;
+    if ( FAR_GetFileSize(hEdit, &RealSizeFile) )
+    {
+      unsigned __int64 NeedSizeFile=MKUINT64(FEdit->EdOpt.FileSizeLimitHi,FEdit->EdOpt.FileSizeLimitLo);
+      if(RealSizeFile > NeedSizeFile)
+      {
+        char TempBuf[2][128];
+        char TempBuf2[2][64];
+        // Ширина = 8 - это будет... в Kb и выше...
+        FileSizeToStr(TempBuf2[0],RealSizeFile,8);
+        FileSizeToStr(TempBuf2[1],NeedSizeFile,8);
+        sprintf(TempBuf[0],MSG(MEditFileLong),RemoveExternalSpaces(TempBuf2[0]));
+        sprintf(TempBuf[1],MSG(MEditFileLong2),RemoveExternalSpaces(TempBuf2[1]));
+        if(Message(MSG_WARNING,2,MSG(MEditTitle),
+                    Name,
+                    TempBuf[0],
+                    TempBuf[1],
+                    MSG(MEditROOpen),
+                    MSG(MYes),MSG(MNo)))
+        {
+          fclose(EditFile);
+          SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+          UserBreak=1;
+          Flags.Set(FFILEEDIT_OPENFAILED);
+          return(FALSE);
+        }
+      }
+    }
+  }
+
+  bool bCached = LoadFromCache (&cp);
+
+  // $ 29.11.2000 SVS - Если файл имеет атрибут ReadOnly или System или Hidden, то сразу лочим файл - естественно отключаемо.
+  // $ 03.12.2000 SVS - System или Hidden - задаются отдельно
+  // $ 15.12.2000 SVS - Разумнее сначала проверить то, что вернула GetFileAttributes() :-)
+  {
+    DWORD FileAttributes=GetFileAttributes(Name);
+    if((FEdit->EdOpt.ReadOnlyLock&1) &&
+       FileAttributes != -1 &&
+       (FileAttributes &
+          (FILE_ATTRIBUTE_READONLY|
+             /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
+                поэтому применяем маску 0110.0000 и
+                сдвигаем на свое место => 0000.0110 и получаем
+                те самые нужные атрибуты  */
+             ((FEdit->EdOpt.ReadOnlyLock&0x60)>>4)
+          )
+       )
+     )
+      FEdit->Flags.Swap(FEDITOR_LOCKMODE);
+  }
+
+  // Mantis#0000516: Пропадание курсора в редакторе...
+  // ... проблема возникает тогда, когда файл большой и срабатывает таймаут.
+  bool CursorShow=true;
+  int __Visible, __Size;
+  GetCursorType(__Visible, __Size);
+
+  int Count=0,LastLineCR=0,MessageShown=FALSE;
+
+  {
+    ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+    GetFileString GetStr(EditFile);
+    //SaveScreen SaveScr;
+    FEdit->NumLastLine=0;
+    *FEdit->GlobalEOL=0;
+    char *Str;
+    int StrLength,GetCode;
+
+    clock_t StartTime=clock();
+
+    if (FEdit->EdOpt.AutoDetectTable)
+    {
+      FEdit->UseDecodeTable=DetectTable(EditFile,&FEdit->TableSet,FEdit->TableNum);
+      FEdit->AnsiText=FALSE;
+    }
+
+    while ((GetCode=GetStr.GetString(&Str,StrLength))!=0)
+    {
+      if (GetCode==-1)
+      {
+        fclose(EditFile);
+        SetPreRedrawFunc(NULL);
+        return(FALSE);
+      }
+      LastLineCR=0;
+
+      if ((++Count & 0xfff)==0 && clock()-StartTime>500)
+      {
+        if (CheckForEscSilent())
+        {
+          if ( ConfirmAbortOp() )
+          {
+            UserBreak = 1;
+            fclose(EditFile);
+            SetPreRedrawFunc(NULL);
+            return FALSE;
+          }
+          MessageShown=FALSE;
+        }
+        if (!MessageShown)
+        {
+          CursorShow=false;
+
+          SetCursorType(FALSE,0);
+          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+          Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
+          MessageShown=TRUE;
+        }
+      }
+
+      char *CurEOL;
+      int Offset = StrLength > 3 ? StrLength - 3 : 0;
+      if (!LastLineCR &&
+          (
+            (CurEOL=(char *)memchr(Str+Offset,'\r',StrLength-Offset))!=NULL ||
+            (CurEOL=(char *)memchr(Str+Offset,'\n',StrLength-Offset))!=NULL
+          )
+         )
+      {
+        xstrncpy(FEdit->GlobalEOL,CurEOL,sizeof(FEdit->GlobalEOL)-1);
+        FEdit->GlobalEOL[sizeof(FEdit->GlobalEOL)-1]=0;
+        LastLineCR=1;
+      }
+
+      if(!FEdit->AddString (Str, StrLength))
+      {
+        fclose(EditFile);
+        SetPreRedrawFunc(NULL);
+        return(FALSE);
+      }
+
+    }
+    SetPreRedrawFunc(NULL);
+
+    if (LastLineCR)
+      FEdit->AddString ("", 0);
+  }
+  if (FEdit->NumLine>0)
+    FEdit->NumLastLine--;
+  if (FEdit->NumLastLine==0)
+    FEdit->NumLastLine=1;
+  fclose(EditFile);
+
+  if(!CursorShow)
+    SetCursorType(__Visible, __Size);
+
+  FEdit->SetCacheParams(&cp);
+
+  //SysErrorCode=GetLastError();
+  return TRUE;
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
@@ -1288,7 +1451,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
-    FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+    Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
     /* IS $ */
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));
@@ -1334,7 +1497,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 /*
     if (ConvertNameToFull(Name,FEdit->FileName, sizeof(FEdit->FileName)) >= sizeof(FEdit->FileName))
     {
-      FEdit->Flags.Set(FEDITOR_OPENFAILED);
+      Flags.Set(FFILEEDIT_OPENFAILED);
       RetCode=SAVEFILE_ERROR;
       goto end;
     }
@@ -1747,11 +1910,11 @@ void FileEditor::SetPluginData(char *PluginData)
 */
 void FileEditor::SetDeleteOnClose(int NewMode)
 {
-  FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+  Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
   if(NewMode==1)
-    FEdit->Flags.Set(FEDITOR_DELETEONCLOSE);
+    Flags.Set(FFILEEDIT_DELETEONCLOSE);
   else if(NewMode==2)
-    FEdit->Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
+    FEdit->Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
 /* IS $ */
 
@@ -1833,7 +1996,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_GETBOOKMARKS:
     {
-      if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param && !IsBadReadPtr(Param,sizeof(struct EditorBookMarks)))
+      if(!Flags.Check(FFILEEDIT_OPENFAILED) && Param && !IsBadReadPtr(Param,sizeof(struct EditorBookMarks)))
       {
         struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
         if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
@@ -2116,4 +2279,94 @@ int FileEditor::EditorControl(int Command,void *Param)
   }
 
   return FEdit->EditorControl(Command,Param);
+}
+
+bool FileEditor::LoadFromCache (EditorCacheParams *pp)
+{
+  memset(pp,0,sizeof(EditorCacheParams));
+
+  char *ptrPluginData=GetPluginData();
+  char *CacheName=(char *)alloca(strlen(ptrPluginData)+strlen(FullFileName)+NM);
+
+  if (*ptrPluginData)
+  {
+    strcpy(CacheName,ptrPluginData);
+    strcat(CacheName,PointToName(FullFileName));
+  }
+  else
+  {
+    strcpy(CacheName,FullFileName);
+
+    for(int i=0;CacheName[i];i++)
+    {
+      if(CacheName[i]=='/')
+        CacheName[i]='\\';
+    }
+  }
+
+  struct TPosCache32 PosCache={0};
+
+  // в 1.8 это тоже надо добавить, чтобы сохранялись шорткаты
+  if(Opt.EdOpt.SaveShortPos)
+  {
+    PosCache.Position[0]=pp->SavePos.Line;
+    PosCache.Position[1]=pp->SavePos.Cursor;
+    PosCache.Position[2]=pp->SavePos.ScreenLine;
+    PosCache.Position[3]=pp->SavePos.LeftPos;
+  }
+
+  if(CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache))
+  {
+     pp->Line=PosCache.Param[0];
+     pp->ScreenLine=PosCache.Param[1];
+     pp->LinePos=PosCache.Param[2];
+     pp->LeftPos=PosCache.Param[3];
+     pp->Table=PosCache.Param[4];
+
+     if((int)pp->Line < 0)       pp->Line=0;
+     if((int)pp->ScreenLine < 0) pp->ScreenLine=0;
+     if((int)pp->LinePos < 0)    pp->LinePos=0;
+     if((int)pp->LeftPos < 0)    pp->LeftPos=0;
+     if((int)pp->Table < 0)      pp->Table=0;
+
+     return true;
+  }
+
+  return false;
+}
+
+void FileEditor::SaveToCache ()
+{
+  if(!Flags.Check(FFILEEDIT_OPENFAILED))
+  {
+    EditorCacheParams cp;
+    if(FEdit->GetCacheParams (&cp) && CtrlObject)
+    {
+      struct TPosCache32 PosCache={0};
+      PosCache.Param[0]=cp.Line;
+      PosCache.Param[1]=cp.ScreenLine;
+      PosCache.Param[2]=cp.LinePos;
+      PosCache.Param[3]=cp.LeftPos;
+      PosCache.Param[4]=cp.Table;
+
+      if(Opt.EdOpt.SaveShortPos)
+      {
+        PosCache.Position[0]=cp.SavePos.Line;
+        PosCache.Position[1]=cp.SavePos.Cursor;
+        PosCache.Position[2]=cp.SavePos.ScreenLine;
+        PosCache.Position[3]=cp.SavePos.LeftPos;
+      }
+
+      char CacheName[NM*3];
+      if (*PluginData)
+      {
+        strcpy(CacheName,PluginData);
+        strcat(CacheName,PointToName(FullFileName));
+      }
+      else
+        strcpy(CacheName,FullFileName);
+
+      CtrlObject->EditorPosCache->AddPosition(CacheName,&PosCache);
+    }
+  }
 }

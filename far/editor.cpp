@@ -17,8 +17,6 @@ editor.cpp
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "poscache.hpp"
-#include "chgprior.hpp"
-#include "filestr.hpp"
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "savescr.hpp"
@@ -109,8 +107,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   NewStackPos=FALSE;
 
   Editor::EditorID=::EditorID++;
-  Flags.Set(FEDITOR_OPENFAILED); // Ну, блин. Файл то еще не открыт,
-                                  // так нефига ставить признак удачного открытия
   HostFileEditor=NULL;
 }
 
@@ -202,216 +198,8 @@ void Editor::KeepInitParameters()
 }
 
 
-// TODO: гнать сей метод отсель в FileEditor. !!!
-int Editor::ReadFile(const char *Name,int &UserBreak)
+void Editor::SetCacheParams(EditorCacheParams *pp)
 {
-  FILE *EditFile;
-  int Count=0,LastLineCR=0,MessageShown=FALSE;
-
-  UserBreak=0;
-  Flags.Clear(FEDITOR_OPENFAILED);
-
-/* Name уже в полном формате!!!
-  if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
-  {
-    Flags.Set(FEDITOR_OPENFAILED);
-    return FALSE;
-  }
-*/
-
-  DWORD FileFlags=FILE_FLAG_SEQUENTIAL_SCAN;
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
-
-  HANDLE hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
-
-  if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-
-  if (hEdit==INVALID_HANDLE_VALUE)
-  {
-    int LastError=GetLastError();
-    SetLastError(LastError);
-    if (LastError!=ERROR_FILE_NOT_FOUND && LastError!=ERROR_PATH_NOT_FOUND)
-    {
-      UserBreak=-1;
-      Flags.Set(FEDITOR_OPENFAILED);
-    }
-    return(FALSE);
-  }
-
-  int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
-  if (EditHandle==-1)
-  {
-    CloseHandle(hEdit);
-    return(FALSE);
-  }
-
-  if ((EditFile=fdopen(EditHandle,"rb"))==NULL)
-  {
-    _close(EditHandle);
-    return(FALSE);
-  }
-
-  if (GetFileType(hEdit)!=FILE_TYPE_DISK)
-  {
-    fclose(EditFile);
-    SetLastError(ERROR_INVALID_NAME);
-    UserBreak=-1;
-    Flags.Set(FEDITOR_OPENFAILED);
-    return(FALSE);
-  }
-
-  /* $ 29.11.2000 SVS
-   + Проверка на минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
-  */
-  if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
-  {
-    unsigned __int64 RealSizeFile;
-    if ( FAR_GetFileSize(hEdit, &RealSizeFile) )
-    {
-      unsigned __int64 NeedSizeFile=MKUINT64(EdOpt.FileSizeLimitHi,EdOpt.FileSizeLimitLo);
-      if(RealSizeFile > NeedSizeFile)
-      {
-        char TempBuf[2][128];
-        char TempBuf2[2][64];
-        // Ширина = 8 - это будет... в Kb и выше...
-        FileSizeToStr(TempBuf2[0],RealSizeFile,8);
-        FileSizeToStr(TempBuf2[1],NeedSizeFile,8);
-        sprintf(TempBuf[0],MSG(MEditFileLong),RemoveExternalSpaces(TempBuf2[0]));
-        sprintf(TempBuf[1],MSG(MEditFileLong2),RemoveExternalSpaces(TempBuf2[1]));
-        if(Message(MSG_WARNING,2,MSG(MEditTitle),
-                    Name,
-                    TempBuf[0],
-                    TempBuf[1],
-                    MSG(MEditROOpen),
-                    MSG(MYes),MSG(MNo)))
-        {
-          fclose(EditFile);
-          SetLastError(ERROR_OPEN_FAILED);
-          UserBreak=1;
-          Flags.Set(FEDITOR_OPENFAILED);
-          return(FALSE);
-        }
-      }
-    }
-  }
-
-  // $ 29.11.2000 SVS - Если файл имеет атрибут ReadOnly или System или Hidden, то сразу лочим файл - естественно отключаемо.
-  // $ 03.12.2000 SVS - System или Hidden - задаются отдельно
-  // $ 15.12.2000 SVS - Разумнее сначала проверить то, что вернула GetFileAttributes() :-)
-  {
-    DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):(DWORD)-1;
-    if((EdOpt.ReadOnlyLock&1) &&
-       FileAttributes != -1 &&
-       (FileAttributes &
-          (FILE_ATTRIBUTE_READONLY|
-             /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-                поэтому применяем маску 0110.0000 и
-                сдвигаем на свое место => 0000.0110 и получаем
-                те самые нужные атрибуты  */
-             ((EdOpt.ReadOnlyLock&0x60)>>4)
-          )
-       )
-     )
-      Flags.Swap(FEDITOR_LOCKMODE);
-  }
-
-  // Mantis#0000516: Пропадание курсора в редакторе...
-  // ... проблема возникает тогда, когда файл большой и срабатывает таймаут.
-  bool CursorShow=true;
-  int __Visible, __Size;
-  GetCursorType(__Visible, __Size);
-
-  {
-    ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-    GetFileString GetStr(EditFile);
-    //SaveScreen SaveScr;
-    NumLastLine=0;
-    *GlobalEOL=0;
-    char *Str;
-    int StrLength,GetCode;
-
-    clock_t StartTime=clock();
-
-    if (EdOpt.AutoDetectTable)
-    {
-      UseDecodeTable=DetectTable(EditFile,&TableSet,TableNum);
-      AnsiText=FALSE;
-    }
-
-    while ((GetCode=GetStr.GetString(&Str,StrLength))!=0)
-    {
-      if (GetCode==-1)
-      {
-        fclose(EditFile);
-        SetPreRedrawFunc(NULL);
-        return(FALSE);
-      }
-      LastLineCR=0;
-
-      if ((++Count & 0xfff)==0 && clock()-StartTime>500)
-      {
-        if (CheckForEscSilent())
-        {
-          if ( ConfirmAbortOp() )
-          {
-            UserBreak = 1;
-            fclose(EditFile);
-            SetPreRedrawFunc(NULL);
-            return FALSE;
-          }
-          MessageShown=FALSE;
-        }
-        if (!MessageShown)
-        {
-          CursorShow=false;
-
-          SetCursorType(FALSE,0);
-          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-          EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
-          MessageShown=TRUE;
-        }
-      }
-
-      char *CurEOL;
-      int Offset = StrLength > 3 ? StrLength - 3 : 0;
-      if (!LastLineCR &&
-          (
-            (CurEOL=(char *)memchr(Str+Offset,'\r',StrLength-Offset))!=NULL ||
-            (CurEOL=(char *)memchr(Str+Offset,'\n',StrLength-Offset))!=NULL
-          )
-         )
-      {
-        xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
-        GlobalEOL[sizeof(GlobalEOL)-1]=0;
-        LastLineCR=1;
-      }
-
-      if(!AddString (Str, StrLength))
-      {
-        fclose(EditFile);
-        SetPreRedrawFunc(NULL);
-        return(FALSE);
-      }
-
-    }
-    SetPreRedrawFunc(NULL);
-
-    if (LastLineCR)
-      AddString ("", 0);
-  }
-  if (NumLine>0)
-    NumLastLine--;
-  if (NumLastLine==0)
-    NumLastLine=1;
-  fclose(EditFile);
-
-  if(!CursorShow)
-    SetCursorType(__Visible, __Size);
-
   if (StartLine==-2)
   {
     Edit *CurPtr=TopList;
@@ -428,223 +216,129 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       NumLine++;
     }
     TopScreen=CurLine=CurPtr;
-    if (EdOpt.SavePos && CtrlObject!=NULL)
+
+    if (EdOpt.SavePos)
     {
-      unsigned int Line,ScreenLine,LinePos,LeftPos=0;
-      unsigned int Table=0;
+      SetTable(pp->Table);
 
-      {
-        char *ptrPluginData=NULL;
-        if (HostFileEditor && *HostFileEditor->GetPluginData())
-          ptrPluginData=HostFileEditor->GetPluginData();
-
-        char *CacheName=(char *)alloca((ptrPluginData?strlen(ptrPluginData):0)+strlen(Name)+NM);
-
-        if (ptrPluginData)
-        {
-          strcpy(CacheName,ptrPluginData);
-          strcat(CacheName,PointToName(Name));
-        }
-        else
-        {
-          strcpy(CacheName,Name);
-          for(int i=0;CacheName[i];i++)
-          {
-            if(CacheName[i]=='/')
-              CacheName[i]='\\';
-          }
-        }
-
-        {
-          struct TPosCache32 PosCache={0};
-          if(Opt.EdOpt.SaveShortPos)
-          {
-            PosCache.Position[0]=SavePos.Line;
-            PosCache.Position[1]=SavePos.Cursor;
-            PosCache.Position[2]=SavePos.ScreenLine;
-            PosCache.Position[3]=SavePos.LeftPos;
-          }
-          CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
-          Line=PosCache.Param[0];
-          ScreenLine=PosCache.Param[1];
-          LinePos=PosCache.Param[2];
-          LeftPos=PosCache.Param[3];
-          Table=PosCache.Param[4];
-        }
-      }
-
-      //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
-      if((int)Line < 0) Line=0;
-      if((int)ScreenLine < 0) ScreenLine=0;
-      if((int)LinePos < 0) LinePos=0;
-      if((int)LeftPos < 0) LeftPos=0;
-      if((int)Table < 0) Table=0;
-
-      Flags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
-
-      _SVS(SysLog("[%d] Table=%d",__LINE__,Table));
-      switch(Table)
-      {
-        case 0:
-          break;
-        case 1:
-          AnsiText=UseDecodeTable=0;
-          break;
-        case 2:
-          {
-            AnsiText=TRUE;
-            UseDecodeTable=TRUE;
-            TableNum=0;
-            int UseUnicode=FALSE;
-            GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-          }
-          break;
-        default:
-          AnsiText=0;
-          UseDecodeTable=1;
-          TableNum=Table-2;
-          PrepareTable(&TableSet,Table-3);
-          break;
-      }
-
-      if (NumLine==Line-ScreenLine)
+      if (NumLine == (pp->Line - pp->ScreenLine))
       {
         Lock ();
-        for (unsigned int I=0;I<ScreenLine;I++)
+        for (DWORD I=0;I < pp->ScreenLine;I++)
           ProcessKey(KEY_DOWN);
-        CurLine->SetTabCurPos(LinePos);
+        CurLine->SetTabCurPos(pp->LinePos);
         Unlock ();
       }
-      //_D(SysLog("Setleftpos to %i",LeftPos));
-      CurLine->SetLeftPos(LeftPos);
+
+      CurLine->SetLeftPos(pp->LeftPos);
     }
   }
   else
   {
-    if (StartLine!=-1 || EdOpt.SavePos && CtrlObject!=NULL)
+    if (StartLine!=-1 || EdOpt.SavePos)
     {
-      unsigned int Line,ScreenLine,LinePos,LeftPos=0;
       if (StartLine!=-1)
       {
-        Line=StartLine-1;
-        ScreenLine=ObjHeight/2; //ScrY
-        if (ScreenLine>Line)
-          ScreenLine=Line;
-        LinePos=(StartChar>0) ? StartChar-1:0;
+        pp->Line=StartLine-1;
+        pp->ScreenLine=ObjHeight/2; //ScrY
+        if (pp->ScreenLine > pp->Line)
+          pp->ScreenLine=pp->Line;
+        pp->LinePos=(StartChar>0) ? StartChar-1:0;
       }
       else
       {
-        unsigned int Table=0;
-
-        {
-          char *ptrPluginData=NULL;
-          if (HostFileEditor && *HostFileEditor->GetPluginData())
-            ptrPluginData=HostFileEditor->GetPluginData();
-
-          char *CacheName=(char *)alloca((ptrPluginData?strlen(ptrPluginData):0)+strlen(Name)+NM);
-
-          if (ptrPluginData)
-          {
-            strcpy(CacheName,ptrPluginData);
-            strcat(CacheName,PointToName(Name));
-          }
-          else
-          {
-            strcpy(CacheName,Name);
-            for(int i=0;CacheName[i];i++)
-            {
-              if(CacheName[i]=='/')CacheName[i]='\\';
-            }
-          }
-
-          {
-            struct TPosCache32 PosCache={0};
-            if(Opt.EdOpt.SaveShortPos)
-            {
-              PosCache.Position[0]=SavePos.Line;
-              PosCache.Position[1]=SavePos.Cursor;
-              PosCache.Position[2]=SavePos.ScreenLine;
-              PosCache.Position[3]=SavePos.LeftPos;
-            }
-            CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
-            Line=PosCache.Param[0];
-            ScreenLine=PosCache.Param[1];
-            LinePos=PosCache.Param[2];
-            LeftPos=PosCache.Param[3];
-            Table=PosCache.Param[4];
-          }
-        }
-
-        //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
-        if((int)Line < 0) Line=0;
-        if((int)ScreenLine < 0) ScreenLine=0;
-        if((int)LinePos < 0) LinePos=0;
-        if((int)LeftPos < 0) LeftPos=0;
-        if((int)Table < 0) Table=0;
-
-        Flags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
-
-        _SVS(SysLog("[%d] Table=%d",__LINE__,Table));
-        switch(Table)
-        {
-          case 0:
-            break;
-          case 1:
-            AnsiText=UseDecodeTable=0;
-            break;
-          case 2:
-            {
-              AnsiText=TRUE;
-              UseDecodeTable=TRUE;
-              TableNum=0;
-              int UseUnicode=FALSE;
-              GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-            }
-            break;
-          default:
-            AnsiText=0;
-            UseDecodeTable=1;
-            TableNum=Table-2;
-            PrepareTable(&TableSet,Table-3);
-            break;
-        }
-
+        SetTable(pp->Table);
       }
-      if (ScreenLine>static_cast<DWORD>(ObjHeight))//ScrY
-        ScreenLine=ObjHeight;//ScrY;
-      if (Line>=ScreenLine)
+
+      if (pp->ScreenLine>static_cast<DWORD>(ObjHeight))//ScrY
+        pp->ScreenLine=ObjHeight;//ScrY;
+
+      if (pp->Line >= pp->ScreenLine)
       {
         Lock ();
-        GoToLine(Line-ScreenLine);
+        GoToLine(pp->Line - pp->ScreenLine);
         TopScreen=CurLine;
-        for (DWORD I=0;I<ScreenLine;I++)
+
+        for (DWORD I=0;I < pp->ScreenLine;I++)
           ProcessKey(KEY_DOWN);
-        CurLine->SetTabCurPos(LinePos);
-        //_D(SysLog("Setleftpos 2 to %i",LeftPos));
-        CurLine->SetLeftPos(LeftPos);
+
+        CurLine->SetTabCurPos(pp->LinePos);
+        CurLine->SetLeftPos(pp->LeftPos);
+
         Unlock ();
       }
     }
   }
-  _SVS(SysLog("[%d] UseDecodeTable=%d",UseDecodeTable));
+
+  if( Opt.EdOpt.SaveShortPos )
+    memcpy (&SavePos, &pp->SavePos, sizeof (InternalEditorBookMark));
 
   if (UseDecodeTable)
     for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next)
       CurPtr->SetTables(&TableSet);
-  /* $ 25.07.2001 IS
-       Принудительно сбросим номер таблицы символов, т.к. никаких таблиц
-       символов не используется (UseDecodeTable==FALSE)
-  */
-  else
+  else   /* $ 25.07.2001 IS - Принудительно сбросим номер таблицы символов, т.к. никаких таблиц символов не используется (UseDecodeTable==FALSE) */
     TableNum=0;
-  /* IS $ */
-
-  //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-  //_D(SysLog("%08d EE_READ",__LINE__));
-  //CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
-  //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
-  return(TRUE);
 }
+
+bool Editor::GetCacheParams (EditorCacheParams *pp)
+{
+  if(!EdOpt.SavePos)
+    return false;
+
+  memset (pp, 0, sizeof (EditorCacheParams));
+
+  pp->Line = NumLine;
+  pp->ScreenLine = CalcDistance(TopScreen, CurLine,-1);
+  pp->LinePos = CurLine->GetTabCurPos();
+  pp->LeftPos = CurLine->GetLeftPos();
+
+  unsigned int Table=0;
+  if (Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
+  {
+    Table=1;
+    if (AnsiText)
+      Table=2;
+    else
+      if (UseDecodeTable)
+        Table=TableNum+2;
+  }
+  pp->Table = Table;
+
+  if( Opt.EdOpt.SaveShortPos )
+    memcpy (&pp->SavePos, &SavePos, sizeof (InternalEditorBookMark));
+
+  return true;
+}
+
+void Editor::SetTable(unsigned int Table)
+{
+  Flags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
+
+  switch(Table)
+  {
+    case 0:
+      break;
+    case 1:
+      AnsiText=UseDecodeTable=0;
+      break;
+    case 2:
+      {
+        AnsiText=TRUE;
+        UseDecodeTable=TRUE;
+        TableNum=0;
+        int UseUnicode=FALSE;
+        GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+      }
+      break;
+    default:
+      AnsiText=0;
+      UseDecodeTable=1;
+      TableNum=Table-2;
+      PrepareTable(&TableSet,Table-3);
+      break;
+  }
+}
+
 
 // преобразование из буфера в список (работа в OEM!)
 int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)

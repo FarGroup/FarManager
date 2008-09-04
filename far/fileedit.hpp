@@ -40,8 +40,13 @@ enum FFILEEDIT_FLAGS{
                                                  //   клавиши F2 сделать вызов ShiftF2.
   FFILEEDIT_SAVEWQUESTIONS        = 0x00400000,  // сохранить без вопросов
   FFILEEDIT_LOCKED                = 0x00800000,  // заблокировать?
+
+  FFILEEDIT_DELETEONCLOSE         = 0x01000000,  // 10.10.2001 IS: Если TRUE, то удалить в деструкторе файл вместе с каталогом (если тот пуст)
+  FFILEEDIT_DELETEONLYFILEONCLOSE = 0x02000000,  // Если флаг взведен и нет FFILEEDIT_DELETEONCLOSE, то удалить только файл
+
   FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускается новый файл?
   FFILEEDIT_SERVICEREGION         = 0x20000000,  // используется сервисная область
+  FFILEEDIT_OPENFAILED            = 0x40000000,  // ошибки при открытии файла
 };
 
 
@@ -152,7 +157,7 @@ class FileEditor:public Frame
     virtual void ResizeConsole();
     virtual void Show();
 
-    int ReadFile(const char *Name,int &UserBreak);
+    int LoadFile(const char *Name,int &UserBreak);
     int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const char *PluginTitle);
@@ -169,6 +174,9 @@ class FileEditor:public Frame
 
     void SetPluginData(char *PluginData);
     char *GetPluginData(void){return PluginData;};
+
+    bool LoadFromCache (EditorCacheParams *pp);
+    void SaveToCache ();
 
     void GetEditorOptions(struct EditorOptions& EdOpt);
     void SetEditorOptions(struct EditorOptions& EdOpt);

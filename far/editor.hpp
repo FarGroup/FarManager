@@ -32,6 +32,16 @@ struct InternalEditorStackBookMark{
   struct InternalEditorStackBookMark *prev, *next;
 };
 
+struct EditorCacheParams {
+  DWORD Line;
+  DWORD LinePos;
+  DWORD ScreenLine;
+  DWORD LeftPos;
+  DWORD Table;
+
+  InternalEditorBookMark SavePos;
+};
+
 struct EditorUndoData
 {
   int Type;
@@ -44,9 +54,6 @@ struct EditorUndoData
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITOR{
-  FEDITOR_DELETEONCLOSE         = 0x00000100,   // 10.10.2001 IS: Если TRUE, то удалить
-                                                // в деструкторе файл вместе с каталогом
-                                                // (если тот пуст)
   FEDITOR_MODIFIED              = 0x00000200,
   FEDITOR_JUSTMODIFIED          = 0x00000400,   // 10.08.2000 skv: need to send EE_REDRAW 2.
                                                 // set to 1 by TextChanged, no matter what
@@ -62,10 +69,8 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
                                                 // плагином (ECTL_SETPOSITION)
   FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
-  FEDITOR_OPENFAILED            = 0x00400000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
 
-  FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,   // Если флаг взведен и нет FEDITOR_DELETEONCLOSE, то удалить только файл
   FEDITOR_PROCESSCTRLQ          = 0x02000000,   // нажата Ctrl-Q и идет процесс вставки кода символа
 
   FEDITOR_DIALOGMEMOEDIT        = 0x80000000,   // Editor используется в диалоге в качестве DI_MEMOEDIT
@@ -211,10 +216,12 @@ class Editor:public ScreenObject
     virtual ~Editor();
 
   public:
-    int ReadFile(const char *Name,int &UserBreak);               // преобразование из файла в список
+    int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                    // преобразование из буфера в список
+    int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat);  // преобразование из списка в буфер
 
-    int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
-    int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
+    void SetCacheParams (EditorCacheParams *pp);
+    bool GetCacheParams (EditorCacheParams *pp);
+    void SetTable(unsigned int Table);
 
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -273,7 +280,6 @@ class Editor:public ScreenObject
     // передавайте в качестве значения параметра "-1" для параметра,
     // который не нужно менять
     void SetSavePosMode(int SavePos, int SaveShortPos);
-    /* IS $ */
 
     void GetRowCol(char *argv,int *row,int *col);
 

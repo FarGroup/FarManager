@@ -1171,7 +1171,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 						*Src=c;
 						if(find)
 						{
-							int n=strlen(fd.cFileName);
+							int n=(int)strlen(fd.cFileName);
 							strncpy(Dst,fd.cFileName,n);
 							Dst+=n;
 							Dst++;
