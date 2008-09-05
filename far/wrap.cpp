@@ -280,45 +280,61 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 	}
 }
 
-void ConvertPanelItemW(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem **PanelItemA, int ItemsNumber)
+void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPanelItem &PanelItemA)
 {
-	*PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	PanelItemA.Flags = PanelItem.Flags;
+	PanelItemA.NumberOfLinks=PanelItem.NumberOfLinks;
 
-	memset(*PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	if(PanelItem.Description)
+		PanelItemA.Description=UnicodeToAnsi(PanelItem.Description);
+
+	if(PanelItem.Owner)
+		PanelItemA.Owner=UnicodeToAnsi(PanelItem.Owner);
+
+	if (PanelItem.CustomColumnNumber)
+	{
+		PanelItemA.CustomColumnNumber=PanelItem.CustomColumnNumber;
+		PanelItemA.CustomColumnData=(char **)xf_malloc(PanelItem.CustomColumnNumber*sizeof(char *));
+
+		for (int j=0; j<PanelItem.CustomColumnNumber; j++)
+			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
+	}
+
+	PanelItemA.UserData = PanelItem.UserData;
+	PanelItemA.CRC32 = PanelItem.CRC32;
+
+	PanelItemA.FindData.dwFileAttributes = PanelItem.FindData.dwFileAttributes;
+	PanelItemA.FindData.ftCreationTime = PanelItem.FindData.ftCreationTime;
+	PanelItemA.FindData.ftLastAccessTime = PanelItem.FindData.ftLastAccessTime;
+	PanelItemA.FindData.ftLastWriteTime = PanelItem.FindData.ftLastWriteTime;
+	PanelItemA.FindData.nFileSizeLow = (DWORD)PanelItem.FindData.nFileSize;
+	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FindData.nFileSize>>32);
+	PanelItemA.PackSize = (DWORD)PanelItem.FindData.nPackSize;
+	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.FindData.nPackSize>>32);
+	UnicodeToAnsi(PanelItem.FindData.lpwszFileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
+	UnicodeToAnsi(PanelItem.FindData.lpwszAlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
+}
+
+
+void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
+{
+	PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	memset(PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
-		(*PanelItemA)[i].Flags = PanelItemW[i].Flags;
-		(*PanelItemA)[i].NumberOfLinks = PanelItemW[i].NumberOfLinks;
+		ConvertPanelItemToAnsi(PanelItemW[i],PanelItemA[i]);
+	}
+}
 
-		if (PanelItemW[i].Description)
-			(*PanelItemA)[i].Description = UnicodeToAnsi(PanelItemW[i].Description);
+void ConvertPanelItemsPtrArrayToAnsi(PluginPanelItem **PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
+{
+	PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
+	memset(PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
-		if (PanelItemW[i].Owner)
-			(*PanelItemA)[i].Owner = UnicodeToAnsi(PanelItemW[i].Owner);
-
-		if (PanelItemW[i].CustomColumnNumber)
-		{
-			(*PanelItemA)[i].CustomColumnNumber = PanelItemW[i].CustomColumnNumber;
-			(*PanelItemA)[i].CustomColumnData = (char **)xf_malloc(PanelItemW[i].CustomColumnNumber*sizeof(char *));
-
-			for (int j=0; j<PanelItemW[i].CustomColumnNumber; j++)
-				(*PanelItemA)[i].CustomColumnData[j] = UnicodeToAnsi(PanelItemW[i].CustomColumnData[j]);
-		}
-
-		(*PanelItemA)[i].UserData = PanelItemW[i].UserData;
-		(*PanelItemA)[i].CRC32 = PanelItemW[i].CRC32;
-
-		(*PanelItemA)[i].FindData.dwFileAttributes = PanelItemW[i].FindData.dwFileAttributes;
-		(*PanelItemA)[i].FindData.ftCreationTime = PanelItemW[i].FindData.ftCreationTime;
-		(*PanelItemA)[i].FindData.ftLastAccessTime = PanelItemW[i].FindData.ftLastAccessTime;
-		(*PanelItemA)[i].FindData.ftLastWriteTime = PanelItemW[i].FindData.ftLastWriteTime;
-		(*PanelItemA)[i].FindData.nFileSizeLow = (DWORD)PanelItemW[i].FindData.nFileSize;
-		(*PanelItemA)[i].FindData.nFileSizeHigh = (DWORD)(PanelItemW[i].FindData.nFileSize>>32);
-		(*PanelItemA)[i].PackSize = (DWORD)PanelItemW[i].FindData.nPackSize;
-		(*PanelItemA)[i].PackSizeHigh = (DWORD)(PanelItemW[i].FindData.nPackSize>>32);
-		UnicodeToAnsi(PanelItemW[i].FindData.lpwszFileName,(*PanelItemA)[i].FindData.cFileName,sizeof((*PanelItemA)[i].FindData.cFileName));
-		UnicodeToAnsi(PanelItemW[i].FindData.lpwszAlternateFileName,(*PanelItemA)[i].FindData.cAlternateFileName,sizeof((*PanelItemA)[i].FindData.cAlternateFileName));
+	for (int i=0; i<ItemsNumber; i++)
+	{
+		ConvertPanelItemToAnsi(*PanelItemW[i],PanelItemA[i]);
 	}
 }
 
@@ -2072,8 +2088,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	}
 	else //FCTL_GET[ANOTHER]PANELINFO
 	{
-		ConvertPanelItemW(PIW->PanelItems, &PIA->PanelItems, PIW->ItemsNumber);
-		ConvertPanelItemW(PIW->SelectedItems, &PIA->SelectedItems, PIW->SelectedItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PIW->PanelItems, PIA->PanelItems, PIW->ItemsNumber);
+		ConvertPanelItemsPtrArrayToAnsi(PIW->SelectedItems, PIA->SelectedItems, PIW->SelectedItemsNumber);
 	}
 
 	PIA->CurrentItem = PIW->CurrentItem;
@@ -2127,15 +2143,16 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 		FreePanelItemA(PIA->PanelItems,PIA->ItemsNumber);
 	if (PIA->SelectedItems)
 		FreePanelItemA(PIA->SelectedItems,PIA->SelectedItemsNumber);
-
 	memset(PIA,0,sizeof(oldfar::PanelInfo));
 }
 
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
-	oldfar::PanelInfo* CurrentPanelInfoA=&PanelInfoA;
-	HANDLE hPluginW = PANEL_ACTIVE;
+	static PanelInfo PnI={0};
+
+	if(hPlugin==INVALID_HANDLE_VALUE)
+		hPlugin=PANEL_ACTIVE;
 
 	switch (Command)
 	{
@@ -2152,76 +2169,70 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			return ret;
 		}
 
-		case oldfar::FCTL_GETANOTHERPANELINFO:
-			hPluginW = PANEL_PASSIVE;
-			CurrentPanelInfoA=&AnotherPanelInfoA;
-
-		case oldfar::FCTL_GETPANELINFO:
-		{
-			if ( !Param ) 
-				return FALSE;
-
-			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
-			PanelInfo PIW;
-
-			int ret = FarControl(hPluginW,FCTL_GETPANELINFO,(void *)&PIW);
-
-			if ( ret )
-			{
-				FreeAnsiPanelInfo(CurrentPanelInfoA);
-				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, FALSE);
-				*pPIA=*CurrentPanelInfoA;
-			}
-
-			return ret;
-		}
-
 		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
-			hPluginW = PANEL_PASSIVE;
-			CurrentPanelInfoA=&AnotherPanelInfoA;
-
+		case oldfar::FCTL_GETANOTHERPANELINFO:
 		case oldfar::FCTL_GETPANELSHORTINFO:
-		{
-			if ( !Param ) 
-				return FALSE;
-
-			oldfar::PanelInfo *pPIA = (oldfar::PanelInfo *)Param;
-			PanelInfo PIW;
-
-			int ret = FarControl(hPluginW,FCTL_GETPANELSHORTINFO,(void *)&PIW);
-
-			if ( ret )
+		case oldfar::FCTL_GETPANELINFO:
 			{
-				FreeAnsiPanelInfo(CurrentPanelInfoA);
-				ConvertUnicodePanelInfoToAnsi(&PIW, CurrentPanelInfoA, TRUE);
-				*pPIA=*CurrentPanelInfoA;
-			}
+				if(!Param ) 
+					return FALSE;
+				bool Short=(Command==oldfar::FCTL_GETPANELSHORTINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
+				bool Passive=(Command==oldfar::FCTL_GETANOTHERPANELINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
 
-			return ret;
-		}
+				if(hPlugin==INVALID_HANDLE_VALUE)
+					hPlugin=PANEL_ACTIVE;
+				if(Passive)
+					hPlugin=PANEL_PASSIVE;
+				FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
+				int ret = FarControl(hPlugin,Short?FCTL_GETPANELSHORTINFO:FCTL_GETPANELINFO,&PnI);
+				if(ret)
+				{
+					FreeAnsiPanelInfo(Passive?&AnotherPanelInfoA:&PanelInfoA);
+					ConvertUnicodePanelInfoToAnsi(&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA,Short);
+					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
+				}
+			}
+			return TRUE;
+
+		case oldfar::FCTL_SETANOTHERSELECTION:
+			hPlugin=PANEL_PASSIVE;
+		case oldfar::FCTL_SETSELECTION:
+			{
+				if(!Param )
+					return FALSE;
+				oldfar::PanelInfo *pPIA=(oldfar::PanelInfo*)Param;
+				for(int i=0;i<pPIA->ItemsNumber;i++)
+				{
+					if(pPIA->PanelItems[i].Flags & oldfar::PPIF_SELECTED)
+						PnI.PanelItems[i].Flags|=PPIF_SELECTED;
+					else
+						PnI.PanelItems[i].Flags&=~PPIF_SELECTED;
+				}
+				return FarControl(hPlugin,FCTL_SETSELECTION,&PnI);
+			}
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
-			hPluginW = PANEL_PASSIVE;
+			hPlugin = PANEL_PASSIVE;
 
 		case oldfar::FCTL_REDRAWPANEL:
 		{
 			if ( !Param ) 
-				return FarControl(hPluginW, FCTL_REDRAWPANEL, NULL);
+				return FarControl(hPlugin, FCTL_REDRAWPANEL, NULL);
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
 			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
 
-			return FarControl(hPluginW, FCTL_REDRAWPANEL, &pri);
+			return FarControl(hPlugin, FCTL_REDRAWPANEL, &pri);
 		}
 
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
-			hPluginW = PANEL_PASSIVE;
+			hPlugin = PANEL_PASSIVE;
 
 		case oldfar::FCTL_SETNUMERICSORT:
-			return FarControl(hPluginW, FCTL_SETNUMERICSORT, Param);
+			return FarControl(hPlugin, FCTL_SETNUMERICSORT, Param);
 
 		case oldfar::FCTL_SETANOTHERPANELDIR:
-			hPluginW = PANEL_PASSIVE;
+			hPlugin = PANEL_PASSIVE;
 
 		case oldfar::FCTL_SETPANELDIR:
 		{
@@ -2229,81 +2240,54 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			int ret = FarControl(hPluginW, FCTL_SETPANELDIR, Dir);
+			int ret = FarControl(hPlugin, FCTL_SETPANELDIR, Dir);
 			xf_free(Dir);
 
 			return ret;
 		}
 
-		case oldfar::FCTL_SETANOTHERSELECTION:
-			hPluginW = PANEL_PASSIVE;
-
-		case oldfar::FCTL_SETSELECTION:
-			return FALSE; //BUGBUG
-
 		case oldfar::FCTL_SETANOTHERSORTMODE:
-			hPluginW = PANEL_PASSIVE;
+			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTMODE:
 
 			if ( !Param ) 
 				return FALSE;
 
-			return FarControl(hPluginW, FCTL_SETSORTMODE, Param);
+			return FarControl(hPlugin, FCTL_SETSORTMODE, Param);
 
 		case oldfar::FCTL_SETANOTHERSORTORDER:
-			hPluginW = PANEL_PASSIVE;
-
+			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTORDER:
-			return FarControl(hPluginW, FCTL_SETSORTORDER, Param);
+			return FarControl(hPlugin, FCTL_SETSORTORDER, Param);
 
 		case oldfar::FCTL_SETANOTHERVIEWMODE:
-			hPluginW = PANEL_PASSIVE;
-
+			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETVIEWMODE:
-			return FarControl(hPluginW, FCTL_SETVIEWMODE, Param);
+			return FarControl(hPlugin, FCTL_SETVIEWMODE, Param);
 
 		case oldfar::FCTL_UPDATEANOTHERPANEL:
-			hPluginW = PANEL_PASSIVE;
-
+			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_UPDATEPANEL:
-			return FarControl(hPluginW, FCTL_UPDATEPANEL, Param);
+			return FarControl(hPlugin, FCTL_UPDATEPANEL, Param);
 
 
 		case oldfar::FCTL_GETCMDLINE:
+		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 		{
 			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) ) 
 				return FALSE;
-
-			wchar_t s[1024];
-
-			int ret = FarControl(hPluginW, FCTL_GETCMDLINE, &s);
-
-			if ( ret ) 
-				UnicodeToAnsi(s, (char*)Param, 1024-1);
-
-			return ret;
+			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
+			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,NULL)+1)*sizeof(wchar_t));
+			FarControl(hPlugin,CmdW,s);
+			UnicodeToAnsi(s, (char*)Param, 1024-1);
+			return TRUE;
 		}
 
 		case oldfar::FCTL_GETCMDLINEPOS:
 			if ( !Param ) 
 				return FALSE;
 
-			return FarControl(hPluginW,FCTL_GETCMDLINEPOS,Param);
-
-		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
-		{
-			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) ) 
-				return FALSE;
-
-			wchar_t s[1024];
-
-			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTEDTEXT, &s);
-
-			if ( ret ) 
-				UnicodeToAnsi(s, (char*)Param, 1024-1);
-
-			return ret;
-		}
+			return FarControl(hPlugin,FCTL_GETCMDLINEPOS,Param);
 
 		case oldfar::FCTL_GETCMDLINESELECTION:
 		{
@@ -2312,7 +2296,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			CmdLineSelect cls;
 
-			int ret = FarControl(hPluginW, FCTL_GETCMDLINESELECTION, &cls);
+			int ret = FarControl(hPlugin, FCTL_GETCMDLINESELECTION, &cls);
 
 			if ( ret )
 			{
@@ -2331,7 +2315,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 
-			int ret = FarControl(hPluginW, FCTL_INSERTCMDLINE, s);
+			int ret = FarControl(hPlugin, FCTL_INSERTCMDLINE, s);
 
 			xf_free(s);
 			return ret;
@@ -2344,7 +2328,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 
-			int ret = FarControl(hPluginW, FCTL_SETCMDLINE, s);
+			int ret = FarControl(hPlugin, FCTL_SETCMDLINE, s);
 
 			xf_free(s);
 			return ret;
@@ -2354,7 +2338,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if ( !Param ) 
 				return FALSE;
 
-			return FarControl(hPluginW, FCTL_SETCMDLINEPOS, Param);
+			return FarControl(hPlugin, FCTL_SETCMDLINEPOS, Param);
 
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
@@ -2364,14 +2348,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
 
-			return FarControl(hPluginW, FCTL_SETCMDLINESELECTION, &cls);
+			return FarControl(hPlugin, FCTL_SETCMDLINESELECTION, &cls);
 		}
 
 		case oldfar::FCTL_GETUSERSCREEN:
-			return FarControl(hPluginW, FCTL_GETUSERSCREEN, NULL);
+			return FarControl(hPlugin, FCTL_GETUSERSCREEN, NULL);
 
 		case oldfar::FCTL_SETUSERSCREEN:
-			return FarControl(hPluginW, FCTL_SETUSERSCREEN, NULL);
+			return FarControl(hPlugin, FCTL_SETUSERSCREEN, NULL);
 	}
 	return FALSE;
 }

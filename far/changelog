@@ -1,3 +1,19 @@
+drkns 04.09.2008 22:16:09 +0200 - build 557
+
+1. Mantis#0000582: memleak при FCTL_GETPANELINFO(FCTL_GETPANELSHORTINFO)
+   Тут дело не в утечках во враппере, а в недоделанном api :)
+   Теперь в юникодных плагинах _НАДО_ делать FCTL_FREEPANELINFO после всякого FCTL_GETPANEL[SHORT]INFO.
+
+2. Работает FCTL_SETSELECTION для ansi-плагинов.
+
+2. Очередные изменения в api: PanelInfo.SelectedItems теперь массив указателей на соответствующие выделенные элементы
+   массива PanelInfo.PanelItems, а не массив копий оных. Плагины, использующие это, надо править.
+
+3. FCTL_GETCMDLINE[SELECTEDTEXT]: если в Param передан NULL, функция вернёт необходимый
+   размер буфера (в символах) без учёта 0. 
+
+4. Дополнение к 551: PrepareDiskPath возвращала ерунду, если ей подсунуть корткое имя.
+
 svs 04.09.2008 17:08:57 +0300 - build 556
 
 1. В Editor::SetCacheParams, FileEditor::LoadFromCache и FileEditor::SaveToCache 

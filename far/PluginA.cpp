@@ -838,7 +838,7 @@ int PluginA::SetFindList (
 		es.bDefaultResult = FALSE;
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
-		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 
 		EXECUTE_FUNCTION_EX(pSetFindList(hPlugin, PanelItemA, ItemsNumber), es);
 
@@ -990,7 +990,7 @@ int PluginA::GetFiles (
 		es.nDefaultResult = -1;
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
-		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 		char DestA[NM];
 		UnicodeToOEM(*DestPath,DestA,sizeof(DestA));
 
@@ -1026,7 +1026,7 @@ int PluginA::PutFiles (
 		es.nDefaultResult = -1;
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
-		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 
 		EXECUTE_FUNCTION_EX(pPutFiles(hPlugin, PanelItemA, ItemsNumber, Move, OpMode), es);
 
@@ -1055,7 +1055,7 @@ int PluginA::DeleteFiles (
 		es.bDefaultResult = FALSE;
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
-		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 
 		EXECUTE_FUNCTION_EX(pDeleteFiles(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
 
@@ -1115,7 +1115,7 @@ int PluginA::ProcessHostFile (
 		es.bDefaultResult = FALSE;
 
 		oldfar::PluginPanelItem *PanelItemA = NULL;
-		ConvertPanelItemW(PanelItem,&PanelItemA,ItemsNumber);
+		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 
 		EXECUTE_FUNCTION_EX(pProcessHostFile(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
 
@@ -1177,8 +1177,8 @@ int PluginA::Compare (
 
 		oldfar::PluginPanelItem *Item1A = NULL;
 		oldfar::PluginPanelItem *Item2A = NULL;
-		ConvertPanelItemW(Item1,&Item1A,1);
-		ConvertPanelItemW(Item2,&Item2A,1);
+		ConvertPanelItemsArrayToAnsi(Item1,Item1A,1);
+		ConvertPanelItemsArrayToAnsi(Item2,Item2A,1);
 
 		EXECUTE_FUNCTION_EX(pCompare(hPlugin, Item1A, Item2A, Mode), es);
 

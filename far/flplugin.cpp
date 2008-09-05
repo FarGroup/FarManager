@@ -921,15 +921,36 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
     Info->PanelItems=new PluginPanelItem[FileCount+1];
     if (Info->PanelItems!=NULL)
     {
-      struct FileListItem *CurPtr;
       for (int I=0; I < FileCount; I++)
       {
-        CurPtr = ListData[I];
-        FileListToPluginItem(CurPtr,Info->PanelItems+Info->ItemsNumber);
+        FileListToPluginItem(ListData[I],Info->PanelItems+Info->ItemsNumber);
         Info->ItemsNumber++;
+        if(ListData[I]->Selected)
+          Info->SelectedItemsNumber++;
+      }
+      int CurSel=0;
+      if(Info->SelectedItemsNumber)
+      {
+        Info->SelectedItems=new PluginPanelItem*[Info->SelectedItemsNumber];
+        for(int i=0;i<Info->ItemsNumber;i++)
+          if(Info->PanelItems[i].Flags & PPIF_SELECTED)
+          {
+            Info->SelectedItems[CurSel]=&Info->PanelItems[i];
+            CurSel++;
+          }
+      }
+      else
+      {
+        string strName;
+        DWORD FileAttr;
+        if(GetSelName(&strName,FileAttr) && !TestParentFolderName(strName))
+        {
+          Info->SelectedItemsNumber=1;
+          Info->SelectedItems=new PluginPanelItem*[Info->SelectedItemsNumber];
+          *Info->SelectedItems=&Info->PanelItems[CurFile];
+        }
       }
     }
-    CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber,FALSE);
   }
   else
   {

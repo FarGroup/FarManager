@@ -758,7 +758,7 @@ struct PanelInfo
   RECT PanelRect;
   struct PluginPanelItem *PanelItems;
   int ItemsNumber;
-  struct PluginPanelItem *SelectedItems;
+  struct PluginPanelItem **SelectedItems;
   int SelectedItemsNumber;
   int CurrentItem;
   int TopPanelItem;

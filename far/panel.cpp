@@ -2000,11 +2000,11 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			xf_free (Info->lpwszColumnWidths);
 
 			for (int i = 0; i < Info->ItemsNumber; i++)
+				if(Info->PanelItems)
 					apiFreeFindData (&Info->PanelItems[i].FindData);
-
-			for (int i = 0; i < Info->SelectedItemsNumber; i++)
-					apiFreeFindData (&Info->SelectedItems[i].FindData);
-
+			delete[] Info->PanelItems;
+			delete[] Info->SelectedItems;
+			memset(Info,0,sizeof(PanelInfo));
 			break;
 		}
 
@@ -2088,8 +2088,9 @@ int Panel::SetPluginCommand(int Command,void *Param)
 					Reenter++;
 					struct OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
-
-					Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir); //BUGBUG, memleak, see prev _wcsdup
+					if(Info->lpwszCurDir)
+						xf_free(Info->lpwszCurDir);
+					Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir);
 					if (PInfo.Flags & OPIF_REALNAMES)
 						Info->Flags |= PFLAGS_REALNAMES;
 					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))

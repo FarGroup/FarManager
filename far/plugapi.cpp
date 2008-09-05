@@ -1189,6 +1189,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_GETPANELINFO:
     case FCTL_GETPANELSHORTINFO:
+    case FCTL_FREEPANELINFO:    
     case FCTL_UPDATEPANEL:
     case FCTL_REDRAWPANEL:
     case FCTL_SETPANELDIR:
@@ -1285,24 +1286,18 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       return TRUE;
     }
 
-    case FCTL_GETCMDLINE:
-    case FCTL_GETCMDLINESELECTEDTEXT:
-    {
-      if(Param && !IsBadWritePtr(Param,sizeof(wchar_t) * 1024))
-      {
-        string strParam;
-
-        if (Command==FCTL_GETCMDLINE)
-          CmdLine->GetString(strParam);
-        else
-          CmdLine->GetSelString(strParam);
-
-        xwcsncpy((wchar_t*)Param, strParam, 1024-1);
-
-        return TRUE;
-      }
-      return FALSE;
-    }
+		case FCTL_GETCMDLINE:
+		case FCTL_GETCMDLINESELECTEDTEXT:
+		{
+			string strParam;
+			if(Command==FCTL_GETCMDLINE)
+				CmdLine->GetString(strParam);
+			else
+				CmdLine->GetSelString(strParam);
+			if(Param)
+				wcscpy((wchar_t*)Param, strParam);
+			return strParam.GetLength();
+		}
 
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:

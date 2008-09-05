@@ -1347,6 +1347,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
 	if( !strPath.IsEmpty() )
 	{
+		ConvertNameToLong(strPath,strPath);
 		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
 		{
 			if(CheckFullPath)
