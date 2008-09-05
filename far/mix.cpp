@@ -1155,35 +1155,11 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 		{
 			if(CheckFullPath)
 			{
-				char *Src=Path,*Dst=Path;
-				if(IsLocalPath(Path))
-				{
-					Src+=3;
-					Dst+=3;
-				}
-				for(char c=*Src;c;Src++,c=*Src)
-				{
-					if (!c||c=='\\'||c=='/')
-					{
-						*Src=0;
-						WIN32_FIND_DATA fd;
-						BOOL find=GetFileWin32FindData(Path,&fd);
-						*Src=c;
-						if(find)
-						{
-							int n=(int)strlen(fd.cFileName);
-							strncpy(Dst,fd.cFileName,n);
-							Dst+=n;
-							Dst++;
-							Src=Dst;
-						}
-						else
-						{
-							Src++;
-							Dst=Src;
-						}
-					}
-				}
+				char NPath[1024];
+				*NPath=0;
+				RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
+				if(*NPath)
+					xstrncpy(Path,NPath,MaxSize);
 			}
 			if (Path[0]=='\\' && Path[1]=='\\')
 			{
