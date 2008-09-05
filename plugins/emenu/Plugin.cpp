@@ -736,6 +736,9 @@ bool CPlugin::GetFilesFromParams(LPTSTR szCmdLine
     else
       (*pnFiles)++;
   }
+#ifdef UNICODE
+  Control(FCTL_FREEPANELINFO, &pi);
+#endif
   return true;
 }
 
@@ -780,13 +783,15 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
   }
 #ifndef UNICODE
 #define FileNamePtr cFileName
+#define SelItems(n,m) SelectedItems[n].m
 #else
 #define FileNamePtr lpwszFileName
+#define SelItems(n,m) SelectedItems[n]->m
 #endif
   // preserve space for AddEndSlash
   *pstrCurDir = auto_sz(pi.CurDir_PS, lstrlen(pi.CurDir_PS)+1);
   if (!pi.SelectedItemsNumber ||
-    (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.FileNamePtr, _T("..")))
+    (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelItems(0,FindData.FileNamePtr), _T("..")))
     )
   {
     *pnFolders=1;
@@ -809,7 +814,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     int i;
     for (i=0; i<pi.SelectedItemsNumber; i++)
     {
-      LPCTSTR szPath=pi.SelectedItems[i].FindData.FileNamePtr;
+      LPCTSTR szPath=pi.SelItems(i,FindData.FileNamePtr);
       if (!lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.FileNamePtr, szPath))
       {
         (*ppFiles)[i]=(*ppFiles)[0];
@@ -820,7 +825,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
         (*ppFiles)[i]=szPath;
       }
       if (FILE_ATTRIBUTE_DIRECTORY
-        & pi.SelectedItems[i].FindData.dwFileAttributes)
+        & pi.SelItems(i,FindData.dwFileAttributes))
       {
         (*pnFolders)++;
       }
@@ -831,6 +836,9 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     }
   }
 #undef FileNamePtr
+#ifdef UNICODE
+  Control(FCTL_FREEPANELINFO, &pi);
+#endif
   return true;
 }// CurDir
 

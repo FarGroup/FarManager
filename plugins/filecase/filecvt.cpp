@@ -1,9 +1,11 @@
 #ifndef UNICODE
 #define GetCheck(i) DialogItems[i].Param.Selected
 #define GetDataPtr(i) DialogItems[i].Data.Data
+#define SelItems(n,m)  SelectedItems[n].m
 #else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#define SelItems(n,m)  SelectedItems[n]->m
 #endif
 
 void CaseConvertion()
@@ -127,8 +129,8 @@ done:
 #define CurDir    lpwszCurDir
 #define cFileName lpwszFileName
 #endif
-    GetFullName(FullName,PInfo.CurDir,PInfo.SelectedItems[I].FindData.cFileName);
-    ProcessName(FullName,PInfo.SelectedItems[I].FindData.dwFileAttributes);
+    GetFullName(FullName,PInfo.CurDir,PInfo.SelItems(I,FindData).cFileName);
+    ProcessName(FullName,PInfo.SelItems(I,FindData).dwFileAttributes);
 #undef CurDir
 #undef cFileName
   }
@@ -148,5 +150,8 @@ done:
   Info.RestoreScreen(hScreen);
   Info.Control(INVALID_HANDLE_VALUE,FCTL_UPDATEPANEL,NULL);
   Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,NULL);
+#ifdef UNICODE
+  Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&PInfo);
+#endif
   goto done;
 }

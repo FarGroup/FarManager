@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 552
+  Plugin API for FAR Manager 1.80 build 557
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 552
+#define FARMANAGERVERSION_BUILD 557
 
 #ifndef RC_INVOKED
 
@@ -712,7 +712,7 @@ struct PanelInfo
   RECT PanelRect;
   struct PluginPanelItem *PanelItems;
   int ItemsNumber;
-  struct PluginPanelItem *SelectedItems;
+  struct PluginPanelItem **SelectedItems;
   int SelectedItemsNumber;
   int CurrentItem;
   int TopPanelItem;

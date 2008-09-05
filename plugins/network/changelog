@@ -1,3 +1,7 @@
+drkns 05.09.2008 10:15:19 +0200 - build 42
+
+1. Адаптация к новому PanelAPI в 1.8.
+
 t-rex 08.06.2008 19:06:32 +0200 - build 41
 
 1. gcc 4.3.0 warnings removed.

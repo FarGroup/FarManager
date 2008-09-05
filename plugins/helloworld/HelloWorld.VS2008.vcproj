@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -165,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
@@ -200,7 +200,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -259,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				AdditionalDependencies="libCRT.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
@@ -297,7 +297,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -358,7 +358,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				AdditionalDependencies="libCRT64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\common"
 				GenerateManifest="false"
@@ -396,7 +396,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

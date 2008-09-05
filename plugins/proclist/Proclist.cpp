@@ -10,7 +10,7 @@
 #define MIN_FAR_BUILD     0
 #else
 #define MIN_FAR_VERMINOR  80
-#define MIN_FAR_BUILD     349
+#define MIN_FAR_BUILD     557
 #endif
 
 _Opt Opt;

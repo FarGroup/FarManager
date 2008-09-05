@@ -3,6 +3,12 @@
 #include "perfthread.hpp"
 #include "proclng.hpp"
 
+#ifndef UNICODE
+#define FreePanelInfo(i)
+#else
+#define FreePanelInfo(i) Control(FCTL_FREEPANELINFO,&i)
+#endif
+
 class StrTok {
     LPCTSTR tok;
     LPTSTR  ptr;
@@ -514,6 +520,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         }
     }
     LastUpdateTime = GetTickCount();
+    FreePanelInfo(pi);
     return TRUE;
 }
 
@@ -873,6 +880,7 @@ int Plist::ProcessEvent(int Event,void *Param)
         Control(FCTL_GETPANELINFO, &pi);
         SetRegKey(0,_T("StartPanelMode"), pi.ViewMode);
         SetRegKey(0,_T("SortMode"), pi.SortMode==SM_CTIME ? SortMode : pi.SortMode);
+        FreePanelInfo(pi);
     }
     if(Event==FE_CHANGEVIEWMODE) {
         if(/*pPerfThread || */_tcschr((TCHAR*)Param,_T('Z')) || _tcschr((TCHAR*)Param,_T('C')))
@@ -902,6 +910,7 @@ void Plist::Reread()
         Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
 #endif
     }
+    FreePanelInfo(PInfo);
 }
 
 void Plist::PutToCmdLine(TCHAR* tmp)
@@ -986,10 +995,13 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     if (ControlState==0 && Key==VK_RETURN)
     {
         //check for the command line; if it's not empty, don't process Enter
+#ifndef UNICODE
         TCHAR CmdLine[1024];
-
         Control(FCTL_GETCMDLINE, CmdLine);
         if(*CmdLine)
+#else
+        if(Control(FCTL_GETCMDLINE, NULL))
+#endif
             return FALSE;
 
         PanelInfo PInfo;
@@ -1025,6 +1037,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     ShowWindowAsync(hWnd,SW_RESTORE);
             }
         }
+        FreePanelInfo(PInfo);
         return TRUE;
     }
     else if (ControlState==PKF_SHIFT && Key==VK_F3)
@@ -1036,8 +1049,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #endif
         if (pi.CurrentItem >= pi.ItemsNumber ||
             !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, _T("..")))
-            return TRUE;
-
+        {
+          FreePanelInfo(pi);
+          return TRUE;
+        }
         InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions, };
         FarDialogItem DialogItems[NVIEWITEMS + 1];
         InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
@@ -1051,8 +1066,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,_T("Config"),
                                 DialogItems,ArraySize(DialogItems),0,0,NULL,0);
         if(hDlg == INVALID_HANDLE_VALUE)
+        {
+          FreePanelInfo(pi);
           return TRUE;
-
+        }
         int ExitCode = Info.DialogRun(hDlg);
 #define _REF  hDlg
 #endif
@@ -1063,8 +1080,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         Info.DialogFree(hDlg);
 #endif
         if(ExitCode==-1)
+        {
+          FreePanelInfo(pi);
           return TRUE;
-
+        }
         TCHAR FileName[MAX_PATH];
 #ifndef UNICODE
         FSF.MkTemp(FileName, _T("prc"));
@@ -1077,6 +1096,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             return TRUE;
         //TODO: viewer crashed on exit!
         Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);
+        FreePanelInfo(pi);
         return TRUE;
     }
     else if (ControlState==0 && Key==VK_F6)
@@ -1184,12 +1204,16 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         {
             const TCHAR *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
             if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
+            {
+                FreePanelInfo(PInfo);
                 return TRUE;
+            }
         }
 
         if(*HostName && Opt.EnableWMI && !ConnectWMI())
         {
             WmiError();
+            FreePanelInfo(PInfo);
             return TRUE;
         }
 
@@ -1205,8 +1229,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 
         for(int i=0; i<PInfo.SelectedItemsNumber; i++)
         {
-
+#ifndef UNICODE
             PluginPanelItem& Item = PInfo.SelectedItems[i];
+#else
+            PluginPanelItem& Item = *PInfo.SelectedItems[i];
+#endif
             SetLastError(0);
             if(((ProcessData*)Item.UserData)->dwPID) {
 
@@ -1277,6 +1304,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(pPerfThread)
             pPerfThread->SmartReread();
         Reread();
+        FreePanelInfo(PInfo);
         return TRUE;
         /*  } else if (ControlState==(PKF_ALT|PKF_SHIFT) && Key==VK_F9) {
         Config();
@@ -1291,6 +1319,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             if(pData)
                 PutToCmdLine(pData->FullPath);
         }
+        FreePanelInfo(pi);
         return TRUE;
     } else if(ControlState==PKF_CONTROL && Key==VK_F12) {
 
@@ -1413,6 +1442,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         while(--nItems > NSTATICITEMS)
             if(Flags[nItems].a) free((wchar_t*)Items[nItems].Text);
 #endif
+        FreePanelInfo(pi);
         return TRUE;
     }
     return FALSE;

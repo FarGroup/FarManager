@@ -7,6 +7,14 @@
 NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
 
+#ifndef UNICODE
+#define SelItems(n,m) SelectedItems[n].m
+#define FreePanelInfo()
+#else
+#define SelItems(n,m) SelectedItems[n]->m
+#define FreePanelInfo() Info.Control(this,FCTL_FREEPANELINFO,&PInfo)
+#endif
+
 // -- NetResourceList --------------------------------------------------------
 #ifdef NETWORK_LOGGING
 FILE* NetBrowser::LogFile = NULL;
@@ -251,11 +259,17 @@ BOOL NetBrowser::EnumerateNetList()
         {
           // If the parent of the current folder is not a server
           if(PCurResource->dwDisplayType != RESOURCEDISPLAYTYPE_SERVER)
+          {
+            FreePanelInfo();
             return TRUE;
+          }
         }
         // If there are elements, check the first element
         if((NetList[NetList.Count()-1].dwDisplayType) != RESOURCEDISPLAYTYPE_SHARE)
+        {
+          FreePanelInfo();
           return TRUE;
+        }
       }
 
       if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -263,6 +277,7 @@ BOOL NetBrowser::EnumerateNetList()
       else
         GetHideShare95();
     }
+    FreePanelInfo();
   }
 
   /*
@@ -414,10 +429,10 @@ int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
 {
   if (Event == FE_CLOSE)
   {
-  struct PanelInfo pInfo;
-  Info.Control(this, FCTL_GETPANELSHORTINFO, &pInfo);
-  pInfo.ViewMode += 0x30;
-  SetRegKey(HKEY_CURRENT_USER, _T(""), StrPanelMode, (TCHAR*)&pInfo.ViewMode);
+    struct PanelInfo PInfo;
+    Info.Control(this, FCTL_GETPANELSHORTINFO, &PInfo);
+    PInfo.ViewMode += 0x30;
+    SetRegKey(HKEY_CURRENT_USER, _T(""), StrPanelMode, (TCHAR*)&PInfo.ViewMode);
     if (PCurResource == NULL || IsMSNetResource (*PCurResource))
     {
       NetResourceList::CopyNetResource (CommonCurResource, CurResource);
@@ -428,6 +443,7 @@ int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
       *CommonRootResources = RootResources;
       SavedCommonRootResources = true;
     }
+    FreePanelInfo();
   }
   return FALSE;
 }
@@ -1234,9 +1250,10 @@ BOOL NetBrowser::EditFavorites()
     }
 
     NetResourceList::DeleteNetResource(nr);
+    FreePanelInfo();
     return TRUE;
   }
-
+  FreePanelInfo();
   return FALSE;
 }
 
@@ -1253,12 +1270,13 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 
       for (int I=0;I<PInfo.SelectedItemsNumber;I++)
       {
-        if (!MapNetworkDrive (PInfo.SelectedItems[I].FindData.cFileName,
+        if (!MapNetworkDrive (PInfo.SelItems(I,FindData).cFileName,
           (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
           break;
       }
       Info.Control(this,FCTL_UPDATEPANEL,NULL);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
+      FreePanelInfo();
     }
     return(TRUE);
   }
@@ -1276,17 +1294,18 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
   {
     struct PanelInfo PInfo;
     Info.Control(this,FCTL_GETPANELINFO,&PInfo);
-    if(lstrcmp(PInfo.SelectedItems[0].FindData.cFileName, _T("..")))
-      if(ChangeToDirectory(PInfo.SelectedItems[0].FindData.cFileName, FALSE, TRUE))
-        if(PointToName(PInfo.SelectedItems[0].FindData.cFileName) -
-          PInfo.SelectedItems[0].FindData.cFileName <= 2)
+    if(lstrcmp(PInfo.SelItems(0,FindData).cFileName, _T("..")))
+      if(ChangeToDirectory(PInfo.SelItems(0,FindData).cFileName, FALSE, TRUE))
+        if(PointToName(PInfo.SelItems(0,FindData).cFileName) -
+          PInfo.SelItems(0,FindData).cFileName <= 2)
         {
           Info.Control(this,FCTL_UPDATEPANEL,(void*)1);
           PanelRedrawInfo ri = {0};
           ri.CurrentItem = ri.TopPanelItem = 0;
           Info.Control(this,FCTL_REDRAWPANEL,&ri);
         }
-        return TRUE;
+    FreePanelInfo();
+    return TRUE;
   }
   else if(Key == VK_F4 && ControlState & PKF_SHIFT)
   {
@@ -1738,6 +1757,7 @@ void NetBrowser::PutCurrentFileName (BOOL ToCommandLine)
     else
       FSF.CopyToClipboard (CurFile);
   }
+  FreePanelInfo();
 }
 
 
@@ -1745,11 +1765,11 @@ void NetBrowser::ManualConnect()
 {
   PanelInfo PInfo;
   Info.Control (this, FCTL_GETPANELINFO, &PInfo);
-  if (PInfo.ItemsNumber == 0)
-    return;
-
-  ChangeToDirectory (PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName,
-    FALSE, TRUE);
+  if (PInfo.ItemsNumber)
+  {
+    ChangeToDirectory (PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName, FALSE, TRUE);
+  }
+  FreePanelInfo();
 }
 
 
@@ -1934,23 +1954,24 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
   PanelInfo PInfo = {0};
   // this returns the items in sorted order, so we can position correctly
   Info.Control (this, FCTL_GETPANELINFO, &PInfo);
-  if (!PInfo.ItemsNumber)
-    return;
-
-  // prevent recursion
-  for (int i=0; i<PInfo.ItemsNumber; i++)
+  if (PInfo.ItemsNumber)
   {
-    TCHAR szAnsiName[MAX_PATH];
-    OEMToChar(PInfo.PanelItems [i].FindData.cFileName, szAnsiName);
-    if (!FSF.LStricmp (szAnsiName, Opt.FullPathShares?Share:PointToName(Share)))
+    // prevent recursion
+    for (int i=0; i<PInfo.ItemsNumber; i++)
     {
-      PanelRedrawInfo info;
-      info.CurrentItem = i;
-      info.TopPanelItem = 0;
-      Info.Control (this, FCTL_REDRAWPANEL, &info);
-      break;
+      TCHAR szAnsiName[MAX_PATH];
+      OEMToChar(PInfo.PanelItems [i].FindData.cFileName, szAnsiName);
+      if (!FSF.LStricmp (szAnsiName, Opt.FullPathShares?Share:PointToName(Share)))
+      {
+        PanelRedrawInfo info;
+        info.CurrentItem = i;
+        info.TopPanelItem = 0;
+        Info.Control (this, FCTL_REDRAWPANEL, &info);
+        break;
+      }
     }
   }
+  FreePanelInfo();
 }
 
 
@@ -1971,10 +1992,13 @@ void NetBrowser::RemoveItems()
   struct PanelInfo PInfo;
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
   if(PInfo.SelectedItemsNumber <= 0) // Something strange is happen
+  {
+    FreePanelInfo();
     return;
+  }
   TCHAR szConfirmation[NM*2];
   if(PInfo.SelectedItemsNumber == 1)
-    FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PInfo.SelectedItems[0].FindData.cFileName);
+    FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PInfo.SelItems(0,FindData).cFileName);
   else // PInfo.SelectedItemsNumber > 1
     FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItems), PInfo.SelectedItemsNumber);
 
@@ -1986,7 +2010,10 @@ void NetBrowser::RemoveItems()
 
   if(0 != Info.Message(Info.ModuleNumber, FMSG_WARNING, _T("RemoveItemFav"), Msg,
                        ArraySize(Msg), 2))
+  {
+    FreePanelInfo();
     return; // User canceled deletion
+  }
   TCHAR szName[MAX_PATH*2] = {0};
   OEMToChar(PCurResource->lpRemoteName, szName);
   TCHAR* p = szName + lstrlen(szName);
@@ -1994,12 +2021,13 @@ void NetBrowser::RemoveItems()
     *p++ = _T('\\');
   for(int i = 0; i < PInfo.SelectedItemsNumber; i++)
   {
-    OEMToChar(PInfo.SelectedItems[i].FindData.cFileName, p);
+    OEMToChar(PInfo.SelItems(i,FindData).cFileName, p);
 #undef cFileName
     RemoveFromFavorites(szName, NULL, NULL);
   }
   Info.Control (this, FCTL_UPDATEPANEL, NULL);
   Info.Control (this, FCTL_REDRAWPANEL, NULL);
+  FreePanelInfo();
 }
 
 void NetBrowser::CreateFavSubFolder()

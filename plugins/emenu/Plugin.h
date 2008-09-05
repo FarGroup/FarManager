@@ -133,7 +133,7 @@ protected:
     MIN_FAR_BUILD=1238
 #else
     MIN_FAR_VERMINOR=80,
-    MIN_FAR_BUILD=349
+    MIN_FAR_BUILD=557
 #endif
   };
   HWND NULL_HWND;

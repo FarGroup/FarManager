@@ -26,9 +26,11 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #ifndef UNICODE
 #define GetCheck(i) DialogItems[i].Selected
 #define GetDataPtr(i) DialogItems[i].Data
+#define FreePanelInfo()
 #else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
+#define FreePanelInfo() Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&PInfo)
 #endif
 
 FARSTDCOPYTOCLIPBOARD CopyToClipboard;
@@ -75,7 +77,7 @@ int WINAPI EXP_NAME(GetMinFarVersion)(void)
 #ifndef UNICODE
   return MAKEFARVERSION(1,70,1719);
 #else
-  return MAKEFARVERSION(1,80,349);
+  return MAKEFARVERSION(1,80,557);
 #endif
 }
 
@@ -144,7 +146,10 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     OpenFromCommandLine((TCHAR *)Item);
   }
   else if(OpenFrom == OPEN_PLUGINSMENU && !Item && PInfo.PanelType != PTYPE_FILEPANEL)
+  {
+    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
+  }
   else
   {
 #ifdef UNICODE
@@ -217,6 +222,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #undef _GETPANELINFO
 #undef _SETPANELDIR
 #undef _REDRAWPANEL
+  FreePanelInfo();
   return(INVALID_HANDLE_VALUE);
 }
 

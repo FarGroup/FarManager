@@ -9,6 +9,13 @@ Temporary panel plugin class implementation
 
 static int _cdecl SortListCmp(const void *el1,const void *el2);
 
+#ifndef UNICODE
+#define FreePanelInfo(i)
+#else
+#define FreePanelInfo(i) Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&i)
+#endif
+
+
 TmpPanel::TmpPanel()
 {
   LastOwnersRead=FALSE;
@@ -35,6 +42,7 @@ int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpM
   UpdateItems(IsOwnersDisplayed (PInfo),IsLinksDisplayed (PInfo));
   *pPanelItem=TmpPanelItem;
   *pItemsNumber=TmpItemsNumber;
+  FreePanelInfo(PInfo);
   return(TRUE);
 }
 
@@ -484,6 +492,7 @@ int TmpPanel::ProcessEvent(int Event,void *)
       Info.Control(this,FCTL_UPDATEPANEL,(void *)TRUE);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
     }
+    FreePanelInfo(PInfo);
   }
   return(FALSE);
 }
@@ -506,6 +515,7 @@ int TmpPanel::IsCurrentFileCorrect (TCHAR *pCurFileName)
   }
   if (pCurFileName)
     lstrcpy (pCurFileName, CurFileName);
+  FreePanelInfo(PInfo);
   return IsCorrectFile;
 }
 
@@ -549,8 +559,10 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
 #undef _HANDLE
 #undef _SET
 #undef _REDRAW
+        FreePanelInfo(PInfo);
         return(TRUE);
       }
+      FreePanelInfo(PInfo);
     }
   }
 
@@ -634,7 +646,7 @@ void TmpPanel::ProcessRemoveKey()
   RemoveEmptyItems();
   Info.Control(this,FCTL_UPDATEPANEL,NULL);
   Info.Control(this,FCTL_REDRAWPANEL,NULL);
-
+  FreePanelInfo(PInfo);
 #ifndef UNICODE
 #define _HANDLE this
 #define _UPDATE FCTL_UPDATEANOTHERPANEL
@@ -652,6 +664,7 @@ void TmpPanel::ProcessRemoveKey()
     Info.Control(_HANDLE,_UPDATE,NULL);
     Info.Control(_HANDLE,_REDRAW,NULL);
   }
+  FreePanelInfo(PInfo);
 }
 
 void TmpPanel::ProcessSaveListKey()
@@ -692,6 +705,7 @@ void TmpPanel::ProcessSaveListKey()
     Info.Control (_HANDLE, _UPDATE, NULL);
     Info.Control (_HANDLE, _REDRAW, NULL);
   }
+  FreePanelInfo(PInfo);
 #undef _HANDLE
 #undef _UPDATE
 #undef _REDRAW

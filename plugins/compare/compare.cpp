@@ -4,9 +4,13 @@
 #include <CRT/crt.hpp>
 
 #ifndef UNICODE
-#define _cFileName            cFileName
+#define _cFileName    cFileName
+#define SelItems(n,m) SelectedItems[n].m
+#define FreePanelInfo()
 #else
-#define _cFileName            lpwszFileName
+#define _cFileName    lpwszFileName
+#define SelItems(n,m) SelectedItems[n]->m
+#define FreePanelInfo() Info.Control(PANEL_ACTIVE, FCTL_FREEPANELINFO, &AInfo); Info.Control(PANEL_PASSIVE, FCTL_FREEPANELINFO, &PInfo)
 #endif
 
 #ifndef UNICODE
@@ -580,7 +584,7 @@ static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIn
   bool bProcessSelected;
   pIndex->ppi = NULL;
   pIndex->iCount = ( bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
-                     (pInfo->SelectedItems[0].Flags & PPIF_SELECTED)) ) ? pInfo->SelectedItemsNumber :
+                     (pInfo->SelItems(0,Flags) & PPIF_SELECTED)) ) ? pInfo->SelectedItemsNumber :
                      pInfo->ItemsNumber;
   if (!pIndex->iCount)
     return true;
@@ -1150,6 +1154,11 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 
   struct PanelInfo AInfo, PInfo;
 
+#ifdef UNICODE
+  memset(&AInfo,0,sizeof(struct PanelInfo));
+  memset(&PInfo,0,sizeof(struct PanelInfo));
+#endif
+
   // Если не удалось запросить информацию о панелях...
 #ifndef UNICODE
   if (   !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo)
@@ -1159,6 +1168,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
       || !Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO, &PInfo) )
 #endif
   {
+    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
   }
 
@@ -1172,15 +1182,16 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     };
     Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
                  MsgItems, ArraySize(MsgItems), 1);
-
+    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
   }
 
   // Если не можем показать диалог плагина...
   if ( !ShowDialog(AInfo.Plugin || PInfo.Plugin,
-                  (AInfo.SelectedItemsNumber && (AInfo.SelectedItems[0].Flags & PPIF_SELECTED)) ||
-                  (PInfo.SelectedItemsNumber && (PInfo.SelectedItems[0].Flags & PPIF_SELECTED))) )
+                  (AInfo.SelectedItemsNumber && (AInfo.SelItems(0,Flags) & PPIF_SELECTED)) ||
+                  (PInfo.SelectedItemsNumber && (PInfo.SelItems(0,Flags) & PPIF_SELECTED))) )
   {
+    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
   }
 
@@ -1254,6 +1265,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION, &PInfo);
     Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, NULL);
     Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
+    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELINFO, &AInfo);
+    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELINFO, &PInfo);
+
 #endif
     if (bDifferenceNotFound && Opt.MessageWhenNoDiff)
     {
@@ -1269,7 +1283,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   // Восстановим заголовок консоли ФАРа...
   if (dwTitleSaved)
     SetConsoleTitle(cConsoleTitle);
-
+  FreePanelInfo();
   return INVALID_HANDLE_VALUE;
 }
 

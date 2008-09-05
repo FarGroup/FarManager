@@ -7,7 +7,6 @@
 	RootNamespace="pcre"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
-	ShowAllFiles="false"
 	>
 	<Platforms>
 		<Platform
@@ -75,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="libpcre.lib"
+				OutputFile="$(IntDir)\libpcre.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -151,7 +150,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="libpcre.lib"
+				OutputFile="$(IntDir)\libpcre.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -230,7 +229,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="libpcre.lib"
+				OutputFile="$(IntDir)\libpcre.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -318,7 +317,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				ExecutionBucket="9"
-				OutputFile="libpcre.lib"
+				OutputFile="$(IntDir)\libpcre.lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
