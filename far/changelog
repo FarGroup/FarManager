@@ -1,3 +1,7 @@
+drkns 05.09.2008 14:34:30 +0200 - build 558
+
+1. Поправка к предыдущему билду.
+
 drkns 04.09.2008 22:16:09 +0200 - build 557
 
 1. Mantis#0000582: memleak при FCTL_GETPANELINFO(FCTL_GETPANELSHORTINFO)

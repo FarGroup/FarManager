@@ -941,9 +941,8 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
       }
       else
       {
-        string strName;
-        DWORD FileAttr;
-        if(GetSelName(&strName,FileAttr) && !TestParentFolderName(strName))
+        if(Info->ItemsNumber && *Info->PanelItems[CurFile].FindData.lpwszFileName &&
+           !TestParentFolderName(Info->PanelItems[CurFile].FindData.lpwszFileName))
         {
           Info->SelectedItemsNumber=1;
           Info->SelectedItems=new PluginPanelItem*[Info->SelectedItemsNumber];
