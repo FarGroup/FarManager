@@ -918,6 +918,7 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
   if(FullInfo)
   {
     Info->ItemsNumber=0;
+    Info->SelectedItemsNumber=0;
     Info->PanelItems=new PluginPanelItem[FileCount+1];
     if (Info->PanelItems!=NULL)
     {

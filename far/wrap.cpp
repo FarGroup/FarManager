@@ -2178,9 +2178,6 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 					return FALSE;
 				bool Short=(Command==oldfar::FCTL_GETPANELSHORTINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
 				bool Passive=(Command==oldfar::FCTL_GETANOTHERPANELINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
-
-				if(hPlugin==INVALID_HANDLE_VALUE)
-					hPlugin=PANEL_ACTIVE;
 				if(Passive)
 					hPlugin=PANEL_PASSIVE;
 				FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
