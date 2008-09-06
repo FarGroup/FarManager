@@ -55,6 +55,8 @@ void CPlugin::Init()
   REG_GuiPos=_T("GuiPos");
 #ifndef UNICODE
   auto_sz::SetOem();
+#else
+  memset(&pi,0,sizeof(PanelInfo));
 #endif
 }
 
@@ -776,7 +778,9 @@ unsigned CPlugin::ParseParams(LPTSTR szParams, LPCTSTR* pFiles/*=NULL*/)
 bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     , unsigned* pnFolders, auto_sz* pstrCurDir)
 {
-  PanelInfo pi;
+#ifdef UNICODE
+  Control(FCTL_FREEPANELINFO, &pi);
+#endif
   if (!Control(FCTL_GETPANELINFO, &pi))
   {
     return false;
@@ -836,9 +840,6 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     }
   }
 #undef FileNamePtr
-#ifdef UNICODE
-  Control(FCTL_FREEPANELINFO, &pi);
-#endif
   return true;
 }// CurDir
 

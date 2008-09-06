@@ -15,6 +15,7 @@
 
 class CPlugin : public PluginStartupInfo
 {
+  PanelInfo pi;
 public:
   CPlugin(void);
   ~CPlugin(void);
