@@ -308,6 +308,8 @@ int _cdecl SortList(const void *el1,const void *el2)
     SPtr1->UserFlags=SaveFlags1;
     SPtr2->UserFlags=SaveFlags2;
     int RetCode=CtrlObject->Plugins.Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
+    apiFreeFindData(&pi1.FindData);
+    apiFreeFindData(&pi2.FindData);
     if (RetCode==-3)
       hSortPlugin=NULL;
     else

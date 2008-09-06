@@ -2174,7 +2174,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_GETPANELSHORTINFO:
 		case oldfar::FCTL_GETPANELINFO:
 			{
-				if(!Param ) 
+				if(!Param )
 					return FALSE;
 				bool Short=(Command==oldfar::FCTL_GETPANELSHORTINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
 				bool Passive=(Command==oldfar::FCTL_GETANOTHERPANELINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);

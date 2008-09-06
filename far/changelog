@@ -1,3 +1,7 @@
+drkns 06.09.2008 16:56:32 +0200 - build 561
+
+1. Утечки памяти в SortList и FileListToPluginItem.
+
 drkns 05.09.2008 22:27:29 +0200 - build 560
 
 1. From Alexey Samlyukov: уточнения в oldfar::FCTL_GET[ANOTHER]PANEL[SHORT]INFO.

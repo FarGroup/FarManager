@@ -1999,9 +1999,13 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			xf_free (Info->lpwszColumnTypes);
 			xf_free (Info->lpwszColumnWidths);
 
-			for (int i = 0; i < Info->ItemsNumber; i++)
-				if(Info->PanelItems)
-					apiFreeFindData (&Info->PanelItems[i].FindData);
+			if(Info->PanelItems)
+				for (int i = 0; i < Info->ItemsNumber; i++)
+				{
+					apiFreeFindData(&Info->PanelItems[i].FindData);
+					if(Info->PanelItems[i].UserData && (Info->PanelItems[i].Flags & PPIF_USERDATA))
+						xf_free((void*)Info->PanelItems[i].UserData);
+				}
 			delete[] Info->PanelItems;
 			delete[] Info->SelectedItems;
 			memset(Info,0,sizeof(PanelInfo));

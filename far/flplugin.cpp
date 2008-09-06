@@ -912,6 +912,7 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
 
 void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
 {
+  CorrectPosition();
   Info->PanelItems=NULL;
   Info->SelectedItems=NULL;
 
