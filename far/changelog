@@ -1,3 +1,8 @@
+yjh 06.09.2008 22:45:30 +0300 - build 562
+
+1. Убираем warning в 64хбитовой компиляции
+
+
 drkns 06.09.2008 16:56:32 +0200 - build 561
 
 1. Утечки памяти в SortList и FileListToPluginItem.

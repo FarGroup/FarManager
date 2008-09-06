@@ -1189,7 +1189,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_GETPANELINFO:
     case FCTL_GETPANELSHORTINFO:
-    case FCTL_FREEPANELINFO:    
+    case FCTL_FREEPANELINFO:
     case FCTL_UPDATEPANEL:
     case FCTL_REDRAWPANEL:
     case FCTL_SETPANELDIR:
@@ -1296,7 +1296,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 				CmdLine->GetSelString(strParam);
 			if(Param)
 				wcscpy((wchar_t*)Param, strParam);
-			return strParam.GetLength();
+      return (int)strParam.GetLength();
 		}
 
     case FCTL_SETCMDLINE:
