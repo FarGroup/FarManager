@@ -1,3 +1,7 @@
+drkns 07.09.2008 14:21:22 +0200 - build 564
+
+1. FCTL_GET[ANOTHER]PANELSHORTINFO для ansi-плагинов должна работать по прежнему. 
+
 drkns 07.09.2008 13:21:42 +0200 - build 563
 
 1. FCTL_FREEPANELINFO всегда возвращала FALSE;

@@ -2182,11 +2182,17 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 					hPlugin=PANEL_PASSIVE;
 				FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
 				FreeAnsiPanelInfo(Passive?&AnotherPanelInfoA:&PanelInfoA);
-				int ret = FarControl(hPlugin,Short?FCTL_GETPANELSHORTINFO:FCTL_GETPANELINFO,&PnI);
+				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,&PnI);
 				if(ret)
 				{
 					ConvertUnicodePanelInfoToAnsi(&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA,Short);
 					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
+					if(Short)
+					{
+						// после FCTL_GET[ANOTHER]PANELSHORTINFO нам не надо хранить PnI
+						// для возможного FCTL_SET[ANOTHER]SELECTION, посему сразу его и освободим.
+						FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
+					}
 				}
 				return ret;
 			}
