@@ -443,7 +443,6 @@ int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
       *CommonRootResources = RootResources;
       SavedCommonRootResources = true;
     }
-    FreePanelInfo();
   }
   return FALSE;
 }
