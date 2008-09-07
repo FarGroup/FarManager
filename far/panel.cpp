@@ -2009,6 +2009,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			delete[] Info->PanelItems;
 			delete[] Info->SelectedItems;
 			memset(Info,0,sizeof(PanelInfo));
+			Result=TRUE;
 			break;
 		}
 
@@ -2049,12 +2050,12 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			Info->ViewMode=GetViewMode();
 			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
 
-			string strInfoCurDir;
-
-			GetCurDir(strInfoCurDir);
-
-			Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
-
+			if(Command==FCTL_GETPANELINFO)
+			{
+				string strInfoCurDir;
+				GetCurDir(strInfoCurDir);
+				Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
+			}
 			{
 				static struct {
 					int *Opt;
@@ -2092,9 +2093,12 @@ int Panel::SetPluginCommand(int Command,void *Param)
 					Reenter++;
 					struct OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
-					if(Info->lpwszCurDir)
-						xf_free(Info->lpwszCurDir);
-					Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir);
+					if(Command==FCTL_GETPANELINFO)
+					{
+						if(Info->lpwszCurDir)
+							xf_free(Info->lpwszCurDir);
+						Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir);
+					}
 					if (PInfo.Flags & OPIF_REALNAMES)
 						Info->Flags |= PFLAGS_REALNAMES;
 					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))

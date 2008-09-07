@@ -952,22 +952,23 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
         }
       }
     }
+    string strColumnTypes, strColumnWidths;
+    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+                       ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
+    Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
+    Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
   }
   else
   {
     Info->ItemsNumber=FileCount;
     Info->SelectedItemsNumber=GetSelCount();
+    Info->lpwszColumnTypes=NULL;
+    Info->lpwszColumnWidths=NULL;
   }
 
   Info->CurrentItem=CurFile;
   Info->TopPanelItem=CurTopFile;
 
-  string strColumnTypes, strColumnWidths;
-  ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-                     ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
-
-  Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
-  Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
   Info->ShortNames=ShowShortNames;
 }
 
