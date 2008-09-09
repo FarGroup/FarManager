@@ -1,3 +1,11 @@
+drkns 10.09.2008 01:18:40 +0200 - build 565
+
+1. WindowInfo.TypeName и WindowInfo.Name теперь имеют тип const wchar_t*.
+   Структуру WindowInfo, заполненную по ACTL_GETWINDOWINFO, нужно освобождать командой ACTL_FREEWINDOWINFO.
+   Как обычно: если кто использовал это в плагинах - надо править.
+
+2. В паре мест при вызове UnicodeToAnsi размер приемника передавался на 1 байт меньше возможного.
+
 drkns 07.09.2008 14:21:22 +0200 - build 564
 
 1. FCTL_GET[ANOTHER]PANELSHORTINFO для ansi-плагинов должна работать по прежнему. 

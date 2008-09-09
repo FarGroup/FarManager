@@ -225,7 +225,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(strTableName,L'&',TRUE);
 
-      UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1); //BUGBUG
+      UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
 
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(LONG_PTR)(const wchar_t*)strTableName);
 
@@ -269,7 +269,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           PrepareTable(&TableSet,TableNum,TRUE);
 
         if ( !strTableName.IsEmpty() ) // BUGBUG
-        	UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1);
+        	UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName));
       }
       return TRUE;
     }
@@ -704,7 +704,7 @@ FindFiles::FindFiles()
 
     if ( !strFindStr.IsEmpty())
     {
-      UnicodeToAnsi(strFindStr, GlobalSearchString, sizeof (GlobalSearchString)-1);
+      UnicodeToAnsi(strFindStr, GlobalSearchString, sizeof (GlobalSearchString));
       GlobalSearchCase=CmpCase;
       GlobalSearchWholeWords=WholeWords;
       GlobalSearchHex=SearchHex;

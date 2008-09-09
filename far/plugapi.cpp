@@ -476,14 +476,13 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         if (Command==ACTL_GETWINDOWINFO)
         {
           f->GetTypeAndName(strType, strName);
-
-          UnicodeToAnsi (strType, wi->TypeName, sizeof (wi->TypeName)-1); //BUGBUG
-          UnicodeToAnsi (strName, wi->Name, sizeof (wi->Name)-1); //BUGBUG
+          wi->TypeName=xf_wcsdup(strType);
+          wi->Name=xf_wcsdup(strName);
         }
         else
         {
-          wi->TypeName[0]=0;
-          wi->Name[0]=0;
+          wi->TypeName=NULL;
+          wi->Name=NULL;
         }
         wi->Pos=FrameManager->IndexOf(f);
         wi->Type=f->GetType();
@@ -492,6 +491,15 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         return TRUE;
       }
       return FALSE;
+    }
+    case ACTL_FREEWINDOWINFO:
+    {
+      if(!Param)
+        return FALSE;
+      WindowInfo *wi=(WindowInfo*)Param;
+      xf_free((void *)wi->TypeName);
+      xf_free((void *)wi->Name);
+      return TRUE;
     }
 
     case ACTL_GETWINDOWCOUNT:
@@ -2020,7 +2028,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 
     string strTableName = UMSG(MGetTableNormalText);
 
-    UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)-1); //BUGBUG
+    UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
     Command=-1;
   }
   memcpy(Buffer,&TableSet,BufferSize);

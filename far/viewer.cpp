@@ -213,7 +213,7 @@ Viewer::~Viewer()
 
 void Viewer::KeepInitParameters()
 {
-  UnicodeToAnsi (strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)-1); //BUGBUG
+  UnicodeToAnsi (strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)); //BUGBUG
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;
   GlobalSearchReverse=LastSearchReverse;

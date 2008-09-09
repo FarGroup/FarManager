@@ -1000,6 +1000,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETPOLICIES          = 26,
 #endif // END FAR_USE_INTERNALS
   ACTL_REDRAWALL            = 27,
+  ACTL_FREEWINDOWINFO       = 28,
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -1240,8 +1241,8 @@ struct WindowInfo
   int  Type;
   int  Modified;
   int  Current;
-  char TypeName[64];
-  char Name[NM];
+  const wchar_t *TypeName;
+  const wchar_t *Name;
 };
 
 typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(

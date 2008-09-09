@@ -192,7 +192,7 @@ void Editor::KeepInitParameters()
     }*/ //BUGBUG
   }
   else
-      UnicodeToAnsi(strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)-1);
+      UnicodeToAnsi(strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString));
 
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;

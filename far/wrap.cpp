@@ -745,7 +745,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const 
 	UnicodeToAnsi(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
 
 	char FullNameA[NM];
-	UnicodeToAnsi(FullName,FullNameA,sizeof(FullNameA)-1);
+	UnicodeToAnsi(FullName,FullNameA,sizeof(FullNameA));
 
 	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
 }
@@ -1456,7 +1456,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 		UnicodeToAnsi(di.PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
 	}
 	else
-		UnicodeToAnsi(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data)-1);
+		UnicodeToAnsi(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data));
 	return diA;
 }
 
@@ -2024,9 +2024,9 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				const wchar_t *res = pdi->PtrData;
 				if (!res) res = L"";
 				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-					UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength);
+					UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength+1);
 				else
-					UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data)-1);
+					UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data));
 
 				if(pdi->Type==DI_USERCONTROL)
 				{
@@ -2099,10 +2099,10 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	PIA->Focus = PIW->Focus;
 	PIA->ViewMode = PIW->ViewMode;
 
-	UnicodeToAnsi(PIW->lpwszColumnTypes, PIA->ColumnTypes, sizeof(PIA->ColumnTypes)-1);
-	UnicodeToAnsi(PIW->lpwszColumnWidths, PIA->ColumnWidths, sizeof(PIA->ColumnWidths)-1);
+	UnicodeToAnsi(PIW->lpwszColumnTypes, PIA->ColumnTypes, sizeof(PIA->ColumnTypes));
+	UnicodeToAnsi(PIW->lpwszColumnWidths, PIA->ColumnWidths, sizeof(PIA->ColumnWidths));
 
-	UnicodeToAnsi(PIW->lpwszCurDir, PIA->CurDir, sizeof(PIA->CurDir)-1);
+	UnicodeToAnsi(PIW->lpwszCurDir, PIA->CurDir, sizeof(PIA->CurDir));
 
 	PIA->ShortNames = PIW->ShortNames;
 
@@ -2282,7 +2282,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
 			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,NULL)+1)*sizeof(wchar_t));
 			FarControl(hPlugin,CmdW,s);
-			UnicodeToAnsi(s, (char*)Param, 1024-1);
+			UnicodeToAnsi(s, (char*)Param, 1024);
 			return TRUE;
 		}
 
@@ -2413,7 +2413,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
 				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, SysWordDiv);
-				UnicodeToAnsi(SysWordDiv,(char*)Param,NM-1);
+				UnicodeToAnsi(SysWordDiv,(char*)Param,NM);
 				xf_free (SysWordDiv);
 			}
 			return Length;
@@ -2519,29 +2519,36 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
 		case oldfar::ACTL_GETWINDOWINFO:
 		{
-			if (!Param) return FALSE;
+			if (!Param)
+				return FALSE;
 			int cmd = (Command==oldfar::ACTL_GETWINDOWINFO)?ACTL_GETWINDOWINFO:ACTL_GETSHORTWINDOWINFO;
 			oldfar::WindowInfo *wiA = (oldfar::WindowInfo *)Param;
 			WindowInfo wi={wiA->Pos};
 			INT_PTR ret = FarAdvControl(ModuleNumber, cmd, &wi);
-			switch (wi.Type)
+			if(ret)
 			{
-				case WTYPE_PANELS: wiA->Type = oldfar::WTYPE_PANELS; break;
-				case WTYPE_VIEWER: wiA->Type = oldfar::WTYPE_VIEWER; break;
-				case WTYPE_EDITOR: wiA->Type = oldfar::WTYPE_EDITOR; break;
-				case WTYPE_DIALOG: wiA->Type = oldfar::WTYPE_DIALOG; break;
-				case WTYPE_VMENU:  wiA->Type = oldfar::WTYPE_VMENU;  break;
-				case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
-			}
-			wiA->Modified = wi.Modified;
-			wiA->Current = wi.Current;
-			if(cmd==ACTL_GETWINDOWINFO)
-			{
-				// BUGBUG - Name and TypeName not unicode
-				//UnicodeToAnsi(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName)-1);
-				//UnicodeToAnsi(wi.Name,wiA->Name,sizeof(wiA->Name)-1);
-				strncpy(wiA->TypeName,wi.TypeName,sizeof(wiA->TypeName)-1);
-				strncpy(wiA->Name,wi.Name,sizeof(wiA->Name)-1);
+				switch (wi.Type)
+				{
+					case WTYPE_PANELS: wiA->Type = oldfar::WTYPE_PANELS; break;
+					case WTYPE_VIEWER: wiA->Type = oldfar::WTYPE_VIEWER; break;
+					case WTYPE_EDITOR: wiA->Type = oldfar::WTYPE_EDITOR; break;
+					case WTYPE_DIALOG: wiA->Type = oldfar::WTYPE_DIALOG; break;
+					case WTYPE_VMENU:  wiA->Type = oldfar::WTYPE_VMENU;  break;
+					case WTYPE_HELP:   wiA->Type = oldfar::WTYPE_HELP;   break;
+				}
+				wiA->Modified = wi.Modified;
+				wiA->Current = wi.Current;
+				if(cmd==ACTL_GETWINDOWINFO)
+				{
+					UnicodeToAnsi(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
+					UnicodeToAnsi(wi.Name,wiA->Name,sizeof(wiA->Name));
+					FarAdvControl(ModuleNumber,ACTL_FREEWINDOWINFO,&wi);
+				}
+				else
+				{
+					*wiA->TypeName=0;
+					*wiA->Name=0;
+				}
 			}
 			return ret;
 		}
