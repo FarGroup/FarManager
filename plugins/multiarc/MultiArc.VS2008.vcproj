@@ -108,7 +108,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\"
+				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -201,7 +201,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\"
+				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -299,7 +299,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\"
+				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -398,7 +398,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\"
+				CommandLine="@copy /Y *.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;@copy /Y *.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -527,7 +527,7 @@
 			Name="Language Files"
 			>
 			<File
-				RelativePath=".\arcrng.lng"
+				RelativePath=".\arceng.lng"
 				>
 			</File>
 			<File

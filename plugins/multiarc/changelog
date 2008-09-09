@@ -1,3 +1,10 @@
+drkns 09.09.2008 08:02:13 +0200 - rar 1.27
+
+1. Mantis#0000606: fail to open RAR archive that uses 'encrypt file names' option
+   
+   Если rar.fmt хочет для работы unrar.dll, но найти её не смог - так и сообщим,
+   дабы не вводить пользователя в заблуждение рассказами про "unexpected end of archive".
+
 t-rex 09.06.2008 17:28:01 +0200 - zip 1.30
 
 from DiRTy_GaRRy (ну и я маленько перелопатил щоб сильно по 9x не било :)

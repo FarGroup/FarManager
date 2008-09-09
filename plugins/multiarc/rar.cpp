@@ -81,12 +81,16 @@ static char Password[NM/2];
 static FARAPIINPUTBOX FarInputBox=NULL;
 static FARAPIGETMSG   FarGetMsg=NULL;
 static INT_PTR MainModuleNumber=-1;
+static FARAPIMESSAGE FarMessage=NULL;
+static FARSTDSPRINTF FarSprintf=NULL;
 
 void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
 {
    FarInputBox=Info->InputBox;
    FarGetMsg=Info->GetMsg;
    MainModuleNumber=Info->ModuleNumber;
+   FarMessage=Info->Message;
+   FarSprintf=Info->FSF->sprintf;
 }
 
 #ifndef _WIN64
@@ -169,6 +173,14 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
         UsedUnRAR_DLL=TRUE;
       else
         FreeLibrary(hModule);
+    }
+    if(!UsedUnRAR_DLL)
+    {
+      TCHAR ErrStr[1024];
+      FarSprintf(ErrStr,FarGetMsg(MainModuleNumber,MCannotFindArchivator),UnRARName);
+      LPCTSTR Msg[]={FarGetMsg(MainModuleNumber,MError),ErrStr};
+      FarMessage(MainModuleNumber,FMSG_WARNING|FMSG_MB_OK,NULL,Msg,sizeof(Msg)/sizeof(*Msg),0);
+      return FALSE;
     }
   }
 
