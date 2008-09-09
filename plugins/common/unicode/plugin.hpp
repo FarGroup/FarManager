@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 557
+  Plugin API for FAR Manager 1.80 build 565
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 557
+#define FARMANAGERVERSION_BUILD 565
 
 #ifndef RC_INVOKED
 
@@ -928,6 +928,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETDIALOGSETTINGS    = 22,
   ACTL_GETSHORTWINDOWINFO   = 23,
   ACTL_REDRAWALL            = 27,
+  ACTL_FREEWINDOWINFO       = 28,
 };
 
 
@@ -1084,8 +1085,8 @@ struct WindowInfo
   int  Type;
   int  Modified;
   int  Current;
-  char TypeName[64];
-  char Name[NM];
+  const wchar_t *TypeName;
+  const wchar_t *Name;
 };
 
 typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
