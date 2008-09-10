@@ -23,19 +23,24 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-static char  BoxChar[]  = {'³','´','µ','¶','·','¸','¹','º','»','¼','½','¾','¿','À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö','×','Ø','Ù','Ú'};
+static TCHAR BoxChar[]  =
+#ifndef UNICODE
+                          {'³','´','µ','¶','·','¸','¹','º','»','¼','½','¾','¿','À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö','×','Ø','Ù','Ú'};
+#else
+                          {0x2502,0x2524,0x2561,0x2562,0x2556,0x2555,0x2563,0x2551,0x2557,0x255d,0x255c,0x255b,0x2510,0x2514,0x2534,0x252c,0x251c,0x2500,0x253c,0x255e,0x255f,0x255a,0x2554,0x2569,0x2566,0x2560,0x2550,0x256c,0x2567,0x2568,0x2564,0x2565,0x2559,0x2558,0x2552,0x2553,0x256b,0x256a,0x2518,0x250c};
+#endif
 static short BoxLeft[]  = { 0 , 1 , 2 , 1 , 1 , 2 , 2 , 0 , 2 , 2 , 1 , 2 , 1 , 0 , 1 , 1 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 2 , 1 , 2 , 1 , 0 , 0 , 0 , 0 , 1 , 2 , 1 , 0 };
 static short BoxUp[]    = { 1 , 1 , 1 , 2 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 1 , 0 , 1 , 1 , 0 , 1 , 0 , 1 , 1 , 2 , 2 , 0 , 2 , 0 , 2 , 0 , 2 , 1 , 2 , 0 , 0 , 2 , 1 , 0 , 0 , 2 , 1 , 1 , 0 };
 static short BoxRight[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 2 , 1 , 1 , 2 , 2 , 1 , 1 , 2 , 0 , 1 };
 static short BoxDown[]  = { 1 , 1 , 1 , 2 , 2 , 1 , 2 , 2 , 2 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 1 , 2 , 0 , 2 , 0 , 2 , 2 , 0 , 2 , 0 , 0 , 1 , 2 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 1 };
 
-void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int OpenFrom,INT_PTR Item)
+HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
   static int Reenter=FALSE;
 
@@ -172,19 +177,19 @@ void SetTitle(int LineWidth,int IDTitle)
   struct KeyBarTitles Kbt;
   for(I=0; I < 12; ++I)
   {
-    Kbt.Titles[I]=(char *)"";
-    Kbt.CtrlTitles[I]=(char *)"";
-    Kbt.AltTitles[I]=(char *)"";
-    Kbt.ShiftTitles[I]=(char *)"";
-    Kbt.CtrlShiftTitles[I]=(char *)"";
-    Kbt.AltShiftTitles[I]=(char *)"";
-    Kbt.CtrlAltTitles[I]=(char *)"";
+    Kbt.Titles[I]=(TCHAR*)TEXT("");
+    Kbt.CtrlTitles[I]=(TCHAR*)TEXT("");
+    Kbt.AltTitles[I]=(TCHAR*)TEXT("");
+    Kbt.ShiftTitles[I]=(TCHAR*)TEXT("");
+    Kbt.CtrlShiftTitles[I]=(TCHAR*)TEXT("");
+    Kbt.AltShiftTitles[I]=(TCHAR*)TEXT("");
+    Kbt.CtrlAltTitles[I]=(TCHAR*)TEXT("");
   }
-  Kbt.Titles[1-1]=(char *)GetMsg(MHelp);
-  Kbt.Titles[2-1]=(char *)GetMsg((LineWidth==1)?MDouble:MSingle);
-  Kbt.Titles[10-1]=(char *)GetMsg(MQuit);
+  Kbt.Titles[1-1]=(TCHAR *)GetMsg(MHelp);
+  Kbt.Titles[2-1]=(TCHAR *)GetMsg((LineWidth==1)?MDouble:MSingle);
+  Kbt.Titles[10-1]=(TCHAR *)GetMsg(MQuit);
   Info.EditorControl(ECTL_SETKEYBAR,&Kbt);
-  Info.EditorControl(ECTL_SETTITLE,(char *)GetMsg(IDTitle));
+  Info.EditorControl(ECTL_SETTITLE,(void *)GetMsg(IDTitle));
 }
 
 void ProcessShiftKey(int KeyCode,int LineWidth)
@@ -237,10 +242,10 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
   Info.EditorControl(ECTL_GETSTRING,&egs);
 
   int StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
-  char *NewString=(char *)malloc(StringLength);
+  TCHAR *NewString=(TCHAR *)malloc(StringLength*sizeof(TCHAR));
   if (StringLength>egs.StringLength)
-    memset(NewString+egs.StringLength,' ',StringLength-egs.StringLength);
-  memcpy(NewString,egs.StringText,egs.StringLength);
+    _tmemset(NewString+egs.StringLength,L' ',StringLength-egs.StringLength);
+  _tmemcpy(NewString,egs.StringText,egs.StringLength);
 
   int LeftLine,UpLine,RightLine,DownLine;
   GetEnvType(NewString,StringLength,&ei,LeftLine,UpLine,RightLine,DownLine);
@@ -285,7 +290,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
   if (UpLine!=0 && DownLine!=0 && UpLine!=DownLine)
     UpLine=DownLine=LineWidth;
 
-  for (size_t I=0;I<sizeof(BoxChar);I++)
+  for (size_t I=0;I<sizeof(BoxChar)/sizeof(TCHAR);I++)
     if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] &&
         RightLine==BoxRight[I] && DownLine==BoxDown[I])
     {
@@ -299,7 +304,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
       struct EditorSetString ess;
       ess.StringNumber=egs.StringNumber;
       ess.StringText=NewString;
-      ess.StringEOL=(char*)egs.StringEOL;
+      ess.StringEOL=(TCHAR*)egs.StringEOL;
       ess.StringLength=StringLength;
 
       Info.EditorControl(ECTL_SETSTRING,&ess);
@@ -311,24 +316,24 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 }
 
 
-void GetEnvType(char *NewString,int StringLength,struct EditorInfo *ei,
+void GetEnvType(TCHAR *NewString,int StringLength,struct EditorInfo *ei,
                 int &LeftLine,int &UpLine,int &RightLine,int &DownLine)
 {
-  char OldChar[3];
+  TCHAR OldChar[3];
 
-  OldChar[0]=ei->CurPos>0 ? NewString[ei->CurPos-1]:' ';
+  OldChar[0]=ei->CurPos>0 ? NewString[ei->CurPos-1]:L' ';
   OldChar[1]=NewString[ei->CurPos];
-  OldChar[2]=ei->CurPos<StringLength-1 ? NewString[ei->CurPos+1]:' ';
+  OldChar[2]=ei->CurPos<StringLength-1 ? NewString[ei->CurPos+1]:L' ';
 
   struct EditorConvertText ect;
   ect.Text=OldChar;
-  ect.TextLength=sizeof(OldChar);
+  ect.TextLength=sizeof(OldChar)/sizeof(TCHAR);
   Info.EditorControl(ECTL_EDITORTOOEM,&ect);
 
-  char LeftChar=OldChar[0];
-  char RightChar=OldChar[2];
-  char UpChar=' ';
-  char DownChar=' ';
+  TCHAR LeftChar=OldChar[0];
+  TCHAR RightChar=OldChar[2];
+  TCHAR UpChar=L' ';
+  TCHAR DownChar=L' ';
 
   if (ei->CurLine>0)
   {
@@ -355,7 +360,7 @@ void GetEnvType(char *NewString,int StringLength,struct EditorInfo *ei,
     Info.EditorControl(ECTL_EDITORTOOEM,&ect);
   }
   LeftLine=UpLine=RightLine=DownLine=0;
-  for (size_t I=0;I<sizeof(BoxChar);I++)
+  for (size_t I=0;I<sizeof(BoxChar)/sizeof(TCHAR);I++)
   {
     if (LeftChar==BoxChar[I])
       LeftLine=BoxRight[I];
@@ -369,19 +374,19 @@ void GetEnvType(char *NewString,int StringLength,struct EditorInfo *ei,
 }
 
 
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
   Info->DiskMenuStringsNumber=0;
-  static const char *PluginMenuStrings[1];
+  static const TCHAR *PluginMenuStrings[1];
   PluginMenuStrings[0]=GetMsg(MDrawLines);
   Info->PluginMenuStrings=PluginMenuStrings;
   Info->PluginMenuStringsNumber=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
   Info->PluginConfigStringsNumber=0;
 }
 
-const char *GetMsg(int MsgId)
+const TCHAR *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }

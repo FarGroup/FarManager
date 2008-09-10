@@ -1,10 +1,8 @@
+ALLDIRS = align autowrap brackets compare drawline editcase farcmds \
+          filecase hlfviewer macroview network proclist tmppanel
+
 ifndef WIDE
-ALLDIRS = align autowrap brackets compare editcase farcmds filecase \
-	  hlfviewer macroview network proclist tmppanel \
-          drawline ftp multiarc
-else
-ALLDIRS = align autowrap brackets compare editcase farcmds filecase \
-	  hlfviewer macroview network proclist tmppanel
+ALLDIRS += ftp multiarc
 endif
 
 all: libcrt $(ALLDIRS)
