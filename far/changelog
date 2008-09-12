@@ -1,3 +1,7 @@
+drkns 12.09.2008 11:46:27 +0200 - build 566
+
+1. Не работала Message c флагом FMSG_ERRORTYPE для неизвестных FAR'у кодов ошибок.
+
 drkns 10.09.2008 01:18:40 +0200 - build 565
 
 1. WindowInfo.TypeName и WindowInfo.Name теперь имеют тип const wchar_t*.

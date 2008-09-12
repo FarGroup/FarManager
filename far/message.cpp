@@ -558,36 +558,19 @@ int GetErrorString (string &strErrStr)
   {
     if ( LastError != ERROR_SUCCESS )
     {
-        int nSize = FormatMessageW (
-                FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                NULL,
-                LastError,
-                0,
-                NULL,
-                0,
-                NULL
-                );
-
-        if ( nSize )
-        {
-            wchar_t *lpwszErrorString = strErrStr.GetBuffer (nSize+1);
-
-            FormatMessageW (
-                    FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+      LPWSTR lpBuffer;
+      FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
                     NULL,
                     LastError,
                     0,
-                    lpwszErrorString,
-                    nSize,
+                    (LPWSTR)&lpBuffer,
+                    0,
                     NULL
                     );
-
-            RemoveUnprintableCharacters(strErrStr);
-
-            strErrStr.ReleaseBuffer ();
-
-            return TRUE;
-        }
+      strErrStr=lpBuffer;
+      LocalFree(lpBuffer);
+      RemoveUnprintableCharacters(strErrStr);
+      return TRUE;
     }
 
     strErrStr = L""; //???
