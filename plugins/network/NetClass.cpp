@@ -830,7 +830,8 @@ int NetBrowser::SetDirectory(const TCHAR *Dir,int OpMode)
     ChangeDirSuccess = TRUE;
     if (ChangeToDirectory (Dir, ((OpMode & OPM_FIND) != 0), 0))
       return ChangeDirSuccess;
-
+    if(GetLastError()==ERROR_CANCELLED)
+      return FALSE;
     TCHAR AnsiDir[NM];
     OEMToChar(Dir,AnsiDir);
     if (AnsiDir [0] == _T('/'))
