@@ -175,12 +175,8 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                 }
                 if(Opt.SetAttrFolderRules)
                 {
-                  HANDLE FindHandle;
                   WIN32_FIND_DATA FindData;
-                  FindHandle=FindFirstFile(DlgParam->SelName,&FindData);
-                  FindClose(FindHandle);
-
-                  if (FindHandle!=INVALID_HANDLE_VALUE)
+                  if(GetFileWin32FindData(DlgParam->SelName,&FindData))
                   {
                     if(!StateF_12)
                     {
@@ -254,12 +250,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
       // Set Original? / Set All? / Clear All?
       else if(Param1 == SETATTR_ORIGINAL)
       {
-        HANDLE FindHandle;
         WIN32_FIND_DATA FindData;
         DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
-        if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
+        if (GetFileWin32FindData(DlgParam->SelName,&FindData))
         {
-          FindClose(FindHandle);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_CREATION,(LONG_PTR)&FindData.ftCreationTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
@@ -587,10 +581,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           }
           else
           {
-            HANDLE FindHandle;
-            if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
+            if (GetFileWin32FindData(SelName,&FindData))
             {
-              FindClose(FindHandle);
               ConvertDate(FindData.ftLastWriteTime, AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
               ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
               ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);
@@ -625,7 +617,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
       {
         char JuncName[NM*2];
-        DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
+        DWORD ReparseTag=0;
+        DWORD LenJunction=GetReparsePointInfo(SelName,JuncName,sizeof(JuncName),&ReparseTag);
         //"\??\D:\Junc\Src\" или "\\?\Volume{..."
         int offset = 0;
         if (!strncmp(JuncName,"\\??\\",4))
@@ -642,22 +635,29 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         JunctionPresent=TRUE;
 
         int ID_Msg, Width;
-        if(!strncmp(JuncName+offset,"Volume{",7))
+        if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          char JuncRoot[NM*2];
-          JuncRoot[0]=JuncRoot[1]=0;
-          GetPathRootOne(JuncName+offset,JuncRoot);
-          if(JuncRoot[1] == ':')
-            strcpy(JuncName+offset,JuncRoot);
-          ID_Msg=MSetAttrVolMount;
-          Width=38;
+          if(!strnicmp(JuncName+offset,"Volume{",7))
+          {
+            char JuncRoot[NM*2];
+            JuncRoot[0]=JuncRoot[1]=0;
+            GetPathRootOne(JuncName+offset,JuncRoot);
+            if(JuncRoot[1] == ':')
+              strcpy(JuncName+offset,JuncRoot);
+            ID_Msg=MSetAttrVolMount;
+            Width=38;
+          }
+          else
+          {
+            ID_Msg=MSetAttrJunction;
+            Width=52;
+          }
         }
         else
         {
-          ID_Msg=MSetAttrJunction;
+          ID_Msg=MSetAttrSymlink;
           Width=52;
         }
-
         sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
               (LenJunction?
                   TruncPathStr(JuncName+offset,Width):
@@ -705,10 +705,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       else
       {
-        HANDLE FindHandle;
-        if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
+        if(GetFileWin32FindData(SelName,&FindData))
         {
-          FindClose(FindHandle);
           ConvertDate(FindData.ftLastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
           ConvertDate(FindData.ftCreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data,8,FALSE,FALSE,TRUE,TRUE);
           ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].Data,AttrDlg[SETATTR_ATIME].Data,8,FALSE,FALSE,TRUE,TRUE);

@@ -1528,7 +1528,7 @@ int  Panel::SetCurPath()
     }
   }
 
-  if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==INVALID_FILE_ATTRIBUTES)
+  if(!FarChDir(CurDir)||(!(PathPrefix(CurDir)&&!strncmp(&CurDir[4],"pipe",4))&&GetFileAttributes(CurDir)==INVALID_FILE_ATTRIBUTES))
   {
    // здесь на выбор :-)
 #if 1
@@ -1539,15 +1539,7 @@ int  Panel::SetCurPath()
       if(FAR_GetDriveType(Root) != DRIVE_REMOVABLE || IsDiskInDrive(Root))
       {
         int Result=CheckFolder(CurDir);
-        if(Result == CHKFLD_NOTACCESS)
-        {
-          if(FarChDir(Root))
-          {
-            SetCurDir(Root,TRUE);
-            return TRUE;
-          }
-        }
-        else if(Result == CHKFLD_NOTFOUND)
+        if(Result == CHKFLD_NOTFOUND)
         {
           if(CheckShortcutFolder(CurDir,sizeof(CurDir)-1,FALSE,TRUE) && FarChDir(CurDir))
           {

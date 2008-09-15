@@ -161,20 +161,45 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
   return CharToOem(lpszSrc,lpszDst);
 }
 
-BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo)
+HANDLE FAR_FindFirstFile(const char *FileName,LPWIN32_FIND_DATA lpFindFileData,bool ScanSymLink)
+{
+	WIN32_FIND_DATA FindFileData;
+	HANDLE hFindFile=FindFirstFile(FileName,&FindFileData);
+	if(hFindFile==INVALID_HANDLE_VALUE && ScanSymLink)
+	{
+		char RealName[1024];
+		ConvertNameToReal(FileName,RealName,sizeof(RealName));
+		hFindFile=FindFirstFile(RealName,&FindFileData);
+	}
+	if(hFindFile!=INVALID_HANDLE_VALUE)
+		*lpFindFileData=FindFileData;
+	return hFindFile;
+}
+
+BOOL FAR_FindNextFile(HANDLE hFindFile, LPWIN32_FIND_DATA lpFindFileData)
+{
+	return FindNextFile(hFindFile,lpFindFileData);
+}
+
+BOOL FAR_FindClose(HANDLE hFindFile)
+{
+	return FindClose(hFindFile);
+}
+
+BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo,bool ScanSymLink)
 {
   WIN32_FIND_DATA WFD_Info;
 
   //UINT  PrevErrMode;
   // дабы не выскакивал гуевый диалог, если диск эжектед.
   //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-  HANDLE FindHandle=FindFirstFile(Name,&WFD_Info);
+  HANDLE FindHandle=FAR_FindFirstFile(Name,&WFD_Info,ScanSymLink);
   //SetErrorMode(PrevErrMode);
   if(FindHandle!=INVALID_HANDLE_VALUE)
   {
-    FindClose(FindHandle);
+    FAR_FindClose(FindHandle);
     if(FInfo)
-      memmove(FInfo,&WFD_Info,sizeof(WIN32_FIND_DATA));
+      *FInfo=WFD_Info;
     return TRUE;
   }
   else if(FInfo)

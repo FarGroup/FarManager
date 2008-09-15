@@ -134,12 +134,7 @@ int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
   *ChPtr=0;
   FarChDir(TempDir);
   memset(pi,0,sizeof(*pi));
-  HANDLE FindHandle;
-  FindHandle=FindFirstFile(Name,&pi->FindData);
-  if (FindHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
-  FindClose(FindHandle);
-  return(TRUE);
+  return GetFileWin32FindData(Name,&pi->FindData);
 }
 
 
@@ -149,7 +144,8 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   xstrncpy(pi->FindData.cAlternateFileName,fi->ShortName,sizeof(pi->FindData.cAlternateFileName)-1);
   pi->FindData.nFileSizeHigh=fi->UnpSizeHigh;
   pi->FindData.nFileSizeLow=fi->UnpSize;
-  pi->FindData.dwReserved0=pi->FindData.dwReserved1=0;
+  pi->FindData.dwReserved0=(fi->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)?fi->ReparseTag:0; // MSDN
+  pi->FindData.dwReserved1=0;
   pi->PackSizeHigh=fi->PackSizeHigh;
   pi->PackSize=fi->PackSize;
   pi->FindData.dwFileAttributes=fi->FileAttr;
@@ -223,6 +219,8 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
   }
   fi->CustomColumnNumber=pi->CustomColumnNumber;
   fi->CRC32=pi->CRC32;
+  if(pi->FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+    fi->ReparseTag=pi->FindData.dwReserved0; //MSDN
 }
 
 

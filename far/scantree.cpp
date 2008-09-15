@@ -26,7 +26,7 @@ ScanTree::~ScanTree()
 {
   for (int I=FindHandleCount;I>=0;I--)
     if (Data[I].FindHandle && Data[I].FindHandle!=INVALID_HANDLE_VALUE)
-      FindClose(Data[I].FindHandle);
+      FAR_FindClose(Data[I].FindHandle);
 }
 
 
@@ -58,9 +58,9 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
   while (1)
   {
     if (Data[FindHandleCount].FindHandle==0)
-      Done=((Data[FindHandleCount].FindHandle=FindFirstFile(FindPath,fdata))==INVALID_HANDLE_VALUE);
+      Done=((Data[FindHandleCount].FindHandle=FAR_FindFirstFile(FindPath,fdata))==INVALID_HANDLE_VALUE);
     else
-      Done=!FindNextFile(Data[FindHandleCount].FindHandle,fdata);
+      Done=!FAR_FindNextFile(Data[FindHandleCount].FindHandle,fdata);
 
     if (Flags.Check(FSCANTREE_FILESFIRST))
     {
@@ -76,7 +76,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
         if (Done)
         {
           if(!(Data[FindHandleCount].FindHandle == INVALID_HANDLE_VALUE || !Data[FindHandleCount].FindHandle))
-            FindClose(Data[FindHandleCount].FindHandle);
+            FAR_FindClose(Data[FindHandleCount].FindHandle);
           Data[FindHandleCount].FindHandle=0;
           Data[FindHandleCount].Flags.Set(FSCANTREE_SECONDPASS);
           continue;
@@ -93,7 +93,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
   {
     if (Data[FindHandleCount].FindHandle!=INVALID_HANDLE_VALUE)
     {
-      FindClose(Data[FindHandleCount].FindHandle);
+      FAR_FindClose(Data[FindHandleCount].FindHandle);
       Data[FindHandleCount].FindHandle=0;
     }
 
@@ -110,10 +110,8 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
 
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
-        HANDLE UpHandle;
         strcpy(FullName,FindPath);
-        UpHandle=FindFirstFile(FullName,fdata);
-        FindClose(UpHandle);
+        GetFileWin32FindData(FullName,fdata);
       }
 
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
@@ -218,7 +216,7 @@ void ScanTree::SkipDir()
 
   HANDLE Handle=Data[FindHandleCount].FindHandle;
   if (Handle!=INVALID_HANDLE_VALUE && Handle!=0)
-    FindClose(Handle);
+    FAR_FindClose(Handle);
 
   Data[FindHandleCount--].FindHandle=0;
   if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))

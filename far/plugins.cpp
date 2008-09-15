@@ -464,6 +464,19 @@ BOOL IsModulePlugin2 (
     if ( (pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0 )
       return FALSE;
 
+		if(pPEHeader->FileHeader.Machine!=
+#ifdef _WIN64
+	#ifdef _M_IA64
+			IMAGE_FILE_MACHINE_IA64
+	#else
+			IMAGE_FILE_MACHINE_AMD64
+	#endif
+#else
+			IMAGE_FILE_MACHINE_I386
+#endif
+			)
+			return FALSE;
+
     dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
 
     if ( !dwExportAddr )
@@ -1847,16 +1860,16 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     xstrncat(FindPath,"*.*",sizeof(FindPath)-1);
     HANDLE FindHandle;
     WIN32_FIND_DATA fdata;
-    if ((FindHandle=FindFirstFile(FindPath,&fdata))!=INVALID_HANDLE_VALUE)
+    if ((FindHandle=FAR_FindFirstFile(FindPath,&fdata))!=INVALID_HANDLE_VALUE)
     {
       int Done=0;
       while (!Done)
       {
         if ((fdata.dwFileAttributes & FA_DIREC)==0)
           break;
-        Done=!FindNextFile(FindHandle,&fdata);
+        Done=!FAR_FindNextFile(FindHandle,&fdata);
       }
-      FindClose(FindHandle);
+      FAR_FindClose(FindHandle);
       if (!Done)
       {
         strcpy(ResultName,DestPath);

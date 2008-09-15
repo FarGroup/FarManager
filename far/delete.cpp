@@ -121,7 +121,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     char JuncName[1024];
     ConvertNameToFull(SelName,JuncName, sizeof(JuncName));
-    if(GetJunctionPointInfo(JuncName,JuncName,sizeof(JuncName))) // ? SelName ?
+    if(GetReparsePointInfo(JuncName,JuncName,sizeof(JuncName))) // ? SelName ?
     {
       int offset = 0;
       if (!strncmp(JuncName,"\\??\\",4))
@@ -143,7 +143,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         }
         if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) != -1) //JuncName?
         {
-          DeleteJunctionPoint(JuncName);
+          DeleteReparsePoint(JuncName);
           ShellUpdatePanels(SrcPanel,NeedSetUpADir);
         }
         goto done;

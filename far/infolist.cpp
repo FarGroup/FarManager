@@ -135,7 +135,7 @@ void InfoList::DisplayObject()
   if((GetFileAttributes(CurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
     char JuncName[NM];
-    if(GetJunctionPointInfo(CurDir,JuncName,sizeof(JuncName)))
+    if(GetReparsePointInfo(CurDir,JuncName,sizeof(JuncName)))
     {
       int offset = 0;
       if (!strncmp(JuncName,"\\??\\",4))
@@ -508,12 +508,9 @@ void InfoList::ShowDirDescription()
     else
       return;
 
-    HANDLE FindHandle;
     WIN32_FIND_DATA FindData;
-    FindHandle=FindFirstFile(FullDizName,&FindData);
-    if (FindHandle==INVALID_HANDLE_VALUE)
+    if(!GetFileWin32FindData(FullDizName,&FindData))
       continue;
-    FindClose(FindHandle);
     strcpy(PointToName(FullDizName),FindData.cFileName);
     if (OpenDizFile(FullDizName))
       return;

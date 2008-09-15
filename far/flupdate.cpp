@@ -202,7 +202,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   SetLastError(0);
 
-  Done=((FindHandle=FindFirstFile("*.*",&fdata))==INVALID_HANDLE_VALUE);
+  Done=((FindHandle=FAR_FindFirstFile("*.*",&fdata))==INVALID_HANDLE_VALUE);
 
   int AllocatedCount=0;
   struct FileListItem *NewPtr;
@@ -236,7 +236,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         DotsPresent=TRUE;
         if (IsLocalRootPath(CurDir))
         {
-          Done=!FindNextFile(FindHandle,&fdata);
+          Done=!FAR_FindNextFile(FindHandle,&fdata);
           continue;
         }
       }
@@ -253,6 +253,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       memcpy(&NewPtr->FileAttr,&fdata,sizeof(fdata));
       NewPtr->Position=FileCount++;
       NewPtr->NumberOfLinks=1;
+
+      if(fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
+      }
 
       if ((fdata.dwFileAttributes & FA_DIREC) == 0)
       {
@@ -330,7 +335,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         }
       }
     }
-    Done=!FindNextFile(FindHandle,&fdata);
+    Done=!FAR_FindNextFile(FindHandle,&fdata);
   }
 
   SetPreRedrawFunc(NULL);
@@ -340,7 +345,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
-  FindClose(FindHandle);
+  FAR_FindClose(FindHandle);
 
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz();
@@ -712,11 +717,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     if (Info.HostFile && *Info.HostFile)
     {
       WIN32_FIND_DATA FindData;
-      HANDLE FindHandle;
-      FindHandle=FindFirstFile(Info.HostFile,&FindData);
-      FindClose(FindHandle);
-
-      if (FindHandle!=INVALID_HANDLE_VALUE)
+      if(GetFileWin32FindData(Info.HostFile,&FindData))
       {
         CurPtr->WriteTime=FindData.ftLastWriteTime;
         CurPtr->CreationTime=FindData.ftCreationTime;

@@ -85,7 +85,6 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
      Src=SrcBuf;
 
      WIN32_FIND_DATA wfd;
-     HANDLE hFile;
 
      char *Slash, *Dots=strchr(Src, ':');
 
@@ -161,10 +160,8 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
      {
        Slash=strchr(Src, '\\');
        if(Slash) *Slash=0;
-       hFile=FindFirstFile(SrcBuf, &wfd);
-       if(hFile!=INVALID_HANDLE_VALUE)
+       if(GetFileWin32FindData(SrcBuf, &wfd,false))
        {
-         FindClose(hFile);
          AddSize=(DWORD)strlen(wfd.cFileName);
          FinalSize+=AddSize;
          if(FinalSize>=DestSize-1)
@@ -373,13 +370,13 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize, bool Inte
         {
           _SVS(SysLog("%d Parse Junction",__LINE__));
           // Получим инфу симлинке
-          if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
+          if(GetReparsePointInfo(TempDest,TempDest2,sizeof(TempDest2)))
           {
             int offset = 0;
             if (!strncmp(TempDest2,"\\??\\",4))
               offset = 4;
             // для случая монтированного диска (не имеющего букву)...
-            if(!strncmp(TempDest2+offset,"Volume{",7))
+            if(!strnicmp(TempDest2+offset,"Volume{",7))
             {
               char JuncRoot[NM*2];
               JuncRoot[0]=JuncRoot[1]=0;

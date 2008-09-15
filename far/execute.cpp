@@ -1295,12 +1295,8 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
           if(strpbrk(&ExpandedStr[PathPrefix(ExpandedStr)?4:0],"*?")) // это маска?
           {
             WIN32_FIND_DATA wfd;
-            HANDLE hFile=FindFirstFile(FullPath, &wfd);
-            if(hFile!=INVALID_HANDLE_VALUE)
-            {
+            if(GetFileWin32FindData(FullPath,&wfd))
               FileAttr=wfd.dwFileAttributes;
-              FindClose(hFile);
-            }
           }
           else
           {
@@ -1542,8 +1538,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(strpbrk(&ExpandedDir[PathPrefix(ExpandedDir)?4:0],"?*")) // это маска?
     {
       WIN32_FIND_DATA wfd;
-      HANDLE hFile=FindFirstFile(ExpandedDir, &wfd);
-      if(hFile!=INVALID_HANDLE_VALUE)
+      if(GetFileWin32FindData(ExpandedDir,&wfd))
       {
         char *Ptr=strrchr(ExpandedDir,'\\');
         if (!Ptr)
@@ -1553,7 +1548,6 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
         else
           *ExpandedDir=0;
         xstrncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
-        FindClose(hFile);
       }
     }
 
@@ -1599,9 +1593,6 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
     //if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
     {
-      if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
-        return -1;
-
       if (!FarChDir(ExpandedDir))
         return(FALSE);
     }

@@ -17,10 +17,7 @@ PreserveLongName::PreserveLongName(char *ShortName,int Preserve)
   if (Preserve)
   {
     WIN32_FIND_DATA FindData;
-    HANDLE FindHandle;
-    FindHandle=FindFirstFile(ShortName,&FindData);
-    FindClose(FindHandle);
-    if (FindHandle==INVALID_HANDLE_VALUE)
+    if(!GetFileWin32FindData(ShortName,&FindData))
       *SaveLongName=0;
     else
       strcpy(SaveLongName,FindData.cFileName);
@@ -34,10 +31,7 @@ PreserveLongName::~PreserveLongName()
   if (Preserve && GetFileAttributes(SaveShortName)!=INVALID_FILE_ATTRIBUTES)
   {
     WIN32_FIND_DATA FindData;
-    HANDLE FindHandle;
-    FindHandle=FindFirstFile(SaveShortName,&FindData);
-    FindClose(FindHandle);
-    if (FindHandle==INVALID_HANDLE_VALUE ||
+    if (!GetFileWin32FindData(SaveShortName,&FindData) ||
         strcmp(SaveLongName,FindData.cFileName)!=0)
     {
       char NewName[NM];

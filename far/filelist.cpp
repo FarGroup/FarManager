@@ -1378,7 +1378,7 @@ int FileList::ProcessKey(int Key)
                 HANDLE FindHandle;
                 WIN32_FIND_DATA FindData;
 
-                bool Done=((FindHandle=FindFirstFile(FindName,&FindData))==INVALID_HANDLE_VALUE);
+                bool Done=((FindHandle=FAR_FindFirstFile(FindName,&FindData))==INVALID_HANDLE_VALUE);
                 while (!Done)
                 {
                   if ((FindData.dwFileAttributes & FA_DIREC)==0)
@@ -1386,9 +1386,9 @@ int FileList::ProcessKey(int Key)
                     strcpy(PointToName(TempName),FindData.cFileName);
                     break;
                   }
-                  Done=!FindNextFile(FindHandle,&FindData);
+                  Done=!FAR_FindNextFile(FindHandle,&FindData);
                 }
-                FindClose(FindHandle);
+                FAR_FindClose(FindHandle);
               }
 
               if (FileNameToPluginItem(TempName,&PanelItem))
@@ -2339,7 +2339,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     GetPathRootOne(CurDir,SetDir);
 #else
     GetPathRoot(CurDir,SetDir);
-    if(!strncmp(SetDir,"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
+    if(!strnicmp(SetDir,"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
       GetPathRootOne(CurDir,SetDir);
 #endif
   }

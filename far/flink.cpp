@@ -138,6 +138,8 @@ struct TMN_REPARSE_DATA_BUFFER
   };
 };
 
+#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, GenericReparseBuffer)
+
 typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
           LPCTSTR lpszVolumeMountPoint);  // volume mount point path
 
@@ -150,10 +152,15 @@ typedef BOOL (WINAPI *PSETVOLUMEMOUNTPOINT)(
           LPCTSTR lpszVolumeMountPoint, // mount point
           LPCTSTR lpszVolumeName);        // volume to be mounted
 
+typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
+          LPCTSTR lpSymlinkFileName,
+          LPCTSTR lpTargetFileName,
+          DWORD dwFlags);
+
 static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
 static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
 static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
-
+static PCREATESYMBOLICLINK pCreateSymbolicLink=NULL;
 
 /*
  SrcVolume
@@ -193,7 +200,7 @@ int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
    return (0);
 }
 
-BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
+BOOL WINAPI CreateReparsePoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder,DWORD Type)
 {
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
@@ -209,7 +216,10 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     LPTSTR pFilePart;
     char szFullDir[1024];
 
-    strcpy(szDestDir, "\\??\\");
+    if(Type==RP_JUNCTION)
+      strcpy(szDestDir, "\\??\\");
+    else
+      *szDestDir=0;
     if (!GetFullPathName(SrcFolder, sizeof(szFullDir), szFullDir, &pFilePart) ||
       GetFileAttributes(szFullDir) == -1)
     {
@@ -235,73 +245,97 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     strcat(szDestDir, PtrFullDir);
   }
 
-  char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
-  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
-
-  int cchDest = (int)strlen(szDestDir) + 1;
-  if (cchDest > 512) {
-    SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-    return FALSE;
-  }
-
   FAR_OemToChar(szDestDir,szDestDir); // !!!
-  wchar_t wszDestMountPoint[512];
-  if (!MultiByteToWideChar(CP_THREAD_ACP,           // code page
-                           MB_PRECOMPOSED,          // character-type options
-                           szDestDir,               // string to map
-                           cchDest,                 // number of bytes in string
-                           wszDestMountPoint,       // wide-character buffer
-                           cchDest))                // size of buffer
 
-  {
-    return FALSE;
-  }
+	switch(Type)
+	{
+	case RP_FILESYMLINK:
+	case RP_DIRSYMLINK:
+		{
+			if(!pCreateSymbolicLink)
+				pCreateSymbolicLink=(PCREATESYMBOLICLINK)GetProcAddress(GetModuleHandle("KERNEL32"),"CreateSymbolicLinkA");
+			if(!pCreateSymbolicLink)
+				return FALSE;
+			else
+				return pCreateSymbolicLink(LinkFolder,szDestDir,Type==RP_DIRSYMLINK?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+		}
+		break;
+	case RP_JUNCTION:
+		{
+			char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
+			TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
 
-  //_SVS(SysLog("szDestDir ='%s'",szDestDir));
-  int nDestMountPointBytes    = (int)wcslen(wszDestMountPoint) * 2;
-  rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
-  rdb.ReparseDataLength       = nDestMountPointBytes + 12;
-  rdb.Reserved                = 0;
-  rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
-  rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
-  rdb.MountPointReparseBuffer.PrintNameOffset      = nDestMountPointBytes + 2;
-  rdb.MountPointReparseBuffer.PrintNameLength      = 0;
-  wcscpy(rdb.MountPointReparseBuffer.PathBuffer, wszDestMountPoint);
-  //_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
+			int cchDest = (int)strlen(szDestDir) + 1;
+			if (cchDest > 512) {
+				SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+				return FALSE;
+			}
+
+			wchar_t wszDestMountPoint[512];
+			if (!MultiByteToWideChar(CP_THREAD_ACP,           // code page
+					MB_PRECOMPOSED,          // character-type options
+					szDestDir,               // string to map
+					cchDest,                 // number of bytes in string
+					wszDestMountPoint,       // wide-character buffer
+					cchDest))                // size of buffer
+
+			{
+				return FALSE;
+			}
+
+			//_SVS(SysLog("szDestDir ='%s'",szDestDir));
+			int nDestMountPointBytes    = (int)wcslen(wszDestMountPoint)*sizeof(wchar_t);
+			rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
+			rdb.Reserved                = 0;
+			rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
+			rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
+			rdb.MountPointReparseBuffer.PrintNameOffset = rdb.MountPointReparseBuffer.SubstituteNameLength+2;
+			rdb.MountPointReparseBuffer.PrintNameLength = nDestMountPointBytes-4*sizeof(wchar_t);
+			wcscpy(rdb.MountPointReparseBuffer.PathBuffer, wszDestMountPoint);
+			wcscpy(&rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],&wszDestMountPoint[4]);
+
+			rdb.ReparseDataLength = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
 
 
-  HANDLE hDir=FAR_CreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+		//_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
 
-  if (hDir == INVALID_HANDLE_VALUE)
-  {
-    SetLastError(ERROR_PATH_NOT_FOUND);
-    return FALSE;
-  }
-  DWORD dwBytes;
-#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE \
-      FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, MountPointReparseBuffer)
-  if(!DeviceIoControl(hDir,
-            FSCTL_SET_REPARSE_POINT,
-            (LPVOID)&rdb,
-            rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
-            NULL,
-            0,
-            &dwBytes,
-            0))
-  {
-    DWORD LastErr=GetLastError();
-    CloseHandle(hDir);
-    FAR_DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
-    SetLastError(LastErr);
-    return 0;
-  }
-  CloseHandle(hDir);
-  return TRUE;
+
+			HANDLE hDir=FAR_CreateFile(LinkFolder,SYNCHRONIZE|GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
+					FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+
+			if (hDir == INVALID_HANDLE_VALUE)
+			{
+				SetLastError(ERROR_PATH_NOT_FOUND);
+				return FALSE;
+			}
+			DWORD dwBytes;
+			if(!DeviceIoControl(hDir,
+					FSCTL_SET_REPARSE_POINT,
+					(LPVOID)&rdb,
+					rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
+					NULL,
+					0,
+					&dwBytes,
+					0))
+			{
+				DWORD LastErr=GetLastError();
+				CloseHandle(hDir);
+				FAR_DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
+				SetLastError(LastErr);
+				return 0;
+			}
+			CloseHandle(hDir);
+			return TRUE;
+		}
+		break;
+	}
+	return FALSE;
 }
 
-BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
+BOOL WINAPI DeleteReparsePoint(LPCTSTR szDir)
 {
+  DWORD ReparseTag;
+  GetReparsePointInfo(szDir,NULL,0,&ReparseTag);
   HANDLE hDir=FAR_CreateFile(szDir,
           GENERIC_READ | GENERIC_WRITE,
           0,
@@ -316,7 +350,7 @@ BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
   }
 
   REPARSE_GUID_DATA_BUFFER rgdb = { 0 };
-  rgdb.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+  rgdb.ReparseTag = ReparseTag;
   DWORD dwBytes;
   const BOOL bOK =
     DeviceIoControl(hDir,
@@ -331,9 +365,10 @@ BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
   return bOK != 0;
 }
 
-DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
+DWORD WINAPI GetReparsePointInfo(LPCTSTR szMountDir,
               LPTSTR  szDestBuff,
-              DWORD   dwBuffSize)
+              DWORD   dwBuffSize,
+              LPDWORD lpReparseTag)
 {
   const DWORD FileAttr = GetFileAttributes(szMountDir);
   /* $ 14.06.2003 IS
@@ -348,8 +383,8 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
     return 0;
   }
 
-  HANDLE hDir=FAR_CreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+  HANDLE hDir=FAR_CreateFile(szMountDir,0,0,NULL,OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,NULL);
 
   if (hDir == INVALID_HANDLE_VALUE)
   {
@@ -379,6 +414,9 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
   WORD SubstituteNameLength;
   WCHAR *PathBuffer;
+
+  if(lpReparseTag)
+    *lpReparseTag=rdb.ReparseTag;
 
   if (rdb.ReparseTag == IO_REPARSE_TAG_SYMLINK)
   {
@@ -787,7 +825,7 @@ void GetPathRootOne(const char *Path,char *Root)
       pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
 
     // обработка mounted volume
-    if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
+    if(pGetVolumeNameForVolumeMountPoint && !strnicmp(Path,"Volume{",7))
     {
       char Drive[] = "A:\\"; // \\?\Volume{...
       int I;
@@ -866,7 +904,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
         strnicmp(&Path[4],"Volume{",7))
     { // Проверим на длинное UNC имя под NT
       xstrncpy(NewPath, &Path[4], sizeof(NewPath)-1);
-      if (PathLen > 8 && strncmp(NewPath, "UNC\\", 4)==0)
+      if (PathLen > 8 && strnicmp(NewPath, "UNC\\", 4)==0)
       {
         IsUNC = TRUE;
         xstrncpy(NewPath, "\\",  sizeof(NewPath)-1);
@@ -899,7 +937,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
         _LOGCOPYR(SysLog("GetFileAttributes('%s')=0x%08X",TempRoot,FileAttr));
         if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
+          if(GetReparsePointInfo(TempRoot,JuncName,sizeof(JuncName)))
           {
             int offset = 0;
             if (!strncmp(JuncName,"\\??\\",4))
@@ -983,7 +1021,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
       char *TempDest=(char *)alloca(TempSize);
       strcpy(TempDest,Src2);
       AddEndSlash(TempDest);
-      DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
+      DWORD Size=GetReparsePointInfo(TempDest,TempDest,TempSize);
       // Src2='\\vr-srv002\userhome$\vskirdin\wwwroot', TempDest='\??\F:\wwwroot'
       _LOGCOPYR(SysLog("return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
 #if 0

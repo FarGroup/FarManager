@@ -88,10 +88,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     *CurDir=toupper(*CurDir);
     if(ChangeDir)
-    {
-      if(CheckFolder(CurDir) > CHKFLD_NOTACCESS)
-        rc=SetCurrentDirectory(CurDir);
-    }
+      rc=SetCurrentDirectory(CurDir);
   }
   else
   {
@@ -106,22 +103,12 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     if(ChangeDir)
     {
-      if(CheckFolder(NewDir) > CHKFLD_NOTACCESS)
-      {
-        char *ptr;
-        char FullDir[sizeof(CurDir)];
-        GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
-        AddEndSlash(FullDir);
-        PrepareDiskPath(FullDir,sizeof(FullDir)-1);
-
-        DWORD att1 = GetFileAttributes(NewDir);
-        DWORD att2 = GetFileAttributes(FullDir);
-
-        if (att2 == (DWORD)-1 || ( att1 != att2 && strcmp(NewDir,"..") ) )
-          rc=SetCurrentDirectory(NewDir);
-        else
-          rc=SetCurrentDirectory(FullDir);
-      }
+      char *ptr;
+      char FullDir[sizeof(CurDir)];
+      GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
+      AddEndSlash(FullDir);
+      PrepareDiskPath(FullDir,sizeof(FullDir)-1);
+      rc=SetCurrentDirectory(FullDir);
     }
   }
 
@@ -497,7 +484,7 @@ int CheckFolder(const char *Path)
   strcat(FindPath,"*.*");
 
   // первая проверка - че-нить считать можем?
-  if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
+  if((FindHandle=FAR_FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
   {
     GuardLastError lstError;
     if(lstError.Get() == ERROR_FILE_NOT_FOUND)
@@ -545,14 +532,14 @@ int CheckFolder(const char *Path)
     else
     {
       // что-то есть, отличное от "." и ".." - каталог не пуст
-      FindClose(FindHandle);
+      FAR_FindClose(FindHandle);
       return CHKFLD_NOTEMPTY;
     }
-    Done=!FindNextFile(FindHandle,&fdata);
+    Done=!FAR_FindNextFile(FindHandle,&fdata);
   }
 
   // однозначно каталог пуст
-  FindClose(FindHandle);
+  FAR_FindClose(FindHandle);
   return CHKFLD_EMPTY;
 }
 
@@ -1224,7 +1211,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
           if(GetFileAttributes(TestPathTemp) != -1)
           {
             int ChkFld=CheckFolder(TestPathTemp);
-            if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
+            if(ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)
             {
               if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
               {

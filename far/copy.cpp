@@ -1477,7 +1477,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     char DestPath[NM];
     strcpy(DestPath,Dest);
-    HANDLE FindHandle;
     WIN32_FIND_DATA SrcData;
     int CopyCode=COPY_SUCCESS,KeepPathPos;
 
@@ -1513,7 +1512,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     else
     {
       // проверка на вшивость ;-)
-      if ((FindHandle=FindFirstFile(SelName,&SrcData))==INVALID_HANDLE_VALUE)
+      if(!GetFileWin32FindData(SelName,&SrcData))
       {
         strcat(DestPath,SelName);
         ShellCopy::ShellCopyMsg(SelName,DestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
@@ -1531,7 +1530,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         _LOGCOPYR(SysLog("%d continue;",__LINE__));
         continue;
       }
-      FindClose(FindHandle);
     }
 
     // Если это каталог и трэба создать симлинк...
@@ -1957,11 +1955,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     GetFileWin32FindData(DestPath,&DestData);
     DestAttr=DestData.dwFileAttributes;
   }
-  //if (DestAttr==(DWORD)-1 && (FindHandle=FindFirstFile(DestPath,&DestData))!=INVALID_HANDLE_VALUE)
-  //{
-  //  FindClose(FindHandle);
-  //  DestAttr=DestData.dwFileAttributes;
-  //}
   _LOGCOPYR(SysLog("%d DestAttr=0x%08X",__LINE__,DestAttr));
 
   if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -2034,13 +2027,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           FileAttr=FileData.dwFileAttributes;
           #if 0
           // Поищем старый каталог и возьмём его атрибуты
-          if ((FindHandle=FindFirstFile(OldPath,&FileData))==INVALID_HANDLE_VALUE)
+          if (!GetFileWin32FindData(OldPath,&FileData)))
             // Однако это не нормально, не нашли каталог, который уже скопировали
             // (этот код по хорошему и не должен срабатывать)
             FileAttr=(DWORD)-1;
           else
           {
-            FindClose(FindHandle);
             // Есть файл, а также его атрибуты
             FileAttr=FileData.dwFileAttributes;
           }
@@ -2051,7 +2043,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           xstrncpy(NewPath+strlen(DestPath),PathPtr,p1-PathPtr);
 
           // Такого каталога ещё нет, создадим его
-          if ((FindHandle=FindFirstFile(NewPath,&FileData))==INVALID_HANDLE_VALUE)
+          if (!GetFileWin32FindData(NewPath,&FileData))
           {
             int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
             SECURITY_ATTRIBUTES sa;
@@ -2087,9 +2079,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
               continue;
             }
           }
-          else
-            // Тээкс. Каталог уже создали - нормально. Значит продолжаем копирование дальше.
-            FindClose(FindHandle);
 
           // Мы стоим на обратном слэше
           if (*p1=='\\')
@@ -2105,13 +2094,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
       strcat(DestPath,PathPtr);
 
-      if ((FindHandle=FindFirstFile(DestPath,&DestData))==INVALID_HANDLE_VALUE)
+      if(!GetFileWin32FindData(DestPath,&DestData))
         DestAttr=(DWORD)-1;
       else
-      {
-        FindClose(FindHandle);
         DestAttr=DestData.dwFileAttributes;
-      }
       _LOGCOPYR(SysLog("%d DestPath='%s', DestAttr=0x%08X",__LINE__,DestPath,DestAttr));
     }
   }
@@ -3772,7 +3758,6 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
 {
-  HANDLE FindHandle;
   WIN32_FIND_DATA DestData={0};
   int DestDataFilled=FALSE;
 
@@ -3805,8 +3790,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
     else
     {
       memset(&DestData,0,sizeof(DestData));
-      if ((FindHandle=FindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
-        FindClose(FindHandle);
+      GetFileWin32FindData(DestName,&DestData);
       DestDataFilled=TRUE;
       /* $ 04.08.2000 SVS
          Опция "Only newer file(s)"
@@ -3890,8 +3874,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         if (!DestDataFilled)
         {
           memset(&DestData,0,sizeof(DestData));
-          if ((FindHandle=FindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
-            FindClose(FindHandle);
+          GetFileWin32FindData(DestName,&DestData);
         }
         char SrcFileStr[512],DestFileStr[512],DateText[20],TimeText[20];
 
@@ -4586,9 +4569,9 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     _LOGCOPYR(SysLog("('%s','%s')",SrcFullName,DestFullName));
     if(Flags&FCOPY_LINK)
     {
-      if(CreateJunctionPoint(SrcFullName,DestFullName))
+      if(CreateReparsePoint(SrcFullName,DestFullName))
       {
-        _LOGCOPYR(SysLog("Ok: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
+        _LOGCOPYR(SysLog("Ok: CreateReparsePoint('%s','%s')",SrcFullName,DestFullName));
         return 1;
       }
       else
@@ -4598,7 +4581,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
                  MSG(MCopyCannotCreateJunction),DestFullName,MSG(MOk));
         }
-        _LOGCOPYR(SysLog("Fail: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
+        _LOGCOPYR(SysLog("Fail: CreateReparsePoint('%s','%s')",SrcFullName,DestFullName));
         return 0;
       }
     }

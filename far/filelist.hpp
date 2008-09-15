@@ -44,6 +44,8 @@ struct FileListItem
   DWORD PackSize;         // WIN32_FIND_DATA.dwReserved1
   char Name[NM];
   char ShortName[NM];
+
+  DWORD ReparseTag;
 };
 
 struct PluginsStackItem

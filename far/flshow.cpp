@@ -959,8 +959,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   if (TestParentFolderName(CurPtr->Name))
                     PtrName=MSG(MListUp);
                   else
-                    PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
-
+                  {
+                    if(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+                    {
+                      switch(CurPtr->ReparseTag)
+                      {
+                      case IO_REPARSE_TAG_SYMLINK:
+                        PtrName=MSG(MListSymLink);
+                        break;
+                      case IO_REPARSE_TAG_MOUNT_POINT:
+                        PtrName=MSG(MListJunction);
+                        break;
+                      }
+                    }
+                    else
+                      PtrName=MSG(MListFolder);
+                  }
                   if (strlen(PtrName) <= static_cast<size_t>(Width-2))
                     sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
                   else

@@ -189,7 +189,11 @@ HANDLE WINAPI FAR_CreateFile(
    );
 /* IS $ */
 
-BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo=NULL);
+HANDLE FAR_FindFirstFile(const char *FileName,LPWIN32_FIND_DATA lpFindFileData,bool ScanSymLink=true);
+BOOL FAR_FindNextFile(HANDLE hFindFile, LPWIN32_FIND_DATA lpFindFileData);
+BOOL FAR_FindClose(HANDLE hFindFile);
+
+BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo=NULL,bool ScanSymLink=true);
 
 BOOL FAR_CopyFile(
     LPCTSTR lpExistingFileName, // pointer to name of an existing file

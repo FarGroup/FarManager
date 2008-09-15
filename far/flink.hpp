@@ -13,11 +13,9 @@ int   WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);
 int   WINAPI GetNumberOfLinks(const char *Name);
 int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
-BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
-BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);
-DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
-              LPTSTR  szDestBuff,
-              DWORD   dwBuffSize);
+BOOL  WINAPI CreateReparsePoint(LPCTSTR szMountDir, LPCTSTR szDestDir,DWORD Type=RP_JUNCTION);
+BOOL  WINAPI DeleteReparsePoint(LPCTSTR szMountDir);
+DWORD WINAPI GetReparsePointInfo(LPCTSTR szMountDir,LPTSTR szDestBuff,DWORD dwBuffSize,LPDWORD lpReparseTag=NULL);
 int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
 
 BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);

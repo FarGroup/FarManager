@@ -322,9 +322,7 @@ int Viewer::OpenFile(const char *Name,int warning)
     return FALSE;
   }
 
-  HANDLE ViewFindHandle;
-  ViewFindHandle=FindFirstFile(FileName,&ViewFindData);
-  FindClose(ViewFindHandle);
+  GetFileWin32FindData(FileName,&ViewFindData);
 
   /* $ 19.09.2000 SVS
     AutoDecode Unicode
@@ -1275,12 +1273,9 @@ int Viewer::ProcessKey(int Key)
           int DriveType=FAR_GetDriveType(Root);
           if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
           {
-            HANDLE ViewFindHandle;
             WIN32_FIND_DATA NewViewFindData;
-            ViewFindHandle=FindFirstFile(FullFileName,&NewViewFindData);
-            if (ViewFindHandle==INVALID_HANDLE_VALUE)
+            if(!GetFileWin32FindData(FullFileName,&NewViewFindData))
               return(TRUE);
-            FindClose(ViewFindHandle);
             fflush(ViewFile);
             vseek(ViewFile,0,SEEK_END);
             __int64 CurFileSize=vtell(ViewFile);
