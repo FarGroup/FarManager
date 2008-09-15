@@ -90,7 +90,7 @@ void NamesList::SetCurName(const wchar_t *Name)
 
     while ( pCurName )
     {
-        if ( !wcscmp (Name, pCurName->Value.strName) )
+        if ( !StrCmp (Name, pCurName->Value.strName) )
             return;
 
         pCurName=Names.toNext();

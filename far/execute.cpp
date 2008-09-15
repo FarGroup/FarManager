@@ -1494,8 +1494,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     if(wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
     {
       FAR_FIND_DATA_EX wfd;
-      HANDLE hFile=apiFindFirstFile(strExpandedDir, &wfd);
-      if(hFile!=INVALID_HANDLE_VALUE)
+      if(apiGetFindDataEx(strExpandedDir, &wfd))
       {
         wchar_t *Ptr = strExpandedDir.GetBuffer (), *Ptr2;
 
@@ -1517,7 +1516,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 
         strExpandedDir += wfd.strFileName;
-        FindClose(hFile);
       }
     }
     /* $ 15.11.2001 OT
@@ -1560,9 +1558,6 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     //if (ExpandEnvironmentStrW(strExpandedDir,strExpandedDir)!=0)
     {
-      if(CheckFolder(strExpandedDir) <= CHKFLD_NOTACCESS)
-        return -1;
-
       if (!FarChDir(strExpandedDir))
         return(FALSE);
     }

@@ -1500,7 +1500,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     }
 
     string strDestPath = Dest;
-    HANDLE FindHandle;
     FAR_FIND_DATA_EX SrcData;
     int CopyCode=COPY_SUCCESS,KeepPathPos;
 
@@ -1531,7 +1530,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     else
     {
       // проверка на вшивость ;-)
-      if ((FindHandle=apiFindFirstFile(strSelName,&SrcData))==INVALID_HANDLE_VALUE)
+      if(!apiGetFindDataEx(strSelName,&SrcData))
       {
         strDestPath = strSelName;
         ShellCopy::ShellCopyMsg(strSelName,strDestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
@@ -1542,7 +1541,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         }
         continue;
       }
-      FindClose(FindHandle);
     }
 
     // Если это каталог и трэба создать симлинк...
@@ -2019,7 +2017,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           }
 
           // Такого каталога ещё нет, создадим его
-          if ((FindHandle=apiFindFirstFile(strNewPath,&FileData))==INVALID_HANDLE_VALUE)
+          if(!apiGetFindDataEx(strNewPath,&FileData))
           {
             int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
             SECURITY_ATTRIBUTES sa;
@@ -2054,9 +2052,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
               continue;
             }
           }
-          else
-            // Тээкс. Каталог уже создали - нормально. Значит продолжаем копирование дальше.
-            FindClose(FindHandle);
 
           // Мы стоим на обратном слэше
           if (*p1==L'\\')
@@ -2071,13 +2066,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
       strDestPath += PathPtr;
 
-      if ((FindHandle=apiFindFirstFile(strDestPath,&DestData))==INVALID_HANDLE_VALUE)
+      if(!apiGetFindDataEx(strDestPath,&DestData))
         DestAttr=INVALID_FILE_ATTRIBUTES;
       else
-      {
-        FindClose(FindHandle);
         DestAttr=DestData.dwFileAttributes;
-      }
     }
   }
 
@@ -3480,7 +3472,6 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
 {
-  HANDLE FindHandle;
   FAR_FIND_DATA_EX DestData;
   DestData.Clear();
   int DestDataFilled=FALSE;
@@ -3514,8 +3505,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
     else
     {
       DestData.Clear();
-      if ((FindHandle=apiFindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
-        FindClose(FindHandle);
+      apiGetFindDataEx(DestName,&DestData);
       DestDataFilled=TRUE;
       //   Опция "Only newer file(s)"
       if((ShellCopy::Flags&FCOPY_ONLYNEWERFILES))
@@ -3598,8 +3588,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         if (!DestDataFilled)
         {
           DestData.Clear();
-          if ((FindHandle=apiFindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
-            FindClose(FindHandle);
+          apiGetFindDataEx(DestName,&DestData);
         }
         string strDateText,strTimeText;
         string strSrcFileStr, strDestFileStr;
@@ -4224,7 +4213,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags)
 
     if(Flags&FCOPY_LINK)
     {
-      if(CreateJunctionPoint(strSrcFullName,strDestFullName))
+      if(CreateReparsePoint(strSrcFullName,strDestFullName))
       {
         return 1;
       }

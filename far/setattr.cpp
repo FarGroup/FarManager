@@ -638,26 +638,39 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
+      }
+      else
+      {
+        // убираем 3-State
+        for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
+          AttrDlg[I].Flags&=~DIF_3STATE;
+      }
 
-        // обработка случая, если ЭТО SymLink
-        if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+      // обработка случая, если ЭТО SymLink
+      if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        string strJuncName;
+        DWORD ReparseTag=0;
+        DWORD LenJunction=GetReparsePointInfo(strSelName, strJuncName,&ReparseTag);
+        //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+        int offset = 0;
+        if (!StrCmpN(strJuncName,L"\\??\\",4))
+          offset = 4;
+
+        AttrDlg[SETATTR_TITLE].Y2++;
+        for(I=3; I  < DlgCountItems; ++I)
         {
-          string strJuncName;
-          DWORD LenJunction=GetJunctionPointInfo(strSelName, strJuncName);
-          //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+          AttrDlg[I].Y1++;
+          if (AttrDlg[I].Y2)
+            AttrDlg[I].Y2++;
+        }
+        DlgCountItems++;
+        JunctionPresent=TRUE;
 
-          AttrDlg[SETATTR_TITLE].Y2++;
-          for(I=3; I  < DlgCountItems; ++I)
-          {
-            AttrDlg[I].Y1++;
-            if (AttrDlg[I].Y2)
-              AttrDlg[I].Y2++;
-          }
-          DlgCountItems++;
-          JunctionPresent=TRUE;
-
-          int ID_Msg, Width;
-          if(!wcsncmp((const wchar_t*)strJuncName+4,L"Volume{",7))
+        int ID_Msg, Width;
+        if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
+        {
+          if(!StrCmpNI((const wchar_t*)strJuncName+offset,L"Volume{",7))
           {
             string strJuncRoot;
             GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
@@ -677,43 +690,38 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             ID_Msg=MSetAttrJunction;
             Width=52;
           }
-
-          string strJuncTemp = (const wchar_t*)strJuncName+4;
-
-
-          AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),
-                (LenJunction?
-                   (const wchar_t *)TruncPathStr(strJuncTemp,Width):
-                   UMSG(MSetAttrUnknownJunction)));
-
-          /* $ 11.09.2001 SVS
-             Уточнение по поводу слинкованной файловой системы отличной от
-             NTFS.
-          */
-          DlgParam.FileSystemFlags=0;
-          GetPathRoot(strSelName,strJuncName);
-          string strFSysName;
-          if (apiGetVolumeInformation (strJuncName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
-          {
-            if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
-              AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
-
-            if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
-              AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
-
-            if(StrCmpI(strFSysName,L"NTFS"))
-              AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
-          }
-          /* SVS $ */
         }
-      }
-      else
-      {
-        // убираем 3-State
-        for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
-          AttrDlg[I].Flags&=~DIF_3STATE;
-      }
+        else
+        {
+          ID_Msg=MSetAttrSymlink;
+          Width=52;
+        }
+        string strJuncTemp = (const wchar_t*)strJuncName+offset;
+        AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),
+               (LenJunction?
+                 (const wchar_t *)TruncPathStr(strJuncTemp,Width):
+                 UMSG(MSetAttrUnknownJunction)));
 
+        /* $ 11.09.2001 SVS
+           Уточнение по поводу слинкованной файловой системы отличной от
+           NTFS.
+        */
+        DlgParam.FileSystemFlags=0;
+        GetPathRoot(strSelName,strJuncName);
+        string strFSysName;
+        if (apiGetVolumeInformation (strJuncName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
+        {
+          if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
+            AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
+
+          if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+            AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
+
+          if(StrCmpI(strFSysName,L"NTFS"))
+            AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
+        }
+        /* SVS $ */
+      }
       AttrDlg[SETATTR_NAME].strData = strSelName;
       TruncStr(AttrDlg[SETATTR_NAME].strData,54);
 

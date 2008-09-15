@@ -1376,7 +1376,7 @@ int FileList::ProcessKey(int Key)
                   }
                   Done=!apiFindNextFile(FindHandle,&FindData);
                 }
-                FindClose(FindHandle);
+                apiFindClose(FindHandle);
               }
 
               if (FileNameToPluginItem(strTempName,&PanelItem))
@@ -2292,7 +2292,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     GetPathRootOne(strCurDir,strSetDir);
 #else
     GetPathRoot(strCurDir,strSetDir);
-    if(!StrCmpN(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
+    if(!StrCmpNI(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
       GetPathRootOne(CurDir,SetDir);
 #endif
   }

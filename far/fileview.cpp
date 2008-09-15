@@ -423,7 +423,7 @@ FileViewer::~FileViewer()
 void FileViewer::OnDestroy()
 {
   _OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
-  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || wcscmp (strName, L"-")!=0))
+  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || StrCmp (strName, L"-")!=0))
   {
     string strFullFileName;
     View.GetFileName(strFullFileName);

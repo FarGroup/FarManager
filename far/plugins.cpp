@@ -155,6 +155,19 @@ PluginType IsModulePlugin2 (
 		if ( (pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL) == 0 )
 			return NOT_PLUGIN;
 
+		if(pPEHeader->FileHeader.Machine!=
+#ifdef _WIN64
+	#ifdef _M_IA64
+			IMAGE_FILE_MACHINE_IA64
+	#else
+			IMAGE_FILE_MACHINE_AMD64
+	#endif
+#else
+			IMAGE_FILE_MACHINE_I386
+#endif
+			)
+			return NOT_PLUGIN;
+
 		dwExportAddr = pPEHeader->OptionalHeader.DataDirectory[0].VirtualAddress;
 
 		if ( !dwExportAddr )
@@ -844,7 +857,7 @@ int PluginManager::GetFile (
 				break;
 			Done=!apiFindNextFile(FindHandle,&fdata);
 		}
-		FindClose(FindHandle);
+		apiFindClose(FindHandle);
 		if (!Done)
 		{
 			strResultName = DestPath;
@@ -1521,7 +1534,7 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
     string strPluginName;
 
 //    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
-    strPluginName = (const wchar_t *)pPlugin->GetModuleName()+(wcsncmp(pPlugin->GetModuleName(),g_strFarPath,FarPathLength)?0:FarPathLength);
+    strPluginName = (const wchar_t *)pPlugin->GetModuleName()+(StrCmpNI(pPlugin->GetModuleName(),g_strFarPath,FarPathLength)?0:FarPathLength);
 
     wchar_t *Ptr = strPluginName.GetBuffer ((int)strPluginName.GetLength()+20);
 

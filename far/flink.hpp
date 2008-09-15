@@ -40,10 +40,10 @@ BOOL  WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLin
 int   WINAPI GetNumberOfLinks(const wchar_t *Name);
 int   WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder);
 
-BOOL  WINAPI CreateJunctionPoint(const wchar_t *szMountDir, const wchar_t *szDestDir);
-BOOL  WINAPI DeleteJunctionPoint(const wchar_t *szMountDir);
+BOOL  WINAPI CreateReparsePoint(const wchar_t *szMountDir, const wchar_t *szDestDir,DWORD Type=RP_JUNCTION);
+BOOL  WINAPI DeleteReparsePoint(const wchar_t *szMountDir);
 
-DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &szDestBuff);
+DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &szDestBuff,LPDWORD lpReparseTag=NULL);
 
 //int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
 

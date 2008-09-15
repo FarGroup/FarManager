@@ -162,12 +162,13 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
       {
         string strTempDest2;
         // Получим инфу симлинке
-        if(GetJunctionPointInfo(TempDest, strTempDest2))
+        if(GetReparsePointInfo(TempDest, strTempDest2))
         {
           // Убираем \\??\ из пути симлинка
-          strTempDest2.LShift(4);
+          if(!StrCmpN(strTempDest2,L"\\??\\",4))
+            strTempDest2.LShift(4);
           // для случая монтированного диска (не имеющего букву)...
-          if(!wcsncmp(strTempDest2, L"Volume{", 7))
+          if(!StrCmpNI(strTempDest2, L"Volume{", 7))
           {
             string strJuncRoot;
             // получим либо букву диска, либо...

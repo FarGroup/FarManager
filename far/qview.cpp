@@ -128,27 +128,35 @@ void QuickView::DisplayObject()
     {
       string strJuncName;
       int ID_Msg, Width;
-      if(GetJunctionPointInfo(strCurFileName, strJuncName)) //"\??\D:\Junc\Src\"
+      DWORD ReparseTag=0;
+      if(GetReparsePointInfo(strCurFileName, strJuncName,&ReparseTag)) //"\??\D:\Junc\Src\"
       {
-        strJuncName.LShift (4);
-
-        if(!wcsncmp(strJuncName,L"Volume{",7))
+        if (!StrCmpN(strJuncName,L"\\??\\",4))
+          strJuncName.LShift(4);
+        if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          string strJuncRoot;
-          GetPathRootOne(strJuncName, strJuncRoot);
-          if( strJuncRoot.At(1) == L':')
+          if(!StrCmpNI(strJuncName,L"Volume{",7))
           {
+            string strJuncRoot;
+            GetPathRootOne(strJuncName, strJuncRoot);
+            if( strJuncRoot.At(1) == L':')
+            {
               strJuncName = strJuncRoot;
+            }
+            ID_Msg=MQuickViewVolMount;
+            Width=20;
           }
-          ID_Msg=MQuickViewVolMount;
-          Width=20;
+          else
+          {
+            ID_Msg=MQuickViewJunction;
+            Width=9;
+          }
         }
-        else
+        else if(ReparseTag==IO_REPARSE_TAG_SYMLINK)
         {
-          ID_Msg=MQuickViewJunction;
+          ID_Msg=MQuickViewSymlink;
           Width=9;
         }
-
         TruncPathStr(strJuncName,X2-X1-4-Width);
 
         strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncName);

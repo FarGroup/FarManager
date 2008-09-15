@@ -963,7 +963,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ( ChDisk.Done() &&
 			 (ChDisk.Modal::GetExitCode() < 0) &&
 			 !strCurDir.IsEmpty() &&
-			 (wcsncmp(strCurDir,L"\\\\",2) != 0) )
+			 (StrCmpN(strCurDir,L"\\\\",2) != 0) )
 		{
 			wchar_t RootDir[10]; //BUGBUG
 
@@ -1713,7 +1713,7 @@ int  Panel::SetCurPath()
     }
   }
 
-  if (!FarChDir(strCurDir) || GetFileAttributesW(strCurDir)==INVALID_FILE_ATTRIBUTES)
+  if(!FarChDir(strCurDir)||(!(PathPrefix(strCurDir)&&!StrCmpNI(&strCurDir[4],L"pipe",4))&&GetFileAttributesW(strCurDir)==INVALID_FILE_ATTRIBUTES))
   {
    // здесь на выбор :-)
 #if 1
@@ -1724,15 +1724,7 @@ int  Panel::SetCurPath()
       if(FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || IsDiskInDrive(strRoot))
       {
         int Result=CheckFolder(strCurDir);
-        if(Result == CHKFLD_NOTACCESS)
-        {
-          if(FarChDir(strRoot))
-          {
-            SetCurDir(strRoot,TRUE);
-            return TRUE;
-          }
-        }
-        else if(Result == CHKFLD_NOTFOUND)
+        if(Result == CHKFLD_NOTFOUND)
         {
           if(CheckShortcutFolder(&strCurDir,FALSE,TRUE) && FarChDir(strCurDir))
           {

@@ -46,19 +46,29 @@ struct TMN_REPARSE_DATA_BUFFER
   DWORD  ReparseTag;
   WORD   ReparseDataLength;
   WORD   Reserved;
-
-  // IO_REPARSE_TAG_MOUNT_POINT specifics follow
-  WORD   SubstituteNameOffset;
-  WORD   SubstituteNameLength;
-  WORD   PrintNameOffset;
-  WORD   PrintNameLength;
-  WCHAR  PathBuffer[1];
-
-  // Some helper functions
-  //BOOL Init(LPCSTR szJunctionPoint);
-  //BOOL Init(LPCWSTR wszJunctionPoint);
-  //int BytesForIoControl() const;
+  union {
+    struct {
+      WORD   SubstituteNameOffset;
+      WORD   SubstituteNameLength;
+      WORD   PrintNameOffset;
+      WORD   PrintNameLength;
+      ULONG  Flags;
+      WCHAR PathBuffer[1];
+    } SymbolicLinkReparseBuffer;
+    struct {
+      WORD   SubstituteNameOffset;
+      WORD   SubstituteNameLength;
+      WORD   PrintNameOffset;
+      WORD   PrintNameLength;
+      WCHAR PathBuffer[1];
+    } MountPointReparseBuffer;
+    struct {
+      BYTE   DataBuffer[1];
+    } GenericReparseBuffer;
+  };
 };
+
+#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, GenericReparseBuffer)
 
 /*
  SrcVolume
@@ -88,7 +98,7 @@ int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkF
 }
 
 
-BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFolder)
+BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFolder,DWORD Type)
 {
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
@@ -101,7 +111,8 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
   {
     string strFullDir;
 
-    strDestDir = L"\\??\\";
+    if(Type==RP_JUNCTION)
+      strDestDir = L"\\??\\";
 
     ConvertNameToFull (SrcFolder, strFullDir); //??? было GetFullPathName
 
@@ -133,53 +144,71 @@ BOOL WINAPI CreateJunctionPoint(const wchar_t *SrcFolder, const wchar_t *LinkFol
     strDestDir += PtrFullDir;
   }
 
-  wchar_t wszBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t)] = { 0 };
-  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)wszBuff;
+	switch(Type)
+	{
+	case RP_FILESYMLINK:
+	case RP_DIRSYMLINK:
+		{
+			if(ifn.pfnCreateSymbolicLink)
+				return ifn.pfnCreateSymbolicLink(LinkFolder,strDestDir,Type==RP_DIRSYMLINK?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+			else
+				return FALSE;
+		}
+		break;
+	case RP_JUNCTION:
+		{
+			wchar_t wszBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t)] = { 0 };
+			TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)wszBuff;
 
-  WORD nDestMountPointBytes = (WORD)(strDestDir.GetLength()*sizeof (wchar_t));
-  rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
-  rdb.ReparseDataLength       = nDestMountPointBytes + 12;
-  rdb.Reserved                = 0;
-  rdb.SubstituteNameOffset    = 0;
-  rdb.SubstituteNameLength    = nDestMountPointBytes;
-  rdb.PrintNameOffset         = nDestMountPointBytes + 2;
-  rdb.PrintNameLength         = 0;
-  wcscpy (rdb.PathBuffer, strDestDir);
+			WORD nDestMountPointBytes = (WORD)(strDestDir.GetLength()*sizeof (wchar_t));
+			rdb.ReparseTag            = IO_REPARSE_TAG_MOUNT_POINT;
+			rdb.Reserved              = 0;
+			rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
+			rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
+			rdb.MountPointReparseBuffer.PrintNameOffset      = rdb.MountPointReparseBuffer.SubstituteNameLength+2;
+			rdb.MountPointReparseBuffer.PrintNameLength      = nDestMountPointBytes-4*sizeof(wchar_t);
+			wcscpy(rdb.MountPointReparseBuffer.PathBuffer, strDestDir);
+			wcscpy(&rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],&strDestDir[4]);
+			rdb.ReparseDataLength     = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
 
+			HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
+							FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
 
-  HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
-
-  if (hDir == INVALID_HANDLE_VALUE)
-  {
-    SetLastError(ERROR_PATH_NOT_FOUND);
-    return FALSE;
-  }
-  DWORD dwBytes;
-#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE \
-      FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, SubstituteNameOffset)
-  if(!DeviceIoControl(hDir,
-            FSCTL_SET_REPARSE_POINT,
-            (LPVOID)&rdb,
-            rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
-            NULL,
-            0,
-            &dwBytes,
-            0))
-  {
-    DWORD LastErr=GetLastError();
-    CloseHandle(hDir);
-    apiDeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
-    SetLastError(LastErr);
-    return 0;
-  }
-  CloseHandle(hDir);
-  return TRUE;
+			if (hDir == INVALID_HANDLE_VALUE)
+			{
+				SetLastError(ERROR_PATH_NOT_FOUND);
+				return FALSE;
+			}
+			DWORD dwBytes;
+			if(!DeviceIoControl(hDir,
+					FSCTL_SET_REPARSE_POINT,
+					(LPVOID)&rdb,
+					rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
+					NULL,
+					0,
+					&dwBytes,
+					0))
+			{
+				DWORD LastErr=GetLastError();
+				CloseHandle(hDir);
+				apiDeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
+				SetLastError(LastErr);
+				return 0;
+			}
+			CloseHandle(hDir);
+			return TRUE;
+		}
+		break;
+	}
+	return FALSE;
 }
 
 
-BOOL WINAPI DeleteJunctionPoint(const wchar_t *szDir)
+BOOL WINAPI DeleteReparsePoint(const wchar_t *szDir)
 {
+  DWORD ReparseTag;
+  string strTmp;
+  GetReparsePointInfo(szDir,strTmp,&ReparseTag);
   HANDLE hDir=apiCreateFile(szDir,
           GENERIC_READ | GENERIC_WRITE,
           0,
@@ -194,7 +223,7 @@ BOOL WINAPI DeleteJunctionPoint(const wchar_t *szDir)
   }
 
   REPARSE_GUID_DATA_BUFFER rgdb = { 0 };
-  rgdb.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+  rgdb.ReparseTag = ReparseTag;
   DWORD dwBytes;
   const BOOL bOK =
     DeviceIoControl(hDir,
@@ -211,7 +240,7 @@ BOOL WINAPI DeleteJunctionPoint(const wchar_t *szDir)
 
 
 
-DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff)
+DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &strDestBuff,LPDWORD lpReparseTag)
 {
   const DWORD FileAttr = GetFileAttributesW(szMountDir);
   /* $ 14.06.2003 IS
@@ -225,8 +254,8 @@ DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff
     return 0;
   }
 
-  HANDLE hDir=apiCreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+  HANDLE hDir=apiCreateFile(szMountDir,0,0,NULL,OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,NULL);
 
   if (hDir == INVALID_HANDLE_VALUE)
   {
@@ -254,9 +283,31 @@ DWORD WINAPI GetJunctionPointInfo(const wchar_t *szMountDir, string &strDestBuff
 
   CloseHandle(hDir);
 
-  strDestBuff = rdb.PathBuffer;
-  return rdb.SubstituteNameLength / sizeof(TCHAR); //вроде бы BUGBUG - TCHAR
+//  strDestBuff = rdb.PathBuffer;
+//  return rdb.SubstituteNameLength / sizeof(TCHAR); //вроде бы BUGBUG - TCHAR
+  WORD SubstituteNameLength;
+  const wchar_t *PathBuffer;
+
+  if(lpReparseTag)
+    *lpReparseTag=rdb.ReparseTag;
+
+  if (rdb.ReparseTag == IO_REPARSE_TAG_SYMLINK)
+  {
+    SubstituteNameLength = rdb.SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+    PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+  }
+  else
+  {
+    SubstituteNameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+    PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+  }
+
+  wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(SubstituteNameLength+1);
+  wcsncpy(lpwszDestBuff,PathBuffer,SubstituteNameLength);
+  strDestBuff.ReleaseBuffer(SubstituteNameLength);
+  return SubstituteNameLength;
 }
+
 
 
 
@@ -573,7 +624,7 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
        *   Win98: qualified_path (e.g. C:\ or C:\Win98) */
       if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
       {
-        if (!wcsncmp(Name,L"\\??\\",4))
+        if (!StrCmpN(Name,L"\\??\\",4))
         {
           strSubstName = Name+4;
           return TRUE;
@@ -601,7 +652,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 	if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
 	{
 		// обработка mounted volume
-		if( ifn.pfnGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
+		if( ifn.pfnGetVolumeNameForVolumeMountPoint && !StrCmpNI(Path,L"Volume{",7))
 		{
 			// For the maximum size of the volume ID
 			// see http://msdn2.microsoft.com/en-us/library/aa364994(VS.85).aspx
@@ -696,10 +747,10 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
     if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
         PathLen > 3 && Path[2] == L'?' && Path[3] == L'\\' &&
         //"\\?\Volume{GUID}" не трогаем
-        wcsnicmp(&Path[4],L"Volume{",7))
+        StrCmpNI(&Path[4],L"Volume{",7))
     { // Проверим на длинное UNC имя под NT
       strNewPath = &Path[4];
-      if (PathLen > 8 && wcsncmp(strNewPath, L"UNC\\", 4)==0)
+      if (PathLen > 8 && StrCmpNI(strNewPath, L"UNC\\", 4)==0)
       {
         IsUNC = TRUE;
         strNewPath = L"\\";
@@ -731,15 +782,36 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
 
         if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          if(GetJunctionPointInfo(TempRoot,strJuncName))
+          if(GetReparsePointInfo(TempRoot,strJuncName))
           {
-             if(!Reenter && !IsLocalVolumePath(strJuncName))
-               _GetPathRoot((const wchar_t*)strJuncName+4,strRoot,TRUE);
-             else
-               GetPathRootOne((const wchar_t*)strJuncName+4,strRoot);
+            if(!StrCmpN(strJuncName,L"\\??\\",4))
+              strJuncName.LShift(4);
 
-             strTempRoot.ReleaseBuffer ();
-             return;
+            if (strJuncName.At(0) == L'.') //BUGBUG
+            {
+              //AY: вся эта заморочка во первых кривая (не всегда работает как надо)
+              //    а во вторых нужна потому что в висте симлинки могут содержать относительный
+              //    путь. Тут видимо надо как то заюзать GetFullPathName.
+              string strTempJunc;
+              if (Ptr)
+              {
+                *Ptr = 0;
+                if (*(Ptr+1) == 0)
+                {
+                  Ptr=wcsrchr(TmpPtr,L'\\');
+                  if (Ptr) *Ptr = 0;
+                }
+              }
+              strJuncName=TempRoot+strJuncName;
+            }
+
+            if(!Reenter && !IsLocalVolumePath(strJuncName))
+              _GetPathRoot(strJuncName,strRoot,TRUE);
+            else
+              GetPathRootOne(strJuncName,strRoot);
+
+            strTempRoot.ReleaseBuffer ();
+            return;
           }
         } /* if */
         if(Ptr) *Ptr=0; else break;
@@ -771,7 +843,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
       char *TempDest=(char *)alloca(TempSize);
       strcpy(TempDest,Src2);
       AddEndSlash(TempDest);
-      DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
+      DWORD Size=GetReparsePointInfo(TempDest,TempDest,TempSize);
       // Src2='\\vr-srv002\userhome$\vskirdin\wwwroot', TempDest='\??\F:\wwwroot'
       _LOGCOPYR(SysLog(L"return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
 #if 0

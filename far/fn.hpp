@@ -1097,14 +1097,15 @@ BOOL apiGetVolumeInformation (
 		string *pFileSystemName
 		);
 
-HANDLE apiFindFirstFile (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindFileData);
+HANDLE apiFindFirstFile (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindFileData,bool ScanSymLink=true);
 BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData);
+BOOL apiFindClose(HANDLE hFindFile);
 
 void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest);
 void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest);
 void apiFreeFindData (FAR_FIND_DATA *pData);
 
-BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData);
+BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink=true);
 BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
 BOOL apiSetFilePointerEx (

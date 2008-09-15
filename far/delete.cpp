@@ -147,9 +147,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     string strJuncName;
     ConvertNameToFull(strSelName,strJuncName);
 
-    if(GetJunctionPointInfo(strJuncName, strJuncName)) // ? SelName ?
+    if(GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
     {
-      strJuncName.LShift(4);
+      if(!StrCmpN(strJuncName,L"\\??\\",4))
+        strJuncName.LShift(4);
 
       //SetMessageHelp(L"DeleteLink");
       Ret=Message(0,3,UMSG(MDeleteLinkTitle),
@@ -167,7 +168,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         }
         if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
         {
-          DeleteJunctionPoint(strJuncName);
+          DeleteReparsePoint(strJuncName);
           ShellUpdatePanels(SrcPanel,NeedSetUpADir);
         }
         goto done;

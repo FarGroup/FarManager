@@ -295,6 +295,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       NewPtr->Position=FileCount++;
       NewPtr->NumberOfLinks=1;
 
+      if(fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
+      }
+
       if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
       {
         TotalFileSize += NewPtr->UnpSize;
@@ -382,7 +387,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
     Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MReadFolderError),UMSG(MOk));
 
-  FindClose(FindHandle);
+  apiFindClose(FindHandle);
 
   // "перекраску" вынесем в отдельный цикл - на медленных сетевых соединениях
   // вежнее считать конкент, а остальное потом.

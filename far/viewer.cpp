@@ -241,7 +241,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
   strFileName = Name;
 
-  if (CmdMode && wcscmp (strFileName, L"-")==0)
+  if (CmdMode && StrCmp (strFileName, L"-")==0)
   {
     HANDLE OutHandle;
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)

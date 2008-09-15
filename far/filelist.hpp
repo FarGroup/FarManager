@@ -72,6 +72,8 @@ struct FileListItem
 	string strName;
 	string strShortName;
 
+	DWORD ReparseTag;
+
 	void Clear ()
 	{
 		Selected = 0;
@@ -109,6 +111,8 @@ struct FileListItem
 
 		strName = L"";
 		strShortName = L"";
+
+		ReparseTag=0;
 	}
 
 	FileListItem& operator=(const FileListItem &fliCopy)

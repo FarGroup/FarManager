@@ -412,12 +412,20 @@ BOOL apiGetVolumeInformation (
 
 HANDLE apiFindFirstFile (
         const wchar_t *lpwszFileName,
-        FAR_FIND_DATA_EX *pFindFileData
+        FAR_FIND_DATA_EX *pFindFileData,
+        bool ScanSymLink
         )
 {
     WIN32_FIND_DATAW fdata;
 
     HANDLE hResult = FindFirstFileW (lpwszFileName, &fdata);
+
+		if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
+		{
+			string strRealName;
+			ConvertNameToReal(lpwszFileName,strRealName);
+			hResult=FindFirstFileW(strRealName,&fdata);
+		}
 
     if ( hResult != INVALID_HANDLE_VALUE )
     {
@@ -457,6 +465,10 @@ BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
     return bResult;
 }
 
+BOOL apiFindClose(HANDLE hFindFile)
+{
+	return FindClose(hFindFile);
+}
 
 void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 {
@@ -488,13 +500,13 @@ void apiFreeFindData (FAR_FIND_DATA *pData)
     xf_free (pData->lpwszAlternateFileName);
 }
 
-BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData)
+BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink)
 {
-    HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData);
+    HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData,ScanSymLink);
 
     if ( hSearch != INVALID_HANDLE_VALUE )
     {
-        FindClose (hSearch);
+        apiFindClose (hSearch);
         return TRUE;
     }
     else

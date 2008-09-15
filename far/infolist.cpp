@@ -155,8 +155,13 @@ void InfoList::DisplayObject()
   if((GetFileAttributesW(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
     string strJuncName;
-    if(GetJunctionPointInfo(strCurDir, strJuncName))
-      GetPathRoot((const wchar_t*)strJuncName+4, strDriveRoot); //"\??\D:\Junc\Src\"
+    if(GetReparsePointInfo(strCurDir, strJuncName))
+    {
+      if (!StrCmpN(strJuncName,L"\\??\\",4))
+        strJuncName.LShift(4);
+      GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
+    }
+
   }
   else
      GetPathRoot(strCurDir, strDriveRoot);

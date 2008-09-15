@@ -182,7 +182,7 @@ void SetFarTitle(const wchar_t *Title)
 
 		TitleModified=TRUE;
 
-		if ( wcscmp (strOldFarTitle, strFarTitle) &&
+		if ( StrCmp (strOldFarTitle, strFarTitle) &&
 				((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
 				!CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()) )
 		{

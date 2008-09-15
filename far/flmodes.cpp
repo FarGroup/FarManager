@@ -320,7 +320,7 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
       }
       else
       {
-        if (wcsncmp(strArgName,L"DM",2)==0 || wcsncmp(strArgName,L"DC",2)==0 || wcsncmp(strArgName,L"DA",2)==0)
+        if (StrCmpN(strArgName,L"DM",2)==0 || StrCmpN(strArgName,L"DC",2)==0 || StrCmpN(strArgName,L"DA",2)==0)
         {
           unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
 

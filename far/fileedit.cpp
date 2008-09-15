@@ -2019,7 +2019,7 @@ void FileEditor::SetScreenPosition()
 void FileEditor::OnDestroy()
 {
   _OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
-  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && _wcsicmp(strFileName,UMSG(MNewFileName)))
+  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,UMSG(MNewFileName)))
     CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryEdit),
                   (m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
@@ -2089,7 +2089,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 {
 	strFileName = NewFileName;
 
-	if( wcscmp (strFileName,UMSG(MNewFileName)))
+	if( StrCmp (strFileName,UMSG(MNewFileName)))
 	{
 		if ( wcspbrk (strFileName, ReservedFilenameSymbols) )
 			return FALSE;

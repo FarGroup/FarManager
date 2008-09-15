@@ -160,6 +160,11 @@ typedef BOOL (__stdcall *PCREATEHARDLINK)(
 		LPSECURITY_ATTRIBUTES lpSecurityAttributes  // SD
 		);
 
+typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
+		const wchar_t *lpSymlinkFileName,
+		const wchar_t *lpTargetFileName,
+		DWORD dwFlags);
+
 typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE) (
 		HANDLE hConsoleOutput,
 		DWORD dwFlags,
@@ -230,6 +235,8 @@ struct ImportedFunctions {
 	PGLOBALMEMORYSTATUSEX pfnGlobalMemoryStatusEx;
 
 	PCREATEHARDLINK pfnCreateHardLink;
+
+	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
 
 	PMCISENDSTRING pfnmciSendString;
 

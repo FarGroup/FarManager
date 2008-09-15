@@ -1115,7 +1115,7 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 
   while(I <= L-LenFindStr)
   {
-    Res=IgnoreCase?StrCmpNI(Str+I, FindStr, LenFindStr):wcsncmp(Str+I, FindStr, LenFindStr);
+    Res=IgnoreCase?StrCmpNI(Str+I, FindStr, LenFindStr):StrCmpN(Str+I, FindStr, LenFindStr);
     if(Res == 0)
     {
       if(LenReplStr > LenFindStr)
@@ -1288,7 +1288,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
       {
         if (text[i+l] == breakchar[0])
         {
-          if (breakcharlen == 1 || wcsncmp(text+i+l, breakchar, breakcharlen)==0)
+          if (breakcharlen == 1 || StrCmpN(text+i+l, breakchar, breakcharlen)==0)
             break;
         }
         l++;

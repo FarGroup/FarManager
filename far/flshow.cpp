@@ -978,8 +978,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   if (TestParentFolderName(CurPtr->strName))
                     PtrName=UMSG(MListUp);
                   else
-                    PtrName=UMSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
-
+                  {
+                    if(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+                    {
+                      switch(CurPtr->ReparseTag)
+                      {
+                      case IO_REPARSE_TAG_SYMLINK:
+                        PtrName=UMSG(MListSymLink);
+                        break;
+                      case IO_REPARSE_TAG_MOUNT_POINT:
+                        PtrName=UMSG(MListJunction);
+                        break;
+                      }
+                    }
+                    else
+                      PtrName=UMSG(MListFolder);
+                  }
                   if (StrLength(PtrName) <= Width-2 )
                     strStr.Format (L"<%s>", PtrName);
                   else

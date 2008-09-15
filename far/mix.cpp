@@ -108,8 +108,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     //*CurDir=toupper(*CurDir); бред!
     if(ChangeDir)
     {
-      if(CheckFolder(strCurDir) > CHKFLD_NOTACCESS)
-        rc=SetCurrentDirectoryW(strCurDir);
+      rc=SetCurrentDirectoryW(strCurDir);
     }
   }
   else
@@ -141,11 +140,8 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
       AddEndSlash(lpwszCurDir); //???????????????
       strCurDir.ReleaseBuffer ();
 
-      if(CheckFolder((const wchar_t*)strCurDir) > CHKFLD_NOTACCESS)
-      {
-        PrepareDiskPath(strCurDir);
-        rc=SetCurrentDirectoryW((const wchar_t*)strCurDir);
-      }
+      PrepareDiskPath(strCurDir);
+      rc=SetCurrentDirectoryW(strCurDir);
 
     }
   }
@@ -775,7 +771,11 @@ int CheckFolder(const wchar_t *Path)
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
       if(GetFileAttributesW(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+      {
+        if(lstError.Get() == ERROR_ACCESS_DENIED)
+          return CHKFLD_NOTACCESS;
         return CHKFLD_EMPTY;
+      }
     }
 
     strFindPath = Path;
@@ -797,14 +797,14 @@ int CheckFolder(const wchar_t *Path)
     else
     {
       // что-то есть, отличное от "." и ".." - каталог не пуст
-      FindClose(FindHandle);
+      apiFindClose(FindHandle);
       return CHKFLD_NOTEMPTY;
     }
     Done=!apiFindNextFile(FindHandle,&fdata);
   }
 
   // однозначно каталог пуст
-  FindClose(FindHandle);
+  apiFindClose(FindHandle);
   return CHKFLD_EMPTY;
 }
 
@@ -1347,7 +1347,6 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
 	if( !strPath.IsEmpty() )
 	{
-		ConvertNameToLong(strPath,strPath);
 		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
 		{
 			if(CheckFullPath)
@@ -1364,12 +1363,25 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 					{
 						*Src=0;
 						FAR_FIND_DATA_EX fd;
-						BOOL find=apiGetFindDataEx(lpwszPath,&fd);
+						BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
 						*Src=c;
 						if(find)
 						{
-							wcsncpy(Dst,fd.strFileName,fd.strFileName.GetLength());
-							Dst+=fd.strFileName.GetLength();
+							int n=fd.strFileName.GetLength();
+							int n1 = n-(Src-Dst);
+							if(n1>0)
+							{
+								int dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
+								strPath.ReleaseBuffer();
+								lpwszPath=strPath.GetBuffer(strPath.GetLength()+n1);
+								Src=lpwszPath+dSrc;
+								Dst=lpwszPath+dDst;
+								wmemmove(Src+n1,Src,StrLength(Src)+1);
+								Src+=n1;
+							}
+							wcsncpy(Dst,fd.strFileName,n);
+							Dst+=n;
+							wcscpy(Dst,Src);
 							Dst++;
 							Src=Dst;
 						}
@@ -1452,7 +1464,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 					if(GetFileAttributesW(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
 					{
 						int ChkFld=CheckFolder(strTestPathTemp);
-						if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
+						if(ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)
 						{
 							if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
 							{

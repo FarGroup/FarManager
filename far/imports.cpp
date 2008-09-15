@@ -1,7 +1,7 @@
 /*
 imports.cpp
 
-¨¬¯®àâ¨àã¥¬ë¥ äã­ªæ¨¨
+èìïîðòèðóåìûå ôóíêöèè
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -40,20 +40,20 @@ ImportedFunctions ifn;
 
 void ImportedFunctions::Load()
 {
-    HMODULE hKernel = LoadLibraryW (L"kernel32.dll");
-    HMODULE hAdvapi = LoadLibraryW (L"advapi32.dll");
-    HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
-    HMODULE hWinMM = LoadLibraryW (L"winmm.dll"); //useless in 1.8
-	
+	HMODULE hKernel = LoadLibraryW (L"kernel32.dll");
+	HMODULE hAdvapi = LoadLibraryW (L"advapi32.dll");
+	HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
+	HMODULE hWinMM = LoadLibraryW (L"winmm.dll"); //useless in 1.8
+
 	pfnIsDebuggerPresent = (PISDEBUGGERPRESENT)GetProcAddress (hKernel, "IsDebuggerPresent");
 
 	pfnCopyFileEx = (PCOPYFILEEX)GetProcAddress (hKernel, "CopyFileExW");
 	pfnGetDiskFreeSpaceEx = (PGETDISKFREESPACEEX)GetProcAddress (hKernel, "GetDiskFreeSpaceExW");
-    pfnSetFilePointerEx = (PSETFILEPOINTEREX)GetProcAddress(hKernel, "SetFilePointerEx");
+	pfnSetFilePointerEx = (PSETFILEPOINTEREX)GetProcAddress(hKernel, "SetFilePointerEx");
 
-    pfnEncryptFile = (PENCRYPTFILE)GetProcAddress (hKernel, "EncryptFileW");
+	pfnEncryptFile = (PENCRYPTFILE)GetProcAddress (hKernel, "EncryptFileW");
 
-    if ( !pfnEncryptFile )
+	if ( !pfnEncryptFile )
 		pfnEncryptFile = (PENCRYPTFILE)GetProcAddress(hAdvapi, "EncryptFileW");
 
 	pfnDecryptFile = (PDECRYPTFILE)GetProcAddress(hKernel, "DecryptFileW");
@@ -153,10 +153,11 @@ void ImportedFunctions::Load()
 	pfnGetConsoleWindow = (PGETCONSOLEWINDOW)GetProcAddress (hKernel, "GetConsoleWindow");
 	pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress (hKernel, "GetConsoleKeyboardLayoutNameW");
 	pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress (hKernel, "SetConsoleDisplayMode");
-    pfnGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress (hKernel, "GetConsoleAliasW");
+	pfnGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress (hKernel, "GetConsoleAliasW");
 
 	pfnGlobalMemoryStatusEx = (PGLOBALMEMORYSTATUSEX)GetProcAddress (hKernel, "GlobalMemoryStatusEx");
 	pfnCreateHardLink = (PCREATEHARDLINK)GetProcAddress(hKernel, "CreateHardLinkW");
+	pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
 
 	pfnmciSendString = (PMCISENDSTRING)GetProcAddress(hWinMM, "mciSendStringA");
 }

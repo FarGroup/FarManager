@@ -90,7 +90,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wchar_t *TmpStr,int MaxTempStrSize)
 {
   // рассмотрим переключатели активности/пассивности панели.
-  if (wcsncmp(CurStr,L"!#",2)==0)
+  if (StrCmpN(CurStr,L"!#",2)==0)
   {
     CurStr+=2;
     PSubstData->PassivePanel=TRUE;
@@ -98,7 +98,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     return CurStr;
   }
 
-  if (wcsncmp(CurStr,L"!^",2)==0)
+  if (StrCmpN(CurStr,L"!^",2)==0)
   {
     CurStr+=2;
     PSubstData->PassivePanel=FALSE;
@@ -107,7 +107,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !! символ '!'
-  if (wcsncmp(CurStr,L"!!",2)==0 && CurStr[2] != L'?')
+  if (StrCmpN(CurStr,L"!!",2)==0 && CurStr[2] != L'?')
   {
     xwcsncat(TmpStr,L"!",MaxTempStrSize-1);
     CurStr+=2;
@@ -116,7 +116,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !.!      Длинное имя файла с расширением
-  if (wcsncmp(CurStr,L"!.!",3)==0 && CurStr[3] != L'?')
+  if (StrCmpN(CurStr,L"!.!",3)==0 && CurStr[3] != L'?')
   {
     xwcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherName:PSubstData->Name, MaxTempStrSize-1);
     CurStr+=3;
@@ -125,7 +125,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !~       Короткое имя файла без расширения
-  if (wcsncmp(CurStr,L"!~",2)==0)
+  if (StrCmpN(CurStr,L"!~",2)==0)
   {
     xwcsncat(TmpStr,PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly:PSubstData->strShortNameOnly, MaxTempStrSize-1);
     CurStr+=2;
@@ -134,7 +134,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !`  Длинное расширение файла без имени
-  if (wcsncmp(CurStr,L"!`",2)==0)
+  if (StrCmpN(CurStr,L"!`",2)==0)
   {
     const wchar_t *Ext;
     if(CurStr[2] == L'~')
@@ -154,8 +154,8 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !& !&~  список файлов разделенных пробелом.
-  if ((!wcsncmp(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
-      (!wcsncmp(CurStr,L"!&",2) && CurStr[2] != L'?'))
+  if ((!StrCmpN(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
+      (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
   {
     string strFileNameL, strShortNameL;
     Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
@@ -203,9 +203,9 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   //Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
   // Но нафиг нада:)
   //<Skeleton>
-  if (wcsncmp(CurStr,L"!@",2)==0
+  if (StrCmpN(CurStr,L"!@",2)==0
         //<Skeleton 2003 10 25>
-        || (wcsncmp(CurStr,L"!$",2)==0))
+        || (StrCmpN(CurStr,L"!$",2)==0))
         //<Skeleton>
   {
     wchar_t Modifers[32]=L"", *Ptr; //???
@@ -272,7 +272,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !-!      Короткое имя файла с расширением
-  if (wcsncmp(CurStr,L"!-!",3)==0 && CurStr[3] != L'?')
+  if (StrCmpN(CurStr,L"!-!",3)==0 && CurStr[3] != L'?')
   {
     xwcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
@@ -282,7 +282,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 
   // !+!      Аналогично !-!, но если длинное имя файла утеряно
   //          после выполнения команды, FAR восстановит его
-  if (wcsncmp(CurStr,L"!+!",3)==0 && CurStr[3] != L'?')
+  if (StrCmpN(CurStr,L"!+!",3)==0 && CurStr[3] != L'?')
   {
     xwcsncat(TmpStr,PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
     CurStr+=3;
@@ -295,7 +295,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   //<Skeleton 2003 10 26>
   // Надо - добавляю анализ на \\serv\share
   //<Skeleton>
-  if (wcsncmp(CurStr,L"!:",2)==0)
+  if (StrCmpN(CurStr,L"!:",2)==0)
   {
     string strCurDir;
     string strRootDir;
@@ -320,9 +320,9 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   // !/       Короткое имя текущего пути
   // Ниже идет совмещение кода для разбора как !\ так и !/
   //<Skeleton>
-  if (wcsncmp(CurStr,L"!\\",2)==0 || wcsncmp(CurStr,L"!=\\",3)==0
+  if (StrCmpN(CurStr,L"!\\",2)==0 || StrCmpN(CurStr,L"!=\\",3)==0
      //<Skeleton 2003 10 26>
-     || (wcsncmp(CurStr,L"!/",2)==0) || wcsncmp(CurStr,L"!=/",3)==0)
+     || (StrCmpN(CurStr,L"!/",2)==0) || StrCmpN(CurStr,L"!=/",3)==0)
      //<Skeleton>
   {
     string strCurDir;
@@ -374,7 +374,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   }
 
   // !?<title>?<init>!
-  if (wcsncmp(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=NULL)
+  if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=NULL)
   {
     //<Skeleton 2003 11 22>
     //char *NewCurStr=strchr(CurStr+2,'!')+1;
@@ -921,7 +921,7 @@ static int IsReplaceVariable(const wchar_t *str,
   if (!s)
     return -1;
 
-  if (wcsncmp(s,L"!?",2) == 0)
+  if (StrCmpN(s,L"!?",2) == 0)
     s = s + 2;
   else
     return -1;

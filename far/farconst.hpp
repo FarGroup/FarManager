@@ -397,4 +397,12 @@ enum SETATTR_RET_CODES
 
 #define LANGUAGENAME_SIZE  80
 
+enum ReparsePointTypes
+{
+	RP_FILESYMLINK,
+	RP_DIRSYMLINK,
+	RP_HARDLINK,
+	RP_JUNCTION,
+};
+
 #endif // __FARCONST_HPP__
