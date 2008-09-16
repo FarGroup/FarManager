@@ -1890,7 +1890,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   _LOGCOPYR(SysLog("Params: Src='%s', Dest='%s', KeepPathPos=%d, Rename=%d",Src, Dest,KeepPathPos,Rename));
   char DestPath[2*NM];
   DWORD DestAttr=(DWORD)-1;
-  HANDLE FindHandle=INVALID_HANDLE_VALUE;
   WIN32_FIND_DATA DestData={0};
   /* $ 25.05.2002 IS
      + RenameToShortName - дополняет SameName и становится больше нуля тогда,

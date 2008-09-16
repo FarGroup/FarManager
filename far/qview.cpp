@@ -116,13 +116,15 @@ void QuickView::DisplayObject()
     if((GetFileAttributes(CurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
       char JuncName[NM*2];
-      int ID_Msg, Width;
       DWORD ReparseTag=0;
       if(GetReparsePointInfo(CurFileName,JuncName,sizeof(JuncName),&ReparseTag)) //"\??\D:\Junc\Src\"
       {
+        int ID_Msg=MQuickViewJunction, Width=9;
+        
         int offset = 0;
         if (!strncmp(JuncName,"\\??\\",4))
         offset = 4;
+
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
           if(!strnicmp(JuncName+offset,"Volume{",7))
@@ -134,11 +136,6 @@ void QuickView::DisplayObject()
               strcpy(JuncName+offset,JuncRoot);
             ID_Msg=MQuickViewVolMount;
             Width=20;
-          }
-          else
-          {
-            ID_Msg=MQuickViewJunction;
-            Width=9;
           }
         }
         else if(ReparseTag==IO_REPARSE_TAG_SYMLINK)

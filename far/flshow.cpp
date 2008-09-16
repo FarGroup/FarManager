@@ -955,7 +955,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
-                  char *PtrName;
+                  char *PtrName=MSG(MListFolder);;
                   if (TestParentFolderName(CurPtr->Name))
                     PtrName=MSG(MListUp);
                   else
@@ -972,8 +972,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         break;
                       }
                     }
-                    else
-                      PtrName=MSG(MListFolder);
                   }
                   if (strlen(PtrName) <= static_cast<size_t>(Width-2))
                     sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
