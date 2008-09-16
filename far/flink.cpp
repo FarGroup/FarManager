@@ -288,7 +288,7 @@ BOOL WINAPI CreateReparsePoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder,DWORD Type)
 			}
 
 			//_SVS(SysLog("szDestDir ='%s'",szDestDir));
-			int nDestMountPointBytes    = (int)wcslen(wszDestMountPoint)*sizeof(wchar_t);
+      WORD nDestMountPointBytes    = (WORD)wcslen(wszDestMountPoint)*sizeof(wchar_t);
 			rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
 			rdb.Reserved                = 0;
 			rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
