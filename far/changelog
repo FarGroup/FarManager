@@ -1,3 +1,7 @@
+yjh 16.09.2008 20:46:04 +0300 - build 569
+
+1. 64bit warnings
+
 drkns 16.09.2008 15:50:14 +0200 - build 568
 
 1. ƒобавлена отсутствующа€ в старых SDK константа SYMBOLIC_LINK_FLAG_DIRECTORY.

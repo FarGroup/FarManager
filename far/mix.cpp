@@ -1367,13 +1367,13 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 						*Src=c;
 						if(find)
 						{
-							int n=fd.strFileName.GetLength();
-							int n1 = n-(Src-Dst);
-							if(n1>0)
+              size_t n=fd.strFileName.GetLength();
+              size_t n1 = n-(Src-Dst);
+              if((int)n1>0)
 							{
-								int dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
+                size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
 								strPath.ReleaseBuffer();
-								lpwszPath=strPath.GetBuffer(strPath.GetLength()+n1);
+                lpwszPath=strPath.GetBuffer(int(strPath.GetLength()+n1));
 								Src=lpwszPath+dSrc;
 								Dst=lpwszPath+dDst;
 								wmemmove(Src+n1,Src,StrLength(Src)+1);
@@ -1384,7 +1384,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 							wcscpy(Dst,Src);
 							Dst++;
 							Src=Dst;
-						}
+            } //n n1 dSrc
 						else
 						{
 							Src++;

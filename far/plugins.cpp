@@ -1534,7 +1534,9 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
     string strPluginName;
 
 //    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
-    strPluginName = (const wchar_t *)pPlugin->GetModuleName()+(StrCmpNI(pPlugin->GetModuleName(),g_strFarPath,FarPathLength)?0:FarPathLength);
+    strPluginName = (const wchar_t *)pPlugin->GetModuleName() +
+        (StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength) ?
+                                                            0 : FarPathLength);
 
     wchar_t *Ptr = strPluginName.GetBuffer ((int)strPluginName.GetLength()+20);
 
