@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2373
+  Plugin API for FAR Manager 1.71 build 2437
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2008 FAR group
@@ -12,7 +12,7 @@
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 71
-#define FARMANAGERVERSION_BUILD 2373
+#define FARMANAGERVERSION_BUILD 2437
 
 #ifndef RC_INVOKED
 
@@ -1184,6 +1184,9 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
 enum VIEWER_EVENTS {
   VE_READ       =0,
   VE_CLOSE      =1,
+
+  VE_GOTFOCUS   =6,
+  VE_KILLFOCUS  =7,
 };
 
 
