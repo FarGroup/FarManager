@@ -974,7 +974,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
-                  const wchar_t *PtrName;
+                  const wchar_t *PtrName=UMSG(MListFolder);
                   if (TestParentFolderName(CurPtr->strName))
                     PtrName=UMSG(MListUp);
                   else
@@ -991,8 +991,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         break;
                       }
                     }
-                    else
-                      PtrName=UMSG(MListFolder);
                   }
                   if (StrLength(PtrName) <= Width-2 )
                     strStr.Format (L"<%s>", PtrName);

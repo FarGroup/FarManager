@@ -1882,7 +1882,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 {
   string strDestPath;
   DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
-  HANDLE FindHandle=INVALID_HANDLE_VALUE;
   FAR_FIND_DATA_EX DestData;
   DestData.Clear();
 
