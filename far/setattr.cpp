@@ -670,7 +670,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         int ID_Msg, Width;
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if(!StrCmpNI((const wchar_t*)strJuncName+offset,L"Volume{",7))
+          if(IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
           {
             string strJuncRoot;
             GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
@@ -688,13 +688,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           else
           {
             ID_Msg=MSetAttrJunction;
-            Width=52;
+            Width=48;
           }
         }
         else
         {
           ID_Msg=MSetAttrSymlink;
-          Width=52;
+          Width=49;
         }
         string strJuncTemp = (const wchar_t*)strJuncName+offset;
         AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),

@@ -1705,8 +1705,10 @@ typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum MKLINKOP{
   FLINK_HARDLINK         = 1,
-  FLINK_SYMLINK          = 2,
+  FLINK_JUNCTION         = 2,
   FLINK_VOLMOUNT         = 3,
+  FLINK_SYMLINKFILE      = 4,
+  FLINK_SYMLINKDIR       = 5,
 
   FLINK_SHOWERRMSG       = 0x10000,
   FLINK_DONOTUPDATEPANEL = 0x20000,

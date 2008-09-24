@@ -399,10 +399,12 @@ enum SETATTR_RET_CODES
 
 enum ReparsePointTypes
 {
-	RP_FILESYMLINK,
-	RP_DIRSYMLINK,
-	RP_HARDLINK,
-	RP_JUNCTION,
+	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
+	RP_HARDLINK,    // жёсткая ссылка, NT>=4
+	RP_JUNCTION,    // связь, NT>=5
+	RP_VOLMOUNT,    // монтированный том, NT>=5
+	RP_SYMLINKFILE, // файл-ссылка, NT>=6
+	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
 #endif // __FARCONST_HPP__

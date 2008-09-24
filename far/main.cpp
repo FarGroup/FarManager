@@ -363,7 +363,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   if ( apiGetModuleFileName (NULL, g_strFarPath) )
   {
-    CutToSlash(g_strFarPath);
+    CutToSlash(g_strFarPath,true);
 
     ConvertNameToLong (g_strFarPath, g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);

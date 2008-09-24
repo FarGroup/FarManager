@@ -51,9 +51,8 @@ enum COPY_FLAGS {
   FCOPY_COPYTONUL               = 0x00000001, // ѕризнак копировани€ в NUL
   FCOPY_CURRENTONLY             = 0x00000002, // “олько текщий?
   FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
-  FCOPY_CREATESYMLINK           = 0x00000004, // создание симлинка
   FCOPY_OVERWRITENEXT           = 0x00000008, // Overwrite all
-  FCOPY_LINK                    = 0x00000010, // создание св€зи
+  FCOPY_LINK                    = 0x00000010, // создание линков
   FCOPY_MOVE                    = 0x00000040, // перенос/переименование
   FCOPY_DIZREAD                 = 0x00000080, //
   FCOPY_COPYSECURITY            = 0x00000100, // [x] Copy access rights
@@ -121,6 +120,11 @@ class ShellCopy
     UserDefinedList DestList;
     ConsoleTitle *CopyTitle;   // заголовок
 
+    // тип создаваемого репарспоинта.
+    // при AltF6 будет то, что выбрал юзер в диалоге,
+    // в остальных случа€х - RP_EXACTCOPY - как у источника
+    ReparsePointTypes RPT;
+
   private:
     COPY_CODES CopyFileTree(const wchar_t *Dest);
 
@@ -182,7 +186,7 @@ class ShellCopy
     static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    static int  MkSymLink(const wchar_t *SelName,const wchar_t *Dest,DWORD Flags);
+    static int  MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags);
     static void PR_ShellCopyMsg(void);
 };
 

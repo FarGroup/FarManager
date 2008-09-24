@@ -121,7 +121,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
   {
     DWORD FileAttr;
 
-    if((FileAttr=GetFileAttributesW(strTempDest)) != INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    if((FileAttr=GetFileAttributesW(strTempDest)) != INVALID_FILE_ATTRIBUTES)
     {
       AddEndSlash(strTempDest);
       IsAddEndSlash=TRUE;

@@ -130,33 +130,33 @@ void QuickView::DisplayObject()
       DWORD ReparseTag=0;
       if(GetReparsePointInfo(strCurFileName, strJuncName,&ReparseTag)) //"\??\D:\Junc\Src\"
       {
-        int ID_Msg=MQuickViewJunction, Width=9;
-        
+        int ID_Msg=MQuickViewJunction, Width=11;
+        int offset=0;
         if (!StrCmpN(strJuncName,L"\\??\\",4))
-          strJuncName.LShift(4);
+          offset=4;
 
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if(!StrCmpNI(strJuncName,L"Volume{",7))
+          if(IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
           {
             string strJuncRoot;
-            GetPathRootOne(strJuncName, strJuncRoot);
+            GetPathRootOne(&strJuncName[offset], strJuncRoot);
             if( strJuncRoot.At(1) == L':')
             {
               strJuncName = strJuncRoot;
             }
             ID_Msg=MQuickViewVolMount;
-            Width=20;
+            Width=21;
           }
         }
         else if(ReparseTag==IO_REPARSE_TAG_SYMLINK)
         {
           ID_Msg=MQuickViewSymlink;
-          Width=9;
+          Width=11;
         }
-        TruncPathStr(strJuncName,X2-X1-4-Width);
-
-        strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncName);
+        string strJuncTemp=&strJuncName[offset];
+        TruncPathStr(strJuncTemp,X2-X1-4-Width);
+        strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncTemp);
         TruncStr(strMsg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);

@@ -162,7 +162,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
     */
     if (Flags.Check(FSCANTREE_RECUR) &&
       ((fdata->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) == FILE_ATTRIBUTE_DIRECTORY ||
-          ((fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
+          ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
     {
       CutToSlash(strFindPath);
 
@@ -176,7 +176,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       Data[++FindHandleCount].FindHandle=0;
       Data[FindHandleCount].Flags=Data[FindHandleCount-1].Flags; // наследуем флаг
       Data[FindHandleCount].Flags.Clear(FSCANTREE_SECONDPASS);
-      if(fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+      if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
       {
         Data[FindHandleCount].Flags.Set(FSCANTREE_INSIDEJUNCTION);
         Flags.Set(FSCANTREE_INSIDEJUNCTION);

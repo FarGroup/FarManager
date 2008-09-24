@@ -1014,9 +1014,25 @@ MCopyOnlyNewerFiles
 "Только &новые/обновленные файлы"
 "Only ne&wer file(s)"
 
-MCopySymLink
-"Си&мволическая связь"
-"&Symbolic link"
+MLinkType
+"Тип ссылки:"
+"Link type:"
+
+MLinkTypeJunction
+"связь каталогов"
+"directory junction"
+
+MLinkTypeHardlink
+"жёсткая ссылка"
+"hard link"
+
+MLinkTypeSymlinkFile
+"символическая ссылка (файл)"
+"symbolic link (file)"
+
+MLinkTypeSymlinkDirectory
+"символическая ссылка (папка)"
+"symbolic link (folder)"
 
 MCopySymLinkContents
 "Копировать содерж&имое символических связей"
@@ -1202,10 +1218,10 @@ MCopyDecryptAll
 "Расшифровать &все"
 "Decrypt &all"
 
-MCopyCannotCreateJunction
+MCopyCannotCreateLink
 l:
-"Ошибка создания связи"
-"Cannot create the symlink"
+"Ошибка создания ссылки"
+"Cannot create the link"
 
 MCopyFolderNotEmpty
 "Папка назначения должна быть пустой"
@@ -1454,8 +1470,16 @@ MDeleteLinkTitle
 "Delete link"
 
 MAskDeleteLink
-"является ссылкой на папку"
-"is a symbolic link to folder"
+"является ссылкой на"
+"is a symbolic link to"
+
+MAskDeleteLinkFolder
+"папку"
+"folder"
+
+MAskDeleteLinkFile
+"файл"
+"file"
 
 MAskDeleteItems
 "%d элемент%s"

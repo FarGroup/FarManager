@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int   WINAPI MkLink(const wchar_t *Src,const wchar_t *Dest);
+int   WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest);
 int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 
 BOOL  WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName);
@@ -58,5 +58,9 @@ void GetPathRootOne(const wchar_t *Path, string &strRoot);
 //    передается в параметре StreamName
 typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
+
+bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable);
+
+bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);
 
 #endif // __FLINK_HPP__

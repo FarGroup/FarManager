@@ -696,9 +696,11 @@ int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD Flags)
 	int flg=0;
 	switch(Flags&0xf)
 	{
-		case oldfar::FLINK_HARDLINK: flg = FLINK_HARDLINK; break;
-		case oldfar::FLINK_SYMLINK:  flg = FLINK_SYMLINK;  break;
-		case oldfar::FLINK_VOLMOUNT: flg = FLINK_VOLMOUNT; break;
+		case oldfar::FLINK_HARDLINK:    flg = FLINK_HARDLINK; break;
+		case oldfar::FLINK_JUNCTION:    flg = FLINK_JUNCTION; break;
+		case oldfar::FLINK_VOLMOUNT:    flg = FLINK_VOLMOUNT; break;
+		case oldfar::FLINK_SYMLINKFILE: flg = FLINK_SYMLINKFILE; break;
+		case oldfar::FLINK_SYMLINKDIR:  flg = FLINK_SYMLINKDIR; break;
 	}
 	if (Flags&oldfar::FLINK_SHOWERRMSG)       flg|=FLINK_SHOWERRMSG;
 	if (Flags&oldfar::FLINK_DONOTUPDATEPANEL) flg|=FLINK_DONOTUPDATEPANEL;
