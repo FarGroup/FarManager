@@ -20,9 +20,9 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkLink</dfn> создает жесткие и символические связи, а
+Функция <dfn>FSF.MkLink</dfn> создает жесткие и символические ссылки, связи каталогов, а
 также монтирует локальные диски на файловую систему. Функция работает
-только под WinNT4 и выше.
+только под Windows NT 4 и выше.
 </div>
 
 <pre class=syntax>
@@ -36,11 +36,11 @@ int WINAPI MkLink(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Src</div>
-  <div class=dfndescr>Имя файлового объекта, связь с которым создается.
+  <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.
   </div>
 
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Имя создаваемой связи.
+  <div class=dfndescr>Имя создаваемой ссылки.
   </div>
 
   <div class=dfn>Flags</div>
@@ -48,15 +48,23 @@ int WINAPI MkLink(
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
-  <td class="cont" width="60%">Создать жесткую связь (hardlink).
+  <td class="cont" width="60%">Создать жесткую ссылку (hardlink).
     </td></tr>
 
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINK">FLINK_SYMLINK</a></td>
-  <td class="cont" width="60%">Создать символическую связь (symlink).
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
+  <td class="cont" width="60%">Создать связь каталогов (junction).
     </td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
   <td class="cont" width="60%">монтировать локальный диск на файловую систему.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
+  <td class="cont" width="60%">Создать символическую ссылку-файл.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
+  <td class="cont" width="60%">Создать символическую ссылку-каталог.
     </td></tr>
 </table>
 
@@ -76,10 +84,10 @@ int WINAPI MkLink(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<p>1 - связь создана.
-<p>0 - ошибка при создании связи:
+<p>1 - ссылка создана.
+<p>0 - ошибка при создании ссылки:
 <ul>
-<li>Для жестких связей:
+<li>Для жестких ссылок:
   <ul>
    <li>Src или Dest находятся на разных разделах;
    <li>раздел не NTFS;
@@ -87,7 +95,7 @@ int WINAPI MkLink(
    <li>Src не существует или не является файлом.
    <li>Dest уже существует;
   </ul>
-<li>Для символических связей:
+<li>Для связей:
   <ul>
    <li>Src или Dest находятся не на локальных разделах;
    <li>раздел не NTFS 5.0;
@@ -107,21 +115,21 @@ int WINAPI MkLink(
 <h3>Примечание</h3>
 <div class=descr>
 <ol>
-<li>Связи создаются по следующим правилам:
+<li>Ссылки создаются по следующим правилам:
   <ul>
-  <li>жесткие связи (hardlink) создаются только для файлов в пределах
+  <li>жесткие ссылки (hardlink) создаются только для файлов в пределах
       текущего NTFS-раздела (<b>NT4/Win2K/NTFS</b>);
-  <li>символические связи (symlink) создаются только для каталогов в
+  <li>связи (junction) создаются только для каталогов в
       пределах локальных NTFS-разделов (<b>Win2K/NTFS 5.0</b>);
   <li>монтирование локальных дисков на файловую систему только на NTFS-раздел
       (<b>Win2K/NTFS 5.0</b>)
   </ul>
 <li>Если в качестве Src было передано значение, например "C:", то вместо
-символической связи будет монтирован диск.
+связи каталогов будет монтирован диск.
 <li>Если для монтирования диска Dest оканчивается слешем, то в Dest будет
 создан каталог "disk_N" (где N - буква диска).
 
-<li>Напрямую делать символические связи на папки CD-ROM нельзя, но можно это
+<li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это
 ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела (т.н. <a href="../dict.html#mountpoints">Mount Points</a>).
 И уже из этой папки сделать нужную связь.
 </div>

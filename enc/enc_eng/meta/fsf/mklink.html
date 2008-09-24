@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-The <dfn>FSF.MkLink</dfn> function supports creating hard and symbolic links and
+The <dfn>FSF.MkLink</dfn> function supports creating hard and symbolic links, directory junctions and
 mounting local drives to the file system.
 The function works only under Windows NT 4 or higher.
 </div>
@@ -46,12 +46,20 @@ int WINAPI MkLink(
   <td class="cont" width="60%">Create a hard link.
     </td></tr>
 
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINK">FLINK_SYMLINK</a></td>
-  <td class="cont" width="60%">Create a symbolic link (reparse point).
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
+  <td class="cont" width="60%">Create a directory junction.
     </td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
   <td class="cont" width="60%">Mount a local drive to the file system.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
+  <td class="cont" width="60%">Create a file symbolic link.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
+  <td class="cont" width="60%">Create a directory symbolic link.
     </td></tr>
 </table>
 
@@ -84,7 +92,7 @@ int WINAPI MkLink(
    <li>Src does not exist or is not a file;
    <li>Dest already exists;
   </ul>
-<li>For symbolic links:
+<li>For directory junctions:
   <ul>
    <li>Src or Dest is not on the local partition;
    <li>the partition is not NTFS 5.0;
@@ -108,20 +116,20 @@ int WINAPI MkLink(
   <ul>
   <li>hard links are created only for files within a single NTFS
       partition (<b>NT4/Win2K/XP</b>);
-  <li>symbolic links are created only for directories within local
+  <li>Directory junctions are created only for directories within local
       NTFS partitions (<b>Win2K/NTFS 5.0</b>);
   <li>mounting local drives to the file system is possible only on
       NTFS partitions (<b>Win2K/NTFS 5.0</b>).
   </ul>
 <li>If the value of Src is, for example, "C:", a volume mount will be
-    created instead of a symbolic link.
+    created instead of a junction.
 <li>If the destination directory for a volume mount operation is
     terminated with a backslash, a subdirectory "disk_N" will be
     created in Dest, where N is the letter of the drive being mounted.
 
-<li>You cannot create a symbolic link which points to a CD-ROM folder, but
+<li>On Windows 2000 you cannot create a junction which points to a CD-ROM folder, but
 you can mount this CD-ROM disk as an NTFS folder (see <a href="../dict.html#mountpoints">Mount Points</a>)
-and then create the necessary symbolic link.
+and then create the necessary junction.
 </div>
 
 <h3>Example</h3>
