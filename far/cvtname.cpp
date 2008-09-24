@@ -326,7 +326,9 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize, bool Inte
     _SVS(SysLog("%d FileAttr=0x%08X",__LINE__,GetFileAttributes(TempDest)));
     // немного интелектуальности не помешает - корректную инфу мы
     // можем получить только если каталог будет завершен слешем!
-    if((FileAttr=GetFileAttributes(TempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    
+    //если не каталог - всЄ равно пробуем, т.к. Ё“ќ может быть файл-симлинк
+    if((FileAttr=GetFileAttributes(TempDest)) != INVALID_FILE_ATTRIBUTES)
     {
       if(Ptr[-1] != '\\')
       {

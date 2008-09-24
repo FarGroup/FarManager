@@ -128,9 +128,19 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         offset = 4;
 
       //SetMessageHelp("DeleteLink");
+
+			char AskDeleteLink[1024];
+			strcpy(AskDeleteLink,MSG(MAskDeleteLink));
+			DWORD dwAttr=GetFileAttributes(JuncName);
+			if(dwAttr!=INVALID_FILE_ATTRIBUTES)
+			{
+				strcat(AskDeleteLink," ");
+				strcat(AskDeleteLink,dwAttr&FILE_ATTRIBUTE_DIRECTORY?MSG(MAskDeleteLinkFolder):MSG(MAskDeleteLinkFile));
+			}
+
       Ret=Message(0,3,MSG(MDeleteLinkTitle),
                 DeleteFilesMsg,
-                MSG(MAskDeleteLink),
+                AskDeleteLink,
                 JuncName+offset,
                 MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
 
@@ -284,8 +294,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           }
         }
 
-        bool SymLink=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
-        if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
+        bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+        if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
           char FullName[NM];
           ScanTree ScTree(TRUE,TRUE,-1,TRUE);
@@ -407,7 +417,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           int DeleteCode;
           // нефига здесь выделываться, а надо учесть, что удаление
           // симлинка в корзину чревато потерей оригинала.
-          if (SymLink || !Opt.DeleteToRecycleBin || Wipe)
+          if (DirSymLink || !Opt.DeleteToRecycleBin || Wipe)
           {
             /* $ 19.01.2003 KM
                Обработка кода возврата из ERemoveDirectory.
@@ -749,7 +759,7 @@ int RemoveToRecycleBin(const char *Name)
     ScTree.SetFindPath(Name,"*.*", 0);
     while (ScTree.GetNextName(&FindData,FullName2, sizeof (FullName2)-1))
     {
-      if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+      if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
         ERemoveDirectory(FullName2,FindData.cAlternateFileName,FALSE);
     }
   }

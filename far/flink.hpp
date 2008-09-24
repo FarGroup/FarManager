@@ -8,7 +8,7 @@ flink.hpp
 
 */
 
-int   WINAPI MkLink(const char *Src,const char *Dest);
+int   WINAPI MkHardLink(const char *Src,const char *Dest);
 int   WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);
 int   WINAPI GetNumberOfLinks(const char *Name);
@@ -28,5 +28,9 @@ void GetPathRootOne(const char *Path,char *Root);
 //    передается в параметре StreamName
 typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
+
+bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable);
+
+bool DuplicateReparsePoint(const char *Src,const char *Dst);
 
 #endif // __FLINK_HPP__

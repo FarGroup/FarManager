@@ -637,7 +637,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         int ID_Msg, Width;
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if(!strnicmp(JuncName+offset,"Volume{",7))
+          if(IsLocalVolumePath(JuncName) && !JuncName[49])
           {
             char JuncRoot[NM*2];
             JuncRoot[0]=JuncRoot[1]=0;
@@ -650,13 +650,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           else
           {
             ID_Msg=MSetAttrJunction;
-            Width=52;
+            Width=48;
           }
         }
         else
         {
           ID_Msg=MSetAttrSymlink;
-          Width=52;
+          Width=49;
         }
         sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
               (LenJunction?

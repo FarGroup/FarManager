@@ -118,6 +118,10 @@ enum enumShellCopy {
   ID_SC_ACINHERIT,
   ID_SC_SEPARATOR2,
   ID_SC_ONLYNEWER,
+
+  ID_SC_LINKTYPE,
+  ID_SC_LINKCOMBO,
+
   ID_SC_COPYSYMLINK,
   ID_SC_MULTITARGET,
   ID_SC_SEPARATOR3,
@@ -199,6 +203,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       return;
     }
   }
+
+	RPT=RP_EXACTCOPY;
 
   // Создадим объект фильтра
   Filter=new FileFilter(SrcPanel,FFT_COPY);
@@ -282,16 +288,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 07 */  DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(char *)MCopySecurityInherit,
   /* 08 */  DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 09 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopyOnlyNewerFiles,
-  /* 10 */  DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MCopySymLinkContents,
-  /* 11 */  DI_CHECKBOX,5,9,0,9,0,0,0,0,(char *)MCopyMultiActions,
-  /* 12 */  DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 13 */  DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MCopyUseFilter,
-  /* 14 */  DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 15 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-  /* 16 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
-  /* 17 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopySetFilter,
-  /* 18 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
-  /* 19 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
+
+  /* 10 */  DI_TEXT,        5, 7, 0, 7,0,0,DIF_HIDDEN|DIF_DISABLE,0,(char *)MLinkType,
+  /* 11 */  DI_COMBOBOX,   20, 7,70, 7,0,0,DIF_HIDDEN|DIF_DISABLE|DIF_DROPDOWNLIST,0,"",
+
+  /* 12 */  DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MCopySymLinkContents,
+  /* 13 */  DI_CHECKBOX,5,9,0,9,0,0,0,0,(char *)MCopyMultiActions,
+  /* 14 */  DI_TEXT,3,10,0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 15 */  DI_CHECKBOX,5,11,0,11,0,0,0,0,(char *)MCopyUseFilter,
+  /* 16 */  DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 17 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
+  /* 18 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
+  /* 19 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopySetFilter,
+  /* 20 */  DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
+  /* 21 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
@@ -376,7 +386,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if (CDP.SelCount==1)
   { // SelName & FileAttr уже заполнены (см. в самом начале функции)
-
+/*
     // Если каталог и он один, то предполагаем, что хотим создать симлинк
     if(Link && NT5 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY && DestPanelMode == NORMAL_PANEL)
     {
@@ -384,6 +394,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CDP.FolderPresent=TRUE;
     }
     else
+*/
       CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
 
     if (SrcPanel->GetType()==TREE_PANEL)
@@ -432,24 +443,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   sprintf(CopyDlg[ID_SC_SOURCEFILENAME].Data,"%.65s",CopyStr);
 
   // заголовки контролов
-  strcpy(CopyDlg[ID_SC_ONLYNEWER].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
   strcpy(CopyDlg[ID_SC_TITLE].Data,MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle)));
   strcpy(CopyDlg[ID_SC_BTNCOPY].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
 
-  if (Link)
-  {
-    // задисаблим опцию про симлинк, если OS < NT2000.
-    if(!NT5 || ((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
-    {
-      CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
-      CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
-    }
-    // задисаблим опцию про копирование права.
-    CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
-    CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
-    CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
-  }
-  else if(DestPanelMode == PLUGIN_PANEL)
+  if(DestPanelMode == PLUGIN_PANEL)
   {
     // Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
     CDP.CopySecurity=2;
@@ -547,6 +544,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Link) // рулесы по поводу линков (предварительные!)
   {
+/*
++    // задисаблим опцию про симлинк, если OS < NT2000.
++    if(!NT5 || ((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
++    {
++      CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
++      CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
++    }
++*/
+    // задисаблим опцию про копирование права.
+    CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
+    CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
+    CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
+
+/*
     int SelectedSymLink=CopyDlg[ID_SC_ONLYNEWER].Selected;
     if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
       SelectedSymLink=1;
@@ -554,13 +565,41 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                   &CopyDlg[ID_SC_ONLYNEWER].Flags,
                   &SelectedSymLink,
                   SrcDir,
-                  (char *)CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrData,
+                  (char *)CopyDlg[ID_SC_TARGETEDIT].Data,
                   &CDP))
     {
       _LOGCOPYR(SysLog("return -> %d LinkRules() == 0",__LINE__));
       return;
     }
     CopyDlg[ID_SC_ONLYNEWER].Selected=SelectedSymLink;
+*/
+		// Уберём с глаз "only newer files"...
+		CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_HIDDEN|DIF_DISABLE;
+		// и покажем выбор типа ссылки
+		CopyDlg[ID_SC_LINKTYPE].Flags^=DIF_HIDDEN|DIF_DISABLE;
+		CopyDlg[ID_SC_LINKCOMBO].Flags^=DIF_HIDDEN|DIF_DISABLE;
+		
+		FarList LinkTypeList;
+		LinkTypeList.Items=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
+		LinkTypeList.ItemsNumber=4;
+
+		memset(LinkTypeList.Items,0,sizeof(FarListItem)*4);
+		strcpy(LinkTypeList.Items[0].Text,MSG(MLinkTypeHardlink));
+		strcpy(LinkTypeList.Items[1].Text,MSG(MLinkTypeJunction));
+		strcpy(LinkTypeList.Items[2].Text,MSG(MLinkTypeSymlinkFile));
+		strcpy(LinkTypeList.Items[3].Text,MSG(MLinkTypeSymlinkDirectory));
+
+		if(CDP.FilesPresent)
+				LinkTypeList.Items[0].Flags|=LIF_SELECTED;
+		else
+			LinkTypeList.Items[1].Flags|=LIF_SELECTED;
+
+		if(WinVer.dwMajorVersion<6)
+		{
+			LinkTypeList.Items[2].Flags|=LIF_DISABLE;
+			LinkTypeList.Items[3].Flags|=LIF_DISABLE;
+		}
+		CopyDlg[ID_SC_LINKCOMBO].ListItems=&LinkTypeList;
   }
 
   // корректирем позицию " to"
@@ -682,6 +721,21 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopySecurityCopy=CDP.CopySecurity;
   }
 
+	switch(CopyDlg[ID_SC_LINKCOMBO].ListPos)
+	{
+		case 0:
+			RPT=RP_HARDLINK;
+			break;
+		case 1:
+			RPT=RP_JUNCTION;
+			break;
+		case 2:
+			RPT=RP_SYMLINKFILE;
+			break;
+		case 3:
+			RPT=RP_SYMLINKDIR;
+			break;
+	}
   ShellCopy::Flags|=CopyDlg[ID_SC_ONLYNEWER].Selected?FCOPY_ONLYNEWERFILES:0;
   ShellCopy::Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
@@ -1054,11 +1108,13 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
         {
+/* пока отключим
           DlgParam->thisClass->LinkRules(&DItemBtnCopy.Flags,
                     &DItemOnlyNewer.Flags,
                     &DItemOnlyNewer.Param.Selected,
                     SrcDir,
                     ((struct FarDialogItem *)Param2)->Data.Ptr.PtrData,DlgParam);
++*/
         }
         else // обычные Copy/Move
         {
@@ -1198,6 +1254,8 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
                          char *SrcDir,char *DstDir,struct CopyDlgParam *CDP)
 {
+// пока отключим
+#if 0
   char Root[1024];
   *Flags9|=DIF_DISABLE; // дисаблим сразу!
   *Flags5|=DIF_DISABLE;
@@ -1339,6 +1397,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
   }
   else
     return FALSE;
+#endif
   return TRUE;
 }
 
@@ -1503,7 +1562,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     KeepPathPos=(int)(PointToName(SelName)-SelName);
     _LOGCOPYR(SysLog("%d KeepPathPos=%d",__LINE__,KeepPathPos));
-    if(!stricmp(SrcDriveRoot,SelName) && (ShellCopy::Flags&FCOPY_CREATESYMLINK)) // но сначала посмотрим на "это корень диска?"
+    if(!stricmp(SrcDriveRoot,SelName) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)) // но сначала посмотрим на "это корень диска?"
     {
       _LOGCOPYR(SysLog("%d if(!stricmp(SrcDriveRoot,SelName) &&...",__LINE__));
       SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
@@ -1532,10 +1591,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       }
     }
 
-    // Если это каталог и трэба создать симлинк...
-    if((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-       (ShellCopy::Flags&FCOPY_CREATESYMLINK)
-      )
+    // Если это каталог и трэба создать связь...
+		if(RPT==RP_SYMLINKFILE || (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR))
     {
       /*
       ЭТОТ кусок, если хотим не делать ссылку на ссылку!
@@ -1543,7 +1600,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       ConvertNameToReal(SelName,SrcRealName,sizeof(SrcRealName));
       switch(MkSymLink(SrcRealName,Dest,ShellCopy::Flags))
       */
-      switch(MkSymLink(SelName,Dest,ShellCopy::Flags))
+      switch(MkSymLink(SelName,Dest,RPT,ShellCopy::Flags))
       {
         case 2:
           break;
@@ -1671,7 +1728,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     // Mantis#44 - Потеря данных при копировании ссылок на папки
     // если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-    if ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+    if (RPT!=RP_SYMLINKFILE && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
         (
           !(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) ||
           (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)
@@ -1951,7 +2008,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   if (DestAttr==(DWORD)-1)
   {
-    GetFileWin32FindData(DestPath,&DestData);
+    GetFileWin32FindData(DestPath,&DestData,false);
     DestAttr=DestData.dwFileAttributes;
   }
   _LOGCOPYR(SysLog("%d DestAttr=0x%08X",__LINE__,DestAttr));
@@ -2124,7 +2181,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         return COPY_CANCEL;
     }
 
-    if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    if(SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ||
+			(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
     {
       _LOGCOPYR(CleverSysLog Clev("if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
       if (!Rename)
@@ -2293,6 +2351,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         return COPY_CANCEL;
       }
 
+			if(RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
       while (!CreateDirectory(DestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
         int MsgCode;
@@ -2403,15 +2462,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             return((MsgCode==-2 || MsgCode==3) ? COPY_CANCEL:COPY_NEXT);
           }
         }
-      }
+      }}
 #if 1
       // для источника, имеющего суть симлинка - создадим симлинк
       // Если [ ] Copy contents of symbolic links
-      if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
+      if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS) && RPT==RP_EXACTCOPY)
       {
         char SrcRealName[NM*2];
         ConvertNameToFull(Src,SrcRealName,sizeof(SrcRealName));
-        switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
+        switch(MkSymLink(SrcRealName,DestPath,RPT,0))
         {
           case 2:
             _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
@@ -3081,8 +3140,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   if ((ShellCopy::Flags&FCOPY_LINK))
   {
-    FAR_DeleteFile(DestName);
-    return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
+		if(RPT==RP_HARDLINK)
+		{
+			FAR_DeleteFile(DestName);
+			return(MkHardLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
+		}
+		else
+		{
+			return(MkSymLink(SrcName,DestName,RPT,0) ? COPY_SUCCESS:COPY_FAILURE);
+		}
   }
 
   if((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
@@ -4400,11 +4466,11 @@ char *ShellCopy::GetParentFolder(const char *Src, char *Dest, int LenDest)
 }
 
 // Кусок для создания SymLink для каталогов.
-int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
+int ShellCopy::MkSymLink(const char *SelName,const char *Dest,ReparsePointTypes LinkType,DWORD Flags)
 {
   _LOGCOPYR(CleverSysLog Clev("ShellCopy::MkSymLink()"));
   _LOGCOPYR(SysLog("Params: SelName='%s', Dest='%s', Flags=0x%08X",SelName,Dest,Flags));
-  if (Flags&(FCOPY_LINK|FCOPY_VOLMOUNT))
+  if(SelName && *SelName && Dest && *Dest)
   {
     char SrcFullName[NM], DestFullName[NM], SelOnlyName[NM];
     char MsgBuf[NM],MsgBuf2[NM];
@@ -4431,12 +4497,11 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     Т.е. если в качестве SelName передали "C:", то в этом куске происходит
     коррекция типа линка - с symlink`а на volmount
 */
-      Flags&=~FCOPY_LINK;
-      Flags|=FCOPY_VOLMOUNT;
+      LinkType=RP_VOLMOUNT;
       _LOGCOPYR(SysLog("Flags=0x%08X (transfer SymLink to VolMount)",Flags));
     }
     else
-      if (ConvertNameToReal(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
+      if (ConvertNameToFull(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         return 0;
     _LOGCOPYR(SysLog("Src: ConvertNameToReal('%s','%s')",SelName,SrcFullName));
 
@@ -4447,7 +4512,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 //    char *EndDestFullName=DestFullName+strlen(DestFullName);
     if(DestFullName[strlen(DestFullName)-1] == '\\')
     {
-      if(!(Flags&FCOPY_VOLMOUNT))
+      if(LinkType!=RP_VOLMOUNT)
       {
         // AddEndSlash(DestFullName);
         xstrncat(DestFullName,PtrSelName,sizeof(DestFullName)-1);
@@ -4459,7 +4524,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
       }
     }
 
-    if(Flags&FCOPY_VOLMOUNT)
+    if(LinkType==RP_VOLMOUNT)
     {
       AddEndSlash(SrcFullName);
       AddEndSlash(DestFullName);
@@ -4485,7 +4550,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
         _LOGCOPYR(SysLog("CheckFolder('%s') == CHKFLD_NOTEMPTY",DestFullName));
         // не пустой, ну что же, тогда пробуем сделать dest\srcname
         AddEndSlash(DestFullName);
-        if(Flags&FCOPY_VOLMOUNT)
+        if(LinkType==RP_VOLMOUNT)
         {
           char TmpName[NM];
           sprintf(TmpName,MSG(MCopyMountName),*SelName);
@@ -4505,7 +4570,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
             _LOGCOPYR(SysLog("%d CheckFolder('%s') == CHKFLD_NOTEMPTY",__LINE__,DestFullName));
             if(!(Flags&FCOPY_NOSHOWMSGLINK))
             {
-              if(Flags&FCOPY_VOLMOUNT)
+              if(LinkType==RP_VOLMOUNT)
               {
                 sprintf(MsgBuf,MSG(MCopyMountVolFailed), SelName);
                 sprintf(MsgBuf2,MSG(MCopyMountVolFailed2), DestFullName);
@@ -4517,7 +4582,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
               }
               else
                 Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-                      MSG(MCopyCannotCreateJunction),DestFullName,
+                      MSG(MCopyCannotCreateLink),DestFullName,
                       MSG(MCopyFolderNotEmpty),MSG(MOk));
             }
             _LOGCOPYR(SysLog("return 0 -> %d Unequivocally into mortuary",__LINE__));
@@ -4547,28 +4612,68 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     }
     else
     {
-      _LOGCOPYR(SysLog("Folder '%s' not exist. Create",DestFullName));
-      if (CreateDirectory(DestFullName,NULL))
-        TreeList::AddTreeName(DestFullName);
-      else
-        CreatePath(DestFullName);
-
-      if(GetFileAttributes(DestFullName) == -1) // так. все очень даже плохо.
-      {
-        if(!(Flags&FCOPY_NOSHOWMSGLINK))
-        {
-          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-                   MSG(MCopyCannotCreateFolder),DestFullName,MSG(MOk));
-        }
-        _LOGCOPYR(SysLog("return 0 -> %d So, all very much even is bad: GetFileAttributes('%s') == -1",__LINE__,DestFullName));
-        return 0;
-      }
-    }
-
-    _LOGCOPYR(SysLog("('%s','%s')",SrcFullName,DestFullName));
-    if(Flags&FCOPY_LINK)
-    {
-      if(CreateReparsePoint(SrcFullName,DestFullName))
+			if(LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
+			{
+				// в этом случае создается путь, но не сам каталог
+				char Path[1024];
+				strcpy(Path,DestFullName);
+				char *tmp=PointToName(Path);
+				if(tmp)
+				{
+					*tmp=0;
+					if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
+						CreatePath(Path);
+				}
+			}
+			else
+			{
+				bool CreateDir=true;
+				if(LinkType==RP_EXACTCOPY)
+				{
+					// в этом случае создается или каталог, или пустой файл
+					DWORD dwSrcAttr=GetFileAttributes(SrcFullName);
+					if(dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
+						CreateDir=false;
+				}
+				if(CreateDir)
+				{
+					if (CreateDirectory(DestFullName,NULL))
+						TreeList::AddTreeName(DestFullName);
+					else
+						CreatePath(DestFullName);
+				}
+				else
+				{
+					char Path[1024];
+					strcpy(Path,DestFullName);
+					char *tmp=PointToName(Path);
+					if(tmp)
+					{
+						*tmp=0;
+						// создаём
+						if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
+							CreatePath(Path);
+						HANDLE hFile=FAR_CreateFile(DestFullName,0,0,0,CREATE_NEW,GetFileAttributes(SrcFullName),0);
+						if(hFile!=INVALID_HANDLE_VALUE)
+						{
+							CloseHandle(hFile);
+						}
+					}
+				}
+				if(GetFileAttributes(DestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				{
+					if(!(Flags&FCOPY_NOSHOWMSGLINK))
+					{
+						Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+										MSG(MCopyCannotCreateLink),DestFullName,MSG(MOk));
+					}
+					return 0;
+				}
+			}
+		}
+		if(LinkType!=RP_VOLMOUNT)
+		{
+      if(CreateReparsePoint(SrcFullName,DestFullName,LinkType))
       {
         _LOGCOPYR(SysLog("Ok: CreateReparsePoint('%s','%s')",SrcFullName,DestFullName));
         return 1;
@@ -4578,13 +4683,13 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
         {
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-                 MSG(MCopyCannotCreateJunction),DestFullName,MSG(MOk));
+                 MSG(MCopyCannotCreateLink),DestFullName,MSG(MOk));
         }
         _LOGCOPYR(SysLog("Fail: CreateReparsePoint('%s','%s')",SrcFullName,DestFullName));
         return 0;
       }
     }
-    else if(Flags&FCOPY_VOLMOUNT)
+    else
     {
       int ResultVol=CreateVolumeMountPoint(SrcFullName,DestFullName);
       if(!ResultVol)

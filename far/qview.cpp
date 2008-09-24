@@ -119,15 +119,14 @@ void QuickView::DisplayObject()
       DWORD ReparseTag=0;
       if(GetReparsePointInfo(CurFileName,JuncName,sizeof(JuncName),&ReparseTag)) //"\??\D:\Junc\Src\"
       {
-        int ID_Msg=MQuickViewJunction, Width=9;
-        
-        int offset = 0;
+        int ID_Msg=MQuickViewJunction, Width=11;
+        int offset=0;
         if (!strncmp(JuncName,"\\??\\",4))
-        offset = 4;
+          offset = 4;
 
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if(!strnicmp(JuncName+offset,"Volume{",7))
+          if(IsLocalVolumePath(JuncName) && !JuncName[49])
           {
             char JuncRoot[NM*2];
             JuncRoot[0]=JuncRoot[1]=0;
@@ -135,13 +134,13 @@ void QuickView::DisplayObject()
             if(JuncRoot[1] == ':')
               strcpy(JuncName+offset,JuncRoot);
             ID_Msg=MQuickViewVolMount;
-            Width=20;
+            Width=21;
           }
         }
         else if(ReparseTag==IO_REPARSE_TAG_SYMLINK)
         {
           ID_Msg=MQuickViewSymlink;
-          Width=9;
+          Width=11;
         }
         sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+offset,X2-X1-4-Width));
         //TruncStr(Msg,X2-X1-4);
