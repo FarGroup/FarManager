@@ -608,7 +608,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		// и покажем выбор типа ссылки
 		CopyDlg[ID_SC_LINKTYPE].Flags^=DIF_HIDDEN|DIF_DISABLE;
 		CopyDlg[ID_SC_LINKCOMBO].Flags^=DIF_HIDDEN|DIF_DISABLE;
-		
+
 		FarList LinkTypeList;
 		LinkTypeList.Items=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
 		LinkTypeList.ItemsNumber=4;
@@ -3090,7 +3090,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
 //  int64 WrittenSize(0,0);
   int   AbortOp = FALSE;
-  UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
+  //UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
   unsigned __int64 FileSize = SrcData.nFileSize;
 
   BOOL SparseQueryResult=TRUE;
@@ -3157,7 +3157,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               _wremove(DestName); //BUGBUG
             }
           }
-          SetErrorMode(OldErrMode);
+          //SetErrorMode(OldErrMode);
           return COPY_CANCEL;
         }
 
@@ -3189,7 +3189,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           }
           ShowBar(0,0,false);
           ShowTitle(FALSE);
-          SetErrorMode(OldErrMode);
+          //SetErrorMode(OldErrMode);
           SetLastError(_localLastError=LastError);
           CurCopiedSize = 0; // Сбросить текущий прогресс
           return COPY_FAILURE;
@@ -3235,7 +3235,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                       SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
                       _wremove(DestName); //BUGBUG
                     }
-                    SetErrorMode(OldErrMode);
+                    //SetErrorMode(OldErrMode);
                     return COPY_FAILURE;
                   }
                   if (MsgCode==0)
@@ -3274,7 +3274,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
               {
                 CloseHandle(SrcHandle);
-                SetErrorMode(OldErrMode);
+                //SetErrorMode(OldErrMode);
                 return(COPY_CANCEL);
               }
               string strDestDir = DestName;
@@ -3298,7 +3298,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                 DWORD LastError=GetLastError();
                 CloseHandle(SrcHandle);
                 CloseHandle(DestHandle);
-                SetErrorMode(OldErrMode);
+                //SetErrorMode(OldErrMode);
                 SetLastError(_localLastError=LastError);
                 return COPY_FAILURE;
               }
@@ -3325,7 +3325,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               }
               ShowBar(0,0,false);
               ShowTitle(FALSE);
-              SetErrorMode(OldErrMode);
+              //SetErrorMode(OldErrMode);
               SetLastError(_localLastError=LastError);
               if (SplitSkipped)
                 return COPY_NEXT;
@@ -3373,7 +3373,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   }
   while(!SparseQueryResult && CopySparse);
 
-  SetErrorMode(OldErrMode);
+  //SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {

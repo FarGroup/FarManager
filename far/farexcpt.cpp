@@ -46,10 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "BlockExtKey.hpp"
 
-#define MAX_DELTA_CODE  100
-
-static DWORD WINAPI _xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags);
-
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
                Plugin *Module,
@@ -73,56 +69,19 @@ static const wchar_t* xFromMSGTitle(int From)
     return MSG(MExceptTitle);
 }
 
+
 static BOOL Is_STACK_OVERFLOW=FALSE;
 
-DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
-{
-  DWORD Result;
-
-  if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
-  {
-    static struct {
-      BYTE      _space[32768];
-      DWORD_PTR ret_addr;
-      DWORD_PTR args[4];
-    }_stack;
-
-    Is_STACK_OVERFLOW=TRUE;
-    _stack.ret_addr = 0;
-#ifndef _WIN64
-    _stack.args[0] = (DWORD_PTR)From;
-    _stack.args[1] = (DWORD_PTR)xp;
-    _stack.args[2] = (DWORD_PTR)Module;
-    _stack.args[3] = Flags;
-    xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
-#else
-    xp->ContextRecord->Rcx = (DWORD_PTR)From;
-    xp->ContextRecord->Rdx = (DWORD_PTR)xp;
-    xp->ContextRecord->R8  = (DWORD_PTR)Module;
-    xp->ContextRecord->R9  = Flags;
-    xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
-#endif
-
-    Result=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
-    //Result=_xfilter(From,xp,Module,Flags);
-  }
-  else
-    Result=_xfilter(From,xp,Module,Flags);
-
-  return Result;
-}
-
+// Some parametes for _xfilter function
+static int From=0;                     // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
+static EXCEPTION_POINTERS *xp=NULL;    // данные ситуации
+static Plugin *Module=NULL;     // модуль, приведший к исключению.
+static DWORD Flags=0;                  // дополнительные флаги - пока только один
+                                       //        0x1 - спрашивать про выгрузку?
 
 extern void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-static DWORD WINAPI _xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    Plugin *Module,// модуль, приведший к исключению.
-    DWORD Flags)              // дополнительные флаги - пока только один
-                              //        0x1 - спрашивать про выгрузку?
+static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
 {
    ProcessException=TRUE;
    BlockExtKey blockExtKey;
@@ -217,9 +176,9 @@ static DWORD WINAPI _xfilter(
      if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
      {
        CriticalInternalError=TRUE;
-       TerminateProcess( GetCurrentProcess(), 1);
+       //TerminateProcess( GetCurrentProcess(), 1);
      }
-     return Result;
+     return (::From=Result);
    }
 
 
@@ -233,12 +192,13 @@ static DWORD WINAPI _xfilter(
      {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+     {EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
+     {EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
+     {EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
      {EXCEPTION_ILLEGAL_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_PRIV_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_DATATYPE_MISALIGNMENT, MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
   // сюды добавляем.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
@@ -426,5 +386,60 @@ static DWORD WINAPI _xfilter(
 
 //   return UnhandledExceptionFilter(xp);
 
-   return rc;
+   return (::From=rc);
+}
+
+
+DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
+{
+  // dummy parametrs setting
+  ::From=From;
+  ::xp=xp;
+  ::Module=Module;
+  ::Flags=Flags;
+
+    if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) // restore stack & call_xfilter ;
+  {
+    Is_STACK_OVERFLOW=TRUE;
+
+#ifdef _M_IA64
+    // TODO: Bad way to restore IA64 stacks (CreateThread)
+    // Can you do smartly? See REMINDER file, section IA64Stacks
+    static HANDLE hThread = NULL;
+    if ( (hThread = CreateThread (NULL, 0, _xfilter, NULL, 0, NULL)) == NULL )
+    {
+      TerminateProcess (GetCurrentProcess(), 1);
+    }
+    WaitForSingleObject (hThread, INFINITE);
+    CloseHandle( hThread );
+#else
+    static struct {
+      BYTE      stack_space[32768];
+      DWORD_PTR ret_addr;
+      DWORD_PTR args[4];
+    }_stack;
+
+    _stack.ret_addr = 0;
+#ifndef _WIN64
+    //_stack.args[0] = (DWORD_PTR)From;
+    //_stack.args[1] = (DWORD_PTR)xp;
+    //_stack.args[2] = (DWORD_PTR)Module;
+    //_stack.args[3] = Flags;
+    xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
+    xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
+#else
+    //xp->ContextRecord->Rcx = (DWORD_PTR)From;
+    //xp->ContextRecord->Rdx = (DWORD_PTR)xp;
+    //xp->ContextRecord->R8  = (DWORD_PTR)Module;
+    //xp->ContextRecord->R9  = Flags;
+    xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
+    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
+#endif
+#endif
+    ::From=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
+  }
+  else
+    _xfilter ();
+
+  return ::From;
 }

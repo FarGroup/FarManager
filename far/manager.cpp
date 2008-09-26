@@ -613,12 +613,15 @@ void Manager::ExitMainLoop(int Ask)
 #if defined(_MSC_VER)
 #pragma warning( push )
 #pragma warning( disable : 4717)
-#ifdef _WIN64
-#ifdef __cplusplus
-extern "C"
+//#ifdef __cplusplus
+//#if defined(_MSC_VER < 1500) // TODO: See REMINDER file, section intrin.h
+#ifndef _M_IA64
+extern "C" void __ud2 (void);
+#else
+extern "C" void __setReg (int, unsigned __int64);
 #endif
-          void _cdecl exec_ud2_cmd(void);
-#endif
+//#endif                       // TODO: See REMINDER file, section intrin.h
+//#endif
 #endif
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
@@ -688,9 +691,11 @@ int  Manager::ProcessKey(DWORD Key)
         {EXCEPTION_ILLEGAL_INSTRUCTION,L"Illegal instruction"},
         {EXCEPTION_STACK_OVERFLOW,L"Stack Overflow"},
         {EXCEPTION_FLT_DIVIDE_BY_ZERO,L"Floating-point divide by zero"},
+#ifdef _M_IA64
+        {EXCEPTION_DATATYPE_MISALIGNMENT,L"Alignment fault (IA64 specific)",},
+#endif
 /*
         {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
-        {EXCEPTION_DATATYPE_MISALIGNMENT,"EXCEPTION_DATATYPE_MISALIGNMENT",},
         {EXCEPTION_BREAKPOINT,"EXCEPTION_BREAKPOINT",},
         {EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
         {EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
@@ -714,6 +719,7 @@ int  Manager::ProcessKey(DWORD Key)
         int     *iptr;
         double  d;
       }zero_const, refers;
+      zero_const.i=0L;
 
       MenuItemEx ModalMenuItem;
 
@@ -733,32 +739,49 @@ int  Manager::ProcessKey(DWORD Key)
 
       switch(ExitCode)
       {
+        case -1:
+          return TRUE;
         case 0:
-          return *zero_const.iptr;
+          zero_const.i=*zero_const.iptr;
+          break;
         case 1:
           *zero_const.iptr = 0;
           break;
         case 2:
-          return i / zero_const.i;
+          zero_const.i=1/zero_const.i;
+          break;
         case 3:
-#ifdef _WIN64
-          exec_ud2_cmd();
+#if defined(_MSC_VER)
+#ifdef _M_IA64
+#define __REG_IA64_IntR0 1024
+          __setReg(__REG_IA64_IntR0, 666);
+#else
+          __ud2();
+#endif
 #elif defined(__GNUC__)
           asm("ud2");
-#elif defined(_MSC_VER)
-          _asm _emit 0xF
-          _asm _emit 0xB
 #else
 #error "Unsupported compiler"
 #endif
-          return 0;
+          break;
         case 4:
           Test_EXCEPTION_STACK_OVERFLOW(NULL);
-          return 0;
+          break;
         case 5:
           refers.d = 1 / zero_const.d;
-          return 0;
+#ifdef _M_IA64
+          break;
+        case 6:
+        {
+          BYTE temp[10];
+          memset (temp, 0, 10);
+          double* val;
+          val = (double*)(&temp[3]);
+          printf("%lf\n", *val);
+        }
+#endif
       }
+      Message (MSG_WARNING, 1, L"Test Exceptions failed", L"", ECode[ExitCode].Name, L"", MSG(MOk));
       return TRUE;
     }
 #endif

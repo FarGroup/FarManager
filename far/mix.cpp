@@ -1500,10 +1500,10 @@ BOOL IsDiskInDrive(const wchar_t *Root)
   strDrive = Root;
 
   AddEndSlash(strDrive);
-  UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
+  //UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
   //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
   BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
-  SetErrorMode(ErrMode);
+  //SetErrorMode(ErrMode);
   return Res;
 }
 

@@ -92,7 +92,7 @@ void InitConsole(int FirstInit)
     KeyQueue=new FarQueue<DWORD>(1024);
 
   SetFarConsoleMode();
-  SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+  //SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
   /* $ 09.04.2002 DJ
      если мы под NT и размер консольного буфера больше размера окна, выставим
      их равными

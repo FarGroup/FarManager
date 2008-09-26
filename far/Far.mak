@@ -4,7 +4,7 @@ CFG=far - Win32 Release
 !MESSAGE No configuration specified. Defaulting to far - Win32 Release.
 !ENDIF
 
-!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug"
+!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug" && "$(CFG)" != "far - WinIA64 Release" && "$(CFG)" != "far - WinIA64 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
@@ -17,6 +17,8 @@ CFG=far - Win32 Release
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win64 Release" (based on "Win32 (x64) Console Application")
 !MESSAGE "far - Win64 Debug" (based on "Win32 (x64) Console Application")
+!MESSAGE "far - WinIA64 Release" (based on "Win32 (IA64) Console Application")
+!MESSAGE "far - WinIA64 Debug" (based on "Win32 (IA64) Console Application")
 !MESSAGE
 !ERROR An invalid configuration is specified.
 !ENDIF
@@ -37,17 +39,21 @@ ULINK=ulink.exe
 # ѕути
 FARINCLUDE=.\Include
 
-_BUILD64=0
+_BUILD64=1
 !IF  "$(CFG)" == "far - Win32 Release"
+_BUILD64=0
 OUTDIR=.\Release.vc
 !ELSEIF  "$(CFG)" == "far - Win32 Debug"
+_BUILD64=0
 OUTDIR=.\Debug.vc
 !ELSEIF  "$(CFG)" == "far - Win64 Release"
 OUTDIR=.\Release.64.vc
-_BUILD64=1
 !ELSEIF  "$(CFG)" == "far - Win64 Debug"
 OUTDIR=.\Debug.64.vc
-_BUILD64=1
+!ELSEIF  "$(CFG)" == "far - WinIA64 Release"
+OUTDIR=.\Release.IA64.vc
+!ELSEIF  "$(CFG)" == "far - WinIA64 Debug"
+OUTDIR=.\Debug.IA64.vc
 !ENDIF
 
 !if $(_BUILD64)
@@ -75,7 +81,7 @@ RES_FILES= \
 PCH_FILES= \
            "$(INTDIR)\headers.c.pch"\
            "$(INTDIR)\headers.cpp.pch"
-           
+
 # —юды добавл€ть то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
 !if !$(_BUILD64) && !defined(DISABLE_WOW64_HOOK)
@@ -149,9 +155,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
-!if $(_BUILD64)
-	"$(INTDIR)\deb64_ud2.obj" \
-!endif
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
 	"$(INTDIR)\mix.obj" \
@@ -236,7 +239,7 @@ DEFINES=\
 
 CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FAR_ALPHA_VERSION) $(FARSYSLOG) $(FARTRY) $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 CPP_PROJ_RELEASE=/MT /O1
-CPP_PROJ_DEBUG=/MTd /Od /Zi 
+CPP_PROJ_DEBUG=/MTd /Od /Zi
 
 LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" $(NODEFAULTLIB) /pdb:"$(OUTDIR)\far.pdb" /release
 
@@ -257,6 +260,13 @@ CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
 LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:amd64
 ULINK_FLAGS=-Tpe+
 
+!ELSEIF "$(CFG)" == "far - WinIA64 Release"
+
+USEDEBUG=NDEBUG
+
+CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
+LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:IA64
+
 !ELSEIF "$(CFG)" == "far - Win64 Debug"
 
 USEDEBUG=_DEBUG
@@ -264,6 +274,13 @@ USEDEBUG=_DEBUG
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
 LINK32_FLAGS=$(LINK_COMMON) /debug /machine:amd64
 ULINK_FLAGS=-Tpe+ -v
+
+!ELSEIF "$(CFG)" == "far - WinIA64 Debug"
+
+USEDEBUG=_DEBUG
+
+CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
+LINK32_FLAGS=$(LINK_COMMON) /debug /machine:IA64
 
 !ELSE
 
@@ -285,7 +302,7 @@ AllDirs:
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
 	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
-	
+
 "$(OUTDIR)\Far.exe" : $(DEF_FILE) $(PCH_FILES) $(LINK32_OBJS) $(RES_FILES)
 !IFNDEF LINK_ULINK
 	$(LINK32) @<<
@@ -372,7 +389,7 @@ AllDirs:
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release"
+!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release" || "$(CFG)" == "far - WinIA64 Release"
 !IF EXISTS("far.release.dep")
 !INCLUDE "far.release.dep"
 !ELSE

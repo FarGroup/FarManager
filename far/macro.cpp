@@ -1683,9 +1683,9 @@ static bool _fattrFunc(int Type)
     TVar Str = VMStack.Pop();
     UINT  PrevErrMode;
     // дабы не выскакивал гуевый диалог, если диск эжектед.
-    PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+    //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     FileAttr=GetFileAttributesW((wchar_t *)Str.toString());
-    SetErrorMode(PrevErrMode);
+    //SetErrorMode(PrevErrMode);
     Ret=true;
   }
   else
