@@ -1136,8 +1136,8 @@ void MenuFileToReg(char *MenuKey,FILE *MenuFile)
         continue;
       sprintf(ItemKey,"%s\\Item%d",MenuKey,++KeyNumber);
       *ChPtr=0;
-      strcpy(HotKey,MenuStr);
-      strcpy(Label,ChPtr+1);
+      xstrncpy(HotKey,MenuStr,sizeof(HotKey)-1);
+      xstrncpy(Label,ChPtr+1,sizeof(Label)-1);
       RemoveLeadingSpaces(Label);
       SaveFilePos SavePos(MenuFile);
       SubMenu=(fgets(MenuStr,sizeof(MenuStr),MenuFile)!=NULL && *MenuStr=='{');
