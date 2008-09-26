@@ -1,3 +1,14 @@
+drkns 26.09.2008 08:13:14 +0200 - build 571
+
+1. Бантики:
+   - UMSG -> MSG
+   - к ещё оставшимся winapi ansi функциям и структурам явно дописан суффикс 'A', + юникод определён по умолчанию.
+   - Тип параметра у UnicodeString.[Get|Release]Buffer - size_t.
+
+2. В WaitKey Sleep теперь не на 50 мс, а на одну - так и процессор не греет, и побочных эффектов (http://forum.farmanager.com/viewtopic.php?t=3492) нет.
+
+3. Добавлен #undef DefDlgProc - в WinUser.h уже есть одноимённое определение, а в far.map потом появляются чудеса вида ?DefDlgProcA@Dialog@
+
 drkns 24.09.2008 19:04:47 +0200 - build 570
 
 1. Поддержка создания вистовских ссылок по AltF6.

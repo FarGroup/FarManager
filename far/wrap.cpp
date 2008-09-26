@@ -735,7 +735,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const 
 {
 	PFAR_SEARCH_A_CALLBACK_PARAM pCallbackParam = static_cast<PFAR_SEARCH_A_CALLBACK_PARAM>(param);
 
-	WIN32_FIND_DATA FindData;
+	WIN32_FIND_DATAA FindData;
 	memset(&FindData,0,sizeof(FindData));
 	FindData.dwFileAttributes = FData->dwFileAttributes;
 	FindData.ftCreationTime = FData->ftCreationTime;

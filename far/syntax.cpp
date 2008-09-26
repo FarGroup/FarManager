@@ -175,11 +175,11 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
     ErrMessage[0]=ErrMessage[1]=ErrMessage[2]=L"";
     if ( ePos < 0 )
     {
-      ErrMessage[0] = UMSG(MMacroPErrExpr_Expected); // TODO: .Format !
+      ErrMessage[0] = MSG(MMacroPErrExpr_Expected); // TODO: .Format !
       return;
     }
 
-    ErrMessage[0].Format (UMSG(MMacroPErrUnrecognized_keyword+err-1),c);
+    ErrMessage[0].Format (MSG(MMacroPErrUnrecognized_keyword+err-1),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;

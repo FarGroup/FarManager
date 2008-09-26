@@ -74,16 +74,16 @@ bool FileFilter::FilterEdit()
     DWORD Inc,Exc;
     GetIncludeExcludeFlags(Inc,Exc);
     if (FolderFlags.Check(Inc))
-      FilterList.SetTitle(UMSG(MFilterTitle_IncFolders));
+      FilterList.SetTitle(MSG(MFilterTitle_IncFolders));
     else if (FolderFlags.Check(Exc))
-      FilterList.SetTitle(UMSG(MFilterTitle_ExcFolders));
+      FilterList.SetTitle(MSG(MFilterTitle_ExcFolders));
     else
-      FilterList.SetTitle(UMSG(MFilterTitle_FilterFolders));
+      FilterList.SetTitle(MSG(MFilterTitle_FilterFolders));
   }
 
   FilterList.SetHelp(L"FiltersMenu");
   FilterList.SetPosition(-1,-1,0,0);
-  FilterList.SetBottomTitle(UMSG(MFilterBottom));
+  FilterList.SetBottomTitle(MSG(MFilterBottom));
   FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
@@ -132,7 +132,7 @@ bool FileFilter::FilterEdit()
   FilterList.AddItem(&ListItem);
 
   ListItem.Clear();
-  FoldersFilter.SetTitle(UMSG(MFolderFileType));
+  FoldersFilter.SetTitle(MSG(MFolderFileType));
   MenuString(ListItem.strName,&FoldersFilter);
   int Check = GetCheck(&FoldersFilter);
   if (Check)
@@ -168,7 +168,7 @@ bool FileFilter::FilterEdit()
   for (int i=0; i<ExtCount; i++)
   {
     wchar_t *CurExtPtr=ExtPtr+i*NM;
-    MenuString(ListItem.strName,NULL,false,true,CurExtPtr,UMSG(MPanelFileType));
+    MenuString(ListItem.strName,NULL,false,true,CurExtPtr,MSG(MPanelFileType));
     ListItem.SetCheck(CurExtPtr[StrLength(CurExtPtr)+1]);
     FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
   }
@@ -246,11 +246,11 @@ bool FileFilter::FilterEdit()
             FolderFlags.Set(Inc);
         }
         if (FolderFlags.Check(Inc))
-          FilterList.SetTitle(UMSG(MFilterTitle_IncFolders));
+          FilterList.SetTitle(MSG(MFilterTitle_IncFolders));
         else if (FolderFlags.Check(Exc))
-          FilterList.SetTitle(UMSG(MFilterTitle_ExcFolders));
+          FilterList.SetTitle(MSG(MFilterTitle_ExcFolders));
         else
-          FilterList.SetTitle(UMSG(MFilterTitle_FilterFolders));
+          FilterList.SetTitle(MSG(MFilterTitle_FilterFolders));
         FilterList.SetUpdateRequired(TRUE);
         FilterList.SetPosition(-1,-1,0,0);
         FilterList.Show();
@@ -283,7 +283,7 @@ bool FileFilter::FilterEdit()
         }
         else if (SelPos>(int)FilterData.getCount())
         {
-          Message(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanEditCustomFilterOnly),UMSG(MOk));
+          Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanEditCustomFilterOnly),MSG(MOk));
         }
         break;
       }
@@ -366,8 +366,8 @@ bool FileFilter::FilterEdit()
         {
           string strQuotedTitle;
           strQuotedTitle.Format(L"\"%s\"",FilterData.getItem(SelPos)->GetTitle());
-          if (Message(0,2,UMSG(MFilterTitle),UMSG(MAskDeleteFilter),
-                       (const wchar_t *)strQuotedTitle,UMSG(MDelete),UMSG(MCancel))==0)
+          if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
+                       (const wchar_t *)strQuotedTitle,MSG(MDelete),MSG(MCancel))==0)
           {
             FilterData.deleteItem(SelPos);
 
@@ -382,7 +382,7 @@ bool FileFilter::FilterEdit()
         }
         else if (SelPos>(int)FilterData.getCount())
         {
-          Message(MSG_WARNING,1,UMSG(MFilterTitle),UMSG(MCanDeleteCustomFilterOnly),UMSG(MOk));
+          Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanDeleteCustomFilterOnly),MSG(MOk));
         }
         break;
       }

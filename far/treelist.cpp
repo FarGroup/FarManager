@@ -225,7 +225,7 @@ void TreeList::DisplayObject()
 
 string &TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  strTitle.Format (L" %s ",ModalMode ? UMSG(MFindFolderTitle):UMSG(MTreeTitle));
+  strTitle.Format (L" %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
   TruncStr(strTitle,X2-X1-3);
   return strTitle;
 }
@@ -577,7 +577,7 @@ void TreeList::SaveTreeFile()
     //wremove(strName); BUGBUG
     DeleteFileW (strName);
 
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),strName,UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName,MSG(MOk));
   }
   else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
     SetFileAttributesW(strName,FileAttributes);
@@ -728,8 +728,8 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
   {
     wchar_t NumStr[32];
     _itow(TreeCount,NumStr,10); //BUGBUG
-    Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,UMSG(MTreeTitle),
-            UMSG(MReadingTree),NumStr);
+    Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
+            MSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
     TreeStartTime = clock();
   }
@@ -1754,8 +1754,8 @@ void TreeList::FlushCache()
 
       //remove(TreeCache.TreeName); BUGBUG
 
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotSaveTree),
-              TreeCache.strTreeName,UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
+              TreeCache.strTreeName,MSG(MOk));
     }
     else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
       SetFileAttributesW(TreeCache.strTreeName,FileAttributes);

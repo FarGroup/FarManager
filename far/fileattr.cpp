@@ -53,8 +53,8 @@ int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
     if(SkipMode!=-1)
       Code=SkipMode;
     else
-      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-             UMSG(MSetAttrCannotFor),Name,UMSG(MHRetry),UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+             MSG(MSetAttrCannotFor),Name,MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     switch(Code)
     {
     case -2:
@@ -110,9 +110,9 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
     if(SkipMode!=-1)
       Code=SkipMode;
     else
-      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                UMSG(MSetAttrCompressedCannotFor),Name,UMSG(MHRetry),
-                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                MSG(MSetAttrCompressedCannotFor),Name,MSG(MHRetry),
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     if (Code==1 || Code<0)
     {
       Ret=SETATTR_RET_SKIP;
@@ -178,9 +178,9 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
     if(SkipMode!=-1)
       Code=SkipMode;
     else            
-      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                UMSG(MSetAttrEncryptedCannotFor),Name,UMSG(MHRetry), //BUGBUG
-                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                MSG(MSetAttrEncryptedCannotFor),Name,MSG(MHRetry), //BUGBUG
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     if (Code==1 || Code<0)
     {
       Ret=SETATTR_RET_SKIP;
@@ -252,9 +252,9 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
     if(SkipMode!=-1)
       Code=SkipMode;
     else
-      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                UMSG(MSetAttrTimeCannotFor),Name,UMSG(MHRetry), //BUGBUG
-                UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+      Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                MSG(MSetAttrTimeCannotFor),Name,MSG(MHRetry), //BUGBUG
+                MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     switch(Code)
     {
     case -2:

@@ -379,8 +379,8 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("volume %c is in use by another application; therefore, it cannot be ejected\n", 'A' + bDrive - 1);
-           strMsgText.Format (UMSG(MChangeVolumeInUse),Letter);
-           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MChangeVolumeInUse2),UMSG(MOk));
+           strMsgText.Format (MSG(MChangeVolumeInUse),Letter);
+           Message(MSG_WARNING,1,MSG(MError),strMsgText,MSG(MChangeVolumeInUse2),MSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -391,8 +391,8 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("could not unlock media from drive %c:\n", 'A' + bDrive - 1);
-           strMsgText.Format (UMSG(MChangeCouldNotUnlockMedia),Letter);
-           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
+           strMsgText.Format (MSG(MChangeCouldNotUnlockMedia),Letter);
+           Message(MSG_WARNING,1,MSG(MError),strMsgText,MSG(MOk));
          }
          goto CLEANUP_AND_EXIT_APP;
       }
@@ -403,8 +403,8 @@ BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
          if(!(Flags&EJECT_NO_MESSAGE))
          {
            // printf("could not eject media from drive %c:\n", 'A' + bDrive - 1);
-           strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
-           Message(MSG_WARNING,1,UMSG(MError),strMsgText,UMSG(MOk));
+           strMsgText.Format (MSG(MChangeCouldNotEjectMedia),Letter);
+           Message(MSG_WARNING,1,MSG(MError),strMsgText,MSG(MOk));
          }
       }
 
@@ -558,8 +558,8 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
         if(!(Flags&EJECT_NO_MESSAGE))
         {
           string strMsgText;
-          strMsgText.Format (UMSG(MChangeCouldNotEjectMedia),Letter);
-          if(Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,UMSG(MRetry),UMSG(MCancel)))
+          strMsgText.Format (MSG(MChangeCouldNotEjectMedia),Letter);
+          if(Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,MSG(MRetry),MSG(MCancel)))
             Retry=FALSE;
         }
         else
@@ -603,10 +603,10 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
       #ifndef _WIN64
       #pragma pack(1)
       typedef struct {
-          TCHAR dmiAllocationLength;          // db   ?       ; length of the buffer provided by caller
-          TCHAR dmiInfoLength;                // db   ?       ; length of information returned
-          TCHAR dmiFlags;                     // db   ?       ; DRIVE_MAP_INFO flags
-          TCHAR dmiInt13Unit;                 // db   ?       ; int 13 drive number.  FFh if the drive
+          CHAR dmiAllocationLength;           // db   ?       ; length of the buffer provided by caller
+          CHAR dmiInfoLength;                 // db   ?       ; length of information returned
+          CHAR dmiFlags;                      // db   ?       ; DRIVE_MAP_INFO flags
+          CHAR dmiInt13Unit;                  // db   ?       ; int 13 drive number.  FFh if the drive
                                               //              ; does not map to an int 13 drive
           DWORD dmiAssociatedDriveMap;        // dd   ?       ; bit map of logical drive numbers that
                                               //              ; are associated with the given drive

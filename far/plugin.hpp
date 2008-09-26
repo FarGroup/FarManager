@@ -117,6 +117,8 @@ other possible license with no implications from the above license on them.
 
 #define NM 260
 
+#undef DefDlgProc
+
 #define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
 #ifdef FAR_USE_INTERNALS

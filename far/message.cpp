@@ -550,7 +550,7 @@ int GetErrorString (string &strErrStr)
   for(I=0; I < (int)countof(ErrMsgs); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
     {
-      strErrStr = UMSG(ErrMsgs[I].FarMsg);
+      strErrStr = MSG(ErrMsgs[I].FarMsg);
       break;
     }
 
@@ -595,9 +595,9 @@ void SetMessageHelp(const wchar_t *Topic)
 */
 int AbortMessage()
 {
-  int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,UMSG(MKeyESCWasPressed),
-            UMSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
-            UMSG(MYes),UMSG(MNo));
+  int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
+            MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
+            MSG(MYes),MSG(MNo));
   if (Res == -1) // Set "ESC" equal to "NO" button
     Res = 1;
   if ((Opt.Confirm.EscTwiceToInterrupt && Res) ||

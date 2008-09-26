@@ -123,25 +123,25 @@ HANDLE apiCreateFile (
 }
 
 
-BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
+BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength)
 {
-  return OemToCharBuff(lpszSrc,lpszDst,cchDstLength);
+  return OemToCharBuffA(lpszSrc,lpszDst,cchDstLength);
 }
 
-BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
+BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength)
 {
-  return CharToOemBuff(lpszSrc,lpszDst,cchDstLength);
+  return CharToOemBuffA(lpszSrc,lpszDst,cchDstLength);
 }
 
 
-BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst)
+BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPSTR lpszDst)
 {
-  return OemToChar(lpszSrc,lpszDst);
+  return OemToCharA(lpszSrc,lpszDst);
 }
 
-BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
+BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPSTR lpszDst)
 {
-  return CharToOem(lpszSrc,lpszDst);
+  return CharToOemA(lpszSrc,lpszDst);
 }
 
 

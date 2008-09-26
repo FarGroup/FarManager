@@ -50,7 +50,7 @@ static int DefaultPrinterFound;
 
 static void PR_PrintMsg(void)
 {
-  Message(0,0,UMSG(MPrintTitle),UMSG(MPreparingForPrinting));
+  Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
 }
 
 void PrintFiles(Panel *SrcPanel)
@@ -105,13 +105,13 @@ void PrintFiles(Panel *SrcPanel)
       SrcPanel->GetSelName(&strName,FileAttr);
       TruncStr(strName,50);
       strSelName.Format (L"\"%s\"", (const wchar_t*)strName);
-      strTitle.Format (UMSG(MPrintTo), (const wchar_t*)strSelName);
+      strTitle.Format (MSG(MPrintTo), (const wchar_t*)strSelName);
     }
     else
     {
       _ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
       SelCount-=DirsCount;
-      strTitle.Format (UMSG(MPrintFilesTo),SelCount);
+      strTitle.Format (MSG(MPrintFilesTo),SelCount);
     }
 
     VMenu PrinterList(strTitle,NULL,0,ScrY-4);
@@ -151,8 +151,8 @@ void PrintFiles(Panel *SrcPanel)
   HANDLE hPrinter;
   if (!OpenPrinterW((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
   {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MPrintTitle),UMSG(MCannotOpenPrinter),
-            strPrinterName,UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
+            strPrinterName,MSG(MOk));
     delete[] pi;
     _ALGO(SysLog(L"Error: Cannot Open Printer"));
     return;
@@ -233,8 +233,8 @@ void PrintFiles(Panel *SrcPanel)
       else
       {
         SetPreRedrawFunc(NULL); //??
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MPrintTitle),UMSG(MCannotPrint),
-                    strSelName,UMSG(MSkip),UMSG(MCancel))!=0)
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
+                    strSelName,MSG(MSkip),MSG(MCancel))!=0)
           break;
       }
     }
@@ -259,7 +259,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
     strPrinterName = pi[I].pPrinterName;
 
     strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,BoxSymbols[0x0B3-0x0B0],
-            NullToEmpty(pi[I].pPortName),pi[I].cJobs,UMSG(MJobs),
+            NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
 
     ListItem.strName = strMenuText;

@@ -409,11 +409,11 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
     if (j<3)
     {
       if (j==0)
-        HiMenuItem.strName = UMSG(MHighlightUpperSortGroup);
+        HiMenuItem.strName = MSG(MHighlightUpperSortGroup);
       else if (j==1)
-        HiMenuItem.strName = UMSG(MHighlightLowerSortGroup);
+        HiMenuItem.strName = MSG(MHighlightLowerSortGroup);
       else
-        HiMenuItem.strName = UMSG(MHighlightLastGroup);
+        HiMenuItem.strName = MSG(MHighlightLastGroup);
 
       HiMenuItem.Flags|=LIF_SEPARATOR;
       HiMenu->AddItem(&HiMenuItem);
@@ -470,11 +470,11 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-  VMenu HiMenu(UMSG(MHighlightTitle),NULL,0,ScrY-4);
+  VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
   HiMenu.SetHelp(HLS.HighlightList);
   HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   HiMenu.SetPosition(-1,-1,0,0);
-  HiMenu.SetBottomTitle(UMSG(MHighlightBottom));
+  HiMenu.SetBottomTitle(MSG(MHighlightBottom));
 
   FillMenu(&HiMenu,MenuPos);
 
@@ -497,9 +497,9 @@ void HighlightFiles::HiEdit(int MenuPos)
           ≈сли нажали ctrl+r, то восстановить значени€ по умолчанию.
         */
         case KEY_CTRLR:
-          if (Message(MSG_WARNING,2,UMSG(MHighlightTitle),
-                        UMSG(MHighlightWarning),UMSG(MHighlightAskRestore),
-                        UMSG(MYes),UMSG(MCancel))!=0)
+          if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
+                        MSG(MHighlightWarning),MSG(MHighlightAskRestore),
+                        MSG(MYes),MSG(MCancel))!=0)
              break;
           DeleteKeyTree(RegColorsHighlight);
           SetHighlighting();
@@ -517,9 +517,9 @@ void HighlightFiles::HiEdit(int MenuPos)
             {
               const wchar_t *Mask;
               HiData.getItem(RealSelectPos)->GetMask(&Mask);
-              if (Message(MSG_WARNING,2,UMSG(MHighlightTitle),
-                          UMSG(MHighlightAskDel),Mask,
-                          UMSG(MDelete),UMSG(MCancel))!=0)
+              if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
+                          MSG(MHighlightAskDel),Mask,
+                          MSG(MDelete),MSG(MCancel))!=0)
                 break;
 
               HiData.deleteItem(RealSelectPos);

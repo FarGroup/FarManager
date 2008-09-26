@@ -1734,7 +1734,7 @@ void Dialog::ShowDialog(unsigned ID)
 
         if (CurItem->Type==DI_CHECKBOX)
         {
-          const wchar_t *Chk3State=UMSG(MCheckBox2State);
+          const wchar_t *Chk3State=MSG(MCheckBox2State);
           strStr.Format (L"[%c]%s",(CurItem->Selected ?
              (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
                 *Chk3State:L'x'):L' '),AddSpace);
@@ -3794,7 +3794,7 @@ void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,in
 
 
     if ( (DWORD_PTR)Data->Data < MAX_MSG)
-        Item->strData = UMSG((int)(DWORD_PTR)Data->Data);
+        Item->strData = MSG((int)(DWORD_PTR)Data->Data);
     else
         Item->strData = Data->Data;
   }
@@ -4221,9 +4221,9 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
           if (!Opt.Confirm.HistoryClear ||
               (Opt.Confirm.HistoryClear &&
-               Message(MSG_WARNING,2,UMSG(MHistoryTitle),
-                       UMSG(MHistoryClear),
-                       UMSG(MClear),UMSG(MCancel))==0))
+               Message(MSG_WARNING,2,MSG(MHistoryTitle),
+                       MSG(MHistoryClear),
+                       MSG(MClear),MSG(MCancel))==0))
           {
             HistoryMenu.Hide();
 
@@ -4801,7 +4801,7 @@ int Dialog::GetTypeAndName (string &strType, string &strName)
 {
   CriticalSectionLock Lock(CS);
 
-  strType = UMSG(MDialogType);
+  strType = MSG(MDialogType);
 
   strName = L"";
 

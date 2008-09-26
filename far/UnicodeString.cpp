@@ -215,16 +215,16 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwsz
   return Result;
 }
 
-wchar_t *UnicodeString::GetBuffer (int nSize)
+wchar_t *UnicodeString::GetBuffer (size_t nSize)
 {
-	Inflate (nSize == -1?m_pData->GetSize():nSize);
+	Inflate (nSize == (size_t)-1?m_pData->GetSize():nSize);
 
 	return m_pData->GetData ();
 }
 
-void UnicodeString::ReleaseBuffer (int nLength)
+void UnicodeString::ReleaseBuffer (size_t nLength)
 {
-	if ( nLength != -1 )
+	if ( nLength != (size_t)-1 )
 		m_pData->SetLength (nLength);
 	else
 		m_pData->SetLength (StrLength(m_pData->GetData()));

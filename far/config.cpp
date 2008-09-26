@@ -257,8 +257,8 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected=Opt.ShowPanelScrollbar;
   CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected=Opt.ShowScreensNumber;
   CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected=Opt.ShowSortMode;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=StrLength(UMSG(MConfigAutoUpdateLimit2))+1;
-  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=StrLength(UMSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=StrLength(MSG(MConfigAutoUpdateLimit2))+1;
+  CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=StrLength(MSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
   CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].strData.Format (L"%u", Opt.AutoUpdateLimit);;
@@ -648,7 +648,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
   {
-    const wchar_t *Str = UMSG(MViewConfigSavePos);
+    const wchar_t *Str = MSG(MViewConfigSavePos);
     CfgDlg[ID_VC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
   }
 
@@ -706,9 +706,9 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   if(!DistrTableExist() && ViOpt.AutoDetectTable)
   {
     ViOpt.AutoDetectTable=0;
-    Message(MSG_WARNING,1,UMSG(MWarning),
-              UMSG(MDistributionTableWasNotFound),UMSG(MAutoDetectWillNotWork),
-              UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MWarning),
+              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
+              MSG(MOk));
   }
 
   ViOpt.TabSize=_wtoi(CfgDlg[ID_VC_TABSIZEEDIT].strData);
@@ -782,14 +782,14 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
   {
-    const wchar_t *Str = UMSG(MEditConfigEditorF4);
+    const wchar_t *Str = MSG(MEditConfigEditorF4);
 
     CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
 
-    Str = UMSG(MEditConfigPersistentBlocks);
+    Str = MSG(MEditConfigPersistentBlocks);
     CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
-    Str = UMSG(MEditConfigSavePos);
+    Str = MSG(MEditConfigSavePos);
 
     CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
 
@@ -811,9 +811,9 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   memset(ExpandTabListItems,0,sizeof(ExpandTabListItems));
   FarList ExpandTabList = {3,ExpandTabListItems};
   CfgDlg[ID_EC_EXPANDTABS].ListItems = &ExpandTabList;
-  ExpandTabListItems[0].Text=UMSG(MEditConfigDoNotExpandTabs);
-  ExpandTabListItems[1].Text=UMSG(MEditConfigExpandTabs);
-  ExpandTabListItems[2].Text=UMSG(MEditConfigConvertAllTabsToSpaces);
+  ExpandTabListItems[0].Text=MSG(MEditConfigDoNotExpandTabs);
+  ExpandTabListItems[1].Text=MSG(MEditConfigExpandTabs);
+  ExpandTabListItems[2].Text=MSG(MEditConfigConvertAllTabsToSpaces);
 
   //немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
 
@@ -901,9 +901,9 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
     EdOpt.AutoDetectTable=0;
-    Message(MSG_WARNING,1,UMSG(MWarning),
-              UMSG(MDistributionTableWasNotFound),UMSG(MAutoDetectWillNotWork),
-              UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MWarning),
+              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
+              MSG(MOk));
   }
 
   EdOpt.TabSize=_wtoi(CfgDlg[ID_EC_TABSIZEEDIT].strData);
@@ -926,7 +926,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 void SetFolderInfoFiles()
 {
   string strFolderInfoFiles;
-  if (GetString(UMSG(MSetFolderInfoTitle),UMSG(MSetFolderInfoNames),L"FolderInfoFiles",
+  if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
       Opt.strFolderInfoFiles,strFolderInfoFiles,260,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
   {
     Opt.strFolderInfoFiles = strFolderInfoFiles;
@@ -1409,7 +1409,7 @@ void SaveConfig(int Ask)
   if(Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
     return;
 
-  if (Ask && Message(0,2,UMSG(MSaveSetupTitle),UMSG(MSaveSetupAsk1),UMSG(MSaveSetupAsk2),UMSG(MSaveSetup),UMSG(MCancel))!=0)
+  if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
     return;
 
   string strTemp;

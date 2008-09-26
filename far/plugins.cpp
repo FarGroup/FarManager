@@ -584,7 +584,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	ConsoleTitle ct(Opt.ShowCheckingFile?UMSG(MCheckingFileInPlugin):NULL);
+	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):NULL);
 
 	Plugin *pPlugin = NULL;
 
@@ -604,7 +604,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 			continue;
 
 		if ( Opt.ShowCheckingFile )
-			ct.Set(L"%s - [%s]...",UMSG(MCheckingFileInPlugin),wcsrchr(pPlugin->GetModuleName(),L'\\')+1);
+			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),wcsrchr(pPlugin->GetModuleName(),L'\\')+1);
 
 		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
 
@@ -990,7 +990,7 @@ int PluginManager::PutFiles (
 int PluginManager::GetPluginInfo (Plugin *pPlugin, PluginInfo *Info)
 {
 	if ( !pPlugin )
-		MessageBox (0, "null ", "asD", MB_OK);
+		MessageBoxW (0, L"null ", L"asD", MB_OK);
 
 	pPlugin->GetPluginInfo (Info);
 	return TRUE; //BUGBUG
@@ -1092,7 +1092,7 @@ void PluginManager::Configure(int StartPos)
     return;
 
   {
-    VMenu PluginList(UMSG(MPluginConfigTitle),NULL,0,ScrY-4);
+    VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetHelp(L"PluginsConfig");
 
@@ -1190,7 +1190,7 @@ void PluginManager::Configure(int StartPos)
           }
         }
         PluginList.AssignHighlights(FALSE);
-        PluginList.SetBottomTitle(UMSG(MPluginHotKeyBottom));
+        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
         PluginList.ClearDone();
         PluginList.SortItems(0,3);
@@ -1286,7 +1286,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
   string strRegKey;
   PluginMenuItemData item;
   {
-    VMenu PluginList(UMSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
+    VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetHelp(L"Plugins");
     BOOL NeedUpdateItems=TRUE;
@@ -1396,7 +1396,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
         }
 
         PluginList.AssignHighlights(FALSE);
-        PluginList.SetBottomTitle(UMSG(MPluginHotKeyBottom));
+        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
         PluginList.SortItems(0,3);
         PluginList.SetSelectPos(StartPos,1);
@@ -1538,7 +1538,7 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
         (StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength) ?
                                                             0 : FarPathLength);
 
-    wchar_t *Ptr = strPluginName.GetBuffer ((int)strPluginName.GetLength()+20);
+    wchar_t *Ptr = strPluginName.GetBuffer (strPluginName.GetLength()+20);
 
     while ( *Ptr )
     {
@@ -1721,7 +1721,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
   string strPrefix;
 
-  wchar_t *Prefix = strPrefix.GetBuffer((int)PrefixLength+1);
+  wchar_t *Prefix = strPrefix.GetBuffer(PrefixLength+1);
 
   xwcsncpy(Prefix,strCommand,PrefixLength);
 

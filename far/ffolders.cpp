@@ -160,12 +160,12 @@ static int ShowFolderShortcutMenu(int Pos)
   int ExitCode=-1;
   {
     MenuItemEx ListItem;
-    VMenu FolderList(UMSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
+    VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
 
     FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
     FolderList.SetHelp(HelpFolderShortcuts);
     FolderList.SetPosition(-1,-1,0,0);
-    FolderList.SetBottomTitle(UMSG(MFolderShortcutBottom));
+    FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
 
     for (int I=0;I<10;I++)
     {
@@ -182,12 +182,12 @@ static int ShowFolderShortcutMenu(int Pos)
       {
         ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,I,&strFolderName);
         if( strFolderName.IsEmpty() )
-          strFolderName = UMSG(MShortcutNone);
+          strFolderName = MSG(MShortcutNone);
         else
-          strFolderName = UMSG(MShortcutPlugin);
+          strFolderName = MSG(MShortcutPlugin);
       }
 
-      ListItem.strName.Format (L"%s+&%d   %s", UMSG(MRightCtrl),I,(const wchar_t*)strFolderName);
+      ListItem.strName.Format (L"%s+&%d   %s", MSG(MRightCtrl),I,(const wchar_t*)strFolderName);
       ListItem.SetSelect(I == Pos);
       FolderList.AddItem(&ListItem);
     }
@@ -250,7 +250,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
           strOldNewDir = strNewDir;
 
-          if (GetString(UMSG(MFolderShortcutsTitle),UMSG(MEnterShortcut),NULL,
+          if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
                         strNewDir,strNewDir,1024, HelpFolderShortcuts,FIB_BUTTONS/*|FIB_EDITPATH*/) && //BUGBUG 1024
               StrCmp(strNewDir,strOldNewDir) != 0)
           {
@@ -262,7 +262,7 @@ static int ShowFolderShortcutMenu(int Pos)
             if(GetFileAttributesW(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
             {
               SetLastError(ERROR_PATH_NOT_FOUND);
-              Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strNewDir, UMSG(MSaveThisShortcut), UMSG(MYes), UMSG(MNo)) == 0);
+              Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo)) == 0);
             }
 
             if(Saved)

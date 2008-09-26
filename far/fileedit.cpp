@@ -382,7 +382,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 
 	wchar_t *PtrEditDlgData=EditDlg[ID_SF_FILENAME].strData.GetBuffer ();
 
-	PtrEditDlgData = wcsstr (PtrEditDlgData, UMSG(MNewFileName));
+	PtrEditDlgData = wcsstr (PtrEditDlgData, MSG(MNewFileName));
 
 	if(PtrEditDlgData)
 		*PtrEditDlgData=0;
@@ -567,7 +567,7 @@ void FileEditor::Init (
 
   SmartLock __smartlock;
   SysErrorCode=0;
-  int BlankFileName=!StrCmp(Name,UMSG(MNewFileName));
+  int BlankFileName=!StrCmp(Name,MSG(MNewFileName));
 
   //AY: флаг оповещающий закрытие редактора.
   m_bClosing = false;
@@ -637,10 +637,10 @@ void FileEditor::Init (
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
           SetMessageHelp(L"EditorReload");
-          MsgCode=Message(0,3,UMSG(MEditTitle),
+          MsgCode=Message(0,3,MSG(MEditTitle),
                 strFullFileName,
-                UMSG(MAskReload),
-                UMSG(MCurrent),UMSG(MNewOpen),UMSG(MReload));
+                MSG(MAskReload),
+                MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
         }
         else
         {
@@ -702,7 +702,7 @@ void FileEditor::Init (
   */
   if(FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
-    Message(MSG_WARNING,1,UMSG(MEditTitle),UMSG(MEditCanNotEditDirectory),UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),MSG(MOk));
     ExitCode=XC_OPEN_ERROR;
     return;
   }
@@ -719,8 +719,8 @@ void FileEditor::Init (
      )
   )
   {
-    if(Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRSH),
-                             UMSG(MEditROOpen),UMSG(MYes),UMSG(MNo)))
+    if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
+                             MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
     {
       //SetLastError(ERROR_ACCESS_DENIED);
       ExitCode=XC_OPEN_ERROR;
@@ -760,7 +760,7 @@ void FileEditor::Init (
       if (UserBreak!=1)
       {
         SetLastError(SysErrorCode);
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strFileName,UMSG(MOk));
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strFileName,MSG(MOk));
         ExitCode=XC_OPEN_ERROR;
       }
       else
@@ -814,7 +814,7 @@ void FileEditor::InitKeyBar(void)
     EditKeyBar.Change(KBL_SHIFT,L"",4-1);
 
   if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-    EditKeyBar.Change(KBL_MAIN,UMSG(MEditShiftF2),2-1);
+    EditKeyBar.Change(KBL_MAIN,MSG(MEditShiftF2),2-1);
 
   if(!Flags.Check(FFILEEDIT_ENABLEF6))
     EditKeyBar.Change(KBL_MAIN,L"",6-1);
@@ -828,9 +828,9 @@ void FileEditor::InitKeyBar(void)
 
 
 /*  if (m_editor->AnsiText)
-    EditKeyBar.Change(KBL_MAIN,UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+    EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else*/
-    EditKeyBar.Change(KBL_MAIN,UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+    EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
   EditKeyBar.SetAllRegGroup();
@@ -972,10 +972,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         if(m_editor->IsFileChanged() &&  // в текущем сеансе были изменения?
            ::GetFileAttributesW(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
         {
-          switch(Message(MSG_WARNING,2,UMSG(MEditTitle),
-                         UMSG(MEditSavedChangedNonFile),
-                         UMSG(MEditSavedChangedNonFile2),
-                         UMSG(MEditSave),UMSG(MCancel)))
+          switch(Message(MSG_WARNING,2,MSG(MEditTitle),
+                         MSG(MEditSavedChangedNonFile),
+                         MSG(MEditSavedChangedNonFile2),
+                         MSG(MEditSave),MSG(MCancel)))
           {
             case 0:
               if(ProcessKey(KEY_F2))
@@ -1168,8 +1168,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             FNAttr=::GetFileAttributesW(strSaveAsName);
             if (NameChanged && FNAttr != INVALID_FILE_ATTRIBUTES)
             {
-              if (Message(MSG_WARNING,2,UMSG(MEditTitle),strSaveAsName,UMSG(MEditExists),
-                           UMSG(MEditOvr),UMSG(MYes),UMSG(MNo))!=0)
+              if (Message(MSG_WARNING,2,MSG(MEditTitle),strSaveAsName,MSG(MEditExists),
+                           MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
               {
                 FarChDir(strOldCurDir);
                 return(TRUE);
@@ -1186,7 +1186,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if(!SetFileName(strFileNameTemp))
             {
               SetLastError(ERROR_INVALID_NAME);
-              MessageW(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),strFileNameTemp,UMSG(MOk));
+              MessageW(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),strFileNameTemp,MSG(MOk));
               if(!NameChanged)
                 FarChDir(strOldCurDir);
               continue;
@@ -1203,8 +1203,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           if(SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage) == SAVEFILE_ERROR)
           {
             SetLastError(SysErrorCode);
-            if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
-                        strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
+            if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
+                        strFileName,MSG(MRetry),MSG(MCancel))!=0)
             {
               Done=TRUE;
               break;
@@ -1225,7 +1225,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 							if ( !bInPlace )
 							{
-								Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", UMSG(MOk));
+								Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", MSG(MOk));
 
 								int UserBreak;
 								LoadFile (strFullSaveAsName, UserBreak);
@@ -1316,15 +1316,15 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
             int Res;
             if(m_editor->IsFileChanged() && FilePlased)
-                Res=Message(MSG_WARNING,3,UMSG(MEditTitle),
-                           UMSG(MEditSavedChangedNonFile),
-                           UMSG(MEditSavedChangedNonFile2),
-                           UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
+                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
+                           MSG(MEditSavedChangedNonFile),
+                           MSG(MEditSavedChangedNonFile2),
+                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
             else if(!m_editor->IsFileChanged() && FilePlased)
-                Res=Message(MSG_WARNING,3,UMSG(MEditTitle),
-                           UMSG(MEditSavedChangedNonFile1),
-                           UMSG(MEditSavedChangedNonFile2),
-                           UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue));
+                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
+                           MSG(MEditSavedChangedNonFile1),
+                           MSG(MEditSavedChangedNonFile2),
+                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
             else
                Res=100;
             switch(Res)
@@ -1430,7 +1430,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       SetExitCode (XC_QUIT);
       break;
     }
-    if(!StrCmp(strFileName,UMSG(MNewFileName)))
+    if(!StrCmp(strFileName,MSG(MNewFileName)))
     {
       if(!ProcessKey(KEY_SHIFTF2))
       {
@@ -1441,8 +1441,8 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
         break;
     }
     SetLastError(SysErrorCode);
-    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MEditTitle),UMSG(MEditCannotSave),
-              strFileName,UMSG(MRetry),UMSG(MCancel))!=0)
+    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
+              strFileName,MSG(MRetry),MSG(MCancel))!=0)
         break;
     FirstSave=0;
   }
@@ -1569,7 +1569,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			{
 				SetCursorType(FALSE,0);
 				SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-				Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
+				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
 				MessageShown=TRUE;
 			}
 		}
@@ -1631,8 +1631,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if (Ask)
     {
-      switch (Message(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSave),
-              UMSG(MEditSave),UMSG(MEditNotSave),UMSG(MEditContinue)))
+      switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
+              MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
       {
         case -1:
         case -2:
@@ -1661,8 +1661,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         if(RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
         {
           SetMessageHelp(L"WarnEditorSavedEx");
-          switch (Message(MSG_WARNING,3,UMSG(MEditTitle),UMSG(MEditAskSaveExt),
-                  UMSG(MEditSave),UMSG(MEditBtnSaveAs),UMSG(MEditContinue)))
+          switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
+                  MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
           {
             case -1:
             case -2:
@@ -1685,8 +1685,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     if (FileAttributes & FILE_ATTRIBUTE_READONLY)
     {
         //BUGBUG
-      int AskOverwrite=Message(MSG_WARNING,2,UMSG(MEditTitle),Name,UMSG(MEditRO),
-                           UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
+      int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
+                           MSG(MEditOvr),MSG(MYes),MSG(MNo));
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
@@ -1804,7 +1804,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 */
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-    Editor::EditorShowMsg(UMSG(MEditTitle),UMSG(MEditSaving),Name);
+    Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
     Edit *CurPtr=m_editor->TopList;
 
@@ -1983,7 +1983,7 @@ int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileEditor::GetTypeAndName(string &strType, string &strName)
 {
-	strType = UMSG(MScreensEdit);
+	strType = MSG(MScreensEdit);
 	strName = strFullFileName;
 
 	return(MODALTYPE_EDITOR);
@@ -1994,7 +1994,7 @@ void FileEditor::ShowConsoleTitle()
 {
 	string strTitle;
 
-	strTitle.Format (UMSG(MInEditor), PointToName(strFileName));
+	strTitle.Format (MSG(MInEditor), PointToName(strFileName));
 	SetFarTitle(strTitle);
 
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
@@ -2019,8 +2019,8 @@ void FileEditor::SetScreenPosition()
 void FileEditor::OnDestroy()
 {
   _OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
-  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,UMSG(MNewFileName)))
-    CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryEdit),
+  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,MSG(MNewFileName)))
+    CtrlObject->ViewHistory->AddToHistory(strFullFileName,MSG(MHistoryEdit),
                   (m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
   {
@@ -2089,7 +2089,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 {
 	strFileName = NewFileName;
 
-	if( StrCmp (strFileName,UMSG(MNewFileName)))
+	if( StrCmp (strFileName,MSG(MNewFileName)))
 	{
 		if ( wcspbrk (strFileName, ReservedFilenameSymbols) )
 			return FALSE;
@@ -2129,9 +2129,9 @@ void FileEditor::SetTitle(const wchar_t *Title)
 void FileEditor::ChangeEditKeyBar()
 {
 /*  if (m_editor->AnsiText)
-    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else*/
-    EditKeyBar.Change(UMSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Redraw();
 }
@@ -2197,11 +2197,11 @@ void FileEditor::ShowStatus()
         (m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' '),
         (m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' '),
         m_codepage,
-        UMSG(MEditStatusLine),
+        MSG(MEditStatusLine),
         SizeLineStr,
         SizeLineStr,
         (const wchar_t*)strLineStr,
-        UMSG(MEditStatusCol),
+        MSG(MEditStatusCol),
         m_editor->CurLine->GetTabCurPos()+1,
         (const wchar_t*)strAttr
         );

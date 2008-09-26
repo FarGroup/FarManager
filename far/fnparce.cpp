@@ -825,7 +825,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
 
   if (!FarMkTempEx(strListFileName) || (ListFile=_wfopen(strListFileName,L"wb"))==NULL)
   {
-    Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListTemp),UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
     return(FALSE);
   }
 
@@ -871,7 +871,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
     {
       fclose(ListFile);
       DeleteFileW (strListFileName);
-      Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MCannotCreateListWrite),UMSG(MOk));
+      Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
       return(FALSE);
     }
 
@@ -882,7 +882,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
     clearerr(ListFile);
     fclose(ListFile);
     DeleteFileW (strListFileName);
-    Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotCreateListFile),UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
     return(FALSE);
   }
   return(TRUE);

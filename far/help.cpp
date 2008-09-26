@@ -256,7 +256,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
       if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
       }
       ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
     }
@@ -367,7 +367,7 @@ int Help::ReadHelp(const wchar_t *Mask)
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MCannotOpenHelp),Mask,UMSG(MOk));
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),Mask,MSG(MOk));
       }
     }
     return FALSE;
@@ -722,7 +722,7 @@ void Help::DisplayObject()
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
       {
         BlockExtKey blockExtKey;
-        Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
       }
       ProcessKey(KEY_ALTF1);
     }
@@ -809,7 +809,7 @@ void Help::DrawWindowFrame()
   SetColor(COL_HELPBOXTITLE);
 
   string strHelpTitleBuf;
-  strHelpTitleBuf = UMSG(MHelpTitle);
+  strHelpTitleBuf = MSG(MHelpTitle);
   strHelpTitleBuf += L" - ";
   if ( !strCurPluginContents.IsEmpty() )
     strHelpTitleBuf += strCurPluginContents;
@@ -857,7 +857,7 @@ void Help::OutString(const wchar_t *Str)
           {
             StackData.strSelTopic = (Str+2);
 
-            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer ((int)StackData.strSelTopic.GetLength()*2);
+            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer (StackData.strSelTopic.GetLength()*2);
             EndPtr=wcschr(EndPtr,L'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
@@ -1420,7 +1420,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
     const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
 
-    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer((int)(p-(const wchar_t*)StackData.strSelTopic));
+    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(p-(const wchar_t*)StackData.strSelTopic);
 
     xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1));
 
@@ -1594,7 +1594,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
     {
       BlockExtKey blockExtKey;
-      Message(MSG_WARNING,1,UMSG(MHelpTitle),UMSG(MHelpTopicNotFound),StackData.strHelpTopic,UMSG(MOk));
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.strHelpTopic,MSG(MOk));
     }
     return FALSE;
   }
@@ -1833,7 +1833,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   switch(TypeIndex)
   {
     case HIDX_PLUGINS:
-      PtrTitle=UMSG(MPluginsHelpTitle);
+      PtrTitle=MSG(MPluginsHelpTitle);
       ContentsName=L"PluginContents";
       break;
 #if defined(WORK_HELP_DOCUMS)
@@ -1985,7 +1985,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
       {
         wchar_t *Ptr, *Ptr2;
 
-        wchar_t *lpwszTopic = strTopic.GetBuffer((int)strTopic.GetLength()*2); //BUGBUG
+        wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
 
         if((Ptr=wcschr(lpwszTopic,HelpEndLink)) == NULL)
           *lpwszTopic=0;
@@ -2122,14 +2122,14 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
           if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
           {
             BlockExtKey blockExtKey;
-            Disposition=Message(MSG_WARNING,2,UMSG(MHelpTitle),
-                        UMSG(MHelpActivatorURL),
+            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
+                        MSG(MHelpActivatorURL),
                         Buf,
-                        UMSG(MHelpActivatorFormat),
+                        MSG(MHelpActivatorFormat),
                         URLPath,
                         L"\x01",
-                        UMSG(MHelpActivatorQ),
-                        UMSG(MYes),UMSG(MNo));
+                        MSG(MHelpActivatorQ),
+                        MSG(MYes),MSG(MNo));
           }
           EditCode=2; // ¬се Ok!
           if(Disposition == 0)
@@ -2220,7 +2220,7 @@ int Help::FastHide()
 
 int Help::GetTypeAndName(string &strType, string &strName)
 {
-  strType = UMSG(MHelpType);
+  strType = MSG(MHelpType);
   strName = strFullHelpPathName;
 
   return(MODALTYPE_HELP);

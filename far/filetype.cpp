@@ -177,7 +177,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
   if (CommandCount>1)
   {
     MenuItemEx TypesMenuItem;
-    VMenu TypesMenu(UMSG(MSelectAssocTitle),NULL,0,ScrY-4);
+    VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
 
 
     TypesMenu.SetHelp(FTSW.Help);
@@ -353,7 +353,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
     strExpAssocStr.ReleaseBuffer ();
 
 
-    ChPtr = strExpAssocStr.GetBuffer ((int)(strExpAssocStr.GetLength()+StrLength(Name)+1));
+    ChPtr = strExpAssocStr.GetBuffer (strExpAssocStr.GetLength()+StrLength(Name)+1);
 
     if ((ChPtr=wcsstr(ChPtr,L"%1"))!=NULL)
     {
@@ -401,7 +401,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
           {
             string strNewStr;
 
-            wchar_t *NewStr = strNewStr.GetBuffer ((int)strExpAssocStr.GetLength()+1);
+            wchar_t *NewStr = strNewStr.GetBuffer (strExpAssocStr.GetLength()+1);
 
             xwcsncpy(NewStr,strExpAssocStr,I+4);
             NewStr[I+4]=0;
@@ -471,7 +471,7 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
     if (!ExtractIfExistCommand (strFullExecStr))
       return;
 
-    CtrlObject->ViewHistory->AddToHistory(strFullExecStr,UMSG(MHistoryExt),(AlwaysWaitFinish&1)+2);
+    CtrlObject->ViewHistory->AddToHistory(strFullExecStr,MSG(MHistoryExt),(AlwaysWaitFinish&1)+2);
 
     if ( strExecStr.At(0) != L'@')
       CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish);
@@ -552,11 +552,11 @@ void EditFileTypes()
 
   RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
 
-  VMenu TypesMenu(UMSG(MAssocTitle),NULL,0,ScrY-4);
+  VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp(FTSW.Help);
   TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);
-  TypesMenu.SetBottomTitle(UMSG(MAssocBottom));
+  TypesMenu.SetBottomTitle(MSG(MAssocBottom));
 
   {
     while (1)
@@ -620,8 +620,8 @@ int DeleteTypeRecord(int DeletePos)
   strRegKey.Format (FTSW.TypeFmt,DeletePos);
   GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
   strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
-  if (Message(MSG_WARNING,2,UMSG(MAssocTitle),UMSG(MAskDelAssoc),
-              strItemName,UMSG(MDelete),UMSG(MCancel))!=0)
+  if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),
+              strItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
   DeleteKeyRecord(FTSW.TypeFmt,DeletePos);
   return(TRUE);
@@ -685,7 +685,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
         return(FALSE);
       if ( EditDlg[2].strData.IsEmpty() )
       {
-        Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MAssocNeedMask), UMSG(MOk));
+        Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MAssocNeedMask), MSG(MOk));
         continue;
       }
 

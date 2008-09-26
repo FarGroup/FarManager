@@ -1117,34 +1117,34 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   {
     case FMSG_MB_OK:
       ButtonsNumber=1;
-      MsgItems[ItemsNumber++]=UMSG(MOk);
+      MsgItems[ItemsNumber++]=MSG(MOk);
       break;
     case FMSG_MB_OKCANCEL:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=UMSG(MOk);
-      MsgItems[ItemsNumber++]=UMSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MOk);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_ABORTRETRYIGNORE:
       ButtonsNumber=3;
-      MsgItems[ItemsNumber++]=UMSG(MAbort);
-      MsgItems[ItemsNumber++]=UMSG(MRetry);
-      MsgItems[ItemsNumber++]=UMSG(MIgnore);
+      MsgItems[ItemsNumber++]=MSG(MAbort);
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MIgnore);
       break;
     case FMSG_MB_YESNO:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=UMSG(MYes);
-      MsgItems[ItemsNumber++]=UMSG(MNo);
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
       break;
     case FMSG_MB_YESNOCANCEL:
       ButtonsNumber=3;
-      MsgItems[ItemsNumber++]=UMSG(MYes);
-      MsgItems[ItemsNumber++]=UMSG(MNo);
-      MsgItems[ItemsNumber++]=UMSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_RETRYCANCEL:
       ButtonsNumber=2;
-      MsgItems[ItemsNumber++]=UMSG(MRetry);
-      MsgItems[ItemsNumber++]=UMSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
   }
 
@@ -1417,7 +1417,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 
 static void PR_FarGetDirListMsg(void)
 {
-  Message(MSG_DOWN,0,L"",UMSG(MPreparingList));
+  Message(MSG_DOWN,0,L"",MSG(MPreparingList));
 }
 
 int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pItemsNumber)
@@ -1509,7 +1509,7 @@ static int PluginSearchMsgOut;
 
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
-  Message(Flags,0,L"",UMSG(MPreparingList),Name);
+  Message(Flags,0,L"",MSG(MPreparingList),Name);
   PreRedrawParam.Flags=Flags;
   PreRedrawParam.Param1=(void*)Name;
 }
@@ -2026,7 +2026,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
       TableSet.LowerTable[i]=LocalLower(i);
     }
 
-    string strTableName = UMSG(MGetTableNormalText);
+    string strTableName = MSG(MGetTableNormalText);
 
     UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
     Command=-1;

@@ -195,7 +195,7 @@ int FolderTree::FastHide()
 
 int FolderTree::GetTypeAndName(string &strType, string &strName)
 {
-  strType = UMSG(MFolderTreeType);
+  strType = MSG(MFolderTreeType);
   strName = L"";
 
   return MODALTYPE_FINDFOLDER;
@@ -342,7 +342,7 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void FolderTree::DrawEdit()
 {
   int FindY=Y2-2;
-  const wchar_t *SearchTxt=UMSG(MFoldTreeSearch);
+  const wchar_t *SearchTxt=MSG(MFoldTreeSearch);
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
   mprintf(L"%s  ",SearchTxt);
@@ -363,11 +363,11 @@ void FolderTree::InitKeyBar(void)
   TreeKeyBar.Set(FTreeKeysLabel,countof(FTreeKeysLabel));
   TreeKeyBar.SetAlt(FTreeKeysLabel,countof(FTreeKeysLabel));
 
-  TreeKeyBar.Change(KBL_MAIN,UMSG(MKBFolderTreeF1),1-1);
-  TreeKeyBar.Change(KBL_MAIN,UMSG(MKBFolderTreeF2),2-1);
-  TreeKeyBar.Change(KBL_MAIN,UMSG(MKBFolderTreeF5),5-1);
-  TreeKeyBar.Change(KBL_MAIN,UMSG(MKBFolderTreeF10),10-1);
-  TreeKeyBar.Change(KBL_ALT,UMSG(MKBFolderTreeAltF9),9-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF1),1-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF2),2-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF5),5-1);
+  TreeKeyBar.Change(KBL_MAIN,MSG(MKBFolderTreeF10),10-1);
+  TreeKeyBar.Change(KBL_ALT,MSG(MKBFolderTreeAltF9),9-1);
 
   SetKeyBar(&TreeKeyBar);
 }

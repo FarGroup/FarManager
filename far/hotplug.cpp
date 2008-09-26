@@ -134,14 +134,14 @@ void ShowHotplugDevice ()
   DeviceInfo *pInfo=NULL;
   int I;
 
-  VMenu HotPlugList(UMSG(MHotPlugListTitle),NULL,0,ScrY-4);
+  VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
   HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
   HotPlugList.SetPosition(-1,-1,0,0);
 
   pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
 
   HotPlugList.AssignHighlights(TRUE);
-  HotPlugList.SetBottomTitle(UMSG(MHotPlugListBottom));
+  HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
   HotPlugList.Show();
 
   while (!HotPlugList.Done())
@@ -184,8 +184,8 @@ void ShowHotplugDevice ()
           else if (bResult != -1)
           {
              SetLastError(ERROR_DRIVE_LOCKED); // ...þ "The disk is in use or locked by another process."
-             Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
-                UMSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName,UMSG(MOk));
+             Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName,MSG(MOk));
           }
 
         }
@@ -667,21 +667,21 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
       *--pDisk=0;
 
     if(*Disks)
-      strDiskMsg.Format(UMSG(MHotPlugDisks),Disks);
+      strDiskMsg.Format(MSG(MHotPlugDisks),Disks);
 
     if(StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
     {
       if(!strDiskMsg.IsEmpty ())
-        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
       else
-        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,MSG(MHRemove),MSG(MHCancel));
     }
     else
     {
       if(!strDiskMsg.IsEmpty ())
-        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,strDiskMsg,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
       else
-        DoneEject=Message(MSG_WARNING,2,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,UMSG(MHRemove),UMSG(MHCancel));
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strFriendlyName,MSG(MHRemove),MSG(MHCancel));
     }
   }
 
@@ -691,7 +691,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
     bResult = -1;
   if(bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
   {
-    Message(0,1,UMSG(MChangeHotPlugDisconnectDriveTitle),UMSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,UMSG(MChangeHotPlugNotify2),UMSG(MOk));
+    Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,MSG(MChangeHotPlugNotify2),MSG(MOk));
   }
 
   return bResult;

@@ -421,7 +421,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
     strOutFileName=L"";
     CenterStr(strOutFileName,strOutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
-  Message(0,0,UMSG(MSetAttrTitle),UMSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
+  Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),(const wchar_t*)strOutFileName);
   PreRedrawParam.Param1=(void*)Name;
 }
 
@@ -577,17 +577,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       case 0:
         strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
-        strAttr.Format (UMSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strAttr.Format (MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         strDMask.Format (FmtMask2,DateSeparator,DateSeparator);
         break;
       case 1:
         strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
-        strAttr.Format (UMSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strAttr.Format (MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         strDMask.Format (FmtMask2,DateSeparator,DateSeparator);
         break;
       default:
         strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
-        strAttr.Format (UMSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        strAttr.Format (MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         strDMask.Format (FmtMask3,DateSeparator,DateSeparator);
         break;
     }
@@ -675,7 +675,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             string strJuncRoot;
             GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
 
-            wchar_t *lpwszJunc = strJuncName.GetBuffer ((int)strJuncRoot.GetLength()+5);
+            wchar_t *lpwszJunc = strJuncName.GetBuffer (strJuncRoot.GetLength()+5);
 
             if(strJuncRoot.At(1) == L':')
               wcscpy(lpwszJunc+4,strJuncRoot);
@@ -697,10 +697,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           Width=49;
         }
         string strJuncTemp = (const wchar_t*)strJuncName+offset;
-        AttrDlg[SETATTR_TITLELINK].strData.Format (UMSG(ID_Msg),
+        AttrDlg[SETATTR_TITLELINK].strData.Format (MSG(ID_Msg),
                (LenJunction?
                  (const wchar_t *)TruncPathStr(strJuncTemp,Width):
-                 UMSG(MSetAttrUnknownJunction)));
+                 MSG(MSetAttrUnknownJunction)));
 
         /* $ 11.09.2001 SVS
            Уточнение по поводу слинкованной файловой системы отличной от
@@ -766,7 +766,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_ORIGINAL].Flags|=DIF_HIDDEN;
       AttrDlg[SETATTR_ORIGINAL].Flags&=~DIF_CENTERGROUP;
 
-      AttrDlg[SETATTR_NAME].strData = UMSG(MSetAttrSelectedObjects);
+      AttrDlg[SETATTR_NAME].strData = MSG(MSetAttrSelectedObjects);
       // выставим -1 - потом учтем этот факт :-)
       for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
         AttrDlg[I].Selected=0;
@@ -926,7 +926,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       int RetCode=1;
-      ConsoleTitle *SetAttrTitle= new ConsoleTitle(UMSG(MSetAttrTitle));
+      ConsoleTitle *SetAttrTitle= new ConsoleTitle(MSG(MSetAttrTitle));
       int SetAttr,ClearAttr,Cancel=0;
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
@@ -1335,9 +1335,9 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
       if(SkipMode!=-1)
         Code=SkipMode;
       else
-        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                     UMSG(Msg),Name,
-                     UMSG(MHRetry),UMSG(MHSkip),UMSG(MHSkipAll),UMSG(MHCancel));
+        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                     MSG(Msg),Name,
+                     MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
     }
     else
        return SETATTR_RET_ERROR;

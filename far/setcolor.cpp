@@ -354,7 +354,7 @@ void SetColors()
 
   {
     int GroupsCode;
-    VMenu GroupsMenu(UMSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
+    VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
     MenuToRedraw1=&GroupsMenu;
     while (1)
     {
@@ -426,7 +426,7 @@ static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,in
 {
   int ItemsCode;
 
-  VMenu ItemsMenu(UMSG(MSetColorItemsTitle),Items,Size,0);
+  VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
   if(TypeSub == 2)
     MenuToRedraw3=&ItemsMenu;
   else

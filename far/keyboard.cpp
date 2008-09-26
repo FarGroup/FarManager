@@ -1347,7 +1347,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=KEY_NONE;
       break;
     }
-    Sleep(50);
+    Sleep(1);
   }
 
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
@@ -1374,7 +1374,7 @@ int WriteInput(int Key,DWORD Flags)
       Rec.Event.KeyEvent.bKeyDown=1;
       Rec.Event.KeyEvent.wRepeatCount=1;
       Rec.Event.KeyEvent.wVirtualKeyCode=Key;
-      Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(
+      Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKeyA(
                     Rec.Event.KeyEvent.wVirtualKeyCode, 0);
       if (Key < 0x30 || Key > 0x5A) // 0-9:;<=>?@@ A..Z  //?????
         Key=0;
@@ -1714,7 +1714,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
     else if((unsigned int)FKey > KEY_FKEY_BEGIN && (unsigned int)FKey < KEY_END_FKEY)
       VirtKey=FKey-KEY_FKEY_BEGIN;
     else if(FKey < 0x100)           // EXTENDED_KEY_BASE ???
-      VirtKey=VkKeyScan(FKey)&0xFF;
+      VirtKey=VkKeyScanA(FKey)&0xFF;
     else
       VirtKey=FKey;
   }
@@ -1724,7 +1724,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
     Rec->Event.KeyEvent.bKeyDown=1;
     Rec->Event.KeyEvent.wRepeatCount=1;
     Rec->Event.KeyEvent.wVirtualKeyCode=VirtKey;
-    Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(
+    Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKeyA(
                     Rec->Event.KeyEvent.wVirtualKeyCode, 0);
     if (Key>255)                    // 0xFFFFF ???
       Key=0;

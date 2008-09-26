@@ -154,16 +154,16 @@ int DeleteFileWithFolder(const wchar_t *FileName);
 
 BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest);
 
-BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
-BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
-BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst);
-BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
+BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength);
+BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength);
+BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPSTR lpszDst);
+BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPSTR lpszDst);
 
 BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
-const wchar_t* GetUnicodeLanguageString (int nID);
+const wchar_t* GetLanguageString (int nID);
 
-#define UMSG(ID) GetUnicodeLanguageString(ID)
+#define MSG(ID) GetLanguageString(ID)
 
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,

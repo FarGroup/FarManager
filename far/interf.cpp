@@ -774,7 +774,7 @@ void Text(const WCHAR *Str)
 
 void Text(int MsgId)
 {
-  Text(UMSG(MsgId));
+  Text(MSG(MsgId));
 }
 
 void VText(const WCHAR *Str)

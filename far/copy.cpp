@@ -205,10 +205,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Link && !NT) // Создание линков только под NT
   {
-    Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
-              UMSG(MCopyNotSupportLink1),
-              UMSG(MCopyNotSupportLink2),
-              UMSG(MOk));
+    Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
+              MSG(MCopyNotSupportLink1),
+              MSG(MCopyNotSupportLink2),
+              MSG(MOk));
     return;
   }
 
@@ -332,11 +332,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   CopyDlg[ID_SC_USEFILTER].Selected=UseFilter;
 
   {
-    const wchar_t *Str = UMSG(MCopySecurity);
+    const wchar_t *Str = MSG(MCopySecurity);
     CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 1;
-    Str = UMSG(MCopySecurityLeave);
+    Str = MSG(MCopySecurityLeave);
     CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 5;
-    Str = UMSG(MCopySecurityCopy);
+    Str = MSG(MCopySecurityCopy);
     CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 5;
   }
 
@@ -446,7 +446,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     TruncPathStr(strSelNameShort,33);
     // Урезаем имя до размеров диалога.
     strCopyStr.Format (
-            UMSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile)),
+            MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile)),
             (const wchar_t*)strSelNameShort);
 
     // Если копируем одиночный файл, то запрещаем использовать фильтр
@@ -473,13 +473,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       NItems=MCMLItemsS;
     else if(StrItems[LenItems-1] == '1')
       NItems=MCMLItems0;
-    strCopyStr.Format (UMSG(NOper),CDP.SelCount,UMSG(NItems));
+    strCopyStr.Format (MSG(NOper),CDP.SelCount,MSG(NItems));
   }
 
     CopyDlg[ID_SC_SOURCEFILENAME].strData.Format (L"%.65s", (const wchar_t*)strCopyStr);
 
-    CopyDlg[ID_SC_TITLE].strData = UMSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle));
-    CopyDlg[ID_SC_BTNCOPY].strData = UMSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy));
+    CopyDlg[ID_SC_TITLE].strData = MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle));
+    CopyDlg[ID_SC_BTNCOPY].strData = MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy));
 
   if(DestPanelMode == PLUGIN_PANEL)
   {
@@ -614,10 +614,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		LinkTypeList.ItemsNumber=4;
 
 		memset(LinkTypeList.Items,0,sizeof(FarListItem)*4);
-		LinkTypeList.Items[0].Text=UMSG(MLinkTypeHardlink);
-		LinkTypeList.Items[1].Text=UMSG(MLinkTypeJunction);
-		LinkTypeList.Items[2].Text=UMSG(MLinkTypeSymlinkFile);
-		LinkTypeList.Items[3].Text=UMSG(MLinkTypeSymlinkDirectory);
+		LinkTypeList.Items[0].Text=MSG(MLinkTypeHardlink);
+		LinkTypeList.Items[1].Text=MSG(MLinkTypeJunction);
+		LinkTypeList.Items[2].Text=MSG(MLinkTypeSymlinkFile);
+		LinkTypeList.Items[3].Text=MSG(MLinkTypeSymlinkDirectory);
 
 		if(CDP.FilesPresent)
 				LinkTypeList.Items[0].Flags|=LIF_SELECTED;
@@ -696,7 +696,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           break;
         }
         else
-          Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),UMSG(MCopyIncorrectTargetList), UMSG(MOk));
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MCopyIncorrectTargetList), MSG(MOk));
       }
       else
         break;
@@ -864,7 +864,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
           CurCopiedSize=0;
-          CopyTitle->Set(Move ? UMSG(MCopyMovingTitle):UMSG(MCopyCopyingTitle));
+          CopyTitle->Set(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
           strNameTmp = NamePtr;
 
@@ -873,7 +873,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           if(!StrCmp(strNameTmp,L"..") && IsLocalRootPath(strSrcDir))
           {
-            if(Message(MSG_WARNING,2,UMSG(MError),UMSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),UMSG(MCannotCopyMoveToTwoDot),UMSG(MCopySkip),UMSG(MCopyCancel)) == 0)
+            if(Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)) == 0)
               continue;
             break;
           }
@@ -1512,7 +1512,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         }
         else if ((Attr & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
-          Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),UMSG(MCopyCannotCreateFolder),strNewPath,UMSG(MOk));
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),strNewPath,MSG(MOk));
           return COPY_FAILURE;
         }
       }
@@ -1594,8 +1594,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       {
         strDestPath = strSelName;
         ShellCopy::ShellCopyMsg(strSelName,strDestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
-        if (Message(MSG_DOWN|MSG_WARNING,2,UMSG(MError),UMSG(MCopyCannotFind),
-                strSelName,UMSG(MSkip),UMSG(MCancel))==1)
+        if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
+                strSelName,MSG(MSkip),MSG(MCancel))==1)
         {
           return COPY_FAILURE;
         }
@@ -1604,7 +1604,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     }
 
     // Если это каталог и трэба создать связь...
-		if(RPT==RP_SYMLINKFILE || (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR))
+		if(RPT==RP_SYMLINKFILE || ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)))
     {
       /*
       ЭТОТ кусок, если хотим не делать ссылку на ссылку!
@@ -1636,7 +1636,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       {
         strDestPath = strSelName;
 
-        wchar_t *lpwszDestPath = strDestPath.GetBuffer ((int)(strDestPath.GetLength()+StrLength(Dest)+1));
+        wchar_t *lpwszDestPath = strDestPath.GetBuffer (strDestPath.GetLength()+StrLength(Dest)+1);
 
         wcscpy(lpwszDestPath+KeepPathPos,Dest);
 
@@ -2018,8 +2018,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       if (CmpCode==2 || !Rename)
       {
         SetMessageHelp(L"ErrCopyItSelf");
-        Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),UMSG(MCannotCopyFolderToItself1),
-                Src,UMSG(MCannotCopyFolderToItself2),UMSG(MOk));
+        Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
+                Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
         return(COPY_CANCEL);
       }
     }
@@ -2095,9 +2095,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             {
               // Ай-ай-ай. Каталог не смогли создать! Значит будем ругаться!
               int MsgCode;
-              MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-                              UMSG(MCopyCannotCreateFolder),strNewPath,UMSG(MCopyRetry),
-                              UMSG(MCopySkip),UMSG(MCopyCancel));
+              MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                              MSG(MCopyCannotCreateFolder),strNewPath,MSG(MCopyRetry),
+                              MSG(MCopySkip),MSG(MCopyCancel));
 
               if (MsgCode!=0)
               {
@@ -2222,9 +2222,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           }
           else
           {
-            int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-                                  UMSG(MCopyCannotRenameFolder),Src,UMSG(MCopyRetry),
-                                  UMSG(MCopyIgnore),UMSG(MCopyCancel));
+            int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                                  MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
+                                  MSG(MCopyIgnore),MSG(MCopyCancel));
             switch (MsgCode)
             {
               case 0:  continue;
@@ -2259,9 +2259,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       while (!CreateDirectoryW(strDestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
         int MsgCode;
-        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-                        UMSG(MCopyCannotCreateFolder),strDestPath,UMSG(MCopyRetry),
-                        UMSG(MCopySkip),UMSG(MCopyCancel));
+        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                        MSG(MCopyCannotCreateFolder),strDestPath,MSG(MCopyRetry),
+                        MSG(MCopySkip),MSG(MCopyCancel));
 
         if (MsgCode!=0)
           return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
@@ -2304,9 +2304,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         while(!ShellSetAttr(strDestPath,SetAttr))
         {
           int MsgCode;
-          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                          UMSG(MCopyCannotChangeFolderAttr),strDestPath,
-                          UMSG(MCopyRetry),UMSG(MCopySkip),UMSG(MCopySkipAll),UMSG(MCopyCancel));
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MCopyCannotChangeFolderAttr),strDestPath,
+                          MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
 
           if (MsgCode!=0)
           {
@@ -2327,9 +2327,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         while(!ShellSetAttr(strDestPath,SetAttr))
         {
           int MsgCode;
-          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                          UMSG(MCopyCannotChangeFolderAttr),strDestPath,
-                          UMSG(MCopyRetry),UMSG(MCopySkip),UMSG(MCopySkipAll),UMSG(MCopyCancel));
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MCopyCannotChangeFolderAttr),strDestPath,
+                          MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
 
           if (MsgCode!=0)
           {
@@ -2392,8 +2392,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
             if (CmpCode==2 || !Rename)
             {
-              Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),UMSG(MCannotCopyFileToItself1),
-                      Src,UMSG(MCannotCopyFileToItself2),UMSG(MOk));
+              Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
+                      Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
               return(COPY_CANCEL);
             }
           }
@@ -2608,16 +2608,16 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);
           }
 
-          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,UMSG(MError),
-                          UMSG(MsgMCannot),
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
+                          MSG(MsgMCannot),
                           strMsg1,
-                          UMSG(MCannotCopyTo),
+                          MSG(MCannotCopyTo),
                           strMsg2,
-                          UMSG(MCopyDecrypt),
-                          UMSG(MCopyDecryptAll),
-                          UMSG(MCopySkip),
-                          UMSG(MCopySkipAll),
-                          UMSG(MCopyCancel));
+                          MSG(MCopyDecrypt),
+                          MSG(MCopyDecryptAll),
+                          MSG(MCopySkip),
+                          MSG(MCopySkipAll),
+                          MSG(MCopyCancel));
 
           switch(MsgCode)
           {
@@ -2646,13 +2646,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           MsgCode=SkipMode;
         else
         {
-          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                          UMSG(MsgMCannot),
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MsgMCannot),
                           strMsg1,
-                          UMSG(MCannotCopyTo),
+                          MSG(MCannotCopyTo),
                           strMsg2,
-                          UMSG(MCopyRetry),UMSG(MCopySkip),
-                          UMSG(MCopySkipAll),UMSG(MCopyCancel));
+                          MSG(MCopyRetry),MSG(MCopySkip),
+                          MSG(MCopySkipAll),MSG(MCopyCancel));
         }
 
         switch(MsgCode)
@@ -2746,26 +2746,26 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 
   if (ShowTotalCopySize)
   {
-    int nLength = (int)(wcslen (UMSG(MCopyDlgTotal))+strTotalCopySizeText.GetLength()+4+1);
+    int nLength = (int)(wcslen (MSG(MCopyDlgTotal))+strTotalCopySizeText.GetLength()+4+1);
 
     wchar_t *wszTotalMsg = (wchar_t*)xf_malloc (nLength*sizeof (wchar_t));
 
     if ( !strTotalCopySizeText.IsEmpty() ) //BUGBUG, but really not used
-      swprintf(wszTotalMsg,L" %s: %s ",UMSG(MCopyDlgTotal),(const wchar_t*)strTotalCopySizeText);
+      swprintf(wszTotalMsg,L" %s: %s ",MSG(MCopyDlgTotal),(const wchar_t*)strTotalCopySizeText);
     else
-      swprintf(wszTotalMsg, L" %s ", UMSG(MCopyDlgTotal));
+      swprintf(wszTotalMsg, L" %s ", MSG(MCopyDlgTotal));
 
     int TotalLength=StrLength(wszTotalMsg);
     wmemcpy(BarStr+(StrLength(BarStr)-TotalLength+1)/2,wszTotalMsg,TotalLength);
 //    *FilesStr=0;
 
-    swprintf (FilesStr, UMSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);
+    swprintf (FilesStr, MSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);
 
     xf_free (wszTotalMsg);
   }
   else
   {
-    swprintf(FilesStr,UMSG(MCopyProcessed),TotalFiles);
+    swprintf(FilesStr,MSG(MCopyProcessed),TotalFiles);
 
     if ((Src!=NULL) && (ShowCopyTime))
     {
@@ -2787,9 +2787,9 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
   SetMessageHelp(L"CopyFiles");
 
   if (Src==NULL)
-    Message(Flags,0,(ShellCopy::Flags&FCOPY_MOVE) ? UMSG(MMoveDlgTitle):
-                       UMSG(MCopyDlgTitle),
-                       L"",UMSG(MCopyScanning),
+    Message(Flags,0,(ShellCopy::Flags&FCOPY_MOVE) ? MSG(MMoveDlgTitle):
+                       MSG(MCopyDlgTitle),
+                       L"",MSG(MCopyScanning),
                        strDestName,L"",L"",BarStr,L"");
   else
   {
@@ -2798,16 +2798,16 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
     if ( ShowTotalCopySize )
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, UMSG(Move?MMoveDlgTitle:MCopyDlgTitle),UMSG(Move?MCopyMoving:MCopyCopying),strSrcName,UMSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr,Bar,L"");
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr,Bar,L"");
       else
-        Message(Flags, 0, UMSG(Move?MMoveDlgTitle:MCopyDlgTitle),UMSG(Move?MCopyMoving:MCopyCopying),strSrcName,UMSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr);
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr);
     }
     else
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, UMSG(Move?MMoveDlgTitle:MCopyDlgTitle),UMSG(Move?MCopyMoving:MCopyCopying),strSrcName,UMSG(MCopyTo),strDestName,L"",BarStr,FilesStr,Bar,L"");
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,FilesStr,Bar,L"");
       else
-        Message(Flags, 0, UMSG(Move?MMoveDlgTitle:MCopyDlgTitle),UMSG(Move?MCopyMoving:MCopyCopying),strSrcName,UMSG(MCopyTo),strDestName,L"",BarStr,FilesStr);
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,FilesStr);
     }
   }
 
@@ -2843,10 +2843,10 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
     if (ReadOnlyDelMode!=-1)
       MsgCode=ReadOnlyDelMode;
     else
-      MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),
-              UMSG(MCopyFileRO),Name,UMSG(MCopyAskDelete),
-              UMSG(MCopyDeleteRO),UMSG(MCopyDeleteAllRO),
-              UMSG(MCopySkipRO),UMSG(MCopySkipAllRO),UMSG(MCopyCancelRO));
+      MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),
+              MSG(MCopyFileRO),Name,MSG(MCopyAskDelete),
+              MSG(MCopyDeleteRO),MSG(MCopyDeleteAllRO),
+              MSG(MCopySkipRO),MSG(MCopySkipAllRO),MSG(MCopyCancelRO));
     switch(MsgCode)
     {
       case 1:
@@ -2867,9 +2867,9 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
   while((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):_wremove(Name)!=0)
   {
     int MsgCode;
-    MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),
-                    UMSG(MCannotDeleteFile),Name,UMSG(MDeleteRetry),
-                    UMSG(MDeleteSkip),UMSG(MDeleteCancel));
+    MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                    MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
+                    MSG(MDeleteSkip),MSG(MDeleteCancel));
     if (MsgCode==1 || MsgCode==-1)
       break;
     if (MsgCode==2 || MsgCode==-2)
@@ -2918,12 +2918,12 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
       string strSrcName = SrcName;
       InsertQuote(strSrcName);
-      MsgCode=Message(MSG_DOWN|MSG_WARNING,3,UMSG(MWarning),
-                      UMSG(MCopyEncryptWarn1),
+      MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MWarning),
+                      MSG(MCopyEncryptWarn1),
                       strSrcName,
-                      UMSG(MCopyEncryptWarn2),
-                      UMSG(MCopyEncryptWarn3),
-                      UMSG(MCopyIgnore),UMSG(MCopyIgnoreAll),UMSG(MCopyCancel));
+                      MSG(MCopyEncryptWarn2),
+                      MSG(MCopyEncryptWarn3),
+                      MSG(MCopyIgnore),MSG(MCopyIgnoreAll),MSG(MCopyCancel));
     }
 
     switch(MsgCode)
@@ -3165,9 +3165,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 //      StartTime=clock();
         while (!ReadFile(SrcHandle,CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufSize,iSize.QuadPart):CopyBufSize),&BytesRead,NULL))
         {
-          int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
-                                UMSG(MCopyReadError),SrcName,
-                                UMSG(MRetry),UMSG(MCancel));
+          int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                                MSG(MCopyReadError),SrcName,
+                                MSG(MRetry),MSG(MCancel));
           ShellCopy::PR_ShellCopyMsg();
           if (MsgCode==0)
             continue;
@@ -3223,9 +3223,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                 {
                   CloseHandle(DestHandle);
                   SetMessageHelp(L"CopyFiles");
-                  int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(MError),
-                                      UMSG(MErrorInsufficientDiskSpace),DestName,
-                                      UMSG(MSplit),UMSG(MSkip),UMSG(MRetry),UMSG(MCancel));
+                  int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
+                                      MSG(MErrorInsufficientDiskSpace),DestName,
+                                      MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
                   ShellCopy::PR_ShellCopyMsg();
                   if (MsgCode==2)
                   {
@@ -3246,9 +3246,9 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                       if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
                         if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
                         {
-                          int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,UMSG(MWarning),
-                                                UMSG(MCopyErrorDiskFull),DestName,
-                                                UMSG(MRetry),UMSG(MCancel));
+                          int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
+                                                MSG(MCopyErrorDiskFull),DestName,
+                                                MSG(MRetry),MSG(MCancel));
                           ShellCopy::PR_ShellCopyMsg();
                           if (MsgCode!=0)
                           {
@@ -3306,8 +3306,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             else
             {
               if (!SplitCancelled && !SplitSkipped &&
-                  Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
-                  UMSG(MCopyWriteError),DestName,UMSG(MRetry),UMSG(MCancel))==0)
+                  Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                  MSG(MCopyWriteError),DestName,MSG(MRetry),MSG(MCancel))==0)
               {
                 continue;
               }
@@ -3480,7 +3480,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     c[1]=0;
 
     if (OldTotalSize == 0 || WorkTime == 0)
-      strTimeStr.Format (UMSG(MCopyTimeInfo), L" ", L" ", 0, L" ");
+      strTimeStr.Format (MSG(MCopyTimeInfo), L" ", L" ", 0, L" ");
     else
     {
       if (TotalBar)
@@ -3504,7 +3504,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
       string strTimeLeftStr;
       GetTimeText(WorkTime, strWorkTimeStr);
       GetTimeText(TimeLeft, strTimeLeftStr);
-      strTimeStr.Format (UMSG(MCopyTimeInfo), (const wchar_t*)strWorkTimeStr, (const wchar_t*)strTimeLeftStr, CPS, c);
+      strTimeStr.Format (MSG(MCopyTimeInfo), (const wchar_t*)strWorkTimeStr, (const wchar_t*)strTimeLeftStr, CPS, c);
     }
     GotoXY(BarX,BarY+(TotalBar?6:4));
     Text(strTimeStr);
@@ -3597,18 +3597,18 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
         string strDateText, strTimeText;
         ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-        strSrcFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+        strSrcFileStr.Format (L"%-17s %11.11s %s %s",MSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
         ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-        strDestFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+        strDestFileStr.Format (L"%-17s %11.11s %s %s",MSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
 
         SetMessageHelp(L"CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,UMSG(MWarning),
-                UMSG(MCopyFileExist),DestName,L"\x1",strSrcFileStr, strDestFileStr,
-                L"\x1",UMSG(MCopyOverwrite),UMSG(MCopyOverwriteAll),
-                UMSG(MCopySkipOvr),UMSG(MCopySkipAllOvr),
-                AskAppend?(AskAppend==1?UMSG(MCopyAppend):UMSG(MCopyResume)):UMSG(MCopyCancelOvr),
-                AskAppend?(AskAppend==1?UMSG(MCopyAppendAll):UMSG(MCopyCancelOvr)):NULL,
-                AskAppend==1?UMSG(MCopyCancelOvr):NULL);
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
+                MSG(MCopyFileExist),DestName,L"\x1",strSrcFileStr, strDestFileStr,
+                L"\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
+                MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
+                AskAppend==1?MSG(MCopyCancelOvr):NULL);
         if((!AskAppend && MsgCode==4) || (AskAppend>1 && MsgCode==5))
           MsgCode=6;
       }
@@ -3667,18 +3667,18 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
         strDestSizeText.Format(L"%I64u", DestSize);
 
         ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-        strSrcFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+        strSrcFileStr.Format (L"%-17s %11.11s %s %s",MSG(MCopySource),(const wchar_t*)strSrcSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
         ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-        strDestFileStr.Format (L"%-17s %11.11s %s %s",UMSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
+        strDestFileStr.Format (L"%-17s %11.11s %s %s",MSG(MCopyDest),(const wchar_t*)strDestSizeText,(const wchar_t*)strDateText,(const wchar_t*)strTimeText);
 
         SetMessageHelp(L"CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,UMSG(MWarning),
-                UMSG(MCopyFileRO),DestName,L"\x1",strSrcFileStr, strDestFileStr,
-                L"\x1",UMSG(MCopyOverwrite),UMSG(MCopyOverwriteAll),
-                UMSG(MCopySkipOvr),UMSG(MCopySkipAllOvr),
-                AskAppend?(AskAppend==1?UMSG(MCopyAppend):UMSG(MCopyResume)):UMSG(MCopyCancelOvr),
-                AskAppend?(AskAppend==1?UMSG(MCopyAppendAll):UMSG(MCopyCancelOvr)):NULL,
-                AskAppend==1?UMSG(MCopyCancelOvr):NULL);
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
+                MSG(MCopyFileRO),DestName,L"\x1",strSrcFileStr, strDestFileStr,
+                L"\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
+                MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
+                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
+                AskAppend==1?MSG(MCopyCancelOvr):NULL);
         if((!AskAppend && MsgCode==4) || (AskAppend>1 && MsgCode==5))
           MsgCode=6;
       }
@@ -3729,8 +3729,8 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
     sd=NULL;
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
         LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
-        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
-                UMSG(MCannotGetSecurity),FileName,UMSG(MOk),UMSG(MCancel))==1)
+        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
   }
   sa.nLength=sizeof(SECURITY_ATTRIBUTES);
@@ -3752,8 +3752,8 @@ int ShellCopy::SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa
   {
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
         LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
-        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),
-                UMSG(MCannotSetSecurity),FileName,UMSG(MOk),UMSG(MCancel))==1)
+        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                MSG(MCannotSetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
   }
   return(TRUE);
@@ -3789,7 +3789,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
     TruncPathStr(strOutFileName,Width);
     CenterStr(strOutFileName, strOutFileName,Width+4);
 
-    Message(0,0,UMSG(MMoveDlgTitle),UMSG(MCopyPrepareSecury),strOutFileName);
+    Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),strOutFileName);
 
     if(CheckForEscSilent())
     {
@@ -4002,7 +4002,7 @@ void ShellCopy::ShowTitle(int FirstTime)
   if (ShowTotalCopySize && !FirstTime)
   {
     unsigned __int64 CopySize=TotalCopiedSize>>8,TotalSize=TotalCopySize>>8;
-    StaticCopyTitle->Set(L"{%d%%} %s",ToPercent64(CopySize,TotalSize),StaticMove ? UMSG(MCopyMovingTitle):UMSG(MCopyCopyingTitle));
+    StaticCopyTitle->Set(L"{%d%%} %s",ToPercent64(CopySize,TotalSize),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
   }
 }
 
@@ -4186,9 +4186,9 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
         {
-          Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
-                UMSG(MCopyCannotCreateJunctionToFile),
-                strDestFullName,UMSG(MOk));
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                MSG(MCopyCannotCreateJunctionToFile),
+                strDestFullName,MSG(MOk));
         }
         return 0;
       }
@@ -4200,7 +4200,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
         if(LinkType==RP_VOLMOUNT)
         {
           string strTmpName;
-          strTmpName.Format (UMSG(MCopyMountName),*SelName);
+          strTmpName.Format (MSG(MCopyMountName),*SelName);
 
           strDestFullName += strTmpName;
           AddEndSlash(strDestFullName);
@@ -4218,18 +4218,18 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
             {
               if(LinkType==RP_VOLMOUNT)
               {
-                strMsgBuf.Format (UMSG(MCopyMountVolFailed), SelName);
-                strMsgBuf2.Format (UMSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
-                Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
+                strMsgBuf.Format (MSG(MCopyMountVolFailed), SelName);
+                strMsgBuf2.Format (MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
+                Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
                    strMsgBuf,
                    strMsgBuf2,
-                   UMSG(MCopyFolderNotEmpty),
-                   UMSG(MOk));
+                   MSG(MCopyFolderNotEmpty),
+                   MSG(MOk));
               }
               else
-                Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
-                      UMSG(MCopyCannotCreateLink),strDestFullName,
-                      UMSG(MCopyFolderNotEmpty),UMSG(MOk));
+                Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                      MSG(MCopyCannotCreateLink),strDestFullName,
+                      MSG(MCopyFolderNotEmpty),MSG(MOk));
             }
             return 0; // однозначно в морг
           }
@@ -4245,9 +4245,9 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
         {
           if(!(Flags&FCOPY_NOSHOWMSGLINK))
           {
-            Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
-                      UMSG(MCopyCannotCreateFolder),
-                      strDestFullName,UMSG(MOk));
+            Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                      MSG(MCopyCannotCreateFolder),
+                      strDestFullName,MSG(MOk));
           }
           return 0;
         }
@@ -4301,8 +4301,8 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 				{
 					if(!(Flags&FCOPY_NOSHOWMSGLINK))
 					{
-						Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
-										 UMSG(MCopyCannotCreateLink),strDestFullName,UMSG(MOk));
+						Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+										 MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
 					}
 					return 0;
 				}
@@ -4318,8 +4318,8 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
         {
-          Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
-                 UMSG(MCopyCannotCreateLink),strDestFullName,UMSG(MOk));
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                 MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
         }
         return 0;
       }
@@ -4338,27 +4338,27 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
           switch(ResultVol)
           {
             case 1:
-              strMsgBuf.Format (UMSG(MCopyRetrVolFailed), SelName);
+              strMsgBuf.Format (MSG(MCopyRetrVolFailed), SelName);
               break;
             case 2:
-              strMsgBuf.Format (UMSG(MCopyMountVolFailed), SelName);
-              strMsgBuf2.Format (UMSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
+              strMsgBuf.Format (MSG(MCopyMountVolFailed), SelName);
+              strMsgBuf2.Format (MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
               break;
             case 3:
-              strMsgBuf = UMSG(MCopyCannotSupportVolMount);
+              strMsgBuf = MSG(MCopyCannotSupportVolMount);
               break;
           }
 
           if(ResultVol == 2)
-            Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
+            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
               strMsgBuf,
               strMsgBuf2,
-              UMSG(MOk));
+              MSG(MOk));
           else
-            Message(MSG_DOWN|MSG_WARNING,1,UMSG(MError),
-              UMSG(MCopyCannotCreateVolMount),
+            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+              MSG(MCopyCannotCreateVolMount),
               strMsgBuf,
-              UMSG(MOk));
+              MSG(MOk));
         }
         return 0;
       }

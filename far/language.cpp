@@ -220,7 +220,7 @@ void Language::Close()
 
 void Language::ConvertString(const wchar_t *Src,string &strDest)
 {
-  wchar_t *Dest = strDest.GetBuffer ((int)wcslen (Src)*2);
+  wchar_t *Dest = strDest.GetBuffer (wcslen (Src)*2);
 
   while (*Src)
     switch(*Src)
@@ -442,13 +442,13 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   string *strDest;
   if (HelpLanguage)
   {
-    Title=UMSG(MHelpLangTitle);
+    Title=MSG(MHelpLangTitle);
     Mask=HelpFileMask;
     strDest=&Opt.strHelpLanguage;
   }
   else
   {
-    Title=UMSG(MLangTitle);
+    Title=MSG(MLangTitle);
     Mask=LangFileMask;
     strDest=&Opt.strLanguage;
   }

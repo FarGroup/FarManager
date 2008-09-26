@@ -78,7 +78,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
    strDest.Format (L"%I64u", li);
    return FormatNumber(strDest,strDest);
 /*
-   wchar_t *lpwszDest = strDest.GetBuffer((int)strDest.GetLength() << 1); //BUGBUG
+   wchar_t *lpwszDest = strDest.GetBuffer(strDest.GetLength() << 1); //BUGBUG
 
    for (int I=StrLength(lpwszDest)-4;I>=0;I-=3)
    {
@@ -273,7 +273,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	wchar_t *PartBeforeName=NULL;
 	string strSrc = SrcName;
 
-	DestName = DestNamePtr = strDest.GetBuffer ((int)(strDest.GetLength()+strSrc.GetLength()+1)); //???
+	DestName = DestNamePtr = strDest.GetBuffer (strDest.GetLength()+strSrc.GetLength()+1); //???
 	DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
 
 	strWildName = DestNamePtr;
@@ -397,7 +397,7 @@ wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 
 string& InsertQuote(string &strStr)
 {
-  wchar_t *Str = strStr.GetBuffer ((int)strStr.GetLength()+3);
+  wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+3);
 
   InsertQuote(Str);
 
@@ -777,7 +777,7 @@ BOOL AddEndSlash(
 		wchar_t TypeSlash
 		)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer ((int)strPath.GetLength()+2);
+	wchar_t *lpwszPath = strPath.GetBuffer (strPath.GetLength()+2);
 
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
 
@@ -960,7 +960,7 @@ void __PrepareKMGTbStr(void)
 {
   for(int I=0; I < 5; ++I)
   {
-    xwcsncpy(KMGTbStrW[I][0],UMSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
+    xwcsncpy(KMGTbStrW[I][0],MSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
     wcscpy(KMGTbStrW[I][1],KMGTbStrW[I][0]);
     CharLowerW (KMGTbStrW[I][0]);
     CharUpperW (KMGTbStrW[I][1]);

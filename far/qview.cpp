@@ -74,7 +74,7 @@ QuickView::~QuickView()
 
 string &QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  strTitle.Format (L" %s ", UMSG(MQuickViewTitle));
+  strTitle.Format (L" %s ", MSG(MQuickViewTitle));
   TruncStr(strTitle,X2-X1-3);
   return strTitle;
 }
@@ -117,7 +117,7 @@ void QuickView::DisplayObject()
   {
     string strMsg;
 
-    strMsg.Format (UMSG(MQuickViewFolder),(const wchar_t*)strCurFileName);
+    strMsg.Format (MSG(MQuickViewFolder),(const wchar_t*)strCurFileName);
 
     TruncStr(strMsg,X2-X1-4);
     SetColor(COL_PANELTEXT);
@@ -156,7 +156,7 @@ void QuickView::DisplayObject()
         }
         string strJuncTemp=&strJuncName[offset];
         TruncPathStr(strJuncTemp,X2-X1-4-Width);
-        strMsg.Format (UMSG(ID_Msg), (const wchar_t*)strJuncTemp);
+        strMsg.Format (MSG(ID_Msg), (const wchar_t*)strJuncTemp);
         TruncStr(strMsg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
@@ -169,34 +169,34 @@ void QuickView::DisplayObject()
       string strSlackMsg;
 
       GotoXY(X1+2,Y1+4);
-      PrintText(UMSG(MQuickViewContains));
+      PrintText(MSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
-      PrintText(UMSG(MQuickViewFolders));
+      PrintText(MSG(MQuickViewFolders));
       SetColor(COL_PANELINFOTEXT);
       strMsg.Format (L"%d",DirCount);
       PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+7);
-      PrintText(UMSG(MQuickViewFiles));
+      PrintText(MSG(MQuickViewFiles));
       SetColor(COL_PANELINFOTEXT);
       strMsg.Format (L"%d",FileCount);
       PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+8);
-      PrintText(UMSG(MQuickViewBytes));
+      PrintText(MSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
       InsertCommas(FileSize,strMsg);
       PrintText(strMsg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
-      PrintText(UMSG(MQuickViewCompressed));
+      PrintText(MSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
       InsertCommas(CompressedFileSize,strMsg);
       PrintText(strMsg);
 
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+10);
-      PrintText(UMSG(MQuickViewRatio));
+      PrintText(MSG(MQuickViewRatio));
       SetColor(COL_PANELINFOTEXT);
       strSlackMsg.Format (L"%d%%",ToPercent64(CompressedFileSize,FileSize));
       PrintText(strSlackMsg);
@@ -205,19 +205,19 @@ void QuickView::DisplayObject()
       {
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+12);
-        PrintText(UMSG(MQuickViewCluster));
+        PrintText(MSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(ClusterSize,strMsg);
         PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
-        PrintText(UMSG(MQuickViewRealSize));
+        PrintText(MSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize,strMsg);
         PrintText(strMsg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
-        PrintText(UMSG(MQuickViewSlack));
+        PrintText(MSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize-CompressedFileSize,strMsg);
         unsigned __int64 Size1=RealFileSize-CompressedFileSize;
@@ -377,7 +377,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
     }
     else
     {
-      int ExitCode=GetDirInfo(UMSG(MQuickViewTitle),strCurFileName,DirCount,
+      int ExitCode=GetDirInfo(MSG(MQuickViewTitle),strCurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
                    ClusterSize,500,NULL,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
       if (ExitCode==1)
@@ -565,38 +565,38 @@ void QuickView::DynamicUpdateKeyBar()
   KeyBar *KB = CtrlObject->MainKeyBar;
   if (Directory || !QView)
   {
-    KB->Change (UMSG(MF2), 2-1);
+    KB->Change (MSG(MF2), 2-1);
     KB->Change (L"", 4-1);
     KB->Change (L"", 8-1);
     KB->Change (KBL_SHIFT, L"", 2-1);
     KB->Change (KBL_SHIFT, L"", 8-1);
-    KB->Change (KBL_ALT, UMSG(MAltF8), 8-1); // стандартный для панели - "хистори"
+    KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
   else {
     if (QView->GetHexMode())
-      KB->Change (UMSG(MViewF4Text), 4-1);
+      KB->Change (MSG(MViewF4Text), 4-1);
     else
-      KB->Change (UMSG(MQViewF4), 4-1);
+      KB->Change (MSG(MQViewF4), 4-1);
 
     if (QView->GetAnsiMode())
-      KB->Change (UMSG(MViewF8DOS), 8-1);
+      KB->Change (MSG(MViewF8DOS), 8-1);
     else
-      KB->Change (UMSG(MQViewF8), 8-1);
+      KB->Change (MSG(MQViewF8), 8-1);
 
     if (!QView->GetWrapMode())
     {
       if (QView->GetWrapType())
-        KB->Change (UMSG(MViewShiftF2), 2-1);
+        KB->Change (MSG(MViewShiftF2), 2-1);
       else
-        KB->Change (UMSG(MViewF2), 2-1);
+        KB->Change (MSG(MViewF2), 2-1);
     }
     else
-      KB->Change (UMSG(MViewF2Unwrap), 2-1);
+      KB->Change (MSG(MViewF2Unwrap), 2-1);
 
     if (QView->GetWrapType())
-      KB->Change (KBL_SHIFT, UMSG(MViewF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
     else
-      KB->Change (KBL_SHIFT, UMSG(MViewShiftF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
 
   KB->ReadRegGroup(L"QView",Opt.strLanguage);

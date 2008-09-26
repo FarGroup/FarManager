@@ -118,7 +118,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
     NewItem.Clear ();
 
     if ((DWORD_PTR)Data[I].Name < MAX_MSG)
-      NewItem.strName = UMSG((int)(DWORD_PTR)Data[I].Name);
+      NewItem.strName = MSG((int)(DWORD_PTR)Data[I].Name);
     else
       NewItem.strName = Data[I].Name;
     //NewItem.AmpPos=-1;
@@ -2491,7 +2491,7 @@ int VMenu::GetTypeAndName(string &strType, string &strName)
 {
   CriticalSectionLock Lock(CS);
 
-  strType = UMSG(MVMenuType);
+  strType = MSG(MVMenuType);
   strName = strTitle;
 
   return(CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU);

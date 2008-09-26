@@ -66,11 +66,11 @@ int WriteEvent(DWORD DumpType, // FLOG_*
 static const wchar_t* xFromMSGTitle(int From)
 {
   if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
-    return UMSG(MExceptTitleLoad);
+    return MSG(MExceptTitleLoad);
   else if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
-    return UMSG(MExceptTitleFAR);
+    return MSG(MExceptTitleFAR);
   else
-    return UMSG(MExceptTitle);
+    return MSG(MExceptTitle);
 }
 
 static BOOL Is_STACK_OVERFLOW=FALSE;
@@ -296,24 +296,24 @@ static DWORD WINAPI _xfilter(
         xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
      {
        strBuf1.Format (
-           UMSG(MExcStructField),
+           MSG(MExcStructField),
            pName,
            NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
      }
      else
-       strBuf1.Format (UMSG(MExcStructWrongFilled),pName);
+       strBuf1.Format (MSG(MExcStructWrongFilled),pName);
 
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
        Message(MSG_WARNING,1,
             xFromMSGTitle(From),
-            UMSG(MExcTrappedException),
-            UMSG(MExcCheckOnLousys),
+            MSG(MExcTrappedException),
+            MSG(MExcCheckOnLousys),
             strFileName,
             strBuf1,
             L"\1",
-            UMSG(MExcUnloadYes),
-            UMSG(MOk));
+            MSG(MExcUnloadYes),
+            MSG(MOk));
        ShowMessages=TRUE;
      }
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
@@ -338,18 +338,18 @@ static DWORD WINAPI _xfilter(
          break;
      }
 
-     strBuf1.Format (UMSG(MExcInvalidFuncResult),pName);
+     strBuf1.Format (MSG(MExcInvalidFuncResult),pName);
      if(FrameManager && !FrameManager->ManagerIsDown())
      {
        Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
-                 UMSG(MExcTrappedException),
-                 UMSG(MExcCheckOnLousys),
+                 MSG(MExcTrappedException),
+                 MSG(MExcCheckOnLousys),
                  strFileName,
                  strBuf1,
                  L"\1",
-                 UMSG(MExcUnloadYes),
-                 UMSG(MOk));
+                 MSG(MExcUnloadYes),
+                 MSG(MOk));
        ShowMessages=TRUE;
      }
    }
@@ -360,7 +360,7 @@ static DWORD WINAPI _xfilter(
      {
        if (ECode[I].Code == xr->ExceptionCode)
        {
-         pName=UMSG(ECode[I].IdMsg);
+         pName=MSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;
          if (xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
          {
@@ -385,7 +385,7 @@ static DWORD WINAPI _xfilter(
                break;
            }
 
-           strBuf2.Format (UMSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
+           strBuf2.Format (MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
            pName=strBuf2;
          }
          break;
@@ -394,21 +394,21 @@ static DWORD WINAPI _xfilter(
 
      if (!pName)
      {
-       strBuf2.Format(L"%s (0x%X)", UMSG(MExcUnknown), xr->ExceptionCode);
+       strBuf2.Format(L"%s (0x%X)", MSG(MExcUnknown), xr->ExceptionCode);
        pName = strBuf2;
      }
 
-     strBuf1.Format (UMSG(MExcAddress),xr->ExceptionAddress);
+     strBuf1.Format (MSG(MExcAddress),xr->ExceptionAddress);
      if (FrameManager && !FrameManager->ManagerIsDown())
      {
        Message(MSG_WARNING,1,
                xFromMSGTitle(From),
-               UMSG(MExcTrappedException),
+               MSG(MExcTrappedException),
                pName,
                strBuf1,
                strFileName, L"\1",
-               UMSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
-               UMSG(MOk));
+               MSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
+               MSG(MOk));
        ShowMessages=TRUE;
      }
    } /* else */

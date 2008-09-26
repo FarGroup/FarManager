@@ -348,7 +348,7 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
       Year%=100;
     if (TextMonth)
     {
-      const wchar_t *Month=UMSG(MMonthJan+st.wMonth-1);
+      const wchar_t *Month=MSG(MMonthJan+st.wMonth-1);
       switch(CurDateFormat)
       {
         case 0:
@@ -504,7 +504,7 @@ int GetFileTypeByName(const wchar_t *Name)
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
 {
-  Message(0,0,Title,UMSG(MScanningFolder),Name);
+  Message(0,0,Title,MSG(MScanningFolder),Name);
   PreRedrawParam.Param1=(void*)Title;
   PreRedrawParam.Param2=(void*)Name;
 }
@@ -610,7 +610,7 @@ int GetDirInfo(const wchar_t *Title,
 
     if (!MsgOut && MsgWaitTime!=-1 && clock()-StartTime > MsgWaitTime)
     {
-      OldTitle.Set(L"%s %s",UMSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
+      OldTitle.Set(L"%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
@@ -808,7 +808,7 @@ int CheckFolder(const wchar_t *Path)
   return CHKFLD_EMPTY;
 }
 
-const wchar_t* GetUnicodeLanguageString (int nID)
+const wchar_t* GetLanguageString (int nID)
 {
 	return Lang.GetMsg(nID);
 }
@@ -1110,7 +1110,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   if(WithPath)
       strPath = Opt.strTempPath;
 
-  wchar_t *lpwszDest = strDest.GetBuffer ((int)(StrLength(Prefix)+strPath.GetLength()+13));
+  wchar_t *lpwszDest = strDest.GetBuffer (StrLength(Prefix)+strPath.GetLength()+13);
 
   UINT uniq = GetCurrentProcessId(), savePid = uniq;
   for(;;) {
@@ -1447,12 +1447,12 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
     {
       SetLastError(ERROR_FILE_NOT_FOUND);
       if(!Silent)
-        Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strTarget, UMSG (MOk));
+        Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strTarget, MSG (MOk));
     }
     else // попытка найти!
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, UMSG (MError), strTarget, UMSG (MNeedNearPath), UMSG(MHYes),UMSG(MHNo)) == 0)
+      if(Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), strTarget, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
       {
         string strTestPathTemp = *pTestPath;
 

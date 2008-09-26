@@ -91,7 +91,7 @@ void FileList::UpdateIfRequired()
 
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
-  Message(0,0,UMSG(MReadingTitleFiles),Msg);
+  Message(0,0,MSG(MReadingTitleFiles),Msg);
   PreRedrawParam.Param1=(void*)Msg;
 }
 
@@ -359,7 +359,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
             }
           }
 
-          strReadMsg.Format (UMSG(MReadingFiles),FileCount);
+          strReadMsg.Format (MSG(MReadingFiles),FileCount);
           if(DrawMessage)
             ReadFileNamesMsg(strReadMsg);
           else
@@ -372,7 +372,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         }
         if (CheckForEsc())
         {
-          Message(MSG_WARNING,1,UMSG(MUserBreakTitle),UMSG(MOperationNotCompleted),UMSG(MOk));
+          Message(MSG_WARNING,1,MSG(MUserBreakTitle),MSG(MOperationNotCompleted),MSG(MOk));
           break;
         }
       }
@@ -385,7 +385,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int ErrCode=GetLastError();
   if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND ||
         (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MReadFolderError),UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
   apiFindClose(FindHandle);
 

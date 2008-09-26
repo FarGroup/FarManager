@@ -225,6 +225,8 @@ RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 ULINK_MODES=-q -m- -ap -Gz -O- -o- -Gh -Gh-
 
 DEFINES=\
+	/D "UNICODE"\
+	/D "_UNICODE"\
 	/D $(USEDEBUG)\
 	/D "WIN32"\
 	/D "_CONSOLE"\

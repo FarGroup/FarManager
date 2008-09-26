@@ -276,7 +276,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
   if (hFile==INVALID_HANDLE_VALUE)
   {
     //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MCannotOpenFile),FileName,MSG(MOk));
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,L"",UMSG(MOpenPluginCannotOpenFile),FileName,UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,L"",MSG(MOpenPluginCannotOpenFile),FileName,MSG(MOk));
     return(INVALID_HANDLE_VALUE);
   }
 

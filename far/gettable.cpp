@@ -78,7 +78,7 @@ int GetTableEx ()
 {
     int nCP = -1;
 
-    tables = new VMenu (UMSG(MGetTableTitle),NULL,0,ScrY-4);
+    tables = new VMenu (MSG(MGetTableTitle),NULL,0,ScrY-4);
 
     MenuItemEx item;
 
@@ -139,10 +139,10 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
         FAR_CharToOem(decode, decode);
         FAR_OemToChar(encode, encode);
       }
-      if(IsCharAlpha(I))
+      if(IsCharAlphaA(I))
       {
-        CharUpper(toUpper);
-        CharLower(toLower);
+        CharUpperA(toUpper);
+        CharLowerA(toLower);
       }
       TableSet->EncodeTable[I] = *encode;
       TableSet->DecodeTable[I] = *decode;
@@ -153,7 +153,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     return(TRUE);
   }
 
-  VMenu TableList(UMSG(MGetTableTitle),NULL,0,ScrY-4);
+  VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
   TableList.SetFlags(VMENU_WRAPMODE);
   TableList.SetPosition(-1,-1,0,0);
 
@@ -162,7 +162,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   ListItem.Clear ();
 
   ListItem.SetSelect(!TableNum);
-  ListItem.strName = UMSG(MGetTableNormalText);
+  ListItem.strName = MSG(MGetTableNormalText);
   TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItem(&ListItem));
 
   if (UseUnicode)

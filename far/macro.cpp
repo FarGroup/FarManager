@@ -3803,11 +3803,11 @@ M1:
           strBufKey=L"";
 
         if((Mac->Flags&0xFF)==MACRO_COMMON)
-            strBuf.Format (UMSG(!MacroDlg->RecBufferSize?
+            strBuf.Format (MSG(!MacroDlg->RecBufferSize?
                (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
                MMacroCommonReDefinedKey), (const wchar_t*)strKeyText);
         else
-          strBuf.Format (UMSG(!MacroDlg->RecBufferSize?
+          strBuf.Format (MSG(!MacroDlg->RecBufferSize?
                (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
                MMacroReDefinedKey), (const wchar_t*)strKeyText);
 
@@ -3822,14 +3822,14 @@ M1:
           )
           I=0;
         else
-          I=Message(MSG_WARNING,2,UMSG(MWarning),
+          I=Message(MSG_WARNING,2,MSG(MWarning),
               strBuf,
-              UMSG(MMacroSequence),
+              MSG(MMacroSequence),
               strBufKey,
-              UMSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
+              MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
                     (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-              UMSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
-              UMSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
+              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
 
         if(!I)
         {
@@ -4028,7 +4028,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   string strKeyText;
   KeyToText(Key,strKeyText);
 
-  MacroSettingsDlg[0].strData.Format (UMSG(MMacroSettingsTitle), (const wchar_t*)strKeyText);
+  MacroSettingsDlg[0].strData.Format (MSG(MMacroSettingsTitle), (const wchar_t*)strKeyText);
 //  if(!(Key&0x7F000000))
 //    MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 

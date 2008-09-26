@@ -371,7 +371,7 @@ int PluginW::Load()
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
 
-			Message(MSG_WARNING,1,UMSG(MError),UMSG(MPlgLoadPluginError),m_strModuleName,UMSG(MOk));
+			Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
 		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
@@ -639,11 +639,11 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 	string strMsg1, strMsg2;
 	string strPlgName;
 
-	strMsg1.Format(UMSG(MPlgRequired),
+	strMsg1.Format(MSG(MPlgRequired),
 					(WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
-	strMsg2.Format(UMSG(MPlgRequired2),
+	strMsg2.Format(MSG(MPlgRequired2),
 					(WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
-	Message(MSG_WARNING,1,UMSG(MError),UMSG(MPlgBadVers),plg,strMsg1,strMsg2,UMSG(MOk));
+	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
 

@@ -76,7 +76,7 @@ FileList::FileList()
 {
   _OT(SysLog(L"[%p] FileList::FileList()", this));
   {
-    const wchar_t *data=UMSG(MPanelBracketsForLongName);
+    const wchar_t *data=MSG(MPanelBracketsForLongName);
     if(StrLength(data)>1)
     {
       *openBracket=data[0];
@@ -1142,8 +1142,8 @@ int FileList::ProcessKey(int Key)
             if ( !dlgOpenEditor (strLastFileName, codepage) )
             	return FALSE;
 
-            /*if (!GetString(UMSG(MEditTitle),
-                           UMSG(MFileToEdit),
+            /*if (!GetString(MSG(MEditTitle),
+                           MSG(MFileToEdit),
                            L"NewEdit",
                            strLastFileName,
                            strLastFileName,
@@ -1178,11 +1178,11 @@ int FileList::ProcessKey(int Key)
                   if(CheckFAttr == INVALID_FILE_ATTRIBUTES)
                   {
                     SetMessageHelp(L"WarnEditorPath");
-                    if (Message(MSG_WARNING,2,UMSG(MWarning),
-                                UMSG(MEditNewPath1),
-                                UMSG(MEditNewPath2),
-                                UMSG(MEditNewPath3),
-                                UMSG(MHYes),UMSG(MHNo))!=0)
+                    if (Message(MSG_WARNING,2,MSG(MWarning),
+                                MSG(MEditNewPath1),
+                                MSG(MEditNewPath2),
+                                MSG(MEditNewPath3),
+                                MSG(MHYes),MSG(MHNo))!=0)
 
                       return(FALSE);
                   }
@@ -1195,14 +1195,14 @@ int FileList::ProcessKey(int Key)
             else if(PluginMode) // пустое имя файла в панели плагина не разрешается!
             {
               SetMessageHelp(L"WarnEditorPluginName");
-              if (Message(MSG_WARNING,2,UMSG(MWarning),
-                          UMSG(MEditNewPlugin1),
-                          UMSG(MEditNewPath3),UMSG(MCancel))!=0)
+              if (Message(MSG_WARNING,2,MSG(MWarning),
+                          MSG(MEditNewPlugin1),
+                          MSG(MEditNewPath3),MSG(MCancel))!=0)
 
                 return(FALSE);
             }
             else
-              strFileName = UMSG(MNewFileName);
+              strFileName = MSG(MNewFileName);
 
           } while(strFileName.IsEmpty());
 
@@ -1443,8 +1443,8 @@ int FileList::ProcessKey(int Key)
         if (PluginMode)
         {
           if (UploadFailed)
-            Message(MSG_WARNING,1,UMSG(MError),UMSG(MCannotSaveFile),
-                    UMSG(MTextSavedToTemp),strFileName,UMSG(MOk));
+            Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
+                    MSG(MTextSavedToTemp),strFileName,MSG(MOk));
           else if(Edit || DeleteViewedFile)
             // удаляем файл только для случая окрытия его в редакторе или во
             // внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
@@ -1556,7 +1556,7 @@ int FileList::ProcessKey(int Key)
           int MakeCode=CtrlObject->Plugins.MakeDirectory(hPlugin,&lpwszDirName,0);
           strDirName=lpwszDirName;
           if (!MakeCode)
-            Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strDirName,UMSG(MOk));
+            Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strDirName,MSG(MOk));
           Update(UPDATE_KEEP_SELECTION);
           if (MakeCode==1)
             GoToFile(PointToName(strDirName));
@@ -2302,7 +2302,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     /* $ 03.11.2001 IS
          Укажем имя неудачного каталога
     */
-    Message(MSG_WARNING | MSG_ERRORTYPE, 1, UMSG (MError), strSetDir, UMSG (MOk));
+    Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strSetDir, MSG (MOk));
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
   /* $ 28.04.2001 IS
@@ -3058,7 +3058,7 @@ void FileList::SelectFiles(int Mode)
       // Учтем тот момент, что имя может содержать символы-разделители
       strRawMask.Format (L"\"%s", (const wchar_t*)strCurName);
 
-      wchar_t *DotPtr = strRawMask.GetBuffer ((int)strRawMask.GetLength()+4);
+      wchar_t *DotPtr = strRawMask.GetBuffer (strRawMask.GetLength()+4);
 
       DotPtr=wcsrchr(DotPtr,L'.');
 
@@ -3081,9 +3081,9 @@ void FileList::SelectFiles(int Mode)
       {
         SelectDlg[1].strData = strPrevMask;
         if (Mode==SELECT_ADD)
-          SelectDlg[0].strData = UMSG(MSelectTitle);
+          SelectDlg[0].strData = MSG(MSelectTitle);
         else
-          SelectDlg[0].strData = UMSG(MUnselectTitle);
+          SelectDlg[0].strData = MSG(MUnselectTitle);
         {
           Dialog Dlg(SelectDlg,sizeof(SelectDlg)/sizeof(SelectDlg[0]));
           Dlg.SetHelp(L"SelectFiles");
@@ -3225,8 +3225,8 @@ void FileList::CompareDir()
   int I,J;
   if (Another->GetType()!=FILE_PANEL || !Another->IsVisible())
   {
-    Message(MSG_WARNING,1,UMSG(MCompareTitle),UMSG(MCompareFilePanelsRequired1),
-            UMSG(MCompareFilePanelsRequired2),UMSG(MOk));
+    Message(MSG_WARNING,1,MSG(MCompareTitle),MSG(MCompareFilePanelsRequired1),
+            MSG(MCompareFilePanelsRequired2),MSG(MOk));
     return;
   }
 
@@ -3376,7 +3376,7 @@ void FileList::CompareDir()
   Redraw();
   Another->Redraw();
   if (SelFileCount==0 && Another->SelFileCount==0)
-    Message(0,1,UMSG(MCompareTitle),UMSG(MCompareSameFolders1),UMSG(MCompareSameFolders2),UMSG(MOk));
+    Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
 }
 
 void FileList::CopyNames(int FillPathName,int UNC)
@@ -3717,7 +3717,7 @@ void FileList::SelectSortMode()
 
   int SortCode;
   {
-    VMenu SortModeMenu(UMSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
+    VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,countof(SortMenu),0);
 
     SortModeMenu.SetHelp(L"PanelCmdSort");
     SortModeMenu.SetPosition(X1+4,-1,0,0);
@@ -3797,12 +3797,12 @@ void FileList::DescribeFiles()
     PrevText=Diz.GetDizTextAddr(strSelName,strSelShortName,GetLastSelectedSize());
     strQuotedName = strSelName;
     QuoteSpaceOnly(strQuotedName);
-    strMsg.Format (UMSG(MEnterDescription),(const wchar_t*)strQuotedName);
+    strMsg.Format (MSG(MEnterDescription),(const wchar_t*)strQuotedName);
     strTruncMsg.Format (L"%.65s",(const wchar_t*)strMsg);
     /* $ 09.08.2000 SVS
        Для Ctrl-Z ненужно брать предыдущее значение!
     */
-    if (!GetString(UMSG(MDescribeFiles),strTruncMsg,L"DizText",
+    if (!GetString(MSG(MDescribeFiles),strTruncMsg,L"DizText",
                    PrevText!=NULL ? PrevText:L"",strDizText,1024,
                    L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
       break;
@@ -3848,7 +3848,7 @@ bool FileList::ApplyCommand()
   static string strPrevCommand;
   string strCommand;
 
-  if (!GetString(UMSG(MAskApplyCommandTitle),UMSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,260, L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
+  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,260, L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
     return false;
 
   strPrevCommand = strCommand;
@@ -3956,7 +3956,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
           GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
         ||
           ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-          GetDirInfo(UMSG(MDirInfoViewTitle),
+          GetDirInfo(MSG(MDirInfoViewTitle),
                      CurPtr->strName,
                      DirCount,DirFileCount,FileSize,
                      CompressedFileSize,RealFileSize, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
@@ -3980,7 +3980,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
         GetPluginDirInfo(hPlugin,CurPtr->strName,DirCount,DirFileCount,FileSize,CompressedFileSize))
       ||
         ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-        GetDirInfo(UMSG(MDirInfoViewTitle),
+        GetDirInfo(MSG(MDirInfoViewTitle),
                    TestParentFolderName(CurPtr->strName) ? L".":CurPtr->strName,
                    DirCount,
                    DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))

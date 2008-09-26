@@ -533,9 +533,9 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     if (!Color)
       Color=FarColorToReal(FarColor[j]);
     if (Colors.MarkChar&0x0000FFFF)
-      ptr=UMSG(MHighlightExample2);
+      ptr=MSG(MHighlightExample2);
     else
-      ptr=UMSG(MHighlightExample1);
+      ptr=MSG(MHighlightExample1);
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.UnicodeChar=ptr[k];
@@ -898,7 +898,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   memset(TableItemSize,0,sizeof(TableItemSize));
   for(int i=0; i < FSIZE_COUNT; ++i)
-    TableItemSize[i].Text=UMSG(MFileFilterSizeInBytes+i);
+    TableItemSize[i].Text=MSG(MFileFilterSizeInBytes+i);
 
   DWORD SizeType;
   __int64 SizeAbove, SizeBelow;
@@ -933,7 +933,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   memset(TableItemDate,0,sizeof(TableItemDate));
   for(int i=0; i < FDATE_COUNT; ++i)
-    TableItemDate[i].Text=UMSG(MFileFilterModified+i);
+    TableItemDate[i].Text=MSG(MFileFilterModified+i);
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;

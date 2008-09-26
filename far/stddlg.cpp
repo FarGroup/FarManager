@@ -444,8 +444,8 @@ int WINAPI GetString(
     StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
     StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
 
-    StrDlg[4+offset].strData = UMSG(MOk);
-    StrDlg[5+offset].strData = UMSG(MCancel);
+    StrDlg[4+offset].strData = MSG(MOk);
+    StrDlg[5+offset].strData = MSG(MCancel);
   }
 
   if(Flags&FIB_EXPANDENV)
@@ -563,10 +563,10 @@ int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string
   };
   MakeDialogItemsEx(PassDlgData,PassDlg);
 
-  PassDlg[1].strData = UMSG(MNetUserName);
-  PassDlg[3].strData = UMSG(MNetUserPassword);
-  PassDlg[6].strData = UMSG(MOk);
-  PassDlg[7].strData = UMSG(MCancel);
+  PassDlg[1].strData = MSG(MNetUserName);
+  PassDlg[3].strData = MSG(MNetUserPassword);
+  PassDlg[6].strData = MSG(MOk);
+  PassDlg[7].strData = MSG(MCancel);
 
   if (Title!=NULL)
     PassDlg[0].strData = Title;

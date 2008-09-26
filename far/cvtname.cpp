@@ -191,7 +191,7 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
           if (leftLength < tempLength)
           {
             // Выделяем новый буфер
-            TempDest = strTempDest.GetBuffer((int)(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1)));
+            TempDest = strTempDest.GetBuffer(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1));
           }
           // Так как мы производили манипуляции с левой частью пути изменяем указатель на
           // текущую позицию курсора в пути

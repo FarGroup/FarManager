@@ -142,7 +142,7 @@ int _cdecl SortItems(const void *p1,const void *p2)
 LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  const wchar_t *FindText=UMSG(MFindFileText),*FindHex=UMSG(MFindFileHex),*FindCode=UMSG(MFindFileCodePage);
+  const wchar_t *FindText=MSG(MFindFileText),*FindHex=MSG(MFindFileHex),*FindCode=MSG(MFindFileCodePage);
   string strDataStr;
 
   switch(Msg)
@@ -211,16 +211,16 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       string strTableName;
 
       if (UseAllTables)
-        strTableName = UMSG(MFindFileAllTables);
+        strTableName = MSG(MFindFileAllTables);
       else if (UseUnicode)
         strTableName = L"Unicode";
       else if (UseANSI)
       {
         GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-        strTableName = UMSG(MGetTableWindowsText);
+        strTableName = MSG(MGetTableWindowsText);
       }
       else if (!UseDecodeTable)
-        strTableName = UMSG(MGetTableNormalText);
+        strTableName = MSG(MGetTableNormalText);
       else
         PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(strTableName,L'&',TRUE);
@@ -255,16 +255,16 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         string strTableName;
 
         if (UseAllTables)
-          strTableName = UMSG(MFindFileAllTables);
+          strTableName = MSG(MFindFileAllTables);
         else if (UseUnicode)
           strTableName = L"Unicode";
         else if (UseANSI)
         {
           GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-          strTableName = UMSG(MGetTableWindowsText);
+          strTableName = MSG(MGetTableWindowsText);
         }
         else if (!UseDecodeTable)
-          strTableName = UMSG(MGetTableNormalText);
+          strTableName = MSG(MGetTableNormalText);
         else
           PrepareTable(&TableSet,TableNum,TRUE);
 
@@ -443,7 +443,7 @@ FindFiles::FindFiles()
   strFindStr = strLastFindStr;
   BreakMainThread=0;
 
-  strSearchFromRoot = UMSG(MSearchFromRootFolder);
+  strSearchFromRoot = MSG(MSearchFromRootFolder);
 
   FarList TableList;
   FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*CHAR_TABLE_SIZE);
@@ -451,10 +451,10 @@ FindFiles::FindFiles()
   TableList.ItemsNumber=CHAR_TABLE_SIZE;
 
   memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
-  TableItem[0].Text=UMSG(MFindFileAllTables);
+  TableItem[0].Text=MSG(MFindFileAllTables);
   TableItem[1].Flags=LIF_SEPARATOR;
-  TableItem[2].Text=UMSG(MGetTableNormalText);
-  TableItem[3].Text=UMSG(MGetTableWindowsText);
+  TableItem[2].Text=MSG(MGetTableNormalText);
+  TableItem[3].Text=MSG(MGetTableWindowsText);
   TableItem[4].Text=L"Unicode";
 
   for (I=0;;I++)
@@ -789,10 +789,10 @@ void FindFiles::AdvancedDialog()
   SizeList.ItemsNumber=4;
 
   memset(SizeItem,0,sizeof(FarListItem)*4);
-  SizeItem[0].Text=UMSG(MFindFileSearchInBytes);
-  SizeItem[1].Text=UMSG(MFindFileSearchInKBytes);
-  SizeItem[2].Text=UMSG(MFindFileSearchInMBytes);
-  SizeItem[3].Text=UMSG(MFindFileSearchInGBytes);
+  SizeItem[0].Text=MSG(MFindFileSearchInBytes);
+  SizeItem[1].Text=MSG(MFindFileSearchInKBytes);
+  SizeItem[2].Text=MSG(MFindFileSearchInMBytes);
+  SizeItem[3].Text=MSG(MFindFileSearchInGBytes);
 
   const wchar_t *DigitMask=L"99999999999999999999";
 
@@ -1444,14 +1444,14 @@ int FindFiles::FindFilesProcess()
   */
   if ( !strFindMask.IsEmpty() )
     if (UseFilter)
-      strTitle.Format (L"%s: %s (%s)",UMSG(MFindFileTitle),(const wchar_t*)strFindMask,UMSG(MFindUsingFilter));
+      strTitle.Format (L"%s: %s (%s)",MSG(MFindFileTitle),(const wchar_t*)strFindMask,MSG(MFindUsingFilter));
     else
-      strTitle.Format (L"%s: %s",UMSG(MFindFileTitle),(const wchar_t*)strFindMask);
+      strTitle.Format (L"%s: %s",MSG(MFindFileTitle),(const wchar_t*)strFindMask);
   else
     if (UseFilter)
-      strTitle.Format (L"%s (%s)",UMSG(MFindFileTitle),UMSG(MFindUsingFilter));
+      strTitle.Format (L"%s (%s)",MSG(MFindFileTitle),MSG(MFindUsingFilter));
     else
-      strTitle.Format (L"%s", UMSG(MFindFileTitle));
+      strTitle.Format (L"%s", MSG(MFindFileTitle));
 
   if ( !strFindStr.IsEmpty() )
   {
@@ -1461,10 +1461,10 @@ int FindFiles::FindFilesProcess()
 
     TruncStrFromEnd(strFStr,10);
     strTemp.Format (L" \"%s\"", (const wchar_t*)strFStr);
-    strSearchStr.Format(UMSG(MFindSearchingIn), (const wchar_t*)strTemp);
+    strSearchStr.Format(MSG(MFindSearchingIn), (const wchar_t*)strTemp);
   }
   else
-    strSearchStr.Format (UMSG(MFindSearchingIn), L"");
+    strSearchStr.Format (MSG(MFindSearchingIn), L"");
 
   struct DialogDataEx FindDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-4,0,0,DIF_SHOWAMPERSAND,0,strTitle,
@@ -1944,7 +1944,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
 
     statusCS.Enter ();
 
-    strFindMessage.Format (UMSG(MFindDone),FindFileCount,FindDirCount);
+    strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
 
     SetFarTitle(strFindMessage);
 
@@ -2144,7 +2144,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   ListItem.Clear ();
 
   if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    strSizeText.Format (L"%13s", UMSG(MFindFileFolder));
+    strSizeText.Format (L"%13s", MSG(MFindFileFolder));
   else
   {
     wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!
@@ -2257,7 +2257,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
       strArcPathName.Format (L"%s:%s", ArcName, strPathName.At(0)==L'.' ? L"\\":(const wchar_t*)strPathName);
       strPathName = strArcPathName;
     }
-    strSizeText = UMSG(MFindFileFolder);
+    strSizeText = MSG(MFindFileFolder);
 
     TruncPathStr(strPathName,50);
 
@@ -2655,7 +2655,7 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
     {
       statusCS.Enter();
 
-      strFindMessage.Format(UMSG(MFindDone),FindFileCount,FindDirCount);
+      strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
       FindMessageReady=TRUE;
       SearchDone=TRUE;
 
@@ -2828,7 +2828,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
       {
         statusCS.Enter ();
 
-        strDataStr.Format (L" %s: %d ", UMSG(MFindFound),FindFileCount+FindDirCount);
+        strDataStr.Format (L" %s: %d ", MSG(MFindFound),FindFileCount+FindDirCount);
 
         statusCS.Leave ();
 
@@ -2850,10 +2850,10 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           TruncStrFromEnd(strFStr,10);
 
           strTemp.Format (L" \"%s\"", (const wchar_t*)strFStr);
-          strSearchStr.Format (UMSG(MFindSearchingIn), (const wchar_t*)strTemp);
+          strSearchStr.Format (MSG(MFindSearchingIn), (const wchar_t*)strTemp);
         }
         else
-          strSearchStr.Format (UMSG(MFindSearchingIn), L"");
+          strSearchStr.Format (MSG(MFindSearchingIn), L"");
 
         int Wid1=(int)strSearchStr.GetLength();
         int Wid2=DlgWidth-(int)strSearchStr.GetLength()-1;
@@ -2862,7 +2862,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         {
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-          strDataStr = UMSG(MFindCancel);
+          strDataStr = MSG(MFindCancel);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,9,(LONG_PTR)(const wchar_t*)strDataStr);
 
           statusCS.Enter ();
@@ -3012,7 +3012,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
 
   if (strCurDir.IsEmpty() || PluginMode)
   {
-    strSearchFromRoot = UMSG(MSearchFromRootFolder);
+    strSearchFromRoot = MSG(MSearchFromRootFolder);
     strMsgStr1 = strSearchFromRoot;
 
     RemoveHighlights(strMsgStr1);
@@ -3024,7 +3024,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
   }
   else
   {
-    strMsgStr = UMSG(MSearchFromRootOfDrive);
+    strMsgStr = MSG(MSearchFromRootOfDrive);
     strMsgStr1 = strMsgStr;
 
     RemoveHighlights(strMsgStr1);

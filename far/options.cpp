@@ -178,11 +178,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   struct HMenuData MainMenu[]=
   {
-    UMSG(MMenuLeftTitle),1,LeftMenu,sizeof(LeftMenu)/sizeof(LeftMenu[0]),L"LeftRightMenu",
-    UMSG(MMenuFilesTitle),0,FilesMenu,sizeof(FilesMenu)/sizeof(FilesMenu[0]),L"FilesMenu",
-    UMSG(MMenuCommandsTitle),0,CmdMenu,sizeof(CmdMenu)/sizeof(CmdMenu[0]),L"CmdMenu",
-    UMSG(MMenuOptionsTitle),0,OptionsMenu,sizeof(OptionsMenu)/sizeof(OptionsMenu[0]),L"OptMenu",
-    UMSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),L"LeftRightMenu"
+    MSG(MMenuLeftTitle),1,LeftMenu,sizeof(LeftMenu)/sizeof(LeftMenu[0]),L"LeftRightMenu",
+    MSG(MMenuFilesTitle),0,FilesMenu,sizeof(FilesMenu)/sizeof(FilesMenu[0]),L"FilesMenu",
+    MSG(MMenuCommandsTitle),0,CmdMenu,sizeof(CmdMenu)/sizeof(CmdMenu[0]),L"CmdMenu",
+    MSG(MMenuOptionsTitle),0,OptionsMenu,sizeof(OptionsMenu)/sizeof(OptionsMenu[0]),L"OptMenu",
+    MSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),L"LeftRightMenu"
   };
 
   static int LastHItem=-1,LastVItem=0;

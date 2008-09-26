@@ -303,7 +303,7 @@ int FileViewer::ProcessKey(int Key)
 
         if (hEdit==INVALID_HANDLE_VALUE)
         {
-          Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MEditTitle),UMSG(MEditCannotOpen),strViewFileName,UMSG(MOk));
+          Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strViewFileName,MSG(MOk));
           return(TRUE);
         }
         CloseHandle(hEdit);
@@ -395,7 +395,7 @@ int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
-   strType = UMSG(MScreensView);
+   strType = MSG(MScreensView);
    View.GetFileName (strName);
 
    return(MODALTYPE_VIEWER);
@@ -428,7 +428,7 @@ void FileViewer::OnDestroy()
     string strFullFileName;
     View.GetFileName(strFullFileName);
 
-    CtrlObject->ViewHistory->AddToHistory(strFullFileName,UMSG(MHistoryView),0);
+    CtrlObject->ViewHistory->AddToHistory(strFullFileName,MSG(MHistoryView),0);
   }
 }
 
@@ -499,7 +499,7 @@ void FileViewer::ShowStatus()
         (const wchar_t*)strName,
         (const wchar_t*)strTableName,
         View.FileSize,
-        UMSG(MViewerStatusCol),
+        MSG(MViewerStatusCol),
         View.LeftPos,
         Opt.ViewerEditorClock ? L"":L" ",
         (View.LastPage ? 100:ToPercent64(View.FilePos,View.FileSize))

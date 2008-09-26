@@ -885,7 +885,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 
 int  FilePanels::GetTypeAndName(string &strType, string &strName)
 {
-  strType = UMSG(MScreensPanels);
+  strType = MSG(MScreensPanels);
 
   string strFullName, strShortName;
 

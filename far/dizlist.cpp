@@ -81,7 +81,7 @@ void DizList::Reset()
 
 void DizList::PR_ReadingMsg(void)
 {
-  Message(0,0,L"",UMSG(MReadingDiz));
+  Message(0,0,L"",MSG(MReadingDiz));
 }
 
 void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
@@ -377,9 +377,9 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
   if ((DizFile=_wfopen(strDizFileName,L"wb"))==NULL)
   {
     if(!Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MCannotUpdateRODiz),UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
     else
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
     return(FALSE);
   }
 
@@ -414,7 +414,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
     clearerr(DizFile);
     fclose(DizFile);
     DeleteFileW(strDizFileName); //BUGBUG
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotUpdateDiz),UMSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
     return(FALSE);
   }
 

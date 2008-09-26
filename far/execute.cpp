@@ -763,7 +763,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   if ( strComspec.IsEmpty() && (SeparateWindow != 2) )
   {
-    Message(MSG_WARNING, 1, UMSG(MWarning), UMSG(MComspecNotFound), UMSG(MErrorCancelled), UMSG(MOk));
+    Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
     return -1;
   }
 
@@ -1066,13 +1066,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       strOutStr = strNewCmdStr;
       Unquote(strOutStr);
 
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotExecute),strOutStr,UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),strOutStr,MSG(MOk));
     }
     else
     {
       ScrBuf.Flush ();
 
-      strOutStr.Format (UMSG(MExecuteErrorMessage),(const wchar_t *)strNewCmdStr);
+      strOutStr.Format (MSG(MExecuteErrorMessage),(const wchar_t *)strNewCmdStr);
       string strPtrStr=FarFormatText(strOutStr,ScrX, strPtrStr,L"\n",0);
 
       wprintf(strPtrStr);

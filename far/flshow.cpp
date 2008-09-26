@@ -170,7 +170,7 @@ void FileList::ShowFileList(int Fast)
           break;
       }
       if(IDMessage != -1)
-        strTitle=UMSG(IDMessage);
+        strTitle=MSG(IDMessage);
 
       if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray!=NULL &&
           ViewMode<Info.PanelModesNumber &&
@@ -221,7 +221,7 @@ void FileList::ShowFileList(int Fast)
     {
       if (SortModes[I]==SortMode)
       {
-        const wchar_t *SortStr=UMSG(SortStrings[I]);
+        const wchar_t *SortStr=MSG(SortStrings[I]);
         const wchar_t *Ch=wcschr(SortStr,L'&');
         if (Ch!=NULL)
         {
@@ -430,7 +430,7 @@ void FileList::ShowSelectedSize()
   if (SelFileCount)
   {
     InsertCommas(SelFileSize,strFormStr);
-    strSelStr.Format (UMSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
+    strSelStr.Format (MSG(__FormatEndSelectedPhrase(SelFileCount)),(const wchar_t*)strFormStr,SelFileCount);
 
     TruncStr(strSelStr,X2-X1-1);
     Length=(int)strSelStr.GetLength();
@@ -454,7 +454,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   if (Opt.ShowPanelTotals)
   {
     if (!Opt.ShowPanelFree || strFreeSize.IsEmpty())
-      strTotalStr.Format (UMSG(__FormatEndSelectedPhrase(TotalFileCount)),(const wchar_t*)strFormSize,TotalFileCount);
+      strTotalStr.Format (MSG(__FormatEndSelectedPhrase(TotalFileCount)),(const wchar_t*)strFormSize,TotalFileCount);
     else
     {
       static wchar_t DHLine[4]={BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],0x00};
@@ -463,12 +463,12 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       {
         InsertCommas(FreeDiskSize>>20,strFreeSize);
         InsertCommas(TotalFileSize>>20,strFormSize);
-        strTotalStr.Format (L" %s %s (%d) %s %s %s ",(const wchar_t*)strFormSize,UMSG(MListMb),TotalFileCount,DHLine,(const wchar_t*)strFreeSize,UMSG(MListMb));
+        strTotalStr.Format (L" %s %s (%d) %s %s %s ",(const wchar_t*)strFormSize,MSG(MListMb),TotalFileCount,DHLine,(const wchar_t*)strFreeSize,MSG(MListMb));
       }
     }
   }
   else
-    strTotalStr.Format (UMSG(MListFreeSize), !strFreeSize.IsEmpty() ? (const wchar_t*)strFreeSize:L"???");
+    strTotalStr.Format (MSG(MListFreeSize), !strFreeSize.IsEmpty() ? (const wchar_t*)strFreeSize:L"???");
 
   SetColor(COL_PANELTOTALINFO);
   /* $ 01.08.2001 VVM
@@ -974,9 +974,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
-                  const wchar_t *PtrName=UMSG(MListFolder);
+                  const wchar_t *PtrName=MSG(MListFolder);
                   if (TestParentFolderName(CurPtr->strName))
-                    PtrName=UMSG(MListUp);
+                    PtrName=MSG(MListUp);
                   else
                   {
                     if(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -984,10 +984,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       switch(CurPtr->ReparseTag)
                       {
                       case IO_REPARSE_TAG_SYMLINK:
-                        PtrName=UMSG(MListSymLink);
+                        PtrName=MSG(MListSymLink);
                         break;
                       case IO_REPARSE_TAG_MOUNT_POINT:
-                        PtrName=UMSG(MListJunction);
+                        PtrName=MSG(MListJunction);
                         break;
                       }
                     }

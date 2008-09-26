@@ -47,13 +47,13 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-  VMenu ProcList(UMSG(MProcessListTitle),NULL,0,ScrY-4);
+  VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
   ProcList.SetFlags(VMENU_WRAPMODE);
   ProcList.SetPosition(-1,-1,0,0);
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
     return;
   ProcList.AssignHighlights(FALSE);
-  ProcList.SetBottomTitle(UMSG(MProcessListBottom));
+  ProcList.SetBottomTitle(MSG(MProcessListBottom));
   ProcList.Show();
 
   while (!ProcList.Done())
@@ -92,7 +92,7 @@ void ShowProcessList()
           // Полиция 21
           if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
           {
-            Message(MSG_WARNING,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcessPerm),UMSG(MOk));
+            Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
             break;
           }
 
@@ -109,8 +109,8 @@ void ShowProcessList()
             }
             DWORD ProcID;
             GetWindowThreadProcessId(ProcWnd,&ProcID);
-            if (Message(MSG_WARNING,2,UMSG(MKillProcessTitle),UMSG(MAskKillProcess),
-                lpwszTitle?lpwszTitle:L"",UMSG(MKillProcessWarning),UMSG(MKillProcessKill),UMSG(MCancel))==0)
+            if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+                lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
             {
               if (KillProcess(ProcID))
               {
@@ -121,7 +121,7 @@ void ShowProcessList()
                 return;
               }
               else
-                Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MKillProcessTitle),UMSG(MCannotKillProcess),UMSG(MOk));
+                Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
             }
 
             if (lpwszTitle) xf_free(lpwszTitle);

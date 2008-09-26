@@ -260,7 +260,7 @@ void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
   if (Count > KEY_COUNT)
     Count = KEY_COUNT;
   for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-    xwcsncpy (KeyTitles[Group][i], UMSG (Index), countof(KeyTitles[Group][i])-1);
+    xwcsncpy (KeyTitles[Group][i], MSG (Index), countof(KeyTitles[Group][i])-1);
   KeyCounts [Group] = Count;
 }
 

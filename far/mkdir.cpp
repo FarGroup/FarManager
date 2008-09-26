@@ -55,10 +55,10 @@ void ShellMakeDir(Panel *SrcPanel)
   BOOL MultiMakeDir=Opt.MultiMakeDir;
   for(;;)
   {
-    if (!GetString(UMSG(MMakeFolderTitle),UMSG(MCreateFolder),L"NewFolder",
+    if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),L"NewFolder",
          L"",strDirName,NM*2,L"MakeFolder", //BUGBUG, no size!!!
          FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
-         UMSG(MMultiMakeDir)))
+         MSG(MMultiMakeDir)))
       return;
 
     Opt.MultiMakeDir=MultiMakeDir;
@@ -78,8 +78,8 @@ void ShellMakeDir(Panel *SrcPanel)
     if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbols))
       break;
     else
-      Message(MSG_DOWN|MSG_WARNING,1,UMSG(MWarning),
-                 UMSG(MIncorrectDirList), UMSG(MOk));
+      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
+                 MSG(MIncorrectDirList), MSG(MOk));
   }
 
   const wchar_t *OneDir;
@@ -132,9 +132,9 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MCancel));
         else
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk),UMSG(MSkip));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MOk),MSG(MSkip));
         bSkip = ret==1;
         if (bSuccess || bSkip) break;
         else return;
@@ -143,10 +143,10 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         int ret;
         if (DirList.IsEmpty())
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MCancel));
         else
         {
-          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MSkip),UMSG(MCancel));
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
           bSkip = ret==1;
         }
         if (ret!=0)

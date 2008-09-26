@@ -189,7 +189,7 @@ int CommandLine::ProcessKey(int Key)
       {
         int Type;
         // $ 19.09.2000 SVS - ѕри выборе из History (по Alt-F8) плагин не получал управление!
-        int SelectType=CtrlObject->CmdHistory->Select(UMSG(MHistoryTitle),L"History",strStr,Type);
+        int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
         if(SelectType > 0 && SelectType <= 3)
         {
           SetString(strStr);
@@ -230,7 +230,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF12:
       {
         int Type;
-        int SelectType=CtrlObject->FolderHistory->Select(UMSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type);
+        int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type);
         /*
            SelectType = 0 - Esc
                         1 - Enter
@@ -543,7 +543,7 @@ void CommandLine::ShowViewEditHistory()
   string strItemTitle;
   int Type;
 
-  int SelectType=CtrlObject->ViewHistory->Select(UMSG(MViewHistoryTitle),L"HistoryViews",strStr,Type,&strItemTitle);
+  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type,&strItemTitle);
   /*
      SelectType = 0 - Esc
                   1 - Enter

@@ -86,7 +86,7 @@ void InfoList::Update (int Mode)
 
 string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  strTitle.Format (L" %s ", UMSG(MInfoTitle));
+  strTitle.Format (L" %s ", MSG(MInfoTitle));
   TruncStr(strTitle,X2-X1-3);
   return strTitle;
 }
@@ -207,17 +207,17 @@ void InfoList::DisplayObject()
         break;
     }
     if(IdxMsgID != -1)
-      strDiskType= UMSG(IdxMsgID);
+      strDiskType= MSG(IdxMsgID);
 
     {
       if(GetSubstName(DriveType,strLocalName,strRemoteName))
       {
-        strDiskType = UMSG(MInfoSUBST);
+        strDiskType = MSG(MInfoSUBST);
         DriveType=DRIVE_SUBSTITUTE;
       }
     }
 
-    strTitle.Format (L" %s %s %s (%s) ", (const wchar_t*)strDiskType, UMSG(MInfoDisk), (const wchar_t*)strDiskName, (const wchar_t*)strFileSystemName);
+    strTitle.Format (L" %s %s %s (%s) ", (const wchar_t*)strDiskType, MSG(MInfoDisk), (const wchar_t*)strDiskName, (const wchar_t*)strFileSystemName);
 
     if (DriveType==DRIVE_REMOTE)
     {
@@ -267,7 +267,7 @@ void InfoList::DisplayObject()
     PrintInfo(strOutStr);
   }
 
-  strTitle = UMSG(MInfoMemory);
+  strTitle = MSG(MInfoMemory);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
   PrintText(strTitle);
   MEMORYSTATUSEX ms;
@@ -452,7 +452,7 @@ void InfoList::PrintText(const wchar_t *Str)
 
 void InfoList::PrintText(int MsgID)
 {
-    PrintText(UMSG(MsgID));
+    PrintText(MSG(MsgID));
 }
 
 
@@ -480,7 +480,7 @@ void InfoList::PrintInfo(const wchar_t *str)
 
 void InfoList::PrintInfo(int MsgID)
 {
-    PrintInfo(UMSG(MsgID));
+    PrintInfo(MSG(MsgID));
 }
 
 
@@ -677,36 +677,36 @@ void InfoList::DynamicUpdateKeyBar()
   KeyBar *KB = CtrlObject->MainKeyBar;
   if (DizView && DizPresent)
   {
-    KB->Change (UMSG(MInfoF3), 3-1);
+    KB->Change (MSG(MInfoF3), 3-1);
 
     if (DizView->GetAnsiMode())
-      KB->Change (UMSG(MViewF8DOS), 7);
+      KB->Change (MSG(MViewF8DOS), 7);
     else
-      KB->Change (UMSG(MInfoF8), 7);
+      KB->Change (MSG(MInfoF8), 7);
 
     if (!DizView->GetWrapMode())
     {
       if (DizView->GetWrapType())
-        KB->Change (UMSG(MViewShiftF2), 2-1);
+        KB->Change (MSG(MViewShiftF2), 2-1);
       else
-        KB->Change (UMSG(MViewF2), 2-1);
+        KB->Change (MSG(MViewF2), 2-1);
     }
     else
-      KB->Change (UMSG(MViewF2Unwrap), 2-1);
+      KB->Change (MSG(MViewF2Unwrap), 2-1);
 
     if (DizView->GetWrapType())
-      KB->Change (KBL_SHIFT, UMSG(MViewF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
     else
-      KB->Change (KBL_SHIFT, UMSG(MViewShiftF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
   else
   {
-    KB->Change (UMSG(MF2), 2-1);
+    KB->Change (MSG(MF2), 2-1);
     KB->Change (KBL_SHIFT, L"", 2-1);
     KB->Change (L"", 3-1);
     KB->Change (L"", 8-1);
     KB->Change (KBL_SHIFT, L"", 8-1);
-    KB->Change (KBL_ALT, UMSG(MAltF8), 8-1); // стандартный для панели - "хистори"
+    KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
 
   KB->ReadRegGroup(L"Info",Opt.strLanguage);

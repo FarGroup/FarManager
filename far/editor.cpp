@@ -268,15 +268,15 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
         // Ўирина = 8 - это будет... в Kb и выше...
         FileSizeToStr(strTempStr1,RealSizeFile,8);
         FileSizeToStr(strTempStr2,NeedSizeFile,8);
-        strTempStr3.Format (UMSG(MEditFileLong),(const wchar_t *)RemoveExternalSpaces(strTempStr1));
-        strTempStr4.Format (UMSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpaces(strTempStr2));
+        strTempStr3.Format (MSG(MEditFileLong),(const wchar_t *)RemoveExternalSpaces(strTempStr1));
+        strTempStr4.Format (MSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpaces(strTempStr2));
 
-        if(Message(MSG_WARNING,2,UMSG(MEditTitle),
+        if(Message(MSG_WARNING,2,MSG(MEditTitle),
                     Name,
                     strTempStr3,
                     strTempStr4,
-                    UMSG(MEditROOpen),
-                    UMSG(MYes),UMSG(MNo)))
+                    MSG(MEditROOpen),
+                    MSG(MYes),MSG(MNo)))
         {
           fclose(EditFile);
           SetLastError(ERROR_OPEN_FAILED);
@@ -341,7 +341,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
         {
           SetCursorType(FALSE,0);
           SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-          EditorShowMsg(UMSG(MEditTitle),UMSG(MEditReading),Name);
+          EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
           MessageShown=TRUE;
         }
       }
@@ -3588,7 +3588,7 @@ BOOL Editor::Search(int Next)
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,-1);
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-    EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
+    EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
 
     Count=0;
     Match=0;
@@ -3648,7 +3648,7 @@ BOOL Editor::Search(int Next)
           strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
           SetCursorType(FALSE,-1);
           SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-          EditorShowMsg(UMSG(MEditSearchTitle),UMSG(MEditSearchingFor),strMsgStr);
+          EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
           MessageShown=TRUE;
         }
       }
@@ -3718,9 +3718,9 @@ BOOL Editor::Search(int Next)
             strQSearchStr.Format (L"\"%s\"", (const wchar_t*)strLastSearchStr);
             strQReplaceStr.Format (L"\"%s\"", (const wchar_t*)strLastReplaceStr);
 
-            MsgCode=Message(0,4,UMSG(MEditReplaceTitle),UMSG(MEditAskReplace),
-              strQSearchStr,UMSG(MEditAskReplaceWith),strQReplaceStr,
-              UMSG(MEditReplace),UMSG(MEditReplaceAll),UMSG(MEditSkip),UMSG(MEditCancel));
+            MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
+              strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
+              MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
             if (MsgCode==1)
               ReplaceAll=TRUE;
             if (MsgCode==2)
@@ -3873,8 +3873,8 @@ BOOL Editor::Search(int Next)
 
   Show();
   if (!Match && !UserBreak)
-    Message(MSG_DOWN|MSG_WARNING,1,UMSG(MEditSearchTitle),UMSG(MEditNotFound),
-            strMsgStr,UMSG(MOk));
+    Message(MSG_DOWN|MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
+            strMsgStr,MSG(MOk));
 
   return TRUE;
 }

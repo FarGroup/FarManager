@@ -64,7 +64,7 @@ void InitKeysArray()
         memset(Keys,0,sizeof(Keys));
         for (int J=0; J < LayoutNumber; J++)
         {
-          int AnsiKey=MapVirtualKeyEx(I,2,Layout[J]) & 0xff;
+          int AnsiKey=MapVirtualKeyExA(I,2,Layout[J]) & 0xff;
           if (AnsiKey==0)
             continue;
           CvtStr[0]=AnsiKey;
@@ -87,10 +87,10 @@ void InitKeysArray()
       {
         for (int J=0;J<LayoutNumber;J++)
         {
-          DWORD AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
+          DWORD AnsiKey=VkKeyScanExA(I,Layout[J])&0xFF;
           if (AnsiKey==0xFF)
             continue;
-          DWORD MapKey=MapVirtualKey(AnsiKey,2);
+          DWORD MapKey=MapVirtualKeyA(AnsiKey,2);
           KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
           break;
         }

@@ -85,6 +85,8 @@ namespace oldfar
   #endif
 #endif
 
+#undef DefDlgProc
+
 //#define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
 #ifdef FAR_USE_INTERNALS
@@ -647,7 +649,7 @@ struct PluginPanelItem
 #ifdef _FAR_USE_FARFINDDATA
   struct FAR_FIND_DATA FindData;
 #else
-  WIN32_FIND_DATA      FindData;
+  WIN32_FIND_DATAA      FindData;
 #endif
   DWORD                PackSizeHigh;
   DWORD                PackSize;
@@ -1637,7 +1639,7 @@ typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
 
 typedef int (WINAPI *FRSUSERFUNC)(
-  const WIN32_FIND_DATA *FData,
+  const WIN32_FIND_DATAA *FData,
   const char *FullName,
   void *Param
 );

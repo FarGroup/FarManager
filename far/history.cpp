@@ -99,15 +99,15 @@ void History::ReloadTitle()
       switch(PtrLastStr->Type)
       {
         case 0: // вьювер
-          xwcsncpy(PtrLastStr->Title,UMSG(MHistoryView),HISTORY_TITLESIZE-1);
+          xwcsncpy(PtrLastStr->Title,MSG(MHistoryView),HISTORY_TITLESIZE-1);
           break;
         case 1: // обычное открытие в редакторе
         case 4: // открытие с локом
-          xwcsncpy(PtrLastStr->Title,UMSG(MHistoryEdit),HISTORY_TITLESIZE-1);
+          xwcsncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
           break;
         case 2: // external - без ожидания
         case 3: // external - AlwaysWaitFinish
-          xwcsncpy(PtrLastStr->Title,UMSG(MHistoryExt),HISTORY_TITLESIZE-1);
+          xwcsncpy(PtrLastStr->Title,MSG(MHistoryExt),HISTORY_TITLESIZE-1);
           break;
       }
   }
@@ -693,11 +693,11 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
                (!Opt.Confirm.HistoryClear ||
                 (Opt.Confirm.HistoryClear &&
                 Message(MSG_WARNING,2,
-                     UMSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
+                     MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
                           (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
                           MViewHistoryTitle))),
-                     UMSG(MHistoryClear),
-                     UMSG(MClear),UMSG(MCancel))==0)))
+                     MSG(MHistoryClear),
+                     MSG(MClear),MSG(MCancel))==0)))
             {
               HistoryMenu.Hide();
               FreeHistory(); // память тоже нужно очистить!
@@ -732,11 +732,11 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
           if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
           {
-            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,LastStr[StrPos].Name,UMSG(MViewHistoryIsCreate),UMSG(MHYes),UMSG(MHNo)) == 0)
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
               break;
           }
           else
-            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,LastStr[StrPos].Name,UMSG(MOk));
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,LastStr[StrPos].Name,MSG(MOk));
           Done=FALSE;
           SetUpMenuPos=TRUE;
           HistoryMenu.Modal::SetExitCode(StrPos=Code);

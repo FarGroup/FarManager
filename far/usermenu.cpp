@@ -110,8 +110,8 @@ void ProcessUserMenu(int EditMenu)
 
   if (EditMenu)
   {
-    int EditChoice=Message(0,3,UMSG(MUserMenuTitle),UMSG(MChooseMenuType),
-                   UMSG(MChooseMenuMain),UMSG(MChooseMenuLocal),UMSG(MCancel));
+    int EditChoice=Message(0,3,MSG(MUserMenuTitle),MSG(MChooseMenuType),
+                   MSG(MChooseMenuMain),MSG(MChooseMenuLocal),MSG(MCancel));
     if (EditChoice<0 || EditChoice==2)
       return;
     if (EditChoice==0)
@@ -183,8 +183,8 @@ void ProcessUserMenu(int EditMenu)
         if (FileAttr & FILE_ATTRIBUTE_READONLY)
         {
           int AskOverwrite;
-          AskOverwrite=Message(MSG_WARNING,2,UMSG(MUserMenuTitle),LocalMenuFileName,
-                       UMSG(MEditRO),UMSG(MEditOvr),UMSG(MYes),UMSG(MNo));
+          AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,
+                       MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
           if (AskOverwrite==0)
             SetFileAttributesW(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
         }
@@ -474,18 +474,18 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
         switch (MenuMode)
         {
         case MM_LOCAL:
-          strMenuTitle = UMSG(MLocalMenuTitle);
+          strMenuTitle = MSG(MLocalMenuTitle);
           break;
         case MM_FAR:
-          strMenuTitle.Format (L"%s (%s)",UMSG(MMainMenuTitle),UMSG(MMainMenuFAR));
+          strMenuTitle.Format (L"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuFAR));
           break;
         default:
           {
-            const wchar_t *Ptr=UMSG(MMainMenuREG);
+            const wchar_t *Ptr=MSG(MMainMenuREG);
             if(*Ptr)
-              strMenuTitle.Format (L"%s (%s)",UMSG(MMainMenuTitle),Ptr);
+              strMenuTitle.Format (L"%s (%s)",MSG(MMainMenuTitle),Ptr);
             else
-              strMenuTitle.Format (L"%s", UMSG(MMainMenuTitle));
+              strMenuTitle.Format (L"%s", MSG(MMainMenuTitle));
           }
         } /* switch */
       VMenu UserMenu(strMenuTitle,NULL,0,ScrY-4);
@@ -493,7 +493,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
       UserMenu.SetFlags(VMENU_WRAPMODE);
       UserMenu.SetHelp(L"UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
-      UserMenu.SetBottomTitle(UMSG(MMainMenuBottomTitle));
+      UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
 
 //      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
 
@@ -790,9 +790,9 @@ int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
   GetRegKey(strRegKey,L"Label",strRecText,L"");
   GetRegKey(strRegKey,L"Submenu",SubMenu,0);
   strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
-  if (Message(MSG_WARNING,2,UMSG(MUserMenuTitle),
-          UMSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
-              strItemName,UMSG(MDelete),UMSG(MCancel))!=0)
+  if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),
+          MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
+              strItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
   MenuModified=MenuNeedRefresh=TRUE;
   strRegKey.Format (L"%s\\Item%%d", MenuKey);
@@ -876,8 +876,8 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
 
   if (NewRec)
   {
-    switch (Message(0,2,UMSG(MUserMenuTitle),UMSG(MAskInsertMenuOrCommand),
-                    UMSG(MMenuInsertCommand),UMSG(MMenuInsertMenu)))
+    switch (Message(0,2,MSG(MUserMenuTitle),MSG(MAskInsertMenuOrCommand),
+                    MSG(MMenuInsertCommand),MSG(MMenuInsertMenu)))
     {
       case -1:
       case -2:
@@ -949,7 +949,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
       {
          if ((I=CanCloseDialog(EditDlg[2].strData, EditDlg[4].strData)) == 0)
            break;
-         Message(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
+         Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
          Dlg.ClearDone();
          Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // «десь внимательно, если мен€ть дизайн диалога
       }
@@ -1033,7 +1033,7 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
       {
         if ((I=CanCloseDialog(EditDlg[2].strData, EditDlg[4].strData)) == 0)
           break;
-        Message(MSG_WARNING,1,UMSG(MUserMenuTitle),UMSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),UMSG(MOk));
+        Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
         Dlg.ClearDone();
         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // «десь внимательно, если мен€ть дизайн диалога
       }

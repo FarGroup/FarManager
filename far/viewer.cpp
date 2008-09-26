@@ -308,8 +308,8 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
        + 'warning' flag processing, in QuickView it is FALSE
          so don't show red message box */
     if (warning)
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MViewerTitle),
-            UMSG(MViewerCannotOpenFile),strFileName,UMSG(MOk));
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
+            MSG(MViewerCannotOpenFile),strFileName,MSG(MOk));
 
     OpenFailed=true;
     return(FALSE);
@@ -503,7 +503,7 @@ void Viewer::ShowPage (int nMode)
       SetScreen(X1,Y1,X2,Y2,L' ',COL_VIEWERTEXT);
       GotoXY(X1,Y1);
       SetColor(COL_WARNDIALOGTEXT);
-      mprintf(L"%.*s", XX2-X1+1, UMSG(MViewerCannotOpenFile));
+      mprintf(L"%.*s", XX2-X1+1, MSG(MViewerCannotOpenFile));
       ShowStatus();
     }
 
@@ -2089,20 +2089,20 @@ void Viewer::ChangeViewKeyBar()
        Wrap должен показываться следующий, а не текущий
     */
     ViewKeyBar->Change(
-       UMSG(
+       MSG(
        (!VM.Wrap)?((!VM.WordWrap)?MViewF2:MViewShiftF2)
        :MViewF2Unwrap),1);
-    ViewKeyBar->Change(KBL_SHIFT,UMSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
+    ViewKeyBar->Change(KBL_SHIFT,MSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
 
     if (VM.Hex)
-      ViewKeyBar->Change(UMSG(MViewF4Text),3);
+      ViewKeyBar->Change(MSG(MViewF4Text),3);
     else
-      ViewKeyBar->Change(UMSG(MViewF4),3);
+      ViewKeyBar->Change(MSG(MViewF4),3);
 
     if (VM.AnsiMode)
-      ViewKeyBar->Change(UMSG(MViewF8DOS),7);
+      ViewKeyBar->Change(MSG(MViewF8DOS),7);
     else
-      ViewKeyBar->Change(UMSG(MViewF8),7);
+      ViewKeyBar->Change(MSG(MViewF8),7);
 
     ViewKeyBar->Redraw();
   }
@@ -2231,7 +2231,7 @@ static void PR_ViewerSearchMsg(void)
 
 void ViewerSearchMsg(const wchar_t *MsgStr)
 {
-  Message(0,0,UMSG(MViewSearchTitle),(SearchHex?UMSG(MViewSearchingHex):UMSG(MViewSearchingFor)),MsgStr);
+  Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr);
   PreRedrawParam.Param1=(void*)MsgStr;
 }
 
@@ -2552,14 +2552,14 @@ void Viewer::Search(int Next,int FirstChar)
     /* $ 27.01.2003 VVM
        + После окончания поиска спросим о переходе поиска в начало/конец */
     if (SearchFlags.Check(SEARCH_MODE2))
-      Message(MSG_DOWN|MSG_WARNING,1,UMSG(MViewSearchTitle),
-        (SearchHex?UMSG(MViewSearchCannotFindHex):UMSG(MViewSearchCannotFind)),strMsgStr,UMSG(MOk));
+      Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
+        (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,MSG(MOk));
     else
     {
-      if (Message(MSG_DOWN|MSG_WARNING,2,UMSG(MViewSearchTitle),
-            (SearchHex?UMSG(MViewSearchCannotFindHex):UMSG(MViewSearchCannotFind)),strMsgStr,
-            (ReverseSearch?UMSG(MViewSearchFromEnd):UMSG(MViewSearchFromBegin)),
-             UMSG(MHYes),UMSG(MHNo)) == 0)
+      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
+            (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),strMsgStr,
+            (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
+             MSG(MHYes),MSG(MHNo)) == 0)
         Search(2,0);
     }
   }
@@ -2646,7 +2646,7 @@ void Viewer::GetFileName(string &strName)
 void Viewer::ShowConsoleTitle()
 {
     string strTitle;
-    strTitle.Format (UMSG(MInViewer), PointToName(strFileName));
+    strTitle.Format (MSG(MInViewer), PointToName(strFileName));
 
     SetFarTitle(strTitle);
 }

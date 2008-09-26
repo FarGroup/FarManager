@@ -313,7 +313,7 @@ Frame *Manager::FrameMenu()
   {
     MenuItemEx ModalMenuItem;
 
-    VMenu ModalMenu(UMSG(MScreensTitle),NULL,0,ScrY-4);
+    VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp(L"ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
@@ -588,7 +588,7 @@ void Manager::ExitMainLoop(int Ask)
     CloseFAR=FALSE;
     CloseFARMenu=TRUE;
   };
-  if (!Ask || !Opt.Confirm.Exit || Message(0,2,UMSG(MQuit),UMSG(MAskQuit),UMSG(MYes),UMSG(MNo))==0)
+  if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
   {
     /* $ 29.12.2000 IS
        + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

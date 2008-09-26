@@ -129,14 +129,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
            StrItems[LenItems-1] >= L'5' ||
            StrItems[LenItems-1] == L'0')
-      Ends=UMSG(MAskDeleteItemsS);
+      Ends=MSG(MAskDeleteItemsS);
     else if(StrItems[LenItems-1] == L'1')
-      Ends=UMSG(MAskDeleteItems0);
+      Ends=MSG(MAskDeleteItems0);
     else
-      Ends=UMSG(MAskDeleteItemsA);
+      Ends=MSG(MAskDeleteItemsA);
 
 
-    strDeleteFilesMsg.Format (UMSG(MAskDeleteItems),SelCount,Ends);
+    strDeleteFilesMsg.Format (MSG(MAskDeleteItems),SelCount,Ends);
   }
 
   Ret=1;
@@ -154,19 +154,19 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
       //SetMessageHelp(L"DeleteLink");
 
-			string strAskDeleteLink=UMSG(MAskDeleteLink);
+			string strAskDeleteLink=MSG(MAskDeleteLink);
 			DWORD dwAttr=GetFileAttributesW(strJuncName);
 			if(dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				strAskDeleteLink+=L" ";
-				strAskDeleteLink+=dwAttr&FILE_ATTRIBUTE_DIRECTORY?UMSG(MAskDeleteLinkFolder):UMSG(MAskDeleteLinkFile);
+				strAskDeleteLink+=dwAttr&FILE_ATTRIBUTE_DIRECTORY?MSG(MAskDeleteLinkFolder):MSG(MAskDeleteLinkFile);
 			}
 
-      Ret=Message(0,3,UMSG(MDeleteLinkTitle),
+      Ret=Message(0,3,MSG(MDeleteLinkTitle),
                 strDeleteFilesMsg,
                 strAskDeleteLink,
                 strJuncName,
-                UMSG(MDeleteLinkDelete),UMSG(MDeleteLinkUnlink),UMSG(MCancel));
+                MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
 
       if(Ret == 1)
       {
@@ -190,7 +190,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     const wchar_t *DelMsg;
-    const wchar_t *TitleMsg=UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
+    const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
     /* $ 05.01.2001 IS
        ! Косметика в сообщениях - разные сообщения в зависимости от того,
          какие и сколько элементов выделено.
@@ -200,31 +200,31 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (SelCount==1)
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-        DelMsg=UMSG(folder?MAskWipeFolder:MAskWipeFile);
+        DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
       else
       {
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=UMSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
+          DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
         else
-          DelMsg=UMSG(folder?MAskDeleteFolder:MAskDeleteFile);
+          DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
       }
     }
     else
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
       {
-        DelMsg=UMSG(MAskWipe);
-        TitleMsg=UMSG(MDeleteWipeTitle);
+        DelMsg=MSG(MAskWipe);
+        TitleMsg=MSG(MDeleteWipeTitle);
       }
       else
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=UMSG(MAskDeleteRecycle);
+          DelMsg=MSG(MAskDeleteRecycle);
         else
-          DelMsg=UMSG(MAskDelete);
+          DelMsg=MSG(MAskDelete);
     }
 
     SetMessageHelp(L"DeleteFile");
-    if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,UMSG(Wipe?MDeleteWipe:MDelete),UMSG(MCancel))!=0)
+    if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -236,8 +236,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetMessageHelp(L"DeleteFile");
-    if (Message(MSG_WARNING,2,UMSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),UMSG(Wipe?MAskWipe:MAskDelete),
-                strDeleteFilesMsg,UMSG(MDeleteFileAll),UMSG(MDeleteFileCancel))!=0)
+    if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
+                strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -252,7 +252,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   SrcPanel->GetDizName(strDizName);
   DizPresent=( !strDizName.IsEmpty() && GetFileAttributesW(strDizName)!=INVALID_FILE_ATTRIBUTES);
 
-  DeleteTitle = new ConsoleTitle(UMSG(MDeletingTitle));
+  DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
 
   if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
     goto done;
@@ -296,10 +296,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             int MsgCode=0;
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                  UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
-                    UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
-                    UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
+               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
+                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
             if (MsgCode<0 || MsgCode==3)
             {
               NeedSetUpADir=FALSE;
@@ -365,10 +365,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               }
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
               {
-                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,UMSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                      UMSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
-                      UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
-                      UMSG(MDeleteFileSkip),UMSG(MDeleteFileCancel));
+                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
+                      MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+                      MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
                 if (MsgCode<0 || MsgCode==3)
                 {
                   Cancel=1;
@@ -445,8 +445,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           {
             DeleteCode=RemoveToRecycleBin(strSelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),
-                      UMSG(MCannotDeleteFolder),strSelName,UMSG(MOk));
+              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                      MSG(MCannotDeleteFolder),strSelName,MSG(MOk));
             else
             {
               TreeList::DelTreeName(strSelName);
@@ -523,7 +523,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe)
     TruncPathStr(strOutFileName,Width);
     CenterStr(strOutFileName,strOutFileName,Width+4);
 
-    Message(0,0,UMSG(Wipe?MDeleteWipeTitle:MDeleteTitle),UMSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
+    Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),MSG(Wipe?MDeletingWiping:MDeleting),strOutFileName);
   }
   PreRedrawParam.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
   PreRedrawParam.Param5=(__int64)Wipe;
@@ -539,10 +539,10 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
     MsgCode=ReadOnlyDeleteMode;
   else
   {
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MWarning),UMSG(MDeleteRO),Name,
-            UMSG(Wipe?MAskWipeRO:MAskDeleteRO),UMSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),UMSG(MDeleteFileAll),
-            UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),
-            UMSG(MDeleteFileCancel));
+    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name,
+            MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+            MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
+            MSG(MDeleteFileCancel));
   }
   switch(MsgCode)
   {
@@ -590,9 +590,9 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
                         Уничтожать файл?
           */
-          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,UMSG(MError),strFullName,
-                          UMSG(MDeleteHardLink1),UMSG(MDeleteHardLink2),UMSG(MDeleteHardLink3),
-                          UMSG(MDeleteFileWipe),UMSG(MDeleteFileAll),UMSG(MDeleteFileSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
+          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),strFullName,
+                          MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
+                          MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
         }
 
         switch(MsgCode)
@@ -634,9 +634,9 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         MsgCode=SkipMode;
     else
     {
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                      UMSG(MCannotDeleteFile),Name,UMSG(MDeleteRetry),
-                      UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                      MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
+                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
     }
     switch(MsgCode)
     {
@@ -676,9 +676,9 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         MsgCode=SkipFoldersMode;
     else
     {
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,UMSG(MError),
-                  UMSG(MCannotDeleteFolder),Name,UMSG(MDeleteRetry),
-                  UMSG(MDeleteSkip),UMSG(MDeleteFileSkipAll),UMSG(MDeleteCancel));
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                  MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
+                  MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
     }
     switch(MsgCode)
     {
@@ -734,7 +734,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)
 
-  wchar_t *lpwszName = strFullName.GetBuffer ((int)strFullName.GetLength()+2);
+  wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+2);
 
   lpwszName[StrLength(lpwszName)+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 

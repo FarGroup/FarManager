@@ -228,7 +228,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 //	int UserDataSize=0;
 //	DWORD UserData=0;
 
-	VMenu ChDisk(UMSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+	VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
 
 	ChDisk.SetFlags(VMENU_NOTCENTER);
 
@@ -241,7 +241,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	string strMenuText;
 
 	int DriveType,MenuLine;
-	int LabelWidth = Max(11,StrLength(UMSG(MChangeDriveLabelAbsent)));
+	int LabelWidth = Max(11,StrLength(MSG(MChangeDriveLabelAbsent)));
 
     /* $ 02.04.2001 VVM
       ! Попытка не будить спящие диски... */
@@ -257,13 +257,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ( Opt.ChangeDriveMode & DRIVE_SHOW_TYPE )
 		{
-			strDiskType.Format (L"%*s",StrLength(UMSG(MChangeDriveFixed)),L"");
+			strDiskType.Format (L"%*s",StrLength(MSG(MChangeDriveFixed)),L"");
 
 			for (size_t J=0; J < countof(DrTMsg); ++J)
 			{
 				if (DrTMsg[J].DrvType == DriveType)
 				{
-					strDiskType = UMSG(DrTMsg[J].FarMsg);
+					strDiskType = MSG(DrTMsg[J].FarMsg);
 					break;
 				}
 			}
@@ -275,7 +275,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (GetSubstName(DriveType, strLocalName, strSubstName) )
 			{
-				strDiskType = UMSG(MChangeDriveSUBST);
+				strDiskType = MSG(MChangeDriveSUBST);
 				DriveType=DRIVE_SUBSTITUTE;
 			}
 
@@ -299,7 +299,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					&strFileSystemName
 					) )
 			{
-				strVolumeName = UMSG(MChangeDriveLabelAbsent);
+				strVolumeName = MSG(MChangeDriveLabelAbsent);
 				ShowDisk = FALSE;
 			}
 
@@ -416,7 +416,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		// Список дополнительных хоткеев, для случая, когда плагинов, добавляющих пункт в меню, больше 9.
 
-		const wchar_t *AdditionalHotKey=UMSG(MAdditionalHotKey);
+		const wchar_t *AdditionalHotKey=MSG(MAdditionalHotKey);
 
 		int AHKPos = 0; // индекс в списке хоткеев
 		int AHKSize = StrLength(AdditionalHotKey); // для предотвращения выхода за границу массива
@@ -761,16 +761,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 								// ... и выведем месаг о...
 
 									string strMsgText;
-									strMsgText.Format (UMSG(MChangeCouldNotEjectMedia), item->cDrive);
+									strMsgText.Format (MSG(MChangeCouldNotEjectMedia), item->cDrive);
 
 									SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 									DoneEject = Message(
 											MSG_WARNING|MSG_ERRORTYPE,
 											2,
-											UMSG(MError),
+											MSG(MError),
 											strMsgText,
-											UMSG(MRetry),
-											UMSG(MCancel)
+											MSG(MRetry),
+											MSG(MCancel)
 											) != 0;
 								}
 								else
@@ -851,16 +851,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 								// ... и выведем месаг о...
 
 								string strMsgText;
-								strMsgText.Format (UMSG(MChangeCouldNotEjectHotPlugMedia), item->cDrive);
+								strMsgText.Format (MSG(MChangeCouldNotEjectHotPlugMedia), item->cDrive);
 
 								SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 								DoneEject = Message(
 										MSG_WARNING|MSG_ERRORTYPE,
 										2,
-										UMSG(MError),
+										MSG(MError),
 										strMsgText,
-										UMSG(MHRetry),
-										UMSG(MHCancel)
+										MSG(MHRetry),
+										MSG(MHCancel)
 										) != 0;
 							}
 							else
@@ -989,7 +989,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( EjectVolume(item->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
 				SaveScreen SvScrn;
-				Message(0,0,L"",UMSG(MChangeWaitingLoadDisk));
+				Message(0,0,L"",MSG(MChangeWaitingLoadDisk));
 				EjectVolume(item->cDrive, EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
 			}
 		}
@@ -1039,15 +1039,15 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			else
 				break;
 
-			strMsgStr.Format (UMSG(MChangeDriveCannotReadDisk), item->cDrive);
+			strMsgStr.Format (MSG(MChangeDriveCannotReadDisk), item->cDrive);
 
 			if ( Message(
 					MSG_WARNING,
 					2,
-					UMSG(MError),
+					MSG(MError),
 					strMsgStr,
-					UMSG(MRetry),
-					UMSG(MCancel)
+					MSG(MRetry),
+					MSG(MCancel)
 					) != 0 )
 
 			return -1;
@@ -1145,8 +1145,8 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
     if(Opt.Confirm.RemoveSUBST)
     {
       string strMsgText;
-      strMsgText.Format (UMSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
-      if(Message(MSG_WARNING,2,UMSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,UMSG(MYes),UMSG(MNo))!=0)
+      strMsgText.Format (MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
+      if(Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo))!=0)
         return DRIVE_DEL_FAIL;
     }
 
@@ -1155,12 +1155,12 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
     else
     {
       int LastError=GetLastError();
-      strMsgText.Format (UMSG(MChangeDriveCannotDelSubst),DiskLetter);
+      strMsgText.Format (MSG(MChangeDriveCannotDelSubst),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
       {
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
-                L"\x1",UMSG(MChangeDriveOpenFiles),
-                UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+                L"\x1",MSG(MChangeDriveOpenFiles),
+                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
           if(!DelSubstDrive(DiskLetter))
             return DRIVE_DEL_SUCCESS;
@@ -1168,7 +1168,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
         else
           return DRIVE_DEL_FAIL;
       }
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
     }
     return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
   }
@@ -1180,12 +1180,12 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
     else
     {
       int LastError=GetLastError();
-      strMsgText.Format (UMSG(MChangeDriveCannotDisconnect),DiskLetter);
+      strMsgText.Format (MSG(MChangeDriveCannotDisconnect),DiskLetter);
       if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
       {
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),strMsgText,
-                L"\x1",UMSG(MChangeDriveOpenFiles),
-                UMSG(MChangeDriveAskDisconnect),UMSG(MOk),UMSG(MCancel))==0)
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
+                L"\x1",MSG(MChangeDriveOpenFiles),
+                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
           if (WNetCancelConnection2W(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
             return DRIVE_DEL_SUCCESS;
@@ -1196,7 +1196,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
       string strRootDir;
       strRootDir.Format (L"%c:\\", *DiskLetter);
       if (FAR_GetDriveType(strRootDir)==DRIVE_REMOTE)
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),strMsgText,UMSG(MOk));
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
     }
     return DRIVE_DEL_FAIL;
   }
@@ -1626,12 +1626,12 @@ void Panel::DragMessage(int X,int Y,int Move)
     strSelName = strCvtName;
   }
   else
-    strSelName.Format (UMSG(MDragFiles), SelCount);
+    strSelName.Format (MSG(MDragFiles), SelCount);
 
   if (Move)
-    strDragMsg.Format (UMSG(MDragMove), (const wchar_t*)strSelName);
+    strDragMsg.Format (MSG(MDragMove), (const wchar_t*)strSelName);
   else
-    strDragMsg.Format (UMSG(MDragCopy), (const wchar_t*)strSelName);
+    strDragMsg.Format (MSG(MDragCopy), (const wchar_t*)strSelName);
 
   if ((Length=(int)strDragMsg.GetLength())+X>ScrX)
   {
@@ -2211,18 +2211,18 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
   MakeDialogItemsEx(DCDlgData,DCDlg);
 
 
-  DCDlg[0].strData = UMSG(MChangeDriveDisconnectTitle);
+  DCDlg[0].strData = MSG(MChangeDriveDisconnectTitle);
   Len1 = (int)DCDlg[0].strData.GetLength();
 
-  strMsgText.Format (UMSG(MChangeDriveDisconnectQuestion),Letter);
+  strMsgText.Format (MSG(MChangeDriveDisconnectQuestion),Letter);
   DCDlg[1].strData = strMsgText;
   Len2 = (int)DCDlg[1].strData.GetLength ();
 
-  strMsgText.Format (UMSG(MChangeDriveDisconnectMapped),Letter);
+  strMsgText.Format (MSG(MChangeDriveDisconnectMapped),Letter);
   DCDlg[2].strData = strMsgText;
   Len4 = (int)DCDlg[2].strData.GetLength();
 
-  DCDlg[5].strData = UMSG(MChangeDriveDisconnectReconnect);
+  DCDlg[5].strData = MSG(MChangeDriveDisconnectReconnect);
   Len3 = (int)DCDlg[5].strData.GetLength ();
 
 
@@ -2230,8 +2230,8 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
   DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText),Len1);
 
-  DCDlg[7].strData = UMSG(MYes);
-  DCDlg[8].strData = UMSG(MCancel);
+  DCDlg[7].strData = MSG(MYes);
+  DCDlg[8].strData = MSG(MCancel);
 
   // проверяем - это было постоянное соедение или нет?
   // Если ветка в реестре HKCU\Network\БукваДиска есть - это
