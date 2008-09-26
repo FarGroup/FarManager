@@ -1592,7 +1592,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     }
 
     // Если это каталог и трэба создать связь...
-		if(RPT==RP_SYMLINKFILE || (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR))
+		if(RPT==RP_SYMLINKFILE || ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)))
     {
       /*
       ЭТОТ кусок, если хотим не делать ссылку на ссылку!
