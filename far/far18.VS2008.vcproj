@@ -846,46 +846,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="deb64_ud2.asm"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Assembling..."
-						CommandLine="ml64.exe /c /Fo $(IntDir)\deb64_ud2.obj deb64_ud2.asm&#x0D;&#x0A;"
-						Outputs=" "
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Assembling..."
-						CommandLine="ml64.exe /c /Fo $(IntDir)\deb64_ud2.obj deb64_ud2.asm&#x0D;&#x0A;"
-						Outputs=" "
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="del.cpp"
 				>
 				<FileConfiguration
