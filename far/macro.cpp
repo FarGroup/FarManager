@@ -1681,7 +1681,7 @@ static bool _fattrFunc(int Type)
   if(Type == 0 || Type == 2) // не панели
   {
     TVar Str = VMStack.Pop();
-    UINT  PrevErrMode;
+    //UINT  PrevErrMode;
     // дабы не выскакивал гуевый диалог, если диск эжектед.
     //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
     FileAttr=GetFileAttributesW((wchar_t *)Str.toString());
