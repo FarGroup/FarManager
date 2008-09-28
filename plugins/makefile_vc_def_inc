@@ -41,9 +41,13 @@
 #
 #EXCLUDECRT - set if you do not want to link with common/crt lib.
 #
-#AMD64 - set for 64bit build
+#AMD64 - set for x64 build
 #  or
-#CPU=AMD64 - for 64bit build
+#CPU=AMD64 - for x64 build
+#
+#IA64 - set for IA64 build
+#  or
+#CPU=IA64 - for IA64 build
 #
 
 !if defined(AMD64) || "$(CPU)" == "AMD64"
@@ -51,6 +55,11 @@
 !undef CPU
 AMD64=1
 CPU=AMD64
+!elseif defined(IA64) || "$(CPU)" == "IA64"
+!undef IA64
+!undef CPU
+IA64=1
+CPU=IA64
 !endif
 
 !ifndef RC_NAME
@@ -71,17 +80,19 @@ DIRNAME=debug
 DIRSUFF = W
 !endif
 
-!IFDEF AMD64
+!ifdef AMD64
 DIRBIT = 64
-!ELSE
+!elseif defined(IA64)
+DIRBIT = IA64
+!else
 DIRBIT = 32
-!ENDIF
+!endif
 WORKDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
-!IFDEF INSTALL
+!ifdef INSTALL
 OUTDIR=$(INSTALL)
-!ELSE
+!else
 OUTDIR=$(WORKDIR)
-!ENDIF
+!endif
 
 OBJDIR = $(WORKDIR)\obj$(ADDOBJDIR)
 COMMON = ..\common
@@ -112,26 +123,27 @@ PDBNAME="$(OUTDIR)$(ADDOUTDIR)\$(NAME).pdb"
 CPP_OPT=/DDEBUG /Od /Fd$(PDBNAME)
 !endif
 
-!IFDEF AMD64
+!ifdef AMD64
 COMMONLIB = $(COMMON)\libCRT64.lib
-!ifdef EXCLUDECRT
-!undef COMMONLIB
-!endif
 CPP_PROJ_NO=/nologo /c /W3 /Gy /GF /Zp8 /J $(COMPAT64) /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
 ULOUT=-Tpd+
-!ELSE
+!elseif defined(IA64)
+COMMONLIB = $(COMMON)\libCRTIA64.lib
+CPP_PROJ_NO=/nologo /c /W3 /Gy /GF /Zp8 /J $(COMPAT64) /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
+ULOUT=-Tpd+
+!else
 COMMONLIB = $(COMMON)\libCRT.lib
-!ifdef EXCLUDECRT
-!undef COMMONLIB
-!endif
 !ifdef CPP_UNALIGN
 CPP_ALIGN=/Zp1
 !endif
 CPP_PROJ_NO=/nologo /c /W3 /Gy /GF $(CPP_ALIGN) /J /Gr /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_WIN32_WINNT=0x0502 $(USERCPP)
 ULOUT=-Tpd -Re
-!ENDIF
+!endif
 CPP_PROJ=$(CPP_PROJ_NO) /Fo"$(OBJDIR)\\"
 
+!ifdef EXCLUDECRT
+!undef COMMONLIB
+!endif
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib
 
 !ifdef _BIN_PATH_

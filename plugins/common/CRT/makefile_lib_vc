@@ -1,3 +1,15 @@
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+!undef AMD64
+!undef CPU
+AMD64=1
+CPU=AMD64
+!elseif defined(IA64) || "$(CPU)" == "IA64"
+!undef IA64
+!undef CPU
+IA64=1
+CPU=IA64
+!endif
+
 !if exists(../../make_vc_defs)
 !include ../../make_vc_defs
 !endif
@@ -5,16 +17,19 @@
 CC=$(_BIN_PATH_)cl.exe
 LIBR=$(_BIN_PATH_)lib.exe
 
-!IF "$(CPU)" == "AMD64" || defined(AMD64)
+!ifdef AMD64
 OBJDIR = obj.64.vc
 DLLNAME = libCRT64.lib
 MASM=$(_BIN_PATH_)ml64.exe
-!ELSE
+!elseif DEFINED(IA64)
+OBJDIR = obj.IA64.vc
+DLLNAME = libCRTIA64.lib
+!else
 OBJDIR = obj.32.vc
 DLLNAME = libCRT.lib
 MASM=$(_BIN_PATH_)ml.exe
 MASM_OPT=/coff
-!ENDIF
+!endif
 OBJDIRW = $(OBJDIR)\wide
 OUTDIR = ..
 
@@ -30,7 +45,7 @@ VC8OPT=/GS- /D_CRT_SECURE_NO_DEPRECATE
 !endif
 
 
-!IF "$(CPU)" != "AMD64" && !defined(AMD64)
+!if  !defined(AMD64) && !defined(IA64)
 LINK32_OBJS = \
 $(OBJDIR)\vc_llmul.obj \
 $(OBJDIR)\vc_lldiv.obj \
@@ -41,7 +56,11 @@ $(OBJDIR)\vc_llshr.obj \
 $(OBJDIR)\vc_ulldiv.obj \
 $(OBJDIR)\vc_ullrem.obj \
 $(OBJDIR)\vc_ulldvrm.obj \
-$(OBJDIR)\vc_ullshr.obj
+$(OBJDIR)\vc_ullshr.obj \
+$(OBJDIR)\aliases.obj 
+!elseif defined(AMD64)
+LINK32_OBJS = \
+$(OBJDIR)\aliases.obj 
 !endif
 
 
@@ -87,15 +106,16 @@ $(OBJDIRW)\strstr.obj \
 $(OBJDIR)\strtok.obj \
 $(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
-$(OBJDIRW)\strtol.obj \
-$(OBJDIR)\aliases.obj 
+$(OBJDIRW)\strtol.obj
 
-CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /Oy /O2 /W3 $(ENV_INC_OPT)
-!IF "$(CPU)" == "AMD64" || defined(AMD64)
+CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
+!ifdef AMD64
+CPP_PROJ=$(CPP_BASE) /Oy /Zp8 $(COMPAT64)
+!elseif defined(IA64) 
 CPP_PROJ=$(CPP_BASE) /Zp8 $(COMPAT64)
-!ELSE
-CPP_PROJ=$(CPP_BASE)
-!ENDIF
+!else
+CPP_PROJ=$(CPP_BASE) /Oy
+!endif
 
 LINK_FLAGS=/nologo /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
 

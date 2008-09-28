@@ -16,6 +16,10 @@ _MDEFS=$(_MDEFS) $(_MKDO_)NO_ULINK=1
 _MDEFS=$(_MDEFS) $(_MKDO_)ULINK=1
 !endif
 
-!if defined(AMD64) || "$(CPU)" == "AMD64"
+!ifdef AMD64
 _MDEFS=$(_MDEFS) $(_MKDO_)AMD64=1
+!endif
+
+!ifdef IA64
+_MDEFS=$(_MDEFS) $(_MKDO_)IA64=1
 !endif

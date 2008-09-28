@@ -8,13 +8,30 @@
 #
 #DEBUG - set if a debug build is needed
 #
-#AMD64 - set for 64bit build
+#AMD64 - set for x64 build
 #  or
-#CPU=AMD64 - for 64bit build
+#CPU=AMD64 - for x64 build
+#
+#IA64 - set for IA64 build
+#  or
+#CPU=IA64 - for IA64 build
 #
 #############################################################################
+
 ALLDIRS = align autowrap brackets compare drawline editcase emenu farcmds \
           filecase hlfviewer macroview network proclist tmppanel
+
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+!undef AMD64
+!undef CPU
+AMD64=1
+CPU=AMD64
+!elseif defined(IA64) || "$(CPU)" == "IA64"
+!undef IA64
+!undef CPU
+IA64=1
+CPU=IA64
+!endif
 
 !ifndef WIDE
 ALLDIRS = $(ALLDIRS) \
@@ -56,9 +73,11 @@ libcrt: $(FICTIVE)
 _ODN_=final
 !else
 _ODN_=debug
-!endif                   
-!if defined(AMD64) || "$(CPU)" == "AMD64"
+!endif
+!ifdef AMD64
 _ODB_=64
+!elseif defined(IA64)
+_ODB_=IA64
 !else
 _ODB_=32
 !endif
@@ -72,6 +91,7 @@ $(OUTPATH): $(INSTALL)
 
 $(INSTALL):
 	@if not exist "$(INSTALL)\$(NULL)" mkdir "$(INSTALL)"
+
 !endif
 
 $(ALLDIRS): $(FICTIVE) $(OUTPATH)
