@@ -1331,6 +1331,7 @@ folders.
              symbolic links (e.g. a symlink pointing to one of
              its parent folders), then the search will be conducted
              until the maximum allowed path length is reached.
+             In this case search may take much more time.
 
     Search may be performed:
 
@@ -1923,6 +1924,7 @@ $ #Settings dialog: system#
                symbolic links (e.g. a symlink pointing to one of
                its parent folders), then the scanning will continue
                until the maximum allowed path length is reached.
+               In this case scanning may take much more time.
 
 
   #Create folders#          If the name of a new folder contains only

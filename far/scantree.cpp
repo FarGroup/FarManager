@@ -89,6 +89,28 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       break;
   }
 
+  // предвычисление длины строки - прямое использование xstrncpy может приводить
+  // к "странным" результатам, а без проверки происходило переполнение при
+  // слишком длинных именах (поученных через subst).
+  const char *pm = fdata->cFileName;
+  {
+    int LenTempFindPath=(int)strlen(FindPath)+(int)strlen(pm)+8;
+    char *TempFindPath=(char *)alloca(LenTempFindPath);
+    strcpy(TempFindPath,FindPath);
+    AddEndSlash(TempFindPath);
+    strcat(TempFindPath,pm);
+
+    if(Opt.FolderDeepScan && Flags.Check(FSCANTREE_USEDALTFOLDERNAME) &&
+       GetFileAttributes(TempFindPath)==(DWORD)-1 && *fdata->cAlternateFileName)
+      pm = fdata->cAlternateFileName;
+  }
+
+  if(strlen(FindPath)+strlen(pm)+1+strlen(FindMask)>=NM)
+  {
+    _SVS(SysLog("2! FullName EXCEED(%s%s\\%s)",FindPath,pm,FindMask));
+    Done=TRUE;
+  }
+
   if (Done)
   {
     if (Data[FindHandleCount].FindHandle!=INVALID_HANDLE_VALUE)
@@ -141,31 +163,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *(ChPtr+1)=0;
-      // предвычисление длины строки - прямое использование xstrncpy может приводить
-      // к "странным" результатам, а без проверки происходило переполнение при
-      // слишком длинных именах (поученных через subst).
-      const char *pm = fdata->cFileName;
 
-      {
-        int LenTempFindPath=(int)strlen(FindPath)+(int)strlen(pm)+8;
-        char *TempFindPath=(char *)alloca(LenTempFindPath);
-        strcpy(TempFindPath,FindPath);
-        AddEndSlash(TempFindPath);
-        strcat(TempFindPath,pm);
-
-        if(
-            Opt.FolderDeepScan &&
-             Flags.Check(FSCANTREE_USEDALTFOLDERNAME) &&
-             GetFileAttributes(TempFindPath)==(DWORD)-1 &&
-             *fdata->cAlternateFileName
-          )
-           pm = fdata->cAlternateFileName;
-      }
-
-      if(strlen(FindPath)+strlen(pm)+1+strlen(FindMask)>=NM) {
-        _SVS(SysLog("2! FullName EXCEED(%s%s\\%s)",FindPath,pm,FindMask));
-        return FALSE;
-      }
       strcat(FindPath,pm);
       strcpy(FullName,FindPath);
       strcat(FindPath,"\\");
