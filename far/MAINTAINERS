@@ -33,14 +33,14 @@ Mouse                        | Skirda
 Panel                        |
 Panel.Info                   |
 Panel.Panel Modes            |
-Panel.QView                  |
+Panel.QView                  | thims
 Panel.Tree                   |
 Plugins API                  |
 Plugins API.Dialog           | Skirda
 Plugins API.Editor           | t-rex, Skirda
 Plugins API.Old API Wrapper  | t-rex
 Plugins API.Panel            |
-Plugins API.Viewer           |
+Plugins API.Viewer           | thims
 Plugins API.VMenu            | Skirda
 Policies                     | Zuz
 Popup Menu                   | Skirda
@@ -52,7 +52,7 @@ Sort Order                   |
 Special Symbols              |
 SymLink/HardLink             |
 User Menu                    |
-Viewer                       |
+Viewer                       | thims
 _Common                      |
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Far Manager plugins          | Maintainers

@@ -29,7 +29,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;&#x0D;&#x0A;"
+				Description="Creating mandatory folders..."
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist .\Include mkdir .\Include&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -83,7 +84,7 @@
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
-				ModuleDefinitionFile=".\far.def"
+				ModuleDefinitionFile=""
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -125,7 +126,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;&#x0D;&#x0A;"
+				Description="Creating mandatory folders..."
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist .\Include mkdir .\Include&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -178,7 +180,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				ModuleDefinitionFile=".\far.def"
+				ModuleDefinitionFile=""
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
@@ -220,7 +222,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;&#x0D;&#x0A;"
+				Description="Creating mandatory folders..."
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist .\Include mkdir .\Include&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -275,7 +278,7 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				ModuleDefinitionFile=".\far.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
@@ -318,7 +321,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist .\Include mkdir .\Include&#x0D;&#x0A;if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;.\tools\m4 -P .\copyright.inc.m4 | .\tools\gawk -f .\scripts\enc.awk &gt; .\copyright.inc&#x0D;&#x0A;.\tools\m4 -P .\farversion.inc.m4 &gt; .\farversion.inc&#x0D;&#x0A;.\tools\m4 -P .\Far.exe.manifest.m4 &gt; .\Far.exe.manifest&#x0D;&#x0A;.\tools\m4 -P .\far.rc.m4 &gt; .\far.rc&#x0D;&#x0A;.\tools\lng.generator.exe -nc -i .\lang.ini .\farlang.templ&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarEng.hlf&quot;&#x0D;&#x0A;.\tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P &gt; &quot;$(OutDir)\FarRus.hlf&quot;&#x0D;&#x0A;copy /Y .\FarEng.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\FarRus.lng &quot;$(OutDir)\&quot;&#x0D;&#x0A;.\tools\m4 -P .\File_id.diz.m4 &gt; &quot;$(OutDir)\File_id.diz&quot;&#x0D;&#x0A;"
+				Description="Creating mandatory folders..."
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist .\Include mkdir .\Include&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -373,7 +377,7 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				ModuleDefinitionFile=".\far.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
@@ -1168,10 +1172,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="far.def"
-				>
 			</File>
 			<File
 				RelativePath="farexcpt.cpp"
@@ -4652,9 +4652,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование colors.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=colors.hpp headers.m4 &gt; INCLUDE/farcolor.hpp&#x0D;&#x0A;"
-						Outputs="INCLUDE/farcolor.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4662,9 +4663,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование colors.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=colors.hpp headers.m4 &gt; INCLUDE/farcolor.hpp&#x0D;&#x0A;"
-						Outputs="INCLUDE/farcolor.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4672,8 +4674,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование colors.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\colors.hpp .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
@@ -4682,9 +4685,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование colors.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=colors.hpp headers.m4 &gt; INCLUDE/farcolor.hpp&#x0D;&#x0A;"
-						Outputs="INCLUDE/farcolor.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -4730,10 +4734,6 @@
 			</File>
 			<File
 				RelativePath="farqueue.hpp"
-				>
-			</File>
-			<File
-				RelativePath="farversion.inc"
 				>
 			</File>
 			<File
@@ -4840,9 +4840,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование keys.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\keys.hpp .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
-						Outputs=".\Include\keys.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farkeys.hpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4850,9 +4851,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование keys.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\keys.hpp .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
-						Outputs=".\Include\keys.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farkeys.hpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4860,9 +4862,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование keys.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\keys.hpp .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
-						Outputs=".\Include\keys.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farkeys.hpp"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4870,9 +4873,10 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование keys.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\keys.hpp .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
-						Outputs=".\Include\keys.hpp"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs=".\Include\farkeys.hpp"
 					/>
 				</FileConfiguration>
 			</File>
@@ -4936,8 +4940,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование plugin.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\plugin.hpp .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
 				</FileConfiguration>
@@ -4946,8 +4951,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование plugin.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\plugin.hpp .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
 				</FileConfiguration>
@@ -4956,8 +4962,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование plugin.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\plugin.hpp .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
 				</FileConfiguration>
@@ -4966,8 +4973,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Преобразование plugin.hpp в дистрибутивный вид"
-						CommandLine=".\tools\m4 -P -DINPUT=.\plugin.hpp .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						Description="Transforming $(InputFileName) to redistributable form..."
+						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
 				</FileConfiguration>
@@ -5081,6 +5089,454 @@
 				RelativePath="Far.ico"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Dependencies"
+			>
+			<File
+				RelativePath="copyright.inc.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Far.exe.manifest.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="far.rc.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="FarEng.hlf.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="farlang.templ"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating language files based on $(InputFileName)..."
+						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)"
+						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating language files based on $(InputFileName)..."
+						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)"
+						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating language files based on $(InputFileName)..."
+						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)"
+						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating language files based on $(InputFileName)..."
+						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)"
+						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="FarRus.hlf.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="farversion.inc.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="farversion.m4"
+				>
+			</File>
+			<File
+				RelativePath="File_id.diz.m4"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)..."
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="headers.m4"
+				>
+			</File>
+			<File
+				RelativePath="svn_tag_build.m4"
+				>
+			</File>
+			<File
+				RelativePath="vbuild.m4"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated Files"
+			SourceControlFiles="false"
+			>
+			<File
+				RelativePath=".\copyright.inc"
+				FileType="0"
+				>
+			</File>
+			<File
+				RelativePath=".\Far.exe.manifest"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath="far.rc"
 				>
@@ -5117,56 +5573,25 @@
 					/>
 				</FileConfiguration>
 			</File>
-		</Filter>
-		<Filter
-			Name="Dependencies"
-			>
 			<File
-				RelativePath="copyright.inc.m4"
+				RelativePath=".\Include\farcolor.hpp"
 				>
 			</File>
 			<File
-				RelativePath="Far.exe.manifest.m4"
+				RelativePath=".\Include\farkeys.hpp"
 				>
 			</File>
 			<File
-				RelativePath="far.rc.m4"
+				RelativePath="farversion.inc"
+				FileType="0"
 				>
 			</File>
 			<File
-				RelativePath="FarEng.hlf.m4"
+				RelativePath=".\lang.ini"
 				>
 			</File>
 			<File
-				RelativePath="farlang.templ"
-				>
-			</File>
-			<File
-				RelativePath="FarRus.hlf.m4"
-				>
-			</File>
-			<File
-				RelativePath="farversion.inc.m4"
-				>
-			</File>
-			<File
-				RelativePath="farversion.m4"
-				>
-			</File>
-			<File
-				RelativePath="File_id.diz.m4"
-				>
-			</File>
-			<File
-				RelativePath="headers.m4"
-				>
-			</File>
-			<File
-				RelativePath="svn_tag_build.m4"
-				>
-			</File>
-			<File
-				RelativePath="vbuild.m4"
+				RelativePath=".\Include\plugin.hpp"
 				>
 			</File>
 		</Filter>
