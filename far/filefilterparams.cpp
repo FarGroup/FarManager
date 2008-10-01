@@ -530,7 +530,7 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
   }
 }
 
-void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg)
+void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
 {
   Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
@@ -551,6 +551,16 @@ void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg)
     Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
   }
 
+  if (bClear)
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)"");
+  }
+
   Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
 
@@ -560,7 +570,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
   {
     case DN_INITDIALOG:
     {
-      FilterDlgRelativeDateItemsUpdate(hDlg);
+      FilterDlgRelativeDateItemsUpdate(hDlg, false);
       return TRUE;
     }
 
@@ -644,7 +654,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       }
       else if (Param1==ID_FF_DATERELATIVE)
       {
-        FilterDlgRelativeDateItemsUpdate(hDlg);
+        FilterDlgRelativeDateItemsUpdate(hDlg, true);
         break;
       }
     }
