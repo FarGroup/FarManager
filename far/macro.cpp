@@ -3097,7 +3097,7 @@ done:
            f=fo;
 
          if(f)
-           Result=f->VMProcess(Key,(void*)tmpVar.toString());
+           Result=f->VMProcess(Key,(void*)tmpVar.toString(),tmpMode);
        }
        VMStack.Push(Result);
        goto begin;
