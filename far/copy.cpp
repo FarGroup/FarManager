@@ -1995,7 +1995,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   if (DestAttr==INVALID_FILE_ATTRIBUTES)
   {
-    if ( apiGetFindDataEx (strDestPath,&DestData),false )
+    if ( apiGetFindDataEx (strDestPath,&DestData,false ))
       DestAttr=DestData.dwFileAttributes;
   }
 
