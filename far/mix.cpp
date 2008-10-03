@@ -108,7 +108,12 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
       GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
       AddEndSlash(FullDir);
       PrepareDiskPath(FullDir,sizeof(FullDir)-1);
-      rc=SetCurrentDirectory(FullDir);
+      DWORD att1=GetFileAttributes(NewDir);
+      DWORD att2=GetFileAttributes(FullDir);
+      if(att2==INVALID_FILE_ATTRIBUTES || ( att1!=att2 && strcmp(NewDir,"..")))
+        rc=SetCurrentDirectory(NewDir);
+      else
+        rc=SetCurrentDirectory(FullDir);
     }
   }
 
