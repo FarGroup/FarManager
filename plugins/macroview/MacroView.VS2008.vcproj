@@ -15,6 +15,9 @@
 		<Platform
 			Name="x64"
 		/>
+		<Platform
+			Name="Itanium"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -46,7 +49,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\ascii;..\common"
-				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -107,7 +110,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -138,7 +141,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\ascii;..\common"
-				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -200,7 +203,100 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Itanium"
+			OutputDirectory="$(ProjectDir)debug.IA64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRTIA64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="MacroView.vc.def"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				SubSystem="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -232,7 +328,7 @@
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\ascii;..\common"
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -297,7 +393,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -330,7 +426,7 @@
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\ascii;..\common"
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -396,7 +492,106 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Itanium"
+			OutputDirectory="$(ProjectDir)final.IA64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="0"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\ascii;..\common"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRTIA64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="MacroView.vc.def"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -426,7 +621,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\unicode;..\common"
-				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -487,7 +682,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -518,7 +713,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\unicode;..\common"
-				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -580,7 +775,100 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Unicode|Itanium"
+			OutputDirectory="$(ProjectDir)debug.IA64W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRTIA64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="MacroViewW.vc.def"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				SubSystem="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -612,7 +900,7 @@
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\unicode;..\common"
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -677,7 +965,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -710,7 +998,7 @@
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\common\unicode;..\common"
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -776,7 +1064,106 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release Unicode|Itanium"
+			OutputDirectory="$(ProjectDir)final.IA64W.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\common\unicode;..\common"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libCRTIA64.lib chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib version.lib oleaut32.lib wbemuuid.lib $(NOINHERIT)"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\common"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="true"
+				ModuleDefinitionFile="MacroViewW.vc.def"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="true"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -808,6 +1195,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -817,6 +1212,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -840,6 +1243,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -849,6 +1260,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -876,6 +1295,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -885,6 +1312,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -908,6 +1343,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -917,6 +1360,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -944,6 +1395,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -953,6 +1412,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -976,6 +1443,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -985,6 +1460,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1024,6 +1507,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1033,6 +1524,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1056,6 +1555,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1065,6 +1572,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1092,6 +1607,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1101,6 +1624,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1124,6 +1655,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1133,6 +1672,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -1188,6 +1735,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\ascii"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -1197,6 +1752,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\ascii"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -1220,6 +1783,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release Unicode|Win32"
 					>
 					<Tool
@@ -1229,6 +1800,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\unicode"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"

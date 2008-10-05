@@ -1,4 +1,3 @@
-#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
 

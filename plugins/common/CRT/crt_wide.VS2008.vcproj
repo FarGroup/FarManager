@@ -15,6 +15,9 @@
 		<Platform
 			Name="x64"
 		/>
+		<Platform
+			Name="Itanium"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -43,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -116,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -194,7 +197,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -272,7 +275,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;_INC_CTYPE"
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
 				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -301,6 +304,159 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="$(NOINHERIT)"
 				OutputFile="..\libCRT64wide.tmp"
+				IgnoreAllDefaultLibraries="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Itanium"
+			OutputDirectory="$(ProjectDir)obj.IA64.vc"
+			IntermediateDirectory="$(OutDir)\wide"
+			ConfigurationType="4"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalDependencies="$(NOINHERIT)"
+				OutputFile="..\libCRTIA64wide.tmp"
+				IgnoreAllDefaultLibraries="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Itanium"
+			OutputDirectory="$(ProjectDir)obj.IA64.vc"
+			IntermediateDirectory="$(OutDir)\wide"
+			ConfigurationType="4"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;_INC_CTYPE"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalDependencies="$(NOINHERIT)"
+				OutputFile="..\libCRTIA64wide.tmp"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool

@@ -10,7 +10,7 @@ ifeq ($(FMT),Custom)
 DOCS = Custom.ini
 endif
 
-USERCPP = -D_FAR_USE_FARFINDDATA -I ./libpcre
+USERCPP = -I ./libpcre
 USERLIBSFIRST = -L $(OBJDIR) -lPCRE
 
 include ../makefile_gcc_def_inc

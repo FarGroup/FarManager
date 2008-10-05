@@ -15,6 +15,9 @@
 		<Platform
 			Name="x64"
 		/>
+		<Platform
+			Name="Itanium"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -45,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -117,7 +120,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -191,7 +194,7 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -265,7 +268,155 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
+				StringPooling="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="1"
+				PrecompiledHeaderThrough="all_far.h"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Itanium"
+			OutputDirectory="$(ProjectDir)debug.IA64.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
+			ConfigurationType="4"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="1"
+				PrecompiledHeaderThrough="all_far.h"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\FsdLib.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Itanium"
+			OutputDirectory="$(ProjectDir)final.IA64.vc\obj"
+			IntermediateDirectory="$(OutDir)\LibObj"
+			ConfigurationType="4"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=".\FStdLib;..\common\ascii;..\common"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"

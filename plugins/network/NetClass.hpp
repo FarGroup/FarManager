@@ -7,7 +7,6 @@
 #endif // _MSC_VER
 
 #include <CRT/crt.hpp>
-#define _FAR_USE_FARFINDDATA
 #include <plugin.hpp>
 #ifdef NETWORK_LOGGING
 #include <stdio.h>

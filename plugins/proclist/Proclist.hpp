@@ -4,7 +4,6 @@
 #include <CRT/crt.hpp>
 #include <tchar.h>
 #include <stdio.h>
-#define _FAR_USE_FARFINDDATA
 #include <plugin.hpp>
 
 #ifndef UNICODE

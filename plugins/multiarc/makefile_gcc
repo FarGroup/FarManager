@@ -12,8 +12,6 @@ arcreg.cpp \
 global.cpp
 DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng
 
-USERCPP = -D_FAR_USE_FARFINDDATA
-
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

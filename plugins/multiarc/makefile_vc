@@ -15,7 +15,6 @@ $(OBJDIR)\ArcRead.obj \
 $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
 
-USERCPP = /D_FAR_USE_FARFINDDATA
 CPP_UNALIGN=1
 
 !include ..\makefile_vc_def_inc

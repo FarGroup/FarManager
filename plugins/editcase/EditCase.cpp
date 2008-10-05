@@ -2,7 +2,6 @@
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
-#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 
 #if defined(__GNUC__) || defined (_MSC_VER)

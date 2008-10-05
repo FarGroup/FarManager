@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2437
+  Plugin API for FAR Manager 1.71 build 2444
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2008 FAR group
@@ -12,7 +12,7 @@
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 71
-#define FARMANAGERVERSION_BUILD 2437
+#define FARMANAGERVERSION_BUILD 2444
 
 #ifndef RC_INVOKED
 
@@ -81,6 +81,8 @@
 #endif
 
 #define NM 260
+
+#undef DefDlgProc
 
 #define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
@@ -1521,8 +1523,11 @@ typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum MKLINKOP{
   FLINK_HARDLINK         = 1,
-  FLINK_SYMLINK          = 2,
+  FLINK_JUNCTION         = 2,
+  FLINK_SYMLINK          = FLINK_JUNCTION,
   FLINK_VOLMOUNT         = 3,
+  FLINK_SYMLINKFILE      = 4,
+  FLINK_SYMLINKDIR       = 5,
 
   FLINK_SHOWERRMSG       = 0x10000,
   FLINK_DONOTUPDATEPANEL = 0x20000,

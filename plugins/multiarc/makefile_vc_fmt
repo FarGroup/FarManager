@@ -12,7 +12,7 @@ EXT = fmt
 ADDOUTDIR = \Formats
 LINK_OBJS = $(OBJDIR)\$(NAME).obj
 
-USERCPP = /D_FAR_USE_FARFINDDATA /I".\libpcre"
+USERCPP = /I".\libpcre"
 CPP_UNALIGN=1
 
 !include ..\makefile_vc_def_inc

@@ -15,6 +15,9 @@
 		<Platform
 			Name="x64"
 		/>
+		<Platform
+			Name="Itanium"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -45,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;__FILELOG__=1;__DEBUG__=1"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;__FILELOG__=1;__DEBUG__=1"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -138,7 +141,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502;__FILELOG__=1;__DEBUG__=1"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;__FILELOG__=1;__DEBUG__=1"
 				StringPooling="true"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -233,7 +236,7 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="false"
 				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -331,7 +334,7 @@
 				Optimization="1"
 				EnableIntrinsicFunctions="false"
 				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
-				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;WIN32_WINNT=0x0502"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
 				StringPooling="true"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -376,6 +379,199 @@
 				ResourceOnlyDLL="false"
 				MergeSections=".rdata=.text"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.txt &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Itanium"
+			OutputDirectory="$(ProjectDir)debug.IA64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;__FILELOG__=1;__DEBUG__=1"
+				StringPooling="true"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="1"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="1"
+				PrecompiledHeaderThrough="all_far.h"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="FsdLib.lib Ws2_32.lib Winmm.lib"
+				OutputFile="$(OutDir)\FarFtp.dll"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(OutDir)\obj"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="false"
+				ModuleDefinitionFile="FarFtp.vc.def"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				SubSystem="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="false"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+				EmbedManifest="false"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.hlf &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.txt &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Itanium"
+			OutputDirectory="$(ProjectDir)final.IA64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="2"
+			CharacterSet="0"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="2"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				EnableIntrinsicFunctions="false"
+				AdditionalIncludeDirectories=".\FStdLib;..\common;..\common\ascii"
+				PreprocessorDefinitions="__NOMEM__=1;__HEAP_MEMORY__=1;__USEASSERT__=1;__NOVCL__=1;_CONSOLE=1;NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600"
+				StringPooling="true"
+				ExceptionHandling="0"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="1"
+				PrecompiledHeaderThrough="all_far.h"
+				WarningLevel="3"
+				DebugInformationFormat="0"
+				CallingConvention="1"
+				DisableSpecificWarnings="4985;4996"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="FsdLib.lib Ws2_32.lib Winmm.lib"
+				OutputFile="$(OutDir)\FarFtp.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(OutDir)\obj"
+				GenerateManifest="false"
+				IgnoreAllDefaultLibraries="false"
+				ModuleDefinitionFile="FarFtp.vc.def"
+				GenerateDebugInformation="false"
+				GenerateMapFile="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
+				ResourceOnlyDLL="false"
+				MergeSections=".rdata=.text"
+				TargetMachine="5"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -651,6 +847,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\ascii"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="..\common\ascii"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
