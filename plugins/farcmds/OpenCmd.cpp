@@ -603,7 +603,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 LinkFlags|=FLINK_VOLMOUNT;
               }
               else if(FTAttr&FILE_ATTRIBUTE_DIRECTORY)
-                LinkFlags|=FLINK_SYMLINK;
+                LinkFlags|=FLINK_JUNCTION;
               else
                 LinkFlags|=FLINK_HARDLINK;
 
