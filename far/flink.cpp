@@ -441,9 +441,12 @@ DWORD WINAPI GetReparsePointInfo(LPCTSTR szMountDir,
 			SubstituteNameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
 			PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
 		}
-		WideCharToMultiByte(CP_THREAD_ACP,0,PathBuffer,SubstituteNameLength,szDestBuff,dwBuffSize,"",FALSE);
-		szDestBuff[SubstituteNameLength] = 0;
-		FAR_CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
+		if(szDestBuff && (dwBuffSize>SubstituteNameLength))
+		{
+			WideCharToMultiByte(CP_THREAD_ACP,0,PathBuffer,SubstituteNameLength,szDestBuff,dwBuffSize,"",FALSE);
+			szDestBuff[SubstituteNameLength] = 0;
+			FAR_CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
+		}
 	}
 	return SubstituteNameLength;
 }
