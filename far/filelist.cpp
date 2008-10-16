@@ -1115,7 +1115,7 @@ int FileList::ProcessKey(int Key)
         string strShortFileName;
 
         string strHostFile=Info.HostFile;
-        string strCurDir=Info.CurDir;
+        string strInfoCurDir=Info.CurDir;
 
         int PluginMode=PanelMode==PLUGIN_PANEL &&
             !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
@@ -1125,7 +1125,7 @@ int FileList::ProcessKey(int Key)
           if(Info.Flags & OPIF_REALNAMES)
             PluginMode=FALSE;
           else
-            strPluginData.Format (L"<%s:%s>",(const wchar_t*)strHostFile,(const wchar_t*)strCurDir);
+            strPluginData.Format (L"<%s:%s>",(const wchar_t*)strHostFile,(const wchar_t*)strInfoCurDir);
         }
 
         if(!PluginMode)
