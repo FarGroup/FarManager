@@ -2637,7 +2637,7 @@ done:
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
     _KEYMACRO(SysLog(-1); SysLog("**** End Of Execute Macro **** (CurPCStack=%d)",CurPCStack));
-    if(CurPCStack >= 0)
+    if(Work.MacroWORKCount <= 0 && CurPCStack >= 0)
     {
       PopState();
       goto initial;
