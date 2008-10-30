@@ -108,7 +108,7 @@ $(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
 $(OBJDIRW)\strtol.obj
 
-CPP_BASE=/nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
+CPP_BASE=$(MP) /nologo /c /Gy /J /Gr /GR- $(VC8OPT) /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
 !ifdef AMD64
 CPP_PROJ=$(CPP_BASE) /Oy /Zp8 $(COMPAT64)
 !elseif defined(IA64) 
