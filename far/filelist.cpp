@@ -4045,7 +4045,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
       PrevDataStack[PrevDataStackSize].PrevListData=ListData;
       PrevDataStack[PrevDataStackSize].PrevFileCount=FileCount;
       PrevDataStack[PrevDataStackSize].PrevTopFile = CurTopFile;
-      strncpy(PrevDataStack[PrevDataStackSize].PrevName,FileName,sizeof(PrevDataStack[PrevDataStackSize].PrevName)-1);
+      xstrncpy(PrevDataStack[PrevDataStackSize].PrevName,FileName,sizeof(PrevDataStack[PrevDataStackSize].PrevName)-1);
       PrevDataStackSize++;
       ListData=NULL;
       FileCount=0;

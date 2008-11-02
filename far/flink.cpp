@@ -813,7 +813,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 void GetPathRootOne(const char *Path,char *Root)
 {
   char TempRoot[2048],*ChPtr;
-  xstrncpy(TempRoot,Path,NM-1);
+  xstrncpy(TempRoot,Path,sizeof(TempRoot)-1);
 
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
@@ -856,7 +856,7 @@ void GetPathRootOne(const char *Path,char *Root)
       char Temp[2048];
       FarGetCurDir(sizeof(Temp)-2,Temp);
       AddEndSlash(Temp);
-      strcat(Temp,TempRoot); //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
+      xstrncat(Temp,TempRoot,sizeof(Temp)-1); //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
       xstrncpy(TempRoot,Temp,sizeof(TempRoot)-1);
     }
 
@@ -866,7 +866,7 @@ void GetPathRootOne(const char *Path,char *Root)
         if ((ChPtr=strchr(ChPtr+1,'\\'))!=NULL)
           *(ChPtr+1)=0;
         else
-          strcat(TempRoot,"\\");
+          xstrncat(TempRoot,"\\",sizeof(TempRoot)-1);
     }
     else
     {

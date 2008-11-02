@@ -183,7 +183,7 @@ static void putstr(const char *s)
   for ( int i = 0 ; i < nSize ; i++ )
   {
     unsigned long d[2] = { 0, 0 };
-    strncpy((char*)d, s, sizeof(unsigned long));
+    xstrncpy((char*)d, s, sizeof(unsigned long));
     s += sizeof(unsigned long);
     exprBuff[Size++] = *d;
   }
@@ -211,7 +211,7 @@ static void keyMacroParseError(int err, const char *s, const char *p, const char
     }
     xstrncat(ErrMessage[1], p+oPos,sizeof(ErrMessage[1])-1);
     if ( ErrMessage[1][61] )
-      strncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
+      xstrncpy(&ErrMessage[1][61], "...",sizeof(ErrMessage[1])-62);
     int lPos = ePos-oPos+(oPos ? 3 : 0);
 
     InsertQuote(ErrMessage[1]);

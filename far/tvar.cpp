@@ -94,7 +94,7 @@ const char *TVar::toString()
   switch ( vType )
   {
     case vtInteger:
-      strncpy(s, ::toString(inum),sizeof(s)-1);
+      xstrncpy(s, ::toString(inum),sizeof(s)-1);
       break;
     default:
       return str;

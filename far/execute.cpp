@@ -1638,7 +1638,7 @@ BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
 
       if(GetFileAttributes(FullName)!=-1)
       {
-        strncpy(DestName,FullName,SizeDestName);
+        xstrncpy(DestName,FullName,SizeDestName);
         Result=TRUE;
         break;
       }

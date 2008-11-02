@@ -1646,7 +1646,7 @@ const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int Size
 
   if (NetDir[0]=='\\' && NetDir[1]=='\\')
   {
-    strncpy(ComputerName,NetDir+2,SizeName);
+    xstrncpy(ComputerName,NetDir+2,SizeName);
     char *EndSlash=strchr(ComputerName,'\\');
     if (EndSlash==NULL)
       *ComputerName=0;
@@ -1668,8 +1668,8 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
   DWORD SrcFileSystemFlags, DestFileSystemFlags;
   DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
 
-  strncpy(SrcRoot,SrcPath,sizeof(SrcRoot)-1);
-  strncpy(DestRoot,DestPath,sizeof(DestRoot)-1);
+  xstrncpy(SrcRoot,SrcPath,sizeof(SrcRoot)-1);
+  xstrncpy(DestRoot,DestPath,sizeof(DestRoot)-1);
   ConvertNameToUNC(SrcRoot,sizeof(SrcRoot)-1);
   ConvertNameToUNC(DestRoot,sizeof(DestRoot)-1);
   GetPathRoot(SrcRoot,SrcRoot);

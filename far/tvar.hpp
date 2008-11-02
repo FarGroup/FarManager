@@ -6,6 +6,8 @@ tvar.hpp
 
 */
 
+#include "fn.hpp"
+
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.

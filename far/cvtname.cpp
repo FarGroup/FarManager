@@ -244,9 +244,8 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     Result+=AddEndSlash(FullName);
     if (Result < DestSize)
     {
-      strncat(FullName,Src,Result);
-      xstrncpy(Dest,FullName,Result);
-      Dest [Result] = '\0';
+      xstrncat(FullName,Src,DestSize-1);
+      xstrncpy(Dest,FullName,DestSize-1);
     }
     else
     {
@@ -263,20 +262,20 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
        )
     {
       if (Dest!=Src)
-        strcpy(Dest,Src);
+        xstrncpy(Dest,Src,DestSize-1);
       return Result;
     }
   }
 
   SetFileApisTo(APIS2ANSI);
-  FAR_OemToChar(Src,AnsiName);
+  FAR_OemToCharBuff(Src,AnsiName,DestSize-1);
   /* $ 08.11.2000 SVS
      Вместо DestSize использовался sizeof(FullName)...
   */
   if(GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
-    FAR_CharToOem(FullName,Dest);
+    FAR_CharToOemBuff(FullName,Dest,DestSize-1);
   else
-    strcpy(Dest,Src);
+    xstrncpy(Dest,Src,DestSize-1);
 
   // это когда ввели в масдае cd //host/share
   // а масдай выдал на гора c:\\host\share

@@ -848,7 +848,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           CurCopiedSize=0;
           CopyTitle->Set(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
-          strncpy(NameTmp, NamePtr,SizeBuffer-1);
+          xstrncpy(NameTmp, NamePtr,SizeBuffer-1);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
 
           if(isalpha(NameTmp[0]) && NameTmp[1]==':' && !NameTmp[2])
@@ -1467,7 +1467,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     //if (Length > 1 && Dest[Length-1]=='\\' && Dest[Length-2]!=':') //??????????
     {
       char NewPath[NM*3];
-      strcpy(NewPath,Dest);
+      xstrncpy(NewPath,Dest,sizeof(NewPath)-1);
       char *Ptr=strrchr(NewPath,'\\');
       if(!Ptr)
         Ptr=strrchr(NewPath,'/');
@@ -1518,7 +1518,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL))
     {
       char FullDest[NM];
-      strcpy(FullDest,Dest);
+      xstrncpy(FullDest,Dest,sizeof(FullDest)-1);
       if(strpbrk(Dest,"*?")!=NULL)
         ShellCopyConvertWildcards(SelName,FullDest);
       DestAttr=GetFileAttributes(FullDest);
@@ -1535,7 +1535,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     }
 
     char DestPath[NM];
-    strcpy(DestPath,Dest);
+    xstrncpy(DestPath,Dest,sizeof(DestPath)-1);
     WIN32_FIND_DATA SrcData;
     int CopyCode=COPY_SUCCESS,KeepPathPos;
 
@@ -1978,7 +1978,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       return COPY_NEXT;
   }
 
-  strcpy(DestPath,Dest);
+  xstrncpy(DestPath,Dest,sizeof(DestPath)-1);
 
   SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   ShellCopyConvertWildcards(Src,DestPath);
@@ -2902,7 +2902,8 @@ void ShellCopy::PR_ShellCopyMsg(void)
   // // _LOGCOPYR(CleverSysLog clv("PR_ShellCopyMsg"));
   // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
   LastShowTime = 0;
-  ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  if(PreRedrawParam.Param1)
+    ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
@@ -2948,10 +2949,10 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 
   if (Src!=NULL)
   {
-    sprintf(SrcName,"%-46s",Src);
+    _snprintf(SrcName,sizeof(SrcName),"%-46s",Src);
     TruncPathStr(SrcName,46);
   }
-  sprintf(DestName,"%-46s",Dest);
+  _snprintf(DestName,sizeof(DestName),"%-46s",Dest);
   TruncPathStr(DestName,46);
 
   SetMessageHelp("CopyFiles");
@@ -4461,7 +4462,7 @@ char *ShellCopy::GetParentFolder(const char *Src, char *Dest, int LenDest)
   char *Ptr=strrchr(DestFullName,'\\');
   if(Ptr)
     *Ptr=0;
-  strncpy(Dest,DestFullName,LenDest);
+  xstrncpy(Dest,DestFullName,LenDest);
   return Dest;
 }
 
