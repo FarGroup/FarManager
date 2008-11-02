@@ -1336,9 +1336,7 @@ void Manager::RefreshCommit()
   {
     if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
-    RefreshedFrame->Refresh();
-    if (!RefreshedFrame)
-      return;
+    if (RefreshedFrame) RefreshedFrame->Refresh(); else return;
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
   }
   if (Opt.ViewerEditorClock &&
