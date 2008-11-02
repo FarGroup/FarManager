@@ -1,3 +1,14 @@
+Zeroes 3.11.2008 00:23:45 +0200 - build 577
+1. Падение FAR с exception
+
+например в случае, когда есть макрос:
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Esc]
+"Sequence"="$If (!APanel.Visible) F9 End Left Enter Down Enter Enter CtrlO $Else CtrlO F9 End Left Enter Down Enter Enter $End"
+
+и пытаемся зайти в архив RAR с зашифрованным заголовком (-hp) после запроса
+пароля жмем ESC несколько раз (примерно на 7й раз 100% FAR падает)
+
 svs 24.10.2008 10:11:19 +0300 - build 576
 
 1. Mantis#0000621: Макрос из плагина не отрабатывает, если тот вызван через функцию eval 
