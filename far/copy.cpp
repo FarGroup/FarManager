@@ -2570,6 +2570,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           SetFileAttributesW(strDestPath,DestAttr);
         return((COPY_CODES)CopyCode);
       }
+      else if(CopyCode == COPY_FAILURE)
+      {
+        SkipEncMode=-1;
+      }
 
       if(DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
         SetFileAttributesW(strDestPath,DestAttr);

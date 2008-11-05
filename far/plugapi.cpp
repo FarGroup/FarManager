@@ -509,18 +509,22 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
     case ACTL_SETCURRENTWINDOW:
     {
-      /* $ 15.05.2002 SKV
-        Запретим переключение фрэймов,
-        если находимся в модальном редакторе/вьюере.
-      */
-      if (FrameManager && !FrameManager->InModalEV() &&
-          FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
+      // Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
+      if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
       {
-        FrameManager->ActivateFrame((int)(INT_PTR)Param);
-        return TRUE;
+        int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+        // Запретим переключение фрэймов, если находимся в хелпе или диалоге (тоже модальных)
+        if(TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
+        {
+          Frame* PrevFrame = FrameManager->GetCurrentFrame();
+          FrameManager->ActivateFrame((int)(INT_PTR)Param);
+          FrameManager->DeactivateFrame(PrevFrame, 0);
+          return TRUE;
+        }
       }
       return FALSE;
     }
+
     /*$ 26.06.2001 SKV
       Для полноценной работы с ACTL_SETCURRENTWINDOW
       (и может еще для чего в будущем)
