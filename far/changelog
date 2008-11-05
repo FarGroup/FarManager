@@ -1,3 +1,7 @@
+drkns 05.11.2008 22:57:11 +0200 - build 579
+
+1. Обработка мультимедийной клавиши Sleep: макроклавиша "Sleep" + константа KEY_SLEEP.
+
 svs 05.11.2008 17:24:48 +0300 - build 578
 
 1. Mantis#0000622: После ACTL_SETCURRENTWINDOW (или ACTL_COMMIT?) не посылается EE_KILLFOCUS

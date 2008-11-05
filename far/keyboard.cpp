@@ -182,6 +182,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_ENTER,                5, L"Enter"},
   { KEY_CLEAR,                5, L"Clear"},
   { KEY_BREAK,                5, L"Break"},
+  { KEY_SLEEP,                5, L"Sleep"},
   { KEY_PGUP,                 4, L"PgUp"},
   { KEY_PGDN,                 4, L"PgDn"},
   { KEY_LEFT,                 4, L"Left"},
@@ -2364,6 +2365,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
         return(KEY_SHIFT|KEY_CTRLALT|KEY_MULTIPLY);
       case VK_CANCEL:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
+      case VK_SLEEP:
+        return KEY_SHIFT|KEY_CTRLALT|KEY_SLEEP;
     }
     if (Char.UnicodeChar)
       return((KEY_SHIFT|KEY_CTRL|KEY_ALT)+Char.UnicodeChar);
@@ -2417,6 +2420,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
         if(!ShiftPressed && (CtrlState&ENHANCED_KEY))
           return KEY_CTRLALT|KEY_PAUSE;
         return KEY_NONE;
+      case VK_SLEEP:
+        return KEY_CTRLALT|KEY_SLEEP;
     }
     if (Char.UnicodeChar)
       return((KEY_CTRL|KEY_ALT)+Char.UnicodeChar);
@@ -2489,6 +2494,8 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
           return(KEY_ALTSHIFT|KEY_MULTIPLY);
       case VK_PAUSE:
         return(KEY_ALTSHIFT|KEY_PAUSE);
+      case VK_SLEEP:
+        return KEY_ALTSHIFT|KEY_SLEEP;
     }
     if (Char.UnicodeChar)
     {
@@ -2528,6 +2535,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
         return(KEY_CTRLSHIFT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_CTRLSHIFT|KEY_MULTIPLY);
+      case VK_SLEEP:
+        return KEY_CTRLSHIFT|KEY_SLEEP;
     }
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
@@ -2575,6 +2584,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
         return(KEY_MULTIPLY);
       case VK_PAUSE:
         return(KEY_PAUSE);
+      case VK_SLEEP:
+        return KEY_SLEEP;
     }
   }
 
@@ -2610,6 +2621,8 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
         if(CtrlState&ENHANCED_KEY)
           return KEY_CTRL|KEY_NUMLOCK;
         return(KEY_BREAK);
+      case VK_SLEEP:
+        return KEY_CTRL|KEY_SLEEP;
     }
 
     if(Opt.ShiftsKeyRules) //???
@@ -2680,6 +2693,8 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
           return(KEY_ALT|KEY_MULTIPLY);
       case VK_PAUSE:
         return(KEY_ALT+KEY_PAUSE);
+      case VK_SLEEP:
+        return KEY_ALT|KEY_SLEEP;
     }
     if (Char.UnicodeChar)
     {
@@ -2714,6 +2729,8 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
         return(KEY_SHIFT|KEY_MULTIPLY);
       case VK_PAUSE:
         return(KEY_SHIFT|KEY_PAUSE);
+      case VK_SLEEP:
+        return KEY_SHIFT|KEY_SLEEP;
     }
 
   }
