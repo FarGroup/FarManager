@@ -179,6 +179,8 @@ enum BaseDefKeyboard
   KEY_MSWHEEL_LEFT         =0x0000020C,
   KEY_MSWHEEL_RIGHT        =0x0000020D,
 
+  KEY_SLEEP                =0x0000020E,
+
   KEY_VK_0xFF_BEGIN        =0x00000300,
 #ifdef FAR_USE_INTERNALS
 //  KEY_HP_INTERNET          =0x00000323,
