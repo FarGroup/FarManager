@@ -578,7 +578,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		// и покажем выбор типа ссылки
 		CopyDlg[ID_SC_LINKTYPE].Flags^=DIF_HIDDEN|DIF_DISABLE;
 		CopyDlg[ID_SC_LINKCOMBO].Flags^=DIF_HIDDEN|DIF_DISABLE;
-		
+
 		FarList LinkTypeList;
 		LinkTypeList.Items=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
 		LinkTypeList.ItemsNumber=4;
@@ -2736,6 +2736,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           SetFileAttributes(DestPath,DestAttr);
         _LOGCOPYR(SysLog("return CopyCode [%d] -> %d",CopyCode,__LINE__));
         return((COPY_CODES)CopyCode);
+      }
+      else if(CopyCode == COPY_FAILURE)
+      {
+        SkipEncMode=-1;
       }
 
       if(DestAttr!=-1 && Append)

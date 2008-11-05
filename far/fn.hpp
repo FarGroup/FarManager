@@ -838,6 +838,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _FCTLLOG(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_MANAGERLOG)
+#define _MANAGERLOG(x)  x
+#else
+#define _MANAGERLOG(x)
+#endif
+
 #if defined(_DEBUG) && defined(SYSLOG_ACTL)
 #define _ACTLLOG(x)  x
 #else

@@ -1694,6 +1694,7 @@ void Panel::ShowScreensCount()
 
 void Panel::SetTitle()
 {
+  _MANAGERLOG(CleverSysLog Clev("Panel::SetTitle()"));
   if (GetFocus())
   {
     char TitleDir[NM+16];

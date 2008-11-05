@@ -999,6 +999,7 @@ int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void FilePanels::ShowConsoleTitle()
 {
+  _MANAGERLOG(CleverSysLog Clev("FilePanels::ShowConsoleTitle()"));
   if (ActivePanel)
     ActivePanel->SetTitle();
 }

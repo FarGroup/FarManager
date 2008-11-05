@@ -248,6 +248,10 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #endif
 #endif
 
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#define _snprintf(a,b,c,d) sprintf(a,c,d)
+#endif
+
 #ifdef __GNUC__
 #define _i64(num)   num##ll
 #define _ui64(num)  num##ull

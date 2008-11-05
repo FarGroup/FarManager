@@ -39,6 +39,7 @@ syslog.cpp
      defined(SYSLOG_EE_REDRAW)      || \
      defined(SYSLOG_TREX)           || \
      defined(SYSLOG_KEYMACRO_PARSE) || \
+     defined(SYSLOG_MANAGERLOG)     || \
      defined(SYSLOG_YJH)
   #define SYSLOG
  #endif
@@ -1729,7 +1730,11 @@ const char *_ACTL_ToName(int Command)
     DEF_ACTL_(COMMIT),                 DEF_ACTL_(GETFARHWND),
     DEF_ACTL_(GETSYSTEMSETTINGS),      DEF_ACTL_(GETPANELSETTINGS),
     DEF_ACTL_(GETINTERFACESETTINGS),   DEF_ACTL_(GETCONFIRMATIONS),
-    DEF_ACTL_(GETDESCSETTINGS),
+    DEF_ACTL_(GETDESCSETTINGS),        DEF_ACTL_(SETARRAYCOLOR),
+    DEF_ACTL_(GETWCHARMODE),           DEF_ACTL_(GETPLUGINMAXREADDATA),
+    DEF_ACTL_(GETDIALOGSETTINGS),      DEF_ACTL_(GETSHORTWINDOWINFO),
+    DEF_ACTL_(REMOVEMEDIA),            DEF_ACTL_(GETMEDIATYPE),
+    DEF_ACTL_(GETPOLICIES),            DEF_ACTL_(REDRAWALL),
   };
   int I;
   static char Name[512];

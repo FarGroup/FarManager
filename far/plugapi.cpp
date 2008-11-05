@@ -52,7 +52,6 @@ int WINAPI FarInputBox(const char *Title,const char *Prompt,
    return GetString(Title,Prompt,HistoryName,SrcText,DestText,DestLength,
      HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
 }
-/* IS $ */
 
 /* $ 12.09.2000 SVS
   + Реализация флагов для вывода помощи.
@@ -110,7 +109,6 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
       }
       else
         return FALSE;
-      /* SVS $*/
 
       sprintf(Topic,HelpFormatLink,Path,HelpTopic);
     }
@@ -124,9 +122,6 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
   }
   return TRUE;
 }
-/* IS $ */
-/* tran 18.08.2000 $ */
-/* SVS 12.09.2000 $ */
 
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
@@ -186,7 +181,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       return FarAltEnter((int)(INT_PTR)Param);
     }
-    /* SVS $ */
 
     case ACTL_GETPLUGINMAXREADDATA:
     {
@@ -481,19 +475,22 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
     case ACTL_SETCURRENTWINDOW:
     {
-      /* $ 15.05.2002 SKV
-        Запретим переключение фрэймов,
-        если находимся в модальном редакторе/вьюере.
-      */
-      if (FrameManager && !FrameManager->InModalEV() &&
-          FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
+      // Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
+      if (FrameManager && !FrameManager->InModalEV() && FrameManager->operator[]((int)(INT_PTR)Param)!=NULL )
       {
-        FrameManager->ActivateFrame((int)(INT_PTR)Param);
-        return TRUE;
+        int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+        // Запретим переключение фрэймов, если находимся в хелпе или диалоге (тоже модальных)
+        if(TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
+        {
+          Frame* PrevFrame = FrameManager->GetCurrentFrame();
+          FrameManager->ActivateFrame((int)(INT_PTR)Param);
+          FrameManager->DeactivateFrame(PrevFrame, 0);
+          return TRUE;
+        }
       }
       return FALSE;
     }
-    /* tran 05.06.2001 $ */
+
     /*$ 26.06.2001 SKV
       Для полноценной работы с ACTL_SETCURRENTWINDOW
       (и может еще для чего в будущем)
@@ -502,7 +499,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       return FrameManager?FrameManager->PluginCommit():FALSE;
     }
-    /* SKV$*/
+
     /* $ 15.09.2001 tran
        пригодится плагинам */
     case ACTL_GETFARHWND:
@@ -511,7 +508,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         InitDetectWindowedMode();
       return (INT_PTR)hFarWnd;
     }
-    /* tran $ */
 
     case ACTL_GETDIALOGSETTINGS:
     {
@@ -651,7 +647,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-/* IS $ */
 
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
            DWORD Flags,const char *Title,const char *Bottom,
@@ -1017,7 +1012,7 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
   if(frame != NULL)
 //if(GetRegKey("System","TestLock",0) == 0)
     frame->Unlock(); // теперь можно :-)
- /* SKV $ */
+
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
   return(ExitCode);
@@ -1025,8 +1020,6 @@ int WINAPI FarDialogEx(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-/* SVS 13.12.2000 $ */
-/* SVS $ */
 
 const char* WINAPI FarGetMsgFn(INT_PTR PluginNumber,int MsgId)
 {
@@ -1171,7 +1164,6 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
       MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
   }
-  /* tran $ */
 
   // запоминаем топик
   if(PluginNumber != -1)
@@ -1550,7 +1542,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         return FALSE;
 
       DirListPlugin=*((struct PluginHandle *)Handle);
-      /* DJ $ */
     }
     else
     {
@@ -1648,8 +1639,6 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
   xstrncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
   DirListItemsNumber++;
 }
-
-/* DJ $ */
 
 
 void ScanPluginDir()
