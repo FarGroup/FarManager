@@ -12,7 +12,7 @@ void MkFileInfo( char *buff,int bsz,CONSTSTR title,LPFAR_FIND_DATA p )
 
     if ( p ) {
       //Size
-      FDigit( str,((__int64)p->nFileSizeHigh) * ((__int64)MAX_DWORD) + ((__int64)p->nFileSizeLow),14 );
+      FDigit( str,((__int64)p->nFileSizeHigh) << 32 | p->nFileSizeLow,14 );
       StrCat( buff,str,bsz );
 
       //Time

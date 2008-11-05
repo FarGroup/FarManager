@@ -286,7 +286,7 @@ __int64 DECLSPEC Fsize( CONSTSTR nm )
      if ( lo == MAX_DWORD )
        return 0;
       else
-       return ((__int64)hi) * ((__int64)MAX_DWORD) + ((__int64)lo);
+       return ((__int64)hi) << 32 | lo;
 }
 
 __int64 DECLSPEC Fsize( HANDLE File )
@@ -296,12 +296,12 @@ __int64 DECLSPEC Fsize( HANDLE File )
      if ( low == MAX_DWORD )
        return 0;
       else
-       return ((__int64)hi) * ((__int64)MAX_DWORD) + ((__int64)low);
+       return ((__int64)hi) << 32 | low;
 }
 
 BOOL DECLSPEC Fmove( HANDLE file,__int64 restart )
-  {  LONG lo = (LONG)( restart % ((__int64)MAX_DWORD) ),
-          hi = (LONG)( restart / ((__int64)MAX_DWORD) );
+  {  LONG lo = (DWORD)(restart & MAX_DWORD),
+          hi = (DWORD)((restart >> 32) & MAX_DWORD);
 
     if ( SetFilePointer( file,lo,&hi,FILE_BEGIN ) == 0xFFFFFFFF &&
          GetLastError() != NO_ERROR )
@@ -344,8 +344,11 @@ HANDLE DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/, DWORD attr )
 
      do{
        if ( toupper(mode[0]) == 'A' || mode[1] == '+' )
-         if ( SetFilePointer(h,0,NULL,FILE_END) == 0xFFFFFFFF )
+	   {
+	     LONG nHighPart = 0;
+         if ( (SetFilePointer(h,0,&nHighPart,FILE_END) == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR) )
            break;
+	   }
 
        if ( !rd )
          SetEndOfFile(h);  //Ignore SetEndOfFile result in case of use with CON, NUL and others

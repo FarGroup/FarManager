@@ -216,8 +216,7 @@ void TrafficInformation::Init( HANDLE h,int tMsg,int OpMode,PFP_SizeItemList il 
       for ( int i = 0; i < il->Count(); i++ )
         if ( !IS_FLAG(il->List[i].FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) &&
              il->List[i].FindData.dwReserved1 != MAX_DWORD ) {
-          TotalFullSize += ((__int64)il->List[i].FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) +
-                           ((__int64)il->List[i].FindData.nFileSizeLow);
+          TotalFullSize += ((__int64)il->List[i].FindData.nFileSizeHigh) << 32 | il->List[i].FindData.nFileSizeLow;
           TotalFiles++;
         }
 }
@@ -268,8 +267,7 @@ void TrafficInformation::Resume( CONSTSTR nm )
      }
      FindClose(ff);
 
-     StartFileSize   = ((__int64)ffi.nFileSizeHigh) * ((__int64)MAX_DWORD) +
-                       ((__int64)ffi.nFileSizeLow);
+     StartFileSize   = ((__int64)ffi.nFileSizeHigh) << 32 | ffi.nFileSizeLow;
      FileSize        = 0;
 }
 

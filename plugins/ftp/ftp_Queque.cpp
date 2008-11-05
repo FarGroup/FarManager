@@ -503,8 +503,8 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
          if ( FRealFile(ci.DestPath.c_str(),&fd) ) {
            if ( fsz != -1 ) {
              ffd = fd;
-             ffd.nFileSizeHigh = (DWORD)( fsz / ((__int64)MAX_DWORD) );
-             ffd.nFileSizeLow  = (DWORD)( fsz % ((__int64)MAX_DWORD) );
+             ffd.nFileSizeHigh = (DWORD)((fsz >> 32) & MAX_DWORD);
+             ffd.nFileSizeLow  = (DWORD)(fsz & MAX_DWORD);
              ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, &ffd, ci.MsgCode );
            } else
              ci.MsgCode  = AskOverwrite( MDownloadTitle, TRUE, &fd, NULL, ci.MsgCode );
@@ -549,8 +549,8 @@ void FTP::ExecuteQueueINT( PQueueExecOptions op )
 
          if ( fsz != -1 ) {
            ffd = fd;
-           ffd.nFileSizeHigh = (DWORD)(fsz / ((__int64)MAX_DWORD));
-           ffd.nFileSizeLow  = (DWORD)(fsz % ((__int64)MAX_DWORD));
+           ffd.nFileSizeHigh = (DWORD)((fsz >> 32) & MAX_DWORD);
+           ffd.nFileSizeLow  = (DWORD)(fsz & MAX_DWORD);
            ci.MsgCode  = AskOverwrite( MUploadTitle, FALSE, &ffd, &fd, ci.MsgCode );
 
            switch( ci.MsgCode ) {

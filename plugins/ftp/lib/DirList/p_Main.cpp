@@ -146,8 +146,8 @@ BOOL ConvertEntry( PNET_FileEntryInfo inf, PFTPFileInfo p )
        return FALSE;
 
 //Size
-     p->FindData.nFileSizeHigh = (DWORD)( inf->size / MAX_DWORD );
-     p->FindData.nFileSizeLow  = (DWORD)( inf->size % MAX_DWORD );
+     p->FindData.nFileSizeHigh = (DWORD)((inf->size >> 32) & MAX_DWORD);
+     p->FindData.nFileSizeLow  = (DWORD)(inf->size & MAX_DWORD);
 
  return TRUE;
 }

@@ -171,7 +171,7 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
 
     if ( ci.UploadLowCase && !IS_FLAG(SrcAttr,FILE_ATTRIBUTE_DIRECTORY) ) {
       char *Name = PointToName(CurName);
-      if ( !IsCaseMixed(Name))
+      //if ( !IsCaseMixed(Name))
         LocalLower(Name);
     }
 
@@ -207,8 +207,8 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
       } else
       if ( (sz=FtpFileSize(hConnect,DestName.c_str())) != -1 ) {
         FindData.FindData = il.List[I].FindData;
-        FindData.FindData.nFileSizeHigh = ((DWORD) (sz / ((__int64)MAX_DWORD)) );
-        FindData.FindData.nFileSizeLow  = ((DWORD) (sz % ((__int64)MAX_DWORD)) );
+        FindData.FindData.nFileSizeHigh = (DWORD)((sz >> 32) & MAX_DWORD);
+        FindData.FindData.nFileSizeLow  = (DWORD)(sz & MAX_DWORD);
         DestAttr = 0;
         break;
       } else

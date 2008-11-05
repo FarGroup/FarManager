@@ -83,7 +83,7 @@ void Connection::sendrequestINT(char *cmd, char *local, char *remote )
 
   if ( Host.SendAllo ) {
     if ( cmd[0] != Opt.cmdAppe[0] ) {
-      __int64 v = ((__int64)ffi.nFileSizeHigh) * MAXDWORD + ffi.nFileSizeLow;
+      __int64 v = ((__int64)ffi.nFileSizeHigh) << 32 | ffi.nFileSizeLow;
       Log(( "ALLO %I64u", v ));
       if ( command("%s %I64u",Opt.cmdAllo,v) != RPL_COMPLETE ) {
         Log(( "!allo" ));

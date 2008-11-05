@@ -271,8 +271,7 @@ int FTP::ExpandListINT( PluginPanelItem *pi,int icn,PFP_SizeItemList il,BOOL Fro
           return FALSE;
 
         if ( il ) {
-          il->TotalFullSize += ((__int64)pi[n].FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) +
-                               ((__int64)pi[n].FindData.nFileSizeLow);
+          il->TotalFullSize += ((__int64)pi[n].FindData.nFileSizeHigh) << 32 | pi[n].FindData.nFileSizeLow;
           il->TotalFiles++;
 
           //Add
@@ -339,8 +338,8 @@ int FTP::ExpandListINT( PluginPanelItem *pi,int icn,PFP_SizeItemList il,BOOL Fro
           if ( num != -1 && res ) {
             lSz = il->TotalFullSize - lSz;
             lCn = il->TotalFiles    - lCn;
-            il->Item(num)->FindData.nFileSizeHigh = (DWORD)(lSz / ((__int64)MAX_DWORD));
-            il->Item(num)->FindData.nFileSizeLow  = (DWORD)(lSz % ((__int64)MAX_DWORD));
+            il->Item(num)->FindData.nFileSizeHigh = (DWORD)((lSz >> 32) & MAX_DWORD);
+            il->Item(num)->FindData.nFileSizeLow  = (DWORD)(lSz & MAX_DWORD);
             il->Item(num)->FindData.dwReserved0   = (DWORD)lCn;
           }
         FTP_FreeFindData( DirPanelItem,DirItemsNumber,FromPlugin );

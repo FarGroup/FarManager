@@ -12,16 +12,29 @@
  24-hours style
  * 04-06-95  02:03
  * 07-13-95  11:39
+ 
+ 12-hours style
+ * 04-06-1995  02:03PM
+ * 07-13-1995  11:39AM
+
+ 24-hours style
+ * 04-06-1995  02:03
+ * 07-13-1995  11:39
+
  */
 BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
   {
     SYSTEMTIME st;
+	int offset = 0;
     GetSystemTime(&st);
     st.wMilliseconds = 0;
-
+	Log(( "datestr %s", datestr));
+	if(datestr[10] == ' ')
+		offset = 2;
+    Log(( "offset %d", offset));
     //Check format
-    CHECK( (datestr[2] != '-' || datestr[5] != '-' || datestr[8] != ' '), FALSE )
-    CHECK( (datestr[12] != ':'), FALSE )
+    CHECK( (datestr[2] != '-' || datestr[5] != '-' || datestr[8+offset] != ' '), FALSE )
+    CHECK( (datestr[12+offset] != ':'), FALSE )
 
     //Date
     if ( datestr[0] == ' ' )
@@ -31,16 +44,22 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
 
     st.wDay = ((datestr[3]-'0')*10) + (datestr[4]-'0');
 
-    st.wYear = ((datestr[6]-'0')*10) + (datestr[7]-'0');
-    if ( st.wYear < 50 )
-      st.wYear += 100;
-    st.wYear += 1900;
+    
+	if(offset !=0 ) {
+		st.wYear = ((datestr[6]-'0')*1000) + ((datestr[7]-'0')*100)+((datestr[8]-'0')*10)+((datestr[9]-'0'));
+	} else {
+		st.wYear = ((datestr[6]-'0')*10) + (datestr[7]-'0');
+        if ( st.wYear < 50 )
+          st.wYear += 100;
+        st.wYear += 1900;
+    }
+
 
     //Time
-    st.wHour   = ((datestr[10]-'0')*10) + (datestr[11]-'0');
-    st.wMinute = ((datestr[13]-'0')*10) + (datestr[14]-'0');
+    st.wHour   = ((datestr[10+offset]-'0')*10) + (datestr[11+offset]-'0');
+    st.wMinute = ((datestr[13+offset]-'0')*10) + (datestr[14+offset]-'0');
 
-    if(datestr[15] == 'P')
+    if(datestr[15+offset] == 'P')
       st.wHour += 12;
 
     st.wDayOfWeek = 0;
@@ -61,7 +80,11 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
  *  012345678901234567890123456789012345678901234567890
  *  06-29-95  03:05PM       <DIR>          muntemp
  *  05-02-95  10:03AM               961590 naxp11e.zip
- *
+ *  05-17-2007  07:58PM       <DIR>          muntemp
+ *  09-09-2008  03:50AM                 1506 naxp11e.zip
+ *  04-06-1995  02:03
+ *  07-13-1995  11:39
+
  *  The date time directory indicator and FindData.cFileName
  *  are always in a fixed position.  The file
  *  size always ends at position 37.
@@ -69,13 +92,16 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
 BOOL DECLSPEC idPRParceDos( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
   {  NET_FileEntryInfo  entry_info;
      char              *e, *m;
+	int offset = 0;
+	if(entry[10] == ' ')
+		offset = 2;
 
-     CHECK( (entry_len < 39 || entry[17] != ' '), FALSE )
+     CHECK( (entry_len < 39+offset || entry[17+offset]!=' '), FALSE )
 
      CHECK( (!net_parse_dos_date_time(entry, entry_info.date )), FALSE )
 
      // <DIR> | digits
-     e = SkipSpace( SkipNSpace( entry+15 ) );
+     e = SkipSpace( SkipNSpace( entry+15) );
 
      if( StrCmp(e, "<DIR> ",5,FALSE) == 0 ) {
        entry_info.FileType = NET_DIRECTORY;

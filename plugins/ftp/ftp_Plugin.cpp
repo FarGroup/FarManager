@@ -284,7 +284,7 @@ void FTPProgress::InitFile( PluginPanelItem *pi, CONSTSTR SrcName, CONSTSTR Dest
   {
     __int64 sz;
     if ( pi )
-      sz = ((__int64)pi->FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) + ((__int64)pi->FindData.nFileSizeLow);
+      sz = ((__int64)pi->FindData.nFileSizeHigh) << 32 | pi->FindData.nFileSizeLow;
      else
       sz = 0;
     InitFile( sz, SrcName, DestName);
@@ -294,7 +294,7 @@ void FTPProgress::InitFile( LPFAR_FIND_DATA pi, CONSTSTR SrcName, CONSTSTR DestN
   {
     __int64 sz;
     if ( pi )
-      sz = ((__int64)pi->nFileSizeHigh) * ((__int64)MAX_DWORD) + ((__int64)pi->nFileSizeLow);
+      sz = ((__int64)pi->nFileSizeHigh) << 32 | pi->nFileSizeLow;
      else
       sz = 0;
     InitFile( sz, SrcName, DestName);

@@ -129,8 +129,7 @@ void FTP::SaveList( PFP_SizeItemList il )
            if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) )
              fprintf( f,"<DIR>" );
             else
-             fprintf( f,"%10I64u",
-                      ((__int64)p->FindData.nFileSizeHigh) * MAX_DWORD + ((__int64)p->FindData.nFileSizeLow) );
+             fprintf( f,"%10I64u", ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow );
          }
          fprintf( f,"\n" );
 
@@ -159,7 +158,7 @@ void FTP::SaveList( PFP_SizeItemList il )
            level = Max( 1, Opt.sli.RightBound - 10 - (int)strlen(m) - 1 );
            fprintf( f,"%*c%10I64u",
                     level,' ',
-                    ((__int64)p->FindData.nFileSizeHigh) * MAX_DWORD + ((__int64)p->FindData.nFileSizeLow) );
+                    ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow );
          }
          fprintf( f,"\n" );
        }
@@ -211,9 +210,7 @@ BOOL FTP::ShowFilesList( PFP_SizeItemList il )
 
      for ( n = 0; n < cn; n++ ) {
        p = il->Item( MNUM(mi[n]) );
-       FDigit( str,
-               ((__int64)p->FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) + ((__int64)p->FindData.nFileSizeLow),
-               -1 );
+       FDigit( str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1 );
        szSize = Max( strLen(str),szSize );
 
        if ( IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
@@ -248,9 +245,7 @@ BOOL FTP::ShowFilesList( PFP_SizeItemList il )
          *(m++) = ' ';
          *(m++) = FAR_VERT_CHAR;
          *(m++) = ' ';
-         FDigit( str,
-                 ((__int64)p->FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) + ((__int64)p->FindData.nFileSizeLow),
-                 -1 );
+         FDigit( str, ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow, -1 );
          m += Sprintf( m,"%*s",szSize,str );
        }
 
@@ -280,8 +275,7 @@ BOOL FTP::ShowFilesList( PFP_SizeItemList il )
          p = il->Item( MNUM(mi[n]) );
          if ( p->FindData.dwReserved1 != MAX_DWORD &&
               !IS_FLAG(p->FindData.dwFileAttributes,FILE_ATTRIBUTE_DIRECTORY) ) {
-           tsz += ((__int64)p->FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) +
-                  ((__int64)p->FindData.nFileSizeLow);
+           tsz += ((__int64)p->FindData.nFileSizeHigh) << 32 | p->FindData.nFileSizeLow;
            tcn++;
          }
        }
