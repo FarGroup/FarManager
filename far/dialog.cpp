@@ -1472,7 +1472,7 @@ void Dialog::ShowDialog(int ID)
     }
 
     //   перед прорисовкой подложки окна диалога...
-    if(!DialogMode.Check(DMODE_SMALLDIALOG|DMODE_NODRAWSHADOW))
+    if(!DialogMode.Check(DMODE_NODRAWSHADOW))
       Shadow();              // ... "наводим" тень
 
     if(!DialogMode.Check(DMODE_NODRAWPANEL))
