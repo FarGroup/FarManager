@@ -588,7 +588,6 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   bool bInc=false;
   bool bFolder=(fd->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
   FileFilterParams *CurFilterData;
-  DWORD AttrSet;
   DWORD Flags;
 
   for (unsigned int i=0; i<FilterData.getCount(); i++)
@@ -605,8 +604,9 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       {
         bAnyIncludeFound = true;
 
-        if (CurFilterData->GetAttr(&AttrSet,NULL))
-          bAnyFolderIncludeFound = bAnyFolderIncludeFound || (AttrSet&FILE_ATTRIBUTE_DIRECTORY);
+        DWORD AttrClear;
+        if (CurFilterData->GetAttr(NULL,&AttrClear))
+          bAnyFolderIncludeFound = bAnyFolderIncludeFound || !(AttrClear&FILE_ATTRIBUTE_DIRECTORY);
       }
 
       if (CurFilterData->FileInFilter(fd, CurrentTime))
