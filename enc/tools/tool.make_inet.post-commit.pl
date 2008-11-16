@@ -15,8 +15,8 @@ use Carp;
 # Configuration section.
 
 # Svnlook path.
-my $svnlook = "/usr/local/bin/svnlook";
-my $svn = "/usr/local/bin/svn";
+my $svnlook = "/usr/bin/svnlook";
+my $svn = "/usr/bin/svn";
 my $sendmail = "/usr/sbin/sendmail";
 
 # End of Configuration section.
@@ -329,9 +329,9 @@ system "rm -Rf ".$dest_dr_inet;
 system "chmod -R g+w ".$dest_dr."/*";
 
 #notify by mail of site update
-my $userlist = "trexinc\@gmail.com vskirdin\@mail.ru";
+my $userlist = "trexinc\@gmail.com vskirdin\@gmail.com";
 my @head;
-push(@head, "To: trexinc\@gmail.com, vskirdin\@mail.ru\n");
+push(@head, "To: trexinc\@gmail.com, vskirdin\@gmail.com\n");
 push(@head, "From: svn\@farmanager.com\n");
 push(@head, "Subject: FAR-SVN: api.farmanager.com was updated!\n");
 push(@head, "Content-Type: text/plain; charset=windows-1251\n");
