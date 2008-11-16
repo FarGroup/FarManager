@@ -471,7 +471,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
         strWorkName += PtrExt;
 
 			DWORD dwFileAttr = GetFileAttributesW(strWorkName);
-			if ((dwFileAttr != INVALID_FILE_ATTRIBUTES) && (dwFileAttr & FILE_ATTRIBUTE_DIRECTORY == 0))
+			if ((dwFileAttr != INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
         ConvertNameToFull (strWorkName, strFullName);
         Ret=TRUE;
