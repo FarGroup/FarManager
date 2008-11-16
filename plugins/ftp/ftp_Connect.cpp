@@ -451,7 +451,7 @@ int encode_UTF8(WCHAR *ws, int wsz, char *utf8s, int sz)
     char *s;
 
     s = utf8s;
-    while(*ws && i<sz && iw<wsz) {
+    while(iw<wsz && *ws && i<sz) {
         if(*ws <= 0x007F) {                 /* 1 octet */
             *s++ = (char)*ws;
             i++;

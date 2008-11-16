@@ -1,3 +1,7 @@
+t-rex 16.11.2008 18:23:31 +0200 - build 252
+
+1. From DiRTy_GaRRy: Mantis#629: ACCESS_VIOLATION override file or enter to folder.
+
 svs 10.11.2008 11:39:57 +0300 - build 251
 
 1. Mantis#0000630: Для VS проекта в release-конфигурациях субплагинов генерируются pdb-файлы
