@@ -42,9 +42,13 @@ void WINAPI GetOpenPluginInfo(
 
 <h3>Remarks</h3>
 <div class=descr>
-The <a href="../structures/openplugininfo.html">OpenPluginInfo</a> structure passed
+<ol>
+<li>The <a href="../structures/openplugininfo.html">OpenPluginInfo</a> structure passed
 to this function is already filled with zeros.
-The plugin is required to fill the OpenPluginInfo.StructSize field.
+The plugin is required to fill the OpenPluginInfo.StructSize field.</li>
+<li>FAR вызывает функцию GetOpenPluginInfo достаточно часто, поэтому при проектировании
+плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
+</ol>
 </div>
 
 <div class=see>See also:</div><div class=seecont>

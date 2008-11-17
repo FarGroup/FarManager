@@ -5,15 +5,6 @@
 <title>GetPluginInfo</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
-
-<!-- History of modification:
-
- Date: Oct 30 1999
-   Author: Valentin Skirdin
-   E-mail: vskirdin@mail.ru
-
--->
 </head>
 
 <body>
@@ -65,6 +56,8 @@ void WINAPI GetPluginInfo(
 <li>Структура <a href="../structures/plugininfo.html">PluginInfo</a>,
     передаваемая функции <dfn>GetPluginInfo</dfn>, уже заполнена 0.
     Плагин обязательно должен заполнить поле PluginInfo.StructSize</li>
+<li>FAR вызывает функцию GetPluginInfo достаточно часто, поэтому при проектировании
+плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
 </ol>
 </div>
 

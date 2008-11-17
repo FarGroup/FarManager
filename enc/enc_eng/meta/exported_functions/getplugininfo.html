@@ -5,7 +5,6 @@
 <title>GetPluginInfo</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -54,6 +53,8 @@ should not be done within it.</li>
 <li>The <a href="../structures/plugininfo.html">PluginInfo</a> structure passed
 to this function is already filled with zeros.
 The plugin is required to fill the StructSize field of the structure.
+<li>FAR вызывает функцию GetPluginInfo достаточно часто, поэтому при проектировании
+плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
 </li>
 </ol>
 </div>

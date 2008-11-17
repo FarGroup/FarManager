@@ -54,9 +54,13 @@ void WINAPI GetOpenPluginInfo(
 
 <h3>Замечания</h3>
 <div class=descr>
-Структура <a  href="../structures/openplugininfo.html">OpenPluginInfo</a>,
+<ol>
+<li>Структура <a  href="../structures/openplugininfo.html">OpenPluginInfo</a>,
     передаваемая функции <dfn>GetOpenPluginInfo</dfn>, уже заполнена 0.
     Плагин обязательно должен заполнить поле OpenPluginInfo.StructSize</li>
+<li>FAR вызывает функцию GetOpenPluginInfo достаточно часто, поэтому при проектировании
+плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
+</ol>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
