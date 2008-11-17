@@ -238,7 +238,7 @@ DEFINES=\
 	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
 CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FAR_ALPHA_VERSION) $(FARSYSLOG) $(FARTRY) $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
-CPP_PROJ_RELEASE=/MT /O1
+CPP_PROJ_RELEASE=/MT /O2
 CPP_PROJ_DEBUG=/MTd /Od /Zi
 
 LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" $(NODEFAULTLIB) /pdb:"$(OUTDIR)\far.pdb" /release

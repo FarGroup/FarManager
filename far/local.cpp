@@ -317,7 +317,7 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 /*---------------------------------------*/
 int __cdecl StrLength(const wchar_t *str)
 {
-	return lstrlenW(str);
+	return (int) wcslen(str);
 }
 
 

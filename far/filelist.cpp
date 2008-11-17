@@ -266,17 +266,14 @@ int _cdecl SortList(const void *el1,const void *el2)
 {
   int RetCode;
   __int64 RetCode64;
-  const wchar_t *ChPtr1,*ChPtr2;
+  const wchar_t *Ext1,*Ext2;
   struct FileListItem *SPtr1,*SPtr2;
   SPtr1=((FileListItem **)el1)[0];
   SPtr2=((FileListItem **)el2)[0];
 
-  const wchar_t *Name1=PointToName(SPtr1->strName);
-  const wchar_t *Name2=PointToName(SPtr2->strName);
-
-  if (Name1[0]==L'.' && Name1[1]==L'.' && Name1[2]==0)
+  if (SPtr1->strName.GetLength() == 2 && SPtr1->strName[0]==L'.' && SPtr1->strName[1]==L'.')
     return(-1);
-  if (Name2[0]==L'.' && Name2[1]==L'.' && Name2[2]==0)
+  if (SPtr2->strName.GetLength() == 2 && SPtr2->strName[0]==L'.' && SPtr2->strName[1]==L'.')
     return(1);
 
   if (ListSortMode==UNSORTED)
@@ -326,19 +323,15 @@ int _cdecl SortList(const void *el1,const void *el2)
         break;
 
       case BY_EXT:
-        ChPtr1=wcsrchr(*Name1 ? Name1+1:Name1,L'.');
-        ChPtr2=wcsrchr(*Name2 ? Name2+1:Name2,L'.');
-        if (ChPtr1==NULL && ChPtr2==NULL)
+        Ext1=PointToExt(SPtr1->strName);
+        Ext2=PointToExt(SPtr2->strName);
+        if (Ext1==NULL && Ext2==NULL)
           break;
-        if (ChPtr1==NULL)
+        if (Ext1==NULL)
           return(-ListSortOrder);
-        if (ChPtr2==NULL)
+        if (Ext2==NULL)
           return(ListSortOrder);
-        if (*(ChPtr1+1)==L'.')
-          return(-ListSortOrder);
-        if (*(ChPtr2+1)==L'.')
-          return(ListSortOrder);
-        RetCode=ListSortOrder*StrCmpI(ChPtr1+1,ChPtr2+1);
+        RetCode=ListSortOrder*StrCmpI(Ext1+1,Ext2+1);
         if(RetCode)
           return RetCode;
         break;
@@ -394,6 +387,8 @@ int _cdecl SortList(const void *el1,const void *el2)
 
   int NameCmp;
 
+  const wchar_t *Name1=PointToName(SPtr1->strName);
+  const wchar_t *Name2=PointToName(SPtr2->strName);
   if(!ListNumericSort)
     NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
   else

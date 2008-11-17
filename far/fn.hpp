@@ -557,6 +557,7 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wcha
 
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
+const wchar_t* PointToExt(const wchar_t *lpwszPath);
 
 BOOL  TestParentFolderName(const wchar_t *Name);
 

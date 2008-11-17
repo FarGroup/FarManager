@@ -103,15 +103,15 @@ const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
     return NULL;
 
   const wchar_t *lpwszNamePtr = lpwszPath;
+  while ( *lpwszNamePtr ) lpwszNamePtr++;
 
-  while ( *lpwszPath )
+  while (lpwszNamePtr != lpwszPath)
   {
-    if ( *lpwszPath==L'\\' || *lpwszPath==L'/' || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
-      lpwszNamePtr = lpwszPath+1;
-
-    lpwszPath++;
+    if ( *lpwszNamePtr==L'\\' || *lpwszNamePtr==L'/' || (*lpwszNamePtr==L':' && lpwszNamePtr == lpwszPath+1) )
+      return lpwszNamePtr+1;
+    lpwszNamePtr--;
   }
-  return lpwszNamePtr;
+  return lpwszPath;
 }
 
 
@@ -137,6 +137,31 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
     ++Path;
   }
   return ((*NamePtr)?NamePtr:prevNamePtr);
+}
+
+const wchar_t* PointToExt(const wchar_t *lpwszPath)
+{
+  if ( !lpwszPath )
+    return NULL;
+
+  const wchar_t *lpwszEndPtr = lpwszPath;
+  while ( *lpwszEndPtr ) lpwszEndPtr++;
+  const wchar_t *lpwszExtPtr = lpwszEndPtr;
+
+  while (lpwszExtPtr != lpwszPath)
+  {
+    if ( *lpwszExtPtr==L'.' )
+    {
+      if ( *(lpwszExtPtr-1)==L'\\' || *(lpwszExtPtr-1)==L'/' || *(lpwszExtPtr-1)==L':' )
+        return lpwszEndPtr;
+      else
+        return lpwszExtPtr;
+    }
+    if ( *lpwszExtPtr==L'\\' || *lpwszExtPtr==L'/' || *lpwszExtPtr==L':' )
+      return lpwszEndPtr;
+    lpwszExtPtr--;
+  }
+  return lpwszEndPtr;
 }
 
 
