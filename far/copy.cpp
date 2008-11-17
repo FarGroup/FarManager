@@ -29,6 +29,7 @@ copy.cpp
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 #include "filefilter.hpp"
+#include "fileview.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -3822,12 +3823,115 @@ void ShellCopy::SetDestDizPath(const char *DestPath)
   }
 }
 
+#define WARN_DLG_HEIGHT 13
+#define WARN_DLG_WIDTH 68
+
+enum WarnDlgItems
+{
+	WDLG_BORDER,
+	WDLG_TEXT,
+	WDLG_FILENAME,
+	WDLG_SEPARATOR,
+	WDLG_SRCFILEBTN,
+	WDLG_DSTFILEBTN,
+	WDLG_SEPARATOR2,
+	WDLG_CHECKBOX,
+	WDLG_SEPARATOR3,
+	WDLG_OVERWRITE,
+	WDLG_SKIP,
+	WDLG_APPEND,
+	WDLG_CANCEL,
+
+};
+
+#define DM_OPENVIEWER DM_USER+33
+
+LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	switch(Msg)
+	{
+	case DM_OPENVIEWER:
+		{
+			LPCSTR ViewName=NULL;
+			LPCSTR* WFN=(LPCSTR*)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+			if(WFN)
+			{
+				switch(Param1)
+				{
+				case WDLG_SRCFILEBTN:
+					ViewName=WFN[0];
+					break;
+				case WDLG_DSTFILEBTN:
+					ViewName=WFN[1];
+					break;
+				}
+				FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,NULL,NULL,FALSE);
+				Viewer.SetDynamicallyBorn(FALSE);
+				FrameManager->EnterModalEV();
+				FrameManager->ExecuteModal();
+				FrameManager->ExitModalEV();
+				FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+			}
+		}
+		break;
+	case DN_CTLCOLORDLGITEM:
+		{
+			if(Param1==WDLG_FILENAME)
+			{
+				FarDialogItem di;
+				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
+				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
+				return Param2&0xFF00FF00|Color<<16|Color;
+			}
+		}
+		break;
+	case DN_BTNCLICK:
+		{
+			if(Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN)
+			{
+				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+			}
+		}
+		break;
+	case DN_KEY:
+		{
+			if((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
+			{
+				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+			}
+		}
+		break;
+
+	}
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
                const char *DestName, DWORD DestAttr,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
 {
+	DialogData WarnCopyDlgData[]=
+	{
+		/* 00 */  DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,0,0,0,MSG(MWarning),
+		/* 01 */  DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,0,DIF_CENTERTEXT,0,MSG(MCopyFileExist),
+		/* 02 */  DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,0,DIF_READONLY,0,(char*)DestName,
+		/* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+
+		/* 04 */  DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
+		/* 05 */  DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
+
+		/* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+
+		/* 07 */  DI_CHECKBOX,5,8,0,8,0,0,0,0,MSG(MCopyRememberChoice),
+		/* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+
+		/* 09 */  DI_BUTTON,0,10,0,10,1,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
+		/* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopySkipOvr),
+		/* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),0,MSG(MCopyAppend),
+		/* 12 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyCancelOvr),
+	};
+
   WIN32_FIND_DATA DestData={0};
   int DestDataFilled=FALSE;
 
@@ -3886,22 +3990,41 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 
         char DateText[20],TimeText[20];
         ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
-        sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
+        sprintf(SrcFileStr,"%-17s %20.20s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
         ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
-        sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
+        sprintf(DestFileStr,"%-17s %20.20s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
-        SetMessageHelp("CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
-                MSG(MCopyFileExist),DestName,"\x1",SrcFileStr,DestFileStr,
-                "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
-                MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
-                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
-                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
-                AskAppend==1?MSG(MCopyCancelOvr):NULL);
-        if((!AskAppend && MsgCode==4)||AskAppend>1 && MsgCode==5)
-          MsgCode=6;
+		WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
+		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
+
+		MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
+		char SrcName[2*NM];
+		ConvertNameToFull(SrcData.cFileName,SrcName,sizeof(SrcName));
+		LPCSTR WFN[2]={SrcName,DestName};
+		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
+		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
+		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+		WarnDlg.SetHelp("CopyFiles");
+		WarnDlg.Process();
+
+		switch(WarnDlg.GetExitCode())
+		{
+		case WDLG_OVERWRITE:
+			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
+			break;
+		case WDLG_SKIP:
+			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
+			break;
+		case WDLG_APPEND:
+			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?5:4;
+			break;
+		case -1:
+		case -2:
+		case WDLG_CANCEL:
+			MsgCode=6;
+			break;
+		}
       }
-      /* SVS $*/
     }
   }
 
@@ -3956,20 +4079,41 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         _i64toa(DestSize,DestSizeText,10);
 
         ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
-        sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
+        sprintf(SrcFileStr,"%-17s %20.20s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
         ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
-        sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
+        sprintf(DestFileStr,"%-17s %20.20s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
-        SetMessageHelp("CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend?(AskAppend==1?7:6):5,MSG(MWarning),
-                MSG(MCopyFileRO),DestName,"\x1",SrcFileStr,DestFileStr,
-                "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
-                MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
-                AskAppend?(AskAppend==1?MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
-                AskAppend?(AskAppend==1?MSG(MCopyAppendAll):MSG(MCopyCancelOvr)):NULL,
-                AskAppend==1?MSG(MCopyCancelOvr):NULL);
-        if((!AskAppend && MsgCode==4)||AskAppend>1 && MsgCode==5)
-          MsgCode=6;
+		WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
+		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
+
+		WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
+		WarnCopyDlgData[WDLG_OVERWRITE].Data=MSG(MCopyContinue);
+		WarnCopyDlgData[WDLG_APPEND].Flags|=DIF_DISABLE|DIF_HIDDEN;
+
+		MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
+		char SrcName[2*NM];
+		ConvertNameToFull(SrcData.cFileName,SrcName,sizeof(SrcName));
+		LPCSTR WFN[2]={SrcName,DestName};
+		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
+		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
+		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+		WarnDlg.SetHelp("CopyFiles");
+		WarnDlg.Process();
+
+		switch(WarnDlg.GetExitCode())
+		{
+		case WDLG_OVERWRITE:
+			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
+			break;
+		case WDLG_SKIP:
+			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
+			break;
+		case -1:
+		case -2:
+		case WDLG_CANCEL:
+			MsgCode=6;
+			break;
+		}
       }
     switch(MsgCode)
     {
@@ -3983,15 +4127,6 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         ReadOnlyOvrMode=3;
         RetCode=COPY_NEXT;
         return(FALSE);
-      case 4:
-        ReadOnlyOvrMode=1;
-        Append=TRUE;
-        break;
-      case 5:
-        Append=TRUE;
-        ReadOnlyOvrMode=5;
-        RetCode=COPY_NEXT;
-        break;
       case -1:
       case -2:
       case 6:

@@ -2129,7 +2129,8 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   {
     strcpy(SetDir, CurDir+4);
   }
-  PrepareDiskPath(SetDir,sizeof(SetDir)-1);
+  if(PanelMode!=PLUGIN_PANEL)
+    PrepareDiskPath(SetDir,sizeof(SetDir)-1);
 
   if (!TestParentFolderName(SetDir) && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;

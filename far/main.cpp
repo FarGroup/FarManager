@@ -213,7 +213,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         strcpy(Path,DestName1);
         *PointToNameUNC(Path)=0;
         DeleteEndSlash(Path); // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
-        if(Path[1]==':' && !Path[2])
+        if((Path[1]==':' && !Path[2]) || (PathPrefix(Path) && Path[5]==':' && !Path[6]))
           AddEndSlash(Path);
 
         // Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
@@ -236,7 +236,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
           strcpy(Path,DestName2);
           *PointToNameUNC(Path)=0;
           DeleteEndSlash(Path);
-          if(Path[1]==':' && !Path[2])
+          if((Path[1]==':' && !Path[2]) || (PathPrefix(Path) && Path[5]==':' && !Path[6]))
             AddEndSlash(Path);
 
           // а здесь с точнотью наоборот - обрабатываем пассивную панель
