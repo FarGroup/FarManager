@@ -187,6 +187,7 @@ void FilePanels::Init()
   // при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
   if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
   {
+    PrepareDiskPath(PassiveIsLeftFlag?Opt.RightFolder:Opt.LeftFolder,NM);
     CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Opt.RightFolder:Opt.LeftFolder);
   }
 

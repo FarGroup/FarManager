@@ -1480,7 +1480,9 @@ int Panel::GetCurDir(char *CurDir)
 #endif
 BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
 {
-  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
+	if(PanelMode!=PLUGIN_PANEL)
+		PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
   return TRUE;
 }
 #if defined(__BORLANDC__)
@@ -1490,7 +1492,9 @@ BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+	xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
+	if(PanelMode!=PLUGIN_PANEL)
+		PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
 }
 
 

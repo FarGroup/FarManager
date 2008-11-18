@@ -373,7 +373,7 @@ int CommandLine::ProcessKey(int Key)
 
 BOOL CommandLine::SetCurDir(const char *CurDir)
 {
-  PrepareDiskPath(xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
+  xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1);
   return TRUE;
 }
 
