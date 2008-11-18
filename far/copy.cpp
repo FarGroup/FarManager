@@ -127,6 +127,7 @@ struct CopyDlgParam {
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
   int IsDTDstFixed;
+  int AskRO;
 
   void Clear()
   {
@@ -143,6 +144,7 @@ struct CopyDlgParam {
 		FileSystemFlagsSrc=0;
 		IsDTSrcFixed=0;
 		IsDTDstFixed=0;
+		AskRO=0;
   }
 };
 
@@ -156,11 +158,8 @@ enum enumShellCopy {
   ID_SC_ACCOPY,
   ID_SC_ACINHERIT,
   ID_SC_SEPARATOR2,
-  ID_SC_ONLYNEWER,
-
-	ID_SC_LINKTYPE,
-	ID_SC_LINKCOMBO,
-
+  ID_SC_COMBOTEXT,
+  ID_SC_COMBO,
   ID_SC_COPYSYMLINK,
   ID_SC_MULTITARGET,
   ID_SC_SEPARATOR3,
@@ -171,6 +170,16 @@ enum enumShellCopy {
   ID_SC_BTNFILTER,
   ID_SC_BTNCANCEL,
   ID_SC_SOURCEFILENAME,
+};
+
+enum CopyMode
+{
+	CM_ASK,
+	CM_OVERWRITE,
+	CM_SKIP,
+	CM_APPEND,
+	CM_ONLYNEWER,
+	CM_ASKRO,
 };
 
 ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
@@ -308,22 +317,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 06 */  DI_RADIOBUTTON, 5, 5, 0, 5,0,0,0,0,(wchar_t *)MCopySecurityCopy,
   /* 07 */  DI_RADIOBUTTON, 5, 5, 0, 5,0,0,0,0,(wchar_t *)MCopySecurityInherit,
   /* 08 */  DI_TEXT,        3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 09 */  DI_CHECKBOX,    5, 7, 0, 7,0,0,0,0,(wchar_t *)MCopyOnlyNewerFiles,
-
-	// для AltF6
-	/* 09 */  DI_TEXT,        5, 7, 0, 7,0,0,DIF_HIDDEN|DIF_DISABLE,0,(wchar_t *)MLinkType,
-	/* 09 */  DI_COMBOBOX,   20, 7,70, 7,0,0,DIF_HIDDEN|DIF_DISABLE|DIF_DROPDOWNLIST,0,L"",
-
-  /* 10 */  DI_CHECKBOX,    5, 8, 0, 8,0,0,0,0,(wchar_t *)MCopySymLinkContents,
-  /* 11 */  DI_CHECKBOX,    5, 9, 0, 9,0,0,0,0,(wchar_t *)MCopyMultiActions,
-  /* 12 */  DI_TEXT,        3,10, 0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 13 */  DI_CHECKBOX,    5,11, 0,11,0,0,0,0,(wchar_t *)MCopyUseFilter,
-  /* 14 */  DI_TEXT,        3,12, 0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 15 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,1,(wchar_t *)MCopyDlgCopy,
-  /* 16 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopyDlgTree,
-  /* 17 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopySetFilter,
-  /* 18 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCopyDlgCancel,
-  /* 19 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_SHOWAMPERSAND,0,L"",
+  /* 09 */  DI_TEXT,        5, 7, 0, 7,0,0,0,0,(wchar_t *)MCopyIfFileExist,
+  /* 10 */  DI_COMBOBOX,   29, 7,70, 7,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,0,L"",
+  /* 11 */  DI_CHECKBOX,    5, 8, 0, 8,0,0,0,0,(wchar_t *)MCopySymLinkContents,
+  /* 12 */  DI_CHECKBOX,    5, 9, 0, 9,0,0,0,0,(wchar_t *)MCopyMultiActions,
+  /* 13 */  DI_TEXT,        3,10, 0,10,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 14 */  DI_CHECKBOX,    5,11, 0,11,0,0,0,0,(wchar_t *)MCopyUseFilter,
+  /* 15 */  DI_TEXT,        3,12, 0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,1,(wchar_t *)MCopyDlgCopy,
+  /* 17 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopyDlgTree,
+  /* 18 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MCopySetFilter,
+  /* 19 */  DI_BUTTON,      0,13, 0,13,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCopyDlgCancel,
+  /* 20 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
   MakeDialogItemsEx(CopyDlgData,CopyDlg);
 
@@ -343,6 +348,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Link)
   {
+    CopyDlg[ID_SC_COMBOTEXT].strData=MSG(MLinkType);
     CopyDlg[ID_SC_COPYSYMLINK].Selected=0;
     CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE;
     CDP.CopySecurity=1;
@@ -419,7 +425,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
     else
 */
-      CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
+      CDP.OnlyNewerFiles=0;
 
     if (SrcPanel->GetType()==TREE_PANEL)
     {
@@ -487,11 +493,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     // Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
     CDP.CopySecurity=2;
     CDP.OnlyNewerFiles=0;
-    CopyDlg[ID_SC_ONLYNEWER].Selected=0;
     CopyDlg[ID_SC_ACCOPY].Selected=0;
     CopyDlg[ID_SC_ACINHERIT].Selected=0;
     CopyDlg[ID_SC_ACLEAVE].Selected=1;
-    CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
@@ -604,33 +608,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
     CopyDlg[ID_SC_ONLYNEWER].Selected=SelectedSymLink;
 */
-		// Уберём с глаз "only newer files"...
-		CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_HIDDEN|DIF_DISABLE;
-		// и покажем выбор типа ссылки
-		CopyDlg[ID_SC_LINKTYPE].Flags^=DIF_HIDDEN|DIF_DISABLE;
-		CopyDlg[ID_SC_LINKCOMBO].Flags^=DIF_HIDDEN|DIF_DISABLE;
-
-		FarList LinkTypeList;
-		LinkTypeList.Items=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
-		LinkTypeList.ItemsNumber=4;
-
-		memset(LinkTypeList.Items,0,sizeof(FarListItem)*4);
-		LinkTypeList.Items[0].Text=MSG(MLinkTypeHardlink);
-		LinkTypeList.Items[1].Text=MSG(MLinkTypeJunction);
-		LinkTypeList.Items[2].Text=MSG(MLinkTypeSymlinkFile);
-		LinkTypeList.Items[3].Text=MSG(MLinkTypeSymlinkDirectory);
-
-		if(CDP.FilesPresent)
-				LinkTypeList.Items[0].Flags|=LIF_SELECTED;
-		else
-			LinkTypeList.Items[1].Flags|=LIF_SELECTED;
-
-		if(!ifn.pfnCreateSymbolicLink)
-		{
-			LinkTypeList.Items[2].Flags|=LIF_DISABLE;
-			LinkTypeList.Items[3].Flags|=LIF_DISABLE;
-		}
-		CopyDlg[ID_SC_LINKCOMBO].ListItems=&LinkTypeList;
   }
 
   RemoveTrailingSpaces(CopyDlg[ID_SC_SOURCEFILENAME].strData);
@@ -656,6 +633,47 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   if (Ask)
   {
+		FarList ComboList;
+		FarListItem LinkTypeItems[4],CopyModeItems[7];
+		if(Link)
+		{
+			ComboList.ItemsNumber=sizeof(LinkTypeItems)/sizeof(LinkTypeItems[0]);
+			ComboList.Items=LinkTypeItems;
+			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
+			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
+			ComboList.Items[1].Text=MSG(MLinkTypeJunction);
+			ComboList.Items[2].Text=MSG(MLinkTypeSymlinkFile);
+			ComboList.Items[3].Text=MSG(MLinkTypeSymlinkDirectory);
+
+			if(CDP.FilesPresent)
+				ComboList.Items[0].Flags|=LIF_SELECTED;
+			else
+				ComboList.Items[1].Flags|=LIF_SELECTED;
+
+			if(WinVer.dwMajorVersion<6)
+			{
+				ComboList.Items[2].Flags|=LIF_DISABLE;
+				ComboList.Items[3].Flags|=LIF_DISABLE;
+			}
+		}
+		else
+		{
+			ComboList.ItemsNumber=sizeof(CopyModeItems)/sizeof(CopyModeItems[0]);
+			ComboList.Items=CopyModeItems;
+			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
+			ComboList.Items[0].Text=MSG(MCopyAsk);
+			ComboList.Items[1].Text=MSG(MCopyOverwrite);
+			ComboList.Items[2].Text=MSG(MCopySkipOvr);
+			ComboList.Items[3].Text=MSG(MCopyAppend);
+			ComboList.Items[4].Text=MSG(MCopyOnlyNewerFiles);
+			ComboList.Items[6].Text=MSG(MCopyAskRO);
+
+			ComboList.Items[0].Flags=LIF_SELECTED;
+			ComboList.Items[5].Flags=LIF_SEPARATOR;
+			ComboList.Items[6].Flags=LIF_CHECKED;
+		}
+		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
+
     Dialog Dlg(CopyDlg,countof(CopyDlg),CopyDlgProc,(LONG_PTR)&CDP);
     Dlg.SetHelp(Link?L"HardSymLink":L"CopyFiles");
     Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
@@ -746,22 +764,49 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopySecurityCopy=CDP.CopySecurity;
   }
 
-	switch(CopyDlg[ID_SC_LINKCOMBO].ListPos)
+	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
+
+	if(Link)
 	{
-		case 0:
-			RPT=RP_HARDLINK;
-			break;
-		case 1:
-			RPT=RP_JUNCTION;
-			break;
-		case 2:
-			RPT=RP_SYMLINKFILE;
-			break;
-		case 3:
-			RPT=RP_SYMLINKDIR;
-			break;
+		switch(CopyDlg[ID_SC_COMBO].ListPos)
+		{
+			case 0:
+				RPT=RP_HARDLINK;
+				break;
+			case 1:
+				RPT=RP_JUNCTION;
+				break;
+			case 2:
+				RPT=RP_SYMLINKFILE;
+				break;
+			case 3:
+				RPT=RP_SYMLINKDIR;
+				break;
+		}
 	}
-  ShellCopy::Flags|=CopyDlg[ID_SC_ONLYNEWER].Selected?FCOPY_ONLYNEWERFILES:0;
+	else
+	{
+		ReadOnlyOvrMode=CDP.AskRO?-1:1;
+		switch(CopyDlg[ID_SC_COMBO].ListPos)
+		{
+			case CM_ASK:
+				OvrMode=-1;
+				break;
+			case CM_OVERWRITE:
+				OvrMode=1;
+				break;
+			case CM_SKIP:
+				OvrMode=3;
+				ReadOnlyOvrMode=CDP.AskRO?-1:3;
+				break;
+			case CM_APPEND:
+				OvrMode=5;
+				break;
+			case CM_ONLYNEWER:
+				ShellCopy::Flags|=FCOPY_ONLYNEWERFILES;
+				break;
+		}
+	}
   ShellCopy::Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
   if (DestPlugin && !StrCmp(CopyDlg[ID_SC_TARGETEDIT].strData,strInitDestDir))
@@ -841,7 +886,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         // переинициализируем переменные в самом начале (BugZ#171)
 //        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
         CopyBufSize = CopyBufferSize;
-        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
+
 
         // посчитаем количество целей.
         CountTarget=DestList.GetTotal();
@@ -1054,12 +1099,28 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   #define DM_CALLTREE (DM_USER+1)
+  #define DM_SWITCHRO (DM_USER+2)
 
   struct CopyDlgParam *DlgParam;
   DlgParam=(struct CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
   switch(Msg)
   {
+	case DN_INITDIALOG:
+		Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
+		Dialog::SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
+		break;
+	case DM_SWITCHRO:
+	{
+		FarListGetItem LGI={6};
+		Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+		if(LGI.Item.Flags&LIF_CHECKED)
+			LGI.Item.Flags&=~LIF_CHECKED;
+		else
+			LGI.Item.Flags|=LIF_CHECKED;
+		Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
+		return TRUE;
+	}
     case DN_BTNCLICK:
     {
       if (Param1==ID_SC_USEFILTER) // "Use filter"
@@ -1076,11 +1137,13 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       {
         Dialog::SendDlgMessage(hDlg,DM_CLOSE,ID_SC_BTNCOPY,0);
       }
+      /*
       else if(Param1 == ID_SC_ONLYNEWER && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
         // подсократим код путем эмуляции телодвижений в строке ввода :-))
         Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,0);
       }
+      */
       else if (Param1==ID_SC_BTNFILTER) // Filter
       {
         Filter->FilterEdit();
@@ -1097,13 +1160,31 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
         return TRUE;
       }
-      break;
-    }
-
+			if(Param1 == ID_SC_COMBO)
+			{
+				if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
+				{
+					if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6)
+						return Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+				}
+			}
+		}
+		break;
+	case DN_MOUSEEVENT:
+		if(Dialog::SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
+		{
+			MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
+			if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6 && mer->dwButtonState && !mer->dwEventFlags)
+			{
+				Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+				return FALSE;
+			}
+		}
+		break;
     case DN_EDITCHANGE:
       if(Param1 == ID_SC_TARGETEDIT)
       {
-        FarDialogItem *DItemACCopy,*DItemACInherit,*DItemACLeave,*DItemOnlyNewer,*DItemBtnCopy;
+        FarDialogItem *DItemACCopy,*DItemACInherit,*DItemACLeave,/**DItemOnlyNewer,*/*DItemBtnCopy;
         string strSrcDir;
 
         DlgParam->thisClass->SrcPanel->GetCurDir(strSrcDir);
@@ -1111,7 +1192,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         DItemACCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0);
         DItemACInherit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0);
         DItemACLeave = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0);
-        DItemOnlyNewer = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0);
+        //DItemOnlyNewer = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0);
         DItemBtnCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0);
 
         // Это создание линка?
@@ -1135,8 +1216,8 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             DItemACCopy->Flags|=DIF_DISABLE;
             DItemACInherit->Flags|=DIF_DISABLE;
             DItemACLeave->Flags|=DIF_DISABLE;
-            DItemOnlyNewer->Flags|=DIF_DISABLE;
-            DlgParam->OnlyNewerFiles=DItemOnlyNewer->Param.Selected;
+            //DItemOnlyNewer->Flags|=DIF_DISABLE;
+            //DlgParam->OnlyNewerFiles=DItemOnlyNewer->Param.Selected;
             DlgParam->CopySecurity=0;
             if (DItemACCopy->Param.Selected)
               DlgParam->CopySecurity=1;
@@ -1145,15 +1226,15 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             DItemACCopy->Param.Selected=0;
             DItemACInherit->Param.Selected=0;
             DItemACLeave->Param.Selected=1;
-            DItemOnlyNewer->Param.Selected=0;
+            //DItemOnlyNewer->Param.Selected=0;
           }
           else
           {
             DItemACCopy->Flags&=~DIF_DISABLE;
             DItemACInherit->Flags&=~DIF_DISABLE;
             DItemACLeave->Flags&=~DIF_DISABLE;
-            DItemOnlyNewer->Flags&=~DIF_DISABLE;
-            DItemOnlyNewer->Param.Selected=DlgParam->OnlyNewerFiles;
+            //DItemOnlyNewer->Flags&=~DIF_DISABLE;
+            //DItemOnlyNewer->Param.Selected=DlgParam->OnlyNewerFiles;
             DItemACCopy->Param.Selected=0;
             DItemACInherit->Param.Selected=0;
             DItemACLeave->Param.Selected=0;
@@ -1173,13 +1254,13 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
+        //Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACCopy);
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACInherit);
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACLeave);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemOnlyNewer);
+        //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemOnlyNewer);
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemBtnCopy);
       }
       break;
@@ -1269,6 +1350,17 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       DlgParam->AltF10=0;
       return TRUE;
     }
+	case DN_CLOSE:
+	{
+		if(Param1==ID_SC_BTNCOPY)
+		{
+			FarListGetItem LGI={6};
+			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+			if(LGI.Item.Flags&LIF_CHECKED)
+				DlgParam->AskRO=TRUE;
+		}
+	}
+	break;
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -3638,10 +3730,10 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
 		/* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 
-		/* 07 */  DI_CHECKBOX,5,8,0,8,0,0,0,0,MSG(MCopyRememberChoice),
+		/* 07 */  DI_CHECKBOX,5,8,0,8,1,0,0,0,MSG(MCopyRememberChoice),
 		/* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 
-		/* 09 */  DI_BUTTON,0,10,0,10,1,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
+		/* 09 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
 		/* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopySkipOvr),
 		/* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),0,MSG(MCopyAppend),
 		/* 12 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyCancelOvr),

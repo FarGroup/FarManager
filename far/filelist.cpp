@@ -2334,6 +2334,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
   if (GetFocus())
   {
+		PrepareDiskPath(strCurDir);
     CtrlObject->CmdLine->SetCurDir(strCurDir);
     CtrlObject->CmdLine->Show();
   }
