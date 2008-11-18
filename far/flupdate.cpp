@@ -130,10 +130,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   SortGroupsRead=FALSE;
 
   if (GetFocus())
-  {
-    PrepareDiskPath(CurDir,sizeof(CurDir));
     CtrlObject->CmdLine->SetCurDir(CurDir);
-  }
 
   {
     char FileSysName[NM],RootDir[NM*2];

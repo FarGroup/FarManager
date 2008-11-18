@@ -374,6 +374,8 @@ int CommandLine::ProcessKey(int Key)
 BOOL CommandLine::SetCurDir(const char *CurDir)
 {
   xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1);
+	if(CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
+		PrepareDiskPath(CommandLine::CurDir,sizeof(CommandLine::CurDir)-1);
   return TRUE;
 }
 

@@ -1133,7 +1133,6 @@ BOOL TreeList::SetCurDir(const char *NewDir,int ClosePlugin)
   }
   if (GetFocus())
   {
-    PrepareDiskPath(SetDir,sizeof(SetDir));
     CtrlObject->CmdLine->SetCurDir(SetDir);
     CtrlObject->CmdLine->Show();
   }
