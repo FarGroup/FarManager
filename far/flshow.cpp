@@ -278,10 +278,7 @@ void FileList::ShowFileList(int Fast)
     if ( PanelMode==PLUGIN_PANEL )
         CtrlObject->CmdLine->SetCurDir(Info.CurDir);
     else
-		{
-			PrepareDiskPath(strCurDir);
-			CtrlObject->CmdLine->SetCurDir(strCurDir);
-		}
+      CtrlObject->CmdLine->SetCurDir(strCurDir);
 
     CtrlObject->CmdLine->Show();
   }
@@ -345,7 +342,6 @@ void FileList::ShowFileList(int Fast)
     }
     if (GetFocus())
     {
-			PrepareDiskPath(strCurDir);
       CtrlObject->CmdLine->SetCurDir(strCurDir);
       CtrlObject->CmdLine->Show();
     }

@@ -156,10 +156,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     Filter=new FileFilter(this,FFT_PANEL);
 
   if (GetFocus())
-		{
-			PrepareDiskPath(strCurDir);
-			CtrlObject->CmdLine->SetCurDir(strCurDir);
-		}
+    CtrlObject->CmdLine->SetCurDir(strCurDir);
 
   {
     string strFileSysName;
