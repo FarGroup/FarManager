@@ -200,6 +200,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        else
        {
          Error=TRUE;
+         FinalSize=0;
          break;
        }
      }
