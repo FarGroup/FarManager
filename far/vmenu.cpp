@@ -923,6 +923,10 @@ int VMenu::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_ALTF9:
+      FrameManager->ProcessKey(KEY_ALTF9);
+      break;
+
     case KEY_NUMENTER:
     case KEY_ENTER:
     {
