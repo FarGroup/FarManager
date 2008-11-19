@@ -45,10 +45,6 @@
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="ClosePlugin">
-                                <param name="Local" value="html/exported_functions/closeplugin.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="Configure">
                                 <param name="Local" value="html/exported_functions/configure.html">
                                 </OBJECT>
@@ -59,10 +55,6 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetMinFarVersion">
                                 <param name="Local" value="html/exported_functions/getminfarversion.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="GetOpenPluginInfo">
-                                <param name="Local" value="html/exported_functions/getopenplugininfo.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetPluginInfo">
@@ -78,6 +70,10 @@
                         <param name="Local" value="html/exported_functions/index_panel.html">
                         </OBJECT>
                 <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ClosePlugin">
+                                <param name="Local" value="html/exported_functions/closeplugin.html">
+                                </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="Compare">
                                 <param name="Local" value="html/exported_functions/compare.html">
@@ -101,6 +97,10 @@
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetFindData">
                                 <param name="Local" value="html/exported_functions/getfinddata.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="GetOpenPluginInfo">
+                                <param name="Local" value="html/exported_functions/getopenplugininfo.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="GetVirtualFindData">
