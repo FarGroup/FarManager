@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hilight.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "TPreRedrawFunc.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
@@ -92,12 +93,15 @@ void FileList::UpdateIfRequired()
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
   Message(0,0,MSG(MReadingTitleFiles),Msg);
-  PreRedrawParam.Param1=(void*)Msg;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=(void*)Msg;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_ReadFileNamesMsg(void)
 {
-  ReadFileNamesMsg((wchar_t *)PreRedrawParam.Param1);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ReadFileNamesMsg((wchar_t *)preRedrawItem.Param.Param1);
 }
 
 
@@ -106,6 +110,8 @@ static void PR_ReadFileNamesMsg(void)
 
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
+
   if (!IsVisible() && !IgnoreVisible)
   {
     UpdateRequired=TRUE;
@@ -349,9 +355,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           string strReadMsg;
           if(!IsShowTitle)
           {
-            if(DrawMessage)
-              SetPreRedrawFunc(PR_ReadFileNamesMsg);
-            else
+            if(!DrawMessage)
             {
               Text(X1+1,Y1,COL_PANELBOX,Title);
               IsShowTitle=TRUE;
@@ -380,7 +384,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     Done=!apiFindNextFile(FindHandle,&fdata);
   }
 
-  SetPreRedrawFunc(NULL);
 
   int ErrCode=GetLastError();
   if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND ||

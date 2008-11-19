@@ -125,9 +125,6 @@ int CmdMode=FALSE;
 
 PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
 
-PREREDRAWFUNC PreRedrawFunc=NULL;
-struct PreRedrawParamStruct PreRedrawParam={0};
-
 int WidthNameForMessage=0;
 
 const wchar_t DOS_EOL_fmt[]  = L"\r\n";

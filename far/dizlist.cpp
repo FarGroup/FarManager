@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lang.hpp"
 #include "savescr.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
@@ -88,6 +89,8 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 {
   Reset();
 
+  TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
+
   const wchar_t *NamePtr=Opt.Diz.strListNames;
 
   while (1)
@@ -115,7 +118,6 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
       //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
 
-      SetPreRedrawFunc(DizList::PR_ReadingMsg);
       while (fgets(DizText,sizeof(DizText),DizFile)!=NULL)
       {
         if ((DizCount & 127)==0 && clock()-StartTime>1000)
@@ -134,7 +136,6 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
         RemoveTrailingSpaces(strDizText);
         AddRecord(strDizText);
       }
-      SetPreRedrawFunc(NULL);
 
       //delete SaveScr;
       fclose(DizFile);
@@ -144,6 +145,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
     if (DizName!=NULL)
       break;
   }
+
   strDizFileName=L"";
 }
 

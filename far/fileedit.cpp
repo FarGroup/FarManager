@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "chgprior.hpp"
 #include "filestr.hpp"
-
+#include "TPreRedrawFunc.hpp"
 
 
 
@@ -1456,6 +1456,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
 	int LastLineCR = 0, Count = 0;
 	EditorCacheParams cp;
@@ -1545,7 +1546,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		if ( GetCode == -1 )
 		{
 			fclose(EditFile);
-			SetPreRedrawFunc(NULL);
 			return FALSE;
 		}
 
@@ -1559,7 +1559,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
   				{
   					UserBreak = 1;
   					fclose(EditFile);
-  					SetPreRedrawFunc(NULL);
 	  				return FALSE;
 				}
 				MessageShown=FALSE;
@@ -1568,7 +1567,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			if (!MessageShown)
 			{
 				SetCursorType(FALSE,0);
-				SetPreRedrawFunc(Editor::PR_EditorShowMsg);
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
 				MessageShown=TRUE;
 			}
@@ -1592,12 +1590,9 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		if( !m_editor->InsertString (Str, StrLength) )
 		{
 			fclose(EditFile);
-			SetPreRedrawFunc(NULL);
 			return(FALSE);
 		}
 	}
-
-	SetPreRedrawFunc(NULL);
 
 	if ( LastLineCR || (Count == 0) )
 		m_editor->InsertString (L"", 0);
@@ -1623,6 +1618,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 {
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
+
+  TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
   if (Ask)
   {
@@ -1803,7 +1800,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     }
 */
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
     Edit *CurPtr=m_editor->TopList;
@@ -1935,7 +1931,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
   }
 
 end:
-  SetPreRedrawFunc(NULL);
 
   if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
   {

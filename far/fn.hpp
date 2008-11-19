@@ -1019,8 +1019,6 @@ BOOL WINAPI GetMenuHotKey(string &strHotKey,int LenHotKey,
 string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 
-void SetPreRedrawFunc(PREREDRAWFUNC Func);
-
 int PathMayBeAbsolute(const wchar_t *Src);
 
 string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
 #include "ScrBuf.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 #define DELTA_TREECOUNT 31
@@ -416,6 +417,7 @@ int TreeList::ReadTree()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
+  TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
   ScanTree ScTree(FALSE);
   FAR_FIND_DATA_EX fdata;
   string strFullName;
@@ -461,7 +463,6 @@ int TreeList::ReadTree()
 
   int FirstCall=TRUE, AscAbort=FALSE;
   TreeStartTime = clock();
-  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
 
   RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
 
@@ -513,12 +514,10 @@ int TreeList::ReadTree()
     }
     ListData=NULL;
     TreeCount=0;
-    SetPreRedrawFunc(NULL);
     RestoreState();
     return FALSE;
   }
 
-  SetPreRedrawFunc(NULL);
   StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
   far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
@@ -710,7 +709,8 @@ void TreeList::SyncDir()
 void TreeList::PR_MsgReadTree(void)
 {
   int FirstCall=1;
-  TreeList::MsgReadTree(PreRedrawParam.Flags,FirstCall);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  TreeList::MsgReadTree(preRedrawItem.Param.Flags,FirstCall);
 }
 
 int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
@@ -730,7 +730,9 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     _itow(TreeCount,NumStr,10); //BUGBUG
     Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
             MSG(MReadingTree),NumStr);
-    PreRedrawParam.Flags=TreeCount;
+    PreRedrawItem preRedrawItem=PreRedraw.Peek();
+    preRedrawItem.Param.Flags=TreeCount;
+    PreRedraw.SetParam(preRedrawItem.Param);
     TreeStartTime = clock();
   }
 
@@ -1643,6 +1645,7 @@ void TreeList::ReadSubTree(const wchar_t *Path)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
+  TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
   ScanTree ScTree(FALSE);
   FAR_FIND_DATA_EX fdata;
 
@@ -1663,7 +1666,6 @@ void TreeList::ReadSubTree(const wchar_t *Path)
 
   ScTree.SetFindPath(strDirName,L"*.*",0);
 
-  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
 
   LastScrX = ScrX;
   LastScrY = ScrY;
@@ -1684,7 +1686,6 @@ void TreeList::ReadSubTree(const wchar_t *Path)
       ++Count;
     }
   }
-  SetPreRedrawFunc(NULL);
 }
 
 

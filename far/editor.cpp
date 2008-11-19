@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -3582,12 +3583,12 @@ BOOL Editor::Search(int Next)
 
   {
     //SaveScreen SaveScr;
+    TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
     int SearchLength=(int)strSearchStr.GetLength();
 
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,-1);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
 
     Count=0;
@@ -3647,7 +3648,6 @@ BOOL Editor::Search(int Next)
         {
           strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
           SetCursorType(FALSE,-1);
-          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
           EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
           MessageShown=TRUE;
         }
@@ -3868,7 +3868,6 @@ BOOL Editor::Search(int Next)
           NewNumLine++;
         }
     }
-    SetPreRedrawFunc(NULL);
   }
 
   Show();
@@ -6235,14 +6234,17 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name)
 {
   Message(0,0,Title,Msg,Name);
-  PreRedrawParam.Param1=(void *)Title;
-  PreRedrawParam.Param2=(void *)Msg;
-  PreRedrawParam.Param3=(void *)Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=(void *)Title;
+  preRedrawItem.Param.Param2=(void *)Msg;
+  preRedrawItem.Param.Param3=(void *)Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg(void)
 {
-  Editor::EditorShowMsg((wchar_t*)PreRedrawParam.Param1,(wchar_t*)PreRedrawParam.Param2,(wchar_t*)PreRedrawParam.Param3);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3);
 }
 
 

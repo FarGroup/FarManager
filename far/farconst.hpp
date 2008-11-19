@@ -320,7 +320,6 @@ enum {
 #define ANSIToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
 
-typedef void (*PREREDRAWFUNC)(void);
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 
 #define ADDSPACEFORPSTRFORMESSAGE 16

@@ -188,6 +188,7 @@ class ShellCopy
     static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
     static int  MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags);
     static void PR_ShellCopyMsg(void);
+    static BOOL CheckAndUpdateConsole(BOOL IsChangeConsole);
 };
 
 

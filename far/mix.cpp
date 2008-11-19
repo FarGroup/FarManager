@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RefreshFrameManager.hpp"
 #include "filefilter.hpp"
 #include "imports.hpp"
+#include "TPreRedrawFunc.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -505,13 +506,16 @@ int GetFileTypeByName(const wchar_t *Name)
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
 {
   Message(0,0,Title,MSG(MScanningFolder),Name);
-  PreRedrawParam.Param1=(void*)Title;
-  PreRedrawParam.Param2=(void*)Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=(void*)Title;
+  preRedrawItem.Param.Param2=(void*)Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_DrawGetDirInfoMsg(void)
 {
-  DrawGetDirInfoMsg((const wchar_t*)PreRedrawParam.Param1,(const wchar_t *)PreRedrawParam.Param2);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2);
 }
 
 int GetDirInfo(const wchar_t *Title,
@@ -533,6 +537,7 @@ int GetDirInfo(const wchar_t *Title,
 
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
 
   ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
   FAR_FIND_DATA_EX FindData;
@@ -555,8 +560,6 @@ int GetDirInfo(const wchar_t *Title,
 
   ConsoleTitle OldTitle;
   RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
-
-  PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
   if ((ClusterSize=GetClusterSize(strDriveRoot))==0)
   {
@@ -595,12 +598,10 @@ int GetDirInfo(const wchar_t *Title,
         case KEY_ESC:
         case KEY_BREAK:
           GetInputRecord(&rec);
-          SetPreRedrawFunc(OldPreRedrawFunc);
           return(0);
         default:
           if (Flags&GETDIRINFO_ENHBREAK)
           {
-            SetPreRedrawFunc(OldPreRedrawFunc);
             return(-1);
           }
           GetInputRecord(&rec);
@@ -612,7 +613,6 @@ int GetDirInfo(const wchar_t *Title,
     {
       OldTitle.Set(L"%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
-      SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
       MsgOut=1;
     }
@@ -681,7 +681,6 @@ int GetDirInfo(const wchar_t *Title,
     }
   }
 
-  SetPreRedrawFunc(OldPreRedrawFunc);
   return(1);
 }
 
@@ -1282,12 +1281,6 @@ void CreatePath(string &strPath)
   }
 }
 
-
-void SetPreRedrawFunc(PREREDRAWFUNC Func)
-{
-  if((PreRedrawFunc=Func) == NULL)
-    memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
-}
 
 int PathMayBeAbsolute(const wchar_t *Path)
 {

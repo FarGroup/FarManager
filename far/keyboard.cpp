@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 #include "imports.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -982,9 +983,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
         FrameManager->ResizeAllFrame();
         FrameManager->GetCurrentFrame()->Show();
         //// // _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-        if(PreRedrawFunc)
+        PreRedrawItem preRedrawItem=PreRedraw.Peek();
+        if(preRedrawItem.PreRedrawFunc)
         {
-          PreRedrawFunc();
+          preRedrawItem.PreRedrawFunc();
         }
       }
       return(KEY_CONSOLE_BUFFER_RESIZE);
@@ -1433,8 +1435,11 @@ int CheckForEscSilent()
       LockScreen LckScr;
       FrameManager->ResizeAllFrame();
       FrameManager->GetCurrentFrame()->Show();
-      if(PreRedrawFunc)
-        PreRedrawFunc();
+      PreRedrawItem preRedrawItem=PreRedraw.Peek();
+      if(preRedrawItem.PreRedrawFunc)
+      {
+        preRedrawItem.PreRedrawFunc();
+      }
 
     }
     else

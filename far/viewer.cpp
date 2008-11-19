@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(const wchar_t *Name);
@@ -2226,13 +2227,16 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
 static void PR_ViewerSearchMsg(void)
 {
-  ViewerSearchMsg((const wchar_t*)PreRedrawParam.Param1);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ViewerSearchMsg((const wchar_t*)preRedrawItem.Param.Param1);
 }
 
 void ViewerSearchMsg(const wchar_t *MsgStr)
 {
   Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr);
-  PreRedrawParam.Param1=(void*)MsgStr;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=(void*)MsgStr;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 /* $ 27.01.2003 VVM
@@ -2243,6 +2247,8 @@ void ViewerSearchMsg(const wchar_t *MsgStr)
 */
 void Viewer::Search(int Next,int FirstChar)
 {
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
+
   const wchar_t *TextHistoryName=L"SearchText";
   const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   static struct DialogDataEx SearchDlgData[]={
@@ -2350,7 +2356,6 @@ void Viewer::Search(int Next,int FirstChar)
       TruncStrFromEnd(strMsgStr, ObjWidth-18);
     InsertQuote(strMsgStr);
 
-    SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(strMsgStr);
 
     if (SearchHex)
@@ -2430,7 +2435,6 @@ void Viewer::Search(int Next,int FirstChar)
         {
           if (ConfirmAbortOp())
           {
-            SetPreRedrawFunc(NULL);
             Redraw ();
             return;
           }
@@ -2523,8 +2527,6 @@ void Viewer::Search(int Next,int FirstChar)
       }
     }
   }
-
-  SetPreRedrawFunc(NULL);
 
   if (Match)
   {

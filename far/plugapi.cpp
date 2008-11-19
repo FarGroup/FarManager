@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "lockscrn.hpp"
 #include "constitle.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 void ScanPluginDir();
@@ -1434,6 +1435,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
   ConvertNameToFull(Dir, strDirName);
 
   {
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetDirListMsg);
     SaveScreen SaveScr;
     clock_t StartTime=clock();
     int MsgOut=0;
@@ -1458,14 +1460,12 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
         {
           if(ItemsList)
             xf_free(ItemsList);
-          SetPreRedrawFunc(NULL);
           return FALSE;
         }
 
         if (!MsgOut && clock()-StartTime > 500)
         {
           SetCursorType(FALSE,0);
-          SetPreRedrawFunc(PR_FarGetDirListMsg);
           PR_FarGetDirListMsg();
           MsgOut=1;
         }
@@ -1474,7 +1474,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
         if (ItemsList==NULL)
         {
           *pItemsNumber=0;
-          SetPreRedrawFunc(NULL);
           return FALSE;
         }
       }
@@ -1491,7 +1490,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
       ItemsNumber++;
     }
 
-    SetPreRedrawFunc(NULL);
     *pPanelItem=ItemsList;
     *pItemsNumber=ItemsNumber;
   }
@@ -1514,13 +1512,16 @@ static int PluginSearchMsgOut;
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
   Message(Flags,0,L"",MSG(MPreparingList),Name);
-  PreRedrawParam.Flags=Flags;
-  PreRedrawParam.Param1=(void*)Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Flags=Flags;
+  preRedrawItem.Param.Param1=(void*)Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_FarGetPluginDirListMsg(void)
 {
-  FarGetPluginDirListMsg((const wchar_t *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
@@ -1558,8 +1559,8 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 
     {
       SaveScreen SaveScr;
+      TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetPluginDirListMsg);
 
-      SetPreRedrawFunc(NULL);
       {
         string strDirName;
         strDirName = Dir;
@@ -1567,7 +1568,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         CenterStr(strDirName,strDirName,30);
         SetCursorType(FALSE,0);
 
-        SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
         FarGetPluginDirListMsg(strDirName,0);
         PluginSearchMsgOut=FALSE;
 
@@ -1604,7 +1604,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
             CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_FIND);
         }
       }
-      SetPreRedrawFunc(NULL);
     }
   }
 
