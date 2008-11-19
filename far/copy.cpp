@@ -2501,7 +2501,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
 
         int RetCode;
-        if (!AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+        if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
         {
           return((COPY_CODES)RetCode);
         }
@@ -2778,7 +2778,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 //    CurCopiedSize=SaveCopiedSize;
     TotalCopiedSize=SaveTotalSize;
     int RetCode;
-    if (!AskOverwrite(SrcData,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+    if (!AskOverwrite(SrcData,Src,strDestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
       return((COPY_CODES)RetCode);
   }
   }
@@ -3387,7 +3387,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             if (Split)
             {
               int RetCode;
-              if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+              if (!AskOverwrite(SrcData,SrcName,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
               {
                 CloseHandle(SrcHandle);
                 //SetErrorMode(OldErrMode);
@@ -3733,6 +3733,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 }
 
 int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
+               const wchar_t *SrcName,
                const wchar_t *DestName, DWORD DestAttr,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
@@ -3823,9 +3824,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
 
 		MakeDialogItemsEx(WarnCopyDlgData,WarnCopyDlg);
-		string strSrcName;
-		ConvertNameToFull(SrcData.strFileName,strSrcName);
-		LPCWSTR WFN[2]={strSrcName,DestName};
+		string strFullSrcName;
+		ConvertNameToFull(SrcName,strFullSrcName);
+		LPCWSTR WFN[2]={strFullSrcName,DestName};
 		Dialog WarnDlg(WarnCopyDlg,countof(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
 		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);

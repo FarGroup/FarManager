@@ -147,7 +147,7 @@ class ShellCopy
 
     void SetDestDizPath(const wchar_t *DestPath);
 
-    int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *DestName,
+    int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *SrcName,const wchar_t *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
                       int &Append,int &RetCode);
 
