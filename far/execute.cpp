@@ -459,7 +459,8 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     {
       if(!PtrFName)
         strcpy(WorkPtrFName,PtrExt);
-      if(GetFileAttributes(FullName) != -1)
+      DWORD dwFileAttr = GetFileAttributes(FullName);
+      if ((dwFileAttr != INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
         // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
         // в текущем каталоге, то нифига ничего доброго не получаем
