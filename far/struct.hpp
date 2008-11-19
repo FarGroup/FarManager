@@ -330,6 +330,7 @@ struct LoadPluginsOptions
 struct FindFileOptions
 {
   int FindFolders;
+  int FindSymLinks;
   int CollectFiles;
   int FileSearchMode;
   int SearchInFirst;

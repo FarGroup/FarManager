@@ -1067,6 +1067,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystemW,L"SearchInFirst",&Opt.FindOpt.SearchInFirst,0,0},
   {1, REG_SZ,     NKeySystemW,L"SearchInFirstSize",&Opt.FindOpt.strSearchInFirstSize, 0, L""},
   {1, REG_DWORD,  NKeySystemW,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
+  {1, REG_DWORD,  NKeySystemW,L"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
   {1, REG_DWORD,  NKeySystemW,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
   {1, REG_BINARY, NKeySystemW,L"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
   {1, REG_SZ,     NKeySystemW,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},

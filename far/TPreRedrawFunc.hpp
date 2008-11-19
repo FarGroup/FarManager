@@ -7,7 +7,6 @@ TPreRedrawFunc.hpp
 
 */
 /*
-Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
 All rights reserved.
 

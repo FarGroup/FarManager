@@ -91,7 +91,7 @@ static int FindExitCode;
 //static char FindFileArcName[NM];
 
 static string strFindMask, strFindStr;
-static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink,SearchHex;
+static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchHex;
 
 static int FindFoldersChanged;
 static int SearchFromChanged;
@@ -417,7 +417,7 @@ FindFiles::FindFiles()
   static string strLastFindMask=L"*.*", strLastFindStr;
   // Статической структуре и статические переменные
   static string strSearchFromRoot;
-  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1,LastSearchHex=0;
+  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
   int I;
 
   // Создадим объект фильтра
@@ -427,9 +427,6 @@ FindFiles::FindFiles()
   WholeWords=LastWholeWords;
   SearchInArchives=LastSearchInArchives;
   SearchHex=LastSearchHex;
-  if(LastSearchInSymLink == -1)
-    LastSearchInSymLink=Opt.ScanJunction;
-  SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
   UseFilter=Opt.FindOpt.UseFilter;
 
@@ -611,7 +608,7 @@ FindFiles::FindFiles()
       FindAskDlg[16].Flags|=DIF_DISABLE;
     }
     else
-      FindAskDlg[16].Selected=SearchInSymLink;
+      FindAskDlg[16].Selected=Opt.FindOpt.FindSymLinks;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
@@ -686,8 +683,10 @@ FindFiles::FindFiles()
     if (FindFoldersChanged)
       Opt.FindOpt.FindFolders=FindAskDlg[15].Selected;
 
-    if (!PluginMode)
-      SearchInSymLink=FindAskDlg[16].Selected;
+    if (!PluginMode && FindAskDlg[16].Selected != Opt.FindOpt.FindSymLinks)
+    {
+      Opt.FindOpt.FindSymLinks=FindAskDlg[16].Selected;
+    }
 
     // Запомнить признак использования фильтра. KM
     Opt.FindOpt.UseFilter=UseFilter=FindAskDlg[28].Selected;
@@ -731,7 +730,6 @@ FindFiles::FindFiles()
     LastWholeWords=WholeWords;
     LastSearchHex=SearchHex;
     LastSearchInArchives=SearchInArchives;
-    LastSearchInSymLink=SearchInSymLink;
     strLastFindMask = strFindMask;
     strLastFindStr = strFindStr;
     if ( !strFindStr.IsEmpty() )
@@ -1791,7 +1789,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
 void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
 	{
-		ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
+		ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),Opt.FindOpt.FindSymLinks);
 
 		string strSelName;
 		DWORD FileAttr;
