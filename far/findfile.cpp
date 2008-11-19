@@ -68,7 +68,7 @@ static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 /* $ 30.07.2000 KM
    ƒобавлена переменна€ WholeWords дл€ поиска по точному совпадению
 */
-static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink,SearchHex;
+static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchHex;
 /* KM $ */
 static int FindFoldersChanged;
 static int SearchFromChanged;
@@ -420,7 +420,7 @@ FindFiles::FindFiles()
   /* $ 30.07.2000 KM
      ƒобавлена переменна€ LastWholeWords дл€ поиска по точному совпадению
   */
-  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1,LastSearchHex=0;
+  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
   /* KM $ */
   int I;
 
@@ -431,11 +431,6 @@ FindFiles::FindFiles()
   WholeWords=LastWholeWords;
   SearchInArchives=LastSearchInArchives;
   SearchHex=LastSearchHex;
-  if(LastSearchInSymLink == -1)
-    LastSearchInSymLink=Opt.ScanJunction;
-  if (!RegVer)
-    LastSearchInSymLink=0;
-  SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
   UseFilter=Opt.FindOpt.UseFilter;
 
@@ -609,20 +604,19 @@ FindFiles::FindFiles()
       }
     }
 
-    if (!RegVer || PluginMode)
+    if (PluginMode)
     {
       FindAskDlg[16].Selected=0;
       FindAskDlg[16].Flags|=DIF_DISABLE;
     }
     else
-      FindAskDlg[16].Selected=SearchInSymLink;
+      FindAskDlg[16].Selected=Opt.FindOpt.FindSymLinks;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельз€ искать в архивах
     */
     if (!(FindAskDlg[14].Flags & DIF_DISABLE))
       FindAskDlg[14].Selected=SearchInArchives;
-    /* DJ $ */
 
     xstrncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
 
@@ -631,7 +625,6 @@ FindFiles::FindFiles()
       xstrncpy(FindAskDlg[6].Data,FindStr,sizeof(FindAskDlg[6].Data)-1);
     else
       xstrncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
-    /* KM $ */
 
     FindAskDlg[11].Selected=CmpCase;
     FindAskDlg[12].Selected=WholeWords;
@@ -699,8 +692,10 @@ FindFiles::FindFiles()
     if (FindFoldersChanged)
       Opt.FindOpt.FindFolders=FindAskDlg[15].Selected;
 
-    if (RegVer && !PluginMode)
-      SearchInSymLink=FindAskDlg[16].Selected;
+    if (!PluginMode && FindAskDlg[16].Selected != Opt.FindOpt.FindSymLinks)
+    {
+      Opt.FindOpt.FindSymLinks=FindAskDlg[16].Selected;
+    }
 
     // «апомнить признак использовани€ фильтра. KM
     Opt.FindOpt.UseFilter=UseFilter=FindAskDlg[28].Selected;
@@ -764,7 +759,6 @@ FindFiles::FindFiles()
     /* KM $ */
     LastSearchHex=SearchHex;
     LastSearchInArchives=SearchInArchives;
-    LastSearchInSymLink=SearchInSymLink;
     xstrncpy(LastFindMask,FindMask,sizeof(LastFindMask)-1);
     xstrncpy(LastFindStr,FindStr,sizeof(LastFindStr)-1);
     if (*FindStr)
@@ -1764,7 +1758,7 @@ void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 
 void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* FullName, size_t cbFullName)
 {
-        ScanTree ScTree(FALSE,!(SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH),SearchInSymLink);
+        ScanTree ScTree(FALSE,!(SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH),Opt.FindOpt.FindSymLinks);
 
         char SelName[NM];
         int FileAttr;

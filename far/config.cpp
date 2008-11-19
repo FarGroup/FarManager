@@ -1085,6 +1085,7 @@ static struct FARConfig{
      Запомнить флаг разрешения поиска каталогов в Alt-F7
   */
   {1, REG_DWORD,  NKeySystem,"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
+  {1, REG_DWORD,  NKeySystem,"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
   /* 08.07.2003 yjh */
   {1, REG_DWORD,  NKeySystem,"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
   /* KM $ */
