@@ -1613,6 +1613,8 @@ int CheckForEscSilent()
     */
     if(Key==KEY_ESC || Key==KEY_BREAK)
       return(TRUE);
+    else if(Key==KEY_ALTF9)
+      FrameManager->ProcessKey(KEY_ALTF9);
   }
 
   if(!Processed && CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
