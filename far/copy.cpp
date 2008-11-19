@@ -2633,7 +2633,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         }
 
         int RetCode;
-        if (!AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+        if (!AskOverwrite(SrcData,Src,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
         {
           _LOGCOPYR(SysLog("return RetCode=%d -> %d if (!AskCode)",RetCode,__LINE__));
           return((COPY_CODES)RetCode);
@@ -2951,7 +2951,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 //    CurCopiedSize=SaveCopiedSize;
     TotalCopiedSize=SaveTotalSize;
     int RetCode;
-    if (!AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+    if (!AskOverwrite(SrcData,Src,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
     {
       _LOGCOPYR(SysLog("return RetCode=%d -> %d if (!AskCode)",RetCode,__LINE__));
       return((COPY_CODES)RetCode);
@@ -3646,7 +3646,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             if (Split)
             {
               int RetCode;
-              if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+              if (!AskOverwrite(SrcData,SrcName,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
               {
                 CloseHandle(SrcHandle);
                 //SetErrorMode(OldErrMode);
@@ -4018,6 +4018,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 }
 
 int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
+               const char *SrcName,
                const char *DestName, DWORD DestAttr,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
@@ -4109,9 +4110,9 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
 
 		MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
-		char SrcName[2*NM];
-		ConvertNameToFull(SrcData.cFileName,SrcName,sizeof(SrcName));
-		LPCSTR WFN[2]={SrcName,DestName};
+		char FullSrcName[NM*2];
+		ConvertNameToFull(SrcName,FullSrcName,sizeof(FullSrcName));
+		LPCSTR WFN[2]={FullSrcName,DestName};
 		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
 		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);

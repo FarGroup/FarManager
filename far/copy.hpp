@@ -117,7 +117,7 @@ class ShellCopy
     int  ShellCopyConvertWildcards(const char *Src,char *Dest);
     int  DeleteAfterMove(const char *Name,int Attr);
     void SetDestDizPath(const char *DestPath);
-    int  AskOverwrite(const WIN32_FIND_DATA &SrcData,const char *DestName,
+    int  AskOverwrite(const WIN32_FIND_DATA &SrcData,const char *SrcName,const char *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
                       int &Append,int &RetCode);
     int  GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa);
