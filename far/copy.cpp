@@ -3715,7 +3715,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if(Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
 			}
 		}
 		break;
@@ -3723,7 +3723,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
 			}
 		}
 		break;
@@ -3762,8 +3762,6 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   DestData.Clear();
   int DestDataFilled=FALSE;
 
-  int MsgCode;
-
   Append=FALSE;
 
   if((ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -3779,9 +3777,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
     return(TRUE);
 
-  if (OvrMode!=-1)
-    MsgCode=OvrMode;
-  else
+  int MsgCode=OvrMode;
+
+  if (OvrMode==-1)
   {
     int Type;
     if ((!Opt.Confirm.Copy && !Rename) || (!Opt.Confirm.Move && Rename) ||
@@ -3883,12 +3881,13 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   }
   if ((DestAttr & FILE_ATTRIBUTE_READONLY) && !(ShellCopy::Flags&FCOPY_OVERWRITENEXT))
   {
-    int MsgCode;
-    if (SameName)
-      MsgCode=0;
-    else
+    int MsgCode=0;
+    if (!SameName)
+    {
       if (ReadOnlyOvrMode!=-1)
+      {
         MsgCode=ReadOnlyOvrMode;
+      }
       else
       {
         if (!DestDataFilled)
@@ -3943,6 +3942,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 			break;
 		}
       }
+    }
     switch(MsgCode)
     {
       case 1:
@@ -4054,12 +4054,6 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
   preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
   PreRedraw.SetParam(preRedrawItem.Param);
   return TRUE;
-}
-
-static void PR_ShellCopySecuryMsg(void)
-{
-  PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  ShellCopySecuryMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1));
 }
 
 

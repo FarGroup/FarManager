@@ -325,11 +325,11 @@ int _cdecl SortList(const void *el1,const void *el2)
       case BY_EXT:
         Ext1=PointToExt(SPtr1->strName);
         Ext2=PointToExt(SPtr2->strName);
-        if (Ext1==NULL && Ext2==NULL)
+        if (*Ext1==0 && *Ext2==0)
           break;
-        if (Ext1==NULL)
+        if (*Ext1==0)
           return(-ListSortOrder);
-        if (Ext2==NULL)
+        if (*Ext2==0)
           return(ListSortOrder);
         RetCode=ListSortOrder*StrCmpI(Ext1+1,Ext2+1);
         if(RetCode)

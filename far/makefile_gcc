@@ -111,6 +111,7 @@ SRCS = 	cddrv.cpp \
 	strncat.c \
 	strncpy.c \
 	syntax.cpp \
+	TPreRedrawFunc.cpp \
 	tvar.cpp \
 	TVMStack.cpp \
 	syslog.cpp \
