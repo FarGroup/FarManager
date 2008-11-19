@@ -81,7 +81,7 @@ RES_FILES= \
 PCH_FILES= \
            "$(INTDIR)\headers.c.pch"\
            "$(INTDIR)\headers.cpp.pch"
-           
+
 # —юды добавл€ть то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
 !if !$(_BUILD64) && !defined(DISABLE_WOW64_HOOK)
@@ -196,6 +196,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\tvar.obj" \
+	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\treelist.obj" \
@@ -239,7 +240,7 @@ DEFINES=\
 
 CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FAR_ALPHA_VERSION) $(USE_WFUNC) $(FAR_ANSI) $(FARSYSLOG) $(FARTRY) $(FAR_GR) $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 CPP_PROJ_RELEASE=/MT /O1
-CPP_PROJ_DEBUG=/MTd /Od /Zi 
+CPP_PROJ_DEBUG=/MTd /Od /Zi
 
 LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" $(NODEFAULTLIB) /pdb:"$(OUTDIR)\far.pdb" /release
 
@@ -308,7 +309,7 @@ AllDirs:
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
 	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
-	
+
 "$(OUTDIR)\Far.exe" : $(DEF_FILE) $(PCH_FILES) $(LINK32_OBJS) $(RES_FILES)
 !IFNDEF LINK_ULINK
 	$(LINK32) @<<

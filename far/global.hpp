@@ -112,9 +112,6 @@ extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
 extern BOOL IsRedrawFramesInProcess;
 
-extern PREREDRAWFUNC PreRedrawFunc;
-extern struct PreRedrawParamStruct PreRedrawParam;
-
 extern char *Copyright;
 
 extern PISDEBUGGERPRESENT pIsDebuggerPresent;

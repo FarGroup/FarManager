@@ -30,6 +30,7 @@ copy.cpp
 #include "lockscrn.hpp"
 #include "filefilter.hpp"
 #include "fileview.hpp"
+#include "TPreRedrawFunc.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -91,6 +92,9 @@ static bool CopySparse;
 static FileFilter *Filter;
 static int UseFilter=FALSE;
 /* KM $*/
+
+static BOOL ZoomedState;
+static BOOL IconicState;
 
 struct CopyDlgParam {
   ShellCopy *thisClass;
@@ -213,7 +217,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
   }
 
-	RPT=RP_EXACTCOPY;
+  RPT=RP_EXACTCOPY;
+
+  ZoomedState=IsZoomed(hFarWnd);
+  IconicState=IsIconic(hFarWnd);
 
   // Создадим объект фильтра
   Filter=new FileFilter(SrcPanel,FFT_COPY);
@@ -956,9 +963,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           *DestFSName=0;
 
           int OldCopySymlinkContents=ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS;
-          // собственно - один проход копирования
-          SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
+          int I;
 
+         // собственно - один проход копирования
           // Mantis#45: Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
           {
             char FileSysName[NM],RootDir[NM*2];
@@ -968,8 +975,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
               if(strcmp(FileSysName,"NTFS"))
                 ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
           }
-          int I=CopyFileTree(NameTmp);
-          SetPreRedrawFunc(NULL);
+
+          PreRedraw.Push(ShellCopy::PR_ShellCopyMsg);
+          I=CopyFileTree(NameTmp);
+          PreRedraw.Pop();
 
           if(OldCopySymlinkContents)
             ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -1152,7 +1161,6 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
         return TRUE;
       }
-
 			if(Param1 == ID_SC_COMBO)
 			{
 				if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
@@ -1174,6 +1182,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			}
 		}
 		break;
+
     case DN_EDITCHANGE:
       if(Param1 == 2)
       {
@@ -1327,7 +1336,6 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       DlgParam->AltF10=0;
       return TRUE;
-      /* IS $ */
     }
 	case DN_CLOSE:
 	{
@@ -1601,7 +1609,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   }
 
   // Основной цикл копирования одной порции.
-  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   SrcPanel->GetSelName(NULL,FileAttr);
   {
   _LOGCOPYR(CleverSysLog Clev("Run process copy"));
@@ -1749,7 +1756,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (CopyCode==COPY_CANCEL)
         {
-         _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
           return COPY_CANCEL;
         }
 
@@ -2073,7 +2080,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   xstrncpy(DestPath,Dest,sizeof(DestPath)-1);
 
-  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   ShellCopyConvertWildcards(Src,DestPath);
 
   char *NamePtr=PointToName(DestPath);
@@ -2999,8 +3005,9 @@ void ShellCopy::PR_ShellCopyMsg(void)
   // // _LOGCOPYR(CleverSysLog clv("PR_ShellCopyMsg"));
   // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
   LastShowTime = 0;
-  if(PreRedrawParam.Param1)
-    ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  if(preRedrawItem.Param.Param1)
+    ((ShellCopy*)preRedrawItem.Param.Param1)->ShellCopyMsg((char*)preRedrawItem.Param.Param2,(char*)preRedrawItem.Param.Param3,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
@@ -3094,11 +3101,13 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
       ShowTitle(FALSE);
     }
   }
-  PreRedrawParam.Flags=Flags;
-  PreRedrawParam.Param1=this;
-  PreRedrawParam.Param2=Src;
-  PreRedrawParam.Param3=Dest;
-  // // _LOGCOPYR(SysLog("@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Flags=Flags;
+  preRedrawItem.Param.Param1=this;
+  preRedrawItem.Param.Param2=Src;
+  preRedrawItem.Param.Param3=Dest;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 
@@ -3235,7 +3244,6 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   OrigScrX=ScrX;
   OrigScrY=ScrY;
 
-  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   if ((ShellCopy::Flags&FCOPY_LINK))
   {
 		if(RPT==RP_HARDLINK)
@@ -3475,16 +3483,27 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       while (CopySparse?(iSize.QuadPart>0):true)
       {
         BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
+
         if (CheckForEscSilent())
         {
           AbortOp = ConfirmAbortOp();
           IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
         }
+
+        IsChangeConsole=ShellCopy::CheckAndUpdateConsole(IsChangeConsole);
+
         if(IsChangeConsole)
         {
-          ShellCopy::PR_ShellCopyMsg();
           OrigScrX=ScrX;
           OrigScrY=ScrY;
+          ShellCopy::PR_ShellCopyMsg();
+
+          ShowBar(CurCopiedSize,FileSize,false);
+          if (ShowTotalCopySize)
+          {
+            ShowBar(TotalCopiedSize,TotalCopySize,true);
+            ShowTitle(FALSE);
+          }
         }
 
         if (AbortOp)
@@ -4309,12 +4328,22 @@ BOOL ShellCopySecuryMsg(const char *Name)
       WidthTemp=sizeof(OutFileName)-5;
     if(Width < WidthTemp)
       Width=WidthTemp;
+#if 0
+    if(Name) //???
+    {
+      xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
+      TruncPathStr(OutFileName,Width);
+      CenterStr(OutFileName,OutFileName,Width+4);
 
-    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
+      Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),OutFileName);
+    }
+#else
+    xstrncpy(OutFileName,NullToEmpty(Name),sizeof(OutFileName)-1);
     TruncPathStr(OutFileName,Width);
     CenterStr(OutFileName,OutFileName,Width+4);
 
     Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),OutFileName);
+#endif
 
     if(CheckForEscSilent())
     {
@@ -4322,13 +4351,16 @@ BOOL ShellCopySecuryMsg(const char *Name)
         return FALSE;
     }
   }
-  PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=static_cast<void*>(const_cast<char*>(Name));
+  PreRedraw.SetParam(preRedrawItem.Param);
   return TRUE;
 }
 
 static void PR_ShellCopySecuryMsg(void)
 {
-  ShellCopySecuryMsg(static_cast<const char*>(PreRedrawParam.Param1));
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ShellCopySecuryMsg(static_cast<const char*>(preRedrawItem.Param.Param1));
 }
 
 int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
@@ -4339,10 +4371,8 @@ int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUT
   {
     if(::GetFileAttributes(FileName)&FILE_ATTRIBUTE_DIRECTORY)
     {
-      SaveScreen SaveScr;
-      PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
+      //SaveScreen SaveScr; //????
       //SetCursorType(FALSE,0);
-      SetPreRedrawFunc(PR_ShellCopySecuryMsg);
       //ShellCopySecuryMsg("");
 
       char FullName[NM*2];
@@ -4355,11 +4385,9 @@ int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUT
           break;
         if(!SetSecurity(FullName,sa))
         {
-          SetPreRedrawFunc(OldPreRedrawFunc);
           return FALSE;
         }
       }
-      SetPreRedrawFunc(OldPreRedrawFunc);
     }
     return TRUE;
   }
@@ -4463,22 +4491,23 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
   if (CheckForEscSilent())
   {
-    // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
     AbortOp = ConfirmAbortOp();
     IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
   }
 
+  IsChangeConsole=ShellCopy::CheckAndUpdateConsole(IsChangeConsole);
+
   if(IsChangeConsole)
   {
-    // // _LOGCOPYR(SysLog("IsChangeConsole 1"));
-    ShellCopy::PR_ShellCopyMsg();
     OrigScrX=ScrX;
     OrigScrY=ScrY;
+    // // _LOGCOPYR(SysLog("IsChangeConsole 1"));
+    ShellCopy::PR_ShellCopyMsg();
   }
 
   CurCopiedSize = TransferredSize;
 
-  if ((CurCopiedSize == TotalSize) || (clock() - LastShowTime > COPY_TIMEOUT))
+  if (IsChangeConsole || (CurCopiedSize == TotalSize) || (clock() - LastShowTime > COPY_TIMEOUT))
   {
     ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
     if (ShowTotalCopySize && dwStreamNumber==1)
@@ -4505,6 +4534,8 @@ bool ShellCopy::CalcTotalSize()
 {
   char SelName[NM],SelShortName[NM];
   int FileAttr;
+
+  PreRedraw.Push(ShellCopy::PR_ShellCopyMsg);
 
   // Для фильтра
   WIN32_FIND_DATA fd;
@@ -4533,6 +4564,7 @@ bool ShellCopy::CalcTotalSize()
                         (UseFilter?GETDIRINFO_USEFILTER:0)))
         {
           ShowTotalCopySize=false;
+          PreRedraw.Pop();
           return(false);
         }
         TotalCopySize+=FileSize;
@@ -4559,6 +4591,7 @@ bool ShellCopy::CalcTotalSize()
   TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
   InsertCommas(TotalCopySize,TotalCopySizeText,sizeof(TotalCopySizeText));
+  PreRedraw.Pop();
   return(true);
 }
 
@@ -5061,4 +5094,33 @@ BOOL ShellCopy::CheckNulOrCon(const char *Src)
 
 void ShellCopy::CheckUpdatePanel() // выставляет флаг FCOPY_UPDATEPPANEL
 {
+}
+
+BOOL ShellCopy::CheckAndUpdateConsole(BOOL IsChangeConsole)
+{
+  BOOL curZoomedState=IsZoomed(hFarWnd);
+  BOOL curIconicState=IsIconic(hFarWnd);
+  if(ZoomedState!=curZoomedState && IconicState==curIconicState)
+  {
+    ZoomedState=curZoomedState;
+    ChangeVideoMode(ZoomedState);
+    Frame *frame=FrameManager->GetBottomFrame();
+    int LockCount=-1;
+    while(frame->Locked())
+    {
+      LockCount++;
+      frame->Unlock();
+    }
+    FrameManager->ResizeAllFrame();
+    FrameManager->PluginCommit();
+    /*
+    while(LockCount > 0)
+    {
+      frame->Lock();
+      LockCount--;
+    }
+    */
+    IsChangeConsole=TRUE;
+  }
+  return IsChangeConsole;
 }

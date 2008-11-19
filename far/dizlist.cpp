@@ -13,6 +13,7 @@ dizlist.cpp
 #include "global.hpp"
 #include "lang.hpp"
 #include "savescr.hpp"
+#include "TPreRedrawFunc.hpp"
 
 struct DizRecord
 {
@@ -66,6 +67,7 @@ void DizList::PR_ReadingMsg(void)
 void DizList::Read(char *Path,char *DizName)
 {
   Reset();
+  TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
 
   const char *NamePtr=Opt.Diz.ListNames;
 
@@ -93,7 +95,6 @@ void DizList::Read(char *Path,char *DizName)
       //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
 
-      SetPreRedrawFunc(DizList::PR_ReadingMsg);
       while (fgets(DizText,sizeof(DizText),DizFile)!=NULL)
       {
         if ((DizCount & 127)==0 && clock()-StartTime>1000)
@@ -110,7 +111,6 @@ void DizList::Read(char *Path,char *DizName)
         RemoveTrailingSpaces(DizText);
         AddRecord(DizText);
       }
-      SetPreRedrawFunc(NULL);
 
       //delete SaveScr;
       fclose(DizFile);
@@ -120,7 +120,9 @@ void DizList::Read(char *Path,char *DizName)
     if (DizName!=NULL)
       break;
   }
+
   *DizFileName=0;
+
 }
 
 
@@ -244,11 +246,9 @@ int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
 
 void DizList::BuildIndex()
 {
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
   if(IndexData)
     delete[] IndexData;
-  /* SVS $ */
+
   if ((IndexData=new int[DizCount])==NULL)
   {
     Reset();

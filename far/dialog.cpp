@@ -25,6 +25,7 @@ dialog.cpp
 #include "savescr.hpp"
 #include "constitle.hpp"
 #include "lockscrn.hpp"
+#include "TPreRedrawFunc.hpp"
 
 #define VTEXT_ADN_SEPARATORS  1
 
@@ -265,8 +266,9 @@ void Dialog::Show()
   if ( Locked() )
     return;
 
-  if(PreRedrawFunc)
-    PreRedrawFunc();
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  if(preRedrawItem.PreRedrawFunc)
+    preRedrawItem.PreRedrawFunc();
 
   DialogMode.Set(DMODE_SHOW);
   ScreenObject::Show();

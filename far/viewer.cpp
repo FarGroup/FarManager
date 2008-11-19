@@ -26,6 +26,7 @@ Internal viewer
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(char *Name);
@@ -211,11 +212,8 @@ void Viewer::KeepInitParameters()
      Сохранение параметра "Whole words" в глобальной GlobalSearchWholeWords
   */
   GlobalSearchWholeWords=LastSearchWholeWords;
-  /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
-  /* $ 22.09.2003 KM */
   GlobalSearchHex=LastSearchHex;
-  /* KM $ */
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
   ViewerInitUseDecodeTable=VM.UseDecodeTable;
   ViewerInitTableNum=VM.TableNum;
@@ -2254,15 +2252,16 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 
 static void PR_ViewerSearchMsg(void)
 {
-  ViewerSearchMsg((char*)PreRedrawParam.Param1);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ViewerSearchMsg((char*)preRedrawItem.Param.Param1);
 }
 
 void ViewerSearchMsg(char *MsgStr)
 {
-  /* $ 23.09.2003 KM */
   Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr);
-  /* KM $ */
-  PreRedrawParam.Param1=MsgStr;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=MsgStr;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 /* $ 27.01.2003 VVM
@@ -2273,6 +2272,8 @@ void ViewerSearchMsg(char *MsgStr)
 */
 void Viewer::Search(int Next,int FirstChar)
 {
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
+
   const char *TextHistoryName="SearchText";
   const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   /* $ 01.08.2000 KM
@@ -2406,7 +2407,6 @@ void Viewer::Search(int Next,int FirstChar)
       TruncStrFromEnd(MsgStr, ObjWidth-18);
     InsertQuote(MsgStr);
 
-    SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(MsgStr);
 
     /* $ 26.10.2003 KM */
@@ -2495,7 +2495,6 @@ void Viewer::Search(int Next,int FirstChar)
         {
           if (ConfirmAbortOp())
           {
-            SetPreRedrawFunc(NULL);
             Redraw ();
             return;
           }
@@ -2597,7 +2596,6 @@ void Viewer::Search(int Next,int FirstChar)
     }
   }
 
-  SetPreRedrawFunc(NULL);
 
   if (Match)
   {

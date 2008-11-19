@@ -22,6 +22,7 @@ editor.cpp
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static struct CharTableSet InitTableSet;
 
@@ -3428,13 +3429,13 @@ BOOL Editor::Search(int Next)
     UnmarkBlock();
 
   {
+    TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
     //SaveScreen SaveScr;
 
     int SearchLength=(int)strlen((char *)SearchStr);
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
     SetCursorType(FALSE,-1);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
 
     Count=0;
@@ -3489,7 +3490,6 @@ BOOL Editor::Search(int Next)
         {
           sprintf(MsgStr,"\"%s\"",SearchStr);
           SetCursorType(FALSE,-1);
-          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
           EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
           MessageShown=TRUE;
         }
@@ -3705,7 +3705,6 @@ BOOL Editor::Search(int Next)
           NewNumLine++;
         }
     }
-    SetPreRedrawFunc(NULL);
   }
 
   Show();
@@ -6184,14 +6183,17 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 void Editor::EditorShowMsg(const char *Title,const char *Msg, const char* Name)
 {
   Message(0,0,Title,Msg,Name);
-  PreRedrawParam.Param1=(void *)Title;
-  PreRedrawParam.Param2=(void *)Msg;
-  PreRedrawParam.Param3=(void *)Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=(void *)Title;
+  preRedrawItem.Param.Param2=(void *)Msg;
+  preRedrawItem.Param.Param3=(void *)Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg(void)
 {
-  Editor::EditorShowMsg((char*)PreRedrawParam.Param1,(char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  Editor::EditorShowMsg((char*)preRedrawItem.Param.Param1,(char*)preRedrawItem.Param.Param2,(char*)preRedrawItem.Param.Param3);
 }
 
 Edit *Editor::CreateString (const char *lpszStr, int nLength)

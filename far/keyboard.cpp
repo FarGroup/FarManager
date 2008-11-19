@@ -23,7 +23,7 @@ keyboard.cpp
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
-
+#include "TPreRedrawFunc.hpp"
 
 //from WinUser.h
 #define VK_BROWSER_BACK                  0xA6
@@ -366,6 +366,7 @@ int IsMouseButtonPressed()
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
   _KEYMACRO(CleverSysLog Clev("GetInputRecord - main"));
+  _SVS(CleverSysLog Clev("GetInputRecord"));
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
   DWORD LoopCount=0,CalcKey;
@@ -1106,9 +1107,10 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
         FrameManager->ResizeAllFrame();
         FrameManager->GetCurrentFrame()->Show();
         //// // _SVS(SysLog("PreRedrawFunc = %p",PreRedrawFunc));
-        if(PreRedrawFunc)
+        PreRedrawItem preRedrawItem=PreRedraw.Peek();
+        if(preRedrawItem.PreRedrawFunc)
         {
-          PreRedrawFunc();
+          preRedrawItem.PreRedrawFunc();
         }
       }
       return(KEY_CONSOLE_BUFFER_RESIZE);
@@ -1601,9 +1603,11 @@ int CheckForEscSilent()
       LockScreen LckScr;
       FrameManager->ResizeAllFrame();
       FrameManager->GetCurrentFrame()->Show();
-      if(PreRedrawFunc)
-        PreRedrawFunc();
-
+      PreRedrawItem preRedrawItem=PreRedraw.Peek();
+      if(preRedrawItem.PreRedrawFunc)
+      {
+        preRedrawItem.PreRedrawFunc();
+      }
     }
     else
     */

@@ -14,13 +14,11 @@ global.cpp
 /* $ 29.06.2000 tran
   берем char *CopyRight из inc файла */
 #include "copyright.inc"
-/* tran $ */
 
 /* $ 07.12.2000 SVS
    + Версия берется из файла farversion.inc
 */
 #include "farversion.inc"
-/* SVS $ */
 
 OSVERSIONINFO WinVer={0};
 
@@ -112,9 +110,6 @@ int CmdMode=FALSE;
 
 PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
 
-PREREDRAWFUNC PreRedrawFunc=NULL;
-struct PreRedrawParamStruct PreRedrawParam={0};
-
 int WidthNameForMessage=0;
 
 const char MAC_EOL_fmt[]  ="\r";
@@ -174,3 +169,4 @@ int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
 int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+

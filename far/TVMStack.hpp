@@ -47,8 +47,8 @@ class TVMStack
     bool isEmpty() const {return Total==0;};
 
   private:
-    TVMStack& operator=(const TVMStack& rhs); /* чтобы не генерировалось */
-    TVMStack(const TVMStack& rhs);            /* по умолчанию            */
+    TVMStack& operator=(const TVMStack&); /* чтобы не генерировалось */
+    TVMStack(const TVMStack&);            /* по умолчанию            */
 };
 
 #endif // __TVMSTACK_HPP__

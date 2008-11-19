@@ -1120,8 +1120,6 @@ char *WINAPI FarFormatText(const char *SrcText,int Width,
                       char *DestText,int MaxLen,
                       const char* Break, DWORD Flags);
 
-void SetPreRedrawFunc(PREREDRAWFUNC Func);
-
 int PathMayBeAbsolute(const char *Src);
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 

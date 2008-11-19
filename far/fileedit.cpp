@@ -30,6 +30,7 @@ fileedit.cpp
 #include "cmdline.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 FileEditor::FileEditor(const char *Name,DWORD InitFlags,int StartLine,int StartChar,char *PluginData,int OpenModeExstFile)
@@ -1214,6 +1215,8 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     GetFileString GetStr(EditFile);
+    TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
+
     //SaveScreen SaveScr;
     FEdit->NumLastLine=0;
     *FEdit->GlobalEOL=0;
@@ -1233,7 +1236,6 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
       if (GetCode==-1)
       {
         fclose(EditFile);
-        SetPreRedrawFunc(NULL);
         return(FALSE);
       }
       LastLineCR=0;
@@ -1246,7 +1248,6 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
           {
             UserBreak = 1;
             fclose(EditFile);
-            SetPreRedrawFunc(NULL);
             return FALSE;
           }
           MessageShown=FALSE;
@@ -1256,7 +1257,6 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
           CursorShow=false;
 
           SetCursorType(FALSE,0);
-          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
           Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
           MessageShown=TRUE;
         }
@@ -1279,12 +1279,10 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
       if(!FEdit->AddString (Str, StrLength))
       {
         fclose(EditFile);
-        SetPreRedrawFunc(NULL);
         return(FALSE);
       }
 
     }
-    SetPreRedrawFunc(NULL);
 
     if (LastLineCR)
       FEdit->AddString ("", 0);
@@ -1307,12 +1305,12 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
 // сюды плавно переносить код из Editor::SaveFile()
 int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 {
+  TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
   */
   if (FEdit->Flags.Check(FEDITOR_LOCKMODE) && !FEdit->Flags.Check(FEDITOR_MODIFIED) && !SaveAs)
     return SAVEFILE_SUCCESS;
-  /* SVS $ */
 
   if (Ask)
   {
@@ -1503,7 +1501,6 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     }
 */
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
     Edit *CurPtr=FEdit->TopList;
@@ -1551,7 +1548,6 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   }
 
 end:
-  SetPreRedrawFunc(NULL);
 
   if (FileAttributes!=-1 && FileAttributesModified)
   {

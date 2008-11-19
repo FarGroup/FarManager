@@ -394,4 +394,8 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#define VK_SLEEP          0x5F
+#endif
+
 #endif // __HEADERS_HPP__

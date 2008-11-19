@@ -29,6 +29,7 @@ Tree panel
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
+#include "TPreRedrawFunc.hpp"
 
 #define DELTA_TREECOUNT 31
 
@@ -412,6 +413,7 @@ int TreeList::ReadTree()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
+  TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA fdata;
   char FullName[NM];
@@ -449,7 +451,7 @@ int TreeList::ReadTree()
 
   int FirstCall=TRUE, AscAbort=FALSE;
   TreeStartTime = clock();
-  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
+
 
   RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
 
@@ -488,12 +490,10 @@ int TreeList::ReadTree()
     if(ListData) xf_free(ListData);
     ListData=NULL;
     TreeCount=0;
-    SetPreRedrawFunc(NULL);
     RestoreState();
     return FALSE;
   }
 
-  SetPreRedrawFunc(NULL);
   StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
   far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
@@ -645,7 +645,8 @@ void TreeList::SyncDir()
 void TreeList::PR_MsgReadTree(void)
 {
   int FirstCall=1;
-  TreeList::MsgReadTree(PreRedrawParam.Flags,FirstCall);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  TreeList::MsgReadTree(preRedrawItem.Param.Flags,FirstCall);
 }
 
 int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
@@ -665,10 +666,12 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     itoa(TreeCount,NumStr,10);
     Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
             MSG(MReadingTree),NumStr);
-    PreRedrawParam.Flags=TreeCount;
+
+    PreRedrawItem preRedrawItem=PreRedraw.Peek();
+    preRedrawItem.Param.Flags=TreeCount;
+    PreRedraw.SetParam(preRedrawItem.Param);
     TreeStartTime = clock();
   }
-  /* VVM $ */
   return(1);
 }
 
@@ -1534,6 +1537,8 @@ void TreeList::ReadSubTree(char *Path)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
+  TPreRedrawFuncGuard preRedrawFuncGuard(TreeList::PR_MsgReadTree);
+
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA fdata;
   char FullName[NM],DirName[NM];
@@ -1546,7 +1551,6 @@ void TreeList::ReadSubTree(char *Path)
 
   int FirstCall=TRUE, AscAbort=FALSE;
   ScTree.SetFindPath(DirName,"*.*",0);
-  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   LastScrX = ScrX;
   LastScrY = ScrY;
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
@@ -1565,7 +1569,6 @@ void TreeList::ReadSubTree(char *Path)
       ++Count;
     }
   }
-  SetPreRedrawFunc(NULL);
 }
 
 

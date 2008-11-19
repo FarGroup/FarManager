@@ -20,6 +20,7 @@ setattr.cpp
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 #define DM_SETATTR      (DM_USER+1)
@@ -340,7 +341,8 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 static void PR_ShellSetFileAttributesMsg(void)
 {
-  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ShellSetFileAttributesMsg((char *)preRedrawItem.Param.Param1);
 }
 
 void ShellSetFileAttributesMsg(char *Name)
@@ -374,12 +376,15 @@ void ShellSetFileAttributesMsg(char *Name)
     CenterStr(OutFileName,OutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
   Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
-  PreRedrawParam.Param1=Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 int ShellSetFileAttributes(Panel *SrcPanel)
 {
   int SkipMode=-1;
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 /*MSetAttrJunction
 00
@@ -809,7 +814,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
     // </Dialog>
 
-    SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
     ShellSetFileAttributesMsg(SelCount==1?SelName:NULL);
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
@@ -1149,7 +1153,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       } // END: while (SrcPanel->GetSelName(...))
       delete SetAttrTitle;
     }
-    SetPreRedrawFunc(NULL);
   }
 
   SrcPanel->SaveSelection();

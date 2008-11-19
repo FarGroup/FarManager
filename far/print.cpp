@@ -16,6 +16,7 @@ print.cpp
 #include "filelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
                               int PrinterNumber);
@@ -134,8 +135,8 @@ void PrintFiles(Panel *SrcPanel)
     _ALGO(CleverSysLog clv3("Print selected Files"));
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
 
-    SetPreRedrawFunc(PR_PrintMsg);
     PR_PrintMsg();
 
     HANDLE hPlugin=SrcPanel->GetPluginHandle();
@@ -203,14 +204,13 @@ void PrintFiles(Panel *SrcPanel)
         SrcPanel->ClearLastGetSelection();
       else
       {
-        SetPreRedrawFunc(NULL); //??
+        //preRedrawFunc.Set(NULL); //??
         if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
                     SelName,MSG(MSkip),MSG(MCancel))!=0)
           break;
       }
     }
     ClosePrinter(hPrinter);
-    SetPreRedrawFunc(NULL);
   }
   SrcPanel->Redraw();
   delete[] pi;

@@ -32,6 +32,7 @@ mix.cpp
 #include "lasterror.hpp"
 #include "RefreshFrameManager.hpp"
 #include "filefilter.hpp"
+#include "TPreRedrawFunc.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -237,13 +238,16 @@ int GetFileTypeByName(const char *Name)
 static void DrawGetDirInfoMsg(char *Title,const char *Name)
 {
   Message(0,0,Title,MSG(MScanningFolder),Name);
-  PreRedrawParam.Param1=Title;
-  PreRedrawParam.Param2=Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=Title;
+  preRedrawItem.Param.Param2=Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_DrawGetDirInfoMsg(void)
 {
-  DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param2);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  DrawGetDirInfoMsg((char *)preRedrawItem.Param.Param1,(char *)preRedrawItem.Param.Param2);
 }
 
 int GetDirInfo(char *Title,
@@ -265,6 +269,7 @@ int GetDirInfo(char *Title,
 
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
 
   ScanTree ScTree(FALSE,TRUE,
                   (Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)),
@@ -286,12 +291,9 @@ int GetDirInfo(char *Title,
     if (p)
       ShowDirName = p + 1;
   }
-  /* DJ */
 
   ConsoleTitle OldTitle;
   RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
-
-  PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {
@@ -330,12 +332,10 @@ int GetDirInfo(char *Title,
         case KEY_ESC:
         case KEY_BREAK:
           GetInputRecord(&rec);
-          SetPreRedrawFunc(OldPreRedrawFunc);
           return(0);
         default:
           if (Flags&GETDIRINFO_ENHBREAK)
           {
-            SetPreRedrawFunc(OldPreRedrawFunc);
             return(-1);
           }
           GetInputRecord(&rec);
@@ -347,7 +347,6 @@ int GetDirInfo(char *Title,
     {
       OldTitle.Set("%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
-      SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
       MsgOut=1;
     }
@@ -418,7 +417,6 @@ int GetDirInfo(char *Title,
     }
   }
 
-  SetPreRedrawFunc(OldPreRedrawFunc);
   return(1);
 }
 
@@ -1075,12 +1073,6 @@ void CreatePath (char *Path)
 
     ChPtr++;
   }
-}
-
-void SetPreRedrawFunc(PREREDRAWFUNC Func)
-{
-  if((PreRedrawFunc=Func) == NULL)
-    memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
 }
 
 int PathMayBeAbsolute(const char *Path)

@@ -182,6 +182,7 @@ FAROBJ=\
    $(OBJPATH)\plugins.obj\
    $(OBJPATH)\poscache.obj\
    $(OBJPATH)\print.obj\
+   $(OBJPATH)\TPreRedrawFunc.obj\
    $(OBJPATH)\mktemp.obj\
    $(OBJPATH)\qsortex.obj\
    $(OBJPATH)\qview.obj\

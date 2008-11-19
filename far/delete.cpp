@@ -22,6 +22,7 @@ delete.cpp
 #include "manager.hpp"
 #include "constitle.hpp"
 #include "fn.hpp"
+#include "TPreRedrawFunc.hpp"
 
 static void ShellDeleteMsg(const char *Name,int Wipe);
 static int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe);
@@ -40,6 +41,8 @@ enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
   ChangePriority ChPriority(Opt.DelThreadPriority);
+  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
+
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
   char FullName[2058];
@@ -54,7 +57,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 /*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
   Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
   FrameFromLaunched->Lock();
-/* OT &*/
 
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
@@ -219,7 +221,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       NeedUpdate=FALSE;
       goto done;
     }
-    SetPreRedrawFunc(PR_ShellDeleteMsg);
     ShellDeleteMsg("",Wipe);
   }
 
@@ -241,7 +242,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     int Cancel=0;
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(PR_ShellDeleteMsg);
     ShellDeleteMsg("",Wipe);
 
     ReadOnlyDeleteMode=-1;
@@ -476,7 +476,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   delete DeleteTitle;
 
 done:
-  SetPreRedrawFunc(NULL);
   Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 /*& 31.05.2001 OT Разрешить перерисовку фрейма */
   FrameFromLaunched->Unlock();
@@ -491,7 +490,8 @@ done:
 
 static void PR_ShellDeleteMsg(void)
 {
-  ShellDeleteMsg(static_cast<const char*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  ShellDeleteMsg(static_cast<const char*>(preRedrawItem.Param.Param1),(int)preRedrawItem.Param.Param5);
 }
 
 void ShellDeleteMsg(const char *Name,int Wipe)
@@ -517,14 +517,20 @@ void ShellDeleteMsg(const char *Name,int Wipe)
     if(Width < WidthTemp)
       Width=WidthTemp;
 
-    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
-    TruncPathStr(OutFileName,Width);
-    CenterStr(OutFileName,OutFileName,Width+4);
+    if(Name)
+    {
+      xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
+      TruncPathStr(OutFileName,Width);
+      CenterStr(OutFileName,OutFileName,Width+4);
 
-    Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),MSG(Wipe?MDeletingWiping:MDeleting),OutFileName);
+      Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),MSG(Wipe?MDeletingWiping:MDeleting),OutFileName);
+    }
   }
-  PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
-  PreRedrawParam.Param5=(__int64)Wipe;
+
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Param1=static_cast<void*>(const_cast<char*>(Name));
+  preRedrawItem.Param.Param5=(__int64)Wipe;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 

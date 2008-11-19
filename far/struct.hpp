@@ -604,14 +604,4 @@ struct HighlightDataColor
   WORD MarkChar;
 };
 
-struct PreRedrawParamStruct
-{
-  DWORD Flags;
-  void *Param1;
-  const void *Param2;
-  const void *Param3;
-  void *Param4;
-  __int64 Param5;
-};
-
 #endif // __FARSTRUCT_HPP__

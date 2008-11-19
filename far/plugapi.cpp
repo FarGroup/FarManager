@@ -33,6 +33,7 @@ API, доступное плагинам (диалоги, меню, ...)
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "lockscrn.hpp"
+#include "TPreRedrawFunc.hpp"
 
 
 void ScanPluginDir();
@@ -1434,6 +1435,8 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
 
   {
     SaveScreen SaveScr;
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetDirListMsg);
+
     clock_t StartTime=clock();
     int MsgOut=0;
 
@@ -1457,14 +1460,12 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
         {
           if(ItemsList)
             xf_free(ItemsList);
-          SetPreRedrawFunc(NULL);
           return FALSE;
         }
 
         if (!MsgOut && clock()-StartTime > 500)
         {
           SetCursorType(FALSE,0);
-          SetPreRedrawFunc(PR_FarGetDirListMsg);
           PR_FarGetDirListMsg();
           MsgOut=1;
         }
@@ -1473,7 +1474,6 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
         if (ItemsList==NULL)
         {
           *pItemsNumber=0;
-          SetPreRedrawFunc(NULL);
           return FALSE;
         }
       }
@@ -1484,7 +1484,6 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int
       ItemsNumber++;
     }
 
-    SetPreRedrawFunc(NULL);
     *pPanelItem=ItemsList;
     *pItemsNumber=ItemsNumber;
   }
@@ -1507,13 +1506,16 @@ static struct
 static void FarGetPluginDirListMsg(char *Name,DWORD Flags)
 {
   Message(Flags,0,"",MSG(MPreparingList),Name);
-  PreRedrawParam.Flags=Flags;
-  PreRedrawParam.Param1=Name;
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  preRedrawItem.Param.Flags=Flags;
+  preRedrawItem.Param.Param1=Name;
+  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_FarGetPluginDirListMsg(void)
 {
-  FarGetPluginDirListMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  PreRedrawItem preRedrawItem=PreRedraw.Peek();
+  FarGetPluginDirListMsg((char *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
@@ -1552,7 +1554,8 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
     {
       SaveScreen SaveScr;
 
-      SetPreRedrawFunc(NULL);
+      TPreRedrawFuncGuard preRedrawFuncGuard(PR_FarGetPluginDirListMsg);
+
       {
         char DirName[512];
         xstrncpy(DirName,Dir,sizeof(DirName)-1);
@@ -1560,7 +1563,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         CenterStr(DirName,DirName,30);
         SetCursorType(FALSE,0);
 
-        SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
         FarGetPluginDirListMsg(DirName,0);
         PluginSearchMsgOut=FALSE;
 
@@ -1601,7 +1603,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
             CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
         }
       }
-      SetPreRedrawFunc(NULL);
     }
   }
 
