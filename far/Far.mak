@@ -151,6 +151,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\keyboard.obj" \
 	"$(INTDIR)\language.obj" \
 	"$(INTDIR)\local.obj" \
+	"$(INTDIR)\localOEM.obj" \
 	"$(INTDIR)\lockscrn.obj" \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \

@@ -67,6 +67,7 @@ SRCS = 	cddrv.cpp \
 	keyboard.cpp \
 	language.cpp \
 	local.cpp \
+	localOEM.cpp \
 	lockscrn.cpp \
 	macro.cpp \
 	main.cpp \

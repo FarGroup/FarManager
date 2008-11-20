@@ -527,6 +527,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     }
   }
 
+  //Настройка OEM сортировки. Должна быть после CopyGlobalSettings и перед InitKeysArray!
+	LocalUpperInit();
+	InitLCIDSort();
   //Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
   InitKeysArray();
 

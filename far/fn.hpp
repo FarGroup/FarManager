@@ -271,6 +271,8 @@ string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 
 void SetFarTitle(const wchar_t *Title);
+void LocalUpperInit();
+void InitLCIDSort();
 void InitKeysArray();
 int WINAPI LocalIslower(unsigned Ch);
 int WINAPI LocalIsupper(unsigned Ch);
