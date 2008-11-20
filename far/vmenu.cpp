@@ -900,7 +900,7 @@ int VMenu::ProcessKey(int Key)
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   if (ItemCount==0)
-    if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC)
+    if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9)
     {
       Modal::ExitCode=-1;
       return(FALSE);
