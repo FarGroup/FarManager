@@ -3388,8 +3388,6 @@ void FileList::CopyNames(int FillPathName,int UNC)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   }
 
-  string strFullName = Info.CurDir;
-
   GetSelName(NULL,FileAttr);
   while (GetSelName(&strSelName,FileAttr,&strSelShortName))
   {
@@ -3424,6 +3422,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
       }
       else
       {
+        string strFullName = Info.CurDir;
         if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
           strFullName.Upper();
 
