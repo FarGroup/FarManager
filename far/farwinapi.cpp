@@ -10,6 +10,7 @@ farwinapi.cpp
 
 #include "global.hpp"
 #include "fn.hpp"
+#include "flink.hpp"
 
 /* $ 26.01.2003 IS
     + FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
@@ -202,11 +203,44 @@ BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo,bool ScanSymLi
       *FInfo=WFD_Info;
     return TRUE;
   }
-  else if(FInfo)
-  {
-    memset(FInfo,0,sizeof(WIN32_FIND_DATA));
-    FInfo->dwFileAttributes=(DWORD)-1;
-  }
+	else
+	{
+		DWORD dwAttr=GetFileAttributes(Name);
+		if(dwAttr!=INVALID_FILE_ATTRIBUTES)
+		{
+			// Ага, значит файл таки есть. Заполним структуру ручками.
+			if(FInfo)
+			{
+				memset(FInfo,0,sizeof(WIN32_FIND_DATA));
+				FInfo->dwFileAttributes=dwAttr;
+				HANDLE hFile=FAR_CreateFile(Name,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,(FInfo->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+				if(hFile!=INVALID_HANDLE_VALUE)
+				{
+					GetFileTime(hFile,&FInfo->ftCreationTime,&FInfo->ftLastAccessTime,&FInfo->ftLastWriteTime);
+					unsigned __int64 Size=0;
+					FAR_GetFileSize (hFile,&Size);
+					FInfo->nFileSizeHigh=(DWORD)(Size>>32);
+					FInfo->nFileSizeLow=(DWORD)(Size&0xffffffff);
+					CloseHandle(hFile);
+				}
+				if(FInfo->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+					GetReparsePointInfo(Name,NULL,0,&FInfo->dwReserved0); //MSDN
+				else
+					FInfo->dwReserved0=0;
+				FInfo->dwReserved1=0;
+				xstrncpy(FInfo->cFileName,PointToName(Name),sizeof(FInfo->cFileName));
+				char ShortName[NM];
+				ConvertNameToShort(Name,ShortName,sizeof(ShortName));
+				xstrncpy(FInfo->cAlternateFileName,PointToName(ShortName),sizeof(FInfo->cAlternateFileName));
+				return TRUE;
+			}
+		}
+	}
+	if(FInfo)
+	{
+		memset(FInfo,0,sizeof(WIN32_FIND_DATA));
+		FInfo->dwFileAttributes=INVALID_FILE_ATTRIBUTES;
+	}
   return FALSE;
 }
 
