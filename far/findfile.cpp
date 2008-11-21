@@ -2374,6 +2374,10 @@ int FindFiles::LookForString(const wchar_t *Name)
 	if (!CmpCase && !SearchHex)
 		LocalStrupr(CmpStr);
 
+	char *lpWordDiv = NULL;
+	if (WholeWords && !SearchHex)
+		lpWordDiv = UnicodeToAnsi (Opt.strWordDiv);
+
 	int FirstIteration=TRUE;
 	int ReverseBOM=FALSE;
 	int IsFirst=FALSE;
@@ -2506,8 +2510,6 @@ int FindFiles::LookForString(const wchar_t *Name)
 				  Поиск по hex-кодам
 				*/
 
-				char *lpWordDiv = UnicodeToAnsi (Opt.strWordDiv);
-
 				if (WholeWords && !SearchHex)
 				{
 					if (!FirstIteration)
@@ -2536,14 +2538,14 @@ int FindFiles::LookForString(const wchar_t *Name)
 					locResultRight=TRUE;
 				}
 
-				xf_free (lpWordDiv);
-
 				cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
 					(Length==1 || (CmpStr[1]==Buf[I+1] &&
 					(Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0)));
 
 				if (cmpResult)
 				{
+					if (lpWordDiv)
+						xf_free (lpWordDiv);
 					if (TimeRead)
 						SetFileTime(FileHandle,NULL,&LastAccess,NULL);
 					CloseHandle (FileHandle);
@@ -2615,6 +2617,8 @@ int FindFiles::LookForString(const wchar_t *Name)
 			}
 		}
 	}
+	if (lpWordDiv)
+		xf_free (lpWordDiv);
 	if (TimeRead)
 		SetFileTime(FileHandle,NULL,&LastAccess,NULL);
 	CloseHandle (FileHandle);
