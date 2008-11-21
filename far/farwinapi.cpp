@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "fn.hpp"
 #include "imports.hpp"
+#include "flink.hpp"
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
@@ -510,8 +511,41 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
         return TRUE;
     }
     else
-        pFindData->dwFileAttributes = INVALID_FILE_ATTRIBUTES; //BUGBUG
-
+	{
+		DWORD dwAttr=GetFileAttributes(lpwszFileName);
+		if(dwAttr!=INVALID_FILE_ATTRIBUTES)
+		{
+			// Ага, значит файл таки есть. Заполним структуру ручками.
+			if(pFindData)
+			{
+				pFindData->Clear();
+				pFindData->dwFileAttributes=dwAttr;
+				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,(pFindData->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+				if(hFile!=INVALID_HANDLE_VALUE)
+				{
+					GetFileTime(hFile,&pFindData->ftCreationTime,&pFindData->ftLastAccessTime,&pFindData->ftLastWriteTime);
+					apiGetFileSize (hFile,&pFindData->nFileSize);
+					CloseHandle(hFile);
+				}
+				if(pFindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				{
+					string strTmp;
+					GetReparsePointInfo(lpwszFileName,strTmp,&pFindData->dwReserved0); //MSDN
+				}
+				else
+					pFindData->dwReserved0=0;
+				pFindData->dwReserved1=0;
+				pFindData->strFileName=PointToName(lpwszFileName);
+				ConvertNameToShort(lpwszFileName,pFindData->strAlternateFileName);
+				return TRUE;
+			}
+		}
+	}
+	if(pFindData)
+	{
+		pFindData->Clear();
+		pFindData->dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
+	}
     return FALSE;
 }
 

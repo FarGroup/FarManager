@@ -3693,6 +3693,10 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				}
 				FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,NULL,NULL,FALSE);
 				Viewer.SetDynamicallyBorn(FALSE);
+
+				// а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
+				Viewer.SetTempViewName(L"nul",FALSE);
+
 				FrameManager->EnterModalEV();
 				FrameManager->ExecuteModal();
 				FrameManager->ExitModalEV();
@@ -3707,7 +3711,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				FarDialogItem di;
 				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
 				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
-				return Param2&0xFF00FF00|Color<<16|Color;
+				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
 			}
 		}
 		break;
