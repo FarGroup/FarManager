@@ -3481,25 +3481,22 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     if (!EnumRegKey(strUpKeyName,I,strRegKeyName))
       break;
 
-    const wchar_t *KeyNamePtr=wcsrchr(strRegKeyName, L'\\');
-    if (KeyNamePtr!=NULL)
+    size_t pos;
+    if (strRegKeyName.RPos(pos,L'\\'))
     {
-      strKeyText = KeyNamePtr+1;
+      strKeyText = strRegKeyName;
+      strKeyText.LShift(pos+1);
       // ПОМНИМ! что название макроса, начинающееся на символ ~ - это
       // блокированный макрос!!!
       if( strKeyText.At (0) == L'~' && strKeyText.At(1) )
       {
-          wchar_t *KeyText=strKeyText.GetBuffer();
+        pos = 1;
+        while(strKeyText.At(pos) && strKeyText.At(pos) == L'~')// && IsSpace(KeyText[1]))
+          ++pos;
 
-          wchar_t *Ptr = KeyText+1;
+        strKeyText.LShift(pos);
 
-          while(*Ptr && *Ptr == L'~')// && IsSpace(KeyText[1]))
-             ++Ptr;
-          wmemmove(KeyText,Ptr,StrLength(Ptr)+1);
-
-          strKeyText.ReleaseBuffer ();
-
-          MFlags|=MFLAGS_DISABLEMACRO;
+        MFlags|=MFLAGS_DISABLEMACRO;
       }
     }
     else

@@ -1,3 +1,11 @@
+t-rex 22.11.2008 20:05:52 +0200 - build 599
+
+1. Оптимизация UnicodeString.RPos, так как мы знаем длину строки
+
+2. Исправил пару BUGBUG.
+
+3. Косметика и оптимизация в использовании UnicodeString в нескольких местах.
+
 drkns 22.11.2008 16:17:52 +0200 - build 598
 
 1. Mantis#0000595: FSF.PasteFromClipboard и FSF.DeleteBuffer: несоответствие типов

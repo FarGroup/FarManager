@@ -405,22 +405,21 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
       if(Ptr)
       {
 				*strParam1 = Ptr+1;
-				wchar_t *EndPtr=strParam1->GetBuffer ();
 
-				EndPtr = wcschr(EndPtr,L',');
         if ( strParam2 )
           *strParam2=L"";
-        if (EndPtr!=NULL)
+
+				size_t pos;
+        if (strParam1->Pos(pos,L','))
         {
           if (strParam2)
           {
-            *strParam2 = EndPtr+1;
+            *strParam2 = *strParam1;
+						strParam2->LShift(pos+1);
             RemoveTrailingSpaces(*strParam2);
           }
-          *EndPtr=0;
+          strParam1->SetLength(pos);
         }
-
-        strParam1->ReleaseBuffer();
 
         RemoveTrailingSpaces(*strParam1);
         Found = TRUE;
@@ -517,10 +516,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
 int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage)
 {
   wchar_t ReadStr[1024];
-
   string strFullParamName;
-
-  wchar_t *Ptr;
 
   int Length=StrLength(L".Options");
 
@@ -532,24 +528,19 @@ int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strVa
     {
       strFullParamName = RemoveExternalSpaces(ReadStr+Length);
 
-      Ptr = strFullParamName.GetBuffer ();
-
-      if((Ptr=wcsrchr(Ptr,L'=')) == NULL)
+      size_t pos;
+      if (strFullParamName.RPos(pos,L'='))
       {
-        strFullParamName.ReleaseBuffer ();
-        continue;
+        strValue = strFullParamName;
+        strValue.LShift(pos+1);
+        RemoveExternalSpaces(strValue);
+
+        strFullParamName.SetLength(pos);
+        RemoveExternalSpaces (strFullParamName);
+
+        if (!StrCmpI(strFullParamName,KeyName))
+          return(TRUE);
       }
-
-      *Ptr++=0;
-
-      strValue = RemoveExternalSpaces(Ptr);
-
-      strFullParamName.ReleaseBuffer ();
-
-      RemoveExternalSpaces (strFullParamName);
-
-      if (!StrCmpI(strFullParamName,KeyName))
-        return(TRUE);
     }
   }
   fseek(SrcFile,CurFilePos,SEEK_SET);

@@ -594,13 +594,14 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
         if(ExitCode!=ERROR_SUCCESS)
           {
             string strKeyName = FullKeyName;
-            wchar_t *pSubKey = strKeyName.GetBuffer ();
+            wchar_t *pKeyName = strKeyName.GetBuffer ();
+            wchar_t *pSubKey = pKeyName;
 
             if(NULL!=(pSubKey=wcsrchr(pSubKey,L'\\')))
               {
                  *pSubKey=0;
                  pSubKey++;
-                 Exist=RegOpenKeyExW(hRoot,strKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS; //BUGBUG strKeyName
+                 Exist=RegOpenKeyExW(hRoot,pKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
                  if(Exist && hKey)
                  {
                    RetCode=RegDeleteKeyW(hKey, pSubKey)==ERROR_SUCCESS;

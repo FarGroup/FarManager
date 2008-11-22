@@ -293,12 +293,17 @@ public:
 
 	bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
 	{
-		const wchar_t *lpwszStr = wcsrchr(m_pData->GetData()+nStartPos,Ch);
-		if (lpwszStr)
+		const wchar_t *lpwszStrStart = m_pData->GetData()+nStartPos;
+		const wchar_t *lpwszStrEnd = m_pData->GetData()+m_pData->GetLength();
+		do
 		{
-			nPos = lpwszStr - m_pData->GetData();
-			return true;
-		}
+			if (*lpwszStrEnd == Ch)
+			{
+				nPos = lpwszStrEnd - m_pData->GetData();
+				return true;
+			}
+			lpwszStrEnd--;
+		} while (lpwszStrEnd >= lpwszStrStart);
 		return false;
 	}
 

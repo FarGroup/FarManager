@@ -316,28 +316,27 @@ void FileList::ShowFileList(int Fast)
 
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
-    if (!strInfoCurDir.IsEmpty()) {
+    if (!strInfoCurDir.IsEmpty())
+    {
       strCurDir = strInfoCurDir;
     }
-    else {
+    else
+    {
       struct FileListItem *CurPtr=ListData[CurFile];
       if (!TestParentFolderName(CurPtr->strName))
       {
         strCurDir = CurPtr->strName;
-
-        wchar_t *NamePtr = strCurDir.GetBuffer ();
-
-        NamePtr = wcsrchr(NamePtr,L'\\');
-
-        if (NamePtr!=NULL && NamePtr!=strCurDir) //BUGBUG, bad
+        size_t pos;
+        if (strCurDir.RPos(pos,L'\\'))
         {
-          if (*(NamePtr-1)!=L':')
-            *NamePtr=0;
-          else
-            *(NamePtr+1)=0;
+          if (pos)
+          {
+            if (strCurDir.At(pos-1)!=L':')
+              strCurDir.SetLength(pos);
+            else
+              strCurDir.SetLength(pos+1);
+          }
         }
-
-        strCurDir.ReleaseBuffer ();
       }
     }
     if (GetFocus())
@@ -349,7 +348,9 @@ void FileList::ShowFileList(int Fast)
 
   if ((Opt.ShowPanelTotals || Opt.ShowPanelFree) &&
       (Opt.ShowPanelStatus || SelFileCount==0))
+  {
     ShowTotalSize(Info);
+  }
   ShowList(FALSE,0);
   ShowSelectedSize();
   if (Opt.ShowPanelScrollbar)
@@ -1094,13 +1095,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 string strDizText;
                 strDizText = CurPtr->DizText ? CurPtr->DizText+CurLeftPos:L"";
 
-                wchar_t *DizEnd=strDizText.GetBuffer ();
-
-                DizEnd = wcschr(DizEnd,L'\4');
-                if (DizEnd!=NULL)
-                  *DizEnd=0;
-
-                strDizText.ReleaseBuffer();
+                size_t pos;
+                if (strDizText.Pos(pos,L'\4'))
+                  strDizText.SetLength(pos);
 
                 mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDizText);
               }

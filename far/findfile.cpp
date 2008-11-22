@@ -2772,26 +2772,21 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       {
         WaitForSingleObject(hPluginMutex,INFINITE);
 
-        if (wcschr(strCurName,L'\x1')==NULL && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
+				size_t pos;
+        if (strCurName.Contains(L'\x1') && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
 
           strPluginSearchPath += strCurName;
           strPluginSearchPath += L"\x1";
           ScanPluginTree(hPlugin, Flags);
-          wchar_t *szPtr = strPluginSearchPath.GetBuffer();
-          szPtr = wcsrchr(szPtr,L'\x1');
-          if (szPtr != NULL)
-            *szPtr = 0;
-          strPluginSearchPath.ReleaseBuffer();
+          if (strPluginSearchPath.RPos(pos,L'\x1'))
+            strPluginSearchPath.SetLength(pos);
         }
-        wchar_t *szPtr = strPluginSearchPath.GetBuffer();
-        wchar_t *szNamePtr = wcsrchr(szPtr,L'\x1');
-        if (szNamePtr != NULL)
-					*(szNamePtr + 1) = 0;
-				else
-					*szPtr = 0;
-				strPluginSearchPath.ReleaseBuffer();
+        if (strPluginSearchPath.RPos(pos,L'\x1'))
+          strPluginSearchPath.SetLength(pos+1);
+        else
+          strPluginSearchPath.SetLength(0);
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
           StopSearch=TRUE;
