@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Far" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output=".bin\Far" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-pipe" />
+			<Add option="-funsigned-char" />
+			<Add option="-fomit-frame-pointer" />
+			<Add option="-fno-exceptions" />
+			<Add option="-fno-rtti" />
+			<Add option="-Wno-deprecated" />
+			<Add option="-Wno-missing-braces" />
+			<Add option="-Wno-unknown-pragmas" />
+			<Add option="-Wno-switch" />
+			<Add option="-DNDEBUG" />
+			<Add option="-DWIN32" />
+			<Add option="-D_CONSOLE" />
+			<Add option="-DFARTRY" />
+			<Add option="-D_CRT_SECURE_NO_DEPRECATE" />
+			<Add option="-D_CRT_NONSTDC_NO_DEPRECATE" />
+			<Add option="-D_CRT_NON_CONFORMING_SWPRINTFS" />
+		</Compiler>
+		<Linker>
+			<Add library="mpr" />
+			<Add library="winspool" />
+		</Linker>
+		<ExtraCommands>
+			<Add before="prebuild.bat" />
+			<Mode after="always" />
+		</ExtraCommands>
+		<Unit filename="BaseFileMask.hpp" />
+		<Unit filename="CFileMask.cpp" />
+		<Unit filename="CFileMask.hpp" />
+		<Unit filename="FileMasksProcessor.cpp" />
+		<Unit filename="FileMasksProcessor.hpp" />
+		<Unit filename="FileMasksWithExclude.cpp" />
+		<Unit filename="FileMasksWithExclude.hpp" />
+		<Unit filename="PluginA.cpp" />
+		<Unit filename="PluginA.hpp" />
+		<Unit filename="PluginW.cpp" />
+		<Unit filename="PluginW.hpp" />
+		<Unit filename="RefreshFrameManager.cpp" />
+		<Unit filename="RefreshFrameManager.hpp" />
+		<Unit filename="TList.hpp" />
+		<Unit filename="TPreRedrawFunc.cpp" />
+		<Unit filename="TPreRedrawFunc.hpp" />
+		<Unit filename="TVMStack.cpp" />
+		<Unit filename="TVMStack.hpp" />
+		<Unit filename="UnicodeString.cpp" />
+		<Unit filename="UnicodeString.hpp" />
+		<Unit filename="bitflags.hpp" />
+		<Unit filename="cddrv.cpp" />
+		<Unit filename="chgmmode.cpp" />
+		<Unit filename="chgmmode.hpp" />
+		<Unit filename="chgprior.cpp" />
+		<Unit filename="chgprior.hpp" />
+		<Unit filename="clipboard.cpp" />
+		<Unit filename="cmdline.cpp" />
+		<Unit filename="cmdline.hpp" />
+		<Unit filename="cmem.cpp" />
+		<Unit filename="colors.hpp" />
+		<Unit filename="config.cpp" />
+		<Unit filename="constitle.cpp" />
+		<Unit filename="constitle.hpp" />
+		<Unit filename="copy.cpp" />
+		<Unit filename="copy.hpp" />
+		<Unit filename="ctrlobj.cpp" />
+		<Unit filename="ctrlobj.hpp" />
+		<Unit filename="cvtname.cpp" />
+		<Unit filename="del.cpp" />
+		<Unit filename="delete.cpp" />
+		<Unit filename="dialog.cpp" />
+		<Unit filename="dialog.hpp" />
+		<Unit filename="dizlist.cpp" />
+		<Unit filename="dizlist.hpp" />
+		<Unit filename="dlgedit.cpp" />
+		<Unit filename="dlgedit.hpp" />
+		<Unit filename="edit.cpp" />
+		<Unit filename="edit.hpp" />
+		<Unit filename="editor.cpp" />
+		<Unit filename="editor.hpp" />
+		<Unit filename="eject.cpp" />
+		<Unit filename="execute.cpp" />
+		<Unit filename="far.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="farconst.hpp" />
+		<Unit filename="farexcpt.cpp" />
+		<Unit filename="farexcpt.hpp" />
+		<Unit filename="farftp.hpp" />
+		<Unit filename="farqueue.cpp" />
+		<Unit filename="farqueue.hpp" />
+		<Unit filename="farrtl.cpp" />
+		<Unit filename="farwinapi.cpp" />
+		<Unit filename="ffolders.cpp" />
+		<Unit filename="fileattr.cpp" />
+		<Unit filename="fileedit.cpp" />
+		<Unit filename="fileedit.hpp" />
+		<Unit filename="filefilter.cpp" />
+		<Unit filename="filefilter.hpp" />
+		<Unit filename="filefilterparams.cpp" />
+		<Unit filename="filefilterparams.hpp" />
+		<Unit filename="filelist.cpp" />
+		<Unit filename="filelist.hpp" />
+		<Unit filename="fileowner.cpp" />
+		<Unit filename="filepanels.cpp" />
+		<Unit filename="filepanels.hpp" />
+		<Unit filename="filestr.cpp" />
+		<Unit filename="filestr.hpp" />
+		<Unit filename="filetype.cpp" />
+		<Unit filename="fileview.cpp" />
+		<Unit filename="fileview.hpp" />
+		<Unit filename="findfile.cpp" />
+		<Unit filename="findfile.hpp" />
+		<Unit filename="flink.cpp" />
+		<Unit filename="flink.hpp" />
+		<Unit filename="flmodes.cpp" />
+		<Unit filename="flplugin.cpp" />
+		<Unit filename="flshow.cpp" />
+		<Unit filename="flupdate.cpp" />
+		<Unit filename="fn.hpp" />
+		<Unit filename="fnparce.cpp" />
+		<Unit filename="foldtree.cpp" />
+		<Unit filename="foldtree.hpp" />
+		<Unit filename="frame.cpp" />
+		<Unit filename="frame.hpp" />
+		<Unit filename="gettable.cpp" />
+		<Unit filename="global.cpp" />
+		<Unit filename="global.hpp" />
+		<Unit filename="grabber.cpp" />
+		<Unit filename="grabber.hpp" />
+		<Unit filename="headers.c.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="headers.cpp.cpp" />
+		<Unit filename="headers.hpp" />
+		<Unit filename="help.cpp" />
+		<Unit filename="help.hpp" />
+		<Unit filename="hilight.cpp" />
+		<Unit filename="hilight.hpp" />
+		<Unit filename="history.cpp" />
+		<Unit filename="history.hpp" />
+		<Unit filename="hmenu.cpp" />
+		<Unit filename="hmenu.hpp" />
+		<Unit filename="hook_wow64.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="hotplug.cpp" />
+		<Unit filename="imports.cpp" />
+		<Unit filename="imports.hpp" />
+		<Unit filename="infolist.cpp" />
+		<Unit filename="infolist.hpp" />
+		<Unit filename="interf.cpp" />
+		<Unit filename="iswind.cpp" />
+		<Unit filename="keybar.cpp" />
+		<Unit filename="keybar.hpp" />
+		<Unit filename="keyboard.cpp" />
+		<Unit filename="keys.hpp" />
+		<Unit filename="lang.hpp" />
+		<Unit filename="language.cpp" />
+		<Unit filename="language.hpp" />
+		<Unit filename="lasterror.hpp" />
+		<Unit filename="local.cpp" />
+		<Unit filename="localOEM.cpp" />
+		<Unit filename="lockscrn.cpp" />
+		<Unit filename="lockscrn.hpp" />
+		<Unit filename="macro.cpp" />
+		<Unit filename="macro.hpp" />
+		<Unit filename="macroopcode.hpp" />
+		<Unit filename="main.cpp" />
+		<Unit filename="manager.cpp" />
+		<Unit filename="manager.hpp" />
+		<Unit filename="menubar.cpp" />
+		<Unit filename="menubar.hpp" />
+		<Unit filename="message.cpp" />
+		<Unit filename="mix.cpp" />
+		<Unit filename="mkdir.cpp" />
+		<Unit filename="mktemp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="modal.cpp" />
+		<Unit filename="modal.hpp" />
+		<Unit filename="namelist.cpp" />
+		<Unit filename="namelist.hpp" />
+		<Unit filename="new.cpp" />
+		<Unit filename="options.cpp" />
+		<Unit filename="palette.cpp" />
+		<Unit filename="panel.cpp" />
+		<Unit filename="panel.hpp" />
+		<Unit filename="plclass.hpp" />
+		<Unit filename="plist.cpp" />
+		<Unit filename="plognmn.cpp" />
+		<Unit filename="plognmn.hpp" />
+		<Unit filename="plugapi.cpp" />
+		<Unit filename="plugin.hpp" />
+		<Unit filename="pluginold.hpp" />
+		<Unit filename="plugins.cpp" />
+		<Unit filename="plugins.hpp" />
+		<Unit filename="poscache.cpp" />
+		<Unit filename="poscache.hpp" />
+		<Unit filename="print.cpp" />
+		<Unit filename="qsort.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="qsortex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="qview.cpp" />
+		<Unit filename="qview.hpp" />
+		<Unit filename="rdrwdsk.cpp" />
+		<Unit filename="rdrwdsk.hpp" />
+		<Unit filename="registry.cpp" />
+		<Unit filename="res.hpp" />
+		<Unit filename="savefpos.cpp" />
+		<Unit filename="savefpos.hpp" />
+		<Unit filename="savescr.cpp" />
+		<Unit filename="savescr.hpp" />
+		<Unit filename="scantree.cpp" />
+		<Unit filename="scantree.hpp" />
+		<Unit filename="scrbuf.cpp" />
+		<Unit filename="scrbuf.hpp" />
+		<Unit filename="scrobj.cpp" />
+		<Unit filename="scrobj.hpp" />
+		<Unit filename="scrsaver.cpp" />
+		<Unit filename="sdkpatches.hpp" />
+		<Unit filename="setattr.cpp" />
+		<Unit filename="setcolor.cpp" />
+		<Unit filename="stddlg.cpp" />
+		<Unit filename="strdup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="strftime.cpp" />
+		<Unit filename="strmix.cpp" />
+		<Unit filename="strncat.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="strncpy.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="struct.hpp" />
+		<Unit filename="syntax.cpp" />
+		<Unit filename="syntax.hpp" />
+		<Unit filename="syslog.cpp" />
+		<Unit filename="treelist.cpp" />
+		<Unit filename="treelist.hpp" />
+		<Unit filename="tvar.cpp" />
+		<Unit filename="tvar.hpp" />
+		<Unit filename="udlist.cpp" />
+		<Unit filename="udlist.hpp" />
+		<Unit filename="usbeject.cpp" />
+		<Unit filename="usermenu.cpp" />
+		<Unit filename="viewer.cpp" />
+		<Unit filename="viewer.hpp" />
+		<Unit filename="vmenu.cpp" />
+		<Unit filename="vmenu.hpp" />
+		<Unit filename="wrap.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="xlat.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
