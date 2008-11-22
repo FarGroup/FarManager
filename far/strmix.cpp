@@ -102,16 +102,21 @@ const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
   if ( !lpwszPath )
     return NULL;
 
+  if ( *lpwszPath!=0 && *(lpwszPath+1)==L':' ) lpwszPath+=2;
+
   const wchar_t *lpwszNamePtr = lpwszPath;
   while ( *lpwszNamePtr ) lpwszNamePtr++;
 
   while (lpwszNamePtr != lpwszPath)
   {
-    if ( *lpwszNamePtr==L'\\' || *lpwszNamePtr==L'/' || (*lpwszNamePtr==L':' && lpwszNamePtr == lpwszPath+1) )
+    if ( *lpwszNamePtr==L'\\' || *lpwszNamePtr==L'/' )
       return lpwszNamePtr+1;
     lpwszNamePtr--;
   }
-  return lpwszPath;
+  if ( *lpwszPath==L'\\' || *lpwszPath==L'/' )
+    return lpwszPath+1;
+  else
+    return lpwszPath;
 }
 
 

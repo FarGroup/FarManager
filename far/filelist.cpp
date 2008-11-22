@@ -307,11 +307,10 @@ int _cdecl SortList(const void *el1,const void *el2)
     int RetCode=CtrlObject->Plugins.Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
     apiFreeFindData(&pi1.FindData);
     apiFreeFindData(&pi2.FindData);
-    if (RetCode==-3)
+    if (RetCode==-2)
       hSortPlugin=NULL;
     else
-      if (RetCode!=-2)
-        return(ListSortOrder*RetCode);
+      return(ListSortOrder*RetCode);
   }
 
   // ÍÅ ÑÎĞÒÈĞÓÅÌ ÊÀÒÀËÎÃÈ Â ĞÅÆÈÌÅ "ÏÎ ĞÀÑØÈĞÅÍÈŞ" (Îïöèîíàëüíî!)
