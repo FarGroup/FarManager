@@ -641,7 +641,7 @@ char* WINAPI PasteFromClipboardA(void)
 	return NULL;
 }
 
-void WINAPI DeleteBufferA(char *Buffer)
+void WINAPI DeleteBufferA(void *Buffer)
 {
 	if(Buffer) xf_free(Buffer);
 }

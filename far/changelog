@@ -1,3 +1,7 @@
+drkns 22.11.2008 16:17:52 +0200 - build 598
+
+1. Mantis#0000595: FSF.PasteFromClipboard и FSF.DeleteBuffer: несоответствие типов
+
 t-rex 22.11.2008 13:26:11 +0200
 
 1. Создал папочку contrib и положил туда первую добавку, проект для Code::Blocks из Mantis#594 от Slimfast2000.

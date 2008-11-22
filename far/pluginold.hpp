@@ -1652,7 +1652,7 @@ enum FRSMODE{
 
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
-typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
+typedef void    (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 
 enum MKLINKOP{
   FLINK_HARDLINK         = 1,
