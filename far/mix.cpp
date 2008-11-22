@@ -911,7 +911,7 @@ char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
   + Удаление буфера выделенного через new char[n];
     Сделано для удаления возвращенного PasteFromClipboard
 */
-void WINAPI DeleteBuffer(char *Buffer)
+void WINAPI DeleteBuffer(void *Buffer)
 {
   if(Buffer)delete [] Buffer;
 }

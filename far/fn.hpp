@@ -733,7 +733,7 @@ BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
 // для локального пути делает букву диска в uppercase
 DWORD FarGetCurDir(DWORD Length,char *Buffer);
 
-void WINAPI DeleteBuffer(char* Buffer);
+void WINAPI DeleteBuffer(void* Buffer);
 
 #ifdef __cplusplus
 };
