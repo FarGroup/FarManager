@@ -741,7 +741,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 
   wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+2);
 
-  lpwszName[StrLength(lpwszName)+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
+  lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 
   fop.wFunc=FO_DELETE;
   fop.pFrom=lpwszName;

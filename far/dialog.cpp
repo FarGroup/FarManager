@@ -1554,16 +1554,20 @@ void Dialog::ShowDialog(unsigned ID)
         GotoXY(X1+CX1,Y1+CY1);
         SetColor(LOBYTE(HIWORD(Attr)));
         if(CY1 == CY2)
+        {
           DrawLine(CX2-CX1+1,CurItem->Type==DI_SINGLEBOX?8:9); //???
+        }
         else if(CX1 == CX2)
         {
           DrawLine(CY2-CY1+1,CurItem->Type==DI_SINGLEBOX?10:11);
           IsDrawTitle=FALSE;
         }
         else
+        {
           Box(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,
              LOBYTE(HIWORD(Attr)),
              (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
+        }
 
         if ( !CurItem->strData.IsEmpty() && IsDrawTitle)
         {
@@ -1571,18 +1575,18 @@ void Dialog::ShowDialog(unsigned ID)
           strStr = CurItem->strData;
           TruncStrFromEnd(strStr,CW-2); // 5 ???
           LenText=LenStrItem(I,strStr);
-          if(LenText < CW-2)
-          {
-			  int iLen = (int)strStr.GetLength();
-			  lpwszStr = strStr.GetBuffer(iLen + 3);
-			  {
-				  wmemmove(lpwszStr+1, lpwszStr, iLen);
-				  *lpwszStr = lpwszStr[++iLen] = L' ';
-			  }
-              strStr.ReleaseBuffer(iLen+1);
+					if(LenText < CW-2)
+					{
+						int iLen = (int)strStr.GetLength();
+						lpwszStr = strStr.GetBuffer(iLen + 3);
+						{
+							wmemmove(lpwszStr+1, lpwszStr, iLen);
+							*lpwszStr = lpwszStr[++iLen] = L' ';
+						}
+						strStr.ReleaseBuffer(iLen+1);
 
-              LenText=LenStrItem(I, strStr);
-          }
+						LenText=LenStrItem(I, strStr);
+					}
           X=X1+CX1+(CW-LenText)/2;
 
           if ((CurItem->Flags & DIF_LEFTTEXT) && X1+CX1+1 < X)

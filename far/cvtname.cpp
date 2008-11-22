@@ -130,11 +130,11 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
     TempDest = strTempDest.GetBuffer();
     wchar_t *Ptr, Chr;
 
-    Ptr = TempDest+StrLength(TempDest);
+    Ptr = TempDest + strTempDest.GetLength();
 
     const wchar_t *CtrlChar = TempDest;
 
-    if (StrLength(TempDest) > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
+    if (strTempDest.GetLength() > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
       CtrlChar = wcschr(TempDest+2, L'\\');
 
     // обычный цикл прохода имени от корня
@@ -178,33 +178,33 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
             strTempDest2 = (strJuncRoot.At(1)==L':'||!Internal)?strJuncRoot:TempDest;
           }
           DeleteEndSlash(strTempDest2);
+          // Длина пути симлинка
+          size_t temp2Length = strTempDest2.GetLength();
           // Буфер симлинка
           wchar_t* TempDest2 = strTempDest2.GetBuffer();
-          // Длина пути симлинка
-          size_t tempLength = StrLength(TempDest2);
           // Получаем длину левой и правой частей пути
           size_t leftLength = StrLength(TempDest);
           size_t rightLength = StrLength(Ptr + 1); // Измеряем длину пути начиная со следующего симовла после курсора
           // Восстановим символ
           *Ptr=Chr;
           // Если путь симлинка больше левой части пути, увеличиваем буфер
-          if (leftLength < tempLength)
+          if (leftLength < temp2Length)
           {
             // Выделяем новый буфер
-            TempDest = strTempDest.GetBuffer(strTempDest.GetLength() + tempLength - leftLength + (IsAddEndSlash?2:1));
+            TempDest = strTempDest.GetBuffer(strTempDest.GetLength() + temp2Length - leftLength + (IsAddEndSlash?2:1));
           }
           // Так как мы производили манипуляции с левой частью пути изменяем указатель на
           // текущую позицию курсора в пути
-          Ptr = TempDest + tempLength - 1;
+          Ptr = TempDest + temp2Length - 1;
           // Перемещаем правую часть пути на нужное место, только если левая чать отличается по
           // размеру от пути симлинка
-          if (leftLength != tempLength)
+          if (leftLength != temp2Length)
           {
             // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
-            wmemmove(TempDest + tempLength, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
+            wmemmove(TempDest + temp2Length, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
           }
           // Копируем путь к симлинку вначало пути
-          wmemcpy(TempDest, TempDest2, tempLength);
+          wmemcpy(TempDest, TempDest2, temp2Length);
           // Обновляем ссылку на маркер завершения прохождения по пути
           CtrlChar = TempDest;
           if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')

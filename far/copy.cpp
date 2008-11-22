@@ -437,23 +437,17 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if (SrcPanel->GetType()==TREE_PANEL)
     {
       string strNewDir;
-      wchar_t *ChPtr;
       strNewDir = strSelName;
+      size_t pos;
 
-      ChPtr = strNewDir.GetBuffer ();
-
-      if ((ChPtr=wcsrchr(ChPtr,L'\\'))!=0)
+      if (strNewDir.RPos(pos,L'\\'))
       {
-        *ChPtr=0;
+        strNewDir.SetLength(pos);
 
-        strNewDir.ReleaseBuffer ();
-
-        if (ChPtr==(const wchar_t*)strNewDir || *(ChPtr-1)==L':')
+        if (pos == 0 || strNewDir.At(pos-1)==L':')
           strNewDir += L"\\";
         FarChDir(strNewDir);
       }
-      else
-        strNewDir.ReleaseBuffer ();
     }
 
     strSelNameShort = strSelName;
@@ -1589,18 +1583,15 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     {
       string strNewPath = Dest;
 
-      wchar_t *lpwszNewPath = strNewPath.GetBuffer ();
+      size_t pos;
+      bool bFound = strNewPath.RPos(pos,L'\\');
 
-      lpwszNewPath=wcsrchr(lpwszNewPath,L'\\');
+      if (!bFound)
+        bFound=strNewPath.RPos(pos,L'/');
 
-      if(!lpwszNewPath)
-        lpwszNewPath=(wchar_t*)wcsrchr(strNewPath,L'/');
-
-      if(lpwszNewPath)
+      if (bFound)
       {
-        *lpwszNewPath=0;
-
-        strNewPath.ReleaseBuffer ();
+        strNewPath.SetLength(pos);
 
         if (Opt.CreateUppercaseFolders && !IsCaseMixed(strNewPath))
           strNewPath.Upper ();
@@ -1619,8 +1610,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
           return COPY_FAILURE;
         }
       }
-      else
-        strNewPath.ReleaseBuffer ();
     }
     DestAttr=GetFileAttributesW(Dest);
   }
@@ -1737,13 +1726,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       if (KeepPathPos && PointToName(Dest)==Dest)
       {
         strDestPath = strSelName;
-
-        wchar_t *lpwszDestPath = strDestPath.GetBuffer (strDestPath.GetLength()+StrLength(Dest)+1);
-
-        wcscpy(lpwszDestPath+KeepPathPos,Dest);
-
-        strDestPath.ReleaseBuffer ();
-
+        strDestPath.SetLength(KeepPathPos);
+        strDestPath += Dest;
         SameDisk=TRUE;
       }
 
@@ -4283,15 +4267,16 @@ void ShellCopy::ShowTitle(int FirstTime)
 int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 {
   string strSrcFullName, strDestFullName;
-  int I;
+  size_t I;
 
   // получим полные пути с учетом символических связей
   ConvertNameToReal(Src, strSrcFullName);
   ConvertNameToReal(Dest, strDestFullName);
 
   wchar_t *lpwszSrc = strSrcFullName.GetBuffer ();
+
   // уберем мусор из имен
-  for (I=StrLength(lpwszSrc)-1;I>0 && lpwszSrc[I]==L'.';I--)
+  for (I=strSrcFullName.GetLength()-1; I>0 && lpwszSrc[I]==L'.'; I--)
     lpwszSrc[I]=0;
 
   strSrcFullName.ReleaseBuffer ();
@@ -4300,7 +4285,7 @@ int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 
   wchar_t *lpwszDest = strDestFullName.GetBuffer ();
 
-  for (I=StrLength(lpwszDest)-1;I>0 && lpwszDest[I]==L'.';I--)
+  for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]==L'.'; I--)
     lpwszDest[I]=0;
 
   strDestFullName.ReleaseBuffer ();
@@ -4323,14 +4308,15 @@ int ShellCopy::CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 int ShellCopy::CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 {
   string strSrcFullName, strDestFullName;
-  int I;
+  size_t I;
 
   GetParentFolder(Src, strSrcFullName);
   GetParentFolder(Dest, strDestFullName);
 
   wchar_t *lpwszSrc = strSrcFullName.GetBuffer ();
+
   // уберем мусор из имен
-  for (I=StrLength(lpwszSrc)-1;I>0 && lpwszSrc[I]==L'.';I--)
+  for (I=strSrcFullName.GetLength()-1; I>0 && lpwszSrc[I]==L'.'; I--)
     lpwszSrc[I]=0;
 
   strSrcFullName.ReleaseBuffer ();
@@ -4339,7 +4325,7 @@ int ShellCopy::CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 
   wchar_t *lpwszDest = strDestFullName.GetBuffer ();
 
-  for (I=StrLength(lpwszDest)-1;I>0 && lpwszDest[I]=='.';I--)
+  for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]=='.'; I--)
     lpwszDest[I]=0;
 
   strDestFullName.ReleaseBuffer ();

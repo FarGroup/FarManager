@@ -1,7 +1,7 @@
 /*
 UnicodeString.hpp
 
-Unicode бва®ЄЁ
+Unicode строки
 */
 /*
 Copyright (c) 1996 Eugene Roshal

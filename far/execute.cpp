@@ -1488,35 +1488,26 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-    if(SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
+    if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
     {
       GetRegKey(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
       DeleteEndSlash(strExpandedDir);
     }
 
-    if(wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
+    if (wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
     {
       FAR_FIND_DATA_EX wfd;
-      if(apiGetFindDataEx(strExpandedDir, &wfd))
+      if (apiGetFindDataEx(strExpandedDir, &wfd))
       {
-        wchar_t *Ptr = strExpandedDir.GetBuffer (), *Ptr2;
+        size_t pos;
+        bool bFound = strExpandedDir.RPos(pos,L'\\');
+        if (!bFound)
+          bFound = strExpandedDir.RPos(pos,L'/');
 
-        Ptr2=wcsrchr(Ptr,L'\\');
-        if(!Ptr2)
-          Ptr2=wcsrchr(Ptr,L'/');
-        Ptr=Ptr2;
-
-        if(Ptr)
-        {
-          *++Ptr=0;
-          strExpandedDir.ReleaseBuffer ();
-        }
+        if (bFound)
+          strExpandedDir.SetLength(pos+1);
         else
-        {
-          strExpandedDir.ReleaseBuffer ();
-          strExpandedDir=L"";
-        }
-
+          strExpandedDir.SetLength(0);
 
         strExpandedDir += wfd.strFileName;
       }
