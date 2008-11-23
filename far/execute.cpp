@@ -1209,7 +1209,8 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
   if(!CmdLine || !*CmdLine)
     return NULL;
 
-  wchar_t Cmd[1024]; //BUGBUG
+  string strCmd;
+  string strExpandedStr;
   const wchar_t *PtrCmd=CmdLine, *CmdStart;
   int Not=FALSE;
   int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
@@ -1259,15 +1260,17 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 
       if(PtrCmd && *PtrCmd && *PtrCmd == L' ')
       {
-        string strExpandedStr;
-        wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
-        Cmd[PtrCmd-CmdStart]=0;
-        //Unquote(Cmd); BUGBUG
-//_SVS(SysLog(L"Cmd='%s'",Cmd));
-        if (apiExpandEnvironmentStrings(Cmd,strExpandedStr)!=0)
+        {
+          wchar_t *lpwszCmd = strCmd.GetBuffer(PtrCmd-CmdStart+1);
+          wmemcpy(lpwszCmd,CmdStart,PtrCmd-CmdStart);
+          strCmd.ReleaseBuffer(PtrCmd-CmdStart);
+        }
+        Unquote(strCmd);
+//_SVS(SysLog(L"Cmd='%s'",(const wchar_t *)strCmd));
+        if (apiExpandEnvironmentStrings(strCmd,strExpandedStr)!=0)
         {
           string strFullPath;
-          if(!(Cmd[1] == L':' || (Cmd[0] == L'\\' && Cmd[1]==L'\\') || strExpandedStr.At(1) == L':' || (strExpandedStr.At(0) == L'\\' && strExpandedStr.At(1)==L'\\')))
+          if (!(strCmd.At(1) == L':' || (strCmd.At(0) == L'\\' && strCmd.At(1)==L'\\') || strExpandedStr.At(1) == L':' || (strExpandedStr.At(0) == L'\\' && strExpandedStr.At(1)==L'\\')))
           {
             if(CtrlObject)
               CtrlObject->CmdLine->GetCurDir(strFullPath);
@@ -1277,7 +1280,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           }
           strFullPath += strExpandedStr;
           DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-          if(wcspbrk(&strExpandedStr[PathPrefix(strExpandedStr)?4:0],L"*?")) // это маска?
+          if (wcspbrk((const wchar_t *)strExpandedStr+(PathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
           {
             FAR_FIND_DATA_EX wfd;
 
@@ -1314,10 +1317,12 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
         PtrCmd=wcschr(PtrCmd,L' ');
         if(PtrCmd && *PtrCmd && *PtrCmd == L' ')
         {
-          string strExpandedStr;
-          wmemmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
-          Cmd[PtrCmd-CmdStart]=0;
-          DWORD ERet=apiGetEnvironmentVariable(Cmd,strExpandedStr);
+          {
+            wchar_t *lpwszCmd = strCmd.GetBuffer(PtrCmd-CmdStart+1);
+            wmemcpy(lpwszCmd,CmdStart,PtrCmd-CmdStart);
+            strCmd.ReleaseBuffer(PtrCmd-CmdStart);
+          }
+          DWORD ERet=apiGetEnvironmentVariable(strCmd,strExpandedStr);
 //_SVS(SysLog(Cmd));
           if ((ERet && !Not) || (!ERet && Not))
           {

@@ -108,6 +108,7 @@ void ShellMakeDir(Panel *SrcPanel)
       lpwszDirName[Length-1]=0;
 
     for (wchar_t *ChPtr=lpwszDirName;*ChPtr!=0;ChPtr++)
+    {
       if (*ChPtr==L'\\' || *ChPtr==L'/')
       {
         *ChPtr=0;
@@ -119,6 +120,7 @@ void ShellMakeDir(Panel *SrcPanel)
         }
         *ChPtr=L'\\';
       }
+    }
 
     strDirName.ReleaseBuffer ();
 
@@ -136,14 +138,18 @@ void ShellMakeDir(Panel *SrcPanel)
         else
           ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MOk),MSG(MSkip));
         bSkip = ret==1;
-        if (bSuccess || bSkip) break;
-        else return;
+        if (bSuccess || bSkip)
+          break;
+        else
+          return;
       }
       else
       {
         int ret;
         if (DirList.IsEmpty())
+        {
           ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MCancel));
+        }
         else
         {
           ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
@@ -164,21 +170,17 @@ void ShellMakeDir(Panel *SrcPanel)
 
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
-  lpwszDirName = strDirName.GetBuffer ();
-
-  if(*lpwszDirName)
+  if (!strDirName.IsEmpty())
   {
-    wchar_t *Slash=wcschr(lpwszDirName,L'\\');
-    if (Slash!=NULL)
-      *Slash=0;
-    if(!SrcPanel->GoToFile(lpwszDirName) && lpwszDirName[StrLength(lpwszDirName)-1]==L'.')
+    size_t pos;
+    if (strDirName.Pos(pos,L'\\'))
+      strDirName.SetLength(pos);
+    if(!SrcPanel->GoToFile(strDirName) && strDirName.At(strDirName.GetLength()-1)==L'.')
     {
-      lpwszDirName[StrLength(lpwszDirName)-1]=0;
-      SrcPanel->GoToFile(lpwszDirName);
+      strDirName.SetLength(strDirName.GetLength()-1);
+      SrcPanel->GoToFile(strDirName);
     }
   }
-
-  strDirName.ReleaseBuffer ();
 
   SrcPanel->Redraw();
 

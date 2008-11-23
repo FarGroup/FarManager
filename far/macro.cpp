@@ -3509,6 +3509,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     DWORD regType=0;
     if(GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"",&regType) && regType == REG_MULTI_SZ)
     {
+      //BUGBUG а каким боком REG_MULTI_SZ засунули в string?
       // –азличаем так же REG_MULTI_SZ
       wchar_t *ptrBuffer = strBuffer.GetBuffer ();
       while(1)

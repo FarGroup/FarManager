@@ -94,17 +94,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     {
       strCurDir = NewDir;
       AddEndSlash(strCurDir);
-
-      wchar_t *lpwszChr = strCurDir.GetBuffer();
-
-      while(*lpwszChr)
-      {
-        if(*lpwszChr==L'/')
-           *lpwszChr=L'\\';
-        ++lpwszChr;
-      }
-
-      strCurDir.ReleaseBuffer ();
+      ReplaceSlashToBSlash(strCurDir);
     }
     //*CurDir=toupper(*CurDir); бред!
     if(ChangeDir)
@@ -119,16 +109,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     if(!StrCmp(strCurDir,L"\\"))
       FarGetCurDir(strCurDir); // здесь берем корень
 
-    wchar_t *lpwszChr = strCurDir.GetBuffer();
-
-    while(*lpwszChr)
-    {
-      if(*lpwszChr==L'/')
-         *lpwszChr=L'\\';
-      ++lpwszChr;
-    }
-
-    strCurDir.ReleaseBuffer ();
+    ReplaceSlashToBSlash(strCurDir);
 
     if(ChangeDir)
     {
@@ -160,7 +141,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
       SetEnvironmentVariableW(Drive,lpwszCurDir);
     }
 
-    strCurDir.ReleaseBuffer ();
+    //strCurDir.ReleaseBuffer (); не надо ибо string и так удалится при выходе, лишний StrLength
   }
   return rc;
 }
@@ -172,31 +153,32 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
 DWORD FarGetCurDir(string &strBuffer)
 {
-    int nLength = GetCurrentDirectoryW (0, NULL);
+	int nLength = GetCurrentDirectoryW (0, NULL);
 
-    wchar_t *lpwszBuffer = strBuffer.GetBuffer (nLength);
+	wchar_t *lpwszBuffer = strBuffer.GetBuffer (nLength);
 
-    DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
+	DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
 
-    /*
-    баг в GetCurrentDirectory:
-    если текущий каталог - "\\?\Volume{GUID}\",
-    то в Buffer не попадает завершающий слеш
-    и дальнейшая работа с таким путём обламывается.
-    */
-    if(IsLocalVolumeRootPath(lpwszBuffer))
-      AddEndSlash(lpwszBuffer);
+	/*
+	баг в GetCurrentDirectory:
+	если текущий каталог - "\\?\Volume{GUID}\",
+	то в Buffer не попадает завершающий слеш
+	и дальнейшая работа с таким путём обламывается.
+	*/
+	if(IsLocalVolumeRootPath(lpwszBuffer))
+		AddEndSlash(lpwszBuffer);
 
-    if ( Result &&
-         IsAlpha (*lpwszBuffer) &&
-         lpwszBuffer[1] == L':' &&
-         (lpwszBuffer[2] == 0 || lpwszBuffer[2] == L'\\')
-         )
-         *lpwszBuffer = Upper (*lpwszBuffer);
+	if ( Result &&
+			 IsAlpha (*lpwszBuffer) &&
+			 lpwszBuffer[1] == L':' &&
+			 (lpwszBuffer[2] == 0 || lpwszBuffer[2] == L'\\'))
+	{
+		*lpwszBuffer = Upper (*lpwszBuffer);
+	}
 
-    strBuffer.ReleaseBuffer ();
+	strBuffer.ReleaseBuffer ();
 
-    return Result;
+	return Result;
 }
 
 
@@ -1393,7 +1375,9 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
 			{
 				if(IsLocalPrefixPath(lpwszPath))
+				{
 					lpwszPath[4] = Upper(lpwszPath[4]);
+				}
 				else
 				{
 					wchar_t *ptr=&lpwszPath[2];
@@ -1405,7 +1389,9 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 				}
 			}
 			else
+			{
 				lpwszPath[0]=Upper(lpwszPath[0]);
+			}
 
 			strPath.ReleaseBuffer ();
 		}
@@ -1912,19 +1898,14 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
   {
     strComputerName = (const wchar_t*)strNetDir+2;
 
-    wchar_t *ComputerName = strComputerName.GetBuffer ();
-
-    wchar_t *EndSlash=wcschr (ComputerName, L'\\');
-
-    if (EndSlash==NULL)
+    size_t pos;
+    if (!strComputerName.Pos(pos,L'\\'))
     {
-      strComputerName.ReleaseBuffer ();
-      strComputerName=L"";
+      strComputerName.SetLength(0);
     }
     else
     {
-      *EndSlash=0;
-      strComputerName.ReleaseBuffer ();
+      strComputerName.SetLength(pos);
     }
   }
 

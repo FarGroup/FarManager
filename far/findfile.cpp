@@ -1688,13 +1688,11 @@ int FindFiles::FindFilesProcess()
         if ( (GetFileAttributesW(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {
-          wchar_t *NamePtr = strFileName.GetBuffer();
-          NamePtr=(wchar_t*)PointToName(NamePtr);
+          const wchar_t *NamePtr = PointToName(strFileName);
 
           strSetName = NamePtr;
-          *NamePtr=0;
 
-          strFileName.ReleaseBuffer();
+          strFileName.SetLength(NamePtr-(const wchar_t *)strFileName);
 
           Length=(int)strFileName.GetLength();
 
@@ -1725,7 +1723,7 @@ int FindFiles::FindFilesProcess()
           if (Length>1 && strDirTmp.At(Length-1)==L'\\' && strDirTmp.At(Length-2)!=L':')
             strDirTmp.SetLength(Length-1);
 
-          if(0!=StrCmpI(strFileName, strDirTmp))
+          if (0!=StrCmpI(strFileName, strDirTmp))
             FindPanel->SetCurDir(strFileName,TRUE);
         }
         if ( !strSetName.IsEmpty() )
@@ -1753,13 +1751,13 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
      легче определить плагиновые пути и, соответственно,
      сделать правильный переход.
   */
-  if ( StrLength(DirName)>0 )
-    IsPluginDir=wcschr(DirName,L'\x1')!=NULL;
+  strName = DirName;
+  if ( strName.GetLength() > 0 )
+    IsPluginDir=strName.Contains(L'\x1')?TRUE:FALSE;
   else
     IsPluginDir=FALSE;
 
-  strName = DirName;
-  StartName=strName.GetBuffer();
+  StartName = strName.GetBuffer();
   while(IsPluginDir?(EndName=wcschr(StartName,L'\x1'))!=NULL:(EndName=wcschr(StartName,L'\\'))!=NULL)
   {
     *EndName=0;
@@ -1783,7 +1781,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
     CtrlObject->Cp()->ActivePanel->Show();
   }
 
-  strName.ReleaseBuffer();
+  //strName.ReleaseBuffer(); Не надо. Строка все ровно удаляется, лишний вызов StrLength.
 }
 
 void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
@@ -2142,7 +2140,9 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   ListItem.Clear ();
 
   if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+  {
     strSizeText.Format (L"%13s", MSG(MFindFileFolder));
+  }
   else
   {
     wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!

@@ -66,9 +66,9 @@ struct FileTypeStringsW
 const FileTypeStringsW FTSW=
 {
     L"FileAssoc",L"FileAssocModify",
-        L"Associations",L"Associations\\Type%d",L"Associations\\Type",
-        L"Execute",L"Description",L"Mask",L"View",L"Edit",
-        L"AltExec",L"AltView",L"AltEdit"
+    L"Associations",L"Associations\\Type%d",L"Associations\\Type",
+    L"Execute",L"Description",L"Mask",L"View",L"Edit",
+    L"AltExec",L"AltView",L"AltEdit"
 };
 
 
@@ -82,24 +82,25 @@ BOOL ExtractIfExistCommand (string &strCommandText)
 {
   const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
 
-  wchar_t *CommandText = strCommandText.GetBuffer();
-
-  wchar_t *PtrCmd = CommandText+(wPtrCmd-(const wchar_t*)strCommandText); //BUGBUG
-
-  if(PtrCmd)
+  if (wPtrCmd)
   {
-    if(!*PtrCmd) // Во! Условие не выполнено!!!
-                 // (например, пока рассматривали менюху, в это время)
-                 // какой-то злобный чебурашка стер файл!
+    // Во! Условие не выполнено!!!
+    // (например, пока рассматривали менюху, в это время)
+    // какой-то злобный чебурашка стер файл!
+    if (!*wPtrCmd)
       return FALSE;
+
+		size_t offset = wPtrCmd-(const wchar_t*)strCommandText;
+		wchar_t *CommandText = strCommandText.GetBuffer();
+		wchar_t *PtrCmd = CommandText+offset;
     // прокинем "if exist"
-    if ( *CommandText == L'@')
+    if (*CommandText == L'@')
       wmemmove(CommandText+1,PtrCmd,StrLength(PtrCmd)+1);
     else
       wmemmove(CommandText,PtrCmd,StrLength(PtrCmd)+1);
-  }
 
-  strCommandText.ReleaseBuffer ();
+    strCommandText.ReleaseBuffer ();
+  }
 
   return TRUE;
 }
@@ -308,6 +309,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
   string strValue;
+  size_t pos;
   const wchar_t *ExtPtr;
   HKEY hClassesKey;
 
@@ -342,33 +344,26 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
     RegCloseKey(hKey);
     apiExpandEnvironmentStrings (strAssocStr,strExpAssocStr);
 
-    wchar_t *ChPtr = strExpAssocStr.GetBuffer ();
-
-    if ((ChPtr=wcsstr(ChPtr,L"%*"))!=NULL)
+    if (strExpAssocStr.Pos(pos,L"%*"))
     {
+      wchar_t *ChPtr = strExpAssocStr.GetBuffer ();
       string strTmpStr;
-      strTmpStr = ChPtr+2;
-      wcscpy(ChPtr,strTmpStr);
+      strTmpStr = ChPtr+pos+2;
+      wcscpy(ChPtr+pos,strTmpStr);
+      strExpAssocStr.ReleaseBuffer ();
     }
-    strExpAssocStr.ReleaseBuffer ();
 
-
-    ChPtr = strExpAssocStr.GetBuffer (strExpAssocStr.GetLength()+StrLength(Name)+1);
-
-    if ((ChPtr=wcsstr(ChPtr,L"%1"))!=NULL)
+    if (strExpAssocStr.Pos(pos,L"%1"))
     {
+	    wchar_t *ChPtr = strExpAssocStr.GetBuffer (strExpAssocStr.GetLength()+StrLength(Name)+1);
       string strTmpStr;
       strTmpStr = ChPtr+2;
       wcscpy(ChPtr,Name);
-
       strExpAssocStr.ReleaseBuffer ();
-
       strExpAssocStr += strTmpStr;
     }
     else
     {
-      strExpAssocStr.ReleaseBuffer ();
-
       wchar_t ExecStr[MAX_PATH]; //MAX_PATH - MSDN!
 
       if (FindExecutableW(Name,L"",ExecStr)<=(HINSTANCE)32)
@@ -392,11 +387,13 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
         {
           int SpacePresent=0;
           for (int J=0;J<I;J++)
+          {
             if (strExpAssocStr.At(J)==L' ')
             {
               SpacePresent=1;
               break;
             }
+          }
           if (SpacePresent)
           {
             string strNewStr;
@@ -418,7 +415,6 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
         }
       }
     }
-
     CtrlObject->CmdLine->ExecString(strExpAssocStr,AlwaysWaitFinish);
   }
   else

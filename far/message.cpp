@@ -230,6 +230,7 @@ int Message(
 
     PtrStr = strErrStr.GetBuffer ();
 
+    //BUGBUG: string не преднозначен для хранения строк разделённых \0
     while((PtrStr=wcschr(PtrStr,L'\n')) != NULL)
     {
       *PtrStr++=0;
@@ -243,6 +244,7 @@ int Message(
       CountErrorLine=ADDSPACEFORPSTRFORMESSAGE; //??
   }
 
+  //BUGBUG: string не преднозначен для хранения строк разделённых \0
   // заполняем массив...
   CPtrStr=strErrStr;
   for (I=0; I < CountErrorLine;I++)

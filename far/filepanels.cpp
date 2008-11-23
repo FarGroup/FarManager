@@ -74,7 +74,7 @@ FilePanels::FilePanels()
 //  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
 
-static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
+static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 {
   if ( strSrc.IsEmpty() )
   {
@@ -82,24 +82,24 @@ static void PrepareOptFolderW(string &strSrc, int IsLocalPath_FarPath)
     DeleteEndSlash(strSrc);
   }
   else
+  {
     apiExpandEnvironmentStrings(strSrc, strSrc);
+  }
 
-  if(!StrCmp(strSrc,L"/"))
+  if (!StrCmp(strSrc,L"/"))
   {
     strSrc = g_strFarPath;
 
-    wchar_t *lpwszSrc = strSrc.GetBuffer ();
-
-    if(IsLocalPath_FarPath)
+    if (IsLocalPath_FarPath)
     {
-      lpwszSrc[2]='\\';
-      lpwszSrc[3]=0;
+      strSrc.SetLength(2);
+      strSrc += L"\\";
     }
-
-    strSrc.ReleaseBuffer ();
   }
   else
+  {
     CheckShortcutFolder(&strSrc,FALSE,TRUE);
+  }
 }
 
 void FilePanels::Init()
@@ -141,9 +141,9 @@ void FilePanels::Init()
 
   // пытаемся избавится от зависания при запуске
   int IsLocalPath_FarPath=IsLocalPath(g_strFarPath);
-  PrepareOptFolderW(Opt.strLeftFolder,IsLocalPath_FarPath);
-  PrepareOptFolderW(Opt.strRightFolder,IsLocalPath_FarPath);
-  PrepareOptFolderW(Opt.strPassiveFolder,IsLocalPath_FarPath);
+  PrepareOptFolder(Opt.strLeftFolder,IsLocalPath_FarPath);
+  PrepareOptFolder(Opt.strRightFolder,IsLocalPath_FarPath);
+  PrepareOptFolder(Opt.strPassiveFolder,IsLocalPath_FarPath);
 
   if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {

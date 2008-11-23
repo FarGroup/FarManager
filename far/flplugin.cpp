@@ -586,7 +586,6 @@ void FileList::PluginHostGetFiles()
   string strDestPath;
   string strSelName;
 
-  wchar_t *ExtPtr;
   DWORD FileAttr;
 
   SaveSelection();
@@ -599,14 +598,11 @@ void FileList::PluginHostGetFiles()
   if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType()!=FILE_PANEL) &&
       SelFileCount==0) || strDestPath.IsEmpty() )
   {
-      strDestPath = PointToName(strSelName);
+    strDestPath = PointToName(strSelName);
     // SVS: ј зачем здесь велс€ поиск точки с начала?
-    wchar_t *lpwszDestPath = strDestPath.GetBuffer();
-
-    if ((ExtPtr=wcsrchr(lpwszDestPath,L'.'))!=NULL)
-      *ExtPtr=0;
-
-    strDestPath.ReleaseBuffer();
+    size_t pos;
+    if (strDestPath.RPos(pos,L'.'))
+      strDestPath.SetLength(pos);
   }
 
   int OpMode=OPM_TOPLEVEL,ExitLoop=FALSE;

@@ -730,8 +730,6 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   string strTempRoot;
   string strNewPath;
 
-  wchar_t *TmpPtr;
-
   int IsUNC = FALSE;
   int PathLen = StrLength(Path);
 
@@ -762,24 +760,21 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
     string strJuncName;
 
     strTempRoot = strNewPath;
-    TmpPtr=strTempRoot.GetBuffer ();
-    wchar_t *TempRoot = TmpPtr;
 
-    wchar_t *CtlChar = NULL; // Указатель на начало реального пути в UNC. Без имени сервера
-    if (IsUNC)
-      CtlChar = wcschr(TmpPtr+2,L'\\');
-    if (!IsUNC || CtlChar)
+    size_t posCtlChar = 0; // позиция начала реального пути в UNC. Без имени сервера
+    if (!IsUNC || strTempRoot.Pos(posCtlChar,L'\\',2))
     {
-      wchar_t *Ptr=wcsrchr(TmpPtr,L'\\');
-      while(Ptr >= CtlChar && StrLength(TempRoot) > 2)
+      size_t pos = 0;
+      bool bFound = strTempRoot.RPos(pos,L'\\');
+      while (pos >= posCtlChar && strTempRoot.GetLength() > 2)
       {
-        FileAttr=GetFileAttributesW(TempRoot);
+        FileAttr=GetFileAttributesW(strTempRoot);
 
-				if(FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+				if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          if(GetReparsePointInfo(TempRoot,strJuncName))
+          if (GetReparsePointInfo(strTempRoot,strJuncName))
           {
-            if(!StrCmpN(strJuncName,L"\\??\\",4))
+            if (!StrCmpN(strJuncName,L"\\??\\",4))
               strJuncName.LShift(4);
 
             if (strJuncName.At(0) == L'.') //BUGBUG
@@ -788,34 +783,41 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
               //    а во вторых нужна потому что в висте симлинки могут содержать относительный
               //    путь. Тут видимо надо как то заюзать GetFullPathName.
               string strTempJunc;
-              if (Ptr)
+              if (bFound)
               {
-                *Ptr = 0;
-                if (*(Ptr+1) == 0)
+                if (strTempRoot.GetLength() == pos+1)
                 {
-                  Ptr=wcsrchr(TmpPtr,L'\\');
-                  if (Ptr) *Ptr = 0;
+                	strTempRoot.SetLength(pos);
+                  if (strTempRoot.RPos(pos,L'\\'))
+                    strTempRoot.SetLength(pos);
+                }
+                else
+                {
+                 	strTempRoot.SetLength(pos);
                 }
               }
-              strJuncName=TempRoot+strJuncName;
+              strJuncName=strTempRoot+strJuncName;
             }
 
-            if(!Reenter && !IsLocalVolumePath(strJuncName))
+            if (!Reenter && !IsLocalVolumePath(strJuncName))
               _GetPathRoot(strJuncName,strRoot,TRUE);
             else
               GetPathRootOne(strJuncName,strRoot);
 
-            strTempRoot.ReleaseBuffer ();
             return;
           }
         } /* if */
-        if(Ptr) *Ptr=0; else break;
-        Ptr=wcsrchr(TmpPtr,L'\\');
+
+        if (bFound)
+          strTempRoot.SetLength(pos);
+        else
+          break;
+
+        bFound = strTempRoot.RPos(pos,L'\\');
       } /* while */
     } /* if */
-
-    strTempRoot.ReleaseBuffer ();
   } /* if */
+
   GetPathRootOne(strNewPath, strRoot);
 }
 

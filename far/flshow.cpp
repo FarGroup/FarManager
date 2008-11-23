@@ -507,9 +507,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
   if (RightAlign && SrcLength>MaxLength)
   {
     wmemcpy(lpwszDest,SrcName+SrcLength-MaxLength,MaxLength);
-    lpwszDest[MaxLength]=0;
-
-    strDest.ReleaseBuffer ();
+    strDest.ReleaseBuffer (MaxLength);
     return(TRUE);
   }
   const wchar_t *DotPtr;
@@ -530,10 +528,11 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
     wmemcpy(lpwszDest+DotPos,DotPtr+1,DotLength);
   }
   else
+  {
     wmemcpy(lpwszDest,SrcName,Min(SrcLength, MaxLength));
-  lpwszDest[MaxLength]=0;
+  }
 
-  strDest.ReleaseBuffer ();
+  strDest.ReleaseBuffer (MaxLength);
 
   return(SrcLength>MaxLength);
 }

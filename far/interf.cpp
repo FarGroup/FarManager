@@ -800,16 +800,13 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 {
   string strTextStr;
   int SaveColor;
-  wchar_t *ChPtr;
+  size_t pos;
 
   strTextStr = Str;
 
-  ChPtr = strTextStr.GetBuffer();
-
-  if ((ChPtr=wcschr(ChPtr,L'&'))==NULL)
+  if (!strTextStr.Pos(pos,L'&'))
   {
-    strTextStr.ReleaseBuffer ();
-    if(isVertText)
+    if (isVertText)
       VText(strTextStr);
     else
       Text(strTextStr);
@@ -825,16 +822,17 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
                   ^H
        &&&&&&  = '&&&'
     */
+    wchar_t *ChPtr = strTextStr.GetBuffer() + pos;
     int I=0;
     wchar_t *ChPtr2=ChPtr;
     while(*ChPtr2++ == L'&')
       ++I;
 
-    if(I&1) // нечет?
+    if (I&1) // нечет?
     {
       *ChPtr=0;
 
-      if(isVertText)
+      if (isVertText)
         VText(strTextStr);
       else
         Text(strTextStr); //BUGBUG BAD!!!
@@ -844,7 +842,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
         SaveColor=CurColor;
         SetColor(HiColor);
         Chr[0]=ChPtr[1]; Chr[1]=0;
-        if(isVertText)
+        if (isVertText)
           VText(Chr);
         else
           Text(Chr);
@@ -855,7 +853,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
         strTextStr.ReleaseBuffer ();
 
         ReplaceStrings(strText,L"&&",L"&",-1);
-        if(isVertText)
+        if (isVertText)
           VText((const wchar_t*)strText+1);
         else
           Text((const wchar_t*)strText+1);
@@ -866,7 +864,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
       strTextStr.ReleaseBuffer ();
 
       ReplaceStrings(strTextStr,L"&&",L"&",-1);
-      if(isVertText)
+      if (isVertText)
         VText(strTextStr);
       else
         Text(strTextStr); //BUGBUG BAD!!!

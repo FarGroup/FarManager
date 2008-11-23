@@ -249,13 +249,13 @@ public:
 	void Lower (size_t nStartPos=0, size_t nLength=(size_t)-1)
 	{
 		Inflate (m_pData->GetSize());
-		CharLowerBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?m_pData->GetLength()-nStartPos:nLength);
+		CharLowerBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
 	}
 
 	void Upper (size_t nStartPos=0, size_t nLength=(size_t)-1)
 	{
 		Inflate (m_pData->GetSize());
-		CharUpperBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?m_pData->GetLength()-nStartPos:nLength);
+		CharUpperBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
 	}
 
 	void LShift (size_t nNewPos)

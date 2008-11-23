@@ -224,14 +224,9 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
     StackData.strHelpTopic = Topic;
     if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-      wchar_t *Ptr = StackData.strHelpTopic.GetBuffer ();
-
-      Ptr=wcsrchr(Ptr,HelpEndLink);
-
-      if ( Ptr )
-        *++Ptr = 0;
-
-      StackData.strHelpTopic.ReleaseBuffer ();
+      size_t pos;
+      if (StackData.strHelpTopic.RPos(pos,HelpEndLink))
+        StackData.strHelpTopic.SetLength(pos+1);
 
       StackData.strHelpTopic += HelpContents;
     }
@@ -315,20 +310,17 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   string strPath;
 
-  wchar_t *TopicPtr;
   if ( StackData.strHelpTopic.At (0)==HelpBeginLink)
   {
     strPath = (const wchar_t*)StackData.strHelpTopic+1;
 
-    wchar_t *lpwszPath = strPath.GetBuffer();
-
-    if ((TopicPtr=wcschr(lpwszPath,HelpEndLink))==NULL)
+    size_t pos;
+    if (!strPath.Pos(pos,HelpEndLink))
       return FALSE;
-    StackData.strHelpTopic = TopicPtr+1;
-    *TopicPtr=0;
 
-    strPath.ReleaseBuffer();
+    StackData.strHelpTopic = (const wchar_t *)strPath + pos + 1;
 
+    strPath.SetLength(pos);
     DeleteEndSlash(strPath,true);
     AddEndSlash(strPath);
 
@@ -336,7 +328,9 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   }
   else
+  {
     strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:g_strFarPath;
+  }
 
   if (!StrCmp(StackData.strHelpTopic,PluginContents))
   {
@@ -857,14 +851,15 @@ void Help::OutString(const wchar_t *Str)
           {
             StackData.strSelTopic = (Str+2);
 
-            wchar_t *EndPtr = StackData.strSelTopic.GetBuffer (StackData.strSelTopic.GetLength()*2);
-            EndPtr=wcschr(EndPtr,L'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
                этот вариант только для URL!
             */
-            if (EndPtr!=NULL)
+            size_t pos;
+            if (StackData.strSelTopic.Pos(pos,L'@'))
             {
+              wchar_t *EndPtr = StackData.strSelTopic.GetBuffer (StackData.strSelTopic.GetLength()*2) + pos;
+
               if(*(EndPtr+1) == L'@')
               {
                 wmemmove(EndPtr,EndPtr+1,StrLength(EndPtr)+1);
@@ -873,19 +868,23 @@ void Help::OutString(const wchar_t *Str)
               EndPtr=wcschr(EndPtr,L'@');
               if (EndPtr!=NULL)
                 *EndPtr=0;
-            }
 
-            StackData.strSelTopic.ReleaseBuffer ();
+              StackData.strSelTopic.ReleaseBuffer ();
+            }
           }
         }
         else
+        {
           SetColor(COL_HELPTOPIC);
+        }
       }
       else
+      {
         if (Highlight)
           SetColor(COL_HELPHIGHLIGHTTEXT);
         else
           SetColor(CurColor);
+      }
       /* $ 24.09.2001 VVM
         ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
       if (static_cast<int>(StrLength(OutStr) + WhereX()) > X2)
@@ -1399,6 +1398,7 @@ int Help::ProcessKey(int Key)
 int Help::JumpTopic(const wchar_t *JumpTopic)
 {
   string strNewTopic;
+  size_t pos;
 
   Stack->PrintStack(JumpTopic);
 
@@ -1410,42 +1410,27 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   */
   // Если ссылка на другой файл, путь относительный и есть то, от чего можно
   // вычислить абсолютный путь, то сделаем это
-  if( StackData.strSelTopic.At(0)==HelpBeginLink &&
-     NULL!=(wcschr((const wchar_t*)StackData.strSelTopic+2,HelpEndLink))&&
-     !PathMayBeAbsolute((const wchar_t*)StackData.strSelTopic+1) &&
-     !StackData.strHelpPath.IsEmpty())
+  if( StackData.strSelTopic.At(0)==HelpBeginLink
+      && StackData.strSelTopic.Pos(pos,HelpEndLink,2)
+      && !PathMayBeAbsolute((const wchar_t *)StackData.strSelTopic+1)
+      && !StackData.strHelpPath.IsEmpty())
   {
 
     string strFullPath;
 
-    const wchar_t *p = wcschr ((const wchar_t*)StackData.strSelTopic+2, HelpEndLink);
+    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(pos);
 
-    wchar_t *lpwszHelpTopic = strNewTopic.GetBuffer(p-(const wchar_t*)StackData.strSelTopic);
-
-    xwcsncpy(lpwszHelpTopic, (const wchar_t*)StackData.strSelTopic+1,(p-(const wchar_t*)StackData.strSelTopic-1));
+    xwcsncpy(lpwszHelpTopic, (const wchar_t *)StackData.strSelTopic+1,pos-1);
 
     strNewTopic.ReleaseBuffer();
 
     strFullPath = StackData.strHelpPath;
 
-    wchar_t *lpwszFullPath = strFullPath.GetBuffer();
     // уберем _все_ конечные слеши и добавим один
-    int Len=StrLength(lpwszFullPath)-1;
-    while(Len>-1 && lpwszFullPath[Len]==L'\\')
-    {
-      lpwszFullPath[Len]=0;
-      --Len;
-    }
-    if(Len<0)
-      Len=0;
-    else
-      ++Len;
-    lpwszFullPath[Len]=L'\\';
-    lpwszFullPath[Len+1]=0;
+    DeleteEndSlash(strFullPath, true);
+    strFullPath += L"\\";
 
-    strFullPath.ReleaseBuffer();
-
-    strFullPath += (const wchar_t*)strNewTopic+((strNewTopic.At(0)==L'\\' || strNewTopic.At(0)==L'/')?1:0);
+    strFullPath += (const wchar_t *)strNewTopic+((strNewTopic.At(0)==L'\\' || strNewTopic.At(0)==L'/')?1:0);
     BOOL addSlash=DeleteEndSlash(strFullPath);
 
     ConvertNameToFull(strFullPath,strNewTopic);
@@ -1458,12 +1443,11 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   {
     strNewTopic = StackData.strSelTopic;
 
-    wchar_t *lpwszNewTopic = strNewTopic.GetBuffer ();
-
-    wchar_t *p=(wchar_t *)wcschr(lpwszNewTopic,L':');
-    if(p && strNewTopic.At(0) != L':') // наверное подразумевается URL
+    size_t pos;
+    if(strNewTopic.Pos(pos,L':') && strNewTopic.At(0) != L':') // наверное подразумевается URL
     {
-      *p=0;
+      wchar_t *lpwszNewTopic = strNewTopic.GetBuffer ();
+      lpwszNewTopic[pos] = 0;
 
       wchar_t *lpwszTopic = StackData.strSelTopic.GetBuffer ();
 
@@ -1474,11 +1458,14 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
         return(FALSE);
       }
       else
+      {
 				StackData.strSelTopic.ReleaseBuffer ();
-      *p=L':';
+      }
+
+      lpwszNewTopic[pos] = L':';
+      //strNewTopic.ReleaseBuffer (); не надо, так как строка не поменялась
     }
 
-    strNewTopic.ReleaseBuffer ();
   }
   // а вот теперь попробуем...
 
@@ -1569,19 +1556,12 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     StackData.strHelpTopic = strNewTopic;
     if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-			wchar_t *Ptr=StackData.strHelpTopic.GetBuffer ();
-
-			Ptr = wcsrchr(Ptr,HelpEndLink);
-
-			if ( Ptr )
+			size_t pos;
+			if ( StackData.strHelpTopic.RPos(pos,HelpEndLink) )
 			{
-				*(Ptr++) = 0;
-				StackData.strHelpTopic.ReleaseBuffer ();
-
+				StackData.strHelpTopic.SetLength(pos);
 				StackData.strHelpTopic += HelpContents;
 			}
-			else
-				StackData.strHelpTopic.ReleaseBuffer ();
     }
     StackData.strHelpPath=L"";
     ReadHelp(StackData.strHelpMask);
@@ -1965,7 +1945,9 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
   if (HelpTopic && *HelpTopic)
   {
     if (*HelpTopic==L':')
+    {
       strTopic = (HelpTopic+1);
+    }
     else
     {
       Plugin *pPlugin = (Plugin*)PluginNumber;
@@ -1979,7 +1961,9 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
                 );
       }
       else
+      {
         strTopic = HelpTopic;
+      }
 
       if( strTopic.At(0)==HelpBeginLink)
       {
@@ -1988,7 +1972,9 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
         wchar_t *lpwszTopic = strTopic.GetBuffer(strTopic.GetLength()*2); //BUGBUG
 
         if((Ptr=wcschr(lpwszTopic,HelpEndLink)) == NULL)
+        {
           *lpwszTopic=0;
+        }
         else
         {
           if(!Ptr[1]) // Вона как поперло то...

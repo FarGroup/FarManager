@@ -355,18 +355,14 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 
     CurStr+=2+RealPath;
 
-
-    wchar_t *CurDir = strCurDir.GetBuffer ();
-
     if (*CurStr=='!')
     {
 //      strcpy(TmpName,PSubstData->Name);
 //      strcpy(TmpShortName,PSubstData->ShortName);
       if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=NULL)
-        *CurDir=0;
+        strCurDir.SetLength(0);
     }
 
-    strCurDir.ReleaseBuffer ();
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
     xwcsncat(TmpStr, strCurDir, MaxTempStrSize-1);
     //_SVS(SysLog(L"!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
@@ -451,7 +447,6 @@ int SubstFileName(string &strStr,            // результирующа€ строка
   wchar_t TmpStr2[10240]; //BUGBUGBUGBUGBUGBUG!!!!
 
   struct TSubstDataW SubstData, *PSubstData=&SubstData;
-  wchar_t *ChPtr;
 
   // —делаем пока поболее - 10240, но везде нужно провер€ть размер... (see below)
   wchar_t TmpStr[10240]; //BUGBUGBUG!!!
@@ -474,26 +469,18 @@ int SubstFileName(string &strStr,            // результирующа€ строка
   else // ...спросим у ком.строки
     CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
 
+  size_t pos;
 
   // ѕредварительно получим некоторые "константы" :-)
   PSubstData->strNameOnly = Name;
 
-  ChPtr = PSubstData->strNameOnly.GetBuffer ();
-
-  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr,L'.'))!=NULL)
-    *ChPtr=0;
-
-  PSubstData->strNameOnly.ReleaseBuffer ();
-
+  if (PSubstData->strNameOnly.RPos(pos,L'.'))
+    PSubstData->strNameOnly.SetLength(pos);
 
   PSubstData->strShortNameOnly = ShortName;
 
-  ChPtr = PSubstData->strShortNameOnly.GetBuffer ();
-
-  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
-    *ChPtr=0;
-
-  PSubstData->strShortNameOnly.ReleaseBuffer ();
+  if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
+    PSubstData->strShortNameOnly.SetLength(pos);
 
   PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
   PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
@@ -502,21 +489,13 @@ int SubstFileName(string &strStr,            // результирующа€ строка
 
   PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 
-  ChPtr = PSubstData->strAnotherNameOnly.GetBuffer ();
-
-  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
-    *ChPtr=0;
-
-  PSubstData->strAnotherNameOnly.ReleaseBuffer ();
+  if (PSubstData->strAnotherNameOnly.RPos(pos,L'.'))
+    PSubstData->strAnotherNameOnly.SetLength(pos);
 
   PSubstData->strAnotherShortNameOnly = PSubstData->strAnotherShortName;
 
-  ChPtr = PSubstData->strAnotherShortNameOnly.GetBuffer ();
-
-  if ((ChPtr=(wchar_t *)wcsrchr(ChPtr, L'.'))!=NULL)
-    *ChPtr=0;
-
-  PSubstData->strAnotherShortNameOnly.ReleaseBuffer ();
+  if (PSubstData->strAnotherShortNameOnly.RPos(pos,L'.'))
+    PSubstData->strAnotherShortNameOnly.SetLength(pos);
 
   PSubstData->PreserveLFN=FALSE;
   PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
