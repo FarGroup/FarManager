@@ -2809,7 +2809,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
   GoToDlg[PrevMode+3].Selected=TRUE;
 
   {
-    if(ShowDlg)
+    if (ShowDlg)
     {
       Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
       Dlg.SetHelp(L"ViewerGotoPos");
@@ -2828,33 +2828,32 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       // xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
       /* $ 17.07.2000 tran
          тут для сокращения кода ввел ptr, который и анализирую */
-      wchar_t *ptr=GoToDlg[1].strData.GetBuffer ();
-      if ( ptr[0]==L'+' || ptr[0]==L'-' )     // юзер хочет относительности
+      if ( GoToDlg[1].strData.At(0)==L'+' || GoToDlg[1].strData.At(0)==L'-' )     // юзер хочет относительности
       {
-          if (ptr[0]==L'+')
-              Relative=1;
-          else
-              Relative=-1;
-          wmemmove(ptr,ptr+1,StrLength(ptr)); // если вы думаете про strlen(ptr)-1,
-                                          // то вы ошибаетесь :)
+        if (GoToDlg[1].strData.At(0)==L'+')
+          Relative=1;
+        else
+          Relative=-1;
+        GoToDlg[1].strData.LShift(1);
       }
-      if ( wcschr(ptr,L'%') )   // он хочет процентов
+      if ( GoToDlg[1].strData.Contains(L'%') )   // он хочет процентов
       {
           GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_PRC].Selected=1;
       }
-      else if ( StrCmpNI(ptr,L"0x",2)==0 || ptr[0]==L'$' || wcschr(ptr,L'h') || wcschr(ptr,L'H') ) // он умный - hex код ввел!
+      else if ( StrCmpNI(GoToDlg[1].strData,L"0x",2)==0
+                || GoToDlg[1].strData.At(0)==L'$'
+                || GoToDlg[1].strData.Contains(L'h')
+                || GoToDlg[1].strData.Contains(L'H') ) // он умный - hex код ввел!
       {
           GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_HEX].Selected=1;
-          if ( StrCmpNI(ptr,L"0x",2)==0)
-              wmemmove(ptr,ptr+2,StrLength(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
-          else if (ptr[0]=='$')
-              wmemmove(ptr,ptr+1,StrLength(ptr));
+          if ( StrCmpNI(GoToDlg[1].strData,L"0x",2)==0)
+              GoToDlg[1].strData.LShift(2);
+          else if (GoToDlg[1].strData.At(0)=='$')
+              GoToDlg[1].strData.LShift(1);
           //Relative=0; // при hex значении никаких относительных значений?
       }
-
-      GoToDlg[1].strData.ReleaseBuffer ();
 
       if (GoToDlg[RB_PRC].Selected)
       {

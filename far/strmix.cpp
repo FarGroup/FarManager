@@ -95,8 +95,6 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 */
 }
 
-
-
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 {
   if ( !lpwszPath )
@@ -287,30 +285,24 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
 {
   if (skippath)
-    str=PointToName(const_cast<wchar_t*>(str));
+    str=PointToName(str);
   return CmpName_Body(pattern,str);
 }
 
 
-
 int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolderNameLength)
 {
-	string strWildName;
-	wchar_t *DestName, *DestNamePtr;
-	const wchar_t *CurWildPtr, *SrcNamePtr;
-
 	string strPartAfterFolderName;
-	wchar_t *PartBeforeName=NULL;
 	string strSrc = SrcName;
 
-	DestName = DestNamePtr = strDest.GetBuffer (strDest.GetLength()+strSrc.GetLength()+1); //???
-	DestNamePtr = (wchar_t*)PointToName(DestNamePtr);
+	wchar_t *DestName = strDest.GetBuffer (strDest.GetLength()+strSrc.GetLength()+1); //???
+	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
 
-	strWildName = DestNamePtr;
+	string strWildName = DestNamePtr;
 
 	if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
 	{
-		strDest.ReleaseBuffer ();
+		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
 		return(FALSE);
 	}
 
@@ -321,17 +313,17 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	}
 
 	const wchar_t *Src = strSrc;
-	SrcNamePtr = PointToName(Src);
+	const wchar_t *SrcNamePtr = PointToName(Src);
 
-	int BeforeNameLength=DestNamePtr==DestName ? (int)(SrcNamePtr-Src):0;
+	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
 
-	PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
+	wchar_t *PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
 
 	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
 
 	const wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
 
-	CurWildPtr = strWildName;
+	const wchar_t *CurWildPtr = strWildName;
 
 	while (*CurWildPtr)
 	{
@@ -403,12 +395,12 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 wchar_t * WINAPI InsertQuote(wchar_t *Str)
 {
   size_t l = StrLength(Str);
-  if(*Str != L'"')
+  if (*Str != L'"')
   {
     wmemmove(Str+1,Str,++l);
     *Str=L'"';
   }
-  if(Str[l-1] != L'"')
+  if (Str[l-1] != L'"')
   {
     Str[l++] = L'\"';
     Str[l] = 0;
@@ -427,18 +419,27 @@ wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 
 string& InsertQuote(string &strStr)
 {
+  size_t l = strStr.GetLength();
   wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+3);
 
-  InsertQuote(Str);
+  if (*Str != L'"')
+  {
+    wmemmove(Str+1,Str,++l);
+    *Str=L'"';
+  }
+  if(Str[l-1] != L'"')
+  {
+    Str[l++] = L'\"';
+  }
 
-  strStr.ReleaseBuffer ();
+  strStr.ReleaseBuffer (l);
 
   return strStr;
 }
 
 string &QuoteSpace(string &strStr)
 {
-	if ( wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
+	if (wcspbrk(strStr, Opt.strQuotedSymbols) != NULL)
 		InsertQuote(strStr);
 
 	return strStr;
@@ -456,26 +457,27 @@ wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
 
 string& WINAPI QuoteSpaceOnly(string &strStr)
 {
-  if (wcschr(strStr,L' ')!=NULL)
+  if (strStr.Contains(L' '))
     InsertQuote(strStr);
+
   return(strStr);
 }
 
 
 string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 {
-    wchar_t *lpwszBuffer = strStr.GetBuffer ();
+	wchar_t *lpwszBuffer = strStr.GetBuffer ();
 
-    TruncStr(lpwszBuffer, MaxLength);
+	TruncStr(lpwszBuffer, MaxLength);
 
-    strStr.ReleaseBuffer ();
+	strStr.ReleaseBuffer ();
 
-    return strStr;
+	return strStr;
 }
 
 wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
 {
-  if( Str )
+  if ( Str )
   {
     int Length = StrLength(Str);
 
@@ -492,12 +494,12 @@ wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
 
 wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
 {
-  if(Str)
+  if (Str)
   {
-    int Length;
+    int Length=StrLength(Str);
     if (MaxLength<0)
       MaxLength=0;
-    if ((Length=StrLength(Str))>MaxLength)
+    if (Length > MaxLength)
     {
       if (MaxLength>3)
       {
@@ -516,13 +518,13 @@ wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
 
 string& __stdcall TruncStr(string &strStr, int MaxLength)
 {
-    wchar_t *lpwszBuffer = strStr.GetBuffer ();
+	wchar_t *lpwszBuffer = strStr.GetBuffer ();
 
-    TruncStr(lpwszBuffer, MaxLength);
+	TruncStr(lpwszBuffer, MaxLength);
 
-    strStr.ReleaseBuffer ();
+	strStr.ReleaseBuffer ();
 
-    return strStr;
+	return strStr;
 }
 
 
@@ -563,20 +565,20 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 
 string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 {
-    wchar_t *lpwszStr= strStr.GetBuffer ();
+	wchar_t *lpwszStr= strStr.GetBuffer ();
 
-    TruncPathStr(lpwszStr, MaxLength);
+	TruncPathStr(lpwszStr, MaxLength);
 
-    strStr.ReleaseBuffer ();
+	strStr.ReleaseBuffer ();
 
-    return strStr;
+	return strStr;
 }
 
 
 wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
 {
   wchar_t *ChPtr;
-  if((ChPtr=Str) == 0)
+  if ((ChPtr=Str) == 0)
     return NULL;
 
   for (; IsSpace(*ChPtr); ChPtr++)
@@ -593,7 +595,8 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
   wchar_t *Str = ChPtr;
 
   for (; IsSpace(*ChPtr); ChPtr++)
-         ;
+    ;
+
   if (ChPtr!=Str)
     wmemmove(Str,ChPtr,(StrLength(ChPtr)+1));
 
@@ -606,7 +609,7 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
 // удалить конечные пробелы
 char* WINAPI RemoveTrailingSpacesA(char *Str)
 {
-  if(!Str)
+  if (!Str)
     return NULL;
   if (*Str == '\0')
     return Str;
@@ -615,17 +618,19 @@ char* WINAPI RemoveTrailingSpacesA(char *Str)
   size_t I;
 
   for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
+  {
     if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
       *ChPtr=0;
     else
       break;
+  }
 
   return Str;
 }
 
 wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 {
-  if(!Str)
+  if (!Str)
     return NULL;
   if (*Str == L'\0')
     return Str;
@@ -634,10 +639,12 @@ wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
   size_t I;
 
   for (ChPtr=Str+(I=StrLength(Str))-1; I > 0; I--, ChPtr--)
+  {
     if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
       break;
+  }
 
   return Str;
 }
@@ -677,7 +684,7 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
   wchar_t *Str = strStr.GetBuffer ();
   wchar_t *p = Str;
 
-  while(*p)
+  while (*p)
   {
      if ( IsEol(*p) )
        *p=L' ';
@@ -695,9 +702,9 @@ string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
 {
   wchar_t *Ptr = strStr.GetBuffer ();
   wchar_t *Str = Ptr, Chr;
-  while((Chr=*Str++) != 0)
+  while ((Chr=*Str++) != 0)
   {
-    if(Chr == Target)
+    if (Chr == Target)
     {
       if(Dup && *Str == Target)
       {
@@ -720,19 +727,25 @@ int HiStrlen(const wchar_t *Str,BOOL Dup)
 {
   int Length=0;
 
-  if(Str && *Str)
+  if (Str && *Str)
+  {
     while (*Str)
     {
       if (*Str!=L'&')
+      {
         Length++;
+      }
       else
-        if(Dup && Str[1] == L'&')
+      {
+        if (Dup && Str[1] == L'&')
         {
           Length++;
           ++Str;
         }
+      }
       Str++;
     }
+  }
   return(Length);
 }
 
@@ -740,7 +753,7 @@ int HiStrlen(const wchar_t *Str,BOOL Dup)
 BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {
   BOOL Result=FALSE;
-  if(Path)
+  if (Path)
   {
     /* $ 06.12.2000 IS
       ! Теперь функция работает с обоими видами слешей, также происходит
@@ -749,20 +762,20 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
     */
     wchar_t *end;
     int Slash=0, BackSlash=0;
-    if(!TypeSlash)
+    if (!TypeSlash)
     {
       end=Path;
-      while(*end)
+      while (*end)
       {
-       Slash+=(*end==L'\\');
-       BackSlash+=(*end==L'/');
-       end++;
+        Slash+=(*end==L'\\');
+        BackSlash+=(*end==L'/');
+        end++;
       }
     }
     else
     {
       end=Path+StrLength(Path);
-      if(TypeSlash == L'\\')
+      if (TypeSlash == L'\\')
         Slash=1;
       else
         BackSlash=1;
@@ -772,19 +785,21 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
     Result=TRUE;
     if (Length==0)
     {
-       *end=c;
-       end[1]=0;
+      *end=c;
+      end[1]=0;
     }
     else
     {
-     end--;
-     if (*end!=L'\\' && *end!=L'/')
-     {
-       end[1]=c;
-       end[2]=0;
-     }
-     else
-       *end=c;
+      end--;
+      if (*end!=L'\\' && *end!=L'/')
+      {
+        end[1]=c;
+        end[2]=0;
+      }
+      else
+      {
+        *end=c;
+      }
     }
   }
   return Result;
@@ -820,7 +835,7 @@ BOOL AddEndSlash(
 BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
 {
   BOOL Ret=FALSE;
-  if( !strPath.IsEmpty() )
+  if ( !strPath.IsEmpty() )
   {
     size_t len=strPath.GetLength();
     wchar_t *lpwszPath = strPath.GetBuffer ();
@@ -968,15 +983,11 @@ void WINAPI Unquote(string &strStr)
 
 void UnquoteExternal(string &strStr)
 {
-  wchar_t *lpwszStr = strStr.GetBuffer ();
-
-  if (*lpwszStr == L'\"' && lpwszStr[StrLength(lpwszStr)-1] == L'\"')
+  if (strStr.At(0) == L'\"' && strStr.At(strStr.GetLength()-1) == L'\"')
   {
-    lpwszStr[StrLength(lpwszStr)-1]=0;
-    wmemmove(lpwszStr,lpwszStr+1,StrLength(lpwszStr));
+    strStr.SetLength(strStr.GetLength()-1);
+    strStr.LShift(1);
   }
-
-  strStr.ReleaseBuffer ();
 }
 
 
@@ -1551,19 +1562,17 @@ void UnicodeToAnsi (
 
 bool CutToSlash(string &strStr, bool bInclude)
 {
-  wchar_t *lpwszStr = wcsrchr(strStr.GetBuffer(), L'\\');
-
-	if ( lpwszStr )
+  size_t pos;
+  bool bFound=strStr.RPos(pos,L'\\');
+  if (bFound)
 	{
 		if ( bInclude )
-			*lpwszStr = 0;
+			strStr.SetLength(pos);
 		else
-			*(lpwszStr+1) = 0;
+			strStr.SetLength(pos+1);
 	}
 
-	strStr.ReleaseBuffer ();
-
-  return lpwszStr != NULL;
+  return bFound;
 }
 
 string& CutToNameUNC(string &strPath)
@@ -1644,10 +1653,10 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
     */
     int I=0;
     const wchar_t *ChPtr2=ChPtr;
-    while(*ChPtr2++ == L'&')
+    while (*ChPtr2++ == L'&')
       ++I;
 
-    if(I&1) // нечет?
+    if (I&1) // нечет?
     {
       strDest.SetLength(ChPtr-Str);
 

@@ -1726,15 +1726,13 @@ void ScanPluginDir()
 				strPluginSearchPath += CurPanelItem->FindData.lpwszFileName;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir();
-				wchar_t *szPtr = strPluginSearchPath.GetBuffer();
-				wchar_t *szNamePtr = wcsrchr(szPtr,L'\x1');
-				*szNamePtr = 0;
-				szNamePtr = wcsrchr(szPtr,L'\x1');
-				if (szNamePtr != NULL)
-					*(szNamePtr + 1) = 0;
+				size_t pos = (size_t)-1;
+				strPluginSearchPath.RPos(pos,L'\x1');
+				strPluginSearchPath.SetLength(pos);
+				if (strPluginSearchPath.RPos(pos,L'\x1'))
+					strPluginSearchPath.SetLength(pos+1);
 				else
-					*szPtr=0;
-				strPluginSearchPath.ReleaseBuffer();
+					strPluginSearchPath.SetLength(0);
 
 				if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND))
 				{

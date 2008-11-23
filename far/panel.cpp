@@ -1399,36 +1399,35 @@ void Panel::FastFind(int FirstKey)
             FindEdit.GetString(strName);
 
             // уберем двойные '**'
-
-            wchar_t *Name = strName.GetBuffer ();
-
-            size_t LenName=StrLength(Name);
-            if(LenName > 1 && Name[LenName-1] == L'*' && Name[LenName-2] == L'*')
+            if (strName.GetLength() > 1
+                && strName.At(strName.GetLength()-1) == L'*'
+                && strName.At(strName.GetLength()-2) == L'*')
             {
-              Name[LenName-1]=0;
-              FindEdit.SetString(Name);
+              strName.SetLength(strName.GetLength()-1);
+              FindEdit.SetString(strName);
             }
+
             /* $ 09.04.2001 SVS
                проблемы с быстрым поиском.
                Подробнее в 00573.ChangeDirCrash.txt
             */
-            if(*Name == L'"')
+            if (strName.At(0) == L'"')
             {
-              wmemmove(Name,Name+1,StrLength(Name)-1);
-              Name[StrLength(Name)-1]=0;
-              FindEdit.SetString(Name);
+              strName.LShift(1);
+              FindEdit.SetString(strName);
             }
 
-            strName.ReleaseBuffer ();
             if (FindPartName(strName,FALSE,1,1))
+            {
               strLastName = strName;
+            }
             else
             {
-              if(CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
+              if (CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
               {
                 //CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
-//                CtrlObject->Macro.PopState();
-;
+                //CtrlObject->Macro.PopState();
+                ;
               }
               FindEdit.SetString(strLastName);
               strName = strLastName;

@@ -88,7 +88,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     *SelectFound
       Указатель на переменную, указывающую на значение опции "Select found"
       Если = NULL, то принимается значение 0 (не выделять найденное)
-      
+
   Возвращаемое значение:
     TRUE  - пользователь подтвердил свои намериния
     FALSE - пользователь отказался от диалога (Esc)
@@ -326,7 +326,7 @@ int WINAPI GetSearchReplaceString (
         SearchDlg[I].Y2--;
       }
     }
-	
+
     if(SelectFound)
       SearchDlg[7].Selected=*SelectFound;
     else
@@ -340,7 +340,7 @@ int WINAPI GetSearchReplaceString (
         SearchDlg[I].Y2--;
       }
     }
-    
+
     // нам не нужны 2 разделительных линии
     if(HeightDialog == 9)
     {
@@ -610,11 +610,11 @@ int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string
            FALSE - отменили назначение хоткея
 */
 BOOL WINAPI GetMenuHotKey(string &strHotKey,          // хоткей, может быть =NULL
-                          int LenHotKey,         // блина хоткея (мин. = 1)
+                          int LenHotKey,         // длина хоткея (мин. = 1)
                           const wchar_t *DlgHotKeyTitle,  // заголовок диалога
                           const wchar_t *DlgHotKeyText,   // prompt назначения
                           const wchar_t *DlgPluginTitle,  // заголовок
-                          const wchar_t *HelpTopic,       // темя помощи, может быть =NULL
+                          const wchar_t *HelpTopic,       // тема помощи, может быть =NULL
                           const wchar_t *RegKey,          // ключ, откуда берем значение, может быть =NULL
                           const wchar_t *RegValueName)    // название параметра из реестра, может быть =NULL
 {
@@ -633,14 +633,14 @@ L========================================================-
     /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,L"",
   };
 
-  if(DlgHotKeyTitle) PluginDlgData[0].Data=DlgHotKeyTitle;
-  if(DlgHotKeyText)  PluginDlgData[1].Data=DlgHotKeyText;
-  if(DlgHotKeyText)  PluginDlgData[3].Data=DlgPluginTitle;
+  if (DlgHotKeyTitle) PluginDlgData[0].Data=DlgHotKeyTitle;
+  if (DlgHotKeyText)  PluginDlgData[1].Data=DlgHotKeyText;
+  if (DlgHotKeyText)  PluginDlgData[3].Data=DlgPluginTitle;
 
 
   MakeDialogItemsEx(PluginDlgData,PluginDlg);
 
-  if(RegKey && *RegKey)
+  if (RegKey && *RegKey)
     GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
   else
     PluginDlg[2].strData = strHotKey;
@@ -649,7 +649,7 @@ L========================================================-
 
   {
     Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
-    if(HelpTopic)
+    if (HelpTopic)
       Dlg.SetHelp(HelpTopic);
     Dlg.SetPosition(-1,-1,64,6);
     Dlg.Process();
@@ -658,10 +658,8 @@ L========================================================-
 
   if (ExitCode==2)
   {
-    wchar_t *Data = PluginDlg[2].strData.GetBuffer (LenHotKey+1);
-    Data[LenHotKey] = 0;
-    PluginDlg[2].strData.ReleaseBuffer (); //BUGBUG
-    if(RegKey && *RegKey)
+    PluginDlg[2].strData.SetLength(LenHotKey);
+    if (RegKey && *RegKey)
     {
       RemoveLeadingSpaces(PluginDlg[2].strData);
       if ( PluginDlg[2].strData.IsEmpty() )

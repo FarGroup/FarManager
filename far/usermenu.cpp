@@ -645,14 +645,9 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
         SubstFileName(strSubMenuLabel,strName,strShortName,NULL,NULL,NULL,NULL,TRUE);
         apiExpandEnvironmentStrings (strSubMenuLabel, strSubMenuLabel);
 
-        wchar_t *HotKeyInLabel = strSubMenuLabel.GetBuffer();
-
-        HotKeyInLabel = wcschr(HotKeyInLabel, L'&');
-
-        if (HotKeyInLabel)
-          wcscpy(HotKeyInLabel, HotKeyInLabel+1);
-
-        strSubMenuLabel.ReleaseBuffer();
+        size_t pos;
+        if (strSubMenuLabel.Pos(pos,L'&'))
+          strSubMenuLabel.LShift(1,pos);
 
         if (Title && *Title)
           strSubMenuTitle.Format (L"%s -> %s", Title, (const wchar_t*)strSubMenuLabel);

@@ -258,14 +258,14 @@ public:
 		CharUpperBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
 	}
 
-	void LShift (size_t nNewPos)
+	void LShift (size_t nShiftCount, size_t nStartPos=0)
 	{
-		if ( nNewPos > m_pData->GetLength () )
-			nNewPos = m_pData->GetLength ();
+		/*if ( nShiftCount > m_pData->GetLength () )
+			nShiftCount = m_pData->GetLength ();*/
 
 		Inflate (m_pData->GetSize());
-		wmemmove (m_pData->GetData(), m_pData->GetData()+nNewPos, (m_pData->GetLength()-nNewPos+1));
-		m_pData->SetLength(m_pData->GetLength()-nNewPos);
+		wmemmove (m_pData->GetData()+nStartPos, m_pData->GetData()+nStartPos+nShiftCount, (m_pData->GetLength()-nStartPos-nShiftCount+1));
+		m_pData->SetLength(m_pData->GetLength()-nShiftCount);
 	}
 
 	bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const

@@ -510,7 +510,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   struct SetAttrDlgParam DlgParam;
   DlgParam.Clear();
 
-  if((SelCount=SrcPanel->GetSelCount())==0)
+  if ((SelCount=SrcPanel->GetSelCount())==0)
     return 0;
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL)
@@ -530,7 +530,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   DlgParam.FileSystemFlags=0;
 
-  if(DlgParam.Plugin)
+  if (DlgParam.Plugin)
   {
     AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
     AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
@@ -580,7 +580,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     string strAttr;
 
-    switch(DlgParam.DateFormat=GetDateFormat())
+    switch (DlgParam.DateFormat=GetDateFormat())
     {
       case 0:
         strAttr = AttrDlg[SETATTR_TITLEDATE].strData;
@@ -609,9 +609,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     if (SelCount==1)
     {
-      if((FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+      if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if(!DlgParam.Plugin && strSelName.At(strSelName.GetLength()-1) != L'\\')
+        if (!DlgParam.Plugin && strSelName.At(strSelName.GetLength()-1) != L'\\')
         {
           string strCopy = strSelName;
           AddEndSlash(strCopy);
@@ -620,7 +620,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         //_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
         AttrDlg[SETATTR_SUBFOLDERS].Selected=Opt.SetAttrFolderRules == 1?0:1;
-        if(Opt.SetAttrFolderRules)
+        if (Opt.SetAttrFolderRules)
         {
           if ( apiGetFindDataEx (strSelName,&FindData) )
           {
@@ -641,7 +641,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
 
           // убираем 3-State
-          for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
+          for (I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
@@ -649,12 +649,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else
       {
         // убираем 3-State
-        for(I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
+        for (I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
           AttrDlg[I].Flags&=~DIF_3STATE;
       }
 
       // обработка случая, если ЭТО SymLink
-      if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+      if (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
       {
         string strJuncName;
         DWORD ReparseTag=0;
@@ -665,7 +665,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           offset = 4;
 
         AttrDlg[SETATTR_TITLE].Y2++;
-        for(I=3; I  < DlgCountItems; ++I)
+        for (I=3; I  < DlgCountItems; ++I)
         {
           AttrDlg[I].Y1++;
           if (AttrDlg[I].Y2)
@@ -675,16 +675,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         JunctionPresent=TRUE;
 
         int ID_Msg, Width;
-        if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
+        if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if(IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
+          if (IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
           {
             string strJuncRoot;
             GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
 
             wchar_t *lpwszJunc = strJuncName.GetBuffer (strJuncRoot.GetLength()+5);
 
-            if(strJuncRoot.At(1) == L':')
+            if (strJuncRoot.At(1) == L':')
               wcscpy(lpwszJunc+4,strJuncRoot);
 
             strJuncName.ReleaseBuffer ();

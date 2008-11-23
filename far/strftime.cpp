@@ -117,10 +117,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 	if(chr==L'v')
 	{
 		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),(const wchar_t*)AMonth[CurLang][range(0, tmPtr->tm_mon,11)],tmPtr->tm_year+1900);
-		wchar_t *lpwszDest=strDest.GetBuffer();
-		for(int i=3;i<6;i++)
-			lpwszDest[i]=Upper(lpwszDest[i]);
-		strDest.ReleaseBuffer();
+		strDest.Upper(3,3);
 	}
 	else
 		switch(GetDateFormat())
