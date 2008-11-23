@@ -571,6 +571,8 @@ BOOL  WINAPI AddEndSlash(wchar_t *Path);
 
 BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
 
+string& ReplaceSlashToBSlash(string& strStr);
+
 int __digit_cnt_0(const wchar_t* s, const wchar_t** beg);
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
 __int64 WINAPI FarAtoi64(const wchar_t *s);

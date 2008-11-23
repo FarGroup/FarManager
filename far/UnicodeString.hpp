@@ -238,8 +238,7 @@ public:
 
 	wchar_t At (size_t nIndex) const
 	{
-		const wchar_t *lpwszData = m_pData->GetData ();
-		return lpwszData[nIndex];
+		return m_pData->GetData()[nIndex];
 	}
 
 	bool IsEmpty () const
@@ -247,16 +246,16 @@ public:
 		return !(m_pData->GetLength () && *m_pData->GetData ());
 	}
 
-	void Lower ()
+	void Lower (size_t nStartPos=0, size_t nLength=(size_t)-1)
 	{
 		Inflate (m_pData->GetSize());
-		CharLowerW (m_pData->GetData());
+		CharLowerBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?m_pData->GetLength()-nStartPos:nLength);
 	}
 
-	void Upper ()
+	void Upper (size_t nStartPos=0, size_t nLength=(size_t)-1)
 	{
 		Inflate (m_pData->GetSize());
-		CharUpperW (m_pData->GetData());
+		CharUpperBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?m_pData->GetLength()-nStartPos:nLength);
 	}
 
 	void LShift (size_t nNewPos)
@@ -290,6 +289,8 @@ public:
 		}
 		return false;
 	}
+
+	bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 
 	bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
 	{

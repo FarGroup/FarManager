@@ -378,16 +378,13 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 
-	EditDlg[2].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
+	EditDlg[ID_SF_FILENAME].strData = (/*Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName*/strFileName);
 
-	wchar_t *PtrEditDlgData=EditDlg[ID_SF_FILENAME].strData.GetBuffer ();
-
-	PtrEditDlgData = wcsstr (PtrEditDlgData, MSG(MNewFileName));
-
-	if(PtrEditDlgData)
-		*PtrEditDlgData=0;
-
-	EditDlg[2].strData.ReleaseBuffer();
+	{
+	  size_t pos;
+	  if (EditDlg[ID_SF_FILENAME].strData.Pos(pos,MSG(MNewFileName)))
+      EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
+  }
 
 	EditDlg[ID_SF_DONOTCHANGE].Selected = 0;
 	EditDlg[ID_SF_DOS].Selected = 0;
@@ -1105,42 +1102,41 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         string strOldCurDir;
         FarGetCurDir(strOldCurDir);
 
-        wchar_t *lpwszPtr;
-        wchar_t wChr;
-
-        while(!Done) // бьемся до упора
+        while (!Done) // бьемся до упора
         {
+          size_t pos;
           // проверим путь к файлу, может его уже снесли...
-          lpwszPtr = strFullFileName.GetBuffer ();
-
-          lpwszPtr=wcsrchr(lpwszPtr,L'\\');
-          if(lpwszPtr)
+          if (strFullFileName.RPos(pos,L'\\'))
           {
-            wChr=lpwszPtr[1];
-            lpwszPtr[1]=0;
+						wchar_t *lpwszPtr = strFullFileName.GetBuffer ();
+						wchar_t wChr = lpwszPtr[pos+1];
+            lpwszPtr[pos+1]=0;
             // В корне?
-            if (!(IsAlpha(strFullFileName.At(0)) && (strFullFileName.At(1)==L':') && (strFullFileName.At(2)==L'\\') && !strFullFileName.At(3)))
+            if (!(IsAlpha(*lpwszPtr) && (*(lpwszPtr+1)==L':') && (*(lpwszPtr+2)==L'\\') && !*(lpwszPtr+3)))
             {
               // а дальше? каталог существует?
-              if((FNAttr=::GetFileAttributesW(strFullFileName)) == INVALID_FILE_ATTRIBUTES ||
+              if ((FNAttr=::GetFileAttributesW(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||
                                 !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                   //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
-                )
+                 )
                 Flags.Set(FFILEEDIT_SAVETOSAVEAS);
             }
-            lpwszPtr[1]=wChr;
+            lpwszPtr[pos+1]=wChr;
+						//strFullFileName.ReleaseBuffer (); так как ничего не поменялось то это лишнее.
           }
-          strFullFileName.ReleaseBuffer ();
 
 
-          if(Key == KEY_F2 &&
-             (FNAttr=::GetFileAttributesW(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
-             !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
-              Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
+          if (Key == KEY_F2 &&
+              (FNAttr=::GetFileAttributesW(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
+              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
+             )
+          {
+						Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
+          }
 
           static int TextFormat=0;
 
-		  int codepage = m_codepage;
+					int codepage = m_codepage;
 
           bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 
@@ -2092,18 +2088,7 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 		ConvertNameToFull (strFileName, strFullFileName);
 
 		//Дабы избежать бардака, развернём слэшики...
-
-		wchar_t *lpwszChar = strFullFileName.GetBuffer ();
-
-		while ( *lpwszChar )
-		{
-			if ( *lpwszChar == L'/' )
-				*lpwszChar = L'\\';
-
-			lpwszChar++;
-		}
-
-		strFullFileName.ReleaseBuffer ();
+		ReplaceSlashToBSlash(strFullFileName);
 	}
 	else
 	{
@@ -2635,20 +2620,13 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 	string strCacheName;
 
 	if ( *GetPluginData())
+	{
 		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToName(strFullFileName));
+	}
 	else
 	{
 		strCacheName = strFullFileName;
-
-		wchar_t *lpwszCacheName = strCacheName.GetBuffer();
-
-		for(int i=0;lpwszCacheName[i];i++)
-		{
-			if(lpwszCacheName[i]==L'/')
-				lpwszCacheName[i]=L'\\';
-		}
-
-		strCacheName.ReleaseBuffer();
+		ReplaceSlashToBSlash(strCacheName);
 	}
 
 

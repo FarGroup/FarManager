@@ -1700,3 +1700,19 @@ const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
   }
   return lpwszNamePtr;
 }
+
+string& ReplaceSlashToBSlash(string& strStr)
+{
+	wchar_t *lpwszStr = strStr.GetBuffer ();
+
+	while ( *lpwszStr )
+	{
+		if ( *lpwszStr == L'/' )
+			*lpwszStr = L'\\';
+		lpwszStr++;
+	}
+
+	strStr.ReleaseBuffer ();
+
+	return strStr;
+}

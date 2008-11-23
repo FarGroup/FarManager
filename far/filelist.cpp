@@ -1160,16 +1160,15 @@ int FileList::ProcessKey(int Key)
               }
 
               {
+              	size_t pos;
                 // проверим путь к файлу
-                wchar_t *lpwszStart=strFileName.GetBuffer ();
-
-                wchar_t *Ptr = wcsrchr(lpwszStart, L'\\');
-                if(Ptr && Ptr != lpwszStart)
+                if (strFileName.RPos(pos,L'\\') && pos!=0)
                 {
-                  wchar_t wChr=Ptr[1];
-                  Ptr[1]=0;
-                  DWORD CheckFAttr=GetFileAttributesW(lpwszStart);
-                  if(CheckFAttr == INVALID_FILE_ATTRIBUTES)
+                  wchar_t *lpwszFileName = strFileName.GetBuffer();
+                  wchar_t wChr = lpwszFileName[pos+1];
+                  lpwszFileName[pos+1]=0;
+                  DWORD CheckFAttr=GetFileAttributesW(lpwszFileName);
+                  if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
                   {
                     SetMessageHelp(L"WarnEditorPath");
                     if (Message(MSG_WARNING,2,MSG(MWarning),
@@ -1180,10 +1179,9 @@ int FileList::ProcessKey(int Key)
 
                       return(FALSE);
                   }
-                  Ptr[1]=wChr;
+                  lpwszFileName[pos+1]=wChr;
+                  //strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
                 }
-
-                strFileName.ReleaseBuffer ();
               }
             }
             else if(PluginMode) // пустое имя файла в панели плагина не разрешается!
@@ -2267,27 +2265,18 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   int UpdateFlags = 0;
 
   // ...когда ввели в масдае cd //host/share
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT &&
+  if (WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT &&
     strSetDir.At(0) == L'/' && strSetDir.At(1) == L'/')
-  {
-    wchar_t *Ptr=strSetDir.GetBuffer();
-    while(*Ptr)
-    {
-      if(*Ptr == L'/')
-        *Ptr=L'\\';
-      ++Ptr;
-    }
 
-    strSetDir.ReleaseBuffer ();
-  }
+  ReplaceSlashToBSlash(strSetDir);
 
-  if(PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
+  if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
   {
 #if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
     GetPathRootOne(strCurDir,strSetDir);
 #else
     GetPathRoot(strCurDir,strSetDir);
-    if(!StrCmpNI(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
+    if (!StrCmpNI(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
       GetPathRootOne(CurDir,SetDir);
 #endif
   }
@@ -3035,15 +3024,17 @@ void FileList::SelectFiles(int Mode)
 
   if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
   {
-    const wchar_t *DotPtr=wcsrchr(strCurName,L'.');
-    if (DotPtr!=NULL)
+    size_t pos;
+    if (strCurName.RPos(pos,L'.'))
     {
       // Учтем тот момент, что расширение может содержать символы-разделители
-      strRawMask.Format (L"\"*.%s\"", DotPtr+1);
+      strRawMask.Format (L"\"*.%s\"", (const wchar_t *)strCurName+pos+1);
       WrapBrackets=true;
     }
     else
+    {
       strMask = L"*.";
+    }
     Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
   }
   else
@@ -3053,20 +3044,12 @@ void FileList::SelectFiles(int Mode)
       // Учтем тот момент, что имя может содержать символы-разделители
       strRawMask.Format (L"\"%s", (const wchar_t*)strCurName);
 
-      wchar_t *DotPtr = strRawMask.GetBuffer (strRawMask.GetLength()+4);
+      size_t pos;
+      if (strRawMask.RPos(pos,L'.'))
+        strRawMask.SetLength(pos);
 
-      DotPtr=wcsrchr(DotPtr,L'.');
+      strRawMask += L".*\"";
 
-      if (DotPtr!=NULL)
-      {
-        wcscpy(DotPtr,L".*\"");
-        strRawMask.ReleaseBuffer ();
-      }
-      else
-      {
-        strRawMask.ReleaseBuffer ();
-        strRawMask += ".*\"";
-      }
       WrapBrackets=true;
       Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
     }
@@ -3478,30 +3461,21 @@ void FileList::CopyNames(int FillPathName,int UNC)
 
 string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
 {
-  //wchar_t *NamePtr;
-  wchar_t Chr=0;
-
-  string strFileName;
-  string strTemp;
-
-  strFileName = strDest;
+  string strFileName = strDest;
 
   const wchar_t *ShortNameLastSlash=wcsrchr(ShortName, L'\\'), *NameLastSlash=wcsrchr(Name, L'\\');
 
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
-    ConvertNameToFull(strFileName, strFileName);
-  else
-
-  if(ShowShortNames)
   {
-    strTemp = Name;
+    ConvertNameToFull(strFileName, strFileName);
+  }
+  /* BUGBUG весь этот if какая то чушь
+  else if (ShowShortNames)
+  {
+    string strTemp = Name;
 
-    wchar_t *lpwszTemp = strTemp.GetBuffer ();
-
-    if(NameLastSlash)
-      lpwszTemp[1+NameLastSlash-Name]=0;
-
-    strTemp.ReleaseBuffer();
+    if (NameLastSlash)
+      strTemp.SetLength(1+NameLastSlash-Name);
 
     const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
 
@@ -3513,6 +3487,8 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
     strFileName = strTemp;
   }
+  */
+
   if (ShowShortNames && ShortNameAsIs)
     ConvertNameToShort(strFileName,strFileName);
 
@@ -3528,44 +3504,30 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     if (ViewSettings.FolderUpperCase)
     {
       if ( FileAttr & FILE_ATTRIBUTE_DIRECTORY )
+      {
         strFileName.Upper();
+      }
       else
       {
-          wchar_t *lpwszFileName = strFileName.GetBuffer();
-          wchar_t *NamePtr=(wchar_t *)wcsrchr(lpwszFileName,L'\\');
-
-          if(NamePtr != NULL)
-          {
-            Chr=*NamePtr;
-            *NamePtr=0;
-          }
-
-          CharUpperW (lpwszFileName);
-
-          if(NamePtr)
-            *NamePtr=Chr;
-
-          strFileName.ReleaseBuffer();
+				size_t pos;
+				if (strFileName.RPos(pos,L'\\'))
+					strFileName.Upper(0,pos);
+				else
+					strFileName.Upper();
       }
     }
-    if (ViewSettings.FileUpperToLowerCase)
-      if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && wcsrchr(strFileName,L'\\') && !IsCaseMixed(wcsrchr(strFileName,L'\\')))
-      {
-          wchar_t *lpwszFileName = strFileName.GetBuffer();
-
-          lpwszFileName = wcsrchr (lpwszFileName, L'\\');
-          CharLowerW (lpwszFileName);
-
-          strFileName.ReleaseBuffer();
-      }
+    if (ViewSettings.FileUpperToLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+    {
+			size_t pos;
+			bool bFound=strFileName.RPos(pos,L'\\');
+			if (bFound && !IsCaseMixed((const wchar_t *)strFileName+pos))
+				strFileName.Lower(pos);
+    }
     if ( ViewSettings.FileLowerCase && wcsrchr(strFileName,L'\\') && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
-        wchar_t *lpwszFileName = strFileName.GetBuffer();
-
-        lpwszFileName = wcsrchr (lpwszFileName, L'\\');
-        CharLowerW (lpwszFileName);
-
-        strFileName.ReleaseBuffer();
+			size_t pos;
+			if (strFileName.RPos(pos,L'\\'))
+				strFileName.Lower(pos);
     }
   }
 
@@ -4120,21 +4082,16 @@ void FileList::ProcessCopyKeys(int Key)
             else
             {
               AnotherPanel->GetCurDir(strDestPath);
-              if(!AnotherPanel->IsVisible())
+              if (!AnotherPanel->IsVisible())
               {
                 struct OpenPluginInfo Info;
                 CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
                 if (Info.HostFile!=NULL && *Info.HostFile!=0)
                 {
-                  wchar_t *ExtPtr;
+                  size_t pos;
                   strDestPath = PointToName(Info.HostFile);
-
-                  ExtPtr = strDestPath.GetBuffer();
-
-                  if ( (ExtPtr=wcsrchr(ExtPtr, L'.')) != NULL )
-                      *ExtPtr = 0;
-
-                  strDestPath.ReleaseBuffer();
+                  if (strDestPath.RPos(pos,L'.'))
+                    strDestPath.SetLength(pos);
                 }
               }
             }
@@ -4263,20 +4220,11 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 			{
 				strPrefix = PInfo.CommandPrefix;
 
-				wchar_t *Ptr=strPrefix.GetBuffer ();
-
-				Ptr = wcschr(Ptr, L':');
-
-				if(Ptr)
-				{
-					*++Ptr=0;
-					strPrefix.ReleaseBuffer();
-				}
+				size_t pos;
+				if (strPrefix.Pos(pos,L':'))
+				  strPrefix.SetLength(pos+1);
 				else
-				{
-					strPrefix.ReleaseBuffer();
 					strPrefix += L":";
-				}
 			}
 		}
 	}

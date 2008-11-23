@@ -2773,7 +2773,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         WaitForSingleObject(hPluginMutex,INFINITE);
 
 				size_t pos;
-        if (strCurName.Contains(L'\x1') && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
+        if (!strCurName.Contains(L'\x1') && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
 

@@ -848,14 +848,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   strDestDizPath=L"";
   SrcPanel->SaveSelection();
 
-  wchar_t *lpwszCopyDlgValue = strCopyDlgValue.GetBuffer ();
-
   // TODO: Posix - bugbug
-  for (int I=0;lpwszCopyDlgValue[I]!=0;I++)
-    if (lpwszCopyDlgValue[I]==L'/')
-      lpwszCopyDlgValue[I]=L'\\';
-
-  strCopyDlgValue.ReleaseBuffer ();
+  ReplaceSlashToBSlash(strCopyDlgValue);
 
   // нужно ли показывать время копирования?
   ShowCopyTime = Opt.CMOpt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);

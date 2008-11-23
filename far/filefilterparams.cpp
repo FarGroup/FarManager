@@ -86,50 +86,39 @@ void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
 
   /* ќбработка %PATHEXT% */
   string strMask = Mask;
-  wchar_t *Ptr = strMask.GetBuffer();
-  wchar_t *PtrMask = Ptr;
+  size_t pos;
   // проверим
-  if((Ptr=wcschr(Ptr, L'%')) != NULL && !StrCmpNI(Ptr,L"%PATHEXT%",9))
+  if (strMask.PosI(pos,L"%PATHEXT%"))
   {
-    int IQ1=(*(Ptr+9) == L',')?10:9, offsetPtr=(int)((Ptr-PtrMask));
-    // ≈сли встречаетс€ %pathext%, то допишем в конец...
-    wmemmove(Ptr,Ptr+IQ1,StrLength(Ptr+IQ1)+1);
-
-    strMask.ReleaseBuffer();
-
-    string strTmp1 = strMask;
-
-    wchar_t *pSeparator, *lpwszTmp1;
-
-    lpwszTmp1 = strTmp1.GetBuffer();
-
-    pSeparator=wcschr(lpwszTmp1, EXCLUDEMASKSEPARATOR);
-
-    if(pSeparator)
     {
-      Ptr=lpwszTmp1+offsetPtr;
-      if(Ptr>pSeparator) // PATHEXT находитс€ в масках исключени€
+      size_t IQ1=(strMask.At(pos+9) == L',')?10:9;
+      wchar_t *Ptr = strMask.GetBuffer();
+
+      // ≈сли встречаетс€ %pathext%, то допишем в конец...
+      wmemmove(Ptr+pos,Ptr+pos+IQ1,strMask.GetLength()-pos-IQ1+1);
+
+      strMask.ReleaseBuffer();
+    }
+
+    size_t posSeparator;
+    if (strMask.Pos(posSeparator, EXCLUDEMASKSEPARATOR))
+    {
+      if (pos > posSeparator) // PATHEXT находитс€ в масках исключени€
       {
-        strTmp1.ReleaseBuffer();
         Add_PATHEXT(strMask); // добавл€ем то, чего нету.
       }
       else
       {
-        string strTmp2;
-        strTmp2 = (pSeparator+1);
-        *pSeparator=0;
+        string strTmp = strMask;
+        strTmp.LShift(posSeparator+1);
+        strMask.SetLength(posSeparator);
 
-        strTmp1.ReleaseBuffer();
-
-        Add_PATHEXT(strTmp1);
-        strMask.Format (L"%s|%s", (const wchar_t*)strTmp1, (const wchar_t*)strTmp2);
+        Add_PATHEXT(strMask);
+        strMask += strTmp;
       }
-
-
     }
     else
     {
-      strTmp1.ReleaseBuffer();
       Add_PATHEXT(strMask); // добавл€ем то, чего нету.
     }
   }

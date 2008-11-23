@@ -269,3 +269,14 @@ int __cdecl UnicodeString::Format (const wchar_t * format, ...)
 
 	return retValue;
 }
+
+bool UnicodeString::PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos) const
+{
+	const wchar_t *lpwszStr = StrStrI(m_pData->GetData()+nStartPos,lpwszFind);
+	if (lpwszStr)
+	{
+		nPos = lpwszStr - m_pData->GetData();
+		return true;
+	}
+	return false;
+}
