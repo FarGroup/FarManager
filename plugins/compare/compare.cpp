@@ -828,12 +828,12 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
       TCHAR cpFileA[MAX_PATH], cpFileP[MAX_PATH];
       ShowMessage(lstrcpy(cpFileA, BuildFullFilename(ACurDir, AData->_cFileName)),
                   lstrcpy(cpFileP, BuildFullFilename(PCurDir, PData->_cFileName)));
-      if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
+      if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ , NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
       {
         bOpenFail = true;
         return false;
       }
-      if ((hFileP = CreateFile(cpFileP, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+      if ((hFileP = CreateFile(cpFileP, GENERIC_READ, FILE_SHARE_READ , NULL,
                                OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
       {
         CloseHandle(hFileA);
