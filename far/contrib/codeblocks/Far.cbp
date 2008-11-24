@@ -8,15 +8,28 @@
 		<Build>
 			<Target title="Release">
 				<Option output=".bin\Far" prefix_auto="1" extension_auto="1" />
+				<Option working_dir=".bin" />
 				<Option object_output=".objs\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
+			</Target>
+			<Target title="Debug">
+				<Option output=".bind\Far" prefix_auto="1" extension_auto="1" />
+				<Option working_dir=".bind" />
+				<Option object_output=".objsd\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DDEBUG" />
+				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
@@ -30,10 +43,12 @@
 			<Add option="-Wno-missing-braces" />
 			<Add option="-Wno-unknown-pragmas" />
 			<Add option="-Wno-switch" />
-			<Add option="-DNDEBUG" />
 			<Add option="-DWIN32" />
 			<Add option="-D_CONSOLE" />
+			<Add option="-DUNICODE" />
+			<Add option="-D_UNICODE" />
 			<Add option="-DFARTRY" />
+			<Add option="-DFAR_ALPHA_VERSION" />
 			<Add option="-D_CRT_SECURE_NO_DEPRECATE" />
 			<Add option="-D_CRT_NONSTDC_NO_DEPRECATE" />
 			<Add option="-D_CRT_NON_CONFORMING_SWPRINTFS" />
