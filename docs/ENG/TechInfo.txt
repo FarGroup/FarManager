@@ -1195,7 +1195,7 @@ appliance to FAR Manager.
 ~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
    "DisableUNCCheck":REG_DWORD
-   (applies only to NT4/W2k/XP/2003 and cmd.exe)
+   (applies only to NT4/2k/XP/2003/Vista/2008 and cmd.exe)
    The CMD.EXE normally disallows UNC names from being used for the current
    directory. When FAR tries to execute a command of  the  command  process
    and the current path is UNC then the following  error  message  will  be
@@ -1204,7 +1204,7 @@ appliance to FAR Manager.
      "CMD.EXE was started with the above path as the current directory.
      UNC paths are not supported.  Defaulting to Windows directory."
 
-   (the output might be different for NT4/W2k/XP/2003...)
+   (the output might be different for NT4/W2k/XP/2003/Vista/2008)
 
    The key "DisableUNCCheck" allows to resolve this problem.
    The following values can be used:

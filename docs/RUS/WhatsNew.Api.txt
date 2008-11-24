@@ -9,18 +9,18 @@
 [-] Исправлена ошибка
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2451) (06.11.2008)
+FAR 1.71 (build 2465) (24.11.2008)
 ---------------------------------------------------------------------------
 Общее
 ~~~~~
 [!] В структуре PluginPanelItem теперь по умолчанию вместо структуры
     WIN32_FIND_DATA используется структура FAR_FIND_DATA. Чтоб вернуть старое
     поведение необходимо определить _FAR_USE_WIN32_FIND_DATA.
-[!] Приведение PluginAPI к совместимости c x64.
+[!] PluginAPI приведено к совместимости c x64.
 [+] Меню плагинов можно вызывать по F11 из диалогов. Для этого плагин должен
     использовать новый флаг PF_DIALOG и уметь обрабатывать OPEN_DIALOG в
     функции OpenPlugin().
-[+] Флаг KSFLAGS_REG_MULTI_SZ.
+[+] В перечисление FARKEYSEQUENCEFLAGS добавлен флаг KSFLAGS_REG_MULTI_SZ.
 [+] Добавлена команда ACTL_REDRAWALL - перерисовка всех фреймов FAR.
 [+] В перечисление FarDialogSettings добавлены константы:
      FDIS_DELREMOVESBLOCKS - Del удаляет блоки в строках ввода
@@ -30,7 +30,16 @@ FAR 1.71 (build 2451) (06.11.2008)
     макродвижка.
 [+] В Message длинные поля не усекаются, а автоматически заменяются на элемент
     DI_EDIT, что позволяет прокрутить/скопировать название пути/файла.
-[+] Две новых "клавиши" для колеса мыши - KEY_MSWHEEL_LEFT/KEY_MSWHEEL_RIGHT.
+[+] Новые клавиши:
+     KEY_NUMENTER,
+     KEY_NUMDEL,
+     KEY_DECIMAL,
+     KEY_CAPSLOCK;
+     KEY_SCROLLLOCK;
+     KEY_NUMLOCK;
+     KEY_MSWHEEL_LEFT,
+     KEY_MSWHEEL_RIGHT,
+     KEY_SLEEP.
 [+] Добавлена функция FSF.snprintf.
 [+] В структуре WindowInfo для окна помощи поле Name содержит полный путь к
     файлу.
@@ -44,9 +53,16 @@ FAR 1.71 (build 2451) (06.11.2008)
      COL_WARNDIALOGCOMBOARROWS,
      COL_WARNDIALOGCOMBOARROWSSELECTED,
      COL_MENUARROWS,
-     COL_MENUARROWSSELECTED.
+     COL_MENUARROWSSELECTED,
+     COL_COMMANDLINEUSERSCREEN.
+[+] Новые флаги FSF.MkLink:
+     FLINK_SYMLINKFILE - символическая ссылка-файл (NT>=6)
+     FLINK_SYMLINKDIR  - символическая ссылка-каталог (NT>=6)
+     FLINK_SYMLINK переименован в FLINK_JUNCTION.
+[*] Параметр функции FSF.DeleteBuffer имеет тип void*.
 [*] ACTL_KEYMACRO::MCMD_SAVEALL теперь работает при воспроизведения макроса
     (FARCmds: Теперь при исполнения макроса работает команда "macro:save").
+[-] После ACTL_SETCURRENTWINDOW/ACTL_COMMIT не посылался EE_KILLFOCUS.
 [-] Некорректный цвет у Message без кнопок с флагом MSG_WARNING.
 [-] Некорректная прорисовка экрана после вызова функций Editor и Viewer с
     выставленным флагом ?F_IMMEDIATERETURN.
@@ -56,6 +72,7 @@ FAR 1.71 (build 2451) (06.11.2008)
 [+] События EE_GOTFOCUS и EE_KILLFOCUS.
 [+] Добавлены команды управления позициями навигации в редакторе:
     ECTL_DELETESTACKBOOKMARK и ECTL_GETSTACKBOOKMARKS.
+[*] Оптимизация открытия файлов с очень длинными строками в редакторе.
 [-] Не посылался EE_CLOSE для "?New file?". Теперь EE_CLOSE посылается всегда,
     если был послан EE_READ (во избежание утечек памяти в плагинах).
 [-] После вызова EditorControl(ECTL_SELECT) с установленным значением поля
@@ -64,6 +81,7 @@ FAR 1.71 (build 2451) (06.11.2008)
 [-] ECTL_SAVEFILE в EE_READ для существующего файла приводило к неверному
     сообщению об изменение файла извне.
 [-] Команда ECTL_GETINFO могла вернуть BlockStartLine = -1.
+[-] Не работало снятие выделения в редакторе по EditorSelect.BlockStartPos=-1.
 
 Программа просмотра
 ~~~~~~~~~~~~~~~~~~~
@@ -89,6 +107,7 @@ FAR 1.71 (build 2451) (06.11.2008)
     сообщений DM_SETCOMBOBOXEVENT и DM_GETCOMBOBOXEVENT.
 [+] Добавлены команды DM_GETEDITPOSITION и DM_SETEDITPOSITION - управление
     позицией строки в строках ввода в диалогах.
+[*] Для диалогов с установленным флагом FDLG_SMALLDIALOG отображается тень.
 [*] В диалогах сразу после DN_INITDIALOG приходит DN_GOTFOCUS для того
     элемента, у которого поле Focus=1.
 [-] Неправильная ширина DIF_SEPARATOR для диалогов без рамки.
@@ -127,7 +146,7 @@ FAR 1.71 (build 2451) (06.11.2008)
     экрана FAR. Теперь плагины могут эмулировать запуск программ, используя
     FCTL_GETUSERSCREEN и FCTL_SETUSERSCREEN.
 [-] При использовании FCTL_SETUSERSCREEN терялась последняя строка экрана.
-[-] Переполнение массива при использовании FCTL_GET*PANEL*INFO .
+[-] Переполнение массива при использовании FCTL_GET[ANOTHER]PANEL[SHORT]INFO .
 [-] Для элемента ".." в PluginPanelItem заполнялись только поля
     FindData.dwFileAttributes и FindData.cFileName, остальные элементы
     структуры обнулялись.

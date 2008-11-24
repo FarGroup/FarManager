@@ -1226,7 +1226,7 @@ II. Windows: настройки вли€ющие на работу FAR Manager.
 ~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
    "DisableUNCCheck":REG_DWORD
-   (применительно только к NT4/W2k/XP/2003 и cmd.exe)
+   (применительно только к NT4/2k/XP/2003/Vista/2008 и cmd.exe)
    CMD.EXE по умолчанию  не  поддерживает  UNC-пути.  ≈сли  FAR  попытатьс€
    выполнить команду командного процессора, в случае, если текущий  путь  -
    UNC, то в консоль выводитс€ информаци€:
@@ -1242,7 +1242,7 @@ II. Windows: настройки вли€ющие на работу FAR Manager.
    "CMD.EXE was started with the above path as the current  directory.  UNC
    paths are not supported. Defaulting to Windows directory."
 
-   (выводима€ информаци€ может отличатьс€ в NT4/W2k/XP/2003...)
+   (выводима€ информаци€ может отличатьс€ в NT4/W2k/XP/2003/Vista/2008)
 
    ѕараметр  "DisableUNCCheck"  позвол€ет  решить  эту  проблему.  «начение
    параметра может быть одним из следующих:
