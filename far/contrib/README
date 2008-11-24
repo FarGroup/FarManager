@@ -3,4 +3,5 @@ developers and is not fully supported.
 
 codeblocks - Submitted by Morten MacFly.
              A Code::Blocks (www.codeblocks.org) project file to build
-             Far Manager using GCC on Windows.
+             Far Manager using GCC on Windows. To use it place all files
+             in the source code folder.
