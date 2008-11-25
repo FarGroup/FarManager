@@ -4120,7 +4120,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
 		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-		WarnDlg.SetHelp("CopyFiles");
+		WarnDlg.SetHelp("CopyAskOverwrite");
 		WarnDlg.Process();
 
 		switch(WarnDlg.GetExitCode())

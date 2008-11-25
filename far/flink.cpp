@@ -250,8 +250,6 @@ BOOL WINAPI CreateReparsePoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder,DWORD Type)
     strcat(szDestDir, PtrFullDir);
   }
 
-  FAR_OemToChar(szDestDir,szDestDir); // !!!
-
 	switch(Type)
 	{
 	case RP_EXACTCOPY:
@@ -268,6 +266,7 @@ BOOL WINAPI CreateReparsePoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder,DWORD Type)
 		}
 	case RP_JUNCTION:
 		{
+			FAR_OemToChar(szDestDir,szDestDir); // !!!
 			char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
 			TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
 
