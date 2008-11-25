@@ -3812,7 +3812,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 		Dialog WarnDlg(WarnCopyDlg,countof(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
 		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-		WarnDlg.SetHelp(L"CopyFiles");
+		WarnDlg.SetHelp(L"CopyAskOverwrite");
 		WarnDlg.Process();
 
 		switch(WarnDlg.GetExitCode())

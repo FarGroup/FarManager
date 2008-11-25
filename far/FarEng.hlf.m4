@@ -733,8 +733,7 @@ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
 #Shift#). If the ~command line~@CmdLineCmd@ is not empty, its contents will be
 executed. This behaviour can be configured in the ~settings~@InterfSettings@.
 
-    Under Windows 2000/XP/2003/Vista/2008, FAR Manager supports the ~mouse
-wheel~@MsWheel@.
+    FAR Manager also supports the ~mouse wheel~@MsWheel@.
 
     You can move a dialog (window) by dragging it with mouse or by pressing
 #Ctrl-F5# and using #arrow# keys.
@@ -742,7 +741,6 @@ wheel~@MsWheel@.
 
 @MsWheel
 $ #Mouse: wheel support#
-    Under Windows 2000/XP/2003/Vista/2008, FAR Manager supports the mouse wheel:
 
    #Panels#    Rotating the wheel scrolls the file list without
              changing the cursor position on the screen. Pressing
@@ -769,6 +767,8 @@ $ #Mouse: wheel support#
 
     You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see TechInfo##33).
+
+    Note: scrolling not supported on Windows 9x and NT 4.0.
 
 @Plugins
 $ #Plugins support#
@@ -1025,8 +1025,7 @@ size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
 Compressed size has meaning for NTFS drives only.
 
-    In Windows 2000/XP/2003/Vista/2008, when viewing reparse points, the path
-to the source folder is also displayed.
+    When viewing reparse points, the path to the source folder is also displayed.
 
     For folders, the total size value may not match the actual value:
 
@@ -1342,11 +1341,10 @@ folders.
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-foledrs.
 
-    Remark: if the file system contains recursive cycles of
-             symbolic links (e.g. a symlink pointing to one of
-             its parent folders), then the search will be conducted
-             until the maximum allowed path length is reached.
-             In this case search may take much more time.
+    Remark: if the file system contains recursive cycles of symbolic
+links (e.g. a symlink pointing to one of its parent folders), then the
+search will be conducted until the maximum allowed path length is
+reached. In this case search may take much more time.
 
     Search may be performed:
 
@@ -1923,11 +1921,10 @@ $ #Settings dialog: system#
                           determining the total file size in the
                           sub-folders.
 
-       Remark: if the file system contains recursive cycles of
-               symbolic links (e.g. a symlink pointing to one of
-               its parent folders), then the scanning will continue
-               until the maximum allowed path length is reached.
-               In this case scanning may take much more time.
+    Remark: if the file system contains recursive cycles of symbolic
+links (e.g. a symlink pointing to one of its parent folders), then the
+scanning will be conducted until the maximum allowed path length is
+reached. In this case scanning may take much more time.
 
 
   #Create folders#          If the name of a new folder contains only
@@ -2903,12 +2900,12 @@ folders, all checkboxes will always be 3-state.
     Only those attributes will be changed for which the state of the
 corresponding checkboxes was changed from the initial state.
 
-    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary" and
-"Offline" attributes are available only on NTFS drives. The "Encrypted" and
-"Offline" attributes can be used in Windows 2000/XP/2003/Vista/2008 only.
-The "Virtual" attribute can be used in Windows Vista/2008 only.
-The "Compressed" and "Encrypted" attributes are mutually exclusive, that is,
-you can set only one of them.
+    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary",
+"Offline" and "Virtual" attributes are available only on NTFS drives. The
+"Encrypted" and "Offline" attributes can be used in Windows
+2000/XP/2003/Vista/2008 only. The "Virtual" attribute can be used in
+Windows Vista/2008 only. The "Compressed" and "Encrypted" attributes are
+mutually exclusive, that is, you can set only one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
 information (NTFS/Windows 2000/XP/2003/Vista/2008 only). If the information on
@@ -3118,7 +3115,7 @@ the file panel will be displayed in multicolumn form.
        #S#         - System
        #H#         - Hidden
        #A#         - Archive
-       #L#         - Symbolic links (reparse point)
+       #L#         - Junction or symbolic link
        #C# or #E#    - Compressed or Encrypted
        #$#         - Sparse
        #T#         - Temporary
@@ -3131,8 +3128,8 @@ the file panel will be displayed in multicolumn form.
 "Encrypted" attribute is shown instead of 'C' as a file/folder can not
 have both attributes ("Compressed" and "Encrypted") set at the same time.
 By default the size of the attributes column is 6 characters. To display
-the additional 'T', 'I', 'O' and 'V' attributes it is necessary to
-manually set the size of the column to 10 characters.
+the additional 'T', 'I', 'O' and 'V' attributes it is necessary to manually
+set the size of the column to 10 characters.
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
@@ -3331,10 +3328,17 @@ folders. If the "Inherit" action is selected then after copying/moving the
 inheritable access rights of the destination parent folder will be applied to
 the copied/moved files and folders.
 
-    Parameter "Only newer file(s)" will allow to copy (move) the new and
-updated files without additional prompts. Updated files are those files for
-which the modification date is later than the modification date of the target
-file.
+    Параметр "Уже существующие файлы" определяет поведение FAR для случая,
+когда одноимённый файл уже существует в папке-приёмнике.
+    Возможные значения:
+    #Запрос действия# - будет отображён ~диалог~@CopyAskOverwrite@ с запросом;
+    #Вместо# - все существующие файлы будут заменёны копируемыми;
+    #Пропустить# - существующие файлы останутся без изменений;
+    #Дописать# - копируемые файлы будут дописаны в конец существующих;
+    #Только новые/обновленные файлы# - копировать только файлы с более новыми
+датой и временем модификации.
+    #Запрос подтверждения для R/O файлов# - определяет, нужно ли дополнительное
+подтверждение для файлов с установленным атрибутом "только для чтения".
 
     Option "Use system copy routine" from ~System settings~@SystemSettings@
 dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
@@ -3350,8 +3354,7 @@ copying/moving.
 
     When moving files, to determine whether the operation should be performed
 as a copy with subsequent deletion or as a direct move (within one physical
-drive), FAR takes into account Windows 2000/XP/2003/Vista/2008
-~symbolic links~@HardSymLink@.
+drive), FAR takes into account ~symbolic links~@HardSymLink@.
 
     FAR handles copying to #con# in the same way as copying to #nul# or
 #\\\\.\\nul# - that is, the file is read from the disk but not written
@@ -3368,6 +3371,25 @@ defined conditions. Press the #Filter# button to open the ~filters menu~@Filters
 Consider, that if you copy the folder with files and all of them does not meet
 the filter conditions, then the empty folder will not be copied to the
 destination.
+
+
+@CopyAskOverwrite
+$ #Копирование: запрос действия#
+    Если одноимённый файл уже существует в папке-приёмнике, FAR предложит на выбор
+несколько возможных действий:
+
+    #Вместо# - существующий файл будет заменён копируемым;
+
+    #Пропустить# - существующий файл останется без изменений;
+
+    #Дописать# - копируемый файл будет дописан в конец существующего;
+
+    Если отмечен переключатель #Запомнить выбор#, выбранное действие будет
+использовано для всех существующих файлов в текущем сеансе копирования
+и повторные запросы появляться не будут.
+
+    Если для принятия решения вам недостаточно информации о размере и дате
+модификации файлов, вы также можете сравнить их содержимое при помощи встроенной программы просмотра.
 
 
 @CopyRule
@@ -3410,13 +3432,11 @@ destination and the contents of the source symbolic link will be copied to it
 
 @HardSymLink
 $ #Hard and Symbolic link#
-    On NTFS partitions you can create #hard links# and #symbolic links# using
-the #Alt-F6# command.
+    On NTFS volumes you can create #hard links# for files, #junctions# for
+folders and #symbolic links# for files and folders using the #Alt-F6# command.
 
-    Hard links are created for files. Symbolic links are for directories and
-drives.
 
-    #Hard link#
+    #Hard links#
 
     A #hard link# is an additional directory entry for the given file. When a
 hard link is created, the file is not copied itself, but receives one more name
@@ -3438,32 +3458,36 @@ and sort the files by hard link number.
     Hard links are supported in NTFS starting from Windows NT 4.0. Hard links
 can only be created on the same drive as the source file.
 
-    #Symbolic links#
+    #Junctions#
 
     NTFS starting with version 5.0 (Windows 2000/XP/2003/Vista/2008) supports
-symbolic links (SymLink). Symbolic links between directories in Windows
-2000/XP/2003/Vista/2008 are known as "directory junctions". Directory junctions
-is a technology allowing to map any local directories to any other local
-directories. For example, if the directory D:\\SYMLINK has C:\\WINNT\\SYSTEM32
-as its target, a program accessing D:\\SYMLINK\\DRIVERS will actually access
-C:\\WINNT\\SYSTEM32\\DRIVERS.
+directory junctions. This technology allowing to map any local directories to
+any other local directories. For example, if the directory D:\\SYMLINK has
+C:\\WINNT\\SYSTEM32 as its target, a program accessing D:\\SYMLINK\\DRIVERS
+will actually access C:\\WINNT\\SYSTEM32\\DRIVERS.
 
-    FAR supports creating symbolic links only on local drives that have a file
-system supporting that capability (Windows 2000/XP/2003/Vista/2008/NTFS 5.0).
-Unlike hard links, symbolic links are not required to have a target on the same
-drive.
+    Unlike hard links, symbolic links are not required to have a target on the
+same drive.
 
-    It is not allowed to create symbolic links directly to CD-ROM directories,
-but this restriction can be overcome by mounting a CD-ROM to a directory on an
-NTFS partition.
+    Under Windows 2000 it is not allowed to create symbolic links directly to
+CD-ROM directories, but this restriction can be overcome by mounting a CD-ROM
+to a directory on an NTFS partition.
+
+    #Symbolic links#
+
+    NTFS supports symbolic links starting from Windows Vista (NT 6.0). It's an
+improved version of directory junctions - symbolic links can also point to files
+and non-local folders, relative paths also supported.
+    Keep in mind, that symbolic links created under Windows Vista will not be
+accessible under previous versions of Windows.
 
 
 @ErrCopyItSelf
 $ #Error: copy/move onto itself.#
     You may not copy or move a file or folder onto itself.
 
-    This error can also happen under Windows 2000/XP/2003/Vista/2008, if there
-are two directories, one of which is a ~symbolic link~@HardSymLink@ to another.
+    This error can also happen if there are two directories, one of which is
+a ~symbolic link~@HardSymLink@ to another.
 
 
 @WarnCopyEncrypt
