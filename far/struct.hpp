@@ -170,6 +170,7 @@ struct EditorOptions
 	DWORD FileSizeLimitHi;
 	int ShowKeyBar;
 	int ShowTitleBar;
+	int ShowScrollBar;
 
 	string strWordDiv;
 
@@ -195,6 +196,7 @@ struct EditorOptions
 		UseExternalEditor = 0;
 		ShowKeyBar = 0;
 		ShowTitleBar = 0;
+		ShowScrollBar=0;
 
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
@@ -225,6 +227,7 @@ struct EditorOptions
 		dest.ShowKeyBar = ShowKeyBar;
 		dest.ShowTitleBar = ShowTitleBar;
 		dest.strWordDiv = strWordDiv;
+		dest.ShowScrollBar=ShowScrollBar;
 
 		dest.FileSizeLimitLo = FileSizeLimitLo;
 		dest.FileSizeLimitHi = FileSizeLimitHi;

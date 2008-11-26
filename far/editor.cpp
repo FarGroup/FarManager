@@ -783,6 +783,8 @@ void Editor::ShowEditor(int CurLineOnly)
   if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
     CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 
+	XX2=X2-(EdOpt.ShowScrollBar?1:0);
+
   /* 17.04.2002 skv
     Что б курсор не бегал при Alt-F9 в конце длинного файла.
     Если на экране есть свободное место, и есть текст сверху,
@@ -869,9 +871,9 @@ void Editor::ShowEditor(int CurLineOnly)
     LeftPos=CurLine->GetLeftPos();
 #if 0
     // крайне эксперементальный кусок!
-    if(CurPos+LeftPos < X2 )
+    if(CurPos+LeftPos < XX2 )
       LeftPos=0;
-    else if(CurLine->X2 < X2)
+    else if(CurLine->X2 < XX2)
       LeftPos=CurLine->GetLength()-CurPos;
     if(LeftPos < 0)
       LeftPos=0;
@@ -881,7 +883,7 @@ void Editor::ShowEditor(int CurLineOnly)
       if (CurPtr!=NULL)
       {
         CurPtr->SetEditBeyondEnd(TRUE);
-        CurPtr->SetPosition(X1,Y,X2,Y);
+        CurPtr->SetPosition(X1,Y,XX2,Y);
         //CurPtr->SetTables(UseDecodeTable ? &TableSet:NULL);
         //_D(SysLog(L"Setleftpos 3 to %i",LeftPos));
         CurPtr->SetLeftPos(LeftPos);
@@ -892,7 +894,7 @@ void Editor::ShowEditor(int CurLineOnly)
       }
       else
       {
-        SetScreen(X1,Y,X2,Y,L' ',COL_EDITORTEXT); //Пустые строки после конца текста
+        SetScreen(X1,Y,XX2,Y,L' ',COL_EDITORTEXT); //Пустые строки после конца текста
       }
   }
 
@@ -913,9 +915,9 @@ void Editor::ShowEditor(int CurLineOnly)
           int BlockX2=VBlockX+VBlockSizeX-1-LeftPos+X1;
           if (BlockX1<X1)
             BlockX1=X1;
-          if (BlockX2>X2)
-            BlockX2=X2;
-          if (BlockX1<=X2 && BlockX2>=X1)
+          if (BlockX2>XX2)
+            BlockX2=XX2;
+          if (BlockX1<=XX2 && BlockX2>=X1)
             ChangeBlockColor(BlockX1,Y,BlockX2,Y,COL_EDITORSELECTEDTEXT);
         }
         CurPtr=CurPtr->m_next;
@@ -925,6 +927,7 @@ void Editor::ShowEditor(int CurLineOnly)
   }
 
   if(HostFileEditor) HostFileEditor->ShowStatus();
+  DrawScrollbar();
 //_SVS(SysLog(L"Exit from ShowEditor"));
 }
 
@@ -1303,7 +1306,7 @@ int Editor::ProcessKey(int Key)
             CurLine->Select(CurLength,-1);
         }
 
-        CurLine->ObjWidth=X2-X1;
+        CurLine->ObjWidth=XX2-X1;
 
         ProcessKey(KEY_END);
 
@@ -2067,7 +2070,7 @@ int Editor::ProcessKey(int Key)
         CurLine=EndList;
         for (TopScreen=CurLine,I=Y1;I<Y2 && TopScreen->m_prev!=NULL;I++)
         {
-          TopScreen->SetPosition(X1,I,X2,I);
+          TopScreen->SetPosition(X1,I,XX2,I);
           TopScreen=TopScreen->m_prev;
         }
         CurLine->SetLeftPos(0);
@@ -2890,7 +2893,7 @@ int Editor::ProcessKey(int Key)
         // </comment>
 
         //AY: Это что бы при FastShow LeftPos не становился в конец строки.
-        CurLine->ObjWidth=X2-X1+1;
+        CurLine->ObjWidth=XX2-X1+1;
 
         if (CurLine->ProcessKey(Key))
         {
@@ -3004,6 +3007,40 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     }
   }
+	if(EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==X2)
+	{
+
+		if(MouseEvent->dwMousePosition.Y==Y1)
+		{
+			while (IsMouseButtonPressed())
+			{
+				ProcessKey(KEY_CTRLUP);
+			}
+		}
+		else if(MouseEvent->dwMousePosition.Y==Y2)
+		{
+			while(IsMouseButtonPressed())
+			{
+				ProcessKey(KEY_CTRLDOWN);
+			}
+		}
+		else if(IsMouseButtonPressed() && MouseEvent->dwMousePosition.Y == Y1+1)
+			ProcessKey(KEY_CTRLHOME);
+		else if(IsMouseButtonPressed() && MouseEvent->dwMousePosition.Y == Y2-1)
+			ProcessKey(KEY_CTRLEND);
+		else
+		{
+			INPUT_RECORD rec;
+			int MsY=MouseEvent->dwMousePosition.Y;
+			while(IsMouseButtonPressed())
+			{
+				GoToLine((NumLastLine-1)*(MsY-Y1)/(Y2-Y1));
+				GetInputRecord(&rec);
+				MsY=rec.Event.MouseEvent.dwMousePosition.Y;
+			}
+		}
+		return TRUE;
+	}
 
   if (CurLine->ProcessMouse(MouseEvent))
   {
@@ -6502,4 +6539,13 @@ void Editor::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 {
   for (Edit *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->m_next) //???
     CurPtr->SetObjectColor (Color,SelColor,ColorUnChanged);
+}
+
+void Editor::DrawScrollbar()
+{
+	if(EdOpt.ShowScrollBar)
+	{
+		SetColor(COL_EDITORSCROLLBAR);
+		ScrollBar(X2,Y1,Y2-Y1+1,NumLine,NumLastLine);
+	}
 }

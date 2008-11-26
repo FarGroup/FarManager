@@ -191,6 +191,7 @@ unsigned char DefaultPalette[]=
   F_DARKGRAY|B_CYAN,                      // COL_MENUARROWSDISABLED,
   F_YELLOW|B_BLACK,                       // COL_MENUARROWSSELECTED,
   F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
+  F_LIGHTCYAN|B_BLUE,                     // COL_EDITORSCROLLBAR,
 };
 
 
@@ -349,6 +350,7 @@ unsigned char BlackPalette[]=
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUARROWSDISABLED,
   F_WHITE|B_BLACK,                        // COL_MENUARROWSSELECTED,
   F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
+  F_LIGHTGRAY|B_BLACK,                    // COL_EDITORSCROLLBAR,
 };
 
 
@@ -371,8 +373,8 @@ int FarColorToReal(int FarColor)
   1.70 b4 (1282)  - 0x60
   1.70 b5 ()      - 0x70
 
-  1.71 a4 (2427)  - 0x80
-  1.80    (547)   - 0x80
+  1.71 a4 (2468)  - 0x81
+  1.80    (606)   - 0x81
 */
 void ConvertCurrentPalette()
 {

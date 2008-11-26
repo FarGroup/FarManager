@@ -744,6 +744,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     ID_EC_READONLYWARNING,
     ID_EC_TABSIZEEDIT,
     ID_EC_TABSIZE,
+    ID_EC_SHOWSCROLLBAR,
     ID_EC_ANSIASDEFAULT,
     ID_EC_ANSIFORNEWFILE,
     ID_EC_SEPARATOR2,
@@ -752,7 +753,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,   3, 1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
+  /*  0 */  DI_DOUBLEBOX,   3, 1,70,23,0,0,0,0,(const wchar_t *)MEditConfigTitle,
   /*  1 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigExternal,
   /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MEditConfigEditorF4,
   /*  3 */  DI_RADIOBUTTON, 6, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorAltF4,
@@ -773,11 +774,12 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* 18 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
   /* 19 */  DI_FIXEDIT,     6,17, 9,17,0,0,0,0,L"",
   /* 20 */  DI_TEXT,       11,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
-  /* 21 */  DI_CHECKBOX,    6,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableAsDefault,
-  /* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableForNewFile,
-  /* 23 */  DI_TEXT,        0,20, 0,20,0,0, DIF_SEPARATOR, 0, L"",
-  /* 24 */  DI_BUTTON,      0,21, 0,21,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 25 */  DI_BUTTON,      0,21, 0,21,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+  /* 21 */  DI_CHECKBOX,    6,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
+  /* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableAsDefault,
+  /* 23 */  DI_CHECKBOX,    6,20, 0,20,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableForNewFile,
+  /* 24 */  DI_TEXT,        0,21, 0,21,0,0, DIF_SEPARATOR, 0, L"",
+  /* 25 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 26 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -841,8 +843,9 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiTableForNewFile;
 
   CfgDlg[ID_EC_TABSIZEEDIT].strData.Format (L"%d",EdOpt.TabSize);
+  CfgDlg[ID_EC_SHOWSCROLLBAR].Selected = EdOpt.ShowScrollBar;
 
-  int DialogHeight=24;
+  int DialogHeight=25;
 
   if (Local)
   {
@@ -910,6 +913,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
     EdOpt.TabSize=8;
+
+  EdOpt.ShowScrollBar=CfgDlg[ID_EC_SHOWSCROLLBAR].Selected;
 
   EdOpt.CursorBeyondEOL=CfgDlg[ID_EC_CURSORBEYONDEOL].Selected;
 
@@ -1024,6 +1029,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditorW,L"AnsiTableAsDefault",&Opt.EdOpt.AnsiTableAsDefault,1, 0},
   {1, REG_DWORD,  NKeyEditorW,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
   {0, REG_DWORD,  NKeyEditorW,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
+  {1, REG_DWORD,  NKeyEditorW,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
 
   {0, REG_DWORD,  NKeyXLatW,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLatW,L"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},

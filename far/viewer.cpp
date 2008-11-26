@@ -1838,7 +1838,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     > Если нажать в самом низу скролбара, вьюер отмотается на страницу
     > ниже нижней границы текста. Перед глазами будет пустой экран.
   */
-  if ( ViOpt.ShowScrollbar && MsX==X2)
+  if ( ViOpt.ShowScrollbar && MsX==X2+(m_bQuickView?1:0))
   {
     /* $ 01.09.2000 SVS
        Небольшая бага с тыканием в верхнюю позицию ScrollBar`а

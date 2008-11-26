@@ -2358,7 +2358,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
 
   if (IsVisible() && Opt.ShowPanelScrollbar && MouseX==X2 &&
-      (MouseEvent->dwButtonState & 1) && !IsDragging())
+      (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED) && !IsDragging())
   {
     int ScrollY=Y1+1+Opt.ShowColumnTitles;
     if (MouseY==ScrollY)
@@ -2377,9 +2377,15 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
     {
-      CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
-      ShowFileList(TRUE);
-      SetFocus();
+		INPUT_RECORD rec;
+		while(IsMouseButtonPressed())
+		{
+			CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
+		      	ShowFileList(TRUE);
+		      	SetFocus();
+			GetInputRecord(&rec);
+			MouseY=rec.Event.MouseEvent.dwMousePosition.Y;
+		}
       return(TRUE);
     }
   }
