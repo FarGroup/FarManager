@@ -2247,8 +2247,6 @@ void ViewerSearchMsg(const wchar_t *MsgStr)
 */
 void Viewer::Search(int Next,int FirstChar)
 {
-  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
-
   const wchar_t *TextHistoryName=L"SearchText";
   const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   static struct DialogDataEx SearchDlgData[]={
@@ -2347,6 +2345,7 @@ void Viewer::Search(int Next,int FirstChar)
     return;
 
   {
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
 
