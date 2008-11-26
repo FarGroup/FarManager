@@ -2834,7 +2834,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     } /* if */
   } /* if */
-	if(EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==X2)
+	if(EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
 
 		if(MouseEvent->dwMousePosition.Y==Y1)
@@ -2851,10 +2851,6 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(KEY_CTRLDOWN);
 			}
 		}
-		else if(IsMouseButtonPressed() && MouseEvent->dwMousePosition.Y == Y1+1)
-			ProcessKey(KEY_CTRLHOME);
-		else if(IsMouseButtonPressed() && MouseEvent->dwMousePosition.Y == Y2-1)
-			ProcessKey(KEY_CTRLEND);
 		else
 		{
 			INPUT_RECORD rec;
