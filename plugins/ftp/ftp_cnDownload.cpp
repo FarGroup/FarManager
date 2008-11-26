@@ -165,6 +165,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
       setsockopt(din, SOL_SOCKET, SO_RCVBUF, (char*)&ind, sizeof(ind));
       b_done = ind = 0;
       totalValue = 0;
+      bool unalign = false;
 
       GET_TIME(b);
       bw = b;
@@ -207,22 +208,36 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
           b_ost -= c;
           if ( b_ost < wsz || CMP_TIME(e,bw) >= 3.0 ) {
             DWORD ost = 0;
-            if (wsz == 512) { // very small buffer :)
+            if (wsz == 512 || b_done <= wsz) { // timeout or very small buffer
               if ( Fwrite(fout.Handle,IOBuff,b_done) != b_done ) goto write_error;
+              if (b_done < wsz) unalign = true; // flag of timeout witing (optimize)
             } else {
               // scatter-gatter for RAID in win32 is very bad on large buffer
               // and when work without RAID synchronous write speed is independ
               // if buffer size is >= 2*cluster size
               DWORD off = 0;
+              if (unalign) { // was 'timeouted unaligned write'
+                unalign = false;
+                off = (DWORD)(totalValue % wsz);
+                if (off) {
+                  if ( Fwrite(fout.Handle,IOBuff,off) != off ) goto write_error;
+                  b_done -= off;
+                  if ( b_done < wsz ) {
+                    memmove(IOBuff, IOBuff+off, b_done);
+                    goto skip_sg;
+                  }
+                }
+              }
               ost = b_done % wsz;
               b_done -= ost;
               do
                 if ( Fwrite(fout.Handle,IOBuff+off,wsz) != wsz ) goto write_error;
               while( (off += wsz) < b_done);
-              if ( ost ) memmove(IOBuff, IOBuff+b_done, ost);
+              if ( ost ) memmove(IOBuff, IOBuff+off, ost);
             }
             b_done = ost;
-            b_ost = Host.IOBuffSize - ost;
+skip_sg:
+            b_ost = Host.IOBuffSize - b_done;
             GET_TIME( e );
             bw = e;
           }

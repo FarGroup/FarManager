@@ -1,3 +1,9 @@
+yjh 26.11.2008 15:31:06 +0300 - build 253
+
+1. Mantis#0000643: При download с "нормальным" (>512) размером буфера, 
+   тайм-аут флушения на диск приводил к записи на диск "мусора" 
+   (thanks DiRTy_GaRRY).
+
 t-rex 16.11.2008 18:23:31 +0200 - build 252
 
 1. From DiRTy_GaRRy: Mantis#629: ACCESS_VIOLATION override file or enter to folder.
