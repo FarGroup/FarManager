@@ -2272,8 +2272,6 @@ void ViewerSearchMsg(char *MsgStr)
 */
 void Viewer::Search(int Next,int FirstChar)
 {
-  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
-
   const char *TextHistoryName="SearchText";
   const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   /* $ 01.08.2000 KM
@@ -2397,7 +2395,8 @@ void Viewer::Search(int Next,int FirstChar)
   if ((SearchLength=(int)strlen((char *)SearchStr))==0)
     return;
 
-  {
+  { 
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
 
