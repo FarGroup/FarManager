@@ -15,6 +15,16 @@ FAR 1.71 (build 2465) (24.11.2008)
 version of FAR with which they are supplied. It is not guaranteed that
 the standard plugins will function correctly with different FAR versions.
 
+Advanced Compare
+~~~~~~~~~~~~~~~~
+[+] Если при сравнении по содержимому не удалось открыть файл -
+    выводится сообщение об ошибке.
+[*] При открытии файлов не используется флаг FILE_SHARE_WRITE.
+
+Align
+~~~~~
+[-] Падение при попытке вырвнивания пустой строки.
+
 EMenu
 ~~~~~
 [+] In some cases meaningful text is displayed for "owner draw" items.
@@ -43,6 +53,9 @@ FTP
 MultiArc
 ~~~~~~~~
 [+] custom.ini: innounp support (http://innounp.sourceforge.net/).
+[+] rar.fmt: если для просмотра архива требуется библиотека unrar.dll
+    (например, зашифрован заголовок), но обнаружить её не удалось -
+    выводится сообщение об ошибке.
 [-] ace.fmt: crashed on corrupted archives.
 [-] arj.fmt: some rare archive types were incorrectly processed.
 [-] rar.fmt: the password was sent in the wrong encoding when using unrar.dll.
@@ -55,6 +68,7 @@ Network
 [+] Environment variables (%VARIABLENAME%) can be used in command line.
 [*] Cosmetic changes in login dialog.
 [-] Ctrl+PgUp now works correctly in all cases.
+[-] Если диалог ввода логина/пароля закрыть по Esс, он появлялся повторно.
 
 ProcList
 ~~~~~~~~
