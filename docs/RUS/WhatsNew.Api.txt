@@ -9,7 +9,7 @@
 [-] Исправлена ошибка
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2465) (24.11.2008)
+FAR 1.71 (build 2469) (26.11.2008)
 ---------------------------------------------------------------------------
 Общее
 ~~~~~
@@ -54,7 +54,8 @@ FAR 1.71 (build 2465) (24.11.2008)
      COL_WARNDIALOGCOMBOARROWSSELECTED,
      COL_MENUARROWS,
      COL_MENUARROWSSELECTED,
-     COL_COMMANDLINEUSERSCREEN.
+     COL_COMMANDLINEUSERSCREEN,
+     COL_EDITORSCROLLBAR.
 [+] Новые флаги FSF.MkLink:
      FLINK_SYMLINKFILE - символическая ссылка-файл (NT>=6)
      FLINK_SYMLINKDIR  - символическая ссылка-каталог (NT>=6)
