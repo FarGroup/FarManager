@@ -1334,7 +1334,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 				}
 				for(wchar_t c=*Src;c;Src++,c=*Src)
 				{
-					if (!c||c==L'\\'||c==L'/')
+					if (!c||IsSlash(c))
 					{
 						*Src=0;
 						FAR_FIND_DATA_EX fd;

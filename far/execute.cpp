@@ -1474,7 +1474,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&
       (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
-      (IsSpace(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
+      (IsSpace(strCmdLine.At(Length)) || IsSlash(strCmdLine.At(Length)) ||
       TestParentFolderName((const wchar_t*)strCmdLine+Length)))
   {
     int ChDir=(Length==5);

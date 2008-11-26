@@ -104,12 +104,12 @@ void ShellMakeDir(Panel *SrcPanel)
 
     bool bSuccess = false;
 
-    if (Length>0 && (lpwszDirName[Length-1]==L'/' || lpwszDirName[Length-1]==L'\\'))
+    if (Length>0 && IsSlash(lpwszDirName[Length-1]))
       lpwszDirName[Length-1]=0;
 
     for (wchar_t *ChPtr=lpwszDirName;*ChPtr!=0;ChPtr++)
     {
-      if (*ChPtr==L'\\' || *ChPtr==L'/')
+      if (IsSlash(*ChPtr))
       {
         *ChPtr=0;
 

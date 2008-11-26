@@ -419,7 +419,7 @@ char* WINAPI PointToNameA(char *Path)
   char *NamePtr=Path;
   while (*Path)
   {
-    if (*Path=='\\' || *Path=='/' || (*Path==':' && Path==NamePtr+1))
+    if (IsSlashA(*Path) || (*Path==':' && Path==NamePtr+1))
       NamePtr=Path+1;
     Path++;
   }
@@ -598,7 +598,7 @@ BOOL AddEndSlashA(char *Path,char TypeSlash)
     else
     {
      end--;
-     if (*end!='\\' && *end!='/')
+     if (!IsSlashA(*end))
      {
        end[1]=c;
        end[2]=0;

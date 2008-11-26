@@ -51,6 +51,8 @@ inline int IsSpaceA(int x) { return x==' ' || x=='\t'; }
 inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t'; }
 inline int IsEolA(int x)  { return x=='\r' || x=='\n'; }
 inline int IsEol(wchar_t x)  { return x==L'\r' || x==L'\n'; }
+inline int IsSlashA(const char x){return x=='\\' || x=='/';}
+inline int IsSlash(const wchar_t x){return x==L'\\' || x==L'/';}
 
 #define  NM          260
 

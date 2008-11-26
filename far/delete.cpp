@@ -881,8 +881,8 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 void DeleteDirTree(const wchar_t *Dir)
 {
   if (*Dir==0 ||
-      ((Dir[0]==L'\\' || Dir[0]==L'/') && Dir[1]==0) ||
-      (Dir[1]==L':' && (Dir[2]==L'\\' || Dir[2]==L'/') && Dir[3]==0))
+      (IsSlash(Dir[0]) && Dir[1]==0) ||
+      (Dir[1]==L':' && IsSlash(Dir[2]) && Dir[3]==0))
     return;
   string strFullName;
   FAR_FIND_DATA_EX FindData;

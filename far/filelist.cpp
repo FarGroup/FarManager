@@ -2728,7 +2728,7 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
   strMask = Name;
 
-  if ( Length > 0 && (Name[Length-1] == L'/' || Name[Length-1] == L'\\') )
+  if ( Length > 0 && IsSlash(Name[Length-1]))
   {
     DirFind = 1;
     strMask.SetLength(strMask.GetLength ()-1);
