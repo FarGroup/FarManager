@@ -147,6 +147,7 @@ struct EditorOptions
   /* SVS $ */
   int ShowKeyBar;
   int ShowTitleBar;
+  int ShowScrollBar;
 };
 /* IS $ */
 

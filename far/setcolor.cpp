@@ -311,9 +311,10 @@ void SetColors()
     (char *)MSetColorEditorNormal,LIF_SELECTED,0,
     (char *)MSetColorEditorSelected,0,0,
     (char *)MSetColorEditorStatus,0,0,
+    (char *)MSetColorEditorScrollbar,0,0,
   };
   int EditorPaletteItems[]={
-    COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS
+    COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS,COL_EDITORSCROLLBAR
   };
 
   struct MenuData HelpItems[]=

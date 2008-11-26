@@ -130,6 +130,8 @@ class Editor:public ScreenObject
 
     int MaxRightPos;
 
+    int XX2; //scrollbar
+
     unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
     /* $ 30.07.2000 KM
        Новая переменная для поиска "Whole words"
@@ -266,6 +268,8 @@ class Editor:public ScreenObject
     void SetReadOnlyLock(int NewMode)  { EdOpt.ReadOnlyLock=NewMode&3; }
     int  GetReadOnlyLock(void) const {return EdOpt.ReadOnlyLock; }
 
+    void SetShowScrollBar(int NewMode){EdOpt.ShowScrollBar=NewMode;}
+    
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
@@ -306,6 +310,7 @@ class Editor:public ScreenObject
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
     void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
+    void DrawScrollbar();
 };
 
 #endif // __EDITOR_HPP__

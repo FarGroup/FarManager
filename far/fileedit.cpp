@@ -1931,6 +1931,7 @@ void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
   FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
   FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
   FEdit->SetReadOnlyLock(EdOpt.ReadOnlyLock);
+  FEdit->SetShowScrollBar(EdOpt.ShowScrollBar);
   //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
 }
 
