@@ -1382,6 +1382,12 @@ range at the begining of the file, defined by the #Search only in the first#
 property. If the specified value is less than the file size, the rest of the
 file will be ignored even if the required sequence exists there.
 
+The following file size suffixes can be used:
+B - for bytes (no suffix also means bytes);
+K - for kilobytes;
+M - for megabytes;
+G - for gigabytes;
+T - for terabytes.
 
 @FindFileResult
 $ #Find file: control keys#
@@ -1460,8 +1466,13 @@ rule sets.
                    ignored.
 
 
-   #Size#            Minimum and maximum files size in #bytes#,
-                   #kilobytes#, #megabytes# or #gigabytes#.
+   #Size#            Minimum and maximum files size. The following
+                   file size suffixes can be used:
+                   B - for bytes (no suffix also means bytes);
+                   K - for kilobytes;
+                   M - for megabytes;
+                   G - for gigabytes;
+                   T - for terabytes.
 
                    Filter conditions are met if file size analysis
                    is on, and it is inside the given range.
@@ -2994,18 +3005,12 @@ masks) the following commands are available:
                        and files that match then will not be
                        processed.
 
-   #Ctrl-F#              Allow or disable filtration of folders.
-                       If folder filtration is allowed then the menu
-                       title will contain the string "D?", otherwise
-                       it will contain "D+".
+   #I# and #X#             Similar to #Plus# and #Minus# respectively,
+                       but have higher priority when matching.
 
    #Backspace#           Clear selection from the current item.
 
    #Shift-Backspace#     Clear selection from all items.
-
-   #Shift-<Gray Minus>#  Reset the menu to default state.
-                       (disable filtration of folders and clear
-                       selection from all items).
 
 
     Filters selection is stored in the FAR configuration.

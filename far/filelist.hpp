@@ -300,7 +300,7 @@ class FileList:public Panel
     void ProcessPluginCommand();
     void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
-    void ReadSortGroups();
+    void ReadSortGroups(bool UpdateFilterCurrentTime=true);
     void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
     int  ProcessOneHostFile(int Idx);
 
@@ -396,7 +396,6 @@ class FileList:public Panel
 
     virtual BOOL GetItem(int Index,void *Dest);
     virtual BOOL UpdateKeyBar();
-    void UpdateColorItems(void);
 
     virtual void IfGoHome(wchar_t Drive);
 

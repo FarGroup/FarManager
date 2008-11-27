@@ -37,15 +37,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "unicodestring.hpp"
 #include "struct.hpp"
 
-#undef SEARCH_ALL
 enum {
-  SEARCH_ALL=0,
-  SEARCH_ALL_BUTNETWORK,
-  SEARCH_INPATH,
-  SEARCH_ROOT,
-  SEARCH_FROM_CURRENT,
-  SEARCH_CURRENT_ONLY,
-  SEARCH_SELECTED
+  FFSEARCH_ALL=0,
+  FFSEARCH_ALL_BUTNETWORK,
+  FFSEARCH_INPATH,
+  FFSEARCH_ROOT,
+  FFSEARCH_FROM_CURRENT,
+  FFSEARCH_CURRENT_ONLY,
+  FFSEARCH_SELECTED
 };
 
 typedef struct _ARCLIST {
@@ -99,7 +98,6 @@ class FindFiles
     static string &PrepareDriveNameStr(string &strSearchFromRoot,size_t sz);
     static wchar_t *RemovePseudoBackSlash(wchar_t *FileName);
     static string &RemovePseudoBackSlash(string &strFileName);
-    static __int64 __fastcall GetSearchInFirst(const wchar_t *DigitStr);
 
   public:
 

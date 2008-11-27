@@ -686,8 +686,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     {
       Dlg.ClearDone();
       Dlg.Process();
-
       DlgExitCode=Dlg.GetExitCode();
+
+      //Рефреш текущему времени для фильтра сразу после выхода из диалога
+      Filter->UpdateCurrentTime();
+
       if(DlgExitCode == ID_SC_BTNCOPY)
       {
         /* $ 03.08.2001 IS
@@ -716,7 +719,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           break;
         }
         else
+        {
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MCopyIncorrectTargetList), MSG(MOk));
+        }
       }
       else
         break;
@@ -1856,8 +1861,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         {
           // Просто пропустить каталог недостаточно - если каталог помечен в
           // фильтре как некопируемый, то следует пропускать и его и всё его
-          // содержимое. Но проверять надо ТОЛЬКО на фильтры "с запретом"
-          if (Filter->FileInFilter(&SrcData, true))
+          // содержимое.
+          if (!Filter->FileInFilter(&SrcData))
           {
             ScTree.SkipDir();
             continue;
@@ -2036,15 +2041,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     return(COPY_CANCEL);
   }
 
-  /* Отфильтруем файлы не попадающие в действующий фильтр,
-     каталоги же пропускаем всегда  */
   if (UseFilter)
   {
-    // Просто не смотреть соотвествие каталога фильтрам недостаточно - если это
-    // делать, то копируются каталоги помеченные в фильтре как некопируемые.
-    // Поэтому для каталогов проверяем на соотвествие фильтру "с запретом"
-    bool isDir = (SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) != 0;
-    if(Filter->FileInFilter(&SrcData, isDir) == isDir)
+    if (!Filter->FileInFilter(&SrcData))
       return COPY_NEXT;
   }
 

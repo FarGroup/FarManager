@@ -47,15 +47,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileFilterParams::FileFilterParams()
 {
-  m_Title=L"";
+  m_strTitle = L"";
   SetMask(1,L"*");
-  SetSize(0,FSIZE_INBYTES,_i64(-1),_i64(-1));
+  SetSize(0,L"",L"");
   memset(&FDate,0,sizeof(FDate));
   memset(&FAttr,0,sizeof(FAttr));
   memset(&FHighlight.Colors,0,sizeof(FHighlight.Colors));
   FHighlight.SortGroup=DEFAULT_SORT_GROUP;
   FHighlight.bContinueProcessing=false;
-  Flags.ClearAll();
+  ClearAllFlags();
 }
 
 const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
@@ -70,22 +70,22 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
   FF.GetColors(&FHighlight.Colors);
   FHighlight.SortGroup=FF.GetSortGroup();
   FHighlight.bContinueProcessing=FF.GetContinueProcessing();
-  Flags.Flags=FF.Flags.Flags;
+  memcpy(FFlags,FF.FFlags,sizeof(FFlags));
   return *this;
 }
 
 void FileFilterParams::SetTitle(const wchar_t *Title)
 {
-  m_Title = Title;
+  m_strTitle = Title;
 }
 
-void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
+void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
 {
   FMask.Used = Used;
   FMask.strMask = Mask;
 
   /* Обработка %PATHEXT% */
-  string strMask = Mask;
+  string strMask = FMask.strMask;
   size_t pos;
   // проверим
   if (strMask.PosI(pos,L"%PATHEXT%"))
@@ -131,53 +131,29 @@ void FileFilterParams::SetMask(DWORD Used, const wchar_t *Mask)
   }
 }
 
-void FileFilterParams::SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore)
+void FileFilterParams::SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative)
 {
   FDate.Used=Used;
-  FDate.DateType=(FDateType)DateType;
+  FDate.DateType=(enumFDateType)DateType;
   if (DateType>=FDATE_COUNT)
     FDate.DateType=FDATE_MODIFIED;
-  FDate.DateAfter=DateAfter;
-  FDate.DateBefore=DateBefore;
+  FDate.DateAfter.u.LowPart=DateAfter.dwLowDateTime;
+  FDate.DateAfter.u.HighPart=DateAfter.dwHighDateTime;
+  FDate.DateBefore.u.LowPart=DateBefore.dwLowDateTime;
+  FDate.DateBefore.u.HighPart=DateBefore.dwHighDateTime;
+  FDate.bRelative=bRelative;
 }
 
-void FileFilterParams::SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow)
+void FileFilterParams::SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow)
 {
   FSize.Used=Used;
-  FSize.SizeType=(FSizeType)SizeType;
-  if (SizeType>=FSIZE_COUNT)
-    FSize.SizeType=FSIZE_INBYTES;
-  FSize.SizeAbove=SizeAbove;
-  FSize.SizeBelow=SizeBelow;
-  FSize.SizeAboveReal=SizeAbove;
-  FSize.SizeBelowReal=SizeBelow;
-  switch (FSize.SizeType)
-  {
-    case FSIZE_INBYTES:
-      // Размер введён в байтах, значит ничего не меняем.
-      break;
-    case FSIZE_INKBYTES:
-      // Размер введён в килобайтах, переведём его в байты.
-      // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal<<=10;
-      FSize.SizeBelowReal<<=10;
-      break;
-    case FSIZE_INMBYTES:
-      // Задел // Размер введён в мегабайтах, переведём его в байты.
-      // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal<<=20;
-      FSize.SizeBelowReal<<=20;
-      break;
-    case FSIZE_INGBYTES:
-      // Задел // Размер введён в гигабайтах, переведём его в байты.
-      // !!! Проверки на превышение максимального значения не делаются !!!
-      FSize.SizeAboveReal<<=30;
-      FSize.SizeBelowReal<<=30;
-      break;
-  }
+  xwcsncpy(FSize.SizeAbove,SizeAbove,countof(FSize.SizeAbove)-1);
+  xwcsncpy(FSize.SizeBelow,SizeBelow,countof(FSize.SizeBelow)-1);
+  FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
+  FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
 
-void FileFilterParams::SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear)
+void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 {
   FAttr.Used=Used;
   FAttr.AttrSet=AttrSet;
@@ -191,31 +167,37 @@ void FileFilterParams::SetColors(HighlightDataColor *Colors)
 
 const wchar_t *FileFilterParams::GetTitle() const
 {
-  return m_Title;
+  return m_strTitle;
 }
 
-DWORD FileFilterParams::GetMask(const wchar_t **Mask) const
+bool FileFilterParams::GetMask(const wchar_t **Mask) const
 {
   if (Mask)
     *Mask=FMask.strMask;
   return FMask.Used;
 }
 
-DWORD FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore) const
+bool FileFilterParams::GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const
 {
   if (DateType)
     *DateType=FDate.DateType;
   if (DateAfter)
-    *DateAfter=FDate.DateAfter;
+  {
+    DateAfter->dwLowDateTime=FDate.DateAfter.u.LowPart;
+    DateAfter->dwHighDateTime=FDate.DateAfter.u.HighPart;
+  }
   if (DateBefore)
-    *DateBefore=FDate.DateBefore;
+  {
+    DateBefore->dwLowDateTime=FDate.DateBefore.u.LowPart;
+    DateBefore->dwHighDateTime=FDate.DateBefore.u.HighPart;
+  }
+  if (bRelative)
+    *bRelative=FDate.bRelative;
   return FDate.Used;
 }
 
-DWORD FileFilterParams::GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *SizeBelow) const
+bool FileFilterParams::GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const
 {
-  if (SizeType)
-    *SizeType=FSize.SizeType;
   if (SizeAbove)
     *SizeAbove=FSize.SizeAbove;
   if (SizeBelow)
@@ -223,7 +205,7 @@ DWORD FileFilterParams::GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *Si
   return FSize.Used;
 }
 
-DWORD FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
+bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 {
   if (AttrSet)
     *AttrSet=FAttr.AttrSet;
@@ -242,7 +224,7 @@ int FileFilterParams::GetMarkChar() const
   return FHighlight.Colors.MarkChar;
 }
 
-bool FileFilterParams::FileInFilter(const FileListItem *fli)
+bool FileFilterParams::FileInFilter(const FileListItem *fli, unsigned __int64 CurrentTime)
 {
   FAR_FIND_DATA fd;
 
@@ -255,10 +237,10 @@ bool FileFilterParams::FileInFilter(const FileListItem *fli)
   fd.lpwszFileName=(wchar_t *)(const wchar_t *)fli->strName;
   fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fli->strShortName;
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd, CurrentTime);
 }
 
-bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde)
+bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int64 CurrentTime)
 {
   FAR_FIND_DATA fd;
 
@@ -271,10 +253,10 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde)
   fd.lpwszFileName=(wchar_t *)(const wchar_t *)fde->strFileName;
   fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fde->strAlternateFileName;
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd, CurrentTime);
 }
 
-bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
+bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 CurrentTime)
 {
   // Пустое значение?
   //if (fd==NULL)
@@ -295,13 +277,13 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
   // Режим проверки размера файла включен?
   if (FSize.Used)
   {
-    if (FSize.SizeAbove != _i64(-1))
+    if (*FSize.SizeAbove)
     {
       if (fd->nFileSize < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
         return false;                          // Не пропускаем этот файл
     }
 
-    if (FSize.SizeBelow != _i64(-1))
+    if (*FSize.SizeBelow)
     {
 
       if (fd->nFileSize > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
@@ -313,38 +295,54 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
   if (FDate.Used)
   {
     // Преобразуем FILETIME в беззнаковый __int64
-    unsigned __int64 after=FileTimeToUI64(&FDate.DateAfter);
-    unsigned __int64 before=FileTimeToUI64(&FDate.DateBefore);
+    unsigned __int64 after  = FDate.DateAfter.QuadPart;
+    unsigned __int64 before = FDate.DateBefore.QuadPart;
 
     if (after!=_ui64(0) || before!=_ui64(0))
     {
-      unsigned __int64 ftime=_ui64(0);
+      const FILETIME *ft;
 
       switch (FDate.DateType)
       {
-        case FDATE_MODIFIED:
-          ftime=FileTimeToUI64(&fd->ftLastWriteTime);
-          break;
         case FDATE_CREATED:
-          ftime=FileTimeToUI64(&fd->ftCreationTime);
+          ft=&fd->ftCreationTime;
           break;
         case FDATE_OPENED:
-          ftime=FileTimeToUI64(&fd->ftLastAccessTime);
+          ft=&fd->ftLastAccessTime;
           break;
+        default: //case FDATE_MODIFIED:
+          ft=&fd->ftLastWriteTime;
+      }
+
+      ULARGE_INTEGER ftime;
+      ftime.u.LowPart  = ft->dwLowDateTime;
+      ftime.u.HighPart = ft->dwHighDateTime;
+
+      if (FDate.bRelative)
+      {
+        if (after!=_ui64(0))
+          after = CurrentTime - after;
+
+        if (before!=_ui64(0))
+          before = CurrentTime - before;
       }
 
       // Есть введённая пользователем начальная дата?
       if (after!=_ui64(0))
+      {
         // Дата файла меньше начальной даты по фильтру?
-        if (ftime<after)
+        if (ftime.QuadPart<after)
           // Не пропускаем этот файл
           return false;
+      }
 
       // Есть введённая пользователем конечная дата?
       if (before!=_ui64(0))
+      {
         // Дата файла больше конечной даты по фильтру?
-        if (ftime>before)
+        if (ftime.QuadPart>before)
           return false;
+      }
     }
   }
 
@@ -363,7 +361,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd)
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
   const wchar_t AttrC[] = L"RAHSDCEI$TLOV";
   const DWORD   AttrF[] = {
@@ -379,25 +377,29 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
                             FILE_ATTRIBUTE_TEMPORARY,
                             FILE_ATTRIBUTE_REPARSE_POINT,
                             FILE_ATTRIBUTE_OFFLINE,
-                            FILE_ATTRIBUTE_VIRTUAL
+                            FILE_ATTRIBUTE_VIRTUAL,
                           };
 
-  const wchar_t Format1[] = L"%-21.21s %c %-26.26s %-2.2s %c %s";
-  const wchar_t Format2[] = L"%-3.3s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format1a[] = L"%-21.21s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format1b[] = L"%-22.22s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format1c[] = L"&%c. %-18.18s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format1d[] = L"   %-18.18s %c %-26.26s %-2.2s %c %s";
+  const wchar_t Format2[]  = L"%-3.3s %c %-26.26s %-3.3s %c %s";
 
+  const wchar_t DownArrow=0x2193;
   const wchar_t *Name, *Mask;
   wchar_t MarkChar[]=L"\" \"";
   DWORD IncludeAttr, ExcludeAttr;
-  DWORD UseMask, UseSize, UseDate;
+  bool UseMask, UseSize, UseDate, RelativeDate;
 
   if (bPanelType)
   {
     Name=Title;
-    UseMask=1;
+    UseMask=true;
     Mask=FMask;
     IncludeAttr=0;
     ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
-    UseDate=UseSize=0;
+    RelativeDate=UseDate=UseSize=false;
   }
   else
   {
@@ -408,8 +410,8 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
     UseMask=FF->GetMask(&Mask);
     if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
       IncludeAttr=ExcludeAttr=0;
-    UseSize=FF->GetSize(NULL,NULL,NULL);
-    UseDate=FF->GetDate(NULL,NULL,NULL);
+    UseSize=FF->GetSize(NULL,NULL);
+    UseDate=FF->GetDate(NULL,NULL,NULL,&RelativeDate);
   }
 
   wchar_t Attr[countof(AttrC)*2] = {0};
@@ -425,17 +427,44 @@ void MenuString(string &dest, FileFilterParams *FF, bool bHighightType, bool bPa
       *Ptr=*(Ptr+1)=L'.';
   }
 
-  wchar_t SizeDate[3] = L"..";
+  wchar_t SizeDate[4] = L"...";
   if (UseSize)
+  {
     SizeDate[0]=L'S';
+  }
   if (UseDate)
-    SizeDate[1]=L'D';
+  {
+    if (RelativeDate)
+      SizeDate[1]=L'R';
+    else
+      SizeDate[1]=L'D';
+  }
 
-  if (bHighightType)
-    dest.Format(Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+  if (bHighlightType)
+  {
+    if (FF->GetContinueProcessing())
+      SizeDate[2]=DownArrow;
+
+    strDest.Format(Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+  }
   else
-    dest.Format(Format1, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
-  RemoveTrailingSpaces(dest);
+  {
+    SizeDate[2]=0;
+
+    if (!Hotkey && !bPanelType)
+    {
+      strDest.Format(wcschr(Name, L'&') ? Format1b : Format1a, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+    }
+    else
+    {
+      if (Hotkey)
+        strDest.Format(Format1c, Hotkey, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+      else
+        strDest.Format(Format1d, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+    }
+  }
+
+  RemoveTrailingSpaces(strDest);
 }
 
 enum enumFileFilterConfig {
@@ -452,42 +481,44 @@ enum enumFileFilterConfig {
     ID_FF_SEPARATOR2,
 
     ID_FF_MATCHSIZE,
-    ID_FF_SIZEDIVIDER,
-    ID_FF_SIZEFROM,
+    ID_FF_SIZEFROMSIGN,
     ID_FF_SIZEFROMEDIT,
-    ID_FF_SIZETO,
+    ID_FF_SIZETOSIGN,
     ID_FF_SIZETOEDIT,
 
     ID_FF_MATCHDATE,
     ID_FF_DATETYPE,
-    ID_FF_DATEAFTER,
+    ID_FF_DATERELATIVE,
+    ID_FF_DATEAFTERSIGN,
     ID_FF_DATEAFTEREDIT,
+    ID_FF_DAYSAFTEREDIT,
     ID_FF_TIMEAFTEREDIT,
-    ID_FF_DATEBEFORE,
+    ID_FF_DATEBEFORESIGN,
     ID_FF_DATEBEFOREEDIT,
+    ID_FF_DAYSBEFOREEDIT,
     ID_FF_TIMEBEFOREEDIT,
     ID_FF_CURRENT,
     ID_FF_BLANK,
 
     ID_FF_SEPARATOR3,
-    ID_FF_VSEPARATOR1,
+    ID_FF_SEPARATOR4,
 
     ID_FF_MATCHATTRIBUTES,
     ID_FF_READONLY,
     ID_FF_ARCHIVE,
     ID_FF_HIDDEN,
     ID_FF_SYSTEM,
-    ID_FF_REPARSEPOINT,
     ID_FF_DIRECTORY,
     ID_FF_COMPRESSED,
     ID_FF_ENCRYPTED,
     ID_FF_NOTINDEXED,
+    ID_FF_REPARSEPOINT,
     ID_FF_SPARSE,
     ID_FF_TEMP,
     ID_FF_OFFLINE,
     ID_FF_VIRTUAL,
 
-    ID_HER_SEPARATOR3,
+    ID_HER_SEPARATOR1,
     ID_HER_MARK_TITLE,
     ID_HER_MARKEDIT,
     ID_HER_MARKTRANSPARENT,
@@ -503,7 +534,8 @@ enum enumFileFilterConfig {
 
     ID_HER_COLOREXAMPLE,
     ID_HER_CONTINUEPROCESSING,
-    ID_FF_SEPARATOR4,
+
+    ID_FF_SEPARATOR5,
 
     ID_FF_OK,
     ID_FF_RESET,
@@ -541,10 +573,50 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
   }
 }
 
+void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
+{
+  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+  if (Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0))
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
+  }
+  else
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
+    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
+  }
+
+  if (bClear)
+  {
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)L"");
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)L"");
+  }
+
+  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+}
+
 LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   switch(Msg)
   {
+    case DN_INITDIALOG:
+    {
+      FilterDlgRelativeDateItemsUpdate(hDlg, false);
+      return TRUE;
+    }
+
     case DN_BTNCLICK:
     {
       if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK) //Current и Blank
@@ -562,48 +634,49 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)(const wchar_t*)strDate);
+        int relative = (int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
+        int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
+        int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
+
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)(const wchar_t*)strDate);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)(const wchar_t*)strTime);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strDate);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)(const wchar_t*)strDate);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strTime);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,ID_FF_DATEAFTEREDIT,0);
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
         COORD r;
         r.X=r.Y=0;
-        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,ID_FF_DATEAFTEREDIT,(LONG_PTR)&r);
+        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,da,(LONG_PTR)&r);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
       }
       else if (Param1==ID_FF_RESET) // Reset
       {
-        // очистка диалога
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(LONG_PTR)L"*");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)L"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)L"");
 
-        /* 14.06.2004 KM
-           Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
-           случае это будет логичнее, т.с. дефолтное значение
-        */
-        for(int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
+        for (int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
+        {
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+        }
+        if (!ColorConfig)
+          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
 
-        // 6, 13 - позиции в списке
         struct FarListPos LPos={0,0};
-        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_SIZEDIVIDER,(LONG_PTR)&LPos);
         Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_CHECKED);
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,BSTATE_UNCHECKED);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,BSTATE_UNCHECKED);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,BSTATE_UNCHECKED);
+        FilterDlgRelativeDateItemsUpdate(hDlg, true);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
@@ -617,7 +690,13 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,BSTATE_CHECKED);
         break;
       }
+      else if (Param1==ID_FF_DATERELATIVE)
+      {
+        FilterDlgRelativeDateItemsUpdate(hDlg, true);
+        break;
+      }
     }
+
     case DN_MOUSECLICK:
       if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
          || (Msg==DN_MOUSECLICK && Param1==ID_HER_COLOREXAMPLE && ((MOUSE_EVENT_RECORD *)Param2)->dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
@@ -644,6 +723,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)ColorExample);
+
         return TRUE;
       }
       break;
@@ -662,50 +742,43 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)ColorExample);
         return TRUE;
       }
+      break;
+
+    case DN_CLOSE:
+      if (Param1 == ID_FF_OK && Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_MATCHSIZE,0))
+      {
+        string strTemp;
+        wchar_t *temp;
+        temp = strTemp.GetBuffer(Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,0)+1);
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)temp);
+        bool bTemp = !*temp || CheckFileSizeStringFormat(temp);
+        temp = strTemp.GetBuffer(Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,0)+1);
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)temp);
+        bTemp = bTemp && (!*temp || CheckFileSizeStringFormat(temp));
+        if (!bTemp)
+        {
+          LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+          Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));
+          return FALSE;
+        }
+      }
+      break;
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
-/*
-  |         |         |         |         |         |         |         |
-  00000000001111111111222222222233333333334444444444555555555566666666667777777777
-  01234567890123456789012345678901234567890123456789012345678901234567890123456789
-01+-------------------------- Фильтр операций --------------------------+
-02| Название фильтра:                                                   |
-03+-------------------------- Параметры файла --------------------------+
-04| [ ] Совпадение с маской (масками)                                   |
-05+------------------------------+--------------------------------------+
-06| [x] Размер в                 ¦ [x] Дата/время                       |
-07|   Больше или равен: "      " ¦   Начиная с:  "  .  .   " "  :  :  " |
-08|   Меньше или равен: "      " ¦   Заканчивая: "  .  .   " "  :  :  " |
-09|                              ¦                [ Текущая ] [ Сброс ] |
-10+------------------------------+--------------------------------------+
-11| [ ] Атрибуты                                                        |
-12|   [?] Только для чтения  [?] Каталог           [?] Разреженный      |
-13|   [?] Архивный           [?] Сжатый            [?] Временный        |
-14|   [?] Скрытый            [?] Зашифрованный     [?] Автономный       |
-15|   [?] Системный          [?] Неиндексируемый   [?] Виртуальный      |
-16|   [?] Символ. связь                                                 |
-17+---------------------------------------------------------------------+
-18|                  [ Ок ]  [ Очистить ]  [ Отмена ]                   |
-19+---------------------------------------------------------------------+
-  01234567890123456789012345678901234567890123456789012345678901234567890123456789
-  00000000001111111111222222222233333333334444444444555555555566666666667777777777
-  |         |         |         |         |         |         |         |
-*/
-
+  const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2502,0x2534,0};
   // Временная маска.
   CFileMask FileMask;
-  const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2502,0x2534,0};
-  // Маска для ввода размеров файла
-  const wchar_t DigitMask[] = L"99999999999999999999";
   // История для маски файлов
   const wchar_t FilterMasksHistoryName[] = L"FilterMasks";
   // История для имени фильтра
   const wchar_t FilterNameHistoryName[] = L"FilterName";
   // Маски для диалога настройки
+  // Маска для ввода дней для относительной даты
+  const wchar_t DaysMask[] = L"9999";
   string strDateMask, strTimeMask;
 
   // Определение параметров даты и времени в системе.
@@ -733,7 +806,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   struct DialogDataEx FilterDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,73,19,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
+    DI_DOUBLEBOX,3,1,73,18,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 
     DI_TEXT,5,2,0,2,1,0,0,0,(const wchar_t *)MFileFilterName,
     DI_EDIT,5,2,71,2,0,(DWORD_PTR)(const wchar_t *)FilterNameHistoryName,DIF_HISTORY,0,L"",
@@ -746,67 +819,68 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     DI_TEXT,0,5,0,5,0,0,DIF_SEPARATOR,0,L"",
 
     DI_CHECKBOX,5,6,0,6,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterSize,
-    DI_COMBOBOX,20,6,36,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
-    DI_TEXT,7,7,11,7,0,0,0,0,(const wchar_t *)MFileFilterSizeFrom,
-    DI_FIXEDIT,20,7,36,7,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
-    DI_TEXT,7,8,11,8,0,0,0,0,(const wchar_t *)MFileFilterSizeTo,
-    DI_FIXEDIT,20,8,36,8,0,(DWORD_PTR)DigitMask,DIF_MASKEDIT,0,L"",
+    DI_TEXT,7,7,8,7,0,0,0,0,(const wchar_t *)MFileFilterSizeFromSign,
+    DI_EDIT,10,7,20,7,0,0,0,0,L"",
+    DI_TEXT,7,8,8,8,0,0,0,0,(const wchar_t *)MFileFilterSizeToSign,
+    DI_EDIT,10,8,20,8,0,0,0,0,L"",
 
-    DI_CHECKBOX,40,6,0,6,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
-    DI_COMBOBOX,58,6,71,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
-    DI_TEXT,42,7,48,7,0,0,0,0,(const wchar_t *)MFileFilterAfter,
+    DI_CHECKBOX,24,6,0,6,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterDate,
+    DI_COMBOBOX,26,7,41,7,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
+    DI_CHECKBOX,26,8,0,8,0,0,0,0,(const wchar_t *)MFileFilterDateRelative,
+    DI_TEXT,50,7,51,7,0,0,0,0,(const wchar_t *)MFileFilterDateAfterSign,
     DI_FIXEDIT,53,7,62,7,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
+    DI_FIXEDIT,53,7,62,7,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
     DI_FIXEDIT,64,7,71,7,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
-    DI_TEXT,42,8,48,8,0,0,0,0,(const wchar_t *)MFileFilterBefore,
+    DI_TEXT,50,8,51,8,0,0,0,0,(const wchar_t *)MFileFilterDateBeforeSign,
     DI_FIXEDIT,53,8,62,8,0,(DWORD_PTR)(const wchar_t *)strDateMask,DIF_MASKEDIT,0,L"",
+    DI_FIXEDIT,53,8,62,8,0,(DWORD_PTR)(const wchar_t *)DaysMask,DIF_MASKEDIT,0,L"",
     DI_FIXEDIT,64,8,71,8,0,(DWORD_PTR)(const wchar_t *)strTimeMask,DIF_MASKEDIT,0,L"",
-    DI_BUTTON,0,9,0,9,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterCurrent,
-    DI_BUTTON,0,9,71,9,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
+    DI_BUTTON,0,6,0,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterCurrent,
+    DI_BUTTON,0,6,71,6,0,0,DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterBlank,
 
-    DI_TEXT,0,10,0,10,0,0,DIF_SEPARATOR,0,L"",
+    DI_TEXT,0,9,0,9,0,0,DIF_SEPARATOR,0,L"",
+    DI_VTEXT,22,5,22,9,0,0,0,0,(const wchar_t *)VerticalLine,
 
-    DI_VTEXT,38,5,38,10,0,0,0,0,VerticalLine,
+    DI_CHECKBOX, 5,10,0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterAttr,
+    DI_CHECKBOX, 7,11,0,11,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrR,
+    DI_CHECKBOX, 7,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrA,
+    DI_CHECKBOX, 7,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrH,
+    DI_CHECKBOX, 7,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrS,
 
-    DI_CHECKBOX, 5,11,0,11,0,0,DIF_AUTOMATION,0,(const wchar_t *)MFileFilterAttr,
+    DI_CHECKBOX,29,11,0,11,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrD,
+    DI_CHECKBOX,29,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrC,
+    DI_CHECKBOX,29,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrE,
+    DI_CHECKBOX,29,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrNI,
+    DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
 
-    DI_CHECKBOX, 7,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrR,
-    DI_CHECKBOX, 7,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrA,
-    DI_CHECKBOX, 7,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrH,
-    DI_CHECKBOX, 7,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrS,
-    DI_CHECKBOX, 7,16,0,16,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrReparse,
+    DI_CHECKBOX,51,11,0,11,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
+    DI_CHECKBOX,51,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
+    DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrOffline,
+    DI_CHECKBOX,51,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrVirtual,
 
-    DI_CHECKBOX,29,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrD,
-    DI_CHECKBOX,29,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrC,
-    DI_CHECKBOX,29,14,0,14,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrE,
-    DI_CHECKBOX,29,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrNI,
+    DI_TEXT,-1,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
+    DI_TEXT,7,15,0,15,0,0,0,0,(const wchar_t *)MHighlightMarkChar,
+    DI_FIXEDIT,5,15,5,15,0,0,0,0,L"",
+    DI_CHECKBOX,0,15,0,15,0,0,0,0,(const wchar_t *)MHighlightTransparentMarkChar,
 
-    DI_CHECKBOX,51,12,0,12,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrSparse,
-    DI_CHECKBOX,51,13,0,13,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrT,
-    DI_CHECKBOX,51,14,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrOffline,
-    DI_CHECKBOX,51,15,0,15,0,0,DIF_3STATE,0,(const wchar_t *)MFileFilterAttrVirtual,
+    DI_BUTTON,5,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName1,
+    DI_BUTTON,0,16,0,16,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking1,
+    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName2,
+    DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking2,
+    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName3,
+    DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking3,
+    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName4,
+    DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking4,
 
-    DI_TEXT,-1,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(const wchar_t *)MHighlightColors,
-    DI_TEXT,7,16,0,16,0,0,0,0,(const wchar_t *)MHighlightMarkChar,
-    DI_FIXEDIT,5,16,5,16,0,0,0,0,L"",
-    DI_CHECKBOX,0,16,0,16,0,0,0,0,(const wchar_t *)MHighlightTransparentMarkChar,
-    DI_BUTTON,5,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName1,
-    DI_BUTTON,0,17,0,17,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking1,
-    DI_BUTTON,5,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName2,
-    DI_BUTTON,0,18,0,18,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking2,
-    DI_BUTTON,5,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName3,
-    DI_BUTTON,0,19,0,19,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking3,
-    DI_BUTTON,5,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightFileName4,
-    DI_BUTTON,0,20,0,20,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,(const wchar_t *)MHighlightMarking4,
+    DI_USERCONTROL,73-15-1,16,73-2,19,0,0,DIF_NOFOCUS,0,L"",
+    DI_CHECKBOX,5,20,0,20,0,0,0,0,(const wchar_t *)MHighlightContinueProcessing,
 
-    DI_USERCONTROL,73-15-1,17,73-2,20,0,0,DIF_NOFOCUS,0,L"",
-    DI_CHECKBOX,5,21,0,21,0,0,0,0,(const wchar_t *)MHighlightContinueProcessing,
+    DI_TEXT,0,16,0,16,0,0,DIF_SEPARATOR,0,L"",
 
-    DI_TEXT,0,17,0,17,0,0,DIF_SEPARATOR,0,L"",
-
-    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
-    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,
-    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
-    DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterMakeTransparent,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFileFilterOk,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterReset,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFileFilterCancel,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(const wchar_t *)MFileFilterMakeTransparent,
   };
   FilterDlgData[0].Data=(const wchar_t *)(ColorConfig?MFileHilightTitle:MFileFilterTitle);
 
@@ -825,7 +899,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FilterDlg[i].Y2-=2;
     }
 
-    for (int i=ID_FF_SEPARATOR4; i<=ID_FF_MAKETRANSPARENT; i++)
+    for (int i=ID_FF_SEPARATOR5; i<=ID_FF_MAKETRANSPARENT; i++)
     {
       FilterDlg[i].Y1+=5;
       FilterDlg[i].Y2+=5;
@@ -833,28 +907,23 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   }
   else
   {
-    for (int i=ID_HER_SEPARATOR3; i<=ID_HER_CONTINUEPROCESSING; i++)
+    for (int i=ID_HER_SEPARATOR1; i<=ID_HER_CONTINUEPROCESSING; i++)
       FilterDlg[i].Flags|=DIF_HIDDEN;
     FilterDlg[ID_FF_MAKETRANSPARENT].Flags=DIF_HIDDEN;
   }
 
-  //FilterDlg[ID_FF_SIZEDIVIDER].X1=FilterDlg[ID_FF_MATCHSIZE].X1+strlen(FilterDlg[ID_FF_MATCHSIZE].Data)-(strchr(FilterDlg[ID_FF_MATCHSIZE].Data,'&')?1:0)+5;
-  //FilterDlg[ID_FF_SIZEDIVIDER].X2+=FilterDlg[ID_FF_SIZEDIVIDER].X1;
-  //FilterDlg[ID_FF_DATETYPE].X1=FilterDlg[ID_FF_MATCHDATE].X1+strlen(FilterDlg[ID_FF_MATCHDATE].Data)-(strchr(FilterDlg[ID_FF_MATCHDATE].Data,'&')?1:0)+5;
-  //FilterDlg[ID_FF_DATETYPE].X2+=FilterDlg[ID_FF_DATETYPE].X1;
+  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+(int)FilterDlg[ID_FF_NAME].strData.GetLength()-(FilterDlg[ID_FF_NAME].strData.Contains(L'&')?1:0)+1;
 
-  FilterDlg[ID_FF_NAMEEDIT].X1=FilterDlg[ID_FF_NAME].X1+StrLength(FilterDlg[ID_FF_NAME].strData)-(wcschr(FilterDlg[ID_FF_NAME].strData,L'&')?1:0)+1;
+  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+(int)FilterDlg[ID_FF_MATCHMASK].strData.GetLength()-(FilterDlg[ID_FF_MATCHMASK].strData.Contains(L'&')?1:0)+5;
 
-  FilterDlg[ID_FF_MASKEDIT].X1=FilterDlg[ID_FF_MATCHMASK].X1+StrLength(FilterDlg[ID_FF_MATCHMASK].strData)-(wcschr(FilterDlg[ID_FF_MATCHMASK].strData,L'&')?1:0)+5;
-
-  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-StrLength(FilterDlg[ID_FF_BLANK].strData)+(wcschr(FilterDlg[ID_FF_BLANK].strData,L'&')?1:0)-3;
+  FilterDlg[ID_FF_BLANK].X1=FilterDlg[ID_FF_BLANK].X2-(int)FilterDlg[ID_FF_BLANK].strData.GetLength()+(FilterDlg[ID_FF_BLANK].strData.Contains(L'&')?1:0)-3;
   FilterDlg[ID_FF_CURRENT].X2=FilterDlg[ID_FF_BLANK].X1-2;
-  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-StrLength(FilterDlg[ID_FF_CURRENT].strData)+(wcschr(FilterDlg[ID_FF_CURRENT].strData,L'&')?1:0)-3;
+  FilterDlg[ID_FF_CURRENT].X1=FilterDlg[ID_FF_CURRENT].X2-(int)FilterDlg[ID_FF_CURRENT].strData.GetLength()+(FilterDlg[ID_FF_CURRENT].strData.Contains(L'&')?1:0)-3;
 
-  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+StrLength(FilterDlg[ID_HER_MARK_TITLE].strData)-(wcschr(FilterDlg[ID_HER_MARK_TITLE].strData,L'&')?1:0)+1;
+  FilterDlg[ID_HER_MARKTRANSPARENT].X1=FilterDlg[ID_HER_MARK_TITLE].X1+(int)FilterDlg[ID_HER_MARK_TITLE].strData.GetLength()-(FilterDlg[ID_HER_MARK_TITLE].strData.Contains(L'&')?1:0)+1;
 
   for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
-    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+StrLength(FilterDlg[ID_HER_NORMALFILE].strData)-(wcschr(FilterDlg[ID_HER_NORMALFILE].strData,L'&')?1:0)+1;
+    FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.GetLength()-(FilterDlg[ID_HER_NORMALFILE].strData.Contains(L'&')?1:0)+1;
 
   CHAR_INFO VBufColorExample[15*4];
   HighlightDataColor Colors;
@@ -870,47 +939,21 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);
 
-  FilterDlg[ID_FF_NAMEEDIT].strData=FF->GetTitle();
+  FilterDlg[ID_FF_NAMEEDIT].strData = FF->GetTitle();
 
   const wchar_t *FMask;
-  FilterDlg[ID_FF_MATCHMASK].Selected=FF->GetMask(&FMask);
+  FilterDlg[ID_FF_MATCHMASK].Selected=FF->GetMask(&FMask)?1:0;
   FilterDlg[ID_FF_MASKEDIT].strData=FMask;
   if (!FilterDlg[ID_FF_MATCHMASK].Selected)
     FilterDlg[ID_FF_MASKEDIT].Flags|=DIF_DISABLE;
 
-  // Лист для комбобокса: байты - килобайты
-  FarList SizeList;
-  FarListItem TableItemSize[FSIZE_COUNT];
-  // Настройка списка множителей для типа размера
-  SizeList.Items=TableItemSize;
-  SizeList.ItemsNumber=FSIZE_COUNT;
-
-  memset(TableItemSize,0,sizeof(TableItemSize));
-  for(int i=0; i < FSIZE_COUNT; ++i)
-    TableItemSize[i].Text=MSG(MFileFilterSizeInBytes+i);
-
-  DWORD SizeType;
-  __int64 SizeAbove, SizeBelow;
-  FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeType,&SizeAbove,&SizeBelow);
-  FilterDlg[ID_FF_SIZEDIVIDER].ListItems=&SizeList;
-  TableItemSize[SizeType].Flags=LIF_SELECTED;
-
-  if (SizeAbove != _i64(-1))
-  {
-    wchar_t Str[100];
-    _ui64tow(SizeAbove,Str,10);
-    FilterDlg[ID_FF_SIZEFROMEDIT].strData = Str;
-  }
-
-  if (SizeBelow != _i64(-1))
-  {
-    wchar_t Str[100];
-    _ui64tow(SizeBelow,Str,10);
-    FilterDlg[ID_FF_SIZETOEDIT].strData = Str;
-  }
+  const wchar_t *SizeAbove, *SizeBelow;
+  FilterDlg[ID_FF_MATCHSIZE].Selected=FF->GetSize(&SizeAbove,&SizeBelow)?1:0;
+  FilterDlg[ID_FF_SIZEFROMEDIT].strData=SizeAbove;
+  FilterDlg[ID_FF_SIZETOEDIT].strData=SizeBelow;
 
   if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
-    for(int i=ID_FF_SIZEDIVIDER; i <= ID_FF_SIZETOEDIT; i++)
+    for(int i=ID_FF_SIZEFROMSIGN; i <= ID_FF_SIZETOEDIT; i++)
       FilterDlg[i].Flags|=DIF_DISABLE;
 
   // Лист для комбобокса времени файла
@@ -926,19 +969,29 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
-  FilterDlg[ID_FF_MATCHDATE].Selected=FF->GetDate(&DateType,&DateAfter,&DateBefore);
+  bool bRelative;
+  FilterDlg[ID_FF_MATCHDATE].Selected=FF->GetDate(&DateType,&DateAfter,&DateBefore,&bRelative)?1:0;
+  FilterDlg[ID_FF_DATERELATIVE].Selected=bRelative?1:0;
   FilterDlg[ID_FF_DATETYPE].ListItems=&DateList;
   TableItemDate[DateType].Flags=LIF_SELECTED;
 
-  ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,8,FALSE,FALSE,TRUE);
-  ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,8,FALSE,FALSE,TRUE);
+  if (bRelative)
+  {
+    ConvertRelativeDate(DateAfter, FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData);
+    ConvertRelativeDate(DateBefore, FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData);
+  }
+  else
+  {
+    ConvertDate(DateAfter,FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,8,FALSE,FALSE,TRUE);
+    ConvertDate(DateBefore,FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,8,FALSE,FALSE,TRUE);
+  }
 
   if (!FilterDlg[ID_FF_MATCHDATE].Selected)
     for(int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
       FilterDlg[i].Flags|=DIF_DISABLE;
 
   DWORD AttrSet, AttrClear;
-  FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear);
+  FilterDlg[ID_FF_MATCHATTRIBUTES].Selected=FF->GetAttr(&AttrSet,&AttrClear)?1:0;
   FilterDlg[ID_FF_READONLY].Selected=(AttrSet & FILE_ATTRIBUTE_READONLY?1:AttrClear & FILE_ATTRIBUTE_READONLY?0:2);
   FilterDlg[ID_FF_ARCHIVE].Selected=(AttrSet & FILE_ATTRIBUTE_ARCHIVE?1:AttrClear & FILE_ATTRIBUTE_ARCHIVE?0:2);
   FilterDlg[ID_FF_HIDDEN].Selected=(AttrSet & FILE_ATTRIBUTE_HIDDEN?1:AttrClear & FILE_ATTRIBUTE_HIDDEN?0:2);
@@ -959,25 +1012,27 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       FilterDlg[i].Flags|=DIF_DISABLE;
   }
 
-  Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)&Colors);
+  Dialog Dlg(FilterDlg,countof(FilterDlg),FileFilterConfigDlgProc,(LONG_PTR)(ColorConfig?&Colors:NULL));
 
   Dlg.SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
   Dlg.SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 
   Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
 
-  Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZEDIVIDER,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZEFROM,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZEFROMSIGN,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZEFROMEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZETO,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZETOSIGN,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHSIZE,ID_FF_SIZETOEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
 
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATETYPE,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEAFTER,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATERELATIVE,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEAFTERSIGN,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEAFTEREDIT,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DAYSAFTEREDIT,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_TIMEAFTEREDIT,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEBEFORE,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEBEFORESIGN,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DATEBEFOREEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_DAYSBEFOREEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_TIMEBEFOREEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_CURRENT,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHDATE,ID_FF_BLANK,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -1019,35 +1074,22 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
       FF->SetTitle(FilterDlg[ID_FF_NAMEEDIT].strData);
 
-      FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected,
+      FF->SetMask(FilterDlg[ID_FF_MATCHMASK].Selected!=0,
                   FilterDlg[ID_FF_MASKEDIT].strData);
 
-      RemoveExternalSpaces(FilterDlg[ID_FF_SIZEFROMEDIT].strData);
+      FF->SetSize(FilterDlg[ID_FF_MATCHSIZE].Selected!=0,
+                  FilterDlg[ID_FF_SIZEFROMEDIT].strData,
+                  FilterDlg[ID_FF_SIZETOEDIT].strData);
 
-      if( FilterDlg[ID_FF_SIZEFROMEDIT].strData.IsEmpty() )
-        SizeAbove=_i64(-1);
-      else
-        SizeAbove=_wtoi64(FilterDlg[ID_FF_SIZEFROMEDIT].strData);
+      bRelative = FilterDlg[ID_FF_DATERELATIVE].Selected!=0;
+      StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSAFTEREDIT:ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,DateAfter,DateFormat,DateSeparator,TimeSeparator,bRelative);
+      StrToDateTime(FilterDlg[bRelative?ID_FF_DAYSBEFOREEDIT:ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,DateBefore,DateFormat,DateSeparator,TimeSeparator,bRelative);
 
-      RemoveExternalSpaces(FilterDlg[ID_FF_SIZETOEDIT].strData);
-
-      if ( FilterDlg[ID_FF_SIZETOEDIT].strData.IsEmpty() )
-        SizeBelow=_i64(-1);
-      else
-        SizeBelow=_wtoi64(FilterDlg[ID_FF_SIZETOEDIT].strData);
-
-      FF->SetSize(FilterDlg[ID_FF_MATCHSIZE].Selected,
-                  FilterDlg[ID_FF_SIZEDIVIDER].ListPos,
-                  SizeAbove,
-                  SizeBelow);
-
-      StrToDateTime(FilterDlg[ID_FF_DATEAFTEREDIT].strData,FilterDlg[ID_FF_TIMEAFTEREDIT].strData,DateAfter,DateFormat,DateSeparator,TimeSeparator);
-      StrToDateTime(FilterDlg[ID_FF_DATEBEFOREEDIT].strData,FilterDlg[ID_FF_TIMEBEFOREEDIT].strData,DateBefore,DateFormat,DateSeparator,TimeSeparator);
-
-      FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected,
+      FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected!=0,
                   FilterDlg[ID_FF_DATETYPE].ListPos,
                   DateAfter,
-                  DateBefore);
+                  DateBefore,
+                  bRelative);
 
       AttrSet=0;
       AttrClear=0;
@@ -1065,6 +1107,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrSet|=(FilterDlg[ID_FF_REPARSEPOINT].Selected==1?FILE_ATTRIBUTE_REPARSE_POINT:0);
       AttrSet|=(FilterDlg[ID_FF_OFFLINE].Selected==1?FILE_ATTRIBUTE_OFFLINE:0);
       AttrSet|=(FilterDlg[ID_FF_VIRTUAL].Selected==1?FILE_ATTRIBUTE_VIRTUAL:0);
+
       AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
       AttrClear|=(FilterDlg[ID_FF_HIDDEN].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
@@ -1079,7 +1122,9 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
       AttrClear|=(FilterDlg[ID_FF_OFFLINE].Selected==0?FILE_ATTRIBUTE_OFFLINE:0);
       AttrClear|=(FilterDlg[ID_FF_VIRTUAL].Selected==0?FILE_ATTRIBUTE_VIRTUAL:0);
 
-      FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected, AttrSet, AttrClear);
+      FF->SetAttr(FilterDlg[ID_FF_MATCHATTRIBUTES].Selected!=0,
+                  AttrSet,
+                  AttrClear);
 
       return true;
     }

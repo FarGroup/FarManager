@@ -41,21 +41,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct FileListItem;
 
-enum FileFilterFlags
+#define FILEFILTER_SIZE_SIZE 32
+
+enum enumFileFilterFlagsType
 {
-  FFF_RPANELINCLUDE = 1,
-  FFF_RPANELEXCLUDE = 2,
-  FFF_LPANELINCLUDE = 4,
-  FFF_LPANELEXCLUDE = 8,
-  FFF_FINDFILEINCLUDE = 16,
-  FFF_FINDFILEEXCLUDE = 32,
-  FFF_COPYINCLUDE = 64,
-  FFF_COPYEXCLUDE = 128,
-  FFF_SELECTINCLUDE = 256,
-  FFF_SELECTEXCLUDE = 512,
+  FFFT_FIRST = 0, //обязан быть первым
+
+  FFFT_LEFTPANEL = FFFT_FIRST,
+  FFFT_RIGHTPANEL,
+  FFFT_FINDFILE,
+  FFFT_COPY,
+  FFFT_SELECT,
+
+  FFFT_COUNT, //обязан быть последним
 };
 
-enum FDateType
+enum enumFileFilterFlags
+{
+  FFF_NONE    = 0x00000000,
+  FFF_INCLUDE = 0x00000001,
+  FFF_EXCLUDE = 0x00000002,
+  FFF_STRONG  = 0x10000000
+};
+
+enum enumFDateType
 {
   FDATE_MODIFIED=0,
   FDATE_CREATED,
@@ -64,50 +73,40 @@ enum FDateType
   FDATE_COUNT, // всегда последний !!!
 };
 
-enum FSizeType
-{
-  FSIZE_INBYTES=0,
-  FSIZE_INKBYTES,
-  FSIZE_INMBYTES,
-  FSIZE_INGBYTES,
-
-  FSIZE_COUNT, // всегда последний !!!
-};
-
 class FileFilterParams
 {
   private:
 
-    string m_Title;
+    string m_strTitle;
 
     struct
     {
-      DWORD Used;
+      bool Used;
       string strMask;
       CFileMask FilterMask; // Хранилище скомпилированной маски.
     } FMask;
 
     struct
     {
-      DWORD Used;
-      FDateType DateType;
-      FILETIME DateAfter;
-      FILETIME DateBefore;
+      bool Used;
+      enumFDateType DateType;
+      ULARGE_INTEGER DateAfter;
+      ULARGE_INTEGER DateBefore;
+      bool bRelative;
     } FDate;
 
     struct
     {
-      DWORD Used;
-      FSizeType SizeType;
-      __int64 SizeAbove; // Здесь всегда будет размер в SizeType или -1 для игнор
-      __int64 SizeBelow; // Здесь всегда будет размер в SizeType или -1 для игнор
+      bool Used;
+      wchar_t SizeAbove[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
+      wchar_t SizeBelow[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
       unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
       unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
     } FSize;
 
     struct
     {
-      DWORD Used;
+      bool Used;
       DWORD AttrSet;
       DWORD AttrClear;
     } FAttr;
@@ -119,9 +118,7 @@ class FileFilterParams
       bool bContinueProcessing;
     } FHighlight;
 
-  public:
-
-    BitFlags Flags; // Флаги фильтра
+    DWORD FFlags[FFFT_COUNT];
 
   public:
 
@@ -130,36 +127,39 @@ class FileFilterParams
     const FileFilterParams &operator=(const FileFilterParams &FF);
 
     void SetTitle(const wchar_t *Title);
-    void SetMask(DWORD Used, const wchar_t *Mask);
-    void SetDate(DWORD Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore);
-    void SetSize(DWORD Used, DWORD SizeType, __int64 SizeAbove, __int64 SizeBelow);
-    void SetAttr(DWORD Used, DWORD AttrSet, DWORD AttrClear);
+    void SetMask(bool Used, const wchar_t *Mask);
+    void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
+    void SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow);
+    void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
     void SetColors(HighlightDataColor *Colors);
     void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
     void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
+    void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
+    void ClearAllFlags() { memset(FFlags,0,sizeof(FFlags)); }
 
     const wchar_t *GetTitle() const;
-    DWORD GetMask(const wchar_t **Mask) const;
-    DWORD GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore) const;
-    DWORD GetSize(DWORD *SizeType, __int64 *SizeAbove, __int64 *SizeBelow) const;
-    DWORD GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
+    bool  GetMask(const wchar_t **Mask) const;
+    bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
+    bool  GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const;
+    bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
     void  GetColors(HighlightDataColor *Colors) const;
     int   GetMarkChar() const;
     int   GetSortGroup() const { return FHighlight.SortGroup; }
     bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
+    DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
 
     // Данный метод вызывается "снаружи" и служит для определения:
     // попадает ли файл fd под условие установленного фильтра.
     // Возвращает true  - попадает;
     //            false - не попадает.
-    bool FileInFilter(const FAR_FIND_DATA *fd);
-    bool FileInFilter(const FAR_FIND_DATA_EX *fde);
-    bool FileInFilter(const FileListItem *fli);
+    bool FileInFilter(const FileListItem *fli, unsigned __int64 CurrentTime);
+    bool FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int64 CurrentTime);
+    bool FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 CurrentTime);
 };
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-void MenuString(string &dest, FileFilterParams *FF, bool bHighightType=false, bool bPanelType=false, const wchar_t *FMask=NULL, const wchar_t *Title=NULL);
+void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=NULL, const wchar_t *Title=NULL);
 
 #endif //__FILEFILTERPARAMS_HPP__

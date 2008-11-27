@@ -158,9 +158,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   SortGroupsRead=FALSE;
 
-  if (Filter==NULL)
-    Filter=new FileFilter(this,FFT_PANEL);
-
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDir(strCurDir);
 
@@ -253,6 +250,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   MakeSeparator (TitleLength, Title, 9, NULL);
   BOOL IsShowTitle=FALSE;
   BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
+
+  if (Filter==NULL)
+    Filter=new FileFilter(this,FFT_PANEL);
+
+  //Рефреш текущему времени для фильтра перед началом операции
+  Filter->UpdateCurrentTime();
+  CtrlObject->HiFiles->UpdateCurrentTime();
 
   for (FileCount=0; !Done; )
   {
@@ -392,10 +396,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   apiFindClose(FindHandle);
 
-  // "перекраску" вынесем в отдельный цикл - на медленных сетевых соединениях
-  // вежнее считать конкент, а остальное потом.
-//  UpdateColorItems();
-
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz();
 
@@ -475,7 +475,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   }
 
   if (SortGroups)
-    ReadSortGroups();
+    ReadSortGroups(false);
 
   if (!KeepSelection && PrevSelFileCount>0)
   {
@@ -523,8 +523,6 @@ int FileList::UpdateIfChanged(int UpdateMode)
         )
         {
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-          // В этом случае - просто перекрасим
-//          UpdateColorItems();
           if (AnotherPanel->GetType()==INFO_PANEL)
           {
             AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -540,13 +538,6 @@ int FileList::UpdateIfChanged(int UpdateMode)
   }
   return(FALSE);
 }
-
-void FileList::UpdateColorItems(void)
-{
-  if (Opt.Highlight && PanelMode != PLUGIN_PANEL)
-    CtrlObject->HiFiles->GetHiColor(ListData,FileCount);
-}
-
 
 void FileList::CreateChangeNotification(int CheckTree)
 {
@@ -705,6 +696,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   if (Filter==NULL)
     Filter=new FileFilter(this,FFT_PANEL);
+
+  //Рефреш текущему времени для фильтра перед началом операции
+  Filter->UpdateCurrentTime();
+  CtrlObject->HiFiles->UpdateCurrentTime();
 
   int DotsPresent=FALSE;
 
@@ -895,19 +890,18 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
 }
 
 
-void FileList::ReadSortGroups()
+void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 {
   if (SortGroupsRead)
     return;
+  if (UpdateFilterCurrentTime)
+    CtrlObject->HiFiles->UpdateCurrentTime();
   SortGroupsRead=TRUE;
   struct FileListItem *CurPtr;
   for (int I=0;I<FileCount;I++)
   {
-      CurPtr = ListData[I];
-    //if ((CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
-      CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
-    //else
-      //CurPtr->SortGroup=DEFAULT_SORT_GROUP;
+    CurPtr = ListData[I];
+    CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
   }
 }
 

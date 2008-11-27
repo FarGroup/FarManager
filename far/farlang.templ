@@ -3772,21 +3772,9 @@ l:
 "Меню фильтров"
 "Filters menu"
 
-MFilterTitle_IncFolders
-"Меню фильтров (D+ Всегда включать папки)"
-"Filters menu (D+ Always include folders)"
-
-MFilterTitle_ExcFolders
-"Меню фильтров (D- Всегда исключать папки)"
-"Filters menu (D- Always exclude folders)"
-
-MFilterTitle_FilterFolders
-"Меню фильтров (D? Фильтровать папки)"
-"Filters menu (D? Filter folders)"
-
 MFilterBottom
-"+,-,Пробел,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
-"+,-,Space,BS,Shift-BS,Shift-Grey-,Ctrl-F,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Пробел,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Space,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
 "Файлы панели"
@@ -3980,22 +3968,6 @@ l:
 MFindFileSearchFirst
 "Проводить поиск в &первых:"
 "Search only in the &first:"
-
-MFindFileSearchInBytes
-"байтах"
-"bytes"
-
-MFindFileSearchInKBytes
-"килобайтах"
-"kilobytes"
-
-MFindFileSearchInMBytes
-"мегабайтах"
-"megabytes"
-
-MFindFileSearchInGBytes
-"гигабайтах"
-"gigabytes"
 
 MFoldTreeSearch
 l:
@@ -8276,36 +8248,20 @@ MFileFilterMatchMask
 "&Mask:"
 
 MFileFilterSize
-"Разм&ер в"
-"Si&ze in"
+"Разм&ер:"
+"Si&ze:"
 
-MFileFilterSizeInBytes
-"&байтах"
-"&bytes"
-
-MFileFilterSizeInKBytes
-"&килобайтах"
-"&kilobytes"
-
-MFileFilterSizeInMBytes
-"&мегабайтах"
-"&megabytes"
-
-MFileFilterSizeInGBytes
-"&гигабайтах"
-"&gigabytes"
-
-MFileFilterSizeFrom
+MFileFilterSizeFromSign
 ">="
 ">="
 
-MFileFilterSizeTo
+MFileFilterSizeToSign
 "<="
 "<="
 
 MFileFilterDate
-"Дата/Врем&я"
-"Date/T&ime"
+"&Дата/Время:"
+"Da&te/Time:"
 
 MFileFilterModified
 "&модификации"
@@ -8319,11 +8275,15 @@ MFileFilterOpened
 "&доступа"
 "&access"
 
-MFileFilterAfter
+MFileFilterDateRelative
+"Относительна&я"
+"Relat&ive"
+
+MFileFilterDateAfterSign
 ">="
 ">="
 
-MFileFilterBefore
+MFileFilterDateBeforeSign
 "<="
 "<="
 
@@ -8397,7 +8357,7 @@ MFileFilterOk
 
 MFileFilterReset
 "Очистит&ь"
-"Rese&t"
+"Reset"
 
 MFileFilterCancel
 "Отмена"
@@ -8406,6 +8366,10 @@ MFileFilterCancel
 MFileFilterMakeTransparent
 "Выставить прозрачность"
 "Make transparent"
+
+MBadFileSizeFormat
+"Неправильно заполнено поле размера!"
+"File size field is incorrectly filled!"
 
 #Must be the last
 MNewFileName

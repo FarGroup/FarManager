@@ -1724,3 +1724,58 @@ string& ReplaceSlashToBSlash(string& strStr)
 
 	return strStr;
 }
+
+bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
+{
+//проверяет если формат строки такой: [0-9]+[BbKkMmGgTt]?
+
+  const wchar_t *p = FileSizeStr;
+
+  while (iswdigit(*p))
+    p++;
+
+  if (p == FileSizeStr)
+    return false;
+
+  if (*p)
+  {
+    if (*(p+1))
+      return false;
+
+    if (!StrStrI(L"BKMGT", p))
+      return false;
+  }
+
+  return true;
+}
+
+unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
+{
+  if (!CheckFileSizeStringFormat(FileSizeStr))
+    return _ui64(0);
+
+  unsigned __int64 n = _wtoi64(FileSizeStr);
+
+  wchar_t c = Upper(FileSizeStr[StrLength(FileSizeStr)-1]);
+
+  switch (c)
+  {
+    case L'K':
+      n <<= 10;
+      break;
+
+    case L'M':
+      n <<= 20;
+      break;
+
+    case L'G':
+      n <<= 30;
+      break;
+
+    case L'T':
+      n <<= 40;
+      break;
+  }
+
+  return n;
+}

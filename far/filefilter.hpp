@@ -40,7 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu;
 class Panel;
 
-enum enumFileFilterType {
+enum enumFileFilterType
+{
   FFT_PANEL = 0,
   FFT_FINDFILE,
   FFT_COPY,
@@ -52,11 +53,11 @@ class FileFilter
   private:
     Panel *m_HostPanel;
     enumFileFilterType m_FilterType;
+    unsigned __int64 CurrentTime;
 
-  private:
     int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check);
     void ProcessSelection(VMenu *FilterList);
-    void GetIncludeExcludeFlags(DWORD &Inc, DWORD &Exc);
+    enumFileFilterFlagsType GetFFFT();
     int  GetCheck(FileFilterParams *FFP);
     static void SwapPanelFlags(FileFilterParams *CurFilterData);
 
@@ -64,11 +65,11 @@ class FileFilter
     FileFilter(Panel *HostPanel, enumFileFilterType FilterType);
     ~FileFilter();
 
-  public:
     bool FilterEdit();
-    bool FileInFilter(FileListItem *fli);
-    bool FileInFilter(const FAR_FIND_DATA *fd, bool IsExcludeDir = false);
-    bool FileInFilter(const FAR_FIND_DATA_EX *fde, bool IsExcludeDir = false);
+    void UpdateCurrentTime();
+    bool FileInFilter(const FileListItem *fli);
+    bool FileInFilter(const FAR_FIND_DATA_EX *fde);
+    bool FileInFilter(const FAR_FIND_DATA *fd);
     bool IsEnabledOnPanel();
 
     static void InitFilter();

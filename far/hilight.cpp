@@ -58,8 +58,8 @@ struct HighlightStrings
                 *MarkCharNormalColor,*MarkCharSelectedColor,*MarkCharCursorColor,*MarkCharSelectedCursorColor,
                 *MarkChar,
                 *ContinueProcessing,
-                *UseDate,*DateType,*DateAfter,*DateBefore,
-                *UseSize,*SizeType,*SizeAbove,*SizeBelow,
+                *UseDate,*DateType,*DateAfter,*DateBefore,*DateRelative,
+                *UseSize,*SizeAbove,*SizeBelow,
                 *HighlightEdit,*HighlightList;
 };
 static const HighlightStrings HLS=
@@ -70,8 +70,8 @@ static const HighlightStrings HLS=
   L"MarkCharNormalColor",L"MarkCharSelectedColor",L"MarkCharCursorColor",L"MarkCharSelectedCursorColor",
   L"MarkChar",
   L"ContinueProcessing",
-  L"UseDate",L"DateType",L"DateAfter",L"DateBefore",
-  L"UseSize",L"SizeType",L"SizeAbove",L"SizeBelow",
+  L"UseDate",L"DateType",L"DateAfter",L"DateBefore",L"DateRelative",
+  L"UseSize",L"SizeAbove",L"SizeBelow",
   L"HighlightEdit",L"HighlightList"
 };
 
@@ -84,6 +84,7 @@ static const wchar_t SortGroupsKeyName[]=L"SortGroups";
 HighlightFiles::HighlightFiles()
 {
   InitHighlightFiles();
+  UpdateCurrentTime();
 }
 
 void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wchar_t *Mask, int SortGroup, bool bSortGroup)
@@ -100,25 +101,29 @@ void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wch
   FILETIME DateAfter, DateBefore;
   GetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,NULL,sizeof(DateAfter));
   GetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,NULL,sizeof(DateBefore));
-  HData->SetDate((DWORD)GetRegKey(RegKey,HLS.UseDate,0),
+  HData->SetDate(GetRegKey(RegKey,HLS.UseDate,0)!=0,
                  (DWORD)GetRegKey(RegKey,HLS.DateType,0),
                  DateAfter,
-                 DateBefore);
+                 DateBefore,
+                 GetRegKey(RegKey,HLS.DateRelative,0)!=0);
 
-  HData->SetSize((DWORD)GetRegKey(RegKey,HLS.UseSize,0),
-                 (DWORD)GetRegKey(RegKey,HLS.SizeType,0),
-                 GetRegKey64(RegKey,HLS.SizeAbove,(unsigned __int64)_i64(-1)),
-                 GetRegKey64(RegKey,HLS.SizeBelow,(unsigned __int64)_i64(-1)));
+  string strSizeAbove;
+  string strSizeBelow;
+  GetRegKey(RegKey,HLS.SizeAbove,strSizeAbove,L"");
+  GetRegKey(RegKey,HLS.SizeBelow,strSizeBelow,L"");
+  HData->SetSize(GetRegKey(RegKey,HLS.UseSize,0)!=0,
+                 strSizeAbove,
+                 strSizeBelow);
 
   if (bSortGroup)
   {
-    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+    HData->SetAttr(GetRegKey(RegKey,HLS.UseAttr,1)!=0,
                    (DWORD)GetRegKey(RegKey,HLS.AttrSet,0),
                    (DWORD)GetRegKey(RegKey,HLS.AttrClear,FILE_ATTRIBUTE_DIRECTORY));
   }
   else
   {
-    HData->SetAttr((DWORD)GetRegKey(RegKey,HLS.UseAttr,1),
+    HData->SetAttr(GetRegKey(RegKey,HLS.UseAttr,1)!=0,
                    (DWORD)GetRegKey(RegKey,HLS.IncludeAttributes,0),
                    (DWORD)GetRegKey(RegKey,HLS.ExcludeAttributes,0));
   }
@@ -285,6 +290,20 @@ void ApplyFinalColors(HighlightDataColor *Colors)
   ApplyBlackOnBlackColors(Colors);
 }
 
+void HighlightFiles::UpdateCurrentTime()
+{
+  SYSTEMTIME cst;
+  FILETIME cft;
+  GetSystemTime(&cst);
+  SystemTimeToFileTime(&cst, &cft);
+
+  ULARGE_INTEGER current;
+  current.u.LowPart  = cft.dwLowDateTime;
+  current.u.HighPart = cft.dwHighDateTime;
+
+  CurrentTime = current.QuadPart;
+}
+
 void HighlightFiles::GetHiColor(const FAR_FIND_DATA *fd,HighlightDataColor *Colors,bool UseAttrHighlighting)
 {
   FileFilterParams *CurHiData;
@@ -298,7 +317,7 @@ void HighlightFiles::GetHiColor(const FAR_FIND_DATA *fd,HighlightDataColor *Colo
     if (UseAttrHighlighting && CurHiData->GetMask(NULL))
       continue;
 
-    if (CurHiData->FileInFilter(fd))
+    if (CurHiData->FileInFilter(fd, CurrentTime))
     {
       HighlightDataColor TempColors;
       CurHiData->GetColors(&TempColors);
@@ -332,7 +351,7 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
       if (UseAttrHighlighting && CurHiData->GetMask(NULL))
         continue;
 
-      if (CurHiData->FileInFilter(fli))
+      if (CurHiData->FileInFilter(fli, CurrentTime))
       {
         HighlightDataColor TempColors;
         CurHiData->GetColors(&TempColors);
@@ -351,14 +370,14 @@ int HighlightFiles::GetGroup(const FAR_FIND_DATA *fd)
   for (int i=FirstCount; i<FirstCount+UpperCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd))
+    if(CurGroupData->FileInFilter(fd, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 
   for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd))
+    if(CurGroupData->FileInFilter(fd, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
   return DEFAULT_SORT_GROUP;
@@ -369,14 +388,14 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
   for (int i=FirstCount; i<FirstCount+UpperCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fli))
+    if(CurGroupData->FileInFilter(fli, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 
   for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
   {
     FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fli))
+    if(CurGroupData->FileInFilter(fli, CurrentTime))
        return(CurGroupData->GetSortGroup());
   }
 
@@ -699,20 +718,20 @@ void SaveFilterToReg(FileFilterParams *CurHiData, const wchar_t *RegKey, bool bS
 
   DWORD DateType;
   FILETIME DateAfter, DateBefore;
-  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore));
+  bool bRelative;
+  SetRegKey(RegKey,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
   SetRegKey(RegKey,HLS.DateType,DateType);
   SetRegKey(RegKey,HLS.DateAfter,(BYTE *)&DateAfter,sizeof(DateAfter));
   SetRegKey(RegKey,HLS.DateBefore,(BYTE *)&DateBefore,sizeof(DateBefore));
+  SetRegKey(RegKey,HLS.DateRelative,bRelative?1:0);
 
-  DWORD SizeType;
-  __int64 SizeAbove, SizeBelow;
-  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeType, &SizeAbove, &SizeBelow));
-  SetRegKey(RegKey,HLS.SizeType,SizeType);
-  SetRegKey64(RegKey,HLS.SizeAbove,SizeAbove);
-  SetRegKey64(RegKey,HLS.SizeBelow,SizeBelow);
+  const wchar_t *SizeAbove, *SizeBelow;
+  SetRegKey(RegKey,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow)?1:0);
+  SetRegKey(RegKey,HLS.SizeAbove,SizeAbove);
+  SetRegKey(RegKey,HLS.SizeBelow,SizeBelow);
 
   DWORD AttrSet, AttrClear;
-  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear));
+  SetRegKey(RegKey,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
   SetRegKey(RegKey,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
   SetRegKey(RegKey,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 
@@ -728,7 +747,7 @@ void SaveFilterToReg(FileFilterParams *CurHiData, const wchar_t *RegKey, bool bS
   SetRegKey(RegKey,HLS.MarkCharSelectedCursorColor,(DWORD)Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR]);
   SetRegKey(RegKey,HLS.MarkChar,Colors.MarkChar);
 
-  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing() ? 1 : 0));
+  SetRegKey(RegKey,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing()?1:0));
 }
 
 void HighlightFiles::SaveHiData()

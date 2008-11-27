@@ -336,7 +336,6 @@ struct FindFileOptions
   int FindSymLinks;
   int CollectFiles;
   int FileSearchMode;
-  int SearchInFirst;
   int UseFilter;
   string strSearchInFirstSize;
 
@@ -346,7 +345,6 @@ struct FindFileOptions
     FindFolders=0;
     CollectFiles=0;
     FileSearchMode=0;
-    SearchInFirst=0;
     strSearchInFirstSize=L"";
   }
   */

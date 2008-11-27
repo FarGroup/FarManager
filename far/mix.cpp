@@ -207,11 +207,12 @@ void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
       PtrDigit++;
     if(*PtrDigit)
       Dst[I]=_wtoi(PtrDigit);
-    ++I;
+    if(++I > 2) //не должно быть больше трёх чисел
+      break;
   }
 }
 
-void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator)
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
 {
   unsigned DateN[3],TimeN[3];
   SYSTEMTIME st;
@@ -219,51 +220,69 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 
   // Преобразуем введённые пользователем дату и время
   GetFileDateAndTime(CDate,DateN,DateSeparator);
-  GetFileDateAndTime(CTime,TimeN,GetTimeSeparator());
-  if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1)
-  {
-    // Пользователь оставил дату пустой, значит обнулим дату и время.
-    memset(&ft,0,sizeof(ft));
-    return;
-  }
+  GetFileDateAndTime(CTime,TimeN,TimeSeparator);
 
-  memset(&st,0,sizeof(st));
-
-  // "Оформим"
-  switch(DateFormat)
+  if (!bRelative)
   {
-    case 0:
-      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
-      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
-      break;
-    case 1:
-      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
-      break;
-    default:
-      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
-      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
-      break;
+    if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1)
+    {
+      // Пользователь оставил дату пустой, значит обнулим дату и время.
+      memset(&ft,0,sizeof(ft));
+      return;
+    }
+
+    memset(&st,0,sizeof(st));
+
+    // "Оформим"
+    switch(DateFormat)
+    {
+      case 0:
+        st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+      case 1:
+        st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+      default:
+        st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+    }
+
+    if (st.wYear<100)
+      if (st.wYear<80)
+        st.wYear+=2000;
+      else
+        st.wYear+=1900;
   }
+  else
+    st.wDay = DateN[0]!=(unsigned)-1?DateN[0]:0;
+
   st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
   st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;
   st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
 
-  if (st.wYear<100)
-  {
-    if (st.wYear<80)
-      st.wYear+=2000;
-    else
-      st.wYear+=1900;
-  }
-
   // преобразование в "удобоваримый" формат
-  SystemTimeToFileTime(&st,&lft);
-  LocalFileTimeToFileTime(&lft,&ft);
-  return;
+  if (bRelative)
+  {
+    ULARGE_INTEGER time;
+
+    time.QuadPart  = (unsigned __int64)st.wSecond * _ui64(10000000);
+    time.QuadPart += (unsigned __int64)st.wMinute * _ui64(10000000) * _ui64(60);
+    time.QuadPart += (unsigned __int64)st.wHour   * _ui64(10000000) * _ui64(60) * _ui64(60);
+    time.QuadPart += (unsigned __int64)st.wDay    * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24);
+    ft.dwLowDateTime  = time.u.LowPart;
+    ft.dwHighDateTime = time.u.HighPart;
+  }
+  else
+  {
+    SystemTimeToFileTime(&st,&lft);
+    LocalFileTimeToFileTime(&lft,&ft);
+  }
 }
 
 void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
@@ -375,6 +394,26 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
     if (lt.wYear!=st.wYear)
       strTimeText.Format (L"%5d",st.wYear);
   }
+}
+
+void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
+{
+  WORD d,h,m,s;
+  ULARGE_INTEGER time;
+
+  time.u.LowPart  = ft.dwLowDateTime;
+  time.u.HighPart = ft.dwHighDateTime;
+
+  d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
+  h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
+  m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
+  s = (WORD)(time.QuadPart / _ui64(10000000));
+
+  strDaysText.Format(L"%u",d);
+  strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
 }
 
 int GetDateFormat()
@@ -607,10 +646,10 @@ int GetDirInfo(const wchar_t *Title,
         DirCount++;
       else
       {
-        // Если стоит отрицательный фильтр с атрибутом каталога, то каталог
-        // надо полностью пропустить - иначе при включенном подсчёте total
-        // он учтётся (mantiss 551)
-        if (Filter->FileInFilter(&FindData, true))
+        // Если каталог не попадает под фильтр то его надо полностью
+        // пропустить - иначе при включенном подсчёте total
+        // он учтётся (mantis 551)
+        if (!Filter->FileInFilter(&FindData))
           ScTree.SkipDir();
       }
     }

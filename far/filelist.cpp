@@ -3078,6 +3078,8 @@ void FileList::SelectFiles(int Mode)
             Dlg.Process();
             if (Dlg.GetExitCode()==4 && Filter.FilterEdit())
             {
+              //Рефреш текущему времени для фильтра сразу после выхода из диалога
+              Filter.UpdateCurrentTime();
               bUseFilter = true;
               break;
             }
@@ -3907,6 +3909,9 @@ void FileList::CountDirSize(DWORD PluginFlags)
       }
     }
   }
+
+  //Рефреш текущему времени для фильтра перед началом операции
+  Filter->UpdateCurrentTime();
 
   for (I=0; I < FileCount; I++)
   {

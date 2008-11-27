@@ -348,10 +348,14 @@ void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Trans
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
 void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
-void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator);
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
+
+bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
+unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
 
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
+void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
