@@ -93,9 +93,9 @@ void LoadFilterFromReg(FileFilterParams *HData, const wchar_t *RegKey, const wch
   //настройки старых версий фара.
 
   if (bSortGroup)
-    HData->SetMask((DWORD)GetRegKey(RegKey,HLS.UseMask,1), Mask);
+    HData->SetMask(GetRegKey(RegKey,HLS.UseMask,1)!=0, Mask);
   else
-    HData->SetMask((DWORD)(GetRegKey(RegKey,HLS.IgnoreMask,0)?0:1), Mask);
+    HData->SetMask(GetRegKey(RegKey,HLS.IgnoreMask,0)==0, Mask);
 
 
   FILETIME DateAfter, DateBefore;
