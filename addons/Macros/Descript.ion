@@ -39,3 +39,4 @@ CtrlShiftBackSlash.reg Activate the same folder in the passive panel as in the a
 CtrlIns...reg If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder
 Notepad.reg Editor: like Notepad
 MacroConsts.reg Predefined macro constants
+JumpToSelectedFile.reg Navigate through selected files
