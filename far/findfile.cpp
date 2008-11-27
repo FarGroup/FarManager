@@ -2054,7 +2054,9 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,
         RemoveTemp=TRUE;
       }
       else
+      {
         strSearchFileName = FullName;
+      }
 
       if (LookForString(strSearchFileName))
         FileFound=TRUE;
@@ -2302,7 +2304,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 int FindFiles::LookForString(const wchar_t *Name)
 {
 	int Length;
-	if ((Length=StrLength(strFindStr))==0)
+	if ((Length=strFindStr.GetLength())==0)
     	return(TRUE);
 
 	char FindStr[512];
@@ -2331,7 +2333,9 @@ int FindFiles::LookForString(const wchar_t *Name)
 		Length=LenCmpStr;
 	}
 	else
+	{
 		xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+	}
 
 	if (!CmpCase && !SearchHex)
 		LocalStrupr(CmpStr);
@@ -2360,11 +2364,11 @@ int FindFiles::LookForString(const wchar_t *Name)
 			if (AlreadyRead+ReadSize>SearchInFirst)
 			{
 				ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
-		}
+			}
 
-		if (ReadSize<=0) break;
+			if (ReadSize<=0) break;
 
-		AlreadyRead+=ReadSize;
+			AlreadyRead+=ReadSize;
 		}
 
 		/* $ 11.09.2005 KM
@@ -2547,7 +2551,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 							DecodeTableNum++;
 							xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
 							if (!CmpCase)
-							LocalStrupr(CmpStr);
+								LocalStrupr(CmpStr);
 						}
 						else
 							break;

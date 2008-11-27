@@ -78,4 +78,4 @@ class FileFilter
     static void SaveFilters();
 };
 
-#endif  // __FINDFILES_HPP__
+#endif  // __FILEFILTER_HPP__
