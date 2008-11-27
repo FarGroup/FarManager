@@ -2304,7 +2304,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 int FindFiles::LookForString(const wchar_t *Name)
 {
 	int Length;
-	if ((Length=strFindStr.GetLength())==0)
+	if ((Length=(int)strFindStr.GetLength())==0)
     	return(TRUE);
 
 	char FindStr[512];
