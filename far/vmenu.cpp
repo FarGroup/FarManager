@@ -193,9 +193,6 @@ void VMenu::Show()
 
   int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
 
-  /* $ 23.02.2002 DJ
-     здесь тоже используем флаг LISTHASFOCUS
-  */
   if(VMFlags.Check(VMENU_LISTBOX))
   {
     if (VMFlags.Check(VMENU_SHOWNOBOX))
@@ -205,7 +202,6 @@ void VMenu::Show()
     else
       BoxType=SHORT_SINGLE_BOX;
   }
-  /* DJ $ */
 
   int AutoCenter=FALSE,AutoHeight=FALSE;
 
@@ -228,7 +224,7 @@ void VMenu::Show()
     if (X2<=0)
       X2=X1+MaxLength+4;
   }
-  if (!AutoCenter && X2 > ScrX-(VMFlags.Check(VMENU_LISTBOX)?2:4)+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+  if (!AutoCenter && X2 > ScrX-(VMFlags.Check(VMENU_LISTBOX)?0:4)+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;
     X2=ScrX-4;
@@ -251,10 +247,12 @@ void VMenu::Show()
     AutoHeight=TRUE;
   }
   if (Y2<=0)
+  {
     if (MaxHeight!=0 && MaxHeight<ItemCount)
       Y2=Y1+MaxHeight+1;
     else
       Y2=Y1+ItemCount+1;
+  }
   if (Y2>ScrY)
     Y2=ScrY;
   if (AutoHeight && Y1<3 && Y2>ScrY-3)
@@ -323,14 +321,11 @@ void VMenu::DisplayObject()
     }
     else
     {
-      /* $ 21.07.2001 KM
-       ! ѕереработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-      */
       if (BoxType!=NO_BOX)
         SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[VMenuColorBody]);
       else
         SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
-      /* KM $ */
+
       if(!VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
       {
         MakeShadow(X1,Y2+2,X2+3,Y2+2);
@@ -339,23 +334,15 @@ void VMenu::DisplayObject()
       if (BoxType!=NO_BOX)
         Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
     }
-    /* SVS $*/
 
 //    VMFlags.Set (VMENU_DISABLEDRAWBACKGROUND);
   }
-  /* $ 03.06.2001 KM
-     ! ¬ернЄм DI_LISTBOX'у возможность задавать заголовок.
-  */
-  /* $ 23.02.2002 DJ
-     обрезаем длину заголовка не по длине заголовка, а по реальной ширине меню!
-  */
+
   if(!VMFlags.Check(VMENU_LISTBOX))
     DrawTitles();
-  /* DJ $ */
-  /* KM $ */
+
   ShowMenu(TRUE);
 }
-/* SVS $ */
 
 void VMenu::DrawTitles()
 {
@@ -431,8 +418,7 @@ void VMenu::ShowMenu(int IsParent)
     else
       BoxType = SHORT_SINGLE_BOX;
   }
-  /* DJ $ */
-  /* KM $ */
+
   if(VMFlags.Check(VMENU_LISTBOX))
   {
     if((!IsParent || !ItemCount))
@@ -538,9 +524,6 @@ void VMenu::ShowMenu(int IsParent)
       }
       else
       {
-        /* $ 21.07.2001 KM
-         ! ѕереработка отрисовки меню с флагом VMENU_SHOWNOBOX.
-        */
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
@@ -1407,7 +1390,6 @@ int VMenu::DeleteItem(int ID,int Count)
     */
     while (SelectPos > 0 &&(Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
       SelectPos--;
-    /* DJ $ */
   }
 
   VMFlags.Clear(VMENU_SELECTPOSNONE);
@@ -1441,7 +1423,6 @@ int VMenu::DeleteItem(int ID,int Count)
 
   return(ItemCount);
 }
-/* SVS $ */
 
 int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 {
@@ -1618,7 +1599,6 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     if (PItem->Flags & LIF_SELECTED && !(PItem->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
       SelectPos = NewItem->Index;
     AdjustSelectPos();
-    /* DJ $ */
 
     return TRUE;
   }
@@ -1730,7 +1710,7 @@ void* VMenu::_GetUserData(struct MenuItem *PItem,void *Data,int Size)
         memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
     }
   }
-  /* KM $ */
+
   return(PtrData);
 }
 
@@ -1859,7 +1839,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
         Pass++;
       }
     }
-    /* DJ $ */
 
     if(!(Item[Pos].Flags&LIF_SEPARATOR) && !(Item[Pos].Flags&LIF_DISABLE))
       break;
@@ -1880,7 +1859,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   */
   if (SelectPos!=-1)
     Item[SelectPos].Flags&=~LIF_SELECTED;
-  /* KM $ */
   Item[Pos].Flags|=LIF_SELECTED;
   SelectPos=Pos;
 
@@ -1891,7 +1869,6 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     иногда не "замечал", что позици€ изменилась).
   */
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  /* KM $ */
   return Pos;
 }
 
@@ -1910,9 +1887,6 @@ void VMenu::AdjustSelectPos()
   /* $ 20.07.2004 KM
      ƒобавим проверку на -1, в противном случае падает меню
      из Dialog API.
-  */
-  /* $ 27.07.2004 VVM
-     ѕеренесем проверку в другое место :)
   */
 //  if (SelectPos!=-1)
 //  {
@@ -1948,7 +1922,6 @@ void VMenu::AdjustSelectPos()
         Item [SelectPos].SetSelect (TRUE);
     }
 //  }
-  /* KM $ */
 
   if (SelectPos == -1)
     VMFlags.Set(VMENU_SELECTPOSNONE); //??
@@ -1956,7 +1929,6 @@ void VMenu::AdjustSelectPos()
     VMFlags.Clear(VMENU_SELECTPOSNONE);
 }
 
-/* DJ $ */
 
 void VMenu::SetTitle(const char *Title)
 {
@@ -1996,12 +1968,8 @@ const char *VMenu::GetTitle(char *Dest,int Size,int /*TruncSize*/)
 {
   CriticalSectionLock Lock(CS);
 
-  /* $ 23.02.2002 DJ
-     ≈сли заголовок пустой - это не значит, что его нельз€ вернуть!
-  */
   if (Dest /*&& *VMenu::Title*/)
     return xstrncpy(Dest,VMenu::Title,Size-1);
-  /* DJ $ */
   return NULL;
 }
 
@@ -2204,9 +2172,6 @@ void VMenu::AssignHighlights(int Reverse)
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
 }
 
-/* $ 28.07.2000 SVS
-
-*/
 void VMenu::SetColors(struct FarListColors *Colors)
 {
   CriticalSectionLock Lock(CS);
@@ -2337,7 +2302,6 @@ void VMenu::GetColors(struct FarListColors *Colors)
 
   memmove(Colors->Colors,VMenu::Colors,sizeof(VMenu::Colors));
 }
-/* SVS $*/
 
 /* $ 25.05.2001 DJ
    установка одного цвета
@@ -2349,8 +2313,6 @@ void VMenu::SetOneColor (int Index, short Color)
   if ((DWORD)Index < sizeof(Colors) / sizeof (Colors [0]))
     Colors [Index]=FarColorToReal(Color);
 }
-
-/* DJ $ */
 
 struct SortItemParam{
   int Direction;
@@ -2470,7 +2432,7 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
     */
     Info->Flags=VMFlags.Flags & (LINFO_SHOWNOBOX | LINFO_AUTOHIGHLIGHT
       | LINFO_REVERSEHIGHLIGHT | LINFO_WRAPMODE | LINFO_SHOWAMPERSAND);
-    /* DJ $ */
+
     Info->ItemsNumber=ItemCount;
     Info->SelectPos=SelectPos;
     Info->TopPos=TopPos;
@@ -2531,7 +2493,7 @@ void VMenu::ResizeConsole()
     delete SaveScr;
     SaveScr=NULL;
   }
-  /* KM $ */
+
   if (this->CheckFlags(VMENU_NOTCHANGE))
   {
     return;
