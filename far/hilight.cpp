@@ -71,7 +71,7 @@ static const HighlightStrings HLS=
   L"MarkChar",
   L"ContinueProcessing",
   L"UseDate",L"DateType",L"DateAfter",L"DateBefore",L"DateRelative",
-  L"UseSize",L"SizeAbove",L"SizeBelow",
+  L"UseSize",L"SizeAboveS",L"SizeBelowS",
   L"HighlightEdit",L"HighlightList"
 };
 

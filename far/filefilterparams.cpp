@@ -769,7 +769,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
-  const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2502,0x2534,0};
+  const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2534,0};
   // Временная маска.
   CFileMask FileMask;
   // История для маски файлов
