@@ -384,7 +384,6 @@ void ShellSetFileAttributesMsg(char *Name)
 int ShellSetFileAttributes(Panel *SrcPanel)
 {
   int SkipMode=-1;
-  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 /*MSetAttrJunction
 00
@@ -814,6 +813,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
     // </Dialog>
 
+    TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
     ShellSetFileAttributesMsg(SelCount==1?SelName:NULL);
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
