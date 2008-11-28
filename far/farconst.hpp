@@ -408,4 +408,8 @@ enum ReparsePointTypes
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8       0xBFBBEF
+
 #endif // __FARCONST_HPP__

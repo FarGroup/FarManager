@@ -68,41 +68,18 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 {
 	DWORD dwCP = _wtoi(lpwszCodePage);
 	CPINFOEXW cpi;
-
-	GetCPInfoExW (dwCP, 0, &cpi);
-
-	if ( cpi.MaxCharSize == 1 )
+	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
 	{
-		wchar_t *name = cpi.CodePageName;
-		wchar_t *p = wcschr(name, L'(');
-
-		if ( p )
-			name = p+1;
-
-		p = wcsrchr(name, L')');
-
-		if ( p )
-			*p = 0;
+		string strCPName;
+		strCPName.Format(L"%5d%c %s",dwCP,BoxSymbols[0xB3-0x0B0],wcschr(cpi.CodePageName,L'(')+1);
+		strCPName.SetLength(strCPName.GetLength()-1);
 
 		FarListItemData data;
-
-		int index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)name);
-
-		data.Index = index;
+		data.Index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)(const wchar_t*)strCPName);
 		data.DataSize = sizeof(dwCP);
 		data.Data = (void*)(DWORD_PTR)dwCP;
 
 		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (LONG_PTR)&data);
-
-		if ( (unsigned int)g_nCodepage == dwCP )
-		{
-			FarListPos pos;
-
-			pos.SelectPos = index;
-			pos.TopPos = -1;
-
-			Dialog::SendDlgMessage (g_hDlg, DM_LISTSETCURPOS, g_nID, (LONG_PTR)&pos);
-		}
 	}
 
 	return TRUE;
@@ -115,6 +92,10 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 	g_nID = nID;
 	g_nCodepage = nCodepage;
 
+	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
+
+	Dialog::SendDlgMessage(hDlg,DM_LISTSORT,nID,0);
+
 	FarListItem items[10];
 
 	memset(&items, 0, sizeof (items));
@@ -126,12 +107,12 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
 	items[2].Text=L"OEM";
 
-	if ( nCodepage == CP_OEMCP ) //BUGBUG
+	if ( nCodepage == GetOEMCP() ) //BUGBUG
 		items[2].Flags |= LIF_SELECTED;
 
 	items[3].Text=L"ANSI";
 
-	if ( nCodepage == CP_ACP ) //BUGBUG
+	if ( nCodepage == GetACP() ) //BUGBUG
 		items[3].Flags |= LIF_SELECTED;
 
 	items[5].Text=L"UTF-8";
@@ -158,35 +139,35 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 	items[4].Flags = LIF_SEPARATOR;
 	items[9].Flags = LIF_SEPARATOR;
 
-	FarList list;
-
-	list.Items = (FarListItem*)(bAllowAuto?&items[0]:&items[2]);
-	list.ItemsNumber = bAllowAuto?countof(items):countof(items)-2;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTADD, nID, (LONG_PTR)&list);
-
+	;
+	for(int i=0;i<(int)countof(items)-(bAllowAuto?0:2);i++)
+	{
+		FarListInsert li={i,items[i+(bAllowAuto?0:2)]};
+		Dialog::SendDlgMessage (hDlg,DM_LISTINSERT,nID,(LONG_PTR)&li);
+	}
 	FarListItemData data;
 
 	int index = bAllowAuto?0:2;
+	if(bAllowAuto)
+	{
+		//auto
+		data.Index = 0;
+		data.DataSize = 4;
+		data.Data = (void*)CP_AUTODETECT;
 
-	//auto
-	data.Index = 0;
-	data.DataSize = 4;
-	data.Data = (void*)CP_AUTODETECT;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
+		Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+	}
 	//oem
 	data.Index = 2-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_OEMCP;
+	data.Data = (void*)(LONG_PTR)GetOEMCP();
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//ansi
 	data.Index = 3-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_ACP;
+	data.Data = (void*)(LONG_PTR)GetACP();
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
@@ -198,21 +179,39 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-	//unicode
+	//utf-7
 	data.Index = 6-index;
+	data.DataSize = 4;
+	data.Data = (void*)CP_UTF7;
+
+	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
+
+	//unicode
+	data.Index = 7-index;
 	data.DataSize = 4;
 	data.Data = (void*)CP_UNICODE;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//reverse bom
-	data.Index = 7-index;
+	data.Index = 8-index;
 	data.DataSize = 4;
 	data.Data = (void*)CP_REVERSEBOM;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
-	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
+	FarListInfo info;
+	Dialog::SendDlgMessage(g_hDlg,DM_LISTINFO,nID,(LONG_PTR)&info);
+
+	for(int i=0;i<info.ItemsNumber;i++)
+	{
+		if(Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,nID,i)==nCodepage)
+		{
+			FarListPos Pos={i,-1};
+			Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,nID,(LONG_PTR)&Pos);
+			break;
+		}
+	}
 }
 
 
@@ -275,7 +274,7 @@ bool dlgOpenEditor (string &strFileName, int &codepage)
 		/* 02 */DI_EDIT,     5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
 		/* 03 */DI_TEXT,     3,4, 0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 04 */DI_TEXT,     5,5, 0,5,0,0,0,0,L"File codepage:",
-		/* 05 */DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
+		/* 05 */DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
 		/* 06 */DI_TEXT,     3,6, 0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 07 */DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
 		/* 08 */DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
@@ -364,7 +363,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
 		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,L"File codepage:",
-		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST,0,L"",
+		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
 		/* 06 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 07 */ DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
 		/* 08 */ DI_RADIOBUTTON,5,8,0,8,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
@@ -744,7 +743,6 @@ void FileEditor::Init (
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
-    m_codepage = CP_OEMCP; //BUGBUG
     m_editor->SetCodePage (m_codepage);
 
     if(BlankFileName)
@@ -824,9 +822,9 @@ void FileEditor::InitKeyBar(void)
     EditKeyBar.Change(KBL_ALT,L"",5-1);
 
 
-/*  if (m_editor->AnsiText)
+  if (m_codepage!=GetOEMCP())
     EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-  else*/
+  else
     EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
@@ -1350,12 +1348,20 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           return FALSE;
         return(TRUE);
       }
-
+    case KEY_F8:
+    {
+			if ( !IsUnicodeCP(m_codepage) )
+			{
+				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
+				ChangeEditKeyBar();
+			}
+			return TRUE;
+    }
 		case KEY_SHIFTF8:
 		{
 			if ( !IsUnicodeCP(m_codepage) )
 			{
-				int codepage = GetTableEx ();
+				int codepage = GetTableEx (m_codepage);
 
 				if ( codepage != -1 )
 					SetCodePage (codepage);
@@ -1531,7 +1537,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			m_codepage = cp.Table;
 
 		if ( !bCached || (m_codepage == 0) )
-			m_codepage = dcp;
+			m_codepage = (dcp==CP_OEMCP?(Opt.EdOpt.AnsiTableAsDefault?GetACP():GetOEMCP()):dcp);
 	}
 
 	m_editor->SetCodePage (m_codepage); //BUGBUG
@@ -1603,10 +1609,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	return TRUE;
 }
-
-#define SIGN_UNICODE 0xFEFF
-#define SIGN_REVERSEBOM 0xFFFE
-#define SIGN_UTF8 0xBFBBEF
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
@@ -1805,7 +1807,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
     if ( bSaveAs )
     {
-			signature_found = true; //BUGBUG;
+			//signature_found = true; //BUGBUG;
 			codepage = Codepage;
 		}
 		else
@@ -1816,18 +1818,24 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 	    bool bSignError = false;
 	    DWORD dwSignature = 0;
 
-			if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) )
+			switch(codepage)
 			{
+			case CP_UNICODE:
 				dwSignature = SIGN_UNICODE;
 				if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
 					bSignError = true;
-			}
-
-			if ( codepage == CP_UTF8 )
-			{
+				break;
+			case CP_REVERSEBOM:
+				dwSignature = SIGN_REVERSEBOM;
+				if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
+					bSignError = true;
+				break;
+			case CP_UTF8:
 				dwSignature = SIGN_UTF8;
 				if ( fwrite (&dwSignature, 1, 3, EditFile) != 3 )
 					bSignError = true;
+				break;
+
 			}
 
 			if ( bSignError )
@@ -1864,7 +1872,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       int EndLength=StrLength(EndSeq);
       bool bError = false;
 
-			if ( (codepage == CP_UNICODE) || (codepage == CP_REVERSEBOM) ) //BUGBUG, wrong revbom!!!
+			if ( codepage == CP_UNICODE )
 			{
 				if ( ((int)fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
 					((int)fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
@@ -1872,20 +1880,28 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 			else
 			{
-				int length = WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL);
+				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
 
 				char *SaveStrCopy = new char[length];
 
 				if ( SaveStrCopy )
 				{
-					int endlength = WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL);
+					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
 
 					char *EndSeqCopy = new char[endlength];
 
 					if ( EndSeqCopy )
 					{
-						WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
-						WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+						if(codepage == CP_REVERSEBOM)
+						{
+							swab((char*)SaveStr,SaveStrCopy,length);
+							swab((char*)EndSeq,EndSeqCopy,endlength);	
+						}
+						else
+						{
+							WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
+							WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+						}
 
 						if ( ((int)fwrite (SaveStrCopy,1,length,EditFile) != length) ||
 							((int)fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
@@ -2108,9 +2124,9 @@ void FileEditor::SetTitle(const wchar_t *Title)
 
 void FileEditor::ChangeEditKeyBar()
 {
-/*  if (m_editor->AnsiText)
+  if (m_codepage!=GetOEMCP())
     EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-  else*/
+  else
     EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Redraw();
@@ -2167,10 +2183,10 @@ void FileEditor::ShowStatus()
   strLineStr.Format (L"%d/%d", m_editor->NumLine+1, m_editor->NumLastLine);
 
   string strAttr;
-  strAttr.SetData (AttrStr, CP_OEMCP);
+  strAttr.SetData (AttrStr, GetOEMCP());
 
   strStatus.Format(
-        L"%-*s %c%c%c%d %7s %*.*s %5s %-4d %3s",
+        L"%-*s %c%c%c%5d %7s %*.*s %5s %-4d %3s",
         NameLength,
         (const wchar_t*)strLocalTitle,
         (m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' '),

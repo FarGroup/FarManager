@@ -52,29 +52,27 @@ int DistrTableExist(void)
 }
 
 static VMenu *tables;
+static DWORD dwCurCP; 
 
 BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 {
-    DWORD dwCP = _wtoi(lpwszCodePage);
-    CPINFOEXW cpi;
-
-    GetCPInfoExW (dwCP, 0, &cpi);
-
-    if ( cpi.MaxCharSize == 1 )
-    {
-	    MenuItemEx item;
-
-    	item.Clear ();
-	    item.strName = cpi.CodePageName;
-
-    	tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
+	DWORD dwCP = _wtoi(lpwszCodePage);
+	CPINFOEXW cpi;
+	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
+	{
+		MenuItemEx item;
+		item.Clear ();
+		if(dwCP==dwCurCP)
+			item.Flags|=MIF_SELECTED;
+		item.strName.Format(L"%5d%c %s",dwCP,BoxSymbols[0xB3-0x0B0],wcschr(cpi.CodePageName,L'(')+1);
+		item.strName.SetLength(item.strName.GetLength()-1);
+		tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
 	}
-
-    return TRUE;
+	return TRUE;
 }
 
 
-int GetTableEx ()
+int GetTableEx (DWORD dwCurrent)
 {
     int nCP = -1;
 
@@ -105,11 +103,12 @@ int GetTableEx ()
     item.strName = "UTF-7";
 
     tables->SetUserData((void*)CP_UTF7, sizeof (DWORD), tables->AddItemW (&item));*/
-
+    dwCurCP=dwCurrent;
     EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 
-    tables->SetFlags(VMENU_WRAPMODE);
+    tables->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
     tables->SetPosition(-1,-1,0,0);
+	tables->SortItems(0);
 
     tables->Process ();
 

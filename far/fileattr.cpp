@@ -155,7 +155,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return SETATTR_RET_OK;
 
-  if(!IsCryptFileASupport)
+  if(!ifn.bEncryptFunctions)
     return SETATTR_RET_OK;
 
   int Ret=SETATTR_RET_OK;

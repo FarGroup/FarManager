@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-
+#include "imports.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 
@@ -434,7 +434,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 {
   int SkipMode=-1;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
 
 /*MSetAttrJunction
 00                                             00
@@ -464,7 +463,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 24                                             24
 */
   static struct DialogDataEx AttrDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,65,22,0,0,0,0,(wchar_t *)MSetAttrTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,65,21,0,0,0,0,(wchar_t *)MSetAttrTitle,
   /* 01 */DI_TEXT,-1,2,0,2,0,0,0,0,(wchar_t *)MSetAttrFor,
   /* 02 */DI_TEXT,-1,3,0,3,0,0,DIF_SHOWAMPERSAND,0,L"",
   /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
@@ -475,32 +474,32 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 07 */DI_CHECKBOX,5, 8,0,8,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSystem,
   /* 08 */DI_CHECKBOX,5, 9,0,9,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrCompressed,
   /* 09 */DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
-  /* 10 */DI_CHECKBOX,5,11,0,11,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrNotIndexed,
 
-  /* 11 */DI_CHECKBOX,35, 5,0,5,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
-  /* 12 */DI_CHECKBOX,35, 6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
-  /* 13 */DI_CHECKBOX,35, 7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
-  /* 14 */DI_CHECKBOX,35, 8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrVirtual,
+  /* 10 */DI_CHECKBOX,35,5,0,5,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrNotIndexed,
+  /* 11 */DI_CHECKBOX,35,6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
+  /* 12 */DI_CHECKBOX,35,7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
+  /* 13 */DI_CHECKBOX,35,8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
+  /* 14 */DI_CHECKBOX,35,9,0,9,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrVirtual,
 
-  /* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 16 */DI_CHECKBOX,5,13,0,13,0,0,DIF_DISABLE,0,(wchar_t *)MSetAttrSubfolders,
-  /* 17 */DI_TEXT,3,14,0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 18 */DI_TEXT,45,15,0,15,0,0,0,0,L"",
-  /* 19 */DI_TEXT,    5,16,0,16,0,0,0,0,(wchar_t *)MSetAttrModification,
-  /* 20 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,L"",
-  /* 21 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,L"",
-  /* 22 */DI_TEXT,    5,17,0,17,0,0,0,0,(wchar_t *)MSetAttrCreation,
-  /* 23 */DI_FIXEDIT,45,17,54,17,0,0,DIF_MASKEDIT,0,L"",
-  /* 24 */DI_FIXEDIT,56,17,63,17,0,0,DIF_MASKEDIT,0,L"",
-  /* 25 */DI_TEXT,    5,18,0,18,0,0,0,0,(wchar_t *)MSetAttrLastAccess,
-  /* 26 */DI_FIXEDIT,45,18,54,18,0,0,DIF_MASKEDIT,0,L"",
-  /* 27 */DI_FIXEDIT,56,18,63,18,0,0,DIF_MASKEDIT,0,L"",
-  /* 28 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrOriginal,
-  /* 29 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrCurrent,
-  /* 30 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrBlank,
-  /* 31 */DI_TEXT,3,20,0,20,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
-  /* 33 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
+  /* 15 */DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_CHECKBOX,5,12,0,12,0,0,DIF_DISABLE,0,(wchar_t *)MSetAttrSubfolders,
+  /* 17 */DI_TEXT,3,13,0,13,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 18 */DI_TEXT,45,14,0,14,0,0,0,0,L"",
+  /* 19 */DI_TEXT,    5,15,0,15,0,0,0,0,(wchar_t *)MSetAttrModification,
+  /* 20 */DI_FIXEDIT,45,15,54,15,0,0,DIF_MASKEDIT,0,L"",
+  /* 21 */DI_FIXEDIT,56,15,63,15,0,0,DIF_MASKEDIT,0,L"",
+  /* 22 */DI_TEXT,    5,16,0,16,0,0,0,0,(wchar_t *)MSetAttrCreation,
+  /* 23 */DI_FIXEDIT,45,16,54,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 24 */DI_FIXEDIT,56,16,63,16,0,0,DIF_MASKEDIT,0,L"",
+  /* 25 */DI_TEXT,    5,17,0,17,0,0,0,0,(wchar_t *)MSetAttrLastAccess,
+  /* 26 */DI_FIXEDIT,45,17,54,17,0,0,DIF_MASKEDIT,0,L"",
+  /* 27 */DI_FIXEDIT,56,17,63,17,0,0,DIF_MASKEDIT,0,L"",
+  /* 28 */DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrOriginal,
+  /* 29 */DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrCurrent,
+  /* 30 */DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(wchar_t *)MSetAttrBlank,
+  /* 31 */DI_TEXT,3,19,0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 32 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
+  /* 33 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
   /* 34 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
   MakeDialogItemsEx(AttrDlgData,AttrDlg);
@@ -545,7 +544,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-      if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+      if (!ifn.bEncryptFunctions || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
       if(StrCmpI(strFSysName,L"NTFS"))
@@ -721,7 +720,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
             AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-          if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+          if (!ifn.bEncryptFunctions || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
             AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
           if(StrCmpI(strFSysName,L"NTFS"))
@@ -848,13 +847,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(LONG_PTR)&DlgParam);
       Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
-      Dlg.SetPosition(-1,-1,69,JunctionPresent?25:24);
+      Dlg.SetPosition(-1,-1,69,JunctionPresent?24:23);
       Dlg.Process();
       if (Dlg.GetExitCode()!=SETATTR_SET)
         return 0;
     }
     // </Dialog>
-
+		TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
     ShellSetFileAttributesMsg(SelCount==1?(const wchar_t*)strSelName:NULL);
 
     if (SelCount==1 && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)

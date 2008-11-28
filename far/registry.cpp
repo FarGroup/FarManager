@@ -822,11 +822,13 @@ int RegQueryStringValue (
         const wchar_t *lpwszDefault
         )
 {
-	LONG cbSize = 0;
+	DWORD cbSize = 0;
 
-	int nResult = RegQueryValueW (
+	int nResult = RegQueryValueExW (
 					hKey,
 					lpwszSubKey,
+					NULL,
+					NULL,
 					NULL,
 					&cbSize
 					);
@@ -834,15 +836,21 @@ int RegQueryStringValue (
 	if ( nResult == ERROR_SUCCESS )
 	{
 		wchar_t *lpwszData = strData.GetBuffer (cbSize/sizeof(wchar_t)+1);
-
-		nResult = RegQueryValueW (
+		DWORD Type=REG_SZ;
+		nResult = RegQueryValueExW (
 				hKey,
 				lpwszSubKey,
-				(LPWSTR)lpwszData,
+				NULL,
+				&Type,
+				(LPBYTE)lpwszData,
 				&cbSize
 				);
-
-		strData.ReleaseBuffer (cbSize/sizeof(wchar_t));
+		int Size=cbSize/sizeof(wchar_t);
+		if((Type=REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ) && !lpwszData[Size-1])
+		{
+			Size--;
+		}
+		strData.ReleaseBuffer(Size);
 	}
 
 	if ( nResult != ERROR_SUCCESS )

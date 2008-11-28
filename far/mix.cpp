@@ -2025,13 +2025,13 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 
 int GetFileFormat (FILE *file, bool *pSignatureFound)
 {
-	DWORD dwTemp;
+	DWORD dwTemp=0;
 	bool bSignatureFound = false;
 	int nCodePage = CP_OEMCP;
 
-	if ( fread (&dwTemp, 4, 1, file) == 1 )
+	if ( fread (&dwTemp, 1, 4, file) )
 	{
-		if ( LOWORD (dwTemp) == 0xFEFF )
+		if ( LOWORD (dwTemp) == SIGN_UNICODE )
 		{
 			nCodePage = CP_UNICODE;
 			fseek (file, 2, SEEK_SET);
@@ -2039,7 +2039,7 @@ int GetFileFormat (FILE *file, bool *pSignatureFound)
 		}
 		else
 
-		if ( LOWORD (dwTemp) == 0xFFFE )
+		if ( LOWORD (dwTemp) == SIGN_REVERSEBOM )
 		{
 			nCodePage = CP_REVERSEBOM;
 			fseek (file, 2, SEEK_SET);
@@ -2047,7 +2047,7 @@ int GetFileFormat (FILE *file, bool *pSignatureFound)
 		}
 		else
 
-		if ( (dwTemp & 0x00FFFFFF) == 0xBFBBEF )
+		if ( (dwTemp & 0x00FFFFFF) == SIGN_UTF8 )
 		{
 			nCodePage = CP_UTF8;
 			fseek (file, 3, SEEK_SET);

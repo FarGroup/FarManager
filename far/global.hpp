@@ -102,9 +102,6 @@ extern HWND hFarWnd;
 
 extern const DWORD FAR_VERSION;
 
-extern BOOL IsCryptFileASupport;
-
-
 extern wchar_t RegColorsHighlight[];
 
 extern BOOL LanguageLoaded;

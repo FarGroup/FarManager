@@ -326,7 +326,7 @@ int DistrTableExist(void);
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 
-int GetTableEx ();
+int GetTableEx (DWORD Current);
 void DecodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
 void EncodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
 
