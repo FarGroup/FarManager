@@ -92,11 +92,8 @@ Compilation
 
 
 2. To compile with GCC there is a makefile_gcc that does everything.
-   For the first run if the copyright.inc, farversion.inc and lang.hpp files
-   do not exits, run the following:
-   tools\m4 -P copyright.inc.m4 | tools\gawk -f ./scripts/enc.awk > copyright.inc
-   tools\m4 -P farversion.inc.m4 > farversion.inc
-   tools\lng.generator.exe -nc -i lang.ini farlang.templ
+   For example to build with Mingw run the following command:
+   mingw32-make -f makefile_gcc
 
 
 Changelog - "changelog" file

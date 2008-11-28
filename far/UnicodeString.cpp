@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "UnicodeString.hpp"
 
-size_t UnicodeString::Inflate(size_t nSize)
+void UnicodeString::Inflate(size_t nSize)
 {
   if ( m_pData->GetRef() == 1 )
   {
@@ -56,7 +56,6 @@ size_t UnicodeString::Inflate(size_t nSize)
 
     m_pData = pNewData;
   }
-  return m_pData->GetSize();
 }
 
 size_t UnicodeString::GetCharString(char *lpszStr, size_t nLength, UINT CodePage) const
@@ -224,10 +223,11 @@ wchar_t *UnicodeString::GetBuffer (size_t nSize)
 
 void UnicodeString::ReleaseBuffer (size_t nLength)
 {
-	if ( nLength != (size_t)-1 )
-		m_pData->SetLength (nLength);
-	else
-		m_pData->SetLength (StrLength(m_pData->GetData()));
+	if ( nLength == (size_t)-1 )
+		nLength = StrLength(m_pData->GetData());
+	if (nLength >= m_pData->GetSize())
+		nLength = m_pData->GetSize() - 1;
+	m_pData->SetLength (nLength);
 }
 
 int __cdecl UnicodeString::Format (const wchar_t * format, ...)

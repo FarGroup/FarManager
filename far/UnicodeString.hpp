@@ -77,7 +77,7 @@ public:
 
 	size_t SetLength(size_t nLength)
 	{
-		if (nLength<m_nSize)
+		//if (nLength<m_nSize) //Эту проверку делает верхний класс, так что скажем что это оптимизация
 		{
 			m_nLength = nLength;
 			m_pData[m_nLength] = 0;
@@ -85,10 +85,10 @@ public:
 		return m_nLength;
 	}
 
-	size_t Inflate(size_t nSize)
+	void Inflate(size_t nSize)
 	{
 		if (nSize <= m_nSize)
-			return m_nSize;
+			return;
 		wchar_t *pOldData = m_pData;
 		size_t nOldSize = m_nSize;
 		if (nSize >= m_nDelta << 3)
@@ -108,7 +108,6 @@ public:
 			m_pData[m_nLength] = 0;
 			FreeData(pOldData);
 		}
-		return m_nSize;
 	}
 
 	wchar_t *GetData()
@@ -193,7 +192,7 @@ public:
 		DeleteData();
 	}
 
-	size_t Inflate(size_t nSize);
+	void Inflate(size_t nSize);
 
 	size_t GetLength() const
 	{
@@ -231,7 +230,7 @@ public:
 		if (nLength < m_pData->GetLength())
 		{
 			Inflate(nLength+1);
-			m_pData->SetLength(nLength);
+			return m_pData->SetLength(nLength);
 		}
 		return m_pData->GetLength();
 	}

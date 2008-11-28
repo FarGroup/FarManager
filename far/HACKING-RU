@@ -93,13 +93,9 @@
    Через задание NMAKE_OPTS можно передавать также и ключи nmake.
 
 
-2. Для сборки GCC есть мэйк файл который всё делает:
-   makefile_gcc
-   При первом запуске, если нету файлов copyright.inc, farversion.inc и lang.hpp,
-   то надо запустить:
-   tools\m4 -P copyright.inc.m4 | tools\gawk -f ./scripts/enc.awk > copyright.inc
-   tools\m4 -P farversion.inc.m4 > farversion.inc
-   tools\lng.generator.exe -nc -i lang.ini farlang.templ
+2. Для сборки GCC есть мэйк файл, makefile_gcc, который всё делает.
+   Для примера, чтоб собрать с Mingw выполните следующею команду:
+   mingw32-make -f makefile_gcc
 
 
 Описание изменений - файл "changelog"

@@ -254,13 +254,17 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
     }
 
     if (st.wYear<100)
+    {
       if (st.wYear<80)
         st.wYear+=2000;
       else
         st.wYear+=1900;
+    }
   }
   else
+  {
     st.wDay = DateN[0]!=(unsigned)-1?DateN[0]:0;
+  }
 
   st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
   st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;

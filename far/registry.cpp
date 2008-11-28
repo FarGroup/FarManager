@@ -174,11 +174,11 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
             &QueryDataSize
             )) == ERROR_SUCCESS )
     {
-      wchar_t *TempBuffer = strValueData.GetBuffer (QueryDataSize+1); // ...то выделим сколько надо
+      wchar_t *TempBuffer = strValueData.GetBuffer (QueryDataSize/sizeof(wchar_t)+1); // ...то выделим сколько надо
 
       ExitCode = RegQueryValueExW(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize);
 
-      strValueData.ReleaseBuffer();
+      strValueData.ReleaseBuffer(QueryDataSize/sizeof(wchar_t));
     }
     if(pType)
       *pType=Type;
@@ -609,7 +609,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
                  }
               }
 
-            strKeyName.ReleaseBuffer ();
+            //strKeyName.ReleaseBuffer (); не надо, строка все ровно удаляется
           }
      }
      return RetCode;
@@ -715,16 +715,16 @@ int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDat
   return RetCode;
 }
 
-int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData,__int64* IData64)
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64)
 {
   HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;
 
-  if(hKey)
+  if (hKey)
   {
     wchar_t ValueName[512]; //BUGBUG, dynamic
 
-    while( TRUE )
+    while ( TRUE )
     {
       DWORD ValSize=sizeof(ValueName);
       DWORD Type=(DWORD)-1;
@@ -736,7 +736,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
       wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
       ValSize=sizeof(ValueName); // НАДА, иначе получаем ERROR_MORE_DATA
       int Ret=RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,(LPBYTE)Data,&Size);
-      strSData.ReleaseBuffer ();
+      strSData.ReleaseBuffer (Size/sizeof (wchar_t));
 
       if (Ret != ERROR_SUCCESS)
         break;
@@ -745,17 +745,17 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 
       strDestName = ValueName;
 
-      if(Type == REG_SZ)
+      if (Type == REG_SZ)
         break;
-      else if(Type == REG_DWORD)
+      else if (Type == REG_DWORD)
       {
-        if(IData)
+        if (IData)
           *IData=*(DWORD*)(const wchar_t*)strSData;
         break;
       }
-      else if(Type == REG_QWORD)
+      else if (Type == REG_QWORD)
       {
-        if(IData64)
+        if (IData64)
           *IData64=*(__int64*)(const wchar_t*)strSData;
         break;
       }
@@ -765,7 +765,6 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
   }
   return RetCode;
 }
-
 
 
 LONG CloseRegKey(HKEY hKey)
@@ -783,37 +782,37 @@ int RegQueryStringValueEx (
         const wchar_t *lpwszDefault
         )
 {
-    DWORD cbSize = 0;
+	DWORD cbSize = 0;
 
-    int nResult = RegQueryValueExW (
-            hKey,
-            lpwszValueName,
-            NULL,
-            NULL,
-            NULL,
-            &cbSize
-            );
+	int nResult = RegQueryValueExW (
+					hKey,
+					lpwszValueName,
+					NULL,
+					NULL,
+					NULL,
+					&cbSize
+					);
 
-    if ( nResult == ERROR_SUCCESS )
-    {
-        wchar_t *lpwszData = strData.GetBuffer (cbSize+1);
+	if ( nResult == ERROR_SUCCESS )
+	{
+		wchar_t *lpwszData = strData.GetBuffer (cbSize/sizeof(wchar_t)+1);
 
-        nResult = RegQueryValueExW (
-            hKey,
-            lpwszValueName,
-            NULL,
-            NULL,
-            (LPBYTE)lpwszData,
-            &cbSize
-            );
+		nResult = RegQueryValueExW (
+				hKey,
+				lpwszValueName,
+				NULL,
+				NULL,
+				(LPBYTE)lpwszData,
+				&cbSize
+				);
 
-        strData.ReleaseBuffer ();
-    }
+		strData.ReleaseBuffer (cbSize/sizeof(wchar_t));
+	}
 
-    if ( nResult != ERROR_SUCCESS )
-        strData = lpwszDefault;
+	if ( nResult != ERROR_SUCCESS )
+		strData = lpwszDefault;
 
-    return nResult;
+	return nResult;
 }
 
 int RegQueryStringValue (
@@ -823,31 +822,31 @@ int RegQueryStringValue (
         const wchar_t *lpwszDefault
         )
 {
-    LONG cbSize = 0;
+	LONG cbSize = 0;
 
-    int nResult = RegQueryValueW (
-            hKey,
-            lpwszSubKey,
-            NULL,
-            &cbSize
-            );
+	int nResult = RegQueryValueW (
+					hKey,
+					lpwszSubKey,
+					NULL,
+					&cbSize
+					);
 
-    if ( nResult == ERROR_SUCCESS )
-    {
-        wchar_t *lpwszData = strData.GetBuffer (cbSize+1);
+	if ( nResult == ERROR_SUCCESS )
+	{
+		wchar_t *lpwszData = strData.GetBuffer (cbSize/sizeof(wchar_t)+1);
 
-        nResult = RegQueryValueW (
-            hKey,
-            lpwszSubKey,
-            (LPWSTR)lpwszData,
-            &cbSize
-            );
+		nResult = RegQueryValueW (
+				hKey,
+				lpwszSubKey,
+				(LPWSTR)lpwszData,
+				&cbSize
+				);
 
-        strData.ReleaseBuffer ();
-    }
+		strData.ReleaseBuffer (cbSize/sizeof(wchar_t));
+	}
 
-    if ( nResult != ERROR_SUCCESS )
-        strData = lpwszDefault;
+	if ( nResult != ERROR_SUCCESS )
+		strData = lpwszDefault;
 
-    return nResult;
+	return nResult;
 }
