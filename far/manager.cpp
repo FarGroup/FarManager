@@ -1378,7 +1378,7 @@ void Manager::RefreshCommit()
 
     if (RefreshedFrame)
       RefreshedFrame->Refresh();
-    else
+    if (!RefreshedFrame)
     {
       _MANAGERLOG(SysLog("[%d] return ==> RefreshedFrame=NULL",__LINE__));
       return;
