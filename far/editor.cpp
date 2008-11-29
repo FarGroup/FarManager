@@ -6453,7 +6453,7 @@ void Editor::GetCacheParams (EditorCacheParams *pp)
 }
 
 
-bool Editor::SetCodePage (int codepage)
+bool Editor::SetCodePage (UINT codepage)
 {
   if ( m_codepage != codepage )
     {
@@ -6475,7 +6475,7 @@ bool Editor::SetCodePage (int codepage)
   return false;
 }
 
-int Editor::GetCodePage ()
+UINT Editor::GetCodePage ()
 {
   return m_codepage;
 }

@@ -1,27 +1,44 @@
-# Microsoft Developer Studio Generated NMAKE File, Based on far.dsp
-!IF "$(CFG)" == ""
-CFG=far - Win32 Release
-!MESSAGE No configuration specified. Defaulting to far - Win32 Release.
-!ENDIF
+#The following variables can be set by the user:
+#
+#DEBUG - set if a debug build is needed
+#
+#LINK_ULINK - set if you want to use ulink for linking
+#
+#USE_VC9 - set if you want to compile with VC 2008 (we try to autodetect if not set)
+#
+#USE_VC8_32 - set if you want to compile with VC 2005 (we try to autodetect if not set)
+#
+#AMD64 - set for x64 build
+#  or
+#CPU=AMD64 - for x64 build
+#
+#IA64 - set for IA64 build
+#  or
+#CPU=IA64 - for IA64 build
+#
+#FARSYSLOG - for syslog
+#
+#DISABLE_WOW64_HOOK - set to disable the wow64 hook
+#
 
-!IF "$(CFG)" != "far - Win32 Release" && "$(CFG)" != "far - Win32 Debug" && "$(CFG)" != "far - Win64 Release" && "$(CFG)" != "far - Win64 Debug" && "$(CFG)" != "far - WinIA64 Release" && "$(CFG)" != "far - WinIA64 Debug"
-!MESSAGE Invalid configuration "$(CFG)" specified.
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE
-!MESSAGE NMAKE /f "far.mak" CFG="far - Win32 Debug"
-!MESSAGE
-!MESSAGE Possible choices for configuration are:
-!MESSAGE
-!MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "far - Win64 Release" (based on "Win32 (x64) Console Application")
-!MESSAGE "far - Win64 Debug" (based on "Win32 (x64) Console Application")
-!MESSAGE "far - WinIA64 Release" (based on "Win32 (IA64) Console Application")
-!MESSAGE "far - WinIA64 Debug" (based on "Win32 (IA64) Console Application")
-!MESSAGE
-!ERROR An invalid configuration is specified.
-!ENDIF
+!if defined(AMD64) || "$(CPU)" == "AMD64"
+!undef AMD64
+!undef CPU
+AMD64=1
+CPU=AMD64
+DIRBIT = 64
+_BUILD64=1
+!elseif defined(IA64) || "$(CPU)" == "IA64"
+!undef IA64
+!undef CPU
+IA64=1
+CPU=IA64
+DIRBIT = IA64
+_BUILD64=1
+!else
+DIRBIT=32
+_BUILD64=0
+!endif
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -29,41 +46,30 @@ NULL=
 NULL=nul
 !ENDIF
 
-NODEFAULTLIB=
+!ifndef DEBUG
+DIRNAME=Release
+USEDEBUG=NDEBUG
+!else
+DIRNAME=Debug
+USEDEBUG=_DEBUG
+!endif                   
+
+DEPFILE=far.vc.dep
+
+OUTDIR=$(DIRNAME).$(DIRBIT).vc
+
+FARINCLUDE=.\Include
 
 CPP=cl.exe
 RSC=rc.exe
 LINK32=link.exe
 ULINK=ulink.exe
 
-# Пути
-FARINCLUDE=.\Include
-
-_BUILD64=1
-!IF  "$(CFG)" == "far - Win32 Release"
-_BUILD64=0
-OUTDIR=.\Release.vc
-!ELSEIF  "$(CFG)" == "far - Win32 Debug"
-_BUILD64=0
-OUTDIR=.\Debug.vc
-!ELSEIF  "$(CFG)" == "far - Win64 Release"
-OUTDIR=.\Release.64.vc
-!ELSEIF  "$(CFG)" == "far - Win64 Debug"
-OUTDIR=.\Debug.64.vc
-!ELSEIF  "$(CFG)" == "far - WinIA64 Release"
-OUTDIR=.\Release.IA64.vc
-!ELSEIF  "$(CFG)" == "far - WinIA64 Debug"
-OUTDIR=.\Debug.IA64.vc
-!ENDIF
-
 !if $(_BUILD64)
 ML=ml64.exe
 !else
 ML=ml.exe
 !endif
-
-INTDIR=$(OUTDIR)\obj
-CODDIR=$(OUTDIR)\cod
 
 !ifdef FARSYSLOG
 INTDIR=$(OUTDIR)\objlog
@@ -72,17 +78,13 @@ INTDIR=$(OUTDIR)\obj
 !endif
 CODDIR=$(OUTDIR)\cod
 
-DEF_FILE= \
-          ".\far.def"
+DEF_FILE = ".\far.def"
 
-RES_FILES= \
-           "$(INTDIR)\far.res"
+RES_FILE = "$(INTDIR)\far.res"
 
-PCH_FILES= \
-           "$(INTDIR)\headers.c.pch"\
-           "$(INTDIR)\headers.cpp.pch"
+PCH_FILES = "$(INTDIR)\headers.c.pch" \
+            "$(INTDIR)\headers.cpp.pch"
 
-# Сюды добавлять то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
 !if !$(_BUILD64) && !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
@@ -209,6 +211,14 @@ LINK32_OBJS= \
 	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\imports.obj"
 
+!if !defined(USE_VC9) && !defined(USE_VC8_32)
+!if "$(_NMAKE_VER)">"9"
+USE_VC9=1
+!elseif "$(_NMAKE_VER)">"8"
+USE_VC8_32=1
+!endif
+!endif
+
 !ifndef USE_VC9
 COMPAT64=/Wp64
 NOWIN98=/OPT:NOWIN98
@@ -225,7 +235,7 @@ CPP_ADD_32=/GS- /GR-
 
 LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
 
-RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
+RSC_PROJ=/l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
 ULINK_MODES=-q -m- -ap -Gz -O- -o- -Gh -Gh-
 
@@ -233,28 +243,31 @@ DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
 	/D $(USEDEBUG)\
+!ifdef DEBUG
+	/D "FAR_ALPHA_VERSION"\
+	/D "SYSLOG_FARSYSLOG"\
+	/D "SYSLOG"\
+!endif
 	/D "WIN32"\
 	/D "_CONSOLE"\
 	/D "_CRT_SECURE_NO_DEPRECATE"\
 	/D "_CRT_NONSTDC_NO_DEPRECATE"\
 	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
-CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FAR_ALPHA_VERSION) $(FARSYSLOG) $(FARTRY) $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FARSYSLOG) /EHs-c- $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c /FAcs /Fa"$(CODDIR)\\"
 CPP_PROJ_RELEASE=/MT /O2
 CPP_PROJ_DEBUG=/MTd /Od /Zi
 
-LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" $(NODEFAULTLIB) /pdb:"$(OUTDIR)\far.pdb" /release
+LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release
 
-!MESSAGE $(CFG).
-
-!IF  "$(CFG)" == "far - Win32 Release"
+!if "$(OUTDIR)" == "Release.32.vc"
 
 USEDEBUG=NDEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) $(CPP_ADD_32) /Zp4
 LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:i386
 
-!ELSEIF "$(CFG)" == "far - Win64 Release"
+!elseif "$(OUTDIR)" == "Release.64.vc"
 
 USEDEBUG=NDEBUG
 
@@ -262,14 +275,14 @@ CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
 LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:amd64
 ULINK_FLAGS=-Tpe+
 
-!ELSEIF "$(CFG)" == "far - WinIA64 Release"
+!elseif "$(OUTDIR)" == "Release.IA64.vc"
 
 USEDEBUG=NDEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
 LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:IA64
 
-!ELSEIF "$(CFG)" == "far - Win64 Debug"
+!elseif "$(OUTDIR)" == "Debug.64.vc"
 
 USEDEBUG=_DEBUG
 
@@ -277,14 +290,14 @@ CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
 LINK32_FLAGS=$(LINK_COMMON) /debug /machine:amd64
 ULINK_FLAGS=-Tpe+ -v
 
-!ELSEIF "$(CFG)" == "far - WinIA64 Debug"
+!elseif "$(OUTDIR)" == "Debug.IA64.vc"
 
 USEDEBUG=_DEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
 LINK32_FLAGS=$(LINK_COMMON) /debug /machine:IA64
 
-!ELSE
+!else
 
 USEDEBUG=_DEBUG
 
@@ -292,55 +305,58 @@ CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) $(CPP_ADD_32)
 LINK32_FLAGS=$(LINK_COMMON) /debug /machine:I386
 ULINK_FLAGS=-v
 
-!ENDIF
+!endif
 
-ALL : AllDirs \
-      "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+ALL: AllDirs lng depfile
+	$(MAKE) /f makefile_vc build USEDEPS=1
+
+.PHONY: lng
+lng:
+	@echo generating language files
+	@tools\lng.generator.exe -nc -i lang.ini farlang.templ
+	@copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
+	@copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
+
+.PHONY: depfile
+depfile:
+	@tools\gawk -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
+
+.PHONY: build
+build: "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
-
 AllDirs:
 	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
 	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
 
-"$(OUTDIR)\Far.exe" : $(DEF_FILE) $(PCH_FILES) $(LINK32_OBJS) $(RES_FILES)
-!IFNDEF LINK_ULINK
+"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILES) $(LINK32_OBJS) $(RES_FILE)
+!ifndef LINK_ULINK
 	$(LINK32) @<<
-	$(LINK32_FLAGS) $(LINK32_OBJS) $(RES_FILES)
+	$(LINK32_FLAGS) $(LINK32_OBJS) $(RES_FILE)
 <<
-!ELSE
+!else
         $(ULINK) +- @+<<
         $(ULINK_MODES) $(ULINK_FLAGS) $(LINK32_OBJS)
         ,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
         ,$(LINK32_LIBS)
-        ,"$(DEF_FILE)","$(RES_FILES)"
+        ,"$(DEF_FILE)","$(RES_FILE)"
 <<
-!ENDIF
-	@if exist "$(OUTDIR)\FarEng.hlf" del "$(OUTDIR)\FarEng.hlf" >nul
-	@if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
-	@if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
-	@if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-	@if exist "$(OUTDIR)\File_id.diz" del "$(OUTDIR)\File_id.diz"  >nul
+!endif
 	@tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarEng.hlf"
 	@tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarRus.hlf"
-	@copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
-	@copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
 	@tools\m4 -P File_id.diz.m4 > "$(OUTDIR)\File_id.diz"
 	@if exist ".\plugin.pas" tools\m4 -P -DINPUT=plugin.pas headers.m4 > "$(FARINCLUDE)\plugin.pas"
 	@if exist ".\farcolor.pas" tools\m4 -P -DINPUT=farcolor.pas headers.m4 > "$(FARINCLUDE)\farcolor.pas"
 	@if exist ".\farkeys.pas" tools\m4 -P -DINPUT=farkeys.pas headers.m4 > "$(FARINCLUDE)\farkeys.pas"
 
 
-# ************************************************************************
-# зависимости
-# ************************************************************************
-"$(INTDIR)\headers.c.pch" : headers.c.c
+"$(INTDIR)\headers.c.pch": headers.c.c
 	@echo making precompiled headers for C
 	@$(CPP) $(CPP_PROJ) headers.c.c /Yc /Fp"$(INTDIR)\headers.c.pch"
 
-"$(INTDIR)\headers.cpp.pch" : headers.cpp.cpp
+"$(INTDIR)\headers.cpp.pch": headers.cpp.cpp
 	@echo making precompiled headers for C++
 	@$(CPP) $(CPP_PROJ) headers.cpp.cpp /Yc /Fp"$(INTDIR)\headers.cpp.pch"
 
@@ -362,8 +378,12 @@ AllDirs:
 	$(ML) /c /coff /Fo$@ $<
 !endif
 
-"$(INTDIR)\far.res" : far.rc
+$(RES_FILE): far.rc
 	$(RSC) $(RSC_PROJ) far.rc
+
+!ifdef USEDEPS
+!include "$(DEPFILE)"
+!endif
 
 ".\copyright.inc": copyright.inc.m4 farversion.m4 vbuild.m4
 	@tools\m4 -P copyright.inc.m4 | tools\gawk -f .\scripts\enc.awk > copyright.inc
@@ -374,12 +394,9 @@ AllDirs:
 "Far.exe.manifest": Far.exe.manifest.m4 farversion.m4 vbuild.m4
 	@tools\m4 -P Far.exe.manifest.m4 > Far.exe.manifest
 
-"far.rc": far.rc.m4 farversion.m4 vbuild.m4 Far.exe.manifest
+"far.rc": far.rc.m4 farversion.m4 vbuild.m4 Far.exe.manifest res.hpp
 	@tools\m4 -P far.rc.m4 > far.rc
 
-# ************************************************************************
-# Зависимости для публичных файлов
-# ************************************************************************
 "$(FARINCLUDE)\farcolor.hpp" : colors.hpp farversion.m4 vbuild.m4
 	@tools\m4 -P -DINPUT=colors.hpp headers.m4 > "$(FARINCLUDE)\farcolor.hpp"
 
@@ -389,29 +406,11 @@ AllDirs:
 "$(FARINCLUDE)\plugin.hpp" : plugin.hpp farversion.m4 vbuild.m4
 	@tools\m4 -P -DINPUT=plugin.hpp headers.m4 > "$(FARINCLUDE)\plugin.hpp"
 
-
-!IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF  "$(CFG)" == "far - Win32 Release" || "$(CFG)" == "far - Win64 Release" || "$(CFG)" == "far - WinIA64 Release"
-!IF EXISTS("far.release.dep")
-!INCLUDE "far.release.dep"
-!ELSE
-!MESSAGE Warning: cannot find "far.release.dep", run mkdep.cmd
-!ENDIF
-!ELSE
-!IF EXISTS("far.debug.dep")
-!INCLUDE "far.debug.dep"
-!ELSE
-!MESSAGE Warning: cannot find "far.debug.dep", run mkdep.cmd
-!ENDIF
-!ENDIF
-!ENDIF
-
-# ************************************************************************
-# Очистка
-# ************************************************************************
-CLEAN :
+.PHONY: CLEAN
+CLEAN:
 	-@del /q /f "$(INTDIR)\*.*"          > nul
 	-@del /q /f "$(CODDIR)\*.*"          > nul
+	-@del /q /f ".\lang.ini"             > nul
 	-@del /q /f ".\lang.hpp"             > nul
 	-@del /q /f ".\FarEng.lng"           > nul
 	-@del /q /f ".\FarRus.lng"           > nul

@@ -153,7 +153,7 @@ class Viewer:public ScreenObject
     FileViewer *HostFileViewer;
     bool AdjustSelPosition;
 
-    int m_codepage; //BUGBUG
+    UINT m_codepage; //BUGBUG
     bool m_bQuickView;
 
   private:

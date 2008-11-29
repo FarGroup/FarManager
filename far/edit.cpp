@@ -117,7 +117,7 @@ Edit::~Edit()
 }
 
 
-void Edit::SetCodePage (int codepage)
+void Edit::SetCodePage (UINT codepage)
 {
 	if ( codepage != m_codepage )
 	{
@@ -156,7 +156,7 @@ void Edit::SetCodePage (int codepage)
 	}
 }
 
-int Edit::GetCodePage ()
+UINT Edit::GetCodePage ()
 {
 	return m_codepage;
 }

@@ -240,7 +240,7 @@ void WINAPI LocalStrupr(char *s1)
 {
   while (*s1)
   {
-    *s1=LowerToUpper[*s1];
+    *s1=LowerToUpper[(unsigned)*s1];
     s1++;
   }
 }
@@ -249,7 +249,7 @@ void WINAPI LocalStrlwr(char *s1)
 {
   while (*s1)
   {
-    *s1=UpperToLower[*s1];
+    *s1=UpperToLower[(unsigned)*s1];
     s1++;
   }
 }
@@ -320,8 +320,8 @@ int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
   while (1)
   {
-    if (UpperToLower[*s1] != UpperToLower[*s2])
-      return (UpperToLower[*s1] < UpperToLower[*s2]) ? -1 : 1;
+    if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+      return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
     if (*(s1++) == 0)
       break;
     s2++;
@@ -333,8 +333,8 @@ int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 {
   while (n-- > 0)
   {
-    if (UpperToLower[*s1] != UpperToLower[*s2])
-      return (UpperToLower[*s1] < UpperToLower[*s2]) ? -1 : 1;
+    if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+      return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
     if (*(s1++) == 0)
       break;
     s2++;

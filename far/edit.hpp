@@ -144,7 +144,7 @@ private:
 //    const char *WordDiv;
     const wchar_t *WordDiv;
 
-    int m_codepage; //BUGBUG
+    UINT m_codepage; //BUGBUG
 
   private:
     virtual void   DisplayObject();
@@ -169,8 +169,8 @@ private:
 
   public:
 
-    void SetCodePage (int codepage); //BUGBUG
-    int GetCodePage (); //BUGBUG
+    void SetCodePage (UINT codepage); //BUGBUG
+    UINT GetCodePage (); //BUGBUG
 
     virtual void  FastShow();
     virtual int   ProcessKey(int Key);

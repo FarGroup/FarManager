@@ -1,12 +1,20 @@
 BEGIN{
   print "Rebuild dependencies..." > "/dev/stderr"
-  if(out == "")
-    out="Release.vc";
-
-  if(length(ENVIRON["FARSYSLOG"]) > 0)
-    objdir="objlog";
+  ORS=""
+  if (compiler=="gcc")
+  {
+    out="$(OBJDIR)";
+    obj="o";
+    rc="rc.o"
+    dirsep="/";
+  }
   else
-    objdir="obj"
+  {
+    out="$(INTDIR)";
+    obj="obj";
+    rc="res"
+    dirsep="\\";
+  }
 }
 {
   i = split($0, a, ".");
@@ -16,27 +24,26 @@ BEGIN{
   ext = a[i];
 
   if(ext == "cpp" || ext == "c")
-    ext="obj";
+    ext=obj;
   if(ext == "rc")
-    ext="res";
+    ext=rc;
   if(ext == "hpp")
   {
     ext="hpp";
-    print ".\\" filename "." ext " : \\";
+    print filename "." ext ":";
   }
   else
   {
-    print ".\\" out "\\" objdir "\\" filename "." ext " : \\";
-    print "\t\".\\" $0 "\"\\";
+    print out dirsep filename "." ext ":";
+    print " " $0;
   }
   while((getline lnsrc < ($0)) > 0)
   {
     if(substr(lnsrc,1,length("#include \"")) == "#include \"")
     {
-      #print lnsrc > "/dev/stderr"
       lnsrc=gensub(/^#include[ \t]?\"([^\"]+)\"/, "\\1", "g", lnsrc);
       if(lnsrc != "")
-        print "\t\".\\" lnsrc "\"\\";
+        print " " lnsrc;
     }
   }
   print "\n\n"

@@ -143,10 +143,7 @@ CFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -
 LNKFLAGS = -mno-cygwin -s -lmpr -lwinspool
 
 .PHONY: all
-all: far
-
-.PHONY: far
-far: lng depfile
+all: lng depfile
 	@$(MAKE) -f makefile_gcc build
 
 .PHONY: lng
@@ -159,7 +156,7 @@ lng:
 
 .PHONY: depfile
 depfile:
-	@tools/gawk -f ./scripts/mkdep.gcc.awk -v out=$(OBJDIR) mkdep.list > $(DEPFILE)
+	@tools/gawk -f ./scripts/mkdep.awk -v compiler=gcc mkdep.list > $(DEPFILE)
 
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf
@@ -174,6 +171,11 @@ $(OBJDIR)/%.o: %.c
 	@echo compiling $<
 	@$(MKDIR) $(OBJDIR)
 	@$(CC) $(CFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
+
+$(OBJDIR)/hook_wow64.o: hook_wow64.c
+	@echo compiling $<
+	@$(MKDIR) $(OBJDIR)
+	@$(CC) $(CFLAGS) -fno-strict-aliasing -c -include $(OBJDIR)/headers.hpp -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
@@ -219,7 +221,7 @@ $(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 vbuild.m4
 	@echo generating $@
 	@tools/gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | tools/m4 -P > $@
 
-ifeq ($(.DEFAULT_GOAL),build)
+ifeq ($(MAKECMDGOALS),build)
 include $(DEPFILE)
 endif
 

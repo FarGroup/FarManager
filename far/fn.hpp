@@ -1081,7 +1081,7 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 
 #define CP_UNICODE 1200 //MSDN
 #define CP_REVERSEBOM 65534
-#define CP_AUTODETECT -1
+#define CP_AUTODETECT ((UINT)-1)
 
 int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);
 

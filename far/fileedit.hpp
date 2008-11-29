@@ -107,7 +107,7 @@ private:
 
     bool m_bSignatureFound;
 
-    int m_codepage; //BUGBUG
+    UINT m_codepage; //BUGBUG
 
 private:
     virtual void DisplayObject();
@@ -122,15 +122,15 @@ private:
     int ReProcessKey(int Key,int CalledFromControl=TRUE);
 
 public:
-    FileEditor(const wchar_t *Name, int codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
-    FileEditor(const wchar_t *Name, int codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
+    FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
+    FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
     virtual ~FileEditor();
 
 
 public:
 	void Init(
 			const wchar_t *Name,
-			int codepage,
+			UINT codepage,
 			const wchar_t *Title,
 			DWORD InitFlags,
 			int StartLine,
@@ -180,7 +180,7 @@ public:
     int LoadFile(const wchar_t *Name, int &UserBreak);
 
     //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
-    int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, int Codepage = 0);
+    int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = 0);
 
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const wchar_t *PluginTitle);
@@ -204,9 +204,9 @@ public:
     bool LoadFromCache (EditorCacheParams *pp);
     void SaveToCache ();
 
-    void SetCodePage (int codepage); //BUGBUG
+    void SetCodePage (UINT codepage); //BUGBUG
 };
 
-bool dlgOpenEditor (string &strFileName, int &codepage);
+bool dlgOpenEditor (string &strFileName, UINT &codepage);
 
 #endif  // __FILEEDITOR_HPP__

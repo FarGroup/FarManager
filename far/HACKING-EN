@@ -30,69 +30,12 @@ to the project, please follow those guidelines:
 
 Compilation
 ~~~~~~~~~~~
-1. There is a set of batch files to compile using VC:
-
-   Do not edit those batch files directly!!!!!!!!!
-   Only for permanent changes concerning all project members.
-   Read the explanation below - everything is taken into account.
-
-   --------------------
-   vc.build.release.bat
-   --------------------
-   This batch file builds a release version of Far using VC and Far.mak.
-   It also updates the far.release.dep file and the language files.
-   By using this batch file you should never encounter any problems when
-   building Far (except bugs in the code :).
-   For this batch file to be universal so anyone can use it without changes it
-   calls another batch file - custom.vc.release.bat - if such exists.
-   That (custom.vc.release.bat) batch file you will have to create by yourself
-   as it is your personal batch file and will not be committed to the SVN. In
-   it you can define compile time variables and redefine the ones defined in
-   the main batch file.
-   For example my custom.vc.release.bat contains:
-   ---->8----
-   @echo off
-   set NMAKE_OPTS=USE_VC8_32=1
-   call "C:\Program Files\Microsoft SDKs\Windows\v6.0\Bin\SetEnv.Cmd" /Release /x86 /xp
-   ----8<----
-
-   ------------------
-   vc.build.debug.bat
-   ------------------
-   The same as vc.build.release.bat only build a debug version of Far, updates
-   far.debug.dep and calls custom.vc.debug.bat if such exists.
-   Example of custom.vc.debug.bat:
-   ---->8----
-   @echo off
-   set NMAKE_OPTS=USE_VC8_32=1
-   call "C:\Program Files\Microsoft SDKs\Windows\v6.0\Bin\SetEnv.Cmd" /Debug /x86 /xp
-   set FARSYSLOG=-DSYSLOG_TREX %FARSYSLOG%
-   ----8<----
-
-   The same goes for the x64 build only:
-   vc.build.debug.64.bat --> custom.vc.debug.64.bat
-   vc.build.release.64.bat --> custom.vc.release.64.bat
-
-   If you want to use ulink as the linker then the following lines should be
-   added to custom.vc...bat:
-   ---->8----
-   set NMAKE_OPTS=LINK_ULINK=1
-   ----8<----
-   or (for x86 versions compiled with VC8)
-   ---->8----
-   set NMAKE_OPTS=USE_VC8_32=1 LINK_ULINK=1
-   ----8<----
-
-   To build with VC9(VS2008), the following should be added to custom.vc...bat:
-   ---->8----
-   set NMAKE_OPTS=USE_VC9=1
-   ----8<----
-
-   By setting NMAKE_OPTS you can pass command line arguments to nmake.
-
+1. To compile with VC you can either use the VS project file or makefile_vc.
+   For example, to build with the makefile run the following command:
+   nmake /f makefile_vc
 
 2. To compile with GCC there is a makefile_gcc that does everything.
-   For example to build with Mingw run the following command:
+   For example, to build with Mingw run the following command:
    mingw32-make -f makefile_gcc
 
 

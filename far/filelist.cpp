@@ -1125,7 +1125,7 @@ int FileList::ProcessKey(int Key)
         if(!PluginMode)
           strPluginData=L"";
 
-        int codepage = CP_AUTODETECT;
+        UINT codepage = CP_AUTODETECT;
 
         if (Key==KEY_SHIFTF4)
         {

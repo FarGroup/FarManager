@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static HANDLE g_hDlg = NULL;
 static int g_nID = 0;
-static int g_nCodepage = 0;
+static UINT g_nCodepage = 0;
 
 BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 {
@@ -86,7 +86,7 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 }
 
 
-void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = true)
+void AddCodepagesToList (HANDLE hDlg, int nID, UINT nCodepage, bool bAllowAuto = true)
 {
 	g_hDlg = hDlg;
 	g_nID = nID;
@@ -205,7 +205,7 @@ void AddCodepagesToList (HANDLE hDlg, int nID, int nCodepage, bool bAllowAuto = 
 
 	for(int i=0;i<info.ItemsNumber;i++)
 	{
-		if(Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,nID,i)==nCodepage)
+		if((UINT)Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,nID,i)==nCodepage)
 		{
 			FarListPos Pos={i,-1};
 			Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,nID,(LONG_PTR)&Pos);
@@ -264,7 +264,7 @@ LONG_PTR __stdcall hndOpenEditor (
 
 
 
-bool dlgOpenEditor (string &strFileName, int &codepage)
+bool dlgOpenEditor (string &strFileName, UINT &codepage)
 {
 	const wchar_t *HistoryName=L"NewEdit";
 
@@ -352,7 +352,7 @@ LONG_PTR __stdcall hndSaveFileAs (
 
 
 
-bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
+bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage)
 {
 	const wchar_t *HistoryName=L"NewEdit";
 
@@ -421,7 +421,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, int &codepage)
 
 FileEditor::FileEditor(
 		const wchar_t *Name,
-		int codepage,
+		UINT codepage,
 		DWORD InitFlags,
 		int StartLine,
 		int StartChar,
@@ -438,7 +438,7 @@ FileEditor::FileEditor(
 
 FileEditor::FileEditor(
 		const wchar_t *Name,
-		int codepage,
+		UINT codepage,
 		DWORD InitFlags,
 		int StartLine,
 		int StartChar,
@@ -541,7 +541,7 @@ FileEditor::~FileEditor()
 
 void FileEditor::Init (
 		const wchar_t *Name,
-		int codepage,
+		UINT codepage,
 		const wchar_t *Title,
 		DWORD InitFlags,
 		int StartLine,
@@ -872,7 +872,7 @@ void FileEditor::DisplayObject()
   }
 }
 
-bool IsUnicodeCP (int codepage) //BUGBUG
+bool IsUnicodeCP (UINT codepage) //BUGBUG
 {
 	return (codepage == CP_UNICODE) || (codepage == CP_UTF8) || (codepage == CP_UTF7) || (codepage == CP_REVERSEBOM);
 }
@@ -1134,7 +1134,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           static int TextFormat=0;
 
-					int codepage = m_codepage;
+					UINT codepage = m_codepage;
 
           bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 
@@ -1612,7 +1612,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
-int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, int Codepage)
+int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT Codepage)
 {
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
@@ -1895,7 +1895,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 						if(codepage == CP_REVERSEBOM)
 						{
 							swab((char*)SaveStr,SaveStrCopy,length);
-							swab((char*)EndSeq,EndSeqCopy,endlength);	
+							swab((char*)EndSeq,EndSeqCopy,endlength);
 						}
 						else
 						{
@@ -2716,7 +2716,7 @@ void FileEditor::SaveToCache ()
 	}
 }
 
-void FileEditor::SetCodePage(int codepage)
+void FileEditor::SetCodePage(UINT codepage)
 {
 	if ( codepage != m_codepage )
 	{

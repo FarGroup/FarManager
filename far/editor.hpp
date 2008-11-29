@@ -171,7 +171,7 @@ class Editor:public ScreenObject
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchSelFound;
     int SuccessfulSearch; // successful search indicator
 
-    int m_codepage; //BUGBUG
+    UINT m_codepage; //BUGBUG
 
     int StartLine;
     int StartChar;
@@ -243,8 +243,8 @@ class Editor:public ScreenObject
     void SetCacheParams (EditorCacheParams *pp);
     void GetCacheParams (EditorCacheParams *pp);
 
-    bool SetCodePage (int codepage); //BUGBUG
-    int GetCodePage (); //BUGBUG
+    bool SetCodePage (UINT codepage); //BUGBUG
+    UINT GetCodePage (); //BUGBUG
 
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
     int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
