@@ -2151,7 +2151,7 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
-	static PanelInfo PnI={0};
+	static PanelInfo PnI={0},AnotherPnI={0};
 
 	if(hPlugin==INVALID_HANDLE_VALUE)
 		hPlugin=PANEL_ACTIVE;
@@ -2182,18 +2182,18 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				bool Passive=(Command==oldfar::FCTL_GETANOTHERPANELINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
 				if(Passive)
 					hPlugin=PANEL_PASSIVE;
-				FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
+				FarControl(hPlugin,FCTL_FREEPANELINFO,Passive?&AnotherPnI:&PnI);
 				FreeAnsiPanelInfo(Passive?&AnotherPanelInfoA:&PanelInfoA);
-				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,&PnI);
+				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,Passive?&AnotherPnI:&PnI);
 				if(ret)
 				{
-					ConvertUnicodePanelInfoToAnsi(&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA,Short);
+					ConvertUnicodePanelInfoToAnsi(Passive?&AnotherPnI:&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA,Short);
 					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
 					if(Short)
 					{
 						// после FCTL_GET[ANOTHER]PANELSHORTINFO нам не надо хранить PnI
 						// для возможного FCTL_SET[ANOTHER]SELECTION, посему сразу его и освободим.
-						FarControl(hPlugin,FCTL_FREEPANELINFO,&PnI);
+						FarControl(hPlugin,FCTL_FREEPANELINFO,Passive?&AnotherPnI:&PnI);
 					}
 				}
 				return ret;
@@ -2206,14 +2206,15 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if(!Param )
 					return FALSE;
 				oldfar::PanelInfo *pPIA=(oldfar::PanelInfo*)Param;
+				PanelInfo *PnIPtr=(hPlugin==PANEL_PASSIVE)?&AnotherPnI:&PnI;
 				for(int i=0;i<pPIA->ItemsNumber;i++)
 				{
 					if(pPIA->PanelItems[i].Flags & oldfar::PPIF_SELECTED)
-						PnI.PanelItems[i].Flags|=PPIF_SELECTED;
+						PnIPtr->PanelItems[i].Flags|=PPIF_SELECTED;
 					else
-						PnI.PanelItems[i].Flags&=~PPIF_SELECTED;
+						PnIPtr->PanelItems[i].Flags&=~PPIF_SELECTED;
 				}
-				return FarControl(hPlugin,FCTL_SETSELECTION,&PnI);
+				return FarControl(hPlugin,FCTL_SETSELECTION,PnIPtr);
 			}
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
