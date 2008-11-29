@@ -23,7 +23,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release.vc"
+			OutputDirectory=".\Release.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -216,7 +216,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug.vc"
+			OutputDirectory=".\Debug.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="1"
 			UseOfMFC="0"
