@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "lng.common.h"
 
-#define VERSION "v1.0 rc10"
+#define VERSION "v1.1"
 
 void UnquoteIfNeeded (char *lpStr)
 {
@@ -207,7 +207,7 @@ int main (int argc, const char* argv[])
 {
 	printf (".LNG Generator "VERSION"\n\r");
 	printf ("Copyright (C) 2003-2005 WARP ItSelf\n\r");
-	printf ("Copyright (C) 2005-2006 WARP ItSelf & Alex Yaroslavsky\n\n\r");
+	printf ("Copyright (C) 2005 WARP ItSelf & Alex Yaroslavsky\n\n\r");
 
 	if ( argc < 2 )
 	{
@@ -338,7 +338,7 @@ int main (int argc, const char* argv[])
 
 		dwHeaderCRC32 = 0;
 		dwHeaderOldCRC32 = ((GetFileAttributes (lpFullName) != INVALID_FILE_ATTRIBUTES) && lpIniFileName) ? GetPrivateProfileInt (
-				lpHPPFileName,
+				lpFullName,
 				"CRC32",
 				0,
 				lpIniFileName
@@ -380,7 +380,7 @@ int main (int argc, const char* argv[])
 
 					pLangEntries[i].dwCRC32 = 0;
 					pLangEntries[i].dwOldCRC32 = ((GetFileAttributes (lpFullName) != INVALID_FILE_ATTRIBUTES) && lpIniFileName) ? GetPrivateProfileInt (
-							pLangEntries[i].lpLNGFileName,
+							lpFullName,
 							"CRC32",
 							0,
 							lpIniFileName
@@ -544,6 +544,8 @@ int main (int argc, const char* argv[])
 				{
 					CloseHandle (pLangEntries[i].hLNGFile);
 
+					wsprintfA (lpFullName, "%s\\%s", lpLNGOutputPath?lpLNGOutputPath:".", pLangEntries[i].lpLNGFileName);
+
 					bUpdate = true;
 
 					if ( lpIniFileName )
@@ -556,14 +558,12 @@ int main (int argc, const char* argv[])
 						else
 						{
 							sprintf (lpCRC32, "%d", pLangEntries[i].dwCRC32);
-							WritePrivateProfileString (pLangEntries[i].lpLNGFileName, "CRC32", lpCRC32, lpIniFileName);
+							WritePrivateProfileString (lpFullName, "CRC32", lpCRC32, lpIniFileName);
 						}
 					}
 
 					if ( bUpdate )
 					{
-						wsprintfA (lpFullName, "%s\\%s", lpLNGOutputPath?lpLNGOutputPath:".", pLangEntries[i].lpLNGFileName);
-
 						MoveFileEx (
 								pLangEntries[i].lpLNGFileNameTemp,
 								lpFullName,
@@ -581,6 +581,8 @@ int main (int argc, const char* argv[])
 
 				CloseHandle (hHFile);
 
+				wsprintfA (lpFullName, "%s\\%s", lpHOutputPath?lpHOutputPath:".", lpHPPFileName);
+
 				bUpdate = true;
 
 				if ( lpIniFileName )
@@ -593,14 +595,12 @@ int main (int argc, const char* argv[])
 					else
 					{
 						sprintf (lpCRC32, "%d", dwHeaderCRC32);
-						WritePrivateProfileString (lpHPPFileName, "CRC32", lpCRC32, lpIniFileName);
+						WritePrivateProfileString (lpFullName, "CRC32", lpCRC32, lpIniFileName);
 					}
 				}
 
 				if ( bUpdate )
 				{
-					wsprintfA (lpFullName, "%s\\%s", lpHOutputPath?lpHOutputPath:".", lpHPPFileName);
-
 					MoveFileEx (
 							lpHPPFileNameTemp,
 							lpFullName,
