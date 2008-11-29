@@ -150,9 +150,7 @@ all: dirs lng depfile
 .PHONY: lng
 lng:
 	@echo generating language files
-	@tools/lng.generator.exe -nc -i lang.ini farlang.templ
-	@$(CP) FarEng.lng $(EXEDIR)
-	@$(CP) FarRus.lng $(EXEDIR)
+	@tools/lng.generator.exe -nc -i lang.ini -ol "$(EXEDIR)" farlang.templ
 
 .PHONY: depfile
 depfile:
@@ -261,8 +259,8 @@ clean:
 	@$(RM) $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
-	@$(RM) FarEng.lng $(EXEDIR)/FarEng.lng
-	@$(RM) FarRus.lng $(EXEDIR)/FarRus.lng
+	@$(RM) $(EXEDIR)/FarEng.lng
+	@$(RM) $(EXEDIR)/FarRus.lng
 	@$(RM) lang.hpp lang.ini
 	@$(RM) $(EXEDIR)/FarEng.hlf
 	@$(RM) $(EXEDIR)/FarRus.hlf

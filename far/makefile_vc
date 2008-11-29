@@ -313,9 +313,7 @@ ALL: AllDirs lng depfile
 .PHONY: lng
 lng:
 	@echo generating language files
-	@tools\lng.generator.exe -nc -i lang.ini farlang.templ
-	@copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
-	@copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
+	@tools\lng.generator.exe -nc -i lang.ini -ol "$(OUTDIR)" farlang.templ
 
 .PHONY: depfile
 depfile:
@@ -440,8 +438,6 @@ CLEAN:
 	-@del /q /f "$(CODDIR)\*.*"          > nul
 	-@del /q /f "lang.ini"               > nul
 	-@del /q /f "lang.hpp"               > nul
-	-@del /q /f "FarEng.lng"             > nul
-	-@del /q /f "FarRus.lng"             > nul
 	-@del /q /f "copyright.inc"          > nul
 	-@del /q /f "farversion.inc"         > nul
 	-@del /q /f "far.rc"                 > nul
