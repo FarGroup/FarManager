@@ -341,7 +341,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;_CONSOLE;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				PreprocessorDefinitions="_DEBUG;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -440,7 +440,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;_WIN64;_CONSOLE;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				PreprocessorDefinitions="_DEBUG;_WIN64;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -540,7 +540,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				PreprocessorDefinitions="_DEBUG;_WIN64;_M_IA64;_CONSOLE;FAR_ALPHA_VERSION;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				PreprocessorDefinitions="_DEBUG;_WIN64;_M_IA64;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
@@ -7612,7 +7612,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7622,7 +7622,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7632,7 +7632,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7642,7 +7642,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7652,7 +7652,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7662,7 +7662,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>

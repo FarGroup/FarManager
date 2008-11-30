@@ -225,9 +225,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	for (DiskMask=Mask,DiskCount=0;DiskMask!=0; DiskMask>>=1)
 		DiskCount+=DiskMask & 1;
 
-//	int UserDataSize=0;
-//	DWORD UserData=0;
-
+	PanelMenuItem Item, *item=0;
+	{
 	VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
 
 	ChDisk.SetFlags(VMENU_NOTCENTER);
@@ -978,8 +977,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	if ( ChDisk.Modal::GetExitCode()<0 )
 		return -1;
 
-	PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(NULL,0);
+	item=(PanelMenuItem*)ChDisk.GetUserData(NULL,0);
 
+	if(item)
+	{
+		Item=*item;
+		item=&Item;
+	}}
     if (Opt.CloseCDGate && item && !item->bIsPlugin && IsDriveTypeCDROM(item->nDriveType) )
 	{
 		strRootDir.Format (L"%c:", item->cDrive);
