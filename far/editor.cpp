@@ -501,7 +501,7 @@ void Editor::ShowEditor(int CurLineOnly)
   if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
     CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 
-	XX2=X2-(EdOpt.ShowScrollBar?1:0);
+  XX2=X2-(EdOpt.ShowScrollBar?1:0);
 
   /* skv$*/
 
@@ -2834,36 +2834,36 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     } /* if */
   } /* if */
-	if(EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
-	{
+  if(EdOpt.ShowScrollBar && MouseEvent->dwMousePosition.X==X2 && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
+  {
 
-		if(MouseEvent->dwMousePosition.Y==Y1)
-		{
-			while (IsMouseButtonPressed())
-			{
-				ProcessKey(KEY_CTRLUP);
-			}
-		}
-		else if(MouseEvent->dwMousePosition.Y==Y2)
-		{
-			while(IsMouseButtonPressed())
-			{
-				ProcessKey(KEY_CTRLDOWN);
-			}
-		}
-		else
-		{
-			INPUT_RECORD rec;
-			int MsY=MouseEvent->dwMousePosition.Y;
-			while(IsMouseButtonPressed())
-			{
-				GoToLine((NumLastLine-1)*(MsY-Y1)/(Y2-Y1));
-				GetInputRecord(&rec);
-				MsY=rec.Event.MouseEvent.dwMousePosition.Y;
-			}
-		}
-		return TRUE;
-	}
+    if(MouseEvent->dwMousePosition.Y==Y1)
+    {
+      while (IsMouseButtonPressed())
+      {
+        ProcessKey(KEY_CTRLUP);
+      }
+    }
+    else if(MouseEvent->dwMousePosition.Y==Y2)
+    {
+      while(IsMouseButtonPressed())
+      {
+        ProcessKey(KEY_CTRLDOWN);
+      }
+    }
+    else
+    {
+      INPUT_RECORD rec;
+      int MsY=MouseEvent->dwMousePosition.Y;
+      while(IsMouseButtonPressed())
+      {
+        GoToLine((NumLastLine-1)*(MsY-Y1)/(Y2-Y1));
+        GetInputRecord(&rec);
+        MsY=rec.Event.MouseEvent.dwMousePosition.Y;
+      }
+    }
+    return TRUE;
+  }
 
   if (CurLine->ProcessMouse(MouseEvent))
   {
@@ -3857,10 +3857,10 @@ void Editor::Paste(char *Src)
     Pasting--;
     Unlock ();
   }
-  /* $ 07.05.2001 IS выделяли же в PasteFromClipboard как new [] */
+
   if(IsDeleteClipText)
-    delete [] ClipText;
-  /* IS $ */
+    xf_free(ClipText);
+
   BlockUndo=FALSE;
 }
 
@@ -3894,7 +3894,7 @@ void Editor::Copy(int Append)
     char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+2);
     if (NewPtr==NULL)
     {
-      delete CopyData;
+      xf_free(CopyData);
       CopyData=NULL;
       break;
     }
@@ -3914,7 +3914,7 @@ void Editor::Copy(int Append)
     if (UseDecodeTable)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
     CopyToClipboard(CopyData);
-    delete CopyData;
+    xf_free(CopyData);
   }
 }
 
@@ -4751,7 +4751,9 @@ void Editor::VCopy(int Append)
   {
     CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
     if (CopyData!=NULL)
+    {
       PrevSize=DataSize=(long)strlen(CopyData);
+    }
     else
     {
       CopyData=PasteFromClipboard();
@@ -4773,7 +4775,7 @@ void Editor::VCopy(int Append)
     char *NewPtr=(char *)xf_realloc(CopyData,AllocSize);
     if (NewPtr==NULL)
     {
-      delete CopyData;
+      xf_free(CopyData);
       CopyData=NULL;
       break;
     }
@@ -4789,10 +4791,11 @@ void Editor::VCopy(int Append)
         memset(CopyData+DataSize+CopySize,' ',TBlockSizeX-CopySize);
     }
     else
+    {
       memset(CopyData+DataSize,' ',TBlockSizeX);
+    }
 
     DataSize+=TBlockSizeX;
-
 
     strcpy(CopyData+DataSize,DOS_EOL_fmt);
     DataSize+=2;
@@ -4804,7 +4807,7 @@ void Editor::VCopy(int Append)
       DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
     CopyToClipboard(CopyData);
     CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
-    delete CopyData;
+    xf_free(CopyData);
   }
 }
 
@@ -4899,7 +4902,7 @@ void Editor::VPaste(char *ClipText)
     Pasting--;
     Unlock ();
   }
-  delete ClipText;
+  xf_free(ClipText);
   BlockUndo=FALSE;
 }
 
@@ -6337,9 +6340,9 @@ void Editor::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 
 void Editor::DrawScrollbar()
 {
-	if(EdOpt.ShowScrollBar)
-	{
-		SetColor(COL_EDITORSCROLLBAR);
-		ScrollBar(X2,Y1,Y2-Y1+1,NumLine,NumLastLine);
-	}
+  if(EdOpt.ShowScrollBar)
+  {
+    SetColor(COL_EDITORSCROLLBAR);
+    ScrollBar(X2,Y1,Y2-Y1+1,NumLine,NumLastLine);
+  }
 }

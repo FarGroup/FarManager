@@ -1131,7 +1131,7 @@ void Panel::FastFind(int FirstKey)
             {
               FastFindProcessName(&FindEdit,ClipText,LastName,Name);
               FastFindShow(FindX,FindY);
-              delete[] ClipText;
+              xf_free(ClipText);
             }
             continue;
           }
@@ -1481,8 +1481,8 @@ int Panel::GetCurDir(char *CurDir)
 BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
 {
   xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
-	if(PanelMode!=PLUGIN_PANEL)
-		PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
+  if(PanelMode!=PLUGIN_PANEL)
+    PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
   return TRUE;
 }
 #if defined(__BORLANDC__)
@@ -1492,9 +1492,9 @@ BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-	xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
-	if(PanelMode!=PLUGIN_PANEL)
-		PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
+  xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
+  if(PanelMode!=PLUGIN_PANEL)
+    PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
 }
 
 

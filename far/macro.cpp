@@ -2081,7 +2081,7 @@ static bool clipFunc()
       if(ClipText)
       {
         TVar varClip(ClipText);
-        delete [] ClipText;
+        xf_free(ClipText);
         VMStack.Push(varClip);
         return true;
       }
@@ -2106,10 +2106,12 @@ static bool clipFunc()
           CopyData=NewPtr;
           strcpy(CopyData+DataSize,Val.s());
           varClip=CopyData;
-          delete CopyData;
+          xf_free(CopyData);
         }
         else
-          delete CopyData;
+        {
+          xf_free(CopyData);
+        }
       }
       Ret=InternalCopyToClipboard(varClip.s(),0);
       VMStack.Push(TVar((__int64)Ret)); // 0!  ???
@@ -2127,7 +2129,7 @@ static bool clipFunc()
         if(ClipText)
         {
           varClip=ClipText;
-          delete [] ClipText;
+          xf_free(ClipText);
         }
         UsedInternalClipboard=UsedInternalClipboard==0?1:0;
         Ret=InternalCopyToClipboard(varClip.s(),0); // 0!  ???

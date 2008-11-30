@@ -136,8 +136,8 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES = windres
 DEFINES = -D USE_WFUNC -D FAR_ALPHA_VERSION -D USE_WFUNC_ALW -D USE_WFUNC_IN
-CCFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
-CFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
+CCFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wno-write-strings -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
+CFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wno-write-strings -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
 LNKFLAGS = -mno-cygwin -s -lmpr -lwinspool
 
 .PHONY: all

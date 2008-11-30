@@ -269,7 +269,7 @@ char* InternalPasteFromClipboard(int AnsiMode)
     else
       BufferSize=(int)strlen(ClipAddr)+1;
 
-    ClipText=new char[BufferSize];
+    ClipText=(char *)xf_malloc(BufferSize);
     if (ClipText!=NULL)
       if (Unicode)
       {
@@ -279,13 +279,17 @@ char* InternalPasteFromClipboard(int AnsiMode)
           UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       }
       else
+      {
         if (ReadType==CF_TEXT)
         {
           if(!AnsiMode)
             FAR_CharToOem(ClipAddr,ClipText);
         }
         else
+        {
           strcpy(ClipText,ClipAddr);
+        }
+      }
     GlobalUnlock(hClipData);
   }
   FAR_CloseClipboard();
@@ -336,7 +340,7 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
     if ( BufferSize>max )
         BufferSize=max;
 
-    ClipText=new char[BufferSize+2];
+    ClipText=(char *)xf_malloc(BufferSize+2);
     if (ClipText!=NULL)
     {
       memset(ClipText,0,BufferSize+2);
@@ -380,7 +384,7 @@ char* PasteFormatFromClipboard(const char *Format)
   {
     char *ClipAddr=(char *)GlobalLock(hClipData);
     int BufferSize=(int)strlen(ClipAddr)+1;
-    ClipText=new char[BufferSize];
+    ClipText=(char *)xf_malloc(BufferSize);
     if (ClipText!=NULL)
       strcpy(ClipText,ClipAddr);
     GlobalUnlock(hClipData);

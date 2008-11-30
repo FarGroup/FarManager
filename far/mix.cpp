@@ -907,15 +907,11 @@ char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
 /* SVS 18.09.2000 $ */
 /* SVS $ */
 
-/*$ 27.09.2000 skv
-  + ”даление буфера выделенного через new char[n];
-    —делано дл€ удалени€ возвращенного PasteFromClipboard
-*/
+//—делано дл€ удалени€ возвращенного PasteFromClipboard
 void WINAPI DeleteBuffer(void *Buffer)
 {
-  if(Buffer)delete [] Buffer;
+  if (Buffer) xf_free(Buffer);
 }
-/* skv$*/
 
 // ѕолучить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
@@ -1133,37 +1129,37 @@ BOOL IsLocalVolumeRootPath(const char *Path)
 // CheckFullPath используетс€ в FCTL_SET[ANOTHER]PANELDIR
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
-	if(Path && *Path)
-	{
-		if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')))
-		{
-			if(CheckFullPath)
-			{
-				char NPath[1024];
-				*NPath=0;
-				RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
-				if(*NPath)
-					xstrncpy(Path,NPath,MaxSize);
-			}
-			if (Path[0]=='\\' && Path[1]=='\\')
-			{
-				if(IsLocalPrefixPath(Path))
-					Path[4] = toupper(Path[4]);
-				else
-				{
-					char *ptr=&Path[2];
-					while (*ptr && *ptr!='\\')
-					{
-						*ptr=toupper(*ptr);
-						ptr++;
-					}
-				}
-			}
-			else
-				Path[0]=toupper(Path[0]);
-		}
-	}
-	return Path;
+  if(Path && *Path)
+  {
+    if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')))
+    {
+      if(CheckFullPath)
+      {
+        char NPath[1024];
+        *NPath=0;
+        RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
+        if(*NPath)
+          xstrncpy(Path,NPath,MaxSize);
+      }
+      if (Path[0]=='\\' && Path[1]=='\\')
+      {
+        if(IsLocalPrefixPath(Path))
+          Path[4] = toupper(Path[4]);
+        else
+        {
+          char *ptr=&Path[2];
+          while (*ptr && *ptr!='\\')
+          {
+            *ptr=toupper(*ptr);
+            ptr++;
+          }
+        }
+      }
+      else
+        Path[0]=toupper(Path[0]);
+    }
+  }
+  return Path;
 }
 
 /*
@@ -1719,36 +1715,36 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
 
 void ConvertNameToUNC(char *FileName, int Size)
 {
-	char Temp[4906];
-	ConvertNameToFull(FileName,FileName,Size);
-	// ѕосмотрим на тип файловой системы
-	char FileSystemName[NM];
-	GetPathRoot(FileName,Temp);
-	if(!GetVolumeInformation(Temp,NULL,0,NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
-		*FileSystemName=0;
+  char Temp[4906];
+  ConvertNameToFull(FileName,FileName,Size);
+  // ѕосмотрим на тип файловой системы
+  char FileSystemName[NM];
+  GetPathRoot(FileName,Temp);
+  if(!GetVolumeInformation(Temp,NULL,0,NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
+    *FileSystemName=0;
 
-	DWORD uniSize = sizeof(Temp);
-	// примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
-	if (stricmp(FileSystemName,"NWFS") != 0 &&
-	    WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, &Temp, &uniSize) == NO_ERROR)
-		xstrncpy(FileName,((UNIVERSAL_NAME_INFO*)Temp)->lpUniversalName,Size-1);
-	else if(FileName[1] == ':')
-	{
-		// BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
-		// «десь, если не получилось получить UniversalName и если это
-		// мапленный диск - получаем как дл€ меню выбора дисков
-		if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
-		{
-			const char *NamePtr;
-			if((NamePtr=strchr(FileName, '/')) == NULL)
-				NamePtr=strchr(FileName, '\\');
-			if(NamePtr != NULL)
-			{
-				AddEndSlash(Temp);
-				strcat(Temp,&NamePtr[1]);
-			}
-			xstrncpy(FileName, Temp, Size-1);
-		}
-	}
-	ConvertNameToReal(FileName,FileName, Size);
+  DWORD uniSize = sizeof(Temp);
+  // примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
+  if (stricmp(FileSystemName,"NWFS") != 0 &&
+      WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, &Temp, &uniSize) == NO_ERROR)
+    xstrncpy(FileName,((UNIVERSAL_NAME_INFO*)Temp)->lpUniversalName,Size-1);
+  else if(FileName[1] == ':')
+  {
+    // BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
+    // «десь, если не получилось получить UniversalName и если это
+    // мапленный диск - получаем как дл€ меню выбора дисков
+    if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
+    {
+      const char *NamePtr;
+      if((NamePtr=strchr(FileName, '/')) == NULL)
+        NamePtr=strchr(FileName, '\\');
+      if(NamePtr != NULL)
+      {
+        AddEndSlash(Temp);
+        strcat(Temp,&NamePtr[1]);
+      }
+      xstrncpy(FileName, Temp, Size-1);
+    }
+  }
+  ConvertNameToReal(FileName,FileName, Size);
 }

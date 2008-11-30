@@ -1284,13 +1284,15 @@ int Edit::ProcessKey(int Key)
         /* tran $ */
         if (ClipText==NULL)
           return(TRUE);
-        if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS)){
+        if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
+        {
           DeleteBlock();
         }
 
         for (I=(int)strlen(Str)-1;I>=0 && IsEol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
+        {
           if (IsEol(ClipText[I]))
           {
             if (IsEol(ClipText[I+1]))
@@ -1300,6 +1302,7 @@ int Edit::ProcessKey(int Key)
             else
               ClipText[I]=' ';
           }
+        }
 
         if (Flags.Check(FEDITLINE_CLEARFLAG))
         {
@@ -1308,13 +1311,11 @@ int Edit::ProcessKey(int Key)
           Flags.Clear(FEDITLINE_CLEARFLAG);
         }
         else
+        {
           InsertString(ClipText);
-        /* $ 13.07.2000 SVS
-           в PasteFromClipboard запрос памятиче через new[]
-        */
-        if(ClipText)
-          delete[] ClipText;
-        /* SVS $ */
+        }
+
+        xf_free(ClipText);
         Show();
       return(TRUE);
     }
