@@ -55,7 +55,7 @@ MNo
 
 MOk
 "Продолжить"
-"Ok"
+"OK"
 
 MHYes
 l:
@@ -68,7 +68,7 @@ MHNo
 
 MHOk
 "&Продолжить"
-"&Ok"
+"&OK"
 
 MCancel
 l:
@@ -8390,10 +8390,6 @@ MFileFilterAttrOffline
 MFileFilterAttrVirtual
 "Вирт&уальный"
 "&Virtual"
-
-MFileFilterOk
-"Продолжить"
-"Ok"
 
 MFileFilterReset
 "Очистит&ь"

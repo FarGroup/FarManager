@@ -827,7 +827,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
     DI_TEXT,0,16,0,16,0,0,DIF_SEPARATOR,0,"",
 
-    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+    DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,1,(char *)MOk,
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
     DI_BUTTON,0,17,0,17,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterMakeTransparent,
