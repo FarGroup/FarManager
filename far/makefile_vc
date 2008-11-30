@@ -20,6 +20,13 @@
 #
 #DISABLE_WOW64_HOOK - set to disable the wow64 hook
 #
+#DEFFILE - name of user file to include
+#
+
+#include for user defines if needed
+!if defined(DEFFILE)
+!include $(DEFFILE)
+!endif
 
 !if defined(AMD64) || "$(CPU)" == "AMD64"
 !undef AMD64
@@ -211,7 +218,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\imports.obj"
 
-!if !defined(USE_VC9) && !defined(USE_VC8_32)
+!if defined(_NMAKE_VER) && !defined(USE_VC9) && !defined(USE_VC8_32) 
 !if "$(_NMAKE_VER)">"9"
 USE_VC9=1
 !elseif "$(_NMAKE_VER)">"8"
