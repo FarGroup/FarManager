@@ -148,7 +148,7 @@ all: dirs lng depfile
 	@$(MAKE) -f makefile_gcc build
 
 .PHONY: lng
-lng:
+lng: farlang.templ
 	@echo generating language files
 	@tools/lng.generator.exe -nc -i lang.ini -ol "$(EXEDIR)" farlang.templ
 
@@ -168,8 +168,7 @@ build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/File_i
 
 $(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++ $(OBJS) $(DEF)
 	@echo linking $@
-	@$(CXX) -o $(EXENAME) $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
-	@$(MV) $(EXENAME) $(EXEDIR)
+	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
@@ -185,11 +184,11 @@ $(OBJDIR)/%.o: %.cpp
 
 $(OBJDIR)/headers.hpp.gch/c: headers.hpp 
 	@echo making precompiled headers for C
-	@$(CC) -x c-header -c $(CFLAGS) -o $(OBJDIR)/headers.hpp.gch/c headers.hpp
+	@$(CC) -x c-header -c $(CFLAGS) -o $@ $<
 
 $(OBJDIR)/headers.hpp.gch/c++: headers.hpp 
 	@echo making precompiled headers for C++
-	@$(CXX) -x c++-header -c $(CCFLAGS) -o $(OBJDIR)/headers.hpp.gch/c++ headers.hpp
+	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
 $(OBJDIR)/far.rc.o: far.rc far.ico
 	@echo compiling resource file
@@ -197,19 +196,23 @@ $(OBJDIR)/far.rc.o: far.rc far.ico
 
 Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 vbuild.m4
 	@echo generating $@
-	@tools/m4 -P Far.exe.manifest.m4 > Far.exe.manifest
+	@tools/m4 -P Far.exe.manifest.m4 > $@
 
 far.rc: far.rc.m4 farversion.m4 vbuild.m4 res.hpp Far.exe.manifest
 	@echo generating $@
-	@tools/m4 -P far.rc.m4 > far.rc
+	@tools/m4 -P far.rc.m4 > $@
 
 copyright.inc: copyright.inc.m4 farversion.m4 vbuild.m4
 	@echo generating $@
-	@tools/m4 -P copyright.inc.m4 | tools/gawk -f ./scripts/enc.awk > copyright.inc
+	@tools/m4 -P copyright.inc.m4 | tools/gawk -f ./scripts/enc.awk > $@
 
 farversion.inc: farversion.inc.m4 farversion.m4 vbuild.m4
 	@echo generating $@
-	@tools/m4 -P farversion.inc.m4 > farversion.inc
+	@tools/m4 -P farversion.inc.m4 > $@
+
+farlang.templ: farlang.templ.m4 farversion.m4 vbuild.m4
+	@echo generating $@
+	@tools/m4 -P farlang.templ.m4 > $@
 
 $(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 vbuild.m4
 	@echo generating $@
@@ -261,7 +264,7 @@ clean:
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
 	@$(RM) $(EXEDIR)/FarEng.lng
 	@$(RM) $(EXEDIR)/FarRus.lng
-	@$(RM) lang.hpp lang.ini
+	@$(RM) farlang.templ lang.hpp lang.ini
 	@$(RM) $(EXEDIR)/FarEng.hlf
 	@$(RM) $(EXEDIR)/FarRus.hlf
 	@$(RM) $(EXEDIR)/File_id.diz

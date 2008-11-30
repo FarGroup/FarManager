@@ -317,7 +317,7 @@ int FileViewer::ProcessKey(int Key)
            “ут кос€к, замеченный при чтении warnings - FilePos тер€ет информацию при преобразовании __int64 -> int
            Ќадо бы поправить FileEditor на этот счет.
         */
-        FileEditor *ShellEditor = new FileEditor (strViewFileName, -1,
+        FileEditor *ShellEditor = new FileEditor (strViewFileName, CP_AUTODETECT,
            (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0),-2, static_cast<int>(FilePos), NULL);
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохран€ем NamesList */

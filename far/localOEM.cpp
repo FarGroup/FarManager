@@ -93,8 +93,8 @@ void InitLCIDSort()
     LCOrder[LCSortBuffer[I]]=I;
 
   LCOrder[0]=0;
-  LCOrder['\\']=1;
-  LCOrder['.']=2;
+  LCOrder[(unsigned)'\\']=1;
+  LCOrder[(unsigned)'.']=2;
 
   for (I=0;I<countof(LCSortBuffer)-1;I++)
     if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)

@@ -311,7 +311,7 @@ ALL: AllDirs lng depfile
 	@$(MAKE) /f makefile_vc build USEDEPS=1
 
 .PHONY: lng
-lng:
+lng: farlang.templ
 	@echo generating language files
 	@tools\lng.generator.exe -nc -i lang.ini -ol "$(OUTDIR)" farlang.templ
 
@@ -394,6 +394,10 @@ far.rc: far.rc.m4 farversion.m4 vbuild.m4 Far.exe.manifest res.hpp
 	@echo generating $@
 	@tools\m4 -P far.rc.m4 > far.rc
 
+farlang.templ: farlang.templ.m4 farversion.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P farlang.templ.m4 > farlang.templ
+
 $(FARINCLUDE)\farcolor.hpp: colors.hpp farversion.m4 vbuild.m4
 	@echo generating $@
 	@tools\m4 -P -DINPUT=colors.hpp headers.m4 > "$(FARINCLUDE)\farcolor.hpp"
@@ -438,6 +442,7 @@ CLEAN:
 	-@del /q /f "$(CODDIR)\*.*"          > nul
 	-@del /q /f "lang.ini"               > nul
 	-@del /q /f "lang.hpp"               > nul
+	-@del /q /f "farlang.templ"          > nul
 	-@del /q /f "copyright.inc"          > nul
 	-@del /q /f "farversion.inc"         > nul
 	-@del /q /f "far.rc"                 > nul
