@@ -1,3 +1,4 @@
+m4_include(`farversion.m4')m4_dnl
 #hpp file name
 lang.hpp
 #number of languages
@@ -35,6 +36,8 @@ htail:#endif  // __FARLANG_HPP__
 #"Evaluation copy, please register."
 
 MShareware=0
+`l://Version: 'FULLVERSIONNOBRACES
+l:
 "Пожалуйста, зарегистрируйте Вашу копию"
 "Evaluation copy, please register."
 

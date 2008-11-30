@@ -1,41 +1,49 @@
 BEGIN{
   print "Rebuild dependencies..." > "/dev/stderr"
-  FS=".";
-  if(out == "")
-    out="Release.vc";
-
-  if(length(ENVIRON["FARSYSLOG"]) > 0)
-    objdir="objlog";
+  ORS=""
+  if (compiler=="gcc")
+  {
+    out="$(OBJDIR)";
+    obj="o";
+    rc="rc.o"
+    dirsep="/";
+  }
   else
-    objdir="obj"
+  {
+    out="$(INTDIR)";
+    obj="obj";
+    rc="res"
+    dirsep="\\";
+  }
 }
 {
-  if($2 == "cpp" || $2 == "c")
-    ext="obj";
-  if($2 == "rc")
-    ext="res";
-  if($2 == "hpp")
+  i = split($0, a, ".");
+  filename = a[1];
+  for (j=2; j < i; j++)
+    filename = filename "." a[j]
+  ext = a[i];
+
+  if(ext == "cpp" || ext == "c")
+    ext=obj;
+  if(ext == "rc")
+    ext=rc;
+  if(ext == "hpp")
   {
     ext="hpp";
-    print ".\\" $1 "." ext " : \\";
-    #if($1 "." $2 == "lang.hpp")
-    #  print "\t\".\\farlang.ini\"\\";
-
+    print filename "." ext ":";
   }
   else
   {
-    print ".\\" out "\\" objdir "\\" $1 "." ext " : \\";
-    print "\t\".\\" $1 "." $2 "\"\\";
+    print out dirsep filename "." ext ":";
+    print " " $0;
   }
-  #print "Process " $1 "." $2 > "/dev/stderr"
-  while((getline lnsrc < ($1 "." $2)) > 0)
+  while((getline lnsrc < ($0)) > 0)
   {
     if(substr(lnsrc,1,length("#include \"")) == "#include \"")
     {
-      #print lnsrc > "/dev/stderr"
       lnsrc=gensub(/^#include[ \t]?\"([^\"]+)\"/, "\\1", "g", lnsrc);
       if(lnsrc != "")
-        print "\t\".\\" lnsrc "\"\\";
+        print " " lnsrc;
     }
   }
   print "\n\n"
