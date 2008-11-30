@@ -255,11 +255,17 @@ int FolderTree::ProcessKey(int Key)
       break;
 
     case KEY_UP:
+    case KEY_NUMPAD8:
     case KEY_DOWN:
+    case KEY_NUMPAD2:
     case KEY_PGUP:
+    case KEY_NUMPAD9:
     case KEY_PGDN:
+    case KEY_NUMPAD3:
     case KEY_HOME:
+    case KEY_NUMPAD7:
     case KEY_END:
+    case KEY_NUMPAD1:
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
     case KEY_MSWHEEL_DOWN:

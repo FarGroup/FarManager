@@ -1016,7 +1016,7 @@ int TreeList::ProcessKey(int Key)
       return TRUE;
     }
 
-    case KEY_HOME:        case KEY_SHIFTNUMPAD7:
+    case KEY_HOME:        case KEY_NUMPAD7:
     {
       Up(0x7fffff);
       if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1044,7 +1044,7 @@ int TreeList::ProcessKey(int Key)
       return TRUE;
     }
 
-    case KEY_END:         case KEY_SHIFTNUMPAD1:
+    case KEY_END:         case KEY_NUMPAD1:
     {
       Down(0x7fffff);
       if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1052,7 +1052,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_UP:          case KEY_SHIFTNUMPAD8:
+    case KEY_UP:          case KEY_NUMPAD8:
     {
       Up(1);
       if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1060,7 +1060,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_DOWN:        case KEY_SHIFTNUMPAD2:
+    case KEY_DOWN:        case KEY_NUMPAD2:
     {
       Down(1);
       if (Opt.Tree.AutoChangeFolder && !ModalMode)
@@ -1068,7 +1068,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGUP:        case KEY_SHIFTNUMPAD9:
+    case KEY_PGUP:        case KEY_NUMPAD9:
     {
       CurTopFile-=Y2-Y1-3-ModalMode;
       CurFile-=Y2-Y1-3-ModalMode;
@@ -1078,7 +1078,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGDN:        case KEY_SHIFTNUMPAD3:
+    case KEY_PGDN:        case KEY_NUMPAD3:
     {
       CurTopFile+=Y2-Y1-3-ModalMode;
       CurFile+=Y2-Y1-3-ModalMode;
