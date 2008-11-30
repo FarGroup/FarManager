@@ -153,21 +153,21 @@ void AddCodepagesToList (HANDLE hDlg, int nID, UINT nCodepage, bool bAllowAuto =
 		//auto
 		data.Index = 0;
 		data.DataSize = 4;
-		data.Data = (void*)CP_AUTODETECT;
+		data.Data = (void*)(DWORD_PTR)CP_AUTODETECT;
 
 		Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 	}
 	//oem
 	data.Index = 2-index;
 	data.DataSize = 4;
-	data.Data = (void*)(LONG_PTR)GetOEMCP();
+	data.Data = (void*)(DWORD_PTR)GetOEMCP();
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//ansi
 	data.Index = 3-index;
 	data.DataSize = 4;
-	data.Data = (void*)(LONG_PTR)GetACP();
+	data.Data = (void*)(DWORD_PTR)GetACP();
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
@@ -175,28 +175,28 @@ void AddCodepagesToList (HANDLE hDlg, int nID, UINT nCodepage, bool bAllowAuto =
 	//utf-8
 	data.Index = 5-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_UTF8;
+	data.Data = (void*)(DWORD_PTR)CP_UTF8;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//utf-7
 	data.Index = 6-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_UTF7;
+	data.Data = (void*)(DWORD_PTR)CP_UTF7;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//unicode
 	data.Index = 7-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_UNICODE;
+	data.Data = (void*)(DWORD_PTR)CP_UNICODE;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
 	//reverse bom
 	data.Index = 8-index;
 	data.DataSize = 4;
-	data.Data = (void*)CP_REVERSEBOM;
+	data.Data = (void*)(DWORD_PTR)CP_REVERSEBOM;
 
 	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
 
