@@ -445,7 +445,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
     if (FF->GetContinueProcessing())
       SizeDate[2]=DownArrow;
 
-    strDest.Format(Format2, MarkChar, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+    strDest.Format(Format2, MarkChar, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
   }
   else
   {
@@ -453,14 +453,14 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 
     if (!Hotkey && !bPanelType)
     {
-      strDest.Format(wcschr(Name, L'&') ? Format1b : Format1a, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+      strDest.Format(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
     }
     else
     {
       if (Hotkey)
-        strDest.Format(Format1c, Hotkey, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+        strDest.Format(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
       else
-        strDest.Format(Format1d, Name, VerticalLine, Attr, SizeDate, VerticalLine, UseMask ? Mask : L"");
+        strDest.Format(Format1d, Name, BoxSymbols[BS_V1], Attr, SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
     }
   }
 
@@ -769,7 +769,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 {
-  const wchar_t VerticalLine[] = {0x252C,0x2502,0x2502,0x2502,0x2534,0};
+  const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
   // Временная маска.
   CFileMask FileMask;
   // История для маски файлов

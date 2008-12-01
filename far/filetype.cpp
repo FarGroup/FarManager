@@ -221,7 +221,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         int Ampersand=(PtrAmp=wcschr(strTitle,L'&'))!=NULL;
         if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-(const wchar_t*)strTitle > DizWidth)
           Ampersand=0;
-        strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,VerticalLine);
+        strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,BoxSymbols[BS_V1]);
       }
       TruncStr(strCommandText,ScrX-DizWidth-14);
       strMenuText += strCommandText;
@@ -524,7 +524,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
       int Ampersand=(PtrAmp=wcschr(strTitle,L'&'))!=NULL;
       if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-(const wchar_t*)strTitle > DizWidth)
         Ampersand=0;
-      strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,VerticalLine);
+      strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,BoxSymbols[BS_V1]);
     }
     //TruncStr(strMask,ScrX-DizWidth-14);
     strMenuText = strMask;

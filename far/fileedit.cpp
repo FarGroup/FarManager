@@ -71,7 +71,7 @@ BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
 	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
 	{
 		string strCPName;
-		strCPName.Format(L"%5d%c %s",dwCP,BoxSymbols[0xB3-0x0B0],wcschr(cpi.CodePageName,L'(')+1);
+		strCPName.Format(L"%5d%c %s",dwCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
 		strCPName.SetLength(strCPName.GetLength()-1);
 
 		FarListItemData data;

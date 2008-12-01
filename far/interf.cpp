@@ -729,11 +729,11 @@ void InitRecodeOutTable(UINT cp)
     GetRegKey(L"System",L"BoxSymbols",(BYTE *)BoxSymbols,(BYTE*)_BoxSymbols,sizeof(_BoxSymbols));
     if (Opt.NoGraphics)
     {
-      for (I=0xB3-0xB0;I<=0xDA-0xB0;I++)
+      for (I=BS_V1;I<=BS_LT_H1V1;I++)
         BoxSymbols[I]='+';
-      BoxSymbols[0xB3-0xB0]=BoxSymbols[0xBA-0xB0]='|';
-      BoxSymbols[0xC4-0xB0]='-';
-      BoxSymbols[0xCD-0xB0]='=';
+      BoxSymbols[BS_V1]=BoxSymbols[BS_V2]='|';
+      BoxSymbols[BS_H1]='-';
+      BoxSymbols[BS_H2]='=';
     }
   }
   //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
@@ -982,7 +982,7 @@ void BoxText(WORD Chr)
 }
 
 
-void BoxText(WCHAR *Str,int IsVert)
+void BoxText(const wchar_t *Str,int IsVert)
 {
   if(IsVert)
     VText(Str);
@@ -996,37 +996,32 @@ void BoxText(WCHAR *Str,int IsVert)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
-  static char ChrBox[2][6]={
-    {0xC4,0xB3,0xDA,0xC0,0xD9,0xBF},
-    {0xCD,0xBA,0xC9,0xC8,0xBC,0xBB},
-  };
-
   if (x1>=x2 || y1>=y2)
     return;
 
   SetColor(Color);
-  Type=(Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)?0:1;
+  Type=(Type==DOUBLE_BOX || Type==SHORT_DOUBLE_BOX);
   int _width=x2-x1;
   int _height=y2-y1;
 
   {
     WCHAR OutStr[4096];
-    _wmemset(OutStr,BoxSymbols[ChrBox[Type][0]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
+    _wmemset(OutStr,BoxSymbols[Type?BS_H2:BS_H1],sizeof(OutStr)/sizeof(*OutStr));
     OutStr[_width+1]=0;
 
-    OutStr[0]=BoxSymbols[ChrBox[Type][2]-0x0B0];
-    OutStr[_width]=BoxSymbols[ChrBox[Type][5]-0x0B0];
+    OutStr[0]=BoxSymbols[Type?BS_LT_H2V2:BS_LT_H1V1];
+    OutStr[_width]=BoxSymbols[Type?BS_RT_H2V2:BS_RT_H1V1];
     GotoXY(x1,y1);
     Text(OutStr);
     //mprintf(L"%.*s",x2-x1+1,OutStr);
 
-    OutStr[0]=BoxSymbols[ChrBox[Type][3]-0x0B0];
-    OutStr[_width]=BoxSymbols[ChrBox[Type][4]-0x0B0];
+    OutStr[0]=BoxSymbols[Type?BS_LB_H2V2:BS_LB_H1V1];
+    OutStr[_width]=BoxSymbols[Type?BS_RB_H2V2:BS_RB_H1V1];
     GotoXY(x1,y2);
     Text(OutStr);
     //mprintf(L"%.*s",x2-x1+1,OutStr);
 
-    _wmemset(OutStr,BoxSymbols[ChrBox[Type][1]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
+    _wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],sizeof(OutStr)/sizeof(*OutStr));
     OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);
@@ -1115,8 +1110,8 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
     WCHAR OutStr[4096];
     if(Length > (int)(countof(OutStr)-3))
        Length=countof(OutStr)-3;
-    _wmemset(OutStr+1,BoxSymbols[0xB0-0x0B0],Length);
-    OutStr[ThumbPos+1]=BoxSymbols[0xB2-0x0B0];
+    _wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
+    OutStr[ThumbPos+1]=BoxSymbols[BS_X_B2];
     OutStr[0]=Oem2Unicode[0x1E];
     OutStr[Length+1]=Oem2Unicode[0x1F];
     OutStr[Length+2]=0;
@@ -1138,39 +1133,35 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 }
 
 // "Нарисовать" сепаратор в памяти.
-static BYTE __BoxType[12][8]={
-//       cp866, 437           cp other!                       h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
-/* 00 */{0x20,0x20,0xC4,0x00, 0x20,0x20,0xC4,0x00}, // -      h1s
-/* 01 */{0xC7,0xB6,0xC4,0x00, 0xBA,0xBA,0xC4,0x00}, // ||-||  h1b2
-/* 02 */{0xC3,0xB4,0xC4,0x00, 0xC3,0xB4,0xC4,0x00}, // |-|    h1b1
-/* 03 */{0xCC,0xB9,0xCD,0x00, 0xCC,0xB9,0xCD,0x00}, // ||=||  h2b2
-
-/* 04 */{0x20,0x20,0xB3,0x00, 0x20,0x20,0xB3,0x00}, //  |     v1s
-/* 05 */{0xD1,0xCF,0xB3,0x00, 0xCD,0xCD,0xB3,0x00}, // =|=    v1b2
-/* 06 */{0xC2,0xC1,0xB3,0x00, 0xC2,0xC1,0xB3,0x00}, //        v1b1
-/* 07 */{0xCB,0xCA,0xBA,0x00, 0xCB,0xCA,0xBA,0x00}, //        v2b2
-
-/* 08 */{0xC4,0xC4,0xC4,0x00, 0xC4,0xC4,0xC4,0x00}, // -      h1
-/* 09 */{0xCD,0xCD,0xCD,0x00, 0xCD,0xCD,0xCD,0x00}, // =      h2
-/* 10 */{0xB3,0xB3,0xB3,0x00, 0xB3,0xB3,0xB3,0x00}, // |      v1
-/* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||     v2
-};
-
 WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 {
-  if (Length>1 && DestStr)
-  {
-    Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
-    _wmemset(DestStr,BoxSymbols[__BoxType[Type][2]-0x0B0],Length);
+	wchar_t BoxType[12][3]=
+	{
+		// h-horiz, s-space, v-vert, b-border, 1-one line, 2-two line
+		/* 00 */{L' ',                 L' ',                 BoxSymbols[BS_H1]}, //  -     h1s
+		/* 01 */{BoxSymbols[BS_L_H1V2],BoxSymbols[BS_R_H1V2],BoxSymbols[BS_H1]}, // ||-||  h1b2
+		/* 02 */{BoxSymbols[BS_L_H1V1],BoxSymbols[BS_R_H1V1],BoxSymbols[BS_H1]}, // |-|    h1b1
+		/* 03 */{BoxSymbols[BS_L_H2V2],BoxSymbols[BS_R_H2V2],BoxSymbols[BS_H2]}, // ||=||  h2b2
 
-    if ( Type )
-    {
-      DestStr[0]=BoxSymbols[__BoxType[Type][0]-0x0B0];
-      DestStr[Length-1]=BoxSymbols[__BoxType[Type][1]-0x0B0];
-    }
-    DestStr[Length]=0x0000;
-  }
-  return DestStr;
+		/* 04 */{L' ',                 L' ',                 BoxSymbols[BS_V1]}, //  |     v1s
+		/* 05 */{BoxSymbols[BS_T_H2V1],BoxSymbols[BS_B_H2V1],BoxSymbols[BS_V1]}, // =|=    v1b2
+		/* 06 */{BoxSymbols[BS_T_H1V1],BoxSymbols[BS_B_H1V1],BoxSymbols[BS_V1]}, // -|-    v1b1
+		/* 07 */{BoxSymbols[BS_T_H2V2],BoxSymbols[BS_B_H2V2],BoxSymbols[BS_V2]}, // =||=   v2b2
+
+		/* 08 */{BoxSymbols[BS_H1],    BoxSymbols[BS_H1],    BoxSymbols[BS_H1]}, // -      h1
+		/* 09 */{BoxSymbols[BS_H2],    BoxSymbols[BS_H2],    BoxSymbols[BS_H2]}, // =      h2
+		/* 10 */{BoxSymbols[BS_V1],    BoxSymbols[BS_V1],    BoxSymbols[BS_V1]}, // |      v1
+		/* 11 */{BoxSymbols[BS_V2],    BoxSymbols[BS_V2],    BoxSymbols[BS_V2]}, // ||     v2
+	};
+	if (Length>1 && DestStr)
+	{
+		Type%=countof(BoxType);
+		_wmemset(DestStr,BoxType[Type][2],Length);
+		DestStr[0]=BoxType[Type][0];
+		DestStr[Length-1]=BoxType[Type][1];
+		DestStr[Length]=0;
+	}
+	return DestStr;
 }
 
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved)

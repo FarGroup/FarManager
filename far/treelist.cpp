@@ -70,15 +70,6 @@ static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
 
-static char TreeLineSymbol[4][3]={
-  {0x20,0x20,/*0x20,*/0x00},
-  {0xB3,0x20,/*0x20,*/0x00},
-  {0xC0,0xC4,/*0xC4,*/0x00},
-  {0xC3,0xC4,/*0xC4,*/0x00},
-};
-
-static WCHAR TreeLineSymbolW[4][3]={0};
-
 static struct TreeListCache
 {
   string strTreeName;
@@ -233,6 +224,14 @@ string &TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 void TreeList::DisplayTree(int Fast)
 {
+	wchar_t TreeLineSymbol[4][3]=
+	{
+		{L' ',                  L' ',             0},
+		{BoxSymbols[BS_V1],     L' ',             0},
+		{BoxSymbols[BS_LB_H1V1],BoxSymbols[BS_H1],0},
+		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
+	};
+  
   int I,J,K;
   struct TreeItem *CurPtr;
 
@@ -271,40 +270,13 @@ void TreeList::DisplayTree(int Fast)
         DisplayTreeName(L"\\",J);
       else
       {
-        // первоначальная инициализация
-        if(TreeLineSymbolW[0][0] == 0x0000)
+        string strOutStr;
+        for (K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
         {
-          for(int IW=0; IW < 4; ++IW)
-          {
-            for(int JW=0; JW < 2; ++JW)
-              TreeLineSymbolW[IW][JW]=(TreeLineSymbol[IW][JW] == 0x20)?0x20:BoxSymbols[TreeLineSymbol[IW][JW]-0x0B0];
-          }
+             strOutStr+=TreeLineSymbol[CurPtr->Last[K]?0:1];
         }
-        WCHAR OutStrW[200];
-        *OutStrW=0;
-
-        char  OutStr[200];
-        for (*OutStr=0,K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
-        {
-          if (CurPtr->Last[K])
-          {
-             wcscat(OutStrW,TreeLineSymbolW[0]);
-          }
-          else
-          {
-             wcscat(OutStrW,TreeLineSymbolW[1]);
-          }
-        }
-        if (CurPtr->Last[CurPtr->Depth-1])
-        {
-            wcscat(OutStrW,TreeLineSymbolW[2]);
-        }
-        else
-        {
-            wcscat(OutStrW,TreeLineSymbolW[3]);
-        }
-
-        BoxText(OutStrW,FALSE);
+        strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
+        BoxText(strOutStr);
 
         const wchar_t *ChPtr=wcsrchr(CurPtr->strName,L'\\');
         if (ChPtr!=NULL)

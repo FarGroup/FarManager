@@ -258,7 +258,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
 
     strPrinterName = pi[I].pPrinterName;
 
-    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,BoxSymbols[0x0B3-0x0B0],
+    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,BoxSymbols[BS_V1],
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
 

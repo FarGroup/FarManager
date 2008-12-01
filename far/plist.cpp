@@ -139,10 +139,6 @@ void ShowProcessList()
     if (ProcWnd!=NULL)
     {
       //SetForegroundWindow(ProcWnd);
-      #ifndef SPI_GETFOREGROUNDLOCKTIMEOUT
-      #define SPI_GETFOREGROUNDLOCKTIMEOUT        0x2000
-      #define SPI_SETFOREGROUNDLOCKTIMEOUT        0x2001
-      #endif
 
       // Allow SetForegroundWindow on Win98+.
       DWORD dwMs;

@@ -48,8 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
-//static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
-static BYTE VerticalLineEx[2]={0x0B3,0x0BA};
 static wchar_t OutCharacter[8]={0,0,0,0,0,0,0,0};
 
 static int __FormatEndSelectedPhrase(int Count)
@@ -193,16 +191,16 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxText(BoxSymbols[0xD1-0x0B0]);
+    BoxText(BoxSymbols[BS_T_H2V1]);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      BoxText((WORD)(BoxSymbols[VerticalLineEx[0]-0x0B0]));
+      BoxText(BoxSymbols[BS_V1]);
     }
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxText(BoxSymbols[0xCF-0x0B0]);
+      BoxText(BoxSymbols[BS_B_H2V1]);
     }
     ColumnPos++;
   }
@@ -423,7 +421,7 @@ void FileList::ShowSelectedSize()
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      BoxText(BoxSymbols[0x0C1-0x0B0]);
+      BoxText(BoxSymbols[BS_B_H1V1]);
       ColumnPos++;
     }
   }
@@ -458,7 +456,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       strTotalStr.Format (MSG(__FormatEndSelectedPhrase(TotalFileCount)),(const wchar_t*)strFormSize,TotalFileCount);
     else
     {
-      static wchar_t DHLine[4]={BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],BoxSymbols[0xCD-0x0B0],0x00};
+      wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
       strTotalStr.Format (L" %s (%d) %s %s ",(const wchar_t*)strFormSize,TotalFileCount,DHLine,(const wchar_t*)strFreeSize);
       if ((int)strTotalStr.GetLength()> X2-X1-1)
       {
@@ -478,11 +476,11 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   Length=(int)strTotalStr.GetLength();
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
-  const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[0xCD-0x0B0]);
+  const wchar_t *FirstBox=wcschr(strTotalStr,BoxSymbols[BS_H2]);
   int BoxPos=(FirstBox==NULL) ? -1:(int)(FirstBox-(const wchar_t*)strTotalStr);
   int BoxLength=0;
   if (BoxPos!=-1)
-    for (int I=0;strTotalStr.At(BoxPos+I)==BoxSymbols[0xCD-0x0B0];I++)
+    for (int I=0;strTotalStr.At(BoxPos+I)==BoxSymbols[BS_H2];I++)
       BoxLength++;
 
   if (BoxPos==-1 || BoxLength==0)
@@ -786,7 +784,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          BoxText((WORD)(CurX-1==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
+          BoxText(CurX-1==X2 ? BoxSymbols[BS_V2]:L' ');
         }
         continue;
       }
@@ -1156,9 +1154,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth,CurY);
 
         if (K==ColumnCount-1)
-          BoxText((WORD)(CurX+ColumnWidth==X2 ? (BoxSymbols[VerticalLineEx[1]-0x0B0]):0x20));
+          BoxText(CurX+ColumnWidth==X2 ? BoxSymbols[BS_V2]:L' ');
         else
-          BoxText((WORD)(ShowStatus ? 0x20:(BoxSymbols[VerticalLineEx[0]-0x0B0])));
+          BoxText(ShowStatus ? L' ':BoxSymbols[BS_V1]);
 
         if ( !ShowStatus )
           SetColor (COL_PANELTEXT);

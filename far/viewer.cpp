@@ -63,8 +63,6 @@ static int InitHex=FALSE,SearchHex=FALSE;
 
 static int ViewerID=0;
 
-static const wchar_t BorderLine[]={0x2502,0x020,0x00};
-
 Viewer::Viewer(bool bQuickView)
 {
   _OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -715,6 +713,8 @@ void Viewer::ShowHex()
 
     if (!SelectSize)
       bSelStartFound = bSelEndFound = false;
+    
+    const wchar_t BorderLine[]={BoxSymbols[BS_V1],L' ',0};
 
     if (VM.Unicode)
       for (X=0;X<8;X++)

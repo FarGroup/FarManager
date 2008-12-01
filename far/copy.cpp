@@ -2823,7 +2823,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
   if(!Bar[0])
   {
     for (int i = 0; i < BAR_SIZE; i++)
-      Bar[i] = 0x2500;
+      Bar[i] = BoxSymbols[BS_H1];
   }
 
   wcscpy(BarStr,Bar); //BUGBUG
@@ -3532,14 +3532,14 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
   wchar_t ProgressBar[100];
 
   for (int i = 0; i < BarLength; i++)
-    ProgressBar[i] = 0x2591;
+    ProgressBar[i] = BoxSymbols[BS_X_B0];
 
   ProgressBar[BarLength]=0;
 
   if (TotalSize!=0)
   {
     for (int i = 0; i < Length; i++)
-      ProgressBar[i] = 0x2588;
+      ProgressBar[i] = BoxSymbols[BS_X_DB];
   }
 
   SetColor(COL_DIALOGTEXT);

@@ -132,7 +132,7 @@ int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
 void BoxText(WORD Chr);
-void BoxText(WCHAR *Str,int IsVert=0);
+void BoxText(const wchar_t *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();

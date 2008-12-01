@@ -307,13 +307,13 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_LABEL )
 			{
 				TruncStrFromEnd(strVolumeName,LabelWidth);
-				strTemp.Format (L"%c%-*s",(WORD)VerticalLine,LabelWidth,(const wchar_t*)strVolumeName);
+				strTemp.Format (L"%c%-*s",BoxSymbols[BS_V1],LabelWidth,(const wchar_t*)strVolumeName);
 				strMenuText += strTemp;
 			}
 
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM )
 			{
-				strTemp.Format (L"%c%-8.8s",(WORD)VerticalLine,(const wchar_t*)strFileSystemName);
+				strTemp.Format (L"%c%-8.8s",BoxSymbols[BS_V1],(const wchar_t*)strFileSystemName);
 				strMenuText += strTemp;
 			}
 		}
@@ -345,7 +345,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			}
 
 			string strTemp;
-			strTemp.Format(L"%c%-9s%c%-9s",(WORD)VerticalLine,(const wchar_t*)strTotalText,(WORD)VerticalLine,(const wchar_t*)strFreeText);
+			strTemp.Format(L"%c%-9s%c%-9s",BoxSymbols[BS_V1],(const wchar_t*)strTotalText,BoxSymbols[BS_V1],(const wchar_t*)strFreeText);
 
 			strMenuText += strTemp;
 		}

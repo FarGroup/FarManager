@@ -459,11 +459,11 @@ void VMenu::ShowMenu(int IsParent)
       break;
     case SINGLE_BOX:
     case SHORT_SINGLE_BOX:
-      *BoxChar=0x0B3; // |
+      *BoxChar=BoxSymbols[BS_V1]; // |
       break;
     case DOUBLE_BOX:
     case SHORT_DOUBLE_BOX:
-      *BoxChar=0x0BA; // ||
+      *BoxChar=BoxSymbols[BS_V2]; // ||
       break;
   }
 
@@ -541,9 +541,9 @@ void VMenu::ShowMenu(int IsParent)
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
-          BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+          BoxText(BoxChar);
           GotoXY(X2,Y);
-          BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+          BoxText(BoxChar);
         }
 
         const wchar_t *Item_I_PtrName=(const wchar_t *)Item[I]->strName;
@@ -673,9 +673,9 @@ void VMenu::ShowMenu(int IsParent)
       if (BoxType!=NO_BOX)
       {
         SetColor(VMenu::Colors[VMenuColorBox]);
-        BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+        BoxText(BoxChar);
         GotoXY(X2,Y);
-        BoxText((WORD)(BoxSymbols[*BoxChar-0x0B0])); //Text((char*)BoxChar);
+        BoxText(BoxChar);
         GotoXY(X1+1,Y);
       }
       else

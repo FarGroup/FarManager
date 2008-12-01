@@ -64,7 +64,7 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 		item.Clear ();
 		if(dwCP==dwCurCP)
 			item.Flags|=MIF_SELECTED;
-		item.strName.Format(L"%5d%c %s",dwCP,BoxSymbols[0xB3-0x0B0],wcschr(cpi.CodePageName,L'(')+1);
+		item.strName.Format(L"%5d%c %s",dwCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
 		item.strName.SetLength(item.strName.GetLength()-1);
 		tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
 	}
