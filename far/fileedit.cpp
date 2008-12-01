@@ -917,6 +917,18 @@ int FileEditor::ProcessKey(int Key)
   return ReProcessKey(Key,FALSE);
 }
 
+bool FileEditor::UnicodeLostAgreeMsg()
+{
+	// SetMessageHelp(L"")
+	return !Message(MSG_WARNING,2,MSG(MWarning),
+	                         L"This file contains characters in Unicode format", //BUGBUG, use MSG()
+	                         L"which will be lost if you save this file",        //BUGBUG, use MSG()
+	                         L"in current encoding table.",                      //BUGBUG, use MSG()
+	                         L"Continue?",                                       //BUGBUG, use MSG()
+	                         MSG(MOk),
+	                         MSG(MCancel));
+}
+
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 {
   DWORD FNAttr;
@@ -1194,7 +1206,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           FarChDir(strStartDir); //???
 
-          if(SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage) == SAVEFILE_ERROR)
+					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage);
+					if(SaveResult==SAVEFILE_ERROR)
           {
             SetLastError(SysErrorCode);
             if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
@@ -1204,7 +1217,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               break;
             }
           }
-          else
+					else if(SaveResult==SAVEFILE_SUCCESS)
           {
 						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
 						{
@@ -1230,6 +1243,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             Done=TRUE;
           }
+					else
+					{
+						Done=TRUE;
+						break;
+					}
         }
         return(TRUE);
       }
@@ -1848,6 +1866,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 		}
 
+		bool UnicodeLostAgree=false;
+
     while (CurPtr!=NULL)
     {
       const wchar_t *SaveStr, *EndSeq;
@@ -1880,14 +1900,38 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 			else
 			{
-				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
-
+				BOOL UsedDefaultChar=FALSE;
+				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, WC_NO_BEST_FIT_CHARS, SaveStr, Length, NULL, 0, NULL, &UsedDefaultChar));
+				if(UsedDefaultChar && !UnicodeLostAgree)
+				{
+					if(!UnicodeLostAgreeMsg())
+					{
+						fclose(EditFile);
+						return SAVEFILE_CANCEL;
+					}
+					else
+					{
+						UnicodeLostAgree=true;
+					}
+				}
 				char *SaveStrCopy = new char[length];
 
 				if ( SaveStrCopy )
 				{
-					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
-
+					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, WC_NO_BEST_FIT_CHARS, EndSeq, EndLength, NULL, 0, NULL, &UsedDefaultChar));
+					if(UsedDefaultChar && !UnicodeLostAgree)
+					{
+						if(!UnicodeLostAgreeMsg())
+						{
+							delete[] SaveStrCopy;
+							fclose(EditFile);
+							return SAVEFILE_CANCEL;
+						}
+						else
+						{
+							UnicodeLostAgree=true;
+						}
+					}
 					char *EndSeqCopy = new char[endlength];
 
 					if ( EndSeqCopy )

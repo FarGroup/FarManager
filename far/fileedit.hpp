@@ -205,6 +205,7 @@ public:
     void SaveToCache ();
 
     void SetCodePage (UINT codepage); //BUGBUG
+    bool UnicodeLostAgreeMsg();
 };
 
 bool dlgOpenEditor (string &strFileName, UINT &codepage);
