@@ -86,21 +86,21 @@ than 30k), or a link to such an archive, will be appreciated.
 
 5. Additions concerning FTP
 
-5.1. When describing FTP plugin errors, you should also specify its version.
-     Получить ее можно следующими способами:
-      а) из информации версии основного файла плагина (FarFtp.dll);
-      б) из меню утилит, которое всплывает при нажатии Shift+F1 на
-         активной панели плагина.
+5.1. When describing FTP plug-in errors, you should also specify its version.
+     You can get it from:
+      a) version information of the main plug-in file (FarFtp.dll);
+      b) Utilities menu, which is shown when pressing Shift+F1
+         in the active plug-in panel.
 
-5.2. Лог файл плагина.
-     Для генерации полного лога файла нужно:
-      а) задать имя лог файла в настройках плагина;
-      б) включить параметр настройки:
+5.2. Plug-in log file.
+     To generate a full log file, you should:
+      a) define a name of log file in plug-in options;
+      b) enable configuration option:
          [x] Log directory contents
 
-5.3 Если проблема происходит в процессе работы с сервером, то необходима
-    информация о программном обеспечении и операционной системе на стороне
-    сервера а также желательно предоставить доступ к такому серверу.
+5.3 If the problem occurs during operations with a server, the information
+    on the server-side software and operating system should be provided,
+    it is also desirable to grant access to such server.
 
 6. A general notice concerning files attached - it is specific to the
 mailserver that any files attached with .exe, .dll, .sys, .bat, .cmd,
