@@ -119,9 +119,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
 
   HostFileEditor=NULL;
 
-  InsertString (NULL, 0);
-
   m_codepage = CP_OEMCP; //BUGBUG
+
+  InsertString (NULL, 0);
 }
 
 
