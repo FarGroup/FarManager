@@ -36,6 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define STRICT
 
 #define _WIN32_WINNT 0x0600
+#if defined(__GNUC__)
+#define WINVER 0x0500
+#endif
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)

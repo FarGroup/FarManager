@@ -3720,6 +3720,7 @@ bool Dialog::ConvertItemEx (
 			Item->Y1 = Data->Y1;
 			Item->X2 = Data->X2;
 			Item->Y2 = Data->Y2;
+			Item->Focus = Data->Focus;
 
 			Item->Param.History = Data->History;
 			Item->Flags = Data->Flags;
@@ -3753,6 +3754,7 @@ bool Dialog::ConvertItemEx (
 			Data->Y1 = Item->Y1;
 			Data->X2 = Item->X2;
 			Data->Y2 = Item->Y2;
+			Data->Focus = Item->Focus;
 
 			Data->History = Item->Param.History;
 			Data->Flags = Item->Flags;
