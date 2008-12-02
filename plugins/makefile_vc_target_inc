@@ -2,7 +2,7 @@ ALL: $(INSTALL) $(OUTDIR)$(ADDOUTDIR) $(OBJDIR) $(DLLFULLNAME)
 
 $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(OUTDIR)$(ADDOUTDIR) $(LINK_DEP)
 !ifndef __MAKE__
-	$(LNK) @<<
+	@$(LNK) @<<
 	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
 <<
 !else
@@ -15,7 +15,7 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(OUTDIR)$(ADDOUTDIR) $(LINK_DEP)
 
 !ifndef __MAKE__
 .cpp{$(OBJDIR)}.obj::
-	$(CC) @<<
+	@$(CC) @<<
 	$(CFLAGS) $<
 <<
 !else

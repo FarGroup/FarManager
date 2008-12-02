@@ -49,6 +49,8 @@
 #  or
 #CPU=IA64 - for IA64 build
 #
+#VC8 - set to build with VC8, VC9 intended by default
+#
 
 !if defined(AMD64) || "$(CPU)" == "AMD64"
 !undef AMD64
@@ -115,6 +117,11 @@ DEF = $(DEF_NAME)W.vc.def
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
+
+!ifdef VC8
+COMPAT64=/Wp64
+NOWIN98=/OPT:NOWIN98
+!endif
 
 !ifndef DEBUG
 CPP_OPT=/DNDEBUG /O1i
