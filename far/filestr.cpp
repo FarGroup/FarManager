@@ -80,6 +80,7 @@ int GetFileString::GetString(wchar_t **DestStr, int nCodePage, int &Length)
 
 		if ( nExitCode == 1 )
 		{
+			// при CP_UTF7 dwFlags должен быть 0, см. MSDN
 			int nResultLength = MultiByteToWideChar (nCodePage, (SomeDataLost||nCodePage==CP_UTF7)?0:MB_ERR_INVALID_CHARS, Str, Length, NULL, 0);
 			if(!nResultLength && GetLastError()==ERROR_NO_UNICODE_TRANSLATION && !SomeDataLost)
 			{

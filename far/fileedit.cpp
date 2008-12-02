@@ -1900,6 +1900,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 				LPBOOL lpUsedDefaultChar=0;
 				DWORD dwFlags=0;
 
+				// MSDN
 				if(codepage!=CP_UTF7 && codepage!=CP_UTF8)
 				{
 					dwFlags|=WC_NO_BEST_FIT_CHARS;
