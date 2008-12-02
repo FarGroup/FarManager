@@ -5,14 +5,14 @@
 
 pchar DECLSPEC StrFromOEMDup( CONSTSTR str,int num /*0|1*/ )
   {  static char nm[2][ MAX_PATH_SIZE ];
-     if ( num < 0 || num >= ARRAY_SIZE(nm) ) return (pchar)str;
+     if ( num < 0 || num >= (int)ARRAY_SIZE(nm) ) return (pchar)str;
      OemToCharBuff( str, nm[num], sizeof(nm[0])-1 );
  return nm[num];
 }
 
 pchar DECLSPEC StrToOEMDup( CONSTSTR str,int num /*0|1*/ )
   {  static char nm[2][ MAX_PATH_SIZE ];
-     if ( num < 0 || num >= ARRAY_SIZE(nm) ) return (pchar)str;
+     if ( num < 0 || num >= (int)ARRAY_SIZE(nm) ) return (pchar)str;
      CharToOemBuff( str, nm[num], sizeof(nm[0])-1 );
  return nm[num];
 }

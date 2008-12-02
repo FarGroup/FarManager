@@ -318,7 +318,7 @@ void FP_Multiline::DoDrawHilight( const FP_Hilight& sel )
       if ( x1-x <= 0 )
         continue;
 
-      for( x1 -= x, i = 0; i < sizeof(str)-1 && i < x1; i++  )
+      for( x1 -= x, i = 0; i < (int)(sizeof(str)-1) && i < x1; i++  )
         str[i] = ( i+x < len ) ? m[i+x] : ' ';
       str[i] = 0;
       FP_Info->Text( DlgBounds.Left + it.Left + x,y,

@@ -17,6 +17,14 @@
 #USERLIBSFIRST - same as USERLIBS but added before the default libs
 #                (libraries order is important for gcc).
 #
+#USERRC - user defined switches for windres
+#
+#NEEDENTRY - set if you want to disable the -nostartfiles link flag
+#
+#NEEDDEFLIB - set if you want to disable the -nodefaultlibs link flag
+#
+#EXCLUDECRT - set if you do not want to link with common/crt lib.
+#
 #SRCS - a list of the *.cpp source files.
 #
 #DOCS - a list of additional files that need to copied to the target folder.
@@ -46,7 +54,23 @@ endif
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 DEF = $(NAME)$(DIRSURF).gcc.def
+RC_NAME = $(NAME).rc
 RES = $(OBJDIR)/$(NAME).res.o
+
+NOSTART = -nostartfiles
+ifdef NEEDENTRY
+NOSTART = 
+endif
+
+NODEFLIBS = -nodefaultlibs
+ifdef NEEDDEFLIB
+NODEFLIBS = 
+endif
+
+COMMONLIB = -L $(COMMON) -lCRT
+ifdef EXCLUDECRT
+COMMONLIB = 
+endif
 
 CXX = g++
 CC = gcc
@@ -61,9 +85,11 @@ AR = ar
 RANLIB = ranlib
 CXXFLAGS = -mno-cygwin -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(CXXWIDE) $(USERCPP)
 CCFLAGS = -mno-cygwin -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions $(CCWIDE) $(USERCPP)
-LNKFLAGS = -mno-cygwin -mdll -s -nostartfiles -nodefaultlibs -lgcc $(USERLIBSFIRST) -L $(COMMON) -lCRT -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
-RCFLAGS = -I $(COMINC) $(RCWIDE)
+LNKFLAGS = -mno-cygwin -mdll -s $(NOSTART) $(NODEFLIBS) -lgcc $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+RCFLAGS = -I $(COMINC) $(RCWIDE) $(USERRC)
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
+ifndef DISABLEAUTODEPS
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+endif
 MAP = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))

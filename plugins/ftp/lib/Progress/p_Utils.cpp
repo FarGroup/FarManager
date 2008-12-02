@@ -29,7 +29,7 @@ double ToPercent( __int64 N1,__int64 N2 )
 */
 CONSTSTR FCps4( char *buff,double val )
   {  static char Names[] = { 'M', 'K', '\x0' };
-     char   Letter;
+     int Letter;
 
 //1M
     if ( val >= 10000000. ) {

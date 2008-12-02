@@ -138,7 +138,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
   int   DescrFilesNumber = 0;
   char *NamePtr          = DescrFilesString;
 
-  while( DescrFilesNumber < ARRAY_SIZE(DescrFiles) ) {
+  while( DescrFilesNumber < (int)ARRAY_SIZE(DescrFiles) ) {
 
     while ( isspace(*NamePtr) ) NamePtr++;
     if ( *NamePtr == 0 ) break;

@@ -24,7 +24,7 @@ int DECLSPEC FP_Message( unsigned int Flags,CONSTSTR HelpTopic,
          width = Max( width,(int)(e-b) );
      } else
    //Array of lines - check if lines are message id
-       for ( rc = 0; rc < ARRAY_SIZE(litems) && rc < ItemsNumber; rc++ ) {
+       for ( rc = 0; rc < (int)ARRAY_SIZE(litems) && rc < ItemsNumber; rc++ ) {
          if ( !FISMSG( Items[rc] ) )
            litems[rc] = FP_GetMsg( FGETID(Items[rc]) );
           else

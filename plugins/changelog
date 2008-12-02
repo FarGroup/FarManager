@@ -1,3 +1,12 @@
+t-rex 02.12.2008 13:41:42 +0200
+
+1. Дабавим в GCC мэйки поддержку
+NEEDENTRY - set if you want to disable the -nostartfiles link flag
+NEEDDEFLIB - set if you want to disable the -nodefaultlibs link flag
+EXCLUDECRT - set if you do not want to link with common/crt lib.
+USERRC - user defined switches for windres
+DISABLEAUTODEPS
+
 t-rex 02.12.2008 13:04:59 +0200
 
 1. VC9 дефолтный компилятор, надо выставить VC8 чтоб собирать с VC8 (и за одно исправлена VC8 сборка).

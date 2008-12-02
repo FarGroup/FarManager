@@ -563,7 +563,6 @@ WORD FTP::SelectServerType( WORD Type )
 BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,PFTPFileInfo p )
   {  PROC(( "ParseDirLine", "%p,%d", Connect, AllFiles ))
      String        Line, Line1;
-     int           n;
      FTPDirList    dl;
      FTPServerInfo si;
 
@@ -590,7 +589,7 @@ BOOL ParseDirLine(Connection *Connect,BOOL AllFiles,PFTPFileInfo p )
       };
 
       BOOL Found = FALSE;
-      for( n = 0; n < ARRAY_SIZE(FTPMsg); n++ )
+      for( size_t n = 0; n < ARRAY_SIZE(FTPMsg); n++ )
         if ( strstr(Line.c_str(),FTPMsg[n]) ) {
           Found = TRUE;
           break;

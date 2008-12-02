@@ -88,7 +88,7 @@ void FTP::FTP_FixPaths( CONSTSTR base, PluginPanelItem *p, int cn, BOOL FromPlug
        str.printf( "%s%c%s", base, FromPlugin ? '/' : '\\', CurName );
        TStrCpy( p->FindData.cFileName, str.c_str() );
 
-       if ( str.Length() >= sizeof(p->FindData.cFileName) )
+       if ( str.Length() >= (int)sizeof(p->FindData.cFileName) )
          FPIL_ADDSET( p, str.Length()+1, StrDup( str.c_str() ) );
         else
          FPIL_ADDSET( p, 0, NULL );

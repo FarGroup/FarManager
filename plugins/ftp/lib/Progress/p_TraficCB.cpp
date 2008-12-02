@@ -48,7 +48,7 @@ void TrafficInformation::FormatLine( int num,CONSTSTR line,time_t tm )
       //Code
       if ( *line == '\\' ) {
         line++;
-        for( cn = 0; *line && strchr("0123456789",*line) && cn < sizeof(str)-1; cn++,line++ )
+        for( cn = 0; *line && strchr("0123456789",*line) && cn < (int)(sizeof(str)-1); cn++,line++ )
           str[cn] = *line;
         str[cn] = 0;
         cn = atoi(str);
@@ -101,7 +101,7 @@ void TrafficInformation::FormatLine( int num,CONSTSTR line,time_t tm )
 
       //Size
       if ( isdigit( *line ) ) {
-        for( cn = 0; *line && strchr("+-0123456789",*line) && cn < sizeof(str)-1; cn++,line++ )
+        for( cn = 0; *line && strchr("+-0123456789",*line) && cn < (int)(sizeof(str)-1); cn++,line++ )
           str[cn] = *line;
         str[cn] = 0;
 
@@ -109,7 +109,7 @@ void TrafficInformation::FormatLine( int num,CONSTSTR line,time_t tm )
       }
 
       //Type
-      for( cn = 0; *line && *line != '%' && cn < sizeof(str)-1; cn++,line++ )
+      for( cn = 0; *line && *line != '%' && cn < (int)(sizeof(str)-1); cn++,line++ )
         str[cn] = *line;
       str[cn] = 0;
 

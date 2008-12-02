@@ -546,7 +546,7 @@ void FTP::SelectTable()
   StrCpy(MenuItems[2].Text,FP_GetMsg(MTableAuto));
   StrCpy(MenuItems[3].Text,"UTF-8");
   int TableNum=4;
-  while (TableNum<sizeof(MenuItems)/sizeof(MenuItems[0]))
+  while (TableNum < (int)(sizeof(MenuItems)/sizeof(MenuItems[0])))
   {
     CharTableSet TableSet;
     if (FP_Info->CharTable(TableNum-4,(char*)&TableSet,sizeof(TableSet))==-1)
@@ -601,7 +601,7 @@ void FTP::SelectFileTable(char *TableName)
     MenuItems[4].Selected=TRUE;
 
   int TableNum=5;
-  while( TableNum < ARRAY_SIZE(MenuItems) ) {
+  while( TableNum < (int)ARRAY_SIZE(MenuItems) ) {
     CharTableSet TableSet;
     if (FP_Info->CharTable(TableNum-5,(char*)&TableSet,sizeof(TableSet))==-1)
       break;

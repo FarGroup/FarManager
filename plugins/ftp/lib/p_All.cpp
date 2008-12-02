@@ -40,7 +40,7 @@ BOOL WINAPI DllEntryPoint( HINSTANCE hinst, DWORD reason, LPVOID ptr )
  return rc;
 }
 #else
-#if defined(__MSOFT)
+#if defined(__MSOFT) || defined(__GNU)
 BOOL WINAPI DllMain( HINSTANCE hinst, DWORD reason, LPVOID ptr )
   {  BOOL rc = FTP_PluginStartup(reason);
 

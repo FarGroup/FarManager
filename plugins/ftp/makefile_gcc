@@ -18,8 +18,20 @@ USERLIBS = -lwsock32 -lwinmm
 
 include ../makefile_gcc_def_inc
 
-LNKFLAGS = -mno-cygwin -mdll -s -lgcc $(USERLIBSFIRST) -L $(COMMON) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+all: fstdlib
 
 include ../makefile_gcc_target_inc
 
+.PHONY: fstdlib
+fstdlib:
+	$(MAKE) -f makefile_gcc_fstdlib
+
+all: fll
+
 $(RES): ftpversion.hpp
+
+.PHONY: fll
+fll:
+	$(MAKE) -f makefile_gcc_fll FLL=DirList
+	$(MAKE) -f makefile_gcc_fll FLL=Progress
+	$(MAKE) -f makefile_gcc_fll FLL=Notify

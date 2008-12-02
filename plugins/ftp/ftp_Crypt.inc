@@ -10,7 +10,7 @@ void MakeCryptPassword( CONSTSTR Src,BYTE Dest[FTP_PWD_LEN] )
    if ( !Src || !Src[0] )
      return;
 
-   for (int I=0; I < sizeof(Dest); I++) {
+   for (int I=0; I < (int)sizeof(Dest); I++) {
      CurDest = Dest;
      CurDest[0] = (BYTE)( (Random+I)|0x80 );
      CurDest[1] = (BYTE)( (Random>>8)|0x80 );

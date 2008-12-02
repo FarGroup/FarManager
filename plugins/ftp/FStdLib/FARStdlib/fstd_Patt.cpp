@@ -5,8 +5,8 @@
 
 BOOL DECLSPEC FP_InPattern( CONSTSTR patt,CONSTSTR nm )
   {  char c;
+     size_t n;
      char str[ FAR_MAX_PATHSIZE ];
-     int  n;
 
     if ( !patt || !patt[0] || !nm ) return FALSE;
 

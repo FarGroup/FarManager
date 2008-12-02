@@ -82,8 +82,7 @@ Connection::~Connection()
 void Connection::ExecCmdTab(struct cmd *c,int argc,char *argv[])
   {  PROC(( "ExecCmdTab","%d [%s,%s,%s]",argc,(argc>=1)?argv[0]:"nil",(argc>=2)?argv[1]:"nil",(argc>=3)?argv[2]:"nil" ));
 
-     int I;
-     for ( I=0; I < ARRAY_SIZE(cmdtabdata); I++ )
+     for ( size_t I=0; I < ARRAY_SIZE(cmdtabdata); I++ )
        if (c==&cmdtabdata[I]) {
          switch(I) {
            case  0: account(argc,argv);  break;
@@ -331,7 +330,7 @@ void Connection::ResetOutput()
 
 void Connection::CacheReset()
 {
-  for (int I=0;I<sizeof(ListCache)/sizeof(ListCache[0]);I++) {
+  for (size_t I=0;I<sizeof(ListCache)/sizeof(ListCache[0]);I++) {
     if (ListCache[I].Listing)
       _Del( ListCache[I].Listing );
     ListCache[I].Listing=NULL;
@@ -360,7 +359,7 @@ int Connection::CacheGet()
       }
     }
 
-  for ( int I=0;I < sizeof(ListCache)/sizeof(ListCache[0]); I++)
+  for ( size_t I=0;I < sizeof(ListCache)/sizeof(ListCache[0]); I++)
     if ( ListCache[I].ListingSize > 0 &&
          CurDir.Cmp( ListCache[I].DirName) ) {
       ResetOutput();
@@ -394,7 +393,7 @@ void Connection::CacheAdd()
   StrCpy( ListCache[ListCachePos].DirName, CurDir.c_str(), sizeof(ListCache[ListCachePos].DirName) );
 
   ListCachePos++;
-  if ( ListCachePos >= sizeof(ListCache)/sizeof(ListCache[0]) )
+  if ( ListCachePos >= (int)(sizeof(ListCache)/sizeof(ListCache[0])) )
     ListCachePos=0;
 }
 
@@ -435,7 +434,7 @@ BOOL Connection::GetExitCode()
     return FALSE;
   }
 
-  for (int I=0; I < sizeof(FtpErrCodes)/sizeof(FtpErrCodes[0]); I++ )
+  for (size_t I=0; I < sizeof(FtpErrCodes)/sizeof(FtpErrCodes[0]); I++ )
     if ( FtpErrCodes[I].Code == code ) {
       if ( FtpErrCodes[I].WCode )
         SetLastError( FtpErrCodes[I].WCode );

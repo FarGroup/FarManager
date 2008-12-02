@@ -41,7 +41,7 @@ void DECLSPEC QuoteStr( char *str )
     m = buff;
     src = str;
     *m++ = '\"';
-    for( int n = 0; n < sizeof(buff)-3 && *src; n++ )
+    for( size_t n = 0; n < sizeof(buff)-3 && *src; n++ )
       if ( *src == '\"' ) {
         *m++ = '\"';
         *m++ = '\"';
@@ -344,11 +344,11 @@ HANDLE DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/, DWORD attr )
 
      do{
        if ( toupper(mode[0]) == 'A' || mode[1] == '+' )
-	   {
-	     LONG nHighPart = 0;
+     {
+       LONG nHighPart = 0;
          if ( (SetFilePointer(h,0,&nHighPart,FILE_END) == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR) )
            break;
-	   }
+     }
 
        if ( !rd )
          SetEndOfFile(h);  //Ignore SetEndOfFile result in case of use with CON, NUL and others

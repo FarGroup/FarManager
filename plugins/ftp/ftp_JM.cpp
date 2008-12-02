@@ -77,7 +77,7 @@ void DECLSPEC_PT FARINProc::Say( CONSTSTR s,... )
 
     va_start( ap,s );
       rc = SNprintf( str, sizeof(str), "%*c", Counter*2,' ' );
-      if ( rc < sizeof(str) )
+      if ( rc < (int)sizeof(str) )
         VSNprintf( str+rc, sizeof(str)-rc, s,ap );
     va_end(ap);
 

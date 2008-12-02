@@ -1,17 +1,19 @@
 all: $(DLLFULLNAME)
 
+ifndef DISABLEAUTODEPS
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
 	@$(MKDIR) -p $(@D)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+endif
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(RES): $(NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
+$(RES): $(RC_NAME) $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
 	@$(WINDRES) $(RCFLAGS) -i $< -o $@
@@ -29,4 +31,6 @@ ifdef DOCS
 	@$(CP) $(DOCS) $(DLLDIR)
 endif
 
+ifndef DISABLEAUTODEPS
 -include $(DEPS)
+endif

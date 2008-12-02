@@ -92,7 +92,7 @@ void _fastcall TMacroView::ReadConfig()
 
 BOOL _fastcall TMacroView::Configure()
 {
-  BOOL Result;
+  BOOL Result = FALSE;
   int OutCode;
   TCHAR *ItemsErrorWrite[]=
   {
@@ -190,8 +190,6 @@ BOOL _fastcall TMacroView::Configure()
         Result=FALSE;
       }
     }
-    else
-      Result=FALSE;
 
 #ifdef UNICODE
     Info.DialogFree(hDlg);
