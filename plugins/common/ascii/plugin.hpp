@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.71 build 2444
+  Plugin API for FAR Manager 1.71 build 2474
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2008 FAR group
@@ -12,7 +12,7 @@
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 71
-#define FARMANAGERVERSION_BUILD 2444
+#define FARMANAGERVERSION_BUILD 2474
 
 #ifndef RC_INVOKED
 
@@ -1519,7 +1519,7 @@ enum FRSMODE{
 
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
-typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
+typedef void    (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 
 enum MKLINKOP{
   FLINK_HARDLINK         = 1,
