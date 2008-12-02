@@ -2728,6 +2728,18 @@ MEditNewPlugin1
 "Имя редактируемого файла не может быть пустым"
 "The name of the file to edit cannot be empty"
 
+MEditDataLostWarn1
+"Текст содержит символы, которые невозможно"
+"Text contains characters, which cannot be"
+
+MEditDataLostWarn2
+"корректно сохранить в выбранной кодировке."
+"correctly saved in selected codepage."
+
+MEditDataLostWarn3
+"Продолжить?"
+"Continue?"
+
 MColumnName
 l:
 "Имя"

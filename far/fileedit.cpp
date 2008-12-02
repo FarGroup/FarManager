@@ -919,14 +919,8 @@ int FileEditor::ProcessKey(int Key)
 
 bool FileEditor::UnicodeLostAgreeMsg()
 {
-	// SetMessageHelp(L"")
-	return !Message(MSG_WARNING,2,MSG(MWarning),
-	                         L"This file contains characters in Unicode format", //BUGBUG, use MSG()
-	                         L"which will be lost if you save this file",        //BUGBUG, use MSG()
-	                         L"in current encoding table.",                      //BUGBUG, use MSG()
-	                         L"Continue?",                                       //BUGBUG, use MSG()
-	                         MSG(MOk),
-	                         MSG(MCancel));
+	//SetMessageHelp(L"EditorDataLostWarning")
+	return !Message(MSG_WARNING,2,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn3),MSG(MOk),MSG(MCancel));
 }
 
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
@@ -1901,7 +1895,15 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			else
 			{
 				BOOL UsedDefaultChar=FALSE;
-				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, WC_NO_BEST_FIT_CHARS, SaveStr, Length, NULL, 0, NULL, &UsedDefaultChar));
+				LPBOOL lpUsedDefaultChar=0;
+				DWORD dwFlags=0;
+
+				if(codepage!=CP_UTF7 && codepage!=CP_UTF8)
+				{
+					dwFlags|=WC_NO_BEST_FIT_CHARS;
+					lpUsedDefaultChar=&UsedDefaultChar;
+				}
+				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, dwFlags, SaveStr, Length, NULL, 0, NULL, lpUsedDefaultChar));
 				if(UsedDefaultChar && !UnicodeLostAgree)
 				{
 					if(!UnicodeLostAgreeMsg())
@@ -1918,7 +1920,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 				if ( SaveStrCopy )
 				{
-					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, WC_NO_BEST_FIT_CHARS, EndSeq, EndLength, NULL, 0, NULL, &UsedDefaultChar));
+					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, dwFlags, EndSeq, EndLength, NULL, 0, NULL, lpUsedDefaultChar));
 					if(UsedDefaultChar && !UnicodeLostAgree)
 					{
 						if(!UnicodeLostAgreeMsg())
