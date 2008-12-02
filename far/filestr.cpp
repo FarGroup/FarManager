@@ -46,6 +46,7 @@ GetFileString::GetFileString(FILE *SrcFile)
   GetFileString::SrcFile=SrcFile;
 
   ReadPos=ReadSize=0;
+	SomeDataLost=false;
 }
 
 
@@ -79,8 +80,12 @@ int GetFileString::GetString(wchar_t **DestStr, int nCodePage, int &Length)
 
 		if ( nExitCode == 1 )
 		{
-			int nResultLength = MultiByteToWideChar (nCodePage, 0, Str, Length, NULL, 0);
-
+			int nResultLength = MultiByteToWideChar (nCodePage, (SomeDataLost||nCodePage==CP_UTF7)?0:MB_ERR_INVALID_CHARS, Str, Length, NULL, 0);
+			if(!nResultLength && GetLastError()==ERROR_NO_UNICODE_TRANSLATION && !SomeDataLost)
+			{
+				SomeDataLost=true;
+				nResultLength=MultiByteToWideChar(nCodePage, 0, Str, Length, NULL, 0);
+			}
 			wStr = (wchar_t*)xf_realloc (wStr, (nResultLength+1)*sizeof (wchar_t));
 			wmemset (wStr, 0, nResultLength+1);
 

@@ -43,6 +43,7 @@ class GetFileString
     wchar_t *wStr;
     int m_nStrLength;
     FILE *SrcFile;
+		bool SomeDataLost;
 
   private:
     int GetAnsiString(char **DestStr,int &Length);
@@ -55,6 +56,7 @@ class GetFileString
 
   public:
     int GetString(wchar_t **DestStr, int nCodePage, int &Length);
+		bool IsConversionValid(){return !SomeDataLost;};
 };
 
 #endif  // __GETFILESTRING_HPP__

@@ -2729,16 +2729,20 @@ MEditNewPlugin1
 "The name of the file to edit cannot be empty"
 
 MEditDataLostWarn1
-"Текст содержит символы, которые невозможно"
-"Text contains characters, which cannot be"
+"Файл содержит символы, которые невозможно"
+"This file contains characters, which cannot be"
 
 MEditDataLostWarn2
-"корректно сохранить в выбранной кодировке."
-"correctly saved in selected codepage."
+"корректно преобразовать в выбранную кодировку."
+"correctly translated using the selected codepage."
 
 MEditDataLostWarn3
 "Продолжить?"
 "Continue?"
+
+MEditDataLostWarn4
+"Сохранять файл не рекомендуется."
+"It is not recommended to save this file."
 
 MColumnName
 l:

@@ -1608,6 +1608,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 	}
 
+	if(!GetStr.IsConversionValid())
+		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn4),MSG(MOk));
 	if ( LastLineCR || (Count == 0) )
 		m_editor->InsertString (L"", 0);
 
