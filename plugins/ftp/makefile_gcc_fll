@@ -1,0 +1,29 @@
+ifndef FLL
+$(error An invalid FLL-target)
+endif
+
+NAME = ftp$(FLL)
+EXT = fll
+ADDOUTDIR = /lib
+SRCDIR = lib/$(FLL)
+
+include $(SRCDIR)/makefile_gcc.inc
+
+NEEDDEFLIB=1
+NEEDENTRY=1
+EXCLUDECRT=1
+DISABLEAUTODEPS = 1
+
+USERCPP = -I $(SRCDIR) -I ./lib -I ./FStdLib -D__USE_TRAPLOGER__=1 -Wno-unknown-pragmas
+USERLIBSFIRST = -L $(OBJDIR) -lFARStd
+USERLIBS = $(FLL_LIBS)
+USERRC = -I .
+
+include ../makefile_gcc_def_inc
+
+RC_NAME = $(SRCDIR)/res.rc
+DEF = ./lib/def.gcc.def
+
+include ../makefile_gcc_target_inc
+
+$(RES): ftpversion.hpp
