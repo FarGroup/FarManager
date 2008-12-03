@@ -1631,8 +1631,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
 
-  TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
-
   if (Ask)
   {
     if(!m_editor->Flags.Check(FEDITOR_MODIFIED))
@@ -1758,7 +1756,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     Flags.Set(FFILEEDIT_NEW);
 
   {
-    FILE *EditFile;
     //SaveScreen SaveScr;
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
@@ -1766,9 +1763,42 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
-    CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
-    HANDLE hEdit = apiCreateFile (
+		int codepage=bSaveAs?Codepage:m_editor->GetCodePage();
+
+		if(!IsUnicodeCP(codepage))
+		{
+			bool UnicodeLostAgree=false;
+			for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next)
+			{
+				const wchar_t *SaveStr, *EndSeq;
+				int Length;
+				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
+				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
+				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,NULL,0,NULL,&UsedDefaultCharStr);
+				if(!*EndSeq && CurPtr->m_next)
+					EndSeq=*m_editor->GlobalEOL?m_editor->GlobalEOL:DOS_EOL_fmt;
+				if(TextFormat&&*EndSeq)
+					EndSeq=m_editor->GlobalEOL;
+				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,EndSeq,StrLength(EndSeq),NULL,0,NULL,&UsedDefaultCharEOL);
+				if(!UnicodeLostAgree && (UsedDefaultCharStr||UsedDefaultCharEOL))
+				{
+					if(!UnicodeLostAgreeMsg())
+					{
+						return SAVEFILE_CANCEL;
+					}
+					else
+					{	
+						UnicodeLostAgree=true;
+						break;
+					}
+				}
+			}
+		}
+
+		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
+
+		HANDLE hEditFile = apiCreateFile (
     		Name,
     		GENERIC_WRITE,
     		FILE_SHARE_READ,
@@ -1777,23 +1807,10 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     		FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,
     		NULL
     		);
-
-    if (hEdit==INVALID_HANDLE_VALUE)
+		DWORD dwWritten=0;
+		if(hEditFile==INVALID_HANDLE_VALUE)
     {
       //_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
-      RetCode=SAVEFILE_ERROR;
-      SysErrorCode=GetLastError();
-      goto end;
-    }
-    int EditHandle=_open_osfhandle((intptr_t)hEdit,O_BINARY);
-    if (EditHandle==-1)
-    {
-      RetCode=SAVEFILE_ERROR;
-      SysErrorCode=GetLastError();
-      goto end;
-    }
-    if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
-    {
       RetCode=SAVEFILE_ERROR;
       SysErrorCode=GetLastError();
       goto end;
@@ -1812,59 +1829,40 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     }
 */
     SetCursorType(FALSE,0);
-    Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
-    Edit *CurPtr=m_editor->TopList;
+		TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
-    int codepage;
-    bool signature_found = m_bSignatureFound;
+		Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
-    if ( bSaveAs )
-    {
-			//signature_found = true; //BUGBUG;
-			codepage = Codepage;
-		}
-		else
-			codepage = m_editor->GetCodePage (); //???
-
-    if ( signature_found )
-    {
-	    bool bSignError = false;
-	    DWORD dwSignature = 0;
-
+		if(m_bSignatureFound)
+		{
+			DWORD dwSignature = 0;
+			DWORD SignLength=0;
 			switch(codepage)
 			{
 			case CP_UNICODE:
 				dwSignature = SIGN_UNICODE;
-				if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
-					bSignError = true;
+				SignLength=2;
 				break;
 			case CP_REVERSEBOM:
 				dwSignature = SIGN_REVERSEBOM;
-				if ( fwrite (&dwSignature, 1, 2, EditFile) != 2 )
-					bSignError = true;
+				SignLength=2;
 				break;
 			case CP_UTF8:
 				dwSignature = SIGN_UTF8;
-				if ( fwrite (&dwSignature, 1, 3, EditFile) != 3 )
-					bSignError = true;
+				SignLength=3;
 				break;
-
 			}
-
-			if ( bSignError )
+			if(!WriteFile(hEditFile,&dwSignature,SignLength,&dwWritten,NULL)||dwWritten!=SignLength)
 			{
-				fclose(EditFile);
-				_wremove(Name);
-
+				CloseHandle(hEditFile);
+				apiDeleteFile(Name);
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 			}
 		}
 
-		bool UnicodeLostAgree=false;
-
-    while (CurPtr!=NULL)
+		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next)
     {
       const wchar_t *SaveStr, *EndSeq;
       int Length;
@@ -1873,16 +1871,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
         EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmt;
       if (TextFormat!=0 && *EndSeq!=0)
       {
-        if (TextFormat==1)
-          EndSeq=DOS_EOL_fmt;
-        else if (TextFormat==2)
-          EndSeq=UNIX_EOL_fmt;
-        else if (TextFormat==3)
-          EndSeq=MAC_EOL_fmt;
-        else
-          EndSeq=WIN_EOL_fmt;
-
-        CurPtr->SetEOL(EndSeq);
+				EndSeq=m_editor->GlobalEOL;
+				CurPtr->SetEOL(EndSeq);
       }
 
       int EndLength=StrLength(EndSeq);
@@ -1890,55 +1880,18 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if ( codepage == CP_UNICODE )
 			{
-				if ( ((int)fwrite(SaveStr, sizeof (wchar_t), Length, EditFile) != Length) ||
-					((int)fwrite(EndSeq, sizeof (wchar_t), EndLength, EditFile) != EndLength) )
+				if ((!WriteFile(hEditFile,SaveStr,Length*sizeof(wchar_t),&dwWritten,NULL)||dwWritten!=Length*sizeof(wchar_t)) ||
+					(!WriteFile(hEditFile,EndSeq,EndLength*sizeof (wchar_t),&dwWritten,NULL)||dwWritten!=EndLength*sizeof(wchar_t)))
 					bError = true;
 			}
 			else
 			{
-				BOOL UsedDefaultChar=FALSE;
-				LPBOOL lpUsedDefaultChar=0;
-				DWORD dwFlags=0;
-
-				// MSDN
-				if(codepage!=CP_UTF7 && codepage!=CP_UTF8)
-				{
-					dwFlags|=WC_NO_BEST_FIT_CHARS;
-					lpUsedDefaultChar=&UsedDefaultChar;
-				}
-				int length = (codepage == CP_REVERSEBOM?Length*2:WideCharToMultiByte (codepage, dwFlags, SaveStr, Length, NULL, 0, NULL, lpUsedDefaultChar));
-				if(UsedDefaultChar && !UnicodeLostAgree)
-				{
-					if(!UnicodeLostAgreeMsg())
-					{
-						fclose(EditFile);
-						return SAVEFILE_CANCEL;
-					}
-					else
-					{
-						UnicodeLostAgree=true;
-					}
-				}
-				char *SaveStrCopy = new char[length];
-
+				DWORD length = (codepage == CP_REVERSEBOM?Length*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
+				char *SaveStrCopy=(char *)xf_malloc(length);
 				if ( SaveStrCopy )
 				{
-					int endlength = (codepage == CP_REVERSEBOM?EndLength*2:WideCharToMultiByte (codepage, dwFlags, EndSeq, EndLength, NULL, 0, NULL, lpUsedDefaultChar));
-					if(UsedDefaultChar && !UnicodeLostAgree)
-					{
-						if(!UnicodeLostAgreeMsg())
-						{
-							delete[] SaveStrCopy;
-							fclose(EditFile);
-							return SAVEFILE_CANCEL;
-						}
-						else
-						{
-							UnicodeLostAgree=true;
-						}
-					}
-					char *EndSeqCopy = new char[endlength];
-
+					DWORD endlength = (codepage == CP_REVERSEBOM?EndLength*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
+					char *EndSeqCopy=(char *)xf_malloc(endlength);
 					if ( EndSeqCopy )
 					{
 						if(codepage == CP_REVERSEBOM)
@@ -1951,17 +1904,15 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 							WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
 							WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
 						}
-
-						if ( ((int)fwrite (SaveStrCopy,1,length,EditFile) != length) ||
-							((int)fwrite (EndSeqCopy,1,endlength,EditFile) != endlength) )
+						if ((!WriteFile(hEditFile,SaveStrCopy,length,&dwWritten,NULL)||dwWritten!=length) ||
+							(!WriteFile(hEditFile,EndSeqCopy,endlength,&dwWritten,NULL)||dwWritten!=endlength))
 							bError = true;
-
-						delete[] EndSeqCopy;
+						xf_free(EndSeqCopy);
 					}
 					else
 						bError = true;
 
-					delete[] SaveStrCopy;
+					xf_free(SaveStrCopy);
 				}
 				else
 					bError = true;
@@ -1969,27 +1920,17 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if ( bError )
 			{
-				fclose(EditFile);
-				_wremove(Name);
+				CloseHandle(hEditFile);
+				apiDeleteFile(Name);
 
 				RetCode=SAVEFILE_ERROR;
 				goto end;
 
 			}
-
-			CurPtr=CurPtr->m_next;
-    }
-
-    if (fflush(EditFile)==EOF)
-    {
-      fclose(EditFile);
-      _wremove(Name);
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-    SetEndOfFile(hEdit);
-    fclose(EditFile);
-  }
+		}
+		SetEndOfFile(hEditFile);
+		CloseHandle(hEditFile);
+	}
 
 end:
 
