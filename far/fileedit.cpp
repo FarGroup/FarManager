@@ -331,7 +331,7 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
   if(FAttr == -1)
     Flags.Set(FFILEEDIT_NEW);
 
-  if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
+  if(BlankFileName && Flags.Check(FFILEEDIT_CANNEWFILE))
     Flags.Set(FFILEEDIT_NEW);
 
   if(Flags.Check(FFILEEDIT_LOCKED))
