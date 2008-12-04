@@ -76,7 +76,7 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
   int LastError=GetLastError();
 
-  int nCodePage = CP_OEMCP;
+  UINT nCodePage = CP_OEMCP;
   string strLangName=Opt.strLanguage;
   FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
   if(this == &Lang && StrCmpI(Opt.strLanguage,strLangName))
@@ -328,7 +328,7 @@ const char* Language::GetMsgA (int nID)
 }
 
 
-FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, int &nCodePage, BOOL StrongLang,string *pstrLangName)
+FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, UINT &nCodePage, BOOL StrongLang,string *pstrLangName)
 {
   strFileName=L"";
 
@@ -348,7 +348,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName=L"";
     else
     {
-      nCodePage = GetFileFormat (LangFile);
+      GetFileFormat (LangFile,nCodePage);
 
       string strNULL;
 
@@ -470,7 +470,8 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     if (LangFile==NULL)
       continue;
 
-    int nCodePage = GetFileFormat(LangFile, NULL);
+    UINT nCodePage=CP_OEMCP;
+    GetFileFormat(LangFile,nCodePage);
 
     string strLangName, strLangDescr;
     if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,nCodePage))

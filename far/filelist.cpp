@@ -4197,7 +4197,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 
   CutToSlash(strPath);
 
-  int nCodePage = CP_OEMCP;
+  UINT nCodePage = CP_OEMCP;
 
   FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
   if (HelpFile==NULL)

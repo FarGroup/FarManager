@@ -1095,8 +1095,13 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
   wchar_t MenuStr[4096]; //BUGBUG
   int KeyNumber=-1,CommandNumber=0;
 
-	if(!ftell(MenuFile) && GetFileFormat(MenuFile)!=CP_UNICODE)
-		return;
+	if(!ftell(MenuFile))
+	{
+		UINT nCodePage=0;
+		GetFileFormat(MenuFile,nCodePage);
+		if(nCodePage!=CP_UNICODE)
+			return;
+	}
 
   while (fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL)
   {

@@ -743,8 +743,8 @@ void FileEditor::Init (
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
+	m_codepage=Opt.EdOpt.AnsiTableForNewFile?GetACP():GetOEMCP();
     m_editor->SetCodePage (m_codepage);
-
     if(BlankFileName)
     {
       Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
@@ -1368,6 +1368,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			if ( !IsUnicodeCP(m_codepage) )
 			{
 				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
+				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
 				ChangeEditKeyBar();
 			}
 			return TRUE;
@@ -1379,7 +1380,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				int codepage = GetTableEx (m_codepage);
 
 				if ( codepage != -1 )
+				{
 					SetCodePage (codepage);
+					Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+				}
 			}
 
 			return TRUE;
@@ -1544,17 +1548,31 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	clock_t StartTime=clock();
 
-	int dcp = GetFileFormat (EditFile, &m_bSignatureFound);
+	UINT dwCP=0;
+	bool Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound);
 
 	if ( m_codepage == CP_AUTODETECT )
 	{
+		if(Detect)
+		{
+			m_codepage=dwCP;
+		}
 		if ( bCached )
-			m_codepage = cp.Table;
+		{
+			if(cp.Table)
+			{
+				m_codepage = cp.Table;
+				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+			}
+		}
+		if(m_codepage==CP_AUTODETECT)
+			m_codepage=Opt.EdOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
 
-		if ( !bCached || (m_codepage == 0) )
-			m_codepage = (dcp==CP_OEMCP?(Opt.EdOpt.AnsiTableAsDefault?GetACP():GetOEMCP()):dcp);
 	}
-
+	else
+	{
+		Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+	}
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 	BOOL MessageShown=FALSE;
 
@@ -1837,7 +1855,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
-		if(m_bSignatureFound)
+		if(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW))
 		{
 			DWORD dwSignature = 0;
 			DWORD SignLength=0;
@@ -2694,8 +2712,7 @@ void FileEditor::SaveToCache ()
 		PosCache.Param[1] = cp.ScreenLine;
 		PosCache.Param[2] = cp.LinePos;
 		PosCache.Param[3] = cp.LeftPos;
-		PosCache.Param[4] = cp.Table;
-
+		PosCache.Param[4] = Flags.Check(FFILEEDIT_TABLECHANGEDBYUSER)?m_codepage:0;
 		if( Opt.EdOpt.SaveShortPos )
 		{
 			//if no position saved these are nulls

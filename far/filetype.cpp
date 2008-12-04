@@ -319,12 +319,13 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hClassesKey)!=ERROR_SUCCESS)
       return(FALSE);
 
+/*
   if (RegQueryStringValueEx(hClassesKey,L"",strValue)!=ERROR_SUCCESS)
   {
       RegCloseKey(hClassesKey);
       return(FALSE);
   }
-
+*/
   RegCloseKey(hClassesKey);
 
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4)

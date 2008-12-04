@@ -348,7 +348,7 @@ int Help::ReadHelp(const wchar_t *Mask)
   }
 #endif
 
-  int nCodePage = CP_OEMCP;
+  UINT nCodePage = CP_OEMCP;
 
   FILE *HelpFile=Language::OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
@@ -1841,7 +1841,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
         CutToSlash(strPath);
 
-        int nCodePage = CP_OEMCP;
+        UINT nCodePage = CP_OEMCP;
 
         FILE *HelpFile=Language::OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 

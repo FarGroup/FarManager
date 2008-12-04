@@ -1083,7 +1083,7 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 #define CP_REVERSEBOM 65534
 #define CP_AUTODETECT ((UINT)-1)
 
-int GetFileFormat (FILE *file, bool *pSignatureFound = NULL);
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL);
 
 
 //winapi wrappers

@@ -2023,11 +2023,12 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
   return TRUE;
 }
 
-int GetFileFormat (FILE *file, bool *pSignatureFound)
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 {
 	DWORD dwTemp=0;
+
 	bool bSignatureFound = false;
-	int nCodePage = CP_OEMCP;
+	bool bDetect=false;	
 
 	if ( fread (&dwTemp, 1, 4, file) )
 	{
@@ -2056,13 +2057,38 @@ int GetFileFormat (FILE *file, bool *pSignatureFound)
 		else
 			fseek (file, 0, SEEK_SET);
 	}
+	if(bSignatureFound)
+	{
+		bDetect=true;
+	}
 	else
+	{
 		fseek (file, 0, SEEK_SET);
+		const size_t sz=1024;
+		LPVOID Buffer=xf_malloc(sz);
+		fread (Buffer,1,sz,file);
+		fseek (file,0,SEEK_SET);
+		int test=IS_TEXT_UNICODE_STATISTICS|IS_TEXT_UNICODE_REVERSE_STATISTICS;
+		if(IsTextUnicode(Buffer,sz,&test))
+		{
+			nCodePage = (test&IS_TEXT_UNICODE_STATISTICS)?CP_UNICODE:CP_REVERSEBOM;
+			bDetect=true;
+		}
+		/*
+		else if(...)
+		{
 
+		}
+		*/
+		else
+		{
+			bDetect=false;
+		}
+		xf_free(Buffer);
+	}
 	if ( pSignatureFound )
 		*pSignatureFound = bSignatureFound;
-
-	return nCodePage;
+	return bDetect;
 }
 
 __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)

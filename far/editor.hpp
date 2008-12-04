@@ -96,7 +96,6 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_LOCKMODE              = 0x00080000,
   FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
                                                 // плагином (ECTL_SETPOSITION)
-  FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
   FEDITOR_PROCESSCTRLQ          = 0x02000000,   // нажата Ctrl-Q и идет процесс вставки кода символа
   FEDITOR_DIALOGMEMOEDIT        = 0x80000000,   // Editor используется в диалоге в качестве DI_MEMOEDIT
