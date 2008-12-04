@@ -735,7 +735,7 @@ void FileEditor::Init (
   if(FAttr == INVALID_FILE_ATTRIBUTES)
     Flags.Set(FFILEEDIT_NEW);
 
-  if(BlankFileName || Flags.Check(FFILEEDIT_CANNEWFILE))
+  if(BlankFileName && Flags.Check(FFILEEDIT_CANNEWFILE))
     Flags.Set(FFILEEDIT_NEW);
 
   if(Flags.Check(FFILEEDIT_LOCKED))
@@ -743,7 +743,8 @@ void FileEditor::Init (
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
-	m_codepage=Opt.EdOpt.AnsiTableForNewFile?GetACP():GetOEMCP();
+	if(m_codepage==CP_AUTODETECT)
+		m_codepage=Opt.EdOpt.AnsiTableForNewFile?GetACP():GetOEMCP();
     m_editor->SetCodePage (m_codepage);
     if(BlankFileName)
     {
@@ -1549,7 +1550,10 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	clock_t StartTime=clock();
 
 	UINT dwCP=0;
-	bool Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound);
+	bool Detect=false;
+
+	if(m_codepage == CP_AUTODETECT || IsUnicodeCP(m_codepage))
+		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound);
 
 	if ( m_codepage == CP_AUTODETECT )
 	{
@@ -1567,7 +1571,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 		if(m_codepage==CP_AUTODETECT)
 			m_codepage=Opt.EdOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
-
 	}
 	else
 	{
@@ -1575,6 +1578,9 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 	BOOL MessageShown=FALSE;
+
+	if(!IsUnicodeCP(m_codepage))
+		fseek(EditFile,0,SEEK_SET);
 
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
