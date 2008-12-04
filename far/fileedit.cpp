@@ -1218,7 +1218,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 							bool bInPlace = (!IsUnicodeCP(m_codepage) && !IsUnicodeCP(codepage)) || (m_codepage == codepage);
 
 							if ( !bInPlace )
+							{
 								m_editor->FreeAllocatedData ();
+								m_editor->InsertString (NULL, 0);
+							}
 
 							SetFileName (strFullSaveAsName);
 
