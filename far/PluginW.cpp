@@ -158,8 +158,7 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 
 PluginW::PluginW (
 		PluginManager *owner,
-		const wchar_t *lpwszModuleName,
-		const FAR_FIND_DATA_EX *fdata
+		const wchar_t *lpwszModuleName
 		)
 {
 	m_hModule = NULL;
@@ -167,11 +166,6 @@ PluginW::PluginW (
 	//more initialization here!!!
 
 	m_owner = owner;
-
-	FindData.Clear();
-
-	if ( fdata )
-		FindData = *fdata;
 
 	m_strModuleName = lpwszModuleName;
 
@@ -184,11 +178,11 @@ PluginW::~PluginW()
 }
 
 
-int PluginW::LoadFromCache ()
+int PluginW::LoadFromCache (bool bCheckID)
 {
 	string strRegKey;
 
-	int cp = GetCacheNumber();
+	int cp = GetCacheNumber(bCheckID);
 
 	if ( cp != -1 )
 	{
@@ -252,12 +246,17 @@ int PluginW::SaveToCache()
 
 				SetRegKey(strRegKey, L"Name", m_strModuleName);
 
-				strCurPluginID.Format (
-						L"%I64x%x%x",
-						FindData.nFileSize,
-						FindData.ftCreationTime.dwLowDateTime,
-						FindData.ftLastWriteTime.dwLowDateTime
-						);
+				{
+					FAR_FIND_DATA_EX fdata;
+					apiGetFindDataEx(m_strModuleName, &fdata);
+
+					strCurPluginID.Format (
+							L"%I64x%x%x",
+							fdata.nFileSize,
+							fdata.ftCreationTime.dwLowDateTime,
+							fdata.ftLastWriteTime.dwLowDateTime
+							);
+				}
 
 				SetRegKey(strRegKey, L"ID", strCurPluginID);
 
@@ -536,11 +535,15 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
   memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
   memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
 
-  PSI->ModuleNumber=(INT_PTR)pPlugin;
   PSI->FSF=FSF;
 
-  PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
   PSI->RootKey=NULL;
+
+  PSI->ModuleNumber=(INT_PTR)pPlugin;
+  if (pPlugin)
+  {
+    PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
+  }
 }
 
 struct ExecuteStruct {
@@ -1304,7 +1307,7 @@ void PluginW::ExitFAR()
 	}
 }
 
-int PluginW::GetCacheNumber () //ничего не понимаю....
+int PluginW::GetCacheNumber (bool bCheckID)
 {
 	for (int i = -1 ;; i++)
 	{
@@ -1325,18 +1328,21 @@ int PluginW::GetCacheNumber () //ничего не понимаю....
 		if ( StrCmpI(strPluginName, m_strModuleName) != 0 )
 			continue;
 
-		GetRegKey(strRegKey, L"ID", strPluginID, L"");
-
-		if ( !FindData.nFileSize == 0 ) //BUGBUG!!!
+		if ( bCheckID )
 		{
+			FAR_FIND_DATA_EX fdata;
+			apiGetFindDataEx(m_strModuleName, &fdata);
+
 			strCurPluginID.Format (
 					L"%I64x%x%x",
-					FindData.nFileSize,
-					FindData.ftCreationTime.dwLowDateTime,
-					FindData.ftLastWriteTime.dwLowDateTime
+					fdata.nFileSize,
+					fdata.ftCreationTime.dwLowDateTime,
+					fdata.ftLastWriteTime.dwLowDateTime
 					);
 
-			if ( StrCmp(strPluginID, strCurPluginID) != 0 )
+			GetRegKey(strRegKey, L"ID", strPluginID, L"");
+
+			if ( StrCmp(strPluginID, strCurPluginID) != 0 ) //одинаковые ли бинарники?
 				continue;
 		}
 

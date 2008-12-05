@@ -79,7 +79,6 @@ private:
 	BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
 
 	HMODULE m_hModule;
-	FAR_FIND_DATA_EX FindData;
 	Language Lang;
 
   /* $ 21.09.2000 SVS
@@ -129,17 +128,17 @@ private:
 
 public:
 
-	PluginA (PluginManager *owner, const wchar_t *lpwzModuleName, const FAR_FIND_DATA_EX *fdata = NULL);
+	PluginA (PluginManager *owner, const wchar_t *lpwzModuleName);
 	~PluginA ();
 
 	int Load();
-	int LoadFromCache();
+	int LoadFromCache(bool bCheckID = false);
 
 	int SaveToCache ();
 
 	int Unload (bool bExitFAR = false);
 
-	int GetCacheNumber ();
+	int GetCacheNumber (bool bCheckID = false);
 	bool IsPanelPlugin ();
 
 	bool HasOpenPlugin() { return pOpenPlugin!=NULL; }
@@ -171,7 +170,6 @@ public:
 	bool HasProcessDialogEvent() { return pProcessDialogEvent!=NULL; }
 
 	const string &GetModuleName() { return m_strModuleName; }
-	const FAR_FIND_DATA_EX &GetFindData() {return FindData; }
 	DWORD GetSysID() { return SysID; }
 	int GetCachePos() { return CachePos; }
 	bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }

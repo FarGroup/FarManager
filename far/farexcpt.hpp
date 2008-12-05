@@ -103,23 +103,11 @@ struct PLUGINRECORD{      // информация о плагине
   short CachePos;         // позиция в кеше
   DWORD SysID;
 
-  struct {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    DWORD    nFileSizeHigh;
-    DWORD    nFileSizeLow;
-    DWORD    dwReserved0;
-    DWORD    dwReserved1;
-    char     cFileName[MAX_PATH];
-    char     cAlternateFileName[14];
-  } FindData;
+  const wchar_t *ModuleName;
 
   DWORD Reserved2[2];    // разерв :-)
 
   DWORD SizeModuleName;
-  //char ModuleName[0];
 };
 
 struct EXCEPTIONRECORD{   // про исключение

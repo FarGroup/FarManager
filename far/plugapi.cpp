@@ -2140,7 +2140,7 @@ int WINAPI farLoadPlugin(const wchar_t *Path)
 {
 	string strPath;
 	ConvertNameToFull(Path, strPath);
-	return CtrlObject->Plugins.LoadPlugin(strPath);
+	return CtrlObject->Plugins.LoadPlugin(strPath, true);
 }
 
 int WINAPI farUnloadPlugin(const wchar_t *Path)

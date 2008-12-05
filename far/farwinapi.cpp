@@ -533,7 +533,9 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 					GetReparsePointInfo(lpwszFileName,strTmp,&pFindData->dwReserved0); //MSDN
 				}
 				else
+				{
 					pFindData->dwReserved0=0;
+				}
 				pFindData->dwReserved1=0;
 				pFindData->strFileName=PointToName(lpwszFileName);
 				ConvertNameToShort(lpwszFileName,pFindData->strAlternateFileName);

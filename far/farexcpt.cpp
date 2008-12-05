@@ -106,7 +106,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
                                                 LPDWORD Result);
 
          ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
-
+         
          if (p)
          {
            static struct PluginStartupInfo LocalStartupInfo;
@@ -115,20 +115,22 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
            memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
 
            CreatePluginStartupInfo (NULL, &LocalStartupInfo, &LocalStandardFunctions);
+           LocalStartupInfo.ModuleName = (const wchar_t *)strFarEventSvc;
 
            static string strRootKey;
            strRootKey = Opt.strRegRoot;
            LocalStartupInfo.RootKey=strRootKey;
 
            static struct PLUGINRECORD PlugRec;
-           if(Module)
+           if (Module)
            {
              memset(&PlugRec,0,sizeof(PlugRec));
 
              PlugRec.TypeRec=RTYPE_PLUGIN;
              PlugRec.SizeRec=sizeof(struct PLUGINRECORD);
 
-             memcpy(&PlugRec.FindData,&Module->GetFindData(),sizeof(PlugRec.FindData)); //major BUGBUG!!!
+             PlugRec.ModuleName=Module->GetModuleName();
+
              PlugRec.SysID=Module->GetSysID();
              PlugRec.WorkFlags=Module->GetWorkFlags();
              PlugRec.CallFlags=Module->GetFuncFlags();
@@ -163,7 +165,6 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
              PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
              PlugRec.CachePos=Module->GetCachePos();
            }
-
            Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
          }
          FreeLibrary(m);

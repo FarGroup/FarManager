@@ -337,13 +337,9 @@ int PluginManager::RemovePlugin (Plugin *pPlugin)
 
 int PluginManager::LoadPlugin (
 		const wchar_t *lpwszModuleName,
-		const FAR_FIND_DATA_EX *fdata,
-		Plugin **pLoadedPlugin
+		bool bCheckID
 		)
 {
-	if ( pLoadedPlugin )
-		*pLoadedPlugin = NULL;
-
 	Plugin *pPlugin = GetPlugin (lpwszModuleName);
 
 	if ( !pPlugin )
@@ -363,7 +359,7 @@ int PluginManager::LoadPlugin (
 		AddPlugin (pPlugin);
 	}
 
-	BOOL bResult = pPlugin->LoadFromCache();
+	BOOL bResult = pPlugin->LoadFromCache(bCheckID);
 
 	if ( !bResult && !Opt.LoadPlug.PluginsCacheOnly )
 	{
@@ -376,9 +372,6 @@ int PluginManager::LoadPlugin (
 	if ( bResult )
 	{
 		far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
-
-		if ( pLoadedPlugin )
-			*pLoadedPlugin = pPlugin;
 
 		return TRUE;
 	}
@@ -536,8 +529,11 @@ void PluginManager::LoadPlugins()
       while (ScTree.GetNextName(&FindData,strFullName))
       {
         if ( CmpName(L"*.dll",FindData.strFileName,FALSE) &&
-        	 (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0 )
-        	LoadPlugin (strFullName, &FindData);
+             (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0
+           )
+        {
+          LoadPlugin (strFullName, true);
+        }
       } // end while
     }
   }
