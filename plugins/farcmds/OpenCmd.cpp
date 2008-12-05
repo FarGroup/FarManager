@@ -290,6 +290,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     int ShowCmdOutput=Opt.ShowCmdOutput;
     int stream=Opt.CatchMode;
     BOOL outputtofile=0, allOK=TRUE, View,Edit,Goto,Far,Clip,WhereIs,Macro,Link,Run;
+#ifdef UNICODE
+    BOOL PLoad,UnloadP;
+#endif
     TCHAR *Ptr, *pCmd=NULL, Pref;
 
     Ptr=_tcschr(farcmd,_T(':')); ++Ptr;
@@ -304,7 +307,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
       Pref=(TCHAR)((*farcmd)&(~0x20));
       // farcmd = <command>[<options>]<separator><object>
       // farcmd = <command><separator><object>
-      // Pref   = V|E|G|C|W|M|L|R
+      // Pref   = V|E|G|C|W|M|L|R|P|U
     }
 
     // view:[<separator>]<object>
@@ -329,8 +332,16 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     // link<separator>[<op>]<separator><source><separator><dest>
     Link=(Pref == _T('L'));
     // run:[<separator>]<file> < <command>
-    // run:<separator><file> < <command>
+    // run<separator><file> < <command>
     Run=(Pref == _T('R'));
+#ifdef UNICODE
+    // pload:[<separator>]<file>
+    // pload<separator><file>
+    PLoad=(Pref == _T('P'));
+    // unloadp:[<separator>]<file>
+    // unloadp<separator><file>
+    UnloadP=(Pref == _T('U'));
+#endif
 
     if(!Far)
     {
@@ -339,7 +350,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
       // farcmd = [<separator>]<object>
     }
 
-    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run)
+    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run
+#ifdef UNICODE
+       ||PLoad||UnloadP
+#endif
+      )
     {
       int SeparatorLen=lstrlen(Opt.Separator);
       TCHAR *cBracket=NULL, runFile[NM]=_T("");
@@ -610,6 +625,16 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               MkLink(pCmd,Arg2,LinkFlags);
             }
           }
+#ifdef UNICODE
+          else if (PLoad || UnloadP)
+          {
+            Unquote(pCmd);
+            if (PLoad)
+              LoadPlugin(pCmd);
+            else
+              UnloadPlugin(pCmd);
+          }
+#endif
           else
           {
             TCHAR *tempDir = NULL, temp[NM*5];
