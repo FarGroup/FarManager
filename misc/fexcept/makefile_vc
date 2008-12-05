@@ -1,0 +1,16 @@
+!if exists(..\..\plugins\make_vc_defs)
+!include ..\..\plugins\make_vc_defs
+!endif
+
+NAME = FExcept
+LINK_OBJS = $(OBJDIR)\FExcept.obj
+
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+
+COMMON = ..\..\plugins\common
+
+!include ..\..\plugins\makefile_vc_def_inc
+
+!include ..\..\plugins\makefile_vc_target_inc

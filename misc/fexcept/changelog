@@ -1,0 +1,75 @@
+t-rex 05.12.2008 20:31:02 +0200 - build 1
+
+1. С наименьшими изменениями ввёл поддержку 1.8 фара (начиная с 635 билда).
+
+2. Чуть подправил под нашу билд систему.
+Оригинальные ключи сборки были как ниже, пока что нету времени разбиратся
+если наши ключики сходятся с этими:
+/MT /nologo /W3 /Gy /G6 /GX /GD /Gf /Fm /YX /Fp1.pch /D "_CONSOLE"
+/Gi /O1 /D "NDEBUG" /D "__NOVCL__=1" /D "__NOPLOG__=1"
+/link /dll
+/link /nologo /stack:0x100000,0x4000 /SUBSYSTEM:CONSOLE /release /PDB:NONE
+
+--------------------------------
+Старая история
+--------------------------------
+
+Исправления внес: Jouri Mamaev (JouriM <at> uran.ru)
+  [08.07.2004]
+  - little changes in output text;
+  - recompiled to use latest ExcDump library;
+
+Исправления внес: Sergey Dindikov (sdindikov <at> mail.ru)
+  [22.05.2004]
+  - Для удобства идентификации версии FAR на котором произошел Exception
+    и для удостоверия целостности модуля производится
+    попытка вывода в начале лога следующих данных о модуле FAR'a
+
+    ==============================================================
+    Info Of Module FAR.EXE
+    Version Info = 1.70.1780
+    FileSize = 663552 byte
+    TimeStamp = 20.05.2004 17:09:36
+    Header Checksum = 0x000AF5B7  Computed Checksum =0x000AF5B7
+    ==============================================================
+
+Исправления внес: Sergey Dindikov (sdindikov <at> mail.ru)
+  [06.05.2004]
+    - стало в в выдаваемом сообщении форматировать пути до плагина/far'a
+      и лога если он не вмещается в max доступную строку для отображения
+      в 64символа;
+
+Исправления внес: Jouri Mamaev (JouriM <at> uran.ru) and
+                  Valentin Skirdin (vskirdin <at> cell.vrn.ru)
+  [05.05.2004]
+   - Добавлен еще один способ поиска библиотеки ExcDump.dll: из того,
+     каталога откуда был загружена Fexcept.dll
+
+Исправления внес: Sergey Dindikov (sdindikov <at> mail.ru)
+  [18.04.2004]
+    1) исправлена строка
+       "Do you want to terminate FAR itself ? (recommended)"
+       в оригинале было "Do you whant"
+
+    2) поправлено version info, добавлен Res.rc в дистрибутив
+
+    3) переводы строк в FStd_trap.log стали  0D 0A вместо OA (в Fopen()
+       открытие файла с флагом "t")
+
+    4) обновлены в дистрибутиве и собрано с новыми ExcDump.h plugin.hpp
+
+    5) в read_me.txt убрал упоминание про апдейт с http
+
+    6) Добавлено восстановление экрана FAR'a после вывода надписи:
+            +========== Trap log ===========+
+            ¦   Generating trap log file... ¦
+            +===============================+
+
+Исправления внес: Jouri Mamaev (JouriM <at> uran.ru)
+  [22.01.03]
+    add: workaroud of exception recurse: catcher will show message and
+         terminate FAR;
+    bug: if exception recurse truncate log file on second pass and lost
+         saved information;
+    add: check ExcDump version and show message if it wrong;
+    add: show messages if initialization errors happen;
