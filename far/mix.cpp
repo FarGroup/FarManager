@@ -2064,12 +2064,12 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 	else
 	{
 		fseek (file, 0, SEEK_SET);
-		const size_t sz=1024;
+		size_t sz=1024; // BUGBUG. TODO: configurable
 		LPVOID Buffer=xf_malloc(sz);
-		fread (Buffer,1,sz,file);
+		sz=fread(Buffer,1,sz,file);
 		fseek (file,0,SEEK_SET);
 		int test=IS_TEXT_UNICODE_STATISTICS|IS_TEXT_UNICODE_REVERSE_STATISTICS;
-		if(IsTextUnicode(Buffer,sz,&test))
+		if(sz && IsTextUnicode(Buffer,sz,&test))
 		{
 			nCodePage = (test&IS_TEXT_UNICODE_STATISTICS)?CP_UNICODE:CP_REVERSEBOM;
 			bDetect=true;
