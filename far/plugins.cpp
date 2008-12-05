@@ -436,6 +436,22 @@ int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemov
 	return nResult;
 }
 
+int PluginManager::UnloadPluginExternal (const wchar_t *lpwszModuleName)
+{
+//BUGBUG нужны проверки на легальность выгрузки
+	int nResult = FALSE;
+
+	Plugin *pPlugin = GetPlugin (lpwszModuleName);
+
+	if ( pPlugin )
+	{
+		nResult = pPlugin->Unload(true);
+		RemovePlugin (pPlugin);
+	}
+
+	return nResult;
+}
+
 Plugin *PluginManager::GetPlugin (const wchar_t *lpwszModuleName)
 {
 	string strFileName1, strFileName2;

@@ -2135,3 +2135,17 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	wcsncpy(Owner,strOwner,NM);
 	return Ret;
 }
+
+int WINAPI farLoadPlugin(const wchar_t *Path)
+{
+	string strPath;
+	ConvertNameToFull(Path, strPath);
+	return CtrlObject->Plugins.LoadPlugin(strPath);
+}
+
+int WINAPI farUnloadPlugin(const wchar_t *Path)
+{
+	string strPath;
+	ConvertNameToFull(Path, strPath);
+	return CtrlObject->Plugins.UnloadPluginExternal(strPath);
+}

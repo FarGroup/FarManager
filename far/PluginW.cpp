@@ -500,6 +500,8 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.MkLink=FarMkLink;
     //StandardFunctions.ConvertNameToReal=OldConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
+    StandardFunctions.LoadPlugin=farLoadPlugin;
+    StandardFunctions.UnloadPlugin=farUnloadPlugin;
   }
 
   if(!StartupInfo.StructSize)

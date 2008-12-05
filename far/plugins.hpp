@@ -154,6 +154,7 @@ public:
 
 	int LoadPlugin (const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX *fdata = NULL, Plugin **pLoadedPlugin = NULL);
 	int UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemove = false);
+	int UnloadPluginExternal (const wchar_t *lpwszModuleName);
 
 	Plugin *GetPlugin (const wchar_t *lpwszModuleName);
 
