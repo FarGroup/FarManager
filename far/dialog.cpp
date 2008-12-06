@@ -6321,9 +6321,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       {
         int MaxLen=((DlgEdit *)(CurItem->ObjPtr))->GetMaxLength();
 
-        if(Param2 > 511) //BUGBUG, varedit
-          Param2=511;
-
         // BugZ#628 - Ќеправильна€ длина редактируемого текста.
         ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength((int)Param2);
 
