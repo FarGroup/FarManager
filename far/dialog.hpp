@@ -68,8 +68,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
 
 // Флаги для функции ConvertItem
-#define CVTITEM_TOPLUGIN    0
-#define CVTITEM_FROMPLUGIN  1
+enum CVTITEMFLAGS {
+	CVTITEM_TOPLUGIN        = 0,
+	CVTITEM_FROMPLUGIN      = 1,
+	CVTITEM_TOPLUGINSHORT   = 2,
+	CVTITEM_FROMPLUGINSHORT = 3
+};
 
 enum DLGEDITLINEFLAGS {
   DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
@@ -341,7 +345,7 @@ class Dialog: public Frame
     void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
     // преобразования из внутреннего представления в FarDialogItem и обратно
-    static bool ConvertItemEx (int FromPlugin, struct FarDialogItem *Item,
+    static bool ConvertItemEx (CVTITEMFLAGS FromPlugin, struct FarDialogItem *Item,
                                struct DialogItemEx *Data, unsigned Count);
 
     static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,

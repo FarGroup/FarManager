@@ -3702,7 +3702,7 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
 }
 
 bool Dialog::ConvertItemEx (
-        int FromPlugin,
+        CVTITEMFLAGS FromPlugin,
         struct FarDialogItem *Item,
         struct DialogItemEx *Data,
         unsigned Count
@@ -3712,67 +3712,82 @@ bool Dialog::ConvertItemEx (
 	if(!Item || !Data)
 		return false;
 
-	if(FromPlugin == CVTITEM_TOPLUGIN)
-		for (I=0; I < Count; I++, ++Item, ++Data)
-		{
-			Item->Type = Data->Type;
-			Item->X1 = Data->X1;
-			Item->Y1 = Data->Y1;
-			Item->X2 = Data->X2;
-			Item->Y2 = Data->Y2;
-			Item->Focus = Data->Focus;
-
-			Item->Param.History = Data->History;
-			Item->Flags = Data->Flags;
-			Item->DefaultButton = Data->DefaultButton;
-
-			//TODO: тут видимо надо сделать поумнее
-			if (IsEdit(Data->Type))
+	switch(FromPlugin)
+	{
+		case CVTITEM_TOPLUGIN:
+		case CVTITEM_TOPLUGINSHORT:
+			for (I=0; I < Count; I++, ++Item, ++Data)
 			{
-				DlgEdit *EditPtr;
-				if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
-					EditPtr->GetString(Data->strData);
-			}
+				Item->Type = Data->Type;
+				Item->X1 = Data->X1;
+				Item->Y1 = Data->Y1;
+				Item->X2 = Data->X2;
+				Item->Y2 = Data->Y2;
+				Item->Focus = Data->Focus;
 
-			{
+				Item->Param.History = Data->History;
+				Item->Flags = Data->Flags;
+				Item->DefaultButton = Data->DefaultButton;
 				Item->MaxLen = Data->nMaxLength;
-				size_t sz = Data->strData.GetLength();
-				if (sz > Data->nMaxLength && Data->nMaxLength > 0)
-						sz = Data->nMaxLength;
-				wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
-				Item->PtrData = p;
-				if (!p) // TODO: may be needed message?
-					return false;
-				wmemcpy(p, (const wchar_t*)Data->strData, sz);
-				p[sz] = L'\0';
+				Item->PtrData = NULL;
+
+				if(FromPlugin==CVTITEM_TOPLUGIN)
+				{
+					//TODO: тут видимо надо сделать поумнее
+					if (IsEdit(Data->Type))
+					{
+						DlgEdit *EditPtr;
+						if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
+							EditPtr->GetString(Data->strData);
+					}
+
+					{
+						size_t sz = Data->strData.GetLength();
+						if (sz > Data->nMaxLength && Data->nMaxLength > 0)
+							sz = Data->nMaxLength;
+						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
+						Item->PtrData = p;
+						if (!p) // TODO: may be needed message?
+							return false;
+						wmemcpy(p, (const wchar_t*)Data->strData, sz);
+						p[sz] = L'\0';
+					}
+				}
 			}
-		}
-	else
-		for (I=0; I < Count; I++, ++Item, ++Data)
-		{
-			Data->X1 = Item->X1;
-			Data->Y1 = Item->Y1;
-			Data->X2 = Item->X2;
-			Data->Y2 = Item->Y2;
-			Data->Focus = Item->Focus;
+			break;
+		case CVTITEM_FROMPLUGIN:
+		case CVTITEM_FROMPLUGINSHORT:
+			for (I=0; I < Count; I++, ++Item, ++Data)
+			{
+				Data->X1 = Item->X1;
+				Data->Y1 = Item->Y1;
+				Data->X2 = Item->X2;
+				Data->Y2 = Item->Y2;
+				Data->Focus = Item->Focus;
 
-			Data->History = Item->Param.History;
-			Data->Flags = Item->Flags;
-			Data->DefaultButton = Item->DefaultButton;
+				Data->History = Item->Param.History;
+				Data->Flags = Item->Flags;
+				Data->DefaultButton = Item->DefaultButton;
 
-			Data->strData = Item->PtrData;
-			Data->Type = Item->Type;
-			Data->nMaxLength = Item->MaxLen;
-			if (Data->nMaxLength > 0)
-				Data->strData.SetLength(Data->nMaxLength);
+				Data->Type = Item->Type;
 
-			Data->ListItems = Item->Param.ListItems;
+				if(FromPlugin==CVTITEM_FROMPLUGIN)
+				{
+					Data->strData = Item->PtrData;
+					Data->nMaxLength = Item->MaxLen;
+					if (Data->nMaxLength > 0)
+						Data->strData.SetLength(Data->nMaxLength);
+				}
 
-			if(Data->X2 < Data->X1) Data->X2=Data->X1;
-			if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-			if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
-				Data->ListItems=NULL;
-		}
+				Data->ListItems = Item->Param.ListItems;
+
+				if(Data->X2 < Data->X1) Data->X2=Data->X1;
+				if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
+				if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
+					Data->ListItems=NULL;
+			}
+			break;
+	}
 	return true;
 }
 
@@ -6351,29 +6366,45 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			return TRUE;
 		}
 
-    /*****************************************************************/
-    case DM_SETDLGITEM:
-    {
-      if(!Param2 || IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
-          return FALSE;
-      if(Type != ((FarDialogItem *)Param2)->Type) // пока нефига мен€ть тип
-          return FALSE;
-      // не мен€ть
-      if(!Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,(FarDialogItem *)Param2,CurItem,1))
-        return FALSE; // invalid parameters
-      CurItem->Type=Type;
-      if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-        CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
-      // еще разок, т.к. данные могли быть изменены
-      Dlg->InitDialogObjects(Param1);
-      SetFarTitle(Dlg->GetDialogTitle());
-      if(Dlg->DialogMode.Check(DMODE_SHOW))
-      {
-        Dlg->ShowDialog(Param1);
-        ScrBuf.Flush();
-      }
-      return TRUE;
-    }
+		/*****************************************************************/
+		case DM_GETDLGITEMSHORT:
+		{
+			if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
+			{
+				if(Dialog::ConvertItemEx(CVTITEM_TOPLUGINSHORT,(struct FarDialogItem *)Param2,CurItem,1))
+				{
+					if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
+						((struct FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
+					return TRUE;
+				}
+			}
+			return FALSE;
+		}
+
+		/*****************************************************************/
+		case DM_SETDLGITEM:
+		case DM_SETDLGITEMSHORT:
+		{
+			if(!Param2 || IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
+				return FALSE;
+			if(Type != ((FarDialogItem *)Param2)->Type) // пока нефига мен€ть тип
+				return FALSE;
+			// не мен€ть
+			if(!Dialog::ConvertItemEx((Msg==DM_SETDLGITEM)?CVTITEM_FROMPLUGIN:CVTITEM_FROMPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
+				return FALSE; // invalid parameters
+			CurItem->Type=Type;
+			if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+			CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+			// еще разок, т.к. данные могли быть изменены
+			Dlg->InitDialogObjects(Param1);
+			SetFarTitle(Dlg->GetDialogTitle());
+			if(Dlg->DialogMode.Check(DMODE_SHOW))
+			{
+				Dlg->ShowDialog(Param1);
+				ScrBuf.Flush();
+			}
+			return TRUE;
+		}
 
     /*****************************************************************/
     /* $ 03.01.2001 SVS
