@@ -763,6 +763,8 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
     KeyBar.ShiftTitles[5-1]=GetMsg(MSHIFTF5);
     KeyBar.ShiftTitles[6-1]=GetMsg(MSHIFTF6);
     KeyBar.Titles[8-1]=GetMsg(MF8);
+    KeyBar.AltTitles[6-1]=NULL;
+    Info->Flags|=OPIF_REALNAMES;
   }
   else
   {
@@ -778,6 +780,7 @@ void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
       KeyBar.Titles[8-1] = (TCHAR *)GetMsg(MF8Fav);
     else
       KeyBar.Titles[8-1]=(TCHAR *)_T("");
+    KeyBar.AltTitles[6-1]=(TCHAR *)_T("");
   }
   Info->KeyBar=&KeyBar;
 }
