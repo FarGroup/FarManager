@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 635
+  Plugin API for FAR Manager 1.80 build 637
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 635
+#define FARMANAGERVERSION_BUILD 637
 
 #ifndef RC_INVOKED
 
@@ -310,6 +310,8 @@ enum FarMessagesProc{
 
   DM_FREEDLGITEM,
   DM_GETCONSTTEXTPTR,
+  DM_GETDLGITEMSHORT,
+  DM_SETDLGITEMSHORT,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
