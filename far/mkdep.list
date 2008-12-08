@@ -203,3 +203,5 @@ headers.cpp.cpp
 TPreRedrawFunc.hpp
 TPreRedrawFunc.cpp
 localOEM.cpp
+RegExp.cpp
+RegExp.hpp

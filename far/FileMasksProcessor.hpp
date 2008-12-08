@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BaseFileMask.hpp"
 #include  "udlist.hpp"
+#include  "RegExp.hpp"
 
 enum FMP_FLAGS
 {
@@ -48,7 +49,7 @@ class FileMasksProcessor : public BaseFileMask
 {
 public:
 	FileMasksProcessor();
-	virtual ~FileMasksProcessor() {}
+	virtual ~FileMasksProcessor() {	if (m) xf_free(m); }
 
 public:
 	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
@@ -59,6 +60,10 @@ public:
 private:
 	UserDefinedList Masks; // список масок файлов
 	const wchar_t *MaskPtr;   // указатель на текущую маску в списке
+	RegExp re;
+	SMatch *m;
+	int n;
+	bool bRE;
 
 private:
 	FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */

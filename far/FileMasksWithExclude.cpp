@@ -45,8 +45,8 @@ FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 
 void FileMasksWithExclude::Free()
 {
-    Include.Free();
-    Exclude.Free();
+	Include.Free();
+	Exclude.Free();
 }
 
 /*
@@ -57,39 +57,54 @@ void FileMasksWithExclude::Free()
 
 BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
-  Free();
-  if(NULL==masks || !*masks) return FALSE;
+	Free();
+	if(NULL==masks || !*masks) return FALSE;
 
-  size_t len=StrLength(masks)+2;
-  BOOL rc=FALSE;
-  wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
-  if(MasksStr)
-  {
-     rc=TRUE;
-     wcscpy(MasksStr, masks);
-     wchar_t *pExclude=wcschr(MasksStr,EXCLUDEMASKSEPARATOR);
-     if(pExclude)
-     {
-       *pExclude=0;
-       ++pExclude;
-       if(wcschr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
-     }
+	size_t len=StrLength(masks)+1;
+	BOOL rc=FALSE;
+	wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
+	if (MasksStr)
+	{
+		rc=TRUE;
+		wcscpy(MasksStr, masks);
 
-     if(rc)
-     {
-        rc=Include.Set(*MasksStr?MasksStr:L"*",
-                       (Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
-        if(rc) rc=Exclude.Set(pExclude, 0);
-     }
-  }
+		wchar_t *pExclude = MasksStr;
+		if (*pExclude == L'/')
+		{
+			pExclude++;
+			while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
+				pExclude++;
+			while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
+				pExclude++;
+			if (*pExclude != EXCLUDEMASKSEPARATOR)
+				pExclude = NULL;
+		}
+		else
+		{
+			pExclude = wcschr(MasksStr,EXCLUDEMASKSEPARATOR);
+		}
 
-  if(!rc)
-    Free();
+		if (pExclude)
+		{
+			*pExclude=0;
+			++pExclude;
+			if(*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
+		}
 
-  if(MasksStr)
-    xf_free (MasksStr);
+		if(rc)
+		{
+			rc = Include.Set(*MasksStr?MasksStr:L"*",(Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
+			if(rc) rc=Exclude.Set(pExclude, 0);
+		}
+	}
 
-  return rc;
+	if (!rc)
+		Free();
+
+	if (MasksStr)
+		xf_free (MasksStr);
+
+	return rc;
 }
 
 /* сравнить имя файла со списком масок
@@ -97,10 +112,10 @@ BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
    Путь к файлу в FileName НЕ игнорируется */
 BOOL FileMasksWithExclude::Compare(const wchar_t *FileName)
 {
-   return (Include.Compare(FileName) && !Exclude.Compare(FileName));
+	return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
 BOOL FileMasksWithExclude::IsEmpty(void)
 {
-  return Include.IsEmpty() && Exclude.IsEmpty();
+	return (Include.IsEmpty() && Exclude.IsEmpty());
 }

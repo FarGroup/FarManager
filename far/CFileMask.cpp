@@ -46,14 +46,14 @@ const int EXCLUDEMASKSEPARATOR=0x7C; // '|'
 
 CFileMask::CFileMask()
 {
-    FileMask=NULL;
+	FileMask=NULL;
 }
 
 void CFileMask::Free()
 {
-    if(FileMask)
-       delete FileMask;
-    FileMask=NULL;
+	if(FileMask)
+		delete FileMask;
+	FileMask=NULL;
 }
 
 /*
@@ -65,38 +65,56 @@ void CFileMask::Free()
 
 BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 {
-  Free();
-  BOOL rc=FALSE;
-  int Silent=Flags & FMF_SILENT;
-  DWORD flags=0;
-  if(Flags & FMF_ADDASTERISK) flags|=FMPF_ADDASTERISK;
-  if (Masks && *Masks)
-  {
-    if(wcschr(Masks, EXCLUDEMASKSEPARATOR))
-    {
-      if(!(Flags&FMF_FORBIDEXCLUDE))
-        FileMask=new FileMasksWithExclude;
-    }
-    else
-      FileMask=new FileMasksProcessor;
+	Free();
+	BOOL rc=FALSE;
+	int Silent=Flags & FMF_SILENT;
+	DWORD flags=0;
+	if (Flags & FMF_ADDASTERISK) flags|=FMPF_ADDASTERISK;
+	if (Masks && *Masks)
+	{
+		const wchar_t *pExclude = Masks;
+		if (*pExclude == L'/')
+		{
+			pExclude++;
+			while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
+				pExclude++;
+			while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
+				pExclude++;
+			if (*pExclude != EXCLUDEMASKSEPARATOR)
+				pExclude = NULL;
+		}
+		else
+		{
+			pExclude = wcschr(Masks,EXCLUDEMASKSEPARATOR);
+		}
 
-    if(FileMask)
-       rc=FileMask->Set(Masks, flags);
+		if (pExclude)
+		{
+			if(!(Flags&FMF_FORBIDEXCLUDE))
+				FileMask=new FileMasksWithExclude;
+		}
+		else
+		{
+			FileMask=new FileMasksProcessor;
+		}
 
-    if(!rc)
-      Free();
-  }
+		if (FileMask)
+			rc=FileMask->Set(Masks, flags);
 
-  if(!Silent && !rc)
-    Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
+		if(!rc)
+			Free();
+	}
 
-  return rc;
+	if(!Silent && !rc)
+		Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
+
+	return rc;
 }
 
 // ¬озвращает TRUE, если список масок пустой
 BOOL CFileMask::IsEmpty(void)
 {
-  return FileMask?FileMask->IsEmpty():TRUE;
+	return FileMask?FileMask->IsEmpty():TRUE;
 }
 
 /* сравнить им€ файла со списком масок
@@ -105,5 +123,5 @@ BOOL CFileMask::IsEmpty(void)
 */
 BOOL CFileMask::Compare(const wchar_t *FileName)
 {
-  return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):FALSE;
+	return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):FALSE;
 }

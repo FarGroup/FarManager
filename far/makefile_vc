@@ -189,6 +189,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\rdrwdsk.obj" \
 	"$(INTDIR)\RefreshFrameManager.obj" \
+	"$(INTDIR)\RegExp.obj" \
 	"$(INTDIR)\registry.obj" \
 	"$(INTDIR)\savefpos.obj" \
 	"$(INTDIR)\savescr.obj" \

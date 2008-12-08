@@ -41,11 +41,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 {
+	bRE = false;
+	m = NULL;
+	n = 0;
 }
 
 void FileMasksProcessor::Free()
 {
-    Masks.Free();
+	Masks.Free();
+	re.CleanStack();
+	if (m)
+		xf_free(m);
+	m = NULL;
+	n = 0;
 }
 
 /*
@@ -56,15 +64,43 @@ void FileMasksProcessor::Free()
 
 BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 {
-  // разделителем масок является не только запятая, но и точка с запятой!
-  DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
-  if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
-  Masks.SetParameters(L',',L';',flags);
-  return Masks.Set(masks);
+	// разделителем масок является не только запятая, но и точка с запятой!
+	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
+	if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
+
+	bRE = (masks && *masks == L'/');
+	if (m)
+		xf_free(m);
+	m = NULL;
+	n = 0;
+
+	if (bRE)
+	{
+		if (re.Compile(masks))
+		{
+			n = re.GetBracketsCount();
+			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
+			if (m == NULL)
+			{
+				n = 0;
+				return FALSE;
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	Masks.SetParameters(L',',L';',flags);
+	return Masks.Set(masks);
 }
 
 BOOL FileMasksProcessor::IsEmpty(void)
 {
+	if (bRE)
+	{
+		return (n ? FALSE : TRUE);
+	}
+
   Masks.Reset();
   return Masks.IsEmpty();
 }
@@ -74,12 +110,18 @@ BOOL FileMasksProcessor::IsEmpty(void)
    Путь к файлу в FileName НЕ игнорируется */
 BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 {
-  Masks.Reset();
-  while(NULL!=(MaskPtr=Masks.GetNext()))
-  {
-    if (CmpName(MaskPtr,FileName, FALSE))
-    // SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
-       return TRUE;
-  }
-  return FALSE;
+	if (bRE)
+	{
+		int i = n;
+		return (re.Match(FileName,m,i) ? TRUE : FALSE);
+	}
+
+	Masks.Reset();
+	while(NULL!=(MaskPtr=Masks.GetNext()))
+	{
+		// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
+		if (CmpName(MaskPtr,FileName, FALSE))
+			return TRUE;
+	}
+	return FALSE;
 }
