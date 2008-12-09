@@ -49,7 +49,7 @@ class FileMasksProcessor : public BaseFileMask
 {
 public:
 	FileMasksProcessor();
-	virtual ~FileMasksProcessor() {	if (m) xf_free(m); }
+	virtual ~FileMasksProcessor() {	if (m) xf_free(m); if (re) delete re; }
 
 public:
 	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
@@ -60,7 +60,7 @@ public:
 private:
 	UserDefinedList Masks; // список масок файлов
 	const wchar_t *MaskPtr;   // указатель на текущую маску в списке
-	RegExp re;
+	RegExp *re;
 	SMatch *m;
 	int n;
 	bool bRE;

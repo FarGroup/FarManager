@@ -43,7 +43,7 @@ extern long CallNewDelete;
 #endif
 
 
-#if defined(_MSC_VER)
+//#if defined(_MSC_VER)
 /*
 extern _PNH _pnhHeap;
 
@@ -63,4 +63,4 @@ void * operator new( size_t cb )
   return res;
 }
 
-#endif
+//#endif

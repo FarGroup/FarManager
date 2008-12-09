@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 {
 	bRE = false;
+	re = NULL;
 	m = NULL;
 	n = 0;
 }
@@ -49,7 +50,8 @@ FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 void FileMasksProcessor::Free()
 {
 	Masks.Free();
-	re.CleanStack();
+	if (re)
+		delete re;
 	if (m)
 		xf_free(m);
 	m = NULL;
@@ -69,6 +71,9 @@ BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 	if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
 
 	bRE = (masks && *masks == L'/');
+	if (re)
+		delete re;
+	re = NULL;
 	if (m)
 		xf_free(m);
 	m = NULL;
@@ -76,9 +81,10 @@ BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 
 	if (bRE)
 	{
-		if (re.Compile(masks))
+		re = new RegExp;
+		if (re && re->Compile(masks,OP_PERLSTYLE))
 		{
-			n = re.GetBracketsCount();
+			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
 			if (m == NULL)
 			{
@@ -113,7 +119,7 @@ BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 	if (bRE)
 	{
 		int i = n;
-		return (re.Match(FileName,m,i) ? TRUE : FALSE);
+		return (re->Match(FileName,m,i) ? TRUE : FALSE);
 	}
 
 	Masks.Reset();
