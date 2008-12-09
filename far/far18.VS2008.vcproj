@@ -7137,10 +7137,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="lang.hpp"
-				>
-			</File>
-			<File
 				RelativePath="language.hpp"
 				>
 			</File>
@@ -7905,7 +7901,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -7917,7 +7912,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|x64"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -7929,7 +7923,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Itanium"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -8147,6 +8140,10 @@
 			<File
 				RelativePath="farversion.inc"
 				FileType="0"
+				>
+			</File>
+			<File
+				RelativePath="lang.hpp"
 				>
 			</File>
 			<File

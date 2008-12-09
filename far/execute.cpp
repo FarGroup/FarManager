@@ -495,7 +495,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           {
             wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
 
-            SearchPathW(strPathEnv,strFullName,PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
+						SearchPathW(strPathEnv,string(lpwszFullName),PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
 
             strFullName.ReleaseBuffer ();
 
@@ -518,7 +518,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           {
             wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
 
-            SearchPathW(NULL,strFullName,PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
+						SearchPathW(NULL,string(lpwszFullName),PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
 
             strFullName.ReleaseBuffer ();
 
