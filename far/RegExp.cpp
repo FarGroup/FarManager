@@ -1012,6 +1012,7 @@ int RegExp::Compile(const RECHAR* src,int options)
       switch(src[i])
       {
         case 'i':options|=OP_IGNORECASE;break;
+        case 'c':options&=~OP_IGNORECASE;break;
         case 's':options|=OP_SINGLELINE;break;
         case 'm':options|=OP_MULTILINE;break;
         case 'x':options|=OP_XTENDEDSYNTAX;break;

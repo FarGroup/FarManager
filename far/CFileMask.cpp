@@ -51,7 +51,7 @@ CFileMask::CFileMask()
 
 void CFileMask::Free()
 {
-	if(FileMask)
+	if (FileMask)
 		delete FileMask;
 	FileMask=NULL;
 }
@@ -66,31 +66,18 @@ void CFileMask::Free()
 BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 {
 	Free();
+
 	BOOL rc=FALSE;
 	int Silent=Flags & FMF_SILENT;
 	DWORD flags=0;
-	if (Flags & FMF_ADDASTERISK) flags|=FMPF_ADDASTERISK;
+	if (Flags & FMF_ADDASTERISK)
+		flags|=FMPF_ADDASTERISK;
+
 	if (Masks && *Masks)
 	{
-		const wchar_t *pExclude = Masks;
-		if (*pExclude == L'/')
+		if (FileMasksWithExclude::IsExcludeMask(Masks))
 		{
-			pExclude++;
-			while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
-				pExclude++;
-			while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
-				pExclude++;
-			if (*pExclude != EXCLUDEMASKSEPARATOR)
-				pExclude = NULL;
-		}
-		else
-		{
-			pExclude = wcschr(Masks,EXCLUDEMASKSEPARATOR);
-		}
-
-		if (pExclude)
-		{
-			if(!(Flags&FMF_FORBIDEXCLUDE))
+			if (!(Flags&FMF_FORBIDEXCLUDE))
 				FileMask=new FileMasksWithExclude;
 		}
 		else
@@ -101,11 +88,11 @@ BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 		if (FileMask)
 			rc=FileMask->Set(Masks, flags);
 
-		if(!rc)
+		if (!rc)
 			Free();
 	}
 
-	if(!Silent && !rc)
+	if (!Silent && !rc)
 		Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
 
 	return rc;

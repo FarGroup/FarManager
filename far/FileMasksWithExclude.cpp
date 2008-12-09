@@ -49,6 +49,31 @@ void FileMasksWithExclude::Free()
 	Exclude.Free();
 }
 
+bool FileMasksWithExclude::IsExcludeMask(const wchar_t *masks)
+{
+	return FindExcludeChar(masks)!=NULL;
+}
+
+const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
+{
+	const wchar_t *pExclude = masks;
+	if (*pExclude == L'/')
+	{
+		pExclude++;
+		while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
+			pExclude++;
+		while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
+			pExclude++;
+		if (*pExclude != EXCLUDEMASKSEPARATOR)
+			pExclude = NULL;
+	}
+	else
+	{
+		pExclude = wcschr(masks,EXCLUDEMASKSEPARATOR);
+	}
+	return pExclude;
+}
+
 /*
  Инициализирует список масок. Принимает список, разделенных запятой.
  Возвращает FALSE при неудаче (например, одна из
@@ -58,7 +83,7 @@ void FileMasksWithExclude::Free()
 BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
-	if(NULL==masks || !*masks) return FALSE;
+	if (NULL==masks || !*masks) return FALSE;
 
 	size_t len=StrLength(masks)+1;
 	BOOL rc=FALSE;
@@ -68,33 +93,20 @@ BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 		rc=TRUE;
 		wcscpy(MasksStr, masks);
 
-		wchar_t *pExclude = MasksStr;
-		if (*pExclude == L'/')
-		{
-			pExclude++;
-			while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
-				pExclude++;
-			while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
-				pExclude++;
-			if (*pExclude != EXCLUDEMASKSEPARATOR)
-				pExclude = NULL;
-		}
-		else
-		{
-			pExclude = wcschr(MasksStr,EXCLUDEMASKSEPARATOR);
-		}
-
+		wchar_t *pExclude = (wchar_t *) FindExcludeChar(MasksStr);
 		if (pExclude)
 		{
 			*pExclude=0;
 			++pExclude;
-			if(*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR)) rc=FALSE;
+			if (*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR))
+				rc=FALSE;
 		}
 
 		if(rc)
 		{
 			rc = Include.Set(*MasksStr?MasksStr:L"*",(Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
-			if(rc) rc=Exclude.Set(pExclude, 0);
+			if (rc)
+				rc=Exclude.Set(pExclude, 0);
 		}
 	}
 

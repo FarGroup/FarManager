@@ -52,10 +52,12 @@ void FileMasksProcessor::Free()
 	Masks.Free();
 	if (re)
 		delete re;
+	re = NULL;
 	if (m)
 		xf_free(m);
 	m = NULL;
 	n = 0;
+	bRE = false;
 }
 
 /*
@@ -66,23 +68,19 @@ void FileMasksProcessor::Free()
 
 BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 {
+	Free();
+
 	// разделителем масок является не только запятая, но и точка с запятой!
 	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
-	if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
+	if (Flags&FMPF_ADDASTERISK)
+		flags|=ULF_ADDASTERISK;
 
 	bRE = (masks && *masks == L'/');
-	if (re)
-		delete re;
-	re = NULL;
-	if (m)
-		xf_free(m);
-	m = NULL;
-	n = 0;
 
 	if (bRE)
 	{
 		re = new RegExp;
-		if (re && re->Compile(masks,OP_PERLSTYLE))
+		if (re && re->Compile(masks, OP_PERLSTYLE|OP_IGNORECASE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
@@ -107,8 +105,8 @@ BOOL FileMasksProcessor::IsEmpty(void)
 		return (n ? FALSE : TRUE);
 	}
 
-  Masks.Reset();
-  return Masks.IsEmpty();
+	Masks.Reset();
+	return Masks.IsEmpty();
 }
 
 /* сравнить имя файла со списком масок
@@ -119,7 +117,7 @@ BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 	if (bRE)
 	{
 		int i = n;
-		return (re->Match(FileName,m,i) ? TRUE : FALSE);
+		return (re->Search(FileName,m,i) ? TRUE : FALSE);
 	}
 
 	Masks.Reset();

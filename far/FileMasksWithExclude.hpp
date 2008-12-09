@@ -40,6 +40,7 @@ class FileMasksWithExclude:public BaseFileMask
 {
 private:
 	void Free();
+	static const wchar_t *FindExcludeChar(const wchar_t *masks);
 
 public:
 	FileMasksWithExclude();
@@ -49,6 +50,7 @@ public:
 	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
 	virtual BOOL Compare(const wchar_t *Name);
 	virtual BOOL IsEmpty(void);
+	static bool IsExcludeMask(const wchar_t *masks);
 
 private:
 	FileMasksProcessor Include, Exclude;

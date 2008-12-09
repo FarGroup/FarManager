@@ -49,7 +49,7 @@ class FileMasksProcessor : public BaseFileMask
 {
 public:
 	FileMasksProcessor();
-	virtual ~FileMasksProcessor() {	if (m) xf_free(m); if (re) delete re; }
+	virtual ~FileMasksProcessor() { Free(); }
 
 public:
 	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
