@@ -1,3 +1,7 @@
+zg 09.12.2008 17:56:32 +0200 - build 641
+
+1. в DialogRun/DialogFree проверяется hDlg на равенство INVALID_HANDLE_VALUE.
+
 t-rex 09.12.2008 13:05:43 +0200 - build 640
 
 1. В re для масок, сделал Search в место Match, так логичней и привычней.

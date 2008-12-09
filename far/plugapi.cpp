@@ -980,8 +980,10 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2
 
 int WINAPI FarDialogRun(HANDLE hDlg)
 {
-  if (FrameManager->ManagerIsDown())
-    return -1;
+	if (FrameManager->ManagerIsDown())
+		return -1;
+
+	if(hDlg==INVALID_HANDLE_VALUE) return -1;
 
 	Frame *frame;
 	if((frame=FrameManager->GetBottomFrame()) != NULL)
@@ -1015,8 +1017,11 @@ int WINAPI FarDialogRun(HANDLE hDlg)
 
 void WINAPI FarDialogFree(HANDLE hDlg)
 {
-	Dialog *FarDialog = (Dialog *)hDlg;
-	delete FarDialog;
+	if(hDlg!=INVALID_HANDLE_VALUE)
+	{
+		Dialog *FarDialog = (Dialog *)hDlg;
+		delete FarDialog;
+	}
 }
 
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
