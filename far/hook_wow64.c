@@ -124,22 +124,22 @@ hook_ldr(void)
 {
 #if !defined(__GNUC__)
   __asm {
-        call    wow_restore
-        pop     edx             // real call
-        pop     eax             // real return
-        pop     ecx             // arg1
-        xchg    eax, [esp+8]    // real return <=> arg4
-        xchg    eax, [esp+4]    // arg4 <=> arg3
-        xchg    eax, [esp]      // arg3 <=> arg2
-        push    eax             // arg2
-        push    ecx             // arg1
-        call    _l1
-        push    eax     // answer
-        call    wow_disable
-        pop     eax
-        retn
+        call    wow_restore                                      // 5
+        pop     edx             // real call                     // 1
+        pop     eax             // real return                   // 1
+        pop     ecx             // arg1                          // 1
+        xchg    eax, [esp+8]    // real return <=> arg4          // 4
+        xchg    eax, [esp+4]    // arg4 <=> arg3                 // 4
+        xchg    eax, [esp]      // arg3 <=> arg2                 // 3
+        push    eax             // arg2                          // 1
+        push    ecx             // arg1                          // 1
+        call    _l1                                              // 5
+        push    eax     // answer                                // 1
+        call    wow_disable                                      // 5
+        pop     eax                                              // 1
+        retn                                                     // 1
 //-----
-_l1:    push    240h
+_l1:    push    240h                                             //+1 = 35
         jmp     edx
   }
 #else
@@ -158,9 +158,10 @@ _l1:    push    240h
            "popl    %eax         \n\t"
            "ret                  \n\t"
        "_l1:                     \n\t"
-           "pushl   $0x240       \n\t"
+           "pushl   0x240        \n\t"
            "jmp     *%edx");
 #endif
+#define HOOK_PUSH_OFFSET  35
 }
 
 //-----------------------------------------------------------------------------
@@ -193,8 +194,20 @@ static void init_hook(void)
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL
-       || *(LPDWORD)ur.p != 0x24068 // push 240h
-       || ((LPBYTE)ur.p)[sizeof(DWORD)]) return;
+       || *(LPBYTE)ur.p != 0x68) return;   // push m32
+
+    {
+      DWORD   loff = *(LPDWORD)((LPBYTE)ur.p+1);
+      LPVOID  p_loff = (LPBYTE)&hook_ldr + HOOK_PUSH_OFFSET;
+      if(loff != *(LPDWORD)p_loff) { // 0x240 in non vista, 0x244 in vista/2008
+        DWORD rc;
+        // don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
+        if(!VirtualProtect(p_loff, sizeof(loff), PAGE_READWRITE, &rc))
+          return;
+        *(LPDWORD)p_loff = loff;
+        VirtualProtect(p_loff, sizeof(loff), rc, (LPDWORD)&p_loff);
+      }
+    }
 
     data.off -= ur.d;
     if(   !WriteProcessMemory(GetCurrentProcess(), ur.p, &data, sizeof(data), &data.off)
