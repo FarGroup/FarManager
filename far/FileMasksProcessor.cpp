@@ -80,7 +80,7 @@ BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 	if (bRE)
 	{
 		re = new RegExp;
-		if (re && re->Compile(masks, OP_PERLSTYLE|OP_IGNORECASE|OP_OPTIMIZE))
+		if (re && re->Compile(masks, OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
@@ -117,7 +117,14 @@ BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 	if (bRE)
 	{
 		int i = n;
-		return (re->Search(FileName,m,i) ? TRUE : FALSE);
+		int len = StrLength(FileName);
+		BOOL ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
+
+		//Освободим память если большая строка, чтоб не накапливалось.
+		if (len > 1024)
+			re->CleanStack();
+
+		return ret;
 	}
 
 	Masks.Reset();
