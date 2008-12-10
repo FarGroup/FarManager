@@ -158,7 +158,7 @@ _l1:    push    240h                                             //+1 = 35
            "popl    %eax         \n\t"
            "ret                  \n\t"
        "_l1:                     \n\t"
-           "pushl   0x240        \n\t"
+           "pushl   $0x240       \n\t"
            "jmp     *%edx");
 #endif
 #define HOOK_PUSH_OFFSET  35
