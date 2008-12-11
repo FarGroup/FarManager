@@ -170,31 +170,29 @@ the main help file, that is actual for the current FAR Manager version.
 1.1.13.(TechInfo #77)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\KeyBarLabels]
-   Содержимое ветки реестра "KeyBarLabels" позволяет переопределять надписи
-   к функциональным клавишам не прибегая к исправлению LNG-файлов.
-   Приоритет ветки высокий: FAR сначала считывает подписи к функциональным
-   клавишам из LNG-файла, далее изменяет значение подписей на значения
-   из этой ветки реестра (если найдено соответствующая подпись).
-   Структура:
-    [HKEY_CURRENT_USER\Software\Far\KeyBarLabels\ЯЗЫК\ОБЛАСТЬ]
-    "ИМЯКЛАВИШИ"="Значение"
-    Здесь
-      ЯЗЫК       - англоязычное название языка интерфейса, такое же написание,
-                   как в параметре ".Language" в LNG-файле (между '=' и ',');
-                   например, English или Russian.
-      ОБЛАСТЬ    - область действия подписи;
-                   распознаются области: "Shell", "Help", "Editor", "Viewer",
-                   "QView", "Tree", "Info"
-      ИМЯКЛАВИШИ - имя клавиши в терминологии макросов, например, для
-                   сочетания Ctrl-Alt-F7 ИМЯКЛАВИШИ будет "CtrlAltF7";
-                   распознаются только функциональные клавиши от F1 до F12
-                   (в сочетании с модификаторами Alt, Ctrl и Shift).
-   Например,
-    чтобы "навсегда" в редакторе прописать для F1 метку "Мануал", необходимо
-    указать:
+   Parameters in registry key "KeyBarLabels" allow to  redefine  labels  of
+   function keys without modifying LNG-files.
+   This key has high priority: initially, FAR reads labels of function keys
+   from LNG-file, then changes label values to values  from  this  registry
+   key (if corresponding label was found).
+   Structure:
+    [HKEY_CURRENT_USER\Software\Far\KeyBarLabels\LANGUAGE\AREA]
+    "KEYNAME"="Value"
+    Here
+      LANGUAGE   - English name of interface language, same spelling as in
+                   ".Language" parameter of LNG-file (between '=' and ',');
+                   for example, English or Russian.
+      AREA       - area where label is active;
+                   these areas are recognized: "Shell", "Help", "Editor",
+                   "Viewer", "QView", "Tree", "Info"
+      KEYNAME    - name of the key in the macro notation  (for  Ctrl-Alt-F7
+                   combination the KEYNAME is "CtrlAltF7");
+                   only function keys from F1 to F12 are recognized
+                   (in combination with Alt, Ctrl, and Shift modifiers).
+   For example,
+    to label F1 as "Manual" in editor, you need to specify:
       [HKEY_CURRENT_USER\Software\Far\KeyBarLabels\English\Editor]
-      "F1"="Мануал"
-
+      "F1"="Manual"
 
 
 =====================
@@ -584,32 +582,32 @@ the main help file, that is actual for the current FAR Manager version.
 1.2.26.(TechInfo #76)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
-   "FolderDeepScan":DWORD
-   Параметр "System/FolderDeepScan" с типом DWORD позволяет обходить
-   ограничения при работе с каталогами, в именах которых содержатся
-   символы, некорректно преобразованные из ANSI в OEM.
-   Если параметр включен (=1), то при обработке подобных каталогов будет
-   произведена попытка получить информацию по короткому имени.
-   Эта опция не влияет на работу механизма копирования.
-   Может быть одним из следующих значений:
-      0 - опция отключена;
-      1 - так же использовать короткие имена;
-   По умолчанию значение = 0 (работать только с длинными именами каталогов)
+   "FolderDeepScan":REG_DWORD
+   Parameter  "System/FolderDeepScan"  of  DWORD  type  allows  to   bypass
+   limitations when working with directories whose names contain characters
+   that were improperly converted from ANSI to OEM.
+   If parameter is enabled (=1), FAR will try to receive information  using
+   short name when handling such directories.
+   This option does not affect the work of copy engine.
+   Possible values:
+      0 - disabled;
+      1 - also use short names;
+   The default value is 0 (use only long names of directories)
 
 1.2.27.(TechInfo #79)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "ExcludeCmdHistory":REG_DWORD
-   Параметр "System/ExcludeCmdHistory" с типом DWORD позволяет определять,
-   какие типы команд не будут помещаться в историю. Проверка идет по битовой
-   маске.
-   Если бит установлен, данный тип команд в историю не помещается.
-    Номера битов:
-     0 - не помещать в историю команды ассоциаций Windows
-     1 - не помещать в историю команды ассоциаций FAR
-     2 - не помещать в историю команды запуска с панели
-     3 - не помещать в историю команды запуска из командной строки
-   По умолчанию значение = 0 (помещать в историю все команды).
+   Parameter "System/ExcludeCmdHistory" of  DWORD  type  allows  to  define
+   which types of commands will be excluded from history. Bit mask is used.
+   If the bit is set, certain type of commands is excluded from history.
+    Bit numbers:
+     0 - exclude from history Windows association commands
+     1 - exclude from history FAR association commands
+     2 - exclude from history panel execution commands
+     3 - exclude from history command line execution commands
+   The default value is 0 (all commands are included into history).
+
 
 ======================
   1.3. Executor.
@@ -620,7 +618,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System\Executor]
    "RestoreCP":REG_DWORD
-   The key "System/Executor/RestoreCP" of DWORD type allows to control  the
+   Parameter "System/Executor/RestoreCP" of DWORD type allows to control  the
    possibility of restoring the  code  page  after  external  programs  are
    started from the FAR Manager window and complete processing.
    Some programs change the code page of the  console  window  and  do  not
@@ -841,6 +839,8 @@ the main help file, that is actual for the current FAR Manager version.
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "CursorSize1":REG_DWORD
    "CursorSize2":REG_DWORD
+   "CursorSize3":REG_DWORD
+   "CursorSize4":REG_DWORD
    The keys "Interface/CursorSize1" and  "Interface/CursorSize2"  of  DWORD
    type allow to set the  insert  mode  cursor  size  for  the  window  and
    fullscreen modes of FAR. The values of the parameters (numbers between 1
@@ -851,6 +851,8 @@ the main help file, that is actual for the current FAR Manager version.
    The default values are:
      "CursorSize1"=15
      "CursorSize2"=10
+     "CursorSize3"=99
+     "CursorSize4"=99
 
 1.5.3.(TechInfo #38)
 ~~~~~~~~~~~~~~~~~~~~
