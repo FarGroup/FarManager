@@ -13,7 +13,7 @@ FAR 1.71 (build 2470) (27.11.2008)
 ---------------------------------------------------------------------------
 System
 ~~~~~~
-[!] Поддержка платформ AMD64 и IA64.
+[!] Support of AMD64 and IA64 platforms.
 [!] When working in Windows Vista under a limited account, OS virtualization
     effects are no longer applied to FAR (you can find out more about
     virtualization here:
@@ -29,9 +29,8 @@ System
 [!] Extended selection of command prompt format symbols.
 [!] Numpad keys '*' and '/' are now called "Multiply" and "Divide"
     respectively. Those names will be used in macros.
-[+] В меню и псевдо-диалогах (процесс копирования, удаления, загрузки файла
-    в редактор, установки аттрибутов и т.п.) теперь работает "разворачивание"
-    консоли по AltF9.
+[+] "Maximize" console by AltF9 now works in menu and pseudo-dialogs (copying,
+    deleting, loading file into editor, change file attributes, etc.)
 [+] TechInfo#72, allows to save plugin paths in history.
 [+] TechInfo#73, allows to define a list of file extensions which will be used
     to distinguish batch files.
@@ -43,10 +42,10 @@ System
     contain characters incorrectly mapped from ANSI to OEM.
 [+] TechInfo#77, allows to overload keybar buttons titles without editing the
     LNG-files.
-[+] Правило TechInfo#78, позволяющее определять символы, используемые
-    в качестве разделителей групп разрядов и целой/дробной части чисел.
-[+] Правило TechInfo#79, позволяющее определять типы команд, которые не будут
-    помещаться в историю.
+[+] TechInfo#78, allows to redefine decimal and digit grouping separator
+    symbols.
+[+] TechInfo#79, allows to define which types of commands will be excluded
+    from history.
 [+] Find folder window (Alt-F10 in panels and copy/move dialog) can be
     "maximized" by pressing F5.
 [+] Mouse wheel support in Find folder (Alt-F10).
@@ -55,19 +54,19 @@ System
     when "Show selected first" is enabled.
 [+] Ctrl-Shift-Numpad5 in panels: "Restore default panels height".
 [+] "!=\" and "!=/" special symbols - current path considering symbolic links.
-[+] При попытке открытия из истории редактирования несуществующего файла
-    предлагается создать этот файл.
-[+] Дополнительный режим показа размера дисков (Ctrl-5) в меню выбора диска -
-    в стиле Windows Explorer. По умолчанию включен.
-[+] Режим показа параметров для сетевых дисков (Ctrl-9) в меню дисков. По
-    умолчанию выключен.
-[+] Цвета текста, фона и символа пометки в раскраске файлов могут быть
-    прозрачны.
-[+] В меню выбора диска комбинация клавиш Shift-Del на USB-диске позволяет
-    подготовить устройство к безопасному извлечению.
-[+] В меню "Commands" (F9) добавлена команда "Hotplug devices list", которая
-    позволяет удалять hotplug-устройства.
-[+] В настройки диалогов добавлена опция "Del удаляет блоки в строках ввода".
+[+] When trying to open a non-existent file from file editing history
+    this file is proposed to be created.
+[+] Additional mode of showing drive size (Ctrl-5) in the drive selection
+    menu, like in Windows Explorer. Enabled by default.
+[+] Mode of showing network drives parameters (Ctrl-9) in the drive selection
+    menu. Disabled by default.
+[+] Colors of text, background, and marking character in files highlighting
+    can be transparent.
+[+] In the drive selection menu, pressing Shift-Del on USB-drive allows to
+    prepare device for safe removal.
+[+] "Hotplug devices list" command is added to "Commands" menu (F9). It
+    allows to remove hotplug devices.
+[+] "Del removes block in edit controls" option is added to dialog settings.
 [+] Возможность пропустить ошибки в процессе создания папок при включенной
     опции "Обрабатывать несколько имен папок".
 [+] Command line arguments:

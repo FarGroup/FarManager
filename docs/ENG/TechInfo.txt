@@ -585,7 +585,7 @@ the main help file, that is actual for the current FAR Manager version.
    "FolderDeepScan":REG_DWORD
    Parameter  "System/FolderDeepScan"  of  DWORD  type  allows  to   bypass
    limitations when working with directories whose names contain characters
-   that were improperly converted from ANSI to OEM.
+   that were incorrectly mapped from ANSI to OEM.
    If parameter is enabled (=1), FAR will try to receive information  using
    short name when handling such directories.
    This option does not affect the work of copy engine.
@@ -607,6 +607,7 @@ the main help file, that is actual for the current FAR Manager version.
      2 - exclude from history panel execution commands
      3 - exclude from history command line execution commands
    The default value is 0 (all commands are included into history).
+
 
 
 ======================
@@ -732,6 +733,7 @@ the main help file, that is actual for the current FAR Manager version.
      0 - console title shows what the user has typed.
      1 - console title shows the full path of the running program.
    The default value is 0.
+
 
 
 ======================
@@ -903,9 +905,9 @@ the main help file, that is actual for the current FAR Manager version.
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "FormatNumberSeparators":REG_DWORD
    The  key  "Interface/FormatNumberSeparators"  of  DWORD  type  allows to
-   redefine decimal and digit grouping symbols.
-   High word - code of digit grouping symbol.
-   Low word - code of decimal symbol.
+   redefine decimal and digit grouping separator symbols.
+   High word - code of digit grouping separator symbol.
+   Low word - code of decimal separator symbol.
    The default value is 0 (use OS regional settings).
 
 =====================
@@ -961,22 +963,21 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Panel]
    "ShellRightLeftArrowsRule":REG_DWORD
-    Параметр "ShellRightLeftArrowsRule" с типом DWORD позволяет управлять
-    поведением стрелок влево/вправо (как на основной, так и на дополнительной
-    клавиатуре).
-    Значения:
-      0 - поведение как у 1.70: если командная строка непустая, то клавиши
-          Left/Right и Num4/Num6 действуют по-разному в зависимости от
-          режима панели: если имена файлов отображаются в несколько колонок
-          (по умолчанию режимы 2 и 3), то команды вправо/влево применяются
-          к панели (как и при пустой командной строке); а если имена файлов
-          отображаются в одну колонку (по умолчанию все остальные режимы),
-          то команды вправо/влево применяются к командной строке.
-      1 - клавиши Left/Right и Num4/Num6 при включённой панели всегда
-          применяются только к ней, независимо от содержимого командной
-          строки и режима панели.
-          Примечание: в командной строке есть CtrlD/CtrlS.
-    По умолчанию значение = 0.
+    Parameter "ShellRightLeftArrowsRule" of DWORD  type  allows  to control
+    the Left/Right arrow keys behaviour (of both main keyboard and keypad).
+    Values:
+      0 - behaviour like in 1.70: if command line is not empty,  Left/Right
+          arrow keys and Num4/Num6 operate in different ways  depending  on
+          the panel mode: if file names are shown in several columns (modes
+          2 and 3 by default), then left and right commands are applied  to
+          the panel (as with empty command line); if file names  are  shown
+          in one column (all other modes by default), then left  and  right
+          commands are applied to the command line.
+      1 - Left/Right arrow keys and Num4/Num6 are always  applied  only  to
+          the panel (if it is active) regardless of command line and panel
+          mode.
+          Note: CtrlD/CtrlS shortcuts can be used in command line.
+    The default value is 0.
 
 
 

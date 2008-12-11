@@ -17,13 +17,13 @@ the standard plugins will function correctly with different FAR versions.
 
 Advanced Compare
 ~~~~~~~~~~~~~~~~
-[+] Если при сравнении по содержимому не удалось открыть файл -
-    выводится сообщение об ошибке.
-[*] При открытии файлов не используется флаг FILE_SHARE_WRITE.
+[+] Error message is displayed if file can not be opened when comparing
+    files by contents.
+[*] FILE_SHARE_WRITE flag is not used anymore when opening files.
 
 Align
 ~~~~~
-[-] Падение при попытке вырвнивания пустой строки.
+[-] Crash when trying to align an empty string.
 
 EMenu
 ~~~~~
@@ -53,9 +53,8 @@ FTP
 MultiArc
 ~~~~~~~~
 [+] custom.ini: innounp support (http://innounp.sourceforge.net/).
-[+] rar.fmt: если для просмотра архива требуется библиотека unrar.dll
-    (например, зашифрован заголовок), но обнаружить её не удалось -
-    выводится сообщение об ошибке.
+[+] rar.fmt: if unrar.dll library is required to view an archive (e.g. header
+    is encrypted), but it cannot be found, error message is displayed.
 [-] ace.fmt: crashed on corrupted archives.
 [-] arj.fmt: some rare archive types were incorrectly processed.
 [-] rar.fmt: the password was sent in the wrong encoding when using unrar.dll.
@@ -68,7 +67,7 @@ Network
 [+] Environment variables (%VARIABLENAME%) can be used in command line.
 [*] Cosmetic changes in login dialog.
 [-] Ctrl+PgUp now works correctly in all cases.
-[-] Если диалог ввода логина/пароля закрыть по Esс, он появлялся повторно.
+[-] Login/password dialog appeared again if it was closed by pressing Esc.
 
 ProcList
 ~~~~~~~~
@@ -343,7 +342,7 @@ FTP
     Error uploading: /incoming/E:/directory/file.ext
 [+] Menu items in "Utilities menu" are grayed if item operation impossible
 [*] File "BugReport_rus.txt" changed and now contains all info need to
-    report usefull bug reports
+    report useful bug reports
 [*] Procedure used to wait server reply to ABOR command corrected.
 [*] Download files using full pathname because some servers (GuildFTPd)
     does not supports names relative to current directory
