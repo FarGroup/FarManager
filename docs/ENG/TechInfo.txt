@@ -843,12 +843,15 @@ the main help file, that is actual for the current FAR Manager version.
    "CursorSize4":REG_DWORD
    The keys "Interface/CursorSize1" and  "Interface/CursorSize2"  of  DWORD
    type allow to set the  insert  mode  cursor  size  for  the  window  and
-   fullscreen modes of FAR. The values of the parameters (numbers between 1
-   and 100) specify the fraction of the character cell (in percents) filled
-   by the cursor. The cursor can change from a completely full  cell  to  a
-   horizontal line at the bottom of the cell.
-   The values equal to 0 allow to use the system console settings.
-   The default values are:
+   fullscreen modes of FAR.
+   The keys "Interface/CursorSize3" and  "Interface/CursorSize4"  of  DWORD
+   type allow to set the overwrite mode cusrsor size  for  the  window  and
+   fullscreen modes of FAR.
+   The values of the parameters (numbers between 1  and  100)  specify  the
+   fraction of the character cell (in percents) filled by the  cursor.  The
+   cursor can change from a completely full cell to a  horizontal  line  at
+   the bottom of the cell. The values equal to 0 allow to  use  the  system
+   console settings. The default values are:
      "CursorSize1"=15
      "CursorSize2"=10
      "CursorSize3"=99
