@@ -782,7 +782,7 @@ int WINAPI FarMenuFn (
       }
     }
 
-    if(!Selected)
+    if (!Selected)
       FarMenu.SetSelectPos(0,1);
 
     // флаги меню, с забитым контентом
@@ -791,7 +791,6 @@ int WINAPI FarMenuFn (
     if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
       FarMenu.AssignHighlights(TRUE);
 
-
     FarMenu.SetTitle(Title);
 
     FarMenu.Show();
@@ -799,21 +798,23 @@ int WINAPI FarMenuFn (
     {
       INPUT_RECORD ReadRec;
       int ReadKey=GetInputRecord(&ReadRec);
-      if(ReadKey==KEY_CONSOLE_BUFFER_RESIZE)
+      if (ReadKey==KEY_CONSOLE_BUFFER_RESIZE)
       {
         LockScreen LckScr;
         FarMenu.Hide();
         FarMenu.Show();
       }
       else if (ReadRec.EventType==MOUSE_EVENT)
+      {
         FarMenu.ProcessMouse(&ReadRec.Event.MouseEvent);
+      }
       else if (ReadKey!=KEY_NONE)
       {
         if (BreakKeys!=NULL)
         {
           for (int I=0;BreakKeys[I]!=0;I++)
           {
-            if(CtrlObject->Macro.IsExecuting())
+            if (CtrlObject->Macro.IsExecuting())
             {
               int VirtKey,ControlState;
               TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
@@ -821,43 +822,26 @@ int WINAPI FarMenuFn (
             if (ReadRec.Event.KeyEvent.wVirtualKeyCode==(BreakKeys[I] & 0xffff))
             {
               DWORD Flags=BreakKeys[I]>>16;
-              /* $ 31.07.2001 IS
-                 - Баг: меню плагина закрывалось в случае нажатия на
-                   ctrl-key, alt-key или shift-key, даже если эти комбинации
-                   вовсе не были указаны в BreakKeys, а плагину было нужно
-                   отследить нажатие на просто key. Решение: переписан весь
-                   кусок по анализу, т.к. предыдущий был полной лажей.
-              */
+
               DWORD RealFlags=ReadRec.Event.KeyEvent.dwControlKeyState &
                     (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|
                     LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
 
-              int Accept;
-              if(RealFlags) // нажаты shift, ctrl или alt
-              {
-                 Accept=FALSE; // т.к. пока ничего не известно
-                 if(Flags) // должна быть проверка с учетом ctrl|alt|shift
-                 {
-                   if ((Flags & PKF_CONTROL) &&
-                       (RealFlags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)))
-                     Accept=TRUE;
-                   if ((Flags & PKF_ALT) &&
-                       (RealFlags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)))
-                     Accept=TRUE;
-                   if ((Flags & PKF_SHIFT) && (RealFlags & SHIFT_PRESSED))
-                     Accept=TRUE;
-                 }
-              }
-              else
-                 Accept=!Flags;  // TRUE только, если нам не нужны сочетания
-                                 // вместе с ctrl|alt|shift
-              if (Accept)
+              DWORD f = 0;
+              if (RealFlags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
+                f |= PKF_CONTROL;
+              if (RealFlags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
+                f |= PKF_ALT;
+              if (RealFlags & SHIFT_PRESSED)
+                f |= PKF_SHIFT;
+
+              if (f == Flags)
               {
                 if (BreakCode!=NULL)
                   *BreakCode=I;
                 FarMenu.Hide();
 //                  CheckScreenLock();
-                return(FarMenu.GetSelectPos());
+                return FarMenu.GetSelectPos();
               }
             }
           }
