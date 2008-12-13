@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="far18"
+	Name="far2"
 	ProjectGUID="{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}"
-	RootNamespace="far18"
+	RootNamespace="far2"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
