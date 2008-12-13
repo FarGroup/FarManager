@@ -63,6 +63,20 @@ FileFilter::~FileFilter()
 {
 }
 
+Panel *FileFilter::GetHostPanel()
+{
+	if (m_HostPanel == (Panel *)PANEL_ACTIVE)
+	{
+		return CtrlObject->Cp()->ActivePanel;
+	}
+	else if (m_HostPanel == (Panel *)PANEL_PASSIVE)
+	{
+		return CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+	}
+
+	return m_HostPanel;
+}
+
 bool FileFilter::FilterEdit()
 {
   MenuItemEx ListItem;
@@ -127,11 +141,11 @@ bool FileFilter::FilterEdit()
     ListItem.SetCheck(Check);
   FilterList.AddItem(&ListItem);
 
-  if (m_HostPanel->GetMode()==NORMAL_PANEL)
+  if (GetHostPanel()->GetMode()==NORMAL_PANEL)
   {
     string strCurDir, strFileName;
     FAR_FIND_DATA_EX fdata;
-    m_HostPanel->GetCurDir(strCurDir);
+    GetHostPanel()->GetCurDir(strCurDir);
 
     ScanTree ScTree(FALSE,FALSE);
     ScTree.SetFindPath(strCurDir,L"*.*");
@@ -143,7 +157,7 @@ bool FileFilter::FilterEdit()
   {
     string strFileName;
     DWORD FileAttr;
-    for (int i=0; m_HostPanel->GetFileName(strFileName,i,FileAttr); i++)
+    for (int i=0; GetHostPanel()->GetFileName(strFileName,i,FileAttr); i++)
       if(!ParseAndAddMasks(&ExtPtr,strFileName,FileAttr,ExtCount,0))
         break;
   }
@@ -405,8 +419,8 @@ bool FileFilter::FilterEdit()
   {
     if (m_FilterType == FFT_PANEL)
     {
-      m_HostPanel->Update(UPDATE_KEEP_SELECTION);
-      m_HostPanel->Redraw();
+      GetHostPanel()->Update(UPDATE_KEEP_SELECTION);
+      GetHostPanel()->Redraw();
     }
   }
 
@@ -417,7 +431,7 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 {
   if (m_FilterType == FFT_PANEL)
   {
-    if (m_HostPanel==CtrlObject->Cp()->RightPanel)
+    if (GetHostPanel() == CtrlObject->Cp()->RightPanel)
     {
       return FFFT_RIGHTPANEL;
     }

@@ -55,6 +55,7 @@ class FileFilter
     enumFileFilterType m_FilterType;
     unsigned __int64 CurrentTime;
 
+    Panel *GetHostPanel();
     int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check);
     void ProcessSelection(VMenu *FilterList);
     enumFileFilterFlagsType GetFFFT();

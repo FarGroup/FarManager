@@ -357,7 +357,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 
   SetRegRootKey(HKEY_CURRENT_USER);
-  Opt.strRegRoot = L"Software\\Far18";
+  Opt.strRegRoot = L"Software\\Far2";
   // По умолчанию - брать плагины из основного каталога
   Opt.LoadPlug.MainPluginDir=TRUE;
   Opt.LoadPlug.PluginsPersonal=TRUE;
@@ -604,9 +604,9 @@ void CopyGlobalSettings()
     return;
   // такого извера нету - перенесем данные!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  CopyKeyTree(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0");
+  CopyKeyTree(L"Software\\Far2",Opt.strRegRoot,L"Software\\Far2\\Users\0");
   SetRegRootKey(HKEY_CURRENT_USER);
-  CopyKeyTree(L"Software\\Far18",Opt.strRegRoot,L"Software\\Far18\\Users\0Software\\Far\\PluginsCache\0");
+  CopyKeyTree(L"Software\\Far2",Opt.strRegRoot,L"Software\\Far2\\Users\0Software\\Far2\\PluginsCache\0");
   //  "Вспомним" путь по шаблону!!!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   GetRegKey(L"System",L"TemplatePluginsPath",Opt.LoadPlug.strPersonalPluginsPath,L"");

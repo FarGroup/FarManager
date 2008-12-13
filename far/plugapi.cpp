@@ -1197,24 +1197,24 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETPANELDIR:
     case FCTL_SETSELECTION:
     case FCTL_SETVIEWMODE:
-    case FCTL_SETSORTMODE:                 //  VVM 08.09.2000  + Смена сортировки из плагина
+    case FCTL_SETSORTMODE:
     case FCTL_SETSORTORDER:
     case FCTL_SETNUMERICSORT:
     {
-      if(!FPanels)
+      if (!FPanels)
         return FALSE;
 
       if ( (hPlugin == PANEL_ACTIVE) || (hPlugin == PANEL_PASSIVE) )
       {
-         Panel *pPanel = (hPlugin == PANEL_ACTIVE)?FPanels->ActivePanel:FPanels->GetAnotherPanel (FPanels->ActivePanel);
+        Panel *pPanel = (hPlugin == PANEL_ACTIVE)?FPanels->ActivePanel:FPanels->GetAnotherPanel (FPanels->ActivePanel);
 
-         if ( pPanel )
-         {
+        if ( pPanel )
+        {
          	pPanel->SetPluginCommand (Command, Param);
          	return TRUE;
-         }
+        }
 
-         return FALSE; //???
+        return FALSE; //???
       }
 
       HANDLE hInternal;
@@ -1226,7 +1226,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
       {
         PlHandle=(struct PluginHandle *)LeftPanel->GetPluginHandle();
-        if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
+        if (PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
@@ -1240,7 +1240,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
       {
         PlHandle=(struct PluginHandle *)RightPanel->GetPluginHandle();
-        if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
+        if (PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
