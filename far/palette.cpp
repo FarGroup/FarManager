@@ -347,8 +347,8 @@ int FarColorToReal(int FarColor)
   1.70 b4 (1282)  - 0x60
   1.70 b5 ()      - 0x70
 
-  1.71 a4 (2468)  - 0x81
-  1.80    (606)   - 0x81
+  1.75    (2478)  - 0x81
+  2.0     (647)   - 0x81
 */
 void ConvertCurrentPalette()
 {

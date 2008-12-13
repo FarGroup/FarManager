@@ -102,7 +102,7 @@ farversion.m4
         ¬ерси€‘ара alpha „тоЋибоƒругое based on build ЌомерЅилда
    b. BUILDTYPENUM, номер сборки - будет выводитс€ дл€ alpha,beta,RC версий.
    c. MAJOR - MAJOR верси€ фара (например 1).
-   d. MINOR - MINOR верси€ фара (например 71).
+   d. MINOR - MINOR верси€ фара (например 75).
 
 
 vbuild.m4
