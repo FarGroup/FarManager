@@ -1,6 +1,6 @@
 (**************************************************************
 * FMT.PAS
-* Archive Support API for FAR Manager 1.70 and MultiArc plugin
+* Archive Support API for FAR Manager 1.75 and MultiArc plugin
 * Revision: 1.11 21.03.2006 $
 *
 * Copyright (c) 1996-2000 Eugene Roshal
