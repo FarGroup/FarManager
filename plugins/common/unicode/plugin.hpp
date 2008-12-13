@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.80 build 637
+  Plugin API for FAR Manager 2.0 build 647
 */
 
 /*
@@ -39,9 +39,9 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
-#define FARMANAGERVERSION_MAJOR 1
-#define FARMANAGERVERSION_MINOR 80
-#define FARMANAGERVERSION_BUILD 637
+#define FARMANAGERVERSION_MAJOR 2
+#define FARMANAGERVERSION_MINOR 0
+#define FARMANAGERVERSION_BUILD 647
 
 #ifndef RC_INVOKED
 
