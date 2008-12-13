@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 647
+  Plugin API for FAR Manager 2.0 build 648
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 647
+#define FARMANAGERVERSION_BUILD 648
 
 #ifndef RC_INVOKED
 
@@ -679,17 +679,6 @@ struct PluginPanelItem
   DWORD_PTR     Reserved[2];
 };
 
-
-#if defined(__BORLANDC__)
-#if sizeof(struct PluginPanelItem) != 366
-#if defined(STRICT)
-#error Incorrect alignment: sizeof(PluginPanelItem)!=366
-#else
-#pragma message Incorrect alignment: sizeof(PluginPanelItem)!=366
-#endif
-#endif
-#endif
-
 enum PANELINFOFLAGS {
   PFLAGS_SHOWHIDDEN         = 0x00000001,
   PFLAGS_HIGHLIGHT          = 0x00000002,
@@ -745,9 +734,9 @@ struct CmdLineSelect
   int SelEnd;
 };
 
-#define PANEL_NONE		(HANDLE)(-1)
-#define PANEL_ACTIVE	(HANDLE)(-1)
-#define PANEL_PASSIVE	(HANDLE)(-2)
+#define PANEL_NONE		((HANDLE)(-1))
+#define PANEL_ACTIVE	((HANDLE)(-1))
+#define PANEL_PASSIVE	((HANDLE)(-2))
 
 enum FILE_CONTROL_COMMANDS{
   FCTL_CLOSEPLUGIN,
@@ -1451,6 +1440,20 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
   DWORD Flags
 );
 
+typedef int (WINAPI *FARAPIPLUGINSCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  int Param1,
+  LONG_PTR Param2
+);
+
+typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  int Param1,
+  LONG_PTR Param2
+);
+
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1542,9 +1545,6 @@ typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DW
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
-typedef int     (WINAPI *FARLOADPLUGIN)(const wchar_t *Path);
-typedef int     (WINAPI *FARUNLOADPLUGIN)(const wchar_t *Path);
-
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1604,8 +1604,6 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
-  FARLOADPLUGIN              LoadPlugin;
-  FARUNLOADPLUGIN            UnloadPlugin;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
@@ -1644,6 +1642,8 @@ struct PluginStartupInfo
   FARAPIDEFDLGPROC       DefDlgProc;
   DWORD_PTR              Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
+  FARAPIPLUGINSCONTROL   PluginsControl;
+  FARAPIFILEFILTERCONTROL FileFilterControl;
 };
 
 
@@ -1807,6 +1807,31 @@ enum FAR_EVENTS {
 
   FE_GOTFOCUS       =6,
   FE_KILLFOCUS      =7,
+};
+
+enum FAR_PLUGINS_CONTROL_COMMANDS {
+  PCTL_LOADPLUGIN = 0,
+  PCTL_UNLOADPLUGIN,
+};
+
+enum FAR_PLUGIN_LOAD_TYPE {
+  PLT_PATH = 0,
+};
+
+enum FAR_FILE_FILTER_CONTROL_COMMANDS {
+  FFCTL_CREATEFILEFILTER = 0,
+  FFCTL_FREEFILEFILTER,
+  FFCTL_OPENFILTERSMENU,
+  FFCTL_STARTINGTOFILTER,
+  FFCTL_ISFILEINFILTER,
+};
+
+enum FAR_FILE_FILTER_TYPE
+{
+  FFT_PANEL = 0,
+  FFT_FINDFILE,
+  FFT_COPY,
+  FFT_SELECT,
 };
 
 
