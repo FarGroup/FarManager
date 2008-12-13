@@ -51,8 +51,8 @@ const TCHAR *Plugins_KEY=_T("\\Plugins");
 const char *Default_KEY="\\Software\\Far";
 const char *Users_KEY="\\Software\\Far\\Users";
 #else
-const wchar_t *Default_KEY=L"\\Software\\Far18";
-const wchar_t *Users_KEY=L"\\Software\\Far18\\Users";
+const wchar_t *Default_KEY=L"\\Software\\Far2";
+const wchar_t *Users_KEY=L"\\Software\\Far2\\Users";
 #endif
 
 //----
