@@ -582,7 +582,11 @@ static int __cdecl PICompare(const void *el1, const void *el2)
 /****************************************************************************
  * Построение сортированного списка файлов для быстрого сравнения
  ****************************************************************************/
-static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIndex)
+static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIndex
+#ifdef UNICODE
+                            ,HANDLE Filter
+#endif
+                           )
 {
   bool bProcessSelected;
   pIndex->ppi = NULL;
@@ -601,6 +605,10 @@ static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIn
          lstrcmp(pInfo->PanelItems[i].FindData._cFileName, _T("..")) &&
          lstrcmp(pInfo->PanelItems[i].FindData._cFileName, _T(".")) )
       {
+#ifdef UNICODE
+        if (!Info.FileFilterControl(Filter,FFCTL_ISFILEINFILTER,0,(LONG_PTR)&pInfo->PanelItems[i].FindData))
+          continue;
+#endif
         pIndex->ppi[j++] = &pInfo->PanelItems[i];
       }
   if ((pIndex->iCount = j) != 0)
@@ -688,6 +696,7 @@ static void FreeDirList(struct PanelInfo *AInfo)
       free(AInfo->PanelItems[i].FindData.lpwszAlternateFileName);
       free(AInfo->PanelItems[i].FindData.lpwszFileName);
     }
+    free(AInfo->lpwszCurDir);
 #endif
     free(AInfo->PanelItems);
   }
@@ -695,6 +704,10 @@ static void FreeDirList(struct PanelInfo *AInfo)
 
 static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll, int ScanDepth);
 static DWORD bufSize;
+
+#ifdef UNICODE
+static HANDLE AFilter, PFilter;
+#endif
 
 //TODO: эта часть (до конца CompareFiles) НЕ адоптировано к unicode/locale
 //      и, тем паче, к автоопознованию файлов
@@ -735,10 +748,6 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
         bEqual = CompareDirs(&AInfo, &PInfo, false, ScanDepth+1);
       FreeDirList(&AInfo);
       FreeDirList(&PInfo);
-#ifdef UNICODE
-      free(AInfo.lpwszCurDir);
-      free(PInfo.lpwszCurDir);
-#endif
       return bEqual;
     }
   }
@@ -1005,7 +1014,11 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
   TCHAR DirA[MAX_PATH], DirP[MAX_PATH];
   ShowMessage(lstrcpy(DirA, BuildFullFilename(AInfo->_CurDir, _T("*"))),
               lstrcpy(DirP, BuildFullFilename(PInfo->_CurDir, _T("*"))));
+#ifndef UNICODE
   if (!BuildPanelIndex(AInfo, &sfiA) || !BuildPanelIndex(PInfo, &sfiP))
+#else
+  if (!BuildPanelIndex(AInfo, &sfiA, AFilter) || !BuildPanelIndex(PInfo, &sfiP, PFilter))
+#endif
   {
     const TCHAR *MsgItems[] = {
       GetMsg(MNoMemTitle),
@@ -1250,9 +1263,31 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   bOpenFail = false;
   bool bDifferenceNotFound = false;
 
+#ifdef UNICODE
+  AFilter = INVALID_HANDLE_VALUE;
+  PFilter = INVALID_HANDLE_VALUE;
+
+  Info.FileFilterControl(PANEL_ACTIVE,  FFCTL_CREATEFILEFILTER, FFT_PANEL, (LONG_PTR)&AFilter);
+  Info.FileFilterControl(PANEL_PASSIVE, FFCTL_CREATEFILEFILTER, FFT_PANEL, (LONG_PTR)&PFilter);
+
+  Info.FileFilterControl(AFilter, FFCTL_STARTINGTOFILTER, 0, 0);
+  Info.FileFilterControl(PFilter, FFCTL_STARTINGTOFILTER, 0, 0);
+#endif
+
   // Теперь можем сравнить объекты на панелях...
-  if (ABuf && PBuf)
+  if (ABuf && PBuf
+#ifdef UNICODE
+      && AFilter != INVALID_HANDLE_VALUE && PFilter != INVALID_HANDLE_VALUE
+#endif
+     )
+  {
     bDifferenceNotFound = CompareDirs(&AInfo, &PInfo, true, 0);
+  }
+
+#ifdef UNICODE
+  Info.FileFilterControl(AFilter, FFCTL_FREEFILEFILTER, 0, 0);
+  Info.FileFilterControl(PFilter, FFCTL_FREEFILEFILTER, 0, 0);
+#endif
 
   free (ABuf);
   free (PBuf);
