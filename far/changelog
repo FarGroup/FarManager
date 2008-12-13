@@ -1,3 +1,18 @@
+t-rex 13.12.2008 16:00:35 +0200 - build 648
+
+1. ”брал Load/UnloadPlugin, теперь на будущее есть
+   PluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
+
+   LoadPlugin теперь так
+   PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)L"path to dll");
+
+   UnloadPlugin теперь так
+   PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)L"path to dll");
+
+2. «аготовка API дл€ FileFilter.
+
+3. ”брал проверку на размер PluginPanelItem из plugin.hpp, она больше не нужна и была не правильна€.
+
 drkns 13.12.2008 13:31:49 +0200
 
 1. ¬ерси€ 2.0 в проекте.

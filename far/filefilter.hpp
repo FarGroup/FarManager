@@ -40,19 +40,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu;
 class Panel;
 
-enum enumFileFilterType
-{
-  FFT_PANEL = 0,
-  FFT_FINDFILE,
-  FFT_COPY,
-  FFT_SELECT,
-};
-
 class FileFilter
 {
   private:
     Panel *m_HostPanel;
-    enumFileFilterType m_FilterType;
+    FAR_FILE_FILTER_TYPE m_FilterType;
     unsigned __int64 CurrentTime;
 
     Panel *GetHostPanel();
@@ -63,7 +55,7 @@ class FileFilter
     static void SwapPanelFlags(FileFilterParams *CurFilterData);
 
   public:
-    FileFilter(Panel *HostPanel, enumFileFilterType FilterType);
+    FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
     ~FileFilter();
 
     bool FilterEdit();

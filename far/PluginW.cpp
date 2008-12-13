@@ -499,8 +499,6 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.MkLink=FarMkLink;
     //StandardFunctions.ConvertNameToReal=OldConvertNameToReal; //BUGBUG
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
-    StandardFunctions.LoadPlugin=farLoadPlugin;
-    StandardFunctions.UnloadPlugin=farUnloadPlugin;
   }
 
   if(!StartupInfo.StructSize)
@@ -530,6 +528,8 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StartupInfo.SendDlgMessage=FarSendDlgMessage;
     StartupInfo.DefDlgProc=FarDefDlgProc;
     StartupInfo.InputBox=FarInputBox;
+    StartupInfo.PluginsControl=farPluginsControl;
+    StartupInfo.FileFilterControl=farFileFilterControl;
   }
 
   memcpy(PSI,&StartupInfo,sizeof(StartupInfo));

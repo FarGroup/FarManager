@@ -2125,16 +2125,33 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	return Ret;
 }
 
-int WINAPI farLoadPlugin(const wchar_t *Path)
+int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
 {
-	string strPath;
-	ConvertNameToFull(Path, strPath);
-	return CtrlObject->Plugins.LoadPlugin(strPath, true);
+	switch (Command)
+	{
+		case PCTL_LOADPLUGIN:
+	  case PCTL_UNLOADPLUGIN:
+		{
+			if (Param1 == PLT_PATH)
+			{
+				if (Param2 != 0)
+				{
+					string strPath;
+					ConvertNameToFull((const wchar_t *)Param2, strPath);
+					if (Command == PCTL_LOADPLUGIN)
+						return CtrlObject->Plugins.LoadPlugin(strPath, true);
+					else
+						return CtrlObject->Plugins.UnloadPluginExternal(strPath);
+				}
+			}
+			break;
+	  }
+	}
+
+	return 0;
 }
 
-int WINAPI farUnloadPlugin(const wchar_t *Path)
+int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
 {
-	string strPath;
-	ConvertNameToFull(Path, strPath);
-	return CtrlObject->Plugins.UnloadPluginExternal(strPath);
+	return 0;
 }

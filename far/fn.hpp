@@ -516,9 +516,9 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 // Посылка сообщения диалогу
 LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param2);
 
-int WINAPI farLoadPlugin(const wchar_t *Path);
-int WINAPI farUnloadPlugin(const wchar_t *Path);
+int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
 
+int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
 #endif
 
 

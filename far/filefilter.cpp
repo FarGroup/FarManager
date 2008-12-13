@@ -52,7 +52,9 @@ static int _cdecl ExtSort(const void *el1,const void *el2);
 static TPointerArray<FileFilterParams> FilterData, TempFilterData;
 static FileFilterParams FoldersFilter;
 
-FileFilter::FileFilter(Panel *HostPanel, enumFileFilterType FilterType)
+static bool bMenuOpen = false;
+
+FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType)
 {
   m_HostPanel=HostPanel;
   m_FilterType=FilterType;
@@ -79,6 +81,11 @@ Panel *FileFilter::GetHostPanel()
 
 bool FileFilter::FilterEdit()
 {
+  if (bMenuOpen)
+    return false;
+
+  bMenuOpen = true;
+
   MenuItemEx ListItem;
   int ExitCode;
   bool bNeedUpdate=false;
@@ -423,6 +430,8 @@ bool FileFilter::FilterEdit()
       GetHostPanel()->Redraw();
     }
   }
+
+  bMenuOpen = false;
 
   return (ExitCode!=-1);
 }
