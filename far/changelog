@@ -1,3 +1,43 @@
+t-rex 13.12.2008 20:09:18 +0200 - build 649
+
+1. FileFilter API
+
+   FileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
+
+   Command:
+
+   FFCTL_CREATEFILEFILTER - hHandle - PANEL_ACTIVE или PANEL_PASSIVE
+                            Param1 - один из FAR_FILE_FILTER_TYPE
+                                     Созданный фильтр получит настройки той
+                                     области которая задана в Param1.
+                                     Настройки области глобальны и всегда идентичны
+                                     в любом фильтре этой области (настройки правой
+                                     и левой панели это две разные области).
+                                     Авто фильтры (и настройки панельной области)
+                                     зависят от hHandle.
+                            Param2 - HANDLE* в который запишется HANDLE фильтра
+                            
+                            При неудаче вернёт FALSE и Param2=INVALID_HANDLE_VALUE.
+
+   FFCTL_FREEFILEFILTER   - hHandle - HANDLE который вернул FFCTL_CREATEFILEFILTER
+
+   FFCTL_OPENFILTERSMENU  - hHandle - HANDLE который вернул FFCTL_CREATEFILEFILTER
+                            
+                            Откроет меню фильтра для заданной области.
+                            Если меню отменено пользователем то вернёт FALSE.
+
+   FFCTL_STARTINGTOFILTER - hHandle - HANDLE который вернул FFCTL_CREATEFILEFILTER
+
+                            Это вызов надо сделать до начала "атомической" операции фильтрования
+                            чтобы фильтры с относительной датой правильно работали.
+                            Этот вызов обновляет "текущее время" которое используется для сравнения
+                            относительных дат.
+
+   FFCTL_ISFILEINFILTER   - hHandle - HANDLE который вернул FFCTL_CREATEFILEFILTER
+                            Param2 - (const FAR_FIND_DATA *) который нужно проверить на включение в фильтр.
+                            
+                            Вернёт TRUE если файл попадает под фильтр (т.е. включен), или FALSE если исключен.
+
 t-rex 13.12.2008 16:00:35 +0200 - build 648
 
 1. Убрал Load/UnloadPlugin, теперь на будущее есть

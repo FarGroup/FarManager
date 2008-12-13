@@ -2130,7 +2130,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 	switch (Command)
 	{
 		case PCTL_LOADPLUGIN:
-	  case PCTL_UNLOADPLUGIN:
+		case PCTL_UNLOADPLUGIN:
 		{
 			if (Param1 == PLT_PATH)
 			{
@@ -2153,5 +2153,77 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 
 int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
 {
-	return 0;
+	FileFilter *Filter=NULL;
+
+	if (Command != FFCTL_CREATEFILEFILTER)
+	{
+		if (hHandle == INVALID_HANDLE_VALUE)
+			return FALSE;
+
+		Filter = (FileFilter *)hHandle;
+	}
+
+	switch (Command)
+	{
+		case FFCTL_CREATEFILEFILTER:
+		{
+			if (Param2 == 0)
+				break;
+
+			*((HANDLE *)Param2) = INVALID_HANDLE_VALUE;
+
+			if (hHandle != PANEL_ACTIVE && hHandle != PANEL_PASSIVE)
+				break;
+
+			switch (Param1)
+			{
+				case FFT_PANEL:
+				case FFT_FINDFILE:
+				case FFT_COPY:
+				case FFT_SELECT:
+					break;
+
+				default:
+					return FALSE;
+
+			}
+
+			Filter = new FileFilter((Panel *)hHandle, (FAR_FILE_FILTER_TYPE)Param1);
+
+			if (Filter)
+			{
+				*((HANDLE *)Param2) = (HANDLE)Filter;
+				return TRUE;
+			}
+
+			break;
+		}
+
+		case FFCTL_FREEFILEFILTER:
+		{
+			delete Filter;
+			return TRUE;
+		}
+
+		case FFCTL_OPENFILTERSMENU:
+		{
+			return Filter->FilterEdit() ? TRUE : FALSE;
+		}
+
+		case FFCTL_STARTINGTOFILTER:
+		{
+			Filter->UpdateCurrentTime();
+			return TRUE;
+		}
+
+		case FFCTL_ISFILEINFILTER:
+		{
+			if (Param2 == 0)
+				break;
+
+			return Filter->FileInFilter((const FAR_FIND_DATA *)Param2) ? TRUE : FALSE;
+		}
+	}
+
+	return FALSE;
 }
