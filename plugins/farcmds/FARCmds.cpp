@@ -56,10 +56,6 @@ FARSTDKEYNAMETOKEY FarNameToKey;
 FARSTDQUOTESPACEONLY QuoteSpaceOnly;
 FARSTDRECURSIVESEARCH FarRecursiveSearch;
 FARSTDLOCALISALPHA FarIsAlpha;
-#ifdef UNICODE
-FARLOADPLUGIN LoadPlugin;
-FARUNLOADPLUGIN UnloadPlugin;
-#endif
 
 struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("%s%s%s"),_T("Separator"),
                            _T("DisksMenuDigit"), _T("ShowCmdOutput"), _T("CatchMode"), _T("ViewZeroFiles"), _T("EditNewFiles") };
@@ -111,10 +107,6 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
   QuoteSpaceOnly=Info.FSF->QuoteSpaceOnly;
   FarRecursiveSearch=Info.FSF->FarRecursiveSearch;
   FarIsAlpha=Info.FSF->LIsAlpha;
-#ifdef UNICODE
-  LoadPlugin=Info.FSF->LoadPlugin;
-  UnloadPlugin=Info.FSF->UnloadPlugin;
-#endif
 
   lstrcpy(PluginRootKey,Info.RootKey);
   lstrcat(PluginRootKey,_T("\\FARCmds"));

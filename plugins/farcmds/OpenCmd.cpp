@@ -630,9 +630,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           {
             Unquote(pCmd);
             if (PLoad)
-              LoadPlugin(pCmd);
+              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)pCmd);
             else
-              UnloadPlugin(pCmd);
+              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)pCmd);
           }
 #endif
           else
