@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2465) (24.11.2008)
+FAR 1.75 (build 2479) (14.12.2008)
 ---------------------------------------------------------------------------
    All the plugins supplied with the FAR Manager are designed only for the
 version of FAR with which they are supplied. It is not guaranteed that
