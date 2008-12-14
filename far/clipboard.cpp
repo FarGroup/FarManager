@@ -330,42 +330,47 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
   {
     int BufferSize;
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-//    if (Unicode)
-      BufferSize=StrLength(ClipAddr)+1;
- //   else
-//      BufferSize=strlen(ClipAddr)+1;
-    if ( BufferSize>max )
+    if (ClipAddr)
+    {
+      //if (Unicode)
+        BufferSize=StrLength(ClipAddr)+1;
+      //else
+       //BufferSize=strlen(ClipAddr)+1;
+      if ( BufferSize>max )
         BufferSize=max;
 
-    ClipText=(wchar_t *)xf_malloc((BufferSize+2)*sizeof(wchar_t));
-    if (ClipText!=NULL)
-    {
-      wmemset(ClipText,0,BufferSize+2);
-
-      xwcsncpy(ClipText,ClipAddr,BufferSize);
-
-/*      if (Unicode)
-        if(AnsiMode)
-          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
-        else
-          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
-      else
+      ClipText=(wchar_t *)xf_malloc((BufferSize+2)*sizeof(wchar_t));
+      if (ClipText!=NULL)
       {
-        if (ReadType==CF_TEXT)
-        {
-          xstrncpy(ClipText,ClipAddr,BufferSize);
-          if(!AnsiMode)
-            FAR_CharToOem(ClipText,ClipText);
-          ClipText[BufferSize]=0;
-        }
+        wmemset(ClipText,0,BufferSize+2);
+
+        xwcsncpy(ClipText,ClipAddr,BufferSize);
+
+/*
+        if (Unicode)
+          if(AnsiMode)
+            UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          else
+            UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
         {
-          xstrncpy(ClipText,ClipAddr,BufferSize);
-          ClipText[BufferSize]=0;
+          if (ReadType==CF_TEXT)
+          {
+            xstrncpy(ClipText,ClipAddr,BufferSize);
+            if(!AnsiMode)
+              FAR_CharToOem(ClipText,ClipText);
+            ClipText[BufferSize]=0;
+          }
+          else
+          {
+            xstrncpy(ClipText,ClipAddr,BufferSize);
+            ClipText[BufferSize]=0;
+          }
         }
-      }    */
+*/
+      }
+      GlobalUnlock(hClipData);
     }
-    GlobalUnlock(hClipData);
   }
   FAR_CloseClipboard();
   return(ClipText);
