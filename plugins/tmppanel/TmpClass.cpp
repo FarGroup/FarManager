@@ -635,14 +635,20 @@ void TmpPanel::ProcessRemoveKey()
   struct PanelInfo PInfo;
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
 
+#ifdef UNICODE
+#define SelItem(item) (item)
+#else
+#define SelItem(item) (&(item))
+#endif
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
   {
     struct PluginPanelItem *RemovedItem=(struct PluginPanelItem *)
-      FSF.bsearch(&PInfo.SelectedItems[i],TmpPanelItem,TmpItemsNumber,
+      FSF.bsearch(SelItem(PInfo.SelectedItems[i]),TmpPanelItem,TmpItemsNumber,
         sizeof(struct PluginPanelItem),SortListCmp);
     if(RemovedItem!=NULL)
       RemovedItem->Flags|=REMOVE_FLAG;
   }
+#undef SelItem
   RemoveEmptyItems();
   Info.Control(this,FCTL_UPDATEPANEL,NULL);
   Info.Control(this,FCTL_REDRAWPANEL,NULL);
