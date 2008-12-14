@@ -196,11 +196,12 @@ int ToPercent64(__int64 N1,__int64 N2)
 int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
 {
   int skippath=flags&PN_SKIPPATH;
+  flags &= ~PN_SKIPPATH
 
-  if(flags&PN_CMPNAME)
+  if (flags == PN_CMPNAME)
     return CmpName(param1, param2, skippath);
 
-  if(flags&PN_CMPNAMELIST)
+  if (flags == PN_CMPNAMELIST)
   {
     int Found=FALSE;
     char FileMask[NM];
@@ -208,16 +209,18 @@ int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
     MaskPtr=param1;
 
     while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
+    {
       if (CmpName(FileMask,param2,skippath))
       {
         Found=TRUE;
         break;
       }
+    }
     return Found;
   }
 
-  if(flags&PN_GENERATENAME)
-   return ConvertWildcards(param1, param2, flags & 0xFF);
+  if (flags&PN_GENERATENAME)
+    return ConvertWildcards(param1, param2, (flags&0xFF)|(skippath?PN_SKIPPATH:0));
 
   return FALSE;
 }
@@ -469,7 +472,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 */
 int CheckFolder(const char *Path)
 {
-  if(!(Path || *Path)) // проверка на вшивость
+  if(!(Path && *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
   int LenFindPath=Max((int)strlen(Path),2048)+8;

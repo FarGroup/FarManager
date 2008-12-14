@@ -2047,7 +2047,14 @@ static int RunURL(char *Protocol, char *URLPath)
               FAR_OemToChar(Buf,Buf);
               SetFileApisTo(APIS2ANSI); //????
               if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+              {
                  EditCode=1;
+              }
+              else
+              {
+                CloseHandle(pi.hThread);
+                CloseHandle(pi.hProcess);
+              }
               SetFileApisTo(APIS2OEM); //????
             }
           }

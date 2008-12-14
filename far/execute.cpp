@@ -684,9 +684,11 @@ void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
         PROCESS_INFORMATION pi;
         memset (&si, 0, sizeof (STARTUPINFO));
         si.cb = sizeof (si);
-        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi);
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
+        if (CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi))
+        {
+          CloseHandle(pi.hThread);
+          CloseHandle(pi.hProcess);
+        }
         FarChDir(SavePath);
         //break;
       //}
