@@ -2072,7 +2072,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 		sz=fread(Buffer,1,sz,file);
 		fseek (file,0,SEEK_SET);
 		int test=IS_TEXT_UNICODE_STATISTICS|IS_TEXT_UNICODE_REVERSE_STATISTICS;
-		if(sz && IsTextUnicode(Buffer,sz,&test))
+		if(sz && IsTextUnicode(Buffer,(int)sz,&test))
 		{
 			nCodePage = (test&IS_TEXT_UNICODE_STATISTICS)?CP_UNICODE:CP_REVERSEBOM;
 			bDetect=true;

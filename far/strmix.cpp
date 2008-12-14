@@ -47,8 +47,8 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 	static wchar_t ThousandSep[4];
 	if (first)
 	{
-		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,sizeof(ThousandSep));
-		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,sizeof(DecimalSep));
+		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,countof(ThousandSep));
+		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,countof(DecimalSep));
 		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
 		ThousandSep[1]=0; //но для нас это будет не очень хорошо
 

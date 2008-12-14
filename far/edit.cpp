@@ -314,13 +314,13 @@ void Edit::FastShow()
   if (Mask && *Mask)
     RefreshStrByMask();
 
-  wchar_t *OutStrTmp=new wchar_t[EditLength+1];
+  wchar_t *OutStrTmp=(wchar_t *)xf_malloc((EditLength+1)*sizeof(wchar_t));
   if (!OutStrTmp)
     return;
-  wchar_t *OutStr=new wchar_t[EditLength+1];
+  wchar_t *OutStr=(wchar_t *)xf_malloc((EditLength+1)*sizeof(wchar_t));
   if (!OutStr)
   {
-    delete[] OutStrTmp;
+    xf_free(OutStrTmp);
     return;
   }
 
@@ -332,7 +332,9 @@ void Edit::FastShow()
     OutStrLength=0;
   }
   else
+  {
     wmemcpy(OutStrTmp,Str+RealLeftPos,OutStrLength);
+  }
 
   //if (TableSet) BUGBUG
     //DecodeString(OutStrTmp,(unsigned char*)TableSet->DecodeTable,OutStrLength);
@@ -361,6 +363,7 @@ void Edit::FastShow()
     if (Flags.Check(FEDITLINE_PASSWORDMODE))
       wmemset(OutStr,L'*',OutStrLength);
   }
+
   OutStr[OutStrLength]=0;
 
   SetColor(Color);
@@ -429,8 +432,8 @@ void Edit::FastShow()
     }
   }
 
-  delete[] OutStr;
-  delete[] OutStrTmp;
+  xf_free(OutStr);
+  xf_free(OutStrTmp);
 
   /* $ 26.07.2000 tran
      при дроп-даун цвета нам не нужны */

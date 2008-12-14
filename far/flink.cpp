@@ -432,6 +432,7 @@ int WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest)
     if (!bSuccess)
       LastError=GetLastError();
 
+    //BUGBUG а что это за вызов? Вроде незя с NULL вызывать
     BackupWrite(hFileSource,NULL,0,&dwBytesWritten,TRUE,FALSE,&lpContext);
   }
   else

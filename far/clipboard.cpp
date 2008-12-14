@@ -257,30 +257,35 @@ wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
   {
     int BufferSize;
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-//    if (Unicode)
-      BufferSize=StrLength(ClipAddr)+1;
-//    else
-//      BufferSize=strlen(ClipAddr)+1;
+    if (ClipAddr)
+    {
+      //if (Unicode)
+        BufferSize=StrLength(ClipAddr)+1;
+      //else
+        //BufferSize=strlen(ClipAddr)+1;
 
-    ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
-    if (ClipText!=NULL)
+      ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
+      if (ClipText!=NULL)
         wcscpy (ClipText, ClipAddr);
-/*      if (Unicode)
-      {
-        if(AnsiMode)
-          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
-        else
-          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
-      }
-      else
-        if (ReadType==CF_TEXT)
+/*
+        if (Unicode)
         {
-          if(!AnsiMode)
-            FAR_CharToOem(ClipAddr,ClipText);
+          if(AnsiMode)
+            UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          else
+            UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
         }
         else
-          strcpy(ClipText,ClipAddr);*/
-    GlobalUnlock(hClipData);
+          if (ReadType==CF_TEXT)
+          {
+            if(!AnsiMode)
+              FAR_CharToOem(ClipAddr,ClipText);
+          }
+          else
+            strcpy(ClipText,ClipAddr);
+*/
+      GlobalUnlock(hClipData);
+    }
   }
   FAR_CloseClipboard();
   return(ClipText);
@@ -379,11 +384,14 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
-    int BufferSize=StrLength(ClipAddr)+1;
-    ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
-    if (ClipText!=NULL)
-      wcscpy(ClipText,ClipAddr);
-    GlobalUnlock(hClipData);
+    if (ClipAddr)
+    {
+      int BufferSize=StrLength(ClipAddr)+1;
+      ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
+      if (ClipText!=NULL)
+        wcscpy(ClipText,ClipAddr);
+      GlobalUnlock(hClipData);
+    }
   }
   FAR_CloseClipboard();
   return(ClipText);

@@ -134,7 +134,7 @@ void OpenSysLog()
       fclose(LogStream);
   DWORD Attr;
 
-  GetModuleFileNameW(NULL,LogFileName,sizeof(LogFileName));
+  GetModuleFileNameW(NULL,LogFileName,countof(LogFileName));
   wchar_t *Ptr=wcsrchr(LogFileName,L'\\');
   wcscpy(Ptr,L"\\$Log");
   Attr=GetFileAttributesW(LogFileName);
@@ -706,7 +706,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
 
   va_list argptr;
   va_start( argptr, fmt );
-  _vsnwprintf( msg, sizeof(msg)-1, fmt, argptr );
+  _vsnwprintf( msg, countof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   SysLog(l);

@@ -181,19 +181,22 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortN
     if (iswdigit(*DizText))
     {
 
-      wchar_t SizeText[20], *DizPtr=DizText;
-      string strSizeText;
+      wchar_t SizeText[30], *DizPtr=DizText;
       int I,SkipSize;
 
-      swprintf (SizeText, L"%d", FileSize);
+      swprintf (SizeText, L"%I64u", FileSize);
 
       for (I=0,SkipSize=TRUE;SizeText[I]!=0;DizPtr++)
+      {
         if (*DizPtr!=L',' && *DizPtr!=L'.')
+        {
           if (SizeText[I++]!=*DizPtr)
           {
             SkipSize=FALSE;
             break;
           }
+        }
+      }
       if (SkipSize && IsSpace(*DizPtr))
       {
         DizText=DizPtr;

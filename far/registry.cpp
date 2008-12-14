@@ -478,7 +478,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
   for (I=0;;I++)
   {
     wchar_t ValueName[200],ValueData[1000]; //BUGBUG, dynamic
-    DWORD Type,NameSize=sizeof(ValueName),DataSize=sizeof(ValueData);
+    DWORD Type,NameSize=countof(ValueName),DataSize=sizeof(ValueData);
     if (RegEnumValueW(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize)!=ERROR_SUCCESS)
       break;
     RegSetValueExW(hDestKey,ValueName,0,Type,(BYTE *)ValueData,DataSize);
@@ -489,7 +489,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
     wchar_t SubkeyName[200]; //BUGBUG, dynamic
     string strSrcKeyName, strDestKeyName;
 
-    DWORD NameSize=sizeof(SubkeyName);
+    DWORD NameSize=countof(SubkeyName);
 
     FILETIME LastWrite;
     if (RegEnumKeyExW(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
@@ -550,7 +550,7 @@ void DeleteKeyTreePart(const wchar_t *KeyName)
   {
     wchar_t SubkeyName[200]; //BUGBUG, dynamic
     string strFullKeyName;
-    DWORD NameSize=sizeof(SubkeyName);
+    DWORD NameSize=countof(SubkeyName);
     FILETIME LastWrite;
     if (RegEnumKeyExW(hKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
@@ -582,7 +582,7 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
      {
         FILETIME LastWriteTime;
         wchar_t SubName[512]; //BUGBUG, dynamic
-        DWORD SubSize=sizeof(SubName);
+        DWORD SubSize=countof(SubName);
 
         LONG ExitCode=RegEnumKeyExW(hKey,0,SubName,&SubSize,NULL,NULL,NULL,
                                    &LastWriteTime);
@@ -654,7 +654,7 @@ int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName)
   {
     FILETIME LastWriteTime;
     wchar_t SubName[512]; //BUGBUG, dynamic
-    DWORD SubSize=sizeof(SubName);
+    DWORD SubSize=countof(SubName);
     int ExitCode=RegEnumKeyExW(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
     CloseRegKey(hKey);
     if (ExitCode==ERROR_SUCCESS)
@@ -684,7 +684,7 @@ int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDat
 
     while( TRUE )
     {
-      DWORD ValSize=sizeof(ValueName);
+      DWORD ValSize=countof(ValueName);
       DWORD Type=(DWORD)-1;
 
       if (RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
@@ -726,7 +726,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 
     while ( TRUE )
     {
-      DWORD ValSize=sizeof(ValueName);
+      DWORD ValSize=countof(ValueName);
       DWORD Type=(DWORD)-1;
       DWORD Size = 0;
 
