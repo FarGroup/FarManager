@@ -158,7 +158,7 @@ char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
     {
       char SizeText[20],*DizPtr=DizText;
       int I,SkipSize;
-      sprintf(SizeText,"%d",FileSize);
+      sprintf(SizeText,"%u",FileSize);
       for (I=0,SkipSize=TRUE;SizeText[I]!=0;DizPtr++)
         if (*DizPtr!=',' && *DizPtr!='.')
           if (SizeText[I++]!=*DizPtr)

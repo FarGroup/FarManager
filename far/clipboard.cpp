@@ -264,33 +264,36 @@ char* InternalPasteFromClipboard(int AnsiMode)
   {
     int BufferSize;
     char *ClipAddr=(char *)GlobalLock(hClipData);
-    if (Unicode)
-      BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
-    else
-      BufferSize=(int)strlen(ClipAddr)+1;
-
-    ClipText=(char *)xf_malloc(BufferSize);
-    if (ClipText!=NULL)
+    if (ClipAddr)
+    {
       if (Unicode)
-      {
-        if(AnsiMode)
-          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
-        else
-          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
-      }
+        BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
       else
-      {
-        if (ReadType==CF_TEXT)
+        BufferSize=(int)strlen(ClipAddr)+1;
+
+      ClipText=(char *)xf_malloc(BufferSize);
+      if (ClipText!=NULL)
+        if (Unicode)
         {
-          if(!AnsiMode)
-            FAR_CharToOem(ClipAddr,ClipText);
+          if(AnsiMode)
+            UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          else
+            UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
         }
         else
         {
-          strcpy(ClipText,ClipAddr);
+          if (ReadType==CF_TEXT)
+          {
+            if(!AnsiMode)
+              FAR_CharToOem(ClipAddr,ClipText);
+          }
+          else
+          {
+            strcpy(ClipText,ClipAddr);
+          }
         }
-      }
-    GlobalUnlock(hClipData);
+      GlobalUnlock(hClipData);
+    }
   }
   FAR_CloseClipboard();
   return(ClipText);
@@ -333,39 +336,42 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
   {
     int BufferSize;
     char *ClipAddr=(char *)GlobalLock(hClipData);
-    if (Unicode)
-      BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
-    else
-      BufferSize=(int)strlen(ClipAddr)+1;
-    if ( BufferSize>max )
-        BufferSize=max;
-
-    ClipText=(char *)xf_malloc(BufferSize+2);
-    if (ClipText!=NULL)
+    if (ClipAddr)
     {
-      memset(ClipText,0,BufferSize+2);
       if (Unicode)
-        if(AnsiMode)
-          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
-        else
-          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
+        BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
       else
+        BufferSize=(int)strlen(ClipAddr)+1;
+      if ( BufferSize>max )
+          BufferSize=max;
+
+      ClipText=(char *)xf_malloc(BufferSize+2);
+      if (ClipText!=NULL)
       {
-        if (ReadType==CF_TEXT)
-        {
-          xstrncpy(ClipText,ClipAddr,BufferSize);
-          if(!AnsiMode)
-            FAR_CharToOem(ClipText,ClipText);
-          ClipText[BufferSize]=0;
-        }
+        memset(ClipText,0,BufferSize+2);
+        if (Unicode)
+          if(AnsiMode)
+            UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          else
+            UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
         {
-          xstrncpy(ClipText,ClipAddr,BufferSize);
-          ClipText[BufferSize]=0;
+          if (ReadType==CF_TEXT)
+          {
+            xstrncpy(ClipText,ClipAddr,BufferSize);
+            if(!AnsiMode)
+              FAR_CharToOem(ClipText,ClipText);
+            ClipText[BufferSize]=0;
+          }
+          else
+          {
+            xstrncpy(ClipText,ClipAddr,BufferSize);
+            ClipText[BufferSize]=0;
+          }
         }
       }
+      GlobalUnlock(hClipData);
     }
-    GlobalUnlock(hClipData);
   }
   FAR_CloseClipboard();
   return(ClipText);
@@ -383,11 +389,14 @@ char* PasteFormatFromClipboard(const char *Format)
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     char *ClipAddr=(char *)GlobalLock(hClipData);
-    int BufferSize=(int)strlen(ClipAddr)+1;
-    ClipText=(char *)xf_malloc(BufferSize);
-    if (ClipText!=NULL)
-      strcpy(ClipText,ClipAddr);
-    GlobalUnlock(hClipData);
+    if (ClipAddr)
+    {
+      int BufferSize=(int)strlen(ClipAddr)+1;
+      ClipText=(char *)xf_malloc(BufferSize);
+      if (ClipText!=NULL)
+        strcpy(ClipText,ClipAddr);
+      GlobalUnlock(hClipData);
+    }
   }
   FAR_CloseClipboard();
   return(ClipText);

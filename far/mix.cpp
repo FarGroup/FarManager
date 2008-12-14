@@ -196,7 +196,7 @@ int ToPercent64(__int64 N1,__int64 N2)
 int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
 {
   int skippath=flags&PN_SKIPPATH;
-  flags &= ~PN_SKIPPATH
+  flags &= ~PN_SKIPPATH;
 
   if (flags == PN_CMPNAME)
     return CmpName(param1, param2, skippath);
