@@ -653,10 +653,23 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
 	int newFlags = 0;
-	if(Flags&oldfar::PN_CMPNAME) newFlags|=PN_CMPNAME;
-	if(Flags&oldfar::PN_CMPNAMELIST) newFlags|=PN_CMPNAMELIST;
-	if(Flags&oldfar::PN_SKIPPATH) newFlags|=PN_SKIPPATH;
-	if(Flags&oldfar::PN_GENERATENAME) newFlags|=PN_GENERATENAME;
+	if(Flags&oldfar::PN_SKIPPATH)
+	{
+		newFlags|=PN_SKIPPATH;
+		Flags &= ~oldfar::PN_SKIPPATH;
+	}
+	if(Flags == oldfar::PN_CMPNAME)
+	{
+		newFlags|=PN_CMPNAME;
+	}
+	else if(Flags == oldfar::PN_CMPNAMELIST)
+	{
+		newFlags|=PN_CMPNAMELIST;
+	}
+	else if(Flags&oldfar::PN_GENERATENAME)
+	{
+		newFlags|=PN_GENERATENAME|(Flags&0xFF);
+	}
 	int ret = ProcessName(strP1,p,size,newFlags);
 	UnicodeToAnsi(p,Param2);
 	xf_free(p);
@@ -683,7 +696,7 @@ char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 	string strP((Prefix?Prefix:""));
 	wchar_t D[NM] = {0};
 
-	FarMkTemp(D,sizeof(D),strP);
+	FarMkTemp(D,countof(D),strP);
 
 	UnicodeToAnsi(D,Dest);
 	return Dest;
@@ -1020,7 +1033,7 @@ CHAR_INFO *AnsiVBufToUnicode (oldfar::FarDialogItem &diA)
 	if(diA.Param.VBuf)
 	{
 		int iSize = GetAnsiVBufSize(diA);
-		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*));
+		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*)); //BUGBUG что за +sizeof(CHAR_INFO*)?
 		if (VBuf)
 		{
 			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, iSize,(diA.Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
@@ -1685,19 +1698,19 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		{
 			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETCHECK, Param1, 0);
 			LONG_PTR state = 0;
-			if(ret&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
-			if(ret&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
-			if(ret&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
+			if      (ret == oldfar::BSTATE_UNCHECKED) state=BSTATE_UNCHECKED;
+			else if (ret == oldfar::BSTATE_CHECKED)   state=BSTATE_CHECKED;
+			else if (ret == oldfar::BSTATE_3STATE)    state=BSTATE_3STATE;
 			return state;
 		}
 
 		case oldfar::DM_SETCHECK:
 		{
 			LONG_PTR state = 0;
-			if(Param2&oldfar::BSTATE_UNCHECKED) state|=BSTATE_UNCHECKED;
-			if(Param2&oldfar::BSTATE_CHECKED)   state|=BSTATE_CHECKED;
-			if(Param2&oldfar::BSTATE_3STATE)    state|=BSTATE_3STATE;
-			if(Param2&oldfar::BSTATE_TOGGLE)    state|=BSTATE_TOGGLE;
+			if      (Param2 == oldfar::BSTATE_UNCHECKED) state=BSTATE_UNCHECKED;
+			else if (Param2 == oldfar::BSTATE_CHECKED)   state=BSTATE_CHECKED;
+			else if (Param2 == oldfar::BSTATE_3STATE)    state=BSTATE_3STATE;
+			else if (Param2 == oldfar::BSTATE_TOGGLE)    state=BSTATE_TOGGLE;
 			return FarSendDlgMessage(hDlg, DM_SETCHECK, Param1, state);
 		}
 
@@ -2222,7 +2235,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 		case oldfar::FCTL_REDRAWPANEL:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FarControl(hPlugin, FCTL_REDRAWPANEL, NULL);
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
@@ -2242,7 +2255,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 		case oldfar::FCTL_SETPANELDIR:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
@@ -2256,7 +2269,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTMODE:
 
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			return FarControl(hPlugin, FCTL_SETSORTMODE, Param);
@@ -2280,7 +2293,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_GETCMDLINE:
 		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 		{
-			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) ) 
+			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) )
 				return FALSE;
 			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
 			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,NULL)+1)*sizeof(wchar_t));
@@ -2290,14 +2303,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		}
 
 		case oldfar::FCTL_GETCMDLINEPOS:
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			return FarControl(hPlugin,FCTL_GETCMDLINEPOS,Param);
 
 		case oldfar::FCTL_GETCMDLINESELECTION:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			CmdLineSelect cls;
@@ -2316,7 +2329,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 		case oldfar::FCTL_INSERTCMDLINE:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
@@ -2329,7 +2342,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 		case oldfar::FCTL_SETCMDLINE:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
@@ -2341,14 +2354,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		}
 
 		case oldfar::FCTL_SETCMDLINEPOS:
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			return FarControl(hPlugin, FCTL_SETCMDLINEPOS, Param);
 
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
-			if ( !Param ) 
+			if ( !Param )
 				return FALSE;
 
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;

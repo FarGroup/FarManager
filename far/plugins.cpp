@@ -259,9 +259,13 @@ PluginType IsModulePlugin (const wchar_t *lpModuleName)
 		{
 			PBYTE pData = (PBYTE)MapViewOfFile (hModuleMapping, FILE_MAP_READ, 0, 0, 0);
 
-			bResult = IsModulePlugin2 (pData);
+			if (pData)
+			{
+				bResult = IsModulePlugin2 (pData);
 
-			UnmapViewOfFile (pData);
+				UnmapViewOfFile (pData);
+			}
+
 			CloseHandle (hModuleMapping);
 		}
 

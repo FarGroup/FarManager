@@ -1103,7 +1103,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
 			return;
 	}
 
-  while (fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL)
+  while (fgetws(MenuStr,countof(MenuStr),MenuFile)!=NULL)
   {
     string strItemKey;
     strItemKey.Format (L"%s\\Item%d",MenuKey,KeyNumber);
@@ -1131,7 +1131,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
       strLabel = ChPtr+1;
       RemoveLeadingSpaces(strLabel);
       SaveFilePos SavePos(MenuFile);
-      SubMenu=(fgetws(MenuStr,sizeof(MenuStr)*sizeof(wchar_t),MenuFile)!=NULL && *MenuStr==L'{');
+      SubMenu=(fgetws(MenuStr,countof(MenuStr),MenuFile)!=NULL && *MenuStr==L'{');
       UseSameRegKey();
       SetRegKey(strItemKey,L"HotKey",strHotKey);
       SetRegKey(strItemKey,L"Label",strLabel);

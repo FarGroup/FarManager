@@ -2151,7 +2151,14 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
               si.cb=sizeof(si);
               wcscat(Buf,URLPath);
               if(!CreateProcessW(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+              {
                  EditCode=1;
+              }
+              else
+              {
+                CloseHandle(pi.hThread);
+                CloseHandle(pi.hProcess);
+              }
             }
           }
         }

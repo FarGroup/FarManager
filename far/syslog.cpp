@@ -477,7 +477,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
                   L"PrevSortMode=%d/%-17s "
                   L"PrevSortOrder=%02d "
                   L"PrevNumericSort=%02d "
-                  L"HostFile=%S\n",
+                  L"HostFile=%s\n",
          I,
          StackItems[I].hPlugin,
          (StackItems[I].Modified?L"True ":L"False"),
@@ -515,10 +515,10 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *In
   {
     fwprintf(fp,L"\tStructSize      =%d\n",Info->StructSize);
     fwprintf(fp,L"\tFlags           =0x%08X\n",Info->Flags);
-    fwprintf(fp,L"\tHostFile        ='%S'\n",NullToEmpty(Info->HostFile));
-    fwprintf(fp,L"\tCurDir          ='%S'\n",NullToEmpty(Info->CurDir));
-    fwprintf(fp,L"\tFormat          ='%S'\n",NullToEmpty(Info->Format));
-    fwprintf(fp,L"\tPanelTitle      ='%S'\n",NullToEmpty(Info->PanelTitle));
+    fwprintf(fp,L"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
+    fwprintf(fp,L"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
+    fwprintf(fp,L"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
+    fwprintf(fp,L"\tPanelTitle      ='%s'\n",NullToEmpty(Info->PanelTitle));
     fwprintf(fp,L"\tInfoLines       =%p\n",Info->InfoLines);
     fwprintf(fp,L"\tInfoLinesNumber =%d\n",Info->InfoLinesNumber);
     if(Info->InfoLines)
@@ -538,15 +538,15 @@ void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *In
       for(int I=0;I<Info->PanelModesNumber;++I)
       {
         fwprintf(fp,L"\t%d) ------------------\n",I);
-        fwprintf(fp,L"\t\tColumnTypes       ='%S'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
-        fwprintf(fp,L"\t\tColumnWidths      ='%S'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
+        fwprintf(fp,L"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
+        fwprintf(fp,L"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
         fwprintf(fp,L"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
         fwprintf(fp,L"\t\tFullScreen        =%d\n",Info->PanelModesArray[I].FullScreen);
         fwprintf(fp,L"\t\tDetailedStatus    =%d\n",Info->PanelModesArray[I].DetailedStatus);
         fwprintf(fp,L"\t\tAlignExtensions   =%d\n",Info->PanelModesArray[I].AlignExtensions);
         fwprintf(fp,L"\t\tCaseConversion    =%d\n",Info->PanelModesArray[I].CaseConversion);
-        fwprintf(fp,L"\t\tStatusColumnTypes ='%S'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
-        fwprintf(fp,L"\t\tStatusColumnWidths='%S'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
+        fwprintf(fp,L"\t\tStatusColumnTypes ='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
+        fwprintf(fp,L"\t\tStatusColumnWidths='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
       }
     }
     fwprintf(fp,L"\tStartPanelMode  =%d\n",Info->StartPanelMode);
@@ -593,10 +593,10 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
         if(Man->FrameList[I])
         {
           Man->FrameList[I]->GetTypeAndName(Type,Name);
-          fwprintf(fp,L"\tFrameList[%d] %p  Type='%S' Name='%S'\n",I,Man->FrameList[I],(const wchar_t*)Type,(const wchar_t*)Name);
+          fwprintf(fp,L"\tFrameList[%d] %p  Type='%s' Name='%s'\n",I,Man->FrameList[I],(const wchar_t*)Type,(const wchar_t*)Name);
         }
         else
-          fwprintf(fp,L"\tFrameList[%d] NULL\n",I,Man->FrameList[I]);
+          fwprintf(fp,L"\tFrameList[%d] NULL\n",I);
       }
     }
     else
@@ -610,11 +610,11 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
         if(Man->ModalStack[I])
         {
           Man->ModalStack[I]->GetTypeAndName(Type,Name);
-          fwprintf(fp,L"\tModalStack[%d] %p  Type='%S' Name='%S'\n",
+          fwprintf(fp,L"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
                       I,Man->ModalStack[I],(const wchar_t*)Type,(const wchar_t*)Name);
         }
         else
-          fwprintf(fp,L"\tModalStack[%d] NULL\n",I,Man->ModalStack[I]);
+          fwprintf(fp,L"\tModalStack[%d] NULL\n",I);
       }
     }
     else
@@ -626,49 +626,49 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
       Type=L"", Name=L"";
     else
       Man->InsertedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tInsertedFrame=%p (Type='%S' Name='%S') - Фрейм, который будет добавлен в конец немодальной очереди\n",
+    fwprintf(fp,L"\tInsertedFrame=%p (Type='%s' Name='%s') - Фрейм, который будет добавлен в конец немодальной очереди\n",
       Man->InsertedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeletedFrame)
       Type=L"", Name=L"";
     else
       Man->DeletedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tDeletedFrame=%p (Type='%S' Name='%S') - Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)\n",
+    fwprintf(fp,L"\tDeletedFrame=%p (Type='%s' Name='%s') - Фрейм, предназначен для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)\n",
        Man->DeletedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ActivatedFrame)
       Type=L"", Name=L"";
     else
       Man->ActivatedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tActivatedFrame=%p (Type='%S' Name='%S') - Фрейм, который необходимо активировать после каких нибудь изменений\n",
+    fwprintf(fp,L"\tActivatedFrame=%p (Type='%s' Name='%s') - Фрейм, который необходимо активировать после каких ни будь изменений\n",
       Man->ActivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->RefreshedFrame)
       Type=L"", Name=L"";
     else
       Man->RefreshedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tRefreshedFrame=%p (Type='%S' Name='%S') - Фрейм, который нужно просто освежить, т.е. перерисовать\n",
+    fwprintf(fp,L"\tRefreshedFrame=%p (Type='%s' Name='%s') - Фрейм, который нужно просто освежить, т.е. перерисовать\n",
       Man->RefreshedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ModalizedFrame)
       Type=L"", Name=L"";
     else
       Man->ModalizedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tModalizedFrame=%p (Type='%S' Name='%S') - Фрейм, который становится в 'очередь' к текущему немодальному фрейму\n",
+    fwprintf(fp,L"\tModalizedFrame=%p (Type='%s' Name='%s') - Фрейм, который становится в 'очередь' к текущему немодальному фрейму\n",
       Man->ModalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->UnmodalizedFrame)
       Type=L"", Name=L"";
     else
       Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%S' Name='%S') -Фрейм, убираюющийся из 'очереди' немодального фрейма\n",
+    fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%s' Name='%s') -Фрейм, убирающийся из 'очереди' немодального фрейма\n",
       Man->UnmodalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeactivatedFrame)
       Type=L"", Name=L"";
     else
       Man->DeactivatedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%S' Name='%S') -Фрейм, который указывает на предудущий активный фрейм\n",
+    fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%s' Name='%s') -Фрейм, который указывает на предыдущий активный фрейм\n",
       Man->DeactivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
 
@@ -676,14 +676,14 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
       Type=L"", Name=L"";
     else
       Man->ExecutedFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tExecutedFrame=%p (Type='%S' Name='%S') - Фрейм, которого вскорости нужно будет поставить на вершину модального сттека\n",
+    fwprintf(fp,L"\tExecutedFrame=%p (Type='%s' Name='%s') - Фрейм, которого вскорости нужно будет поставить на вершину модального стека\n",
       Man->ExecutedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->CurrentFrame)
       Type=L"", Name=L"";
     else
       Man->CurrentFrame->GetTypeAndName(Type,Name);
-    fwprintf(fp,L"\tCurrentFrame=%p (Type='%S' Name='%S') - текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке\n",
+    fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s') - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке\n",
       Man->CurrentFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     fwprintf(fp,L"\n");

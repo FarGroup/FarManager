@@ -846,7 +846,7 @@ int RegQueryStringValue (
 				&cbSize
 				);
 		int Size=cbSize/sizeof(wchar_t);
-		if((Type=REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ) && !lpwszData[Size-1])
+		if ((Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ) && !lpwszData[Size-1])
 		{
 			Size--;
 		}

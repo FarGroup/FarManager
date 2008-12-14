@@ -682,7 +682,7 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
         memset (&si, 0, sizeof (si));
         si.cb = sizeof (si);
 
-        CreateProcessW(
+        if (CreateProcessW(
               NULL,
               (wchar_t*)(const wchar_t*)strSetPathCmd,
               NULL,
@@ -693,10 +693,12 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
               NULL,
               &si,
               &pi
-              );
-
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
+              )
+           )
+        {
+          CloseHandle(pi.hThread);
+          CloseHandle(pi.hProcess);
+        }
         FarChDir(strSavePath);
         //break;
       //}

@@ -481,11 +481,12 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
 {
   int skippath=flags&PN_SKIPPATH;
+  flags &= ~PN_SKIPPATH;
 
-  if(flags&PN_CMPNAME)
+  if (flags == PN_CMPNAME)
     return CmpName (param1, param2, skippath);
 
-  if(flags&PN_CMPNAMELIST)
+  if (flags == PN_CMPNAMELIST)
   {
     int Found=FALSE;
     string strFileMask;
@@ -493,23 +494,25 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
     MaskPtr=param1;
 
     while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
+    {
       if (CmpName(strFileMask,param2,skippath))
       {
         Found=TRUE;
         break;
       }
+    }
     return Found;
   }
 
-  if(flags&PN_GENERATENAME)
+  if (flags&PN_GENERATENAME)
   {
-      string strResult;
+    string strResult;
 
-      int nResult = ConvertWildcards(param1, strResult, flags & 0xFFFF);
+    int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
 
-      xwcsncpy(param2, strResult, size); //?? а разве не size-1
+    xwcsncpy(param2, strResult, size); //?? а разве не size-1
 
-      return nResult;
+    return nResult;
   }
 
   return FALSE;
@@ -759,7 +762,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 
 int CheckFolder(const wchar_t *Path)
 {
-  if(!(Path || *Path)) // проверка на вшивость
+  if(!(Path && *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
 /*  int LenFindPath=Max(StrLength(Path),2048)+8;
@@ -2028,7 +2031,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 	DWORD dwTemp=0;
 
 	bool bSignatureFound = false;
-	bool bDetect=false;	
+	bool bDetect=false;
 
 	if ( fread (&dwTemp, 1, 4, file) )
 	{

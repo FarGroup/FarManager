@@ -203,7 +203,7 @@ const TypeMessage DrTMsg[]={
 	};
 
 
-int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
+int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
 	class Guard_Macro_DskShowPosType{ //фигня какая-то
 	public:
@@ -225,8 +225,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	for (DiskMask=Mask,DiskCount=0;DiskMask!=0; DiskMask>>=1)
 		DiskCount+=DiskMask & 1;
 
-	PanelMenuItem Item, *item=0;
-	{
+	PanelMenuItem Item, *mitem=0;
+
 	VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
 
 	ChDisk.SetFlags(VMENU_NOTCENTER);
@@ -977,24 +977,25 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	if ( ChDisk.Modal::GetExitCode()<0 )
 		return -1;
 
-	item=(PanelMenuItem*)ChDisk.GetUserData(NULL,0);
+	mitem=(PanelMenuItem*)ChDisk.GetUserData(NULL,0);
 
-	if(item)
+	if (mitem)
 	{
-		Item=*item;
-		item=&Item;
-	}}
-    if (Opt.CloseCDGate && item && !item->bIsPlugin && IsDriveTypeCDROM(item->nDriveType) )
+		Item=*mitem;
+		mitem=&Item;
+	}
+
+	if (Opt.CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType) )
 	{
-		strRootDir.Format (L"%c:", item->cDrive);
+		strRootDir.Format (L"%c:", mitem->cDrive);
 
 		if ( !IsDiskInDrive(strRootDir) )
 		{
-			if ( EjectVolume(item->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
+			if ( EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
 				SaveScreen SvScrn;
 				Message(0,0,L"",MSG(MChangeWaitingLoadDisk));
-				EjectVolume(item->cDrive, EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
+				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
 			}
 		}
 	}
@@ -1007,26 +1008,26 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	INPUT_RECORD rec;
 	PeekInputRecord(&rec);
 
-	if ( !item )
+	if ( !mitem )
 		return -1; //???
 
-	if ( !item->bIsPlugin )
+	if ( !mitem->bIsPlugin )
 	{
 		while ( true )
 		{
-			int NumDisk = item->cDrive-L'A';
+			int NumDisk = mitem->cDrive-L'A';
 
 			string strMsgStr;
 			string strNewDir;
 
-			strNewDir.Format (L"%c:", item->cDrive);
+			strNewDir.Format (L"%c:", mitem->cDrive);
 
 			FarChDir(strNewDir);
 			CtrlObject->CmdLine->GetCurDir(strNewDir);
 
 			strNewDir.Upper();
 
-			if ( strNewDir.At (0) == item->cDrive )
+			if ( strNewDir.At (0) == mitem->cDrive )
 				FarChDir(strNewDir);
 
 
@@ -1034,7 +1035,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				string strRootDir;
 
-				strRootDir.Format (L"%c:\\", item->cDrive);
+				strRootDir.Format (L"%c:\\", mitem->cDrive);
 				FarChDir(strRootDir);
 
 				if ( getdisk() == NumDisk )
@@ -1043,7 +1044,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			else
 				break;
 
-			strMsgStr.Format (MSG(MChangeDriveCannotReadDisk), item->cDrive);
+			strMsgStr.Format (MSG(MChangeDriveCannotReadDisk), mitem->cDrive);
 
 			if ( Message(
 					MSG_WARNING,
@@ -1087,9 +1088,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	else //эта плагин, да
 	{
 		HANDLE hPlugin = CtrlObject->Plugins.OpenPlugin(
-				item->pPlugin,
+				mitem->pPlugin,
 				OPEN_DISKMENU,
-				item->nItem
+				mitem->nItem
 				);
 
 		if ( hPlugin != INVALID_HANDLE_VALUE )
