@@ -129,7 +129,7 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
   }
   Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,&PRI);
 #ifdef UNICODE
-  Info.Control(_PANEL_HANDLE,FCTL_FREEPANELINFO,&PRI);
+  Info.Control(_PANEL_HANDLE,FCTL_FREEPANELINFO,&PInfo);
 #endif
 #undef _PANEL_HANDLE
 #undef FCTL_SetPanelDir
