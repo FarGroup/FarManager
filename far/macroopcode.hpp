@@ -136,7 +136,7 @@ enum MACRO_OP_CODE {
   MCODE_F_XLAT,                     // S=xlat(S)
   MCODE_F_FLOCK,                    // N=FLock(N,N)
   MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count])
-  MCODE_F_CALLPLUGIN,               // S=callplugin(S,Path,N)
+  MCODE_F_CALLPLUGIN,               // V=callplugin(SysID[,param[,type]])
   MCODE_F_PROMPT,                   // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
   MCODE_F_BM_ADD,                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
   MCODE_F_BM_CLEAR,                 // N=BM.Clear() - очистить все закладки
@@ -146,6 +146,7 @@ enum MACRO_OP_CODE {
   MCODE_F_BM_PREV,                  // N=BM.Prev() - перейти на предыдущую закладку
   MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
   MCODE_F_TRIM,                     // S=trim(S[,N])
+  MCODE_F_REG_GET,                  // V=reg.get(iRoot, "Key"[, "Value"])
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

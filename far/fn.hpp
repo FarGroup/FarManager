@@ -406,6 +406,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
 // Registry
 void SetRegRootKey(HKEY hRootKey);
+HKEY GetRegRootKey(void);
 LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
 LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData,int SizeData, DWORD Type);
 LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);

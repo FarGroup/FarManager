@@ -25,7 +25,7 @@ syntax.cpp
 
 #define EOFCH 256
 
-static int Size = 0;
+static int exprBuffSize = 0;
 static unsigned long nFARVar, *exprBuff = NULL;
 static int IsProcessFunc=0;
 
@@ -162,15 +162,15 @@ static const char *_MacroParserToken_ToName(int Token)
 
 static void put(unsigned long code)
 {
-  exprBuff[Size++] = code;
+  exprBuff[exprBuffSize++] = code;
 }
 
 static void put64(unsigned __int64 code)
 {
   FARINT64 i64;
   i64.i64=code;
-  exprBuff[Size++] = i64.Part.HighPart;   //???
-  exprBuff[Size++] = i64.Part.LowPart;    //???
+  exprBuff[exprBuffSize++] = i64.Part.HighPart;   //???
+  exprBuff[exprBuffSize++] = i64.Part.LowPart;    //???
 }
 
 static void putstr(const char *s)
@@ -185,7 +185,7 @@ static void putstr(const char *s)
     unsigned long d[2] = { 0, 0 };
     xstrncpy((char*)d, s, sizeof(unsigned long));
     s += sizeof(unsigned long);
-    exprBuff[Size++] = *d;
+    exprBuff[exprBuffSize++] = *d;
   }
 }
 
@@ -271,7 +271,7 @@ static TMacroFunction macroFunction[]={
   {"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
   {"BM.STAT",          1, 1,   MCODE_F_BM_STAT},             // N=BM.Stat([N])
   {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
-  {"CALLPLUGIN",       3, 0,   MCODE_F_CALLPLUGIN},          // S=callplugin(S,Path,N)
+  {"CALLPLUGIN",       3, 2,   MCODE_F_CALLPLUGIN},          // V=callplugin(SysID[,param[,type]])
   {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
   {"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
   {"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
@@ -303,6 +303,7 @@ static TMacroFunction macroFunction[]={
   {"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
   {"PANELITEM",        3, 0,   MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"PROMPT",           5, 4,   MCODE_F_PROMPT},              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+  {"REG.GET",          3, 1,   MCODE_F_REG_GET},             // V=reg.get(iRoot, "Key"[, "Value"])
   {"REPLACE",          4, 1,   MCODE_F_REPLACE},             // S=replace(Str,Find,Replace[,Cnt])
   {"RINDEX",           2, 0,   MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"SLEEP",            1, 0,   MCODE_F_SLEEP},               // N=sleep(N)
@@ -945,7 +946,7 @@ static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, cha
   _KEYMACRO_PARSE(SysLog("bound1=%X, bound2=%X",bound1, bound2));
   char tmp[4];
   IsProcessFunc=0;
-  _macro_ErrCode = Size = _macro_nErr = 0;
+  _macro_ErrCode = exprBuffSize = _macro_nErr = 0;
   while ( *BufPtr && isspace(*BufPtr) )
     BufPtr++;
   if ( bound1 )
@@ -1011,7 +1012,7 @@ static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, cha
     }
   }
 #endif
-  return Size;
+  return exprBuffSize;
 }
 
 /* ********************************************************************************* */
@@ -1079,7 +1080,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             "N=eval(S)"},
-    {MCODE_F_CALLPLUGIN,       "S=callplugin(S,Path,N)"},
+    {MCODE_F_CALLPLUGIN,       "V=callplugin(SysID[,param[, type]])"},
     {MCODE_F_REPLACE,          "S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            "N=Sleep(N)"},
@@ -1096,6 +1097,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_GET,           "N=BM.Get(Idx,M)"},
     {MCODE_F_BM_DEL,           "N=BM.Del([Idx])"},
     {MCODE_F_TRIM,             "S=trim(S[,N])"},
+    {MCODE_F_REG_GET,          "V=reg.get(iRoot, \"Key\"[, \"Value\"])"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
@@ -1325,11 +1327,11 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
   //- AN ----------------------------------------------
   //  Буфер под парсинг выражений
   //- AN ----------------------------------------------
-  DWORD *exprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
-  if ( exprBuff == NULL )
+  DWORD *dwExprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
+  if ( dwExprBuff == NULL )
   {
     xf_free(CurrKeyText);
-    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for exprBuff)", __LINE__));
+    _KEYMACRO_PARSE(SysLog("[%d] return FALSE: xf_malloc == NULL (for dwExprBuff)", __LINE__));
     return FALSE;
   }
 
@@ -1393,7 +1395,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           SizeVarName++;
         _KEYMACRO_PARSE(SysLog("(%d) KeyCode = MCODE_OP_SAVE, varName='%s', SizeVarName=%d", __ItNum,varName,SizeVarName));
         BufPtr += Length;
-        Size += parseExpr(BufPtr, exprBuff, '=', ';');
+        Size += parseExpr(BufPtr, dwExprBuff, '=', ';');
         if(_macro_nErr)
         {
           ProcError++;
@@ -1421,7 +1423,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           BufPtr = oldBufPtr;
           while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
             BufPtr++;
-          Size += parseExpr(BufPtr, exprBuff, 0, 0);
+          Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
           //Size--; //???
           if(_macro_nErr)
           {
@@ -1453,7 +1455,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
         }
         CurMacroBufferSize = 0;
         xf_free(CurrKeyText);
-        xf_free(exprBuff);
+        xf_free(dwExprBuff);
         return FALSE;
       }
 
@@ -1470,17 +1472,17 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
         while ( *BufPtr && IsSpace(*BufPtr) )
           BufPtr++;
         if ( *BufPtr == '\"' && BufPtr[1] )
-          Size += parseExpr(BufPtr, exprBuff, 0, 0);
+          Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
         else // Опциональность аргумента
         {
           Size += 2;
-          exprBuff[0] = MCODE_OP_PUSHSTR;
-          exprBuff[1] = 0;
+          dwExprBuff[0] = MCODE_OP_PUSHSTR;
+          dwExprBuff[1] = 0;
         }
         break;
       case MCODE_OP_PLAINTEXT:
       case MCODE_OP_MACROMODE:
-        Size += parseExpr(BufPtr, exprBuff, 0, 0);
+        Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
         break;
 
 // $Rep (expr) ... $End
@@ -1496,7 +1498,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
 //            MCODE_OP_END <-----------+
 
       case MCODE_OP_REP:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        Size += parseExpr(BufPtr, dwExprBuff, '(', ')');
         if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4) ) //??? 3
         {
           if ( CurMacro_Buffer != NULL )
@@ -1506,7 +1508,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           }
           CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
-          xf_free(exprBuff);
+          xf_free(dwExprBuff);
           return FALSE;
         }
         Size += 5;  // естественно, размер будет больше = 4
@@ -1529,7 +1531,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
 //            MCODE_OP_END <-----------+
 
       case MCODE_OP_IF:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        Size += parseExpr(BufPtr, dwExprBuff, '(', ')');
         if ( !exec.add(emmThen, CurMacroBufferSize+Size) )
         {
           if ( CurMacro_Buffer != NULL )
@@ -1539,7 +1541,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           }
           CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
-          xf_free(exprBuff);
+          xf_free(dwExprBuff);
           return FALSE;
         }
         Size++;
@@ -1558,7 +1560,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
 //            MCODE_OP_END <-----------+
 
       case MCODE_OP_WHILE:
-        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        Size += parseExpr(BufPtr, dwExprBuff, '(', ')');
         if ( !exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size) )
         {
           if ( CurMacro_Buffer != NULL )
@@ -1568,7 +1570,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           }
           CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
-          xf_free(exprBuff);
+          xf_free(dwExprBuff);
           return FALSE;
         }
         Size++;
@@ -1592,7 +1594,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
       }
       CurMacroBufferSize = 0;
       xf_free(CurrKeyText);
-      xf_free(exprBuff);
+      xf_free(dwExprBuff);
       return FALSE;
     }
 
@@ -1605,7 +1607,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
       CurMacroBuffer = NULL;
       CurMacroBufferSize = 0;
       xf_free(CurrKeyText);
-      xf_free(exprBuff);
+      xf_free(dwExprBuff);
       return FALSE;
     }
     switch ( KeyCode )
@@ -1613,20 +1615,20 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
       case MCODE_OP_DATE:
       case MCODE_OP_PLAINTEXT:
       case MCODE_OP_MACROMODE:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
         break;
       case MCODE_OP_SAVE:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
         memcpy(CurMacro_Buffer+CurMacroBufferSize+Size, varName, SizeVarName*sizeof(DWORD));
         break;
       case MCODE_OP_IF:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_REP:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT;
         CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;
         CurMacro_Buffer[CurMacroBufferSize+Size-4] = 0; // Initilize 0
@@ -1634,7 +1636,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
         CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_WHILE:
-        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, dwExprBuff, Size*sizeof(DWORD));
         CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_ELSE:
@@ -1655,7 +1657,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           }
           CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
-          xf_free(exprBuff);
+          xf_free(dwExprBuff);
           return FALSE;
         }
         break;
@@ -1672,7 +1674,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
             }
             CurMacroBufferSize = 0;
             xf_free(CurrKeyText);
-            xf_free(exprBuff);
+            xf_free(dwExprBuff);
             return FALSE;
           case emmThen:
             CurMacro_Buffer[exec().pos1-1] = MCODE_OP_JZ;
@@ -1707,7 +1709,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           }
           CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
-          xf_free(exprBuff);
+          xf_free(dwExprBuff);
           return FALSE;
         }
         break;
@@ -1740,7 +1742,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
       CurMacroBuffer = NULL;
       CurMacroBufferSize = 0;
       xf_free(CurrKeyText);
-      xf_free(exprBuff);
+      xf_free(dwExprBuff);
       return FALSE;
     }
     CurMacro_Buffer[CurMacroBufferSize]=MCODE_OP_NOP;
@@ -1770,7 +1772,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
     CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
     xf_free(CurMacro_Buffer);
   }
-  xf_free(exprBuff);
+  xf_free(dwExprBuff);
   if ( exec().state != emmMain )
   {
     keyMacroParseError(err_Unexpected_EOS, CurrKeyText, CurrKeyText);

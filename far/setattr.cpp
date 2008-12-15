@@ -1190,30 +1190,32 @@ static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, i
     if (Writable)
       break;
 
-    int Code;
+
     if(IsShowErrMsg)
     {
+      int Code;
       if(SkipMode!=-1)
         Code=SkipMode;
       else
         Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
                      MSG(Msg),(char *)Name,
                      MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+      switch(Code)
+      {
+        case -2:
+        case -1:
+        case 3:
+          return SETATTR_RET_ERROR;
+        case 1:
+          return SETATTR_RET_SKIP;
+        case 2:
+          return SETATTR_RET_SKIPALL;
+      }
+
     }
     else
       return SETATTR_RET_ERROR;
 
-    switch(Code)
-    {
-    case -2:
-    case -1:
-    case 3:
-      return SETATTR_RET_ERROR;
-    case 1:
-      return SETATTR_RET_SKIP;
-    case 2:
-      return SETATTR_RET_SKIPALL;
-    }
   }
   return SETATTR_RET_OK;
 }

@@ -206,6 +206,8 @@ int MKeywordsFlagsSize = sizeof(MKeywordsFlags)/sizeof(*MKeywordsFlags);
 int MKeywordsSize = sizeof(MKeywords)/sizeof(*MKeywords);
 
 
+static const char constRegError[]="RegError";
+
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName{
   int Key;
@@ -2258,18 +2260,120 @@ static bool panelsetposFunc()
   return Ret?true:false;
 }
 
-// S=callplugin(S,Path,N)
+//*************************
 // Ахтунг, недоделано!
+//*************************
+// V=callplugin(SysID[,param[,type]])
+// type: 0 = string, 1 = int
 static bool callpluginFunc()
 {
-  __int64 Ret=_i64(1);
-  TVar Mode   = VMStack.Pop();
-  TVar Path   = VMStack.Pop();
-  TVar MName  = VMStack.Pop();
+  __int64 Ret=_i64(0);
+  TVar typeParam = VMStack.Pop();
+  TVar Param     = VMStack.Pop();
+  TVar SysID     = VMStack.Pop();
+#if 1
+  int PlugNum=CtrlObject->Plugins.FindPlugin((DWORD)SysID.i());
+  if(PlugNum >= 0)
+  {
+    /*
+      OPEN_DISKMENU     = 0,
+      OPEN_PLUGINSMENU  = 1,
+      OPEN_FINDLIST     = 2,
+      OPEN_SHORTCUT     = 3,
+      OPEN_COMMANDLINE  = 4,
+      OPEN_EDITOR       = 5,
+      OPEN_VIEWER       = 6,
+      OPEN_FILEPANEL    = 7,
+      OPEN_DIALOG       = 8,
+    */
+    int OpenFrom=0; //??? Надо получить... а надо ли?
+    // CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char *Folder, Panel *DestPanel,bool needUpdatePanel)
+    if(CtrlObject->Plugins.CallPlugin(PlugNum,OpenFrom|OPEN_FROMMACRO,(typeParam.i()?(void*)Param.i():(void*)Param.s())))
+      Ret=_i64(1);
 
-  VMStack.Push((const char *)""); //!!!!
+  }
+#endif
+  VMStack.Push(Ret);
 
   return Ret?true:false;
+}
+
+//*************************
+// Ахтунг, недоделано!
+//*************************
+// V=reg.get(iRoot, "Key"[, "Value"])
+/* iRoot=0:
+0 = FAR Root, HKEY_CURRENT_USER (в зависимости от юзера)
+1 = FAR Root, HKEY_LOCAL_MACHINE
+2 = HKEY_CLASSES_ROOT
+3 = HKEY_CURRENT_USER
+4 = HKEY_LOCAL_MACHINE
+*/
+static bool reggetFunc()
+{
+  bool Ret=false;
+#if 0
+  bool checkKey=false;
+
+  HKEY SaveRootKey=GetRegRootKey();
+  HKEY NewRootKey=SaveRootKey;
+
+  char SaveRegRoot[sizeof(Opt.RegRoot)];
+  strcpy(SaveRegRoot,Opt.RegRoot);
+
+  TVar V = VMStack.Pop();
+  // принудительно параметр ставим AS string
+  if(V.isInteger() && V.i() == 0)
+    checkKey=true;
+
+  TVar K = VMStack.Pop();
+  // принудительно параметр ставим AS string
+  if(K.isInteger() && K.i() == 0)
+  {
+    K=(const char *)"";
+    K.toString();
+  }
+
+  TVar R = VMStack.Pop();
+  int RType=(int)R.i();
+
+  TVar RetVal=_i64(-1);
+  varLook(glbConstTable, constRegError,1)->value = _i64(0);
+
+  switch(RType)
+  {
+    case 0:  NewRootKey=HKEY_CURRENT_USER;  break;
+    case 1:  NewRootKey=HKEY_LOCAL_MACHINE; break;
+    case 2:  NewRootKey=HKEY_CLASSES_ROOT;  break;
+    case 3:  NewRootKey=HKEY_CURRENT_USER;  break;
+    case 4:  NewRootKey=HKEY_LOCAL_MACHINE; break;
+    default: RType=-1;  break;
+  }
+
+  if(RType != -1)
+  {
+    SetRegRootKey(NewRootKey);
+    xstrncpy(Opt.RegRoot,K.s(),sizeof(Opt.RegRoot)-1);
+
+    //if(GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType))
+    //  checkKey
+
+    // Restore
+    SetRegRootKey(SaveRootKey);
+    strcpy(Opt.RegRoot,SaveRegRoot);
+    //Ret=true;
+  }
+
+  varLook(glbConstTable, constRegError,1)->value = Ret?_i64(0):_i64(1);
+  VMStack.Push( RetVal );
+#else
+  VMStack.Pop();
+  VMStack.Pop();
+  VMStack.Pop();
+  VMStack.Push( _i64(0) );
+#endif
+
+  return Ret;
 }
 
 // Result=replace(Str,Find,Replace[,Cnt])
@@ -3009,7 +3113,7 @@ done:
 
     case MCODE_F_AKEY: // V=akey(N)
     {
-      TVar tmpVar=VMStack.Pop();
+      tmpVar=VMStack.Pop();
       if(tmpVar.i() == 0)
          tmpVar=(__int64)MR->Key;
       else
@@ -3192,7 +3296,8 @@ done:
         {MCODE_F_ASC,ascFunc}, // N=asc(S)
         {MCODE_F_CHR,chrFunc}, // S=chr(N)
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
-        {MCODE_F_CALLPLUGIN,callpluginFunc}, // S=callplugin(S,Path,N)
+        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param[,type]])
+        {MCODE_F_REG_GET,reggetFunc}, // V=reg.get(iRoot, "Key"[, "Value"])
 
       };
       int J;
@@ -3485,6 +3590,9 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     else if (Type == REG_QWORD)
       varInsert(*t, ptrValueName)->value = IData64;
   }
+
+  if(ReadMode == MACRO_CONSTS)
+    varLook(glbConstTable, constRegError,1)->value = _i64(0);
   return TRUE;
 }
 

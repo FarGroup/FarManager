@@ -134,12 +134,6 @@ int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,cha
   int /*SetTime,*/GetTime;
   FILETIME *OriginalFileTime=0, OFTModify, OFTCreate, OFTLast;
 
-  /*$ 17.07.2001 SKV
-    от греха подальше, занулим.
-  */
-  ZeroMemory(&st,sizeof(st));
-  /* SKV$*/
-
   // ****** ОБРАБОТКА ДАТЫ ******** //
   GetFileDateAndTime(OSrcDate,DateN,GetDateSeparator());
   // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
@@ -181,6 +175,8 @@ int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,cha
   }
   else
     DigitCount=FALSE;
+
+  memset(&st,0,sizeof(st));
 
   // "Оформим"
   switch(GetDateFormat())

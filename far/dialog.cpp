@@ -5077,6 +5077,9 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
+  _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
+  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
+
   if(!hDlg)
     return 0;
 
@@ -5091,8 +5094,6 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
   struct DialogItem *CurItem=NULL;
   char *Ptr=NULL;
   int Type=0;
-  _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
   switch(Msg)
   {

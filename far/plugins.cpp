@@ -1586,6 +1586,7 @@ int PluginsSet::ProcessEditorEvent(int Event,void *Param)
 int PluginsSet::ProcessViewerEvent(int Event,void *Param)
 {
   _ALGO(CleverSysLog clv("PluginsSet::ProcessViewerEvent()"));
+  _ALGO(SysLog("Event=%d, Param=%p",Event,Param));
   //EXCEPTION_POINTERS *xp;
   struct PluginItem *PData=PluginsData;
   int Ret=0;
@@ -1616,6 +1617,8 @@ int PluginsSet::ProcessViewerEvent(int Event,void *Param)
 
 int PluginsSet::ProcessDialogEvent(int Event,void *Param)
 {
+  _ALGO(CleverSysLog clv("PluginsSet::ProcessDialogEvent()"));
+  _ALGO(SysLog("Event=%d, Param=%p",Event,Param));
   struct PluginItem *PData=PluginsData;
   int Ret=FALSE;
   for (int I=0;I<PluginsCount;I++,PData++)
