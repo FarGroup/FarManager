@@ -66,7 +66,7 @@ CPlugin::~CPlugin(void)
 
 int CPlugin::GetMinFarVersion()
 {
-  return MAKEFARVERSION(1, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
+  return MAKEFARVERSION(MIN_FAR_VERMAJOR, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
 }
 
 void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
@@ -77,8 +77,9 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
   if (Info->StructSize<=nMinSize) return;
   *(PluginStartupInfo*)this=*Info;
   DWORD nFARVer=(DWORD)AdvControl(ACTL_GETFARVERSION, NULL);
-  if (LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
-  if (LOBYTE(nFARVer)==MIN_FAR_VERMINOR && HIWORD(nFARVer)<MIN_FAR_BUILD) return;
+  if (HIBYTE(nFARVer)<MIN_FAR_VERMAJOR) return;
+  if (HIBYTE(nFARVer)==MIN_FAR_VERMAJOR && LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
+  if (HIBYTE(nFARVer)==MIN_FAR_VERMAJOR && LOBYTE(nFARVer)==MIN_FAR_VERMINOR && HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
   lstrcpy(g_PluginKey, Info->RootKey);
   lstrcat(g_PluginKey, REG_Key);
