@@ -1033,7 +1033,8 @@ CHAR_INFO *AnsiVBufToUnicode (oldfar::FarDialogItem &diA)
 	if(diA.Param.VBuf)
 	{
 		int iSize = GetAnsiVBufSize(diA);
-		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*)); //BUGBUG что за +sizeof(CHAR_INFO*)?
+		//+sizeof(CHAR_INFO*) потому что там храним поинтер на анси vbuf.
+		VBuf = (CHAR_INFO*)xf_malloc(iSize*sizeof(CHAR_INFO)+sizeof(CHAR_INFO*));
 		if (VBuf)
 		{
 			AnsiVBufToUnicode(diA.Param.VBuf, VBuf, iSize,(diA.Flags&DIF_NOTCVTUSERCONTROL)==DIF_NOTCVTUSERCONTROL);
