@@ -2988,7 +2988,7 @@ done:
 
     case MCODE_F_AKEY: // V=akey(N)
     {
-      TVar tmpVar=VMStack.Pop();
+      tmpVar=VMStack.Pop();
       if(tmpVar.i() == 0)
          tmpVar=(__int64)MR->Key;
       else

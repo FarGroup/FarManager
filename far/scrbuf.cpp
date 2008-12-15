@@ -86,7 +86,7 @@ void ScreenBuf::AllocBuf(int X,int Y)
   if(Buf) delete[] Buf;
   if(Shadow) delete[] Shadow;
 
-  int Cnt=X*Y;
+  unsigned Cnt=X*Y;
   Buf=new CHAR_INFO[Cnt];
   Shadow=new CHAR_INFO[Cnt];
 #if !defined(ALLOC)
