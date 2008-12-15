@@ -127,16 +127,17 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     const wchar_t *Ends;
     wchar_t StrItems[16];
     _itow(SelCount,StrItems,10);
+    Ends=MSG(MAskDeleteItemsA);
     int LenItems=StrLength(StrItems);
-    if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
-           StrItems[LenItems-1] >= L'5' ||
-           StrItems[LenItems-1] == L'0')
-      Ends=MSG(MAskDeleteItemsS);
-    else if(StrItems[LenItems-1] == L'1')
-      Ends=MSG(MAskDeleteItems0);
-    else
-      Ends=MSG(MAskDeleteItemsA);
-
+    if (LenItems > 0)
+    {
+      if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
+             StrItems[LenItems-1] >= L'5' ||
+             StrItems[LenItems-1] == L'0')
+        Ends=MSG(MAskDeleteItemsS);
+      else if(StrItems[LenItems-1] == L'1')
+        Ends=MSG(MAskDeleteItems0);
+    }
 
     strDeleteFilesMsg.Format (MSG(MAskDeleteItems),SelCount,Ends);
   }

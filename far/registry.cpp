@@ -418,14 +418,13 @@ void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t 
 {
   TArray<KeyRecordItem> KAItems;
   KeyRecordItem KItem;
-  int CurPos;
   string strRegKey;
   string strFullKeyName, strPrevFullKeyName;
   string strMaskKeyName;
   BOOL Processed=FALSE;
 
   // сбор данных
-  for (CurPos=0;;CurPos++)
+  for (int CurPos=0;;CurPos++)
   {
     if(!EnumRegKey(KeyRoot,CurPos,strRegKey))
       break;
@@ -734,7 +733,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
         break;
 
       wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
-      ValSize=sizeof(ValueName); // НАДА, иначе получаем ERROR_MORE_DATA
+      ValSize=countof(ValueName); // НАДА, иначе получаем ERROR_MORE_DATA
       int Ret=RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,(LPBYTE)Data,&Size);
       strSData.ReleaseBuffer (Size/sizeof (wchar_t));
 

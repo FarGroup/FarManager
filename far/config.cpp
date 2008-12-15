@@ -98,7 +98,6 @@ const wchar_t *constBatchExt=L".BAT;.CMD;";
 void SystemSettings()
 {
   const wchar_t *HistoryName=L"PersPath";
-  string strPersonalPluginsPath;
 
   struct DialogDataEx CfgDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigSystemTitle,

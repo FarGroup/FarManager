@@ -1045,7 +1045,7 @@ CHAR_INFO *AnsiVBufToUnicode (oldfar::FarDialogItem &diA)
 
 void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 {
-	wchar_t* ListItemText=(wchar_t*)xf_malloc(sizeof(liA->Text)*sizeof(wchar_t));
+	wchar_t* ListItemText=(wchar_t*)xf_malloc(countof(liA->Text)*sizeof(wchar_t));
 	OEMToUnicode(liA->Text, ListItemText, sizeof(liA->Text)-1);
 	li->Text=ListItemText;
 	li->Flags=0;
@@ -1939,9 +1939,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_LISTSETMOUSEREACTION:
 		{
 			LONG_PTR type=0;
-			if (Param2&oldfar::LMRT_ONLYFOCUS) type|=LMRT_ONLYFOCUS;
-			if (Param2&oldfar::LMRT_ALWAYS)    type|=LMRT_ALWAYS;
-			if (Param2&oldfar::LMRT_NEVER)     type|=LMRT_NEVER;
+			     if (Param2 == oldfar::LMRT_ONLYFOCUS) type=LMRT_ONLYFOCUS;
+			else if (Param2 == oldfar::LMRT_ALWAYS)    type=LMRT_ALWAYS;
+			else if (Param2 == oldfar::LMRT_NEVER)     type=LMRT_NEVER;
 			return FarSendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, type);
 		}
 

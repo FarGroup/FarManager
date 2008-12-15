@@ -475,12 +475,16 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     itoa(CDP.SelCount,StrItems,10);
     int LenItems=(int)strlen(StrItems);
     int NItems=MCMLItemsA;
-    if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
-        StrItems[LenItems-1] >= '5' ||
-        StrItems[LenItems-1] == '0')
-      NItems=MCMLItemsS;
-    else if(StrItems[LenItems-1] == '1')
-      NItems=MCMLItems0;
+    if (LenItems > 0)
+    {
+      if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
+          StrItems[LenItems-1] >= '5' ||
+          StrItems[LenItems-1] == '0')
+        NItems=MCMLItemsS;
+      else if(StrItems[LenItems-1] == '1')
+        NItems=MCMLItems0;
+    }
+
     strCopyStr.Format (MSG(NOper),CDP.SelCount,MSG(NItems));
   }
 
@@ -1054,23 +1058,23 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 #if 1
   if(NeedUpdateAPanel && CDP.FileAttr != INVALID_FILE_ATTRIBUTES && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
   {
-    string strSrcDir;
+    string strTmpSrcDir;
 
-    SrcPanel->GetCurDir(strSrcDir);
-    DestPanel->SetCurDir(strSrcDir,FALSE);
+    SrcPanel->GetCurDir(strTmpSrcDir);
+    DestPanel->SetCurDir(strTmpSrcDir,FALSE);
   }
 #else
   if(CDP.FileAttr != INVALID_FILE_ATTRIBUTES && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
   {
     // если SrcDir содержитс€ в DestDir...
-    string strDestDir;
-    string strSrcDir;
+    string strTmpDestDir;
+    string strTmpSrcDir;
 
-    DestPanel->GetCurDir(strDestDir);
-    SrcPanel->GetCurDir(strSrcDir);
+    DestPanel->GetCurDir(strTmpDestDir);
+    SrcPanel->GetCurDir(strTmpSrcDir);
 
-    if(CheckUpdateAnotherPanel(SrcPanel,strSrcDir))
-      DestPanel->SetCurDir(strDestDir,FALSE);
+    if(CheckUpdateAnotherPanel(SrcPanel,strTmpSrcDir))
+      DestPanel->SetCurDir(strTmpDestDir,FALSE);
   }
 #endif
   // проверим "нужность" апдейта пассивной панели
@@ -1188,9 +1192,9 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param1 == ID_SC_TARGETEDIT)
       {
         FarDialogItem *DItemACCopy,*DItemACInherit,*DItemACLeave,/**DItemOnlyNewer,*/*DItemBtnCopy;
-        string strSrcDir;
+        string strTmpSrcDir;
 
-        DlgParam->thisClass->SrcPanel->GetCurDir(strSrcDir);
+        DlgParam->thisClass->SrcPanel->GetCurDir(strTmpSrcDir);
 
         DItemACCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0);
         DItemACInherit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0);
@@ -1205,7 +1209,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           DlgParam->thisClass->LinkRules(&DItemBtnCopy->Flags,
                     &DItemOnlyNewer->Flags,
                     &DItemOnlyNewer->Param.Selected,
-                    strSrcDir,
+                    strTmpSrcDir,
                     ((FarDialogItem *)Param2)->PtrData,DlgParam);
 */
         }
@@ -1618,10 +1622,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
   int SameDisk=FALSE;
   if (ShellCopy::Flags&FCOPY_MOVE)
   {
-    string strSrcDir;
-    SrcPanel->GetCurDir(strSrcDir);
+    string strTmpSrcDir;
+    SrcPanel->GetCurDir(strTmpSrcDir);
 
-    SameDisk=IsSameDisk(strSrcDir,Dest);
+    SameDisk=IsSameDisk(strTmpSrcDir,Dest);
   }
 
   // ќсновной цикл копировани€ одной порции.
@@ -2309,10 +2313,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
               case 1:
               {
                 int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
-                SECURITY_ATTRIBUTES sa;
-                if ((CopySecurity) && !GetSecurity(Src,sa))
+                SECURITY_ATTRIBUTES tmpsa;
+                if ((CopySecurity) && !GetSecurity(Src,tmpsa))
                 CopySecurity = FALSE;
-                if (CreateDirectoryW(strDestPath,CopySecurity?&sa:NULL))
+                if (CreateDirectoryW(strDestPath,CopySecurity?&tmpsa:NULL))
                 {
                   if (PointToName(strDestPath)==(const wchar_t*)strDestPath)
                     strRenamedName = strDestPath;
@@ -3339,11 +3343,11 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                       if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
                         if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
                         {
-                          int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
+                          int MsgCode2 = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
                                                 MSG(MCopyErrorDiskFull),DestName,
                                                 MSG(MRetry),MSG(MCancel));
                           ShellCopy::PR_ShellCopyMsg();
-                          if (MsgCode!=0)
+                          if (MsgCode2!=0)
                           {
                             Split=FALSE;
                             SplitCancelled=TRUE;
@@ -3388,11 +3392,11 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               if (DestHandle==INVALID_HANDLE_VALUE ||
               (Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==INVALID_SET_FILE_POINTER))
               {
-                DWORD LastError=GetLastError();
+                DWORD LastError2=GetLastError();
                 CloseHandle(SrcHandle);
                 CloseHandle(DestHandle);
                 //SetErrorMode(OldErrMode);
-                SetLastError(_localLastError=LastError);
+                SetLastError(_localLastError=LastError2);
                 return COPY_FAILURE;
               }
             }
