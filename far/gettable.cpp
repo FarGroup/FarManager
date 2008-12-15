@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "savefpos.hpp"
+#include "keys.hpp"
 
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable);
 
@@ -52,10 +53,17 @@ int DistrTableExist(void)
 }
 
 static VMenu *tables;
-static DWORD dwCurCP; 
+static DWORD dwCurCP;
+
+const wchar_t SelectedCodeTables[]=L"CodeTables\\Selected";
 
 BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 {
+	int Check=0;
+	GetRegKey(SelectedCodeTables,lpwszCodePage,Check,0);
+	if(Opt.CPMenuMode && !Check)
+		return TRUE;
+
 	DWORD dwCP = _wtoi(lpwszCodePage);
 	CPINFOEXW cpi;
 	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
@@ -64,6 +72,8 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 		item.Clear ();
 		if(dwCP==dwCurCP)
 			item.Flags|=MIF_SELECTED;
+		if(Check)
+			item.Flags|=MIF_CHECKED;
 		item.strName.Format(L"%5d%c %s",dwCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
 		item.strName.SetLength(item.strName.GetLength()-1);
 		tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
@@ -77,6 +87,13 @@ int GetTableEx (DWORD dwCurrent)
     int nCP = -1;
 
     tables = new VMenu (MSG(MGetTableTitle),NULL,0,ScrY-4);
+	if(Opt.CPMenuMode)
+	{
+		string strTableTitle=MSG(MGetTableTitle);
+		strTableTitle+=L"*";
+		tables->SetTitle(strTableTitle);
+	}
+	tables->SetBottomTitle(MSG(MGetTableBottomTitle));
 
     MenuItemEx item;
 
@@ -110,7 +127,44 @@ int GetTableEx (DWORD dwCurrent)
     tables->SetPosition(-1,-1,0,0);
 	tables->SortItems(0);
 
-    tables->Process ();
+	tables->Show();
+	while(!tables->Done())
+	{
+		int Key=tables->ReadInput();
+		switch(Key)
+		{
+		case KEY_CTRLH:
+		{
+			Opt.CPMenuMode=!Opt.CPMenuMode;
+			tables->DeleteItems();
+			EnumSystemCodePagesW((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+			tables->SetPosition(-1,-1,0,0);
+			tables->SortItems(0);
+			string strTableTitle=MSG(MGetTableTitle);
+			if(Opt.CPMenuMode)
+				strTableTitle+=L"*";
+			tables->SetTitle(strTableTitle);
+			tables->Show();
+			break;
+		}
+		case KEY_INS:
+		{
+			MenuItemEx *CurItem=tables->GetItemPtr();
+			CurItem->SetCheck(!(CurItem->Flags&LIF_CHECKED));
+			string strCPName;
+			strCPName.Format(L"%d",CurItem->UserData);
+			if(CurItem->Flags&LIF_CHECKED)
+				SetRegKey(SelectedCodeTables,strCPName,1);
+			else
+				DeleteRegValue(SelectedCodeTables,strCPName);
+			tables->Show();
+			break;
+		}
+		default:
+			tables->ProcessInput();
+			break;
+		}
+	}
 
     if ( tables->Modal::GetExitCode() >= 0 )
         nCP = (int)(INT_PTR)tables->GetUserData(NULL, 0);

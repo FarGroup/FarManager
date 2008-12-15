@@ -595,6 +595,8 @@ struct Options
   struct FindCharTable CharTable; // Структура для запоминания параметров таблиц символов в поиске
 
   struct TreeOptions Tree;
+  
+  DWORD CPMenuMode;
 
   /*
   void Clear()

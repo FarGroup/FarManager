@@ -3998,6 +3998,10 @@ l:
 "Таблицы"
 "Tables"
 
+MGetTableBottomTitle
+"CtrlH, Ins"
+"CtrlH, Ins"
+
 MGetTableNormalText
 "DOS текст"
 "DOS text"
