@@ -774,9 +774,10 @@ void TmpPanel::SwitchToPanel (int NewPanelIndex)
 void TmpPanel::ProcessPanelSwitchMenu()
 {
   FarMenuItem fmi[COMMONPANELSNUMBER];
+  memset(&fmi,0,sizeof(FarMenuItem)*COMMONPANELSNUMBER);
   const TCHAR *txt=GetMsg(MSwitchMenuTxt);
 #ifdef UNICODE
-  wchar_t tmpstr[128][COMMONPANELSNUMBER];
+  wchar_t tmpstr[COMMONPANELSNUMBER][128];
 #endif
   static const TCHAR fmt1[]=_T("&%c. %s %d");
   for(unsigned int i=0;i<COMMONPANELSNUMBER;++i)
