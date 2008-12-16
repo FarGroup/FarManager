@@ -2076,8 +2076,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 				if (CtrlObject->Cp()->LeftPanel == this)
 					Flags|=PFLAGS_PANELLEFT;
-				else if (CtrlObject->Cp()->RightPanel == this)
-					Flags|=PFLAGS_PANELRIGHT;
 
 				Info->Flags=Flags;
 			}

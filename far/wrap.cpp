@@ -2148,7 +2148,6 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	if (PIW->Flags&PFLAGS_REALNAMES)        PIA->Flags|=oldfar::PFLAGS_REALNAMES;
 	if (PIW->Flags&PFLAGS_NUMERICSORT)      PIA->Flags|=oldfar::PFLAGS_NUMERICSORT;
 	if (PIW->Flags&PFLAGS_PANELLEFT)        PIA->Flags|=oldfar::PFLAGS_PANELLEFT;
-	if (PIW->Flags&PFLAGS_PANELRIGHT)       PIA->Flags|=oldfar::PFLAGS_PANELRIGHT;
 
 	PIA->Reserved = PIW->Reserved;
 }
