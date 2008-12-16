@@ -1473,7 +1473,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
       ItemsList[ItemsNumber].ftCreationTime = FindData.ftCreationTime;
       ItemsList[ItemsNumber].ftLastAccessTime = FindData.ftLastAccessTime;
       ItemsList[ItemsNumber].ftLastWriteTime = FindData.ftLastWriteTime;
-      ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup (FindData.strFileName);
+      ItemsList[ItemsNumber].lpwszFileName = xf_wcsdup(((const wchar_t*)strFullName)+strDirName.GetLength());
       ItemsList[ItemsNumber].lpwszAlternateFileName = xf_wcsdup (FindData.strAlternateFileName);
 
       ItemsNumber++;
