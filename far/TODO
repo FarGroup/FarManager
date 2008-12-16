@@ -67,3 +67,10 @@ API: добавлен флаг LIF_USETEXTPTR. Лист использует динамическую компоненту итема
 В рамках "файл без имени" необходимо в filelist.cpp убрать всю математику про имя файла
 и организовать онную в FileEditor.
 </Editor>
+
+
+<GetVideoMode>
+Почему то размер для отрисовки мы берем из CONSOLE_SCREEN_BUFFER_INFO.dwSize, но не из CONSOLE_SCREEN_BUFFER_INFO.srWindow. 
+Странно.
+Если переделывать, то нужно кроме ScrX и ScrY вводить переменные, ответственные за размер буфера.
+</GetVideoMode>

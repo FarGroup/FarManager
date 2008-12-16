@@ -1886,8 +1886,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
         if (CtrlObject->Cp()->LeftPanel == DestPanel)
           Flags|=PFLAGS_PANELLEFT;
-        else if (CtrlObject->Cp()->RightPanel == DestPanel)
-          Flags|=PFLAGS_PANELRIGHT;
 
         Info->Flags=Flags;
       }
