@@ -31,8 +31,10 @@ $^#FARCmds Syntax
                  ~clip~@Clip@    - Put data in the clipboard
                  ~whereis~@WhereIs@ - Locate and jump to an object
                  ~macro~@Macro@   - Macros
-                 ~ln~@Ln@       - create of links
+                 ~ln~@Ln@      - create of links
                  ~run~@Run@     - execute commands
+                 ~pload~@PLoad@   - загрузить плагин
+                 ~unloadp~@UnloadP@ - выгрузить плагин
 
    #<options>#   - only for the #edit# command; one of the following:
                  #[line]#
@@ -166,15 +168,15 @@ only the switching to the required folder occurs.
 $ #The Ln command#
 
    The #ln# command creates and deletes ~links~@:HardSymLink@
-to files and folders. Hardlinks are created for files, symlinks are
+to files and folders. Hardlinks are created for files, directory junction are
 created for folders. It is possible to mount local disks on file system
 with #ln# command (so-called "volume mount points").
 
    #ln# syntax:
 
-   #far:ln [/msg] [/n] source destination#
+   #far:ln [/msg] [/n] [/s] source destination#
    or
-   #ln:[/msg] [/n] source destination#
+   #ln:[/msg] [/n] [/s] source destination#
 
    if "destination" is
 
@@ -187,6 +189,10 @@ with #ln# command (so-called "volume mount points").
 
    switch #/n# disables automatic update of panels after creation of link
 
+   Ключ #/s# создает символическую ссылку-файл (вместо жесткой связи)
+или ссылку-каталог (вместо связи каталогов). Ключ актуален в Windows Vista
+или выше. Игнорируется при монтировании дисков.
+
    Mounted drives (or volume mount points) is a Windows 2000/XP feature,
 that allows to display specified disks as folders. Example:
 
@@ -195,6 +201,20 @@ that allows to display specified disks as folders. Example:
     After this command the folder C:\cdrom will display the contents of drive E:
 
    See also: ~Contents~@Contents@ | ~Remarks~@Remark@
+
+@PLoad
+$ #The pload command#
+   Команда #pload# позволяет загружать плагин.
+   Работает только в FAR Manager 2.0 и выше.
+
+   See also: ~Contents~@Contents@ | ~Notes~@Remark@
+
+@UnloadP
+$ #The unloadp command#
+   Команда #unloadp# позволяет выгружать плагин.
+   Работает только в FAR Manager 2.0 и выше.
+
+   See also: ~Contents~@Contents@ | ~Notes~@Remark@
 
 @WhereIs
 $ #The WhereIs command#

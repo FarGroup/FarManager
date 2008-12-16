@@ -552,6 +552,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           }
           else if(Link) //link [/msg] [/n] источник назначение
           {
+            bool NeedSymLink=false;
             DWORD LinkFlags=0;
             TCHAR *Arg2=NULL;
             while(*pCmd && (*pCmd == _T('/') || *pCmd == _T('-')))
@@ -564,6 +565,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               else if(!LStrnicmp(pCmd,_T("/N"),2))
               {
                 LinkFlags|=FLINK_DONOTUPDATEPANEL;
+                pCmd=FarTrim(pCmd+2);
+              }
+              else if(!LStrnicmp(pCmd,_T("/S"),2))
+              {
+                NeedSymLink=true;
                 pCmd=FarTrim(pCmd+2);
               }
             }
@@ -618,9 +624,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 LinkFlags|=FLINK_VOLMOUNT;
               }
               else if(FTAttr&FILE_ATTRIBUTE_DIRECTORY)
-                LinkFlags|=FLINK_JUNCTION;
+                LinkFlags|=NeedSymLink?FLINK_SYMLINKDIR:FLINK_JUNCTION;
               else
-                LinkFlags|=FLINK_HARDLINK;
+                LinkFlags|=NeedSymLink?FLINK_SYMLINKFILE:FLINK_HARDLINK;
 
               MkLink(pCmd,Arg2,LinkFlags);
             }
