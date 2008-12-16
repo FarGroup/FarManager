@@ -14,8 +14,8 @@
 */
 
 #define FARMANAGERVERSION_MAJOR 1
-#define FARMANAGERVERSION_MINOR 71
-#define FARMANAGERVERSION_BUILD 2449
+#define FARMANAGERVERSION_MINOR 75
+#define FARMANAGERVERSION_BUILD 2483
 
 #ifndef RC_INVOKED
 
@@ -1953,7 +1953,7 @@ struct OpenPluginInfo
   int                   StartSortOrder;
   const struct KeyBarTitles *KeyBar;
   const char           *ShortcutData;
-  long                  Reserverd;
+  long                  Reserved;
 };
 
 enum OPENPLUGIN_OPENFROM{

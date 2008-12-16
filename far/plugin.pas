@@ -141,6 +141,7 @@ const
    DIF_HISTORY           = $00040000;
    DIF_BTNNOCLOSE        = $00040000;
    DIF_CENTERTEXT        = $00040000;
+   DIF_NOTCVTUSERCONTROL = $00040000;
    DIF_EDITEXPAND        = $00080000;
    DIF_DROPDOWNLIST      = $00100000;
    DIF_USELASTHISTORY    = $00200000;
@@ -222,6 +223,10 @@ const
    DM_GETSELECTION         = DM_FIRST+58;
    DM_SETSELECTION         = DM_FIRST+59;
    DN_LISTHOTKEY           = DM_FIRST+60;
+   DM_GETEDITPOSITION      = DM_FIRST+61;
+   DM_SETEDITPOSITION      = DM_FIRST+62;
+   DM_SETCOMBOBOXEVENT     = DM_FIRST+63;
+   DM_GETCOMBOBOXEVENT     = DM_FIRST+64;
 
    DN_FIRST                = $1000;
    DN_BTNCLICK             = DN_FIRST+1;
@@ -263,6 +268,12 @@ const
    LMRT_ONLYFOCUS = 0;
    LMRT_ALWAYS    = 1;
    LMRT_NEVER     = 2;
+
+{ FARCOMBOBOXEVENTTYPE }
+
+const
+   CBET_KEY       = $00000001;
+   CBET_MOUSE     = $00000002;
 
 { LISTITEMFLAGS }
 
@@ -439,6 +450,23 @@ type
       PtrData : PChar;
    end;
 
+type
+   PFarDialogEvent = ^TFarDialogEvent;
+   TFarDialogEvent = packed record
+      hDlg : THandle;
+      Msg : Integer;
+      Param1 : Integer;
+      Param2 : LongInt;
+      lResult : LongInt;
+   end;
+
+type
+   POpenDlgPluginData = ^TOpenDlgPluginData;
+   TOpenDlgPluginData = packed record
+      ItemNumber : Integer;
+      hDlg : THandle;
+
+   end;
 
 { FARDIALOGFLAGS }
 
@@ -535,12 +563,16 @@ type
 { FARMENUFLAGS }
 
 const
-   FMENU_SHOWAMPERSAND        = $0001;
-   FMENU_WRAPMODE             = $0002;
-   FMENU_AUTOHIGHLIGHT        = $0004;
-   FMENU_REVERSEAUTOHIGHLIGHT = $0008;
-   FMENU_USEEXT               = $0020;
-   FMENU_CHANGECONSOLETITLE   = $0040;
+   FMENU_SHOWAMPERSAND        = $00000001;
+   FMENU_WRAPMODE             = $00000002;
+   FMENU_AUTOHIGHLIGHT        = $00000004;
+   FMENU_REVERSEAUTOHIGHLIGHT = $00000008;
+   FMENU_USEEXT               = $00000020;
+   FMENU_CHANGECONSOLETITLE   = $00000040;
+   FMENU_TRUNCPATH            = $10000000;
+   FMENU_TRUNCSTR             = $20000000;
+   FMENU_TRUNCSTREND          = $30000000;
+
 
 type
    TFarApiMenu = function (
@@ -610,6 +642,7 @@ const
    PFLAGS_SELECTEDFIRST    = $00000010;
    PFLAGS_REALNAMES        = $00000020;
    PFLAGS_NUMERICSORT      = $00000040;
+   PFLAGS_PANELLEFT        = $00000080;
 
 { PANELINFOTYPE }
 
@@ -857,6 +890,7 @@ const
    ACTL_GETPLUGINMAXREADDATA = 21;
    ACTL_GETDIALOGSETTINGS    = 22;
    ACTL_GETSHORTWINDOWINFO   = 23;
+   ACTL_REDRAWALL            = 27;
 
 { FarSystemSettings }
 
@@ -896,6 +930,9 @@ const
    FDIS_PERSISTENTBLOCKSINEDITCONTROLS = $00000002;
    FDIS_AUTOCOMPLETEININPUTLINES       = $00000004;
    FDIS_BSDELETEUNCHANGEDTEXT          = $00000008;
+   FDIS_DELREMOVESBLOCKS               = $00000010;
+   FDIS_MOUSECLICKOUTSIDECLOSESDIALOG  = $00000020;
+
 
 { FarInterfaceSettings }
 
@@ -958,6 +995,7 @@ type
 const
    KSFLAGS_DISABLEOUTPUT       = $00000001;
    KSFLAGS_NOSENDKEYSTOPLUGINS = $00000002;
+   KSFLAGS_REG_MULTI_SZ        = $00100000;
 
 type
    PKeySequence = ^TKeySequence;
@@ -973,6 +1011,15 @@ const
    MCMD_LOADALL         = 0;
    MCMD_SAVEALL         = 1;
    MCMD_POSTMACROSTRING = 2;
+   MCMD_GETSTATE        = 5;
+
+{ FARMACROSTATE }
+const                            
+   MACROSTATE_NOMACRO          = 0;
+   MACROSTATE_EXECUTING        = 1;
+   MACROSTATE_EXECUTING_COMMON = 2;
+   MACROSTATE_RECORDING        = 3;
+   MACROSTATE_RECORDING_COMMON = 4;
 
 type
    PPlainText = ^TPlainText;
@@ -1152,20 +1199,26 @@ type
 { VIEWER_EVENTS }
 
 const
-   VE_READ  = 0;
-   VE_CLOSE = 1;
-   VE_GOTFOCUS   =6;
-   VE_KILLFOCUS  =7;
+   VE_READ      = 0;
+   VE_CLOSE     = 1;
+   VE_GOTFOCUS  = 6;
+   VE_KILLFOCUS = 7;
 
 { EDITOR_EVENTS }
 
 const
-   EE_READ   = 0;
-   EE_SAVE   = 1;
-   EE_REDRAW = 2;
-   EE_CLOSE  = 3;
-   EE_GOTFOCUS   =6;
-   EE_KILLFOCUS  =7;
+   EE_READ       = 0;
+   EE_SAVE       = 1;
+   EE_REDRAW     = 2;
+   EE_CLOSE      = 3;
+   EE_GOTFOCUS   = 6;
+   EE_KILLFOCUS  = 7;
+
+{ DIALOG_EVENTS }
+const
+   DE_DLGPROCINIT    = 0;
+   DE_DEFDLGPROCINIT = 1;
+   DE_DLGPROCEND     = 2;
 
 const
    EEREDRAW_ALL    = Pointer(0);
@@ -1203,6 +1256,13 @@ const
    ECTL_GETBOOKMARKS        = 25;
    ECTL_TURNOFFMARKINGBLOCK = 26;
    ECTL_DELETEBLOCK         = 27;
+   ECTL_ADDSTACKBOOKMARK    = 28;
+   ECTL_PREVSTACKBOOKMARK   = 29;
+   ECTL_NEXTSTACKBOOKMARK   = 30;
+   ECTL_CLEARSTACKBOOKMARKS = 31;
+   ECTL_DELETESTACKBOOKMARK = 32;
+   ECTL_GETSTACKBOOKMARKS   = 33;
+
 
 { EDITOR_SETPARAMETER_TYPES }
 
@@ -1685,8 +1745,11 @@ type
 
 const
    FLINK_HARDLINK         = 1;
-   FLINK_SYMLINK          = 2;
+   FLINK_JUNCTION         = 2;
+   FLINK_SYMLINK          = FLINK_JUNCTION;
    FLINK_VOLMOUNT         = 3;
+   FLINK_SYMLINKFILE      = 4;
+   FLINK_SYMLINKDIR       = 5;
 
    FLINK_SHOWERRMSG       = $10000;
    FLINK_DONOTUPDATEPANEL = $20000;
@@ -1738,7 +1801,9 @@ type
       bsearch : TFarStdBSearch;
       qsortex : TFarStdQSortEx;
 
-      Reserved : array [0..8] of DWORD;
+      snprintf : Pointer;
+
+      Reserved : array [0..7] of DWORD;
 
       LIsLower : TFarStdLocalIsLower;
       LIsUpper : TFarStdLocalIsUpper;
@@ -1826,6 +1891,7 @@ const
    PF_EDITOR        = $0004;
    PF_VIEWER        = $0008;
    PF_FULLCMDLINE   = $0010;
+   PF_DIALOG        = $0020;
 
 type
    PPluginInfo = ^TPluginInfo;
@@ -1970,6 +2036,7 @@ const
    OPEN_COMMANDLINE = 4;
    OPEN_EDITOR      = 5;
    OPEN_VIEWER      = 6;
+   OPEN_DIALOG      = 8;
 
 { FAR_PKF_FLAGS }
 
@@ -1988,6 +2055,9 @@ const
    FE_CLOSE          = 3;
    FE_BREAK          = 4;
    FE_COMMAND        = 5;
+   FE_GOTFOCUS       = 6;
+   FE_KILLFOCUS      = 7;
+
 
 function MakeFarVersion (Major : DWORD; Minor : DWORD; Build : DWORD) : DWORD;
 
@@ -2251,6 +2321,6 @@ begin
 end;
 
 initialization
-  FARMANAGERVERSION := MakeFarVersion (1, 70, 2087);
+  FARMANAGERVERSION := MakeFarVersion (1, 75, 2483);
 
 end.
