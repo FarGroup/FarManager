@@ -28,13 +28,17 @@ extern "C"{
 BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
   (void) lpReserved;
+
   if (DLL_PROCESS_ATTACH == dwReason && hDll)
   {
     TCHAR *pf;
-    GetModuleFileName((HINSTANCE)hDll, TMPPanelDir, ArraySize(TMPPanelDir));
-    if (GetFullPathName(TMPPanelDir, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
+    TCHAR temp[NM*5];
+    *TMPPanelDir = _T('\0');
+    GetModuleFileName((HINSTANCE)hDll, temp, ArraySize(temp));
+    if (GetFullPathName(temp, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
       *pf = _T('\0');
   }
+
   return TRUE;
 }
 #ifdef __cplusplus
