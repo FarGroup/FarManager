@@ -33,8 +33,6 @@ $^#FARCmds Syntax
                  ~macro~@Macro@   - Macros
                  ~ln~@Ln@      - create of links
                  ~run~@Run@     - execute commands
-                 ~pload~@PLoad@   - загрузить плагин
-                 ~unloadp~@UnloadP@ - выгрузить плагин
 
    #<options>#   - only for the #edit# command; one of the following:
                  #[line]#
@@ -201,20 +199,6 @@ that allows to display specified disks as folders. Example:
     After this command the folder C:\cdrom will display the contents of drive E:
 
    See also: ~Contents~@Contents@ | ~Remarks~@Remark@
-
-@PLoad
-$ #The pload command#
-   Команда #pload# позволяет загружать плагин.
-   Работает только в FAR Manager 2.0 и выше.
-
-   See also: ~Contents~@Contents@ | ~Notes~@Remark@
-
-@UnloadP
-$ #The unloadp command#
-   Команда #unloadp# позволяет выгружать плагин.
-   Работает только в FAR Manager 2.0 и выше.
-
-   See also: ~Contents~@Contents@ | ~Notes~@Remark@
 
 @WhereIs
 $ #The WhereIs command#
