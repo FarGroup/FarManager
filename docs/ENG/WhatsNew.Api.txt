@@ -141,7 +141,7 @@ FAR 1.75 (build 2479) (14.12.2008)
 
 Панели
 ~~~~~~
-[+] В структуру PanelInfo добавлены флаги PFLAGS_PANELLEFT, PFLAGS_PANELRIGHT.
+[+] В структуру PanelInfo добавлен флаг PFLAGS_PANELLEFT.
 [+] Cобытия FE_GOTFOCUS и FE_KILLFOCUS.
 [+] Новая команда FCTL_GETUSERSCREEN - отображение буфеpа пользовательского
     экрана FAR. Теперь плагины могут эмулировать запуск программ, используя
