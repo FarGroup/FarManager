@@ -1,3 +1,7 @@
+drkns 17.12.2008 12:12:45 +0200 - build 659
+
+1. Убраны "магические числа" в расчёте длины выводимой строки в qview и setattr.
+
 t-rex 17.12.2008 11:47:17 +0200 - build 658
 
 1. Mantis#664: Crash while using Quck View on Volume Mount Point.

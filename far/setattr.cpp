@@ -669,7 +669,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         DlgCountItems++;
         JunctionPresent=TRUE;
 
-        int ID_Msg, Width;
+        int ID_Msg;
         if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
           if (IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
@@ -684,18 +684,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               strJuncName = strJuncRoot;
 
             ID_Msg=MSetAttrVolMount;
-            Width=38;
           }
           else
           {
             ID_Msg=MSetAttrJunction;
-            Width=48;
           }
         }
         else
         {
           ID_Msg=MSetAttrSymlink;
-          Width=49;
         }
 
         //"\??\D:\Junc\Src\"
@@ -704,7 +701,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
         AttrDlg[SETATTR_TITLELINK].strData.Format (MSG(ID_Msg),
                (LenJunction?
-                 (const wchar_t *)TruncPathStr(strJuncName,Width):
+                 (const wchar_t *)TruncPathStr(strJuncName,AttrDlg[SETATTR_TITLE].X2-AttrDlg[SETATTR_TITLE].X1-1-StrLength(MSG(ID_Msg))):
                  MSG(MSetAttrUnknownJunction)));
 
         /* $ 11.09.2001 SVS
