@@ -658,13 +658,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         string strJuncName;
         DWORD ReparseTag=0;
         DWORD LenJunction=GetReparsePointInfo(strSelName, strJuncName,&ReparseTag);
-        //"\??\D:\Junc\Src\" или "\\?\Volume{..."
-        int offset = 0;
-        if (!StrCmpN(strJuncName,L"\\??\\",4))
-          offset = 4;
 
         AttrDlg[SETATTR_TITLE].Y2++;
-        for (I=3; I  < DlgCountItems; ++I)
+        for (I=3; I < DlgCountItems; ++I)
         {
           AttrDlg[I].Y1++;
           if (AttrDlg[I].Y2)
@@ -678,15 +674,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           if (IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
           {
-            string strJuncRoot;
-            GetPathRootOne((const wchar_t*)strJuncName+4,strJuncRoot);
+            //"\??\\\?\Volume{..."
+            strJuncName.LShift(4);
 
-            wchar_t *lpwszJunc = strJuncName.GetBuffer (strJuncRoot.GetLength()+5);
+            string strJuncRoot;
+            GetPathRootOne(strJuncName,strJuncRoot);
 
             if (strJuncRoot.At(1) == L':')
-              wcscpy(lpwszJunc+4,strJuncRoot);
-
-            strJuncName.ReleaseBuffer ();
+              strJuncName = strJuncRoot;
 
             ID_Msg=MSetAttrVolMount;
             Width=38;
@@ -702,10 +697,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ID_Msg=MSetAttrSymlink;
           Width=49;
         }
-        string strJuncTemp = (const wchar_t*)strJuncName+offset;
+
+        //"\??\D:\Junc\Src\"
+        if (!StrCmpN(strJuncName,L"\\??\\",4))
+          strJuncName.LShift(4);
+
         AttrDlg[SETATTR_TITLELINK].strData.Format (MSG(ID_Msg),
                (LenJunction?
-                 (const wchar_t *)TruncPathStr(strJuncTemp,Width):
+                 (const wchar_t *)TruncPathStr(strJuncName,Width):
                  MSG(MSetAttrUnknownJunction)));
 
         /* $ 11.09.2001 SVS
