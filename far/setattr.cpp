@@ -638,7 +638,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         DlgCountItems++;
         JunctionPresent=TRUE;
 
-        int ID_Msg, Width;
+        int ID_Msg;
         if(ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
           if(IsLocalVolumePath(JuncName) && !JuncName[49])
@@ -649,22 +649,19 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             if(JuncRoot[1] == ':')
               strcpy(JuncName+offset,JuncRoot);
             ID_Msg=MSetAttrVolMount;
-            Width=38;
           }
           else
           {
             ID_Msg=MSetAttrJunction;
-            Width=48;
           }
         }
         else
         {
           ID_Msg=MSetAttrSymlink;
-          Width=49;
         }
         sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
               (LenJunction?
-                  TruncPathStr(JuncName+offset,Width):
+                  TruncPathStr(JuncName+offset,AttrDlg[SETATTR_TITLE].X2-AttrDlg[SETATTR_TITLE].X1-1-strlen(MSG(ID_Msg))):
                   MSG(MSetAttrUnknownJunction)));
 
         /* $ 11.09.2001 SVS

@@ -4992,20 +4992,20 @@ l:
 "Quick view"
 
 MQuickViewFolder
-"Папка  \"%s\""
-"Folder   \"%s\""
+"Папка \"%s\""
+"Folder \"%s\""
 
 MQuickViewJunction
-"Связь  \"%s\""
+"Связь \"%s\""
 "Junction \"%s\""
 
 MQuickViewSymlink
 "Ссылка \"%s\""
-"Symlink  \"%s\""
+"Symlink \"%s\""
 
 MQuickViewVolMount
-"Монтированный диск \"%s\""
-"Volume mount point \"%s\""
+"Том \"%s\""
+"Volume \"%s\""
 
 MQuickViewContains
 "Содержит:"
@@ -5065,8 +5065,8 @@ MSetAttrSymlink
 "Symlink \"%s\""
 
 MSetAttrVolMount
-"Монтированный диск \"%s\""
-"Volume mount point \"%s\""
+"Том \"%s\""
+"Volume \"%s\""
 
 MSetAttrUnknownJunction
 "(нет данных)"
