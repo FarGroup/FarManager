@@ -2165,6 +2165,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
 	static PanelInfo PnI={0},AnotherPnI={0};
+	static int Reenter=0;
 
 	if(hPlugin==INVALID_HANDLE_VALUE)
 		hPlugin=PANEL_ACTIVE;
@@ -2184,31 +2185,57 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			return ret;
 		}
 
-		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
 		case oldfar::FCTL_GETANOTHERPANELINFO:
-		case oldfar::FCTL_GETPANELSHORTINFO:
 		case oldfar::FCTL_GETPANELINFO:
 			{
-				if(!Param )
+				if (!Param )
 					return FALSE;
-				bool Short=(Command==oldfar::FCTL_GETPANELSHORTINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
-				bool Passive=(Command==oldfar::FCTL_GETANOTHERPANELINFO || Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO);
-				if(Passive)
+
+				bool Passive=Command==oldfar::FCTL_GETANOTHERPANELINFO;
+
+				if (Reenter)
+				{
+					//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPluginInfo).
+					//Так как у нас всё статик то должно сработать нормально в 99% случаев
+					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
+					return TRUE;
+				}
+
+				Reenter++;
+				if (Passive)
 					hPlugin=PANEL_PASSIVE;
 				FarControl(hPlugin,FCTL_FREEPANELINFO,Passive?&AnotherPnI:&PnI);
 				FreeAnsiPanelInfo(Passive?&AnotherPanelInfoA:&PanelInfoA);
 				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,Passive?&AnotherPnI:&PnI);
-				if(ret)
+				if (ret)
 				{
-					ConvertUnicodePanelInfoToAnsi(Passive?&AnotherPnI:&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA,Short);
+					ConvertUnicodePanelInfoToAnsi(Passive?&AnotherPnI:&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA, false);
 					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
-					if(Short)
-					{
-						// после FCTL_GET[ANOTHER]PANELSHORTINFO нам не надо хранить PnI
-						// для возможного FCTL_SET[ANOTHER]SELECTION, посему сразу его и освободим.
-						FarControl(hPlugin,FCTL_FREEPANELINFO,Passive?&AnotherPnI:&PnI);
-					}
 				}
+				else
+				{
+					memset((oldfar::PanelInfo*)Param,0,sizeof(oldfar::PanelInfo));
+				}
+				Reenter--;
+				return ret;
+			}
+
+		case oldfar::FCTL_GETANOTHERPANELSHORTINFO:
+		case oldfar::FCTL_GETPANELSHORTINFO:
+			{
+				if (!Param )
+					return FALSE;
+
+				memset((oldfar::PanelInfo*)Param,0,sizeof(oldfar::PanelInfo));
+				if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
+					hPlugin=PANEL_PASSIVE;
+				PanelInfo PnI;
+				int ret = FarControl(hPlugin,FCTL_GETPANELSHORTINFO,&PnI);
+				if (ret)
+				{
+					ConvertUnicodePanelInfoToAnsi(&PnI, (oldfar::PanelInfo*)Param, true);
+				}
+
 				return ret;
 			}
 
