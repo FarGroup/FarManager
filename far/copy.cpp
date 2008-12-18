@@ -1790,7 +1790,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if (CopyCode!=COPY_SUCCESS)
       {
         unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-        TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+        if (CopyCode != COPY_NOFILTER) //????
+          TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
         if (CopyCode == COPY_NEXT)
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         continue;
@@ -2075,7 +2076,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   if (UseFilter)
   {
     if (!Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData))
-      return COPY_NEXT;
+      return COPY_NOFILTER;
   }
 
   xstrncpy(DestPath,Dest,sizeof(DestPath)-1);
@@ -3801,36 +3802,27 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
 /* $ 30.01.2001 VVM
     + Перевод секунд в текст */
-static void GetTimeText(int Time, char *TimeText)
+static void GetTimeText(DWORD Time, char *TimeText)
 {
-  int Sec = Time;
-  int Min = Sec/60;
+  DWORD Sec = Time;
+  DWORD Min = Sec/60;
   Sec-=(Min * 60);
-  /*$ 17.05.2001 SKV
-    Хм. В часе 24 минуты??? :)
-    int Hour = Min/24;
-    Min-=(Hour*24);
-  */
-  int Hour = Min/60;
+  DWORD Hour = Min/60;
   Min-=(Hour*60);
-  /* SKV$*/
-  sprintf(TimeText,"%02d:%02d:%02d",Hour,Min,Sec);
+  sprintf(TimeText,"%02u:%02u:%02u",Hour,Min,Sec);
 }
-/* VVM $ */
 
 /* $ 30.04.2003 VVM
   + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE */
 int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
-  // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
-  // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
+  //_LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
+  //_LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
-/* $ 30.01.2001 VVM
-    + Запомнить размеры */
+
   unsigned __int64 OldWrittenSize = WrittenSize;
   unsigned __int64 OldTotalSize = TotalSize;
-/* VVM $ */
   //WrittenSize=WrittenSize>>8;
   //TotalSize=TotalSize>>8;
 
@@ -3865,16 +3857,16 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
   {
     unsigned long WorkTime = clock() - CopyStartTime;
     unsigned __int64 SizeLeft = OldTotalSize - OldWrittenSize;
+
     if (SizeLeft < 0)
       SizeLeft = 0;
 
-    unsigned long CalcTime = OldCalcTime;
+    long CalcTime = OldCalcTime;
     if (WaitUserTime != -1) // -1 => находимся в процессе ожидания ответа юзера
       OldCalcTime = CalcTime = WorkTime - WaitUserTime;
     WorkTime /= 1000;
     CalcTime /= 1000;
 
-    unsigned long TimeLeft;
     char TimeStr[100];
     char c[2];
     c[1]=0;
@@ -3886,7 +3878,8 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
       unsigned long CPS = static_cast<unsigned long>(CalcTime?OldWrittenSize/CalcTime:0);
-      TimeLeft = static_cast<unsigned long>((CPS)?SizeLeft/CPS:0);
+      unsigned long TimeLeft = static_cast<unsigned long>((CPS)?SizeLeft/CPS:0);
+
       c[0]=' ';
       if (CPS > 99999) {
         c[0]='K';
@@ -3910,7 +3903,6 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     Text(TimeStr);
   }
   return (TRUE);
-/* VVM $ */
 }
 
 
@@ -4539,6 +4531,7 @@ bool ShellCopy::CalcTotalSize()
 {
   char SelName[NM],SelShortName[NM];
   int FileAttr;
+  unsigned __int64 FileSize;
 
   PreRedraw.Push(ShellCopy::PR_ShellCopyMsg);
 
@@ -4560,20 +4553,25 @@ bool ShellCopy::CalcTotalSize()
     {
       {
         unsigned long DirCount,FileCount,ClusterSize;
-        unsigned __int64 FileSize,CompressedSize,RealFileSize;
+        unsigned __int64 CompressedSize,RealFileSize;
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
-        if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
+        int __Ret=GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
                         RealFileSize,ClusterSize,0xffffffff,
                         Filter,
                         (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
-                        (UseFilter?GETDIRINFO_USEFILTER:0)))
+                        (UseFilter?GETDIRINFO_USEFILTER:0));
+        if (__Ret <= 0)
         {
           ShowTotalCopySize=false;
           PreRedraw.Pop();
           return(false);
         }
-        TotalCopySize+=FileSize;
-        TotalFilesToProcess += FileCount;
+
+        if(FileCount > 0)
+        {
+          TotalCopySize+=FileSize;
+          TotalFilesToProcess += FileCount;
+        }
       }
     }
     else
@@ -4584,7 +4582,6 @@ bool ShellCopy::CalcTotalSize()
           continue;
       }
 
-      unsigned __int64 FileSize;
       if (SrcPanel->GetLastSelectedSize((__int64*)&FileSize)!=-1)
       {
         TotalCopySize+=FileSize;
@@ -4592,7 +4589,7 @@ bool ShellCopy::CalcTotalSize()
       }
     }
   }
-  // TODO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
+  // INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
   TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
   InsertCommas(TotalCopySize,TotalCopySizeText,sizeof(TotalCopySizeText));

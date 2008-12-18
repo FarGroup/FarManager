@@ -366,7 +366,6 @@ int IsMouseButtonPressed()
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
   _KEYMACRO(CleverSysLog Clev("GetInputRecord - main"));
-  _SVS(CleverSysLog Clev("GetInputRecord"));
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
   DWORD LoopCount=0,CalcKey;

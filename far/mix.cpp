@@ -265,10 +265,18 @@ int GetDirInfo(char *Title,
                FileFilter *Filter,
                DWORD Flags)
 {
+  DirCount=FileCount=0;
+  FileSize=_i64(0);
+  CompressedFileSize=_i64(0);
+  RealSize=_i64(0);
+
+
   char FullDirName[NM],DriveRoot[NM];
   char FullName[NM],CurDirName[NM],LastDirName[NM];
   if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
     return -1;
+
+  unsigned __int64 CurSize;
 
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
@@ -310,8 +318,6 @@ int GetDirInfo(char *Title,
   *LastDirName=0;
   *CurDirName=0;
 
-  DirCount=FileCount=0;
-  FileSize=CompressedFileSize=RealSize=0;
   ScTree.SetFindPath(DirName,"*.*");
 
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
@@ -354,7 +360,7 @@ int GetDirInfo(char *Title,
       MsgOut=1;
     }
 
-    if (FindData.dwFileAttributes & FA_DIREC)
+    if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       // —чЄтчик каталогов наращиваем только если не включен фильтр,
       // в противном случае это будем делать в подсчЄте количества файлов
@@ -397,11 +403,11 @@ int GetDirInfo(char *Title,
           xstrncpy(LastDirName,CurDirName,sizeof(LastDirName)-1);
         }
       }
-      /* KM $ */
 
       FileCount++;
-      unsigned __int64 CurSize=MKUINT64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
+      CurSize=MKUINT64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
       FileSize+=CurSize;
+
       if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
       {
         DWORD CompressedSize,CompressedSizeHigh;
