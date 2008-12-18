@@ -1,3 +1,24 @@
+svs 18.12.2008 23:43:54 +0300 - build 664
+
+1. Mantis#0000659: негативное число в "remaining time" в подсчёте total 
+   Как то не все хорошо в копире по поводу фильтров. Даже если файл не прошел 
+   фильтр (ShellCopyOneFile вернет COPY_NEXT), переменная TotalCopiedSize все 
+   равно увеличивается.
+   Добавим новое состояние COPY_NOFILTER - не считать цифры, если ShellCopyOneFile вернул ЭТО
+
+   Осталься непонятным один момент.
+
+      if (CopyCode!=COPY_SUCCESS)
+      {
+        unsigned __int64 CurSize = SrcData.nFileSize;
+        if (CopyCode != COPY_NOFILTER) //????
+   >>     TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+        if (CopyCode == COPY_NEXT)
+          TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+
+   нужно ли считать отмеченное всегда или все же нужно, когда кодвозврата COPY_NEXT.
+
+
 drkns 18.12.2008 16:16:46 +0200 - build 663
 
 1. [x] Use system copy routine

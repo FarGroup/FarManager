@@ -1765,7 +1765,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       if (CopyCode!=COPY_SUCCESS)
       {
         unsigned __int64 CurSize = SrcData.nFileSize;
-        TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+        if (CopyCode != COPY_NOFILTER) //????
+          TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
         if (CopyCode == COPY_NEXT)
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         continue;
@@ -2026,7 +2027,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
   if (UseFilter)
   {
     if (!Filter->FileInFilter(&SrcData))
-      return COPY_NEXT;
+      return COPY_NOFILTER;
   }
 
   strDestPath = Dest;
@@ -3474,14 +3475,14 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   return COPY_SUCCESS;
 }
 
-static void GetTimeText(int Time, string &strTimeText)
+static void GetTimeText(DWORD Time, string &strTimeText)
 {
-  int Sec = Time;
-  int Min = Sec/60;
+  DWORD Sec = Time;
+  DWORD Min = Sec/60;
   Sec-=(Min * 60);
-  int Hour = Min/60;
+  DWORD Hour = Min/60;
   Min-=(Hour*60);
-  strTimeText.Format (L"%02d:%02d:%02d",Hour,Min,Sec);
+  strTimeText.Format (L"%02u:%02u:%02u",Hour,Min,Sec);
 }
 
 //  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE
@@ -3540,13 +3541,12 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     unsigned WorkTime = clock() - CopyStartTime;
     unsigned __int64 SizeLeft = (OldTotalSize>OldWrittenSize)?(OldTotalSize-OldWrittenSize):0;
 
-    unsigned CalcTime = OldCalcTime;
+    long CalcTime = OldCalcTime;
     if (WaitUserTime != -1) // -1 => находимся в процессе ожидания ответа юзера
       OldCalcTime = CalcTime = WorkTime - WaitUserTime;
     WorkTime /= 1000;
     CalcTime /= 1000;
 
-    unsigned TimeLeft;
     string strTimeStr;
     wchar_t c[2];
     c[1]=0;
@@ -3557,8 +3557,8 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
-      unsigned CPS = static_cast<int>(CalcTime?OldWrittenSize/CalcTime:0);
-      TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
+      unsigned long CPS = static_cast<int>(CalcTime?OldWrittenSize/CalcTime:0);
+      unsigned long TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
       c[0]=L' ';
       if (CPS > 99999) {
         c[0]=L'K';
@@ -4128,6 +4128,7 @@ bool ShellCopy::CalcTotalSize()
 {
   string strSelName, strSelShortName;
   DWORD FileAttr;
+  unsigned __int64 FileSize;
 
   // Для фильтра
   FAR_FIND_DATA_EX fd;
@@ -4149,20 +4150,25 @@ bool ShellCopy::CalcTotalSize()
     {
       {
         unsigned long DirCount,FileCount,ClusterSize;
-        unsigned __int64 FileSize,CompressedSize,RealFileSize;
+        unsigned __int64 CompressedSize,RealFileSize;
         ShellCopyMsg(NULL,strSelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
-        if (!GetDirInfo(L"",strSelName,DirCount,FileCount,FileSize,CompressedSize,
+        int __Ret=GetDirInfo(L"",strSelName,DirCount,FileCount,FileSize,CompressedSize,
                         RealFileSize,ClusterSize,0xffffffff,
                         Filter,
                         (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
-                        (UseFilter?GETDIRINFO_USEFILTER:0)))
+                        (UseFilter?GETDIRINFO_USEFILTER:0));
+        if (__Ret <= 0)
         {
           ShowTotalCopySize=false;
           PreRedraw.Pop();
           return(false);
         }
-        TotalCopySize+=FileSize;
-        TotalFilesToProcess += FileCount;
+
+        if(FileCount > 0)
+        {
+          TotalCopySize+=FileSize;
+          TotalFilesToProcess += FileCount;
+        }
       }
     }
     else
@@ -4174,7 +4180,7 @@ bool ShellCopy::CalcTotalSize()
           continue;
       }
 
-      unsigned __int64 FileSize = SrcPanel->GetLastSelectedSize();
+      FileSize = SrcPanel->GetLastSelectedSize();
 
       if ( FileSize != (unsigned __int64)-1 )
       {
@@ -4183,7 +4189,7 @@ bool ShellCopy::CalcTotalSize()
       }
     }
   }
-  // TODO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
+  // INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
   TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
   InsertCommas(TotalCopySize,strTotalCopySizeText);

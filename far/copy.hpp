@@ -41,6 +41,7 @@ class Panel;
 enum COPY_CODES {
   COPY_CANCEL,
   COPY_NEXT,
+  COPY_NOFILTER,                              // не считать размеры, т.к. файл не прошел по фильтру
   COPY_FAILURE,
   COPY_FAILUREREAD,
   COPY_SUCCESS,
