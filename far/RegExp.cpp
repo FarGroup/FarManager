@@ -2267,7 +2267,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 //  register prechar str=start;
   int i,j;
   int minimizing;
-  PREOpCode op,tmp;
+  PREOpCode op,tmp=NULL;
   PMatch m;
 #ifdef UNICODE
   UniSet *cl;

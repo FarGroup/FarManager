@@ -423,7 +423,7 @@ static __int64 _cdecl getInt64()
   static wchar_t buffer[128];
   wchar_t *p = buffer;
   int ch;
-  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == L'x') && ( (p-buffer) < countof(buffer)-1 ))
+  while ( ( ( ch = getChar() ) != EOFCH ) && (iswxdigit(ch) || ch == L'x') && ((p-buffer) < (int)countof(buffer)-1))
     *p++ = (wchar_t)ch;
   *p = 0;
   putBack(ch);

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "lang.hpp"
 #include "flink.hpp"
-#include "imports.hpp"
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
@@ -166,7 +165,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
     int Code;
     if(SkipMode!=-1)
       Code=SkipMode;
-    else            
+    else
       Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
                 MSG(MSetAttrEncryptedCannotFor),Name,MSG(MHRetry), //BUGBUG
                 MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
