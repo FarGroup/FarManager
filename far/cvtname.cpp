@@ -77,24 +77,13 @@ int ConvertNameToFull (
 	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL);
 	wchar_t *lpwszDest = strDest.GetBuffer (nLength);
 	GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
-
-	// это когда ввели в масдае cd //host/share
-	// а масдай выдал на гора c:\\host\share
-
-	if ( lpwszSrc[0] == L'/' &&
-				lpwszSrc[1] == L'/' &&
-				lpwszDest[1] == L':' &&
-				lpwszDest[3] == L'\\' )
-				wmemmove (lpwszDest, lpwszDest+2, wcslen (lpwszDest+2)+1);
-
 	strDest.ReleaseBuffer ();
 
 	return (int)strDest.GetLength ();
 }
 
 /*
-  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
-  Если OS ниже, то вызывается обычный ConvertNameToFull()
+  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point
 */
 int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
 {
@@ -111,13 +100,10 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
   /* $ 14.06.2003 IS
      Для нелокальных дисков даже и не пытаемся анализировать симлинки
   */
-  // остальное касается Win2K, т.к. в виндах ниже рангом нету некоторых
-  // функций, позволяющих узнать истинное имя линка.
   // также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
   // корректную информацию про объект, на который указывает симлинк (т.е. невозможно
   // "разыменовать симлинк")
-  if (IsLocalDrive(strTempDest) &&
-      WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  if (IsLocalDrive(strTempDest))
   {
     DWORD FileAttr;
 

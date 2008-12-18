@@ -50,9 +50,6 @@ OSVERSIONINFOW WinVer={0};
 
 struct Options Opt;// BUG !! ={0};
 
-// функции шифрования (Win2K) назначены? (для SetAttr!)
-BOOL IsCryptFileASupport=FALSE;
-
 // языковой файл загружен?
 BOOL LanguageLoaded=FALSE;
 wchar_t InitedLanguage[LANGUAGENAME_SIZE];

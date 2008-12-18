@@ -800,7 +800,7 @@ void SetHighlighting()
   string strRegKey;
   // сразу пропишем %PATHEXT%, а FileFilterParams::SetMask() сам подстановку
   // сделает.
-  string strCmdExt = L"*.exe,*.com,*.bat,%PATHEXT%";
+  string strCmdExt = L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%";
   static const wchar_t *Masks[]={
   /* 0 */ L"*.*",
   /* 1 */ L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
@@ -837,10 +837,6 @@ void SetHighlighting()
             // без учета масок (например, список хостов в "far navigator")
      /* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
   };
-
-  // для NT добавляем CMD
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    strCmdExt+=L",*.cmd";
 
   for(size_t I=0; I < countof(StdHighlightData); I++)
   {

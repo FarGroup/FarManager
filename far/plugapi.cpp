@@ -616,7 +616,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.Mouse,FIS_MOUSE},
         {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
         {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
-        {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
         {&Opt.CMOpt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
         {&Opt.CMOpt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},

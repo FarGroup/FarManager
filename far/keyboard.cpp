@@ -287,9 +287,6 @@ static struct TFKey3 SpecKeyName[]={
 int SetFLockState(UINT vkKey, int State)
 {
   /*
-     Windows NT/2000/XP: The keybd_event function can toggle the NUM LOCK, CAPS LOCK, and SCROLL LOCK keys.
-     Windows 95/98/Me: The keybd_event function can toggle only the CAPS LOCK and SCROLL LOCK keys. It cannot toggle the NUM LOCK key.
-
      VK_NUMLOCK (90)
      VK_SCROLL (91)
      VK_CAPITAL (14)
@@ -498,7 +495,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       else
         AltEnter=0;
 #endif
-      // в масдае хрен знает что творится с расширенными курсорными клавишами ;-(
       // Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
       // ... иначе хреновень с эфектом залипшего шифта проскакивает
       if(rec->EventType==KEY_EVENT && IsProcessAssignMacroKey)
@@ -509,18 +505,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
           {
             /*
             Left Right курсорные расширенные клавиши
-            MustDie:
-            Dn, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000120 (casa - cEcN)
-            Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000130 (caSa - cEcN)
-                          ^^                          ^            ^ !!! вот такое и прокинем ;-)
-            Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000120 (casa - cEcN)
-            Up, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000120 (casa - cEcN)
-            Dn, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000120 (casa - cEcN)
-            Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000130 (caSa - cEcN)
-            Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000120 (casa - cEcN)
-            Up, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000120 (casa - cEcN)
-            --------------------------------------------------------------
-            NT:
             Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
             Dn, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
             Up, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
@@ -763,10 +747,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
-    /* $ 28.06.2001 SVS
-       Для Win9x при нажатом NumLock и юзании курсорных клавиш
-       получаем в диалоге назначения ерундистику.
-    */
 //_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
     if(CtrlObject && CtrlObject->Macro.IsRecording())
     {
@@ -774,28 +754,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       WORD PrevVKKeyCode2=PrevVKKeyCode;
       PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
 
-      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
-        (CtrlState&NUMLOCK_ON))
-      {
-        if((((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28) ||
-            (PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E)) &&
-           PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown)
-           ||
-           (((PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28) ||
-            (PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E)) &&
-           PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown)
-          )
-        {
-          if(PrevVKKeyCode2 != VK_SHIFT)
-          {
-            INPUT_RECORD pinp;
-            DWORD nread;
-            // Удалим из очереди...
-            ReadConsoleInputW(hConInp, &pinp, 1, &nread);
-            return KEY_NONE;
-          }
-        }
-      }
       /* 1.07.2001 KM
         При отпускании Shift-Enter в диалоге назначения
         вылазил Shift после отпускания клавиш.
@@ -869,22 +827,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     }
     return(CalcKey);
   }
-  int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
-  if ((CalcKey>=L' ' /*&& CalcKey<256*/ || CalcKey==KEY_BS || GrayKey) &&
-      !(CalcKey==KEY_DEL||CalcKey==KEY_NUMDEL) && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-  {
-    ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
-
-    if (ReadKey==13 && CalcKey!=KEY_ENTER)
-    {
-      ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
-    }
-    rec->Event.KeyEvent.uChar.UnicodeChar=(char) ReadKey;
-  }
-  else
-  {
-    ReadConsoleInputW(hConInp,rec,1,&ReadCount);
-  }
+  ReadConsoleInputW(hConInp,rec,1,&ReadCount);
 #if 0
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
 
@@ -1167,8 +1110,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 
   if (rec->EventType==MOUSE_EVENT)
   {
-    // проверка на Swap клавиш мыши
-    static int SwapButton=GetSystemMetrics(SM_SWAPBUTTON);
 #if defined(MOUSEKEY)
     PrePreMouseEventFlags=PreMouseEventFlags;
 #endif
@@ -1187,10 +1128,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       };
       DWORD WriteCount;
       TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-        WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
-      else
-        WriteConsoleInputA(hConInp,TempRec,2,&WriteCount);
+      WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
     }
 */
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
@@ -1201,17 +1139,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 
     DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
-    if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
-    {
-      if (BtnState & FROM_LEFT_1ST_BUTTON_PRESSED)
-        rec->Event.MouseEvent.dwButtonState|=RIGHTMOST_BUTTON_PRESSED;
-      else
-        rec->Event.MouseEvent.dwButtonState&=~RIGHTMOST_BUTTON_PRESSED;
-      if (BtnState & RIGHTMOST_BUTTON_PRESSED)
-        rec->Event.MouseEvent.dwButtonState|=FROM_LEFT_1ST_BUTTON_PRESSED;
-      else
-        rec->Event.MouseEvent.dwButtonState&=~FROM_LEFT_1ST_BUTTON_PRESSED;
-    }
 
     if(MouseEventFlags != MOUSE_MOVED)
     {
@@ -1250,7 +1177,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     else
 #endif
     /* $ 26.04.2001 VVM
-       + Обработка колесика мышки под 2000. */
+       + Обработка колесика мышки. */
     if (MouseEventFlags == MOUSE_WHEELED)
     { // Обработаем колесо и заменим на спец.клавиши
       short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
@@ -1280,6 +1207,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       rec->EventType = KEY_EVENT;
     } /* if */
   }
+  
+  int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
+  
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
 
@@ -1918,10 +1848,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       CtrlPressed=0;
   }
 
-  if (Opt.AltGr && CtrlPressed && (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED))
-    if (Char.UnicodeChar=='\\')
-      return(KEY_CTRLBACKSLASH);
-
   if (KeyCode==VK_MENU)
     AltValue=0;
 
@@ -2213,34 +2139,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD5)
         return '5';
       return Modif|Modif2|KEY_NUMPAD5;
-
-/*    case VK_DECIMAL:
-    case VK_DELETE:
-//      // // _SVS(SysLog(L"case VK_DELETE:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
-      if(CtrlState&ENHANCED_KEY)
-      {
-        return(Modif|KEY_DEL);
-      }
-#if 0
-      else if(NotShift && (CtrlState&NUMLOCK_ON) && KeyCode == VK_DECIMAL ||
-              (CtrlState&NUMLOCK_ON) && KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // МАСДАЙ!
-        return '.';
-      return Modif| (Opt.UseNumPad?Modif2:0)| KEY_DEL;
-#else
-      else if(CtrlState&NUMLOCK_ON)
-      {
-         if(NotShift && KeyCode == VK_DECIMAL ||
-            KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // МАСДАЙ!
-            return '.';
-         else
-            return Modif|(Opt.UseNumPad?Modif2|KEY_DECIMAL:KEY_DEL); //??
-      }
-      return Modif| (Opt.UseNumPad?Modif2|(KeyCode == VK_DECIMAL?KEY_DECIMAL:KEY_NUMDEL):KEY_DEL);
-#endif*/
     case VK_DELETE:
       if (CtrlState&ENHANCED_KEY) return (Modif|KEY_DEL);
     case VK_DECIMAL:
-       //if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS && (CtrlState&NUMLOCK_ON)) return Modif|KEY_DOT; // МАСДАЙ!
        return Modif|Modif2|(CtrlState&NUMLOCK_ON?(KEY_DECIMAL):(Opt.UseNumPad?KEY_NUMDEL:KEY_DEL));
   }
 
@@ -2505,12 +2406,7 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
         return KEY_ALTSHIFT|KEY_SLEEP;
     }
     if (Char.UnicodeChar)
-    {
-      if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-        if (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED)
-          return(Char.UnicodeChar);
       return(KEY_ALT+KEY_SHIFT+Char.UnicodeChar);
-    }
     if (!RealKey && (KeyCode==VK_MENU || KeyCode==VK_SHIFT))
       return(KEY_NONE);
     if (KeyCode)
@@ -2705,14 +2601,6 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
     }
     if (Char.UnicodeChar)
     {
-      if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-      {
-        _SVS(SysLog(L"if (Opt.AltGr... %x",Char.UnicodeChar));
-        if (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED)
-        {
-          return(Char.UnicodeChar);
-        }
-      }
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
         return(Upper(Char.UnicodeChar)+KEY_ALT);
       else if(WaitInMainLoop ||

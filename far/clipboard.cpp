@@ -239,7 +239,7 @@ wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
   int ReadType=CF_OEMTEXT;
   while ((Format=FAR_EnumClipboardFormats(Format))!=0)
   {
-    if (Format==CF_UNICODETEXT && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    if (Format==CF_UNICODETEXT)
     {
       Unicode=TRUE;
       break;
@@ -312,7 +312,7 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
 
   while ((Format=FAR_EnumClipboardFormats(Format))!=0)
   {
-    if (Format==CF_UNICODETEXT && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    if (Format==CF_UNICODETEXT)
     {
       Unicode=TRUE;
       break;

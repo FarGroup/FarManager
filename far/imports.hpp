@@ -36,33 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-typedef BOOL (__stdcall *PISDEBUGGERPRESENT)();
-
-typedef BOOL (__stdcall *PCOPYFILEEX) (
-		const wchar_t *lpwszExistingFileName,
-		const wchar_t *lpwszNewFileName,
-		void *lpProgressRoutine,
-		LPVOID lpData,
-		LPBOOL pbCancel,
-		DWORD dwCopyFlags
-		);
-
-typedef BOOL (WINAPI *PENCRYPTFILE) (const wchar_t *lpwszFileName);
-typedef BOOL (WINAPI *PDECRYPTFILE) (const wchar_t *lpwszFileName, DWORD dwReserved);
-
-
-typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
-          const wchar_t *lpwszVolumeMountPoint, // volume mount point or directory
-          wchar_t *lpwszVolumeName,        // volume name buffer
-          DWORD cchBufferLength
-          );       // size of volume name buffer
-
-typedef BOOL (WINAPI *PSETVOLUMEMOUNTPOINT)(
-          const wchar_t *lpwszVolumeMountPoint, // mount point
-          const wchar_t *lpwszVolumeName
-          );        // volume to be mounted
-
-
 typedef DWORD (__stdcall *PCMGETDEVNODEREGISTRYPROPERTY) (
 		DEVINST dnDevInst,
 		ULONG ulProperty,
@@ -141,24 +114,8 @@ typedef CONFIGRET (__stdcall *PCMREQUESTDEVICEEJECT) (
 		ULONG ulFlags
 		);
 
-typedef HWND (__stdcall *PGETCONSOLEWINDOW)();
 typedef BOOL (__stdcall *PGETCONSOLEKEYBOARDLAYOUTNAME)(wchar_t*);
 
-
-typedef BOOL (__stdcall *PGETDISKFREESPACEEX) (
-		const wchar_t *lpwszDirectoryName,
-		PULARGE_INTEGER lpFreeBytesAvailableToCaller,
-		PULARGE_INTEGER lpTotalNumberOfBytes,
-		PULARGE_INTEGER lpTotalNumberOfFreeBytes
-		);
-
-typedef BOOL (__stdcall *PGLOBALMEMORYSTATUSEX)(LPMEMORYSTATUSEX lpBuffer);
-
-typedef BOOL (__stdcall *PCREATEHARDLINK)(
-		const wchar_t *lpFileName,                         // new file name
-		const wchar_t *lpExistingFileName,                 // extant file name
-		LPSECURITY_ATTRIBUTES lpSecurityAttributes  // SD
-		);
 
 typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
 		const wchar_t *lpSymlinkFileName,
@@ -171,48 +128,9 @@ typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE) (
 		PCOORD lpNewScreenBufferDimensions
 		);
 
-typedef BOOL (__stdcall *PSETFILEPOINTEREX) (
-		HANDLE hFile,
-		LARGE_INTEGER liDistanceToMove,
-		PLARGE_INTEGER lpNewFilePointer,
-		DWORD dwMoveMethod
-		);
-
-typedef DWORD (__stdcall *PGETCONSOLEALIAS) (
-		LPWSTR lpSource,
-		LPWSTR lpTargetBuffer,
-		DWORD TargetBufferLength,
-		LPWSTR lpExeName
-		);
-
-
-typedef MCIERROR (__stdcall *PMCISENDSTRING) (
-		LPCSTR lpstrCommand, 
-		LPSTR lpstrReturnString, 
-		UINT uReturnLength, 
-		HWND hwndCallback
-		);
-
 struct ImportedFunctions {
 
-	PISDEBUGGERPRESENT pfnIsDebuggerPresent; //kernel
-
-	PCOPYFILEEX pfnCopyFileEx; //kernel W
-	PGETDISKFREESPACEEX pfnGetDiskFreeSpaceEx;
-	PSETFILEPOINTEREX pfnSetFilePointerEx;
-
 	//
-	PENCRYPTFILE pfnEncryptFile; //kernel, advapi
-	PDECRYPTFILE pfnDecryptFile; //kernel, advapi
-
-	bool bEncryptFunctions;
-	//
-	PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pfnGetVolumeNameForVolumeMountPoint;
-	PSETVOLUMEMOUNTPOINT pfnSetVolumeMountPoint;
-
-	bool bVolumeMountPointFunctions;
-	//
-
 	PCMGETDEVNODEREGISTRYPROPERTY pfnGetDevNodeRegistryProperty;
 	PCMGETDEVNODESTATUS pfnGetDevNodeStatus;
 	PCMGETDEVICEID pfnGetDeviceID;
@@ -227,18 +145,10 @@ struct ImportedFunctions {
 
 	bool bSetupAPIFunctions;
 	//
-	PGETCONSOLEWINDOW pfnGetConsoleWindow;
 	PGETCONSOLEKEYBOARDLAYOUTNAME pfnGetConsoleKeyboardLayoutName;
 	PSETCONSOLEDISPLAYMODE pfnSetConsoleDisplayMode;
-	PGETCONSOLEALIAS pfnGetConsoleAlias;
-
-	PGLOBALMEMORYSTATUSEX pfnGlobalMemoryStatusEx;
-
-	PCREATEHARDLINK pfnCreateHardLink;
 
 	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
-
-	PMCISENDSTRING pfnmciSendString;
 
 	void Load();
 };

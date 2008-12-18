@@ -526,9 +526,7 @@ void DeleteKeyTree(const wchar_t *KeyName)
 {
   string strFullKeyName;
   MkKeyName(KeyName,strFullKeyName);
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_WINDOWS ||
-      RegDeleteKeyW(hRegRootKey,strFullKeyName)!=ERROR_SUCCESS)
-    DeleteFullKeyTree(strFullKeyName);
+  DeleteFullKeyTree(strFullKeyName);
 }
 
 void DeleteFullKeyTree(const wchar_t *KeyName)

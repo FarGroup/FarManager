@@ -589,13 +589,10 @@ int GetDirInfo(const wchar_t *Title,
   ConsoleTitle OldTitle;
   RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
 
-  if ((ClusterSize=GetClusterSize(strDriveRoot))==0)
-  {
-    DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
+  DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-    if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
-      ClusterSize=SectorsPerCluster*BytesPerSector;
-  }
+  if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+    ClusterSize=SectorsPerCluster*BytesPerSector;
 
   // Временные хранилища имён каталогов
   strLastDirName=L"";
@@ -852,14 +849,11 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   uiTotalSize.QuadPart = 0;
   uiTotalFree.QuadPart = 0;
 
-  if ( ifn.pfnGetDiskFreeSpaceEx )
-  {
-    ExitCode = ifn.pfnGetDiskFreeSpaceEx(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
-    if (uiUserFree.QuadPart > uiTotalFree.QuadPart)
-      uiUserFree.QuadPart=uiTotalFree.QuadPart;
-  }
+  ExitCode = GetDiskFreeSpaceExW(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
+  if (uiUserFree.QuadPart > uiTotalFree.QuadPart)
+    uiUserFree.QuadPart=uiTotalFree.QuadPart;
 
-  if ( !ifn.pfnGetDiskFreeSpaceEx || ExitCode==0 || uiTotalSize.QuadPart==0)
+  if (ExitCode==0 || uiTotalSize.QuadPart==0)
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,
@@ -881,10 +875,9 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
   uiTotalSize=_i64(0);
   uiTotalFree=_i64(0);
 
-  if ( ifn.pfnGetDiskFreeSpaceEx )
-    ExitCode=ifn.pfnGetDiskFreeSpaceEx(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+  ExitCode=GetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-  if ( !ifn.pfnGetDiskFreeSpaceEx || ExitCode==0 || uiTotalSize == _i64(0) )
+  if ( ExitCode==0 || uiTotalSize == _i64(0) )
   {
     DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
     ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
@@ -903,74 +896,6 @@ BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int
 #endif
   return(ExitCode);
 }
-
-int GetClusterSize(const wchar_t *Root)
-{
-#ifndef _WIN64
-  struct ExtGetDskFreSpc
-  {
-    WORD ExtFree_Size;
-    WORD ExtFree_Level;
-    DWORD ExtFree_SectorsPerCluster;
-    DWORD ExtFree_BytesPerSector;
-    DWORD ExtFree_AvailableClusters;
-    DWORD ExtFree_TotalClusters;
-    DWORD ExtFree_AvailablePhysSectors;
-    DWORD ExtFree_TotalPhysSectors;
-    DWORD ExtFree_AvailableAllocationUnits;
-    DWORD ExtFree_TotalAllocationUnits;
-    DWORD ExtFree_Rsvd[2];
-  } DiskInfo;
-
-  struct _DIOC_REGISTERS
-  {
-    DWORD reg_EBX;
-    DWORD reg_EDX;
-    DWORD reg_ECX;
-    DWORD reg_EAX;
-    DWORD reg_EDI;
-    DWORD reg_ESI;
-    DWORD reg_Flags;
-  } reg;
-
-  BOOL fResult;
-  DWORD cb;
-
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_WINDOWS ||
-      WinVer.dwBuildNumber<0x04000457)
-    return(0);
-
-  HANDLE hDevice = apiCreateFile(L"\\\\.\\vwin32", 0, 0, NULL, 0,
-                              FILE_FLAG_DELETE_ON_CLOSE, NULL);
-
-  if (hDevice==INVALID_HANDLE_VALUE)
-    return(0);
-
-  DiskInfo.ExtFree_Level=0;
-
-  char *lpRoot = UnicodeToAnsi (Root);
-
-  reg.reg_EAX = 0x7303;
-  reg.reg_EDX = (DWORD)(DWORD_PTR)lpRoot;
-  reg.reg_EDI = (DWORD)(DWORD_PTR)&DiskInfo;
-  reg.reg_ECX = sizeof(DiskInfo);
-  reg.reg_Flags = 0x0001;
-
-  fResult=DeviceIoControl(hDevice,6,&reg,sizeof(reg),&reg,sizeof(reg),&cb,0);
-
-  xf_free (lpRoot);
-
-  CloseHandle(hDevice);
-  if (!fResult || (reg.reg_Flags & 0x0001))
-    return(0);
-  return(DiskInfo.ExtFree_SectorsPerCluster*DiskInfo.ExtFree_BytesPerSector);
-#else
-  return 0;
-#endif
-}
-
-
-
 
 #if 0
 /*
@@ -1736,10 +1661,12 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
       QuoteFound = !QuoteFound;
     if (!QuoteFound && CmdPtr != NewCmdStr)
     {
-      if (*CmdPtr == L'>' || *CmdPtr == L'<' ||
-          *CmdPtr == L'|' || *CmdPtr == L' ' ||
-          *CmdPtr == L'/' ||      // вариант "far.exe/?"
-          (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && *CmdPtr == L'&') // Для НТ/2к обработаем разделитель команд
+      if (*CmdPtr == L'>' ||
+          *CmdPtr == L'<' ||
+          *CmdPtr == L'|' ||
+          *CmdPtr == L' ' ||
+          *CmdPtr == L'/' || // вариант "far.exe/?"
+          *CmdPtr == L'&'    // обработаем разделитель команд
          )
       {
         if (!ParPtr)
@@ -1774,12 +1701,6 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 
 BOOL ProcessOSAliases(string &strStr)
 {
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
-    return FALSE;
-
-  if(!ifn.pfnGetConsoleAlias)
-    return FALSE;
-
   string strNewCmdStr;
   string strNewCmdPar;
 
@@ -1790,13 +1711,13 @@ BOOL ProcessOSAliases(string &strStr)
   const wchar_t* lpwszExeName=PointToName(strModuleName);
   int nSize=(int)strNewCmdStr.GetLength()+4096;
   wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-  int ret=ifn.pfnGetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+  int ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
   if(!ret)
   {
     if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
     {
       lpwszExeName=PointToName(strModuleName);
-      ret=ifn.pfnGetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+      ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
     }
   }
   strNewCmdStr.ReleaseBuffer();

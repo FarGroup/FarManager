@@ -1502,10 +1502,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
       {
         DWORD ReadCount3;
 
-        if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-          PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
-        else
-          PeekConsoleInputA(hConInp,TmpRec,ReadCount2,&ReadCount3);
+        PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
 
         for(DWORD I=0; I < ReadCount2; ++I)
         {

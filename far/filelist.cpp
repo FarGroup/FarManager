@@ -2264,12 +2264,6 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   */
   int UpdateFlags = 0;
 
-  // ...когда ввели в масдае cd //host/share
-  if (WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT &&
-    strSetDir.At(0) == L'/' && strSetDir.At(1) == L'/')
-
-  ReplaceSlashToBSlash(strSetDir);
-
   if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
   {
 #if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
@@ -4119,11 +4113,7 @@ void FileList::ProcessCopyKeys(int Key)
                     AnotherPanel->IsVisible() && Key!=KEY_ALTF6 &&
                     !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 
-      if(Key != KEY_ALTF6 ||
-        (Key == KEY_ALTF6 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT))
-      {
-         ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,NULL);
-      }
+      ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,NULL);
 
       if (ToPlugin==1)
         PluginPutFilesToAnother(Move,AnotherPanel);
@@ -4158,9 +4148,6 @@ BOOL FileList::UpdateKeyBar()
   KB->SetAllGroup (KBL_CTRLALT, MCtrlAltF1, 12);
   KB->SetAllGroup (KBL_ALTSHIFT, MAltShiftF1, 12);
   KB->SetAllGroup (KBL_CTRLALTSHIFT, MCtrlAltShiftF1, 12);
-
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
-    KB->Change(KBL_ALT,L"",6-1);
 
   KB->ReadRegGroup(L"Shell",Opt.strLanguage);
   KB->SetAllRegGroup();

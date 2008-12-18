@@ -145,31 +145,16 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPSTR lpszDst)
   return CharToOemA(lpszSrc,lpszDst);
 }
 
-
-BOOL apiCopyFile (
-		const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
-		const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
-		BOOL bFailIfExists  // flag for operation if file exists
-		)
-{
-	return CopyFileW (
-			lpwszExistingFileName,
-			lpwszNewFileName,
-			bFailIfExists
-			);
-}
-
 BOOL apiCopyFileEx (
 		const wchar_t *lpwszExistingFileName,
 		const wchar_t *lpwszNewFileName,
-		void *lpProgressRoutine,
+		LPPROGRESS_ROUTINE lpProgressRoutine,
 		LPVOID lpData,
 		LPBOOL pbCancel,
 		DWORD dwCopyFlags
 		)
 {
-	if ( ifn.pfnCopyFileEx )
-		return ifn.pfnCopyFileEx (
+		return CopyFileExW(
 				lpwszExistingFileName,
 				lpwszNewFileName,
 				lpProgressRoutine,
@@ -177,8 +162,6 @@ BOOL apiCopyFileEx (
 				pbCancel,
 				dwCopyFlags
 				);
-
-	return FALSE;
 }
 
 
@@ -213,44 +196,6 @@ BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 
   return rc;
 }
-
-BOOL __stdcall FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
-{
-	BOOL Ret=FALSE;
-
-	if( ifn.pfnGlobalMemoryStatusEx )
-	{
-		MEMORYSTATUSEX ms;
-		ms.dwLength=sizeof(ms);
-
-		Ret = ifn.pfnGlobalMemoryStatusEx(&ms);
-
-		if ( Ret )
-			memcpy(lpBuffer,&ms,sizeof(ms));
-	}
-	else
-	{
-		MEMORYSTATUS ms;
-
-		ms.dwLength=sizeof(ms);
-		GlobalMemoryStatus(&ms);
-
-		lpBuffer->dwLength=sizeof(MEMORYSTATUSEX);
-		lpBuffer->dwMemoryLoad=ms.dwMemoryLoad;
-		lpBuffer->ullTotalPhys           =(DWORDLONG)ms.dwTotalPhys;
-		lpBuffer->ullAvailPhys           =(DWORDLONG)ms.dwAvailPhys;
-		lpBuffer->ullTotalPageFile       =(DWORDLONG)ms.dwTotalPageFile;
-		lpBuffer->ullAvailPageFile       =(DWORDLONG)ms.dwAvailPageFile;
-		lpBuffer->ullTotalVirtual        =(DWORDLONG)ms.dwTotalVirtual;
-		lpBuffer->ullAvailVirtual        =(DWORDLONG)ms.dwAvailVirtual;
-		lpBuffer->ullAvailExtendedVirtual=0;
-
-		Ret=TRUE;
-	}
-
-	return Ret;
-}
-
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 {
@@ -566,33 +511,6 @@ BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize)
 	{
 		if ( pSize )
 			*pSize = dwHi*_ui64(0x100000000)+dwLo;
-
-		return TRUE;
-	}
-}
-
-BOOL apiSetFilePointerEx (
-		HANDLE hFile,
-		LARGE_INTEGER liDistanceToMove,
-		PLARGE_INTEGER lpNewFilePointer,
-		DWORD dwMoveMethod
-		)
-{
-	if ( ifn.pfnSetFilePointerEx )
-		return ifn.pfnSetFilePointerEx(hFile,liDistanceToMove,lpNewFilePointer,dwMoveMethod);
-	else
-	{
-		LONG HighPart = liDistanceToMove.u.HighPart;
-		DWORD LowPart = SetFilePointer(hFile,liDistanceToMove.u.LowPart,&HighPart,dwMoveMethod);
-
-		if ( LowPart==INVALID_SET_FILE_POINTER && GetLastError()!=NO_ERROR )
-			return FALSE;
-
-		if ( lpNewFilePointer )
-		{
-			lpNewFilePointer->u.HighPart=HighPart;
-			lpNewFilePointer->u.LowPart=LowPart;
-		}
 
 		return TRUE;
 	}

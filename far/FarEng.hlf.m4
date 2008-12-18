@@ -92,9 +92,9 @@ previous size.
 
 @About
 $ # FAR: about#
-    #FAR# is a text mode file and archive manager for Windows 95/98/Me, Windows
-NT and Windows 2000/XP/2003/Vista/2008. It supports #long file names# and
-provides a wide set of file and folder operations.
+    #FAR# is a text mode file and archive manager for Windows
+2000/XP/2003/Vista/2008. It supports #long file names# and provides a wide set
+of file and folder operations.
 
     #FAR# is #freeware# and #open source# software distributed under the
 revised BSD ~license~@License@.
@@ -674,9 +674,8 @@ listed in the environment variable %PATHEXT%, starting with the extensions
 
   1. The current directory
   2. The directories that are listed in the PATH environment variable
-  3. Windows 95/98/Me: The Windows system directory.
-     Windows NT/2000 or later: The 32-bit Windows system directory.
-  4. Windows NT/2000 or later: The 16-bit Windows system directory.
+  3. The 32-bit Windows system directory.
+  4. The 16-bit Windows system directory.
   5. The Windows directory.
 
 
@@ -767,8 +766,6 @@ $ #Mouse: wheel support#
 
     You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see TechInfo##33).
-
-    Note: scrolling not supported on Windows 9x and NT 4.0.
 
 @Plugins
 $ #Plugins support#
@@ -1001,11 +998,11 @@ for viewing the folder description file.
 
     FAR will attempt to determine the type of each of the CD drives available
 in the system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM,
-DVD-RW and DVD-RAM. This function is available only in Windows NT/XP, for users
-either with administrative privileges or all local users, when it's stated
-explicitly in the Local Policy Editor (to do this, run a #secpol.msc# from the
-command prompt, and set the '#Local Policies/Security Options/Devices:#
-#Restrict CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
+DVD-RW and DVD-RAM. This function is available only for users either with
+administrative privileges or all local users, when it's stated explicitly in
+the Local Policy Editor (to do this, run a #secpol.msc# from the command
+prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
+#CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
 
     For virtual devices (SUBST-disk) the parameters of the primary disk are
 shown.
@@ -1515,8 +1512,6 @@ rule sets.
                    The #Compressed#, #Encrypted#, #Not indexed#,
                    #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
-                   Although the #Encrypted# and #Offline# attributes
-                   are used only in Windows 2000/XP/2003/Vista/2008.
                    #Virtual# attribute is used only in Windows
                    Vista/2008.
 
@@ -1550,11 +1545,6 @@ use the highlighted shortcut letters.
 
     If you want to save the commands history after exiting FAR, use the
 respective option in the ~system settings dialog~@SystemSettings@.
-
-  Remarks:
-
-  1. Under Windows 9x/Me, long commands are truncated to 511
-     symbols before they are stored in the history.
 
 
 @HistoryViews
@@ -1591,10 +1581,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. Under Windows 9x/Me, long file paths are truncated to 511
-     symbols before they are stored in the history.
-
-  2. List refresh operation (Ctrl-R) can take a considerable amount
+  1. List refresh operation (Ctrl-R) can take a considerable amount
      of time if a file was located on a currently unavailable remote
      resource.
 
@@ -1629,10 +1616,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. Under Windows 9x/Me, long file paths are truncated to 511
-     symbols before they are stored in the history.
-
-  2. List refresh operation (Ctrl-R) can take a considerable amount
+  1. List refresh operation (Ctrl-R) can take a considerable amount
      of time if a folder was located on a currently unavailable
      remote resource.
 
@@ -2083,15 +2067,6 @@ $ #Settings dialog: interface#
 
   #Set command line#        This option allows to set the default
   #prompt format#           FAR command ~line prompt~@CommandPrompt@.
-
-  #Use right Alt#           Enable this option if you experience
-  #as AltGr#                problems with using #right Alt# combinations
-                          to enter symbols under Windows 9x.
-                          Or clear it, if you prefer to use #right Alt#
-                          for quick search.
-
-                          This option has effect only under
-                          Windows 9x and is ignored under Windows NT.
 
   #Show total copy#         Show total progress bar, when performing
   #indicator#               a file copy operation. This may require
@@ -2589,8 +2564,7 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
      - to delete a substituted (virtual) drive.
 
      - to eject disks from CD-ROM and removable drives.
-       Under Windows 2000/NT/XP, ejecting a disk from a ZIP-drive
-       requires administrative privileges.
+       Ejecting a disk from a ZIP-drive requires administrative privileges.
        A CD-ROM can be closed by pressing #Ins#.
 
     The #Shift-Del# hotkey is used to prepare a USB storage device for safe
@@ -2601,8 +2575,7 @@ card-reader itself will be stopped.
     #Ctrl-1# - #Ctrl-9# switch the display of different information:
 
     Ctrl-1 - disk type;
-    Ctrl-2 - network name
-             (and the path associated with a SUBST drive under NT);
+    Ctrl-2 - network name (and the path associated with a SUBST drive);
     Ctrl-3 - disk label;
     Ctrl-4 - file system;
     Ctrl-5 - total and free disk size
@@ -2627,11 +2600,11 @@ plugins).
     If "#CD drive type#" mode is enabled (#Ctrl-8#), FAR will attempt to
 determine the type of each of the CD drives available in the system. Known
 types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
-This function is available only in Windows NT/XP, for users either with
-administrative privileges or all local users, when it's stated explicitly in
-the Local Policy Editor (to do this, run a #secpol.msc# from the command prompt,
-and set the '#Local Policies/Security Options/Devices: Restrict CD-ROM#
-#access to locally logged-on user only#' setting to '#Enabled#').
+This function is available only for users either with administrative privileges
+or all local users, when it's stated explicitly in the Local Policy Editor
+(to do this, run a #secpol.msc# from the command prompt, and set the '#Local#
+#Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
+#user only#' setting to '#Enabled#').
 
 
 @DisconnectDrive
@@ -2717,8 +2690,7 @@ will not be analyzed, and only file attributes will be taken into account.
      - it has none of the excluded attributes.
 
     The Compressed, Encrypted, Not indexed, Sparse, Temporary attributes and
-Symbolic links are valid for NTFS drives only. The Encrypted attribute and
-Symbolic links can be used only in Windows 2000/XP/2003/Vista/2008.
+Symbolic links are valid for NTFS drives only.
 
 
 @ViewerSettings
@@ -2913,15 +2885,14 @@ corresponding checkboxes was changed from the initial state.
 
     The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary",
 "Offline" and "Virtual" attributes are available only on NTFS drives. The
-"Encrypted" and "Offline" attributes can be used in Windows
-2000/XP/2003/Vista/2008 only. The "Virtual" attribute can be used in
-Windows Vista/2008 only. The "Compressed" and "Encrypted" attributes are
-mutually exclusive, that is, you can set only one of them.
+"Virtual" attribute can be used in Windows Vista/2008 only. The "Compressed"
+and "Encrypted" attributes are mutually exclusive, that is, you can set only
+one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
-information (NTFS/Windows 2000/XP/2003/Vista/2008 only). If the information on
-the original folder is not available (in particular, for symbolic links in
-remote folders), then the "#(data not available)#" message will be shown.
+information (NTFS only). If the information on the original folder is not
+available (in particular, for symbolic links in remote folders), then the
+"#(data not available)#" message will be shown.
 
   #File date and time#
 
@@ -2947,8 +2918,7 @@ unchanged.
     The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
 
-    For ~symbolic links~@HardSymLink@ (supported only under NTFS/Windows
-2000/XP/2003/Vista/2008) the date and time cannot be set.
+    For ~symbolic links~@HardSymLink@ the date and time cannot be set.
 
 
 @FolderShortcuts
@@ -3350,8 +3320,8 @@ dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
 is not available) instead of the internal copy implementation to copy files. It
 may be useful on NTFS, because CopyFileEx performs a more rational disk space
 allocation and copies file extended attributes.
-In Windows 2000 the system copy routine is not used when the file is encrypted
-and you are copying it outside of the current disk.
+The system copy routine is not used when the file is encrypted and you are
+copying it outside of the current disk.
 
     The "Copy contents of symbolic links" option allows to control the
 ~logic~@CopyRule@ of FAR processing of ~symbolic links~@HardSymLink@ when
@@ -3460,19 +3430,15 @@ bin, the number of links of a file does not change.
 in a separate column (by default, it's the last column in the 9th panel mode)
 and sort the files by hard link number.
 
-    Hard links are supported in NTFS starting from Windows NT 4.0. Hard links
-can only be created on the same drive as the source file.
+    Hard links can only be created on the same drive as the source file.
 
     #Junctions#
 
-    NTFS starting with version 5.0 (Windows 2000/XP/2003/Vista/2008) supports
-directory junctions. This technology allowing to map any local directories to
-any other local directories. For example, if the directory D:\\SYMLINK has
-C:\\WINNT\\SYSTEM32 as its target, a program accessing D:\\SYMLINK\\DRIVERS
-will actually access C:\\WINNT\\SYSTEM32\\DRIVERS.
-
-    Unlike hard links, symbolic links are not required to have a target on the
-same drive.
+    This technology allowing to map any local directories to any other local
+directories. For example, if the directory D:\\SYMLINK has C:\\WINNT\\SYSTEM32
+as its target, a program accessing D:\\SYMLINK\\DRIVERS will actually access
+C:\\WINNT\\SYSTEM32\\DRIVERS. Unlike hard links, symbolic links are not required
+to have a target on the same drive.
 
     Under Windows 2000 it is not allowed to create symbolic links directly to
 CD-ROM directories, but this restriction can be overcome by mounting a CD-ROM
@@ -3503,9 +3469,9 @@ disk is possible if in the destination the file will be decrypted.
     The "Ignore" (or "Ignore all") buttons ignore the given warning and copy
 the file unencrypted to the destination.
 
-    In Windows 2000 the internal copying mechanism will be used for copying
-encrypted files outside of the current disk with no regard to the "Use system
-copy routine" option.
+    The internal copying mechanism will be used for copying encrypted files
+outside of the current disk with no regard to the "Use system copy routine"
+option.
 
 
 @WarnCopyStream
@@ -3518,9 +3484,8 @@ system does not support files with multiple streams.
 additional information with a file (for example, author's name, title, keywords
 and so on, or any other data). This information is stored together with the
 file and is invisible to programs that do not support streams. For example,
-streams are used by Windows Explorer in Windows 2000/XP/2003/Vista/2008 to
-store additional file properties (summary). FAT/FAT32 file systems do not
-support streams.
+streams are used by Windows Explorer to store additional file properties
+(summary). FAT/FAT32 file systems do not support streams.
 
     To copy a file completely (together with all its streams), turn on the
 option "#Use system copy routine#" in the ~system settings~@SystemSettings@

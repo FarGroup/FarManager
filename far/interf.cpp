@@ -94,25 +94,22 @@ void InitConsole(int FirstInit)
   SetFarConsoleMode();
   //SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
   /* $ 09.04.2002 DJ
-     если мы под NT и размер консольного буфера больше размера окна, выставим
+     если размер консольного буфера больше размера окна, выставим
      их равными
   */
   if(FirstInit)
   {
     GetVideoMode(InitScreenBufferInfo);
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    {
-      if (InitScreenBufferInfo.srWindow.Left != 0 ||
+    if (InitScreenBufferInfo.srWindow.Left != 0 ||
         InitScreenBufferInfo.srWindow.Top != 0 ||
         InitScreenBufferInfo.srWindow.Right != InitScreenBufferInfo.dwSize.X-1 ||
         InitScreenBufferInfo.srWindow.Bottom != InitScreenBufferInfo.dwSize.Y-1)
-      {
-        COORD newSize;
-        newSize.X = InitScreenBufferInfo.srWindow.Right - InitScreenBufferInfo.srWindow.Left + 1;
-        newSize.Y = InitScreenBufferInfo.srWindow.Bottom - InitScreenBufferInfo.srWindow.Top + 1;
-        SetConsoleScreenBufferSize (hConOut, newSize);
-        GetVideoMode (InitScreenBufferInfo);
-      }
+    {
+      COORD newSize;
+      newSize.X = InitScreenBufferInfo.srWindow.Right - InitScreenBufferInfo.srWindow.Left + 1;
+      newSize.Y = InitScreenBufferInfo.srWindow.Bottom - InitScreenBufferInfo.srWindow.Top + 1;
+      SetConsoleScreenBufferSize (hConOut, newSize);
+      GetVideoMode (InitScreenBufferInfo);
     }
   }
   GetVideoMode(CurScreenBufferInfo);
@@ -243,7 +240,7 @@ _OT(void ViewConsoleInfo()\
 
 void SetVideoMode(int ScreenMode)
 {
-  if (!ScreenMode && Opt.AltF9 /*&& WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT*/)
+  if (!ScreenMode && Opt.AltF9)
   {
     ChangeVideoMode(InitScreenBufferInfo==CurScreenBufferInfo);
   }
@@ -288,34 +285,8 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     return;
   }
 
-#if 1
-/*  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
-  {
-    if (NumColumns < csbi.dwSize.X || NumLines < csbi.dwSize.Y )
-    {
-      csbi.srWindow.Right  = csbi.srWindow.Left + (NumColumns-1);
-      csbi.srWindow.Bottom = csbi.srWindow.Top  + (NumLines-1);
-      SetConsoleWindowInfo(hConOut,TRUE,&csbi.srWindow );
-
-      csbi.dwSize.X = NumColumns;
-      csbi.dwSize.Y = NumLines;
-      SetConsoleScreenBufferSize(hConOut,csbi.dwSize );
-    }
-    else
-    {
-      csbi.dwSize.X = NumColumns;
-      csbi.dwSize.Y = NumLines;
-      SetConsoleScreenBufferSize(hConOut,csbi.dwSize );
-
-      csbi.srWindow.Right  = csbi.srWindow.Left + (NumColumns-1);
-      csbi.srWindow.Bottom = csbi.srWindow.Top  + (NumLines-1);
-      SetConsoleWindowInfo(hConOut,TRUE,&csbi.srWindow );
-    }
-  }*/
-#else
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT ||
-      (NumColumns == 80 && (NumLines == 25 || NumLines == 50)) // обеспечим выполнение !Opt.AltF9
-    )
+#if 0
+  if(NumColumns == 80 && (NumLines == 25 || NumLines == 50)) // обеспечим выполнение !Opt.AltF9
   {
     /* get the largest size we can size the console window to */
     coordScreen = GetLargestConsoleWindowSize(hConOut);
@@ -611,7 +582,7 @@ static BOOL DetectTTFFont(void)
   }
   int FontFamily=GetRegKey(strAppName,L"FontFamily",0);
   if(FontFamily /*&& Opt.UseUnicodeConsole == -1*/) //???
-    UseTTFConsoleFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
+    UseTTFConsoleFont=(FontFamily==0x36)?TRUE:FALSE;
   Opt.strRegRoot = strOptRegRoot;
   return UseTTFConsoleFont;
 }

@@ -711,7 +711,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if ( (item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType) )
 					{
 						if ( (item->nDriveType == DRIVE_REMOVABLE) &&
-							 (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
 							 !IsEjectableMedia(item->cDrive) )
 							break;
 
@@ -1254,7 +1253,7 @@ __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
+  if((Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
     // // _SVS(SysLog(L"_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
 		if(rec->Event.KeyEvent.uChar.UnicodeChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.UnicodeChar) //???
@@ -2244,10 +2243,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
   {
     HKEY hKey;
     IsPersistent=TRUE;
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-      strMsgText.Format (L"Network\\%c",Upper(Letter));
-    else
-      strMsgText.Format (L"Network\\Persistent\\%c", Upper(Letter));
+    strMsgText.Format (L"Network\\%c",Upper(Letter));
 
     if(RegOpenKeyExW(HKEY_CURRENT_USER,strMsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {

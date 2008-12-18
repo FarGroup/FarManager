@@ -121,14 +121,11 @@ void PrintFiles(Panel *SrcPanel)
 
     AddToPrintersMenu(&PrinterList,pi,Returned);
 
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    DWORD NetReturned;
+    if (EnumPrintersW(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&NetReturned))
     {
-      DWORD NetReturned;
-      if (EnumPrintersW(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&NetReturned))
-      {
-        AddToPrintersMenu(&PrinterList,pi,NetReturned);
-        Returned+=NetReturned;
-      }
+      AddToPrintersMenu(&PrinterList,pi,NetReturned);
+      Returned+=NetReturned;
     }
 
     PrinterList.Process();

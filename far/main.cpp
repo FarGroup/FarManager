@@ -130,7 +130,7 @@ static int MainProcess(
         )
 {
   {
-    ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
+    ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     ControlObject CtrlObj;
 
     CONSOLE_SCREEN_BUFFER_INFO InitCsbi;
@@ -348,7 +348,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #if defined(_DEBUGEXC)
   Opt.ExceptRules=-1;
 #else
-  Opt.ExceptRules=(ifn.pfnIsDebuggerPresent && ifn.pfnIsDebuggerPresent()?0:-1);
+  Opt.ExceptRules=IsDebuggerPresent()?0:-1;
 #endif
 
 

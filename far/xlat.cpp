@@ -184,7 +184,6 @@ char* WINAPI XlatA(
     EncodeString(Line+StartPos,(LPBYTE)TableSet->EncodeTable,EndPos-StartPos+1);
 
   // переключаем раскладку клавиатуры?
-  //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
   if((Flags & XLAT_SWITCHKEYBLAYOUT))
   {
     if(!hFarWnd)

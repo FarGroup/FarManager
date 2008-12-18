@@ -651,61 +651,6 @@ DWORD IsCommandExeGUI(const char *Command)
 }
 #endif
 
-
-/* Функция для выставления пути для пассивной панели
-   чтоб путь на пассивной панели был доступен по DriveLetter:
-   для запущенных из фара программ в Win9x
-*/
-void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr)
-{
-  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
-  {
-    //for (int I=0;CmdStr[I]!=0;I++)
-    //{
-      //if (IsAlpha(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
-      //{
-        string strSetPathCmd;
-        string strSavePath;
-        string strPanelPath;
-
-        FarGetCurDir(strSavePath);
-        PassivePanel->GetCurDir(strPanelPath);
-
-        QuoteSpace(strPanelPath);
-
-        strSetPathCmd = strComspec+L" /C chdir %s"+strPanelPath;
-
-        STARTUPINFOW si;
-        PROCESS_INFORMATION pi;
-        memset (&si, 0, sizeof (si));
-        si.cb = sizeof (si);
-
-        if (CreateProcessW(
-              NULL,
-              (wchar_t*)(const wchar_t*)strSetPathCmd,
-              NULL,
-              NULL,
-              FALSE,
-              CREATE_DEFAULT_ERROR_MODE,
-              NULL,
-              NULL,
-              &si,
-              &pi
-              )
-           )
-        {
-          CloseHandle(pi.hThread);
-          CloseHandle(pi.hProcess);
-        }
-        FarChDir(strSavePath);
-        //break;
-      //}
-    //}
-  }
-}
-
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
@@ -716,8 +661,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             int FolderRun)         // Это фолдер?
 {
   int nResult = -1;
-
-  bool bIsNT = (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
 
   string strNewCmdStr;
   string strNewCmdPar;
@@ -790,9 +733,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   wchar_t OldTitle[512];
   GetConsoleTitleW(OldTitle, sizeof(OldTitle)/sizeof(wchar_t));
-
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !strComspec.IsEmpty())
-    SetCurrentDirectoryForPassivePanel(strComspec,CmdStr);
 
   DWORD dwSubSystem;
   DWORD dwError = 0;
@@ -871,10 +811,10 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( bIsNT && wcspbrk (strNewCmdStr, L"&<>()@^|") )
+    if ( wcspbrk (strNewCmdStr, L"&<>()@^|") )
       bDoubleQ = true;
 
-    if ( (bIsNT && !strNewCmdPar.IsEmpty()) || bDoubleQ )
+    if ( !strNewCmdPar.IsEmpty() || bDoubleQ )
       strExecLine += L"\"";
 
     strExecLine += strNewCmdStr;
@@ -885,7 +825,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       strExecLine += strNewCmdPar;
     }
 
-    if ( (bIsNT && !strNewCmdPar.IsEmpty()) || bDoubleQ)
+    if ( !strNewCmdPar.IsEmpty() || bDoubleQ)
       strExecLine += L"\"";
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль

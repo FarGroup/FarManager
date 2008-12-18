@@ -765,10 +765,6 @@ MConfigUsePromptFormat
 "Установить &формат командной строки"
 "Set command line &prompt format"
 
-MConfigAltGr
-"Использовать &правый Alt как AltGr"
-"Use right Alt as &AltGr"
-
 MConfigCopyTotal
 "Показывать &общий индикатор копирования"
 "Show &total copy progress indicator"
@@ -1146,15 +1142,6 @@ MCopyIncorrectTargetList
 l:
 "Указан некорректный список целей!"
 "Incorrect target list!"
-
-MCopyNotSupportLink1
-l:
-"Функция создания ссылок"
-"The link creation feature"
-
-MCopyNotSupportLink2
-"доступна только в семействе Windows NT"
-"is available only under Windows NT"
 
 MCopyCopyingTitle
 l:
@@ -4926,10 +4913,6 @@ ls:;"Ожидание загрузки диска..."
 "Ожидание чтения диска..."
 ls:;"Waiting for disk to load..."
 "Waiting for disk to mount..."
-
-MChangeCouldNotUnlockMedia
-"Невозможно разблокировать привод %c:"
-"Could not unlock media from drive %c:"
 
 MChangeCouldNotEjectMedia
 "Невозможно извлечь диск из привода %c:"

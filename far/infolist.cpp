@@ -148,9 +148,9 @@ void InfoList::DisplayObject()
   if ( strCurDir.IsEmpty() )
     FarGetCurDir(strCurDir);
 
-  /* $ 01.02.2001 SVS
-     В Win2K корректно отображать инфу при заходе в Juction каталог
-     Здесь Рут-диск может быть другим
+  /* 
+     Корректно отображать инфу при заходе в Juction каталог
+     Рут-диск может быть другим
   */
   if((GetFileAttributesW(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
@@ -271,7 +271,7 @@ void InfoList::DisplayObject()
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
   PrintText(strTitle);
   MEMORYSTATUSEX ms;
-  FAR_GlobalMemoryStatusEx(&ms);
+  GlobalMemoryStatusEx(&ms);
   if (ms.dwMemoryLoad==0)
     ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
   GotoXY(X1+2,Y1+9);

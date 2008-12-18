@@ -39,8 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "imports.hpp"
 
-static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
-
 HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
@@ -93,16 +91,7 @@ void FindFarWndByTitle()
 
 void InitDetectWindowedMode()
 {
-  if( ifn.pfnGetConsoleWindow )
-    hFarWnd = ifn.pfnGetConsoleWindow();
-  else
-  {
-    // попытка найти окно по pid
-    EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
-    if(!hFarWnd)
-      // Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
-      FindFarWndByTitle();
-  }
+  hFarWnd = GetConsoleWindow();
 
   if (hFarWnd && Opt.SmallIcon)
   {
@@ -167,32 +156,14 @@ int FarAltEnter(int mode)
 {
 	if ( mode != FAR_CONSOLE_GET_MODE )
 	{
-		if ( WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT )
-		{
-			COORD dwOldMode;
-			
-			if ( !ifn.pfnSetConsoleDisplayMode )
-				ifn.pfnSetConsoleDisplayMode (
-					GetStdHandle(STD_OUTPUT_HANDLE),
-					(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),
-					&dwOldMode
-					);
-		}
-		else 
-		{
-			if ( hFarWnd ) // win9x
-			{
-				//Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
-				//когда пользователь нажимает ALT+ENTER:
-				#define ID_SWITCH_CONSOLEMODE 0xE00F
-				SendMessageW (
-						hFarWnd,
-						WM_COMMAND,
-						ID_SWITCH_CONSOLEMODE,
-						(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1)
-						);
-			}
-		}
+		COORD dwOldMode;
+
+		if ( !ifn.pfnSetConsoleDisplayMode )
+			ifn.pfnSetConsoleDisplayMode (
+				GetStdHandle(STD_OUTPUT_HANDLE),
+				(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),
+				&dwOldMode
+				);
 	}
 
 	DetectWindowedMode();

@@ -2012,10 +2012,6 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
   return strTopic;
 }
 
-
-/* $ 28.06.2000 tran
- (NT Console resize)
- resize help*/
 void Help::SetScreenPosition()
 {
   if (Opt.FullScreenHelp)

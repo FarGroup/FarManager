@@ -314,8 +314,6 @@ BOOL History::SaveHistory()
     if(LastStr[I].Name)
     {
       Len=StrLength(LastStr[I].Name);
-      if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
-        Len=511;
 
       if((PtrBuffer=(wchar_t*)xf_realloc(BufferLines,(SizeLines+Len+2)*sizeof (wchar_t))) == NULL)
       {

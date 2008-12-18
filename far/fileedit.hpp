@@ -150,7 +150,7 @@ public:
     virtual int IsFileModified() {return(m_editor->IsFileModified());};
     virtual void OnChangeFocus(int focus);
 
-    virtual void SetScreenPosition();                         // $ 28.06.2000 tran - NT Console resize - resize editor
+    virtual void SetScreenPosition();
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual const wchar_t *GetTypeName(){return L"[FileEdit]";};

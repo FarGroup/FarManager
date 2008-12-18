@@ -162,6 +162,25 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
     LARGE_INTEGER Length;
 
 } FILE_ALLOCATED_RANGE_BUFFER, *PFILE_ALLOCATED_RANGE_BUFFER;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef DecryptFile
+ WINBASEAPI BOOL WINAPI DecryptFileW(LPCWSTR,DWORD);
+ #define DecryptFile DecryptFileW
+#endif
+
+#ifndef GetConsoleAlias
+ WINBASEAPI DWORD WINAPI GetConsoleAliasW(LPWSTR,LPWSTR,DWORD,LPWSTR);
+ #define GetConsoleAlias GetConsoleAliasW
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // __GNUC__
 
 #ifndef FSCTL_QUERY_ALLOCATED_RANGES

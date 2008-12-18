@@ -138,24 +138,13 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 
 static int SetFileEncryption(const wchar_t *Name,int State)
 {
-	if ( ifn.bEncryptFunctions )
-	{
-		if ( State )
-			return ifn.pfnEncryptFile(Name);
-		else
-			return ifn.pfnDecryptFile(Name, 0);
-	}
-
-	return FALSE;
+	return State?EncryptFileW(Name):DecryptFileW(Name,0);
 }
 
 
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-    return SETATTR_RET_OK;
-
-  if(!ifn.bEncryptFunctions)
     return SETATTR_RET_OK;
 
   int Ret=SETATTR_RET_OK;
@@ -209,8 +198,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                   FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode)
 {
-  if ((LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL) ||
-      ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
+  if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL)
     return SETATTR_RET_OK;
 
   while (1)

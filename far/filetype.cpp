@@ -309,7 +309,6 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
   string strValue;
-  size_t pos;
   const wchar_t *ExtPtr;
   HKEY hClassesKey;
 
@@ -328,113 +327,20 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 */
   RegCloseKey(hClassesKey);
 
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4)
+  string strFullName;
+
+  ConvertNameToFull(Name,strFullName);
+
+  QuoteSpace(strFullName);
+
+  CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
+  if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish) //AN
   {
-    string strAssocStr;
-    string strExpAssocStr;
-
-    strValue += L"\\shell\\open\\command";
-    HKEY hKey;
-    if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
-      return(FALSE);
-    if (RegQueryStringValueEx(hKey,L"",strAssocStr)!=ERROR_SUCCESS)
-    {
-    	RegCloseKey(hKey);
-      return(FALSE);
-    }
-    RegCloseKey(hKey);
-    apiExpandEnvironmentStrings (strAssocStr,strExpAssocStr);
-
-    if (strExpAssocStr.Pos(pos,L"%*"))
-    {
-      wchar_t *ChPtr = strExpAssocStr.GetBuffer ();
-      string strTmpStr;
-      strTmpStr = ChPtr+pos+2;
-      wcscpy(ChPtr+pos,strTmpStr);
-      strExpAssocStr.ReleaseBuffer ();
-    }
-
-    if (strExpAssocStr.Pos(pos,L"%1"))
-    {
-	    wchar_t *ChPtr = strExpAssocStr.GetBuffer (strExpAssocStr.GetLength()+StrLength(Name)+1);
-      string strTmpStr;
-      strTmpStr = ChPtr+2;
-      wcscpy(ChPtr,Name);
-      strExpAssocStr.ReleaseBuffer ();
-      strExpAssocStr += strTmpStr;
-    }
-    else
-    {
-      wchar_t ExecStr[MAX_PATH]; //MAX_PATH - MSDN!
-
-      if (FindExecutableW(Name,L"",ExecStr)<=(HINSTANCE)32)
-        return(FALSE);
-
-      string strExecStr = ExecStr;
-      string strName = Name;
-
-      QuoteSpace(strExecStr);
-      QuoteSpace(strName);
-
-      strExpAssocStr.Format (L"%s %s", (const wchar_t*)strExecStr, (const wchar_t*)strName);
-    }
-
-    if ( strExpAssocStr.At(0) !=L'"')
-    {
-      for (int I=0;strExpAssocStr.At(I)!=0;I++)
-      {
-        if (StrCmpNI((const wchar_t*)strExpAssocStr+I,L".exe",4)==0 &&
-            (strExpAssocStr.At(I+4)==L' ' || strExpAssocStr.At(I+4)==L'/'))
-        {
-          int SpacePresent=0;
-          for (int J=0;J<I;J++)
-          {
-            if (strExpAssocStr.At(J)==L' ')
-            {
-              SpacePresent=1;
-              break;
-            }
-          }
-          if (SpacePresent)
-          {
-            string strNewStr;
-
-            wchar_t *NewStr = strNewStr.GetBuffer (strExpAssocStr.GetLength()+1);
-
-            xwcsncpy(NewStr,strExpAssocStr,I+4);
-            NewStr[I+4]=0;
-
-            strNewStr.ReleaseBuffer ();
-
-            QuoteSpace(strNewStr);
-
-            strNewStr += (const wchar_t*)strExpAssocStr+I+4;
-            strExpAssocStr = strNewStr;
-            QuoteSpace(strExpAssocStr);
-          }
-          break;
-        }
-      }
-    }
-    CtrlObject->CmdLine->ExecString(strExpAssocStr,AlwaysWaitFinish);
+    string strQuotedName = Name;
+    QuoteSpace(strQuotedName);
+    CtrlObject->CmdHistory->AddToHistory(strQuotedName);
   }
-  else
-  {
-    string strFullName;
-
-    ConvertNameToFull(Name,strFullName);
-
-    QuoteSpace(strFullName);
-
-    CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
-    if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish) //AN
-    {
-      string strQuotedName = Name;
-      QuoteSpace(strQuotedName);
-      CtrlObject->CmdHistory->AddToHistory(strQuotedName);
-    }
-  }
-  return(TRUE);
+  return TRUE;
 }
 
 

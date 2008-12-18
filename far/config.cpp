@@ -325,7 +325,6 @@ void InterfaceSettings()
 		DLG_INTERF_SAVERMINUTES,
 		DLG_INTERF_USEPROMPTFORMAT,
 		DLG_INTERF_PROMPTFORMAT,
-		DLG_INTERF_ALTGR,
 		DLG_INTERF_COPYSHOWTOTAL,
 		DLG_INTERF_COPYTIMERULE,
 		DLG_INTERF_PGUPCHANGEDISK,
@@ -335,7 +334,7 @@ void InterfaceSettings()
 	};
 
   static struct DialogDataEx CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX, 3, 1,54,18,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
+  /* 00 */DI_DOUBLEBOX, 3, 1,54,17,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigClock,
   /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
   /* 03 */DI_CHECKBOX,  5, 4, 0, 4,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigMouse,
@@ -347,13 +346,12 @@ void InterfaceSettings()
   /* 09 */DI_TEXT,     13, 9, 0, 9,0,0,0,0,(const wchar_t *)MConfigSaverMinutes,
   /* 10 */DI_CHECKBOX,  5,10, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigUsePromptFormat,
   /* 11 */DI_EDIT,      9,11,24,11,0,0,0,0,L"",
-  /* 12 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigAltGr,
-  /* 13 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigCopyTotal,
-  /* 14 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigCopyTimeRule,
-  /* 15 */DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MConfigPgUpChangeDisk,
-  /* 16 */DI_TEXT,      3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 17 */DI_BUTTON,    0,17, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 18 */DI_BUTTON,    0,17, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 13 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigCopyTotal,
+  /* 14 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigCopyTimeRule,
+  /* 15 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigPgUpChangeDisk,
+  /* 16 */DI_TEXT,      3,15, 0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 17 */DI_BUTTON,    0,16, 0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 18 */DI_BUTTON,    0,16, 0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -378,7 +376,6 @@ void InterfaceSettings()
   CfgDlg[DLG_INTERF_PROMPTFORMAT].strData = Opt.strPromptFormat;
   if(!Opt.UsePromptFormat)
     CfgDlg[DLG_INTERF_PROMPTFORMAT].Flags|=DIF_DISABLE;
-  CfgDlg[DLG_INTERF_ALTGR].Selected=Opt.AltGr;
   CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected=Opt.CMOpt.CopyShowTotal;
 
   CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CMOpt.CopyTimeRule!=0;
@@ -388,7 +385,7 @@ void InterfaceSettings()
   {
     Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"InterfSettings");
-    Dlg.SetPosition(-1,-1,58,20);
+    Dlg.SetPosition(-1,-1,58,19);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -412,7 +409,6 @@ void InterfaceSettings()
 
   Opt.strPromptFormat = CfgDlg[DLG_INTERF_PROMPTFORMAT].strData;
 
-  Opt.AltGr=CfgDlg[DLG_INTERF_ALTGR].Selected;
   Opt.CMOpt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
   Opt.CMOpt.CopyTimeRule=0;
@@ -966,7 +962,6 @@ static struct FARConfig{
 
 
   {1, REG_DWORD,  NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
-  {1, REG_DWORD,  NKeyInterface, L"AltGr",&Opt.AltGr,1, 0},
   {0, REG_DWORD,  NKeyInterface, L"UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
   {1, REG_DWORD,  NKeyInterface, L"ShowMenuBar",&Opt.ShowMenuBar,0, 0},
   {0, REG_DWORD,  NKeyInterface, L"CursorSize1",&Opt.CursorSize[0],15, 0},
@@ -974,7 +969,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, L"CursorSize3",&Opt.CursorSize[2],99, 0},
   {0, REG_DWORD,  NKeyInterface, L"CursorSize4",&Opt.CursorSize[3],99, 0},
   {0, REG_DWORD,  NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, L"AltF9",&Opt.AltF9, (DWORD)-1, 0},
+  {0, REG_DWORD,  NKeyInterface, L"AltF9",&Opt.AltF9, 1, 0},
   {1, REG_DWORD,  NKeyInterface, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
   {0, REG_DWORD,  NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
   {0, REG_DWORD,  NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
@@ -1100,12 +1095,11 @@ static struct FARConfig{
   //{0, REG_DWORD,  NKeySystem,L"CPAJHefuayor",&Opt.strCPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,L"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystem,L"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
-  {1, REG_DWORD,  NKeySystem,L"CloseCDGate",&Opt.CloseCDGate,(DWORD)-1, 0},
+  {1, REG_DWORD,  NKeySystem,L"CloseCDGate",&Opt.CloseCDGate,1, 0},
   {0, REG_DWORD,  NKeySystem,L"UseNumPad",&Opt.UseNumPad,1, 0},
   {0, REG_DWORD,  NKeySystem,L"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {0, REG_DWORD,  NKeySystem,L"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {1, REG_DWORD,  NKeySystem,L"ScanJunction",&Opt.ScanJunction,1, 0},
-  {0, REG_DWORD,  NKeySystem,L"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
   {0, REG_DWORD,  NKeySystem,L"UsePrintManager",&Opt.UsePrintManager,1, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,L"MoveRO",&Opt.Nowell.MoveRO,1, 0},
@@ -1251,8 +1245,6 @@ void ReadConfig()
   }
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)  // Opt.FlagPosixSemantics не пашет под 9x
-    Opt.FlagPosixSemantics=0;
 
   // ОНО ранее может переопределяться
   if(StrCmpI(Opt.strLanguage,InitedLanguage))
@@ -1262,13 +1254,6 @@ void ReadConfig()
 
   if(Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
-
-  // Умолчание разное для разных платформ.
-  if(Opt.AltF9 == -1)
-    Opt.AltF9=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
-
-  if(Opt.CloseCDGate == -1)
-    Opt.CloseCDGate=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
 
   Opt.HelpTabSize=8; // пока жестко пропишем...
 

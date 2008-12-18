@@ -544,7 +544,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-      if (!ifn.bEncryptFunctions || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+      if (!(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
       if(StrCmpI(strFSysName,L"NTFS"))
@@ -716,7 +716,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
             AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-          if (!ifn.bEncryptFunctions || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+          if (!(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
             AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
           if(StrCmpI(strFSysName,L"NTFS"))
@@ -1306,9 +1306,6 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
 
 static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg,int SkipMode)
 {
-  if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    return SETATTR_RET_OK;
-
   while (1)
   {
     if (FileAttr & FILE_ATTRIBUTE_READONLY)

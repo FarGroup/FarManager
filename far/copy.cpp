@@ -108,7 +108,6 @@ static bool ShowTotalCopySize;
 static int StaticMove;
 static string strTotalCopySizeText;
 static ConsoleTitle *StaticCopyTitle=NULL;
-static BOOL NT5, NT;
 static bool CopySparse;
 
 static FileFilter *Filter;
@@ -210,21 +209,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   // *** Предварительные проверки
   // ***********************************************************************
-  // Сразу выциганим версию OS
-
-  NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
-  NT5=NT && WinVer.dwMajorVersion >= 5;
 
   CopyBuffer=NULL;
-
-  if(Link && !NT) // Создание линков только под NT
-  {
-    Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
-              MSG(MCopyNotSupportLink1),
-              MSG(MCopyNotSupportLink2),
-              MSG(MOk));
-    return;
-  }
 
   CDP.Clear();
   CDP.IsDTSrcFixed=-1;
@@ -425,7 +411,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   { // SelName & FileAttr уже заполнены (см. в самом начале функции)
 /*
     // Если каталог и он один, то предполагаем, что хотим создать симлинк
-    if(Link && NT5 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY && DestPanelMode == NORMAL_PANEL)
+    if(Link && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY && DestPanelMode == NORMAL_PANEL)
     {
       CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=1;
       CDP.FolderPresent=TRUE;
@@ -587,8 +573,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   if(Link) // рулесы по поводу линков (предварительные!)
   {
 /*
-    // задисаблим опцию про симлинк, если OS < NT2000.
-    if(!NT5 || ((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
+    if(((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
     {
       CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
       CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
@@ -1402,8 +1387,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     // _SVS(SysLog(L"Root=%s",Root));
     CDP->IsDTSrcFixed=FAR_GetDriveType(strRoot);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
-                      IsDriveTypeCDROM(CDP->IsDTSrcFixed) ||
-                      (NT5 && WinVer.dwMinorVersion>0?DRIVE_REMOVABLE:0);
+                      IsDriveTypeCDROM(CDP->IsDTSrcFixed);
     apiGetVolumeInformation(strRoot,NULL,NULL,NULL,&CDP->FileSystemFlagsSrc,&strFSysNameSrc);
     CDP->FSysNTFS=!StrCmpI(strFSysNameSrc,L"NTFS")?TRUE:FALSE;
     // _SVS(SysLog(L"FSysNameSrc=%s",FSysNameSrc));
@@ -1442,8 +1426,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
         if(CDP->FolderPresent) // Folder?
         {
           // . если источник находится на логическом диске NTFS, но не поддерживающим repase point
-          if(NT5 &&
-//             (CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
+          if((CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
              (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS) &&
 //    ! заблокирована возможность создавать симлинки с локали на сеть -
 //      все равно в такой каталог не ввалишь (то биш, бага была)
@@ -1462,7 +1445,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
               *Flags9 &=~ DIF_DISABLE;
             }
           }
-          else if(NT /* && !NT5 */ && SameDisk)
+          else if(SameDisk)
           {
             *Selected5=0;
             *Flags9 &=~ DIF_DISABLE;
@@ -1483,7 +1466,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
       {
         if(CDP->FolderPresent)
         {
-          if(NT5 && (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
+          if(FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS)
           {
             *Flags5 &=~ DIF_DISABLE;
             if(!CDP->FilesPresent)
@@ -1497,11 +1480,6 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
               *Flags5 |= DIF_DISABLE;
               *Flags9 &=~ DIF_DISABLE;
             }
-          }
-          else if(NT && !NT5 && SameDisk)
-          {
-            *Selected5=0;
-            *Flags9 &=~ DIF_DISABLE;
           }
 
           if(CDP->FilesPresent && SameDisk)// && CDP->FSysNTFS)
@@ -2288,7 +2266,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
           if (SuccessMove)
           {
-            if(IsSetSecuty)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !strcmp(DestFSName,"NTFS"))
+            if(IsSetSecuty)// && !strcmp(DestFSName,"NTFS"))
                 SetRecursiveSecurity(strDestPath,sa);
 
             if (PointToName(strDestPath)==(const wchar_t*)strDestPath)
@@ -2507,7 +2485,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     {
       int MoveCode=FALSE,AskDelete;
 
-      if ((WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !StrCmp(strDestFSName,L"NWFS")) && !Append &&
+      if ((!StrCmp(strDestFSName,L"NWFS")) && !Append &&
           DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName &&
           !RenameToShortName) // !!!
       {
@@ -2545,7 +2523,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           MoveCode=MoveFileThroughTemp(strSrcFullName, strDestPath);
         else
         {
-          if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !StrCmp(strDestFSName,L"NWFS"))
+          if (!StrCmp(strDestFSName,L"NWFS"))
             MoveCode=apiMoveFile(strSrcFullName,strDestPath);
           else
             MoveCode=apiMoveFileEx(strSrcFullName,strDestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
@@ -2771,7 +2749,7 @@ COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 {
 #if 0
   int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
-  if(!(ShellCopy::Flags&FCOPY_USESYSTEMCOPY) && NT && AscStreams)
+  if(!(ShellCopy::Flags&FCOPY_USESYSTEMCOPY) && AscStreams)
   {
     int CountStreams=EnumNTFSStreams(Src,NULL,NULL);
     if(CountStreams > 1 ||
@@ -3162,13 +3140,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     if (Append)
     {
       LARGE_INTEGER Pos={0};
-      if(!apiSetFilePointerEx(DestHandle,Pos,&AppendPos,FILE_END))
+      if(!SetFilePointerEx(DestHandle,Pos,&AppendPos,FILE_END))
       {
         _localLastError=GetLastError();
         CloseHandle(SrcHandle);
         CloseHandle(DestHandle);
         SetLastError(_localLastError);
-        _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d apiSetFilePointerEx() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+        _LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d SetFilePointerEx() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
         return COPY_FAILURE;
       }
     }
@@ -3204,11 +3182,11 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
       if(CopySparse)
       {
         iSize=ranges[i].Length;
-        apiSetFilePointerEx(SrcHandle,ranges[i].FileOffset,NULL,FILE_BEGIN);
+        SetFilePointerEx(SrcHandle,ranges[i].FileOffset,NULL,FILE_BEGIN);
         LARGE_INTEGER DestPos=ranges[i].FileOffset;
         if(Append)
           DestPos.QuadPart+=AppendPos.QuadPart;
-        apiSetFilePointerEx(DestHandle,DestPos,NULL,FILE_BEGIN);
+        SetFilePointerEx(DestHandle,DestPos,NULL,FILE_BEGIN);
       }
       DWORD BytesRead,BytesWritten;
       while (CopySparse?(iSize.QuadPart>0):true)
@@ -3244,7 +3222,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           {
             if (Append)
             {
-              apiSetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+              SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
               SetEndOfFile(DestHandle);
             }
             CloseHandle(DestHandle);
@@ -3274,7 +3252,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           {
             if (Append)
             {
-              apiSetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+              SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
               SetEndOfFile(DestHandle);
             }
             CloseHandle(DestHandle);
@@ -3411,7 +3389,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               CloseHandle(SrcHandle);
               if (Append)
               {
-                apiSetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
+                SetFilePointerEx(DestHandle,AppendPos,NULL,FILE_BEGIN);
                 SetEndOfFile(DestHandle);
               }
               CloseHandle(DestHandle);
@@ -3482,15 +3460,12 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
       Pos.QuadPart=iFileSize.QuadPart;
       if(Append)
         Pos.QuadPart+=AppendPos.QuadPart;
-      apiSetFilePointerEx(DestHandle,Pos,NULL,FILE_BEGIN);
+      SetFilePointerEx(DestHandle,Pos,NULL,FILE_BEGIN);
       SetEndOfFile(DestHandle);
     }
     CloseHandle(DestHandle);
 
     // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
-        (SrcData.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_READONLY)))
-      ShellSetAttr(DestName,SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)));
     ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
   }
   else
@@ -4083,32 +4058,15 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
 
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
 
-  if ( ifn.pfnCopyFileEx )
+  BOOL Cancel=0;
+  TotalCopiedSizeEx=TotalCopiedSize;
+  if (!apiCopyFileEx(SrcName,DestName,CopyProgressRoutine,NULL,&Cancel,
+       ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
   {
-    BOOL Cancel=0;
-    TotalCopiedSizeEx=TotalCopiedSize;
-    if (!apiCopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,
-         ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
-    {
-      ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
-      return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
-    }
     ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
+    return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
   }
-  else
-  {
-    if (ShowTotalCopySize)
-    {
-      unsigned __int64 AddSize = SrcData.nFileSize;
-      TotalCopiedSize += AddSize;
-      CurCopiedSize = AddSize;
-      ShowBar(TotalCopiedSize,TotalCopySize,true);
-      ShowTitle(FALSE);
-    }
-    // Здесь ХЗ... могут быть траблы там, где по каким то причинам нету CopyFileExA
-    if (!apiCopyFile(SrcName,DestName,FALSE))
-      return COPY_FAILURE;
-  }
+  ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName,sa))
     return(COPY_CANCEL);

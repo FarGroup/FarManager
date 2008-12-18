@@ -2024,10 +2024,6 @@ void FileEditor::ShowConsoleTitle()
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
-
-/* $ 28.06.2000 tran
- (NT Console resize)
- resize editor */
 void FileEditor::SetScreenPosition()
 {
 	if (Flags.Check(FFILEEDIT_FULLSCREEN))

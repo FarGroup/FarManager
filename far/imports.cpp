@@ -43,50 +43,9 @@ void ImportedFunctions::Load()
 	memset(this,0,sizeof(*this));
 
 	HMODULE hKernel = LoadLibraryW (L"kernel32.dll");
-	HMODULE hAdvapi = LoadLibraryW (L"advapi32.dll");
 	HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
-	HMODULE hWinMM = LoadLibraryW (L"winmm.dll"); //useless in 2.0
-
-	if (hKernel)
-	{
-		pfnIsDebuggerPresent = (PISDEBUGGERPRESENT)GetProcAddress (hKernel, "IsDebuggerPresent");
-
-		pfnCopyFileEx = (PCOPYFILEEX)GetProcAddress (hKernel, "CopyFileExW");
-		pfnGetDiskFreeSpaceEx = (PGETDISKFREESPACEEX)GetProcAddress (hKernel, "GetDiskFreeSpaceExW");
-		pfnSetFilePointerEx = (PSETFILEPOINTEREX)GetProcAddress(hKernel, "SetFilePointerEx");
-
-		pfnEncryptFile = (PENCRYPTFILE)GetProcAddress (hKernel, "EncryptFileW");
-
-		pfnDecryptFile = (PDECRYPTFILE)GetProcAddress(hKernel, "DecryptFileW");
-	}
-
-	if (hAdvapi)
-	{
-		if ( !pfnEncryptFile )
-			pfnEncryptFile = (PENCRYPTFILE)GetProcAddress(hAdvapi, "EncryptFileW");
-
-		if ( !pfnDecryptFile )
-			pfnDecryptFile = (PDECRYPTFILE)GetProcAddress(hAdvapi, "DecryptFileW");
-	}
-
-	bEncryptFunctions = (pfnEncryptFile && pfnDecryptFile);
 
 //
-	if (hKernel)
-	{
-		pfnGetVolumeNameForVolumeMountPoint = (PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress (
-				hKernel,
-				"GetVolumeNameForVolumeMountPointW"
-				);
-
-		pfnSetVolumeMountPoint = (PSETVOLUMEMOUNTPOINT)GetProcAddress (
-				hKernel,
-				"SetVolumeMountPointW"
-				);
-	}
-
-	bVolumeMountPointFunctions = (pfnGetVolumeNameForVolumeMountPoint && pfnSetVolumeMountPoint);
-
 //
 	if (hSetupAPI)
 	{
@@ -147,7 +106,6 @@ void ImportedFunctions::Load()
 	}
 
 	bSetupAPIFunctions = (
-			pfnGetVolumeNameForVolumeMountPoint &&
 			pfnGetDevNodeRegistryProperty &&
 			pfnGetDevNodeStatus &&
 			pfnGetDeviceID &&
@@ -164,18 +122,9 @@ void ImportedFunctions::Load()
 //
 	if (hKernel)
 	{
-		pfnGetConsoleWindow = (PGETCONSOLEWINDOW)GetProcAddress (hKernel, "GetConsoleWindow");
 		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress (hKernel, "GetConsoleKeyboardLayoutNameW");
 		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress (hKernel, "SetConsoleDisplayMode");
-		pfnGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress (hKernel, "GetConsoleAliasW");
 
-		pfnGlobalMemoryStatusEx = (PGLOBALMEMORYSTATUSEX)GetProcAddress (hKernel, "GlobalMemoryStatusEx");
-		pfnCreateHardLink = (PCREATEHARDLINK)GetProcAddress(hKernel, "CreateHardLinkW");
 		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
-	}
-
-	if (hWinMM)
-	{
-		pfnmciSendString = (PMCISENDSTRING)GetProcAddress(hWinMM, "mciSendStringA");
 	}
 }

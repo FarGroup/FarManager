@@ -445,7 +445,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           else
           {
             DeleteCode=RemoveToRecycleBin(strSelName);
-            if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
+            if (!DeleteCode)
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
                       MSG(MCannotDeleteFolder),strSelName,MSG(MOk));
             else
@@ -619,16 +619,13 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       }
     }
     else
-      if ((WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4) || !Opt.DeleteToRecycleBin)
+      if (!Opt.DeleteToRecycleBin)
       {
 /*
-        if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-        {
-          HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-                 FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
-          if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
-            break;
-        }
+        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
+        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
+          break;
 */
         if (DeleteFileW(Name) || DeleteFileW(ShortName)) //BUGBUG
           break;

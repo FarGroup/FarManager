@@ -83,16 +83,13 @@ int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkF
 {
 	wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
 
-	if ( !ifn.bVolumeMountPointFunctions )
-		return 3;
-
 	// We should do some error checking on the inputs. Make sure
 	// there are colons and backslashes in the right places, etc.
 
-	if ( !ifn.pfnGetVolumeNameForVolumeMountPoint(SrcVolume, Buf, 50) )
+	if ( !GetVolumeNameForVolumeMountPointW(SrcVolume, Buf, 50) )
 		return 1;
 
-	if ( !ifn.pfnSetVolumeMountPoint(LinkFolder, Buf) ) // volume to be mounted
+	if ( !SetVolumeMountPointW(LinkFolder, Buf) ) // volume to be mounted
 		return 2;
 
 	return 0;
@@ -379,71 +376,7 @@ int WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest)
   ConvertNameToFull(Src,strFileSource);
   ConvertNameToFull(Dest,strFileDest);
 
-	if ( ifn.pfnCreateHardLink )
-		return ifn.pfnCreateHardLink(strFileDest, strFileSource, NULL) != 0;
-
-  // все что ниже работает в NT4/2000
-  struct CORRECTED_WIN32_STREAM_ID
-  {
-    DWORD          dwStreamId ;
-    DWORD          dwStreamAttributes ;
-    LARGE_INTEGER  Size ;
-    DWORD          dwStreamNameSize ;
-    WCHAR          cStreamName[ ANYSIZE_ARRAY ] ;
-  } StreamId;
-
-  string strFileLink;
-
-  HANDLE hFileSource;
-
-  DWORD dwBytesWritten;
-  LPVOID lpContext;
-  DWORD cbPathLen;
-  DWORD StreamSize;
-
-  strFileLink = strFileDest;
-
-  hFileSource = apiCreateFile(strFileSource,FILE_WRITE_ATTRIBUTES,
-                FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-
-  if(hFileSource == INVALID_HANDLE_VALUE)
-    return(FALSE);
-
-  lpContext = NULL;
-  cbPathLen = (DWORD)(strFileLink.GetLength() + 1) * sizeof(WCHAR);
-
-  StreamId.dwStreamId = BACKUP_LINK;
-  StreamId.dwStreamAttributes = 0;
-  StreamId.dwStreamNameSize = 0;
-  StreamId.Size.u.HighPart = 0;
-  StreamId.Size.u.LowPart = cbPathLen;
-
-  StreamSize=sizeof(StreamId)-sizeof(WCHAR **)+StreamId.dwStreamNameSize;
-
-  BOOL bSuccess = BackupWrite(hFileSource,(LPBYTE)&StreamId,StreamSize,
-             &dwBytesWritten,FALSE,FALSE,&lpContext);
-
-  int LastError=0;
-
-  if (bSuccess)
-  {
-    bSuccess = BackupWrite(hFileSource,(LPBYTE)(const wchar_t*)strFileLink,cbPathLen,
-                &dwBytesWritten,FALSE,FALSE,&lpContext);
-    if (!bSuccess)
-      LastError=GetLastError();
-
-    //Освобождение Context, из примеров MS
-    BackupWrite(hFileSource,NULL,0,&dwBytesWritten,TRUE,FALSE,&lpContext);
-  }
-  else
-    LastError=GetLastError();
-
-  CloseHandle(hFileSource);
-
-  if (LastError)
-    SetLastError(LastError);
-
-  return(bSuccess);
+  return CreateHardLinkW(strFileDest, strFileSource, NULL) != 0;
 }
 
 /*
@@ -571,8 +504,7 @@ int DelSubstDrive(const wchar_t *DosDeviceName)
   string strNtDeviceName;
   if(GetSubstName(DRIVE_NOT_INIT, DosDeviceName, strNtDeviceName))
   {
-      if ( WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT )
-          strNtDeviceName = (string)L"\\??\\"+strNtDeviceName;
+    strNtDeviceName = (string)L"\\??\\"+strNtDeviceName;
 
     return !DefineDosDeviceW(DDD_RAW_TARGET_PATH|
                        DDD_REMOVE_DEFINITION|
@@ -605,34 +537,12 @@ BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
   strLocalName.Upper ();
   if ((strLocalName.At(0)>=L'A') && ((strLocalName.At(0)<=L'Z')))
   {
-    // ЭТО ОБЯЗАТЕЛЬНО, ИНАЧЕ В WIN98 РАБОТАТЬ НЕ БУДЕТ!!!!
-
-#if defined(_MSC_VER) || defined(__GNUC__)
-    int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name)/sizeof (wchar_t):_MAX_PATH;
-#else
-    int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name)/sizeof (wchar_t):MAXPATH;
-#endif
-
-    if (QueryDosDeviceW(strLocalName,Name,SizeName) >= 3)
+    if (QueryDosDeviceW(strLocalName,Name,countof(Name)) >= 3)
     {
-      /* Subst drive format API differences:
-       *   WinNT: \??\qualified_path (e.g. \??\C:\WinNT)
-       *   Win98: qualified_path (e.g. C:\ or C:\Win98) */
-      if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+      if (!StrCmpN(Name,L"\\??\\",4))
       {
-        if (!StrCmpN(Name,L"\\??\\",4))
-        {
-          strSubstName = Name+4;
-          return TRUE;
-        }
-      }
-      else
-      {
-        if(Name[1] == L':' && Name[2] == L'\\')
-        {
-          strSubstName = Name;
-          return TRUE;
-        }
+        strSubstName = Name+4;
+        return TRUE;
       }
     }
   }
@@ -645,40 +555,37 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 
 	strTempRoot = Path;
 
-	if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+	// обработка mounted volume
+	if(!StrCmpNI(Path,L"Volume{",7))
 	{
-		// обработка mounted volume
-		if( ifn.pfnGetVolumeNameForVolumeMountPoint && !StrCmpNI(Path,L"Volume{",7))
-		{
-			// For the maximum size of the volume ID
-			// see http://msdn2.microsoft.com/en-us/library/aa364994(VS.85).aspx
-			const DWORD MAX_VOLUME_ID = 50;
-			wchar_t pVolumeName[MAX_VOLUME_ID];
+		// For the maximum size of the volume ID
+		// see http://msdn2.microsoft.com/en-us/library/aa364994(VS.85).aspx
+		const DWORD MAX_VOLUME_ID = 50;
+		wchar_t pVolumeName[MAX_VOLUME_ID];
 
-			wchar_t szDrive[] = L"?:\\"; // \\?\Volume{...
-			for (wchar_t chDrive = L'A'; chDrive <= L'Z';  chDrive++ )
-			{
-				*szDrive = chDrive;
-				if ( ifn.pfnGetVolumeNameForVolumeMountPoint(
-								szDrive,            // input volume mount point or directory
-								pVolumeName,        // output volume name buffer
-								MAX_VOLUME_ID       // size of volume name buffer
-						 )
+		wchar_t szDrive[] = L"?:\\"; // \\?\Volume{...
+		for (wchar_t chDrive = L'A'; chDrive <= L'Z';  chDrive++ )
+		{
+			*szDrive = chDrive;
+			if ( GetVolumeNameForVolumeMountPointW(
+							szDrive,            // input volume mount point or directory
+							pVolumeName,        // output volume name buffer
+							MAX_VOLUME_ID       // size of volume name buffer
 					 )
+				 )
+			{
+				if ( !StrCmpI(pVolumeName+4, Path) )	// +4 - for "\\?\"
 				{
-					if ( !StrCmpI(pVolumeName+4, Path) )	// +4 - for "\\?\"
-					{
-						strRoot = szDrive;
-						return;
-					}
+					strRoot = szDrive;
+					return;
 				}
 			}
-
-			// Ops. Диск то не имеет буковки
-			strRoot = L"\\\\?\\";
-			strRoot += Path;
-			return;
 		}
+
+		// Ops. Диск то не имеет буковки
+		strRoot = L"\\\\?\\";
+		strRoot += Path;
+		return;
 	}
 
 	if ( strTempRoot.IsEmpty() )
@@ -738,11 +645,10 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   // Проверим имя на UNC
   if (PathLen > 2 && Path[0] == L'\\' && Path[1] == L'\\')
   {
-    if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-        PathLen > 3 && Path[2] == L'?' && Path[3] == L'\\' &&
+    if (PathLen > 3 && Path[2] == L'?' && Path[3] == L'\\' &&
         //"\\?\Volume{GUID}" не трогаем
         StrCmpNI(&Path[4],L"Volume{",7))
-    { // Проверим на длинное UNC имя под NT
+    { // Проверим на длинное UNC имя
       strNewPath = &Path[4];
       if (PathLen > 8 && StrCmpNI(strNewPath, L"UNC\\", 4)==0)
       {
@@ -755,68 +661,65 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
       IsUNC = TRUE;
   }
 
-  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  DWORD FileAttr;
+  string strJuncName;
+
+  strTempRoot = strNewPath;
+
+  size_t posCtlChar = 0; // позиция начала реального пути в UNC. Без имени сервера
+  if (!IsUNC || strTempRoot.Pos(posCtlChar,L'\\',2))
   {
-    DWORD FileAttr;
-    string strJuncName;
-
-    strTempRoot = strNewPath;
-
-    size_t posCtlChar = 0; // позиция начала реального пути в UNC. Без имени сервера
-    if (!IsUNC || strTempRoot.Pos(posCtlChar,L'\\',2))
+    size_t pos = 0;
+    bool bFound = strTempRoot.RPos(pos,L'\\');
+    while (pos >= posCtlChar && strTempRoot.GetLength() > 2)
     {
-      size_t pos = 0;
-      bool bFound = strTempRoot.RPos(pos,L'\\');
-      while (pos >= posCtlChar && strTempRoot.GetLength() > 2)
+      FileAttr=GetFileAttributesW(strTempRoot);
+
+			if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
       {
-        FileAttr=GetFileAttributesW(strTempRoot);
-
-				if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+        if (GetReparsePointInfo(strTempRoot,strJuncName))
         {
-          if (GetReparsePointInfo(strTempRoot,strJuncName))
+          if (!StrCmpN(strJuncName,L"\\??\\",4))
+            strJuncName.LShift(4);
+
+          if (strJuncName.At(0) == L'.') //BUGBUG
           {
-            if (!StrCmpN(strJuncName,L"\\??\\",4))
-              strJuncName.LShift(4);
-
-            if (strJuncName.At(0) == L'.') //BUGBUG
+            //AY: вся эта заморочка во первых кривая (не всегда работает как надо)
+            //    а во вторых нужна потому что в висте симлинки могут содержать относительный
+            //    путь. Тут видимо надо как то заюзать GetFullPathName.
+            string strTempJunc;
+            if (bFound)
             {
-              //AY: вся эта заморочка во первых кривая (не всегда работает как надо)
-              //    а во вторых нужна потому что в висте симлинки могут содержать относительный
-              //    путь. Тут видимо надо как то заюзать GetFullPathName.
-              string strTempJunc;
-              if (bFound)
+              if (strTempRoot.GetLength() == pos+1)
               {
-                if (strTempRoot.GetLength() == pos+1)
-                {
-                	strTempRoot.SetLength(pos);
-                  if (strTempRoot.RPos(pos,L'\\'))
-                    strTempRoot.SetLength(pos);
-                }
-                else
-                {
-                 	strTempRoot.SetLength(pos);
-                }
+              	strTempRoot.SetLength(pos);
+                if (strTempRoot.RPos(pos,L'\\'))
+                  strTempRoot.SetLength(pos);
               }
-              strJuncName=strTempRoot+strJuncName;
+              else
+              {
+               	strTempRoot.SetLength(pos);
+              }
             }
-
-            if (!Reenter && !IsLocalVolumePath(strJuncName))
-              _GetPathRoot(strJuncName,strRoot,TRUE);
-            else
-              GetPathRootOne(strJuncName,strRoot);
-
-            return;
+            strJuncName=strTempRoot+strJuncName;
           }
-        } /* if */
 
-        if (bFound)
-          strTempRoot.SetLength(pos);
-        else
-          break;
+          if (!Reenter && !IsLocalVolumePath(strJuncName))
+            _GetPathRoot(strJuncName,strRoot,TRUE);
+          else
+            GetPathRootOne(strJuncName,strRoot);
 
-        bFound = strTempRoot.RPos(pos,L'\\');
-      } /* while */
-    } /* if */
+          return;
+        }
+      } /* if */
+
+      if (bFound)
+        strTempRoot.SetLength(pos);
+      else
+        break;
+
+      bFound = strTempRoot.RPos(pos,L'\\');
+    } /* while */
   } /* if */
 
   GetPathRootOne(strNewPath, strRoot);
@@ -833,7 +736,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
 {
   _LOGCOPYR(CleverSysLog Clev(L"FarGetReparsePointInfo()"));
   _LOGCOPYR(SysLog(L"Params: Src='%s'",Src));
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && Src && *Src)
+  if(Src && *Src)
   {
       char Src2[2048];
       xstrncpy(Src2,Src,sizeof(Src2)-1);

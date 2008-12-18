@@ -178,17 +178,6 @@ void Edit::DisplayObject()
 
   FastShow();
 
-  /*
-     - Ѕорьба через ж*пу с глюком консоли w9x где при запуске
-       некоторых досовых прог курсор приобретал "странный"
-       внешний вид.
-  */
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
-  {
-    ::SetCursorType(TRUE,99);
-    ::SetCursorType(TRUE,CursorSize);
-  }
-
   /* $ 26.07.2000 tran
      при DropDownBox курсор выключаем
      не знаю даже - попробовал но не очень красиво вышло */

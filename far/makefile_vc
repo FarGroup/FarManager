@@ -47,12 +47,6 @@ DIRBIT=32
 _BUILD64=0
 !endif
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE
-NULL=nul
-!ENDIF
-
 !ifndef DEBUG
 DIRNAME=Release
 USEDEBUG=NDEBUG
@@ -332,10 +326,10 @@ build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTD
 
 .PHONY: AllDirs
 AllDirs:
-	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
-	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
-	@if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
-	@if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
+	@if not exist "$(OUTDIR)\" mkdir "$(OUTDIR)"
+	@if not exist "$(FARINCLUDE)\" mkdir "$(FARINCLUDE)"
+	@if not exist "$(INTDIR)\" mkdir "$(INTDIR)"
+	@if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 
 "$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILES) $(LINK32_OBJS) $(RES_FILE) Far.exe.manifest far.rc copyright.inc farversion.inc
 	@echo linking $@

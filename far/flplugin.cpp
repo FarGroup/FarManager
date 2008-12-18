@@ -264,9 +264,7 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
 
   SetCurPath();
 
-  HANDLE hFile=INVALID_HANDLE_VALUE;
-  if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
+  HANDLE hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
                          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
                          NULL);
   if(hFile==INVALID_HANDLE_VALUE)

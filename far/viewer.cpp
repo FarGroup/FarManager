@@ -243,29 +243,24 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   if (CmdMode && StrCmp (strFileName, L"-")==0)
   {
     HANDLE OutHandle;
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    string strTempName;
+    if (!FarMkTempEx(strTempName))
     {
-      string strTempName;
-      if (!FarMkTempEx(strTempName))
-      {
-        OpenFailed=TRUE;
-        return(FALSE);
-      }
-      OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
-                FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
-                FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
-      if (OutHandle==INVALID_HANDLE_VALUE)
-      {
-        OpenFailed=true;
-        return(FALSE);
-      }
-      char ReadBuf[8192];
-      DWORD ReadSize,WrittenSize;
-      while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
-        WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,NULL);
+      OpenFailed=TRUE;
+      return(FALSE);
     }
-    else
-      OutHandle=GetStdHandle(STD_INPUT_HANDLE);
+    OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
+              FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
+              FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
+    if (OutHandle==INVALID_HANDLE_VALUE)
+    {
+      OpenFailed=true;
+      return(FALSE);
+    }
+    char ReadBuf[8192];
+    DWORD ReadSize,WrittenSize;
+    while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
+      WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,NULL);
     int InpHandle=_open_osfhandle((intptr_t)OutHandle,O_BINARY);
     if (InpHandle!=-1)
       NewViewFile=fdopen(InpHandle,"rb");
@@ -276,17 +271,21 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   {
     NewViewFile=NULL;
 
-    DWORD Flags=0;
-    DWORD ShareMode=FILE_SHARE_READ|FILE_SHARE_WRITE;
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    {
-      Flags|=FILE_FLAG_POSIX_SEMANTICS;
-      ShareMode|=FILE_SHARE_DELETE;
-    }
-
-    HANDLE hView=apiCreateFile(strFileName,GENERIC_READ,ShareMode,NULL,OPEN_EXISTING,Flags,NULL);
-    if (hView==INVALID_HANDLE_VALUE && Flags!=0)
-      hView=apiCreateFile(strFileName,GENERIC_READ,ShareMode,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE hView=apiCreateFile(strFileName,
+                               GENERIC_READ,
+                               FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+                               NULL,
+                               OPEN_EXISTING,
+                               FILE_FLAG_POSIX_SEMANTICS,
+                               NULL);
+    if (hView==INVALID_HANDLE_VALUE)
+      hView=apiCreateFile(strFileName,
+                          GENERIC_READ,
+                          FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+                          NULL,
+                          OPEN_EXISTING,
+                          0,
+                          NULL);
     if (hView!=INVALID_HANDLE_VALUE)
     {
       int ViewHandle=_open_osfhandle((intptr_t)hView,O_BINARY);

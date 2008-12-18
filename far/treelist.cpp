@@ -883,7 +883,7 @@ int TreeList::ProcessKey(int Key)
         int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
                      AnotherPanel->IsVisible() &&
                      !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-        int Link=(Key==KEY_ALTF6 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && !ToPlugin);
+        int Link=(Key==KEY_ALTF6 && !ToPlugin);
         if(Key==KEY_ALTF6 && !Link) // молча отвалим :-)
           return TRUE;
 

@@ -311,7 +311,7 @@ DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
   {
     wszMountPoint[0] = Letter;
 
-    ifn.pfnGetVolumeNameForVolumeMountPoint (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
+    GetVolumeNameForVolumeMountPointW (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
 
     if ( !StrCmpI (wszCurrentVolumeName, lpwszVolumeName) )
       return (1 << (Letter-L'A'));
@@ -366,7 +366,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
             wchar_t wszVolumeName[MAX_PATH];
 
-            if ( ifn.pfnGetVolumeNameForVolumeMountPoint (
+            if ( GetVolumeNameForVolumeMountPointW (
                 lpwszMountPoint,
                 (wchar_t*)&wszVolumeName,
                 MAX_PATH

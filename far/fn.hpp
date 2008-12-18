@@ -124,7 +124,6 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
 void DeleteDirTree(const wchar_t *Dir);
-int GetClusterSize(const wchar_t *Root);
 
 void InitDetectWindowedMode();
 void DetectWindowedMode();
@@ -158,8 +157,6 @@ BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPSTR lpszDst);
 BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPSTR lpszDst);
-
-BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
 const wchar_t* GetLanguageString (int nID);
 
@@ -923,8 +920,6 @@ bool CheckInitSetupAPI ();
 void FinalizeSetupAPI ();
 void ShowHotplugDevice ();
 
-int GetEncryptFunctions(void);
-
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
 int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
@@ -1118,13 +1113,6 @@ void apiFreeFindData (FAR_FIND_DATA *pData);
 BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink=true);
 BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize);
 
-BOOL apiSetFilePointerEx (
-		HANDLE hFile,
-		LARGE_INTEGER liDistanceToMove,
-		PLARGE_INTEGER lpNewFilePointer,
-		DWORD dwMoveMethod
-		);
-
 //junk
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName);
@@ -1140,16 +1128,10 @@ HANDLE apiCreateFile (
 		HANDLE hTemplateFile          // handle to file with attributes to copy
 		);
 
-BOOL apiCopyFile (
-		const wchar_t *lpwszExistingFileName, // pointer to name of an existing file
-		const wchar_t *lpwszNewFileName,  // pointer to filename to copy to
-		BOOL bFailIfExists  // flag for operation if file exists
-		);
-
 BOOL apiCopyFileEx (
 		const wchar_t *lpExistingFileName,
 		const wchar_t *lpNewFileName,
-		void *lpProgressRoutine,
+		LPPROGRESS_ROUTINE lpProgressRoutine,
 		LPVOID lpData,
 		LPBOOL pbCancel,
 		DWORD dwCopyFlags

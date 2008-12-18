@@ -378,7 +378,6 @@ struct Options
   int ScreenSaverTime;
   int UsePromptFormat;
   string strPromptFormat;
-  int AltGr;
   int UseVk_oem_x;
   int InactivityExit;
   int InactivityExitTime;
@@ -509,7 +508,6 @@ struct Options
   int ShiftsKeyRules;
   int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
   DWORD DisableMacro; // параметры /m или /ma или /m....
-  int IgnoreErrorBadPathName;
 
   DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
   DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
@@ -608,7 +606,6 @@ struct Options
     ScreenSaverTime=0;
     UsePromptFormat=0;
     strPromptFormat=L"";
-    AltGr=0;
     UseVk_oem_x=0;
     InactivityExit=0;
     InactivityExitTime=0;
@@ -711,7 +708,6 @@ struct Options
     HotkeyRules=0;
     ShiftsKeyRules=0;
     MacroReuseRules=0;
-    IgnoreErrorBadPathName=0;
 
     KeyMacroCtrlDot=0;
     KeyMacroCtrlShiftDot=0;
