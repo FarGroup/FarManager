@@ -661,7 +661,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         }
         sprintf(AttrDlg[SETATTR_TITLELINK].Data,MSG(ID_Msg),
               (LenJunction?
-                  TruncPathStr(JuncName+offset,AttrDlg[SETATTR_TITLE].X2-AttrDlg[SETATTR_TITLE].X1-1-strlen(MSG(ID_Msg))):
+                  TruncPathStr(JuncName+offset,AttrDlg[SETATTR_TITLE].X2-AttrDlg[SETATTR_TITLE].X1-1-(int)strlen(MSG(ID_Msg))):
                   MSG(MSetAttrUnknownJunction)));
 
         /* $ 11.09.2001 SVS

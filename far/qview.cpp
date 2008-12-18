@@ -140,7 +140,7 @@ void QuickView::DisplayObject()
         {
           ID_Msg=MQuickViewSymlink;
         }
-        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+offset,X2-X1-1-strlen(MSG(ID_Msg))));
+        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+offset,X2-X1-1-(int)strlen(MSG(ID_Msg))));
         //TruncStr(Msg,X2-X1-1);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
