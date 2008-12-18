@@ -2229,11 +2229,12 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				memset((oldfar::PanelInfo*)Param,0,sizeof(oldfar::PanelInfo));
 				if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
 					hPlugin=PANEL_PASSIVE;
-				PanelInfo PnI;
-				int ret = FarControl(hPlugin,FCTL_GETPANELSHORTINFO,&PnI);
+				PanelInfo tmpPnI;
+				int ret = FarControl(hPlugin,FCTL_GETPANELSHORTINFOFORWRAPPER,&tmpPnI);
 				if (ret)
 				{
-					ConvertUnicodePanelInfoToAnsi(&PnI, (oldfar::PanelInfo*)Param, true);
+					ConvertUnicodePanelInfoToAnsi(&tmpPnI, (oldfar::PanelInfo*)Param, true);
+					FarControl(hPlugin,FCTL_FREEPANELINFO,&tmpPnI);
 				}
 
 				return ret;

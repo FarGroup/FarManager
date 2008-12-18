@@ -906,13 +906,13 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
 }
 
 
-void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
+void FileList::PluginGetPanelInfo(struct PanelInfo *Info, int Command)
 {
   CorrectPosition();
   Info->PanelItems=NULL;
   Info->SelectedItems=NULL;
 
-  if(FullInfo)
+  if (Command == FCTL_GETPANELINFO)
   {
     Info->ItemsNumber=0;
     Info->SelectedItemsNumber=0;
@@ -948,18 +948,25 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
         }
       }
     }
-    string strColumnTypes, strColumnWidths;
-    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-                       ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
-    Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
-    Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
   }
   else
   {
     Info->ItemsNumber=FileCount;
     Info->SelectedItemsNumber=GetSelCount();
+  }
+
+  if (Command == FCTL_GETPANELSHORTINFO)
+  {
     Info->lpwszColumnTypes=NULL;
     Info->lpwszColumnWidths=NULL;
+  }
+  else
+  {
+    string strColumnTypes, strColumnWidths;
+    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+    									ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
+    Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
+    Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
   }
 
   Info->CurrentItem=CurFile;

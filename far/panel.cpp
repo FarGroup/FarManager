@@ -2013,6 +2013,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELSHORTINFO:
+		case FCTL_GETPANELSHORTINFOFORWRAPPER:
 		{
 			if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
 				break;
@@ -2048,7 +2049,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			Info->ViewMode=GetViewMode();
 			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
 
-			if(Command==FCTL_GETPANELINFO)
+			if (Command==FCTL_GETPANELINFO || Command==FCTL_GETPANELSHORTINFOFORWRAPPER)
 			{
 				string strInfoCurDir;
 				GetCurDir(strInfoCurDir);
@@ -2089,7 +2090,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 					Reenter++;
 					struct OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
-					if(Command==FCTL_GETPANELINFO)
+					if (Command==FCTL_GETPANELINFO || Command==FCTL_GETPANELSHORTINFOFORWRAPPER)
 					{
 						if(Info->lpwszCurDir)
 							xf_free(Info->lpwszCurDir);
@@ -2101,7 +2102,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 						Info->Flags &= ~PFLAGS_HIGHLIGHT;
 					Reenter--;
 				}
-				DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO)?TRUE:FALSE);
+				DestFilePanel->PluginGetPanelInfo(Info,Command);
 			}
 
 			if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
