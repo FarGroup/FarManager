@@ -1,3 +1,9 @@
+drkns 18.12.2008 16:16:46 +0200 - build 663
+
+1. [x] Use system copy routine
+   [ ] Show uppercase file names in lowercase
+   [x] Del removes blocks
+
 drkns 18.12.2008 12:57:24 +0200 - build 662
 
 1. Win2k узаконена в качестве "минимального системного требования" (уже давно им являясь на деле).

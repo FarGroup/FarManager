@@ -1005,7 +1005,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,L"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
   {1, REG_DWORD,  NKeyEditor,L"TabSize",&Opt.EdOpt.TabSize,8, 0},
   {1, REG_DWORD,  NKeyEditor,L"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,0, 0},
-  {1, REG_DWORD,  NKeyEditor,L"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,0, 0},
+  {1, REG_DWORD,  NKeyEditor,L"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
   {1, REG_DWORD,  NKeyEditor,L"SaveEditorPos",&Opt.EdOpt.SavePos,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,1, 0},
@@ -1050,7 +1050,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,L"DeleteToRecycleBinKillLink",&Opt.DeleteToRecycleBinKillLink,1, 0},
   {0, REG_DWORD,  NKeySystem,L"WipeSymbol",&Opt.WipeSymbol,0, 0},
 
-  {1, REG_DWORD,  NKeySystem,L"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,0, 0},
+  {1, REG_DWORD,  NKeySystem,L"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,1, 0},
   {0, REG_DWORD,  NKeySystem,L"CopySecurityOptions",&Opt.CMOpt.CopySecurityOptions,0, 0},
   {1, REG_DWORD,  NKeySystem,L"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
   {1, REG_DWORD,  NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
