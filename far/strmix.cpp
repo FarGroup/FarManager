@@ -1059,7 +1059,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
     {
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
-      DWORD Decimal = (DWORD)((double)(DWORD)OldSize/(double)Divider*100.0);
+      DWORD Decimal = (DWORD)(0.5+(double)(DWORD)OldSize/(double)Divider*100.0);
+      if (Decimal >= 100)
+      {
+        Decimal -= 100;
+        Sz++;
+      }
       strStr.Format (L"%d.%02d", (DWORD)Sz,Decimal);
       FormatNumber(strStr,strStr,2);
     }

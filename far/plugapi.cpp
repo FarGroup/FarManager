@@ -1429,9 +1429,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
     clock_t StartTime=clock();
     int MsgOut=0;
 
-    *pItemsNumber=0;
-    *pPanelItem=NULL;
-
     FAR_FIND_DATA_EX FindData;
     string strFullName;
     ScanTree ScTree(FALSE);
@@ -1439,8 +1436,12 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
     ScTree.SetFindPath(strDirName,L"*.*");
 
     CutToSlash(strDirName); //BUGBUG
+
+    *pItemsNumber=0;
+    *pPanelItem=NULL;
     FAR_FIND_DATA *ItemsList=NULL;
     int ItemsNumber=0;
+
     while (ScTree.GetNextName(&FindData,strFullName))
     {
       if ((ItemsNumber & 31)==0)
@@ -1448,7 +1449,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
         if (CheckForEsc())
         {
           if(ItemsList)
-            xf_free(ItemsList);
+            FarFreeDirList(ItemsList,ItemsNumber);
           return FALSE;
         }
 
@@ -1462,7 +1463,6 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
         ItemsList=(FAR_FIND_DATA*)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
         if (ItemsList==NULL)
         {
-          *pItemsNumber=0;
           return FALSE;
         }
       }
@@ -1492,11 +1492,6 @@ static string strPluginSearchPath;
 static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
-/*static struct
-{
-  PluginPanelItem *Addr;
-  int ItemsNumber;
-} DirListNumbers[16];*/
 
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
@@ -1596,14 +1591,6 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
     }
   }
 
-  /*if (!StopSearch)
-    for (int I=0;I<sizeof(DirListNumbers)/sizeof(DirListNumbers[0]);I++)
-      if (DirListNumbers[I].Addr==NULL)
-      {
-        DirListNumbers[I].Addr=*pPanelItem;
-        DirListNumbers[I].ItemsNumber=*pItemsNumber;
-        break;
-      }*/
   return(!StopSearch);
 }
 
@@ -1764,7 +1751,7 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 
     apiFreeFindData (&CurPanelItem->FindData);
   }
-  xf_free((void*)PanelItem);
+  xf_free(PanelItem);
 }
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,

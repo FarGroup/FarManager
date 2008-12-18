@@ -361,7 +361,7 @@ void FreePanelItemW(PluginPanelItem *PanelItem, int ItemsNumber)
 	xf_free(PanelItem);
 }
 
-void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber)
+void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber, bool bFreeArray=true)
 {
 	for (int i=0; i<ItemsNumber; i++)
 	{
@@ -380,7 +380,8 @@ void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber)
 		}
 	}
 
-	xf_free(PanelItem);
+	if (bFreeArray)
+		xf_free(PanelItem);
 }
 
 char *WINAPI FarItoaA(int value, char *string, int radix)
@@ -2409,7 +2410,57 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
-	return FALSE;
+	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
+		return FALSE;
+
+	*pPanelItem=NULL;
+	*pItemsNumber=0;
+
+	wchar_t *DirW=AnsiToUnicode(Dir);
+	if (!DirW)
+		return FALSE;
+
+	FAR_FIND_DATA *pItems;
+	int ItemsNumber;
+	int ret=FarGetDirList(DirW, &pItems, &ItemsNumber);
+
+	xf_free(DirW);
+
+	if (ret && ItemsNumber)
+	{
+		//+sizeof(int) чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+		*pPanelItem=(oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem)+sizeof(int));
+
+		if (*pPanelItem)
+		{
+			*pItemsNumber = ItemsNumber;
+
+			**((int **)pPanelItem) = ItemsNumber;
+			(*((int **)pPanelItem))++;
+
+			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+
+			for (int i=0; i<ItemsNumber; i++)
+			{
+				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].dwFileAttributes;
+				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].ftCreationTime;
+				(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].ftLastAccessTime;
+				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
+				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
+				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
+				UnicodeToAnsi(pItems[i].lpwszFileName,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+				UnicodeToAnsi(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
+			}
+		}
+		else
+		{
+			ret = FALSE;
+		}
+
+		FarFreeDirList(pItems,ItemsNumber);
+	}
+
+	return ret;
 }
 
 int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
@@ -2419,6 +2470,15 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 
 void WINAPI FarFreeDirListA(const struct oldfar::PluginPanelItem *PanelItem)
 {
+	if (!PanelItem)
+		return;
+
+	//Тут хранится ItemsNumber полученный в FarGetDirListA или FarGetPluginDirListA
+	int *base = ((int *)PanelItem) - 1;
+
+	FreePanelItemA((oldfar::PluginPanelItem *)PanelItem, *base, false);
+
+	xf_free(base);
 }
 
 INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
