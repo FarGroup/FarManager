@@ -135,7 +135,7 @@ void History::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int 
 
     HistoryRecord *SaveLastStr;
 
-    SaveLastStr=(HistoryRecord *)alloca(HistoryCount*sizeof(HistoryRecord));
+    SaveLastStr=(HistoryRecord *)xf_malloc(HistoryCount*sizeof(HistoryRecord));
     if(!SaveLastStr)
       return;
 
@@ -171,6 +171,8 @@ void History::AddToHistory(const wchar_t *Str,const wchar_t *Title,int Type,int 
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
     memcpy(LastStr,SaveLastStr,sizeof(HistoryRecord) * HistoryCount);
+
+    xf_free(SaveLastStr);
   }
 
   AddToHistoryLocal(Str,Title,Type);
@@ -302,9 +304,12 @@ BOOL History::SaveHistory()
 
   wchar_t *BufferLines=NULL,*BufferTitles=NULL,*PtrBuffer;
   wchar_t *TypesBuffer;
-  TypesBuffer=(wchar_t *)alloca((HistoryCount+1)*sizeof(wchar_t));
+  TypesBuffer=(wchar_t *)xf_malloc((HistoryCount+1)*sizeof(wchar_t));
   if(!TypesBuffer)
     return FALSE;
+
+  HKEY hKey;
+  BOOL ret = FALSE;
 
   DWORD SizeLines=0, SizeTitles=0, SizeTypes=0;
   int I, Len;
@@ -318,7 +323,8 @@ BOOL History::SaveHistory()
       if((PtrBuffer=(wchar_t*)xf_realloc(BufferLines,(SizeLines+Len+2)*sizeof (wchar_t))) == NULL)
       {
         xf_free(BufferLines);
-        return FALSE;
+        ret = FALSE;
+        goto end;
       }
       BufferLines=PtrBuffer;
       xwcsncpy(BufferLines+SizeLines,LastStr[I].Name,Len);
@@ -356,7 +362,7 @@ BOOL History::SaveHistory()
     }
   }
 
-  HKEY hKey=CreateRegKey(strRegKey);
+  hKey=CreateRegKey(strRegKey);
   if (hKey!=NULL && BufferLines && *BufferLines)
   {
     if(!BufferLines)
@@ -387,10 +393,13 @@ BOOL History::SaveHistory()
       xf_free(BufferTitles);
     xf_free(BufferLines);
 
-    return TRUE;
+    ret = TRUE;
+    goto end;
   }
   else
+  {
     DeleteRegKey(strRegKey);
+  }
 
   if (hKey)
   	RegCloseKey(hKey);
@@ -399,7 +408,11 @@ BOOL History::SaveHistory()
   if(BufferTitles)
     xf_free(BufferTitles);
 
-  return FALSE;
+end:
+
+  xf_free(TypesBuffer);
+
+  return ret;
 }
 
 
@@ -426,7 +439,7 @@ BOOL History::ReadHistory()
     return TRUE;
   }
 
-  if((Buffer=(wchar_t*)xf_malloc(Size*sizeof (wchar_t))) == NULL)
+  if((Buffer=(wchar_t*)xf_malloc(Size)) == NULL)
   {
     RegCloseKey(hKey);
     return FALSE;
@@ -437,7 +450,8 @@ BOOL History::ReadHistory()
   {
     StrPos=0;
     Buf=Buffer;
-    while (Size > sizeof(wchar_t) && StrPos < HistoryCount)
+    Size/=sizeof(wchar_t);
+    while (Size > 1 && StrPos < HistoryCount)
     {
       Length=StrLength(Buf)+1;
       if((LastStr[StrPos].Name=(wchar_t*)xf_malloc(Length*sizeof (wchar_t))) == NULL)
@@ -450,7 +464,7 @@ BOOL History::ReadHistory()
       wcscpy(LastStr[StrPos].Name,Buf);
       StrPos++;
       Buf+=Length;
-      Size-=Length*sizeof (wchar_t);
+      Size-=Length;
     }
   }
   else
@@ -463,7 +477,7 @@ BOOL History::ReadHistory()
   if (NeedReadTitle)
   {
     Size=GetRegKeySize(hKey, L"Titles");
-    if((Buf=(wchar_t*)xf_realloc(Buffer,Size*sizeof(wchar_t))) == NULL)
+    if((Buf=(wchar_t*)xf_realloc(Buffer,Size)) == NULL)
     {
       xf_free(Buffer);
       FreeHistory();
@@ -474,13 +488,14 @@ BOOL History::ReadHistory()
     if(RegQueryValueExW(hKey,L"Titles",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
     {
       StrPos=0;
-      while (Size > sizeof(wchar_t) && StrPos < HistoryCount)
+      Size/=sizeof(wchar_t);
+      while (Size > 1 && StrPos < HistoryCount)
       {
         xwcsncpy(LastStr[StrPos].Title,Buf,countof(LastStr[StrPos].Title)-1);
         ++StrPos;
         Length=StrLength(Buf)+1;
         Buf+=Length;
-        Size-=Length*sizeof (wchar_t);
+        Size-=Length;
       }
     }
     else // раз требовали Title, но ничего не получили, значит _ВСЕ_ в морг.
@@ -496,7 +511,7 @@ BOOL History::ReadHistory()
   if (NeedReadType)
   {
     BYTE *TypesBuffer;
-    TypesBuffer=(BYTE *)alloca((HistoryCount+2)*sizeof(wchar_t));
+    TypesBuffer=(BYTE *)xf_malloc((HistoryCount+2)*sizeof(wchar_t));
     if(TypesBuffer)
       memset(TypesBuffer,0,(HistoryCount+1)*sizeof(wchar_t));
     Size=(HistoryCount+1)*sizeof(wchar_t);
@@ -509,9 +524,12 @@ BOOL History::ReadHistory()
         LastStr[StrPos++].Type=*Buf-L'0';
         Buf++;
       }
+      xf_free(TypesBuffer);
     }
     else // раз требовали Type, но ничего не получили, значит _ВСЕ_ в морг.
     {
+      if (TypesBuffer)
+        xf_free(TypesBuffer);
       FreeHistory();
       RegCloseKey(hKey);
       return FALSE;
@@ -582,7 +600,14 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
           ReplaceStrings(strRecord, L"&",L"&&",-1);
 
           if (*LastStr[CurCmd].Title)
-              strRecord = (string)LastStr[CurCmd].Title+L":"+(LastStr[CurCmd].Type==4?L"-":L" ")+strRecord;
+          {
+            string strTmp;
+            strTmp = LastStr[CurCmd].Title;
+            strTmp += L":";
+            strTmp += (LastStr[CurCmd].Type==4?L"-":L" ");
+            strTmp += strRecord;
+            strRecord = strTmp;
+          }
 
           HistoryItem.Clear ();
           HistoryItem.strName = strRecord;

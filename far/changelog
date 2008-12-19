@@ -1,3 +1,11 @@
+t-rex 19.12.2008 21:22:09 +0200 - build 672
+
+1. "Почистил" немного history.cpp. Частично Mantis#657.
+
+2. FarGetPluginDirListA
+
+3. From Denis Kosy: Неправильная работа с реестром в qview.
+
 drkns 19.12.2008 20:10:53 +0200 - build 671
 
 1. Mantis#0000674: Some errors: Missing L, incorrect types

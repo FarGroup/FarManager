@@ -2465,7 +2465,49 @@ int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPane
 
 int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
-	return FALSE;
+	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
+		return FALSE;
+
+	*pPanelItem=NULL;
+	*pItemsNumber=0;
+
+	wchar_t *DirW=AnsiToUnicode(Dir);
+	if (!DirW)
+		return FALSE;
+
+	PluginPanelItem *pPanelItemW;
+	int ItemsNumber;
+	int ret=FarGetPluginDirList(PluginNumber, hPlugin, DirW, &pPanelItemW, &ItemsNumber);
+
+	xf_free(DirW);
+
+	if (ret && ItemsNumber)
+	{
+		//+sizeof(int) чтоб хранить ItemsNumber ибо в FarFreeDirListA как то надо знать
+		*pPanelItem=(oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem)+sizeof(int));
+
+		if (*pPanelItem)
+		{
+			*pItemsNumber = ItemsNumber;
+
+			**((int **)pPanelItem) = ItemsNumber;
+			(*((int **)pPanelItem))++;
+
+			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
+
+			for (int i=0; i<ItemsNumber; i++)
+			{
+				ConvertPanelItemToAnsi(pPanelItemW[i],(*pPanelItem)[i]);
+			}
+		}
+		else
+		{
+			ret = FALSE;
+		}
+
+		FarFreePluginDirList(pPanelItemW, ItemsNumber);
+	}
+	return ret;
 }
 
 void WINAPI FarFreeDirListA(const struct oldfar::PluginPanelItem *PanelItem)

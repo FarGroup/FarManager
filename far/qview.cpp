@@ -334,7 +334,6 @@ void QuickView::Update(int Mode)
 
 void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 {
-  const wchar_t *ExtPtr;
   DWORD FileAttr;
   CloseFile();
   QView=NULL;
@@ -353,16 +352,27 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 
   strCurFileName = FileName;
 
-  if ((ExtPtr=wcsrchr(strCurFileName,L'.'))!=NULL)
+  size_t pos;
+  if (strCurFileName.RPos(pos,L'.'))
   {
     string strValue;
 
-    if ( RegQueryStringValue (HKEY_CLASSES_ROOT, ExtPtr, strValue)==ERROR_SUCCESS)
+    HKEY hKey;
+    if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strCurFileName+pos,&hKey)==ERROR_SUCCESS)
     {
-      if (RegQueryStringValue (HKEY_CLASSES_ROOT, strValue,strCurFileType)!=ERROR_SUCCESS)
-        strCurFileType=L"";
+      if (RegQueryStringValue(hKey,L"",strValue,L"")==ERROR_SUCCESS)
+      {
+        HKEY hKey2;
+        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey2)==ERROR_SUCCESS)
+        {
+          RegQueryStringValue(hKey2,L"",strCurFileType,L"");
+          RegCloseKey(hKey2);
+        }
+      }
+      RegCloseKey(hKey);
     }
   }
+
   if (hDirPlugin || ((FileAttr=GetFileAttributesW(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
