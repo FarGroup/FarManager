@@ -1,3 +1,8 @@
+t-rex 19.12.2008 13:39:31 +0200 - build 669
+
+1. Mantis#673: Crash in Viewer::SelectText().
+   Проблемы с InfoPanel.
+
 t-rex 19.12.2008 09:36:40 +0200 - build 668
 
 1. Mantis#668: Far ожидает закрытия запущенного приложения.

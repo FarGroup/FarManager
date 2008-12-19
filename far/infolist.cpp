@@ -59,7 +59,6 @@ InfoList::InfoList()
   Type=INFO_PANEL;
   DizView=NULL;
   PrevMacroMode=-1;
-  DizPresent=FALSE;
 
   if (LastDizWrapMode < 0)
   {
@@ -148,7 +147,7 @@ void InfoList::DisplayObject()
   if ( strCurDir.IsEmpty() )
     FarGetCurDir(strCurDir);
 
-  /* 
+  /*
      Корректно отображать инфу при заходе в Juction каталог
      Рут-диск может быть другим
   */
@@ -270,7 +269,7 @@ void InfoList::DisplayObject()
   strTitle = MSG(MInfoMemory);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
   PrintText(strTitle);
-	MEMORYSTATUSEX ms={sizeof(ms)}; 
+	MEMORYSTATUSEX ms={sizeof(ms)};
 	if(GlobalMemoryStatusEx(&ms))
 	{
 		if (ms.dwMemoryLoad==0)
@@ -303,7 +302,7 @@ void InfoList::DisplayObject()
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  if(DizPresent && DizView!=NULL)
+  if (DizView!=NULL)
     return DizView->VMProcess(OpCode,vParam,iParam);
 
   switch(OpCode)
@@ -333,7 +332,7 @@ int InfoList::ProcessKey(int Key)
 
     case KEY_F3:
     case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-        if ( !strDizFileName.IsEmpty() )
+      if ( !strDizFileName.IsEmpty() )
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
         FarChDir(strCurDir);
@@ -397,9 +396,11 @@ int InfoList::ProcessKey(int Key)
       DWORD Flags;
       DizView->GetSelectedParam(Pos,Length,Flags);
 //      ShellUpdatePanels(NULL,FALSE);
+      DizView->InRecursion++;
       Redraw();
       CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
       DizView->SelectText(Pos,Length,Flags|1);
+      DizView->InRecursion--;
     }
     return(ret);
   }
@@ -492,36 +493,32 @@ void InfoList::ShowDirDescription()
   int Length;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
-  if (AnotherPanel->GetMode()!=FILE_PANEL)
+  if (AnotherPanel->GetMode()==FILE_PANEL)
   {
-    SetColor(COL_PANELTEXT);
-    GotoXY(X1+2,Y1+15);
-    PrintText(MInfoDizAbsent);
-    return;
-  }
-  AnotherPanel->GetCurDir(strDizDir);
-  if ((Length=(int)strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
-    strDizDir += L"\\";
+    AnotherPanel->GetCurDir(strDizDir);
+    if ((Length=(int)strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
+      strDizDir += L"\\";
 
-  string strArgName;
+    string strArgName;
 
-  const wchar_t *NamePtr = Opt.strFolderInfoFiles;
-  while ((NamePtr=GetCommaWord(NamePtr,strArgName))!=NULL)
-  {
-    string strFullDizName;
-    strFullDizName = strDizDir;
-    strFullDizName += strArgName;
+    const wchar_t *NamePtr = Opt.strFolderInfoFiles;
+    while ((NamePtr=GetCommaWord(NamePtr,strArgName))!=NULL)
+    {
+      string strFullDizName;
+      strFullDizName = strDizDir;
+      strFullDizName += strArgName;
 
-    FAR_FIND_DATA_EX FindData;
+      FAR_FIND_DATA_EX FindData;
 
-    if ( !apiGetFindDataEx (strFullDizName,&FindData) )
-      continue;
+      if ( !apiGetFindDataEx (strFullDizName,&FindData) )
+        continue;
 
-    CutToSlash(strFullDizName, false);
-    strFullDizName += FindData.strFileName;
+      CutToSlash(strFullDizName, false);
+      strFullDizName += FindData.strFileName;
 
-    if (OpenDizFile(strFullDizName))
-      return;
+      if (OpenDizFile(strFullDizName))
+        return;
+    }
   }
   CloseFile();
   SetColor(COL_PANELTEXT);
@@ -593,10 +590,14 @@ void InfoList::CloseFile()
 
 int InfoList::OpenDizFile(const wchar_t *DizFile)
 {
+  bool bOK=true;
+
   _tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
     DizView=new DizViewer;
+    if (!DizView)
+      return FALSE;
     _tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
@@ -608,22 +609,31 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
     DizView->SetWrapType(LastDizWrapType);
     DizView->SetShowScrollbar (LastDizShowScrollbar);
   }
-
-  if (!DizView->OpenFile(DizFile,FALSE))
+  else
   {
-    DizPresent=FALSE;
-    return(FALSE);
+    //не будем менять внутренности если мы посреди операции со вьювером.
+    bOK = DizView->InRecursion==0;
   }
+
+  if (bOK)
+  {
+    if (!DizView->OpenFile(DizFile,FALSE))
+    {
+      delete DizView;
+      DizView = NULL;
+      return(FALSE);
+    }
+    strDizFileName = DizFile;
+  }
+
   DizView->Show();
 
-  strDizFileName = DizFile;
   string strTitle;
   strTitle.Format (L" %s ", (const wchar_t*)PointToName(strDizFileName));
   TruncStr(strTitle,X2-X1-3);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+14);
   SetColor(COL_PANELTEXT);
   PrintText(strTitle);
-  DizPresent=TRUE;
   return(TRUE);
 }
 
@@ -677,7 +687,7 @@ BOOL InfoList::UpdateKeyBar()
 void InfoList::DynamicUpdateKeyBar()
 {
   KeyBar *KB = CtrlObject->MainKeyBar;
-  if (DizView && DizPresent)
+  if (DizView)
   {
     KB->Change (MSG(MInfoF3), 3-1);
 

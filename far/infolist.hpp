@@ -49,16 +49,16 @@ public:
   virtual ~DizViewer() {}
   virtual int ProcessKey(int Key)
   {
-    InRecursion=1;
+    InRecursion++;
     int res=Viewer::ProcessKey(Key);
-    InRecursion=0;
+    InRecursion--;
     return res;
   }
   virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   {
-    InRecursion=1;
+    InRecursion++;
     int res=Viewer::ProcessMouse(MouseEvent);
-    InRecursion=0;
+    InRecursion--;
     return res;
   }
 };
@@ -68,7 +68,6 @@ class InfoList:public Panel
   private:
     DizViewer *DizView;
     int  PrevMacroMode;
-    int  DizPresent;
     int  OldWrapMode;
     int  OldWrapType;
     string strDizFileName;
