@@ -511,15 +511,15 @@ void VMenu::ShowMenu(int IsParent)
           {
             if (Item[I-1]->strName.At(J)==0)
               break;
-            if (Item[I-1]->strName.At(J)==0x0B3) //BUGBUG
+            if (Item[I-1]->strName.At(J)==BoxSymbols[BS_V1])
             {
               int Correction=0;
               if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=NULL)
                 Correction=1;
-              if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==0x0B3)//BUGBUG
-                Ptr[J-Correction+2]=0x0C5;
+              if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
+                Ptr[J-Correction+2]=BoxSymbols[BS_C_H1V1];
               else
-                Ptr[J-Correction+2]=0x0C1;
+                Ptr[J-Correction+2]=BoxSymbols[BS_B_H1V1];
             }
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
@@ -587,7 +587,9 @@ void VMenu::ShowMenu(int IsParent)
         else
           Len_MItemPtr=HiStrlen(_MItemPtr,TRUE);
 
-        swprintf(TmpStrW,L"%c %s",Check,(const wchar_t*)_MItemPtr);
+        swprintf(TmpStrW,L"%c ",Check);
+        xwcsncat(TmpStrW,_MItemPtr,countof(TmpStrW)-1-StrLength(TmpStrW));
+
         if(VMFlags.Check(VMENU_TRUNCMODE))
         {
            if(Len_MItemPtr+2 > X2-X1-3)
