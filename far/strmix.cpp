@@ -934,10 +934,15 @@ char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int V
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
       #if (defined(_MSC_VER) && _MSC_VER <= 1200)
-      DWORD Decimal = (DWORD)((double)(__int64)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
+      DWORD Decimal = (DWORD)(0.5+(double)(__int64)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
       #else
-      DWORD Decimal = (DWORD)((double)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
+      DWORD Decimal = (DWORD)(0.5+(double)(OldSize&_i64(0xFFFFFFFF))/(double)Divider*100.0);
       #endif
+      if (Decimal >= 100)
+      {
+        Decimal -= 100;
+        Sz++;
+      }
       sprintf(Str,"%d.%02d",(int)Sz,Decimal);
       FormatNumber(Str,Fmt,sizeof(Fmt),2);
     }

@@ -37,7 +37,6 @@ InfoList::InfoList()
   Type=INFO_PANEL;
   DizView=NULL;
   PrevMacroMode=-1;
-  DizPresent=FALSE;
   *DizFileName=0;
 
   if (LastDizWrapMode < 0)
@@ -276,7 +275,7 @@ void InfoList::DisplayObject()
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  if(DizPresent && DizView!=NULL)
+  if (DizView!=NULL)
     return DizView->VMProcess(OpCode,vParam,iParam);
 
   switch(OpCode)
@@ -375,9 +374,11 @@ int InfoList::ProcessKey(int Key)
       DWORD Flags;
       DizView->GetSelectedParam(Pos,Length,Flags);
 //      ShellUpdatePanels(NULL,FALSE);
+      DizView->InRecursion++;
       Redraw();
       CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
       DizView->SelectText(Pos,Length,Flags|1);
+      DizView->InRecursion--;
     }
     return(ret);
   }
@@ -486,40 +487,32 @@ void InfoList::ShowDirDescription()
   int Length;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
-  if (AnotherPanel->GetMode()!=FILE_PANEL)
+  if (AnotherPanel->GetMode()==FILE_PANEL)
   {
-    SetColor(COL_PANELTEXT);
-    GotoXY(X1+2,Y1+15);
-    PrintText(MInfoDizAbsent);
-    return;
-  }
-  AnotherPanel->GetCurDir(DizDir);
-  if ((Length=(int)strlen(DizDir))>0 && DizDir[Length-1]!='\\')
-    strcat(DizDir,"\\");
+    AnotherPanel->GetCurDir(DizDir);
+    if ((Length=(int)strlen(DizDir))>0 && DizDir[Length-1]!='\\')
+      strcat(DizDir,"\\");
 
-  char ArgName[NM];
-  const char *NamePtr=Opt.FolderInfoFiles;
-  while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
-  {
-    char FullDizName[2048];
-    xstrncpy(FullDizName,DizDir,sizeof(FullDizName)-1);
-    if(strlen(FullDizName)+strlen(ArgName) < sizeof(FullDizName))
-      strcat(FullDizName,ArgName);
-    else
-      return;
+    char ArgName[NM];
+    const char *NamePtr=Opt.FolderInfoFiles;
+    while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
+    {
+      char FullDizName[2048];
+      xstrncpy(FullDizName,DizDir,sizeof(FullDizName)-1);
+      if(strlen(FullDizName)+strlen(ArgName) < sizeof(FullDizName))
+        strcat(FullDizName,ArgName);
+      else
+        return;
 
-    WIN32_FIND_DATA FindData;
-    if(!GetFileWin32FindData(FullDizName,&FindData))
-      continue;
-    strcpy(PointToName(FullDizName),FindData.cFileName);
-    if (OpenDizFile(FullDizName))
-      return;
+      WIN32_FIND_DATA FindData;
+      if(!GetFileWin32FindData(FullDizName,&FindData))
+        continue;
+      strcpy(PointToName(FullDizName),FindData.cFileName);
+      if (OpenDizFile(FullDizName))
+        return;
+    }
   }
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
   PrintText(MInfoDizAbsent);
@@ -533,11 +526,7 @@ void InfoList::ShowPluginDescription()
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
   CloseFile();
-  /* DJ $ */
   struct OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
@@ -576,9 +565,6 @@ void InfoList::ShowPluginDescription()
   }
 }
 
-/* $ 30.04.2001 DJ
-   CloseDizFile() -> CloseFile()
-*/
 void InfoList::CloseFile()
 {
   if (DizView!=NULL)
@@ -587,15 +573,11 @@ void InfoList::CloseFile()
       Если идёт вызов метода DizView,
       то не надо делать delete...
     */
-    if(DizView->InRecursion)return;
-    /* SKV$*/
+    if(DizView->InRecursion)
+      return;
     LastDizWrapMode=DizView->GetWrapMode();
     LastDizWrapType=DizView->GetWrapType();
-    /* $ 27.04.2001 DJ
-       запоминаем, был ли включен скроллбар
-    */
     LastDizShowScrollbar=DizView->GetShowScrollbar();
-    /* DJ $ */
     DizView->SetWrapMode(OldWrapMode);
     DizView->SetWrapType(OldWrapType);
     delete DizView;
@@ -603,18 +585,17 @@ void InfoList::CloseFile()
   }
   *DizFileName=0;
 }
-/* DJ $ */
 
 int InfoList::OpenDizFile(char *DizFile)
 {
+  bool bOK=true;
+
   _tran(SysLog("InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
-    /* $ 12.10.2001 SKV
-      Теперь это не просто Viewer, а DizViewer :)
-    */
     DizView=new DizViewer;
-    /* SKV$*/
+    if (!DizView)
+      return FALSE;
     _tran(SysLog("InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
@@ -624,26 +605,32 @@ int InfoList::OpenDizFile(char *DizFile)
     OldWrapType = DizView->GetWrapType();
     DizView->SetWrapMode(LastDizWrapMode);
     DizView->SetWrapType(LastDizWrapType);
-    /* $ 27.04.2001 DJ
-       если скроллбар был включен, включаем
-    */
     DizView->SetShowScrollbar (LastDizShowScrollbar);
-    /* DJ $ */
   }
-  if (!DizView->OpenFile(DizFile,FALSE))
+  else
   {
-    DizPresent=FALSE;
-    return(FALSE);
+    //не будем менять внутренности если мы посреди операции со вьювером.
+    bOK = DizView->InRecursion==0;
   }
+
+  if (bOK)
+  {
+    if (!DizView->OpenFile(DizFile,FALSE))
+    {
+      delete DizView;
+      DizView = NULL;
+      return(FALSE);
+    }
+    strcpy(DizFileName,DizFile);
+  }
+
   DizView->Show();
-  strcpy(DizFileName,DizFile);
   char Title[NM];
   sprintf(Title," %s ",PointToName(DizFileName));
   TruncStr(Title,X2-X1-3);
   GotoXY(X1+(X2-X1-(int)strlen(Title))/2,Y1+14);
   SetColor(COL_PANELTEXT);
   PrintText(Title);
-  DizPresent=TRUE;
   return(TRUE);
 }
 
@@ -682,10 +669,6 @@ int InfoList::GetCurName(char *Name,char *ShortName)
   }
   return (FALSE);
 }
-/* IS $ */
-/* $ 30.04.2001 DJ
-   свой кейбар
-*/
 
 BOOL InfoList::UpdateKeyBar()
 {
@@ -706,7 +689,7 @@ BOOL InfoList::UpdateKeyBar()
 void InfoList::DynamicUpdateKeyBar()
 {
   KeyBar *KB = CtrlObject->MainKeyBar;
-  if (DizView && DizPresent)
+  if (DizView)
   {
     KB->Change (MSG(MInfoF3), 3-1);
 
@@ -742,4 +725,3 @@ void InfoList::DynamicUpdateKeyBar()
   KB->ReadRegGroup("Info",Opt.Language);
   KB->SetAllRegGroup();
 }
-/* DJ $ */
