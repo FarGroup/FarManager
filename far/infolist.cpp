@@ -270,30 +270,32 @@ void InfoList::DisplayObject()
   strTitle = MSG(MInfoMemory);
   GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
   PrintText(strTitle);
-  MEMORYSTATUSEX ms;
-  GlobalMemoryStatusEx(&ms);
-  if (ms.dwMemoryLoad==0)
-    ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
-  GotoXY(X1+2,Y1+9);
-  PrintText(MInfoMemoryLoad);
-  strOutStr.Format (L"%d%%",ms.dwMemoryLoad);
-  PrintInfo(strOutStr);
-  GotoXY(X1+2,Y1+10);
-  PrintText(MInfoMemoryTotal);
-  InsertCommas((__int64)ms.ullTotalPhys,strOutStr);
-  PrintInfo(strOutStr);
-  GotoXY(X1+2,Y1+11);
-  PrintText(MInfoMemoryFree);
-  InsertCommas((__int64)ms.ullAvailPhys,strOutStr);
-  PrintInfo(strOutStr);
-  GotoXY(X1+2,Y1+12);
-  PrintText(MInfoVirtualTotal);
-  InsertCommas((__int64)ms.ullTotalPageFile,strOutStr);
-  PrintInfo(strOutStr);
-  GotoXY(X1+2,Y1+13);
-  PrintText(MInfoVirtualFree);
-  InsertCommas((__int64)ms.ullAvailPageFile,strOutStr);
-  PrintInfo(strOutStr);
+	MEMORYSTATUSEX ms={sizeof(ms)}; 
+	if(GlobalMemoryStatusEx(&ms))
+	{
+		if (ms.dwMemoryLoad==0)
+			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+		GotoXY(X1+2,Y1+9);
+		PrintText(MInfoMemoryLoad);
+		strOutStr.Format (L"%d%%",ms.dwMemoryLoad);
+		PrintInfo(strOutStr);
+		GotoXY(X1+2,Y1+10);
+		PrintText(MInfoMemoryTotal);
+		InsertCommas((__int64)ms.ullTotalPhys,strOutStr);
+		PrintInfo(strOutStr);
+		GotoXY(X1+2,Y1+11);
+		PrintText(MInfoMemoryFree);
+		InsertCommas((__int64)ms.ullAvailPhys,strOutStr);
+		PrintInfo(strOutStr);
+		GotoXY(X1+2,Y1+12);
+		PrintText(MInfoVirtualTotal);
+		InsertCommas((__int64)ms.ullTotalPageFile,strOutStr);
+		PrintInfo(strOutStr);
+		GotoXY(X1+2,Y1+13);
+		PrintText(MInfoVirtualFree);
+		InsertCommas((__int64)ms.ullAvailPageFile,strOutStr);
+		PrintInfo(strOutStr);
+	}
   ShowDirDescription();
   ShowPluginDescription();
 }
