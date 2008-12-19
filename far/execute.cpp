@@ -187,13 +187,20 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
     return(NULL);
 
-  if (RegQueryStringValue(HKEY_CLASSES_ROOT,ExtPtr,strValue,L"")!=ERROR_SUCCESS)
+  HKEY hKey;
+  if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hKey)!=ERROR_SUCCESS)
     return(NULL);
+
+  if (RegQueryStringValue(hKey,L"",strValue,L"")!=ERROR_SUCCESS)
+  {
+    RegCloseKey(hKey);
+    return(NULL);
+  }
+  RegCloseKey(hKey);
 
   strValue += L"\\shell";
 //_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
 
-  HKEY hKey;
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
