@@ -325,7 +325,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
   {
     INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
                          //   структура INPUT_RECORD модифицируется!
-    return CalcKeyCode(&Rec,TRUE);
+    return (int)CalcKeyCode(&Rec,TRUE);
   }
   return KEY_NONE;
 }
@@ -1864,27 +1864,27 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     switch(KeyCode)
     {
       case VK_OEM_COMMA:
-        Char.UnicodeChar=',';
+        Char.UnicodeChar=L',';
         break;
       case VK_OEM_PERIOD:
-        Char.UnicodeChar='.';
+        Char.UnicodeChar=L'.';
         break;
       case VK_OEM_4:
         if(!Opt.UseVk_oem_x)
-          Char.UnicodeChar='[';
+          Char.UnicodeChar=L'[';
         break;
       case VK_OEM_5:
         //Char.AsciiChar=ScanCode==0x29?0x15:'\\'; //???
         if(!Opt.UseVk_oem_x)
-          Char.UnicodeChar='\\';
+          Char.UnicodeChar=L'\\';
         break;
       case VK_OEM_6:
         if(!Opt.UseVk_oem_x)
-          Char.UnicodeChar=']';
+          Char.UnicodeChar=L']';
         break;
       case VK_OEM_7:
         if(!Opt.UseVk_oem_x)
-          Char.UnicodeChar='\"';
+          Char.UnicodeChar=L'\"';
         break;
     }
   }

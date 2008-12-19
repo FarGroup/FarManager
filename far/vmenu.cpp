@@ -644,7 +644,7 @@ void VMenu::ShowMenu(int IsParent)
           if(AmpPos >= 2 && TmpStrW[AmpPos] != L'&')
           {
             wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,StrLength(TmpStrW+AmpPos)+1);
-            TmpStrW[AmpPos]='&';
+            TmpStrW[AmpPos]=L'&';
           }
 //_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiText(TmpStrW,Col);

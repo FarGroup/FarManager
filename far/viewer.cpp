@@ -474,18 +474,18 @@ void Viewer::SetCRSym()
   for (I=0;I<ReadSize;I++)
     switch(Buf[I])
     {
-      case 10:
+      case L'\n':
         LFCount++;
         break;
-      case 13:
-        if (I+1>=ReadSize || Buf[I+1]!=10)
+      case L'\r':
+        if (I+1>=ReadSize || Buf[I+1]!=L'\n')
           CRCount++;
         break;
     }
   if (LFCount<CRCount)
-    CRSym=13;
+    CRSym=L'\r';
   else
-    CRSym=10;
+    CRSym=L'\n';
 }
 
 void Viewer::ShowPage (int nMode)
@@ -970,7 +970,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
         __int64 SavePos=vtell(ViewFile);
-        if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
+        if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=L'\r' || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.WordWrap)
@@ -1030,7 +1030,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
       if (CRSkipped)
       {
         CRSkipped=false;
-        pString->lpData[(int)OutPtr++]=13;
+        pString->lpData[(int)OutPtr++]=L'\r';
       }
 
       if (Ch==L'\t')
@@ -1046,7 +1046,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
       /* $ 20.09.01 IS
          Баг: не учитывали левую границу при свертке
       */
-      if (Ch==13)
+      if (Ch==L'\r')
       {
         CRSkipped=true;
         if(OutPtr>=XX2-X1)
@@ -1059,7 +1059,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         if(CRSkipped)
            continue;
       }
-      if (Ch==0 || Ch==10)
+      if (Ch==0 || Ch==L'\n')
         Ch=L' ';
       pString->lpData[(int)OutPtr++]=Ch;
       pString->lpData[(int)OutPtr]=0;
@@ -1989,7 +1989,7 @@ void Viewer::Up()
     BufSize--;
     Skipped++;
   }
-  if (BufSize>0 && CRSym==10 && Buf[BufSize-1]==13)
+  if (BufSize>0 && CRSym==L'\n' && Buf[BufSize-1]==L'\r')
   {
     BufSize--;
     Skipped++;
@@ -2033,9 +2033,9 @@ void Viewer::Up()
           }
           if (J<BufSize)
           {
-            if (Buf[J]=='\t')
+            if (Buf[J]==L'\t')
               StrPos+=ViOpt.TabSize-(StrPos % ViOpt.TabSize);
-            else if (Buf[J]!=13)
+            else if (Buf[J]!=L'\r')
               StrPos++;
           }
         }
@@ -2060,8 +2060,8 @@ int Viewer::CalcStrSize(const wchar_t *Str,int Length)
       case L'\t':
         Size+=ViOpt.TabSize-(Size % ViOpt.TabSize);
         break;
-      case 10:
-      case 13:
+      case L'\n':
+      case L'\r':
         break;
       default:
         Size++;
@@ -2848,7 +2848,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
           GoToDlg[RB_HEX].Selected=1;
           if ( StrCmpNI(GoToDlg[1].strData,L"0x",2)==0)
               GoToDlg[1].strData.LShift(2);
-          else if (GoToDlg[1].strData.At(0)=='$')
+          else if (GoToDlg[1].strData.At(0)==L'$')
               GoToDlg[1].strData.LShift(1);
           //Relative=0; // при hex значении никаких относительных значений?
       }

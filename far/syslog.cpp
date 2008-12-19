@@ -1427,15 +1427,15 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
     {
       WORD AsciiChar = (WORD)(BYTE)rec->Event.KeyEvent.uChar.AsciiChar;
       Records.Format(
-            L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
+            L"%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%c' (0x%04X): A='%C' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
           (rec->EventType==KEY_EVENT?L"KEY_EVENT_RECORD":(rec->EventType==FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"(internal, macro)_KEY_EVENT")),
           (rec->Event.KeyEvent.bKeyDown?L"Dn":L"Up"),
           rec->Event.KeyEvent.wRepeatCount,
           _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
           rec->Event.KeyEvent.wVirtualScanCode,
-          (rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == 9 || rec->Event.KeyEvent.uChar.UnicodeChar == 0xd || rec->Event.KeyEvent.uChar.UnicodeChar == 0xa)?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
+          (rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\r' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\n')?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
               rec->Event.KeyEvent.uChar.UnicodeChar,
-          (AsciiChar && AsciiChar != 0x0d && AsciiChar != 0x9 && AsciiChar !=0xA ?AsciiChar:L' '),
+          (AsciiChar && AsciiChar != '\r' && AsciiChar != '\t' && AsciiChar !='\n' ?AsciiChar:' '),
               AsciiChar,
           rec->Event.KeyEvent.dwControlKeyState,
             (rec->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED?L'C':L'c'),

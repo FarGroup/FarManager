@@ -701,10 +701,10 @@ void InitRecodeOutTable(UINT cp)
     if (Opt.NoGraphics)
     {
       for (I=BS_V1;I<=BS_LT_H1V1;I++)
-        BoxSymbols[I]='+';
-      BoxSymbols[BS_V1]=BoxSymbols[BS_V2]='|';
-      BoxSymbols[BS_H1]='-';
-      BoxSymbols[BS_H2]='=';
+        BoxSymbols[I]=L'+';
+      BoxSymbols[BS_V1]=BoxSymbols[BS_V2]=L'|';
+      BoxSymbols[BS_H1]=L'-';
+      BoxSymbols[BS_H2]=L'=';
     }
   }
   //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
@@ -845,7 +845,7 @@ void HiText(const wchar_t *Str,int HiColor,int isVertText)
 
 
 
-void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color)
+void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color)
 {
   if (X1<0) X1=0;
   if (Y1<0) Y1=0;
@@ -911,7 +911,7 @@ void SetRealColor(int Color)
 void ClearScreen(int Color)
 {
   Color=FarColorToReal(Color);
-  ScrBuf.FillRect(0,0,ScrX,ScrY,' ',Color);
+  ScrBuf.FillRect(0,0,ScrX,ScrY,L' ',Color);
   ScrBuf.ResetShadow();
   ScrBuf.Flush();
   SetConsoleTextAttribute(hConOut,Color);
@@ -926,7 +926,7 @@ int GetColor()
 void ScrollScreen(int Count)
 {
   ScrBuf.Scroll(Count);
-  ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,' ',FarColorToReal(COL_COMMANDLINEUSERSCREEN));
+  ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,L' ',FarColorToReal(COL_COMMANDLINEUSERSCREEN));
 }
 
 

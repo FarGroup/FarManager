@@ -355,7 +355,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
 
     CurStr+=2+RealPath;
 
-    if (*CurStr=='!')
+    if (*CurStr==L'!')
     {
 //      strcpy(TmpName,PSubstData->Name);
 //      strcpy(TmpShortName,PSubstData->ShortName);

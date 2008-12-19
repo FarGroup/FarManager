@@ -324,7 +324,7 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 
 				// Полное имя месяца
 				// full month name
-				case 'B':
+				case L'B':
 					strBuf=Month[CurLang][t->tm_mon];
 					break;
 
@@ -343,7 +343,7 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 				case L'e':
 				// Две цифры дня месяца (01 - 31)
 				// day of the month, 01 - 31
-				case 'd':
+				case L'd':
 					strBuf.Format(*Format==L'e'?L"%2d":L"%02d",t->tm_mday);
 					break;
 
@@ -351,7 +351,7 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 				case L'k':
 				// Две цифры часа (00 - 23)
 				// hour, 24-hour clock, 00 - 23
-				case 'H':
+				case L'H':
 					strBuf.Format(*Format==L'k'?L"%2d":L"%02d",t->tm_hour);
 					break;
 

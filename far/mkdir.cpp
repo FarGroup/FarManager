@@ -98,7 +98,7 @@ void ShellMakeDir(Panel *SrcPanel)
     int Length=(int)strDirName.GetLength();
 
     lpwszDirName = strDirName.GetBuffer ();
-    while (Length>0 && lpwszDirName[Length-1]==' ')
+    while (Length>0 && lpwszDirName[Length-1]==L' ')
       Length--;
     lpwszDirName[Length]=0;
 

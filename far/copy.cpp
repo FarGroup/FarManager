@@ -2038,7 +2038,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   DestAttr=INVALID_FILE_ATTRIBUTES;
 
-  if (strDestPath.At(0)=='\\' && strDestPath.At(1)=='\\')
+  if (strDestPath.At(0)==L'\\' && strDestPath.At(1)==L'\\')
   {
     string strRoot;
 
@@ -3283,7 +3283,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             DWORD LastError=GetLastError();
             int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
             if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
-                DestName[0]!=0 && DestName[1]==':')
+                DestName[0] && DestName[1]==L':')
             {
               string strDriveRoot;
               GetPathRoot(DestName,strDriveRoot);
@@ -4286,7 +4286,7 @@ int ShellCopy::CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 
   wchar_t *lpwszDest = strDestFullName.GetBuffer ();
 
-  for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]=='.'; I--)
+  for (I=strDestFullName.GetLength()-1; I>0 && lpwszDest[I]==L'.'; I--)
     lpwszDest[I]=0;
 
   strDestFullName.ReleaseBuffer ();

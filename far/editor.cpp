@@ -2715,10 +2715,10 @@ int Editor::ProcessKey(int Key)
         if(Key == KEY_OP_PLAINTEXT || MkStrFTime(strTStr, Fmt))
         {
           wchar_t *Ptr=strTStr.GetBuffer();
-          while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
+          while(*Ptr) // заменим L'\n' на L'\r' по правилам Paset ;-)
           {
-            if(*Ptr == 10)
-              *Ptr=13;
+            if(*Ptr == L'\n')
+              *Ptr=L'\r';
             ++Ptr;
           }
 
@@ -3771,7 +3771,7 @@ BOOL Editor::Search(int Next)
               If Replace string doesn't contain control symbols (tab and return),
               processed with fast method, otherwise use improved old one.
             */
-            if( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(13) )
+            if( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(L'\r') )
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
@@ -3795,7 +3795,7 @@ BOOL Editor::Search(int Next)
                   Если реплэйсим на Enter, то overtype не спасёт.
                   Нужно сначала удалить то, что заменяем.
                 */
-                if(Ch==0x0d)
+                if(Ch==L'\r')
                 {
                   ProcessKey(KEY_DEL);
                 }
@@ -3822,7 +3822,7 @@ BOOL Editor::Search(int Next)
               }
               int Cnt=0;
               const wchar_t *Tmp=(const wchar_t*)strReplaceStr;
-              while( (Tmp=wcschr(Tmp,13)) != NULL )
+              while( (Tmp=wcschr(Tmp,L'\r')) != NULL )
               {
                 Cnt++;
                 Tmp++;
@@ -3960,14 +3960,14 @@ void Editor::Paste(const wchar_t *Src)
 
     for (int I=0;ClipText[I]!=0;)
     {
-      if (ClipText[I]==10 || ClipText[I]==13)
+      if (ClipText[I]==L'\n' || ClipText[I]==L'\r')
       {
         CurLine->Select(StartPos,-1);
         StartPos=0;
         EdOpt.AutoIndent=FALSE;
         ProcessKey(KEY_ENTER);
         BlockUndo=TRUE;
-        if (ClipText[I]==13 && ClipText[I+1]==10)
+        if (ClipText[I]==L'\r' && ClipText[I+1]==L'\n')
           I++;
         I++;
       }
@@ -3984,7 +3984,7 @@ void Editor::Paste(const wchar_t *Src)
         }
 
         int Pos=I;
-        while (ClipText[Pos]!=0 && ClipText[Pos]!=10 && ClipText[Pos]!=13)
+        while (ClipText[Pos]!=0 && ClipText[Pos]!=L'\n' && ClipText[Pos]!=L'\r')
           Pos++;
         if (Pos>I)
         {
@@ -4970,7 +4970,7 @@ void Editor::VPaste(wchar_t *ClipText)
 
 
     for (int I=0;ClipText[I]!=0;I++)
-      if (ClipText[I]!=13 && ClipText[I+1]!=10)
+      if (ClipText[I]!=L'\r' && ClipText[I+1]!=L'\n')
         ProcessKey(ClipText[I]);
       else
       {

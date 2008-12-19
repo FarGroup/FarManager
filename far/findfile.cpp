@@ -1931,7 +1931,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 void FindFiles::ArchiveSearch(const wchar_t *ArcName)
 {
   _ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
-  _ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:"NULL")));
+  _ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"NULL")));
   char *Buffer=new char[Opt.PluginMaxReadData];
   if ( !Buffer )
   {

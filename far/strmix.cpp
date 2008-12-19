@@ -887,9 +887,9 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
   for (WordPos=0;*Src!=0;Src++,WordPos++)
   {
-    if (*Src=='[' && wcschr(Src+1,']')!=NULL)
+    if (*Src==L'[' && wcschr(Src+1,L']')!=NULL)
       SkipBrackets=TRUE;
-    if (*Src==']')
+    if (*Src==L']')
       SkipBrackets=FALSE;
     if (*Src==Separator && !SkipBrackets)
     {

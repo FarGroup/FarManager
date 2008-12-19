@@ -84,7 +84,7 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
 #define ShowUserSeparator(Length,Type,UserSep) DrawLine(Length,Type,UserSep)
 
 WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type=1, const wchar_t* UserSep=NULL);
-void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
+void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
 void SetColor(int Color);
@@ -106,7 +106,7 @@ inline WORD GetVidChar(CHAR_INFO CI)
   return CI.Char.UnicodeChar;
 }
 
-inline void SetVidChar(CHAR_INFO& CI,WORD Chr)
+inline void SetVidChar(CHAR_INFO& CI,wchar_t Chr)
 {
   CI.Char.UnicodeChar = Chr;
 }
