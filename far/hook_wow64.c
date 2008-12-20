@@ -36,6 +36,8 @@ typedef struct {
 static BOOL WINAPI e_disable(PVOID* p) { (void)p; return FALSE; }
 static BOOL WINAPI e_revert(PVOID p) { (void)p; return FALSE; }
 
+static BOOL (__stdcall *IsWow)(HANDLE,PBOOL);
+
 volatile const WOW wow = { e_disable, e_revert };
 
 //-----------------------------------------------------------------------------
@@ -172,9 +174,11 @@ static void init_hook(void)
    static const wchar_t k32_w[] = L"kernel32", ntd_w[] = L"ntdll";
    static const char dis_c[] = "Wow64DisableWow64FsRedirection",
                      rev_c[] = "Wow64RevertWow64FsRedirection",
+                     wow_c[] = "IsWow64Process",
                      ldr_c[] = "LdrLoadDll";
 
     WOW rwow;
+    BOOL b=FALSE;
 #pragma pack(1)
     struct {
       BYTE  cod;
@@ -190,6 +194,8 @@ static void init_hook(void)
     }ur;
 
     if(   (ur.h = GetModuleHandleW(k32_w)) == NULL
+       || (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
+       || !(IsWow(GetCurrentProcess(), &b) && b)
        || (*(FARPROC*)&rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
