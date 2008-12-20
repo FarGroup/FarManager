@@ -933,9 +933,6 @@ int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderN
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
 BOOL IsBatchExtType(const wchar_t *ExtPtr);
-#ifdef ADD_GUI_CHECK
-BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
-#endif
 
 int WINAPI GetSearchReplaceString (
          int IsReplaceMode,

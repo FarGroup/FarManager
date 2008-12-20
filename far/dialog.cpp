@@ -4359,11 +4359,15 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
     int  Locked;
   } *His,*HisTemp;
 
-  His=(struct HistArray*)alloca(Opt.DialogsHistoryCount*sizeof(struct HistArray));
-  HisTemp=(struct HistArray*)alloca((Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
-
-  if(!His || !HisTemp)
+  His=(struct HistArray*)xf_malloc(Opt.DialogsHistoryCount*sizeof(struct HistArray));
+  if (!His)
     return FALSE;
+  HisTemp=(struct HistArray*)xf_malloc((Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
+  if (!HisTemp)
+  {
+    xf_free(His);
+    return FALSE;
+  }
 
   memset(His,0,Opt.DialogsHistoryCount*sizeof(struct HistArray));
   memset(HisTemp,0,(Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
@@ -4406,7 +4410,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 
   // А можно ли добавлять то?...
   if(LockedCount == Opt.DialogsHistoryCount && AddLine == -1)
+  {
     J=0;
+  }
   else // ...не только можно, но и нужно!
   {
     // добавляем в начало с учетом добавляемого
@@ -4482,6 +4488,9 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
   for (I=0; I<Opt.DialogsHistoryCount; I++)
     if (His[I].Str)
       xf_free(His[I].Str);
+
+  xf_free(HisTemp);
+  xf_free(His);
 
   SetRegKey(strRegKey,L"Flags",1);
   return TRUE;

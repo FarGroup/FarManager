@@ -762,17 +762,11 @@ int CheckFolder(const wchar_t *Path)
   if(!(Path && *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
-/*  int LenFindPath=Max(StrLength(Path),2048)+8;
-  char *FindPath=(char *)alloca(LenFindPath); // здесь alloca - чтобы _точно_ хватило на все про все.
-  if(!FindPath)
-    return CHKFLD_ERROR;*/
-
   HANDLE FindHandle;
   FAR_FIND_DATA_EX fdata;
   int Done=FALSE;
 
   string strFindPath = Path;
-
 
   // сообразим маску для поиска.
   AddEndSlash(strFindPath);
@@ -789,7 +783,6 @@ int CheckFolder(const wchar_t *Path)
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
     GetPathRootOne(Path,strFindPath);
-
 
     if(!StrCmp(Path,strFindPath))
     {

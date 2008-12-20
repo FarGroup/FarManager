@@ -712,7 +712,7 @@ void Viewer::ShowHex()
 
     if (!SelectSize)
       bSelStartFound = bSelEndFound = false;
-    
+
     const wchar_t BorderLine[]={BoxSymbols[BS_V1],L' ',0};
 
     if (VM.Unicode)
@@ -2701,7 +2701,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
   if (VM.Unicode)
   {
     // выделяем столько, сколько нужно!
-    char *TmpBuf=(char *)alloca(Count*2+16);
+    char *TmpBuf=(char *)xf_malloc(Count*2+16);
     if(!TmpBuf)
       return -1;
 
@@ -2724,15 +2724,21 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
 
     ReadSize+=(ReadSize & 1);
 
+    xf_free(TmpBuf);
+
     return(ReadSize/2);
   }
   else
   {
-    char *TmpBuf=(char*)alloca(Count+16);
+    char *TmpBuf=(char*)xf_malloc(Count+16);
+    if(!TmpBuf)
+      return -1;
 
     int ReadSize=(int)fread(TmpBuf,1,Count,SrcFile);
 
     MultiByteToWideChar (CP_OEMCP, 0, TmpBuf, ReadSize, Buf, Count);
+
+    xf_free(TmpBuf);
 
     return ReadSize;
   }

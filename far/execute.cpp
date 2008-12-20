@@ -64,7 +64,6 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
 {
   //_SVS(CleverSysLog clvrSLog(L"IsCommandPEExeGUI()"));
   //_SVS(SysLog(L"Param: FileName='%s'",FileName));
-//  char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -602,61 +601,6 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
   return(Ret);
 }
-
-#ifdef ADD_GUI_CHECK
-DWORD IsCommandExeGUI(const char *Command)
-{
-  char FileName[4096],FullName[4096],*EndName,*FilePart;
-
-  if (*Command=='\"')
-  {
-    FAR_OemToChar(Command+1,FullName);
-    if ((EndName=strchr(FullName,'\"'))!=NULL)
-      *EndName=0;
-  }
-  else
-  {
-    FAR_OemToChar(Command,FullName);
-    if ((EndName=strpbrk(FullName," \t/"))!=NULL)
-      *EndName=0;
-  }
-  int GUIType=0;
-
-  ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
-
-  SetFileApisTo(APIS2ANSI);
-  /*$ 18.09.2000 skv
-    + to allow execution of c.bat in current directory,
-      if gui program c.exe exists somewhere in PATH,
-      in FAR's console and not in separate window.
-      for(;;) is just to prevent multiple nested ifs.
-  */
-  for(;;)
-  {
-    if(BatchFileExist(FileName,FullName,sizeof(FullName)-1))
-      break;
-
-    if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
-    {
-      SHFILEINFO sfi;
-      DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
-      GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
-              /* $ 13.07.2000 IG
-                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-                 делать проверку побайтово.
-              */
-              HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
-              /* IG $ */
-    }
-/*$ 18.09.2000 skv
-    little trick.
-*/
-    break;
-  }
-  SetFileApisTo(APIS2OEM);
-  return(GUIType);
-}
-#endif
 
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
@@ -1534,35 +1478,3 @@ BOOL IsBatchExtType(const wchar_t *ExtPtr)
 
 	return FALSE;
 }
-
-#ifdef ADD_GUI_CHECK
-// батник существует? (и вернем полное имя - добавляется расширение)
-BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
-{
-  char *PtrBatchType=Opt.ExecuteBatchType;
-  BOOL Result=FALSE;
-
-  char *FullName=(char*)alloca(strlen(FileName)+64);
-  if(FullName)
-  {
-    strcpy(FullName,FileName);
-    char *FullNameExt=FullName+strlen(FullName);
-
-    while(*PtrBatchType)
-    {
-      strcat(FullNameExt,PtrBatchType);
-
-      if(GetFileAttributes(FullName)!=INVALID_FILE_ATTRIBUTES)
-      {
-        strncpy(DestName,FullName,SizeDestName);
-        Result=TRUE;
-        break;
-      }
-
-      PtrBatchType+=strlen(PtrBatchType)+1;
-    }
-  }
-
-  return Result;
-}
-#endif

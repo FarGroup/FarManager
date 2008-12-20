@@ -1833,24 +1833,25 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
   TRY {
-    wchar_t *PathEnv=NULL, *Ptr=NULL; //BUGBUG
+    string *strPathEnv = new string;
+    wchar_t *PathEnv=NULL, *Ptr=NULL;
     PrepareFilesListUsed++;
     DWORD DiskMask=FarGetLogicalDrives();
 
     //string strRoot; //BUGBUG
     CtrlObject->CmdLine->GetCurDir(strRoot);
 
-    if(SearchMode==FFSEARCH_INPATH)
+    if (SearchMode==FFSEARCH_INPATH && strPathEnv)
     {
-      DWORD SizeStr=GetEnvironmentVariableW(L"PATH",NULL,0);
-      if((PathEnv=(wchar_t *)alloca((SizeStr+2)*sizeof (wchar_t))) != NULL)
+      apiGetEnvironmentVariable(L"PATH",*strPathEnv);
+      PathEnv = strPathEnv->GetBuffer(strPathEnv->GetLength()+1);
+      if (PathEnv)
       {
-        GetEnvironmentVariableW(L"PATH",PathEnv,SizeStr+1);
-        PathEnv[StrLength(PathEnv)]=0;
+        PathEnv[strPathEnv->GetLength()]=0;
         Ptr=PathEnv;
-        while(*Ptr)
+        while (*Ptr)
         {
-          if(*Ptr==L';')
+          if (*Ptr==L';')
             *Ptr=0;
           ++Ptr;
         }
@@ -1863,7 +1864,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
       if (SearchMode==FFSEARCH_ALL ||
           SearchMode==FFSEARCH_ALL_BUTNETWORK)
       {
-        if(DiskMask==0)
+        if (DiskMask==0)
           break;
 
         if ((DiskMask & 1)==0)
@@ -1882,7 +1883,7 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
       }
       else if (SearchMode==FFSEARCH_ROOT)
         GetPathRootOne(strRoot,strRoot);
-      else if(SearchMode==FFSEARCH_INPATH)
+      else if (SearchMode==FFSEARCH_INPATH)
       {
         if(!*Ptr)
           break;
@@ -1896,9 +1897,10 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
         break;
     }
 
+    delete strPathEnv;
+
     while (!StopSearch && FindMessageReady)
       Sleep(10);
-  //  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
 
     statusCS.Enter ();
 
