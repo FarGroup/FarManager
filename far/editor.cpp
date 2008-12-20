@@ -6460,19 +6460,19 @@ bool Editor::SetCodePage (UINT codepage)
     m_codepage = codepage;
 
     Edit *current = TopList;
-
+		DWORD Result=0;
     while ( current )
         {
-      current->SetCodePage (m_codepage);
+      Result|=current->SetCodePage (m_codepage);
       current = current->m_next;
     }
 
     Show ();
 
-    return true;
+		return !Result; // BUGBUG, more details
   }
 
-  return false;
+  return true;
 }
 
 UINT Editor::GetCodePage ()

@@ -169,7 +169,7 @@ private:
 
   public:
 
-    void SetCodePage (UINT codepage); //BUGBUG
+    DWORD SetCodePage (UINT codepage); //BUGBUG
     UINT GetCodePage (); //BUGBUG
 
     virtual void  FastShow();

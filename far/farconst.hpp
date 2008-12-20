@@ -52,6 +52,12 @@ inline int IsEol(wchar_t x)  { return x==L'\r' || x==L'\n'; }
 inline int IsSlashA(const char x){return x=='\\' || x=='/';}
 inline int IsSlash(const wchar_t x){return x==L'\\' || x==L'/';}
 
+#define CP_UNICODE 1200 //MSDN
+#define CP_REVERSEBOM 65534
+#define CP_AUTODETECT ((UINT)-1)
+
+inline bool IsUnicodeCP(UINT CP){return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM);}
+
 #define  NM          260
 
 #define  DEFAULT_SORT_GROUP 10000
@@ -460,6 +466,14 @@ enum BOX_DEF_SYMBOLS
 	BS_X_DD,          // 0xDD
 	BS_X_DE,          // 0xDE
 	BS_X_DF,          // 0xDF
+};
+
+enum SetCPFlags
+{
+	SETCP_NOERROR    = 0x00000000,
+	SETCP_WC2MBERROR = 0x00000001,
+	SETCP_MB2WCERROR = 0x00000002,
+	SETCP_OTHERERROR = 0x10000000,
 };
 
 #endif // __FARCONST_HPP__

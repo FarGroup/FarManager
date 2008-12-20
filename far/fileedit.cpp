@@ -873,12 +873,6 @@ void FileEditor::DisplayObject()
   }
 }
 
-bool IsUnicodeCP (UINT codepage) //BUGBUG
-{
-	return (codepage == CP_UNICODE) || (codepage == CP_UTF8) || (codepage == CP_UTF7) || (codepage == CP_REVERSEBOM);
-}
-
-
 __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   if(OpCode == MCODE_V_EDITORSTATE)
@@ -1366,7 +1360,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
     case KEY_F8:
     {
-			if ( !IsUnicodeCP(m_codepage) )
+			if ( !IsUnicodeCP(m_codepage) || m_codepage == CP_UTF8)
 			{
 				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
 				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
@@ -1376,7 +1370,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     }
 		case KEY_SHIFTF8:
 		{
-			if ( !IsUnicodeCP(m_codepage) )
+			if ( !IsUnicodeCP(m_codepage) || m_codepage == CP_UTF8)
 			{
 				int codepage = GetTableEx (m_codepage);
 
@@ -2736,7 +2730,8 @@ void FileEditor::SetCodePage(UINT codepage)
 
 		if ( m_editor )
 		{
-			m_bSignatureFound = m_editor->SetCodePage (m_codepage);
+			if(!m_editor->SetCodePage (m_codepage))
+				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn4),MSG(MOk));
 			ChangeEditKeyBar(); //???
 		}
 	}

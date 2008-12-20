@@ -1073,11 +1073,6 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 void ConvertNameToUNC(string &strFileName);
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
-
-#define CP_UNICODE 1200 //MSDN
-#define CP_REVERSEBOM 65534
-#define CP_AUTODETECT ((UINT)-1)
-
 bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL);
 
 

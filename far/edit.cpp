@@ -116,30 +116,58 @@ Edit::~Edit()
     xf_free(Str);
 }
 
-
-void Edit::SetCodePage (UINT codepage)
+DWORD Edit::SetCodePage (UINT codepage)
 {
+	DWORD Ret=SETCP_NOERROR;
+	DWORD wc2mbFlags=WC_NO_BEST_FIT_CHARS;
+	BOOL UsedDefaultChar=FALSE;
+	LPBOOL lpUsedDefaultChar=&UsedDefaultChar;
+	if(m_codepage==CP_UTF7 || m_codepage==CP_UTF8) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
+	{
+		 wc2mbFlags=0;
+		 lpUsedDefaultChar=NULL;
+	}
+
+	DWORD mb2wcFlags=MB_ERR_INVALID_CHARS;
+	if(codepage==CP_UTF7) // BUGBUG: CP_SYMBOL, 50xxx, 57xxx too
+	{
+		mb2wcFlags=0;
+	}
+
 	if ( codepage != m_codepage )
 	{
 		//m_codepage = codepage;
 
-		int length = WideCharToMultiByte (m_codepage, 0, Str, StrSize, NULL, 0, NULL, NULL);
+		int length = WideCharToMultiByte (m_codepage, wc2mbFlags, Str, StrSize, NULL, 0, NULL, lpUsedDefaultChar);
+
+		if(UsedDefaultChar)
+			Ret|=SETCP_WC2MBERROR;
 
 		char *decoded = (char*)xf_malloc (length);
 
 		if ( !decoded )
-			return;
+		{
+			Ret|=SETCP_OTHERERROR;
+			return Ret;
+		}
 
 		WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
 
-		int length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
+		int length2 = MultiByteToWideChar (codepage, mb2wcFlags, decoded, length, NULL, 0);
+		
+		if(!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
+		{
+			Ret|=SETCP_MB2WCERROR;
+			length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
+		}
 
 		wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
 
 		if ( !encoded )
 		{
 			xf_free (decoded);
-			return;
+			Ret|=SETCP_OTHERERROR;
+			return Ret;
 		}
 
 		memset (encoded, 0, (length2+1)*sizeof (wchar_t));
@@ -154,6 +182,7 @@ void Edit::SetCodePage (UINT codepage)
 
 		m_codepage = codepage;
 	}
+	return Ret;
 }
 
 UINT Edit::GetCodePage ()

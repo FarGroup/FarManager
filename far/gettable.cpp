@@ -81,6 +81,43 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 	return TRUE;
 }
 
+void AddUnicodeTables(VMenu &tables,DWORD dwCurrent)
+{
+	struct CpInfo
+	{
+		UINT CP;
+		const wchar_t *Name;
+	}
+	c[]=
+	{
+		{CP_UNICODE,L"UNICODE"},
+		{CP_REVERSEBOM,L"UNICODE (reverse BOM)"},
+		{CP_UTF7,L"UTF-7"},
+		{CP_UTF8,L"UTF-8"},
+	};
+
+	MenuItemEx item;
+	int Pos=0;
+	
+	// for(int i=0;i<countof(c);i++) // future
+	int i=3; // BUGBUG
+	{
+		item.Clear();
+		item.strName.Format(L"%5d%c %s",c[i].CP,BoxSymbols[BS_V1],c[i].Name);
+		item.UserData=(char*)c[i].CP;
+		item.UserDataSize=sizeof(UINT);
+		if(dwCurrent==c[i].CP)
+			item.Flags|=MIF_SELECTED;
+		tables.AddItem(&item,Pos++);
+	}
+	
+	item.Clear();
+	item.Flags=MIF_SEPARATOR;
+	tables.AddItem(&item,Pos++);
+
+	if(!IsUnicodeCP(dwCurrent))
+		tables.SetSelectPos(tables.GetSelectPos()+2,0);
+}
 
 int GetTableEx (DWORD dwCurrent)
 {
@@ -95,37 +132,14 @@ int GetTableEx (DWORD dwCurrent)
 	}
 	tables->SetBottomTitle(MSG(MGetTableBottomTitle));
 
-    MenuItemEx item;
-
-/*    //unicode
-    item.Clear ();
-    item.strName = "UNICODE";
-
-    tables->SetUserData((void*)CP_UNICODE, sizeof (DWORD), tables->AddItemW (&item));
-
-    //reversebom
-    item.Clear ();
-    item.strName = "UNICODE (reverse BOM)";
-
-    tables->SetUserData((void*)CP_REVERSEBOM, sizeof (DWORD), tables->AddItemW (&item));
-
-    //utf-8
-    item.Clear ();
-    item.strName = "UTF-8";
-
-    tables->SetUserData((void*)CP_UTF8, sizeof (DWORD), tables->AddItemW (&item));
-
-    //utf-7
-    item.Clear ();
-    item.strName = "UTF-7";
-
-    tables->SetUserData((void*)CP_UTF7, sizeof (DWORD), tables->AddItemW (&item));*/
     dwCurCP=dwCurrent;
     EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 
     tables->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
     tables->SetPosition(-1,-1,0,0);
 	tables->SortItems(0);
+
+	AddUnicodeTables(*tables,dwCurCP);
 
 	tables->Show();
 	while(!tables->Done())
@@ -140,6 +154,7 @@ int GetTableEx (DWORD dwCurrent)
 			EnumSystemCodePagesW((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 			tables->SetPosition(-1,-1,0,0);
 			tables->SortItems(0);
+			AddUnicodeTables(*tables,dwCurCP);
 			string strTableTitle=MSG(MGetTableTitle);
 			if(Opt.CPMenuMode)
 				strTableTitle+=L"*";
@@ -149,15 +164,18 @@ int GetTableEx (DWORD dwCurrent)
 		}
 		case KEY_INS:
 		{
-			MenuItemEx *CurItem=tables->GetItemPtr();
-			CurItem->SetCheck(!(CurItem->Flags&LIF_CHECKED));
-			string strCPName;
-			strCPName.Format(L"%d",CurItem->UserData);
-			if(CurItem->Flags&LIF_CHECKED)
-				SetRegKey(SelectedCodeTables,strCPName,1);
-			else
-				DeleteRegValue(SelectedCodeTables,strCPName);
-			tables->Show();
+			if(tables->GetSelectPos()>1) // BUGBUG
+			{
+				MenuItemEx *CurItem=tables->GetItemPtr();
+				CurItem->SetCheck(!(CurItem->Flags&LIF_CHECKED));
+				string strCPName;
+				strCPName.Format(L"%d",CurItem->UserData);
+				if(CurItem->Flags&LIF_CHECKED)
+					SetRegKey(SelectedCodeTables,strCPName,1);
+				else
+					DeleteRegValue(SelectedCodeTables,strCPName);
+				tables->Show();
+			}
 			break;
 		}
 		default:
