@@ -589,7 +589,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
       // заполнение пунктов меню
 
-      for (CurCmd=LastPtr+1, I=0; I < HistoryCount-1; I++, CurCmd++)
+      for (CurCmd=LastPtr, I=0; I < HistoryCount; I++, CurCmd++)
       {
         CurCmd%=HistoryCount;
 
@@ -613,7 +613,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
           HistoryItem.strName = strRecord;
           //HistoryItem.Flags|=LIF_USETEXTPTR; //???
 
-          HistoryItem.SetSelect(CurCmd==CurLastPtr);
+          //HistoryItem.SetSelect(CurCmd==CurLastPtr);
           HistoryMenu.SetUserData((void*)(DWORD_PTR)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItem(&HistoryItem));
         }
@@ -622,11 +622,11 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
       HistoryItem.Clear ();
       HistoryItem.strName = L"                    ";
 
-      if(!SetUpMenuPos)
+      if (!SetUpMenuPos)
         HistoryItem.SetSelect(CurLastPtr==LastPtr);
-      HistoryMenu.SetUserData((void*)-1,sizeof(DWORD),
-           HistoryMenu.AddItem(&HistoryItem));
-      if(SetUpMenuPos)
+      HistoryMenu.SetUserData((void*)-1,sizeof(DWORD),HistoryMenu.AddItem(&HistoryItem));
+
+      if (SetUpMenuPos)
       {
         HistoryMenu.SetSelectPos(StrPos,0);
         SetUpMenuPos=FALSE;
