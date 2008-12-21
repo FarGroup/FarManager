@@ -85,7 +85,7 @@ class KeyBar: public ScreenObject
 
     void SetOwner(ScreenObject *Owner);
 
-    void ReadRegGroup(const wchar_t *RegGroup, string &strLanguage);
+    void ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language);
     void SetRegGroup(int Group);
     void SetAllRegGroup(void);
 

@@ -149,10 +149,9 @@ void KeyBar::DisplayObject()
   }
 }
 
-void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
+void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 {
-#if 1
-  if(!RegReaded || StrCmpI(strLanguage,strLanguage) || StrCmpI(strRegGroupName,RegGroup))
+  if(!RegReaded || StrCmpI(strLanguage,Language) || StrCmpI(strRegGroupName,RegGroup))
   {
     DWORD I;
 
@@ -161,7 +160,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
     string strValueName;
 
     memset (RegKeyTitles, 0, sizeof (RegKeyTitles));
-    strLanguage=strLanguage;
+    strLanguage=Language;
     strRegGroupName=RegGroup;
 
     strRegName=L"KeyBarLabels\\";
@@ -213,7 +212,6 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, string &strLanguage)
     }
     RegReaded=TRUE;
   }
-#endif
 }
 
 void KeyBar::SetRegGroup(int Group)

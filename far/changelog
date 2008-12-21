@@ -1,3 +1,7 @@
+t-rex 21.12.2008 20:29:45 +0200 - build 681
+
+1. Не работали KeyBarLabels.
+
 t-rex 21.12.2008 13:50:11 +0200 - build 680
 
 1. hook_wow64: Выявили что если сделать PAGE_EXECUTE_READWRITE вместо PAGE_READWRITE
