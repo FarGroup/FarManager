@@ -66,6 +66,8 @@ static int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int N
 static void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile);
 static void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile);
 
+UINT MenuCP=CP_OEMCP;
+
 static int MenuModified;
 static int MenuNeedRefresh;
 static string strMenuRootKey, strLocalMenuKey;
@@ -1097,13 +1099,10 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
 
 	if(!ftell(MenuFile))
 	{
-		UINT nCodePage=0;
-		GetFileFormat(MenuFile,nCodePage);
-		if(nCodePage!=CP_UNICODE)
-			return;
+		if(!GetFileFormat(MenuFile,MenuCP))
+			MenuCP=CP_OEMCP;
 	}
-
-  while (fgetws(MenuStr,countof(MenuStr),MenuFile)!=NULL)
+	while(ReadString(MenuFile,MenuStr,countof(MenuStr),MenuCP))
   {
     string strItemKey;
     strItemKey.Format (L"%s\\Item%d",MenuKey,KeyNumber);
@@ -1131,7 +1130,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile)
       strLabel = ChPtr+1;
       RemoveLeadingSpaces(strLabel);
       SaveFilePos SavePos(MenuFile);
-      SubMenu=(fgetws(MenuStr,countof(MenuStr),MenuFile)!=NULL && *MenuStr==L'{');
+			SubMenu=(ReadString(MenuFile,MenuStr,countof(MenuStr),MenuCP) && *MenuStr==L'{');
       UseSameRegKey();
       SetRegKey(strItemKey,L"HotKey",strHotKey);
       SetRegKey(strItemKey,L"Label",strLabel);

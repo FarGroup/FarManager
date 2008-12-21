@@ -1839,7 +1839,7 @@ MSaveThisShortcut
 
 MEditF1
 l:
-l://functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
+l://functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe!
 "Помощь"
 "Help"
 
@@ -1868,8 +1868,8 @@ MEditF7
 "Search"
 
 MEditF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MEditF9
 ""
@@ -1889,8 +1889,8 @@ MEditF12
 
 MEditF8DOS
 le:// don't count this - it's a F8 another text
-"DOS"
-"DOS"
+"OEM"
+"OEM"
 
 MEditShiftF1
 l:
@@ -2245,7 +2245,7 @@ le://End of functional keys (Editor)
 
 MSingleEditF1
 l:
-l://Single Editor: functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
+l://Single Editor: functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe!
 "Помощь"
 "Help"
 
@@ -2274,8 +2274,8 @@ MSingleEditF7
 "Search"
 
 MSingleEditF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MSingleEditF9
 ""
@@ -2295,8 +2295,8 @@ MSingleEditF12
 
 MSingleEditF8DOS
 le:// don't count this - it's a F8 another text
-"DOS"
-"DOS"
+"OEM"
+"OEM"
 
 MSingleEditShiftF1
 l:
@@ -2958,8 +2958,8 @@ MViewF7
 "Search"
 
 MViewF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MViewF9
 ""
@@ -2987,8 +2987,8 @@ l:// this is another text for F4
 "Text"
 
 MViewF8DOS
-"DOS"
-"DOS"
+"OEM"
+"OEM"
 
 MViewShiftF1
 l:
@@ -3372,8 +3372,8 @@ MSingleViewF7
 "Search"
 
 MSingleViewF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MSingleViewF9
 ""
@@ -3402,8 +3402,8 @@ l:// this is another text for F4
 "Text"
 
 MSingleViewF8DOS
-"DOS"
-"DOS"
+"OEM"
+"OEM"
 
 MSingleViewShiftF1
 l:
@@ -6994,8 +6994,8 @@ MInfoF7
 "Search"
 
 MInfoF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MInfoF9
 "КонфМн"
@@ -7394,8 +7394,8 @@ MQViewF7
 "Search"
 
 MQViewF8
-"Win"
-"Win"
+"ANSI"
+"ANSI"
 
 MQViewF9
 "КонфМн"

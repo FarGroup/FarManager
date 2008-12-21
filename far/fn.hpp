@@ -1120,4 +1120,6 @@ string& HiText2Str(string& strDest, const wchar_t *Str);
 __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);
 unsigned __int64 FileTimeToUI64(const FILETIME *ft);
 
+wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
+
 #endif  // __FARFUNC_HPP__
