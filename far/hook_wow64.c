@@ -36,8 +36,6 @@ typedef struct {
 static BOOL WINAPI e_disable(PVOID* p) { (void)p; return FALSE; }
 static BOOL WINAPI e_revert(PVOID p) { (void)p; return FALSE; }
 
-static BOOL (__stdcall *IsWow)(HANDLE,PBOOL);
-
 volatile const WOW wow = { e_disable, e_revert };
 
 //-----------------------------------------------------------------------------
@@ -175,10 +173,15 @@ static void init_hook(void)
    static const char dis_c[] = "Wow64DisableWow64FsRedirection",
                      rev_c[] = "Wow64RevertWow64FsRedirection",
                      wow_c[] = "IsWow64Process",
-                     ldr_c[] = "LdrLoadDll";
+                     ldr_c[] = "LdrLoadDll",
+                     gdep_c[] = "GetProcessDEPPolicy",
+                     sdep_c[] = "SetProcessDEPPolicy";
 
     WOW rwow;
     BOOL b=FALSE;
+    BOOL (WINAPI *IsWow)(HANDLE,PBOOL);
+    BOOL (WINAPI *GetDEP)(HANDLE,LPDWORD,PBOOL);
+    BOOL (WINAPI *SetDEP)(DWORD dwFlags);
 #pragma pack(1)
     struct {
       BYTE  cod;
@@ -193,14 +196,22 @@ static void init_hook(void)
       DWORD   d;
     }ur;
 
-    if(   (ur.h = GetModuleHandleW(k32_w)) == NULL
-       || (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
+    if ((ur.h = GetModuleHandleW(k32_w)) == NULL) return;
+
+    *(FARPROC*)&GetDEP = GetProcAddress(ur.h, gdep_c);
+    *(FARPROC*)&SetDEP = GetProcAddress(ur.h, sdep_c);
+
+    if(   (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
        || !(IsWow(GetCurrentProcess(), &b) && b)
        || (*(FARPROC*)&rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL
        || *(LPBYTE)ur.p != 0x68) return;   // push m32
+
+
+    //В Vista SP1 или 2008 попытаемя вырубить DEP для процесса и если не можем то не будем патчить.
+    if (GetDEP && SetDEP && (!GetDEP(GetCurrentProcess(),&p,&b) || (p && (b || !SetDEP(0))))) return;
 
     {
       DWORD   loff = *(LPDWORD)((LPBYTE)ur.p+1);
