@@ -304,10 +304,12 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
     {
       NewString[ei.CurPos]=BoxChar[I];
 
+#ifndef UNICODE
       struct EditorConvertText ect;
       ect.Text=NewString+ei.CurPos;
       ect.TextLength=1;
       Info.EditorControl(ECTL_OEMTOEDITOR,&ect);
+#endif
 
       struct EditorSetString ess;
       ess.StringNumber=egs.StringNumber;
@@ -333,10 +335,12 @@ void GetEnvType(TCHAR *NewString,int StringLength,struct EditorInfo *ei,
   OldChar[1]=NewString[ei->CurPos];
   OldChar[2]=ei->CurPos<StringLength-1 ? NewString[ei->CurPos+1]:L' ';
 
+#ifndef UNICODE
   struct EditorConvertText ect;
   ect.Text=OldChar;
   ect.TextLength=sizeof(OldChar)/sizeof(TCHAR);
   Info.EditorControl(ECTL_EDITORTOOEM,&ect);
+#endif
 
   TCHAR LeftChar=OldChar[0];
   TCHAR RightChar=OldChar[2];
@@ -350,10 +354,12 @@ void GetEnvType(TCHAR *NewString,int StringLength,struct EditorInfo *ei,
     Info.EditorControl(ECTL_GETSTRING,&UpStr);
     if (ei->CurPos<UpStr.StringLength)
       UpChar=UpStr.StringText[ei->CurPos];
+#ifndef UNICODE
     struct EditorConvertText ect;
     ect.Text=&UpChar;
     ect.TextLength=1;
     Info.EditorControl(ECTL_EDITORTOOEM,&ect);
+#endif
   }
   if (ei->CurLine<ei->TotalLines-1)
   {
@@ -362,10 +368,12 @@ void GetEnvType(TCHAR *NewString,int StringLength,struct EditorInfo *ei,
     Info.EditorControl(ECTL_GETSTRING,&DownStr);
     if (ei->CurPos<DownStr.StringLength)
       DownChar=DownStr.StringText[ei->CurPos];
+#ifndef UNICODE
     struct EditorConvertText ect;
     ect.Text=&DownChar;
     ect.TextLength=1;
     Info.EditorControl(ECTL_EDITORTOOEM,&ect);
+#endif
   }
   LeftLine=UpLine=RightLine=DownLine=0;
   for (size_t I=0;I<sizeof(BoxChar)/sizeof(TCHAR);I++)

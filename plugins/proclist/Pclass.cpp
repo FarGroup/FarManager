@@ -1095,7 +1095,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(!GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
             return TRUE;
         //TODO: viewer crashed on exit!
-        Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);
+        Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE
+#ifdef UNICODE
+        , CP_AUTODETECT
+#endif
+        );
         FreePanelInfo(pi);
         return TRUE;
     }

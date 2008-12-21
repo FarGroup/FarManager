@@ -954,14 +954,22 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, 0) )
                   {
                     FarSprintf(fullcmd, _T("%s%s"), titleErr, cmd);
-                    Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
+                    Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags
+#ifdef UNICODE
+                    , CP_AUTODETECT
+#endif
+                    );
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, 0) )
                   {
                     FarSprintf(fullcmd, _T("%s%s"), titleOut, cmd);
-                    Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags);
+                    Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags
+#ifdef UNICODE
+                    , CP_AUTODETECT
+#endif
+                    );
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameOut);
@@ -975,14 +983,22 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                   if ( validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
                     FarSprintf(fullcmd, _T("%s%s"), titleErr, cmd);
-                    Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
+                    Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar
+#ifdef UNICODE
+                    , CP_AUTODETECT
+#endif
+                    );
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameErr);
                   if ( validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles) )
                   {
                     FarSprintf(fullcmd, _T("%s%s"), titleOut, cmd);
-                    Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar);
+                    Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar
+#ifdef UNICODE
+                    , CP_AUTODETECT
+#endif
+                    );
                   }
                   else if(outputtofile)
                     killTemp(TempFileNameOut);

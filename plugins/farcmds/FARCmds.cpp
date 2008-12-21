@@ -76,7 +76,7 @@ int WINAPI EXP_NAME(GetMinFarVersion)(void)
 #ifndef UNICODE
   return MAKEFARVERSION(1,70,1719);
 #else
-  return MAKEFARVERSION(1,80,557);
+  return MAKEFARVERSION(2,0,677);
 #endif
 }
 

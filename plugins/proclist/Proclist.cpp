@@ -6,11 +6,13 @@
 #include <time.h>
 
 #ifndef UNICODE
+#define MIN_FAR_VERMAJOR  1
 #define MIN_FAR_VERMINOR  70
 #define MIN_FAR_BUILD     0
 #else
-#define MIN_FAR_VERMINOR  80
-#define MIN_FAR_BUILD     557
+#define MIN_FAR_VERMAJOR  2
+#define MIN_FAR_VERMINOR  0
+#define MIN_FAR_BUILD     677
 #endif
 
 _Opt Opt;
@@ -158,7 +160,7 @@ static void dynamic_bind(void)
 //-----------------------------------------------------------------------------
 int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-  return MAKEFARVERSION(1, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
+  return MAKEFARVERSION(MIN_FAR_VERMAJOR, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
 }
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
