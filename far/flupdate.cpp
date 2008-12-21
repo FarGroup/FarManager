@@ -787,9 +787,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz(PanelData,PluginFileCount,RDF_NO_UPDATE);
 
-  CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
-
   CorrectPosition();
+
+  CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
 
   if (KeepSelection || PrevSelFileCount>0)
   {
