@@ -180,8 +180,6 @@ static void init_hook(void)
     WOW rwow;
     BOOL b=FALSE;
     BOOL (WINAPI *IsWow)(HANDLE,PBOOL);
-    BOOL (WINAPI *GetDEP)(HANDLE,LPDWORD,PBOOL);
-    BOOL (WINAPI *SetDEP)(DWORD dwFlags);
 #pragma pack(1)
     struct {
       BYTE  cod;
@@ -196,12 +194,8 @@ static void init_hook(void)
       DWORD   d;
     }ur;
 
-    if ((ur.h = GetModuleHandleW(k32_w)) == NULL) return;
-
-    *(FARPROC*)&GetDEP = GetProcAddress(ur.h, gdep_c);
-    *(FARPROC*)&SetDEP = GetProcAddress(ur.h, sdep_c);
-
-    if(   (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
+    if(   (ur.h = GetModuleHandleW(k32_w)) == NULL
+       || (*(FARPROC*)&IsWow = GetProcAddress(ur.h, wow_c)) == NULL
        || !(IsWow(GetCurrentProcess(), &b) && b)
        || (*(FARPROC*)&rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
@@ -210,19 +204,15 @@ static void init_hook(void)
        || *(LPBYTE)ur.p != 0x68) return;   // push m32
 
 
-    //В Vista SP1 или 2008 попытаемя вырубить DEP для процесса и если не можем то не будем патчить.
-    if (GetDEP && SetDEP && (!GetDEP(GetCurrentProcess(),&p,&b) || (p && (b || !SetDEP(0))))) return;
-
     {
       DWORD   loff = *(LPDWORD)((LPBYTE)ur.p+1);
       LPVOID  p_loff = (LPBYTE)&hook_ldr + HOOK_PUSH_OFFSET;
       if(loff != *(LPDWORD)p_loff) { // 0x240 in non vista, 0x244 in vista/2008
-        DWORD rc;
         // don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-        if(!VirtualProtect(p_loff, sizeof(loff), PAGE_READWRITE, &rc))
+        if(!VirtualProtect(p_loff, sizeof(loff), PAGE_EXECUTE_READWRITE, &p))
           return;
         *(LPDWORD)p_loff = loff;
-        VirtualProtect(p_loff, sizeof(loff), rc, (LPDWORD)&p_loff);
+        VirtualProtect(p_loff, sizeof(loff), p, (LPDWORD)&p_loff);
       }
     }
 
@@ -231,7 +221,7 @@ static void init_hook(void)
        || data.off != sizeof(data)) return;
 
     // don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-    if(!VirtualProtect((void*)&wow, sizeof(wow), PAGE_READWRITE, &data.off))
+    if(!VirtualProtect((void*)&wow, sizeof(wow), PAGE_EXECUTE_READWRITE, &data.off))
       return;
     *(WOW*)&wow = rwow;
     VirtualProtect((void*)&wow, sizeof(wow), data.off, &p);
