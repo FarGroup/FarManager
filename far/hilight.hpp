@@ -62,9 +62,7 @@ class HighlightFiles
 
   public:
   	void UpdateCurrentTime();
-    void GetHiColor(const FAR_FIND_DATA *fd,HighlightDataColor *Colors,bool UseAttrHighlighting=false);
     void GetHiColor(FileListItem **FileItem,int FileCount,bool UseAttrHighlighting=false);
-    int  GetGroup(const FAR_FIND_DATA *fd);
     int  GetGroup(const FileListItem *fli);
     void HiEdit(int MenuPos);
 

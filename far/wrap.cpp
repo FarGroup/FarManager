@@ -134,8 +134,8 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 		{
 			for (int i=0;i<iCount;i++)
 			{
-				AnsiToUnicodeBin(iplA[i].Text,iplW[i].Text,80); //BUGBUG
-				AnsiToUnicodeBin(iplA[i].Data,iplW[i].Data,80); //BUGBUG
+				iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
+				iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
 				iplW[i].Separator=iplA[i].Separator;
 			}
 		}
@@ -145,6 +145,8 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 
 void FreeInfoPanelLinesW(InfoPanelLine *iplW)
 {
+	if (iplW->Text) xf_free((void*)iplW->Text);
+	if (iplW->Data) xf_free((void*)iplW->Data);
 	if (iplW)	xf_free((void*)iplW);
 }
 

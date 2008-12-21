@@ -284,6 +284,7 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 // IS: функция для внешнего мира, использовать ее
 int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
 {
+  if (!pattern||!str) return FALSE;
   if (skippath)
     str=PointToName(str);
   return CmpName_Body(pattern,str);

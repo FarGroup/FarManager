@@ -451,7 +451,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           TotalFileSize += fdata.nFileSize;
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
-          CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(&fdata);
+          CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
           if (!TestParentFolderName(fdata.lpwszFileName) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
             TotalFileCount++;
         }
@@ -728,12 +728,12 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
         ConvertNameToShort (CurListData->strName, CurListData->strShortName);
     }
     CurListData->Position=I;
-    if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles->GetHiColor(&CurPanelData->FindData,&CurListData->Colors,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+
     if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0*/)
-      CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(&CurPanelData->FindData);
+      CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(CurListData);
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
+
     if (CurListData->DizText==NULL)
     {
       CurListData->DeleteDiz=FALSE;
@@ -750,6 +750,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     TotalFileSize += CurListData->UnpSize;
     FileListCount++;
   }
+  if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+    CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
   FileCount=FileListCount;
 

@@ -1823,8 +1823,8 @@ struct PluginInfo
 
 struct InfoPanelLine
 {
-  wchar_t Text[80];
-  wchar_t Data[80];
+  const wchar_t *Text;
+  const wchar_t *Data;
   int  Separator;
 };
 

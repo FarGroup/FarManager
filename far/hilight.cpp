@@ -304,32 +304,6 @@ void HighlightFiles::UpdateCurrentTime()
   CurrentTime = current.QuadPart;
 }
 
-void HighlightFiles::GetHiColor(const FAR_FIND_DATA *fd,HighlightDataColor *Colors,bool UseAttrHighlighting)
-{
-  FileFilterParams *CurHiData;
-
-  ApplyDefaultStartingColors(Colors);
-
-  for (unsigned int i=0; i < HiData.getCount(); i++)
-  {
-    CurHiData = HiData.getItem(i);
-
-    if (UseAttrHighlighting && CurHiData->GetMask(NULL))
-      continue;
-
-    if (CurHiData->FileInFilter(fd, CurrentTime))
-    {
-      HighlightDataColor TempColors;
-      CurHiData->GetColors(&TempColors);
-      ApplyColors(Colors,&TempColors);
-      if (!CurHiData->GetContinueProcessing())// || !HasTransparent(Colors))
-        break;
-    }
-  }
-
-  ApplyFinalColors(Colors);
-}
-
 void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAttrHighlighting)
 {
   if(!FileItem || !FileCount)
@@ -363,24 +337,6 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAt
 
     ApplyFinalColors(&fli->Colors);
   }
-}
-
-int HighlightFiles::GetGroup(const FAR_FIND_DATA *fd)
-{
-  for (int i=FirstCount; i<FirstCount+UpperCount; i++)
-  {
-    FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd, CurrentTime))
-       return(CurGroupData->GetSortGroup());
-  }
-
-  for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
-  {
-    FileFilterParams *CurGroupData=HiData.getItem(i);
-    if(CurGroupData->FileInFilter(fd, CurrentTime))
-       return(CurGroupData->GetSortGroup());
-  }
-  return DEFAULT_SORT_GROUP;
 }
 
 int HighlightFiles::GetGroup(const FileListItem *fli)
