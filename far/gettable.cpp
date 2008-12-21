@@ -112,7 +112,7 @@ void AddUnicodeTables(VMenu &tables,DWORD dwCurrent, bool bShowUnicode, bool bSh
 	tables.AddItem(&item,Pos++);
 
 	if(!IsUnicodeCP(dwCurrent))
-		tables.SetSelectPos(tables.GetSelectPos()+2,0);
+		tables.SetSelectPos(tables.GetSelectPos()+Pos,0);
 }
 
 UINT GetTableEx (UINT nCurrent, bool bShowUnicode, bool bShowUTF)

@@ -307,12 +307,12 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     vseek(ViewFile,0,SEEK_SET);
     fread((wchar_t *)&dwFirst, 1, sizeof(dwFirst), ViewFile);
     //if(ReadSize == sizeof(FirstWord) &&
-    if (dwFirst == SIGN_REVERSEBOM)
+    if (LOWORD(dwFirst) == SIGN_REVERSEBOM)
     {
       VM.CodePage = CP_REVERSEBOM;
       TableChangedByUser=TRUE;
     }
-    else if (dwFirst == SIGN_UNICODE)
+    else if (LOWORD(dwFirst) == SIGN_UNICODE)
     {
       VM.CodePage = CP_UNICODE;
       TableChangedByUser=TRUE;
@@ -521,7 +521,7 @@ void Viewer::ShowPage (int nMode)
 
       if ( StrLen > LeftPos )
       {
-        if (IsUnicodeCP(VM.CodePage) && (dwFirst == SIGN_UNICODE || dwFirst == SIGN_REVERSEBOM) && !I && !Strings[I]->nFilePos)
+        if (IsUnicodeCP(VM.CodePage) && (LOWORD(dwFirst) == SIGN_UNICODE || LOWORD(dwFirst) == SIGN_REVERSEBOM) && !I && !Strings[I]->nFilePos)
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
         else
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
@@ -2908,7 +2908,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
      показывается)
   */
 
-    SelectPosOffSet=(IsUnicodeCP(VM.CodePage) && (dwFirst==SIGN_REVERSEBOM || dwFirst==SIGN_UNICODE)
+    SelectPosOffSet=(IsUnicodeCP(VM.CodePage) && (LOWORD(dwFirst)==SIGN_REVERSEBOM || LOWORD(dwFirst)==SIGN_UNICODE)
            && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)StrLength(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
