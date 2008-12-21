@@ -958,15 +958,6 @@ MEditConfigAnsiTableForNewFile
 "Созда&вать новые файлы в WIN кодировке"
 "C&reate new files in WIN encoding"
 
-MDistributionTableWasNotFound
-l:
-"Таблица с распределением частот символов не обнаружена!"
-"Table with the character frequency distribution was not found!"
-
-MAutoDetectWillNotWork
-"Опция \"Автоопределение таблицы символов\" отключена."
-"Option \"Autodetect character table\" is off."
-
 MSaveSetupTitle
 l:
 "Конфигурация"

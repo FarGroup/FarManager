@@ -489,7 +489,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.FarKeyToName=FarKeyToName;
     StandardFunctions.FarNameToKey=KeyNameToKeyW;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
-    StandardFunctions.XLat=XlatA;
+    StandardFunctions.XLat=Xlat; //BUGBUG
     StandardFunctions.GetFileOwner=farGetFileOwner;
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
@@ -516,7 +516,6 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StartupInfo.Viewer=FarViewer;
     StartupInfo.Editor=FarEditor;
     StartupInfo.CmpName=FarCmpName;
-    StartupInfo.CharTable=FarCharTable;
     StartupInfo.Text=FarText;
     StartupInfo.EditorControl=FarEditorControl;
     StartupInfo.ViewerControl=FarViewerControl;

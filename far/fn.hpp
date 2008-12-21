@@ -319,16 +319,10 @@ int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL,
 int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
 void ShowFilter();
-int DistrTableExist(void);
-int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
-             int &UseUnicode);
 
-int GetTableEx (DWORD Current);
-void DecodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
-void EncodeStringEx (wchar_t *Str, DWORD dwCP, int Length=-1);
+inline bool IsUnicodeCP(UINT CP){return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM);}
+UINT GetTableEx (UINT nCurrent,bool bShowUnicode, bool bShowUTF);
 
-void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
-void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 #define NullToEmpty(s) (s?s:L"")
 
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
@@ -476,12 +470,11 @@ int WINAPI FarGetDirList(const wchar_t *Dir, FAR_FIND_DATA **pPanelItem, int *pI
 void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber);
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2,int Y2,DWORD Flags);
+                     int X1,int Y1,int X2,int Y2,DWORD Flags, UINT CodePage);
 int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags,
-                     int StartLine,int StartChar);
+                     int StartLine,int StartChar, UINT CodePage);
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath);
-int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
 int WINAPI FarEditorControl(int Command,void *Param);
@@ -549,17 +542,7 @@ string& __stdcall TruncPathStr(string &strStr, int MaxLength);
 
 wchar_t* WINAPI QuoteSpaceOnly(wchar_t *Str);
 string& WINAPI QuoteSpaceOnly(string &strStr);
-/* $ 12.01.2004 IS
-   + Функция для сверки символа с разделителями слова с учетом текущей
-     кодировки
-*/
-// Проверяет - является ли символ разделителем слова (вернет TRUE, если да)
-// Параметры:
-//   TableSet - указатель на таблицы перекодировки (если отсутствует,
-//              то кодировка - OEM)
-//   WordDiv  - набор разделителей слова в кодировке OEM
-//   Chr      - проверяемый символ
-BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr);
+BOOL IsWordDiv(const wchar_t *WordDiv, wchar_t Chr);
 
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
@@ -622,16 +605,9 @@ int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &
 int FarAltEnter(int mode);
 
 
-char* WINAPI XlatA(char *Line,
-                    int StartPos,
-                    int EndPos,
-                    const struct CharTableSet *TableSet,
-                    DWORD Flags);
-
 wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,
                     int EndPos,
-                    const struct CharTableSet *TableSet,
                     DWORD Flags);
 
 #ifdef __cplusplus
@@ -1026,11 +1002,9 @@ int PathMayBeAbsolute(const wchar_t *Src);
 
 string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 
-//   TableSet - указатель на таблицы перекодировки (если отсутствует,
-//              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const wchar_t *WordDiv);
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
 
 long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);

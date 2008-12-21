@@ -57,8 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(const wchar_t *Name);
 
-static struct CharTableSet InitTableSet;
-
 static int InitHex=FALSE,SearchHex=FALSE;
 
 static int ViewerID=0;
@@ -78,25 +76,14 @@ Viewer::Viewer(bool bQuickView)
     Strings[i]->lpData = new wchar_t[MAX_VIEWLINEB];
   }
 
-  strLastSearchStr.SetData (GlobalSearchString, CP_OEMCP); //BUGBUG
+  strLastSearchStr = strGlobalSearchString;
   LastSearchCase=GlobalSearchCase;
 
   LastSearchWholeWords=GlobalSearchWholeWords;
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=GlobalSearchHex;
-  memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
-  VM.UseDecodeTable=ViewerInitUseDecodeTable;
-  VM.TableNum=ViewerInitTableNum;
-  VM.AnsiMode=ViewerInitAnsiText;
 
-  if (VM.AnsiMode && VM.TableNum==0)
-  {
-    int UseUnicode=TRUE;
-    GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
-    VM.TableNum=0;
-    VM.UseDecodeTable=TRUE;
-  }
-  VM.Unicode=(VM.TableNum==1) && VM.UseDecodeTable;
+  VM.CodePage=Opt.ViOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
   // Вспомним тип врапа
   VM.Wrap=Opt.ViOpt.ViewerIsWrap;
   VM.WordWrap=Opt.ViOpt.ViewerWrap;
@@ -140,23 +127,16 @@ Viewer::~Viewer()
       string strCacheName;
 
       if ( !strPluginData.IsEmpty() )
-          strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFileName));
+        strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFileName));
       else
         strCacheName = strFullFileName;
 
-      unsigned int Table=0;
+      UINT Table=0;
       if (TableChangedByUser)
       {
-        Table=1;
-        if (VM.AnsiMode)
-          Table=2;
-        else
-          if (VM.Unicode)
-            Table=3;
-          else
-            if (VM.UseDecodeTable)
-              Table=VM.TableNum+3;
+        Table=VM.CodePage;
       }
+
       {
         struct /*TPosCache32*/ TPosCache64 PosCache={0};
         PosCache.Param[0]=FilePos;
@@ -212,15 +192,11 @@ Viewer::~Viewer()
 
 void Viewer::KeepInitParameters()
 {
-  UnicodeToAnsi (strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString)); //BUGBUG
+  strGlobalSearchString = strLastSearchStr;
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;
   GlobalSearchReverse=LastSearchReverse;
   GlobalSearchHex=LastSearchHex;
-  memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
-  ViewerInitUseDecodeTable=VM.UseDecodeTable;
-  ViewerInitTableNum=VM.TableNum;
-  ViewerInitAnsiText=VM.AnsiMode;
   Opt.ViOpt.ViewerIsWrap=VM.Wrap;
   Opt.ViOpt.ViewerWrap=VM.WordWrap;
   InitHex=VM.Hex;
@@ -320,11 +296,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
   apiGetFindDataEx (strFileName, &ViewFindData);
 
-  /* $ 19.09.2000 SVS
-    AutoDecode Unicode
-  */
-  BOOL IsDecode=FALSE;
-
   /* $ 26.07.2002 IS
        Автоопределение Unicode не должно зависеть от опции
        "Автоопределение таблицы символов", т.к. Unicode не есть
@@ -332,17 +303,19 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   */
   //if(ViOpt.AutoDetectTable)
   {
-    VM.Unicode=0;
-    FirstWord=0;
+    dwFirst=0;
     vseek(ViewFile,0,SEEK_SET);
-    fread((wchar_t *)&FirstWord, 1, 2, ViewFile);
+    fread((wchar_t *)&dwFirst, 1, sizeof(dwFirst), ViewFile);
     //if(ReadSize == sizeof(FirstWord) &&
-    if(FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
+    if (dwFirst == SIGN_REVERSEBOM)
     {
-      VM.AnsiMode=VM.UseDecodeTable=0;
-      VM.Unicode=1;
+      VM.CodePage = CP_REVERSEBOM;
       TableChangedByUser=TRUE;
-      IsDecode=TRUE;
+    }
+    else if (dwFirst == SIGN_UNICODE)
+    {
+      VM.CodePage = CP_UNICODE;
+      TableChangedByUser=TRUE;
     }
   }
 
@@ -375,38 +348,6 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
       Table=(int)PosCache.Param[4];
     }
 
-    if(!IsDecode)
-    {
-      TableChangedByUser=(Table!=0);
-      switch(Table)
-      {
-        case 0:
-          break;
-        case 1:
-          VM.AnsiMode=VM.UseDecodeTable=VM.Unicode=0;
-          break;
-        case 2:
-          {
-            VM.AnsiMode=TRUE;
-            VM.UseDecodeTable=TRUE;
-            VM.Unicode=0;
-            VM.TableNum=0;
-            int UseUnicode=TRUE;
-            GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
-          }
-          break;
-        case 3:
-          VM.AnsiMode=VM.UseDecodeTable=0;
-          VM.Unicode=1;
-          break;
-        default:
-          VM.AnsiMode=VM.Unicode=0;
-          VM.UseDecodeTable=1;
-          VM.TableNum=Table-3;
-          PrepareTable(&TableSet,Table-5);
-          break;
-      }
-    }
     LastSelPos=FilePos=NewFilePos;
     LeftPos=NewLeftPos;
   }
@@ -416,24 +357,10 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   if (FilePos>FileSize)
     FilePos=0;
   SetCRSym();
-  if (ViOpt.AutoDetectTable && !TableChangedByUser)
-  {
-    VM.UseDecodeTable=DetectTable(ViewFile,&TableSet,VM.TableNum);
-    if (VM.TableNum>0)
-      VM.TableNum++;
-    if (VM.Unicode)
-    {
-      VM.Unicode=0;
-      FilePos*=2;
-      SetFileSize();
-    }
-    /* $ 27.04.2001 DJ
-       всегда обновляем keybar после загрузки файла;
-       вычисление ширины - в отдельную функцию
-    */
-    if (VM.AnsiMode)
-      VM.AnsiMode=FALSE;
-  }
+//  if (ViOpt.AutoDetectTable && !TableChangedByUser)
+//  {
+//  }
+
   ChangeViewKeyBar();
   AdjustWidth();
   CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
@@ -470,7 +397,7 @@ void Viewer::SetCRSym()
   int CRCount=0,LFCount=0;
   int ReadSize,I;
   vseek(ViewFile,0,SEEK_SET);
-  ReadSize=vread(Buf,sizeof(Buf)/sizeof (wchar_t),ViewFile);
+  ReadSize=vread(Buf,countof(Buf),ViewFile);
   for (I=0;I<ReadSize;I++)
     switch(Buf[I])
     {
@@ -594,7 +521,7 @@ void Viewer::ShowPage (int nMode)
 
       if ( StrLen > LeftPos )
       {
-        if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !Strings[I]->nFilePos)
+        if (IsUnicodeCP(VM.CodePage) && (dwFirst == SIGN_UNICODE || dwFirst == SIGN_REVERSEBOM) && !I && !Strings[I]->nFilePos)
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
         else
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
@@ -715,7 +642,8 @@ void Viewer::ShowHex()
 
     const wchar_t BorderLine[]={BoxSymbols[BS_V1],L' ',0};
 
-    if (VM.Unicode)
+    if (IsUnicodeCP(VM.CodePage))
+    {
       for (X=0;X<8;X++)
       {
         __int64 fpos = vtell(ViewFile);
@@ -765,7 +693,7 @@ void Viewer::ShowHex()
 
           /* $ 01.08.2002 tran
           обратный порядок байтов */
-          if ( FirstWord == 0x0FFFE )
+          if ( VM.CodePage == CP_REVERSEBOM )
           {
               TmpBuf[0]=Ch1;
               TmpBuf[1]=Ch;
@@ -787,6 +715,7 @@ void Viewer::ShowHex()
         if (X==3)
           wcscat(OutStr, BorderLine);
       }
+    }
     else
     {
       for (X=0;X<16;X++)
@@ -837,7 +766,7 @@ void Viewer::ShowHex()
         {
           char NewCh;
 
-          WideCharToMultiByte(CP_OEMCP, 0, (const wchar_t*)&Ch,1, &NewCh,1," ",NULL);
+          WideCharToMultiByte(VM.CodePage, 0, (const wchar_t*)&Ch,1, &NewCh,1," ",NULL);
 
           swprintf(OutStr+StrLength(OutStr),L"%02X ", NewCh);
           if (Ch==0)
@@ -850,8 +779,6 @@ void Viewer::ShowHex()
       }
     }
     TextStr[TextPos]=0;
-    /*if (VM.UseDecodeTable && !VM.Unicode)
-      DecodeString(TextStr,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     wcscat(TextStr,L" ");
 
     if ( (SelEnd <= SelStart) && bSelStartFound )
@@ -898,7 +825,9 @@ void Viewer::DrawScrollbar()
 string &Viewer::GetTitle(string &strName,int,int)
 {
   if ( !strTitle.IsEmpty () )
+  {
     strName = strTitle;
+  }
   else
   {
     if ( !(strFileName.At(1)==L':' && strFileName.At(2)==L'\\') ) //BUGBUG
@@ -912,7 +841,9 @@ string &Viewer::GetTitle(string &strName,int,int)
         strName = strPath+strFileName;
     }
     else
+    {
       strName = strFileName;
+    }
   }
   return strName;
 }
@@ -945,8 +876,8 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
   if (VM.Hex)
   {
-    OutPtr=vread(pString->lpData,VM.Unicode ? 8:16,ViewFile);
-    pString->lpData[VM.Unicode ? 8:16]=0;
+    OutPtr=vread(pString->lpData,IsUnicodeCP(VM.CodePage) ? 8:16,ViewFile);
+    pString->lpData[IsUnicodeCP(VM.CodePage) ? 8:16]=0;
   }
   else
   {
@@ -1090,9 +1021,6 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
           bSelStartFound = false;
   }
 
-  /*if (VM.UseDecodeTable && !VM.Unicode)
-    DecodeString(pString->lpData,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
-
   LastPage=feof(ViewFile);
 
   if ( bSelStartFound && bSelEndFound )
@@ -1115,13 +1043,9 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;
-      MacroViewerState|=VM.UseDecodeTable?0x00000001:0;
-      MacroViewerState|=VM.AnsiMode?0x00000002:0;
-      MacroViewerState|=VM.Unicode?0x00000004:0;
       MacroViewerState|=VM.Wrap?0x00000008:0;
       MacroViewerState|=VM.WordWrap?0x00000010:0;
       MacroViewerState|=VM.Hex?0x00000020:0;
-
       MacroViewerState|=Opt.OnlyEditorViewerUsed?0x08000000:0;
       MacroViewerState|=HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 
@@ -1194,9 +1118,7 @@ int Viewer::ProcessKey(int Key)
   {
     case KEY_F1:
     {
-      {
-        Help Hlp (L"Viewer");
-      }
+      Help Hlp (L"Viewer");
       return(TRUE);
     }
 
@@ -1216,7 +1138,7 @@ int Viewer::ProcessKey(int Key)
       if (SelectSize && ViewFile)
       {
         wchar_t *SelData;
-        size_t DataSize = (size_t)SelectSize+(VM.Unicode?2:1);
+        size_t DataSize = (size_t)SelectSize+(IsUnicodeCP(VM.CodePage)?sizeof(wchar_t):1);
         __int64 CurFilePos=vtell(ViewFile);
 
         if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof (wchar_t))) != NULL)
@@ -1224,71 +1146,67 @@ int Viewer::ProcessKey(int Key)
           wmemset(SelData, 0, DataSize);
           vseek(ViewFile,SelectPos,SEEK_SET);
           vread(SelData, (int)SelectSize, ViewFile);
-          /*if (VM.UseDecodeTable && !VM.Unicode) BUGBUG
-            DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);*/
           CopyToClipboard(SelData);
           xf_free(SelData);
           vseek(ViewFile,CurFilePos,SEEK_SET);
-        } /* if */
-      } /* if */
+        }
+      }
       return(TRUE);
     }
 
     //   включить/выключить скролбар
     case KEY_CTRLS:
     {
-        ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
-        Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
+      ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
+      Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
 
-        if ( m_bQuickView )
-			CtrlObject->Cp()->ActivePanel->Redraw();
+      if ( m_bQuickView )
+			  CtrlObject->Cp()->ActivePanel->Redraw();
 
-        Show();
-        return (TRUE);
+      Show();
+      return (TRUE);
     }
 
     case KEY_IDLE:
     {
+      if(ViewFile)
       {
-        if(ViewFile)
+        string strRoot;
+        GetPathRoot(strFullFileName, strRoot);
+        int DriveType=FAR_GetDriveType(strRoot);
+        if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
         {
-          string strRoot;
-          GetPathRoot(strFullFileName, strRoot);
-          int DriveType=FAR_GetDriveType(strRoot);
-          if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
+          FAR_FIND_DATA_EX NewViewFindData;
+
+          if ( !apiGetFindDataEx (strFullFileName,&NewViewFindData) )
+            return TRUE;
+
+          fflush(ViewFile);
+          vseek(ViewFile,0,SEEK_END);
+          __int64 CurFileSize=vtell(ViewFile);
+          if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
+              ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
+              CurFileSize!=FileSize)
           {
-            FAR_FIND_DATA_EX NewViewFindData;
-
-            if ( !apiGetFindDataEx (strFullFileName,&NewViewFindData) )
-              return TRUE;
-
-            fflush(ViewFile);
-            vseek(ViewFile,0,SEEK_END);
-            __int64 CurFileSize=vtell(ViewFile);
-            if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
-                ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
-                CurFileSize!=FileSize)
+            ViewFindData=NewViewFindData;
+            FileSize=CurFileSize;
+            if (FilePos>FileSize)
+              ProcessKey(KEY_CTRLEND);
+            else
             {
-              ViewFindData=NewViewFindData;
-              FileSize=CurFileSize;
-              if (FilePos>FileSize)
-                ProcessKey(KEY_CTRLEND);
-              else
+              __int64 PrevLastPage=LastPage;
+              Show();
+              if (PrevLastPage && !LastPage)
               {
-                __int64 PrevLastPage=LastPage;
-                Show();
-                if (PrevLastPage && !LastPage)
-                {
-                  ProcessKey(KEY_CTRLEND);
-                  LastPage=TRUE;
-                }
+                ProcessKey(KEY_CTRLEND);
+                LastPage=TRUE;
               }
             }
           }
         }
-        if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
-          ShowTime(FALSE);
       }
+      if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
+        ShowTime(FALSE);
       return(TRUE);
     }
 
@@ -1338,19 +1256,10 @@ int Viewer::ProcessKey(int Key)
             else
               strCacheName = strFileName;
 
-            unsigned int Table=0;
+            UINT Table=0;
             if (TableChangedByUser)
-            {
-              Table=1;
-              if (VM.AnsiMode)
-                Table=2;
-              else
-                if (VM.Unicode)
-                  Table=3;
-                else
-                  if (VM.UseDecodeTable)
-                    Table=VM.TableNum+3;
-            }
+              Table=VM.CodePage;
+
             {
               struct /*TPosCache32*/ TPosCache64 PosCache={0};
               PosCache.Param[0]=FilePos;
@@ -1371,12 +1280,12 @@ int Viewer::ProcessKey(int Key)
           }
           if ( PointToName(strName) == strName )
           {
-              string strViewDir;
+            string strViewDir;
 
-              ViewNamesList.GetCurDir (strViewDir);
+            ViewNamesList.GetCurDir (strViewDir);
 
-              if ( !strViewDir.IsEmpty() )
-                  FarChDir(strViewDir);
+            if ( !strViewDir.IsEmpty() )
+              FarChDir(strViewDir);
           }
 
           if ( OpenFile(strName, TRUE) )
@@ -1432,66 +1341,51 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_F8:
     {
-      if ((VM.AnsiMode=!VM.AnsiMode)!=0)
-      {
-        int UseUnicode=TRUE;
-        GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
-      }
-      if (VM.Unicode)
+      if (IsUnicodeCP(VM.CodePage))
       {
         FilePos*=2;
-        VM.Unicode=FALSE;
         SetFileSize();
-
         SelectPos = 0;
         SelectSize = 0;
       }
-      VM.TableNum=0;
-      VM.UseDecodeTable=VM.AnsiMode;
+
+      VM.CodePage = VM.CodePage==GetOEMCP() ? GetACP() : GetOEMCP();
+
       ChangeViewKeyBar();
       Show();
-//      LastSelPos=FilePos;
+//    LastSelPos=FilePos;
       TableChangedByUser=TRUE;
       return(TRUE);
     }
 
     case KEY_SHIFTF8:
     {
+      UINT nCodePage = GetTableEx(VM.CodePage, true, false);
+      if (nCodePage!=(UINT)-1)
       {
-        int UseUnicode=TRUE;
-        int GetTableCode=GetTable(&TableSet,FALSE,VM.TableNum,UseUnicode);
-        if (GetTableCode!=-1)
+        TableChangedByUser=TRUE;
+
+        if (IsUnicodeCP(VM.CodePage) && !IsUnicodeCP(nCodePage))
         {
-          /* $ 08.03.2003 IS
-               Заново определим символы конца строки,
-               т.к. они другие при изменении
-               unicode<->однобайтовая кодировка
-          */
-          BOOL oldIsUnicode=VM.Unicode;
-          if (VM.Unicode && !UseUnicode)
-            FilePos*=2;
-          if (!VM.Unicode && UseUnicode)
-            FilePos=(FilePos+(FilePos&1))/2;
-          VM.UseDecodeTable=GetTableCode;
-          VM.Unicode=UseUnicode;
-
-          if ( !oldIsUnicode && VM.Unicode )
-          {
-            SelectPos = 0;
-            SelectSize = 0;
-          }
-
-          SetFileSize();
-          VM.AnsiMode=FALSE;
-          ChangeViewKeyBar();
-          Show();
-//          LastSelPos=FilePos;
-          TableChangedByUser=TRUE;
-          // IS: определяем символы конца строки только,
-          // IS: если включили или выключили юникод
-          if((oldIsUnicode && !VM.Unicode) || (!oldIsUnicode && VM.Unicode))
-            SetCRSym();
+          FilePos*=2;
+          SelectPos = 0;
+          SelectSize = 0;
+          SetCRSym();
         }
+        else if (!IsUnicodeCP(VM.CodePage) && IsUnicodeCP(nCodePage))
+        {
+          FilePos=(FilePos+(FilePos&1))/2; //????
+          SelectPos = 0;
+          SelectSize = 0;
+          SetCRSym();
+        }
+
+        VM.CodePage=nCodePage;
+
+        SetFileSize();
+        ChangeViewKeyBar();
+        Show();
+//      LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1555,7 +1449,7 @@ int Viewer::ProcessKey(int Key)
         Up();
         if (VM.Hex)
         {
-          FilePos&=~(VM.Unicode ? 0x7:0xf);
+          FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
           Show();
         }
         else
@@ -1792,7 +1686,7 @@ int Viewer::ProcessKey(int Key)
         }
 */
         if (VM.Hex)
-          FilePos&=~(VM.Unicode ? 0x7:0xf);
+          FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
 /*
         if (VM.Hex)
         {
@@ -1974,7 +1868,7 @@ void Viewer::Up()
   LastPage=0;
   if (VM.Hex)
   {
-    int UpSize=VM.Unicode ? 8:16;
+    int UpSize=IsUnicodeCP(VM.CodePage) ? 8:16;
     if (FilePos<(__int64)UpSize)
       FilePos=0;
     else
@@ -2099,7 +1993,7 @@ void Viewer::ChangeViewKeyBar()
     else
       ViewKeyBar->Change(MSG(MViewF4),3);
 
-    if (VM.AnsiMode)
+    if (VM.CodePage != GetOEMCP())
       ViewKeyBar->Change(MSG(MViewF8DOS),7);
     else
       ViewKeyBar->Change(MSG(MViewF8),7);
@@ -2288,7 +2182,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (SearchFlags.Check(REVERSE_SEARCH))
     SearchDlg[9].Selected = !SearchDlg[9].Selected;
 
-  if (VM.Unicode)
+  if (IsUnicodeCP(VM.CodePage))
   {
     SearchDlg[5].Selected=TRUE;
     SearchDlg[6].Flags|=DIF_DISABLE;
@@ -2364,8 +2258,6 @@ void Viewer::Search(int Next,int FirstChar)
 
     if (!Case && !SearchHex)
       strSearchStr.Upper ();
-//      for (int I=0;I<SearchLength;I++)
-//        SearchStr[I]=LocalUpper(SearchStr[I]);
 
     SelectSize = 0;
     if (Next)
@@ -2390,26 +2282,19 @@ void Viewer::Search(int Next,int FirstChar)
     if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
     {
       wchar_t Buf[8192];
-      /* $ 01.08.2000 KM
-         Изменён тип CurPos с unsigned long на long
-         из-за того, что дальше шла проверка при вычитании
-         на -1, а CurPos не мог стать отрицательным и иногда
-         выдавался неверный результат
-      */
-                             // BugZ#1097 - невозможность поиска вхождений в юникод текстовом файле
-      __int64 CurPos=LastSelPos+(VM.Unicode && !ReverseSearch?1:0); // добавка к юникоду (+1), т.к. нихрена не ищет в первой строке.
-                             //^^^^^^^^^^^^^^^^^  ?????????
 
-      int BufSize=sizeof(Buf)/sizeof (wchar_t);
+      __int64 CurPos=LastSelPos;
+
+      int BufSize=countof(Buf);
       if (ReverseSearch)
       {
         /* $ 01.08.2000 KM
            Изменёно вычисление CurPos с учётом Whole words
         */
         if (WholeWords)
-          CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength+1;
+          CurPos-=countof(Buf)-SearchLength+1;
         else
-          CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength;
+          CurPos-=countof(Buf)-SearchLength;
         if (CurPos<0)
           BufSize+=(int)CurPos;
       }
@@ -2438,10 +2323,6 @@ void Viewer::Search(int Next,int FirstChar)
           }
           ViewerSearchMsg(strMsgStr);
         }
-
-        if (VM.UseDecodeTable && !SearchHex && !VM.Unicode)
-          for (int I=0;I<ReadSize;I++)
-            Buf[I]=TableSet.DecodeTable[Buf[I]];
 
         /* $ 01.08.2000 KM
            Сделана сразу проверка на Case sensitive и Hex
@@ -2511,16 +2392,16 @@ void Viewer::Search(int Next,int FirstChar)
              Изменёно вычисление CurPos с учётом Whole words
           */
           if (WholeWords)
-            CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength+1;
+            CurPos-=countof(Buf)-SearchLength+1;
           else
-            CurPos-=sizeof(Buf)/sizeof (wchar_t)-SearchLength;
+            CurPos-=countof(Buf)-SearchLength;
         }
         else
         {
           if (WholeWords)
-            CurPos+=sizeof(Buf)/sizeof (wchar_t)-SearchLength+1;
+            CurPos+=countof(Buf)-SearchLength+1;
           else
-            CurPos+=sizeof(Buf)/sizeof (wchar_t)-SearchLength;
+            CurPos+=countof(Buf)-SearchLength;
         }
       }
     }
@@ -2698,7 +2579,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
   if(!SrcFile)
     return -1;
 
-  if (VM.Unicode)
+  if (IsUnicodeCP(VM.CodePage))
   {
     // выделяем столько, сколько нужно!
     char *TmpBuf=(char *)xf_malloc(Count*2+16);
@@ -2710,7 +2591,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
     /* $ 20.10.2000 tran
        обратный порядок байтов */
     TmpBuf[ReadSize+1]=0;
-    if ( FirstWord == 0x0FFFE )
+    if ( VM.CodePage == CP_REVERSEBOM )
     {
       for (int i=0; i<ReadSize; i+=2 )
       {
@@ -2736,7 +2617,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
 
     int ReadSize=(int)fread(TmpBuf,1,Count,SrcFile);
 
-    MultiByteToWideChar (CP_OEMCP, 0, TmpBuf, ReadSize, Buf, Count);
+    MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ReadSize, Buf, Count);
 
     xf_free(TmpBuf);
 
@@ -2749,7 +2630,7 @@ int Viewer::vseek(FILE *SrcFile,__int64 Offset,int Whence)
 {
   if(!SrcFile)
     return -1;
-  if (VM.Unicode)
+  if (IsUnicodeCP(VM.CodePage))
     return(fseek64(SrcFile,Offset*2,Whence));
   else
     return(fseek64(SrcFile,Offset,Whence));
@@ -2761,7 +2642,7 @@ __int64 Viewer::vtell(FILE *SrcFile)
   if(!SrcFile)
     return -1;
   __int64 Pos=ftell64(SrcFile);
-  if (VM.Unicode)
+  if (IsUnicodeCP(VM.CodePage))
     Pos=(Pos+(Pos&1))/2;
   return(Pos);
 }
@@ -2871,7 +2752,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         //if ( Percent<0 )
         //  Percent=0;
         Offset=FileSize/100*Percent;
-        if (VM.Unicode)
+        if (IsUnicodeCP(VM.CodePage))
           Offset*=2;
         while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
@@ -2898,7 +2779,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         //if ( Percent<0 )
         //  Percent=0;
         Offset=FileSize/100*Percent;
-        if (VM.Unicode)
+        if (IsUnicodeCP(VM.CodePage))
           Offset*=2;
         while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
@@ -2910,10 +2791,10 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
             FilePos=0;
         else
-            FilePos=VM.Unicode? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
+            FilePos=IsUnicodeCP(VM.CodePage)? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
     }
     else
-        FilePos=VM.Unicode ? Offset/2:Offset;
+        FilePos=IsUnicodeCP(VM.CodePage) ? Offset/2:Offset;
     if ( FilePos>FileSize )   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
   }
@@ -2948,7 +2829,7 @@ void Viewer::AdjustFilePos()
       }
     vseek(ViewFile,FilePos+1,SEEK_SET);
     if (VM.Hex)
-      FilePos&=~(VM.Unicode ? 0x7:0xf);
+      FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
     else
     {
       if (FilePos!=StartLinePos)
@@ -2969,7 +2850,7 @@ void Viewer::SetFileSize()
      Везде сравниваем FilePos с FileSize, FilePos для юникодных файлов
      уменьшается в два раза, поэтому FileSize тоже надо уменьшать
   */
-  if (VM.Unicode)
+  if (IsUnicodeCP(VM.CodePage))
     FileSize=(FileSize+(FileSize&1))/2;
 }
 
@@ -3011,7 +2892,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   SelectFlags=Flags;
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
   if (VM.Hex)
-    FilePos&=~(VM.Unicode ? 0x7:0xf);
+    FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
   else
   {
     if (SelectPos!=StartLinePos)
@@ -3027,7 +2908,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
      показывается)
   */
 
-    SelectPosOffSet=(VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
+    SelectPosOffSet=(IsUnicodeCP(VM.CodePage) && (dwFirst==SIGN_REVERSEBOM || dwFirst==SIGN_UNICODE)
            && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)StrLength(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
@@ -3070,20 +2951,15 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->FileName=strFullFileName;
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1+1;
-        Info->FilePos.i64=FilePos;
-        Info->FileSize.i64=FileSize;
+        Info->FilePos=FilePos;
+        Info->FileSize=FileSize;
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
-        Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-2:-1;
+        Info->CurMode.CodePage=VM.CodePage;
         Info->Options=0;
         if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;
         if (ViOpt.AutoDetectTable)     Info->Options|=VOPT_AUTODETECTTABLE;
         Info->TabSize=ViOpt.TabSize;
-
-        // сюды писать добавки
-        if(Info->StructSize >= (int)sizeof(struct ViewerInfo))
-        {
-          Info->LeftPos=(int)LeftPos;  //???
-        }
+        Info->LeftPos=LeftPos;
         return(TRUE);
       }
       break;
@@ -3098,7 +2974,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerSetPosition)))
       {
         struct ViewerSetPosition *vsp=(struct ViewerSetPosition*)Param;
-        bool isReShow=vsp->StartPos.i64 != FilePos;
+        bool isReShow=vsp->StartPos != FilePos;
         if((LeftPos=vsp->LeftPos) < 0)
           LeftPos=0;
         /* $ 20.01.2003 IS
@@ -3106,13 +2982,13 @@ int Viewer::ViewerControl(int Command,void *Param)
              2 раза. Поэтому увеличим StartPos в 2 раза, т.к. функция
              GoTo принимает смещения в _байтах_.
         */
-        GoTo(FALSE, vsp->StartPos.i64*(VM.Unicode?2:1), vsp->Flags);
+        GoTo(FALSE, vsp->StartPos*(IsUnicodeCP(VM.CodePage)?2:1), vsp->Flags);
         if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
         if(!(vsp->Flags&VSP_NORETNEWPOS))
         {
-          vsp->StartPos.i64=FilePos;
-          vsp->LeftPos=(int)LeftPos; //???
+          vsp->StartPos=FilePos;
+          vsp->LeftPos=LeftPos;
         }
         return(TRUE);
       }
@@ -3125,7 +3001,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       struct ViewerSelect *vs=(struct ViewerSelect *)Param;
       if(vs && !IsBadReadPtr(vs,sizeof(struct ViewerSelect)))
       {
-        __int64 SPos=vs->BlockStartPos.i64;
+        __int64 SPos=vs->BlockStartPos;
         int SSize=vs->BlockLen;
         if(SPos < FileSize)
         {

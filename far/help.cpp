@@ -258,7 +258,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
   }
 
 #if defined(WORK_HELP_FIND)
-  xstrncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
+  strGlobalSearchString = LastSearchStr;
   LastSearchPos=0;
   LastSearchCase=GlobalSearchCase;
   LastSearchWholeWords=GlobalSearchWholeWords;
@@ -285,7 +285,7 @@ Help::~Help()
 #if defined(WORK_HELP_FIND)
 void Help::KeepInitParameters()
 {
-  strcpy(GlobalSearchString,(char *)LastSearchStr);
+  strGlobalSearchString = LastSearchStr;
   LastSearchPos=0;
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;

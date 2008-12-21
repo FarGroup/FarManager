@@ -121,11 +121,11 @@ struct CodeXLAT
   string strWordDivForXlat;
 
   // первый байт - размер таблицы
-  BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
-  BYTE Rules[3][81]; // 3 по 40 правил:
-                    //  [0] "если предыдущий символ латинский"
-                    //  [1] "если предыдущий символ нелатинский символ"
-                    //  [2] "если предыдущий символ не рус/lat"
+  wchar_t Table[2][81]; // [0] non-english буквы, [1] english буквы
+  BYTE    Rules[3][81]; // правила:
+                        // [0] "если предыдущий символ латинский"
+                        // [1] "если предыдущий символ нелатинский символ"
+                        // [2] "если предыдущий символ не рус/lat"
 
   /*
   void Clear()
@@ -280,9 +280,7 @@ struct NowellOptions{
 struct FindCharTable
 {
   int AllTables;
-  int AnsiTable;
-  int UnicodeTable;
-  int TableNum;
+  int CodePage;
 };
 
 struct ScreenSizes{
@@ -593,7 +591,7 @@ struct Options
   struct FindCharTable CharTable; // Структура для запоминания параметров таблиц символов в поиске
 
   struct TreeOptions Tree;
-  
+
   DWORD CPMenuMode;
 
   /*

@@ -97,7 +97,7 @@ class Viewer:public ScreenObject
     BitFlags SearchFlags;
 
     struct ViewerOptions ViOpt;
-    WORD FirstWord;  // первое слово из файла (для автоопределения Unicode)
+    DWORD dwFirst;  // первое DWORD из файла (для автоопределения Unicode)
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
@@ -118,7 +118,6 @@ class Viewer:public ScreenObject
     string strLastSearchStr;
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
 
-    struct CharTableSet TableSet;
     struct ViewerMode VM;
 
     __int64 FilePos;
@@ -153,7 +152,6 @@ class Viewer:public ScreenObject
     FileViewer *HostFileViewer;
     bool AdjustSelPosition;
 
-    UINT m_codepage; //BUGBUG
     bool m_bQuickView;
 
   private:
@@ -245,8 +243,9 @@ class Viewer:public ScreenObject
     int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
     void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
 
-    int GetAnsiMode() const { return VM.AnsiMode; }
     int GetHexMode() const { return VM.Hex; }
+
+    UINT GetCodePage() const { return VM.CodePage; }
 
     NamesList *GetNamesList() { return &ViewNamesList; }
 

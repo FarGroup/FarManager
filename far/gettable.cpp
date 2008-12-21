@@ -42,18 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savefpos.hpp"
 #include "keys.hpp"
 
-static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable);
-
-/* 15.09.2000 IS
-   ѕровер€ет, установлена ли таблица с распределением частот символов
-*/
-int DistrTableExist(void)
-{
- return (CheckRegValue(L"CodeTables",L"Distribution"));
-}
-
 static VMenu *tables;
-static DWORD dwCurCP;
+static UINT nCurCP;
 
 const wchar_t SelectedCodeTables[]=L"CodeTables\\Selected";
 
@@ -61,56 +51,62 @@ BOOL __stdcall EnumCodePagesProc (const wchar_t *lpwszCodePage)
 {
 	int Check=0;
 	GetRegKey(SelectedCodeTables,lpwszCodePage,Check,0);
-	if(Opt.CPMenuMode && !Check)
+	if (Opt.CPMenuMode && !Check)
 		return TRUE;
 
-	DWORD dwCP = _wtoi(lpwszCodePage);
+	UINT nCP = _wtoi(lpwszCodePage);
 	CPINFOEXW cpi;
-	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
+	if (GetCPInfoExW (nCP, 0, &cpi) && cpi.MaxCharSize == 1 )
 	{
 		MenuItemEx item;
 		item.Clear ();
-		if(dwCP==dwCurCP)
+		if (nCP==nCurCP)
 			item.Flags|=MIF_SELECTED;
-		if(Check)
+		if (Check)
 			item.Flags|=MIF_CHECKED;
-		item.strName.Format(L"%5d%c %s",dwCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
+		item.strName.Format(L"%5u%c %s",nCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
 		item.strName.SetLength(item.strName.GetLength()-1);
-		tables->SetUserData((void*)(DWORD_PTR)dwCP, sizeof (DWORD), tables->AddItem(&item));
+		tables->SetUserData((void*)(UINT_PTR)nCP, sizeof (UINT), tables->AddItem(&item));
 	}
 	return TRUE;
 }
 
-void AddUnicodeTables(VMenu &tables,DWORD dwCurrent)
+void AddUnicodeTables(VMenu &tables,DWORD dwCurrent, bool bShowUnicode, bool bShowUTF)
 {
 	struct CpInfo
 	{
 		UINT CP;
 		const wchar_t *Name;
+		int Type;
 	}
 	c[]=
 	{
-		{CP_UNICODE,L"UNICODE"},
-		{CP_REVERSEBOM,L"UNICODE (reverse BOM)"},
-		{CP_UTF7,L"UTF-7"},
-		{CP_UTF8,L"UTF-8"},
+		{CP_UNICODE,L"UNICODE",0},
+		{CP_REVERSEBOM,L"UNICODE (reverse BOM)",0},
+		{CP_UTF7,L"UTF-7",1},
+		{CP_UTF8,L"UTF-8",2},
 	};
 
 	MenuItemEx item;
 	int Pos=0;
-	
-	// for(int i=0;i<countof(c);i++) // future
-	int i=3; // BUGBUG
+
+	for(size_t i=0;i<countof(c);i++)
 	{
+		if (c[i].Type == 0 && !bShowUnicode)
+			continue;
+		if (c[i].Type == 1) //пока что
+			continue;
+		if (c[i].Type == 2 && !bShowUTF)
+			continue;
 		item.Clear();
-		item.strName.Format(L"%5d%c %s",c[i].CP,BoxSymbols[BS_V1],c[i].Name);
+		item.strName.Format(L"%5u%c %s",c[i].CP,BoxSymbols[BS_V1],c[i].Name);
 		item.UserData=(char*)c[i].CP;
 		item.UserDataSize=sizeof(UINT);
 		if(dwCurrent==c[i].CP)
 			item.Flags|=MIF_SELECTED;
 		tables.AddItem(&item,Pos++);
 	}
-	
+
 	item.Clear();
 	item.Flags=MIF_SEPARATOR;
 	tables.AddItem(&item,Pos++);
@@ -119,33 +115,35 @@ void AddUnicodeTables(VMenu &tables,DWORD dwCurrent)
 		tables.SetSelectPos(tables.GetSelectPos()+2,0);
 }
 
-int GetTableEx (DWORD dwCurrent)
+UINT GetTableEx (UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 {
-    int nCP = -1;
+	UINT nCP = (UINT)-1;
 
-    tables = new VMenu (MSG(MGetTableTitle),NULL,0,ScrY-4);
-	if(Opt.CPMenuMode)
+	tables = new VMenu (MSG(MGetTableTitle),NULL,0,ScrY-4);
+
+	if (Opt.CPMenuMode)
 	{
 		string strTableTitle=MSG(MGetTableTitle);
 		strTableTitle+=L"*";
 		tables->SetTitle(strTableTitle);
 	}
+
 	tables->SetBottomTitle(MSG(MGetTableBottomTitle));
 
-    dwCurCP=dwCurrent;
-    EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+	nCurCP=nCurrent;
+	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 
-    tables->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
-    tables->SetPosition(-1,-1,0,0);
+	tables->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+	tables->SetPosition(-1,-1,0,0);
 	tables->SortItems(0);
 
-	AddUnicodeTables(*tables,dwCurCP);
+	AddUnicodeTables(*tables,nCurCP,bShowUnicode,bShowUTF);
 
 	tables->Show();
-	while(!tables->Done())
+	while (!tables->Done())
 	{
 		int Key=tables->ReadInput();
-		switch(Key)
+		switch (Key)
 		{
 		case KEY_CTRLH:
 		{
@@ -154,9 +152,9 @@ int GetTableEx (DWORD dwCurrent)
 			EnumSystemCodePagesW((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 			tables->SetPosition(-1,-1,0,0);
 			tables->SortItems(0);
-			AddUnicodeTables(*tables,dwCurCP);
+			AddUnicodeTables(*tables,nCurCP,bShowUnicode,bShowUTF);
 			string strTableTitle=MSG(MGetTableTitle);
-			if(Opt.CPMenuMode)
+			if (Opt.CPMenuMode)
 				strTableTitle+=L"*";
 			tables->SetTitle(strTableTitle);
 			tables->Show();
@@ -169,7 +167,7 @@ int GetTableEx (DWORD dwCurrent)
 				MenuItemEx *CurItem=tables->GetItemPtr();
 				CurItem->SetCheck(!(CurItem->Flags&LIF_CHECKED));
 				string strCPName;
-				strCPName.Format(L"%d",CurItem->UserData);
+				strCPName.Format(L"%u",CurItem->UserData);
 				if(CurItem->Flags&LIF_CHECKED)
 					SetRegKey(SelectedCodeTables,strCPName,1);
 				else
@@ -184,312 +182,10 @@ int GetTableEx (DWORD dwCurrent)
 		}
 	}
 
-    if ( tables->Modal::GetExitCode() >= 0 )
-        nCP = (int)(INT_PTR)tables->GetUserData(NULL, 0);
+	if ( tables->Modal::GetExitCode() >= 0 )
+		nCP = (UINT)(UINT_PTR)tables->GetUserData(NULL, 0);
 
-    delete tables;
+	delete tables;
 
-    return nCP;
-}
-
-int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
-             int &UseUnicode)
-{
-  int I;
-  string strItemName,t,t2;
-
-  if (AnsiText)
-  {
-    char toUpper[2], toLower[2], decode[2], encode[2];
-    toUpper[1] = toLower[1] = decode[1] = encode[1] = 0;
-    for (I=0;I<256;I++)
-    {
-      *toUpper=*toLower=*decode=*encode=I;
-      if (I > 127) //AY: символы до 128 не должны перекодироватс€
-      {
-        FAR_CharToOem(decode, decode);
-        FAR_OemToChar(encode, encode);
-      }
-      if(IsCharAlphaA(I))
-      {
-        CharUpperA(toUpper);
-        CharLowerA(toLower);
-      }
-      TableSet->EncodeTable[I] = *encode;
-      TableSet->DecodeTable[I] = *decode;
-      TableSet->UpperTable[I] = *toUpper;
-      TableSet->LowerTable[I] = *toLower;
-    }
-    strcpy(TableSet->TableName,"Win");
-    return(TRUE);
-  }
-
-  VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
-  TableList.SetFlags(VMENU_WRAPMODE);
-  TableList.SetPosition(-1,-1,0,0);
-
-  MenuItemEx ListItem;
-
-  ListItem.Clear ();
-
-  ListItem.SetSelect(!TableNum);
-  ListItem.strName = MSG(MGetTableNormalText);
-  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItem(&ListItem));
-
-  if (UseUnicode)
-  {
-    ListItem.SetSelect(TableNum==1);
-    ListItem.strName = L"Unicode";
-    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItem(&ListItem));
-  }
-
-  for (I=0;;I++)
-  {
-    string strTableKey;
-    if (!EnumRegKey(L"CodeTables",I,strTableKey))
-      break;
-
-    strItemName = PointToName(strTableKey);
-    t.Format (L"CodeTables\\%s", (const wchar_t*)strItemName);
-    GetRegKey(t,L"TableName",t2,strItemName);
-    ListItem.strName = t2;
-    ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.SetUserData((void*)(INT_PTR)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
-  }
-
-  //TableList.SetSelectPos(1+UseUnicode == TableNum,1);
-  TableList.AssignHighlights(FALSE);
-  TableList.SortItems(0,0);
-  TableList.Process();
-
-  int Pos=-1;
-  if (TableList.Modal::GetExitCode()>=0)
-    Pos=(int)(INT_PTR)TableList.GetUserData(NULL,0);
-
-  if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
-    return(FALSE);
-
-  UseUnicode=UseUnicode && Pos==1;
-
-
-  if (Pos==-1)
-    return(-1);
-  TableNum=Pos;
-
-  return(Pos!=0);
-}
-
-
-
-
-void DecodeString(char *Str,unsigned char *DecodeTable,int Length)
-{
-  if (Length==-1)
-    Length=(int)strlen(Str);
-  while (Length--)
-  {
-    *Str=DecodeTable[(unsigned int)*Str];
-    Str++;
-  }
-}
-
-
-void EncodeString(char *Str,unsigned char *EncodeTable,int Length)
-{
-  if (Length==-1)
-    Length=(int)strlen(Str);
-  while (Length--)
-  {
-    *Str=EncodeTable[(unsigned int)*Str];
-    Str++;
-  }
-}
-
-
-
-int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
-{
-  unsigned char DistrTable[256],FileDistr[256],FileData[4096];
-  int ReadSize;
-  if (!GetRegKey(L"CodeTables",L"Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
-  {
-    TableNum=0;
-    return(FALSE);
-  }
-  SaveFilePos SavePos(SrcFile);
-  fseek64(SrcFile,0,SEEK_SET);
-
-  int ProcessedSize=0;
-  memset(FileDistr,0,sizeof(FileDistr));
-  for (int Attempt=0;;Attempt++)
-  {
-    if ((ReadSize=(int)fread(FileData,1,sizeof(FileData),SrcFile))==0)
-      break;
-    int TextData=TRUE;
-    for (int I=4;I<ReadSize;I++)
-    {
-      int Ch=FileData[I];
-      if (DistrTable[Ch]==0xff)
-        continue;
-      if (Ch!=FileData[I-1])
-      {
-        ProcessedSize++;
-        if (++FileDistr[Ch]==254)
-          break;
-      }
-      else
-        if (Ch>127 && Ch==FileData[I-2] && Ch==FileData[I-3])
-        {
-          fseek64(SrcFile,I-ReadSize+256,SEEK_CUR);
-          TextData=FALSE;
-          break;
-        }
-    }
-    if (ProcessedSize>1024 || (TextData && Attempt>4) || (!TextData && Attempt>8))
-      break;
-  }
-
-  if (ProcessedSize<10)
-  {
-    TableNum=0;
-    return(FALSE);
-  }
-
-  int MaxDistr=0,MaxFileDistr=0;
-  for (size_t I=0;I<countof(DistrTable);I++)
-    if (DistrTable[I]!=0xff && DistrTable[I]>MaxDistr)
-      MaxDistr=DistrTable[I];
-  for (size_t I=0;I<countof(FileDistr);I++)
-    if (FileDistr[I]!=0xff && FileDistr[I]>MaxFileDistr)
-      MaxFileDistr=FileDistr[I];
-
-  int SrcTable[256],CheckedTable[256];
-  for (size_t I=0;I<countof(DistrTable);I++)
-    if (DistrTable[I]==0xff)
-      SrcTable[I]=-1;
-    else
-      SrcTable[I]=MaxFileDistr*DistrTable[I];
-  for (size_t I=0;I<countof(FileDistr);I++)
-    if (FileDistr[I]==0xff)
-      CheckedTable[I]=-1;
-    else
-      CheckedTable[I]=MaxDistr*FileDistr[I];
-
-  unsigned long BestValue=CalcDifference(SrcTable,CheckedTable,NULL);
-  int BestTable=-1;
-
-  for (int I=0;;I++)
-  {
-    string strTableKey;
-    if (!EnumRegKey(L"CodeTables",I,strTableKey))
-      break;
-
-    if(!GetRegKey(strTableKey,L"AutoDetect",1))
-      continue;
-
-    unsigned char DecodeTable[256];
-    if (!GetRegKey(strTableKey,L"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
-      continue; //return(FALSE);
-
-    unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
-    if (CurValue<(5*BestValue)/6 || (CurValue<BestValue && BestTable!=-1))
-    {
-      BestValue=CurValue;
-      BestTable=I;
-    }
-  }
-
-  if (BestTable==-1)
-  {
-    TableNum=0;
-    return(FALSE);
-  }
-  if (!PrepareTable(TableSet,BestTable))
-  {
-    TableNum=0;
-    return(FALSE);
-  }
-  TableNum=BestTable+1;
-  return(TRUE);
-}
-
-
-static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable)
-{
-  unsigned char EncodeTable[256];
-  int CheckedTableProcessed[256];
-  int I;
-  for (I=0;I<256;I++)
-  {
-    EncodeTable[I]=I;
-    CheckedTableProcessed[I]=FALSE;
-  }
-  if (DecodeTable!=NULL)
-    for (I=0;I<256;I++)
-      EncodeTable[DecodeTable[I]]=I;
-  unsigned long Diff=0;
-  for (I=0;I<256;I++)
-    if (SrcTable[I]!=-1)
-    {
-      int N=EncodeTable[I];
-      Diff+=abs(SrcTable[I]-CheckedTable[N]);
-      CheckedTableProcessed[N]=TRUE;
-    }
-  for (I=0;I<256;I++)
-    if (SrcTable[I]!=-1 && !CheckedTableProcessed[I])
-      Diff+=CheckedTable[I];
-  return(Diff);
-}
-
-
-/* $ 17.03.2002 IS
-  + PrepareTable: параметр UseTableName - в качестве имени таблицы
-    использовать не им€ ключа реестра, а соответствующую переменную.
-    ѕо умолчанию - FALSE (использовать им€ ключа).
-*/
-int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
-{
-  int I;
-  for (I=0;I<256;I++)
-  {
-    TableSet->DecodeTable[I]=TableSet->EncodeTable[I]=I;
-    TableSet->LowerTable[I]=TableSet->UpperTable[I]=I;
-  }
-  string strTableKey;
-  if (!EnumRegKey(L"CodeTables",TableNum,strTableKey))
-    return(FALSE);
-  if (!GetRegKey(strTableKey,L"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
-    return(FALSE);
-
-  char TableNameDefault[sizeof(TableSet->TableName)];
-  UnicodeToAnsi (PointToName(strTableKey),TableNameDefault,sizeof(TableNameDefault));
-
-  if(UseTableName)
-    GetRegKey(strTableKey,L"TableName",(BYTE*)TableSet->TableName,(const BYTE*)TableNameDefault,sizeof(TableSet->TableName));
-  else
-    xstrncpy(TableSet->TableName,TableNameDefault,sizeof(TableSet->TableName)-1);
-
-  //GetRegKey(TableKey,"RFCCharset",TableSet->RFCCharset,"",sizeof(TableSet->RFCCharset));
-
-  int EncodeSet[256];
-  memset(EncodeSet,0,sizeof(EncodeSet));
-  for (I=0;I<256;I++)
-  {
-    int Ch=TableSet->DecodeTable[I];
-    if (!EncodeSet[Ch] || Ch>=128)
-    {
-      TableSet->EncodeTable[Ch]=I;
-      EncodeSet[Ch]=TRUE;
-    }
-  }
-  for (I=0;I<256;I++)
-  {
-    int Ch=(BYTE)TableSet->DecodeTable[I];
-    if(I==(BYTE)TableSet->EncodeTable[Ch] && LocalIsalpha(Ch))
-    {
-      TableSet->LowerTable[I]=TableSet->EncodeTable[LocalLower(Ch)];
-      TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];
-    }
-  }
-  return(TRUE);
+	return nCP;
 }

@@ -590,7 +590,7 @@ void QuickView::DynamicUpdateKeyBar()
     else
       KB->Change (MSG(MQViewF4), 4-1);
 
-    if (QView->GetAnsiMode())
+    if (QView->GetCodePage() != GetOEMCP())
       KB->Change (MSG(MViewF8DOS), 8-1);
     else
       KB->Change (MSG(MQViewF8), 8-1);

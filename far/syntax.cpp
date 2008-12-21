@@ -144,10 +144,10 @@ static void put(unsigned long code)
 
 static void put64(unsigned __int64 code)
 {
-  FARINT64 i64;
-  i64.i64=code;
-  exprBuff[exprBuffSize++] = i64.Part.HighPart;   //???
-  exprBuff[exprBuffSize++] = i64.Part.LowPart;    //???
+  LARGE_INTEGER i64;
+  i64.QuadPart=code;
+  exprBuff[exprBuffSize++] = i64.u.HighPart;   //???
+  exprBuff[exprBuffSize++] = i64.u.LowPart;    //???
 }
 
 static void putstr(const wchar_t *s)

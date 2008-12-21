@@ -1372,7 +1372,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			if ( !IsUnicodeCP(m_codepage) || m_codepage == CP_UTF8)
 			{
-				int codepage = GetTableEx (m_codepage);
+				int codepage = GetTableEx (m_codepage, false, true);
 
 				if ( codepage != -1 )
 				{
@@ -1809,7 +1809,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 						return SAVEFILE_CANCEL;
 					}
 					else
-					{	
+					{
 						UnicodeLostAgree=true;
 						break;
 					}
@@ -2193,7 +2193,7 @@ void FileEditor::ShowStatus()
   strAttr.SetData (AttrStr, GetOEMCP());
 
   strStatus.Format(
-        L"%-*s %c%c%c%5d %7s %*.*s %5s %-4d %3s",
+        L"%-*s %c%c%c%5u %7s %*.*s %5s %-4d %3s",
         NameLength,
         (const wchar_t*)strLocalTitle,
         (m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' '),
@@ -2428,42 +2428,6 @@ int FileEditor::EditorControl(int Command, void *Param)
 			return TRUE;
 		}
 
-		case ECTL_EDITORTOOEM:
-		{
-			if(!Param || IsBadReadPtr(Param,sizeof(struct EditorConvertText)))
-				return FALSE;
-
-			/*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-			_ECTLLOG(SysLog(L"struct EditorConvertText{"));
-			_ECTLLOG(SysLog(L"  Text       ='%s'",ect->Text));
-			_ECTLLOG(SysLog(L"  TextLength =%d",ect->TextLength));
-			_ECTLLOG(SysLog(L"}"));
-			if (m_editor->UseDecodeTable && ect->Text)
-			{
-				DecodeString(ect->Text,(unsigned char *)m_editor->TableSet.DecodeTable,ect->TextLength);
-				_ECTLLOG(SysLog(L"DecodeString -> ect->Text='%s'",ect->Text));
-			}*/ //BUGBUG
-			return TRUE;
-		}
-
-		case ECTL_OEMTOEDITOR:
-		{
-			if(!Param || IsBadReadPtr(Param,sizeof(struct EditorConvertText)))
-				return FALSE;
-
-			/*struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-			_ECTLLOG(SysLog(L"struct EditorConvertText{"));
-			_ECTLLOG(SysLog(L"  Text       ='%s'",ect->Text));
-			_ECTLLOG(SysLog(L"  TextLength =%d",ect->TextLength));
-			_ECTLLOG(SysLog(L"}"));
-			if (m_editor->UseDecodeTable && ect->Text)
-			{
-				EncodeString(ect->Text,(unsigned char *)m_editor->TableSet.EncodeTable,ect->TextLength);
-				_ECTLLOG(SysLog(L"EncodeString -> ect->Text='%s'",ect->Text));
-			}*/ //BUGBUG
-			return TRUE;
-		}
-
 		case ECTL_REDRAW:
 		{
 			FileEditor::DisplayObject();
@@ -2643,7 +2607,7 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 
 	string strCacheName;
 
-	if ( *GetPluginData())
+	if (*GetPluginData())
 	{
 		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToName(strFullFileName));
 	}

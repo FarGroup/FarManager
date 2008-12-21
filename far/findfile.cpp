@@ -108,10 +108,10 @@ static int PluginMode;
 
 static HANDLE hPluginMutex;
 
-static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0;
+static int UseAllTables=FALSE,UseFilter=0;
+static UINT CodePage = (UINT)-1;
 static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
-static struct CharTableSet TableSet;
 
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
@@ -183,7 +183,9 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         TruncStr(strDataStr, W);
       }
       else
+      {
         strDataStr = (Dlg->Item[13]->Selected?FindHex:FindText);
+      }
 
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)(const wchar_t*)strDataStr);
 
@@ -199,33 +201,21 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       /* Установка запомненных ранее параметров */
       UseAllTables=Opt.CharTable.AllTables;
-      UseANSI=Opt.CharTable.AnsiTable;
-      UseUnicode=Opt.CharTable.UnicodeTable;
-      UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (UseANSI==0) && (Opt.CharTable.TableNum>0));
-      if (UseDecodeTable)
-        TableNum=Opt.CharTable.TableNum-1;
-      else
-        TableNum=0;
+      CodePage=Opt.CharTable.CodePage;
       /* -------------------------------------- */
 
       string strTableName;
 
       if (UseAllTables)
         strTableName = MSG(MFindFileAllTables);
-      else if (UseUnicode)
+      else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
         strTableName = L"Unicode";
-      else if (UseANSI)
-      {
-        GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+      else if (CodePage == GetACP())
         strTableName = MSG(MGetTableWindowsText);
-      }
-      else if (!UseDecodeTable)
-        strTableName = MSG(MGetTableNormalText);
       else
-        PrepareTable(&TableSet,TableNum,TRUE);
-      RemoveChar(strTableName,L'&',TRUE);
+        strTableName = MSG(MGetTableNormalText);
 
-      UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
+      RemoveChar(strTableName,L'&',TRUE);
 
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(LONG_PTR)(const wchar_t*)strTableName);
 
@@ -247,29 +237,22 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
            Добавим поддержку ANSI таблицы
         */
         UseAllTables=(Param2==0);
-        UseANSI=(Param2==3);
-        UseUnicode=(Param2==4);
-        UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
-        TableNum=(int)Param2-(CHAR_TABLE_SIZE+1);
+        CodePage = GetOEMCP();
+        if (Param2==3)
+          CodePage = GetACP();
+        else if (Param2 == 4)
+          CodePage = CP_UNICODE;
 
         string strTableName;
 
         if (UseAllTables)
           strTableName = MSG(MFindFileAllTables);
-        else if (UseUnicode)
+        else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
           strTableName = L"Unicode";
-        else if (UseANSI)
-        {
-          GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+        else if (CodePage == GetACP())
           strTableName = MSG(MGetTableWindowsText);
-        }
-        else if (!UseDecodeTable)
-          strTableName = MSG(MGetTableNormalText);
         else
-          PrepareTable(&TableSet,TableNum,TRUE);
-
-        if ( !strTableName.IsEmpty() ) // BUGBUG
-        	UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName));
+          strTableName = MSG(MGetTableNormalText);
       }
       return TRUE;
     }
@@ -451,40 +434,6 @@ FindFiles::FindFiles()
   TableItem[3].Text=MSG(MGetTableWindowsText);
   TableItem[4].Text=L"Unicode";
 
-  for (I=0;;I++)
-  {
-    CharTableSet cts;
-    int RetVal=FarCharTable(I,(char *)&cts,sizeof(cts));
-    if (RetVal==-1)
-      break;
-
-    if (I==0)
-    {
-      TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(CHAR_TABLE_SIZE+1));
-      if (TableItem==NULL)
-        return;
-      memset(&TableItem[CHAR_TABLE_SIZE],0,sizeof(FarListItem));
-      TableItem[CHAR_TABLE_SIZE].Flags=LIF_SEPARATOR;
-      TableList.Items=TableItem;
-      TableList.ItemsNumber++;
-    }
-
-    TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(I+CHAR_TABLE_SIZE+2));
-    if (TableItem==NULL)
-      return;
-    memset(&TableItem[I+CHAR_TABLE_SIZE+1],0,sizeof(FarListItem));
-
-    int BufSize=(int)strlen(cts.TableName)+1;
-    wchar_t* TableName=(wchar_t*)xf_malloc(BufSize*sizeof(wchar_t));
-    OEMToUnicode(cts.TableName,TableName,BufSize);
-
-    TableItem[I+CHAR_TABLE_SIZE+1].Text=TableName;
-
-    ///RemoveChar(TableItem[I+CHAR_TABLE_SIZE+1].Text,L'&',TRUE); //BUGBUG!!!
-    TableList.Items=TableItem;
-    TableList.ItemsNumber++;
-  }
-
   FindList = NULL;
   ArcList = NULL;
   hPluginMutex=CreateMutexW(NULL,FALSE,NULL);
@@ -658,12 +607,7 @@ FindFiles::FindFiles()
 
       /* Запоминание установленных параметров */
       Opt.CharTable.AllTables=UseAllTables;
-      Opt.CharTable.AnsiTable=UseANSI;
-      Opt.CharTable.UnicodeTable=UseUnicode;
-      if (UseDecodeTable)
-        Opt.CharTable.TableNum=TableNum+1;
-      else
-        Opt.CharTable.TableNum=0;
+      Opt.CharTable.CodePage=CodePage;
       /****************************************/
 
       /* $ 01.07.2001 IS
@@ -703,7 +647,7 @@ FindFiles::FindFiles()
 
     if ( !strFindStr.IsEmpty())
     {
-      UnicodeToAnsi(strFindStr, GlobalSearchString, sizeof (GlobalSearchString));
+      strGlobalSearchString = strFindStr;
       GlobalSearchCase=CmpCase;
       GlobalSearchWholeWords=WholeWords;
       GlobalSearchHex=SearchHex;
@@ -2373,12 +2317,8 @@ int FindFiles::LookForString(const wchar_t *Name)
 			AlreadyRead+=ReadSize;
 		}
 
-		/* $ 11.09.2005 KM
-		   - Bug #1377
-		*/
-		int DecodeTableNum=0;
-		int ANSISearch=UseANSI;
-		int UnicodeSearch=UseUnicode;
+		int ANSISearch=CodePage==GetACP();
+		int UnicodeSearch=CodePage==CP_UNICODE;
 		int RealReadSize=ReadSize;
 
 		// Сначала в поиске используем внутренние кодировки: OEM, ANSI и Unicode
@@ -2389,7 +2329,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 		*/
 		if (!SearchHex)
 		{
-			if (UseAllTables || UseUnicode)
+			if (UseAllTables || UnicodeSearch)
 			{
 				// Раз поиск идёт по всем кодировкам или в юникоде,
 				// запомним считанный размер буфера
@@ -2450,14 +2390,9 @@ int FindFiles::LookForString(const wchar_t *Name)
 					/* $ 20.09.2003 KM
 					  Добавим поддержку ANSI таблицы
 					*/
-					if (UseDecodeTable || DecodeTableNum>0 || ANSISearch)
+					if (ANSISearch)
 					{
-						// Раз добрались до поиска в ANSI кодировке, подготовим таблицу перекодировки
-						if (ANSISearch)
-							GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-
-						for (int I=0;I<ReadSize;I++)
-							Buf[I]=TableSet.DecodeTable[(unsigned)Buf[I]];
+					  //BUGBUG!!!!!
 					}
 				}
 				if (!CmpCase)
@@ -2548,15 +2483,9 @@ int FindFiles::LookForString(const wchar_t *Name)
 
 						// Не нашли ни в OEM, ни в ANSI, ни в Unicode, значит будем искать
 						// в установленных пользовательских кодировках.
-						if (PrepareTable(&TableSet,DecodeTableNum,TRUE))
-						{
-							DecodeTableNum++;
-							xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-							if (!CmpCase)
-								LocalStrupr(CmpStr);
-						}
-						else
-							break;
+						// ... какой то код тут ... BUGBUG
+
+						break;
 					}
 				}
 			}

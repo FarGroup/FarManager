@@ -691,7 +691,7 @@ void InfoList::DynamicUpdateKeyBar()
   {
     KB->Change (MSG(MInfoF3), 3-1);
 
-    if (DizView->GetAnsiMode())
+    if (DizView->GetCodePage() != GetOEMCP())
       KB->Change (MSG(MViewF8DOS), 7);
     else
       KB->Change (MSG(MInfoF8), 7);

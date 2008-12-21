@@ -474,27 +474,13 @@ void FileViewer::ShowStatus()
 
   TruncPathStr(strName, NameLength);
 
-  string strTableName;
-  string strTmpTableName;
-  if (View.VM.Unicode)
-    strTableName=L"Unicode";
-  else if (View.VM.UseDecodeTable)
-  {
-    strTmpTableName.SetData (View.TableSet.TableName, CP_OEMCP);
-    strTableName=RemoveChar(strTmpTableName,L'&',TRUE);
-  }
-  else if (View.VM.AnsiMode)
-    strTableName=L"Win";
-  else
-    strTableName=L"DOS";
-
-  const wchar_t *lpwszStatusFormat = L"%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
+  const wchar_t *lpwszStatusFormat = L"%-*s %5u %13I64u %7.7s %-4I64d %s%3d%%";
 
   strStatus.Format (
         lpwszStatusFormat,
         NameLength,
         (const wchar_t*)strName,
-        (const wchar_t*)strTableName,
+        View.VM.CodePage,
         View.FileSize,
         MSG(MViewerStatusCol),
         View.LeftPos,

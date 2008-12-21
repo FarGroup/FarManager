@@ -1580,7 +1580,7 @@ static bool xlatFunc()
 {
   TVar Val = VMStack.Pop();
   wchar_t *Str = (wchar_t *)Val.toString();
-  bool Ret=::Xlat(Str,0,StrLength(Str),NULL,Opt.XLat.Flags) == NULL?false:true;
+  bool Ret=::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags) == NULL?false:true;
   VMStack.Push(TVar((const wchar_t*)Str));
   return Ret;
 }
@@ -2750,26 +2750,26 @@ done:
     {
       // получим оригинальное значение счетчика
       // со стека и запишем его в рабочее место
-      FARINT64 Counter;
-      if((Counter.i64=VMStack.Pop().toInteger()) < 0)
-        Counter.i64=0;
-      SetOpCode(MR,Work.ExecLIBPos+1,Counter.Part.HighPart);
-      SetOpCode(MR,Work.ExecLIBPos+2,Counter.Part.LowPart);
+      LARGE_INTEGER Counter;
+      if((Counter.QuadPart=VMStack.Pop().toInteger()) < 0)
+        Counter.QuadPart=0;
+      SetOpCode(MR,Work.ExecLIBPos+1,Counter.u.HighPart);
+      SetOpCode(MR,Work.ExecLIBPos+2,Counter.u.LowPart);
       goto begin;
     }
 
     case MCODE_OP_REP:
     {
       // получим текущее значение счетчика
-      FARINT64 Counter;
-      Counter.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos);
-      Counter.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos+1);
+      LARGE_INTEGER Counter;
+      Counter.u.HighPart=GetOpCode(MR,Work.ExecLIBPos);
+      Counter.u.LowPart=GetOpCode(MR,Work.ExecLIBPos+1);
       // и положим его на вершину стека
-      VMStack.Push(Counter.i64);
+      VMStack.Push(Counter.QuadPart);
       // уменьшим его и пойдем на MCODE_OP_JZ
-      Counter.i64--;
-      SetOpCode(MR,Work.ExecLIBPos++,Counter.Part.HighPart);
-      SetOpCode(MR,Work.ExecLIBPos++,Counter.Part.LowPart);
+      Counter.QuadPart--;
+      SetOpCode(MR,Work.ExecLIBPos++,Counter.u.HighPart);
+      SetOpCode(MR,Work.ExecLIBPos++,Counter.u.LowPart);
       goto begin;
     }
 
@@ -2860,10 +2860,10 @@ done:
 
     case MCODE_OP_PUSHINT: // Положить целое значение на стек.
     {
-      FARINT64 i64;
-      i64.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
-      i64.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-      VMStack.Push(i64.i64);
+      LARGE_INTEGER i64;
+      i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
+      i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
+      VMStack.Push(i64.QuadPart);
       goto begin;
     }
 

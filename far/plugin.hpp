@@ -136,6 +136,10 @@ typedef struct _INPUT_RECORD INPUT_RECORD;
 typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
 
+#define CP_UNICODE 1200
+#define CP_REVERSEBOM 65534
+#define CP_AUTODETECT ((UINT)-1)
+
 enum FARMESSAGEFLAGS{
   FMSG_WARNING             = 0x00000001,
   FMSG_ERRORTYPE           = 0x00000002,
@@ -328,8 +332,6 @@ enum FarMessagesProc{
   DM_GETSELECTION,
   DM_SETSELECTION,
 
-  DN_LISTHOTKEY,
-
   DM_GETEDITPOSITION,
   DM_SETEDITPOSITION,
 
@@ -361,6 +363,7 @@ enum FarMessagesProc{
   DN_RESIZECONSOLE,
   DN_MOUSEEVENT,
   DN_DRAWDIALOGDONE,
+  DN_LISTHOTKEY,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
@@ -865,7 +868,8 @@ typedef int (WINAPI *FARAPIVIEWER)(
   int Y1,
   int X2,
   int Y2,
-  DWORD Flags
+  DWORD Flags,
+  UINT CodePage
 );
 
 enum EDITOR_FLAGS {
@@ -912,7 +916,8 @@ typedef int (WINAPI *FARAPIEDITOR)(
   int Y2,
   DWORD Flags,
   int StartLine,
-  int StartChar
+  int StartChar,
+  UINT CodePage
 );
 
 typedef int (WINAPI *FARAPICMPNAME)(
@@ -921,28 +926,6 @@ typedef int (WINAPI *FARAPICMPNAME)(
   int SkipPath
 );
 
-
-enum FARCHARTABLE_COMMAND{
-  FCT_DETECT=0x40000000,
-};
-
-struct CharTableSet
-{
-  unsigned char DecodeTable[256];
-  unsigned char EncodeTable[256];
-  unsigned char UpperTable[256];
-  unsigned char LowerTable[256];
-  char TableName[128];
-#ifdef FAR_USE_INTERNALS
-  //char RFCCharset[128];
-#endif // END FAR_USE_INTERNALS
-};
-
-typedef int (WINAPI *FARAPICHARTABLE)(
-  int Command,
-  char *Buffer,
-  int BufferSize
-);
 
 typedef const wchar_t* (WINAPI *FARAPIGETMSG)(
   INT_PTR PluginNumber,
@@ -1282,18 +1265,10 @@ struct ViewerSetMode {
   DWORD Reserved;
 };
 
-typedef union {
-  __int64 i64;
-  struct {
-    DWORD LowPart;
-    LONG  HighPart;
-  } Part;
-} FARINT64;
-
 struct ViewerSelect
 {
-  FARINT64 BlockStartPos;
-  int      BlockLen;
+  __int64 BlockStartPos;
+  int     BlockLen;
 };
 
 enum VIEWER_SETPOS_FLAGS {
@@ -1306,15 +1281,12 @@ enum VIEWER_SETPOS_FLAGS {
 struct ViewerSetPosition
 {
   DWORD Flags;
-  FARINT64 StartPos;
-  int   LeftPos;
+  __int64 StartPos;
+  __int64 LeftPos;
 };
 
 struct ViewerMode{
-  int UseDecodeTable;
-  int TableNum;
-  int AnsiMode;
-  int Unicode;
+  UINT CodePage;
   int Wrap;
   int WordWrap;
   int Hex;
@@ -1326,15 +1298,14 @@ struct ViewerInfo
   int    StructSize;
   int    ViewerID;
   const wchar_t *FileName;
-  FARINT64 FileSize;
-  FARINT64 FilePos;
+  __int64 FileSize;
+  __int64 FilePos;
   int    WindowSizeX;
   int    WindowSizeY;
   DWORD  Options;
   int    TabSize;
   struct ViewerMode CurMode;
-  int    LeftPos;
-  DWORD  Reserved3;
+  __int64 LeftPos;
 };
 
 typedef int (WINAPI *FARAPIVIEWERCONTROL)(
@@ -1382,8 +1353,6 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_SETPOSITION,
   ECTL_SELECT,
   ECTL_REDRAW,
-  ECTL_EDITORTOOEM,
-  ECTL_OEMTOEDITOR,
   ECTL_TABTOREAL,
   ECTL_REALTOTAB,
   ECTL_EXPANDTABS,
@@ -1521,7 +1490,8 @@ struct EditorInfo
   int TabSize;
   int BookMarkCount;
   DWORD CurState;
-  DWORD Reserved[6];
+  UINT CodePage;
+  DWORD Reserved[5];
 };
 
 struct EditorBookMarks
@@ -1554,13 +1524,6 @@ struct EditorSelect
 };
 
 
-struct EditorConvertText
-{
-  wchar_t *Text;
-  int TextLength;
-};
-
-
 struct EditorConvertPos
 {
   int StringNumber;
@@ -1586,6 +1549,7 @@ struct EditorSaveFile
 {
   const wchar_t *FileName;
   const wchar_t *FileEOL;
+  UINT CodePage;
 };
 
 typedef int (WINAPI *FARAPIEDITORCONTROL)(
@@ -1692,7 +1656,7 @@ enum XLATMODE{
 
 typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Size);
 
-typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
+typedef wchar_t* (WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,DWORD Flags);
 
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 
@@ -1806,7 +1770,6 @@ struct PluginStartupInfo
   FARAPIVIEWER           Viewer;
   FARAPIEDITOR           Editor;
   FARAPICMPNAME          CmpName;
-  FARAPICHARTABLE        CharTable;
   FARAPITEXT             Text;
   FARAPIEDITORCONTROL    EditorControl;
 

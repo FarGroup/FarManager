@@ -76,12 +76,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
      16-ричном представлении.
   */
   if (GlobalSearchHex)
-  {
-    /*int LenSearchStr=sizeof(LastSearchStr);
-    Transform(LastSearchStr,LenSearchStr,GlobalSearchString,'S');*/ //BUGBUG
-  }
+    Transform(strLastSearchStr,strGlobalSearchString,L'S');
   else
-    strLastSearchStr.SetData (GlobalSearchString, CP_OEMCP); //BUGBUG;
+    strLastSearchStr = strGlobalSearchString;
 
   LastSearchCase=GlobalSearchCase;
   LastSearchWholeWords=GlobalSearchWholeWords;
@@ -170,30 +167,11 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 
 void Editor::KeepInitParameters()
 {
-  /* $ 26.10.2003 KM
-     ! Восстановление GlobalSearchString в случае глобального 16-ричного поиска,
-       а также если мы ничего не искали или если искомая строка не изменялась
-       после работы в редакторе.
-  */
   // Установлен глобальный режим поиска 16-ричных данных?
   if (GlobalSearchHex)
-  {
-    // Да! Тогда проверим, отличается ли LastSearchStr и строковое представление GlobalSearchString...
-   /* char SearchStr[2*NM];
-    int LenSearchStr=sizeof(SearchStr);
-    Transform((unsigned char *)SearchStr,LenSearchStr,(char *)GlobalSearchString,'S');
-
-    // LastSearchStr отличается от строкового представления GlobalSearchString
-    if (memcmp(LastSearchStr,SearchStr,LenSearchStr)!=0)
-    {
-      // Да! Отличается, значит осуществлялся поиск из редактора, поэтому
-      // сконвертируем это значение в 16-ричное представление.
-      int LenSearchStr=sizeof(GlobalSearchString);
-      Transform((unsigned char *)GlobalSearchString,LenSearchStr,(char *)LastSearchStr,'X');
-    }*/ //BUGBUG
-  }
+    Transform(strGlobalSearchString,strLastSearchStr,L'X');
   else
-      UnicodeToAnsi(strLastSearchStr, GlobalSearchString, sizeof (GlobalSearchString));
+    strGlobalSearchString = strLastSearchStr;
 
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;
@@ -1450,7 +1428,7 @@ int Editor::ProcessKey(int Key)
              текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
           */
           if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+              IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
               //IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
           {
             if (SkipSpace)
@@ -1492,8 +1470,7 @@ int Editor::ProcessKey(int Key)
           if (CurPos>=Length)
             break;
           if (IsSpace(Str[CurPos]) ||
-              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
-            //  IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
+              IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
           {
             if (SkipSpace)
             {
@@ -2412,8 +2389,7 @@ int Editor::ProcessKey(int Key)
           if (CurPos==0)
             break;
           if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
-          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+              IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
           {
             if (SkipSpace)
             {
@@ -2450,8 +2426,7 @@ int Editor::ProcessKey(int Key)
           if (CurPos>=Length)
             break;
           if (IsSpace(Str[CurPos]) ||
-              IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
-          //    IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos])) //BUGBUG
+              IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
           {
             if (SkipSpace)
             {
@@ -2682,7 +2657,7 @@ int Editor::ProcessKey(int Key)
 
       UnmarkBlock();
       // CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:NULL !!!
-      CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,CurLine->TableSet,EdOpt.strWordDiv);
+      CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,EdOpt.strWordDiv);
       CurLine->Select(SStart,SEnd+(SEnd < CurLine->StrSize?1:0));
 
       Flags.Set(FEDITOR_MARKINGBLOCK);
@@ -3741,9 +3716,6 @@ BOOL Editor::Search(int Next)
             wchar_t *TmpStr=new wchar_t[SearchLength+1];
             xwcsncpy(TmpStr,Str,SearchLength);
 
-            /*
-            if (UseDecodeTable)
-              DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
             Text(TmpStr);
             delete[] TmpStr;
 
@@ -4069,9 +4041,6 @@ void Editor::Copy(int Append)
 
   if (CopyData!=NULL)
   {
-    /*
-    if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     CopyToClipboard(CopyData);
     xf_free(CopyData);
   }
@@ -4928,8 +4897,6 @@ void Editor::VCopy(int Append)
 
   if (CopyData!=NULL)
   {
-    /*if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);*/ //BUGBUG
     CopyToClipboard(CopyData);
     CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
     xf_free(CopyData);

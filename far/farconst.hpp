@@ -37,31 +37,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define HelpEndLink L'>'
 #define HelpFormatLink L"<%s\\>%s"
 
-//#define  Min(x,y) (((x)<(y)) ? (x):(y))
 template <class T>
 inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 
-//#define  Max(x,y) (((x)>(y)) ? (x):(y))
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
-inline int IsSpaceA(int x) { return x==' ' || x=='\t'; }
-inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t'; }
-inline int IsEolA(int x)  { return x=='\r' || x=='\n'; }
-inline int IsEol(wchar_t x)  { return x==L'\r' || x==L'\n'; }
-inline int IsSlashA(const char x){return x=='\\' || x=='/';}
-inline int IsSlash(const wchar_t x){return x==L'\\' || x==L'/';}
+inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
+inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
+inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
 
-#define CP_UNICODE 1200 //MSDN
-#define CP_REVERSEBOM 65534
-#define CP_AUTODETECT ((UINT)-1)
-
-inline bool IsUnicodeCP(UINT CP){return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM);}
+inline int IsSpace(wchar_t x) { return x==L' '  || x==L'\t';  }
+inline int IsEol(wchar_t x)   { return x==L'\r' || x==L'\n'; }
+inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 #define  NM          260
 
 #define  DEFAULT_SORT_GROUP 10000
-#define  SEARCHSTRINGBUFSIZE 512
 
 // типы рамок
 enum {

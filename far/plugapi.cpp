@@ -1755,7 +1755,7 @@ void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
 }
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2, int Y2,DWORD Flags)
+                     int X1,int Y1,int X2, int Y2,DWORD Flags, UINT CodePage)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
@@ -1832,7 +1832,8 @@ int WINAPI FarEditor(
 		int Y2,
 		DWORD Flags,
 		int StartLine,
-		int StartChar
+		int StartChar,
+		UINT CodePage
 		)
 {
   if (FrameManager->ManagerIsDown())
@@ -1957,59 +1958,6 @@ int WINAPI FarEditor(
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 {
   return(CmpName(pattern,string,skippath));
-}
-
-
-int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
-{
-  if (FrameManager->ManagerIsDown())
-    return -1;
-
-  struct CharTableSet TableSet;
-
-  if (Command==FCT_DETECT)
-  {
-    string strDataFileName;
-    FILE *DataFile;
-    /* $ 19.06.2001
-       - Баг: не работало автоопределение.
-         Эх, Валя, зачем же ты return -1 закомментарил в 268??
-    */
-    if (!FarMkTempEx(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
-      return(-1);
-    fwrite(Buffer,1,BufferSize,DataFile);
-    fseek(DataFile,0,SEEK_SET);
-    int TableNum;
-    int DetectCode=DetectTable(DataFile,&TableSet,TableNum);
-    fclose(DataFile);
-    _wremove(strDataFileName);
-    return(DetectCode ? TableNum-1:-1);
-  }
-
-  if (BufferSize > (int)sizeof(struct CharTableSet))
-    return(-1);
-
-  /* $ 07.08.2001 IS
-       При неудаче заполним структуру данными для OEM
-  */
-  memcpy(&TableSet,Buffer,Min((int)sizeof(CharTableSet),BufferSize));
-  /* $ 17.03.2002 IS По возможности используем значение TableName */
-  if (!PrepareTable(&TableSet,Command,TRUE))
-  {
-    for(unsigned int i=0;i<256;++i)
-    {
-      TableSet.EncodeTable[i]=TableSet.DecodeTable[i]=i;
-      TableSet.UpperTable[i]=LocalUpper(i);
-      TableSet.LowerTable[i]=LocalLower(i);
-    }
-
-    string strTableName = MSG(MGetTableNormalText);
-
-    UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
-    Command=-1;
-  }
-  memcpy(Buffer,&TableSet,BufferSize);
-  return(Command);
 }
 
 

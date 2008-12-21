@@ -75,7 +75,7 @@ extern int WaitInFastFind;
 
 extern string g_strFarPath;
 
-extern char GlobalSearchString[SEARCHSTRINGBUFSIZE];
+extern string strGlobalSearchString;
 extern int GlobalSearchCase;
 extern int GlobalSearchWholeWords; // значение "Whole words" для поиска
 extern int GlobalSearchSelFound; //значение "Select found"  для поиска
@@ -86,7 +86,7 @@ extern int GlobalSearchReverse;
 extern int ScreenSaverActive;
 
 extern string strLastFarTitle;
-extern int  TitleModified;
+extern int TitleModified;
 extern int CloseFAR, CloseFARMenu;
 
 extern int CmpNameSearchMode;
@@ -168,9 +168,6 @@ extern int KeepUserScreen;
 extern string g_strDirToSet; //RAVE!!!
 
 extern BOOL IsFn_FAR_CopyFileEx;
-
-extern int EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText;
-extern int ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText;
 
 extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 

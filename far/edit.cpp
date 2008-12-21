@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "scrbuf.hpp"
 
-static int EditEncodeDisabled=0;
 static int Recurse=0;
 
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
@@ -80,7 +79,6 @@ Edit::Edit(ScreenObject *pOwner)
 	CurPos=0;
 	CursorPos=0;
 	CursorSize=-1;
-	TableSet=NULL;
 	LeftPos=0;
 	MaxLength=-1;
 	SelStart=-1;
@@ -354,9 +352,6 @@ void Edit::FastShow()
     wmemcpy(OutStrTmp,Str+RealLeftPos,OutStrLength);
   }
 
-  //if (TableSet) BUGBUG
-    //DecodeString(OutStrTmp,(unsigned char*)TableSet->DecodeTable,OutStrLength);
-
   {
     wchar_t *p=OutStrTmp;
     wchar_t *e=OutStrTmp+OutStrLength;
@@ -505,9 +500,6 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
     if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       DeleteBlock();
 
-//    if(TableSet)
-//       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,strlen(PathName)); //BUGBUG
-
     InsertString(strPathName);
 
     Flags.Clear(FEDITLINE_CLEARFLAG);
@@ -619,9 +611,6 @@ int Edit::ProcessKey(int Key)
 
   }
 
-//  if (!EditEncodeDisabled && Key<0xFFFF && TableSet && !ReturnAltValue) BUGBUG
-//    Key=TableSet->EncodeTable[Key];
-
   /* $ 11.09.2000 SVS
      если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
      удаляет такую строку также, как и Del
@@ -730,11 +719,11 @@ int Edit::ProcessKey(int Key)
          Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
          текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
       */
-      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
-             IsWordDiv(TableSet, WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(WordDiv, Str[CurPos]) &&
+             IsWordDiv(WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
-             IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
+             IsWordDiv(WordDiv, Str[CurPos-1])))
           break;
         RecurseProcessKey(KEY_SHIFTLEFT);
       }
@@ -748,10 +737,10 @@ int Edit::ProcessKey(int Key)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
 
-      while (CurPos<StrSize && !(IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
-             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
+      while (CurPos<StrSize && !(IsWordDiv(WordDiv, Str[CurPos]) &&
+             !IsWordDiv(WordDiv, Str[CurPos-1])))
       {
-        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(WordDiv, Str[CurPos-1])))
           break;
         RecurseProcessKey(KEY_SHIFTRIGHT);
         if (MaxLength!=-1 && CurPos==MaxLength-1)
@@ -847,7 +836,7 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        if (IsWordDiv(TableSet, WordDiv,Str[CurPos-1]))
+        if (IsWordDiv(WordDiv,Str[CurPos-1]))
           break;
       }
       Unlock ();
@@ -881,7 +870,7 @@ int Edit::ProcessKey(int Key)
 #endif
       {
         int SStart, SEnd;
-        CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv); // TableSet --> UseDecodeTable?&TableSet:NULL
+        CalcWordFromString(Str,CurPos,&SStart,&SEnd,WordDiv);
         Select(SStart,SEnd+(SEnd < StrSize?1:0));
       }
       CurPos=OldCurPos; // возвращаем обратно
@@ -925,7 +914,7 @@ int Edit::ProcessKey(int Key)
           ptr++;
           if (!CheckCharMask(Mask[ptr]) ||
              (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
-             (IsWordDiv(TableSet, WordDiv, Str[ptr])))
+             (IsWordDiv(WordDiv, Str[ptr])))
             break;
         }
         for (int i=0;i<ptr-CurPos;i++)
@@ -941,7 +930,7 @@ int Edit::ProcessKey(int Key)
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
             break;
-          if (IsWordDiv(TableSet, WordDiv, Str[CurPos]))
+          if (IsWordDiv(WordDiv, Str[CurPos]))
             break;
         }
       }
@@ -1112,8 +1101,8 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
-             IsWordDiv(TableSet, WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(WordDiv, Str[CurPos]) &&
+             IsWordDiv(WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1147,8 +1136,8 @@ int Edit::ProcessKey(int Key)
         CurPos++;
       }
 
-      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(TableSet, WordDiv,Str[CurPos]) &&
-             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
+      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(WordDiv,Str[CurPos]) &&
+             !IsWordDiv(WordDiv, Str[CurPos-1])))
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1885,7 +1874,6 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
           int locResultLeft=FALSE;
           int locResultRight=FALSE;
 
-          //ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
           ChLeft=Edit::Str[I-1];
           if (I>0)
             locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv,ChLeft)!=NULL);
@@ -1893,7 +1881,6 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
             locResultLeft=TRUE;
           if (I+Length<StrSize)
           {
-            //ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
             ChRight=Edit::Str[I+Length];
             locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight)!=NULL);
           }
@@ -1902,7 +1889,6 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
           if (!locResultLeft || !locResultRight)
             break;
         }
-        //int Ch=(TableSet==NULL) ? Edit::Str[I+J]:TableSet->DecodeTable[Edit::Str[I+J]];
         wchar_t Ch=Edit::Str[I+J];
         if (Case)
         {
@@ -2149,17 +2135,6 @@ void Edit::GetRealSelection(int &Start,int &End)
 }
 
 
-void Edit::DisableEncode(int Disable)
-{
-  EditEncodeDisabled=Disable;
-}
-
-
-void Edit::SetTables(struct CharTableSet *TableSet)
-{
-  Edit::TableSet=TableSet;
-};
-
 void Edit::DeleteBlock()
 {
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
@@ -2312,7 +2287,7 @@ void Edit::Xlat(BOOL All)
   //   Для CmdLine - если нет выделения, преобразуем всю строку
   if(All && SelStart == -1 && SelEnd == 0)
   {
-    ::Xlat(Str,0,StrLength(Str),TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags);
     Show();
     return;
   }
@@ -2321,7 +2296,7 @@ void Edit::Xlat(BOOL All)
   {
     if(SelEnd == -1)
       SelEnd=StrLength(Str);
-    ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,SelStart,SelEnd,Opt.XLat.Flags);
     Show();
   }
   /* $ 25.11.2000 IS
@@ -2341,21 +2316,21 @@ void Edit::Xlat(BOOL All)
       Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
       текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
    */
-   if(IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
+   if(IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
    {
       if(start) start--;
-      DoXlat=(!IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]));
+      DoXlat=(!IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]));
    }
 
    if(DoXlat)
    {
-    while(start>=0 && !IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[start]))
+    while(start>=0 && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
       start--;
     start++;
     end=start+1;
-    while(end<StrSize && !IsWordDiv(TableSet,Opt.XLat.strWordDivForXlat,Str[end]))
+    while(end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
       end++;
-    ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
+    ::Xlat(Str,start,end,Opt.XLat.Flags);
     Show();
    }
   }

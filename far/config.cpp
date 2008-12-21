@@ -654,7 +654,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
   if(!Opt.ViOpt.SaveViewerPos)
     CfgDlg[ID_VC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-  CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable && DistrTableExist();
+  CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable;
   CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
   CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
   CfgDlg[ID_VC_PERSISTENTSELECTION].Selected = ViOpt.PersistentBlocks;
@@ -698,14 +698,6 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   Opt.ViOpt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
 
   ViOpt.AutoDetectTable=CfgDlg[ID_VC_AUTODETECTTABLE].Selected;
-
-  if(!DistrTableExist() && ViOpt.AutoDetectTable)
-  {
-    ViOpt.AutoDetectTable=0;
-    Message(MSG_WARNING,1,MSG(MWarning),
-              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
-              MSG(MOk));
-  }
 
   ViOpt.TabSize=_wtoi(CfgDlg[ID_VC_TABSIZEEDIT].strData);
   ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
@@ -831,7 +823,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
   if(!EdOpt.SavePos)
     CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-  CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable&&DistrTableExist();
+  CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable;
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
   CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
   CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
@@ -896,14 +888,6 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   EdOpt.AutoDetectTable = CfgDlg[ID_EC_AUTODETECTTABLE].Selected;
   EdOpt.AnsiTableAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
   EdOpt.AnsiTableForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
-
-  if(!DistrTableExist() && EdOpt.AutoDetectTable)
-  {
-    EdOpt.AutoDetectTable=0;
-    Message(MSG_WARNING,1,MSG(MWarning),
-              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
-              MSG(MOk));
-  }
 
   EdOpt.TabSize=_wtoi(CfgDlg[ID_EC_TABSIZEEDIT].strData);
 
@@ -1279,26 +1263,12 @@ void ReadConfig()
   Opt.ViOpt.ViewerIsWrap&=1;
   Opt.ViOpt.ViewerWrap&=1;
 
-  if (!Opt.ViOpt.AnsiTableAsDefault)
-  {
-    ViewerInitUseDecodeTable=FALSE;
-    ViewerInitTableNum=0;
-    ViewerInitAnsiText=FALSE;
-  }
-
   /* $ 03.12.2001 IS
       ≈сли EditorUndoSize слишком маленькое или слишком большое,
       то сделаем размер undo такой же, как и в старых верси€х
   */
   if(Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
     Opt.EdOpt.UndoSize=64;
-
-  if (!Opt.EdOpt.AnsiTableAsDefault)
-  {
-    EditorInitUseDecodeTable=FALSE;
-    EditorInitTableNum=0;
-    EditorInitAnsiText=FALSE;
-  }
 
   // »сключаем случайное стирание разделителей ;-)
   if ( Opt.strWordDiv.IsEmpty() )

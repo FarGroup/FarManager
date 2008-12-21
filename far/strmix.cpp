@@ -1404,21 +1404,9 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
   return strDestText;
 }
 
-/* $ 12.01.2004 IS
-   + Функция для сверки символа с разделителями слова с учетом текущей
-     кодировки
-*/
-// Проверяет - является ли символ разделителем слова (вернет TRUE, если да)
-// Параметры:
-//   TableSet - указатель на таблицы перекодировки (если отсутствует,
-//              то кодировка - OEM)
-//   WordDiv  - набор разделителей слова в кодировке OEM
-//   Chr      - проверяемый символ
-BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wchar_t Chr)
+BOOL IsWordDiv(const wchar_t *WordDiv, wchar_t Chr)
 {
   return NULL!=wcschr (WordDiv, Chr);
-//    return FALSE; //BUGBUG
-//  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);
 }
 
 
@@ -1428,29 +1416,25 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const wchar_t *WordDiv, wcha
   Dest[End-Start+1]=0;
 
 // Параметры:
-//   TableSet - указатель на таблицы перекодировки (если отсутствует,
-//              то кодировка - OEM)
 //   WordDiv  - набор разделителей слова в кодировке OEM
   возвращает указатель на начало слова
 */
-const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const wchar_t *WordDiv0)
+const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End, const wchar_t *WordDiv0)
 {
-#if 0
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
-  int StrSize=strlen(Str);
-  char WordDiv[512];
-  xstrncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
-  strcat(WordDiv," \t\n\r");
+  int StrSize=StrLength(Str);
+  string strWordDiv(WordDiv0);
+  strWordDiv += L" \t\n\r";
 
-  if(IsWordDiv(TableSet,WordDiv,Str[CurPos]))
+  if(IsWordDiv(strWordDiv,Str[CurPos]))
   {
     // вычисляем дистанцию - куда копать, где ближе слово - слева или справа
     I=J=CurPos;
 
     // копаем влево
     DistLeft=-1;
-    while(I >= 0 && IsWordDiv(TableSet,WordDiv,Str[I]))
+    while(I >= 0 && IsWordDiv(strWordDiv,Str[I]))
     {
       DistLeft++;
       I--;
@@ -1460,7 +1444,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 
     // копаем вправо
     DistRight=-1;
-    while(J < StrSize && IsWordDiv(TableSet,WordDiv,Str[J]))
+    while(J < StrSize && IsWordDiv(strWordDiv,Str[J]))
     {
       DistRight++;
       J++;
@@ -1477,7 +1461,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
     EndWPos=StartWPos=CurPos;
 
   while(StartWPos >= 0)
-    if(IsWordDiv(TableSet,WordDiv,Str[StartWPos]))
+    if(IsWordDiv(strWordDiv,Str[StartWPos]))
     {
       StartWPos++;
       break;
@@ -1485,7 +1469,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
     else
       StartWPos--;
   while(EndWPos < StrSize)
-    if(IsWordDiv(TableSet,WordDiv,Str[EndWPos]))
+    if(IsWordDiv(strWordDiv,Str[EndWPos]))
     {
       EndWPos--;
       break;
@@ -1502,9 +1486,6 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
   *End=EndWPos;
 
   return Str+StartWPos;
-#else
-  return Str;
-#endif
 }
 
 BOOL TestParentFolderName(const wchar_t *Name)

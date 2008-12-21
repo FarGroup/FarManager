@@ -109,16 +109,13 @@ public:
 	Edit  *m_prev;
 
 private:
-//    char  *Str;
     wchar_t *Str;
 
     int    StrSize;
     int    MaxLength;
 
-//    char  *Mask;             // 12.08.2000 KM - Переменная для хранения маски ввода
     wchar_t *Mask;
 
-    struct CharTableSet *TableSet;
     struct ColorItem *ColorList;
     int    ColorCount;
 
@@ -141,7 +138,6 @@ private:
 
     int    CursorSize;
     int    CursorPos;
-//    const char *WordDiv;
     const wchar_t *WordDiv;
 
     UINT m_codepage; //BUGBUG
@@ -242,7 +238,6 @@ private:
 
     int   RealPosToTab(int Pos);
     int   TabPosToReal(int Pos);
-    void  SetTables(struct CharTableSet *TableSet);
     void  Select(int Start,int End);
     void  AddSelect(int Start,int End);
     void  GetSelection(int &Start,int &End);
@@ -259,8 +254,6 @@ private:
     int   GetColor(struct ColorItem *col,int Item);
 
     void Xlat(BOOL All=FALSE);
-
-    static void DisableEncode(int Disable);
 
     void SetDialogParent(DWORD Sets);
     void SetCursorType(int Visible,int Size);

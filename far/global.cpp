@@ -104,7 +104,7 @@ int  TitleModified=FALSE;
 wchar_t RegColorsHighlight[]=L"Colors\\Highlight";
 
 
-char GlobalSearchString[SEARCHSTRINGBUFSIZE];
+string strGlobalSearchString;
 int GlobalSearchCase=FALSE;
 int GlobalSearchWholeWords=FALSE; // значение "Whole words" для поиска
 int GlobalSearchSelFound=FALSE; // значение "Select found" для поиска
@@ -174,8 +174,5 @@ int KeepUserScreen;
 string g_strDirToSet;
 
 BOOL IsFn_FAR_CopyFileEx=FALSE;
-
-int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
-int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
