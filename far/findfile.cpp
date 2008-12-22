@@ -794,11 +794,11 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
       PluginPanelItem *pItem = &pItems[i];
       PluginPanelItem Item = *pItem;
 
-      wchar_t *lpwszFileName = xf_wcsdup(pItem->FindData.lpwszFileName);
+      wchar_t *lpwszFileName = xf_wcsdup(NullToEmpty(pItem->FindData.lpwszFileName));
       Item.FindData.lpwszFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
-      lpwszFileName = xf_wcsdup(pItem->FindData.lpwszAlternateFileName);
+      lpwszFileName = xf_wcsdup(NullToEmpty(pItem->FindData.lpwszAlternateFileName));
       Item.FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
       xf_free (lpwszFileName);
 
