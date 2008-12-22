@@ -195,59 +195,59 @@ $(OBJDIR)/far.rc.o: far.rc far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 
-Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 vbuild.m4
+Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P Far.exe.manifest.m4 > $@
 
-far.rc: far.rc.m4 farversion.m4 vbuild.m4 res.hpp Far.exe.manifest
+far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp Far.exe.manifest
 	@echo generating $@
 	@tools/m4 -P far.rc.m4 > $@
 
-copyright.inc: copyright.inc.m4 farversion.m4 vbuild.m4
+copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P copyright.inc.m4 | tools/gawk -f ./scripts/enc.awk > $@
 
-farversion.inc: farversion.inc.m4 farversion.m4 vbuild.m4
+farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P farversion.inc.m4 > $@
 
-farlang.templ: farlang.templ.m4 farversion.m4 vbuild.m4
+farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P farlang.templ.m4 > $@
 
-$(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 vbuild.m4
+$(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | tools/m4 -P > $@
 
-$(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 vbuild.m4
+$(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | tools/m4 -P > $@
 
-$(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 vbuild.m4
+$(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P File_id.diz.m4 > $@
 
-$(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 vbuild.m4
+$(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=colors.hpp headers.m4 > $@
 
-$(FARINCLUDE)/farkeys.hpp: keys.hpp farversion.m4 vbuild.m4
+$(FARINCLUDE)/farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=keys.hpp headers.m4 > $@
 
-$(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 vbuild.m4
+$(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=plugin.hpp headers.m4 > $@
 
-$(FARINCLUDE)/plugin.pas: plugin.pas farversion.m4 vbuild.m4
+$(FARINCLUDE)/plugin.pas: plugin.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=plugin.pas headers.m4 > $@
 
-$(FARINCLUDE)/farcolor.pas: farcolor.pas farversion.m4 vbuild.m4
+$(FARINCLUDE)/farcolor.pas: farcolor.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=farcolor.pas headers.m4 > $@
 
-$(FARINCLUDE)/farkeys.pas: farkeys.pas farversion.m4 vbuild.m4
+$(FARINCLUDE)/farkeys.pas: farkeys.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@tools/m4 -P -DINPUT=farkeys.pas headers.m4 > $@
 
