@@ -173,9 +173,7 @@ static void init_hook(void)
    static const char dis_c[] = "Wow64DisableWow64FsRedirection",
                      rev_c[] = "Wow64RevertWow64FsRedirection",
                      wow_c[] = "IsWow64Process",
-                     ldr_c[] = "LdrLoadDll",
-                     gdep_c[] = "GetProcessDEPPolicy",
-                     sdep_c[] = "SetProcessDEPPolicy";
+                     ldr_c[] = "LdrLoadDll";
 
     WOW rwow;
     BOOL b=FALSE;
