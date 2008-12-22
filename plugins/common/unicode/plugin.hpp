@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 677
+  Plugin API for FAR Manager 2.0 build 684
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 677
+#define FARMANAGERVERSION_BUILD 684
 
 #ifndef RC_INVOKED
 
@@ -1639,8 +1639,8 @@ struct PluginInfo
 
 struct InfoPanelLine
 {
-  wchar_t Text[80];
-  wchar_t Data[80];
+  const wchar_t *Text;
+  const wchar_t *Data;
   int  Separator;
 };
 
