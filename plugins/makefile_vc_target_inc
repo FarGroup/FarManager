@@ -1,6 +1,6 @@
-ALL: $(INSTALL) $(OUTDIR)$(ADDOUTDIR) $(OBJDIR) $(DLLFULLNAME)
+ALL: dirs $(INSTALL) $(DLLFULLNAME)
 
-$(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(OUTDIR)$(ADDOUTDIR) $(LINK_DEP)
+$(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !ifndef __MAKE__
 	@$(LNK) @<<
 	$(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
@@ -26,19 +26,11 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(OUTDIR)$(ADDOUTDIR) $(LINK_DEP)
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
 	@$(RC) /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
 
-$(OBJDIR): $(WORKDIR)
-	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
-
-!ifdef ADDOUTDIR
-$(OUTDIR)$(ADDOUTDIR): $(OUTDIR)
-	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
-!endif
-
-$(OUTDIR):
-	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
-
+.PHONY: dirs
+dirs:
 !ifdef INSTALL
-$(WORKDIR):
 	@if not exist "$(WORKDIR)\$(NULL)" mkdir "$(WORKDIR)"
 !endif
-
+	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"

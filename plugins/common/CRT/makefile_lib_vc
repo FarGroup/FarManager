@@ -112,7 +112,7 @@ CPP_PROJ=$(CPP_BASE) /Oy
 
 LINK_FLAGS=/nologo /nodefaultlib /out:"$(OUTDIR)\$(DLLNAME)"
 
-ALL: $(OBJDIRW) $(OUTDIR)\$(DLLNAME)
+ALL: dirs $(OUTDIR)\$(DLLNAME)
 
 $(OUTDIR)\$(DLLNAME) : $(LINK_OBJS)
 !ifndef __MAKE__
@@ -198,6 +198,7 @@ $(OBJDIRW)\strtok.obj: strtok.cpp crt.hpp
 $(OBJDIR)\strtol.obj: strtol.cpp crt.hpp
 $(OBJDIRW)\strtol.obj: strtol.cpp crt.hpp
 
-$(OBJDIRW):
+.PHONY: dirs
+dirs:
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
 	@if not exist "$(OBJDIRW)\$(NULL)" mkdir "$(OBJDIRW)"

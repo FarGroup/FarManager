@@ -75,25 +75,26 @@ USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USEASSERT__=1 \
 USERCPP=$(USERCPP) /D__FILELOG__=1 /D__DEBUG__=1
 !endif
 
+All: dirs libdir fstdlib flls
+	-255 @copy /Y *.txt $(OUTDIR)\ >NUL 2>NUL
+	-255 @copy /Y lib\*.reg $(OUTDIR)\lib\ >NUL 2>NUL
+
 !include ..\makefile_vc_def_inc
 
 LIBS=$(FSTDLIB) $(LIBS) wsock32.lib winmm.lib
 
 !include ..\makefile_vc_target_inc
 
-All: fstdlib flls
-	-255 @copy /Y *.txt $(OUTDIR)\ >NUL 2>NUL
-	-255 @copy /Y lib\*.reg $(OUTDIR)\lib\ >NUL 2>NUL
-
 fstdlib: $(FSTDLIB)
 
 $(LINK_OBJS) : $(DEP_HDR)
 
 ##########
-$(OBJLIB): $(OBJDIR)
+.PHONY: libdir
+libdir:
 	@if not exist "$(OBJLIB)\$(NULL)" mkdir "$(OBJLIB)"
 
-$(FSTDLIB): $(OBJLIB) $(LIB_OBJS)
+$(FSTDLIB): $(LIB_OBJS)
 !ifndef __MAKE__
 	@$(LIBR) /OUT:$@ @<<
 $(LIB_OBJS)

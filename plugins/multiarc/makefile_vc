@@ -21,7 +21,7 @@ CPP_UNALIGN=1
 
 !include ..\makefile_vc_target_inc
 
-ALL: libpcre $(OUTDIR)\Formats fmts 
+ALL: dirs libpcre fmtdir fmts 
 	@copy /Y Custom.ini $(OUTDIR)\Formats\*.*
 
 FMTLIST=Custom Ace Arc Arj Cab Ha Lzh Rar TarGz Zip
@@ -36,8 +36,9 @@ _fictive_:
 
 !endif
 
-$(OUTDIR)\Formats:
-	@if not exist "$@\$(NULL)" mkdir "$@"
+.PHONY: fmtdir
+fmtdir:
+	@if not exist "$(OUTDIR)\Formats\$(NULL)" mkdir "$(OUTDIR)\Formats"
 
 fmts: $(FMTLIST)
 
