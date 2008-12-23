@@ -908,7 +908,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   if (!oHMenu) return DOMNU_ERR_SHOW;
   enum {EMENU_CMF_EXTENDEDVERBS=0x00000100}; // rarely used verbs
   if (!pPreferredMenu || FAILED(pPreferredMenu->QueryContextMenu(oHMenu
-    , 0, MENUID_CMDOFFSET, 0x7FFF, CMF_CANRENAME/*|EMENU_CMF_EXTENDEDVERBS*/)))
+    , 0, MENUID_CMDOFFSET, 0x7FFF, CMF_CANRENAME|(GetKeyState(VK_SHIFT)&0xF000?EMENU_CMF_EXTENDEDVERBS:0))))
   {
     return DOMNU_ERR_SHOW;
   }
