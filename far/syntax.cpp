@@ -432,7 +432,7 @@ static __int64 _cdecl getInt64()
   return __val;
 }
 
-static wchar_t hex2ch(wchar_t b1, wchar_t b2)
+static wchar_t hex2ch(wchar_t b1)
 {
   if ( b1 >= L'0' && b1 <= L'9' )
     b1 -= L'0';
@@ -441,14 +441,7 @@ static wchar_t hex2ch(wchar_t b1, wchar_t b2)
     b1 &= ~0x20;
     b1 -= (wchar_t)(L'A'-10);
   }
-  if ( b2 >= L'0' && b2 <= L'9')
-    b2 -= L'0';
-  else
-  {
-    b2 &= ~0x20;
-    b2 -= (wchar_t)(L'A'-10);
-  }
-  return (wchar_t)( ( ( b1 << 4 ) & 0x00F0 ) | ( b2 & 0x000F ) );
+  return (wchar_t)(b1&0x000F);
 }
 
 static TToken getToken(void)
@@ -579,16 +572,20 @@ static TToken getToken(void)
             case L'x':
               if ( iswxdigit(ch = getChar()) )
               {
-                wchar_t hBuf[3] = { static_cast<wchar_t>(ch), 0, 0 };
-                if ( iswxdigit(ch = getChar()) )
-                  hBuf[1] = static_cast<wchar_t>(ch);
-                else
+                wchar_t value=hex2ch(ch);
+                for(int ii=0;ii<3;ii++)
                 {
-                  hBuf[1] = hBuf[0];
-                  hBuf[0] = L'0';
-                  putBack(ch);
+                  if ( iswxdigit(ch = getChar()) )
+                  {
+                    value=(value<<4)|hex2ch(ch);
+                  }
+                  else
+                  {
+                    putBack(ch);
+                    break;
+                  }
                 }
-                ch = hex2ch(hBuf[0], hBuf[1]);
+                ch = value;
               }
               else
               {

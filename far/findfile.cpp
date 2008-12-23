@@ -776,11 +776,11 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   struct PluginPanelItem *pItems;
   int nResult = 0;
 
-  wchar_t *lpFileNameToFind = xf_wcsdup (PanelItem->FindData.lpwszFileName);
-  wchar_t *lpFileNameToFindShort = xf_wcsdup (PanelItem->FindData.lpwszAlternateFileName);
+  wchar_t *lpFileName = xf_wcsdup (PanelItem->FindData.lpwszFileName);
+  wchar_t *lpFileNameShort = xf_wcsdup (PanelItem->FindData.lpwszAlternateFileName);
 
-  lpFileNameToFind = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFind));
-  lpFileNameToFindShort = (wchar_t*)PointToName(RemovePseudoBackSlash(lpFileNameToFindShort));
+  const wchar_t *lpFileNameToFind = PointToName(RemovePseudoBackSlash(lpFileName));
+  const wchar_t *lpFileNameToFindShort = PointToName(RemovePseudoBackSlash(lpFileNameShort));
 
   if ( CtrlObject->Plugins.GetFindData (
       hPlugin,
@@ -822,8 +822,8 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
     CtrlObject->Plugins.FreeFindData (hPlugin, pItems, nItemsNumber);
   }
 
-  xf_free (lpFileNameToFind);
-  xf_free (lpFileNameToFindShort);
+  xf_free (lpFileName);
+  xf_free (lpFileNameShort);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT|OPM_FIND);
 //  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
