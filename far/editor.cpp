@@ -2657,17 +2657,22 @@ int Editor::ProcessKey(int Key)
 
       UnmarkBlock();
       // CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:NULL !!!
-      CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,EdOpt.strWordDiv);
-      CurLine->Select(SStart,SEnd+(SEnd < CurLine->StrSize?1:0));
+      if(CalcWordFromString(CurLine->GetStringAddrW(),CurPos,&SStart,&SEnd,EdOpt.strWordDiv))
+      {
+        CurLine->Select(SStart,SEnd+(SEnd < CurLine->StrSize?1:0));
 
-      Flags.Set(FEDITOR_MARKINGBLOCK);
-      BlockStart=CurLine;
-      BlockStartLine=NumLine;
-      //SelFirst=TRUE;
-      SelStart=SStart;
-      SelEnd=SEnd;
+        if(CurLine->IsSelection())
+        {
+          Flags.Set(FEDITOR_MARKINGBLOCK);
+          BlockStart=CurLine;
+          BlockStartLine=NumLine;
+          //SelFirst=TRUE;
+          SelStart=SStart;
+          SelEnd=SEnd;
 
-      //CurLine->ProcessKey(MCODE_OP_SELWORD);
+          //CurLine->ProcessKey(MCODE_OP_SELWORD);
+        }
+      }
 
       CurPos=OldCurPos; // возвращаем обратно
       Pasting--;

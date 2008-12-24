@@ -1425,6 +1425,10 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
   int StrSize=StrLength(Str);
+
+  if(CurPos >= StrSize)
+    return NULL;
+
   string strWordDiv(WordDiv0);
   strWordDiv += L" \t\n\r";
 
@@ -1461,22 +1465,25 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
   else // здесь все оби, т.е. стоим на буковке
     EndWPos=StartWPos=CurPos;
 
-  while(StartWPos >= 0)
-    if(IsWordDiv(strWordDiv,Str[StartWPos]))
-    {
-      StartWPos++;
-      break;
-    }
-    else
-      StartWPos--;
-  while(EndWPos < StrSize)
-    if(IsWordDiv(strWordDiv,Str[EndWPos]))
-    {
-      EndWPos--;
-      break;
-    }
-    else
-      EndWPos++;
+  if(StartWPos < StrSize)
+  {
+    while(StartWPos >= 0)
+      if(IsWordDiv(strWordDiv,Str[StartWPos]))
+      {
+        StartWPos++;
+        break;
+      }
+      else
+        StartWPos--;
+    while(EndWPos < StrSize)
+      if(IsWordDiv(strWordDiv,Str[EndWPos]))
+      {
+        EndWPos--;
+        break;
+      }
+      else
+        EndWPos++;
+  }
 
   if(StartWPos < 0)
     StartWPos=0;

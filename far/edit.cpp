@@ -152,7 +152,7 @@ DWORD Edit::SetCodePage (UINT codepage)
 		WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
 
 		int length2 = MultiByteToWideChar (codepage, mb2wcFlags, decoded, length, NULL, 0);
-		
+
 		if(!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
 		{
 			Ret|=SETCP_MB2WCERROR;
@@ -870,8 +870,8 @@ int Edit::ProcessKey(int Key)
 #endif
       {
         int SStart, SEnd;
-        CalcWordFromString(Str,CurPos,&SStart,&SEnd,WordDiv);
-        Select(SStart,SEnd+(SEnd < StrSize?1:0));
+        if(CalcWordFromString(Str,CurPos,&SStart,&SEnd,WordDiv))
+          Select(SStart,SEnd+(SEnd < StrSize?1:0));
       }
       CurPos=OldCurPos; // возвращаем обратно
       Show();
