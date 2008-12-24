@@ -1297,6 +1297,10 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
   int StrSize=(int)strlen(Str);
+
+  if(CurPos >= StrSize)
+    return NULL;
+
   char WordDiv[512];
   xstrncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
   strcat(WordDiv," \t\n\r");
@@ -1334,22 +1338,26 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
   else // здесь все оби, т.е. стоим на буковке
     EndWPos=StartWPos=CurPos;
 
-  while(StartWPos >= 0)
-    if(IsWordDiv(TableSet,WordDiv,Str[StartWPos]))
-    {
-      StartWPos++;
-      break;
-    }
-    else
-      StartWPos--;
-  while(EndWPos < StrSize)
-    if(IsWordDiv(TableSet,WordDiv,Str[EndWPos]))
-    {
-      EndWPos--;
-      break;
-    }
-    else
-      EndWPos++;
+  if(StartWPos < StrSize)
+  {
+    while(StartWPos >= 0)
+      if(IsWordDiv(TableSet,WordDiv,Str[StartWPos]))
+      {
+        StartWPos++;
+        break;
+      }
+      else
+        StartWPos--;
+
+    while(EndWPos < StrSize)
+      if(IsWordDiv(TableSet,WordDiv,Str[EndWPos]))
+      {
+        EndWPos--;
+        break;
+      }
+      else
+        EndWPos++;
+  }
 
   if(StartWPos < 0)
     StartWPos=0;

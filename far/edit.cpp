@@ -873,8 +873,8 @@ int Edit::ProcessKey(int Key)
       else
 #endif
       {
-        CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv); // TableSet --> UseDecodeTable?&TableSet:NULL
-        Select(SStart,SEnd+(SEnd < StrSize?1:0));
+        if(CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv)) // TableSet --> UseDecodeTable?&TableSet:NULL
+          Select(SStart,SEnd+(SEnd < StrSize?1:0));
       }
       CurPos=OldCurPos; // возвращаем обратно
       Show();
