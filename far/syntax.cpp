@@ -1113,20 +1113,20 @@ static void printKeyValue(DWORD* k, int& i)
   }
   else if ( Code == MCODE_OP_REP )
   {
-    FARINT64 i64;
-    i64.Part.HighPart=k[i+1];
-    i64.Part.LowPart=k[i+2];
-    SysLog(L"%08X: %08X |   %I64d", ii,k[i+1],i64.i64);
+    LARGE_INTEGER i64;
+    i64.u.HighPart=k[i+1];
+    i64.u.LowPart=k[i+2];
+    SysLog(L"%08X: %08X |   %I64d", ii,k[i+1],i64.QuadPart);
     SysLog(L"%08X: %08X |", ii,k[i+2]);
     i+=2;
   }
   else if ( Code == MCODE_OP_PUSHINT )
   {
-    FARINT64 i64;
+    LARGE_INTEGER i64;
     ++i;
-    i64.Part.HighPart=k[i];
-    i64.Part.LowPart=k[i+1];
-    SysLog(L"%08X: %08X |   %I64d", ++ii,k[i],i64.i64);
+    i64.u.HighPart=k[i];
+    i64.u.LowPart=k[i+1];
+    SysLog(L"%08X: %08X |   %I64d", ++ii,k[i],i64.QuadPart);
     ++i;
     SysLog(L"%08X: %08X |", ++ii,k[i]);
   }
