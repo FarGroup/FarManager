@@ -405,7 +405,7 @@ class Dialog: public Frame
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
-    bool IsInited(void) {return DialogMode.Check(DMODE_INITOBJECTS);}
+    BOOL IsInited(void) {return DialogMode.Check(DMODE_INITOBJECTS);}
 };
 
 #endif // __DIALOG_HPP__

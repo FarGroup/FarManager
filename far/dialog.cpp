@@ -3321,7 +3321,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned 
   {
     int MaxLen=(int)CurItem->nMaxLength; //BUGBUG
 
-    if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC) ;
+    SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen);
   }
   return(TRUE);
 }
@@ -5888,14 +5888,15 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
 				return FALSE; // no memory TODO: may be needed diagnostic
 
+      const wchar_t* original_PtrData=Item.PtrData;
       if((I=(int)Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&Item)) == TRUE)
       {
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
       }
 
-			if (Item.PtrData)
-				xf_free((wchar_t *)Item.PtrData);
+			if (original_PtrData)
+				xf_free((void*)original_PtrData);
 
       return I;
     }
