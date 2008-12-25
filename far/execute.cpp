@@ -34,6 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifndef __GNUC__
+#include <shobjidl.h>
+#endif
 #include "farqueue.hpp"
 #include "fn.hpp"
 #include "filepanels.hpp"
@@ -174,11 +177,13 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   //_SVS(CleverSysLog clvrSLog(L"GetShellAction()"));
   //_SVS(SysLog(L"Param: FileName='%s'",FileName));
 
+  bool bVistaType = false;
   string strValue;
   string strNewValue;
   const wchar_t *ExtPtr;
   const wchar_t *RetPtr;
   const wchar_t command_action[]=L"\\command";
+  HKEY hKey;
 
   Error = ERROR_SUCCESS;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -186,16 +191,41 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
     return(NULL);
 
-  HKEY hKey;
-  if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hKey)!=ERROR_SUCCESS)
-    return(NULL);
-
-  if (RegQueryStringValue(hKey,L"",strValue,L"")!=ERROR_SUCCESS)
+#ifndef __GNUC__
+  if (WinVer.dwMajorVersion >= 6)
   {
-    RegCloseKey(hKey);
-    return(NULL);
+		if (CoInitialize(NULL) == S_OK)
+		{
+			IApplicationAssociationRegistration* pAAR;
+			HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+			if (SUCCEEDED(hr))
+			{
+				wchar_t *p;
+				if (pAAR->QueryCurrentDefault(ExtPtr, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
+				{
+					bVistaType = true;
+					strValue = p;
+					CoTaskMemFree(p);
+				}
+				pAAR->Release();
+			}
+			CoUninitialize();
+		}
   }
-  RegCloseKey(hKey);
+#endif
+
+	if (!bVistaType)
+	{
+		if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hKey)!=ERROR_SUCCESS)
+			return(NULL);
+
+		if (RegQueryStringValue(hKey,L"",strValue,L"")!=ERROR_SUCCESS)
+		{
+			RegCloseKey(hKey);
+			return(NULL);
+		}
+		RegCloseKey(hKey);
+	}
 
   strValue += L"\\shell";
 //_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
