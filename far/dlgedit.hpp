@@ -50,11 +50,13 @@ enum DLGEDITTYPE{
   DLGEDIT_SINGLELINE,
 };
 
+class Dialog;
+
 class DlgEdit: public ScreenObject
 {
-  friend class Dialog;
-
   private: // приватные данные
+    Dialog* m_Dialog;
+    unsigned m_Index;
     DLGEDITTYPE Type;
 
     Edit   *lineEdit;
@@ -67,9 +69,11 @@ class DlgEdit: public ScreenObject
 
   private: // приватные методы
     virtual void DisplayObject();
+    static void EditChange(void* aParam);
+    void DoEditChange(void);
 
   public:
-    DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type);
+    DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
     virtual ~DlgEdit();
 
   public: // публичные методы

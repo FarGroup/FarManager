@@ -36,9 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "dlgedit.hpp"
+#include "dialog.hpp"
 
-DlgEdit::DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type)
+DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type)
 {
+  m_Dialog=pOwner;
+  m_Index=Index;
   DlgEdit::Type=Type;
 
 #if defined(PROJECT_DI_MEMOEDIT)
@@ -55,7 +58,10 @@ DlgEdit::DlgEdit(ScreenObject *pOwner,DLGEDITTYPE Type)
       break;
 
     case DLGEDIT_SINGLELINE:
-      lineEdit=new Edit; // ??? (pOwner) ?
+      {
+        Edit::Callback callback={EditChange,this};
+        lineEdit=new Edit(NULL,&callback); // ??? (pOwner) ?
+      }
       break;
   }
 }
@@ -606,4 +612,17 @@ __int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
   else
 #endif
     return lineEdit->VMProcess(OpCode,vParam,iParam);
+}
+
+void DlgEdit::EditChange(void* aParam)
+{
+	static_cast<DlgEdit*>(aParam)->DoEditChange();
+}
+
+void DlgEdit::DoEditChange(void)
+{
+	if(m_Dialog->IsInited())
+	{
+	    m_Dialog->SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
+	}
 }

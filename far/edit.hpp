@@ -105,6 +105,14 @@ class Edit:public ScreenObject
   friend class Editor;
 
 public:
+    typedef void (*EDITCHANGEFUNC)(void* aParam);
+    struct Callback
+    {
+      EDITCHANGEFUNC m_Callback;
+      void* m_Param;
+    };
+
+public:
 	Edit  *m_next;
 	Edit  *m_prev;
 
@@ -142,6 +150,8 @@ private:
 
     UINT m_codepage; //BUGBUG
 
+    Callback m_Callback;
+
   private:
     virtual void   DisplayObject();
     int    InsertKey(int Key);
@@ -160,7 +170,7 @@ private:
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
   public:
-    Edit(ScreenObject *pOwner = NULL);
+    Edit(ScreenObject *pOwner = NULL,Callback* aCallback = NULL);
     virtual ~Edit();
 
   public:
@@ -263,6 +273,7 @@ private:
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
     void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
+    void Changed(void);
 };
 
 #endif  // __EDIT_HPP__

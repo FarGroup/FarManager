@@ -658,7 +658,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
-        CurItem->ObjPtr=new DlgEdit(this,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
+        CurItem->ObjPtr=new DlgEdit(this,I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
         if(Type == DI_COMBOBOX)
         {
           CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
@@ -2367,12 +2367,6 @@ int Dialog::ProcessKey(int Key)
 
           ((DlgEdit *)(Item[I]->ObjPtr))->SetCurPos(0);
           ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(strStr);
-          /* $ 28.07.2000 SVS
-            При изменении состояния каждого элемента посылаем сообщение
-            посредством функции SendDlgMessage - в ней делается все!
-          */
-          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,I-1,0);
-          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,I,0);
         }
 
         if (EditorLastPos > FocusPos)
@@ -2620,7 +2614,6 @@ int Dialog::ProcessKey(int Key)
               {
                 edt->ProcessKey(Key);
               }
-              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
               ShowDialog();
               return(TRUE);
             }
@@ -2640,7 +2633,6 @@ int Dialog::ProcessKey(int Key)
                 else
                   break;
 
-              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
               ShowDialog();
               return(TRUE);
             }
@@ -2668,11 +2660,6 @@ int Dialog::ProcessKey(int Key)
                   wmemmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
                   edt->SetString(Str);
                   edt->SetCurPos(SelStart);
-                  /* $ 28.07.2000 SVS
-                    При изменении состояния каждого элемента посылаем сообщение
-                    посредством функции SendDlgMessage - в ней делается все!
-                  */
-                  Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
 
                   ShowDialog();
                   return(TRUE);
@@ -2728,7 +2715,6 @@ int Dialog::ProcessKey(int Key)
         {
           edt->SetClearFlag(0);
           edt->Xlat();
-          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
           return TRUE;
         }
@@ -2814,8 +2800,6 @@ int Dialog::ProcessKey(int Key)
           }*/
 
 
-            if(!IsNavKey(Key)) //???????????????????????????????????????????
-              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
             Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
             return(TRUE);
           }
@@ -3337,8 +3321,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned 
   {
     int MaxLen=(int)CurItem->nMaxLength; //BUGBUG
 
-    if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
-      Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
+    if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC) ;
   }
   return(TRUE);
 }
@@ -3522,7 +3505,6 @@ int Dialog::Do_ProcessSpace()
   {
     if(((DlgEdit *)(Item[FocusPos]->ObjPtr))->ProcessKey(KEY_SPACE))
     {
-      Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
       Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
     }
     return(TRUE);
@@ -4070,7 +4052,6 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   int LastSelected = 0;
   int IsDeleted=FALSE;
   int EditX1,EditY1,EditX2,EditY2;
-  int CurFocusPos=FocusPos;
 
   strRegKey.Format (fmtSavedDialogHistory,HistoryName);
   {
@@ -4327,7 +4308,6 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
     EditLine->SetString(strStr);
     EditLine->SetLeftPos(0);
     EditLine->SetClearFlag(0);
-    Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
     Redraw();
   }
   return Ret;

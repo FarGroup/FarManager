@@ -404,6 +404,8 @@ class Dialog: public Frame
     LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+
+    bool IsInited(void) {return DialogMode.Check(DMODE_INITOBJECTS);}
 };
 
 #endif // __DIALOG_HPP__

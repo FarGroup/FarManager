@@ -59,8 +59,12 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 #define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 
-Edit::Edit(ScreenObject *pOwner)
+Edit::Edit(ScreenObject *pOwner,Callback* aCallback)
 {
+	m_Callback.m_Callback=NULL;
+	m_Callback.m_Param=NULL;
+	if(aCallback) m_Callback=*aCallback;
+
 	SetOwner (pOwner);
 
 	m_next = NULL;
@@ -179,6 +183,7 @@ DWORD Edit::SetCodePage (UINT codepage)
 		StrSize = length2;
 
 		m_codepage = codepage;
+		Changed();
 	}
 	return Ret;
 }
@@ -949,6 +954,7 @@ int Edit::ProcessKey(int Key)
       StrSize=0;
       Str=(wchar_t *)xf_realloc(Str,1*sizeof(wchar_t));
       Select(-1,0);
+      Changed();
       Show();
       return(TRUE);
     }
@@ -972,6 +978,7 @@ int Edit::ProcessKey(int Key)
       Str[CurPos]=0;
       StrSize=CurPos;
       Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t));
+      Changed();
       Show();
       return(TRUE);
     }
@@ -1089,7 +1096,7 @@ int Edit::ProcessKey(int Key)
         StrSize--;
         Str=(wchar_t *)xf_realloc(Str,(StrSize+1)*sizeof (wchar_t));
       }
-
+      Changed();
       Show();
       return(TRUE);
     }
@@ -1227,6 +1234,7 @@ int Edit::ProcessKey(int Key)
           InsertString(ClipText);
         if(ClipText)
           xf_free(ClipText);
+        Changed();
         Show();
       return(TRUE);
     }
@@ -1327,6 +1335,7 @@ int Edit::ProcessInsPlainText(const wchar_t *str)
 
 int Edit::InsertKey(int Key)
 {
+  bool changed=false;
   wchar_t *NewStr;
 
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
@@ -1370,6 +1379,7 @@ int Edit::InsertKey(int Key)
         }
         PrevCurPos=CurPos;
         Str[CurPos++]=Key;
+        changed=true;
       }
       else
       {
@@ -1381,6 +1391,7 @@ int Edit::InsertKey(int Key)
     {
       PrevCurPos=CurPos;
       Str[CurPos++]=Key;
+      changed=true;
     }
   }
   else
@@ -1425,6 +1436,7 @@ int Edit::InsertKey(int Key)
       }
       PrevCurPos=CurPos;
       Str[CurPos++]=Key;
+      changed=true;
     }
     else if (Flags.Check(FEDITLINE_OVERTYPE))
     {
@@ -1432,12 +1444,14 @@ int Edit::InsertKey(int Key)
       {
         PrevCurPos=CurPos;
         Str[CurPos++]=Key;
+        changed=true;
       }
     }
     else
       MessageBeep(MB_ICONHAND);
   }
   Str[StrSize]=0;
+  if(changed) Changed();
   return(TRUE);
 }
 
@@ -1605,6 +1619,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
     PrevCurPos=CurPos;
     CurPos=StrSize;
   }
+  Changed();
 }
 
 void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
@@ -1764,6 +1779,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
 
       if ( TabExpandMode == EXPAND_ALLTABS )
         ReplaceTabs();
+      Changed();
     }
     else
       MessageBeep(MB_ICONHAND);
@@ -1819,6 +1835,7 @@ void Edit::RefreshStrByMask(int InitMode)
       if (!CheckCharMask(Mask[i]))
         Str[i]=Mask[i];
     }
+    Changed();
   }
 }
 
@@ -1940,6 +1957,7 @@ void Edit::InsertTab()
   wmemset(TabPtr,L' ',S);
 
   Str[StrSize]=0;
+  Changed();
 }
 
 
@@ -1950,8 +1968,11 @@ void Edit::ReplaceTabs()
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
 
+  bool changed=false;
+
   while ((TabPtr=(wchar_t *)wmemchr(Str+Pos,L'\t',StrSize-Pos))!=NULL)
   {
+    changed=true;
     Pos=(int)(TabPtr-Str);
     S=TabSize-((int)(TabPtr-Str) % TabSize);
     if(SelStart!=-1)
@@ -1975,6 +1996,7 @@ void Edit::ReplaceTabs()
     wmemset(TabPtr,L' ',S);
     Str[StrSize]=0;
   }
+  if(changed) Changed();
 }
 
 
@@ -2179,6 +2201,7 @@ void Edit::DeleteBlock()
     if (LeftPos>CurPos)
       LeftPos=CurPos;
   }
+  Changed();
 }
 
 
@@ -2288,6 +2311,7 @@ void Edit::Xlat(BOOL All)
   if(All && SelStart == -1 && SelEnd == 0)
   {
     ::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags);
+    Changed();
     Show();
     return;
   }
@@ -2297,6 +2321,7 @@ void Edit::Xlat(BOOL All)
     if(SelEnd == -1)
       SelEnd=StrLength(Str);
     ::Xlat(Str,SelStart,SelEnd,Opt.XLat.Flags);
+    Changed();
     Show();
   }
   /* $ 25.11.2000 IS
@@ -2331,6 +2356,7 @@ void Edit::Xlat(BOOL All)
     while(end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
       end++;
     ::Xlat(Str,start,end,Opt.XLat.Flags);
+    Changed();
     Show();
    }
   }
@@ -2378,6 +2404,11 @@ void Edit::SetDialogParent(DWORD Sets)
     Flags.Clear(FEDITLINE_PARENT_SINGLELINE);
     Flags.Set(FEDITLINE_PARENT_MULTILINE);
   }
+}
+
+void Edit::Changed(void)
+{
+	if(m_Callback.m_Callback) m_Callback.m_Callback(m_Callback.m_Param);
 }
 
 

@@ -1,3 +1,8 @@
+zg 25.12.2008 04:19:29 +0200 - build 689
+
+1. теперь DN_EDITCHANGE приходит при любых изменениях в строке редактирования
+   за исключеним изменений, производимых в обработчике DN_INITDIALOG.
+
 svs 24.12.2008 13:40:38 +0300 - build 688
 
 1. Mantis#0000680: $SelWord sets Selected flag on, even though no selection was made
