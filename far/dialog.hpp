@@ -95,6 +95,7 @@ enum DLGITEMINTERNALFLAGS {
   DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
   DLGIIF_COMBOBOXEVENTKEY         = 0x00000010, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
   DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
+  DLGIIF_EDITCHAHNEPROCESSED      = 0x00000040, // элемент обрабатывает событие DN_EDITCHANGE
 };
 
 
@@ -405,7 +406,8 @@ class Dialog: public Frame
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
-    BOOL IsInited(void) {return DialogMode.Check(DMODE_INITOBJECTS);}
+    BOOL IsInited(void);
+    BOOL IsEditChanged(unsigned ID);
 };
 
 #endif // __DIALOG_HPP__

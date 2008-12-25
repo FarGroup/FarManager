@@ -5888,6 +5888,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
 				return FALSE; // no memory TODO: may be needed diagnostic
 
+	  CurItem->IFlags.Set(DLGIIF_EDITCHAHNEPROCESSED);
       const wchar_t* original_PtrData=Item.PtrData;
       if((I=(int)Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(LONG_PTR)&Item)) == TRUE)
       {
@@ -5898,6 +5899,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			if (original_PtrData)
 				xf_free((void*)original_PtrData);
 
+	  CurItem->IFlags.Clear(DLGIIF_EDITCHAHNEPROCESSED);
       return I;
     }
 
@@ -6620,3 +6622,15 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
   ScreenObject::SetPosition (X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
+BOOL Dialog::IsInited(void)
+{
+	CriticalSectionLock Lock(CS);
+	return DialogMode.Check(DMODE_INITOBJECTS);
+}
+
+BOOL Dialog::IsEditChanged(unsigned ID)
+{
+	CriticalSectionLock Lock(CS);
+  	if(ID>=ItemCount) return FALSE;
+	return Item[ID]->IFlags.Check(DLGIIF_EDITCHAHNEPROCESSED);
+}

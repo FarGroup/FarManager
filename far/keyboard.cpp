@@ -1207,9 +1207,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       rec->EventType = KEY_EVENT;
     } /* if */
   }
-  
+
   int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
-  
+
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
 
@@ -1269,7 +1269,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
       Key=GetInputRecord(&rec,true);
     if(KeyWait == (DWORD)-1)
     {
-      if (!((Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) || (Key >= KEY_OP_BASE && Key <= KEY_OP_ENDBASE)) && Key != KEY_NONE && Key != KEY_IDLE)
+      if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY)
         break;
     }
     else if(Key == KeyWait)

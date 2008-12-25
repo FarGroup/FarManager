@@ -621,8 +621,8 @@ void DlgEdit::EditChange(void* aParam)
 
 void DlgEdit::DoEditChange(void)
 {
-	if(m_Dialog->IsInited())
+	if(m_Dialog->IsInited()&&!m_Dialog->IsEditChanged(m_Index))
 	{
-	    m_Dialog->SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
+		m_Dialog->SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
 	}
 }
