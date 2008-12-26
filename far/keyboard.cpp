@@ -1497,7 +1497,8 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
 
     if(KeyWait == (DWORD)-1)
     {
-      if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      //if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
+      if((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY)
         break;
     }
     else if(Key == KeyWait)

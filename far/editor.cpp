@@ -3502,11 +3502,6 @@ BOOL Editor::Search(int Next)
     */
     if( !ReverseSearch && ( Next || (EdOpt.F7Rules && !ReplaceMode) ) )
         CurPos++;
-    /* IS $ */
-    /* IS $ */
-    /* SVS $ */
-    /* SVS $ */
-    /* tran $ */
 
     NewNumLine=NumLine;
     CurPtr=CurLine;
@@ -3539,7 +3534,6 @@ BOOL Editor::Search(int Next)
          Добавление нового параметра в функцию поиска
       */
       if (CurPtr->Search((char *)SearchStr,CurPos,Case,WholeWords,ReverseSearch))
-      /* KM $ */
       {
         int Skip=FALSE;
         /* $ 24.01.2003 KM
@@ -3551,7 +3545,6 @@ BOOL Editor::Search(int Next)
         int FromTop=(ScrY-2)/4;
         if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
           FromTop=0;
-        /* VVM $ */
 
         TmpPtr=CurLine=CurPtr;
         for (int i=0;i<FromTop;i++)
@@ -3562,7 +3555,6 @@ BOOL Editor::Search(int Next)
             break;
         }
         TopScreen=TmpPtr;
-        /* KM $ */
 
         NumLine=NewNumLine;
 
@@ -3593,9 +3585,13 @@ BOOL Editor::Search(int Next)
             char QSearchStr[SEARCHSTRINGBUFSIZE+4],QReplaceStr[SEARCHSTRINGBUFSIZE+4];
             sprintf(QSearchStr,"\"%s\"",LastSearchStr);
             sprintf(QReplaceStr,"\"%s\"",LastReplaceStr);
+
+            PreRedrawItem pitem=PreRedraw.Pop();
             MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
               QSearchStr,MSG(MEditAskReplaceWith),QReplaceStr,
               MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
+            PreRedraw.Push(pitem);
+
             if (MsgCode==1)
               ReplaceAll=TRUE;
             if (MsgCode==2)

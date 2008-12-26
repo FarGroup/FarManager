@@ -1,3 +1,10 @@
+svs 26.12.2008 18:58:42 +0300 - build 2496
+
+1. Mantis#0000685: Is Not removed window "to Search for" under "Searching for and change" in editor 
+
+2. Корректировка функции WaitKey(). Теперь функция реагирует только на "настоящие" клавиши 
+   (ранее функция срабатывала, например, на потерю-получение фокуса окном ФАРа (KEY_KILLFOCUS/KEY_GOTFOCUS)
+
 t-rex 26.12.2008 16:00:21 +0200 - build 2495
 
 1. Mantis#677: Некорректный горизонтальный скрол в меню.
