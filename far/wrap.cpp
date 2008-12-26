@@ -57,7 +57,7 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 	   	 а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
 
-  if(!lpwszUnicodeString || !nLength)
+  if ( !lpwszUnicodeString || (nLength < 0) )
     return NULL;
 
   char *lpResult = (char*)xf_malloc (nLength+1);
