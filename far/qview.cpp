@@ -345,11 +345,10 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
 
   if ((ExtPtr=strrchr(CurFileName,'.'))!=NULL)
   {
-    char Value[80];
-    LONG ValueSize=sizeof(Value);
-    if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)==ERROR_SUCCESS)
+    char Value[1024];
+    if (GetShellType(ExtPtr,Value,sizeof(Value)))
     {
-      ValueSize=sizeof(CurFileType);
+      LONG ValueSize=sizeof(CurFileType);
       if (RegQueryValue(HKEY_CLASSES_ROOT,Value,(LPTSTR)CurFileType,&ValueSize)!=ERROR_SUCCESS)
         *CurFileType=0;
       FAR_CharToOem(CurFileType,CurFileType);

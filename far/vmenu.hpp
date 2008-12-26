@@ -57,14 +57,7 @@ enum VMENU_FLAGS_TYPE{
   VMENU_CHANGECONSOLETITLE    =0x01000000, //
   VMENU_SELECTPOSNONE         =0x02000000, //
   VMENU_MOUSEREACTION         =0x04000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
-
-  VMENU_TRUNCMODE             =0x08000000,
-  VMENU_TRUNC_MASK            =0x30000000,
-  VMENU_TRUNCPATH             =0x10000000,
-  VMENU_TRUNCSTR              =0x20000000,
-  VMENU_TRUNCSTREND           =0x30000000,
-
-  VMENU_DISABLED              =0x80000000, //
+  VMENU_DISABLED              =0x08000000, //
 };
 
 class Dialog;

@@ -589,7 +589,7 @@ char *RemoveChar(char *Str,char Target,BOOL Dup)
   return StrBegin;
 }
 
-int HiStrlen(const char *Str,BOOL Dup)
+int HiStrlen(const char *Str)
 {
   int Length=0;
 
@@ -599,7 +599,7 @@ int HiStrlen(const char *Str,BOOL Dup)
       if (*Str!='&')
         Length++;
       else
-        if(Dup && Str[1] == '&')
+        if(Str[1] == '&')
         {
           Length++;
           ++Str;
@@ -609,6 +609,49 @@ int HiStrlen(const char *Str,BOOL Dup)
   return(Length);
 }
 
+int HiFindRealPos(const char *Str, int Pos, BOOL ShowAmp)
+{
+  /*
+      &&      = '&'
+      &&&     = '&'
+                 ^H
+      &&&&    = '&&'
+      &&&&&   = '&&'
+                 ^H
+      &&&&&&  = '&&&'
+  */
+
+  if (ShowAmp)
+  {
+    return Pos;
+  }
+
+  int RealPos = 0;
+  int VisPos = 0;
+
+  if (Str)
+  {
+    while (VisPos < Pos && *Str)
+    {
+      if (*Str == '&')
+      {
+        Str++;
+        RealPos++;
+        if (*Str == '&' && *(Str+1) == '&' && *(Str+2) != '&')
+        {
+          Str++;
+          RealPos++;
+        }
+      }
+
+      Str++;
+      VisPos++;
+      RealPos++;
+    }
+  }
+
+  return RealPos;
+}
 
 char *HiText2Str(char *Dest, int DestSize, const char *Str)
 {

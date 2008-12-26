@@ -55,7 +55,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
        случае при создании меню прокрутка работала _¬—≈√ƒј_, что
        не всегда удобно.
   */
-  VMFlags.Set(VMENU_UPDATEREQUIRED/*|VMENU_TRUNCMODE*/);
+  VMFlags.Set(VMENU_UPDATEREQUIRED);
   /* KM $ */
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
   TopPos=0;
@@ -580,33 +580,8 @@ void VMenu::ShowMenu(int IsParent)
         #endif
         _snprintf(TmpStr,sizeof(TmpStr)-1,"%c %s",Check,_MItemPtr);
 
-        if(VMFlags.Check(VMENU_TRUNCMODE))
-        {
-           if(Len_MItemPtr+2 > X2-X1-3)
-           {
-             switch(VMFlags.Flags&VMENU_TRUNC_MASK)
-             {
-               case VMENU_TRUNCPATH:
-                 TruncPathStr(TmpStr+2,X2-X1-3);
-                 break;
-               case VMENU_TRUNCSTR:
-                 TruncStr(TmpStr+2,X2-X1-3);
-                 break;
-               case VMENU_TRUNCSTREND:
-               //default:
-                 TruncStrFromEnd(TmpStr+2,X2-X1-3);
-                 break;
-               default:
-                 TmpStr[X2-X1-1]=0;
-                 break;
-             }
-           }
-        }
-        else
-        {
-          if(Len_MItemPtr+2 > X2-X1-3)
-            TmpStr[X2-X1-1]=0;
-        }
+        if(Len_MItemPtr+2 > X2-X1-3)
+          TmpStr[HiFindRealPos(TmpStr,X2-X1-1,VMFlags.Check(VMENU_SHOWAMPERSAND))]=0;
 
         { // табул€ции мен€ем только при показе!!!
           // дл€ сохранение оригинальной строки!!!
@@ -651,7 +626,7 @@ void VMenu::ShowMenu(int IsParent)
           BoxText(Opt.UseUnicodeConsole?0xab:'<');
         }
 
-        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-3)
+        if(Len_MItemPtr > X2-X1-3)
         {
           //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
           //  GotoXY(WhereX()-1,Y);
@@ -840,6 +815,62 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
   return _i64(0);
 }
 
+int FindNextVisualPos(const char *Str, int Pos, int Direct)
+{
+  /*
+      &&      = '&'
+      &&&     = '&'
+                 ^H
+      &&&&    = '&&'
+      &&&&&   = '&&'
+                 ^H
+      &&&&&&  = '&&&'
+  */
+  if (Str)
+  {
+    if (Direct < 0)
+    {
+      if (!Pos || Pos == 1)
+        return 0;
+      if (Str[Pos-1] != '&')
+      {
+        if (Str[Pos-2] == '&')
+        {
+          if (Pos-3 >= 0 && Str[Pos-3] == '&')
+            return Pos-1;
+          return Pos-2;
+        }
+        return Pos-1;
+      }
+      else
+      {
+        if (Pos-3 >= 0 && Str[Pos-3] == '&')
+        {
+          return Pos-3;
+        }
+        return Pos-2;
+      }
+    }
+    else
+    {
+      if (!Str[Pos])
+        return Pos+1;
+      if (Str[Pos] == '&')
+      {
+        if (Str[Pos+1] == '&' && Str[Pos+2] == '&')
+          return Pos+3;
+        return Pos+2;
+      }
+      else
+      {
+        return Pos+1;
+      }
+    }
+  }
+
+  return 0;
+}
+
 BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 {
   int _len;
@@ -849,23 +880,30 @@ BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
     _len=(int)strlen(Item[Pos].PtrName());
   else
-    _len=HiStrlen(Item[Pos].PtrName(),TRUE);
+    _len=HiStrlen(Item[Pos].PtrName());
 
   if(_len < _OWidth ||
      (Direct < 0 && ItemShowPos==0) ||
      (Direct > 0 && ItemShowPos > _len))
     return FALSE;
 
-  if(Direct < 0)
-    ItemShowPos--;
+  if (VMFlags.Check(VMENU_SHOWAMPERSAND))
+  {
+   if(Direct < 0)
+     ItemShowPos--;
+   else
+     ItemShowPos++;
+  }
   else
-    ItemShowPos++;
+  {
+    ItemShowPos = FindNextVisualPos(Item[Pos].PtrName(),ItemShowPos,Direct);
+  }
 
   if(ItemShowPos < 0)
     ItemShowPos=0;
 
   if(ItemShowPos > _len-_OWidth)
-    ItemShowPos=_len-_OWidth;
+    ItemShowPos=_len-_OWidth+1;
 
   if(ItemShowPos != Item[Pos].ShowPos)
   {
@@ -987,25 +1025,10 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     }
-/*
-    case KEY_CTRLN:
-    {
-      VMFlags.Swap(VMENU_TRUNCMODE);
-      VMFlags.Set(VMENU_UPDATEREQUIRED);
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-      {
-        for(I=0; I < ItemCount; ++I)
-          Item[I].ShowPos=0;
-      }
-      ShowMenu(TRUE);
-      break;
-    }
-*/
+
     case KEY_ALTHOME:           case KEY_NUMPAD7|KEY_ALT:
     case KEY_ALTEND:            case KEY_NUMPAD1|KEY_ALT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       if(Key == KEY_ALTHOME || Key == (KEY_NUMPAD7|KEY_ALT))
       {
         for(I=0; I < ItemCount; ++I)
@@ -1021,10 +1044,10 @@ int VMenu::ProcessKey(int Key)
           if(VMFlags.Check(VMENU_SHOWAMPERSAND))
             _len=(int)strlen(Item[I].PtrName());
           else
-            _len=HiStrlen(Item[I].PtrName(),TRUE);
+            _len=HiStrlen(Item[I].PtrName());
 
           if(_len >= _OWidth)
-            Item[I].ShowPos=_len-_OWidth;
+            Item[I].ShowPos=_len-_OWidth+1;
         }
       }
 
@@ -1035,8 +1058,6 @@ int VMenu::ProcessKey(int Key)
     case KEY_ALTLEFT:           case KEY_NUMPAD4|KEY_ALT:
     case KEY_ALTRIGHT:          case KEY_NUMPAD6|KEY_ALT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       BOOL NeedRedraw=FALSE;
       for(I=0; I < ItemCount; ++I)
         if(ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT))?-1:1))
@@ -1050,8 +1071,6 @@ int VMenu::ProcessKey(int Key)
     case KEY_ALTSHIFTLEFT:      case KEY_NUMPAD4|KEY_ALT|KEY_SHIFT:
     case KEY_ALTSHIFTRIGHT:     case KEY_NUMPAD6|KEY_ALT|KEY_SHIFT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       if(ShiftItemShowPos(SelectPos,(Key == KEY_ALTSHIFTLEFT || Key == (KEY_NUMPAD4|KEY_ALT|KEY_SHIFT))?-1:1))
         ShowMenu(TRUE);
       break;
@@ -1460,7 +1479,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
     Length=(int)strlen(Item[PosAdd].PtrName());
   else
-    Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
+    Length=HiStrlen(Item[PosAdd].PtrName());
 
   if (Length>MaxLength)
     MaxLength=Length;

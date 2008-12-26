@@ -8,6 +8,9 @@ execute.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifndef __GNUC__
+#include <shobjidl.h>
+#endif
 #include "farqueue.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
@@ -149,6 +152,66 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 }
 /* VVM $ */
 
+bool GetShellType(const char *Ext, char *Type, LONG Size)
+{
+  bool bVistaType = false;
+
+  if (!Ext || !Type)
+    return false;
+
+  *Type = 0;
+
+#ifndef __GNUC__
+  if (WinVer.dwMajorVersion >= 6)
+  {
+    if (CoInitialize(NULL) == S_OK)
+    {
+      IApplicationAssociationRegistration* pAAR;
+      HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+      if (SUCCEEDED(hr))
+      {
+        wchar_t WExt[NM];
+        MultiByteToWideChar (
+                  CP_OEMCP,
+                  0,
+                  Ext,
+                  -1,
+                  WExt,
+                  sizeof(WExt)/sizeof(wchar_t)
+                  );
+
+        wchar_t *p;
+        if (pAAR->QueryCurrentDefault(WExt, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
+        {
+          bVistaType = true;
+          WideCharToMultiByte (
+                  CP_OEMCP,
+                  0,
+                  p,
+                  -1,
+                  Type,
+                  Size,
+                  NULL,
+                  NULL
+                  );
+          CoTaskMemFree(p);
+        }
+        pAAR->Release();
+      }
+      CoUninitialize();
+    }
+  }
+#endif
+
+  if (!bVistaType)
+  {
+    if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)Ext,(LPTSTR)Type,&Size)!=ERROR_SUCCESS)
+      return false;
+  }
+
+  return true;
+}
+
 // по имени файла (по его расширению) получить команду активации
 // ƒополнительно смотритс€ гуевость команды-активатора
 // (чтобы не ждать завершени€)
@@ -170,10 +233,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
     return(NULL);
 
-  ValueSize=sizeof(Value);
-  *Value=0;
-
-  if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)!=ERROR_SUCCESS)
+  if (!GetShellType(ExtPtr, Value, sizeof(Value)))
     return(NULL);
 
   strcat(Value,"\\shell");

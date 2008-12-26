@@ -316,7 +316,8 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
-int HiStrlen(const char *Str,BOOL Dup=TRUE);
+int HiStrlen(const char *Str);
+int HiFindRealPos(const char *Str, int Pos, BOOL ShowAmp);
 char *HiText2Str(char *Dest, int DestSize, const char *Str);
 
 /* $ 27.01.2001 VVM
@@ -1179,5 +1180,7 @@ int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,cha
 
 bool CheckFileSizeStringFormat(const char *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const char *FileSizeStr);
+
+bool GetShellType(const char *Ext, char *Type, LONG Size);
 
 #endif  // __FARFUNC_HPP__
