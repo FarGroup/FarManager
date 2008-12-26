@@ -485,18 +485,14 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
   CloseRegKey(hDestKey);
   for (I=0;;I++)
   {
-    wchar_t SubkeyName[200]; //BUGBUG, dynamic
-    string strSrcKeyName, strDestKeyName;
+    string strSubkeyName, strSrcKeyName, strDestKeyName;
 
-    DWORD NameSize=countof(SubkeyName);
-
-    FILETIME LastWrite;
-    if (RegEnumKeyExW(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
+    if (apiRegEnumKeyEx(hSrcKey,I,strSubkeyName)!=ERROR_SUCCESS)
       break;
 
-    strSrcKeyName = Src;
+    strSrcKeyName  = Src;
     strSrcKeyName += L"\\";
-    strSrcKeyName += SubkeyName;
+    strSrcKeyName += strSubkeyName;
     if (Skip!=NULL)
     {
       bool Found=false;
@@ -512,7 +508,7 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 
     strDestKeyName = Dest;
     strDestKeyName += L"\\";
-    strDestKeyName += SubkeyName;
+    strDestKeyName += strSubkeyName;
     if (RegCreateKeyExW(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
     CloseRegKey(hDestKey);
@@ -545,16 +541,13 @@ void DeleteKeyTreePart(const wchar_t *KeyName)
     return;
   for (int I=0;;I++)
   {
-    wchar_t SubkeyName[200]; //BUGBUG, dynamic
-    string strFullKeyName;
-    DWORD NameSize=countof(SubkeyName);
-    FILETIME LastWrite;
-    if (RegEnumKeyExW(hKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
+    string strSubkeyName,strFullKeyName;
+    if (apiRegEnumKeyEx(hKey,I,strSubkeyName)!=ERROR_SUCCESS)
       break;
 
     strFullKeyName = KeyName;
     strFullKeyName += L"\\";
-    strFullKeyName += SubkeyName;
+    strFullKeyName += strSubkeyName;
     DeleteKeyTreePart(strFullKeyName);
   }
   CloseRegKey(hKey);
@@ -577,15 +570,16 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
      int RetCode=FALSE;
      if(hKey)
      {
-        FILETIME LastWriteTime;
-        wchar_t SubName[512]; //BUGBUG, dynamic
-        DWORD SubSize=countof(SubName);
+        string strSubName;
 
-        LONG ExitCode=RegEnumKeyExW(hKey,0,SubName,&SubSize,NULL,NULL,NULL,
-                                   &LastWriteTime);
+        LONG ExitCode=apiRegEnumKeyEx(hKey,0,strSubName);
 
         if(ExitCode!=ERROR_SUCCESS)
-           ExitCode=RegEnumValueW(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+        {
+          wchar_t SubName[1];	// no matter
+          DWORD SubSize=countof(SubName);
+          ExitCode=RegEnumValueW(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+        }
         CloseRegKey(hKey);
 
         if(ExitCode!=ERROR_SUCCESS)
@@ -649,19 +643,15 @@ int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName)
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
-    FILETIME LastWriteTime;
-    wchar_t SubName[512]; //BUGBUG, dynamic
-    DWORD SubSize=countof(SubName);
-    int ExitCode=RegEnumKeyExW(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
+		int ExitCode=apiRegEnumKeyEx(hKey,Index,strDestName);
     CloseRegKey(hKey);
     if (ExitCode==ERROR_SUCCESS)
     {
-      string strTempName;
-      strTempName = Key;
+      string strTempName = Key;
       if ( !strTempName.IsEmpty() )
         AddEndSlash(strTempName);
 
-      strTempName += SubName;
+      strTempName += strDestName;
 
       strDestName = strTempName; //???
       return(TRUE);

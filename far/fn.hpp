@@ -1119,6 +1119,8 @@ BOOL apiMoveFileEx (
 		DWORD dwFlags   // flag to determine how to move file
 		);
 
+int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime=NULL);
+
 string& HiText2Str(string& strDest, const wchar_t *Str);
 
 __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);

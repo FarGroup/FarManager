@@ -515,3 +515,16 @@ BOOL apiGetFileSize (HANDLE hFile, unsigned __int64 *pSize)
 		return TRUE;
 	}
 }
+
+int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime)
+{
+	int ExitCode=ERROR_SUCCESS;
+	ExitCode=ERROR_MORE_DATA;
+	for(DWORD Size=512;ExitCode==ERROR_MORE_DATA;Size<<=1)
+	{
+		wchar_t *Name=strName.GetBuffer(Size);
+		ExitCode=RegEnumKeyExW(hKey,dwIndex,Name,&Size,NULL,NULL,NULL,lpftLastWriteTime);
+		strName.ReleaseBuffer();
+	}
+	return ExitCode;
+}

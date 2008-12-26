@@ -232,10 +232,18 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   if (!GetShellType(ExtPtr, strValue))
   	return NULL;
 
+	HKEY hKey;
+	if(RegOpenKeyExW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	{
+		int nResult=RegQueryValueExW(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
+		RegCloseKey(hKey);
+		if(nResult==ERROR_SUCCESS)
+			return NULL;
+	}
+
   strValue += L"\\shell";
 //_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
 
-  HKEY hKey;
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
@@ -297,7 +305,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     LONG RetEnum = ERROR_SUCCESS;
     DWORD dwIndex = 0;
     DWORD dwKeySize = 0;
-    FILETIME ftLastWriteTime;
     HKEY hOpenKey;
 
     // Сначала проверим "open"...
@@ -319,13 +326,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     // ... а теперь все остальное, если "open" нету
     while (RetEnum == ERROR_SUCCESS)
     {
-      wchar_t *Action = 0;
-      dwKeySize = 0;
-      RegEnumKeyExW(hKey, dwIndex, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
-      Action = strAction.GetBuffer((int)++dwKeySize);
-      *Action = 0;
-      RetEnum = RegEnumKeyExW(hKey, dwIndex++, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
-      strAction.ReleaseBuffer();
+			RetEnum=apiRegEnumKeyEx(hKey, dwIndex++,strAction);
       if (RetEnum == ERROR_SUCCESS)
       {
         // Проверим наличие "команды" у этого ключа
