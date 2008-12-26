@@ -100,7 +100,7 @@ void AddUnicodeTables(VMenu &tables,DWORD dwCurrent, bool bShowUnicode, bool bSh
 			continue;
 		item.Clear();
 		item.strName.Format(L"%5u%c %s",c[i].CP,BoxSymbols[BS_V1],c[i].Name);
-		item.UserData=(char*)c[i].CP;
+		item.UserData=(char*)((INT_PTR)c[i].CP);
 		item.UserDataSize=sizeof(UINT);
 		if(dwCurrent==c[i].CP)
 			item.Flags|=MIF_SELECTED;

@@ -1,3 +1,9 @@
+svs 26.12.2008 19:19:43 +0300 - build 697
+
+1. Mantis#0000685: Is Not removed window "to Search for" under "Searching for and change" in editor 
+
+2. Избавляемся от варнинга в gettable.cpp
+
 t-rex 26.12.2008 14:42:38 +0200 - build 696
 
 1. Забыл удалить FMENU_TRUC* из plugin.hpp.

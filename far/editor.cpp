@@ -3728,9 +3728,12 @@ BOOL Editor::Search(int Next)
             strQSearchStr.Format (L"\"%s\"", (const wchar_t*)strLastSearchStr);
             strQReplaceStr.Format (L"\"%s\"", (const wchar_t*)strLastReplaceStr);
 
+            PreRedrawItem pitem=PreRedraw.Pop();
             MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
               strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
               MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
+            PreRedraw.Push(pitem);
+
             if (MsgCode==1)
               ReplaceAll=TRUE;
             if (MsgCode==2)
