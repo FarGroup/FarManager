@@ -150,24 +150,39 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 
   return Ret;
 }
-/* VVM $ */
+
+#ifdef __GNUC__
+const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
+#endif
 
 bool GetShellType(const char *Ext, char *Type, LONG Size)
 {
   bool bVistaType = false;
+  typedef HRESULT (WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
+  static PSHCREATEASSOCIATIONREGISTRATION pfnSHCreateAssociationRegistration=NULL;
+  static bool bInit = false;
 
   if (!Ext || !Type)
     return false;
 
   *Type = 0;
 
-#ifndef __GNUC__
   if (WinVer.dwMajorVersion >= 6)
   {
-    if (CoInitialize(NULL) == S_OK)
+    if (!bInit)
+    {
+      bInit = true;
+      HMODULE hShell = GetModuleHandle("shell32.dll");
+      if (hShell)
+      {
+        pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
+      }
+    }
+
+    if (pfnSHCreateAssociationRegistration)
     {
       IApplicationAssociationRegistration* pAAR;
-      HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+      HRESULT hr = pfnSHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
       if (SUCCEEDED(hr))
       {
         wchar_t WExt[NM];
@@ -198,10 +213,8 @@ bool GetShellType(const char *Ext, char *Type, LONG Size)
         }
         pAAR->Release();
       }
-      CoUninitialize();
     }
   }
-#endif
 
   if (!bVistaType)
   {
