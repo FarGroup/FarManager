@@ -249,10 +249,18 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   if (!GetShellType(ExtPtr, Value, sizeof(Value)))
     return(NULL);
 
+  HKEY hKey;
+  if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Value,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+  {
+    int nResult=RegQueryValueEx(hKey,"IsShortcut",NULL,NULL,NULL,NULL);
+    RegCloseKey(hKey);
+    if(nResult==ERROR_SUCCESS)
+      return NULL;
+  }
+
   strcat(Value,"\\shell");
 //_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
 
-  HKEY hKey;
   if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
