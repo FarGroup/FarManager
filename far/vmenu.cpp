@@ -78,7 +78,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
        случае при создании меню прокрутка работала _¬—≈√ƒј_, что
        не всегда удобно.
   */
-  VMFlags.Set(VMENU_UPDATEREQUIRED/*|VMENU_TRUNCMODE*/);
+  VMFlags.Set(VMENU_UPDATEREQUIRED);
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
   TopPos=0;
   SaveScr=NULL;
@@ -585,37 +585,13 @@ void VMenu::ShowMenu(int IsParent)
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
           Len_MItemPtr=StrLength(_MItemPtr);
         else
-          Len_MItemPtr=HiStrlen(_MItemPtr,TRUE);
+          Len_MItemPtr=HiStrlen(_MItemPtr);
 
         swprintf(TmpStrW,L"%c ",Check);
         xwcsncat(TmpStrW,_MItemPtr,countof(TmpStrW)-1-StrLength(TmpStrW));
 
-        if(VMFlags.Check(VMENU_TRUNCMODE))
-        {
-           if(Len_MItemPtr+2 > X2-X1-3)
-           {
-             switch(VMFlags.Flags&VMENU_TRUNC_MASK)
-             {
-               case VMENU_TRUNCPATH:
-                 TruncPathStr(TmpStrW+2,X2-X1-3);
-                 break;
-               case VMENU_TRUNCSTR:
-                 TruncStr(TmpStrW+2,X2-X1-3);
-                 break;
-               case VMENU_TRUNCSTREND:
-                 TruncStrFromEnd(TmpStrW+2,X2-X1-3);
-                 break;
-               default:
-                 TmpStrW[X2-X1-1]=0;
-                 break;
-             }
-           }
-        }
-        else
-        {
-          if(Len_MItemPtr+2 > X2-X1-3)
-            TmpStrW[X2-X1-1]=0;
-        }
+        if(Len_MItemPtr+2 > X2-X1-3)
+          TmpStrW[HiFindRealPos(TmpStrW,X2-X1-1,VMFlags.Check(VMENU_SHOWAMPERSAND))]=0;
 
         { // табул€ции мен€ем только при показе!!!
           // дл€ сохранение оригинальной строки!!!
@@ -660,7 +636,7 @@ void VMenu::ShowMenu(int IsParent)
           BoxText((WORD)0x00ab);// '<'
         }
 
-        if(/*!VMFlags.Check(VMENU_TRUNCMODE) && */ Len_MItemPtr > X2-X1-3)
+        if(Len_MItemPtr > X2-X1-3)
         {
           //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
           //  GotoXY(WhereX()-1,Y);
@@ -755,40 +731,103 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   return EndLoop==TRUE;
 }
 
+int FindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
+{
+	/*
+			&&      = '&'
+			&&&     = '&'
+								 ^H
+			&&&&    = '&&'
+			&&&&&   = '&&'
+								 ^H
+			&&&&&&  = '&&&'
+	*/
+	if (Str)
+	{
+		if (Direct < 0)
+		{
+			if (!Pos || Pos == 1)
+				return 0;
+			if (Str[Pos-1] != L'&')
+			{
+				if (Str[Pos-2] == L'&')
+				{
+					if (Pos-3 >= 0 && Str[Pos-3] == L'&')
+						return Pos-1;
+					return Pos-2;
+				}
+				return Pos-1;
+			}
+			else
+			{
+				if (Pos-3 >= 0 && Str[Pos-3] == L'&')
+				{
+					return Pos-3;
+				}
+				return Pos-2;
+			}
+		}
+		else
+		{
+			if (!Str[Pos])
+				return Pos+1;
+			if (Str[Pos] == L'&')
+			{
+				if (Str[Pos+1] == L'&' && Str[Pos+2] == L'&')
+					return Pos+3;
+				return Pos+2;
+			}
+			else
+			{
+				return Pos+1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 {
-  int _len;
-  int _OWidth=X2-X1-3;
-  int ItemShowPos=Item[Pos]->ShowPos;
+	int _len;
+	int _OWidth=X2-X1-3;
+	int ItemShowPos=Item[Pos]->ShowPos;
 
-  if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-    _len=StrLength(Item[Pos]->strName);
-  else
-    _len=HiStrlen(Item[Pos]->strName,TRUE);
+	if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+		_len=StrLength(Item[Pos]->strName);
+	else
+		_len=HiStrlen(Item[Pos]->strName);
 
-  if(_len < _OWidth ||
-     (Direct < 0 && ItemShowPos==0) ||
-     (Direct > 0 && ItemShowPos > _len))
-    return FALSE;
+	if(_len < _OWidth ||
+			(Direct < 0 && ItemShowPos==0) ||
+			(Direct > 0 && ItemShowPos > _len))
+		return FALSE;
 
-  if(Direct < 0)
-    ItemShowPos--;
-  else
-    ItemShowPos++;
-
-  if(ItemShowPos < 0)
-    ItemShowPos=0;
-
-  if(ItemShowPos > _len-_OWidth)
-    ItemShowPos=_len-_OWidth;
-
-  if(ItemShowPos != Item[Pos]->ShowPos)
+  if (VMFlags.Check(VMENU_SHOWAMPERSAND))
   {
-    Item[Pos]->ShowPos=ItemShowPos;
-    VMFlags.Set(VMENU_UPDATEREQUIRED);
-    return TRUE;
-  }
-  return FALSE;
+		if(Direct < 0)
+			ItemShowPos--;
+		else
+			ItemShowPos++;
+	}
+	else
+	{
+		ItemShowPos = FindNextVisualPos(Item[Pos]->strName,ItemShowPos,Direct);
+	}
+
+	if(ItemShowPos < 0)
+		ItemShowPos=0;
+
+	if(ItemShowPos > _len-_OWidth)
+		ItemShowPos=_len-_OWidth + 1;
+
+	if(ItemShowPos != Item[Pos]->ShowPos)
+	{
+		Item[Pos]->ShowPos=ItemShowPos;
+		VMFlags.Set(VMENU_UPDATEREQUIRED);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 
@@ -993,25 +1032,10 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     }
-/*
-    case KEY_CTRLN:
-    {
-      VMFlags.Swap(VMENU_TRUNCMODE);
-      VMFlags.Set(VMENU_UPDATEREQUIRED);
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-      {
-        for(I=0; I < ItemCount; ++I)
-          Item[I]->ShowPos=0;
-      }
-      ShowMenu(TRUE);
-      break;
-    }
-*/
+
     case KEY_ALTHOME:           case KEY_NUMPAD7|KEY_ALT:
     case KEY_ALTEND:            case KEY_NUMPAD1|KEY_ALT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       if(Key == KEY_ALTHOME || Key == (KEY_NUMPAD7|KEY_ALT))
       {
         for(I=0; I < ItemCount; ++I)
@@ -1027,10 +1051,10 @@ int VMenu::ProcessKey(int Key)
           if(VMFlags.Check(VMENU_SHOWAMPERSAND))
             _len=StrLength(Item[I]->strName);
           else
-            _len=HiStrlen(Item[I]->strName,TRUE);
+            _len=HiStrlen(Item[I]->strName);
 
           if(_len >= _OWidth)
-            Item[I]->ShowPos=_len-_OWidth;
+            Item[I]->ShowPos=_len-_OWidth+1;
         }
       }
 
@@ -1041,8 +1065,6 @@ int VMenu::ProcessKey(int Key)
     case KEY_ALTLEFT:           case KEY_NUMPAD4|KEY_ALT:
     case KEY_ALTRIGHT:          case KEY_NUMPAD6|KEY_ALT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       BOOL NeedRedraw=FALSE;
       for(I=0; I < ItemCount; ++I)
         if(ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT))?-1:1))
@@ -1056,8 +1078,6 @@ int VMenu::ProcessKey(int Key)
     case KEY_ALTSHIFTLEFT:      case KEY_NUMPAD4|KEY_ALT|KEY_SHIFT:
     case KEY_ALTSHIFTRIGHT:     case KEY_NUMPAD6|KEY_ALT|KEY_SHIFT:
     {
-      if(VMFlags.Check(VMENU_TRUNCMODE))
-        break;
       if(ShiftItemShowPos(SelectPos,(Key == KEY_ALTSHIFTLEFT || Key == (KEY_NUMPAD4|KEY_ALT|KEY_SHIFT))?-1:1))
         ShowMenu(TRUE);
       break;
@@ -1460,7 +1480,7 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
     Length=(int)Item[PosAdd]->strName.GetLength();
   else
-    Length=HiStrlen(Item[PosAdd]->strName,TRUE);
+    Length=HiStrlen(Item[PosAdd]->strName);
 
   if (Length>MaxLength)
     MaxLength=Length;

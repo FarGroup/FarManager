@@ -248,7 +248,8 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
-int HiStrlen(const wchar_t *Str,BOOL Dup=TRUE);
+int HiStrlen(const wchar_t *Str);
+int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
 int GetErrorString (string &strErrStr);
 // Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
 BOOL CheckErrorForProcessed(DWORD Err);
@@ -259,6 +260,8 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 wchar_t* WINAPI PasteFromClipboardEx(int max);
 BOOL WINAPI FAR_EmptyClipboard(VOID);
+
+bool GetShellType(const wchar_t *Ext, string &strType);
 
 int GetFileTypeByName(const wchar_t *Name);
 

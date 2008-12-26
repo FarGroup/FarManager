@@ -722,12 +722,6 @@ int WINAPI FarMenuFn (
       MenuFlags|=VMENU_WRAPMODE;
     if (Flags & FMENU_CHANGECONSOLETITLE)
       MenuFlags|=VMENU_CHANGECONSOLETITLE;
-    if (Flags & FMENU_TRUNCPATH)
-      MenuFlags|=VMENU_TRUNCPATH;
-    if (Flags & FMENU_TRUNCSTR)
-      MenuFlags|=VMENU_TRUNCSTR;
-    if (Flags & FMENU_TRUNCSTREND)
-      MenuFlags|=VMENU_TRUNCSTREND;
     FarMenu.SetFlags(MenuFlags);
 
     MenuItemEx CurItem;

@@ -357,19 +357,14 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
   {
     string strValue;
 
-    HKEY hKey;
-    if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strCurFileName+pos,&hKey)==ERROR_SUCCESS)
+    if (GetShellType((const wchar_t *)strCurFileName+pos, strValue))
     {
-      if (RegQueryStringValue(hKey,L"",strValue,L"")==ERROR_SUCCESS)
+      HKEY hKey;
+      if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
       {
-        HKEY hKey2;
-        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey2)==ERROR_SUCCESS)
-        {
-          RegQueryStringValue(hKey2,L"",strCurFileType,L"");
-          RegCloseKey(hKey2);
-        }
+        RegQueryStringValue(hKey,L"",strCurFileType,L"");
+        RegCloseKey(hKey);
       }
-      RegCloseKey(hKey);
     }
   }
 

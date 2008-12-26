@@ -572,7 +572,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
-    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE|VMENU_TRUNCPATH);
+    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);

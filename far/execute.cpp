@@ -169,6 +169,51 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
   return Ret;
 }
 
+bool GetShellType(const wchar_t *Ext, string &strType)
+{
+	bool bVistaType = false;
+
+#ifndef __GNUC__
+	if (WinVer.dwMajorVersion >= 6)
+	{
+		if (CoInitialize(NULL) == S_OK)
+		{
+			IApplicationAssociationRegistration* pAAR;
+			HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+			if (SUCCEEDED(hr))
+			{
+				wchar_t *p;
+				if (pAAR->QueryCurrentDefault(Ext, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
+				{
+					bVistaType = true;
+					strType = p;
+					CoTaskMemFree(p);
+				}
+				pAAR->Release();
+			}
+			CoUninitialize();
+		}
+	}
+#endif
+
+	if (!bVistaType)
+	{
+		HKEY hKey;
+		if (RegOpenKeyW(HKEY_CLASSES_ROOT,Ext,&hKey)!=ERROR_SUCCESS)
+			return false;
+
+		if (RegQueryStringValue(hKey,L"",strType,L"")!=ERROR_SUCCESS)
+		{
+			RegCloseKey(hKey);
+			return false;
+		}
+
+		RegCloseKey(hKey);
+	}
+
+	return true;
+}
+
 // по имени файла (по его расширению) получить команду активации
 // ƒополнительно смотритс€ гуевость команды-активатора
 // (чтобы не ждать завершени€)
@@ -177,13 +222,11 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   //_SVS(CleverSysLog clvrSLog(L"GetShellAction()"));
   //_SVS(SysLog(L"Param: FileName='%s'",FileName));
 
-  bool bVistaType = false;
   string strValue;
   string strNewValue;
   const wchar_t *ExtPtr;
   const wchar_t *RetPtr;
   const wchar_t command_action[]=L"\\command";
-  HKEY hKey;
 
   Error = ERROR_SUCCESS;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -191,45 +234,13 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   if ((ExtPtr=wcsrchr(FileName,L'.'))==NULL)
     return(NULL);
 
-#ifndef __GNUC__
-  if (WinVer.dwMajorVersion >= 6)
-  {
-		if (CoInitialize(NULL) == S_OK)
-		{
-			IApplicationAssociationRegistration* pAAR;
-			HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
-			if (SUCCEEDED(hr))
-			{
-				wchar_t *p;
-				if (pAAR->QueryCurrentDefault(ExtPtr, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
-				{
-					bVistaType = true;
-					strValue = p;
-					CoTaskMemFree(p);
-				}
-				pAAR->Release();
-			}
-			CoUninitialize();
-		}
-  }
-#endif
-
-	if (!bVistaType)
-	{
-		if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hKey)!=ERROR_SUCCESS)
-			return(NULL);
-
-		if (RegQueryStringValue(hKey,L"",strValue,L"")!=ERROR_SUCCESS)
-		{
-			RegCloseKey(hKey);
-			return(NULL);
-		}
-		RegCloseKey(hKey);
-	}
+  if (!GetShellType(ExtPtr, strValue))
+  	return NULL;
 
   strValue += L"\\shell";
 //_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
 
+  HKEY hKey;
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 

@@ -724,7 +724,7 @@ string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
 }
 
 
-int HiStrlen(const wchar_t *Str,BOOL Dup)
+int HiStrlen(const wchar_t *Str)
 {
   int Length=0;
 
@@ -738,7 +738,7 @@ int HiStrlen(const wchar_t *Str,BOOL Dup)
       }
       else
       {
-        if (Dup && Str[1] == L'&')
+        if (Str[1] == L'&')
         {
           Length++;
           ++Str;
@@ -750,6 +750,49 @@ int HiStrlen(const wchar_t *Str,BOOL Dup)
   return(Length);
 }
 
+int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
+{
+	/*
+			&&      = '&'
+			&&&     = '&'
+								 ^H
+			&&&&    = '&&'
+			&&&&&   = '&&'
+								 ^H
+			&&&&&&  = '&&&'
+	*/
+
+	if (ShowAmp)
+	{
+		return Pos;
+	}
+
+	int RealPos = 0;
+	int VisPos = 0;
+
+	if (Str)
+	{
+		while (VisPos < Pos && *Str)
+		{
+			if (*Str == L'&')
+			{
+				Str++;
+				RealPos++;
+				if (*Str == L'&' && *(Str+1) == L'&' && *(Str+2) != L'&')
+				{
+					Str++;
+					RealPos++;
+				}
+			}
+
+			Str++;
+			VisPos++;
+			RealPos++;
+		}
+	}
+
+	return RealPos;
+}
 
 BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {
