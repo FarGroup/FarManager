@@ -108,7 +108,8 @@ inline WORD GetVidChar(CHAR_INFO CI)
 
 inline void SetVidChar(CHAR_INFO& CI,wchar_t Chr)
 {
-  CI.Char.UnicodeChar = Chr;
+	extern wchar_t Oem2Unicode[];
+	CI.Char.UnicodeChar = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
 }
 
 void ShowTime(int ShowAlways);

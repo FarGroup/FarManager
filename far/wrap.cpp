@@ -26,27 +26,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength,bool UseGlyphChars=true)
+void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
 {
 	if(lpszAnsiString && lpwszUnicodeString && nLength)
 	{
 		wmemset (lpwszUnicodeString, 0, nLength);
-		MultiByteToWideChar(CP_OEMCP,UseGlyphChars?MB_USEGLYPHCHARS:0,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
+		MultiByteToWideChar(CP_OEMCP,0,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
 	}
 }
 
-wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength,bool UseGlyphChars=true)
+wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength)
 {
 	wchar_t *lpResult = (wchar_t*)xf_malloc(nLength*sizeof(wchar_t));
-	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength,UseGlyphChars);
+	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength);
 	return lpResult;
 }
 
-wchar_t *AnsiToUnicode(const char *lpszAnsiString,bool UseGlyphChars=true)
+wchar_t *AnsiToUnicode(const char *lpszAnsiString)
 {
 	if(!lpszAnsiString)
 		return NULL;
-	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1,UseGlyphChars);
+	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1);
 }
 
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
@@ -845,14 +845,14 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 
 	if (Flags&FMSG_ALLINONE)
 	{
-		p = (wchar_t **)AnsiToUnicode((const char *)Items,false);
+		p = (wchar_t **)AnsiToUnicode((const char *)Items);
 	}
 	else
 	{
 		c = ItemsNumber;
 		p = (wchar_t **)xf_malloc(c*sizeof(wchar_t*));
 		for (int i=0; i<c; i++)
-			p[i] = AnsiToUnicode(Items[i],false);
+			p[i] = AnsiToUnicode(Items[i]);
 	}
 
 	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?(const wchar_t *)strHT:NULL),p,ItemsNumber,ButtonsNumber);

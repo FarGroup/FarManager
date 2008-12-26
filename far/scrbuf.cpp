@@ -160,7 +160,12 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
     return;
   if(X+TextLength >= BufX)
     TextLength=BufX-X; //??
-  memcpy(Buf+Y*BufX+X,Text,sizeof(CHAR_INFO)*TextLength);
+	CHAR_INFO *PtrBuf=Buf+Y*BufX+X;
+	for(int i=0;i<TextLength;i++)
+	{
+		SetVidChar(PtrBuf[i],Text[i].Char.UnicodeChar);
+		PtrBuf[i].Attributes=Text[i].Attributes;
+	}
   SBFlags.Clear(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
