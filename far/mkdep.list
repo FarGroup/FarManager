@@ -205,3 +205,5 @@ TPreRedrawFunc.cpp
 localOEM.cpp
 RegExp.cpp
 RegExp.hpp
+sdkpatches.cpp
+sdkpatches.hpp

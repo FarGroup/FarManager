@@ -1,3 +1,9 @@
+t-rex 26.12.2008 19:49:57 +0200 - build 698
+
+1. Используем SHCreateAssociationRegistration, теперь не надо CoInitialize, так спокойней на душе.
+
+2. AssociationRegistration работает теперь и в GCC.
+
 svs 26.12.2008 19:19:43 +0300 - build 697
 
 1. Mantis#0000685: Is Not removed window "to Search for" under "Searching for and change" in editor 

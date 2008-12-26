@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
+#include "imports.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -173,28 +174,22 @@ bool GetShellType(const wchar_t *Ext, string &strType)
 {
 	bool bVistaType = false;
 
-#ifndef __GNUC__
-	if (WinVer.dwMajorVersion >= 6)
+	if (WinVer.dwMajorVersion >= 6 && ifn.pfnSHCreateAssociationRegistration)
 	{
-		if (CoInitialize(NULL) == S_OK)
+		IApplicationAssociationRegistration* pAAR;
+		HRESULT hr = ifn.pfnSHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+		if (SUCCEEDED(hr))
 		{
-			IApplicationAssociationRegistration* pAAR;
-			HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
-			if (SUCCEEDED(hr))
+			wchar_t *p;
+			if (pAAR->QueryCurrentDefault(Ext, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
 			{
-				wchar_t *p;
-				if (pAAR->QueryCurrentDefault(Ext, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
-				{
-					bVistaType = true;
-					strType = p;
-					CoTaskMemFree(p);
-				}
-				pAAR->Release();
+				bVistaType = true;
+				strType = p;
+				CoTaskMemFree(p);
 			}
-			CoUninitialize();
+			pAAR->Release();
 		}
 	}
-#endif
 
 	if (!bVistaType)
 	{

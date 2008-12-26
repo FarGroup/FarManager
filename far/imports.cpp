@@ -42,11 +42,10 @@ void ImportedFunctions::Load()
 {
 	memset(this,0,sizeof(*this));
 
-	HMODULE hKernel = LoadLibraryW (L"kernel32.dll");
+	HMODULE hKernel = GetModuleHandleW (L"kernel32.dll");
+	HMODULE hShell = GetModuleHandleW (L"shell32.dll");
 	HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
 
-//
-//
 	if (hSetupAPI)
 	{
 		pfnGetDevNodeRegistryProperty = (PCMGETDEVNODEREGISTRYPROPERTY)GetProcAddress (
@@ -119,12 +118,16 @@ void ImportedFunctions::Load()
 			pfnRequestDeviceEject
 			);
 
-//
 	if (hKernel)
 	{
 		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress (hKernel, "GetConsoleKeyboardLayoutNameW");
 		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress (hKernel, "SetConsoleDisplayMode");
 
 		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
+	}
+
+	if (hShell)
+	{
+		pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
 	}
 }

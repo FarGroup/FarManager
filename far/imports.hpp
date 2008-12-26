@@ -128,6 +128,8 @@ typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE) (
 		PCOORD lpNewScreenBufferDimensions
 		);
 
+typedef HRESULT (WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
+
 struct ImportedFunctions {
 
 	//
@@ -149,6 +151,8 @@ struct ImportedFunctions {
 	PSETCONSOLEDISPLAYMODE pfnSetConsoleDisplayMode;
 
 	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
+
+	PSHCREATEASSOCIATIONREGISTRATION pfnSHCreateAssociationRegistration;
 
 	void Load();
 };
