@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "help.hpp"
 #include "syslog.hpp"
+#include "plugapi.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

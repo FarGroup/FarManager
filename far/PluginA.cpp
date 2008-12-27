@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "registry.hpp"
 #include "localOEM.hpp"
+#include "plugapi.hpp"
 
 #include "wrap.cpp"
 

@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TVMStack.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "plugapi.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{

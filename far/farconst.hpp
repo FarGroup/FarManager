@@ -49,6 +49,8 @@ inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 #define countof(a) (sizeof(a)/sizeof(a[0]))
 
+#define NullToEmpty(s) (s?s:L"")
+
 // типы рамок
 enum {
   NO_BOX,

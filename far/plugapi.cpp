@@ -35,9 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugin.hpp"
-
+#include "plugapi.hpp"
 #include "farwinapi.hpp"
-
 #include "keys.hpp"
 #include "lang.hpp"
 #include "help.hpp"
@@ -109,6 +108,11 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
   if(key && fcmp && base)
     return bsearch(key,base,nelem,width,fcmp);
   return NULL;
+}
+
+void WINAPI DeleteBuffer(void *Buffer)
+{
+  if(Buffer) xf_free(Buffer);
 }
 
 void ScanPluginDir();

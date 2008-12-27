@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __GNUC__
 #include <shobjidl.h>
 #endif
-#include "farqueue.hpp"
+#include "keyboard.hpp"
 #include "farwinapi.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"

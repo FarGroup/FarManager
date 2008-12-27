@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
-
 #include "scantree.hpp"
 #include "chgprior.hpp"
 #include "constitle.hpp"
@@ -59,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
 #include "registry.hpp"
+#include "plugapi.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)

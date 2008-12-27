@@ -268,8 +268,6 @@ void ShowFilter();
 inline bool IsUnicodeCP(UINT CP){return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM);}
 UINT GetTableEx (UINT nCurrent,bool bShowUnicode, bool bShowUTF);
 
-#define NullToEmpty(s) (s?s:L"")
-
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
@@ -322,101 +320,6 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize);
 
-int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
-
-#ifdef __PLUGIN_HPP__
-/* $ 17.03.2002 IS
-   Параметр UseTableName - в качестве имени таблицы использовать не имя ключа
-   реестра, а соответствующую переменную.
-   По умолчанию - FALSE (использовать имя ключа).
-*/
-int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FALSE);
-#endif
-
-
-#ifdef __PLUGIN_HPP__
-
-//----------- PLUGIN API/FSF ---------------------------------------------------
-//все эти функции, за исключение sprintf/sscanf имеют тип вызова __stdcall
-
-void __stdcall farUpperBuf(wchar_t *Buf, int Length);
-void __stdcall farLowerBuf(wchar_t *Buf, int Length);
-void __stdcall farStrUpper(wchar_t *s1);
-void __stdcall farStrLower(wchar_t *s1);
-wchar_t __stdcall farUpper(wchar_t Ch);
-wchar_t __stdcall farLower(wchar_t Ch);
-int __stdcall farStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
-int __stdcall farStrCmpI(const wchar_t *s1, const wchar_t *s2);
-int __stdcall farIsLower(wchar_t Ch);
-int __stdcall farIsUpper(wchar_t Ch);
-int __stdcall farIsAlpha(wchar_t Ch);
-int __stdcall farIsAlphaNum(wchar_t Ch);
-
-int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner);
-
-int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
-                  const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber);
-void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber);
-
-int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
-           const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
-           const struct FarMenuItem *Item, int ItemsNumber);
-const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
-int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
-           const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
-           int ButtonsNumber);
-int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
-HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
-void WINAPI FarRestoreScreen(HANDLE hScreen);
-
-int WINAPI FarGetDirList(const wchar_t *Dir, FAR_FIND_DATA **pPanelItem, int *pItemsNumber);
-void WINAPI FarFreeDirList(FAR_FIND_DATA *PanelItem, int nItemsNumber);
-
-int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2,int Y2,DWORD Flags, UINT CodePage);
-int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2, int Y2,DWORD Flags,
-                     int StartLine,int StartChar, UINT CodePage);
-int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath);
-void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str);
-int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
-int WINAPI FarEditorControl(int Command,void *Param);
-
-int WINAPI FarViewerControl(int Command,void *Param);
-
-/* Функция вывода помощи */
-BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
-                        const wchar_t *HelpTopic,DWORD Flags);
-
-/* Обертка вокруг GetString для плагинов - с меньшей функциональностью.
-   Сделано для того, чтобы не дублировать код GetString.*/
-
-int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
-                       const wchar_t *HistoryName,const wchar_t *SrcText,
-                       wchar_t *DestText,int DestLength,
-                       const wchar_t *HelpTopic,DWORD Flags);
-/* Функция, которая будет действовать и в редакторе, и в панелях, и... */
-INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
-//  Функция расширенного диалога
-HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
-                       const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                       unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
-                       FARWINDOWPROC Proc, LONG_PTR Param);
-int WINAPI FarDialogRun(HANDLE hDlg);
-void WINAPI FarDialogFree(HANDLE hDlg);
-//  Функция обработки диалога по умолчанию
-LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-// Посылка сообщения диалогу
-LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param2);
-
-int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
-
-int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
-#endif
-
-
 BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize);
 BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
 
@@ -464,13 +367,6 @@ BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
 
 string& ReplaceSlashToBSlash(string& strStr);
 
-wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
-__int64 WINAPI FarAtoi64(const wchar_t *s);
-wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix);
-int WINAPI FarAtoi(const wchar_t *s);
-void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
-
 int WINAPI CopyToClipboard(const wchar_t *Data);
 wchar_t* WINAPI PasteFromClipboard(void);
 
@@ -517,8 +413,6 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 extern "C" {
 #endif
 
-void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-
 typedef int  (WINAPI *FRSUSERFUNCW)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
 void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNCW func,DWORD flags,void *param);
 
@@ -538,8 +432,6 @@ BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 // обертка вокруг функции получения текущего пути.
 // для локального пути делает букву диска в uppercase
 DWORD FarGetCurDir(string &strBuffer);
-
-void WINAPI DeleteBuffer(void* Buffer);
 
 #ifdef __cplusplus
 };

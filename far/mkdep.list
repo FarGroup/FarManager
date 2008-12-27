@@ -165,6 +165,7 @@ panel.cpp
 plist.cpp
 plognmn.cpp
 plugapi.cpp
+plugapi.hpp
 plugins.cpp
 PluginA.cpp
 PluginW.cpp

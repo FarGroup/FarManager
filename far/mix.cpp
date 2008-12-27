@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugin.hpp"
-
+#include "plugapi.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
@@ -1029,16 +1029,6 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 
   return strDest;
 }
-
-/*$ 27.09.2000 skv
-  + Удаление буфера выделенного через new char[n];
-    Сделано для удаления возвращенного PasteFromClipboard
-*/
-void WINAPI DeleteBuffer(void *Buffer)
-{
-  if(Buffer) xf_free(Buffer);
-}
-
 
 string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 {
