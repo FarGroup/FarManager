@@ -309,11 +309,6 @@ enum {
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
 
-#define UnicodeToANSI(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define ANSIToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
-#define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
-
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 
 #define ADDSPACEFORPSTRFORMESSAGE 16

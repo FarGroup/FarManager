@@ -169,10 +169,9 @@ public:
 	DWORD GetWorkFlags() { return WorkFlags.Flags; }
 	DWORD GetFuncFlags() { return FuncFlags.Flags; }
 
-	int InitLang(const wchar_t *Path,int CountNeed=-1) { return Lang.Init(Path,CountNeed); }
+	int InitLang(const wchar_t *Path) { return Lang.Init(Path,true); }
 	void CloseLang() { Lang.Close(); }
 	const wchar_t *GetMsg (int nID) { return Lang.GetMsg(nID); }
-	const char *GetMsgA (int nID) { return Lang.GetMsgA(nID); }
 
 public:
 

@@ -392,13 +392,19 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
   for (int I=0;I<DizCount;I++)
     if (!DizData[I].Deleted)
     {
-      char *lpDizText = UnicodeToAnsi (DizData[I].DizText); //BUGBUG
+      int len = StrLength(DizData[I].DizText);
+      char *lpDizText = (char *) xf_malloc(len+1);
 
-      fprintf(DizFile,"%s\r\n", lpDizText);
+      if (lpDizText)
+      {
+				WideCharToMultiByte (CP_OEMCP, 0, DizData[I].DizText, len+1, lpDizText, len+1, NULL, NULL);
 
-      xf_free (lpDizText);
+				fprintf(DizFile,"%s\r\n", lpDizText);
 
-      AddedDizCount++;
+				xf_free (lpDizText);
+
+      	AddedDizCount++;
+      }
     }
 
   int CloseCode=fclose(DizFile);

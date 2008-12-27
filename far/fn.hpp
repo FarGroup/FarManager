@@ -36,9 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "filefilter.hpp"
 
-char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength = -1);
-void UnicodeToAnsi (const wchar_t *lpwszUnicodeString, char *lpDest, int nMaxLength = -1); //BUGBUG
-
 void SetHighlighting();
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);

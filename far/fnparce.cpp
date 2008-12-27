@@ -843,11 +843,13 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
       }
     }
 
-    char *lpFileName = UnicodeToAnsi (strFileName);
+    char *lpFileName = (char *) xf_malloc(strFileName.GetLength()+1);
+		strFileName.GetCharString(lpFileName, strFileName.GetLength()+1);
 
 //_D(SysLog(L"%s[%s] %s",__FILE__,Modifers,FileName));
     if (fprintf(ListFile,"%s\r\n", lpFileName)==EOF)
     {
+      xf_free (lpFileName);
       fclose(ListFile);
       DeleteFileW (strListFileName);
       Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));

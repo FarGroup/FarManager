@@ -26,6 +26,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,NULL)
+#define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
+
 void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
 {
 	if(lpszAnsiString && lpwszUnicodeString && nLength)
@@ -76,6 +79,13 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
           );
 
   return lpResult;
+}
+
+char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
+{
+	if(!lpwszUnicodeString)
+		return NULL;
+	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1);
 }
 
 wchar_t **ArrayAnsiToUnicode (char ** lpaszAnsiString, int iCount)
@@ -313,8 +323,8 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FindData.nFileSize>>32);
 	PanelItemA.PackSize = (DWORD)PanelItem.FindData.nPackSize;
 	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.FindData.nPackSize>>32);
-	UnicodeToAnsi(PanelItem.FindData.lpwszFileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
-	UnicodeToAnsi(PanelItem.FindData.lpwszAlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
+	UnicodeToOEM(PanelItem.FindData.lpwszFileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
+	UnicodeToOEM(PanelItem.FindData.lpwszAlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
 
 
@@ -646,7 +656,7 @@ void WINAPI GetPathRootA(const char *Path, char *Root)
 
 	GetPathRoot(strPath,strRoot);
 
-	strRoot.GetCharString(Root,strRoot.GetLength());
+	strRoot.GetCharString(Root,strRoot.GetLength()+1);
 }
 
 int WINAPI CopyToClipboardA(const char *Data)
@@ -673,7 +683,7 @@ void WINAPI DeleteBufferA(void *Buffer)
 int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 {
 	string strP1(Param1), strP2(Param2);
-	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //а хрен ещё как угадать скока там этот Param2
+	int size = (int)(strP1.GetLength()+strP2.GetLength()+NM)+1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 	wchar_t *p=(wchar_t *)xf_malloc(size*sizeof(wchar_t));
 	wcscpy(p,strP2);
 	int newFlags = 0;
@@ -695,7 +705,8 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 		newFlags|=PN_GENERATENAME|(Flags&0xFF);
 	}
 	int ret = ProcessName(strP1,p,size,newFlags);
-	UnicodeToAnsi(p,Param2);
+	if (newFlags&PN_GENERATENAME)
+		UnicodeToOEM(p,Param2,size);
 	xf_free(p);
 	return ret;
 }
@@ -711,7 +722,7 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 	string strKT;
 	int ret=KeyToText(OldKeyToKey(Key),strKT);
 	if (ret)
-		strKT.GetCharString(KeyText,Size>0?Size:32);
+		strKT.GetCharString(KeyText,Size>0?Size+1:32);
 	return ret;
 }
 
@@ -722,7 +733,7 @@ char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 
 	FarMkTemp(D,countof(D),strP);
 
-	UnicodeToAnsi(D,Dest);
+	UnicodeToOEM(D,Dest,StrLength(D)+1);
 	return Dest;
 }
 
@@ -780,11 +791,11 @@ static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const 
 	FindData.ftLastWriteTime = FData->ftLastWriteTime;
 	FindData.nFileSizeLow = (DWORD)FData->nFileSize;
 	FindData.nFileSizeHigh = (DWORD)(FData->nFileSize>>32);
-	UnicodeToAnsi(FData->lpwszFileName,FindData.cFileName,sizeof(FindData.cFileName));
-	UnicodeToAnsi(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
+	UnicodeToOEM(FData->lpwszFileName,FindData.cFileName,sizeof(FindData.cFileName));
+	UnicodeToOEM(FData->lpwszAlternateFileName,FindData.cAlternateFileName,sizeof(FindData.cAlternateFileName));
 
 	char FullNameA[NM];
-	UnicodeToAnsi(FullName,FullNameA,sizeof(FullNameA));
+	UnicodeToOEM(FullName,FullNameA,sizeof(FullNameA));
 
 	return pCallbackParam->Func(&FindData,FullNameA,pCallbackParam->Param);
 }
@@ -812,7 +823,6 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 	DWORD len = (DWORD)Min(strD.GetLength(),size-1);
 
 	strD.GetCharString(dest,len+1);
-	dest[len]=0;
 	return len;
 }
 
@@ -854,7 +864,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	int ret = FarInputBox((Title?(const wchar_t *)strT:NULL),(Prompt?(const wchar_t *)strP:NULL),(HistoryName?(const wchar_t *)strHN:NULL),(SrcText?(const wchar_t *)strST:NULL),D,DestLength,(HelpTopic?(const wchar_t *)strHT:NULL),Flags);
 	strD.ReleaseBuffer();
 	if (ret && DestText)
-		strD.GetCharString(DestText,DestLength);
+		strD.GetCharString(DestText,DestLength+1);
 	return ret;
 }
 
@@ -889,7 +899,7 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 {
 	//BUGBUG, надо проверять, что PluginHandle - плагин
 
-	Plugin *pPlugin = (Plugin*)PluginHandle;
+	PluginA *pPlugin = (PluginA*)PluginHandle;
 
 	string strPath = pPlugin->GetModuleName();
 
@@ -1493,10 +1503,10 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	{
 		diA->Data.Ptr.PtrLength=StrLength(di.PtrData);
 		diA->Data.Ptr.PtrData=(char*)xf_malloc(diA->Data.Ptr.PtrLength+1);
-		UnicodeToAnsi(di.PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
+		UnicodeToOEM(di.PtrData,diA->Data.Ptr.PtrData,diA->Data.Ptr.PtrLength+1);
 	}
 	else
-		UnicodeToAnsi(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data));
+		UnicodeToOEM(di.PtrData,diA->Data.Data,sizeof(diA->Data.Data));
 	return diA;
 }
 
@@ -1625,7 +1635,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 			LONG_PTR ret = FarSendDlgMessage(hDlg, DM_GETTEXT, Param1, (LONG_PTR)&did);
 			didA->PtrLength = (unsigned)did.PtrLength;
-			UnicodeToAnsi(text,didA->PtrData);
+			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
 			xf_free(text);
 			return ret;
 		}
@@ -1694,7 +1704,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 			wchar_t* text = (wchar_t *) xf_malloc ((length +1)* sizeof(wchar_t));
 			length = FarSendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, (LONG_PTR)text);
-			UnicodeToAnsi(text, (char *)Param2);
+			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
 			return length;
 		}
@@ -2064,9 +2074,9 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 				const wchar_t *res = pdi->PtrData;
 				if (!res) res = L"";
 				if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-					UnicodeToAnsi(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength+1);
+					UnicodeToOEM(res, Item[i].Data.Ptr.PtrData, Item[i].Data.Ptr.PtrLength+1);
 				else
-					UnicodeToAnsi(res, Item[i].Data.Data, sizeof(Item[i].Data.Data));
+					UnicodeToOEM(res, Item[i].Data.Data, sizeof(Item[i].Data.Data));
 
 				if(pdi->Type==DI_USERCONTROL)
 				{
@@ -2139,10 +2149,10 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	PIA->Focus = PIW->Focus;
 	PIA->ViewMode = PIW->ViewMode;
 
-	UnicodeToAnsi(PIW->lpwszColumnTypes, PIA->ColumnTypes, sizeof(PIA->ColumnTypes));
-	UnicodeToAnsi(PIW->lpwszColumnWidths, PIA->ColumnWidths, sizeof(PIA->ColumnWidths));
+	UnicodeToOEM(PIW->lpwszColumnTypes, PIA->ColumnTypes, sizeof(PIA->ColumnTypes));
+	UnicodeToOEM(PIW->lpwszColumnWidths, PIA->ColumnWidths, sizeof(PIA->ColumnWidths));
 
-	UnicodeToAnsi(PIW->lpwszCurDir, PIA->CurDir, sizeof(PIA->CurDir));
+	UnicodeToOEM(PIW->lpwszCurDir, PIA->CurDir, sizeof(PIA->CurDir));
 
 	PIA->ShortNames = PIW->ShortNames;
 
@@ -2350,7 +2360,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
 			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,NULL)+1)*sizeof(wchar_t));
 			FarControl(hPlugin,CmdW,s);
-			UnicodeToAnsi(s, (char*)Param, 1024);
+			UnicodeToOEM(s, (char*)Param, 1024);
 			return TRUE;
 		}
 
@@ -2471,8 +2481,8 @@ int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPane
 				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
 				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
 				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
-				UnicodeToAnsi(pItems[i].lpwszFileName,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
-				UnicodeToAnsi(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
+				UnicodeToOEM(pItems[i].lpwszFileName,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+				UnicodeToOEM(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
 			}
 		}
 		else
@@ -2582,7 +2592,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			{
 				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
 				FarAdvControl(ModuleNumber, ACTL_GETSYSWORDDIV, SysWordDiv);
-				UnicodeToAnsi(SysWordDiv,(char*)Param,NM);
+				UnicodeToOEM(SysWordDiv,(char*)Param,NM);
 				xf_free (SysWordDiv);
 			}
 			return Length;
@@ -2709,8 +2719,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				wiA->Current = wi.Current;
 				if(cmd==ACTL_GETWINDOWINFO)
 				{
-					UnicodeToAnsi(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
-					UnicodeToAnsi(wi.Name,wiA->Name,sizeof(wiA->Name));
+					UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
+					UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
 					FarAdvControl(ModuleNumber,ACTL_FREEWINDOWINFO,&wi);
 				}
 				else

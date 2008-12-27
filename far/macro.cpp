@@ -1836,7 +1836,9 @@ static bool dlggetvalueFunc()
       if(TypeInf == 0)
       {
         if(ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
+        {
           TypeInf=7;
+        }
         else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
         {
           struct FarListGetItem ListItem;
@@ -1846,11 +1848,15 @@ static bool dlggetvalueFunc()
             Ret=(wchar_t *)ListItem.Item.Text;
           }
           else
+          {
             Ret=L"";
+          }
           TypeInf=-1;
         }
         else
+        {
           TypeInf=10;
+        }
       }
 
       switch(TypeInf)
@@ -1864,7 +1870,9 @@ static bool dlggetvalueFunc()
         case 7:
         {
           if(ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
+          {
             Ret=(__int64)Item->Selected;
+          }
           else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
           {
             Ret=(__int64)(Item->ListPtr->GetSelectPos()+1);
@@ -1887,13 +1895,8 @@ static bool dlggetvalueFunc()
         case 9: Ret=(__int64)Item->DefaultButton; break;
         case 10:
         {
-          wchar_t Str[512]=L"";
-          // <TODO: для UNICODE обязательно расскомментить и обработать>
-          // if((ItemType == DI_COMBOBOX || ItemType == DI_EDIT) && (ItemFlags&DIF_VAREDIT))
-          // ругается: error C2662: 'UnicodeString::GetCharString' : cannot convert 'this' pointer from 'const UnicodeString' to 'UnicodeString &'
-          //                    Conversion loses qualifiers
-          //Item->strData.GetCharString(Str,sizeof(Str)-1); // UNICODE! BUG!!!
-          Ret=(wchar_t *)Str;
+          //BUGBUG для edit и т.п. вроде строку надо в другом месте брать, щас нету сил разбиратся
+          Ret=(wchar_t *)(const wchar_t *)Item->strData;
           break;
         }
       }

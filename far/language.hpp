@@ -51,6 +51,8 @@ class Language
 
     string strMessageFile;
 
+    bool m_bUnicode;
+
   private:
     void ConvertString(const wchar_t *Src,string &strDest);
     BOOL CheckMsgId(int MsgId);
@@ -61,19 +63,19 @@ class Language
     ~Language();
 
   public:
-    int Init(const wchar_t *Path,int CountNeed=-1);
+    int Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
     void Close();
 
     const wchar_t* GetMsg (int nID);
     const char* GetMsgA (int nID);
 
     static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
-    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage);
+    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
     /*
        метод, для получения параметров для .Options
         .Options <KeyName>=<Value>
     */
-    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage);
+    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };
 

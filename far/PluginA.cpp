@@ -529,7 +529,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
   PSI->ModuleNumber=(INT_PTR)pPlugin;
   PSI->FSF=FSF;
 
-  pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName)-1);
+  pPlugin->GetModuleName().GetCharString(PSI->ModuleName,sizeof(PSI->ModuleName));
   PSI->RootKey=NULL;
 }
 

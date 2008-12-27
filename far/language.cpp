@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
-
 #include "fn.hpp"
 #include "lang.hpp"
 #include "scantree.hpp"
@@ -66,15 +65,19 @@ Language::Language()
 
   MsgCount=0;
   MsgSize=0;
+
+  m_bUnicode = true;
 }
 
 
-int Language::Init(const wchar_t *Path,int CountNeed)
+int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 {
-  if (MsgList!=NULL)
+  if (MsgList!=NULL || MsgListA!=NULL)
     return(TRUE);
 
   int LastError=GetLastError();
+
+  m_bUnicode = bUnicode;
 
   UINT nCodePage = CP_OEMCP;
   string strLangName=Opt.strLanguage;
@@ -88,13 +91,13 @@ int Language::Init(const wchar_t *Path,int CountNeed)
   wchar_t ReadStr[1024];
   memset (&ReadStr, 0, sizeof (ReadStr));
 
-  while ( ReadString (LangFile, ReadStr, sizeof (ReadStr)/sizeof (wchar_t), nCodePage) !=NULL )
+  while ( ReadString (LangFile, ReadStr, countof(ReadStr), nCodePage) !=NULL )
   {
     string strDestStr;
     RemoveExternalSpaces(ReadStr);
     if ( *ReadStr != L'\"')
       continue;
-    int SrcLength=(int)wcslen (ReadStr);
+    int SrcLength=StrLength(ReadStr);
 
     if (ReadStr[SrcLength-1]==L'\"')
       ReadStr[SrcLength-1]=0;
@@ -103,29 +106,33 @@ int Language::Init(const wchar_t *Path,int CountNeed)
 
     int DestLength=(int)pack(strDestStr.GetLength()+1);
 
-    if ( (MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
+    if (m_bUnicode)
     {
-      fclose(LangFile);
-      return(FALSE);
-    }
+			if ( (MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
+			{
+				fclose(LangFile);
+				return FALSE;
+			}
 
-    if ( (MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof (char))) == NULL )
-    {
-      xf_free (MsgList);
-      fclose(LangFile);
-      return FALSE;
-    }
+    	*(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
+	    wcscpy(MsgList+MsgSize, strDestStr);
+		}
+		else
+		{
+			if ( (MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof (char))) == NULL )
+			{
+				fclose(LangFile);
+				return FALSE;
+			}
 
-    *(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
-    *(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
-
-    wcscpy(MsgList+MsgSize, strDestStr);
-
-    UnicodeToAnsi (strDestStr, MsgListA+MsgSize, DestLength);
+	    *(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
+	    WideCharToMultiByte (CP_OEMCP, 0, strDestStr, -1, MsgListA+MsgSize, DestLength, NULL, NULL);
+		}
 
     MsgSize+=DestLength;
     MsgCount++;
   }
+
   //   Проведем проверку на количество строк в LNG-файлах
   if(CountNeed != -1 && CountNeed != MsgCount-1)
   {
@@ -133,47 +140,52 @@ int Language::Init(const wchar_t *Path,int CountNeed)
     return(FALSE);
   }
 
-  wchar_t *CurAddr = MsgList;
-  char *CurAddrA = MsgListA;
-
-  MsgAddr = new wchar_t*[MsgCount];
-
-  if ( MsgAddr == NULL )
+  if (m_bUnicode)
   {
-    fclose(LangFile);
-    return(FALSE);
+		wchar_t *CurAddr = MsgList;
+
+		MsgAddr = new wchar_t*[MsgCount];
+
+		if ( MsgAddr == NULL )
+		{
+			fclose(LangFile);
+			return(FALSE);
+		}
+
+		for (int I=0;I<MsgCount;I++)
+		{
+			MsgAddr[I]=CurAddr;
+			CurAddr+=pack(StrLength(CurAddr)+1);
+		}
   }
-
-  MsgAddrA = new char*[MsgCount];
-
-  if ( MsgAddrA == NULL )
+  else
   {
-    delete[] MsgAddr;
-    MsgAddr=NULL;
-    fclose(LangFile);
-    return FALSE;
-  }
+		char *CurAddrA = MsgListA;
 
-  for (int I=0;I<MsgCount;I++)
-  {
-    MsgAddr[I]=CurAddr;
-    CurAddr+=pack(StrLength(CurAddr)+1);
-  }
+		MsgAddrA = new char*[MsgCount];
 
-  for (int I=0;I<MsgCount;I++)
-  {
-    MsgAddrA[I]=CurAddrA;
-    CurAddrA+=pack(strlen(CurAddrA)+1);
+		if ( MsgAddrA == NULL )
+		{
+			delete[] MsgAddr;
+			MsgAddr=NULL;
+			fclose(LangFile);
+			return FALSE;
+		}
+
+		for (int I=0;I<MsgCount;I++)
+		{
+			MsgAddrA[I]=CurAddrA;
+			CurAddrA+=pack(strlen(CurAddrA)+1);
+		}
   }
 
   fclose(LangFile);
   SetLastError(LastError);
-  if(this == &Lang)
+  if (this == &Lang)
     OldLang.Free();
   LanguageLoaded=TRUE;
   return(TRUE);
 }
-
 
 Language::~Language()
 {
@@ -182,23 +194,24 @@ Language::~Language()
 
 void Language::Free()
 {
-  if(MsgList)xf_free(MsgList);
-  if(MsgListA)xf_free(MsgListA);
+  if (MsgList) xf_free(MsgList);
+  if (MsgListA )xf_free(MsgListA);
   MsgList=NULL;
   MsgListA=NULL;
-  if(MsgAddr)delete[] MsgAddr;
+  if (MsgAddr) delete[] MsgAddr;
   MsgAddr=NULL;
-  if(MsgAddrA)delete[] MsgAddrA;
+  if (MsgAddrA) delete[] MsgAddrA;
   MsgAddrA=NULL;
   MsgCount=0;
   MsgSize=0;
+  m_bUnicode = true;
 }
 
 void Language::Close()
 {
   if(this == &Lang)
   {
-    if(OldLang.MsgCount)
+    if (OldLang.MsgCount)
       OldLang.Free();
     OldLang.MsgList=MsgList;
     OldLang.MsgAddr=MsgAddr;
@@ -206,6 +219,7 @@ void Language::Close()
     OldLang.MsgAddrA=MsgAddrA;
     OldLang.MsgCount=MsgCount;
     OldLang.MsgSize=MsgSize;
+    OldLang.m_bUnicode=m_bUnicode;
   }
 
   MsgList=NULL;
@@ -214,6 +228,7 @@ void Language::Close()
   MsgAddrA=NULL;
   MsgCount=0;
   MsgSize=0;
+  m_bUnicode = true;
   LanguageLoaded=FALSE;
 }
 
@@ -307,7 +322,7 @@ BOOL Language::CheckMsgId(int MsgId)
 
 const wchar_t* Language::GetMsg (int nID)
 {
-  if( !CheckMsgId (nID) )
+  if (!m_bUnicode || !CheckMsgId (nID) )
     return L"";
 
   if( this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
@@ -318,7 +333,7 @@ const wchar_t* Language::GetMsg (int nID)
 
 const char* Language::GetMsgA (int nID)
 {
-  if( !CheckMsgId (nID) )
+  if (m_bUnicode || !CheckMsgId (nID) )
     return "";
 
   if( this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
@@ -382,7 +397,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
 }
 
 
-int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, int nCodePage)
+int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
   wchar_t ReadStr[1024];
 
@@ -514,7 +529,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   + Новый метод, для получения параметров для .Options
    .Options <KeyName>=<Value>
 */
-int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, int nCodePage)
+int Language::GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
   wchar_t ReadStr[1024];
   string strFullParamName;

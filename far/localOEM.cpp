@@ -174,13 +174,13 @@ int LocalKeyToKey(int Key)
 {
   _KEYMACRO(CleverSysLog Clev(L"LocalKeyToKey()"));
   _KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-  unsigned char CvtStr[2];
+  char CvtStr[2];
   wchar_t wCvtStr[2];
   wCvtStr[1]=0;
   wCvtStr[0]=Key&0x0000FFFF;
-  UnicodeToANSI((wchar_t *)wCvtStr,(char *)CvtStr,1);
+  WideCharToMultiByte(CP_ACP,0,wCvtStr,-1,CvtStr,1,NULL,NULL);
   //_SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
-  return(KeyToKey[CvtStr[0]]);
+  return(KeyToKey[(unsigned)CvtStr[0]]);
 }
 
 int WINAPI LocalIslower(unsigned Ch)

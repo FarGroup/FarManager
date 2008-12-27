@@ -58,24 +58,26 @@ void UnicodeString::Inflate(size_t nSize)
   }
 }
 
-size_t UnicodeString::GetCharString(char *lpszStr, size_t nLength, UINT CodePage) const
+size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, UINT CodePage) const
 {
-  size_t nCopyLength = (nLength <= m_pData->GetLength() ? nLength : m_pData->GetLength());
-  WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,NULL,NULL);
-  lpszStr[nCopyLength] = 0;
-  return nCopyLength;
+	if (!lpszStr)
+		return 0;
+	size_t nCopyLength = (nSize <= m_pData->GetLength()+1 ? nSize-1 : m_pData->GetLength());
+	WideCharToMultiByte(CodePage,0,m_pData->GetData(),(int)nCopyLength,lpszStr,(int)nCopyLength+1,NULL,NULL);
+	lpszStr[nCopyLength] = 0;
+	return nCopyLength+1;
 }
 
 const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 {
-  if ( strCopy.m_pData != m_pData )
-  {
-    if (m_pData)
-      m_pData->DecRef();
-    m_pData = strCopy.m_pData;
-    m_pData->AddRef();
-  }
-  return *this;
+	if ( strCopy.m_pData != m_pData )
+	{
+		if (m_pData)
+			m_pData->DecRef();
+		m_pData = strCopy.m_pData;
+		m_pData->AddRef();
+	}
+	return *this;
 }
 
 const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)

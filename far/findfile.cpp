@@ -2325,7 +2325,7 @@ int FindFiles::LookForString(const wchar_t *Name)
     	return(TRUE);
 
 	char FindStr[512];
-	UnicodeToAnsi(strFindStr, FindStr, 512);
+	WideCharToMultiByte (CP_OEMCP, 0, strFindStr, -1, FindStr, 512, NULL, NULL);
 
 	HANDLE FileHandle=apiCreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
 									FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
@@ -2358,7 +2358,10 @@ int FindFiles::LookForString(const wchar_t *Name)
 
 	char *lpWordDiv = NULL;
 	if (WholeWords && !SearchHex)
-		lpWordDiv = UnicodeToAnsi (Opt.strWordDiv);
+	{
+		lpWordDiv = (char *) xf_malloc(Opt.strWordDiv.GetLength()+1);
+		Opt.strWordDiv.GetCharString(lpWordDiv, Opt.strWordDiv.GetLength()+1);
+	}
 
 	int FirstIteration=TRUE;
 	int ReverseBOM=FALSE;

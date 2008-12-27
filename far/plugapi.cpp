@@ -1056,7 +1056,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 {
 	//BUGBUG, надо проверять, что PluginHandle - плагин
 
-	Plugin *pPlugin = (Plugin*)PluginHandle;
+	PluginW *pPlugin = (PluginW*)PluginHandle;
 
 	string strPath = pPlugin->GetModuleName();
 

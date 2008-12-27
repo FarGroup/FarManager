@@ -557,7 +557,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   InitDetectWindowedMode();
   InitConsole();
   GetRegKey(L"Language",L"Main",Opt.strLanguage,L"English");
-  if (!Lang.Init(g_strFarPath,MNewFileName))
+  if (!Lang.Init(g_strFarPath,true,MNewFileName))
   {
     ControlObject::ShowCopyright(1);
     fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");

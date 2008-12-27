@@ -1523,49 +1523,6 @@ BOOL TestParentFolderName(const wchar_t *Name)
   return Name[0] == L'.' && Name[1] == L'.' && !Name[2];
 }
 
-char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)
-{
- if(!lpwszUnicodeString)lpwszUnicodeString=L"";
- int nLength = (int)wcslen (lpwszUnicodeString)+1;
-
-  if ( (nMaxLength > 0) && (nMaxLength < nLength) )
-    nLength = nMaxLength;
-
-  char *lpResult = (char*)xf_malloc (nLength);
-
-  memset (lpResult, 0, nLength);
-
-  WideCharToMultiByte (
-          CP_OEMCP,
-          0,
-          lpwszUnicodeString,
-          -1,
-          lpResult,
-          nLength,
-          NULL,
-          NULL
-          );
-
-  return lpResult;
-}
-
-void UnicodeToAnsi (
-        const wchar_t *lpwszUnicodeString,
-        char *lpDest,
-        int nMaxLength
-        ) //BUGBUG
-{
-  if(!lpwszUnicodeString)lpwszUnicodeString=L"";
-  int nLength = (int)wcslen (lpwszUnicodeString)+1;
-
-  if ( (nMaxLength > 0) && (nMaxLength < nLength) )
-    nLength = nMaxLength;
-
-  memset (lpDest, 0, nLength);
-
-  WideCharToMultiByte (CP_OEMCP, 0, lpwszUnicodeString, -1, lpDest, nLength, NULL, NULL); //RAVE!!!
-}
-
 bool CutToSlash(string &strStr, bool bInclude)
 {
   size_t pos;
