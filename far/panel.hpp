@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "farconst.hpp"
-#include "struct.hpp"
+
+
 
 class DizList;
 

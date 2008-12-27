@@ -33,9 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farconst.hpp"
-#include "unicodestring.hpp"
-
 
 class VMenu;
 
@@ -81,5 +78,7 @@ class Language
 };
 
 extern Language Lang;
+
+#define MSG(ID) Lang.GetMsg(ID)
 
 #endif  // __LANGUAGE_HPP__

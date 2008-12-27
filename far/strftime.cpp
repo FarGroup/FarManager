@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-#include "global.hpp"
+
 #include "lang.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
@@ -52,7 +52,7 @@ void PrepareStrFTime()
 	wchar_t *lpwszTemp=strTemp.GetBuffer(size);
 	GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,lpwszTemp,size);
 	strTemp.ReleaseBuffer();
-	WeekFirst=FarAtoi(strTemp);
+	WeekFirst=_wtoi(strTemp);
 
 	for(int i=0;i<2;i++)
 	{

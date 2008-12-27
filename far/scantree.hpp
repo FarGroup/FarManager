@@ -34,10 +34,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farconst.hpp"
+
 #include "bitflags.hpp"
-#include "UnicodeString.hpp"
-#include "struct.hpp"
+
+
 
 enum{
   // эту фигню может ставить плагин (младшие 8 бит)

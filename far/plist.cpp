@@ -34,13 +34,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
+
 #include "fn.hpp"
 #include "keys.hpp"
 #include "help.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "BlockExtKey.hpp"
+#include "language.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);

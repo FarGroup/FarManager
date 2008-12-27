@@ -34,9 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "struct.hpp"
+
 #include "plugin.hpp"
-#include "farconst.hpp"
+
 #include "bitflags.hpp"
 #include "fn.hpp"
 

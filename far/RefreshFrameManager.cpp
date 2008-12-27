@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
+
 #include "lockscrn.hpp"
 #include "frame.hpp"
 #include "manager.hpp"

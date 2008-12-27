@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syntax.hpp"
 #include "tvar.hpp"
 #include "syslog.hpp"
+#include "language.hpp"
 
 #define EOFCH 65536
 

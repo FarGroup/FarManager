@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-#include "UnicodeString.hpp"
+
 
 void UnicodeString::Inflate(size_t nSize)
 {

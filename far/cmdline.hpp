@@ -35,8 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "edit.hpp"
-#include "farconst.hpp"
-#include "UnicodeString.hpp"
+
+
 
 enum {
   FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,

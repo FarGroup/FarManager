@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "infolist.hpp"
 #include "macroopcode.hpp"
-#include "global.hpp"
+
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "colors.hpp"

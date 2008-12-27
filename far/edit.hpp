@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "colors.hpp"
 #include "bitflags.hpp"
-#include "UnicodeString.hpp"
+
 
 //изменить флаги (подвинуть убрав FEDITLINE_CONVERTTABS)
 

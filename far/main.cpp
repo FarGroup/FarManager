@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
 #include "farwinapi.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -54,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "localOEM.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;

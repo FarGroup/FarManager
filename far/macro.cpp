@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "lang.hpp"
 #include "plugin.hpp"
 #include "lockscrn.hpp"

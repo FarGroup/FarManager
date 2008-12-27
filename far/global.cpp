@@ -34,9 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
-#include "farqueue.hpp"
-
 /* $ 29.06.2000 tran
   берем char *CopyRight из inc файла */
 #include "copyright.inc"
@@ -71,18 +68,6 @@ int WaitInFastFind=FALSE;
 
 // мы крутимся в основном цикле?
 int WaitInMainLoop=FALSE;
-
-// "дополнительная" очередь кодов клавиш
-FarQueue<DWORD> *KeyQueue=NULL;
-int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
-int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
-int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
-int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
-int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
-int PreMouseEventFlags=0,MouseEventFlags=0;
-
-// только что был ввод Alt-Цифира?
-int ReturnAltValue=0;
 
 
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};

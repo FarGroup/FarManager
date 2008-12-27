@@ -63,4 +63,6 @@ class FarQueue
     int Put(const Object& x);
 };
 
+extern FarQueue<DWORD> *KeyQueue;
+
 #endif // _FARQUEUE_H

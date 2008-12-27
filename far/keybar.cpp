@@ -37,11 +37,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "fn.hpp"
 #include "colors.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "keys.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "language.hpp"
 
 KeyBar::KeyBar()
 {

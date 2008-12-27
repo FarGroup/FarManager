@@ -33,12 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farconst.hpp"
-#include "global.hpp"
 #include "plugin.hpp"
 #include "filefilter.hpp"
-
-#define countof(a) (sizeof(a)/sizeof(a[0]))
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength = -1);
 void UnicodeToAnsi (const wchar_t *lpwszUnicodeString, char *lpDest, int nMaxLength = -1); //BUGBUG
@@ -150,10 +146,6 @@ BOOL IsCaseLower(const string &strStr);
 
 int DeleteFileWithFolder(const wchar_t *FileName);
 
-const wchar_t* GetLanguageString (int nID);
-
-#define MSG(ID) GetLanguageString(ID)
-
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
             INT_PTR PluginNumber=-1);
@@ -263,48 +255,6 @@ string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 
 void SetFarTitle(const wchar_t *Title);
-void LocalUpperInit();
-void InitLCIDSort();
-void InitKeysArray();
-int WINAPI LocalIslower(unsigned Ch);
-int WINAPI LocalIsupper(unsigned Ch);
-int WINAPI LocalIsalpha(unsigned Ch);
-int WINAPI LocalIsalphanum(unsigned Ch);
-
-unsigned WINAPI LocalUpper(unsigned LowerChar);
-void WINAPI LocalUpperBuf(char *Buf,int Length);
-void WINAPI LocalLowerBuf(char *Buf,int Length);
-unsigned WINAPI LocalLower(unsigned UpperChar);
-void WINAPI LocalStrupr(char *s1);
-void WINAPI LocalStrlwr(char *s1);
-int WINAPI LStricmp(const char *s1,const char *s2);
-int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
-const char * __cdecl LocalStrstri(const char *str1, const char *str2);
-const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
-
-int __cdecl StrLength(const wchar_t *str);
-
-const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
-const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
-
-void __cdecl UpperBuf(wchar_t *Buf, int Length);
-void __cdecl LowerBuf(wchar_t *Buf, int Length);
-void __cdecl StrUpper(wchar_t *s1);
-void __cdecl StrLower(wchar_t *s1);
-
-wchar_t __cdecl Upper(wchar_t Ch);
-wchar_t __cdecl Lower(wchar_t Ch);
-int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
-int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2);
-int __cdecl IsLower(wchar_t Ch);
-int __cdecl IsUpper(wchar_t Ch);
-int __cdecl IsAlpha(wchar_t Ch);
-int __cdecl IsAlphaNum(wchar_t Ch);
-
-int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2);
-int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
-int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2);
-int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
 
 int LocalKeyToKey(int Key);
 int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL,
@@ -330,7 +280,6 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
 
 void SIDCacheFlush(void);
 
-void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
 void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
@@ -479,7 +428,6 @@ void UnquoteExternal(string &strStr);
 wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str);
 string& WINAPI RemoveLeadingSpaces(string &strStr);
 
-char* WINAPI RemoveTrailingSpacesA(char *Str);
 wchar_t *WINAPI RemoveTrailingSpaces(wchar_t *Str);
 string& WINAPI RemoveTrailingSpaces(string &strStr);
 
@@ -516,7 +464,6 @@ BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
 
 string& ReplaceSlashToBSlash(string& strStr);
 
-int __digit_cnt_0(const wchar_t* s, const wchar_t** beg);
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix);
 __int64 WINAPI FarAtoi64(const wchar_t *s);
 wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix);
@@ -665,35 +612,6 @@ DWORD WINAPI FarGetLogicalDrives(void);
 
 string &Add_PATHEXT(string &strDest);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void __cdecl qsortex(char *base, size_t nel, size_t width,
-            int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
-
-char * __cdecl farmktemp(char *temp);
-char * __cdecl xstrncat (char * dest,const char * src,size_t maxlen);
-wchar_t * __cdecl xwcsncat (wchar_t * dest,const wchar_t * src,size_t maxlen);
-char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
-wchar_t * __cdecl xwcsncpy (wchar_t * dest,const wchar_t * src,size_t maxlen);
-char * __cdecl xf_strdup (const char * string);
-wchar_t * __cdecl xf_wcsdup (const wchar_t * string);
-void __cdecl far_qsort (
-    void *base,
-    size_t num,
-    size_t width,
-    int (__cdecl *comp)(const void *, const void *)
-    );
-
-void  __cdecl xf_free(void *__block);
-void *__cdecl xf_malloc(size_t __size);
-void *__cdecl xf_realloc(void *__block, size_t __size);
-
-#ifdef __cplusplus
-}
-#endif
-
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
 void PrepareStrFTime();
@@ -718,11 +636,6 @@ string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
-
-long filelen(FILE *FPtr);
-__int64 filelen64(FILE *FPtr);
-__int64 ftell64(FILE *fp);
-int fseek64 (FILE *fp, __int64 offset, int whence);
 
 BOOL IsDiskInDrive(const wchar_t *Drive);
 

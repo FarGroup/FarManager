@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "lang.hpp"
-#include "global.hpp"
+
 #include "fn.hpp"
 #include "flink.hpp"
 #include "syslog.hpp"

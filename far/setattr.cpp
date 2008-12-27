@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
-#include "global.hpp"
+
 #include "lang.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"

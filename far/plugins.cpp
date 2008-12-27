@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
-#include "global.hpp"
+
 #include "scantree.hpp"
 #include "chgprior.hpp"
 #include "constitle.hpp"

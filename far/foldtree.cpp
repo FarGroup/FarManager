@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
 #include "foldtree.hpp"
+#include "keyboard.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
 #include "lang.hpp"

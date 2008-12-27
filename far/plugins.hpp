@@ -35,8 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "language.hpp"
 #include "bitflags.hpp"
-#include "unicodestring.hpp"
-#include "struct.hpp"
+
+
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"

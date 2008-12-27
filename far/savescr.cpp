@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "fn.hpp"
 #include "colors.hpp"
-#include "global.hpp"
+
 #include "syslog.hpp"
 
 SaveScreen::SaveScreen()

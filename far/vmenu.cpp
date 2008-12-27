@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "vmenu.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "lang.hpp"
 #include "fn.hpp"
 #include "keys.hpp"

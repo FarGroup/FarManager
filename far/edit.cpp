@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "edit.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
 #include "macroopcode.hpp"

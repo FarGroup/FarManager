@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "findfile.hpp"
 #include "plugin.hpp"
-#include "global.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
@@ -61,6 +60,77 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
 #include "syslog.hpp"
+#include "localOEM.hpp"
+
+
+/* BUGBUG времено, пока не доделан юникод */
+char* WINAPI RemoveTrailingSpacesA(char *Str);
+
+void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
+{
+  int I,J,L,N;
+  char *stop,HexNum[3];
+
+  switch(TransformType)
+  {
+    case 'X': // Convert common string to hexadecimal string representation
+    {
+      *(char *)Buffer=0;
+      L=(int)strlen(ConvStr);
+      N=Min((BufLen-1)/2,L);
+      for (I=0,J=0;I<N;I++,J+=2)
+      {
+        // "%02X" - два выходящих символа на каждый один входящий
+        sprintf((char *)Buffer+J,"%02X",ConvStr[I]);
+        BufLen=J+1;
+      }
+
+      RemoveTrailingSpacesA((char *)Buffer);
+      break;
+    }
+    case 'S': // Convert hexadecimal string representation to common string
+    {
+      *(char *)Buffer=0;
+
+      L=(int)strlen(ConvStr);
+      char *NewStr=new char[L+1];
+      if (NewStr==NULL)
+        return;
+
+      // Подготовка временной строки
+      memset(NewStr,0,L+1);
+
+      // Обработка hex-строки: убираем пробелы между байтами.
+      for (I=0,J=0;ConvStr[I];++I)
+      {
+        if (ConvStr[I]==' ')
+          continue;
+        NewStr[J]=ConvStr[I];
+        ++J;
+      }
+
+      L=(int)strlen(NewStr);
+      N=Min(BufLen-1,L);
+      for (I=0,J=0;I<N;I+=2,J++)
+      {
+        // "HH" - два входящих символа на каждый один выходящий
+        xstrncpy(HexNum,&NewStr[I],2);
+        HexNum[2]=0;
+        unsigned long value=strtoul(HexNum,&stop,16);
+        Buffer[J]=static_cast<unsigned char>(value);
+        BufLen=J+1;
+      }
+      Buffer[J]=0;
+
+      delete []NewStr;
+      break;
+    }
+    default:
+      break;
+  }
+}
+/* BUGBUG времено, пока не доделан юникод */
+
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74

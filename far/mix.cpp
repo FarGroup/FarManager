@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugin.hpp"
-#include "global.hpp"
+
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
@@ -825,11 +825,6 @@ int CheckFolder(const wchar_t *Path)
   return CHKFLD_EMPTY;
 }
 
-const wchar_t* GetLanguageString (int nID)
-{
-	return Lang.GetMsg(nID);
-}
-
 BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
   int ExitCode=0;
@@ -987,52 +982,6 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
    Вернет либо NULL, либо указатель на Dest.
 */
-/* $ 25.10.2000 IS
- ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
-   вариант приводил к ошибке (заметили на Multiarc'е)
-   Параметр Prefix - строка, указывающая на первые символы имени временного
-   файла. Используются только первые 3 символа из этой строки.
-*/
-
-/*
-char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
-{
-  return FarMkTempEx(Dest,Prefix,TRUE);
-}
-
-*/
-/*
-             v - точка
-   prefXXX X X XXX
-       \ / ^   ^^^\ PID + TID
-        |  \------/
-        |
-        +---------- [0A-Z]
-*/
-/*
-char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
-{
-  if(Dest)
-  {
-    if(!(Prefix && *Prefix))
-      Prefix="FTMP";
-
-    char TempName[NM];
-    TempName[0]=0;
-    if(WithPath)
-      strcpy(TempName,Opt.TempPath);
-    strcat(TempName,"0000XXXXXXXX");
-    memcpy(TempName+strlen(TempName)-12,Prefix,Min((int)strlen(Prefix),4));
-    if (farmktemp(TempName)!=NULL)
-    {
-      strcpy(Dest,strupr(TempName));
-      return Dest;
-    }
-  }
-  return NULL;
-}
-*/
-
 wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 {
     string strDest;
@@ -1046,6 +995,14 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
     return NULL;
 }
 
+/*
+             v - точка
+   prefXXX X X XXX
+       \ / ^   ^^^\ PID + TID
+        |  \------/
+        |
+        +---------- [0A-Z]
+*/
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 {
   if(!(Prefix && *Prefix))
@@ -1563,70 +1520,6 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
       break;
   }
   strBuffer=strTemp;
-}
-
-void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
-{
-  int I,J,L,N;
-  char *stop,HexNum[3];
-
-  switch(TransformType)
-  {
-    case 'X': // Convert common string to hexadecimal string representation
-    {
-      *(char *)Buffer=0;
-      L=(int)strlen(ConvStr);
-      N=Min((BufLen-1)/2,L);
-      for (I=0,J=0;I<N;I++,J+=2)
-      {
-        // "%02X" - два выходящих символа на каждый один входящий
-        sprintf((char *)Buffer+J,"%02X",ConvStr[I]);
-        BufLen=J+1;
-      }
-
-      RemoveTrailingSpacesA((char *)Buffer);
-      break;
-    }
-    case 'S': // Convert hexadecimal string representation to common string
-    {
-      *(char *)Buffer=0;
-
-      L=(int)strlen(ConvStr);
-      char *NewStr=new char[L+1];
-      if (NewStr==NULL)
-        return;
-
-      // Подготовка временной строки
-      memset(NewStr,0,L+1);
-
-      // Обработка hex-строки: убираем пробелы между байтами.
-      for (I=0,J=0;ConvStr[I];++I)
-      {
-        if (ConvStr[I]==' ')
-          continue;
-        NewStr[J]=ConvStr[I];
-        ++J;
-      }
-
-      L=(int)strlen(NewStr);
-      N=Min(BufLen-1,L);
-      for (I=0,J=0;I<N;I+=2,J++)
-      {
-        // "HH" - два входящих символа на каждый один выходящий
-        xstrncpy(HexNum,&NewStr[I],2);
-        HexNum[2]=0;
-        unsigned long value=strtoul(HexNum,&stop,16);
-        Buffer[J]=static_cast<unsigned char>(value);
-        BufLen=J+1;
-      }
-      Buffer[J]=0;
-
-      delete []NewStr;
-      break;
-    }
-    default:
-      break;
-  }
 }
 
 /*

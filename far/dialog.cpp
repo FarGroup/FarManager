@@ -34,11 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "farconst.hpp"
+
 #include "dialog.hpp"
 #include "lang.hpp"
 #include "farwinapi.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"

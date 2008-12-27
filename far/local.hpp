@@ -1,3 +1,10 @@
+#ifndef __LOCAL_HPP__
+#define __LOCAL_HPP__
+/*
+local.hpp
+
+Сравнение без учета регистра, преобразование регистра
+*/
 /*
 Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
@@ -26,39 +33,32 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+inline int __cdecl StrLength(const wchar_t *str) { return (int) wcslen(str); }
 
-// maxlen - максимальное число символов, которое может содержать
-//          dest БЕЗ учета заключительного нуля, т.е. в общем
-//          случае это "sizeof-1"
+inline int IsSpace(wchar_t x) { return x==L' '  || x==L'\t';  }
+inline int IsEol(wchar_t x)   { return x==L'\r' || x==L'\n'; }
+inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
-char * __cdecl xstrncat(char * dest,const char * src, size_t maxlen)
-{
-	char * start=dest;
-	while(*dest)
-	{
-		dest++;
-		maxlen--;
-	}
-	while(maxlen--)
-		if(!(*dest++=*src++))
-			return start;
-	*dest=0;
-	return start;
-}
+const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
+const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
-wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src, size_t maxlen)
-{
-	wchar_t * start=dest;
-	while(*dest)
-	{
-		dest++;
-		maxlen--;
-	}
-	while(maxlen--)
-		if(!(*dest++=*src++))
-			return start;
-	*dest=0;
-	return start;
-}
+void __cdecl UpperBuf(wchar_t *Buf, int Length);
+void __cdecl LowerBuf(wchar_t *Buf, int Length);
+void __cdecl StrUpper(wchar_t *s1);
+void __cdecl StrLower(wchar_t *s1);
+
+wchar_t __cdecl Upper(wchar_t Ch);
+wchar_t __cdecl Lower(wchar_t Ch);
+int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2);
+int __cdecl IsLower(wchar_t Ch);
+int __cdecl IsUpper(wchar_t Ch);
+int __cdecl IsAlpha(wchar_t Ch);
+int __cdecl IsAlphaNum(wchar_t Ch);
+
+int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2);
+int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
+int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2);
+int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
+
+#endif //__LOCAL_HPP__

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-#include "global.hpp"
+
 #include "filestr.hpp"
 
 GetFileString::GetFileString(FILE *SrcFile)

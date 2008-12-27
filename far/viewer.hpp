@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "namelist.hpp"
 #include "plugin.hpp"
-#include "struct.hpp"
+
 
 /* $ 10.07.2000 tran
    ! modified MAXSCRY from 120 to 300

@@ -34,11 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
 #include "fn.hpp"
 #include "farwinapi.hpp"
 #include "lang.hpp"
 #include "flink.hpp"
+#include "language.hpp"
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);

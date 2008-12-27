@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "plugin.hpp"
 #include "macroopcode.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "lang.hpp"

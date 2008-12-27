@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "farwinapi.hpp"
 #include "viewer.hpp"
+#include "farwinapi.hpp"
 #include "macroopcode.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "colors.hpp"

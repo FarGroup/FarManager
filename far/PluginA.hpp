@@ -32,8 +32,8 @@ class PluginManager;
 
 #include "language.hpp"
 #include "bitflags.hpp"
-#include "unicodestring.hpp"
-#include "struct.hpp"
+
+
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "pluginold.hpp"

@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
-#include "UnicodeString.hpp"
+
 
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?

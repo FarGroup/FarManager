@@ -1,7 +1,9 @@
+#ifndef __LOCALOEM_HPP__
+#define __LOCALOEM_HPP__
 /*
-del.cpp
+localOEM.hpp
 
-‡ ¬Ґ­  RTL-¬®¤г«п
+Сравнение без учета регистра, преобразование регистра для OEM кодировки
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -31,21 +33,28 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+void LocalUpperInit();
+void InitLCIDSort();
+void InitKeysArray();
 
-extern "C" {
-void  __cdecl xf_free(void *__block);
-};
+inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
+inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
+inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
 
-#if defined(SYSLOG)
-extern long CallNewDelete;
-#endif
+int WINAPI LocalIslower(unsigned Ch);
+int WINAPI LocalIsupper(unsigned Ch);
+int WINAPI LocalIsalpha(unsigned Ch);
+int WINAPI LocalIsalphanum(unsigned Ch);
 
-void operator delete(void *ptr)
-{
-#if defined(SYSLOG)
-  CallNewDelete--;
-#endif
-  xf_free(ptr);
-}
+unsigned WINAPI LocalUpper(unsigned LowerChar);
+void WINAPI LocalUpperBuf(char *Buf,int Length);
+void WINAPI LocalLowerBuf(char *Buf,int Length);
+unsigned WINAPI LocalLower(unsigned UpperChar);
+void WINAPI LocalStrupr(char *s1);
+void WINAPI LocalStrlwr(char *s1);
+int WINAPI LStricmp(const char *s1,const char *s2);
+int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
+const char * __cdecl LocalStrstri(const char *str1, const char *str2);
+const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
+
+#endif //__LOCALOEM_HPP__

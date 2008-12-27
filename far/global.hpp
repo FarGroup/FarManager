@@ -34,14 +34,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "UnicodeString.hpp"
-#include "farconst.hpp"
-#include "struct.hpp"
-
-#ifdef __FARQUEUE_HPP__
-extern FarQueue<DWORD> *KeyQueue;
-#endif
-
 extern clock_t StartIdleTime;
 extern clock_t StartExecTime;
 
@@ -55,20 +47,10 @@ extern struct Options Opt;
 class FileEditor;
 extern FileEditor *CurrentEditor;
 
-
 extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
 extern int ScrX,ScrY;
 extern int PrevScrX,PrevScrY;
 extern HANDLE hConOut,hConInp;
-
-extern int AltPressed,CtrlPressed,ShiftPressed;
-extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;
-extern int LButtonPressed, PrevLButtonPressed;
-extern int RButtonPressed, PrevRButtonPressed;
-extern int MButtonPressed, PrevMButtonPressed;
-extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
-extern int PreMouseEventFlags,MouseEventFlags;
-extern int ReturnAltValue;
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;

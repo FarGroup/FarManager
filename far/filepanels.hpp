@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "menubar.hpp"
-#include "UnicodeString.hpp"
+
 
 class Panel;
 class CommandLine;

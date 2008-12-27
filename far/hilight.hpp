@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CFileMask.hpp"
-#include "struct.hpp"
+
 #include "filefilterparams.hpp"
 #include "array.hpp"
 

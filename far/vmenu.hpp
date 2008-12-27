@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
-#include "UnicodeString.hpp"
+
 
 // ÷ветовые атрибуты - индексы в массиве цветов
 enum{

@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "farwinapi.hpp"
 #include "lang.hpp"
-#include "global.hpp"
+#include "language.hpp"
 #include "imports.hpp"
 
 #if 0

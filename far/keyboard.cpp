@@ -34,9 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "keyboard.hpp"
 #include "keys.hpp"
 #include "farqueue.hpp"
-#include "global.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
@@ -52,6 +52,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+
+/* start Глобальные переменные */
+
+// "дополнительная" очередь кодов клавиш
+FarQueue<DWORD> *KeyQueue=NULL;
+int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
+int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
+int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
+int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
+int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
+int PreMouseEventFlags=0,MouseEventFlags=0;
+// только что был ввод Alt-Цифира?
+int ReturnAltValue=0;
+
+/* end Глобальные переменные */
+
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;

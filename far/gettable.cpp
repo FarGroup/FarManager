@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
 #include "plugin.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
@@ -42,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savefpos.hpp"
 #include "keys.hpp"
 #include "registry.hpp"
+#include "language.hpp"
 
 static VMenu *tables;
 static UINT nCurCP;

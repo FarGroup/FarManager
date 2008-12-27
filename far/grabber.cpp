@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "grabber.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "fn.hpp"
 #include "colors.hpp"
 #include "keys.hpp"

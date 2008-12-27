@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
-#include "global.hpp"
+
 #include "fn.hpp"
 #include "lang.hpp"
 #include "scantree.hpp"

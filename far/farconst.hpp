@@ -43,17 +43,11 @@ inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
-inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
-inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
-inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
-
-inline int IsSpace(wchar_t x) { return x==L' '  || x==L'\t';  }
-inline int IsEol(wchar_t x)   { return x==L'\r' || x==L'\n'; }
-inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
-
 #define  NM          260
 
 #define  DEFAULT_SORT_GROUP 10000
+
+#define countof(a) (sizeof(a)/sizeof(a[0]))
 
 // типы рамок
 enum {

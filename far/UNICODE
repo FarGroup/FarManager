@@ -14,8 +14,8 @@
    strcat          wcscat     
    strncat         wcsncat
    strcpy          wcscpy
-   xstrncpy        xwcsncpy       see file "strncpy.c"
-   xstrncat        xwcsncat       see file "strncat.c"
+   xstrncpy        xwcsncpy       see file "farrtl.cpp"
+   xstrncat        xwcsncat       see file "farrtl.cpp"
    strcmp          StrCmp
    _stricmp        StrCmpI
    strncmp         StrCmpN

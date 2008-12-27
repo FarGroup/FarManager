@@ -155,5 +155,14 @@ extern "C" {
 //#include <crtdbg.h>
 
 #include "sdkpatches.hpp"
+#include "farrtl.hpp"
+
+#ifdef  __cplusplus
+#include "UnicodeString.hpp"
+#include "farconst.hpp"
+#include "struct.hpp"
+#include "global.hpp"
+#include "local.hpp"
+#endif
 
 #endif // __HEADERS_HPP__

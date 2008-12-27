@@ -34,14 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
-#include "fn.hpp"
-
-int __cdecl StrLength(const wchar_t *str)
-{
-	return (int) wcslen(str);
-}
-
+#include "local.hpp"
 
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 {
@@ -174,6 +167,15 @@ int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
 			-1
 			)-2;
 
+}
+
+int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
+{
+  int n = 0;
+  while(*s == L'0') s++;
+  *beg = s;
+  while(iswdigit(*s)) { s++; n++; }
+  return n;
 }
 
 int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2)

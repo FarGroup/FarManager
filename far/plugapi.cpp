@@ -35,9 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugin.hpp"
-#include "global.hpp"
+
 #include "farwinapi.hpp"
-#include "struct.hpp"
+
 #include "keys.hpp"
 #include "lang.hpp"
 #include "help.hpp"
@@ -63,8 +63,55 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 
-void ScanPluginDir();
+wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
+{
+  if(string)
+    return _itow(value,string,radix);
+  return NULL;
+}
 
+wchar_t *WINAPI FarItoa64(__int64 value, wchar_t *string, int radix)
+{
+  if(string)
+    return _i64tow(value, string, radix);
+  return NULL;
+}
+
+int WINAPI FarAtoi(const wchar_t *s)
+{
+  if(s)
+    return _wtoi(s);
+  return 0;
+}
+__int64 WINAPI FarAtoi64(const wchar_t *s)
+{
+  if(s)
+    return _wtoi64(s);
+  return _i64(0);
+}
+
+void WINAPI FarQsort(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(const void *, const void *))
+{
+  if(base && fcmp)
+    far_qsort(base,nelem,width,fcmp);
+}
+
+void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(const void *, const void *,void *user),void *user)
+{
+  if(base && fcmp)
+    qsortex((char*)base,nelem,width,fcmp,user);
+}
+
+void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+{
+  if(key && fcmp && base)
+    return bsearch(key,base,nelem,width,fcmp);
+  return NULL;
+}
+
+void ScanPluginDir();
 
 /* $ 07.12.2001 IS
    Обертка вокруг GetString для плагинов - с меньшей функциональностью.

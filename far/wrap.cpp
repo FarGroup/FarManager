@@ -386,6 +386,27 @@ void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber, bool bF
 		xf_free(PanelItem);
 }
 
+char* WINAPI RemoveTrailingSpacesA(char *Str)
+{
+  if (!Str)
+    return NULL;
+  if (*Str == '\0')
+    return Str;
+
+  char *ChPtr;
+  size_t I;
+
+  for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
+  {
+    if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
+      *ChPtr=0;
+    else
+      break;
+  }
+
+  return Str;
+}
+
 char *WINAPI FarItoaA(int value, char *string, int radix)
 {
   if(string)

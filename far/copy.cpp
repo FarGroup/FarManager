@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "copy.hpp"
-#include "global.hpp"
+
 #include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"

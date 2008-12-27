@@ -95,7 +95,6 @@ constitle.cpp
 copy.cpp
 ctrlobj.cpp
 cvtname.cpp
-del.cpp
 delete.cpp
 dialog.cpp
 dizlist.cpp
@@ -108,6 +107,7 @@ far.rc
 farexcpt.cpp
 farqueue.cpp
 farrtl.cpp
+farrtl.hpp
 farwinapi.cpp
 ffolders.cpp
 fileattr.cpp
@@ -145,8 +145,10 @@ interf.cpp
 iswind.cpp
 keybar.cpp
 keyboard.cpp
+keyboard.hpp
 language.cpp
 local.cpp
+local.hpp
 lockscrn.cpp
 macro.cpp
 main.cpp
@@ -155,10 +157,8 @@ menubar.cpp
 message.cpp
 mix.cpp
 mkdir.cpp
-mktemp.c
 modal.cpp
 namelist.cpp
-new.cpp
 options.cpp
 palette.cpp
 panel.cpp
@@ -170,8 +170,6 @@ PluginA.cpp
 PluginW.cpp
 poscache.cpp
 print.cpp
-qsort.c
-qsortex.c
 qview.cpp
 rdrwdsk.cpp
 RefreshFrameManager.cpp
@@ -185,11 +183,8 @@ scrsaver.cpp
 setattr.cpp
 setcolor.cpp
 stddlg.cpp
-strdup.c
 strftime.cpp
 strmix.cpp
-strncat.c
-strncpy.c
 syntax.cpp
 syslog.cpp
 tvar.cpp
@@ -206,6 +201,7 @@ headers.cpp.cpp
 TPreRedrawFunc.hpp
 TPreRedrawFunc.cpp
 localOEM.cpp
+localOEM.hpp
 RegExp.cpp
 RegExp.hpp
 sdkpatches.cpp

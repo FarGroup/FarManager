@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
-#include "struct.hpp"
+
 #include "CFileMask.hpp"
 #include "bitflags.hpp"
-#include "UnicodeString.hpp"
+
 
 struct FileListItem;
 

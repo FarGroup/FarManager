@@ -47,13 +47,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "chgprior.hpp"
-#include "global.hpp"
 #include "cmdline.hpp"
 #include "panel.hpp"
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 #include "imports.hpp"
 #include "registry.hpp"
+#include "localOEM.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 

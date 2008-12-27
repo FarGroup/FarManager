@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "copy.hpp"
-#include "global.hpp"
+
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "imports.hpp"

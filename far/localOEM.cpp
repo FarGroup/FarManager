@@ -34,9 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
-#include "fn.hpp"
-#include "farwinapi.hpp"
+#include "localOEM.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
 

@@ -18,7 +18,6 @@ SRCS = 	cddrv.cpp \
 	copy.cpp \
 	ctrlobj.cpp \
 	cvtname.cpp \
-	del.cpp \
 	delete.cpp \
 	dialog.cpp \
 	dizlist.cpp \
@@ -77,10 +76,8 @@ SRCS = 	cddrv.cpp \
 	message.cpp \
 	mix.cpp \
 	mkdir.cpp \
-	mktemp.c \
 	modal.cpp \
 	namelist.cpp \
-	new.cpp \
 	options.cpp \
 	palette.cpp \
 	panel.cpp \
@@ -92,8 +89,6 @@ SRCS = 	cddrv.cpp \
 	PluginW.cpp \
 	poscache.cpp \
 	print.cpp \
-	qsortex.c \
-	qsort.c \
 	qview.cpp \
 	rdrwdsk.cpp \
 	RefreshFrameManager.cpp \
@@ -109,11 +104,8 @@ SRCS = 	cddrv.cpp \
 	setattr.cpp \
 	setcolor.cpp \
 	stddlg.cpp \
-	strdup.c \
 	strftime.cpp \
 	strmix.cpp \
-	strncat.c \
-	strncpy.c \
 	syntax.cpp \
 	TPreRedrawFunc.cpp \
 	tvar.cpp \

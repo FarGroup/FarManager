@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
+#include "language.hpp"
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 {
@@ -608,27 +608,6 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
 
 
 // удалить конечные пробелы
-char* WINAPI RemoveTrailingSpacesA(char *Str)
-{
-  if (!Str)
-    return NULL;
-  if (*Str == '\0')
-    return Str;
-
-  char *ChPtr;
-  size_t I;
-
-  for (ChPtr=Str+(I=strlen((char *)Str))-1; I > 0; I--, ChPtr--)
-  {
-    if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
-      *ChPtr=0;
-    else
-      break;
-  }
-
-  return Str;
-}
-
 wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 {
   if (!Str)
@@ -1542,16 +1521,6 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 BOOL TestParentFolderName(const wchar_t *Name)
 {
   return Name[0] == L'.' && Name[1] == L'.' && !Name[2];
-}
-
-
-int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
-{
-  int n = 0;
-  while(*s == L'0') s++;
-  *beg = s;
-  while(iswdigit(*s)) { s++; n++; }
-  return n;
 }
 
 char *UnicodeToAnsi (const wchar_t *lpwszUnicodeString, int nMaxLength)

@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
-#include "unicodestring.hpp"
-#include "struct.hpp"
+
+
 
 enum {
   FFSEARCH_ALL=0,

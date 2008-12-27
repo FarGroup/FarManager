@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "frame.hpp"
 #include "keybar.hpp"
-#include "farconst.hpp"
+
 
 class TreeList;
 class Edit;

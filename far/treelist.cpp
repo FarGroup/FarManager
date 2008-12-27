@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farwinapi.hpp"
 #include "flink.hpp"
 #include "plugin.hpp"
-#include "global.hpp"
+#include "keyboard.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -231,7 +231,7 @@ void TreeList::DisplayTree(int Fast)
 		{BoxSymbols[BS_LB_H1V1],BoxSymbols[BS_H1],0},
 		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
 	};
-  
+
   int I,J,K;
   struct TreeItem *CurPtr;
 

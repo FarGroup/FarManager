@@ -102,7 +102,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\cvtname.obj" \
-	"$(INTDIR)\del.obj" \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
@@ -163,10 +162,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\message.obj" \
 	"$(INTDIR)\mix.obj" \
 	"$(INTDIR)\mkdir.obj" \
-	"$(INTDIR)\mktemp.obj" \
 	"$(INTDIR)\modal.obj" \
 	"$(INTDIR)\namelist.obj" \
-	"$(INTDIR)\new.obj" \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
@@ -178,8 +175,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\PluginW.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \
-	"$(INTDIR)\qsortex.obj" \
-	"$(INTDIR)\qsort.obj" \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\rdrwdsk.obj" \
 	"$(INTDIR)\RefreshFrameManager.obj" \
@@ -195,11 +190,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\stddlg.obj" \
-	"$(INTDIR)\strdup.obj" \
 	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\strmix.obj" \
-	"$(INTDIR)\strncat.obj" \
-	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\tvar.obj" \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
