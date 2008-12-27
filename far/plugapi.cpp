@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "struct.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
@@ -61,7 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-
+#include "syslog.hpp"
 
 void ScanPluginDir();
 

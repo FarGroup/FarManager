@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "infolist.hpp"
 #include "macroopcode.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileview.hpp"
 #include "fileedit.hpp"
 #include "manager.hpp"
+#include "syslog.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;

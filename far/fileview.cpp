@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileview.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "cmdline.hpp"
 #include "savescr.hpp"
+#include "syslog.hpp"
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
@@ -293,10 +294,10 @@ int FileViewer::ProcessKey(int Key)
         View.GetFileName(strViewFileName);
 
         HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
-          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,NULL);
+          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS);
         if(hEdit==INVALID_HANDLE_VALUE)
           hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
-            OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+            OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 
         if (hEdit==INVALID_HANDLE_VALUE)
         {

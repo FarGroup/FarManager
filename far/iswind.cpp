@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+#include "farwinapi.hpp"
 #include "imports.hpp"
 
 HWND hFarWnd;

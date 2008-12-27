@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "farexcpt.hpp"
 #include "imports.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -484,7 +486,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 */
               //xstrncpy(Opt.LoadPlug.CustomPluginsPath,szPath,sizeof(Opt.LoadPlug.CustomPluginsPath));
 
-            //FAR_CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
+            //CharToOemA(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
           }
           else
           {

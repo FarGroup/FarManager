@@ -7023,6 +7023,10 @@
 				>
 			</File>
 			<File
+				RelativePath="farwinapi.hpp"
+				>
+			</File>
+			<File
 				RelativePath="fileedit.hpp"
 				>
 			</File>
@@ -7343,6 +7347,10 @@
 				>
 			</File>
 			<File
+				RelativePath="registry.hpp"
+				>
+			</File>
+			<File
 				RelativePath="res.hpp"
 				>
 			</File>
@@ -7376,6 +7384,10 @@
 			</File>
 			<File
 				RelativePath="syntax.hpp"
+				>
+			</File>
+			<File
+				RelativePath="syslog.hpp"
 				>
 			</File>
 			<File

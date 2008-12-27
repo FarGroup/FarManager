@@ -34,10 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
-#include "global.hpp"
+#include "syslog.hpp"
 #include "fn.hpp"
-#include "plugins.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "frame.hpp"

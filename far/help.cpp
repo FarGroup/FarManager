@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "BlockExtKey.hpp"
 #include "macroopcode.hpp"
-
+#include "syslog.hpp"
 
 // Стек возврата
 class CallBackStack
@@ -2055,7 +2055,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 #if 0
               SHELLEXECUTEINFO sei;
 
-              FAR_OemToChar(URLPath,Buf);
+              OemToCharA(URLPath,Buf);
               memset(&sei,0,sizeof(sei));
               sei.cbSize=sizeof(sei);
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;

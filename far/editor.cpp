@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
 
 static int ReplaceMode,ReplaceAll;
 

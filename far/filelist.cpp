@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filelist.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plognmn.hpp"
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
+#include "syslog.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 

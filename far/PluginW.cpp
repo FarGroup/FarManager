@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keys.hpp"
 #include "plugin.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "global.hpp"
 #include "scantree.hpp"
@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BlockExtKey.hpp"
 #include "plclass.hpp"
 #include "PluginW.hpp"
+#include "registry.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";

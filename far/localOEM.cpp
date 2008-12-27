@@ -36,6 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "global.hpp"
 #include "fn.hpp"
+#include "farwinapi.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 
@@ -54,19 +57,19 @@ void LocalUpperInit()
   {
     CvtStr[0]=I;
     LowerToUpper[I]=UpperToLower[I]=I;
-    FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
-    FAR_CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
+    OemToCharA((char *)CvtStr,(char *)CvtStr);
+    CharToOemA((char *)CvtStr,(char *)ReverseCvtStr);
     IsUpperOrLower[I]=0;
     if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
       IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
       CharUpperA((char *)CvtStr);
-      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+      CharToOemA((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
       CvtStr[0]=I;
-      FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
+      OemToCharA((char *)CvtStr,(char *)CvtStr);
       CharLowerA((char *)CvtStr);
-      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+      CharToOemA((char *)CvtStr,(char *)CvtStr);
       UpperToLower[I]=CvtStr[0];
     }
   }
@@ -134,7 +137,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
-          //FAR_CharToOem((char *)CvtStr,(char *)CvtStr); //???
+          //CharToOemA((char *)CvtStr,(char *)CvtStr); //???
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -199,7 +202,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+  OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
   return(IsCharAlphaA(CvtStr[0]));
 }
 
@@ -210,7 +213,7 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+  OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
   return(IsCharAlphaNumericA(CvtStr[0]));
 }
 
@@ -359,7 +362,7 @@ int _cdecl LCSort(const void *el1,const void *el2)
   Str2[0]=*(char *)el2;
   Str1[1]=Str2[1]=0;
   Str1[2]=Str2[2]=0;
-  FAR_OemToCharBuff(Str1,Str1,1);
-  FAR_OemToCharBuff(Str2,Str2,1);
+  OemToCharBuffA(Str1,Str1,1);
+  OemToCharBuffA(Str2,Str2,1);
   return(CompareStringA(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }

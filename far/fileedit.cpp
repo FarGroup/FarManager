@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileedit.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -57,8 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgprior.hpp"
 #include "filestr.hpp"
 #include "TPreRedrawFunc.hpp"
-
-
+#include "syslog.hpp"
 
 static HANDLE g_hDlg = NULL;
 static int g_nID = 0;
@@ -1487,8 +1486,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 			FILE_SHARE_READ,
 			NULL,
 			OPEN_EXISTING,
-			FILE_FLAG_SEQUENTIAL_SCAN,
-			NULL
+			FILE_FLAG_SEQUENTIAL_SCAN
 			);
 
 	if ( hEdit == INVALID_HANDLE_VALUE )
@@ -1825,8 +1823,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     		FILE_SHARE_READ,
     		NULL,
     		CREATE_ALWAYS,
-    		FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,
-    		NULL
+    		FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN
     		);
 		DWORD dwWritten=0;
 		if(hEditFile==INVALID_HANDLE_VALUE)

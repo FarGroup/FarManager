@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "keybar.hpp"
 #include "manager.hpp"
+#include "syslog.hpp"
 
 Frame::Frame()
 {

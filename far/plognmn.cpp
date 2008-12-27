@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plognmn.hpp"
 #include "fn.hpp"
+#include "farwinapi.hpp"
 
 PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
 {

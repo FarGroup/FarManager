@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "global.hpp"
 #include "imports.hpp"
@@ -85,12 +86,12 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
 
   DiskHandle=apiCreateFile(szRootName,dwAccessFlags,
                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
-                        0,0);
+                        0);
   if((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
   {
     DiskHandle=apiCreateFile(szRootName,GENERIC_READ,
                           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
-                          0,0);
+                          0);
     ReadOnly=FALSE;
   }
 
@@ -192,7 +193,7 @@ BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
     wchar_t win_name[]=L"\\\\.\\?:";
     win_name[4]=Letter;
 
-    HANDLE h=apiCreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    HANDLE h=apiCreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0);
 
     if (h==INVALID_HANDLE_VALUE)
      return FALSE;

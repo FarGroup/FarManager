@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;

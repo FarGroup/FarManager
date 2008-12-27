@@ -279,7 +279,7 @@ wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
           if (ReadType==CF_TEXT)
           {
             if(!AnsiMode)
-              FAR_CharToOem(ClipAddr,ClipText);
+              CharToOemA(ClipAddr,ClipText);
           }
           else
             strcpy(ClipText,ClipAddr);
@@ -358,7 +358,7 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
           {
             xstrncpy(ClipText,ClipAddr,BufferSize);
             if(!AnsiMode)
-              FAR_CharToOem(ClipText,ClipText);
+              CharToOemA(ClipText,ClipText);
             ClipText[BufferSize]=0;
           }
           else

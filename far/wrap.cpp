@@ -3332,7 +3332,7 @@ return Line;
     return Line;
 
 
-//  FAR_OemToCharBuff(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
+//  OemToCharBuffA(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
   if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
     return Line;
 

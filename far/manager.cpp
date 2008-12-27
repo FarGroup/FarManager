@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 Manager *FrameManager;
 

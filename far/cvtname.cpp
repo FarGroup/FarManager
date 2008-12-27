@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
+#include "syslog.hpp"
 
 
 int ConvertNameToFull (

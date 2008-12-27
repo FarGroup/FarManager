@@ -34,9 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "global.hpp"
+#include "farwinapi.hpp"
 #include "fn.hpp"
-#include "imports.hpp"
 #include "flink.hpp"
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
@@ -123,28 +122,6 @@ HANDLE apiCreateFile (
 	return hFile;
 }
 
-
-BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength)
-{
-  return OemToCharBuffA(lpszSrc,lpszDst,cchDstLength);
-}
-
-BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPSTR lpszDst,DWORD cchDstLength)
-{
-  return CharToOemBuffA(lpszSrc,lpszDst,cchDstLength);
-}
-
-
-BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPSTR lpszDst)
-{
-  return OemToCharA(lpszSrc,lpszDst);
-}
-
-BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPSTR lpszDst)
-{
-  return CharToOemA(lpszSrc,lpszDst);
-}
-
 BOOL apiCopyFileEx (
 		const wchar_t *lpwszExistingFileName,
 		const wchar_t *lpwszNewFileName,
@@ -190,8 +167,8 @@ BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 
   if ( FarMkTempEx(strTemp, NULL, FALSE) )
   {
-      if ( MoveFileW (Src, strTemp) )
-          rc = MoveFileW (strTemp, Dest);
+      if ( apiMoveFile (Src, strTemp) )
+          rc = apiMoveFile (strTemp, Dest);
   }
 
   return rc;

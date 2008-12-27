@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "global.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
 #include "cmdline.hpp"
@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "findfile.hpp"
 #include "hilight.hpp"
+#include "registry.hpp"
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";

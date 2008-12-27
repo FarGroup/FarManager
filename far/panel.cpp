@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "macroopcode.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "array.hpp"
 #include "lockscrn.hpp"
 #include "help.hpp"
+#include "syslog.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

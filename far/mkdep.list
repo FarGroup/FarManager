@@ -20,6 +20,7 @@ editor.hpp
 farconst.hpp
 farexcpt.hpp
 farqueue.hpp
+farwinapi.hpp
 fileedit.hpp
 filefilter.hpp
 filefilterparams.hpp
@@ -64,6 +65,7 @@ poscache.hpp
 qview.hpp
 rdrwdsk.hpp
 RefreshFrameManager.hpp
+registry.hpp
 res.hpp
 savefpos.hpp
 savescr.hpp
@@ -72,6 +74,7 @@ scrbuf.hpp
 scrobj.hpp
 struct.hpp
 syntax.hpp
+syslog.hpp
 tvar.hpp
 TList.hpp
 treelist.hpp
@@ -188,8 +191,8 @@ strmix.cpp
 strncat.c
 strncpy.c
 syntax.cpp
-tvar.cpp
 syslog.cpp
+tvar.cpp
 treelist.cpp
 udlist.cpp
 UnicodeString.cpp

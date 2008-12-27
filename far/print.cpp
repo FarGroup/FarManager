@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "global.hpp"
 #include "lang.hpp"
 #include "panel.hpp"
@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
 
 static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
                               int PrinterNumber);

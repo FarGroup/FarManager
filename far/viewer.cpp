@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "viewer.hpp"
 #include "macroopcode.hpp"
 #include "global.hpp"
@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(const wchar_t *Name);
@@ -227,7 +228,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     }
     OutHandle=apiCreateFile(strTempName,GENERIC_READ|GENERIC_WRITE,
               FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
-              FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
+              FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE);
     if (OutHandle==INVALID_HANDLE_VALUE)
     {
       OpenFailed=true;
@@ -252,16 +253,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
                                FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
                                NULL,
                                OPEN_EXISTING,
-                               FILE_FLAG_POSIX_SEMANTICS,
-                               NULL);
+                               FILE_FLAG_POSIX_SEMANTICS);
     if (hView==INVALID_HANDLE_VALUE)
       hView=apiCreateFile(strFileName,
                           GENERIC_READ,
                           FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
                           NULL,
                           OPEN_EXISTING,
-                          0,
-                          NULL);
+                          0);
     if (hView!=INVALID_HANDLE_VALUE)
     {
       int ViewHandle=_open_osfhandle((intptr_t)hView,O_BINARY);

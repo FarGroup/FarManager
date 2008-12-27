@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "flink.hpp"
 #include "panel.hpp"
@@ -794,7 +794,7 @@ int WipeFile(const wchar_t *Name)
   unsigned __int64 FileSize;
   HANDLE WipeHandle;
   SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
-  WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
 

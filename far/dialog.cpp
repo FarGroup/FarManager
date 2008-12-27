@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farconst.hpp"
 #include "dialog.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "global.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 

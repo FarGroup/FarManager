@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "keys.hpp"
 #include "manager.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 KeyBar::KeyBar()
 {

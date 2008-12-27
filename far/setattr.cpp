@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "global.hpp"
 #include "lang.hpp"
@@ -1227,7 +1228,7 @@ static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *Fi
     // получаем инфу про оригинальную дату и время файла.
     HANDLE hFile= apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
-                 (FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+                 (FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0);
     if (hFile==INVALID_HANDLE_VALUE)
       return(FALSE);
     GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
@@ -1311,7 +1312,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
     if (FileAttr & FILE_ATTRIBUTE_READONLY)
       SetFileAttributesW(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
-    HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0);
     BOOL Writable=TRUE;
     if(hFile == INVALID_HANDLE_VALUE)
       Writable=FALSE;

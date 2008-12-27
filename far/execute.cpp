@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shobjidl.h>
 #endif
 #include "farqueue.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 #include "imports.hpp"
+#include "registry.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -72,7 +73,7 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
   int Ret=FALSE;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-  if((hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  if((hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0)) != INVALID_HANDLE_VALUE)
   {
     DWORD ReadSize;
     IMAGE_DOS_HEADER dos_head;
@@ -304,7 +305,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   {
     LONG RetEnum = ERROR_SUCCESS;
     DWORD dwIndex = 0;
-    DWORD dwKeySize = 0;
     HKEY hOpenKey;
 
     // Сначала проверим "open"...

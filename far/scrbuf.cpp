@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "colors.hpp"
 #include "ctrlobj.hpp"
+#include "syslog.hpp"
 
 enum{
   SBFLAGS_FLUSHED         = 0x00000001,

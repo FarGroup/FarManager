@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "copy.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
 #include "lasterror.hpp"
@@ -172,7 +172,7 @@ BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFold
 			rdb.ReparseDataLength     = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
 
 			HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
-							FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+							FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
 
 			if (hDir == INVALID_HANDLE_VALUE)
 			{
@@ -214,8 +214,7 @@ BOOL WINAPI DeleteReparsePoint(const wchar_t *szDir)
           0,
           0,
           OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
-          0);
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
   if (hDir == INVALID_HANDLE_VALUE)
   {
     SetLastError(ERROR_PATH_NOT_FOUND);
@@ -249,7 +248,7 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,TMN_REPARSE_DATA_BUFFER *rdb)
 	*/
 	if(FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && IsLocalDrive(Object))
 	{
-		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,NULL);
+		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
 		if (hObject!=INVALID_HANDLE_VALUE)
 		{
 			DWORD dwBytesReturned;
@@ -358,7 +357,7 @@ int IsLocalDrive(const wchar_t *Path)
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
   HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0,NULL);
+                          NULL,OPEN_EXISTING,0);
   if (hFile==INVALID_HANDLE_VALUE)
     return(1);
   BY_HANDLE_FILE_INFORMATION bhfi;
@@ -809,7 +808,7 @@ bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 	{
 		if(rdb.ReparseTag==IO_REPARSE_TAG_SYMLINK)
 			SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
-		HANDLE hLink=apiCreateFile(Dst,FILE_WRITE_ATTRIBUTES,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,0);
+		HANDLE hLink=apiCreateFile(Dst,FILE_WRITE_ATTRIBUTES,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
 		if(hLink!=INVALID_HANDLE_VALUE)
 		{
 			DWORD dwBytes;

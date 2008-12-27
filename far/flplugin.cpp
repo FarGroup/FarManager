@@ -38,10 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "plugin.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "filepanels.hpp"
 #include "history.hpp"
 #include "ctrlobj.hpp"
+#include "syslog.hpp"
+
 /*
    В стеке ФАРова панель не хранится - только плагиновые!
 */
@@ -265,11 +267,10 @@ HANDLE FileList::OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr)
   SetCurPath();
 
   HANDLE hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
-                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
-                         NULL);
+                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS);
   if(hFile==INVALID_HANDLE_VALUE)
     hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
-                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 
   if (hFile==INVALID_HANDLE_VALUE)
   {

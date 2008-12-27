@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "fileview.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -3027,8 +3029,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             FILE_SHARE_READ,
             NULL,
             OPEN_EXISTING,
-            FILE_FLAG_SEQUENTIAL_SCAN,
-            NULL
+            FILE_FLAG_SEQUENTIAL_SCAN
             );
 
         if (SrcHandle==INVALID_HANDLE_VALUE)
@@ -3058,8 +3059,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
       OpenMode,
       NULL,
       OPEN_EXISTING,
-      FILE_FLAG_SEQUENTIAL_SCAN,
-      NULL
+      FILE_FLAG_SEQUENTIAL_SCAN
       );
 
   if (SrcHandle==INVALID_HANDLE_VALUE && Opt.CMOpt.CopyOpened)
@@ -3074,8 +3074,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
           FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
           NULL,
           OPEN_EXISTING,
-          FILE_FLAG_SEQUENTIAL_SCAN,
-          NULL
+          FILE_FLAG_SEQUENTIAL_SCAN
           );
     }
   }
@@ -3099,8 +3098,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         FILE_SHARE_READ,
         (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
         (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-        SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)),
-        NULL
+        SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN))
         );
 
     ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
@@ -3364,8 +3362,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                   FILE_SHARE_READ,
                   NULL,
                   (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-                  SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,
-                  NULL
+                  SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN
                   );
 
               if (DestHandle==INVALID_HANDLE_VALUE ||
@@ -4492,7 +4489,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 						// создаём
 						if(GetFileAttributesW(strPath)==INVALID_FILE_ATTRIBUTES)
 							CreatePath(strPath);
-						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,GetFileAttributesW(strSrcFullName),0);
+						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,GetFileAttributesW(strSrcFullName));
 						if(hFile!=INVALID_HANDLE_VALUE)
 						{
 							CloseHandle(hFile);

@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "savefpos.hpp"
 #include "keys.hpp"
+#include "registry.hpp"
 
 static VMenu *tables;
 static UINT nCurCP;

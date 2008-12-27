@@ -181,7 +181,7 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
   SID_NAME_USE snu;
   if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
     return(FALSE);
-  FAR_CharToOem(AccountName,Owner);
+  CharToOemA(AccountName,Owner);
 #endif
   return(TRUE);
 }

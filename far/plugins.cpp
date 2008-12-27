@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keys.hpp"
 #include "plugin.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "global.hpp"
 #include "scantree.hpp"
@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
+#include "registry.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)

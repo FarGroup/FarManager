@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farconst.hpp"
 #include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 
 static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)
@@ -338,7 +339,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect
     wchar_t szVolumeName[20]=L"\\\\.\\ :";
     szVolumeName[4]=*RootDir;
 
-    HANDLE hDevice = apiCreateFile (szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE hDevice = apiCreateFile (szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {

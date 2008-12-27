@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "findfile.hpp"
 #include "plugin.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CFileMask.hpp"
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
+#include "syslog.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74
@@ -2257,13 +2258,12 @@ int FindFiles::LookForString(const wchar_t *Name)
 	UnicodeToAnsi(strFindStr, FindStr, 512);
 
 	HANDLE FileHandle=apiCreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
-									FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-									FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+									FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 	FILETIME LastAccess;
 	int TimeRead=0;
 	if (FileHandle==INVALID_HANDLE_VALUE)
 		FileHandle=apiCreateFile (Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
-								OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+								OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	else
 		TimeRead=GetFileTime (FileHandle, NULL, &LastAccess, NULL);
 

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ctrlobj.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "lang.hpp"
 #include "manager.hpp"
 #include "cmdline.hpp"
@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "filefilter.hpp"
 #include "filepanels.hpp"
+#include "syslog.hpp"
 
 ControlObject *CtrlObject;
 

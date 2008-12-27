@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "macro.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "flink.hpp"
 #include "TVMStack.hpp"
+#include "syslog.hpp"
+#include "registry.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{

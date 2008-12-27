@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
 #include "lang.hpp"
@@ -522,7 +522,7 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
 int GetFileTypeByName(const wchar_t *Name)
 {
   HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0,NULL);
+                          NULL,OPEN_EXISTING,0);
   if (hFile==INVALID_HANDLE_VALUE)
     return(FILE_TYPE_UNKNOWN);
   int Type=GetFileType(hFile);

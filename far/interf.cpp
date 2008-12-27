@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farqueue.hpp"
 #include "global.hpp"
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
 #include "plugin.hpp"
@@ -46,7 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
-
+#include "syslog.hpp"
+#include "registry.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 

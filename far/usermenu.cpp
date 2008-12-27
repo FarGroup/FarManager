@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "farwinapi.hpp"
 #include "global.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
+#include "registry.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*
