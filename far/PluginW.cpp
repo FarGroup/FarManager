@@ -482,7 +482,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.TruncPathStr=TruncPathStr;
     StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
     StandardFunctions.PointToName=PointToName;
-    //StandardFunctions.GetPathRoot=GetPathRoot; BUGBUG
+    StandardFunctions.GetPathRoot=farGetPathRoot;
     StandardFunctions.AddEndSlash=AddEndSlash;
     StandardFunctions.CopyToClipboard=CopyToClipboard;
     StandardFunctions.PasteFromClipboard=PasteFromClipboard;
@@ -498,7 +498,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.ProcessName=ProcessName;
     StandardFunctions.MkLink=FarMkLink;
     StandardFunctions.ConvertNameToReal=farConvertNameToReal;
-    //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
+    StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
   }
 
   if(!StartupInfo.StructSize)

@@ -1,3 +1,7 @@
+t-rex 28.12.2008 20:21:07 +0200 - build 708
+
+1. Теперь все функции API доступны и работают (кроме Xlat который пока в виде заглушки).
+
 drkns 28.12.2008 17:56:33 +0200 - build 707
 
 1. Mantis#0000688: View Command Log does not show first characters

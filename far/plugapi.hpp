@@ -63,6 +63,10 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 
 int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize);
 
+int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize);
+
+int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize);
+
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);

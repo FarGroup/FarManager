@@ -165,16 +165,6 @@ DWORD FarGetCurDir(string &strBuffer)
 	return Result;
 }
 
-
-DWORD NTTimeToDos(FILETIME *ft)
-{
-  WORD DosDate,DosTime;
-  FILETIME ct;
-  FileTimeToLocalFileTime(ft,&ct);
-  FileTimeToDosDateTime(&ct,&DosDate,&DosTime);
-  return(((DWORD)DosDate<<16)|DosTime);
-}
-
 void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
 {
   string strDigit;

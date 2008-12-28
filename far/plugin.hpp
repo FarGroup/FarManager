@@ -1612,7 +1612,7 @@ typedef wchar_t   *(WINAPI *FARSTDTRUNCSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*   (WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
-typedef void    (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root);
+typedef int     (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, int DestSize);
 typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
 typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);

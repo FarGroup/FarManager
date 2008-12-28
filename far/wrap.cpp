@@ -773,6 +773,21 @@ int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 	return Min((int)strDest.GetLength(),DestSize);
 }
 
+int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
+{
+	if(Src && *Src)
+	{
+		string strSrc(Src);
+		string strDest;
+		AddEndSlash(strDest);
+		DWORD Size=GetReparsePointInfo(strSrc,strDest,NULL);
+		if (DestSize && Dest)
+			strDest.GetCharString(Dest,DestSize);
+		return Size;
+	}
+	return 0;
+}
+
 typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
 {
 	oldfar::FRSUSERFUNC Func;

@@ -34,9 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "plugapi.hpp"
-
 #include "keys.hpp"
 #include "lang.hpp"
 #include "help.hpp"
@@ -2114,6 +2112,41 @@ int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize)
 	else
 		xwcsncpy(Dest,strDest,DestSize);
 	return Min((int)strDest.GetLength(),DestSize);
+}
+
+int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
+{
+	_LOGCOPYR(CleverSysLog Clev(L"farGetReparsePointInfo()"));
+	_LOGCOPYR(SysLog(L"Params: Src='%s'",Src));
+	if(Src && *Src)
+	{
+		string strSrc(Src);
+		string strDest;
+		AddEndSlash(strDest);
+		DWORD Size=GetReparsePointInfo(strSrc,strDest,NULL);
+		_LOGCOPYR(SysLog(L"return -> %d strSrc='%s', strDest='%s'",__LINE__,(const wchar_t *)strSrc,(const wchar_t *)strDest));
+		if (DestSize && Dest)
+			xwcsncpy(Dest,strDest,DestSize-1);
+		return Size;
+	}
+	return 0;
+}
+
+int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
+{
+	int Size=0;
+	if (Path && *Path)
+	{
+		string strPath(Path), strRoot;
+
+		GetPathRoot(strPath,strRoot);
+
+		Size = (int)strRoot.GetLength()+1;
+
+		if (DestSize && Root)
+			xwcsncpy(Root,strRoot,DestSize-1);
+	}
+	return Size;
 }
 
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)

@@ -632,7 +632,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 
 
 // полный проход ПО!!!
-static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
+void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
 {
   string strTempRoot;
   string strNewPath;
@@ -704,7 +704,7 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
           }
 
           if (!Reenter && !IsLocalVolumePath(strJuncName))
-            _GetPathRoot(strJuncName,strRoot,TRUE);
+            GetPathRoot(strJuncName,strRoot,TRUE);
           else
             GetPathRootOne(strJuncName,strRoot);
 
@@ -723,50 +723,6 @@ static void _GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
 
   GetPathRootOne(strNewPath, strRoot);
 }
-
-
-void WINAPI GetPathRoot(const wchar_t *Path,string &strRoot)
-{
-  _GetPathRoot(Path,strRoot,0);
-}
-
-/*
-int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
-{
-  _LOGCOPYR(CleverSysLog Clev(L"FarGetReparsePointInfo()"));
-  _LOGCOPYR(SysLog(L"Params: Src='%s'",Src));
-  if(Src && *Src)
-  {
-      char Src2[2048];
-      xstrncpy(Src2,Src,sizeof(Src2)-1);
-      int TempSize=Max((int)(strlen(Src2)+1),DestSize);
-      char *TempDest=(char *)alloca(TempSize);
-      strcpy(TempDest,Src2);
-      AddEndSlash(TempDest);
-      DWORD Size=GetReparsePointInfo(TempDest,TempDest,TempSize);
-      // Src2='\\vr-srv002\userhome$\vskirdin\wwwroot', TempDest='\??\F:\wwwroot'
-      _LOGCOPYR(SysLog(L"return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
-#if 0
-      if(Src2[0] == '\\' && Src2[1] == '\\' && IsLocalPath(TempDest+4))
-      {
-        char *Ptr=strchr(Src2+2,'\\');
-        if(Ptr)
-        {
-          TempDest[5]='$';
-          strcpy(Ptr+1,TempDest+4);
-          strcpy(TempDest,"\\??\\");
-          strcat(TempDest,Src2);
-        }
-      }
-#endif
-      if(Size && Dest)
-        xstrncpy(Dest,TempDest,DestSize-1);
-      return Size;
-  }
-  return 0;
-}
-*/
-
 
 
 BOOL WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName)

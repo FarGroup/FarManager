@@ -491,7 +491,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.ProcessName=ProcessNameA;
     StandardFunctions.MkLink=FarMkLinkA;
     StandardFunctions.ConvertNameToReal=ConvertNameToRealA;
-    //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
+    StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfoA;
     StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStrA;
   }
 
@@ -505,9 +505,9 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StartupInfo.Control=FarControlA;
     StartupInfo.SaveScreen=FarSaveScreen;
     StartupInfo.RestoreScreen=FarRestoreScreen;
-    StartupInfo.GetDirList=FarGetDirListA; //заглушка
-    StartupInfo.GetPluginDirList=FarGetPluginDirListA; //заглушка
-    StartupInfo.FreeDirList=FarFreeDirListA; //заглушка
+    StartupInfo.GetDirList=FarGetDirListA;
+    StartupInfo.GetPluginDirList=FarGetPluginDirListA;
+    StartupInfo.FreeDirList=FarFreeDirListA;
     StartupInfo.Viewer=FarViewerA;
     StartupInfo.Editor=FarEditorA;
     StartupInfo.CmpName=FarCmpNameA;

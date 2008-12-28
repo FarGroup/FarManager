@@ -45,12 +45,10 @@ BOOL  WINAPI DeleteReparsePoint(const wchar_t *szMountDir);
 
 DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &szDestBuff,LPDWORD lpReparseTag=NULL);
 
-//int   WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize);
-
 BOOL GetSubstName(int DriveType,const wchar_t *LocalName,string &strSubstName);
 
 int DelSubstDrive(const wchar_t *DosDeviceName);
-void  WINAPI GetPathRoot(const wchar_t *Path, string &strRoot);
+void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter=0);
 void GetPathRootOne(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
