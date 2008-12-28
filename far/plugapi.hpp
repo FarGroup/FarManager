@@ -61,6 +61,8 @@ int __stdcall farIsAlphaNum(wchar_t Ch);
 
 int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner);
 
+int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize);
+
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                   const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);

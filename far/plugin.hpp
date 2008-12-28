@@ -1683,8 +1683,8 @@ enum MKLINKOP{
   FLINK_DONOTUPDATEPANEL = 0x20000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
-typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
-typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
+typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const wchar_t *Src, wchar_t *Dest, int DestSize);
+typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
 
 typedef struct FarStandardFunctions
 {

@@ -34,13 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
-#include "lang.hpp"
-
 #include "fn.hpp"
 #include "flink.hpp"
 #include "syslog.hpp"
-
 
 int ConvertNameToFull (
         const wchar_t *lpwszSrc,
@@ -86,7 +82,7 @@ int ConvertNameToFull (
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point
 */
-int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
+int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
 {
   string strTempDest;
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
@@ -226,11 +222,6 @@ int WINAPI ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal
   return Ret;
 }
 
-int WINAPI OldConvertNameToReal(const wchar_t *Src, string &strDest)
-{
-	return ConvertNameToReal(Src,strDest,false);
-}
-
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
@@ -267,4 +258,93 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 	}
 	else
 		strDest = strCopy;
+}
+
+string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
+{
+  int NetPathShown=FALSE, IsOK=FALSE;
+  wchar_t LocalName[8]=L" :\0\0\0", RemoteName[NM]; //BUGBUG
+  DWORD RemoteNameSize=sizeof(RemoteName)/sizeof (wchar_t);
+
+  *LocalName=Letter;
+  strDest=L"";
+
+  if(DriveType == DRIVE_UNKNOWN)
+  {
+    LocalName[2]=L'\\';
+    DriveType = FAR_GetDriveType(LocalName);
+    LocalName[2]=0;
+  }
+
+  if (DriveType==DRIVE_REMOTE)
+  {
+    if (WNetGetConnectionW(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
+    {
+      NetPathShown=TRUE;
+      IsOK=TRUE;
+    }
+  }
+  string strRemoteName = RemoteName;
+
+  if (!NetPathShown)
+    if (GetSubstName(DriveType,LocalName,strRemoteName))
+      IsOK=TRUE;
+
+  if(IsOK)
+    strDest = strRemoteName;
+
+  return strDest;
+}
+
+void ConvertNameToUNC(string &strFileName)
+{
+	ConvertNameToFull(strFileName,strFileName);
+	// Посмотрим на тип файловой системы
+	string strFileSystemName;
+	string strTemp;
+	GetPathRoot(strFileName,strTemp);
+
+	if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
+		strFileSystemName=L"";
+
+	DWORD uniSize = 1024;
+	UNIVERSAL_NAME_INFOW *uni=(UNIVERSAL_NAME_INFOW*)xf_malloc(uniSize);
+
+	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
+	if (StrCmpI(strFileSystemName,L"NWFS"))
+	{
+		DWORD dwRet=WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
+		switch(dwRet)
+		{
+		case NO_ERROR:
+			strFileName = uni->lpUniversalName;
+			break;
+		case ERROR_MORE_DATA:
+			uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
+			if(WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+				strFileName = uni->lpUniversalName;
+			break;
+		}
+	}
+	else if(strFileName.At(1) == L':')
+	{
+		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
+		// Здесь, если не получилось получить UniversalName и если это
+		// мапленный диск - получаем как для меню выбора дисков
+
+		if(!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
+		{
+			const wchar_t *NamePtr;
+			if((NamePtr=wcschr(strFileName, L'/')) == NULL)
+				NamePtr=wcschr(strFileName, L'\\');
+			if(NamePtr != NULL)
+			{
+				AddEndSlash(strTemp);
+				strTemp += &NamePtr[1];
+			}
+			strFileName = strTemp;
+		}
+	}
+	xf_free(uni);
+	ConvertNameToReal(strFileName,strFileName);
 }

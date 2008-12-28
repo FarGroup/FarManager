@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
+
 #include "copy.hpp"
 
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 #include "imports.hpp"
 #include "lasterror.hpp"

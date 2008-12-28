@@ -7,6 +7,8 @@ farrtl.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "savefpos.hpp"
+
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)
 #endif
@@ -48,6 +50,20 @@ int fseek64 (FILE *fp, __int64 offset, int whence)
 #else
   return _fseeki64(fp,offset,whence);
 #endif
+}
+
+long filelen(FILE *FPtr)
+{
+  SaveFilePos SavePos(FPtr);
+  fseek(FPtr,0,SEEK_END);
+  return(ftell(FPtr));
+}
+
+__int64 filelen64(FILE *FPtr)
+{
+  SaveFilePos SavePos(FPtr);
+  fseek64(FPtr,0,SEEK_END);
+  return(ftell64(FPtr));
 }
 
 #if defined(SYSLOG)

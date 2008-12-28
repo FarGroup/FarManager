@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
-#include "farwinapi.hpp"
+
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "history.hpp"

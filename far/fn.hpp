@@ -207,11 +207,6 @@ BOOL ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
 
-int ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
-int WINAPI OldConvertNameToReal(const wchar_t *Src, string &strDest);
-int WINAPI ConvertNameToReal(const wchar_t *Src, string &strDest, bool Internal=true);
-void ConvertNameToShort(const wchar_t *Src, string &strDest); //BUGBUG, int
-void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
@@ -232,8 +227,6 @@ int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent
 int HiStrlen(const wchar_t *Str);
 int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
 int GetErrorString (string &strErrStr);
-// ѕроверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
-BOOL CheckErrorForProcessed(DWORD Err);
 void ShowProcessList();
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
@@ -243,8 +236,6 @@ wchar_t* WINAPI PasteFromClipboardEx(int max);
 BOOL WINAPI FAR_EmptyClipboard(VOID);
 
 bool GetShellType(const wchar_t *Ext, string &strType);
-
-int GetFileTypeByName(const wchar_t *Name);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
@@ -304,8 +295,6 @@ int  ShellSetFileAttributes(Panel *SrcPanel);
 void PrintFiles(Panel *SrcPanel);
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
-
-BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
 
 int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
@@ -490,9 +479,6 @@ int CheckForEsc();
 int CheckForEscSilent();
 int ConfirmAbortOp();
 
-// ѕолучить из имени диска RemoteName
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
-
 void __PrepareKMGTbStr(void);
 string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
@@ -526,8 +512,6 @@ string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 // возвращает указатель на начало слова
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
 
-BOOL IsDiskInDrive(const wchar_t *Drive);
-
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
@@ -559,7 +543,6 @@ int  __getMacroErrorCode(int *nErr=NULL);
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
-void ConvertNameToUNC(string &strFileName);
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL);

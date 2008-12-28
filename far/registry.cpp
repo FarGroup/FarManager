@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "registry.hpp"
-#include "farwinapi.hpp"
+
 #include "array.hpp"
 
 static LONG CloseRegKey(HKEY hKey);

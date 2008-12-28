@@ -95,6 +95,7 @@ constitle.cpp
 copy.cpp
 ctrlobj.cpp
 cvtname.cpp
+cvtname.hpp
 delete.cpp
 dialog.cpp
 dizlist.cpp

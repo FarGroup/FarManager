@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
+
 #include "macroopcode.hpp"
 #include "lang.hpp"
 #include "fn.hpp"

@@ -163,6 +163,9 @@ extern "C" {
 #include "struct.hpp"
 #include "global.hpp"
 #include "local.hpp"
+#include "plugin.hpp"
+#include "farwinapi.hpp"
+#include "cvtname.hpp"
 #endif
 
 #endif // __HEADERS_HPP__

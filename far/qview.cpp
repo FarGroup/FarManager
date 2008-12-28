@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "qview.hpp"
 #include "macroopcode.hpp"
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 #include "lang.hpp"
 #include "colors.hpp"

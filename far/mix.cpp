@@ -34,14 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
+
 #include "plugapi.hpp"
-#include "farwinapi.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-#include "savefpos.hpp"
 #include "chgprior.hpp"
 #include "filepanels.hpp"
 #include "filelist.hpp"
@@ -60,20 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
-
-long filelen(FILE *FPtr)
-{
-  SaveFilePos SavePos(FPtr);
-  fseek(FPtr,0,SEEK_END);
-  return(ftell(FPtr));
-}
-
-__int64 filelen64(FILE *FPtr)
-{
-  SaveFilePos SavePos(FPtr);
-  fseek64(FPtr,0,SEEK_END);
-  return(ftell64(FPtr));
-}
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
@@ -518,19 +502,6 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
   return FALSE;
 }
 
-
-int GetFileTypeByName(const wchar_t *Name)
-{
-  HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0);
-  if (hFile==INVALID_HANDLE_VALUE)
-    return(FILE_TYPE_UNKNOWN);
-  int Type=GetFileType(hFile);
-  CloseHandle(hFile);
-  return(Type);
-}
-
-
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
 {
   Message(0,0,Title,MSG(MScanningFolder),Name);
@@ -825,115 +796,6 @@ int CheckFolder(const wchar_t *Path)
   return CHKFLD_EMPTY;
 }
 
-BOOL GetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
-{
-  int ExitCode=0;
-
-#if 0
-  // пока оставим
-  ULARGE_INTEGER uiTotalSize,uiTotalFree,uiUserFree;
-
-  uiUserFree.QuadPart = 0;
-  uiTotalSize.QuadPart = 0;
-  uiTotalFree.QuadPart = 0;
-
-  ExitCode = GetDiskFreeSpaceExW(Root,&uiUserFree,&uiTotalSize,&uiTotalFree);
-  if (uiUserFree.QuadPart > uiTotalFree.QuadPart)
-    uiUserFree.QuadPart=uiTotalFree.QuadPart;
-
-  if (ExitCode==0 || uiTotalSize.QuadPart==0)
-  {
-    DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-    ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,
-                              &FreeClusters,&Clusters);
-    uiTotalSize.QuadPart=SectorsPerCluster*BytesPerSector*Clusters;
-    uiTotalFree.QuadPart=SectorsPerCluster*BytesPerSector*FreeClusters;
-    uiUserFree.QuadPart=uiTotalFree.QuadPart;
-  }
-
-  if ( TotalSize )
-    *TotalSize = uiTotalSize.QuadPart;
-  if ( TotalFree )
-    *TotalFree = uiTotalFree.QuadPart;
-  if ( UserFree )
-    *UserFree = uiUserFree.QuadPart;
-#else
-  unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
-  uiUserFree=_i64(0);
-  uiTotalSize=_i64(0);
-  uiTotalFree=_i64(0);
-
-  ExitCode=GetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
-
-  if ( ExitCode==0 || uiTotalSize == _i64(0) )
-  {
-    DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-    ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
-    uiTotalSize=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)Clusters;
-    uiTotalFree=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)FreeClusters;
-    uiUserFree=uiTotalFree;
-  }
-
-  if ( TotalSize )
-    *TotalSize = uiTotalSize;
-  if ( TotalFree )
-    *TotalFree = uiTotalFree;
-  if ( UserFree )
-    *UserFree = uiUserFree;
-
-#endif
-  return(ExitCode);
-}
-
-#if 0
-/*
-In: "C:\WINNT\SYSTEM32\FOO.TXT", "%SystemRoot%"
-Out: "%SystemRoot%\SYSTEM32\FOO.TXT"
-*/
-BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize)
-{
-  int I;
-  char Temp[NM*2];
-  Temp[0] = 0;
-
-  ExpandEnvironmentStr(EnvVar, Temp, sizeof(Temp));
-  I = strlen(Temp);
-
-  if (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, Temp, I, Path, I) == 2)
-  {
-    if (strlen(Path)-I+strlen(EnvVar) < DestSize)
-    {
-      xstrncpy(Dest, EnvVar, DestSize-1);
-      xstrncat(Dest, Path + I, DestSize-1);
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
-BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize)
-{
-  const char *StdEnv[]={
-     "%TEMP%",               // C:\Documents and Settings\Administrator\Local Settings\Temp
-     "%APPDATA%",            // C:\Documents and Settings\Administrator\Application Data
-     "%USERPROFILE%",        // C:\Documents and Settings\Administrator
-     "%ALLUSERSPROFILE%",    // C:\Documents and Settings\All Users
-     "%CommonProgramFiles%", // C:\Program Files\Common Files
-     "%ProgramFiles%",       // C:\Program Files
-     "%SystemRoot%",         // C:\WINNT
-  };
-
-  for(int I=0; I < sizeof(StdEnv)/sizeof(StdEnv[0]); ++I)
-  {
-    if(UnExpandEnvironmentString(Path, StdEnv[I], Dest, DestSize))
-      return TRUE;
-  }
-  xstrncpy(Dest, Path, DestSize-1);
-  return FALSE;
-
-}
-#endif
-
 /* $ 30.07.2001 IS
      1. ѕровер€ем правильность параметров.
      2. “еперь обработка каталогов не зависит от маски файлов
@@ -1026,42 +888,6 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   }
 
   strDest.ReleaseBuffer ();
-
-  return strDest;
-}
-
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
-{
-  int NetPathShown=FALSE, IsOK=FALSE;
-  wchar_t LocalName[8]=L" :\0\0\0", RemoteName[NM]; //BUGBUG
-  DWORD RemoteNameSize=sizeof(RemoteName)/sizeof (wchar_t);
-
-  *LocalName=Letter;
-  strDest=L"";
-
-  if(DriveType == DRIVE_UNKNOWN)
-  {
-    LocalName[2]=L'\\';
-    DriveType = FAR_GetDriveType(LocalName);
-    LocalName[2]=0;
-  }
-
-  if (DriveType==DRIVE_REMOTE)
-  {
-    if (WNetGetConnectionW(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
-    {
-      NetPathShown=TRUE;
-      IsOK=TRUE;
-    }
-  }
-  string strRemoteName = RemoteName;
-
-  if (!NetPathShown)
-    if (GetSubstName(DriveType,LocalName,strRemoteName))
-      IsOK=TRUE;
-
-  if(IsOK)
-    strDest = strRemoteName;
 
   return strDest;
 }
@@ -1377,26 +1203,6 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
     return -1;
   return 1;
 }
-
-
-BOOL IsDiskInDrive(const wchar_t *Root)
-{
-  string strVolName;
-  string strDrive;
-  DWORD  MaxComSize;
-  DWORD  Flags;
-  string strFS;
-
-  strDrive = Root;
-
-  AddEndSlash(strDrive);
-  //UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
-  //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
-  BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
-  //SetErrorMode(ErrMode);
-  return Res;
-}
-
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
@@ -1800,9 +1606,9 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
     unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
     unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
 
-    if (!GetDiskSize(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+    if (!apiGetDiskSize(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
       return FALSE;
-    if (!GetDiskSize(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
+    if (!apiGetDiskSize(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
       return FALSE;
 
     if (!(SrcVolumeNumber!=0 &&
@@ -1911,57 +1717,4 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 	A.u.HighPart = ft->dwHighDateTime;
 
 	return A.QuadPart;
-}
-
-void ConvertNameToUNC(string &strFileName)
-{
-	ConvertNameToFull(strFileName,strFileName);
-	// ѕосмотрим на тип файловой системы
-	string strFileSystemName;
-	string strTemp;
-	GetPathRoot(strFileName,strTemp);
-
-	if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
-		strFileSystemName=L"";
-
-	DWORD uniSize = 1024;
-	UNIVERSAL_NAME_INFOW *uni=(UNIVERSAL_NAME_INFOW*)xf_malloc(uniSize);
-
-	// примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
-	if (StrCmpI(strFileSystemName,L"NWFS"))
-	{
-		DWORD dwRet=WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
-		switch(dwRet)
-		{
-		case NO_ERROR:
-			strFileName = uni->lpUniversalName;
-			break;
-		case ERROR_MORE_DATA:
-			uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
-			if(WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
-				strFileName = uni->lpUniversalName;
-			break;
-		}
-	}
-	else if(strFileName.At(1) == L':')
-	{
-		// BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
-		// «десь, если не получилось получить UniversalName и если это
-		// мапленный диск - получаем как дл€ меню выбора дисков
-
-		if(!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
-		{
-			const wchar_t *NamePtr;
-			if((NamePtr=wcschr(strFileName, L'/')) == NULL)
-				NamePtr=wcschr(strFileName, L'\\');
-			if(NamePtr != NULL)
-			{
-				AddEndSlash(strTemp);
-				strTemp += &NamePtr[1];
-			}
-			strFileName = strTemp;
-		}
-	}
-	xf_free(uni);
-	ConvertNameToReal(strFileName,strFileName);
 }

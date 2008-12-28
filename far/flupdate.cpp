@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filelist.hpp"
 
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
-#include "plugin.hpp"
+
 #include "colors.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
@@ -149,7 +149,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       if (StrCmp(strCurDir, strOldCurDir) == 0) //?? i??
       {
         GetPathRootOne(strOldCurDir,strOldCurDir);
-        if(!IsDiskInDrive(strOldCurDir))
+        if(!apiIsDiskInDrive(strOldCurDir))
           IfGoHome(strOldCurDir.At(0));
         /* При смене каталога путь не изменился */
       }
@@ -189,7 +189,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     unsigned __int64 TotalSize,TotalFree;
     string strDriveRoot;
     GetPathRoot(strCurDir,strDriveRoot);
-    if (!GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    if (!apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -629,7 +629,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     unsigned __int64 TotalSize,TotalFree;
     string strDriveRoot;
     GetPathRoot(strCurDir,strDriveRoot);
-    if (!GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    if (!apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 

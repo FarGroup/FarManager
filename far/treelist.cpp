@@ -35,9 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "treelist.hpp"
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
-#include "plugin.hpp"
+
 #include "keyboard.hpp"
 #include "colors.hpp"
 #include "lang.hpp"

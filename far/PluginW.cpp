@@ -33,8 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-#include "plugin.hpp"
-#include "farwinapi.hpp"
+
+
 #include "flink.hpp"
 #include "scantree.hpp"
 #include "chgprior.hpp"
@@ -473,7 +473,6 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.LStrlwr = farStrLower;
     StandardFunctions.LStricmp = farStrCmpI;
     StandardFunctions.LStrnicmp = farStrCmpNI;
-    /* SVS $ */
 
     StandardFunctions.Unquote=Unquote;
     StandardFunctions.LTrim=RemoveLeadingSpaces;
@@ -498,7 +497,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.DeleteBuffer=DeleteBuffer;
     StandardFunctions.ProcessName=ProcessName;
     StandardFunctions.MkLink=FarMkLink;
-    //StandardFunctions.ConvertNameToReal=OldConvertNameToReal; //BUGBUG
+    StandardFunctions.ConvertNameToReal=farConvertNameToReal;
     //StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo; //BUGBUG
   }
 

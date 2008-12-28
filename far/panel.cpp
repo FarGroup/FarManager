@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "panel.hpp"
-#include "plugin.hpp"
+
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -325,12 +325,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			string strTotalText, strFreeText;
 			unsigned __int64 TotalSize,TotalFree,UserFree;
 
-			if ( ShowDisk && GetDiskSize(
-					strRootDir,
-					&TotalSize,
-					&TotalFree,
-					&UserFree
-					) )
+			if ( ShowDisk && apiGetDiskSize(strRootDir,&TotalSize,&TotalFree,&UserFree) )
 			{
 				if ( Opt.ChangeDriveMode & DRIVE_SHOW_SIZE )
 				{
@@ -990,7 +985,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	{
 		strRootDir.Format (L"%c:", mitem->cDrive);
 
-		if ( !IsDiskInDrive(strRootDir) )
+		if ( !apiIsDiskInDrive(strRootDir) )
 		{
 			if ( EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
@@ -1728,7 +1723,7 @@ int  Panel::SetCurPath()
     {
       string strRoot;
       GetPathRoot(strCurDir, strRoot);
-      if(FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || IsDiskInDrive(strRoot))
+      if(FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || apiIsDiskInDrive(strRoot))
       {
         int Result=CheckFolder(strCurDir);
         if(Result == CHKFLD_NOTFOUND)
@@ -1771,7 +1766,7 @@ int  Panel::SetCurPath()
       BOOL IsChangeDisk=FALSE;
       char Root[1024];
       GetPathRoot(CurDir,Root);
-      if(FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
+      if(FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !apiIsDiskInDrive(Root))
         IsChangeDisk=TRUE;
       else if(CheckFolder(CurDir) == CHKFLD_NOTACCESS)
       {

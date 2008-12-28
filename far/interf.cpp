@@ -36,10 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farqueue.hpp"
 #include "keyboard.hpp"
-#include "farwinapi.hpp"
+
 #include "keys.hpp"
 #include "colors.hpp"
-#include "plugin.hpp"
+
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"

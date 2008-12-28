@@ -34,9 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "plugin.hpp"
+
 #include "plugapi.hpp"
-#include "farwinapi.hpp"
+
 #include "keys.hpp"
 #include "lang.hpp"
 #include "help.hpp"
@@ -2103,6 +2103,17 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	int Ret=GetFileOwner(Computer,Name,strOwner);
 	wcsncpy(Owner,strOwner,NM);
 	return Ret;
+}
+
+int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize)
+{
+	string strSrc(Src),strDest;
+	ConvertNameToReal(strSrc,strDest,false);
+	if(!Dest)
+		return (int)strDest.GetLength();
+	else
+		xwcsncpy(Dest,strDest,DestSize);
+	return Min((int)strDest.GetLength(),DestSize);
 }
 
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)

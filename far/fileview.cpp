@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileview.hpp"
 
-#include "farwinapi.hpp"
+
 #include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"

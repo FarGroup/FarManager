@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edit.hpp"
 #include "keyboard.hpp"
 #include "fn.hpp"
-#include "plugin.hpp"
+
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "editor.hpp"

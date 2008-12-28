@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 
 #include "fn.hpp"
-#include "farwinapi.hpp"
+
 
 ConsoleTitle::ConsoleTitle (const wchar_t *title)
 {

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "lang.hpp"
-#include "farwinapi.hpp"
+
 #include "keys.hpp"
 #include "colors.hpp"
 #include "cmdline.hpp"

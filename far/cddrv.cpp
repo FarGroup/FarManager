@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "fn.hpp"
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 
 static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)

@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
@@ -947,7 +947,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           if(WorkMove) // при перемещении "тотал" так же скидывается для "того же диска"
           {
-            if(IsSameDisk(strSrcDir,strNameTmp))
+            if (!UseFilter && IsSameDisk(strSrcDir,strNameTmp))
               ShowTotalCopySize=FALSE;
 
             if(CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
@@ -1714,7 +1714,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         SameDisk=TRUE;
       }
 
-      if (!SameDisk || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
+      if ((UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
         CopyCode=COPY_FAILURE;
       else
       {
@@ -1857,7 +1857,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
             // Из-за этих пропусков при Move полностью скопированный каталог не
             // удаляется обычным методом, а пустые каталоги не копируются даже
             // в случае когда фильтр это разрешает
-            if (!(ShellCopy::Flags&FCOPY_MOVE) || SameDisk || !ScTree.IsDirSearchDone())
+            if (!(ShellCopy::Flags&FCOPY_MOVE) || (!UseFilter && SameDisk) || !ScTree.IsDirSearchDone())
               continue;
             if(FilesInDir) goto remove_moved_directory;
           }
@@ -1865,7 +1865,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
         {
           int AttemptToMove=FALSE;
-          if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+          if ((ShellCopy::Flags&FCOPY_MOVE) && (!UseFilter && SameDisk) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
           {
             AttemptToMove=TRUE;
 
@@ -2233,7 +2233,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           return(StrCmp(strDestPath,strSrcFullName)==0 ? COPY_NEXT:COPY_SUCCESS);
         }
 
-        int Type=GetFileTypeByName(strDestPath);
+        int Type=apiGetFileTypeByName(strDestPath);
         if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)
           return(Rename ? COPY_NEXT:COPY_SUCCESS);
       }
@@ -2265,7 +2265,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         // Пытаемся переименовать, пока не отменят
         while (1)
         {
-          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,strDestPath):apiMoveFile(Src,strDestPath);
+          BOOL SuccessMove=RenameToShortName?apiMoveFileThroughTemp(Src,strDestPath):apiMoveFile(Src,strDestPath);
 
           if (SuccessMove)
           {
@@ -2523,7 +2523,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
 
         if(RenameToShortName)
-          MoveCode=MoveFileThroughTemp(strSrcFullName, strDestPath);
+          MoveCode=apiMoveFileThroughTemp(strSrcFullName, strDestPath);
         else
         {
           if (!StrCmp(strDestFSName,L"NWFS"))
@@ -3741,7 +3741,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   {
     int Type;
     if ((!Opt.Confirm.Copy && !Rename) || (!Opt.Confirm.Move && Rename) ||
-        SameName || (Type=GetFileTypeByName(DestName))==FILE_TYPE_CHAR ||
+        SameName || (Type=apiGetFileTypeByName(DestName))==FILE_TYPE_CHAR ||
         Type==FILE_TYPE_PIPE || (ShellCopy::Flags&FCOPY_OVERWRITENEXT))
       MsgCode=1;
     else

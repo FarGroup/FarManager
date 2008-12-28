@@ -1,8 +1,9 @@
+#ifndef __CVTNAME_HPP__
+#define __CVTNAME_HPP__
 /*
-xlat.cpp
+cvtname.hpp
 
-XLat - перекодировка
-
+Функций для преобразования имен файлов/путей.
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -32,17 +33,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+int ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
 
+int ConvertNameToReal(const wchar_t *Src, string &strDest, bool Internal=true);
 
+void ConvertNameToShort(const wchar_t *Src, string &strDest); //BUGBUG, int
 
-#include "fn.hpp"
+void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 
-wchar_t* WINAPI Xlat(wchar_t *Line,
-                    int StartPos,
-                    int EndPos,
-                    DWORD Flags)
-{
-    return  Line; //BUGBUG
-}
+void ConvertNameToUNC(string &strFileName);
+
+// Получить из имени диска RemoteName
+string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
+
+#endif // __CVTNAME_HPP__

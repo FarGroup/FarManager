@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 #include "lang.hpp"
-#include "farwinapi.hpp"
+
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"

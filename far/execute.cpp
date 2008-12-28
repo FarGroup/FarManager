@@ -38,11 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shobjidl.h>
 #endif
 #include "keyboard.hpp"
-#include "farwinapi.hpp"
+
 #include "filepanels.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-#include "plugin.hpp"
+
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"

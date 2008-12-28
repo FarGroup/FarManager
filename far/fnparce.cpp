@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "farwinapi.hpp"
+
 #include "panel.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 
 #include "ctrlobj.hpp"
-#include "plugin.hpp"
+
 #include "lang.hpp"
 #include "colors.hpp"
 #include "dialog.hpp"
@@ -607,19 +607,4 @@ int AbortMessage()
     return (TRUE);
   else
     return (FALSE);
-}
-
-// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
-BOOL CheckErrorForProcessed(DWORD Err)
-{
-  switch(Err)
-  {
-    case ERROR_ACCESS_DENIED:
-    case ERROR_WRITE_PROTECT:
-    case ERROR_NOT_READY:
-    case ERROR_SHARING_VIOLATION:
-    case ERROR_LOCK_VIOLATION:
-      return FALSE;
-  }
-  return TRUE;
 }

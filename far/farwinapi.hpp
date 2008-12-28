@@ -35,8 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
+#include "UnicodeString.hpp"
 
-
+// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
+BOOL apiCheckErrorCanContinue(
+		DWORD Err
+		);
 
 DWORD apiGetEnvironmentVariable (
 		const wchar_t *lpwszName,
@@ -110,7 +114,7 @@ BOOL apiGetFindDataEx (
 		const wchar_t *lpwszFileName,
 		FAR_FIND_DATA_EX *pFindData,
 		bool ScanSymLink=true);
-		
+
 BOOL apiGetFileSize (
 		HANDLE hFile,
 		unsigned __int64 *pSize);
@@ -162,9 +166,24 @@ int apiRegEnumKeyEx (
 		PFILETIME lpftLastWriteTime=NULL
 		);
 
-BOOL MoveFileThroughTemp (
+BOOL apiMoveFileThroughTemp (
 		const wchar_t *Src,
 		const wchar_t *Dest
+		);
+
+BOOL apiIsDiskInDrive(
+		const wchar_t *Root
+		);
+
+int apiGetFileTypeByName(
+		const wchar_t *Name
+		);
+
+BOOL apiGetDiskSize(
+		const wchar_t *Root,
+		unsigned __int64 *TotalSize,
+		unsigned __int64 *TotalFree,
+		unsigned __int64 *UserFree
 		);
 
 #endif // __FARWINAPI_HPP__

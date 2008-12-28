@@ -34,9 +34,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "farwinapi.hpp"
+
 #include "fn.hpp"
 #include "flink.hpp"
+
+
+// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
+BOOL apiCheckErrorCanContinue(DWORD Err)
+{
+	switch(Err)
+	{
+		case ERROR_ACCESS_DENIED:
+		case ERROR_WRITE_PROTECT:
+		case ERROR_NOT_READY:
+		case ERROR_SHARING_VIOLATION:
+		case ERROR_LOCK_VIOLATION:
+			return FALSE;
+	}
+	return TRUE;
+}
+
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
@@ -49,7 +66,7 @@ BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 	{
 		SetLastError((_localLastError = GetLastError()));
 
-		if ( CheckErrorForProcessed(_localLastError) )
+		if ( apiCheckErrorCanContinue(_localLastError) )
 		{
 			string strFullName;
 
@@ -78,7 +95,7 @@ BOOL apiRemoveDirectory (const wchar_t *DirName)
   if(!rc) // IS: вот тут лишние телодвижения и начнем...
   {
     SetLastError((_localLastError = GetLastError()));
-    if(CheckErrorForProcessed(_localLastError))
+    if(apiCheckErrorCanContinue(_localLastError))
     {
       char FullName[NM+16]="\\\\?\\";
       // IS: +4 - чтобы не затереть наши "\\?\"
@@ -160,7 +177,7 @@ BOOL apiMoveFileEx (
 }
 
 
-BOOL MoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
+BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 {
   string strTemp;
   BOOL rc = FALSE;
@@ -503,5 +520,67 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 		ExitCode=RegEnumKeyExW(hKey,dwIndex,Name,&Size,NULL,NULL,NULL,lpftLastWriteTime);
 		strName.ReleaseBuffer();
 	}
+	return ExitCode;
+}
+
+BOOL apiIsDiskInDrive(const wchar_t *Root)
+{
+	string strVolName;
+	string strDrive;
+	DWORD  MaxComSize;
+	DWORD  Flags;
+	string strFS;
+
+	strDrive = Root;
+
+	AddEndSlash(strDrive);
+	//UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
+	//если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
+	BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
+	//SetErrorMode(ErrMode);
+	return Res;
+}
+
+int apiGetFileTypeByName(const wchar_t *Name)
+{
+	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+
+	if (hFile==INVALID_HANDLE_VALUE)
+		return FILE_TYPE_UNKNOWN;
+
+	int Type=GetFileType(hFile);
+
+	CloseHandle(hFile);
+
+	return Type;
+}
+
+BOOL apiGetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+{
+	int ExitCode=0;
+
+	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
+	uiUserFree=_i64(0);
+	uiTotalSize=_i64(0);
+	uiTotalFree=_i64(0);
+
+	ExitCode=GetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+
+	if ( ExitCode==0 || uiTotalSize == _i64(0) )
+	{
+		DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
+		ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
+		uiTotalSize=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)Clusters;
+		uiTotalFree=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)FreeClusters;
+		uiUserFree=uiTotalFree;
+	}
+
+	if ( TotalSize )
+		*TotalSize = uiTotalSize;
+	if ( TotalFree )
+		*TotalFree = uiTotalFree;
+	if ( UserFree )
+		*UserFree = uiUserFree;
+
 	return ExitCode;
 }

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "infolist.hpp"
 #include "macroopcode.hpp"
 
-#include "farwinapi.hpp"
+
 #include "flink.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
@@ -246,7 +246,7 @@ void InfoList::DisplayObject()
     PrintText(strTitle);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
-    if (GetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
+    if (apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
     {
       GotoXY(X1+2,Y1+4);
       PrintText(MInfoDiskTotal);
