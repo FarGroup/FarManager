@@ -884,15 +884,15 @@ void Viewer::ShowHex()
 
 void Viewer::DrawScrollbar()
 {
-	if ( ViOpt.ShowScrollbar )
-	{
-	    if ( m_bQuickView )
-		    SetColor(COL_PANELSCROLLBAR);
-		else
-			SetColor(COL_VIEWERSCROLLBAR);
+  if ( ViOpt.ShowScrollbar )
+  {
+    if ( m_bQuickView )
+      SetColor(COL_PANELSCROLLBAR);
+    else
+      SetColor(COL_VIEWERSCROLLBAR);
 
-		ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
-	}
+    ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+  }
 }
 
 
@@ -1253,7 +1253,7 @@ int Viewer::ProcessKey(int Key)
         Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
 
         if ( m_bQuickView )
-			CtrlObject->Cp()->ActivePanel->Redraw();
+          CtrlObject->Cp()->ActivePanel->Redraw();
 
         Show();
 
@@ -2395,7 +2395,7 @@ void Viewer::Search(int Next,int FirstChar)
   if ((SearchLength=(int)strlen((char *)SearchStr))==0)
     return;
 
-  { 
+  {
     TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
@@ -2999,7 +2999,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
     }
     else
         FilePos=VM.Unicode ? Offset/2:Offset;
-    if ( FilePos>FileSize )   // и куда его несет?
+    if ( FilePos>FileSize || FilePos<0)   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
     /* tran 17.07.2000 $ */
   }

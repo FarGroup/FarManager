@@ -139,12 +139,12 @@ enum enumShellCopy {
 
 enum CopyMode
 {
-	CM_ASK,
-	CM_OVERWRITE,
-	CM_SKIP,
-	CM_APPEND,
-	CM_ONLYNEWER,
-	CM_ASKRO,
+  CM_ASK,
+  CM_OVERWRITE,
+  CM_SKIP,
+  CM_APPEND,
+  CM_ONLYNEWER,
+  CM_ASKRO,
 };
 
 ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
@@ -608,46 +608,46 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   if (Ask)
   {
-		FarList ComboList;
-		FarListItem LinkTypeItems[4],CopyModeItems[7];
-		if(Link)
-		{
-			ComboList.ItemsNumber=sizeof(LinkTypeItems)/sizeof(LinkTypeItems[0]);
-			ComboList.Items=LinkTypeItems;
-			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
-			strcpy(ComboList.Items[0].Text,MSG(MLinkTypeHardlink));
-			strcpy(ComboList.Items[1].Text,MSG(MLinkTypeJunction));
-			strcpy(ComboList.Items[2].Text,MSG(MLinkTypeSymlinkFile));
-			strcpy(ComboList.Items[3].Text,MSG(MLinkTypeSymlinkDirectory));
+    FarList ComboList;
+    FarListItem LinkTypeItems[4],CopyModeItems[7];
+    if(Link)
+    {
+      ComboList.ItemsNumber=sizeof(LinkTypeItems)/sizeof(LinkTypeItems[0]);
+      ComboList.Items=LinkTypeItems;
+      memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
+      strcpy(ComboList.Items[0].Text,MSG(MLinkTypeHardlink));
+      strcpy(ComboList.Items[1].Text,MSG(MLinkTypeJunction));
+      strcpy(ComboList.Items[2].Text,MSG(MLinkTypeSymlinkFile));
+      strcpy(ComboList.Items[3].Text,MSG(MLinkTypeSymlinkDirectory));
 
-			if(CDP.FilesPresent)
-				ComboList.Items[0].Flags|=LIF_SELECTED;
-			else
-				ComboList.Items[1].Flags|=LIF_SELECTED;
+      if(CDP.FilesPresent)
+        ComboList.Items[0].Flags|=LIF_SELECTED;
+      else
+        ComboList.Items[1].Flags|=LIF_SELECTED;
 
-			if(WinVer.dwMajorVersion<6)
-			{
-				ComboList.Items[2].Flags|=LIF_DISABLE;
-				ComboList.Items[3].Flags|=LIF_DISABLE;
-			}
-		}
-		else
-		{
-			ComboList.ItemsNumber=sizeof(CopyModeItems)/sizeof(CopyModeItems[0]);
-			ComboList.Items=CopyModeItems;
-			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
-			strcpy(ComboList.Items[0].Text,MSG(MCopyAsk));
-			strcpy(ComboList.Items[1].Text,MSG(MCopyOverwrite));
-			strcpy(ComboList.Items[2].Text,MSG(MCopySkipOvr));
-			strcpy(ComboList.Items[3].Text,MSG(MCopyAppend));
-			strcpy(ComboList.Items[4].Text,MSG(MCopyOnlyNewerFiles));
-			strcpy(ComboList.Items[6].Text,MSG(MCopyAskRO));
+      if(WinVer.dwMajorVersion<6)
+      {
+        ComboList.Items[2].Flags|=LIF_DISABLE;
+        ComboList.Items[3].Flags|=LIF_DISABLE;
+      }
+    }
+    else
+    {
+      ComboList.ItemsNumber=sizeof(CopyModeItems)/sizeof(CopyModeItems[0]);
+      ComboList.Items=CopyModeItems;
+      memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
+      strcpy(ComboList.Items[0].Text,MSG(MCopyAsk));
+      strcpy(ComboList.Items[1].Text,MSG(MCopyOverwrite));
+      strcpy(ComboList.Items[2].Text,MSG(MCopySkipOvr));
+      strcpy(ComboList.Items[3].Text,MSG(MCopyAppend));
+      strcpy(ComboList.Items[4].Text,MSG(MCopyOnlyNewerFiles));
+      strcpy(ComboList.Items[6].Text,MSG(MCopyAskRO));
 
-			ComboList.Items[0].Flags=LIF_SELECTED;
-			ComboList.Items[5].Flags=LIF_SEPARATOR;
-			ComboList.Items[6].Flags=LIF_CHECKED;
-		}
-		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
+      ComboList.Items[0].Flags=LIF_SELECTED;
+      ComboList.Items[5].Flags=LIF_SEPARATOR;
+      ComboList.Items[6].Flags=LIF_CHECKED;
+    }
+    CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
 
     Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(LONG_PTR)&CDP);
     Dlg.SetHelp(Link?"HardSymLink":"CopyFiles");
@@ -746,49 +746,49 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopySecurityCopy=CDP.CopySecurity;
   }
 
-	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
+  ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
 
-	if(Link)
-	{
-		switch(CopyDlg[ID_SC_COMBO].ListPos)
-		{
-			case 0:
-				RPT=RP_HARDLINK;
-				break;
-			case 1:
-				RPT=RP_JUNCTION;
-				break;
-			case 2:
-				RPT=RP_SYMLINKFILE;
-				break;
-			case 3:
-				RPT=RP_SYMLINKDIR;
-				break;
-		}
-	}
-	else
-	{
-		ReadOnlyOvrMode=CDP.AskRO?-1:1;
-		switch(CopyDlg[ID_SC_COMBO].ListPos)
-		{
-			case CM_ASK:
-				OvrMode=-1;
-				break;
-			case CM_OVERWRITE:
-				OvrMode=1;
-				break;
-			case CM_SKIP:
-				OvrMode=3;
-				ReadOnlyOvrMode=CDP.AskRO?-1:3;
-				break;
-			case CM_APPEND:
-				OvrMode=5;
-				break;
-			case CM_ONLYNEWER:
-				ShellCopy::Flags|=FCOPY_ONLYNEWERFILES;
-				break;
-		}
-	}
+  if(Link)
+  {
+    switch(CopyDlg[ID_SC_COMBO].ListPos)
+    {
+      case 0:
+        RPT=RP_HARDLINK;
+        break;
+      case 1:
+        RPT=RP_JUNCTION;
+        break;
+      case 2:
+        RPT=RP_SYMLINKFILE;
+        break;
+      case 3:
+        RPT=RP_SYMLINKDIR;
+        break;
+    }
+  }
+  else
+  {
+    ReadOnlyOvrMode=CDP.AskRO?-1:1;
+    switch(CopyDlg[ID_SC_COMBO].ListPos)
+    {
+      case CM_ASK:
+        OvrMode=-1;
+        break;
+      case CM_OVERWRITE:
+        OvrMode=1;
+        break;
+      case CM_SKIP:
+        OvrMode=3;
+        ReadOnlyOvrMode=CDP.AskRO?-1:3;
+        break;
+      case CM_APPEND:
+        OvrMode=5;
+        break;
+      case CM_ONLYNEWER:
+        ShellCopy::Flags|=FCOPY_ONLYNEWERFILES;
+        break;
+    }
+  }
   ShellCopy::Flags|=CopyDlg[ID_SC_COPYSYMLINK].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
   if (DestPlugin && !strcmp((char *)CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrData,InitDestDir))
@@ -944,7 +944,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           if(WorkMove) // при перемещении "тотал" так же скидывается для "того же диска"
           {
-            if(IsSameDisk(SrcDir,NameTmp))
+            if (!UseFilter && IsSameDisk(SrcDir,NameTmp))
               ShowTotalCopySize=FALSE;
             if(CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,SelName))
             {
@@ -1105,21 +1105,21 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
   switch(Msg)
   {
-	case DN_INITDIALOG:
-		Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
-		Dialog::SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
-		break;
-	case DM_SWITCHRO:
-	{
-		FarListGetItem LGI={6};
-		Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
-		if(LGI.Item.Flags&LIF_CHECKED)
-			LGI.Item.Flags&=~LIF_CHECKED;
-		else
-			LGI.Item.Flags|=LIF_CHECKED;
-		Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
-		return TRUE;
-	}
+  case DN_INITDIALOG:
+    Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
+    Dialog::SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
+    break;
+  case DM_SWITCHRO:
+  {
+    FarListGetItem LGI={6};
+    Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+    if(LGI.Item.Flags&LIF_CHECKED)
+      LGI.Item.Flags&=~LIF_CHECKED;
+    else
+      LGI.Item.Flags|=LIF_CHECKED;
+    Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
+    return TRUE;
+  }
     case DN_BTNCLICK:
     {
       if (Param1==ID_SC_USEFILTER) // "Use filter"
@@ -1161,27 +1161,27 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
         return TRUE;
       }
-			if(Param1 == ID_SC_COMBO)
-			{
-				if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
-				{
-					if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6)
-						return Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
-				}
-			}
-		}
-		break;
-	case DN_MOUSEEVENT:
-		if(Dialog::SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
-		{
-			MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
-			if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6 && mer->dwButtonState && !mer->dwEventFlags)
-			{
-				Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
-				return FALSE;
-			}
-		}
-		break;
+      if(Param1 == ID_SC_COMBO)
+      {
+        if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
+        {
+          if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6)
+            return Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+        }
+      }
+    }
+    break;
+  case DN_MOUSEEVENT:
+    if(Dialog::SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
+    {
+      MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
+      if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6 && mer->dwButtonState && !mer->dwEventFlags)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+        return FALSE;
+      }
+    }
+    break;
 
     case DN_EDITCHANGE:
       if(Param1 == 2)
@@ -1337,17 +1337,17 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       DlgParam->AltF10=0;
       return TRUE;
     }
-	case DN_CLOSE:
-	{
-		if(Param1==ID_SC_BTNCOPY)
-		{
-			FarListGetItem LGI={6};
-			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
-			if(LGI.Item.Flags&LIF_CHECKED)
-				DlgParam->AskRO=TRUE;
-		}
-	}
-	break;
+  case DN_CLOSE:
+  {
+    if(Param1==ID_SC_BTNCOPY)
+    {
+      FarListGetItem LGI={6};
+      Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+      if(LGI.Item.Flags&LIF_CHECKED)
+        DlgParam->AskRO=TRUE;
+    }
+  }
+  break;
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -1692,7 +1692,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     }
 
     // Если это каталог и трэба создать связь...
-		if(RPT==RP_SYMLINKFILE || ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)))
+    if(RPT==RP_SYMLINKFILE || ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (RPT==RP_JUNCTION || RPT==RP_SYMLINKDIR)))
     {
       /*
       ЭТОТ кусок, если хотим не делать ссылку на ссылку!
@@ -1729,7 +1729,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         SameDisk=TRUE;
       }
 
-      if (!SameDisk || (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
+      if ((UseFilter ||  !SameDisk) || (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
         CopyCode=COPY_FAILURE;
       else
       {
@@ -1885,7 +1885,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
             // Из-за этих пропусков при Move полностью скопированный каталог не
             // удаляется обычным методом, а пустые каталоги не копируются даже
             // в случае когда фильтр это разрешает
-            if (!(ShellCopy::Flags&FCOPY_MOVE) || SameDisk || !ScTree.IsDirSearchDone())
+            if (!(ShellCopy::Flags&FCOPY_MOVE) || (!UseFilter && SameDisk) || !ScTree.IsDirSearchDone())
               continue;
             if(FilesInDir) goto remove_moved_directory;
           }
@@ -1893,7 +1893,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         /* KM $ */
 
         AttemptToMove=FALSE;
-        if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+        if ((ShellCopy::Flags&FCOPY_MOVE) && (!UseFilter && SameDisk) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
           AttemptToMove=TRUE;
 
@@ -2282,7 +2282,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     }
 
     if(SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ||
-			(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
+      (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
     {
       _LOGCOPYR(CleverSysLog Clev("if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
       if (!Rename)
@@ -2451,7 +2451,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         return COPY_CANCEL;
       }
 
-			if(RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
+      if(RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
       while (!CreateDirectory(DestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
         int MsgCode;
@@ -3247,15 +3247,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
   if ((ShellCopy::Flags&FCOPY_LINK))
   {
-		if(RPT==RP_HARDLINK)
-		{
-			FAR_DeleteFile(DestName);
-			return(MkHardLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
-		}
-		else
-		{
-			return(MkSymLink(SrcName,DestName,RPT,0) ? COPY_SUCCESS:COPY_FAILURE);
-		}
+    if(RPT==RP_HARDLINK)
+    {
+      FAR_DeleteFile(DestName);
+      return(MkHardLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
+    }
+    else
+    {
+      return(MkSymLink(SrcName,DestName,RPT,0) ? COPY_SUCCESS:COPY_FAILURE);
+    }
   }
 
   if((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
@@ -3931,19 +3931,19 @@ void ShellCopy::SetDestDizPath(const char *DestPath)
 
 enum WarnDlgItems
 {
-	WDLG_BORDER,
-	WDLG_TEXT,
-	WDLG_FILENAME,
-	WDLG_SEPARATOR,
-	WDLG_SRCFILEBTN,
-	WDLG_DSTFILEBTN,
-	WDLG_SEPARATOR2,
-	WDLG_CHECKBOX,
-	WDLG_SEPARATOR3,
-	WDLG_OVERWRITE,
-	WDLG_SKIP,
-	WDLG_APPEND,
-	WDLG_CANCEL,
+  WDLG_BORDER,
+  WDLG_TEXT,
+  WDLG_FILENAME,
+  WDLG_SEPARATOR,
+  WDLG_SRCFILEBTN,
+  WDLG_DSTFILEBTN,
+  WDLG_SEPARATOR2,
+  WDLG_CHECKBOX,
+  WDLG_SEPARATOR3,
+  WDLG_OVERWRITE,
+  WDLG_SKIP,
+  WDLG_APPEND,
+  WDLG_CANCEL,
 
 };
 
@@ -3951,66 +3951,66 @@ enum WarnDlgItems
 
 LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-	switch(Msg)
-	{
-	case DM_OPENVIEWER:
-		{
-			LPCSTR ViewName=NULL;
-			LPCSTR* WFN=(LPCSTR*)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
-			if(WFN)
-			{
-				switch(Param1)
-				{
-				case WDLG_SRCFILEBTN:
-					ViewName=WFN[0];
-					break;
-				case WDLG_DSTFILEBTN:
-					ViewName=WFN[1];
-					break;
-				}
-				FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,NULL,NULL,FALSE);
+  switch(Msg)
+  {
+  case DM_OPENVIEWER:
+    {
+      LPCSTR ViewName=NULL;
+      LPCSTR* WFN=(LPCSTR*)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+      if(WFN)
+      {
+        switch(Param1)
+        {
+        case WDLG_SRCFILEBTN:
+          ViewName=WFN[0];
+          break;
+        case WDLG_DSTFILEBTN:
+          ViewName=WFN[1];
+          break;
+        }
+        FileViewer Viewer(ViewName,FALSE,FALSE,TRUE,-1,NULL,NULL,FALSE);
 
-				// а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
-				Viewer.SetTempViewName("nul",FALSE);
+        // а этот трюк не даст пользователю сменить текущий каталог по CtrlF10 и этим ввести в заблуждение копир:
+        Viewer.SetTempViewName("nul",FALSE);
 
-				Viewer.SetDynamicallyBorn(FALSE);
-				FrameManager->EnterModalEV();
-				FrameManager->ExecuteModal();
-				FrameManager->ExitModalEV();
-				FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-			}
-		}
-		break;
-	case DN_CTLCOLORDLGITEM:
-		{
-			if(Param1==WDLG_FILENAME)
-			{
-				FarDialogItem di;
-				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
-				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
-				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
-			}
-		}
-		break;
-	case DN_BTNCLICK:
-		{
-			if(Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN)
-			{
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
-			}
-		}
-		break;
-	case DN_KEY:
-		{
-			if((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
-			{
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
-			}
-		}
-		break;
+        Viewer.SetDynamicallyBorn(FALSE);
+        FrameManager->EnterModalEV();
+        FrameManager->ExecuteModal();
+        FrameManager->ExitModalEV();
+        FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+      }
+    }
+    break;
+  case DN_CTLCOLORDLGITEM:
+    {
+      if(Param1==WDLG_FILENAME)
+      {
+        FarDialogItem di;
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
+        int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
+        return ((Param2&0xFF00FF00)|(Color<<16)|Color);
+      }
+    }
+    break;
+  case DN_BTNCLICK:
+    {
+      if(Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+      }
+    }
+    break;
+  case DN_KEY:
+    {
+      if((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,NULL);
+      }
+    }
+    break;
 
-	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
@@ -4019,26 +4019,26 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
                int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
 {
-	DialogData WarnCopyDlgData[]=
-	{
-		/* 00 */  DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,0,0,0,MSG(MWarning),
-		/* 01 */  DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,0,DIF_CENTERTEXT,0,MSG(MCopyFileExist),
-		/* 02 */  DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,0,DIF_READONLY,0,(char*)DestName,
-		/* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  DialogData WarnCopyDlgData[]=
+  {
+    /* 00 */  DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,0,0,0,MSG(MWarning),
+    /* 01 */  DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,0,DIF_CENTERTEXT,0,MSG(MCopyFileExist),
+    /* 02 */  DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,0,DIF_READONLY,0,(char*)DestName,
+    /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
 
-		/* 04 */  DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
-		/* 05 */  DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
+    /* 04 */  DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
+    /* 05 */  DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,0,DIF_BTNNOCLOSE|DIF_NOBRACKETS,0,"",
 
-		/* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
 
-		/* 07 */  DI_CHECKBOX,5,8,0,8,1,0,0,0,MSG(MCopyRememberChoice),
-		/* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 07 */  DI_CHECKBOX,5,8,0,8,1,0,0,0,MSG(MCopyRememberChoice),
+    /* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
 
-		/* 09 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
-		/* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopySkipOvr),
-		/* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),0,MSG(MCopyAppend),
-		/* 12 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyCancelOvr),
-	};
+    /* 09 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,MSG(MCopyOverwrite),
+    /* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopySkipOvr),
+    /* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|(AskAppend?0:(DIF_DISABLE|DIF_HIDDEN)),0,MSG(MCopyAppend),
+    /* 12 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,MSG(MCopyCancelOvr),
+  };
 
   WIN32_FIND_DATA DestData={0};
   int DestDataFilled=FALSE;
@@ -4102,36 +4102,36 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(DestFileStr,"%-17s %20.20s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
-		WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
-		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
+    WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
+    WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
 
-		MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
-		char FullSrcName[NM*2];
-		ConvertNameToFull(SrcName,FullSrcName,sizeof(FullSrcName));
-		LPCSTR WFN[2]={FullSrcName,DestName};
-		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
-		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
-		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-		WarnDlg.SetHelp("CopyAskOverwrite");
-		WarnDlg.Process();
+    MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
+    char FullSrcName[NM*2];
+    ConvertNameToFull(SrcName,FullSrcName,sizeof(FullSrcName));
+    LPCSTR WFN[2]={FullSrcName,DestName};
+    Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
+    WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
+    WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+    WarnDlg.SetHelp("CopyAskOverwrite");
+    WarnDlg.Process();
 
-		switch(WarnDlg.GetExitCode())
-		{
-		case WDLG_OVERWRITE:
-			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
-			break;
-		case WDLG_SKIP:
-			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
-			break;
-		case WDLG_APPEND:
-			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?5:4;
-			break;
-		case -1:
-		case -2:
-		case WDLG_CANCEL:
-			MsgCode=6;
-			break;
-		}
+    switch(WarnDlg.GetExitCode())
+    {
+    case WDLG_OVERWRITE:
+      MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
+      break;
+    case WDLG_SKIP:
+      MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
+      break;
+    case WDLG_APPEND:
+      MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?5:4;
+      break;
+    case -1:
+    case -2:
+    case WDLG_CANCEL:
+      MsgCode=6;
+      break;
+    }
       }
     }
   }
@@ -4191,37 +4191,37 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(DestFileStr,"%-17s %20.20s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
-		WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
-		WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
+    WarnCopyDlgData[WDLG_SRCFILEBTN].Data=SrcFileStr;
+    WarnCopyDlgData[WDLG_DSTFILEBTN].Data=DestFileStr;
 
-		WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
-		WarnCopyDlgData[WDLG_OVERWRITE].Data=MSG(MCopyContinue);
-		WarnCopyDlgData[WDLG_APPEND].Flags|=DIF_DISABLE|DIF_HIDDEN;
+    WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
+    WarnCopyDlgData[WDLG_OVERWRITE].Data=MSG(MCopyContinue);
+    WarnCopyDlgData[WDLG_APPEND].Flags|=DIF_DISABLE|DIF_HIDDEN;
 
-		MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
-		char SrcName[2*NM];
-		ConvertNameToFull(SrcData.cFileName,SrcName,sizeof(SrcName));
-		LPCSTR WFN[2]={SrcName,DestName};
-		Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
-		WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
-		WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-		WarnDlg.SetHelp("CopyFiles");
-		WarnDlg.Process();
+    MakeDialogItems(WarnCopyDlgData,WarnCopyDlg);
+    char SrcName[2*NM];
+    ConvertNameToFull(SrcData.cFileName,SrcName,sizeof(SrcName));
+    LPCSTR WFN[2]={SrcName,DestName};
+    Dialog WarnDlg(WarnCopyDlg,sizeof(WarnCopyDlg)/sizeof(WarnCopyDlg[0]),WarnDlgProc,(LONG_PTR)&WFN);
+    WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
+    WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
+    WarnDlg.SetHelp("CopyFiles");
+    WarnDlg.Process();
 
-		switch(WarnDlg.GetExitCode())
-		{
-		case WDLG_OVERWRITE:
-			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
-			break;
-		case WDLG_SKIP:
-			MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
-			break;
-		case -1:
-		case -2:
-		case WDLG_CANCEL:
-			MsgCode=6;
-			break;
-		}
+    switch(WarnDlg.GetExitCode())
+    {
+    case WDLG_OVERWRITE:
+      MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?1:0;
+      break;
+    case WDLG_SKIP:
+      MsgCode=WarnCopyDlg[WDLG_CHECKBOX].Selected?3:2;
+      break;
+    case -1:
+    case -2:
+    case WDLG_CANCEL:
+      MsgCode=6;
+      break;
+    }
       }
     switch(MsgCode)
     {
@@ -4879,67 +4879,67 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,ReparsePointTypes 
     }
     else
     {
-			if(LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
-			{
-				// в этом случае создается путь, но не сам каталог
-				char Path[1024];
-				strcpy(Path,DestFullName);
-				char *tmp=PointToName(Path);
-				if(tmp)
-				{
-					*tmp=0;
-					if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
-						CreatePath(Path);
-				}
-			}
-			else
-			{
-				bool CreateDir=true;
-				if(LinkType==RP_EXACTCOPY)
-				{
-					// в этом случае создается или каталог, или пустой файл
-					DWORD dwSrcAttr=GetFileAttributes(SrcFullName);
-					if(dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
-						CreateDir=false;
-				}
-				if(CreateDir)
-				{
-					if (CreateDirectory(DestFullName,NULL))
-						TreeList::AddTreeName(DestFullName);
-					else
-						CreatePath(DestFullName);
-				}
-				else
-				{
-					char Path[1024];
-					strcpy(Path,DestFullName);
-					char *tmp=PointToName(Path);
-					if(tmp)
-					{
-						*tmp=0;
-						// создаём
-						if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
-							CreatePath(Path);
-						HANDLE hFile=FAR_CreateFile(DestFullName,0,0,0,CREATE_NEW,GetFileAttributes(SrcFullName),0);
-						if(hFile!=INVALID_HANDLE_VALUE)
-						{
-							CloseHandle(hFile);
-						}
-					}
-				}
-				if(GetFileAttributes(DestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
-				{
-					if(!(Flags&FCOPY_NOSHOWMSGLINK))
-					{
-						Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-										MSG(MCopyCannotCreateLink),DestFullName,MSG(MOk));
-					}
-					return 0;
-				}
-			}
-		}
-		if(LinkType!=RP_VOLMOUNT)
-		{
+      if(LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
+      {
+        // в этом случае создается путь, но не сам каталог
+        char Path[1024];
+        strcpy(Path,DestFullName);
+        char *tmp=PointToName(Path);
+        if(tmp)
+        {
+          *tmp=0;
+          if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
+            CreatePath(Path);
+        }
+      }
+      else
+      {
+        bool CreateDir=true;
+        if(LinkType==RP_EXACTCOPY)
+        {
+          // в этом случае создается или каталог, или пустой файл
+          DWORD dwSrcAttr=GetFileAttributes(SrcFullName);
+          if(dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
+            CreateDir=false;
+        }
+        if(CreateDir)
+        {
+          if (CreateDirectory(DestFullName,NULL))
+            TreeList::AddTreeName(DestFullName);
+          else
+            CreatePath(DestFullName);
+        }
+        else
+        {
+          char Path[1024];
+          strcpy(Path,DestFullName);
+          char *tmp=PointToName(Path);
+          if(tmp)
+          {
+            *tmp=0;
+            // создаём
+            if(GetFileAttributes(Path)==INVALID_FILE_ATTRIBUTES)
+              CreatePath(Path);
+            HANDLE hFile=FAR_CreateFile(DestFullName,0,0,0,CREATE_NEW,GetFileAttributes(SrcFullName),0);
+            if(hFile!=INVALID_HANDLE_VALUE)
+            {
+              CloseHandle(hFile);
+            }
+          }
+        }
+        if(GetFileAttributes(DestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+        {
+          if(!(Flags&FCOPY_NOSHOWMSGLINK))
+          {
+            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                    MSG(MCopyCannotCreateLink),DestFullName,MSG(MOk));
+          }
+          return 0;
+        }
+      }
+    }
+    if(LinkType!=RP_VOLMOUNT)
+    {
       if(CreateReparsePoint(SrcFullName,DestFullName,LinkType))
       {
         _LOGCOPYR(SysLog("Ok: CreateReparsePoint('%s','%s')",SrcFullName,DestFullName));
