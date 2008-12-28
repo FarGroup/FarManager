@@ -79,6 +79,19 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
 	switch(Msg)
 	{
+		case DN_INITDIALOG:
+			{
+				FarDialogItem di;
+				for(int i=0;Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,i,(LONG_PTR)&di);i++)
+				{
+					if(di.Type==DI_EDIT)
+					{
+						COORD pos={0,0};
+						Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,i,(LONG_PTR)&pos);
+					}
+				}
+			}
+			break;
 		case DN_CTLCOLORDLGITEM:
 			{
 				FarDialogItem di;
