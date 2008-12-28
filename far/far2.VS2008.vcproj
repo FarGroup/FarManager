@@ -6535,6 +6535,10 @@
 				>
 			</File>
 			<File
+				RelativePath="cvtname.hpp"
+				>
+			</File>
+			<File
 				RelativePath="dialog.hpp"
 				>
 			</File>
