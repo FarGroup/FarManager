@@ -2794,7 +2794,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
     }
     else
         FilePos=IsUnicodeCP(VM.CodePage) ? Offset/2:Offset;
-    if ( FilePos>FileSize )   // и куда его несет?
+    if ( FilePos>FileSize || FilePos<0 )   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
   }
   // коррекция
