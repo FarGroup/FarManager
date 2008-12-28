@@ -105,12 +105,24 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
 	switch(Msg)
 	{
+		case DN_INITDIALOG:
+			{
+				FarDialogItem di;
+				for(int i=0;Dialog::SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,(LONG_PTR)&di);i++)
+				{
+					if(di.Type==DI_EDIT)
+					{
+						COORD pos={0,0};
+						Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,i,(LONG_PTR)&pos);
+					}
+				}
+			}
+			break;
 		case DN_CTLCOLORDLGITEM:
 			{
-				FarDialogItem *di=(FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,0);
-				int Type=di->Type;
-				Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)di);
-				if(Type==DI_EDIT)
+				FarDialogItem di;
+				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(LONG_PTR)&di);
+				if(di.Type==DI_EDIT)
 				{
 					int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
 					return ((Param2&0xFF00FF00)|(Color<<16)|Color);
