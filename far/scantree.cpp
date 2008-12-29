@@ -147,7 +147,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
       strFindPath += strFindMask;
 
-      _SVS(SysLog(L"1. FullName='%S'",(const wchar_t*)strFullName));
+      _SVS(SysLog(L"1. FullName='%s'",(const wchar_t*)strFullName));
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         Flags.Set(FSCANTREE_SECONDDIRNAME);

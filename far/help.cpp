@@ -447,7 +447,7 @@ m1:
         }
 
 
-        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
+        if (*ReadStr==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
         {
           AddLine(ReadStr+1);
           FixCount++;
@@ -2190,7 +2190,7 @@ void CallBackStack::PrintStack(const wchar_t *Title)
   SysLog(1);
   while(Ptr)
   {
-    SysLog(L"%03d HelpTopic='%S' HelpPath='%S' HelpMask='%S'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
+    SysLog(L"%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,(const wchar_t*)Ptr->strHelpTopic,(const wchar_t*)Ptr->strHelpPath,(const wchar_t*)Ptr->strHelpMask);
     Ptr=Ptr->Next;
   }
   SysLog(-1);

@@ -1035,7 +1035,7 @@ void FilePanels::Refresh()
 
 void FilePanels::GoToFile(const wchar_t *FileName)
 {
-  if(wcschr(FileName,'\\') || wcschr(FileName,'/'))
+  if(wcschr(FileName,L'\\') || wcschr(FileName,L'/'))
   {
     string ADir,PDir;
     Panel *PassivePanel = GetAnotherPanel(ActivePanel);

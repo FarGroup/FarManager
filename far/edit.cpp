@@ -1088,7 +1088,7 @@ int Edit::ProcessKey(int Key)
             j++;
           }
         }
-        Str[j]=' ';
+        Str[j]=L' ';
       }
       else
       {

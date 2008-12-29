@@ -2046,7 +2046,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
     GetPathRoot(strDestPath, strRoot);
 
-    if (strRoot.GetLength()>0 && strRoot.At(strRoot.GetLength()-1)=='\\')
+    if (strRoot.GetLength()>0 && strRoot.At(strRoot.GetLength()-1)==L'\\')
       strRoot.SetLength(strRoot.GetLength()-1);
 
     if (StrCmp(strDestPath,strRoot)==0)

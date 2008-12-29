@@ -2187,7 +2187,7 @@ void FileEditor::ShowStatus()
   strLineStr.Format (L"%d/%d", m_editor->NumLine+1, m_editor->NumLastLine);
 
   string strAttr;
-  strAttr.SetData (AttrStr, GetOEMCP());
+  strAttr.SetData (AttrStr);
 
   strStatus.Format(
         L"%-*s %c%c%c%5u %7s %*.*s %5s %-4d %3s",
@@ -2243,9 +2243,9 @@ DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 	int ind=0;
 	if(FileAttributes!=INVALID_FILE_ATTRIBUTES)
 	{
-		if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
-		if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
-		if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
+		if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]=L'R';
+		if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]=L'S';
+		if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]=L'H';
 	}
 	AttrStr[ind]=0;
 	return FileAttributes;

@@ -518,14 +518,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         /* $ 22.12.2001 VVM
           + Если Pos == -1 то берем текущий фрейм */
         if (wi->Pos == -1)
-				{
-					f=FrameManager->GetCurrentFrame();
-
-					// для vmenu
-					if(f && f->GetTopModal())
-						f=f->GetTopModal();
-				}
-
+          f=FrameManager->GetCurrentFrame();
         else
           f=FrameManager->operator[](wi->Pos);
         if ( f==NULL )

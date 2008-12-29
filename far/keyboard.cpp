@@ -2209,7 +2209,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_BACK:
       return(Modif|KEY_BS);
     case VK_SPACE:
-      if(Char.UnicodeChar == ' ' || !Char.UnicodeChar)
+      if(Char.UnicodeChar == L' ' || !Char.UnicodeChar)
         return(Modif|KEY_SPACE);
       return Char.UnicodeChar;
     case VK_TAB:

@@ -306,8 +306,8 @@ __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
 #define FL_OVERFLOW   4       /* overflow occured */
 #define FL_READDIGIT  8       /* we've read at least one correct digit */
 
-#define _wchartodigit(c)    ((c) >= '0' && (c) <= '9' ? (c) - '0' : -1)
-#define __ascii_iswalpha(c)     ( ('A' <= (c) && (c) <= 'Z') || ( 'a' <= (c) && (c) <= 'z'))
+#define _wchartodigit(c)    ((c) >= L'0' && (c) <= L'9' ? (c) - L'0' : -1)
+#define __ascii_iswalpha(c)     ( (L'A' <= (c) && (c) <= L'Z') || ( L'a' <= (c) && (c) <= L'z'))
 
 
 
@@ -331,11 +331,11 @@ static unsigned __int64 __cdecl wcstoxq (
     while ( iswspace(c) )
                 c = *p++;               /* skip whitespace */
 
-        if (c == '-') {
+        if (c == L'-') {
                 flags |= FL_NEG;        /* remember minus sign */
                 c = *p++;
         }
-        else if (c == '+')
+        else if (c == L'+')
                 c = *p++;               /* skip sign */
 
         if (ibase < 0 || ibase == 1 || ibase > 36) {
@@ -350,7 +350,7 @@ static unsigned __int64 __cdecl wcstoxq (
                    string */
                 if (_wchartodigit(c) != 0)
                         ibase = 10;
-                else if (*p == 'x' || *p == 'X')
+                else if (*p == L'x' || *p == L'X')
                         ibase = 16;
                 else
                         ibase = 8;
@@ -373,7 +373,7 @@ static unsigned __int64 __cdecl wcstoxq (
                 if ( (digval = _wchartodigit(c)) != -1 )
                         ;
                 else if ( __ascii_iswalpha(c) )
-                        digval = toupper(c) - 'A' + 10;
+                        digval = toupper(c) - L'A' + 10;
                 else
                         break;
                 if (digval >= (unsigned)ibase)

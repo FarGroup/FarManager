@@ -364,7 +364,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
           fwprintf(fp,L"%02X ",Buf[Y*16+X]&0xFF);
         else
           fwprintf(fp,L"   ");
-        TmpBuf[X]=I?(Buf[Y*16+X] < 32?'.':Buf[Y*16+X]):' ';
+        TmpBuf[X]=I?(Buf[Y*16+X] < 32?L'.':Buf[Y*16+X]):L' ';
         if(X == 7)
           fwprintf(fp,L" ");
       }

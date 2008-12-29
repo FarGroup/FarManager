@@ -1587,7 +1587,7 @@ int FindFiles::FindFilesProcess()
             if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
               int Length = StrLength(pi->FindData.lpwszFileName);
-              if ((Length) && (pi->FindData.lpwszFileName[Length-1]=='\\'))
+              if ((Length) && (pi->FindData.lpwszFileName[Length-1]==L'\\'))
                 pi->FindData.lpwszFileName[Length-1] = 0;
             }
           }
@@ -2189,7 +2189,7 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
   AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L' ');
   AttrStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
-  AttrStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':' ';
+  AttrStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L' ';
   AttrStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
   AttrStr[8]=0;
 
