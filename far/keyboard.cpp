@@ -1772,23 +1772,6 @@ int IsShiftKey(DWORD Key)
 }
 
 
-BOOL FARGetKeybLayoutNameW (string &strDest)
-{
-  static WCHAR WBuffer[100]; //BUGBUG, why static?
-
-  if ( ifn.pfnGetConsoleKeyboardLayoutName )
-  {
-    if( ifn.pfnGetConsoleKeyboardLayoutName(WBuffer) )
-    {
-      strDest = WBuffer;
-      return TRUE;
-    }
-  }
-
-  return FALSE;
-}
-
-
 // GetAsyncKeyState(VK_RSHIFT)
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {

@@ -3980,14 +3980,6 @@ MGetTableBottomTitle
 "CtrlH, Ins"
 "CtrlH, Ins"
 
-MGetTableNormalText
-"DOS текст"
-"DOS text"
-
-MGetTableWindowsText
-"Windows текст"
-"Windows text"
-
 MHighlightTitle
 l:
 "Раскраска файлов"

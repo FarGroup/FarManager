@@ -282,9 +282,9 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
         strTableName = L"Unicode";
       else if (CodePage == GetACP())
-        strTableName = MSG(MGetTableWindowsText);
+        strTableName = L"ANSI";
       else
-        strTableName = MSG(MGetTableNormalText);
+        strTableName = L"OEM";
 
       RemoveChar(strTableName,L'&',TRUE);
 
@@ -321,9 +321,9 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
           strTableName = L"Unicode";
         else if (CodePage == GetACP())
-          strTableName = MSG(MGetTableWindowsText);
+          strTableName = L"ANSI";
         else
-          strTableName = MSG(MGetTableNormalText);
+          strTableName = L"OEM";
       }
       return TRUE;
     }
@@ -501,8 +501,8 @@ FindFiles::FindFiles()
   memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
   TableItem[0].Text=MSG(MFindFileAllTables);
   TableItem[1].Flags=LIF_SEPARATOR;
-  TableItem[2].Text=MSG(MGetTableNormalText);
-  TableItem[3].Text=MSG(MGetTableWindowsText);
+  TableItem[2].Text=L"OEM";
+  TableItem[3].Text=L"ANSI";
   TableItem[4].Text=L"Unicode";
 
   FindList = NULL;

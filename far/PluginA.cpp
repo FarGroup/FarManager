@@ -482,7 +482,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StandardFunctions.FarKeyToName=FarKeyToNameA; //BUGBUG или нет?
     StandardFunctions.FarNameToKey=KeyNameToKeyA;
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
-    StandardFunctions.XLat=XlatA; //BUGBUG
+    StandardFunctions.XLat=XlatA; //BUGBUG или нет?
     StandardFunctions.GetFileOwner=GetFileOwnerA;
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
     StandardFunctions.FarRecursiveSearch=FarRecursiveSearchA;
@@ -511,7 +511,7 @@ static void CreatePluginStartupInfoA (PluginA *pPlugin, oldfar::PluginStartupInf
     StartupInfo.Viewer=FarViewerA;
     StartupInfo.Editor=FarEditorA;
     StartupInfo.CmpName=FarCmpNameA;
-    StartupInfo.CharTable=FarCharTableA; //заглушка
+    StartupInfo.CharTable=FarCharTableA;
     StartupInfo.Text=FarTextA;
     StartupInfo.EditorControl=FarEditorControlA; //почти не заглушка
     StartupInfo.ViewerControl=FarViewerControlA;

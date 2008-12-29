@@ -34,9 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "fn.hpp"
 #include "flink.hpp"
+#include "imports.hpp"
 
 
 // Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
@@ -583,4 +583,18 @@ BOOL apiGetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __
 		*UserFree = uiUserFree;
 
 	return ExitCode;
+}
+
+BOOL apiGetConsoleKeyboardLayoutName (string &strDest)
+{
+	BOOL ret=FALSE;
+	strDest.SetLength(0);
+	if ( ifn.pfnGetConsoleKeyboardLayoutName )
+	{
+		wchar_t *p = strDest.GetBuffer(KL_NAMELENGTH+1);
+		if ( p && ifn.pfnGetConsoleKeyboardLayoutName(p) )
+			ret=TRUE;
+		strDest.ReleaseBuffer();
+	}
+	return ret;
 }

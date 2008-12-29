@@ -186,4 +186,8 @@ BOOL apiGetDiskSize(
 		unsigned __int64 *UserFree
 		);
 
+BOOL apiGetConsoleKeyboardLayoutName (
+		string &strDest
+		);
+
 #endif // __FARWINAPI_HPP__

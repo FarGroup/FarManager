@@ -386,7 +386,6 @@ int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &
 */
 int FarAltEnter(int mode);
 
-
 wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,
                     int EndPos,
@@ -468,7 +467,6 @@ DWORD PeekInputRecord(INPUT_RECORD *rec);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
 int SetFLockState(UINT vkKey, int State);
-BOOL FARGetKeybLayoutNameW (string &strDest);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);

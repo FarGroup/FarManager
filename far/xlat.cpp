@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
-
+#include "registry.hpp"
 #include "fn.hpp"
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
@@ -44,5 +43,148 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
                     int EndPos,
                     DWORD Flags)
 {
-    return  Line; //BUGBUG
+	wchar_t Chr,ChrOld;
+	int J,I;
+	int PreLang=2,CurLang=2; // unknown
+	int LangCount[2]={0,0};
+	int IsChange=0;
+
+	if (!Line || !*Line)
+		return NULL;
+
+	I=StrLength(Line);
+
+	if (EndPos > I)
+		EndPos=I;
+
+	if (StartPos < 0)
+		StartPos=0;
+
+	if (StartPos > EndPos || StartPos >= I)
+		return Line;
+
+	if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
+		return Line;
+
+
+	int MinLenTable=(BYTE)Opt.XLat.Table[1][0];
+	if((BYTE)Opt.XLat.Table[1][0] > (BYTE)Opt.XLat.Table[0][0])
+		MinLenTable=(BYTE)Opt.XLat.Table[0][0];
+
+	string strLayoutName;
+
+	int ProcessLayoutName=FALSE;
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && apiGetConsoleKeyboardLayoutName(strLayoutName))
+	{
+		GetRegKey(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)L"",sizeof(Opt.XLat.Rules[2]));
+		if(Opt.XLat.Rules[2][1])
+			ProcessLayoutName=TRUE;
+	}
+
+	// цикл по всей строке
+	for (J=StartPos; J < EndPos; J++)
+	{
+		ChrOld=Chr=Line[J];
+		// ChrOld - пред символ
+		IsChange=0;
+		// цикл по просмотру Chr в таблицах
+		// <=MinLenTable так как длина настоящая а начальный индекс 1
+		for (I=1; I <= MinLenTable; ++I)
+		{
+			// символ из латиницы?
+			if (Chr == Opt.XLat.Table[1][I])
+			{
+				Chr=Opt.XLat.Table[0][I];
+				IsChange=1;
+				CurLang=1; // pred - english
+				LangCount[1]++;
+				break;
+			}
+			// символ из русской?
+			else if (Chr == Opt.XLat.Table[0][I])
+			{
+				Chr=Opt.XLat.Table[1][I];
+				CurLang=0; // pred - russian
+				LangCount[0]++;
+				IsChange=1;
+				break;
+			}
+		}
+
+		if (!IsChange) // особые случаи...
+		{
+			if (ProcessLayoutName)
+			{
+				for (I=1; I < Opt.XLat.Rules[2][0]; I+=2)
+				{
+					if (Chr == Opt.XLat.Rules[2][I])
+					{
+						Chr=Opt.XLat.Rules[2][I+1];
+						break;
+					}
+				}
+			}
+			else
+			{
+				PreLang=CurLang;
+
+				if (LangCount[0] > LangCount[1])
+					CurLang=0;
+				else if (LangCount[0] < LangCount[1])
+					CurLang=1;
+				else
+					CurLang=2;
+
+				if (PreLang != CurLang)
+					CurLang=PreLang;
+
+				for (I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
+				{
+					if (ChrOld == Opt.XLat.Rules[CurLang][I])
+					{
+						Chr=Opt.XLat.Rules[CurLang][I+1];
+						break;
+					}
+				}
+#if 0
+				// Если в таблице не найдено и таблица была Unknown...
+				if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+				{
+					// ...смотрим сначала в первой таблице...
+					for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
+						if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
+							break;
+					for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
+						if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
+							break;
+					if(I >= Opt.XLat.Rules[0][0])
+						CurLang=1;
+					if(J >= Opt.XLat.Rules[1][0])
+						CurLang=0;
+					if()//???
+					{
+						Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
+					}
+				}
+#endif
+			}
+		}
+
+		Line[J]=Chr;
+	}
+
+	// переключаем раскладку клавиатуры?
+	if (Flags & XLAT_SWITCHKEYBLAYOUT)
+	{
+		if (!hFarWnd)
+			InitDetectWindowedMode();
+		if (hFarWnd)
+		{
+			PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+			if (Flags & XLAT_SWITCHKEYBBEEP)
+				MessageBeep(0);
+		}
+	}
+
+	return Line;
 }

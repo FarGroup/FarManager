@@ -3301,51 +3301,30 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 	return TRUE;
 }
 
-int WINAPI FarCharTableA(int Command,char *Buffer,int BufferSize) //BUGBUG
+int WINAPI FarCharTableA(int Command,char *Buffer,int BufferSize)
 {
- 	return -1;
-/*
-  if (FrameManager->ManagerIsDown())
-    return -1;
+	if (Command != oldfar::FCT_DETECT)
+	{
+		if (BufferSize > (int)sizeof(struct oldfar::CharTableSet))
+			return(-1);
 
-  struct CharTableSet TableSet;
+		struct oldfar::CharTableSet TableSet;
 
-  if (Command==FCT_DETECT)
-  {
-    string strDataFileName;
-    FILE *DataFile;
-    if (!FarMkTempEx(strDataFileName) || (DataFile=_wfopen(strDataFileName,L"w+b"))==NULL)
-      return(-1);
-    fwrite(Buffer,1,BufferSize,DataFile);
-    fseek(DataFile,0,SEEK_SET);
-    int TableNum;
-    int DetectCode=DetectTable(DataFile,&TableSet,TableNum);
-    fclose(DataFile);
-    _wremove(strDataFileName);
-    return(DetectCode ? TableNum-1:-1);
-  }
+		for (unsigned int i=0;i<256;++i)
+		{
+			TableSet.EncodeTable[i]=TableSet.DecodeTable[i]=i;
+			TableSet.UpperTable[i]=LocalUpper(i);
+			TableSet.LowerTable[i]=LocalLower(i);
+		}
 
-  if (BufferSize > (int)sizeof(struct CharTableSet))
-    return(-1);
+		xstrncpy(TableSet.TableName, "OEM", sizeof(TableSet.TableName)-1);
+		memcpy(Buffer,&TableSet,BufferSize);
 
-  memcpy(&TableSet,Buffer,Min((int)sizeof(CharTableSet),BufferSize));
-  if (!PrepareTable(&TableSet,Command,TRUE))
-  {
-    for(unsigned int i=0;i<256;++i)
-    {
-      TableSet.EncodeTable[i]=TableSet.DecodeTable[i]=i;
-      TableSet.UpperTable[i]=LocalUpper(i);
-      TableSet.LowerTable[i]=LocalLower(i);
-    }
+		if (Command == 0)
+			return 0;
+	}
 
-    string strTableName = MSG(MGetTableNormalText);
-
-    UnicodeToAnsi (strTableName, TableSet.TableName, sizeof(TableSet.TableName)); //BUGBUG
-    Command=-1;
-  }
-  memcpy(Buffer,&TableSet,BufferSize);
-  return(Command);
-*/
+	return -1;
 }
 
 char* WINAPI XlatA(
@@ -3355,160 +3334,27 @@ char* WINAPI XlatA(
    const struct oldfar::CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
-return Line;
-#if 0
-  BYTE Chr,ChrOld;
-  int J,I;
-  int PreLang=2,CurLang=2; // uncnown
-  int LangCount[2]={0,0};
-  int IsChange=0;
+	string strLine(Line);
+	DWORD NewFlags = 0;
 
-  if(!Line || *Line == 0)
-    return NULL;
+ 	if (Flags&oldfar::XLAT_SWITCHKEYBLAYOUT)
+		NewFlags|=XLAT_SWITCHKEYBLAYOUT;
+ 	if (Flags&oldfar::XLAT_SWITCHKEYBBEEP)
+		NewFlags|=XLAT_SWITCHKEYBBEEP;
+#ifdef FAR_USE_INTERNALS
+ 	if (Flags&oldfar::XLAT_USEKEYBLAYOUTNAME)
+		NewFlags|=XLAT_USEKEYBLAYOUTNAME;
+ 	if (Flags&oldfar::XLAT_CONVERTALLCMDLINE)
+		NewFlags|=XLAT_CONVERTALLCMDLINE;
+#endif // END FAR_USE_INTERNALS
 
-  I=(int)strlen(Line);
+  Xlat(strLine.GetBuffer(),StartPos,EndPos,NewFlags);
 
-  if(EndPos > I)
-    EndPos=I;
+  strLine.ReleaseBuffer();
 
-  if(StartPos < 0)
-    StartPos=0;
+  strLine.GetCharString(Line,strLine.GetLength()+1);
 
-  if(StartPos > EndPos || StartPos >= I)
-    return Line;
-
-
-//  OemToCharBuffA(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
-  if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
-    return Line;
-
-
-  int MinLenTable=(BYTE)Opt.XLat.Table[1][0];
-  if((BYTE)Opt.XLat.Table[1][0] > (BYTE)Opt.XLat.Table[0][0])
-    MinLenTable=(BYTE)Opt.XLat.Table[0][0];
-
-  if (TableSet)
-    // из текущей кодировки в OEM
-    DecodeString(Line+StartPos,(LPBYTE)TableSet->DecodeTable,EndPos-StartPos+1);
-
-  string strLayoutName;
-
-  int ProcessLayoutName=FALSE;
-  if((Flags & XLAT_USEKEYBLAYOUTNAME) && FARGetKeybLayoutNameW(strLayoutName))
-  {
-    GetRegKey(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
-    if(Opt.XLat.Rules[2][1])
-      ProcessLayoutName=TRUE;
-  }
-
-  // цикл по всей строке
-  for(J=StartPos; J < EndPos; J++)
-  {
-    ChrOld=Chr=(BYTE)Line[J];
-    // ChrOld - пред символ
-    IsChange=0;
-    // цикл по просмотру Chr в таблицах
-    // <=MinLenTable так как длина настоящая а начальный индекс 1
-    for(I=1; I <= MinLenTable; ++I)
-    {
-      // символ из латиницы?
-      if(Chr == (BYTE)Opt.XLat.Table[1][I])
-      {
-        Chr=(char)Opt.XLat.Table[0][I];
-        IsChange=1;
-        CurLang=1; // pred - english
-        LangCount[1]++;
-        break;
-      }
-      // символ из русской?
-      else if(Chr == (BYTE)Opt.XLat.Table[0][I])
-      {
-        Chr=(char)Opt.XLat.Table[1][I];
-        CurLang=0; // pred - russian
-        LangCount[0]++;
-        IsChange=1;
-        break;
-      }
-    }
-
-    if(!IsChange) // особые случаи...
-    {
-      if(ProcessLayoutName)
-      {
-        for(I=1; I < Opt.XLat.Rules[2][0]; I+=2)
-          if(Chr == (BYTE)Opt.XLat.Rules[2][I])
-          {
-            Chr=(BYTE)Opt.XLat.Rules[2][I+1];
-            break;
-          }
-      }
-      else
-      {
-        PreLang=CurLang;
-
-        if(LangCount[0] > LangCount[1])
-          CurLang=0;
-        else if(LangCount[0] < LangCount[1])
-          CurLang=1;
-        else
-          CurLang=2;
-
-        if(PreLang != CurLang)
-          CurLang=PreLang;
-
-        for(I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
-          if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
-          {
-             Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
-             break;
-          }
-
-#if 0
-        // Если в таблице не найдено и таблица была Unknown...
-        if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
-        {
-          // ...смотрим сначала в первой таблице...
-          for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
-            if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
-               break;
-          for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
-            if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
-               break;
-          if(I >= Opt.XLat.Rules[0][0])
-            CurLang=1;
-          if(J >= Opt.XLat.Rules[1][0])
-            CurLang=0;
-          if()//???
-          {
-            Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
-          }
-        }
-#endif
-      }
-    }
-
-    Line[J]=(char)Chr;
-  }
-
-  if (TableSet)
-    // из OEM в текущую кодировку
-    EncodeString(Line+StartPos,(LPBYTE)TableSet->EncodeTable,EndPos-StartPos+1);
-
-  // переключаем раскладку клавиатуры?
-  if((Flags & XLAT_SWITCHKEYBLAYOUT))
-  {
-    if(!hFarWnd)
-      InitDetectWindowedMode();
-    if(hFarWnd)
-    {
-      PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
-      if(Flags & XLAT_SWITCHKEYBBEEP)
-        MessageBeep(0);
-    }
-  }
-
-  return Line;
-#endif
+	return Line;
 }
 
 int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
