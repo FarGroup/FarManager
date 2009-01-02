@@ -2799,42 +2799,25 @@ void ShellCopy::PR_ShellCopyMsg(void)
 
 void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 {
-  wchar_t FilesStr[100],BarStr[100]; //BUGBUG, dynamic
-
+	string strFilesStr,strBarStr=L"\x1";
   string strSrcName, strDestName;
 
   #define BAR_SIZE  46
-  static wchar_t Bar[BAR_SIZE+2]={0}; //BUGBUG
-  if(!Bar[0])
-  {
-    for (int i = 0; i < BAR_SIZE; i++)
-      Bar[i] = BoxSymbols[BS_H1];
-  }
-
-  wcscpy(BarStr,Bar); //BUGBUG
 
   if (ShowTotalCopySize)
   {
-    int nLength = (int)(wcslen (MSG(MCopyDlgTotal))+strTotalCopySizeText.GetLength()+4+1);
-
-    wchar_t *wszTotalMsg = (wchar_t*)xf_malloc (nLength*sizeof (wchar_t));
-
+	string strTotalMsg;
     if ( !strTotalCopySizeText.IsEmpty() ) //BUGBUG, but really not used
-      swprintf(wszTotalMsg,L" %s: %s ",MSG(MCopyDlgTotal),(const wchar_t*)strTotalCopySizeText);
+			strTotalMsg.Format(L" %s: %s ",MSG(MCopyDlgTotal),(const wchar_t*)strTotalCopySizeText);
     else
-      swprintf(wszTotalMsg, L" %s ", MSG(MCopyDlgTotal));
+			strTotalMsg.Format(L" %s ",MSG(MCopyDlgTotal));
 
-    int TotalLength=StrLength(wszTotalMsg);
-    wmemcpy(BarStr+(StrLength(BarStr)-TotalLength+1)/2,wszTotalMsg,TotalLength);
-//    *FilesStr=0;
-
-    swprintf (FilesStr, MSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);
-
-    xf_free (wszTotalMsg);
+		strBarStr+=strTotalMsg;
+		strFilesStr.Format(MSG(MCopyProcessedTotal),TotalFiles,TotalFilesToProcess);
   }
   else
   {
-    swprintf(FilesStr,MSG(MCopyProcessed),TotalFiles);
+		strFilesStr.Format(MSG(MCopyProcessed),TotalFiles);
 
     if ((Src!=NULL) && (ShowCopyTime))
     {
@@ -2859,7 +2842,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
     Message(Flags,0,(ShellCopy::Flags&FCOPY_MOVE) ? MSG(MMoveDlgTitle):
                        MSG(MCopyDlgTitle),
                        L"",MSG(MCopyScanning),
-                       strDestName,L"",L"",BarStr,L"");
+		                   strDestName,L"",L"",strBarStr,L"");
   else
   {
     int Move = ShellCopy::Flags&FCOPY_MOVE;
@@ -2867,16 +2850,16 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
     if ( ShowTotalCopySize )
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr,Bar,L"");
+				Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",strBarStr,L"",L"\x1",strFilesStr,L"\x1",L"");
       else
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,L"",Bar,FilesStr);
+				Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",strBarStr,L"",L"\x1",strFilesStr);
     }
     else
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,FilesStr,Bar,L"");
+				Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",strBarStr,strFilesStr,L"\x1",L"");
       else
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",BarStr,FilesStr);
+				Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),strSrcName,MSG(MCopyTo),strDestName,L"",strBarStr,strFilesStr);
     }
   }
 

@@ -120,9 +120,8 @@ struct CodeXLAT
   */
   string strWordDivForXlat;
 
-  // первый байт - размер таблицы
-  wchar_t Table[2][81]; // [0] non-english буквы, [1] english буквы
-  wchar_t Rules[3][81]; // правила:
+	string Table[2]; // [0] non-english буквы, [1] english буквы
+	string Rules[3]; // правила:
                         // [0] "если предыдущий символ латинский"
                         // [1] "если предыдущий символ нелатинский символ"
                         // [2] "если предыдущий символ не рус/lat"

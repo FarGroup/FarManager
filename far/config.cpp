@@ -1012,11 +1012,11 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
 
   {0, REG_DWORD,  NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
-  {0, REG_BINARY, NKeyXLat,L"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
-  {0, REG_BINARY, NKeyXLat,L"Table2",(BYTE*)&Opt.XLat.Table[1][1],sizeof(Opt.XLat.Table[1])-1,NULL},
-  {0, REG_BINARY, NKeyXLat,L"Rules1",(BYTE*)&Opt.XLat.Rules[0][1],sizeof(Opt.XLat.Rules[0])-1,NULL},
-  {0, REG_BINARY, NKeyXLat,L"Rules2",(BYTE*)&Opt.XLat.Rules[1][1],sizeof(Opt.XLat.Rules[1])-1,NULL},
-  {0, REG_BINARY, NKeyXLat,L"Rules3",(BYTE*)&Opt.XLat.Rules[2][1],sizeof(Opt.XLat.Rules[2])-1,NULL},
+	{0, REG_SZ,     NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},
+	{0, REG_SZ,     NKeyXLat,L"Table2",&Opt.XLat.Table[1],0,L""},
+	{0, REG_SZ,     NKeyXLat,L"Rules1",&Opt.XLat.Rules[0],0,L""},
+	{0, REG_SZ,     NKeyXLat,L"Rules2",&Opt.XLat.Rules[1],0,L""},
+	{0, REG_SZ,     NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
   {0, REG_SZ,     NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 
   {0, REG_DWORD,  NKeySavedHistory, NParamHistoryCount,&Opt.HistoryCount,64, 0},
@@ -1320,32 +1320,6 @@ void ReadConfig()
   GetRegKey(NKeyXLat,L"AltFastFindKey",strKeyNameFromReg,szCtrlShiftX);
   if((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltFastFindKey=0;
-
-
-  for(size_t I=0; I < 2; ++I)
-  {
-    for(size_t J=1; J < sizeof(Opt.XLat.Table[0]); ++J)
-    {
-      if(!Opt.XLat.Table[I][J])
-      {
-        if(J > 0) --J;
-        Opt.XLat.Table[I][0]=(BYTE)J;
-        break;
-      }
-    }
-  }
-  for(size_t I=0; I < 3; ++I)
-  {
-    for(size_t J=1; J < sizeof(Opt.XLat.Rules[0]); ++J)
-    {
-      if(!Opt.XLat.Rules[I][J])
-      {
-        if(J > 0) --J;
-        Opt.XLat.Rules[I][0]=(BYTE)J;
-        break;
-      }
-    }
-  }
 
   Opt.EdOpt.strWordDiv = Opt.strWordDiv;
   FileList::ReadPanelModes();

@@ -2106,8 +2106,8 @@ void VMenu::AssignHighlights(int Reverse)
 {
   CriticalSectionLock Lock(CS);
 
-  WORD Used[65536]; //BUGBUG
-  memset(Used,0,sizeof(Used));
+	LPWORD Used=new WORD[65536]; //BUGBUG
+	memset(Used,0,65536);
 
   /* $ 02.12.2001 KM
      + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной
@@ -2172,6 +2172,7 @@ void VMenu::AssignHighlights(int Reverse)
 //_SVS(SysLogDump("Used Post",0,Used,sizeof(Used),NULL));
   VMFlags.Set(VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0));
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
+	delete[] Used;
 }
 
 void VMenu::SetColors(struct FarListColors *Colors)

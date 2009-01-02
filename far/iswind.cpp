@@ -50,46 +50,6 @@ void DetectWindowedMode()
     WindowedMode=!IsIconic(hFarWnd);
 }
 
-BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
-{
-  int LenTitle=GetWindowTextLengthW(hwnd);
-  if (LenTitle)
-  {
-    wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
-    if (lpwszTitle!=NULL)
-    {
-      if ((LenTitle=GetWindowTextW(hwnd, lpwszTitle, LenTitle+1)) != 0)
-      {
-        lpwszTitle[LenTitle]=0;
-        if (wcsstr(lpwszTitle,(const wchar_t *)FARTitl))
-        {
-          hFarWnd=hwnd;
-          xf_free(lpwszTitle);
-          return(FALSE);
-        }
-      }
-      xf_free(lpwszTitle);
-    }
-  }
-  return(TRUE);
-}
-
-void FindFarWndByTitle()
-{
-  string strOldTitle;
-  string strNewTitle;
-
-  apiGetConsoleTitle(strOldTitle);
-
-  strNewTitle.Format (L"%d - %s",clock(),(const wchar_t*)strOldTitle);
-
-  SetConsoleTitleW (strNewTitle);
-    //hFarWnd = FindWindow(NULL,NewTitle);
-
-  EnumWindows(IsWindowedEnumProc2,(LPARAM)(const wchar_t*)strNewTitle);
-  SetConsoleTitleW (strOldTitle);
-}
-
 void InitDetectWindowedMode()
 {
   hFarWnd = GetConsoleWindow();
@@ -115,20 +75,6 @@ int IsWindowed()
 {
   return(WindowedMode);
 }
-
-
-BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM FARpid)
-{
-  DWORD pid;
-  GetWindowThreadProcessId(hwnd,&pid);
-  if (pid==(DWORD)FARpid)
-  {
-    hFarWnd=hwnd;
-    return(FALSE);
-  }
-  return(TRUE);
-}
-
 
 void RestoreIcons()
 {

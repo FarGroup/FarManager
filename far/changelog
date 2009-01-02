@@ -1,3 +1,13 @@
+drkns 02.01.2009 10:30:25 +0200 - build 714
+
+1. Xlat.Table и Xlat.Rules теперь string и в реестре хранятся как REG_SZ.
+
+2. Исправил пару BUGBUG в копире.
+
+3. Из iswind.cpp удалены остатки былой роскоши - FindFarWndByTitle, IsWindowedEnumProc, IsWindowedEnumProc2.
+
+4. Пара вещей из Mantis#657.
+
 zg 02.01.2009 02:44:04 +0200 - build 713
 
 1. CAS в диалоге назначения макроклавиши.

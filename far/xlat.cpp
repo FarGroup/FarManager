@@ -32,6 +32,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/*
+[HKEY_CURRENT_USER\Software\Far2\XLat]
+"Flags"=dword:00000001
+"Table1"="єј¬√ƒ≈«»… ЋћЌќѕ–—“”‘’÷„ЎўЏџ№яавгдезийклмнопрстуфхцчшщъыьэ€Є®Ѕё"
+"Table2"="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
+"Rules1"=",??&./б,ю.:^∆:ж;;$;\"@Ё\""
+"Rules2"="?,&?/.,б.ю^::∆;ж$;@\"\"Ё"
+"Rules3"="^::∆∆^$;;жж$@\"\"ЁЁ@&??,,бб&/..юю/"
+*/
+
 #include "headers.hpp"
 #pragma hdrstop
 
@@ -44,7 +54,6 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
                     DWORD Flags)
 {
 	wchar_t Chr,ChrOld;
-	int J,I;
 	int PreLang=2,CurLang=2; // unknown
 	int LangCount[2]={0,0};
 	int IsChange=0;
@@ -52,58 +61,52 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	if (!Line || !*Line)
 		return NULL;
 
-	I=StrLength(Line);
+	int Length=StrLength(Line);
 
-	if (EndPos > I)
-		EndPos=I;
+	EndPos=Min(EndPos,Length);
+	StartPos=Max(StartPos,0);
 
-	if (StartPos < 0)
-		StartPos=0;
-
-	if (StartPos > EndPos || StartPos >= I)
+	if (StartPos > EndPos || StartPos >= Length)
 		return Line;
 
-	if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
+	if(!Opt.XLat.Table[0].GetLength() || !Opt.XLat.Table[1].GetLength())
 		return Line;
 
-
-	int MinLenTable=(BYTE)Opt.XLat.Table[1][0];
-	if((BYTE)Opt.XLat.Table[1][0] > (BYTE)Opt.XLat.Table[0][0])
-		MinLenTable=(BYTE)Opt.XLat.Table[0][0];
+	size_t MinLenTable=Min(Opt.XLat.Table[0].GetLength(),Opt.XLat.Table[1].GetLength());
 
 	string strLayoutName;
 
 	int ProcessLayoutName=FALSE;
 	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && apiGetConsoleKeyboardLayoutName(strLayoutName))
 	{
-		GetRegKey(L"XLat",strLayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)L"",sizeof(Opt.XLat.Rules[2]));
-		if(Opt.XLat.Rules[2][1])
+		GetRegKey(L"XLat",strLayoutName,Opt.XLat.Rules[2],L"");
+		if(!Opt.XLat.Rules[2].IsEmpty())
 			ProcessLayoutName=TRUE;
 	}
 
 	// цикл по всей строке
-	for (J=StartPos; J < EndPos; J++)
+	for (int j=StartPos; j < EndPos; j++)
 	{
-		ChrOld=Chr=Line[J];
+		ChrOld=Chr=Line[j];
 		// ChrOld - пред символ
 		IsChange=0;
 		// цикл по просмотру Chr в таблицах
 		// <=MinLenTable так как длина насто€ща€ а начальный индекс 1
-		for (I=1; I <= MinLenTable; ++I)
+		for (size_t i=0; i <= MinLenTable; i++)
 		{
 			// символ из латиницы?
-			if (Chr == Opt.XLat.Table[1][I])
+			if (Chr == Opt.XLat.Table[1].At(i))
 			{
-				Chr=Opt.XLat.Table[0][I];
+				Chr=Opt.XLat.Table[0].At(i);
 				IsChange=1;
 				CurLang=1; // pred - english
 				LangCount[1]++;
 				break;
 			}
 			// символ из русской?
-			else if (Chr == Opt.XLat.Table[0][I])
+			else if (Chr == Opt.XLat.Table[0].At(i))
 			{
-				Chr=Opt.XLat.Table[1][I];
+				Chr=Opt.XLat.Table[1].At(i);
 				CurLang=0; // pred - russian
 				LangCount[0]++;
 				IsChange=1;
@@ -115,11 +118,11 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 		{
 			if (ProcessLayoutName)
 			{
-				for (I=1; I < Opt.XLat.Rules[2][0]; I+=2)
+				for (size_t i=0; i < Opt.XLat.Rules[2].GetLength(); i+=2)
 				{
-					if (Chr == Opt.XLat.Rules[2][I])
+					if (Chr == Opt.XLat.Rules[2].At(i))
 					{
-						Chr=Opt.XLat.Rules[2][I+1];
+						Chr=Opt.XLat.Rules[2].At(i+1);
 						break;
 					}
 				}
@@ -138,11 +141,11 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 				if (PreLang != CurLang)
 					CurLang=PreLang;
 
-				for (I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
+				for (size_t i=0; i < Opt.XLat.Rules[CurLang].GetLength(); i+=2)
 				{
-					if (ChrOld == Opt.XLat.Rules[CurLang][I])
+					if (ChrOld == Opt.XLat.Rules[CurLang].At(i))
 					{
-						Chr=Opt.XLat.Rules[CurLang][I+1];
+						Chr=Opt.XLat.Rules[CurLang].At(i+1);
 						break;
 					}
 				}
@@ -170,7 +173,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 			}
 		}
 
-		Line[J]=Chr;
+		Line[j]=Chr;
 	}
 
 	// переключаем раскладку клавиатуры?
