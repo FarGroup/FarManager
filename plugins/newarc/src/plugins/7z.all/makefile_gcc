@@ -3,7 +3,24 @@ REOBJDIR = \.\.\/\.\.\/\.\.\/o\/plugins\/7z\.all\/
 DLLDIR = ../../../bin/plugins/7z.all
 DLLNAME = 7z_all.module
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = 7z.cpp 7z.Helpers.cpp 7z.Class.cpp PropVariant.cpp tardetect.cpp arjdetect.cpp cabdetect.cpp rardetect.cpp zipdetect.cpp lzhdetect.cpp 7zdetect.cpp isodetect.cpp nsisdetect.cpp udfdetect.cpp
+SRCS = 	7z.cpp \
+	7z.Helpers.cpp \
+	7z.Class.cpp \
+	PropVariant.cpp \
+	tardetect.cpp \
+	arjdetect.cpp \
+	cabdetect.cpp \
+	rardetect.cpp \
+	zipdetect.cpp \
+	lzhdetect.cpp \
+	7zdetect.cpp \
+	isodetect.cpp \
+	nsisdetect.cpp \
+	udfdetect.cpp \
+	machodetect.cpp \
+	pedetect.cpp \
+	hfsdetect.cpp \
+	lzmadetect.cpp
 DEF = 7z.gcc.def
 LIBS = -L ../../../o/RTL -lRTL
 

@@ -14,8 +14,9 @@ const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: вроде н
 const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
 const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
 const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
-//const unsigned char PESig[]       = {'M', 'Z'};
-//const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
+const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
+const unsigned char MubSig[]      = {0xCA, 0xFE, 0xBA, 0xBE, 0, 0, 0};
+const unsigned char XarSig[]      = {'x', 'a', 'r', '!', 0, 0x1C};
 
 struct FormatInfo {
 	const GUID *puid;
@@ -45,16 +46,16 @@ const FormatInfo signs[] = {
 	{&CLSID_CWimHandler,      (const unsigned char *)&WimSig,      8, true,  NULL},
 	{&CLSID_CCompoundHandler, (const unsigned char *)&CompoundSig, 8, true,  NULL},
 	{&CLSID_CUdfHandler,      NULL,                                0, true,  IsUdfHeader},
-
-	//{&CLSID_CPeHandler,       (const unsigned char *)&PESig,       2, true,  NULL},
-	//{&CLSID_CElfHandler,      (const unsigned char *)&ELFSig,      4, true,  NULL},
+	{&CLSID_CPeHandler,       NULL,                                0, true,  IsPEHeader},
+	{&CLSID_CElfHandler,      (const unsigned char *)&ELFSig,      4, true,  NULL},
+	{&CLSID_CMachoHandler,    NULL,                                0, true,  IsMachoHeader},
+	{&CLSID_CMubHandler,      (const unsigned char *)&MubSig,      7, true,  NULL},
+	{&CLSID_CXarHandler,      (const unsigned char *)&XarSig,      6, true,  NULL},
+	{&CLSID_CHfsHandler,      NULL,                                0, true,  IsHfsHeader},
+	{&CLSID_CLzmaHandler,     NULL,                                0, true,  IsLzmaHeader},
 
 /*
-	{&CLSID_CXarHandler,
-	{&CLSID_CMubHandler,
-	{&CLSID_CHfsHandler,
 	{&CLSID_CDmgHandler,
-	{&CLSID_CMachoHandler,
 */
 };
 
