@@ -89,7 +89,7 @@ inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEn
   //const WORD Zip64=45;
   return (0x04034b50==pHdr->Signature
     && (pHdr->Method<20  || pHdr->Method==98 || pHdr->Method == 99)
-    && pHdr->VerToExtract < 0xFF
+    && (pHdr->VerToExtract&0x00FF) < 0xFF //version is in the low byte
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
