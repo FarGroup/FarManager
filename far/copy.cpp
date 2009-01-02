@@ -3018,11 +3018,8 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 
   //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
   #define BAR_SIZE  46
-  static char Bar[BAR_SIZE+2]={0};
-  if(!Bar[0])
-    memset(Bar,0x0C4,BAR_SIZE);
 
-  strcpy(BarStr,Bar);
+  strcpy(BarStr,"\x1");
 
   if (ShowTotalCopySize)
   {
@@ -3031,8 +3028,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
       sprintf(TotalMsg," %s: %s ",MSG(MCopyDlgTotal),TotalCopySizeText);
     else
       sprintf(TotalMsg," %s ",MSG(MCopyDlgTotal));
-    int TotalLength=(int)strlen(TotalMsg);
-    memcpy(BarStr+(strlen(BarStr)-TotalLength+1)/2,TotalMsg,TotalLength);
+    strcat(BarStr,TotalMsg);
 //    *FilesStr=0;
 
     sprintf (FilesStr, MSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);
@@ -3073,14 +3069,14 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
     if ( ShowTotalCopySize )
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"",Bar,FilesStr,Bar,"");
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"","\x1",FilesStr,"\x1","");
       else
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"",Bar,FilesStr);
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"","\x1",FilesStr);
     }
     else
     {
       if ( ShowCopyTime )
-        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,"\x1","");
       else
         Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
     }
