@@ -67,6 +67,7 @@ struct DlgParam{
   KeyMacro *Handle;
   DWORD Key;
   int Mode;
+  int Recurse;
 };
 
 struct TMacroKeywords MKeywords[] ={
@@ -3734,7 +3735,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
       _SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->PtrData));
       Param2=KeyNameToKey(((FarDialogItem*)Param2)->PtrData);
 
-    if(Param2 != -1)
+    if(Param2 != -1&&KMParam->Recurse==0)
       goto M1;
   }
   else if ( Msg == DN_KEY && (((Param2&KEY_END_SKEY) < KEY_END_FKEY) ||
@@ -3857,7 +3858,9 @@ M1:
         strKeyText = L"";
       }
     }
+    KMParam->Recurse++;
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
+    KMParam->Recurse--;
 //    if(Param2 == KEY_F1 && LastKey == KEY_F1)
 //      LastKey=-1;
 //    else
@@ -3887,7 +3890,7 @@ DWORD KeyMacro::AssignMacroKey()
   /* 02 */ DI_COMBOBOX,5,3,28,3,1,0,0,1,L"",
   };
   MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
-  struct DlgParam Param={this,0,StartMode};
+  struct DlgParam Param={this,0,StartMode,0};
 //_SVS(SysLog(L"StartMode=%d",StartMode));
 
   IsProcessAssignMacroKey++;
@@ -4051,7 +4054,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[13].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
   MacroSettingsDlg[14].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
 
-  struct DlgParam Param={this,0,0};
+  struct DlgParam Param={this,0,0,0};
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(LONG_PTR)&Param);
   Dlg.SetPosition(-1,-1,73,16);
   Dlg.SetHelp(L"KeyMacroSetting");
