@@ -53,6 +53,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		if ( !arcData.OpenResult )
 		{
 			pModule->m_pfnCloseArchive (hArchive);
+			pQAS->nFormats = -1;
 			pQAS->hResult = (HANDLE)new RarArchive (pModule, pQAS->lpFileName);
 
 			return NAERROR_SUCCESS;

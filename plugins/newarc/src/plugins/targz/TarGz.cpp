@@ -320,6 +320,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 	ArcType=MyIsArchive(pQAS->lpFileName,(const unsigned char*)pQAS->lpBuffer,pQAS->dwBufferSize);
 	if(ArcType!=INVALID_FORMAT)
 	{
+		pQAS->nFormats = -1;
 		pQAS->hResult = (HANDLE)CreateArchive(pQAS->lpFileName,ArcType);
 		return NAERROR_SUCCESS;
 	}

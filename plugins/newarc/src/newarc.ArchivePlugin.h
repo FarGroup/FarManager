@@ -31,7 +31,7 @@ public:
 	bool Initialize (const char *lpModuleName, const char *lpLanguage);
 	void Finalize ();
 
-	Archive *QueryArchive (const char *lpFileName, const char *lpBuffer, dword dwBufferSize);
+	pointer_array<Archive*> *QueryArchive (const char *lpFileName, const char *lpBuffer, dword dwBufferSize);
 	Archive *CreateArchive (const GUID &uid, const char *lpFileName);
 	void FinalizeArchive (Archive *pArchive);
 

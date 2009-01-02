@@ -52,6 +52,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		if ( hFile )
 		{
 			pModule->m_pfnUnzClose (hFile);
+			pQAS->nFormats = -1;
 			pQAS->hResult = (HANDLE)new ZipArchive (pModule, pQAS->lpFileName);
 
 			return NAERROR_SUCCESS;

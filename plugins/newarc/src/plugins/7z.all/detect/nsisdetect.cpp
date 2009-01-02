@@ -34,7 +34,6 @@ int IsNSISHeader(const unsigned char *Data,int DataSize)
 		return -1;
 
 	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
-	//const unsigned char *DataEnd=Data+DataSize;
 
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{

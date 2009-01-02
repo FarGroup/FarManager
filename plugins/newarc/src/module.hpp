@@ -64,7 +64,7 @@ struct ArchivePassword {
 	char *lpBuffer;
 };
 
-typedef LONG_PTR (__stdcall *ARCHIVECALLBACK) (int nMsg, int nParam1, LONG_PTR nParam2); 
+typedef LONG_PTR (__stdcall *ARCHIVECALLBACK) (int nMsg, int nParam1, LONG_PTR nParam2);
 
 struct ProcessFileStruct {
 	PluginPanelItem *pItem;
@@ -115,6 +115,14 @@ struct QueryArchiveStruct {
 	const char *lpBuffer;
 	DWORD dwBufferSize;
 
+	int nFormats;
+	HANDLE hResult;
+};
+
+struct QueryArchiveFormatStruct {
+	DWORD dwStructSize;
+
+	int nFormat;
 	HANDLE hResult;
 };
 
@@ -255,20 +263,22 @@ struct StartupInfo {
 #define FID_INITIALIZE			 1	//param - StartupInfo
 #define FID_FINALIZE			 2	//param - NULL
 #define FID_QUERYARCHIVE    	 3	//param - QueryArchiveStruct
-#define FID_FINALIZEARCHIVE		 4	//param - hArchive (to change to FinalizeArchiveStruct!!!)
-#define FID_GETDEFAULTCOMMAND	 5	//param - GetDefaultCommandStruct
-#define FID_GETARCHIVEFORMAT	 6	//param - GetArchiveFormatStruct
-#define FID_EXTRACT				 7	//param - ExtractStruct
-#define FID_OPENARCHIVE			 8
-#define FID_CLOSEARCHIVE		 9
-#define FID_GETARCHIVEITEM		10
-#define FID_TEST				11
-#define FID_GETARCHIVEPLUGININFO	12	//param - ArchivePluginInfo
-#define FID_DELETE				13 //param - DeleteStruct
-#define FID_ADD                 14 //param - AddStruct
-#define FID_CREATEARCHIVE    	15 //param - CreateArchiveStruct
-#define FID_NOTIFY				16 //param - NotifyStruct
-#define FID_CONFIGUREFORMAT		17 //param - ConfigureFormatStruct
+#define FID_QUERYARCHIVEFORMAT 4	//param - QueryArchiveFormatStruct
+#define FID_QUERYARCHIVEEND    5
+#define FID_FINALIZEARCHIVE		 6	//param - hArchive (to change to FinalizeArchiveStruct!!!)
+#define FID_GETDEFAULTCOMMAND	 7	//param - GetDefaultCommandStruct
+#define FID_GETARCHIVEFORMAT	 8	//param - GetArchiveFormatStruct
+#define FID_EXTRACT				 9	//param - ExtractStruct
+#define FID_OPENARCHIVE			 10
+#define FID_CLOSEARCHIVE		 11
+#define FID_GETARCHIVEITEM		12
+#define FID_TEST				13
+#define FID_GETARCHIVEPLUGININFO	14	//param - ArchivePluginInfo
+#define FID_DELETE				15 //param - DeleteStruct
+#define FID_ADD                 16 //param - AddStruct
+#define FID_CREATEARCHIVE    	17 //param - CreateArchiveStruct
+#define FID_NOTIFY				18 //param - NotifyStruct
+#define FID_CONFIGUREFORMAT		19 //param - ConfigureFormatStruct
 
 #ifdef __cplusplus
 extern "C" {

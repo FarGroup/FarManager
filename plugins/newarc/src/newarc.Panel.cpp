@@ -3,12 +3,10 @@
 extern char *lpINIFileName;
 
 ArchivePanel::ArchivePanel (
-		Archive** pArchives,
-		int nArchivesCount
+		pointer_array<Archive*> *pArchives
 		)
 {
 	m_pArchives = pArchives;
-	m_nArchivesCount = nArchivesCount;
 
 	m_pArchive = NULL;//pArchive;
 	m_lpCurrentFolder = StrCreate (260);
@@ -31,7 +29,7 @@ ArchivePanel::~ArchivePanel ()
 		StrFree (m_pArchiveFiles[i].lpPassword);
 
 	m_pArchiveFiles.free ();
-	free (m_pArchives);
+	delete m_pArchives;
 
 	m_Editors.free ();
 }
@@ -145,25 +143,22 @@ int __stdcall ArchivePanel::pGetFindData(
 		int OpMode
 		)
 {
-	//int nArrayCount = 256;
-	//int nCount = 0;
-
 	if ( m_bFirstTime )
 	{
-		if ( m_nArchivesCount )
+		if ( m_pArchives->count() )
 		{
 			FarMenuItem *pItems = (FarMenuItem*)malloc (
-					m_nArchivesCount*sizeof (FarMenuItem)
+					m_pArchives->count()*sizeof (FarMenuItem)
 					);
 
-			memset (pItems, 0, m_nArchivesCount*sizeof (FarMenuItem));
+			memset (pItems, 0, m_pArchives->count()*sizeof (FarMenuItem));
 
-			for (int i = 0; i < m_nArchivesCount; i++)
-				FSF.sprintf (pItems[i].Text, "%s", m_pArchives[i]->m_pInfo->lpName);
+			for (int i = 0; i < m_pArchives->count(); i++)
+				FSF.sprintf (pItems[i].Text, "%s", m_pArchives->at(i)->m_pInfo->lpName);
 
 			int nResult = 0;
 
-			if ( m_nArchivesCount > 1 )
+			if ( m_pArchives->count() > 1 )
 			{
 				nResult = Info.Menu (
 						Info.ModuleNumber,
@@ -177,25 +172,33 @@ int __stdcall ArchivePanel::pGetFindData(
 						NULL,
 						NULL,
 						(const FarMenuItem*)pItems,
-						m_nArchivesCount
+						m_pArchives->count()
 						);
 			}
-
-			for (int i = 0; i < m_nArchivesCount; i++)
-				if ( i != nResult )
-					m_pArchives[i]->m_pPlugin->FinalizeArchive (m_pArchives[i]);
 
 			free (pItems);
 
 			if ( nResult != -1 )
-				m_pArchive = m_pArchives[nResult];
-			else
+			{
+				m_pArchive = m_pArchives->at(nResult);
+				m_pArchives->remove(nResult, false); //remove without delete
+			}
+
+			while ( m_pArchives->count() )
+			{
+				m_pArchives->at(0)->m_pPlugin->FinalizeArchive (m_pArchives->at(0));
+				m_pArchives->remove(0, false); //remove without delete
+			}
+
+			delete m_pArchives;
+			m_pArchives = NULL;
+
+			if ( nResult == -1 )
 				return FALSE;
 		}
 
 		m_bFirstTime = false;
 	}
-
 
 	if ( m_pArchive->WasUpdated () )
 	{
@@ -1549,53 +1552,53 @@ void dlgModifyCreateArchive (ArchivePanel *pPanel)
 
 			bool bResult = false;
 
-   			if ( OptionIsOn (info->dwFlags, AFF_SUPPORT_INTERNAL_CREATE) )
-   			{
-   				Archive *pArchive = pPlugin->CreateArchive (info->uid, lpArchiveName);
+			if ( OptionIsOn (info->dwFlags, AFF_SUPPORT_INTERNAL_CREATE) )
+			{
+				Archive *pArchive = pPlugin->CreateArchive (info->uid, lpArchiveName);
 
-   				if ( pArchive )
-   				{
-   					if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
-   					{
-   						pPanel->pPutFilesNew (
-								pArchive,
-								pnInfo.SelectedItems+item,
-								(bSeparately)?1:pnInfo.SelectedItemsNumber,
-								0,
-								0
-								);
+				if ( pArchive )
+				{
+					if ( pArchive->pOpenArchive (OM_ADD) ) //!!! пока надо, хотя не уверен насчет OpMode, возможно уберу.
+					{
+						pPanel->pPutFilesNew (
+							pArchive,
+							pnInfo.SelectedItems+item,
+							(bSeparately)?1:pnInfo.SelectedItemsNumber,
+							0,
+							0
+							);
 
-   						bResult = true;
+						bResult = true;
 
-   						pArchive->pCloseArchive (); //!!! а надо ли?
-   					}
+						pArchive->pCloseArchive (); //!!! а надо ли?
+					}
 
-   					pPlugin->FinalizeArchive (pArchive);
-   				}
-   			}
+					pPlugin->FinalizeArchive (pArchive);
+				}
+			}
 
-   			if ( !bResult )
-   			{
-	   			GetDefaultCommandStruct GDC;
+			if ( !bResult )
+			{
+				GetDefaultCommandStruct GDC;
 
-   				GDC.uid = info->uid;
-   				GDC.nCommand = COMMAND_ADD;
-   				GDC.lpCommand = lpCommand;
+				GDC.uid = info->uid;
+				GDC.nCommand = COMMAND_ADD;
+				GDC.lpCommand = lpCommand;
 
-   				if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
-   				{
-   					ExecuteCommand (
-   							COMMAND_ADD, //????
-   							lpCommand,
-   							lpArchiveName,
-   							lpPassword,
-   							NULL,
-   							lpAdditionalCommandLine,
-   							pnInfo.SelectedItems+item,
-							(bSeparately)?1:pnInfo.SelectedItemsNumber
-   							);
-   				}
-   			}
+				if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
+				{
+					ExecuteCommand (
+							COMMAND_ADD, //????
+							lpCommand,
+							lpArchiveName,
+							lpPassword,
+							NULL,
+							lpAdditionalCommandLine,
+							pnInfo.SelectedItems+item,
+						(bSeparately)?1:pnInfo.SelectedItemsNumber
+							);
+				}
+			}
 		}
 
 		StrFree (lpPassword);

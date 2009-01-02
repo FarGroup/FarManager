@@ -9,3 +9,4 @@ int IsLzhHeader  (const unsigned char *Data, int DataSize);
 int Is7zHeader   (const unsigned char *Data, int DataSize);
 int IsNSISHeader (const unsigned char *Data, int DataSize);
 int IsIsoHeader  (const unsigned char *Data, int DataSize);
+int IsUdfHeader  (const unsigned char *Data, int DataSize);

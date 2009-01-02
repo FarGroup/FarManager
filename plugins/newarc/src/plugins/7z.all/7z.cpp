@@ -111,101 +111,58 @@ int __cdecl SortFormats (
 	return 0;
 }
 
+static pointer_array<FormatPosition*> *formats;
+static char *lpFileName=NULL;
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
-/*	SevenZipModule *pSplitModule = NULL;
-	bool bSplit;
+	formats = new pointer_array<FormatPosition*>(ARRAY_OPTIONS_DELETE);
 
-   	for (int i = 0; i < Formats.GetCount (); i++)
-   	{
-   		bSplit = false;
-   		SevenZipModule *pModule = Formats[i];
+	FindFormats (pQAS->lpFileName, *formats);
 
-   		if ( pModule->IsSplitModule() )
-   		{
-   			pSplitModule = pModule;
-   			bSplit = true;
-		}
+	formats->sort ((void *)SortFormats, NULL);
 
-   		if ( pModule && !bSplit )
-   		{
-   			SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
+	lpFileName = StrDuplicate(pQAS->lpFileName);
 
-   			pArchive->m_bIsArchive = false;
+	pQAS->nFormats = formats->count();
+	pQAS->hResult = NULL;
 
-   			if ( pArchive->pOpenArchive (0, NULL) )
-   				pArchive->pCloseArchive ();
+	return NAERROR_SUCCESS;
+}
 
-   				if ( pArchive->m_bIsArchive )
-   				{
-   					ArchiveFormatInfo info;
+int OnQueryArchiveFormat (QueryArchiveFormatStruct *pQAFS)
+{
+	if (pQAFS->nFormat < 0 || pQAFS->nFormat >= formats->count())
+		return NAERROR_INTERNAL;
 
-   					pModule->GetArchiveFormatInfo (&info);
+	FormatPosition *pos = formats->at(pQAFS->nFormat);
 
-   					MessageBox (0, info.lpName, "asd", MB_OK);
-	   				pQAS->hResult = (HANDLE)pArchive;
+	for (int i = 0; i < modules.count (); i++)
+	{
+		SevenZipModule *pModule = modules[i];
 
-   					return NAERROR_SUCCESS;
-				}
-
-   			delete pArchive;
-   		}
-   	}
-
-   	if ( pSplitModule )
-   	{
-		SevenZipArchive *pArchive = new SevenZipArchive (pSplitModule, pQAS->lpFileName);
-
-		pArchive->m_bIsArchive = false;
-
-		if ( pArchive->pOpenArchive (0, NULL) )
-			pArchive->pCloseArchive ();
-
-			if ( pArchive->m_bIsArchive )
+		for (unsigned int k = 0; k < pModule->m_nNumberOfFormats; k++)
+		{
+			if ( IsEqualGUID (pModule->m_pInfo[k].uid, *pos->puid) )
 			{
-				pQAS->hResult = (HANDLE)pArchive;
+				SevenZipArchive *pArchive = new SevenZipArchive (pModule, k, lpFileName, false);
+
+				pQAFS->hResult = (HANDLE)pArchive;
 
 				return NAERROR_SUCCESS;
-			}
-
-		delete pArchive;
-   	} */
-
-
-	pointer_array<FormatPosition*> formats (ARRAY_OPTIONS_DELETE);
-
-	FindFormats (pQAS->lpFileName, formats);
-
-	formats.sort ((void *)SortFormats, NULL);
-
-	for (int j = 0; j < formats.count(); j++)
-	{
-		FormatPosition *pos = formats[j];
-
-		for (int i = 0; i < modules.count (); i++)
-		{
-			SevenZipModule *pModule = modules[i];
-
-			for (unsigned int k = 0; k < pModule->m_nNumberOfFormats; k++)
-			{
-				if ( IsEqualGUID (pModule->m_pInfo[k].uid, *pos->puid) )
-				{
-					SevenZipArchive *pArchive = new SevenZipArchive (pModule, k, pQAS->lpFileName, false);
-
-					pQAS->hResult = (HANDLE)pArchive;
-
-					formats.free ();
-
-					return NAERROR_SUCCESS;
-				}
 			}
 		}
 	}
 
-	formats.free ();
-
 	return NAERROR_INTERNAL;
+}
+
+int OnQueryArchiveEnd()
+{
+	delete formats;
+	StrDelete(lpFileName);
+	lpFileName=NULL;
+	return NAERROR_SUCCESS;
 }
 
 int OnCreateArchive (CreateArchiveStruct *pCAS)
@@ -470,6 +427,12 @@ int __stdcall PluginEntry (
 
 	case FID_QUERYARCHIVE:
 		return OnQueryArchive ((QueryArchiveStruct*)pParams);
+
+	case FID_QUERYARCHIVEFORMAT:
+		return OnQueryArchiveFormat ((QueryArchiveFormatStruct*)pParams);
+
+	case FID_QUERYARCHIVEEND:
+		return OnQueryArchiveEnd ();
 
 	case FID_OPENARCHIVE:
 		return OnOpenArchive ((OpenArchiveStruct*)pParams);

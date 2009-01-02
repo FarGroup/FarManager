@@ -22,8 +22,7 @@ public:
 
 	Archive *m_pArchive;
 
-	Archive **m_pArchives;
-	int m_nArchivesCount;
+	pointer_array<Archive*> *m_pArchives;
 
 	bool m_bFirstTime;
 
@@ -31,10 +30,6 @@ public:
 	char *m_lpPanelTitle;
 
 	array<InternalArchiveItemInfo> m_pArchiveFiles;
-//	InternalArchiveItemInfo *m_pArchiveFiles;
-
-//	int m_nArchiveFilesCount;
-//	int m_nArrayCount;
 
 	pointer_array <InternalEditorInfo*> m_Editors;
 
@@ -42,7 +37,7 @@ public:
 
 public:
 
-	ArchivePanel (Archive **pArchives, int nArchivesCount);
+	ArchivePanel (pointer_array<Archive*> *pArchives);
 	~ArchivePanel ();
 
 	bool __stdcall ReadArchive (bool bSilent);
@@ -64,11 +59,11 @@ public:
 
 	int __stdcall pProcessKey (int nKey, dword dwControlState);
 
-    void __stdcall pExecuteCommand (
-    		int nCommand,
-    		const char *lpArchivePassword,
-    		const char *lpAdditionalCommandLine,
-			PluginPanelItem *pItems,
-			int nItemsNumber
-			);
+	void __stdcall pExecuteCommand (
+		int nCommand,
+		const char *lpArchivePassword,
+		const char *lpAdditionalCommandLine,
+		PluginPanelItem *pItems,
+		int nItemsNumber
+		);
 };

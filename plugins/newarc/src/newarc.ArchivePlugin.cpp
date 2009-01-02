@@ -80,7 +80,7 @@ void ArchivePlugin::Finalize ()
 	FinalizeLanguageStrings (m_pLanguageStrings, m_nStringsCount);
 }
 
-Archive *ArchivePlugin::QueryArchive (
+pointer_array<Archive*> *ArchivePlugin::QueryArchive (
 		const char *lpFileName,
 		const char *lpBuffer,
 		dword dwBufferSize
@@ -93,7 +93,35 @@ Archive *ArchivePlugin::QueryArchive (
 	QAS.dwBufferSize = dwBufferSize;
 
 	if ( m_pfnPluginEntry (FID_QUERYARCHIVE, &QAS) == NAERROR_SUCCESS )
-		return new Archive (this, lpFileName, QAS.hResult);
+	{
+		int nFormats = QAS.nFormats==-1 ? 1 : QAS.nFormats;
+		pointer_array<Archive*> *pArchives = new pointer_array<Archive*>(ARRAY_OPTIONS_DELETE, nFormats);
+
+		if (pArchives)
+		{
+			if ( QAS.nFormats != -1 )
+			{
+				QueryArchiveFormatStruct QAFS;
+
+				for (int i=0; i<nFormats; i++)
+				{
+					QAFS.nFormat = i;
+					if (m_pfnPluginEntry (FID_QUERYARCHIVEFORMAT, &QAFS) == NAERROR_SUCCESS)
+						pArchives->add(new Archive (this, lpFileName, QAFS.hResult));
+				}
+			}
+			else //if nFormats == -1 then the plugin detected only one archive type and passed it in QAS
+			{
+				pArchives->add(new Archive (this, lpFileName, QAS.hResult));
+			}
+
+			m_pfnPluginEntry (FID_QUERYARCHIVEEND, NULL);
+
+			return pArchives;
+		}
+
+		m_pfnPluginEntry (FID_QUERYARCHIVEEND, NULL);
+	}
 
 	return NULL;
 }

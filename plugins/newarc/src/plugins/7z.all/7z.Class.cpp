@@ -5,45 +5,17 @@
 #include <array.hpp>
 #include <debug.h>
 
-const GUID FormatGUIDs[] = {
-		CLSID_CFormat7z,
-		CLSID_CArjHandler,
-		CLSID_CCabHandler,
-		CLSID_CChmHandler,
-		CLSID_CDebHandler,
-		CLSID_CIsoHandler,
-		CLSID_CLzhHandler,
-		CLSID_CNsisHandler,
-		CLSID_CRarHandler,
-		CLSID_CRpmHandler,
-		CLSID_CSplitHandler,
-		CLSID_CTarHandler,
-		CLSID_CZipHandler,
-		CLSID_CGZipHandler,
-		CLSID_CZHandler,
-		CLSID_CBZip2Handler,
-		CLSID_CCpioHandler,
-		CLSID_CWimHandler,
-		CLSID_CCompoundHandler,
-};
-
-
-const unsigned char SevenZipSig[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
-const unsigned char ZipSig[]      = {0x50, 0x4B, 0x03, 0x04};
 const unsigned char BZipSig[]     = {'B' , 'Z', 'h'};
 const unsigned char GZipSig[]     = {0x1F, 0x8B};
-const unsigned char ArjSig[]      = {0x60, 0xEA};
 const unsigned char ZSig[]        = {0x1F, 0x9D};
-const unsigned char RarSig[]      = {'R', 'a', 'r', '!'};
-const unsigned char CabSig[]      = {'M', 'S', 'C', 'F'};
 const unsigned char RpmSig[]      = {0xED, 0xAB, 0xEE, 0xDB};
 const unsigned char DebSig[]      = {'!', '<', 'a', 'r', 'c', 'h', '>', 0x0A, 'd', 'e', 'b', 'i', 'a', 'n', '-', 'b', 'i', 'n', 'a', 'r', 'y'};
-const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUG BUG: вроде не совсем точно
+const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUGBUG: вроде не совсем точно
 const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
-const unsigned char NsisSig[]     = {0xEF, 0xBE, 0xAD, 0xDE, 0x4E, 0x75, 0x6C, 0x6C, 0x73, 0x6F, 0x66, 0x74, 0x49, 0x6E, 0x73, 0x74};
-const unsigned char IsoSig[]      = {'C', 'D', '0', '0', '1', 0x1};
 const unsigned char WimSig[]      = {'M', 'S', 'W', 'I', 'M', 0, 0, 0};
 const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
+//const unsigned char PESig[]       = {'M', 'Z'};
+//const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
 
 struct FormatInfo {
 	const GUID *puid;
@@ -54,24 +26,36 @@ struct FormatInfo {
 };
 
 const FormatInfo signs[] = {
-	{&CLSID_CFormat7z,        (const unsigned char *)&SevenZipSig, 6, false, Is7zHeader},
-	{&CLSID_CRarHandler,      (const unsigned char *)&RarSig,      4, false, IsRarHeader},
-	{&CLSID_CZipHandler,      (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
+	{&CLSID_CFormat7z,        NULL,                                0, false, Is7zHeader},
+	{&CLSID_CRarHandler,      NULL,                                0, false, IsRarHeader},
+	{&CLSID_CZipHandler,      NULL,                                0, false, IsZipHeader},
 	{&CLSID_CRpmHandler,      (const unsigned char *)&RpmSig,      4, true,  NULL},
 	{&CLSID_CDebHandler,      (const unsigned char *)&DebSig,     21, true,  NULL},
-	{&CLSID_CCabHandler,      (const unsigned char *)&CabSig,      4, false, IsCabHeader},
+	{&CLSID_CCabHandler,      NULL,                                0, false, IsCabHeader},
 	{&CLSID_CBZip2Handler,    (const unsigned char *)&BZipSig,     3, true,  NULL},
-	{&CLSID_CArjHandler,      (const unsigned char *)&ArjSig,      2, false, IsArjHeader},
+	{&CLSID_CArjHandler,      NULL,                                0, false, IsArjHeader},
 	{&CLSID_CTarHandler,      NULL,                                0, true,  IsTarHeader},
 	{&CLSID_CGZipHandler,     (const unsigned char *)&GZipSig,     2, true,  NULL},
 	{&CLSID_CZHandler,        (const unsigned char *)&ZSig,        2, true,  NULL},
 	{&CLSID_CLzhHandler,      NULL,                                0, false, IsLzhHeader},
 	{&CLSID_CCpioHandler,     (const unsigned char *)&CpioSig,     5, true,  NULL},
 	{&CLSID_CChmHandler,      (const unsigned char *)&ChmSig,      4, true,  NULL},
-	{&CLSID_CNsisHandler,     (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
-	{&CLSID_CIsoHandler,      (const unsigned char *)&IsoSig,      6, true,  IsIsoHeader},
+	{&CLSID_CNsisHandler,     NULL,                                0, false, IsNSISHeader},
+	{&CLSID_CIsoHandler,      NULL,                                0, true,  IsIsoHeader},
 	{&CLSID_CWimHandler,      (const unsigned char *)&WimSig,      8, true,  NULL},
 	{&CLSID_CCompoundHandler, (const unsigned char *)&CompoundSig, 8, true,  NULL},
+	{&CLSID_CUdfHandler,      NULL,                                0, true,  IsUdfHeader},
+
+	//{&CLSID_CPeHandler,       (const unsigned char *)&PESig,       2, true,  NULL},
+	//{&CLSID_CElfHandler,      (const unsigned char *)&ELFSig,      4, true,  NULL},
+
+/*
+	{&CLSID_CXarHandler,
+	{&CLSID_CMubHandler,
+	{&CLSID_CHfsHandler,
+	{&CLSID_CDmgHandler,
+	{&CLSID_CMachoHandler,
+*/
 };
 
 
@@ -224,10 +208,10 @@ int FindFormats (const char *lpFileName, pointer_array<FormatPosition*> &formats
 
 
 bool ConvertToFormatInfo (
-		CPropVariant &vGUID, 
+		CPropVariant &vGUID,
 		CPropVariant &vUpdate,
-		CPropVariant &vExtension, 
-		CPropVariant &vSignature, 
+		CPropVariant &vExtension,
+		CPropVariant &vSignature,
 		CPropVariant &vName,
 		FormatInfoInternal *pInfo
 		)
@@ -259,7 +243,7 @@ bool ConvertToFormatInfo (
 	else
 		pInfo->lpDefaultExt = NULL;
 
-	if ( vSignature.vt == VT_BSTR ) 
+	if ( vSignature.vt == VT_BSTR )
 	{
 		nLength = SysStringByteLen(vSignature.bstrVal);
 
@@ -271,7 +255,7 @@ bool ConvertToFormatInfo (
 	else
 		pInfo->lpSignature = NULL;
 
-	
+
 	nLength = SysStringLen (vName.bstrVal);
 
 	pInfo->lpName = (char*)malloc (nLength+1+strlen(" archive [7z]"));
@@ -964,7 +948,7 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		ISetProperties *setProperties;
 
 		if ( SUCCEEDED (outArchive->QueryInterface (
-				IID_ISetProperties, 
+				IID_ISetProperties,
 				(void**)&setProperties
 				)) )
 		{
@@ -983,9 +967,9 @@ bool __stdcall SevenZipArchive::pAddFiles (
 		COutFile *file = new COutFile (szTempName);
 
 		CArchiveUpdateCallback *pCallback = new CArchiveUpdateCallback (
-				this, 
-				&indicies, 
-				lpSourcePath, 
+				this,
+				&indicies,
+				lpSourcePath,
 				lpCurrentPath
 				);
 

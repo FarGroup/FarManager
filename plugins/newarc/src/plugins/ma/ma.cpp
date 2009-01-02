@@ -44,8 +44,9 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 		if ( bResult )
 		{
+			pQAS->nFormats = -1; //BUGBUG надо сделать поддержку попадания под несколько форматок
 			pQAS->hResult = (HANDLE)pArchive;
-            return NAERROR_SUCCESS;
+			return NAERROR_SUCCESS;
 		}
 	}
 

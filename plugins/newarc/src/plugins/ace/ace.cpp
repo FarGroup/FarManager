@@ -39,6 +39,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 	if ( pArchive && pArchive->IsArchive() )
 	{
+		pQAS->nFormats = -1;
 		pQAS->hResult = (HANDLE)pArchive;
 		return NAERROR_SUCCESS;
 	}

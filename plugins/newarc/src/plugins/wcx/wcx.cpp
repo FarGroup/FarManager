@@ -34,6 +34,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 	if ( pModule )
 	{
+		pQAS->nFormats = -1; //BUGBUG надо сделать поддержку попадания под несколько форматок
 		pQAS->hResult = (HANDLE)new WcxArchive (pModule, nModuleNum, pQAS->lpFileName);
 		return NAERROR_SUCCESS;
 	}

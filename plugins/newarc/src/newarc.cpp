@@ -82,48 +82,56 @@ ArchivePanel *__stdcall OpenFilePlugin (
 {
 	ArchivePanel *pPanelResult = (ArchivePanel*)INVALID_HANDLE_VALUE;
 
-	Archive **pArchives = (Archive**)malloc (5*sizeof(Archive*));
-	int nCount = 5;
-	int nArchivesCount = 0;
+	pointer_array<Archive*> *pArchives = new pointer_array<Archive*>(ARRAY_OPTIONS_DELETE);
 
-	if ( lpFileName )
+	if ( pArchives && lpFileName )
 	{
 		for (int i = 0; i < Plugins.count(); i++)
 		{
-			Archive *pArchive = Plugins[i]->QueryArchive (
+			pointer_array<Archive*> *pCurArchives = Plugins[i]->QueryArchive (
 					lpFileName,
 					(const char*)pData,
 					nDataSize
 					);
 
 
-			if ( pArchive )
+			if ( pCurArchives )
 			{
-				pArchives[nArchivesCount++] = pArchive;
-
-				if ( nArchivesCount == nCount )
+				while ( pCurArchives->count() )
 				{
-					nCount += 5;
-
-					pArchives = (Archive**)realloc (
-							pArchives,
-							nCount*sizeof(Archive*)
-							);
+					if ( pArchives->add(pCurArchives->at(0)) )
+						pCurArchives->remove(0, false); //remove without delete
+					else
+						break;
 				}
+
+				//to prevent memory leak in case of no memory above
+				while ( pCurArchives->count() )
+				{
+					pCurArchives->at(0)->m_pPlugin->FinalizeArchive (pCurArchives->at(0));
+					pCurArchives->remove(0, false); //remove without delete
+				}
+
+				delete pCurArchives;
 			}
 		}
 
+		if ( pArchives->count() )
+			pPanelResult = new ArchivePanel (pArchives);
 	}
-	else
-		pPanelResult = new ArchivePanel (NULL, 0);
-
-	if ( nArchivesCount )
-		pPanelResult = new ArchivePanel (pArchives, nArchivesCount);
-	else
-		free (pArchives);
+	else if ( !lpFileName )
+	{
+		pPanelResult = new ArchivePanel (NULL);
+	}
 
 	if ( pPanelResult != INVALID_HANDLE_VALUE )
+	{
 		Panels.add (pPanelResult);
+	}
+	else if ( pArchives )
+	{
+		delete pArchives;
+	}
 
 	return pPanelResult;
 }
