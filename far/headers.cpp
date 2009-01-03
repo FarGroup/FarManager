@@ -1,7 +1,7 @@
 /*
-headers.c.c
+headers.cpp
 
-C PCH
+PCH
 */
 /*
 Copyright (c) 1996 Eugene Roshal

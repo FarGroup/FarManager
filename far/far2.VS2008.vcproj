@@ -60,7 +60,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -157,7 +157,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -254,7 +254,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -350,7 +350,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -449,7 +449,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -549,7 +549,7 @@
 				DefaultCharIsUnsigned="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.cpp.pch"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
@@ -3166,65 +3166,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\headers.c.c"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Itanium"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Itanium"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\headers.cpp.cpp"
+				RelativePath="headers.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -3491,7 +3433,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3500,7 +3444,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3509,7 +3455,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3517,7 +3465,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3526,7 +3476,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -3535,7 +3487,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)\headers.c.pch"
+						UsePrecompiledHeader="0"
+						PrecompiledHeaderThrough=""
+						PrecompiledHeaderFile=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -3544,7 +3498,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\imports.cpp"
+				RelativePath="imports.cpp"
 				>
 			</File>
 			<File
@@ -6639,7 +6593,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\headers.hpp"
+				RelativePath="headers.hpp"
 				>
 			</File>
 			<File
@@ -6659,7 +6613,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\imports.hpp"
+				RelativePath="imports.hpp"
 				>
 			</File>
 			<File
@@ -7268,7 +7222,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\farlang.templ.m4"
+				RelativePath="farlang.templ.m4"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -7563,12 +7517,12 @@
 			SourceControlFiles="false"
 			>
 			<File
-				RelativePath=".\copyright.inc"
+				RelativePath="copyright.inc"
 				FileType="0"
 				>
 			</File>
 			<File
-				RelativePath=".\Far.exe.manifest"
+				RelativePath="Far.exe.manifest"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -7672,11 +7626,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Include\farcolor.hpp"
+				RelativePath="Include\farcolor.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\farkeys.hpp"
+				RelativePath="\Include\farkeys.hpp"
 				>
 			</File>
 			<File
@@ -7759,11 +7713,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\lang.ini"
+				RelativePath="lang.ini"
 				>
 			</File>
 			<File
-				RelativePath=".\Include\plugin.hpp"
+				RelativePath="Include\plugin.hpp"
 				>
 			</File>
 		</Filter>

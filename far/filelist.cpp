@@ -1871,7 +1871,9 @@ int FileList::ProcessKey(int Key)
     default:
       if(((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) ||
           (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535)) &&
-         Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
+					(Key&~KEY_ALTSHIFT_BASE)!=KEY_BS && (Key&~KEY_ALTSHIFT_BASE)!=KEY_TAB &&
+					(Key&~KEY_ALTSHIFT_BASE)!=KEY_ENTER && (Key&~KEY_ALTSHIFT_BASE)!=KEY_ESC &&
+					!(Key&EXTENDED_KEY_BASE)
         )
       {
         //_SVS(SysLog(L">FastFind: Key=%s",_FARKEY_ToName(Key)));

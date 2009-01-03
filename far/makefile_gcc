@@ -60,6 +60,7 @@ SRCS = 	cddrv.cpp \
 	history.cpp \
 	hmenu.cpp \
 	hotplug.cpp \
+	imports.cpp \
 	infolist.cpp \
 	interf.cpp \
 	iswind.cpp \
@@ -84,8 +85,8 @@ SRCS = 	cddrv.cpp \
 	plist.cpp \
 	plognmn.cpp \
 	plugapi.cpp \
-	plugins.cpp \
 	PluginA.cpp \
+	plugins.cpp \
 	PluginW.cpp \
 	poscache.cpp \
 	print.cpp \
@@ -107,18 +108,17 @@ SRCS = 	cddrv.cpp \
 	strftime.cpp \
 	strmix.cpp \
 	syntax.cpp \
+	syslog.cpp \
 	TPreRedrawFunc.cpp \
+	treelist.cpp \
 	tvar.cpp \
 	TVMStack.cpp \
-	syslog.cpp \
-	treelist.cpp \
 	udlist.cpp \
 	UnicodeString.cpp \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \
 	xlat.cpp \
-	imports.cpp \
 	hook_wow64.c
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
@@ -154,34 +154,25 @@ depfile:
 dirs:
 	@$(MKDIR) $(EXEDIR)
 	@$(MKDIR) $(OBJDIR)
-	@$(MKDIR) $(OBJDIR)/headers.hpp.gch 
 	@$(MKDIR) $(FARINCLUDE)
 
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/plugin.pas $(FARINCLUDE)/farcolor.pas $(FARINCLUDE)/farkeys.pas
 
-$(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++ $(OBJS) $(DEF)
+$(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJDIR)/headers.hpp.gch $(OBJS) $(DEF)
 	@echo linking $@
 	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 
-$(OBJDIR)/%.o: %.c
-	@echo compiling $<
-	@$(CC) $(CFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
-
 $(OBJDIR)/hook_wow64.o: hook_wow64.c
 	@echo compiling $<
-	@$(CC) $(CFLAGS) -fno-strict-aliasing -c -include $(OBJDIR)/headers.hpp -o $@ $<
+	@$(CC) $(CFLAGS) -fno-strict-aliasing -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
 	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
 
-$(OBJDIR)/headers.hpp.gch/c: headers.hpp 
-	@echo making precompiled headers for C
-	@$(CC) -x c-header -c $(CFLAGS) -o $@ $<
-
-$(OBJDIR)/headers.hpp.gch/c++: headers.hpp 
-	@echo making precompiled headers for C++
+$(OBJDIR)/headers.hpp.gch: headers.hpp
+	@echo making precompiled headers
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
 $(OBJDIR)/far.rc.o: far.rc far.ico
@@ -253,7 +244,7 @@ clean:
 	@echo cleaning
 	@$(RM) $(OBJS)
 	@$(RM) $(DEPFILE)
-	@$(RM) $(OBJDIR)/headers.hpp.gch/c $(OBJDIR)/headers.hpp.gch/c++
+	@$(RM) $(OBJDIR)/headers.hpp.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
 	@$(RM) $(EXEDIR)/FarEng.lng
