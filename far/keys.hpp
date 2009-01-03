@@ -87,6 +87,7 @@ enum BaseDefKeyboard
   KEY_UP                   =0x00000126,
   KEY_RIGHT                =0x00000127,
   KEY_DOWN                 =0x00000128,
+  KEY_PRNTSCRN             =0x0000012C,
   KEY_INS                  =0x0000012D,
   KEY_DEL                  =0x0000012E,
 

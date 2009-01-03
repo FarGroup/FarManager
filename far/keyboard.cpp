@@ -172,6 +172,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_NUMENTER,             8, "NumEnter"},
   { KEY_MULTIPLY,             8, "Multiply"},
   { KEY_CAPSLOCK,             8, "CapsLock"},
+  { KEY_PRNTSCRN,             8, "PrntScrn"},
   { KEY_NUMLOCK,              7, "NumLock"},
   { KEY_DECIMAL,              7, "Decimal"},
 
@@ -2644,6 +2645,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
       case VK_SLEEP:
         return KEY_SHIFT|KEY_CTRLALT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_SHIFT|KEY_CTRLALT|KEY_PRNTSCRN;
     }
     if (Char.AsciiChar)
       return(KEY_SHIFT|KEY_CTRL|KEY_ALT+Char.AsciiChar);
@@ -2699,6 +2702,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return KEY_NONE;
       case VK_SLEEP:
         return KEY_CTRLALT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_CTRLALT|KEY_PRNTSCRN;
     }
     if (Char.AsciiChar)
       return(KEY_CTRL|KEY_ALT+Char.AsciiChar);
@@ -2774,6 +2779,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_ALTSHIFT|KEY_PAUSE);
       case VK_SLEEP:
         return KEY_ALTSHIFT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_ALTSHIFT|KEY_PRNTSCRN;
     }
     if (Char.AsciiChar)
     {
@@ -2815,6 +2822,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_CTRLSHIFT|KEY_MULTIPLY);
       case VK_SLEEP:
         return KEY_CTRLSHIFT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_CTRLSHIFT|KEY_PRNTSCRN;
     }
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
@@ -2864,6 +2873,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_PAUSE);
       case VK_SLEEP:
         return KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_PRNTSCRN;
     }
   }
 
@@ -2901,6 +2912,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_BREAK);
       case VK_SLEEP:
         return KEY_CTRL|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_CTRL|KEY_PRNTSCRN;
     }
 
     if(Opt.ShiftsKeyRules) //???
@@ -2973,6 +2986,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_ALT+KEY_PAUSE);
       case VK_SLEEP:
         return KEY_ALT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_ALT|KEY_PRNTSCRN;
     }
     if (Char.AsciiChar)
     {
@@ -3017,6 +3032,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_SHIFT|KEY_PAUSE);
       case VK_SLEEP:
         return KEY_SHIFT|KEY_SLEEP;
+      case VK_SNAPSHOT:
+        return KEY_SHIFT|KEY_PRNTSCRN;
     }
 
   }
