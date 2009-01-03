@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "viewer.hpp"
-
+#include "gettable.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
@@ -1359,7 +1359,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_SHIFTF8:
     {
-      UINT nCodePage = GetTableEx(VM.CodePage, true, false);
+      UINT nCodePage = GetTableEx(VM.CodePage, true, true);
       if (nCodePage!=(UINT)-1)
       {
         TableChangedByUser=TRUE;
@@ -2615,8 +2615,45 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
       return -1;
 
     int ReadSize=(int)fread(TmpBuf,1,Count,SrcFile);
+    int ConvertSize=ReadSize;
 
-    MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ReadSize, Buf, Count);
+    if (Count == 1)
+    {
+      //Если UTF8 то простой ли это символ или нет?
+      unsigned int c=*TmpBuf;
+      if (VM.CodePage==CP_UTF8 && ReadSize && (c&0x80) != 0)
+      {
+        /*
+        UTF-8 format
+        Byte1     Byte2     Byte3     Byte4
+        0xxxxxxx
+        110yyyxx  10xxxxxx
+        1110yyyy  10yyyyxx  10xxxxxx
+        11110zzz  10zzyyyy  10yyyyxx  10xxxxxx
+        */
+
+        //Мы посреди буквы? Тогда ищем начало следующей.
+        while ( (c&0xC0) == 0x80 )
+        {
+        	if (!fread(TmpBuf,1,1,SrcFile))
+        	  break;
+        	ReadSize++;
+        	c=*TmpBuf;
+        }
+
+        //Посчитаем сколько байт нам ещё надо прочитать чтоб получить целую букву.
+        int cc=1;
+        c = c & 0xF8;
+        if ( c == 0xE0 )
+          cc = 2;
+        else if ( c == 0xF0 )
+          cc = 3;
+        ReadSize += (int)fread(TmpBuf+1,1,cc,SrcFile);
+        ConvertSize = Min(cc+1,ReadSize);
+      }
+    }
+
+    MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
 
     xf_free(TmpBuf);
 

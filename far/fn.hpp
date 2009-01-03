@@ -253,9 +253,6 @@ int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
 void ShowFilter();
 
-inline bool IsUnicodeCP(UINT CP){return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM);}
-UINT GetTableEx (UINT nCurrent,bool bShowUnicode, bool bShowUTF);
-
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');

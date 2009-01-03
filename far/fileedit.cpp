@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileedit.hpp"
 #include "keyboard.hpp"
-
+#include "gettable.hpp"
 #include "lang.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -1209,7 +1209,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
 						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
 						{
-							bool bInPlace = (!IsUnicodeCP(m_codepage) && !IsUnicodeCP(codepage)) || (m_codepage == codepage);
+							bool bInPlace = (!IsUnicodeOrUTFCP(m_codepage) && !IsUnicodeOrUTFCP(codepage)) || (m_codepage == codepage);
 
 							if ( !bInPlace )
 							{
@@ -1359,7 +1359,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
     case KEY_F8:
     {
-			if ( !IsUnicodeCP(m_codepage) || m_codepage == CP_UTF8)
+			if ( !IsUnicodeCP(m_codepage) )
 			{
 				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
 				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
@@ -1369,7 +1369,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     }
 		case KEY_SHIFTF8:
 		{
-			if ( !IsUnicodeCP(m_codepage) || m_codepage == CP_UTF8)
+			if ( !IsUnicodeCP(m_codepage) )
 			{
 				int codepage = GetTableEx (m_codepage, false, true);
 
@@ -1544,7 +1544,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	UINT dwCP=0;
 	bool Detect=false;
 
-	if(m_codepage == CP_AUTODETECT || IsUnicodeCP(m_codepage))
+	if(m_codepage == CP_AUTODETECT || IsUnicodeOrUTFCP(m_codepage))
 		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound);
 
 	if ( m_codepage == CP_AUTODETECT )
@@ -1571,7 +1571,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 	BOOL MessageShown=FALSE;
 
-	if(!IsUnicodeCP(m_codepage))
+	if(!IsUnicodeOrUTFCP(m_codepage))
 		fseek(EditFile,0,SEEK_SET);
 
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
@@ -1785,7 +1785,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		int codepage=bSaveAs?Codepage:m_editor->GetCodePage();
 
-		if(!IsUnicodeCP(codepage))
+		if(!IsUnicodeOrUTFCP(codepage))
 		{
 			bool UnicodeLostAgree=false;
 			for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next)

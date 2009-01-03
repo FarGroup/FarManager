@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
+#include "gettable.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
@@ -112,7 +112,7 @@ void AddUnicodeTables(VMenu &tables,DWORD dwCurrent, bool bShowUnicode, bool bSh
 	item.Flags=MIF_SEPARATOR;
 	tables.AddItem(&item,Pos++);
 
-	if(!IsUnicodeCP(dwCurrent))
+	if(!IsUnicodeOrUTFCP(dwCurrent))
 		tables.SetSelectPos(tables.GetSelectPos()+Pos,0);
 }
 

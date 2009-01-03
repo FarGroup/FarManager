@@ -32,8 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-
-
+#include "gettable.hpp"
 #include "flink.hpp"
 #include "scantree.hpp"
 #include "chgprior.hpp"

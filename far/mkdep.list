@@ -133,6 +133,7 @@ fnparce.cpp
 foldtree.cpp
 frame.cpp
 gettable.cpp
+gettable.hpp
 global.cpp
 grabber.cpp
 help.cpp
@@ -198,8 +199,7 @@ viewer.cpp
 vmenu.cpp
 xlat.cpp
 TVMStack.cpp
-headers.c.c
-headers.cpp.cpp
+headers.cpp
 TPreRedrawFunc.hpp
 TPreRedrawFunc.cpp
 localOEM.cpp
