@@ -17,6 +17,7 @@ const unsigned char CompoundSig[] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0
 const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
 const unsigned char MubSig[]      = {0xCA, 0xFE, 0xBA, 0xBE, 0, 0, 0};
 const unsigned char XarSig[]      = {'x', 'a', 'r', '!', 0, 0x1C};
+const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: тупо наугад поставил, в тех 2-ух dmg что я видел было так.
 
 struct FormatInfo {
 	const GUID *puid;
@@ -53,10 +54,7 @@ const FormatInfo signs[] = {
 	{&CLSID_CXarHandler,      (const unsigned char *)&XarSig,      6, true,  NULL},
 	{&CLSID_CHfsHandler,      NULL,                                0, true,  IsHfsHeader},
 	{&CLSID_CLzmaHandler,     NULL,                                0, true,  IsLzmaHeader},
-
-/*
-	{&CLSID_CDmgHandler,
-*/
+	{&CLSID_CDmgHandler,      (const unsigned char *)&DmgSig,      2, true,  NULL},
 };
 
 
