@@ -6383,11 +6383,19 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\array.hpp"
+				>
+			</File>
+			<File
 				RelativePath="BaseFileMask.hpp"
 				>
 			</File>
 			<File
 				RelativePath="bitflags.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BlockExtKey.hpp"
 				>
 			</File>
 			<File
@@ -6485,6 +6493,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CriticalSections.hpp"
+				>
+			</File>
+			<File
 				RelativePath="ctrlobj.hpp"
 				>
 			</File>
@@ -6522,6 +6534,10 @@
 			</File>
 			<File
 				RelativePath="farqueue.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\farrtl.hpp"
 				>
 			</File>
 			<File
@@ -6585,6 +6601,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gettable.hpp"
+				>
+			</File>
+			<File
 				RelativePath="global.hpp"
 				>
 			</File>
@@ -6622,6 +6642,10 @@
 			</File>
 			<File
 				RelativePath="keybar.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\keyboard.hpp"
 				>
 			</File>
 			<File
@@ -6703,6 +6727,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\local.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\localOEM.hpp"
+				>
+			</File>
+			<File
 				RelativePath="lockscrn.hpp"
 				>
 			</File>
@@ -6740,6 +6772,10 @@
 			</File>
 			<File
 				RelativePath="plognmn.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\plugapi.hpp"
 				>
 			</File>
 			<File

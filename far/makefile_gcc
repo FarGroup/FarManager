@@ -55,6 +55,7 @@ SRCS = 	cddrv.cpp \
 	gettable.cpp \
 	global.cpp \
 	grabber.cpp \
+	headers.cpp \
 	help.cpp \
 	hilight.cpp \
 	history.cpp \
