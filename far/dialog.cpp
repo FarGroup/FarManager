@@ -3718,22 +3718,23 @@ bool Dialog::ConvertItemEx (
 				if(FromPlugin==CVTITEM_TOPLUGIN)
 				{
 					//TODO: тут видимо надо сделать поумнее
+					string str(Data->strData);
 					if (IsEdit(Data->Type))
 					{
 						DlgEdit *EditPtr;
 						if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
-							EditPtr->GetString(Data->strData);
+							EditPtr->GetString(str);
 					}
 
 					{
-						size_t sz = Data->strData.GetLength();
+						size_t sz = str.GetLength();
 						if (sz > Data->nMaxLength && Data->nMaxLength > 0)
 							sz = Data->nMaxLength;
 						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
 						Item->PtrData = p;
 						if (!p) // TODO: may be needed message?
 							return false;
-						wmemcpy(p, (const wchar_t*)Data->strData, sz);
+						wmemcpy(p, (const wchar_t*)str, sz);
 						p[sz] = L'\0';
 					}
 				}
