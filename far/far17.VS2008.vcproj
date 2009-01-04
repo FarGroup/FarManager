@@ -6772,11 +6772,19 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\array.hpp"
+				>
+			</File>
+			<File
 				RelativePath="BaseFileMask.hpp"
 				>
 			</File>
 			<File
 				RelativePath="bitflags.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BlockExtKey.hpp"
 				>
 			</File>
 			<File
@@ -6871,6 +6879,10 @@
 			</File>
 			<File
 				RelativePath="copy.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CriticalSections.hpp"
 				>
 			</File>
 			<File
@@ -7002,10 +7014,6 @@
 				>
 			</File>
 			<File
-				RelativePath="int64.hpp"
-				>
-			</File>
-			<File
 				RelativePath="keybar.hpp"
 				>
 			</File>
@@ -7078,10 +7086,6 @@
 						Outputs=".\Include\farkeys.hpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="lang.hpp"
-				>
 			</File>
 			<File
 				RelativePath="language.hpp"
@@ -7583,7 +7587,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7593,7 +7597,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7603,7 +7607,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7613,7 +7617,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7623,7 +7627,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7633,7 +7637,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;"
+						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -8059,6 +8063,10 @@
 			<File
 				RelativePath="farversion.inc"
 				FileType="0"
+				>
+			</File>
+			<File
+				RelativePath="lang.hpp"
 				>
 			</File>
 			<File
