@@ -799,7 +799,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( wcspbrk (strNewCmdStr, L"&<>()@^|") )
+    if ( wcspbrk (strNewCmdStr, L"&<>()@^|=;,") )
       bDoubleQ = true;
 
     if ( !strNewCmdPar.IsEmpty() || bDoubleQ )
@@ -813,7 +813,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       strExecLine += strNewCmdPar;
     }
 
-    if ( !strNewCmdPar.IsEmpty() || bDoubleQ)
+    if ( !strNewCmdPar.IsEmpty() || bDoubleQ )
       strExecLine += L"\"";
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль
