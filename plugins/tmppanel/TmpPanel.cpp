@@ -142,21 +142,21 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       else
       {
         FSF.Unquote(argv);
-        TCHAR TMP[NM*5];
-        ExpandEnvStrs(argv,TMP,ArraySize(TMP));
+        TCHAR TmpIn[NM*5],TmpOut[NM*5];
+        ExpandEnvStrs(argv,TmpIn,ArraySize(TmpIn));
         TCHAR *p;
-        if(SearchPath(TMPPanelDir,TMP,NULL,ArraySize(TMP),TMP,&p) || SearchPath(NULL,TMP,NULL,ArraySize(TMP),TMP,&p))
+        if(SearchPath(TMPPanelDir,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p))
         {
           if(Opt.MenuForFilelist)
           {
-            ShowMenuFromList(TMP);
+            ShowMenuFromList(TmpOut);
             return(INVALID_HANDLE_VALUE);
           }
           else
           {
             hPlugin=new TmpPanel();
             if(hPlugin==NULL) return(INVALID_HANDLE_VALUE);
-            ProcessList(hPlugin, TMP, Opt.Mode WITH_ANSI_ARG);
+            ProcessList(hPlugin, TmpOut, Opt.Mode WITH_ANSI_ARG);
           }
         }
       }
