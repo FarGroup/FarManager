@@ -3450,12 +3450,14 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
     if( ReadMode == MACRO_VARS &&  ! ( strValueName.At(0) == L'%' && strValueName.At(1) == L'%' ) )
       continue;
 
+		const wchar_t *lpwszValueName=&((const wchar_t *)strValueName)[ReadMode==MACRO_VARS];
+
     if (Type == REG_SZ)
-      varInsert(*t, (const wchar_t*)strValueName+1)->value = (const wchar_t*)strSData;
+			varInsert(*t, lpwszValueName)->value = (const wchar_t*)strSData;
     else if (Type == REG_DWORD)
-      varInsert(*t, (const wchar_t*)strValueName+1)->value = (__int64)IData;
+			varInsert(*t, lpwszValueName)->value = (__int64)IData;
     else if (Type == REG_QWORD)
-      varInsert(*t, (const wchar_t*)strValueName+1)->value = IData64;
+			varInsert(*t, lpwszValueName)->value = IData64;
   }
   return TRUE;
 }
