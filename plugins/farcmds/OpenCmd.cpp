@@ -211,8 +211,7 @@ static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2
 static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 {
   TCHAR *p = NULL, FileName[NM*5];
-  lstrcpy(FileName, fn);
-  ExpandEnvironmentStr(FileName, FileName, ArraySize(FileName));
+  ExpandEnvironmentStr(fn, FileName, ArraySize(FileName));
   HANDLE Handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
   if ( vh(Handle) )
   {
@@ -471,7 +470,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
             }
             else lstrcpy(selectItem,pCmd);
 
-            ExpandEnvironmentStr(selectItem,selectItem,ArraySize(selectItem));
+            TCHAR ExpSelectItem[ArraySize(selectItem)];
+            ExpandEnvironmentStr(selectItem,ExpSelectItem,ArraySize(ExpSelectItem));
+            lstrcpy(selectItem,ExpSelectItem);
           }
           else if(WhereIs)
           {
@@ -664,7 +665,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
             else
               Unquote(lstrcpy(temp,pCmd));
 
-            ExpandEnvironmentStr(temp,temp,ArraySize(temp));
+            TCHAR ExpTemp[ArraySize(temp)];
+            ExpandEnvironmentStr(temp,ExpTemp,ArraySize(ExpTemp));
+            lstrcpy(temp,ExpTemp);
 
             // разделение потоков
             int catchStdOutput = stream != 2;
@@ -678,8 +681,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 if ( *runFile )
                 {
                   Unquote(runFile);
-                  ExpandEnvironmentStr(runFile,runFile,ArraySize(runFile));
-                  lstrcpy(TempFileNameOut, lstrcpy(TempFileNameErr, runFile));
+                  ExpandEnvironmentStr(runFile,TempFileNameErr,ArraySize(TempFileNameErr));
+                  lstrcpy(TempFileNameOut,TempFileNameErr);
                   allOK = TRUE;
                 }
               }
