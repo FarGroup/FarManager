@@ -115,7 +115,7 @@ class DlgEdit: public ScreenObject
     void  SetHiString(const wchar_t *Str);
     void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
     void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
-    const wchar_t* GetStringAddrW();
+    const wchar_t* GetStringAddr();
 
     void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line
     int   GetCurPos();

@@ -6075,7 +6075,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 Уберём ограничение в 1024 байта, для чего возьмём
                 указатель на редактируемую строку.
             */
-            Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddrW());
+            Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
 
           case DI_TEXT:
           case DI_VTEXT:

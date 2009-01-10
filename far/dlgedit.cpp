@@ -233,7 +233,7 @@ int DlgEdit::GetClearFlag(void)
     return lineEdit->GetClearFlag();
 }
 
-const wchar_t* DlgEdit::GetStringAddrW()
+const wchar_t* DlgEdit::GetStringAddr()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -242,7 +242,7 @@ const wchar_t* DlgEdit::GetStringAddrW()
   }
   else
 #endif
-    return lineEdit->GetStringAddrW();
+    return lineEdit->GetStringAddr();
 }
 
 void DlgEdit::SetHiString(const wchar_t *Str)

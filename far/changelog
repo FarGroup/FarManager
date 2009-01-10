@@ -1,3 +1,11 @@
+drkns 10.01.2009 12:53:27 +0200 - build 720
+
+1. Во враппере криво освобождался FarList;
+
+2. Xlat в редакторе;
+
+3. Edit::GetStringAddrW -> Edit::GetStringAddr.
+
 drkns 08.01.2009 09:47:23 +0200
 
 1. Секция <dependency> в манифесте.

@@ -1474,7 +1474,7 @@ void Edit::GetString(string &strStr)
 }
 
 
-const wchar_t* Edit::GetStringAddrW()
+const wchar_t* Edit::GetStringAddr()
 {
     return Str;
 }

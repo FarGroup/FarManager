@@ -123,14 +123,14 @@ int CommandLine::ProcessKey(int Key)
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
     if (LastCmdPartLength==-1)
-      SetLastCmdStr(CmdStr.GetStringAddrW());
+      SetLastCmdStr(CmdStr.GetStringAddr());
 
     strStr = strLastCmdStr;
     int CurCmdPartLength=(int)strStr.GetLength ();
     CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
-      if(SetLastCmdStr(CmdStr.GetStringAddrW()))
+      if(SetLastCmdStr(CmdStr.GetStringAddr()))
         LastCmdPartLength=CurCmdPartLength;
     }
     CmdStr.SetString(strStr);
@@ -309,7 +309,7 @@ int CommandLine::ProcessKey(int Key)
       {
         // 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
         CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
-        if(SetLastCmdStr(CmdStr.GetStringAddrW()))
+        if(SetLastCmdStr(CmdStr.GetStringAddr()))
           LastCmdPartLength=(int)strLastCmdStr.GetLength ();
         return(TRUE);
       }

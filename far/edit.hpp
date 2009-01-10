@@ -201,7 +201,7 @@ private:
     void  GetString(wchar_t *Str, int MaxSize);
     void  GetString(string &strStr);
 
-    const wchar_t* GetStringAddrW();
+    const wchar_t* GetStringAddr();
 
     void  SetHiString(const wchar_t *Str);
     void  SetString(const wchar_t *Str);

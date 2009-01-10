@@ -989,10 +989,11 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 
 struct DlgData
 {
-	LONG_PTR DlgProc;
+	FARWINDOWPROC DlgProc;
 	HANDLE hDlg;
 	oldfar::FarDialogItem *diA;
 	FarDialogItem *di;
+	FarList *l;
 	DlgData* Prev;
 }
 *DialogData=NULL;
@@ -1010,26 +1011,28 @@ DlgData* FindCurrentDlgData(HANDLE hDlg)
 oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
 	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	if(!TmpDialogData)
-		return NULL;
-	return &TmpDialogData->diA[ItemNumber];
+	return TmpDialogData?&TmpDialogData->diA[ItemNumber]:NULL;
 }
 
 FarDialogItem* CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
 	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	if(!TmpDialogData)
-		return NULL;
-	return &TmpDialogData->di[ItemNumber];
+	return TmpDialogData?&TmpDialogData->di[ItemNumber]:NULL;
+}
+
+FarList* CurrentList(HANDLE hDlg,int ItemNumber)
+{
+	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
+	return TmpDialogData?&TmpDialogData->l[ItemNumber]:NULL;
 }
 
 LONG_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
+	LONG_PTR Ret=0;
 	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	if(!TmpDialogData)
-		return 0;
-	FARWINDOWPROC Proc = (FARWINDOWPROC)TmpDialogData->DlgProc;
-	return Proc?Proc(TmpDialogData->hDlg, Msg, Param1, Param2):0;
+	if(TmpDialogData && TmpDialogData->DlgProc)
+		Ret=TmpDialogData->DlgProc(TmpDialogData->hDlg,Msg,Param1,Param2);
+	return Ret;
 }
 
 void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
@@ -1258,7 +1261,6 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di)
 		{
 			if (diA.Param.ListItems && !IsBadReadPtr(diA.Param.ListItems,sizeof(oldfar::FarList)))
 			{
-				di.Param.ListItems=(FarList *)xf_malloc(sizeof(FarList));
 				di.Param.ListItems->Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
 				di.Param.ListItems->ItemsNumber = diA.Param.ListItems->ItemsNumber;
 				for(int j=0;j<di.Param.ListItems->ItemsNumber;j++)
@@ -1307,7 +1309,7 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 			break;
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
-			if(di.Param.ListItems && di.Param.ListPos!=-1) //BUGBUG?
+			if(di.Param.ListItems)
 			{
 				if(di.Param.ListItems->Items)
 				{
@@ -1318,7 +1320,6 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 					}
 					xf_free(di.Param.ListItems->Items);
 				}
-				xf_free(di.Param.ListItems);
 			}
 			break;
 		case DI_USERCONTROL:
@@ -1681,6 +1682,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FALSE;
 
 			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
+			di->Param.ListItems=CurrentList(hDlg,Param1);
 			FreeUnicodeDialogItem(*di);
 
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
@@ -2047,9 +2049,12 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	memset(diA,0,ItemsNumber*sizeof(oldfar::FarDialogItem));
 
 	FarDialogItem *di = (FarDialogItem *)xf_malloc(ItemsNumber*sizeof(FarDialogItem));
+	FarList *l = (FarList *)xf_malloc(ItemsNumber*sizeof(FarList));
+	memset(l,0,ItemsNumber*sizeof(FarList));
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
+		di[i].Param.ListItems=l;
 		AnsiDialogItemToUnicode(Item[i],di[i]);
 	}
 
@@ -2068,11 +2073,12 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	HANDLE hDlg = FarDialogInit(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?(const wchar_t *)strHT:NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
 
 	DlgData* NewDialogData=(DlgData*)xf_malloc(sizeof(DlgData));
-	NewDialogData->DlgProc=(LONG_PTR)DlgProc;
+	NewDialogData->DlgProc=DlgProc;
 	NewDialogData->hDlg=hDlg;
 	NewDialogData->Prev=DialogData;
 	NewDialogData->diA=diA;
 	NewDialogData->di=di;
+	NewDialogData->l=l;
 
 	DialogData=NewDialogData;
 
@@ -2105,7 +2111,10 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		FarDialogFree(hDlg);
 
 		for (int i=0; i<ItemsNumber; i++)
+		{
+			di[i].Param.ListItems=CurrentList(hDlg,i);
 			FreeUnicodeDialogItem(di[i]);
+		}
 	}
 
 	DlgData* TmpDlgData=DialogData;
@@ -2116,6 +2125,8 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		xf_free(diA);
 	if (di)
 		xf_free(di);
+	if (l)
+		xf_free(l);
 
 	return ret;
 }

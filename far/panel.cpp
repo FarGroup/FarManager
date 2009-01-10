@@ -1207,10 +1207,10 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
 void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName,string &strName)
 {
-	wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddrW())+32)*sizeof (wchar_t));
+	wchar_t *Ptr=(wchar_t *)xf_malloc((StrLength(Src)+StrLength(FindEdit->GetStringAddr())+32)*sizeof (wchar_t));
 	if(Ptr)
 	{
-		wcscpy(Ptr,FindEdit->GetStringAddrW());
+		wcscpy(Ptr,FindEdit->GetStringAddr());
 		wchar_t *EndPtr=Ptr+StrLength(Ptr);
 		wcscat(Ptr,Src);
 		Unquote(EndPtr);
