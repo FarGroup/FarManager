@@ -81,6 +81,6 @@ class Language
 
 extern Language Lang;
 
-#define MSG(ID) Lang.GetMsg(ID)
+#define MSG(ID) ::Lang.GetMsg(ID)
 
 #endif  // __LANGUAGE_HPP__
