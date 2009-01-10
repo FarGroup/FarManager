@@ -1250,7 +1250,7 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 	di.DefaultButton=diA.DefaultButton;
 }
 
-void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di)
+void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarList &l)
 {
 	memset(&di,0,sizeof(FarDialogItem));
 	AnsiDialogItemToUnicodeSafe(diA,di);
@@ -1261,10 +1261,11 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di)
 		{
 			if (diA.Param.ListItems && !IsBadReadPtr(diA.Param.ListItems,sizeof(oldfar::FarList)))
 			{
-				di.Param.ListItems->Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
-				di.Param.ListItems->ItemsNumber = diA.Param.ListItems->ItemsNumber;
+				l.Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
+				l.ItemsNumber = diA.Param.ListItems->ItemsNumber;
 				for(int j=0;j<di.Param.ListItems->ItemsNumber;j++)
-					AnsiListItemToUnicode(&diA.Param.ListItems->Items[j], &di.Param.ListItems->Items[j]);
+					AnsiListItemToUnicode(&diA.Param.ListItems->Items[j],&l.Items[j]);
+				di.Param.ListItems=&l;
 			}
 			break;
 		}
@@ -1682,11 +1683,12 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				return FALSE;
 
 			FarDialogItem *di=CurrentDialogItem(hDlg,Param1);
-			di->Param.ListItems=CurrentList(hDlg,Param1);
+			if(di->Type==DI_LISTBOX || di->Type==DI_COMBOBOX)
+				di->Param.ListItems=CurrentList(hDlg,Param1);
 			FreeUnicodeDialogItem(*di);
 
 			oldfar::FarDialogItem *diA = (oldfar::FarDialogItem *)Param2;
-			AnsiDialogItemToUnicode(*diA,*di);
+			AnsiDialogItemToUnicode(*diA,*di,*di->Param.ListItems);
 			return FarSendDlgMessage(hDlg, DM_SETDLGITEM, Param1, (LONG_PTR)di);
 		}
 
@@ -2054,8 +2056,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	for (int i=0; i<ItemsNumber; i++)
 	{
-		di[i].Param.ListItems=l;
-		AnsiDialogItemToUnicode(Item[i],di[i]);
+		AnsiDialogItemToUnicode(Item[i],di[i],l[i]);
 	}
 
 	DWORD DlgFlags = 0;
@@ -2112,7 +2113,8 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			di[i].Param.ListItems=CurrentList(hDlg,i);
+			if(di[i].Type==DI_LISTBOX || di[i].Type==DI_COMBOBOX)
+				di[i].Param.ListItems=CurrentList(hDlg,i);
 			FreeUnicodeDialogItem(di[i]);
 		}
 	}
