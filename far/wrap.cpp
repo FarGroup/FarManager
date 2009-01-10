@@ -1320,6 +1320,7 @@ void FreeUnicodeDialogItem(FarDialogItem &di)
 							xf_free((void *)di.Param.ListItems->Items[i].Text);
 					}
 					xf_free(di.Param.ListItems->Items);
+					di.Param.ListItems->Items=NULL;
 				}
 			}
 			break;
