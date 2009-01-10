@@ -4,11 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <locale.h>
+
 #pragma hdrstop
 
 // FAR STUFF
-#define _FAR_USE_FARFINDDATA
-#include "plugin.hpp"
+#include <plugin.hpp>
 #include "fexcept.h"
 
 //HEX DLL STUFF
@@ -22,47 +23,58 @@
   #define DECL extern "C"
 #endif
 
-typedef ULONG (WINAPI *MapFileAndCheckSumA_t)( LPSTR,LPDWORD,LPDWORD );
+typedef ULONG (WINAPI *MAPFILEANDCHECKSUM)( LPTSTR,LPDWORD,LPDWORD );
 
 //Local DATA
 static       PHEX_DumpInfo      HInfo;
 static       FILE              *LogFile;
 const struct PluginStartupInfo *FP_Info;
-static       char               LocalPath[ MAX_PATH_SIZE ];
-static       char               LogFileName[ MAX_PATH_SIZE ];
-static       char               TrapFileName[ MAX_PATH_SIZE ];
-static       char               Path2Far[ MAX_PATH_SIZE ];
+static       TCHAR              LocalPath[ MAX_PATH_SIZE ];
+static       TCHAR              LogFileName[ MAX_PATH_SIZE ];
+static       TCHAR              TrapFileName[ MAX_PATH_SIZE ];
+static       TCHAR              Path2Far[ MAX_PATH_SIZE ];
 static       HANDLE             FarScreen_handle;
 static       HMODULE            ThisModule;
-static       char               TrapFileNameMsg[ 2*NM ];
-static       char               LogFileNameMsg[ 2*NM ];
+static       TCHAR               TrapFileNameMsg[ 2*NM ];
+static       TCHAR              LogFileNameMsg[ 2*NM ];
 static       HANDLE             InFile;
 static       DWORD              FarSize;
 static       DWORD              FarVer;
 static       HANDLE             FarAddr;
 static       DWORD              Checksum1;
 static       DWORD              Checksum2;
-MapFileAndCheckSumA_t           pCheckSum;
-
-
+MAPFILEANDCHECKSUM              pCheckSum;
 //Try to open log file.
 //Clearattributes and try again if fail.
 static BOOL LOpen( BOOL append )
-  {  const char *WMode = append ? "at" : "wt";
+  {  const TCHAR *WMode = (append ? _T("at") : _T("wt"));
 
-     LogFile = fopen( LogFileName,WMode );
+     LogFile = _tfopen( LogFileName,WMode );
      if ( LogFile )
        return TRUE;
 
-     if ( SetFileAttributesA( LogFileName,0 ) &&
-          (LogFile=fopen( LogFileName,WMode )) != NULL )
+     if ( SetFileAttributes( LogFileName,0 ) &&
+          (LogFile=_tfopen( LogFileName,WMode )) != NULL )
        return TRUE;
 
  return FALSE;
 }
 
 //Callback called from HEX procedures to output printed data
-static int RTL_CALLBACK idOutProc( const char *Format,... )
+static int RTL_CALLBACK idOutProc( const TCHAR *Format,... )
+  {  va_list a;
+     int     rc;
+
+    va_start( a, Format );
+      rc = _vftprintf( LogFile,Format,a );
+    va_end( a );
+
+ return rc;
+}
+#ifndef UNICODE
+#define idOutProcA idOutProc
+#else
+static int RTL_CALLBACK idOutProcA( const char *Format,... )
   {  va_list a;
      int     rc;
 
@@ -72,59 +84,7 @@ static int RTL_CALLBACK idOutProc( const char *Format,... )
 
  return rc;
 }
-
-template <unsigned MaxLength> char *TruncStr( char *Str )
-{
-  if ( !Str ) return NULL;
-
-  int Length;
-
-  if ( (Length=strlen(Str)) > MaxLength )
-  {
-    if (MaxLength>3)
-    {
-      memmove(Str+3,Str+Length-MaxLength+3,MaxLength);
-      memcpy(Str,"...",3);
-    }
-    Str[MaxLength]=0;
-  }
-
-  return Str;
-}
-
-template <unsigned MaxLength> char *TruncPathStr( char *Str )
-  {  int nLength = Str ? strlen(Str) : 0;
-
-     if ( !nLength ) return NULL;
-
-     if ( nLength <= MaxLength)
-       return Str;
-
-     char *lpStart = NULL;
-
-     if ( *Str && (Str[1] == ':') && (Str[2] == '\\') )
-        lpStart = Str+3;
-     else
-     {
-       if ( (Str[0] == '\\') && (Str[1] == '\\') )
-       {
-         if ( (lpStart = strchr (Str+2, '\\')) != NULL )
-           if ( (lpStart = strchr (lpStart+1, '\\')) != NULL )
-             lpStart++;
-       }
-     }
-
-     if ( !lpStart || (lpStart-Str > MaxLength-5) )
-       return TruncStr<MaxLength>( Str );
-
-     char *lpInPos = lpStart+3+(nLength-MaxLength);
-     strcpy (lpStart+3, lpInPos);
-     memcpy (lpStart, "...", 3);
-
-  return Str;
-}
-
-#define TRUNC( s ) TruncPathStr<(unsigned)64>( s )
+#endif
 
 //Show FAR message if possible
 void SError( const TCHAR *msg, DWORD tp = 0 )
@@ -136,9 +96,9 @@ void SError( const TCHAR *msg, DWORD tp = 0 )
 DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                                    const struct PLUGINRECORD *Module,
                                    BOOL Nested )
-  {  static char     Path[ MAX_PATH_SIZE ];
+  {  static TCHAR     Path[ MAX_PATH_SIZE ];
      static TCHAR    str[ 1000 ];
-     static char    *m;
+     static TCHAR    *m;
      static HMODULE  md;
      BOOL            isFARTrap = !Module ||
 #ifndef UNICODE
@@ -147,53 +107,57 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                                  Module->ModuleName == NULL || *(Module->ModuleName) == 0;
 #endif
 
-     GetModuleFileNameA( NULL,Path2Far,sizeof(Path2Far));
+     _tsetlocale(LC_ALL,_T(""));
+
+     GetModuleFileName( NULL,Path2Far,ArraySize(Path2Far));
 
 //Plugin path
      if ( !isFARTrap ) {
+       _tcsncpy( TrapFileName,
 #ifndef UNICODE
-       strncpy( TrapFileName, Module->FindData.cFileName, sizeof(TrapFileName)-1 );
+                               Module->FindData.cFileName,
 #else
-       WideCharToMultiByte(CP_OEMCP,0,Module->ModuleName,-1,TrapFileName,sizeof(TrapFileName)-1,NULL,NULL);
+                               Module->ModuleName,
 #endif
-       TrapFileName[ sizeof(TrapFileName)-1 ] = 0;
+                                                          ArraySize(TrapFileName)-1 );
+       TrapFileName[ ArraySize(TrapFileName)-1 ] = 0;
      } else
-       TrapFileName[ GetModuleFileNameA( NULL,TrapFileName,sizeof(TrapFileName) ) ] = 0;
+       TrapFileName[ GetModuleFileName( NULL,TrapFileName,ArraySize(TrapFileName) ) ] = 0;
 
-     md = GetModuleHandleA( TrapFileName );
+     md = GetModuleHandle( TrapFileName );
      if ( md )
-       LocalPath[ GetModuleFileNameA( md,TrapFileName,sizeof(TrapFileName) ) ] = 0;
+       LocalPath[ GetModuleFileName( md,TrapFileName,ArraySize(TrapFileName) ) ] = 0;
 
-     LocalPath[ GetModuleFileNameA( md,LocalPath,sizeof(LocalPath) ) ] = 0;
-     m = strrchr( LocalPath,'\\' );
+     LocalPath[ GetModuleFileName( md,LocalPath,ArraySize(LocalPath) ) ] = 0;
+     m = _tcsrchr( LocalPath,_T('\\') );
      if (m) *m = 0;
 
-     TRUNC( strcpy(TrapFileNameMsg,TrapFileName) );
+      _tcscpy(TrapFileNameMsg,TrapFileName);
 
 //Load HEX
      do{
        //Accesible on paths
-       md = LoadLibraryA( "ExcDump.dll" );
+       md = LoadLibrary( _T("ExcDump.dll") );
        if ( md ) break;
 
        //In fexcept directory
-       Path[ GetModuleFileNameA( ThisModule,Path,sizeof(Path) ) ] = 0;
-       m = strrchr( Path,'\\' ); if (m) *m = 0;
-       strcat( Path,"\\ExcDump.dll" );
-       md = LoadLibraryA( Path );
+       Path[ GetModuleFileName( ThisModule,Path,ArraySize(Path) ) ] = 0;
+       m = _tcsrchr( Path,_T('\\') ); if (m) *m = 0;
+       _tcscat( Path,_T("\\ExcDump.dll") );
+       md = LoadLibrary( Path );
        if ( md ) break;
 
        //In plugin directory
-       strcpy( Path, LocalPath );
-       strcat( Path,"\\ExcDump.dll" );
-       md = LoadLibraryA( Path );
+       _tcscpy( Path, LocalPath );
+       _tcscat( Path,_T("\\ExcDump.dll") );
+       md = LoadLibrary( Path );
        if ( md ) break;
 
        //In FAR directory
-       Path[ GetModuleFileNameA( NULL,Path,sizeof(Path) ) ] = 0;
-       m = strrchr( Path,'\\' ); if (m) *m = 0;
-       strcat( Path,"\\ExcDump.dll" );
-       md = LoadLibraryA( Path );
+       Path[ GetModuleFileName( NULL,Path,ArraySize(Path) ) ] = 0;
+       m = _tcsrchr( Path,_T('\\') ); if (m) *m = 0;
+       _tcscat( Path,_T("\\ExcDump.dll") );
+       md = LoadLibrary( Path );
        if ( md ) break;
 
        //Somewhere else ?
@@ -230,17 +194,17 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
        LogFile = NULL;
 
        //FAR directory
-       LogFileName[ GetModuleFileNameA(NULL,LogFileName,sizeof(LogFileName)) ] = 0;
-       m = strrchr(LogFileName,'\\');
+       LogFileName[ GetModuleFileName(NULL,LogFileName,ArraySize(LogFileName) ) ] = 0;
+       m = _tcsrchr(LogFileName,_T('\\'));
        if (m) *m = 0;
-       strcat( LogFileName, "\\FStd_trap.log" );
+       _tcscat( LogFileName, _T("\\FStd_trap.log") );
        if ( LOpen( Nested ) )
          break;
 
        //Plugin directory
        if ( !isFARTrap ) {
-         strcpy( LogFileName, LocalPath );
-         strcat( LogFileName, "\\FStd_trap.log" );
+         _tcscpy( LogFileName, LocalPath );
+         _tcscat( LogFileName, _T("\\FStd_trap.log") );
          if ( LOpen( Nested ) )
            break;
         }
@@ -256,27 +220,39 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
      setbuf( LogFile,NULL );
 
-     TRUNC( strcpy(LogFileNameMsg,LogFileName) );
+     _tcscpy(LogFileNameMsg,LogFileName);
 
 //Dump trap
-     idOutProc( "Exception in [%s] %s.\n"
-                "==============================================================\n",
+     idOutProc( _T("Exception in [%s] %s.\n")
+                _T("==============================================================\n"),
                 TrapFileName,
-                (isFARTrap ? "FAR itself" : "plugin") );
+                (isFARTrap ? _T("FAR itself") : _T("plugin")) );
 
-     idOutProc( "FAR.EXE information:\n");
+     OSVERSIONINFO vi={sizeof(vi)};
+     GetVersionEx(&vi);
+     idOutProc(_T("System information:\n Windows %s, version %d.%d.%d%s%s\n")
+               _T("==============================================================\n"),
+               (vi.dwPlatformId>1?_T("NT"):_T("9x")),
+               vi.dwMajorVersion,
+               vi.dwMinorVersion,
+               LOWORD(vi.dwBuildNumber),
+               (*vi.szCSDVersion?_T(" "):_T("")),
+               vi.szCSDVersion
+              );
+
+     idOutProc( _T("FAR.EXE information:\n"));
 
 //Try Get Version Info
      if ( FP_Info && FP_Info->AdvControl ) {
        FP_Info->AdvControl(FP_Info->ModuleNumber, ACTL_GETFARVERSION, &FarVer);
-       idOutProc( " Version info: %d.%d.%d\n",HIBYTE(LOWORD(FarVer)),LOBYTE(LOWORD(FarVer)),HIWORD(FarVer));
+       idOutProc( _T(" Version info: %d.%d.%d\n"),HIBYTE(LOWORD(FarVer)),LOBYTE(LOWORD(FarVer)),HIWORD(FarVer));
      }
 
 //Try Get FileSize
-     InFile = CreateFileA( Path2Far, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
+     InFile = CreateFile( Path2Far, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
      if (InFile != INVALID_HANDLE_VALUE) {
        FarSize = GetFileSize( InFile, NULL);
-       idOutProc( "    File size: %u bytes\n",FarSize);
+       idOutProc( _T("    File size: %u bytes\n"),FarSize);
        CloseHandle(InFile);
      }
 
@@ -287,27 +263,31 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
      fh = (PIMAGE_NT_HEADERS)((DWORD)fh + ((PIMAGE_DOS_HEADER)fh)->e_lfanew);
 
      time_t tm = (time_t)( fh->FileHeader.TimeDateStamp );
-     char   buff[100];
-     strftime( buff, sizeof(buff),"%d.%m.%Y %H:%M:%S",localtime(&tm) );
-     idOutProc( "   Time stamp: %s\n", buff);
+     TCHAR   buff[100];
+     _tcsftime( buff, ArraySize(buff),_T("%d.%m.%Y %H:%M:%S"),localtime(&tm) );
+     idOutProc( _T("   Time stamp: %s\n"), buff);
 
 //Try Get CheckSum
 //Load imagehlp.dll dynamically because in Win95 this dll not present
-     HINSTANCE h_imagehlp = LoadLibraryA( "imagehlp.dll" );
+     HINSTANCE h_imagehlp = LoadLibrary( _T("imagehlp.dll") );
      if ( h_imagehlp ) {
-       pCheckSum = (MapFileAndCheckSumA_t) GetProcAddress(h_imagehlp, "MapFileAndCheckSumA");
-
-       //CHECKSUM_SUCCESS = 0
+       pCheckSum = (MAPFILEANDCHECKSUM) GetProcAddress(h_imagehlp,
+#ifndef UNICODE       
+                                                                  "MapFileAndCheckSumA"
+#else
+                                                                  "MapFileAndCheckSumW"
+#endif
+                                                                                        );
+        //CHECKSUM_SUCCESS = 0
        if ( pCheckSum( Path2Far, &Checksum1, &Checksum2) == 0 )
-         idOutProc( " Hdr checksum: 0x%08lX (computed: 0x%08lX)\n", Checksum1, Checksum2);
+         idOutProc( _T(" Hdr checksum: 0x%08lX (computed: 0x%08lX)\n"), Checksum1, Checksum2);
      }
-
 //Exception info
-     idOutProc( "==============================================================\n" );
+     idOutProc( _T("==============================================================\n") );
 
-     HInfo->ExceptionInfo( idOutProc, xInfo->ExceptionRecord, xInfo->ContextRecord );
+     HInfo->ExceptionInfo( idOutProcA, xInfo->ExceptionRecord, xInfo->ContextRecord );
 
-     idOutProc( "==============================================================\n" );
+     idOutProc( _T("==============================================================\n") );
 
 //Check recurse
      if ( Nested ) {
@@ -326,7 +306,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                          NULL, (const TCHAR * const *)_T("Trap log\nGenerating trap log file..."),
                          0, 0 );
 
-     HInfo->StackWalkListContext( idOutProc, xInfo->ContextRecord, STK_FULL, 0 );
+     HInfo->StackWalkListContext( idOutProcA, xInfo->ContextRecord, STK_FULL, 0 );
 
 //Clear all used STUFF
      fclose( LogFile );
@@ -338,28 +318,16 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                 _T("Exception error...\n")
                 _T("FAR itself executes an error and will be terminated.\n")
                 _T("The trap log file has been saved to file:\n")
-#ifndef UNICODE
                 _T("  %s\n")
-#else
-                _T("  %S\n")
-#endif
                 _T(""), LogFileNameMsg );
       else
        _stprintf( str,
                 _T("Exception error...\n")
                 _T("Plugin:\n")
-#ifndef UNICODE
                 _T("  %s\n")
-#else
-                _T("  %S\n")
-#endif
                 _T("executes an error and will be unloaded.\n")
                 _T("The trap log file has been saved to file:\n")
-#ifndef UNICODE
                 _T("  %s\n")
-#else
-                _T("  %S\n")
-#endif
                 _T("\x1\n")
                 _T("Do you want to terminate FAR itself ? (recommended)")
                 _T(""),
@@ -409,7 +377,7 @@ BOOL WINAPI DllEntryPoint( HINSTANCE hinst, DWORD reason, LPVOID /*ptr*/ )
  return TRUE;
 }
 #else
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__GNUC__)
 BOOL WINAPI DllMain( HINSTANCE hinst, DWORD reason, LPVOID /*ptr*/ )
   {
     if ( reason == DLL_PROCESS_ATTACH )

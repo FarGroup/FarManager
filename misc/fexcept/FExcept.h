@@ -11,6 +11,8 @@
 
 #define FAR_LOG_VERSION  1
 
+#define ArraySize(a)  (sizeof(a)/sizeof(a[0]))
+
 #ifndef UNICODE
 struct PLUGINRECORD{      // информация о плагине
   DWORD Reserved0;

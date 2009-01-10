@@ -1,0 +1,11 @@
+NAME = FExcept
+SRCS = FExcept.cpp
+DOCS = SetFarExceptionHandlerW.reg SetFarExceptionHandler.reg
+
+NEEDDEFLIB=1
+NEEDENTRY=1
+EXCLUDECRT=1
+
+include ../makefile_gcc_def_inc
+
+include ../makefile_gcc_target_inc
