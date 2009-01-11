@@ -1181,6 +1181,6 @@ int ReadFileTime(int Type,const char *Name,DWORD FileAttr,FILETIME *FileTime,cha
 bool CheckFileSizeStringFormat(const char *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const char *FileSizeStr);
 
-bool GetShellType(const char *Ext, char *Type, LONG Size);
+bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
 #endif  // __FARFUNC_HPP__

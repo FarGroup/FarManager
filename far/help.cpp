@@ -1969,36 +1969,37 @@ static int RunURL(char *Protocol, char *URLPath)
     {
       HKEY hKey;
       DWORD Disposition, DataSize=250;
-      strcpy(Buf,Protocol);
-      strcat(Buf,"\\shell\\open\\command");
-      if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+      if(GetShellType(Protocol,Buf,2048,AT_URLPROTOCOL))
       {
-        Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-        ExpandEnvironmentStr(Buf, Buf, 2048);
-        RegCloseKey(hKey);
-        if(Disposition == ERROR_SUCCESS)
+        strcat(Buf,"\\shell\\open\\command");
+        if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
         {
-          char *pp=strrchr(Buf,'%');
-          if(pp) *pp='\0'; else strcat(Buf," ");
-
-          // удалим два идущих в подряд ~~
-          pp=URLPath;
-          while(*pp && (pp=strstr(pp,"~~")) != NULL)
+          Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+          ExpandEnvironmentStr(Buf, Buf, 2048);
+          RegCloseKey(hKey);
+          if(Disposition == ERROR_SUCCESS)
           {
-            memmove(pp,pp+1,strlen(pp+1)+1);
-            ++pp;
-          }
-          // удалим два идущих в подряд ##
-          pp=URLPath;
-          while(*pp && (pp=strstr(pp,"##")) != NULL)
-          {
-            memmove(pp,pp+1,strlen(pp+1)+1);
-            ++pp;
-          }
-
-          Disposition=0;
-          if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
-          {
+            char *pp=strrchr(Buf,'%');
+            if(pp) *pp='\0'; else strcat(Buf," ");
+    
+            // удалим два идущих в подряд ~~
+            pp=URLPath;
+            while(*pp && (pp=strstr(pp,"~~")) != NULL)
+            {
+              memmove(pp,pp+1,strlen(pp+1)+1);
+              ++pp;
+            }
+            // удалим два идущих в подряд ##
+            pp=URLPath;
+            while(*pp && (pp=strstr(pp,"##")) != NULL)
+            {
+              memmove(pp,pp+1,strlen(pp+1)+1);
+              ++pp;
+            }
+    
+            Disposition=0;
+            if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
+            {
             BlockExtKey blockExtKey;
             Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
                         MSG(MHelpActivatorURL),
@@ -2008,54 +2009,55 @@ static int RunURL(char *Protocol, char *URLPath)
                         "\x01",
                         MSG(MHelpActivatorQ),
                         MSG(MYes),MSG(MNo));
-          }
-          EditCode=2; // Все Ok!
-          if(Disposition == 0)
-          {
-            /*
-              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-            */
-            if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-            {
-#if 0
-              SHELLEXECUTEINFO sei;
-
-              FAR_OemToChar(URLPath,Buf);
-              memset(&sei,0,sizeof(sei));
-              sei.cbSize=sizeof(sei);
-              sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-              sei.lpFile=RemoveExternalSpaces(Buf);
-              sei.nShow=SW_SHOWNORMAL;
-              SetFileApisTo(APIS2ANSI);
-              if(ShellExecuteEx(&sei))
-                EditCode=1;
-              SetFileApisTo(APIS2OEM);
-#else
-              FAR_OemToChar(URLPath,Buf);
-              SetFileApisTo(APIS2ANSI);
-              EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
-              SetFileApisTo(APIS2OEM);
-#endif
             }
-            else
+            EditCode=2; // Все Ok!
+            if(Disposition == 0)
             {
-              STARTUPINFO si={0};
-              PROCESS_INFORMATION pi={0};
-              si.cb=sizeof(si);
-              strcat(Buf,URLPath);
-              FAR_OemToChar(Buf,Buf);
-              SetFileApisTo(APIS2ANSI); //????
-              if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+              /*
+                СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
+                ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+              */
+              if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
               {
-                 EditCode=1;
+#if 0
+                SHELLEXECUTEINFO sei;
+  
+                FAR_OemToChar(URLPath,Buf);
+                memset(&sei,0,sizeof(sei));
+                sei.cbSize=sizeof(sei);
+                sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+                sei.lpFile=RemoveExternalSpaces(Buf);
+                sei.nShow=SW_SHOWNORMAL;
+                SetFileApisTo(APIS2ANSI);
+                if(ShellExecuteEx(&sei))
+                  EditCode=1;
+                SetFileApisTo(APIS2OEM);
+#else
+                FAR_OemToChar(URLPath,Buf);
+                SetFileApisTo(APIS2ANSI);
+                EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
+                SetFileApisTo(APIS2OEM);
+#endif
               }
               else
               {
-                CloseHandle(pi.hThread);
-                CloseHandle(pi.hProcess);
+                STARTUPINFO si={0};
+                PROCESS_INFORMATION pi={0};
+                si.cb=sizeof(si);
+                strcat(Buf,URLPath);
+                FAR_OemToChar(Buf,Buf);
+                SetFileApisTo(APIS2ANSI); //????
+                if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+                {
+                   EditCode=1;
+                }
+                else
+                {
+                  CloseHandle(pi.hThread);
+                  CloseHandle(pi.hProcess);
+                }
+                SetFileApisTo(APIS2OEM); //????
               }
-              SetFileApisTo(APIS2OEM); //????
             }
           }
         }

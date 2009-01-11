@@ -8,9 +8,6 @@ execute.cpp
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef __GNUC__
-#include <shobjidl.h>
-#endif
 #include "farqueue.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
@@ -155,7 +152,7 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
 #endif
 
-bool GetShellType(const char *Ext, char *Type, LONG Size)
+bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType)
 {
   bool bVistaType = false;
   typedef HRESULT (WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
@@ -196,7 +193,7 @@ bool GetShellType(const char *Ext, char *Type, LONG Size)
                   );
 
         wchar_t *p;
-        if (pAAR->QueryCurrentDefault(WExt, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
+        if (pAAR->QueryCurrentDefault(WExt, aType, AL_EFFECTIVE, &p) == S_OK)
         {
           bVistaType = true;
           WideCharToMultiByte (
@@ -218,8 +215,15 @@ bool GetShellType(const char *Ext, char *Type, LONG Size)
 
   if (!bVistaType)
   {
-    if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)Ext,(LPTSTR)Type,&Size)!=ERROR_SUCCESS)
+    if(Type==AT_URLPROTOCOL)
+    {
+      xstrncpy(Type,Ext,Size);
+    }
+    else
+    {
+  	if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)Ext,(LPTSTR)Type,&Size)!=ERROR_SUCCESS)
       return false;
+    }
   }
 
   return true;

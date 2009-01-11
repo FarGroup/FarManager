@@ -398,7 +398,9 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #define VK_SLEEP          0x5F
 #endif
 
-#ifdef __GNUC__
+#ifndef __GNUC__
+#include <shobjidl.h>
+#else
 typedef enum tagASSOCIATIONLEVEL
 {
   AL_MACHINE,
