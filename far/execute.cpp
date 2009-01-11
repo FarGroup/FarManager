@@ -34,9 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef __GNUC__
-#include <shobjidl.h>
-#endif
 #include "keyboard.hpp"
 
 #include "filepanels.hpp"
@@ -171,7 +168,7 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
   return Ret;
 }
 
-bool GetShellType(const wchar_t *Ext, string &strType)
+bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
 
@@ -182,7 +179,7 @@ bool GetShellType(const wchar_t *Ext, string &strType)
 		if (SUCCEEDED(hr))
 		{
 			wchar_t *p;
-			if (pAAR->QueryCurrentDefault(Ext, AT_FILEEXTENSION, AL_EFFECTIVE, &p) == S_OK)
+			if (pAAR->QueryCurrentDefault(Ext, aType, AL_EFFECTIVE, &p) == S_OK)
 			{
 				bVistaType = true;
 				strType = p;
@@ -197,13 +194,18 @@ bool GetShellType(const wchar_t *Ext, string &strType)
 		HKEY hKey;
 		if (RegOpenKeyW(HKEY_CLASSES_ROOT,Ext,&hKey)!=ERROR_SUCCESS)
 			return false;
-
-		if (RegQueryStringValue(hKey,L"",strType,L"")!=ERROR_SUCCESS)
+		if(aType==AT_URLPROTOCOL)
 		{
-			RegCloseKey(hKey);
-			return false;
+			strType=Ext;
 		}
-
+		else
+		{
+			if (RegQueryStringValue(hKey,L"",strType,L"")!=ERROR_SUCCESS)
+			{
+				RegCloseKey(hKey);
+				return false;
+			}
+		}
 		RegCloseKey(hKey);
 	}
 

@@ -97,6 +97,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <wchar.h>
 #include <setupapi.h>
 
+#ifndef __GNUC__
+#include <shobjidl.h>
+#endif
+
 #ifdef __GNUC__
  #define __NTDDK_H
  #include <ddk\cfgmgr32.h>

@@ -2759,7 +2759,7 @@ int Dialog::ProcessKey(int Key)
 							int SelStart,SelEnd;
 							edt->GetSelection(SelStart,SelEnd);
 							if(SelStart < 0 || SelStart==SelEnd)
-								SelStart=strStr.GetLength();
+								SelStart=(int)strStr.GetLength();
 							else
 								SelStart++;
 							int CurPos=edt->GetCurPos();
@@ -2774,7 +2774,7 @@ int Dialog::ProcessKey(int Key)
 									edt->FastShow();
 								}
 							}
-							SelEnd=strStr.GetLength();
+							SelEnd=(int)strStr.GetLength();
 							if(DoAutoComplete && FindInEditForAC(Item[FocusPos]->Type == DI_COMBOBOX,Item[FocusPos]->History,strStr))
 							{
 								edt->SetString(strStr);

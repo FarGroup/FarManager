@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BlockExtKey.hpp"
 #include "macroopcode.hpp"
 #include "syslog.hpp"
+#include "registry.hpp"
 
 // Стек возврата
 class CallBackStack
@@ -1994,105 +1995,103 @@ void Help::InitKeyBar(void)
 */
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 {
-  int EditCode=0;
-  if(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
-  {
-    wchar_t *Buf=(wchar_t*)xf_malloc(2048); //BUGBUG
-    if(Buf)
-    {
-      HKEY hKey;
-      DWORD Disposition, DataSize=250;
-      wcscpy(Buf,Protocol);
-      wcscat(Buf,L"\\shell\\open\\command");
-      if(RegOpenKeyExW(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
-      {
-        Disposition=RegQueryValueExW(hKey,L"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-
-        ExpandEnvironmentStringsW(Buf, Buf, 2048); //BUGBUG
-        RegCloseKey(hKey);
-        if(Disposition == ERROR_SUCCESS)
-        {
-          wchar_t *pp=wcsrchr(Buf,L'%');
-          if(pp) *pp=L'\0'; else wcscat(Buf,L" ");
-
-          // удалим два идущих в подряд ~~
-          pp=URLPath;
-          while(*pp && (pp=wcsstr(pp,L"~~")) != NULL)
-          {
-            wmemmove(pp,pp+1,StrLength(pp+1)+1);
-            ++pp;
-          }
-          // удалим два идущих в подряд ##
-          pp=URLPath;
-          while(*pp && (pp=wcsstr(pp,L"##")) != NULL)
-          {
-            wmemmove(pp,pp+1,StrLength(pp+1)+1);
-            ++pp;
-          }
-
-          Disposition=0;
-          if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
-          {
-            BlockExtKey blockExtKey;
-            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
-                        MSG(MHelpActivatorURL),
-                        Buf,
-                        MSG(MHelpActivatorFormat),
-                        URLPath,
-                        L"\x01",
-                        MSG(MHelpActivatorQ),
-                        MSG(MYes),MSG(MNo));
-          }
-          EditCode=2; // Все Ok!
-          if(Disposition == 0)
-          {
-            /*
-              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-            */
-            if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-            {
+	int EditCode=0;
+	if(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
+	{
+		string strType;
+		if(GetShellType(Protocol,strType,AT_URLPROTOCOL))
+		{
+			strType+=L"\\shell\\open\\command";
+			HKEY hKey;
+			if(RegOpenKeyExW(HKEY_CLASSES_ROOT,strType,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+			{
+				string strAction;
+				int Disposition=RegQueryStringValueEx(hKey,L"",strAction,L"");
+				RegCloseKey(hKey);
+				apiExpandEnvironmentStrings(strAction, strAction);
+				if(Disposition == ERROR_SUCCESS)
+				{
+					size_t PPos=0;
+					if(strAction.RPos(PPos,L'%'))
+					{
+						strAction.SetLength(PPos);
+					}
+					else
+					{
+						strAction+=L" ";
+					}
+					// удалим два идущих в подряд ~~
+					wchar_t *Ptr=URLPath;
+					while(*Ptr && (Ptr=wcsstr(Ptr,L"~~")) != NULL)
+					{
+						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
+						Ptr++;
+					}
+					// удалим два идущих в подряд ##
+					Ptr=URLPath;
+					while(*Ptr && (Ptr=wcsstr(Ptr,L"##")) != NULL)
+					{
+						wmemmove(Ptr,Ptr+1,StrLength(Ptr+1)+1);
+						++Ptr;
+					}
+					Disposition=0;
+					if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
+					{
+						BlockExtKey blockExtKey;
+						Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
+												MSG(MHelpActivatorURL),
+												strAction,
+												MSG(MHelpActivatorFormat),
+												URLPath,
+												L"\x01",
+												MSG(MHelpActivatorQ),
+												MSG(MYes),MSG(MNo));
+					}
+					EditCode=2; // Все Ok!
+					if(Disposition == 0)
+					{
+						/*
+						СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
+						ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+						*/
+						if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
+						{
 #if 0
               SHELLEXECUTEINFO sei;
-
-              OemToCharA(URLPath,Buf);
               memset(&sei,0,sizeof(sei));
               sei.cbSize=sizeof(sei);
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
               sei.lpFile=RemoveExternalSpaces(Buf);
               sei.nShow=SW_SHOWNORMAL;
-              SetFileApisTo(APIS2ANSI);
               if(ShellExecuteEx(&sei))
                 EditCode=1;
-              SetFileApisTo(APIS2OEM);
 #else
-              wcscpy (Buf, URLPath);
-              EditCode=ShellExecuteW(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
+							strAction=URLPath;
+							EditCode=ShellExecuteW(0, 0, RemoveExternalSpaces(strAction), 0, 0, SW_SHOWNORMAL)?1:2;
 #endif
-            }
-            else
-            {
-              STARTUPINFOW si={0};
-              PROCESS_INFORMATION pi={0};
-              si.cb=sizeof(si);
-              wcscat(Buf,URLPath);
-              if(!CreateProcessW(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
-              {
-                 EditCode=1;
-              }
-              else
-              {
-                CloseHandle(pi.hThread);
-                CloseHandle(pi.hProcess);
-              }
-            }
-          }
-        }
-      }
-      xf_free(Buf);
-    }
-  }
-  return EditCode;
+						}
+						else
+						{
+							STARTUPINFOW si={0};
+							PROCESS_INFORMATION pi={0};
+							si.cb=sizeof(si);
+							strAction+=URLPath;
+							if(!CreateProcessW(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+							{
+								EditCode=1;
+							}
+							else
+							{
+								CloseHandle(pi.hThread);
+								CloseHandle(pi.hProcess);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return EditCode;
 }
 
 void Help::OnChangeFocus(int Focus)

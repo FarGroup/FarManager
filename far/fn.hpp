@@ -111,6 +111,7 @@ int GetDateSeparator();
 int GetTimeSeparator();
 
 const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error);
+
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 
@@ -235,7 +236,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 wchar_t* WINAPI PasteFromClipboardEx(int max);
 BOOL WINAPI FAR_EmptyClipboard(VOID);
 
-bool GetShellType(const wchar_t *Ext, string &strType);
+bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
