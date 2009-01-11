@@ -172,6 +172,8 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
 
+	strType.SetLength(0);
+
 	if (WinVer.dwMajorVersion >= 6 && ifn.pfnSHCreateAssociationRegistration)
 	{
 		IApplicationAssociationRegistration* pAAR;
@@ -209,7 +211,7 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 		RegCloseKey(hKey);
 	}
 
-	return true;
+	return !strType.IsEmpty();
 }
 
 // по имени файла (по его расширению) получить команду активации
@@ -217,9 +219,6 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 // (чтобы не ждать завершени€)
 const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
-  //_SVS(CleverSysLog clvrSLog(L"GetShellAction()"));
-  //_SVS(SysLog(L"Param: FileName='%s'",FileName));
-
   string strValue;
   string strNewValue;
   const wchar_t *ExtPtr;
@@ -245,7 +244,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	}
 
   strValue += L"\\shell";
-//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
 
   if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
@@ -255,7 +253,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   int RetQuery = RegQueryStringValueEx(hKey,L"",strAction,L"");
 
   strValue += L"\\";
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
 
   if (RetQuery == ERROR_SUCCESS)
   {
@@ -289,7 +286,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     else
       strValue += strAction;
 
-//_SVS(SysLog(L"[%d] Value='%s'",__LINE__,(const wchar_t *)strValue));
     if(RetEnum != ERROR_NO_MORE_ITEMS) // ≈сли ничего не нашли, то...
       RetPtr=NULL;
   }
@@ -297,8 +293,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   {
     // This member defaults to "Open" if no verb is specified.
     // “.е. если мы вернули NULL, то подразумеваетс€ команда "Open"
-      RetPtr=NULL;
-//    strValue += L"\\open";
+    RetPtr=NULL;
   }
 
   // ≈сли RetPtr==NULL - мы не нашли default action.
@@ -322,7 +317,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
       strValue += strAction;
       RetPtr = (const wchar_t *)strAction;
       RetEnum = ERROR_NO_MORE_ITEMS;
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
     } /* if */
 
     // ... а теперь все остальное, если "open" нету
@@ -344,7 +338,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
         } /* if */
       } /* if */
     } /* while */
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
   } /* if */
 
   RegCloseKey(hKey);
@@ -392,7 +385,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     }
   }
 
-//_SVS(SysLog(L"[%d] Action='%s' Value='%s'",__LINE__,(const wchar_t *)strAction,(const wchar_t *)strValue));
   return RetPtr;
 }
 
