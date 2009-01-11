@@ -2746,61 +2746,42 @@ int Dialog::ProcessKey(int Key)
               Автодополнение - чтобы не работало во время проигрывания макросов.
               GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
             */
-            /*
-            if(!(Item[FocusPos].Flags & DIF_NOAUTOCOMPLETE))
+            
+            if(!(Item[FocusPos]->Flags & DIF_NOAUTOCOMPLETE))
                         if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
-               ((Item[FocusPos].Flags & DIF_HISTORY) || Item[FocusPos].Type == DI_COMBOBOX))
+               ((Item[FocusPos]->Flags & DIF_HISTORY) || Item[FocusPos]->Type == DI_COMBOBOX))
             if((Opt.Dialogs.AutoComplete && Key && Key < 0x10000 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {
-              int MaxLen=sizeof(Item[FocusPos].Data);
-              char *PStr=Str;
-              if(Item[FocusPos].Flags & DIF_VAREDIT)
-              {
-                MaxLen=Item[FocusPos].Ptr.PtrLength;
-                if((PStr=(char*)xf_malloc(MaxLen+1)) == NULL)
-                  return TRUE; //???
-              }
-              int DoAutoComplete=TRUE;
-              int CurPos=edt->GetCurPos();
-              edt->GetString(PStr,MaxLen);
-              int len=strlen(PStr);
-              edt->GetSelection(SelStart,SelEnd);
-              if(SelStart < 0 || SelStart==SelEnd)
-                  SelStart=len;
-              else
-                  SelStart++;
-
-              if(CurPos<SelStart) DoAutoComplete=FALSE;
-              if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
-
-              if(Opt.Dialogs.EditBlock)
-              {
-                if(DoAutoComplete && CurPos <= SelEnd)
-                {
-                  PStr[CurPos]=0;
-                  edt->Select(CurPos,edt->GetLength()); //select the appropriate text
-                  edt->DeleteBlock();
-                  edt->FastShow();
-                }
-              }
-
-              SelEnd=strlen(PStr);
-
-              if (DoAutoComplete &&
-                  FindInEditForAC(Item[FocusPos].Type == DI_COMBOBOX,(void *)Item[FocusPos].Selected,PStr,MaxLen))
-              {
-                edt->SetString(PStr);
-                edt->Select(SelEnd,edt->GetLength()); //select the appropriate text
-                //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
-                edt->SetCurPos(CurPos); // SelEnd
-                //RedrawNeed=TRUE;
-              }
-              if(Item[FocusPos].Flags & DIF_VAREDIT)
-                xf_free(PStr);
-          }*/
-
+							string strStr;
+							edt->GetString(strStr);
+							int SelStart,SelEnd;
+							edt->GetSelection(SelStart,SelEnd);
+							if(SelStart < 0 || SelStart==SelEnd)
+								SelStart=strStr.GetLength();
+							else
+								SelStart++;
+							int CurPos=edt->GetCurPos();
+							bool DoAutoComplete=(CurPos>=SelStart && (SelStart>=SelEnd || SelEnd>=(int)strStr.GetLength()));
+							if(Opt.Dialogs.EditBlock)
+							{
+								if(DoAutoComplete && CurPos <= SelEnd)
+								{
+									strStr.SetLength(CurPos);
+									edt->Select(CurPos,edt->GetLength()); //select the appropriate text
+									edt->DeleteBlock();
+									edt->FastShow();
+								}
+							}
+							SelEnd=strStr.GetLength();
+							if(DoAutoComplete && FindInEditForAC(Item[FocusPos]->Type == DI_COMBOBOX,Item[FocusPos]->History,strStr))
+							{
+								edt->SetString(strStr);
+								edt->Select(SelEnd,edt->GetLength()); //select the appropriate text
+								edt->SetCurPos(CurPos); // SelEnd
+							}
+						}
 
             Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
             return(TRUE);
