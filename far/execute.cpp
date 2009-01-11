@@ -148,7 +148,7 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
   return Ret;
 }
 
-#ifdef __GNUC__
+#if defined(__BORLANDC__) || defined(__GNUC__)
 const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
 #endif
 
@@ -215,7 +215,7 @@ bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType)
 
   if (!bVistaType)
   {
-    if(Type==AT_URLPROTOCOL)
+    if(aType==AT_URLPROTOCOL)
     {
       xstrncpy(Type,Ext,Size);
     }
