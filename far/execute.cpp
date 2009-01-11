@@ -215,18 +215,18 @@ bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType)
 
   if (!bVistaType)
   {
-    if(aType==AT_URLPROTOCOL)
+    if (aType==AT_URLPROTOCOL)
     {
       xstrncpy(Type,Ext,Size);
     }
     else
     {
-  	if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)Ext,(LPTSTR)Type,&Size)!=ERROR_SUCCESS)
-      return false;
+      if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)Ext,(LPTSTR)Type,&Size)!=ERROR_SUCCESS)
+        return false;
     }
   }
 
-  return true;
+  return *Type!=0;
 }
 
 // по имени файла (по его расширению) получить команду активации
