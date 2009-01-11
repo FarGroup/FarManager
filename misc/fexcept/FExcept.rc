@@ -1,9 +1,9 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 2
+#define PLUGIN_BUILD 3
 #define PLUGIN_DESC "Exception catcher for FAR manager"
 #define PLUGIN_NAME "FExcept"
 #define PLUGIN_FILENAME "FExcept.dll"
-#define PLUGIN_COPYRIGHT "Copyright © Jouri Mamaev 2002, " FARGROUPCOPYRIGHT("2007")
+#define PLUGIN_COPYRIGHT "Copyright © Jouri Mamaev 2002, " FARGROUPCOPYRIGHT("2008")
 
 fullgenericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_COPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FAR_BUILD, FARPRODUCTNAME)

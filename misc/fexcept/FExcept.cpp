@@ -6,8 +6,6 @@
 #include <time.h>
 #include <locale.h>
 
-#pragma hdrstop
-
 // FAR STUFF
 #include <plugin.hpp>
 #include "fexcept.h"
@@ -183,7 +181,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                 _T("ExcDump has a wrong version.\n")
                 _T("Version %02d.%02d.%04d needed, but %02d.%02d.%04d found."),
                (HEX_VERSION>>24)&0xFF, (HEX_VERSION>>16)&0xFF, (HEX_VERSION)&0xFFFF,
-               (HInfo->Version>>24)&0xFF, (HInfo->Version>>16)&0xFF, (HInfo->Version)&0xFFFF );
+               (int)(HInfo->Version>>24)&0xFF, (int)(HInfo->Version>>16)&0xFF, (int)(HInfo->Version)&0xFFFF );
        SError( str, FMSG_ERRORTYPE );
        FreeLibrary( md );
        return FALSE;
@@ -272,7 +270,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
      HINSTANCE h_imagehlp = LoadLibrary( _T("imagehlp.dll") );
      if ( h_imagehlp ) {
        pCheckSum = (MAPFILEANDCHECKSUM) GetProcAddress(h_imagehlp,
-#ifndef UNICODE       
+#ifndef UNICODE
                                                                   "MapFileAndCheckSumA"
 #else
                                                                   "MapFileAndCheckSumW"

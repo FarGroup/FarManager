@@ -42,7 +42,9 @@ endif
 OBJDIR = ./final.32$(DIRSURF).gcc/obj
 REOBJDIR = \.\/final\.32$(DIRSURF)\.gcc\/obj\/
 DLLDIR = ./final.32$(DIRSURF).gcc$(ADDOUTDIR)
+ifndef COMMON
 COMMON = ../common
+endif
 ifdef WIDE
 COMINC = $(COMMON)/unicode
 else

@@ -1,11 +1,17 @@
 NAME = FExcept
 SRCS = FExcept.cpp
-DOCS = SetFarExceptionHandlerW.reg SetFarExceptionHandler.reg
+ifndef WIDE
+DOCS = SetFarExceptionHandler.reg ExcDump.dll HaronDemangle.dll
+else
+DOCS = SetFarExceptionHandlerW.reg ExcDump.dll HaronDemangle.dll
+endif
 
 NEEDDEFLIB=1
 NEEDENTRY=1
 EXCLUDECRT=1
 
-include ../makefile_gcc_def_inc
+COMMON = ../../plugins/common
 
-include ../makefile_gcc_target_inc
+include ../../plugins/makefile_gcc_def_inc
+
+include ../../plugins/makefile_gcc_target_inc
