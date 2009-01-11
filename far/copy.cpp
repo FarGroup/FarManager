@@ -3569,7 +3569,7 @@ void ShellCopy::SetDestDizPath(const wchar_t *DestPath)
 {
   if (!(ShellCopy::Flags&FCOPY_DIZREAD))
   {
-    strDestDizPath = DestPath;
+    ConvertNameToFull(DestPath, strDestDizPath);
 
     CutToSlash(strDestDizPath);
 

@@ -995,7 +995,7 @@ int PathMayBeAbsolute(const wchar_t *Path)
 {
     return (Path &&
            (
-             (IsAlpha(*Path) && Path[1]==L':') ||
+             (IsAlpha(*Path) && Path[1]==L':' && IsSlash(Path[2])) ||
              (Path[0]==L'\\'  && Path[1]==L'\\') ||
              (Path[0]==L'/'   && Path[1]==L'/')
            )
