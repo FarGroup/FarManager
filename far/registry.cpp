@@ -793,7 +793,8 @@ int RegQueryStringValueEx (
 				&cbSize
 				);
 
-		strData.ReleaseBuffer (cbSize/sizeof(wchar_t));
+		lpwszData[cbSize/sizeof(wchar_t)] = 0;
+		strData.ReleaseBuffer();
 	}
 
 	if ( nResult != ERROR_SUCCESS )
@@ -833,11 +834,17 @@ int RegQueryStringValue (
 				&cbSize
 				);
 		int Size=cbSize/sizeof(wchar_t);
-		if ((Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ) && !lpwszData[Size-1])
+		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
 		{
-			Size--;
+			if (!lpwszData[Size-1])
+				Size--;
+			strData.ReleaseBuffer(Size);
 		}
-		strData.ReleaseBuffer(Size);
+		else
+		{
+			lpwszData[Size] = 0;
+			strData.ReleaseBuffer();
+		}
 	}
 
 	if ( nResult != ERROR_SUCCESS )
