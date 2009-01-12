@@ -4,6 +4,11 @@
 
 NAME = FExcept
 LINK_OBJS = $(OBJDIR)\FExcept.obj
+!ifndef WIDE
+DOCS = SetFarExceptionHandler.reg demangle32.dll ExcDump.dll
+!else
+DOCS = SetFarExceptionHandlerW.reg demangle32.dll ExcDump.dll
+!endif
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1
