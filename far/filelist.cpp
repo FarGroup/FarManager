@@ -2968,15 +2968,12 @@ void FileList::UngetSelName()
 }
 
 
-long FileList::GetLastSelectedSize(__int64 *Size)
+unsigned __int64 FileList::GetLastSelectedSize()
 {
-  if (LastSelPosition>=0 && LastSelPosition<FileCount)
-  {
-    if (Size!=NULL)
-      *Size=MKUINT64(ListData[LastSelPosition].UnpSizeHigh,ListData[LastSelPosition].UnpSize);
-    return(ListData[LastSelPosition].UnpSize);
-  }
-  return(-1);
+  if (LastSelPosition >= 0 && LastSelPosition < FileCount)
+    return MKUINT64(ListData[LastSelPosition].UnpSizeHigh,ListData[LastSelPosition].UnpSize);
+
+  return (unsigned __int64)(-1);
 }
 
 
@@ -3784,7 +3781,7 @@ void FileList::DescribeFiles()
   while (GetSelName(SelName,FileAttr,SelShortName))
   {
     char DizText[1024],Msg[300],TruncMsg[100],QuotedName[NM],*PrevText;
-    PrevText=Diz.GetDizTextAddr(SelName,SelShortName,GetLastSelectedSize(NULL));
+    PrevText=Diz.GetDizTextAddr(SelName,SelShortName,GetLastSelectedSize());
     strcpy(QuotedName,SelName);
     QuoteSpaceOnly(QuotedName);
     sprintf(Msg,MSG(MEnterDescription),QuotedName);

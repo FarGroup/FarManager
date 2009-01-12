@@ -967,14 +967,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 
          // собственно - один проход копировани€
           // Mantis#45: Ќеобходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
-          {
-            char FileSysName[NM],RootDir[NM*2];
-            ConvertNameToFull(NameTmp,RootDir, sizeof(RootDir));
-            GetPathRoot(RootDir,RootDir);
-            if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
-              if(strcmp(FileSysName,"NTFS"))
-                ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
-          }
+          if(!CheckFileSystem(NameTmp))
+            ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
 
           PreRedraw.Push(ShellCopy::PR_ShellCopyMsg);
           I=CopyFileTree(NameTmp);
@@ -4578,7 +4572,8 @@ bool ShellCopy::CalcTotalSize()
           continue;
       }
 
-      if (SrcPanel->GetLastSelectedSize((__int64*)&FileSize)!=-1)
+
+      if ((FileSize=SrcPanel->GetLastSelectedSize()) != (unsigned __int64)-1)
       {
         TotalCopySize+=FileSize;
         TotalFilesToProcess++;

@@ -143,7 +143,7 @@ void DizList::AddRecord(char *DizText)
 }
 
 
-char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
+char* DizList::GetDizTextAddr(char *Name,char *ShortName,unsigned __int64 FileSize)
 {
   int TextPos;
   int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
@@ -158,7 +158,7 @@ char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
     {
       char SizeText[20],*DizPtr=DizText;
       int I,SkipSize;
-      sprintf(SizeText,"%u",FileSize);
+      sprintf(SizeText,"%I64u",FileSize);
       for (I=0,SkipSize=TRUE;SizeText[I]!=0;DizPtr++)
         if (*DizPtr!=',' && *DizPtr!='.')
           if (SizeText[I++]!=*DizPtr)

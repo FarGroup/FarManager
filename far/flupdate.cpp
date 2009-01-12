@@ -138,13 +138,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDir(CurDir);
 
-  {
-    char FileSysName[NM],RootDir[NM*2];
-    ConvertNameToFull(CurDir,RootDir, sizeof(RootDir));
-    GetPathRoot(RootDir,RootDir);
-    if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
-      Is_FS_NTFS=!strcmp(FileSysName,"NTFS")?TRUE:FALSE;
-  }
+  Is_FS_NTFS=CheckFileSystem(CurDir);
 
   LastCurFile=-1;
 
@@ -830,7 +824,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     if (CurPtr->DizText==NULL)
     {
       CurPtr->DeleteDiz=FALSE;
-      CurPtr->DizText=Diz.GetDizTextAddr(CurPtr->Name,CurPtr->ShortName,CurPtr->UnpSize);
+      CurPtr->DizText=Diz.GetDizTextAddr(CurPtr->Name,CurPtr->ShortName,MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize));
     }
   }
 }

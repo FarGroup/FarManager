@@ -1183,4 +1183,7 @@ unsigned __int64 ConvertFileSizeString(const char *FileSizeStr);
 
 bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
+// Проверка типа файловой системы. Если TargetFS не задан (NULL или ""), то проверяем на "NTFS"
+BOOL CheckFileSystem(const char *CurDir,const char *TargetFS=NULL);
+
 #endif  // __FARFUNC_HPP__

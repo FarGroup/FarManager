@@ -31,7 +31,7 @@ class DizList
   public:
     void Read(char *Path,char *DizName=NULL);
     void Reset();
-    char* GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize);
+    char* GetDizTextAddr(char *Name,char *ShortName,unsigned __int64 FileSize);
     int DeleteDiz(char *Name,char *ShortName);
     int Flush(char *Path,char *DizName=NULL);
     void AddDiz(char *Name,char *ShortName,char *DizText);

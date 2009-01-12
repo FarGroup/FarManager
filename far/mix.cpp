@@ -1757,3 +1757,18 @@ void ConvertNameToUNC(char *FileName, int Size)
   }
   ConvertNameToReal(FileName,FileName, Size);
 }
+
+// Проверка типа файловой системы. Если TargetFS не задан (NULL или ""), то проверяем на "NTFS"
+BOOL CheckFileSystem(const char *CurDir,const char *TargetFS)
+{
+  BOOL Is_FS_Target=FALSE;
+  char FileSysName[NM],RootDir[NM*2];
+
+  ConvertNameToFull(CurDir,RootDir, sizeof(RootDir));
+  GetPathRoot(RootDir,RootDir);
+
+  if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
+    Is_FS_Target=!stricmp(FileSysName,(TargetFS && *TargetFS?TargetFS:"NTFS"))?TRUE:FALSE;
+
+  return Is_FS_Target;
+}

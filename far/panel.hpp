@@ -115,7 +115,7 @@ class Panel:public ScreenObject
     virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
-    virtual long GetLastSelectedSize(__int64 *Size) {return(-1);};
+    virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);};
     virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
     virtual int GetCurName(char *Name,char *ShortName);
     virtual int GetCurBaseName(char *Name,char *ShortName);

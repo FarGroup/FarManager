@@ -176,7 +176,7 @@ class FileList:public Panel
     virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
     virtual void UngetSelName();
     virtual void ClearLastGetSelection();
-    virtual long GetLastSelectedSize(__int64 *Size);
+    virtual unsigned __int64 GetLastSelectedSize();
     virtual int GetLastSelectedItem(struct FileListItem *LastItem);
     virtual int GetCurName(char *Name,char *ShortName);
     virtual int GetCurBaseName(char *Name,char *ShortName);
