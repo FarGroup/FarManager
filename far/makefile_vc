@@ -22,6 +22,8 @@
 #
 #DEFFILE - name of user file to include
 #
+#EXCEPTION_TEST - set for generate Ctrl-Alt-Apps dialog in release
+#
 
 #include for user defines if needed
 !if defined(DEFFILE)
@@ -236,8 +238,10 @@ DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
 	/D $(USEDEBUG)\
-!ifdef DEBUG
+!if defined(DEBUG) || defined(EXCEPTION_TEST)
 	/D "FAR_ALPHA_VERSION"\
+!endif
+!ifdef DEBUG
 	/D "SYSLOG_FARSYSLOG"\
 	/D "SYSLOG"\
 !endif
