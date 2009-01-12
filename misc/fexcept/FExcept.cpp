@@ -337,6 +337,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
                             NULL, (const TCHAR * const *)str, 0, 0 ) == 0 ) {
        TerminateProcess( GetCurrentProcess(),0 );
      }
+     FreeLibrary( md );
 
  FP_Info->RestoreScreen(FarScreen_handle);
  return TRUE;
