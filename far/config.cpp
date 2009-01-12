@@ -673,11 +673,16 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
     for (i=ID_VC_EXTERNALCONFIGTITLE; i<=ID_VC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    for (i = ID_VC_INTERNALCONFIGTITLE; i <= ID_VC_CANCEL; i++)
+    CfgDlg[ID_VC_ANSIASDEFAULT].Flags|=DIF_HIDDEN;
+
+    for (i = ID_VC_INTERNALCONFIGTITLE; i < ID_VC_SEPARATOR2; i++)
       CfgDlg[i].Y1 -= 6;
 
-    CfgDlg[ID_VC_TITLE].Y2 -= 6;
-    DialogHeight -= 6;
+    for (i = ID_VC_SEPARATOR2; i <= ID_VC_CANCEL; i++)
+      CfgDlg[i].Y1 -= 7;
+
+    CfgDlg[ID_VC_TITLE].Y2 -= 7;
+    DialogHeight -= 7;
   }
 
   {
@@ -843,11 +848,17 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     for (i = ID_EC_EXTERNALCONFIGTITLE; i <= ID_EC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    for (i = ID_EC_INTERNALCONFIGTITLE; i <= ID_EC_CANCEL; i++)
+    CfgDlg[ID_EC_ANSIASDEFAULT].Flags|=DIF_HIDDEN;
+    CfgDlg[ID_EC_ANSIFORNEWFILE].Flags|=DIF_HIDDEN;
+
+    for (i = ID_EC_INTERNALCONFIGTITLE; i < ID_EC_SEPARATOR2; i++)
       CfgDlg[i].Y1 -= 5;
 
-    CfgDlg[ID_EC_TITLE].Y2 -= 5;
-    DialogHeight -= 5;
+    for (i = ID_EC_SEPARATOR2; i <= ID_EC_CANCEL; i++)
+      CfgDlg[i].Y1 -= 7;
+
+    CfgDlg[ID_EC_TITLE].Y2 -= 7;
+    DialogHeight -= 7;
   }
 
   {
