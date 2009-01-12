@@ -987,7 +987,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ( !apiIsDiskInDrive(strRootDir) )
 		{
-			if ( EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
+			if ( !EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
 				SaveScreen SvScrn;
 				Message(0,0,L"",MSG(MChangeWaitingLoadDisk));
