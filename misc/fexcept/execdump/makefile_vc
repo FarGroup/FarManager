@@ -1,0 +1,95 @@
+!if exists(..\..\plugins\make_vc_defs)
+!include ..\..\plugins\make_vc_defs
+!endif
+
+NAME = ExcDump
+LINK_OBJS = $(OBJDIR)\ExcDump.obj
+
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+COMMON = ..\..\..\plugins\common
+
+XXLIB=$(OBJDIR)\xxLib.lib
+OBJLIB=$(OBJDIR)\LibObj
+LIBSRC=xxlib\std
+
+LIB_OBJS = \
+           $(OBJLIB)\sprintf_.obj \
+           $(OBJLIB)\2asm.obj $(OBJLIB)\HTreeCfg.obj $(OBJLIB)\SQLTypes.obj \
+           $(OBJLIB)\bsArray.obj $(OBJLIB)\chknew.obj $(OBJLIB)\cs.obj \
+           $(OBJLIB)\dataptr.obj $(OBJLIB)\db_math.obj $(OBJLIB)\disk_io.obj \
+           $(OBJLIB)\fhold.obj $(OBJLIB)\fielddef.obj $(OBJLIB)\hbtree.obj \
+           $(OBJLIB)\hcfg_Sh.obj $(OBJLIB)\hcvvalue.obj $(OBJLIB)\hmdpool.obj \
+           $(OBJLIB)\hregtree.obj $(OBJLIB)\hstvalue.obj $(OBJLIB)\htime.obj \
+           $(OBJLIB)\htree.obj $(OBJLIB)\hvalue.obj $(OBJLIB)\hwinmod.obj \
+           $(OBJLIB)\io_attr.obj $(OBJLIB)\io_cfg.obj $(OBJLIB)\io_cmp.obj \
+           $(OBJLIB)\io_dent.obj $(OBJLIB)\io_err.obj $(OBJLIB)\io_exec.obj \
+           $(OBJLIB)\io_execc.obj $(OBJLIB)\io_fent.obj $(OBJLIB)\io_fenum.obj \
+           $(OBJLIB)\io_find.obj $(OBJLIB)\io_info.obj $(OBJLIB)\io_part.obj \
+           $(OBJLIB)\io_patt.obj $(OBJLIB)\io_qpath.obj $(OBJLIB)\io_read.obj \
+           $(OBJLIB)\io_relp.obj $(OBJLIB)\io_sch.obj $(OBJLIB)\io_scr.obj \
+           $(OBJLIB)\io_split.obj $(OBJLIB)\mcString.obj \
+           $(OBJLIB)\mc_hsobj.obj $(OBJLIB)\mc_msg.obj $(OBJLIB)\mclasses.obj \
+           $(OBJLIB)\mu_args.obj $(OBJLIB)\mu_bprnt.obj $(OBJLIB)\mu_case.obj \
+           $(OBJLIB)\mu_clock.obj $(OBJLIB)\mu_cp.obj $(OBJLIB)\mu_crc32.obj \
+           $(OBJLIB)\mu_itoa.obj $(OBJLIB)\mu_key.obj $(OBJLIB)\mu_os.obj \
+           $(OBJLIB)\mu_runch.obj $(OBJLIB)\mu_sal.obj $(OBJLIB)\mu_scol.obj \
+           $(OBJLIB)\mu_str.obj $(OBJLIB)\mu_text.obj $(OBJLIB)\mutils.obj \
+           $(OBJLIB)\parsr.obj $(OBJLIB)\period.obj \
+           $(OBJLIB)\plog.obj $(OBJLIB)\plog_in.obj $(OBJLIB)\plog_s.obj \
+           $(OBJLIB)\shcfg1.obj $(OBJLIB)\sock.obj \
+           $(OBJLIB)\std_mem.obj $(OBJLIB)\std_sprt.obj \
+           $(OBJLIB)\std_strc.obj $(OBJLIB)\threads.obj $(OBJLIB)\timer.obj \
+           $(OBJLIB)\tr_sock.obj $(OBJLIB)\hstream.obj $(OBJLIB)\hs_file.obj \
+           $(OBJLIB)\xxStack.obj $(OBJLIB)\xxSym.obj $(OBJLIB)\xxExcptU.obj \
+           $(OBJLIB)\lzh.obj $(OBJLIB)\lzhf.obj $(OBJLIB)\lzhs.obj \
+           $(OBJLIB)\hdb_mem.obj $(OBJLIB)\hdb_rd.obj $(OBJLIB)\hdb_wr.obj \
+           $(OBJLIB)\hdbase.obj $(OBJLIB)\fio.obj
+
+USERCPP=/I.\xxlib /D__NOVCL__=1 /D_CONSOLE=1 /D__DLL__=1
+!ifdef DEBUG
+USERCPP=$(USERCPP) /D__FILELOG__=1
+!else
+USERCPP=$(USERCPP) /D__NOPLOG__=1
+!endif
+
+All: dirs libdir
+
+!include ..\..\..\plugins\makefile_vc_def_inc
+
+All: $(XXLIB)
+
+LIBS=$(XXLIB) $(LIBS)
+!include ..\..\..\plugins\makefile_vc_target_inc
+
+.PHONY: libdir
+libdir:
+	@if not exist "$(OBJLIB)\$(NULL)" mkdir "$(OBJLIB)"
+
+$(XXLIB): $(LIB_OBJS)
+!ifndef __MAKE__
+	@$(LIBR) /OUT:$@ @<<
+$(LIB_OBJS)
+<<
+!else
+	@$(LIBR) /OUT:$@ @&&<
+$(LIB_OBJS)
+<
+!endif
+
+!ifndef __MAKE__
+{$(LIBSRC)}.cpp{$(OBJLIB)}.obj::
+	$(CC) @<<
+	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
+<<
+{$(LIBSRC)/Win}.cpp{$(OBJLIB)}.obj::
+	$(CC) @<<
+	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
+<<
+!else
+{$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
+	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+{$(LIBSRC)/Win}.cpp{$(OBJLIB)}.obj:
+	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+!endif

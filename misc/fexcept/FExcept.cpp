@@ -11,7 +11,7 @@
 #include "fexcept.h"
 
 //HEX DLL STUFF
-#include "ExcDump.h"
+#include "execdump/ExcDump.h"
 
 #define  MAX_PATH_SIZE 256
 

@@ -1,0 +1,8 @@
+1. Скопировать excdump.dll (32 или 64 бита) и соответствующий demangleXX.dll
+   в текущий каталог
+2. Скомпилировать/собрать какой-то вариант test (лучше с map'ом):
+    cl    <any_options> test.cpp
+    bcc32 <any_options> test.cpp
+    icl   <any_options> test.cpp
+    ....
+3. Запускаем :)

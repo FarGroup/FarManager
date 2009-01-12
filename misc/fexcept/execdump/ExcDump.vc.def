@@ -1,0 +1,9 @@
+EXPORTS
+ HEX_Cleanup
+ HEX_ExceptionInfo
+ HEX_Initialize
+ HEX_QueryInterface
+ HEX_SetLogProc
+ HEX_StackWalkListAddress
+ HEX_StackWalkListContext
+ HEX_StackWalkListCurrent
