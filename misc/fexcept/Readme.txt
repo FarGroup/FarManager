@@ -16,19 +16,8 @@
   Warning: To compile or run exception replacement you need to have an
            ExcDump library with release date closest to FExcept release date.
 
-  Warning: To use you must have ExcDump library. Req ExcDump version: 08-07-2004
+  Warning: To use you must have ExcDump library. Req ExcDump version: 12-01-2009
            or later.
-
---------------------------------------------------------------------------------
-  0. If you still do not do so: download the latest ExcDump library
-       ftp://far:far@194.226.246.33/ExcDump/ExcDump_DDMMYY.zip
-
-      where:
-        dd - latest day
-        mm - latest month
-        yy - latest year
-
---------------------------------------------------------------------------------
 
   1. Unpack all files from archive to any directory
 

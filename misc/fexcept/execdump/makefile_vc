@@ -1,6 +1,8 @@
-!if exists(..\..\plugins\make_vc_defs)
-!include ..\..\plugins\make_vc_defs
+!if exists(..\..\..\plugins\make_vc_defs)
+!include ..\..\..\plugins\make_vc_defs
 !endif
+
+!undef WIDE
 
 NAME = ExcDump
 LINK_OBJS = $(OBJDIR)\ExcDump.obj
@@ -92,4 +94,12 @@ $(LIB_OBJS)
 	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
 {$(LIBSRC)/Win}.cpp{$(OBJLIB)}.obj:
 	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+!endif
+
+!ifdef COPYTO
+All: copyto
+
+.PHONY: copyto
+copyto:
+	@copy /Y $(WORKDIR)\$(NAME).dll $(COPYTO)
 !endif
