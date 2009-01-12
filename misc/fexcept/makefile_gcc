@@ -1,9 +1,9 @@
 NAME = FExcept
 SRCS = FExcept.cpp
 ifndef WIDE
-DOCS = SetFarExceptionHandler.reg ExcDump.dll HaronDemangle.dll
+DOCS = SetFarExceptionHandler.reg demangle32.dll ExcDump.dll
 else
-DOCS = SetFarExceptionHandlerW.reg ExcDump.dll HaronDemangle.dll
+DOCS = SetFarExceptionHandlerW.reg demangle32.dll ExcDump.dll
 endif
 
 NEEDDEFLIB=1
