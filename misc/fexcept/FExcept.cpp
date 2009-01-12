@@ -24,7 +24,7 @@
 typedef ULONG (WINAPI *MAPFILEANDCHECKSUM)( LPTSTR,LPDWORD,LPDWORD );
 
 //Local DATA
-static       PHEX_DumpInfo      HInfo;
+static       PCHEX_DumpInfo     HInfo;
 static       FILE              *LogFile;
 const struct PluginStartupInfo *FP_Info;
 static       TCHAR              LocalPath[ MAX_PATH_SIZE ];

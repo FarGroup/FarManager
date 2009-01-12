@@ -28,14 +28,11 @@
         mm - latest month
         yy - latest year
 
-     in additional for demangle function download
-       ftp://far:far@194.226.246.33/HaronDemangle.rar
-     and put near ExcDump.dll
 --------------------------------------------------------------------------------
 
   1. Unpack all files from archive to any directory
 
-  2. Copy ExcDump.dll, fexcept.dll (and HaronDemangle.dll optional)
+  2. Copy ExcDump.dll, fexcept.dll (and demangle32.dll optional)
      into the FAR directory  (directory from where far.exe run)
 
   3. Import SetFarExceptionHandler.reg into registry
