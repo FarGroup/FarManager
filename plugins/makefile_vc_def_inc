@@ -4,6 +4,8 @@
 #
 #EXT - extension of the plugin executable (dll by default).
 #
+#DOCS - a list of additional files that need to copied to the target folder.
+#
 #ADDOUTDIR - you can set it to /dir if the target folder for the plugin
 #            is a folder inside the default target folder.
 #            This is used in multiarc for building *.fmt.

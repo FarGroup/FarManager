@@ -11,6 +11,9 @@ NAME = $(FMT)
 EXT = fmt
 ADDOUTDIR = \Formats
 LINK_OBJS = $(OBJDIR)\$(NAME).obj
+!if "$(FMT)" == "Custom"
+DOCS = Custom.ini
+!endif
 
 USERCPP = /I".\libpcre"
 CPP_UNALIGN=1

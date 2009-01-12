@@ -4,6 +4,7 @@
 
 NAME = Brackets
 LINK_OBJS = $(OBJDIR)\Brackets.obj
+DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackDel.reg BrackEng.reg BrackRus.reg
 
 !include ..\makefile_vc_def_inc
 

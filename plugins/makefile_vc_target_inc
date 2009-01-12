@@ -8,10 +8,9 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !else
 	@$(LNK) $(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
 !endif
-	-255 @copy /Y *.lng $(OUTDIR) > nul 2> nul
-	-255 @copy /Y *.hlf $(OUTDIR) > nul 2> nul
-	-255 @copy /Y *.reg $(OUTDIR) > nul 2> nul
-	-255 @copy /Y *.temp $(OUTDIR) > nul 2> nul
+!ifdef DOCS
+	@for %%i in ($(DOCS)) do @copy /Y %%i $(OUTDIR)$(ADDOUTDIR) > nul 2> nul
+!endif
 
 !ifndef __MAKE__
 .cpp{$(OBJDIR)}.obj::

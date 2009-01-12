@@ -4,6 +4,7 @@
 
 NAME = Align
 LINK_OBJS = $(OBJDIR)\Align.obj
+DOCS = AlignEng.lng AlignRus.lng
 
 !include ..\makefile_vc_def_inc
 

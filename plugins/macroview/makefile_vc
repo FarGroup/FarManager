@@ -4,6 +4,7 @@
 
 NAME = MacroView
 LINK_OBJS = $(OBJDIR)\MacroView.obj
+DOCS = MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng
 
 !include ..\makefile_vc_def_inc
 

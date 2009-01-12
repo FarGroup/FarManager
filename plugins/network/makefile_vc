@@ -11,6 +11,7 @@ $(OBJDIR)\NetFavorites.obj \
 $(OBJDIR)\NetMix.obj \
 $(OBJDIR)\NetNT.obj \
 $(OBJDIR)\NetReg.obj
+DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
 
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING

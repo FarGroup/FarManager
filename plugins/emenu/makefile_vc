@@ -11,6 +11,8 @@ $(OBJDIR)\OleThread.obj \
 $(OBJDIR)\Pidl.obj \
 $(OBJDIR)\Plugin.obj
 
+DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuDel.reg Hotkey.reg HotkeyClipboard.reg HotkeyProperties.reg
+
 NEEDENTRY = 1
 
 !if defined(DEBUG) && !defined(ULINK)
