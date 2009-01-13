@@ -2,9 +2,6 @@
 #pragma hdrstop
 
 //----------------------------------------------------------------------------
-static bool DemangleName( char *InOut, size_t OutSize );
-
-//----------------------------------------------------------------------------
 /*
 #define _D_MSK  (MNG_NORETTYPE | MNG_NOBASEDT | MNG_NOSCTYP | \
                  MNG_NOTHROW   | MNG_NOECSU   | MNG_NOUNALG | \
@@ -283,8 +280,7 @@ Work:
                !nm[0] ) {
             SNprintf( sym.Name,sizeof(sym.Name),"ORD.%d",n+expTable->Base );
           } else {
-            StrCpy( sym.Name,nm,sizeof(sym.Name) );
-            DemangleName( sym.Name, sizeof(sym.Name) );
+            DemangleName( nm, sym.Name, sizeof(sym.Name) );
           }
           sym.Addr    = ((DWORD)LoadBase) + funcAddrTable[n];
           sym.Owner   = this;
@@ -348,10 +344,10 @@ Work:
              PIMAGE_IMPORT_BY_NAME in = (PIMAGE_IMPORT_BY_NAME)RVA(td->u1.AddressOfData);
 
              sym.Addr = (DWORD) (mod ? GetProcAddress( mod,(LPCSTR)in->Name ) : NULL );
-             SNprintf( sym.Name,sizeof(sym.Name),"%s::%s",mnm,in->Name );
+             SNprintf( sym.Name,sizeof(sym.Name),"%s::",mnm );
+             DemangleName( (CONSTSTR)in->Name, sym.Name+nmOff, sizeof(sym.Name)-nmOff );
            }
 
-           DemangleName( sym.Name+nmOff, sizeof(sym.Name)-nmOff );
            sym.Owner   = this;
            sym.Type    = SYM_SRC_IMP | SYM_TP_UNK;
            sym.Index   = 0;
@@ -443,11 +439,11 @@ void SymModule::LoadLocals( void )
 
                            StrCpy( symbol,m,sizeof(symbol) );
                            //Strip mangled names
-                           if (   (symbol[0] == '@' || symbol[0] == '?')
-                               && (m=strchr(symbol,' ')) != NULL ) *m = 0;
+                           if ( IsMangledName(symbol) && (m=strchr(symbol,' ')) != NULL )
+                             *m = 0;
 
                            //Remove VC dummy symbols
-                           if ( !DemangleName( symbol, sizeof(symbol) ) &&
+                           if ( !DemangleName2( symbol, sizeof(symbol) ) &&
                                 ( symbol[0] == '@' || (symbol[0] == '?' && symbol[4] == '@' ) ) )
                              break;
 
@@ -504,7 +500,7 @@ void SymModule::LoadLocals( void )
                              break;
 
                            //Demangle
-                           if ( !DemangleName( sym.Name, sizeof(sym.Name) ) &&
+                           if ( !DemangleName2( sym.Name, sizeof(sym.Name) ) &&
                                 sym.Name[0] == '@' )
                              break;
 
@@ -771,24 +767,67 @@ static void RTL_CALLBACK unloadAtExit(void)
 }
 
 //---------------------------------------------------------------------------
-static bool DemangleName( char *InOut, size_t sz )
+HDECLSPEC BOOL MYRTLEXP DemangleName2( char *InOut, size_t OutSize )
 {
     demangler_t  demangler;
     char         cnm[4096];
 
-    if(   sz < 4
+    if(   !InOut
+       || OutSize < 4
        || (demangler = get_demangler()) == NULL
        || demangler(NULL, 0, InOut, DEM_MASK) <= 0
-       || demangler(cnm, (unsigned)sizeof(cnm), InOut, DEM_MASK) < 0) return false;
+       || demangler(cnm, (unsigned)sizeof(cnm), InOut, DEM_MASK) < 0) return FALSE;
 
     size_t len = strlen(cnm);
-    if(len < sz) memcpy(InOut, cnm, len+1);
+    if(len < OutSize) memcpy(InOut, cnm, len+1);
     else {
-      memcpy(InOut, cnm, sz -= 4);
-      memcpy(InOut + sz, "...", 4);
+      memcpy(InOut, cnm, len = OutSize - 4);
+      memcpy(InOut + len, "...", 4);
     }
 
-    return true;
+    return TRUE;
+}
+
+//---------------------------------------------------------------------------
+HDECLSPEC BOOL MYRTLEXP DemangleName( CONSTSTR MangledName, char *OutputBuffer,
+                                      size_t OutputBufferSize )
+{
+    if(!OutputBuffer || !MangledName) return FALSE;
+    if(strlen(MangledName) >= OutputBufferSize) {
+      StrCpy(OutputBuffer, MangledName, (int)OutputBufferSize);
+      return FALSE;
+    }
+    return DemangleName2(strcpy(OutputBuffer, MangledName), OutputBufferSize);
+}
+
+//---------------------------------------------------------------------------
+HDECLSPEC BOOL MYRTLEXP IsMangledSymbol( CONSTSTR nm )
+{
+    if(nm) switch(nm[0]) {
+      case 'W': case 'T':
+        if(nm[1] == '?') {  // watcom
+      case '?':
+      case '@':
+          return TRUE;
+        }
+      default:
+        break;
+    }
+    return FALSE;
+}
+
+//---------------------------------------------------------------------------
+HDECLSPEC BOOL MYRTLEXP IsMangledName( CONSTSTR nm )
+{
+    demangler_t  demangler;
+
+    if(nm) {
+      if(IsMangledSymbol(nm)) return TRUE;
+
+      if(nm[0] == '_' && (demangler = get_demangler()) != NULL)
+        return demangler(NULL, 0, nm, DEM_MASK) > 0;
+    }
+    return FALSE;
 }
 
 //---------------------------------------------------------------------------

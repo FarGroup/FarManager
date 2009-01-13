@@ -85,6 +85,10 @@ HDECLSPEC BOOL       MYRTLEXP AddModuleSymbol( HMODULE Module,DWORD Flags /*STK_
 HDECLSPEC BOOL       MYRTLEXP AddModuleSymbolBase( LPVOID ModuleBase,DWORD Flags /*STK_xxx*/,PSymbol sym );
 HDECLSPEC BOOL       MYRTLEXP AddSymbol( SIZE_T addr,DWORD Flags /*STK_xxx*/,PSymbol sym );
 
+HDECLSPEC BOOL       MYRTLEXP DemangleName2( char *InOut, size_t OutSize );
+HDECLSPEC BOOL       MYRTLEXP DemangleName( CONSTSTR MangledName,char *OutputBuffer,size_t OutputBufferSize );
+HDECLSPEC BOOL       MYRTLEXP IsMangledName( CONSTSTR nm );
+HDECLSPEC BOOL       MYRTLEXP IsMangledSymbol( CONSTSTR nm );
 HDECLSPEC BOOL       MYRTLEXP IsSystemModule( HMODULE Module );
 HDECLSPEC BOOL       MYRTLEXP IsSystemModule( CONSTSTR ModulePathName );
 HDECLSPEC void       MYRTLEXP MakeSymDisasm( HPrintProc_t print,SymDisasm& ui );
