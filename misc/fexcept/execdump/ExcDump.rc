@@ -13,8 +13,8 @@ FILETYPE 2 {
    VALUE "LegalCopyright",   "Copyright © Jouri Mamaev\000\000"
    VALUE "OriginalFilename", "ExcDump.dll\000"
    VALUE "ProductVersion",   "1.7\000\000"
-   VALUE "FileVersion",      "build 12.01.2009\000\000"
-   VALUE "Comments",         "Developer: JouriM<at>uran.ru\000\000"
+   VALUE "FileVersion",      "build 13.01.2009\000\000"
+   VALUE "Comments",         "Developer: JouriM<at>uran.ru. Far Group build.\000\000"
   }
  }
  BLOCK "VarFileInfo" {
