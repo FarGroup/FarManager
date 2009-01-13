@@ -9,7 +9,11 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 	@$(LNK) $(LINK_FLAGS) $(LINK_DEBUG) $(LIBS) $(LINK_OBJS) $(RES)
 !endif
 !ifdef DOCS
+!ifndef __MAKE__
 	@for %%i in ($(DOCS)) do @copy /Y %%i $(OUTDIR)$(ADDOUTDIR) > nul 2> nul
+!else
+	@for %i in ($(DOCS)) do @copy /Y %i $(OUTDIR)$(ADDOUTDIR) > nul 2> nul
+!endif
 !endif
 
 !ifndef __MAKE__
