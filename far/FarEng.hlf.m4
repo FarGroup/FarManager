@@ -4,7 +4,7 @@ m4_include(`farversion.m4')m4_dnl
 
 @Contents
 $^#File and archive manager#
-`$^#'FULLVERSIONNOBRACES`'m4_ifelse(`1',BUILDTESTONLY,`. TEST ONLY!')`#'
+`$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright (C) 1996-2000 Eugene Roshal#
 `$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
    ~Help file index~@Index@

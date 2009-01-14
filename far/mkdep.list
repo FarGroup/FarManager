@@ -46,7 +46,6 @@ hotplug.cpp
 infolist.hpp
 keybar.hpp
 keys.hpp
-lang.hpp
 language.hpp
 lasterror.hpp
 lockscrn.hpp
@@ -104,7 +103,6 @@ edit.cpp
 editor.cpp
 eject.cpp
 execute.cpp
-far.rc
 farexcpt.cpp
 farqueue.cpp
 farrtl.cpp
@@ -142,7 +140,6 @@ history.cpp
 hmenu.cpp
 imports.cpp
 infolist.cpp
-int64.cpp
 interf.cpp
 iswind.cpp
 keybar.cpp

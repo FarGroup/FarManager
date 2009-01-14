@@ -14,10 +14,15 @@ FILETYPE VFT_APP
  {
   BLOCK "000004E4"
   {
-m4_ifelse(`1',BUILDTESTONLY,`   VALUE "Comments", "TEST ONLY!\000\000"',`m4_dnl')
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
    VALUE "FileDescription", "File and archive manager\000\000"
-   VALUE "FileVersion", "`v'FULLVERSION\000\000"
+#if __FARBIT__ == 32
+   VALUE "FileVersion", "`v'FULLVERSION32\000\000"
+#elif __FARBIT__ == 64
+   VALUE "FileVersion", "`v'FULLVERSION64\000\000"
+#else
+   VALUE "FileVersion", "`v'FULLVERSIONIA64\000\000"
+#endif
    VALUE "InternalName", "Far\000\000"
    VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, COPYRIGHTYEARS\000\000"
    VALUE "OriginalFilename", "Far.exe\000\000"

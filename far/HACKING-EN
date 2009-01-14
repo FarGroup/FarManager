@@ -63,11 +63,8 @@ farversion.m4
         committed yet to the SVN so we and the users will not be confused.
         Far version will look something like that:
         FarVersion alpha AnyThingElse based on build BuildNumber
-   b. BUILDTESTONLY, a flag to add TEST ONLY! to the version. Can be 1 or 0.
-   c. BUILDTYPENUM, build type number - will be shown for alpha,beta,RC
-      versions.
-   d. MAJOR - MAJOR Far version (i.e. 1).
-   e. MINOR - MINOR Far version (i.e. 71).
+   b. MAJOR - MAJOR Far version (i.e. 1).
+   c. MINOR - MINOR Far version (i.e. 71).
 
 
 vbuild.m4

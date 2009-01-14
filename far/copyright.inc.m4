@@ -1,5 +1,9 @@
 m4_include(`farversion.m4')m4_dnl
-m4_define(VERSIONFORENC,`m4_ifelse(`1',BUILDTESTONLY,
-`The FAR manager, version FULLVERSION - TEST ONLY!$Copyright (C) 1996-2000 Eugene Roshal, Copyright (C) COPYRIGHTYEARS FAR Group',
-`The FAR manager, version FULLVERSION$Copyright (C) 1996-2000 Eugene Roshal, Copyright (C) COPYRIGHTYEARS FAR Group')')m4_dnl
-VERSIONFORENC`'m4_dnl
+m4_define(COPYVAR,`const char *Copyright="Far Manager, version $1 $Copyright (C) 1996-2000 Eugene Roshal, Copyright (C) COPYRIGHTYEARS Far Group";')m4_dnl
+`#ifdef _M_IA64'
+COPYVAR(FULLVERSIONIA64)
+`#elif defined(_WIN64)'
+COPYVAR(FULLVERSION64)
+`#else'
+COPYVAR(FULLVERSION32)
+`#endif'
