@@ -5031,12 +5031,16 @@ l:
 "Attributes"
 
 MSetAttrFor
-"Изменить файловые атрибуты для"
+"Изменить файловые атрибуты"
 "Change file attributes for"
 
 MSetAttrSelectedObjects
 "выбранных объектов"
 "selected objects"
+
+MSetAttrHardLinks
+"жестких ссылок (%d)"
+"hard links (%d)"
 
 MSetAttrJunction
 "Связь \"%s\""

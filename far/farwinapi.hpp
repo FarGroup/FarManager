@@ -190,4 +190,15 @@ BOOL apiGetConsoleKeyboardLayoutName (
 		string &strDest
 		);
 
+HANDLE apiFindFirstFileName(
+		LPCWSTR lpFileName,
+		DWORD dwFlags,
+		string& strLinkName
+		);
+
+BOOL apiFindNextFileName(
+		HANDLE hFindStream,
+		string& strLinkName
+		);
+
 #endif // __FARWINAPI_HPP__

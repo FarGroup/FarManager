@@ -130,6 +130,19 @@ typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE) (
 
 typedef HRESULT (WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
 
+typedef HANDLE(WINAPI *FINDFIRSTFILENAMEW) (
+		LPCWSTR lpFileName,
+		DWORD dwFlags,
+		LPDWORD StringLength,
+		LPWSTR LinkName
+		);
+
+typedef BOOL(WINAPI *FINDNEXTFILENAMEW) (
+		HANDLE hFindStream,
+		LPDWORD StringLength,
+		PWCHAR LinkName
+);
+
 struct ImportedFunctions {
 
 	//
@@ -153,6 +166,10 @@ struct ImportedFunctions {
 	PCREATESYMBOLICLINK pfnCreateSymbolicLink;
 
 	PSHCREATEASSOCIATIONREGISTRATION pfnSHCreateAssociationRegistration;
+	
+	FINDFIRSTFILENAMEW pfnFindFirstFileNameW;
+	FINDNEXTFILENAMEW pfnFindNextFileNameW;
+	
 
 	void Load();
 };

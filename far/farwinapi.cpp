@@ -598,3 +598,30 @@ BOOL apiGetConsoleKeyboardLayoutName (string &strDest)
 	}
 	return ret;
 }
+
+HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName)
+{
+	HANDLE hRet=INVALID_HANDLE_VALUE;
+	DWORD StringLength=0;
+	if(ifn.pfnFindFirstFileNameW(lpFileName,0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	{
+		hRet=FindFirstFileNameW(lpFileName,0,&StringLength,strLinkName.GetBuffer(StringLength));
+		strLinkName.ReleaseBuffer();
+	}
+	return hRet;
+}
+	
+BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
+{
+	BOOL Ret=FALSE;
+	DWORD StringLength=0;
+	if(!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
+	{
+		Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
+		strLinkName.ReleaseBuffer();
+	}
+	return Ret;
+}
+
+
+

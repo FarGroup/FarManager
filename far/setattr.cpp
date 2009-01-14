@@ -89,7 +89,8 @@ enum {
 
   SETATTR_SET=32,
   SETATTR_CANCEL=33,
-  SETATTR_TITLELINK=34,
+	SETATTR_NAMECOMBO=34,
+	SETATTR_TITLELINK=35,
 };
 
 const wchar_t FmtMask1[]=L"99%c99%c99";
@@ -346,12 +347,30 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
     case DN_EDITCHANGE:
     {
-      if(Param1 >= SETATTR_MDATE && Param1 <= SETATTR_ATIME)
-      {
-             if(Param1 == SETATTR_MDATE || Param1 == SETATTR_MTIME) { DlgParam->OLastWriteTime=1;}
-        else if(Param1 == SETATTR_CDATE || Param1 == SETATTR_CTIME) { DlgParam->OCreationTime=1;}
-        else if(Param1 == SETATTR_ADATE || Param1 == SETATTR_ATIME) { DlgParam->OLastAccessTime=1;}
-      }
+			switch (Param1)
+			{
+			case SETATTR_NAMECOMBO:
+				{
+					FarListInfo li;
+					Dialog::SendDlgMessage(hDlg,DM_LISTINFO,SETATTR_NAMECOMBO,(LONG_PTR)&li);
+					string strTmp;
+					strTmp.Format(MSG(MSetAttrHardLinks),li.ItemsNumber);
+					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,SETATTR_NAMECOMBO,(LONG_PTR)(const wchar_t*)strTmp);
+				}
+				break;
+			case SETATTR_MDATE:
+			case SETATTR_MTIME:
+				DlgParam->OLastWriteTime=1;
+				break;
+			case SETATTR_CDATE:
+			case SETATTR_CTIME:
+				DlgParam->OCreationTime=1;
+				break;
+			case SETATTR_ADATE:
+			case SETATTR_ATIME:
+				DlgParam->OLastAccessTime=1;
+				break;
+			}
       break;
     }
 
@@ -501,10 +520,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 31 */DI_TEXT,3,19,0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
   /* 32 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(wchar_t *)MSetAttrSet,
   /* 33 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(wchar_t *)MCancel,
-  /* 34 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
+	/* 34 */DI_COMBOBOX,5,3,63,3,0,0,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_HIDDEN,0,L"",
+	/* 35 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
   MakeDialogItemsEx(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
+	FarList NameList={0,NULL};
+	string *strLinks=NULL;
 
   int SelCount, I, J;
   struct SetAttrDlgParam DlgParam;
@@ -725,6 +747,36 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         }
         /* SVS $ */
       }
+
+			// обработка случая "несколько хардлинков"
+			NameList.ItemsNumber=GetNumberOfLinks(strSelName);
+			if (NameList.ItemsNumber>1 && ifn.pfnFindFirstFileNameW && ifn.pfnFindNextFileNameW)
+			{
+				AttrDlg[SETATTR_NAME].Flags|=DIF_HIDDEN;
+				AttrDlg[SETATTR_NAMECOMBO].Flags&=~DIF_HIDDEN;
+				NameList.Items=new FarListItem[NameList.ItemsNumber];
+				memset(NameList.Items,0,sizeof(FarListItem)*NameList.ItemsNumber);
+				strLinks=new string[NameList.ItemsNumber];
+				HANDLE hFind=apiFindFirstFileName(strSelName,0,strLinks[0]);
+				int Current=0;
+				if(hFind!=INVALID_HANDLE_VALUE)
+				{
+					string strRoot;
+					GetPathRoot(strSelName,strRoot);
+					DeleteEndSlash(strRoot);
+					strLinks[0]=strRoot+strLinks[0];
+					NameList.Items[Current++].Text=strLinks[0];
+					while(apiFindNextFileName(hFind,strLinks[Current]))
+					{
+						strLinks[Current]=strRoot+strLinks[Current];
+						NameList.Items[Current++].Text=strLinks[Current];
+					}
+					FindClose(hFind);
+					AttrDlg[SETATTR_NAMECOMBO].strData.Format(MSG(MSetAttrHardLinks),NameList.ItemsNumber);
+					AttrDlg[SETATTR_NAMECOMBO].ListItems=&NameList;
+				}
+			}
+
       AttrDlg[SETATTR_NAME].strData = strSelName;
       TruncStr(AttrDlg[SETATTR_NAME].strData,54);
 
@@ -846,6 +898,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
       Dlg.SetPosition(-1,-1,69,JunctionPresent?24:23);
       Dlg.Process();
+			delete[] NameList.Items;
+			delete[] strLinks;
       if (Dlg.GetExitCode()!=SETATTR_SET)
         return 0;
     }
