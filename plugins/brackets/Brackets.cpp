@@ -267,24 +267,35 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     types=BrOneMath;
   }
 
+  esp.CurPos=esp.CurTabPos=esp.TopScreenLine=esp.LeftPos=esp.Overtype=-1;
+  esp.CurLine=egs.StringNumber;
+  egs.StringNumber=-1;
+
   while (!found)
   {
     CurPos+=Direction;
-    if (CurPos >= egs.StringLength)
+
+    bool cond_gt=CurPos >= egs.StringLength?true:false;
+
+    if (cond_gt || CurPos < 0)
     {
-      if (++egs.StringNumber >= ei.TotalLines)
-        break;
-      Info.EditorControl(ECTL_GETSTRING,&egs);
-      CurPos=0;
-    }
-    if (CurPos < 0)
-    {
-      if (--egs.StringNumber < 0)
+      if (cond_gt)
+        esp.CurLine++;
+      else
+        esp.CurLine--;
+
+      if(esp.CurLine >= ei.TotalLines || esp.CurLine < 0)
         break;
 
+      Info.EditorControl(ECTL_SETPOSITION,&esp);
       Info.EditorControl(ECTL_GETSTRING,&egs);
-      CurPos=egs.StringLength-1;
+
+      if (cond_gt)
+        CurPos=0;
+      else
+        CurPos=egs.StringLength-1;
     }
+
     if (CurPos > egs.StringLength || CurPos < 0)
       continue;
 
@@ -384,7 +395,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
   if(found)
   {
-    esp.CurLine=egs.StringNumber;
+    egs.StringNumber=esp.CurLine;
     if(types == BrTwo)
     {
       if(Bracket == B21 || Bracket == B24)
