@@ -4,7 +4,7 @@ m4_define(FROMBIT,m4_ifelse(FARBIT,`64',`$2',FARBIT,`IA64',`$3',`$1'))m4_dnl
 m4_define(BUILDTYPE32,`alpha')m4_dnl
 m4_define(BUILDTYPE64,`alpha')m4_dnl
 m4_define(BUILDTYPEIA64,`alpha')m4_dnl
-m4_define(BUITDTYPE,FROMBIT(BUILDTYPE32,BUILDTYPE64,BUILDTYPEIA64))m4_dnl
+m4_define(BUILDTYPE,FROMBIT(BUILDTYPE32,BUILDTYPE64,BUILDTYPEIA64))m4_dnl
 m4_define(MAJOR,2)m4_dnl
 m4_define(MINOR,0)m4_dnl
 m4_define(DATE,m4_esyscmd(CMDAWK -f CMDDATE))m4_dnl
