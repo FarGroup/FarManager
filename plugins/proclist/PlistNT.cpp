@@ -276,7 +276,7 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 #else
     if(*(DWORD*)pFullPath==0x3F005C && ((DWORD*)pFullPath)[1]==0x5C003F) // "\??\"
 #endif
-      pFullPath += 4*sizeof(TCHAR);
+      pFullPath += 4;
     lstrcpyn(DATA.FullPath, pFullPath, ArraySize(DATA.FullPath));
     lstrcpyn(DATA.CommandLine, pd.CommandLine, ArraySize(DATA.CommandLine));
     return true;

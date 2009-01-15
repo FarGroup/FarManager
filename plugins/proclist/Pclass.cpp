@@ -1500,13 +1500,8 @@ bool Plist::GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, 
 #endif
     static const wchar_t WSFI[] = L"StringFileInfo";
 
-#ifndef UNICODE
-    if(*(DWORD*)pFullPath==0x5C3F3F5C) // "\??\"
-        pFullPath += 4;
-#endif
-    //if(*(LONGLONG*)pFullPath==0x005C003F003F005C) /* \??\ */
-    if(!memcmp(pFullPath,L"\\??\\",8))
-        pFullPath += 8;
+	if(!memcmp(pFullPath,_T("\\??\\"),4*sizeof(TCHAR)))
+		pFullPath+=4;
     DWORD size =
 #ifndef UNICODE
                  pFullPath[1] ? GetFileVersionInfoSize(pFullPath, &size) :
