@@ -605,7 +605,7 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 	DWORD StringLength=0;
 	if(ifn.pfnFindFirstFileNameW(lpFileName,0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		hRet=FindFirstFileNameW(lpFileName,0,&StringLength,strLinkName.GetBuffer(StringLength));
+		hRet=ifn.pfnFindFirstFileNameW(lpFileName,0,&StringLength,strLinkName.GetBuffer(StringLength));
 		strLinkName.ReleaseBuffer();
 	}
 	return hRet;
