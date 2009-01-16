@@ -656,7 +656,7 @@ FindFiles::FindFiles()
       {
         FindAskDlg[8].ListItems=&TableList;
 
-        Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
+				Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
         Dlg.SetHelp(L"FindFile");
         Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT);
@@ -807,7 +807,7 @@ void FindFiles::AdvancedDialog()
   // Установим размер, который будет использован для ограничения поиска строки
   AdvancedDlg[2].strData = Opt.FindOpt.strSearchInFirstSize;
 
-  Dialog Dlg(AdvancedDlg,sizeof(AdvancedDlg)/sizeof(AdvancedDlg[0]),AdvancedDlgProc);
+	Dialog Dlg(AdvancedDlg,countof(AdvancedDlg),AdvancedDlgProc);
 
   Dlg.SetHelp(L"FindFileAdvanced");
   Dlg.SetPosition(-1,-1,38+4,6+2);
@@ -1497,7 +1497,22 @@ int FindFiles::FindFilesProcess()
     }
   }
 
-  Dialog Dlg=Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
+	bool AnySetFindList=false;
+	for (int i=0;i<CtrlObject->Plugins.PluginsCount; i++)
+	{
+		if(CtrlObject->Plugins.PluginsData[i]->HasSetFindList())
+		{
+			AnySetFindList=true;
+			break;
+		}
+	}
+	if(!AnySetFindList)
+	{
+		FindDlg[8].Type=DI_TEXT;
+		FindDlg[8].strData=L"";
+	}
+
+	Dialog Dlg=Dialog(FindDlg,countof(FindDlg),FindDlgProc);
   hDlg=(HANDLE)&Dlg;
 //  pDlg->SetDynamicallyBorn();
   Dlg.SetHelp(L"FindFileResult");
@@ -2371,7 +2386,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 	// с максимальным размером, в котором производится поиск
 	__int64 AlreadyRead=_i64(0);
 
-	while ( !StopSearch && ReadFile (FileHandle, Buf, sizeof(Buf)/sizeof(Buf[0]), ((LPDWORD)&ReadSize), NULL) )
+	while ( !StopSearch && ReadFile (FileHandle, Buf, countof(Buf), ((LPDWORD)&ReadSize), NULL) )
 	{
 		if (ReadSize==0) break;
 		/* $ 12.04.2005 KM
@@ -2566,7 +2581,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 				break;
 		}
 
-		if (RealReadSize==sizeof(Buf)/sizeof(Buf[0]))
+		if (RealReadSize==countof(Buf))
 		{
 			/* $ 22.09.2003 KM
 			  Поиск по hex-кодам

@@ -88,7 +88,7 @@ void FileList::SetFilePanelModes()
     int ModeNumber;
     ModeListMenu[CurMode].SetSelect(1);
     {
-      VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
+			VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,countof(ModeListMenu),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
       ModeList.SetHelp(L"PanelViewModes");
       ModeList.SetFlags(VMENU_WRAPMODE);
@@ -150,7 +150,7 @@ void FileList::SetFilePanelModes()
         NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
 
     {
-      Dialog Dlg(ModeDlg,sizeof(ModeDlg)/sizeof(ModeDlg[0]));
+			Dialog Dlg(ModeDlg,countof(ModeDlg));
       Dlg.SetPosition(-1,-1,76,18);
       Dlg.SetHelp(L"PanelViewModes");
       Dlg.Process();

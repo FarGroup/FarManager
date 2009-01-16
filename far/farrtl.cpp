@@ -21,7 +21,7 @@ int _cdecl getdisk(void)
   /* Use GetCurrentDirectory to get the current directory path, then
    * parse the drive name.
    */
-  GetCurrentDirectoryW(sizeof(buf)/sizeof(wchar_t), buf);    /* ignore errors */
+	GetCurrentDirectoryW(countof(buf), buf);    /* ignore errors */
   drive = Upper(buf[0]) - L'A';
   return (int)drive;
 }

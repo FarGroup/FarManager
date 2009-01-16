@@ -422,7 +422,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
     if(apiGetEnvironmentVariable(L"PATHEXT",strFullName) != 0)
     {
       static wchar_t const * const StdExecuteExt0[4]={L".BAT;",L".CMD;",L".EXE;",L".COM;"};
-      for(size_t I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
+			for(size_t I=0; I < countof(StdExecuteExt0); ++I)
         ReplaceStrings(strFullName,StdExecuteExt0[I],L"",-1);
     }
 
@@ -577,7 +577,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
 
         strFullName = RegPath+strFileName;
 
-        for (size_t I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+				for (size_t I=0; I < countof(RootFindKey); ++I)
         {
           if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
@@ -601,7 +601,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
           {
             strFullName = RegPath+strFileName+PtrExt;
 
-            for(size_t I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+						for(size_t I=0; I < countof(RootFindKey); ++I)
             {
               if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
               {
@@ -714,7 +714,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   GetConsoleScreenBufferInfo(hConOut,&sbi);
 
   wchar_t OldTitle[512];
-  GetConsoleTitleW(OldTitle, sizeof(OldTitle)/sizeof(wchar_t));
+	GetConsoleTitleW(OldTitle, countof(OldTitle));
 
   DWORD dwSubSystem;
   DWORD dwError = 0;

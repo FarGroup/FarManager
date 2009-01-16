@@ -482,7 +482,7 @@ int WINAPI GetString(
     StrDlg[2].strData = SrcText;
 
   {
-    Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract,GetStringDlgProc);
+		Dialog Dlg(StrDlg,countof(StrDlg)-Substract,GetStringDlgProc);
     Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 
     if (HelpTopic!=NULL)
@@ -576,7 +576,7 @@ int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string
   PassDlg[4].strData = (Flags&GNP_USELAST)?strLastPassword:strPassword;
 
   {
-    Dialog Dlg(PassDlg,sizeof(PassDlg)/sizeof(PassDlg[0]));
+		Dialog Dlg(PassDlg,countof(PassDlg));
     Dlg.SetPosition(-1,-1,76,10);
 
     if (HelpTopic!=NULL)
@@ -649,7 +649,7 @@ L========================================================-
   PluginDlg[2].X2+=LenHotKey-1; // расширим, если надо
 
   {
-    Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
+		Dialog Dlg(PluginDlg,countof(PluginDlg));
     if (HelpTopic)
       Dlg.SetHelp(HelpTopic);
     Dlg.SetPosition(-1,-1,64,6);

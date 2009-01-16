@@ -629,7 +629,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		FarListItem LinkTypeItems[4],CopyModeItems[7];
 		if(Link)
 		{
-			ComboList.ItemsNumber=sizeof(LinkTypeItems)/sizeof(LinkTypeItems[0]);
+			ComboList.ItemsNumber=countof(LinkTypeItems);
 			ComboList.Items=LinkTypeItems;
 			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
 			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
@@ -650,7 +650,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		}
 		else
 		{
-			ComboList.ItemsNumber=sizeof(CopyModeItems)/sizeof(CopyModeItems[0]);
+			ComboList.ItemsNumber=countof(CopyModeItems);
 			ComboList.Items=CopyModeItems;
 			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
 			ComboList.Items[0].Text=MSG(MCopyAsk);

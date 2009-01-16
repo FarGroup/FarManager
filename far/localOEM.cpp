@@ -116,7 +116,7 @@ void InitKeysArray()
   int I;
   HKL Layout[10];
 
-  int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
+	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout);
 
   if (LayoutNumber<5)
   {

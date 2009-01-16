@@ -1087,7 +1087,7 @@ static void printKeyValue(DWORD* k, int& i)
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
   {
-    for(int J=0; J <= sizeof(kmf)/sizeof(kmf[0]); ++J)
+		for(int J=0; J <= countof(kmf); ++J)
       if(kmf[J].c == Code)
       {
          cmt=kmf[J].n;

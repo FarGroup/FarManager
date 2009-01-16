@@ -191,7 +191,7 @@ static void ShowSaver(int Step)
       Star[I].Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
       Star[I].X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
       Star[I].Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
-      Star[I].Color=Colors[random(sizeof(Colors)/sizeof(Colors[0]))];
+			Star[I].Color=Colors[random(countof(Colors))];
       Star[I].Speed=(Star[I].Type==STAR_PLANET) ? 1:2;
       break;
     }

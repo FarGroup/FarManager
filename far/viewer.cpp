@@ -1078,7 +1078,7 @@ int Viewer::ProcessKey(int Key)
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
   {
-    for (int I=sizeof(UndoData)/sizeof(UndoData[0])-1;I>0;I--)
+		for (int I=countof(UndoData)-1;I>0;I--)
     {
       UndoData[I].UndoAddr=UndoData[I-1].UndoAddr;
       UndoData[I].UndoLeft=UndoData[I-1].UndoLeft;
@@ -2199,7 +2199,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (!Next)
   {
     SearchFlags.Flags = 0;
-    Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]),ViewerSearchDlgProc);
+		Dialog Dlg(SearchDlg,countof(SearchDlg),ViewerSearchDlgProc);
     Dlg.SetPosition(-1,-1,76,12);
     Dlg.SetHelp(L"ViewerSearch");
     if (FirstChar)
@@ -2732,7 +2732,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
   {
     if (ShowDlg)
     {
-      Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
+			Dialog Dlg(GoToDlg,countof(GoToDlg));
       Dlg.SetHelp(L"ViewerGotoPos");
       Dlg.SetPosition(-1,-1,35,9);
       Dlg.Process();
@@ -2855,7 +2855,7 @@ void Viewer::AdjustFilePos()
     if (GotoLinePos<0)
       GotoLinePos=0;
     vseek(ViewFile,GotoLinePos,SEEK_SET);
-    int ReadSize=(int)Min((__int64)(sizeof(Buf)/sizeof(wchar_t)),(__int64)(FilePos-GotoLinePos));
+		int ReadSize=(int)Min((__int64)countof(Buf),(__int64)(FilePos-GotoLinePos));
     ReadSize=vread(Buf,ReadSize,ViewFile);
     for (int I=ReadSize-1;I>=0;I--)
       if (Buf[I]==(unsigned int)CRSym)
@@ -2913,7 +2913,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   if (SearchLinePos<0)
     SearchLinePos=0;
   vseek(ViewFile,SearchLinePos,SEEK_SET);
-  int ReadSize=(int)Min((__int64)(sizeof(Buf)/sizeof(wchar_t)),(__int64)(MatchPos-SearchLinePos));
+	int ReadSize=(int)Min((__int64)countof(Buf),(__int64)(MatchPos-SearchLinePos));
   ReadSize=vread(Buf,ReadSize,ViewFile);
   for (int I=ReadSize-1;I>=0;I--)
     if (Buf[I]==(unsigned int)CRSym)

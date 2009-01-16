@@ -1486,7 +1486,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    strTmpName = Name;
 
    // пройдемся по всем модификаторам
-   for(Pos=I=0; I < int(sizeof(ModifKeyName)/sizeof(ModifKeyName[0])); ++I)
+	for(Pos=I=0; I < int(countof(ModifKeyName)); ++I)
    {
      if(StrStrI(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
@@ -1502,14 +1502,14 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
    {
      // сначала - FKeys1
      const wchar_t* Ptr=Name+Pos;
-     for (I=0;I<int(sizeof(FKeys1)/sizeof(FKeys1[0]));I++)
+		for (I=0;I<int(countof(FKeys1));I++)
        if (!StrCmpNI (Ptr,FKeys1[I].Name,FKeys1[I].Len))
        {
          Key|=FKeys1[I].Key;
          Pos+=FKeys1[I].Len;
          break;
        }
-     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
+		if(I  == countof(FKeys1))
      {
        if(Len == 1 || Pos == Len-1)
        {
@@ -1579,7 +1579,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
   {
     GetShiftKeyName(strKeyText,Key,Len);
 
-    for (I=0;I<int(sizeof(FKeys1)/sizeof(FKeys1[0]));I++)
+		for (I=0;I<int(countof(FKeys1));I++)
     {
       if (FKey==FKeys1[I].Key)
       {
@@ -1588,7 +1588,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
       }
     }
 
-    if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
+		if(I  == countof(FKeys1))
     {
       if(FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
       {
@@ -1604,13 +1604,13 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
       {
     #if defined(SYSLOG)
         // Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-        for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
+				for (I=0;I<countof(SpecKeyName);I++)
           if (FKey==SpecKeyName[I].Key)
           {
             strKeyText += SpecKeyName[I].Name;
             break;
           }
-        if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
+				if(I  == countof(SpecKeyName))
     #endif
         {
           FKey=Upper((wchar_t)Key&0xFFFF);
@@ -1656,14 +1656,14 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
                (FShift&KEY_ALT?PKF_ALT:0)|
                (FShift&KEY_CTRL?PKF_CONTROL:0);
 
-  for(I=0; I < int(sizeof(Table_KeyToVK)/sizeof(Table_KeyToVK[0])); ++I)
+	for(I=0; I < int(countof(Table_KeyToVK)); ++I)
     if (FKey==Table_KeyToVK[I].Key)
     {
       VirtKey=Table_KeyToVK[I].VK;
       break;
     }
 
-  if(I  == sizeof(Table_KeyToVK)/sizeof(Table_KeyToVK[0]))
+	if(I  == countof(Table_KeyToVK))
   {
     if ((FKey>='0' && FKey<='9') || (FKey>='A' && FKey<='Z'))
       VirtKey=FKey;
@@ -1716,7 +1716,7 @@ int IsNavKey(DWORD Key)
     //!!!!!!!!!!!
   };
 
-  for (int I=0; I < int(sizeof(NavKeys)/sizeof(NavKeys[0])); I++)
+	for (int I=0; I < int(countof(NavKeys)); I++)
     if((!NavKeys[I][0] && Key==NavKeys[I][1]) ||
        (NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF)))
       return TRUE;
@@ -1766,7 +1766,7 @@ int IsShiftKey(DWORD Key)
      KEY_CTRL,
   };
 
-  for (int I=0;I<int(sizeof(ShiftKeys)/sizeof(ShiftKeys[0]));I++)
+	for (int I=0;I<int(countof(ShiftKeys));I++)
     if (Key==ShiftKeys[I])
       return TRUE;
   return FALSE;
@@ -2000,7 +2000,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     {
     //// // _SVS(SysLog(L"2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
-      for (int I=0;I<int(sizeof(ScanCodes)/sizeof(ScanCodes[0]));I++)
+			for (int I=0;I<int(countof(ScanCodes));I++)
       {
         if (ScanCodes[I]==ScanCode)
         {

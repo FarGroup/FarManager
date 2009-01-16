@@ -3066,7 +3066,7 @@ void FileList::SelectFiles(int Mode)
         else
           SelectDlg[0].strData = MSG(MUnselectTitle);
         {
-          Dialog Dlg(SelectDlg,sizeof(SelectDlg)/sizeof(SelectDlg[0]));
+					Dialog Dlg(SelectDlg,countof(SelectDlg));
           Dlg.SetHelp(L"SelectFiles");
           Dlg.SetPosition(-1,-1,55,7);
           for(;;)

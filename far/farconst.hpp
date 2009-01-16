@@ -383,8 +383,6 @@ enum SETATTR_RET_CODES
 #define DMOUSEBUTTON_LEFT   0x00000001
 #define DMOUSEBUTTON_RIGHT  0x00000002
 
-#define LANGUAGENAME_SIZE  80
-
 enum ReparsePointTypes
 {
 	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего

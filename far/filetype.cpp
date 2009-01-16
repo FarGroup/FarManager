@@ -575,7 +575,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   }
 
   {
-    Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
+		Dialog Dlg(EditDlg,countof(EditDlg));
     Dlg.SetHelp(FTSW.HelpModify);
     Dlg.SetPosition(-1,-1,76,23);
 

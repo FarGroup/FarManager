@@ -354,8 +354,8 @@ unsigned char BlackPalette[]=
 };
 
 
-int SizeArrayPalette=sizeof(DefaultPalette)/sizeof(DefaultPalette[0]);
-unsigned char Palette[sizeof(DefaultPalette)/sizeof(DefaultPalette[0])];
+int SizeArrayPalette=countof(DefaultPalette);
+unsigned char Palette[countof(DefaultPalette)];
 
 int FarColorToReal(int FarColor)
 {

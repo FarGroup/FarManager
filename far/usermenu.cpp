@@ -927,7 +927,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
   }
 
   {
-    Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]),UserMenuDlgProc);
+		Dialog Dlg(EditDlg,countof(EditDlg),UserMenuDlgProc);
     Dlg.SetHelp(L"UserMenu");
     Dlg.SetPosition(-1,-1,76,22);
     /* $ 22.12.2000 IS
@@ -1021,7 +1021,7 @@ int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
     GetRegKey(strItemKey,L"Label",EditDlg[4].strData,L"");
   }
   {
-    Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
+		Dialog Dlg(EditDlg,countof(EditDlg));
     Dlg.SetHelp(L"UserMenu");
     Dlg.SetPosition(-1,-1,76,10);
     while(1)

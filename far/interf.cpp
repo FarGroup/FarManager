@@ -882,7 +882,7 @@ void mprintf(const WCHAR *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   WCHAR OutStr[2048];
-  vsnwprintf(OutStr,sizeof(OutStr)/sizeof(OutStr[0])-1,fmt,argptr);
+	vsnwprintf(OutStr,countof(OutStr)-1,fmt,argptr);
   Text(OutStr);
   va_end(argptr);
 }
@@ -892,7 +892,7 @@ void vmprintf(const WCHAR *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   WCHAR OutStr[2048];
-  vsnwprintf(OutStr,sizeof(OutStr)/sizeof(OutStr[0])-1,fmt,argptr);
+	vsnwprintf(OutStr,countof(OutStr)-1,fmt,argptr);
   VText(OutStr);
   va_end(argptr);
 }
@@ -978,7 +978,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 
   {
     WCHAR OutStr[4096];
-    _wmemset(OutStr,BoxSymbols[Type?BS_H2:BS_H1],sizeof(OutStr)/sizeof(*OutStr));
+		_wmemset(OutStr,BoxSymbols[Type?BS_H2:BS_H1],countof(OutStr));
     OutStr[_width+1]=0;
 
     OutStr[0]=BoxSymbols[Type?BS_LT_H2V2:BS_LT_H1V1];
@@ -993,7 +993,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
     Text(OutStr);
     //mprintf(L"%.*s",x2-x1+1,OutStr);
 
-    _wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],sizeof(OutStr)/sizeof(*OutStr));
+		_wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],countof(OutStr));
     OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);

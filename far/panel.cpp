@@ -2260,7 +2260,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
   int ExitCode=7;
   if(Opt.Confirm.RemoveConnection)
   {
-    Dialog Dlg(DCDlg,sizeof(DCDlg)/sizeof(DCDlg[0]));
+		Dialog Dlg(DCDlg,countof(DCDlg));
     Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
     Dlg.SetHelp(L"DisconnectDrive");
     Dlg.Process();

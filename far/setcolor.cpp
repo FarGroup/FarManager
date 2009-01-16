@@ -355,7 +355,7 @@ void SetColors()
 
   {
     int GroupsCode;
-    VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
+		VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,countof(Groups),0);
     MenuToRedraw1=&GroupsMenu;
     while (1)
     {
@@ -380,37 +380,37 @@ void SetColors()
       switch(GroupsCode)
       {
         case 0:
-          SetItemColors(PanelItems,PanelPaletteItems,sizeof(PanelItems)/sizeof(PanelItems[0]),0);
+					SetItemColors(PanelItems,PanelPaletteItems,countof(PanelItems),0);
           break;
         case 1:
-          SetItemColors(DialogItems,DialogPaletteItems,sizeof(DialogItems)/sizeof(DialogItems[0]),1);
+					SetItemColors(DialogItems,DialogPaletteItems,countof(DialogItems),1);
           break;
         case 2:
-          SetItemColors(WarnDialogItems,WarnDialogPaletteItems,sizeof(WarnDialogItems)/sizeof(WarnDialogItems[0]),1);
+					SetItemColors(WarnDialogItems,WarnDialogPaletteItems,countof(WarnDialogItems),1);
           break;
         case 3:
-          SetItemColors(MenuItems,MenuPaletteItems,sizeof(MenuItems)/sizeof(MenuItems[0]),0);
+					SetItemColors(MenuItems,MenuPaletteItems,countof(MenuItems),0);
           break;
         case 4:
-          SetItemColors(HMenuItems,HMenuPaletteItems,sizeof(HMenuItems)/sizeof(HMenuItems[0]),0);
+					SetItemColors(HMenuItems,HMenuPaletteItems,countof(HMenuItems),0);
           break;
         case 5:
-          SetItemColors(KeyBarItems,KeyBarPaletteItems,sizeof(KeyBarItems)/sizeof(KeyBarItems[0]),0);
+					SetItemColors(KeyBarItems,KeyBarPaletteItems,countof(KeyBarItems),0);
           break;
         case 6:
-          SetItemColors(CommandLineItems,CommandLinePaletteItems,sizeof(CommandLineItems)/sizeof(CommandLineItems[0]),0);
+					SetItemColors(CommandLineItems,CommandLinePaletteItems,countof(CommandLineItems),0);
           break;
         case 7:
-          SetItemColors(ClockItems,ClockPaletteItems,sizeof(ClockItems)/sizeof(ClockItems[0]),0);
+					SetItemColors(ClockItems,ClockPaletteItems,countof(ClockItems),0);
           break;
         case 8:
-          SetItemColors(ViewerItems,ViewerPaletteItems,sizeof(ViewerItems)/sizeof(ViewerItems[0]),0);
+					SetItemColors(ViewerItems,ViewerPaletteItems,countof(ViewerItems),0);
           break;
         case 9:
-          SetItemColors(EditorItems,EditorPaletteItems,sizeof(EditorItems)/sizeof(EditorItems[0]),0);
+					SetItemColors(EditorItems,EditorPaletteItems,countof(EditorItems),0);
           break;
         case 10:
-          SetItemColors(HelpItems,HelpPaletteItems,sizeof(HelpItems)/sizeof(HelpItems[0]),0);
+					SetItemColors(HelpItems,HelpPaletteItems,countof(HelpItems),0);
           break;
       }
     }
@@ -446,7 +446,7 @@ static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,in
 // 2,3 - dialog,warn Combobox
     if(TypeSub == 1 && PaletteItems[ItemsCode] < 4)
     {
-      SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],sizeof(ListItems)/sizeof(ListItems[0]),2);
+			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],countof(ListItems),2);
       MenuToRedraw3=NULL;
     }
     else

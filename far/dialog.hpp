@@ -100,8 +100,8 @@ enum DLGITEMINTERNALFLAGS {
 
 
 #define MakeDialogItemsEx(Data,Item) \
-  struct DialogItemEx Item[sizeof(Data)/sizeof(Data[0])]; \
-  Dialog::DataToItemEx(Data,Item,sizeof(Data)/sizeof(Data[0]));
+	struct DialogItemEx Item[countof(Data)]; \
+	Dialog::DataToItemEx(Data,Item,countof(Data));
 
 // —труктура, описывающа€ автоматизацию дл€ DIF_AUTOMATION
 // на первом этапе - примитивна€ - выставление флагов у элементов дл€ CheckBox

@@ -49,7 +49,6 @@ struct Options Opt;// BUG !! ={0};
 
 // языковой файл загружен?
 BOOL LanguageLoaded=FALSE;
-wchar_t InitedLanguage[LANGUAGENAME_SIZE];
 
 // флаг на запрет юзание Ctrl-Alt-Shift
 BOOL NotUseCAS=FALSE;
@@ -157,7 +156,5 @@ const wchar_t *ReservedFilenameSymbols=L"<>|";
 
 int KeepUserScreen;
 string g_strDirToSet;
-
-BOOL IsFn_FAR_CopyFileEx=FALSE;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))

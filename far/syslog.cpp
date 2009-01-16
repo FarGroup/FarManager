@@ -234,7 +234,7 @@ void SysLog(const wchar_t *fmt,...)
 
   va_list argptr;
   va_start( argptr, fmt );
-  _vsnwprintf( msg, sizeof(msg)/sizeof(msg[0])-1, fmt, argptr );
+	_vsnwprintf( msg, countof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -300,7 +300,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 
   va_list argptr;
   va_start( argptr, fmt );
-  _vsnwprintf( msg, sizeof(msg)/sizeof(msg[0])-1, fmt, argptr );
+	_vsnwprintf( msg, countof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -704,7 +704,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
 
   va_list argptr;
   va_start( argptr, fmt );
-  _vsnwprintf( msg, countof(msg)-1, fmt, argptr );
+	_vsnwprintf( msg, countof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   SysLog(l);
@@ -804,7 +804,7 @@ string __ECTL_ToName(int Command)
     DEF_ECTL_(TURNOFFMARKINGBLOCK),
     DEF_ECTL_(DELETEBLOCK),
   };
-  return _XXX_ToName(Command,L"ECTL",ECTL,sizeof(ECTL)/sizeof(ECTL[0]));
+	return _XXX_ToName(Command,L"ECTL",ECTL,countof(ECTL));
 #else
   return L"";
 #endif
@@ -819,7 +819,7 @@ string __EE_ToName(int Command)
     DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
   };
 
-  return _XXX_ToName(Command,L"EE",EE,sizeof(EE)/sizeof(EE[0]));
+	return _XXX_ToName(Command,L"EE",EE,countof(EE));
 #else
   return L"";
 #endif
@@ -833,7 +833,7 @@ string __EEREDRAW_ToName(int Command)
     DEF_EEREDRAW_(ALL),  DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
   };
 
-  return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,sizeof(EEREDRAW)/sizeof(EEREDRAW[0]));
+	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,countof(EEREDRAW));
 #else
   return L"";
 #endif
@@ -854,7 +854,7 @@ string __ESPT_ToName(int Command)
     DEF_ESPT_(LOCKMODE),
     DEF_ESPT_(SETWORDDIV),
   };
-  return _XXX_ToName(Command,L"ESPT",ESPT,sizeof(ESPT)/sizeof(ESPT[0]));
+	return _XXX_ToName(Command,L"ESPT",ESPT,countof(ESPT));
 #else
   return L"";
 #endif
@@ -869,7 +869,7 @@ string __VE_ToName(int Command)
     DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
   };
 
-  return _XXX_ToName(Command,L"VE",VE,sizeof(VE)/sizeof(VE[0]));
+	return _XXX_ToName(Command,L"VE",VE,countof(VE));
 #else
   return L"";
 #endif
@@ -895,7 +895,7 @@ string __FCTL_ToName(int Command)
      DEF_FCTL_(GETPANELSHORTINFO),
      DEF_FCTL_(CHECKPANELSEXIST),      DEF_FCTL_(SETNUMERICSORT),
   };
-  return _XXX_ToName(Command,L"FCTL",FCTL,sizeof(FCTL)/sizeof(FCTL[0]));
+	return _XXX_ToName(Command,L"FCTL",FCTL,countof(FCTL));
 #else
   return L"";
 #endif
@@ -921,7 +921,7 @@ string __ACTL_ToName(int Command)
     DEF_ACTL_(REMOVEMEDIA),            DEF_ACTL_(GETMEDIATYPE),
     DEF_ACTL_(GETPOLICIES),            DEF_ACTL_(REDRAWALL),
   };
-  return _XXX_ToName(Command,L"ACTL",ACTL,sizeof(ACTL)/sizeof(ACTL[0]));
+	return _XXX_ToName(Command,L"ACTL",ACTL,countof(ACTL));
 
 #else
   return L"";
@@ -942,7 +942,7 @@ string __VCTL_ToName(int Command)
     DEF_VCTL_(SELECT),
     DEF_VCTL_(SETMODE),
   };
-  return _XXX_ToName(Command,L"VCTL",VCTL,sizeof(VCTL)/sizeof(VCTL[0]));
+	return _XXX_ToName(Command,L"VCTL",VCTL,countof(VCTL));
 #else
   return L"";
 #endif
@@ -1158,7 +1158,7 @@ string __MCODE_ToName(int OpCode)
 
   int I;
   string Name;
-  for(I=0; I < sizeof(MCODE)/sizeof(MCODE[0]); ++I)
+	for(I=0; I < countof(MCODE); ++I)
     if(MCODE[I].Val == OpCode)
     {
       Name.Format(L"%08X | MCODE_%-20s",OpCode,MCODE[I].Name);
@@ -1241,7 +1241,7 @@ string __DLGMSG_ToName(int Msg)
   int I;
 
   string Name;
-  for(I=0; I < sizeof(Message)/sizeof(Message[0]); ++I)
+	for(I=0; I < countof(Message); ++I)
     if(Message[I].Val == Msg)
     {
       Name.Format(L"\"%s\" [%d/0x%08X]",Message[I].Name,Msg,Msg);
@@ -1343,7 +1343,7 @@ string __VK_KEY_ToName(int VkKey)
     return Name;
   }
   else
-    return _XXX_ToName(VkKey,L"VK",VK,sizeof(VK)/sizeof(VK[0]));
+		return _XXX_ToName(VkKey,L"VK",VK,countof(VK));
 #else
   return L"";
 #endif
@@ -1712,20 +1712,20 @@ void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings 
     int I;
     fwprintf(fp,L"%*s %s  PanelViewSettings{\n",12,L"",space);
     fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
-    for(I=0; I < sizeof(ViewSettings.ColumnType)/sizeof(ViewSettings.ColumnType[0])-1;++I)
+		for(I=0; I < countof(ViewSettings.ColumnType)-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.ColumnType[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.ColumnType[I]);
     fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
-    for(I=0; I < sizeof(ViewSettings.ColumnWidth)/sizeof(ViewSettings.ColumnWidth[0])-1;++I)
+		for(I=0; I < countof(ViewSettings.ColumnWidth)-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.ColumnWidth[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.ColumnWidth[I]);
     fwprintf(fp,L"%*s %s  ColumnCount          = %d\n",12,L"",space,ViewSettings.ColumnCount);
     fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
-    for(I=0; I < sizeof(ViewSettings.StatusColumnType)/sizeof(ViewSettings.StatusColumnType[0])-1;++I)
+		for(I=0; I < countof(ViewSettings.StatusColumnType)-1;++I)
       fwprintf(fp,L"%08X, ",ViewSettings.StatusColumnType[I]);
     fwprintf(fp,L"%08X]\n",ViewSettings.StatusColumnType[I]);
     fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
-    for(I=0; I < sizeof(ViewSettings.StatusColumnWidth)/sizeof(ViewSettings.StatusColumnWidth[0])-1;++I)
+		for(I=0; I < countof(ViewSettings.StatusColumnWidth)-1;++I)
       fwprintf(fp,L"%d, ",ViewSettings.StatusColumnWidth[I]);
     fwprintf(fp,L"%d]\n",ViewSettings.StatusColumnWidth[I]);
     fwprintf(fp,L"%*s %s  StatusColumnCount    = %d\n",12,L"",space,ViewSettings.StatusColumnCount);

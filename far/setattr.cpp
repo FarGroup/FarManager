@@ -524,7 +524,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 	/* 35 */DI_TEXT,-1,4,0,4,0,0,DIF_SHOWAMPERSAND,0,L"",
   };
   MakeDialogItemsEx(AttrDlgData,AttrDlg);
-  int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
+	int DlgCountItems=countof(AttrDlgData)-1;
 	FarList NameList={0,NULL};
 	string *strLinks=NULL;
 

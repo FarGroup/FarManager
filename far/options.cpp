@@ -178,11 +178,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   struct HMenuData MainMenu[]=
   {
-    MSG(MMenuLeftTitle),1,LeftMenu,sizeof(LeftMenu)/sizeof(LeftMenu[0]),L"LeftRightMenu",
-    MSG(MMenuFilesTitle),0,FilesMenu,sizeof(FilesMenu)/sizeof(FilesMenu[0]),L"FilesMenu",
-    MSG(MMenuCommandsTitle),0,CmdMenu,sizeof(CmdMenu)/sizeof(CmdMenu[0]),L"CmdMenu",
-    MSG(MMenuOptionsTitle),0,OptionsMenu,sizeof(OptionsMenu)/sizeof(OptionsMenu[0]),L"OptMenu",
-    MSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),L"LeftRightMenu"
+		MSG(MMenuLeftTitle),1,LeftMenu,countof(LeftMenu),L"LeftRightMenu",
+		MSG(MMenuFilesTitle),0,FilesMenu,countof(FilesMenu),L"FilesMenu",
+		MSG(MMenuCommandsTitle),0,CmdMenu,countof(CmdMenu),L"CmdMenu",
+		MSG(MMenuOptionsTitle),0,OptionsMenu,countof(OptionsMenu),L"OptMenu",
+		MSG(MMenuRightTitle),0,RightMenu,countof(RightMenu),L"LeftRightMenu"
   };
 
   static int LastHItem=-1,LastVItem=0;
@@ -258,7 +258,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   // Навигация по меню
   {
-    HMenu HOptMenu(MainMenu,sizeof(MainMenu)/sizeof(MainMenu[0]));
+		HMenu HOptMenu(MainMenu,countof(MainMenu));
     HOptMenu.SetHelp(L"Menus");
     HOptMenu.SetPosition(0,0,ScrX,0);
     if (LastCommand)

@@ -60,6 +60,7 @@ static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
 
 string strPersonalPluginsPath;
 string strKeyNameConsoleDetachKey;
+string strInitedLanguage;
 static const wchar_t szCtrlShiftX[]=L"CtrlShiftX";
 static const wchar_t szCtrlDot[]=L"Ctrl.";
 static const wchar_t szCtrlShiftDot[]=L"CtrlShift.";
@@ -1116,7 +1117,7 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
 
-  {1, REG_SZ,     NKeyLanguage,L"Main",&Opt.strLanguage, 0, InitedLanguage},
+	{1, REG_SZ,     NKeyLanguage,L"Main",&Opt.strLanguage, 0, strInitedLanguage},
   {1, REG_SZ,     NKeyLanguage,L"Help",&Opt.strHelpLanguage, 0, L"English"},
 
   {1, REG_DWORD,  NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
@@ -1243,8 +1244,8 @@ void ReadConfig()
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
 
   // ОНО ранее может переопределяться
-  if(StrCmpI(Opt.strLanguage,InitedLanguage))
-    Opt.strLanguage=InitedLanguage;
+	if(StrCmpI(Opt.strLanguage,strInitedLanguage))
+		Opt.strLanguage=strInitedLanguage;
 
   GetRegKey(NKeyConfirmations,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 

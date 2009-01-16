@@ -2310,7 +2310,7 @@ void VMenu::SetOneColor (int Index, short Color)
 {
   CriticalSectionLock Lock(CS);
 
-  if ((DWORD)Index < sizeof(Colors) / sizeof (Colors [0]))
+	if ((DWORD)Index < countof(Colors))
     Colors [Index]=FarColorToReal(Color);
 }
 

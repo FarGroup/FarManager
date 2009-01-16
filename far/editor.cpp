@@ -4516,7 +4516,7 @@ void Editor::GoToPosition()
   //  static char PrevLine[40]={0};
 
   //  strcpy(GoToDlg[1].Data,PrevLine);
-  Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
+	Dialog Dlg(GoToDlg,countof(GoToDlg));
   Dlg.SetPosition(-1,-1,25,5);
   Dlg.SetHelp(L"EditorGotoPos");
   Dlg.Process();

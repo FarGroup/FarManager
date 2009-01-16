@@ -87,7 +87,7 @@ extern const DWORD FAR_VERSION;
 extern wchar_t RegColorsHighlight[];
 
 extern BOOL LanguageLoaded;
-extern wchar_t InitedLanguage[];
+extern string strInitedLanguage;
 
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
@@ -148,8 +148,6 @@ extern const wchar_t *ReservedFilenameSymbols;
 
 extern int KeepUserScreen;
 extern string g_strDirToSet; //RAVE!!!
-
-extern BOOL IsFn_FAR_CopyFileEx;
 
 extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
