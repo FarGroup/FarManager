@@ -243,6 +243,12 @@ $(OBJPATH)\flink.obj: flink.cpp cc.bat
 $(OBJPATH)\copy.obj: copy.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
+farversion.inc:
+	@tools\m4 -P farversion.inc.m4 > farversion.inc
+
+copyright.inc:
+	@tools\m4 -P copyright.inc.m4 > copyright.inc
+
 lang.hpp : farlang.templ
 	@tools\lng.generator.exe -nc -i lang.ini farlang.templ
 

@@ -276,6 +276,7 @@ static TMacroFunction macroFunction[]={
   {"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
   {"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
   {"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
+  {"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL},          // V=Editor.Sel(Action[,Opt])
   {"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
   {"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
   {"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S)
@@ -288,6 +289,7 @@ static TMacroFunction macroFunction[]={
   {"INDEX",            2, 0,   MCODE_F_INDEX},               // S=index(S1,S2)
   {"INT",              1, 0,   MCODE_F_INT},                 // N=int(V)
   {"ITOA",             2, 1,   MCODE_F_ITOA},                // S=itoa(N[,radix])
+  {"KEY",              1, 0,   MCODE_F_KEY},                 // S=key(V)
   {"LCASE",            1, 0,   MCODE_F_LCASE},               // S=lcase(S1)
   {"LEN",              1, 0,   MCODE_F_LEN},                 // N=len(S)
   {"MAX",              2, 0,   MCODE_F_MAX},                 // N=max(N1,N2)
@@ -311,7 +313,7 @@ static TMacroFunction macroFunction[]={
   {"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
   {"TRIM",             2, 1,   MCODE_F_TRIM},                // S=trim(S[,N])
   {"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
-  {"WAITKEY",          1, 1,   MCODE_F_WAITKEY},             // S=waitkey([N])
+  {"WAITKEY",          2, 2,   MCODE_F_WAITKEY},             // V=waitkey([N,[T]])
   {"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
 };
 
@@ -711,6 +713,7 @@ static TToken getToken(void)
             else
             {
               if(KeyNameMacroToKey(nameString) == -1)
+              {
                 if(KeyNameToKey(nameString) == -1)
                 {
                   if(checkMacroConst(nameString))
@@ -718,6 +721,12 @@ static TToken getToken(void)
                   else
                      keyMacroParseError(err_Unrecognized_keyword,nameString);
                 }
+                else
+                {
+                  currVar = (__int64)KeyNameToKey(nameString);
+                  __currTok = tInt; //??
+                }
+              }
             }
           }
         }
@@ -1054,6 +1063,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_DATE,             "S=date(S)"},
     {MCODE_F_DLG_GETVALUE,     "V=Dlg.GetValue(ID,N)"},
     {MCODE_F_EDITOR_SET,       "N=Editor.Set(N,Var)"},
+    {MCODE_F_EDITOR_SEL,       "V=Editor.Sel(Action[,Opt])"},
     {MCODE_F_ENVIRON,          "S=env(S)"},
     {MCODE_F_FATTR,            "N=fattr(S)"},
     {MCODE_F_FEXIST,           "S=fexist(S)"},
@@ -1087,7 +1097,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_STRING,           "S=string(V)"},
     {MCODE_F_SUBSTR,           "S=substr(S1,S2[,N])"},
     {MCODE_F_UCASE,            "S=ucase(S1)"},
-    {MCODE_F_WAITKEY,          "S=waitkey([N])"},
+    {MCODE_F_WAITKEY,          "V=waitkey([N,[T]])"},
     {MCODE_F_XLAT,             "S=xlat(S)"},
     {MCODE_F_BM_ADD,           "N=BM.Add()"},
     {MCODE_F_BM_CLEAR,         "N=BM.Clear()"},
@@ -1098,6 +1108,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_DEL,           "N=BM.Del([Idx])"},
     {MCODE_F_TRIM,             "S=trim(S[,N])"},
     {MCODE_F_REG_GET,          "V=reg.get(iRoot, \"Key\"[, \"Value\"])"},
+    {MCODE_F_KEY,              "S=key(V)"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)

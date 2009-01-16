@@ -1006,6 +1006,8 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_DATE),
      DEF_MCODE_(F_DLG_GETVALUE),
      DEF_MCODE_(F_EDITOR_SET),
+     DEF_MCODE_(F_EDITOR_SEL),
+     DEF_MCODE_(F_KEY),
      DEF_MCODE_(F_ENVIRON),
      DEF_MCODE_(F_EVAL),                // N=eval(S)
      DEF_MCODE_(F_CALLPLUGIN),

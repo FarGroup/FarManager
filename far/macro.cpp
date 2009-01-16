@@ -1472,20 +1472,53 @@ static bool evalFunc()
   return Ret;
 }
 
-// S=waitkey([N])
-static bool waitkeyFunc()
+// S=key(V)
+static bool keyFunc()
 {
-  long Period=(long)VMStack.Pop().toInteger();
-  _SVS(SysLog("waitkeyFunc :: Period=%u",Period));
-  DWORD Key=WaitKey((DWORD)-1,Period);
+  TVar VarKey=VMStack.Pop();
   char KeyName[128];
   *KeyName=0;
-  if(Key != KEY_NONE)
-   if(!KeyToText(Key,KeyName,sizeof(KeyName)-1))
-     *KeyName=0;
+
+  if(VarKey.isInteger())
+  {
+    if(VarKey.i())
+      KeyToText((int)VarKey.i(),KeyName,sizeof(KeyName)-1);
+  }
+  else
+  {
+    // Проверим...
+    DWORD Key=(DWORD)KeyNameToKey(VarKey.s());
+    if(Key != (DWORD)-1 && Key==(DWORD)VarKey.i())
+      xstrncpy(KeyName,VarKey.s(),sizeof(KeyName)-1);
+  }
 
   VMStack.Push((const char *)KeyName);
   return *KeyName==0;
+}
+
+// V=waitkey([N,[T]])
+static bool waitkeyFunc()
+{
+  long Type=(long)VMStack.Pop().toInteger();
+  long Period=(long)VMStack.Pop().toInteger();
+  _SVS(SysLog("waitkeyFunc :: Period=%u",Period));
+  DWORD Key=WaitKey((DWORD)-1,Period);
+  if(!Type)
+  {
+    char KeyName[128];
+    *KeyName=0;
+    if(Key != KEY_NONE)
+    {
+     if(!KeyToText(Key,KeyName,sizeof(KeyName)-1))
+       *KeyName=0;
+    }
+    VMStack.Push((const char *)KeyName);
+    return *KeyName==0;
+  }
+  if(Key == KEY_NONE)
+    Key=-1;
+  VMStack.Push((__int64)Key);
+  return Key != -1;
 }
 
 
@@ -2259,6 +2292,47 @@ static bool panelsetposFunc()
   VMStack.Push(Ret);
   return Ret?true:false;
 }
+
+
+// V=Editor.Sel(Action[,Opt])
+static bool editorselFunc()
+{
+ /*
+  MCODE_F_EDITOR_SEL
+    Action: 0 = Get Pos
+                Opt:  0 = return FirstLine
+                      1 = return FirstPos
+                      2 = return LastLine
+                      3 = return LastPos
+                return: 0 = failure, 1... request value
+
+            1 = Set Pos
+                Opt:  0 = begin block (FirstLine & FirstPos)
+                      1 = end block (LastLine & LastPos)
+                return: 0 = failure, 1 = success
+
+            2 = Set Stream Selection Edge
+                Opt:  0 = selection start
+                      1 = selection finish
+                return: 0 = failure, 1 = success
+
+            3 = Set Column Selection Edge
+                Opt:  0 = selection start
+                      1 = selection finish
+                return: 0 = failure, 1 = success
+  */
+  TVar Ret(_i64(0));
+  TVar Opt    = VMStack.Pop();
+  TVar Action = VMStack.Pop();
+
+  if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+    Ret=CtrlObject->Plugins.CurEditor->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+
+  VMStack.Push(Ret);
+
+  return Ret.i() == _i64(1);
+}
+
 
 //*************************
 // Ахтунг, недоделано!
@@ -3259,7 +3333,7 @@ done:
         DWORD Op;
         bool (*Func)();
       } MCode2Func[]={
-        {MCODE_F_WAITKEY,waitkeyFunc},  // S=waitkey([N])
+        {MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
         {MCODE_F_ITOA,itoaFunc}, // S=itoa(N,radix)
         {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
         {MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
@@ -3286,6 +3360,7 @@ done:
         {MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
         {MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
         {MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
+        {MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
         {MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
         {MCODE_F_STRING,stringFunc},  // S=string(V)
         {MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
@@ -3298,7 +3373,7 @@ done:
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
         {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param[,type]])
         {MCODE_F_REG_GET,reggetFunc}, // V=reg.get(iRoot, "Key"[, "Value"])
-
+        {MCODE_F_KEY,keyFunc}, // S=key(V)
       };
       int J;
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)

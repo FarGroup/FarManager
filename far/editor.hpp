@@ -119,6 +119,10 @@ class Editor:public ScreenObject
     int Pasting;
     char GlobalEOL[10];
 
+    // работа с блоками из макросов (MCODE_F_EDITOR_SEL)
+    Edit *MBlockStart;
+    int   MBlockStartX;
+
     Edit *BlockStart;
     int BlockStartLine;
     Edit *VBlockStart;
@@ -213,6 +217,9 @@ class Editor:public ScreenObject
     bool AddString (const char *lpszStr, int nLength);
     Edit *CreateString (const char *lpszStr, int nLength);
 
+    int BlockStart2NumLine(int *Pos);
+    int BlockEnd2NumLine(int *Pos);
+
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
     virtual ~Editor();
@@ -269,7 +276,7 @@ class Editor:public ScreenObject
     int  GetReadOnlyLock(void) const {return EdOpt.ReadOnlyLock; }
 
     void SetShowScrollBar(int NewMode){EdOpt.ShowScrollBar=NewMode;}
-    
+
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
