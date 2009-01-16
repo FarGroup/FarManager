@@ -251,6 +251,7 @@ static TMacroFunction macroFunction[]={
   {L"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
   {L"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
   {L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
+  {L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL},          // V=Editor.Sel(Action[,Opt])
   {L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
   {L"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
   {L"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S)
@@ -264,6 +265,7 @@ static TMacroFunction macroFunction[]={
   {L"INT",              1, 0,   MCODE_F_INT},                 // N=int(V)
   {L"ITOA",             2, 1,   MCODE_F_ITOA},                // S=itoa(N[,radix])
   {L"LCASE",            1, 0,   MCODE_F_LCASE},               // S=lcase(S1)
+  {L"KEY",              1, 0,   MCODE_F_KEY},                 // S=key(V)
   {L"LEN",              1, 0,   MCODE_F_LEN},                 // N=len(S)
   {L"MAX",              2, 0,   MCODE_F_MAX},                 // N=max(N1,N2)
   {L"MENU.SELECT",      2, 1,   MCODE_F_MENU_SELECT},         // N=Menu.Select(S[,N])
@@ -285,7 +287,7 @@ static TMacroFunction macroFunction[]={
   {L"SUBSTR",           3, 1,   MCODE_F_SUBSTR},              // S=substr(S,N1[,N2])
   {L"TRIM",             2, 1,   MCODE_F_TRIM},                // S=trim(S[,N])
   {L"UCASE",            1, 0,   MCODE_F_UCASE},               // S=ucase(S1)
-  {L"WAITKEY",          1, 1,   MCODE_F_WAITKEY},             // S=waitkey([N])
+  {L"WAITKEY",          2, 2,   MCODE_F_WAITKEY},             // V=waitkey([N,[T]])
   {L"XLAT",             1, 0,   MCODE_F_XLAT},                // S=xlat(S)
 };
 
@@ -672,6 +674,7 @@ static TToken getToken(void)
             else
             {
               if(KeyNameMacroToKey(nameString) == -1)
+              {
                 if(KeyNameToKey(nameString) == -1)
                 {
                   if(checkMacroConst(nameString))
@@ -679,6 +682,13 @@ static TToken getToken(void)
                   else
                      keyMacroParseError(err_Unrecognized_keyword,nameString);
                 }
+                else
+                {
+                  currVar = (__int64)KeyNameToKey(nameString);
+                  __currTok = tInt; //??
+                }
+
+              }
             }
           }
         }
@@ -1028,6 +1038,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_CLIP,             L"V=clip(N[,S])"},
     {MCODE_F_DATE,             L"S=date(S)"},
     {MCODE_F_DLG_GETVALUE,     L"V=Dlg.GetValue(ID,N)"},
+    {MCODE_F_EDITOR_SEL,       L"V=Editor.Sel(Action[,Opt])"},
     {MCODE_F_EDITOR_SET,       L"N=Editor.Set(N,Var)"},
     {MCODE_F_ENVIRON,          L"S=env(S)"},
     {MCODE_F_FATTR,            L"N=fattr(S)"},
@@ -1055,14 +1066,13 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_SETPOSIDX,  L"N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        L"V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             L"N=eval(S)"},
-
     {MCODE_F_REPLACE,          L"S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           L"S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            L"N=Sleep(N)"},
     {MCODE_F_STRING,           L"S=string(V)"},
     {MCODE_F_SUBSTR,           L"S=substr(S1,S2[,N])"},
     {MCODE_F_UCASE,            L"S=ucase(S1)"},
-    {MCODE_F_WAITKEY,          L"S=waitkey([N])"},
+    {MCODE_F_WAITKEY,          L"V=waitkey([N,[T]])"},
     {MCODE_F_XLAT,             L"S=xlat(S)"},
     {MCODE_F_BM_ADD,           L"N=BM.Add()"},
     {MCODE_F_BM_CLEAR,         L"N=BM.Clear()"},
@@ -1072,6 +1082,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_GET,           L"N=BM.Get(Idx,M)"},
     {MCODE_F_BM_DEL,           L"N=BM.Del([Idx])"},
     {MCODE_F_TRIM,             L"S=trim(S[,N])"},
+    {MCODE_F_KEY,              L"S=key(V)"},
  };
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)

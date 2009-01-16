@@ -209,10 +209,9 @@ void ControlObject::ShowCopyright(DWORD Flags)
   string strLine;
 
   strStr.SetData (Str, CP_OEMCP); //BUGBUG
+  strLine.SetData (Line2, CP_OEMCP);
 
   xf_free (Str);
-
-  strLine.SetData (Line2, CP_OEMCP);
 
   if(Flags&1)
   {

@@ -119,6 +119,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
 
   m_codepage = CP_OEMCP; //BUGBUG
 
+  MBlockStart=NULL;
+  MBlockStartX=-1;
+
   InsertString (NULL, 0);
 }
 
@@ -925,6 +928,58 @@ void Editor::TextChanged(int State)
 }
 
 
+int Editor::BlockStart2NumLine(int *Pos)
+{
+  if(BlockStart)
+  {
+    if(Pos)
+      *Pos=BlockStart->SelStart;
+    return CalcDistance(TopList,BlockStart,-1);
+  }
+  return -1;
+}
+
+int Editor::BlockEnd2NumLine(int *Pos)
+{
+  int iLine=-1, iPos=-1;
+  if(BlockStart)
+  {
+    int StartSel, EndSel;
+    Edit *eLine=BlockStart;
+    iLine=BlockStart2NumLine(NULL);
+
+    while (eLine)
+    {
+      eLine->GetSelection(StartSel,EndSel);
+      if (StartSel!=-1)
+      {
+        iPos=EndSel;
+        iLine++;
+      }
+      else
+      {
+        if(eLine->m_next)
+        {
+          eLine->m_next->GetSelection(StartSel,EndSel);
+          if(StartSel==-1)
+          {
+            break;
+          }
+        }
+        else
+          break;
+      }
+      eLine=eLine->m_next;
+    }
+  }
+
+  if(Pos)
+    *Pos=iPos;
+
+  return iLine;
+}
+
+
 __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
   int CurPos=CurLine->GetCurPos();
@@ -983,6 +1038,108 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
     case MCODE_F_BM_DEL:                   // N=BM.Del(Idx) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
       return DeleteStackBookmark(PointerToStackBookmark((int)iParam-1));
+
+    case MCODE_F_EDITOR_SEL:
+    {
+      int iLine;
+      int iPos;
+      int Action=(int)((INT_PTR)vParam);
+
+      switch(Action)
+      {
+        case 0:  // Get Pos
+        {
+          switch(iParam)
+          {
+            case 0:  // return FirstLine
+            {
+              iLine=BlockStart2NumLine(NULL)+1;
+              return iLine;
+            }
+
+            case 1:  // return FirstPos
+            {
+              if(!BlockStart)
+                return 0;
+              return BlockStart->SelStart+1;
+            }
+
+            case 2:  // return LastLine
+            {
+              return BlockEnd2NumLine(NULL)+1;
+            }
+
+            case 3:  // return LastPos
+            {
+              if(BlockEnd2NumLine(&iPos) != -1)
+                return iPos+1;
+              return 0;
+            }
+
+          }
+          break;
+        }
+
+        case 1:  // Set Pos
+        {
+          switch(iParam)
+          {
+            case 0: // begin block (FirstLine & FirstPos)
+            case 1: // end block (LastLine & LastPos)
+            {
+              if(iParam == 0)
+                iLine=BlockStart2NumLine(&iPos);
+              else
+                iLine=BlockEnd2NumLine(&iPos);
+
+              if(iLine > -1 && iPos > -1)
+              {
+                GoToLine(iLine);
+                CurLine->SetTabCurPos(iPos);
+                return 1;
+              }
+              return 0;
+            }
+          }
+          break;
+        }
+
+        case 2: // Set Stream Selection Edge
+        case 3: // Set Column Selection Edge
+        {
+          switch(iParam)
+          {
+            case 0:  // selection start
+            {
+              MBlockStart=CurLine;
+              MBlockStartX=CurLine->GetCurPos();
+              return 1;
+            }
+
+            case 1:  // selection finish
+            {
+              if(MBlockStart)
+              {
+                struct EditorSelect eSel;
+                eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
+                eSel.BlockStartLine=CalcDistance(TopList,MBlockStart,-1);
+                eSel.BlockStartPos=MBlockStartX;
+                eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
+                eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
+
+                MBlockStart=NULL;
+                MBlockStartX=-1;
+                return EditorControl(ECTL_SELECT,&eSel);
+              }
+              return 0;
+            }
+          }
+          break;
+        }
+
+      }
+      break;
+    }
 
   }
   return _i64(0);

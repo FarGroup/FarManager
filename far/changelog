@@ -1,3 +1,77 @@
+svs 16.01.2009 16:35:23 +0300 - build 737
+
+0. с предущим патчем напортачил - не вовремя удалил буфер.
+
+1. Macro: функция waitkey имеет второй необязательный параметр - тип возвращаемого значения: 
+   0 - вернуть строковое название клавиши, 1 - числовое название клавиши
+
+     V=waitkey([N,[T]])
+
+2. Macro: добавлена функция Editor.Sel
+
+    V=Editor.Sel(Action[,Opt])
+
+   позволяет манипулировать выделениями в тексте
+
+      Action: 0 = Get Pos
+                  Opt:  0 = return FirstLine
+                        1 = return FirstPos
+                        2 = return LastLine
+                        3 = return LastPos
+                  return: 0 = failure, 1... request value
+
+              1 = Set Pos
+                  Opt:  0 = begin block (FirstLine & FirstPos)
+                        1 = end block (LastLine & LastPos)
+                  return: 0 = failure, 1 = success
+
+              2 = Set Stream Selection Edge
+                  Opt:  0 = selection start
+                        1 = selection finish
+                  return: 0 = failure, 1 = success
+
+              3 = Set Column Selection Edge
+                  Opt:  0 = selection start
+                        1 = selection finish
+                  return: 0 = failure, 1 = success
+
+   Например, повторим некоторые сочетания клавиш из Turbo-сред (повесим макрос на сочетание Ctrl-K):
+
+   %k=waitkey(0,1); 
+   $if(%k==B || %k==b || %k==CtrlB) 
+     editor.sel(2,0) 
+   $else 
+     $if(%k==K || %k==k || %k==CtrlK)
+       editor.sel(2,1) 
+     $else
+       $if((%k==C || %k==c || %k==CtrlC) && Selected)
+         CtrlC
+       $else
+         $if((%k==Y || %k==y || %k==CtrlY) && Selected)
+           CtrlD
+         $else
+           eval("F1")
+         $end
+       $end
+     $end
+   $end
+
+
+3. Уточнение в WaitKey() - "пропускаем только любые настоящие клавиши" (код < KEY_END_FKEY)
+
+4. добавлена функция "s=key(v)" - преобразует значение v в строковый эквивалент названия клавиши.
+   если v строка, то проверяется правильность написания клавиши и она же возвращается
+   если v число, то происходит попытка преобразовать в текст
+   в случае ошибок - возвращается пустая строка.
+
+5. Macro: теперь именованные клавиши могут участвовать в любых вычислениях.
+   Например, 
+     %k=waitkey(0,1); $if(%k == CtrlB)...
+   или
+     %k=CtrlK; ..... %k=%k+Alt; eval(key(%k))
+
+
+
 svs 16.01.2009 13:55:26 +0300 - build 736
 
 1. Ситуация была - в copyright.inc количество символов превышало 256, заявленных для Str в ControlObject::ShowCopyright().

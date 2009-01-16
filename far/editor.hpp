@@ -149,6 +149,10 @@ class Editor:public ScreenObject
     int Pasting;
     wchar_t GlobalEOL[10];
 
+    // работа с блоками из макросов (MCODE_F_EDITOR_SEL)
+    Edit *MBlockStart;
+    int   MBlockStartX;
+
     Edit *BlockStart;
     int BlockStartLine;
     Edit *VBlockStart;
@@ -232,6 +236,9 @@ class Editor:public ScreenObject
     int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
     int GetStackBookmark(int iIdx,EditorBookMarks *Param);
     int GetStackBookmarks(EditorBookMarks *Param);
+
+    int BlockStart2NumLine(int *Pos);
+    int BlockEnd2NumLine(int *Pos);
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);
