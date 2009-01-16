@@ -202,10 +202,10 @@ ControlObject::~ControlObject()
 */
 void ControlObject::ShowCopyright(DWORD Flags)
 {
-  char Str[256];
+  char *Str=strdup(Copyright);
   char *Line2=NULL;
-  strcpy(Str,Copyright);
   char Xor=17;
+
   for (int I=0;Str[I];I++)
   {
     Str[I]=(Str[I]&0x7f)^Xor;
@@ -216,15 +216,13 @@ void ControlObject::ShowCopyright(DWORD Flags)
       Str[I]='\0';
     }
   }
+
   if(Flags&1)
   {
     fprintf(stderr,"%s\n%s\n",Str,Line2);
   }
   else
   {
-#ifdef BETA
-    mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
-#else
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConOut,&csbi);
     int FreeSpace=csbi.dwSize.Y-csbi.dwCursorPosition.Y-1;
@@ -240,8 +238,8 @@ void ControlObject::ShowCopyright(DWORD Flags)
     }
     else
       Text(Str);
-#endif
   }
+  xf_free (Str);
 }
 
 
