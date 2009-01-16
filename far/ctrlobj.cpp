@@ -191,9 +191,8 @@ ControlObject::~ControlObject()
 
 void ControlObject::ShowCopyright(DWORD Flags)
 {
-  char Str[256];
+  char *Str=strdup(Copyright);
   char *Line2=NULL;
-  strcpy(Str,Copyright);
   char Xor=17;
   for (int I=0;Str[I];I++)
   {
@@ -210,6 +209,9 @@ void ControlObject::ShowCopyright(DWORD Flags)
   string strLine;
 
   strStr.SetData (Str, CP_OEMCP); //BUGBUG
+
+  xf_free (Str);
+
   strLine.SetData (Line2, CP_OEMCP);
 
   if(Flags&1)
