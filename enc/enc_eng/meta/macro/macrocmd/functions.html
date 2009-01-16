@@ -382,10 +382,19 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">S=<dfn><a name="waitkey">waitkey</a></dfn>([N])</td>
-    <td class="cont" width="60%">Awaits any key and returns its name.
-      If the timeout <em>N</em> (in milliseconds) was reached, an empty string is returned.
+    <td class="cont" width="40%">V=<dfn><a name="waitkey">waitkey</a></dfn>([N, [T]])</td>
+    <td class="cont" width="60%">Ожидает любую клавишу и возвращает ее название (<em>T</em>=0) или значение (<em>T</em>=1).
+     Если время ожидания <em>N</em> (миллисекунды) истекло, функция возвращает пустую строку (<em>T</em>=0) или 0 (<em>T</em>=1).
      Если параметр <em>N</em> не указан или равен 0, то функция будет бесконечно ждать нажатия клавиши.
+     <br>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="key">key</a></dfn>(V)</td>
+    <td class="cont" width="60%">Преобразует параметр <em>V</em> в строковый эквивалент названия клавиши.<br>
+     Если <em>V</em> строка, то проверяется правильность написания клавиши и она же возвращается,
+     если <em>V</em> число, то происходит попытка преобразовать значение в текстовый эквивалент названия клавиши.<br>
+     В случае ошибок - возвращается пустая строка.
      <br>
     </td>
   </tr>
@@ -595,6 +604,72 @@ $End
        Returns the previous value of the option or -1 if wrong arguments are given.<br>
        For example, a macro that moves the selected block one line down:
        <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
+    </td>
+  </tr>
+
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="editor.sel">Editor.Sel</a></dfn>(Action[,Opt])</td>
+    <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">получить параметры текущего блока
+        <table class="cont">
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">вернуть номер строки начала блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">вернуть номер позиции в строке начала блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">вернуть номер строки конца блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">вернуть номер позиции в строке конца блока</td></tr>
+        </table>
+        </td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позиционировать курсор внутри текущего блока
+        <table class="cont">
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">установить курсор в начало отмеченного блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">установить курсор в конец отмеченного блока</td></tr>
+        </table>
+        </td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">установка позиций блока
+        <table class="cont">
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца блока</td></tr>
+        </table>
+        После отметки конца блока: с текущего блока выделение снимается и помечается новый блок.
+        </td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">установка позиций вертикального блока
+        <table class="cont">
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала вертикального блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца вертикального блока</td></tr>
+        </table>
+        После отметки конца блока: с текущего блока выделение снимается и помечается новый вертикальный блок.
+        </td></tr>
+       </table>
+
+       Для <em>Action</em> 2 или 3 позицией начала/конца блока считается текущая позиция курсора.
+       <br>
+       В случае ошибки возвращаемое значение равно 0, иначе 1. Для <em>Action</em>=0 возвращается запрошенное значение.
+      <br>
+      Например, повторим некоторые сочетания клавиш из Turbo-сред (макрос на сочетание Ctrl-K):
+      <pre class=code>%k=waitkey(0,1);
+$if(%k==B || %k==b || %k==CtrlB)
+  editor.sel(2,0)
+$else
+  $if(%k==K || %k==k || %k==CtrlK)
+    editor.sel(2,1)
+  $else
+    $if((%k==C || %k==c || %k==CtrlC) &amp;&amp; Selected)
+      CtrlC
+    $else
+      $if((%k==Y || %k==y || %k==CtrlY) &amp;&amp; Selected)
+        CtrlD
+      $else
+        eval("F1")
+      $end
+    $end
+  $end
+$end</pre>
     </td>
   </tr>
 
