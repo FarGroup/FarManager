@@ -1122,10 +1122,21 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
               {
                 struct EditorSelect eSel;
                 eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
-                eSel.BlockStartLine=CalcDistance(TopList,MBlockStart,-1);
                 eSel.BlockStartPos=MBlockStartX;
                 eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
-                eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
+
+                int bl=CalcDistance(TopList,MBlockStart,-1);
+                int el=CalcDistance(TopList,CurLine,-1);
+                if(bl > el)
+                {
+                  eSel.BlockStartLine=el;
+                  eSel.BlockHeight=CalcDistance(CurLine,MBlockStart,-1)+1;
+                }
+                else
+                {
+                  eSel.BlockStartLine=bl;
+                  eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
+                }
 
                 MBlockStart=NULL;
                 MBlockStartX=-1;
