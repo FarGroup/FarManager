@@ -678,6 +678,8 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
       {
         if (GetReparsePointInfo(strTempRoot,strJuncName))
         {
+					if(IsLocalVolumePath(strJuncName))
+						Reenter=TRUE;
           if (!StrCmpN(strJuncName,L"\\??\\",4))
             strJuncName.LShift(4);
 
@@ -703,7 +705,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
             strJuncName=strTempRoot+strJuncName;
           }
 
-          if (!Reenter && !IsLocalVolumePath(strJuncName))
+					if(!Reenter)
             GetPathRoot(strJuncName,strRoot,TRUE);
           else
             GetPathRootOne(strJuncName,strRoot);
