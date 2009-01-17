@@ -205,27 +205,24 @@ void ControlObject::ShowCopyright(DWORD Flags)
     }
   }
 
-  string strStr;
-  string strLine;
-
-  strStr.SetData (Str, CP_OEMCP); //BUGBUG
-  strLine.SetData (Line2, CP_OEMCP);
+	string strStr(Str, CP_OEMCP); //BUGBUG
+	string strLine(Line2, CP_OEMCP);  //BUGBUG
 
   xf_free (Str);
 
   if(Flags&1)
   {
-    fprintf(stderr,"%s\n%s\n",Str,Line2);
+		fwprintf(stderr,L"%s\n%s\n",(const wchar_t*)strStr,(const wchar_t*)strLine);
   }
   else
   {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConOut,&csbi);
     int FreeSpace=csbi.dwSize.Y-csbi.dwCursorPosition.Y-1;
-    int LineCount=4+(Line2?1:0);
+		int LineCount=4+(strLine.IsEmpty()?0:1);
     if(FreeSpace<LineCount)
       ScrollScreen(LineCount-FreeSpace);
-    if(Line2)
+		if(!strLine.IsEmpty())
     {
       GotoXY(0,ScrY-4);
       Text(strStr);

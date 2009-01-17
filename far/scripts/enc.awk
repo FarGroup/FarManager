@@ -25,7 +25,7 @@ function enc(str, Xor)
       ch = 10
     save = ch
     ch = or(xor(ch,Xor),128)
-    printf("%c",ch)
+    printf("\\x%x",ch)
     Xor = xor(Xor,save)
   }
 }
