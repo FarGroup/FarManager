@@ -2,7 +2,7 @@
 !include ../make_vc_defs
 !endif
 
-# nmake fmt_vc.mak FMT=name
+# nmake makefile_vc_fmt FMT=name
 !if "$(FMT)" == ""
 !error An invalid FMT-target
 !endif

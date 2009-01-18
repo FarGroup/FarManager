@@ -67,6 +67,10 @@ BOOL WINAPI OpenArchivePipe(const char *Name, int *Type);
 int GetString(char *Str, int MaxSize);
 int HexCharToNum(int HexChar);
 int GetSectionName(int Num, char *Name, int MaxSize);
+
+DWORD GetIniString(LPCTSTR lpAppName,LPCTSTR lpKeyName,LPCTSTR lpDefault,LPTSTR lpReturnedString,DWORD nSize);
+UINT GetIniInt(LPCTSTR lpAppName,LPCTSTR lpKeyName,INT lpDefault);
+
 void FillFormat(const char *TypeName);
 void MakeFiletime(SYSTEMTIME st, SYSTEMTIME syst, LPFILETIME pft);
 int StringToInt(const char *str);
@@ -346,7 +350,8 @@ int     CurType;
 char    *OutData;
 DWORD   OutDataPos, OutDataSize;
 
-char    FormatFileName[NM];
+char    FormatFileName[NM],UserFormatFileName[NM];
+
 
 char    StartText[PROF_STR_LEN], EndText[PROF_STR_LEN];
 
@@ -385,6 +390,8 @@ DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 {
     lstrcpy(FormatFileName, ModuleName);
     lstrcpy(strrchr(FormatFileName, '\\') + 1, "custom.ini");
+    lstrcpy(UserFormatFileName,FormatFileName);
+    lstrcat(UserFormatFileName,".user");
     return (0);
 }
 
@@ -400,14 +407,13 @@ BOOL WINAPI _export IsArchive(const char *Name, const unsigned char *Data, int D
         if(!GetSectionName(I, TypeName, sizeof(TypeName)))
             break;
 
-        GetPrivateProfileString(TypeName, Str_TypeName, TypeName, Name, sizeof(Name),
-                                FormatFileName);
+        GetIniString(TypeName, Str_TypeName, TypeName, Name, sizeof(Name));
 
         if(*Name == 0)
             break;
 
-        GetPrivateProfileString(TypeName, "ID", "", ID, sizeof(ID), FormatFileName);
-        IDPos = GetPrivateProfileInt(TypeName, "IDPos", -1, FormatFileName);
+        GetIniString(TypeName, "ID", "", ID, sizeof(ID));
+        IDPos = GetIniInt(TypeName, "IDPos", -1);
 
         if(*ID)
         {
@@ -440,7 +446,7 @@ BOOL WINAPI _export IsArchive(const char *Name, const unsigned char *Data, int D
             }
             if(Found)
             {
-                if(GetPrivateProfileInt(TypeName, "IDOnly", 0, FormatFileName))
+                if(GetIniInt(TypeName, "IDOnly", 0))
                 {
                     CurType = I;
                     return (TRUE);
@@ -450,7 +456,7 @@ BOOL WINAPI _export IsArchive(const char *Name, const unsigned char *Data, int D
                 continue;
         }
 
-        GetPrivateProfileString(TypeName, "Extension", "", Ext, sizeof(Ext), FormatFileName);
+        GetIniString(TypeName, "Extension", "", Ext, sizeof(Ext));
 
         if(Dot != NULL && *Ext != 0 && LStricmp(Dot + 1, Ext) == 0)
         {
@@ -474,12 +480,12 @@ BOOL WINAPI _export OpenArchive(const char *Name, int *Type)
     if(!GetSectionName(CurType, TypeName, sizeof(TypeName)))
         return (FALSE);
 
-    GetPrivateProfileString(TypeName, "List", "", Command, sizeof(Command), FormatFileName);
+    GetIniString(TypeName, "List", "", Command, sizeof(Command));
 
     if(*Command == 0)
         return (FALSE);
 
-    IgnoreErrors = GetPrivateProfileInt(TypeName, "IgnoreErrors", 0, FormatFileName);
+    IgnoreErrors = GetIniInt(TypeName, "IgnoreErrors", 0);
     *Type = CurType;
 
     ArcChapters = -1;
@@ -532,7 +538,7 @@ BOOL WINAPI _export OpenArchive(const char *Name, int *Type)
         GetExitCodeProcess(pi.hProcess, &ExitCode);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
-        ExitCode = (ExitCode < GetPrivateProfileInt(TypeName, "Errorlevel", 1000, FormatFileName));
+        ExitCode = (ExitCode < GetIniInt(TypeName, "Errorlevel", 1000));
     }
 
     if(ExitCode)
@@ -696,8 +702,8 @@ BOOL WINAPI _export GetFormatName(int Type, char *FormatName, char *DefaultExt)
     if(!GetSectionName(Type, TypeName, sizeof(TypeName)))
         return (FALSE);
 
-    GetPrivateProfileString(TypeName, Str_TypeName, TypeName, FormatName, 64, FormatFileName);
-    GetPrivateProfileString(TypeName, "Extension", "", DefaultExt, NM, FormatFileName);
+    GetIniString(TypeName, Str_TypeName, TypeName, FormatName, 64);
+    GetIniString(TypeName, "Extension", "", DefaultExt, NM);
 
     return (*FormatName != 0);
 }
@@ -710,7 +716,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
     if(!GetSectionName(Type, TypeName, sizeof(TypeName)))
         return (FALSE);
 
-    GetPrivateProfileString(TypeName, Str_TypeName, TypeName, FormatName, 64, FormatFileName);
+    GetIniString(TypeName, Str_TypeName, TypeName, FormatName, 64);
 
     if(*FormatName == 0)
         return (FALSE);
@@ -722,7 +728,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
 
     if(Command < (int)(ArraySize(CmdNames)))
     {
-        GetPrivateProfileString(TypeName, CmdNames[Command], "", Dest, 512, FormatFileName);
+        GetIniString(TypeName, CmdNames[Command], "", Dest, 512);
         return (TRUE);
     }
 
@@ -742,12 +748,31 @@ int HexCharToNum(int HexChar)
     return (0);
 }
 
+
+
 int GetSectionName(int Num, char *Name, int MaxSize)
 {
     char Buf[8192];
     char *Section = Buf;
-
+   
     GetPrivateProfileSectionNames(Buf, sizeof(Buf), FormatFileName);
+    char tmp[3];
+    while(*Section)
+    {
+        if(*Section != ';' && !GetPrivateProfileSection(Section,tmp,sizeof(tmp),UserFormatFileName))
+        {
+            if(!Num)
+            {
+                lstrcpyn(Name, Section, MaxSize);
+                return TRUE;
+            }
+            Num--;
+        }
+        Section += lstrlen(Section) + 1;
+    }
+
+    Section = Buf;
+    GetPrivateProfileSectionNames(Buf,sizeof(Buf),UserFormatFileName);
     while(*Section)
     {
         if(*Section != ';')
@@ -764,10 +789,21 @@ int GetSectionName(int Num, char *Name, int MaxSize)
     return FALSE;
 }
 
+DWORD GetIniString(LPCTSTR lpAppName,LPCTSTR lpKeyName,LPCTSTR lpDefault,LPTSTR lpReturnedString,DWORD nSize)
+{
+	GetPrivateProfileString(lpAppName,lpKeyName,lpDefault,lpReturnedString,nSize,FormatFileName);
+	return GetPrivateProfileString(lpAppName,lpKeyName,lpReturnedString,lpReturnedString,nSize,UserFormatFileName);
+}
+
+UINT GetIniInt(LPCTSTR lpAppName,LPCTSTR lpKeyName,INT lpDefault)
+{
+	return GetPrivateProfileInt(lpAppName,lpKeyName,GetPrivateProfileInt(lpAppName,lpKeyName,lpDefault,FormatFileName),UserFormatFileName);
+}
+
 void FillFormat(const char *TypeName)
 {
-    GetPrivateProfileString(TypeName, "Start", "", StartText, sizeof(StartText), FormatFileName);
-    GetPrivateProfileString(TypeName, "End", "", EndText, sizeof(EndText), FormatFileName);
+    GetIniString(TypeName, "Start", "", StartText, sizeof(StartText));
+    GetIniString(TypeName, "End", "", EndText, sizeof(EndText));
 
     int FormatNumber = 0;
 
@@ -778,8 +814,7 @@ void FillFormat(const char *TypeName)
         char FormatName[100];
 
         SPrintf(FormatName, "Format%d", FormatNumber++);
-        GetPrivateProfileString(TypeName, FormatName, "", CurFormat->Str(), PROF_STR_LEN,
-                                FormatFileName);
+        GetIniString(TypeName, FormatName, "", CurFormat->Str(), PROF_STR_LEN);
         if(*CurFormat->Str() == 0)
             break;
     }
@@ -793,8 +828,7 @@ void FillFormat(const char *TypeName)
         char Name[100];
 
         SPrintf(Name, "IgnoreString%d", Number++);
-        GetPrivateProfileString(TypeName, Name, "", CurIgnoreString->Str(), PROF_STR_LEN,
-                                FormatFileName);
+        GetIniString(TypeName, Name, "", CurIgnoreString->Str(), PROF_STR_LEN);
         if(*CurIgnoreString->Str() == 0)
             break;
     }
@@ -864,7 +898,7 @@ BOOL WINAPI OpenArchivePipe(const char *Name, int *Type)
 
     if(!GetSectionName(CurType, TypeName, sizeof(TypeName)))
         return (FALSE);
-    GetPrivateProfileString(TypeName, "List", "", Command, sizeof(Command), FormatFileName);
+    GetIniString(TypeName, "List", "", Command, sizeof(Command));
     if(*Command == 0)
         return (FALSE);
     *Type = CurType;
@@ -939,7 +973,7 @@ BOOL WINAPI OpenArchivePipe(const char *Name, int *Type)
         GetExitCodeProcess(pi.hProcess, &ExitCode);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
-        ExitCode = (ExitCode < GetPrivateProfileInt(TypeName, "Errorlevel", 1000, FormatFileName));
+        ExitCode = (ExitCode < GetIniInt(TypeName, "Errorlevel", 1000));
 
         if(!ExitCode)
             GlobalFree((HGLOBAL) OutData);
