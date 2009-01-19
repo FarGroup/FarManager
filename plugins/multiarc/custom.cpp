@@ -391,7 +391,7 @@ DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
     lstrcpy(FormatFileName, ModuleName);
     lstrcpy(strrchr(FormatFileName, '\\') + 1, "custom.ini");
     lstrcpy(UserFormatFileName,FormatFileName);
-    lstrcat(UserFormatFileName,".user");
+    lstrcpy(strrchr(UserFormatFileName,'.'),"_user.ini");
     return (0);
 }
 
