@@ -557,8 +557,6 @@ void ShowTime(int ShowAlways)
 
 void GotoXY(int X,int Y)
 {
-  if (X<0) X=0;
-  if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
 }
@@ -840,8 +838,6 @@ void TextW(const WCHAR *Str)
 void Text(int X, int Y, int Color, const char *Str)
 {
   CurColor=FarColorToReal(Color);
-  if (X<0) X=0;
-  if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
   Text(Str);
