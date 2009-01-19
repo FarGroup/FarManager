@@ -1093,6 +1093,8 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 							Dst=Src;
 						}
 					}
+					if(!*Src)
+						break;
 				}
 				strPath.ReleaseBuffer();
 			}

@@ -1985,7 +1985,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
         case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
         case KEY_END:       case KEY_NUMPAD1:
-            rr=Key == KEY_CTRLRIGHT || Key == KEY_CTRLNUMPAD6?10:abs(X1-(ScrX - (X2-X1+1)))+1;
+            rr=Key == KEY_CTRLRIGHT || Key == KEY_CTRLNUMPAD6?10:Max(0,ScrX-X2);
         case KEY_RIGHT:     case KEY_NUMPAD6:
             Hide();
             for ( I=0; I<rr; I++ )
@@ -2015,7 +2015,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
         case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
         case KEY_PGDN:      case KEY_NUMPAD3:
-            rr=Key == KEY_CTRLDOWN || Key == KEY_CTRLNUMPAD2? 5: abs(Y1-(ScrY - (Y2-Y1+1)))+1;
+            rr=Key == KEY_CTRLDOWN || Key == KEY_CTRLNUMPAD2? 5:Max(0,ScrY-Y2);
         case KEY_DOWN:      case KEY_NUMPAD2:
             Hide();
             for ( I=0; I<rr; I++ )
