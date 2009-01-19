@@ -224,6 +224,8 @@ void VMenu::Show()
       BoxType=SHORT_SINGLE_BOX;
   }
 
+	if(!VMFlags.Check(VMENU_LISTBOX)){
+
   int AutoCenter=FALSE,AutoHeight=FALSE;
 
   if (X1==-1)
@@ -231,20 +233,12 @@ void VMenu::Show()
     X1=(ScrX-MaxLength-4)/2;
     AutoCenter=TRUE;
   }
-  if(VMFlags.Check(VMENU_LISTBOX))
-  {
-    if(X1<0)
-      X1=0;
-    if (X2<=0)
-      X2=X1+MaxLength+4;
-  }
-  else
-  {
-    if(X1<2)
-      X1=2;
-    if (X2<=0)
-      X2=X1+MaxLength+4;
-  }
+
+	if(X1<2)
+		X1=2;
+	if (X2<=0)
+		X2=X1+MaxLength+4;
+
   if (!AutoCenter && X2 > ScrX-(VMFlags.Check(VMENU_LISTBOX)?0:4)+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;
@@ -281,6 +275,10 @@ void VMenu::Show()
     Y1=2;
     Y2=ScrY-2;
   }
+
+	}
+
+
   if (X2>X1 && Y2+(VMFlags.Check(VMENU_SHOWNOBOX)?1:0)>Y1)
   {
   /*  if ( (OldX1 != X1) ||

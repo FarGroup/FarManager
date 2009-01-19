@@ -1974,7 +1974,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_LEFT:      case KEY_NUMPAD4:
             Hide();
             for ( I=0; I<rr; I++ )
-                if ( X1>0 )
+                if ( X2>0 )
                 {
                     X1--;
                     X2--;
@@ -1989,7 +1989,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_RIGHT:     case KEY_NUMPAD6:
             Hide();
             for ( I=0; I<rr; I++ )
-                if ( X2<ScrX )
+                if ( X1<ScrX )
                 {
                     X1++;
                     X2++;
@@ -2004,7 +2004,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_UP:        case KEY_NUMPAD8:
             Hide();
             for ( I=0; I<rr; I++ )
-                if ( Y1>0 )
+                if ( Y2>0 )
                 {
                     Y1--;
                     Y2--;
@@ -2019,7 +2019,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
         case KEY_DOWN:      case KEY_NUMPAD2:
             Hide();
             for ( I=0; I<rr; I++ )
-                if ( Y2<ScrY )
+                if ( Y1<ScrY )
                 {
                     Y1++;
                     Y2++;
@@ -3201,12 +3201,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             else
               my=MouseY-MsY;
 
-            mx=Max(0,Min(mx,ScrX-(X2-X1)));
             NX2=mx+(X2-X1);
             NX1=mx;
             AdjX=NX1-X0;
 
-            my=Max(0,Min(my,ScrY-(Y2-Y1)));
             NY2=my+(Y2-Y1);
             NY1=my;
             AdjY=NY1-Y0;

@@ -157,7 +157,14 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 {
   CriticalSectionLock Lock(CS);
 
-  if (X>=BufX || Y>=BufY || TextLength==0)
+	if(X<0)
+	{
+		Text-=X;
+		TextLength=Max(0,TextLength+X);
+		X=0;
+	}
+
+	if (X>=BufX || Y>=BufY || TextLength==0 || Y<0)
     return;
   if(X+TextLength >= BufX)
     TextLength=BufX-X; //??
@@ -447,6 +454,8 @@ void ScreenBuf::MoveCursor(int X,int Y)
 
   CurX=X;
   CurY=Y;
+	if(CurX<0||CurY<0||CurX>ScrX||CurY>ScrY)
+		CurVisible=FALSE;
   SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 }
 

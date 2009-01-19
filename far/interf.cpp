@@ -479,8 +479,6 @@ void ShowTime(int ShowAlways)
 
 void GotoXY(int X,int Y)
 {
-  if (X<0) X=0;
-  if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
 }
@@ -715,8 +713,6 @@ void InitRecodeOutTable(UINT cp)
 void Text(int X, int Y, int Color, const WCHAR *Str)
 {
   CurColor=FarColorToReal(Color);
-  if (X<0) X=0;
-  if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
   Text(Str);
