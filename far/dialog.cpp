@@ -173,7 +173,6 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginNumber=-1;
 	Dialog::DataDialog=InitParam;
-	DialogTooLong=0;
 	DialogMode.Set(DMODE_ISCANMOVE);
 	SetDropDownOpened(FALSE);
 
@@ -247,10 +246,6 @@ void Dialog::CheckDialogCoord(void)
   if ( Y1 >= 0 )
     Y2 = Y1+RealHeight-1;
 
-
-  DialogTooLong=0; // Т.к. консоль у нас может постоянно изменяться, то эта
-                   // инициализация необходима как воздух
-
   if(X2 > ScrX)
   {
     if(X1 != -1 && X2-X1+1 < ScrX) // если мы все же вмещаемся в консоль, то
@@ -258,11 +253,6 @@ void Dialog::CheckDialogCoord(void)
       int D=X2-ScrX;
       X1-=D;
       X2-=D;
-    }
-    else
-    {
-      X1=-1;
-      X2=ScrX;//-1; //???
     }
   }
 
@@ -272,18 +262,10 @@ void Dialog::CheckDialogCoord(void)
 
     if (X1 <= 0) // ширина диалога больше ширины экрана?
     {
-      DialogTooLong=X2-1;
       X1=0;
-      X2=ScrX;
     }
     else
       X2+=X1-1;
-  }
-
-  if(Y1 == -1 && Y2 > ScrY+1)
-  {
-    Y1=-1;
-    Y2=ScrY+1;
   }
 
   if (Y1 < 0) // задано центрирование диалога по вертикали?
@@ -663,7 +645,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
         CurItem->ObjPtr=new DlgEdit(this,I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
         if(Type == DI_COMBOBOX)
         {
-          CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
+          CurItem->ListPtr=new VMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,NULL/*,Parent*/);
         }
         CurItem->SelStart=-1;
       }
@@ -3896,9 +3878,8 @@ int Dialog::SelectFromComboBox(
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
       EditX2=EditX1+20;
-    if (EditX2>ScrX)
-      EditX2=ScrX;
-    ComboBox->SetPosition(EditX1,EditY1+1,EditX2,0);
+		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+		SetComboBoxPos();
     // Перед отрисовкой спросим об изменении цветовых атрибутов
     BYTE RealColors[VMENU_COLOR_COUNT];
     struct FarListColors ListColors={0};
@@ -3908,8 +3889,6 @@ int Dialog::SelectFromComboBox(
     ComboBox->GetColors(&ListColors);
     if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
       ComboBox->SetColors(&ListColors);
-
-    SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
     // Выставим то, что есть в строке ввода!
     // if(EditLine->GetDropDownBox()) //???
@@ -4038,16 +4017,13 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   strRegKey.Format (fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
-    VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX);
+    VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
       EditX2=EditX1+20;
-    if (EditX2>ScrX)
-      EditX2=ScrX;
 
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
-    HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
@@ -4085,6 +4061,8 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
       }
       if (ItemsCount==0)
         break;
+
+			SetComboBoxPos();
 
       // выставим селекшин
       if(!IsDeleted)
@@ -4839,6 +4817,7 @@ void Dialog::ResizeConsole()
 
   c.X=c.Y=-1;
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(LONG_PTR)&c);
+	Dialog::SetComboBoxPos();
 };
 
 //void Dialog::OnDestroy()
@@ -6616,4 +6595,19 @@ BOOL Dialog::IsEditChanged(unsigned ID)
 	CriticalSectionLock Lock(CS);
   	if(ID>=ItemCount) return FALSE;
 	return Item[ID]->IFlags.Check(DLGIIF_EDITCHANGEPROCESSED);
+}
+
+void Dialog::SetComboBoxPos()
+{
+	if(GetDropDownOpened())
+	{
+		int EditX1,EditY1,EditX2,EditY2;
+		((DlgEdit*)(Item[FocusPos]->ObjPtr))->GetPosition(EditX1,EditY1,EditX2,EditY2);
+		if(EditX2-EditX1<20)
+			EditX2=EditX1+20;
+		if(ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,Item[FocusPos]->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
+			Item[FocusPos]->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,Item[FocusPos]->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
+		else
+			Item[FocusPos]->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
+	}
 }

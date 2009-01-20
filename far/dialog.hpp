@@ -251,7 +251,6 @@ class Dialog: public Frame
     unsigned ItemCount;         // количество элементов диалога
 
     ConsoleTitle *OldTitle;     // предыдущий заголовок
-    int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
 
     FARWINDOWPROC RealDlgProc;      // функция обработки диалога
@@ -322,6 +321,7 @@ class Dialog: public Frame
     int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
+		void SetComboBoxPos();
 
     LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 

@@ -224,58 +224,60 @@ void VMenu::Show()
       BoxType=SHORT_SINGLE_BOX;
   }
 
-	if(!VMFlags.Check(VMENU_LISTBOX)){
+	if(!VMFlags.Check(VMENU_LISTBOX))
+	{
+		int AutoCenter=FALSE,AutoHeight=FALSE;
 
-  int AutoCenter=FALSE,AutoHeight=FALSE;
+		if(!VMFlags.Check(VMENU_COMBOBOX))
+		{
+			if (X1==-1)
+			{
+				X1=(ScrX-MaxLength-4)/2;
+				AutoCenter=TRUE;
+			}
 
-  if (X1==-1)
-  {
-    X1=(ScrX-MaxLength-4)/2;
-    AutoCenter=TRUE;
-  }
+			if(X1<2)
+				X1=2;
+			if (X2<=0)
+				X2=X1+MaxLength+4;
 
-	if(X1<2)
-		X1=2;
-	if (X2<=0)
-		X2=X1+MaxLength+4;
+			if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+			{
+				X1+=ScrX-4-X2;
+				X2=ScrX-4;
+				if (X1<2)
+				{
+					X1=2;
+					X2=ScrX-2;
+				}
+			}
+			if (X2>ScrX-2)
+				X2=ScrX-2;
 
-  if (!AutoCenter && X2 > ScrX-(VMFlags.Check(VMENU_LISTBOX)?0:4)+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
-  {
-    X1+=ScrX-4-X2;
-    X2=ScrX-4;
-    if (X1<2)
-    {
-      X1=2;
-      X2=ScrX-2;
-    }
-  }
-  if (!VMFlags.Check(VMENU_LISTBOX) && X2>ScrX-2)
-    X2=ScrX-2;
-
-  if (Y1==-1)
-  {
-    if (MaxHeight!=0 && MaxHeight<ItemCount)
-      Y1=(ScrY-MaxHeight-2)/2;
-    else
-      if ((Y1=(ScrY-ItemCount-2)/2)<0)
-        Y1=0;
-    AutoHeight=TRUE;
-  }
-  if (Y2<=0)
-  {
-    if (MaxHeight!=0 && MaxHeight<ItemCount)
-      Y2=Y1+MaxHeight+1;
-    else
-      Y2=Y1+ItemCount+1;
-  }
-  if (Y2>ScrY)
-    Y2=ScrY;
-  if (AutoHeight && Y1<3 && Y2>ScrY-3)
-  {
-    Y1=2;
-    Y2=ScrY-2;
-  }
-
+			if (Y1==-1)
+			{
+				if (MaxHeight!=0 && MaxHeight<ItemCount)
+					Y1=(ScrY-MaxHeight-2)/2;
+				else
+					if ((Y1=(ScrY-ItemCount-2)/2)<0)
+						Y1=0;
+				AutoHeight=TRUE;
+			}
+		}
+		if (Y2<=0)
+		{
+			if (MaxHeight!=0 && MaxHeight<ItemCount)
+				Y2=Y1+MaxHeight+1;
+			else
+				Y2=Y1+ItemCount+1;
+		}
+		if (Y2>ScrY)
+			Y2=ScrY;
+		if (AutoHeight && Y1<3 && Y2>ScrY-3)
+		{
+			Y1=2;
+			Y2=ScrY-2;
+		}
 	}
 
 
