@@ -938,7 +938,7 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
     if(!NORM_M_PREFIX(Machine)) {
       //Convert "//" to "\\"
       if(!REV_M_PREFIX(Machine))
-        memmove(Machine+2*sizeof(TCHAR), Machine, lstrlen(Machine)+1);
+        memmove(Machine+2, Machine, (lstrlen(Machine)+1)*sizeof(TCHAR));
 #ifndef UNICODE
         *(LPWORD)Machine = 0x5c5c;
 #else
