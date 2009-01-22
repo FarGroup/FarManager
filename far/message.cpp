@@ -573,7 +573,7 @@ int GetErrorString (string &strErrStr)
     if ( LastError != ERROR_SUCCESS )
     {
       LPWSTR lpBuffer;
-      FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
+			FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
                     NULL,
                     LastError,
                     0,
