@@ -108,25 +108,45 @@ unsigned long CRC32(
 }
 
 
-#define CRC32_SETSTARTUPINFO  0xF537107A
-#define CRC32_GETPLUGININFO   0xDB6424B4
-#define CRC32_OPENPLUGIN    0x601AEDE8
-#define CRC32_OPENFILEPLUGIN  0xAC9FF5CD
-#define CRC32_EXITFAR     0x04419715
-#define CRC32_SETFINDLIST   0x7A74A2E5
-#define CRC32_CONFIGURE     0x4DC1BC1A
+#define CRC32_SETSTARTUPINFO    0xF537107A
+#define CRC32_GETPLUGININFO     0xDB6424B4
+#define CRC32_OPENPLUGIN        0x601AEDE8
+#define CRC32_OPENFILEPLUGIN    0xAC9FF5CD
+#define CRC32_EXITFAR           0x04419715
+#define CRC32_SETFINDLIST       0x7A74A2E5
+#define CRC32_CONFIGURE         0x4DC1BC1A
 #define CRC32_GETMINFARVERSION  0x2BBAD952
 
-DWORD ExportCRC32[7] = {
+#define CRC32_SETSTARTUPINFOW   0x972884E8
+#define CRC32_GETPLUGININFOW    0xEBDA386B
+#define CRC32_OPENPLUGINW       0x89BC5B7D
+#define CRC32_OPENFILEPLUGINW   0xC2740A22
+#define CRC32_EXITFARW          0x4AD48EA6
+#define CRC32_SETFINDLISTW      0xF717498F
+#define CRC32_CONFIGUREW        0xDA22131C
+#define CRC32_GETMINFARVERSIONW 0xA243A1DB
+
+DWORD ExportCRC32[] = {
     CRC32_SETSTARTUPINFO,
     CRC32_GETPLUGININFO,
     CRC32_OPENPLUGIN,
     CRC32_OPENFILEPLUGIN,
     CRC32_EXITFAR,
     CRC32_SETFINDLIST,
-//    CRC32_CONFIGURE,
+    CRC32_CONFIGURE,
     CRC32_GETMINFARVERSION
     };
+
+DWORD ExportCRC32W[] = {
+	CRC32_SETSTARTUPINFOW,
+	CRC32_GETPLUGININFOW,
+	CRC32_OPENPLUGINW,
+	CRC32_OPENFILEPLUGINW,
+	CRC32_EXITFARW,
+	CRC32_SETFINDLISTW,
+	CRC32_CONFIGUREW,
+	CRC32_GETMINFARVERSIONW
+};
 
 enum PluginType {
 	NOT_PLUGIN,
@@ -187,42 +207,26 @@ PluginType IsModulePlugin2 (
 
 				DWORD* pNames = (DWORD *)&hModule[pExportDir->AddressOfNames-nDiff];
 
+				bool bOemExports=false;
 				for (DWORD n = 0; n < pExportDir->NumberOfNames; n++)
 				{
 					const char *lpExportName = (const char *)&hModule[pNames[n]-nDiff];
 
-					//BUGBUG надо переделать *оптимизацию* для новых имён с W
-					/*
 					DWORD dwCRC32 = CRC32 (0, lpExportName, (unsigned int)strlen (lpExportName));
 
-					for (int j = 0; j < 7; j++)  // а это вам не фиг знает что, это вам оптимизация, типа 8-)
-						if ( dwCRC32 == ExportCRC32[j] )
-							return TRUE;
-					*/
-
-					if ( !strcmp (lpExportName, "GetPluginInfoW") ||
-								!strcmp (lpExportName, "SetStartupInfoW") ||
-								!strcmp (lpExportName, "OpenPluginW") ||
-								!strcmp (lpExportName, "OpenFilePluginW") ||
-								!strcmp (lpExportName, "SetFindListW") ||
-								!strcmp (lpExportName, "ConfigureW") ||
-								!strcmp (lpExportName, "GetMinFarVersionW") ||
-								!strcmp (lpExportName, "ExitFARW") )
-						return UNICODE_PLUGIN;
-
-					if ( !strcmp (lpExportName, "GetPluginInfo") ||
-								!strcmp (lpExportName, "SetStartupInfo") ||
-								!strcmp (lpExportName, "OpenPlugin") ||
-								!strcmp (lpExportName, "OpenFilePlugin") ||
-								!strcmp (lpExportName, "SetFindList") ||
-								!strcmp (lpExportName, "Configure") ||
-								!strcmp (lpExportName, "GetMinFarVersion") ||
-								!strcmp (lpExportName, "ExitFAR") )
-						return OEM_PLUGIN;
+					// а это вам не фиг знает что, это вам оптимизация, типа 8-)
+					for (int j = 0; j < countof(ExportCRC32W); j++)
+						if ( dwCRC32 == ExportCRC32W[j] )
+							return UNICODE_PLUGIN;
+					if(!bOemExports)
+						for (int j = 0; j < countof(ExportCRC32); j++)
+							if ( dwCRC32 == ExportCRC32[j] )
+								bOemExports=true;
 				}
+				if(bOemExports)
+					return OEM_PLUGIN;
 			}
 		}
-
 		return NOT_PLUGIN;
 	}
 	EXCEPT (EXCEPTION_EXECUTE_HANDLER)
