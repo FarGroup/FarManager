@@ -530,7 +530,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
     /* $ 27.01.2001 VVM
        + Если GetErrorString не распознает ошибку - пытается узнать у системы */
     if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL, LastError, 0, ErrStr, StrSize, NULL))
     {
       // для проверки криков:
