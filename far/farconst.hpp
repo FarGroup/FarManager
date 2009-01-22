@@ -306,8 +306,6 @@ enum {
 
 // Размер истории - как для класса History, так и для диалогов!
 #define HISTORY_COUNT    64
-// Количество закладок в редакторе/вьювере на одну позицию
-#define BOOKMARK_COUNT   10
 
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 

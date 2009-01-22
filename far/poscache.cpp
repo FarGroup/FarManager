@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "poscache.hpp"
-
 #include "fn.hpp"
 #include "udlist.hpp"
 #include "registry.hpp"
@@ -48,18 +47,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static wchar_t EmptyPos[]=L"0,0,0,0,0,\"$\"";
 
-/*char FilePositionCache::SubKeyItem[16]="Item";
-char FilePositionCache::SubKeyShort[16]="Short";
-char *FilePositionCache::PtrSubKeyItem;
-char *FilePositionCache::PtrSubKeyShort;*/
-
-
 FilePositionCache::FilePositionCache(int TypeCache)
 {
-//  PtrSubKeyItem=SubKeyItem+strlen(SubKeyItem);
-//  PtrSubKeyShort=SubKeyShort+strlen(SubKeyShort);
-
-  if(!Opt.MaxPositionCache)
+  if (!Opt.MaxPositionCache)
   {
     GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
     if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
@@ -74,11 +64,11 @@ FilePositionCache::FilePositionCache(int TypeCache)
   CurPos=0;
 
   Names=new string[Opt.MaxPositionCache];
-  if(Names != NULL)
+  if (Names != NULL)
   {
     Param=(BYTE*)xf_malloc(MSIZE_PARAM);
     Position=(BYTE*)xf_malloc(MSIZE_POSITION);
-    if(Param && Position)
+    if (Param && Position)
     {
       memset(Param,0,MSIZE_PARAM);
       memset(Position,0xFF,MSIZE_POSITION);
@@ -86,22 +76,22 @@ FilePositionCache::FilePositionCache(int TypeCache)
     }
     else
     {
-      if(Param)       xf_free(Param);       Param=NULL;
-      if(Position)    xf_free(Position);    Position=NULL;
+      if (Param)       { xf_free(Param);       Param=NULL; }
+      if (Position)    { xf_free(Position);    Position=NULL; }
     }
   }
 }
 
 FilePositionCache::~FilePositionCache()
 {
-  if(Names)     delete[] Names;
-  if(Param)     xf_free(Param);
-  if(Position)  xf_free(Position);
+  if (Names)     delete[] Names;
+  if (Param)     xf_free(Param);
+  if (Position)  xf_free(Position);
 }
 
 void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
 {
-  if(!IsMemory || !PosCache)
+  if (!IsMemory || !PosCache)
     return;
 
   string strFullName;
@@ -124,16 +114,16 @@ void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
   memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
   memcpy(Param+PARAM_POS(Pos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
-  if(SizeValue == sizeof(DWORD))
+  if (SizeValue == sizeof(DWORD))
   {
-    for(I=0; I < 4; ++I)
-      if(((struct TPosCache32*)PosCache)->Position[I])
+    for (I=0; I < 4; ++I)
+      if (((struct TPosCache32*)PosCache)->Position[I])
         memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache32*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
   }
   else
   {
-    for(I=0; I < 4; ++I)
-      if(((struct TPosCache64*)PosCache)->Position[I])
+    for (I=0; I < 4; ++I)
+      if (((struct TPosCache64*)PosCache)->Position[I])
         memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache64*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
   }
 
@@ -165,16 +155,16 @@ BOOL FilePositionCache::GetPosition(const wchar_t *Name,void *PosCache)
   {
     int I;
     memcpy(PosCache,Param+PARAM_POS(Pos),SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
-    if(SizeValue == sizeof(DWORD))
+    if (SizeValue == sizeof(DWORD))
     {
-      for(I=0; I < 4; ++I)
-        if(((struct TPosCache32*)PosCache)->Position[I])
+      for (I=0; I < 4; ++I)
+        if (((struct TPosCache32*)PosCache)->Position[I])
           memcpy(((struct TPosCache32*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
     }
     else
     {
-      for(I=0; I < 4; ++I)
-        if(((struct TPosCache64*)PosCache)->Position[I])
+      for (I=0; I < 4; ++I)
+        if (((struct TPosCache64*)PosCache)->Position[I])
           memcpy(((struct TPosCache64*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
     }
     return TRUE;
@@ -206,7 +196,7 @@ int FilePositionCache::FindPosition(const wchar_t *FullName)
 
 BOOL FilePositionCache::Read(const wchar_t *Key)
 {
-  if(!IsMemory)
+  if (!IsMemory)
     return FALSE;
 
   string strItem;
@@ -225,7 +215,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
     GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
     GetRegKey(Key,strItem,strDataStr,EmptyPos);
 
-    if(!StrCmp(strDataStr,EmptyPos))
+    if (!StrCmp(strDataStr,EmptyPos))
     {
       Names[I].SetLength(0);
       memset(Param+PARAM_POS(I),0,SizeValue*5);
@@ -238,16 +228,18 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
       const wchar_t *DataPtr;
       string strArgData;
 
-      if(DataList.Set(strDataStr))
+      if (DataList.Set(strDataStr))
       {
          DataList.Reset();
-         while(NULL!=(DataPtr=DataList.GetNext()))
+         while (NULL!=(DataPtr=DataList.GetNext()))
          {
-           if(*DataPtr==L'$')
-             Names[I] = (DataPtr+1);
-           else if(J >= 0  && J <= 4)
+           if (*DataPtr==L'$')
            {
-             if(SizeValue==sizeof(DWORD))
+             Names[I] = (DataPtr+1);
+           }
+           else if (J >= 0 && J <= 4)
+           {
+             if (SizeValue==sizeof(DWORD))
                *(DWORD*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi(DataPtr);
              else
                *(__int64*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi64(DataPtr);
@@ -263,7 +255,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
 
 BOOL FilePositionCache::Save(const wchar_t *Key)
 {
-  if(!IsMemory)
+  if (!IsMemory)
     return FALSE;
 
   string strDataStr;
@@ -279,50 +271,49 @@ BOOL FilePositionCache::Save(const wchar_t *Key)
 
     if ((Pos=CurPos+I)>=Opt.MaxPositionCache)
       Pos-=Opt.MaxPositionCache;
-    /* $ 17.06.2001 IS
-       + Имя файла должно быть взято в кавычки, т.к. оно может содержать
-         символы-разделители
-    */
+
     DWORD   *Ptr32=(DWORD*)(Param+PARAM_POS(Pos));
     __int64 *Ptr64=(__int64 *)(Param+PARAM_POS(Pos));
 
-    if(SizeValue==sizeof(DWORD))
+    //Имя файла должно быть взято в кавычки, т.к. оно может содержать символы-разделители
+    if (SizeValue==sizeof(DWORD))
+    {
       strDataStr.Format (L"%d,%d,%d,%d,%d,\"$%s\"",
             Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],(const wchar_t *)Names[Pos]);
+    }
     else
     {
       strDataStr.Format (L"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
             Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],(const wchar_t *)Names[Pos]);
     }
 
-    // ????????
-    if(!StrCmp(strDataStr,EmptyPos))
+    //Пустая позиция?
+    if (!StrCmp(strDataStr,EmptyPos))
     {
       DeleteRegValue(Key,strItem);
       continue;
     }
-    // ????????
 
     SetRegKey(Key,strItem,strDataStr);
-    if((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
-       (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
+    if ((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
+        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for(J=0; J < (BOOKMARK_COUNT*4); J++)
+      for (J=0; J < 4; J++)
       {
-        if(SizeValue==sizeof(DWORD))
+        if (SizeValue==sizeof(DWORD))
         {
-          if(*(DWORD*)(Position+POSITION_POS(Pos,J)) != (DWORD)-1)
+          if (*(DWORD*)(Position+POSITION_POS(Pos,J)) != (DWORD)-1)
             break;
         }
         else
         {
-          if(*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
+          if (*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
             break;
         }
       }
 
-      if(J < (BOOKMARK_COUNT*4))
+      if (J < 4)
         SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
       else
         DeleteRegValue(Key,strShort);

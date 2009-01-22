@@ -37,6 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MAX_POSITIONS 64
 
+// Количество закладок в редакторе/вьювере на одну позицию
+#define BOOKMARK_COUNT   10
+
 enum {
   FPOSCACHE_32,
   FPOSCACHE_64,
@@ -62,8 +65,6 @@ class FilePositionCache
 
     BYTE *Param;
     BYTE *Position;
-//    static char SubKeyItem[16] ,*PtrSubKeyItem;
-//    static char SubKeyShort[16],*PtrSubKeyShort;
 
   private:
     int FindPosition(const wchar_t *FullName);

@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
-#include "poscache.hpp"
 #include "help.hpp"
 #include "dialog.hpp"
 #include "panel.hpp"

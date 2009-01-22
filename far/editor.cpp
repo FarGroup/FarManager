@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
-#include "poscache.hpp"
 #include "chgprior.hpp"
 #include "filestr.hpp"
 #include "dialog.hpp"
