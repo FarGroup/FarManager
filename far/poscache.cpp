@@ -288,20 +288,19 @@ BOOL FilePositionCache::Save(const char *Key)
     }
     /* IS $ */
 
-    // ????????
+    //Пустая позиция?
     if(!strcmp(DataStr,EmptyPos))
     {
       DeleteRegValue(Key,SubKeyItem);
       continue;
     }
-    // ????????
 
     SetRegKey(Key,SubKeyItem,DataStr);
     if((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for(J=0; J < (BOOKMARK_COUNT*4); J++)
+      for(J=0; J < 4; J++)
       {
         if(SizeValue==sizeof(DWORD))
         {
@@ -315,7 +314,7 @@ BOOL FilePositionCache::Save(const char *Key)
         }
       }
 
-      if(J < (BOOKMARK_COUNT*4))
+      if(J < 4)
         SetRegKey(Key,SubKeyShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
       else
         DeleteRegValue(Key,SubKeyShort);
