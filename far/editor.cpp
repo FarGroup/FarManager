@@ -682,7 +682,8 @@ int Editor::BlockStart2NumLine(int *Pos)
   if(BlockStart)
   {
     if(Pos)
-      *Pos=BlockStart->SelStart;
+      *Pos=BlockStart->RealPosToTab(BlockStart->SelStart);
+
     return CalcDistance(TopList,BlockStart,-1);
   }
   return -1;
@@ -691,22 +692,19 @@ int Editor::BlockStart2NumLine(int *Pos)
 int Editor::BlockEnd2NumLine(int *Pos)
 {
   int iLine=-1, iPos=-1;
+
   if(BlockStart)
   {
     int StartSel, EndSel;
     Edit *eLine=BlockStart;
-    iLine=BlockStart2NumLine(NULL);
+    iLine=BlockStart2NumLine(NULL); // получили строку начала блока
 
-    while (eLine)
+    while (eLine)  // поиск строки, содержащую конец блока
     {
       eLine->GetSelection(StartSel,EndSel);
-      if (StartSel!=-1)
+      if (StartSel == -1)
       {
-        iPos=EndSel;
-        iLine++;
-      }
-      else
-      {
+        // Если в текущей строки нет выделения, это еще не значит что мы в конце. Это может быть только начало :)
         if(eLine->m_next)
         {
           eLine->m_next->GetSelection(StartSel,EndSel);
@@ -718,8 +716,14 @@ int Editor::BlockEnd2NumLine(int *Pos)
         else
           break;
       }
+      else
+      {
+        iPos=eLine->RealPosToTab(EndSel);
+        iLine++;
+      }
       eLine=eLine->m_next;
     }
+    iLine--;
   }
 
   if(Pos)
