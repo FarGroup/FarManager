@@ -2541,11 +2541,12 @@ static bool editorselFunc()
 {
   /*
    MCODE_F_EDITOR_SEL
-    Action: 0 = Get Pos
+    Action: 0 = Get Param
                 Opt:  0 = return FirstLine
                       1 = return FirstPos
                       2 = return LastLine
                       3 = return LastPos
+                      4 = return block type (0=nothing 1=stream, 2=column)
                 return: 0 = failure, 1... request value
 
             1 = Set Pos
@@ -2562,13 +2563,26 @@ static bool editorselFunc()
                 Opt:  0 = selection start
                       1 = selection finish
                 return: 0 = failure, 1 = success
+            4 = Unmark selected block
+                Opt: ignore
+                return 1
   */
   TVar Ret(_i64(0));
   TVar Opt    = VMStack.Pop();
   TVar Action = VMStack.Pop();
 
-  if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
-    Ret=CtrlObject->Plugins.CurEditor->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+  int Mode=CtrlObject->Macro.GetMode();
+
+  Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+  int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
+  if (CurFrame && CurFrame->GetType()==NeedType)
+  {
+    if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+      Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+    else
+      Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+  }
 
   VMStack.Push(Ret);
 

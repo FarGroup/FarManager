@@ -85,6 +85,7 @@ Edit::Edit(ScreenObject *pOwner,Callback* aCallback)
 	CursorSize=-1;
 	LeftPos=0;
 	MaxLength=-1;
+	MSelStart=-1;
 	SelStart=-1;
 	SelEnd=0;
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
@@ -530,6 +531,91 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return (__int64)StrSize;
     case MCODE_V_CURPOS:
       return (__int64)(CursorPos+1);
+    case MCODE_F_EDITOR_SEL:
+    {
+      int Action=(int)((INT_PTR)vParam);
+
+      switch(Action)
+      {
+        case 0:  // Get Param
+        {
+          switch(iParam)
+          {
+            case 0:  // return FirstLine
+            case 2:  // return LastLine
+              return 1;
+
+            case 1:  // return FirstPos
+              return SelStart+1;
+
+            case 3:  // return LastPos
+              return IsSelection()?SelEnd:0;
+
+            case 4: // return block type (0=nothing 1=stream, 2=column)
+              return IsSelection()?1:0;
+
+          }
+          break;
+        }
+
+        case 1:  // Set Pos
+        {
+          if(IsSelection())
+          {
+            switch(iParam)
+            {
+              case 0: // begin block (FirstLine & FirstPos)
+              case 1: // end block (LastLine & LastPos)
+              {
+                SetTabCurPos(iParam==0?SelStart:SelEnd);
+                Show();
+                return 1;
+              }
+            }
+          }
+          break;
+        }
+
+        case 2: // Set Stream Selection Edge
+        case 3: // Set Column Selection Edge
+        {
+          switch(iParam)
+          {
+            case 0:  // selection start
+            {
+              MSelStart=GetCurPos();
+              return 1;
+            }
+
+            case 1:  // selection finish
+            {
+              if(MSelStart != -1)
+              {
+                if(MSelStart != GetCurPos())
+                  Select(MSelStart,GetCurPos());
+                else
+                  Select(-1,0);
+                Show();
+                MSelStart=-1;
+                return 1;
+              }
+              return 0;
+            }
+          }
+          break;
+        }
+
+        case 4: // UnMark sel block
+        {
+          Select(-1,0);
+          MSelStart=-1;
+          Show();
+          return 1;
+        }
+
+      }
+      break;
+    }
   }
   return _i64(0);
 }

@@ -2142,6 +2142,16 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       }
       return _i64(0);
     }
+
+    case MCODE_F_EDITOR_SEL:
+    {
+      if (IsEdit(Item[FocusPos]->Type) || (Item[FocusPos]->Type==DI_COMBOBOX && !(DropDownOpened || (Item[FocusPos]->Flags & DIF_DROPDOWNLIST))))
+      {
+        return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
+      }
+      return _i64(0);
+    }
+
   }
   return _i64(0);
 }
@@ -2728,7 +2738,7 @@ int Dialog::ProcessKey(int Key)
               Автодополнение - чтобы не работало во время проигрывания макросов.
               GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
             */
-            
+
             if(!(Item[FocusPos]->Flags & DIF_NOAUTOCOMPLETE))
                         if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
                ((Item[FocusPos]->Flags & DIF_HISTORY) || Item[FocusPos]->Type == DI_COMBOBOX))

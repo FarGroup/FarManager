@@ -207,6 +207,7 @@ class Editor:public ScreenObject
     void DeleteBlock();
     void UnmarkBlock();
     void UnmarkEmptyBlock();
+    void UnmarkMacroBlock();
 
     void AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type);
     void Undo();
@@ -236,6 +237,7 @@ class Editor:public ScreenObject
 
     int BlockStart2NumLine(int *Pos);
     int BlockEnd2NumLine(int *Pos);
+    bool CheckLine(Edit* line);
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);

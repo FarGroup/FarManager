@@ -575,7 +575,10 @@ int FilePanels::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
-      SwapPanels();
+      if (!LeftPanel->IsVisible() && !RightPanel->IsVisible())
+        CtrlObject->CmdLine->ProcessKey(Key);
+      else
+        SwapPanels();
       break;
     }
 

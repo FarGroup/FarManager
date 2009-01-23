@@ -139,6 +139,7 @@ private:
 
     int    TabExpandMode;
 
+    int    MSelStart;
     int    SelStart;
     int    SelEnd;
 

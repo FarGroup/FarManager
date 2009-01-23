@@ -112,6 +112,9 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
   if(OpCode == MCODE_V_CMDLINE_ITEMCOUNT || OpCode == MCODE_V_CMDLINE_CURPOS)
     return CmdStr.VMProcess(OpCode-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT,vParam,iParam);
 
+  if(OpCode == MCODE_F_EDITOR_SEL)
+    return CmdStr.VMProcess(MCODE_F_EDITOR_SEL,vParam,iParam);
+
   return _i64(0);
 }
 
@@ -290,6 +293,12 @@ int CommandLine::ProcessKey(int Key)
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)(const wchar_t *)strStr))
           CmdExecute(strStr,FALSE,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER,FALSE);
       }
+      return(TRUE);
+
+
+    case KEY_CTRLU:
+      CmdStr.Select(-1,0);
+      CmdStr.Show();
       return(TRUE);
 
     /* дополнительные клавиши для выделения в ком строке.
