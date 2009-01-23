@@ -87,8 +87,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   BlockStart=NULL;
   BlockStartLine=0;
 
-  MBlockStart=NULL;
-  MBlockStartX=-1;
+  UnmarkMacroBlock();
 
   AddString (NULL, 0);
 
@@ -677,14 +676,34 @@ void Editor::TextChanged(int State)
   Flags.Set(FEDITOR_JUSTMODIFIED);
 }
 
+bool Editor::CheckLine(Edit* line)
+{
+  if(line)
+  {
+    Edit* eLine;
+    for(eLine=TopList; eLine; eLine=eLine->m_next)
+    {
+      if(eLine == line)
+        return true;
+    }
+  }
+  return false;
+}
+
 int Editor::BlockStart2NumLine(int *Pos)
 {
-  if(BlockStart)
+  if(BlockStart || VBlockStart)
   {
+    Edit *eBlock=VBlockStart?VBlockStart:BlockStart;
     if(Pos)
-      *Pos=BlockStart->RealPosToTab(BlockStart->SelStart);
+    {
+      if(VBlockStart)
+        *Pos=eBlock->RealPosToTab(eBlock->TabPosToReal(VBlockX));
+      else
+        *Pos=eBlock->RealPosToTab(eBlock->SelStart);
+    }
 
-    return CalcDistance(TopList,BlockStart,-1);
+    return CalcDistance(TopList,eBlock,-1);
   }
   return -1;
 }
@@ -693,37 +712,53 @@ int Editor::BlockEnd2NumLine(int *Pos)
 {
   int iLine=-1, iPos=-1;
 
-  if(BlockStart)
+  Edit *eBlock=VBlockStart?VBlockStart:BlockStart;
+
+  if(eBlock)
   {
     int StartSel, EndSel;
-    Edit *eLine=BlockStart;
+    Edit *eLine=eBlock;
     iLine=BlockStart2NumLine(NULL); // получили строку начала блока
 
-    while (eLine)  // поиск строки, содержащую конец блока
+    if(VBlockStart)
     {
-      eLine->GetSelection(StartSel,EndSel);
-      if (StartSel == -1)
+      for (int Line=VBlockSizeY; eLine != NULL && Line > 0; Line--, eLine=eLine->m_next)
       {
-        // ≈сли в текущей строки нет выделени€, это еще не значит что мы в конце. Ёто может быть только начало :)
-        if(eLine->m_next)
-        {
-          eLine->m_next->GetSelection(StartSel,EndSel);
-          if(StartSel==-1)
-          {
-            break;
-          }
-        }
-        else
-          break;
-      }
-      else
-      {
-        iPos=eLine->RealPosToTab(EndSel);
+        iPos=eLine->RealPosToTab(eLine->TabPosToReal(VBlockX+VBlockSizeX));
         iLine++;
       }
-      eLine=eLine->m_next;
+      iLine--;
     }
-    iLine--;
+    else
+    {
+      while (eLine)  // поиск строки, содержащую конец блока
+      {
+        eLine->GetSelection(StartSel,EndSel);
+
+        if (StartSel == -1)
+        {
+          // ≈сли в текущей строки нет выделени€, это еще не значит что мы в конце. Ёто может быть только начало :)
+          if(eLine->m_next)
+          {
+            eLine->m_next->GetSelection(StartSel,EndSel);
+
+            if(StartSel==-1)
+            {
+              break;
+            }
+          }
+          else
+            break;
+        }
+        else
+        {
+          iPos=eLine->RealPosToTab(EndSel);
+          iLine++;
+        }
+        eLine=eLine->m_next;
+      }
+      iLine--;
+    }
   }
 
   if(Pos)
@@ -799,21 +834,20 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
       switch(Action)
       {
-        case 0:  // Get Pos
+        case 0:  // Get Param
         {
           switch(iParam)
           {
             case 0:  // return FirstLine
             {
-              iLine=BlockStart2NumLine(NULL)+1;
-              return iLine;
+              return BlockStart2NumLine(NULL)+1;
             }
 
             case 1:  // return FirstPos
             {
-              if(!BlockStart)
-                return 0;
-              return BlockStart->SelStart+1;
+              if(BlockStart2NumLine(&iPos) != -1)
+                return iPos+1;
+              return 0;
             }
 
             case 2:  // return LastLine
@@ -824,8 +858,13 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
             case 3:  // return LastPos
             {
               if(BlockEnd2NumLine(&iPos) != -1)
-                return iPos+1;
+                return iPos;
               return 0;
+            }
+
+            case 4: // return block type (0=nothing 1=stream, 2=column)
+            {
+              return VBlockStart?2:(BlockStart?1:0);
             }
 
           }
@@ -847,7 +886,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
               if(iLine > -1 && iPos > -1)
               {
                 GoToLine(iLine);
-                CurLine->SetTabCurPos(iPos);
+                CurLine->SetCurPos(CurLine->TabPosToReal(iPos));
                 return 1;
               }
               return 0;
@@ -870,34 +909,45 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
             case 1:  // selection finish
             {
-              if(MBlockStart)
+              int Ret=0;
+              if(CheckLine(MBlockStart))
               {
                 struct EditorSelect eSel;
                 eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
                 eSel.BlockStartPos=MBlockStartX;
                 eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
-
-                int bl=CalcDistance(TopList,MBlockStart,-1);
-                int el=CalcDistance(TopList,CurLine,-1);
-                if(bl > el)
+                if(eSel.BlockWidth)
                 {
-                  eSel.BlockStartLine=el;
-                  eSel.BlockHeight=CalcDistance(CurLine,MBlockStart,-1)+1;
-                }
-                else
-                {
-                  eSel.BlockStartLine=bl;
-                  eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
-                }
+                  int bl=CalcDistance(TopList,MBlockStart,-1);
+                  int el=CalcDistance(TopList,CurLine,-1);
+                  if(bl > el)
+                  {
+                    eSel.BlockStartLine=el;
+                    eSel.BlockHeight=CalcDistance(CurLine,MBlockStart,-1)+1;
+                  }
+                  else
+                  {
+                    eSel.BlockStartLine=bl;
+                    eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
+                  }
 
-                MBlockStart=NULL;
-                MBlockStartX=-1;
-                return EditorControl(ECTL_SELECT,&eSel);
+                  Ret=EditorControl(ECTL_SELECT,&eSel);
+                }
               }
-              return 0;
+
+              UnmarkMacroBlock();
+
+              return (__int64)Ret;
             }
           }
           break;
+        }
+
+        case 4: // UnMark sel block
+        {
+          UnmarkBlock();
+          UnmarkMacroBlock();
+          return 1;
         }
 
       }
@@ -1589,6 +1639,8 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
+      UnmarkMacroBlock();
+
       UnmarkBlock();
       return(TRUE);
     }
@@ -4263,8 +4315,9 @@ void Editor::UnmarkBlock()
         {
           break;
         }
-      }else break;
-      /* SKV $ */
+      }
+      else
+        break;
     }
     BlockStart->Select(-1,0);
     BlockStart=BlockStart->m_next;
@@ -4300,6 +4353,12 @@ void Editor::UnmarkEmptyBlock()
     if(!Lines)             // если выделено ноль символов в ширину, то
       UnmarkBlock();       // перестанем морочить голову и снимем выделение
   }
+}
+
+void Editor::UnmarkMacroBlock()
+{
+  MBlockStart=NULL;
+  MBlockStartX=-1;
 }
 
 void Editor::GoToLine(int Line)
@@ -5479,9 +5538,9 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_SELECT:
     {
-      struct EditorSelect *Sel=(struct EditorSelect *)Param;
-      if(Sel && !IsBadReadPtr(Sel,sizeof(struct EditorSelect)))
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorSelect)))
       {
+        struct EditorSelect *Sel=(struct EditorSelect *)Param;
         _ECTLLOG(SysLog("struct EditorSelect{"));
         _ECTLLOG(SysLog("  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?"":(Sel->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))),Sel->BlockType));
         _ECTLLOG(SysLog("  BlockStartLine=%d",Sel->BlockStartLine));
@@ -5490,50 +5549,74 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  BlockHeight   =%d",Sel->BlockHeight));
         _ECTLLOG(SysLog("}"));
 
-        UnmarkBlock();
         if (Sel->BlockType==BTYPE_NONE || Sel->BlockStartPos==-1)
+        {
+          UnmarkBlock();
           return(TRUE);
+        }
+
+        if(Sel->BlockHeight < 1)
+        {
+          _ECTLLOG(SysLog("Error: EditorSelect::BlockHeight < 1"));
+          return(FALSE);
+        }
 
         Edit *CurPtr=GetStringByNumber(Sel->BlockStartLine);
         if (CurPtr==NULL)
         {
-          _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",Sel->BlockStartLine));
+          _ECTLLOG(SysLog("Error: start line BlockStartLine=%d not found, GetStringByNumber(%d) return NULL",Sel->BlockStartLine,Sel->BlockStartLine));
           return(FALSE);
         }
 
+        UnmarkBlock();
         if (Sel->BlockType==BTYPE_STREAM)
         {
+          Flags.Set(FEDITOR_MARKINGBLOCK);
+
           BlockStart=CurPtr;
           if((BlockStartLine=Sel->BlockStartLine) == -1)
             BlockStartLine=NumLine;
 
-          for (I=0;I<Sel->BlockHeight;I++)
+          for (I=0; I < Sel->BlockHeight; I++)
           {
-            int SelStart=(I==0) ? Sel->BlockStartPos:0;
-            int SelEnd=(I<Sel->BlockHeight-1) ? -1:Sel->BlockStartPos+Sel->BlockWidth;
+            int SelStart= (I == 0) ? Sel->BlockStartPos : 0;
+            int SelEnd  = (I < Sel->BlockHeight-1) ? -1 : Sel->BlockStartPos+Sel->BlockWidth;
             CurPtr->Select(SelStart,SelEnd);
+
             CurPtr=CurPtr->m_next;
+
             if (CurPtr==NULL)
-              return(FALSE);
+              return TRUE; // ранее было FALSE
           }
         }
-        if (Sel->BlockType==BTYPE_COLUMN)
+        else if (Sel->BlockType==BTYPE_COLUMN)
         {
+          Flags.Set(FEDITOR_MARKINGVBLOCK);
+
           VBlockStart=CurPtr;
           if((BlockStartLine=Sel->BlockStartLine) == -1)
             BlockStartLine=NumLine;
-
-          if (Sel->BlockWidth==-1)
-            return(FALSE);
 
           VBlockX=Sel->BlockStartPos;
           if((VBlockY=Sel->BlockStartLine) == -1)
              VBlockY=NumLine;
           VBlockSizeX=Sel->BlockWidth;
           VBlockSizeY=Sel->BlockHeight;
+
+          /* ????
+          if (VBlockSizeX < 0)
+          {
+            VBlockSizeX=-VBlockSizeX;
+            VBlockX-=Sel->BlockWidth;
+            if(VBlockX < 0)
+              VBlockX=0;
+          }
+          */
+
         }
         return(TRUE);
       }
+      _ECTLLOG(SysLog("Error: Param == NULL or IsBadReadPtr(Param,sizeof(struct EditorSelect))"));
       break;
     }
 

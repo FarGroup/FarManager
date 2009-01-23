@@ -1435,6 +1435,14 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
           while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
             BufPtr++;
           Size += parseExpr(BufPtr, dwExprBuff, 0, 0);
+          /*
+          // этого пока ненадо, считаем, что ';' идет сразу за функцией, иначе это отдельный символ ';', который нужно поместить в поток
+          while ( *BufPtr && (IsSpace(*BufPtr) || IsEol(*BufPtr)) )
+            BufPtr++;
+          */
+          if(*BufPtr == ';')
+            BufPtr++; // здесь Size не увеличиваем, т.к. мы прокидываем символ ';'
+
           //Size--; //???
           if(_macro_nErr)
           {

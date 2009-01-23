@@ -188,6 +188,7 @@ class Editor:public ScreenObject
 
     // $ 07.03.2002 IS - удалить выделение, если оно пустое (выделено ноль символов в ширину)
     void UnmarkEmptyBlock();
+    void UnmarkMacroBlock();
 
     void AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type);
     void Undo();
@@ -219,6 +220,7 @@ class Editor:public ScreenObject
 
     int BlockStart2NumLine(int *Pos);
     int BlockEnd2NumLine(int *Pos);
+    bool CheckLine(Edit* line);
 
   public:
     Editor(ScreenObject *pOwner=NULL,bool DialogUsed=false);

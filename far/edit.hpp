@@ -70,6 +70,7 @@ class Edit:public ScreenObject
 
     int    TabExpandMode;
 
+    int    MSelStart;
     int    SelStart;
     int    SelEnd;
 
