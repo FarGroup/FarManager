@@ -4,7 +4,6 @@
 <title>EditorSelect</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -50,17 +49,27 @@ struct EditorSelect
     <div class=dfn>BlockStartLine</div>
     <div class=dfndescr>Первая строка блока. Можно установить это поле в <code>-1</code> - началом блока будет текущая строка.</div>
     <div class=dfn>BlockStartPos</div>
-    <div class=dfndescr>Начальная позиция блока.
-       Если <em>BlockStartPos</em> = -1, то выделение блока снимается.
-     </div>
+    <div class=dfndescr>Начальная позиция блока. Если <em>BlockStartPos</em> = -1, то выделение блока снимается.</div>
     <div class=dfn>BlockWidth</div>
     <div class=dfndescr>Ширина блока. Может быть отрицательной величиной.</div>
     <div class=dfn>BlockHeight</div>
     <div class=dfndescr>Высота блока. Должна быть &gt;= 1</div>
-
 </div>
 
 <h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Функция <a href="../service_functions/editorcontrol.html">EditorControl</a> вернет FALSE, если:
+  <ul>
+  <li>размер передаваемой переменной меньше размера структуры EditorSelect;
+  <li><em>BlockHeight</em> меньше 1;
+  <li><em>BlockStartLine</em> больше количества строк в редакторе;
+  </ul>
+</li>
+</ol>
+</div>
+
+<h3>Пример</h3>
 <div class=descr>
 Программно строковый блок от (X1,Y1) до (X2,Y2) можно выделить так:
 <pre class=code>es.BlockType=BTYPE_STREAM;

@@ -7,10 +7,27 @@
 </head>
 <body>
 
-<h1>What's new in Programming FAR plugins - Encyclopedia for Developers 1.75 SR2513?</h1>
+<h1>What's new in Programming FAR plugins - Encyclopedia for Developers 1.75 SR2520?</h1>
 <div class=navbar>
 <a href="index.html">main</a>
 </div>
+
+<h3>23 января 2009</h3>
+<ul>
+  <li>Macro: дополнения и учтонения функционал у функции <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> - работает в редакторе, в строках ввода в диалогах, в командной строке.
+    <br><br>
+
+  <li>Исправлены ошибки в <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
+     <ul>
+     <li>отметка блока снимается всегда, даже если были неправильные параметры
+     <li>отметка блока снимается всегда, даже если указанной строки (BlockStartLine) нет (BlockStartLine больше количества строк в редакторе)
+     <li>если BlockHeight превышал количество строк в редакторе (например, пытаемся выделить блок, указывая последнюю строку,
+         а BlockHeight, например, равный 10), то EditorControl возвращал FALSE, хотя блок успешно выделялся.
+     <li>для BlockWidth, равным -1, получалось так, что для BTYPE_COLUMN "транзакция" пометки блока была неполной - это могло приводить к всевозможным проблемам с блоками.
+     </ul>
+
+    <br><br>
+</ul>
 
 <h3>16 января 2009</h3>
 <ul>

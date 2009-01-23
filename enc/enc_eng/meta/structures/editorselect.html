@@ -4,7 +4,6 @@
 <title>EditorSelect</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -61,6 +60,19 @@ struct EditorSelect
 </div>
 
 <h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>Функция <a href="../service_functions/editorcontrol.html">EditorControl</a> вернет FALSE, если:
+  <ul>
+  <li>размер передаваемой переменной меньше размера структуры EditorSelect;
+  <li><em>BlockHeight</em> меньше 1;
+  <li><em>BlockStartLine</em> больше количества строк в редакторе;
+  </ul>
+</li>
+</ol>
+</div>
+
+<h3>Example</h3>
 <div class=descr>
 Stream block from (X1,Y1) to (X2,Y2) can be selected in this way:
 <pre class=code>es.BlockType=BTYPE_STREAM;

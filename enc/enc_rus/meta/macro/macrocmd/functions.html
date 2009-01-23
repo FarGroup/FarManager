@@ -613,7 +613,7 @@ $End
 
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="editor.sel">Editor.Sel</a></dfn>(Action[,Opt])</td>
-    <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте.
+    <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Описание</th></tr>
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">получить параметры текущего блока
@@ -623,9 +623,11 @@ $End
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">вернуть номер позиции в строке начала блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">вернуть номер строки конца блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">вернуть номер позиции в строке конца блока</td></tr>
+          <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">вернуть тип выделенного блока: 0 - блок не выделен, 1 - обычный блок, 2 - вертикальный блок
+            (альтернативный вариант - <a href="states.html#editor.state">Editor.State</a>)</td></tr>
         </table>
         </td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позиционировать курсор внутри текущего блока
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позиционировать курсор внутри текущего блока (при позиционировании курсора состояние блока не изменяется)
         <table class="cont">
           <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">установить курсор в начало отмеченного блока</td></tr>
@@ -638,7 +640,8 @@ $End
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца блока</td></tr>
         </table>
-        После отметки конца блока: с текущего блока выделение снимается и помечается новый блок.
+        Позицией начала/конца блока считается текущая позиция курсора. Блок помечается только после указания конечной позиции (<em>Opt</em>=1), с ранее выделенного блока пометка снимается.
+        Если позиция начала и конца блока совпадают, то эта операция равносильна снятию пометки блока.
         </td></tr>
         <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">установка позиций вертикального блока
         <table class="cont">
@@ -646,12 +649,14 @@ $End
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала вертикального блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца вертикального блока</td></tr>
         </table>
-        После отметки конца блока: с текущего блока выделение снимается и помечается новый вертикальный блок.
+        Позицией начала/конца блока считается текущая позиция курсора. Блок помечается только после указания конечной позиции (<em>Opt</em>=1), с ранее выделенного блока пометка снимается.
+        Если позиция начала и конца блока совпадают, то эта операция равносильна снятию пометки блока.
+        </td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">снять выделение с блока<br>
+        Параметр <em>Opt</em> игнорируется.<br>
+        Всегда возвращается 1.
         </td></tr>
        </table>
-
-       Для <em>Action</em> 2 или 3 позицией начала/конца блока считается текущая позиция курсора.
-       <br>
        В случае ошибки возвращаемое значение равно 0, иначе 1. Для <em>Action</em>=0 возвращается запрошенное значение.
       <br>
       Например, повторим некоторые сочетания клавиш из Turbo-сред (макрос на сочетание Ctrl-K):
