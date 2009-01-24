@@ -836,8 +836,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int ViewFlags=ColumnTypes[K];
                 if ((ViewFlags & COLUMN_MARK) && Width>2)
                 {
-                  static wchar_t SelectedChar[4]={0x0FB,0x20,0x00,0x00};
-                  Text(CurPtr->Selected ? SelectedChar:L"  ");
+									Text(CurPtr->Selected?L"\x221A ":L"  ");
                   Width-=2;
                 }
                 if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
