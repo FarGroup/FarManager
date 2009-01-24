@@ -2109,8 +2109,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
   {
-    int CmpCode;
-    if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
+    int CmpCode=CmpFullNames(Src,DestPath);
+    if(CmpCode==1) // TODO: error check
     {
       _LOGCOPYR(SysLog("%d CmpCode=%d, CmpFullNames('%s','%s')",__LINE__,CmpCode,Src,DestPath));
       SameName=1;
@@ -2118,17 +2118,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
          Проверим ту ситуацию, когда переименовывается _каталог_ в свое же
          _короткое_ имя
       */
-      if(CmpCode!=2 && Rename)
+      if(Rename)
       {
-         if(!strcmp(PointToName(Src),PointToName(DestPath)))
-           CmpCode=2; // ошибка: новое имя идентично старому
-         else
-           RenameToShortName = (!LocalStricmp(DestData.cFileName,
-             SrcData.cFileName) &&
-             0!=LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName));
+         CmpCode=!strcmp(PointToName(Src),PointToName(DestPath));
+         if(!CmpCode)
+           RenameToShortName = !LocalStricmp(DestPath,SrcData.cAlternateFileName);
       }
       /* IS $ */
-      if (CmpCode==2 || !Rename)
+      if (CmpCode==1)
       {
         SetMessageHelp("ErrCopyItSelf");
         Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
@@ -2596,28 +2593,25 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             SrcData.nFileSizeLow==DestData.nFileSizeLow)
       /* IS $ */
         {
-          int CmpCode;
-          if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
+          int CmpCode=CmpFullNames(Src,DestPath);
+          if(CmpCode==1) // TODO: error check
           {
             SameName=1;
             /* $ 25.05.2002 IS
                Проверим ту ситуацию, когда переименовывается _файл_ в свое же
                _короткое_ имя
             */
-            if(CmpCode!=2 && Rename)
+            if(Rename)
             {
-               if(!strcmp(PointToName(Src),PointToName(DestPath)))
-                 CmpCode=2; // ошибка: новое имя идентично старому
-               else
+               CmpCode=!strcmp(PointToName(Src),PointToName(DestPath));
+               if(!CmpCode)
                {
-                 RenameToShortName = (!LocalStricmp(DestData.cFileName,
-                   SrcData.cFileName) &&
-                   0!=LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName));
+                 RenameToShortName = !LocalStricmp(DestPath,SrcData.cAlternateFileName);
                  _LOGCOPYR(SysLog("%d RenameToShortName=%d (LocalStricmp('%s','%s')=%d)",__LINE__,RenameToShortName,DestData.cAlternateFileName,SrcData.cFileName,LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName)));
                }
             }
             /* IS $ */
-            if (CmpCode==2 || !Rename)
+            if(CmpCode==1)
             {
               Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
                       Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
