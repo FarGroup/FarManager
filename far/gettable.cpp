@@ -162,6 +162,7 @@ UINT GetTableEx (UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 			break;
 		}
 		case KEY_INS:
+		case KEY_NUMPAD0:		
 		{
 			if(tables->GetSelectPos()>1) // BUGBUG
 			{

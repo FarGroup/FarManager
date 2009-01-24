@@ -2064,21 +2064,18 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   if (DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
   {
-    int CmpCode;
-
-    if ((CmpCode=CmpFullNames(Src,strDestPath))!=0)
+		int CmpCode=CmpFullNames(Src,strDestPath);
+		if(CmpCode==1) // TODO: error check
     {
       SameName=1;
 
-      if(CmpCode!=2 && Rename)
+			if(Rename)
       {
-         if(!StrCmp(PointToName(Src),PointToName(strDestPath)))
-           CmpCode=2; // ошибка: новое имя идентично старому
-         else
-           RenameToShortName = (!StrCmpI(DestData.strFileName, SrcData.strFileName) &&
-                               0!=StrCmpI(DestData.strAlternateFileName,SrcData.strFileName));
+					CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
+					if(!CmpCode)
+						RenameToShortName = !StrCmpI(strDestPath,SrcData.strAlternateFileName);
       }
-      if (CmpCode==2 || !Rename)
+			if(CmpCode==1)
       {
         SetMessageHelp(L"ErrCopyItSelf");
         Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
@@ -2435,25 +2432,19 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       {
         if (SrcData.nFileSize==DestData.nFileSize)
         {
-          int CmpCode;
-
-          if ((CmpCode=CmpFullNames(Src,strDestPath))!=0)
+					int CmpCode=CmpFullNames(Src,strDestPath);
+					if(CmpCode==1) // TODO: error check
           {
             SameName=1;
 
-            if(CmpCode!=2 && Rename)
+						if(Rename)
             {
-               if(!StrCmp(PointToName(Src),PointToName(strDestPath)))
-                 CmpCode=2; // ошибка: новое имя идентично старому
-               else
-               {
-                 RenameToShortName = (!StrCmpI(DestData.strFileName,
-                   SrcData.strFileName) &&
-                   0!=StrCmpI(DestData.strAlternateFileName,SrcData.strFileName));
-               }
+							CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
+							if(!CmpCode)
+								RenameToShortName = !StrCmpI(strDestPath,SrcData.strAlternateFileName);
             }
 
-            if (CmpCode==2 || !Rename)
+						if(CmpCode==1)
             {
               Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
                       Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
