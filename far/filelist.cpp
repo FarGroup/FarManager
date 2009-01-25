@@ -2099,16 +2099,23 @@ BOOL FileList::SetCurDir(const char *NewDir,int ClosePlugin)
 {
   _ALGO(CleverSysLog clv("FileList::SetCurDir"));
   _ALGO(SysLog("(NewDir=\"%s\", ClosePlugin=%d)",NewDir,ClosePlugin));
+  bool UpdateAnotherPanel=false;
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return FALSE;
+      if(ViewSettings.FullScreen)
+        UpdateAnotherPanel=!UpdateAnotherPanel;
       if (!PopPlugin(TRUE))
         break;
     }
     CtrlObject->Cp()->RedrawKeyBar();
+    if(UpdateAnotherPanel)
+    {
+      CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+    }
   }
   if ((NewDir) && (*NewDir))
   {
