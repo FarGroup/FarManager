@@ -2073,16 +2073,23 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 
 BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
+	bool UpdateAnotherPanel=false;
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return FALSE;
+			if(ViewSettings.FullScreen)
+				UpdateAnotherPanel=!UpdateAnotherPanel;
       if (!PopPlugin(TRUE))
         break;
     }
     CtrlObject->Cp()->RedrawKeyBar();
+		if(UpdateAnotherPanel)
+		{
+			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+		}
   }
   /* $ 20.07.2001 VVM
     ! Проверить на непустую строку */
