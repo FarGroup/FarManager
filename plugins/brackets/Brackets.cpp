@@ -449,5 +449,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       Info.EditorControl(ECTL_SELECT,(void*)&es);
     }
   }
+  else
+  {
+    Info.EditorControl(ECTL_SETPOSITION,&espo);
+  }
   return(INVALID_HANDLE_VALUE);
 }
