@@ -1339,9 +1339,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 				CmdLine->GetString(strParam);
 			else
 				CmdLine->GetSelString(strParam);
-			if(Param2)
+			if(Param1&&Param2)
 				xwcsncpy((wchar_t*)Param2,strParam,Param1-1);
-			return (int)strParam.GetLength();
+			return (int)strParam.GetLength()+1;
 		}
 
     case FCTL_SETCMDLINE:
