@@ -107,29 +107,49 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
   FSF.Unquote(Dir);
 
   if(*Dir)
+#ifndef UNICODE
     Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,&Dir);
+#else
+    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,0,(LONG_PTR)&Dir);
+#endif
+#ifndef UNICODE
   Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,&PInfo);
+#else
+  Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,0,(LONG_PTR)&PInfo);
+#endif
 
   PRI.CurrentItem=PInfo.CurrentItem;
   PRI.TopPanelItem=PInfo.TopPanelItem;
 
   for(int J=0; J < PInfo.ItemsNumber; J++)
   {
-#ifdef UNICODE
-#define cFileName lpwszFileName
+
+#ifndef UNICODE
+#define FileName PInfo.PanelItems[J].FindData.cFileName
+#else
+#define FileName PPI.FindData.lpwszFileName
+    PluginPanelItem PPI;
+    Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)&PPI);
 #endif
-    if(!FSF.LStricmp(Name,
-       FSF.PointToName(PInfo.PanelItems[J].FindData.cFileName)))
-#undef cFileName
+
+    if(!FSF.LStricmp(Name,FSF.PointToName(FileName)))
+#undef FileName
     {
       PRI.CurrentItem=J;
       PRI.TopPanelItem=J;
+#ifdef UNICODE
+      Info.Control(_PANEL_HANDLE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
       break;
     }
-  }
-  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,&PRI);
 #ifdef UNICODE
-  Info.Control(_PANEL_HANDLE,FCTL_FREEPANELINFO,&PInfo);
+		Info.Control(_PANEL_HANDLE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
+  }
+#ifndef UNICODE
+  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,&PRI);
+#else
+  Info.Control(_PANEL_HANDLE,FCTL_RedrawPanel,0,(LONG_PTR)&PRI);
 #endif
 #undef _PANEL_HANDLE
 #undef FCTL_SetPanelDir

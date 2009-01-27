@@ -9,13 +9,6 @@ Temporary panel plugin class implementation
 
 static int _cdecl SortListCmp(const void *el1,const void *el2);
 
-#ifndef UNICODE
-#define FreePanelInfo(i)
-#else
-#define FreePanelInfo(i) Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&i)
-#endif
-
-
 TmpPanel::TmpPanel()
 {
   LastOwnersRead=FALSE;
@@ -37,12 +30,20 @@ TmpPanel::~TmpPanel()
 int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
 {
   IfOptCommonPanel();
+#ifndef UNICODE
   struct PanelInfo PInfo;
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
-  UpdateItems(IsOwnersDisplayed (PInfo),IsLinksDisplayed (PInfo));
+  UpdateItems(IsOwnersDisplayed (PInfo.ColumnTypes),IsLinksDisplayed (PInfo.ColumnTypes));
+#else
+  int Size=Info.Control(this,FCTL_GETCOLUMNTYPES,0,NULL);
+  wchar_t* ColumnTypes=new wchar_t[Size];
+  Info.Control(this,FCTL_GETCOLUMNTYPES,Size,(LONG_PTR)ColumnTypes);
+  UpdateItems(IsOwnersDisplayed (ColumnTypes),IsLinksDisplayed (ColumnTypes));
+  delete[] ColumnTypes;
+#endif
   *pPanelItem=TmpPanelItem;
   *pItemsNumber=TmpItemsNumber;
-  FreePanelInfo(PInfo);
+
   return(TRUE);
 }
 
@@ -98,9 +99,17 @@ int TmpPanel::SetDirectory(const TCHAR *Dir,int OpMode)
   if((OpMode & OPM_FIND)/* || lstrcmp(Dir,_T("\\"))==0*/)
     return(FALSE);
   if(lstrcmp(Dir,_T("\\"))==0)
+#ifndef UNICODE
     Info.Control(this,FCTL_CLOSEPLUGIN,(void*)NULL);
+#else
+    Info.Control(this,FCTL_CLOSEPLUGIN,0,NULL);
+#endif
   else
+#ifndef UNICODE
     Info.Control(this,FCTL_CLOSEPLUGIN,(void*)Dir);
+#else
+    Info.Control(this,FCTL_CLOSEPLUGIN,0,(LONG_PTR)Dir);
+#endif
   return(TRUE);
 }
 
@@ -482,17 +491,32 @@ int TmpPanel::ProcessEvent(int Event,void *)
   if(Event==FE_CHANGEVIEWMODE)
   {
     IfOptCommonPanel();
+#ifndef UNICODE
     struct PanelInfo PInfo;
     Info.Control(this,FCTL_GETPANELINFO,&PInfo);
-    int UpdateOwners=IsOwnersDisplayed (PInfo) && !LastOwnersRead;
-    int UpdateLinks=IsLinksDisplayed (PInfo) && !LastLinksRead;
+		int UpdateOwners=IsOwnersDisplayed (PInfo.ColumnTypes) && !LastOwnersRead;
+		int UpdateLinks=IsLinksDisplayed (PInfo.ColumnTypes) && !LastLinksRead;
+#else
+    int Size=Info.Control(this,FCTL_GETCOLUMNTYPES,0,NULL);
+    wchar_t* ColumnTypes=new wchar_t[Size];
+    Info.Control(this,FCTL_GETCOLUMNTYPES,Size,(LONG_PTR)ColumnTypes);
+    int UpdateOwners=IsOwnersDisplayed (ColumnTypes) && !LastOwnersRead;
+    int UpdateLinks=IsLinksDisplayed (ColumnTypes) && !LastLinksRead;
+    delete[] ColumnTypes;
+#endif
+
+
     if(UpdateOwners || UpdateLinks)
     {
       UpdateItems(UpdateOwners,UpdateLinks);
+#ifndef UNICODE
       Info.Control(this,FCTL_UPDATEPANEL,(void *)TRUE);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
+#else
+      Info.Control(this,FCTL_UPDATEPANEL,TRUE,NULL);
+      Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
+#endif
     }
-    FreePanelInfo(PInfo);
   }
   return(FALSE);
 }
@@ -502,8 +526,16 @@ int TmpPanel::IsCurrentFileCorrect (TCHAR *pCurFileName)
 {
   struct PanelInfo PInfo;
   TCHAR CurFileName[NM];
+#ifndef UNICODE
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
   lstrcpy(CurFileName, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
+#else
+  Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+  PluginPanelItem PPI;
+  Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
+  lstrcpy(CurFileName,PPI.FindData.lpwszFileName);
+  Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
 
   BOOL IsCorrectFile = FALSE;
   if (lstrcmp (CurFileName, _T("..")) == 0)
@@ -515,7 +547,6 @@ int TmpPanel::IsCurrentFileCorrect (TCHAR *pCurFileName)
   }
   if (pCurFileName)
     lstrcpy (pCurFileName, CurFileName);
-  FreePanelInfo(PInfo);
   return IsCorrectFile;
 }
 
@@ -539,30 +570,39 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
     if (IsCurrentFileCorrect(CurFileName))
     {
       struct PanelInfo PInfo;
+#ifndef UNICODE
       Info.Control(this,FCTL_GETPANELINFO,&PInfo);
+#else
+      Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
       if (lstrcmp(CurFileName,_T(".."))!=0)
       {
 #ifndef UNICODE
-#define _HANDLE INVALID_HANDLE_VALUE
-#define _SET    FCTL_SETANOTHERPANELDIR
-#define _REDRAW FCTL_REDRAWANOTHERPANEL
-#else
-#define _HANDLE PANEL_PASSIVE
-#define _SET    FCTL_SETPANELDIR
-#define _REDRAW FCTL_REDRAWPANEL
-#endif
+
         if (PInfo.PanelItems[PInfo.CurrentItem].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-          Info.Control(_HANDLE, _SET,&CurFileName);
+        {
+#else
+        PluginPanelItem PPI;
+        Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
+        if(PPI.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+        {
+          Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
+#ifndef UNICODE
+          Info.Control(INVALID_HANDLE_VALUE, FCTL_SETANOTHERPANELDIR,&CurFileName);
+#else
+          Info.Control(PANEL_PASSIVE, FCTL_SETPANELDIR,0,(LONG_PTR)&CurFileName);
+#endif
+        }
         else
           GoToFile(CurFileName, true);
-        Info.Control(_HANDLE, _REDRAW,NULL);
-#undef _HANDLE
-#undef _SET
-#undef _REDRAW
-        FreePanelInfo(PInfo);
+#ifndef UNICODE
+        Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWANOTHERPANEL,NULL);
+#else
+        Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
+#endif
         return(TRUE);
       }
-      FreePanelInfo(PInfo);
     }
   }
 
@@ -577,7 +617,11 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
     TCHAR CurFileName [NM];
     if (!IsCurrentFileCorrect (CurFileName))
     {
+#ifndef UNICODE
       Info.Control(this,FCTL_SETCMDLINE,&CurFileName);
+#else
+      Info.Control(this,FCTL_SETCMDLINE,0,(LONG_PTR)&CurFileName);
+#endif
       return(TRUE);
     }
   }
@@ -633,44 +677,55 @@ void TmpPanel::ProcessRemoveKey()
   IfOptCommonPanel();
 
   struct PanelInfo PInfo;
+#ifndef UNICODE
   Info.Control(this,FCTL_GETPANELINFO,&PInfo);
-
-#ifdef UNICODE
-#define SelItem(item) (item)
 #else
-#define SelItem(item) (&(item))
+  Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
 #endif
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
   {
+#ifndef UNICODE
     struct PluginPanelItem *RemovedItem=(struct PluginPanelItem *)
-      FSF.bsearch(SelItem(PInfo.SelectedItems[i]),TmpPanelItem,TmpItemsNumber,
+      FSF.bsearch(&PInfo.SelectedItems[i],TmpPanelItem,TmpItemsNumber,
         sizeof(struct PluginPanelItem),SortListCmp);
+#else
+    PluginPanelItem PPI;
+    Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PPI);
+    struct PluginPanelItem *RemovedItem=(struct PluginPanelItem *)
+      FSF.bsearch(&PPI,TmpPanelItem,TmpItemsNumber,
+        sizeof(struct PluginPanelItem),SortListCmp);
+#endif
     if(RemovedItem!=NULL)
       RemovedItem->Flags|=REMOVE_FLAG;
+#ifdef UNICODE
+    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
   }
-#undef SelItem
   RemoveEmptyItems();
+
+#ifndef UNICODE
   Info.Control(this,FCTL_UPDATEPANEL,NULL);
   Info.Control(this,FCTL_REDRAWPANEL,NULL);
-  FreePanelInfo(PInfo);
-#ifndef UNICODE
-#define _HANDLE this
-#define _UPDATE FCTL_UPDATEANOTHERPANEL
-#define _REDRAW FCTL_REDRAWANOTHERPANEL
-#define _GET    FCTL_GETANOTHERPANELINFO
 #else
-#define _HANDLE PANEL_PASSIVE
-#define _UPDATE FCTL_UPDATEPANEL
-#define _REDRAW FCTL_REDRAWPANEL
-#define _GET    FCTL_GETPANELINFO
+  Info.Control(this,FCTL_UPDATEPANEL,0,NULL);
+  Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
 #endif
-  Info.Control(_HANDLE,_GET,(void *) &PInfo);
+
+#ifndef UNICODE
+  Info.Control(this,FCTL_GETANOTHERPANELSHORTINFO,(void *)&PInfo);
+#else
+  Info.Control(PANEL_PASSIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
   if(PInfo.PanelType==PTYPE_QVIEWPANEL)
   {
-    Info.Control(_HANDLE,_UPDATE,NULL);
-    Info.Control(_HANDLE,_REDRAW,NULL);
+#ifndef UNICODE
+    Info.Control(this,FCTL_UPDATEANOTHERPANEL,NULL);
+    Info.Control(this,FCTL_REDRAWANOTHERPANEL,NULL);
+#else
+    Info.Control(PANEL_PASSIVE,FCTL_UPDATEPANEL,0,NULL);
+    Info.Control(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,NULL);
+#endif
   }
-  FreePanelInfo(PInfo);
 }
 
 void TmpPanel::ProcessSaveListKey()
@@ -679,16 +734,16 @@ void TmpPanel::ProcessSaveListKey()
   if (TmpItemsNumber == 0)
     return;
 
-  PanelInfo PInfo;
-  Info.Control (_HANDLE, _GET, &PInfo);
-
   // default path: opposite panel directory\panel<index>.<mask extension>
   TCHAR ListPath [NM];
-#ifdef UNICODE
-#define CurDir  lpwszCurDir
-#endif
+#ifndef UNICODE
+  PanelInfo PInfo;
+  Info.Control (this, FCTL_GETANOTHERPANELINFO, &PInfo);
   lstrcpy (ListPath, PInfo.CurDir);
-#undef CurDir
+#else
+  Info.Control (PANEL_PASSIVE,FCTL_GETCURRENTDIRECTORY,NM,(LONG_PTR)ListPath);
+#endif
+
   FSF.AddEndSlash (ListPath);
   lstrcat (ListPath, _T("panel"));
   if (Opt.CommonPanel)
@@ -708,10 +763,15 @@ void TmpPanel::ProcessSaveListKey()
       NULL, FIB_BUTTONS))
   {
     SaveListFile (ListPath);
-    Info.Control (_HANDLE, _UPDATE, NULL);
-    Info.Control (_HANDLE, _REDRAW, NULL);
+#ifndef UNICODE
+    Info.Control (this, FCTL_UPDATEANOTHERPANEL, NULL);
+    Info.Control (this, FCTL_REDRAWANOTHERPANEL, NULL);
+#else
+    Info.Control (PANEL_PASSIVE, FCTL_UPDATEPANEL,0,NULL);
+    Info.Control (PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
+#endif
+
   }
-  FreePanelInfo(PInfo);
 #undef _HANDLE
 #undef _UPDATE
 #undef _REDRAW
@@ -764,8 +824,13 @@ void TmpPanel::SwitchToPanel (int NewPanelIndex)
     if(CommonPanels[NewPanelIndex].Items)
     {
       CurrentCommonPanel = PanelIndex = NewPanelIndex;
+#ifndef UNICODE
       Info.Control(this,FCTL_UPDATEPANEL,NULL);
       Info.Control(this,FCTL_REDRAWPANEL,NULL);
+#else
+      Info.Control(this,FCTL_UPDATEPANEL,0,NULL);
+      Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
+#endif
     }
   }
 }
@@ -804,29 +869,24 @@ void TmpPanel::ProcessPanelSwitchMenu()
   SwitchToPanel (ExitCode);
 }
 
-
-int TmpPanel::IsOwnersDisplayed (const struct PanelInfo &PInfo)
+int TmpPanel::IsOwnersDisplayed(LPCTSTR ColumnTypes)
 {
-#ifdef UNICODE
-#define ColumnTypes lpwszColumnTypes
-#endif
-  for(int i=0;PInfo.ColumnTypes[i];i++)
-    if(PInfo.ColumnTypes[i]==_T('O') && (i==0 || PInfo.ColumnTypes[i-1]==_T(',')) &&
-       (PInfo.ColumnTypes[i+1]==_T(',') || PInfo.ColumnTypes[i+1]==0))
+  for(int i=0;ColumnTypes[i];i++)
+    if(ColumnTypes[i]==_T('O') && (i==0 || ColumnTypes[i-1]==_T(',')) &&
+       (ColumnTypes[i+1]==_T(',') || ColumnTypes[i+1]==0))
       return(TRUE);
     return(FALSE);
 }
 
 
-int TmpPanel::IsLinksDisplayed (const struct PanelInfo &PInfo)
+int TmpPanel::IsLinksDisplayed(LPCTSTR ColumnTypes)
 {
-  for(int i=0;PInfo.ColumnTypes[i];i++)
-    if(PInfo.ColumnTypes[i]==_T('L') && PInfo.ColumnTypes[i+1]==_T('N') &&
-       (i==0 || PInfo.ColumnTypes[i-1]==_T(',')) &&
-      (PInfo.ColumnTypes[i+2]==_T(',') || PInfo.ColumnTypes[i+2]==0))
+  for(int i=0;ColumnTypes[i];i++)
+    if(ColumnTypes[i]==_T('L') && ColumnTypes[i+1]==_T('N') &&
+       (i==0 || ColumnTypes[i-1]==_T(',')) &&
+      (ColumnTypes[i+2]==_T(',') || ColumnTypes[i+2]==0))
       return(TRUE);
     return(FALSE);
-#undef ColumnTypes
 }
 
 inline bool isDevice(const TCHAR* FileName, const TCHAR* dev_begin)

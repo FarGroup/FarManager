@@ -931,7 +931,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #endif
                     fill.Attributes = LIGHTGRAY;
                     ScrollConsoleScreenBuffer(StdOutput, &src, NULL, dest, &fill);
-                    Info.Control(NULL, FCTL_SETUSERSCREEN, NULL);
+#ifndef UNICODE
+                    Info.Control(INVALID_HANDLE_VALUE, FCTL_SETUSERSCREEN, NULL);
+#else
+                    Info.Control(PANEL_ACTIVE, FCTL_SETUSERSCREEN,0,NULL);
+#endif
                   }
                   Info.RestoreScreen(hScreen);
                 }

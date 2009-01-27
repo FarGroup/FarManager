@@ -5,11 +5,9 @@
 #ifndef UNICODE
 #define _cFileName    cFileName
 #define SelItems(n,m) SelectedItems[n].m
-#define FreePanelInfo()
 #else
 #define _cFileName    lpwszFileName
 #define SelItems(n,m) SelectedItems[n]->m
-#define FreePanelInfo() Info.Control(PANEL_ACTIVE, FCTL_FREEPANELINFO, &AInfo); Info.Control(PANEL_PASSIVE, FCTL_FREEPANELINFO, &PInfo)
 #endif
 
 #ifndef UNICODE
@@ -140,6 +138,21 @@ static void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
   ffd.lpwszAlternateFileName  = wcsdup(wfd.cAlternateFileName);
 #endif
 }
+
+#ifndef UNICODE
+typedef PanelInfo OwnPanelInfo;
+#else
+struct OwnPanelInfo
+{
+  int PanelType;
+  int Plugin;
+  PluginPanelItem *PanelItems;
+  int ItemsNumber;
+  PluginPanelItem *SelectedItems;
+  int SelectedItemsNumber;
+  wchar_t *lpwszCurDir;
+};
+#endif
 
 /****************************************************************************
  * Обёртка сервисной функции FAR: получение строки из .lng-файла
@@ -582,7 +595,7 @@ static int __cdecl PICompare(const void *el1, const void *el2)
 /****************************************************************************
  * Построение сортированного списка файлов для быстрого сравнения
  ****************************************************************************/
-static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIndex
+static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex
 #ifdef UNICODE
                             ,HANDLE Filter
 #endif
@@ -591,7 +604,7 @@ static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIn
   bool bProcessSelected;
   pIndex->ppi = NULL;
   pIndex->iCount = ( bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
-                     (pInfo->SelItems(0,Flags) & PPIF_SELECTED)) ) ? pInfo->SelectedItemsNumber :
+                     (pInfo->SelectedItems[0].Flags & PPIF_SELECTED)) ) ? pInfo->SelectedItemsNumber :
                      pInfo->ItemsNumber;
   if (!pIndex->iCount)
     return true;
@@ -637,7 +650,7 @@ static void FreePanelIndex(struct FileIndex *pIndex)
  * Замена сервисной функции Info.GetDirList(). В отличие от оной возвращает
  * список файлов только в каталоге Dir, без подкаталогов.
  ****************************************************************************/
-static int GetDirList(PanelInfo *PInfo, const TCHAR *Dir)
+static int GetDirList(OwnPanelInfo *PInfo, const TCHAR *Dir)
 {
   TCHAR cPathMask[MAX_PATH];
   WIN32_FIND_DATA wfdFindData;
@@ -688,7 +701,7 @@ static int GetDirList(PanelInfo *PInfo, const TCHAR *Dir)
 /****************************************************************************
  * Замена сервисной функции Info.FreeDirList().
  ****************************************************************************/
-static void FreeDirList(struct PanelInfo *AInfo)
+static void FreeDirList(OwnPanelInfo *AInfo)
 {
   if (AInfo->PanelItems) {
 #ifdef UNICODE
@@ -702,7 +715,7 @@ static void FreeDirList(struct PanelInfo *AInfo)
   }
 }
 
-static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll, int ScanDepth);
+static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bool bCompareAll, int ScanDepth);
 static DWORD bufSize;
 
 #ifdef UNICODE
@@ -734,7 +747,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
       if (Opt.UseMaxScanDepth && Opt.MaxScanDepth<ScanDepth+1)
         return true;
       // Составим списки файлов в подкаталогах
-      struct PanelInfo AInfo, PInfo;
+      OwnPanelInfo AInfo, PInfo;
       memset(&AInfo, 0, sizeof(AInfo));
       memset(&PInfo, 0, sizeof(PInfo));
       bool bEqual;
@@ -1002,7 +1015,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
  * надо ли сравнивать все файлы и взводить PPIF_SELECTED (bCompareAll == true)
  * или просто вернуть false при первом несовпадении (bCompareAll == false).
  ****************************************************************************/
-static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll, int ScanDepth)
+static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bool bCompareAll, int ScanDepth)
 {
 #ifndef _UNICODE
 #define _CurDir     CurDir
@@ -1152,6 +1165,37 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
   Info->CommandPrefix           = NULL;
 }
 
+#ifndef UNICODE
+#define FreePanelItems(a,b)
+#else
+void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
+{
+  for(int i=0;i<AInfo.ItemsNumber;i++)
+  {
+    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&AInfo.PanelItems[i]);
+  }
+  for(int i=0;i<AInfo.SelectedItemsNumber;i++)
+  {
+    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&AInfo.SelectedItems[i]);
+  }
+  delete[] AInfo.PanelItems;
+  delete[] AInfo.SelectedItems;
+
+  for(int i=0;i<PInfo.ItemsNumber;i++)
+  {
+    Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
+    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&PInfo.PanelItems[i]);
+  }
+  for(int i=0;i<PInfo.SelectedItemsNumber;i++)
+  {
+    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&PInfo.SelectedItems[i]);
+  }
+  delete[] PInfo.PanelItems;
+  delete[] PInfo.SelectedItems;
+}
+#endif
+
+
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
@@ -1171,25 +1215,79 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     return INVALID_HANDLE_VALUE;
   }
 
-  struct PanelInfo AInfo, PInfo;
+  OwnPanelInfo AInfo, PInfo;
 
 #ifdef UNICODE
-  memset(&AInfo,0,sizeof(struct PanelInfo));
-  memset(&PInfo,0,sizeof(struct PanelInfo));
+  memset(&AInfo,0,sizeof(OwnPanelInfo));
+  memset(&PInfo,0,sizeof(OwnPanelInfo));
 #endif
 
-  // Если не удалось запросить информацию о панелях...
 #ifndef UNICODE
+	// Если не удалось запросить информацию о панелях...
   if (   !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &AInfo)
       || !Info.Control(INVALID_HANDLE_VALUE, FCTL_GETANOTHERPANELINFO, &PInfo) )
-#else
-  if (   !Info.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, &AInfo)
-      || !Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO, &PInfo) )
-#endif
   {
-    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
   }
+#else
+  PanelInfo AI,PI;
+  Info.Control(PANEL_ACTIVE, FCTL_GETPANELINFO,0,(LONG_PTR)&AI);
+  Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO,0,(LONG_PTR)&PI);
+
+  AInfo.PanelType=AI.PanelType;
+  AInfo.Plugin=AI.Plugin;
+  AInfo.ItemsNumber=AI.ItemsNumber;
+  AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
+
+  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY,0,NULL);
+  AInfo.lpwszCurDir=new wchar_t[Size];
+  Info.Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)AInfo.lpwszCurDir);
+
+  if(AInfo.ItemsNumber)
+  {
+    AInfo.PanelItems=new PluginPanelItem[AInfo.ItemsNumber];
+    for(int i=0;i<AInfo.ItemsNumber;i++)
+      Info.Control(PANEL_ACTIVE, FCTL_GETPANELITEM,i,(LONG_PTR)&AInfo.PanelItems[i]);
+  }
+  else
+    AInfo.PanelItems=NULL;
+
+  if(AInfo.SelectedItemsNumber)
+  {
+    AInfo.SelectedItems=new PluginPanelItem[AInfo.SelectedItemsNumber];
+    for(int i=0;i<AInfo.SelectedItemsNumber;i++)
+      Info.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&AInfo.SelectedItems[i]);
+  }
+  else
+    AInfo.SelectedItems=NULL;
+
+  PInfo.PanelType=PI.PanelType;
+  PInfo.Plugin=PI.Plugin;
+  PInfo.ItemsNumber=PI.ItemsNumber;
+  PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
+
+  Size=Info.Control(PANEL_PASSIVE, FCTL_GETCURRENTDIRECTORY,0,NULL);
+  PInfo.lpwszCurDir=new wchar_t[Size];
+  Info.Control(PANEL_PASSIVE, FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)PInfo.lpwszCurDir);
+
+  if(PInfo.ItemsNumber)
+  {
+    PInfo.PanelItems=new PluginPanelItem[PInfo.ItemsNumber];
+    for(int i=0;i<PInfo.ItemsNumber;i++)
+      Info.Control(PANEL_PASSIVE, FCTL_GETPANELITEM,i,(LONG_PTR)&PInfo.PanelItems[i]);
+  }
+  else
+    PInfo.PanelItems=NULL;
+
+  if(PInfo.SelectedItemsNumber)
+  {
+    PInfo.SelectedItems=new PluginPanelItem[PInfo.SelectedItemsNumber];
+    for(int i=0;i<PInfo.SelectedItemsNumber;i++)
+      Info.Control(PANEL_PASSIVE, FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PInfo.SelectedItems[i]);
+  }
+  else
+    PInfo.SelectedItems=NULL;
+#endif
 
   // Если панели нефайловые...
   if (AInfo.PanelType != PTYPE_FILEPANEL || PInfo.PanelType != PTYPE_FILEPANEL)
@@ -1201,16 +1299,16 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     };
     Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
                  MsgItems, ArraySize(MsgItems), 1);
-    FreePanelInfo();
+    FreePanelItems(AInfo,PInfo);
     return INVALID_HANDLE_VALUE;
   }
 
   // Если не можем показать диалог плагина...
   if ( !ShowDialog(AInfo.Plugin || PInfo.Plugin,
-                  (AInfo.SelectedItemsNumber && (AInfo.SelItems(0,Flags) & PPIF_SELECTED)) ||
-                  (PInfo.SelectedItemsNumber && (PInfo.SelItems(0,Flags) & PPIF_SELECTED))) )
+                  (AInfo.SelectedItemsNumber && (AInfo.SelectedItems[0].Flags & PPIF_SELECTED)) ||
+                  (PInfo.SelectedItemsNumber && (PInfo.SelectedItems[0].Flags & PPIF_SELECTED))) )
   {
-    FreePanelInfo();
+    FreePanelItems(AInfo,PInfo);
     return INVALID_HANDLE_VALUE;
   }
 
@@ -1303,12 +1401,17 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWPANEL, NULL);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWANOTHERPANEL, NULL);
 #else
-    Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION, &AInfo);
-    Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION, &PInfo);
-    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, NULL);
-    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
-    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELINFO, &AInfo);
-    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELINFO, &PInfo);
+    for(int i=0;i<AInfo.ItemsNumber;i++)
+    {
+      Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION,i,AInfo.PanelItems[i].Flags&PPIF_SELECTED);
+    }
+    for(int i=0;i<PInfo.ItemsNumber;i++)
+    {
+      Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
+    }
+
+    Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,NULL);
+    Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
 
 #endif
     if(bOpenFail)
@@ -1334,7 +1437,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   // Восстановим заголовок консоли ФАРа...
   if (dwTitleSaved)
     SetConsoleTitle(cConsoleTitle);
-  FreePanelInfo();
+  FreePanelItems(AInfo,PInfo);
   return INVALID_HANDLE_VALUE;
 }
 

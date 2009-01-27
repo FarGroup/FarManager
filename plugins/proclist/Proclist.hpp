@@ -102,7 +102,6 @@ class Plist
     DWORD dwPluginThread;
 
     void GeneratePanelModes();
-    int Control(int Command, void *Param) { return (*Info.Control)(this, Command, Param); }
     int Menu(unsigned int Flags, TCHAR *Title, TCHAR *Bottom, TCHAR *HelpTopic, int *BreakKeys, FarMenuItem *Item, int ItemsNumber)
     {
         return (*Info.Menu)(Info.ModuleNumber, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys,0, Item, ItemsNumber);

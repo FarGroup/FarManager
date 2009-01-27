@@ -125,7 +125,11 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
+#ifndef UNICODE
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+#else
+  Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
 //  tempFileNameOut[0]=tempFileNameErr[0]=FileNameOut[0]=FileNameErr[0]=
   fullcmd[0]=cmd[0]=selectItem[0]=_T('\0');
 #ifndef UNICODE
@@ -146,25 +150,27 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   }
   else if(OpenFrom == OPEN_PLUGINSMENU && !Item && PInfo.PanelType != PTYPE_FILEPANEL)
   {
-    FreePanelInfo();
     return INVALID_HANDLE_VALUE;
   }
   else
   {
-#ifdef UNICODE
-#define CurDir  lpwszCurDir
-#endif
+#ifndef UNICODE
     lstrcpy(selectItem,PInfo.CurDir);
-#undef CurDir
+#else
+    Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,ArraySize(selectItem),(LONG_PTR)selectItem);
+#endif
 
     if(lstrlen(selectItem))
       AddEndSlash(selectItem);
 
-#ifdef UNICODE
-#define cFileName lpwszFileName
-#endif
+#ifndef UNICODE
     lstrcat(selectItem, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
-#undef cFileName
+#else
+    PluginPanelItem PPI;
+    Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
+    lstrcat(selectItem,PPI.FindData.lpwszFileName);
+    Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
 
 #ifndef UNICODE
     _GETPANELINFO=FCTL_GETANOTHERPANELINFO,
@@ -194,34 +200,51 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     Unquote(Name);
     Unquote(Dir);
 
-    if(*Dir) Info.Control(_PANEL_HANDLE,_SETPANELDIR,&Dir);
+    if(*Dir)
+#ifndef UNICODE
+      Info.Control(_PANEL_HANDLE,_SETPANELDIR,&Dir);
     Info.Control(_PANEL_HANDLE,_GETPANELINFO,&PInfo);
+#else
+      Info.Control(_PANEL_HANDLE,_SETPANELDIR,0,(LONG_PTR)&Dir);
+    Info.Control(_PANEL_HANDLE,_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
 
     PRI.CurrentItem=PInfo.CurrentItem;
     PRI.TopPanelItem=PInfo.TopPanelItem;
 
     for(int J=0; J < PInfo.ItemsNumber; J++)
     {
-#ifdef UNICODE
-#define cFileName lpwszFileName
-#endif
+#ifndef UNICODE
       if(!LStricmp(Name,PointToName(PInfo.PanelItems[J].FindData.cFileName)))
-#undef cFileName
+#else
+      PluginPanelItem PPI;
+      Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)&PPI);
+      bool Equal=!LStricmp(Name,PointToName(PPI.FindData.lpwszFileName));
+      Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      if(Equal)
+#endif
       {
         PRI.CurrentItem=J;
         PRI.TopPanelItem=J;
         break;
       }
     }
+#ifndef UNICODE
     Info.Control(_PANEL_HANDLE,_REDRAWPANEL,&PRI);
+#else
+    Info.Control(_PANEL_HANDLE,_REDRAWPANEL,0,(LONG_PTR)&PRI);
+#endif
   }
   else
+#ifndef UNICODE
     Info.Control(_PANEL_HANDLE,_REDRAWPANEL,NULL);
+#else
+    Info.Control(_PANEL_HANDLE,_REDRAWPANEL,0,NULL);
+#endif
 #undef _PANEL_HANDLE
 #undef _GETPANELINFO
 #undef _SETPANELDIR
 #undef _REDRAWPANEL
-  FreePanelInfo();
   return(INVALID_HANDLE_VALUE);
 }
 

@@ -1,11 +1,9 @@
 #ifndef UNICODE
 #define GetCheck(i) DialogItems[i].Param.Selected
 #define GetDataPtr(i) DialogItems[i].Data.Data
-#define SelItems(n,m)  SelectedItems[n].m
 #else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#define SelItems(n,m)  SelectedItems[n]->m
 #endif
 
 void CaseConvertion()
@@ -115,25 +113,47 @@ done:
   Opt.ProcessDir=GetCheck(16);
 
   struct PanelInfo PInfo;
+#ifndef UNICODE
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
-
+#else
+  Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
   HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
   const TCHAR *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
   Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
 
   TCHAR FullName[NM];
 
+#ifndef UNICODE
+#define CurDir PInfo.CurDir
+#else
+	int Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+	wchar_t* CurDir=new wchar_t[Size];
+	Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
+#endif
+
+#ifndef UNICODE
+#define FileName PInfo.SelectedItems[I].FindData.cFileName
+#define FileAttr PInfo.SelectedItems[I].FindData.dwFileAttributes
+#else
+#define FileName PPI.FindData.lpwszFileName
+#define FileAttr PPI.FindData.dwFileAttributes
+#endif
   for (I=0;I < PInfo.SelectedItemsNumber; I++)
   {
 #ifdef UNICODE
-#define CurDir    lpwszCurDir
-#define cFileName lpwszFileName
+    PluginPanelItem PPI;
+    Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)&PPI);
 #endif
-    GetFullName(FullName,PInfo.CurDir,PInfo.SelItems(I,FindData).cFileName);
-    ProcessName(FullName,PInfo.SelItems(I,FindData).dwFileAttributes);
-#undef CurDir
-#undef cFileName
+    GetFullName(FullName,CurDir,FileName);
+    ProcessName(FullName,FileAttr);
+#ifdef UNICODE
+    Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
   }
+#ifdef UNICODE
+  delete[] CurDir;
+#endif
 
   if (!GetCheck(18))
   {
@@ -148,10 +168,12 @@ done:
     memcpy(&Opt,&Backup,sizeof(Opt));
 
   Info.RestoreScreen(hScreen);
+#ifndef UNICODE
   Info.Control(INVALID_HANDLE_VALUE,FCTL_UPDATEPANEL,NULL);
   Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,NULL);
-#ifdef UNICODE
-  Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&PInfo);
+#else
+  Info.Control(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,NULL);
+  Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 #endif
   goto done;
 }

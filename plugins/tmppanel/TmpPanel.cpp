@@ -450,12 +450,20 @@ void ShowMenuFromList(TCHAR *Name)
         if(TmpPanel::CheckForCorrect(p,&FindData,FALSE))
         {
           if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+#ifndef UNICODE
             Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,p);
+#else
+            Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,0,(LONG_PTR)p);
+#endif
           else
             bShellExecute=TRUE;
         }
         else
+#ifndef UNICODE
           Info.Control(INVALID_HANDLE_VALUE,FCTL_SETCMDLINE,p);
+#else
+          Info.Control(PANEL_ACTIVE,FCTL_SETCMDLINE,0,(LONG_PTR)p);
+#endif
       }
       if(bShellExecute)
         ShellExecute(NULL,_T("open"),p,NULL,NULL,SW_SHOW);

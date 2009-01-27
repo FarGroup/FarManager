@@ -17,8 +17,8 @@ class TmpPanel
     void RemoveDups();
     void RemoveEmptyItems();
     void UpdateItems(int ShowOwners,int ShowLinks);
-    int IsOwnersDisplayed (const struct PanelInfo &PInfo);
-    int IsLinksDisplayed (const struct PanelInfo &PInfo);
+    int IsOwnersDisplayed(LPCTSTR ColumnTypes);
+    int IsLinksDisplayed(LPCTSTR ColumnTypes);
     void ProcessRemoveKey();
     void ProcessSaveListKey();
     void ProcessPanelSwitchMenu();

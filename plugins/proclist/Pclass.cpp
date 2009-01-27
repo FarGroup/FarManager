@@ -3,12 +3,6 @@
 #include "perfthread.hpp"
 #include "proclng.hpp"
 
-#ifndef UNICODE
-#define FreePanelInfo(i)
-#else
-#define FreePanelInfo(i) Control(FCTL_FREEPANELINFO,&i)
-#endif
-
 class StrTok {
     LPCTSTR tok;
     LPTSTR  ptr;
@@ -374,8 +368,11 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
     if(!RetCode) return FALSE;
 
     PanelInfo pi;
-    Control(FCTL_GETPANELINFO, &pi);
-
+#ifndef UNICODE
+    Info.Control(this,FCTL_GETPANELINFO, &pi);
+#else
+    Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
+#endif
     TCHAR (* ProcPanelModes)[MAX_MODE_STR] = *HostName ? ProcPanelModesRemote : ProcPanelModesLocal;
     int cDescMode = 0;
     if(!*HostName) {
@@ -438,13 +435,20 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         unsigned uCustomColSize = 0;
 
         int nCols=0;
-#ifdef UNICODE
-#define ColumnWidths  lpwszColumnWidths
+#ifndef UNICODE
+#define ColumnWidths pi.ColumnWidths
+#else
+        int Size=Info.Control(this,FCTL_GETCOLUMNWIDTHS,0,NULL);
+        wchar_t *ColumnWidths=new wchar_t[Size];
+        Info.Control(this,FCTL_GETCOLUMNWIDTHS,Size,(LONG_PTR)ColumnWidths);
 #endif
-        for(StrTok tokn(pi.ColumnWidths, _T(", ")); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
+        for(StrTok tokn(ColumnWidths, _T(", ")); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
 #undef ColumnWidths
             uCustomColSize += (unsigned int)(((Widths[nCols++] = FSF.atoi(tokn)) + 1)*sizeof(TCHAR));
         }
+#ifdef UNICODE
+        delete[] ColumnWidths;
+#endif
 
         if(nCols) {
             CurItem.CustomColumnData = (TCHAR**)new char[DataOffset + uCustomColSize];
@@ -520,7 +524,6 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         }
     }
     LastUpdateTime = GetTickCount();
-    FreePanelInfo(pi);
     return TRUE;
 }
 
@@ -877,10 +880,13 @@ int Plist::ProcessEvent(int Event,void *Param)
         Reread();
     if(Event==FE_CLOSE) {
         PanelInfo pi;
-        Control(FCTL_GETPANELINFO, &pi);
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELSHORTINFO, &pi);
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
+#endif
         SetRegKey(0,_T("StartPanelMode"), pi.ViewMode);
         SetRegKey(0,_T("SortMode"), pi.SortMode==SM_CTIME ? SortMode : pi.SortMode);
-        FreePanelInfo(pi);
     }
     if(Event==FE_CHANGEVIEWMODE) {
         if(/*pPerfThread || */_tcschr((TCHAR*)Param,_T('Z')) || _tcschr((TCHAR*)Param,_T('C')))
@@ -891,26 +897,29 @@ int Plist::ProcessEvent(int Event,void *Param)
 
 void Plist::Reread()
 {
-    Control(FCTL_UPDATEPANEL, (void*)1);
-    Control(FCTL_REDRAWPANEL, NULL);
-
+#ifndef UNICODE
+    Info.Control(this,FCTL_UPDATEPANEL, (void*)1);
+    Info.Control(this,FCTL_REDRAWPANEL, NULL);
+#else
+    Info.Control(this,FCTL_UPDATEPANEL,1,NULL);
+    Info.Control(this,FCTL_REDRAWPANEL,0,NULL);
+#endif
     PanelInfo PInfo;
 #ifndef UNICODE
-    Control(FCTL_GETANOTHERPANELINFO,&PInfo);
+    Info.Control(this,FCTL_GETANOTHERPANELSHORTINFO,&PInfo);
 #else
-    Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO, &PInfo);
+    Info.Control(PANEL_PASSIVE, FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
 #endif
     if (PInfo.PanelType==PTYPE_QVIEWPANEL)
     {
 #ifndef UNICODE
-        Control(FCTL_UPDATEANOTHERPANEL,(void *)1);
-        Control(FCTL_REDRAWANOTHERPANEL,NULL);
+        Info.Control(this,FCTL_UPDATEANOTHERPANEL,(void *)1);
+        Info.Control(this,FCTL_REDRAWANOTHERPANEL,NULL);
 #else
-        Info.Control(PANEL_PASSIVE, FCTL_UPDATEPANEL, (void *)1);
-        Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL, NULL);
+        Info.Control(PANEL_PASSIVE, FCTL_UPDATEPANEL,1,NULL);
+        Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
 #endif
     }
-    FreePanelInfo(PInfo);
 }
 
 void Plist::PutToCmdLine(TCHAR* tmp)
@@ -924,8 +933,13 @@ void Plist::PutToCmdLine(TCHAR* tmp)
         tmp1[l+2] = 0;
         tmp = tmp1;
     }
+#ifndef UNICODE
     Info.Control(this,FCTL_INSERTCMDLINE, tmp);
     Info.Control(this,FCTL_INSERTCMDLINE, (void *)_T(" "));
+#else
+    Info.Control(this,FCTL_INSERTCMDLINE,0,(LONG_PTR)tmp);
+    Info.Control(this,FCTL_INSERTCMDLINE,0,(LONG_PTR)_T(" "));
+#endif
     delete tmp1;
 }
 
@@ -997,21 +1011,38 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         //check for the command line; if it's not empty, don't process Enter
 #ifndef UNICODE
         TCHAR CmdLine[1024];
-        Control(FCTL_GETCMDLINE, CmdLine);
+        Info.Control(this,FCTL_GETCMDLINE, CmdLine);
         if(*CmdLine)
 #else
-        if(Control(FCTL_GETCMDLINE, NULL))
+        if(Info.Control(this,FCTL_GETCMDLINE,0,NULL))
 #endif
             return FALSE;
 
         PanelInfo PInfo;
-        Control(FCTL_GETPANELINFO,&PInfo);
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELINFO,&PInfo);
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
         if (PInfo.CurrentItem < PInfo.ItemsNumber)
         {
+#ifndef UNICODE
             PluginPanelItem& CurItem = PInfo.PanelItems[PInfo.CurrentItem];
+#else
+            PluginPanelItem CurItem;
+            Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&CurItem);
+#endif
             if (!CurItem.UserData)
+            {
+#ifdef UNICODE
+                Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&CurItem);
+#endif
                 return FALSE;
+            }
             HWND hWnd = ((ProcessData *)CurItem.UserData)->hwnd;
+#ifdef UNICODE
+            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&CurItem);
+#endif
             if (hWnd!=NULL && (IsWindowVisible(hWnd) ||
                 IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0)
                 )
@@ -1037,20 +1068,23 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     ShowWindowAsync(hWnd,SW_RESTORE);
             }
         }
-        FreePanelInfo(PInfo);
         return TRUE;
     }
     else if (ControlState==PKF_SHIFT && Key==VK_F3)
     {
         PanelInfo pi;
-        Control(FCTL_GETPANELINFO,&pi);
-#ifdef UNICODE
-#define cFileName lpwszFileName
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELINFO,&pi);
+        if(pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName,".."))
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
+        PluginPanelItem PPI;
+        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
+        bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI.FindData.lpwszFileName,L"..");
+        Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+        if(Exit)
 #endif
-        if (pi.CurrentItem >= pi.ItemsNumber ||
-            !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, _T("..")))
         {
-          FreePanelInfo(pi);
           return TRUE;
         }
         InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions, };
@@ -1067,7 +1101,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                                 DialogItems,ArraySize(DialogItems),0,0,NULL,0);
         if(hDlg == INVALID_HANDLE_VALUE)
         {
-          FreePanelInfo(pi);
           return TRUE;
         }
         int ExitCode = Info.DialogRun(hDlg);
@@ -1081,7 +1114,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #endif
         if(ExitCode==-1)
         {
-          FreePanelInfo(pi);
           return TRUE;
         }
         TCHAR FileName[MAX_PATH];
@@ -1092,15 +1124,23 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #endif
 
         WCONST TCHAR *lpFileName=FileName;
-        if(!GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
-            return TRUE;
-        //TODO: viewer crashed on exit!
-        Info.Viewer (FileName, pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE
-#ifdef UNICODE
-        , CP_AUTODETECT
+#ifndef UNICODE
+        if(GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
+#else
+        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
+        if(GetFiles(&PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
 #endif
-        );
-        FreePanelInfo(pi);
+        {
+          //TODO: viewer crashed on exit!
+#ifndef UNICODE
+          Info.Viewer (FileName,pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);
+#else
+          Info.Viewer (FileName,PPI.FindData.lpwszFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_AUTODETECT);
+#endif
+        }
+#ifdef UNICODE
+        Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
         return TRUE;
     }
     else if (ControlState==0 && Key==VK_F6)
@@ -1198,18 +1238,19 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             return TRUE;
     }
 #endif
-#undef cFileName
     else if(ControlState==PKF_SHIFT && (Key==VK_F1||Key==VK_F2) && (!*HostName||Opt.EnableWMI)) {
         //lower/raise priority class
         PanelInfo PInfo;
-        Control(FCTL_GETPANELINFO,&PInfo);
-
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELINFO,&PInfo);
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+#endif
         if(PInfo.SelectedItemsNumber>1)
         {
             const TCHAR *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
             if(Message(0,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
             {
-                FreePanelInfo(PInfo);
                 return TRUE;
             }
         }
@@ -1217,7 +1258,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(*HostName && Opt.EnableWMI && !ConnectWMI())
         {
             WmiError();
-            FreePanelInfo(PInfo);
             return TRUE;
         }
 
@@ -1236,7 +1276,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
             PluginPanelItem& Item = PInfo.SelectedItems[i];
 #else
-            PluginPanelItem& Item = *PInfo.SelectedItems[i];
+            PluginPanelItem Item;
+            Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&Item);
 #endif
             SetLastError(0);
             if(((ProcessData*)Item.UserData)->dwPID) {
@@ -1294,6 +1335,9 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                         }
                 }
             } // if dwPID
+#ifdef UNICODE
+            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&Item);
+#endif
         }
         ChangePrivileges(FALSE,FALSE);
         /*    // Copy flags from SelectedItems to PanelItems
@@ -1308,7 +1352,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(pPerfThread)
             pPerfThread->SmartReread();
         Reread();
-        FreePanelInfo(PInfo);
         return TRUE;
         /*  } else if (ControlState==(PKF_ALT|PKF_SHIFT) && Key==VK_F9) {
         Config();
@@ -1316,14 +1359,26 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     } else if(ControlState==PKF_CONTROL && Key==_T('F'))
     {
         PanelInfo pi;
-        Control(FCTL_GETPANELINFO,&pi);
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELINFO,&pi);
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
+#endif
         if (pi.CurrentItem < pi.ItemsNumber)
         {
+#ifndef UNICODE
             ProcessData* pData = (ProcessData *)pi.PanelItems[pi.CurrentItem].UserData;
+#else
+            PluginPanelItem PPI;
+            Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
+            ProcessData* pData = (ProcessData *)PPI.UserData;
+#endif
             if(pData)
                 PutToCmdLine(pData->FullPath);
+#ifdef UNICODE
+            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+#endif
         }
-        FreePanelInfo(pi);
         return TRUE;
     } else if(ControlState==PKF_CONTROL && Key==VK_F12) {
 
@@ -1352,7 +1407,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         int nMoreData = pPerfThread ? ArraySize(Counters) + 1 : 0;
 
         PanelInfo pi;
-        Control(FCTL_GETPANELINFO, &pi);
+#ifndef UNICODE
+        Info.Control(this,FCTL_GETPANELINFO, &pi);
+#else
+        Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
+#endif
         TCHAR cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? _T('-') : _T('+');
 
         Array<FarMenuItem> Items(NSTATICITEMS + nMoreData*2);
@@ -1434,7 +1493,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             SortMode = mode;
             if(mode >= SM_CUSTOM)
                 mode = SM_CTIME;
-            Control(FCTL_SETSORTMODE, &mode);
+#ifndef UNICODE
+            Info.Control(this,FCTL_SETSORTMODE, &mode);
+#else
+            Info.Control(this,FCTL_SETSORTMODE,mode,NULL);
+#endif
             /*
             else if(rc==NSTATICITEMS-2)
             Control(FCTL_SETSORTORDER, (void*)&items[rc].mode);
@@ -1446,7 +1509,6 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         while(--nItems > NSTATICITEMS)
             if(Flags[nItems].a) free((wchar_t*)Items[nItems].Text);
 #endif
-        FreePanelInfo(pi);
         return TRUE;
     }
     return FALSE;

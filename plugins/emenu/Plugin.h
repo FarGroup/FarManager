@@ -15,7 +15,8 @@
 
 class CPlugin : public PluginStartupInfo
 {
-  PanelInfo pi;
+  PluginPanelItem *SelectedItems;
+  int SelectedItemsCount;
 public:
   CPlugin(void);
   ~CPlugin(void);
@@ -57,7 +58,11 @@ protected:
   LPCTSTR GetMsg(int nMsgId);
   int Message(DWORD nFlags, LPCTSTR szHelpTopic, const LPCTSTR* pItems
     , int nItemsNumber, int nButtonsNumber);
+#ifndef UNICODE
   int Control(int nCommand, void* pParam);
+#else
+  int Control(int nCommand, int Param1,INT_PTR Param2);
+#endif
   EDoMenu DoMenu(LPTSTR szCmdLine);
   EDoMenu SelectDrive();
   enum EAutoItem
