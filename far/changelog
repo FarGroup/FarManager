@@ -1,3 +1,26 @@
+drkns 27.01.2009 16:09:51 +0200 - build 753
+
+1. Очередной перетрях API.
+   FCTL_GETPANELSHORTINFO больше нет. Её функцию выполняет FCTL_GETPANELINFO.
+   Из структуры PanelInfo убраны поля PanelItems, SelectedItems, lpwszColumnTypes, lpwszColumnWidths, lpwszCurDir.
+   Для получения их значений теперь есть отдельные FCTL-команды: FCTL_GETPANELITEM, FCTL_GETSELECTEDPANELITEM,
+   FCTL_GETCOLUMNTYPES, FCTL_GETCOLUMNWIDTHS, FCTL_GETCURRENTDIRECTORY.
+   
+   FCTL_FREEPANELINFO тоже больше нет. Фар выделяет только память для полей FCTL_GET[SELECTED]PANELITEM, для их
+   освобождения плагин должен использовать команду FCTL_FREEPANELITEM.
+   
+   Память для FCTL_GETCOLUMNTYPES, FCTL_GETCOLUMNWIDTHS, FCTL_GETCURRENTDIRECTORY выделяет плагин,
+   необходимый размер буфера пожно получить, передав NULL в качестве параметра.
+
+   FCTL_GET[SELECTED]PANELITEM, FCTL_FREEPANELITEM, FCTL_SETSELECTION работают с ОДНИМ элементом.
+
+   Info.Control теперь выглядит как Info.Control(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2).
+   Часть бывших Param переехала в Param1, часть в Param2, будьте бдительны.
+
+   Все плагины, так или иначе использовавшие Control, надо переделать!!!
+
+2. From Tim Sobolev: реализация FarCharTableA.
+
 drkns 25.01.2009 19:37:00 +0200 - build 752
 
 1. При закрытии полноэкранной плагиновой панели не обновлялась пассивная панель.

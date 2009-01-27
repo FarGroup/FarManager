@@ -1931,7 +1931,7 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
   return strTitle;
 }
 
-int Panel::SetPluginCommand(int Command,void *Param)
+int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 {
 	_ALGO(CleverSysLog clv(L"Panel::SetPluginCommand"));
 	_ALGO(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
@@ -1943,13 +1943,12 @@ int Panel::SetPluginCommand(int Command,void *Param)
 	switch(Command)
 	{
 		case FCTL_SETVIEWMODE:
-			Result=FPanels->ChangePanelViewMode(this, (Param?*(int *)Param:0), FPanels->IsTopFrame());
+			Result=FPanels->ChangePanelViewMode(this,Param1,FPanels->IsTopFrame());
 			break;
 
 		case FCTL_SETSORTMODE:
-			if (Param!=NULL)
 			{
-				int Mode=*(int *)Param;
+				int Mode=Param1;
 				if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
 				{
 					SetSortMode(--Mode); // Уменьшим на 1 из-за SM_DEFAULT
@@ -1960,61 +1959,30 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 		case FCTL_SETNUMERICSORT:
 			{
-				int NumericSortOrder = (Param && (*(int *)Param)) ? 1:0;
-
-				SetNumericSort(NumericSortOrder);
+				SetNumericSort(Param1);
 				Result=TRUE;
 			}
 			break;
 
 		case FCTL_SETSORTORDER:
 			{
-				int Order = (Param && (*(int *)Param)) ? -1:1;
-
-				ChangeSortOrder(Order);
+				ChangeSortOrder(Param1?-1:1);
 				Result=TRUE;
 			}
 			break;
 
 		case FCTL_CLOSEPLUGIN:
-			strPluginParam = (const wchar_t *)Param;
+			strPluginParam = (const wchar_t *)Param2;
 			Result=TRUE;
 			//if(Opt.CPAJHefuayor)
 			//  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
 			break;
 
-		case FCTL_FREEPANELINFO:
-		{
-			if (Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
-					break;
-
-			PanelInfo *Info=(PanelInfo *)Param;
-
-			xf_free (Info->lpwszCurDir);
-			xf_free (Info->lpwszColumnTypes);
-			xf_free (Info->lpwszColumnWidths);
-
-			if(Info->PanelItems)
-				for (int i = 0; i < Info->ItemsNumber; i++)
-				{
-					apiFreeFindData(&Info->PanelItems[i].FindData);
-					if(Info->PanelItems[i].UserData && (Info->PanelItems[i].Flags & PPIF_USERDATA))
-						xf_free((void*)Info->PanelItems[i].UserData);
-				}
-			delete[] Info->PanelItems;
-			delete[] Info->SelectedItems;
-			memset(Info,0,sizeof(PanelInfo));
-			Result=TRUE;
-			break;
-		}
-
 		case FCTL_GETPANELINFO:
-		case FCTL_GETPANELSHORTINFO:
-		case FCTL_GETPANELSHORTINFOFORWRAPPER:
 		{
-			if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
+			if(!Param2)
 				break;
-			struct PanelInfo *Info=(struct PanelInfo *)Param;
+			struct PanelInfo *Info=(struct PanelInfo *)Param2;
 			memset(Info,0,sizeof(*Info));
 
 			UpdateIfRequired();
@@ -2045,13 +2013,6 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			Info->Focus=GetFocus();
 			Info->ViewMode=GetViewMode();
 			Info->SortMode=SM_UNSORTED-UNSORTED+GetSortMode();
-
-			if (Command==FCTL_GETPANELINFO || Command==FCTL_GETPANELSHORTINFOFORWRAPPER)
-			{
-				string strInfoCurDir;
-				GetCurDir(strInfoCurDir);
-				Info->lpwszCurDir = xf_wcsdup(strInfoCurDir);
-			}
 			{
 				static struct {
 					int *Opt;
@@ -2087,19 +2048,21 @@ int Panel::SetPluginCommand(int Command,void *Param)
 					Reenter++;
 					struct OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
+/*
 					if (Command==FCTL_GETPANELINFO || Command==FCTL_GETPANELSHORTINFOFORWRAPPER)
 					{
 						if(Info->lpwszCurDir)
 							xf_free(Info->lpwszCurDir);
 						Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir);
 					}
+*/
 					if (PInfo.Flags & OPIF_REALNAMES)
 						Info->Flags |= PFLAGS_REALNAMES;
 					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
 						Info->Flags &= ~PFLAGS_HIGHLIGHT;
 					Reenter--;
 				}
-				DestFilePanel->PluginGetPanelInfo(Info,Command);
+				DestFilePanel->PluginGetPanelInfo(*Info);
 			}
 
 			if (!Info->Plugin) // $ 12.12.2001 DJ - на неплагиновой панели - всегда реальные имена
@@ -2107,19 +2070,98 @@ int Panel::SetPluginCommand(int Command,void *Param)
 			Result=TRUE;
 			break;
 		}
+		case FCTL_GETCURRENTDIRECTORY:
+			{
+				string strInfoCurDir;
+				GetCurDir(strInfoCurDir);
+				if(GetMode()==FILE_PANEL)
+				{
+					FileList *DestFilePanel=(FileList *)this;
+					static int Reenter=0;
+					if(!Reenter && GetMode()==PLUGIN_PANEL)
+					{
+						Reenter++;
+						OpenPluginInfo PInfo;
+						DestFilePanel->GetOpenPluginInfo(&PInfo);
+						strInfoCurDir=PInfo.CurDir;
+						Reenter--;
+					}
+				}
+				if(Param1&&Param2)
+					xwcsncpy((wchar_t*)Param2,strInfoCurDir,Param1-1);
+				Result=strInfoCurDir.GetLength()+1;
+			}
+			break;
+
+		case FCTL_GETCOLUMNTYPES:
+		case FCTL_GETCOLUMNWIDTHS:
+			if(GetType()==FILE_PANEL)
+			{
+				string strColumnTypes,strColumnWidths;
+				((FileList *)this)->PluginGetColumnTypesAndWidths(strColumnTypes,strColumnWidths);
+				if(Command==FCTL_GETCOLUMNTYPES)
+				{
+					if(Param1&&Param2)
+						xwcsncpy((wchar_t*)Param2,strColumnTypes,Param1-1);
+					Result=strColumnTypes.GetLength()+1;
+				}
+				else
+				{
+					if(Param1&&Param2)
+						xwcsncpy((wchar_t*)Param2,strColumnWidths,Param1-1);
+					Result=strColumnWidths.GetLength()+1;
+				}
+			}
+			break;
+
+		case FCTL_GETPANELITEM:
+			{
+				if(Param2)
+				{
+					((FileList*)this)->PluginGetPanelItem(Param1,*((PluginPanelItem*)Param2));
+					Result=TRUE;
+				}
+			}
+			break;
+
+		case FCTL_GETSELECTEDPANELITEM:
+			{
+				if(Param2)
+				{
+					((FileList*)this)->PluginGetSelectedPanelItem(Param1,*((PluginPanelItem*)Param2));
+					Result=TRUE;
+				}
+			}
+			break;
+
+		case FCTL_FREEPANELITEM:
+		{
+			if(Param2)
+			{
+				PluginPanelItem *Item=(PluginPanelItem*)Param2;
+				{
+					apiFreeFindData(&Item->FindData);
+					if(Item->UserData && (Item->Flags & PPIF_USERDATA))
+						xf_free((void*)Item->UserData);
+				}
+				Result=TRUE;
+				break;
+			}
+		}
+		break;
 
 		case FCTL_SETSELECTION:
 			{
-				if (GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(PanelInfo)))
+				if (GetType()==FILE_PANEL)
 				{
-					((FileList *)this)->PluginSetSelection((PanelInfo *)Param);
+					((FileList *)this)->PluginSetSelection(Param1,Param2?true:false);
 					Result=TRUE;
 				}
 				break;
 			}
 
 		case FCTL_UPDATEPANEL:
-			Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
+			Update(Param1?UPDATE_KEEP_SELECTION:0);
 
 			if ( GetType() == QVIEW_PANEL )
 				UpdateViewPanel();
@@ -2129,7 +2171,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 		case FCTL_REDRAWPANEL:
 		{
-			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param;
+			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param2;
 			if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
 			{
 				CurFile=Info->CurrentItem;
@@ -2146,9 +2188,9 @@ int Panel::SetPluginCommand(int Command,void *Param)
 
 		case FCTL_SETPANELDIR:
 		{
-			if (Param)
+			if (Param2)
 			{
-				SetCurDir((const wchar_t *)Param,TRUE);
+				SetCurDir((const wchar_t *)Param2,TRUE);
 				Result=TRUE;
 			}
 			break;

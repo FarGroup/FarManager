@@ -382,8 +382,12 @@ class FileList:public Panel
     virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 
-    void PluginGetPanelInfo(struct PanelInfo *Info, int Command);
-    void PluginSetSelection(struct PanelInfo *Info);
+		void PluginGetPanelInfo(PanelInfo &Info);
+		void PluginGetPanelItem(int ItemNumber,PluginPanelItem &Item);
+		void PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem &Item);
+		void PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths);
+
+		void PluginSetSelection(int ItemNumber,bool Selection);
     virtual void SetPluginModified();
     virtual int ProcessPluginEvent(int Event,void *Param);
     virtual void SetTitle();

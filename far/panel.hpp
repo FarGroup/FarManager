@@ -245,7 +245,7 @@ class Panel:public ScreenObject
     static void EndDrag();
     virtual void Hide();
     virtual void Show();
-    int SetPluginCommand(int Command,void *Param);
+    int SetPluginCommand(int Command,int Param1,LONG_PTR Param2);
     int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
     void ChangeDisk();
     int GetFocus() {return(Focus);};

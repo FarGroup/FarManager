@@ -80,7 +80,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
            const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
            int ButtonsNumber);
-int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
+int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
 

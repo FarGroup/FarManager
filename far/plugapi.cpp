@@ -1210,7 +1210,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,const wchar_t *HelpTopi
   return(MsgCode);
 }
 
-int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
+int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 {
   _FCTLLOG(CleverSysLog CSL(L"Control"));
   _FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
@@ -1229,12 +1229,15 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      g_strDirToSet = (wchar_t *)Param;
+      g_strDirToSet = (wchar_t *)Param2;
 
     case FCTL_GETPANELINFO:
-    case FCTL_GETPANELSHORTINFO:
-    case FCTL_GETPANELSHORTINFOFORWRAPPER:
-    case FCTL_FREEPANELINFO:
+		case FCTL_GETPANELITEM:
+		case FCTL_FREEPANELITEM:
+		case FCTL_GETSELECTEDPANELITEM:
+		case FCTL_GETCURRENTDIRECTORY:
+		case FCTL_GETCOLUMNTYPES:
+		case FCTL_GETCOLUMNWIDTHS:
     case FCTL_UPDATEPANEL:
     case FCTL_REDRAWPANEL:
     case FCTL_SETPANELDIR:
@@ -1253,8 +1256,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
         if ( pPanel )
         {
-         	pPanel->SetPluginCommand (Command, Param);
-         	return TRUE;
+					return pPanel->SetPluginCommand (Command,Param1,Param2);
         }
 
         return FALSE; //???
@@ -1274,8 +1276,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
           {
-            LeftPanel->SetPluginCommand(Command,Param);
-            Processed=TRUE;
+            Processed=LeftPanel->SetPluginCommand(Command,Param1,Param2);
           }
         }
       }
@@ -1288,8 +1289,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
           {
-            RightPanel->SetPluginCommand(Command,Param);
-            Processed=TRUE;
+            Processed=RightPanel->SetPluginCommand(Command,Param1,Param2);
           }
         }
       }
@@ -1339,18 +1339,18 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 				CmdLine->GetString(strParam);
 			else
 				CmdLine->GetSelString(strParam);
-			if(Param)
-				wcscpy((wchar_t*)Param, strParam);
-      return (int)strParam.GetLength();
+			if(Param2)
+				xwcsncpy((wchar_t*)Param2,strParam,Param1-1);
+			return (int)strParam.GetLength();
 		}
 
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:
     {
       if (Command==FCTL_SETCMDLINE)
-        CmdLine->SetString((const wchar_t*)Param);
+        CmdLine->SetString((const wchar_t*)Param2);
       else
-        CmdLine->InsertString((const wchar_t*)Param);
+        CmdLine->InsertString((const wchar_t*)Param2);
 
       CmdLine->Redraw();
       return(TRUE);
@@ -1358,20 +1358,16 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_SETCMDLINEPOS:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(int)))
-      {
-        CmdLine->SetCurPos(*(int *)Param);
-        CmdLine->Redraw();
-        return TRUE;
-      }
-      return FALSE;
+      CmdLine->SetCurPos(Param1);
+      CmdLine->Redraw();
+      return TRUE;
     }
 
     case FCTL_GETCMDLINEPOS:
     {
-      if(Param && !IsBadWritePtr(Param,sizeof(int)))
+      if(Param2)
       {
-        *(int *)Param=CmdLine->GetCurPos();
+        *(int *)Param2=CmdLine->GetCurPos();
         return TRUE;
       }
       return FALSE;
@@ -1379,7 +1375,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_GETCMDLINESELECTION:
     {
-      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      CmdLineSelect *sel=(CmdLineSelect*)Param2;
       if(sel && !IsBadWritePtr(sel,sizeof(struct CmdLineSelect)))
       {
         CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
@@ -1390,7 +1386,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_SETCMDLINESELECTION:
     {
-      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      CmdLineSelect *sel=(CmdLineSelect*)Param2;
       if(sel && !IsBadReadPtr(sel,sizeof(struct CmdLineSelect)))
       {
         CmdLine->Select(sel->SelStart,sel->SelEnd);

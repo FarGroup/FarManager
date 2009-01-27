@@ -747,18 +747,13 @@ struct PanelInfo
   int PanelType;
   int Plugin;
   RECT PanelRect;
-  struct PluginPanelItem *PanelItems;
   int ItemsNumber;
-  struct PluginPanelItem **SelectedItems;
   int SelectedItemsNumber;
   int CurrentItem;
   int TopPanelItem;
   int Visible;
   int Focus;
   int ViewMode;
-  wchar_t *lpwszColumnTypes;
-  wchar_t *lpwszColumnWidths;
-  wchar_t *lpwszCurDir;
   int ShortNames;
   int SortMode;
   DWORD Flags;
@@ -801,22 +796,23 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_GETCMDLINESELECTEDTEXT,
   FCTL_SETCMDLINESELECTION,
   FCTL_GETCMDLINESELECTION,
-  FCTL_GETPANELSHORTINFO,
   FCTL_CHECKPANELSEXIST,
   FCTL_SETNUMERICSORT,
-  FCTL_FREEPANELINFO,
   FCTL_GETUSERSCREEN,
   FCTL_ISACTIVEPANEL,
-#ifdef FAR_USE_INTERNALS
-
-  FCTL_GETPANELSHORTINFOFORWRAPPER = 65000
-#endif // END FAR_USE_INTERNALS
+	FCTL_GETPANELITEM,
+	FCTL_GETSELECTEDPANELITEM,
+	FCTL_FREEPANELITEM,
+	FCTL_GETCURRENTDIRECTORY,
+	FCTL_GETCOLUMNTYPES,
+	FCTL_GETCOLUMNWIDTHS,
 };
 
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-  void *Param
+	int Param1,
+	LONG_PTR Param2
 );
 
 typedef void (WINAPI *FARAPITEXT)(

@@ -904,87 +904,52 @@ void FileList::SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendO
   }
 }
 
-
-void FileList::PluginGetPanelInfo(struct PanelInfo *Info, int Command)
+void FileList::PluginGetPanelInfo(PanelInfo &Info)
 {
-  CorrectPosition();
-  Info->PanelItems=NULL;
-  Info->SelectedItems=NULL;
-
-  if (Command == FCTL_GETPANELINFO)
-  {
-    Info->ItemsNumber=0;
-    Info->SelectedItemsNumber=0;
-    Info->PanelItems=new PluginPanelItem[FileCount+1];
-    if (Info->PanelItems!=NULL)
-    {
-      for (int I=0; I < FileCount; I++)
-      {
-        FileListToPluginItem(ListData[I],Info->PanelItems+Info->ItemsNumber);
-        Info->ItemsNumber++;
-        if(ListData[I]->Selected)
-          Info->SelectedItemsNumber++;
-      }
-      int CurSel=0;
-      if(Info->SelectedItemsNumber)
-      {
-        Info->SelectedItems=new PluginPanelItem*[Info->SelectedItemsNumber];
-        for(int i=0;i<Info->ItemsNumber;i++)
-          if(Info->PanelItems[i].Flags & PPIF_SELECTED)
-          {
-            Info->SelectedItems[CurSel]=&Info->PanelItems[i];
-            CurSel++;
-          }
-      }
-      else
-      {
-        if(Info->ItemsNumber && *Info->PanelItems[CurFile].FindData.lpwszFileName &&
-           !TestParentFolderName(Info->PanelItems[CurFile].FindData.lpwszFileName))
-        {
-          Info->SelectedItemsNumber=1;
-          Info->SelectedItems=new PluginPanelItem*[Info->SelectedItemsNumber];
-          *Info->SelectedItems=&Info->PanelItems[CurFile];
-        }
-      }
-    }
-  }
-  else
-  {
-    Info->ItemsNumber=FileCount;
-    Info->SelectedItemsNumber=GetSelCount();
-  }
-
-  if (Command == FCTL_GETPANELSHORTINFO)
-  {
-    Info->lpwszColumnTypes=NULL;
-    Info->lpwszColumnWidths=NULL;
-  }
-  else
-  {
-    string strColumnTypes, strColumnWidths;
-    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-    									ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
-    Info->lpwszColumnTypes = xf_wcsdup (strColumnTypes);
-    Info->lpwszColumnWidths = xf_wcsdup (strColumnWidths);
-  }
-
-  Info->CurrentItem=CurFile;
-  Info->TopPanelItem=CurTopFile;
-
-  Info->ShortNames=ShowShortNames;
+	CorrectPosition();
+	Info.CurrentItem=CurFile;
+	Info.TopPanelItem=CurTopFile;
+	Info.ShortNames=ShowShortNames;
+	Info.ItemsNumber=FileCount;
+	Info.SelectedItemsNumber=GetSelCount();
+	if(Info.SelectedItemsNumber==1 && TestParentFolderName(ListData[CurFile]->strName))
+		Info.SelectedItemsNumber=0;
 }
 
-void FileList::PluginSetSelection(struct PanelInfo *Info)
+void FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem &Item)
+{
+	FileListToPluginItem(ListData[ItemNumber],&Item);
+}
+
+void FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem &Item)
+{
+	int CurSel=-1;
+	for(int i=0;i<FileCount;i++)
+	{
+		if(ListData[i]->Selected)
+			CurSel++;
+		if(CurSel==ItemNumber)
+		{
+			FileListToPluginItem(ListData[i],&Item);
+			break;
+		}
+	}
+	if(CurSel==-1 && !ItemNumber)
+	{
+		FileListToPluginItem(ListData[CurFile],&Item);
+	}
+}
+
+void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths)
+{
+	ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+		ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
+}
+
+void FileList::PluginSetSelection(int ItemNumber,bool Selection)
 {
   SaveSelection();
-
-  struct FileListItem *CurPtr;
-  for (int I=0; I < FileCount && I < Info->ItemsNumber; I++)
-  {
-    CurPtr = ListData[I];
-    int Selection=(Info->PanelItems[I].Flags & PPIF_SELECTED)!=0;
-    Select(CurPtr,Selection);
-  }
+  Select(ListData[ItemNumber],Selection);
   if (SelectedFirst)
     SortFileList(TRUE);
 }

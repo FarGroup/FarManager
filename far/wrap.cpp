@@ -311,8 +311,15 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 		for (int j=0; j<PanelItem.CustomColumnNumber; j++)
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
 	}
+	if(PanelItem.UserData&&PanelItem.Flags&PPIF_USERDATA)
+	{
+		DWORD Size=*(DWORD *)PanelItem.UserData;
+		PanelItemA.UserData=(DWORD_PTR)xf_malloc(Size);
+		memcpy((void *)PanelItemA.UserData,(void *)PanelItem.UserData,Size);
+	}
+	else
+		PanelItemA.UserData = PanelItem.UserData;
 
-	PanelItemA.UserData = PanelItem.UserData;
 	PanelItemA.CRC32 = PanelItem.CRC32;
 
 	PanelItemA.FindData.dwFileAttributes = PanelItem.FindData.dwFileAttributes;
@@ -326,7 +333,6 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	UnicodeToOEM(PanelItem.FindData.lpwszFileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
 	UnicodeToOEM(PanelItem.FindData.lpwszAlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
-
 
 void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
 {
@@ -389,6 +395,10 @@ void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber, bool bF
 				xf_free(PanelItem[i].CustomColumnData[j]);
 
 			xf_free(PanelItem[i].CustomColumnData);
+		}
+		if(PanelItem[i].UserData&&PanelItem[i].Flags&oldfar::PPIF_USERDATA)
+		{
+			xf_free((PVOID)PanelItem[i].UserData);
 		}
 	}
 
@@ -2139,7 +2149,7 @@ int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
 
-void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL Short)
+void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 {
 	PIA->PanelType = 0;
 	switch (PIW->PanelType)
@@ -2160,16 +2170,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	PIA->ItemsNumber = PIW->ItemsNumber;
 	PIA->SelectedItemsNumber = PIW->SelectedItemsNumber;
 
-	if(Short) //FCTL_GET[ANOTHER]PANELSHORTINFO
-	{
-		PIA->PanelItems = NULL;
-		PIA->SelectedItems = NULL;
-	}
-	else //FCTL_GET[ANOTHER]PANELINFO
-	{
-		ConvertPanelItemsArrayToAnsi(PIW->PanelItems, PIA->PanelItems, PIW->ItemsNumber);
-		ConvertPanelItemsPtrArrayToAnsi(PIW->SelectedItems, PIA->SelectedItems, PIW->SelectedItemsNumber);
-	}
+	PIA->PanelItems = NULL;
+	PIA->SelectedItems = NULL;
 
 	PIA->CurrentItem = PIW->CurrentItem;
 	PIA->TopPanelItem = PIW->TopPanelItem;
@@ -2177,11 +2179,6 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA, BOOL 
 	PIA->Visible = PIW->Visible;
 	PIA->Focus = PIW->Focus;
 	PIA->ViewMode = PIW->ViewMode;
-
-	UnicodeToOEM(PIW->lpwszColumnTypes, PIA->ColumnTypes, sizeof(PIA->ColumnTypes));
-	UnicodeToOEM(PIW->lpwszColumnWidths, PIA->ColumnWidths, sizeof(PIA->ColumnWidths));
-
-	UnicodeToOEM(PIW->lpwszCurDir, PIA->CurDir, sizeof(PIA->CurDir));
 
 	PIA->ShortNames = PIW->ShortNames;
 
@@ -2227,7 +2224,6 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 {
 	static oldfar::PanelInfo PanelInfoA={0},AnotherPanelInfoA={0};
-	static PanelInfo PnI={0},AnotherPnI={0};
 	static int Reenter=0;
 
 	if(hPlugin==INVALID_HANDLE_VALUE)
@@ -2236,14 +2232,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 	switch (Command)
 	{
 		case oldfar::FCTL_CHECKPANELSEXIST:
-			return FarControl(hPlugin,FCTL_CHECKPANELSEXIST,Param);
+			return FarControl(hPlugin,FCTL_CHECKPANELSEXIST,0,(LONG_PTR)Param);
 
 		case oldfar::FCTL_CLOSEPLUGIN:
 		{
 			wchar_t *ParamW = NULL;
 			if (Param)
 				ParamW = AnsiToUnicode((const char *)Param);
-			int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,ParamW);
+			int ret = FarControl(hPlugin,FCTL_CLOSEPLUGIN,0,(LONG_PTR)ParamW);
 			if (ParamW) xf_free(ParamW);
 			return ret;
 		}
@@ -2267,13 +2263,49 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				Reenter++;
 				if (Passive)
 					hPlugin=PANEL_PASSIVE;
-				FarControl(hPlugin,FCTL_FREEPANELINFO,Passive?&AnotherPnI:&PnI);
-				FreeAnsiPanelInfo(Passive?&AnotherPanelInfoA:&PanelInfoA);
-				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,Passive?&AnotherPnI:&PnI);
+				oldfar::PanelInfo* OldPI=Passive?&AnotherPanelInfoA:&PanelInfoA;
+				PanelInfo PI;
+				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,0,(LONG_PTR)&PI);
+				FreeAnsiPanelInfo(OldPI);
 				if (ret)
 				{
-					ConvertUnicodePanelInfoToAnsi(Passive?&AnotherPnI:&PnI, Passive?&AnotherPanelInfoA:&PanelInfoA, false);
-					*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
+					ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
+					OldPI->PanelItems = (oldfar::PluginPanelItem *)xf_malloc(PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
+					memset(OldPI->PanelItems,0,PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
+					OldPI->SelectedItems = (oldfar::PluginPanelItem *)xf_malloc(PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
+					memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
+					if(OldPI->PanelItems&&OldPI->SelectedItems)
+					{
+						int CurrentSelectedItem=0;
+						for(int i=0;i<PI.ItemsNumber;i++)
+						{
+							PluginPanelItem PPI;
+							FarControl(hPlugin,FCTL_GETPANELITEM,i,(LONG_PTR)&PPI);
+							ConvertPanelItemToAnsi(PPI,OldPI->PanelItems[i]);
+							FarControl(hPlugin,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+						}
+						for(int i=0;i<PI.SelectedItemsNumber;i++)
+						{
+							PluginPanelItem PPI;
+							FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PPI);
+							ConvertPanelItemToAnsi(PPI,OldPI->SelectedItems[i]);
+							FarControl(hPlugin,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+						}
+					}
+
+					wchar_t CurDir[sizeof(OldPI->CurDir)];
+					FarControl(hPlugin,FCTL_GETCURRENTDIRECTORY,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
+					UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
+
+					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
+					FarControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),(LONG_PTR)ColumnTypes);
+					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
+
+					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
+					FarControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),(LONG_PTR)ColumnWidths);
+					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
+
+					*(oldfar::PanelInfo*)Param=*OldPI;
 				}
 				else
 				{
@@ -2289,17 +2321,27 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if (!Param )
 					return FALSE;
 
-				memset((oldfar::PanelInfo*)Param,0,sizeof(oldfar::PanelInfo));
+				oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
+				memset(OldPI,0,sizeof(oldfar::PanelInfo));
 				if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
 					hPlugin=PANEL_PASSIVE;
-				PanelInfo tmpPnI;
-				int ret = FarControl(hPlugin,FCTL_GETPANELSHORTINFOFORWRAPPER,&tmpPnI);
+				PanelInfo PI;
+				int ret = FarControl(hPlugin,FCTL_GETPANELINFO,0,(LONG_PTR)&PI);
 				if (ret)
 				{
-					ConvertUnicodePanelInfoToAnsi(&tmpPnI, (oldfar::PanelInfo*)Param, true);
-					FarControl(hPlugin,FCTL_FREEPANELINFO,&tmpPnI);
-				}
+					ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
+					wchar_t CurDir[sizeof(OldPI->CurDir)];
+					FarControl(hPlugin,FCTL_GETCURRENTDIRECTORY,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
+					UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
 
+					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
+					FarControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),(LONG_PTR)ColumnTypes);
+					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
+
+					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
+					FarControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),(LONG_PTR)ColumnWidths);
+					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths,sizeof(OldPI->ColumnWidths));
+				}
 				return ret;
 			}
 
@@ -2309,16 +2351,12 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			{
 				if(!Param )
 					return FALSE;
-				oldfar::PanelInfo *pPIA=(oldfar::PanelInfo*)Param;
-				PanelInfo *PnIPtr=(hPlugin==PANEL_PASSIVE)?&AnotherPnI:&PnI;
-				for(int i=0;i<pPIA->ItemsNumber;i++)
+				oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
+				for(int i=0;i<OldPI->ItemsNumber;i++)
 				{
-					if(pPIA->PanelItems[i].Flags & oldfar::PPIF_SELECTED)
-						PnIPtr->PanelItems[i].Flags|=PPIF_SELECTED;
-					else
-						PnIPtr->PanelItems[i].Flags&=~PPIF_SELECTED;
+					FarControl(hPlugin,FCTL_SETSELECTION,i,OldPI->PanelItems[i].Flags & oldfar::PPIF_SELECTED);
 				}
-				return FarControl(hPlugin,FCTL_SETSELECTION,PnIPtr);
+				return TRUE;
 			}
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
@@ -2327,19 +2365,19 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_REDRAWPANEL:
 		{
 			if ( !Param )
-				return FarControl(hPlugin, FCTL_REDRAWPANEL, NULL);
+				return FarControl(hPlugin, FCTL_REDRAWPANEL,0,NULL);
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
 			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
 
-			return FarControl(hPlugin, FCTL_REDRAWPANEL, &pri);
+			return FarControl(hPlugin, FCTL_REDRAWPANEL,0,(LONG_PTR)&pri);
 		}
 
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
 			hPlugin = PANEL_PASSIVE;
 
 		case oldfar::FCTL_SETNUMERICSORT:
-			return FarControl(hPlugin, FCTL_SETNUMERICSORT, Param);
+			return FarControl(hPlugin, FCTL_SETNUMERICSORT,(Param&&(*(int*)Param))?1:0,NULL);
 
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 			hPlugin = PANEL_PASSIVE;
@@ -2350,7 +2388,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			int ret = FarControl(hPlugin, FCTL_SETPANELDIR, Dir);
+			int ret = FarControl(hPlugin, FCTL_SETPANELDIR,0,(LONG_PTR)Dir);
 			xf_free(Dir);
 
 			return ret;
@@ -2362,23 +2400,22 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			if ( !Param )
 				return FALSE;
-
-			return FarControl(hPlugin, FCTL_SETSORTMODE, Param);
+			return FarControl(hPlugin, FCTL_SETSORTMODE,*(int*)Param,NULL);
 
 		case oldfar::FCTL_SETANOTHERSORTORDER:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETSORTORDER:
-			return FarControl(hPlugin, FCTL_SETSORTORDER, Param);
+			return FarControl(hPlugin, FCTL_SETSORTORDER,(Param&&(*(int*)Param))?-1:1,NULL);
 
 		case oldfar::FCTL_SETANOTHERVIEWMODE:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_SETVIEWMODE:
-			return FarControl(hPlugin, FCTL_SETVIEWMODE, Param);
+			return FarControl(hPlugin, FCTL_SETVIEWMODE,(Param?*(int *)Param:0),NULL);
 
 		case oldfar::FCTL_UPDATEANOTHERPANEL:
 			hPlugin = PANEL_PASSIVE;
 		case oldfar::FCTL_UPDATEPANEL:
-			return FarControl(hPlugin, FCTL_UPDATEPANEL, Param);
+			return FarControl(hPlugin, FCTL_UPDATEPANEL,Param?1:0,NULL);
 
 
 		case oldfar::FCTL_GETCMDLINE:
@@ -2387,8 +2424,8 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) )
 				return FALSE;
 			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
-			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,NULL)+1)*sizeof(wchar_t));
-			FarControl(hPlugin,CmdW,s);
+			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,0,NULL)+1)*sizeof(wchar_t));
+			FarControl(hPlugin,CmdW,0,(LONG_PTR)s);
 			UnicodeToOEM(s, (char*)Param, 1024);
 			return TRUE;
 		}
@@ -2397,7 +2434,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if ( !Param )
 				return FALSE;
 
-			return FarControl(hPlugin,FCTL_GETCMDLINEPOS,Param);
+			return FarControl(hPlugin,FCTL_GETCMDLINEPOS,0,(LONG_PTR)Param);
 
 		case oldfar::FCTL_GETCMDLINESELECTION:
 		{
@@ -2406,7 +2443,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			CmdLineSelect cls;
 
-			int ret = FarControl(hPlugin, FCTL_GETCMDLINESELECTION, &cls);
+			int ret = FarControl(hPlugin, FCTL_GETCMDLINESELECTION,0,(LONG_PTR)&cls);
 
 			if ( ret )
 			{
@@ -2425,7 +2462,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 
-			int ret = FarControl(hPlugin, FCTL_INSERTCMDLINE, s);
+			int ret = FarControl(hPlugin, FCTL_INSERTCMDLINE,0,(LONG_PTR)s);
 
 			xf_free(s);
 			return ret;
@@ -2438,7 +2475,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 
 			wchar_t* s = AnsiToUnicode((const char*)Param);
 
-			int ret = FarControl(hPlugin, FCTL_SETCMDLINE, s);
+			int ret = FarControl(hPlugin, FCTL_SETCMDLINE,0,(LONG_PTR)s);
 
 			xf_free(s);
 			return ret;
@@ -2447,8 +2484,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_SETCMDLINEPOS:
 			if ( !Param )
 				return FALSE;
-
-			return FarControl(hPlugin, FCTL_SETCMDLINEPOS, Param);
+			return FarControl(hPlugin, FCTL_SETCMDLINEPOS,*(int*)Param,NULL);
 
 		case oldfar::FCTL_SETCMDLINESELECTION:
 		{
@@ -2458,14 +2494,14 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
 			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
 
-			return FarControl(hPlugin, FCTL_SETCMDLINESELECTION, &cls);
+			return FarControl(hPlugin, FCTL_SETCMDLINESELECTION,0,(LONG_PTR)&cls);
 		}
 
 		case oldfar::FCTL_GETUSERSCREEN:
-			return FarControl(hPlugin, FCTL_GETUSERSCREEN, NULL);
+			return FarControl(hPlugin, FCTL_GETUSERSCREEN,0,NULL);
 
 		case oldfar::FCTL_SETUSERSCREEN:
-			return FarControl(hPlugin, FCTL_SETUSERSCREEN, NULL);
+			return FarControl(hPlugin, FCTL_SETUSERSCREEN,0,NULL);
 	}
 	return FALSE;
 }
@@ -3315,29 +3351,61 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 	return TRUE;
 }
 
-int WINAPI FarCharTableA(int Command,char *Buffer,int BufferSize)
+void MultiByteRecode (UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 {
-	if (Command != oldfar::FCT_DETECT)
+	if (szBuffer && nLength > 0)
 	{
-		if (BufferSize > (int)sizeof(struct oldfar::CharTableSet))
-			return(-1);
-
-		struct oldfar::CharTableSet TableSet;
-
-		for (unsigned int i=0;i<256;++i)
+		wchar_t *wszTempTable = (wchar_t *) xf_malloc (nLength * sizeof (wchar_t));
+		if (wszTempTable)
 		{
-			TableSet.EncodeTable[i]=TableSet.DecodeTable[i]=i;
-			TableSet.UpperTable[i]=LocalUpper(i);
-			TableSet.LowerTable[i]=LocalLower(i);
+			MultiByteToWideChar (nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
+			WideCharToMultiByte (nCPout, 0, wszTempTable, nLength, szBuffer, nLength, NULL, NULL);
+			xf_free (wszTempTable);
+		}
+	}
+};
+
+int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
+{
+	if (Command != oldfar::FCT_DETECT && Command >= 0)
+	{
+		if (BufferSize > (int) sizeof(oldfar::CharTableSet))
+			return -1;
+
+		oldfar::CharTableSet *TableSet=(oldfar::CharTableSet*)Buffer;
+		string sTableName;
+
+		BYTE dTemp[4];
+		const wchar_t SelCT[] = L"CodeTables\\Selected";
+
+		if(!EnumRegValue (SelCT, 0, sTableName, dTemp, sizeof (dTemp)) ||
+			(Command > 0 && !EnumRegValue (SelCT, Command, sTableName, dTemp, sizeof (dTemp))))
+			return -1;
+
+		UINT nCP = _wtoi (sTableName);
+		CPINFOEXW cpi;
+
+		if (!GetCPInfoExW (nCP, 0, &cpi) || cpi.MaxCharSize != 1)
+			return -1;
+
+		sTableName.Format (L"%5u%c %s", nCP, BoxSymbols[BS_V1], wcschr (cpi.CodePageName, L'(') + 1);
+		sTableName.SetLength (sTableName.GetLength () - 1);
+		sTableName.GetCharString (TableSet->TableName, sizeof (TableSet->TableName) - 1, CP_OEMCP);
+
+		for (unsigned int i = 0; i < 256; ++i)
+		{
+			TableSet->EncodeTable[i] = TableSet->DecodeTable[i] = i;
+			TableSet->UpperTable[i] = LocalUpper (i);
+			TableSet->LowerTable[i] = LocalLower (i);
 		}
 
-		xstrncpy(TableSet.TableName, "OEM", sizeof(TableSet.TableName)-1);
-		memcpy(Buffer,&TableSet,BufferSize);
+		MultiByteRecode (nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof (TableSet->DecodeTable));
+		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->EncodeTable, sizeof (TableSet->EncodeTable));
+		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->UpperTable, sizeof (TableSet->UpperTable));
+		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->LowerTable, sizeof (TableSet->LowerTable));
 
-		if (Command == 0)
-			return 0;
+		return Command;
 	}
-
 	return -1;
 }
 
