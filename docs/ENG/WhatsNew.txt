@@ -66,114 +66,111 @@ System
     prepare device for safe removal.
 [+] "Hotplug devices list" command is added to "Commands" menu (F9). It
     allows to remove hotplug devices.
-[+] "Del removes block in edit controls" option is added to dialog settings.
-[+] Возможность пропустить ошибки в процессе создания папок при включенной
-    опции "Обрабатывать несколько имен папок".
+[+] "Del removes block in edit controls" option is added to Dialog settings.
+[+] Now skipping errors during folder creation when "Process multiple names"
+    option is enabled.
 [+] Command line arguments:
      /m - FAR will not load macros from the registry when started;
      /ma - Macros with the "Run after FAR start" option set will not be run
            when FAR is started.
-[+] Нажатие на кнопку максимизации консольного окна "распахивает" консольное
-    окно до максимально возможного размера (аналог Alt-F9). Также учитывается
-    состояние окна консоли при старте (start /max, настройка ярлыка и т. п.).
-[+] Новый флаг для типа колонки "владелец файла": 'L' - отображать домен.
-[+] Для форматирования чисел теперь по умолчанию используются региональные
-    настройки ОС, а не жестко заданные точка и запятая.
-[+] В "Системные параметры" добавлена опция "Удалять символические ссылки",
-    позволяющая исправить ситуацию с потерей содержимого удалённой в корзину
-    символической ссылки.
-[+] Поддержка символических ссылок Windows Vista.
-[+] В историях ввода строка попадает в список полностью и не ограничена 128
-    байтами.
-[+] Поддержка горизонтального колеса мыши в Windows Vista.
-[+] Поддержка колеса мыши в объекте выбора папок.
-[+] В фильтры добавлена обработка атрибутов "разреженный", "временный",
-    "автономный" и "виртуальный".
-[+] В меню, историях и списках добавлена возможность "прокручивать" длинные
-    строки (клавиши Alt-Left/Right/Home/End и Alt-Shift-Left/Right).
-[+] В цветовую палитру добавлены цвета для раскраски стрелок сдвига экрана в
-    меню, историях и списках.
-[+] В цветовую палитру добавлен цвет для раскраски пользовательского экрана.
-[+] В диалоге пометки файлов можно использовать фильтры.
-[+] В far*.lng файлах зарезервированы места под все CtrlAltShiftFn клавиши.
-[+] Добавлены макросы для навигации по выделенным файлам на панели
+[+] Maximize button enlarges console window to maximum possible size (like
+    Alt-F9). State of console window on startup is also taken into account
+    (start /max, link properties, etc.).
+[+] New File Owner column flag: 'L' - show domain.
+[+] OS regional settings are used by default for numbers formatting instead
+    of hardcoded dot and comma.
+[+] "Delete symbolic links" option is added to System parameters. It allows
+    to treat situation of losing link target when symbolic link is deleted to
+    Recycle Bin.
+[+] Support of Windows Vista symbolic links.
+[+] In dialogs history, full string is remembered, it is not limited to 128
+    bytes anymore.
+[+] Support of mouse horizontal wheel in Windows Vista.
+[+] Support of mouse wheel in Folder tree.
+[+] Filters now support "Sparse", "Temporary", "Offline", and "Virtual"
+    attributes.
+[+] Long strings can be scrolled in menu, history, and lists.
+    (Alt-Left/Right/Home/End and Alt-Shift-Left/Right keys).
+[+] Colors for scrolling arrows in menu, history, and lists are added to
+    color palette.
+[+] Color for user screen is added to color palette.
+[+] Filters can be used in File Selection dialog.
+[+] Places for all CtrlAltShiftFn keys are reserved in far*.lng files.
+[+] Macros added for moving through highlighted files in panels
     (Addons\Macros\JumpToSelectedFile.reg)
-[+] Для командной строки добавлена обработка сочетания Ctrl-U - снятие выделения
-    блока (работает при погашенных панелях)
-[*] Оптимизация проверки непопадания объекта в фильтр (для фильтров не только
-    по маске).
-[*] Изменена логика загрузки плагинов. Модуль проверяется на принадлежность к
-    плагинам до загрузки.
-[*] В TechInfo#63 убрано ограничение на максимальный размер читаемых данных.
-[*] В процессе удаления каталога в Корзину производится проверка наличия
-    символических ссылок. Если символические ссылки присутствуют, они
-    разрываются.
-[*] В TechInfo#33 добавлены параметры "MouseHWheelDelta*", задающие смещение
-    для горизонтальной прокрутки колеса мыши.
-[*] Уточнение подсказки командной строки (для far /?).
-[*] Изменен текст диалогов для уничтожения файлов (Alt-Del).
-[*] Объединены раскраска файлов и группы сортировки.
-[-] Некорректные файлы пользовательского меню приводили к падению FAR.
-[-] FAR не запускался при отсутствии доступа к одному из надкаталогов far.exe.
-[-] Клавиатурное сочетание Ctrl-Shift-Enter для быстрого поиска не было
-    указано в помощи.
-[-] Нельзя было установить UNC-путь на панели через параметры командной строки.
-[-] "Залипание" линейки клавиш при вызове и выходе из диалога поиска папок.
-[-] Падение FAR при старте, если запомненный с прошлого сеанса работы каталог
-    отсутствовал.
-[-] Уничтожение файлов не работало с файлами, размер которых превышал 2 Гб.
-[-] Неправильная отрисовка окна поиска папок. Пример: Alt-F10 F1 F5 F5 Esc.
-[-] Пропадало содержимое дерева папок, если процесс перечитывания каталогов
-    прерывался.
-[-] Метасимвол "!$!" создавал список длинных имён вместо коротких.
-[-] Зависание FAR при указании нескольких ключей командной строки /v и /e.
-[-] Неправильное отображение свободного места на дисках большого объема.
-[-] В режиме колонки NR сочетание Alt-Home не прокручивало строки в начало.
-[-] В некоторых случаях некорректно выставлялась переменная среды FARLANG.
-[-] При нажатии и удерживании Ctrl-Alt-Shift наблюдалась повышенная
-    "возбужденность" FAR в диспетчере задач.
-[-] Двойное обновление панели после смены каталога с помощью команды "cd".
-[-] Некорректно работала функция переключения языка в XLat-транситерации и
-    макрокоманде $KbdSwitch.
-[-] В окне быстрого поиска невозможно было ввести символ ']'.
-[-] Пользовательское меню самостоятельно восстанавливало текущие пути, которые
-    были установлены до вызова меню, из-за чего в нём невозможно было
-    использовать команды вида "cd C:\".
-[-] Неправильное поведение метасимвола "!=\" для точек монтировния томов.
-[-] Нажатие CtrlAltShift не гасило панель в пятом режиме.
-[-] Некорректная обработка команды "cd" при наличии символа '/' в пути.
-[-] Не работали пути вида БукваДиска: для пассивной панели при запуске
-    программ в Win9x.
-[-] Не всегда выставлялся путь пассивной панели при запуска программ в Win9x.
-[-] Некорректное отображение параметров SUBST-диска в Win9x.
-[-] Некорректная обработка смешанных путей (содержащих ".." и ".").
-[-] После сравнения папок не перемещались вперед помеченные файлы на пассивной
-    панели (опция "Помеченные файлы вперед" для панели включена).
-[-] Неверная сортировка строк, различающихся только длиной, при выборе режима
-    "числовая сортировка".
-[-] Двойное обновление панели после вызова диалога описания файла.
-[-] Редкое падение в процессе создания папок (F7).
-[-] Неправильный заголовок консоли для операции перемещения файлов/каталогов.
-[-] В режиме отображения владельцев файлов не работало кеширование SID и не
-    освобождалась выделенная память.
+[+] Now processing Ctrl-U combination in command line - deselects block
+    (works when panels are hidden)
+[*] Optimized check if object is not affected by filter (for filters using
+    not only mask).
+[*] Plugin loading logic is changed. Now checking if module is a plugin
+    before loading it.
+[*] TechInfo#63: removed limit of maximum data size to be read.
+[*] During moving a folder to the Recycle Bin a check is performed for
+    symbolic links, breaking any present links.
+[*] TechInfo#33: added "MouseHWheelDelta*" parameters, defining an offset
+    for horizontal mouse wheel scroll.
+[*] Correction of command line help (for far /?).
+[*] Dialog text for wiping the files (Alt-Del) is changed.
+[*] Files highlighting and sort groups are combined.
+[-] FAR crashed on incorrect user menu files.
+[-] FAR did not start when access was denied to any parent folder of far.exe.
+[-] Keyboard combination Ctrl-Shift-Enter for quick searsh was absent from
+    the help.
+[-] It was unable to set UNC-path on a panel through command line parameters.
+[-] Key bar "sticking" after closing Find folder dialog.
+[-] FAR crashed on launch if folder stored in last session was absent.
+[-] Wiping files did not work with files larger than 2 Gb.
+[-] Invalid drawing of Find folder dialog. Example: Alt-F10 F1 F5 F5 Esc.
+[-] Contents of folder tree window disappeared if folder tree reading process
+    was interrupted.
+[-] "!$!" metasymbol created a list with long names instead of list with
+    short ones.
+[-] FAR hanged up when used with several command line keys /v or /e.
+[-] Incorrect free space display for large size disks.
+[-] In NR column mode, Alt-Home keystroke did not scroll strings to the
+    beginning.
+[-] Sometimes FARLANG environment variable was set incorrectly.
+[-] High CPU load when pressing and retaining Ctrl-Alt-Shift combination.
+[-] Double panel refresh after changing of current folder using "cd" command.
+[-] Language switching function worked incorrectly in XLat-transliteration
+    and $KbdSwitch macro command.
+[-] In quick search window it was impossible to enter ']' symbol.
+[-] User menu, itself, restored current paths that were set before the menu
+    was invoked, so commands like "cd C:\" were unusable there.
+[-] "!=\" metasymbol behaved incorrectly for volume mounting points.
+[-] CtrlAltShift keystroke did not hide panels in mode #5.
+[-] Incorrect "cd" command handling when '/' symbol was present in the path.
+[-] Paths like DriveLetter: did not work for passive panel when launching
+    programs in Win9x.
+[-] Passive panel path was not set sometimes when launching programs in Win9x.
+[-] SUBST-drive parameters were shown incorrectly in Win9x.
+[-] Compound paths (containing ".." and ".") were handled incorrectly.
+[-] Selected files on the passive panel were not moved ahead after folder
+    comparison (with "Show selected first" panel option switched on).
+[-] Incorrect sorting of strings differing only by length, when "Use numeric
+    sort" mode was active.
+[-] Double panel refresh after calling File description dialog.
+[-] Rare crash on folder creation (F7).
+[-] Invalid console title for Files/folders move operation.
+[-] In File owner display mode SID caching did not work and allocated memory
+    was not freed.
 [-] При нажатии Shift-Enter вместо открытия папки в проводнике производилась
     попытка запуска одноименного файла в отдельном окне.
-[-] Некорректная работа команд CD и CHDIR с переменными среды.
-[-] Не работало правило TechInfo#8.
-[-] Некорректная обработка параметров командной строки FAR, содержащих
-    переменные среды и относительные пути.
-[-] Падение FAR при запуске, если количество пунктов истории превышало
-    значение, указанное в TechInfo#52.
-[-] Некорректное поведение Ctrl-Enter на несуществующих пунктах истории
-    просмотра.
-[-] В историю попадало имя "нового" файла ("?Новый файл?") (Shift-F4 Del Enter
+[-] CD and CHDIR commands worked incorrectly with environment variables.
+[-] TechInfo#8 did not work.
+[-] Incorrect processing of FAR command line parameters containing environment
+    variables and relative paths.
+[-] FAR crashed on launch if history contained more records than was specified
+    in TechInfo#52.
+[-] Ctrl-Enter behaved incorrectly with non-existing view history records.
+[-] "New" file ("?New file?") was recorded in history (Shift-F4 Del Enter
     Esc).
 [-] Некорректная обработка плагиновых путей в истории папок.
 [-] Некорректная обработка команд командной строки содержащих символы в не OEM
     кодировке.
-[-] Некорректно обрабатывались Dead-клавиши.
-[-] Падение FAR для команды "far /e" при включенном отображении часов.
-[-] При большой ширине консольного окна меню "Screens" (F12) могло быть
+[-] Dead-keys were processed incorrectly.
+[-] FAR crashed with "far /e" command when clock was shown.
+[-] При большой ширине консольного окна "Screens" menu (F12) могло быть
     отображено некорректно.
 [-] Неправильное позиционирование на каталоге с национальными символами
     в имени при исполнении команды "FAR . Shift-Enter".
@@ -189,7 +186,7 @@ System
 [-] Если плагин бы вызван по префиксу, то до и после его вызова командная
     строка очищалась.
 [-] Если диалог был во весь экран то FAR мог падать при рисовании тени.
-[-] Неработал ключ командной строки /ma
+[-] /ma command line switch did not work
 
 Find File
 ~~~~~~~~~
@@ -2186,3 +2183,4 @@ Plugins
 
 
                                      [FAR manager development group]
+
