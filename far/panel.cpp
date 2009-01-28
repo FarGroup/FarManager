@@ -2134,6 +2134,23 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			}
 			break;
 
+		case FCTL_GETCURRENTPANELITEM:
+			{
+				if (Param2)
+				{
+					PanelInfo Info;
+
+					FileList *DestPanel = ((FileList*)this);
+
+					DestPanel->PluginGetPanelInfo(Info);
+					DestPanel->PluginGetPanelItem(Info.CurrentItem,*((PluginPanelItem*)Param2));
+
+					Result = TRUE;
+				}
+
+			}
+			break;
+
 		case FCTL_FREEPANELITEM:
 		{
 			if(Param2)
