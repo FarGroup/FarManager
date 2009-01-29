@@ -864,7 +864,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
       Control(FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&SelectedItems[i]);
       LPCTSTR szPath=SelectedItems[i].FindData.lpwszFileName;
       PluginPanelItem PPI;
-      Control(FCTL_GETPANELITEM,i,(LONG_PTR)&PPI);
+      Control(FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
       bool Equal=!lstrcmp(PPI.FindData.lpwszFileName,szPath);
       Control(FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
       if(Equal)
