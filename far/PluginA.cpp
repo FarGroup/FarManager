@@ -1327,9 +1327,9 @@ void PluginA::FreeOpenPluginInfo()
 	if (OPI.PanelTitle)
 		xf_free((void *)OPI.PanelTitle);
 
-	if (OPI.InfoLines)
+	if (OPI.InfoLines && OPI.InfoLinesNumber)
 	{
-		FreeInfoPanelLinesW((InfoPanelLine*)OPI.InfoLines);
+		FreeInfoPanelLinesW((InfoPanelLine*)OPI.InfoLines,OPI.InfoLinesNumber);
 	}
 
 	if (OPI.DescrFiles)

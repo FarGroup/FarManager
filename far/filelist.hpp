@@ -411,6 +411,7 @@ class FileList:public Panel
     static void ReadPanelModes();
     static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi);
     static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
+		static void FreePluginPanelItem(PluginPanelItem *pi);
     static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
     static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);

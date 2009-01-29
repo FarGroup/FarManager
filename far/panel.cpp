@@ -2155,14 +2155,8 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		{
 			if(Param2)
 			{
-				PluginPanelItem *Item=(PluginPanelItem*)Param2;
-				{
-					apiFreeFindData(&Item->FindData);
-					if(Item->UserData && (Item->Flags & PPIF_USERDATA))
-						xf_free((void*)Item->UserData);
-				}
+				FileList::FreePluginPanelItem((PluginPanelItem*)Param2);
 				Result=TRUE;
-				break;
 			}
 		}
 		break;
@@ -2174,8 +2168,8 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					((FileList *)this)->PluginSetSelection(Param1,Param2?true:false);
 					Result=TRUE;
 				}
-				break;
 			}
+			break;
 
 		case FCTL_UPDATEPANEL:
 			Update(Param1?UPDATE_KEEP_SELECTION:0);

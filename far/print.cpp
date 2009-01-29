@@ -194,6 +194,7 @@ void PrintFiles(Panel *SrcPanel)
               SrcFile=_wfopen(strTempName,L"rb");
             else
               apiRemoveDirectory(strTempDir);
+						FileList::FreePluginPanelItem(&PanelItem);
           }
         }
       }

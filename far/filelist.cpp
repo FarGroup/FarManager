@@ -306,8 +306,8 @@ int _cdecl SortList(const void *el1,const void *el2)
     SPtr1->UserFlags=SaveFlags1;
     SPtr2->UserFlags=SaveFlags2;
     int RetCode=CtrlObject->Plugins.Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
-    apiFreeFindData(&pi1.FindData);
-    apiFreeFindData(&pi2.FindData);
+		FileList::FreePluginPanelItem(&pi1);
+		FileList::FreePluginPanelItem(&pi2);
     if (RetCode==-2)
       hSortPlugin=NULL;
     else
@@ -1248,7 +1248,9 @@ int FileList::ProcessKey(int Key)
           {
             struct PluginPanelItem PanelItem;
             FileListToPluginItem(CurPtr,&PanelItem);
-            if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW)))
+						int Result=CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
+						FreePluginPanelItem(&PanelItem);
+						if (!Result)
             {
               apiRemoveDirectory(strTempDir);
               return(TRUE);
@@ -1999,8 +2001,9 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       CreateDirectoryW(strTempDir,NULL);
       struct PluginPanelItem PanelItem;
       FileListToPluginItem(CurPtr,&PanelItem);
-
-      if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW))
+			int Result=CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
+			FreePluginPanelItem(&PanelItem);
+			if (!Result)
       {
         apiRemoveDirectory(strTempDir);
         return;
@@ -3190,7 +3193,9 @@ void FileList::UpdateViewPanel()
         CreateDirectoryW(strTempDir,NULL);
         struct PluginPanelItem PanelItem;
         FileListToPluginItem(CurPtr,&PanelItem);
-        if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW))
+				int Result=CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
+				FreePluginPanelItem(&PanelItem);
+				if (!Result)
         {
           ViewPanel->ShowFile(NULL,FALSE,NULL);
           apiRemoveDirectory(strTempDir);

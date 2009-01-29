@@ -153,11 +153,17 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 	}
 }
 
-void FreeInfoPanelLinesW(InfoPanelLine *iplW)
+void FreeInfoPanelLinesW(InfoPanelLine *iplW,int InfoLinesNumber)
 {
-	if (iplW->Text) xf_free((void*)iplW->Text);
-	if (iplW->Data) xf_free((void*)iplW->Data);
-	if (iplW)	xf_free((void*)iplW);
+	for(int i=0;i<InfoLinesNumber;i++)
+	{
+		if (iplW[i].Text)
+			xf_free((void*)iplW[i].Text);
+		if (iplW[i].Data)
+			xf_free((void*)iplW[i].Data);
+	}
+	if (iplW)
+		xf_free((void*)iplW);
 }
 
 void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iCount)

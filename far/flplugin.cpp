@@ -205,6 +205,12 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   pi->Owner=fi->strOwner.IsEmpty()?NULL:(wchar_t*)(const wchar_t*)fi->strOwner;
 }
 
+void FileList::FreePluginPanelItem(PluginPanelItem *pi)
+{
+	apiFreeFindData(&pi->FindData);
+	if(pi->UserData && (pi->Flags & PPIF_USERDATA))
+			xf_free((void*)pi->UserData);
+}
 
 void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
@@ -357,9 +363,7 @@ void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
   {
     for (int I=0;I<ItemNumber;I++,PItemList++)
     {
-      apiFreeFindData(&PItemList->FindData);
-      if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
-        xf_free((void *)PItemList->UserData);
+      FreePluginPanelItem(PItemList);
     }
     delete[] ItemList;
   }
