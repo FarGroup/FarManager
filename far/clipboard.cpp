@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static HGLOBAL hInternalClipboard[5]={0};
 static UINT    uInternalClipboardFormat[5]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 static BOOL    OppenedClipboard=FALSE;
+static HANDLE hLC;
 
 
 static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
@@ -103,6 +104,7 @@ BOOL WINAPI FAR_EmptyClipboard(VOID)
     }
     return FALSE;
   }
+  GlobalFree(hLC);
   return EmptyClipboard();
 }
 
@@ -162,7 +164,23 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
     }
     return (HANDLE)NULL;
   }
-  return SetClipboardData(uFormat,hMem);
+
+	HANDLE hData=SetClipboardData(uFormat,hMem);
+	if(hData)
+	{
+		hLC=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,sizeof(LCID));
+		if(hLC)
+		{
+			PLCID pLc=(PLCID)GlobalLock(hLC);
+			if(pLc)
+			{
+				*pLc=LOCALE_USER_DEFAULT;
+				SetClipboardData(CF_LOCALE,pLc);
+			}
+			GlobalUnlock(hLC);
+		}
+	}
+	return hData;
 }
 
 
