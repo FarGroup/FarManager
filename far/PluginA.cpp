@@ -863,7 +863,15 @@ int PluginA::ProcessEditorInput (
 		es.id = EXCEPT_PROCESSEDITORINPUT;
 		es.bDefaultResult = TRUE; //(TRUE) treat the result as a completed request on exception!
 
-		EXECUTE_FUNCTION_EX(pProcessEditorInput(D), es);
+		const INPUT_RECORD *Ptr=D;
+		INPUT_RECORD OemRecord;
+		if(Ptr->EventType==KEY_EVENT)
+		{
+			OemRecord=*D;
+			CharToOemBuff(&D->Event.KeyEvent.uChar.UnicodeChar,&OemRecord.Event.KeyEvent.uChar.AsciiChar,1);
+			Ptr=&OemRecord;
+		}
+		EXECUTE_FUNCTION_EX(pProcessEditorInput(Ptr), es);
 
 		bResult = es.bResult;
 	}

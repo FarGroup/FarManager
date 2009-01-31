@@ -67,11 +67,11 @@ PreserveLongName::~PreserveLongName()
 
 			strNewName = strSaveShortName;
 
-			CutToSlash(strNewName,true);
-
-			strNewName += "\\";
-			strNewName += strSaveLongName;
-
+			if(CutToSlash(strNewName,true))
+			{
+				strNewName += "\\";
+				strNewName += strSaveLongName;
+			}
 			MoveFileW (strSaveShortName, strNewName);
 		}
 	}
