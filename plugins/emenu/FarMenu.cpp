@@ -102,7 +102,7 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
     else {
       if(textLen > m_nMaxTextLen) textLen = m_nMaxTextLen;
       m_pfmi[nIndex].Text = new wchar_t[textLen+1];
-      wcsncpy((wchar_t *)m_pfmi[nIndex].Text, szText, textLen);
+      wcsncpy((wchar_t *)m_pfmi[nIndex].Text, szText, textLen+1);
     }
 #endif
   }
