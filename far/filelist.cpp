@@ -670,7 +670,7 @@ int FileList::ProcessKey(int Key)
         }
         SetCurDir(strShortcutFolder,TRUE);
 
-        if(CheckFullScreen)
+        if(CheckFullScreen!=IsFullScreen())
           CtrlObject->Cp()->GetAnotherPanel(this)->Show();
 
         Show();
@@ -1027,7 +1027,7 @@ int FileList::ProcessKey(int Key)
         {
           ChangeDir(L"..");
           NeedChangeDir=FALSE;
-          if(CheckFullScreen)
+          if(CheckFullScreen!=IsFullScreen())
             CtrlObject->Cp()->GetAnotherPanel(this)->Show();
         }
       }
@@ -1861,8 +1861,12 @@ int FileList::ProcessKey(int Key)
       */
       {
         Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
+				int CheckFullScreen=IsFullScreen();
         NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
         NewActivePanel->Show();
+				if(CheckFullScreen!=IsFullScreen())
+					CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+
       }
       return(TRUE);
 
@@ -1981,12 +1985,11 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       }
       else
         res=ChangeDir(CurPtr->strShortName);
-//      if(res)
-      if(CheckFullScreen)
+      CtrlObject->Cp()->ActivePanel->Show();
+      if(CheckFullScreen!=IsFullScreen())
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->Show();
       }
-      CtrlObject->Cp()->ActivePanel->Show();
     }
   }
   else
@@ -2076,20 +2079,19 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 
 BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
-	bool UpdateAnotherPanel=false;
+	int CheckFullScreen=0;
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return FALSE;
-			if(ViewSettings.FullScreen)
-				UpdateAnotherPanel=!UpdateAnotherPanel;
+			CheckFullScreen=IsFullScreen();
       if (!PopPlugin(TRUE))
         break;
     }
     CtrlObject->Cp()->RedrawKeyBar();
-		if(UpdateAnotherPanel)
+		if(CheckFullScreen!=IsFullScreen())
 		{
 			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 		}
