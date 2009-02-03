@@ -2082,11 +2082,11 @@ BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 	int CheckFullScreen=0;
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
+		CheckFullScreen=IsFullScreen();
     while (1)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return FALSE;
-			CheckFullScreen=IsFullScreen();
       if (!PopPlugin(TRUE))
         break;
     }
