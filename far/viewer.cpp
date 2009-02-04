@@ -1699,7 +1699,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
 
     default:
-      if (Key>=' ' && Key<=255)
+      if (Key>=L' ' && Key<0x10000)
       {
         Search(0,Key);
         return(TRUE);

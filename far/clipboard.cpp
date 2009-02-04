@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static HGLOBAL hInternalClipboard[5]={0};
 static UINT    uInternalClipboardFormat[5]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 static BOOL    OppenedClipboard=FALSE;
-static HANDLE hLC;
 
 
 static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
@@ -104,7 +103,6 @@ BOOL WINAPI FAR_EmptyClipboard(VOID)
     }
     return FALSE;
   }
-  GlobalFree(hLC);
   return EmptyClipboard();
 }
 
@@ -168,16 +166,19 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 	HANDLE hData=SetClipboardData(uFormat,hMem);
 	if(hData)
 	{
-		hLC=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,sizeof(LCID));
+		HANDLE hLC=GlobalAlloc(GMEM_MOVEABLE,sizeof(LCID));
 		if(hLC)
 		{
 			PLCID pLc=(PLCID)GlobalLock(hLC);
 			if(pLc)
 			{
 				*pLc=LOCALE_USER_DEFAULT;
-				SetClipboardData(CF_LOCALE,pLc);
+				GlobalUnlock(hLC);
+				if(!SetClipboardData(CF_LOCALE,pLc))
+					GlobalFree(hLC);
 			}
-			GlobalUnlock(hLC);
+			else
+				GlobalFree(hLC);
 		}
 	}
 	return hData;
@@ -202,13 +203,16 @@ int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
     HGLOBAL hData;
     void *GData;
     int BufferSize=(DataSize+1)*sizeof (wchar_t);
-    if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,BufferSize))!=NULL)
+    if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
       if ((GData=GlobalLock(hData))!=NULL)
       {
         memcpy(GData,Data,BufferSize);
         GlobalUnlock(hData);
-        FAR_SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
+				if(!FAR_SetClipboardData(CF_UNICODETEXT,(HANDLE)hData))
+					GlobalFree(hData);
       }
+			else
+					GlobalFree(hData);
   }
   FAR_CloseClipboard();
   return(TRUE);
@@ -234,8 +238,11 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
       {
         memcpy(GData,Data,BufferSize);
         GlobalUnlock(hData);
-        FAR_SetClipboardData(FormatType,(HANDLE)hData);
+				if(!FAR_SetClipboardData(FormatType,(HANDLE)hData))
+					GlobalFree(hData);
       }
+			else
+				GlobalFree(hData);
     FAR_CloseClipboard();
   }
   return(TRUE);
