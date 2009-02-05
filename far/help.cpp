@@ -1490,7 +1490,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 			size_t pos;
 			if ( StackData.strHelpTopic.RPos(pos,HelpEndLink) )
 			{
-				StackData.strHelpTopic.SetLength(pos);
+				StackData.strHelpTopic.SetLength(pos+1);
 				StackData.strHelpTopic += HelpContents;
 			}
     }

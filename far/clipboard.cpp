@@ -233,7 +233,7 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
     if (!FAR_OpenClipboard(NULL))
       return(FALSE);
     int BufferSize=(DataSize+1)*sizeof (wchar_t);
-    if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,BufferSize))!=NULL)
+    if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
       if ((GData=GlobalLock(hData))!=NULL)
       {
         memcpy(GData,Data,BufferSize);
