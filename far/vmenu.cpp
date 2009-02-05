@@ -1057,12 +1057,12 @@ int VMenu::ProcessKey(int Key)
       break;
     }
 
-    case KEY_ALTLEFT:           case KEY_NUMPAD4|KEY_ALT:
-    case KEY_ALTRIGHT:          case KEY_NUMPAD6|KEY_ALT:
+    case KEY_ALTLEFT:  case KEY_NUMPAD4|KEY_ALT: case KEY_MSWHEEL_LEFT:
+    case KEY_ALTRIGHT: case KEY_NUMPAD6|KEY_ALT: case KEY_MSWHEEL_RIGHT:
     {
       BOOL NeedRedraw=FALSE;
       for(I=0; I < ItemCount; ++I)
-        if(ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT))?-1:1))
+        if(ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT) || Key == KEY_MSWHEEL_LEFT)?-1:1))
           NeedRedraw=TRUE;
 
       if(NeedRedraw)
@@ -1079,7 +1079,6 @@ int VMenu::ProcessKey(int Key)
     }
 
     case KEY_MSWHEEL_UP: // $ 27.04.2001 VVM - Обработка KEY_MSWHEEL_XXXX
-    case KEY_MSWHEEL_LEFT:
     case KEY_LEFT:         case KEY_NUMPAD4:
     case KEY_UP:           case KEY_NUMPAD8:
     {
@@ -1089,7 +1088,6 @@ int VMenu::ProcessKey(int Key)
     }
 
     case KEY_MSWHEEL_DOWN: // $ 27.04.2001 VVM + Обработка KEY_MSWHEEL_XXXX
-    case KEY_MSWHEEL_RIGHT:
     case KEY_RIGHT:        case KEY_NUMPAD6:
     case KEY_DOWN:         case KEY_NUMPAD2:
     {
@@ -1140,7 +1138,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   CriticalSectionLock Lock(CS);
 
   int MsPos,MsX,MsY;
-  int XX2;
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   if (ItemCount==0)
@@ -1161,16 +1158,19 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
 
+  if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED&&(MsX==X1+1||MsX==X2-1))
+  {
+    while(IsMouseButtonPressed())
+      ProcessKey(MsX==X1+1?KEY_ALTLEFT:KEY_ALTRIGHT);
+    return TRUE;
+  }
+
   int SbY1=((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 
-  XX2=X2;
 
   int bShowScrollBar = FALSE;
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
     bShowScrollBar = TRUE;
-
-  if (bShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
-    XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
   if ( bShowScrollBar &&
        MsX==X2 &&
@@ -1242,8 +1242,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
 
   if ((BoxType!=NO_BOX)?
-      (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2):
-      (MsX>=X1 && MsX<=XX2 && MsY>=Y1 && MsY<=Y2))
+      (MsX>X1 && MsX<X2 && MsY>Y1 && MsY<Y2):
+      (MsX>=X1 && MsX<=X2 && MsY>=Y1 && MsY<=Y2))
   {
     MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
 
