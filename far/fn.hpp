@@ -363,7 +363,6 @@ int __stdcall GetString(
 		const wchar_t *HistoryName,
 		const wchar_t *SrcText,
 		string &strDestText,
-		int DestLength,
 		const wchar_t *HelpTopic = NULL,
 		DWORD Flags = 0,
 		int *CheckBoxValue = NULL,

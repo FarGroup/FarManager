@@ -3778,7 +3778,7 @@ void FileList::DescribeFiles()
        Для Ctrl-Z ненужно брать предыдущее значение!
     */
     if (!GetString(MSG(MDescribeFiles),strTruncMsg,L"DizText",
-                   PrevText!=NULL ? PrevText:L"",strDizText,1024,
+                   PrevText!=NULL ? PrevText:L"",strDizText,
                    L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
       break;
 
@@ -3823,7 +3823,7 @@ bool FileList::ApplyCommand()
   static string strPrevCommand;
   string strCommand;
 
-  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,260, L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
+  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
     return false;
 
   strPrevCommand = strCommand;

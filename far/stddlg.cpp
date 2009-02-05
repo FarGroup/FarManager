@@ -398,7 +398,6 @@ int WINAPI GetString(
         const wchar_t *HistoryName,
         const wchar_t *SrcText,
         string &strDestText,
-        int DestLength,
         const wchar_t *HelpTopic,
         DWORD Flags,
         int *CheckBoxValue,
@@ -507,9 +506,7 @@ int WINAPI GetString(
     ExitCode=Dlg.GetExitCode();
   }
 
-  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4 ||
-      (addCheckBox && ExitCode == 6))
-     )
+  if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
   {
     if(!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.IsEmpty() )
       return(FALSE);

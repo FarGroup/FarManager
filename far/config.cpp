@@ -925,7 +925,7 @@ void SetFolderInfoFiles()
 {
   string strFolderInfoFiles;
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-      Opt.strFolderInfoFiles,strFolderInfoFiles,260,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
+      Opt.strFolderInfoFiles,strFolderInfoFiles,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
   {
     Opt.strFolderInfoFiles = strFolderInfoFiles;
     if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)

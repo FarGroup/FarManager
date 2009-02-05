@@ -1651,7 +1651,7 @@ static bool promptFunc()
 
     string strDest;
 
-    if(GetString(title,prompt,history,src,strDest,sizeof(wchar_t)*2048+1,NULL,Flags&~FIB_CHECKBOX,NULL,NULL))
+    if(GetString(title,prompt,history,src,strDest,NULL,Flags&~FIB_CHECKBOX,NULL,NULL))
     {
       Result=(const wchar_t *)strDest;
       Result.toString();

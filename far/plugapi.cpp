@@ -135,8 +135,7 @@ int WINAPI FarInputBox (
 
   string strDest;
 
-  int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,DestLength,
-     HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
+  int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
 
   xwcsncpy (DestText, strDest, DestLength);
 

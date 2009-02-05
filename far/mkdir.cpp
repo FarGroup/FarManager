@@ -56,7 +56,7 @@ void ShellMakeDir(Panel *SrcPanel)
   for(;;)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),L"NewFolder",
-         L"",strDirName,NM*2,L"MakeFolder", //BUGBUG, no size!!!
+         L"",strDirName,L"MakeFolder",
          FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
          MSG(MMultiMakeDir)))
       return;
