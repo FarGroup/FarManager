@@ -184,7 +184,7 @@ void PrintFiles(Panel *SrcPanel)
       {
         if (FarMkTempEx(strTempDir))
         {
-          CreateDirectoryW(strTempDir,NULL);
+					apiCreateDirectory(strTempDir,NULL);
           struct FileListItem ListItem;
           if (SrcPanel->GetLastSelectedItem(&ListItem))
           {

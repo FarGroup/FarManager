@@ -70,13 +70,7 @@ int ConvertNameToFull (
 			return (int)strDest.GetLength ();
 		}
 	}
-
-	int nLength = GetFullPathNameW (lpwszSrc, 0, NULL, NULL);
-	wchar_t *lpwszDest = strDest.GetBuffer (nLength);
-	GetFullPathNameW (lpwszSrc, nLength, lpwszDest, NULL);
-	strDest.ReleaseBuffer ();
-
-	return (int)strDest.GetLength ();
+	return (int)apiGetFullPathName(lpwszSrc,strDest);
 }
 
 /*
@@ -104,7 +98,7 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
   {
     DWORD FileAttr;
 
-    if((FileAttr=GetFileAttributesW(strTempDest)) != INVALID_FILE_ATTRIBUTES)
+		if((FileAttr=apiGetFileAttributes(strTempDest)) != INVALID_FILE_ATTRIBUTES)
     {
       AddEndSlash(strTempDest);
       IsAddEndSlash=TRUE;
@@ -139,7 +133,7 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
 
       Chr=*Ptr;
       *Ptr=0;
-      FileAttr=GetFileAttributesW(TempDest);
+			FileAttr=apiGetFileAttributes(TempDest);
       // О! Это наш клиент - одна из "компонент" пути - симлинк
       if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {

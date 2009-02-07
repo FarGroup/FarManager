@@ -292,16 +292,16 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
   }
 
   if ( !strListName.IsEmpty() )
-    DeleteFileW (strListName);
+		apiDeleteFile (strListName);
 
   if ( !strAnotherListName.IsEmpty() )
-      DeleteFileW (strAnotherListName);
+		apiDeleteFile (strAnotherListName);
 
   if ( !strShortListName.IsEmpty() )
-      DeleteFileW (strShortListName);
+		apiDeleteFile (strShortListName);
 
   if ( !strAnotherShortListName.IsEmpty() )
-      DeleteFileW (strAnotherShortListName);
+		apiDeleteFile (strAnotherShortListName);
 
   return(TRUE);
 }
@@ -390,16 +390,16 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
   }
 
   if ( !strListName.IsEmpty() )
-      DeleteFileW (strListName);
+		apiDeleteFile (strListName);
 
   if ( !strAnotherListName.IsEmpty() )
-      DeleteFileW (strAnotherListName);
+		apiDeleteFile (strAnotherListName);
 
   if ( !strShortListName.IsEmpty() )
-      DeleteFileW (strShortListName);
+		apiDeleteFile (strShortListName);
 
   if ( !strAnotherShortListName.IsEmpty() )
-      DeleteFileW (strAnotherShortListName);
+		apiDeleteFile (strAnotherShortListName);
 }
 
 static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)

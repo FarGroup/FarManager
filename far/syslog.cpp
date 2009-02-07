@@ -135,10 +135,10 @@ void OpenSysLog()
   GetModuleFileNameW(NULL,LogFileName,countof(LogFileName));
   wchar_t *Ptr=wcsrchr(LogFileName,L'\\');
   wcscpy(Ptr,L"\\$Log");
-  Attr=GetFileAttributesW(LogFileName);
+	Attr=apiGetFileAttributes(LogFileName);
   if(Attr == INVALID_FILE_ATTRIBUTES)
   {
-    if(!CreateDirectoryW(LogFileName,NULL))
+		if(!apiCreateDirectory(LogFileName,NULL))
       *Ptr=0;
   }
   else if(!(Attr&FILE_ATTRIBUTE_DIRECTORY))

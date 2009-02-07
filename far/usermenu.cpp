@@ -180,7 +180,7 @@ void ProcessUserMenu(int EditMenu)
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      DWORD FileAttr=GetFileAttributesW(strMenuFileFullPath);
+			DWORD FileAttr=apiGetFileAttributes(strMenuFileFullPath);
       if (FileAttr!=INVALID_FILE_ATTRIBUTES)
       {
         if (FileAttr & FILE_ATTRIBUTE_READONLY)
@@ -189,10 +189,10 @@ void ProcessUserMenu(int EditMenu)
           AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,
                        MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
           if (AskOverwrite==0)
-            SetFileAttributesW(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+						apiSetFileAttributes(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
         }
         if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-          SetFileAttributesW(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
+					apiSetFileAttributes(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
       }
       if ((MenuFile=_wfopen(strMenuFileFullPath,L"wb"))!=NULL)
       {
@@ -200,7 +200,7 @@ void ProcessUserMenu(int EditMenu)
         long Length=filelen(MenuFile);
         fclose(MenuFile);
         if (Length==0)
-          DeleteFileW (strMenuFileFullPath);
+					apiDeleteFile (strMenuFileFullPath);
       }
     }
     if (MenuMode!=MM_MAIN)
@@ -588,7 +588,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 									FrameManager->ExitModalEV();
 									if (!ShellEditor.IsFileChanged() || (MenuFile=_wfopen(strMenuFileName,L"rb"))==NULL)
 									{
-										DeleteFileW(strMenuFileName);
+										apiDeleteFile(strMenuFileName);
 										return(0);
 									}
 								}
@@ -596,7 +596,7 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 								DeleteKeyTree(strMenuRootKey);
 								MenuFileToReg(strMenuRootKey,MenuFile);
 								fclose(MenuFile);
-								DeleteFileW (strMenuFileName);
+								apiDeleteFile (strMenuFileName);
 								/* $ 14.12.2001 IS Меню изменили, зачем же это скрывать? */
 								MenuModified=TRUE;
 								UserMenu.Hide();
@@ -735,14 +735,14 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
         }
       }
       if ( !strListName.IsEmpty() )
-          DeleteFileW (strListName);
+				apiDeleteFile (strListName);
       if ( !strAnotherListName.IsEmpty() )
-          DeleteFileW (strAnotherListName);
+				apiDeleteFile (strAnotherListName);
 
       if ( !strShortListName.IsEmpty() )
-          DeleteFileW (strShortListName);
+				apiDeleteFile (strShortListName);
       if ( !strAnotherShortListName.IsEmpty() )
-          DeleteFileW (strAnotherShortListName);
+				apiDeleteFile (strAnotherShortListName);
 
       CurLine++;
     }

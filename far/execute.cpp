@@ -507,7 +507,7 @@ int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& I
       if (!PtrFName)
         strWorkName += PtrExt;
 
-			DWORD dwFileAttr = GetFileAttributesW(strWorkName);
+			DWORD dwFileAttr = apiGetFileAttributes(strWorkName);
 			if ((dwFileAttr != INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
         ConvertNameToFull (strWorkName, strFullName);
@@ -661,7 +661,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     RemoveExternalSpaces(NewCmdPar);
   AY $ */
 
-  DWORD dwAttr = GetFileAttributesW(strNewCmdStr);
+	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
   if ( SeparateWindow == 1 )
   {
@@ -1214,7 +1214,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           else
           {
             ConvertNameToFull(strFullPath, strFullPath);
-            FileAttr=GetFileAttributesW(strFullPath);
+						FileAttr=apiGetFileAttributes(strFullPath);
           }
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
           if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
@@ -1417,7 +1417,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-    if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && GetFileAttributesW(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
+		if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && !strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
     {
       GetRegKey(strSystemExecutor,L"~",strExpandedDir,g_strFarPath);
       DeleteEndSlash(strExpandedDir);
@@ -1445,7 +1445,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       Сначала проверяем есть ли такая "обычная" директория.
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
-    DWORD DirAtt=GetFileAttributesW(strExpandedDir);
+		DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
     if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
     {
       ReplaceStrings(strExpandedDir,L"/",L"\\",-1);

@@ -37,11 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "UnicodeString.hpp"
 
-// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
-BOOL apiCheckErrorCanContinue(
-		DWORD Err
-		);
-
 DWORD apiGetEnvironmentVariable (
 		const wchar_t *lpwszName,
 		string &strBuffer
@@ -199,6 +194,46 @@ HANDLE apiFindFirstFileName(
 BOOL apiFindNextFileName(
 		HANDLE hFindStream,
 		string& strLinkName
+		);
+
+BOOL apiCreateDirectory(
+		LPCWSTR lpPathName,
+		LPSECURITY_ATTRIBUTES lpSecurityAttributes
+		);
+
+DWORD apiGetFileAttributes(
+		LPCWSTR lpFileName
+		);
+
+BOOL apiSetFileAttributes(
+		LPCWSTR lpFileName,
+		DWORD dwFileAttributes
+		);
+
+BOOL apiSetCurrentDirectory(
+		LPCWSTR lpPathName
+		);
+
+BOOL apiCreateSymbolicLink(
+		LPCWSTR lpSymlinkFileName,
+		LPCWSTR lpTargetFileName,
+		DWORD dwFlags
+		);
+
+DWORD apiGetCompressedFileSize(
+		LPCWSTR lpFileName,
+		LPDWORD lpFileSizeHigh
+		);
+
+BOOL apiCreateHardLink(
+		LPCWSTR lpFileName,
+		LPCWSTR lpExistingFileName,
+		LPSECURITY_ATTRIBUTES lpSecurityAttributes
+		);
+
+DWORD apiGetFullPathName(
+		LPCWSTR lpFileName,
+		string &strFullPathName
 		);
 
 #endif // __FARWINAPI_HPP__

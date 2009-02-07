@@ -125,7 +125,7 @@ void QuickView::DisplayObject()
     GotoXY(X1+2,Y1+2);
     PrintText(strMsg);
 
-    if((GetFileAttributesW(strCurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+		if((apiGetFileAttributes(strCurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
       string strJuncName;
       DWORD ReparseTag=0;
@@ -369,7 +369,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
     }
   }
 
-  if (hDirPlugin || ((FileAttr=GetFileAttributesW(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (hDirPlugin || ((FileAttr=apiGetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
     strCurFileType=L"";
@@ -462,8 +462,8 @@ void QuickView::QViewDelTempName()
       QView=NULL;
     }
 
-    SetFileAttributesW (strTempName, FILE_ATTRIBUTE_ARCHIVE);
-    DeleteFileW (strTempName); //BUGBUG
+		apiSetFileAttributes (strTempName, FILE_ATTRIBUTE_ARCHIVE);
+		apiDeleteFile (strTempName); //BUGBUG
 
     CutToSlash(strTempName);
     apiRemoveDirectory(strTempName);

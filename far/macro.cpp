@@ -1721,7 +1721,7 @@ static bool _fattrFunc(int Type)
     //UINT  PrevErrMode;
     // дабы не выскакивал гуевый диалог, если диск эжектед.
     //PrevErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-    FileAttr=GetFileAttributesW((wchar_t *)Str.toString());
+		FileAttr=apiGetFileAttributes((wchar_t *)Str.toString());
     //SetErrorMode(PrevErrMode);
     Ret=true;
   }

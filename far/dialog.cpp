@@ -100,7 +100,7 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
     pDest->nMaxLength = 0;
     pDest->strData = pSrc->strData;
-    pDest->nMaxLength = 1024; //BUGBUG
+		pDest->nMaxLength = Max(pSrc->strData.GetLength(),(size_t)1024); //BUGBUG
 
     pDest->ID = pSrc->ID;
     pDest->IFlags = pSrc->IFlags;

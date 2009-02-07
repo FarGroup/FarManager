@@ -637,7 +637,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           string strCopy = strSelName;
           AddEndSlash(strCopy);
-          FileAttr=GetFileAttributesW(strCopy);
+					FileAttr=apiGetFileAttributes(strCopy);
         }
         //_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
@@ -1364,7 +1364,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
   while (1)
   {
     if (FileAttr & FILE_ATTRIBUTE_READONLY)
-      SetFileAttributesW(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			apiSetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
     HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0);
     BOOL Writable=TRUE;
@@ -1375,7 +1375,7 @@ static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg
 
     DWORD LastError=GetLastError();
     if (FileAttr & FILE_ATTRIBUTE_READONLY)
-      SetFileAttributesW(Name,FileAttr);
+			apiSetFileAttributes(Name,FileAttr);
     SetLastError(LastError);
 
     if (Writable)

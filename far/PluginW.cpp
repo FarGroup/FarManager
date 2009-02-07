@@ -430,7 +430,7 @@ int PluginW::Load()
 			GetRegKey(strRegKey,L"Name",strPluginName,L"");
 			if ( strPluginName.IsEmpty() )
 				break;
-			if (GetFileAttributesW(strPluginName)==INVALID_FILE_ATTRIBUTES)
+			if (apiGetFileAttributes(strPluginName)==INVALID_FILE_ATTRIBUTES)
 			{
 				DeleteKeyRecord(FmtPluginsCache_PluginD,I);
 				I--;

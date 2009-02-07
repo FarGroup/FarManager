@@ -120,7 +120,6 @@ L" /do  Direct output.\n");
 #endif
 }
 
-
 static int MainProcess(
         const wchar_t *lpwszEditName,
         const wchar_t *lpwszViewName,
@@ -523,7 +522,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         apiExpandEnvironmentStrings (Argv[I], DestNames[CntDestName]);
         Unquote(DestNames[CntDestName]);
         ConvertNameToFull(Argv[I],DestNames[CntDestName]);
-        if(GetFileAttributesW(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
+				if(apiGetFileAttributes(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
           CntDestName++; //???
       }
     }

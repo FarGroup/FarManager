@@ -982,7 +982,7 @@ void Manager::PluginsMenu()
          CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
          if( !strCurFileName.IsEmpty () )
          {
-           DWORD Attr=GetFileAttributesW(strCurFileName);
+						DWORD Attr=apiGetFileAttributes(strCurFileName);
            // интересуют только обычные файлы
            if(Attr!=INVALID_FILE_ATTRIBUTES && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
              curType=MODALTYPE_VIEWER;

@@ -851,7 +851,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
     {
       xf_free (lpFileName);
       fclose(ListFile);
-      DeleteFileW (strListFileName);
+			apiDeleteFile (strListFileName);
       Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
       return(FALSE);
     }
@@ -862,7 +862,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
   {
     clearerr(ListFile);
     fclose(ListFile);
-    DeleteFileW (strListFileName);
+		apiDeleteFile (strListFileName);
     Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
     return(FALSE);
   }

@@ -1090,7 +1090,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
 
             FarMkTempEx(strTempDir); // А проверка на NULL???
-            CreateDirectoryW(strTempDir, NULL);
+						apiCreateDirectory(strTempDir, NULL);
 
 //            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             WaitForSingleObject(hPluginMutex,INFINITE);
@@ -1125,12 +1125,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           else
           {
             strSearchFileName = FindList[ItemIndex]->FindData.strFileName;
-            if(GetFileAttributesW(strSearchFileName) == INVALID_FILE_ATTRIBUTES && GetFileAttributesW(FindList[ItemIndex]->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
+						if(apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindList[ItemIndex]->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
               strSearchFileName = FindList[ItemIndex]->FindData.strAlternateFileName;
           }
 
           DWORD FileAttr;
-          if ((FileAttr=GetFileAttributesW(strSearchFileName))!=INVALID_FILE_ATTRIBUTES)
+					if ((FileAttr=apiGetFileAttributes(strSearchFileName))!=INVALID_FILE_ATTRIBUTES)
           {
             string strOldTitle;
             apiGetConsoleTitle (strOldTitle);
@@ -1680,7 +1680,7 @@ int FindFiles::FindFilesProcess()
         if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
           strFileName.SetLength(Length-1);
 
-        if ( (GetFileAttributesW(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
+				if ( (apiGetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {
           const wchar_t *NamePtr = PointToName(strFileName);
@@ -2073,7 +2073,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,
       {
         string strTempDir;
         FarMkTempEx(strTempDir); // А проверка на NULL???
-        CreateDirectoryW(strTempDir,NULL);
+				apiCreateDirectory(strTempDir,NULL);
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
         {

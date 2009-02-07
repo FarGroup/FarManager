@@ -113,7 +113,7 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         *ChPtr=0;
 
-        if (*lpwszDirName && CreateDirectoryW(lpwszDirName,NULL))
+				if (*lpwszDirName && apiCreateDirectory(lpwszDirName,NULL))
         {
           TreeList::AddTreeName(lpwszDirName);
           bSuccess = true;
@@ -126,7 +126,7 @@ void ShellMakeDir(Panel *SrcPanel)
 
     BOOL bSuccess2;
     bool bSkip=false;
-    while (!(bSuccess2=CreateDirectoryW(strDirName,NULL)))
+		while (!(bSuccess2=apiCreateDirectory(strDirName,NULL)))
     {
       int LastError=GetLastError();
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||

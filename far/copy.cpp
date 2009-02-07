@@ -1005,7 +1005,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           {
             string strDestDizName;
             DestDiz.GetDizName(strDestDizName);
-            DWORD Attr=GetFileAttributesW(strDestDizName);
+						DWORD Attr=apiGetFileAttributes(strDestDizName);
             int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
             if(DestList.IsEmpty()) // Скидываем только во время последней Op.
               if (WorkMove && !DestReadOnly)
@@ -1030,7 +1030,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     {
       string strDestDizName;
       DestDiz.GetDizName(strDestDizName);
-      DWORD Attr=GetFileAttributesW(strDestDizName);
+			DWORD Attr=apiGetFileAttributes(strDestDizName);
       int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
       if (Move && !DestReadOnly)
         SrcPanel->FlushDiz();
@@ -1410,7 +1410,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
 
     ConvertNameToFull(strRoot,strRoot);
     GetPathRoot(strRoot,strRoot);
-    if(GetFileAttributesW(strRoot) == INVALID_FILE_ATTRIBUTES)
+		if(apiGetFileAttributes(strRoot) == INVALID_FILE_ATTRIBUTES)
       return TRUE;
 
     //GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
@@ -1579,10 +1579,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         if (Opt.CreateUppercaseFolders && !IsCaseMixed(strNewPath))
           strNewPath.Upper ();
 
-        DWORD Attr=GetFileAttributesW(strNewPath);
+				DWORD Attr=apiGetFileAttributes(strNewPath);
         if (Attr==INVALID_FILE_ATTRIBUTES)
         {
-          if (CreateDirectoryW(strNewPath,NULL))
+					if (apiCreateDirectory(strNewPath,NULL))
             TreeList::AddTreeName(strNewPath);
           else
             CreatePath(strNewPath);
@@ -1594,7 +1594,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         }
       }
     }
-    DestAttr=GetFileAttributesW(Dest);
+		DestAttr=apiGetFileAttributes(Dest);
   }
 
 
@@ -1621,13 +1621,13 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       if(wcspbrk(Dest,L"*?")!=NULL)
         ConvertWildcards(strSelName,strFullDest, SelectedFolderNameLength);
 
-      DestAttr=GetFileAttributesW(strFullDest);
+			DestAttr=apiGetFileAttributes(strFullDest);
       // получим данные о месте назначения
       if ( strDestDriveRoot.IsEmpty() )
       {
         GetPathRoot(strFullDest,strDestDriveRoot);
         DestDriveType=FAR_GetDriveType(wcschr(strFullDest,L'\\')!=NULL ? (const wchar_t*)strDestDriveRoot:NULL);
-        if(GetFileAttributesW(strDestDriveRoot) != INVALID_FILE_ATTRIBUTES)
+				if(apiGetFileAttributes(strDestDriveRoot) != INVALID_FILE_ATTRIBUTES)
           if(!apiGetVolumeInformation(strDestDriveRoot,NULL,NULL,NULL,&DestFSFlags,&strDestFSName))
             strDestFSName=L"";
       }
@@ -1643,7 +1643,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     {
       GetPathRoot(strSelName,strSrcDriveRoot);
       SrcDriveType=FAR_GetDriveType(wcschr(strSelName,L'\\')!=NULL ? (const wchar_t*)strSrcDriveRoot:NULL);
-      if(GetFileAttributesW(strSrcDriveRoot) != INVALID_FILE_ATTRIBUTES)
+			if(apiGetFileAttributes(strSrcDriveRoot) != INVALID_FILE_ATTRIBUTES)
         if(!apiGetVolumeInformation(strSrcDriveRoot,NULL,NULL,NULL,&SrcFSFlags,&strSrcFSName))
           strSrcFSName=L"";
     }
@@ -1931,7 +1931,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
                   ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
               {
                 if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-                  SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
+									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 remove_moved_directory:
                 if (apiRemoveDirectory(strFullName))
                   TreeList::DelTreeName(strFullName);
@@ -1953,7 +1953,7 @@ remove_moved_directory:
       if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
       {
         if (FileAttr & FILE_ATTRIBUTE_READONLY)
-          SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
+					apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
         if (apiRemoveDirectory(strSelName))
         {
@@ -2143,7 +2143,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
               CopySecurity = FALSE;
 
             // Собственно создание каталога
-            if (CreateDirectoryW(strNewPath,CopySecurity?&sa:NULL))
+						if (apiCreateDirectory(strNewPath,CopySecurity?&sa:NULL))
             {
               // Нормально, создали каталог
               if (FileAttr!=INVALID_FILE_ATTRIBUTES)
@@ -2249,7 +2249,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           IsSetSecuty=FALSE;
           if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
             IsSetSecuty=FALSE;
-          else if(GetFileAttributesW(Dest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+					else if(apiGetFileAttributes(Dest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
           {
             // ...получаем секьюрити родителя
             if(GetSecurity(GetParentFolder(Dest,strDestFullName), sa))
@@ -2294,7 +2294,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
                 SECURITY_ATTRIBUTES tmpsa;
                 if ((CopySecurity) && !GetSecurity(Src,tmpsa))
                 CopySecurity = FALSE;
-                if (CreateDirectoryW(strDestPath,CopySecurity?&tmpsa:NULL))
+								if (apiCreateDirectory(strDestPath,CopySecurity?&tmpsa:NULL))
                 {
                   if (PointToName(strDestPath)==(const wchar_t*)strDestPath)
                     strRenamedName = strDestPath;
@@ -2316,7 +2316,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         return COPY_CANCEL;
 
 			if(RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY){
-      while (!CreateDirectoryW(strDestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
+			while (!apiCreateDirectory(strDestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
         int MsgCode;
         MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -2337,7 +2337,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         // не будем выставлять компрессию, если мылимся в каталог
         // с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
         // т.с. пропускаем лишний ход.
-        if(GetFileAttributesW(strDestPath)&FILE_ATTRIBUTE_ENCRYPTED)
+				if(apiGetFileAttributes(strDestPath)&FILE_ATTRIBUTE_ENCRYPTED)
           SetAttr&=~FILE_ATTRIBUTE_COMPRESSED;
 
         if(SetAttr&FILE_ATTRIBUTE_COMPRESSED)
@@ -2483,7 +2483,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
           DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName &&
           !RenameToShortName) // !!!
       {
-        _wremove (strDestPath); //BUGBUG
+				apiDeleteFile(strDestPath); //BUGBUG
       }
 
       if (!Append)
@@ -2492,7 +2492,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         ConvertNameToFull(Src,strSrcFullName);
 
         if (NWFS_Attr)
-          SetFileAttributesW(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
+					apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
 
         SECURITY_ATTRIBUTES sa;
         IsSetSecuty=FALSE;
@@ -2502,7 +2502,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         {
           if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
             IsSetSecuty=FALSE;
-          else if(GetFileAttributesW(Dest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
+					else if(apiGetFileAttributes(Dest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
           {
             string strDestFullName;
             // ...получаем секьюрити родителя
@@ -2527,7 +2527,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         {
           int MoveLastError=GetLastError();
           if (NWFS_Attr)
-            SetFileAttributesW(strSrcFullName,SrcData.dwFileAttributes);
+						apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes);
 
           if(MoveLastError==ERROR_NOT_SAME_DEVICE)
             return COPY_FAILURE;
@@ -2541,7 +2541,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
 
         if (NWFS_Attr)
-          SetFileAttributesW(strDestPath,SrcData.dwFileAttributes);
+					apiSetFileAttributes(strDestPath,SrcData.dwFileAttributes);
 
         if (ShowTotalCopySize && MoveCode)
         {
@@ -2614,14 +2614,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
         TotalFiles++;
         if(DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-          SetFileAttributesW(strDestPath,DestAttr);
+					apiSetFileAttributes(strDestPath,DestAttr);
 
         return COPY_SUCCESS;
       }
       else if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
       {
         if(DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-          SetFileAttributesW(strDestPath,DestAttr);
+					apiSetFileAttributes(strDestPath,DestAttr);
         return((COPY_CODES)CopyCode);
       }
       else if(CopyCode == COPY_FAILURE)
@@ -2630,7 +2630,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       }
 
       if(DestAttr!=INVALID_FILE_ATTRIBUTES && Append)
-        SetFileAttributesW(strDestPath,DestAttr);
+				apiSetFileAttributes(strDestPath,DestAttr);
     }
     //????
     if(CopyCode == COPY_FAILUREREAD)
@@ -2905,9 +2905,9 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
       case 4:
         return(COPY_CANCEL);
     }
-    SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
+		apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   }
-  while((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):_wremove(Name)!=0)
+	while((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):!apiDeleteFile(Name))
   {
     int MsgCode;
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -2933,7 +2933,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   {
 		if(RPT==RP_HARDLINK)
 		{
-			_wremove(DestName); //BUGBUG
+			apiDeleteFile(DestName); //BUGBUG
 			return(MkHardLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
 		}
 		else
@@ -3065,7 +3065,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
     //if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
-      //_wremove(DestName);
+			//apiDeleteFile(DestName);
     DestHandle=apiCreateFile(
         DestName,
         GENERIC_WRITE,
@@ -3201,8 +3201,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             CloseHandle(DestHandle);
             if (!Append)
             {
-              SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
-              _wremove(DestName); //BUGBUG
+							apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+							apiDeleteFile(DestName); //BUGBUG
             }
           }
           //SetErrorMode(OldErrMode);
@@ -3231,8 +3231,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
             CloseHandle(DestHandle);
             if (!Append)
             {
-              SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
-              _wremove(DestName); //BUGBUG
+							apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+							apiDeleteFile(DestName); //BUGBUG
             }
           }
           ShowBar(0,0,false);
@@ -3280,8 +3280,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                     CloseHandle(SrcHandle);
                     if (!Append)
                     {
-                      SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
-                      _wremove(DestName); //BUGBUG
+											apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+											apiDeleteFile(DestName); //BUGBUG
                     }
                     //SetErrorMode(OldErrMode);
                     return COPY_FAILURE;
@@ -3367,8 +3367,8 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
               CloseHandle(DestHandle);
               if (!Append)
               {
-                SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
-                _wremove(DestName); //BUGBUG
+								apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
+								apiDeleteFile(DestName); //BUGBUG
               }
               ShowBar(0,0,false);
               ShowTitle(FALSE);
@@ -3703,7 +3703,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
   }
 
   if (DestAttr==INVALID_FILE_ATTRIBUTES)
-    if ((DestAttr=GetFileAttributesW(DestName))==INVALID_FILE_ATTRIBUTES)
+		if ((DestAttr=apiGetFileAttributes(DestName))==INVALID_FILE_ATTRIBUTES)
       return(TRUE);
 
   if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -3895,7 +3895,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
     }
   }
   if (!SameName && (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
-    SetFileAttributesW(DestName,FILE_ATTRIBUTE_NORMAL);
+		apiSetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
   return(TRUE);
 }
 
@@ -3993,7 +3993,7 @@ int ShellCopy::SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRI
 {
   if(SetSecurity(FileName,sa))
   {
-    if(::GetFileAttributesW(FileName) & FILE_ATTRIBUTE_DIRECTORY)
+		if(apiGetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
     {
       //SaveScreen SaveScr; // ???
       //SetCursorType(FALSE,0);
@@ -4352,7 +4352,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
       AddEndSlash(strDestFullName);
     }
 
-    DWORD JSAttr=GetFileAttributesW(strDestFullName);
+		DWORD JSAttr=apiGetFileAttributes(strDestFullName);
     if (JSAttr != INVALID_FILE_ATTRIBUTES) // Существует такой?
     {
       if((JSAttr&FILE_ATTRIBUTE_DIRECTORY)!=FILE_ATTRIBUTE_DIRECTORY)
@@ -4381,7 +4381,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
         else
           strDestFullName += PtrSelName;
 
-        JSAttr=GetFileAttributesW(strDestFullName);
+				JSAttr=apiGetFileAttributes(strDestFullName);
 
         if(JSAttr != INVALID_FILE_ATTRIBUTES) // И такой тоже есть???
         {
@@ -4409,12 +4409,12 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
         }
         else // создаем.
         {
-          if (CreateDirectoryW(strDestFullName,NULL))
+					if (apiCreateDirectory(strDestFullName,NULL))
             TreeList::AddTreeName(strDestFullName);
           else
             CreatePath(strDestFullName);
         }
-        if(GetFileAttributesW(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
+				if(apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
         {
           if(!(Flags&FCOPY_NOSHOWMSGLINK))
           {
@@ -4434,7 +4434,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 				string strPath=strDestFullName;
 				if(CutToSlash(strPath))
 				{
-					if(GetFileAttributesW(strPath)==INVALID_FILE_ATTRIBUTES)
+					if(apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 						CreatePath(strPath);
 				}
 			}
@@ -4444,13 +4444,13 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 				if(LinkType==RP_EXACTCOPY)
 				{
 					// в этом случае создается или каталог, или пустой файл
-					DWORD dwSrcAttr=GetFileAttributesW(strSrcFullName);
+					DWORD dwSrcAttr=apiGetFileAttributes(strSrcFullName);
 					if(dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
 						CreateDir=false;
 				}
 				if(CreateDir)
 				{
-					if (CreateDirectoryW(strDestFullName,NULL))
+					if (apiCreateDirectory(strDestFullName,NULL))
 						TreeList::AddTreeName(strDestFullName);
 					else
 						CreatePath(strDestFullName);
@@ -4461,20 +4461,20 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 					if(CutToSlash(strPath))
 					{
 						// создаём
-						if(GetFileAttributesW(strPath)==INVALID_FILE_ATTRIBUTES)
+						if(apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
 							CreatePath(strPath);
-						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,GetFileAttributesW(strSrcFullName));
+						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,apiGetFileAttributes(strSrcFullName));
 						if(hFile!=INVALID_HANDLE_VALUE)
 						{
 							CloseHandle(hFile);
 						}
 					}
 				}
-				if(GetFileAttributesW(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				if(apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
 				{
 					if(!(Flags&FCOPY_NOSHOWMSGLINK))
 					{
-						Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+						Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 										 MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
 					}
 					return 0;
@@ -4491,7 +4491,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
         {
-          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
                  MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
         }
         return 0;
@@ -4557,11 +4557,11 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
 
   GetPathRoot(strRoot,strRoot);
 
-  if(GetFileAttributesW(strRoot) == INVALID_FILE_ATTRIBUTES) // Неудача, когда сетевой путь, да еще и симлинк
+	if(apiGetFileAttributes(strRoot) == INVALID_FILE_ATTRIBUTES) // Неудача, когда сетевой путь, да еще и симлинк
   { // ... в этом случае проверим AS IS
     ConvertNameToFull(Dest,strRoot);
     GetPathRootOne(strRoot,strRoot);
-    if(GetFileAttributesW(strRoot) == INVALID_FILE_ATTRIBUTES)
+		if(apiGetFileAttributes(strRoot) == INVALID_FILE_ATTRIBUTES)
       return FALSE;
   }
   int GetInfoSuccess = apiGetVolumeInformation (strRoot,NULL,NULL,NULL,&FileSystemFlagsDst,&strFSysNameDst);
@@ -4572,7 +4572,7 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
      if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
        Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
-  if (!SetFileAttributesW(Dest,Attr))
+	if (!apiSetFileAttributes(Dest,Attr))
     return FALSE;
 
   if((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))

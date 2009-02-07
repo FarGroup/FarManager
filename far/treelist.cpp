@@ -365,7 +365,7 @@ void TreeList::Update(int Mode)
     SyncDir();
 
     struct TreeItem *CurPtr=ListData[CurFile];
-    if (GetFileAttributesW(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
+		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
     {
       DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);
@@ -523,9 +523,9 @@ void TreeList::SaveTreeFile()
 
   MkTreeFileName(strRoot, strName);
   // получим и сразу сбросим атрибуты (если получится)
-  DWORD FileAttributes=GetFileAttributesW(strName);
+	DWORD FileAttributes=apiGetFileAttributes(strName);
   if(FileAttributes != INVALID_FILE_ATTRIBUTES)
-    SetFileAttributesW(strName,FILE_ATTRIBUTE_NORMAL);
+		apiSetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
   if ((TreeFile=_wfopen(strName,L"wb"))==NULL)
   {
     /* $ 16.10.2000 tran
@@ -545,13 +545,12 @@ void TreeList::SaveTreeFile()
     clearerr(TreeFile);
     fclose(TreeFile);
 
-    //wremove(strName); BUGBUG
-    DeleteFileW (strName);
+		apiDeleteFile (strName);
 
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName,MSG(MOk));
   }
   else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-    SetFileAttributesW(strName,FileAttributes);
+		apiSetFileAttributes(strName,FileAttributes);
 }
 
 
@@ -578,8 +577,8 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
 
   if (CreateDir)
   {
-    CreateDirectoryW (strFolderName, NULL);
-    SetFileAttributesW (strFolderName,Opt.Tree.TreeFileAttr);
+		apiCreateDirectory (strFolderName, NULL);
+		apiSetFileAttributes (strFolderName,Opt.Tree.TreeFileAttr);
   }
 
   string strRemoteName;
@@ -1300,7 +1299,7 @@ void TreeList::ProcessEnter()
   struct TreeItem *CurPtr;
   DWORD Attr;
   CurPtr=ListData[CurFile];
-  if ((Attr=GetFileAttributesW(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
+	if ((Attr=apiGetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
   {
     if (!ModalMode && FarChDir(CurPtr->strName))
     {
@@ -1627,7 +1626,7 @@ void TreeList::ReadSubTree(const wchar_t *Path)
   int Count=0;
   DWORD FileAttr;
 
-  if ((FileAttr=GetFileAttributesW(Path))==INVALID_FILE_ATTRIBUTES || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+	if ((FileAttr=apiGetFileAttributes(Path))==INVALID_FILE_ATTRIBUTES || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     return;
 
   ConvertNameToFull(Path, strDirName);
@@ -1707,9 +1706,9 @@ void TreeList::FlushCache()
   int I;
   if ( !TreeCache.strTreeName.IsEmpty() )
   {
-    DWORD FileAttributes=GetFileAttributesW(TreeCache.strTreeName);
+		DWORD FileAttributes=apiGetFileAttributes(TreeCache.strTreeName);
     if(FileAttributes != INVALID_FILE_ATTRIBUTES)
-      SetFileAttributesW(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
+			apiSetFileAttributes(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
     if ((TreeFile=_wfopen(TreeCache.strTreeName,L"wb"))==NULL)
     {
       ClearCache(1);
@@ -1723,15 +1722,13 @@ void TreeList::FlushCache()
       clearerr(TreeFile);
       fclose(TreeFile);
 
-      DeleteFileW (TreeCache.strTreeName);
-
-      //remove(TreeCache.TreeName); BUGBUG
+			apiDeleteFile (TreeCache.strTreeName);
 
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
               TreeCache.strTreeName,MSG(MOk));
     }
     else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-      SetFileAttributesW(TreeCache.strTreeName,FileAttributes);
+			apiSetFileAttributes(TreeCache.strTreeName,FileAttributes);
   }
   ClearCache(1);
 }
@@ -1819,7 +1816,7 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 
   strName = ListData[Pos]->strName;
 
-  FileAttr=FILE_ATTRIBUTE_DIRECTORY|GetFileAttributesW(ListData[Pos]->strName);
+	FileAttr=FILE_ATTRIBUTE_DIRECTORY|apiGetFileAttributes(ListData[Pos]->strName);
 
   return TRUE;
 }
@@ -1910,7 +1907,7 @@ void TreeList::KillFocus()
   if (CurFile<TreeCount)
   {
     struct TreeItem *CurPtr=ListData[CurFile];
-    if (GetFileAttributesW(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
+		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
     {
       DelTreeName(CurPtr->strName);
       Update(UPDATE_KEEP_SELECTION);

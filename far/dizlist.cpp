@@ -368,15 +368,15 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
   }
 
   FILE *DizFile;
-  DWORD FileAttr=GetFileAttributesW(strDizFileName);
+	DWORD FileAttr=apiGetFileAttributes(strDizFileName);
 
   if(FileAttr != INVALID_FILE_ATTRIBUTES)
   {
     if(Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
-      SetFileAttributesW(strDizFileName,FileAttr&(~FILE_ATTRIBUTE_READONLY));
+			apiSetFileAttributes(strDizFileName,FileAttr&(~FILE_ATTRIBUTE_READONLY));
 
     if ((FileAttr & FILE_ATTRIBUTE_READONLY)==0)
-      SetFileAttributesW(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
+			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
   }
 
   if ((DizFile=_wfopen(strDizFileName,L"wb"))==NULL)
@@ -409,7 +409,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
   int CloseCode=fclose(DizFile);
   if (AddedDizCount==0)
-    DeleteFileW(strDizFileName); //BUGBUG
+		apiDeleteFile(strDizFileName); //BUGBUG
 
   if (FileAttr==INVALID_FILE_ATTRIBUTES)
   {
@@ -418,13 +418,13 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
       FileAttr|=FILE_ATTRIBUTE_HIDDEN;
   }
 
-  SetFileAttributesW(strDizFileName,FileAttr);
+	apiSetFileAttributes(strDizFileName,FileAttr);
 
   if (CloseCode==EOF)
   {
     clearerr(DizFile);
     fclose(DizFile);
-    DeleteFileW(strDizFileName); //BUGBUG
+		apiDeleteFile(strDizFileName); //BUGBUG
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
     return(FALSE);
   }

@@ -148,9 +148,9 @@ void FilePanels::Init()
 
   if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {
-    if (GetFileAttributesW(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+		if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
       LeftPanel->InitCurDir(Opt.strLeftFolder);
-    if (GetFileAttributesW(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+		if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
       RightPanel->InitCurDir(Opt.strRightFolder);
   }
 
@@ -160,29 +160,29 @@ void FilePanels::Init()
     {
       if(ActivePanel==RightPanel)
       {
-        if (GetFileAttributesW(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+				if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
           RightPanel->InitCurDir(Opt.strRightFolder);
       }
       else
       {
-        if (GetFileAttributesW(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+				if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
           LeftPanel->InitCurDir(Opt.strLeftFolder);
       }
       if(Opt.SetupArgv == 2)
       {
         if(ActivePanel==LeftPanel)
         {
-          if (GetFileAttributesW(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+					if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
             RightPanel->InitCurDir(Opt.strRightFolder);
         }
         else
         {
-          if (GetFileAttributesW(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+					if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
             LeftPanel->InitCurDir(Opt.strLeftFolder);
         }
       }
     }
-    if (Opt.SetupArgv < 2 && !Opt.strPassiveFolder.IsEmpty() && (GetFileAttributesW(Opt.strPassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		if (Opt.SetupArgv < 2 && !Opt.strPassiveFolder.IsEmpty() && (apiGetFileAttributes(Opt.strPassiveFolder)!=INVALID_FILE_ATTRIBUTES))
     {
       PassivePanel->InitCurDir(Opt.strPassiveFolder);
     }

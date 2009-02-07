@@ -886,8 +886,8 @@ int PluginManager::GetFile (
 			strResultName += fdata.strFileName;
 			if (GetCode!=1)
 			{
-				SetFileAttributesW(strResultName,FILE_ATTRIBUTE_NORMAL);
-				DeleteFileW(strResultName); //BUGBUG
+				apiSetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
+				apiDeleteFile(strResultName); //BUGBUG
 			}
 			else
 				Found=TRUE;

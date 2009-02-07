@@ -83,7 +83,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     //*CurDir=toupper(*CurDir); бред!
     if(ChangeDir)
     {
-      rc=SetCurrentDirectoryW(strCurDir);
+			rc=apiSetCurrentDirectory(strCurDir);
     }
   }
   else
@@ -97,17 +97,9 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
     if(ChangeDir)
     {
-      wchar_t *ptr;
-
-      //Mantis#459 - нужно +3 так как в Win2K SP4 есть глюк у GetFullPathNameW
-      int nSize = GetFullPathNameW(NewDir,0,NULL,&ptr) + 3;
-      lpwszCurDir = strCurDir.GetBuffer (nSize+1);
-      GetFullPathNameW(NewDir,nSize,lpwszCurDir,&ptr);
-      AddEndSlash(lpwszCurDir); //???????????????
-      strCurDir.ReleaseBuffer ();
-
+			apiGetFullPathName(NewDir,strCurDir);
       PrepareDiskPath(strCurDir);
-      rc=SetCurrentDirectoryW(strCurDir);
+			rc=apiSetCurrentDirectory(strCurDir);
 
     }
   }
@@ -652,7 +644,7 @@ int GetDirInfo(const wchar_t *Title,
       if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
       {
         DWORD CompressedSize,CompressedSizeHigh;
-        CompressedSize=GetCompressedFileSizeW(strFullName,&CompressedSizeHigh);
+				CompressedSize=apiGetCompressedFileSize(strFullName,&CompressedSizeHigh);
         if (CompressedSize!=INVALID_FILE_SIZE || GetLastError()==NO_ERROR)
           CurSize = CompressedSizeHigh*_ui64(0x100000000)+CompressedSize;
       }
@@ -748,7 +740,7 @@ int CheckFolder(const wchar_t *Path)
     if(!StrCmp(Path,strFindPath))
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-      if(GetFileAttributesW(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+			if(apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
       {
         if(lstError.Get() == ERROR_ACCESS_DENIED)
           return CHKFLD_NOTACCESS;
@@ -870,7 +862,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   for(;;) {
     if(!uniq) ++uniq;
     if(   GetTempFileNameW (strPath, Prefix, uniq, lpwszDest)
-       && GetFileAttributesW (lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
+			&& apiGetFileAttributes (lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
     if(++uniq == savePid) {
       *lpwszDest = 0;
       break;
@@ -973,10 +965,10 @@ void CreatePath(string &strPath)
 
       *ChPtr = 0;
 
-      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributesW(strPath) == INVALID_FILE_ATTRIBUTES) //BUGBUG
+			if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES) //BUGBUG
         CharUpperW (DirPart);
 
-      if ( CreateDirectoryW(strPath, NULL) )
+			if ( apiCreateDirectory(strPath, NULL) )
         TreeList::AddTreeName(strPath);
 
       if ( bEnd )
@@ -1143,7 +1135,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-  if( pTestPath && !pTestPath->IsEmpty() && GetFileAttributesW(*pTestPath) == INVALID_FILE_ATTRIBUTES)
+	if( pTestPath && !pTestPath->IsEmpty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
   {
     int FoundPath=0;
 
@@ -1169,7 +1161,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 					if (!CutToSlash(strTestPathTemp,true))
 						break;
 
-					if(GetFileAttributesW(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
+					if(apiGetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
 					{
 						int ChkFld=CheckFolder(strTestPathTemp);
 						if(ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)

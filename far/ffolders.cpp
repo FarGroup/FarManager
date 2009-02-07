@@ -260,7 +260,7 @@ static int ShowFolderShortcutMenu(int Pos)
               DeleteEndSlash(strNewDir);
             BOOL Saved=TRUE;
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);
-            if(GetFileAttributesW(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
+						if(apiGetFileAttributes(strOldNewDir) == INVALID_FILE_ATTRIBUTES)
             {
               SetLastError(ERROR_PATH_NOT_FOUND);
               Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo)) == 0);

@@ -2430,9 +2430,9 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) )
 				return FALSE;
 			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
-			wchar_t *s=(wchar_t*)xf_malloc((FarControl(hPlugin,CmdW,0,NULL)+1)*sizeof(wchar_t));
-			FarControl(hPlugin,CmdW,0,(LONG_PTR)s);
-			UnicodeToOEM(s, (char*)Param, 1024);
+			wchar_t s[1024];
+			FarControl(hPlugin,CmdW,countof(s),(LONG_PTR)s);
+			UnicodeToOEM(s, (char*)Param,countof(s));
 			return TRUE;
 		}
 

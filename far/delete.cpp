@@ -158,7 +158,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       //SetMessageHelp(L"DeleteLink");
 
 			string strAskDeleteLink=MSG(MAskDeleteLink);
-			DWORD dwAttr=GetFileAttributesW(strJuncName);
+			DWORD dwAttr=apiGetFileAttributes(strJuncName);
 			if(dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				strAskDeleteLink+=L" ";
@@ -252,7 +252,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->ReadDiz();
 
   SrcPanel->GetDizName(strDizName);
-  DizPresent=( !strDizName.IsEmpty() && GetFileAttributesW(strDizName)!=INVALID_FILE_ATTRIBUTES);
+	DizPresent=( !strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
 
   DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
 
@@ -345,7 +345,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
                 if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-                  SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
+									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
@@ -387,7 +387,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if (ScTree.IsDirSearchDone())
               {
                 if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-                  SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
+									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
                 int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
                 if (MsgCode==DELETE_CANCEL)
                 {
@@ -425,7 +425,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           ShellDeleteMsg(strSelName,Wipe);
           if (FileAttr & FILE_ATTRIBUTE_READONLY)
-            SetFileAttributesW(strSelName,FILE_ATTRIBUTE_NORMAL);
+						apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
           // нефига здесь выделываться, а надо учесть, что удаление
           // симлинка в корзину чревато потерей оригинала.
@@ -476,7 +476,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   }
 
   if (UpdateDiz)
-    if (DizPresent==( !strDizName.IsEmpty() && GetFileAttributesW(strDizName)!=INVALID_FILE_ATTRIBUTES))
+		if (DizPresent==( !strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
       SrcPanel->FlushDiz();
 
   delete DeleteTitle;
@@ -565,7 +565,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
     case 4:
       return(DELETE_CANCEL);
   }
-  SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
+	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   return(DELETE_YES);
 }
 
@@ -627,7 +627,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
         if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
           break;
 */
-        if (DeleteFileW(Name) || DeleteFileW(ShortName)) //BUGBUG
+				if (apiDeleteFile(Name))
           break;
       }
       else
@@ -721,7 +721,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
   ConvertNameToFull(Name, strFullName);
 
   // При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributesW(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if(Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
   {
     string strFullName2;
     FAR_FIND_DATA_EX FindData;
@@ -793,7 +793,7 @@ int WipeFile(const wchar_t *Name)
 {
   unsigned __int64 FileSize;
   HANDLE WipeHandle;
-  SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
+	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
@@ -826,7 +826,7 @@ int WipeFile(const wchar_t *Name)
   FarMkTempEx(strTempName,NULL,FALSE);
 
   if(MoveFileW(Name,strTempName))
-    return(DeleteFileW(strTempName)); //BUGBUG
+		return(apiDeleteFile(strTempName)); //BUGBUG
   SetLastError((_localLastError = GetLastError()));
   return FALSE;
 }
@@ -861,11 +861,11 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 
   Unquote(strFileOrFolderName);
 
-  BOOL Ret=SetFileAttributesW(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
+	BOOL Ret=apiSetFileAttributes(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
 
   if(Ret)
   {
-    if(DeleteFileW(strFileOrFolderName)) //BUGBUG
+		if(apiDeleteFile(strFileOrFolderName)) //BUGBUG
     {
       CutToSlash(strFileOrFolderName,true);
       return apiRemoveDirectory(strFileOrFolderName);
@@ -889,7 +889,7 @@ void DeleteDirTree(const wchar_t *Dir)
   ScTree.SetFindPath(Dir,L"*.*",0);
   while (ScTree.GetNextName(&FindData, strFullName))
   {
-    SetFileAttributesW(strFullName,FILE_ATTRIBUTE_NORMAL);
+		apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
     if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       if (ScTree.IsDirSearchDone())
@@ -898,6 +898,6 @@ void DeleteDirTree(const wchar_t *Dir)
     else
       apiDeleteFile(strFullName);
   }
-  SetFileAttributesW(Dir,FILE_ATTRIBUTE_NORMAL);
+	apiSetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
   apiRemoveDirectory(Dir);
 }

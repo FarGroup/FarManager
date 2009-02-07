@@ -152,7 +152,7 @@ void InfoList::DisplayObject()
      Корректно отображать инфу при заходе в Juction каталог
      Рут-диск может быть другим
   */
-  if((GetFileAttributesW(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+	if((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
     string strJuncName;
     if(GetReparsePointInfo(strCurDir, strJuncName))

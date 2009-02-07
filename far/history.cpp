@@ -648,7 +648,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
               for(I=0; I < HistoryCount; ++I)
               {
                 // убить запись из истории
-                if(LastStr[I].Name && *LastStr[I].Name && GetFileAttributesW(LastStr[I].Name) == INVALID_FILE_ATTRIBUTES)
+								if(LastStr[I].Name && *LastStr[I].Name && apiGetFileAttributes(LastStr[I].Name) == INVALID_FILE_ATTRIBUTES)
                 {
                   xf_free(LastStr[I].Name);
                   LastStr[I].Name=NULL;
@@ -749,7 +749,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
         StrPos=(int)(INT_PTR)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
         if(StrPos == -1)
           return -1;
-        if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributesW(LastStr[StrPos].Name) == INVALID_FILE_ATTRIBUTES)
+				if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(LastStr[StrPos].Name) == INVALID_FILE_ATTRIBUTES)
         {
           SetLastError(ERROR_FILE_NOT_FOUND);
 

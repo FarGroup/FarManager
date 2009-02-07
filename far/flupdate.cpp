@@ -319,7 +319,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         {
           DWORD dwLoPart, dwHighPart;
 
-          dwLoPart = GetCompressedFileSizeW (fdata.strFileName, &dwHighPart);
+					dwLoPart = apiGetCompressedFileSize (fdata.strFileName, &dwHighPart);
 
           if ( (dwLoPart != INVALID_FILE_SIZE) || (GetLastError () != NO_ERROR) )
           {
@@ -855,7 +855,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
           if (StrCmpI(strFileName,Info.DescrFiles[I])==0)
           {
             string strTempDir, strDizName;
-            if (FarMkTempEx(strTempDir) && CreateDirectoryW(strTempDir,NULL))
+						if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,NULL))
             {
               if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
               {

@@ -38,83 +38,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "imports.hpp"
 
-
-// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
-BOOL apiCheckErrorCanContinue(DWORD Err)
+class NTPath
 {
-	switch(Err)
+	string Str;
+public:
+	NTPath(LPCWSTR Src)
 	{
-		case ERROR_ACCESS_DENIED:
-		case ERROR_WRITE_PROTECT:
-		case ERROR_NOT_READY:
-		case ERROR_SHARING_VIOLATION:
-		case ERROR_LOCK_VIOLATION:
-			return FALSE;
+		ConvertNameToFull(Src,Str);
+		if(!PathPrefix(Str))
+		{
+			if(IsNetworkPath(Str))
+				Str=string(L"\\\\?\\UNC\\")+&Str[2];
+			else
+				Str=string(L"\\\\?\\")+Str;
+		}
 	}
-	return TRUE;
-}
-
+	operator LPCWSTR() const
+	{
+		return Str;
+	}
+};
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
-	// IS: сначала попробуем удалить стандартной функцией, чтобы
-	// IS: не осуществлять лишние телодвижения
-
-	BOOL rc = DeleteFileW (lpwszFileName);
-
-	if ( !rc ) // IS: вот тут лишние телодвижения и начнем...
-	{
-		SetLastError((_localLastError = GetLastError()));
-
-		if ( apiCheckErrorCanContinue(_localLastError) )
-		{
-			string strFullName;
-
-			ConvertNameToFull (lpwszFileName, strFullName);
-
-			strFullName = L"\\\\?\\"+strFullName;
-
-			if( (strFullName.At(4)==L'/' && strFullName.At(5)==L'/') ||
-				(strFullName.At(4)==L'\\' && strFullName.At(5)==L'\\') )
-				rc = DeleteFileW((const wchar_t*)strFullName+4);
-			else
-				rc = DeleteFileW(strFullName);
-		}
-	}
-
-	return rc;
+	return DeleteFile(NTPath(lpwszFileName));
 }
 
 
 BOOL apiRemoveDirectory (const wchar_t *DirName)
 {
-	BOOL rc = RemoveDirectoryW (DirName);
-
-  //BUGBUG
-  /*
-  if(!rc) // IS: вот тут лишние телодвижения и начнем...
-  {
-    SetLastError((_localLastError = GetLastError()));
-    if(apiCheckErrorCanContinue(_localLastError))
-    {
-      char FullName[NM+16]="\\\\?\\";
-      // IS: +4 - чтобы не затереть наши "\\?\"
-      if(ConvertNameToFull(DirName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
-      {
-        // IS: проверим, а вдруг уже есть есть нужные символы в пути
-        if( (FullName[4]=='/' && FullName[5]=='/') ||
-            (FullName[4]=='\\' && FullName[5]=='\\') )
-          rc=RemoveDirectory(FullName+4);
-        // IS: нужных символов в пути нет, поэтому используем наши
-        else
-          rc=RemoveDirectory(FullName);
-      }
-    }
-  }
-  */
-	return rc;
+	return RemoveDirectoryW (NTPath(DirName));
 }
-
 
 HANDLE apiCreateFile (
 		const wchar_t *lpwszFileName,     // pointer to name of the file
@@ -126,8 +80,8 @@ HANDLE apiCreateFile (
 		HANDLE hTemplateFile          // handle to file with attributes to copy
 		)
 {
-	HANDLE hFile = CreateFileW (
-			lpwszFileName,
+	return CreateFileW (
+			NTPath(lpwszFileName),
 			dwDesiredAccess,
 			dwShareMode,
 			lpSecurityAttributes,
@@ -135,8 +89,6 @@ HANDLE apiCreateFile (
 			dwFlagsAndAttributes,
 			hTemplateFile
 			);
-
-	return hFile;
 }
 
 BOOL apiCopyFileEx (
@@ -149,8 +101,8 @@ BOOL apiCopyFileEx (
 		)
 {
 		return CopyFileExW(
-				lpwszExistingFileName,
-				lpwszNewFileName,
+				NTPath(lpwszExistingFileName),
+				NTPath(lpwszNewFileName),
 				lpProgressRoutine,
 				lpData,
 				pbCancel,
@@ -164,7 +116,7 @@ BOOL apiMoveFile (
 		const wchar_t *lpwszNewFileName   // address of new name for the file
 		)
 {
-	return MoveFileW (lpwszExistingFileName,lpwszNewFileName);
+	return MoveFileW (NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName));
 }
 
 BOOL apiMoveFileEx (
@@ -173,7 +125,7 @@ BOOL apiMoveFileEx (
 		DWORD dwFlags   // flag to determine how to move file
 		)
 {
-	return MoveFileExW (lpwszExistingFileName,lpwszNewFileName,dwFlags);
+	return MoveFileExW (NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName),dwFlags);
 }
 
 
@@ -358,13 +310,13 @@ HANDLE apiFindFirstFile (
 {
     WIN32_FIND_DATAW fdata;
 
-    HANDLE hResult = FindFirstFileW (lpwszFileName, &fdata);
+		HANDLE hResult = FindFirstFileW (NTPath(lpwszFileName), &fdata);
 
 		if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
 		{
 			string strRealName;
 			ConvertNameToReal(lpwszFileName,strRealName);
-			hResult=FindFirstFileW(strRealName,&fdata);
+			hResult=FindFirstFileW(NTPath(strRealName),&fdata);
 		}
 
     if ( hResult != INVALID_HANDLE_VALUE )
@@ -451,7 +403,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
     }
     else
 	{
-		DWORD dwAttr=GetFileAttributes(lpwszFileName);
+		DWORD dwAttr=apiGetFileAttributes(lpwszFileName);
 		if(dwAttr!=INVALID_FILE_ATTRIBUTES)
 		{
 			// Ага, значит файл таки есть. Заполним структуру ручками.
@@ -542,7 +494,7 @@ BOOL apiIsDiskInDrive(const wchar_t *Root)
 
 int apiGetFileTypeByName(const wchar_t *Name)
 {
-	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+	HANDLE hFile=apiCreateFile(NTPath(Name),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
 
 	if (hFile==INVALID_HANDLE_VALUE)
 		return FILE_TYPE_UNKNOWN;
@@ -602,9 +554,9 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
-	if(ifn.pfnFindFirstFileNameW(lpFileName,0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if(ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		hRet=ifn.pfnFindFirstFileNameW(lpFileName,0,&StringLength,strLinkName.GetBuffer(StringLength));
+		hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
 		strLinkName.ReleaseBuffer();
 	}
 	return hRet;
@@ -622,5 +574,73 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 	return Ret;
 }
 
+BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	return CreateDirectory(NTPath(lpPathName),lpSecurityAttributes);
+}
 
+DWORD apiGetFileAttributes(LPCWSTR lpFileName)
+{
+	return GetFileAttributes(NTPath(lpFileName));
+}
 
+BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
+{
+	return SetFileAttributes(NTPath(lpFileName),dwFileAttributes);
+}
+
+BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
+{
+	string strDir=lpPathName;
+	AddEndSlash(strDir);
+	BOOL Ret=SetCurrentDirectory(strDir);
+	if(!Ret)
+	{
+		strDir=NTPath(lpPathName);
+		AddEndSlash(strDir);
+		Ret=SetCurrentDirectory(strDir);
+	}
+	return Ret;
+}
+
+BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
+{
+	BOOL Ret=ifn.pfnCreateSymbolicLink(lpSymlinkFileName,lpTargetFileName,dwFlags);
+	if(!Ret)
+		Ret=ifn.pfnCreateSymbolicLink(NTPath(lpSymlinkFileName),NTPath(lpTargetFileName),dwFlags);
+	return Ret;
+}
+
+DWORD apiGetCompressedFileSize(LPCWSTR lpFileName,LPDWORD lpFileSizeHigh)
+{
+	return GetCompressedFileSize(NTPath(lpFileName),lpFileSizeHigh);
+}
+
+BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes);
+}
+
+DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
+{
+	// для имён, оканчивающихся пробелами
+	LPCWSTR SrcPtr=PointToName(lpFileName);
+	int NameLength=0;
+	string strFileName=lpFileName;
+	if(StrCmp(SrcPtr,L"..") && StrCmp(SrcPtr,L"."))
+		NameLength=StrLength(SrcPtr);
+	else
+		AddEndSlash(strFileName);
+
+	//Mantis#459 - нужно +3 так как в Win2K SP4 есть глюк у GetFullPathNameW
+	int nLength = GetFullPathNameW(strFileName,0,NULL,NULL)+1+3;
+	wchar_t *Buffer=strFullPathName.GetBuffer(nLength+NameLength);
+	GetFullPathNameW(strFileName,nLength,Buffer,NULL);
+	
+	// для имён, оканчивающихся пробелами
+	LPWSTR DstPtr=(LPWSTR)PointToName(Buffer);
+	wcsncpy(DstPtr,SrcPtr,NameLength);
+
+	strFullPathName.ReleaseBuffer();
+	return (DWORD)strFullPathName.GetLength();
+}

@@ -522,8 +522,8 @@ FileEditor::~FileEditor()
          DeleteFileWithFolder(strFullFileName);
        else
        {
-         SetFileAttributesW(strFullFileName,FILE_ATTRIBUTE_NORMAL);
-         DeleteFileW(strFullFileName); //BUGBUG
+					apiSetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
+					apiDeleteFile(strFullFileName); //BUGBUG
        }
     }
   }
@@ -691,7 +691,7 @@ void FileEditor::Init (
   /* $ 15.12.2000 SVS
     - Shift-F4, новый файл. Выдает сообщение :-(
   */
-  DWORD FAttr=::GetFileAttributesW(Name);
+	DWORD FAttr=apiGetFileAttributes(Name);
   /* $ 05.06.2001 IS
      + посылаем подальше всех, кто пытается отредактировать каталог
   */
@@ -965,7 +965,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
         if(m_editor->IsFileChanged() &&  // в текущем сеансе были изменения?
-           ::GetFileAttributesW(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
+				apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а файл еще существует?
         {
           switch(Message(MSG_WARNING,2,MSG(MEditTitle),
                          MSG(MEditSavedChangedNonFile),
@@ -983,7 +983,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           }
         }
 
-        if(!FirstSave || m_editor->IsFileChanged() || ::GetFileAttributesW (strFullFileName)!=INVALID_FILE_ATTRIBUTES)
+				if(!FirstSave || m_editor->IsFileChanged() || apiGetFileAttributes (strFullFileName)!=INVALID_FILE_ATTRIBUTES)
         {
           long FilePos=m_editor->GetCurPos();
           /* $ 01.02.2001 IS
@@ -1113,7 +1113,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if (!(IsAlpha(*lpwszPtr) && (*(lpwszPtr+1)==L':') && (*(lpwszPtr+2)==L'\\') && !*(lpwszPtr+3)))
             {
               // а дальше? каталог существует?
-              if ((FNAttr=::GetFileAttributesW(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||
+							if ((FNAttr=apiGetFileAttributes(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||
                                 !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                   //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
                  )
@@ -1125,7 +1125,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 
           if (Key == KEY_F2 &&
-              (FNAttr=::GetFileAttributesW(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
+							(FNAttr=apiGetFileAttributes(strFullFileName)) != INVALID_FILE_ATTRIBUTES &&
               !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
              )
           {
@@ -1159,7 +1159,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if( !NameChanged )
               FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
 
-            FNAttr=::GetFileAttributesW(strSaveAsName);
+						FNAttr=apiGetFileAttributes(strSaveAsName);
             if (NameChanged && FNAttr != INVALID_FILE_ATTRIBUTES)
             {
               if (Message(MSG_WARNING,2,MSG(MEditTitle),strSaveAsName,MSG(MEditExists),
@@ -1261,7 +1261,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				string strFullFileNameTemp = strFullFileName;
 
-				if(::GetFileAttributesW(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а сам файл то еще на месте?
+				if(apiGetFileAttributes(strFullFileName) == INVALID_FILE_ATTRIBUTES) // а сам файл то еще на месте?
 				{
 					if(!CheckShortcutFolder(&strFullFileNameTemp,-1,FALSE))
 						return FALSE;
@@ -1313,7 +1313,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          int FilePlased=::GetFileAttributesW (strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
+					int FilePlased=apiGetFileAttributes (strFullFileName) == INVALID_FILE_ATTRIBUTES && !Flags.Check(FFILEEDIT_NEW);
           if(m_editor->IsFileChanged() ||  // в текущем сеансе были изменения?
              FilePlased) // а сам файл то еще на месте?
           {
@@ -1435,7 +1435,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
         + Обновить панели, если писали в текущий каталог */
       if (NeedQuestion)
       {
-        if(GetFileAttributesW(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
+				if(apiGetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
         {
           UpdateFileList();
         }
@@ -1675,7 +1675,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
   int NewFile=TRUE;
   FileAttributesModified=false;
-  if ((FileAttributes=::GetFileAttributesW(Name))!=INVALID_FILE_ATTRIBUTES)
+	if ((FileAttributes=apiGetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
   {
     // Проверка времени модификации...
     if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
@@ -1716,13 +1716,13 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
-      SetFileAttributesW(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
+			apiSetFileAttributes(Name,FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
       FileAttributesModified=true;
     }
 
     if (FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
     {
-      SetFileAttributesW(Name,FILE_ATTRIBUTE_NORMAL);
+			apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
       FileAttributesModified=true;
     }
   }
@@ -1737,12 +1737,12 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     {
       CutToSlash(strCreatedPath);
       DWORD FAttr=0;
-      if(::GetFileAttributesW(strCreatedPath) == INVALID_FILE_ATTRIBUTES)
+			if(apiGetFileAttributes(strCreatedPath) == INVALID_FILE_ATTRIBUTES)
       {
         // и попробуем создать.
         // Раз уж
         CreatePath(strCreatedPath);
-        FAttr=::GetFileAttributesW(strCreatedPath);
+				FAttr=apiGetFileAttributes(strCreatedPath);
       }
 
       if(FAttr == INVALID_FILE_ATTRIBUTES)
@@ -1771,7 +1771,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       break;
   }
 
-  if(::GetFileAttributesW(Name) == INVALID_FILE_ATTRIBUTES)
+	if(apiGetFileAttributes(Name) == INVALID_FILE_ATTRIBUTES)
     Flags.Set(FFILEEDIT_NEW);
 
   {
@@ -1954,7 +1954,7 @@ end:
 
   if (FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
   {
-    SetFileAttributesW(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
+		apiSetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
   }
 
   apiGetFindDataEx (strFullFileName,&FileInfo);
@@ -2239,7 +2239,7 @@ void FileEditor::ShowStatus()
 */
 DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
 {
-	FileAttributes=::GetFileAttributesW(Name);
+	FileAttributes=apiGetFileAttributes(Name);
 	int ind=0;
 	if(FileAttributes!=INVALID_FILE_ATTRIBUTES)
 	{

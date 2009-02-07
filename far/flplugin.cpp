@@ -406,7 +406,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
   if (((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
       Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
       (Info.HostFile==NULL || *Info.HostFile==0 || DestPanel->GetModalMode() ||
-      GetFileAttributesW(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
+			apiGetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
   {
     CtrlObject->Cp()->LeftPanel->ReadDiz();
     CtrlObject->Cp()->RightPanel->ReadDiz();
@@ -436,7 +436,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
     if (DizPresent)
     {
       string strTempDir, strDizName;
-      if (FarMkTempEx(strTempDir) && CreateDirectoryW(strTempDir,NULL))
+			if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,NULL))
       {
         string strSaveDir;
         FarGetCurDir(strSaveDir);
@@ -538,7 +538,7 @@ void FileList::PluginToPluginFiles(int Move)
   if (!FarMkTempEx(strTempDir))
     return;
   SaveSelection();
-  CreateDirectoryW(strTempDir,NULL);
+	apiCreateDirectory(strTempDir,NULL);
   CreatePluginItemList(ItemList,ItemNumber);
   if (ItemList!=NULL && ItemNumber>0)
   {

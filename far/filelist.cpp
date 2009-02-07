@@ -1168,7 +1168,7 @@ int FileList::ProcessKey(int Key)
                   wchar_t *lpwszFileName = strFileName.GetBuffer();
                   wchar_t wChr = lpwszFileName[pos+1];
                   lpwszFileName[pos+1]=0;
-                  DWORD CheckFAttr=GetFileAttributesW(lpwszFileName);
+									DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
                   if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
                   {
                     SetMessageHelp(L"WarnEditorPath");
@@ -1230,7 +1230,7 @@ int FileList::ProcessKey(int Key)
           if(!FarMkTempEx(strTempDir))
             return(TRUE);
 
-          CreateDirectoryW(strTempDir,NULL);
+					apiCreateDirectory(strTempDir,NULL);
           strTempName.Format (L"%s\\%s",(const wchar_t*)strTempDir,(const wchar_t*)PointToName(strFileName));
           if (Key==KEY_SHIFTF4)
           {
@@ -1347,7 +1347,7 @@ int FileList::ProcessKey(int Key)
 
               FarGetCurDir(strSaveDir);
 
-              if (GetFileAttributesW(strTempName)==INVALID_FILE_ATTRIBUTES)
+							if (apiGetFileAttributes(strTempName)==INVALID_FILE_ATTRIBUTES)
               {
                 string strFindName;
                 string strPath;
@@ -2001,7 +2001,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       string strTempDir;
       if(!FarMkTempEx(strTempDir))
         return;
-      CreateDirectoryW(strTempDir,NULL);
+			apiCreateDirectory(strTempDir,NULL);
       struct PluginPanelItem PanelItem;
       FileListToPluginItem(CurPtr,&PanelItem);
 			int Result=CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
@@ -3192,7 +3192,7 @@ void FileList::UpdateViewPanel()
         strFileName = CurPtr->strName;
         if(!FarMkTempEx(strTempDir))
           return;
-        CreateDirectoryW(strTempDir,NULL);
+				apiCreateDirectory(strTempDir,NULL);
         struct PluginPanelItem PanelItem;
         FileListToPluginItem(CurPtr,&PanelItem);
 				int Result=CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);

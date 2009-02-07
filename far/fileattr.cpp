@@ -47,7 +47,7 @@ static int SetFileCompression(const wchar_t *Name,int State);
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
-  while (!SetFileAttributesW(Name,Attr))
+	while (!apiSetFileAttributes(Name,Attr))
   {
     int Code;
     if(SkipMode!=-1)
@@ -93,7 +93,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 
   int Ret=SETATTR_RET_OK;
   if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		apiSetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
@@ -131,7 +131,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
   }
   // Set ReadOnly
   if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr);
+		apiSetFileAttributes(Name,FileAttr);
   return(Ret);
 }
 
@@ -151,7 +151,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 
   // Drop ReadOnly
   if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		apiSetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
   while (!SetFileEncryption(Name,State))
   {
@@ -189,7 +189,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 
   // Set ReadOnly
   if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributesW(Name,FileAttr);
+		apiSetFileAttributes(Name,FileAttr);
 
   return(Ret);
 }
@@ -204,7 +204,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
   while (1)
   {
     if (FileAttr & FILE_ATTRIBUTE_READONLY)
-      SetFileAttributesW(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			apiSetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
     HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
@@ -231,7 +231,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
     }
 
     if (FileAttr & FILE_ATTRIBUTE_READONLY)
-      SetFileAttributesW(Name,FileAttr);
+			apiSetFileAttributes(Name,FileAttr);
     SetLastError(LastError);
 
     if (SetTime)

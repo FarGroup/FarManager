@@ -114,7 +114,7 @@ BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFold
 
     ConvertNameToFull (SrcFolder, strFullDir); //??? было GetFullPathName
 
-    if ( GetFileAttributesW (strFullDir) == INVALID_FILE_ATTRIBUTES )
+		if ( apiGetFileAttributes (strFullDir) == INVALID_FILE_ATTRIBUTES )
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
       return FALSE;
@@ -150,15 +150,15 @@ BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFold
 	case RP_SYMLINKDIR:
 		{
 			if(ifn.pfnCreateSymbolicLink)
-				return ifn.pfnCreateSymbolicLink(LinkFolder,strDestDir,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+				return apiCreateSymbolicLink(LinkFolder,strDestDir,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 			else
 				return FALSE;
 		}
 		break;
 	case RP_JUNCTION:
 		{
-			wchar_t wszBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t)] = { 0 };
-			TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)wszBuff;
+			char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+			TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
 
 			WORD nDestMountPointBytes = (WORD)(strDestDir.GetLength()*sizeof (wchar_t));
 			rdb.ReparseTag            = IO_REPARSE_TAG_MOUNT_POINT;
@@ -167,9 +167,14 @@ BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFold
 			rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
 			rdb.MountPointReparseBuffer.PrintNameOffset      = rdb.MountPointReparseBuffer.SubstituteNameLength+2;
 			rdb.MountPointReparseBuffer.PrintNameLength      = nDestMountPointBytes-4*sizeof(wchar_t);
+			rdb.ReparseDataLength     = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
+			if(rdb.ReparseDataLength+sizeof(DWORD)+sizeof(WORD)+sizeof(WORD)>MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return FALSE;
+			}
 			wcscpy(rdb.MountPointReparseBuffer.PathBuffer, strDestDir);
 			wcscpy(&rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],&strDestDir[4]);
-			rdb.ReparseDataLength     = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
 
 			HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
 							FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
@@ -241,7 +246,7 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,TMN_REPARSE_DATA_BUFFER *rdb)
 {
 	bool RetVal=false;
 
-	const DWORD FileAttr = GetFileAttributesW(Object);
+	const DWORD FileAttr = apiGetFileAttributes(Object);
 	/* $ 14.06.2003 IS
 	   Для нелокальных дисков получить корректную информацию о связи
 	   не представляется возможным
@@ -375,7 +380,7 @@ int WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest)
   ConvertNameToFull(Src,strFileSource);
   ConvertNameToFull(Dest,strFileDest);
 
-  return CreateHardLinkW(strFileDest, strFileSource, NULL) != 0;
+	return apiCreateHardLink(strFileDest, strFileSource, NULL) != 0;
 }
 
 /*
@@ -672,7 +677,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
     bool bFound = strTempRoot.RPos(pos,L'\\');
     while (pos >= posCtlChar && strTempRoot.GetLength() > 2)
     {
-      FileAttr=GetFileAttributesW(strTempRoot);
+			FileAttr=apiGetFileAttributes(strTempRoot);
 
 			if (FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
       {

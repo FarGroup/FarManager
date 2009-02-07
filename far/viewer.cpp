@@ -171,8 +171,8 @@ Viewer::~Viewer()
       DeleteFileWithFolder(strTempViewName);
     else
     {
-      SetFileAttributesW(strTempViewName,FILE_ATTRIBUTE_NORMAL);
-      DeleteFileW(strTempViewName); //BUGBUG
+			apiSetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
+			apiDeleteFile(strTempViewName); //BUGBUG
     }
   }
 
