@@ -3892,14 +3892,25 @@ BOOL Editor::Search(int Next)
       {
         if( SelectFound )
         {
+          Pasting++;
+          Lock ();
+
+          UnmarkBlock();
+
           Flags.Set(FEDITOR_MARKINGBLOCK);
           int iFoundPos = CurPtr->GetCurPos();
           CurPtr->Select( iFoundPos, iFoundPos+SearchLength );
           BlockStart = CurPtr;
           BlockStartLine = NewNumLine;
-          // Set cursor after selection
-          iFoundPos += SearchLength;
-          CurPtr->SetCurPos(iFoundPos);
+          if (!ReplaceMode)
+          {
+            // Set cursor after selection
+            iFoundPos += SearchLength;
+            CurPtr->SetCurPos(iFoundPos);
+          }
+
+          Unlock ();
+          Pasting--;
         }
 
         int Skip=FALSE;
