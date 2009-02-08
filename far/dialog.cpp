@@ -5536,26 +5536,29 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               break;   //return TRUE;
             }
 
-            case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
-            {
-            	//BUGBUG нифига не делается тут, надо продумать
-              struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
-              if(ListTitle)
-              {
-                string strTitle;
-                string strBottomTitle;
-
-                ListBox->GetTitle (strTitle);
-                ListBox->GetBottomTitle (strBottomTitle);
-
-
-                BOOL haveTitle = !strTitle.IsEmpty();
-                BOOL haveBottom = !strBottomTitle.IsEmpty();
-                if (haveTitle || haveBottom)
-                  return TRUE;
-              }
-              return FALSE;
-            }
+						case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
+						{
+							if(Param2)
+							{
+								FarListTitles *ListTitle=(FarListTitles *)Param2;
+								string strTitle,strBottomTitle;
+								ListBox->GetTitle (strTitle);
+								ListBox->GetBottomTitle (strBottomTitle);
+								if(!strTitle.IsEmpty()||!strBottomTitle.IsEmpty())
+								{
+									if(ListTitle->Title&&ListTitle->TitleLen)
+										xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleLen-1);
+									else
+										ListTitle->TitleLen=(int)strTitle.GetLength()+1;
+									if(ListTitle->Bottom&&ListTitle->BottomLen)
+										xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle,ListTitle->BottomLen-1);
+									else
+										ListTitle->BottomLen=(int)strBottomTitle.GetLength()+1;
+									return TRUE;
+								}
+							}
+							return FALSE;
+						}
 
             case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
             {

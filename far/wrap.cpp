@@ -1955,7 +1955,32 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_LISTGETTITLES:
 		{
-			//BUGBUG надо сделать когда DM_LISTGETTITLES будет работать в самом фаре
+			if(Param2)
+			{
+				oldfar::FarListTitles *OldListTitle=(oldfar::FarListTitles *)Param2;
+				FarListTitles ListTitle={0,NULL,0,NULL};
+				if(OldListTitle->Title)
+				{
+					ListTitle.TitleLen=OldListTitle->TitleLen;
+					ListTitle.Title=new wchar_t[ListTitle.TitleLen];
+				}
+				if(OldListTitle->BottomLen)
+				{
+					ListTitle.BottomLen=OldListTitle->BottomLen;
+					ListTitle.Bottom=new wchar_t[ListTitle.BottomLen];
+				}
+				LONG_PTR Ret=FarSendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,(LONG_PTR)&ListTitle);
+				if(Ret)
+				{
+					UnicodeToOEM(ListTitle.Title,OldListTitle->Title,OldListTitle->TitleLen);
+					UnicodeToOEM(ListTitle.Bottom,OldListTitle->Bottom,OldListTitle->BottomLen);
+				}
+				if(ListTitle.Title)
+					delete[] ListTitle.Title;
+				if(ListTitle.Bottom)
+					delete[] ListTitle.Bottom;
+				return Ret;
+			}
 			return FALSE;
 		}
 
@@ -2047,6 +2072,19 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 			es.BlockHeight    = esA->BlockHeight;
 			return FarSendDlgMessage(hDlg, DM_SETSELECTION, Param1, (LONG_PTR)&es);
 		}
+
+		case oldfar::DM_GETEDITPOSITION:
+			Msg=DM_GETEDITPOSITION;
+			break;
+		case oldfar::DM_SETEDITPOSITION:
+			Msg=DM_SETEDITPOSITION;
+			break;
+		case oldfar::DM_SETCOMBOBOXEVENT:
+			Msg=DM_SETCOMBOBOXEVENT;
+			break;
+		case oldfar::DM_GETCOMBOBOXEVENT:
+			Msg=DM_GETCOMBOBOXEVENT;
+			break;
 
 #ifdef FAR_USE_INTERNALS
 		case oldfar::DM_KILLSAVESCREEN:
