@@ -944,9 +944,21 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS
 							);
 					}
+					break;
 				}
 
-				break;
+				case KEY_ALTSHIFTF9:
+					if (Opt.ChangeDriveMode&DRIVE_SHOW_PLUGINS)
+					{
+						ChDisk.Hide();
+						CtrlObject->Plugins.Configure();
+					}
+					return SelPos;
+
+				case KEY_SHIFTF9:
+					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
+						CtrlObject->Plugins.ConfigureCurrent(item->pPlugin, item->nItem);
+					return SelPos;
 
 				case KEY_CTRLR:
 					return SelPos;

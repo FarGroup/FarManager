@@ -4016,6 +4016,7 @@ BOOL Editor::Search(int Next)
                 if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                   ProcessKey(Ch);
               }
+
               if(strSearchStr[I]==0)
               {
                 Flags.Clear(FEDITOR_OVERTYPE);
@@ -4026,13 +4027,15 @@ BOOL Editor::Search(int Next)
                   if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                     ProcessKey(Ch);
                 }
-              }else
+              }
+              else
               {
                 for (;strSearchStr[I]!=0;I++)
                 {
                   ProcessKey(KEY_DEL);
                 }
               }
+
               int Cnt=0;
               const wchar_t *Tmp=(const wchar_t*)strReplaceStr;
               while( (Tmp=wcschr(Tmp,L'\r')) != NULL )
@@ -4076,6 +4079,14 @@ BOOL Editor::Search(int Next)
                           CurLine->GetCurPos(),UNDO_EDIT);
               CurLine->SetBinaryString(NewStr,NewStrLen);
               CurLine->SetCurPos(CurPos+RStrLen);
+              if( SelectFound )
+              {
+                UnmarkBlock();
+                Flags.Set(FEDITOR_MARKINGBLOCK);
+                CurPtr->Select( CurPos, CurPos+RStrLen );
+                BlockStart = CurPtr;
+                BlockStartLine = NewNumLine;
+              }
               delete [] NewStr;
 
               TextChanged(1);

@@ -811,11 +811,16 @@ in the command line may be used to change the plugin file system folder. Unlike
 "CD", "CHDIR" command always treats the specified parameter as a real folder
 name regardless a file panel type.
 
+    Комбинация #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних 
+модулей.
+
 
 @PluginsConfig
 $ #Plugins configuration#
     You can configure the installed ~plugin modules~@Plugins@ using the command
-#"Plugins configuration"# from the ~Options menu~@OptMenu@.
+#"Plugins configuration"# from the ~Options menu~@OptMenu@
+или нажав комбинацию клавиш #Alt-Shift-F9# из меню ~выбора дисков~@DriveDlg@ 
+и меню команд подключаемых модулей.
 
     To get the help on the currently selected plugin, press #Shift-F1# -
 context-sensitive help on plugin configuration. If the plugin doesn't have a
@@ -2606,6 +2611,14 @@ or all local users, when it's stated explicitly in the Local Policy Editor
 #Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
 #user only#' setting to '#Enabled#').
 
+    #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних 
+модулей (работает, если включен показ имен подключаемых модулей).
+
+    #Shift-F9# в области подключаемых внешних модулей вызывает диалог настройки 
+соответствующего модуля.
+
+    #Shift-F1# в области подключаемых внешних модулей показывает соответствующую 
+модулю контекстно-зависимую подсказку (если плагин не имеет файла-помощи).
 
 @DisconnectDrive
 $ #Disconnect network drive#

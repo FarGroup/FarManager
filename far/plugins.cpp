@@ -1266,12 +1266,12 @@ void PluginManager::Configure(int StartPos)
                 NeedUpdateItems=TRUE;
                 StartPos=SelPos;
                 PluginList.SetExitCode(SelPos);
-//              PluginList.Hide();
                 PluginList.Show();
                 break;
               }
             }
             break;
+
           default:
             PluginList.ProcessInput();
             break;
@@ -1463,12 +1463,37 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
               NeedUpdateItems=TRUE;
               StartPos=SelPos;
               PluginList.SetExitCode(SelPos);
-//            PluginList.Hide();
               PluginList.Show();
               break;
             }
           }
           break;
+
+		case KEY_ALTSHIFTF9:
+		{
+			PluginList.Hide();
+			NeedUpdateItems=TRUE;
+			StartPos=SelPos;
+			PluginList.SetExitCode(SelPos);
+			Configure();
+			PluginList.Show();
+			break;
+		}
+
+		case KEY_SHIFTF9:
+		{
+			if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+			{
+				NeedUpdateItems=TRUE;
+				StartPos=SelPos;
+				if (item->pPlugin->HasConfigure())
+					ConfigureCurrent(item->pPlugin, item->nItem);
+				PluginList.SetExitCode(SelPos);
+				PluginList.Show();
+				break;
+			}
+		}
+
         default:
           PluginList.ProcessInput();
           break;
