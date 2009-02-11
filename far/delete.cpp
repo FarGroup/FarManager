@@ -728,27 +728,41 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
   return DELETE_SUCCESS;
 }
 
-/* 14.03.2001 SVS
-   Неверный анализ кода возврата функции SHFileOperation(),
-   коей файл удаляется в корзину.
-*/
+DWORD SHErrorToWinError(DWORD SHError)
+{
+  DWORD WinError=SHError;
+  switch(SHError)
+  {
+    case 0x71:    WinError=ERROR_ALREADY_EXISTS;    // DE_SAMEFILE         The source and destination files are the same file.
+    case 0x72:    WinError=ERROR_INVALID_PARAMETER; // DE_MANYSRC1DEST     Multiple file paths were specified in the source buffer, but only one destination file path.
+    case 0x73:    WinError=ERROR_NOT_SAME_DEVICE;   // DE_DIFFDIR          Rename operation was specified but the destination path is a different directory. Use the move operation instead.
+    case 0x74:    WinError=ERROR_ACCESS_DENIED;     // DE_ROOTDIR          The source is a root directory, which cannot be moved or renamed.
+    case 0x75:    WinError=ERROR_CANCELLED;         // DE_OPCANCELLED      The operation was cancelled by the user, or silently cancelled if the appropriate flags were supplied to SHFileOperation.
+    case 0x76:    WinError=ERROR_BAD_PATHNAME;      // DE_DESTSUBTREE      The destination is a subtree of the source.
+    case 0x78:    WinError=ERROR_ACCESS_DENIED;     // DE_ACCESSDENIEDSRC  Security settings denied access to the source.
+    case 0x79:    WinError=ERROR_BUFFER_OVERFLOW;   // DE_PATHTOODEEP      The source or destination path exceeded or would exceed MAX_PATH.
+    case 0x7A:    WinError=ERROR_INVALID_PARAMETER; // DE_MANYDEST         The operation involved multiple destination paths, which can fail in the case of a move operation.
+    case 0x7C:    WinError=ERROR_BAD_PATHNAME;      // DE_INVALIDFILES     The path in the source or destination or both was invalid.
+    case 0x7D:    WinError=ERROR_INVALID_PARAMETER; // DE_DESTSAMETREE     The source and destination have the same parent folder.
+    case 0x7E:    WinError=ERROR_ALREADY_EXISTS;    // DE_FLDDESTISFILE    The destination path is an existing file.
+    case 0x80:    WinError=ERROR_ALREADY_EXISTS;    // DE_FILEDESTISFLD    The destination path is an existing folder.
+    case 0x81:    WinError=ERROR_BUFFER_OVERFLOW;   // DE_FILENAMETOOLONG  The name of the file exceeds MAX_PATH.
+    case 0x82:    WinError=ERROR_WRITE_FAULT;       // DE_DEST_IS_CDROM    The destination is a read-only CD-ROM, possibly unformatted.
+    case 0x83:    WinError=ERROR_WRITE_FAULT;       // DE_DEST_IS_DVD      The destination is a read-only DVD, possibly unformatted.
+    case 0x84:    WinError=ERROR_WRITE_FAULT;       // DE_DEST_IS_CDRECORD The destination is a writable CD-ROM, possibly unformatted.
+    case 0x85:    WinError=ERROR_DISK_FULL;         // DE_FILE_TOO_LARGE   The file involved in the operation is too large for the destination media or file system.
+    case 0x86:    WinError=ERROR_READ_FAULT;        // DE_SRC_IS_CDROM     The source is a read-only CD-ROM, possibly unformatted.
+    case 0x87:    WinError=ERROR_READ_FAULT;        // DE_SRC_IS_DVD       The source is a read-only DVD, possibly unformatted.
+    case 0x88:    WinError=ERROR_READ_FAULT;        // DE_SRC_IS_CDRECORD  The source is a writable CD-ROM, possibly unformatted.
+    case 0xB7:    WinError=ERROR_BUFFER_OVERFLOW;   // DE_ERROR_MAX        MAX_PATH was exceeded during the operation.
+    case 0x402:   WinError=ERROR_PATH_NOT_FOUND;    //                     An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
+    case 0x10000: WinError=ERROR_GEN_FAILURE;       // ERRORONDEST         An unspecified error occurred on the destination.
+  }
+  return WinError;
+}
+
 int RemoveToRecycleBin(const char *Name)
 {
-  static struct {
-    DWORD SHError;
-    DWORD LCError;
-  }
-  SHErrorCode2LastErrorCode[]=
-  {
-    {SE_ERR_FNF,ERROR_FILE_NOT_FOUND},
-    {SE_ERR_PNF,ERROR_PATH_NOT_FOUND},
-    {SE_ERR_ACCESSDENIED,ERROR_ACCESS_DENIED},
-    {SE_ERR_OOM,ERROR_OUTOFMEMORY},
-    {SE_ERR_DLLNOTFOUND,ERROR_SHARING_VIOLATION},
-    {SE_ERR_SHARE,ERROR_SHARING_VIOLATION},
-    {SE_ERR_NOASSOC,ERROR_BAD_COMMAND},
-  };
-
   SHFILEOPSTRUCT fop;
   char FullName[NM+1];
 //  ConvertNameToFull(Name,FullName, sizeof(FullName));
@@ -757,7 +771,7 @@ int RemoveToRecycleBin(const char *Name)
   }
 
   // При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-  if(Opt.DeleteToRecycleBinKillLink && GetFileAttributes(Name) == FA_DIREC)
+  if(WinVer.dwMajorVersion<6 && Opt.DeleteToRecycleBinKillLink && GetFileAttributes(Name) == FA_DIREC)
   {
     char FullName2[NM];
     WIN32_FIND_DATA FindData;
@@ -792,14 +806,17 @@ int RemoveToRecycleBin(const char *Name)
   // IS: удаление в нее! Почему - ХЗ, проблема скорее всего где-то в Windows
   // IS: Если этот момент вы посчитаете это поведение плохим и пусть уж лучше
   // IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
+  
+  // Похоже, в висте этот трюк больше не работает.
+  // TODO: делать или обычное удаление, или через IFileOperation.
+
   #if 1
-  if(RetCode && !fop.fAnyOperationsAborted &&
-     !((FullName[0]=='/' && FullName[1]=='/') || // проверим, если слеши уже
-     (FullName[0]=='\\' && FullName[1]=='\\'))   // есть, то и рыпаться не стоит
-    )
+  if(RetCode && !fop.fAnyOperationsAborted && !PathPrefix(FullName))
   {
     char FullNameAlt[sizeof(FullName)+16];
-    sprintf(FullNameAlt,"\\\\?\\%s",FullName);
+    strcpy(FullNameAlt,"\\\\?\\");
+    strcat(FullNameAlt,FullName);
+    FullNameAlt[strlen(FullNameAlt)+1]=0;
     fop.pFrom=FullNameAlt;
     RetCode=SHFileOperation(&fop);
   }
@@ -808,15 +825,10 @@ int RemoveToRecycleBin(const char *Name)
   SetFileApisTo(APIS2OEM);
   if(RetCode)
   {
-    for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
-      if(SHErrorCode2LastErrorCode[I].SHError == RetCode2)
-      {
-        SetLastError(SHErrorCode2LastErrorCode[I].LCError);
-        return FALSE;
-      }
+    SetLastError(SHErrorToWinError(RetCode2));
+    return FALSE;
   }
-  RetCode=!fop.fAnyOperationsAborted;
-  return(RetCode);
+  return !fop.fAnyOperationsAborted;
 }
 /* SVS $ */
 
