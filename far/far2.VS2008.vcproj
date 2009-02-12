@@ -50,14 +50,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="1"
+				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -65,6 +67,7 @@
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 			/>
@@ -147,14 +150,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="1"
+				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;_WIN64;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -162,6 +167,7 @@
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 			/>
@@ -244,14 +250,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="1"
+				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;_WIN64;_M_IA64;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -259,6 +267,7 @@
 				AssemblerListingLocation="$(OutDir)\cod\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 			/>
@@ -342,12 +351,14 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -441,12 +452,14 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;_WIN64;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -541,12 +554,14 @@
 				AdditionalOptions="/MP"
 				Optimization="0"
 				PreprocessorDefinitions="_DEBUG;_WIN64;_M_IA64;_CONSOLE;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="4"
 				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="headers.hpp"
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
@@ -6423,7 +6438,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6434,7 +6449,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6445,7 +6460,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6456,7 +6471,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6467,7 +6482,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6478,7 +6493,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farcolor.hpp"
 					/>
@@ -6657,7 +6672,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6668,7 +6683,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6679,7 +6694,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6690,7 +6705,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6701,7 +6716,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6712,7 +6727,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\farkeys.hpp"
 					/>
@@ -6787,7 +6802,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6798,7 +6813,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6809,7 +6824,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6820,7 +6835,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6831,7 +6846,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 -DFARBIT=64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6842,7 +6857,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form..."
-						CommandLine=".\tools\m4 -P -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) .\headers.m4 &gt; .\Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs=".\Include\plugin.hpp"
 					/>
@@ -6986,7 +7001,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -6997,7 +7012,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7008,7 +7023,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7019,7 +7034,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7030,7 +7045,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7041,7 +7056,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; | .\tools\gawk -f .\scripts\enc.awk &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7056,7 +7071,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7067,7 +7082,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7078,7 +7093,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7089,7 +7104,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7100,7 +7115,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7111,7 +7126,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7126,7 +7141,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7137,7 +7152,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7148,7 +7163,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7159,7 +7174,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7170,7 +7185,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7181,7 +7196,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7196,7 +7211,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=32 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7207,7 +7222,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7218,7 +7233,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=IA64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7229,7 +7244,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=32 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7240,7 +7255,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7251,7 +7266,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=IA64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7266,7 +7281,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7276,7 +7291,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7286,7 +7301,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7296,7 +7311,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7306,7 +7321,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7316,7 +7331,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -7330,7 +7345,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=32 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7341,7 +7356,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7352,7 +7367,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=IA64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7363,7 +7378,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=32 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7374,7 +7389,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7385,7 +7400,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\gawk -f .\scripts\mkhlf.awk &quot;$(InputFileName)&quot; | tools\m4 -P -DFARBIT=IA64 &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7400,7 +7415,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7411,7 +7426,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7422,7 +7437,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7433,7 +7448,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7444,7 +7459,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7455,7 +7470,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -7474,7 +7489,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7485,7 +7500,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7496,7 +7511,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7507,7 +7522,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=32 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7518,7 +7533,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=64 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7529,7 +7544,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)..."
-						CommandLine=".\tools\m4 -P &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
+						CommandLine=".\tools\m4 -P -DFARBIT=IA64 &quot;$(InputFileName)&quot; &gt; &quot;$(OutDir)\$(InputName)&quot;&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -7617,7 +7632,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -7625,7 +7640,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=64"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -7633,7 +7648,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=IA64"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -7641,7 +7656,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -7649,7 +7664,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=64"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -7657,7 +7672,7 @@
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions=""
+						PreprocessorDefinitions="__FARBIT__=IA64"
 					/>
 				</FileConfiguration>
 			</File>
