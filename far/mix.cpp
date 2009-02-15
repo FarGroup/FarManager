@@ -633,9 +633,12 @@ BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalF
     uiUserFree=uiTotalFree;
   }
 
-  *TotalSize=uiTotalSize;
-  *TotalFree=uiTotalFree;
-  *UserFree=uiUserFree;
+  if(TotalSize)
+    *TotalSize=uiTotalSize;
+  if(TotalFree)
+    *TotalFree=uiTotalFree;
+  if(UserFree)
+    *UserFree=uiUserFree;
 #endif
   return(ExitCode);
 }

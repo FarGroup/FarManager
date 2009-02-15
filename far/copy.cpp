@@ -3426,6 +3426,22 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         return COPY_FAILURE;
       }
     }
+
+    // если места в приёмнике хватает - займём сразу.
+    UINT64 FreeBytes=0;
+    LARGE_INTEGER SrcSize;
+    SrcSize.u.LowPart=SrcData.nFileSizeLow;
+    SrcSize.u.HighPart=SrcData.nFileSizeHigh;
+    if(GetDiskSize(DriveRoot,NULL,NULL,&FreeBytes))
+    {
+      if(FreeBytes>(UINT64)SrcSize.QuadPart)
+      {
+        LARGE_INTEGER CurPtr={0};
+        CurPtr.LowPart=SetFilePointer(DestHandle,0,&CurPtr.HighPart,FILE_CURRENT);
+        if(FAR_SetFilePointerEx(DestHandle,SrcSize,NULL,FILE_CURRENT) && SetEndOfFile(DestHandle))
+            FAR_SetFilePointerEx(DestHandle,CurPtr,NULL,FILE_BEGIN);
+      }
+    }
   }
 
 //  unsigned __int64 WrittenSize=0;
@@ -3571,14 +3587,12 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
               char DriveRoot[NM];
               GetPathRoot(DestName,DriveRoot);
 
-              DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-              if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,
-                                   &FreeClusters,&Clusters))
+              UINT64 FreeSize=0;
+              if(GetDiskSize(DriveRoot,NULL,NULL,&FreeSize))
               {
-                DWORD FreeSize=SectorsPerCluster*BytesPerSector*FreeClusters;
                 if (FreeSize<BytesRead &&
-                    WriteFile(DestHandle,CopyBuffer,FreeSize,&BytesWritten,NULL) &&
-                    SetFilePointer(SrcHandle,FreeSize-BytesRead,NULL,FILE_CURRENT)!=INVALID_SET_FILE_POINTER)
+                    WriteFile(DestHandle,CopyBuffer,(DWORD)FreeSize,&BytesWritten,NULL) &&
+                    SetFilePointer(SrcHandle,(DWORD)FreeSize-BytesRead,NULL,FILE_CURRENT)!=INVALID_SET_FILE_POINTER)
                 {
                   CloseHandle(DestHandle);
                   SetMessageHelp("CopyFiles");
@@ -3603,8 +3617,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                     Split=TRUE;
                     while (1)
                     {
-                      if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
-                        if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
+                      if(GetDiskSize(DriveRoot,NULL,NULL,&FreeSize))
+                        if (FreeSize<BytesRead)
                         {
                           int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
                                                 MSG(MCopyErrorDiskFull),DestName,
@@ -3630,8 +3644,17 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             }
             if (Split)
             {
+              LARGE_INTEGER FilePtr={0};
+              FilePtr.u.LowPart=SetFilePointer(SrcHandle,0,&FilePtr.u.HighPart,FILE_CURRENT);
+              WIN32_FIND_DATA SplitData=SrcData;
+              LARGE_INTEGER nFileSize;
+              nFileSize.u.LowPart=SplitData.nFileSizeLow;
+              nFileSize.u.HighPart=SplitData.nFileSizeHigh;
+              nFileSize.QuadPart-=FilePtr.QuadPart;
+              SplitData.nFileSizeHigh=nFileSize.HighPart;
+              SplitData.nFileSizeLow=nFileSize.LowPart;
               int RetCode;
-              if (!AskOverwrite(SrcData,SrcName,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
+              if (!AskOverwrite(SplitData,SrcName,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
               {
                 CloseHandle(SrcHandle);
                 //SetErrorMode(OldErrMode);
