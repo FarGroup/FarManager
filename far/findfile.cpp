@@ -2596,7 +2596,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 			int offset=(Length/*+1*/);
 			if ((UseAllTables || UnicodeSearch) && !SearchHex) offset*=2;
 
-			if ( INVALID_SET_FILE_POINTER != SetFilePointer (FileHandle, -offset, NULL, FILE_CURRENT) )
+			if (apiSetFilePointerEx(FileHandle, -offset, NULL, FILE_CURRENT))
 			{
 				if ((EnableSearchInFirst && SearchInFirst) ) AlreadyRead-=offset;
 			}

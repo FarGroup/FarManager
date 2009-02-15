@@ -120,7 +120,7 @@ void ControlObject::Init()
 
   string strStartCurDir;
   Cp()->ActivePanel->GetCurDir(strStartCurDir);
-  FarChDir(strStartCurDir, TRUE);
+	FarChDir(strStartCurDir);
   Cp()->ActivePanel->SetFocus();
 
   {
@@ -131,7 +131,7 @@ void ControlObject::Init()
     SetConsoleTitleW(strOldTitle);
   }
 /*
-  FarChDir(StartCurDir, TRUE);
+	FarChDir(StartCurDir);
 */
 
 //  _SVS(SysLog(L"ActivePanel->GetCurDir='%s'",StartCurDir));

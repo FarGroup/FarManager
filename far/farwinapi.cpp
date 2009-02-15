@@ -162,14 +162,14 @@ DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 DWORD apiGetCurrentDirectory (string &strCurDir)
 {
 	DWORD dwSize = GetCurrentDirectoryW (0, NULL);
-
 	wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize);
-
-	dwSize = GetCurrentDirectoryW (dwSize, lpwszCurDir);
-
+	GetCurrentDirectoryW (dwSize, lpwszCurDir);
 	strCurDir.ReleaseBuffer ();
 
-	return dwSize;
+	if(IsLocalVolumeRootPath(strCurDir))
+		AddEndSlash(strCurDir);
+
+	return (DWORD)strCurDir.GetLength();
 }
 
 DWORD apiGetTempPath (string &strBuffer)
@@ -517,15 +517,6 @@ BOOL apiGetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __
 
 	ExitCode=GetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-	if ( ExitCode==0 || uiTotalSize == _i64(0) )
-	{
-		DWORD SectorsPerCluster,BytesPerSector,FreeClusters,Clusters;
-		ExitCode=GetDiskFreeSpaceW(Root,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters);
-		uiTotalSize=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)Clusters;
-		uiTotalFree=(unsigned __int64)SectorsPerCluster*(unsigned __int64)BytesPerSector*(unsigned __int64)FreeClusters;
-		uiUserFree=uiTotalFree;
-	}
-
 	if ( TotalSize )
 		*TotalSize = uiTotalSize;
 	if ( TotalFree )
@@ -644,3 +635,10 @@ DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
 	strFullPathName.ReleaseBuffer();
 	return (DWORD)strFullPathName.GetLength();
 }
+
+BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)
+{
+	return SetFilePointerEx(hFile,*((PLARGE_INTEGER)&DistanceToMove),(PLARGE_INTEGER)NewFilePointer,dwMoveMethod);
+}
+
+

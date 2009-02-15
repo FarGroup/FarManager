@@ -608,7 +608,7 @@ void FileEditor::Init (
   m_editor->SetHostFileEditor(this);
   SetCanLoseFocus(Flags.Check(FFILEEDIT_ENABLEF6));
 
-  FarGetCurDir(strStartDir);
+	apiGetCurrentDirectory(strStartDir);
 
   if(!SetFileName(Name))
   {
@@ -1098,7 +1098,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         BOOL Done=FALSE;
 
         string strOldCurDir;
-        FarGetCurDir(strOldCurDir);
+				apiGetCurrentDirectory(strOldCurDir);
 
         while (!Done) // бьемся до упора
         {
@@ -1418,7 +1418,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
   string strOldCurDir;
-  FarGetCurDir(strOldCurDir);
+	apiGetCurrentDirectory(strOldCurDir);
   while (1)
   {
     FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???

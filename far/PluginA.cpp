@@ -127,7 +127,7 @@ static BOOL PrepareModulePath(const wchar_t *ModuleName)
 
 	CutToSlash(strModulePath); //??
 
-	return FarChDir(strModulePath,TRUE);
+	return FarChDir(strModulePath);
 }
 
 static void CheckScreenLock()
@@ -335,7 +335,7 @@ int PluginA::Load()
 		wchar_t Drive[4];
 
 		Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
-		FarGetCurDir(strCurPath);
+		apiGetCurrentDirectory(strCurPath);
 
 		if( IsLocalPath(m_strModuleName) ) // если указан локальный путь, то...
 		{
@@ -351,7 +351,7 @@ int PluginA::Load()
 		if( !m_hModule )
 			LstErr=GetLastError();
 
-		FarChDir(strCurPath, TRUE);
+		FarChDir(strCurPath);
 
 		if(Drive[0]) // вернем ее (переменную окружения) обратно
 			SetEnvironmentVariableW(Drive,strCurPlugDiskPath);

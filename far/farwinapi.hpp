@@ -236,4 +236,11 @@ DWORD apiGetFullPathName(
 		string &strFullPathName
 		);
 
+BOOL apiSetFilePointerEx(
+		HANDLE hFile,
+		INT64 DistanceToMove,
+		PINT64 NewFilePointer,
+		DWORD dwMoveMethod
+		);
+
 #endif // __FARWINAPI_HPP__

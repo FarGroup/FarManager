@@ -140,7 +140,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     return;
 
   string strSaveDir;
-  FarGetCurDir(strSaveDir);
+	apiGetCurrentDirectory(strSaveDir);
   {
     string strOldCurDir = strCurDir;
     if (!SetCurPath())

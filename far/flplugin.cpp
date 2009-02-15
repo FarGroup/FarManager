@@ -103,7 +103,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
       string strSaveDir;
 
-      FarGetCurDir(strSaveDir);
+			apiGetCurrentDirectory(strSaveDir);
 
       if (FileNameToPluginItem(PStack->strHostFile,&PanelItem))
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
@@ -439,7 +439,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
 			if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,NULL))
       {
         string strSaveDir;
-        FarGetCurDir(strSaveDir);
+				apiGetCurrentDirectory(strSaveDir);
 
         strDizName.Format (L"%s\\%s",(const wchar_t*)strTempDir, (const wchar_t*)DestPanel->strPluginDizName);
 
@@ -548,7 +548,7 @@ void FileList::PluginToPluginFiles(int Move)
     if (PutCode==1 || PutCode==2)
     {
       string strSaveDir;
-      FarGetCurDir(strSaveDir);
+			apiGetCurrentDirectory(strSaveDir);
 
       FarChDir(strTempDir);
       PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0);

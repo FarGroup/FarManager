@@ -102,7 +102,7 @@ static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
         } header, *pheader;
         #include <poppack.h>
 
-        if(SetFilePointer(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN) != INVALID_SET_FILE_POINTER)
+				if(apiSetFilePointerEx(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN))
         {
           // читаем очередной заголовок
           if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
@@ -673,12 +673,6 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
       }
   }
 
-
-  SHELLEXECUTEINFOW seInfo;
-  memset (&seInfo, 0, sizeof (seInfo));
-
-  seInfo.cbSize = sizeof (seInfo);
-
   STARTUPINFOW si;
   PROCESS_INFORMATION pi;
 
@@ -746,13 +740,16 @@ int Execute(const wchar_t *CmdStr,    //  ом.строка дл€ исполнени€
 
   if ( SeparateWindow == 2 )
   {
+		SHELLEXECUTEINFOW seInfo;
+		memset (&seInfo, 0, sizeof (seInfo));
+		seInfo.cbSize = sizeof (seInfo);
     seInfo.lpFile = strNewCmdStr;
     seInfo.lpParameters = strNewCmdPar;
     seInfo.nShow = SW_SHOWNORMAL;
 
     seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
     //seInfo.lpVerb = "open";
-    seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
+		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOZONECHECKS;
 
     if ( !dwError )
     {
@@ -1199,7 +1196,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
             if(CtrlObject)
               CtrlObject->CmdLine->GetCurDir(strFullPath);
             else
-              FarGetCurDir(strFullPath);
+							apiGetCurrentDirectory(strFullPath);
             AddEndSlash(strFullPath);
           }
           strFullPath += strExpandedStr;
@@ -1276,7 +1273,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
   RemoveTrailingSpaces(strCmdLine);
 
-  if (!SeparateWindow && IsAlpha(strCmdLine.At(0)) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
+	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
     wchar_t NewDir[10];
     swprintf(NewDir,L"%c:",Upper(strCmdLine.At(0)));

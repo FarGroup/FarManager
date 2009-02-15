@@ -600,7 +600,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 		if(!PathMayBeAbsolute(strTempRoot))
 		{
 			string strTemp;
-			FarGetCurDir(strTemp);
+			apiGetCurrentDirectory(strTemp);
 			AddEndSlash(strTemp);
 			strTemp += strTempRoot; //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
 			strTempRoot = strTemp;

@@ -92,7 +92,7 @@ FileList::FileList()
   }
 
   Type=FILE_PANEL;
-  FarGetCurDir(strCurDir);
+	apiGetCurrentDirectory(strCurDir);
   hPlugin=INVALID_HANDLE_VALUE;
   Filter=NULL;
   ListData=NULL;
@@ -1345,7 +1345,7 @@ int FileList::ProcessKey(int Key)
               struct PluginPanelItem PanelItem;
               string strSaveDir;
 
-              FarGetCurDir(strSaveDir);
+							apiGetCurrentDirectory(strSaveDir);
 
 							if (apiGetFileAttributes(strTempName)==INVALID_FILE_ATTRIBUTES)
               {
@@ -2312,7 +2312,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       setdisk(CurDisk);
     }
   }*/
-  FarGetCurDir(strCurDir);
+	apiGetCurrentDirectory(strCurDir);
 
   if(!IsUpdated)
     return(TRUE);

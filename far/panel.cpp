@@ -150,7 +150,7 @@ void Panel::SetViewMode(int ViewMode)
 void Panel::ChangeDirToCurrent()
 {
   string strNewDir;
-  FarGetCurDir(strNewDir);
+	apiGetCurrentDirectory(strNewDir);
   SetCurDir(strNewDir,TRUE);
 }
 
@@ -1068,7 +1068,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		}
 
 		string strNewCurDir;
-		FarGetCurDir(strNewCurDir);
+		apiGetCurrentDirectory(strNewCurDir);
 
 		if ( (PanelMode == NORMAL_PANEL) &&
 			 (GetType() == FILE_PANEL) &&
@@ -2060,14 +2060,6 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 					Reenter++;
 					struct OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
-/*
-					if (Command==FCTL_GETPANELINFO || Command==FCTL_GETPANELSHORTINFOFORWRAPPER)
-					{
-						if(Info->lpwszCurDir)
-							xf_free(Info->lpwszCurDir);
-						Info->lpwszCurDir = xf_wcsdup(PInfo.CurDir);
-					}
-*/
 					if (PInfo.Flags & OPIF_REALNAMES)
 						Info->Flags |= PFLAGS_REALNAMES;
 					if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))

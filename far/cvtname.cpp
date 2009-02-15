@@ -51,7 +51,7 @@ int ConvertNameToFull (
 	if ( (lpwszName == lpwszSrc) &&
 				(lpwszName[0] != L'.' || lpwszName[1] != 0) )
 	{
-		FarGetCurDir(strDest);
+		apiGetCurrentDirectory(strDest);
 		AddEndSlash(strDest);
 
 		strDest += lpwszSrc;

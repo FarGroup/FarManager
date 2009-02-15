@@ -408,10 +408,6 @@ void CreatePath(string &strPath);
 */
 BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 
-// обертка вокруг функции получения текущего пути.
-// для локального пути делает букву диска в uppercase
-DWORD FarGetCurDir(string &strBuffer);
-
 #ifdef __cplusplus
 };
 #endif

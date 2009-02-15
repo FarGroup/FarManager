@@ -833,7 +833,7 @@ int WipeFile(const wchar_t *Name)
 
   delete[] Buf;
 
-  SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);
+	apiSetFilePointerEx(WipeHandle,0,NULL,FILE_BEGIN);
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);
 

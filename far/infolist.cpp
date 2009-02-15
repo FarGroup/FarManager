@@ -146,7 +146,7 @@ void InfoList::DisplayObject()
   AnotherPanel->GetCurDir(strCurDir);
 
   if ( strCurDir.IsEmpty() )
-    FarGetCurDir(strCurDir);
+		apiGetCurrentDirectory(strCurDir);
 
   /*
      Корректно отображать инфу при заходе в Juction каталог

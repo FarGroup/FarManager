@@ -68,9 +68,8 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
   wchar_t Drive[4]=L"=A:";
 
   string strCurDir;
-  wchar_t *lpwszCurDir;
 
-  if(IsAlpha(*NewDir) && NewDir[1]==L':' && NewDir[2]==0)// если указана только
+	if(*NewDir && NewDir[1]==L':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
     Drive[1]=Upper(*NewDir);                          // возьмем из переменной
 
@@ -91,7 +90,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
     strCurDir = NewDir;
 
     if(!StrCmp(strCurDir,L"\\"))
-      FarGetCurDir(strCurDir); // здесь берем корень
+			apiGetCurrentDirectory(strCurDir); // здесь берем корень
 
     ReplaceSlashToBSlash(strCurDir);
 
@@ -106,55 +105,14 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
   if(rc || !ChangeDir)
   {
-    int nSize = GetCurrentDirectoryW (0, NULL);
-
-    lpwszCurDir = strCurDir.GetBuffer (nSize);
-
-    if ((!ChangeDir || GetCurrentDirectoryW(nSize,lpwszCurDir)) &&
-        IsAlpha(*lpwszCurDir) && lpwszCurDir[1]==L':')
+		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
+			strCurDir.At(0) && strCurDir.At(1)==L':')
     {
-      Drive[1]=Upper(*lpwszCurDir);
-      SetEnvironmentVariableW(Drive,lpwszCurDir);
+			Drive[1]=Upper(strCurDir.At(0));
+			SetEnvironmentVariableW(Drive,strCurDir);
     }
-
-    //strCurDir.ReleaseBuffer (); не надо ибо string и так удалится при выходе, лишний StrLength
   }
   return rc;
-}
-
-/* $ 20.03.2002 SVS
- обертка вокруг функции получения текущего пути.
- для локального пути переводит букву диска в uppercase
-*/
-
-DWORD FarGetCurDir(string &strBuffer)
-{
-	int nLength = GetCurrentDirectoryW (0, NULL);
-
-	wchar_t *lpwszBuffer = strBuffer.GetBuffer (nLength);
-
-	DWORD Result = GetCurrentDirectoryW (nLength, lpwszBuffer);
-
-	/*
-	баг в GetCurrentDirectory:
-	если текущий каталог - "\\?\Volume{GUID}\",
-	то в Buffer не попадает завершающий слеш
-	и дальнейшая работа с таким путём обламывается.
-	*/
-	if(IsLocalVolumeRootPath(lpwszBuffer))
-		AddEndSlash(lpwszBuffer);
-
-	if ( Result &&
-			 IsAlpha (*lpwszBuffer) &&
-			 lpwszBuffer[1] == L':' &&
-			 (lpwszBuffer[2] == 0 || lpwszBuffer[2] == L'\\'))
-	{
-		*lpwszBuffer = Upper (*lpwszBuffer);
-	}
-
-	strBuffer.ReleaseBuffer ();
-
-	return Result;
 }
 
 void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
@@ -1001,12 +959,12 @@ BOOL IsNetworkPath(const wchar_t *Path)
 
 BOOL IsLocalPath(const wchar_t *Path)
 {
-  return (Path && IsAlpha(*Path) && Path[1]==L':' && Path[2]);
+	return (Path && *Path && Path[1]==L':' && Path[2]);
 }
 
 BOOL IsLocalRootPath(const wchar_t *Path)
 {
-  return (Path && IsAlpha(*Path) && Path[1]==L':' && Path[2] == L'\\' && !Path[3]);
+	return (Path && *Path && Path[1]==L':' && IsSlash(Path[2]) && !Path[3]);
 }
 
 bool PathPrefix(const wchar_t *Path)
@@ -1021,7 +979,7 @@ bool PathPrefix(const wchar_t *Path)
 
 BOOL IsLocalPrefixPath(const wchar_t *Path)
 {
-	return PathPrefix(Path) && IsAlpha(Path[4]) && Path[5] == L':' && Path[6] == L'\\';
+	return PathPrefix(Path) && Path[4] && Path[5] == L':' && Path[6] == L'\\';
 }
 
 BOOL IsLocalVolumePath(const wchar_t *Path)

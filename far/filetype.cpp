@@ -272,7 +272,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         CtrlObject->Cp()->LeftPanel->CloseFile();
         CtrlObject->Cp()->RightPanel->CloseFile();
 
-        Execute(strCommand,AlwaysWaitFinish);
+				Execute(&strCommand[1],AlwaysWaitFinish);
 #else
         // здесь была бага с прорисовкой (и... вывод данных
         // на команду "@type !@!" пропадал с экрана)
