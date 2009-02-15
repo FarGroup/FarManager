@@ -215,11 +215,11 @@ PluginType IsModulePlugin2 (
 					DWORD dwCRC32 = CRC32 (0, lpExportName, (unsigned int)strlen (lpExportName));
 
 					// а это вам не фиг знает что, это вам оптимизация, типа 8-)
-					for (int j = 0; j < countof(ExportCRC32W); j++)
+					for (size_t j = 0; j < countof(ExportCRC32W); j++)
 						if ( dwCRC32 == ExportCRC32W[j] )
 							return UNICODE_PLUGIN;
 					if(!bOemExports)
-						for (int j = 0; j < countof(ExportCRC32); j++)
+						for (size_t j = 0; j < countof(ExportCRC32); j++)
 							if ( dwCRC32 == ExportCRC32[j] )
 								bOemExports=true;
 				}

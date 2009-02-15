@@ -769,7 +769,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 					while(apiFindNextFileName(hFind,strLinks[Current]))
 					{
 						strLinks[Current]=strRoot+strLinks[Current];
-						NameList.Items[Current++].Text=strLinks[Current];
+						NameList.Items[Current].Text=strLinks[Current];
+						Current++;
 					}
 					FindClose(hFind);
 					AttrDlg[SETATTR_NAMECOMBO].strData.Format(MSG(MSetAttrHardLinks),NameList.ItemsNumber);

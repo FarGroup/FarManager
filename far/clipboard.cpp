@@ -204,7 +204,8 @@ int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
     void *GData;
     int BufferSize=(DataSize+1)*sizeof (wchar_t);
     if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
-      if ((GData=GlobalLock(hData))!=NULL)
+		{
+			if ((GData=GlobalLock(hData))!=NULL)
       {
         memcpy(GData,Data,BufferSize);
         GlobalUnlock(hData);
@@ -213,6 +214,7 @@ int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
       }
 			else
 					GlobalFree(hData);
+		}
   }
   FAR_CloseClipboard();
   return(TRUE);
@@ -234,7 +236,8 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
       return(FALSE);
     int BufferSize=(DataSize+1)*sizeof (wchar_t);
     if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
-      if ((GData=GlobalLock(hData))!=NULL)
+		{
+			if ((GData=GlobalLock(hData))!=NULL)
       {
         memcpy(GData,Data,BufferSize);
         GlobalUnlock(hData);
@@ -243,6 +246,7 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
       }
 			else
 				GlobalFree(hData);
+		}
     FAR_CloseClipboard();
   }
   return(TRUE);

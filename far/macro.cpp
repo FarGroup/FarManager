@@ -1525,7 +1525,7 @@ static bool waitkeyFunc()
   if(Key == KEY_NONE)
     Key=-1;
   VMStack.Push((__int64)Key);
-  return Key != -1;
+  return Key != (DWORD)-1;
 }
 
 // n=min(n1,n2)

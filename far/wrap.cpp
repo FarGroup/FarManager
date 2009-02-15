@@ -2320,7 +2320,6 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 					memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
 					if(OldPI->PanelItems&&OldPI->SelectedItems)
 					{
-						int CurrentSelectedItem=0;
 						for(int i=0;i<PI.ItemsNumber;i++)
 						{
 							PluginPanelItem PPI;
