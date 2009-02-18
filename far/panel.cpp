@@ -1034,8 +1034,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			FarChDir(strNewDir);
 			CtrlObject->CmdLine->GetCurDir(strNewDir);
 
-			strNewDir.Upper();
-
 			if ( strNewDir.At (0) == mitem->cDrive )
 				FarChDir(strNewDir);
 
@@ -2078,7 +2076,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			{
 				string strInfoCurDir;
 				GetCurDir(strInfoCurDir);
-				if(GetMode()==FILE_PANEL)
+				if(GetType()==FILE_PANEL)
 				{
 					FileList *DestFilePanel=(FileList *)this;
 					static int Reenter=0;

@@ -1009,7 +1009,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 					Src+=3;
 					Dst+=3;
 				}
-				for(wchar_t c=*Src;c;Src++,c=*Src)
+				for(wchar_t c=*Src;;Src++,c=*Src)
 				{
 					if (!c||IsSlash(c))
 					{
@@ -1034,13 +1034,19 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 							wcsncpy(Dst,fd.strFileName,n);
 							Dst+=n;
 							wcscpy(Dst,Src);
-							Dst++;
-							Src=Dst;
-            } //n n1 dSrc
+							if(c)
+							{
+								Dst++;
+								Src=Dst;
+							}
+						}
 						else
 						{
-							Src++;
-							Dst=Src;
+							if(c)
+							{
+								Src++;
+								Dst=Src;
+							}
 						}
 					}
 					if(!*Src)

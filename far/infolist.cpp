@@ -490,15 +490,14 @@ void InfoList::PrintInfo(int MsgID)
 
 void InfoList::ShowDirDescription()
 {
-  string strDizDir;
-  int Length;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
   if (AnotherPanel->GetMode()==FILE_PANEL)
   {
+		string strDizDir;
     AnotherPanel->GetCurDir(strDizDir);
-    if ((Length=(int)strDizDir.GetLength())>0 && strDizDir.At(Length-1)!=L'\\')
-      strDizDir += L"\\";
+		if(!strDizDir.IsEmpty())
+			AddEndSlash(strDizDir);
 
     string strArgName;
 
