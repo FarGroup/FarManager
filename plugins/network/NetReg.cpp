@@ -9,7 +9,7 @@ const TCHAR *FmtSSS=_T("%s%s%s");
 void SetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,const TCHAR *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,(lstrlen(ValueData)+1)*sizeof(TCHAR));
   RegCloseKey(hKey);
 }
 

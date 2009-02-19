@@ -7,7 +7,7 @@ static HKEY OpenRegKey(LPCTSTR Key);
 void SetRegKey(LPCTSTR Key,LPCTSTR ValueName,LPCTSTR ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,(lstrlen(ValueData)+1)*sizeof(TCHAR));
   RegCloseKey(hKey);
 }
 

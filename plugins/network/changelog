@@ -1,3 +1,8 @@
+svs 19.02.2009 13:27:04 +0300 - build 47
+
+1. Mantis#0000747: Плагины align, proclist и network: функция SetRegKey неверно вычисляет размер буфера в Unicode версии. 
+   (from alexeypa)
+
 drkns 27.01.2009 16:09:51 +0200 - build 46
 
 1. Адаптация к новому PanelAPI в 2.0.753.
