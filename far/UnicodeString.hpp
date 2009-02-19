@@ -77,7 +77,7 @@ public:
 
 	size_t SetLength(size_t nLength)
 	{
-		//if (nLength<m_nSize) //âã ¯à®¢¥àªã ¤¥« ¥â ¢¥àå­¨© ª« áá, â ª çâ® áª ¦¥¬ çâ® íâ® ®¯â¨¬¨§ æ¨ï
+		//if (nLength<m_nSize) //Ýòó ïðîâåðêó äåëàåò âåðõíèé êëàññ, òàê ÷òî ñêàæåì ÷òî ýòî îïòèìèçàöèÿ
 		{
 			m_nLength = nLength;
 			m_pData[m_nLength] = 0;
@@ -227,17 +227,13 @@ public:
 
 	size_t SetLength(size_t nLength)
 	{
-		if (nLength < m_pData->GetLength())
-		{
-			Inflate(nLength+1);
-			return m_pData->SetLength(nLength);
-		}
-		return m_pData->GetLength();
+		Inflate(nLength+1);
+		return m_pData->SetLength(nLength);
 	}
 
 	wchar_t At (size_t nIndex) const
 	{
-		return m_pData->GetData()[nIndex];
+		return nIndex<m_pData->GetLength()?m_pData->GetData()[nIndex]:0;
 	}
 
 	bool IsEmpty () const

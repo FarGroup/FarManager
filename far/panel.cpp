@@ -1024,37 +1024,24 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	{
 		while ( true )
 		{
-			int NumDisk = mitem->cDrive-L'A';
-
-			string strMsgStr;
-			string strNewDir;
-
-			strNewDir.Format (L"%c:", mitem->cDrive);
-
-			FarChDir(strNewDir);
-			CtrlObject->CmdLine->GetCurDir(strNewDir);
-
-			if ( strNewDir.At (0) == mitem->cDrive )
-				FarChDir(strNewDir);
-
-
-			if ( getdisk() != NumDisk )
+			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
+			if(FarChDir(NewDir))
 			{
-				string strRootDir;
-
-				strRootDir.Format (L"%c:\\", mitem->cDrive);
-				FarChDir(strRootDir);
-
-				if ( getdisk() == NumDisk )
-					break;
+				break;
 			}
 			else
-				break;
-
+			{
+				NewDir[2]=L'\\';
+				if(FarChDir(strRootDir))
+				{
+					break;
+				}
+			}
+			string strMsgStr;
 			strMsgStr.Format (MSG(MChangeDriveCannotReadDisk), mitem->cDrive);
 
 			if ( Message(
-					MSG_WARNING,
+					MSG_WARNING|MSG_ERRORTYPE,
 					2,
 					MSG(MError),
 					strMsgStr,

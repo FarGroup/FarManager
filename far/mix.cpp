@@ -1225,17 +1225,16 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 */
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 {
-  string strTemp, strTemp2;
-  wchar_t Hex[16], *stop;
-
+	string strTemp;
   switch(TransformType)
   {
     case L'X': // Convert common string to hexadecimal string representation
     {
+			string strHex;
       while(*ConvStr)
       {
-        swprintf(Hex,L"%02X",*ConvStr);
-        strTemp += (const wchar_t*)Hex;
+				strHex.Format(L"%02X",*ConvStr);
+				strTemp += strHex;
         ConvStr++;
       }
       break;
@@ -1243,17 +1242,15 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
     case L'S': // Convert hexadecimal string representation to common string
     {
       const wchar_t *ptrConvStr=ConvStr;
-      Hex[2]=0;
       while(*ptrConvStr)
       {
         if(*ptrConvStr != L' ')
         {
-          Hex[0]=ptrConvStr[0];
-          Hex[1]=ptrConvStr[1];
-          DWORD value=wcstoul(Hex,&stop,16);
-          Hex[0]=static_cast<wchar_t>(value);
-          Hex[1]=0;
-          strTemp += (const wchar_t*)Hex;
+					WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
+					size_t l=strTemp.GetLength();
+					wchar_t *Temp=strTemp.GetBuffer(l+2);
+					Temp[l]=wcstoul(Hex,NULL,16)&0xFFFF;
+					strTemp.ReleaseBuffer(l+1);
           ptrConvStr++;
         }
         ptrConvStr++;

@@ -2309,7 +2309,7 @@ void Viewer::Search(int Next,int FirstChar)
           CurPos=0;
 
         vseek(ViewFile,CurPos,SEEK_SET);
-        if ((ReadSize=vread(Buf,BufSize,ViewFile))<=0)
+        if ((ReadSize=vread(Buf,BufSize,ViewFile,true))<=0)
           break;
 
         if(CheckForEscSilent())
@@ -2572,7 +2572,7 @@ void Viewer::SetNamesList(NamesList *List)
 }
 
 
-int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
+int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw)
 {
   if(!SrcFile)
     return -1;
@@ -2589,7 +2589,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
     /* $ 20.10.2000 tran
        обратный порядок байтов */
     TmpBuf[ReadSize+1]=0;
-    if ( VM.CodePage == CP_REVERSEBOM )
+    if (!Raw && VM.CodePage == CP_REVERSEBOM )
     {
       for (int i=0; i<ReadSize; i+=2 )
       {
@@ -2652,7 +2652,17 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile)
       }
     }
 
-    MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
+		if(Raw)
+		{
+			for(int i=0;i<ConvertSize;i++)
+			{
+				Buf[i]=TmpBuf[i];
+			}
+		}
+		else
+		{
+			MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
+		}
 
     xf_free(TmpBuf);
 

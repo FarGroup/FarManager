@@ -227,8 +227,6 @@ void UnicodeString::ReleaseBuffer (size_t nLength)
 {
 	if ( nLength == (size_t)-1 )
 		nLength = StrLength(m_pData->GetData());
-	if (nLength >= m_pData->GetSize())
-		nLength = m_pData->GetSize() - 1;
 	m_pData->SetLength (nLength);
 }
 
