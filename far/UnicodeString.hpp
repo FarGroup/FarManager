@@ -227,13 +227,17 @@ public:
 
 	size_t SetLength(size_t nLength)
 	{
-		Inflate(nLength+1);
-		return m_pData->SetLength(nLength);
+		if (nLength < m_pData->GetLength())
+		{
+			Inflate(nLength+1);
+			return m_pData->SetLength(nLength);
+		}
+		return m_pData->GetLength();
 	}
 
 	wchar_t At (size_t nIndex) const
 	{
-		return nIndex<m_pData->GetLength()?m_pData->GetData()[nIndex]:0;
+		return m_pData->GetData()[nIndex];
 	}
 
 	bool IsEmpty () const

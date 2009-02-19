@@ -1,3 +1,7 @@
+drkns 19.02.2009 17:39:21 +0200 - build 776
+
+1. "Немного" :) перестарался с UnicodeString в предыдущем билде.
+
 drkns 19.02.2009 15:32:33 +0200 - build 775
 
 1. Mantis#0000739: cannot search for 0x00 hex value
