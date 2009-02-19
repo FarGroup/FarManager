@@ -2106,7 +2106,7 @@ static bool clipFunc()
   {
     case 0: // Get from Clipboard, "S" - ignore
     {
-      wchar_t *ClipText=InternalPasteFromClipboard(0); // 0!  ???
+      wchar_t *ClipText=PasteFromClipboard();
       if(ClipText)
       {
         TVar varClip(ClipText);
@@ -2118,14 +2118,14 @@ static bool clipFunc()
     }
     case 1: // Put "S" into Clipboard
     {
-      Ret=InternalCopyToClipboard(Val.s(),0); // 0!  ???
+      Ret=CopyToClipboard(Val.s());
       VMStack.Push(TVar((__int64)Ret)); // 0!  ???
       return Ret?true:false;
     }
     case 2: // Add "S" into Clipboard
     {
       TVar varClip(Val.s());
-      wchar_t *CopyData=InternalPasteFromClipboard(0); // 0!  ???
+      wchar_t *CopyData=PasteFromClipboard();
       if(CopyData)
       {
         size_t DataSize=StrLength(CopyData);
@@ -2140,7 +2140,7 @@ static bool clipFunc()
         else
           xf_free(CopyData);
       }
-      Ret=InternalCopyToClipboard(varClip.s(),0);
+      Ret=CopyToClipboard(varClip.s());
       VMStack.Push(TVar((__int64)Ret)); // 0!  ???
       return Ret?true:false;
     }
@@ -2152,14 +2152,14 @@ static bool clipFunc()
       {
         TVar varClip(L"");
         UsedInternalClipboard=cmdType-3;
-        wchar_t *ClipText=InternalPasteFromClipboard(0); // 0!  ???
+        wchar_t *ClipText=PasteFromClipboard();
         if(ClipText)
         {
           varClip=ClipText;
           xf_free(ClipText);
         }
         UsedInternalClipboard=UsedInternalClipboard==0?1:0;
-        Ret=InternalCopyToClipboard(varClip.s(),0); // 0!  ???
+        Ret=CopyToClipboard(varClip.s());
       }
 
       UsedInternalClipboard=_UsedInternalClipboard;

@@ -205,7 +205,7 @@ private:
     const wchar_t* GetStringAddr();
 
     void  SetHiString(const wchar_t *Str);
-    void  SetString(const wchar_t *Str);
+    void  SetString(const wchar_t *Str,int Length=-1);
 
     void  SetBinaryString(const wchar_t *Str,int Length);
 

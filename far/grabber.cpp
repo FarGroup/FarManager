@@ -189,7 +189,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     }
   }
   if(VerticalBlock)
-    CopyFormatToClipboard(FAR_VerticalBlock,CopyBuf);
+    CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyBuf);
   else
     CopyToClipboard(CopyBuf);
 

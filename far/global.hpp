@@ -117,6 +117,7 @@ extern BOOL ProcessShowClock;
 extern const wchar_t *FarTitleAddons;
 
 extern const wchar_t FAR_VerticalBlock[];
+extern const wchar_t FAR_VerticalBlock_Unicode[];
 
 extern int InGrabber;    // Мы сейчас в грабере?
 

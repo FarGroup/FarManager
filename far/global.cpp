@@ -125,6 +125,7 @@ BOOL ProcessShowClock=FALSE;
 const wchar_t *FarTitleAddons=L" - Far";
 
 const wchar_t FAR_VerticalBlock[]= L"FAR_VerticalBlock";
+const wchar_t FAR_VerticalBlock_Unicode[]= L"FAR_VerticalBlock_Unicode";
 
 int InGrabber=FALSE;
 

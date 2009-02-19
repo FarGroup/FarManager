@@ -2015,8 +2015,7 @@ int Editor::ProcessKey(int Key)
           DeleteBlock();
         else
         {
-          AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                      CurLine->GetCurPos(),UNDO_EDIT);
+          AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
           if (CurPos>=CurLine->GetLength())
           {
             if (CurLine->m_next==NULL)
@@ -2097,8 +2096,7 @@ int Editor::ProcessKey(int Key)
           }
           else
           {
-            AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                        CurLine->GetCurPos(),UNDO_EDIT);
+            AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
             CurLine->ProcessKey(KEY_BS);
           }
 
@@ -2119,8 +2117,7 @@ int Editor::ProcessKey(int Key)
             ProcessKey(KEY_BS);
           else
           {
-            AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                        CurLine->GetCurPos(),UNDO_EDIT);
+            AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
             CurLine->ProcessKey(KEY_CTRLBS);
           }
         Show();
@@ -2838,8 +2835,7 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                        CurLine->GetCurPos(),UNDO_EDIT);
+        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
         CurLine->ProcessKey(Key);
         Pasting--;
         Show();
@@ -2860,8 +2856,7 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
-        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                        CurLine->GetCurPos(),UNDO_EDIT);
+        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
         CurLine->ProcessCtrlQ();
         Flags.Clear(FEDITOR_PROCESSCTRLQ);
         Pasting--;
@@ -2935,8 +2930,7 @@ int Editor::ProcessKey(int Key)
             Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             DeleteBlock();
           }
-          //AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-          //              CurLine->GetCurPos(),UNDO_EDIT);
+          //AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
 
           Paste(strTStr);
 
@@ -3118,7 +3112,7 @@ int Editor::ProcessKey(int Key)
             CurLine->GetBinaryString(&NewCmpStr,NULL,NewLength);
             if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length*sizeof(wchar_t))!=0)
             {
-              AddUndoData(CmpStr,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+              AddUndoData(CmpStr,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
               TextChanged(1);
             }
             delete[] CmpStr;
@@ -3336,8 +3330,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   TextChanged(1);
   if (DelPtr->m_next==NULL && (!DeleteLast || DelPtr->m_prev==NULL))
   {
-    AddUndoData(DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,
-                DelPtr->GetCurPos(),UNDO_EDIT);
+    AddUndoData(DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,DelPtr->GetCurPos(),UNDO_EDIT,DelPtr->GetLength());
     DelPtr->SetString(L"");
     return;
   }
@@ -3414,7 +3407,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
   if (DelPtr==VBlockStart)
     VBlockStart=VBlockStart->m_next;
   if (UndoLine!=-1)
-    AddUndoData(DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,0,UNDO_DELSTR);
+    AddUndoData(DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,0,UNDO_DELSTR,DelPtr->GetLength());
   delete DelPtr;
 }
 
@@ -3529,7 +3522,7 @@ void Editor::InsertString()
     }
 
     AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                CurLine->GetCurPos(),UNDO_EDIT);
+                CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
     BlockUndo++;
     AddUndoData(NULL,EndList==CurLine?L"":GlobalEOL,NumLine+1,0,UNDO_INSSTR); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
     BlockUndo--;
@@ -4075,8 +4068,7 @@ BOOL Editor::Search(int Next)
 
               wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
               wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
-              AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
-                          CurLine->GetCurPos(),UNDO_EDIT);
+              AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),UNDO_EDIT,CurLine->GetLength());
               CurLine->SetBinaryString(NewStr,NewStrLen);
               CurLine->SetCurPos(CurPos+RStrLen);
               if( SelectFound )
@@ -4216,7 +4208,7 @@ void Editor::Paste(const wchar_t *Src)
           int Length,CurPos;
           CurLine->GetBinaryString(&Str,NULL,Length);
           CurPos=CurLine->GetCurPos();
-          AddUndoData(Str,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+          AddUndoData(Str,CurLine->GetEOL(),NumLine,CurPos,UNDO_EDIT,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
           BlockUndo=TRUE;
           CurLine->InsertBinaryString(&ClipText[I],Pos-I);
         }
@@ -4346,8 +4338,7 @@ void Editor::DeleteBlock()
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
-      AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine,
-                  CurPtr->GetCurPos(),UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine,CurPtr->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
       UndoNext=TRUE;
     }
     /* $ 17.09.2002 SKV
@@ -4373,7 +4364,8 @@ void Editor::DeleteBlock()
       if (CurPtr->m_next!=NULL)
         DeleteNext=TRUE;
     }
-    wmemmove(TmpStr+StartSel,TmpStr+EndSel,StrLength(TmpStr+EndSel)+1);
+    // wmemmove(TmpStr+StartSel,TmpStr+EndSel,StrLength(TmpStr+EndSel)+1);
+    wmemmove(TmpStr+StartSel,TmpStr+EndSel,Length-EndSel+1);
     int CurPos=StartSel;
 /*    if (CurPos>=StartSel)
     {
@@ -4697,11 +4689,13 @@ void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
   return ;
 }
 
-void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type)
+void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type,int Length)
 {
   int PrevUndoDataPos;
   if (Flags.Check(FEDITOR_DISABLEUNDO) || !UndoData)
     return;
+  if(Length == -1 && Str)
+    Length=(int)StrLength(Str);
   if (StrNum==-1)
     StrNum=NumLine;
   if ((PrevUndoDataPos=UndoDataPos-1)<0)
@@ -4723,13 +4717,14 @@ void Editor::AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int St
   UndoData[UndoDataPos].UndoNext=BlockUndo;
   UndoData[UndoDataPos].StrPos=StrPos;
   UndoData[UndoDataPos].StrNum=StrNum;
+  UndoData[UndoDataPos].Length=Length;
   xwcsncpy(UndoData[UndoDataPos].EOL,Eol?Eol:L"",countof(UndoData[UndoDataPos].EOL)-1);
 
   if (Str!=NULL)
   {
-    UndoData[UndoDataPos].Str=new wchar_t[StrLength(Str)+1];
+    UndoData[UndoDataPos].Str=new wchar_t[Length+1];
     if (UndoData[UndoDataPos].Str!=NULL)
-      wcscpy(UndoData[UndoDataPos].Str,Str);
+      wmemmove(UndoData[UndoDataPos].Str,Str,Length);
   }
   else
     UndoData[UndoDataPos].Str=NULL;
@@ -4786,14 +4781,14 @@ void Editor::Undo()
       Pasting--;
       if (UndoData[UndoDataPos].Str!=NULL)
       {
-        CurLine->SetString(UndoData[UndoDataPos].Str);
+        CurLine->SetString(UndoData[UndoDataPos].Str,UndoData[UndoDataPos].Length);
         CurLine->SetEOL(UndoData[UndoDataPos].EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
       }
       break;
     case UNDO_EDIT:
       if (UndoData[UndoDataPos].Str!=NULL)
       {
-        CurLine->SetString(UndoData[UndoDataPos].Str);
+        CurLine->SetString(UndoData[UndoDataPos].Str,UndoData[UndoDataPos].Length);
         CurLine->SetEOL(UndoData[UndoDataPos].EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
       }
       CurLine->SetCurPos(UndoData[UndoDataPos].StrPos);
@@ -4926,7 +4921,7 @@ void Editor::BlockLeft()
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
-      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       CurPtr->SetBinaryString(TmpStr,Length);
@@ -4993,7 +4988,7 @@ void Editor::BlockRight()
       int EndLength=StrLength(EndSeq);
       wmemcpy(TmpStr+Length,EndSeq,EndLength);
       TmpStr[Length+EndLength]=0;
-      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT,CurPtr->GetLength()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       if (Length>1)
@@ -5059,8 +5054,7 @@ void Editor::DeleteVBlock()
       continue;
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,
-                CurPtr->GetCurPos(),UNDO_EDIT);
+    AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
     UndoNext=TRUE;
 
     wchar_t *TmpStr=new wchar_t[Length+3];
@@ -5156,7 +5150,7 @@ void Editor::VCopy(int Append)
   if (CopyData!=NULL)
   {
     CopyToClipboard(CopyData);
-    CopyFormatToClipboard(FAR_VerticalBlock,CopyData);
+    CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyData);
     xf_free(CopyData);
   }
 }
@@ -5290,8 +5284,7 @@ void Editor::VBlockShift(int Left)
 
 
     BlockUndo=UndoNext;
-    AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,
-                CurPtr->GetCurPos(),UNDO_EDIT);
+    AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
     UndoNext=TRUE;
 
     int StrLen=Max(Length,TBlockX+TBlockSizeX+!Left);
@@ -5483,8 +5476,7 @@ int Editor::EditorControl(int Command,void *Param)
 
         wmemcpy(NewStr,SetString->StringText,Length);
         wmemcpy(NewStr+Length,EOL,LengthEOL);
-        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),DestLine,
-                    CurPtr->GetCurPos(),UNDO_EDIT);
+        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),DestLine,CurPtr->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
 
         int CurPos=CurPtr->GetCurPos();
         CurPtr->SetBinaryString(NewStr,Length+LengthEOL);
@@ -5801,8 +5793,7 @@ int Editor::EditorControl(int Command,void *Param)
           _ECTLLOG(SysLog(L"GetStringByNumber(%d) return NULL",StringNumber));
           return FALSE;
         }
-        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),StringNumber,
-                    CurPtr->GetCurPos(),UNDO_EDIT);
+        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),StringNumber,CurPtr->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
         CurPtr->ReplaceTabs();
       }
       return TRUE;
@@ -6335,7 +6326,7 @@ void Editor::Xlat()
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
-      AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT);
+      AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
       BlockUndo=TRUE;
       ::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,Opt.XLat.Flags);
     }
@@ -6357,8 +6348,8 @@ void Editor::Xlat()
         if (StartSel==-1)
           break;
         if(EndSel == -1)
-          EndSel=StrLength(CurPtr->Str);
-        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT);
+          EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
+        AddUndoData(CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),UNDO_EDIT,CurPtr->GetLength());
         ::Xlat(CurPtr->Str,StartSel,EndSel,Opt.XLat.Flags);
         BlockUndo=TRUE;
         Line++;
@@ -6369,7 +6360,7 @@ void Editor::Xlat()
     else
     {
       wchar_t *Str=CurLine->Str;
-      int start=CurLine->GetCurPos(), end, StrSize=StrLength(Str);
+      int start=CurLine->GetCurPos(), end, StrSize=CurLine->GetLength();//StrLength(Str);
       // $ 10.12.2000 IS
       //   Обрабатываем только то слово, на котором стоит курсор, или то слово,
       //   что находится левее позиции курсора на 1 символ
@@ -6389,7 +6380,7 @@ void Editor::Xlat()
         end=start+1;
         while(end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
           end++;
-        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,start,UNDO_EDIT);
+        AddUndoData(CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,start,UNDO_EDIT,CurLine->GetLength());
         ::Xlat(Str,start,end,Opt.XLat.Flags);
       }
     }

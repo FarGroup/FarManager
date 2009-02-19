@@ -52,6 +52,10 @@ static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
     {
       return 0xFEB0;
     }
+    else if(!StrCmp(lpszFormat,FAR_VerticalBlock_Unicode))
+    {
+      return 0xFEB1;
+    }
     return 0;
   }
   return RegisterClipboardFormatW(lpszFormat);
@@ -186,10 +190,17 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 
 
 /* ------------------------------------------------------------ */
-
+// Перед вставкой производится очистка буфера
 int WINAPI CopyToClipboard(const wchar_t *Data)
 {
-  return InternalCopyToClipboard(Data,0);
+  if (!FAR_OpenClipboard(NULL))
+    return(FALSE);
+  FAR_EmptyClipboard();
+  FAR_CloseClipboard();
+  if(Data && *Data)
+    return InternalCopyToClipboard(Data,0);
+  else
+    return TRUE;
 }
 
 int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
@@ -197,7 +208,6 @@ int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
   long DataSize;
   if (!FAR_OpenClipboard(NULL))
     return(FALSE);
-  FAR_EmptyClipboard();
   if (Data!=NULL && (DataSize=(long)StrLength(Data))!=0)
   {
     HGLOBAL hData;
@@ -221,6 +231,7 @@ int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
 }
 
 
+// вставка без очистки буфера - на добавление
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
 {
   int FormatType=FAR_RegisterClipboardFormat(Format);
@@ -408,13 +419,19 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 {
-  int FormatType=FAR_RegisterClipboardFormat(Format);
+  UINT FormatType=FAR_RegisterClipboardFormat(Format);
   if (FormatType==0)
     return(NULL);
+
+  if(!StrCmp(Format,FAR_VerticalBlock))
+    FormatType=CF_UNICODETEXT;
+
   if (!FAR_OpenClipboard(NULL))
     return(NULL);
+
   HANDLE hClipData;
   wchar_t *ClipText=NULL;
+
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
@@ -427,6 +444,8 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
       GlobalUnlock(hClipData);
     }
   }
+
   FAR_CloseClipboard();
+
   return(ClipText);
 }

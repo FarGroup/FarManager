@@ -1551,7 +1551,10 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
-    xwcsncpy(Str, Edit::Str,MaxSize-1);
+    //xwcsncpy(Str, Edit::Str,MaxSize-1);
+    wmemmove(Str,Edit::Str,Min(StrSize,MaxSize-1));
+    Str[Min(StrSize,MaxSize-1)]=0;
+    Str[MaxSize-1]=0;
 }
 
 void Edit::GetString(string &strStr)
@@ -1579,12 +1582,12 @@ void  Edit::SetHiString(const wchar_t *Str)
   SetBinaryString(NewStr,StrLength(NewStr));
 }
 
-void Edit::SetString(const wchar_t *Str)
+void Edit::SetString(const wchar_t *Str, int Length)
 {
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   Select(-1,0);
-  SetBinaryString(Str,StrLength(Str));
+  SetBinaryString(Str,Length==-1?(int)StrLength(Str):Length);
 }
 
 void Edit::SetEOL(const wchar_t *EOL)
