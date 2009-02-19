@@ -116,9 +116,41 @@ void InitKeysArray()
   int I;
   HKL Layout[10];
 
-	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout);
+  int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
 
-  if (LayoutNumber<5)
+	if (LayoutNumber==0)
+	{
+		HKEY hk=NULL;
+		DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
+		char SData[16], SValue[16];
+		if (RegOpenKeyExA(HKEY_CURRENT_USER, "Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
+		{
+			for (dwIndex=0; dwIndex < (int)countof(Layout); dwIndex++)
+			{
+				if (ERROR_SUCCESS==RegEnumValueA(hk, dwIndex, SValue, &(dwValueSize=16), NULL, &dwType,
+					(LPBYTE)SData, &(dwDataSize=16*sizeof(char))))
+				{
+					if (dwType == REG_SZ && isdigit(SValue[0]) &&
+						(isdigit(SData[0]) || (SData[0]>='a' && SData[0]<='f') || (SData[0]>='A' && SData[0]<='F')))
+					{
+						char *endptr=NULL;
+						dwKeyb=strtoul(SData, &endptr, 16); // SData=="00000419"
+						if (dwKeyb)
+						{
+							if (dwKeyb <= 0xFFFF)
+								dwKeyb |= (dwKeyb << 16);
+							Layout[LayoutNumber++] = (HKL)((DWORD_PTR)dwKeyb);
+						}
+					}
+				}
+				else
+					break;
+			}
+			RegCloseKey(hk);
+		}
+	}
+
+  if (LayoutNumber < (int)countof(Layout))
   {
     if(!Opt.HotkeyRules)
     {

@@ -423,7 +423,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
   if (FormatType==0)
     return(NULL);
 
-  if(!StrCmp(Format,FAR_VerticalBlock))
+  if(!StrCmp(Format,FAR_VerticalBlock) && IsClipboardFormatAvailable(FormatType))
     FormatType=CF_UNICODETEXT;
 
   if (!FAR_OpenClipboard(NULL))

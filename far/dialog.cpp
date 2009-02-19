@@ -4471,10 +4471,10 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   int UpperStrKey=Upper ((int)Str[AmpPos]);
   if (Key < 0xFFFF)
   {
-    int KeyToKey=LocalKeyToKey(Key);
+    int KeyToKey=LocalKeyToKey(Key); // может возвращать 0 под telnet
     return UpperStrKey == (int)Upper(Key) ||
            (Translate && ((!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey)) ||
-           (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey)));
+           (Opt.HotkeyRules && KeyToKey && LocalKeyToKey(UpperStrKey)==KeyToKey)));
   }
 
   if(Key&KEY_ALT)
