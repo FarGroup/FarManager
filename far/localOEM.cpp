@@ -121,24 +121,29 @@ void InitKeysArray()
 	if (LayoutNumber==0)
 	{
 		HKEY hk=NULL;
-		DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
-		char SData[16], SValue[16];
-		if (RegOpenKeyExA(HKEY_CURRENT_USER, "Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
+		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
 		{
+			DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
+			wchar_t SData[16], SValue[16];
+
 			for (dwIndex=0; dwIndex < (int)countof(Layout); dwIndex++)
 			{
-				if (ERROR_SUCCESS==RegEnumValueA(hk, dwIndex, SValue, &(dwValueSize=16), NULL, &dwType,
-					(LPBYTE)SData, &(dwDataSize=16*sizeof(char))))
+				dwValueSize=16;
+				dwDataSize=16*sizeof(wchar_t);
+
+				if (ERROR_SUCCESS==RegEnumValueW(hk, dwIndex, SValue, &dwValueSize, NULL, &dwType,(LPBYTE)SData, &dwDataSize))
 				{
 					if (dwType == REG_SZ && isdigit(SValue[0]) &&
-						(isdigit(SData[0]) || (SData[0]>='a' && SData[0]<='f') || (SData[0]>='A' && SData[0]<='F')))
+						(isdigit(SData[0]) || (SData[0] >= L'a' && SData[0] <= L'f') || (SData[0] >= L'A' && SData[0] <= L'F')))
 					{
-						char *endptr=NULL;
-						dwKeyb=strtoul(SData, &endptr, 16); // SData=="00000419"
+						wchar_t *endptr=NULL;
+						dwKeyb=wcstoul(SData, &endptr, 16); // SData=="00000419"
+
 						if (dwKeyb)
 						{
 							if (dwKeyb <= 0xFFFF)
 								dwKeyb |= (dwKeyb << 16);
+
 							Layout[LayoutNumber++] = (HKL)((DWORD_PTR)dwKeyb);
 						}
 					}
