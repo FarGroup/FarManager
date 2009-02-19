@@ -123,6 +123,7 @@ BOOL ProcessShowClock=FALSE;
 const char *FarTitleAddons=" - Far";
 
 const char FAR_VerticalBlock[]= "FAR_VerticalBlock";
+const char FAR_VerticalBlock_Unicode[]= "FAR_VerticalBlock_Unicode";
 
 int InGrabber=FALSE;
 
@@ -169,4 +170,3 @@ int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
 int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
-

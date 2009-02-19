@@ -1655,10 +1655,12 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 /* SVS $ */
 
 
-void Edit::GetString(char *Str,int MaxSize)
+void Edit::GetString(char *pStr,int MaxSize)
 {
-  xstrncpy(Str,Edit::Str,MaxSize-1);
-  Str[MaxSize-1]=0;
+  //xstrncpy(Str,Edit::Str,MaxSize-1);
+  memmove(pStr,Str,Min(StrSize,MaxSize-1));
+  pStr[Min(StrSize,MaxSize-1)]=0;
+  pStr[MaxSize-1]=0;
 }
 
 
@@ -1687,13 +1689,13 @@ void  Edit::SetHiString(const char *Str)
    примечание:
    в этом методе DropDownBox не обрабатывается
    ибо именно этот метод вызывается для установки из истории */
-void Edit::SetString(const char *Str)
+void Edit::SetString(const char *Str, int Length)
 {
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
 
   Select(-1,0);
-  SetBinaryString(Str,(int)strlen(Str));
+  SetBinaryString(Str,Length==-1?(int)strlen(Str):Length);
 }
 
 

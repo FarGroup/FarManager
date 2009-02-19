@@ -49,6 +49,7 @@ struct EditorUndoData
   int StrPos;
   int StrNum;
   char EOL[10];
+  int Length;
   char *Str;
 };
 
@@ -190,7 +191,7 @@ class Editor:public ScreenObject
     void UnmarkEmptyBlock();
     void UnmarkMacroBlock();
 
-    void AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type);
+    void AddUndoData(const char *Str,const char *Eol,int StrNum,int StrPos,int Type,int Length=-1);
     void Undo();
     void SelectAll();
     void SetStringsTable();

@@ -43,6 +43,8 @@ FINALPATH=$(OUTPATH)
 # путь к каталогу с временными файлами - obj, etc
 OBJPATH=$(OUTPATH)\OBJ
 
+OUTDIR=$(OUTPATH)
+
 .path.obj = $(OBJPATH)
 .path.cpp = .
 .path.c   = .
@@ -101,6 +103,7 @@ CCFLAGS =
 
 RESFLAGS = -i$(INCLUDEPATH)
 
+DEPFILE=far.bc.dep
 
 FAROBJ=\
    $(OBJPATH)\checkver.obj\
@@ -222,8 +225,24 @@ FAROBJ=\
 
 
 # ************************************************************************
-ALL : lang.hpp BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
+ALL :  AllDirs lng depfile $(FINALPATH)\Far.exe
 	@echo MakeNode
+
+.PHONY: lng
+lng: farlang.templ
+	@echo generating language files
+	@tools\lng.generator.exe -nc -i lang.ini -ol "$(OUTPATH)" farlang.templ
+
+.PHONY: depfile
+depfile:
+	@tools\gawk -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
+
+.PHONY: AllDirs
+AllDirs:
+	@if not exist "$(OUTPATH)\$(NULL)" mkdir "$(OUTPATH)"
+	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
+	@if not exist "$(OBJPATH)\$(NULL)" mkdir "$(OBJPATH)"
+
 
 # все эти зависимости не нужны
 # просто описываем одно правило и все %)
@@ -243,33 +262,48 @@ $(OBJPATH)\flink.obj: flink.cpp cc.bat
 $(OBJPATH)\copy.obj: copy.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
-farversion.inc:
+
+copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P copyright.inc.m4 > copyright.inc.temp
+	@tools\gawk -f .\scripts\enc.awk copyright.inc.temp > copyright.inc
+
+farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
 	@tools\m4 -P farversion.inc.m4 > farversion.inc
 
-copyright.inc:
-	@tools\m4 -P copyright.inc.m4 > copyright.inc
+Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P Far.exe.manifest.m4 > Far.exe.manifest
 
-lang.hpp : farlang.templ
-	@tools\lng.generator.exe -nc -i lang.ini farlang.templ
-
-far.rc : far.rc.m4 farversion.m4 vbuild.m4
+far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 Far.exe.manifest res.hpp
+	@echo generating $@
 	@tools\m4 -P far.rc.m4 > far.rc
 
+farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P farlang.templ.m4 > farlang.templ
 
-# ************************************************************************
-# Зависимости для публичных файлов
-# ************************************************************************
-$(FARINCLUDE)\farcolor.hpp : colors.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
+$(FARINCLUDE)\farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P -DINPUT=colors.hpp headers.m4 > "$(FARINCLUDE)\farcolor.hpp"
 
-$(FARINCLUDE)\farkeys.hpp : keys.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
+$(FARINCLUDE)\farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P -DINPUT=keys.hpp headers.m4   > "$(FARINCLUDE)\farkeys.hpp"
 
-$(FARINCLUDE)\plugin.hpp : plugin.hpp
-	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-	-@tools\gawk -f scripts/plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
+$(FARINCLUDE)\plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\m4 -P -DINPUT=plugin.hpp headers.m4 > "$(FARINCLUDE)\plugin.hpp"
+
+"$(OUTDIR)\FarEng.hlf": FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarEng.hlf"
+
+"$(OUTDIR)\FarRus.hlf": FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P > "$(OUTDIR)\FarRus.hlf"
+
 
 
 # ************************************************************************
@@ -281,7 +315,7 @@ $(OBJPATH)\Far.res :  Far.rc
 |
 
 !ifdef ILINK
-$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
+$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest far.rc copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
 	-@settitle "Linking..."
 	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
@@ -294,7 +328,7 @@ Far.def
 $(OBJPATH)\Far.res
 |
 !else
-$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
+$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest far.rc copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
 	-@settitle "Linking..."
 	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
@@ -310,19 +344,10 @@ Far.def
 !endif
 
 # обязательно! Что бы в ручную не делать...
-	-@if not exist $(FINALPATH)\FarEng.hlf del $(FINALPATH)\FarEng.hlf  >nul
-	-@if not exist $(FINALPATH)\FarRus.hlf del $(FINALPATH)\FarRus.hlf  >nul
 	-@if not exist $(FINALPATH)\FarEng.lng del $(FINALPATH)\FarEng.lng  >nul
 	-@if not exist $(FINALPATH)\FarRus.lng del $(FINALPATH)\FarRus.lng  >nul
-	@tools\gawk -f .\scripts\mkhlf.awk FarEng.hlf.m4 | tools\m4 -P > "$(FINALPATH)\FarEng.hlf"
-	@tools\gawk -f .\scripts\mkhlf.awk FarRus.hlf.m4 | tools\m4 -P > "$(FINALPATH)\FarRus.hlf"
-	@copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
-	@copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
-	-@if exist plugin.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
-	-@if exist fmt.hpp tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) fmt.hpp > $(FARINCLUDE)\fmt.hpp
-	-@if exist fmt.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
-	-@if exist farcolor.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
-	-@if exist farkeys.pas tools\gawk -f scripts\plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
+	-@copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
+	-@copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 
 
 # Compiler configuration file
@@ -351,7 +376,6 @@ BccW32.cfg : mkfar.mak cc.bat
 -x
 -I$(INCLUDEPATH)
 $(USE_WFUNC)
-$(FAR_ANSI)
 $(FARCMEM)
 $(FARALLOC)
 $(PRECOMPOPT)

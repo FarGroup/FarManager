@@ -3437,7 +3437,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       if(FreeBytes>(UINT64)SrcSize.QuadPart)
       {
         LARGE_INTEGER CurPtr={0};
-        CurPtr.LowPart=SetFilePointer(DestHandle,0,&CurPtr.HighPart,FILE_CURRENT);
+        CurPtr.u.LowPart=SetFilePointer(DestHandle,0,&CurPtr.u.HighPart,FILE_CURRENT);
         if(FAR_SetFilePointerEx(DestHandle,SrcSize,NULL,FILE_CURRENT) && SetEndOfFile(DestHandle))
             FAR_SetFilePointerEx(DestHandle,CurPtr,NULL,FILE_BEGIN);
       }
@@ -3651,8 +3651,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
               nFileSize.u.LowPart=SplitData.nFileSizeLow;
               nFileSize.u.HighPart=SplitData.nFileSizeHigh;
               nFileSize.QuadPart-=FilePtr.QuadPart;
-              SplitData.nFileSizeHigh=nFileSize.HighPart;
-              SplitData.nFileSizeLow=nFileSize.LowPart;
+              SplitData.nFileSizeHigh=nFileSize.u.HighPart;
+              SplitData.nFileSizeLow=nFileSize.u.LowPart;
               int RetCode;
               if (!AskOverwrite(SplitData,SrcName,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode))
               {

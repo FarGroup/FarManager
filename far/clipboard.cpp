@@ -379,22 +379,46 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
 
 char* PasteFormatFromClipboard(const char *Format)
 {
-  int FormatType=FAR_RegisterClipboardFormat(Format);
+  bool isUnicodeVBlock=false;
+
+  UINT FormatType=FAR_RegisterClipboardFormat(Format);
   if (FormatType==0)
     return(NULL);
+
+  if(!strcmp(Format,FAR_VerticalBlock) && !IsClipboardFormatAvailable(FormatType))
+  {
+    FormatType=FAR_RegisterClipboardFormat(FAR_VerticalBlock_Unicode);
+    isUnicodeVBlock=true;
+  }
+
+  if (FormatType==0 || !IsClipboardFormatAvailable(FormatType))
+    return(NULL);
+
   if (!FAR_OpenClipboard(NULL))
     return(NULL);
+
   HANDLE hClipData;
+
   char *ClipText=NULL;
   if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
   {
     char *ClipAddr=(char *)GlobalLock(hClipData);
     if (ClipAddr)
     {
-      int BufferSize=(int)strlen(ClipAddr)+1;
+      int BufferSize;
+      if(isUnicodeVBlock)
+        BufferSize=(int)lstrlenW((LPCWSTR)ClipAddr)+1;
+      else
+        BufferSize=(int)strlen(ClipAddr)+1;
+
       ClipText=(char *)xf_malloc(BufferSize);
       if (ClipText!=NULL)
-        strcpy(ClipText,ClipAddr);
+      {
+        if(isUnicodeVBlock)
+          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
+        else
+          strcpy(ClipText,ClipAddr);
+      }
       GlobalUnlock(hClipData);
     }
   }
