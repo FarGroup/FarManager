@@ -544,9 +544,6 @@ struct Options
   int ExecuteFullTitle;
   char ExecuteBatchType[256];
 
-#if defined(FAR_ANSI)
-  int FarAnsi;
-#endif
   DWORD PluginMaxReadData;
   int UseNumPad;
   int UseUnicodeConsole;

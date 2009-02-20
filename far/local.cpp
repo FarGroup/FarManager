@@ -30,27 +30,13 @@ void LocalUpperInit()
   {
     CvtStr[0]=I;
     LowerToUpper[I]=UpperToLower[I]=I;
-#if defined(FAR_ANSI)
-    OemToChar((char *)CvtStr,(char *)CvtStr);
-    CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
-#else
     FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
     FAR_CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
-#endif
     IsUpperOrLower[I]=0;
     if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
       IsUpperOrLower[I]=IsCharLower(CvtStr[0])?1:(IsCharUpper(CvtStr[0])?2:0);
       CharUpper((char *)CvtStr);
-#if defined(FAR_ANSI)
-      CharToOem((char *)CvtStr,(char *)CvtStr);
-      LowerToUpper[I]=CvtStr[0];
-      CvtStr[0]=I;
-      OemToChar((char *)CvtStr,(char *)CvtStr);
-      CharLower((char *)CvtStr);
-      CharToOem((char *)CvtStr,(char *)CvtStr);
-      UpperToLower[I]=CvtStr[0];
-#else
       FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
       CvtStr[0]=I;
@@ -58,7 +44,6 @@ void LocalUpperInit()
       CharLower((char *)CvtStr);
       FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
       UpperToLower[I]=CvtStr[0];
-#endif
     }
   }
 }
@@ -115,7 +100,48 @@ void InitKeysArray()
 
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
 
-  if (LayoutNumber<5)
+  // если ошибка (например, под телнетом, Mantis#0000710), то возьмем данные из реестра
+  if(!LayoutNumber)
+  {
+    char OldRegRoot[sizeof(Opt.RegRoot)];
+    strcpy(OldRegRoot,Opt.RegRoot);
+    strcpy(Opt.RegRoot,"Keyboard Layout");
+    int Index=0;
+    char sValName[32],SData[32];
+    int IndexLayout=0;
+    int RetCode;
+
+    *SData=0;
+    LayoutNumber=0;
+    while((RetCode=EnumRegValue("Preload",Index,sValName,(DWORD)(sizeof(sValName)-1),(LPBYTE)SData,(DWORD)(sizeof(SData)-1))) != REG_NONE)
+    {
+      // значение "число" и оно строковое?
+      if(isdigit(sValName[0]) && RetCode == REG_SZ)
+      {
+        // SData=="00000419"
+        char *endptr;
+        DWORD dwRes=strtoul(SData, &endptr, 16);
+        if (dwRes && dwRes <= 0xFFFF)
+        {
+          dwRes|=dwRes<<16;
+          Layout[LayoutNumber++] = (HKL)(DWORD_PTR)dwRes;
+
+          if(LayoutNumber > (int)(sizeof(Layout)/sizeof(Layout[0])))
+          {
+            LayoutNumber--;
+            break;
+          }
+        }
+      }
+
+      *SData=0;
+      Index++;
+    }
+
+    strcpy(Opt.RegRoot,OldRegRoot);
+  }
+
+  if (LayoutNumber < sizeof(Layout)/sizeof(Layout[0]))
   {
     /* $ 08.11.2000 SVS
        »зменен массив клавиш Keys - теперь содержит сканкоды.
@@ -135,11 +161,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
-#if defined(FAR_ANSI)
-          CharToOem((char *)CvtStr,(char *)CvtStr);
-#else
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-#endif
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -162,11 +184,7 @@ void InitKeysArray()
           if (AnsiKey==0xFF)
             continue;
           CvtStr[0]=I;
-#if defined(FAR_ANSI)
-          CharToOem((char *)CvtStr,(char *)CvtStr);
-#else
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-#endif
           KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
 /*
           DWORD MapKey=MapVirtualKey(AnsiKey,2);
@@ -207,11 +225,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-#if defined(FAR_ANSI)
-  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#else
   FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#endif
   return(IsCharAlpha(CvtStr[0]));
 }
 
@@ -222,11 +236,7 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-#if defined(FAR_ANSI)
-  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#else
   FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
-#endif
   return(IsCharAlphaNumeric(CvtStr[0]));
 }
 
@@ -436,12 +446,7 @@ int _cdecl LCSort(const void *el1,const void *el2)
   Str2[0]=*(char *)el2;
   Str1[1]=Str2[1]=0;
   Str1[2]=Str2[2]=0;
-#if defined(FAR_ANSI)
-  OemToCharBuff(Str1,Str1,1);
-  OemToCharBuff(Str2,Str2,1);
-#else
   FAR_OemToCharBuff(Str1,Str1,1);
   FAR_OemToCharBuff(Str2,Str2,1);
-#endif
   return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }

@@ -82,11 +82,6 @@ printf(
     );
   }
 #endif
-#if defined(FAR_ANSI)
-printf(
-" /fa  Use ANSI codepage.\n"
-);
-#endif
 printf(
 " /e[<line>[:<pos>]] <filename>\n"
 "      Edit the specified file.\n"
@@ -446,17 +441,6 @@ int _cdecl main(int Argc, char *Argv[])
             I++;
           }
           break;
-#if defined(FAR_ANSI)
-        case 'F':
-          switch (toupper(Argv[I][2]))
-          {
-            case 'A':
-              if(!Argv[I][3])
-                Opt.FarAnsi=TRUE;
-              break;
-          }
-          break;
-#endif
         case 'V':
           if (I+1<Argc)
           {
