@@ -254,12 +254,16 @@ static size_t mwcslen( const wchar_t *str, size_t maxsize=0 )
     return sz+1;
 }
 
-HANDLE OpenProcessForced(DWORD dwFlags, DWORD dwProcessId, BOOL bInh)
+HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BOOL bInh)
 {
-    SetLastError(0);
     HANDLE hProcess = OpenProcess(dwFlags, bInh, dwProcessId);
-    if(GetLastError()==ERROR_ACCESS_DENIED && ChangePrivileges(TRUE,FALSE))
-      hProcess = OpenProcess(dwFlags, bInh, dwProcessId);
+    if(hProcess==NULL && GetLastError()==ERROR_ACCESS_DENIED)
+    {
+      if (token->Enable())
+      {
+        hProcess = OpenProcess(dwFlags, bInh, dwProcessId);
+      }
+    }
     return hProcess;
 }
 
@@ -462,61 +466,138 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
     }
 }
 
-BOOL ChangePrivileges(BOOL bAdd, BOOL bAsk)
+volatile HANDLE DebugToken::hDebugToken = NULL;
+
+bool DebugToken::Enable()
 {
-    static BOOL bPrivChanged = FALSE;
+  if (enabled || hDebugToken == NULL)
+    return true;
 
-    if(bAdd==bPrivChanged)
-      return TRUE;
+  BOOL rc = OpenThreadToken(GetCurrentThread(), TOKEN_IMPERSONATE, TRUE, &hSavedToken);
+  if (!rc)
+  {
+    hSavedToken = NULL;
+    if (GetLastError()==ERROR_NO_TOKEN)
+      rc = ERROR_SUCCESS;
+    else
+      return false;
+  }
 
-    if(bAdd && bAsk)
+  rc = SetThreadToken(NULL, hDebugToken);
+  if (!rc)
+  {
+    if (hSavedToken != NULL)
     {
-      const TCHAR *MsgItems[]={ GetMsg(MDeleteTitle),
-        GetMsg(MCannotDeleteProc), GetMsg(MRetryWithDebug),
-        GetMsg(MDangerous), GetMsg(MYes), GetMsg(MNo)};
-      if(Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)!=0)
-        return FALSE;
+      CloseHandle(hSavedToken);
+      hSavedToken = NULL;
     }
-    static HANDLE hToken=0;
-    static CRITICAL_SECTION cs;
-    if(!*(DWORD*)&cs)
-      InitializeCriticalSection(&cs);
-    EnterCriticalSection(&cs);
+    return false;
+  }
 
-    BOOL rc = FALSE;
-    if (hToken || OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken))
-    {
-       TOKEN_PRIVILEGES tp;
-       tp.PrivilegeCount = 1;
-       SetLastError(0);
-       LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
-       tp.Privileges[0].Attributes = bAdd ? SE_PRIVILEGE_ENABLED : 0;
-       SetLastError(0);
-       AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), NULL, NULL);
-       rc = GetLastError()==0;
-       if(rc) bPrivChanged = bAdd;
-    }
+  enabled = true;
+  return true;
+}
 
-   LeaveCriticalSection(&cs);
-   return rc;
+bool DebugToken::Revert()
+{
+  if (!enabled)
+    return true;
+
+  BOOL rc = SetThreadToken(NULL, hSavedToken);
+  if (!rc)
+    return false;
+
+  if (hSavedToken != NULL)
+  {
+    CloseHandle(hSavedToken);
+    hSavedToken = NULL;
+  }
+
+  enabled = false;
+  return true;
+}
+
+bool DebugToken::CreateToken()
+{
+  HANDLE hProcessToken = NULL;
+  BOOL rc = OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE, &hProcessToken);
+  if (!rc)
+    return false;
+
+  HANDLE hToken = NULL;
+  rc = DuplicateTokenEx(
+         hProcessToken,
+         TOKEN_IMPERSONATE | TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES,
+         NULL,
+         SecurityImpersonation,
+         TokenImpersonation,
+         &hToken);
+
+  if (!rc)
+  {
+    CloseHandle(hProcessToken);
+    return false;
+  }
+
+  TOKEN_PRIVILEGES tp;
+  tp.PrivilegeCount = 1;
+  tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+  rc = LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
+  if (!rc)
+  {
+    CloseHandle(hToken);
+    CloseHandle(hProcessToken);
+    return false;
+  }
+
+  rc = AdjustTokenPrivileges(
+         hToken,
+         FALSE,
+         &tp,
+         sizeof(tp),
+         NULL,
+         NULL);
+
+  if (!rc)
+  {
+    CloseHandle(hToken);
+    CloseHandle(hProcessToken);
+    return false;
+  }
+
+  hDebugToken = hToken;
+  return true;
+}
+
+void DebugToken::CloseToken()
+{
+  CloseHandle(hDebugToken);
+  hDebugToken = NULL;
 }
 
 BOOL KillProcessNT(DWORD pid,HWND hwnd)
 {
-  HANDLE hProcess;
-  BOOL bPrivilegesAdded = FALSE;
+  DebugToken token;
+  HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, pid );
 
-  while(1)
+  // If access denied, try to assign debug privileges
+  if (hProcess==NULL && GetLastError()==ERROR_ACCESS_DENIED)
   {
-      SetLastError(0);
-      hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, pid );
-      if(hProcess || bPrivilegesAdded)
-      break;
-      // If access denied, try to assign debug privileges
-      if(GetLastError()!=ERROR_ACCESS_DENIED ||
-      !ChangePrivileges(TRUE,TRUE))
-      break;
-      bPrivilegesAdded = TRUE;
+    const TCHAR *MsgItems[]=
+    {
+      GetMsg(MDeleteTitle),
+      GetMsg(MCannotDeleteProc),
+      GetMsg(MRetryWithDebug),
+      GetMsg(MDangerous),
+      GetMsg(MYes),
+      GetMsg(MNo)
+    };
+
+    if(Message(FMSG_WARNING,NULL,MsgItems,ArraySize(MsgItems),2)==0)
+    {
+      if (token.Enable())
+        hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, pid );
+    }
   }
 
   BOOL bRet = FALSE;
@@ -526,8 +607,6 @@ BOOL KillProcessNT(DWORD pid,HWND hwnd)
     bRet = TerminateProcess( hProcess, 1 );
     CloseHandle( hProcess );
   }
-  if(bPrivilegesAdded)
-      ChangePrivileges(FALSE,FALSE);
 
   return bRet;
 }
@@ -660,10 +739,8 @@ void PrintModuleVersion(HANDLE InfoFile, TCHAR* pVersion, TCHAR* pDesc, int len)
 void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 {
     ModuleData Data;
-    HANDLE hProcess =
-    OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL, FALSE, dwPID);
-    if(GetLastError()==ERROR_ACCESS_DENIED && ChangePrivileges(TRUE,FALSE))
-    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL , FALSE, dwPID);
+    DebugToken token;
+    HANDLE hProcess = OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL, dwPID);
     PROCESS_PARAMETERS* pProcessParams;
     char *pEnd;
     if(hProcess && GetInternalProcessData( hProcess, &Data, pProcessParams, pEnd, true)) {

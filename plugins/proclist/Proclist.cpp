@@ -34,9 +34,19 @@ extern "C"{
 BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
 {
   (void) lpReserved;
-  if(dwReason == DLL_PROCESS_ATTACH)
+
+  BOOL rc = TRUE;
+  switch(dwReason)
+  {
+    case DLL_PROCESS_ATTACH:
       DisableThreadLibraryCalls(hDll);
-  return TRUE;
+      break;
+    case DLL_PROCESS_DETACH:
+      DebugToken::CloseToken();
+      break;
+  }
+
+  return rc;
 }
 
 #ifndef __GNUC__
@@ -177,6 +187,9 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   FSF.sprintf(PluginRootKey,_T("%s\\Plist"),Info->RootKey);
   _ui64Table = new ui64Table;
   Opt.Read();
+
+  if (NT)
+    DebugToken::CreateToken();
 }
 
 

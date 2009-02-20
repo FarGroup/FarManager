@@ -70,8 +70,8 @@ class WMIConnection {
 
   public:
 
-    WMIConnection() { pIWbemServices = NULL; hrLast = 0; }
-    ~WMIConnection() { Disconnect(); }
+    WMIConnection();
+    ~WMIConnection();
     operator bool () { return pIWbemServices!=0; }
     bool Connect(LPCTSTR pMachineName, LPCTSTR pUser=0, LPCTSTR pPassword=0);
     void Disconnect();

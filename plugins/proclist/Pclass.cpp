@@ -673,8 +673,8 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
             if (*((ProcessDataNT*)pdata)->CommandLine)
                 fprintf(InfoFile, _T("\n%s:\n%s\n"), GetMsg(MCommandLine), OUT_STRING(((ProcessDataNT*)pdata)->CommandLine));
 
-            SetLastError(0);
-            hProcess = OpenProcessForced(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL,pdata->dwPID);
+            DebugToken token;
+            hProcess = OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL,pdata->dwPID);
 
             if(hProcess) {
                 PrintNTCurDirAndEnv(InfoFile, hProcess, Opt.ExportEnvironment);
@@ -690,7 +690,6 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
                 if(pd.dwUSERObjects)
                     fprintf(InfoFile,_T("%s %u\n"),PrintTitle(MUSERObjects), pd.dwUSERObjects);
             }
-            ChangePrivileges(FALSE,FALSE);
         }// NT && !*HostName
 
         if(Opt.ExportPerformance && pPerfThread)
@@ -1271,6 +1270,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
               HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
         const int N = bNewPri ? ArraySize(PrClasses2k) : ArraySize(PrClasses);
 
+        DebugToken token;
         for(int i=0; i<PInfo.SelectedItemsNumber; i++)
         {
 #ifndef UNICODE
@@ -1283,9 +1283,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             if(((ProcessData*)Item.UserData)->dwPID) {
 
                 if(!*HostName) {
-                    HANDLE hProcess=OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,FALSE,((ProcessData*)Item.UserData)->dwPID);
-                    if(GetLastError()==ERROR_ACCESS_DENIED && ChangePrivileges(TRUE,FALSE))
-                        hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION, FALSE, ((ProcessData*)Item.UserData)->dwPID);
+                    HANDLE hProcess=OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,((ProcessData*)Item.UserData)->dwPID);
                     if(hProcess) {
                         DWORD dwPriorityClass = GetPriorityClass(hProcess);
                         if(dwPriorityClass==0)
@@ -1339,7 +1337,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&Item);
 #endif
         }
-        ChangePrivileges(FALSE,FALSE);
+        token.Revert();
         /*    // Copy flags from SelectedItems to PanelItems
         for(int i1=0; i1<PInfo.SelectedItemsNumber; i1++)
         for(int i2=0; i2<PInfo.ItemsNumber; i2++)

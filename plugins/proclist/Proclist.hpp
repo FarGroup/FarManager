@@ -197,7 +197,28 @@ int GetRegKey(LPCTSTR Key,LPCTSTR ValueName,DWORD Default);
 void DeleteRegKey(LPCTSTR Key);
 
 int WinError(TCHAR* pSourceModule=0, BOOL bDown=FALSE);
-BOOL ChangePrivileges(BOOL bAdd, BOOL bAsk);
+
+class DebugToken
+{
+    // Debug thread token
+    static volatile HANDLE hDebugToken;
+
+    // Saved impersonation token
+    HANDLE hSavedToken;
+
+    bool saved;
+    bool enabled;
+
+  public:
+    DebugToken(): hSavedToken(NULL), saved(false), enabled(false) {}
+    ~DebugToken() { Revert(); }
+
+    bool Enable();
+    bool Revert();
+
+    static bool CreateToken();
+    static void CloseToken();
+};
 
 #ifndef UNICODE
 class OemString {
@@ -223,7 +244,7 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName=0, DWORD cbProces
         TCHAR* pFullPath=0, DWORD cbFullPath=0, TCHAR* pCommandLine=0, DWORD cbCommandLine=0,
         TCHAR** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
 
-HANDLE OpenProcessForced(DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
+HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
 enum { SM_CUSTOM=64, SM_PID, SM_PARENTPID, SM_PRIOR, SM_PERFCOUNTER,  SM_PERSEC=128 };
 

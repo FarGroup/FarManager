@@ -138,11 +138,11 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
     }
     delete buf;
 
-    Refresh();
-
     hEvtBreak = CreateEvent(0, 0, 0, 0);
     hEvtRefresh = CreateEvent(0, 0, 0, 0);
     hEvtRefreshDone = CreateEvent(0, 0, 0, 0);
+
+    Refresh();
 
     hThread = CreateThread(0, 0, ThreadProc, this, 0, &dwThreadId);
     bOK = true;
@@ -174,6 +174,7 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads) const
 
 void PerfThread::Refresh()
 {
+    DebugToken token;
     DWORD dwTicksBeforeRefresh = GetTickCount();
 
     // allocate the initial buffer for the performance data
@@ -329,7 +330,7 @@ void PerfThread::Refresh()
         }
         else {
           HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
-                OpenProcessForced(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
+                OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
           if(hProcess) {
             GetOpenProcessDataNT(hProcess, Task.ProcessName, ArraySize(Task.ProcessName),
                 Task.FullPath, ArraySize(Task.FullPath), Task.CommandLine, ArraySize(Task.CommandLine));
@@ -372,7 +373,6 @@ void PerfThread::Refresh()
     }
 //    if(!PlistPlugin.PostUpdate())
     bUpdated = true;
-    ChangePrivileges(FALSE,FALSE);
 
     dwLastRefreshTicks = GetTickCount() - dwTicksBeforeRefresh;
     SetEvent(hEvtRefreshDone);

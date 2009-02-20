@@ -42,6 +42,17 @@ ProcessPath::ProcessPath(DWORD dwPID)
     PathStr = SysAllocString(path);
 }
 
+WMIConnection::WMIConnection(): pIWbemServices(NULL), hrLast(0)
+{
+  CoInitialize(NULL);
+}
+
+WMIConnection::~WMIConnection()
+{
+  Disconnect();
+  CoUninitialize();
+}
+
 void WMIConnection::GetProcessExecutablePath(DWORD dwPID, TCHAR* pPath)
 {
     hrLast = WBEM_S_NO_ERROR;
@@ -234,7 +245,6 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
         pUser = pPassword = 0; // Empty username means default security
 
     hrLast = WBEM_S_NO_ERROR;
-    CoInitialize(0);
 
     //nt 3.51 dont' have CoInitializeSecurity
     // It must called per thread, otherwise returns

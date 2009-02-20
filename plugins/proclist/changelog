@@ -1,3 +1,11 @@
+svs 20.02.2009 13:07:37 +0300 - build 148
+
+1. Mantis#0000729: Resource leaks в плагине Proclist.
+   (from alexeypa)
+   1. Fixed resource leaks when enabling debug priviledge;
+   2. Fixed CoInitialize/CoUninitialize balancing;
+   3. The event hEvtRefreshDone was used before it was created.
+
 svs 19.02.2009 13:26:32 +0300 - build 147
 
 1. Mantis#0000747: Плагины align, proclist и network: функция SetRegKey неверно вычисляет размер буфера в Unicode версии. 

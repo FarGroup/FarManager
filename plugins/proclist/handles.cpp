@@ -327,7 +327,8 @@ static bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pTh
     bool remote = dwPID != GetCurrentProcessId();
     if ( remote )
     {
-        hRemoteProcess = OpenProcessForced( PROCESS_DUP_HANDLE, dwPID, TRUE );
+        DebugToken token;
+        hRemoteProcess = OpenProcessForced(&token, PROCESS_DUP_HANDLE, dwPID, TRUE);
         if( hRemoteProcess == NULL )
             return false;
         if(!DuplicateHandle( hRemoteProcess, h, GetCurrentProcess(), &handle,0,0, DUPLICATE_SAME_ACCESS))
