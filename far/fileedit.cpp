@@ -373,7 +373,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage,bool &A
 
 	DialogDataEx EditDlgData[]=
 	{
-		/* 00 */ DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MEditTitle,
+		/* 00 */ DI_DOUBLEBOX,3,1,72,15,0,0,0,0,(const wchar_t *)MEditTitle,
 		/* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
 		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
 		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
@@ -408,7 +408,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage,bool &A
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
 
 	Dialog Dlg(EditDlg, countof (EditDlg), (FARWINDOWPROC)hndSaveFileAs, (LONG_PTR)&codepage);
-	Dlg.SetPosition(-1,-1,76,16);
+	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.Process();
 

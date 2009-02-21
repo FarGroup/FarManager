@@ -1797,10 +1797,10 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodeP
     }
     else
 
-    if ( nCodePage == CP_OEMCP )
+    if ( nCodePage != -1 )
     {
         if ( fgets (lpDest, nDestLength, file) )
-            MultiByteToWideChar (CP_OEMCP, 0, lpDest, -1, lpwszDest, nDestLength);
+            MultiByteToWideChar (nCodePage, 0, lpDest, -1, lpwszDest, nDestLength);
         else
         {
             xf_free (lpDest);

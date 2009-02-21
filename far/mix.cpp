@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "nsUniversalDetectorEx.h"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
@@ -1695,15 +1696,25 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 				nCodePage=CP_UTF8;
 				bDetect=true;
 			}
-			/*
-			else if(...)
-			{
-
-			}
-			*/
 			else
 			{
 				bDetect=false;
+
+				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
+
+				ns->HandleData((const char*)Buffer, sz);
+				ns->DataEnd();
+
+				int cp = ns->getCodePage();
+
+				if ( cp != -1 )
+				{
+					nCodePage = cp;
+					bDetect = true;
+				}						
+
+				delete ns;
+			
 			}
 		}
 		xf_free(Buffer);
