@@ -369,6 +369,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     CutToSlash(g_strFarPath,true);
 
     ConvertNameToLong (g_strFarPath, g_strFarPath);
+		PrepareDiskPath(g_strFarPath);
     SetEnvironmentVariableW (L"FARHOME", g_strFarPath);
 
     AddEndSlash(g_strFarPath);

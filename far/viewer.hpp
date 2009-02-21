@@ -97,7 +97,8 @@ class Viewer:public ScreenObject
     BitFlags SearchFlags;
 
     struct ViewerOptions ViOpt;
-    DWORD dwFirst;  // первое DWORD из файла (для автоопределения Unicode)
+
+		bool Signature;
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;

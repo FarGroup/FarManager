@@ -164,6 +164,12 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 	DWORD dwSize = GetCurrentDirectoryW (0, NULL);
 	wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize);
 	GetCurrentDirectoryW (dwSize, lpwszCurDir);
+
+	if(IsLocalPath(lpwszCurDir))
+		lpwszCurDir[0]=Upper(lpwszCurDir[0]);
+	else if(IsLocalPrefixPath(lpwszCurDir))
+		lpwszCurDir[4]=Upper(lpwszCurDir[4]);
+
 	strCurDir.ReleaseBuffer ();
 
 	if(IsLocalVolumeRootPath(strCurDir))

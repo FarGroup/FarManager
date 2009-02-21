@@ -959,7 +959,7 @@ BOOL IsNetworkPath(const wchar_t *Path)
 
 BOOL IsLocalPath(const wchar_t *Path)
 {
-	return (Path && *Path && Path[1]==L':' && Path[2]);
+	return (Path && *Path && Path[1]==L':');
 }
 
 BOOL IsLocalRootPath(const wchar_t *Path)
@@ -1003,54 +1003,62 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 		{
 			if(CheckFullPath)
 			{
+				ConvertNameToFull(strPath,strPath);
 				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath,*Dst=lpwszPath;
 				if(IsLocalPath(lpwszPath))
 				{
-					Src+=3;
-					Dst+=3;
+					Src+=2;
+					if(IsSlash(*Src))
+						Src++;
+					Dst+=2;
+					if(IsSlash(*Dst))
+						Dst++;
 				}
-				for(wchar_t c=*Src;;Src++,c=*Src)
+				if(*Src)
 				{
-					if (!c||IsSlash(c))
+					for(wchar_t c=*Src;;Src++,c=*Src)
 					{
-						*Src=0;
-						FAR_FIND_DATA_EX fd;
-						BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
-						*Src=c;
-						if(find)
+						if (!c||IsSlash(c))
 						{
-              size_t n=fd.strFileName.GetLength();
-              size_t n1 = n-(Src-Dst);
-              if((int)n1>0)
+							*Src=0;
+							FAR_FIND_DATA_EX fd;
+							BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
+							*Src=c;
+							if(find)
 							{
-                size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
-								strPath.ReleaseBuffer();
-                lpwszPath=strPath.GetBuffer(int(strPath.GetLength()+n1));
-								Src=lpwszPath+dSrc;
-								Dst=lpwszPath+dDst;
-								wmemmove(Src+n1,Src,StrLength(Src)+1);
-								Src+=n1;
+								size_t n=fd.strFileName.GetLength();
+								size_t n1 = n-(Src-Dst);
+								if((int)n1>0)
+								{
+									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
+									strPath.ReleaseBuffer();
+									lpwszPath=strPath.GetBuffer(int(strPath.GetLength()+n1));
+									Src=lpwszPath+dSrc;
+									Dst=lpwszPath+dDst;
+									wmemmove(Src+n1,Src,StrLength(Src)+1);
+									Src+=n1;
+								}
+								wcsncpy(Dst,fd.strFileName,n);
+								Dst+=n;
+								wcscpy(Dst,Src);
+								if(c)
+								{
+									Dst++;
+									Src=Dst;
+								}
 							}
-							wcsncpy(Dst,fd.strFileName,n);
-							Dst+=n;
-							wcscpy(Dst,Src);
-							if(c)
+							else
 							{
-								Dst++;
-								Src=Dst;
+								if(c)
+								{
+									Src++;
+									Dst=Src;
+								}
 							}
 						}
-						else
-						{
-							if(c)
-							{
-								Src++;
-								Dst=Src;
-							}
-						}
+						if(!*Src)
+							break;
 					}
-					if(!*Src)
-						break;
 				}
 				strPath.ReleaseBuffer();
 			}

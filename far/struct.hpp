@@ -436,8 +436,6 @@ struct Options
   int HeightDecrement;
   int WidthDecrement;
 
-  string strPassiveFolder;
-
   int ShowColumnTitles;
   int ShowPanelStatus;
   int ShowPanelTotals;
@@ -661,8 +659,6 @@ struct Options
     strTempPath=L"";
     HeightDecrement=0;
     WidthDecrement=0;
-
-    strPassiveFolder=L"";
 
     ShowColumnTitles=0;
     ShowPanelStatus=0;

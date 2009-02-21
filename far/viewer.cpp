@@ -83,7 +83,7 @@ Viewer::Viewer(bool bQuickView)
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=GlobalSearchHex;
 
-  VM.CodePage=Opt.ViOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
+	VM.CodePage=CP_AUTODETECT;
   // Вспомним тип врапа
   VM.Wrap=Opt.ViOpt.ViewerIsWrap;
   VM.WordWrap=Opt.ViOpt.ViewerWrap;
@@ -113,6 +113,7 @@ Viewer::Viewer(bool bQuickView)
   HostFileViewer=NULL;
   SelectPosOffSet=0;
   bVE_READ_Sent = false;
+	Signature = false;
 }
 
 
@@ -294,6 +295,41 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
   apiGetFindDataEx (strFileName, &ViewFindData);
 
+
+	UINT CachedCodePage=0;
+	if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
+	{
+		__int64 NewLeftPos,NewFilePos;
+		string strCacheName;
+		if ( !strPluginData.IsEmpty() )
+			strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
+		else
+			strCacheName = strFileName;
+
+		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
+		{
+			struct /*TPosCache32*/ TPosCache64 PosCache={0};
+			if(Opt.ViOpt.SaveViewerShortPos)
+			{
+				PosCache.Position[0]=BMSavePos.SavePosAddr;
+				PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
+				//PosCache.Position[2]=;
+				//PosCache.Position[3]=;
+			}
+			CtrlObject->ViewerPosCache->GetPosition(strCacheName,&PosCache);
+			NewFilePos=PosCache.Param[0];
+			NewLeftPos=PosCache.Param[1];
+			VM.Hex=(int)PosCache.Param[2];
+			//=PosCache.Param[3];
+			CachedCodePage=(UINT)PosCache.Param[4];
+		}
+
+		LastSelPos=FilePos=NewFilePos;
+		LeftPos=NewLeftPos;
+	}
+	else
+		FilePos=0;
+
   /* $ 26.07.2002 IS
        Автоопределение Unicode не должно зависеть от опции
        "Автоопределение таблицы символов", т.к. Unicode не есть
@@ -301,56 +337,32 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   */
   //if(ViOpt.AutoDetectTable)
   {
-    dwFirst=0;
-    vseek(ViewFile,0,SEEK_SET);
-    fread((wchar_t *)&dwFirst, 1, sizeof(dwFirst), ViewFile);
-    //if(ReadSize == sizeof(FirstWord) &&
-    if (LOWORD(dwFirst) == SIGN_REVERSEBOM)
-    {
-      VM.CodePage = CP_REVERSEBOM;
-      TableChangedByUser=TRUE;
-    }
-    else if (LOWORD(dwFirst) == SIGN_UNICODE)
-    {
-      VM.CodePage = CP_UNICODE;
-      TableChangedByUser=TRUE;
-    }
-  }
+		bool Detect=false;
+		UINT CodePage=0;
+		if(VM.CodePage == CP_AUTODETECT || IsUnicodeOrUTFCP(VM.CodePage))
+			Detect=GetFileFormat(ViewFile,CodePage,&Signature);
+		if(VM.CodePage==CP_AUTODETECT)
+		{
+			if(Detect)
+			{
+				VM.CodePage=CodePage;
+			}
+			if(CachedCodePage)
+			{
+				VM.CodePage=CachedCodePage;
+				TableChangedByUser=TRUE;
+			}
+			if(VM.CodePage==CP_AUTODETECT)
+				VM.CodePage=Opt.ViOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
+		}
+		else
+		{
+			TableChangedByUser=TRUE;
+		}
+		if(!IsUnicodeOrUTFCP(VM.CodePage))
+			fseek(ViewFile,0,SEEK_SET);
+	}
 
-  if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
-  {
-    __int64 NewLeftPos,NewFilePos;
-    int Table;
-    string strCacheName;
-
-    if ( !strPluginData.IsEmpty() )
-      strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
-    else
-      strCacheName = strFileName;
-
-    memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
-    {
-      struct /*TPosCache32*/ TPosCache64 PosCache={0};
-      if(Opt.ViOpt.SaveViewerShortPos)
-      {
-        PosCache.Position[0]=BMSavePos.SavePosAddr;
-        PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
-        //PosCache.Position[2]=;
-        //PosCache.Position[3]=;
-      }
-      CtrlObject->ViewerPosCache->GetPosition(strCacheName,&PosCache);
-      NewFilePos=PosCache.Param[0];
-      NewLeftPos=PosCache.Param[1];
-      VM.Hex=(int)PosCache.Param[2];
-      //=PosCache.Param[3];
-      Table=(int)PosCache.Param[4];
-    }
-
-    LastSelPos=FilePos=NewFilePos;
-    LeftPos=NewLeftPos;
-  }
-  else
-    FilePos=0;
   SetFileSize();
   if (FilePos>FileSize)
     FilePos=0;
@@ -519,7 +531,7 @@ void Viewer::ShowPage (int nMode)
 
       if ( StrLen > LeftPos )
       {
-        if (IsUnicodeCP(VM.CodePage) && (LOWORD(dwFirst) == SIGN_UNICODE || LOWORD(dwFirst) == SIGN_REVERSEBOM) && !I && !Strings[I]->nFilePos)
+				if (IsUnicodeOrUTFCP(VM.CodePage) && Signature && !I && !Strings[I]->nFilePos)
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
         else
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
@@ -2953,7 +2965,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
      показывается)
   */
 
-    SelectPosOffSet=(IsUnicodeCP(VM.CodePage) && (LOWORD(dwFirst)==SIGN_REVERSEBOM || LOWORD(dwFirst)==SIGN_UNICODE)
+		SelectPosOffSet=(IsUnicodeOrUTFCP(VM.CodePage) && Signature
            && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)StrLength(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;

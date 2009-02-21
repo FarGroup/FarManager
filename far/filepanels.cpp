@@ -101,6 +101,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
   {
     CheckShortcutFolder(&strSrc,FALSE,TRUE);
   }
+	//ConvertNameToFull(strSrc,strSrc);
 }
 
 void FilePanels::Init()
@@ -144,7 +145,6 @@ void FilePanels::Init()
   int IsLocalPath_FarPath=IsLocalPath(g_strFarPath);
   PrepareOptFolder(Opt.strLeftFolder,IsLocalPath_FarPath);
   PrepareOptFolder(Opt.strRightFolder,IsLocalPath_FarPath);
-  PrepareOptFolder(Opt.strPassiveFolder,IsLocalPath_FarPath);
 
   if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {
@@ -182,9 +182,10 @@ void FilePanels::Init()
         }
       }
     }
-		if (Opt.SetupArgv < 2 && !Opt.strPassiveFolder.IsEmpty() && (apiGetFileAttributes(Opt.strPassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		const wchar_t *PassiveFolder=PassiveIsLeftFlag?Opt.strLeftFolder:Opt.strRightFolder;
+		if (Opt.SetupArgv < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
     {
-      PassivePanel->InitCurDir(Opt.strPassiveFolder);
+			PassivePanel->InitCurDir(PassiveFolder);
     }
   }
 #if 1

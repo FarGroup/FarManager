@@ -1183,7 +1183,6 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeyLayout,L"HeightDecrement",&Opt.HeightDecrement,0, 0},
   {1, REG_DWORD,  NKeyLayout,L"WidthDecrement",&Opt.WidthDecrement,0, 0},
-  {1, REG_SZ,     NKeyLayout,L"PassiveFolder",&Opt.strPassiveFolder, 0, L""},
   {1, REG_DWORD,  NKeyLayout,L"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
 
   {1, REG_SZ,     NKeyDescriptions,L"ListNames",&Opt.Diz.strListNames, 0, L"Descript.ion,Files.bbs"},
@@ -1372,8 +1371,6 @@ void SaveConfig(int Ask)
   Opt.LeftPanel.Visible=LeftPanel->IsVisible();
   Opt.RightPanel.Focus=RightPanel->GetFocus();
   Opt.RightPanel.Visible=RightPanel->IsVisible();
-
-  CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(Opt.strPassiveFolder);
 
   if (LeftPanel->GetMode()==NORMAL_PANEL)
   {

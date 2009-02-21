@@ -903,7 +903,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           strNameTmp = NamePtr;
 
           if ( (strNameTmp.GetLength() == 2) && IsAlpha (strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
-            PrepareDiskPath(strNameTmp,true);
+						PrepareDiskPath(strNameTmp);
 
           if(!StrCmp(strNameTmp,L"..") && IsLocalRootPath(strSrcDir))
           {
