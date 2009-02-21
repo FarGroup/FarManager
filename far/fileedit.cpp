@@ -306,6 +306,7 @@ enum enumSaveFileAs {
 	ID_SF_SEPARATOR1,
 	ID_SF_CODEPAGETITLE,
 	ID_SF_CODEPAGE,
+	ID_SF_SIGNATURE,
 	ID_SF_SEPARATOR2,
 	ID_SF_SAVEASFORMATTITLE,
 	ID_SF_DONOTCHANGE,
@@ -324,34 +325,49 @@ LONG_PTR __stdcall hndSaveFileAs (
 		LONG_PTR param2
 		)
 {
-	if ( msg == DN_INITDIALOG )
+	switch(msg)
 	{
-		int codepage = *(int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-		AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false);
-	}
-
-	if ( msg == DN_CLOSE )
-	{
-		if ( param1 == ID_SF_OK )
+		case DN_INITDIALOG:
 		{
-			int *param = (int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-
-			FarListPos pos;
-
-			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
-
-			*param = (int)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
-
-			return TRUE;
+			UINT codepage = *(UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false);
+			if(!IsUnicodeOrUTFCP(codepage))
+				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+			break;
 		}
-	}
 
+		case DN_CLOSE:
+		{
+			if ( param1 == ID_SF_OK )
+			{
+				UINT *codepage = (UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				FarListPos pos;
+				Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
+				*codepage = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
+				return TRUE;
+			}
+			break;
+		}
+
+		case DN_EDITCHANGE:
+		{
+			if(param1==ID_SF_CODEPAGE)
+			{
+				FarListPos pos;
+				Dialog::SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
+				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,IsUnicodeOrUTFCP((UINT)Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))?BSTATE_CHECKED:BSTATE_UNCHECKED);
+				return TRUE;
+			}
+			break;	
+		}
+		
+	}
 	return Dialog::DefDlgProc (hDlg, msg, param1, param2);
 }
 
 
 
-bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage)
+bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage,bool &AddSignature)
 {
 	const wchar_t *HistoryName=L"NewEdit";
 
@@ -361,17 +377,18 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage)
 		/* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSaveAs,
 		/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,L"",
 		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,L"File codepage:",
+		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,(const wchar_t *)MEditCodePage,
 		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
-		/* 06 */ DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 07 */ DI_TEXT,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
-		/* 08 */ DI_RADIOBUTTON,5,8,0,8,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
-		/* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,0,0,(const wchar_t *)MEditSaveDOS,
-		/* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveUnix,
-		/* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveMac,
-		/* 12 */ DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 13 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-		/* 14 */ DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+		/* 06 */ DI_CHECKBOX,5,6,0,6,0,AddSignature,0,0,(const wchar_t *)MEditAddSignature,
+		/* 07 */ DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 08 */ DI_TEXT,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
+		/* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,
+		/* 10 */ DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MEditSaveDOS,
+		/* 11 */ DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MEditSaveUnix,
+		/* 12 */ DI_RADIOBUTTON,5,12,0,12,0,0,0,0,(const wchar_t *)MEditSaveMac,
+		/* 13 */ DI_TEXT,3,13,0,13,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 14 */ DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+		/* 15 */ DI_BUTTON,0,14,0,14,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
 	};
 
 	MakeDialogItemsEx(EditDlgData,EditDlg);
@@ -398,6 +415,8 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage)
 	if ( (Dlg.GetExitCode() == ID_SF_OK) && !EditDlg[ID_SF_FILENAME].strData.IsEmpty() )
 	{
 		strFileName = EditDlg[ID_SF_FILENAME].strData;
+
+		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected?true:false;
 
 		if (EditDlg[ID_SF_DONOTCHANGE].Selected)
 			TextFormat=0;
@@ -1142,11 +1161,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           string strFullSaveAsName = strFullFileName;
 
+          bool AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
+          
           if ( SaveAs )
           {
             string strSaveAsName = Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
 
-            if ( !dlgSaveFileAs (strSaveAsName, TextFormat, codepage) )
+            if ( !dlgSaveFileAs (strSaveAsName, TextFormat, codepage, AddSignature) )
             	return FALSE;
 
             apiExpandEnvironmentStrings (strSaveAsName, strSaveAsName);
@@ -1194,7 +1215,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
           FarChDir(strStartDir); //???
 
-					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage);
+					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, AddSignature);
 					if(SaveResult==SAVEFILE_ERROR)
           {
             SetLastError(SysErrorCode);
@@ -1645,7 +1666,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
-int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT Codepage)
+int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT Codepage, bool AddSignature)
 {
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
@@ -1852,7 +1873,9 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
 
-		if(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW))
+		if(!bSaveAs)
+			AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
+		if(AddSignature)
 		{
 			DWORD dwSignature = 0;
 			DWORD SignLength=0;

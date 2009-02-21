@@ -2654,6 +2654,14 @@ l:
 "Сохранить &файл как"
 "Save file &as"
 
+MEditCodePage
+"Кодовая страница:"
+"Code page:"
+
+MEditAddSignature
+"Добавить сигнатуру (BOM)"
+"Add signature (BOM)"
+
 MEditSaveAsFormatTitle
 "Изменить перевод строки:"
 "Change line breaks to:"

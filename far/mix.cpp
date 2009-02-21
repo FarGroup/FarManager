@@ -1582,6 +1582,39 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
   return TRUE;
 }
 
+bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
+{
+	bool Ascii=true;
+	UINT Octets=0;
+	for(size_t i=0;i<Length;i++)
+	{
+		BYTE c=Buffer[i];
+		if(c&0x80)
+			Ascii=false;
+		if(Octets)
+		{
+			if((c&0xC0)!=0x80)
+				return false;
+			Octets--;
+		}
+		else		
+		{
+			if(c&0x80)
+			{  
+				while(c&0x80)
+				{
+					c<<=1;
+					Octets++;
+				}
+				Octets--;
+				if(!Octets)
+					return false;
+			}
+		}
+	}
+	return (Octets>0||Ascii)?false:true;
+}
+
 bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 {
 	DWORD dwTemp=0;
@@ -1623,25 +1656,55 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 	else
 	{
 		fseek (file, 0, SEEK_SET);
-		size_t sz=1024; // BUGBUG. TODO: configurable
+		size_t sz=0x8000; // BUGBUG. TODO: configurable
 		LPVOID Buffer=xf_malloc(sz);
 		sz=fread(Buffer,1,sz,file);
 		fseek (file,0,SEEK_SET);
-		int test=IS_TEXT_UNICODE_STATISTICS|IS_TEXT_UNICODE_REVERSE_STATISTICS;
-		if(sz && IsTextUnicode(Buffer,(int)sz,&test))
+		if(sz)
 		{
-			nCodePage = (test&IS_TEXT_UNICODE_STATISTICS)?CP_UNICODE:CP_REVERSEBOM;
-			bDetect=true;
-		}
-		/*
-		else if(...)
-		{
+			int test=
+				IS_TEXT_UNICODE_STATISTICS|
+				IS_TEXT_UNICODE_REVERSE_STATISTICS|
+				IS_TEXT_UNICODE_CONTROLS|
+				IS_TEXT_UNICODE_REVERSE_CONTROLS|
+				IS_TEXT_UNICODE_ILLEGAL_CHARS|
+				IS_TEXT_UNICODE_ODD_LENGTH|
+				IS_TEXT_UNICODE_NULL_BYTES;
+				
+			if(IsTextUnicode(Buffer,(int)sz,&test))
+			{
+				if(!(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS))
+				{
+					if((test&IS_TEXT_UNICODE_NULL_BYTES)||(test&IS_TEXT_UNICODE_CONTROLS)||(test&IS_TEXT_UNICODE_REVERSE_CONTROLS))
+					{
+						if((test&IS_TEXT_UNICODE_CONTROLS)||(test&IS_TEXT_UNICODE_STATISTICS))
+						{
+							nCodePage=CP_UNICODE;
+							bDetect=true;
+						}
+						else if((test&IS_TEXT_UNICODE_REVERSE_CONTROLS)||(test&IS_TEXT_UNICODE_REVERSE_STATISTICS))
+						{
+							nCodePage=CP_REVERSEBOM;
+							bDetect=true;
+						}
+					}
+				}
+			}
+			else if(IsTextUTF8((const LPBYTE)Buffer,sz))
+			{
+				nCodePage=CP_UTF8;
+				bDetect=true;
+			}
+			/*
+			else if(...)
+			{
 
-		}
-		*/
-		else
-		{
-			bDetect=false;
+			}
+			*/
+			else
+			{
+				bDetect=false;
+			}
 		}
 		xf_free(Buffer);
 	}
