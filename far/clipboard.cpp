@@ -416,6 +416,21 @@ wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
   return(ClipText);
 }
 
+static BOOL FAR_IsClipboardFormatAvailable(UINT Format)
+{
+	if(UsedInternalClipboard)
+	{
+		for(size_t I=0; I < countof(hInternalClipboard); ++I)
+		{
+			if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	return IsClipboardFormatAvailable(Format);
+}
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 {
@@ -424,13 +439,13 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
   if (FormatType==0)
     return(NULL);
 
-  if(!StrCmp(Format,FAR_VerticalBlock_Unicode) && !IsClipboardFormatAvailable(FormatType))
+  if(!StrCmp(Format,FAR_VerticalBlock_Unicode) && !FAR_IsClipboardFormatAvailable(FormatType))
 	{
 		FormatType=FAR_RegisterClipboardFormat(FAR_VerticalBlock);
 		isOEMVBlock=true;
 	}
 
-	if (FormatType==0 || !IsClipboardFormatAvailable(FormatType))
+	if (FormatType==0 || !FAR_IsClipboardFormatAvailable(FormatType))
 		return NULL;
 
   if (!FAR_OpenClipboard(NULL))
