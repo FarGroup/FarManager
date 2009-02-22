@@ -230,6 +230,21 @@ int CopyFormatToClipboard(const char *Format,char *Data)
   return(TRUE);
 }
 
+static BOOL FAR_IsClipboardFormatAvailable(UINT Format)
+{
+	if(UsedInternalClipboard)
+	{
+		for(size_t I=0; I < sizeof(hInternalClipboard)/sizeof(hInternalClipboard[0]); ++I)
+		{
+			if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	return IsClipboardFormatAvailable(Format);
+}
 
 char* WINAPI PasteFromClipboard(void)
 {
@@ -385,13 +400,13 @@ char* PasteFormatFromClipboard(const char *Format)
   if (FormatType==0)
     return(NULL);
 
-  if(!strcmp(Format,FAR_VerticalBlock) && !IsClipboardFormatAvailable(FormatType))
+  if(!strcmp(Format,FAR_VerticalBlock) && !FAR_IsClipboardFormatAvailable(FormatType))
   {
     FormatType=FAR_RegisterClipboardFormat(FAR_VerticalBlock_Unicode);
     isUnicodeVBlock=true;
   }
 
-  if (FormatType==0 || !IsClipboardFormatAvailable(FormatType))
+  if (FormatType==0 || !FAR_IsClipboardFormatAvailable(FormatType))
     return(NULL);
 
   if (!FAR_OpenClipboard(NULL))
