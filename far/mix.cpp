@@ -1702,7 +1702,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
 
-				ns->HandleData((const char*)Buffer, sz);
+				ns->HandleData((const char*)Buffer,(PRUint32)sz);
 				ns->DataEnd();
 
 				int cp = ns->getCodePage();
@@ -1711,7 +1711,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 				{
 					nCodePage = cp;
 					bDetect = true;
-				}						
+				}
 
 				delete ns;
 			
