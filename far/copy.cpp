@@ -425,7 +425,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       strNewDir = strSelName;
       size_t pos;
 
-      if (strNewDir.RPos(pos,L'\\'))
+			if (strNewDir.RPos(pos,L'\\') || strNewDir.RPos(pos,L'/'))
       {
         strNewDir.SetLength(pos);
 
@@ -2043,8 +2043,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
     GetPathRoot(strDestPath, strRoot);
 
-    if (strRoot.GetLength()>0 && strRoot.At(strRoot.GetLength()-1)==L'\\')
-      strRoot.SetLength(strRoot.GetLength()-1);
+		DeleteEndSlash(strRoot);
 
     if (StrCmp(strDestPath,strRoot)==0)
       DestAttr=FILE_ATTRIBUTE_DIRECTORY;
@@ -2085,7 +2084,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     {
       int Length=(int)strDestPath.GetLength();
 
-      if (strDestPath.At(Length-1)!=L'\\' && strDestPath.At(Length-1)!=L':')
+			if (IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
         strDestPath += L"\\";
 
       const wchar_t *PathPtr=Src+KeepPathPos;
@@ -2093,7 +2092,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       if (*PathPtr && KeepPathPos==0 && PathPtr[1]==L':')
         PathPtr+=2;
 
-      if (*PathPtr==L'\\')
+			if (IsSlash(*PathPtr))
         PathPtr++;
 
       /* $ 23.04.2005 KM
@@ -2110,7 +2109,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         string strOldPath, strNewPath;
         const wchar_t *path=PathPtr,*p1=NULL;
 
-        while ((p1=wcschr(path,L'\\'))!=NULL)
+				while ((p1=wcschr(path,L'\\'))!=NULL || (p1=wcschr(path,L'/'))!=NULL)
         {
           DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
           FAR_FIND_DATA_EX FileData;
@@ -2167,11 +2166,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
             }
           }
 
-          // Мы стоим на обратном слэше
-          if (*p1==L'\\')
+					// Мы стоим на слэше
+					if (IsSlash(*p1))
             p1++;
 
-          // Возьмём следующий адрес в имени каталога за обратным слэшем,
+					// Возьмём следующий адрес в имени каталога за слэшем,
           // для того чтобы проверить и, возможно, создать следующий каталог,
           // находящийся в копируемом имени файла.
           path=p1;
@@ -4315,13 +4314,15 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
     DeleteEndSlash(strSelOnlyName);
 
     const wchar_t *PtrSelName=wcsrchr(strSelOnlyName,L'\\');
+		if(!PtrSelName)
+			PtrSelName=wcsrchr(strSelOnlyName,L'/');
 
     if(!PtrSelName)
       PtrSelName=strSelOnlyName;
     else
       ++PtrSelName;
 
-    if(SelName[1] == L':' && (SelName[2] == 0 || (SelName[2] == L'\\' && SelName[3] == 0))) // C: или C:/
+		if(SelName[1] == L':' && (SelName[2] == 0 || (IsSlash(SelName[2]) && SelName[3] == 0))) // C: или C:/
     {
 //      if(Flags&FCOPY_VOLMOUNT)
       {
@@ -4340,7 +4341,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
 
     ConvertNameToFull(Dest,strDestFullName);
 
-    if(strDestFullName.At(strDestFullName.GetLength()-1) == L'\\')
+		if(IsSlash(strDestFullName.At(strDestFullName.GetLength()-1)))
     {
       if(LinkType!=RP_VOLMOUNT)
         strDestFullName += PtrSelName;

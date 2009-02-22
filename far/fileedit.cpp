@@ -1123,13 +1123,13 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         {
           size_t pos;
           // проверим путь к файлу, может его уже снесли...
-          if (strFullFileName.RPos(pos,L'\\'))
+					if (strFullFileName.RPos(pos,L'\\')||strFullFileName.RPos(pos,L'/'))
           {
 						wchar_t *lpwszPtr = strFullFileName.GetBuffer ();
 						wchar_t wChr = lpwszPtr[pos+1];
             lpwszPtr[pos+1]=0;
             // В корне?
-            if (!(IsAlpha(*lpwszPtr) && (*(lpwszPtr+1)==L':') && (*(lpwszPtr+2)==L'\\') && !*(lpwszPtr+3)))
+						if (!IsLocalRootPath(lpwszPtr))
             {
               // а дальше? каталог существует?
 							if ((FNAttr=apiGetFileAttributes(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||
@@ -1230,7 +1230,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
 						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
 						{
-							bool bInPlace = (!IsUnicodeOrUTFCP(m_codepage) && !IsUnicodeOrUTFCP(codepage)) || (m_codepage == codepage);
+							bool bInPlace = /*(!IsUnicodeOrUTFCP(m_codepage) && !IsUnicodeOrUTFCP(codepage)) || */(m_codepage == codepage);
 
 							if ( !bInPlace )
 							{
@@ -1753,6 +1753,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     string strCreatedPath = Name;
 
     const wchar_t *Ptr = wcsrchr (strCreatedPath, L'\\');
+		if(!Ptr)
+			Ptr=wcsrchr (strCreatedPath, L'/');
 
     if ( Ptr )
     {
@@ -1980,7 +1982,7 @@ end:
 		apiSetFileAttributes(Name,FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
   }
 
-  apiGetFindDataEx (strFullFileName,&FileInfo);
+	apiGetFindDataEx (Name,&FileInfo);
 
   if (m_editor->Flags.Check(FEDITOR_MODIFIED) || NewFile)
     m_editor->Flags.Set(FEDITOR_WASCHANGED);
@@ -2129,6 +2131,18 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 			return FALSE;
 
 		ConvertNameToFull (strFileName, strFullFileName);
+
+		string strFilePath=strFullFileName;
+		if(CutToSlash(strFilePath,1))
+		{
+			string strCurPath;
+			if(apiGetCurrentDirectory(strCurPath))
+			{
+				DeleteEndSlash(strCurPath);
+				if(!StrCmpI(strFilePath,strCurPath))
+					strFileName=PointToName(strFullFileName);
+			}
+		}
 
 		//Дабы избежать бардака, развернём слэшики...
 		ReplaceSlashToBSlash(strFullFileName);

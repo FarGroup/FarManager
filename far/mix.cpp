@@ -494,6 +494,8 @@ int GetDirInfo(const wchar_t *Title,
   if (DirName[0] == L'.' && DirName[1] == 0)
   {
     const wchar_t *p = wcsrchr (strFullDirName, L'\\');
+		if(!p)
+			p = wcsrchr (strFullDirName, L'/');
     if (p)
       ShowDirName = p + 1;
   }
@@ -917,7 +919,7 @@ void CreatePath(string &strPath)
 
   while ( TRUE )
   {
-    if ( (*ChPtr == 0) || (*ChPtr == L'\\') )
+		if ( (*ChPtr == 0) || IsSlash(*ChPtr) )
     {
       if ( *ChPtr == 0 )
         bEnd = TRUE;
@@ -944,13 +946,7 @@ void CreatePath(string &strPath)
 
 int PathMayBeAbsolute(const wchar_t *Path)
 {
-    return (Path &&
-           (
-             (IsAlpha(*Path) && Path[1]==L':' && IsSlash(Path[2])) ||
-             (Path[0]==L'\\'  && Path[1]==L'\\') ||
-             (Path[0]==L'/'   && Path[1]==L'/')
-           )
-         );
+	return (Path && ((IsAlpha(*Path) && Path[1]==L':' && IsSlash(Path[2])) || (Path[0]==L'\\' && Path[1]==L'\\')));
 }
 
 BOOL IsNetworkPath(const wchar_t *Path)
@@ -1075,7 +1071,7 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 				else
 				{
 					wchar_t *ptr=&lpwszPath[2];
-					while (*ptr && *ptr!=L'\\')
+					while (*ptr && !IsSlash(*ptr))
 					{
 						*ptr=Upper(*ptr);
 						ptr++;
@@ -1502,7 +1498,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     strComputerName = (const wchar_t*)strNetDir+2;
 
     size_t pos;
-    if (!strComputerName.Pos(pos,L'\\'))
+		if (!strComputerName.Pos(pos,L'\\') && !strComputerName.Pos(pos,L'/'))
     {
       strComputerName.SetLength(0);
     }

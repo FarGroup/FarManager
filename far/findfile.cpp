@@ -1602,8 +1602,8 @@ int FindFiles::FindFilesProcess()
             if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
               int Length = StrLength(pi->FindData.lpwszFileName);
-              if ((Length) && (pi->FindData.lpwszFileName[Length-1]==L'\\'))
-                pi->FindData.lpwszFileName[Length-1] = 0;
+							if ((Length) && IsSlash(pi->FindData.lpwszFileName[Length-1]))
+								pi->FindData.lpwszFileName[Length-1] = 0;
             }
           }
         } /* if */
@@ -1677,7 +1677,7 @@ int FindFiles::FindFilesProcess()
         if ((Length=(int)strFileName.GetLength())==0)
           break;
 
-        if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
+				if (Length>1 && IsSlash(strFileName.At(Length-1)) && strFileName.At(Length-2)!=L':')
           strFileName.SetLength(Length-1);
 
 				if ( (apiGetFileAttributes(strFileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
@@ -1691,7 +1691,7 @@ int FindFiles::FindFilesProcess()
 
           Length=(int)strFileName.GetLength();
 
-          if (Length>1 && strFileName.At(Length-1)==L'\\' && strFileName.At(Length-2)!=L':')
+					if (Length>1 && IsSlash(strFileName.At(Length-1)) && strFileName.At(Length-2)!=L':')
             strFileName.SetLength(Length-1);
         }
         if ( strFileName.IsEmpty() )
@@ -1715,7 +1715,7 @@ int FindFiles::FindFilesProcess()
           FindPanel->GetCurDir(strDirTmp);
           Length=(int)strDirTmp.GetLength();
 
-          if (Length>1 && strDirTmp.At(Length-1)==L'\\' && strDirTmp.At(Length-2)!=L':')
+					if (Length>1 && IsSlash(strDirTmp.At(Length-1)) && strDirTmp.At(Length-2)!=L':')
             strDirTmp.SetLength(Length-1);
 
           if (0!=StrCmpI(strFileName, strDirTmp))
@@ -2987,8 +2987,7 @@ string &FindFiles::PrepareDriveNameStr(string &strSearchFromRoot, size_t sz)
 
   GetPathRootOne(strCurDir, strCurDir);
 
-  if (strCurDir.At(strCurDir.GetLength()-1)==L'\\')
-    strCurDir.SetLength(strCurDir.GetLength()-1);
+	DeleteEndSlash(strCurDir);
 
   if (strCurDir.IsEmpty() || PluginMode)
   {

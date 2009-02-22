@@ -523,7 +523,7 @@ void CommandLine::GetPrompt(string &strDestStr)
               break;
             }
             case L'N': // $N - Current drive
-              if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
+							if (IsLocalPath(strCurDir) && IsSlash(strCurDir.At(2)))
                 add_char (strDestStr, Upper(strCurDir.At(0)));
               else
                 add_char (strDestStr, L'?');

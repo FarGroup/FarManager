@@ -625,7 +625,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 			continue;
 
 		if ( Opt.ShowCheckingFile )
-			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),wcsrchr(pPlugin->GetModuleName(),L'\\')+1);
+			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
 
 		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
 

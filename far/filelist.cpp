@@ -1163,7 +1163,7 @@ int FileList::ProcessKey(int Key)
               {
               	size_t pos;
                 // проверим путь к файлу
-                if (strFileName.RPos(pos,L'\\') && pos!=0)
+								if ((strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/')) && pos!=0)
                 {
                   wchar_t *lpwszFileName = strFileName.GetBuffer();
                   wchar_t wChr = lpwszFileName[pos+1];
@@ -2230,8 +2230,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       AddEndSlash(strTempDir);
       GetPathRoot(strTempDir, strRootDir);
 
-      if((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && StrCmp(strTempDir,strRootDir)==0) ||
-         (strCurDir.At(1) == L':'  && strCurDir[2] == L'\\' && strCurDir.At(3)==0))
+			if((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && StrCmp(strTempDir,strRootDir)==0) || IsLocalRootPath(strCurDir))
       {
         string strDirName;
         strDirName = strCurDir;
@@ -2258,7 +2257,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
         if( !strNewCurDir.IsEmpty() ) // проверим - может не удалось определить RemoteName
         {
           const wchar_t *PtrS1=wcschr((const wchar_t*)strNewCurDir+2,L'\\');
-          if(PtrS1 && !wcschr(PtrS1+1,L'\\'))
+					if(!PtrS1)
+						PtrS1=wcschr((const wchar_t*)strNewCurDir+2,L'/');
+					if(PtrS1 && !wcschr(PtrS1+1,L'\\') && !wcschr(PtrS1+1,L'/'))
           {
             if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)(const wchar_t *)strNewCurDir)) // NetWork Plugin :-)
               return(FALSE);
@@ -2270,7 +2271,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
   strFindDir = PointToName(strCurDir);
 
-  if ( strSetDir.IsEmpty() || strSetDir.At(1) != L':' || strSetDir.At(2) != L'\\')
+	if ( strSetDir.IsEmpty() || strSetDir.At(1) != L':' || !IsSlash(strSetDir.At(2)))
     FarChDir(strCurDir);
 
   /* $ 26.04.2001 DJ
@@ -3482,7 +3483,14 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 {
   string strFileName = strDest;
 
-  const wchar_t *ShortNameLastSlash=wcsrchr(ShortName, L'\\'), *NameLastSlash=wcsrchr(Name, L'\\');
+	const wchar_t *ShortNameLastSlash=wcsrchr(ShortName, L'\\');
+	if(!ShortNameLastSlash)
+		ShortNameLastSlash=wcsrchr(ShortName, L'/');
+
+	const wchar_t *NameLastSlash=wcsrchr(Name, L'\\');
+	if(!NameLastSlash)
+		NameLastSlash=wcsrchr(Name, L'/');
+	
 
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
   {
@@ -3529,7 +3537,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       else
       {
 				size_t pos;
-				if (strFileName.RPos(pos,L'\\'))
+				if (strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/'))
 					strFileName.Upper(0,pos);
 				else
 					strFileName.Upper();
@@ -3538,14 +3546,13 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     if (ViewSettings.FileUpperToLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
 			size_t pos;
-			bool bFound=strFileName.RPos(pos,L'\\');
-			if (bFound && !IsCaseMixed((const wchar_t *)strFileName+pos))
+			if ((strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/')) && !IsCaseMixed((const wchar_t *)strFileName+pos))
 				strFileName.Lower(pos);
     }
-    if ( ViewSettings.FileLowerCase && wcsrchr(strFileName,L'\\') && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ( ViewSettings.FileLowerCase && (wcsrchr(strFileName,L'\\')||wcsrchr(strFileName,L'/')) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
 			size_t pos;
-			if (strFileName.RPos(pos,L'\\'))
+			if (strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/'))
 				strFileName.Lower(pos);
     }
   }

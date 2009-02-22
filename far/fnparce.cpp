@@ -821,7 +821,7 @@ int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Mo
       if(wcschr(Modifers,L'F') && PointToName((const wchar_t*)strFileName) == (const wchar_t*)strFileName) // 'F' - использовать полный путь; //BUGBUG
       {
         string strTempFileName;
-        strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(strCurDir.At(StrLength(strCurDir)-1) != L'\\'?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
+				strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(!IsSlash(strCurDir.At(strCurDir.GetLength()-1))?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
         if (ShortNames)
           ConvertNameToShort(strTempFileName, strTempFileName);
         strFileName = strTempFileName;

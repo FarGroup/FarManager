@@ -539,14 +539,14 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
     {
       wchar_t *lpStart = NULL;
 
-      if ( *Str && (Str[1] == L':') && (Str[2] == L'\\') )
+			if ( *Str && (Str[1] == L':') && IsSlash(Str[2]) )
          lpStart = Str+3;
       else
       {
         if ( (Str[0] == L'\\') && (Str[1] == L'\\') )
         {
-          if ( (lpStart = wcschr (Str+2, L'\\')) != NULL )
-            if ( (lpStart = wcschr (lpStart+1, L'\\')) != NULL )
+					if ( (lpStart = wcschr (Str+2, L'\\')) != NULL || (lpStart = wcschr (Str+2, L'/')) != NULL )
+						if ( (lpStart = wcschr (lpStart+1, L'\\')) != NULL || (lpStart = wcschr (lpStart+1, L'/')) != NULL )
               lpStart++;
         }
       }
@@ -862,7 +862,7 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
   {
     size_t len=strPath.GetLength();
     wchar_t *lpwszPath = strPath.GetBuffer ();
-    while ( len && lpwszPath[--len] == L'\\' )
+		while ( len && IsSlash(lpwszPath[--len]) )
     {
       Ret=TRUE;
       lpwszPath[len] = L'\0';
@@ -1526,7 +1526,7 @@ BOOL TestParentFolderName(const wchar_t *Name)
 bool CutToSlash(string &strStr, bool bInclude)
 {
   size_t pos;
-  bool bFound=strStr.RPos(pos,L'\\');
+	bool bFound=(strStr.RPos(pos,L'\\') || strStr.RPos(pos,L'/'));
   if (bFound)
 	{
 		if ( bInclude )

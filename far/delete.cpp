@@ -853,7 +853,7 @@ int WipeDirectory(const wchar_t *Name)
   string strTempName, strSavePath(Opt.strTempPath);
 
   BOOL usePath = FALSE;
-  if(wcschr(Name, L'\\')) {
+	if(wcschr(Name, L'\\') || wcschr(Name, L'/')) {
     Opt.strTempPath = Name;
     CutToSlash(Opt.strTempPath);
     usePath = TRUE;

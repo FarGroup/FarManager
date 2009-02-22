@@ -560,14 +560,14 @@ char* WINAPI TruncPathStrA(char *Str, int MaxLength)
     {
       char *lpStart = NULL;
 
-      if ( *Str && (Str[1] == ':') && (Str[2] == '\\') )
+			if ( *Str && (Str[1] == ':') && IsSlash(Str[2]) )
          lpStart = Str+3;
       else
       {
         if ( (Str[0] == '\\') && (Str[1] == '\\') )
         {
-          if ( (lpStart = strchr (Str+2, '\\')) != NULL )
-            if ( (lpStart = strchr (lpStart+1, '\\')) != NULL )
+					if ( (lpStart = strchr (Str+2, '\\')) != NULL || (lpStart = strchr (Str+2, '/')) != NULL)
+						if ( (lpStart = strchr (lpStart+1, '\\')) != NULL || (lpStart = strchr (lpStart+1, '/')) != NULL)
               lpStart++;
         }
       }

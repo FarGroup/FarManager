@@ -133,8 +133,7 @@ void OpenSysLog()
   DWORD Attr;
 
   GetModuleFileNameW(NULL,LogFileName,countof(LogFileName));
-  wchar_t *Ptr=wcsrchr(LogFileName,L'\\');
-  wcscpy(Ptr,L"\\$Log");
+	wcscpy(PointToName(LogFileName),L"$Log");
 	Attr=apiGetFileAttributes(LogFileName);
   if(Attr == INVALID_FILE_ATTRIBUTES)
   {

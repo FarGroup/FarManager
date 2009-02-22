@@ -1320,9 +1320,6 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
   {
     if ( *(p+1) == L':' )
     {
-      if ( !IsAlpha (*p) )
-        return FALSE; // 1:\ is not a valid disk
-
       p += 2;
 
       if ( (nFlags & FLAG_DISK) == FLAG_DISK )
@@ -1371,7 +1368,7 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
 
   //FSF.AddEndSlash replacement
 
-  if ( *lpDest && (lpDest[StrLength(lpDest)] != L'\\') ) //hack, just in case of "disk+name" etc.
+	if ( *lpDest && !IsSlash(lpDest[StrLength(lpDest)]) ) //hack, just in case of "disk+name" etc.
       wcscat (lpDest, L"\\");
 
   if ( nFlags & FLAG_NAME )

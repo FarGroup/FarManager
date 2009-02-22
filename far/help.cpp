@@ -1425,12 +1425,12 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   wchar_t *p=(wchar_t *)wcsrchr(lpwszNewTopic,HelpEndLink);
   if(p)
   {
-    if(*(p-1) != L'\\')
+		if(!IsSlash(*(p-1)))
     {
       const wchar_t *p2=p;
       while(p >= lpwszNewTopic)
       {
-        if(*p == L'\\')
+				if(IsSlash(*p))
         {
 //          ++p;
           if(*p)
@@ -1801,7 +1801,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
-        if ((Slash=strrchr(Path,'\\'))!=NULL)
+				if ((Slash=strrchr(Path,'\\'))!=NULL || (Slash=strrchr(Path,'/'))!=NULL)
           *++Slash=0;
 
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
@@ -1831,7 +1831,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
         ScTree.SetFindPath(Path,HelpFileMask);
         while (ScTree.GetNextName(&FindData,FullFileName))
         {
-          if((PtrPath=strrchr(FullFileName,'\\')) != NULL)
+					if((PtrPath=strrchr(FullFileName,'\\')) != NULL || (PtrPath=strrchr(FullFileName,'/')) != NULL)
           {
             xstrncpy(FMask,PtrPath+1,sizeof(FMask)-1);
             *++PtrPath=0;
@@ -1918,10 +1918,10 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
              Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
           */
           Ptr2=Ptr-1;
-          if(*Ptr2 != L'\\') // Это имя модуля?
+					if(!IsSlash(*Ptr2)) // Это имя модуля?
           {
             // значит удалим это чертово имя :-)
-            if((Ptr2=wcsrchr(lpwszTopic,L'\\')) == NULL) // ВО! Фигня какая-то :-(
+						if((Ptr2=wcsrchr(lpwszTopic,L'\\')) == NULL || (Ptr2=wcsrchr(lpwszTopic,L'/')) == NULL) // ВО! Фигня какая-то :-(
               *lpwszTopic=0;
           }
           if( *lpwszTopic )

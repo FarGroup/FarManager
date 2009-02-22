@@ -206,6 +206,7 @@ void Viewer::KeepInitParameters()
 
 int Viewer::OpenFile(const wchar_t *Name,int warning)
 {
+	VM.CodePage=CP_AUTODETECT;
   FILE *NewViewFile=NULL;
   OpenFailed=false;
 
@@ -840,7 +841,7 @@ string &Viewer::GetTitle(string &strName,int,int)
   }
   else
   {
-    if ( !(strFileName.At(1)==L':' && strFileName.At(2)==L'\\') ) //BUGBUG
+		if ( !(strFileName.At(1)==L':' && IsSlash(strFileName.At(2))) ) //BUGBUG
     {
         string strPath;
 

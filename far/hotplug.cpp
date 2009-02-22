@@ -302,11 +302,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
 DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
 {
   wchar_t wszCurrentVolumeName[MAX_PATH];
-  wchar_t wszMountPoint[4];
-
-  wszMountPoint[1] = L':';
-  wszMountPoint[2] = L'\\';
-  wszMountPoint[3] = 0;
+	wchar_t wszMountPoint[]={L'A',L':',L'\\',0};
 
   for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
   {
@@ -362,7 +358,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
             wcscpy (lpwszMountPoint, p);
 
-            if ( !wcschr (p+4, L'\\') )
+						if ( !wcschr (p+4, L'\\') && !wcschr (p+4, L'/'))
               wcscat (lpwszMountPoint, L"\\");
 
             wchar_t wszVolumeName[MAX_PATH];

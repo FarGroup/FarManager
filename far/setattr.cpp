@@ -633,7 +633,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if (!DlgParam.Plugin && strSelName.At(strSelName.GetLength()-1) != L'\\')
+				if (!DlgParam.Plugin && !IsSlash(strSelName.At(strSelName.GetLength()-1)))
         {
           string strCopy = strSelName;
           AddEndSlash(strCopy);

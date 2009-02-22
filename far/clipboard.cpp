@@ -454,7 +454,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
       if (ClipText!=NULL)
 			{
 				if(isOEMVBlock)
-					MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)ClipAddr,-1,ClipText,BufferSize);
+					MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)ClipAddr,-1,ClipText,(int)BufferSize);
 				else
 					wcscpy(ClipText,ClipAddr);
 			}

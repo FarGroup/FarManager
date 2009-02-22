@@ -256,7 +256,7 @@ static int ShowFolderShortcutMenu(int Pos)
               StrCmp(strNewDir,strOldNewDir) != 0)
           {
             Unquote(strNewDir);
-            if(!(strNewDir.At(1) == L':' && strNewDir.At(2) == L'\\' && strNewDir.At(3) == 0))
+						if(!IsLocalRootPath(strNewDir))
               DeleteEndSlash(strNewDir);
             BOOL Saved=TRUE;
             apiExpandEnvironmentStrings(strNewDir,strOldNewDir);

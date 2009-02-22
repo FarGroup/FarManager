@@ -173,7 +173,7 @@ void ShellMakeDir(Panel *SrcPanel)
   if (!strDirName.IsEmpty())
   {
     size_t pos;
-    if (strDirName.Pos(pos,L'\\'))
+		if (strDirName.Pos(pos,L'\\') || strDirName.Pos(pos,L'/'))
       strDirName.SetLength(pos);
     if(!SrcPanel->GoToFile(strDirName) && strDirName.At(strDirName.GetLength()-1)==L'.')
     {

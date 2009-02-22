@@ -279,6 +279,8 @@ void TreeList::DisplayTree(int Fast)
         BoxText(strOutStr);
 
         const wchar_t *ChPtr=wcsrchr(CurPtr->strName,L'\\');
+				if(!ChPtr)
+					ChPtr=wcsrchr(CurPtr->strName,L'/');
         if (ChPtr!=NULL)
           DisplayTreeName(ChPtr+1,J);
       }
@@ -428,7 +430,7 @@ int TreeList::ReadTree()
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
   Redraw();
 
-  if (RootLength>0 && strRoot.At (RootLength-1) != L':' && strRoot.At (RootLength)==L'\\')
+	if (RootLength>0 && strRoot.At (RootLength-1) != L':' && IsSlash(strRoot.At (RootLength)))
     ListData[0]->strName.SetLength (RootLength);
 
   TreeCount=1;
@@ -742,7 +744,7 @@ void TreeList::FillLastData()
 int TreeList::CountSlash(const wchar_t *Str)
 {
   int Count=0;
-  while ((Str=wcschr(Str,L'\\'))!=NULL)
+	while ((Str=wcschr(Str,L'\\'))!=NULL || (Str=wcschr(Str,L'/'))!=NULL)
   {
     Str++;
     Count++;
@@ -1363,8 +1365,7 @@ int TreeList::ReadTreeFile()
 
     if ((ChPtr=wcschr(DirName,L'\n'))!=NULL)
       *ChPtr=0;
-    if (RootLength>0 && DirName[RootLength-1]!=L':' &&
-        DirName[RootLength]==L'\\' && DirName[RootLength+1]==0)
+		if (RootLength>0 && DirName[RootLength-1]!=L':' && IsSlash(DirName[RootLength]) && DirName[RootLength+1]==0)
       DirName[RootLength]=0;
 
     if ((TreeCount & 255)==0 )
@@ -1520,7 +1521,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
   Name += strRoot.GetLength ()-1;
 
-  if ((ChPtr=wcsrchr(Name,L'\\'))==NULL)
+	if ((ChPtr=wcsrchr(Name,L'\\'))==NULL && (ChPtr=wcsrchr(Name,L'/'))==NULL)
     return;
 
   ReadCache(strRoot);
@@ -1562,8 +1563,7 @@ void TreeList::DelTreeName(const wchar_t *Name)
     Length=StrLength(Name);
     DirLength=StrLength(wszDirName);
     if(DirLength<Length) continue;
-    if (StrCmpNI(Name,wszDirName,Length)==0 &&
-        (wszDirName[Length]==0 || wszDirName[Length]==L'\\'))
+		if (StrCmpNI(Name,wszDirName,Length)==0 && (wszDirName[Length]==0 || IsSlash(wszDirName[Length])))
     {
       TreeCache.Delete(CachePos);
       CachePos--;
@@ -1597,8 +1597,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
     const wchar_t *DirName=TreeCache.ListName[CachePos];
-    if (StrCmpNI(SrcName,DirName,SrcLength)==0 &&
-        (DirName[SrcLength]==0 || DirName[SrcLength]==L'\\'))
+		if (StrCmpNI(SrcName,DirName,SrcLength)==0 && (DirName[SrcLength]==0 || IsSlash(DirName[SrcLength])))
     {
       string strNewName = DestName;
 

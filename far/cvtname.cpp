@@ -117,7 +117,7 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
     // обычный цикл прохода имени от корня
     while(CtrlChar)
     {
-      while(Ptr > TempDest && *Ptr != L'\\')
+			while(Ptr > TempDest && !IsSlash(*Ptr))
         --Ptr;
       /* $ 07.01.2003 IS
          - ошибка: зачем-то обрабатывали путь "буква:" - он равен
@@ -187,6 +187,8 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
           if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')
           {
             CtrlChar = wcschr(TempDest + 2, L'\\');
+						if(!CtrlChar)
+							CtrlChar=wcschr(TempDest + 2, L'/');
           }
           // Устанавливаем длину возвращаемой строки
           Ret = StrLength(TempDest);
