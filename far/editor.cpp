@@ -4137,7 +4137,7 @@ void Editor::Paste(const wchar_t *Src)
 
   if(!ClipText)
   {
-    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlock))!=NULL)
+    if ((ClipText=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode))!=NULL)
     {
       VPaste(ClipText);
       return;
@@ -5095,7 +5095,7 @@ void Editor::VCopy(int Append)
 
   if (Append)
   {
-    CopyData=PasteFormatFromClipboard(FAR_VerticalBlock);
+    CopyData=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
     if (CopyData!=NULL)
       DataSize=StrLength(CopyData);
     else
