@@ -2105,50 +2105,26 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 
 		case FCTL_GETPANELITEM:
 			{
-				if(Param2)
-				{
-					((FileList*)this)->PluginGetPanelItem(Param1,*((PluginPanelItem*)Param2));
-					Result=TRUE;
-				}
+				Result=(int)((FileList*)this)->PluginGetPanelItem(Param1,(PluginPanelItem*)Param2);
 			}
 			break;
 
 		case FCTL_GETSELECTEDPANELITEM:
 			{
-				if(Param2)
-				{
-					((FileList*)this)->PluginGetSelectedPanelItem(Param1,*((PluginPanelItem*)Param2));
-					Result=TRUE;
-				}
+				Result=(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(PluginPanelItem*)Param2);
 			}
 			break;
 
 		case FCTL_GETCURRENTPANELITEM:
 			{
-				if (Param2)
-				{
-					PanelInfo Info;
+				PanelInfo Info;
 
-					FileList *DestPanel = ((FileList*)this);
+				FileList *DestPanel = ((FileList*)this);
 
-					DestPanel->PluginGetPanelInfo(Info);
-					DestPanel->PluginGetPanelItem(Info.CurrentItem,*((PluginPanelItem*)Param2));
-
-					Result = TRUE;
-				}
-
+				DestPanel->PluginGetPanelInfo(Info);
+				Result = DestPanel->PluginGetPanelItem(Info.CurrentItem,(PluginPanelItem*)Param2);
 			}
 			break;
-
-		case FCTL_FREEPANELITEM:
-		{
-			if(Param2)
-			{
-				FileList::FreePluginPanelItem((PluginPanelItem*)Param2);
-				Result=TRUE;
-			}
-		}
-		break;
 
 		case FCTL_SETSELECTION:
 			{

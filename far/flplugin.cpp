@@ -212,6 +212,86 @@ void FileList::FreePluginPanelItem(PluginPanelItem *pi)
 			xf_free((void*)pi->UserData);
 }
 
+size_t FileList::FileListToPluginItem2(struct FileListItem *fi,struct PluginPanelItem *pi)
+{
+	size_t size=sizeof(*pi);
+	size+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
+	size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+	size+=fi->strOwner.IsEmpty()?0:sizeof(wchar_t)*(fi->strOwner.GetLength()+1);
+	size+=(fi->DizText==NULL)?0:sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
+	for(int ii=0;ii<fi->CustomColumnNumber;ii++)
+	{
+		size+=(fi->CustomColumnData[ii]==NULL)?0:sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+	}
+	if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
+	{
+		size+=*(DWORD *)fi->UserData;
+	}
+	if(pi)
+	{
+		char* data=((char*)pi)+sizeof(*pi);
+		pi->FindData.lpwszFileName=wcscpy((wchar_t*)data,fi->strName);
+		data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
+		pi->FindData.lpwszAlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
+		size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+		pi->FindData.nFileSize=fi->UnpSize;
+		pi->FindData.nPackSize=fi->PackSize;
+		pi->FindData.dwFileAttributes=fi->FileAttr;
+		pi->FindData.ftLastWriteTime=fi->WriteTime;
+		pi->FindData.ftCreationTime=fi->CreationTime;
+		pi->FindData.ftLastAccessTime=fi->AccessTime;
+		pi->NumberOfLinks=fi->NumberOfLinks;
+		pi->Flags=fi->UserFlags;
+		if(fi->Selected) pi->Flags|=PPIF_SELECTED;
+		pi->CustomColumnNumber=fi->CustomColumnNumber;
+		pi->CustomColumnData=(wchar_t**)data;
+		data+=fi->CustomColumnNumber*sizeof(wchar_t*);
+		for(int ii=0;ii<fi->CustomColumnNumber;ii++)
+		{
+			if(fi->CustomColumnData[ii]==NULL)
+			{
+				pi->CustomColumnData[ii]=NULL;
+			}
+			else
+			{
+				pi->CustomColumnData[ii]=wcscpy((wchar_t*)data,fi->CustomColumnData[ii]);
+				data+=sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1);
+			}
+		}
+		if(fi->DizText==NULL)
+		{
+			pi->Description=NULL;
+		}
+		else
+		{
+			pi->Description=wcscpy((wchar_t*)data,fi->DizText);
+			size+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+		}
+
+		if(fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
+		{
+			DWORD Size=*(DWORD *)fi->UserData;
+			pi->UserData=(DWORD_PTR)data;
+			memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
+			data+=Size;
+		}
+		else
+			pi->UserData=fi->UserData;
+		pi->CRC32=fi->CRC32;
+		pi->Reserved[0]=pi->Reserved[1]=0;
+		if(fi->strOwner.IsEmpty())
+		{
+			pi->Owner=NULL;
+		}
+		else
+		{
+			pi->Owner=wcscpy((wchar_t*)data,fi->strOwner);
+		}
+	}
+	return size;
+}
+
 void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
   fi->strName = pi->FindData.lpwszFileName;
@@ -920,13 +1000,14 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 		Info.SelectedItemsNumber=0;
 }
 
-void FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem &Item)
+size_t FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem *Item)
 {
-	FileListToPluginItem(ListData[ItemNumber],&Item);
+	return FileListToPluginItem2(ListData[ItemNumber],Item);
 }
 
-void FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem &Item)
+size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item)
 {
+	size_t result=0;
 	int CurSel=-1;
 	for(int i=0;i<FileCount;i++)
 	{
@@ -934,14 +1015,15 @@ void FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem &Item)
 			CurSel++;
 		if(CurSel==ItemNumber)
 		{
-			FileListToPluginItem(ListData[i],&Item);
+			result=FileListToPluginItem2(ListData[i],Item);
 			break;
 		}
 	}
 	if(CurSel==-1 && !ItemNumber)
 	{
-		FileListToPluginItem(ListData[CurFile],&Item);
+		result=FileListToPluginItem2(ListData[CurFile],Item);
 	}
+	return result;
 }
 
 void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths)

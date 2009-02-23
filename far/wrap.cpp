@@ -2320,20 +2320,31 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 					memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
 					if(OldPI->PanelItems&&OldPI->SelectedItems)
 					{
-						for(int i=0;i<PI.ItemsNumber;i++)
+						PluginPanelItem* PPI=NULL; int PPISize=0;
+						oldfar::PluginPanelItem* oldPanelItems=OldPI->PanelItems;
+						int Control=FCTL_GETPANELITEM; int ItemsNumber=PI.ItemsNumber;
+						for(int ii=0;ii<2;ii++)
 						{
-							PluginPanelItem PPI;
-							FarControl(hPlugin,FCTL_GETPANELITEM,i,(LONG_PTR)&PPI);
-							ConvertPanelItemToAnsi(PPI,OldPI->PanelItems[i]);
-							FarControl(hPlugin,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+							for(int jj=0;jj<ItemsNumber;jj++)
+							{
+								int NewPPISize=FarControl(hPlugin,Control,jj,0);
+								if(NewPPISize>PPISize)
+								{
+									PluginPanelItem* NewPPI=(PluginPanelItem*)xf_realloc(PPI,NewPPISize);
+									if(NewPPI)
+									{
+										PPI=NewPPI;
+										PPISize=NewPPISize;
+									}
+									else break;
+								}
+								FarControl(hPlugin,Control,jj,(LONG_PTR)PPI);
+								ConvertPanelItemToAnsi(*PPI,oldPanelItems[jj]);
+							}
+							oldPanelItems=OldPI->SelectedItems;
+							Control=FCTL_GETSELECTEDPANELITEM; ItemsNumber=PI.SelectedItemsNumber;
 						}
-						for(int i=0;i<PI.SelectedItemsNumber;i++)
-						{
-							PluginPanelItem PPI;
-							FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PPI);
-							ConvertPanelItemToAnsi(PPI,OldPI->SelectedItems[i]);
-							FarControl(hPlugin,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
-						}
+						xf_free(PPI);
 					}
 
 					wchar_t CurDir[sizeof(OldPI->CurDir)];
