@@ -1,3 +1,9 @@
+zg 23.02.2009 23:23:26 +0200 - build 149
+
+1. Адаптация к новому PanelAPI в 2.0.789.
+
+2. в build 146 сломался enter.
+
 svs 20.02.2009 13:07:37 +0300 - build 148
 
 1. Mantis#0000729: Resource leaks в плагине Proclist.

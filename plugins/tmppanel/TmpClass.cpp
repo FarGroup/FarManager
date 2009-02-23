@@ -531,10 +531,13 @@ int TmpPanel::IsCurrentFileCorrect (TCHAR *pCurFileName)
   lstrcpy(CurFileName, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
 #else
   Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
-  PluginPanelItem PPI;
-  Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-  lstrcpy(CurFileName,PPI.FindData.lpwszFileName);
-  Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+  PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+  if(PPI)
+  {
+    Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+    lstrcpy(CurFileName,PPI->FindData.lpwszFileName);
+    free(PPI);
+  }
 #endif
 
   BOOL IsCorrectFile = FALSE;
@@ -582,11 +585,16 @@ int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
         if (PInfo.PanelItems[PInfo.CurrentItem].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
         {
 #else
-        PluginPanelItem PPI;
-        Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-        if(PPI.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+        DWORD attributes=0;
+        if(PPI)
         {
-          Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+          Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+          attributes=PPI->FindData.dwFileAttributes;
+          free(PPI);
+        }
+        if(attributes&FILE_ATTRIBUTE_DIRECTORY)
+        {
 #endif
 #ifndef UNICODE
           Info.Control(INVALID_HANDLE_VALUE, FCTL_SETANOTHERPANELDIR,&CurFileName);
@@ -689,16 +697,18 @@ void TmpPanel::ProcessRemoveKey()
       FSF.bsearch(&PInfo.SelectedItems[i],TmpPanelItem,TmpItemsNumber,
         sizeof(struct PluginPanelItem),SortListCmp);
 #else
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PPI);
-    struct PluginPanelItem *RemovedItem=(struct PluginPanelItem *)
-      FSF.bsearch(&PPI,TmpPanelItem,TmpItemsNumber,
-        sizeof(struct PluginPanelItem),SortListCmp);
+    struct PluginPanelItem *RemovedItem=NULL;
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)PPI);
+      RemovedItem=(struct PluginPanelItem *)FSF.bsearch(PPI,TmpPanelItem,TmpItemsNumber,sizeof(struct PluginPanelItem),SortListCmp);
+    }
 #endif
     if(RemovedItem!=NULL)
       RemovedItem->Flags|=REMOVE_FLAG;
 #ifdef UNICODE
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    free(PPI);
 #endif
   }
   RemoveEmptyItems();

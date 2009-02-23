@@ -166,10 +166,13 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #ifndef UNICODE
     lstrcat(selectItem, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
 #else
-    PluginPanelItem PPI;
-    Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-    lstrcat(selectItem,PPI.FindData.lpwszFileName);
-    Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+    if(PPI)
+    {
+    	Info.Control(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+		lstrcat(selectItem,PPI->FindData.lpwszFileName);
+    	free(PPI);
+    }
 #endif
 
 #ifndef UNICODE
@@ -217,10 +220,14 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #ifndef UNICODE
       if(!LStricmp(Name,PointToName(PInfo.PanelItems[J].FindData.cFileName)))
 #else
-      PluginPanelItem PPI;
-      Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)&PPI);
-      bool Equal=!LStricmp(Name,PointToName(PPI.FindData.lpwszFileName));
-      Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      bool Equal=false;
+      PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0));
+      if(PPI)
+      {
+        Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)PPI);
+        Equal=!LStricmp(Name,PointToName(PPI->FindData.lpwszFileName));
+      	free(PPI);
+      }
       if(Equal)
 #endif
       {

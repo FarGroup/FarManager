@@ -1013,7 +1013,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         Info.Control(this,FCTL_GETCMDLINE, CmdLine);
         if(*CmdLine)
 #else
-        if(Info.Control(this,FCTL_GETCMDLINE,0,NULL))
+        if(Info.Control(this,FCTL_GETCMDLINE,0,NULL)>1)
 #endif
             return FALSE;
 
@@ -1028,19 +1028,20 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
             PluginPanelItem& CurItem = PInfo.PanelItems[PInfo.CurrentItem];
 #else
-            PluginPanelItem CurItem;
+            PluginPanelItem* _CurItem=(PluginPanelItem*)new char[Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0)];
+            PluginPanelItem& CurItem=*_CurItem;
             Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&CurItem);
 #endif
             if (!CurItem.UserData)
             {
 #ifdef UNICODE
-                Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&CurItem);
+                delete [] (char*)_CurItem;
 #endif
                 return FALSE;
             }
             HWND hWnd = ((ProcessData *)CurItem.UserData)->hwnd;
 #ifdef UNICODE
-            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&CurItem);
+            delete [] (char*)_CurItem;
 #endif
             if (hWnd!=NULL && (IsWindowVisible(hWnd) ||
                 IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0)
@@ -1077,10 +1078,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName,".."))
 #else
         Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&pi);
-        PluginPanelItem PPI;
-        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
-        bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI.FindData.lpwszFileName,L"..");
-        Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+        PluginPanelItem* PPI=(PluginPanelItem*)new char[Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,0)];
+        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+        bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI->FindData.lpwszFileName,L"..");
+        delete [] (char*)PPI;
         if(Exit)
 #endif
         {
@@ -1126,19 +1127,20 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
         if(GetFiles(pi.PanelItems + pi.CurrentItem, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
 #else
-        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
-        if(GetFiles(&PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
+        PPI=(PluginPanelItem*)new char[Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,0)];
+        Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+        if(GetFiles(PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
 #endif
         {
           //TODO: viewer crashed on exit!
 #ifndef UNICODE
           Info.Viewer (FileName,pi.PanelItems[pi.CurrentItem].FindData.cFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE);
 #else
-          Info.Viewer (FileName,PPI.FindData.lpwszFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_AUTODETECT);
+          Info.Viewer (FileName,PPI->FindData.lpwszFileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_AUTODETECT);
 #endif
         }
 #ifdef UNICODE
-        Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+        delete [] (char*)PPI;
 #endif
         return TRUE;
     }
@@ -1276,7 +1278,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
             PluginPanelItem& Item = PInfo.SelectedItems[i];
 #else
-            PluginPanelItem Item;
+            PluginPanelItem* _Item=(PluginPanelItem*)new char[Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,0)];
+            PluginPanelItem& Item=*_Item;
             Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&Item);
 #endif
             SetLastError(0);
@@ -1334,7 +1337,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 }
             } // if dwPID
 #ifdef UNICODE
-            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&Item);
+            delete [] (char*)_Item;
 #endif
         }
         token.Revert();
@@ -1367,14 +1370,14 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
             ProcessData* pData = (ProcessData *)pi.PanelItems[pi.CurrentItem].UserData;
 #else
-            PluginPanelItem PPI;
-            Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
-            ProcessData* pData = (ProcessData *)PPI.UserData;
+            PluginPanelItem* PPI=(PluginPanelItem*)new char[Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,0)];
+            Info.Control(this,FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+            ProcessData* pData = (ProcessData *)PPI->UserData;
 #endif
             if(pData)
                 PutToCmdLine(pData->FullPath);
 #ifdef UNICODE
-            Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+            delete [] (char*)PPI;
 #endif
         }
         return TRUE;

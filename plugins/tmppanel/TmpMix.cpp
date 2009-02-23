@@ -127,9 +127,12 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
 #ifndef UNICODE
 #define FileName PInfo.PanelItems[J].FindData.cFileName
 #else
-#define FileName PPI.FindData.lpwszFileName
-    PluginPanelItem PPI;
-    Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)&PPI);
+#define FileName (PPI?PPI->FindData.lpwszFileName:NULL)
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0));
+    if(PPI)
+    {
+      Info.Control(_PANEL_HANDLE,FCTL_GETPANELITEM,J,(LONG_PTR)PPI);
+    }
 #endif
 
     if(!FSF.LStricmp(Name,FSF.PointToName(FileName)))
@@ -138,12 +141,12 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
       PRI.CurrentItem=J;
       PRI.TopPanelItem=J;
 #ifdef UNICODE
-      Info.Control(_PANEL_HANDLE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      free(PPI);
 #endif
       break;
     }
 #ifdef UNICODE
-		Info.Control(_PANEL_HANDLE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+		free(PPI);
 #endif
   }
 #ifndef UNICODE

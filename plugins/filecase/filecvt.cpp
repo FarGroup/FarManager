@@ -136,19 +136,22 @@ done:
 #define FileName PInfo.SelectedItems[I].FindData.cFileName
 #define FileAttr PInfo.SelectedItems[I].FindData.dwFileAttributes
 #else
-#define FileName PPI.FindData.lpwszFileName
-#define FileAttr PPI.FindData.dwFileAttributes
+#define FileName PPI->FindData.lpwszFileName
+#define FileAttr PPI->FindData.dwFileAttributes
 #endif
   for (I=0;I < PInfo.SelectedItemsNumber; I++)
   {
 #ifdef UNICODE
-    PluginPanelItem PPI;
-    Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
+    if(PPI)
+    {
+      Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)PPI);
 #endif
     GetFullName(FullName,CurDir,FileName);
     ProcessName(FullName,FileAttr);
 #ifdef UNICODE
-    Info.Control(PANEL_ACTIVE,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      free(PPI);
+    }
 #endif
   }
 #ifdef UNICODE

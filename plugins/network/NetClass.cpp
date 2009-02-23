@@ -1243,10 +1243,13 @@ BOOL NetBrowser::EditFavorites()
 #ifndef UNICODE
   OEMToChar(PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName, p);
 #else
-  PluginPanelItem PPI;
-  Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-  lstrcpy(p,PPI.FindData.lpwszFileName);
-  Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+  PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+  if(PPI)
+  {
+    Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+    lstrcpy(p,PPI->FindData.lpwszFileName);
+  	free(PPI);
+  }
 #endif
   NETRESOURCE nr = {0};
   if(GetFavoriteResource(szPath, &nr))
@@ -1305,19 +1308,22 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 #ifndef UNICODE
         if (!MapNetworkDrive (PInfo.SelectedItems[I].FindData.cFileName,
 #else
-        PluginPanelItem PPI;
-        Info.Control(this,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)&PPI);
-        if (!MapNetworkDrive (PPI.FindData.lpwszFileName,
+        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,I,0));
+        if(PPI)
+        {
+          Info.Control(this,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)PPI);
+        }
+        if (!PPI||!MapNetworkDrive (PPI->FindData.lpwszFileName,
 #endif
           (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
         {
 #ifdef UNICODE
-          Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+          free(PPI);
 #endif
           break;
         }
 #ifdef UNICODE
-        Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+        free(PPI);
 #endif
       }
 #ifndef UNICODE
@@ -1351,12 +1357,15 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
           PInfo.SelectedItems[0].FindData.cFileName <= 2)
 #else
     Info.Control(this,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)&PPI);
-    if(lstrcmp(PPI.FindData.lpwszFileName,L".."))
-      if(ChangeToDirectory(PPI.FindData.cFileName, FALSE, TRUE))
-        if(PointToName(PPI.FindData.cFileName) -
-          PPI.FindData.cFileName <= 2)
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+    }
+    if(PPI&&lstrcmp(PPI->FindData.lpwszFileName,L".."))
+      if(ChangeToDirectory(PPI->FindData.cFileName, FALSE, TRUE))
+        if(PointToName(PPI->FindData.cFileName) -
+          PPI->FindData.cFileName <= 2)
 #endif
         {
 #ifndef UNICODE
@@ -1373,7 +1382,7 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
 #endif
         }
 #ifdef UNICODE
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    free(PPI);
 #endif
     return TRUE;
   }
@@ -1817,10 +1826,13 @@ void NetBrowser::PutCurrentFileName (BOOL ToCommandLine)
 #ifndef UNICODE
     lstrcpy (CurFile, PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName);
 #else
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-    lstrcpy(CurFile,PPI.FindData.lpwszFileName);
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+      lstrcpy(CurFile,PPI->FindData.lpwszFileName);
+      free(PPI);
+    }
 #endif
     if (!lstrcmp (CurFile, _T("..")))
     {
@@ -1858,10 +1870,13 @@ void NetBrowser::ManualConnect()
 #ifndef UNICODE
     ChangeToDirectory (PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName, FALSE, TRUE);
 #else
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)&PPI);
-    ChangeToDirectory (PPI.FindData.lpwszFileName, FALSE, TRUE);
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
+      ChangeToDirectory (PPI->FindData.lpwszFileName, FALSE, TRUE);
+      free(PPI);
+    }
 #endif
   }
 }
@@ -2072,10 +2087,13 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
 #ifndef UNICODE
       OEMToChar(PInfo.PanelItems [i].FindData.cFileName, szAnsiName);
 #else
-      PluginPanelItem PPI;
-      Info.Control(this,FCTL_GETPANELITEM,i,(LONG_PTR)&PPI);
-      lstrcpy(szAnsiName,PPI.FindData.lpwszFileName);
-      Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,i,0));
+      if(PPI)
+      {
+      	Info.Control(this,FCTL_GETPANELITEM,i,(LONG_PTR)PPI);
+      	lstrcpy(szAnsiName,PPI->FindData.lpwszFileName);
+      	free(PPI);
+      }
 #endif
       if (!FSF.LStricmp (szAnsiName, Opt.FullPathShares?Share:PointToName(Share)))
       {
@@ -2124,10 +2142,13 @@ void NetBrowser::RemoveItems()
 #ifndef UNICODE
     FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PInfo.SelectedItems[0].FindData.cFileName);
 #else
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)&PPI);
-    FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PPI.FindData.cFileName);
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+      FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PPI->FindData.cFileName);
+      free(PPI);
+    }
 #endif
   }
   else // PInfo.SelectedItemsNumber > 1
@@ -2154,10 +2175,13 @@ void NetBrowser::RemoveItems()
 #ifndef UNICODE
     OEMToChar(PInfo.SelectedItems[i].FindData.cFileName, p);
 #else
-    PluginPanelItem PPI;
-    Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PPI);
-    lstrcpy(p,PPI.FindData.lpwszFileName);
-    Info.Control(this,FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,0));
+    if(PPI)
+    {
+      Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)PPI);
+      lstrcpy(p,PPI->FindData.lpwszFileName);
+      free(PPI);
+    }
 #endif
     RemoveFromFavorites(szName, NULL, NULL);
   }

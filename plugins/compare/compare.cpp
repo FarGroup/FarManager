@@ -1168,15 +1168,34 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 #ifndef UNICODE
 #define FreePanelItems(a,b)
 #else
+void GetPanelItem(HANDLE hPlugin,int Command,int Param1,PluginPanelItem* Param2)
+{
+	PluginPanelItem* item=(PluginPanelItem*)malloc(Info.Control(hPlugin,Command,Param1,0));
+	if(item)
+	{
+		Info.Control(hPlugin,Command,Param1,(LONG_PTR)item);
+		*Param2=*item;
+		Param2->FindData.lpwszFileName=wcsdup(item->FindData.lpwszFileName);
+		Param2->FindData.lpwszAlternateFileName=wcsdup(item->FindData.lpwszAlternateFileName);
+		Param2->Description=NULL;
+		Param2->Owner=NULL;
+		Param2->CustomColumnData=NULL;
+		Param2->UserData=0;
+		free(item);
+	}
+}
+
 void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 {
   for(int i=0;i<AInfo.ItemsNumber;i++)
   {
-    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&AInfo.PanelItems[i]);
+    free(AInfo.PanelItems[i].FindData.lpwszFileName);
+    free(AInfo.PanelItems[i].FindData.lpwszAlternateFileName);
   }
   for(int i=0;i<AInfo.SelectedItemsNumber;i++)
   {
-    Info.Control(PANEL_ACTIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&AInfo.SelectedItems[i]);
+    free(AInfo.SelectedItems[i].FindData.lpwszFileName);
+    free(AInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
   }
   delete[] AInfo.PanelItems;
   delete[] AInfo.SelectedItems;
@@ -1184,11 +1203,13 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
   for(int i=0;i<PInfo.ItemsNumber;i++)
   {
     Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
-    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&PInfo.PanelItems[i]);
+    free(PInfo.PanelItems[i].FindData.lpwszFileName);
+    free(PInfo.PanelItems[i].FindData.lpwszAlternateFileName);
   }
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
   {
-    Info.Control(PANEL_PASSIVE, FCTL_FREEPANELITEM,0,(LONG_PTR)&PInfo.SelectedItems[i]);
+    free(PInfo.SelectedItems[i].FindData.lpwszFileName);
+    free(PInfo.SelectedItems[i].FindData.lpwszAlternateFileName);
   }
   delete[] PInfo.PanelItems;
   delete[] PInfo.SelectedItems;
@@ -1247,7 +1268,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   {
     AInfo.PanelItems=new PluginPanelItem[AInfo.ItemsNumber];
     for(int i=0;i<AInfo.ItemsNumber;i++)
-      Info.Control(PANEL_ACTIVE, FCTL_GETPANELITEM,i,(LONG_PTR)&AInfo.PanelItems[i]);
+      GetPanelItem(PANEL_ACTIVE, FCTL_GETPANELITEM,i,&AInfo.PanelItems[i]);
   }
   else
     AInfo.PanelItems=NULL;
@@ -1256,7 +1277,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   {
     AInfo.SelectedItems=new PluginPanelItem[AInfo.SelectedItemsNumber];
     for(int i=0;i<AInfo.SelectedItemsNumber;i++)
-      Info.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&AInfo.SelectedItems[i]);
+      GetPanelItem(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM,i,&AInfo.SelectedItems[i]);
   }
   else
     AInfo.SelectedItems=NULL;
@@ -1274,7 +1295,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   {
     PInfo.PanelItems=new PluginPanelItem[PInfo.ItemsNumber];
     for(int i=0;i<PInfo.ItemsNumber;i++)
-      Info.Control(PANEL_PASSIVE, FCTL_GETPANELITEM,i,(LONG_PTR)&PInfo.PanelItems[i]);
+      GetPanelItem(PANEL_PASSIVE, FCTL_GETPANELITEM,i,&PInfo.PanelItems[i]);
   }
   else
     PInfo.PanelItems=NULL;
@@ -1283,7 +1304,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   {
     PInfo.SelectedItems=new PluginPanelItem[PInfo.SelectedItemsNumber];
     for(int i=0;i<PInfo.SelectedItemsNumber;i++)
-      Info.Control(PANEL_PASSIVE, FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&PInfo.SelectedItems[i]);
+      GetPanelItem(PANEL_PASSIVE, FCTL_GETSELECTEDPANELITEM,i,&PInfo.SelectedItems[i]);
   }
   else
     PInfo.SelectedItems=NULL;
