@@ -1,11 +1,11 @@
 .Language=English,English
 
 "Change Case"
-"&lower case"
-"&Title Case"
-"&UPPER CASE"
-"tO&GGLE cASE"
-"&Cyclic change"
+"&L. lower case"
+"&T. Title Case"
+"&U. UPPER CASE"
+"&G. tOGGLE cASE"
+"&C. Cyclic change"
 
 "&Ok"
 "&Cancel"
