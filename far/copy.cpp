@@ -2084,7 +2084,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     {
       int Length=(int)strDestPath.GetLength();
 
-			if (IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
+			if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
         strDestPath += L"\\";
 
       const wchar_t *PathPtr=Src+KeepPathPos;
