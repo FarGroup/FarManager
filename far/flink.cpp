@@ -613,8 +613,12 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 		{
 			if ((ChPtr=wcschr(TempRoot+2,L'\\'))!=NULL || (ChPtr=wcschr(TempRoot+2,L'/'))!=NULL)
 			{
-				if ((ChPtr=wcschr(ChPtr+1,L'\\'))!=NULL || (ChPtr=wcschr(ChPtr+1,L'/'))!=NULL)
+				const wchar_t *ChPtr2 = NULL;
+				if ((ChPtr2=wcschr(ChPtr+1,L'\\'))!=NULL || (ChPtr2=wcschr(ChPtr+1,L'/'))!=NULL)
+				{
+					ChPtr=ChPtr2;
 					strTempRoot.SetLength((ChPtr - TempRoot) + 1);
+				}
 				else
 					strTempRoot += L"\\";
 			}

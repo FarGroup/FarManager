@@ -744,11 +744,9 @@ void TreeList::FillLastData()
 int TreeList::CountSlash(const wchar_t *Str)
 {
   int Count=0;
-	while ((Str=wcschr(Str,L'\\'))!=NULL || (Str=wcschr(Str,L'/'))!=NULL)
-  {
-    Str++;
-    Count++;
-  }
+	for(;*Str;Str++)
+		if(IsSlash(*Str))
+			Count++;
   return(Count);
 }
 
@@ -1505,7 +1503,6 @@ void TreeList::AddTreeName(const wchar_t *Name)
 {
   string strRoot;
 
-  const wchar_t *ChPtr;
   long CachePos;
 
   if (*Name==0)
@@ -1521,7 +1518,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
   Name += strRoot.GetLength ()-1;
 
-	if ((ChPtr=wcsrchr(Name,L'\\'))==NULL && (ChPtr=wcsrchr(Name,L'/'))==NULL)
+	if (!wcsrchr(Name,L'\\') && !wcsrchr(Name,L'/'))
     return;
 
   ReadCache(strRoot);
