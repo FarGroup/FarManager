@@ -15,8 +15,10 @@
 
 class CPlugin : public PluginStartupInfo
 {
-  PluginPanelItem *SelectedItems;
+#ifdef UNICODE
+  PluginPanelItem **SelectedItems;
   int SelectedItemsCount;
+#endif
 public:
   CPlugin(void);
   ~CPlugin(void);

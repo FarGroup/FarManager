@@ -796,9 +796,10 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
 #ifdef UNICODE
   if(SelectedItems && SelectedItemsCount)
   {
-    for(int i=0;i<SelectedItemsCount;i++)
-      Control(FCTL_FREEPANELITEM,0,(LONG_PTR)&SelectedItems[i]);
-    delete[] SelectedItems;
+   for(int i=0;i<SelectedItemsCount;i++)
+    if(SelectedItems[i])
+     delete[] SelectedItems[i];
+   delete[] SelectedItems;
    SelectedItems=NULL;
    SelectedItemsCount=0;
   }
@@ -829,10 +830,10 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.cFileName, ".."))
     )
 #else
-  PluginPanelItem PPI;
-  Control(FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)&PPI);
-  bool tmp=!pi.SelectedItemsNumber || (1==pi.SelectedItemsNumber && 0==lstrcmp(PPI.FindData.lpwszFileName,L".."));
-  Control(FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+  PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(FCTL_GETSELECTEDPANELITEM,0,NULL)];
+  Control(FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+  bool tmp=!pi.SelectedItemsNumber || (1==pi.SelectedItemsNumber && 0==lstrcmp(PPI->FindData.lpwszFileName,L".."));
+  delete[] PPI;
   if(tmp)
 #endif
   {
@@ -853,20 +854,23 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
   {
     if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
     *ppFiles=new LPCTSTR[pi.SelectedItemsNumber];
+#ifdef UNICODE
     SelectedItemsCount=pi.SelectedItemsNumber;
-    SelectedItems=new PluginPanelItem[SelectedItemsCount];
+    SelectedItems=new PluginPanelItem*[SelectedItemsCount];
+#endif
     for (int i=0; i<pi.SelectedItemsNumber; i++)
     {
 #ifndef UNICODE
       LPCTSTR szPath=pi.SelectedItems[i].FindData.cFileName;
       if (!lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, szPath))
 #else
-      Control(FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)&SelectedItems[i]);
-      LPCTSTR szPath=SelectedItems[i].FindData.lpwszFileName;
-      PluginPanelItem PPI;
-      Control(FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)&PPI);
-      bool Equal=!lstrcmp(PPI.FindData.lpwszFileName,szPath);
-      Control(FCTL_FREEPANELITEM,0,(LONG_PTR)&PPI);
+      SelectedItems[i]=(PluginPanelItem*)new char[Control(FCTL_GETSELECTEDPANELITEM,i,NULL)];
+      Control(FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)SelectedItems[i]);
+      LPCTSTR szPath=SelectedItems[i]->FindData.lpwszFileName;
+      PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(FCTL_GETPANELITEM,pi.CurrentItem,NULL)];
+      Control(FCTL_GETPANELITEM,pi.CurrentItem,(LONG_PTR)PPI);
+      bool Equal=!lstrcmp(PPI->FindData.lpwszFileName,szPath);
+      delete[] PPI;
       if(Equal)
 #endif
       {
@@ -881,7 +885,7 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
 #ifndef UNICODE
         & pi.SelectedItems[i].FindData.dwFileAttributes)
 #else
-        & SelectedItems[i].FindData.dwFileAttributes)
+        & SelectedItems[i]->FindData.dwFileAttributes)
 #endif
       {
         (*pnFolders)++;
