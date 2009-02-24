@@ -1990,6 +1990,11 @@ MDeleteSkip
 "&Skip"
 "Přes&kočit"
 
+MDeleteSkipAll
+"Пропустить &все"
+"S&kip all"
+"Přeskočit &vše"
+
 MDeleteCancel
 "&Отменить"
 "&Cancel"

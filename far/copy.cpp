@@ -758,7 +758,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopySecurityCopy=CDP.CopySecurity;
   }
 
-	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
+	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=SkipDeleteMode=-1;
 
 	if(Link)
 	{
@@ -2906,13 +2906,23 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
 	while((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):!apiDeleteFile(Name))
   {
     int MsgCode;
-    MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                    MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
-                    MSG(MDeleteSkip),MSG(MDeleteCancel));
-    if (MsgCode==1 || MsgCode==-1)
-      break;
-    if (MsgCode==2 || MsgCode==-2)
-      return(COPY_CANCEL);
+		if(SkipDeleteMode!=-1)
+			MsgCode=SkipDeleteMode;
+		else
+			MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MCannotDeleteFile),Name,
+					MSG(MDeleteRetry),MSG(MDeleteSkip),MSG(MDeleteSkipAll),MSG(MDeleteCancel));
+		switch(MsgCode)
+		{
+			case 1:
+				return COPY_NEXT;
+			case 2:
+				SkipDeleteMode=1;
+				return COPY_NEXT;
+			case -1:
+			case -2:
+			case 3:
+				return(COPY_CANCEL);
+		}
   }
   return(COPY_SUCCESS);
 }

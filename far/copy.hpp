@@ -114,6 +114,7 @@ class ShellCopy
     int ReadOnlyDelMode;
     int SkipMode;          // ...для пропуска при копировании залоченных файлов.
     int SkipEncMode;
+    int SkipDeleteMode;
 
     long TotalFiles;
     int SelectedFolderNameLength;

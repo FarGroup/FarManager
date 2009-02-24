@@ -1146,15 +1146,16 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
                 for (int I=0;I<ListSize;I++)
                 {
                   Index = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0, I);
-                  LPFINDLIST PtrFindList=FindList[Index];
-                  if ((Index != LIST_INDEX_NONE) &&
-                      ((PtrFindList->ArcIndex == LIST_INDEX_NONE) ||
-                       (ArcList[PtrFindList->ArcIndex]->Flags & OPIF_REALNAMES)))
-                  {
-                    // Не учитывали файлы в архивах с OPIF_REALNAMES
-                    if ( !PtrFindList->FindData.strFileName.IsEmpty() && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-                        ViewList.AddName(PtrFindList->FindData.strFileName, PtrFindList->FindData.strAlternateFileName);
-                  } /* if */
+									if(Index!=LIST_INDEX_NONE)
+									{
+										LPFINDLIST PtrFindList=FindList[Index];
+										if((PtrFindList->ArcIndex == LIST_INDEX_NONE)||(ArcList[PtrFindList->ArcIndex]->Flags & OPIF_REALNAMES))
+										{
+											// Не учитывали файлы в архивах с OPIF_REALNAMES
+											if ( !PtrFindList->FindData.strFileName.IsEmpty() && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+												ViewList.AddName(PtrFindList->FindData.strFileName, PtrFindList->FindData.strAlternateFileName);
+										}
+									}
                 } /* for */
 
                 string strCurDir = FindList[ItemIndex]->FindData.strFileName;
