@@ -1022,6 +1022,7 @@ const char *_MCODE_ToName(int OpCode)
      DEF_MCODE_(F_INDEX),
      DEF_MCODE_(F_INT),
      DEF_MCODE_(F_ITOA),
+     DEF_MCODE_(F_ATOI),
      DEF_MCODE_(F_LCASE),
      DEF_MCODE_(F_LEN),
      DEF_MCODE_(F_MAX),

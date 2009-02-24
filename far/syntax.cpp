@@ -263,6 +263,7 @@ static TMacroFunction macroFunction[]={
   {"ABS",              1, 0,   MCODE_F_ABS},                 // N=abs(N)
   {"AKEY",             1, 0,   MCODE_F_AKEY},                // V=akey(N)
   {"ASC",              1, 0,   MCODE_F_ASC},                 // N=asc(N)
+  {"ATOI",             2, 1,   MCODE_F_ATOI},                // N=atoi(S[,radix])
   {"BM.ADD",           0, 0,   MCODE_F_BM_ADD},              // N=BM.Add()
   {"BM.CLEAR",         0, 0,   MCODE_F_BM_CLEAR},            // N=BM.Clear()
   {"BM.DEL",           1, 1,   MCODE_F_BM_DEL},              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=0...), -1 - удаляет текущую закладку
@@ -1072,6 +1073,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_IIF,              "V=iif(Condition,V1,V2)"},
     {MCODE_F_INDEX,            "S=index(S1,S2)"},
     {MCODE_F_INT,              "N=int(V)"},
+    {MCODE_F_ATOI,             "N=atoi(S[,radix])"},
     {MCODE_F_ITOA,             "S=itoa(N[,radix])"},
     {MCODE_F_LCASE,            "S=lcase(S1)"},
     {MCODE_F_LEN,              "N=len(S)"},

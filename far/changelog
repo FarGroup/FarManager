@@ -1,4 +1,9 @@
-1. drkns 22.02.2009 23:25:01 +0200 - build 2530
+svs 24.02.2009 11:48:36 +0300 - build 2531
+
+1. Macro: N=atoi(S[,radix])
+   radix=0 ==> autodetect
+
+drkns 22.02.2009 23:25:01 +0200 - build 2530
 
 1. Ќе работали CtrlP/CtrlM дл€ вертикальных блоков, ибо IsClipboardFormatAvailable
    по определению ничего не знает о внутреннем фаровском буфере обмена.
