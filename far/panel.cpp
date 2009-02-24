@@ -2122,7 +2122,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				FileList *DestPanel = ((FileList*)this);
 
 				DestPanel->PluginGetPanelInfo(Info);
-				Result = DestPanel->PluginGetPanelItem(Info.CurrentItem,(PluginPanelItem*)Param2);
+        Result = (int)DestPanel->PluginGetPanelItem(Info.CurrentItem,(PluginPanelItem*)Param2);
 			}
 			break;
 
