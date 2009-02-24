@@ -2655,7 +2655,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw)
 
         //ѕосчитаем сколько байт нам ещЄ надо прочитать чтоб получить целую букву.
         int cc=1;
-        c = c & 0xF8;
+        c = c & 0xF0;
         if ( c == 0xE0 )
           cc = 2;
         else if ( c == 0xF0 )
