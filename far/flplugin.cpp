@@ -234,7 +234,7 @@ size_t FileList::FileListToPluginItem2(struct FileListItem *fi,struct PluginPane
 		pi->FindData.lpwszFileName=wcscpy((wchar_t*)data,fi->strName);
 		data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
 		pi->FindData.lpwszAlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
-		size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+		data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
 		pi->FindData.nFileSize=fi->UnpSize;
 		pi->FindData.nPackSize=fi->PackSize;
 		pi->FindData.dwFileAttributes=fi->FileAttr;
@@ -266,7 +266,7 @@ size_t FileList::FileListToPluginItem2(struct FileListItem *fi,struct PluginPane
 		else
 		{
 			pi->Description=wcscpy((wchar_t*)data,fi->DizText);
-			size+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
+			data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
 		}
 
 		if(fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
