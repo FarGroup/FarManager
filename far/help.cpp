@@ -1921,7 +1921,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 					if(!IsSlash(*Ptr2)) // Это имя модуля?
           {
             // значит удалим это чертово имя :-)
-						if((Ptr2=wcsrchr(lpwszTopic,L'\\')) == NULL || (Ptr2=wcsrchr(lpwszTopic,L'/')) == NULL) // ВО! Фигня какая-то :-(
+						if((Ptr2=wcsrchr(lpwszTopic,L'\\')) == NULL && (Ptr2=wcsrchr(lpwszTopic,L'/')) == NULL) // ВО! Фигня какая-то :-(
               *lpwszTopic=0;
           }
           if( *lpwszTopic )
