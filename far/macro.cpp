@@ -1423,6 +1423,20 @@ static bool metaFunc()
 #endif
 
 
+// N=atoi(S[,radix])
+static bool atoiFunc()
+{
+  bool Ret=true;
+  wchar_t *endptr;
+
+  TVar R = VMStack.Pop();
+  TVar S = VMStack.Pop();
+
+  VMStack.Push(TVar(_wcstoi64(S.toString(),&endptr,(int)R.toInteger())));
+
+  return Ret;
+}
+
 // S=itoa(N[,radix])
 static bool itowFunc()
 {
@@ -3227,7 +3241,8 @@ done:
         bool (*Func)();
       } MCode2Func[]={
         {MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
-        {MCODE_F_ITOA,itowFunc}, // S=itoa(N,radix)
+        {MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
+        {MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
         {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
         {MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
         {MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
