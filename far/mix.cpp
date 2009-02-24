@@ -1612,7 +1612,7 @@ bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
 	return (Octets>0||Ascii)?false:true;
 }
 
-bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUseHeuristics)
 {
 	DWORD dwTemp=0;
 
@@ -1645,19 +1645,23 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 		}
 		else
 			fseek (file, 0, SEEK_SET);
-	}
-	if(bSignatureFound)
+	}                   
+
+	if( bSignatureFound )
 	{
-		bDetect=true;
+		bDetect = true;
 	}
 	else
+
+	if ( bUseHeuristics )
 	{
 		fseek (file, 0, SEEK_SET);
 		size_t sz=0x8000; // BUGBUG. TODO: configurable
 		LPVOID Buffer=xf_malloc(sz);
 		sz=fread(Buffer,1,sz,file);
 		fseek (file,0,SEEK_SET);
-		if(sz)
+
+		if ( sz )
 		{
 			int test=
 				IS_TEXT_UNICODE_STATISTICS|
@@ -1668,18 +1672,22 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 				IS_TEXT_UNICODE_ODD_LENGTH|
 				IS_TEXT_UNICODE_NULL_BYTES;
 				
-			if(IsTextUnicode(Buffer,(int)sz,&test))
+			if ( IsTextUnicode (Buffer, (int)sz, &test) )
 			{
-				if(!(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS))
+				if ( !(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS) )
 				{
-					if((test&IS_TEXT_UNICODE_NULL_BYTES)||(test&IS_TEXT_UNICODE_CONTROLS)||(test&IS_TEXT_UNICODE_REVERSE_CONTROLS))
+					if( (test&IS_TEXT_UNICODE_NULL_BYTES) || 
+						(test&IS_TEXT_UNICODE_CONTROLS) || 
+						(test&IS_TEXT_UNICODE_REVERSE_CONTROLS) )
 					{
-						if((test&IS_TEXT_UNICODE_CONTROLS)||(test&IS_TEXT_UNICODE_STATISTICS))
+						if ( (test&IS_TEXT_UNICODE_CONTROLS) || (test&IS_TEXT_UNICODE_STATISTICS) )
 						{
 							nCodePage=CP_UNICODE;
 							bDetect=true;
 						}
-						else if((test&IS_TEXT_UNICODE_REVERSE_CONTROLS)||(test&IS_TEXT_UNICODE_REVERSE_STATISTICS))
+						else 
+						
+						if ( (test&IS_TEXT_UNICODE_REVERSE_CONTROLS) || (test&IS_TEXT_UNICODE_REVERSE_STATISTICS) )
 						{
 							nCodePage=CP_REVERSEBOM;
 							bDetect=true;
@@ -1687,15 +1695,15 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 					}
 				}
 			}
-			else if(IsTextUTF8((const LPBYTE)Buffer,sz))
+			else 
+			
+			if ( IsTextUTF8 ((const LPBYTE)Buffer, sz) )
 			{
 				nCodePage=CP_UTF8;
 				bDetect=true;
 			}
 			else
 			{
-				bDetect=false;
-
 				nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
 
 				ns->HandleData((const char*)Buffer,(PRUint32)sz);
@@ -1713,10 +1721,13 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound)
 			
 			}
 		}
+
 		xf_free(Buffer);
 	}
+
 	if ( pSignatureFound )
 		*pSignatureFound = bSignatureFound;
+
 	return bDetect;
 }
 

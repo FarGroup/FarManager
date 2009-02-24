@@ -533,7 +533,7 @@ int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNam
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
-bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL);
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
 
 string& HiText2Str(string& strDest, const wchar_t *Str);
 

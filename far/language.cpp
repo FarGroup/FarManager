@@ -363,7 +363,7 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
       strFileName=L"";
     else
     {
-      GetFileFormat (LangFile,nCodePage);
+      GetFileFormat (LangFile, nCodePage, NULL, false);
 
       string strNULL;
 
@@ -486,7 +486,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
       continue;
 
     UINT nCodePage=CP_OEMCP;
-    GetFileFormat(LangFile,nCodePage);
+    GetFileFormat(LangFile, nCodePage, NULL, false);
 
     string strLangName, strLangDescr;
     if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,nCodePage))
