@@ -1,12 +1,14 @@
-m4_include(`farversion.m4')m4_dnl
+я╗┐m4_include(`farversion.m4')m4_dnl
 #hpp file name
 lang.hpp
 #number of languages
-2
+3
 #id:0 language file name, language name, language description
-FarRus.lng Russian "Russian (Русский)"
+FarRus.lng Russian "Russian (╨а╤Г╤Б╤Б╨║╨╕╨╣)"
 #id:1 language file name, language name, language description
 FarEng.lng English "English"
+#id:2 language file name, language name, language description
+FarCze.lng ─Мe┼бtina "Czech (─Мe┼бtina)"
 
 #head of the hpp file
 hhead:#ifndef __FARLANG_HPP__
@@ -15,385 +17,472 @@ hhead:#define __FARLANG_HPP__
 #tail of the hpp file
 htail:
 htail:#endif  // __FARLANG_HPP__
-#и так сколько нужно
+#╨╕ ╤В╨░╨║ ╤Б╨║╨╛╨╗╤М╨║╨╛ ╨╜╤Г╨╢╨╜╨╛
 
 #--------------------------------------------------------------------
-#теперь идут сами lng фиды
+#╤В╨╡╨┐╨╡╤А╤М ╨╕╨┤╤Г╤В ╤Б╨░╨╝╨╕ lng ╤Д╨╕╨┤╤Л
 #--------------------------------------------------------------------
-#первым идёт имя элемнта в enum а перед ним могут идти коменты для hpp
-#файла
-#h://коммент до записи самого MShareware
-#he://коммент после записи самого MShareware
+#╨┐╨╡╤А╨▓╤Л╨╝ ╨╕╨┤╤С╤В ╨╕╨╝╤П ╤Н╨╗╨╡╨╝╨╜╤В╨░ ╨▓ enum ╨░ ╨┐╨╡╤А╨╡╨┤ ╨╜╨╕╨╝ ╨╝╨╛╨│╤Г╤В ╨╕╨┤╤В╨╕ ╨║╨╛╨╝╨╡╨╜╤В╤Л ╨┤╨╗╤П hpp
+#╤Д╨░╨╣╨╗╨░
+#h://╨║╨╛╨╝╨╝╨╡╨╜╤В ╨┤╨╛ ╨╖╨░╨┐╨╕╤Б╨╕ ╤Б╨░╨╝╨╛╨│╨╛ MShareware
+#he://╨║╨╛╨╝╨╝╨╡╨╜╤В ╨┐╨╛╤Б╨╗╨╡ ╨╖╨░╨┐╨╕╤Б╨╕ ╤Б╨░╨╝╨╛╨│╨╛ MShareware
 #MShareware
-#теперь идут lng строки для всех языков по очереди а перед ними коменты
-#l://это запишеться во все lng файлы перед строкой текста
-#le://это запишеться во все lng файлы после строки текста
-#ls://это только перед рус строкой
-#lse://это только после рус строки
-#"Пожалуйста, зарегистрируйте Вашу копию"
-#ls://это только перед енг строкой
-#lse://это только после енг строки
+#╤В╨╡╨┐╨╡╤А╤М ╨╕╨┤╤Г╤В lng ╤Б╤В╤А╨╛╨║╨╕ ╨┤╨╗╤П ╨▓╤Б╨╡╤Е ╤П╨╖╤Л╨║╨╛╨▓ ╨┐╨╛ ╨╛╤З╨╡╤А╨╡╨┤╨╕ ╨░ ╨┐╨╡╤А╨╡╨┤ ╨╜╨╕╨╝╨╕ ╨║╨╛╨╝╨╡╨╜╤В╤Л
+#l://╤Н╤В╨╛ ╨╖╨░╨┐╨╕╤И╨╡╤В╤М╤Б╤П ╨▓╨╛ ╨▓╤Б╨╡ lng ╤Д╨░╨╣╨╗╤Л ╨┐╨╡╤А╨╡╨┤ ╤Б╤В╤А╨╛╨║╨╛╨╣ ╤В╨╡╨║╤Б╤В╨░
+#le://╤Н╤В╨╛ ╨╖╨░╨┐╨╕╤И╨╡╤В╤М╤Б╤П ╨▓╨╛ ╨▓╤Б╨╡ lng ╤Д╨░╨╣╨╗╤Л ╨┐╨╛╤Б╨╗╨╡ ╤Б╤В╤А╨╛╨║╨╕ ╤В╨╡╨║╤Б╤В╨░
+#ls://╤Н╤В╨╛ ╤В╨╛╨╗╤М╨║╨╛ ╨┐╨╡╤А╨╡╨┤ ╤А╤Г╤Б ╤Б╤В╤А╨╛╨║╨╛╨╣
+#lse://╤Н╤В╨╛ ╤В╨╛╨╗╤М╨║╨╛ ╨┐╨╛╤Б╨╗╨╡ ╤А╤Г╤Б ╤Б╤В╤А╨╛╨║╨╕
+#"╨Я╨╛╨╢╨░╨╗╤Г╨╣╤Б╤В╨░, ╨╖╨░╤А╨╡╨│╨╕╤Б╤В╤А╨╕╤А╤Г╨╣╤В╨╡ ╨Т╨░╤И╤Г ╨║╨╛╨┐╨╕╤О"
+#ls://╤Н╤В╨╛ ╤В╨╛╨╗╤М╨║╨╛ ╨┐╨╡╤А╨╡╨┤ ╨╡╨╜╨│ ╤Б╤В╤А╨╛╨║╨╛╨╣
+#lse://╤Н╤В╨╛ ╤В╨╛╨╗╤М╨║╨╛ ╨┐╨╛╤Б╨╗╨╡ ╨╡╨╜╨│ ╤Б╤В╤А╨╛╨║╨╕
 #"Evaluation copy, please register."
 
 MYes=0
 `l://Version: 'MAJOR`.'MINOR` build 'BUILD
 l:
-"Да"
+"╨Ф╨░"
 "Yes"
+"Ano"
 
 MNo
-"Нет"
+"╨Э╨╡╤В"
 "No"
+"Ne"
 
 MOk
-"Продолжить"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М"
 "OK"
+"Ok"
 
 MHYes
 l:
-"&Да"
+"&╨Ф╨░"
 "&Yes"
+"&Ano"
 
 MHNo
-"&Нет"
+"&╨Э╨╡╤В"
 "&No"
+"&Ne"
 
 MHOk
-"&Продолжить"
+"&╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М"
 "&OK"
+"&Ok"
 
 MCancel
 l:
-"Отменить"
+"╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "Cancel"
+"Storno"
 
 MRetry
-"Повторить"
+"╨Я╨╛╨▓╤В╨╛╤А╨╕╤В╤М"
 "Retry"
+"Znovu"
 
 MSkip
-"Пропустить"
+"╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "Skip"
+"P┼Щesko─Нit"
 
 MAbort
-"Прервать"
+"╨Я╤А╨╡╤А╨▓╨░╤В╤М"
 "Abort"
+"Zru┼бit"
 
 MIgnore
-"Игнорировать"
+"╨Ш╨│╨╜╨╛╤А╨╕╤А╨╛╨▓╨░╤В╤М"
 "Ignore"
+"Ignorovat"
 
 MDelete
-"Удалить"
+"╨г╨┤╨░╨╗╨╕╤В╤М"
 "Delete"
+"Smazat"
 
 MSplit
-"Разделить"
+"╨а╨░╨╖╨┤╨╡╨╗╨╕╤В╤М"
 "Split"
+"Rozd─Ыlit"
 
 MRemove
-"Удалить"
+"╨г╨┤╨░╨╗╨╕╤В╤М"
 "Remove"
+"Odstranit"
 
 MHCancel
 l:
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MHRetry
-"&Повторить"
+"&╨Я╨╛╨▓╤В╨╛╤А╨╕╤В╤М"
 "&Retry"
+"&Znovu"
 
 MHSkip
-"П&ропустить"
+"╨Я&╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"&P┼Щesko─Нit"
 
 MHSkipAll
-"Пропустить &все"
+"╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М &╨▓╤Б╨╡"
 "S&kip all"
+"P┼Щesko─Нit &v┼бe"
 
 MHAbort
-"Прер&вать"
+"╨Я╤А╨╡╤А&╨▓╨░╤В╤М"
 "&Abort"
+"Zr&u┼бit"
 
 MHIgnore
-"&Игнорировать"
+"&╨Ш╨│╨╜╨╛╤А╨╕╤А╨╛╨▓╨░╤В╤М"
 "&Ignore"
+"&Ignorovat"
 
 MHDelete
-"&Удалить"
+"&╨г╨┤╨░╨╗╨╕╤В╤М"
 "&Delete"
+"S&mazat"
 
 MHRemove
-"&Удалить"
+"&╨г╨┤╨░╨╗╨╕╤В╤М"
 "R&emove"
+"&Odstranit"
 
 MHSplit
-"Раз&делить"
+"╨а╨░╨╖&╨┤╨╡╨╗╨╕╤В╤М"
 "Sp&lit"
+"&Rozd─Ыlit"
 
 MWarning
 l:
-"Предупреждение"
+"╨Я╤А╨╡╨┤╤Г╨┐╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╡"
 "Warning"
+"Varov├бn├н"
 
 MError
-"Ошибка"
+"╨Ю╤И╨╕╨▒╨║╨░"
 "Error"
+"Chyba"
 
 MQuit
 l:
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MAskQuit
-"Вы хотите завершить работу в FAR?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨╖╨░╨▓╨╡╤А╤И╨╕╤В╤М ╤А╨░╨▒╨╛╤В╤Г ╨▓ FAR?"
 "Do you want to quit FAR?"
+"Opravdu chcete ukon─Нit FAR?"
 
 MF1
 l:
 l://functional keys - 6 characters max
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MF2
-"ПользМ"
+"╨Я╨╛╨╗╤М╨╖╨Ь"
 "UserMn"
+"U┼╛ivMn"
 
 MF3
-"Просм"
+"╨Я╤А╨╛╤Б╨╝"
 "View"
+"Zobraz"
 
 MF4
-"Редакт"
+"╨а╨╡╨┤╨░╨║╤В"
+"Edit"
 "Edit"
 
 MF5
-"Копир"
+"╨Ъ╨╛╨┐╨╕╤А"
 "Copy"
+"Kop├нr."
 
 MF6
-"Перен"
+"╨Я╨╡╤А╨╡╨╜"
 "RenMov"
+"P┼ЩjP┼Щs"
 
 MF7
-"Папка"
+"╨Я╨░╨┐╨║╨░"
 "MkFold"
+"VytAdr"
 
 MF8
-"Удален"
+"╨г╨┤╨░╨╗╨╡╨╜"
 "Delete"
+"Smazat"
 
 MF9
-"КонфМн"
+"╨Ъ╨╛╨╜╤Д╨Ь╨╜"
 "ConfMn"
+"KonfMn"
 
 MF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MAltF1
 l:
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MAltF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MAltF3
-"Смотр."
+"╨б╨╝╨╛╤В╤А."
 "View.."
+"Zobr.."
 
 MAltF4
-"Редак."
+"╨а╨╡╨┤╨░╨║."
+"Edit.."
 "Edit.."
 
 MAltF5
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MAltF6
-"Ссылка"
+"╨б╤Б╤Л╨╗╨║╨░"
 "MkLink"
+"VytLnk"
 
 MAltF7
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Find"
+"Hledat"
 
 MAltF8
-"Истор"
+"╨Ш╤Б╤В╨╛╤А"
 "Histry"
+"Histor"
 
 MAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MAltF10
-"Дерево"
+"╨Ф╨╡╤А╨╡╨▓╨╛"
 "Tree"
+"Strom"
 
 MAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MAltF12
-"ИстПап"
+"╨Ш╤Б╤В╨Я╨░╨┐"
 "FoldHs"
+"AdrsHs"
 
 MCtrlF1
 l:
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MCtrlF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MCtrlF3
-"Имя   "
+"╨Ш╨╝╤П   "
 "Name  "
+"N├бzev "
 
 MCtrlF4
-"Расшир"
+"╨а╨░╤Б╤И╨╕╤А"
 "Extens"
+"P┼Щ├нpon"
 
 MCtrlF5
-"Модиф"
+"╨Ь╨╛╨┤╨╕╤Д"
 "Modifn"
+"Modifk"
 
 MCtrlF6
-"Размер"
+"╨а╨░╨╖╨╝╨╡╤А"
 "Size"
+"Veliko"
 
 MCtrlF7
-"Несорт"
+"╨Э╨╡╤Б╨╛╤А╤В"
 "Unsort"
+"Ne┼Щadi"
 
 MCtrlF8
-"Создан"
+"╨б╨╛╨╖╨┤╨░╨╜"
 "Creatn"
+"Vytvo┼Щ"
 
 MCtrlF9
-"Доступ"
+"╨Ф╨╛╤Б╤В╤Г╨┐"
 "Access"
+"P┼Щ├нstu"
 
 MCtrlF10
-"Описан"
+"╨Ю╨┐╨╕╤Б╨░╨╜"
 "Descr"
+"Popis"
 
 MCtrlF11
-"Владел"
+"╨Т╨╗╨░╨┤╨╡╨╗"
 "Owner"
+"Vlastn"
 
 MCtrlF12
-"Сорт"
+"╨б╨╛╤А╤В"
 "Sort"
+"T┼Щ├нdit"
 
 MShiftF1
 l:
-"Добавл"
+"╨Ф╨╛╨▒╨░╨▓╨╗"
 "Add"
+"P┼Щidat"
 
 MShiftF2
-"Распак"
+"╨а╨░╤Б╨┐╨░╨║"
 "Extrct"
+"Rozbal"
 
 MShiftF3
-"АрхКом"
+"╨Р╤А╤Е╨Ъ╨╛╨╝"
 "ArcCmd"
+"ArcP┼Щ├н"
 
 MShiftF4
-"Редак."
+"╨а╨╡╨┤╨░╨║."
+"Edit.."
 "Edit.."
 
 MShiftF5
-"Копир"
+"╨Ъ╨╛╨┐╨╕╤А"
 "Copy"
+"Kop├нr."
 
 MShiftF6
-"Переим"
+"╨Я╨╡╤А╨╡╨╕╨╝"
 "Rename"
+"P┼Щejme"
 
 MShiftF7
 ""
 ""
+""
 
 MShiftF8
-"Удален"
+"╨г╨┤╨░╨╗╨╡╨╜"
 "Delete"
+"Smazat"
 
 MShiftF9
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MShiftF10
-"Послдн"
+"╨Я╨╛╤Б╨╗╨┤╨╜"
 "Last"
+"Posled"
 
 MShiftF11
-"Группы"
+"╨У╤А╤Г╨┐╨┐╤Л"
 "Group"
+"Skupin"
 
 MShiftF12
-"Выбран"
+"╨Т╤Л╨▒╤А╨░╨╜"
 "SelUp"
+"VybPrv"
 
 MAltShiftF1
 l:
 l:// Main AltShift
 ""
 ""
+""
 
 MAltShiftF2
+""
 ""
 ""
 
 MAltShiftF3
 ""
 ""
+""
 
 MAltShiftF4
+""
 ""
 ""
 
 MAltShiftF5
 ""
 ""
+""
 
 MAltShiftF6
+""
 ""
 ""
 
 MAltShiftF7
 ""
 ""
+""
 
 MAltShiftF8
 ""
 ""
+""
 
 MAltShiftF9
-"КонфПл"
+"╨Ъ╨╛╨╜╤Д╨Я╨╗"
 "ConfPl"
+"KonfPl"
 
 MAltShiftF10
+""
 ""
 ""
 
 MAltShiftF11
 ""
 ""
+""
 
 MAltShiftF12
+""
 ""
 ""
 
@@ -402,48 +491,60 @@ l:
 l://Main CtrlShift
 ""
 ""
+""
 
 MCtrlShiftF2
 ""
 ""
+""
 
 MCtrlShiftF3
-"Просм"
+"╨Я╤А╨╛╤Б╨╝"
 "View"
+"Zobraz"
 
 MCtrlShiftF4
-"Редакт"
+"╨а╨╡╨┤╨░╨║╤В"
+"Edit"
 "Edit"
 
 MCtrlShiftF5
+""
 ""
 ""
 
 MCtrlShiftF6
 ""
 ""
+""
 
 MCtrlShiftF7
+""
 ""
 ""
 
 MCtrlShiftF8
 ""
 ""
+""
 
 MCtrlShiftF9
+""
 ""
 ""
 
 MCtrlShiftF10
 ""
 ""
+""
 
 MCtrlShiftF11
 ""
 ""
+""
 
 MCtrlShiftF12
+""
 ""
 ""
 
@@ -452,48 +553,60 @@ l:
 l:// Main CtrlAlt
 ""
 ""
+""
 
 MCtrlAltF2
+""
 ""
 ""
 
 MCtrlAltF3
 ""
 ""
+""
 
 MCtrlAltF4
+""
 ""
 ""
 
 MCtrlAltF5
 ""
 ""
+""
 
 MCtrlAltF6
+""
 ""
 ""
 
 MCtrlAltF7
 ""
 ""
+""
 
 MCtrlAltF8
+""
 ""
 ""
 
 MCtrlAltF9
 ""
 ""
+""
 
 MCtrlAltF10
+""
 ""
 ""
 
 MCtrlAltF11
 ""
 ""
+""
 
 MCtrlAltF12
+""
 ""
 ""
 
@@ -502,44 +615,55 @@ l:
 l:// Main CtrlAltShift
 ""
 ""
+""
 
 MCtrlAltShiftF2
+""
 ""
 ""
 
 MCtrlAltShiftF3
 ""
 ""
+""
 
 MCtrlAltShiftF4
+""
 ""
 ""
 
 MCtrlAltShiftF5
 ""
 ""
+""
 
 MCtrlAltShiftF6
+""
 ""
 ""
 
 MCtrlAltShiftF7
 ""
 ""
+""
 
 MCtrlAltShiftF8
+""
 ""
 ""
 
 MCtrlAltShiftF9
 ""
 ""
+""
 
 MCtrlAltShiftF10
 ""
 ""
+""
 
 MCtrlAltShiftF11
+""
 ""
 ""
 
@@ -547,1348 +671,1672 @@ MCtrlAltShiftF12
 le://End of functional keys
 ""
 ""
+""
 
 MHistoryTitle
 l:
-"История команд"
+"╨Ш╤Б╤В╨╛╤А╨╕╤П ╨║╨╛╨╝╨░╨╜╨┤"
 "History"
+"Historie"
 
 MFolderHistoryTitle
-"История папок"
+"╨Ш╤Б╤В╨╛╤А╨╕╤П ╨┐╨░╨┐╨╛╨║"
 "Folders history"
+"Historie adres├б┼Щ┼п"
 
 MViewHistoryTitle
-"История просмотра"
+"╨Ш╤Б╤В╨╛╤А╨╕╤П ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░"
 "File view history"
+"Historie prohl├н┼╛en├н soubor┼п"
 
 MViewHistoryIsCreate
-"Создать файл?"
+"╨б╨╛╨╖╨┤╨░╤В╤М ╤Д╨░╨╣╨╗?"
 "Create file?"
+"Vytvo┼Щit soubor?"
 
 MHistoryView
-"Просмотр"
+"╨Я╤А╨╛╤Б╨╝╨╛╤В╤А"
 "View"
+"Zobrazit"
 
 MHistoryEdit
-"Редактор"
+"╨а╨╡╨┤╨░╨║╤В╨╛╤А"
 "Edit"
+"Editovat"
 
 MHistoryExt
-"Внешний "
+"╨Т╨╜╨╡╤И╨╜╨╕╨╣ "
 "Ext."
+"Roz┼б├н┼Щen├н"
 
 MHistoryClear
 l:
-"История будет полностью очищена. Продолжить?"
+"╨Ш╤Б╤В╨╛╤А╨╕╤П ╨▒╤Г╨┤╨╡╤В ╨┐╨╛╨╗╨╜╨╛╤Б╤В╤М╤О ╨╛╤З╨╕╤Й╨╡╨╜╨░. ╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М?"
 "All records in the history will be deleted. Continue?"
+"V┼бechny z├бznamy v historii budou smaz├бny. Pokra─Нovat?"
 
 MClear
-"&Очистить"
+"&╨Ю╤З╨╕╤Б╤В╨╕╤В╤М"
 "&Clear history"
+"&Vymazat historii"
 
 MConfigSystemTitle
 l:
-"Системные параметры"
+"╨б╨╕╤Б╤В╨╡╨╝╨╜╤Л╨╡ ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л"
 "System settings"
+"Nastaven├н syst├йmu"
 
 MConfigRO
-"&Снимать атрибут R/O c CD файлов"
+"&╨б╨╜╨╕╨╝╨░╤В╤М ╨░╤В╤А╨╕╨▒╤Г╤В R/O c CD ╤Д╨░╨╣╨╗╨╛╨▓"
 "&Clear R/O attribute from CD files"
+"Z&ru┼бit atribut R/O u soubor┼п na CD"
 
 MConfigRecycleBin
-"Удалять в &Корзину"
+"╨г╨┤╨░╨╗╤П╤В╤М ╨▓ &╨Ъ╨╛╤А╨╖╨╕╨╜╤Г"
 "&Delete to Recycle Bin"
+"&Mazat do Ko┼бe"
 
 MConfigRecycleBinLink
-"У&далять символические ссылки"
+"╨г&╨┤╨░╨╗╤П╤В╤М ╤Б╨╕╨╝╨▓╨╛╨╗╨╕╤З╨╡╤Б╨║╨╕╨╡ ╤Б╤Б╤Л╨╗╨║╨╕"
 "Delete symbolic &links"
+"Mazat symbolick├й &linky"
 
 MConfigSystemCopy
-"Использовать систе&мную функцию копирования"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М ╤Б╨╕╤Б╤В╨╡&╨╝╨╜╤Г╤О ╤Д╤Г╨╜╨║╤Ж╨╕╤О ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╤П"
 "Use sys&tem copy routine"
+"Pou┼╛├нvat kop├нrovac├н rutiny sys&t├йmu"
 
 MConfigCopySharing
-"Копировать открытые для &записи файлы"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╨┤╨╗╤П &╨╖╨░╨┐╨╕╤Б╨╕ ╤Д╨░╨╣╨╗╤Л"
 "Copy files opened for &writing"
+"Kop├нrovat soubory otev┼Щen├й pro &z├бpis"
 
 MConfigScanJunction
-"Ск&анировать символические ссылки"
+"╨б╨║&╨░╨╜╨╕╤А╨╛╨▓╨░╤В╤М ╤Б╨╕╨╝╨▓╨╛╨╗╨╕╤З╨╡╤Б╨║╨╕╨╡ ╤Б╤Б╤Л╨╗╨║╨╕"
 "Scan s&ymbolic links"
+"Prohled├бvat s&ymbolick├й linky"
 
 MConfigCreateUppercaseFolders
-"Создавать &папки заглавными буквами"
+"╨б╨╛╨╖╨┤╨░╨▓╨░╤В╤М &╨┐╨░╨┐╨║╨╕ ╨╖╨░╨│╨╗╨░╨▓╨╜╤Л╨╝╨╕ ╨▒╤Г╨║╨▓╨░╨╝╨╕"
 "Create folders in &uppercase"
+"Vytv├б┼Щet adres├б┼Щe &velk├╜mi p├нsmeny"
 
 MConfigInactivity
-"&Время бездействия"
+"&╨Т╤А╨╡╨╝╤П ╨▒╨╡╨╖╨┤╨╡╨╣╤Б╤В╨▓╨╕╤П"
 "&Inactivity time"
+"&Doba ne─Нinnosti"
 
 MConfigInactivityMinutes
-"минут"
+"╨╝╨╕╨╜╤Г╤В"
 "minutes"
+"minut"
 
 MConfigSaveHistory
-"Сохранять &историю команд"
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М &╨╕╤Б╤В╨╛╤А╨╕╤О ╨║╨╛╨╝╨░╨╜╨┤"
 "Save commands &history"
+"Ukl├бdat historii &p┼Щ├нkaz┼п"
 
 MConfigSaveFoldersHistory
-"Сохранять историю п&апок"
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╨╕╤Б╤В╨╛╤А╨╕╤О ╨┐&╨░╨┐╨╛╨║"
 "Save &folders history"
+"Ukl├бdat historii &adres├б┼Щ┼п"
 
 MConfigSaveViewHistory
-"Сохранять историю п&росмотра и редактора"
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╨╕╤Б╤В╨╛╤А╨╕╤О ╨┐&╤А╨╛╤Б╨╝╨╛╤В╤А╨░ ╨╕ ╤А╨╡╨┤╨░╨║╤В╨╛╤А╨░"
 "Save &view and edit history"
+"Ukl├бdat historii Zobraz a Editu&j"
 
 MConfigRegisteredTypes
-"Использовать стандартные &типы файлов"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М ╤Б╤В╨░╨╜╨┤╨░╤А╤В╨╜╤Л╨╡ &╤В╨╕╨┐╤Л ╤Д╨░╨╣╨╗╨╛╨▓"
 "Use Windows &registered types"
+"Pou┼╛├нvat regi&strovan├й typy Windows"
 
 MConfigCloseCDGate
-"Автоматически монтироват&ь CDROM"
+"╨Р╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨╝╨╛╨╜╤В╨╕╤А╨╛╨▓╨░╤В&╤М CDROM"
 "CD drive auto &mount"
+"Automatick├й p┼Щ&ipojen├н CD disk┼п"
 
 MConfigPersonalPath
-"Путь к персональным п&лагинам:"
+"╨Я╤Г╤В╤М ╨║ ╨┐╨╡╤А╤Б╨╛╨╜╨░╨╗╤М╨╜╤Л╨╝ ╨┐&╨╗╨░╨│╨╕╨╜╨░╨╝:"
 "&Path for personal plugins:"
+"&Cesta k vlastn├нm plugin┼пm:"
 
 MConfigAutoSave
-"Автозапись кон&фигурации"
+"╨Р╨▓╤В╨╛╨╖╨░╨┐╨╕╤Б╤М ╨║╨╛╨╜&╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕"
 "Auto &save setup"
+"Automatick├й ukl├бdan├н &nastaven├н"
 
 MConfigPanelTitle
 l:
-"Настройки панели"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ ╨┐╨░╨╜╨╡╨╗╨╕"
 "Panel settings"
+"Nastaven├н panel┼п"
 
 MConfigHidden
-"Показывать скр&ытые и системные файлы"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╨║╤А&╤Л╤В╤Л╨╡ ╨╕ ╤Б╨╕╤Б╤В╨╡╨╝╨╜╤Л╨╡ ╤Д╨░╨╣╨╗╤Л"
 "Show &hidden and system files"
+"Uk├бzat &skryt├й a syst├йmov├й soubory"
 
 MConfigHighlight
-"&Раскраска файлов"
+"&╨а╨░╤Б╨║╤А╨░╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Hi&ghlight files"
+"Zv├╜&raz┼Иovat soubory"
 
 MConfigAutoChange
-"&Автосмена папки"
+"&╨Р╨▓╤В╨╛╤Б╨╝╨╡╨╜╨░ ╨┐╨░╨┐╨║╨╕"
 "&Auto change folder"
+"&Automaticky m─Ыnit adres├б┼Щ"
 
 MConfigSelectFolders
-"Пометка &папок"
+"╨Я╨╛╨╝╨╡╤В╨║╨░ &╨┐╨░╨┐╨╛╨║"
 "Select &folders"
+"Vyb├нrat a&dres├б┼Щe"
 
 MConfigSortFolderExt
-"Сортировать имена папок по рас&ширению"
+"╨б╨╛╤А╤В╨╕╤А╨╛╨▓╨░╤В╤М ╨╕╨╝╨╡╨╜╨░ ╨┐╨░╨┐╨╛╨║ ╨┐╨╛ ╤А╨░╤Б&╤И╨╕╤А╨╡╨╜╨╕╤О"
 "Sort folder names by e&xtension"
+"┼Шadit adres├б┼Щe podle p┼Щ├нpony"
 
 MConfigReverseSort
-"Разрешить &обратную сортировку"
+"╨а╨░╨╖╤А╨╡╤И╨╕╤В╤М &╨╛╨▒╤А╨░╤В╨╜╤Г╤О ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╤Г"
 "Allow re&verse sort modes"
+"Do&volit zm─Ыnu sm─Ыru ┼Щazen├н"
 
 MConfigAutoUpdateLimit
-"Отключать автооб&новление панелей,"
+"╨Ю╤В╨║╨╗╤О╤З╨░╤В╤М ╨░╨▓╤В╨╛╨╛╨▒&╨╜╨╛╨▓╨╗╨╡╨╜╨╕╨╡ ╨┐╨░╨╜╨╡╨╗╨╡╨╣,"
 "&Disable automatic update of panels"
+"Vypnout a&utomatickou aktualizaci panel┼п"
 
 MConfigAutoUpdateLimit2
-"если объектов больше"
+"╨╡╤Б╨╗╨╕ ╨╛╨▒╤К╨╡╨║╤В╨╛╨▓ ╨▒╨╛╨╗╤М╤И╨╡"
 "if object count exceeds"
+"jestli┼╛e po─Нet objekt┼п p┼Щekro─Н├н"
 
 MConfigAutoUpdateRemoteDrive
-"Автообновление с&етевых дисков"
+"╨Р╨▓╤В╨╛╨╛╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╕╨╡ ╤Б&╨╡╤В╨╡╨▓╤Л╤Е ╨┤╨╕╤Б╨║╨╛╨▓"
 "Network drives autor&efresh"
+"Automatick├б obnova s├н┼еov├╜ch disk┼п"
 
 MConfigShowColumns
-"Показывать &заголовки колонок"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨╖╨░╨│╨╛╨╗╨╛╨▓╨║╨╕ ╨║╨╛╨╗╨╛╨╜╨╛╨║"
 "Show &column titles"
+"Zobrazovat &nadpisy sloupc┼п"
 
 MConfigShowStatus
-"Показывать &строку статуса"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╤Б╤В╤А╨╛╨║╤Г ╤Б╤В╨░╤В╤Г╤Б╨░"
 "Show &status line"
+"Zobrazovat sta&vov├╜ ┼Щ├бdek"
 
 MConfigShowTotal
-"Показывать су&ммарную информацию"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╤Г&╨╝╨╝╨░╤А╨╜╤Г╤О ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤О"
 "Show files &total information"
+"Zobrazovat &informace o velikosti soubor┼п"
 
 MConfigShowFree
-"Показывать с&вободное место"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б&╨▓╨╛╨▒╨╛╨┤╨╜╨╛╨╡ ╨╝╨╡╤Б╤В╨╛"
 "Show f&ree size"
+"Zobrazovat vo&ln├й m├нsto"
 
 MConfigShowScrollbar
-"Показывать по&лосу прокрутки"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨┐╨╛&╨╗╨╛╤Б╤Г ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Show scroll&bar"
+"Zobrazovat &posuvn├нk"
 
 MConfigShowScreensNumber
-"Показывать количество &фоновых экранов"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨║╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ &╤Д╨╛╨╜╨╛╨▓╤Л╤Е ╤Н╨║╤А╨░╨╜╨╛╨▓"
 "Show background screens &number"
+"Zobrazovat po─Нet &obrazovek na pozad├н"
 
 MConfigShowSortMode
-"Показывать букву режима сор&тировки"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨▒╤Г╨║╨▓╤Г ╤А╨╡╨╢╨╕╨╝╨░ ╤Б╨╛╤А&╤В╨╕╤А╨╛╨▓╨║╨╕"
 "Show sort &mode letter"
+"Zobrazovat p├нsmeno &m├│du ┼Щazen├н"
 
 MConfigInterfaceTitle
 l:
-"Настройки интерфейса"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ ╨╕╨╜╤В╨╡╤А╤Д╨╡╨╣╤Б╨░"
 "Interface settings"
+"Nastaven├н rozhran├н"
 
 MConfigClock
-"&Часы в панелях"
+"&╨з╨░╤Б╤Л ╨▓ ╨┐╨░╨╜╨╡╨╗╤П╤Е"
 "&Clock in panels"
+"&Hodiny v panelech"
 
 MConfigViewerEditorClock
-"Ч&асы при редактировании и просмотре"
+"╨з&╨░╤Б╤Л ╨┐╤А╨╕ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╕ ╨╕ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨╡"
 "C&lock in viewer and editor"
+"H&odiny v prohl├н┼╛e─Нi a editoru"
 
 MConfigMouse
-"Мы&шь"
+"╨Ь╤Л&╤И╤М"
 "M&ouse"
+"M&y┼б"
 
 MConfigMousePanelMClickRule
-"В панелях ср&едняя кнопка равна Enter"
+"╨Т ╨┐╨░╨╜╨╡╨╗╤П╤Е ╤Б╤А&╨╡╨┤╨╜╤П╤П ╨║╨╜╨╛╨┐╨║╨░ ╤А╨░╨▓╨╜╨░ Enter"
 "Middle &button equals Enter in panels"
+"Prost┼Щedn├н tla─Н. znamen├б v panelech Enter"
 
 MConfigKeyBar
-"Показывать &линейку клавиш"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨╗╨╕╨╜╨╡╨╣╨║╤Г ╨║╨╗╨░╨▓╨╕╤И"
 "Show &key bar"
+"Zobrazovat &zkratkov├й kl├бvesy"
 
 MConfigMenuBar
-"Всегда показывать &меню"
+"╨Т╤Б╨╡╨│╨┤╨░ ╨┐╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨╝╨╡╨╜╤О"
 "Always show &menu bar"
+"V┼╛dy zobrazovat hlavn├н &menu"
 
 MConfigSaver
-"&Сохранение экрана"
+"&╨б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ ╤Н╨║╤А╨░╨╜╨░"
 "&Screen saver"
+"Sp&o┼Щi─Н obrazovky"
 
 MConfigSaverMinutes
-"минут"
+"╨╝╨╕╨╜╤Г╤В"
 "minutes"
+"minut"
 
 MConfigUsePromptFormat
-"Установить &формат командной строки"
+"╨г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М &╤Д╨╛╤А╨╝╨░╤В ╨║╨╛╨╝╨░╨╜╨┤╨╜╨╛╨╣ ╤Б╤В╤А╨╛╨║╨╕"
 "Set command line &prompt format"
+"Nastavit form├бt &p┼Щ├нkazov├йho ┼Щ├бdku"
 
 MConfigCopyTotal
-"Показывать &общий индикатор копирования"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨╛╨▒╤Й╨╕╨╣ ╨╕╨╜╨┤╨╕╨║╨░╤В╨╛╤А ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╤П"
 "Show &total copy progress indicator"
+"Zobraz. ukazatel celkov├йho stavu &kop├нrov├бn├н"
 
 MConfigCopyTimeRule
-"Показывать информацию о времени &копирования"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤О ╨╛ ╨▓╤А╨╡╨╝╨╡╨╜╨╕ &╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╤П"
 "Show cop&ying time information"
+"Zobrazovat informace o ─Нase kop├нrov├бn├н"
 
 MConfigPgUpChangeDisk
-"Использовать Ctrl-PgUp для в&ыбора диска"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М Ctrl-PgUp ╨┤╨╗╤П ╨▓&╤Л╨▒╨╛╤А╨░ ╨┤╨╕╤Б╨║╨░"
 "Use Ctrl-Pg&Up to change drive"
+"Pou┼╛├нt Ctrl-Pg&Up pro zm─Ыnu disku"
 
 MConfigDlgSetsTitle
 l:
-"Настройки диалогов"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ ╨┤╨╕╨░╨╗╨╛╨│╨╛╨▓"
 "Dialog settings"
+"Nastaven├н dialog┼п"
 
 MConfigDialogsEditHistory
-"&История в строках ввода диалогов"
+"&╨Ш╤Б╤В╨╛╤А╨╕╤П ╨▓ ╤Б╤В╤А╨╛╨║╨░╤Е ╨▓╨▓╨╛╨┤╨░ ╨┤╨╕╨░╨╗╨╛╨│╨╛╨▓"
 "&History in dialog edit controls"
+"H&istorie v dialoz├нch"
 
 MConfigDialogsEditBlock
-"&Постоянные блоки в строках ввода"
+"&╨Я╨╛╤Б╤В╨╛╤П╨╜╨╜╤Л╨╡ ╨▒╨╗╨╛╨║╨╕ ╨▓ ╤Б╤В╤А╨╛╨║╨░╤Е ╨▓╨▓╨╛╨┤╨░"
 "&Persistent blocks in edit controls"
+"&Trval├й bloky v edita─Нn├нch pol├нch"
 
 MConfigDialogsDelRemovesBlocks
-"Del удаляет б&локи в строках ввода"
+"Del ╤Г╨┤╨░╨╗╤П╨╡╤В ╨▒&╨╗╨╛╨║╨╕ ╨▓ ╤Б╤В╤А╨╛╨║╨░╤Е ╨▓╨▓╨╛╨┤╨░"
 "&Del removes blocks in edit controls"
+"&Del ma┼╛e polo┼╛ky v edita─Нn├нch pol├нch"
 
 MConfigDialogsAutoComplete
-"&Автозавершение в строках ввода"
+"&╨Р╨▓╤В╨╛╨╖╨░╨▓╨╡╤А╤И╨╡╨╜╨╕╨╡ ╨▓ ╤Б╤В╤А╨╛╨║╨░╤Е ╨▓╨▓╨╛╨┤╨░"
 "&AutoComplete in edit controls"
+"Automatick├й dokon─Нov├бn├н v edita─Н&n├нch pol├нch"
 
 MConfigDialogsEULBsClear
-"Backspace &удаляет неизмененный текст"
+"Backspace &╤Г╨┤╨░╨╗╤П╨╡╤В ╨╜╨╡╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "&Backspace deletes unchanged text"
+"&Backspace ma┼╛e nezm─Ыn─Ыn├╜ text"
 
 MConfigDialogsMouseButton
-"Клик мыши &вне диалога закрывает диалог"
+"╨Ъ╨╗╨╕╨║ ╨╝╤Л╤И╨╕ &╨▓╨╜╨╡ ╨┤╨╕╨░╨╗╨╛╨│╨░ ╨╖╨░╨║╤А╤Л╨▓╨░╨╡╤В ╨┤╨╕╨░╨╗╨╛╨│"
 "Mouse click &outside a dialog closes it"
+"Kl&iknut├н my┼б├н mimo dialog ho zav┼Щe"
 
 MViewConfigTitle
 l:
-"Программа просмотра"
+"╨Я╤А╨╛╨│╤А╨░╨╝╨╝╨░ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░"
 "Viewer"
+"Prohl├н┼╛e─Н"
 
 MViewConfigExternal
-"Внешняя программа просмотра:"
+"╨Т╨╜╨╡╤И╨╜╤П╤П ╨┐╤А╨╛╨│╤А╨░╨╝╨╝╨░ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░:"
 "External viewer:"
+"Extern├н prohl├н┼╛e─Н"
 
 MViewConfigExternalF3
-"Запускать по F3"
+"╨Ч╨░╨┐╤Г╤Б╨║╨░╤В╤М ╨┐╨╛ F3"
 "Use for F3"
+"Pou┼╛├нt pro F3"
 
 MViewConfigExternalAltF3
-"Запускать по Alt-F3"
+"╨Ч╨░╨┐╤Г╤Б╨║╨░╤В╤М ╨┐╨╛ Alt-F3"
 "Use for Alt-F3"
+"Pou┼╛├нt pro Alt-F3"
 
 MViewConfigExternalCommand
-"&Команда просмотра:"
+"&╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░:"
 "&Viewer command:"
+"&P┼Щ├нkaz prohl├н┼╛e─Нe:"
 
 MViewConfigInternal
-"Встроенная программа просмотра:"
+"╨Т╤Б╤В╤А╨╛╨╡╨╜╨╜╨░╤П ╨┐╤А╨╛╨│╤А╨░╨╝╨╝╨░ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░:"
 "Internal viewer:"
+"Intern├н prohl├н┼╛e─Н"
 
 MViewConfigSavePos
-"&Сохранять позицию файла"
+"&╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╨┐╨╛╨╖╨╕╤Ж╨╕╤О ╤Д╨░╨╣╨╗╨░"
 "&Save file position"
+"&Ukl├бdat pozici v souboru"
 
 MViewConfigSaveShortPos
-"Сохранять &закладки"
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М &╨╖╨░╨║╨╗╨░╨┤╨║╨╕"
 "Save &bookmarks"
+"Ukl├бdat &z├бlo┼╛ky"
 
 MViewAutoDetectTable
-"&Автоопределение таблицы символов"
+"&╨Р╨▓╤В╨╛╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╡╨╜╨╕╨╡ ╤В╨░╨▒╨╗╨╕╤Ж╤Л ╤Б╨╕╨╝╨▓╨╛╨╗╨╛╨▓"
 "&Autodetect character table"
+"&Autodetekovat znakovou sadu"
 
 MViewConfigTabSize
-"Раз&мер табуляции"
+"╨а╨░╨╖&╨╝╨╡╤А ╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╨╕"
 "Tab si&ze"
+"Velikost &Tabul├бtoru"
 
 MViewConfigScrollbar
-"Показывать &полосу прокрутки"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨┐╨╛╨╗╨╛╤Б╤Г ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Show scro&llbar"
+"Zobrazovat posu&vn├нk"
 
 MViewConfigArrows
-"Показывать стрелки с&двига"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Б╤В╤А╨╡╨╗╨║╨╕ ╤Б&╨┤╨▓╨╕╨│╨░"
 "Show scrolling arro&ws"
+"Zobrazovat &skrolovac├н ┼бipky"
 
 MViewConfigPersistentSelection
-"Постоянное &выделение"
+"╨Я╨╛╤Б╤В╨╛╤П╨╜╨╜╨╛╨╡ &╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╕╨╡"
 "&Persistent selection"
+"Trval├й &v├╜b─Ыry"
 
 MViewConfigAnsiTableAsDefault
-"&Изначально открывать файлы в WIN кодировке"
+"&╨Ш╨╖╨╜╨░╤З╨░╨╗╤М╨╜╨╛ ╨╛╤В╨║╤А╤Л╨▓╨░╤В╤М ╤Д╨░╨╣╨╗╤Л ╨▓ WIN ╨║╨╛╨┤╨╕╤А╨╛╨▓╨║╨╡"
 "&Initially open files in WIN encoding"
+"Automaticky otev├нrat soubory ve &WIN k├│dov├бn├н"
 
 MEditConfigTitle
 l:
-"Редактор"
+"╨а╨╡╨┤╨░╨║╤В╨╛╤А"
+"Editor"
 "Editor"
 
 MEditConfigExternal
-"Внешний редактор:"
+"╨Т╨╜╨╡╤И╨╜╨╕╨╣ ╤А╨╡╨┤╨░╨║╤В╨╛╤А:"
 "External editor:"
+"Extern├н editor"
 
 MEditConfigEditorF4
-"Запускать по F4"
+"╨Ч╨░╨┐╤Г╤Б╨║╨░╤В╤М ╨┐╨╛ F4"
 "Use for F4"
+"Pou┼╛├нt pro F4"
 
 MEditConfigEditorAltF4
-"Запускать по Alt-F4"
+"╨Ч╨░╨┐╤Г╤Б╨║╨░╤В╤М ╨┐╨╛ Alt-F4"
 "Use for Alt-F4"
+"Pou┼╛├нt pro Alt-F4"
 
 MEditConfigEditorCommand
-"&Команда редактирования:"
+"&╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П:"
 "&Editor command:"
+"&P┼Щ├нkaz editoru:"
 
 MEditConfigInternal
-"Встроенный редактор:"
+"╨Т╤Б╤В╤А╨╛╨╡╨╜╨╜╤Л╨╣ ╤А╨╡╨┤╨░╨║╤В╨╛╤А:"
 "Internal editor:"
+"Intern├н editor"
 
 MEditConfigExpandTabsTitle
-"Преобразовывать &табуляцию:"
+"╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╤Л╨▓╨░╤В╤М &╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╤О:"
 "Expand &tabs:"
+"Roz┼б├н┼Щit Ta&bul├бtory mezerami"
 
 MEditConfigDoNotExpandTabs
 l:
-"Не преобразовывать табуляцию"
+"╨Э╨╡ ╨┐╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╤Л╨▓╨░╤В╤М ╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╤О"
 "Do not expand tabs"
+"Neroz┼бi┼Щovat tabul├бtory mezerami"
 
 MEditConfigExpandTabs
-"Преобразовывать новые символы табуляции в пробелы"
+"╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╤Л╨▓╨░╤В╤М ╨╜╨╛╨▓╤Л╨╡ ╤Б╨╕╨╝╨▓╨╛╨╗╤Л ╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╨╕ ╨▓ ╨┐╤А╨╛╨▒╨╡╨╗╤Л"
 "Expand newly entered tabs to spaces"
+"Roz┼б├н┼Щit nov─Ы zadan├й tabul├бtory mezerami"
 
 MEditConfigConvertAllTabsToSpaces
-"Преобразовывать все символы табуляции в пробелы"
+"╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╤Л╨▓╨░╤В╤М ╨▓╤Б╨╡ ╤Б╨╕╨╝╨▓╨╛╨╗╤Л ╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╨╕ ╨▓ ╨┐╤А╨╛╨▒╨╡╨╗╤Л"
 "Expand all tabs to spaces"
+"Roz┼б├н┼Щit v┼бechny tabul├бtory mezerami"
 
 MEditConfigPersistentBlocks
-"&Постоянные блоки"
+"&╨Я╨╛╤Б╤В╨╛╤П╨╜╨╜╤Л╨╡ ╨▒╨╗╨╛╨║╨╕"
 "&Persistent blocks"
+"&Trval├й bloky"
 
 MEditConfigDelRemovesBlocks
 l:
-"Del удаляет б&локи"
+"Del ╤Г╨┤╨░╨╗╤П╨╡╤В ╨▒&╨╗╨╛╨║╨╕"
 "&Del removes blocks"
+"&Del ma┼╛e bloky"
 
 MEditConfigAutoIndent
-"Авто&отступ"
+"╨Р╨▓╤В╨╛&╨╛╤В╤Б╤В╤Г╨┐"
 "Auto &indent"
+"Auto &Odsazov├бn├н"
 
 MEditConfigSavePos
-"&Сохранять позицию файла"
+"&╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╨┐╨╛╨╖╨╕╤Ж╨╕╤О ╤Д╨░╨╣╨╗╨░"
 "&Save file position"
+"&Ukl├бdat pozici v souboru"
 
 MEditConfigSaveShortPos
-"Сохранять &закладки"
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М &╨╖╨░╨║╨╗╨░╨┤╨║╨╕"
 "Save &bookmarks"
+"Ukl├бdat z├б&lo┼╛ky"
 
 MEditAutoDetectTable
-"&Автоопределение таблицы символов"
+"&╨Р╨▓╤В╨╛╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╡╨╜╨╕╨╡ ╤В╨░╨▒╨╗╨╕╤Ж╤Л ╤Б╨╕╨╝╨▓╨╛╨╗╨╛╨▓"
 "&Autodetect character table"
+"&Autodetekovat znakovou sadu"
 
 MEditCursorBeyondEnd
-"Ку&рсор за пределами строки"
+"╨Ъ╤Г&╤А╤Б╨╛╤А ╨╖╨░ ╨┐╤А╨╡╨┤╨╡╨╗╨░╨╝╨╕ ╤Б╤В╤А╨╛╨║╨╕"
 "&Cursor beyond end of line"
+"&Kurzor za koncem ┼Щ├бdku"
 
 MEditLockROFileModification
-"Блокировать р&едактирование файлов с атрибутом R/O"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╤В╤М ╤А&╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓ ╤Б ╨░╤В╤А╨╕╨▒╤Г╤В╨╛╨╝ R/O"
 "Lock editing of read-only &files"
+"&Zamknout editaci soubor┼п ur─Нen├╜ch jen pro ─Нten├н"
 
 MEditWarningBeforeOpenROFile
-"Пре&дупреждать при открытии файла с атрибутом R/O"
+"╨Я╤А╨╡&╨┤╤Г╨┐╤А╨╡╨╢╨┤╨░╤В╤М ╨┐╤А╨╕ ╨╛╤В╨║╤А╤Л╤В╨╕╨╕ ╤Д╨░╨╣╨╗╨░ ╤Б ╨░╤В╤А╨╕╨▒╤Г╤В╨╛╨╝ R/O"
 "&Warn when opening read-only files"
+"&Varovat p┼Щi otev┼Щen├н soubor┼п ur─Нen├╜ch jen pro ─Нten├н"
 
 MEditConfigTabSize
-"Раз&мер табуляции"
+"╨а╨░╨╖&╨╝╨╡╤А ╤В╨░╨▒╤Г╨╗╤П╤Ж╨╕╨╕"
 "Tab si&ze"
+"Velikost &Tabul├бtoru"
 
 MEditConfigScrollbar
-"Показывать &полосу прокрутки"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М &╨┐╨╛╨╗╨╛╤Б╤Г ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Show scro&llbar"
+"Zobr&azovat posuvn├нk"
 
 MEditConfigAnsiTableAsDefault
-"&Изначально открывать файлы в WIN кодировке"
+"&╨Ш╨╖╨╜╨░╤З╨░╨╗╤М╨╜╨╛ ╨╛╤В╨║╤А╤Л╨▓╨░╤В╤М ╤Д╨░╨╣╨╗╤Л ╨▓ WIN ╨║╨╛╨┤╨╕╤А╨╛╨▓╨║╨╡"
 "I&nitially open files in WIN encoding"
+"Automaticky otev├нrat soubory ve &WIN k├│dov├бn├н"
 
 MEditConfigAnsiTableForNewFile
-"Созда&вать новые файлы в WIN кодировке"
+"╨б╨╛╨╖╨┤╨░&╨▓╨░╤В╤М ╨╜╨╛╨▓╤Л╨╡ ╤Д╨░╨╣╨╗╤Л ╨▓ WIN ╨║╨╛╨┤╨╕╤А╨╛╨▓╨║╨╡"
 "C&reate new files in WIN encoding"
+"V&ytv├б┼Щet nov├й soubory ve WIN k├│dov├бn├н"
 
 MSaveSetupTitle
 l:
-"Конфигурация"
+"╨Ъ╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╤П"
 "Save setup"
+"Ulo┼╛it nastaven├н"
 
 MSaveSetupAsk1
-"Вы хотите сохранить"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Б╨╛╤Е╤А╨░╨╜╨╕╤В╤М"
 "Do you wish to save"
+"P┼Щejete si ulo┼╛it"
 
 MSaveSetupAsk2
-"текущую конфигурацию?"
+"╤В╨╡╨║╤Г╤Й╤Г╤О ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╤О?"
 "current setup?"
+"aktu├бln├н nastaven├н?"
 
 MSaveSetup
-"Сохранить"
+"╨б╨╛╤Е╤А╨░╨╜╨╕╤В╤М"
 "Save"
+"Ulo┼╛it"
 
 MCopyDlgTitle
 l:
-"Копирование"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡"
 "Copy"
+"Kop├нrovat"
 
 MMoveDlgTitle
-"Переименование/Перенос"
+"╨Я╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╨░╨╜╨╕╨╡/╨Я╨╡╤А╨╡╨╜╨╛╤Б"
 "Rename/Move"
+"P┼Щejmenovat/P┼Щesunout"
 
 MLinkDlgTitle
-"Ссылка"
+"╨б╤Б╤Л╨╗╨║╨░"
+"Link"
 "Link"
 
 MCopySecurity
-"П&рава доступа:"
+"╨Я&╤А╨░╨▓╨░ ╨┤╨╛╤Б╤В╤Г╨┐╨░:"
 "&Access rights:"
+"&P┼Щ├нstupov├б pr├бva:"
 
 MCopySecurityCopy
-"Копироват&ь"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В&╤М"
 "Co&py"
+"&Kop├нrovat"
 
 MCopySecurityInherit
-"Нас&ледовать"
+"╨Э╨░╤Б&╨╗╨╡╨┤╨╛╨▓╨░╤В╤М"
 "&Inherit"
+"&Zd─Ыdit"
 
 MCopySecurityLeave
-"По умол&чанию"
+"╨Я╨╛ ╤Г╨╝╨╛╨╗&╤З╨░╨╜╨╕╤О"
 "Defau&lt"
+"V├╜ch&oz├н"
 
 MCopyIfFileExist
-"Уже су&ществующие файлы:"
+"╨г╨╢╨╡ ╤Б╤Г&╤Й╨╡╤Б╤В╨▓╤Г╤О╤Й╨╕╨╡ ╤Д╨░╨╣╨╗╤Л:"
 "Already e&xisting files:"
+"Ji┼╛ e&xistuj├нc├н soubory:"
 
 MCopyAsk
-"&Запрос действия"
+"&╨Ч╨░╨┐╤А╨╛╤Б ╨┤╨╡╨╣╤Б╤В╨▓╨╕╤П"
 "&Ask"
+"Pt├бt s&e"
 
 MCopyAskRO
-"Запрос подтверждения для &R/O файлов"
+"╨Ч╨░╨┐╤А╨╛╤Б ╨┐╨╛╨┤╤В╨▓╨╡╤А╨╢╨┤╨╡╨╜╨╕╤П ╨┤╨╗╤П &R/O ╤Д╨░╨╣╨╗╨╛╨▓"
 "Also ask on &R/O files"
+"Pt├бt se tak├й na &R/O soubory"
 
 MCopyOnlyNewerFiles
-"Только &новые/обновленные файлы"
+"╨в╨╛╨╗╤М╨║╨╛ &╨╜╨╛╨▓╤Л╨╡/╨╛╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╜╤Л╨╡ ╤Д╨░╨╣╨╗╤Л"
 "Only ne&wer file(s)"
+"Pouze &nov─Ыj┼б├н soubory"
 
 MLinkType
-"&Тип ссылки:"
+"&╨в╨╕╨┐ ╤Б╤Б╤Л╨╗╨║╨╕:"
 "Link t&ype:"
+"&Typ linku:"
 
 MLinkTypeJunction
-"&связь каталогов"
+"&╤Б╨▓╤П╨╖╤М ╨║╨░╤В╨░╨╗╨╛╨│╨╛╨▓"
 "directory &junction"
+"k┼Щ├н┼╛en├н a&dres├б┼Щ┼п"
 
 MLinkTypeHardlink
-"&жёсткая ссылка"
+"&╨╢╤С╤Б╤В╨║╨░╤П ╤Б╤Б╤Л╨╗╨║╨░"
 "&hard link"
+"&pevn├╜ link"
 
 MLinkTypeSymlinkFile
-"символическая ссылка (&файл)"
+"╤Б╨╕╨╝╨▓╨╛╨╗╨╕╤З╨╡╤Б╨║╨░╤П ╤Б╤Б╤Л╨╗╨║╨░ (&╤Д╨░╨╣╨╗)"
 "symbolic link (&file)"
+"symbolick├╜ link (&soubor)"
 
 MLinkTypeSymlinkDirectory
-"символическая ссылка (&папка)"
+"╤Б╨╕╨╝╨▓╨╛╨╗╨╕╤З╨╡╤Б╨║╨░╤П ╤Б╤Б╤Л╨╗╨║╨░ (&╨┐╨░╨┐╨║╨░)"
 "symbolic link (fol&der)"
+"symbolick├╜ link (&adres├б┼Щ)"
 
 MCopySymLinkContents
-"Копировать содерж&имое символических ссылок"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╤Б╨╛╨┤╨╡╤А╨╢&╨╕╨╝╨╛╨╡ ╤Б╨╕╨╝╨▓╨╛╨╗╨╕╤З╨╡╤Б╨║╨╕╤Е ╤Б╤Б╤Л╨╗╨╛╨║"
 "Cop&y contents of symbolic links"
+"Kop├нrovat obsah sym&bolick├╜ch link┼п"
 
 MCopyMultiActions
-"Обр&абатывать несколько имен файлов"
+"╨Ю╨▒╤А&╨░╨▒╨░╤В╤Л╨▓╨░╤В╤М ╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ ╨╕╨╝╨╡╨╜ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Process &multiple destinations"
+"&Zpracovat v├нce m├нst ur─Нen├н"
 
 MCopyDlgCopy
-"&Копировать"
+"&╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М"
 "&Copy"
+"&Kop├нrovat"
 
 MCopyDlgTree
-"F10-&Дерево"
+"F10-&╨Ф╨╡╤А╨╡╨▓╨╛"
 "F10-&Tree"
+"F10-&Strom"
 
 MCopyDlgCancel
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "Ca&ncel"
+"&Storno"
 
 MCopyDlgRename
-"&Переименовать"
+"&╨Я╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╨░╤В╤М"
 "&Rename"
+"P┼Щej&menovat"
 
 MCopyDlgLink
-"&Создать ссылку"
+"&╨б╨╛╨╖╨┤╨░╤В╤М ╤Б╤Б╤Л╨╗╨║╤Г"
 "&Link"
+"&Linkovat"
 
 MCopyDlgTotal
-"Всего"
+"╨Т╤Б╨╡╨│╨╛"
 "Total"
+"Celkem"
 
 MCopyScanning
-"Сканирование папок..."
+"╨б╨║╨░╨╜╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╨░╨┐╨╛╨║..."
 "Scanning folders..."
+"Na─Н├нt├бn├н adres├б┼Щ┼п..."
 
 MCopyPrepareSecury
-"Применение прав доступа..."
+"╨Я╤А╨╕╨╝╨╡╨╜╨╡╨╜╨╕╨╡ ╨┐╤А╨░╨▓ ╨┤╨╛╤Б╤В╤Г╨┐╨░..."
 "Applying access rights..."
+"Nastavuji p┼Щ├нstupov├б pr├бva..."
 
 MCopyUseFilter
-"Исполь&зовать фильтр"
+"╨Ш╤Б╨┐╨╛╨╗╤М&╨╖╨╛╨▓╨░╤В╤М ╤Д╨╕╨╗╤М╤В╤А"
 "&Use filter"
+"P&ou┼╛├нt filtr"
 
 MCopySetFilter
-"&Фильтр"
+"&╨д╨╕╨╗╤М╤В╤А"
 "Filt&er"
+"Filt&r"
 
 MCopyFile
 l:
-"Копировать \"%.55s\""
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М \"%.55s\""
 "Copy \"%.55s\""
+"Kop├нrovat \"%.55s\""
 
 MMoveFile
-"Переименовать или перенести \"%.55s\""
+"╨Я╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╨░╤В╤М ╨╕╨╗╨╕ ╨┐╨╡╤А╨╡╨╜╨╡╤Б╤В╨╕ \"%.55s\""
 "Rename or move \"%.55s\""
+"P┼Щejmenovat nebo p┼Щesunout \"%.55s\""
 
 MLinkFile
-"Создать ссылку \"%.55s\""
+"╨б╨╛╨╖╨┤╨░╤В╤М ╤Б╤Б╤Л╨╗╨║╤Г \"%.55s\""
 "Link \"%.55s\""
+"Linkovat \"%.55s\""
 
 MCopyFiles
-"Копировать %d элемент%s"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М %d ╤Н╨╗╨╡╨╝╨╡╨╜╤В%s"
 "Copy %d item%s"
+"Kop├нrovat %d polo┼╛%s"
 
 MMoveFiles
-"Переименовать или перенести %d элемент%s"
+"╨Я╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╨░╤В╤М ╨╕╨╗╨╕ ╨┐╨╡╤А╨╡╨╜╨╡╤Б╤В╨╕ %d ╤Н╨╗╨╡╨╝╨╡╨╜╤В%s"
 "Rename or move %d item%s"
+"P┼Щejmenovat nebo p┼Щesunout %d polo┼╛%s"
 
 MLinkFiles
-"Создать ссылки %d элемент%s"
+"╨б╨╛╨╖╨┤╨░╤В╤М ╤Б╤Б╤Л╨╗╨║╨╕ %d ╤Н╨╗╨╡╨╝╨╡╨╜╤В%s"
 "Link %d item%s"
+"Linkovat %d polo┼╛%s"
 
 MCMLTargetTO
-" &в:"
+" &╨▓:"
 " t&o:"
+" d&o:"
 
 MCMLItems0
 ""
 ""
+"u"
 
 MCMLItemsA
-"а"
+"╨░"
 "s"
+"ek"
 
 MCMLItemsS
-"ов"
+"╨╛╨▓"
 "s"
+"ky"
 
 MCopyIncorrectTargetList
 l:
-"Указан некорректный список целей!"
+"╨г╨║╨░╨╖╨░╨╜ ╨╜╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╤Л╨╣ ╤Б╨┐╨╕╤Б╨╛╨║ ╤Ж╨╡╨╗╨╡╨╣!"
 "Incorrect target list!"
+"Nespr├бvn├╜ seznam c├нl┼п!"
 
 MCopyCopyingTitle
 l:
-"Копирование"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡"
 "Copying"
+"Kop├нruji"
 
 MCopyMovingTitle
-"Перенос"
+"╨Я╨╡╤А╨╡╨╜╨╛╤Б"
 "Moving"
+"P┼Щesouv├бm"
 
 MCopyCannotFind
 l:
-"Файл не найден"
+"╨д╨░╨╣╨╗ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜"
 "Cannot find the file"
+"Nelze nal├йzt soubor"
 
 MCannotCopyFolderToItself1
 l:
-"Нельзя копировать папку"
+"╨Э╨╡╨╗╤М╨╖╤П ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨┐╨░╨┐╨║╤Г"
 "Cannot copy the folder"
+"Nelze kop├нrovat adres├б┼Щ"
 
 MCannotCopyFolderToItself2
-"в саму себя"
+"╨▓ ╤Б╨░╨╝╤Г ╤Б╨╡╨▒╤П"
 "onto itself"
+"s├бm na sebe"
 
 MCannotCopyToTwoDot
 l:
-"Нельзя копировать файл или папку"
+"╨Э╨╡╨╗╤М╨╖╤П ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╤Д╨░╨╣╨╗ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╤Г"
 "You may not copy files or folders"
+"Nelze kop├нrovat soubory nebo adres├б┼Щe"
 
 MCannotMoveToTwoDot
-"Нельзя перемещать файл или папку"
+"╨Э╨╡╨╗╤М╨╖╤П ╨┐╨╡╤А╨╡╨╝╨╡╤Й╨░╤В╤М ╤Д╨░╨╣╨╗ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╤Г"
 "You may not move files or folders"
+"Nelze p┼Щesunout soubory nebo adres├б┼Щe"
 
 MCannotCopyMoveToTwoDot
-"выше корневого каталога"
+"╨▓╤Л╤И╨╡ ╨║╨╛╤А╨╜╨╡╨▓╨╛╨│╨╛ ╨║╨░╤В╨░╨╗╨╛╨│╨░"
 "higher than the root folder"
+"na vy┼б┼б├н ├║rove┼И ne┼╛ ko┼Щenov├╜ adres├б┼Щ"
 
 MCopyCannotCreateFolder
 l:
-"Ошибка создания папки"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П ╨┐╨░╨┐╨║╨╕"
 "Cannot create the folder"
+"Nelze vytvo┼Щit adres├б┼Щ"
 
 MCopyCannotChangeFolderAttr
-"Невозможно установить атрибуты для папки"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤Г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨░╤В╤А╨╕╨▒╤Г╤В╤Л ╨┤╨╗╤П ╨┐╨░╨┐╨║╨╕"
 "Failed to set folder attributes"
+"Nastaven├н atribut┼п adres├б┼Щe selhalo"
 
 MCopyCannotRenameFolder
-"Невозможно переименовать папку"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╨┐╨╡╤А╨╡╨╕╨╝╨╡╨╜╨╛╨▓╨░╤В╤М ╨┐╨░╨┐╨║╤Г"
 "Cannot rename the folder"
+"Nelze p┼Щejmenovat adres├б┼Щ"
 
 MCopyIgnore
-"&Игнорировать"
+"&╨Ш╨│╨╜╨╛╤А╨╕╤А╨╛╨▓╨░╤В╤М"
 "&Ignore"
+"&Ignorovat"
 
 MCopyIgnoreAll
-"Игнорировать &все"
+"╨Ш╨│╨╜╨╛╤А╨╕╤А╨╛╨▓╨░╤В╤М &╨▓╤Б╨╡"
 "Ignore &All"
+"Ignorovat &v┼бe"
 
 MCopyRetry
-"&Повторить"
+"&╨Я╨╛╨▓╤В╨╛╤А╨╕╤В╤М"
 "&Retry"
+"&Opakovat"
 
 MCopySkip
-"П&ропустить"
+"╨Я&╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"&P┼Щesko─Нit"
 
 MCopySkipAll
-"&Пропустить все"
+"&╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М ╨▓╤Б╨╡"
 "S&kip all"
+"P┼Щ&esko─Нit v┼бe"
 
 MCopyCancel
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MCopyDecrypt
-"Рас&шифровать"
+"╨а╨░╤Б&╤И╨╕╤Д╤А╨╛╨▓╨░╤В╤М"
 "&Decrypt"
+"&De┼бifrovat"
 
 MCopyDecryptAll
-"&Все"
+"&╨Т╤Б╨╡"
 "Decrypt &all"
+"De┼б&ifrovat v┼бe"
 
 MCopyCannotCreateLink
 l:
-"Ошибка создания ссылки"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П ╤Б╤Б╤Л╨╗╨║╨╕"
 "Cannot create the link"
+"Nelze vytvo┼Щit symbolick├╜ link"
 
 MCopyFolderNotEmpty
-"Папка назначения должна быть пустой"
+"╨Я╨░╨┐╨║╨░ ╨╜╨░╨╖╨╜╨░╤З╨╡╨╜╨╕╤П ╨┤╨╛╨╗╨╢╨╜╨░ ╨▒╤Л╤В╤М ╨┐╤Г╤Б╤В╨╛╨╣"
 "Target folder must be empty"
+"C├нlov├╜ adres├б┼Щ mus├н b├╜t pr├бzdn├╜"
 
 MCopyCannotCreateJunctionToFile
-"Невозможно создать связь. Файл уже существует:"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤Б╨╛╨╖╨┤╨░╤В╤М ╤Б╨▓╤П╨╖╤М. ╨д╨░╨╣╨╗ ╤Г╨╢╨╡ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╨╡╤В:"
 "Cannot create junction. The file already exists:"
+"Nelze vytvo┼Щit k┼Щ├н┼╛ov├╜ odkaz. Soubor ji┼╛ existuje:"
 
 MCopyCannotCreateVolMount
 l:
-"Ошибка монтирования диска"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╝╨╛╨╜╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П ╨┤╨╕╤Б╨║╨░"
 "Volume mount points error"
+"Chyba p┼Щipojovac├нch svazk┼п"
 
 MCopyRetrVolFailed
-"Невозможно получить информацию о '%s'"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╨┐╨╛╨╗╤Г╤З╨╕╤В╤М ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤О ╨╛ '%s'"
 "Retrieving volume name for '%s' failed"
+"Z├нsk├бn├н jm├йna zvazku pro '%s' selhalo"
 
 MCopyMountVolFailed
-"Ошибка при монтировании диска '%s'"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨╝╨╛╨╜╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╕ ╨┤╨╕╤Б╨║╨░ '%s'"
 "Attempt to volume mount '%s'"
+"Pokus o p┼Щipojen├н svazku '%s'"
 
 MCopyMountVolFailed2
-"на '%s'"
+"╨╜╨░ '%s'"
 "at '%s' failed"
+"na '%s' selhal"
 
 MCopyCannotSupportVolMount
-"Функция монтирования дисков не поддерживается"
+"╨д╤Г╨╜╨║╤Ж╨╕╤П ╨╝╨╛╨╜╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П ╨┤╨╕╤Б╨║╨╛╨▓ ╨╜╨╡ ╨┐╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╨╡╤В╤Б╤П"
 "Volume mounting is not supported"
+"P┼Щipojov├бn├н svazku nen├н podporov├бno"
 
 MCopyMountName
 "disk_%c"
 "Disk_%c"
+"Disk_%c"
 
 MCannotCopyFileToItself1
 l:
-"Нельзя копировать файл"
+"╨Э╨╡╨╗╤М╨╖╤П ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╤Д╨░╨╣╨╗"
 "Cannot copy the file"
+"Nelze kop├нrovat soubor"
 
 MCannotCopyFileToItself2
-"в самого себя"
+"╨▓ ╤Б╨░╨╝╨╛╨│╨╛ ╤Б╨╡╨▒╤П"
 "onto itself"
+"s├бm na sebe"
 
 MCopyStream1
 l:
-"Исходный файл содержит более одного потока данных,"
+"╨Ш╤Б╤Е╨╛╨┤╨╜╤Л╨╣ ╤Д╨░╨╣╨╗ ╤Б╨╛╨┤╨╡╤А╨╢╨╕╤В ╨▒╨╛╨╗╨╡╨╡ ╨╛╨┤╨╜╨╛╨│╨╛ ╨┐╨╛╤В╨╛╨║╨░ ╨┤╨░╨╜╨╜╤Л╤Е,"
 "The source file contains more than one data stream."
+"Zdrojov├╜ soubor obsahuje v├нce ne┼╛ jeden datov├╜ proud."
 
 MCopyStream2
-"но вы не используете системную функцию копирования."
+"╨╜╨╛ ╨▓╤Л ╨╜╨╡ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╨╡ ╤Б╨╕╤Б╤В╨╡╨╝╨╜╤Г╤О ╤Д╤Г╨╜╨║╤Ж╨╕╤О ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╤П."
 "but since you do not use a system copy routine."
+"proto┼╛e nepou┼╛├нv├бte syst├йmovou kop├нrovac├н rutinu."
 
 MCopyStream3
-"но том назначения не поддерживает этой возможности."
+"╨╜╨╛ ╤В╨╛╨╝ ╨╜╨░╨╖╨╜╨░╤З╨╡╨╜╨╕╤П ╨╜╨╡ ╨┐╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╨╡╤В ╤Н╤В╨╛╨╣ ╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛╤Б╤В╨╕."
 "but the destination volume does not support this feature."
+"proto┼╛e c├нlov├╜ svazek nepodporuje tuto vlastnost."
 
 MCopyStream4
-"Часть сведений не будет сохранена."
+"╨з╨░╤Б╤В╤М ╤Б╨▓╨╡╨┤╨╡╨╜╨╕╨╣ ╨╜╨╡ ╨▒╤Г╨┤╨╡╤В ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨░."
 "Some data will not be preserved as a result."
+"To bude m├нt za n├бsledek, ┼╛e n─Ыkter├б data nebudou uchov├бna."
 
 MCopyFileExist
 l:
-"Файл уже существует"
+"╨д╨░╨╣╨╗ ╤Г╨╢╨╡ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╨╡╤В"
 "File already exists"
+"Soubor ji┼╛ existuje"
 
 MCopySource
-"&Новый"
+"&╨Э╨╛╨▓╤Л╨╣"
 "&New"
+"&Nov├╜"
 
 MCopyDest
-"Су&ществующий"
+"╨б╤Г&╤Й╨╡╤Б╤В╨▓╤Г╤О╤Й╨╕╨╣"
 "E&xisting"
+"E&xistuj├нc├н"
 
 MCopyOverwrite
-"В&место"
+"╨Т&╨╝╨╡╤Б╤В╨╛"
 "&Overwrite"
+"&P┼Щepsat"
 
 MCopyContinue
-"П&родолжить"
+"╨Я&╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М"
 "C&ontinue"
+"P&okra─Нovat"
 
 MCopySkipOvr
-"&Пропустить"
+"&╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"P┼Щes&ko─Нit"
 
 MCopyAppend
-"&Дописать"
+"&╨Ф╨╛╨┐╨╕╤Б╨░╤В╤М"
 "A&ppend"
+"P┼Щ&ipojit"
 
 MCopyResume
-"Возоб&новить"
+"╨Т╨╛╨╖╨╛╨▒&╨╜╨╛╨▓╨╕╤В╤М"
 "&Resume"
+"Po&kra─Нovat"
 
 MCopyCancelOvr
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MCopyRememberChoice
-"&Запомнить выбор"
+"&╨Ч╨░╨┐╨╛╨╝╨╜╨╕╤В╤М ╨▓╤Л╨▒╨╛╤А"
 "&Remember choice"
+"Zapama&tovat volbu"
 
 MCopyFileRO
 l:
-"Файл имеет атрибут \"Только для чтения\""
+"╨д╨░╨╣╨╗ ╨╕╨╝╨╡╨╡╤В ╨░╤В╤А╨╕╨▒╤Г╤В \"╨в╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П\""
 "The file is read only"
+"Soubor je ur─Нen pouze pro ─Нten├н"
 
 MCopyAskDelete
-"Вы хотите удалить его?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨╡╨│╨╛?"
 "Do you wish to delete it?"
+"Opravdu si ho p┼Щejete smazat?"
 
 MCopyDeleteRO
-"&Удалить"
+"&╨г╨┤╨░╨╗╨╕╤В╤М"
 "&Delete"
+"S&mazat"
 
 MCopyDeleteAllRO
-"&Все"
+"&╨Т╤Б╨╡"
 "&All"
+"&V┼бe"
 
 MCopySkipRO
-"&Пропустить"
+"&╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"P┼Щes&ko─Нit"
 
 MCopySkipAllRO
-"П&ропустить все"
+"╨Я&╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М ╨▓╤Б╨╡"
 "S&kip all"
+"P┼Щ&esko─Нit v┼бe"
 
 MCopyCancelRO
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MCannotCopy
 l:
-"Ошибка копирования"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╤П"
 "Cannot copy"
+"Nelze kop├нrovat"
 
 MCannotMove
-"Ошибка переноса"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╨╡╤А╨╡╨╜╨╛╤Б╨░"
 "Cannot move"
+"Nelze p┼Щesunout"
 
 MCannotLink
-"Ошибка создания ссылки"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П ╤Б╤Б╤Л╨╗╨║╨╕"
 "Cannot link"
+"Nelze linkovat"
 
 MCannotCopyTo
-"в"
+"╨▓"
 "to"
+"do"
 
 MCopyEncryptWarn1
-"Файл"
+"╨д╨░╨╣╨╗"
 "The file"
+"Soubor"
 
 MCopyEncryptWarn2
-"нельзя скопировать или переместить, не потеряв его шифрование."
+"╨╜╨╡╨╗╤М╨╖╤П ╤Б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨╕╨╗╨╕ ╨┐╨╡╤А╨╡╨╝╨╡╤Б╤В╨╕╤В╤М, ╨╜╨╡ ╨┐╨╛╤В╨╡╤А╤П╨▓ ╨╡╨│╨╛ ╤И╨╕╤Д╤А╨╛╨▓╨░╨╜╨╕╨╡."
 "cannot be copied or moved without losing its encryption."
+"nem┼п┼╛e b├╜t zkop├нrov├бn nebo p┼Щesunut bez ztr├бty jeho ┼бifrov├бn├н."
 
 MCopyEncryptWarn3
-"Можно пропустить эту ошибку или отменить операцию."
+"╨Ь╨╛╨╢╨╜╨╛ ╨┐╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М ╤Н╤В╤Г ╨╛╤И╨╕╨▒╨║╤Г ╨╕╨╗╨╕ ╨╛╤В╨╝╨╡╨╜╨╕╤В╤М ╨╛╨┐╨╡╤А╨░╤Ж╨╕╤О."
 "You can choose to ignore this error and continue, or cancel."
+"M┼п┼╛ete tuto chybu ignorovat a pokra─Нovat, nebo operaci ukon─Нit."
 
 MCopyReadError
 l:
-"Ошибка чтения данных из"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤З╤В╨╡╨╜╨╕╤П ╨┤╨░╨╜╨╜╤Л╤Е ╨╕╨╖"
 "Cannot read data from"
+"Nelze ─Н├нst data z"
 
 MCopyWriteError
-"Ошибка записи данных в"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨┐╨╕╤Б╨╕ ╨┤╨░╨╜╨╜╤Л╤Е ╨▓"
 "Cannot write data to"
+"Nelze zapsat data do"
 
 MCopyProcessed
 l:
-"Обработано файлов: %d"
+"╨Ю╨▒╤А╨░╨▒╨╛╤В╨░╨╜╨╛ ╤Д╨░╨╣╨╗╨╛╨▓: %d"
 "Files processed: %d"
+"Zpracov├бno soubor┼п: %d"
 
 MCopyProcessedTotal
-"Обработано файлов: %d из %d"
+"╨Ю╨▒╤А╨░╨▒╨╛╤В╨░╨╜╨╛ ╤Д╨░╨╣╨╗╨╛╨▓: %d ╨╕╨╖ %d"
 "Files processed: %d of %d"
+"Zpracov├бno soubor┼п: %d z %d"
 
 MCopyMoving
-"Перенос файла"
+"╨Я╨╡╤А╨╡╨╜╨╛╤Б ╤Д╨░╨╣╨╗╨░"
 "Moving the file"
+"P┼Щesunuji soubor"
 
 MCopyCopying
-"Копирование файла"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Copying the file"
+"Kop├нruji soubor"
 
 MCopyTo
-"в"
+"╨▓"
 "to"
+"do"
 
 MCopyErrorDiskFull
 l:
-"Диск заполнен. Вставьте следующий"
+"╨Ф╨╕╤Б╨║ ╨╖╨░╨┐╨╛╨╗╨╜╨╡╨╜. ╨Т╤Б╤В╨░╨▓╤М╤В╨╡ ╤Б╨╗╨╡╨┤╤Г╤О╤Й╨╕╨╣"
 "Disk full. Insert next"
+"Disk je pln├╜. Vlo┼╛te dal┼б├н├н"
 
 MDeleteTitle
 l:
-"Удаление"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡"
 "Delete"
+"Smazat"
 
 MAskDeleteFolder
-"Вы хотите удалить папку"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨┐╨░╨┐╨║╤Г"
 "Do you wish to delete the folder"
+"P┼Щejete si smazat adres├б┼Щ"
 
 MAskDeleteFile
-"Вы хотите удалить файл"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Д╨░╨╣╨╗"
 "Do you wish to delete the file"
+"P┼Щejete si smazat soubor"
 
 MAskDelete
-"Вы хотите удалить"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М"
 "Do you wish to delete"
+"P┼Щejete si smazat"
 
 MAskDeleteRecycleFolder
-"Вы хотите поместить в Корзину папку"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨┐╨╛╨╝╨╡╤Б╤В╨╕╤В╤М ╨▓ ╨Ъ╨╛╤А╨╖╨╕╨╜╤Г ╨┐╨░╨┐╨║╤Г"
 "Do you wish to move to the Recycle Bin the folder"
+"P┼Щejete si p┼Щesunout do Ko┼бe adres├б┼Щ"
 
 MAskDeleteRecycleFile
-"Вы хотите поместить в Корзину файл"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨┐╨╛╨╝╨╡╤Б╤В╨╕╤В╤М ╨▓ ╨Ъ╨╛╤А╨╖╨╕╨╜╤Г ╤Д╨░╨╣╨╗"
 "Do you wish to move to the Recycle Bin the file"
+"P┼Щejete si p┼Щesunout do Ko┼бe soubor"
 
 MAskDeleteRecycle
-"Вы хотите поместить в Корзину"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨┐╨╛╨╝╨╡╤Б╤В╨╕╤В╤М ╨▓ ╨Ъ╨╛╤А╨╖╨╕╨╜╤Г"
 "Do you wish to move to the Recycle Bin"
+"P┼Щejete si p┼Щesunout do Ko┼бe"
 
 MDeleteWipeTitle
-"Уничтожение"
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡"
 "Wipe"
+"Vymazat"
 
 MAskWipeFolder
-"Вы хотите уничтожить папку"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М ╨┐╨░╨┐╨║╤Г"
 "Do you wish to wipe the folder"
+"P┼Щejete si vymazat adres├б┼Щ"
 
 MAskWipeFile
-"Вы хотите уничтожить файл"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М ╤Д╨░╨╣╨╗"
 "Do you wish to wipe the file"
+"P┼Щejete si vymazat soubor"
 
 MAskWipe
-"Вы хотите уничтожить"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М"
 "Do you wish to wipe"
+"P┼Щejete si vymazat"
 
 MDeleteLinkTitle
-"Удаление ссылки"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╤Б╤Б╤Л╨╗╨║╨╕"
 "Delete link"
+"Smazat link"
 
 MAskDeleteLink
-"является ссылкой на"
+"╤П╨▓╨╗╤П╨╡╤В╤Б╤П ╤Б╤Б╤Л╨╗╨║╨╛╨╣ ╨╜╨░"
 "is a symbolic link to"
+"je symbolicky link na"
 
 MAskDeleteLinkFolder
-"папку"
+"╨┐╨░╨┐╨║╤Г"
 "folder"
+"adres├б┼Щ"
 
 MAskDeleteLinkFile
-"файл"
+"╤Д╨░╨╣╨╗"
 "file"
+"soubor"
 
 MAskDeleteItems
-"%d элемент%s"
+"%d ╤Н╨╗╨╡╨╝╨╡╨╜╤В%s"
 "%d item%s"
+"%d polo┼╛%s"
 
 MAskDeleteItems0
 ""
 ""
+"ku"
 
 MAskDeleteItemsA
-"а"
+"╨░"
 "s"
+"ky"
 
 MAskDeleteItemsS
-"ов"
+"╨╛╨▓"
 "s"
+"ek"
 
 MDeleteFolderTitle
 l:
-"Удаление папки "
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╨┐╨░╨┐╨║╨╕ "
 "Delete folder"
+"Smazat adres├б┼Щ"
 
 MWipeFolderTitle
-"Уничтожение папки "
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡ ╨┐╨░╨┐╨║╨╕ "
 "Wipe folder"
+"Vymazat adres├б┼Щ"
 
 MDeleteFilesTitle
-"Удаление файлов"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Delete files"
+"Smazat soubory"
 
 MWipeFilesTitle
-"Уничтожение файлов"
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Wipe files"
+"Vymazat soubory"
 
 MDeleteFolderConfirm
-"Данная папка будет удалена:"
+"╨Ф╨░╨╜╨╜╨░╤П ╨┐╨░╨┐╨║╨░ ╨▒╤Г╨┤╨╡╤В ╤Г╨┤╨░╨╗╨╡╨╜╨░:"
 "The following folder will be deleted:"
+"N├бsleduj├нc├н adres├б┼Щ bude smaz├бn:"
 
 MWipeFolderConfirm
-"Данная папка будет уничтожена:"
+"╨Ф╨░╨╜╨╜╨░╤П ╨┐╨░╨┐╨║╨░ ╨▒╤Г╨┤╨╡╤В ╤Г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨░:"
 "The following folder will be wiped:"
+"N├бsleduj├нc├н adres├б┼Щ bude vymaz├бn:"
 
 MDeleteWipe
-"Уничтожить"
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М"
 "Wipe"
+"Vymazat"
 
 MDeleteFileDelete
-"&Удалить"
+"&╨г╨┤╨░╨╗╨╕╤В╤М"
 "&Delete"
+"S&mazat"
 
 MDeleteFileWipe
-"&Уничтожить"
+"&╨г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М"
 "&Wipe"
+"V&ymazat"
 
 MDeleteFileAll
-"&Все"
+"&╨Т╤Б╨╡"
 "&All"
+"&V┼бe"
 
 MDeleteFileSkip
-"&Пропустить"
+"&╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"P┼Щes&ko─Нit"
 
 MDeleteFileSkipAll
-"П&ропустить все"
+"╨Я&╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М ╨▓╤Б╨╡"
 "S&kip all"
+"P┼Щ&esko─Нit v┼бe"
 
 MDeleteFileCancel
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MDeleteLinkDelete
 l:
-"Удалить ссылку"
+"╨г╨┤╨░╨╗╨╕╤В╤М ╤Б╤Б╤Л╨╗╨║╤Г"
 "Delete link"
+"Smazat link"
 
 MDeleteLinkUnlink
-"Разорвать ссылку"
+"╨а╨░╨╖╨╛╤А╨▓╨░╤В╤М ╤Б╤Б╤Л╨╗╨║╤Г"
 "Break link"
+"Po┼бkozen├╜ link"
 
 MDeletingTitle
 l:
-"Удаление"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡"
 "Deleting"
+"Maz├бn├н"
 
 MDeleting
 l:
-"Удаление файла или папки"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╨╕"
 "Deleting the file or folder"
+"Maz├бn├н souboru nebo adres├б┼Щe"
 
 MDeletingWiping
-"Уничтожение файла или папки"
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╨╕"
 "Wiping the file or folder"
+"Vymaz├бv├бn├н souboru nebo adres├б┼Щe"
 
 MDeleteRO
 l:
-"Файл имеет атрибут \"Только для чтения\""
+"╨д╨░╨╣╨╗ ╨╕╨╝╨╡╨╡╤В ╨░╤В╤А╨╕╨▒╤Г╤В \"╨в╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П\""
 "The file is read only"
+"Soubor je ur─Нen pouze pro ─Нten├н"
 
 MAskDeleteRO
-"Вы хотите удалить его?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨╡╨│╨╛?"
 "Do you wish to delete it?"
+"Opravdu si ho p┼Щejete smazat?"
 
 MAskWipeRO
-"Вы хотите уничтожить его?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨╜╨╕╤З╤В╨╛╨╢╨╕╤В╤М ╨╡╨│╨╛?"
 "Do you wish to wipe it?"
+"Opravdu si ho p┼Щejete vymazat?"
 
 MDeleteHardLink1
 l:
-"Файл имеет несколько жестких ссылок"
+"╨д╨░╨╣╨╗ ╨╕╨╝╨╡╨╡╤В ╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ ╨╢╨╡╤Б╤В╨║╨╕╤Е ╤Б╤Б╤Л╨╗╨╛╨║"
 "Several hard links link to this file."
+"V├нce pevn├╜ch link┼п ukazuje na tento soubor."
 
 MDeleteHardLink2
-"Уничтожение файла приведет к обнулению всех ссылающихся на него файлов."
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░ ╨┐╤А╨╕╨▓╨╡╨┤╨╡╤В ╨║ ╨╛╨▒╨╜╤Г╨╗╨╡╨╜╨╕╤О ╨▓╤Б╨╡╤Е ╤Б╤Б╤Л╨╗╨░╤О╤Й╨╕╤Е╤Б╤П ╨╜╨░ ╨╜╨╡╨│╨╛ ╤Д╨░╨╣╨╗╨╛╨▓."
 "Wiping this file will void all files linking to it."
+"Vymaz├бn├н tohoto souboru zneplatn├н v┼бechny soubory, kter├й na n─Ыj linkuj├н."
 
 MDeleteHardLink3
-"Уничтожать файл?"
+"╨г╨╜╨╕╤З╤В╨╛╨╢╨░╤В╤М ╤Д╨░╨╣╨╗?"
 "Do you wish to wipe this file?"
+"Opravdu chcete vymazat tento soubor?"
 
 MCannotDeleteFile
 l:
-"Ошибка удаления файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Г╨┤╨░╨╗╨╡╨╜╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot delete the file"
+"Nelze smazat soubor"
 
 MCannotDeleteFolder
-"Ошибка удаления папки"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Г╨┤╨░╨╗╨╡╨╜╨╕╤П ╨┐╨░╨┐╨║╨╕"
 "Cannot delete the folder"
+"Nelze smazat adres├б┼Щ"
 
 MDeleteRetry
-"&Повторить"
+"&╨Я╨╛╨▓╤В╨╛╤А╨╕╤В╤М"
 "&Retry"
+"&Znovu"
 
 MDeleteSkip
-"П&ропустить"
+"╨Я&╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"P┼Щes&ko─Нit"
 
 MDeleteCancel
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MCannotGetSecurity
 l:
-"Ошибка получения прав доступа к файлу"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╤П ╨┐╤А╨░╨▓ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤Д╨░╨╣╨╗╤Г"
 "Cannot get file access rights for"
+"Nemohu z├нskat p┼Щ├нstupov├б pr├бva pro"
 
 MCannotSetSecurity
-"Ошибка установки прав доступа к файлу"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Г╤Б╤В╨░╨╜╨╛╨▓╨║╨╕ ╨┐╤А╨░╨▓ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤Д╨░╨╣╨╗╤Г"
 "Cannot set file access rights for"
+"Nemohu nastavit p┼Щ├нstupov├б pr├бva pro"
 
 MEditTitle
 l:
-"Редактор"
+"╨а╨╡╨┤╨░╨║╤В╨╛╤А"
+"Editor"
 "Editor"
 
 MAskReload
-"уже загружен. Как открыть этот файл?"
+"╤Г╨╢╨╡ ╨╖╨░╨│╤А╤Г╨╢╨╡╨╜. ╨Ъ╨░╨║ ╨╛╤В╨║╤А╤Л╤В╤М ╤Н╤В╨╛╤В ╤Д╨░╨╣╨╗?"
 "already loaded. How to open this file?"
+"ji┼╛ otev┼Щen. Jak otev┼Щ├нt tento soubor?"
 
 MCurrent
-"&Текущий"
+"&╨в╨╡╨║╤Г╤Й╨╕╨╣"
 "&Current"
+"&St├бvaj├нc├н"
 
 MReload
-"Пере&грузить"
+"╨Я╨╡╤А╨╡&╨│╤А╤Г╨╖╨╕╤В╤М"
 "R&eload"
+"&Znovu na─Н├нst"
 
 MNewOpen
-"&Новая копия"
+"&╨Э╨╛╨▓╨░╤П ╨║╨╛╨┐╨╕╤П"
 "&New instance"
+"&Nov├б instance"
 
 MEditCannotOpen
-"Ошибка открытия файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╛╤В╨║╤А╤Л╤В╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot open the file"
+"Nelze otev┼Щ├нt soubor"
 
 MEditReading
-"Чтение файла"
+"╨з╤В╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Reading the file"
+"Na─Н├нt├бm soubor"
 
 MEditAskSave
-"Файл был изменен"
+"╨д╨░╨╣╨╗ ╨▒╤Л╨╗ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜"
 "File has been modified"
+"Soubor byl modifikov├бn"
 
 MEditAskSaveExt
-"Файл был изменен внешней программой"
+"╨д╨░╨╣╨╗ ╨▒╤Л╨╗ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜ ╨▓╨╜╨╡╤И╨╜╨╡╨╣ ╨┐╤А╨╛╨│╤А╨░╨╝╨╝╨╛╨╣"
 "The file was changed by an external program"
+"Soubor byl zm─Ыn─Ыn├╜ extern├нm programem"
 
 MEditSave
 l:
-"&Сохранить"
+"&╨б╨╛╤Е╤А╨░╨╜╨╕╤В╤М"
 "&Save"
+"&Ulo┼╛it"
 
 MEditNotSave
-"&Не сохранять"
+"&╨Э╨╡ ╤Б╨╛╤Е╤А╨░╨╜╤П╤В╤М"
 "Do &not save"
+"&Neukl├бdat"
 
 MEditContinue
-"&Продолжить редактирование"
+"&╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡"
 "&Continue editing"
+"&Pokra─Нovat"
 
 MEditBtnSaveAs
-"Сохр&анить как"
+"╨б╨╛╤Е╤А&╨░╨╜╨╕╤В╤М ╨║╨░╨║"
 "Save &as..."
+"Ulo┼╛&it jako..."
 
 MEditRO
 l:
-"имеет атрибут \"Только для чтения\""
+"╨╕╨╝╨╡╨╡╤В ╨░╤В╤А╨╕╨▒╤Г╤В \"╨в╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П\""
 "is a read-only file"
+"je ur─Нen pouze pro ─Нten├н"
 
 MEditExists
-"уже существует"
+"╤Г╨╢╨╡ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╨╡╤В"
 "already exists"
+"ji┼╛ existuje"
 
 MEditOvr
-"Вы хотите перезаписать его?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨┐╨╡╤А╨╡╨╖╨░╨┐╨╕╤Б╨░╤В╤М ╨╡╨│╨╛?"
 "Do you wish to overwrite it?"
+"P┼Щejete si ho p┼Щepsat?"
 
 MEditSaving
-"Сохранение файла"
+"╨б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Saving the file"
+"Ukl├бd├бm soubor"
 
 MEditStatusLine
-"Строка"
+"╨б╤В╤А╨╛╨║╨░"
 "Line"
+"┼Ш├бdek"
 
 MEditStatusCol
-"Кол"
+"╨Ъ╨╛╨╗"
 "Col"
+"Sloupec"
 
 MEditRSH
 l:
-"предназначен только для чтения"
+"╨┐╤А╨╡╨┤╨╜╨░╨╖╨╜╨░╤З╨╡╨╜ ╤В╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П"
 "is a read-only file"
+"je ur─Нen pouze pro ─Нten├н"
 
 MEditFileLong
-"имеет размер %s,"
+"╨╕╨╝╨╡╨╡╤В ╤А╨░╨╖╨╝╨╡╤А %s,"
 "has the size of %s,"
+"m├б velikost %s,"
 
 MEditFileLong2
-"что превышает заданное ограничение в %s."
+"╤З╤В╨╛ ╨┐╤А╨╡╨▓╤Л╤И╨░╨╡╤В ╨╖╨░╨┤╨░╨╜╨╜╨╛╨╡ ╨╛╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╨╡ ╨▓ %s."
 "which exceeds the configured maximum size of %s."
+"kter├б p┼Щekra─Нuje nastavenou maxim├бln├н velikost %s."
 
 MEditROOpen
-"Вы хотите редактировать его?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╤В╤М ╨╡╨│╨╛?"
 "Do you wish to edit it?"
+"Opravdu si ho p┼Щejete upravit?"
 
 MEditCanNotEditDirectory
 l:
-"Невозможно редактировать папку"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╤В╤М ╨┐╨░╨┐╨║╤Г"
 "It is impossible to edit the folder"
+"Nelze editovat adres├б┼Щ"
 
 MEditSearchTitle
 l:
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MEditSearchFor
-"&Искать"
+"&╨Ш╤Б╨║╨░╤В╤М"
 "&Search for"
+"&Hledat"
 
 MEditSearchCase
-"&Учитывать регистр"
+"&╨г╤З╨╕╤В╤Л╨▓╨░╤В╤М ╤А╨╡╨│╨╕╤Б╤В╤А"
 "&Case sensitive"
+"&Rozli┼бovat velikost p├нsmen"
 
 MEditSearchWholeWords
-"Только &целые слова"
+"╨в╨╛╨╗╤М╨║╨╛ &╤Ж╨╡╨╗╤Л╨╡ ╤Б╨╗╨╛╨▓╨░"
 "&Whole words"
+"&Cel├б slova"
 
 MEditSearchReverse
-"Обратн&ый поиск"
+"╨Ю╨▒╤А╨░╤В╨╜&╤Л╨╣ ╨┐╨╛╨╕╤Б╨║"
 "Re&verse search"
+"&Zp─Ыtn├й hled├бn├н"
 
 MEditSearchSelFound
-"&Выделять найденное"
+"&╨Т╤Л╨┤╨╡╨╗╤П╤В╤М ╨╜╨░╨╣╨┤╨╡╨╜╨╜╨╛╨╡"
 "Se&lect found"
+"Vy&ber nalezen├й"
 
 MEditSearchSearch
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Search"
+"Hledat"
 
 MEditSearchCancel
-"Отменить"
+"╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "Cancel"
+"Storno"
 
 MEditReplaceTitle
 l:
-"Замена"
+"╨Ч╨░╨╝╨╡╨╜╨░"
 "Replace"
+"Nahradit"
 
 MEditReplaceWith
-"Заменить &на"
+"╨Ч╨░╨╝╨╡╨╜╨╕╤В╤М &╨╜╨░"
 "R&eplace with"
+"Nahradit &s"
 
 MEditReplaceReplace
-"&Замена"
+"&╨Ч╨░╨╝╨╡╨╜╨░"
 "&Replace"
+"&Nahradit"
 
 MEditSearchingFor
 l:
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Searching for"
+"Vyhled├бv├бm"
 
 MEditNotFound
-"Строка не найдена"
+"╨б╤В╤А╨╛╨║╨░ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░"
 "Could not find the string"
+"Nem┼п┼╛u naj├нt ┼Щet─Ыzec"
 
 MEditAskReplace
 l:
-"Заменить"
+"╨Ч╨░╨╝╨╡╨╜╨╕╤В╤М"
 "Replace"
+"Nahradit"
 
 MEditAskReplaceWith
-"на"
+"╨╜╨░"
 "with"
+"s"
 
 MEditReplace
-"&Заменить"
+"&╨Ч╨░╨╝╨╡╨╜╨╕╤В╤М"
 "&Replace"
+"&Nahradit"
 
 MEditReplaceAll
-"&Все"
+"&╨Т╤Б╨╡"
 "&All"
+"&V┼бe"
 
 MEditSkip
-"&Пропустить"
+"&╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М"
 "&Skip"
+"P┼Щes&ko─Нit"
 
 MEditCancel
-"&Отменить"
+"&╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "&Cancel"
+"&Storno"
 
 MEditGoToLine
 l:
-"Перейти"
+"╨Я╨╡╤А╨╡╨╣╤В╨╕"
 "Go to position"
+"J├нt na pozici"
 
 MFolderShortcutsTitle
 l:
-"Ссылки на папки"
+"╨б╤Б╤Л╨╗╨║╨╕ ╨╜╨░ ╨┐╨░╨┐╨║╨╕"
 "Folder shortcuts"
+"Adres├б┼Щov├й zkratky"
 
 MFolderShortcutBottom
-"Редактирование: Del,Ins,F4"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: Del,Ins,F4"
+"Edit: Del,Ins,F4"
 "Edit: Del,Ins,F4"
 
 MShortcutNone
-"<отсутствует>"
+"<╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╨╡╤В>"
 "<none>"
+"<nen├н>"
 
 MShortcutPlugin
-"<плагин>"
+"<╨┐╨╗╨░╨│╨╕╨╜>"
+"<plugin>"
 "<plugin>"
 
 MEnterShortcut
-"Введите новую ссылку:"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨╜╨╛╨▓╤Г╤О ╤Б╤Б╤Л╨╗╨║╤Г:"
 "Enter new shortcut:"
+"Zadejte novou zkratku:"
 
 MNeedNearPath
-"Перейти в ближайшую доступную папку?"
+"╨Я╨╡╤А╨╡╨╣╤В╨╕ ╨▓ ╨▒╨╗╨╕╨╢╨░╨╣╤И╤Г╤О ╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Г╤О ╨┐╨░╨┐╨║╤Г?"
 "Jump to the nearest existing folder?"
+"Sko─Нit na nejbli┼╛┼б├н existuj├нc├н adres├б┼Щ?"
 
 MSaveThisShortcut
-"Запомнить эту ссылку?"
+"╨Ч╨░╨┐╨╛╨╝╨╜╨╕╤В╤М ╤Н╤В╤Г ╤Б╤Б╤Л╨╗╨║╤Г?"
 "Save this shortcuts?"
+"Ulo┼╛it tyto zkratky?"
 
 MEditF1
 l:
 l://functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe!
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MEditF2
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MEditF3
+""
 ""
 ""
 
 MEditF4
 ""
 ""
+""
 
 MEditF5
 ""
 ""
+""
 
 MEditF6
-"Просм"
+"╨Я╤А╨╛╤Б╨╝"
 "View"
+"Zobraz"
 
 MEditF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MEditF8
+"ANSI"
 "ANSI"
 "ANSI"
 
 MEditF9
 ""
 ""
+""
 
 MEditF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MEditF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MEditF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MEditF8DOS
 le:// don't count this - it's a F8 another text
+"OEM"
 "OEM"
 "OEM"
 
@@ -1897,48 +2345,60 @@ l:
 l://Editor: Shift
 ""
 ""
+""
 
 MEditShiftF2
-"Сохр.в"
+"╨б╨╛╤Е╤А.╨▓"
 "SaveAs"
+"UlJako"
 
 MEditShiftF3
 ""
 ""
+""
 
 MEditShiftF4
-"Редак."
+"╨а╨╡╨┤╨░╨║."
+"Edit.."
 "Edit.."
 
 MEditShiftF5
+""
 ""
 ""
 
 MEditShiftF6
 ""
 ""
+""
 
 MEditShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MEditShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MEditShiftF9
 ""
 ""
+""
 
 MEditShiftF10
-"СхрВых"
+"╨б╤Е╤А╨Т╤Л╤Е"
 "SaveQ"
+"UlKone"
 
 MEditShiftF11
 ""
 ""
+""
 
 MEditShiftF12
+""
 ""
 ""
 
@@ -1947,48 +2407,60 @@ l:
 l://Editor: Alt
 ""
 ""
+""
 
 MEditAltF2
+""
 ""
 ""
 
 MEditAltF3
 ""
 ""
+""
 
 MEditAltF4
 ""
 ""
+""
 
 MEditAltF5
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MEditAltF6
 ""
 ""
+""
 
 MEditAltF7
-"Назад"
+"╨Э╨░╨╖╨░╨┤"
 "Prev"
+"P┼Щedch"
 
 MEditAltF8
-"Строка"
+"╨б╤В╤А╨╛╨║╨░"
 "Goto"
+"J├нt na"
 
 MEditAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MEditAltF10
 ""
 ""
+""
 
 MEditAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MEditAltF12
+""
 ""
 ""
 
@@ -1997,48 +2469,60 @@ l:
 l://Editor: Ctrl
 ""
 ""
+""
 
 MEditCtrlF2
+""
 ""
 ""
 
 MEditCtrlF3
 ""
 ""
+""
 
 MEditCtrlF4
+""
 ""
 ""
 
 MEditCtrlF5
 ""
 ""
+""
 
 MEditCtrlF6
 ""
 ""
+""
 
 MEditCtrlF7
-"Замена"
+"╨Ч╨░╨╝╨╡╨╜╨░"
 "Replac"
+"Nahra─П"
 
 MEditCtrlF8
+""
 ""
 ""
 
 MEditCtrlF9
 ""
 ""
+""
 
 MEditCtrlF10
-"Позиц"
+"╨Я╨╛╨╖╨╕╤Ж"
 "GoFile"
+"JdiSou"
 
 MEditCtrlF11
 ""
 ""
+""
 
 MEditCtrlF12
+""
 ""
 ""
 
@@ -2047,48 +2531,60 @@ l:
 l://Editor: AltShift
 ""
 ""
+""
 
 MEditAltShiftF2
+""
 ""
 ""
 
 MEditAltShiftF3
 ""
 ""
+""
 
 MEditAltShiftF4
+""
 ""
 ""
 
 MEditAltShiftF5
 ""
 ""
+""
 
 MEditAltShiftF6
+""
 ""
 ""
 
 MEditAltShiftF7
 ""
 ""
+""
 
 MEditAltShiftF8
 ""
 ""
+""
 
 MEditAltShiftF9
-"Конфиг"
+"╨Ъ╨╛╨╜╤Д╨╕╨│"
 "Config"
+"Nastav"
 
 MEditAltShiftF10
+""
 ""
 ""
 
 MEditAltShiftF11
 ""
 ""
+""
 
 MEditAltShiftF12
+""
 ""
 ""
 
@@ -2097,48 +2593,60 @@ l:
 l://Editor: CtrlShift
 ""
 ""
+""
 
 MEditCtrlShiftF2
+""
 ""
 ""
 
 MEditCtrlShiftF3
 ""
 ""
+""
 
 MEditCtrlShiftF4
+""
 ""
 ""
 
 MEditCtrlShiftF5
 ""
 ""
+""
 
 MEditCtrlShiftF6
+""
 ""
 ""
 
 MEditCtrlShiftF7
 ""
 ""
+""
 
 MEditCtrlShiftF8
+""
 ""
 ""
 
 MEditCtrlShiftF9
 ""
 ""
+""
 
 MEditCtrlShiftF10
+""
 ""
 ""
 
 MEditCtrlShiftF11
 ""
 ""
+""
 
 MEditCtrlShiftF12
+""
 ""
 ""
 
@@ -2147,48 +2655,60 @@ l:
 l:// Editor: CtrlAlt
 ""
 ""
+""
 
 MEditCtrlAltF2
+""
 ""
 ""
 
 MEditCtrlAltF3
 ""
 ""
+""
 
 MEditCtrlAltF4
+""
 ""
 ""
 
 MEditCtrlAltF5
 ""
 ""
+""
 
 MEditCtrlAltF6
+""
 ""
 ""
 
 MEditCtrlAltF7
 ""
 ""
+""
 
 MEditCtrlAltF8
+""
 ""
 ""
 
 MEditCtrlAltF9
 ""
 ""
+""
 
 MEditCtrlAltF10
+""
 ""
 ""
 
 MEditCtrlAltF11
 ""
 ""
+""
 
 MEditCtrlAltF12
+""
 ""
 ""
 
@@ -2197,44 +2717,55 @@ l:
 l:// Editor: CtrlAltShift
 ""
 ""
+""
 
 MEditCtrlAltShiftF2
+""
 ""
 ""
 
 MEditCtrlAltShiftF3
 ""
 ""
+""
 
 MEditCtrlAltShiftF4
+""
 ""
 ""
 
 MEditCtrlAltShiftF5
 ""
 ""
+""
 
 MEditCtrlAltShiftF6
+""
 ""
 ""
 
 MEditCtrlAltShiftF7
 ""
 ""
+""
 
 MEditCtrlAltShiftF8
+""
 ""
 ""
 
 MEditCtrlAltShiftF9
 ""
 ""
+""
 
 MEditCtrlAltShiftF10
 ""
 ""
+""
 
 MEditCtrlAltShiftF11
+""
 ""
 ""
 
@@ -2242,59 +2773,73 @@ MEditCtrlAltShiftF12
 le://End of functional keys (Editor)
 ""
 ""
+""
 
 MSingleEditF1
 l:
 l://Single Editor: functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe!
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MSingleEditF2
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MSingleEditF3
+""
 ""
 ""
 
 MSingleEditF4
 ""
 ""
+""
 
 MSingleEditF5
 ""
 ""
+""
 
 MSingleEditF6
-"Просм"
+"╨Я╤А╨╛╤Б╨╝"
 "View"
+"Zobraz"
 
 MSingleEditF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MSingleEditF8
+"ANSI"
 "ANSI"
 "ANSI"
 
 MSingleEditF9
 ""
 ""
+""
 
 MSingleEditF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MSingleEditF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MSingleEditF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MSingleEditF8DOS
 le:// don't count this - it's a F8 another text
+"OEM"
 "OEM"
 "OEM"
 
@@ -2303,48 +2848,60 @@ l:
 l://Single Editor: Shift
 ""
 ""
+""
 
 MSingleEditShiftF2
-"Сохр.в"
+"╨б╨╛╤Е╤А.╨▓"
 "SaveAs"
+"UlJako"
 
 MSingleEditShiftF3
+""
 ""
 ""
 
 MSingleEditShiftF4
 ""
 ""
+""
 
 MSingleEditShiftF5
+""
 ""
 ""
 
 MSingleEditShiftF6
 ""
 ""
+""
 
 MSingleEditShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MSingleEditShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MSingleEditShiftF9
 ""
 ""
+""
 
 MSingleEditShiftF10
-"СхрВых"
+"╨б╤Е╤А╨Т╤Л╤Е"
 "SaveQ"
+"UlKone"
 
 MSingleEditShiftF11
 ""
 ""
+""
 
 MSingleEditShiftF12
+""
 ""
 ""
 
@@ -2353,48 +2910,60 @@ l:
 l://Single Editor: Alt
 ""
 ""
+""
 
 MSingleEditAltF2
+""
 ""
 ""
 
 MSingleEditAltF3
 ""
 ""
+""
 
 MSingleEditAltF4
 ""
 ""
+""
 
 MSingleEditAltF5
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MSingleEditAltF6
+""
 ""
 ""
 
 MSingleEditAltF7
 ""
 ""
+""
 
 MSingleEditAltF8
-"Строка"
+"╨б╤В╤А╨╛╨║╨░"
 "Goto"
+"J├нt na"
 
 MSingleEditAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MSingleEditAltF10
 ""
 ""
+""
 
 MSingleEditAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MSingleEditAltF12
+""
 ""
 ""
 
@@ -2403,48 +2972,60 @@ l:
 l://Single Editor: Ctrl
 ""
 ""
+""
 
 MSingleEditCtrlF2
+""
 ""
 ""
 
 MSingleEditCtrlF3
 ""
 ""
+""
 
 MSingleEditCtrlF4
+""
 ""
 ""
 
 MSingleEditCtrlF5
 ""
 ""
+""
 
 MSingleEditCtrlF6
 ""
 ""
+""
 
 MSingleEditCtrlF7
-"Замена"
+"╨Ч╨░╨╝╨╡╨╜╨░"
 "Replac"
+"Nahra─П"
 
 MSingleEditCtrlF8
+""
 ""
 ""
 
 MSingleEditCtrlF9
 ""
 ""
+""
 
 MSingleEditCtrlF10
+""
 ""
 ""
 
 MSingleEditCtrlF11
 ""
 ""
+""
 
 MSingleEditCtrlF12
+""
 ""
 ""
 
@@ -2453,48 +3034,60 @@ l:
 l://Single Editor: AltShift
 ""
 ""
+""
 
 MSingleEditAltShiftF2
+""
 ""
 ""
 
 MSingleEditAltShiftF3
 ""
 ""
+""
 
 MSingleEditAltShiftF4
+""
 ""
 ""
 
 MSingleEditAltShiftF5
 ""
 ""
+""
 
 MSingleEditAltShiftF6
+""
 ""
 ""
 
 MSingleEditAltShiftF7
 ""
 ""
+""
 
 MSingleEditAltShiftF8
 ""
 ""
+""
 
 MSingleEditAltShiftF9
-"Конфиг"
+"╨Ъ╨╛╨╜╤Д╨╕╨│"
 "Config"
+"Nastav"
 
 MSingleEditAltShiftF10
+""
 ""
 ""
 
 MSingleEditAltShiftF11
 ""
 ""
+""
 
 MSingleEditAltShiftF12
+""
 ""
 ""
 
@@ -2503,48 +3096,60 @@ l:
 l://Single Editor: CtrlShift
 ""
 ""
+""
 
 MSingleEditCtrlShiftF2
+""
 ""
 ""
 
 MSingleEditCtrlShiftF3
 ""
 ""
+""
 
 MSingleEditCtrlShiftF4
+""
 ""
 ""
 
 MSingleEditCtrlShiftF5
 ""
 ""
+""
 
 MSingleEditCtrlShiftF6
+""
 ""
 ""
 
 MSingleEditCtrlShiftF7
 ""
 ""
+""
 
 MSingleEditCtrlShiftF8
+""
 ""
 ""
 
 MSingleEditCtrlShiftF9
 ""
 ""
+""
 
 MSingleEditCtrlShiftF10
+""
 ""
 ""
 
 MSingleEditCtrlShiftF11
 ""
 ""
+""
 
 MSingleEditCtrlShiftF12
+""
 ""
 ""
 
@@ -2553,48 +3158,60 @@ l:
 l://Single Editor: CtrlAlt
 ""
 ""
+""
 
 MSingleEditCtrlAltF2
+""
 ""
 ""
 
 MSingleEditCtrlAltF3
 ""
 ""
+""
 
 MSingleEditCtrlAltF4
+""
 ""
 ""
 
 MSingleEditCtrlAltF5
 ""
 ""
+""
 
 MSingleEditCtrlAltF6
+""
 ""
 ""
 
 MSingleEditCtrlAltF7
 ""
 ""
+""
 
 MSingleEditCtrlAltF8
+""
 ""
 ""
 
 MSingleEditCtrlAltF9
 ""
 ""
+""
 
 MSingleEditCtrlAltF10
+""
 ""
 ""
 
 MSingleEditCtrlAltF11
 ""
 ""
+""
 
 MSingleEditCtrlAltF12
+""
 ""
 ""
 
@@ -2603,44 +3220,55 @@ l:
 l://Single Editor: CtrlAltShift
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF2
+""
 ""
 ""
 
 MSingleEditCtrlAltShiftF3
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF4
+""
 ""
 ""
 
 MSingleEditCtrlAltShiftF5
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF6
+""
 ""
 ""
 
 MSingleEditCtrlAltShiftF7
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF8
+""
 ""
 ""
 
 MSingleEditCtrlAltShiftF9
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF10
 ""
 ""
+""
 
 MSingleEditCtrlAltShiftF11
+""
 ""
 ""
 
@@ -2648,353 +3276,438 @@ MSingleEditCtrlAltShiftF12
 le://End of functional keys (Single Editor)
 ""
 ""
+""
 
 MEditSaveAs
 l:
-"Сохранить &файл как"
+"╨б╨╛╤Е╤А╨░╨╜╨╕╤В╤М &╤Д╨░╨╣╨╗ ╨║╨░╨║"
 "Save file &as"
+"Ulo┼╛it soubor jako"
 
 MEditCodePage
-"Кодовая страница:"
+"╨Ъ╨╛╨┤╨╛╨▓╨░╤П ╤Б╤В╤А╨░╨╜╨╕╤Ж╨░:"
 "Code page:"
+"K├│dov├б str├бnka:"
 
 MEditAddSignature
-"Добавить сигнатуру (BOM)"
+"╨Ф╨╛╨▒╨░╨▓╨╕╤В╤М ╤Б╨╕╨│╨╜╨░╤В╤Г╤А╤Г (BOM)"
 "Add signature (BOM)"
+"P┼Щidat signaturu (BOM)"
 
 MEditSaveAsFormatTitle
-"Изменить перевод строки:"
+"╨Ш╨╖╨╝╨╡╨╜╨╕╤В╤М ╨┐╨╡╤А╨╡╨▓╨╛╨┤ ╤Б╤В╤А╨╛╨║╨╕:"
 "Change line breaks to:"
+"Zm─Ыnit zakon─Нen├н ┼Щ├бdk┼п na:"
 
 MEditSaveOriginal
-"&исходный формат"
+"&╨╕╤Б╤Е╨╛╨┤╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В"
 "Do n&ot change"
+"&Beze zm─Ыny"
 
 MEditSaveDOS
-"в форма&те DOS/Windows (CR LF)"
+"╨▓ ╤Д╨╛╤А╨╝╨░&╤В╨╡ DOS/Windows (CR LF)"
 "&Dos/Windows format (CR LF)"
+"&Dos/Windows form├бt (CR LF)"
 
 MEditSaveUnix
-"в формат&е UNIX (LF)"
+"╨▓ ╤Д╨╛╤А╨╝╨░╤В&╨╡ UNIX (LF)"
 "&Unix format (LF)"
+"&Unix form├бt (LF)"
 
 MEditSaveMac
-"в фор&мате MAC (CR)"
+"╨▓ ╤Д╨╛╤А&╨╝╨░╤В╨╡ MAC (CR)"
 "&Mac format (CR)"
+"&Mac form├бt (CR)"
 
 MEditCannotSave
-"Ошибка сохранения файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot save the file"
+"Nelze ulo┼╛it soubor"
 
 MEditSavedChangedNonFile
-"Файл изменен, но файл или папка, в которой он находился,"
+"╨д╨░╨╣╨╗ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜, ╨╜╨╛ ╤Д╨░╨╣╨╗ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╨░, ╨▓ ╨║╨╛╤В╨╛╤А╨╛╨╣ ╨╛╨╜ ╨╜╨░╤Е╨╛╨┤╨╕╨╗╤Б╤П,"
 "The file is changed but the file or the folder containing"
+"Soubor je zm─Ыn─Ыn, ale soubor, nebo adres├б┼Щ obsahuj├нc├н"
 
 MEditSavedChangedNonFile1
-"Файл или папка, в которой он находился,"
+"╨д╨░╨╣╨╗ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╨░, ╨▓ ╨║╨╛╤В╨╛╤А╨╛╨╣ ╨╛╨╜ ╨╜╨░╤Е╨╛╨┤╨╕╨╗╤Б╤П,"
 "The file or the folder containing"
+"Soubor nebo adres├б┼Щ obsahuj├нc├н"
 
 MEditSavedChangedNonFile2
-"был перемещен или удален."
+"╨▒╤Л╨╗ ╨┐╨╡╤А╨╡╨╝╨╡╤Й╨╡╨╜ ╨╕╨╗╨╕ ╤Г╨┤╨░╨╗╨╡╨╜."
 "this file was moved or deleted."
+"tento soubor byl p┼Щesunut, nebo smaz├бn."
 
 MEditNewPath1
-"Путь к редактируемому файлу не существует,"
+"╨Я╤Г╤В╤М ╨║ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╤Г╨╡╨╝╨╛╨╝╤Г ╤Д╨░╨╣╨╗╤Г ╨╜╨╡ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╨╡╤В,"
 "The path to the edited file does not exist,"
+"Cesta k editovan├йmu souboru neexistuje,"
 
 MEditNewPath2
-"но будет создан при сохранении файла."
+"╨╜╨╛ ╨▒╤Г╨┤╨╡╤В ╤Б╨╛╨╖╨┤╨░╨╜ ╨┐╤А╨╕ ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╕ ╤Д╨░╨╣╨╗╨░."
 "but will be created when the file is saved."
+"ale bude vytvo┼Щena p┼Щi ulo┼╛en├н souboru."
 
 MEditNewPath3
-"Продолжать?"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨░╤В╤М?"
 "Continue?"
+"Pokra─Нovat?"
 
 MEditNewPlugin1
-"Имя редактируемого файла не может быть пустым"
+"╨Ш╨╝╤П ╤А╨╡╨┤╨░╨║╤В╨╕╤А╤Г╨╡╨╝╨╛╨│╨╛ ╤Д╨░╨╣╨╗╨░ ╨╜╨╡ ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╨┐╤Г╤Б╤В╤Л╨╝"
 "The name of the file to edit cannot be empty"
+"N├бzev souboru k editaci nesm├н b├╜t pr├бzdn├й"
 
 MEditDataLostWarn1
-"Файл содержит символы, которые невозможно"
+"╨д╨░╨╣╨╗ ╤Б╨╛╨┤╨╡╤А╨╢╨╕╤В ╤Б╨╕╨╝╨▓╨╛╨╗╤Л, ╨║╨╛╤В╨╛╤А╤Л╨╡ ╨╜╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛"
 "This file contains characters, which cannot be"
+"Tento soubor obsahuje znaky, kter├й nemohou b├╜t"
 
 MEditDataLostWarn2
-"корректно преобразовать в выбранную кодировку."
+"╨║╨╛╤А╤А╨╡╨║╤В╨╜╨╛ ╨┐╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╨░╤В╤М ╨▓ ╨▓╤Л╨▒╤А╨░╨╜╨╜╤Г╤О ╨║╨╛╨┤╨╕╤А╨╛╨▓╨║╤Г."
 "correctly translated using the selected codepage."
+"korektn─Ы p┼Щelo┼╛eny do zvolen├йho k├│dov├бn├н."
 
 MEditDataLostWarn3
-"Продолжить?"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М?"
 "Continue?"
+"Pokra─Нovat?"
 
 MEditDataLostWarn4
-"Сохранять файл не рекомендуется."
+"╨б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╤Д╨░╨╣╨╗ ╨╜╨╡ ╤А╨╡╨║╨╛╨╝╨╡╨╜╨┤╤Г╨╡╤В╤Б╤П."
 "It is not recommended to save this file."
+"Nen├н doporu─Нeno ulo┼╛it tento soubor."
 
 MColumnName
 l:
-"Имя"
+"╨Ш╨╝╤П"
 "Name"
+"N├бzev"
 
 MColumnSize
-"Размер"
+"╨а╨░╨╖╨╝╨╡╤А"
 "Size"
+"Velikost"
 
 MColumnPacked
-"Упаков"
+"╨г╨┐╨░╨║╨╛╨▓"
 "Packed"
+"Komprimovan├╜"
 
 MColumnDate
-"Дата"
+"╨Ф╨░╤В╨░"
 "Date"
+"Datum"
 
 MColumnTime
-"Время"
+"╨Т╤А╨╡╨╝╤П"
 "Time"
+"─Мas"
 
 MColumnModified
-"Модификация"
+"╨Ь╨╛╨┤╨╕╤Д╨╕╨║╨░╤Ж╨╕╤П"
 "Modified"
+"Modifikov├бn"
 
 MColumnCreated
-"Создание"
+"╨б╨╛╨╖╨┤╨░╨╜╨╕╨╡"
 "Created"
+"Vytvo┼Щen"
 
 MColumnAccessed
-"Доступ"
+"╨Ф╨╛╤Б╤В╤Г╨┐"
 "Accessed"
+"P┼Щ├нstup"
 
 MColumnAttr
-"Атриб"
+"╨Р╤В╤А╨╕╨▒"
+"Attr"
 "Attr"
 
 MColumnDescription
-"Описание"
+"╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡"
 "Description"
+"Popis"
 
 MColumnOwner
-"Владелец"
+"╨Т╨╗╨░╨┤╨╡╨╗╨╡╤Ж"
 "Owner"
+"Vlastn├нk"
 
 MColumnMumLinks
-"КлС"
+"╨Ъ╨╗╨б"
 "NmL"
+"Po─НLn"
 
 MListUp
 l:
-"Вверх"
+"╨Т╨▓╨╡╤А╤Е"
 "  Up  "
+"Nahoru"
 
 MListFolder
-"Папка"
+"╨Я╨░╨┐╨║╨░"
 "Folder"
+"Adres├б┼Щ"
 
 MListSymLink
-"Ссылка"
+"╨б╤Б╤Л╨╗╨║╨░"
 "Symlink"
+"Link"
 
 MListJunction
-"Связь"
+"╨б╨▓╤П╨╖╤М"
 "Junction"
+"K┼Щ├н┼╛en├н"
 
 MListBytes
-"Б"
+"╨С"
+"B"
 "B"
 
 MListKb
-"К"
+"╨Ъ"
+"K"
 "K"
 
 MListMb
-"М"
+"╨Ь"
+"M"
 "M"
 
 MListGb
-"Г"
+"╨У"
+"G"
 "G"
 
 MListTb
-"Т"
+"╨в"
+"T"
 "T"
 
 MListFileSize
-" %s байт в 1 файле "
+" %s ╨▒╨░╨╣╤В ╨▓ 1 ╤Д╨░╨╣╨╗╨╡ "
 " %s bytes in 1 file "
+" %s byt┼п v 1 souboru "
 
 MListFilesSize1
-" %s байт в %d файле "
+" %s ╨▒╨░╨╣╤В ╨▓ %d ╤Д╨░╨╣╨╗╨╡ "
 " %s bytes in %d files "
+" %s byt┼п v %d souborech "
 
 MListFilesSize2
-" %s байт в %d файлах "
+" %s ╨▒╨░╨╣╤В ╨▓ %d ╤Д╨░╨╣╨╗╨░╤Е "
 " %s bytes in %d files "
+" %s byt┼п v %d souborech "
 
 MListFreeSize
-" %s байт свободно "
+" %s ╨▒╨░╨╣╤В ╤Б╨▓╨╛╨▒╨╛╨┤╨╜╨╛ "
 " %s free bytes "
+" %s voln├╜ch byt┼п "
 
 MDirInfoViewTitle
 l:
-"Просмотр"
+"╨Я╤А╨╛╤Б╨╝╨╛╤В╤А"
 "View"
+"Zobraz"
 
 MFileToEdit
-"Редактировать файл:"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╤В╤М ╤Д╨░╨╣╨╗:"
 "File to edit:"
+"Soubor k editaci:"
 
 MUnselectTitle
 l:
-"Снять"
+"╨б╨╜╤П╤В╤М"
 "Deselect"
+"Odzna─Нit"
 
 MSelectTitle
-"Пометить"
+"╨Я╨╛╨╝╨╡╤В╨╕╤В╤М"
 "Select"
+"Ozna─Нit"
 
 MSelectFilter
-"&Фильтр"
+"&╨д╨╕╨╗╤М╤В╤А"
 "&Filter"
+"&Filtr"
 
 MCompareTitle
 l:
-"Сравнение"
+"╨б╤А╨░╨▓╨╜╨╡╨╜╨╕╨╡"
 "Compare"
+"Porovnat"
 
 MCompareFilePanelsRequired1
-"Для сравнения папок требуются"
+"╨Ф╨╗╤П ╤Б╤А╨░╨▓╨╜╨╡╨╜╨╕╤П ╨┐╨░╨┐╨╛╨║ ╤В╤А╨╡╨▒╤Г╤О╤В╤Б╤П"
 "Two file panels are required to perform"
+"Pro proveden├н p┼Щ├нkazu Porovnat adres├б┼Щe"
 
 MCompareFilePanelsRequired2
-"две файловые панели"
+"╨┤╨▓╨╡ ╤Д╨░╨╣╨╗╨╛╨▓╤Л╨╡ ╨┐╨░╨╜╨╡╨╗╨╕"
 "the Compare folders command"
+"jsou nutn├й dva souborov├й panely"
 
 MCompareSameFolders1
-"Содержимое папок,"
+"╨б╨╛╨┤╨╡╤А╨╢╨╕╨╝╨╛╨╡ ╨┐╨░╨┐╨╛╨║,"
 "The folders contents seems"
+"Obsahy adres├б┼Щ┼п jsou"
 
 MCompareSameFolders2
-"скорее всего, одинаково"
+"╤Б╨║╨╛╤А╨╡╨╡ ╨▓╤Б╨╡╨│╨╛, ╨╛╨┤╨╕╨╜╨░╨║╨╛╨▓╨╛"
 "to be identical"
+"identick├й"
 
 MSelectAssocTitle
 l:
-"Выберите ассоциацию"
+"╨Т╤Л╨▒╨╡╤А╨╕╤В╨╡ ╨░╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╤О"
 "Select association"
+"Vyber z├бvislosti"
 
 MAssocTitle
 l:
-"Ассоциации для файлов"
+"╨Р╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╨╕ ╨┤╨╗╤П ╤Д╨░╨╣╨╗╨╛╨▓"
 "File associations"
+"Z├бvislosti soubor┼п"
 
 MAssocBottom
-"Редактирование: Del,Ins,F4"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: Del,Ins,F4"
+"Edit: Del,Ins,F4"
 "Edit: Del,Ins,F4"
 
 MAskDelAssoc
-"Вы хотите удалить ассоциацию для"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨░╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╤О ╨┤╨╗╤П"
 "Do you wish to delete association for"
+"P┼Щejete si smazat z├бvislost pro"
 
 MAssocNeedMask
-"Пожалуйста, укажите маску файлов"
+"╨Я╨╛╨╢╨░╨╗╤Г╨╣╤Б╤В╨░, ╤Г╨║╨░╨╢╨╕╤В╨╡ ╨╝╨░╤Б╨║╤Г ╤Д╨░╨╣╨╗╨╛╨▓"
 "Please specify a file mask"
+"Pros├нm zadejte masku soubor┼п"
 
 MFileAssocTitle
 l:
-"Редактирование ассоциаций файлов"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨░╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╨╣ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Edit file associations"
+"Upravit z├бvislosti soubor┼п"
 
 MFileAssocMasks
-"Одна или несколько &масок файлов:"
+"╨Ю╨┤╨╜╨░ ╨╕╨╗╨╕ ╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ &╨╝╨░╤Б╨╛╨║ ╤Д╨░╨╣╨╗╨╛╨▓:"
 "A file &mask or several file masks:"
+"&Maska nebo masky soubor┼п:"
 
 MFileAssocDescr
-"&Описание ассоциации:"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╨░╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╨╕:"
 "&Description of the association:"
+"&Popis asociac├н:"
 
 MFileAssocExec
-"Команда, &выполняемая по Enter:"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░, &╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ Enter:"
 "E&xecute command (used for Enter):"
+"&Vykonat p┼Щ├нkaz (pou┼╛ito pro Enter):"
 
 MFileAssocAltExec
-"Коман&да, выполняемая по Ctrl-PgDn:"
+"╨Ъ╨╛╨╝╨░╨╜&╨┤╨░, ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ Ctrl-PgDn:"
 "Exec&ute command (used for Ctrl-PgDn):"
+"V&ykonat p┼Щ├нkaz (pou┼╛ito pro Ctrl-PgDn):"
 
 MFileAssocView
-"Команда &просмотра, выполняемая по F3:"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░ &╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░, ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ F3:"
 "&View command (used for F3):"
+"P┼Щ├нkaz &Zobraz (pou┼╛ito pro F3):"
 
 MFileAssocAltView
-"Команда просмотра, в&ыполняемая по Alt-F3:"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░, ╨▓&╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ Alt-F3:"
 "V&iew command (used for Alt-F3):"
+"P┼Щ├нkaz Z&obraz (pou┼╛ito pro Alt-F3):"
 
 MFileAssocEdit
-"Команда &редактирования, выполняемая по F4:"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░ &╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П, ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ F4:"
 "&Edit command (used for F4):"
+"P┼Щ├нkaz &Edituj (pou┼╛ito pro F4):"
 
 MFileAssocAltEdit
-"Команда редактировани&я, выполняемая по Alt-F4:"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕&╤П, ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╨╝╨░╤П ╨┐╨╛ Alt-F4:"
 "Edit comm&and (used for Alt-F4):"
+"P┼Щ├нkaz Editu&j (pou┼╛ito pro Alt-F4):"
 
 MViewF1
 l:
 l://Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MViewF2
 le:// this is another text for F2
-"Сверн"
+"╨б╨▓╨╡╤А╨╜"
 "Wrap"
+"Zalom"
 
 MViewF3
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MViewF4
-"Код"
+"╨Ъ╨╛╨┤"
+"Hex"
 "Hex"
 
 MViewF5
 ""
 ""
+""
 
 MViewF6
-"Редакт"
+"╨а╨╡╨┤╨░╨║╤В"
+"Edit"
 "Edit"
 
 MViewF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MViewF8
+"ANSI"
 "ANSI"
 "ANSI"
 
 MViewF9
 ""
 ""
+""
 
 MViewF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MViewF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
 "Plugins"
+"Plugin"
 
 MViewF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MViewF2Unwrap
-"Развер"
+"╨а╨░╨╖╨▓╨╡╤А"
 "Unwrap"
+"Nezal"
 
 MViewF4Text
 l:// this is another text for F4
-"Текст"
+"╨в╨╡╨║╤Б╤В"
+"Text"
 "Text"
 
 MViewF8DOS
+"OEM"
 "OEM"
 "OEM"
 
@@ -3003,48 +3716,60 @@ l:
 l://Viewer: Shift
 ""
 ""
+""
 
 MViewShiftF2
-"Слова"
+"╨б╨╗╨╛╨▓╨░"
 "WWrap"
+"ZalSlo"
 
 MViewShiftF3
+""
 ""
 ""
 
 MViewShiftF4
 ""
 ""
+""
 
 MViewShiftF5
+""
 ""
 ""
 
 MViewShiftF6
 ""
 ""
+""
 
 MViewShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MViewShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MViewShiftF9
+""
 ""
 ""
 
 MViewShiftF10
 ""
 ""
+""
 
 MViewShiftF11
 ""
 ""
+""
 
 MViewShiftF12
+""
 ""
 ""
 
@@ -3053,48 +3778,60 @@ l:
 l://Viewer: Alt
 ""
 ""
+""
 
 MViewAltF2
+""
 ""
 ""
 
 MViewAltF3
 ""
 ""
+""
 
 MViewAltF4
 ""
 ""
+""
 
 MViewAltF5
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MViewAltF6
 ""
 ""
+""
 
 MViewAltF7
-"Назад"
+"╨Э╨░╨╖╨░╨┤"
 "Prev"
+"P┼Щedch"
 
 MViewAltF8
-"Перейт"
+"╨Я╨╡╤А╨╡╨╣╤В"
 "Goto"
+"J├нt na"
 
 MViewAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MViewAltF10
 ""
 ""
+""
 
 MViewAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MViewAltF12
+""
 ""
 ""
 
@@ -3103,48 +3840,60 @@ l:
 l://Viewer: Ctrl
 ""
 ""
+""
 
 MViewCtrlF2
+""
 ""
 ""
 
 MViewCtrlF3
 ""
 ""
+""
 
 MViewCtrlF4
+""
 ""
 ""
 
 MViewCtrlF5
 ""
 ""
+""
 
 MViewCtrlF6
+""
 ""
 ""
 
 MViewCtrlF7
 ""
 ""
+""
 
 MViewCtrlF8
+""
 ""
 ""
 
 MViewCtrlF9
 ""
 ""
+""
 
 MViewCtrlF10
-"Позиц"
+"╨Я╨╛╨╖╨╕╤Ж"
 "GoFile"
+"J├нtSou"
 
 MViewCtrlF11
 ""
 ""
+""
 
 MViewCtrlF12
+""
 ""
 ""
 
@@ -3153,48 +3902,60 @@ l:
 l://Viewer: AltShift
 ""
 ""
+""
 
 MViewAltShiftF2
+""
 ""
 ""
 
 MViewAltShiftF3
 ""
 ""
+""
 
 MViewAltShiftF4
+""
 ""
 ""
 
 MViewAltShiftF5
 ""
 ""
+""
 
 MViewAltShiftF6
+""
 ""
 ""
 
 MViewAltShiftF7
 ""
 ""
+""
 
 MViewAltShiftF8
 ""
 ""
+""
 
 MViewAltShiftF9
-"Конфиг"
+"╨Ъ╨╛╨╜╤Д╨╕╨│"
 "Config"
+"Nastav"
 
 MViewAltShiftF10
+""
 ""
 ""
 
 MViewAltShiftF11
 ""
 ""
+""
 
 MViewAltShiftF12
+""
 ""
 ""
 
@@ -3203,48 +3964,60 @@ l:
 l://Viewer: CtrlShift
 ""
 ""
+""
 
 MViewCtrlShiftF2
+""
 ""
 ""
 
 MViewCtrlShiftF3
 ""
 ""
+""
 
 MViewCtrlShiftF4
+""
 ""
 ""
 
 MViewCtrlShiftF5
 ""
 ""
+""
 
 MViewCtrlShiftF6
+""
 ""
 ""
 
 MViewCtrlShiftF7
 ""
 ""
+""
 
 MViewCtrlShiftF8
+""
 ""
 ""
 
 MViewCtrlShiftF9
 ""
 ""
+""
 
 MViewCtrlShiftF10
+""
 ""
 ""
 
 MViewCtrlShiftF11
 ""
 ""
+""
 
 MViewCtrlShiftF12
+""
 ""
 ""
 
@@ -3253,48 +4026,60 @@ l:
 l://Viewer: CtrlAlt
 ""
 ""
+""
 
 MViewCtrlAltF2
+""
 ""
 ""
 
 MViewCtrlAltF3
 ""
 ""
+""
 
 MViewCtrlAltF4
+""
 ""
 ""
 
 MViewCtrlAltF5
 ""
 ""
+""
 
 MViewCtrlAltF6
+""
 ""
 ""
 
 MViewCtrlAltF7
 ""
 ""
+""
 
 MViewCtrlAltF8
+""
 ""
 ""
 
 MViewCtrlAltF9
 ""
 ""
+""
 
 MViewCtrlAltF10
+""
 ""
 ""
 
 MViewCtrlAltF11
 ""
 ""
+""
 
 MViewCtrlAltF12
+""
 ""
 ""
 
@@ -3303,44 +4088,55 @@ l:
 l://Viewer: CtrlAltShift
 ""
 ""
+""
 
 MViewCtrlAltShiftF2
+""
 ""
 ""
 
 MViewCtrlAltShiftF3
 ""
 ""
+""
 
 MViewCtrlAltShiftF4
+""
 ""
 ""
 
 MViewCtrlAltShiftF5
 ""
 ""
+""
 
 MViewCtrlAltShiftF6
+""
 ""
 ""
 
 MViewCtrlAltShiftF7
 ""
 ""
+""
 
 MViewCtrlAltShiftF8
+""
 ""
 ""
 
 MViewCtrlAltShiftF9
 ""
 ""
+""
 
 MViewCtrlAltShiftF10
 ""
 ""
+""
 
 MViewCtrlAltShiftF11
+""
 ""
 ""
 
@@ -3348,68 +4144,84 @@ MViewCtrlAltShiftF12
 le://end of functional keys (Viewer)
 ""
 ""
+""
 
 MSingleViewF1
 l:
 l://Single Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MSingleViewF2
-"Сверн"
+"╨б╨▓╨╡╤А╨╜"
 "Wrap"
+"Zalom"
 
 MSingleViewF3
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MSingleViewF4
-"Код"
+"╨Ъ╨╛╨┤"
+"Hex"
 "Hex"
 
 MSingleViewF5
 ""
 ""
+""
 
 MSingleViewF6
-"Редакт"
+"╨а╨╡╨┤╨░╨║╤В"
+"Edit"
 "Edit"
 
 MSingleViewF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MSingleViewF8
+"ANSI"
 "ANSI"
 "ANSI"
 
 MSingleViewF9
 ""
 ""
+""
 
 MSingleViewF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MSingleViewF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
 "Plugins"
+"Plugin"
 
 MSingleViewF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MSingleViewF2Unwrap
 l:// this is another text for F2
-"Развер"
+"╨а╨░╨╖╨▓╨╡╤А"
 "Unwrap"
+"Nezal"
 
 MSingleViewF4Text
 l:// this is another text for F4
-"Текст"
+"╨в╨╡╨║╤Б╤В"
+"Text"
 "Text"
 
 MSingleViewF8DOS
+"OEM"
 "OEM"
 "OEM"
 
@@ -3418,48 +4230,60 @@ l:
 l://Single Viewer: Shift
 ""
 ""
+""
 
 MSingleViewShiftF2
-"Слова"
+"╨б╨╗╨╛╨▓╨░"
 "WWrap"
+"ZalSlo"
 
 MSingleViewShiftF3
+""
 ""
 ""
 
 MSingleViewShiftF4
 ""
 ""
+""
 
 MSingleViewShiftF5
+""
 ""
 ""
 
 MSingleViewShiftF6
 ""
 ""
+""
 
 MSingleViewShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MSingleViewShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MSingleViewShiftF9
+""
 ""
 ""
 
 MSingleViewShiftF10
 ""
 ""
+""
 
 MSingleViewShiftF11
 ""
 ""
+""
 
 MSingleViewShiftF12
+""
 ""
 ""
 
@@ -3468,48 +4292,60 @@ l:
 l://Single Viewer: Alt
 ""
 ""
+""
 
 MSingleViewAltF2
+""
 ""
 ""
 
 MSingleViewAltF3
 ""
 ""
+""
 
 MSingleViewAltF4
 ""
 ""
+""
 
 MSingleViewAltF5
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MSingleViewAltF6
 ""
 ""
+""
 
 MSingleViewAltF7
-"Назад"
+"╨Э╨░╨╖╨░╨┤"
 "Prev"
+"P┼Щedch"
 
 MSingleViewAltF8
-"Перейт"
+"╨Я╨╡╤А╨╡╨╣╤В"
 "Goto"
+"J├нt na"
 
 MSingleViewAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MSingleViewAltF10
 ""
 ""
+""
 
 MSingleViewAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MSingleViewAltF12
+""
 ""
 ""
 
@@ -3518,48 +4354,60 @@ l:
 l://Single Viewer: Ctrl
 ""
 ""
+""
 
 MSingleViewCtrlF2
+""
 ""
 ""
 
 MSingleViewCtrlF3
 ""
 ""
+""
 
 MSingleViewCtrlF4
+""
 ""
 ""
 
 MSingleViewCtrlF5
 ""
 ""
+""
 
 MSingleViewCtrlF6
+""
 ""
 ""
 
 MSingleViewCtrlF7
 ""
 ""
+""
 
 MSingleViewCtrlF8
+""
 ""
 ""
 
 MSingleViewCtrlF9
 ""
 ""
+""
 
 MSingleViewCtrlF10
+""
 ""
 ""
 
 MSingleViewCtrlF11
 ""
 ""
+""
 
 MSingleViewCtrlF12
+""
 ""
 ""
 
@@ -3568,48 +4416,60 @@ l:
 l://Single Viewer: AltShift
 ""
 ""
+""
 
 MSingleViewAltShiftF2
+""
 ""
 ""
 
 MSingleViewAltShiftF3
 ""
 ""
+""
 
 MSingleViewAltShiftF4
+""
 ""
 ""
 
 MSingleViewAltShiftF5
 ""
 ""
+""
 
 MSingleViewAltShiftF6
+""
 ""
 ""
 
 MSingleViewAltShiftF7
 ""
 ""
+""
 
 MSingleViewAltShiftF8
 ""
 ""
+""
 
 MSingleViewAltShiftF9
-"Конфиг"
+"╨Ъ╨╛╨╜╤Д╨╕╨│"
 "Config"
+"Nastav"
 
 MSingleViewAltShiftF10
+""
 ""
 ""
 
 MSingleViewAltShiftF11
 ""
 ""
+""
 
 MSingleViewAltShiftF12
+""
 ""
 ""
 
@@ -3618,48 +4478,60 @@ l:
 l://Single Viewer: CtrlShift
 ""
 ""
+""
 
 MSingleViewCtrlShiftF2
+""
 ""
 ""
 
 MSingleViewCtrlShiftF3
 ""
 ""
+""
 
 MSingleViewCtrlShiftF4
+""
 ""
 ""
 
 MSingleViewCtrlShiftF5
 ""
 ""
+""
 
 MSingleViewCtrlShiftF6
+""
 ""
 ""
 
 MSingleViewCtrlShiftF7
 ""
 ""
+""
 
 MSingleViewCtrlShiftF8
+""
 ""
 ""
 
 MSingleViewCtrlShiftF9
 ""
 ""
+""
 
 MSingleViewCtrlShiftF10
+""
 ""
 ""
 
 MSingleViewCtrlShiftF11
 ""
 ""
+""
 
 MSingleViewCtrlShiftF12
+""
 ""
 ""
 
@@ -3668,48 +4540,60 @@ l:
 l://Single Viewer: CtrlAlt
 ""
 ""
+""
 
 MSingleViewCtrlAltF2
+""
 ""
 ""
 
 MSingleViewCtrlAltF3
 ""
 ""
+""
 
 MSingleViewCtrlAltF4
+""
 ""
 ""
 
 MSingleViewCtrlAltF5
 ""
 ""
+""
 
 MSingleViewCtrlAltF6
+""
 ""
 ""
 
 MSingleViewCtrlAltF7
 ""
 ""
+""
 
 MSingleViewCtrlAltF8
+""
 ""
 ""
 
 MSingleViewCtrlAltF9
 ""
 ""
+""
 
 MSingleViewCtrlAltF10
+""
 ""
 ""
 
 MSingleViewCtrlAltF11
 ""
 ""
+""
 
 MSingleViewCtrlAltF12
+""
 ""
 ""
 
@@ -3718,44 +4602,55 @@ l:
 l://Single Viewer: CtrlAltShift
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF2
+""
 ""
 ""
 
 MSingleViewCtrlAltShiftF3
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF4
+""
 ""
 ""
 
 MSingleViewCtrlAltShiftF5
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF6
+""
 ""
 ""
 
 MSingleViewCtrlAltShiftF7
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF8
+""
 ""
 ""
 
 MSingleViewCtrlAltShiftF9
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF10
 ""
 ""
+""
 
 MSingleViewCtrlAltShiftF11
+""
 ""
 ""
 
@@ -3763,2957 +4658,3672 @@ MSingleViewCtrlAltShiftF12
 le://end of functional keys (Single Viewer)
 ""
 ""
+""
 
 MInViewer
-"просмотр %s"
+"╨┐╤А╨╛╤Б╨╝╨╛╤В╤А %s"
 "view %s"
+"prohl├н┼╛en├н %s"
 
 MInEditor
-"редактирование %s"
+"╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ %s"
 "edit %s"
+"editace %s"
 
 MFilterTitle
 l:
-"Меню фильтров"
+"╨Ь╨╡╨╜╤О ╤Д╨╕╨╗╤М╤В╤А╨╛╨▓"
 "Filters menu"
+"Menu filtr┼п"
 
 MFilterBottom
-"+,-,Пробел,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,╨Я╤А╨╛╨▒╨╡╨╗,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 "+,-,Space,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
+"+,-,Mezera,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
-"Файлы панели"
+"╨д╨░╨╣╨╗╤Л ╨┐╨░╨╜╨╡╨╗╨╕"
 "Panel file type"
+"Typ panelu soubor┼п"
 
 MFolderFileType
-"Папки"
+"╨Я╨░╨┐╨║╨╕"
 "Folders"
+"Adres├б┼Щe"
 
 MCanEditCustomFilterOnly
-"Только пользовательский фильтр можно редактировать"
+"╨в╨╛╨╗╤М╨║╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╕╨╣ ╤Д╨╕╨╗╤М╤В╤А ╨╝╨╛╨╢╨╜╨╛ ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╤В╤М"
 "Only custom filter can be edited"
+"Jedin─Ы vlastn├н filtr m┼п┼╛e b├╜t upraven"
 
 MAskDeleteFilter
-"Вы хотите удалить фильтр"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Д╨╕╨╗╤М╤В╤А"
 "Do you wish to delete the filter"
+"P┼Щejete si smazat filtr"
 
 MCanDeleteCustomFilterOnly
-"Только пользовательский фильтр может быть удален"
+"╨в╨╛╨╗╤М╨║╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╕╨╣ ╤Д╨╕╨╗╤М╤В╤А ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╤Г╨┤╨░╨╗╨╡╨╜"
 "Only custom filter can be deleted"
+"Jedin─Ы vlastn├н filtr m┼п┼╛e b├╜t smaz├бn"
 
 MFindFileTitle
 l:
-"Поиск файла"
+"╨Я╨╛╨╕╤Б╨║ ╤Д╨░╨╣╨╗╨░"
 "Find file"
+"Hledat soubor"
 
 MFindFileResultTitle
-"Поиск файла - результат"
+"╨Я╨╛╨╕╤Б╨║ ╤Д╨░╨╣╨╗╨░ - ╤А╨╡╨╖╤Г╨╗╤М╤В╨░╤В"
 "Find file - result"
+"Hledat soubor - v├╜sledek"
 
 MFindFileMasks
-"Одна или несколько &масок файлов:"
+"╨Ю╨┤╨╜╨░ ╨╕╨╗╨╕ ╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ &╨╝╨░╤Б╨╛╨║ ╤Д╨░╨╣╨╗╨╛╨▓:"
 "A file &mask or several file masks:"
+"Maska nebo masky soubor┼п:"
 
 MFindFileText
-"&Содержащих текст:"
+"&╨б╨╛╨┤╨╡╤А╨╢╨░╤Й╨╕╤Е ╤В╨╡╨║╤Б╤В:"
 "Containing &text:"
+"Obsahuj├нc├н te&xt:"
 
 MFindFileHex
-"&Содержащих 16-ричный код:"
+"&╨б╨╛╨┤╨╡╤А╨╢╨░╤Й╨╕╤Е 16-╤А╨╕╤З╨╜╤Л╨╣ ╨║╨╛╨┤:"
 "Con&taining hex:"
+"Obsahuj├нc├н &hex:"
 
 MFindFileCodePage
-"Используя таблицу сим&волов:"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╤Г╤П ╤В╨░╨▒╨╗╨╕╤Ж╤Г ╤Б╨╕╨╝&╨▓╨╛╨╗╨╛╨▓:"
 "Using character ta&ble:"
+"Pou┼╛├нt &znakovou sadu:"
 
 MFindFileCase
-"&Учитывать регистр"
+"&╨г╤З╨╕╤В╤Л╨▓╨░╤В╤М ╤А╨╡╨│╨╕╤Б╤В╤А"
 "&Case sensitive"
+"Roz&li┼бovat velikost p├нsmen"
 
 MFindFileWholeWords
-"Только &целые слова"
+"╨в╨╛╨╗╤М╨║╨╛ &╤Ж╨╡╨╗╤Л╨╡ ╤Б╨╗╨╛╨▓╨░"
 "&Whole words"
+"&Cel├б slova"
 
 MFindFileAllTables
-"Все таблицы символов"
+"╨Т╤Б╨╡ ╤В╨░╨▒╨╗╨╕╤Ж╤Л ╤Б╨╕╨╝╨▓╨╛╨╗╨╛╨▓"
 "All character tables"
+"V┼бechny znakov├й sady"
 
 MFindArchives
-"Искать в а&рхивах"
+"╨Ш╤Б╨║╨░╤В╤М ╨▓ ╨░&╤А╤Е╨╕╨▓╨░╤Е"
 "Search in arch&ives"
+"Hledat v a&rch├нvech"
 
 MFindFolders
-"Искать п&апки"
+"╨Ш╤Б╨║╨░╤В╤М ╨┐&╨░╨┐╨║╨╕"
 "Search for f&olders"
+"Hledat a&dres├б┼Щe"
 
 MFindSymLinks
-"Искать в символи&ческих ссылках"
+"╨Ш╤Б╨║╨░╤В╤М ╨▓ ╤Б╨╕╨╝╨▓╨╛╨╗╨╕&╤З╨╡╤Б╨║╨╕╤Е ╤Б╤Б╤Л╨╗╨║╨░╤Е"
 "Search in symbolic lin&ks"
+"Hledat v s&ymbolick├╜ch linc├нch"
 
 MSearchForHex
-"Искать 16-ричн&ый код"
+"╨Ш╤Б╨║╨░╤В╤М 16-╤А╨╕╤З╨╜&╤Л╨╣ ╨║╨╛╨┤"
 "Search for &hex"
+"Hledat &hex"
 
 MSearchWhere
-"Выберите область поиска:"
+"╨Т╤Л╨▒╨╡╤А╨╕╤В╨╡ ╨╛╨▒╨╗╨░╤Б╤В╤М ╨┐╨╛╨╕╤Б╨║╨░:"
 "Select search area:"
+"Zvolte oblast hled├бn├н:"
 
 MSearchAllDisks
-"На всех несъемных &дисках"
+"╨Э╨░ ╨▓╤Б╨╡╤Е ╨╜╨╡╤Б╤К╨╡╨╝╨╜╤Л╤Е &╨┤╨╕╤Б╨║╨░╤Е"
 "In &all non-removable drives"
+"Ve v┼бech p&evn├╜ch disc├нch"
 
 MSearchAllButNetwork
-"На всех &локальных дисках"
+"╨Э╨░ ╨▓╤Б╨╡╤Е &╨╗╨╛╨║╨░╨╗╤М╨╜╤Л╤Е ╨┤╨╕╤Б╨║╨░╤Е"
 "In all &local drives"
+"Ve v┼бech &lok├бln├нch disc├нch"
 
 MSearchInPATH
-"В PATH-катало&гах"
+"╨Т PATH-╨║╨░╤В╨░╨╗╨╛&╨│╨░╤Е"
 "In &PATH folders"
+"V adres├б┼Щ├нch z &PATH"
 
 MSearchFromRootOfDrive
-"С кор&ня диска"
+"╨б ╨║╨╛╤А&╨╜╤П ╨┤╨╕╤Б╨║╨░"
 "From the &root of"
+"V &ko┼Щeni"
 
 MSearchFromRootFolder
-"С кор&невой папки"
+"╨б ╨║╨╛╤А&╨╜╨╡╨▓╨╛╨╣ ╨┐╨░╨┐╨║╨╕"
 "From the &root folder"
+"V ko┼Щeno&v├йm adres├б┼Щi"
 
 MSearchFromCurrent
-"С &текущей папки"
+"╨б &╤В╨╡╨║╤Г╤Й╨╡╨╣ ╨┐╨░╨┐╨║╨╕"
 "From the curre&nt folder"
+"V tomto adres├б┼Щ&i"
 
 MSearchInCurrent
-"Только в теку&щей папке"
+"╨в╨╛╨╗╤М╨║╨╛ ╨▓ ╤В╨╡╨║╤Г&╤Й╨╡╨╣ ╨┐╨░╨┐╨║╨╡"
 "The current folder onl&y"
+"P&ouze v tomto adres├б┼Щi"
 
 MSearchInSelected
-"В &отмеченных папках"
+"╨Т &╨╛╤В╨╝╨╡╤З╨╡╨╜╨╜╤Л╤Е ╨┐╨░╨┐╨║╨░╤Е"
 "&Selected folders"
+"Ve vy&bran├╜ch adres├б┼Щ├нch"
 
 MFindUseFilter
-"Исполь&зовать фильтр"
+"╨Ш╤Б╨┐╨╛╨╗╤М&╨╖╨╛╨▓╨░╤В╤М ╤Д╨╕╨╗╤М╤В╤А"
 "&Use filter"
+"Pou┼╛├нt f&iltr"
 
 MFindAdvancedOptions
-"Дополнит&ельные параметры"
+"╨Ф╨╛╨┐╨╛╨╗╨╜╨╕╤В&╨╡╨╗╤М╨╜╤Л╨╡ ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л"
 "Advanced options"
+"Pokro─Нil├й nastaven├н"
 
 MFindUsingFilter
-"используя фильтр"
+"╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╤П ╤Д╨╕╨╗╤М╤В╤А"
 "using filter"
+"pou┼╛├нv├бm filtr"
 
 MFindFileFind
-"&Искать"
+"&╨Ш╤Б╨║╨░╤В╤М"
 "&Find"
+"&Hledat"
 
 MFindFileDrive
-"Дис&к"
+"╨Ф╨╕╤Б&╨║"
 "Dri&ve"
+"D&isk"
 
 MFindFileSetFilter
-"&Фильтр"
+"&╨д╨╕╨╗╤М╤В╤А"
 "Filt&er"
+"&Filtr"
 
 MFindFileAdvanced
-"До&полнительно"
+"╨Ф╨╛&╨┐╨╛╨╗╨╜╨╕╤В╨╡╨╗╤М╨╜╨╛"
 "Advance&d"
+"Pokr&o─Нil├й"
 
 MFindFileTable
-"Т&аблица"
+"╨в&╨░╨▒╨╗╨╕╤Ж╨░"
 "Ta&ble"
+"Zna&kov├б sada"
 
 MFindSearchingIn
-"Поиск%s в:"
+"╨Я╨╛╨╕╤Б╨║%s ╨▓:"
 "Searching%s in:"
+"Hled├бm%s v:"
 
 MFindNewSearch
-"&Новый поиск"
+"&╨Э╨╛╨▓╤Л╨╣ ╨┐╨╛╨╕╤Б╨║"
 "&New search"
+"&Nov├й hled├бn├н"
 
 MFindGoTo
-"Пе&рейти"
+"╨Я╨╡&╤А╨╡╨╣╤В╨╕"
 "&Go to"
+"&Jdi na"
 
 MFindView
-"&Смотреть"
+"&╨б╨╝╨╛╤В╤А╨╡╤В╤М"
 "&View"
+"Zo&braz"
 
 MFindPanel
-"Пане&ль"
+"╨Я╨░╨╜╨╡&╨╗╤М"
+"&Panel"
 "&Panel"
 
 MFindStop
-"С&топ"
+"╨б&╤В╨╛╨┐"
+"&Stop"
 "&Stop"
 
 MFindDone
 l:
-"Поиск закончен. Найдено %d файл(ов) и %d папка(ок)"
+"╨Я╨╛╨╕╤Б╨║ ╨╖╨░╨║╨╛╨╜╤З╨╡╨╜. ╨Э╨░╨╣╨┤╨╡╨╜╨╛ %d ╤Д╨░╨╣╨╗(╨╛╨▓) ╨╕ %d ╨┐╨░╨┐╨║╨░(╨╛╨║)"
 "Search done. Found %d file(s) and %d folder(s)"
+"Hled├бn├н ukon─Нeno. Nalezeno %d soubor(┼п) a %d adres├б┼Щ(┼п)"
 
 MFindCancel
-"Отм&ена"
+"╨Ю╤В╨╝&╨╡╨╜╨░"
 "&Cancel"
+"&Storno"
 
 MFindFound
 l:
-"Найдено"
+"╨Э╨░╨╣╨┤╨╡╨╜╨╛"
 "Found"
+"Nalezeno"
 
 MFindFileFolder
 l:
-"Папка"
+"╨Я╨░╨┐╨║╨░"
 "Folder"
+"Adres├б┼Щ"
 
 MFindFileAdvancedTitle
 l:
-"Дополнительные параметры поиска"
+"╨Ф╨╛╨┐╨╛╨╗╨╜╨╕╤В╨╡╨╗╤М╨╜╤Л╨╡ ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л ╨┐╨╛╨╕╤Б╨║╨░"
 "Find file advanced options"
+"Pokro─Нil├й nastaven├н vyhled├бv├бn├н soubor┼п"
 
 MFindFileSearchFirst
-"Проводить поиск в &первых:"
+"╨Я╤А╨╛╨▓╨╛╨┤╨╕╤В╤М ╨┐╨╛╨╕╤Б╨║ ╨▓ &╨┐╨╡╤А╨▓╤Л╤Е:"
 "Search only in the &first:"
+"Hledat po&uze v prvn├нch:"
 
 MFoldTreeSearch
 l:
-"Поиск:"
+"╨Я╨╛╨╕╤Б╨║:"
 "Search:"
+"Hledat:"
 
 MGetTableTitle
 l:
-"Таблицы"
+"╨в╨░╨▒╨╗╨╕╤Ж╤Л"
 "Tables"
+"Znakov├й sady:"
 
 MGetTableBottomTitle
+"CtrlH, Ins"
 "CtrlH, Ins"
 "CtrlH, Ins"
 
 MHighlightTitle
 l:
-"Раскраска файлов"
+"╨а╨░╤Б╨║╤А╨░╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Files highlighting"
+"Zv├╜raz┼Иov├бn├н soubor┼п"
 
 MHighlightBottom
 "Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
 "Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
+"Ins,Del,F4,F5,Ctrl-Nahoru,Ctrl-Dol┼п"
 
 MHighlightUpperSortGroup
-"Верхняя группа сортировки"
+"╨Т╨╡╤А╤Е╨╜╤П╤П ╨│╤А╤Г╨┐╨┐╨░ ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕"
 "Upper sort group"
+"Vzesupn├й ┼Щazen├н"
 
 MHighlightLowerSortGroup
-"Нижняя группа сортировки"
+"╨Э╨╕╨╢╨╜╤П╤П ╨│╤А╤Г╨┐╨┐╨░ ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕"
 "Lower sort group"
+"Sestupn├й ┼Щazen├н"
 
 MHighlightLastGroup
-"Наименее приоритетная группа раскраски"
+"╨Э╨░╨╕╨╝╨╡╨╜╨╡╨╡ ╨┐╤А╨╕╨╛╤А╨╕╤В╨╡╤В╨╜╨░╤П ╨│╤А╤Г╨┐╨┐╨░ ╤А╨░╤Б╨║╤А╨░╤Б╨║╨╕"
 "Lowest priority highlighting group"
+"Zv├╜razn─Ыn├н nejni┼╛┼б├н prority"
 
 MHighlightAskDel
-"Вы хотите удалить раскраску для"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤А╨░╤Б╨║╤А╨░╤Б╨║╤Г ╨┤╨╗╤П"
 "Do you wish to delete highlighting for"
+"P┼Щejete si smazat zv├╜razn─Ыn├н pro"
 
 MHighlightWarning
-"Будут потеряны все Ваши настройки!"
+"╨С╤Г╨┤╤Г╤В ╨┐╨╛╤В╨╡╤А╤П╨╜╤Л ╨▓╤Б╨╡ ╨Т╨░╤И╨╕ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨╕!"
 "You will lose all changes!"
+"V┼бechny zm─Ыny budou ztraceny!"
 
 MHighlightAskRestore
-"Вы хотите восстановить раскраску файлов по умолчанию?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨▓╨╛╤Б╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╤А╨░╤Б╨║╤А╨░╤Б╨║╤Г ╤Д╨░╨╣╨╗╨╛╨▓ ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О?"
 "Do you wish to restore default highlighting?"
+"P┼Щejete si obnovit v├╜choz├н nastaven├н?"
 
 MHighlightEditTitle
 l:
-"Редактирование раскраски файлов"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╤А╨░╤Б╨║╤А╨░╤Б╨║╨╕ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Edit files highlighting"
+"Upravit zv├╜raz┼Иov├бn├н soubor┼п"
 
 MHighlightMarkChar
-"Оп&циональный символ пометки,"
+"╨Ю╨┐&╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╤Л╨╣ ╤Б╨╕╨╝╨▓╨╛╨╗ ╨┐╨╛╨╝╨╡╤В╨║╨╕,"
 "Optional markin&g character,"
+"Voliteln├╜ &znak pro ozna─Нen├н ur─Нen├╜ch soubor┼п,"
 
 MHighlightTransparentMarkChar
-"прозра&чный"
+"╨┐╤А╨╛╨╖╤А╨░&╤З╨╜╤Л╨╣"
 "tra&nsparent"
+"pr┼пh&ledn├╜"
 
 MHighlightColors
-" Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
+" ╨ж╨▓╨╡╤В╨░ ╤Д╨░╨╣╨╗╨╛╨▓ (\"╤З╨╡╤А╨╜╤Л╨╣ ╨╜╨░ ╤З╨╡╤А╨╜╨╛╨╝\" - ╤Ж╨▓╨╡╤В ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О) "
 " File name colors (\"black on black\" - default color) "
+" Barva n├бzvu soubor┼п (\"─Нern├б na ─Нern├й\" - v├╜choz├н barva) "
 
 MHighlightFileName1
-"&1. Обычное имя файла                "
+"&1. ╨Ю╨▒╤Л╤З╨╜╨╛╨╡ ╨╕╨╝╤П ╤Д╨░╨╣╨╗╨░                "
 "&1. Normal file name               "
+"&1. Norm├бln├н soubor"
 
 MHighlightFileName2
-"&3. Помеченное имя файла             "
+"&3. ╨Я╨╛╨╝╨╡╤З╨╡╨╜╨╜╨╛╨╡ ╨╕╨╝╤П ╤Д╨░╨╣╨╗╨░             "
 "&3. Selected file name             "
+"&3. Vybran├╜ soubor"
 
 MHighlightFileName3
-"&5. Имя файла под курсором           "
+"&5. ╨Ш╨╝╤П ╤Д╨░╨╣╨╗╨░ ╨┐╨╛╨┤ ╨║╤Г╤А╤Б╨╛╤А╨╛╨╝           "
 "&5. File name under cursor         "
+"&5. Soubor pod kurzorem"
 
 MHighlightFileName4
-"&7. Помеченное под курсором имя файла"
+"&7. ╨Я╨╛╨╝╨╡╤З╨╡╨╜╨╜╨╛╨╡ ╨┐╨╛╨┤ ╨║╤Г╤А╤Б╨╛╤А╨╛╨╝ ╨╕╨╝╤П ╤Д╨░╨╣╨╗╨░"
 "&7. File name selected under cursor"
+"&7. Vybran├╜ soubor pod kurzorem"
 
 MHighlightMarking1
-"&2. Пометка"
+"&2. ╨Я╨╛╨╝╨╡╤В╨║╨░"
 "&2. Marking"
+"&2. Ozna─Нen├н"
 
 MHighlightMarking2
-"&4. Пометка"
+"&4. ╨Я╨╛╨╝╨╡╤В╨║╨░"
 "&4. Marking"
+"&4. Ozna─Нen├н"
 
 MHighlightMarking3
-"&6. Пометка"
+"&6. ╨Я╨╛╨╝╨╡╤В╨║╨░"
 "&6. Marking"
+"&6. Ozna─Нen├н"
 
 MHighlightMarking4
-"&8. Пометка"
+"&8. ╨Я╨╛╨╝╨╡╤В╨║╨░"
 "&8. Marking"
+"&8. Ozna─Нen├н"
 
 MHighlightExample1
-"║filename.ext │"
-"║filename.ext │"
+"тХСfilename.ext тФВ"
+"тХСfilename.ext тФВ"
+"тХСfilename.ext тФВ"
 
 MHighlightExample2
-"║ filename.ext│"
-"║ filename.ext│"
+"тХС filename.extтФВ"
+"тХС filename.extтФВ"
+"тХС filename.extтФВ"
 
 MHighlightContinueProcessing
-"Продолжать &обработку"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨░╤В╤М &╨╛╨▒╤А╨░╨▒╨╛╤В╨║╤Г"
 "C&ontinue processing"
+"Pokra─Нovat ve zpracov├б&n├н"
 
 MInfoTitle
 l:
-"Информация"
+"╨Ш╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤П"
 "Information"
+"Informace"
 
 MInfoCompName
-"Имя компьютера"
+"╨Ш╨╝╤П ╨║╨╛╨╝╨┐╤М╤О╤В╨╡╤А╨░"
 "Computer name"
+"N├бzev po─Н├нta─Нe"
 
 MInfoUserName
-"Имя пользователя"
+"╨Ш╨╝╤П ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "User name"
+"Jm├йno u┼╛ivatele"
 
 MInfoRemovable
-"Сменный"
+"╨б╨╝╨╡╨╜╨╜╤Л╨╣"
 "Removable"
+"Vym─Ыniteln├╜"
 
 MInfoFixed
-"Жесткий"
+"╨Ц╨╡╤Б╤В╨║╨╕╨╣"
 "Fixed"
+"Pevn├╜"
 
 MInfoNetwork
-"Сетевой"
+"╨б╨╡╤В╨╡╨▓╨╛╨╣"
 "Network"
+"S├н┼еov├╜"
 
 MInfoCDROM
+"CD-ROM"
 "CD-ROM"
 "CD-ROM"
 
 MInfoCD_RW
 "CD-RW"
 "CD-RW"
+"CD-RW"
 
 MInfoCD_RWDVD
+"CD-RW/DVD"
 "CD-RW/DVD"
 "CD-RW/DVD"
 
 MInfoDVD_ROM
 "DVD-ROM"
 "DVD-ROM"
+"DVD-ROM"
 
 MInfoDVD_RW
+"DVD-RW"
 "DVD-RW"
 "DVD-RW"
 
 MInfoDVD_RAM
 "DVD-RAM"
 "DVD-RAM"
+"DVD-RAM"
 
 MInfoRAM
+"RAM"
 "RAM"
 "RAM"
 
 MInfoSUBST
 "SUBST"
 "Subst"
+"SUBST"
 
 MInfoDisk
-"диск"
+"╨┤╨╕╤Б╨║"
+"disk"
 "disk"
 
 MInfoDiskTotal
-"Всего байтов"
+"╨Т╤Б╨╡╨│╨╛ ╨▒╨░╨╣╤В╨╛╨▓"
 "Total bytes"
+"Celkem byt┼п"
 
 MInfoDiskFree
-"Свободных байтов"
+"╨б╨▓╨╛╨▒╨╛╨┤╨╜╤Л╤Е ╨▒╨░╨╣╤В╨╛╨▓"
 "Free bytes"
+"Voln├╜ch byt┼п"
 
 MInfoDiskLabel
-"Метка тома"
+"╨Ь╨╡╤В╨║╨░ ╤В╨╛╨╝╨░"
 "Volume label"
+"Popisek disku"
 
 MInfoDiskNumber
-"Серийный номер"
+"╨б╨╡╤А╨╕╨╣╨╜╤Л╨╣ ╨╜╨╛╨╝╨╡╤А"
 "Serial number"
+"S├йriov├й ─Н├нslo"
 
 MInfoMemory
-" Память "
+" ╨Я╨░╨╝╤П╤В╤М "
 " Memory "
+" Pam─Ы┼е "
 
 MInfoMemoryLoad
-"Загрузка памяти"
+"╨Ч╨░╨│╤А╤Г╨╖╨║╨░ ╨┐╨░╨╝╤П╤В╨╕"
 "Memory load"
+"Zat├н┼╛en├н pam─Ыti"
 
 MInfoMemoryTotal
-"Всего памяти"
+"╨Т╤Б╨╡╨│╨╛ ╨┐╨░╨╝╤П╤В╨╕"
 "Total memory"
+"Celkov├б pam─Ы┼е"
 
 MInfoMemoryFree
-"Свободно памяти"
+"╨б╨▓╨╛╨▒╨╛╨┤╨╜╨╛ ╨┐╨░╨╝╤П╤В╨╕"
 "Free memory"
+"Voln├б pam─Ы┼е"
 
 MInfoVirtualTotal
-"Всего вирт. памяти"
+"╨Т╤Б╨╡╨│╨╛ ╨▓╨╕╤А╤В. ╨┐╨░╨╝╤П╤В╨╕"
 "Total virtual"
+"Celkem virtu├бln├н"
 
 MInfoVirtualFree
-"Свободно вирт. памяти"
+"╨б╨▓╨╛╨▒╨╛╨┤╨╜╨╛ ╨▓╨╕╤А╤В. ╨┐╨░╨╝╤П╤В╨╕"
 "Free virtual"
+"Voln├б virtu├бln├н"
 
 MInfoDizAbsent
-"Файл описания папки отсутствует"
+"╨д╨░╨╣╨╗ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П ╨┐╨░╨┐╨║╨╕ ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╨╡╤В"
 "Folder description file is absent"
+"Soubor s popisem adres├б┼Щe chyb├н"
 
 MErrorInvalidFunction
 l:
-"Некорректная функция"
+"╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╤Д╤Г╨╜╨║╤Ж╨╕╤П"
 "Incorrect function"
+"Nespr├бvn├б funkce"
 
 MErrorBadCommand
-"Команда не распознана"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╨╜╨╡ ╤А╨░╤Б╨┐╨╛╨╖╨╜╨░╨╜╨░"
 "Command not recognized"
+"P┼Щ├нkaz nebyl rozpozn├бn"
 
 MErrorFileNotFound
-"Файл не найден"
+"╨д╨░╨╣╨╗ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜"
 "File not found"
+"Soubor nenalezen"
 
 MErrorPathNotFound
-"Путь не найден"
+"╨Я╤Г╤В╤М ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜"
 "Path not found"
+"Cesta nenalezena"
 
 MErrorTooManyOpenFiles
-"Слишком много открытых файлов"
+"╨б╨╗╨╕╤И╨║╨╛╨╝ ╨╝╨╜╨╛╨│╨╛ ╨╛╤В╨║╤А╤Л╤В╤Л╤Е ╤Д╨░╨╣╨╗╨╛╨▓"
 "Too many open files"
+"P┼Щ├нli┼б mnoho otev┼Щen├╜ch soubor┼п"
 
 MErrorAccessDenied
-"Доступ запрещен"
+"╨Ф╨╛╤Б╤В╤Г╨┐ ╨╖╨░╨┐╤А╨╡╤Й╨╡╨╜"
 "Access denied"
+"P┼Щ├нstup odep┼Щen"
 
 MErrorNotEnoughMemory
-"Недостаточно памяти"
+"╨Э╨╡╨┤╨╛╤Б╤В╨░╤В╨╛╤З╨╜╨╛ ╨┐╨░╨╝╤П╤В╨╕"
 "Not enough memory"
+"Nedostatek pam─Ыti"
 
 MErrorDiskRO
-"Попытка записи на защищенный от записи диск"
+"╨Я╨╛╨┐╤Л╤В╨║╨░ ╨╖╨░╨┐╨╕╤Б╨╕ ╨╜╨░ ╨╖╨░╤Й╨╕╤Й╨╡╨╜╨╜╤Л╨╣ ╨╛╤В ╨╖╨░╨┐╨╕╤Б╨╕ ╨┤╨╕╤Б╨║"
 "Cannot write to write protected disk"
+"Nelze zapisovat na disk chr├бn─Ыn├╜ proti z├бpisu"
 
 MErrorDeviceNotReady
-"Устройство не готово"
+"╨г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛ ╨╜╨╡ ╨│╨╛╤В╨╛╨▓╨╛"
 "The device is not ready"
+"Za┼Щ├нzen├н nen├н p┼Щipraveno"
 
 MErrorCannotAccessDisk
-"Доступ к диску невозможен"
+"╨Ф╨╛╤Б╤В╤Г╨┐ ╨║ ╨┤╨╕╤Б╨║╤Г ╨╜╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╡╨╜"
 "Disk cannot be accessed"
+"Na disk nelze p┼Щistoupit"
 
 MErrorSectorNotFound
-"Сектор не найден"
+"╨б╨╡╨║╤В╨╛╤А ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜"
 "Sector not found"
+"Sektor nenalezen"
 
 MErrorOutOfPaper
-"В принтере нет бумаги"
+"╨Т ╨┐╤А╨╕╨╜╤В╨╡╤А╨╡ ╨╜╨╡╤В ╨▒╤Г╨╝╨░╨│╨╕"
 "The printer is out of paper"
+"V tisk├бrn─Ы do┼бel pap├нr"
 
 MErrorWrite
-"Ошибка записи"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨┐╨╕╤Б╨╕"
 "Write fault error"
+"Chyba z├бpisu"
 
 MErrorRead
-"Ошибка чтения"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤З╤В╨╡╨╜╨╕╤П"
 "Read fault error"
+"Chyba ─Нten├н"
 
 MErrorDeviceGeneral
-"Общая ошибка устройства"
+"╨Ю╨▒╤Й╨░╤П ╨╛╤И╨╕╨▒╨║╨░ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "Device general failure"
+"Obecn├б chyba za┼Щ├нzen├н"
 
 MErrorFileSharing
-"Нарушение совместного доступа к файлу"
+"╨Э╨░╤А╤Г╤И╨╡╨╜╨╕╨╡ ╤Б╨╛╨▓╨╝╨╡╤Б╤В╨╜╨╛╨│╨╛ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤Д╨░╨╣╨╗╤Г"
 "File sharing violation"
+"Naru┼бeno sd├нlen├н soubor┼п"
 
 MErrorNetworkPathNotFound
-"Сетевой путь не найден"
+"╨б╨╡╤В╨╡╨▓╨╛╨╣ ╨┐╤Г╤В╤М ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜"
 "The network path was not found"
+"S├н┼еov├б cesta nebyla nalezena"
 
 MErrorNetworkBusy
-"Сеть занята"
+"╨б╨╡╤В╤М ╨╖╨░╨╜╤П╤В╨░"
 "The network is busy"
+"S├н┼е je zanepr├бzdn─Ыna"
 
 MErrorNetworkAccessDenied
-"Сетевой доступ запрещен"
+"╨б╨╡╤В╨╡╨▓╨╛╨╣ ╨┤╨╛╤Б╤В╤Г╨┐ ╨╖╨░╨┐╤А╨╡╤Й╨╡╨╜"
 "Network access is denied"
+"P┼Щ├нstup na s├н┼е zak├бz├бn"
 
 MErrorNetworkWrite
-"Ошибка записи в сети"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨┐╨╕╤Б╨╕ ╨▓ ╤Б╨╡╤В╨╕"
 "A write fault occurred on the network"
+"Na s├нti do┼бlo k chyb─Ы v z├бpisu"
 
 MErrorDiskLocked
-"Диск используется или заблокирован другим процессом"
+"╨Ф╨╕╤Б╨║ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨╕╨╗╨╕ ╨╖╨░╨▒╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜ ╨┤╤А╤Г╨│╨╕╨╝ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨╛╨╝"
 "The disk is in use or locked by another process"
+"Disk je pou┼╛├нv├бn nebo uzam─Нen jin├╜m procesem"
 
 MErrorFileExists
-"Файл или папка уже существует"
+"╨д╨░╨╣╨╗ ╨╕╨╗╨╕ ╨┐╨░╨┐╨║╨░ ╤Г╨╢╨╡ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╨╡╤В"
 "File or folder already exists"
+"Soubor nebo adres├б┼Щ ji┼╛ existuje"
 
 MErrorInvalidName
-"Указанное имя неверно"
+"╨г╨║╨░╨╖╨░╨╜╨╜╨╛╨╡ ╨╕╨╝╤П ╨╜╨╡╨▓╨╡╤А╨╜╨╛"
 "The specified name is invalid"
+"Zadan├╜ n├бzev je neplatn├╜"
 
 MErrorInsufficientDiskSpace
-"Нет места на диске"
+"╨Э╨╡╤В ╨╝╨╡╤Б╤В╨░ ╨╜╨░ ╨┤╨╕╤Б╨║╨╡"
 "Insufficient disk space"
+"Nedostatek m├нsta na disku"
 
 MErrorFolderNotEmpty
-"Папка не пустая"
+"╨Я╨░╨┐╨║╨░ ╨╜╨╡ ╨┐╤Г╤Б╤В╨░╤П"
 "The folder is not empty"
+"Adres├б┼Щ nen├н pr├бzdn├╜"
 
 MErrorIncorrectUserName
-"Неверное имя пользователя"
+"╨Э╨╡╨▓╨╡╤А╨╜╨╛╨╡ ╨╕╨╝╤П ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "Incorrect user name"
+"Neplatn├й jm├йno u┼╛ivatele"
 
 MErrorIncorrectPassword
-"Неверный пароль"
+"╨Э╨╡╨▓╨╡╤А╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М"
 "Incorrect password"
+"Neplatn├й heslo"
 
 MErrorLoginFailure
-"Ошибка регистрации"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤А╨╡╨│╨╕╤Б╤В╤А╨░╤Ж╨╕╨╕"
 "Login failure"
+"P┼Щihl├б┼бen├н selhalo"
 
 MErrorConnectionAborted
-"Соединение разорвано"
+"╨б╨╛╨╡╨┤╨╕╨╜╨╡╨╜╨╕╨╡ ╤А╨░╨╖╨╛╤А╨▓╨░╨╜╨╛"
 "Connection aborted"
+"Spojen├н p┼Щeru┼бeno"
 
 MErrorCancelled
-"Операция отменена"
+"╨Ю╨┐╨╡╤А╨░╤Ж╨╕╤П ╨╛╤В╨╝╨╡╨╜╨╡╨╜╨░"
 "Operation cancelled"
+"Operace stornov├бna"
 
 MErrorNetAbsent
-"Сеть отсутствует"
+"╨б╨╡╤В╤М ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╨╡╤В"
 "No network present"
+"S├н┼е nen├н k dispozici"
 
 MErrorNetDeviceInUse
-"Устройство используется и не может быть отсоединено"
+"╨г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨╕ ╨╜╨╡ ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╨╛╤В╤Б╨╛╨╡╨┤╨╕╨╜╨╡╨╜╨╛"
 "Device is in use and cannot be disconnected"
+"Za┼Щ├нzen├н se pou┼╛├нv├б a nem┼п┼╛e b├╜t odpojeno"
 
 MErrorNetOpenFiles
-"На сетевом диске есть открытые файлы"
+"╨Э╨░ ╤Б╨╡╤В╨╡╨▓╨╛╨╝ ╨┤╨╕╤Б╨║╨╡ ╨╡╤Б╤В╤М ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╤Д╨░╨╣╨╗╤Л"
 "This network connection has open files"
+"P┼Щes toto s├н┼еov├й spojen├н jsou otev┼Щeny soubory"
 
 MErrorAlreadyAssigned
-"Имя локального устройства уже использовано"
+"╨Ш╨╝╤П ╨╗╨╛╨║╨░╨╗╤М╨╜╨╛╨│╨╛ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░ ╤Г╨╢╨╡ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╨╜╨╛"
 "The local device name is already in use"
+"N├бzev lok├бln├нho za┼Щ├нzen├н je ji┼╛ pou┼╛├нv├бn"
 
 MErrorAlreadyRemebered
-"Имя локального устройства уже находится в профиле пользователя"
+"╨Ш╨╝╤П ╨╗╨╛╨║╨░╨╗╤М╨╜╨╛╨│╨╛ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░ ╤Г╨╢╨╡ ╨╜╨░╤Е╨╛╨┤╨╕╤В╤Б╤П ╨▓ ╨┐╤А╨╛╤Д╨╕╨╗╨╡ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "The local device is already in the user profile"
+"Lok├бln├н za┼Щ├нzen├н je ji┼╛ v u┼╛ivatelov─Ы profilu"
 
 MErrorNotLoggedOn
-"Пользователь не зарегистрирован в сети"
+"╨Я╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М ╨╜╨╡ ╨╖╨░╤А╨╡╨│╨╕╤Б╤В╤А╨╕╤А╨╛╨▓╨░╨╜ ╨▓ ╤Б╨╡╤В╨╕"
 "User has not logged on to the network"
+"U┼╛ivatel nebyl do s├нt─Ы p┼Щihl├б┼бen"
 
 MErrorInvalidPassword
-"Неверный пароль пользователя"
+"╨Э╨╡╨▓╨╡╤А╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "The user password is invalid"
+"U┼╛ivatelovo heslo nen├н spr├бvn├й"
 
 MErrorNoRecoveryPolicy
-"Для этой системы отсутствует политика надежного восстановления шифрования"
+"╨Ф╨╗╤П ╤Н╤В╨╛╨╣ ╤Б╨╕╤Б╤В╨╡╨╝╤Л ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╨╡╤В ╨┐╨╛╨╗╨╕╤В╨╕╨║╨░ ╨╜╨░╨┤╨╡╨╢╨╜╨╛╨│╨╛ ╨▓╨╛╤Б╤Б╤В╨░╨╜╨╛╨▓╨╗╨╡╨╜╨╕╤П ╤И╨╕╤Д╤А╨╛╨▓╨░╨╜╨╕╤П"
 "There is no valid encryption recovery policy configured for this system"
+"V tomto syst├йmu nen├н nastaveno ┼╛├бdn├й platn├й pravidlo pro de┼бifrov├бn├н"
 
 MErrorEncryptionFailed
-"Ошибка при попытке шифрования файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨┐╨╛╨┐╤Л╤В╨║╨╡ ╤И╨╕╤Д╤А╨╛╨▓╨░╨╜╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "The specified file could not be encrypted"
+"Zadan├╜ soubor nemohl b├╜t za┼бifrov├бn"
 
 MErrorDecryptionFailed
-"Ошибка при попытке расшифровки файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨┐╨╛╨┐╤Л╤В╨║╨╡ ╤А╨░╤Б╤И╨╕╤Д╤А╨╛╨▓╨║╨╕ ╤Д╨░╨╣╨╗╨░"
 "The specified file could not be decrypted"
+"Zadan├╜ soubor nemohl b├╜t de┼бifrov├бn"
 
 MErrorFileNotEncrypted
-"Указанный файл не зашифрован"
+"╨г╨║╨░╨╖╨░╨╜╨╜╤Л╨╣ ╤Д╨░╨╣╨╗ ╨╜╨╡ ╨╖╨░╤И╨╕╤Д╤А╨╛╨▓╨░╨╜"
 "The specified file is not encrypted"
+"Zadan├╜ soubor nen├н za┼бifrov├бn"
 
 MErrorNoAssociation
-"Указанному файлу не сопоставлено ни одно приложение для выполнения данной операции"
+"╨г╨║╨░╨╖╨░╨╜╨╜╨╛╨╝╤Г ╤Д╨░╨╣╨╗╤Г ╨╜╨╡ ╤Б╨╛╨┐╨╛╤Б╤В╨░╨▓╨╗╨╡╨╜╨╛ ╨╜╨╕ ╨╛╨┤╨╜╨╛ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╨╡ ╨┤╨╗╤П ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П ╨┤╨░╨╜╨╜╨╛╨╣ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╕"
 "No application is associated with the specified file for this operation"
+"K zadan├йmu souboru nen├н asociov├бna ┼╛├бdn├б aplikace pro tuto operaci"
 
 MErrorFullPathNameLong
 l:
-"Полный путь к файлу имеет слишком большую длину"
+"╨Я╨╛╨╗╨╜╤Л╨╣ ╨┐╤Г╤В╤М ╨║ ╤Д╨░╨╣╨╗╤Г ╨╕╨╝╨╡╨╡╤В ╤Б╨╗╨╕╤И╨║╨╛╨╝ ╨▒╨╛╨╗╤М╤И╤Г╤О ╨┤╨╗╨╕╨╜╤Г"
 "The full pathname is too long"
+"Pln├б cesta k souboru je p┼Щ├нli┼б dlouh├б"
 
 MCannotExecute
 l:
-"Ошибка выполнения"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П"
 "Cannot execute"
+"Nelze prov├йst"
 
 MScanningFolder
-"Просмотр папки"
+"╨Я╤А╨╛╤Б╨╝╨╛╤В╤А ╨┐╨░╨┐╨║╨╕"
 "Scanning the folder"
+"Prohled├бv├бm adres├б┼Щ"
 
 MMakeFolderTitle
 l:
-"Создание папки"
+"╨б╨╛╨╖╨┤╨░╨╜╨╕╨╡ ╨┐╨░╨┐╨║╨╕"
 "Make folder"
+"Vytvo┼Щen├н adres├б┼Щe"
 
 MCreateFolder
-"Создать п&апку"
+"╨б╨╛╨╖╨┤╨░╤В╤М ╨┐&╨░╨┐╨║╤Г"
 "Create the &folder"
+"Vytvo┼Щit &adres├б┼Щ"
 
 MMultiMakeDir
-"Обрабатыват&ь несколько имен папок"
+"╨Ю╨▒╤А╨░╨▒╨░╤В╤Л╨▓╨░╤В&╤М ╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ ╨╕╨╝╨╡╨╜ ╨┐╨░╨┐╨╛╨║"
 "Process &multiple names"
+"Zpracovat &v├нce n├бzv┼п"
 
 MIncorrectDirList
-"Неправильный список папок"
+"╨Э╨╡╨┐╤А╨░╨▓╨╕╨╗╤М╨╜╤Л╨╣ ╤Б╨┐╨╕╤Б╨╛╨║ ╨┐╨░╨┐╨╛╨║"
 "Incorrect folders list"
+"Neplatn├╜ seznam adres├б┼Щ┼п"
 
 MCannotCreateFolder
-"Ошибка создания папки"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П ╨┐╨░╨┐╨║╨╕"
 "Cannot create the folder"
+"Adres├б┼Щ nelze vytvo┼Щit"
 
 MMenuBriefView
 l:
-"&Краткий                  LCtrl-1"
+"&╨Ъ╤А╨░╤В╨║╨╕╨╣                  LCtrl-1"
 "&Brief              LCtrl-1"
+"&Stru─Нn├╜                  LCtrl-1"
 
 MMenuMediumView
-"&Средний                  LCtrl-2"
+"&╨б╤А╨╡╨┤╨╜╨╕╨╣                  LCtrl-2"
 "&Medium             LCtrl-2"
+"S&t┼Щedn├н                  LCtrl-2"
 
 MMenuFullView
-"&Полный                   LCtrl-3"
+"&╨Я╨╛╨╗╨╜╤Л╨╣                   LCtrl-3"
 "&Full               LCtrl-3"
+"&Pln├╜                     LCtrl-3"
 
 MMenuWideView
-"&Широкий                  LCtrl-4"
+"&╨и╨╕╤А╨╛╨║╨╕╨╣                  LCtrl-4"
 "&Wide               LCtrl-4"
+"┼а&irok├╜                   LCtrl-4"
 
 MMenuDetailedView
-"&Детальный                LCtrl-5"
+"&╨Ф╨╡╤В╨░╨╗╤М╨╜╤Л╨╣                LCtrl-5"
 "Detai&led           LCtrl-5"
+"Detai&ln├н                 LCtrl-5"
 
 MMenuDizView
-"&Описания                 LCtrl-6"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╤П                 LCtrl-6"
 "&Descriptions       LCtrl-6"
+"P&opisky                  LCtrl-6"
 
 MMenuLongDizView
-"Д&линные описания         LCtrl-7"
+"╨Ф&╨╗╨╕╨╜╨╜╤Л╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П         LCtrl-7"
 "Lon&g descriptions  LCtrl-7"
+"&Dlouh├й popisky           LCtrl-7"
 
 MMenuOwnersView
-"Вл&адельцы файлов         LCtrl-8"
+"╨Т╨╗&╨░╨┤╨╡╨╗╤М╤Ж╤Л ╤Д╨░╨╣╨╗╨╛╨▓         LCtrl-8"
 "File own&ers        LCtrl-8"
+"Vlastn├нk so&uboru         LCtrl-8"
 
 MMenuLinksView
-"Свя&зи файлов             LCtrl-9"
+"╨б╨▓╤П&╨╖╨╕ ╤Д╨░╨╣╨╗╨╛╨▓             LCtrl-9"
 "File lin&ks         LCtrl-9"
+"Souborov├й lin&ky          LCtrl-9"
 
 MMenuAlternativeView
-"Аль&тернативный полный    LCtrl-0"
+"╨Р╨╗╤М&╤В╨╡╤А╨╜╨░╤В╨╕╨▓╨╜╤Л╨╣ ╨┐╨╛╨╗╨╜╤Л╨╣    LCtrl-0"
 "&Alternative full   LCtrl-0"
+"&Alternativn├н pln├╜        LCtrl-0"
 
 MMenuInfoPanel
 l:
-"Панель ин&формации        Ctrl-L"
+"╨Я╨░╨╜╨╡╨╗╤М ╨╕╨╜&╤Д╨╛╤А╨╝╨░╤Ж╨╕╨╕        Ctrl-L"
 "&Info panel         Ctrl-L"
+"Panel In&fo               Ctrl-L"
 
 MMenuTreePanel
-"Де&рево папок             Ctrl-T"
+"╨Ф╨╡&╤А╨╡╨▓╨╛ ╨┐╨░╨┐╨╛╨║             Ctrl-T"
 "&Tree panel         Ctrl-T"
+"Panel St&rom              Ctrl-T"
 
 MMenuQuickView
-"Быстры&й просмотр         Ctrl-Q"
+"╨С╤Л╤Б╤В╤А╤Л&╨╣ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А         Ctrl-Q"
 "Quick &view         Ctrl-Q"
+"Z&b─Ы┼╛n├й zobrazen├н         Ctrl-Q"
 
 MMenuSortModes
-"Режим&ы сортировки        Ctrl-F12"
+"╨а╨╡╨╢╨╕╨╝&╤Л ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕        Ctrl-F12"
 "&Sort modes         Ctrl-F12"
+"M├│dy ┼Щaze&n├н              Ctrl-F12"
 
 MMenuLongNames
-"Показывать длинные &имена Ctrl-N"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨┤╨╗╨╕╨╜╨╜╤Л╨╡ &╨╕╨╝╨╡╨╜╨░ Ctrl-N"
 "Show long &names    Ctrl-N"
+"Zobrazit dlouh├й n├бzv&y    Ctrl-N"
 
 MMenuTogglePanel
-"Панель &Вкл/Выкл          Ctrl-F1"
+"╨Я╨░╨╜╨╡╨╗╤М &╨Т╨║╨╗/╨Т╤Л╨║╨╗          Ctrl-F1"
 "Panel &On/Off       Ctrl-F1"
+"Panel &Zap/Vyp            Ctrl-F1"
 
 MMenuReread
-"П&еречитать               Ctrl-R"
+"╨Я&╨╡╤А╨╡╤З╨╕╤В╨░╤В╤М               Ctrl-R"
 "&Re-read            Ctrl-R"
+"Obno&vit                  Ctrl-R"
 
 MMenuChangeDrive
-"С&менить диск             Alt-F1"
+"╨б&╨╝╨╡╨╜╨╕╤В╤М ╨┤╨╕╤Б╨║             Alt-F1"
 "&Change drive       Alt-F1"
+"Z&m─Ыnit jednotku          Alt-F1"
 
 MMenuView
 l:
-"&Просмотр              F3"
+"&╨Я╤А╨╛╤Б╨╝╨╛╤В╤А              F3"
 "&View               F3"
+"&Zobrazit                   F3"
 
 MMenuEdit
-"&Редактирование        F4"
+"&╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡        F4"
 "&Edit               F4"
+"&Editovat                   F4"
 
 MMenuCopy
-"&Копирование           F5"
+"&╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡           F5"
 "&Copy               F5"
+"&Kop├нrovat                  F5"
 
 MMenuMove
-"П&еренос               F6"
+"╨Я&╨╡╤А╨╡╨╜╨╛╤Б               F6"
 "&Rename or move     F6"
+"&P┼Щejmenovat/P┼Щesunout      F6"
 
 MMenuCreateFolder
-"&Создание папки        F7"
+"&╨б╨╛╨╖╨┤╨░╨╜╨╕╨╡ ╨┐╨░╨┐╨║╨╕        F7"
 "&Make folder        F7"
+"&Vytvo┼Щit adres├б┼Щ           F7"
 
 MMenuDelete
-"&Удаление              F8"
+"&╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡              F8"
 "&Delete             F8"
+"&Smazat                     F8"
 
 MMenuWipe
-"Уни&чтожение           Alt-Del"
+"╨г╨╜╨╕&╤З╤В╨╛╨╢╨╡╨╜╨╕╨╡           Alt-Del"
 "&Wipe               Alt-Del"
+"&Vymazat                    Alt-Del"
 
 MMenuAdd
-"&Архивировать          Shift-F1"
+"&╨Р╤А╤Е╨╕╨▓╨╕╤А╨╛╨▓╨░╤В╤М          Shift-F1"
 "Add &to archive     Shift-F1"
+"P┼Щidat do &arch├нvu          Shift-F1"
 
 MMenuExtract
-"Распако&вать           Shift-F2"
+"╨а╨░╤Б╨┐╨░╨║╨╛&╨▓╨░╤В╤М           Shift-F2"
 "E&xtract files      Shift-F2"
+"&Rozbalit soubory           Shift-F2"
 
 MMenuArchiveCommands
-"Архивн&ые команды      Shift-F3"
+"╨Р╤А╤Е╨╕╨▓╨╜&╤Л╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Л      Shift-F3"
 "Arc&hive commands   Shift-F3"
+"P┼Щ├нkazy arc&h├нvu            Shift-F3"
 
 MMenuAttributes
-"А&трибуты файлов       Ctrl-A"
+"╨Р&╤В╤А╨╕╨▒╤Г╤В╤Л ╤Д╨░╨╣╨╗╨╛╨▓       Ctrl-A"
 "File &attributes    Ctrl-A"
+"A&tributy souboru           Ctrl-A"
 
 MMenuApplyCommand
-"Применить коман&ду     Ctrl-G"
+"╨Я╤А╨╕╨╝╨╡╨╜╨╕╤В╤М ╨║╨╛╨╝╨░╨╜&╨┤╤Г     Ctrl-G"
 "A&pply command      Ctrl-G"
+"Ap&likovat p┼Щ├нkaz           Ctrl-G"
 
 MMenuDescribe
-"&Описание файлов       Ctrl-Z"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓       Ctrl-Z"
 "Descri&be files     Ctrl-Z"
+"P┼Щidat popisek sou&bor┼пm    Ctrl-Z"
 
 MMenuSelectGroup
-"Пометить &группу       Gray +"
+"╨Я╨╛╨╝╨╡╤В╨╕╤В╤М &╨│╤А╤Г╨┐╨┐╤Г       Gray +"
 "Select &group       Gray +"
+"Oz&na─Нit skupinu            Num +"
 
 MMenuUnselectGroup
-"С&нять пометку         Gray -"
+"╨б&╨╜╤П╤В╤М ╨┐╨╛╨╝╨╡╤В╨║╤Г         Gray -"
 "U&nselect group     Gray -"
+"O&dzna─Нit skupinu           Num -"
 
 MMenuInvertSelection
-"&Инверсия пометки      Gray *"
+"&╨Ш╨╜╨▓╨╡╤А╤Б╨╕╤П ╨┐╨╛╨╝╨╡╤В╨║╨╕      Gray *"
 "&Invert selection   Gray *"
+"&Invertovat v├╜b─Ыr           Num *"
 
 MMenuRestoreSelection
-"Восстановить по&метку  Ctrl-M"
+"╨Т╨╛╤Б╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨┐╨╛&╨╝╨╡╤В╨║╤Г  Ctrl-M"
 "Re&store selection  Ctrl-M"
+"&Obnovit v├╜b─Ыr              Ctrl-M"
 
 MMenuFindFile
 l:
-"&Поиск файла              Alt-F7"
+"&╨Я╨╛╨╕╤Б╨║ ╤Д╨░╨╣╨╗╨░              Alt-F7"
 "&Find file           Alt-F7"
+"H&ledat soubor                  Alt-F7"
 
 MMenuHistory
-"&История команд           Alt-F8"
+"&╨Ш╤Б╤В╨╛╤А╨╕╤П ╨║╨╛╨╝╨░╨╜╨┤           Alt-F8"
 "&History             Alt-F8"
+"&Historie                       Alt-F8"
 
 MMenuVideoMode
-"Видео&режим               Alt-F9"
+"╨Т╨╕╨┤╨╡╨╛&╤А╨╡╨╢╨╕╨╝               Alt-F9"
 "&Video mode          Alt-F9"
+"&Video m├│d                      Alt-F9"
 
 MMenuFindFolder
-"Поис&к папки              Alt-F10"
+"╨Я╨╛╨╕╤Б&╨║ ╨┐╨░╨┐╨║╨╕              Alt-F10"
 "Fi&nd folder         Alt-F10"
+"Hl&edat adres├б┼Щ                 Alt-F10"
 
 MMenuViewHistory
-"Ис&тория просмотра        Alt-F11"
+"╨Ш╤Б&╤В╨╛╤А╨╕╤П ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░        Alt-F11"
 "File vie&w history   Alt-F11"
+"Historie &zobrazen├н soubor┼п     Alt-F11"
 
 MMenuFoldersHistory
-"Ист&ория папок            Alt-F12"
+"╨Ш╤Б╤В&╨╛╤А╨╕╤П ╨┐╨░╨┐╨╛╨║            Alt-F12"
 "F&olders history     Alt-F12"
+"Historie &adres├б┼Щ┼п              Alt-F12"
 
 MMenuSwapPanels
-"По&менять панели          Ctrl-U"
+"╨Я╨╛&╨╝╨╡╨╜╤П╤В╤М ╨┐╨░╨╜╨╡╨╗╨╕          Ctrl-U"
 "&Swap panels         Ctrl-U"
+"Prohodit panel&y                Ctrl-U"
 
 MMenuTogglePanels
-"Панели &Вкл/Выкл          Ctrl-O"
+"╨Я╨░╨╜╨╡╨╗╨╕ &╨Т╨║╨╗/╨Т╤Л╨║╨╗          Ctrl-O"
 "&Panels On/Off       Ctrl-O"
+"&Panely Zap/Vyp                 Ctrl-O"
 
 MMenuCompareFolders
-"&Сравнение папок"
+"&╨б╤А╨░╨▓╨╜╨╡╨╜╨╕╨╡ ╨┐╨░╨┐╨╛╨║"
 "&Compare folders"
+"Po&rovnat adres├б┼Щe"
 
 MMenuUserMenu
-"Меню пользовател&я"
+"╨Ь╨╡╨╜╤О ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗&╤П"
 "Edit user &menu"
+"Upravit u┼╛ivatelsk├й &menu"
 
 MMenuFileAssociations
-"&Ассоциации файлов"
+"&╨Р╤Б╤Б╨╛╤Ж╨╕╨░╤Ж╨╕╨╕ ╤Д╨░╨╣╨╗╨╛╨▓"
 "File &associations"
+"Asocia&ce soubor┼п"
 
 MMenuFolderShortcuts
-"Ссы&лки на папки"
+"╨б╤Б╤Л&╨╗╨║╨╕ ╨╜╨░ ╨┐╨░╨┐╨║╨╕"
 "Fol&der shortcuts"
+"A&dres├б┼Щov├й zkratky"
 
 MMenuFilter
-"&Фильтр панели файлов     Ctrl-I"
+"&╨д╨╕╨╗╤М╤В╤А ╨┐╨░╨╜╨╡╨╗╨╕ ╤Д╨░╨╣╨╗╨╛╨▓     Ctrl-I"
 "File panel f&ilter   Ctrl-I"
+"F&iltr panelu soubor┼п           Ctrl-I"
 
 MMenuPluginCommands
-"Команды внешних мо&дулей  F11"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╤Л ╨▓╨╜╨╡╤И╨╜╨╕╤Е ╨╝╨╛&╨┤╤Г╨╗╨╡╨╣  F11"
 "Pl&ugin commands     F11"
+"P┼Щ├нkazy plu&gin┼п                F11"
 
 MMenuWindowsList
-"Список экра&нов           F12"
+"╨б╨┐╨╕╤Б╨╛╨║ ╤Н╨║╤А╨░&╨╜╨╛╨▓           F12"
 "Sc&reens list        F12"
+"Seznam obrazove&k               F12"
 
 MMenuProcessList
-"Список &задач             Ctrl-W"
+"╨б╨┐╨╕╤Б╨╛╨║ &╨╖╨░╨┤╨░╤З             Ctrl-W"
 "Task &list           Ctrl-W"
+"Seznam ├║l&oh                    Ctrl-W"
 
 MMenuHotPlugList
-"Список Hotplug-&устройств"
+"╨б╨┐╨╕╤Б╨╛╨║ Hotplug-&╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓"
 "Ho&tplug devices list"
+"Seznam v&yj├нmateln├╜ch za┼Щ├нzen├н"
 
 MMenuSystemSettings
 l:
-"Систе&мные параметры"
+"╨б╨╕╤Б╤В╨╡&╨╝╨╜╤Л╨╡ ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л"
 "S&ystem settings"
+"Nastaven├н S&yst├йmu"
 
 MMenuPanelSettings
-"Настройки па&нели"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ ╨┐╨░&╨╜╨╡╨╗╨╕"
 "&Panel settings"
+"Nastaven├н &Panel┼п"
 
 MMenuInterface
-"Настройки &интерфейса"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ &╨╕╨╜╤В╨╡╤А╤Д╨╡╨╣╤Б╨░"
 "&Interface settings"
+"Nastaven├н Ro&zhran├н"
 
 MMenuDialogSettings
-"Настройки &диалогов"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ &╨┤╨╕╨░╨╗╨╛╨│╨╛╨▓"
 "Di&alog settings"
+"Nastaven├н Dialo&g┼п"
 
 MMenuLanguages
-"&Языки"
+"&╨п╨╖╤Л╨║╨╕"
 "Lan&guages"
+"Nastaven├н &Jazyka"
 
 MMenuPluginsConfig
-"Параметры &внешних модулей"
+"╨Я╨░╤А╨░╨╝╨╡╤В╤А╤Л &╨▓╨╜╨╡╤И╨╜╨╕╤Е ╨╝╨╛╨┤╤Г╨╗╨╡╨╣"
 "Pl&ugins configuration"
+"Nastaven├н Plu&gin┼п"
 
 MMenuConfirmation
-"&Подтверждения"
+"&╨Я╨╛╨┤╤В╨▓╨╡╤А╨╢╨┤╨╡╨╜╨╕╤П"
 "Co&nfirmations"
+"P&otvrzen├н"
 
 MMenuFilePanelModes
-"Режим&ы панели файлов"
+"╨а╨╡╨╢╨╕╨╝&╤Л ╨┐╨░╨╜╨╡╨╗╨╕ ╤Д╨░╨╣╨╗╨╛╨▓"
 "File panel &modes"
+"&M├│dy souborov├╜ch panel┼п"
 
 MMenuFileDescriptions
-"&Описания файлов"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╤П ╤Д╨░╨╣╨╗╨╛╨▓"
 "File &descriptions"
+"Popi&sy soubor┼п"
 
 MMenuFolderInfoFiles
-"Файлы описания п&апок"
+"╨д╨░╨╣╨╗╤Л ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П ╨┐&╨░╨┐╨╛╨║"
 "&Folder description files"
+"Soubory popis┼п &adres├б┼Щ┼п"
 
 MMenuViewer
-"Настройки про&граммы просмотра"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ ╨┐╤А╨╛&╨│╤А╨░╨╝╨╝╤Л ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А╨░"
 "&Viewer settings"
+"Nastaven├н P&rohl├н┼╛e─Нe"
 
 MMenuEditor
-"Настройки &редактора"
+"╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨╕ &╤А╨╡╨┤╨░╨║╤В╨╛╤А╨░"
 "&Editor settings"
+"Nastaven├н &Editoru"
 
 MMenuColors
-"&Цвета"
+"&╨ж╨▓╨╡╤В╨░"
 "Co&lors"
+"&Barvy"
 
 MMenuFilesHighlighting
-"Раскраска &файлов и группы сортировки"
+"╨а╨░╤Б╨║╤А╨░╤Б╨║╨░ &╤Д╨░╨╣╨╗╨╛╨▓ ╨╕ ╨│╤А╤Г╨┐╨┐╤Л ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕"
 "Files &highlighting and sort groups"
+"Z&v├╜raz┼Иov├бn├н soubor┼п a skupiny ┼Щazen├н"
 
 MMenuSaveSetup
-"&Сохранить параметры      Shift-F9"
+"&╨б╨╛╤Е╤А╨░╨╜╨╕╤В╤М ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л      Shift-F9"
 "&Save setup        Shift-F9"
+"&Ulo┼╛it nastaven├н                         Shift-F9"
 
 MMenuTogglePanelRight
-"Панель &Вкл/Выкл          Ctrl-F2"
+"╨Я╨░╨╜╨╡╨╗╤М &╨Т╨║╨╗/╨Т╤Л╨║╨╗          Ctrl-F2"
 "Panel &On/Off       Ctrl-F2"
+"Panel &Zap/Vyp            Ctrl-F2"
 
 MMenuChangeDriveRight
-"С&менить диск             Alt-F2"
+"╨б&╨╝╨╡╨╜╨╕╤В╤М ╨┤╨╕╤Б╨║             Alt-F2"
 "&Change drive       Alt-F2"
+"Z&m─Ыnit jednotku          Alt-F2"
 
 MMenuLeftTitle
 l:
-"&Левая"
+"&╨Ы╨╡╨▓╨░╤П"
 "&Left"
+"&Lev├╜"
 
 MMenuFilesTitle
-"&Файлы"
+"&╨д╨░╨╣╨╗╤Л"
 "&Files"
+"&Soubory"
 
 MMenuCommandsTitle
-"&Команды"
+"&╨Ъ╨╛╨╝╨░╨╜╨┤╤Л"
 "&Commands"
+"P┼Щ├н&kazy"
 
 MMenuOptionsTitle
-"Па&раметры"
+"╨Я╨░&╤А╨░╨╝╨╡╤В╤А╤Л"
 "&Options"
+"&Nastaven├н"
 
 MMenuRightTitle
-"&Правая"
+"&╨Я╤А╨░╨▓╨░╤П"
 "&Right"
+"&Prav├╜"
 
 MMenuSortTitle
 l:
-"Критерий сортировки"
+"╨Ъ╤А╨╕╤В╨╡╤А╨╕╨╣ ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕"
 "Sort by"
+"Se┼Щadit podle"
 
 MMenuSortByName
-"&Имя                              Ctrl-F3"
+"&╨Ш╨╝╤П                              Ctrl-F3"
 "&Name                 Ctrl-F3"
+"&N├бzvu                     Ctrl-F3"
 
 MMenuSortByExt
-"&Расширение                       Ctrl-F4"
+"&╨а╨░╤Б╤И╨╕╤А╨╡╨╜╨╕╨╡                       Ctrl-F4"
 "E&xtension            Ctrl-F4"
+"&P┼Щ├нpony                   Ctrl-F4"
 
 MMenuSortByModification
-"Время &модификации                Ctrl-F5"
+"╨Т╤А╨╡╨╝╤П &╨╝╨╛╨┤╨╕╤Д╨╕╨║╨░╤Ж╨╕╨╕                Ctrl-F5"
 "&Modification time    Ctrl-F5"
+"─М&asu modifikace           Ctrl-F5"
 
 MMenuSortBySize
-"Р&азмер                           Ctrl-F6"
+"╨а&╨░╨╖╨╝╨╡╤А                           Ctrl-F6"
 "&Size                 Ctrl-F6"
+"&Velikosti                 Ctrl-F6"
 
 MMenuUnsorted
-"&Не сортировать                   Ctrl-F7"
+"&╨Э╨╡ ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨░╤В╤М                   Ctrl-F7"
 "&Unsorted             Ctrl-F7"
+"N&e┼Щadit                   Ctrl-F7"
 
 MMenuSortByCreation
-"Время &создания                   Ctrl-F8"
+"╨Т╤А╨╡╨╝╤П &╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П                   Ctrl-F8"
 "&Creation time        Ctrl-F8"
+"&Data vytvo┼Щen├н            Ctrl-F8"
 
 MMenuSortByAccess
-"Время &доступа                    Ctrl-F9"
+"╨Т╤А╨╡╨╝╤П &╨┤╨╛╤Б╤В╤Г╨┐╨░                    Ctrl-F9"
 "&Access time          Ctrl-F9"
+"─Мa&su p┼Щ├нstupu             Ctrl-F9"
 
 MMenuSortByDiz
-"&Описания                         Ctrl-F10"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╤П                         Ctrl-F10"
 "&Descriptions         Ctrl-F10"
+"P&opisk┼п                   Ctrl-F10"
 
 MMenuSortByOwner
-"&Владельцы файлов                 Ctrl-F11"
+"&╨Т╨╗╨░╨┤╨╡╨╗╤М╤Ж╤Л ╤Д╨░╨╣╨╗╨╛╨▓                 Ctrl-F11"
 "&Owner                Ctrl-F11"
+"V&lastn├нka                 Ctrl-F11"
 
 MMenuSortByCompressedSize
-"&Упакованный размер"
+"&╨г╨┐╨░╨║╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤А╨░╨╖╨╝╨╡╤А"
 "Com&pressed size"
+"&Komprimovan├й velikosti"
 
 MMenuSortByNumLinks
-"Ко&личество ссылок"
+"╨Ъ╨╛&╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╤Б╤Б╤Л╨╗╨╛╨║"
 "Number of &hard links"
+"Po─Н&tu pevn├╜ch link┼п"
 
 MMenuSortUseGroups
-"Использовать &группы сортировки   Shift-F11"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М &╨│╤А╤Г╨┐╨┐╤Л ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╨╕   Shift-F11"
 "Use sort &groups      Shift-F11"
+"┼Шazen├н podle skup&in       Shift-F11"
 
 MMenuSortSelectedFirst
-"&Помеченные файлы вперед          Shift-F12"
+"&╨Я╨╛╨╝╨╡╤З╨╡╨╜╨╜╤Л╨╡ ╤Д╨░╨╣╨╗╤Л ╨▓╨┐╨╡╤А╨╡╨┤          Shift-F12"
 "Show selected &first  Shift-F12"
+"Nejd┼Щ├нv zobrazit vy&bran├й  Shift-F12"
 
 MMenuSortUseNumeric
-"Использовать &числовую сортировку"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М &╤З╨╕╤Б╨╗╨╛╨▓╤Г╤О ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╤Г"
 "Use num&eric sort"
+"Pou┼╛├нt ─Н├н&seln├й ┼Щazen├н"
 
 MChangeDriveTitle
 l:
-"Диск"
+"╨Ф╨╕╤Б╨║"
 "Drive"
+"Jednotka   "
 
 MChangeDriveRemovable
-"сменный  "
+"╤Б╨╝╨╡╨╜╨╜╤Л╨╣  "
 "removable"
+"vym─Ыniteln├б"
 
 MChangeDriveFixed
-"жесткий  "
+"╨╢╨╡╤Б╤В╨║╨╕╨╣  "
 "fixed    "
+"pevn├б      "
 
 MChangeDriveNetwork
-"сетевой  "
+"╤Б╨╡╤В╨╡╨▓╨╛╨╣  "
 "network  "
+"s├н┼еov├б     "
 
 MChangeDriveCDROM
 "CD-ROM   "
 "CD-ROM   "
+"CD-ROM     "
 
 MChangeDriveCD_RW
 "CD-RW    "
 "CD-RW    "
+"CD-RW      "
 
 MChangeDriveCD_RWDVD
 "CD-RW/DVD"
 "CD-RW/DVD"
+"CD-RW/DVD  "
 
 MChangeDriveDVD_ROM
 "DVD-ROM  "
 "DVD-ROM  "
+"DVD-ROM    "
 
 MChangeDriveDVD_RW
 "DVD-RW   "
 "DVD-RW   "
+"DWD-RW     "
 
 MChangeDriveDVD_RAM
 "DVD-RAM  "
 "DVD-RAM  "
+"DVD-RAM    "
 
 MChangeDriveRAM
-"RAM диск "
+"RAM ╨┤╨╕╤Б╨║ "
 "RAM disk "
+"RAM disk   "
 
 MChangeDriveSUBST
 "SUBST    "
 "subst    "
+"SUBST      "
 
 MChangeDriveLabelAbsent
-"недоступен"
+"╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╡╨╜"
 "not available"
+"nen├н k dispozici"
 
 MChangeDriveCannotReadDisk
-"Ошибка чтения диска в дисководе %c:"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤З╤В╨╡╨╜╨╕╤П ╨┤╨╕╤Б╨║╨░ ╨▓ ╨┤╨╕╤Б╨║╨╛╨▓╨╛╨┤╨╡ %c:"
 "Cannot read the disk in drive %c:"
+"Nelze p┼Щe─Н├нst disk v jednotce %c:"
 
 MChangeDriveCannotDisconnect
-"Не удается отсоединиться от %s"
+"╨Э╨╡ ╤Г╨┤╨░╨╡╤В╤Б╤П ╨╛╤В╤Б╨╛╨╡╨┤╨╕╨╜╨╕╤В╤М╤Б╤П ╨╛╤В %s"
 "Cannot disconnect from %s"
+"Nelze se odpojit od %s"
 
 MChangeDriveCannotDelSubst
-"Не удается удалить виртуальный драйвер %s"
+"╨Э╨╡ ╤Г╨┤╨░╨╡╤В╤Б╤П ╤Г╨┤╨░╨╗╨╕╤В╤М ╨▓╨╕╤А╤В╤Г╨░╨╗╤М╨╜╤Л╨╣ ╨┤╤А╨░╨╣╨▓╨╡╤А %s"
 "Cannot delete a substituted drive %s"
+"Nelze smazat substnut├б jednotka %s"
 
 MChangeDriveOpenFiles
-"Если вы не закроете открытые файлы, данные могут быть утеряны"
+"╨Х╤Б╨╗╨╕ ╨▓╤Л ╨╜╨╡ ╨╖╨░╨║╤А╨╛╨╡╤В╨╡ ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╤Д╨░╨╣╨╗╤Л, ╨┤╨░╨╜╨╜╤Л╨╡ ╨╝╨╛╨│╤Г╤В ╨▒╤Л╤В╤М ╤Г╤В╨╡╤А╤П╨╜╤Л"
 "If you do not close the open files, data may be lost."
+"Pokud neuzav┼Щete otev┼Щen├й soubory, mohou b├╜t tato data ztracena."
 
 MChangeSUBSTDisconnectDriveTitle
 l:
-"Отключение виртуального драйвера"
+"╨Ю╤В╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ ╨▓╨╕╤А╤В╤Г╨░╨╗╤М╨╜╨╛╨│╨╛ ╨┤╤А╨░╨╣╨▓╨╡╤А╨░"
 "Virtual device disconnection"
+"Odpojov├бn├н virtu├бln├нho za┼Щ├нzen├н"
 
 MChangeSUBSTDisconnectDriveQuestion
-"Отключить SUBST-диск %c:?"
+"╨Ю╤В╨║╨╗╤О╤З╨╕╤В╤М SUBST-╨┤╨╕╤Б╨║ %c:?"
 "Disconnect SUBST-disk %c:?"
+"Odpojit SUBST-disk %c:?"
 
 MChangeHotPlugDisconnectDriveTitle
 l:
-"Удаление устройства"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "Device Removal"
+"Odpojov├бn├н za┼Щ├нzen├н"
 
 MChangeHotPlugDisconnectDriveQuestion
-"Вы хотите удалить устройство"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛"
 "Do you want to remove the device"
+"Opravdu si p┼Щejete odpojit za┼Щ├нzen├н"
 
 MHotPlugDisks
-"(диск(и): %s)"
+"(╨┤╨╕╤Б╨║(╨╕): %s)"
 "(disk(s): %s)"
+"(disk(y): %s)"
 
 MChangeCouldNotEjectHotPlugMedia
-"Невозможно удалить устройство для диска %c:"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛ ╨┤╨╗╤П ╨┤╨╕╤Б╨║╨░ %c:"
 "Cannot remove a device for drive %c:"
+"Za┼Щ├нzen├н %c: nem┼п┼╛e b├╜t odpojeno."
 
 MChangeCouldNotEjectHotPlugMedia2
-"Невозможно удалить устройство:"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛:"
 "Cannot remove a device:"
+"Za┼Щ├нzen├н nem┼п┼╛e b├╜t odpojeno."
 
 MChangeHotPlugNotify1
-"Теперь устройство" 
+"╨в╨╡╨┐╨╡╤А╤М ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛" 
 "The device" 
+"Za┼Щ├нzen├н"
 
 MChangeHotPlugNotify2
-"может быть безопасно извлечено из компьютера"
+"╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╨▒╨╡╨╖╨╛╨┐╨░╤Б╨╜╨╛ ╨╕╨╖╨▓╨╗╨╡╤З╨╡╨╜╨╛ ╨╕╨╖ ╨║╨╛╨╝╨┐╤М╤О╤В╨╡╤А╨░"
 "can now be safely removed"
+"m┼п┼╛e b├╜t nyn├н bezpe─Нn─Ы odebr├бno"
 
 MHotPlugListTitle
-"Hotplug-устройства"
+"Hotplug-╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "Hotplug devices list"
+"Seznam vyj├нmateln├╜ch za┼Щ├нzen├н"
 
 MHotPlugListBottom
-"Редактирование: Del,Ctrl-R"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: Del,Ctrl-R"
+"Edit: Del,Ctrl-R"
 "Edit: Del,Ctrl-R"
 
 MChangeDriveDisconnectTitle
 l:
-"Отключение сетевого устройства"
+"╨Ю╤В╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ ╤Б╨╡╤В╨╡╨▓╨╛╨│╨╛ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "Disconnect network drive"
+"Odpojit s├н┼еovou jednotku"
 
 MChangeDriveDisconnectQuestion
-"Вы хотите удалить соединение с устройством %c:?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Б╨╛╨╡╨┤╨╕╨╜╨╡╨╜╨╕╨╡ ╤Б ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛╨╝ %c:?"
 "Do you want to disconnect from the drive %c:?"
+"Opravdu si p┼Щejete odpojit od jednotky %c:?"
 
 MChangeDriveDisconnectMapped
-"На устройство %c: отображена папка"
+"╨Э╨░ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨╛ %c: ╨╛╤В╨╛╨▒╤А╨░╨╢╨╡╨╜╨░ ╨┐╨░╨┐╨║╨░"
 "The drive %c: is mapped to..."
+"Jednotka %c: je namapov├бna na..."
 
 MChangeDriveDisconnectReconnect
-"&Восстанавливать при входе в систему"
+"&╨Т╨╛╤Б╤Б╤В╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╤В╤М ╨┐╤А╨╕ ╨▓╤Е╨╛╨┤╨╡ ╨▓ ╤Б╨╕╤Б╤В╨╡╨╝╤Г"
 "&Reconnect at Logon"
+"&Znovu p┼Щipojit p┼Щi p┼Щihl├б┼бen├н"
 
 MChangeDriveAskDisconnect
 l:
-"Вы хотите в любом случае отключиться от устройства?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨▓ ╨╗╤О╨▒╨╛╨╝ ╤Б╨╗╤Г╤З╨░╨╡ ╨╛╤В╨║╨╗╤О╤З╨╕╤В╤М╤Б╤П ╨╛╤В ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░?"
 "Do you want to disconnect the device anyway?"
+"P┼Щejete si p┼Щesto za┼Щ├нzen├н odpojit?"
 
 MChangeVolumeInUse
-"Не удается извлечь диск из привода %c:"
+"╨Э╨╡ ╤Г╨┤╨░╨╡╤В╤Б╤П ╨╕╨╖╨▓╨╗╨╡╤З╤М ╨┤╨╕╤Б╨║ ╨╕╨╖ ╨┐╤А╨╕╨▓╨╛╨┤╨░ %c:"
 "Volume %c: cannot be ejected."
+"Jednotka %c: nem┼п┼╛e b├╜t vysunuta."
 
 MChangeVolumeInUse2
-"Используется другим приложением"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨┤╤А╤Г╨│╨╕╨╝ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╨╡╨╝"
 "It is used by another application"
+"Je pou┼╛├нvan├б jinou aplikac├н"
 
 MChangeWaitingLoadDisk
-ls:;"Ожидание загрузки диска..."
-"Ожидание чтения диска..."
+ls:;"╨Ю╨╢╨╕╨┤╨░╨╜╨╕╨╡ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨┤╨╕╤Б╨║╨░..."
+"╨Ю╨╢╨╕╨┤╨░╨╜╨╕╨╡ ╤З╤В╨╡╨╜╨╕╤П ╨┤╨╕╤Б╨║╨░..."
 ls:;"Waiting for disk to load..."
 "Waiting for disk to mount..."
+ls:;"Nahr├бv├бn├н disku..."
+"─Мek├бm na disk k p┼Щipojen├н..."
 
 MChangeCouldNotEjectMedia
-"Невозможно извлечь диск из привода %c:"
+"╨Э╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╨╕╨╖╨▓╨╗╨╡╤З╤М ╨┤╨╕╤Б╨║ ╨╕╨╖ ╨┐╤А╨╕╨▓╨╛╨┤╨░ %c:"
 "Could not eject media from drive %c:"
+"Nelze vysunout m├йdium v jednotce %c:"
 
 MAdditionalHotKey
+"#!$%*+-/(),."
 "#!$%*+-/(),."
 "#!$%*+-/(),."
 
 MSearchFileTitle
 l:
-" Поиск "
+" ╨Я╨╛╨╕╤Б╨║ "
 " Search "
+" Hledat "
 
 MCannotCreateListFile
-"Ошибка создания списка файлов"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П ╤Б╨┐╨╕╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Cannot create list file"
+"Nelze vytvo┼Щit soubor se seznamem"
 
 MCannotCreateListTemp
-"(невозможно создать временный файл для списка)"
+"(╨╜╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╤Б╨╛╨╖╨┤╨░╤В╤М ╨▓╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╣ ╤Д╨░╨╣╨╗ ╨┤╨╗╤П ╤Б╨┐╨╕╤Б╨║╨░)"
 "(cannot create temporary file for list)"
+"(nemohu vytvo┼Щit do─Нasn├╜ soubor pro seznam)"
 
 MCannotCreateListWrite
-"(невозможно записать данные в файл)"
+"(╨╜╨╡╨▓╨╛╨╖╨╝╨╛╨╢╨╜╨╛ ╨╖╨░╨┐╨╕╤Б╨░╤В╤М ╨┤╨░╨╜╨╜╤Л╨╡ ╨▓ ╤Д╨░╨╣╨╗)"
 "(cannot write data in file)"
+"(nemohu zapsat data do souboru)"
 
 MDragFiles
 l:
-"%d файлов"
+"%d ╤Д╨░╨╣╨╗╨╛╨▓"
 "%d files"
+"%d soubor┼п"
 
 MDragMove
-"Перенос %s"
+"╨Я╨╡╤А╨╡╨╜╨╛╤Б %s"
 "Move %s"
+"P┼Щesunout %s"
 
 MDragCopy
-"Копирование %s"
+"╨Ъ╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ %s"
 "Copy %s"
+"Kop├нrovat %s"
 
 MProcessListTitle
 l:
-"Список задач"
+"╨б╨┐╨╕╤Б╨╛╨║ ╨╖╨░╨┤╨░╤З"
 "Task list"
+"Seznam ├║loh"
 
 MProcessListBottom
-"Редактирование: Del,Ctrl-R"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: Del,Ctrl-R"
+"Edit: Del,Ctrl-R"
 "Edit: Del,Ctrl-R"
 
 MKillProcessTitle
-"Удаление задачи"
+"╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╨╖╨░╨┤╨░╤З╨╕"
 "Kill task"
+"Zab├нt ├║lohu"
 
 MAskKillProcess
-"Вы хотите удалить выбранную задачу?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨▓╤Л╨▒╤А╨░╨╜╨╜╤Г╤О ╨╖╨░╨┤╨░╤З╤Г?"
 "Do you wish to kill selected task?"
+"P┼Щejete si zab├нt vybranou ├║lohu?"
 
 MKillProcessWarning
-"Вы потеряете всю несохраненную информацию этой программы"
+"╨Т╤Л ╨┐╨╛╤В╨╡╤А╤П╨╡╤В╨╡ ╨▓╤Б╤О ╨╜╨╡╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╜╤Г╤О ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤О ╤Н╤В╨╛╨╣ ╨┐╤А╨╛╨│╤А╨░╨╝╨╝╤Л"
 "You will lose any unsaved information in this program"
+"V tomto programu budou ztraceny neulo┼╛en├й informace"
 
 MKillProcessKill
-"Удалить"
+"╨г╨┤╨░╨╗╨╕╤В╤М"
 "Kill"
+"Zab├нt"
 
 MCannotKillProcess
-"Указанную задачу удалить не удалось"
+"╨г╨║╨░╨╖╨░╨╜╨╜╤Г╤О ╨╖╨░╨┤╨░╤З╤Г ╤Г╨┤╨░╨╗╨╕╤В╤М ╨╜╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М"
 "Cannot kill the specified task"
+"Nemohu ukon─Нit zvolenou ├║lohu"
 
 MCannotKillProcessPerm
-"Вы не имеет права удалить этот процесс."
+"╨Т╤Л ╨╜╨╡ ╨╕╨╝╨╡╨╡╤В ╨┐╤А╨░╨▓╨░ ╤Г╨┤╨░╨╗╨╕╤В╤М ╤Н╤В╨╛╤В ╨┐╤А╨╛╤Ж╨╡╤Б╤Б."
 "You have no permission to kill this process."
+"Nem├бte opr├бvn─Ыn├н zab├нt tento proces."
 
 MQuickViewTitle
 l:
-"Быстрый просмотр"
+"╨С╤Л╤Б╤В╤А╤Л╨╣ ╨┐╤А╨╛╤Б╨╝╨╛╤В╤А"
 "Quick view"
+"Zb─Ы┼╛n├й zobrazen├н"
 
 MQuickViewFolder
-"Папка \"%s\""
+"╨Я╨░╨┐╨║╨░ \"%s\""
 "Folder \"%s\""
+"Adres├б┼Щ \"%s\""
 
 MQuickViewJunction
-"Связь \"%s\""
+"╨б╨▓╤П╨╖╤М \"%s\""
 "Junction \"%s\""
+"K┼Щ├н┼╛en├н \"%s\""
 
 MQuickViewSymlink
-"Ссылка \"%s\""
+"╨б╤Б╤Л╨╗╨║╨░ \"%s\""
 "Symlink \"%s\""
+"Symbolick├╜ link \"%s\""
 
 MQuickViewVolMount
-"Том \"%s\""
+"╨в╨╛╨╝ \"%s\""
 "Volume \"%s\""
+"Svazek \"%s\""
 
 MQuickViewContains
-"Содержит:"
+"╨б╨╛╨┤╨╡╤А╨╢╨╕╤В:"
 "Contains:"
+"Obsah:"
 
 MQuickViewFolders
-"Папок               "
+"╨Я╨░╨┐╨╛╨║               "
 "Folders          "
+"Adres├б┼Щe           "
 
 MQuickViewFiles
-"Файлов              "
+"╨д╨░╨╣╨╗╨╛╨▓              "
 "Files            "
+"Soubory            "
 
 MQuickViewBytes
-"Размер файлов       "
+"╨а╨░╨╖╨╝╨╡╤А ╤Д╨░╨╣╨╗╨╛╨▓       "
 "Files size       "
+"Velikost soubor┼п   "
 
 MQuickViewCompressed
-"Упакованный размер  "
+"╨г╨┐╨░╨║╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤А╨░╨╖╨╝╨╡╤А  "
 "Compressed size  "
+"Komprim. velikost  "
 
 MQuickViewRatio
-"Степень сжатия      "
+"╨б╤В╨╡╨┐╨╡╨╜╤М ╤Б╨╢╨░╤В╨╕╤П      "
 "Ratio            "
+"Pom─Ыr              "
 
 MQuickViewCluster
-"Размер кластера     "
+"╨а╨░╨╖╨╝╨╡╤А ╨║╨╗╨░╤Б╤В╨╡╤А╨░     "
 "Cluster size     "
+"Velikost clusteru  "
 
 MQuickViewRealSize
-"Реальный размер     "
+"╨а╨╡╨░╨╗╤М╨╜╤Л╨╣ ╤А╨░╨╖╨╝╨╡╤А     "
 "Real files size  "
+"Opravdov├б velikost "
 
 MQuickViewSlack
-"Остатки кластеров   "
+"╨Ю╤Б╤В╨░╤В╨║╨╕ ╨║╨╗╨░╤Б╤В╨╡╤А╨╛╨▓   "
 "Files slack      "
+"Mrtv├й m├нsto        "
 
 MSetAttrTitle
 l:
-"Атрибуты"
+"╨Р╤В╤А╨╕╨▒╤Г╤В╤Л"
 "Attributes"
+"Atributy"
 
 MSetAttrFor
-"Изменить файловые атрибуты"
+"╨Ш╨╖╨╝╨╡╨╜╨╕╤В╤М ╤Д╨░╨╣╨╗╨╛╨▓╤Л╨╡ ╨░╤В╤А╨╕╨▒╤Г╤В╤Л"
 "Change file attributes for"
+"Zm─Ыna atribut┼п souboru pro"
 
 MSetAttrSelectedObjects
-"выбранных объектов"
+"╨▓╤Л╨▒╤А╨░╨╜╨╜╤Л╤Е ╨╛╨▒╤К╨╡╨║╤В╨╛╨▓"
 "selected objects"
+"vybran├й objekty"
 
 MSetAttrHardLinks
-"жестких ссылок (%d)"
+"╨╢╨╡╤Б╤В╨║╨╕╤Е ╤Б╤Б╤Л╨╗╨╛╨║ (%d)"
 "hard links (%d)"
+"pevn├й linky (%d)"
 
 MSetAttrJunction
-"Связь \"%s\""
+"╨б╨▓╤П╨╖╤М \"%s\""
 "Junction \"%s\""
+"K┼Щ├н┼╛en├н \"%s\""
 
 MSetAttrSymlink
-"Ссылка \"%s\""
+"╨б╤Б╤Л╨╗╨║╨░ \"%s\""
 "Symlink \"%s\""
+"Link \"%s\""
 
 MSetAttrVolMount
-"Том \"%s\""
+"╨в╨╛╨╝ \"%s\""
 "Volume \"%s\""
+"Svazek \"%s\""
 
 MSetAttrUnknownJunction
-"(нет данных)"
+"(╨╜╨╡╤В ╨┤╨░╨╜╨╜╤Л╤Е)"
 "(data not available)"
+"(data nejsou k dispozici)"
 
 MSetAttrRO
-"&Только для чтения"
+"&╨в╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П"
 "&Read only"
+"&Pouze pro ─Нten├н"
 
 MSetAttrArchive
-"&Архивный"
+"&╨Р╤А╤Е╨╕╨▓╨╜╤Л╨╣"
 "&Archive"
+"&Archivovat"
 
 MSetAttrHidden
-"&Скрытый"
+"&╨б╨║╤А╤Л╤В╤Л╨╣"
 "&Hidden"
+"&Skryt├╜"
 
 MSetAttrSystem
-"С&истемный"
+"╨б&╨╕╤Б╤В╨╡╨╝╨╜╤Л╨╣"
 "&System"
+"S&yst├йmov├╜"
 
 MSetAttrCompressed
-"Сжаты&й"
+"╨б╨╢╨░╤В╤Л&╨╣"
 "&Compressed"
+"&Komprimovan├╜"
 
 MSetAttrEncrypted
-"За&шифрованный"
+"╨Ч╨░&╤И╨╕╤Д╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣"
 "&Encrypted"
+"&┼аifrovan├╜"
 
 MSetAttrNotIndexed
-"Н&еиндексируемый"
+"╨Э&╨╡╨╕╨╜╨┤╨╡╨║╤Б╨╕╤А╤Г╨╡╨╝╤Л╨╣"
 "Not &Indexed"
+"Neinde&xovan├╜"
 
 MSetAttrSparse
-"Разреженный"
+"╨а╨░╨╖╤А╨╡╨╢╨╡╨╜╨╜╤Л╨╣"
 "Sparse"
+"Rozpt├╜len├╜"
 
 MSetAttrTemp
-"Временный"
+"╨Т╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╣"
 "Temporary"
+"Do─Нasn├╜"
 
 MSetAttrOffline
-"Автономный"
+"╨Р╨▓╤В╨╛╨╜╨╛╨╝╨╜╤Л╨╣"
+"Offline"
 "Offline"
 
 MSetAttrVirtual
-"Виртуальный"
+"╨Т╨╕╤А╤В╤Г╨░╨╗╤М╨╜╤Л╨╣"
 "Virtual"
+"Virtu├бln├н"
 
 MSetAttrSubfolders
-"Обрабатывать &вложенные папки"
+"╨Ю╨▒╤А╨░╨▒╨░╤В╤Л╨▓╨░╤В╤М &╨▓╨╗╨╛╨╢╨╡╨╜╨╜╤Л╨╡ ╨┐╨░╨┐╨║╨╕"
 "Process sub&folders"
+"Zpracovat i po&dadres├б┼Щe"
 
 MSetAttrModification
-"Время &модификации файла:"
+"╨Т╤А╨╡╨╝╤П &╨╝╨╛╨┤╨╕╤Д╨╕╨║╨░╤Ж╨╕╨╕ ╤Д╨░╨╣╨╗╨░:"
 "File &modification time:"
+"─Мas &modifikace souboru:"
 
 MSetAttrCreation
-"Время со&здания файла:"
+"╨Т╤А╨╡╨╝╤П ╤Б╨╛&╨╖╨┤╨░╨╜╨╕╤П ╤Д╨░╨╣╨╗╨░:"
 "File crea&tion time:"
+"─Мas v&ytvo┼Щen├н souboru:"
 
 MSetAttrLastAccess
-"Время последнего &доступа к файлу:"
+"╨Т╤А╨╡╨╝╤П ╨┐╨╛╤Б╨╗╨╡╨┤╨╜╨╡╨│╨╛ &╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤Д╨░╨╣╨╗╤Г:"
 "&Last file access time:"
+"─Мas posledn├нho p┼Щ├н&stupu:"
 
 MSetAttrOriginal
-"Исход&ное"
+"╨Ш╤Б╤Е╨╛╨┤&╨╜╨╛╨╡"
 "&Original"
+"&Origin├бl"
 
 MSetAttrCurrent
-"Те&кущее"
+"╨в╨╡&╨║╤Г╤Й╨╡╨╡"
 "Curre&nt"
+"So&u─Нasn├╜"
 
 MSetAttrBlank
-"Сбр&ос"
+"╨б╨▒╤А&╨╛╤Б"
 "&Blank"
+"P&r├бzdn├╜"
 
 MSetAttrSet
-"Установить"
+"╨г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М"
 "Set"
+"Nastavit"
 
 MSetAttrTimeTitle1
 l:
-"ММ%cДД%cГГГГ чч%cмм%cсс"
+"╨Ь╨Ь%c╨Ф╨Ф%c╨У╨У╨У╨У ╤З╤З%c╨╝╨╝%c╤Б╤Б"
 "MM%cDD%cYYYY hh%cmm%css"
+"MM%cDD%cRRRR hh%cmm%css"
 
 MSetAttrTimeTitle2
-"ДД%cММ%cГГГГ чч%cмм%cсс"
+"╨Ф╨Ф%c╨Ь╨Ь%c╨У╨У╨У╨У ╤З╤З%c╨╝╨╝%c╤Б╤Б"
 "DD%cMM%cYYYY hh%cmm%css"
+"DD%cMM%cRRRR hh%cmm%css"
 
 MSetAttrTimeTitle3
-"ГГГГ%cММ%cДД чч%cмм%cсс"
+"╨У╨У╨У╨У%c╨Ь╨Ь%c╨Ф╨Ф ╤З╤З%c╨╝╨╝%c╤Б╤Б"
 "YYYY%cMM%cDD hh%cmm%css"
+"RRRR%cMM%cDD hh%cmm%css"
 
 MSetAttrSetting
 l:
-"Установка файловых атрибутов для"
+"╨г╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓╤Л╤Е ╨░╤В╤А╨╕╨▒╤Г╤В╨╛╨▓ ╨┤╨╗╤П"
 "Setting file attributes for"
+"Nastaven├н atribut┼п souboru pro"
 
 MSetAttrCannotFor
-"Ошибка установки атрибутов для"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Г╤Б╤В╨░╨╜╨╛╨▓╨║╨╕ ╨░╤В╤А╨╕╨▒╤Г╤В╨╛╨▓ ╨┤╨╗╤П"
 "Cannot set attributes for"
+"Nelze nastavit atributy pro"
 
 MSetAttrCompressedCannotFor
-"Не удалось установить атрибут СЖАТЫЙ для"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨░╤В╤А╨╕╨▒╤Г╤В ╨б╨Ц╨Р╨в╨л╨Щ ╨┤╨╗╤П"
 "Cannot set attribute COMPRESSED for"
+"Nelze nastavit atribut KOMPRIMOVAN├Э pro"
 
 MSetAttrEncryptedCannotFor
-"Не удалось установить атрибут ЗАШИФРОВАННЫЙ для"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨░╤В╤А╨╕╨▒╤Г╤В ╨Ч╨Р╨и╨Ш╨д╨а╨Ю╨Т╨Р╨Э╨Э╨л╨Щ ╨┤╨╗╤П"
 "Cannot set attribute ENCRYPTED for"
+"Nelze nastavit atribut ┼аIFROVAN├Э pro"
 
 MSetAttrTimeCannotFor
-"Не удалось установить время файла для"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤Г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╨▓╤А╨╡╨╝╤П ╤Д╨░╨╣╨╗╨░ ╨┤╨╗╤П"
 "Cannot set file time for"
+"Nelze nastavit ─Нas souboru pro"
 
 MSetColorPanel
 l:
-"&Панель"
+"&╨Я╨░╨╜╨╡╨╗╤М"
+"&Panel"
 "&Panel"
 
 MSetColorDialog
-"&Диалог"
+"&╨Ф╨╕╨░╨╗╨╛╨│"
+"&Dialog"
 "&Dialog"
 
 MSetColorWarning
-"Пр&едупреждение"
+"╨Я╤А&╨╡╨┤╤Г╨┐╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╡"
 "&Warning message"
+"&Varovn├б zpr├бva"
 
 MSetColorMenu
-"&Меню"
+"&╨Ь╨╡╨╜╤О"
+"&Menu"
 "&Menu"
 
 MSetColorHMenu
-"&Горизонтальное меню"
+"&╨У╨╛╤А╨╕╨╖╨╛╨╜╤В╨░╨╗╤М╨╜╨╛╨╡ ╨╝╨╡╨╜╤О"
 "Hori&zontal menu"
+"Hori&zont├бln├н menu"
 
 MSetColorKeyBar
-"&Линейка клавиш"
+"&╨Ы╨╕╨╜╨╡╨╣╨║╨░ ╨║╨╗╨░╨▓╨╕╤И"
 "&Key bar"
+"&┼Ш├бdek kl├бves"
 
 MSetColorCommandLine
-"&Командная строка"
+"&╨Ъ╨╛╨╝╨░╨╜╨┤╨╜╨░╤П ╤Б╤В╤А╨╛╨║╨░"
 "&Command line"
+"P┼Щ├н&kazov├╜ ┼Щ├бdek"
 
 MSetColorClock
-"&Часы"
+"&╨з╨░╤Б╤Л"
 "C&lock"
+"&Hodiny"
 
 MSetColorViewer
-"Про&смотрщик"
+"╨Я╤А╨╛&╤Б╨╝╨╛╤В╤А╤Й╨╕╨║"
 "&Viewer"
+"P&rohl├н┼╛e─Н"
 
 MSetColorEditor
-"&Редактор"
+"&╨а╨╡╨┤╨░╨║╤В╨╛╤А"
+"&Editor"
 "&Editor"
 
 MSetColorHelp
-"П&омощь"
+"╨Я&╨╛╨╝╨╛╤Й╤М"
 "&Help"
+"&N├бpov─Ыda"
 
 MSetDefaultColors
-"&Установить стандартные цвета"
+"&╨г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М ╤Б╤В╨░╨╜╨┤╨░╤А╤В╨╜╤Л╨╡ ╤Ж╨▓╨╡╤В╨░"
 "Set de&fault colors"
+"N&astavit v├╜choz├н barvy"
 
 MSetBW
-"Черно-бел&ый режим"
+"╨з╨╡╤А╨╜╨╛-╨▒╨╡╨╗&╤Л╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Black and white mode"
+"─Мerno&b├нl├╜ m├│d"
 
 MSetColorPanelNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorPanelSelected
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorPanelHighlightedInfo
-"Выделенная информация"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╨░╤П ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤П"
 "Highlighted info"
+"Info zv├╜razn─Ыn├й"
 
 MSetColorPanelDragging
-"Перетаскиваемый текст"
+"╨Я╨╡╤А╨╡╤В╨░╤Б╨║╨╕╨▓╨░╨╡╨╝╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Dragging text"
+"Ta┼╛en├╜ text"
 
 MSetColorPanelBox
-"Рамка"
+"╨а╨░╨╝╨║╨░"
 "Border"
+"Okraj"
 
 MSetColorPanelNormalCursor
-"Обычный курсор"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╨║╤Г╤А╤Б╨╛╤А"
 "Normal cursor"
+"Norm├бln├н kurzor"
 
 MSetColorPanelSelectedCursor
-"Выделенный курсор"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╨║╤Г╤А╤Б╨╛╤А"
 "Selected cursor"
+"Vybran├╜ kurzor"
 
 MSetColorPanelNormalTitle
-"Обычный заголовок"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║"
 "Normal title"
+"Norm├бln├н nadpis"
 
 MSetColorPanelSelectedTitle
-"Выделенный заголовок"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║"
 "Selected title"
+"Vybran├╜ nadpis"
 
 MSetColorPanelColumnTitle
-"Заголовок колонки"
+"╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║ ╨║╨╛╨╗╨╛╨╜╨║╨╕"
 "Column title"
+"Nadpis sloupce"
 
 MSetColorPanelTotalInfo
-"Количество файлов"
+"╨Ъ╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Total info"
+"Info celkov├й"
 
 MSetColorPanelSelectedInfo
-"Количество выбранных файлов"
+"╨Ъ╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╨▓╤Л╨▒╤А╨░╨╜╨╜╤Л╤Е ╤Д╨░╨╣╨╗╨╛╨▓"
 "Selected info"
+"Info v├╜b─Ыr"
 
 MSetColorPanelScrollbar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorPanelScreensNumber
-"Количество фоновых экранов"
+"╨Ъ╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╤Д╨╛╨╜╨╛╨▓╤Л╤Е ╤Н╨║╤А╨░╨╜╨╛╨▓"
 "Number of background screens"
+"Po─Нet obrazovek na pozad├н"
 
 MSetColorDialogNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorDialogHighlighted
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Highlighted text"
+"Zv├╜razn─Ыn├╜ text"
 
 MSetColorDialogDisabled
-"Блокированный текст"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Disabled text"
+"Zak├бzan├╜ text"
 
 MSetColorDialogBox
-"Рамка"
+"╨а╨░╨╝╨║╨░"
 "Border"
+"Okraj"
 
 MSetColorDialogBoxTitle
-"Заголовок рамки"
+"╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║ ╤А╨░╨╝╨║╨╕"
 "Title"
+"Nadpis"
 
 MSetColorDialogHighlightedBoxTitle
-"Выделенный заголовок рамки"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╨╖╨░╨│╨╛╨╗╨╛╨▓╨╛╨║ ╤А╨░╨╝╨║╨╕"
 "Highlighted title"
+"Zv├╜razn─Ыn├╜ nadpis"
 
 MSetColorDialogTextInput
-"Ввод текста"
+"╨Т╨▓╨╛╨┤ ╤В╨╡╨║╤Б╤В╨░"
 "Text input"
+"Textov├╜ vstup"
 
 MSetColorDialogUnchangedTextInput
-"Неизмененный текст"
+"╨Э╨╡╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Unchanged text input"
+"Nezm─Ыn─Ыn├╜ textov├╜ vstup"
 
 MSetColorDialogSelectedTextInput
-"Ввод выделенного текста"
+"╨Т╨▓╨╛╨┤ ╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╜╨╛╨│╨╛ ╤В╨╡╨║╤Б╤В╨░"
 "Selected text input"
+"Vybran├╜ textov├╜ vstup"
 
 MSetColorDialogEditDisabled
-"Блокированное поле ввода"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ╨▓╨▓╨╛╨┤╨░"
 "Disabled input line"
+"Zak├бzan├╜ vstupn├н ┼Щ├бdek"
 
 MSetColorDialogButtons
-"Кнопки"
+"╨Ъ╨╜╨╛╨┐╨║╨╕"
 "Buttons"
+"Tla─Н├нtka"
 
 MSetColorDialogSelectedButtons
-"Выбранные кнопки"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╡ ╨║╨╜╨╛╨┐╨║╨╕"
 "Selected buttons"
+"Vybran├б tla─Н├нtka"
 
 MSetColorDialogHighlightedButtons
-"Выделенные кнопки"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╡ ╨║╨╜╨╛╨┐╨║╨╕"
 "Highlighted buttons"
+"Zv├╜razn─Ыn├б tla─Н├нtka"
 
 MSetColorDialogSelectedHighlightedButtons
-"Выбранные выделенные кнопки"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╡ ╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╡ ╨║╨╜╨╛╨┐╨║╨╕"
 "Selected highlighted buttons"
+"Vybran├б zv├╜razn─Ыn├б tla─Н├нtka"
 
 MSetColorDialogListBoxControl
-"Список"
+"╨б╨┐╨╕╤Б╨╛╨║"
 "List box"
+"Seznam polo┼╛ek"
 
 MSetColorDialogComboBoxControl
-"Комбинированный список"
+"╨Ъ╨╛╨╝╨▒╨╕╨╜╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤Б╨┐╨╕╤Б╨╛╨║"
 "Combobox"
+"V├╜b─Ыr polo┼╛ek"
 
 MSetColorDialogListText
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorDialogListSelectedText
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorDialogListHighLight
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Highlighted text"
+"Zv├╜razn─Ыn├╜ text"
 
 MSetColorDialogListSelectedHighLight
-"Выбранный выделенный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected highlighted text"
+"Vybran├╜ zv├╜razn─Ыn├╜ text"
 
 MSetColorDialogListDisabled
-"Блокированный пункт"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╨┐╤Г╨╜╨║╤В"
 "Disabled item"
+"Naktivn├н polo┼╛ka"
 
 MSetColorDialogListBox
-"Рамка"
+"╨а╨░╨╝╨║╨░"
 "Border"
+"Okraj"
 
 MSetColorDialogListTitle
-"Заголовок"
+"╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║"
 "Title"
+"Nadpis"
 
 MSetColorDialogListScrollBar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorDialogListArrows
-"Индикаторы длинных строк"
+"╨Ш╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Long string indicators"
+"Zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorDialogListArrowsSelected
-"Выбранные индикаторы длинных строк"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╡ ╨╕╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Selected long string indicators"
+"Vybran├б zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorDialogListArrowsDisabled
-"Блокированные индикаторы длинных строк"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╡ ╨╕╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Disabled long string indicators"
+"Zak├бzan├б zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorMenuNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorMenuSelected
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorMenuHighlighted
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Highlighted text"
+"Zv├╜razn─Ыn├╜ text"
 
 MSetColorMenuSelectedHighlighted
-"Выбранный выделенный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected highlighted text"
+"Vybran├╜ zv├╜razn─Ыn├╜ text"
 
 MSetColorMenuDisabled
-"Недоступный пункт"
+"╨Э╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╣ ╨┐╤Г╨╜╨║╤В"
 "Disabled text"
+"Neaktivn├н text"
 
 MSetColorMenuBox
-"Рамка"
+"╨а╨░╨╝╨║╨░"
 "Border"
+"Okraj"
 
 MSetColorMenuTitle
-"Заголовок"
+"╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║"
 "Title"
+"Nadpis"
 
 MSetColorMenuScrollBar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorMenuArrows
-"Индикаторы длинных строк"
+"╨Ш╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Long string indicators"
+"Zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorMenuArrowsSelected
-"Выбранные индикаторы длинных строк"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╡ ╨╕╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Selected long string indicators"
+"Vybran├б zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorMenuArrowsDisabled
-"Блокированные индикаторы длинных строк"
+"╨С╨╗╨╛╨║╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╡ ╨╕╨╜╨┤╨╕╨║╨░╤В╨╛╤А╤Л ╨┤╨╗╨╕╨╜╨╜╤Л╤Е ╤Б╤В╤А╨╛╨║"
 "Disabled long string indicators"
+"Zak├бzan├б zna─Нka dlouh├йho ┼Щet─Ыzce"
 
 MSetColorHMenuNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorHMenuSelected
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorHMenuHighlighted
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Highlighted text"
+"Zv├╜razn─Ыn├╜ text"
 
 MSetColorHMenuSelectedHighlighted
-"Выбранный выделенный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╨▓╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected highlighted text"
+"Vybran├╜ zv├╜razn─Ыn├╜ text"
 
 MSetColorKeyBarNumbers
 l:
-"Номера клавиш"
+"╨Э╨╛╨╝╨╡╤А╨░ ╨║╨╗╨░╨▓╨╕╤И"
 "Key numbers"
+"─М├нsla kl├бves"
 
 MSetColorKeyBarNames
-"Названия клавиш"
+"╨Э╨░╨╖╨▓╨░╨╜╨╕╤П ╨║╨╗╨░╨▓╨╕╤И"
 "Key names"
+"N├бzvy kl├бves"
 
 MSetColorKeyBarBackground
-"Фон"
+"╨д╨╛╨╜"
 "Background"
+"Pozad├н"
 
 MSetColorCommandLineNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorCommandLineSelected
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text input"
+"Vybran├╜ textov├╜ vstup"
 
 MSetColorCommandLinePrefix
-"Текст префикса"
+"╨в╨╡╨║╤Б╤В ╨┐╤А╨╡╤Д╨╕╨║╤Б╨░"
 "Prefix text"
+"Text p┼Щedpony"
 
 MSetColorCommandLineUserScreen
-"Пользовательский экран"
+"╨Я╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╕╨╣ ╤Н╨║╤А╨░╨╜"
 "User screen"
+"Obrazovka u┼╛ivatele"
 
 MSetColorClockNormal
 l:
-"Обычный текст (панели)"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В (╨┐╨░╨╜╨╡╨╗╨╕)"
 "Normal text (Panel)"
+"Norm├бln├н text (Panel)"
 
 MSetColorClockNormalEditor
-"Обычный текст (редактор)"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В (╤А╨╡╨┤╨░╨║╤В╨╛╤А)"
 "Normal text (Editor)"
+"Norm├бln├н text (Editor)"
 
 MSetColorClockNormalViewer
-"Обычный текст (вьювер)"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В (╨▓╤М╤О╨▓╨╡╤А)"
 "Normal text (Viewer)"
+"Norm├бln├н text (Prohl├н┼╛e─Н)"
 
 MSetColorViewerNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorViewerSelected
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorViewerStatus
-"Статус"
+"╨б╤В╨░╤В╤Г╤Б"
 "Status line"
+"Stavov├╜ ┼Щ├бdek"
 
 MSetColorViewerArrows
-"Стрелки сдвига экрана"
+"╨б╤В╤А╨╡╨╗╨║╨╕ ╤Б╨┤╨▓╨╕╨│╨░ ╤Н╨║╤А╨░╨╜╨░"
 "Screen scrolling arrows"
+"Skrolovac├н ┼бipky"
 
 MSetColorViewerScrollbar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorEditorNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorEditorSelected
-"Выбранный текст"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Selected text"
+"Vybran├╜ text"
 
 MSetColorEditorStatus
-"Статус"
+"╨б╤В╨░╤В╤Г╤Б"
 "Status line"
+"Stavov├╜ ┼Щ├бdek"
 
 MSetColorEditorScrollbar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorHelpNormal
 l:
-"Обычный текст"
+"╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Normal text"
+"Norm├бln├н text"
 
 MSetColorHelpHighlighted
-"Выделенный текст"
+"╨Т╤Л╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В"
 "Highlighted text"
+"Zv├╜razn─Ыn├╜ text"
 
 MSetColorHelpReference
-"Ссылка"
+"╨б╤Б╤Л╨╗╨║╨░"
 "Reference"
+"Odkaz"
 
 MSetColorHelpSelectedReference
-"Выбранная ссылка"
+"╨Т╤Л╨▒╤А╨░╨╜╨╜╨░╤П ╤Б╤Б╤Л╨╗╨║╨░"
 "Selected reference"
+"Vybran├╜ odkaz"
 
 MSetColorHelpBox
-"Рамка"
+"╨а╨░╨╝╨║╨░"
 "Border"
+"Okraj"
 
 MSetColorHelpBoxTitle
-"Заголовок рамки"
+"╨Ч╨░╨│╨╛╨╗╨╛╨▓╨╛╨║ ╤А╨░╨╝╨║╨╕"
 "Title"
+"Nadpis"
 
 MSetColorHelpScrollbar
-"Полоса прокрутки"
+"╨Я╨╛╨╗╨╛╤Б╨░ ╨┐╤А╨╛╨║╤А╤Г╤В╨║╨╕"
 "Scrollbar"
+"Posuvn├нk"
 
 MSetColorGroupsTitle
 l:
-"Цветовые группы"
+"╨ж╨▓╨╡╤В╨╛╨▓╤Л╨╡ ╨│╤А╤Г╨┐╨┐╤Л"
 "Color groups"
+"Skupiny barev"
 
 MSetColorItemsTitle
-"Элементы группы"
+"╨н╨╗╨╡╨╝╨╡╨╜╤В╤Л ╨│╤А╤Г╨┐╨┐╤Л"
 "Group items"
+"Polo┼╛ky skupin"
 
 MSetColorTitle
 l:
-"Цвет"
+"╨ж╨▓╨╡╤В"
 "Color"
+"Barva"
 
 MSetColorForeground
-"&Текст"
+"&╨в╨╡╨║╤Б╤В"
 "&Foreground"
+"&Pop┼Щed├н"
 
 MSetColorBackground
-"&Фон"
+"&╨д╨╛╨╜"
 "&Background"
+"Po&zad├н"
 
 MSetColorForeTransparent
-"&Прозрачный"
+"&╨Я╤А╨╛╨╖╤А╨░╤З╨╜╤Л╨╣"
 "&Transparent"
+"Pr┼пhlednos&t"
 
 MSetColorBackTransparent
-"П&розрачный"
+"╨Я&╤А╨╛╨╖╤А╨░╤З╨╜╤Л╨╣"
 "T&ransparent"
+"Pr┼пhledno&st"
 
 MSetColorSample
-"Текст Текст Текст Текст Текст Текст"
+"╨в╨╡╨║╤Б╤В ╨в╨╡╨║╤Б╤В ╨в╨╡╨║╤Б╤В ╨в╨╡╨║╤Б╤В ╨в╨╡╨║╤Б╤В ╨в╨╡╨║╤Б╤В"
+"Text Text Text Text Text Text Text"
 "Text Text Text Text Text Text Text"
 
 MSetColorSet
-"Установить"
+"╨г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М"
 "Set"
+"Nastavit"
 
 MSetColorCancel
-"Отменить"
+"╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "Cancel"
+"Storno"
 
 MSetConfirmTitle
 l:
-"Подтверждения"
+"╨Я╨╛╨┤╤В╨▓╨╡╤А╨╢╨┤╨╡╨╜╨╕╤П"
 "Confirmations"
+"Potvrzen├н"
 
 MSetConfirmCopy
-"Перезапись файлов при &копировании"
+"╨Я╨╡╤А╨╡╨╖╨░╨┐╨╕╤Б╤М ╤Д╨░╨╣╨╗╨╛╨▓ ╨┐╤А╨╕ &╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╨╜╨╕╨╕"
 "&Copy"
+"&Kop├нrov├бn├н"
 
 MSetConfirmMove
-"Перезапись файлов при &переносе"
+"╨Я╨╡╤А╨╡╨╖╨░╨┐╨╕╤Б╤М ╤Д╨░╨╣╨╗╨╛╨▓ ╨┐╤А╨╕ &╨┐╨╡╤А╨╡╨╜╨╛╤Б╨╡"
 "&Move"
+"&P┼Щesouv├бn├н"
 
 MSetConfirmDrag
-"Пере&таскивание"
+"╨Я╨╡╤А╨╡&╤В╨░╤Б╨║╨╕╨▓╨░╨╜╨╕╨╡"
+"&Drag and drop"
 "&Drag and drop"
 
 MSetConfirmDelete
-"&Удаление"
+"&╨г╨┤╨░╨╗╨╡╨╜╨╕╨╡"
 "De&lete"
+"&Maz├бn├н"
 
 MSetConfirmDeleteFolders
-"У&даление непустых папок"
+"╨г&╨┤╨░╨╗╨╡╨╜╨╕╨╡ ╨╜╨╡╨┐╤Г╤Б╤В╤Л╤Е ╨┐╨░╨┐╨╛╨║"
 "Delete non-empty &folders"
+"Mazat &nepr├бzdn├й adres├б┼Щe"
 
 MSetConfirmEsc
-"Прерыва&ние операций (Esc)"
+"╨Я╤А╨╡╤А╤Л╨▓╨░&╨╜╨╕╨╡ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╣ (Esc)"
 "&Interrupt operation"
+"P┼Щe&ru┼бit operaci"
 
 MSetConfirmRemoveConnection
-"&Отключение сетевого устройства"
+"&╨Ю╤В╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ ╤Б╨╡╤В╨╡╨▓╨╛╨│╨╛ ╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "Disconnect &network drive"
+"Odpojen├н &s├н┼еov├й jednotky"
 
 MSetConfirmRemoveSUBST
-"Отключение SUBST-диска"
+"╨Ю╤В╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ SUBST-╨┤╨╕╤Б╨║╨░"
 "Disconnect &SUBST-disk"
+"Odpojen├н SUBST-d&isku"
 
 MSetConfirmRemoveHotPlug
-"Отключение HotPlug-устройства"
+"╨Ю╤В╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ HotPlug-╤Г╤Б╤В╤А╨╛╨╣╤Б╤В╨▓╨░"
 "HotPlug-device removal"
+"Odpojen├н vyj├нmateln├йho za┼Щ├нzen├н"
 
 MSetConfirmAllowReedit
-"Повто&рное открытие файла в редакторе"
+"╨Я╨╛╨▓╤В╨╛&╤А╨╜╨╛╨╡ ╨╛╤В╨║╤А╤Л╤В╨╕╨╡ ╤Д╨░╨╣╨╗╨░ ╨▓ ╤А╨╡╨┤╨░╨║╤В╨╛╤А╨╡"
 "&Reload edited file"
+"&Obnovit upravovan├╜ soubor"
 
 MSetConfirmHistoryClear
-"Очистка списка &истории"
+"╨Ю╤З╨╕╤Б╤В╨║╨░ ╤Б╨┐╨╕╤Б╨║╨░ &╨╕╤Б╤В╨╛╤А╨╕╨╕"
 "Clear &history list"
+"Vymazat seznam &historie"
 
 MSetConfirmExit
-"&Выход"
+"&╨Т╤Л╤Е╨╛╨┤"
 "E&xit"
+"U&kon─Нen├н"
 
 MFindFolderTitle
 l:
-"Поиск папки"
+"╨Я╨╛╨╕╤Б╨║ ╨┐╨░╨┐╨║╨╕"
 "Find folder"
+"Naj├нt adres├б┼Щ"
 
 MKBFolderTreeF1
 l:
 l:// Find folder Tree KeyBar
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"N├бpov─Ыda"
 
 MKBFolderTreeF2
-"Обновить"
+"╨Ю╨▒╨╜╨╛╨▓╨╕╤В╤М"
 "Rescan"
+"Obnovit"
 
 MKBFolderTreeF5
-"Размер"
+"╨а╨░╨╖╨╝╨╡╤А"
+"Zoom"
 "Zoom"
 
 MKBFolderTreeF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MKBFolderTreeAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MTreeTitle
-"Дерево"
+"╨Ф╨╡╤А╨╡╨▓╨╛"
 "Tree"
+"Stromov├й zobrazen├н"
 
 MCannotSaveTree
-"Ошибка записи дерева папок в файл"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨┐╨╕╤Б╨╕ ╨┤╨╡╤А╨╡╨▓╨░ ╨┐╨░╨┐╨╛╨║ ╨▓ ╤Д╨░╨╣╨╗"
 "Cannot save folders tree to file"
+"Adres├б┼Щov├╜ strom nelze ulo┼╛it do souboru"
 
 MReadingTree
-"Чтение дерева папок"
+"╨з╤В╨╡╨╜╨╕╨╡ ╨┤╨╡╤А╨╡╨▓╨░ ╨┐╨░╨┐╨╛╨║"
 "Reading the folders tree"
+"Na─Н├нt├бm adres├б┼Щov├╜ strom"
 
 MUserMenuTitle
 l:
-"Пользовательское меню"
+"╨Я╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╛╨╡ ╨╝╨╡╨╜╤О"
 "User menu"
+"Menu u┼╛ivatele"
 
 MChooseMenuType
-"Выберите тип пользовательского меню для редактирования"
+"╨Т╤Л╨▒╨╡╤А╨╕╤В╨╡ ╤В╨╕╨┐ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╛╨│╨╛ ╨╝╨╡╨╜╤О ╨┤╨╗╤П ╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П"
 "Choose user menu type to edit"
+"Zvol typ menu u┼╛ivatele pro ├║pravu"
 
 MChooseMenuMain
-"&Главное"
+"&╨У╨╗╨░╨▓╨╜╨╛╨╡"
 "&Main"
+"&Hlavn├н"
 
 MChooseMenuLocal
-"&Местное"
+"&╨Ь╨╡╤Б╤В╨╜╨╛╨╡"
 "&Local"
+"&Lok├бln├н"
 
 MMainMenuTitle
-"Главное меню"
+"╨У╨╗╨░╨▓╨╜╨╛╨╡ ╨╝╨╡╨╜╤О"
 "Main menu"
+"Hlavn├н menu"
 
 MMainMenuFAR
-"Папка FAR"
+"╨Я╨░╨┐╨║╨░ FAR"
 "FAR folder"
+"Slo┼╛ka FARu"
 
 MMainMenuREG
 l:
 l:// <...menu (Registry)>
-"Реестр"
+"╨а╨╡╨╡╤Б╤В╤А"
+"Registry"
 "Registry"
 
 MLocalMenuTitle
-"Местное меню"
+"╨Ь╨╡╤Б╤В╨╜╨╛╨╡ ╨╝╨╡╨╜╤О"
 "Local menu"
+"Lokaln├н menu"
 
 MMainMenuBottomTitle
-"Редактирование: Del,Ins,F4"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: Del,Ins,F4"
+"Edit: Del,Ins,F4"
 "Edit: Del,Ins,F4"
 
 MAskDeleteMenuItem
-"Вы хотите удалить пункт меню"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨┐╤Г╨╜╨║╤В ╨╝╨╡╨╜╤О"
 "Do you wish to delete the menu item"
+"P┼Щejete si smazat polo┼╛ku v menu"
 
 MAskDeleteSubMenuItem
-"Вы хотите удалить вложенное меню"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╤Г╨┤╨░╨╗╨╕╤В╤М ╨▓╨╗╨╛╨╢╨╡╨╜╨╜╨╛╨╡ ╨╝╨╡╨╜╤О"
 "Do you wish to delete the submenu"
+"P┼Щejete si smazat podmenu"
 
 MUserMenuInvalidInputLabel
-"Неправильный формат метки меню!"
+"╨Э╨╡╨┐╤А╨░╨▓╨╕╨╗╤М╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В ╨╝╨╡╤В╨║╨╕ ╨╝╨╡╨╜╤О!"
 "Invalid format for UserMenu Label!"
+"Neplatn├╜ form├бt pro n├бzev U┼╛ivatelsk├йho menu!"
 
 MUserMenuInvalidInputHotKey
-"Неправильный формат горячей клавиши!"
+"╨Э╨╡╨┐╤А╨░╨▓╨╕╨╗╤М╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В ╨│╨╛╤А╤П╤З╨╡╨╣ ╨║╨╗╨░╨▓╨╕╤И╨╕!"
 "Invalid format for Hot Key!"
+"Neplatn├╜ form├бt pro kl├бvesovou zkratku!"
 
 MEditMenuTitle
 l:
-"Редактирование пользовательского меню"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤М╤Б╨║╨╛╨│╨╛ ╨╝╨╡╨╜╤О"
 "Edit user menu"
+"Editace u┼╛ivatelsk├йho menu"
 
 MEditMenuHotKey
-"&Горячая клавиша:"
+"&╨У╨╛╤А╤П╤З╨░╤П ╨║╨╗╨░╨▓╨╕╤И╨░:"
 "&Hot key:"
+"K&l├бvesov├б zkratka:"
 
 MEditMenuLabel
-"&Метка:"
+"&╨Ь╨╡╤В╨║╨░:"
 "&Label:"
+"&Popisek:"
 
 MEditMenuCommands
-"&Команды:"
+"&╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:"
 "&Commands:"
+"P┼Щ├н&kazy:"
 
 MAskInsertMenuOrCommand
 l:
-"Вы хотите вставить новую команду или новое меню?"
+"╨Т╤Л ╤Е╨╛╤В╨╕╤В╨╡ ╨▓╤Б╤В╨░╨▓╨╕╤В╤М ╨╜╨╛╨▓╤Г╤О ╨║╨╛╨╝╨░╨╜╨┤╤Г ╨╕╨╗╨╕ ╨╜╨╛╨▓╨╛╨╡ ╨╝╨╡╨╜╤О?"
 "Do you wish to insert a new command or a new menu?"
+"P┼Щejete si vlo┼╛it nov├╜ p┼Щ├нkaz nebo nov├й menu?"
 
 MMenuInsertCommand
-"Вставить команду"
+"╨Т╤Б╤В╨░╨▓╨╕╤В╤М ╨║╨╛╨╝╨░╨╜╨┤╤Г"
 "Insert command"
+"Vlo┼╛it p┼Щ├нkaz"
 
 MMenuInsertMenu
-"Вставить меню"
+"╨Т╤Б╤В╨░╨▓╨╕╤В╤М ╨╝╨╡╨╜╤О"
 "Insert menu"
+"Vlo┼╛it menu"
 
 MEditSubmenuTitle
 l:
-"Редактирование метки вложенного меню"
+"╨а╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨╝╨╡╤В╨║╨╕ ╨▓╨╗╨╛╨╢╨╡╨╜╨╜╨╛╨│╨╛ ╨╝╨╡╨╜╤О"
 "Edit submenu label"
+"├Ъprava popisku podmenu"
 
 MEditSubmenuHotKey
-"&Горячая клавиша:"
+"&╨У╨╛╤А╤П╤З╨░╤П ╨║╨╗╨░╨▓╨╕╤И╨░:"
 "&Hot key:"
+"Kl├бvesov├б &zkratka:"
 
 MEditSubmenuLabel
-"&Метка:"
+"&╨Ь╨╡╤В╨║╨░:"
 "&Label:"
+"&Popisek:"
 
 MViewerTitle
 l:
-"Просмотр"
+"╨Я╤А╨╛╤Б╨╝╨╛╤В╤А"
 "Viewer"
+"Prohl├н┼╛e─Н"
 
 MViewerCannotOpenFile
-"Ошибка открытия файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╛╤В╨║╤А╤Л╤В╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot open the file"
+"Nelze otev┼Щ├нt soubor"
 
 MViewerStatusCol
-"Кол"
+"╨Ъ╨╛╨╗"
 "Col"
+"Sloupec"
 
 MViewSearchTitle
 l:
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MViewSearchFor
-"&Искать"
+"&╨Ш╤Б╨║╨░╤В╤М"
 "&Search for"
+"H&ledat"
 
 MViewSearchForText
-"Искать &текст"
+"╨Ш╤Б╨║╨░╤В╤М &╤В╨╡╨║╤Б╤В"
 "Search for &text"
+"Hledat &text"
 
 MViewSearchForHex
-"Искать 16-ричный &код"
+"╨Ш╤Б╨║╨░╤В╤М 16-╤А╨╕╤З╨╜╤Л╨╣ &╨║╨╛╨┤"
 "Search for &hex"
+"Hledat he&x"
 
 MViewSearchCase
-"&Учитывать регистр"
+"&╨г╤З╨╕╤В╤Л╨▓╨░╤В╤М ╤А╨╡╨│╨╕╤Б╤В╤А"
 "&Case sensitive"
+"&Rozli┼бovat velikost p├нsmen"
 
 MViewSearchWholeWords
-"Только &целые слова"
+"╨в╨╛╨╗╤М╨║╨╛ &╤Ж╨╡╨╗╤Л╨╡ ╤Б╨╗╨╛╨▓╨░"
 "&Whole words"
+"Cel├б &slova"
 
 MViewSearchReverse
-"Обратн&ый поиск"
+"╨Ю╨▒╤А╨░╤В╨╜&╤Л╨╣ ╨┐╨╛╨╕╤Б╨║"
 "Re&verse search"
+"&Zp─Ыtn├й hled├бn├н"
 
 MViewSearchSearch
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Search"
+"Hledat"
 
 MViewSearchCancel
-"Отменить"
+"╨Ю╤В╨╝╨╡╨╜╨╕╤В╤М"
 "Cancel"
+"Storno"
 
 MViewSearchingFor
 l:
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Searching for"
+"Vyhled├бv├бm"
 
 MViewSearchingHex
-"Поиск байтов"
+"╨Я╨╛╨╕╤Б╨║ ╨▒╨░╨╣╤В╨╛╨▓"
 "Searching for bytes"
+"Vyhled├бv├бm sekvenci byt┼п"
 
 MViewSearchCannotFind
-"Строка не найдена"
+"╨б╤В╤А╨╛╨║╨░ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░"
 "Could not find the string"
+"Nelze naj├нt ┼Щet─Ыzec"
 
 MViewSearchCannotFindHex
-"Байты не найдены"
+"╨С╨░╨╣╤В╤Л ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╤Л"
 "Could not find the bytes"
+"Nelze naj├нt sekvenci byt┼п"
 
 MViewSearchFromBegin
-"Продолжить поиск с начала документа?"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М ╨┐╨╛╨╕╤Б╨║ ╤Б ╨╜╨░╤З╨░╨╗╨░ ╨┤╨╛╨║╤Г╨╝╨╡╨╜╤В╨░?"
 "Continue the search from the beginning of the document?"
+"Pokra─Нovat s hled├бn├нm od za─Н├бtku dokumentu?"
 
 MViewSearchFromEnd
-"Продолжить поиск с конца документа?"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М ╨┐╨╛╨╕╤Б╨║ ╤Б ╨║╨╛╨╜╤Ж╨░ ╨┤╨╛╨║╤Г╨╝╨╡╨╜╤В╨░?"
 "Continue the search from the end of the document?"
+"Pokra─Нovat s hled├бn├нm od konce dokumentu?"
 
 MPrintTitle
 l:
-"Печать"
+"╨Я╨╡╤З╨░╤В╤М"
 "Print"
+"Tisk"
 
 MPrintTo
-"Печатать %s на"
+"╨Я╨╡╤З╨░╤В╨░╤В╤М %s ╨╜╨░"
 "Print %s to"
+"Vytisknout %s na"
 
 MPrintFilesTo
-"Печатать %d файлов на"
+"╨Я╨╡╤З╨░╤В╨░╤В╤М %d ╤Д╨░╨╣╨╗╨╛╨▓ ╨╜╨░"
 "Print %d files to"
+"Vytisknout %d soubor┼п na"
 
 MPreparingForPrinting
-"Подготовка файлов к печати"
+"╨Я╨╛╨┤╨│╨╛╤В╨╛╨▓╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓ ╨║ ╨┐╨╡╤З╨░╤В╨╕"
 "Preparing files for printing"
+"P┼Щipravuji soubory pro tisk"
 
 MJobs
-"заданий"
+"╨╖╨░╨┤╨░╨╜╨╕╨╣"
 "jobs"
+"├║lohy"
 
 MCannotOpenPrinter
-"Не удалось открыть принтер"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╤В╨║╤А╤Л╤В╤М ╨┐╤А╨╕╨╜╤В╨╡╤А"
 "Cannot open printer"
+"Nelze otev┼Щ├нt tisk├бrnu"
 
 MCannotPrint
-"Не удалось распечатать"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╤А╨░╤Б╨┐╨╡╤З╨░╤В╨░╤В╤М"
 "Cannot print"
+"Nelze tisknout"
 
 MDescribeFiles
 l:
-"Описание файла"
+"╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨░"
 "Describe file"
+"Popiskov├╜ soubor"
 
 MEnterDescription
-"Введите описание %s"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╡ %s"
 "Enter %s description"
+"Zadejte popisek %s"
 
 MReadingDiz
 l:
-"Чтение описаний файлов"
+"╨з╤В╨╡╨╜╨╕╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Reading file descriptions"
+"Na─Н├нt├бm popisky souboru"
 
 MCannotUpdateDiz
-"Не удалось обновить описания файлов"
+"╨Э╨╡ ╤Г╨┤╨░╨╗╨╛╤Б╤М ╨╛╨▒╨╜╨╛╨▓╨╕╤В╤М ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П ╤Д╨░╨╣╨╗╨╛╨▓"
 "Cannot update file descriptions"
+"Nelze aktualizovat popisky souboru"
 
 MCannotUpdateRODiz
-"Файл описаний защищен от записи"
+"╨д╨░╨╣╨╗ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣ ╨╖╨░╤Й╨╕╤Й╨╡╨╜ ╨╛╤В ╨╖╨░╨┐╨╕╤Б╨╕"
 "The description file is read only"
+"Popiskov├╜ soubor m├б atribut Jen pro ─Нten├н"
 
 MCfgDizTitle
 l:
-"Описания файлов"
+"╨Ю╨┐╨╕╤Б╨░╨╜╨╕╤П ╤Д╨░╨╣╨╗╨╛╨▓"
 "File descriptions"
+"Popisky souboru"
 
 MCfgDizListNames
-"Имена &списков описаний, разделенные запятыми:"
+"╨Ш╨╝╨╡╨╜╨░ &╤Б╨┐╨╕╤Б╨║╨╛╨▓ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣, ╤А╨░╨╖╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╡ ╨╖╨░╨┐╤П╤В╤Л╨╝╨╕:"
 "Description &list names delimited with commas:"
+"Seznam pop&isov├╜ch soubor┼п odd─Ыlen├╜ch ─Н├бrkami:"
 
 MCfgDizSetHidden
-"Устанавливать &атрибут ""Hidden"" на новые списки описаний"
+"╨г╤Б╤В╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╤В╤М &╨░╤В╤А╨╕╨▒╤Г╤В ""Hidden"" ╨╜╨░ ╨╜╨╛╨▓╤Л╨╡ ╤Б╨┐╨╕╤Б╨║╨╕ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣"
 "Set ""&Hidden"" attribute to new description lists"
+"Nov├╜m soubor┼пm s popisy nastavit atribut ""&Skryt├╜"""
 
 MCfgDizROUpdate
-"Обновлять файл описаний с атрибутом ""Толь&ко для чтения"""
+"╨Ю╨▒╨╜╨╛╨▓╨╗╤П╤В╤М ╤Д╨░╨╣╨╗ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣ ╤Б ╨░╤В╤А╨╕╨▒╤Г╤В╨╛╨╝ ""╨в╨╛╨╗╤М&╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П"""
 "Update &read only description file"
+"Aktualizovat popisov├й soubory s atributem Jen pro ─Нten├н"
 
 MCfgDizStartPos
-"&Позиция новых описаний в строке"
+"&╨Я╨╛╨╖╨╕╤Ж╨╕╤П ╨╜╨╛╨▓╤Л╤Е ╨╛╨┐╨╕╤Б╨░╨╜╨╕╨╣ ╨▓ ╤Б╤В╤А╨╛╨║╨╡"
 "&Position of new descriptions in the string"
+"&Pozice nov├╜ch popis┼п v ┼Щet─Ыzci"
 
 MCfgDizNotUpdate
-"&Не обновлять описания"
+"&╨Э╨╡ ╨╛╨▒╨╜╨╛╨▓╨╗╤П╤В╤М ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П"
 "Do &not update descriptions"
+"&Neaktualizovat popisy"
 
 MCfgDizUpdateIfDisplayed
-"&Обновлять, если они выводятся на экран"
+"&╨Ю╨▒╨╜╨╛╨▓╨╗╤П╤В╤М, ╨╡╤Б╨╗╨╕ ╨╛╨╜╨╕ ╨▓╤Л╨▓╨╛╨┤╤П╤В╤Б╤П ╨╜╨░ ╤Н╨║╤А╨░╨╜"
 "Update if &displayed"
+"Aktualizovat, jestli┼╛e je &zobrazen"
 
 MCfgDizAlwaysUpdate
-"&Всегда обновлять"
+"&╨Т╤Б╨╡╨│╨┤╨░ ╨╛╨▒╨╜╨╛╨▓╨╗╤П╤В╤М"
 "&Always update"
+"&V┼╛dy aktualizovat"
 
 MReadingTitleFiles
 l:
-"Обновление панелей"
+"╨Ю╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╕╨╡ ╨┐╨░╨╜╨╡╨╗╨╡╨╣"
 "Update of panels"
+"Aktualizace panel┼п"
 
 MReadingFiles
-"Чтение: %d файлов"
+"╨з╤В╨╡╨╜╨╕╨╡: %d ╤Д╨░╨╣╨╗╨╛╨▓"
 "Reading: %d files"
+"Na─Н├нt├бm: %d soubor┼п"
 
 MUserBreakTitle
 l:
-"Прекращено пользователем"
+"╨Я╤А╨╡╨║╤А╨░╤Й╨╡╨╜╨╛ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╨╡╨╝"
 "User break"
+"P┼Щeru┼бeno u┼╛ivatelem"
 
 MOperationNotCompleted
-"Операция не завершена"
+"╨Ю╨┐╨╡╤А╨░╤Ж╨╕╤П ╨╜╨╡ ╨╖╨░╨▓╨╡╤А╤И╨╡╨╜╨░"
 "Operation not completed"
+"Operace nen├н dokon─Нena"
 
 MEditPanelModes
 l:
-"Режимы панели"
+"╨а╨╡╨╢╨╕╨╝╤Л ╨┐╨░╨╜╨╡╨╗╨╕"
 "Edit panel modes"
+"Editovat m├│dy panelu"
 
 MEditPanelModesBrief
 l:
-"&Краткий режим"
+"&╨Ъ╤А╨░╤В╨║╨╕╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Brief mode"
+"&Stru─Нn├╜ m├│d"
 
 MEditPanelModesMedium
-"&Средний режим"
+"&╨б╤А╨╡╨┤╨╜╨╕╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Medium mode"
+"S&t┼Щedn├н m├│d"
 
 MEditPanelModesFull
-"&Полный режим"
+"&╨Я╨╛╨╗╨╜╤Л╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Full mode"
+"&Pln├╜ m├│d"
 
 MEditPanelModesWide
-"&Широкий режим"
+"&╨и╨╕╤А╨╛╨║╨╕╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Wide mode"
+"┼а&irok├╜ m├│d"
 
 MEditPanelModesDetailed
-"&Детальный режим"
+"&╨Ф╨╡╤В╨░╨╗╤М╨╜╤Л╨╣ ╤А╨╡╨╢╨╕╨╝"
 "Detai&led mode"
+"Detai&ln├н m├│d"
 
 MEditPanelModesDiz
-"&Описания"
+"&╨Ю╨┐╨╕╤Б╨░╨╜╨╕╤П"
 "&Descriptions mode"
+"P&opiskov├╜ m├│d"
 
 MEditPanelModesLongDiz
-"Д&линные описания"
+"╨Ф&╨╗╨╕╨╜╨╜╤Л╨╡ ╨╛╨┐╨╕╤Б╨░╨╜╨╕╤П"
 "Lon&g descriptions mode"
+"&M├│d dlouh├╜ch popisk┼п"
 
 MEditPanelModesOwners
-"Вл&адельцы файлов"
+"╨Т╨╗&╨░╨┤╨╡╨╗╤М╤Ж╤Л ╤Д╨░╨╣╨╗╨╛╨▓"
 "File own&ers mode"
+"M├│d vlastn├нka so&ubor┼п"
 
 MEditPanelModesLinks
-"Свя&зи файлов"
+"╨б╨▓╤П&╨╖╨╕ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Lin&ks mode"
+"Lin&kov├╜ m├│d"
 
 MEditPanelModesAlternative
-"Аль&тернативный полный режим"
+"╨Р╨╗╤М&╤В╨╡╤А╨╜╨░╤В╨╕╨▓╨╜╤Л╨╣ ╨┐╨╛╨╗╨╜╤Л╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Alternative full mode"
+"&Alternativn├н pln├╜ m├│d"
 
 MEditPanelModeTypes
 l:
-"&Типы колонок"
+"&╨в╨╕╨┐╤Л ╨║╨╛╨╗╨╛╨╜╨╛╨║"
 "Column &types"
+"&Typ sloupc┼п"
 
 MEditPanelModeWidths
-"&Ширина колонок"
+"&╨и╨╕╤А╨╕╨╜╨░ ╨║╨╛╨╗╨╛╨╜╨╛╨║"
 "Column &widths"
+"┼а├н┼Щ&ka sloupc┼п"
 
 MEditPanelModeStatusTypes
-"Типы колонок строки ст&атуса"
+"╨в╨╕╨┐╤Л ╨║╨╛╨╗╨╛╨╜╨╛╨║ ╤Б╤В╤А╨╛╨║╨╕ ╤Б╤В&╨░╤В╤Г╤Б╨░"
 "St&atus line column types"
+"T&yp sloupc┼п stavov├йho ┼Щ├бdku"
 
 MEditPanelModeStatusWidths
-"Ширина колонок строки стат&уса"
+"╨и╨╕╤А╨╕╨╜╨░ ╨║╨╛╨╗╨╛╨╜╨╛╨║ ╤Б╤В╤А╨╛╨║╨╕ ╤Б╤В╨░╤В&╤Г╤Б╨░"
 "Status l&ine column widths"
+"┼а├н┼Щka slo&upc┼п stavov├йho ┼Щ├бdku"
 
 MEditPanelModeFullscreen
-"&Полноэкранный режим"
+"&╨Я╨╛╨╗╨╜╨╛╤Н╨║╤А╨░╨╜╨╜╤Л╨╣ ╤А╨╡╨╢╨╕╨╝"
 "&Fullscreen view"
+"&Celoobrazovkov├╜ re┼╛im"
 
 MEditPanelModeAlignExtensions
-"&Выравнивать расширения файлов"
+"&╨Т╤Л╤А╨░╨▓╨╜╨╕╨▓╨░╤В╤М ╤А╨░╤Б╤И╨╕╤А╨╡╨╜╨╕╤П ╤Д╨░╨╣╨╗╨╛╨▓"
 "Align file &extensions"
+"Zarovnat p┼Щ├нp&ony soubor┼п"
 
 MEditPanelModeAlignFolderExtensions
-"Выравнивать расширения пап&ок"
+"╨Т╤Л╤А╨░╨▓╨╜╨╕╨▓╨░╤В╤М ╤А╨░╤Б╤И╨╕╤А╨╡╨╜╨╕╤П ╨┐╨░╨┐&╨╛╨║"
 "Align folder e&xtensions"
+"Zarovnat p┼Щ├нpony adre&s├б┼Щ┼п"
 
 MEditPanelModeFoldersUpperCase
-"Показывать папки &заглавными буквами"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨┐╨░╨┐╨║╨╕ &╨╖╨░╨│╨╗╨░╨▓╨╜╤Л╨╝╨╕ ╨▒╤Г╨║╨▓╨░╨╝╨╕"
 "Show folders in &uppercase"
+"Zobrazit adres├б┼Щe &velk├╜mi p├нsmeny"
 
 MEditPanelModeFilesLowerCase
-"Показывать файлы ст&рочными буквами"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╤Д╨░╨╣╨╗╤Л ╤Б╤В&╤А╨╛╤З╨╜╤Л╨╝╨╕ ╨▒╤Г╨║╨▓╨░╨╝╨╕"
 "Show files in &lowercase"
+"Zobrazit soubory ma&l├╜mi p├нsmeny"
 
 MEditPanelModeUpperToLowerCase
-"Показывать имена файлов из заглавных букв &строчными буквами"
+"╨Я╨╛╨║╨░╨╖╤Л╨▓╨░╤В╤М ╨╕╨╝╨╡╨╜╨░ ╤Д╨░╨╣╨╗╨╛╨▓ ╨╕╨╖ ╨╖╨░╨│╨╗╨░╨▓╨╜╤Л╤Е ╨▒╤Г╨║╨▓ &╤Б╤В╤А╨╛╤З╨╜╤Л╨╝╨╕ ╨▒╤Г╨║╨▓╨░╨╝╨╕"
 "Show uppercase file names in lower&case"
+"Zobrazit velk├й znaky ve jm├йnech soubor┼п jako &mal├б p├нsmena"
 
 MEditPanelModeCaseSensitiveSort
-"Использовать р&егистрозависимую сортировку"
+"╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М ╤А&╨╡╨│╨╕╤Б╤В╤А╨╛╨╖╨░╨▓╨╕╤Б╨╕╨╝╤Г╤О ╤Б╨╛╤А╤В╨╕╤А╨╛╨▓╨║╤Г"
 "Use case &sensitive sort"
+"Pou┼╛├нt ┼Щazen├н citliv├й na velikost p├н&smen"
 
 MEditPanelReadHelp
-" Нажмите F1, чтобы получить информацию по настройке "
+" ╨Э╨░╨╢╨╝╨╕╤В╨╡ F1, ╤З╤В╨╛╨▒╤Л ╨┐╨╛╨╗╤Г╤З╨╕╤В╤М ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤О ╨┐╨╛ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨╡ "
 " Read online help for instructions "
+" Pro instrukce si p┼Щe─Нt─Ыte online n├бpov─Ыdu "
 
 MSetFolderInfoTitle
 l:
-"Файлы информации о папках"
+"╨д╨░╨╣╨╗╤Л ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╨╕ ╨╛ ╨┐╨░╨┐╨║╨░╤Е"
 "Folder description files"
+"Soubory s popiskem adres├б┼Щe"
 
 MSetFolderInfoNames
-"Введите имена файлов, разделенные запятыми (допускаются маски)"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨╕╨╝╨╡╨╜╨░ ╤Д╨░╨╣╨╗╨╛╨▓, ╤А╨░╨╖╨┤╨╡╨╗╨╡╨╜╨╜╤Л╨╡ ╨╖╨░╨┐╤П╤В╤Л╨╝╨╕ (╨┤╨╛╨┐╤Г╤Б╨║╨░╤О╤В╤Б╤П ╨╝╨░╤Б╨║╨╕)"
 "Enter file names delimited with commas (wildcards are allowed)"
+"Zadejte jm├йna soubor┼п odd─Ыlen├╜ch ─Н├бrkami (zna─Нky jsou povoleny)"
 
 MScreensTitle
 l:
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screens"
+"Obrazovky"
 
 MScreensPanels
-"Панели"
+"╨Я╨░╨╜╨╡╨╗╨╕"
 "Panels"
+"Panely"
 
 MScreensView
-"Просмотр"
+"╨Я╤А╨╛╤Б╨╝╨╛╤В╤А"
 "View"
+"Zobrazit"
 
 MScreensEdit
-"Редактор"
+"╨а╨╡╨┤╨░╨║╤В╨╛╤А"
 "Edit"
+"Editovat"
 
 MAskApplyCommandTitle
 l:
-"Применить команду"
+"╨Я╤А╨╕╨╝╨╡╨╜╨╕╤В╤М ╨║╨╛╨╝╨░╨╜╨┤╤Г"
 "Apply command"
+"Aplikovat p┼Щ├нkaz"
 
 MAskApplyCommand
-"Введите команду для обработки выбранных файлов"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Г ╨┤╨╗╤П ╨╛╨▒╤А╨░╨▒╨╛╤В╨║╨╕ ╨▓╤Л╨▒╤А╨░╨╜╨╜╤Л╤Е ╤Д╨░╨╣╨╗╨╛╨▓"
 "Enter command to process selected files"
+"Zadejte p┼Щ├нkaz pro zpracov├бn├н vybran├╜ch soubor┼п"
 
 MPluginConfigTitle
 l:
-"Конфигурация модулей"
+"╨Ъ╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╤П ╨╝╨╛╨┤╤Г╨╗╨╡╨╣"
 "Plugins configuration"
+"Nastaven├н Plugin┼п"
 
 MPluginCommandsMenuTitle
-"Команды внешних модулей"
+"╨Ъ╨╛╨╝╨░╨╜╨┤╤Л ╨▓╨╜╨╡╤И╨╜╨╕╤Е ╨╝╨╛╨┤╤Г╨╗╨╡╨╣"
 "Plugin commands"
+"P┼Щ├нkazy plugin┼п"
 
 MPreparingList
 l:
-"Создание списка файлов"
+"╨б╨╛╨╖╨┤╨░╨╜╨╕╨╡ ╤Б╨┐╨╕╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Preparing files list"
+"P┼Щipravuji seznam soubor┼п"
 
 MLangTitle
 l:
-"Основной язык"
+"╨Ю╤Б╨╜╨╛╨▓╨╜╨╛╨╣ ╤П╨╖╤Л╨║"
 "Main language"
+"Hlavn├н jazyk"
 
 MHelpLangTitle
-"Язык помощи"
+"╨п╨╖╤Л╨║ ╨┐╨╛╨╝╨╛╤Й╨╕"
 "Help language"
+"Jazyk n├бpov─Ыdy"
 
 MDefineMacroTitle
 l:
-"Задание макрокоманды"
+"╨Ч╨░╨┤╨░╨╜╨╕╨╡ ╨╝╨░╨║╤А╨╛╨║╨╛╨╝╨░╨╜╨┤╤Л"
 "Define macro"
+"Definovat makro"
 
 MDefineMacro
-"Нажмите желаемую клавишу"
+"╨Э╨░╨╢╨╝╨╕╤В╨╡ ╨╢╨╡╨╗╨░╨╡╨╝╤Г╤О ╨║╨╗╨░╨▓╨╕╤И╤Г"
 "Press the desired key"
+"Stiskn─Ыte po┼╛adovanou kl├бvesu"
 
 MMacroReDefinedKey
-"Макроклавиша '%s' уже определена."
+"╨Ь╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╤Г╨╢╨╡ ╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╡╨╜╨░."
 "Macro key '%s' already defined."
+"Kl├бvesa makra '%s' ji┼╛ je definov├бna."
 
 MMacroDeleteAssign
-"Макроклавиша '%s' не активна."
+"╨Ь╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╨╜╨╡ ╨░╨║╤В╨╕╨▓╨╜╨░."
 "Macro key '%s' is not active."
+"Kl├бvesa makra '%s' nen├н aktivn├н."
 
 MMacroDeleteKey
-"Макроклавиша '%s' будет удалена."
+"╨Ь╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╨▒╤Г╨┤╨╡╤В ╤Г╨┤╨░╨╗╨╡╨╜╨░."
 "Macro key '%s' will be removed."
+"Kl├бvesa makra '%s' bude odstran─Ыna."
 
 MMacroCommonReDefinedKey
-"Общая макроклавиша '%s' уже определена."
+"╨Ю╨▒╤Й╨░╤П ╨╝╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╤Г╨╢╨╡ ╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╡╨╜╨░."
 "Common macro key '%s' already defined."
+"Kl├бvesa pro b─Ы┼╛n├й makro '%s' ji┼╛ je definov├бna."
 
 MMacroCommonDeleteAssign
-"Общая макроклавиша '%s' не активна."
+"╨Ю╨▒╤Й╨░╤П ╨╝╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╨╜╨╡ ╨░╨║╤В╨╕╨▓╨╜╨░."
 "Common macro key '%s' is not active."
+"Kl├бvesa pro b─Ы┼╛n├й makro '%s' nen├н aktivn├н."
 
 MMacroCommonDeleteKey
-"Общая макроклавиша '%s' будет удалена."
+"╨Ю╨▒╤Й╨░╤П ╨╝╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ '%s' ╨▒╤Г╨┤╨╡╤В ╤Г╨┤╨░╨╗╨╡╨╜╨░."
 "Common macro key '%s' will be removed."
+"Kl├бvesa pro b─Ы┼╛n├й makro '%s' bude odstran─Ыna."
 
 MMacroSequence
-"Последовательность:"
+"╨Я╨╛╤Б╨╗╨╡╨┤╨╛╨▓╨░╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М:"
 "Sequence:"
+"Posloupnost:"
 
 MMacroReDefinedKey2
-"Переопределить?"
+"╨Я╨╡╤А╨╡╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╕╤В╤М?"
 "Redefine?"
+"P┼Щedefinovat?"
 
 MMacroDeleteKey2
-"Удалить?"
+"╨г╨┤╨░╨╗╨╕╤В╤М?"
 "Delete?"
+"Odstranit?"
 
 MMacroDisDisabledKey
-"(макроклавиша не активна)"
+"(╨╝╨░╨║╤А╨╛╨║╨╗╨░╨▓╨╕╤И╨░ ╨╜╨╡ ╨░╨║╤В╨╕╨▓╨╜╨░)"
 "(macro key is not active)"
+"(kl├бvesa makra nen├н aktivn├н)"
 
 MMacroDisOverwrite
-"Переопределить"
+"╨Я╨╡╤А╨╡╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╕╤В╤М"
 "Overwrite"
+"P┼Щepsat"
 
 MMacroDisAnotherKey
-"Изменить клавишу"
+"╨Ш╨╖╨╝╨╡╨╜╨╕╤В╤М ╨║╨╗╨░╨▓╨╕╤И╤Г"
 "Try another key"
+"Zkusit jinou kl├бvesu"
 
 MMacroSettingsTitle
 l:
-"Параметры макрокоманды для '%s'"
+"╨Я╨░╤А╨░╨╝╨╡╤В╤А╤Л ╨╝╨░╨║╤А╨╛╨║╨╛╨╝╨░╨╜╨┤╤Л ╨┤╨╗╤П '%s'"
 "Macro settings for '%s'"
+"Nastaven├н makra pro '%s'"
 
 MMacroSettingsEnableOutput
-"Разрешить во время &выполнения вывод на экран"
+"╨а╨░╨╖╤А╨╡╤И╨╕╤В╤М ╨▓╨╛ ╨▓╤А╨╡╨╝╤П &╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П ╨▓╤Л╨▓╨╛╨┤ ╨╜╨░ ╤Н╨║╤А╨░╨╜"
 "Allo&w screen output while executing macro"
+"Povolit &v├╜stup na obrazovku dokud se prov├бd├н makro"
 
 MMacroSettingsRunAfterStart
-"В&ыполнять после запуска FAR"
+"╨Т&╤Л╨┐╨╛╨╗╨╜╤П╤В╤М ╨┐╨╛╤Б╨╗╨╡ ╨╖╨░╨┐╤Г╤Б╨║╨░ FAR"
 "Execute after FAR &start"
+"&Spustit po spu┼бt─Ыn├н FARu"
 
 MMacroSettingsActivePanel
-"&Активная панель"
+"&╨Р╨║╤В╨╕╨▓╨╜╨░╤П ╨┐╨░╨╜╨╡╨╗╤М"
 "&Active panel"
+"&Aktivn├н panel"
 
 MMacroSettingsPassivePanel
-"&Пассивная панель"
+"&╨Я╨░╤Б╤Б╨╕╨▓╨╜╨░╤П ╨┐╨░╨╜╨╡╨╗╤М"
 "&Passive panel"
+"Pa&sivn├н panel"
 
 MMacroSettingsPluginPanel
-"На панели пла&гина"
+"╨Э╨░ ╨┐╨░╨╜╨╡╨╗╨╕ ╨┐╨╗╨░&╨│╨╕╨╜╨░"
 "P&lugin panel"
+"Panel p&lugin┼п"
 
 MMacroSettingsFolders
-"Выполнять для папо&к"
+"╨Т╤Л╨┐╨╛╨╗╨╜╤П╤В╤М ╨┤╨╗╤П ╨┐╨░╨┐╨╛&╨║"
 "Execute for &folders"
+"Spustit pro ad&res├б┼Щe"
 
 MMacroSettingsSelectionPresent
-"&Отмечены файлы"
+"&╨Ю╤В╨╝╨╡╤З╨╡╨╜╤Л ╤Д╨░╨╣╨╗╤Л"
 "Se&lection present"
+"E&xistuj├нc├н v├╜b─Ыr"
 
 MMacroSettingsCommandLine
-"Пустая командная &строка"
+"╨Я╤Г╤Б╤В╨░╤П ╨║╨╛╨╝╨░╨╜╨┤╨╜╨░╤П &╤Б╤В╤А╨╛╨║╨░"
 "Empty &command line"
+"Pr├бzdn├╜ p┼Щ├н&kazov├╜ ┼Щ├бdek"
 
 MMacroSettingsSelectionBlockPresent
-"Отмечен б&лок"
+"╨Ю╤В╨╝╨╡╤З╨╡╨╜ ╨▒&╨╗╨╛╨║"
 "Selection &block present"
+"Existuj├нc├н blok v├╜b─Ыr&u"
 
 MMacroPErrUnrecognized_keyword
 l:
-"Неизвестное ключевое слово '%s'"
+"╨Э╨╡╨╕╨╖╨▓╨╡╤Б╤В╨╜╨╛╨╡ ╨║╨╗╤О╤З╨╡╨▓╨╛╨╡ ╤Б╨╗╨╛╨▓╨╛ '%s'"
 "Unrecognized keyword '%s'"
+"Nezn├бm├й kl├н─Нov├й slovo '%s'"
 
 MMacroPErrUnrecognized_function
-"Неизвестная функция '%s'"
+"╨Э╨╡╨╕╨╖╨▓╨╡╤Б╤В╨╜╨░╤П ╤Д╤Г╨╜╨║╤Ж╨╕╤П '%s'"
 "Unrecognized function '%s'"
+"Nezn├бm├б funkce '%s'"
 
 MMacroPErrNot_expected_ELSE
-"Неожиданное появление $Else"
+"╨Э╨╡╨╛╨╢╨╕╨┤╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╤П╨▓╨╗╨╡╨╜╨╕╨╡ $Else"
 "Unexpected $Else"
+"Neo─Нek├бvan├й $Else"
 
 MMacroPErrNot_expected_END
-"Неожиданное появление $End"
+"╨Э╨╡╨╛╨╢╨╕╨┤╨░╨╜╨╜╨╛╨╡ ╨┐╨╛╤П╨▓╨╗╨╡╨╜╨╕╨╡ $End"
 "Unexpected $End"
+"Neo─Нek├бvan├й $End"
 
 MMacroPErrUnexpected_EOS
-"Неожиданный конец строки"
+"╨Э╨╡╨╛╨╢╨╕╨┤╨░╨╜╨╜╤Л╨╣ ╨║╨╛╨╜╨╡╤Ж ╤Б╤В╤А╨╛╨║╨╕"
 "Unexpected end of source string"
+"Neo─Нek├бvan├╜ konec zdrojov├йho ┼Щet─Ыzce"
 
 MMacroPErrExpected
-"Ожидается '%s'"
+"╨Ю╨╢╨╕╨┤╨░╨╡╤В╤Б╤П '%s'"
 "Expected '%s'"
+"O─Нek├бvan├й '%s'"
 
 MMacroPErrBad_Hex_Control_Char
-"Неизвестный шестнадцатеричный управляющий символ"
+"╨Э╨╡╨╕╨╖╨▓╨╡╤Б╤В╨╜╤Л╨╣ ╤И╨╡╤Б╤В╨╜╨░╨┤╤Ж╨░╤В╨╡╤А╨╕╤З╨╜╤Л╨╣ ╤Г╨┐╤А╨░╨▓╨╗╤П╤О╤Й╨╕╨╣ ╤Б╨╕╨╝╨▓╨╛╨╗"
 "Bad Hex Control Char"
+"Chybn├╜ kontroln├н znak Hex"
 
 MMacroPErrBad_Control_Char
-"Неправильный управляющий символ"
+"╨Э╨╡╨┐╤А╨░╨▓╨╕╨╗╤М╨╜╤Л╨╣ ╤Г╨┐╤А╨░╨▓╨╗╤П╤О╤Й╨╕╨╣ ╤Б╨╕╨╝╨▓╨╛╨╗"
 "Bad Control Char"
+"┼аpatn├╜ kontroln├н znak"
 
 MMacroPErrVar_Expected
-"Переменная '%s' не найдена"
+"╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П '%s' ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░"
 "Variable Expected '%s'"
+"O─Нek├бvan├б prom─Ыnn├б '%s'"
 
 MMacroPErrExpr_Expected
-"Ошибка синтаксиса"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╕╨╜╤В╨░╨║╤Б╨╕╤Б╨░"
 "Expression Expected"
+"O─Нek├бvan├╜ v├╜raz"
 
 MCannotSaveFile
 l:
-"Ошибка сохранения файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot save file"
+"Nelze ulo┼╛it soubor"
 
 MTextSavedToTemp
-"Отредактированный текст записан в"
+"╨Ю╤В╤А╨╡╨┤╨░╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤В╨╡╨║╤Б╤В ╨╖╨░╨┐╨╕╤Б╨░╨╜ ╨▓"
 "Edited text is stored in"
+"Editovan├╜ text je ulo┼╛en v"
 
 MMonthJan
 l:
-"Янв"
+"╨п╨╜╨▓"
 "Jan"
+"Led"
 
 MMonthFeb
-"Фев"
+"╨д╨╡╨▓"
 "Feb"
+"├Ъno"
 
 MMonthMar
-"Мар"
+"╨Ь╨░╤А"
 "Mar"
+"B┼Щe"
 
 MMonthApr
-"Апр"
+"╨Р╨┐╤А"
 "Apr"
+"Dub"
 
 MMonthMay
-"Май"
+"╨Ь╨░╨╣"
 "May"
+"Kv─Ы"
 
 MMonthJun
-"Июн"
+"╨Ш╤О╨╜"
 "Jun"
+"─Мer"
 
 MMonthJul
-"Июл"
+"╨Ш╤О╨╗"
 "Jul"
+"─Мec"
 
 MMonthAug
-"Авг"
+"╨Р╨▓╨│"
 "Aug"
+"Srp"
 
 MMonthSep
-"Сен"
+"╨б╨╡╨╜"
 "Sep"
+"Z├б┼Щ"
 
 MMonthOct
-"Окт"
+"╨Ю╨║╤В"
 "Oct"
+"┼Ш├нj"
 
 MMonthNov
-"Ноя"
+"╨Э╨╛╤П"
 "Nov"
+"Lis"
 
 MMonthDec
-"Дек"
+"╨Ф╨╡╨║"
 "Dec"
+"Pro"
 
 MPluginHotKeyTitle
 l:
-"Назначение горячей клавиши"
+"╨Э╨░╨╖╨╜╨░╤З╨╡╨╜╨╕╨╡ ╨│╨╛╤А╤П╤З╨╡╨╣ ╨║╨╗╨░╨▓╨╕╤И╨╕"
 "Assign plugin hot key"
+"P┼Щid─Ыlit horkou kl├бvesu pluginu"
 
 MPluginHotKey
-"Введите горячую клавишу (букву или цифру)"
+"╨Т╨▓╨╡╨┤╨╕╤В╨╡ ╨│╨╛╤А╤П╤З╤Г╤О ╨║╨╗╨░╨▓╨╕╤И╤Г (╨▒╤Г╨║╨▓╤Г ╨╕╨╗╨╕ ╤Ж╨╕╤Д╤А╤Г)"
 "Enter hot key (letter or digit)"
+"Zadejte horkou kl├бvesu (p├нsmeno nebo ─Н├нslici)"
 
 MPluginHotKeyBottom
-"F4 - задать горячую клавишу"
+"F4 - ╨╖╨░╨┤╨░╤В╤М ╨│╨╛╤А╤П╤З╤Г╤О ╨║╨╗╨░╨▓╨╕╤И╤Г"
 "F4 - set hot key"
+"F4 - nastaven├н hork├й kl├бvesy"
 
 MRightCtrl
 l:
-"ПравыйCtrl"
+"╨Я╤А╨░╨▓╤Л╨╣Ctrl"
 "RightCtrl"
+"Prav├╜Ctrl"
 
 MViewerGoTo
 l:
-"Перейти"
+"╨Я╨╡╤А╨╡╨╣╤В╨╕"
 "Go to"
+"Jdi na"
 
 MGoToPercent
-"&Процент"
+"&╨Я╤А╨╛╤Ж╨╡╨╜╤В"
 "&Percent"
+"&Procent"
 
 MGoToHex
-"16-ричное &смещение"
+"16-╤А╨╕╤З╨╜╨╛╨╡ &╤Б╨╝╨╡╤Й╨╡╨╜╨╕╨╡"
+"&Hex offset"
 "&Hex offset"
 
 MGoToDecimal
-"10-ичное с&мещение"
+"10-╨╕╤З╨╜╨╛╨╡ ╤Б&╨╝╨╡╤Й╨╡╨╜╨╕╨╡"
 "&Decimal offset"
+"&Des├нtkov├╜ offset"
 
 MExceptTitleFAR
 l:
-"Внутренняя ошибка"
+"╨Т╨╜╤Г╤В╤А╨╡╨╜╨╜╤П╤П ╨╛╤И╨╕╨▒╨║╨░"
 "Internal error"
+"Vnit┼Щn├н chyba"
 
 MExceptTitleLoad
-"Ошибка загрузки плагина"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨┐╨╗╨░╨│╨╕╨╜╨░"
 "Plugin load error"
+"Chyba p┼Щi na─Н├нt├бn├н pluginu"
 
 MExceptTitle
-"Ошибка вызова плагина"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨╖╨╛╨▓╨░ ╨┐╨╗╨░╨│╨╕╨╜╨░"
 "Plugin call error"
+"Chyba p┼Щi vol├бn├н pluginu"
 
 MExcTrappedException
-"Исключительная ситуация:"
+"╨Ш╤Б╨║╨╗╤О╤З╨╕╤В╨╡╨╗╤М╨╜╨░╤П ╤Б╨╕╤В╤Г╨░╤Ж╨╕╤П:"
 "Exception occurred:"
+"Vyskytla se v├╜jimka:"
 
 MExcCheckOnLousys
-"Передана некорректная информация из модуля:"
+"╨Я╨╡╤А╨╡╨┤╨░╨╜╨░ ╨╜╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╨╕╨╜╤Д╨╛╤А╨╝╨░╤Ж╨╕╤П ╨╕╨╖ ╨╝╨╛╨┤╤Г╨╗╤П:"
 "Incorrect information is passed from module:"
+"Z modulu byla obdr┼╛ena nekorektn├н informace:"
 
 MExcStructWrongFilled
-"(некорректно заполнены поля структуры <%s>)"
+"(╨╜╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨╛ ╨╖╨░╨┐╨╛╨╗╨╜╨╡╨╜╤Л ╨┐╨╛╨╗╤П ╤Б╤В╤А╤Г╨║╤В╤Г╤А╤Л <%s>)"
 "(the fields of structure <%s> are wrong filled)"
+"(pole struktur <%s> jsou ┼бpatn─Ы vypln─Ыna)"
 
 MExcStructField
-"(структура <%s>, поле <%s>)"
+"(╤Б╤В╤А╤Г╨║╤В╤Г╤А╨░ <%s>, ╨┐╨╛╨╗╨╡ <%s>)"
 "(structure <%s>, field <%s>)"
+"(struktura <%s>, polo┼╛ka <%s>)"
 
 MExcInvalidFuncResult
-"Функция <%s> вернула недопустимое значение"
+"╨д╤Г╨╜╨║╤Ж╨╕╤П <%s> ╨▓╨╡╤А╨╜╤Г╨╗╨░ ╨╜╨╡╨┤╨╛╨┐╤Г╤Б╤В╨╕╨╝╨╛╨╡ ╨╖╨╜╨░╤З╨╡╨╜╨╕╨╡"
 "Function <%s> has returned illegal value"
+"Funkce <%s> vr├бtila nepovolenou hodnotu"
 
 MExcAddress
-"Адрес исключения - 0x%p, модуль:"
+"╨Р╨┤╤А╨╡╤Б ╨╕╤Б╨║╨╗╤О╤З╨╡╨╜╨╕╤П - 0x%p, ╨╝╨╛╨┤╤Г╨╗╤М:"
 "Exception address: 0x%p in module:"
+"V├╜jimka na adrese: 0x%X v modulu:"
 
 MExcFARTerminateYes
-"FAR Manager завершит работу!"
+"FAR Manager ╨╖╨░╨▓╨╡╤А╤И╨╕╤В ╤А╨░╨▒╨╛╤В╤Г!"
 "FAR Manager will be terminated!"
+"FAR Manager bude ukon─Нen!"
 
 MExcUnloadYes
-"Плагин будет выгружен!"
+"╨Я╨╗╨░╨│╨╕╨╜ ╨▒╤Г╨┤╨╡╤В ╨▓╤Л╨│╤А╤Г╨╢╨╡╨╜!"
 "The plugin will be Unloaded!"
+"Plugin bude vy┼Щazen!"
 
 MExcRAccess
-"\"Нарушение доступа (чтение из 0x%p)\""
+"\"╨Э╨░╤А╤Г╤И╨╡╨╜╨╕╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨░ (╤З╤В╨╡╨╜╨╕╨╡ ╨╕╨╖ 0x%p)\""
 "\"Access violation (read from 0x%p)\""
+"\"Neplatn├б adresa (─Нten├н z 0x%p)\""
 
 MExcWAccess
-"\"Нарушение доступа (запись в 0x%p)\""
+"\"╨Э╨░╤А╤Г╤И╨╡╨╜╨╕╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨░ (╨╖╨░╨┐╨╕╤Б╤М ╨▓ 0x%p)\""
 "\"Access violation (write to 0x%p)\""
+"\"Neplatn├б adresa (z├бpis na 0x%p)\""
 
 MExcEAccess
-"\"Нарушение доступа (исполнение кода из 0x%p)\""
+"\"╨Э╨░╤А╤Г╤И╨╡╨╜╨╕╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨░ (╨╕╤Б╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡ ╨║╨╛╨┤╨░ ╨╕╨╖ 0x%p)\""
 "\"Access violation (execute at 0x%p)\""
+"\"Neplatn├б adresa (spu┼бt─Ыn├н na 0x%p)\""
 
 MExcOutOfBounds
-"\"Попытка доступа к элементу за границами массива\""
+"\"╨Я╨╛╨┐╤Л╤В╨║╨░ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╤Г ╨╖╨░ ╨│╤А╨░╨╜╨╕╤Ж╨░╨╝╨╕ ╨╝╨░╤Б╤Б╨╕╨▓╨░\""
 "\"Array out of bounds\""
+"\"Pole mimo hranice\""
 
 MExcDivideByZero
-"\"Деление на нуль\""
+"\"╨Ф╨╡╨╗╨╡╨╜╨╕╨╡ ╨╜╨░ ╨╜╤Г╨╗╤М\""
 "\"Divide by zero\""
+"\"D─Ыlen├н nulou\""
 
 MExcStackOverflow
-"\"Переполнение стека\""
+"\"╨Я╨╡╤А╨╡╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡ ╤Б╤В╨╡╨║╨░\""
 "\"Stack Overflow\""
+"\"P┼Щete─Нen├н z├бsobn├нku\""
 
 MExcBreakPoint
-"\"Точка останова\""
+"\"╨в╨╛╤З╨║╨░ ╨╛╤Б╤В╨░╨╜╨╛╨▓╨░\""
 "\"Breakpoint exception\""
+"\"V├╜jimka p┼Щeru┼бen├н\""
 
 MExcFloatDivideByZero
-"\"Деление на нуль при операции с плавающей точкой\""
+"\"╨Ф╨╡╨╗╨╡╨╜╨╕╨╡ ╨╜╨░ ╨╜╤Г╨╗╤М ╨┐╤А╨╕ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╕ ╤Б ╨┐╨╗╨░╨▓╨░╤О╤Й╨╡╨╣ ╤В╨╛╤З╨║╨╛╨╣\""
 "\"Floating-point divide by zero\""
+"\"D─Ыlen├н nulou v pohybliv├й ─Н├бrce\""
 
 MExcFloatOverflow
-"\"Переполнение при операции с плавающей точкой\""
+"\"╨Я╨╡╤А╨╡╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡ ╨┐╤А╨╕ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╕ ╤Б ╨┐╨╗╨░╨▓╨░╤О╤Й╨╡╨╣ ╤В╨╛╤З╨║╨╛╨╣\""
 "\"Floating point operation overflow\""
+"\"P┼Щete─Нen├н p┼Щi operaci v pohybliv├й ─Н├бrce\""
 
 MExcFloatStackOverflow
-"\"Стек регистров сопроцессора полон или пуст\""
+"\"╨б╤В╨╡╨║ ╤А╨╡╨│╨╕╤Б╤В╤А╨╛╨▓ ╤Б╨╛╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨╛╤А╨░ ╨┐╨╛╨╗╨╛╨╜ ╨╕╨╗╨╕ ╨┐╤Г╤Б╤В\""
 "\"Floating point stack empty or full\""
+"\"Pr├бzdn├╜ nebo pln├╜ z├бsobn├нk v pohybliv├й ─Н├бrce\""
 
 MExcFloatUnderflow
-"\"Потеря точности при операции с плавающей точкой\""
+"\"╨Я╨╛╤В╨╡╤А╤П ╤В╨╛╤З╨╜╨╛╤Б╤В╨╕ ╨┐╤А╨╕ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╕ ╤Б ╨┐╨╗╨░╨▓╨░╤О╤Й╨╡╨╣ ╤В╨╛╤З╨║╨╛╨╣\""
 "\"Floating point operation underflow\""
+"\"Podte─Нen├н p┼Щi operaci v pohybliv├й ─Н├бrce\""
 
 MExcBadInstruction
-"\"Недопустимая инструкция\""
+"\"╨Э╨╡╨┤╨╛╨┐╤Г╤Б╤В╨╕╨╝╨░╤П ╨╕╨╜╤Б╤В╤А╤Г╨║╤Ж╨╕╤П\""
 "\"Illegal instruction\""
+"\"Neplatn├б instrukce\""
 
 MExcDatatypeMisalignment
-"\"Попытка доступа к невыравненным данным\""
+"\"╨Я╨╛╨┐╤Л╤В╨║╨░ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╨╜╨╡╨▓╤Л╤А╨░╨▓╨╜╨╡╨╜╨╜╤Л╨╝ ╨┤╨░╨╜╨╜╤Л╨╝\""
 "\"Alignment fault\""
+"\"Chyba zarovn├бn├н\""
 
 MExcUnknown
-"\"Неизвестное исключение\""
+"\"╨Э╨╡╨╕╨╖╨▓╨╡╤Б╤В╨╜╨╛╨╡ ╨╕╤Б╨║╨╗╤О╤З╨╡╨╜╨╕╨╡\""
 "\"Unknown exception\""
+"\"Nezn├бm├б v├╜jimka\""
 
 MExcDebugger
-"Отладчик"
+"╨Ю╤В╨╗╨░╨┤╤З╨╕╨║"
+"Debugger"
 "Debugger"
 
 MNetUserName
 l:
-"Имя пользователя"
+"╨Ш╨╝╤П ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "User name"
+"Jm├йno u┼╛ivatele"
 
 MNetUserPassword
-"Пароль пользователя"
+"╨Я╨░╤А╨╛╨╗╤М ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П"
 "User password"
+"Heslo u┼╛ivatele"
 
 MReadFolderError
 l:
-"Не удается прочесть содержимое папки"
+"╨Э╨╡ ╤Г╨┤╨░╨╡╤В╤Б╤П ╨┐╤А╨╛╤З╨╡╤Б╤В╤М ╤Б╨╛╨┤╨╡╤А╨╢╨╕╨╝╨╛╨╡ ╨┐╨░╨┐╨║╨╕"
 "Cannot read folder contents"
+"Nelze na─Н├нst obsah adres├б┼Щe"
 
 MPlgBadVers
 l:
-"Этот модуль требует FAR более высокой версии"
+"╨н╤В╨╛╤В ╨╝╨╛╨┤╤Г╨╗╤М ╤В╤А╨╡╨▒╤Г╨╡╤В FAR ╨▒╨╛╨╗╨╡╨╡ ╨▓╤Л╤Б╨╛╨║╨╛╨╣ ╨▓╨╡╤А╤Б╨╕╨╕"
 "This plugin requires higher FAR version"
+"Tento plugin vy┼╛aduje vy┼б┼б├н verzi FARu"
 
 MPlgRequired
-"Требуется версия FAR - %d.%d.%d."
+"╨в╤А╨╡╨▒╤Г╨╡╤В╤Б╤П ╨▓╨╡╤А╤Б╨╕╤П FAR - %d.%d.%d."
 "Required FAR version is %d.%d.%d."
+"Po┼╛adovan├б verze FARu je %d.%d.%d."
 
 MPlgRequired2
-"Текущая версия FAR - %d.%d.%d."
+"╨в╨╡╨║╤Г╤Й╨░╤П ╨▓╨╡╤А╤Б╨╕╤П FAR - %d.%d.%d."
 "Current FAR version is %d.%d.%d"
+"Nyn─Ыj┼б├н verze FARu je %d.%d.%d"
 
 MPlgLoadPluginError
-"Ошибка при загрузке плагина"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨┐╤А╨╕ ╨╖╨░╨│╤А╤Г╨╖╨║╨╡ ╨┐╨╗╨░╨│╨╕╨╜╨░"
 "Error loading plugin module"
+"Chyba p┼Щi nahr├бv├бn├н z├бsuvn├йho modulu"
 
 MBuffSizeTooSmall_1
 l:
-"Буфер, размещенный под имя файла слишком мал."
+"╨С╤Г╤Д╨╡╤А, ╤А╨░╨╖╨╝╨╡╤Й╨╡╨╜╨╜╤Л╨╣ ╨┐╨╛╨┤ ╨╕╨╝╤П ╤Д╨░╨╣╨╗╨░ ╤Б╨╗╨╕╤И╨║╨╛╨╝ ╨╝╨░╨╗."
 "Buffer allocated for file name is too small."
+"Buffer alokovan├╜ pro jm├йno souboru je p┼Щ├нli┼б mal├╜."
 
 MBuffSizeTooSmall_2
-"Требуется %d байт, а имеется только %d"
+"╨в╤А╨╡╨▒╤Г╨╡╤В╤Б╤П %d ╨▒╨░╨╣╤В, ╨░ ╨╕╨╝╨╡╨╡╤В╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ %d"
 "%d bytes are required, but only %d bytes were allocated."
+"Po┼╛adov├бno %d byt┼п, ale alokov├бno pouze %d."
 
 MCheckBox2State
 l:
 "?"
 "?"
+"?"
 
 MEditInputSize1
-"Длина поля"
+"╨Ф╨╗╨╕╨╜╨░ ╨┐╨╛╨╗╤П"
 "Field"
+"Pole"
 
 MEditInputSize2
-"будет уменьшена до %d байт."
+"╨▒╤Г╨┤╨╡╤В ╤Г╨╝╨╡╨╜╤М╤И╨╡╨╜╨░ ╨┤╨╛ %d ╨▒╨░╨╣╤В."
 "will be truncated to %d bytes."
+"bude oseknuto na %d byt┼п."
 
 MHelpTitle
 l:
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"N├бpov─Ыda"
 
 MHelpActivatorURL
-"Эта ссылка запускает внешнее приложение:"
+"╨н╤В╨░ ╤Б╤Б╤Л╨╗╨║╨░ ╨╖╨░╨┐╤Г╤Б╨║╨░╨╡╤В ╨▓╨╜╨╡╤И╨╜╨╡╨╡ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╨╡:"
 "This reference starts the external application:"
+"Tento odkaz spou┼бt├н extern├н aplikaci:"
 
 MHelpActivatorFormat
-"с параметром:"
+"╤Б ╨┐╨░╤А╨░╨╝╨╡╤В╤А╨╛╨╝:"
 "with parameter:"
+"s parametrem:"
 
 MHelpActivatorQ
-"Желаете запустить?"
+"╨Ц╨╡╨╗╨░╨╡╤В╨╡ ╨╖╨░╨┐╤Г╤Б╤В╨╕╤В╤М?"
 "Do you wish to start it?"
+"P┼Щejete si ji spustit?"
 
 MCannotOpenHelp
-"Ошибка открытия файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╛╤В╨║╤А╤Л╤В╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot open the file"
+"Nelze otev┼Щ├нt soubor"
 
 MHelpTopicNotFound
-"Не найден запрошенный раздел помощи:"
+"╨Э╨╡ ╨╜╨░╨╣╨┤╨╡╨╜ ╨╖╨░╨┐╤А╨╛╤И╨╡╨╜╨╜╤Л╨╣ ╤А╨░╨╖╨┤╨╡╨╗ ╨┐╨╛╨╝╨╛╤Й╨╕:"
 "Requested help topic not found:"
+"po┼╛adovan├й t├йma n├бpov─Ыdy nebylo nalezeno"
 
 MPluginsHelpTitle
 l:
-"Внешние модули"
+"╨Т╨╜╨╡╤И╨╜╨╕╨╡ ╨╝╨╛╨┤╤Г╨╗╨╕"
 "Plugins help"
+"N├бpov─Ыda Plugin┼п"
 
 MDocumentsHelpTitle
-"Документы"
+"╨Ф╨╛╨║╤Г╨╝╨╡╨╜╤В╤Л"
 "Documents help"
+"N├бpov─Ыda Dokument┼п"
 
 MHelpSearchTitle
 l:
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hled├бn├н"
 
 MHelpSearchingFor
-"Поиск для"
+"╨Я╨╛╨╕╤Б╨║ ╨┤╨╗╤П"
 "Searching for"
+"Hled├бn├н"
 
 MHelpSearchCannotFind
-"Строка не найдена"
+"╨б╤В╤А╨╛╨║╨░ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨░"
 "Could not find the string"
+"Nelze naj├нt ┼Щet─Ыzec"
 
 MHelpF1
 l:
 l:// Help KeyBar F1-12
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MHelpF2
+""
 ""
 ""
 
 MHelpF3
 ""
 ""
+""
 
 MHelpF4
 ""
 ""
+""
 
 MHelpF5
-"Размер"
+"╨а╨░╨╖╨╝╨╡╤А"
+"Zoom"
 "Zoom"
 
 MHelpF6
 ""
 ""
+""
 
 MHelpF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MHelpF8
+""
 ""
 ""
 
 MHelpF9
 ""
 ""
+""
 
 MHelpF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MHelpF11
+""
 ""
 ""
 
 MHelpF12
 ""
 ""
+""
 
 MHelpShiftF1
 l:
 l:// Help KeyBar Shift-F1-12
-"Содерж"
+"╨б╨╛╨┤╨╡╤А╨╢"
+"Index"
 "Index"
 
 MHelpShiftF2
-"Плагин"
+"╨Я╨╗╨░╨│╨╕╨╜"
+"Plugin"
 "Plugin"
 
 MHelpShiftF3
-"Докум"
+"╨Ф╨╛╨║╤Г╨╝"
 "Docums"
+"Dokume"
 
 MHelpShiftF4
+""
 ""
 ""
 
 MHelpShiftF5
 ""
 ""
+""
 
 MHelpShiftF6
 ""
 ""
+""
 
 MHelpShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MHelpShiftF8
+""
 ""
 ""
 
 MHelpShiftF9
 ""
 ""
+""
 
 MHelpShiftF10
+""
 ""
 ""
 
 MHelpShiftF11
 ""
 ""
+""
 
 MHelpShiftF12
+""
 ""
 ""
 
 MHelpAltF1
 l:
 l:// Help KeyBar Alt-F1-12
-"Пред."
+"╨Я╤А╨╡╨┤."
 "Prev"
+"P┼Щedch"
 
 MHelpAltF2
+""
 ""
 ""
 
 MHelpAltF3
 ""
 ""
+""
 
 MHelpAltF4
+""
 ""
 ""
 
 MHelpAltF5
 ""
 ""
+""
 
 MHelpAltF6
+""
 ""
 ""
 
 MHelpAltF7
 ""
 ""
+""
 
 MHelpAltF8
 ""
 ""
+""
 
 MHelpAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MHelpAltF10
+""
 ""
 ""
 
 MHelpAltF11
 ""
 ""
+""
 
 MHelpAltF12
+""
 ""
 ""
 
@@ -6722,48 +8332,60 @@ l:
 l:// Help KeyBar Ctrl-F1-12
 ""
 ""
+""
 
 MHelpCtrlF2
+""
 ""
 ""
 
 MHelpCtrlF3
 ""
 ""
+""
 
 MHelpCtrlF4
+""
 ""
 ""
 
 MHelpCtrlF5
 ""
 ""
+""
 
 MHelpCtrlF6
+""
 ""
 ""
 
 MHelpCtrlF7
 ""
 ""
+""
 
 MHelpCtrlF8
+""
 ""
 ""
 
 MHelpCtrlF9
 ""
 ""
+""
 
 MHelpCtrlF10
+""
 ""
 ""
 
 MHelpCtrlF11
 ""
 ""
+""
 
 MHelpCtrlF12
+""
 ""
 ""
 
@@ -6772,48 +8394,60 @@ l:
 l:// Help KeyBar CtrlShiftF1-12
 ""
 ""
+""
 
 MHelpCtrlShiftF2
+""
 ""
 ""
 
 MHelpCtrlShiftF3
 ""
 ""
+""
 
 MHelpCtrlShiftF4
+""
 ""
 ""
 
 MHelpCtrlShiftF5
 ""
 ""
+""
 
 MHelpCtrlShiftF6
+""
 ""
 ""
 
 MHelpCtrlShiftF7
 ""
 ""
+""
 
 MHelpCtrlShiftF8
+""
 ""
 ""
 
 MHelpCtrlShiftF9
 ""
 ""
+""
 
 MHelpCtrlShiftF10
+""
 ""
 ""
 
 MHelpCtrlShiftF11
 ""
 ""
+""
 
 MHelpCtrlShiftF12
+""
 ""
 ""
 
@@ -6822,48 +8456,60 @@ l:
 l:// Help KeyBar CtrlAltF1-12
 ""
 ""
+""
 
 MHelpCtrlAltF2
+""
 ""
 ""
 
 MHelpCtrlAltF3
 ""
 ""
+""
 
 MHelpCtrlAltF4
+""
 ""
 ""
 
 MHelpCtrlAltF5
 ""
 ""
+""
 
 MHelpCtrlAltF6
+""
 ""
 ""
 
 MHelpCtrlAltF7
 ""
 ""
+""
 
 MHelpCtrlAltF8
+""
 ""
 ""
 
 MHelpCtrlAltF9
 ""
 ""
+""
 
 MHelpCtrlAltF10
+""
 ""
 ""
 
 MHelpCtrlAltF11
 ""
 ""
+""
 
 MHelpCtrlAltF12
+""
 ""
 ""
 
@@ -6872,48 +8518,60 @@ l:
 l:// Help KeyBar AltShiftF1-12
 ""
 ""
+""
 
 MHelpAltShiftF2
+""
 ""
 ""
 
 MHelpAltShiftF3
 ""
 ""
+""
 
 MHelpAltShiftF4
+""
 ""
 ""
 
 MHelpAltShiftF5
 ""
 ""
+""
 
 MHelpAltShiftF6
+""
 ""
 ""
 
 MHelpAltShiftF7
 ""
 ""
+""
 
 MHelpAltShiftF8
+""
 ""
 ""
 
 MHelpAltShiftF9
 ""
 ""
+""
 
 MHelpAltShiftF10
+""
 ""
 ""
 
 MHelpAltShiftF11
 ""
 ""
+""
 
 MHelpAltShiftF12
+""
 ""
 ""
 
@@ -6922,248 +8580,308 @@ l:
 l:// Help KeyBar CtrlAltShiftF1-12
 ""
 ""
+""
 
 MHelpCtrlAltShiftF2
+""
 ""
 ""
 
 MHelpCtrlAltShiftF3
 ""
 ""
+""
 
 MHelpCtrlAltShiftF4
+""
 ""
 ""
 
 MHelpCtrlAltShiftF5
 ""
 ""
+""
 
 MHelpCtrlAltShiftF6
+""
 ""
 ""
 
 MHelpCtrlAltShiftF7
 ""
 ""
+""
 
 MHelpCtrlAltShiftF8
+""
 ""
 ""
 
 MHelpCtrlAltShiftF9
 ""
 ""
+""
 
 MHelpCtrlAltShiftF10
+""
 ""
 ""
 
 MHelpCtrlAltShiftF11
 ""
 ""
+""
 
 MHelpCtrlAltShiftF12
+""
 ""
 ""
 
 MInfoF1
 l:
 l:// InfoPanel KeyBar F1-F12
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MInfoF2
-"Сверн"
+"╨б╨▓╨╡╤А╨╜"
 "Wrap"
+"Zalam"
 
 MInfoF3
-"СмОпис"
+"╨б╨╝╨Ю╨┐╨╕╤Б"
 "VieDiz"
+"Zobraz"
 
 MInfoF4
-"РедОпи"
+"╨а╨╡╨┤╨Ю╨┐╨╕"
 "EdtDiz"
+"Edit"
 
 MInfoF5
+""
 ""
 ""
 
 MInfoF6
 ""
 ""
+""
 
 MInfoF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MInfoF8
 "ANSI"
 "ANSI"
+"ANSI"
 
 MInfoF9
-"КонфМн"
+"╨Ъ╨╛╨╜╤Д╨Ь╨╜"
 "ConfMn"
+"KonfMn"
 
 MInfoF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MInfoF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MInfoF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MInfoShiftF1
 l:
 l:// InfoPanel KeyBar Shift-F1-F12
 ""
 ""
+""
 
 MInfoShiftF2
-"Слова"
+"╨б╨╗╨╛╨▓╨░"
 "WWrap"
+"ZalSlo"
 
 MInfoShiftF3
+""
 ""
 ""
 
 MInfoShiftF4
 ""
 ""
+""
 
 MInfoShiftF5
+""
 ""
 ""
 
 MInfoShiftF6
 ""
 ""
+""
 
 MInfoShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MInfoShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MInfoShiftF9
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MInfoShiftF10
-"Послдн"
+"╨Я╨╛╤Б╨╗╨┤╨╜"
 "Last"
+"Posled"
 
 MInfoShiftF11
+""
 ""
 ""
 
 MInfoShiftF12
 ""
 ""
+""
 
 MInfoAltF1
 l:
 l:// InfoPanel KeyBar Alt-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MInfoAltF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MInfoAltF3
+""
 ""
 ""
 
 MInfoAltF4
 ""
 ""
+""
 
 MInfoAltF5
+""
 ""
 ""
 
 MInfoAltF6
 ""
 ""
+""
 
 MInfoAltF7
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Find"
+"Hledat"
 
 MInfoAltF8
-"Строка"
+"╨б╤В╤А╨╛╨║╨░"
 "Goto"
+"J├нt na"
 
 MInfoAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MInfoAltF10
-"Дерево"
+"╨Ф╨╡╤А╨╡╨▓╨╛"
 "Tree"
+"Strom"
 
 MInfoAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MInfoAltF12
-"ИстПап"
+"╨Ш╤Б╤В╨Я╨░╨┐"
 "FoldHs"
+"AdrsHs"
 
 MInfoCtrlF1
 l:
 l:// InfoPanel KeyBar Ctrl-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MInfoCtrlF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MInfoCtrlF3
+""
 ""
 ""
 
 MInfoCtrlF4
 ""
 ""
+""
 
 MInfoCtrlF5
+""
 ""
 ""
 
 MInfoCtrlF6
 ""
 ""
+""
 
 MInfoCtrlF7
+""
 ""
 ""
 
 MInfoCtrlF8
 ""
 ""
+""
 
 MInfoCtrlF9
+""
 ""
 ""
 
 MInfoCtrlF10
 ""
 ""
+""
 
 MInfoCtrlF11
 ""
 ""
+""
 
 MInfoCtrlF12
+""
 ""
 ""
 
@@ -7172,48 +8890,60 @@ l:
 l:// InfoPanel KeyBar CtrlShiftF1-12
 ""
 ""
+""
 
 MInfoCtrlShiftF2
+""
 ""
 ""
 
 MInfoCtrlShiftF3
 ""
 ""
+""
 
 MInfoCtrlShiftF4
+""
 ""
 ""
 
 MInfoCtrlShiftF5
 ""
 ""
+""
 
 MInfoCtrlShiftF6
+""
 ""
 ""
 
 MInfoCtrlShiftF7
 ""
 ""
+""
 
 MInfoCtrlShiftF8
+""
 ""
 ""
 
 MInfoCtrlShiftF9
 ""
 ""
+""
 
 MInfoCtrlShiftF10
+""
 ""
 ""
 
 MInfoCtrlShiftF11
 ""
 ""
+""
 
 MInfoCtrlShiftF12
+""
 ""
 ""
 
@@ -7222,48 +8952,60 @@ l:
 l:// InfoPanel KeyBar CtrlAltF1-12
 ""
 ""
+""
 
 MInfoCtrlAltF2
+""
 ""
 ""
 
 MInfoCtrlAltF3
 ""
 ""
+""
 
 MInfoCtrlAltF4
+""
 ""
 ""
 
 MInfoCtrlAltF5
 ""
 ""
+""
 
 MInfoCtrlAltF6
+""
 ""
 ""
 
 MInfoCtrlAltF7
 ""
 ""
+""
 
 MInfoCtrlAltF8
+""
 ""
 ""
 
 MInfoCtrlAltF9
 ""
 ""
+""
 
 MInfoCtrlAltF10
+""
 ""
 ""
 
 MInfoCtrlAltF11
 ""
 ""
+""
 
 MInfoCtrlAltF12
+""
 ""
 ""
 
@@ -7272,48 +9014,60 @@ l:
 l:// InfoPanel KeyBar AltShiftF1-12
 ""
 ""
+""
 
 MInfoAltShiftF2
+""
 ""
 ""
 
 MInfoAltShiftF3
 ""
 ""
+""
 
 MInfoAltShiftF4
+""
 ""
 ""
 
 MInfoAltShiftF5
 ""
 ""
+""
 
 MInfoAltShiftF6
+""
 ""
 ""
 
 MInfoAltShiftF7
 ""
 ""
+""
 
 MInfoAltShiftF8
+""
 ""
 ""
 
 MInfoAltShiftF9
 ""
 ""
+""
 
 MInfoAltShiftF10
+""
 ""
 ""
 
 MInfoAltShiftF11
 ""
 ""
+""
 
 MInfoAltShiftF12
+""
 ""
 ""
 
@@ -7322,248 +9076,308 @@ l:
 l:// InfoPanel KeyBar CtrlAltShiftF1-12
 ""
 ""
+""
 
 MInfoCtrlAltShiftF2
+""
 ""
 ""
 
 MInfoCtrlAltShiftF3
 ""
 ""
+""
 
 MInfoCtrlAltShiftF4
+""
 ""
 ""
 
 MInfoCtrlAltShiftF5
 ""
 ""
+""
 
 MInfoCtrlAltShiftF6
+""
 ""
 ""
 
 MInfoCtrlAltShiftF7
 ""
 ""
+""
 
 MInfoCtrlAltShiftF8
+""
 ""
 ""
 
 MInfoCtrlAltShiftF9
 ""
 ""
+""
 
 MInfoCtrlAltShiftF10
+""
 ""
 ""
 
 MInfoCtrlAltShiftF11
 ""
 ""
+""
 
 MInfoCtrlAltShiftF12
+""
 ""
 ""
 
 MQViewF1
 l:
 l:// QView KeyBar F1-F12
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MQViewF2
-"Сверн"
+"╨б╨▓╨╡╤А╨╜"
 "Wrap"
+"Zalam"
 
 MQViewF3
-"Просм"
+"╨Я╤А╨╛╤Б╨╝"
 "View"
+"Zobraz"
 
 MQViewF4
-"Код"
+"╨Ъ╨╛╨┤"
+"Hex"
 "Hex"
 
 MQViewF5
+""
 ""
 ""
 
 MQViewF6
 ""
 ""
+""
 
 MQViewF7
-"Поиск"
+"╨Я╨╛╨╕╤Б╨║"
 "Search"
+"Hledat"
 
 MQViewF8
 "ANSI"
 "ANSI"
+"ANSI"
 
 MQViewF9
-"КонфМн"
+"╨Ъ╨╛╨╜╤Д╨Ь╨╜"
 "ConfMn"
+"KonfMn"
 
 MQViewF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MQViewF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MQViewF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MQViewShiftF1
 l:
 l:// QView KeyBar Shift-F1-F12
 ""
 ""
+""
 
 MQViewShiftF2
-"Слова"
+"╨б╨╗╨╛╨▓╨░"
 "WWrap"
+"ZalSlo"
 
 MQViewShiftF3
+""
 ""
 ""
 
 MQViewShiftF4
 ""
 ""
+""
 
 MQViewShiftF5
+""
 ""
 ""
 
 MQViewShiftF6
 ""
 ""
+""
 
 MQViewShiftF7
-"Дальше"
+"╨Ф╨░╨╗╤М╤И╨╡"
 "Next"
+"Dal┼б├н"
 
 MQViewShiftF8
-"Таблиц"
+"╨в╨░╨▒╨╗╨╕╤Ж"
 "Table"
+"ZnSady"
 
 MQViewShiftF9
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MQViewShiftF10
-"Послдн"
+"╨Я╨╛╤Б╨╗╨┤╨╜"
 "Last"
+"Posled"
 
 MQViewShiftF11
+""
 ""
 ""
 
 MQViewShiftF12
 ""
 ""
+""
 
 MQViewAltF1
 l:
 l:// QView KeyBar Alt-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MQViewAltF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MQViewAltF3
+""
 ""
 ""
 
 MQViewAltF4
 ""
 ""
+""
 
 MQViewAltF5
+""
 ""
 ""
 
 MQViewAltF6
 ""
 ""
+""
 
 MQViewAltF7
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Find"
+"Hledat"
 
 MQViewAltF8
-"Строка"
+"╨б╤В╤А╨╛╨║╨░"
 "Goto"
+"J├нt na"
 
 MQViewAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MQViewAltF10
-"Дерево"
+"╨Ф╨╡╤А╨╡╨▓╨╛"
 "Tree"
+"Strom"
 
 MQViewAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MQViewAltF12
-"ИстПап"
+"╨Ш╤Б╤В╨Я╨░╨┐"
 "FoldHs"
+"AdrsHs"
 
 MQViewCtrlF1
 l:
 l:// QView KeyBar Ctrl-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MQViewCtrlF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MQViewCtrlF3
+""
 ""
 ""
 
 MQViewCtrlF4
 ""
 ""
+""
 
 MQViewCtrlF5
+""
 ""
 ""
 
 MQViewCtrlF6
 ""
 ""
+""
 
 MQViewCtrlF7
+""
 ""
 ""
 
 MQViewCtrlF8
 ""
 ""
+""
 
 MQViewCtrlF9
+""
 ""
 ""
 
 MQViewCtrlF10
 ""
 ""
+""
 
 MQViewCtrlF11
 ""
 ""
+""
 
 MQViewCtrlF12
+""
 ""
 ""
 
@@ -7572,48 +9386,60 @@ l:
 l:// QView KeyBar CtrlShiftF1-12
 ""
 ""
+""
 
 MQViewCtrlShiftF2
+""
 ""
 ""
 
 MQViewCtrlShiftF3
 ""
 ""
+""
 
 MQViewCtrlShiftF4
+""
 ""
 ""
 
 MQViewCtrlShiftF5
 ""
 ""
+""
 
 MQViewCtrlShiftF6
+""
 ""
 ""
 
 MQViewCtrlShiftF7
 ""
 ""
+""
 
 MQViewCtrlShiftF8
+""
 ""
 ""
 
 MQViewCtrlShiftF9
 ""
 ""
+""
 
 MQViewCtrlShiftF10
+""
 ""
 ""
 
 MQViewCtrlShiftF11
 ""
 ""
+""
 
 MQViewCtrlShiftF12
+""
 ""
 ""
 
@@ -7622,48 +9448,60 @@ l:
 l:// QView KeyBar CtrlAltF1-12
 ""
 ""
+""
 
 MQViewCtrlAltF2
+""
 ""
 ""
 
 MQViewCtrlAltF3
 ""
 ""
+""
 
 MQViewCtrlAltF4
+""
 ""
 ""
 
 MQViewCtrlAltF5
 ""
 ""
+""
 
 MQViewCtrlAltF6
+""
 ""
 ""
 
 MQViewCtrlAltF7
 ""
 ""
+""
 
 MQViewCtrlAltF8
+""
 ""
 ""
 
 MQViewCtrlAltF9
 ""
 ""
+""
 
 MQViewCtrlAltF10
+""
 ""
 ""
 
 MQViewCtrlAltF11
 ""
 ""
+""
 
 MQViewCtrlAltF12
+""
 ""
 ""
 
@@ -7672,48 +9510,60 @@ l:
 l:// QView KeyBar AltShiftF1-12
 ""
 ""
+""
 
 MQViewAltShiftF2
+""
 ""
 ""
 
 MQViewAltShiftF3
 ""
 ""
+""
 
 MQViewAltShiftF4
+""
 ""
 ""
 
 MQViewAltShiftF5
 ""
 ""
+""
 
 MQViewAltShiftF6
+""
 ""
 ""
 
 MQViewAltShiftF7
 ""
 ""
+""
 
 MQViewAltShiftF8
+""
 ""
 ""
 
 MQViewAltShiftF9
 ""
 ""
+""
 
 MQViewAltShiftF10
+""
 ""
 ""
 
 MQViewAltShiftF11
 ""
 ""
+""
 
 MQViewAltShiftF12
+""
 ""
 ""
 
@@ -7722,248 +9572,308 @@ l:
 l:// QView KeyBar CtrlAltShiftF1-12
 ""
 ""
+""
 
 MQViewCtrlAltShiftF2
+""
 ""
 ""
 
 MQViewCtrlAltShiftF3
 ""
 ""
+""
 
 MQViewCtrlAltShiftF4
+""
 ""
 ""
 
 MQViewCtrlAltShiftF5
 ""
 ""
+""
 
 MQViewCtrlAltShiftF6
+""
 ""
 ""
 
 MQViewCtrlAltShiftF7
 ""
 ""
+""
 
 MQViewCtrlAltShiftF8
+""
 ""
 ""
 
 MQViewCtrlAltShiftF9
 ""
 ""
+""
 
 MQViewCtrlAltShiftF10
+""
 ""
 ""
 
 MQViewCtrlAltShiftF11
 ""
 ""
+""
 
 MQViewCtrlAltShiftF12
+""
 ""
 ""
 
 MKBTreeF1
 l:
 l:// Tree KeyBar F1-F12
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"Pomoc"
 
 MKBTreeF2
-"ПользМ"
+"╨Я╨╛╨╗╤М╨╖╨Ь"
 "UserMn"
+"U┼╛ivMn"
 
 MKBTreeF3
 ""
 ""
+""
 
 MKBTreeF4
-"Атриб"
+"╨Р╤В╤А╨╕╨▒"
+"Attr"
 "Attr"
 
 MKBTreeF5
-"Копир"
+"╨Ъ╨╛╨┐╨╕╤А"
 "Copy"
+"Kop├нr."
 
 MKBTreeF6
-"Перен"
+"╨Я╨╡╤А╨╡╨╜"
 "RenMov"
+"P┼ЩjP┼Щs"
 
 MKBTreeF7
-"Папка"
+"╨Я╨░╨┐╨║╨░"
 "MkFold"
+"VytAdr"
 
 MKBTreeF8
-"Удален"
+"╨г╨┤╨░╨╗╨╡╨╜"
 "Delete"
+"Smazat"
 
 MKBTreeF9
-"КонфМн"
+"╨Ъ╨╛╨╜╤Д╨Ь╨╜"
 "ConfMn"
+"KonfMn"
 
 MKBTreeF10
-"Выход"
+"╨Т╤Л╤Е╨╛╨┤"
 "Quit"
+"Konec"
 
 MKBTreeF11
-"Модули"
+"╨Ь╨╛╨┤╤Г╨╗╨╕"
+"Plugin"
 "Plugin"
 
 MKBTreeF12
-"Экраны"
+"╨н╨║╤А╨░╨╜╤Л"
 "Screen"
+"Obraz."
 
 MKBTreeShiftF1
 l:
 l:// Tree KeyBar Shift-F1-F12
 ""
 ""
+""
 
 MKBTreeShiftF2
+""
 ""
 ""
 
 MKBTreeShiftF3
 ""
 ""
+""
 
 MKBTreeShiftF4
 ""
 ""
+""
 
 MKBTreeShiftF5
-"Копир"
+"╨Ъ╨╛╨┐╨╕╤А"
 "Copy"
+"Kop├нr."
 
 MKBTreeShiftF6
-"Перен"
+"╨Я╨╡╤А╨╡╨╜"
 "Rename"
+"P┼Щejm."
 
 MKBTreeShiftF7
+""
 ""
 ""
 
 MKBTreeShiftF8
 ""
 ""
+""
 
 MKBTreeShiftF9
-"Сохран"
+"╨б╨╛╤Е╤А╨░╨╜"
 "Save"
+"Ulo┼╛it"
 
 MKBTreeShiftF10
-"Послдн"
+"╨Я╨╛╤Б╨╗╨┤╨╜"
 "Last"
+"Posled"
 
 MKBTreeShiftF11
-"Группы"
+"╨У╤А╤Г╨┐╨┐╤Л"
 "Group"
+"Skupin"
 
 MKBTreeShiftF12
-"Выбран"
+"╨Т╤Л╨▒╤А╨░╨╜"
 "SelUp"
+"VybPrv"
 
 MKBTreeAltF1
 l:
 l:// Tree KeyBar Alt-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MKBTreeAltF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MKBTreeAltF3
+""
 ""
 ""
 
 MKBTreeAltF4
 ""
 ""
+""
 
 MKBTreeAltF5
+""
 ""
 ""
 
 MKBTreeAltF6
 ""
 ""
+""
 
 MKBTreeAltF7
-"Искать"
+"╨Ш╤Б╨║╨░╤В╤М"
 "Find"
+"Hledat"
 
 MKBTreeAltF8
-"Истор"
+"╨Ш╤Б╤В╨╛╤А"
 "Histry"
+"Histor"
 
 MKBTreeAltF9
-"Видео"
+"╨Т╨╕╨┤╨╡╨╛"
+"Video"
 "Video"
 
 MKBTreeAltF10
-"Дерево"
+"╨Ф╨╡╤А╨╡╨▓╨╛"
 "Tree"
+"Strom"
 
 MKBTreeAltF11
-"ИстПр"
+"╨Ш╤Б╤В╨Я╤А"
 "ViewHs"
+"ProhHs"
 
 MKBTreeAltF12
-"ИстПап"
+"╨Ш╤Б╤В╨Я╨░╨┐"
 "FoldHs"
+"AdrsHs"
 
 MKBTreeCtrlF1
 l:
 l:// Tree KeyBar Ctrl-F1-F12
-"Левая"
+"╨Ы╨╡╨▓╨░╤П"
 "Left"
+"Lev├╜"
 
 MKBTreeCtrlF2
-"Правая"
+"╨Я╤А╨░╨▓╨░╤П"
 "Right"
+"Prav├╜"
 
 MKBTreeCtrlF3
+""
 ""
 ""
 
 MKBTreeCtrlF4
 ""
 ""
+""
 
 MKBTreeCtrlF5
+""
 ""
 ""
 
 MKBTreeCtrlF6
 ""
 ""
+""
 
 MKBTreeCtrlF7
+""
 ""
 ""
 
 MKBTreeCtrlF8
 ""
 ""
+""
 
 MKBTreeCtrlF9
+""
 ""
 ""
 
 MKBTreeCtrlF10
 ""
 ""
+""
 
 MKBTreeCtrlF11
 ""
 ""
+""
 
 MKBTreeCtrlF12
+""
 ""
 ""
 
@@ -7972,48 +9882,60 @@ l:
 l:// Tree KeyBar CtrlShiftF1-12
 ""
 ""
+""
 
 MKBTreeCtrlShiftF2
+""
 ""
 ""
 
 MKBTreeCtrlShiftF3
 ""
 ""
+""
 
 MKBTreeCtrlShiftF4
+""
 ""
 ""
 
 MKBTreeCtrlShiftF5
 ""
 ""
+""
 
 MKBTreeCtrlShiftF6
+""
 ""
 ""
 
 MKBTreeCtrlShiftF7
 ""
 ""
+""
 
 MKBTreeCtrlShiftF8
+""
 ""
 ""
 
 MKBTreeCtrlShiftF9
 ""
 ""
+""
 
 MKBTreeCtrlShiftF10
+""
 ""
 ""
 
 MKBTreeCtrlShiftF11
 ""
 ""
+""
 
 MKBTreeCtrlShiftF12
+""
 ""
 ""
 
@@ -8022,48 +9944,60 @@ l:
 l:// Tree KeyBar CtrlAltF1-12
 ""
 ""
+""
 
 MKBTreeCtrlAltF2
+""
 ""
 ""
 
 MKBTreeCtrlAltF3
 ""
 ""
+""
 
 MKBTreeCtrlAltF4
+""
 ""
 ""
 
 MKBTreeCtrlAltF5
 ""
 ""
+""
 
 MKBTreeCtrlAltF6
+""
 ""
 ""
 
 MKBTreeCtrlAltF7
 ""
 ""
+""
 
 MKBTreeCtrlAltF8
+""
 ""
 ""
 
 MKBTreeCtrlAltF9
 ""
 ""
+""
 
 MKBTreeCtrlAltF10
+""
 ""
 ""
 
 MKBTreeCtrlAltF11
 ""
 ""
+""
 
 MKBTreeCtrlAltF12
+""
 ""
 ""
 
@@ -8072,48 +10006,60 @@ l:
 l:// Tree KeyBar AltShiftF1-12
 ""
 ""
+""
 
 MKBTreeAltShiftF2
+""
 ""
 ""
 
 MKBTreeAltShiftF3
 ""
 ""
+""
 
 MKBTreeAltShiftF4
+""
 ""
 ""
 
 MKBTreeAltShiftF5
 ""
 ""
+""
 
 MKBTreeAltShiftF6
+""
 ""
 ""
 
 MKBTreeAltShiftF7
 ""
 ""
+""
 
 MKBTreeAltShiftF8
+""
 ""
 ""
 
 MKBTreeAltShiftF9
 ""
 ""
+""
 
 MKBTreeAltShiftF10
+""
 ""
 ""
 
 MKBTreeAltShiftF11
 ""
 ""
+""
 
 MKBTreeAltShiftF12
+""
 ""
 ""
 
@@ -8122,254 +10068,315 @@ l:
 l:// Tree KeyBar CtrlAltShiftF1-12
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF2
+""
 ""
 ""
 
 MKBTreeCtrlAltShiftF3
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF4
+""
 ""
 ""
 
 MKBTreeCtrlAltShiftF5
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF6
+""
 ""
 ""
 
 MKBTreeCtrlAltShiftF7
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF8
+""
 ""
 ""
 
 MKBTreeCtrlAltShiftF9
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF10
+""
 ""
 ""
 
 MKBTreeCtrlAltShiftF11
 ""
 ""
+""
 
 MKBTreeCtrlAltShiftF12
+""
 ""
 ""
 
 MCopyTimeInfo
 l:
-"Время: %8.8s  Осталось: %8.8s  %5d%1.1sб/с"
+"╨Т╤А╨╡╨╝╤П: %8.8s  ╨Ю╤Б╤В╨░╨╗╨╛╤Б╤М: %8.8s  %5d%1.1s╨▒/╤Б"
 "Time: %8.8s  Remaining: %8.8s  %5d%1.1sb/s"
+"─Мas: %8.8s  Zb├╜v├б: %8.8s  %5d%1.1sb/s"
 
 MKeyESCWasPressed
 l:
-"Действие было прервано"
+"╨Ф╨╡╨╣╤Б╤В╨▓╨╕╨╡ ╨▒╤Л╨╗╨╛ ╨┐╤А╨╡╤А╨▓╨░╨╜╨╛"
 "Operation has been interrupted"
+"Operace byla p┼Щeru┼бena"
 
 MDoYouWantToStopWork
-"Вы действительно хотите отменить действие?"
+"╨Т╤Л ╨┤╨╡╨╣╤Б╤В╨▓╨╕╤В╨╡╨╗╤М╨╜╨╛ ╤Е╨╛╤В╨╕╤В╨╡ ╨╛╤В╨╝╨╡╨╜╨╕╤В╤М ╨┤╨╡╨╣╤Б╤В╨▓╨╕╨╡?"
 "Do you really want to cancel it?"
+"Opravdu chcete operaci stornovat?"
 
 MDoYouWantToStopWork2
-"Продолжить выполнение?"
+"╨Я╤А╨╛╨┤╨╛╨╗╨╢╨╕╤В╤М ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡?"
 "Continue work? "
+"Pokra─Нovat v pr├бci?"
 
 MCheckingFileInPlugin
 l:
-"Файл проверяется в плагине"
+"╨д╨░╨╣╨╗ ╨┐╤А╨╛╨▓╨╡╤А╤П╨╡╤В╤Б╤П ╨▓ ╨┐╨╗╨░╨│╨╕╨╜╨╡"
 "The file is being checked by the plugin"
+"Soubor je pr├бv─Ы kontrolov├бn pluginem"
 
 MDialogType
 l:
-"Диалог"
+"╨Ф╨╕╨░╨╗╨╛╨│"
+"Dialog"
 "Dialog"
 
 MHelpType
-"Помощь"
+"╨Я╨╛╨╝╨╛╤Й╤М"
 "Help"
+"N├бpov─Ыda"
 
 MFolderTreeType
-"ПоискКаталогов"
+"╨Я╨╛╨╕╤Б╨║╨Ъ╨░╤В╨░╨╗╨╛╨│╨╛╨▓"
 "FolderTree"
+"StromAdres├б┼Щe"
 
 MVMenuType
-"Меню"
+"╨Ь╨╡╨╜╤О"
+"Menu"
 "Menu"
 
 MIncorrectMask
 l:
-"Некорректная маска файлов!"
+"╨Э╨╡╨║╨╛╤А╤А╨╡╨║╤В╨╜╨░╤П ╨╝╨░╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓!"
 "File-mask string contains errors!"
+"┼Шet─Ыzec masky souboru obsahuje chyby!"
 
 MPanelBracketsForLongName
 l:
 "{}"
 "{}"
+"{}"
 
 MComspecNotFound
 l:
-"Переменная окружения %COMSPEC% не определена!"
+"╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П %COMSPEC% ╨╜╨╡ ╨╛╨┐╤А╨╡╨┤╨╡╨╗╨╡╨╜╨░!"
 "Environment variable %COMSPEC% not defined!"
+"Prom─Ыnn├б prost┼Щed├н %COMSPEC% nen├н definov├бna!"
 
 MExecuteErrorMessage
-"'%s' не является внутренней или внешней командой, исполняемой программой или пакетным файлом.\n"
+"'%s' ╨╜╨╡ ╤П╨▓╨╗╤П╨╡╤В╤Б╤П ╨▓╨╜╤Г╤В╤А╨╡╨╜╨╜╨╡╨╣ ╨╕╨╗╨╕ ╨▓╨╜╨╡╤И╨╜╨╡╨╣ ╨║╨╛╨╝╨░╨╜╨┤╨╛╨╣, ╨╕╤Б╨┐╨╛╨╗╨╜╤П╨╡╨╝╨╛╨╣ ╨┐╤А╨╛╨│╤А╨░╨╝╨╝╨╛╨╣ ╨╕╨╗╨╕ ╨┐╨░╨║╨╡╤В╨╜╤Л╨╝ ╤Д╨░╨╣╨╗╨╛╨╝.\n"
 "'%s' is not recognized as an internal or external command, operable program or batch file.\n"
+"'%s' nebylo nalezeno jako vni┼Щn├н nebo extern├н p┼Щ├нkaz, spustiteln├б aplikace nebo d├бvkov├╜ soubor.\n"
 
 MOpenPluginCannotOpenFile
 l:
-"Ошибка открытия файла"
+"╨Ю╤И╨╕╨▒╨║╨░ ╨╛╤В╨║╤А╤Л╤В╨╕╤П ╤Д╨░╨╣╨╗╨░"
 "Cannot open the file"
+"Nelze otev┼Щ├нt soubor"
 
 MFileFilterTitle
 l:
-"Фильтр"
+"╨д╨╕╨╗╤М╤В╤А"
 "Filter"
+"Filtr"
 
 MFileHilightTitle
-"Раскраска файлов"
+"╨а╨░╤Б╨║╤А╨░╤Б╨║╨░ ╤Д╨░╨╣╨╗╨╛╨▓"
 "Files highlighting"
+"Zv├╜raz┼Иov├бn├н soubor┼п"
 
 MFileFilterName
-"Имя &фильтра:"
+"╨Ш╨╝╤П &╤Д╨╕╨╗╤М╤В╤А╨░:"
 "Filter &name:"
+"Jm├й&no filtru:"
 
 MFileFilterMatchMask
-"&Маска:"
+"&╨Ь╨░╤Б╨║╨░:"
 "&Mask:"
+"&Maska"
 
 MFileFilterSize
-"Разм&ер:"
+"╨а╨░╨╖╨╝&╨╡╤А:"
 "Si&ze:"
+"Vel&ikost"
 
 MFileFilterSizeFromSign
 ">="
 ">="
+"<="
 
 MFileFilterSizeToSign
 "<="
 "<="
+"<="
 
 MFileFilterDate
-"&Дата/Время:"
+"&╨Ф╨░╤В╨░/╨Т╤А╨╡╨╝╤П:"
 "Da&te/Time:"
+"Dat&um/─Мas:"
 
 MFileFilterModified
-"&модификации"
+"&╨╝╨╛╨┤╨╕╤Д╨╕╨║╨░╤Ж╨╕╨╕"
 "&modification"
+"&modifikace"
 
 MFileFilterCreated
-"&создания"
+"&╤Б╨╛╨╖╨┤╨░╨╜╨╕╤П"
 "&creation"
+"&vytvo┼Щen├н"
 
 MFileFilterOpened
-"&доступа"
+"&╨┤╨╛╤Б╤В╤Г╨┐╨░"
 "&access"
+"&p┼Щ├нstupu"
 
 MFileFilterDateRelative
-"Относительна&я"
+"╨Ю╤В╨╜╨╛╤Б╨╕╤В╨╡╨╗╤М╨╜╨░&╤П"
 "Relat&ive"
+"Relati&vn├н"
 
 MFileFilterDateAfterSign
+">="
 ">="
 ">="
 
 MFileFilterDateBeforeSign
 "<="
 "<="
+"<="
 
 MFileFilterCurrent
-"Теку&щая"
+"╨в╨╡╨║╤Г&╤Й╨░╤П"
 "C&urrent"
+"Aktu├б&ln├н"
 
 MFileFilterBlank
-"С&брос"
+"╨б&╨▒╤А╨╛╤Б"
 "B&lank"
+"Pr├бz&dn├╜"
 
 MFileFilterAttr
-"Атрибут&ы"
+"╨Р╤В╤А╨╕╨▒╤Г╤В&╤Л"
 "Attri&butes"
+"Attri&buty"
 
 MFileFilterAttrR
-"&Только для чтения"
+"&╨в╨╛╨╗╤М╨║╨╛ ╨┤╨╗╤П ╤З╤В╨╡╨╜╨╕╤П"
 "&Read only"
+"Jen pro ─Нt&en├н"
 
 MFileFilterAttrA
-"&Архивный"
+"&╨Р╤А╤Е╨╕╨▓╨╜╤Л╨╣"
 "&Archive"
+"Arc&hivovat"
 
 MFileFilterAttrH
-"&Скрытый"
+"&╨б╨║╤А╤Л╤В╤Л╨╣"
 "&Hidden"
+"Skry&t├╜"
 
 MFileFilterAttrS
-"С&истемный"
+"╨б&╨╕╤Б╤В╨╡╨╝╨╜╤Л╨╣"
 "&System"
+"Syst├йmo&v├╜"
 
 MFileFilterAttrC
-"С&жатый"
+"╨б&╨╢╨░╤В╤Л╨╣"
 "&Compressed"
+"Kompri&movan├╜"
 
 MFileFilterAttrE
-"&Зашифрованный"
+"&╨Ч╨░╤И╨╕╤Д╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣"
 "&Encrypted"
+"┼аi&frovan├╜"
 
 MFileFilterAttrD
-"&Каталог"
+"&╨Ъ╨░╤В╨░╨╗╨╛╨│"
 "&Directory"
+"Adr&es├б┼Щ"
 
 MFileFilterAttrNI
-"&Неиндексируемый"
+"&╨Э╨╡╨╕╨╜╨┤╨╡╨║╤Б╨╕╤А╤Г╨╡╨╝╤Л╨╣"
 "Not inde&xed"
+"Neinde&xovan├╜"
 
 MFileFilterAttrSparse
-"&Разреженный"
+"&╨а╨░╨╖╤А╨╡╨╢╨╡╨╜╨╜╤Л╨╣"
 "S&parse"
+"┼Ш├нd&k├╜"
 
 MFileFilterAttrT
-"&Временный"
+"&╨Т╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╣"
 "Temporar&y"
+"Do─Нa&sn├╜"
 
 MFileFilterAttrReparse
-"Симво&л. ссылка"
+"╨б╨╕╨╝╨▓╨╛&╨╗. ╤Б╤Б╤Л╨╗╨║╨░"
 "Symbolic lin&k"
+"Sybolick├╜ li&nk"
 
 MFileFilterAttrOffline
-"Автономны&й"
+"╨Р╨▓╤В╨╛╨╜╨╛╨╝╨╜╤Л&╨╣"
+"O&ffline"
 "O&ffline"
 
 MFileFilterAttrVirtual
-"Вирт&уальный"
+"╨Т╨╕╤А╤В&╤Г╨░╨╗╤М╨╜╤Л╨╣"
 "&Virtual"
+"Virtu├бln├н"
 
 MFileFilterReset
-"Очистит&ь"
+"╨Ю╤З╨╕╤Б╤В╨╕╤В&╤М"
+"Reset"
 "Reset"
 
 MFileFilterCancel
-"Отмена"
+"╨Ю╤В╨╝╨╡╨╜╨░"
 "Cancel"
+"Storno"
 
 MFileFilterMakeTransparent
-"Выставить прозрачность"
+"╨Т╤Л╤Б╤В╨░╨▓╨╕╤В╤М ╨┐╤А╨╛╨╖╤А╨░╤З╨╜╨╛╤Б╤В╤М"
 "Make transparent"
+"Zpr┼пhlednit"
 
 MBadFileSizeFormat
-"Неправильно заполнено поле размера!"
+"╨Э╨╡╨┐╤А╨░╨▓╨╕╨╗╤М╨╜╨╛ ╨╖╨░╨┐╨╛╨╗╨╜╨╡╨╜╨╛ ╨┐╨╛╨╗╨╡ ╤А╨░╨╖╨╝╨╡╤А╨░!"
 "File size field is incorrectly filled!"
+"Velikost souboru neobsahuje spr├бvnou hodnotu!"
 
 #Must be the last
 MNewFileName
 l:
-"?Новый файл?"
+"?╨Э╨╛╨▓╤Л╨╣ ╤Д╨░╨╣╨╗?"
 "?New File?"
+"?Nov├╜ soubor?"

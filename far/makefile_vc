@@ -488,4 +488,5 @@ CLEAN:
 	-@del /q /f "$(OUTDIR)\FarEng.lng"   > nul 2> nul
 	-@del /q /f "$(OUTDIR)\FarRus.hlf"   > nul 2> nul
 	-@del /q /f "$(OUTDIR)\FarRus.lng"   > nul 2> nul
+	-@del /q /f "$(OUTDIR)\FarCze.lng"   > nul 2> nul
 	-@del /q /f "$(OUTDIR)\File_id.diz"  > nul 2> nul

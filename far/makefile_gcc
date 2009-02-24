@@ -290,6 +290,7 @@ clean:
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
 	@$(RM) $(EXEDIR)/FarEng.lng
 	@$(RM) $(EXEDIR)/FarRus.lng
+	@$(RM) $(EXEDIR)/FarCze.lng
 	@$(RM) farlang.templ lang.hpp lang.ini
 	@$(RM) $(EXEDIR)/FarEng.hlf
 	@$(RM) $(EXEDIR)/FarRus.hlf
