@@ -269,10 +269,10 @@ bool dlgOpenEditor (string &strFileName, UINT &codepage)
 
 	DialogDataEx EditDlgData[]=	{
 		/* 00 */DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditTitle,
-		/* 01 */DI_TEXT,     5,2, 0,2,0,0,0,0,(const wchar_t *)L"Open/create file:",
+		/* 01 */DI_TEXT,     5,2, 0,2,0,0,0,0,(const wchar_t *)MEditOpenCreateLabel,
 		/* 02 */DI_EDIT,     5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
 		/* 03 */DI_TEXT,     3,4, 0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 04 */DI_TEXT,     5,5, 0,5,0,0,0,0,L"File codepage:",
+		/* 04 */DI_TEXT,     5,5, 0,5,0,0,0,0,(const wchar_t *)MEditCodePage,
 		/* 05 */DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
 		/* 06 */DI_TEXT,     3,6, 0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 07 */DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
@@ -286,7 +286,7 @@ bool dlgOpenEditor (string &strFileName, UINT &codepage)
 	Dialog Dlg(EditDlg, countof(EditDlg), (FARWINDOWPROC)hndOpenEditor, (LONG_PTR)&codepage);
 
 	Dlg.SetPosition(-1,-1,76,10);
-	Dlg.SetHelp(L"FileSaveAs");
+	Dlg.SetHelp(L"FileOpenCreate");
 
 	Dlg.Process();
 

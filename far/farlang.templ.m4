@@ -2241,6 +2241,11 @@ MEditCancel
 "&Cancel"
 "&Storno"
 
+MEditOpenCreateLabel
+"Открыть/создать файл:"
+"Open/create file:"
+"Open/create file:"
+
 MEditGoToLine
 l:
 "Перейти"

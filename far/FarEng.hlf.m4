@@ -581,7 +581,7 @@ screen height between 25 and 50 lines. See TechInfo##38 for details.
   Add files to archive                                      #Shift-F1#
   Extract files from archive                                #Shift-F2#
   Perform archive managing commands                         #Shift-F3#
-  Edit new file                                             #Shift-F4#
+  Edit ~new file~@FileOpenCreate@                                             #Shift-F4#
 
     When a new file is opened, the same codepage is used as in the last opened
 editor. If the editor is opened for the first time in the current FAR session,
@@ -2325,7 +2325,7 @@ editors which are defined in the ~Editor settings~@EditorSettings@ dialog.
     #Creating files using the editor#
 
     If a nonexistent file name is entered after pressing the #Shift-F4# hotkey
-then a new file will be created.
+then a ~new file~@FileOpenCreate@ will be created.
 
     Remarks:
 
@@ -2399,7 +2399,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F1#                      Help
    #F2#                      Save file
    #Shift-F2#                ~Save file as...~@FileSaveAs@
-   #Shift-F4#                Edit new file
+   #Shift-F4#                Edit ~new file~@FileOpenCreate@
    #Alt-F5#                  Print file or selected block
                            ("Print manager" plugin is used).
    #F6#                      Switch to ~viewer~@Viewer@
@@ -2463,10 +2463,29 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
        line as a block and copies it to the clipboard.
 
 
+@FileOpenCreate
+$ #Редактор: Открыть/создать файл#
+    С помощью комбинации #Shift-F4# можно открыть существующий или 
+создать новый файл.
+
+    В зависимости от ~настроек редактора~@EditorSettings@ новый файл
+создается в кодировке OEM или ANSI. Можно задать другую кодировку, 
+выбрав из списка #Кодовая страница:# требуемую кодовую страницу.
+
+    Для существующего файла изменять опцию #Кодовая страница:# имеет
+смысл тогда, когда при открытии кодировка определилась неправильно.
+
+
 @FileSaveAs
 $ #Editor: save file as...#
-    You can save the file being edited under a different name by pressing
-#Shift-F2# and specifying the new name.
+    Редактируемый файл можно сохранить под другим именем - нажать #Shift-F2# и
+указать другое имя, кодовую страницу и формат представления символа перевода 
+строки.
+
+    Если для сохраняемого файла выбрана одна из кодовых страниц: UTF-8, 
+UNICODE или REVERSEBOM, то при включенной опции #Добавить сигнатуру (BOM)# 
+в начало файла добавляется специальный маркер, позволяющий другим приложениям
+однозначно идентифицировать этот файл.
 
     You can also specify the format of the line break characters:
 
