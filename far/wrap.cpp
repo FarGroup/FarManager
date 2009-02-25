@@ -3423,20 +3423,38 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 {
 	if (Command != oldfar::FCT_DETECT && Command >= 0)
 	{
-		if (BufferSize > (int) sizeof(oldfar::CharTableSet))
+		if (BufferSize != (int) sizeof(oldfar::CharTableSet))
 			return -1;
 
 		oldfar::CharTableSet *TableSet=(oldfar::CharTableSet*)Buffer;
+
+		//Preset. Also if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
+		strcpy(TableSet->TableName,"<failed>");
+		for (unsigned int i = 0; i < 256; ++i)
+		{
+			TableSet->EncodeTable[i] = TableSet->DecodeTable[i] = i;
+			TableSet->UpperTable[i] = LocalUpper (i);
+			TableSet->LowerTable[i] = LocalLower (i);
+		}
+
 		string sTableName;
+		UINT nCP = 0;
 
-		BYTE dTemp[4];
-		const wchar_t SelCT[] = L"CodeTables\\Selected";
+		switch (Command)
+		{
+		case 0 /* OEM */: 	nCP = GetOEMCP();	break;
+		case 1 /* ANSI */:	nCP = GetACP(); 	break;
+		default:
+			{
+				const wchar_t SelCT[] = L"CodeTables\\Selected";
+				int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
+				BYTE dTemp[4];
 
-		if(!EnumRegValue (SelCT, 0, sTableName, dTemp, sizeof (dTemp)) ||
-			(Command > 0 && !EnumRegValue (SelCT, Command, sTableName, dTemp, sizeof (dTemp))))
-			return -1;
+				if(!EnumRegValue (SelCT, iSelCT, sTableName, dTemp, sizeof (dTemp))) return -1;
+				nCP = _wtoi (sTableName);
+			}
+		}
 
-		UINT nCP = _wtoi (sTableName);
 		CPINFOEXW cpi;
 
 		if (!GetCPInfoExW (nCP, 0, &cpi) || cpi.MaxCharSize != 1)
@@ -3445,13 +3463,6 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		sTableName.Format (L"%5u%c %s", nCP, BoxSymbols[BS_V1], wcschr (cpi.CodePageName, L'(') + 1);
 		sTableName.SetLength (sTableName.GetLength () - 1);
 		sTableName.GetCharString (TableSet->TableName, sizeof (TableSet->TableName) - 1, CP_OEMCP);
-
-		for (unsigned int i = 0; i < 256; ++i)
-		{
-			TableSet->EncodeTable[i] = TableSet->DecodeTable[i] = i;
-			TableSet->UpperTable[i] = LocalUpper (i);
-			TableSet->LowerTable[i] = LocalLower (i);
-		}
 
 		MultiByteRecode (nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof (TableSet->DecodeTable));
 		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->EncodeTable, sizeof (TableSet->EncodeTable));
