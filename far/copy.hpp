@@ -92,6 +92,7 @@ class ShellCopy
     int ReadOnlyDelMode;
     int SkipMode;
     int SkipEncMode;
+    int SkipDeleteMode;
     /* KM $ */
 
     long TotalFiles;

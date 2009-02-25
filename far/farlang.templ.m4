@@ -1639,6 +1639,10 @@ MDeleteSkip
 "П&ропустить"
 "&Skip"
 
+MDeleteSkipAll
+"Пропустить &все"
+"S&kip all"
+
 MDeleteCancel
 "&Отменить"
 "&Cancel"
