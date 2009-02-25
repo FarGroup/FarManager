@@ -8,7 +8,7 @@ FarRus.lng Russian "Russian (Русский)"
 #id:1 language file name, language name, language description
 FarEng.lng English "English"
 #id:2 language file name, language name, language description
-FarCze.lng Čeština "Czech (Čeština)"
+FarCze.lng Czech "Czech (Čeština)"
 
 #head of the hpp file
 hhead:#ifndef __FARLANG_HPP__
@@ -17,25 +17,31 @@ hhead:#define __FARLANG_HPP__
 #tail of the hpp file
 htail:
 htail:#endif  // __FARLANG_HPP__
-#и так сколько нужно
+#and so on as much as needed
 
 #--------------------------------------------------------------------
-#теперь идут сами lng фиды
+#now come the lng feeds
 #--------------------------------------------------------------------
-#первым идёт имя элемнта в enum а перед ним могут идти коменты для hpp
-#файла
-#h://коммент до записи самого MShareware
-#he://коммент после записи самого MShareware
-#MShareware
-#теперь идут lng строки для всех языков по очереди а перед ними коменты
-#l://это запишеться во все lng файлы перед строкой текста
-#le://это запишеться во все lng файлы после строки текста
-#ls://это только перед рус строкой
-#lse://это только после рус строки
-#"Пожалуйста, зарегистрируйте Вашу копию"
-#ls://это только перед енг строкой
-#lse://это только после енг строки
-#"Evaluation copy, please register."
+#first comes the text name from the enum which can be preceded with
+#comments that will go to the hpp file
+#h://This comment will appear before MYes
+#he://This comment will appear after MYes
+#MYes
+#now come the lng lines for all the languages in the order defined
+#above, they can be preceded with comments as shown below
+#l://This comment will appear in all the lng files before the lng line
+#le://This comment will appear in all the lng files after the lng line
+#ls://This comment will appear only in Russian lng file before the lng line
+#lse://This comment will appear only in Russian lng file after the lng line
+#"Да"
+#ls://This comment will appear only in English lng file before the lng line
+#lse://This comment will appear only in English lng file after the lng line
+#"Yes"
+#ls://This comment will appear only in Czech lng file before the lng line
+#lse://This comment will appear only in Czech lng file after the lng line
+#upd:"Ano"
+#lng lines marked with "upd:" will cause a warning to be printed to the
+#screen reminding that this line should be updated/translated
 
 MYes=0
 `l://Version: 'MAJOR`.'MINOR` build 'BUILD
