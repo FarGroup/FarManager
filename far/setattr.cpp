@@ -633,11 +633,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY))
       {
-				if (!DlgParam.Plugin && !IsSlash(strSelName.At(strSelName.GetLength()-1)))
+				if (!DlgParam.Plugin)
         {
-          string strCopy = strSelName;
-          AddEndSlash(strCopy);
-					FileAttr=apiGetFileAttributes(strCopy);
+					FileAttr=apiGetFileAttributes(strSelName);
         }
         //_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[SETATTR_SUBFOLDERS].Flags&=~DIF_DISABLE;
@@ -650,18 +648,20 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             ConvertDate(FindData.ftCreationTime,  AttrDlg[SETATTR_CDATE].strData,AttrDlg[SETATTR_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
             ConvertDate(FindData.ftLastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
           }
-          AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
-          AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
-          AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
-          AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
-          AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-          AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-          AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
-          AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
-          AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
-          AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
-          AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
-
+					if(FileAttr!=INVALID_FILE_ATTRIBUTES)
+					{
+						AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
+						AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
+						AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
+						AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
+						AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+						AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+						AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
+						AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
+						AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
+						AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
+						AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
+					}
           // убираем 3-State
           for (I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
@@ -676,7 +676,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
 
       // обработка случая, если ЭТО SymLink
-      if (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+      if (FileAttr!=INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
       {
         string strJuncName;
         DWORD ReparseTag=0;
@@ -781,17 +781,20 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_NAME].strData = strSelName;
       TruncStr(AttrDlg[SETATTR_NAME].strData,54);
 
-      AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
-      AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
-      AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
-      AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
-      AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-      AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-      AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
-      AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
-      AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
-      AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
-      AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
+			if(FileAttr!=INVALID_FILE_ATTRIBUTES)
+			{
+				AttrDlg[SETATTR_RO].Selected=(FileAttr & FILE_ATTRIBUTE_READONLY)!=0;
+				AttrDlg[SETATTR_ARCHIVE].Selected=(FileAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
+				AttrDlg[SETATTR_HIDDEN].Selected=(FileAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
+				AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
+				AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+				AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+				AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0;
+				AttrDlg[SETATTR_SPARSE].Selected=(FileAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0;
+				AttrDlg[SETATTR_TEMP].Selected=(FileAttr & FILE_ATTRIBUTE_TEMPORARY)!=0;
+				AttrDlg[SETATTR_OFFLINE].Selected=(FileAttr & FILE_ATTRIBUTE_OFFLINE)!=0;
+				AttrDlg[SETATTR_VIRTUAL].Selected=(FileAttr & FILE_ATTRIBUTE_VIRTUAL)!=0;
+			}
 
       if(DlgParam.Plugin)
       {

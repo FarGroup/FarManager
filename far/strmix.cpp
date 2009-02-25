@@ -535,7 +535,7 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
   {
     int nLength = (int)wcslen (Str);
 
-    if (nLength > MaxLength)
+		if((nLength > MaxLength) && (nLength >= 2))
     {
       wchar_t *lpStart = NULL;
 
@@ -545,9 +545,12 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
       {
         if ( (Str[0] == L'\\') && (Str[1] == L'\\') )
         {
-					if ( (lpStart = wcschr (Str+2, L'\\')) != NULL || (lpStart = wcschr (Str+2, L'/')) != NULL )
-						if ( (lpStart = wcschr (lpStart+1, L'\\')) != NULL || (lpStart = wcschr (lpStart+1, L'/')) != NULL )
+					if ( ((lpStart = wcschr (Str+2, L'\\')) != NULL) || ((lpStart = wcschr (Str+2, L'/')) != NULL) )
+					{
+						wchar_t *lpStart2=lpStart;
+						if ( (lpStart-Str < nLength) && (((lpStart = wcschr (lpStart2+1, L'\\')) != NULL) || ((lpStart = wcschr (lpStart2+1, L'/')) != NULL )))
               lpStart++;
+					}
         }
       }
 
