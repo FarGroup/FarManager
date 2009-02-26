@@ -44,13 +44,17 @@ class NTPath
 public:
 	NTPath(LPCWSTR Src)
 	{
-		ConvertNameToFull(Src,Str);
-		if(!PathPrefix(Str))
+		Str=Src;
+		if(!PathPrefix(Src))
 		{
-			if(IsNetworkPath(Str))
-				Str=string(L"\\\\?\\UNC\\")+&Str[2];
-			else
-				Str=string(L"\\\\?\\")+Str;
+			ConvertNameToFull(Str,Str);
+			if(!PathPrefix(Str))
+			{
+				if(IsNetworkPath(Str))
+					Str=string(L"\\\\?\\UNC\\")+&Str[2];
+				else
+					Str=string(L"\\\\?\\")+Str;
+			}
 		}
 	}
 	operator LPCWSTR() const
@@ -624,7 +628,7 @@ DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
 	LPCWSTR SrcPtr=PointToName(lpFileName);
 	int NameLength=0;
 	string strFileName=lpFileName;
-	if(StrCmp(SrcPtr,L"..") && StrCmp(SrcPtr,L"."))
+	if(!TestParentFolderName(SrcPtr) && !TestCurrentFolderName(SrcPtr))
 		NameLength=StrLength(SrcPtr);
 	else
 		AddEndSlash(strFileName);

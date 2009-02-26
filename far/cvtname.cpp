@@ -49,7 +49,7 @@ int ConvertNameToFull (
 	const wchar_t *lpwszName = PointToName(lpwszSrc);
 
 	if ( (lpwszName == lpwszSrc) &&
-				(lpwszName[0] != L'.' || lpwszName[1] != 0) )
+				!TestParentFolderName(lpwszName) && !TestCurrentFolderName(lpwszName))
 	{
 		apiGetCurrentDirectory(strDest);
 		AddEndSlash(strDest);

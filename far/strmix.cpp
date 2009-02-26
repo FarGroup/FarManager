@@ -1523,7 +1523,12 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 
 BOOL TestParentFolderName(const wchar_t *Name)
 {
-  return Name[0] == L'.' && Name[1] == L'.' && !Name[2];
+	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));
+}
+
+BOOL TestCurrentFolderName(const wchar_t *Name)
+{
+	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
 }
 
 bool CutToSlash(string &strStr, bool bInclude)

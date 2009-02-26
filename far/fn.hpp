@@ -337,6 +337,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath);
 
 BOOL  TestParentFolderName(const wchar_t *Name);
+BOOL TestCurrentFolderName(const wchar_t *Name);
 
 BOOL  AddEndSlash(string &strPath, wchar_t TypeSlash);
 BOOL  AddEndSlash(string &strPath);
