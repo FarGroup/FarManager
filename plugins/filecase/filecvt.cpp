@@ -6,6 +6,21 @@
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 #endif
 
+LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+  switch(Msg)
+  {
+    case DN_BTNCLICK:
+      if(Param1==22)
+      {
+        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,21,(LONG_PTR)TEXT(" _"));
+        return TRUE;
+      }
+      break;
+  }
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
 void CaseConvertion()
 {
   static const TCHAR History[] = _T("FileCase_WordDiv");
@@ -32,7 +47,7 @@ void CaseConvertion()
   /* 19 */{DI_TEXT,5,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
   /* 20 */{DI_TEXT,5,15,0,0,0,0,0,0,(TCHAR *)MWordDiv},
   /* 21 */{DI_EDIT,5,16,49,0,0,0,DIF_HISTORY,0,Opt.WordDiv},
-  /* 22 */{DI_BUTTON,52,16,0,0,0,0,0,0,(TCHAR *)MReset},
+  /* 22 */{DI_BUTTON,52,16,0,0,0,0,DIF_BTNNOCLOSE,0,(TCHAR *)MReset},
   /* 23 */{DI_TEXT,5,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
   /* 24 */{DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
   /* 25 */{DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
@@ -49,38 +64,21 @@ void CaseConvertion()
   DialogItems[18].Param.Selected=0;
 
   int I, J;
+
+#ifndef UNICODE
+  I=Info.DialogEx
+#else
+  HANDLE hDlg=Info.DialogInit
+#endif
+    (Info.ModuleNumber,-1,-1,66,21,_T("Contents"),DialogItems,ArraySize(DialogItems),0,0,DlgProc,0);
 #ifdef UNICODE
-  HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,66,21,_T("Contents"),
-                                DialogItems,ArraySize(DialogItems),0,0,NULL,0);
   if ( hDlg == INVALID_HANDLE_VALUE )
     return;
+  I=Info.DialogRun(hDlg);
 #endif
-  while (1)
-  {
-#ifndef UNICODE
-    I=Info.Dialog(Info.ModuleNumber,-1,-1,66,21,_T("Contents"),
-                  DialogItems, ArraySize(DialogItems));
-#else
-    I=Info.DialogRun(hDlg);
-#endif
-    if (I==22) {
-#ifndef UNICODE
-      lstrcpy(DialogItems[21].Data.Data," _");
-#else
-      static const wchar_t sts[] = L" _";
-      static const FarDialogItemData ItemData = { ArraySize(sts), (wchar_t*)sts };
-      Info.SendDlgMessage(hDlg,DM_SETTEXT,21,(LONG_PTR)&ItemData);
-#endif
-    } else if (I!=24) {
-done:
-#ifdef UNICODE
-      Info.DialogFree(hDlg);
-#endif
-      return;
-    }
-    else
-      break;
-  }
+
+  if (I!=24)
+   goto done;
 
   if (GetCheck(3)) I = MODE_LOWER;
   else if (GetCheck(4)) I = MODE_UPPER;
@@ -178,5 +176,10 @@ done:
   Info.Control(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,NULL);
   Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 #endif
-  goto done;
+
+done:
+#ifdef UNICODE
+  Info.DialogFree(hDlg);
+#endif
+  return;
 }
