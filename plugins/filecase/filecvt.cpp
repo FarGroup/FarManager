@@ -63,71 +63,66 @@ void CaseConvertion()
   DialogItems[16].Param.Selected=Opt.ProcessDir;
   DialogItems[18].Param.Selected=0;
 
-  int I, J;
+  
 
 #ifndef UNICODE
-  I=Info.DialogEx
+  if(Info.DialogEx
 #else
   HANDLE hDlg=Info.DialogInit
 #endif
-    (Info.ModuleNumber,-1,-1,66,21,_T("Contents"),DialogItems,ArraySize(DialogItems),0,0,DlgProc,0);
+    (Info.ModuleNumber,-1,-1,66,21,_T("Contents"),DialogItems,ArraySize(DialogItems),0,0,DlgProc,0)
 #ifdef UNICODE
+    ;
   if ( hDlg == INVALID_HANDLE_VALUE )
     return;
-  I=Info.DialogRun(hDlg);
+  if(Info.DialogRun(hDlg)
 #endif
+    ==24)
+  {
+    int I=MODE_NONE,J=MODE_NONE;
+    if (GetCheck(3)) I = MODE_LOWER;
+    else if (GetCheck(4)) I = MODE_UPPER;
+    else if (GetCheck(5)) I = MODE_N_WORD;
+    else if (GetCheck(6)) I = MODE_LN_WORD;
 
-  if (I!=24)
-   goto done;
+    if (GetCheck(8)) J = MODE_LOWER;
+    else if (GetCheck(9)) J = MODE_UPPER;
+    else if (GetCheck(10)) J = MODE_N_WORD;
+    else if (GetCheck(11)) J = MODE_LN_WORD;
 
-  if (GetCheck(3)) I = MODE_LOWER;
-  else if (GetCheck(4)) I = MODE_UPPER;
-  else if (GetCheck(5)) I = MODE_N_WORD;
-  else if (GetCheck(6)) I = MODE_LN_WORD;
-  else if (GetCheck(7)) I = MODE_NONE;
-  else goto done;
+    if (I!=MODE_NONE || J!=MODE_NONE)
+    {
+      struct Options Backup;
 
-  if (GetCheck(8)) J = MODE_LOWER;
-  else if (GetCheck(9)) J = MODE_UPPER;
-  else if (GetCheck(10)) J = MODE_N_WORD;
-  else if (GetCheck(11)) J = MODE_LN_WORD;
-  else if (GetCheck(12)) J = MODE_NONE;
-  else goto done;
+      if (GetCheck(18))
+      memcpy(&Backup,&Opt,sizeof(Backup));
 
-  if (I==MODE_NONE && J==MODE_NONE)
-    goto done;
+      lstrcpy(Opt.WordDiv,GetDataPtr(21));
+      Opt.WordDivLen=lstrlen(Opt.WordDiv);
+      Opt.ConvertMode=I;
+      Opt.ConvertModeExt=J;
+      Opt.SkipMixedCase=GetCheck(14);
+      Opt.ProcessSubDir=GetCheck(15);
+      Opt.ProcessDir=GetCheck(16);
 
-  struct Options Backup;
-
-  if (GetCheck(18))
-    memcpy(&Backup,&Opt,sizeof(Backup));
-
-  lstrcpy(Opt.WordDiv,GetDataPtr(21));
-  Opt.WordDivLen=lstrlen(Opt.WordDiv);
-  Opt.ConvertMode=I;
-  Opt.ConvertModeExt=J;
-  Opt.SkipMixedCase=GetCheck(14);
-  Opt.ProcessSubDir=GetCheck(15);
-  Opt.ProcessDir=GetCheck(16);
-
-  struct PanelInfo PInfo;
+      struct PanelInfo PInfo;
 #ifndef UNICODE
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+      Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
 #else
-  Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
+      Info.Control(PANEL_ACTIVE,FCTL_GETPANELINFO,0,(LONG_PTR)&PInfo);
 #endif
-  HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
-  const TCHAR *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
-  Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
+      HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
+      const TCHAR *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
+      Info.Message(Info.ModuleNumber,0,NULL,MsgItems,ArraySize(MsgItems),0);
 
-  TCHAR FullName[NM];
+      TCHAR FullName[NM];
 
 #ifndef UNICODE
 #define CurDir PInfo.CurDir
 #else
-	int Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
-	wchar_t* CurDir=new wchar_t[Size];
-	Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
+      int Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+      wchar_t* CurDir=new wchar_t[Size];
+      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
 #endif
 
 #ifndef UNICODE
@@ -137,49 +132,48 @@ void CaseConvertion()
 #define FileName PPI->FindData.lpwszFileName
 #define FileAttr PPI->FindData.dwFileAttributes
 #endif
-  for (I=0;I < PInfo.SelectedItemsNumber; I++)
-  {
+      for (I=0;I < PInfo.SelectedItemsNumber; I++)
+      {
 #ifdef UNICODE
-    PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
-    if(PPI)
-    {
-      Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)PPI);
+        PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0));
+        if(PPI)
+        {
+          Info.Control(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)PPI);
 #endif
-    GetFullName(FullName,CurDir,FileName);
-    ProcessName(FullName,FileAttr);
+        GetFullName(FullName,CurDir,FileName);
+        ProcessName(FullName,FileAttr);
 #ifdef UNICODE
-      free(PPI);
-    }
+          free(PPI);
+        }
 #endif
-  }
+      }
 #ifdef UNICODE
-  delete[] CurDir;
+      delete[] CurDir;
 #endif
 
-  if (!GetCheck(18))
-  {
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("WordDiv"),Opt.WordDiv);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertMode"),Opt.ConvertMode);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertModeExt"),Opt.ConvertModeExt);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("SkipMixedCase"),Opt.SkipMixedCase);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessSubDir"),Opt.ProcessSubDir);
-    SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessDir"),Opt.ProcessDir);
-  }
-  else
-    memcpy(&Opt,&Backup,sizeof(Opt));
+      if (!GetCheck(18))
+      {
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("WordDiv"),Opt.WordDiv);
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertMode"),Opt.ConvertMode);
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ConvertModeExt"),Opt.ConvertModeExt);
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("SkipMixedCase"),Opt.SkipMixedCase);
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessSubDir"),Opt.ProcessSubDir);
+        SetRegKey(HKEY_CURRENT_USER,_T(""),_T("ProcessDir"),Opt.ProcessDir);
+      }
+      else
+        memcpy(&Opt,&Backup,sizeof(Opt));
 
-  Info.RestoreScreen(hScreen);
+      Info.RestoreScreen(hScreen);
 #ifndef UNICODE
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_UPDATEPANEL,NULL);
-  Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,NULL);
+      Info.Control(INVALID_HANDLE_VALUE,FCTL_UPDATEPANEL,NULL);
+      Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,NULL);
 #else
-  Info.Control(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,NULL);
-  Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
+      Info.Control(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,NULL);
+      Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 #endif
-
-done:
+    }
+  }
 #ifdef UNICODE
   Info.DialogFree(hDlg);
 #endif
-  return;
 }
