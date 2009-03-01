@@ -58,161 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-
-static HANDLE g_hDlg = NULL;
-static int g_nID = 0;
-static UINT g_nCodepage = 0;
-
-BOOL __stdcall EnumCodePages (const wchar_t *lpwszCodePage)
-{
-	DWORD dwCP = _wtoi(lpwszCodePage);
-	CPINFOEXW cpi;
-	if (GetCPInfoExW (dwCP, 0, &cpi) && cpi.MaxCharSize == 1 )
-	{
-		string strCPName;
-		strCPName.Format(L"%5d%c %s",dwCP,BoxSymbols[BS_V1],wcschr(cpi.CodePageName,L'(')+1);
-		strCPName.SetLength(strCPName.GetLength()-1);
-
-		FarListItemData data;
-		data.Index = (int)Dialog::SendDlgMessage (g_hDlg, DM_LISTADDSTR, g_nID, (LONG_PTR)(const wchar_t*)strCPName);
-		data.DataSize = sizeof(dwCP);
-		data.Data = (void*)(DWORD_PTR)dwCP;
-
-		Dialog::SendDlgMessage (g_hDlg, DM_LISTSETDATA, g_nID, (LONG_PTR)&data);
-	}
-
-	return TRUE;
-}
-
-
-void AddCodepagesToList (HANDLE hDlg, int nID, UINT nCodepage, bool bAllowAuto = true)
-{
-	g_hDlg = hDlg;
-	g_nID = nID;
-	g_nCodepage = nCodepage;
-
-	EnumSystemCodePagesW ((CODEPAGE_ENUMPROCW)EnumCodePages, CP_INSTALLED);
-
-	Dialog::SendDlgMessage(hDlg,DM_LISTSORT,nID,0);
-
-	FarListItem items[10];
-
-	memset(&items, 0, sizeof (items));
-
-	items[0].Text=L"Auto";
-
-	if ( nCodepage == CP_AUTODETECT ) //BUGBUG
-		items[0].Flags |= LIF_SELECTED;
-
-	items[2].Text=L"OEM";
-
-	if ( nCodepage == GetOEMCP() ) //BUGBUG
-		items[2].Flags |= LIF_SELECTED;
-
-	items[3].Text=L"ANSI";
-
-	if ( nCodepage == GetACP() ) //BUGBUG
-		items[3].Flags |= LIF_SELECTED;
-
-	items[5].Text=L"UTF-8";
-
-	if ( nCodepage == CP_UTF8 ) //BUGBUG
-		items[5].Flags |= LIF_SELECTED;
-
-	items[6].Text=L"UTF-7";
-
-	if ( nCodepage == CP_UTF7 ) //BUGBUG
-		items[6].Flags |= LIF_SELECTED;
-
-	items[7].Text=L"UNICODE";
-
-	if ( nCodepage == CP_UNICODE ) //BUGBUG
-		items[7].Flags |= LIF_SELECTED;
-
-	items[8].Text=L"REVERSEBOM";
-
-	if ( nCodepage == CP_REVERSEBOM ) //BUGBUG
-		items[8].Flags |= LIF_SELECTED;
-
-	items[1].Flags = LIF_SEPARATOR;
-	items[4].Flags = LIF_SEPARATOR;
-	items[9].Flags = LIF_SEPARATOR;
-
-	;
-	for(int i=0;i<(int)countof(items)-(bAllowAuto?0:2);i++)
-	{
-		FarListInsert li={i,items[i+(bAllowAuto?0:2)]};
-		Dialog::SendDlgMessage (hDlg,DM_LISTINSERT,nID,(LONG_PTR)&li);
-	}
-	FarListItemData data;
-
-	int index = bAllowAuto?0:2;
-	if(bAllowAuto)
-	{
-		//auto
-		data.Index = 0;
-		data.DataSize = 4;
-		data.Data = (void*)(DWORD_PTR)CP_AUTODETECT;
-
-		Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-	}
-	//oem
-	data.Index = 2-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)GetOEMCP();
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-	//ansi
-	data.Index = 3-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)GetACP();
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-
-	//utf-8
-	data.Index = 5-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)CP_UTF8;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-	//utf-7
-	data.Index = 6-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)CP_UTF7;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-	//unicode
-	data.Index = 7-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)CP_UNICODE;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-	//reverse bom
-	data.Index = 8-index;
-	data.DataSize = 4;
-	data.Data = (void*)(DWORD_PTR)CP_REVERSEBOM;
-
-	Dialog::SendDlgMessage (hDlg, DM_LISTSETDATA, nID, (LONG_PTR)&data);
-
-	FarListInfo info;
-	Dialog::SendDlgMessage(g_hDlg,DM_LISTINFO,nID,(LONG_PTR)&info);
-
-	for(int i=0;i<info.ItemsNumber;i++)
-	{
-		if((UINT)Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,nID,i)==nCodepage)
-		{
-			FarListPos Pos={i,-1};
-			Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,nID,(LONG_PTR)&Pos);
-			break;
-		}
-	}
-}
-
+#include "gettable.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,
@@ -238,7 +84,7 @@ LONG_PTR __stdcall hndOpenEditor (
 	{
 		int codepage = *(int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-		AddCodepagesToList (hDlg, ID_OE_CODEPAGE, codepage);
+		AddCodepagesToList (hDlg, ID_OE_CODEPAGE, codepage, true, false);
 	}
 
 	if ( msg == DN_CLOSE )
@@ -330,7 +176,7 @@ LONG_PTR __stdcall hndSaveFileAs (
 		case DN_INITDIALOG:
 		{
 			UINT codepage = *(UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false);
+			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
 			if(!IsUnicodeOrUTFCP(codepage))
 				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
 			break;
@@ -358,9 +204,9 @@ LONG_PTR __stdcall hndSaveFileAs (
 				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,IsUnicodeOrUTFCP((UINT)Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))?BSTATE_CHECKED:BSTATE_UNCHECKED);
 				return TRUE;
 			}
-			break;	
+			break;
 		}
-		
+
 	}
 	return Dialog::DefDlgProc (hDlg, msg, param1, param2);
 }
@@ -1162,7 +1008,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           string strFullSaveAsName = strFullFileName;
 
           bool AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
-          
+
           if ( SaveAs )
           {
             string strSaveAsName = Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;

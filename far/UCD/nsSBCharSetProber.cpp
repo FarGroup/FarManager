@@ -56,9 +56,9 @@ nsProbingState nsSingleByteCharSetProber::HandleData(const char* aBuf, PRUint32 
       {
         mTotalSeqs++;
         if (!mReversed)
-          ++(mSeqCounters[mModel->precedenceMatrix[mLastOrder*SAMPLE_SIZE+order]]);
+          ++(mSeqCounters[(unsigned)mModel->precedenceMatrix[mLastOrder*SAMPLE_SIZE+order]]);
         else // reverse the order of the letters in the lookup
-          ++(mSeqCounters[mModel->precedenceMatrix[order*SAMPLE_SIZE+mLastOrder]]);
+          ++(mSeqCounters[(unsigned)mModel->precedenceMatrix[order*SAMPLE_SIZE+mLastOrder]]);
       }
     }
     mLastOrder = order;
@@ -111,7 +111,7 @@ float nsSingleByteCharSetProber::GetConfidence(void)
 #endif
 }
 
-const char* nsSingleByteCharSetProber::GetCharSetName() 
+const char* nsSingleByteCharSetProber::GetCharSetName()
 {
   if (!mNameProber)
     return mModel->charsetName;

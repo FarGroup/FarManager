@@ -291,6 +291,7 @@ clean:
 	@$(RM) $(EXEDIR)/FarEng.lng
 	@$(RM) $(EXEDIR)/FarRus.lng
 	@$(RM) $(EXEDIR)/FarCze.lng
+	@$(RM) $(EXEDIR)/FarGer.lng
 	@$(RM) farlang.templ lang.hpp lang.ini
 	@$(RM) $(EXEDIR)/FarEng.hlf
 	@$(RM) $(EXEDIR)/FarRus.hlf

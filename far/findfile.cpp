@@ -61,76 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "syslog.hpp"
 #include "localOEM.hpp"
-
-
-/* BUGBUG времено, пока не доделан юникод */
-char* WINAPI RemoveTrailingSpacesA(char *Str);
-
-void TransformA(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
-{
-  int I,J,L,N;
-  char *stop,HexNum[3];
-
-  switch(TransformType)
-  {
-    case 'X': // Convert common string to hexadecimal string representation
-    {
-      *(char *)Buffer=0;
-      L=(int)strlen(ConvStr);
-      N=Min((BufLen-1)/2,L);
-      for (I=0,J=0;I<N;I++,J+=2)
-      {
-        // "%02X" - два выходящих символа на каждый один входящий
-        sprintf((char *)Buffer+J,"%02X",ConvStr[I]);
-        BufLen=J+1;
-      }
-
-      RemoveTrailingSpacesA((char *)Buffer);
-      break;
-    }
-    case 'S': // Convert hexadecimal string representation to common string
-    {
-      *(char *)Buffer=0;
-
-      L=(int)strlen(ConvStr);
-      char *NewStr=new char[L+1];
-      if (NewStr==NULL)
-        return;
-
-      // Подготовка временной строки
-      memset(NewStr,0,L+1);
-
-      // Обработка hex-строки: убираем пробелы между байтами.
-      for (I=0,J=0;ConvStr[I];++I)
-      {
-        if (ConvStr[I]==' ')
-          continue;
-        NewStr[J]=ConvStr[I];
-        ++J;
-      }
-
-      L=(int)strlen(NewStr);
-      N=Min(BufLen-1,L);
-      for (I=0,J=0;I<N;I+=2,J++)
-      {
-        // "HH" - два входящих символа на каждый один выходящий
-        xstrncpy(HexNum,&NewStr[I],2);
-        HexNum[2]=0;
-        unsigned long value=strtoul(HexNum,&stop,16);
-        Buffer[J]=static_cast<unsigned char>(value);
-        BufLen=J+1;
-      }
-      Buffer[J]=0;
-
-      delete []NewStr;
-      break;
-    }
-    default:
-      break;
-  }
-}
-/* BUGBUG времено, пока не доделан юникод */
-
+#include "gettable.hpp"
+#include "registry.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74
@@ -184,6 +116,24 @@ static UINT CodePage = (UINT)-1;
 static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
 
+static const unsigned int readBufferSize = 32768;
+static const unsigned int readBufferSizeW = sizeof(wchar_t)*readBufferSize;
+static char *readBuffer;
+static wchar_t *readBufferW;
+static int codePagesCount;
+static struct CodePageInfo
+{
+	UINT CodePage;
+	UINT MaxCharSize;
+	wchar_t LastSymbol;
+	bool WordFound;
+} *codePages;
+static unsigned char *hexFindString;
+static size_t hexFindStringSize;
+static wchar_t *findString;
+
+static size_t *skipCharsTable; /* Officially called: bad character shift */
+
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
    файла на совпадение с искомым.
@@ -208,6 +158,158 @@ int _cdecl SortItems(const void *p1,const void *p2)
   CutToSlash(strN1);
   CutToSlash(strN2);
   return StrCmpI(strN2,strN1);
+}
+
+void InitInFileSearch()
+{
+	if (!strFindStr.IsEmpty())
+	{
+		size_t findStringCount = strFindStr.GetLength();
+		// Инициализируем буферы чтения из файла
+		readBuffer = (char *)xf_malloc(readBufferSize);
+		readBufferW = (wchar_t *)xf_malloc(readBufferSizeW);
+
+		if (!SearchHex)
+		{
+			// Формируем строку поиска
+			if (!CmpCase)
+			{
+				findString = (wchar_t *)xf_malloc(2*findStringCount*sizeof(wchar_t));
+				for (size_t index = 0; index<strFindStr.GetLength(); index++)
+				{
+					wchar_t ch = strFindStr[index];
+					if (IsCharLowerW(ch))
+					{
+						findString[index]=Upper(ch);
+						findString[index+findStringCount]=ch;
+					}
+					else
+					{
+						findString[index]=ch;
+						findString[index+findStringCount]=Lower(ch);
+					}
+				}
+			}
+			else
+				findString = strFindStr.GetBuffer();
+
+			// Инизиализируем данные для аглоритма поиска
+			skipCharsTable = (size_t *)xf_malloc((WCHAR_MAX+1)*sizeof(size_t));
+			for (size_t index = 0; index < WCHAR_MAX+1; index++)
+				skipCharsTable[index] = findStringCount;
+			for (size_t index = 0; index < findStringCount-1; index++)
+				skipCharsTable[findString[index]] = findStringCount-1-index;
+			if (!CmpCase)
+				for (size_t index = 0; index < findStringCount-1; index++)
+					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
+
+			// Формируем список кодовых страниц
+			if (UseAllTables)
+			{
+				// Добавляем стандартные таблицы символов
+				const int standardCodePagesCount = 6;
+				codePagesCount = standardCodePagesCount;
+				codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
+				codePages[0].CodePage = GetOEMCP();
+				codePages[1].CodePage = GetACP();
+				codePages[2].CodePage = CP_UTF7;
+				codePages[3].CodePage = CP_UTF8;
+				codePages[4].CodePage = CP_UNICODE;
+				codePages[5].CodePage = CP_REVERSEBOM;
+				// Добавляем выбранные таблицы символов
+				DWORD data;
+				UnicodeString codePageName;
+				while (EnumRegValue(L"CodeTables\\Selected", (DWORD)codePagesCount-standardCodePagesCount, codePageName, (BYTE *)&data, sizeof(data)))
+				{
+					if (data)
+					{
+						UINT codePage = _wtoi(codePageName);
+						if (codePage != codePages[0].CodePage && codePage != codePages[1].CodePage)
+						{
+							codePages = (CodePageInfo *)xf_realloc((void *)codePages, ++codePagesCount*sizeof(CodePageInfo));
+							codePages[codePagesCount-1].CodePage = codePage;
+						}
+					}
+				}
+			}
+			else
+			{
+				codePagesCount = 1;
+				codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
+				codePages[0].CodePage = CodePage;
+			}
+			for (int index = 0; index<codePagesCount; index++)
+			{
+				CodePageInfo *cp = codePages+index;
+				if (IsUnicodeCP(CodePage))
+					cp->MaxCharSize = 2;
+				else
+				{
+					CPINFO cpi;
+					if (!GetCPInfo(CodePage, &cpi))
+						cpi.MaxCharSize = 0; //Считаем, что ошибка и потом такие таблицы в поиске пропускаем
+					cp->MaxCharSize = cpi.MaxCharSize;
+				}
+				cp->LastSymbol = NULL;
+				cp->WordFound = false;
+			}
+		}
+		else
+		{
+			// Формируем hex-строку для поиска
+			hexFindStringSize = 0;
+			if (SearchHex)
+			{
+				bool flag = false;
+				hexFindString = (unsigned char *)xf_malloc((findStringCount-findStringCount/3+1)/2);
+				for (size_t index = 0; index < strFindStr.GetLength(); index++)
+				{
+					wchar_t symbol = strFindStr.At(index);
+					byte offset = 0;
+					if (symbol >= L'a' && symbol <= L'f')
+						offset = 87;
+					else if (symbol >= L'A' && symbol <= L'F')
+						offset = 55;
+					else if (symbol >= L'0' && symbol <= L'9')
+						offset = 48;
+					else
+						continue;
+
+					if (!flag)
+						hexFindString[hexFindStringSize++] = ((byte)symbol-offset)<<4;
+					else
+						hexFindString[hexFindStringSize-1] |= ((byte)symbol-offset);
+
+					flag = !flag;
+				}
+			}
+
+			// Инизиализируем данные для аглоритма поиска
+			skipCharsTable = (size_t *)xf_malloc((255+1)*sizeof(size_t));
+			for (size_t index = 0; index < 255+1; index++)
+				skipCharsTable[index] = hexFindStringSize;
+			for (size_t index = 0; index < (size_t)hexFindStringSize-1; index++)
+				skipCharsTable[hexFindString[index]] = hexFindStringSize-1-index;
+		}
+	}
+}
+
+void ReleaseInFileSearch()
+{
+	if (!strFindStr.IsEmpty())
+	{
+		xf_free(readBuffer);
+		xf_free(readBufferW);
+		xf_free(skipCharsTable);
+		if (!SearchHex)
+		{
+			xf_free(codePages);
+			if (!CmpCase)
+				xf_free(findString);
+		}
+		else
+			xf_free(hexFindString);
+	}
 }
 
 LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
@@ -275,20 +377,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       CodePage=Opt.CharTable.CodePage;
       /* -------------------------------------- */
 
-      string strTableName;
-
-      if (UseAllTables)
-        strTableName = MSG(MFindFileAllTables);
-      else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
-        strTableName = L"Unicode";
-      else if (CodePage == GetACP())
-        strTableName = L"ANSI";
-      else
-        strTableName = L"OEM";
-
-      RemoveChar(strTableName,L'&',TRUE);
-
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(LONG_PTR)(const wchar_t*)strTableName);
+			AddCodepagesToList(hDlg, 8, UseAllTables ? CP_AUTODETECT : CodePage, false, true);
 
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
@@ -304,26 +393,13 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       if (Param1==8)
       {
-        /* $ 20.09.2003 KM
-           Добавим поддержку ANSI таблицы
-        */
-        UseAllTables=(Param2==0);
-        CodePage = GetOEMCP();
-        if (Param2==3)
-          CodePage = GetACP();
-        else if (Param2 == 4)
-          CodePage = CP_UNICODE;
-
-        string strTableName;
-
-        if (UseAllTables)
-          strTableName = MSG(MFindFileAllTables);
-        else if (CodePage == CP_UNICODE || CodePage == CP_REVERSEBOM)
-          strTableName = L"Unicode";
-        else if (CodePage == GetACP())
-          strTableName = L"ANSI";
-        else
-          strTableName = L"OEM";
+				FarListPos pos;
+				Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, 8, (LONG_PTR)&pos);
+				UINT cp = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, 8, pos.SelectPos);
+				UseAllTables = (cp == CP_AUTODETECT);
+				if (!UseAllTables) {
+					CodePage = cp;
+				}
       }
       return TRUE;
     }
@@ -493,18 +569,6 @@ FindFiles::FindFiles()
 
   strSearchFromRoot = MSG(MSearchFromRootFolder);
 
-  FarList TableList;
-  FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*CHAR_TABLE_SIZE);
-  TableList.Items=TableItem;
-  TableList.ItemsNumber=CHAR_TABLE_SIZE;
-
-  memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
-  TableItem[0].Text=MSG(MFindFileAllTables);
-  TableItem[1].Flags=LIF_SEPARATOR;
-  TableItem[2].Text=L"OEM";
-  TableItem[3].Text=L"ANSI";
-  TableItem[4].Text=L"Unicode";
-
   FindList = NULL;
   ArcList = NULL;
   hPluginMutex=CreateMutexW(NULL,FALSE,NULL);
@@ -654,8 +718,6 @@ FindFiles::FindFiles()
     {
       int ExitCode;
       {
-        FindAskDlg[8].ListItems=&TableList;
-
 				Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
         Dlg.SetHelp(L"FindFile");
@@ -669,16 +731,15 @@ FindFiles::FindFiles()
 
       if (ExitCode!=31)
       {
-        for(int i=CHAR_TABLE_SIZE+1;i<TableList.ItemsNumber;i++)
-          xf_free((void*)TableItem[i].Text);
-        xf_free(TableItem);
         CloseHandle(hPluginMutex);
         return;
       }
 
       /* Запоминание установленных параметров */
       Opt.CharTable.AllTables=UseAllTables;
-      Opt.CharTable.CodePage=CodePage;
+			if (!UseAllTables) {
+				Opt.CharTable.CodePage=CodePage;
+			}
       /****************************************/
 
       /* $ 01.07.2001 IS
@@ -751,9 +812,6 @@ FindFiles::FindFiles()
       Editor::SetReplaceMode(FALSE);
   } while (FindFilesProcess());
   CloseHandle(hPluginMutex);
-  for(int i=CHAR_TABLE_SIZE+1;i<TableList.ItemsNumber;i++)
-    xf_free((void*)TableItem[i].Text);
-  xf_free(TableItem);
   CtrlObject->Cp()->ActivePanel->SetTitle();
 }
 
@@ -1819,6 +1877,8 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 
 			statusCS.Leave ();
 
+			InitInFileSearch();
+
 			while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
 			{
 				while (PauseSearch)
@@ -1859,6 +1919,9 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 			if (SearchMode!=FFSEARCH_SELECTED)
 				break;
 		}
+
+		ReleaseInFileSearch();
+
 	}
 }
 void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
@@ -2333,282 +2396,294 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
 
 }
 
+// Алгоритма Бойера-Мура-Хорспула поиска подстроки (Unicode версия)
+const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount)
+{
+	size_t findStringCount = strFindStr.GetLength();
+	const wchar_t *buffer = searchBuffer;
+	const wchar_t *findStringLower = CmpCase ? NULL : findString+findStringCount;
+	size_t lastBufferChar = findStringCount-1;
+	while (searchBufferCount>=findStringCount)
+	{
+		for (size_t index = lastBufferChar; buffer[index]==findString[index] || (CmpCase ? 0 : buffer[index]==findStringLower[index]); index--)
+			if (index == 0)
+				return static_cast<int>(buffer-searchBuffer);
+		size_t offset = skipCharsTable[buffer[lastBufferChar]];
+		searchBufferCount -= offset;
+		buffer += offset;
+	}
+	return -1;
+}
+
+// Алгоритма Бойера-Мура-Хорспула поиска подстроки (Char версия)
+const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount)
+{
+	const unsigned char *buffer = searchBuffer;
+	size_t lastBufferChar = hexFindStringSize-1;
+	while (searchBufferCount>=hexFindStringSize)
+	{
+		for (size_t index = lastBufferChar; buffer[index]==hexFindString[index]; index--)
+			if (index == 0)
+				return static_cast<int>(buffer-searchBuffer);
+		size_t offset = skipCharsTable[buffer[lastBufferChar]];
+		searchBufferCount -= offset;
+		buffer += offset;
+	}
+	return -1;
+}
+
+// Проверяем символ на принадлежность разделителям слов
+bool IsWordDiv(const wchar_t symbol) {
+	// Проверяем символ на принадлежность FAR-м разделителям
+	wchar_t *wordDiv = Opt.strWordDiv.GetBuffer();
+	size_t length = Opt.strWordDiv.GetLength();
+	for (size_t index = 0; index<length; index++) {
+		if (symbol == wordDiv[index]) {
+			return true;
+		}
+	}
+	// Так же разделителем является конец строки и пробельные символы
+	return symbol==0||IsSpace(symbol)||IsEol(symbol) ? true : false;
+}
 
 int FindFiles::LookForString(const wchar_t *Name)
 {
-	int Length;
-	if ((Length=(int)strFindStr.GetLength())==0)
-    	return(TRUE);
+	#define RETURN(r) { result = (r); goto exit; }
+	#define CONTINUE(r) { if ((r) || !UseAllTables || (cpIndex==codePagesCount-1)) RETURN(r) else continue; }
 
-	char FindStr[512];
-	WideCharToMultiByte (CP_OEMCP, 0, strFindStr, -1, FindStr, 512, NULL, NULL);
-
-	HANDLE FileHandle=apiCreateFile (Name, FILE_READ_ATTRIBUTES|FILE_READ_DATA|FILE_WRITE_ATTRIBUTES,
-									FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
-	FILETIME LastAccess;
-	int TimeRead=0;
-	if (FileHandle==INVALID_HANDLE_VALUE)
-		FileHandle=apiCreateFile (Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
-								OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	// Длина строки поиска
+	size_t findStringCount;
+	// Если строки поиска пустая, то считаем, что мы всегда что-нибудь найдём
+	if ((findStringCount = strFindStr.GetLength()) == 0)
+		return (TRUE);
+	// Результат поиска
+	BOOL result = FALSE;
+	// Открываем файл
+	HANDLE fileHandle = apiCreateFile(
+			Name,
+			FILE_READ_ATTRIBUTES | FILE_READ_DATA | FILE_WRITE_ATTRIBUTES,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL,
+			OPEN_EXISTING,
+			FILE_FLAG_SEQUENTIAL_SCAN
+		);
+	// Время последнего доступа к файлу (нужно для его восстановления после поиска)
+	FILETIME lastAccessTime;
+	// Признак того, что время доуступа к файлу было получено
+	BOOL isTimeReaded = FALSE;
+	// Если файл не удалось открыть изначальным способом, то пытаемся получить к нему
+	// доступ только на чтение, иначе получаем запоминаем последнего доступа к файлу
+	if (fileHandle == INVALID_HANDLE_VALUE)
+		// Открыаем файл только на чтение
+		fileHandle = apiCreateFile(
+				Name,
+				FILE_READ_DATA,
+				FILE_SHARE_READ | FILE_SHARE_WRITE,
+				NULL,
+				OPEN_EXISTING,
+				FILE_FLAG_SEQUENTIAL_SCAN
+			);
 	else
-		TimeRead=GetFileTime (FileHandle, NULL, &LastAccess, NULL);
+		// Запоминаем время последнего доуступа к файлу
+		isTimeReaded = GetFileTime(fileHandle, NULL, &lastAccessTime, NULL);
+	// Если файл открыть не удалось, то считаем, что ничего не нашли
+	if (fileHandle==INVALID_HANDLE_VALUE)
+		return (FALSE);
 
-	if (FileHandle==INVALID_HANDLE_VALUE) return (FALSE);
-
-	char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
-	int ReadSize=0,SaveReadSize=0;
-
+	// Количество считанных из файла байт
+	DWORD readBlockSize = 0;
+	// Количество прочитанных из файла байт
+	unsigned __int64 alreadyRead = _i64(0);
+	// Смещение на которое мы отступили при переходе между блоками
+	int offset=0;
 	if (SearchHex)
+		offset = (int)hexFindStringSize-1;
+
+	// Основной цикл чтения из файла
+	while (!StopSearch && ReadFile(fileHandle, readBuffer, !EnableSearchInFirst || alreadyRead+readBufferSize<=(unsigned __int64)SearchInFirst ? readBufferSize : static_cast<int>(SearchInFirst-alreadyRead), &readBlockSize, NULL))
 	{
-		int LenCmpStr=sizeof(CmpStr);
-		TransformA((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
-		Length=LenCmpStr;
-	}
-	else
-	{
-		xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-	}
-
-	if (!CmpCase && !SearchHex)
-		LocalStrupr(CmpStr);
-
-	char *lpWordDiv = NULL;
-	if (WholeWords && !SearchHex)
-	{
-		lpWordDiv = (char *) xf_malloc(Opt.strWordDiv.GetLength()+1);
-		Opt.strWordDiv.GetCharString(lpWordDiv, Opt.strWordDiv.GetLength()+1);
-	}
-
-	int FirstIteration=TRUE;
-	int ReverseBOM=FALSE;
-	int IsFirst=FALSE;
-
-	// Уже считано из файла. Используется для сравнения
-	// с максимальным размером, в котором производится поиск
-	__int64 AlreadyRead=_i64(0);
-
-	while ( !StopSearch && ReadFile (FileHandle, Buf, countof(Buf), ((LPDWORD)&ReadSize), NULL) )
-	{
-		if (ReadSize==0) break;
-		/* $ 12.04.2005 KM
-		Если используется ограничение по поиску на размер чтения из файла,
-		проверим не перешли ли мы уже границу максимально допустимого размера
-		*/
-		if (EnableSearchInFirst && SearchInFirst)
+		// Увеличиваем счётчик прочитыннх байт
+		alreadyRead += readBlockSize;
+		// Для hex и обыкновенного поиска разные ветки
+		if (SearchHex)
 		{
-			if (AlreadyRead+ReadSize>SearchInFirst)
-			{
-				ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
-			}
-
-			if (ReadSize<=0) break;
-
-			AlreadyRead+=ReadSize;
+			// Выходим, если ничего не прочитали или прочитали мало
+			if (readBlockSize == 0 || readBlockSize<hexFindStringSize)
+				RETURN (FALSE)
+			// Ищем
+			if (FindStringBMH((unsigned char *)readBuffer, readBlockSize)!=-1)
+				RETURN (TRUE)
 		}
-
-		int ANSISearch=CodePage==GetACP();
-		int UnicodeSearch=CodePage==CP_UNICODE;
-		int RealReadSize=ReadSize;
-
-		// Сначала в поиске используем внутренние кодировки: OEM, ANSI и Unicode
-		int UseInnerTables=true;
-
-		/* $ 22.09.2003 KM
-		   Поиск по hex-кодам
-		*/
-		if (!SearchHex)
+		else
 		{
-			if (UseAllTables || UnicodeSearch)
+			for (int cpIndex = 0; cpIndex<codePagesCount; cpIndex++)
 			{
-				// Раз поиск идёт по всем кодировкам или в юникоде,
-				// запомним считанный размер буфера
-				SaveReadSize=ReadSize;
-
-				// А также запомним считанный буфер.
-				memcpy(SaveBuf,Buf,ReadSize);
-
-			/* $ 21.10.2000 SVS
-			   Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
-			*/
-				if(!IsFirst)
+				// Информация о кодовой странице
+				CodePageInfo *cpi = codePages+cpIndex;
+				// Пропускаем ошибочные кодовые страницы
+				if (!cpi->MaxCharSize)
+					CONTINUE (FALSE)
+				// Если начало файла очищаем информацию о поиске по словам
+				if (WholeWords && alreadyRead==readBlockSize)
 				{
-					IsFirst=TRUE;
-					if(*(WORD*)Buf == 0xFFFE)	// The text contains the Unicode
-					ReverseBOM=TRUE;			// byte-reversed byte-order mark
-												// (Reverse BOM) 0xFFFE as its first character.
+					cpi->WordFound = false;
+					cpi->LastSymbol = NULL;
 				}
-			}
-		}
-
-		while (1)
-		{
-			/* $ 22.09.2003 KM
-			   Поиск по hex-кодам
-			*/
-			if (!SearchHex)
-			{
-				if (UnicodeSearch)
+				// Если ничего не прочитали
+				if (readBlockSize == 0)
+					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
+					// то считаем, что нашли то, что нужно
+					CONTINUE (WholeWords && cpi->WordFound)
+				// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
+				if (readBlockSize < findStringCount && !(WholeWords && cpi->WordFound))
+					CONTINUE (FALSE)
+				// Количество символов в выходном буфере
+				unsigned int bufferCount;
+				// Буфер для поиска
+				wchar_t *buffer;
+				// Перегоняем буфер в UTF-16
+				if (IsUnicodeCP(cpi->CodePage))
 				{
-					char BOMBuf[sizeof(SaveBuf)];
-					char *BufPtr=SaveBuf;
-
-					if(ReverseBOM)
+					// Вычисляем размер буфера в UTF-16
+					bufferCount = readBlockSize/sizeof(wchar_t);
+					// Выходим, если размер буфера меньше длины строки посика
+					if (bufferCount < findStringCount)
+						CONTINUE (FALSE)
+					// Копируем буфер чтения в буфер сравнения
+					if (cpi->CodePage==CP_REVERSEBOM)
 					{
-						BufPtr=BOMBuf;
-
-						for(int I=0; I < SaveReadSize; I+=2)
-						{
-							BOMBuf[I]=SaveBuf[I+1];
-							BOMBuf[I+1]=SaveBuf[I];
-						}
-					}
-
-					WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)BufPtr,SaveReadSize/2,Buf,sizeof(Buf),NULL,NULL);
-					ReadSize=SaveReadSize/2;
-				}
-				else
-				{
-					// Если поиск идёт по всем кодировкам, восстановим запомненный буфер
-					// и его размер для поиска в оригинальных считанных данных в другой кодировке
-					if (UseAllTables)
-					{
-						ReadSize=SaveReadSize;
-						memcpy(Buf,SaveBuf,ReadSize);
-					}
-
-					/* $ 20.09.2003 KM
-					  Добавим поддержку ANSI таблицы
-					*/
-					if (ANSISearch)
-					{
-					  //BUGBUG!!!!!
-					}
-				}
-				if (!CmpCase)
-					LocalUpperBuf(Buf,ReadSize);
-			}
-
-			int CheckSize=ReadSize-Length+1;
-			/* $ 30.07.2000 KM
-			  Обработка "Whole words" в поиске
-			*/
-			for (int I=0;I<CheckSize;I++)
-			{
-				int cmpResult;
-				int locResultLeft=FALSE;
-				int locResultRight=FALSE;
-
-				/* $ 22.09.2003 KM
-				  Поиск по hex-кодам
-				*/
-
-				if (WholeWords && !SearchHex)
-				{
-					if (!FirstIteration)
-					{
-						if (IsSpaceA(Buf[I-1]) || IsEolA(Buf[I-1]) ||
-							(strchr(lpWordDiv,Buf[I-1])!=NULL))
-							locResultLeft=TRUE;
+						// Для UTF-16 (big endian) преобразуем буфер чтения в буфер сравнения
+						bufferCount = LCMapStringW(
+								LOCALE_NEUTRAL,//LOCALE_INVARIANT,
+								LCMAP_BYTEREV,
+								(wchar_t *)readBuffer,
+								(int)bufferCount,
+								readBufferW,
+								(int)readBufferSizeW
+							);
+						if (!bufferCount)
+							CONTINUE (FALSE)
+						// Устанавливаем буфер стравнения
+						buffer = readBufferW;
 					}
 					else
 					{
-						FirstIteration=FALSE;
-						locResultLeft=TRUE;
+						// Если поиск в UTF-16 (little endian), то используем исходный буфер
+						buffer = (wchar_t *)readBuffer;
 					}
-
-					if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
-						locResultRight=TRUE;
-					else
-						if (I+Length<RealReadSize &&
-							(IsSpaceA(Buf[I+Length]) || IsEolA(Buf[I+Length]) ||
-							(strchr(lpWordDiv,Buf[I+Length])!=NULL)))
-								locResultRight=TRUE;
 				}
 				else
 				{
-					locResultLeft=TRUE;
-					locResultRight=TRUE;
-				}
-
-				cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
-					(Length==1 || (CmpStr[1]==Buf[I+1] &&
-					(Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0)));
-
-				if (cmpResult)
-				{
-					if (lpWordDiv)
-						xf_free (lpWordDiv);
-					if (TimeRead)
-						SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-					CloseHandle (FileHandle);
-					return(TRUE);
-				}
-			}
-			/* $ 22.09.2003 KM
-			  Поиск по hex-кодам
-			*/
-			if (UseAllTables && !SearchHex)
-			{
-				if (!ANSISearch && !UnicodeSearch && UseInnerTables)
-				{
-					// Раз не нашли в OEM кодировке, поищем теперь в ANSI.
-					ANSISearch=true;
-				}
-				else
-				{
-					if (!UnicodeSearch && UseInnerTables)
+					// Конвертируем буфер чтения из кодировки поиска в UTF-16
+					bufferCount = MultiByteToWideChar(
+							cpi->CodePage,
+							0,
+							(char *)readBuffer,
+							readBlockSize,
+							readBufferW,
+							readBufferSizeW
+						);
+					// Выходим, если нам не удалось сконвертировать строку
+					if (!bufferCount)
+						CONTINUE (FALSE)
+					// Если прочитали меньше размера строки поиска и поиска по словам, то проверяем
+					// первый символ блока на разделитель и выходим
+					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
+					if (WholeWords && cpi->WordFound)
 					{
-						// Не нашли в ANSI кодировке, поищем теперь в Unicode.
-						UnicodeSearch=true;
-						ANSISearch=false;
+						// Если конец файла, то считаем, что есть разделитель в конце
+						if (findStringCount-1>=bufferCount)
+							RETURN (TRUE)
+						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
+						// при переходе между блоками
+						cpi->LastSymbol = readBufferW[findStringCount-1];
+						if (IsWordDiv(cpi->LastSymbol))
+							RETURN (TRUE)
+						// Если размер буфера меньше размера слова, то выходим
+						if (readBlockSize < findStringCount)
+							CONTINUE (FALSE)
 					}
-					else
-					{
-						// Внутренние таблицы все прошли, теперь примемся искать в пользовательских
-						UseInnerTables=false;
+					// Устанавливаем буфер стравнения
+					buffer = readBufferW;
+				}
 
-						UnicodeSearch=false;
-						ANSISearch=false;
-
-						// Не нашли ни в OEM, ни в ANSI, ни в Unicode, значит будем искать
-						// в установленных пользовательских кодировках.
-						// ... какой то код тут ... BUGBUG
-
+				unsigned int index = 0;
+				do
+				{
+					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
+					int foundIndex = FindStringBMH(buffer+index, bufferCount-index);
+					// Если подстрока не найдена идём на следующий шаг
+					if (foundIndex == -1)
 						break;
+					// Если посдстрока найдена и отключен поиск по словам, то считаем что всё хорошо
+					if (!WholeWords)
+						RETURN (TRUE)
+					// Устанавливаем позицию в исходном буфере
+					index += foundIndex;
+					// Если идёт поиск по словам, то делаем соответвующие проверки
+					bool firstWordDiv = false;
+					// Если мы находимся вначале блока
+					if (index == 0)
+					{
+						// Если мы находимся вначале файла, то считаем, что разделитель есть
+						// Если мы находимся вначале блока, то проверяем является
+						// или нет последний символ предыдущего блока разделителем
+						if (alreadyRead==readBlockSize || IsWordDiv(cpi->LastSymbol))
+							firstWordDiv = true;
 					}
-				}
+					else
+					{
+							// Проверяем является или нет предыдущий найденому символ блока разделителем
+							cpi->LastSymbol = buffer[index-1];
+							if (IsWordDiv(cpi->LastSymbol))
+								firstWordDiv = true;
+					}
+					// Проверяем разделитель в конце, только если найден разделитель вначале
+					if (firstWordDiv)
+					{
+						// Если блок выбран не до конца
+						if (index+findStringCount!=bufferCount)
+						{
+							// Проверяем является или нет последующий за найденым символ блока разделителем
+							cpi->LastSymbol = buffer[index+findStringCount];
+							if (IsWordDiv(cpi->LastSymbol))
+								RETURN (TRUE)
+						}
+						else
+							cpi->WordFound = true;
+					}
+				} while (++index<=bufferCount-findStringCount);
+
+				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
+				if (EnableSearchInFirst && (unsigned __int64)SearchInFirst>=alreadyRead)
+					CONTINUE (FALSE)
+				// Запоминаем последний символ блока
+				cpi->LastSymbol = buffer[bufferCount-1];
 			}
-			else
-				break;
+			// Получаем смещение на которое мы отступили при переходе между блоками
+			offset = (int)((UseAllTables?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
 		}
-
-		if (RealReadSize==countof(Buf))
+		// Если мы потенциально прочитали не весь файл
+		if (readBlockSize==readBufferSize)
 		{
-			/* $ 22.09.2003 KM
-			  Поиск по hex-кодам
-			*/
-			/* $ 30.07.2000 KM
-			  Изменение offset при чтении нового блока с учётом WordDiv
-			*/
-			//При поиске по всем таблицам из за того что поиск происходит также и в Юникоде
-			//поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторён
-			//но если так не делать то при поиске по всем таблицам в Юникоде не будут
-			//находится тоже количество кусков.
-			int offset=(Length/*+1*/);
-			if ((UseAllTables || UnicodeSearch) && !SearchHex) offset*=2;
-
-			if (apiSetFilePointerEx(FileHandle, -offset, NULL, FILE_CURRENT))
-			{
-				if ((EnableSearchInFirst && SearchInFirst) ) AlreadyRead-=offset;
-			}
+			// Отступаем назад на длину слова поиска минус 1
+			if (!apiSetFilePointerEx(fileHandle, -1*offset, NULL, FILE_CURRENT))
+				RETURN (FALSE)
+			alreadyRead -= offset;
 		}
 	}
-	if (lpWordDiv)
-		xf_free (lpWordDiv);
-	if (TimeRead)
-		SetFileTime(FileHandle,NULL,&LastAccess,NULL);
-	CloseHandle (FileHandle);
-	return (FALSE);
+
+exit:
+	// Восстаналиваем время доступа
+	if (isTimeReaded)
+		SetFileTime(fileHandle, NULL, &lastAccessTime, NULL);
+	// Закрываем хэндл файла
+	CloseHandle(fileHandle);
+	// Возвращаем результат
+	return (result);
+
+	#undef CONTINUE
+	#undef RETURN
 }
 
 void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)

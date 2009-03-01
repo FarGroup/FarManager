@@ -509,7 +509,7 @@ void VMenu::ShowMenu(int IsParent)
         if (I>0 && I<ItemCount-1 && SepWidth>3)
           for (unsigned int J=0;Ptr[J+3]!=0;J++)
           {
-            if (Item[I-1]->strName.At(J)==0)
+            if (Item[I-1]->strName.At(J)==0 && Item[I+1]->strName.At(J)==0)
               break;
             if (Item[I-1]->strName.At(J)==BoxSymbols[BS_V1])
             {
@@ -521,6 +521,14 @@ void VMenu::ShowMenu(int IsParent)
               else
                 Ptr[J-Correction+2]=BoxSymbols[BS_B_H1V1];
             }
+						else if (Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
+						{
+							int Correction=0;
+							if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J)!=NULL)
+								Correction=1;
+							if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
+								Ptr[J-Correction+2]=BoxSymbols[BS_T_H1V1];
+						}
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         SetColor(VMenu::Colors[VMenuColorSeparator]);

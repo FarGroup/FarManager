@@ -5901,10 +5901,10 @@ l:
 "Tabellen"
 
 MGetTableBottomTitle
-"CtrlH, Ins"
-"CtrlH, Ins"
-"CtrlH, Ins"
-"StrgH, Einf"
+"Ctrl-H, Del, Ins"
+"Ctrl-H, Del, Ins"
+"Ctrl-H, Del, Ins"
+"Strg-H, Entf, Einf"
 
 MHighlightTitle
 l:
@@ -5978,24 +5978,24 @@ MHighlightColors
 " Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
 " File name colors (\"black on black\" - default color) "
 " Barva názvu souborů (\"černá na černé\" - výchozí barva) "
-" Dateinamenfarben (\"Schwarz auf Blau\"=Standard) "
+" Dateinamenfarben (\"Schwarz auf Schwarz\"=Standard) "
 
 MHighlightFileName1
 "&1. Обычное имя файла                "
 "&1. Normal file name               "
-"&1. Normální soubor"
+"&1. Normální soubor            "
 "&1. Normaler Dateiname             "
 
 MHighlightFileName2
 "&3. Помеченное имя файла             "
 "&3. Selected file name             "
-"&3. Vybraný soubor"
+"&3. Vybraný soubor             "
 "&3. Markierter Dateiame            "
 
 MHighlightFileName3
 "&5. Имя файла под курсором           "
 "&5. File name under cursor         "
-"&5. Soubor pod kurzorem"
+"&5. Soubor pod kurzorem        "
 "&5. Dateiname unter Cursor         "
 
 MHighlightFileName4

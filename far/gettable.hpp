@@ -39,4 +39,6 @@ inline bool IsUnicodeOrUTFCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(
 
 UINT GetTableEx(UINT nCurrent, bool bShowUnicode, bool bShowUTF);
 
+void AddCodepagesToList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
+
 #endif	// __GETTABLE_HPP__
