@@ -47,9 +47,9 @@ Global variables can be <a href="functions.html#msave">stored</a> in the <dfn>Va
 
 <h3>Representation in registry</h3>
 <div class=descr>
-<p>¬ реестре глобальные переменные располагаютс€ в специальной ветке <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros\Vars]</code>.
-<p> ажда€ глобальна€ переменна€ имеет им€ и может быть трех типов REG_SZ (дл€ строковых констант) и REG_DWORD или REG_QDWORD (дл€ целочисленных констант).
-≈сли изначально константа имела тип REG_DWORD, то при сохранении с помощью функции <a href="functions.html#msave">msave</a> тип мен€етс€ на REG_QDWORD.
+<p>In the registry, global variables are stored in the special key <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros\Vars]</code>.
+<p>Every global variable has a name and can be of three types REG_SZ (for string variables) and REG_DWORD or REG_QDWORD (for integer variables).
+If a variable had REG_DWORD type initially, it changes type to REG_QDWORD during saving with <a href="functions.html#msave">msave</a> function.
 </div>
 
 <h3>Notes</h3>

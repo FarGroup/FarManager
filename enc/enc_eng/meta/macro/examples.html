@@ -115,7 +115,7 @@ $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
 </pre>
 
 
-<p><p>Следующий макрос служит для того чтобы помечать вместе с htm-файлом и парную ему папку:
+<p><p>This macro is intended to highlight HTML file/folder pairs:
 <pre class=code>
 %Current=APanel.Current;
 %Ext=substr(%Current,len(%Current)-6);
@@ -126,19 +126,19 @@ $If (%Ext=="_files")
        %Name=fsplit(%Current,FSPLIT_NAME);
 $End
 
-;; Ищем пару для html-файла
+;; Find pair for HTML file
 $if (%Ext==".htm" || %Ext==".html")
   panel.setpos(ACTIVEPANEL,%Name+".files")
   panel.setpos(ACTIVEPANEL,%Name+"_files")
 $end
 
-;;Ищем пару для директории
+;; Find pair for folder
 $if (%Ext==".files" || %Ext=="_files")
   panel.setpos(ACTIVEPANEL,%Name+".htm")
   panel.setpos(ACTIVEPANEL,%Name+".html")
 $End
 
-;; Если нашли что-то ещё не помеченное, то помечаем...
+;; If found something not highlighted yet, highlight it...
 $if (APanel.Current!=%Current)
   $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
   panel.setpos(ACTIVEPANEL,%Current)
@@ -147,7 +147,7 @@ $End
 
 $MMode 1 $MMode 1
 </pre>
-Параметр макроса "EmptyCommandLine" должен быть равен 1.
+Macro "EmptyCommandLine" parameter should be = 1.
 
 </body>
 

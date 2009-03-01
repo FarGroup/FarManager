@@ -38,11 +38,11 @@ struct EditorSelect
       <table class="cont">
       <tr class="cont"><th class="cont" width="40%">Block type</th><th class="cont" width="60%">Description</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
-        <td class="cont" width="60%">deselect block, </td></tr>
+        <td class="cont" width="60%">deselect block</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
         <td class="cont" width="60%">select stream block</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
-        <td class="cont" width="60%">select column (rectangular) block.</td></tr>
+        <td class="cont" width="60%">select column (rectangular) block</td></tr>
        </table>
         If <i>BlockType</i> is equal to BTYPE_NONE, other fields of the structure are ignored.
     </div>
@@ -62,11 +62,11 @@ struct EditorSelect
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Функция <a href="../service_functions/editorcontrol.html">EditorControl</a> вернет FALSE, если:
+<li><a href="../service_functions/editorcontrol.html">EditorControl</a> function returns FALSE, if:
   <ul>
-  <li>размер передаваемой переменной меньше размера структуры EditorSelect;
-  <li><em>BlockHeight</em> меньше 1;
-  <li><em>BlockStartLine</em> больше количества строк в редакторе;
+  <li>size of transferred variable is less than EditorSelect structure;
+  <li><em>BlockHeight</em> is less than 1;
+  <li><em>BlockStartLine</em> is greater than number of lines in editor.
   </ul>
 </li>
 </ol>

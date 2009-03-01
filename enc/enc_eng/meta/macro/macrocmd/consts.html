@@ -17,50 +17,50 @@
 </div>
 
 <div class=shortdescr>
- онстанты позвол€ют вам задавать имена значени€м и обращатьс€ к ним позже.
+You can use the constants to store values associated with the names and use them later in the macro sequences.
 </div>
 
 <h3>Naming</h3>
 <div class=descr>
-<p>»мена константам можно задавать произвольные, но при этом соблюдать следующие правила:
+<p>Names of the constants should comply with these rules:
 <ol>
-<li>»м€ начинаетс€ с буквы латинского алфавита, дальше в произвольном пор€дке идут буквы латинского алфавита, цифры и символ '_'.
-<li>»м€ константы не должно совпадать с предопределенными <a href="boolstate.html">булевыми состо€ни€ми</a>, <a href="functions.html">именами макрофункций</a>, именами клавиш и прочими <a href="states.html">макрососто€ни€ми</a>.
+<li>Name should begin from the english letter, and can contain in arbitrary order english letters, digits, and '_' symbol.
+<li>Name should not coincide with predefined <a href="boolstate.html">boolean states</a>, <a href="functions.html">macro functions names</a>, names of the keys, and other <a href="states.html">macro states</a>.
 </ol>
 <p>
 </div>
 
 <h3>Types</h3>
 <div class=descr>
-<p>ѕеременные могут быть двух типов - целое число или строка.
-<p>÷елочисленные константы: NNN - 10-рична€ константа, 0NNN - 8-рична€ константа, 0xNNN - 16-рична€ константа.
-<p>÷елочисленные константы 64-разр€дные.
+<p>Constants can be either string or integer.
+<p>Integer constants can be represented by: NNN - decimal constant, 0NNN - octal constant, 0xNNN - hexadecimal constant.
+<p>Integers are of 64 bit width.
 </div>
 
 
 <h3>Area of effect</h3>
 <div class=descr>
-<p>ќбласть действи€ констант - текущий сеанс FAR.
+<p>The scope for the constants is a current FAR Manager session.
 </div>
 
 <h3>Representation in registry</h3>
 <div class=descr>
-<p>¬ реестре константы располагаютс€ в специальной ветке <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros\Consts]</code>.
-<p> ажда€ константа имеет им€ и может быть трех типов REG_SZ (дл€ строковых констант) и REG_DWORD или REG_QDWORD (дл€ целочисленных констант).
+<p>In the registry, constants are stored in the special key <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros\Consts]</code>.
+<p>Every constant has a name and can be of three types REG_SZ (for string constants) and REG_DWORD or REG_QDWORD (for integer constants).
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Ёлементы макро€зыка невозможно использовать во врем€ <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. ƒобавить элементы €зыка в макрос можно только путем ручной
-    правки реестра или путем применени€ специальных программ/плагинов.</li>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ol>
 </div>
 
 <h3>Example</h3>
 <div class=descr>
-ѕример применени€ константы FIB_PASSWORD (0x00000002) дл€ функции <a href="functions.html#prompt">prompt</a>
+Example of using FIB_PASSWORD constant (0x00000002) for <a href="functions.html#prompt">prompt</a> function
 <pre class=code>REGEDIT
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Consts]

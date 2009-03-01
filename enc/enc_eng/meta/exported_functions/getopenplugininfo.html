@@ -44,10 +44,10 @@ void WINAPI GetOpenPluginInfo(
 <div class=descr>
 <ol>
 <li>The <a href="../structures/openplugininfo.html">OpenPluginInfo</a> structure passed
-to this function is already filled with zeros.
+to this function is already filled with zeroes.
 The plugin is required to fill the OpenPluginInfo.StructSize field.</li>
-<li>FAR вызывает функцию GetOpenPluginInfo достаточно часто, поэтому при проектировании
-плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
+<li>FAR calls GetOpenPluginInfo function rather often, therefore it is necessary to
+minimize "computations" performed by this function when developing a plugin.</li>
 </ol>
 </div>
 

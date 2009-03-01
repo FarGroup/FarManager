@@ -48,14 +48,14 @@ void WINAPI GetPluginInfo(
 <li>before the disks menu (Alt-F1/Alt-F2) is shown</li>
 <li>when a command with a prefix is entered in the command line (for example, <code>net:\\share</code>).</li>
 </ul>
+</li>
 <li>Because this function gets called frequently, time consuming operations
 should not be done within it.</li>
 <li>The <a href="../structures/plugininfo.html">PluginInfo</a> structure passed
 to this function is already filled with zeros.
-The plugin is required to fill the StructSize field of the structure.
-<li>FAR вызывает функцию GetPluginInfo достаточно часто, поэтому при проектировании
-плагина необходимо минимизировать "расчеты", производимые в этой функции.</li>
-</li>
+The plugin is required to fill the StructSize field of the structure.</li>
+<li>FAR calls GetPluginInfo function rather often, therefore it is necessary to
+minimize "computations" performed by this function when developing a plugin.</li>
 </ol>
 </div>
 

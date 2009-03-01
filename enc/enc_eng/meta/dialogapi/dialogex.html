@@ -69,8 +69,8 @@ Dialog coordinates. You can specify them explicitly or use <code>"Width x Height
     </td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_SMALLDIALOG">FDLG_SMALLDIALOG</a></td>
     <td class="cont" width="60%">
-      Allows to create dialogs with reduced border size. These dialogs when
-      drawing separators (DIF_SEPARATOR) it's assumed there's no space between dialog border and
+      Allows to create dialogs with reduced border size. When drawing separators (DIF_SEPARATOR)
+      for these dialogs it's assumed there's no space between dialog border and
       dialog double-line frame.
     </td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWSHADOW">FDLG_NODRAWSHADOW</a></td>
@@ -102,7 +102,7 @@ Dialog coordinates. You can specify them explicitly or use <code>"Width x Height
 <li>FAR transforms Item elements to its own internal structure before creating a dialog.
 After dialog processing is over, Item elements array is adjusted according to the changes made in
 the progress of user work with the dialog.
-<li>Начиная с версии 1.71 build 2451 "маленькие" диалоги (флаг FDLG_SMALLDIALOG) рисуются с тенью. Чтобы запретить рисовать тень в таких диалога, укажите флаг FDLG_NODRAWSHADOW.
+<li>Starting from version 1.71 build 2451 "small" dialogs (FDLG_SMALLDIALOG flag) are drawn with a shadow. Set the FDLG_NODRAWSHADOW flag to suppress drawing a shadow for these dialogs.
 </ol>
 </div>
 

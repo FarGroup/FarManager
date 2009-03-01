@@ -36,7 +36,7 @@ int WINAPI ProcessViewerEvent(
 <td class="cont" width="60%">One of the internal viewers is closing. Plugins can use this event to
 free internal data structures. Note that several viewers can be active at the same time.
 <dfn>Param</dfn> points to an integer variable containing the ViewerID parameter of the viewer
-instance beeing closed. The ViewerID of the current viewer can be obtained earlier using the
+instance being closed. The ViewerID of the current viewer can be obtained earlier using the
 <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a>
 <a href="../service_functions/viewercontrol.html">ViewerControl</a> command.
 But the plugin should not call the ViewerControl function when processing this event, because the viewer is
@@ -51,15 +51,15 @@ Return value must be 0.
 </td></tr>
 
  <tr class="cont"><td class="cont" width="40%"><a name="VE_KILLFOCUS">VE_KILLFOCUS</a></td>
- <td class="cont" width="60%">Программа просмотра потеряла фокус ввода.<br>
-   <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, теряющего фокус.<br>
-   Функция должна вернуть 0.
+ <td class="cont" width="60%">Viewer has lost input focus.<br>
+   <i>Param</i> points to a variable containing the ViewerID value of the viewer instance that has lost focus.<br>
+   Return value must be 0.
  </td></tr>
 
  <tr class="cont"><td class="cont" width="40%"><a name="VE_GOTFOCUS">VE_GOTFOCUS</a></td>
- <td class="cont" width="60%">Программа просмотра получила фокус ввода.<br>
-   <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, получающего фокус.<br>
-   Функция должна вернуть 0.
+ <td class="cont" width="60%">Viewer has got input focus.<br>
+   <i>Param</i> points to a variable containing the ViewerID value of the viewer instance that has got focus.<br>
+   Return value must be 0.
  </td></tr>
 
 </table>
