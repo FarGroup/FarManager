@@ -516,10 +516,13 @@ void VMenu::ShowMenu(int IsParent)
               int Correction=0;
               if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=NULL)
                 Correction=1;
-              if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
-                Ptr[J-Correction+2]=BoxSymbols[BS_C_H1V1];
-              else
-                Ptr[J-Correction+2]=BoxSymbols[BS_B_H1V1];
+							if (Item[I+1]->strName.GetLength()>=J)
+							{
+								if(Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
+									Ptr[J-Correction+2]=BoxSymbols[BS_C_H1V1];
+								else
+									Ptr[J-Correction+2]=BoxSymbols[BS_B_H1V1];
+							}
             }
 						else if (Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
 						{

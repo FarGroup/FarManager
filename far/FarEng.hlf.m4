@@ -583,9 +583,9 @@ screen height between 25 and 50 lines. See TechInfo##38 for details.
   Perform archive managing commands                         #Shift-F3#
   Edit ~new file~@FileOpenCreate@                                             #Shift-F4#
 
-    When a new file is opened, the same codepage is used as in the last opened
+    When a new file is opened, the same code page is used as in the last opened
 editor. If the editor is opened for the first time in the current FAR session,
-the DOS codepage is used.
+the default code page is used.
 
   Copy file under cursor                                    #Shift-F5#
   Rename or move file under cursor                          #Shift-F6#
@@ -1324,13 +1324,13 @@ separators, which by default are: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
     By checking the #Search for hex# option you can search for the files
 containing hexadecimal sequence of the specified bytes. In this case #Case#
-#sensitive#, #Whole words#, #Using character table# and #Search for folders#
+#sensitive#, #Whole words#, #Using code page# and #Search for folders#
 options are disabled and their values doesn't affect the search process.
 
-    The #Using character table# combo box allows to select the concrete
-character table for the text search or forces usage of all character tables
-available to FAR by selecting #All character tables# item to search text in
-files with different codepages.
+    The #Using code page# combo box allows to select the concrete
+code page for the text search or forces usage of all code pages
+available to FAR by selecting #All code pages# item to search text in
+files with different code pages.
 
     If the option #Search in archives# is set, FAR also performs the search in
 archives with known formats. However, using this option significantly decreases
@@ -2199,9 +2199,8 @@ $ #Viewer: control keys#
     #F7#                 ~Search~@ViewerSearch@
     #Shift-F7, Space#    Continue search
     #Alt-F7#             Continue search in "reverse" mode
-    #F8#                 Toggle DOS/Windows text view mode
-    #Shift-F8#           Select custom character table
-                       (see notes below)
+    #F8#                 Toggle OEM/ANSI code page
+    #Shift-F8#           Select code page
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
     #Alt-F9#             Toggles the size of the FAR console window
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
@@ -2231,30 +2230,25 @@ $ #Viewer: control keys#
 
     Notes:
 
-    1. Custom character tables are provided in "Addons\\Tables"
-       subfolder of FAR folder in the form of .reg files.
-       Before any table may be used, it must be installed:
-       just press #Shift-Enter# on the corresponding file.
-
-    2. Also to call search dialog you may just start typing the
+    1. Also to call search dialog you may just start typing the
        text to be located.
 
-    3. When the viewer opens a file, it permits the file to be
+    2. When the viewer opens a file, it permits the file to be
        deleted by other processes. If such a deletion happens,
        the file is actually deleted from the directory only after
        the viewer is closed, but any operations on the deleted
        file fail - this is a Windows feature.
 
-    4. The current version of FAR has a limitation on the maximum
+    3. The current version of FAR has a limitation on the maximum
        number of columns in the internal viewer - the number
        cannot exceed 2048. If a file contains a line that does not
        fit in this number of columns, it will be split into several
        lines, even if the word wrap mode is turned off.
 
-    5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
+    4. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
-    6. For automatic scrolling of a dynamicly updating file,
+    5. For automatic scrolling of a dynamicly updating file,
        position the "cursor" to the end of the file (End key).
 
 
@@ -2407,9 +2401,8 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-F7#                 Replace
    #Shift-F7#                Continue search/replace
    #Alt-F7#                  Continue search/replace in "reverse" mode
-   #F8#                      Toggle DOS/Windows text
-   #Shift-F8#                Select custom character table
-                           (see notes below)
+   #F8#                      Toggle OEM/ANSI code page
+   #Shift-F8#                Select code page
    #Alt-F8#                  ~Go to~@EditorGotoPos@ specified line and column
    #Alt-F9#                  Toggles the size of the FAR console window
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
@@ -2442,24 +2435,18 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
     Notes:
 
-    1. Custom character tables are provided in the "Addons\\Tables"
-       subfolder of the FAR folder in the form of .reg files.
-       Before any table may be used it must be installed: just press
-       Shift-Enter on the corresponding file.
+    1. #Alt-U#/#Alt-I# indent the current line if no block is selected.
 
-    2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
+    2. Holding down #Alt# and typing a character code on the numeric
+       keypad inserts the character that has the specified code. The
+       character is not translated to the current codepage of the editor.
 
-    3. Holding down #Alt# and typing a character code on the numeric
-       keypad inserts the character that has the specified code in
-       the OEM codepage. The character is not translated to the
-       current codepage of the editor.
-
-    4. Dragging a file name from the Explorer to the FAR editor window
-       inserts the name in the OEM (DOS) codepage, and the current
-       editor codepage is not taken into account. This issue will be
+    3. Dragging a file name from the Explorer to the FAR editor window
+       inserts the name in the OEM (DOS) code page, and the current
+       editor code page is not taken into account. This issue will be
        addressed in future versions of FAR.
 
-    5. If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
+    4. If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
        line as a block and copies it to the clipboard.
 
 
@@ -2468,12 +2455,12 @@ $ #Редактор: Открыть/создать файл#
     С помощью комбинации #Shift-F4# можно открыть существующий или 
 создать новый файл.
 
-    В зависимости от ~настроек редактора~@EditorSettings@ новый файл
-создается в кодировке OEM или ANSI. Можно задать другую кодировку, 
-выбрав из списка #Кодовая страница:# требуемую кодовую страницу.
+    В зависимости от ~настроек редактора~@EditorSettings@ для нового файла
+выбирается кодовая страница OEM или ANSI. При необходимости из #списка#
+можно выбрать другую кодовую страницу.
 
     Для существующего файла изменять опцию #Кодовая страница:# имеет
-смысл тогда, когда при открытии кодировка определилась неправильно.
+смысл тогда, когда при открытии она определилась неправильно.
 
 
 @FileSaveAs
@@ -2747,7 +2734,7 @@ $ #Settings dialog: viewer#
 
   #Save file position#      Save and restore positions in the recently
                           viewed files. This option also forces
-                          restoring of character table, if the table
+                          restoring of code page, if the page
                           was manually selected by user, and the file
                           viewing mode (normal/hex).
 
@@ -2756,10 +2743,8 @@ $ #Settings dialog: viewer#
                           (created with #RightCtrl-0..9# or
                           #Ctrl-Shift-0..9#)
 
-  #Auto detect#             If you use several character tables,
-  #character table#         you can set this option on to ~auto detect~@DistTable@
-                          the character table of the file being
-                          viewed.
+  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #code page#               the file being viewed.
 
   #Tab size#                Number of spaces in a tab character.
 
@@ -2773,8 +2758,8 @@ $ #Settings dialog: viewer#
   #Persistent selection#    Do not remove block selection after
                           moving the cursor.
 
-  #Initially open files#    By default open files in WIN encoding
-  #in WIN encoding#         instead of in DOS.
+  #Use ANSI code page#      Use ANSI code page for viewing files,
+  #by default#              instead of OEM.
 
     If the external viewer is assigned to #F3# key, it will be executed only if
 the ~associated~@FileAssoc@ viewer for the current file type is not defined.
@@ -2829,7 +2814,7 @@ $ #Settings dialog: editor#
 
   #Save file position#      Save and restore positions in the recently
                           edited files. This option also forces
-                          restoring of character table, if the table
+                          restoring of code page, if the page
                           was manually selected by user.
 
   #Save bookmarks#          Save and restore bookmarks (current
@@ -2840,10 +2825,8 @@ $ #Settings dialog: editor#
   #Auto indent#             Enables auto indent mode when entering
                           text.
 
-  #Auto detect#             If you use several character tables,
-  #character table#         you can set this option on to ~auto detect~@DistTable@
-                          the character table of the file being
-                          edited.
+  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #code page#               the file being edited.
 
   #Tab size#                Number of spaces in a tab character.
 
@@ -2859,11 +2842,11 @@ $ #Settings dialog: editor#
   #read-only files#         is opened for editing, a warning message
                           will be shown.
 
-  #Initially open files#    By default open files in WIN encoding
-  #in WIN encoding#         instead of in DOS.
+  #Use ANSI code page#      Use ANSI code page for editing files,
+  #by default#              instead of OEM.
 
-  #Create new files in#     By default create new files in WIN
-  #WIN encoding#            encoding instead of in DOS.
+  #Use ANSI code page#      Use ANSI code page when creating new files,
+  #when creating new files# instead of OEM.
 
     If the external editor is assigned to #F4# key, it will be executed only if
 ~associated~@FileAssoc@ editor for the current file type is not defined.
@@ -2876,17 +2859,11 @@ by pressing #Alt-Shift-F9#. The changes will come into force immediately but
 will affect only the current session.
 
 
-@DistTable
-$ #Auto detect character tables#
-    If you use several character tables and have installed the table with the
-character frequency distribution for your language (for example, for Russian
-the table "Addons\\Tables\\Russian\\Dist.Rus.reg" should be installed), FAR
-will try to choose the most suitable character table for viewing/editing a
-file. Note that correct detection is not guaranteed, especially for small or
+@CodePage
+$ #Auto detect code pages#
+    FAR will try to choose the correct code page for viewing/editing a file.
+Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
-
-    You can find some character tables in the "Addons\\Tables" folder of the
-root FAR folder.
 
 
 @FileAttrDlg

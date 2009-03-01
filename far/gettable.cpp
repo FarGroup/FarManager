@@ -267,7 +267,7 @@ void AddTables(DWORD codePages)
 	// Добавляем стандартные таблицы символов
 	if ((codePages & ::SearchAll) || (codePages & ::Auto))
 	{
-		AddTable((codePages & ::Auto) ? L"Auto" : MSG(MFindFileAllTables), CP_AUTODETECT, -1, true);
+		AddTable((codePages & ::Auto) ? MSG(MEditOpenAutoDetect) : MSG(MFindFileAllTables), CP_AUTODETECT, -1, true);
 		AddSeparator();
 	}
 	AddTable(L"OEM", GetOEMCP(), -1, (codePages & ::OEM)?1:0);

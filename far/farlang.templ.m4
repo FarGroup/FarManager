@@ -1238,10 +1238,10 @@ MViewConfigSaveShortPos
 "&Lesezeichen speichern"
 
 MViewAutoDetectTable
-"&Автоопределение таблицы символов"
-"&Autodetect character table"
-"&Autodetekovat znakovou sadu"
-"Zeichentabelle &automatisch erkennen"
+"&Автоопределение кодовой страницы"
+"&Autodetect code page"
+upd:"&Autodetekovat znakovou sadu"
+upd:"Zeichentabelle &automatisch erkennen"
 
 MViewConfigTabSize
 "Раз&мер табуляции"
@@ -1268,10 +1268,10 @@ MViewConfigPersistentSelection
 "Dauerhafte Text&markierungen"
 
 MViewConfigAnsiTableAsDefault
-"&Изначально открывать файлы в WIN кодировке"
-"&Initially open files in WIN encoding"
-"Automaticky otevírat soubory ve &WIN kódování"
-"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
+"&Использовать кодовую страницу ANSI по умолчанию"
+"Use ANS&I code page by default"
+upd:"Automaticky otevírat soubory ve &WIN kódování"
+upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
 
 MEditConfigTitle
 l:
@@ -1367,10 +1367,10 @@ MEditConfigSaveShortPos
 "&Lesezeichen speichern"
 
 MEditAutoDetectTable
-"&Автоопределение таблицы символов"
-"&Autodetect character table"
-"&Autodetekovat znakovou sadu"
-"Zeichentabelle &automatisch erkennen"
+"&Автоопределение кодовой страницы"
+"&Autodetect code page"
+upd:"&Autodetekovat znakovou sadu"
+upd:"Zeichentabelle &automatisch erkennen"
 
 MEditCursorBeyondEnd
 "Ку&рсор за пределами строки"
@@ -1403,16 +1403,16 @@ MEditConfigScrollbar
 "Scro&llbalken anzeigen"
 
 MEditConfigAnsiTableAsDefault
-"&Изначально открывать файлы в WIN кодировке"
-"I&nitially open files in WIN encoding"
-"Automaticky otevírat soubory ve &WIN kódování"
-"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
+"&Использовать кодовую страницу ANSI по умолчанию"
+"Use ANS&I code page by default"
+upd:"Automaticky otevírat soubory ve &WIN kódování"
+upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
 
 MEditConfigAnsiTableForNewFile
-"Созда&вать новые файлы в WIN кодировке"
-"C&reate new files in WIN encoding"
-"V&ytvářet nové soubory ve WIN kódování"
-"Neue Dateien mit Windows-Ko&dierung erstellen"
+"Использо&вать кодовую страницу ANSI при создании файлов"
+"Use ANSI code page when c&reating new files"
+upd:"V&ytvářet nové soubory ve WIN kódování"
+upd:"Neue Dateien mit Windows-Ko&dierung erstellen"
 
 MSaveSetupTitle
 l:
@@ -2670,10 +2670,16 @@ MEditCancel
 "Ab&bruch"
 
 MEditOpenCreateLabel
-"Открыть/создать файл:"
-"Open/create file:"
+"&Открыть/создать файл:"
+"&Open/create file:"
 "Otevřít/vytvořit soubor:"
 "Öffnen/datei erstellen:"
+
+MEditOpenAutoDetect
+"&Автоматическое определение"
+"&Automatic detection"
+upd:"Automatic detection"
+upd:"Automatic detection"
 
 MEditGoToLine
 l:
@@ -2851,10 +2857,10 @@ MEditShiftF7
 "Nächst"
 
 MEditShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MEditShiftF9
 ""
@@ -3451,10 +3457,10 @@ MSingleEditShiftF7
 "Nächst"
 
 MSingleEditShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MSingleEditShiftF9
 ""
@@ -3933,14 +3939,14 @@ l:
 "Speichern &als"
 
 MEditCodePage
-"Кодовая страница:"
-"Code page:"
+"&Кодовая страница:"
+"&Code page:"
 "Kódová stránka:"
 "Codepage:"
 
 MEditAddSignature
-"Добавить сигнатуру (BOM)"
-"Add signature (BOM)"
+"Добавить &сигнатуру (BOM)"
+"Add &signature (BOM)"
 "Přidat signaturu (BOM)"
 "Sinatur hinzu (BOM)"
 
@@ -4487,10 +4493,10 @@ MViewShiftF7
 "Nächst"
 
 MViewShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MViewShiftF9
 ""
@@ -5100,10 +5106,10 @@ MSingleViewShiftF7
 "Nächst"
 
 MSingleViewShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MSingleViewShiftF9
 ""
@@ -5661,10 +5667,10 @@ MFindFileHex
 "En&thält Hex (xx xx ...):"
 
 MFindFileCodePage
-"Используя таблицу сим&волов:"
-"Using character ta&ble:"
-"Použít &znakovou sadu:"
-"Zeichenta&belle verwenden:"
+"Используя кодо&вую страницу:"
+"Using code pa&ge:"
+upd:"Použít &znakovou sadu:"
+upd:"Zeichenta&belle verwenden:"
 
 MFindFileCase
 "&Учитывать регистр"
@@ -5679,10 +5685,10 @@ MFindFileWholeWords
 "Nur &ganze Wörter"
 
 MFindFileAllTables
-"Все таблицы символов"
-"All character tables"
-"Všechny znakové sady"
-"Alle Zeichentabellen"
+"Все кодовые страницы"
+"All code pages"
+upd:"Všechny znakové sady"
+upd:"Alle Zeichentabellen"
 
 MFindArchives
 "Искать в а&рхивах"
@@ -5804,12 +5810,6 @@ MFindFileAdvanced
 "Pokr&očilé"
 "Er&weitert"
 
-MFindFileTable
-"Т&аблица"
-"Ta&ble"
-"Zna&ková sada"
-"Ta&belle"
-
 MFindSearchingIn
 "Поиск%s в:"
 "Searching%s in:"
@@ -5895,10 +5895,10 @@ l:
 
 MGetTableTitle
 l:
-"Таблицы"
-"Tables"
-"Znakové sady:"
-"Tabellen"
+"Кодовые страницы"
+"Code pages"
+upd:"Znakové sady:"
+upd:"Tabellen"
 
 MGetTableBottomTitle
 "Ctrl-H, Del, Ins"
@@ -10443,10 +10443,10 @@ MInfoShiftF7
 "Nächst"
 
 MInfoShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MInfoShiftF9
 "Сохран"
@@ -11035,10 +11035,10 @@ MQViewShiftF7
 "Nächst"
 
 MQViewShiftF8
-"Таблиц"
-"Table"
-"ZnSady"
-"Tabell"
+"КодСтр"
+"CodePg"
+upd:"ZnSady"
+upd:"Tabell"
 
 MQViewShiftF9
 "Сохран"
