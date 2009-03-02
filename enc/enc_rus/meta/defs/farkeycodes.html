@@ -5,7 +5,6 @@
 <title>Коды клавиш FAR Manager</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 
 <body>
@@ -651,22 +650,47 @@
     <th class="white"><code>0000020E</code></th>
     <td>Аналог VK_SLEEP</td>
   </tr>
+
   <tr>
     <td class="gray"></td>
-    <td class="gray">KEY_VK_0xFF_BEGIN</td>
-    <th class="gray"><code>00000300</code></th>
-    <td class="gray">Начало определения специфических клавиш, у которых <a href="../winapi/virtualkeycodes.html">виртуальный код</a>
+    <td class="gray">KEY_MSLCLICK</td>
+    <th class="gray"><code>0000020F</code></th>
+    <td class="gray">Нажатие левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>KEY_MSRCLICK</td>
+    <th class="white"><code>00000210</code></th>
+    <td>Нажатие правой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+  </tr>
+  <tr>
+    <td class="gray"></td>
+    <td class="gray">KEY_MSM1CLICK</td>
+    <th class="gray"><code>00000211</code></th>
+    <td class="gray">Нажатие средней (следующей после левой) клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>KEY_MSM2CLICK</td>
+    <th class="white"><code>00000212</code></th>
+    <td>Нажатие третей после левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+  </tr>
+  <tr>
+    <td class="gray"></td>
+    <td class="gray">KEY_MSM3CLICK</td>
+    <th class="gray"><code>00000213</code></th>
+    <td class="gray">Нажатие четвертой после левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td>KEY_VK_0xFF_BEGIN</td>
+    <th class="white"><code>00000300</code></th>
+    <td>Начало определения специфических клавиш, у которых <a href="../winapi/virtualkeycodes.html">виртуальный код</a>
       равен 0xFF (например, разнообразные мультимедийные клавиши, которые производители дополнительно
       встраивают в клавиатуру). Код формируется по формуле: <code>"KEY_VK_0xFF_BEGIN" + ScanCode</code>.<br>
       В <a href="../macro/index.html">макросах</a> такие клавиши хранятся как &quot;SpecXXXXX&quot; (здесь XXXXX сканкод клавиши).
     </td>
-  </tr>
-
-  <tr>
-    <td>&nbsp;</td>
-    <td></td>
-    <th class="white"><code></code></th>
-    <td></td>
   </tr>
 
   <tr>
