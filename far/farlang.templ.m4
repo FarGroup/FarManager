@@ -749,10 +749,6 @@ MConfigMouse
 "Мы&шь"
 "M&ouse"
 
-MConfigMousePanelMClickRule
-"В панелях ср&едняя кнопка равна Enter"
-"Middle &button equals Enter in panels"
-
 MConfigKeyBar
 "Показывать &линейку клавиш"
 "Show &key bar"

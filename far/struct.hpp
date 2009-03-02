@@ -386,9 +386,6 @@ struct Options
   */
   int PanelRightClickRule;
   /* SVS $*/
-  /* $ 17.12.2001 IS поведение средней кнопки мыши в панелях */
-  int PanelMiddleClickRule;
-  /* IS $ */
   /* $ 19.09.2000 SVS
    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   */
