@@ -3194,7 +3194,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
-						newsp.Type = ESPT_CHARTABLE;
+						newsp.Type = ESPT_CODEPAGE;
 						break;
 					}
 
@@ -3317,7 +3317,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			viA->Options = 0;
 			if (viW.Options&VOPT_SAVEFILEPOSITION) viA->Options |= oldfar::VOPT_SAVEFILEPOSITION;
-			if (viW.Options&VOPT_AUTODETECTTABLE)  viA->Options |= oldfar::VOPT_AUTODETECTTABLE;
+			if (viW.Options&VOPT_AUTODETECTCODEPAGE)  viA->Options |= oldfar::VOPT_AUTODETECTTABLE;
 
 			viA->TabSize = viW.TabSize;
 
@@ -3446,11 +3446,10 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		case 1 /* ANSI */:	nCP = GetACP(); 	break;
 		default:
 			{
-				const wchar_t SelCT[] = L"CodeTables\\Selected";
 				int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
 				BYTE dTemp[4];
 
-				if(!EnumRegValue (SelCT, iSelCT, sTableName, dTemp, sizeof (dTemp))) return -1;
+				if(!EnumRegValue (FavoriteCodePagesKey, iSelCT, sTableName, dTemp, sizeof (dTemp))) return -1;
 				nCP = _wtoi (sTableName);
 			}
 		}

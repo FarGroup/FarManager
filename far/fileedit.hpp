@@ -71,7 +71,7 @@ enum FFILEEDIT_FLAGS{
   FFILEEDIT_DELETEONLYFILEONCLOSE = 0x04000000,  // удалить в деструкторе только файл
   FFILEEDIT_CANNEWFILE            = 0x10000000,  // допускаетс€ новый файл?
   FFILEEDIT_SERVICEREGION         = 0x20000000,  // используетс€ сервисна€ область
-  FFILEEDIT_TABLECHANGEDBYUSER    = 0x40000000,
+	FFILEEDIT_CODEPAGECHANGEDBYUSER = 0x40000000,
 };
 
 

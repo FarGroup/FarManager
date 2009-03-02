@@ -159,3 +159,5 @@ int KeepUserScreen;
 string g_strDirToSet;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+
+const wchar_t *FavoriteCodePagesKey=L"CodePages\\Favorites";

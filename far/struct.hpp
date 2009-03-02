@@ -152,9 +152,9 @@ struct EditorOptions
 	int PersistentBlocks;
 	int DelRemovesBlocks;
 	int AutoIndent;
-	int AutoDetectTable;
-	int AnsiTableForNewFile;
-	int AnsiTableAsDefault;
+	int AutoDetectCodePage;
+	int AnsiCodePageForNewFile;
+	int AnsiCodePageAsDefault;
 	int CursorBeyondEOL;
 	int BSLikeDel;
 	int CharCodeBase;
@@ -180,9 +180,9 @@ struct EditorOptions
 		PersistentBlocks = 0;
 		DelRemovesBlocks = 0;
 		AutoIndent = 0;
-		AutoDetectTable = 0;
-		AnsiTableForNewFile = 0;
-		AnsiTableAsDefault = 0;
+		AutoDetectCodePage = 0;
+		AnsiCodePageForNewFile = 0;
+		AnsiCodePageAsDefault = 0;
 		CursorBeyondEOL = 0;
 		BSLikeDel = 0;
 		CharCodeBase = 0;
@@ -210,9 +210,9 @@ struct EditorOptions
 		dest.PersistentBlocks = PersistentBlocks;
 		dest.DelRemovesBlocks = DelRemovesBlocks;
 		dest.AutoIndent = AutoIndent;
-		dest.AutoDetectTable = AutoDetectTable;
-		dest.AnsiTableForNewFile = AnsiTableForNewFile;
-		dest.AnsiTableAsDefault = AnsiTableAsDefault;
+		dest.AutoDetectCodePage = AutoDetectCodePage;
+		dest.AnsiCodePageForNewFile = AnsiCodePageForNewFile;
+		dest.AnsiCodePageAsDefault = AnsiCodePageAsDefault;
 		dest.CursorBeyondEOL = CursorBeyondEOL;
 		dest.BSLikeDel = BSLikeDel;
 		dest.CharCodeBase = CharCodeBase;
@@ -239,7 +239,7 @@ struct EditorOptions
 struct ViewerOptions
 {
   int TabSize;
-  int AutoDetectTable;
+	int AutoDetectCodePage;
   int ShowScrollbar;     // $ 18.07.2000 tran пара настроек дл€ viewer
   int ShowArrows;
   int PersistentBlocks; // $ 14.05.2002 VVM ѕосто€нные блоки во вьюере
@@ -249,7 +249,7 @@ struct ViewerOptions
   int SaveViewerShortPos;
   int UseExternalViewer;
   int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
-  int AnsiTableAsDefault;
+	int AnsiCodePageAsDefault;
   int ShowTitleBar;
 };
 
@@ -275,11 +275,11 @@ struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставл€ть обратно
 };
 
-// ’ранилище параметров поиска character table
-struct FindCharTable
+// ’ранилище параметров поиска code page
+struct FindCodePage
 {
-  int AllTables;
-  int CodePage;
+	int AllPages;
+	int CodePage;
 };
 
 struct ScreenSizes{
@@ -585,7 +585,7 @@ struct Options
   struct NowellOptions Nowell;
   struct ScreenSizes ScrSize;
 
-  struct FindCharTable CharTable; // —труктура дл€ запоминани€ параметров таблиц символов в поиске
+	struct FindCodePage CodePage; // —труктура дл€ запоминани€ параметров кодовых страниц в поиске
 
   struct TreeOptions Tree;
 

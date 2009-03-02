@@ -339,7 +339,7 @@ int FileViewer::ProcessKey(int Key)
       struct ViewerOptions ViOpt;
 
       ViOpt.TabSize=View.GetTabSize();
-      ViOpt.AutoDetectTable=View.GetAutoDetectTable();
+			ViOpt.AutoDetectCodePage=View.GetAutoDetectCodePage();
       ViOpt.ShowScrollbar=View.GetShowScrollbar();
       ViOpt.ShowArrows=View.GetShowArrows();
       ViOpt.PersistentBlocks=View.GetPersistentBlocks();
@@ -347,7 +347,7 @@ int FileViewer::ProcessKey(int Key)
       ViewerConfig(ViOpt,1);
 
       View.SetTabSize(ViOpt.TabSize);
-      View.SetAutoDetectTable(ViOpt.AutoDetectTable);
+			View.SetAutoDetectCodePage(ViOpt.AutoDetectCodePage);
       View.SetShowScrollbar(ViOpt.ShowScrollbar);
       View.SetShowArrows(ViOpt.ShowArrows);
       View.SetPersistentBlocks(ViOpt.PersistentBlocks);

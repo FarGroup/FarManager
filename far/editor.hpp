@@ -62,7 +62,7 @@ struct EditorCacheParams {
 	int LinePos;
 	int ScreenLine;
 	int LeftPos;
-	int Table; //CODEPAGE!!! //BUGBUG
+	int CodePage;
 
 	InternalEditorBookMark SavePos;
 };
@@ -286,8 +286,8 @@ class Editor:public ScreenObject
     void SetAutoIndent(int NewMode) { EdOpt.AutoIndent=NewMode; }
     int  GetAutoIndent(void) const {return EdOpt.AutoIndent; }
 
-    void SetAutoDetectTable(int NewMode) { EdOpt.AutoDetectTable=NewMode; }
-    int  GetAutoDetectTable(void) const {return EdOpt.AutoDetectTable; }
+		void SetAutoDetectCodePage(int NewMode) { EdOpt.AutoDetectCodePage=NewMode; }
+		int  GetAutoDetectCodePage(void) const {return EdOpt.AutoDetectCodePage; }
 
     void SetCursorBeyondEOL(int NewMode);
     int  GetCursorBeyondEOL(void) const {return EdOpt.CursorBeyondEOL; }

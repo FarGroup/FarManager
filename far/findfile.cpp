@@ -111,7 +111,7 @@ static int PluginMode;
 
 static HANDLE hPluginMutex;
 
-static int UseAllTables=FALSE,UseFilter=0;
+static int UseAllCodePages=FALSE,UseFilter=0;
 static UINT CodePage = (UINT)-1;
 static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
@@ -204,7 +204,7 @@ void InitInFileSearch()
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
 			// Формируем список кодовых страниц
-			if (UseAllTables)
+			if (UseAllCodePages)
 			{
 				// Добавляем стандартные таблицы символов
 				const int standardCodePagesCount = 6;
@@ -219,7 +219,7 @@ void InitInFileSearch()
 				// Добавляем выбранные таблицы символов
 				DWORD data;
 				UnicodeString codePageName;
-				while (EnumRegValue(L"CodeTables\\Selected", (DWORD)codePagesCount-standardCodePagesCount, codePageName, (BYTE *)&data, sizeof(data)))
+				for(DWORD i=0;EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data));i++)
 				{
 					if (data)
 					{
@@ -413,11 +413,11 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)(const wchar_t*)strDataStr);
 
       /* Установка запомненных ранее параметров */
-      UseAllTables=Opt.CharTable.AllTables;
-      CodePage=Opt.CharTable.CodePage;
+			UseAllCodePages=Opt.CodePage.AllPages;
+			CodePage=Opt.CodePage.CodePage;
       /* -------------------------------------- */
 
-			AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, UseAllTables ? CP_AUTODETECT : CodePage, false, true);
+			AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, UseAllCodePages ? CP_AUTODETECT : CodePage, false, true);
 
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
@@ -436,8 +436,8 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				FarListPos pos;
 				Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&pos);
 				UINT cp = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, pos.SelectPos);
-				UseAllTables = (cp == CP_AUTODETECT);
-				if (!UseAllTables) {
+				UseAllCodePages = (cp == CP_AUTODETECT);
+				if (!UseAllCodePages) {
 					CodePage = cp;
 				}
       }
@@ -776,9 +776,9 @@ FindFiles::FindFiles()
       }
 
       /* Запоминание установленных параметров */
-      Opt.CharTable.AllTables=UseAllTables;
-			if (!UseAllTables) {
-				Opt.CharTable.CodePage=CodePage;
+			Opt.CodePage.AllPages=UseAllCodePages;
+			if (!UseAllCodePages) {
+				Opt.CodePage.CodePage=CodePage;
 			}
       /****************************************/
 
@@ -2513,7 +2513,7 @@ bool IsWordDiv(const wchar_t symbol) {
 int FindFiles::LookForString(const wchar_t *Name)
 {
 	#define RETURN(r) { result = (r); goto exit; }
-	#define CONTINUE(r) { if ((r) || !UseAllTables || (cpIndex==codePagesCount-1)) RETURN(r) else continue; }
+	#define CONTINUE(r) { if ((r) || !UseAllCodePages || (cpIndex==codePagesCount-1)) RETURN(r) else continue; }
 
 	// Длина строки поиска
 	size_t findStringCount;
@@ -2725,7 +2725,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 				cpi->LastSymbol = buffer[bufferCount-1];
 			}
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((UseAllTables?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
+			offset = (int)((UseAllCodePages?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
 		}
 		// Если мы потенциально прочитали не весь файл
 		if (readBlockSize==readBufferSize)

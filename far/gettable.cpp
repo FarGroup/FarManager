@@ -70,7 +70,7 @@ static UINT currentCodePage;
 // Количество выбранных и обыкновенных таблиц символов
 static int selectedCodePages, normalCodePages;
 // Клич реестра, где хранится список выбранных таблиц символов
-const wchar_t keyCodeTablesSelected[] = L"CodeTables\\Selected";
+
 
 // Добавляем таблицу символов
 void AddTable(const wchar_t *codePageName, UINT codePage, int position = -1, bool enabled = true)
@@ -214,7 +214,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		codePageName[wcslen(codePageName)-1] = L'\0';
 		// Получаем признак выбранности таблицы символов
 		int checked = 0;
-		GetRegKey(keyCodeTablesSelected, lpwszCodePage, checked, 0);
+		GetRegKey(FavoriteCodePagesKey, lpwszCodePage, checked, 0);
 		// Добавляем таблицу символовЮ либо в нормальные, либо в выбранные таблицы симовлов
 		if (checked)
 		{
@@ -267,7 +267,7 @@ void AddTables(DWORD codePages)
 	// Добавляем стандартные таблицы символов
 	if ((codePages & ::SearchAll) || (codePages & ::Auto))
 	{
-		AddTable((codePages & ::Auto) ? MSG(MEditOpenAutoDetect) : MSG(MFindFileAllTables), CP_AUTODETECT, -1, true);
+		AddTable((codePages & ::Auto) ? MSG(MEditOpenAutoDetect) : MSG(MFindFileAllCodePages), CP_AUTODETECT, -1, true);
 		AddSeparator();
 	}
 	AddTable(L"OEM", GetOEMCP(), -1, (codePages & ::OEM)?1:0);
@@ -297,9 +297,9 @@ void ProcessSelected(bool select)
 		string strCPName;
 		strCPName.Format(L"%u", curItem->UserData);
 		if (select)
-			SetRegKey(keyCodeTablesSelected, strCPName, 1);
+			SetRegKey(FavoriteCodePagesKey, strCPName, 1);
 		else
-			DeleteRegValue(keyCodeTablesSelected, strCPName);
+			DeleteRegValue(FavoriteCodePagesKey, strCPName);
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem;

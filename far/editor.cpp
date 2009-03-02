@@ -567,7 +567,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
     char *Str;
     int StrLength,GetCode;
 
-    if (EdOpt.AutoDetectTable)
+		if (EdOpt.AutoDetectCodePage)
     {
       UseDecodeTable=DetectTable(EditFile,&TableSet,TableNum);
       AnsiText=FALSE;
@@ -5556,8 +5556,8 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_AUTOINDENT;
         if (EdOpt.SavePos)
           Info->Options|=EOPT_SAVEFILEPOSITION;
-        if (EdOpt.AutoDetectTable)
-          Info->Options|=EOPT_AUTODETECTTABLE;
+				if (EdOpt.AutoDetectCodePage)
+					Info->Options|=EOPT_AUTODETECTCODEPAGE;
         if (EdOpt.CursorBeyondEOL)
           Info->Options|=EOPT_CURSORBEYONDEOL;
         Info->TabSize=EdOpt.TabSize;
@@ -5917,7 +5917,7 @@ int Editor::EditorControl(int Command,void *Param)
             SetCharCodeBase(espar->Param.iParam);
             break;
           /* $ 07.08.2001 IS сменить кодировку из плагина */
-          case ESPT_CHARTABLE:
+					case ESPT_CODEPAGE:
           {
             //BUGBUG
 
@@ -6685,7 +6685,7 @@ void Editor::GetCacheParams (EditorCacheParams *pp)
   pp->LinePos = CurLine->GetTabCurPos();
   pp->LeftPos = CurLine->GetLeftPos();
 
-  pp->Table = m_codepage; //BUGBUG
+	pp->CodePage = m_codepage;
 
   if( Opt.EdOpt.SaveShortPos )
     memcpy (&pp->SavePos, &SavePos, sizeof (InternalEditorBookMark));

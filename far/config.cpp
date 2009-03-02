@@ -93,7 +93,7 @@ const wchar_t NKeySavedHistory[]=L"SavedHistory";
 const wchar_t NKeySavedViewHistory[]=L"SavedViewHistory";
 const wchar_t NKeySavedFolderHistory[]=L"SavedFolderHistory";
 const wchar_t NKeySavedDialogHistory[]=L"SavedDialogHistory";
-const wchar_t NKeyCodeTables[]=L"CodeTables";
+const wchar_t NKeyCodePages[]=L"CodePages";
 const wchar_t NParamHistoryCount[]=L"HistoryCount";
 
 const wchar_t *constBatchExt=L".BAT;.CMD;";
@@ -609,7 +609,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
       ID_VC_PERSISTENTSELECTION,
       ID_VC_SAVEPOSITION,
       ID_VC_SAVEBOOKMARKS,
-      ID_VC_AUTODETECTTABLE,
+			ID_VC_AUTODETECTCODEPAGE,
       ID_VC_TABSIZEEDIT,
       ID_VC_TABSIZE,
       ID_VC_SHOWSCROLLBAR,
@@ -632,12 +632,12 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /*  8 */  DI_CHECKBOX,    6, 9, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
   /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
   /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
-  /* 11 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectTable,
+	/* 11 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectCodePage,
   /* 12 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
   /* 13 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
   /* 14 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
   /* 15 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-  /* 16 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiTableAsDefault,
+	/* 16 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiCodePageAsDefault,
   /* 17 */  DI_TEXT,        0,16, 0,16, 0, 0, DIF_SEPARATOR, 0, L"",
   /* 18 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
   /* 19 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
@@ -656,11 +656,11 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
   if(!Opt.ViOpt.SaveViewerPos)
     CfgDlg[ID_VC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-  CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable;
+	CfgDlg[ID_VC_AUTODETECTCODEPAGE].Selected = ViOpt.AutoDetectCodePage;
   CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
   CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
   CfgDlg[ID_VC_PERSISTENTSELECTION].Selected = ViOpt.PersistentBlocks;
-  CfgDlg[ID_VC_ANSIASDEFAULT].Selected = ViOpt.AnsiTableAsDefault;
+	CfgDlg[ID_VC_ANSIASDEFAULT].Selected = ViOpt.AnsiCodePageAsDefault;
 
   CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData = Opt.strExternalViewer;
   CfgDlg[ID_VC_TABSIZEEDIT].strData.Format (L"%d",ViOpt.TabSize);
@@ -704,13 +704,13 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   Opt.ViOpt.SaveViewerPos=CfgDlg[ID_VC_SAVEPOSITION].Selected;
   Opt.ViOpt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
 
-  ViOpt.AutoDetectTable=CfgDlg[ID_VC_AUTODETECTTABLE].Selected;
+	ViOpt.AutoDetectCodePage=CfgDlg[ID_VC_AUTODETECTCODEPAGE].Selected;
 
   ViOpt.TabSize=_wtoi(CfgDlg[ID_VC_TABSIZEEDIT].strData);
   ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
   ViOpt.ShowArrows=CfgDlg[ID_VC_SHOWARROWS].Selected;
   ViOpt.PersistentBlocks=CfgDlg[ID_VC_PERSISTENTSELECTION].Selected;
-  ViOpt.AnsiTableAsDefault=CfgDlg[ID_VC_ANSIASDEFAULT].Selected;
+	ViOpt.AnsiCodePageAsDefault=CfgDlg[ID_VC_ANSIASDEFAULT].Selected;
   if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
     ViOpt.TabSize=8;
 }
@@ -733,7 +733,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     ID_EC_SAVEPOSITION,
     ID_EC_SAVEBOOKMARKS,
     ID_EC_AUTOINDENT,
-    ID_EC_AUTODETECTTABLE,
+		ID_EC_AUTODETECTCODEPAGE,
     ID_EC_CURSORBEYONDEOL,
     ID_EC_LOCKREADONLY,
     ID_EC_READONLYWARNING,
@@ -763,15 +763,15 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* 12 */  DI_CHECKBOX,    6,11, 0,11,0,0,DIF_AUTOMATION,0,(const wchar_t *)MEditConfigSavePos,
   /* 13 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
   /* 14 */  DI_CHECKBOX,    6,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
-  /* 15 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MEditAutoDetectTable,
+	/* 15 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
   /* 16 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
   /* 17 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
   /* 18 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
   /* 19 */  DI_FIXEDIT,     6,17, 9,17,0,0,0,0,L"",
   /* 20 */  DI_TEXT,       11,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
   /* 21 */  DI_CHECKBOX,    6,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
-  /* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableAsDefault,
-  /* 23 */  DI_CHECKBOX,    6,20, 0,20,0,0,0,0,(const wchar_t *)MEditConfigAnsiTableForNewFile,
+	/* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
+	/* 23 */  DI_CHECKBOX,    6,20, 0,20,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
   /* 24 */  DI_TEXT,        0,21, 0,21,0,0, DIF_SEPARATOR, 0, L"",
   /* 25 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
   /* 26 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
@@ -830,12 +830,12 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
   if(!EdOpt.SavePos)
     CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
-  CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable;
+	CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected = EdOpt.AutoDetectCodePage;
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
   CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
   CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
-  CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiTableAsDefault;
-  CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiTableForNewFile;
+	CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiCodePageAsDefault;
+	CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiCodePageForNewFile;
 
   CfgDlg[ID_EC_TABSIZEEDIT].strData.Format (L"%d",EdOpt.TabSize);
   CfgDlg[ID_EC_SHOWSCROLLBAR].Selected = EdOpt.ShowScrollBar;
@@ -898,9 +898,9 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   EdOpt.AutoIndent = CfgDlg[ID_EC_AUTOINDENT].Selected;
   EdOpt.SavePos = CfgDlg[ID_EC_SAVEPOSITION].Selected;
   EdOpt.SaveShortPos = CfgDlg[ID_EC_SAVEBOOKMARKS].Selected;
-  EdOpt.AutoDetectTable = CfgDlg[ID_EC_AUTODETECTTABLE].Selected;
-  EdOpt.AnsiTableAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
-  EdOpt.AnsiTableForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
+	EdOpt.AutoDetectCodePage = CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected;
+	EdOpt.AnsiCodePageAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
+	EdOpt.AnsiCodePageForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
 
   EdOpt.TabSize=_wtoi(CfgDlg[ID_EC_TABSIZEEDIT].strData);
 
@@ -976,7 +976,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
   {1, REG_DWORD,  NKeyViewer,L"SaveViewerPos",&Opt.ViOpt.SaveViewerPos,1, 0},
   {1, REG_DWORD,  NKeyViewer,L"SaveViewerShortPos",&Opt.ViOpt.SaveViewerShortPos,1, 0},
-  {1, REG_DWORD,  NKeyViewer,L"AutoDetectTable",&Opt.ViOpt.AutoDetectTable,0, 0},
+	{1, REG_DWORD,  NKeyViewer,L"AutoDetectCodePage",&Opt.ViOpt.AutoDetectCodePage,0, 0},
   {1, REG_DWORD,  NKeyViewer,L"TabSize",&Opt.ViOpt.TabSize,8, 0},
   {1, REG_DWORD,  NKeyViewer,L"ShowKeyBar",&Opt.ViOpt.ShowKeyBar,1, 0},
   {0, REG_DWORD,  NKeyViewer,L"ShowTitleBar",&Opt.ViOpt.ShowTitleBar,1, 0},
@@ -985,7 +985,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,L"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,L"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
   {1, REG_DWORD,  NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
-  {1, REG_DWORD,  NKeyViewer,L"AnsiTableAsDefault",&Opt.ViOpt.AnsiTableAsDefault,1, 0},
+	{1, REG_DWORD,  NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
 
   {1, REG_DWORD,  NKeyInterface, L"DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
   {1, REG_DWORD,  NKeyInterface, L"DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
@@ -1006,7 +1006,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,L"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
   {1, REG_DWORD,  NKeyEditor,L"SaveEditorPos",&Opt.EdOpt.SavePos,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,1, 0},
-  {1, REG_DWORD,  NKeyEditor,L"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
+	{1, REG_DWORD,  NKeyEditor,L"AutoDetectCodePage",&Opt.EdOpt.AutoDetectCodePage,0, 0},
   {1, REG_DWORD,  NKeyEditor,L"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
   {0, REG_DWORD,  NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,2048,0}, // $ 03.12.2001 IS размер буфера undo в редакторе
@@ -1017,8 +1017,8 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,L"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
   {0, REG_DWORD,  NKeyEditor,L"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
-  {1, REG_DWORD,  NKeyEditor,L"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
-  {1, REG_DWORD,  NKeyEditor,L"AnsiTableAsDefault",&Opt.EdOpt.AnsiTableAsDefault,1, 0},
+	{1, REG_DWORD,  NKeyEditor,L"AnsiCodePageForNewFile",&Opt.EdOpt.AnsiCodePageForNewFile,1, 0},
+	{1, REG_DWORD,  NKeyEditor,L"AnsiCodePageAsDefault",&Opt.EdOpt.AnsiCodePageAsDefault,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
   {0, REG_DWORD,  NKeyEditor,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
@@ -1066,7 +1066,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
   {1, REG_DWORD,  NKeySystem,L"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
   {1, REG_DWORD,  NKeySystem,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
-  {1, REG_BINARY, NKeySystem,L"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
+	{1, REG_BINARY, NKeySystem,L"FindCodePage",&Opt.CodePage, sizeof(Opt.CodePage), 0},
   {1, REG_SZ,     NKeySystem,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
   {0, REG_DWORD,  NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
@@ -1200,7 +1200,7 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeySystem,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 
-  {1, REG_DWORD,  NKeyCodeTables,L"CPMenuMode",&Opt.CPMenuMode,0,0},
+	{1, REG_DWORD,  NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
 };
 
 

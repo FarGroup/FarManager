@@ -101,7 +101,7 @@ Viewer::Viewer(bool bQuickView)
   SetStatusMode(TRUE);
   HideCursor=TRUE;
   DeleteFolder=TRUE;
-  TableChangedByUser=FALSE;
+	CodePageChangedByUser=FALSE;
   ReadStdin=FALSE;
   memset(&BMSavePos,0xff,sizeof(BMSavePos));
   memset(UndoData,0xff,sizeof(UndoData));
@@ -132,10 +132,10 @@ Viewer::~Viewer()
       else
         strCacheName = strFullFileName;
 
-      UINT Table=0;
-      if (TableChangedByUser)
+			UINT CodePage=0;
+			if (CodePageChangedByUser)
       {
-        Table=VM.CodePage;
+				CodePage=VM.CodePage;
       }
 
       {
@@ -144,7 +144,7 @@ Viewer::~Viewer()
         PosCache.Param[1]=LeftPos;
         PosCache.Param[2]=VM.Hex;
         //=PosCache.Param[3];
-        PosCache.Param[4]=Table;
+				PosCache.Param[4]=CodePage;
         if(Opt.ViOpt.SaveViewerShortPos)
         {
           PosCache.Position[0]=BMSavePos.SavePosAddr;
@@ -289,7 +289,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
     return(FALSE);
   }
 
-  TableChangedByUser=FALSE;
+	CodePageChangedByUser=FALSE;
   ViewFile=NewViewFile;
 
   ConvertNameToFull (strFileName,strFullFileName);
@@ -351,14 +351,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			if(CachedCodePage)
 			{
 				VM.CodePage=CachedCodePage;
-				TableChangedByUser=TRUE;
+				CodePageChangedByUser=TRUE;
 			}
 			if(VM.CodePage==CP_AUTODETECT)
-				VM.CodePage=Opt.ViOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
+				VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 		}
 		else
 		{
-			TableChangedByUser=TRUE;
+			CodePageChangedByUser=TRUE;
 		}
 		if(!IsUnicodeOrUTFCP(VM.CodePage))
 			fseek(ViewFile,0,SEEK_SET);
@@ -1267,9 +1267,9 @@ int Viewer::ProcessKey(int Key)
             else
               strCacheName = strFileName;
 
-            UINT Table=0;
-            if (TableChangedByUser)
-              Table=VM.CodePage;
+						UINT CodePage=0;
+						if (CodePageChangedByUser)
+							CodePage=VM.CodePage;
 
             {
               struct /*TPosCache32*/ TPosCache64 PosCache={0};
@@ -1277,7 +1277,7 @@ int Viewer::ProcessKey(int Key)
               PosCache.Param[1]=LeftPos;
               PosCache.Param[2]=VM.Hex;
               //=PosCache.Param[3];
-              PosCache.Param[4]=Table;
+							PosCache.Param[4]=CodePage;
               if(Opt.ViOpt.SaveViewerShortPos)
               {
                 PosCache.Position[0]=BMSavePos.SavePosAddr;
@@ -1365,7 +1365,7 @@ int Viewer::ProcessKey(int Key)
       ChangeViewKeyBar();
       Show();
 //    LastSelPos=FilePos;
-      TableChangedByUser=TRUE;
+			CodePageChangedByUser=TRUE;
       return(TRUE);
     }
 
@@ -1374,7 +1374,7 @@ int Viewer::ProcessKey(int Key)
       UINT nCodePage = GetTableEx(VM.CodePage, true, true);
       if (nCodePage!=(UINT)-1)
       {
-        TableChangedByUser=TRUE;
+				CodePageChangedByUser=TRUE;
 
         if (IsUnicodeCP(VM.CodePage) && !IsUnicodeCP(nCodePage))
         {
@@ -1812,13 +1812,13 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   */
   if ( MsY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible())) // Status line
   {
-    int XTable, XPos, NameLength;
+		int XCodePage, XPos, NameLength;
     NameLength=ObjWidth-40;
     if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
       NameLength-=6;
     if (NameLength<20)
       NameLength=20;
-    XTable=NameLength+1;
+		XCodePage=NameLength+1;
     XPos=NameLength+1+10+1+10+1;
 
     while(IsMouseButtonPressed());
@@ -1830,7 +1830,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
 
     //_D(SysLog(L"MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
-    if ( MsX>=XTable && MsX<=XTable+10 )
+		if ( MsX>=XCodePage && MsX<=XCodePage+10 )
     {
         ProcessKey(KEY_SHIFTF8);
         return (TRUE);
@@ -3015,7 +3015,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->CurMode.CodePage=VM.CodePage;
         Info->Options=0;
         if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;
-        if (ViOpt.AutoDetectTable)     Info->Options|=VOPT_AUTODETECTTABLE;
+				if (ViOpt.AutoDetectCodePage)     Info->Options|=VOPT_AUTODETECTCODEPAGE;
         Info->TabSize=ViOpt.TabSize;
         Info->LeftPos=LeftPos;
         return(TRUE);

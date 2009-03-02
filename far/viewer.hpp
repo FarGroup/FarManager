@@ -138,7 +138,7 @@ class Viewer:public ScreenObject
     string strTitle;
 
     string strPluginData;
-    int TableChangedByUser;
+		int CodePageChangedByUser;
     int ReadStdin;
     int InternalKey;
 
@@ -232,8 +232,8 @@ class Viewer:public ScreenObject
     int GetTabSize() const { return ViOpt.TabSize; }
     void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }
 
-    int GetAutoDetectTable() const { return ViOpt.AutoDetectTable; }
-    void SetAutoDetectTable(int newValue) { ViOpt.AutoDetectTable=newValue; }
+		int GetAutoDetectCodePage() const { return ViOpt.AutoDetectCodePage; }
+		void SetAutoDetectCodePage(int newValue) { ViOpt.AutoDetectCodePage=newValue; }
 
     int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
     void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }

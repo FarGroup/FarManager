@@ -608,7 +608,7 @@ void FileEditor::Init (
   if (!LoadFile(strFullFileName,UserBreak))
   {
 	if(m_codepage==CP_AUTODETECT)
-		m_codepage=Opt.EdOpt.AnsiTableForNewFile?GetACP():GetOEMCP();
+		m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
     m_editor->SetCodePage (m_codepage);
     if(BlankFileName)
     {
@@ -1229,7 +1229,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			if ( !IsUnicodeCP(m_codepage) )
 			{
 				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
-				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+				Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 				ChangeEditKeyBar();
 			}
 			return TRUE;
@@ -1243,7 +1243,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if ( codepage != -1 )
 				{
 					SetCodePage (codepage);
-					Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+					Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 				}
 			}
 
@@ -1422,18 +1422,18 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 		if ( bCached )
 		{
-			if(cp.Table)
+			if(cp.CodePage)
 			{
-				m_codepage = cp.Table;
-				Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+				m_codepage = cp.CodePage;
+				Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 			}
 		}
 		if(m_codepage==CP_AUTODETECT)
-			m_codepage=Opt.EdOpt.AnsiTableAsDefault?GetACP():GetOEMCP();
+			m_codepage=Opt.EdOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 	}
 	else
 	{
-		Flags.Set(FFILEEDIT_TABLECHANGEDBYUSER);
+		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 	}
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 	BOOL MessageShown=FALSE;
@@ -2189,7 +2189,7 @@ void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
   m_editor->SetPersistentBlocks(EdOpt.PersistentBlocks);
   m_editor->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
   m_editor->SetAutoIndent(EdOpt.AutoIndent);
-  m_editor->SetAutoDetectTable(EdOpt.AutoDetectTable);
+	m_editor->SetAutoDetectCodePage(EdOpt.AutoDetectCodePage);
   m_editor->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
   m_editor->SetCharCodeBase(EdOpt.CharCodeBase);
   m_editor->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
@@ -2517,13 +2517,13 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 		pp->ScreenLine=PosCache.Param[1];
 		pp->LinePos=PosCache.Param[2];
 		pp->LeftPos=PosCache.Param[3];
-		pp->Table=PosCache.Param[4];
+		pp->CodePage=PosCache.Param[4];
 
 		if((int)pp->Line < 0) pp->Line=0;
 		if((int)pp->ScreenLine < 0) pp->ScreenLine=0;
 		if((int)pp->LinePos < 0) pp->LinePos=0;
 		if((int)pp->LeftPos < 0) pp->LeftPos=0;
-		if((int)pp->Table < 0) pp->Table=0;
+		if((int)pp->CodePage < 0) pp->CodePage=0;
 
 		return true;
 	}
@@ -2552,7 +2552,7 @@ void FileEditor::SaveToCache ()
 		PosCache.Param[1] = cp.ScreenLine;
 		PosCache.Param[2] = cp.LinePos;
 		PosCache.Param[3] = cp.LeftPos;
-		PosCache.Param[4] = Flags.Check(FFILEEDIT_TABLECHANGEDBYUSER)?m_codepage:0;
+		PosCache.Param[4] = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
 		if( Opt.EdOpt.SaveShortPos )
 		{
 			//if no position saved these are nulls

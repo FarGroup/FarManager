@@ -1237,7 +1237,7 @@ MViewConfigSaveShortPos
 "Ukládat &záložky"
 "&Lesezeichen speichern"
 
-MViewAutoDetectTable
+MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
 "&Autodetect code page"
 upd:"&Autodetekovat znakovou sadu"
@@ -1267,7 +1267,7 @@ MViewConfigPersistentSelection
 "Trvalé &výběry"
 "Dauerhafte Text&markierungen"
 
-MViewConfigAnsiTableAsDefault
+MViewConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
 "Use ANS&I code page by default"
 upd:"Automaticky otevírat soubory ve &WIN kódování"
@@ -1366,7 +1366,7 @@ MEditConfigSaveShortPos
 "Ukládat zá&ložky"
 "&Lesezeichen speichern"
 
-MEditAutoDetectTable
+MEditAutoDetectCodePage
 "&Автоопределение кодовой страницы"
 "&Autodetect code page"
 upd:"&Autodetekovat znakovou sadu"
@@ -1402,13 +1402,13 @@ MEditConfigScrollbar
 "Zobr&azovat posuvník"
 "Scro&llbalken anzeigen"
 
-MEditConfigAnsiTableAsDefault
+MEditConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
 "Use ANS&I code page by default"
 upd:"Automaticky otevírat soubory ve &WIN kódování"
 upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
 
-MEditConfigAnsiTableForNewFile
+MEditConfigAnsiCodePageForNewFile
 "Использо&вать кодовую страницу ANSI при создании файлов"
 "Use ANSI code page when c&reating new files"
 upd:"V&ytvářet nové soubory ve WIN kódování"
@@ -5684,7 +5684,7 @@ MFindFileWholeWords
 "&Celá slova"
 "Nur &ganze Wörter"
 
-MFindFileAllTables
+MFindFileAllCodePages
 "Все кодовые страницы"
 "All code pages"
 upd:"Všechny znakové sady"
