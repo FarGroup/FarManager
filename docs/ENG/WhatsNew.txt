@@ -9,7 +9,7 @@
 [-] Fixed error
 
 ---------------------------------------------------------------------------
-FAR 1.75 (build 2533) (02.03.2009)
+FAR 1.75 (build 2534) (02.03.2009)
 ---------------------------------------------------------------------------
 System
 ~~~~~~
@@ -29,6 +29,8 @@ System
 [!] Extended selection of command prompt format symbols.
 [!] Numpad keys '*' and '/' are now called "Multiply" and "Divide"
     respectively. Those names will be used in macros.
+[*] Из настроек интерфейса убрана опция "В панелях средняя кнопка равна Enter".
+    Для возврата прежнего поведения используйте макрос MiddleClickAsEnter.reg.
 [+] "Maximize" console by AltF9 now works in menu and pseudo-dialogs (copying,
     deleting, loading file into editor, change file attributes, etc.)
 [+] TechInfo#72, allows to save plugin paths in history.
