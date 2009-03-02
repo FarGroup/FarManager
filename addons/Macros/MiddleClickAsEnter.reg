@@ -1,0 +1,43 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\MsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\MsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) Enter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) CtrlEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) AltEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\ShiftMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\ShiftMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) ShiftEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlAltMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlAltMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) CtrlAltEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlShiftMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlShiftMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) CtrlShiftEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltShiftMsM1Click]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltShiftMsM1Click]
+"Sequence"="$If(Shell||Menu||MainMenu||UserMenu||Help) AltShiftEnter $Else $Akey $End"
+"Description"="Middle mouse click = Enter"
+"DisableOutput"=dword:00000001
