@@ -1617,10 +1617,17 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
       ExpandedDir[0]=toupper(ExpandedDir[0]);
 
-    if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+    if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && (!ExpandedDir[1] || IsSlash(ExpandedDir[1])) && GetFileAttributes(ExpandedDir) == (DWORD)-1)
     {
-      GetRegKey(strSystemExecutor,"~",(char*)ExpandedDir,FarPath,sizeof(ExpandedDir)-1);
-      DeleteEndSlash(ExpandedDir);
+      char tempExpandedDir[8192];
+      GetRegKey(strSystemExecutor,"~",(char*)tempExpandedDir,FarPath,sizeof(tempExpandedDir)-1);
+      if(ExpandedDir[1])
+      {
+        AddEndSlash(tempExpandedDir);
+        xstrncat(tempExpandedDir,ExpandedDir+2,sizeof(tempExpandedDir)-1);
+      }
+      DeleteEndSlash(tempExpandedDir);
+      xstrncpy(ExpandedDir,tempExpandedDir,sizeof(ExpandedDir)-1);
     }
 
     if(strpbrk(&ExpandedDir[PathPrefix(ExpandedDir)?4:0],"?*")) // это маска?

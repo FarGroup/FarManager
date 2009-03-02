@@ -178,4 +178,10 @@ extern int ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText;
 
 extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
+// Macro Const
+extern const char constMsX[];
+extern const char constMsY[];
+extern const char constMsButton[];
+extern const char constMsCtrlState[];
+
 #endif  // __FARGLOBAL_HPP__

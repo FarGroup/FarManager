@@ -1173,11 +1173,11 @@ static void printKeyValue(DWORD* k, int& i)
     ++i;
     SysLog("%08X: %08X |", ++ii,k[i]);
   }
-  else if ( Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHVAR || Code == MCODE_OP_SAVE)
+  else if ( Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHVAR || Code == MCODE_OP_SAVE || Code == MCODE_OP_PUSHCONST)
   {
     int iii=i+1;
     const char *s=printfStr(k, i);
-    if(Code == MCODE_OP_PUSHSTR)
+    if(Code == MCODE_OP_PUSHSTR || Code == MCODE_OP_PUSHCONST)
       SysLog("%08X: %08X |   \"%s\"", iii,k[iii], s);
     else
       SysLog("%08X: %08X |   %%%s", iii,k[iii], s);

@@ -162,6 +162,8 @@ class KeyMacro
     // из строкового представления макроса сделать MacroRecord
     int  ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
     BOOL GetMacroParseError(char *ErrMsg1,char *ErrMsg2,char *ErrMsg3);
+
+    static void SetMacroConst(const char *ConstName, const TVar Value);
 };
 
 #endif // __KEYMACRO_HPP__

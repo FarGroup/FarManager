@@ -182,6 +182,13 @@ enum BaseDefKeyboard
 
   KEY_SLEEP                =0x0000020E,
 
+  KEY_MSLCLICK             =0x0000020F,
+  KEY_MSRCLICK             =0x00000210,
+
+  KEY_MSM1CLICK            =0x00000211,
+  KEY_MSM2CLICK            =0x00000212,
+  KEY_MSM3CLICK            =0x00000213,
+
   KEY_VK_0xFF_BEGIN        =0x00000300,
 #ifdef FAR_USE_INTERNALS
 //  KEY_HP_INTERNET          =0x00000323,

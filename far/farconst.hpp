@@ -34,6 +34,7 @@ inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 inline int IsSpace(int x) { return x==' ' || x=='\t'; }
 inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
+inline int IsSlash(char x) { return x=='\\' || x=='/'; }
 
 #define  FALSE        0
 #define  TRUE         1

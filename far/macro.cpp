@@ -420,7 +420,6 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   return Ret;
 }
 
-
 int KeyMacro::ProcessKey(int Key)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::ProcessKey()"));
@@ -2862,6 +2861,7 @@ done:
     INPUT_RECORD rec;
     if(PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
     {
+    _SVS(SysLog("[%s#%d] KeyMacro::GetKey() ==> call GetInputRecord()",__FILE__,__LINE__));
       _SVS(SysLog("Mantis#0000581"));
       GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
       Work.KeyProcess=0;
@@ -3696,8 +3696,20 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
   }
 
   if(ReadMode == MACRO_CONSTS)
-    varLook(glbConstTable, constRegError,1)->value = _i64(0);
+  {
+    SetMacroConst(constRegError,_i64(0));
+    SetMacroConst(constMsX,_i64(0));
+    SetMacroConst(constMsY,_i64(0));
+    SetMacroConst(constMsButton,_i64(0));
+    SetMacroConst(constMsCtrlState,_i64(0));
+  }
   return TRUE;
+}
+
+
+void KeyMacro::SetMacroConst(const char *ConstName, const TVar Value)
+{
+  varLook(glbConstTable, ConstName,1)->value = Value;
 }
 
 /*
@@ -3958,13 +3970,27 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     // <Клавиши, которые не введешь в диалоге назначения>
     static const char * const PreDefKeyName[]={
       "CtrlDown", "Enter", "Esc", "F1", "CtrlF5",
-      "CtrlMsWheelUp","ShiftMsWheelUp","AltMsWheelUp","CtrlShiftMsWheelUp","CtrlAltMsWheelUp","AltShiftMsWheelUp",
-      "CtrlMsWheelDown","ShiftMsWheelDown","AltMsWheelDown","CtrlShiftMsWheelDown","CtrlAltMsWheelDown","AltShiftMsWheelDown",
-      "CtrlMsWheelLeft","ShiftMsWheelLeft","AltMsWheelLeft","CtrlShiftMsWheelLeft","CtrlAltMsWheelLeft","AltShiftMsWheelLeft",
-      "CtrlMsWheelRight","ShiftMsWheelRight","AltMsWheelRight","CtrlShiftMsWheelRight","CtrlAltMsWheelRight","AltShiftMsWheelRight"
     };
+
     for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
       Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
+
+    static DWORD PreDefKey[]={
+      KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
+    };
+    static DWORD PreDefModKey[]={
+      0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
+    };
+
+    for(I=0; I < sizeof(PreDefKey)/sizeof(PreDefKey[0]); ++I)
+    {
+      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)"\1");
+      for(int J=0; J < sizeof(PreDefModKey)/sizeof(PreDefModKey[0]); ++J)
+      {
+        KeyToText(PreDefKey[I]|PreDefModKey[J],KeyText);
+        Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)KeyText);
+      }
+    }
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
     char *KeyStr;

@@ -170,3 +170,10 @@ int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
 int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+
+
+// Macro Const
+const char constMsX[]="MsX";
+const char constMsY[]="MsY";
+const char constMsButton[]="MsButton";
+const char constMsCtrlState[]="MsCtrlState";
