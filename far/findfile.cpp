@@ -1912,6 +1912,8 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 		if (SearchMode==FFSEARCH_SELECTED)
 			CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
 
+		InitInFileSearch();
+
 		while (1)
 		{
 			string strCurRoot;
@@ -1940,8 +1942,6 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 			FindMessageReady=TRUE;
 
 			statusCS.Leave ();
-
-			InitInFileSearch();
 
 			while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
 			{
@@ -2768,7 +2768,9 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
       CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
     ReleaseMutex(hPluginMutex);
     RecurseLevel=0;
+		InitInFileSearch();
     ScanPluginTree(hPlugin,ArcList[FindFileArcIndex]->Flags);
+		ReleaseInFileSearch();
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==FFSEARCH_ROOT ||
         SearchMode==FFSEARCH_ALL ||
