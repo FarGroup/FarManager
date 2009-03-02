@@ -2400,26 +2400,6 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
 
-  /* $ 21.08.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР */
-  /* $ 17.12.2001 IS
-    ! новшество от Василия - опционально
-  */
-  if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
-      && (MouseEvent->dwEventFlags != MOUSE_MOVED)
-      && Opt.PanelMiddleClickRule)
-  {
-    int Key = KEY_ENTER;
-    if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-      Key |= KEY_SHIFT;
-    if (MouseEvent->dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
-      Key |= KEY_CTRL;
-    if (MouseEvent->dwControlKeyState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
-      Key |= KEY_ALT;
-    ProcessKey(Key);
-    return(TRUE);
-  }
-
   if (Panel::PanelProcessMouse(MouseEvent,RetCode))
     return(RetCode);
 

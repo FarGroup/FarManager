@@ -1091,12 +1091,6 @@ MConfigMouse
 "M&yš"
 "M&aus aktivieren"
 
-MConfigMousePanelMClickRule
-"В панелях ср&едняя кнопка равна Enter"
-"Middle &button equals Enter in panels"
-"Prostřední tlač. znamená v panelech Enter"
-"Mittlere &Taste als Enter in Panels"
-
 MConfigKeyBar
 "Показывать &линейку клавиш"
 "Show &key bar"

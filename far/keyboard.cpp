@@ -360,7 +360,7 @@ int IsMouseButtonPressed()
   INPUT_RECORD rec;
   if (PeekInputRecord(&rec))
     GetInputRecord(&rec);
-  Sleep(20);
+  Sleep(1);
   if (LButtonPressed)
     return(1);
   if (RButtonPressed)
@@ -659,7 +659,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 
     ScrBuf.Flush();
 
-    Sleep(15);
+    Sleep(1);
     // Позволяет избежать ситуации блокирования мыши
     if(Opt.Mouse) // А нужно ли это условие???
       SetFarConsoleMode();
@@ -1914,7 +1914,31 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       ReturnAltValue=TRUE;
       //_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
       AltValue&=0xFFFF;
-      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
+
+			/*
+			О перетаскивании из проводника / вставке текста в консоль, на примере буквы 'ы':
+
+			1. Нажимается Alt:
+			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+
+			2. Через numpad-клавиши вводится код символа в OEM, если он туда мапится, или 63 ('?'), если не мапится:
+			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD2, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD3, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+			bKeyDown=TRUE,  wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_NUMPAD5, UnicodeChar=0,    dwControlKeyState=LEFT_ALT_PRESSED
+
+			3. Отжимается Alt, при этом в uChar.UnicodeChar лежит исходный символ:
+			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=1099, dwControlKeyState=0
+                        
+			Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
+			*/
+
+			if(rec->Event.KeyEvent.uChar.UnicodeChar)
+				AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
+			else
+				rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
       //// // _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }

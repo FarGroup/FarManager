@@ -464,7 +464,6 @@ struct Options
   int SmallIcon;
   string strRegRoot;
   int PanelRightClickRule; // задает поведение правой клавиши мыши
-  int PanelMiddleClickRule; // поведение средней кнопки мыши в панел€х
   int PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift дл€ панелей.
   // Panel/CtrlFRule в реестре - задает поведение Ctrl-F. ≈сли = 0, то штампуетс€ файл как есть, иначе - с учетом отображени€ на панели
   int PanelCtrlFRule;

@@ -2438,15 +2438,9 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
     1. #Alt-U#/#Alt-I# indent the current line if no block is selected.
 
     2. Holding down #Alt# and typing a character code on the numeric
-       keypad inserts the character that has the specified code. The
-       character is not translated to the current codepage of the editor.
+       keypad inserts the character that has the specified code (0-65535).
 
-    3. Dragging a file name from the Explorer to the FAR editor window
-       inserts the name in the OEM (DOS) code page, and the current
-       editor code page is not taken into account. This issue will be
-       addressed in future versions of FAR.
-
-    4. If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
+    3. If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
        line as a block and copies it to the clipboard.
 
 
