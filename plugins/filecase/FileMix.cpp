@@ -78,7 +78,7 @@ TCHAR *GetFullName(TCHAR *Dest,const TCHAR *Dir,TCHAR *Name)
 
 BOOL IsWordDiv(int c)
 {
-  return (memchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
+  return (_tmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
 }
 
 //  CaseWord - convert case of string by given type
