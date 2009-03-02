@@ -1033,16 +1033,13 @@ int FileList::ProcessKey(int Key)
     {
       _ALGO(CleverSysLog clv("Enter/Shift-Enter"));
       _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
-      if (CmdLength>0 || FileCount==0)
-      {
-        // Для средней клавиши мыши и не пустой строке... исполним эту строку
-        if(MButtonPressed && CmdLength>0)
-        {
-          CtrlObject->CmdLine->ProcessKey(Key);
-          return(TRUE);
-        }
-        break;
-      }
+			if(!FileCount)
+				break;
+			if(CmdLength)
+			{
+				CtrlObject->CmdLine->ProcessKey(Key);
+				return(TRUE);
+			}
       ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER);
       return(TRUE);
     }

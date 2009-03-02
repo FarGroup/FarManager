@@ -1503,14 +1503,6 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwEventFlags==MOUSE_MOVED &&
      (MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED)==0)
     return(FALSE);
-  /* $ 26.10.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР */
-  if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
-  {
-    ProcessKey(KEY_ENTER);
-    return(TRUE);
-  }
-  /* VVM $ */
 
   int MsX,MsY;
   MsX=MouseEvent->dwMousePosition.X;
