@@ -76,6 +76,7 @@ static int KeyCodeForALT_LastPressed=0;
 static int PrePreMouseEventFlags;
 #endif
 
+static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 
@@ -178,7 +179,12 @@ static struct TFKey3 FKeys1[]={
   { KEY_MEDIA_STOP,           9, L"MediaStop"},
   { KEY_BACKSLASH,            9, L"BackSlash"},
   //{ KEY_HP_MEETING,           9, "HPMeeting"},
+  { KEY_MSM1CLICK,            9, L"MsM1Click"},
+  { KEY_MSM2CLICK,            9, L"MsM2Click"},
+  { KEY_MSM3CLICK,            9, L"MsM3Click"},
   //{ KEY_HP_MARKET,            8, "HPMarket"},
+  { KEY_MSLCLICK,             8, L"MsLClick"},
+  { KEY_MSRCLICK,             8, L"MsRClick"},
   { KEY_VOLUME_UP,            8, L"VolumeUp"},
   { KEY_SUBTRACT,             8, L"Subtract"},
   { KEY_NUMENTER,             8, L"NumEnter"},
@@ -364,6 +370,24 @@ int IsMouseButtonPressed()
   return(0);
 }
 
+static DWORD KeyMsClick2ButtonState(DWORD Key)
+{
+  switch(Key)
+  {
+    case KEY_MSLCLICK:
+      return FROM_LEFT_1ST_BUTTON_PRESSED;
+    case KEY_MSM1CLICK:
+      return FROM_LEFT_2ND_BUTTON_PRESSED;
+    case KEY_MSM2CLICK:
+      return FROM_LEFT_3RD_BUTTON_PRESSED;
+    case KEY_MSM3CLICK:
+      return FROM_LEFT_4TH_BUTTON_PRESSED;
+    case KEY_MSRCLICK:
+      return RIGHTMOST_BUTTON_PRESSED;
+  }
+  return 0;
+}
+
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
   static int LastEventIdle=FALSE;
@@ -371,6 +395,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
   DWORD LoopCount=0,CalcKey;
   DWORD ReadKey=0;
   int NotMacros=FALSE;
+  static int LastMsClickMacroKey=0;
 
   if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
   {
@@ -381,14 +406,32 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     int MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
     {
-      ScrBuf.Flush();
-      TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
-      if(!(MacroKey&KEY_SHIFT))
-        ShiftPressed=0;
-//_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
-//      memset(rec,0,sizeof(*rec));
-      return(MacroKey);
+      if(KeyMsClick2ButtonState(MacroKey))
+      {
+        // Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
+        rec->EventType=MOUSE_EVENT;
+        memcpy(&rec->Event.MouseEvent,&lastMOUSE_EVENT_RECORD,sizeof(MOUSE_EVENT_RECORD));
+        rec->Event.MouseEvent.dwButtonState=KeyMsClick2ButtonState(MacroKey);
+        LastMsClickMacroKey=MacroKey;
+        return MacroKey;
+      }
+      else
+      {
+        // если предыдущая клавиша мышиная - сбросим состояние панели Drag
+        if(KeyMsClick2ButtonState(LastMsClickMacroKey))
+        {
+          LastMsClickMacroKey=0;
+          Panel::EndDrag();
+        }
+        ScrBuf.Flush();
+        TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
+        rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+        if(!(MacroKey&KEY_SHIFT))
+          ShiftPressed=0;
+        //_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
+        // memset(rec,0,sizeof(*rec));
+        return(MacroKey);
+      }
     }
   }
 
@@ -1128,6 +1171,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 
   if (rec->EventType==MOUSE_EVENT)
   {
+    memcpy(&lastMOUSE_EVENT_RECORD,&rec->Event.MouseEvent,sizeof(MOUSE_EVENT_RECORD));
 #if defined(MOUSEKEY)
     PrePreMouseEventFlags=PreMouseEventFlags;
 #endif
@@ -1135,6 +1179,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 
     DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
+    KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
 
 /*
     // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
@@ -1157,6 +1202,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 
     DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
+    KeyMacro::SetMacroConst(constMsButton,(__int64)rec->Event.MouseEvent.dwButtonState);
 
     if(MouseEventFlags != MOUSE_MOVED)
     {
@@ -1175,6 +1221,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
     PrevMouseY=MouseY;
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
+    KeyMacro::SetMacroConst(constMsX,(__int64)MouseX);
+    KeyMacro::SetMacroConst(constMsY,(__int64)MouseY);
 
 #if defined(MOUSEKEY)
     if(PrePreMouseEventFlags == DOUBLE_CLICK)
@@ -1224,6 +1272,39 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       memset(rec,0,sizeof(*rec));
       rec->EventType = KEY_EVENT;
     } /* if */
+
+    if(rec->EventType==MOUSE_EVENT && !ExcludeMacro && CtrlObject && !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
+    {
+      if(!(MouseEventFlags == MOUSE_MOVED || MouseEventFlags == DOUBLE_CLICK))
+      {
+        DWORD MsCalcKey=0;
+
+        if(rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSRCLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSLCLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM1CLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM2CLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM3CLICK;
+
+        if(MsCalcKey)
+        {
+          MsCalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                       (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                       (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+          if(CtrlObject->Macro.ProcessKey(MsCalcKey))
+          {
+            memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
+            return KEY_NONE;
+          }
+
+        }
+      }
+    }
+
   }
 
   int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);

@@ -154,4 +154,10 @@ extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков
 
 extern const wchar_t *FavoriteCodePagesKey;
 
+// Macro Const
+extern const wchar_t constMsX[];
+extern const wchar_t constMsY[];
+extern const wchar_t constMsButton[];
+extern const wchar_t constMsCtrlState[];
+
 #endif  // __FARGLOBAL_HPP__

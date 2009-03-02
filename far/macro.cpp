@@ -3563,7 +3563,21 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
     else if (Type == REG_QWORD)
 			varInsert(*t, lpwszValueName)->value = IData64;
   }
+
+  if(ReadMode == MACRO_CONSTS)
+  {
+    SetMacroConst(constMsX,_i64(0));
+    SetMacroConst(constMsY,_i64(0));
+    SetMacroConst(constMsButton,_i64(0));
+    SetMacroConst(constMsCtrlState,_i64(0));
+  }
+
   return TRUE;
+}
+
+void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar Value)
+{
+  varLook(glbConstTable, ConstName,1)->value = Value;
 }
 
 /*
@@ -3798,15 +3812,28 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     LastKey=0;
 
     // <Клавиши, которые не введешь в диалоге назначения>
-    static const wchar_t * const PreDefKeyName[]={
-      L"CtrlDown", L"Enter", L"Esc", L"F1", L"CtrlF5",
-      L"CtrlMsWheelUp",L"ShiftMsWheelUp",L"AltMsWheelUp",L"CtrlShiftMsWheelUp",L"CtrlAltMsWheelUp",L"AltShiftMsWheelUp",
-      L"CtrlMsWheelDown",L"ShiftMsWheelDown",L"AltMsWheelDown",L"CtrlShiftMsWheelDown",L"CtrlAltMsWheelDown",L"AltShiftMsWheelDown",
-      L"CtrlMsWheelLeft",L"ShiftMsWheelLeft",L"AltMsWheelLeft",L"CtrlShiftMsWheelLeft",L"CtrlAltMsWheelLeft",L"AltShiftMsWheelLeft",
-      L"CtrlMsWheelRight",L"ShiftMsWheelRight",L"AltMsWheelRight",L"CtrlShiftMsWheelRight",L"CtrlAltMsWheelRight",L"AltShiftMsWheelRight"
-    };
+	static const wchar_t * const PreDefKeyName[]={
+		L"CtrlDown", L"Enter", L"Esc", L"F1", L"CtrlF5",
+	};
 		for(I=0; I < int(countof(PreDefKeyName)); ++I)
-      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
+			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
+
+	static DWORD PreDefKey[]={
+		KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
+	};
+	static DWORD PreDefModKey[]={
+		0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
+	};
+
+	for(I=0; I < sizeof(PreDefKey)/sizeof(PreDefKey[0]); ++I)
+	{
+		Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)"\1");
+		for(int J=0; J < sizeof(PreDefModKey)/sizeof(PreDefModKey[0]); ++J)
+		{
+			KeyToText(PreDefKey[I]|PreDefModKey[J],strKeyText);
+			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
+		}
+	}
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
     char *KeyStr;
