@@ -905,7 +905,7 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
     BufPtr++;
   if ( bound1 )
   {
-    pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr+1;
+		pSrcString = oSrcString = sSrcString = (wchar_t*)BufPtr+(*BufPtr?1:0);
     if ( *BufPtr != bound1 )
     {
       tmp[0] = bound1;

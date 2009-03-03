@@ -308,7 +308,9 @@ KeyMacro::KeyMacro()
   Work.Init(NULL);
   LockScr=NULL;
   MacroLIB=NULL;
-  RecBuffer=NULL;
+	Rec.Buffer=NULL;
+	Rec.BufferSize=0;
+	Rec.Src=NULL;
   Mode=MACRO_SHELL;
   LoadMacros();
 }
@@ -333,7 +335,7 @@ void KeyMacro::InitInternalLIBVars()
     }
     xf_free(MacroLIB);
   }
-  if(RecBuffer) xf_free(RecBuffer);
+	if(Rec.Buffer) xf_free(Rec.Buffer);
   MacroLIBCount=0;
   MacroLIB=NULL;
 }
@@ -355,8 +357,9 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
     Work.Executing=MACROMODE_NOMACRO;
   }
 
-  RecBuffer=NULL;
-  RecBufferSize=0;
+	Rec.Buffer=NULL;
+	Rec.BufferSize=0;
+	Rec.Src=NULL;
 
   Recording=MACROMODE_NOMACRO;
   InternalInput=FALSE;
@@ -461,8 +464,8 @@ int KeyMacro::ProcessKey(int Key)
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
-      //if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-      if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
+			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && Rec.BufferSize)
+			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && Rec.BufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=(DWORD)-1;
@@ -472,17 +475,20 @@ int KeyMacro::ProcessKey(int Key)
 
       if (MacroKey==(DWORD)-1)
       {
-        if(RecBuffer)  xf_free(RecBuffer);
-        RecBuffer=NULL;
+				if(Rec.Buffer)
+				{
+					xf_free(Rec.Buffer);
+					Rec.Buffer=NULL;
+				}
       }
       else
       {
         // в области common будем искать только при удалении
-        int Pos=GetIndex(MacroKey,StartMode,!(RecBuffer && RecBufferSize));
+				int Pos=GetIndex(MacroKey,StartMode,!(Rec.Buffer && Rec.BufferSize));
         if (Pos == -1)
         {
           Pos=MacroLIBCount;
-          if(RecBufferSize > 0)
+					if(Rec.BufferSize > 0)
           {
             struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
             if (NewMacroLIB==NULL)
@@ -508,18 +514,18 @@ int KeyMacro::ProcessKey(int Key)
         {
           MacroLIB[Pos].Key=MacroKey;
 
-          if(RecBufferSize > 0)
-            RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
+					if(Rec.BufferSize > 0 && !Rec.Src)
+						Rec.Buffer[Rec.BufferSize++]=MCODE_OP_ENDKEYS;
 
-          if(RecBufferSize > 1)
-            MacroLIB[Pos].Buffer=RecBuffer;
-          else if(RecBuffer && RecBufferSize > 0)
-            MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
-          else if(!RecBufferSize)
+					if(Rec.BufferSize > 1)
+						MacroLIB[Pos].Buffer=Rec.Buffer;
+					else if(Rec.Buffer && Rec.BufferSize > 0)
+						MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*Rec.Buffer));
+					else if(!Rec.BufferSize)
             MacroLIB[Pos].Buffer=NULL;
 
-          MacroLIB[Pos].BufferSize=RecBufferSize;
-          MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
+					MacroLIB[Pos].BufferSize=Rec.BufferSize;
+					MacroLIB[Pos].Src=Rec.Src?Rec.Src:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
 
           // если удаляем макрос - скорректируем StartMode,
           // иначе макрос из common получит ту область, в которой его решили удалить.
@@ -531,8 +537,9 @@ int KeyMacro::ProcessKey(int Key)
       }
 
       Recording=MACROMODE_NOMACRO;
-      RecBuffer=NULL;
-      RecBufferSize=0;
+			Rec.Buffer=NULL;
+			Rec.BufferSize=0;
+			Rec.Src=NULL;
       ScrBuf.RestoreMacroChar();
       WaitInFastFind++;
       KeyMacro::Sort();
@@ -547,17 +554,17 @@ int KeyMacro::ProcessKey(int Key)
       if ((unsigned int)Key>=KEY_NONE && (unsigned int)Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
 
-      RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
-      if (RecBuffer==NULL)
+			Rec.Buffer=(DWORD *)xf_realloc(Rec.Buffer,sizeof(*Rec.Buffer)*(Rec.BufferSize+3));
+			if (Rec.Buffer==NULL)
         return(FALSE);
 
       if(ReturnAltValue) // "подтасовка" фактов ;-)
         Key|=KEY_ALTDIGIT;
 
-      if(!RecBufferSize)
-        RecBuffer[RecBufferSize++]=MCODE_OP_KEYS;
+			if(!Rec.BufferSize)
+				Rec.Buffer[Rec.BufferSize++]=MCODE_OP_KEYS;
 
-      RecBuffer[RecBufferSize++]=Key;
+			Rec.Buffer[Rec.BufferSize++]=Key;
       return(FALSE);
     }
   }
@@ -580,11 +587,12 @@ int KeyMacro::ProcessKey(int Key)
     // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
     Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
-    if(RecBuffer)
-      xf_free(RecBuffer);
+		if(Rec.Buffer)
+			xf_free(Rec.Buffer);
 
-    RecBuffer=NULL;
-    RecBufferSize=0;
+		Rec.Buffer=NULL;
+		Rec.BufferSize=0;
+		Rec.Src=NULL;
     ScrBuf.ResetShadow();
     ScrBuf.Flush();
     WaitInFastFind--;
@@ -3408,7 +3416,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
     {
       Key=Buffer[J];
 
-      if(Key == MCODE_OP_ENDKEYS)
+			if(Key == MCODE_OP_ENDKEYS || Key == MCODE_OP_KEYS)
         continue;
 
       if(/*
@@ -3923,7 +3931,7 @@ M1:
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       // общие макросы учитываем только при удалении.
-      if(!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
+			if(!MacroDlg->Rec.Buffer || !MacroDlg->Rec.BufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
       {
         DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
         string strBuf;
@@ -3942,21 +3950,21 @@ M1:
           strBufKey=L"";
 
         if((Mac->Flags&0xFF)==MACRO_COMMON)
-            strBuf.Format (MSG(!MacroDlg->RecBufferSize?
+						strBuf.Format (MSG(!MacroDlg->Rec.BufferSize?
                (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
                MMacroCommonReDefinedKey), (const wchar_t*)strKeyText);
         else
-          strBuf.Format (MSG(!MacroDlg->RecBufferSize?
+					strBuf.Format (MSG(!MacroDlg->Rec.BufferSize?
                (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
                MMacroReDefinedKey), (const wchar_t*)strKeyText);
 
         // проверим "а не совпадает ли всё?"
         if(!DisFlags &&
-           Mac->Buffer && MacroDlg->RecBuffer &&
-           Mac->BufferSize == MacroDlg->RecBufferSize &&
+						Mac->Buffer && MacroDlg->Rec.Buffer &&
+						Mac->BufferSize == MacroDlg->Rec.BufferSize &&
            (
-             (Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD))) ||
-             (Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer)
+							(Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->Rec.Buffer,MacroDlg->Rec.BufferSize*sizeof(DWORD))) ||
+							(Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->Rec.Buffer)
            )
           )
           I=0;
@@ -3965,10 +3973,10 @@ M1:
               strBuf,
               MSG(MMacroSequence),
               strBufKey,
-              MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
+							MSG(!MacroDlg->Rec.BufferSize?MMacroDeleteKey2:
                     (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
-              MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+							MSG(DisFlags && MacroDlg->Rec.BufferSize?MMacroDisOverwrite:MYes),
+							MSG(DisFlags && MacroDlg->Rec.BufferSize?MMacroDisAnotherKey:MNo));
 
         if(!I)
         {
@@ -4047,19 +4055,73 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
     return (Flags&Chk1?1:0);
 }
 
+enum MACROSETTINGSDLG
+{
+	MS_DOUBLEBOX,
+	MS_TEXT_SEQUENCE,
+	MS_EDIT_SEQUENCE,
+	MS_SEPARATOR1,
+	MS_CHECKBOX_OUPUT,
+	MS_CHECKBOX_START,
+	MS_SEPARATOR2,
+	MS_CHECKBOX_A_PANEL,
+	MS_CHECKBOX_A_PLUGINPANEL,
+	MS_CHECKBOX_A_FOLDERS,
+	MS_CHECKBOX_A_SELECTION,
+	MS_CHECKBOX_P_PANEL,
+	MS_CHECKBOX_P_PLUGINPANEL,
+	MS_CHECKBOX_P_FOLDERS,
+	MS_CHECKBOX_P_SELECTION,
+	MS_SEPARATOR3,
+	MS_CHECKBOX_CMDLINE,
+	MS_CHECKBOX_SELBLOCK,
+	MS_SEPARATOR4,
+	MS_BUTTON_OK,
+	MS_BUTTON_CANCEL,
+};
 
 LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
 	static struct DlgParam *KMParam=NULL;
 
-	if(Msg == DN_INITDIALOG)
+	switch(Msg)
 	{
-		KMParam=(struct DlgParam *)Param2;
-	}
-	else if(Msg == DN_BTNCLICK && (Param1 == 4 || Param1 == 8))
-	{
-		for(int I=1; I <= 3; ++I)
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+I,Param2);
+		case DN_INITDIALOG:
+			KMParam=(struct DlgParam *)Param2;
+			break;
+
+		case DN_BTNCLICK:
+			if(Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
+				for(int i=1;i<=3;i++)
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+i,Param2);
+			break;
+
+		case DN_CLOSE:
+			if(Param1==MS_BUTTON_OK)
+			{
+				MacroRecord mr={0};
+				KeyMacro *Macro=KMParam->Handle;
+				LPCWSTR Sequence=(LPCWSTR)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,NULL);
+				if(*Sequence)
+				{
+					if(Macro->ParseMacroString(&mr,Sequence))
+					{
+						xf_free(Macro->Rec.Buffer);
+						Macro->Rec.BufferSize=mr.BufferSize;
+						Macro->Rec.Buffer=mr.Buffer;
+						Macro->Rec.Src=xf_wcsdup(Sequence);
+						return TRUE;
+					}
+					else
+					{
+						string ErrMsg[3];
+						Macro->GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
+						Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MError),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+					}
+				}
+				return FALSE;
+			}
+			break;
 	}
 #if 0
   else if(Msg==DN_KEY && Param2==KEY_ALTF4)
@@ -4074,7 +4136,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 		char *TextBuffer;
 		DWORD Buf[1];
 		Buf[0]=MacroDlg->RecBuffer[0];
-		if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
+		if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->Rec.BufferSize==1?Buf:MacroDlg->Rec.Buffer),MacroDlg->Rec.BufferSize)) != NULL)
 		{
 			fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
 			fclose(MacroFile);
@@ -4105,7 +4167,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 						else
 						{
 							MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
-							MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
+							MacroDlg->Rec.BufferSize=NewMacroWORK2.BufferSize;
 						}
 					}
 					fclose(MacroFile);
@@ -4126,101 +4188,112 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 /*
-           1         2         3         4         5         6
-    3456789012345678901234567890123456789012345678901234567890123456789
-  1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
-  2 ¦ [ ] Разрешить во время выполнения вывод на экран                ¦
-  3 ¦ [ ] Выполнять после запуска FAR                                 ¦
-  4 ¦-----------------------------------------------------------------¦
-  5 ¦ [ ] Активная панель             [ ] Пассивная панель            ¦
-  6 ¦   [?] На панели плагина           [?] На панели плагина         ¦
-  7 ¦   [?] Выполнять для папок         [?] Выполнять для папок       ¦
-  8 ¦   [?] Отмечены файлы              [?] Отмечены файлы            ¦
-  9 ¦-----------------------------------------------------------------¦
- 10   [?] Пустая командная строка
- 11 ¦ [?] Отмечен блок                                                ¦
- 12 ¦-----------------------------------------------------------------¦
- 13 ¦               [ Продолжить ]  [ Отменить ]                      ¦
- 14 L=================================================================+
+	          1         2         3         4         5         6
+	   3456789012345678901234567890123456789012345678901234567890123456789
+	 1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
+	 2 | Последовательность:                                             |
+	 3 | _______________________________________________________________ |
+	 4 |-----------------------------------------------------------------|
+	 5 | [ ] Разрешить во время выполнения вывод на экран                |
+	 6 | [ ] Выполнять после запуска FAR                                 |
+	 7 |-----------------------------------------------------------------|
+	 8 | [ ] Активная панель             [ ] Пассивная панель            |
+	 9 |   [?] На панели плагина           [?] На панели плагина         |
+	10 |   [?] Выполнять для папок         [?] Выполнять для папок       |
+	11 |   [?] Отмечены файлы              [?] Отмечены файлы            |
+	12 |-----------------------------------------------------------------|
+	13 | [?] Пустая командная строка                                     |
+	14 | [?] Отмечен блок                                                |
+	15 |-----------------------------------------------------------------|
+	16 |               [ Продолжить ]  [ Отменить ]                      |
+	17 L=================================================================+
 
 */
+
   static struct DialogDataEx MacroSettingsDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,69,14,0,0,0,0,L"",
-  /* 01 */DI_CHECKBOX,5,2,0,2,1,0,0,0,(const wchar_t *)MMacroSettingsEnableOutput,
-  /* 02 */DI_CHECKBOX,5,3,0,3,0,0,0,0,(const wchar_t *)MMacroSettingsRunAfterStart,
-  /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsActivePanel,
-  /* 05 */DI_CHECKBOX,7,6,0,6,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
-  /* 06 */DI_CHECKBOX,7,7,0,7,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
-  /* 07 */DI_CHECKBOX,7,8,0,8,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
-  /* 08 */DI_CHECKBOX,37,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsPassivePanel,
-  /* 09 */DI_CHECKBOX,39,6,0,6,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
-  /* 10 */DI_CHECKBOX,39,7,0,7,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
-  /* 11 */DI_CHECKBOX,39,8,0,8,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
-  /* 12 */DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 13 */DI_CHECKBOX,5,10,0,10,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsCommandLine,
-  /* 14 */DI_CHECKBOX,5,11,0,11,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsSelectionBlockPresent,
-  /* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 16 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 17 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	/* 00 */DI_DOUBLEBOX,3,1,69,17,0,0,0,0,L"",
+	/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MMacroSequence,
+	/* 02 */DI_EDIT,5,3,67,3,1,0,0,0,L"",
+	/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 04 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MMacroSettingsEnableOutput,
+	/* 05 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MMacroSettingsRunAfterStart,
+	/* 06 */DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 07 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MMacroSettingsActivePanel,
+	/* 08 */DI_CHECKBOX,7,9,0,9,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
+	/* 09 */DI_CHECKBOX,7,10,0,10,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
+	/* 10 */DI_CHECKBOX,7,11,0,11,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
+	/* 11 */DI_CHECKBOX,37,8,0,8,0,0,0,0,(const wchar_t *)MMacroSettingsPassivePanel,
+	/* 12 */DI_CHECKBOX,39,9,0,9,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsPluginPanel,
+	/* 13 */DI_CHECKBOX,39,10,0,10,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsFolders,
+	/* 14 */DI_CHECKBOX,39,11,0,11,0,2,DIF_3STATE|DIF_DISABLE,0,(const wchar_t *)MMacroSettingsSelectionPresent,
+	/* 15 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 16 */DI_CHECKBOX,5,13,0,13,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsCommandLine,
+	/* 17 */DI_CHECKBOX,5,14,0,14,0,2,DIF_3STATE,0,(const wchar_t *)MMacroSettingsSelectionBlockPresent,
+	/* 18 */DI_TEXT,3,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 19 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+	/* 20 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 
   string strKeyText;
   KeyToText(Key,strKeyText);
 
-  MacroSettingsDlg[0].strData.Format (MSG(MMacroSettingsTitle), (const wchar_t*)strKeyText);
+	MacroSettingsDlg[MS_DOUBLEBOX].strData.Format (MSG(MMacroSettingsTitle), (const wchar_t*)strKeyText);
 //  if(!(Key&0x7F000000))
 //    MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 
-  MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
-  MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
+	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
+	MacroSettingsDlg[MS_CHECKBOX_START].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
 
-  MacroSettingsDlg[5].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
-  MacroSettingsDlg[6].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
-  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
+	MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
+	MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
+	MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
 
-  MacroSettingsDlg[9].Selected=Set3State(Flags,MFLAGS_PNOFILEPANELS,MFLAGS_PNOPLUGINPANELS);
-  MacroSettingsDlg[10].Selected=Set3State(Flags,MFLAGS_PNOFILES,MFLAGS_PNOFOLDERS);
-  MacroSettingsDlg[11].Selected=Set3State(Flags,MFLAGS_PSELECTION,MFLAGS_PNOSELECTION);
+	MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected=Set3State(Flags,MFLAGS_PNOFILEPANELS,MFLAGS_PNOPLUGINPANELS);
+	MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected=Set3State(Flags,MFLAGS_PNOFILES,MFLAGS_PNOFOLDERS);
+	MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected=Set3State(Flags,MFLAGS_PSELECTION,MFLAGS_PNOSELECTION);
 
-  MacroSettingsDlg[13].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
-  MacroSettingsDlg[14].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
+	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
+	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
+
+	LPWSTR Sequence=MkTextSequence(Rec.Buffer,Rec.BufferSize);
+	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
+	xf_free(Sequence);
 
   struct DlgParam Param={this,0,0,0};
 	Dialog Dlg(MacroSettingsDlg,countof(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
-  Dlg.SetPosition(-1,-1,73,16);
+	Dlg.SetPosition(-1,-1,73,19);
   Dlg.SetHelp(L"KeyMacroSetting");
   FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма
   Dlg.Process();
   FrameManager->GetBottomFrame()->Unlock(); // теперь можно :-)
-  if (Dlg.GetExitCode()!=16)
+	if (Dlg.GetExitCode()!=MS_BUTTON_OK)
     return(FALSE);
 
-  Flags=MacroSettingsDlg[1].Selected?0:MFLAGS_DISABLEOUTPUT;
-  Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERFARSTART:0;
-  if(MacroSettingsDlg[4].Selected)
+	Flags=MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected?0:MFLAGS_DISABLEOUTPUT;
+	Flags|=MacroSettingsDlg[MS_CHECKBOX_START].Selected?MFLAGS_RUNAFTERFARSTART:0;
+	if(MacroSettingsDlg[MS_CHECKBOX_A_PANEL].Selected)
   {
-    Flags|=MacroSettingsDlg[5].Selected==2?0:
-            (MacroSettingsDlg[5].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
-    Flags|=MacroSettingsDlg[6].Selected==2?0:
-            (MacroSettingsDlg[6].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
-    Flags|=MacroSettingsDlg[7].Selected==2?0:
-            (MacroSettingsDlg[7].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
   }
-  if(MacroSettingsDlg[8].Selected)
+	if(MacroSettingsDlg[MS_CHECKBOX_P_PANEL].Selected)
   {
-    Flags|=MacroSettingsDlg[9].Selected==2?0:
-            (MacroSettingsDlg[9].Selected==0?MFLAGS_PNOPLUGINPANELS:MFLAGS_PNOFILEPANELS);
-    Flags|=MacroSettingsDlg[10].Selected==2?0:
-            (MacroSettingsDlg[10].Selected==0?MFLAGS_PNOFOLDERS:MFLAGS_PNOFILES);
-    Flags|=MacroSettingsDlg[11].Selected==2?0:
-            (MacroSettingsDlg[11].Selected==0?MFLAGS_PNOSELECTION:MFLAGS_PSELECTION);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==0?MFLAGS_PNOPLUGINPANELS:MFLAGS_PNOFILEPANELS);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==0?MFLAGS_PNOFOLDERS:MFLAGS_PNOFILES);
+		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==2?0:
+			(MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==0?MFLAGS_PNOSELECTION:MFLAGS_PSELECTION);
   }
-  Flags|=MacroSettingsDlg[13].Selected==2?0:
-          (MacroSettingsDlg[13].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
-  Flags|=MacroSettingsDlg[14].Selected==2?0:
-          (MacroSettingsDlg[14].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
+	Flags|=MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==2?0:
+		(MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
+	Flags|=MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==2?0:
+		(MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
 
   return(TRUE);
 }
@@ -4665,8 +4738,8 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
       memset(RBuf,0,sizeof(struct MacroRecord));
       return MACROMODE_NOMACRO;
     }
-    RBuf->BufferSize=RecBufferSize;
-    RBuf->Buffer=RecBuffer;
+		RBuf->BufferSize=Rec.BufferSize;
+		RBuf->Buffer=Rec.Buffer;
     return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
   }
   return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
