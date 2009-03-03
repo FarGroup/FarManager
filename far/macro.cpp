@@ -3182,7 +3182,7 @@ done:
     case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
     {
        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? L"MCODE_F_MENU_CHECKHOTKEY":L"MCODE_F_MENU_SELECT"));
-       __int64 Result=_i64(0);
+       __int64 Result=_i64(-1);
        __int64 tmpMode=_i64(0);
        if(Key == MCODE_F_MENU_SELECT)
        {
