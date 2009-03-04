@@ -407,13 +407,28 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S)</td>
-    <td class="cont" width="60%">"Play" the macro-sequence <em>S</em>.
+    <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S[,T])</td>
+    <td class="cont" width="60%">"ѕроиграть" (<em>T</em>=0) или проверить (<em>T</em>=1) макропоследовательность заданную строкой <em>S</em>.
       If <em>S</em> contains syntax errors, the sequence will not be played.
      <br>
-     FAR compiles the sequence <em>S</em>. If there were no errors then the state of the current macro is saved and the sequence
-     <em>S</em> is executed. When <em>S</em> finishes the interrupted macro continues.
-     <p>The function returns 0 when <em>S</em> is successfully compiled.
+     FAR компилирует последовательность <em>S</em>.<br>
+     ƒл€ режима исполнени€ (<em>T</em>=0): если нет ошибок, то состо€ние текущего макроса сохран€етс€
+     и начинает выполн€тьс€ последовательность <em>S</em>. ѕосле исполнени€ <em>S</em> прерванный макрос продолжает работать.
+     <p>‘ункци€ возвращает 0 в случае успешной компил€ции последовательности <em>S</em> или код ошибки:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Error</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Unrecognized keyword '<em>keyword</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Unrecognized function '<em>function</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Unexpected $Else</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Unexpected $End</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="90%">Unexpected end of source string</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="90%">Expected '<em>keyword</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="90%">Bad Hex Control Char</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="90%">Bad Control Char</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="90%">Variable Expected '<em>Variable</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="90%">Expression Expected</td></tr>
+       </table>
+
      <p>Local variables are common for both the current macro and the macro executed by <dfn>eval</dfn>.
 
      <p>For example, we want by pressing F10 to open an Explorer window with the current folder on the active panel, command line contents should be saved.<br>

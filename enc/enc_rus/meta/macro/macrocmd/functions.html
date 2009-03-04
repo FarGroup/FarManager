@@ -409,13 +409,27 @@ $end</pre>
     </td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S)</td>
-    <td class="cont" width="60%">"Проиграть" макропоследовательность заданную строкой <em>S</em>.
+    <td class="cont" width="40%">N=<dfn><a name="eval">eval</a></dfn>(S[,T])</td>
+    <td class="cont" width="60%">"Проиграть" (<em>T</em>=0) или проверить (<em>T</em>=1) макропоследовательность заданную строкой <em>S</em>.
       Если <em>S</em> содержит синтаксические ошибки, то макропоследовательность исполняться не будет.
      <br>
-     FAR компилирует последовательность <em>S</em>. Если нет ошибок, то состояние текущего макроса сохраняется
+     FAR компилирует последовательность <em>S</em>.<br>
+     Для режима исполнения (<em>T</em>=0): если нет ошибок, то состояние текущего макроса сохраняется
      и начинает выполняться последовательность <em>S</em>. После исполнения <em>S</em> прерванный макрос продолжает работать.
-     <p>Функция возвращает 0 в случае успешной компиляции последовательности <em>S</em>.
+     <p>Функция возвращает 0 в случае успешной компиляции последовательности <em>S</em> или код ошибки:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Error</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Неизвестное ключевое слово '<em>ключевое слово</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Неизвестная функция '<em>функция</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Неожиданное появление $Else</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Неожиданное появление $End</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="90%">Неожиданный конец строки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="90%">Ожидается '<em>ключевое слово</em>'</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="90%">Неизвестный шестнадцатеричный управляющий символ</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="90%">Неправильный управляющий символ</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="90%">Переменная '<em>переменная</em>' не найдена</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="90%">Ошибка синтаксиса</td></tr>
+       </table>
      <p>Локальные переменные - общие для текущего исполняемого макроса и макропоследовательности, исполняемой функцией <dfn>eval</dfn>.
      <p>Например, необходимо по F10 запускать окно проводника для каталога на активной панели, содержимое командной строки должно сохраняться.<br>
      В области Vars задаем 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:
