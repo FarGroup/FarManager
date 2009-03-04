@@ -1145,264 +1145,258 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         ffCS.Enter ();
 
         DWORD ItemIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
-        if (ItemIndex != LIST_INDEX_NONE)
-        {
-          int RemoveTemp=FALSE;
-          int ClosePlugin=FALSE; // Плагины надо закрывать, если открыли.
-          string strSearchFileName;
-          string strTempDir;
+				int RemoveTemp=FALSE;
+				int ClosePlugin=FALSE; // Плагины надо закрывать, если открыли.
+				string strSearchFileName;
+				string strTempDir;
 
-          if (FindList[ItemIndex]->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          {
-            ffCS.Leave ();
+				if (FindList[ItemIndex]->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					ffCS.Leave ();
 
-            return TRUE;
-          }
-          string strFileName=FindList[ItemIndex]->FindData.strFileName;
-          // FindFileArcIndex нельзя здесь использовать
-          // Он может быть уже другой.
-          if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
-              (!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
-          {
-            string strFindArcName = ArcList[FindList[ItemIndex]->ArcIndex]->strArcName;
-            if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
-            {
-              char *Buffer=new char[Opt.PluginMaxReadData];
-              if (Buffer)
-              {
-                FILE *ProcessFile=_wfopen(strFindArcName,L"rb");
-                if (ProcessFile==NULL)
-                {
-                  delete[] Buffer;
+					return TRUE;
+				}
+				string strFileName=FindList[ItemIndex]->FindData.strFileName;
+				// FindFileArcIndex нельзя здесь использовать
+				// Он может быть уже другой.
+				if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
+					(!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
+				{
+					string strFindArcName = ArcList[FindList[ItemIndex]->ArcIndex]->strArcName;
+					if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
+					{
+						char *Buffer=new char[Opt.PluginMaxReadData];
+						if (Buffer)
+						{
+							FILE *ProcessFile=_wfopen(strFindArcName,L"rb");
+							if (ProcessFile==NULL)
+							{
+								delete[] Buffer;
 
-                  ffCS.Leave ();
-                  return TRUE;
-                }
-                int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
-                fclose(ProcessFile);
+								ffCS.Leave ();
+								return TRUE;
+							}
+							int ReadSize=(int)fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
+							fclose(ProcessFile);
 
-                int SavePluginsOutput=DisablePluginsOutput;
-                DisablePluginsOutput=TRUE;
+							int SavePluginsOutput=DisablePluginsOutput;
+							DisablePluginsOutput=TRUE;
 
-                WaitForSingleObject(hPluginMutex,INFINITE);
+							WaitForSingleObject(hPluginMutex,INFINITE);
 
-                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize, 0);
+							ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = CtrlObject->Plugins.OpenFilePlugin(strFindArcName,(unsigned char *)Buffer,ReadSize, 0);
 
-                ReleaseMutex(hPluginMutex);
+							ReleaseMutex(hPluginMutex);
 
-                DisablePluginsOutput=SavePluginsOutput;
+							DisablePluginsOutput=SavePluginsOutput;
 
-                delete[] Buffer;
+							delete[] Buffer;
 
-                if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == (HANDLE)-2 ||
-                    ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
-                {
-                  ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
+							if (ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == (HANDLE)-2 ||
+									ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin == INVALID_HANDLE_VALUE)
+							{
+								ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
 
-                  ffCS.Leave ();
-                  return TRUE;
-                }
-                ClosePlugin = TRUE;
-              }
-            }
+								ffCS.Leave ();
+								return TRUE;
+							}
+							ClosePlugin = TRUE;
+						}
+					}
 
-            PluginPanelItem FileItem;
-            memset(&FileItem,0,sizeof(FileItem));
+					PluginPanelItem FileItem;
+					memset(&FileItem,0,sizeof(FileItem));
 
-            apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
+					apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
 
-            FarMkTempEx(strTempDir); // А проверка на NULL???
-						apiCreateDirectory(strTempDir, NULL);
+					FarMkTempEx(strTempDir); // А проверка на NULL???
+					apiCreateDirectory(strTempDir, NULL);
 
-//            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
-            WaitForSingleObject(hPluginMutex,INFINITE);
-            if (!GetPluginFile(FindList[ItemIndex]->ArcIndex,&FileItem,strTempDir,strSearchFileName))
-            {
-              apiFreeFindData(&FileItem.FindData);
+					// if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
+					WaitForSingleObject(hPluginMutex,INFINITE);
+					if (!GetPluginFile(FindList[ItemIndex]->ArcIndex,&FileItem,strTempDir,strSearchFileName))
+					{
+						apiFreeFindData(&FileItem.FindData);
 
-              apiRemoveDirectory(strTempDir);
-              if (ClosePlugin)
-              {
-                CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
-                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
-              }
-              ReleaseMutex(hPluginMutex);
+						apiRemoveDirectory(strTempDir);
+						if (ClosePlugin)
+						{
+							CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
+							ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
+						}
+						ReleaseMutex(hPluginMutex);
 
-              ffCS.Leave ();
-              return FALSE;
-            }
-            else
-            {
-              apiFreeFindData(&FileItem.FindData);
+						ffCS.Leave ();
+						return FALSE;
+					}
+					else
+					{
+						apiFreeFindData(&FileItem.FindData);
 
-              if (ClosePlugin)
-              {
-                CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
-                ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
-              }
-              ReleaseMutex(hPluginMutex);
-            }
-            RemoveTemp=TRUE;
-          }
-          else
-          {
-            strSearchFileName = FindList[ItemIndex]->FindData.strFileName;
-						if(apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindList[ItemIndex]->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
-              strSearchFileName = FindList[ItemIndex]->FindData.strAlternateFileName;
-          }
+						if (ClosePlugin)
+						{
+							CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
+							ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin = INVALID_HANDLE_VALUE;
+						}
+						ReleaseMutex(hPluginMutex);
+					}
+					RemoveTemp=TRUE;
+				}
+				else
+				{
+					strSearchFileName = FindList[ItemIndex]->FindData.strFileName;
+					if(apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindList[ItemIndex]->FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
+						strSearchFileName = FindList[ItemIndex]->FindData.strAlternateFileName;
+				}
 
-          DWORD FileAttr;
-					if ((FileAttr=apiGetFileAttributes(strSearchFileName))!=INVALID_FILE_ATTRIBUTES)
-          {
-            string strOldTitle;
-            apiGetConsoleTitle (strOldTitle);
+				DWORD FileAttr;
+				if ((FileAttr=apiGetFileAttributes(strSearchFileName))!=INVALID_FILE_ATTRIBUTES)
+				{
+					string strOldTitle;
+					apiGetConsoleTitle (strOldTitle);
 
-            if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
-            {
-              int ListSize=ListBox->GetItemCount();
-              NamesList ViewList;
-              // Возьмем все файлы, которые имеют реальные имена...
-              if(Opt.FindOpt.CollectFiles)
-              {
-                DWORD Index;
-                for (int I=0;I<ListSize;I++)
-                {
-                  Index = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0, I);
-									if(Index!=LIST_INDEX_NONE)
-									{
-										LPFINDLIST PtrFindList=FindList[Index];
-										if((PtrFindList->ArcIndex == LIST_INDEX_NONE)||(ArcList[PtrFindList->ArcIndex]->Flags & OPIF_REALNAMES))
-										{
-											// Не учитывали файлы в архивах с OPIF_REALNAMES
-											if ( !PtrFindList->FindData.strFileName.IsEmpty() && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-												ViewList.AddName(PtrFindList->FindData.strFileName, PtrFindList->FindData.strAlternateFileName);
-										}
-									}
-                } /* for */
+					if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
+					{
+						int ListSize=ListBox->GetItemCount();
+						NamesList ViewList;
+						// Возьмем все файлы, которые имеют реальные имена...
+						if(Opt.FindOpt.CollectFiles)
+						{
+							DWORD Index;
+							for (int I=0;I<ListSize;I++)
+							{
+								Index = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0, I);
+								LPFINDLIST PtrFindList=FindList[Index];
+								if((PtrFindList->ArcIndex == LIST_INDEX_NONE)||(ArcList[PtrFindList->ArcIndex]->Flags & OPIF_REALNAMES))
+								{
+									// Не учитывали файлы в архивах с OPIF_REALNAMES
+									if ( !PtrFindList->FindData.strFileName.IsEmpty() && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+										ViewList.AddName(PtrFindList->FindData.strFileName, PtrFindList->FindData.strAlternateFileName);
+								}
+							} /* for */
 
-                string strCurDir = FindList[ItemIndex]->FindData.strFileName;
+							string strCurDir = FindList[ItemIndex]->FindData.strFileName;
 
-                ViewList.SetCurName(strCurDir);
-              }
-              Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
-              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-              {
-                FileViewer ShellViewer (strSearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE)?NULL:(Opt.FindOpt.CollectFiles?&ViewList:NULL));
-                ShellViewer.SetDynamicallyBorn(FALSE);
-                ShellViewer.SetEnableF6(TRUE);
-                // FindFileArcIndex нельзя здесь использовать
-                // Он может быть уже другой.
-                if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
-                    (!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
-                  ShellViewer.SetSaveToSaveAs(TRUE);
-                //!Mutex.Unlock();
+							ViewList.SetCurName(strCurDir);
+						}
+						Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+						{
+							FileViewer ShellViewer (strSearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE)?NULL:(Opt.FindOpt.CollectFiles?&ViewList:NULL));
+							ShellViewer.SetDynamicallyBorn(FALSE);
+							ShellViewer.SetEnableF6(TRUE);
+							// FindFileArcIndex нельзя здесь использовать
+							// Он может быть уже другой.
+							if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
+									(!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
+								ShellViewer.SetSaveToSaveAs(TRUE);
+							//!Mutex.Unlock();
 
-                ffCS.Leave (); // чтобы поиск продолжался, пока мы тут кнопки давим
+							ffCS.Leave (); // чтобы поиск продолжался, пока мы тут кнопки давим
 
-                IsProcessVE_FindFile++;
-                FrameManager->EnterModalEV();
-                FrameManager->ExecuteModal();
-                FrameManager->ExitModalEV();
-                IsProcessVE_FindFile--;
+							IsProcessVE_FindFile++;
+							FrameManager->EnterModalEV();
+							FrameManager->ExecuteModal();
+							FrameManager->ExitModalEV();
+							IsProcessVE_FindFile--;
 
-                ffCS.Enter ();
+							ffCS.Enter ();
 
-                // заставляем рефрешится экран
-                FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-              }
+							// заставляем рефрешится экран
+							FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+						}
 
-              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-              Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
-            }
-            else
-            {
-              Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
-              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-              {
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+						Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+					}
+					else
+					{
+						Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+						{
 /* $ 14.08.2002 VVM
   ! Пока-что запретим из поиска переключаться в активный редактор.
     К сожалению, манагер на это не способен сейчас
-                int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,SearchFileName);
-                int SwitchTo=FALSE;
-                if (FramePos!=-1)
-                {
-                  if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
-                      Opt.Confirm.AllowReedit)
-                  {
-                    char MsgFullFileName[NM];
-                    xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName)-1);
-                    int MsgCode=Message(0,2,MSG(MFindFileTitle),
-                          TruncPathStr(MsgFullFileName,ScrX-16),
-                          MSG(MAskReload),
-                          MSG(MCurrent),MSG(MNewOpen));
-                    if (MsgCode==0)
-                    {
-                      SwitchTo=TRUE;
-                    }
-                    else if (MsgCode==1)
-                    {
-                      SwitchTo=FALSE;
-                    }
-                    else
-                    {
-                      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-                      Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
-                      return TRUE;
-                    }
-                  }
-                  else
-                  {
-                    SwitchTo=TRUE;
-                  }
-                }
-                if (SwitchTo)
-                {
-                  (*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
-                  (*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
-                  FrameManager->ActivateFrame(FramePos);
-                  IsProcessVE_FindFile++;
-                  FrameManager->EnterModalEV();
-                  FrameManager->ExecuteModal ();
-                  FrameManager->ExitModalEV();
-//                  FrameManager->ExecuteNonModal();
-                  IsProcessVE_FindFile--;
-                  // заставляем рефрешится экран
-                  FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-                }
-                else
+							int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,SearchFileName);
+							int SwitchTo=FALSE;
+							if (FramePos!=-1)
+							{
+								if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
+									Opt.Confirm.AllowReedit)
+								{
+									char MsgFullFileName[NM];
+									xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName)-1);
+									int MsgCode=Message(0,2,MSG(MFindFileTitle),
+												TruncPathStr(MsgFullFileName,ScrX-16),
+												MSG(MAskReload),
+												MSG(MCurrent),MSG(MNewOpen));
+									if (MsgCode==0)
+									{
+										SwitchTo=TRUE;
+									}
+									else if (MsgCode==1)
+									{
+										SwitchTo=FALSE;
+									}
+									else
+									{
+										Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+										Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+										return TRUE;
+									}
+								}
+								else
+								{
+									SwitchTo=TRUE;
+								}
+							}
+							if (SwitchTo)
+							{
+								(*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
+								(*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
+								FrameManager->ActivateFrame(FramePos);
+								IsProcessVE_FindFile++;
+								FrameManager->EnterModalEV();
+								FrameManager->ExecuteModal ();
+								FrameManager->ExitModalEV();
+								// FrameManager->ExecuteNonModal();
+								IsProcessVE_FindFile--;
+								// заставляем рефрешится экран
+								FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+							}
+							else
 */
-                {
-                  FileEditor ShellEditor (strSearchFileName,CP_AUTODETECT,0);
-                  ShellEditor.SetDynamicallyBorn(FALSE);
-                  ShellEditor.SetEnableF6 (TRUE);
-                  // FindFileArcIndex нельзя здесь использовать
-                  // Он может быть уже другой.
-                  if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
-                      (!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
-                    ShellEditor.SetSaveToSaveAs(TRUE);
+							{
+								FileEditor ShellEditor (strSearchFileName,CP_AUTODETECT,0);
+								ShellEditor.SetDynamicallyBorn(FALSE);
+								ShellEditor.SetEnableF6 (TRUE);
+								// FindFileArcIndex нельзя здесь использовать
+								// Он может быть уже другой.
+								if ((FindList[ItemIndex]->ArcIndex != LIST_INDEX_NONE) &&
+										(!(ArcList[FindList[ItemIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
+									ShellEditor.SetSaveToSaveAs(TRUE);
 
-                  ffCS.Leave (); // чтобы поиск продолжался, пока мы тут кнопки давим
-                  IsProcessVE_FindFile++;
-                  FrameManager->EnterModalEV();
-                  FrameManager->ExecuteModal ();
-                  FrameManager->ExitModalEV();
-                  IsProcessVE_FindFile--;
+								ffCS.Leave (); // чтобы поиск продолжался, пока мы тут кнопки давим
+								IsProcessVE_FindFile++;
+								FrameManager->EnterModalEV();
+								FrameManager->ExecuteModal ();
+								FrameManager->ExitModalEV();
+								IsProcessVE_FindFile--;
 
-                  ffCS.Enter ();
-                  // заставляем рефрешится экран
-                  FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-                }
-              }
-              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-              Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
-            }
-            SetConsoleTitleW (strOldTitle);
-          }
-          if (RemoveTemp)
-          {
-            DeleteFileWithFolder(strSearchFileName);
-          }
-        }
+								ffCS.Enter ();
+								// заставляем рефрешится экран
+								FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+							}
+						}
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+						Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+					}
+					SetConsoleTitleW (strOldTitle);
+				}
+				if (RemoveTemp)
+				{
+					DeleteFileWithFolder(strSearchFileName);
+				}
 
         ffCS.Leave ();
 
@@ -1442,8 +1436,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           return (TRUE);
         }
         FindExitIndex = (DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
-        if (FindExitIndex != LIST_INDEX_NONE)
-          FindExitCode = FIND_EXIT_GOTO;
+        FindExitCode = FIND_EXIT_GOTO;
         return (FALSE);
       }
 			else if (Param1==FD_BUTTON_VIEW)
@@ -1499,7 +1492,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
       coord.X=rect.Right-rect.Left+1;
       DlgHeight+=IncY;
-      coord.Y=DlgHeight;
+			coord.Y=DlgHeight+1;
 
       if (IncY>0)
         Dialog::SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&coord);
@@ -1568,16 +1561,16 @@ int FindFiles::FindFilesProcess()
     strSearchStr.Format (MSG(MFindSearchingIn), L"");
 
   struct DialogDataEx FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-4,0,0,DIF_SHOWAMPERSAND,0,strTitle,
-  /* 01 */DI_LISTBOX,4,2,73,DLG_HEIGHT-9,0,0,DIF_LISTNOBOX,0,(const wchar_t*)0,
-  /* 02 */DI_TEXT,-1,DLG_HEIGHT-8,0,DLG_HEIGHT-8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 03 */DI_TEXT,5,DLG_HEIGHT-7,0,DLG_HEIGHT-7,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
-  /* 04 */DI_TEXT,3,DLG_HEIGHT-6,0,DLG_HEIGHT-6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 05 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,1,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindNewSearch,
-  /* 06 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindGoTo,
-  /* 07 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindView,
-  /* 08 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindPanel,
-  /* 09 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindStop
+	/* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-3,0,0,DIF_SHOWAMPERSAND,0,strTitle,
+	/* 01 */DI_LISTBOX,4,2,73,DLG_HEIGHT-8,0,0,DIF_LISTNOBOX,0,(const wchar_t*)0,
+	/* 02 */DI_TEXT,-1,DLG_HEIGHT-7,0,DLG_HEIGHT-7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
+	/* 03 */DI_TEXT,5,DLG_HEIGHT-6,0,DLG_HEIGHT-6,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
+	/* 04 */DI_TEXT,3,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 05 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,1,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindNewSearch,
+	/* 06 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindGoTo,
+	/* 07 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindView,
+	/* 08 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindPanel,
+	/* 09 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindStop
   };
 
   MakeDialogItemsEx(FindDlgData,FindDlg);
@@ -1587,7 +1580,7 @@ int FindFiles::FindFilesProcess()
   DlgHeight=DLG_HEIGHT-2;
   DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
 
-  int IncY=ScrY>24 ? ScrY-24:0;
+  int IncY=Max(0,ScrY-DLG_HEIGHT);
   FindDlg[0].Y2+=IncY;
   FindDlg[1].Y2+=IncY;
   FindDlg[2].Y1+=IncY;
@@ -1639,7 +1632,7 @@ int FindFiles::FindFilesProcess()
   hDlg=(HANDLE)&Dlg;
 //  pDlg->SetDynamicallyBorn();
   Dlg.SetHelp(L"FindFileResult");
-  Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-2+IncY);
+	Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-1+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
   Dlg.InitDialog();
@@ -1964,7 +1957,9 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 				/* $ 14.06.2004 KM
 					Уточнение действия при обработке каталогов
 				*/
-				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && strFindStr.IsEmpty() ||
+					!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty())
+				
 				{
 					statusCS.Enter();
 
@@ -2244,7 +2239,6 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA *FindData)
 void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindData)
 {
   string strMenuText, strFileText, strSizeText;
-  string strAttr;
   string strDateStr, strTimeStr, strDate;
   MenuItemEx ListItem;
 
@@ -2284,8 +2278,9 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   */
   if (FindFileArcIndex != LIST_INDEX_NONE)
     DisplayName=PointToName(DisplayName);
-
-  strFileText.Format (L" %-26.26s %13.13s",DisplayName,(const wchar_t*)strSizeText);
+	string strDisplayName=DisplayName;
+	TruncStrFromEnd(strDisplayName,24);
+	strFileText.Format (L" %-25.25s%c%13.13s",(LPCWSTR)strDisplayName,BoxSymbols[BS_V1],(const wchar_t*)strSizeText);
 
 
   /* $ 05.10.2003 KM
@@ -2318,27 +2313,30 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   */
     // Отображаем дату последнего изменения
     ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-  strDate.Format (L"  %s  %s", (const wchar_t*)strDateStr, (const wchar_t*)strTimeStr);
+		strDate.Format (L"%c%s%c%s",BoxSymbols[BS_V1],(const wchar_t*)strDateStr,BoxSymbols[BS_V1],(const wchar_t*)strTimeStr);
   strFileText += strDate;
 
   /* $ 05.10.2003 KM
      Отобразим в панели поиска атрибуты найденных файлов
   */
-  wchar_t AttrStr[16];
-  DWORD FileAttr=FindData->dwFileAttributes;
-  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L' ';
-  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L' ';
-  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L' ';
-  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
-  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L' ');
-  AttrStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
-  AttrStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L' ';
-  AttrStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
-  AttrStr[8]=0;
+	const wchar_t AttrStr[]=
+	{
+		BoxSymbols[BS_V1],
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_READONLY? L'R':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? L'L':FindData->dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FindData->dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_OFFLINE?L'O':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
+		0
+	};
 
-  strAttr.Format (L" %s", AttrStr);
-  strFileText += strAttr;
-  strMenuText.Format (L" %-*.*s",DlgWidth-3,DlgWidth-3, (const wchar_t*)strFileText);
+	strFileText += AttrStr;
+  strMenuText=strFileText;//.Format (L" %-*.*s",DlgWidth-2,DlgWidth-2, (const wchar_t*)strFileText);
 
   string strPathName;
   strPathName = FullName;
@@ -2356,13 +2354,9 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
   {
     if ( !strLastDirName.IsEmpty() )
     {
-      /* $ 12.05.2001 DJ
-         курсор не останавливается на пустых строках между каталогами
-      */
-      ListItem.Flags|=LIF_DISABLE;
-      // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
-      ListBox->SetUserData((void*)(DWORD_PTR)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
-      ListItem.Flags&=~LIF_DISABLE;
+			ListItem.Flags|=LIF_SEPARATOR;
+			ListBox->AddItem(&ListItem);
+			ListItem.Flags&=~LIF_SEPARATOR;
     }
     ffCS.Enter ();
 
@@ -2372,19 +2366,15 @@ void FindFiles::AddMenuRecord(const wchar_t *FullName, FAR_FIND_DATA_EX *FindDat
         (!(ArcList[FindFileArcIndex]->Flags & OPIF_REALNAMES)) &&
         (!ArcList[FindFileArcIndex]->strArcName.IsEmpty()))
     {
-      string strArcPathName;
-
-      const wchar_t *ArcName = ArcList[FindFileArcIndex]->strArcName;
-
-      strArcPathName.Format (L"%s:%s", ArcName, strPathName.At(0)==L'.' ? L"\\":(const wchar_t*)strPathName);
+			string strArcPathName=ArcList[FindFileArcIndex]->strArcName;
+			strArcPathName+=L":";
+			if(!IsSlash(strPathName.At(0)))
+				AddEndSlash(strArcPathName);
+			strArcPathName+=(!StrCmp(strPathName,L".\\")?L"\\":(const wchar_t*)strPathName);
       strPathName = strArcPathName;
     }
-    strSizeText = MSG(MFindFileFolder);
 
-    TruncPathStr(strPathName,50);
-
-    strFileText.Format (L"%-50.50s  <%6.6s>", (const wchar_t*)strPathName, (const wchar_t*)strSizeText);
-    ListItem.strName.Format (L"%-*.*s",DlgWidth-2,DlgWidth-2, (const wchar_t*)strFileText);
+		ListItem.strName=TruncPathStr(strPathName,DLG_WIDTH-8);
 
     DWORD ItemIndex = AddFindListItem(FindData);
     if (ItemIndex != LIST_INDEX_NONE)
@@ -2755,11 +2745,11 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
   TRY {
 
     Sleep(200);
-    strPluginSearchPath=L"";
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     strSaveDir = Info.CurDir;
+		strPluginSearchPath=strSaveDir+L"\x1";
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==FFSEARCH_ROOT ||
         SearchMode==FFSEARCH_ALL ||
@@ -2863,7 +2853,8 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         /* $ 14.06.2004 KM
           Уточнение действия при обработке каталогов
         */
-        if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				if(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && strFindStr.IsEmpty() ||
+					!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty())
         {
           statusCS.Enter();
 

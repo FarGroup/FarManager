@@ -469,7 +469,7 @@ string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 {
 	wchar_t *lpwszBuffer = strStr.GetBuffer ();
 
-	TruncStr(lpwszBuffer, MaxLength);
+	TruncStrFromEnd(lpwszBuffer, MaxLength);
 
 	strStr.ReleaseBuffer ();
 

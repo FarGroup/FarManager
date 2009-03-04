@@ -469,8 +469,7 @@ void VMenu::ShowMenu(int IsParent)
 
   if (ItemCount <= 0)
     return;
-
-  if (SelectPos<ItemCount)
+  if (SelectPos<ItemCount && SelectPos>=0)
   {
     if(Item[SelectPos]->Flags&LIF_DISABLE)
       Item[SelectPos]->Flags&=~LIF_SELECTED;
@@ -516,13 +515,10 @@ void VMenu::ShowMenu(int IsParent)
               int Correction=0;
               if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I-1]->strName,L'&',J)!=NULL)
                 Correction=1;
-							if (Item[I+1]->strName.GetLength()>=J)
-							{
-								if(Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
-									Ptr[J-Correction+2]=BoxSymbols[BS_C_H1V1];
-								else
-									Ptr[J-Correction+2]=BoxSymbols[BS_B_H1V1];
-							}
+							if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
+								Ptr[J-Correction+(BoxType==NO_BOX?1:2)]=BoxSymbols[BS_C_H1V1];
+							else
+								Ptr[J-Correction+(BoxType==NO_BOX?1:2)]=BoxSymbols[BS_B_H1V1];
             }
 						else if (Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
 						{
@@ -530,7 +526,7 @@ void VMenu::ShowMenu(int IsParent)
 							if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && wmemchr(Item[I+1]->strName,L'&',J)!=NULL)
 								Correction=1;
 							if (Item[I+1]->strName.GetLength()>=J && Item[I+1]->strName.At(J)==BoxSymbols[BS_V1])
-								Ptr[J-Correction+2]=BoxSymbols[BS_T_H1V1];
+								Ptr[J-Correction+(BoxType==NO_BOX?1:2)]=BoxSymbols[BS_T_H1V1];
 						}
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
