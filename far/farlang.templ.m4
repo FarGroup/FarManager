@@ -2048,13 +2048,13 @@ l:
 "Обработано файлов: %d"
 "Files processed: %d"
 "Zpracováno souborů: %d"
-"Dateien varbeitet: %d"
+"Dateien verarbeitet: %d"
 
 MCopyProcessedTotal
 "Обработано файлов: %d из %d"
 "Files processed: %d of %d"
 "Zpracováno souborů: %d z %d"
-"Dateien varbeitet: %d von %d"
+"Dateien verarbeitet: %d von %d"
 
 MCopyMoving
 "Перенос файла"

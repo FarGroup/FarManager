@@ -3820,28 +3820,29 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
     LastKey=0;
 
     // <Клавиши, которые не введешь в диалоге назначения>
-	static const wchar_t * const PreDefKeyName[]={
-		L"CtrlDown", L"Enter", L"Esc", L"F1", L"CtrlF5",
-	};
-		for(I=0; I < int(countof(PreDefKeyName)); ++I)
+		static const wchar_t * const PreDefKeyName[]={
+			L"CtrlDown", L"Enter", L"Esc", L"F1", L"CtrlF5",
+		};
+
+		for(I=0; I < (int)countof(PreDefKeyName); ++I)
 			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)PreDefKeyName[I]);
 
-	static DWORD PreDefKey[]={
-		KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
-	};
-	static DWORD PreDefModKey[]={
-		0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
-	};
+		static DWORD PreDefKey[]={
+			KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
+		};
+		static DWORD PreDefModKey[]={
+			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
+		};
 
-	for(I=0; I < sizeof(PreDefKey)/sizeof(PreDefKey[0]); ++I)
-	{
-		Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)"\1");
-		for(int J=0; J < sizeof(PreDefModKey)/sizeof(PreDefModKey[0]); ++J)
+		for(I=0; I < (int)countof(PreDefKey); ++I)
 		{
-			KeyToText(PreDefKey[I]|PreDefModKey[J],strKeyText);
-			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
+			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)"\1");
+			for(int J=0; J < (int)countof(PreDefModKey); ++J)
+			{
+				KeyToText(PreDefKey[I]|PreDefModKey[J],strKeyText);
+				Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)(const wchar_t*)strKeyText);
+			}
 		}
-	}
 /*
     int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
     char *KeyStr;

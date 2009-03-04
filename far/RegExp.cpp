@@ -2167,7 +2167,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->symbol; \
                 if(*str!=jj) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(str[1]!=jj)break;\
@@ -2178,7 +2178,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->symbol; \
                 if(*str==jj) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(str[1]==jj)break;\
@@ -2189,7 +2189,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->symbol; \
                 if(TOLOWER(*str)!=jj) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(TOLOWER(str[1])!=jj)break;\
@@ -2200,7 +2200,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->symbol; \
                 if(TOLOWER(*str)==jj) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(TOLOWER(str[1])==jj)break;\
@@ -2211,7 +2211,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->type; \
                 if(!(ISTYPE(*str,jj))) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(!(ISTYPE(str[1],jj)))break;\
@@ -2222,7 +2222,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 jj=op->next->type; \
                 if((ISTYPE(*str,jj))) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if((ISTYPE(str[1],jj)))break;\
@@ -2233,7 +2233,7 @@ inline int RegExp::StrCmp(const prechar& str,const prechar _st,const prechar ed)
               { \
                 cl=op->next->symbolclass; \
                 if(!GetBit(cl,*str)) \
-                while(str<end && cmp && st->max--!=0)\
+                while(str<strend && cmp && st->max--!=0)\
                 {\
                   str++;\
                   if(!GetBit(cl,str[1]))break;\
@@ -3289,7 +3289,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 #ifdef NAMEDBRACKETS
           MatchHash h;
 #endif
-          res=re->InnerMatch(str,end,mtch,mcnt
+          res=re->InnerMatch(str,strend,mtch,mcnt
 #ifdef NAMEDBRACKETS
                              ,&h
 #endif
@@ -3393,7 +3393,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           op=ps->pos;
           if(ps->pos->range.op==opCharAny)
           {
-            if(str<end && *str!=0x0a && *str!=0x0d)
+            if(str<strend && *str!=0x0a && *str!=0x0d)
             {
               str++;
               ps->savestr=str;
@@ -3403,7 +3403,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
             }
           }else
           {
-            if(str<end)
+            if(str<strend)
             {
               str++;
               ps->savestr=str;
@@ -3422,7 +3422,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           op=ps->pos;
           if(ignorecase)
           {
-            if(str<end && TOLOWER(*str)==OP.symbol)
+            if(str<strend && TOLOWER(*str)==OP.symbol)
             {
               str++;
               ps->savestr=str;
@@ -3432,7 +3432,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
             }
           }else
           {
-            if(str<end && *str==OP.symbol)
+            if(str<strend && *str==OP.symbol)
             {
               str++;
               ps->savestr=str;
@@ -3450,7 +3450,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           op=ps->pos;
           if(ignorecase)
           {
-            if(str<end && TOLOWER(*str)!=OP.symbol)
+            if(str<strend && TOLOWER(*str)!=OP.symbol)
             {
               str++;
               ps->savestr=str;
@@ -3460,7 +3460,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
             }
           }else
           {
-            if(str<end && *str!=OP.symbol)
+            if(str<strend && *str!=OP.symbol)
             {
               str++;
               ps->savestr=str;
@@ -3476,7 +3476,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           if(ps->max--==0)continue;
           str=ps->savestr;
           op=ps->pos;
-          if(str<end && GetBit(OP.range.symbolclass,*str))
+          if(str<strend && GetBit(OP.range.symbolclass,*str))
           {
             str++;
             ps->savestr=str;
@@ -3491,7 +3491,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           if(ps->max--==0)continue;
           str=ps->savestr;
           op=ps->pos;
-          if(str<end && ISTYPE(*str,OP.range.type))
+          if(str<strend && ISTYPE(*str,OP.range.type))
           {
             str++;
             ps->savestr=str;
@@ -3506,7 +3506,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
           if(ps->max--==0)continue;
           str=ps->savestr;
           op=ps->pos;
-          if(str<end && ((ISTYPE(*str,OP.range.type))==0))
+          if(str<strend && ((ISTYPE(*str,OP.range.type))==0))
           {
             str++;
             ps->savestr=str;
@@ -3535,7 +3535,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 #else
           m=&match[OP.range.refindex];
 #endif
-          if(str+m->end-m->start<end && StrCmp(str,start+m->start,start+m->end))
+          if(str+m->end-m->start<strend && StrCmp(str,start+m->start,start+m->end))
           {
             ps->savestr=str;
           }else
