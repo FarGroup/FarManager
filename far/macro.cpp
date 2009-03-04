@@ -1480,22 +1480,32 @@ static bool sleepFunc()
   return false;
 }
 
-// N=eval(S)
+// N=eval(S[,N])
 static bool evalFunc()
 {
   bool Ret=true;
+  DWORD Cmd=(DWORD)VMStack.Pop().toInteger();
   TVar Val= VMStack.Pop();
 
   struct MacroRecord RBuf;
   int KeyPos;
 
-  CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-  CtrlObject->Macro.PushState(true);
-  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+  if(Cmd&1)
   {
-    CtrlObject->Macro.PopState();
-    Ret=false;
+    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE))
+      Ret=false;
   }
+  else
+  {
+    CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+    CtrlObject->Macro.PushState(true);
+    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+    {
+      CtrlObject->Macro.PopState();
+      Ret=false;
+    }
+  }
+
   VMStack.Push((__int64)__getMacroErrorCode());
 
   return Ret;
@@ -3836,7 +3846,7 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 
 		for(I=0; I < (int)countof(PreDefKey); ++I)
 		{
-			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)"\1");
+			Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(LONG_PTR)L"\1");
 			for(int J=0; J < (int)countof(PreDefModKey); ++J)
 			{
 				KeyToText(PreDefKey[I]|PreDefModKey[J],strKeyText);
@@ -4299,7 +4309,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   return(TRUE);
 }
 
-int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey)
+int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
 {
   struct MacroRecord NewMacroWORK2={0};
 
@@ -4350,6 +4360,14 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey)
       xf_free(NewMacroWORK2.Buffer);
     return FALSE;
   }
+
+  if(onlyCheck)
+  {
+    if(NewMacroWORK2.BufferSize > 1)
+      xf_free(NewMacroWORK2.Buffer);
+    return TRUE;
+  }
+
   NewMacroWORK2.Flags=Flags;
   NewMacroWORK2.Key=AKey;
 

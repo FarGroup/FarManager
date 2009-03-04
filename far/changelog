@@ -1,3 +1,24 @@
+svs 04.03.2009 17:48:01 +0300 - build 811
+
+1. Mantis#0000768: Расширение параметров макрофункции eval() для проверки корректности макропоследовательности 
+   N=eval(S[,T])
+   N = код ошибки
+       enum errParseCode
+       {
+         err_Success,
+         err_Unrecognized_keyword,
+         err_Unrecognized_function,
+         err_Not_expected_ELSE,
+         err_Not_expected_END,
+         err_Unexpected_EOS,
+         err_Expected,
+         err_Bad_Hex_Control_Char,
+         err_Bad_Control_Char,
+         err_Var_Expected,
+         err_Expr_Expected,
+       };
+   T = "как". Пока так: 0 - компиляция и исполнение, 1 - только компиляция и возврат кода ошибки.
+
 t-rex 04.03.2009 15:52:31 +0200 - build 810
 
 1. Правки в regexp либе, от Кости.
