@@ -280,7 +280,7 @@ static TMacroFunction macroFunction[]={
   {"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL},          // V=Editor.Sel(Action[,Opt])
   {"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
   {"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
-  {"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S)
+  {"EVAL",             1, 0,   MCODE_F_EVAL},                // N=eval(S[,N])
   {"FATTR",            1, 0,   MCODE_F_FATTR},               // N=fattr(S)
   {"FEXIST",           1, 0,   MCODE_F_FEXIST},              // N=fexist(S)
   {"FLOCK",            2, 0,   MCODE_F_FLOCK},               // N=FLock(N,N)
@@ -1091,7 +1091,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_SETPOS,     "N=panel.SetPos(panelType,fileName)"},
     {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
-    {MCODE_F_EVAL,             "N=eval(S)"},
+    {MCODE_F_EVAL,             "N=eval(S[,N])"},
     {MCODE_F_CALLPLUGIN,       "V=callplugin(SysID[,param[, type]])"},
     {MCODE_F_REPLACE,          "S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},

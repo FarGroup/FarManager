@@ -1464,21 +1464,30 @@ static bool sleepFunc()
   return false;
 }
 
-// N=eval(S)
+// N=eval(S[,N])
 static bool evalFunc()
 {
   bool Ret=true;
+  DWORD Cmd=(DWORD)VMStack.Pop().toInteger();
   TVar Val= VMStack.Pop();
 
   struct MacroRecord RBuf;
   int KeyPos;
 
-  CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-  CtrlObject->Macro.PushState(true);
-  if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+  if(Cmd&1)
   {
-    CtrlObject->Macro.PopState();
-    Ret=false;
+    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE))
+      Ret=false;
+  }
+  else
+  {
+    CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+    CtrlObject->Macro.PushState(true);
+    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+    {
+      CtrlObject->Macro.PopState();
+      Ret=false;
+    }
   }
   VMStack.Push((__int64)__getMacroErrorCode());
 
@@ -4406,7 +4415,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 }
 /* IS $ */
 
-int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags,DWORD AKey)
+int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)"));
   _KEYMACRO(SysLog("Param: PlainText=\"%s\"",PlainText));
@@ -4457,6 +4466,14 @@ int KeyMacro::PostNewMacro(const char *PlainText,DWORD Flags,DWORD AKey)
       xf_free(NewMacroWORK2.Buffer);
     return FALSE;
   }
+
+  if(onlyCheck)
+  {
+    if(NewMacroWORK2.BufferSize > 1)
+      xf_free(NewMacroWORK2.Buffer);
+    return TRUE;
+  }
+
   NewMacroWORK2.Flags=Flags;
   NewMacroWORK2.Key=AKey;
 

@@ -1,3 +1,24 @@
+svs 04.03.2009 18:08:28 +0300 - build 2537
+
+1. Mantis#0000768: Расширение параметров макрофункции eval() для проверки корректности макропоследовательности 
+   N=eval(S[,T])
+   N = код ошибки
+       enum errParseCode
+       {
+         err_Success,
+         err_Unrecognized_keyword,
+         err_Unrecognized_function,
+         err_Not_expected_ELSE,
+         err_Not_expected_END,
+         err_Unexpected_EOS,
+         err_Expected,
+         err_Bad_Hex_Control_Char,
+         err_Bad_Control_Char,
+         err_Var_Expected,
+         err_Expr_Expected,
+       };
+   T = "как". Пока так: 0 - компиляция и исполнение, 1 - только компиляция и возврат кода ошибки.
+
 svs 03.03.2009 20:37:50 +0300 - build 2536
 
 1. Mantis#0000767: Результат функции Menu.Select() вызванной из неверного контекста
