@@ -67,7 +67,7 @@ static void show_help(void)
 {
 printf(
 "Usage: far [switches] [apath [ppath]]\n\n"
-"wheren\n"
+"where\n"
 "  apath - path to a folder (or a file or an archive) for the active panel\n"
 "  ppath - path to a folder (or a file or an archive) for the passive panel\n\n"
 "The following switches may be used in the command line:\n\n"

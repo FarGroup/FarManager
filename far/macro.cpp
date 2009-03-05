@@ -1902,7 +1902,7 @@ static bool dlggetvalueFunc()
         {
           struct FarListGetItem ListItem;
           ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
-          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(LONG_PTR)&ListItem))
+          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(LONG_PTR)&ListItem))
           {
             Ret=(char *)ListItem.Item.Text;
           }
