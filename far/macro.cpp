@@ -1476,8 +1476,8 @@ static bool evalFunc()
 
   if(Cmd&1)
   {
-    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE))
-      Ret=false;
+    CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
+    Ret=false;  // всегда! т.к. мы проверяем, а не исполняем
   }
   else
   {
