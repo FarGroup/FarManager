@@ -1906,7 +1906,7 @@ static bool dlggetvalueFunc()
         {
           struct FarListGetItem ListItem;
           ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
-          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(LONG_PTR)&ListItem))
+          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(LONG_PTR)&ListItem))
           {
             Ret=(wchar_t *)ListItem.Item.Text;
           }
@@ -1958,8 +1958,10 @@ static bool dlggetvalueFunc()
         case 9: Ret=(__int64)Item->DefaultButton; break;
         case 10:
         {
-          //BUGBUG для edit и т.п. вроде строку надо в другом месте брать, щас нету сил разбиратся
-          Ret=(wchar_t *)(const wchar_t *)Item->strData;
+          string strTemp;
+          wchar_t *temp = strTemp.GetBuffer(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETTEXTPTR,Index,0));
+          ((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETTEXTPTR,Index,(LONG_PTR)temp);
+          Ret=(const wchar_t *)strTemp;
           break;
         }
       }

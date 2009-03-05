@@ -89,7 +89,7 @@ static void show_help(void)
 {
 wprintf(
 L"Usage: far [switches] [apath [ppath]]\n\n"
-L"wheren\n"
+L"where\n"
 L"  apath - path to a folder (or a file or an archive) for the active panel\n"
 L"  ppath - path to a folder (or a file or an archive) for the passive panel\n\n"
 L"The following switches may be used in the command line:\n\n"
