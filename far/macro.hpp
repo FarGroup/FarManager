@@ -97,7 +97,9 @@ class KeyMacro
 
     int IndexMode[MACRO_LAST][2];
 
-		MacroRecord Rec;
+		int RecBufferSize;
+		DWORD *RecBuffer;
+		wchar_t *RecSrc;
 
     class LockScreen *LockScr;
 

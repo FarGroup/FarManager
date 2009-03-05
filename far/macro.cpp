@@ -308,9 +308,9 @@ KeyMacro::KeyMacro()
   Work.Init(NULL);
   LockScr=NULL;
   MacroLIB=NULL;
-	Rec.Buffer=NULL;
-	Rec.BufferSize=0;
-	Rec.Src=NULL;
+	RecBuffer=NULL;
+	RecBufferSize=0;
+	RecSrc=NULL;
   Mode=MACRO_SHELL;
   LoadMacros();
 }
@@ -335,7 +335,7 @@ void KeyMacro::InitInternalLIBVars()
     }
     xf_free(MacroLIB);
   }
-	if(Rec.Buffer) xf_free(Rec.Buffer);
+	if(RecBuffer) xf_free(RecBuffer);
   MacroLIBCount=0;
   MacroLIB=NULL;
 }
@@ -357,9 +357,9 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
     Work.Executing=MACROMODE_NOMACRO;
   }
 
-	Rec.Buffer=NULL;
-	Rec.BufferSize=0;
-	Rec.Src=NULL;
+	RecBuffer=NULL;
+	RecBufferSize=0;
+	RecSrc=NULL;
 
   Recording=MACROMODE_NOMACRO;
   InternalInput=FALSE;
@@ -464,8 +464,8 @@ int KeyMacro::ProcessKey(int Key)
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
-			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && Rec.BufferSize)
-			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && Rec.BufferSize)
+			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
+			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=(DWORD)-1;
@@ -475,20 +475,20 @@ int KeyMacro::ProcessKey(int Key)
 
       if (MacroKey==(DWORD)-1)
       {
-				if(Rec.Buffer)
+				if(RecBuffer)
 				{
-					xf_free(Rec.Buffer);
-					Rec.Buffer=NULL;
+					xf_free(RecBuffer);
+					RecBuffer=NULL;
 				}
       }
       else
       {
         // в области common будем искать только при удалении
-				int Pos=GetIndex(MacroKey,StartMode,!(Rec.Buffer && Rec.BufferSize));
+				int Pos=GetIndex(MacroKey,StartMode,!(RecBuffer && RecBufferSize));
         if (Pos == -1)
         {
           Pos=MacroLIBCount;
-					if(Rec.BufferSize > 0)
+					if(RecBufferSize > 0)
           {
             struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
             if (NewMacroLIB==NULL)
@@ -514,18 +514,18 @@ int KeyMacro::ProcessKey(int Key)
         {
           MacroLIB[Pos].Key=MacroKey;
 
-					if(Rec.BufferSize > 0 && !Rec.Src)
-						Rec.Buffer[Rec.BufferSize++]=MCODE_OP_ENDKEYS;
+					if(RecBufferSize > 0 && !RecSrc)
+						RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
 
-					if(Rec.BufferSize > 1)
-						MacroLIB[Pos].Buffer=Rec.Buffer;
-					else if(Rec.Buffer && Rec.BufferSize > 0)
-						MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*Rec.Buffer));
-					else if(!Rec.BufferSize)
+					if(RecBufferSize > 1)
+						MacroLIB[Pos].Buffer=RecBuffer;
+					else if(RecBuffer && RecBufferSize > 0)
+						MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
+					else if(!RecBufferSize)
             MacroLIB[Pos].Buffer=NULL;
 
-					MacroLIB[Pos].BufferSize=Rec.BufferSize;
-					MacroLIB[Pos].Src=Rec.Src?Rec.Src:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
+					MacroLIB[Pos].BufferSize=RecBufferSize;
+					MacroLIB[Pos].Src=RecSrc?RecSrc:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
 
           // если удаляем макрос - скорректируем StartMode,
           // иначе макрос из common получит ту область, в которой его решили удалить.
@@ -537,9 +537,9 @@ int KeyMacro::ProcessKey(int Key)
       }
 
       Recording=MACROMODE_NOMACRO;
-			Rec.Buffer=NULL;
-			Rec.BufferSize=0;
-			Rec.Src=NULL;
+			RecBuffer=NULL;
+			RecBufferSize=0;
+			RecSrc=NULL;
       ScrBuf.RestoreMacroChar();
       WaitInFastFind++;
       KeyMacro::Sort();
@@ -554,17 +554,17 @@ int KeyMacro::ProcessKey(int Key)
       if ((unsigned int)Key>=KEY_NONE && (unsigned int)Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
 
-			Rec.Buffer=(DWORD *)xf_realloc(Rec.Buffer,sizeof(*Rec.Buffer)*(Rec.BufferSize+3));
-			if (Rec.Buffer==NULL)
+			RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
+			if (RecBuffer==NULL)
         return(FALSE);
 
       if(ReturnAltValue) // "подтасовка" фактов ;-)
         Key|=KEY_ALTDIGIT;
 
-			if(!Rec.BufferSize)
-				Rec.Buffer[Rec.BufferSize++]=MCODE_OP_KEYS;
+			if(!RecBufferSize)
+				RecBuffer[RecBufferSize++]=MCODE_OP_KEYS;
 
-			Rec.Buffer[Rec.BufferSize++]=Key;
+			RecBuffer[RecBufferSize++]=Key;
       return(FALSE);
     }
   }
@@ -587,12 +587,12 @@ int KeyMacro::ProcessKey(int Key)
     // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
     Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
-		if(Rec.Buffer)
-			xf_free(Rec.Buffer);
+		if(RecBuffer)
+			xf_free(RecBuffer);
 
-		Rec.Buffer=NULL;
-		Rec.BufferSize=0;
-		Rec.Src=NULL;
+		RecBuffer=NULL;
+		RecBufferSize=0;
+		RecSrc=NULL;
     ScrBuf.ResetShadow();
     ScrBuf.Flush();
     WaitInFastFind--;
@@ -3947,7 +3947,7 @@ M1:
     {
       struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       // общие макросы учитываем только при удалении.
-			if(!MacroDlg->Rec.Buffer || !MacroDlg->Rec.BufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
+			if(!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
       {
         DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
         string strBuf;
@@ -3966,21 +3966,21 @@ M1:
           strBufKey=L"";
 
         if((Mac->Flags&0xFF)==MACRO_COMMON)
-						strBuf.Format (MSG(!MacroDlg->Rec.BufferSize?
+						strBuf.Format (MSG(!MacroDlg->RecBufferSize?
                (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
                MMacroCommonReDefinedKey), (const wchar_t*)strKeyText);
         else
-					strBuf.Format (MSG(!MacroDlg->Rec.BufferSize?
+					strBuf.Format (MSG(!MacroDlg->RecBufferSize?
                (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
                MMacroReDefinedKey), (const wchar_t*)strKeyText);
 
         // проверим "а не совпадает ли всё?"
         if(!DisFlags &&
-						Mac->Buffer && MacroDlg->Rec.Buffer &&
-						Mac->BufferSize == MacroDlg->Rec.BufferSize &&
+						Mac->Buffer && MacroDlg->RecBuffer &&
+						Mac->BufferSize == MacroDlg->RecBufferSize &&
            (
-							(Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->Rec.Buffer,MacroDlg->Rec.BufferSize*sizeof(DWORD))) ||
-							(Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->Rec.Buffer)
+							(Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD))) ||
+							(Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer)
            )
           )
           I=0;
@@ -3989,10 +3989,10 @@ M1:
               strBuf,
               MSG(MMacroSequence),
               strBufKey,
-							MSG(!MacroDlg->Rec.BufferSize?MMacroDeleteKey2:
+							MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
                     (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-							MSG(DisFlags && MacroDlg->Rec.BufferSize?MMacroDisOverwrite:MYes),
-							MSG(DisFlags && MacroDlg->Rec.BufferSize?MMacroDisAnotherKey:MNo));
+							MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
+							MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
 
         if(!I)
         {
@@ -4122,10 +4122,10 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 				{
 					if(Macro->ParseMacroString(&mr,Sequence))
 					{
-						xf_free(Macro->Rec.Buffer);
-						Macro->Rec.BufferSize=mr.BufferSize;
-						Macro->Rec.Buffer=mr.Buffer;
-						Macro->Rec.Src=xf_wcsdup(Sequence);
+						xf_free(Macro->RecBuffer);
+						Macro->RecBufferSize=mr.BufferSize;
+						Macro->RecBuffer=mr.Buffer;
+						Macro->RecSrc=xf_wcsdup(Sequence);
 						return TRUE;
 					}
 					else
@@ -4152,7 +4152,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 		char *TextBuffer;
 		DWORD Buf[1];
 		Buf[0]=MacroDlg->RecBuffer[0];
-		if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->Rec.BufferSize==1?Buf:MacroDlg->Rec.Buffer),MacroDlg->Rec.BufferSize)) != NULL)
+		if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
 		{
 			fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
 			fclose(MacroFile);
@@ -4183,7 +4183,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 						else
 						{
 							MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
-							MacroDlg->Rec.BufferSize=NewMacroWORK2.BufferSize;
+							MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
 						}
 					}
 					fclose(MacroFile);
@@ -4272,7 +4272,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
 	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
 
-	LPWSTR Sequence=MkTextSequence(Rec.Buffer,Rec.BufferSize);
+	LPWSTR Sequence=MkTextSequence(RecBuffer,RecBufferSize);
 	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 	xf_free(Sequence);
 
@@ -4762,8 +4762,8 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
       memset(RBuf,0,sizeof(struct MacroRecord));
       return MACROMODE_NOMACRO;
     }
-		RBuf->BufferSize=Rec.BufferSize;
-		RBuf->Buffer=Rec.Buffer;
+		RBuf->BufferSize=RecBufferSize;
+		RBuf->Buffer=RecBuffer;
     return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
   }
   return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
