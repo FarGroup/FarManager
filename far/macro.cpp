@@ -1958,11 +1958,14 @@ static bool dlggetvalueFunc()
         case 9: Ret=(__int64)Item->DefaultButton; break;
         case 10:
         {
-          string strTemp;
-          wchar_t *temp = strTemp.GetBuffer(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETTEXTPTR,Index,0));
-          ((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETTEXTPTR,Index,(LONG_PTR)temp);
-          Ret=(const wchar_t *)strTemp;
-          break;
+					Ret=(const wchar_t *)Item->strData;
+					if (IsEdit(ItemType))
+					{
+						DlgEdit *EditPtr;
+						if ((EditPtr = (DlgEdit *)(Item->ObjPtr)) != NULL)
+							Ret=EditPtr->GetStringAddr();
+					}
+					break;
         }
       }
     }

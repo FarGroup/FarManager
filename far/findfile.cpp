@@ -1957,9 +1957,9 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 				/* $ 14.06.2004 KM
 					”точнение действи€ при обработке каталогов
 				*/
-				if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && strFindStr.IsEmpty() ||
-					!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty())
-				
+				if (((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
+					  (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
+
 				{
 					statusCS.Enter();
 
@@ -2853,8 +2853,8 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         /* $ 14.06.2004 KM
           ”точнение действи€ при обработке каталогов
         */
-				if(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && strFindStr.IsEmpty() ||
-					!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty())
+				if (((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
+					  (!(CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
         {
           statusCS.Enter();
 
