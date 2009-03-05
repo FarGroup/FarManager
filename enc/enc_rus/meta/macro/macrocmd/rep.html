@@ -29,10 +29,10 @@
 
 <div class=descr>
 <div class=dfn>Expr</div>
-<div class=dfndescr>Выражение</div>
+<div class=dfndescr>Выражение, вычисляется однократно при инициализации цикла.</div>
 
 <div class=dfn>Sequence</div>
-<div class=dfndescr>Выполняется, пока выражение <dfn>Expr</dfn> не станет равно 0.</div>
+<div class=dfndescr>Выполняется <dfn>Expr</dfn> раз.</div>
 </div>
 
 <h3>Замечания</h3>
@@ -52,8 +52,8 @@
 ;выход из FAR'a
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltX]
-"Sequence"="$If (Editor && (Editor.State & 0x8)) F2 $End $Rep (2)
-$If (!Shell) Esc $End $End F10"
+"Sequence"="$If (Editor && (Editor.State & 0x8)) F2 $End
+$Rep (2) $If (!Shell) Esc $End $End F10"
 "DisableOutput"=dword:00000001
 </pre>
 </div>

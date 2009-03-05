@@ -29,10 +29,10 @@ The <dfn>$Rep</dfn> loop macro-command executes the Sequence of the macro-comman
 
 <div class=descr>
 <div class=dfn>Expr</div>
-<div class=dfndescr>Loop conditional expression.</div>
+<div class=dfndescr>¬ыражение, вычисл€етс€ однократно при инициализации цикла.</div>
 
 <div class=dfn>Sequence</div>
-<div class=dfndescr>Sequence to be executed until <dfn>Expr</dfn> is 0.</div>
+<div class=dfndescr>¬ыполн€етс€ <dfn>Expr</dfn> раз.</div>
 </div>
 
 <h3>Notes</h3>
@@ -51,8 +51,8 @@ The <dfn>$Rep</dfn> loop macro-command executes the Sequence of the macro-comman
 ;exit FAR Manager
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltX]
-"Sequence"="$If (Editor && (Editor.State & 0x8)) F2 $End $Rep (2)
-$If (!Shell) Esc $End $End F10"
+"Sequence"="$If (Editor && (Editor.State & 0x8)) F2 $End
+$Rep (2) $If (!Shell) Esc $End $End F10"
 "DisableOutput"=dword:00000001
 </pre>
 </div>
