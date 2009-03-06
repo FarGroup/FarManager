@@ -3818,7 +3818,8 @@ void KeyMacro::RunStartMacro()
     AutoRunMacroStarted=TRUE;
 
 #endif
-  Work.ExecLIBPos=0;
+  if (Work.Executing == MACROMODE_NOMACRO)
+    Work.ExecLIBPos=0;  // А надо ли?
 }
 
 // обработчик диалогового окна назначения клавиши
