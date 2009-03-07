@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 9
+#define PLUGIN_BUILD 10
 #define PLUGIN_DESC "Brackets matching for FAR Manager"
 #define PLUGIN_NAME "Brackets"
 #define PLUGIN_FILENAME "Brackets.dll"

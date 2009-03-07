@@ -1576,7 +1576,7 @@ void TMacroView::InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,
     Item[I].Param.Reserved=Init[I].Selected;
     Item[I].Flags=Init[I].Flags;
     Item[I].DefaultButton=Init[I].DefaultButton;
-    if ((unsigned int)(DWORD_PTR)Init[I].Data<300)
+    if ((DWORD_PTR)Init[I].Data<300)
 #ifndef UNICODE
       lstrcpy(Item[I].Data.Data,GetMsg((unsigned int)(DWORD_PTR)Init[I].Data));
     else

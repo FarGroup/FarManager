@@ -1,3 +1,7 @@
+t-rex 07.03.2009 18:16:18 +0200 - build 186
+
+1. Mantis#696: Ќекоректна€ проверка на валидность MsgID в x64.
+
 drkns 19.01.2009 10:26:59 +0200 - custom 1.22
 
 1. custom.ini.user -> custom_user.ini

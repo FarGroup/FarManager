@@ -251,7 +251,7 @@ extern int DECLSPEC FP_Color( int far_color_num );
     Wrapers for FAR language API.
 */
 #define FMSG( v )       ((CONSTSTR)(INT_PTR)(v))
-#define FISMSG(v)      ((v) != NULL && ((int)(INT_PTR)(v)) > FAR_MAX_LANGID)
+#define FISMSG(v)      ((v) != NULL && (DWORD_PTR)(v) > FAR_MAX_LANGID)
 #define FGETID( v )    Abs((int)LO_WORD((DWORD)(DWORD_PTR)(v)))
 
 #if !defined(__FP_NOT_FUNCTIONS__)

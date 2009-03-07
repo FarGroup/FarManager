@@ -26,7 +26,7 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
 #ifdef UNICODE
     PItem->MaxLen=0;
 #endif
-    if ((unsigned int)(DWORD_PTR)PInit->Data<2000)
+    if ((DWORD_PTR)PInit->Data<2000)
 #ifndef UNICODE
       lstrcpy(PItem->Data,GetMsg((unsigned int)(DWORD_PTR)PInit->Data));
 #else

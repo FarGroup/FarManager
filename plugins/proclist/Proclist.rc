@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 149
+#define PLUGIN_BUILD 150
 #define PLUGIN_DESC "Process List for FAR Manager"
 #define PLUGIN_NAME "ProcList"
 #define PLUGIN_FILENAME "ProcList.dll"

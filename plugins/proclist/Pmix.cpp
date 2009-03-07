@@ -24,12 +24,12 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     Item[i].MaxLen=0;
 #endif
 #ifndef UNICODE
-    if ((unsigned int)(DWORD_PTR)Init[i].Data<2000)
+    if ((DWORD_PTR)Init[i].Data<2000)
       lstrcpy(Item[i].Data,GetMsg((unsigned int)(DWORD_PTR)Init[i].Data));
     else
       lstrcpy(Item[i].Data,Init[i].Data);
 #else
-    if ((unsigned int)(DWORD_PTR)Init[i].Data<2000)
+    if ((DWORD_PTR)Init[i].Data<2000)
       Item[i].PtrData = GetMsg((unsigned int)(DWORD_PTR)Init[i].Data);
     else
       Item[i].PtrData = Init[i].Data;
