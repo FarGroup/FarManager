@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "lng.common.h"
 
-#define VERSION "v1.1"
+#define VERSION "v1.11"
 
 void UnquoteIfNeeded (char *lpStr)
 {
@@ -55,6 +55,8 @@ struct LanguageEntry {
 
 	DWORD dwCRC32;
 	DWORD dwOldCRC32;
+
+	int cNeedUpdate;
 };
 
 
@@ -220,7 +222,7 @@ void SmartWrite (
 			free (pStr);
 		}
 
-		free (pBuffer); 
+		free (pBuffer);
 	}
 }
 
@@ -419,6 +421,8 @@ int main (int argc, const char* argv[])
 
 					wsprintfA (lpFullName, "%s\\%s", lpLNGOutputPath?lpLNGOutputPath:".", pLangEntries[i].lpLNGFileName);
 
+					pLangEntries[i].cNeedUpdate = 0;
+
 					pLangEntries[i].dwCRC32 = 0;
 					pLangEntries[i].dwOldCRC32 = ((GetFileAttributes (lpFullName) != INVALID_FILE_ATTRIBUTES) && lpIniFileName) ? GetPrivateProfileInt (
 							lpFullName,
@@ -524,12 +528,16 @@ int main (int argc, const char* argv[])
 								{
 									strcpy (lpLNGString, lpLNGString+4);
 
+									/*
 									printf (
 											"WARNING: String %s (ID = %s) of %s language needs update!\n\r",
 											lpLNGString,
 											lpMsgID,
 											pLangEntries[i].lpLanguageName
 											);
+									*/
+
+									pLangEntries[i].cNeedUpdate++;
 								}
 
 								sprintf (lpString, "%s\r\n", lpLNGString);
@@ -561,6 +569,18 @@ int main (int argc, const char* argv[])
 					{
 						SmartWrite (hHFile, lpHComments, &dwHeaderCRC32, nOutCP);
 						free (lpHComments);
+					}
+				}
+
+				// output needed translations statistics
+				for (int i = 0; i < dwLangs; i++)
+				{
+					if (pLangEntries[i].cNeedUpdate > 0)
+					{
+						printf ("WARNING: There are %d strings that require review in %s translation!\n\n\r",
+								pLangEntries[i].cNeedUpdate,
+								pLangEntries[i].lpLanguageName
+								);
 					}
 				}
 
