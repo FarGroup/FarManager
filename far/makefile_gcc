@@ -288,11 +288,7 @@ clean:
 	@$(RM) $(OBJDIR)/headers.hpp.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
-	@$(RM) $(EXEDIR)/FarEng.lng
-	@$(RM) $(EXEDIR)/FarRus.lng
-	@$(RM) $(EXEDIR)/FarCze.lng
-	@$(RM) $(EXEDIR)/FarGer.lng
+	@$(RM) $(EXEDIR)/*.lng
+	@$(RM) $(EXEDIR)/*.hlf
 	@$(RM) farlang.templ lang.hpp lang.ini
-	@$(RM) $(EXEDIR)/FarEng.hlf
-	@$(RM) $(EXEDIR)/FarRus.hlf
 	@$(RM) $(EXEDIR)/File_id.diz

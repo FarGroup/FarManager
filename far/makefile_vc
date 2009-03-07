@@ -484,10 +484,6 @@ CLEAN:
 	-@del /q /f "$(OUTDIR)\Far.exp"      > nul 2> nul
 	-@del /q /f "$(OUTDIR)\Far.lib"      > nul 2> nul
 	-@del /q /f "$(OUTDIR)\Far.map"      > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarEng.hlf"   > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarEng.lng"   > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarRus.hlf"   > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarRus.lng"   > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarCze.lng"   > nul 2> nul
-	-@del /q /f "$(OUTDIR)\FarGer.lng"   > nul 2> nul
+	-@del /q /f "$(OUTDIR)\*.hlf"        > nul 2> nul
+	-@del /q /f "$(OUTDIR)\*.lng"        > nul 2> nul
 	-@del /q /f "$(OUTDIR)\File_id.diz"  > nul 2> nul
