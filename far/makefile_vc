@@ -236,7 +236,7 @@ UCD_OBJS=\
 	"$(INTDIR)\nsUniversalDetector.obj" \
 	"$(INTDIR)\nsUTF8Prober.obj"
 
-!if defined(_NMAKE_VER) && !defined(USE_VC9) && !defined(USE_VC8_32) 
+!if defined(_NMAKE_VER) && !defined(USE_VC9) && !defined(USE_VC8_32)
 !if "$(_NMAKE_VER)">"9"
 USE_VC9=1
 !elseif "$(_NMAKE_VER)">"8"
