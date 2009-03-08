@@ -36,7 +36,7 @@ htail:#endif  // __FARLANG_HPP__
 #"Evaluation copy, please register."
 
 MShareware=0
-`l://Version: 'FULLVERSIONNOBRACES
+`l://Version: 'MAJOR`.'MINOR` build 'BUILD
 l:
 "Пожалуйста, зарегистрируйте Вашу копию"
 "Evaluation copy, please register."

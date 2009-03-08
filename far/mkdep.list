@@ -44,7 +44,6 @@ infolist.hpp
 int64.hpp
 keybar.hpp
 keys.hpp
-lang.hpp
 language.hpp
 lasterror.hpp
 lockscrn.hpp
@@ -98,7 +97,6 @@ edit.cpp
 editor.cpp
 eject.cpp
 execute.cpp
-far.rc
 farexcpt.cpp
 farqueue.cpp
 farrtl.cpp
