@@ -1,3 +1,7 @@
+drkns 09.03.2009 12:56:57 +0200 - build 818
+
+1. Mantis#0000775: баг в SHErrorToWinError
+
 t-rex 07.03.2009 18:50:04 +0200
 
 1. Hungarian translation (lng file) from FAR20HU.
