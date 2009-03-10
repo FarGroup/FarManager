@@ -758,6 +758,6 @@ enum AddDefKeyboard
   (Key)==KEY_MSM2CLICK||\
   (Key)==KEY_MSM3CLICK\
 )
-#endif // FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
 
 #endif  // __FARKEYS_HPP__
