@@ -3234,6 +3234,33 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
+	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
+	{
+		static int EditorPrevDoubleClick=0;
+		if(GetTickCount()-EditorPrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+		{
+			CurLine->Select(0,CurLine->StrSize);
+			if(CurLine->IsSelection())
+			{
+				Flags.Set(FEDITOR_MARKINGBLOCK);
+				BlockStart=CurLine;
+				BlockStartLine=NumLine;
+			}
+			EditorPrevDoubleClick=0;
+		}
+		if(MouseEvent->dwEventFlags==DOUBLE_CLICK)
+		{
+			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			if(BlockStart!=NULL || VBlockStart!=NULL)
+				UnmarkBlock();
+			ProcessKey(KEY_OP_SELWORD);
+			EditorPrevDoubleClick=GetTickCount();
+		}
+		else
+			EditorPrevDoubleClick=0;
+		Show();
+	}
+
   if (CurLine->ProcessMouse(MouseEvent))
   {
     if(HostFileEditor) HostFileEditor->ShowStatus();

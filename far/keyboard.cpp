@@ -388,7 +388,7 @@ static DWORD KeyMsClick2ButtonState(DWORD Key)
   return 0;
 }
 
-DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
@@ -1273,9 +1273,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
       rec->EventType = KEY_EVENT;
     } /* if */
 
-    if(rec->EventType==MOUSE_EVENT && !ExcludeMacro && CtrlObject && !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
+		if(rec->EventType==MOUSE_EVENT && (!ExcludeMacro||ProcessMouse) && CtrlObject && (ProcessMouse || !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting())))
     {
-      if(!(MouseEventFlags == MOUSE_MOVED || MouseEventFlags == DOUBLE_CLICK))
+			if(MouseEventFlags != MOUSE_MOVED)
       {
         DWORD MsCalcKey=0;
 
@@ -1295,7 +1295,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
           MsCalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
                        (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
                        (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
-          if(CtrlObject->Macro.ProcessKey(MsCalcKey))
+					// для WaitKey()
+					if(ProcessMouse)
+						return MsCalcKey;
+					else if(CtrlObject->Macro.ProcessKey(MsCalcKey))
           {
             memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
             return KEY_NONE;
@@ -1365,10 +1368,10 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
     INPUT_RECORD rec;
     Key=KEY_NONE;
     if (PeekInputRecord(&rec))
-      Key=GetInputRecord(&rec,true);
+			Key=GetInputRecord(&rec,true,true);
     if(KeyWait == (DWORD)-1)
     {
-      if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY)
+			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key))
         break;
     }
     else if(Key == KeyWait)

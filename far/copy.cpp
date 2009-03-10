@@ -1651,7 +1651,8 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       SelectedFolderNameLength=0;
 
     // "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
-    if(DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE)
+		// (но не для случая переименования линка по сети)
+		if((DestDriveType == DRIVE_REMOTE || SrcDriveType == DRIVE_REMOTE) && StrCmpI(strSrcDriveRoot,strDestDriveRoot))
       ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
 
     KeepPathPos=(int)(PointToName(strSelName)-(const wchar_t*)strSelName);
