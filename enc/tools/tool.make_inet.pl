@@ -19,10 +19,10 @@ system "rm -f -r ".$dest_dr_inet;
 
 print "\n  -- making directories tree\n";
 
-mkdir $dest_dr, 0;
-mkdir $dest_dr_inet, 0;
-mkdir $dest_dr_inet."/images", 0;
-mkdir $dest_dr_inet."/styles", 0;
+mkdir $dest_dr, 0775;
+mkdir $dest_dr_inet, 0775;
+mkdir $dest_dr_inet."/images", 0775;
+mkdir $dest_dr_inet."/styles", 0775;
 
 mk_inet_lng("ru","rus");
 mk_inet_lng("en","eng");
@@ -40,7 +40,7 @@ sub mk_inet_lng
 
   print " -- preparing ".$dr1." --\n";
   system "svn export ../enc_".$dr2." ".$dest_dr_inet."/meta.".$dr1;
-  mkdir $dest_dr_inet."/".$dr1."/", 0;
+  mkdir $dest_dr_inet."/".$dr1."/", 0775;
   system "cp -R -f ".$dest_dr_inet."/meta.".$dr1."/meta/* ".$dest_dr_inet."/".$dr1;
   system "cp -R -f ".$dest_dr_inet."/meta.".$dr1."/images/* ".$dest_dr_inet."/images";
   system "rm -f -r ".$dest_dr_inet."/meta.".$dr1;

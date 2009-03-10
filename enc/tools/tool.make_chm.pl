@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 $dest_dr            = "../enc";
 $dest_dr_inet       = $dest_dr."/inet";
 $dest_dr_inet_ru    = $dest_dr_inet."/ru";
@@ -15,8 +17,8 @@ print "\n  -- clear CHM\n";
 system "rm -f -r ".$dest_dr_chm;
 
 print "  -- making directories tree.\n\n";
-mkdir $dest_dr, 0;
-mkdir $dest_dr_chm, 0;
+mkdir $dest_dr, 0775;
+mkdir $dest_dr_chm, 0775;
 
 %hrefs = ();
 %hrefs2 = ();
@@ -34,8 +36,8 @@ sub mk_chm_lng
 
   print "\n------------------------------------\nPREPARING ".$dr1." --\n";
   system "svn export ../enc_".$dr2." ".$dest_dr_chm."/".$dr1;
-  mkdir $dest_dr_chm."/".$dr1."/html", 0;
-  mkdir $dest_dr_chm."/".$dr1."/distr_chm_plugins".$dr3, 0;
+  mkdir $dest_dr_chm."/".$dr1."/html", 0775;
+  mkdir $dest_dr_chm."/".$dr1."/distr_chm_plugins".$dr3, 0775;
   mktree($dest_dr_chm."/".$dr1."/meta");
 
   print "\n\n  -- translating meta into html\n\n";
@@ -222,7 +224,7 @@ sub mktree
    if (-d $dr.$_){
      $dhtml = $dr;
      $dhtml =~ s/\/meta\//\/html\//;
-     mkdir($dhtml.$_, 0) if (!-d $dhtml.$_);
+     mkdir($dhtml.$_, 0775) if (!-d $dhtml.$_);
 
      mktree("$dr$_");
    };
