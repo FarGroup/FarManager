@@ -1035,7 +1035,7 @@ BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
    FSF/FarInputRecordToKey */
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 /* tran 31.08.2000 $ */
-DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false);
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 /* $ 24.08.2000 SVS

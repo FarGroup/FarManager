@@ -94,6 +94,7 @@ enum BaseDefKeyboard
   KEY_LWIN                 =0x0000015B,
   KEY_RWIN                 =0x0000015C,
   KEY_APPS                 =0x0000015D,
+  KEY_SLEEP                =0x0000015F,
 
   KEY_NUMPAD0              =0x00000160,
   KEY_NUMPAD1              =0x00000161,
@@ -110,6 +111,7 @@ enum BaseDefKeyboard
   KEY_MULTIPLY             =0x0000016A,
   KEY_ADD                  =0x0000016B,
   KEY_SUBTRACT             =0x0000016D,
+  KEY_DECIMAL              =0x0000016E,
   KEY_DIVIDE               =0x0000016F,
 
   KEY_F1                   =0x00000170,
@@ -174,13 +176,10 @@ enum BaseDefKeyboard
   KEY_RCTRLALTSHIFTRELEASE =0x00000208,
 #endif // END FAR_USE_INTERNALS
   KEY_NUMDEL               =0x00000209,
-  KEY_DECIMAL              =0x0000020A,
   KEY_NUMENTER             =0x0000020B,
 
   KEY_MSWHEEL_LEFT         =0x0000020C,
   KEY_MSWHEEL_RIGHT        =0x0000020D,
-
-  KEY_SLEEP                =0x0000020E,
 
   KEY_MSLCLICK             =0x0000020F,
   KEY_MSRCLICK             =0x00000210,
@@ -743,5 +742,22 @@ enum AddDefKeyboard
   KEY_ALT_BASE             =KEY_ALT,
   KEY_ALTSHIFT_BASE        =KEY_ALTSHIFT,
 };
+
+#ifdef FAR_USE_INTERNALS
+#define IS_INTERNAL_KEY_REAL(Key)\
+(\
+  (Key)==KEY_MSWHEEL_UP||\
+  (Key)==KEY_MSWHEEL_DOWN||\
+  (Key)==KEY_NUMDEL||\
+  (Key)==KEY_NUMENTER||\
+  (Key)==KEY_MSWHEEL_LEFT||\
+  (Key)==KEY_MSWHEEL_RIGHT||\
+  (Key)==KEY_MSLCLICK||\
+  (Key)==KEY_MSRCLICK||\
+  (Key)==KEY_MSM1CLICK||\
+  (Key)==KEY_MSM2CLICK||\
+  (Key)==KEY_MSM3CLICK\
+)
+#endif // FAR_USE_INTERNALS
 
 #endif  // __FARKEYS_HPP__

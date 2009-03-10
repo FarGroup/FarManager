@@ -535,7 +535,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
 
-  if (Flags.Check(FFILEEDIT_REDRAWTITLE) && ((Key & 0x00ffffff) < KEY_END_FKEY))
+  if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL((unsigned int)Key & 0x00ffffff)))
     ShowConsoleTitle();
 
   // BugZ#488 - Shift=enter

@@ -387,7 +387,7 @@ static DWORD KeyMsClick2ButtonState(DWORD Key)
   return 0;
 }
 
-DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
   _KEYMACRO(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
@@ -1470,9 +1470,9 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
       rec->EventType = KEY_EVENT;
     }
 
-    if(rec->EventType==MOUSE_EVENT && !ExcludeMacro && CtrlObject && !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
+    if(rec->EventType==MOUSE_EVENT && (!ExcludeMacro||ProcessMouse) && CtrlObject && (ProcessMouse || !(CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting())))
     {
-      if(!(MouseEventFlags == MOUSE_MOVED || MouseEventFlags == DOUBLE_CLICK))
+      if(MouseEventFlags != MOUSE_MOVED)
       {
         DWORD MsCalcKey=0;
 
@@ -1493,7 +1493,10 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
                        (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
                        (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
           _SVS(CleverSysLog Clev("if(CtrlObject->Macro.ProcessKey(MsCalcKey))"));
-          if(CtrlObject->Macro.ProcessKey(MsCalcKey))
+          // для WaitKey()
+          if(ProcessMouse)
+            return MsCalcKey;
+          else if(CtrlObject->Macro.ProcessKey(MsCalcKey))
           {
             memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
             _SVS(SysLog("return NONE",__LINE__));
@@ -1578,12 +1581,12 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
     INPUT_RECORD rec;
     Key=KEY_NONE;
     if (PeekInputRecord(&rec))
-      Key=GetInputRecord(&rec,true);
+      Key=GetInputRecord(&rec,true,true);
 
     if(KeyWait == (DWORD)-1)
     {
       //if (!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || Key>=KEY_OP_BASE && Key <=KEY_OP_ENDBASE) && Key != KEY_NONE && Key != KEY_IDLE)
-      if((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY)
+      if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key))
         break;
     }
     else if(Key == KeyWait)

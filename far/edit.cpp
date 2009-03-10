@@ -2057,6 +2057,22 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
     Select(-1,0);
   /* SVS $ */
+  if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
+  {
+    static int PrevDoubleClick=0;
+    if(GetTickCount()-PrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+    {
+      Select(0,StrSize);
+      PrevDoubleClick=0;
+    }
+    if(MouseEvent->dwEventFlags==DOUBLE_CLICK)
+    {
+      ProcessKey(KEY_OP_SELWORD);
+      PrevDoubleClick=GetTickCount();
+    }
+    else
+      PrevDoubleClick=0;
+  }
   Show();
   return(TRUE);
 }
