@@ -395,8 +395,6 @@ void ShowMenuFromList(TCHAR *Name)
   TCHAR **argv;
 #ifndef UNICODE
   static const int ANSI = FALSE;
-#else
-  wchar_t tmpstr[128][COMMONPANELSNUMBER];
 #endif
   ReadFileList (Name, &argc, &argv WITH_ANSI_ARG);
 
@@ -404,20 +402,20 @@ void ShowMenuFromList(TCHAR *Name)
   if(fmi)
   {
     TCHAR TMP[MAX_PATH];
-    for(int i=0;i<argc;++i)
+    int i;
+    for(i=0;i<argc;++i)
     {
       TCHAR *param,*p=TMP;
       ExpandEnvStrs(argv[i],TMP,ArraySize(TMP));
       param=ParseParam(p);
       FSF.TruncStr(param?param:p,67);
+
 #ifndef UNICODE
-#define _OUT  fmi[i].Text
+      strncpy(fmi[i].Text,param?param:p,sizeof(fmi[i].Text)-1);
 #else
-#define _OUT  tmpstr[i]
-      fmi[i].Text = _OUT;
+      fmi[i].Text = wcsdup(param?param:p);
 #endif
-      lstrcpy(_OUT,param?param:p);
-#undef _OUT
+
       fmi[i].Separator=!lstrcmp(param,_T("-"));
     }
 //    fmi[0].Selected=TRUE;
@@ -432,10 +430,19 @@ void ShowMenuFromList(TCHAR *Name)
 
     int BreakCode;
     static const int BreakKeys[2]={MAKELONG(VK_RETURN,PKF_SHIFT),0};
+
     int ExitCode=Info.Menu(Info.ModuleNumber, -1, -1, 0,
       FMENU_WRAPMODE, Title, NULL, _T("Contents"),
       &BreakKeys[0], &BreakCode, fmi, argc);
+
+#ifdef UNICODE
+    for(i=0;i<argc;++i)
+      if(fmi[i].Text)
+        free((void*)fmi[i].Text);
+#endif
+
     free(fmi);
+
     if((unsigned)ExitCode<(unsigned)argc)
     {
       ExpandEnvStrs(argv[ExitCode],TMP,ArraySize(TMP));
