@@ -6561,7 +6561,7 @@ MFindFileMasks
 
 MFindFileText
 "&Содержащих текст:"
-"Containing &text:"
+"Con&taining text:"
 "Obsahující te&xt:"
 "Enthält &Text:"
 "&Tartalmazza a szöveget:"
@@ -6630,11 +6630,11 @@ MSearchForHex
 "Keresés &hexákra"
 
 MSearchWhere
-"Выберите область поиска:"
-"Select search area:"
-"Zvolte oblast hledání:"
-"Suchbereich:"
-"Keresés hatósugara:"
+"Выберите &область поиска:"
+"Select search &area:"
+upd:"Zvolte oblast hledání:"
+upd:"Suchbereich:"
+upd:"Keresés hatósugara:"
 
 MSearchAllDisks
 "На всех несъемных &дисках"
@@ -8020,11 +8020,11 @@ MMenuFilesHighlighting
 "Fájlkiemelések, rendezési &csoportok"
 
 MMenuSaveSetup
-"&Сохранить параметры      Shift-F9"
-"&Save setup        Shift-F9"
-"&Uložit nastavení                         Shift-F9"
-"Setup &speichern   Umsch-F9"
-"Beállítások men&tése         Shift-F9"
+"&Сохранить параметры                  Shift-F9"
+"&Save setup                         Shift-F9"
+"&Uložit nastavení                      Shift-F9"
+"Setup &speichern                     Umsch-F9"
+"Beállítások men&tése                 Shift-F9"
 
 MMenuTogglePanelRight
 "Панель &Вкл/Выкл          Ctrl-F2"

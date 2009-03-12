@@ -902,8 +902,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       Dlg.SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
       Dlg.SetPosition(-1,-1,69,JunctionPresent?24:23);
       Dlg.Process();
-			delete[] NameList.Items;
-			delete[] strLinks;
+			if(NameList.Items)
+				delete[] NameList.Items;
+			if(strLinks)
+				delete[] strLinks;
       if (Dlg.GetExitCode()!=SETATTR_SET)
         return 0;
     }

@@ -2322,7 +2322,7 @@ void Viewer::Search(int Next,int FirstChar)
           CurPos=0;
 
         vseek(ViewFile,CurPos,SEEK_SET);
-        if ((ReadSize=vread(Buf,BufSize,ViewFile,true))<=0)
+				if ((ReadSize=vread(Buf,BufSize,ViewFile,SearchHex!=0))<=0)
           break;
 
         if(CheckForEscSilent())

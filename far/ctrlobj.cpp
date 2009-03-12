@@ -191,7 +191,7 @@ ControlObject::~ControlObject()
 
 void ControlObject::ShowCopyright(DWORD Flags)
 {
-  char *Str=strdup(Copyright);
+  char *Str=xf_strdup(Copyright);
   char *Line2=NULL;
   char Xor=17;
   for (int I=0;Str[I];I++)

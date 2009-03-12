@@ -141,7 +141,14 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
   }
 
   delete PluginsStack[PluginsStackSize];
-  PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
+
+  if(PluginsStackSize)
+		PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
+	else
+	{
+		xf_free(PluginsStack);
+		PluginsStack=NULL;
+	}
 
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();

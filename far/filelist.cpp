@@ -1414,15 +1414,21 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurName(strFileName);
                 }
                 FileViewer *ShellViewer=new FileViewer(strFileName, TRUE,PluginMode,PluginMode,-1,strPluginData,&ViewList);
-
-                /* $ 08.04.2002 IS
-                   —бросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
-                */
-                if (PluginMode)
-                {
-                  ShellViewer->SetTempViewName(strFileName);
-                  DeleteViewedFile=false;
-                }
+								if(ShellViewer)
+								{
+									if (!ShellViewer->GetExitCode())
+									{
+										delete ShellViewer;
+									}
+									/* $ 08.04.2002 IS
+									—бросим DeleteViewedFile, т.к. внутренний вьюер сам все удалит
+									*/
+									else if (PluginMode)
+									{
+										ShellViewer->SetTempViewName(strFileName);
+										DeleteViewedFile=false;
+									}
+								}
                 Modaling=FALSE;
               }
             }
@@ -2441,7 +2447,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       */
       if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
       {
-        if (MouseEvent->dwEventFlags==0)
+				if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
           MouseSelection=!CurPtr->Selected;
         Select(CurPtr,MouseSelection);
         if (SelectedFirst)

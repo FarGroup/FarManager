@@ -5331,7 +5331,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   /*****************************************************************/
   struct DialogItemEx *CurItem=NULL;
   int Type=0;
-  const wchar_t *Ptr=NULL;
   size_t Len=0;
   // предварительно проверим...
   /* $ 09.12.2001 DJ
@@ -5344,7 +5343,10 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   CurItem=Dlg->Item[Param1];
   Type=CurItem->Type;
 
-  Ptr= CurItem->strData;
+	const wchar_t *Ptr= CurItem->strData;
+	if(IsEdit(Type) && CurItem->ObjPtr)
+		Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
+
 
   switch(Msg)
   {

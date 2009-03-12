@@ -267,7 +267,7 @@ int Grabber::ProcessKey(int Key)
   {
     if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
       Reset();
-    else if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
+    else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
 
@@ -399,8 +399,8 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (!LButtonPressed)
     return(FALSE);
 
-  GArea.CurX=(MouseX<ScrX?(MouseX<0?0:MouseX):ScrX);
-  GArea.CurY=(MouseY<ScrY?(MouseY<0?0:MouseY):ScrY);
+	GArea.CurX=Min(Max(0,MouseX),ScrX);
+	GArea.CurY=Min(Max(0,MouseY),ScrY);
 
   if (MouseEvent->dwEventFlags==0)
     ResetArea=TRUE;

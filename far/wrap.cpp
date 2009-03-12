@@ -180,7 +180,7 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iC
 
 				if (pnmA[i].ColumnTypes)
 				{
-					char *lpTypes = strdup(pnmA[i].ColumnTypes);
+					char *lpTypes = xf_strdup(pnmA[i].ColumnTypes);
 
 					const char *lpToken = strtok(lpTypes, ",");
 

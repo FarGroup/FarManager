@@ -317,34 +317,27 @@ enum FINDASKDLG
 	FAD_DOUBLEBOX,
 	FAD_TEXT_MASK,
 	FAD_EDIT_MASK,
-	FAD_SEPARATOR_1,
+	FAD_SEPARATOR0,
 	FAD_TEXT_TEXTHEX,
 	FAD_EDIT_TEXT,
 	FAD_EDIT_HEX,
 	FAD_TEXT_CP,
 	FAD_COMBOBOX_CP,
-	FAD_SEPARATOR2,
-	FAD_SEPARATOR3,
+	FAD_SEPARATOR1,
 	FAD_CHECKBOX_CASE,
 	FAD_CHECKBOX_WHOLEWORDS,
 	FAD_CHECKBOX_HEX,
 	FAD_CHECKBOX_ARC,
 	FAD_CHECKBOX_DIRS,
 	FAD_CHECKBOX_LINKS,
-	FAD_SEPARATOR_4,
-	FAD_SEPARATOR_5,
+	FAD_SEPARATOR_2,
+	FAD_SEPARATOR_3,
 	FAD_TEXT_WHERE,
-	FAD_RADIO_ALLDISKS,
-	FAD_RADIO_ALLBUTNET,
-	FAD_RADIO_PATH,
-	FAD_RADIO_ROOT,
-	FAD_RADIO_FROMCURRENT,
-	FAD_RADIO_INCURRENT,
-	FAD_RADIO_SELECTED,
-	FAD_SEPARATOR_6,
+	FAD_COMBOBOX_WHERE,
+	FAD_SEPARATOR_4,
 	FAD_CHECKBOX_FILTER,
 	FAD_CHECKBOX_ADVANCED,
-	FAD_SEPARATOR_7,
+	FAD_SEPARATOR_5,
 	FAD_BUTTON_FIND,
 	FAD_BUTTON_DRIVE,
 	FAD_BUTTON_FILTER,
@@ -352,11 +345,21 @@ enum FINDASKDLG
 	FAD_BUTTON_CANCEL,
 };
 
+enum FINDASKDLGCOMBO
+{
+	FADC_ALLDISKS,
+	FADC_ALLBUTNET,
+	FADC_PATH,
+	FADC_ROOT,
+	FADC_FROMCURRENT,
+	FADC_INCURRENT,
+	FADC_SELECTED,
+};
+
 LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
   const wchar_t *FindText=MSG(MFindFileText),*FindHex=MSG(MFindFileHex),*FindCode=MSG(MFindFileCodePage);
-  string strDataStr;
 
   switch(Msg)
   {
@@ -366,51 +369,19 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
          Переключение видимости строки ввода искомого текста
 				в зависимости от Dlg->Item[FAD_CHECKBOX_HEX].Selected
       */
-			if (Dlg->Item[FAD_CHECKBOX_HEX]->Selected) // [ ] Search for hexadecimal code
-      {
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,FALSE);
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,FALSE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,FALSE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,FALSE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,FALSE);
-      }
-      else
-      {
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,FALSE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,TRUE);
-      }
+			bool Hex=(Dlg->Item[FAD_CHECKBOX_HEX]->Selected!=0);
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Hex);
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Hex);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Hex);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,!Hex);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,!Hex);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,!Hex);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,!Hex);
 
 			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,1);
 			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,1);
-
-			int W=Dlg->Item[FAD_TEXT_CP]->X1-Dlg->Item[FAD_TEXT_TEXTHEX]->X1-5;
-
-			if (StrLength((Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FindHex:FindText))>W)
-      {
-				strDataStr = Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FindHex:FindText;
-        TruncStr(strDataStr, W);
-      }
-      else
-      {
-				strDataStr = (Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FindHex:FindText);
-      }
-
-			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)strDataStr);
-
-			W=Dlg->Item[FAD_DOUBLEBOX]->X2-Dlg->Item[FAD_TEXT_CP]->X1-3;
-      if (StrLength(FindCode)>W)
-      {
-        strDataStr = FindCode;
-        TruncStr(strDataStr, W);
-      }
-      else
-        strDataStr = FindCode;
-			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)(const wchar_t*)strDataStr);
+			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FindHex:FindText));
+			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)FindCode);
 
       /* Установка запомненных ранее параметров */
 			UseAllCodePages=Opt.CodePage.AllPages;
@@ -422,20 +393,13 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
 
-			if (Dlg->Item[FAD_RADIO_ROOT]->Selected==1)
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_BUTTON_DRIVE,TRUE);
-      else
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_BUTTON_DRIVE,FALSE);
-
       return TRUE;
     }
     case DN_LISTCHANGE:
     {
 			if (Param1==FAD_COMBOBOX_CP)
       {
-				FarListPos pos;
-				Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&pos);
-				UINT cp = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, pos.SelectPos);
+				UINT cp = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
 				UseAllCodePages = (cp == CP_AUTODETECT);
 				if (!UseAllCodePages) {
 					CodePage = cp;
@@ -460,91 +424,97 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-			if (Param1==FAD_BUTTON_FIND || Param1==FAD_BUTTON_CANCEL)
-        return FALSE;
-			else if (Param1==FAD_BUTTON_DRIVE)
-      {
-        IsRedrawFramesInProcess++;
-        ActivePanel->ChangeDisk();
-        // Ну что ж, раз пошла такая пьянка рефрешить фреймы
-        // будем таким способом.
-        //FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
-        FrameManager->ResizeAllFrame();
-        IsRedrawFramesInProcess--;
+			switch(Param1)
+			{
+			case FAD_BUTTON_FIND:
+			case FAD_BUTTON_CANCEL:
+				return FALSE;
 
-        PrepareDriveNameStr(strSearchFromRoot, PARTIAL_DLG_STR_LEN);
+			case FAD_BUTTON_DRIVE:
+				{
+					IsRedrawFramesInProcess++;
+					ActivePanel->ChangeDisk();
+					// Ну что ж, раз пошла такая пьянка рефрешить фреймы
+					// будем таким способом.
+					//FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+					FrameManager->ResizeAllFrame();
+					IsRedrawFramesInProcess--;
 
-				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_RADIO_ROOT,(LONG_PTR)(const wchar_t*)strSearchFromRoot);
-        PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,PluginMode?FALSE:TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_RADIO_ALLDISKS,PluginMode?FALSE:TRUE);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_RADIO_ALLBUTNET,PluginMode?FALSE:TRUE);
-      }
-			else if (Param1==FAD_BUTTON_FILTER)
-        Filter->FilterEdit();
-			else if (Param1==FAD_BUTTON_ADVANCED)
-        AdvancedDialog();
-			else if (Param1>=FAD_RADIO_ALLDISKS && Param1<=FAD_RADIO_SELECTED)
-      {
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_BUTTON_DRIVE,Param1==FAD_RADIO_ROOT?TRUE:FALSE);
-        SearchFromChanged=TRUE;
-      }
-			else if (Param1==FAD_CHECKBOX_DIRS)
-        FindFoldersChanged = TRUE;
-			else if (Param1==FAD_CHECKBOX_HEX)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+					PrepareDriveNameStr(strSearchFromRoot, PARTIAL_DLG_STR_LEN);
 
-        /* $ 21.09.2003 KM
-           Переключение видимости строки ввода искомого текста
-           в зависимости от установленного чекбокса hex mode
-        */
-        //int LenDataStr=sizeof(DataStr); //BUGBUG
-        if (Param2)
-        {
-					Transform(strDataStr,Dlg->Item[FAD_EDIT_TEXT]->strData,L'X');
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_EDIT_HEX,(LONG_PTR)(const wchar_t*)strDataStr);
+					FarListGetItem item={FADC_ROOT};
+					Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
+					item.Item.Text=strSearchFromRoot;
+					Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,FALSE);
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,TRUE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,FALSE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,FALSE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,FALSE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,FALSE);
-        }
-        else
-        {
-					Transform(strDataStr,Dlg->Item[FAD_EDIT_HEX]->strData,L'S');
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
+					PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,PluginMode?FALSE:TRUE);
 
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,TRUE);
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,FALSE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,TRUE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,TRUE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,TRUE);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,TRUE);
-        }
+					item.ItemIndex=FADC_ALLDISKS;
+					Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
+					if(PluginMode)
+						item.Item.Flags|=LIF_DISABLE;
+					else
+						item.Item.Flags&=~LIF_DISABLE;
+					Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 
-				int W=Dlg->Item[FAD_TEXT_CP]->X1-Dlg->Item[FAD_TEXT_TEXTHEX]->X1-5;
-        if (StrLength((Param2?FindHex:FindText))>W)
-        {
-          strDataStr = (Param2?FindHex:FindText);
-          TruncStr(strDataStr, W);
-        }
-        else
-          strDataStr = (Param2?FindHex:FindText);
-				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)strDataStr);
+					item.ItemIndex=FADC_ALLBUTNET;
+					Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
+					if(PluginMode)
+						item.Item.Flags|=LIF_DISABLE;
+					else
+						item.Item.Flags&=~LIF_DISABLE;
+					Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
+				}
+				break;
 
-        if (strDataStr.GetLength()>0)
-        {
-					int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,-1);
-					Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,UnchangeFlag);
-        }
+			case FAD_BUTTON_FILTER:
+				Filter->FilterEdit();
+				break;
 
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-      }
-			else if (Param1==FAD_CHECKBOX_ADVANCED)
-        EnableSearchInFirst=(int)Param2;
+			case FAD_BUTTON_ADVANCED:
+				AdvancedDialog();
+				break;
+
+			case FAD_CHECKBOX_DIRS:
+				FindFoldersChanged = TRUE;
+				break;
+
+			case FAD_CHECKBOX_HEX:
+				{
+					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+					/* $ 21.09.2003 KM
+						 Переключение видимости строки ввода искомого текста
+						 в зависимости от установленного чекбокса hex mode
+					*/
+					string strDataStr;
+					Transform(strDataStr,(LPCWSTR)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,NULL),Param2?L'X':L'S');
+					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
+					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Param2);
+					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Param2);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Param2);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,!Param2);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,!Param2);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,!Param2);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,!Param2);
+
+					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)(Param2?FindHex:FindText));
+
+					if (strDataStr.GetLength()>0)
+					{
+						int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,-1);
+						Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,UnchangeFlag);
+					}
+
+					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+				}
+				break;
+
+			case FAD_CHECKBOX_ADVANCED:
+				EnableSearchInFirst=(int)Param2;
+				break;
+}
       return TRUE;
     }
     case DN_EDITCHANGE:
@@ -558,22 +528,20 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         {
 
           BOOL Checked = (Item.PtrData && *Item.PtrData)?FALSE:Opt.FindOpt.FindFolders;
-          if (Checked)
-						Dialog::SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, BSTATE_CHECKED);
-          else
-						Dialog::SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, BSTATE_UNCHECKED);
+					Dialog::SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, Checked?BSTATE_CHECKED:BSTATE_UNCHECKED);
         }
+				return TRUE;
       }
-      return TRUE;
+			else if(Param1==FAD_COMBOBOX_WHERE)
+				SearchFromChanged=TRUE;
+			break;
+
     }
     case DN_HOTKEY:
     {
 			if (Param1==FAD_TEXT_TEXTHEX)
       {
-				if (Dlg->Item[FAD_CHECKBOX_HEX]->Selected)
-					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,FAD_EDIT_HEX,0);
-        else
-					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,FAD_EDIT_TEXT,0);
+				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FAD_EDIT_HEX:FAD_EDIT_TEXT,0);
         return FALSE;
       }
     }
@@ -588,7 +556,6 @@ FindFiles::FindFiles()
   // Статической структуре и статические переменные
   static string strSearchFromRoot;
   static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
-  int I;
 
   // Создадим объект фильтра
   Filter=new FileFilter(CtrlObject->Cp()->ActivePanel,FFT_FINDFILE);
@@ -623,112 +590,84 @@ FindFiles::FindFiles()
     PrepareDriveNameStr(strSearchFromRoot,PARTIAL_DLG_STR_LEN);
 
     const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
-    const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH"; // HH HH HH HH HH HH HH HH HH HH HH HH";
+		const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
 
-/*
-    000000000011111111112222222222333333333344444444445555555555666666666677777777
-    012345678901234567890123456789012345678901234567890123456789012345678901234567
-00  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-01  "  +----------------------------- Find file ------------------------------+  "
-02  "  ¦ A file mask or several file masks:                                   ¦  "
-03  "  ¦ *.*#################################################################.¦  "
-04  "  ¦----------------------------------+-----------------------------------¦  "
-05  "  ¦ Containing text:                 ¦ Using character table:            ¦  "
-06  "  ¦ ################################.¦ Windows text#####################.¦  "
-07  "  ¦----------------------------------+-----------------------------------¦  "
-08  "  ¦ [ ] Case sensitive               ¦ [ ] Search in archives            ¦  "
-09  "  ¦ [ ] Whole words                  ¦ [x] Search for folders            ¦  "
-10  "  ¦ [ ] Search for hex               ¦ [x] Search in symbolic links      ¦  "
-11  "  ¦----------------------------------+-----------------------------------¦  "
-12  "  ¦ Select place to search                                               ¦  "
-13  "  ¦ ( ) In all non-removable drives    (.) From the current folder       ¦  "
-14  "  ¦ ( ) In all local drives            ( ) The current folder only       ¦  "
-15  "  ¦ ( ) In PATH folders                ( ) Selected folders              ¦  "
-    "  ¦ ( ) From the root of C:                                              ¦  "
-16  "  ¦----------------------------------------------------------------------¦  "
-17  "  ¦ [ ] Use filter                     [ ] Advanced options              ¦  "
-18  "  ¦----------------------------------------------------------------------¦  "
-19  "  ¦      [ Find ]  [ Drive ]  [ Filter ]  [ Advanced ]  [ Cancel ]       ¦  "
-20  "  +----------------------------------------------------------------------+  "
-21  "                                                                            "
-22  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-*/
+		const wchar_t VSeparator[]={BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
     static struct DialogDataEx FindAskDlgData[]=
     {
-      /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,0,0,(const wchar_t *)MFindFileTitle,
-      /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MFindFileMasks,
-      /* 02 */DI_EDIT,5,3,72,3,1,(DWORD_PTR)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
-      /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
-      /* 04 */DI_TEXT,5,5,0,5,0,0,0,0,L"",
-      /* 05 */DI_EDIT,5,6,36,6,0,(DWORD_PTR)TextHistoryName,DIF_HISTORY,0,L"",
-      /* 06 */DI_FIXEDIT,5,6,36,6,0,(DWORD_PTR)HexMask,DIF_MASKEDIT,0,L"",
-      /* 07 */DI_TEXT,40,5,0,5,0,0,0,0,L"",
-      /* 08 */DI_COMBOBOX,40,6,72,18,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
-      /* 09 */DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 10 */DI_VTEXT,38,4,0,4,0,0,DIF_BOXCOLOR,0,L"\x2564\x2502\x2502\x253C",
-      /* 11 */DI_CHECKBOX,5,8,0,8,0,0,0,0,(const wchar_t *)MFindFileCase,
-      /* 12 */DI_CHECKBOX,5,9,0,9,0,0,0,0,(const wchar_t *)MFindFileWholeWords,
-      /* 13 */DI_CHECKBOX,5,10,0,10,0,0,0,0,(const wchar_t *)MSearchForHex,
-      /* 14 */DI_CHECKBOX,40,8,0,8,0,0,0,0,(const wchar_t *)MFindArchives,
-      /* 15 */DI_CHECKBOX,40,9,0,9,0,0,0,0,(const wchar_t *)MFindFolders,
-      /* 16 */DI_CHECKBOX,40,10,0,10,0,0,0,0,(const wchar_t *)MFindSymLinks,
-      /* 17 */DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
-      /* 18 */DI_VTEXT,38,7,0,7,0,0,DIF_BOXCOLOR,0,L"\x253C\x2502\x2502\x2502\x2567",
-      /* 19 */DI_TEXT,5,12,0,12,0,0,0,0,(const wchar_t *)MSearchWhere,
-      /* 20 */DI_RADIOBUTTON,5,13,0,13,0,0,DIF_GROUP,0,(const wchar_t *)MSearchAllDisks,
-      /* 21 */DI_RADIOBUTTON,5,14,0,14,0,1,0,0,(const wchar_t *)MSearchAllButNetwork,
-      /* 22 */DI_RADIOBUTTON,5,15,0,15,0,1,0,0,(const wchar_t *)MSearchInPATH,
-      /* 23 */DI_RADIOBUTTON,5,16,0,16,0,1,0,0,L"",
-      /* 24 */DI_RADIOBUTTON,40,13,0,13,0,0,0,0,(const wchar_t *)MSearchFromCurrent,
-      /* 25 */DI_RADIOBUTTON,40,14,0,14,0,0,0,0,(const wchar_t *)MSearchInCurrent,
-      /* 26 */DI_RADIOBUTTON,40,15,0,15,0,0,0,0,(const wchar_t *)MSearchInSelected,
-      /* 27 */DI_TEXT,3,17,0,17,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 28 */DI_CHECKBOX,5,18,0,18,0,0,0,0,(const wchar_t *)MFindUseFilter,
-      /* 29 */DI_CHECKBOX,40,18,0,19,0,0,0,0,(const wchar_t *)MFindAdvancedOptions,
-      /* 30 */DI_TEXT,3,19,0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-      /* 31 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
-      /* 32 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
-      /* 33 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
-      /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
-      /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+			/* 00 */DI_DOUBLEBOX,3,1,74,20,0,0,0,0,(const wchar_t *)MFindFileTitle,
+			/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MFindFileMasks,
+			/* 02 */DI_EDIT,5,3,72,3,1,(DWORD_PTR)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
+			/* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 04 */DI_TEXT,5,5,0,5,0,0,0,0,L"",
+			/* 05 */DI_EDIT,5,6,72,6,0,(DWORD_PTR)TextHistoryName,DIF_HISTORY,0,L"",
+			/* 06 */DI_FIXEDIT,5,6,72,6,0,(DWORD_PTR)HexMask,DIF_MASKEDIT,0,L"",
+			/* 07 */DI_TEXT,5,7,0,7,0,0,0,0,L"",
+			/* 08 */DI_COMBOBOX,5,8,72,8,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
+			/* 09 */DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 10 */DI_CHECKBOX,5,10,0,10,0,0,0,0,(const wchar_t *)MFindFileCase,
+			/* 11 */DI_CHECKBOX,5,11,0,11,0,0,0,0,(const wchar_t *)MFindFileWholeWords,
+			/* 12 */DI_CHECKBOX,5,12,0,12,0,0,0,0,(const wchar_t *)MSearchForHex,
+			/* 13 */DI_CHECKBOX,40,10,0,10,0,0,0,0,(const wchar_t *)MFindArchives,
+			/* 14 */DI_CHECKBOX,40,11,0,11,0,0,0,0,(const wchar_t *)MFindFolders,
+			/* 15 */DI_CHECKBOX,40,12,0,12,0,0,0,0,(const wchar_t *)MFindSymLinks,
+			/* 16 */DI_TEXT,3,13,0,13,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 17 */DI_VTEXT,38,9,0,9,0,0,DIF_BOXCOLOR,0,VSeparator,
+			/* 18 */DI_TEXT,5,14,0,14,0,0,0,0,(const wchar_t *)MSearchWhere,
+			/* 19 */DI_COMBOBOX,5,15,72,15,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
+			/* 20 */DI_TEXT,3,16,0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 21 */DI_CHECKBOX,5,17,0,17,0,0,0,0,(const wchar_t *)MFindUseFilter,
+			/* 22 */DI_CHECKBOX,40,17,0,17,0,0,0,0,(const wchar_t *)MFindAdvancedOptions,
+			/* 23 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 24 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
+			/* 25 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
+			/* 26 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
+			/* 27 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
+			/* 28 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
     };
-
-		FindAskDlgData[FAD_RADIO_ROOT].Data = strSearchFromRoot; //BUGBUG
 
     MakeDialogItemsEx(FindAskDlgData,FindAskDlg);
 
     if ( strFindStr.IsEmpty() )
-			FindAskDlg[FAD_CHECKBOX_DIRS].Selected=Opt.FindOpt.FindFolders;
-		for(I=FAD_RADIO_ALLDISKS; I <= FAD_RADIO_SELECTED; ++I)
-      FindAskDlg[I].Selected=0;
-		FindAskDlg[FAD_RADIO_ALLDISKS+SearchMode].Selected=1;
+      FindAskDlg[FAD_CHECKBOX_DIRS].Selected=Opt.FindOpt.FindFolders;
 
-    {
-      if (PluginMode)
-      {
-        struct OpenPluginInfo Info;
-        HANDLE hPlugin=ActivePanel->GetPluginHandle();
-        CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+		FarListItem li[]=
+		{
+			{0,MSG(MSearchAllDisks)},
+			{0,MSG(MSearchAllButNetwork)},
+			{0,MSG(MSearchInPATH)},
+			{0,strSearchFromRoot},
+			{0,MSG(MSearchFromCurrent)},
+			{0,MSG(MSearchInCurrent)},
+			{0,MSG(MSearchInSelected)},
+		};
+		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
 
-        if ((Info.Flags & OPIF_REALNAMES)==0)
-					FindAskDlg[FAD_CHECKBOX_ARC].Flags |= DIF_DISABLE;
+		FarList l={countof(li),li};
+		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
-				if (FindAskDlg[FAD_RADIO_ALLDISKS].Selected || FindAskDlg[FAD_RADIO_ALLBUTNET].Selected)
-        {
-					FindAskDlg[FAD_RADIO_ALLDISKS].Selected=FindAskDlg[FAD_RADIO_ALLBUTNET].Selected=0;
-					FindAskDlg[FAD_RADIO_ROOT].Selected=1;
-        }
-				FindAskDlg[FAD_RADIO_ALLDISKS].Flags=FindAskDlg[FAD_RADIO_ALLBUTNET].Flags|=DIF_DISABLE;
-      }
-    }
+		if(PluginMode)
+		{
+			OpenPluginInfo Info;
+			CtrlObject->Plugins.GetOpenPluginInfo(ActivePanel->GetPluginHandle(),&Info);
 
-    if (PluginMode)
-    {
+			if(!(Info.Flags & OPIF_REALNAMES))
+				FindAskDlg[FAD_CHECKBOX_ARC].Flags |= DIF_DISABLE;
+
+			if(FADC_ALLDISKS+SearchMode==FADC_ALLDISKS || FADC_ALLDISKS+SearchMode==FADC_ALLBUTNET)
+			{
+				li[FADC_ALLDISKS].Flags=0;
+				li[FADC_ALLBUTNET].Flags=0;
+				li[FADC_ROOT].Flags|=LIF_SELECTED;
+			}
+			li[FADC_ALLDISKS].Flags|=LIF_DISABLE;
+			li[FADC_ALLBUTNET].Flags|=LIF_DISABLE;
+
 			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=0;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Flags|=DIF_DISABLE;
-    }
-    else
+		}
+		else
 			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=Opt.FindOpt.FindSymLinks;
 
     /* $ 14.05.2001 DJ
@@ -761,7 +700,7 @@ FindFiles::FindFiles()
 				Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
         Dlg.SetHelp(L"FindFile");
-        Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT);
+        Dlg.SetPosition(-1,-1,78,22);
         Dlg.Process();
         ExitCode=Dlg.GetExitCode();
       }
@@ -769,7 +708,7 @@ FindFiles::FindFiles()
       //Рефреш текущему времени для фильтра сразу после выхода из диалога
       Filter->UpdateCurrentTime();
 
-      if (ExitCode!=31)
+			if(ExitCode!=FAD_BUTTON_FIND)
       {
         CloseHandle(hPluginMutex);
         return;
@@ -824,20 +763,32 @@ FindFiles::FindFiles()
       GlobalSearchWholeWords=WholeWords;
       GlobalSearchHex=SearchHex;
     }
-		if (FindAskDlg[FAD_RADIO_ALLDISKS].Selected)
-      SearchMode=FFSEARCH_ALL;
-		if (FindAskDlg[FAD_RADIO_ALLBUTNET].Selected)
-      SearchMode=FFSEARCH_ALL_BUTNETWORK;
-		if (FindAskDlg[FAD_RADIO_PATH].Selected)
-      SearchMode=FFSEARCH_INPATH;
-		if (FindAskDlg[FAD_RADIO_ROOT].Selected)
-      SearchMode=FFSEARCH_ROOT;
-		if (FindAskDlg[FAD_RADIO_FROMCURRENT].Selected)
-      SearchMode=FFSEARCH_FROM_CURRENT;
-		if (FindAskDlg[FAD_RADIO_INCURRENT].Selected)
-      SearchMode=FFSEARCH_CURRENT_ONLY;
-		if (FindAskDlg[FAD_RADIO_SELECTED].Selected)
-        SearchMode=FFSEARCH_SELECTED;
+
+		switch(FindAskDlg[FAD_COMBOBOX_WHERE].ListPos)
+		{
+			case FADC_ALLDISKS:
+				SearchMode=FFSEARCH_ALL;
+				break;
+			case FADC_ALLBUTNET:
+				SearchMode=FFSEARCH_ALL_BUTNETWORK;
+				break;
+			case FADC_PATH:
+				SearchMode=FFSEARCH_INPATH;
+				break;
+			case FADC_ROOT:
+				SearchMode=FFSEARCH_ROOT;
+				break;
+			case FADC_FROMCURRENT:
+				SearchMode=FFSEARCH_FROM_CURRENT;
+				break;
+			case FADC_INCURRENT:
+				SearchMode=FFSEARCH_CURRENT_ONLY;
+				break;
+			case FADC_SELECTED:
+				SearchMode=FFSEARCH_SELECTED;
+				break;
+		}
+
     if (SearchFromChanged)
     {
       Opt.FindOpt.FileSearchMode=SearchMode;
