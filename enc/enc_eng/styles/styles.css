@@ -525,7 +525,15 @@ P.caution
     CLEAR: both;
     MARGIN-TOP: 1em;
     FONT-WEIGHT: bold;
-    MARGIN-BOTTOM: -0.25em
+    MARGIN-BOTTOM: -1.5em;
+    FONT-FAMILY: tahoma, arial, helvetica;
+    MARGIN-LEFT: 0.1em
+}
+UL.caution
+{
+    MARGIN-LEFT: 1.5em;
+    FONT-FAMILY: tahoma, arial, helvetica;
+    LIST-STYLE-TYPE: none
 }
 P.warning
 {
