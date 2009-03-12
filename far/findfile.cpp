@@ -1948,7 +1948,7 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 				{
 					if (!Filter->FileInFilter(&FindData))
 					{
-						if (FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && (SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH))
 							ScTree.SkipDir();
 						continue;
 					}

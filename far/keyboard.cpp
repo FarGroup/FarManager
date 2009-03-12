@@ -193,6 +193,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_PRNTSCRN,             8, L"PrntScrn"},
   { KEY_NUMLOCK,              7, L"NumLock"},
   { KEY_DECIMAL,              7, L"Decimal"},
+  { KEY_STANDBY,              7, L"Standby"},
   //{ KEY_HP_SEARCH,            8, "HPSearch"},
   //{ KEY_HP_HOME,              6, "HPHome"},
   //{ KEY_HP_MAIL,              6, "HPMail"},
@@ -207,7 +208,6 @@ static struct TFKey3 FKeys1[]={
   { KEY_ENTER,                5, L"Enter"},
   { KEY_CLEAR,                5, L"Clear"},
   { KEY_BREAK,                5, L"Break"},
-  { KEY_SLEEP,                5, L"Sleep"},
   { KEY_PGUP,                 4, L"PgUp"},
   { KEY_PGDN,                 4, L"PgDn"},
   { KEY_LEFT,                 4, L"Left"},
@@ -1934,7 +1934,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
 			3. Отжимается Alt, при этом в uChar.UnicodeChar лежит исходный символ:
 			bKeyDown=FALSE, wRepeatCount=1, wVirtualKeyCode=VK_MENU,    UnicodeChar=1099, dwControlKeyState=0
-                        
+
 			Мораль сей басни такова: если rec->Event.KeyEvent.uChar.UnicodeChar не пуст - берём его, а не то, что во время удерживания Alt пришло.
 			*/
 
@@ -2383,7 +2383,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s
       case VK_CANCEL:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SHIFT|KEY_CTRLALT|KEY_SLEEP;
+        return KEY_SHIFT|KEY_CTRLALT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_SHIFT|KEY_CTRLALT|KEY_PRNTSCRN;
     }
@@ -2440,7 +2440,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_V
           return KEY_CTRLALT|KEY_PAUSE;
         return KEY_NONE;
       case VK_SLEEP:
-        return KEY_CTRLALT|KEY_SLEEP;
+        return KEY_CTRLALT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_CTRLALT|KEY_PRNTSCRN;
     }
@@ -2516,7 +2516,7 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK
       case VK_PAUSE:
         return(KEY_ALTSHIFT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_ALTSHIFT|KEY_SLEEP;
+        return KEY_ALTSHIFT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_ALTSHIFT|KEY_PRNTSCRN;
     }
@@ -2554,7 +2554,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
       case VK_MULTIPLY:
         return(KEY_CTRLSHIFT|KEY_MULTIPLY);
       case VK_SLEEP:
-        return KEY_CTRLSHIFT|KEY_SLEEP;
+        return KEY_CTRLSHIFT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_CTRLSHIFT|KEY_PRNTSCRN;
     }
@@ -2605,7 +2605,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|"
       case VK_PAUSE:
         return(KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SLEEP;
+        return KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_PRNTSCRN;
     }
@@ -2644,7 +2644,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_
           return KEY_CTRL|KEY_NUMLOCK;
         return(KEY_BREAK);
       case VK_SLEEP:
-        return KEY_CTRL|KEY_SLEEP;
+        return KEY_CTRL|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_CTRL|KEY_PRNTSCRN;
     }
@@ -2718,7 +2718,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
       case VK_PAUSE:
         return(KEY_ALT+KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_ALT|KEY_SLEEP;
+        return KEY_ALT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_ALT|KEY_PRNTSCRN;
     }
@@ -2748,7 +2748,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
       case VK_PAUSE:
         return(KEY_SHIFT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SHIFT|KEY_SLEEP;
+        return KEY_SHIFT|KEY_STANDBY;
 			case VK_SNAPSHOT:
 				return KEY_SHIFT|KEY_PRNTSCRN;
     }
