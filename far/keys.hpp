@@ -94,7 +94,7 @@ enum BaseDefKeyboard
   KEY_LWIN                 =0x0000015B,
   KEY_RWIN                 =0x0000015C,
   KEY_APPS                 =0x0000015D,
-  KEY_SLEEP                =0x0000015F,
+  KEY_STANDBY              =0x0000015F,
 
   KEY_NUMPAD0              =0x00000160,
   KEY_NUMPAD1              =0x00000161,

@@ -1809,7 +1809,7 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
             {
               if (!Filter->FileInFilter(&FindData))
               {
-                if (FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+                if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && (SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH))
                   ScTree.SkipDir();
                 continue;
               }
@@ -1840,7 +1840,7 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
           if (SearchMode!=FFSEARCH_SELECTED)
             break;
         }
-      }
+}
 
 void _cdecl FindFiles::PrepareFilesList(void *Param)
 {

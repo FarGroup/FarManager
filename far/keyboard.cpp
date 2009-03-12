@@ -181,6 +181,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_PRNTSCRN,             8, "PrntScrn"},
   { KEY_NUMLOCK,              7, "NumLock"},
   { KEY_DECIMAL,              7, "Decimal"},
+  { KEY_STANDBY,              7, "Standby"},
 
   //{ KEY_HP_SEARCH,            8, "HPSearch"},
   //{ KEY_HP_HOME,              6, "HPHome"},
@@ -196,7 +197,6 @@ static struct TFKey3 FKeys1[]={
   { KEY_ENTER,                5, "Enter"},
   { KEY_CLEAR,                5, "Clear"},
   { KEY_BREAK,                5, "Break"},
-  { KEY_SLEEP,                5, "Sleep"},
   { KEY_PGUP,                 4, "PgUp"},
   { KEY_PGDN,                 4, "PgDn"},
   { KEY_LEFT,                 4, "Left"},
@@ -2731,7 +2731,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_CANCEL:
         return(KEY_SHIFT|KEY_CTRLALT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SHIFT|KEY_CTRLALT|KEY_SLEEP;
+        return KEY_SHIFT|KEY_CTRLALT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_SHIFT|KEY_CTRLALT|KEY_PRNTSCRN;
     }
@@ -2788,7 +2788,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           return KEY_CTRLALT|KEY_PAUSE;
         return KEY_NONE;
       case VK_SLEEP:
-        return KEY_CTRLALT|KEY_SLEEP;
+        return KEY_CTRLALT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_CTRLALT|KEY_PRNTSCRN;
     }
@@ -2865,7 +2865,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_PAUSE:
         return(KEY_ALTSHIFT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_ALTSHIFT|KEY_SLEEP;
+        return KEY_ALTSHIFT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_ALTSHIFT|KEY_PRNTSCRN;
     }
@@ -2908,7 +2908,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_MULTIPLY:
         return(KEY_CTRLSHIFT|KEY_MULTIPLY);
       case VK_SLEEP:
-        return KEY_CTRLSHIFT|KEY_SLEEP;
+        return KEY_CTRLSHIFT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_CTRLSHIFT|KEY_PRNTSCRN;
     }
@@ -2959,7 +2959,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_PAUSE:
         return(KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SLEEP;
+        return KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_PRNTSCRN;
     }
@@ -2998,7 +2998,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           return KEY_CTRL|KEY_NUMLOCK;
         return(KEY_BREAK);
       case VK_SLEEP:
-        return KEY_CTRL|KEY_SLEEP;
+        return KEY_CTRL|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_CTRL|KEY_PRNTSCRN;
     }
@@ -3072,7 +3072,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_PAUSE:
         return(KEY_ALT+KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_ALT|KEY_SLEEP;
+        return KEY_ALT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_ALT|KEY_PRNTSCRN;
     }
@@ -3118,7 +3118,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_PAUSE:
         return(KEY_SHIFT|KEY_PAUSE);
       case VK_SLEEP:
-        return KEY_SHIFT|KEY_SLEEP;
+        return KEY_SHIFT|KEY_STANDBY;
       case VK_SNAPSHOT:
         return KEY_SHIFT|KEY_PRNTSCRN;
     }
