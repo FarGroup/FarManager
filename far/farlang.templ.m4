@@ -4667,8 +4667,8 @@ MMenuFilesHighlighting
 "Files &highlighting and sort groups"
 
 MMenuSaveSetup
-"&Сохранить параметры      Shift-F9"
-"&Save setup        Shift-F9"
+"&Сохранить параметры                  Shift-F9"
+"&Save setup                         Shift-F9"
 
 MMenuTogglePanelRight
 "Панель &Вкл/Выкл          Ctrl-F2"

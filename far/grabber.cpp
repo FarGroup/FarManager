@@ -247,7 +247,7 @@ int Grabber::ProcessKey(int Key)
   {
     if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
       Reset();
-    else if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
+    else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
   /* SVS $ */

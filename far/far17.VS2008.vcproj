@@ -8001,7 +8001,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8012,7 +8012,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8023,7 +8023,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8034,7 +8034,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8045,7 +8045,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8056,7 +8056,7 @@
 						Description="Generating language files based on $(InputFileName)..."
 						CommandLine=".\tools\lng.generator.exe -nc -i .\lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
 						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;lang.hpp;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
 					/>
 				</FileConfiguration>
 			</File>

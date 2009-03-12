@@ -2060,18 +2060,27 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
   {
     static int PrevDoubleClick=0;
-    if(GetTickCount()-PrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+    static COORD PrevPosition={0,0};
+    if(GetTickCount()-PrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED &&
+      PrevPosition.X == MouseEvent->dwMousePosition.X && PrevPosition.Y == MouseEvent->dwMousePosition.Y)
     {
       Select(0,StrSize);
       PrevDoubleClick=0;
+      PrevPosition.X=0;
+      PrevPosition.Y=0;
     }
     if(MouseEvent->dwEventFlags==DOUBLE_CLICK)
     {
       ProcessKey(KEY_OP_SELWORD);
       PrevDoubleClick=GetTickCount();
+      PrevPosition=MouseEvent->dwMousePosition;
     }
     else
+    {
       PrevDoubleClick=0;
+      PrevPosition.X=0;
+      PrevPosition.Y=0;
+    }
   }
   Show();
   return(TRUE);

@@ -3090,7 +3090,9 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
   {
     static int EditorPrevDoubleClick=0;
-    if(GetTickCount()-EditorPrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+    static COORD EditorPrevPosition={0,0};
+    if(GetTickCount()-EditorPrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED &&
+      EditorPrevPosition.X == MouseEvent->dwMousePosition.X && EditorPrevPosition.Y == MouseEvent->dwMousePosition.Y)
     {
       CurLine->Select(0,CurLine->StrSize);
       if(CurLine->IsSelection())
@@ -3100,6 +3102,8 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         BlockStartLine=NumLine;
       }
       EditorPrevDoubleClick=0;
+      EditorPrevPosition.X=0;
+      EditorPrevPosition.Y=0;
     }
     if(MouseEvent->dwEventFlags==DOUBLE_CLICK)
     {
@@ -3108,9 +3112,14 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         UnmarkBlock();
       ProcessKey(KEY_OP_SELWORD);
       EditorPrevDoubleClick=GetTickCount();
+      EditorPrevPosition=MouseEvent->dwMousePosition;
     }
     else
+    {
       EditorPrevDoubleClick=0;
+      EditorPrevPosition.X=0;
+      EditorPrevPosition.Y=0;
+    }
     Show();
   }
 

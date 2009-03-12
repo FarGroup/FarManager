@@ -1434,15 +1434,22 @@ int FileList::ProcessKey(int Key)
                                                         GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
                                                         TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
 
-                /* $ 08.04.2002 IS
-                   —бросим DeleteViewedFile, т.к. внутренний вьюер сам все
-                   удалит
-                */
-                if (PluginMode)
+                if(ShellViewer)
                 {
-                  ShellViewer->SetTempViewName(FileName);
-                  DeleteViewedFile=false;
-                }
+                  if (!ShellViewer->GetExitCode())
+                  {
+                    delete ShellViewer;
+                  }
+                  /* $ 08.04.2002 IS
+                  —бросим DeleteViewedFile, т.к. внутренний вьюер сам все
+                  удалит
+                  */
+                  else if (PluginMode)
+                  {
+                    ShellViewer->SetTempViewName(FileName);
+                    DeleteViewedFile=false;
+                  }
+                 }
                 /* IS $ */
                 Modaling=FALSE;
               }
@@ -2506,7 +2513,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       */
       if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
       {
-        if (MouseEvent->dwEventFlags==0)
+        if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
           MouseSelection=!CurPtr->Selected;
         Select(CurPtr,MouseSelection);
         if (SelectedFirst)
