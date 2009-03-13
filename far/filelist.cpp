@@ -1033,13 +1033,13 @@ int FileList::ProcessKey(int Key)
     {
       _ALGO(CleverSysLog clv("Enter/Shift-Enter"));
       _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
-			if(!FileCount)
-				break;
-			if(CmdLength)
-			{
-				CtrlObject->CmdLine->ProcessKey(Key);
-				return(TRUE);
-			}
+      if(!FileCount)
+        break;
+      if(CmdLength)
+      {
+        CtrlObject->CmdLine->ProcessKey(Key);
+        return(TRUE);
+      }
       ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER);
       return(TRUE);
     }
@@ -1057,14 +1057,16 @@ int FileList::ProcessKey(int Key)
         if (!Info.CurDir || *Info.CurDir == 0)
         {
           ChangeDir("..");
+          //"this" мог быть удалён в ChangeDir
+          Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
           NeedChangeDir=FALSE;
-          if(CheckFullScreen!=IsFullScreen())
-            CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+          if(CheckFullScreen!=ActivePanel->IsFullScreen())
+            CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
         }
       }
       if(NeedChangeDir)
         ChangeDir("\\");
-      Show();
+      CtrlObject->Cp()->ActivePanel->Show();
       return(TRUE);
     }
 
@@ -1881,34 +1883,16 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
-      /* $ 09.04.2001 SVS
-         Не перерисовываем, если ChangeDir закрыла панель
-      */
-    /* $ 16.08.2001 OT
-     Перерисовываем всегда ! ( убран if, обрамляющий ChangeDir(".."))
-    */
-      /* $ 25.12.2001 DJ
-         И кого мы будем перерисовывать, если ChangeDir() вызвал деструктор
-         панели? Правильно, не this, а активную панель. Потому что this
-         уже уничтожен!
-      */
       ChangeDir("..");
-      /* OT $ */
-      /* $ 24.04.2001 IS
-           Проинициализируем заново режим панели.
-      */
       {
+        //"this" мог быть удалён в ChangeDir
         Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
-        int CheckFullScreen=IsFullScreen();
+        int CheckFullScreen=NewActivePanel->IsFullScreen();
         NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
+        if(CheckFullScreen!=NewActivePanel->IsFullScreen())
+          CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
         NewActivePanel->Show();
-        if(CheckFullScreen!=IsFullScreen())
-          CtrlObject->Cp()->GetAnotherPanel(this)->Show();
-        
       }
-      /* DJ $ */
-      /* IS $ */
-      /* SVS $ */
       return(TRUE);
 
     case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
@@ -2016,13 +2000,16 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         res=ChangeDir(CurPtr->Name);
       }
       else
-        res=ChangeDir(CurPtr->ShortName);
-      CtrlObject->Cp()->ActivePanel->Show();        
-      if(CheckFullScreen!=IsFullScreen())
       {
-        CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+        res=ChangeDir(CurPtr->ShortName);
       }
-      /* SVS $ */
+      //"this" может быть удалён в ChangeDir
+      Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+      if(CheckFullScreen!=ActivePanel->IsFullScreen())
+      {
+        CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+      }
+      ActivePanel->Show();
     }
   }
   else
@@ -2455,15 +2442,15 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
     {
-		INPUT_RECORD rec;
-		while(IsMouseButtonPressed())
-		{
-			CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
-		      	ShowFileList(TRUE);
-		      	SetFocus();
-			GetInputRecord(&rec);
-			MouseY=rec.Event.MouseEvent.dwMousePosition.Y;
-		}
+    INPUT_RECORD rec;
+    while(IsMouseButtonPressed())
+    {
+      CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
+            ShowFileList(TRUE);
+            SetFocus();
+      GetInputRecord(&rec);
+      MouseY=rec.Event.MouseEvent.dwMousePosition.Y;
+    }
       return(TRUE);
     }
   }
