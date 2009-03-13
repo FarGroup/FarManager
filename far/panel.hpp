@@ -194,7 +194,7 @@ class Panel:public ScreenObject
     virtual void FlushDiz() {};
     virtual void CopyDiz(char *Name,char *ShortName,char *DestName,
                  char *DestShortName,DizList *DestDiz) {};
-    virtual int IsFullScreen() {return(FALSE);};
+    virtual int IsFullScreen() {return ViewSettings.FullScreen;};
     virtual int IsDizDisplayed() {return(FALSE);};
     virtual int IsColumnDisplayed(int Type) {return(FALSE);};
     virtual int GetColumnsCount(){ return 1;};
