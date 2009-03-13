@@ -1024,13 +1024,15 @@ int FileList::ProcessKey(int Key)
         {
           ChangeDir(L"..");
           NeedChangeDir=FALSE;
-          if(CheckFullScreen!=IsFullScreen())
-            CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+        	//"this" мог быть удалён в ChangeDir
+        	Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
+          if(CheckFullScreen!=ActivePanel->IsFullScreen())
+            CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
         }
       }
       if(NeedChangeDir)
         ChangeDir(L"\\");
-      Show();
+      CtrlObject->Cp()->ActivePanel->Show();
       return(TRUE);
     }
 
@@ -1853,23 +1855,15 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
-      /* $ 25.12.2001 DJ
-         И кого мы будем перерисовывать, если ChangeDir() вызвал деструктор
-         панели? Правильно, не this, а активную панель. Потому что this
-         уже уничтожен!
-      */
-      ChangeDir(L"..");
-      /* $ 24.04.2001 IS
-           Проинициализируем заново режим панели.
-      */
       {
-        Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
+				//"this" может быть удалён в ChangeDir
 				int CheckFullScreen=IsFullScreen();
+				ChangeDir(L"..");
+        Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
         NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
+				if(CheckFullScreen!=NewActivePanel->IsFullScreen())
+					CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
         NewActivePanel->Show();
-				if(CheckFullScreen!=IsFullScreen())
-					CtrlObject->Cp()->GetAnotherPanel(this)->Show();
-
       }
       return(TRUE);
 
@@ -1976,23 +1970,27 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     }
     else
     {
-      /* $ 09.04.2001 SVS
-         Не перерисовываем, если ChangeDir закрыла панель
-      */
-      BOOL res=FALSE;
-      int CheckFullScreen=IsFullScreen();
-      if (PanelMode==PLUGIN_PANEL || wcschr(CurPtr->strName,L'?')==NULL ||
-          CurPtr->strShortName.IsEmpty() )
-      {
-        res=ChangeDir(CurPtr->strName);
-      }
-      else
-        res=ChangeDir(CurPtr->strShortName);
-      CtrlObject->Cp()->ActivePanel->Show();
-      if(CheckFullScreen!=IsFullScreen())
-      {
-        CtrlObject->Cp()->GetAnotherPanel(this)->Show();
-      }
+			/* $ 09.04.2001 SVS
+				Не перерисовываем, если ChangeDir закрыла панель
+			*/
+			BOOL res=FALSE;
+			int CheckFullScreen=IsFullScreen();
+			if (PanelMode==PLUGIN_PANEL || wcschr(CurPtr->strName,L'?')==NULL ||
+					CurPtr->strShortName.IsEmpty() )
+			{
+				res=ChangeDir(CurPtr->strName);
+			}
+			else
+			{
+				res=ChangeDir(CurPtr->strShortName);
+			}
+			//"this" может быть удалён в ChangeDir
+			Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+			if (CheckFullScreen!=ActivePanel->IsFullScreen())
+			{
+				CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+			}
+			ActivePanel->Show();
     }
   }
   else
@@ -3473,7 +3471,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 	const wchar_t *NameLastSlash=wcsrchr(Name, L'\\');
 	if(!NameLastSlash)
 		NameLastSlash=wcsrchr(Name, L'/');
-	
+
 
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
   {

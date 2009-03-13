@@ -189,7 +189,7 @@ dirs:
 	@$(MKDIR) $(FARINCLUDE)
 
 .PHONY: build
-build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/plugin.pas $(FARINCLUDE)/farcolor.pas $(FARINCLUDE)/farkeys.pas
+build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/plugin.pas $(FARINCLUDE)/farcolor.pas $(FARINCLUDE)/farkeys.pas
 
 $(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJDIR)/headers.hpp.gch $(OBJS) $(UCD_OBJS) $(DEF)
 	@echo linking $@
@@ -246,6 +246,10 @@ $(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 $(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(GAWK) -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $(M4) > $@
+
+$(EXEDIR)/FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@$(GAWK) -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $(M4) > $@
 
 $(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@

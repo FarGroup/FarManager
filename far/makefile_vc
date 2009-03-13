@@ -347,7 +347,7 @@ depfile:
 	@$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\plugin.pas" "$(FARINCLUDE)\farcolor.pas" "$(FARINCLUDE)\farkeys.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\plugin.pas" "$(FARINCLUDE)\farcolor.pas" "$(FARINCLUDE)\farkeys.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -449,6 +449,10 @@ $(OUTDIR)\FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 $(OUTDIR)\FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(GAWK) -f .\scripts\mkhlf.awk FarRus.hlf.m4 | $(M4) > $@
+
+$(OUTDIR)\FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+	@echo generating $@
+	@$(GAWK) -f .\scripts\mkhlf.awk FarHun.hlf.m4 | $(M4) > $@
 
 $(OUTDIR)\File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@

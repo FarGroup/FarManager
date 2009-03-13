@@ -1,3 +1,10 @@
+t-rex 13.03.2009 16:03:43 +0200 - build 823
+
+1. Hungarian HLF file from Far Hunor.
+
+2. From Alexey Pakhunov: Mantis#782: FileList::ProcessEnter падает после ChangeDir.
+   А также видимо исправляет Mantis#734 и Mantis#743.
+
 drkns 12.03.2009 19:37:22 +0200 - build 822
 
 1. Граббер сбрасывал режим выделения по приходу KEY_IDLE.
