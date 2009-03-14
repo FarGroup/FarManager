@@ -4595,7 +4595,7 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
 
   if((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))
   {
-    int Ret=ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED));
+		int Ret=ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED),SkipMode);
     if(Ret==SETATTR_RET_ERROR)
       return FALSE;
     else if(Ret==SETATTR_RET_SKIPALL)
