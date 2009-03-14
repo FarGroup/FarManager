@@ -1,3 +1,7 @@
+t-rex 14.03.2009 20:28:48 +0200 - build 825
+
+1. From Alexey Pakhunov: Mantis#787: Buffer overrun in nsMBCSGroupProber::HandleData.
+
 drkns 14.03.2009 11:34:05 +0200 - build 824
 
 1. С форума: не работала кнопка "пропустить всё" при копировании сжатых папок и файлов.

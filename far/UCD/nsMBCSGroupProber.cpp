@@ -42,7 +42,7 @@
 #include "nsUniversalDetector.h"
 
 #if defined(DEBUG_chardet) || defined(DEBUG_jgmyers)
-const char *ProberName[] = 
+const char *ProberName[] =
 {
   "UTF8",
   "SJIS",
@@ -61,7 +61,7 @@ nsMBCSGroupProber::nsMBCSGroupProber(PRUint32 aLanguageFilter)
     mProbers[i] = nsnull;
 
   mProbers[0] = new nsUTF8Prober();
-  if (aLanguageFilter & NS_FILTER_JAPANESE) 
+  if (aLanguageFilter & NS_FILTER_JAPANESE)
   {
     mProbers[1] = new nsSJISProber();
     mProbers[2] = new nsEUCJPProber();
@@ -70,7 +70,7 @@ nsMBCSGroupProber::nsMBCSGroupProber(PRUint32 aLanguageFilter)
     mProbers[3] = new nsGB18030Prober();
   if (aLanguageFilter & NS_FILTER_KOREAN)
     mProbers[4] = new nsEUCKRProber();
-  if (aLanguageFilter & NS_FILTER_CHINESE_TRADITIONAL) 
+  if (aLanguageFilter & NS_FILTER_CHINESE_TRADITIONAL)
   {
     mProbers[5] = new nsBig5Prober();
     mProbers[6] = new nsEUCTWProber();
@@ -156,7 +156,7 @@ nsProbingState nsMBCSGroupProber::HandleData(const char* aBuf, PRUint32 aLen)
     {
       if (!mIsActive[i])
         continue;
-      st = mProbers[i]->HandleData(aBuf + start, aLen + 1 - start);
+      st = mProbers[i]->HandleData(aBuf + start, aLen - start);
       if (st == eFoundIt)
       {
         mBestGuess = i;
@@ -202,7 +202,7 @@ void nsMBCSGroupProber::DumpStatus()
 {
   PRUint32 i;
   float cf;
-  
+
   GetConfidence();
   for (i = 0; i < NUM_OF_PROBERS; i++)
   {
