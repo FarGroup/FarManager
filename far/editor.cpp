@@ -3222,14 +3222,8 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 		else
 		{
-			INPUT_RECORD rec;
-			int MsY=MouseEvent->dwMousePosition.Y;
 			while(IsMouseButtonPressed())
-			{
-				GoToLine((NumLastLine-1)*(MsY-Y1)/(Y2-Y1));
-				GetInputRecord(&rec);
-				MsY=rec.Event.MouseEvent.dwMousePosition.Y;
-			}
+				GoToLine((NumLastLine-1)*(MouseY-Y1)/(Y2-Y1));
 		}
 		return TRUE;
 	}

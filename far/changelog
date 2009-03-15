@@ -1,3 +1,7 @@
+drkns 15.03.2009 10:14:34 +0200 - build 826
+
+1. Глюки при таскании мышью полос прокрутки в редакторе, просмотре и панелях.
+
 t-rex 14.03.2009 20:28:48 +0200 - build 825
 
 1. From Alexey Pakhunov: Mantis#787: Buffer overrun in nsMBCSGroupProber::HandleData.

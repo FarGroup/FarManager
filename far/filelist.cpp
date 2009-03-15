@@ -2388,15 +2388,12 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     if (MouseY>ScrollY && MouseY<ScrollY+Height-1 && Height>2)
     {
-		INPUT_RECORD rec;
-		while(IsMouseButtonPressed())
-		{
-			CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
-		      	ShowFileList(TRUE);
-		      	SetFocus();
-			GetInputRecord(&rec);
-			MouseY=rec.Event.MouseEvent.dwMousePosition.Y;
-		}
+			while(IsMouseButtonPressed())
+			{
+				CurFile=(FileCount-1)*(MouseY-ScrollY)/(Height-2);
+				ShowFileList(TRUE);
+				SetFocus();
+			}
       return(TRUE);
     }
   }
