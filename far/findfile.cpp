@@ -1897,10 +1897,12 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 				*/
 				if (UseFilter)
 				{
-					if (!Filter->FileInFilter(&FindData))
+					enumFileInFilterType foundType;
+					if (!Filter->FileInFilter(&FindData,&foundType))
 					{
-						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && (SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH))
-							ScTree.SkipDir();
+						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
+							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
 						continue;
 					}
 				}

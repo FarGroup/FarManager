@@ -3840,7 +3840,7 @@ passive panels:
 checked.
 
     2. Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl-F5#,
-#MsWheelUp# and #MsWheelDown# with #Ctrl#, #Shift#, #Alt#) cannot be entered
+#MsWheelUp#, #MsWheelDown# и другие клавиши мыши with #Ctrl#, #Shift#, #Alt#) cannot be entered
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.
 

@@ -1,3 +1,18 @@
+svs 16.03.2009 20:56:35 +0300 - build 827
+
+1. Mantis#0000165: Макросы на кнопки мыши 
+   End of game - двойные тыки тоже обмакросены.
+   MsM1DblClick, MsM2DblClick, MsM3DblClick, MsLDblClick, MsRDblClick
+
+2. Не совсем корректно был реализован Mantis#0000762.
+
+3. Mantis#0000785: Filters in search are broken
+   В FileFilter::FileInFilter() добавлен второй параметр типа enumFileInFilterType, 
+   уточняющий, почему функция вернула false или true.
+
+4. В FarEng.hlf.m4 есть русские буквы.
+   В FarHun.hlf.m4 нужно уточнить раздел @KeyMacroSetting про "и другие клавиши мыши".
+
 drkns 15.03.2009 10:14:34 +0200 - build 826
 
 1. Глюки при таскании мышью полос прокрутки в редакторе, просмотре и панелях.

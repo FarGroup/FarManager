@@ -39,6 +39,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu;
 class Panel;
 
+// почему FileInFilter вернул true или false
+enum enumFileInFilterType
+{
+  FIFT_NOTINTFILTER = 0,   // файловый объект не попал ни в один из фильтров
+  FIFT_INCLUDE,            // файловый объект попал в Include
+  FIFT_EXCLUDE,            // файловый объект попал в Exclude
+};
+
+
 class FileFilter
 {
   private:
@@ -59,9 +68,9 @@ class FileFilter
 
     bool FilterEdit();
     void UpdateCurrentTime();
-    bool FileInFilter(const FileListItem *fli);
-    bool FileInFilter(const FAR_FIND_DATA_EX *fde);
-    bool FileInFilter(const FAR_FIND_DATA *fd);
+    bool FileInFilter(const FileListItem *fli,enumFileInFilterType *foundType=NULL);
+    bool FileInFilter(const FAR_FIND_DATA_EX *fde,enumFileInFilterType *foundType=NULL);
+    bool FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foundType=NULL);
     bool IsEnabledOnPanel();
 
     static void InitFilter();

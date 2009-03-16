@@ -609,7 +609,7 @@ void FileFilter::UpdateCurrentTime()
   CurrentTime = current.QuadPart;
 }
 
-bool FileFilter::FileInFilter(const FileListItem *fli)
+bool FileFilter::FileInFilter(const FileListItem *fli,enumFileInFilterType *foundType)
 {
   FAR_FIND_DATA fd;
 
@@ -622,10 +622,10 @@ bool FileFilter::FileInFilter(const FileListItem *fli)
   fd.lpwszFileName=(wchar_t *)(const wchar_t *)fli->strName;
   fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fli->strShortName;
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd,foundType);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde,enumFileInFilterType *foundType)
 {
   FAR_FIND_DATA fd;
 
@@ -638,10 +638,10 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX *fde)
   fd.lpwszFileName=(wchar_t *)(const wchar_t *)fde->strFileName;
   fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fde->strAlternateFileName;
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd,foundType);
 }
 
-bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
+bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd,enumFileInFilterType *foundType)
 {
   enumFileFilterFlagsType FFFT = GetFFFT();
 
@@ -738,10 +738,15 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA *fd)
   //А вот Select логичней всего работать чисто по заданному фильтру.
   if (!bFound && bFolder && !bAnyFolderIncludeFound && m_FilterType!=FFT_SELECT)
   {
+    if (foundType)
+      *foundType=FIFT_INCLUDE; //???
     return true;
   }
 
 final:
+
+  if (foundType)
+    *foundType=!bFound?FIFT_NOTINTFILTER:(bInc?FIFT_INCLUDE:FIFT_EXCLUDE);
 
   if (bFound) return bInc;
 

@@ -72,10 +72,6 @@ int ReturnAltValue=0;
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
 
-#if defined(MOUSEKEY)
-static int PrePreMouseEventFlags;
-#endif
-
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
@@ -153,16 +149,17 @@ static struct TFKey3 FKeys1[]={
   { KEY_MEDIA_NEXT_TRACK,    14, L"MediaNextTrack"},
   { KEY_BROWSER_REFRESH,     14, L"BrowserRefresh"},
   { KEY_BROWSER_FORWARD,     14, L"BrowserForward"},
-  //{ KEY_HP_COMMUNITIES,      13, "HPCommunities"},
+  //{ KEY_HP_COMMUNITIES,      13, L"HPCommunities"},
   { KEY_BROWSER_SEARCH,      13, L"BrowserSearch"},
   { KEY_MSWHEEL_RIGHT,       12, L"MsWheelRight"},
-#if defined(MOUSEKEY)
+  { KEY_MSM1DBLCLICK,        12, L"MsM1DblClick"},
+  { KEY_MSM2DBLCLICK,        12, L"MsM2DblClick"},
+  { KEY_MSM3DBLCLICK,        12, L"MsM3DblClick"},
   { KEY_MSLDBLCLICK,         11, L"MsLDblClick"},
   { KEY_MSRDBLCLICK,         11, L"MsRDblClick"},
-#endif
-  //{ KEY_AC_BOOKMARKS,        11, "ACBookmarks"},
   { KEY_MSWHEEL_DOWN,        11, L"MsWheelDown"},
   { KEY_MSWHEEL_LEFT,        11, L"MsWheelLeft"},
+  //{ KEY_AC_BOOKMARKS,        11, L"ACBookmarks"},
   { KEY_BROWSER_STOP,        11, L"BrowserStop"},
   { KEY_BROWSER_HOME,        11, L"BrowserHome"},
   { KEY_BROWSER_BACK,        11, L"BrowserBack"},
@@ -172,19 +169,19 @@ static struct TFKey3 FKeys1[]={
   { KEY_LAUNCH_MAIL,         10, L"LaunchMail"},
   { KEY_LAUNCH_APP2,         10, L"LaunchApp2"},
   { KEY_LAUNCH_APP1,         10, L"LaunchApp1"},
-  //{ KEY_HP_INTERNET,         10, "HPInternet"},
-  //{ KEY_AC_FORWARD,           9, "ACForward"},
-  //{ KEY_AC_REFRESH,           9, "ACRefresh"},
+  //{ KEY_HP_INTERNET,         10, L"HPInternet"},
+  //{ KEY_AC_FORWARD,           9, L"ACForward"},
+  //{ KEY_AC_REFRESH,           9, L"ACRefresh"},
   { KEY_MSWHEEL_UP,           9, L"MsWheelUp"},
   { KEY_MEDIA_STOP,           9, L"MediaStop"},
   { KEY_BACKSLASH,            9, L"BackSlash"},
-  //{ KEY_HP_MEETING,           9, "HPMeeting"},
+  //{ KEY_HP_MEETING,           9, L"HPMeeting"},
   { KEY_MSM1CLICK,            9, L"MsM1Click"},
   { KEY_MSM2CLICK,            9, L"MsM2Click"},
   { KEY_MSM3CLICK,            9, L"MsM3Click"},
-  //{ KEY_HP_MARKET,            8, "HPMarket"},
   { KEY_MSLCLICK,             8, L"MsLClick"},
   { KEY_MSRCLICK,             8, L"MsRClick"},
+  //{ KEY_HP_MARKET,            8, L"HPMarket"},
   { KEY_VOLUME_UP,            8, L"VolumeUp"},
   { KEY_SUBTRACT,             8, L"Subtract"},
   { KEY_NUMENTER,             8, L"NumEnter"},
@@ -194,12 +191,12 @@ static struct TFKey3 FKeys1[]={
   { KEY_NUMLOCK,              7, L"NumLock"},
   { KEY_DECIMAL,              7, L"Decimal"},
   { KEY_STANDBY,              7, L"Standby"},
-  //{ KEY_HP_SEARCH,            8, "HPSearch"},
-  //{ KEY_HP_HOME,              6, "HPHome"},
-  //{ KEY_HP_MAIL,              6, "HPMail"},
-  //{ KEY_HP_NEWS,              6, "HPNews"},
-  //{ KEY_AC_BACK,              6, "ACBack"},
-  //{ KEY_AC_STOP,              6, "ACStop"},
+  //{ KEY_HP_SEARCH,            8, L"HPSearch"},
+  //{ KEY_HP_HOME,              6, L"HPHome"},
+  //{ KEY_HP_MAIL,              6, L"HPMail"},
+  //{ KEY_HP_NEWS,              6, L"HPNews"},
+  //{ KEY_AC_BACK,              6, L"ACBack"},
+  //{ KEY_AC_STOP,              6, L"ACStop"},
   { KEY_DIVIDE,               6, L"Divide"},
   { KEY_NUMDEL,               6, L"NumDel"},
   { KEY_SPACE,                5, L"Space"},
@@ -276,10 +273,10 @@ static struct TFKey3 ModifKeyName[]={
   { KEY_ALT    ,3 ,L"Alt"},
   { KEY_M_SPEC ,4 ,L"Spec"},
   { KEY_M_OEM  ,3 ,L"Oem"},
-//  { KEY_LCTRL  ,5 ,"LCtrl"},
-//  { KEY_LALT   ,4 ,"LAlt"},
-//  { KEY_LSHIFT ,6 ,"LShift"},
-//  { KEY_RSHIFT ,6 ,"RShift"},
+//  { KEY_LCTRL  ,5 ,L"LCtrl"},
+//  { KEY_LALT   ,4 ,L"LAlt"},
+//  { KEY_LSHIFT ,6 ,L"LShift"},
+//  { KEY_RSHIFT ,6 ,L"RShift"},
 };
 
 #if defined(SYSLOG)
@@ -370,8 +367,19 @@ int IsMouseButtonPressed()
   return(0);
 }
 
-static DWORD KeyMsClick2ButtonState(DWORD Key)
+static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 {
+  Event=0;
+  switch(Key)
+  {
+    case KEY_MSM1DBLCLICK:
+    case KEY_MSM2DBLCLICK:
+    case KEY_MSM3DBLCLICK:
+    case KEY_MSLDBLCLICK:
+    case KEY_MSRDBLCLICK:
+      Event=MOUSE_MOVED;
+  }
+
   switch(Key)
   {
     case KEY_MSLCLICK:
@@ -406,19 +414,21 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     int MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
     {
-      if(KeyMsClick2ButtonState(MacroKey))
+      DWORD EventState,MsClickKey;
+      if((MsClickKey=KeyMsClick2ButtonState(MacroKey,EventState)) != 0)
       {
         // Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
         rec->EventType=MOUSE_EVENT;
         memcpy(&rec->Event.MouseEvent,&lastMOUSE_EVENT_RECORD,sizeof(MOUSE_EVENT_RECORD));
-        rec->Event.MouseEvent.dwButtonState=KeyMsClick2ButtonState(MacroKey);
+        rec->Event.MouseEvent.dwButtonState=MsClickKey;
+        rec->Event.MouseEvent.dwEventFlags=EventState;
         LastMsClickMacroKey=MacroKey;
         return MacroKey;
       }
       else
       {
         // если предыдущая клавиша мышиная - сбросим состояние панели Drag
-        if(KeyMsClick2ButtonState(LastMsClickMacroKey))
+        if(KeyMsClick2ButtonState(LastMsClickMacroKey,EventState))
         {
           LastMsClickMacroKey=0;
           Panel::EndDrag();
@@ -1172,9 +1182,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
   if (rec->EventType==MOUSE_EVENT)
   {
     memcpy(&lastMOUSE_EVENT_RECORD,&rec->Event.MouseEvent,sizeof(MOUSE_EVENT_RECORD));
-#if defined(MOUSEKEY)
-    PrePreMouseEventFlags=PreMouseEventFlags;
-#endif
     PreMouseEventFlags=MouseEventFlags;
     MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 
@@ -1224,24 +1231,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     KeyMacro::SetMacroConst(constMsX,(__int64)MouseX);
     KeyMacro::SetMacroConst(constMsY,(__int64)MouseY);
 
-#if defined(MOUSEKEY)
-    if(PrePreMouseEventFlags == DOUBLE_CLICK)
-    {
-      memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
-      rec->EventType = KEY_EVENT;
-      return(KEY_NONE);
-    }
-    if (MouseEventFlags == DOUBLE_CLICK && (LButtonPressed || RButtonPressed))
-    {
-      CalcKey=LButtonPressed?KEY_MSLDBLCLICK:KEY_MSRDBLCLICK;
-      CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
-                 (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
-                 (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
-      memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
-      rec->EventType = KEY_EVENT;
-    }
-    else
-#endif
     /* $ 26.04.2001 VVM
        + Обработка колесика мышки. */
     if (MouseEventFlags == MOUSE_WHEELED)
@@ -1280,15 +1269,15 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
         DWORD MsCalcKey=0;
 
         if(rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
-          MsCalcKey=KEY_MSRCLICK;
+          MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSRDBLCLICK:KEY_MSRCLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
-          MsCalcKey=KEY_MSLCLICK;
+          MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSLDBLCLICK:KEY_MSLCLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
-          MsCalcKey=KEY_MSM1CLICK;
+          MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSM1DBLCLICK:KEY_MSM1CLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED)
-          MsCalcKey=KEY_MSM2CLICK;
+          MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSM2DBLCLICK:KEY_MSM2CLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
-          MsCalcKey=KEY_MSM3CLICK;
+          MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSM3DBLCLICK:KEY_MSM3CLICK;
 
         if(MsCalcKey)
         {
