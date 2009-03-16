@@ -16,10 +16,18 @@ class Panel;
 
 enum enumFileFilterType
 {
-  FFT_PANEL = 0,
-  FFT_FINDFILE,
-  FFT_COPY,
-  FFT_SELECT,
+  FFT_PANEL = 0,           // отображалка файловых объектов на панели
+  FFT_FINDFILE,            // фильтр для поисковика
+  FFT_COPY,                // фильтр в копире
+  FFT_SELECT,              // select файловых объекто на панели
+};
+
+// почему FileInFilter вернул true или false
+enum enumFileInFilterType
+{
+  FIFT_NOTINTFILTER = 0,   // файловый объект не попал ни в один из фильтров
+  FIFT_INCLUDE,            // файловый объект попал в Include
+  FIFT_EXCLUDE,            // файловый объект попал в Exclude
 };
 
 class FileFilter
@@ -41,8 +49,8 @@ class FileFilter
 
     bool FilterEdit();
     void UpdateCurrentTime();
-    bool FileInFilter(FileListItem *fli);
-    bool FileInFilter(WIN32_FIND_DATA *fd);
+    bool FileInFilter(FileListItem *fli,enumFileInFilterType *foundType=NULL);
+    bool FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundType=NULL);
     bool IsEnabledOnPanel();
 
     static void InitFilter();

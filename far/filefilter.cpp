@@ -560,7 +560,7 @@ void FileFilter::UpdateCurrentTime()
   CurrentTime = current.QuadPart;
 }
 
-bool FileFilter::FileInFilter(FileListItem *fli)
+bool FileFilter::FileInFilter(FileListItem *fli,enumFileInFilterType *foundType)
 {
   WIN32_FIND_DATA fd;
 
@@ -575,10 +575,10 @@ bool FileFilter::FileInFilter(FileListItem *fli)
   xstrncpy(fd.cFileName,fli->Name,sizeof(fd.cFileName)-1);
   xstrncpy(fd.cAlternateFileName,fli->ShortName,sizeof(fd.cAlternateFileName)-1);
 
-  return FileInFilter(&fd);
+  return FileInFilter(&fd,foundType);
 }
 
-bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
+bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd,enumFileInFilterType *foundType)
 {
   enumFileFilterFlagsType FFFT = GetFFFT();
 
@@ -595,7 +595,7 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     CurFilterData = FilterData.getItem(i);
     Flags = CurFilterData->GetFlags(FFFT);
 
-    if (Flags)
+    if (Flags) // enumFileFilterFlags
     {
       if (bFound && !(Flags&FFF_STRONG))
         continue;
@@ -675,10 +675,15 @@ bool FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   //А вот Select логичней всего работать чисто по заданному фильтру.
   if (!bFound && bFolder && !bAnyFolderIncludeFound && m_FilterType!=FFT_SELECT)
   {
+    if (foundType)
+      *foundType=FIFT_INCLUDE; //???
     return true;
   }
 
 final:
+
+  if (foundType)
+    *foundType=!bFound?FIFT_NOTINTFILTER:(bInc?FIFT_INCLUDE:FIFT_EXCLUDE);
 
   if (bFound) return bInc;
 

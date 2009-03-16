@@ -1,3 +1,15 @@
+svs 16.03.2009 20:41:33 +0300 - build 2547
+
+1. Mantis#0000165: Макросы на кнопки мыши 
+   End of game - двойные тыки тоже обмакросены.
+   MsM1DblClick, MsM2DblClick, MsM3DblClick, MsLDblClick, MsRDblClick
+
+2. Не совсем корректно был реализован Mantis#0000762.
+
+3. Mantis#0000785: Filters in search are broken
+   В FileFilter::FileInFilter() добавлен второй параметр типа enumFileInFilterType, 
+   уточняющий, почему функция вернула false или true.
+
 t-rex 13.03.2009 23:17:33 +0200 - build 2546
 
 1. From Alexey Pakhunov: Mantis#782: FileList::ProcessEnter падает после ChangeDir.

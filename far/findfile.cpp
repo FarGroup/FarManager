@@ -1802,22 +1802,18 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
             while (PauseSearch)
               Sleep(10);
 
-            /* $ 30.09.2003 KM
-              Отфильтруем файлы не попадающие в действующий фильтр
-            */
             if (UseFilter)
             {
-              if (!Filter->FileInFilter(&FindData))
+              enumFileInFilterType foundType;
+              if (!Filter->FileInFilter(&FindData,&foundType))
               {
-                if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && (SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH))
-                  ScTree.SkipDir();
+                // сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+                if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
+                  ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже нужно тоже просмотреть
                 continue;
               }
             }
 
-            /* $ 14.06.2004 KM
-              Уточнение действия при обработке каталогов
-            */
             if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
               statusCS.Enter();
@@ -1828,14 +1824,12 @@ void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* F
 
               statusCS.Leave();
             }
-            /* KM $ */
 
             if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
               AddMenuRecord(FullName,&FindData);
 
             if (SearchInArchives)
               ArchiveSearch(FullName);
-            /* KM $ */
           }
           if (SearchMode!=FFSEARCH_SELECTED)
             break;
