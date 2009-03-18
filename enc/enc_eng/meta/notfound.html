@@ -6,15 +6,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 <script language="javascript" type="text/javascript"><!--
-var roll = document.images != null;
 function DrawNotFound(){
- if (roll && navigator.userAgent.indexOf("Mozilla", 0) != -1){
+ if (document.images != null) {
   var agent = navigator.userAgent.toLowerCase();
   var msiever=0;
   if( (imsie=agent.indexOf("msie ")) > 0) {
     msiever=parseInt(agent.substring(imsie+5,imsie+8),10);
   }
-  if( msiever >= 4 || agent.indexOf("firefox/") > 0 ){
+  if( (agent.indexOf("msie ") > 0  && msiever >= 4) || agent.indexOf("firefox/") > 0 || agent.indexOf("chrome/") > 0 || agent.indexOf("pera/") > 0){
    f=document.location.href.indexOf("?");
    if(f > 0){
     qu=document.location.href.substring(f+1);
