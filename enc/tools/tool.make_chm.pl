@@ -11,10 +11,18 @@ $dest_dr_chm_en     = $dest_dr_chm."/en";
 $meta_ru            = $dest_dr_chm_ru."/meta";
 $meta_en            = $dest_dr_chm_en."/meta";
 
+$toolpath           = "";
+if($^O eq "MSWin32"){
+  $toolpath="./tools/";
+}
+
+# про макросы в конец?
+$macrolast          = 0;
+
 print "PREPARING CHM PROJECT\n";
 
 print "\n  -- clear CHM\n";
-system "rm -f -r ".$dest_dr_chm;
+system $toolpath."rm -f -r ".$dest_dr_chm;
 
 print "  -- making directories tree.\n\n";
 mkdir $dest_dr, 0775;
@@ -45,7 +53,7 @@ sub mk_chm_lng
   fix($dest_dr_chm."/".$dr1."/meta");
   print "total $id win32 links...\n";
 
-  system "rm -f -r ".$dest_dr_chm."/".$dr1."/meta";
+  system $toolpath."rm -f -r ".$dest_dr_chm."/".$dr1."/meta";
 
   $fname=$dest_dr_chm."/".$dr1."/plugins".$dr3.".hhk";
   $rel = "html";
@@ -65,22 +73,22 @@ sub mk_chm_lng
 <UL>
 xx
 
-foreach(sort keys %hrefs){
+foreach $key (sort { lc($a) cmp lc($b) } keys %hrefs){
   print OUT <<xx;
   <LI> <OBJECT type="text/sitemap">
-    <param name="Name" value="$_">
-    <param name="Local" value="$hrefs{$_}">
+    <param name="Name" value="$key">
+    <param name="Local" value="$hrefs{$key}">
     </OBJECT>
 xx
 };
 
-foreach(sort keys %hrefs2){
-  if ($hrefs{$_})
+foreach $key (sort { lc($a) cmp lc($b) } keys %hrefs2){
+  if ($hrefs{$key})
   {
     print OUT <<xx;
   <LI> <OBJECT type="text/sitemap">
-    <param name="Name" value="$_ (Macros)">
-    <param name="Local" value="$hrefs2{$_}">
+    <param name="Name" value="$key (Macros)">
+    <param name="Local" value="$hrefs2{$key}">
     </OBJECT>
 xx
   }
@@ -88,8 +96,8 @@ xx
   {
     print OUT <<xx;
   <LI> <OBJECT type="text/sitemap">
-    <param name="Name" value="$_">
-    <param name="Local" value="$hrefs2{$_}">
+    <param name="Name" value="$key">
+    <param name="Local" value="$hrefs2{$key}">
     </OBJECT>
 xx
   }
@@ -110,7 +118,8 @@ sub srch
  local($dr1) = @_[0];
  local($dr) = $dr1."/";
  printf "\n$dr  ";
- foreach $file (`ls --ignore=articles $dr1`){
+ $ls=$toolpath."ls --ignore=articles ".$dr1;
+ foreach $file (`$ls`){
    chomp $file;
    if (-d $dr.$file){
      srch("$dr$file");
@@ -127,7 +136,6 @@ sub srch
      close F;
      $fn =~ /($rel.+?)$/;
      $fn = $1;
-     $ll = "";
      print ".";
      foreach(@FData){
        if (/<h1>(.+?)<\/h1>/i){
@@ -139,7 +147,7 @@ sub srch
 #           $x1 =~ /^(.*)\s([a-zA-ZА-Яа-я]+)$/;
 #           $x1 = $1."...";
 #         };
-         if ($macro==0)
+         if ($macrolast==0 || $macro==0)
          {
            $hrefs{$x1} = $fn;
          }
@@ -158,7 +166,7 @@ sub srch
 #           $x1 =~ /^(.*)\s([a-zA-ZА-Яа-я]+)$/;
 #           $x1 = $1."...";
 #         };
-         if ($macro==0)
+         if ($macrolast==0 || $macro==0)
          {
            $hrefs{$x1} = $fn."#$x2";
          }
@@ -179,7 +187,8 @@ sub fix
  local($dr1) = @_[0];
  local($dr)=$dr1."/";
  printf "$dr\n";
- foreach(`ls -1 $dr1`){
+ $ls=$toolpath."ls -1 ".$dr1;
+ foreach(`$ls`){
    chomp;
    if (-d $dr.$_) {
      fix("$dr$_");
@@ -219,7 +228,8 @@ sub mktree
  local($dr) = $dr1."/";
 
  printf "$dr\n";
- foreach(`ls -1 $dr1`){
+ $ls=$toolpath."ls -1 ".$dr1;
+ foreach(`$ls`){
    chomp;
    if (-d $dr.$_){
      $dhtml = $dr;

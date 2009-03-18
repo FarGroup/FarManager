@@ -9,6 +9,11 @@ $dest_dr_chm_en     = $dest_dr_chm."/en";
 $meta_ru            = $dest_dr_chm_ru."/meta";
 $meta_en            = $dest_dr_chm_en."/meta";
 
-system "rm -f -r ".$dest_dr;
+$toolpath           = "";
+if($^O eq "MSWin32"){
+  $toolpath="./tools/";
+}
+
+system $toolpath."rm -f -r ".$dest_dr;
 
 print "done\n";

@@ -2,6 +2,11 @@
 #######################################
 # проверяет ссылки по всем html-ям
 
+$toolpath           = "";
+if($^O eq "MSWin32"){
+  $toolpath="./tools/";
+}
+
 $dir = "../enc_rus/meta";
 srch($dir);
 
@@ -14,7 +19,8 @@ sub srch
  local($dr1) = @_[0];
  local($dr)=$dr1."/";
  #printf "$dr1\n";
- foreach(`ls --ignore=.svn $dr1`){
+ $ls=$toolpath."ls --ignore=.svn ".$dr1;
+ foreach(`$ls`){
    chomp;
    if (-d $dr.$_){
      srch("$dr$_");
