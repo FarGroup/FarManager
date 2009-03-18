@@ -2760,9 +2760,8 @@ $ #Settings dialog: editor#
 
     External editor
 
-  #Use for F4#              Run external editor using #F4#.
-
-  #Use for Alt-F4#          Run external editor using #Alt-F4#.
+  #Use for F4#              Run external editor using #F4# instead of
+                          #Alt-F4#.
 
   #Editor command#          Command to execute the external editor.
                           Use ~special symbols~@MetaSymbols@ to specify the name
@@ -2806,13 +2805,22 @@ $ #Settings dialog: editor#
   #Auto indent#             Enables auto indent mode when entering
                           text.
 
-  #Auto detect#             ~Auto detect~@CodePage@ the code page of
-  #code page#               the file being edited.
+  #Cursor beyond#           Allow moving cursor beyond the end of line.
+  #end of line#
 
   #Tab size#                Number of spaces in a tab character.
 
-  #Cursor beyond#           Allow moving cursor beyond the end of line.
-  #end of line#
+  #Show scrollbar#          Show scrollbar.
+
+  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #code page#               the file being edited.
+
+  #Edit files opened#       Allows to edit files that are opened
+  #for writing#             by other programs for writing. This mode
+                          is handy to edit a file opened for a long
+                          time, but it could be dangerous, if a file
+                          is being modified at the same time as
+                          editing.
 
   #Lock editing of#         When a file with the Read-only attribute
   #read-only files#         is opened for editing, the editor also
@@ -3787,6 +3795,10 @@ $ #Macro command: settings#
     To specify additional ~macro command~@KeyMacro@ settings, start or finish
 macro recording with #Ctrl-Shift-<.># instead of #Ctrl-<.># and select the
 desired options in the dialog:
+
+    #Sequence:#
+
+    Позволяет изменить записанную последовательность клавиш.
 
    #Allow screen output while executing macro#
 

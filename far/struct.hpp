@@ -170,6 +170,7 @@ struct EditorOptions
 	int ShowKeyBar;
 	int ShowTitleBar;
 	int ShowScrollBar;
+	int EditOpenedForWrite;
 
 	string strWordDiv;
 
@@ -196,6 +197,7 @@ struct EditorOptions
 		ShowKeyBar = 0;
 		ShowTitleBar = 0;
 		ShowScrollBar=0;
+		EditOpenedForWrite=0;
 
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;

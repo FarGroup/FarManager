@@ -607,9 +607,6 @@ void FileEditor::Init (
 
   if (!LoadFile(strFullFileName,UserBreak))
   {
-	if(m_codepage==CP_AUTODETECT)
-		m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
-    m_editor->SetCodePage (m_codepage);
     if(BlankFileName)
     {
       Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
@@ -634,6 +631,9 @@ void FileEditor::Init (
 
       return;
     }
+		if(m_codepage==CP_AUTODETECT)
+			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
+		m_editor->SetCodePage (m_codepage);
   }
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
@@ -1350,7 +1350,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	HANDLE hEdit = apiCreateFile (
 			Name,
 			GENERIC_READ,
-			FILE_SHARE_READ,
+			FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0),
 			NULL,
 			OPEN_EXISTING,
 			FILE_FLAG_SEQUENTIAL_SCAN
@@ -1358,10 +1358,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	if ( hEdit == INVALID_HANDLE_VALUE )
 	{
-		int LastError=GetLastError();
-		SetLastError(LastError);
-
-		if ( (LastError != ERROR_FILE_NOT_FOUND) && (LastError != ERROR_PATH_NOT_FOUND) )
+		SysErrorCode=GetLastError();
+		if ( (SysErrorCode != ERROR_FILE_NOT_FOUND) && (SysErrorCode != ERROR_PATH_NOT_FOUND) )
 		{
 			UserBreak = -1;
 			Flags.Set(FFILEEDIT_OPENFAILED);

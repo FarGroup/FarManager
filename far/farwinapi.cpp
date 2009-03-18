@@ -84,15 +84,38 @@ HANDLE apiCreateFile (
 		HANDLE hTemplateFile          // handle to file with attributes to copy
 		)
 {
-	return CreateFileW (
-			NTPath(lpwszFileName),
+	DWORD Flags=dwFlagsAndAttributes;
+	if(dwCreationDistribution==OPEN_EXISTING)
+	{
+		Flags|=FILE_FLAG_POSIX_SEMANTICS;
+	}
+	
+	string strName=NTPath(lpwszFileName);
+
+	HANDLE hFile=CreateFileW (
+			strName,
 			dwDesiredAccess,
 			dwShareMode,
 			lpSecurityAttributes,
 			dwCreationDistribution,
-			dwFlagsAndAttributes,
+			Flags,
 			hTemplateFile
 			);
+
+	if(hFile==INVALID_HANDLE_VALUE)
+	{
+		Flags&=~FILE_FLAG_POSIX_SEMANTICS;
+		hFile=CreateFileW (
+				strName,
+				dwDesiredAccess,
+				dwShareMode,
+				lpSecurityAttributes,
+				dwCreationDistribution,
+				dwFlagsAndAttributes,
+				hTemplateFile
+				);
+	}
+	return hFile;
 }
 
 BOOL apiCopyFileEx (

@@ -293,11 +293,7 @@ int FileViewer::ProcessKey(int Key)
 
         View.GetFileName(strViewFileName);
 
-        HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
-          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS);
-        if(hEdit==INVALID_HANDLE_VALUE)
-          hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
-            OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
+				HANDLE hEdit=apiCreateFile(strViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN);
 
         if (hEdit==INVALID_HANDLE_VALUE)
         {

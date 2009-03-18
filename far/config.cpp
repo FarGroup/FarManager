@@ -592,21 +592,18 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
   enum enumViewerConfig {
       ID_VC_TITLE,
-      ID_VC_EXTERNALCONFIGTITLE,
       ID_VC_EXTERNALUSEF3,
-      ID_VC_EXTERNALUSEALTF3,
       ID_VC_EXTENALCOMMAND,
       ID_VC_EXTERALCOMMANDEDIT,
       ID_VC_SEPARATOR1,
-      ID_VC_INTERNALCONFIGTITLE,
       ID_VC_PERSISTENTSELECTION,
+			ID_VC_SHOWARROWS,
       ID_VC_SAVEPOSITION,
       ID_VC_SAVEBOOKMARKS,
-			ID_VC_AUTODETECTCODEPAGE,
       ID_VC_TABSIZEEDIT,
       ID_VC_TABSIZE,
       ID_VC_SHOWSCROLLBAR,
-      ID_VC_SHOWARROWS,
+			ID_VC_AUTODETECTCODEPAGE,
       ID_VC_ANSIASDEFAULT,
       ID_VC_SEPARATOR2,
       ID_VC_OK,
@@ -614,37 +611,28 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,   3, 1,70,18,0,0,0,0,(const wchar_t *)MViewConfigTitle,
-  /*  1 */  DI_TEXT,        5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigExternal,
-  /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MViewConfigExternalF3,
-  /*  3 */  DI_RADIOBUTTON, 6, 4, 0, 4,0,0,0,0,(const wchar_t *)MViewConfigExternalAltF3,
-  /*  4 */  DI_TEXT,        6, 5, 0, 5,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
-  /*  5 */  DI_EDIT,        6, 6,68, 6,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
-  /*  6 */  DI_TEXT,        0, 7, 0, 7, 0, 0, DIF_SEPARATOR, 0, L"",
-  /*  7 */  DI_TEXT,        5, 8,68,16,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MViewConfigInternal,
-  /*  8 */  DI_CHECKBOX,    6, 9, 0, 9,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
-  /*  9 */  DI_CHECKBOX,    6,10, 0,10,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
-  /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
-	/* 11 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MViewAutoDetectCodePage,
-  /* 12 */  DI_FIXEDIT,     6,12, 9,12,0,0,0,0,L"",
-  /* 13 */  DI_TEXT,       11,12, 0,12,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
-  /* 14 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
-  /* 15 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MViewConfigArrows,
-	/* 16 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MViewConfigAnsiCodePageAsDefault,
-  /* 17 */  DI_TEXT,        0,16, 0,16, 0, 0, DIF_SEPARATOR, 0, L"",
-  /* 18 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 19 */  DI_BUTTON,      0,17, 0,17,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	/*  0 */  DI_DOUBLEBOX,  3, 1,70,14,0,0,0,0,(const wchar_t *)MViewConfigTitle,
+	/*  1 */  DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MViewConfigExternalF3,
+	/*  2 */  DI_TEXT,       5, 3, 0, 3,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
+	/*  3 */  DI_EDIT,       5, 4,68, 4,0,(DWORD_PTR)L"ExternalViewer", DIF_HISTORY,0,L"",
+	/*  4 */  DI_TEXT,       0, 5, 0, 5, 0, 0, DIF_SEPARATOR, 0, (const wchar_t *)MViewConfigInternal,
+	/*  5 */  DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigPersistentSelection,
+	/*  6 */  DI_CHECKBOX,  38, 6, 0, 6,0,0,0,0,(const wchar_t *)MViewConfigArrows,
+	/*  7 */  DI_CHECKBOX,   5, 7, 0, 7,0,0,DIF_AUTOMATION,0,(const wchar_t *)MViewConfigSavePos,
+	/*  8 */  DI_CHECKBOX,  38, 7, 0, 7,0,0,0,0,(const wchar_t *)MViewConfigSaveShortPos,
+	/*  9 */  DI_FIXEDIT,    5, 8, 8,8,0,0,0,0,L"",
+	/* 10 */  DI_TEXT,      10, 8, 0,8,0,0,0,0,(const wchar_t *)MViewConfigTabSize,
+	/* 11 */  DI_CHECKBOX,  38, 8, 0,8,0,0,0,0,(const wchar_t *)MViewConfigScrollbar,
+	/* 12 */  DI_CHECKBOX,   5,10, 0,10,0,0,0,0,(const wchar_t *)MViewAutoDetectCodePage,
+	/* 13 */  DI_CHECKBOX,   5,11, 0,11,0,0,0,0,(const wchar_t *)MViewConfigAnsiCodePageAsDefault,
+	/* 14 */  DI_TEXT,       0,12, 0,12, 0, 0, DIF_SEPARATOR, 0, L"",
+	/* 15 */  DI_BUTTON,     0,13, 0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+	/* 16 */  DI_BUTTON,     0,13, 0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
 
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
-  {
-    const wchar_t *Str = MSG(MViewConfigSavePos);
-    CfgDlg[ID_VC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
-  }
-
   CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.ViOpt.UseExternalViewer;
-  CfgDlg[ID_VC_EXTERNALUSEALTF3].Selected = !Opt.ViOpt.UseExternalViewer;
   CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.ViOpt.SaveViewerPos;
   CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
   if(!Opt.ViOpt.SaveViewerPos)
@@ -658,19 +646,20 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_EXTERALCOMMANDEDIT].strData = Opt.strExternalViewer;
   CfgDlg[ID_VC_TABSIZEEDIT].strData.Format (L"%d",ViOpt.TabSize);
 
-  int DialogHeight = 20;
+	int DialogHeight = 16;
 
   if (Local)
   {
     int i;
 
-    for (i=ID_VC_EXTERNALCONFIGTITLE; i<=ID_VC_SEPARATOR1; i++)
+		for (i=ID_VC_EXTERNALUSEF3; i<=ID_VC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    CfgDlg[ID_VC_ANSIASDEFAULT].Flags|=DIF_HIDDEN;
+		for (i=ID_VC_AUTODETECTCODEPAGE; i<ID_VC_SEPARATOR2; i++)
+			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    for (i = ID_VC_INTERNALCONFIGTITLE; i < ID_VC_SEPARATOR2; i++)
-      CfgDlg[i].Y1 -= 6;
+		for (i = ID_VC_PERSISTENTSELECTION; i < ID_VC_SEPARATOR2; i++)
+			CfgDlg[i].Y1 -= 4;
 
     for (i = ID_VC_SEPARATOR2; i <= ID_VC_CANCEL; i++)
       CfgDlg[i].Y1 -= 7;
@@ -712,13 +701,10 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   enum enumEditorConfig {
     ID_EC_TITLE,
-    ID_EC_EXTERNALCONFIGTITLE,
     ID_EC_EXTERNALUSEF4,
-    ID_EC_EXTERNALUSEALTF4,
     ID_EC_EXTERNALCOMMAND,
     ID_EC_EXTERNALCOMMANDEDIT,
     ID_EC_SEPARATOR1,
-    ID_EC_INTERNALCONFIGTITLE,
     ID_EC_EXPANDTABSTITLE,
     ID_EC_EXPANDTABS,
     ID_EC_PERSISTENTBLOCKS,
@@ -726,13 +712,14 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     ID_EC_SAVEPOSITION,
     ID_EC_SAVEBOOKMARKS,
     ID_EC_AUTOINDENT,
-		ID_EC_AUTODETECTCODEPAGE,
     ID_EC_CURSORBEYONDEOL,
-    ID_EC_LOCKREADONLY,
-    ID_EC_READONLYWARNING,
     ID_EC_TABSIZEEDIT,
     ID_EC_TABSIZE,
     ID_EC_SHOWSCROLLBAR,
+		ID_EC_SHARINGWRITE,
+		ID_EC_LOCKREADONLY,
+		ID_EC_READONLYWARNING,
+		ID_EC_AUTODETECTCODEPAGE,
     ID_EC_ANSIASDEFAULT,
     ID_EC_ANSIFORNEWFILE,
     ID_EC_SEPARATOR2,
@@ -741,61 +728,37 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   };
 
   static struct DialogDataEx CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,   3, 1,70,23,0,0,0,0,(const wchar_t *)MEditConfigTitle,
-  /*  1 */  DI_TEXT,        5, 2, 0, 2,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigExternal,
-  /*  2 */  DI_RADIOBUTTON, 6, 3, 0, 3,1,0,DIF_GROUP,0,(const wchar_t *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON, 6, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorAltF4,
-  /*  4 */  DI_TEXT,        6, 4, 0, 4,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,        6, 5,68, 5,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
-  /*  6 */  DI_TEXT,        0, 6, 0, 6,0,0,DIF_SEPARATOR, 0, L"",
-  /*  7 */  DI_TEXT,        5, 7, 0, 7,0,0,DIF_LEFTTEXT,0,(const wchar_t *)MEditConfigInternal,
-  /*  8 */  DI_TEXT,        6, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
-  /*  9 */  DI_COMBOBOX,    6, 9,68, 9,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
-  /* 10 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
-  /* 11 */  DI_CHECKBOX,    6,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
-  /* 12 */  DI_CHECKBOX,    6,11, 0,11,0,0,DIF_AUTOMATION,0,(const wchar_t *)MEditConfigSavePos,
-  /* 13 */  DI_CHECKBOX,    6,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
-  /* 14 */  DI_CHECKBOX,    6,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
-	/* 15 */  DI_CHECKBOX,    6,13, 0,13,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
-  /* 16 */  DI_CHECKBOX,    6,14, 0,14,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
-  /* 17 */  DI_CHECKBOX,    6,15, 0,15,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
-  /* 18 */  DI_CHECKBOX,    6,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
-  /* 19 */  DI_FIXEDIT,     6,17, 9,17,0,0,0,0,L"",
-  /* 20 */  DI_TEXT,       11,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
-  /* 21 */  DI_CHECKBOX,    6,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
-	/* 22 */  DI_CHECKBOX,    6,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
-	/* 23 */  DI_CHECKBOX,    6,20, 0,20,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
-  /* 24 */  DI_TEXT,        0,21, 0,21,0,0, DIF_SEPARATOR, 0, L"",
-  /* 25 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 26 */  DI_BUTTON,      0,22, 0,22,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+	/*  0 */  DI_DOUBLEBOX, 3, 1,70,21,0,0,0,0,(const wchar_t *)MEditConfigTitle,
+	/*  1 */  DI_CHECKBOX,  5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditConfigEditorF4,
+	/*  2 */  DI_TEXT,      5, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
+	/*  3 */  DI_EDIT,      5, 4,68, 4,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
+	/*  4 */  DI_TEXT,      0, 5, 0, 5,0,0,DIF_SEPARATOR, 0, (const wchar_t *)MEditConfigInternal,
+	/*  6 */  DI_TEXT,      5, 6, 0, 6,0,0,0,0,(const wchar_t *)MEditConfigExpandTabsTitle,
+	/*  7 */  DI_COMBOBOX,  5, 7,68, 7,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
+	/*  8 */  DI_CHECKBOX,  5, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigPersistentBlocks,
+	/*  9 */  DI_CHECKBOX, 38, 8, 0, 8,0,0,0,0,(const wchar_t *)MEditConfigDelRemovesBlocks,
+	/* 10 */  DI_CHECKBOX,  5, 9, 0, 9,0,0,DIF_AUTOMATION,0,(const wchar_t *)MEditConfigSavePos,
+	/* 11 */  DI_CHECKBOX, 38, 9, 0, 9,0,0,0,0,(const wchar_t *)MEditConfigSaveShortPos,
+	/* 12 */  DI_CHECKBOX,  5,10, 0,10,0,0,0,0,(const wchar_t *)MEditConfigAutoIndent,
+	/* 13 */  DI_CHECKBOX, 38,10, 0,10,0,0,0,0,(const wchar_t *)MEditCursorBeyondEnd,
+	/* 14 */  DI_FIXEDIT,   5,11, 8,11,0,0,0,0,L"",
+	/* 15 */  DI_TEXT,     10,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
+	/* 16 */  DI_CHECKBOX, 38,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
+	/* 17 */  DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MEditShareWrite,
+	/* 18 */  DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
+	/* 19 */  DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
+	/* 20 */  DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
+	/* 21 */  DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
+	/* 22 */  DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
+	/* 23 */  DI_TEXT,      0,19, 0,19,0,0, DIF_SEPARATOR, 0, L"",
+	/* 24 */  DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+	/* 25 */  DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
-  {
-    const wchar_t *Str = MSG(MEditConfigEditorF4);
-
-    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5;
-
-    Str = MSG(MEditConfigPersistentBlocks);
-    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
-
-    Str = MSG(MEditConfigSavePos);
-
-    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=StrLength(Str)-(wcschr(Str, L'&')?1:0)+5+3;
-
-    if (CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 > CfgDlg[ID_EC_SAVEBOOKMARKS].X1)
-      CfgDlg[ID_EC_SAVEBOOKMARKS].X1 = CfgDlg[ID_EC_DELREMOVESBLOCKS].X1;
-    else
-      CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 = CfgDlg[ID_EC_SAVEBOOKMARKS].X1;
-  }
-
   CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.EdOpt.UseExternalEditor;
-  CfgDlg[ID_EC_EXTERNALUSEALTF4].Selected=!Opt.EdOpt.UseExternalEditor;
 
   CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].strData = Opt.strExternalEditor;
-
-  //подсчитаем размер ID_EC_EXPANDTABSTITLE чтоб правильно поставить комбо
-  //CfgDlg[ID_EC_EXPANDTABS].X1 = CfgDlg[ID_EC_EXPANDTABSTITLE].X1 + strlen(CfgDlg[ID_EC_EXPANDTABSTITLE].Data);
 
   FarListItem ExpandTabListItems[3];
   memset(ExpandTabListItems,0,sizeof(ExpandTabListItems));
@@ -825,6 +788,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     CfgDlg[ID_EC_SAVEBOOKMARKS].Flags |= DIF_DISABLE;
 	CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected = EdOpt.AutoDetectCodePage;
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
+	CfgDlg[ID_EC_SHARINGWRITE].Selected = EdOpt.EditOpenedForWrite;
   CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
   CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
 	CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiCodePageAsDefault;
@@ -833,26 +797,26 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_TABSIZEEDIT].strData.Format (L"%d",EdOpt.TabSize);
   CfgDlg[ID_EC_SHOWSCROLLBAR].Selected = EdOpt.ShowScrollBar;
 
-  int DialogHeight=25;
+	int DialogHeight=23;
 
   if (Local)
   {
     int i;
 
-    for (i = ID_EC_EXTERNALCONFIGTITLE; i <= ID_EC_SEPARATOR1; i++)
+		for (i = ID_EC_EXTERNALUSEF4; i <= ID_EC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    CfgDlg[ID_EC_ANSIASDEFAULT].Flags|=DIF_HIDDEN;
-    CfgDlg[ID_EC_ANSIFORNEWFILE].Flags|=DIF_HIDDEN;
+		for (i = ID_EC_SHARINGWRITE; i < ID_EC_SEPARATOR2; i++)
+			CfgDlg[i].Flags |= DIF_HIDDEN;
 
-    for (i = ID_EC_INTERNALCONFIGTITLE; i < ID_EC_SEPARATOR2; i++)
-      CfgDlg[i].Y1 -= 5;
+		for (i = ID_EC_EXPANDTABSTITLE; i < ID_EC_SEPARATOR2; i++)
+			CfgDlg[i].Y1 -= 4;
 
     for (i = ID_EC_SEPARATOR2; i <= ID_EC_CANCEL; i++)
-      CfgDlg[i].Y1 -= 7;
+			CfgDlg[i].Y1 -= 11;
 
-    CfgDlg[ID_EC_TITLE].Y2 -= 7;
-    DialogHeight -= 7;
+		CfgDlg[ID_EC_TITLE].Y2 -= 11;
+		DialogHeight -= 11;
   }
 
   {
@@ -891,6 +855,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   EdOpt.AutoIndent = CfgDlg[ID_EC_AUTOINDENT].Selected;
   EdOpt.SavePos = CfgDlg[ID_EC_SAVEPOSITION].Selected;
   EdOpt.SaveShortPos = CfgDlg[ID_EC_SAVEBOOKMARKS].Selected;
+	EdOpt.EditOpenedForWrite=CfgDlg[ID_EC_SHARINGWRITE].Selected;
 	EdOpt.AutoDetectCodePage = CfgDlg[ID_EC_AUTODETECTCODEPAGE].Selected;
 	EdOpt.AnsiCodePageAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
 	EdOpt.AnsiCodePageForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
@@ -1015,6 +980,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
   {0, REG_DWORD,  NKeyEditor,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
+	{1, REG_DWORD,  NKeyEditor,L"EditOpenedForWrite",&Opt.EdOpt.EditOpenedForWrite,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
 	{0, REG_SZ,     NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},

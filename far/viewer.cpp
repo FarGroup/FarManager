@@ -254,14 +254,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
                                FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
                                NULL,
                                OPEN_EXISTING,
-                               FILE_FLAG_POSIX_SEMANTICS);
-    if (hView==INVALID_HANDLE_VALUE)
-      hView=apiCreateFile(strFileName,
-                          GENERIC_READ,
-                          FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-                          NULL,
-                          OPEN_EXISTING,
-                          0);
+		                           0);
     if (hView!=INVALID_HANDLE_VALUE)
     {
       int ViewHandle=_open_osfhandle((intptr_t)hView,O_BINARY);

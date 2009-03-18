@@ -1378,26 +1378,12 @@ l:
 "Betrachter"
 "Nézőke"
 
-MViewConfigExternal
-"Внешняя программа просмотра:"
-"External viewer:"
-"Externí prohlížeč"
-"Externer Betracher:"
-"Külső Nézőke:"
-
 MViewConfigExternalF3
-"Запускать по F3"
-"Use for F3"
-"Použít pro F3"
-"Starten mit F3"
-"F3-ra"
-
-MViewConfigExternalAltF3
-"Запускать по Alt-F3"
-"Use for Alt-F3"
-"Použít pro Alt-F3"
-"Starten mit Alt-F3"
-"Alt-F3-ra"
+"Запускать внешнюю программу просмотра по F3"
+"Use external viewer for F3"
+upd:"Use external viewer for F3"
+upd:"Use external viewer for F3"
+upd:"Use external viewer for F3"
 
 MViewConfigExternalCommand
 "&Команда просмотра:"
@@ -1407,11 +1393,11 @@ MViewConfigExternalCommand
 "Nézőke &parancs:"
 
 MViewConfigInternal
-"Встроенная программа просмотра:"
-"Internal viewer:"
-"Interní prohlížeč"
-"Interner Betracher:"
-"Belső Nézőke:"
+" Встроенная программа просмотра "
+" Internal viewer "
+" Interní prohlížeč "
+" Interner Betracher "
+" Belső Nézőke "
 
 MViewConfigSavePos
 "&Сохранять позицию файла"
@@ -1477,26 +1463,12 @@ l:
 "Editor"
 "Szerkesztő"
 
-MEditConfigExternal
-"Внешний редактор:"
-"External editor:"
-"Externí editor"
-"Externer Editor:"
-"Külső Szerkesztő:"
-
 MEditConfigEditorF4
-"Запускать по F4"
-"Use for F4"
-"Použít pro F4"
-"Starten mit F4"
-"F4-re"
-
-MEditConfigEditorAltF4
-"Запускать по Alt-F4"
-"Use for Alt-F4"
-"Použít pro Alt-F4"
-"Starten mit Alt-F4"
-"Alt-F4-re"
+"Запускать внешний редактор по F4"
+"Use external editor for F4"
+upd:"Use external editor for F4"
+upd:"Use external editor for F4"
+upd:"Use external editor for F4"
 
 MEditConfigEditorCommand
 "&Команда редактирования:"
@@ -1506,11 +1478,11 @@ MEditConfigEditorCommand
 "&Szerkesztő parancs:"
 
 MEditConfigInternal
-"Встроенный редактор:"
-"Internal editor:"
-"Interní editor"
-"Interner Editor:"
-"Belső Szerkesztő:"
+" Встроенный редактор "
+" Internal editor "
+" Interní editor "
+" Interner Editor "
+" Belső Szerkesztő "
 
 MEditConfigExpandTabsTitle
 "Преобразовывать &табуляцию:"
@@ -1577,6 +1549,13 @@ MEditConfigSaveShortPos
 "&Lesezeichen speichern"
 "Könyv&jelzők mentése"
 
+MEditCursorBeyondEnd
+"Ку&рсор за пределами строки"
+"&Cursor beyond end of line"
+"&Kurzor za koncem řádku"
+upd:"&Cursor hinter dem Ende"
+"Kurzor a sor&végjel után is"
+
 MEditAutoDetectCodePage
 "&Автоопределение кодовой страницы"
 "&Autodetect code page"
@@ -1584,12 +1563,12 @@ upd:"&Autodetekovat znakovou sadu"
 upd:"Zeichentabelle &automatisch erkennen"
 "&Kódlap automatikus felismerése"
 
-MEditCursorBeyondEnd
-"Ку&рсор за пределами строки"
-"&Cursor beyond end of line"
-"&Kurzor za koncem řádku"
-"&Cursor hinter dem Ende der Zeile zulassen"
-"Kurzor a sor&végjel után is"
+MEditShareWrite
+"Редактировать открытые для &записи файлы"
+"Edit files opened for &writing"
+upd:"Edit files opened for &writing"
+upd:"Edit files opened for &writing"
+upd:"Edit files opened for &writing"
 
 MEditLockROFileModification
 "Блокировать р&едактирование файлов с атрибутом R/O"

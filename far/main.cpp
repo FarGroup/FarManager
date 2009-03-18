@@ -126,8 +126,7 @@ static int MainProcess(
         const wchar_t *lpwszDestName1,
         const wchar_t *lpwszDestName2,
         int StartLine,
-        int StartChar,
-        int RegOpt
+				int StartChar
         )
 {
   {
@@ -306,10 +305,10 @@ int main()
     return wmain(nArgs, wstrCmdLineArgs);
 }
 #endif
-int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar,int RegOpt)
+int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
 {
   TRY{
-    return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
+		return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
   }
   EXCEPT(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
      TerminateProcess( GetCurrentProcess(), 1);
@@ -327,7 +326,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   string DestNames[2];
 
-  int StartLine=-1,StartChar=-1,RegOpt=FALSE,RectoreConsole=FALSE;
+	int StartLine=-1,StartChar=-1,RectoreConsole=FALSE;
   int CntDestName=0; // количество параметров-имен каталогов
 
   CmdMode=FALSE;
@@ -420,9 +419,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
         case L'R':
           switch (Upper(Argv[I][2]))
           {
-            case 0:
-              RegOpt=TRUE;
-              break;
             case L'C':
               if(!Argv[I][3])
                 RectoreConsole=TRUE;
@@ -582,10 +578,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   );
   if(Opt.ExceptRules)
   {
-    Result=wmain_sehed(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar,RegOpt);
+		Result=wmain_sehed(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
   }
   else
-    Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar,RegOpt);
+		Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 
   UsedInternalClipboard=TRUE;
   FAR_EmptyClipboard();
