@@ -3846,7 +3846,9 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 		static DWORD PreDefKey[]={
 			KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,
 			KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
+			#if 0
 			KEY_MSLDBLCLICK,KEY_MSRDBLCLICK,KEY_MSM1DBLCLICK,KEY_MSM2DBLCLICK,KEY_MSM3DBLCLICK,
+			#endif
 		};
 		static DWORD PreDefModKey[]={
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
@@ -4513,12 +4515,16 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
         Len=MacroLIBCount;
         MPtr=MacroLIB;
       }
-      else
+      else if (ChechMode >= 0 && ChechMode < MACRO_LAST)
       {
         Len=IndexMode[ChechMode][1];
         if(Len)
           MPtr=MacroLIB+IndexMode[ChechMode][0];
   //_SVS(SysLog(L"ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
+      }
+      else
+      {
+        Len=0;
       }
 
       if(Len)

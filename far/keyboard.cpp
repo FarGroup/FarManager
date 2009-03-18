@@ -152,11 +152,13 @@ static struct TFKey3 FKeys1[]={
   //{ KEY_HP_COMMUNITIES,      13, L"HPCommunities"},
   { KEY_BROWSER_SEARCH,      13, L"BrowserSearch"},
   { KEY_MSWHEEL_RIGHT,       12, L"MsWheelRight"},
+#if 0
   { KEY_MSM1DBLCLICK,        12, L"MsM1DblClick"},
   { KEY_MSM2DBLCLICK,        12, L"MsM2DblClick"},
   { KEY_MSM3DBLCLICK,        12, L"MsM3DblClick"},
   { KEY_MSLDBLCLICK,         11, L"MsLDblClick"},
   { KEY_MSRDBLCLICK,         11, L"MsRDblClick"},
+#endif
   { KEY_MSWHEEL_DOWN,        11, L"MsWheelDown"},
   { KEY_MSWHEEL_LEFT,        11, L"MsWheelLeft"},
   //{ KEY_AC_BOOKMARKS,        11, L"ACBookmarks"},
@@ -370,6 +372,7 @@ int IsMouseButtonPressed()
 static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
 {
   Event=0;
+#if 0
   switch(Key)
   {
     case KEY_MSM1DBLCLICK:
@@ -379,6 +382,7 @@ static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
     case KEY_MSRDBLCLICK:
       Event=MOUSE_MOVED;
   }
+#endif
 
   switch(Key)
   {
@@ -1267,7 +1271,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 			if(MouseEventFlags != MOUSE_MOVED)
       {
         DWORD MsCalcKey=0;
-
+        #if 0
         if(rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
           MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSRDBLCLICK:KEY_MSRCLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -1278,7 +1282,18 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
           MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSM2DBLCLICK:KEY_MSM2CLICK;
         else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
           MsCalcKey=(MouseEventFlags == DOUBLE_CLICK)?KEY_MSM3DBLCLICK:KEY_MSM3CLICK;
-
+        #else
+        if(rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSRCLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSLCLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM1CLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM2CLICK;
+        else if(rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
+          MsCalcKey=KEY_MSM3CLICK;
+        #endif
         if(MsCalcKey)
         {
           MsCalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
@@ -1446,7 +1461,7 @@ int CheckForEscSilent()
   if (Processed && PeekInputRecord(&rec))
   {
     int MMode=CtrlObject->Macro.GetMode();
-    CtrlObject->Macro.SetMode(MACRO_LAST);
+    CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
     Key=GetInputRecord(&rec);
     CtrlObject->Macro.SetMode(MMode);
     /*
