@@ -1,3 +1,13 @@
+svs 18.03.2009 22:31:59 +0300 - build 2548
+
+1. ”бираем несосто€вшиес€ эксперименты с двойными тыками в макросах.
+   MsM1DblClick, MsM2DblClick, MsM3DblClick, MsLDblClick, MsRDblClick - таких клавиш нет.
+   ѕричины:
+   1) если есть макросы на MsLDblClick и MsLClick, то (всегда!) сначала сработает MsLClick, а за ним MsLDblClick.
+   2) ну оооочень медленно
+
+2. Mantis#0000790: Buffer overrun in KeyMacro::GetIndex
+
 svs 16.03.2009 20:41:33 +0300 - build 2547
 
 1. Mantis#0000165: ћакросы на кнопки мыши 
