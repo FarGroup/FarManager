@@ -65,7 +65,7 @@ $^(help file last translated for build 822)
    ~Fájlmaszkok~@FileMasks@
    ~Makrók~@KeyMacro@
 
-
+   
 @Help
 $ #FAR: a Súgó használata#
     A Súgó oldalain hivatkozásokat találunk, amelyek további súgóoldalakra
@@ -427,7 +427,7 @@ a mappában - a ford.)
 sorban végiglép a beírt karaktereknek megfelelő fájlneveken. A
 #Ctrl-Shift-Enter# hasonlóan működik, de visszafelé léptet.
 
-    A karakterek beírásánál joker (* és ?) karakter is használható.
+    A karakterek beírásánál joker (#*# és #?#) karakter is használható.
 
     A keresőablakba a vágólapról is beilleszthető szöveg (#Ctrl-V# vagy
 #Shift-Ins#), ebben az esetben az első találatig keres.
@@ -564,14 +564,14 @@ végére is kell egy lezáró \\-jel.
 
   Belső/külső nézőke váltó                                    #Alt-F3#
 
-    Ha a belső nézőke az alapértelmezett, meghívja a Beállítások ->
+    Ha a belső nézőke az alapértelmezett, meghívja a Beállítások
 ~Nézőke beállításokban~@ViewerSettings@ megadott külső nézőkét vagy a fájl típusához
 ~társított nézőkét~@FileAssoc@. Ha a külső nézőke az alapértelmezett, akkor
 meghívja a belső nézőkét.
 
   Belső/külső szerkesztő váltó                                #Alt-F4#
 
-    Ha a belső szerkesztő az alapértelmezett, meghívja a Beállítások ->
+    Ha a belső szerkesztő az alapértelmezett, meghívja a Beállítások
 ~Szerkesztő beállításokban~@EditorSettings@ megadott külső szerkesztőt vagy a fájl
 típusához ~társított szerkesztőt~@FileAssoc@. Ha a külső szerkesztő az
 alapértelmezett, akkor meghívja a belső szerkesztőt.
@@ -592,7 +592,7 @@ az adatra.
   ~Parancs előzmények~@History@ megjelenítése                            #Alt-F8#
 
   A FAR konzolablak méretének átkapcsolása                    #Alt-F9#
-
+                                                              
     Ablakban futtatás módban ezzel a paranccsal váltogatni lehet az aktuális
 ablakméret és a konzolablak lehető legnagyobb mérete között. Teljes képernyős
 módban az #Alt-F9# váltogat a 25 soros és az 50 soros függőleges felbontás
@@ -705,9 +705,9 @@ futtatható fájlok után, behelyettesítve minden kiterjesztést, kezdve a
 ".BAT;.CMD;.EXE;.COM;" kiterjesztésekkel:
 
   1. Az aktuális mappában keres.
-  2. A PATH környezeti változóban megadott elérési útvonalakon keres.
-  3. A 32 bites Windows system mappájában keres.
-  4. A 16 bites Windows system mappájában keres.
+  2. A %PATH% környezeti változó elérési útvonalaiban keres.
+  3. A 32 bites Windows rendszermappában keres (SYSTEM32).
+  4. A 16 bites Windows rendszermappában keres (SYSTEM).
   5. A Windows mappájában keres.
 
 
@@ -2573,7 +2573,7 @@ kikapcsolható.
     3. Ha nincs kijelölt blokk, a #Ctrl-Ins#/#Ctrl-C# kijelöli az
        aktuális sort és a vágólapra másolja.
 
-
+       
 @FileOpenCreate
 $ #Szerkesztő: fájl megnyitása/létrehozása#
     A #Shift-F4# billentyűkombinációval létező vagy új fájlt nyithatunk meg
@@ -2590,13 +2590,13 @@ kódlapot.
 
 @FileSaveAs
 $ #Szerkesztő: fájl mentése másként#
-    A #Shift-F2# bill. kombinációval a jelenleg szerkesztett fájlt új
+    A #Shift-F2# billentyűkombinációval a jelenleg szerkesztett fájlt új
 néven és másik kódlappal menthetjük el.
 
     Ha UTF-8, UNICODE vagy REVERSEBOM kódlapot választottunk,
-a #Unicode bájtsorrend jelzővel (BOM)# opció beállítása speciális jelzőt
-fűz a fájl elejéhez, lehetővé téve a programok számára a formátumon belüli
-egyedi alformátumazonosító felismerését.
+a #Unicode bájtsorrend jelzővel (BOM)# opció bekapcsolása speciális jelzőt
+állít be a fájl elején, lehetővé téve a programok számára a formátumon belüli
+egyedi formátumazonosító felismerését.
 
     Az új néven és a kódlapon kívül megadhatjuk a sortörés karakterek
 formátumát is:
@@ -2690,7 +2690,7 @@ létrehozni, elkerülhetetlen a fájlnév megadása.
 $ #Figyelem: A fájlt egy másik program megváltoztatta#
     A fájl lemezen található példányának módosítási dátuma és ideje nem
 egyezik azzal, amit a FAR az utolsó hozzáféréskor mentett. Ez annyit jelent,
-hogy egy másik program vagy másis felhasználó (vagy akár mi módosítottuk, a
+hogy egy másik program vagy másik felhasználó (vagy akár mi módosítottuk, a
 szerkesztő másik példányával) a szerkesztés közben megváltoztatta a fájlt.
 
     Ha a "Mentés" gombot nyomjuk le, a fájl tartalmát a szerkesztőben lévő
@@ -2932,8 +2932,8 @@ beállításait változtathatjuk meg.
                           hexa).
 
   #Könyvjelzők mentése#     Elmenti és visszatölti az utoljára
-                          megnézett fájlokban a #JobbCtrl-0..9#
-                          vagy a #Ctrl-Shift-0..9# leütésével
+                          megnézett fájlokban a #JobbCtrl-0...9#
+                          vagy a #Ctrl-Shift-0...9# leütésével
                           elhelyezett könyvjelzőinket.
 
   #Kódlap automatikus#      ~Automatikusan felismeri~@CodePage@ a megnézett
@@ -3012,8 +3012,8 @@ beállításait változtathatjuk meg.
                           választottuk ki.
 
   #Könyvjelzők mentése#     Elmenti és visszatölti az utoljára
-                          szerkesztett fájlokban a #JobbCtrl-0..9#
-                          vagy a #Ctrl-Shift-0..9# leütésével
+                          szerkesztett fájlokban a #JobbCtrl-0...9#
+                          vagy a #Ctrl-Shift-0...9# leütésével
                           elhelyezett könyvjelzőinket.
 
   #Automatikus behúzás#     Szöveg beírásánál engedélyezi az
@@ -3061,7 +3061,7 @@ hatnak.
 $ #Kódlapok automatikus felismerése#
     A FAR megpróbálja megállapítani a fájl megnézéséhez vagy szerkesztéséhez
 megfelelő kódlapot. Ne feledjük azonban, hogy a helyes felismerés nem
-garantálható, különösen, ha rövid vagy nem tipikus fájlokat nyitunk meg.*
+garantálható, különösen, ha rövid vagy nem tipikus fájlokat nyitunk meg.
 
 
 @FileAttrDlg
@@ -3157,7 +3157,7 @@ szerkeszthetjük.*
 
      Ins - Hozzárendeli az aktív panel mappájának elérési
            útvonalát ahhoz a kombinációhoz, amelyiken a
-           menü sávkurzora áll (például a "JobbCtrl+0"-
+           menü sávkurzora áll (például a "JobbCtrl-0"-
            hoz). Pluginnel emulált fájlrendszert is beil-
            leszthetünk, például egy tömörített fájl belse-
            jének mappáját, ehhez azonban a FAR a Windows
@@ -3802,11 +3802,11 @@ $ #Hiba: plugin betöltési hiba#
    1. A plugin helyes működéséhez szükséges .dll fájl
       (dynamic link library) nem található a rendszerben.
 
-   2. Valamilyen oknál fogva a plugin hibakóddal tér visz-
+   2. Valamilyen oknál fogva a plugin hibakódot küld visz-
       sza és ez nem engedi, hogy a rendszer betöltse.
 
-   3. Magát a plugint képviselő .dll fájl sérült, vagy
-      a plugin hibás.
+   3. A plugint képviselő .dll fájl sérült vagy a plugin
+      hibás.
 
 
 @ScrSwitch
@@ -3881,7 +3881,7 @@ környezeti változó törlődik. A FAR Manager indulásakor több
 
     #IF [NOT] DEFINED változó parancs#
 
-    A "DEFINED" az "EXIST"-hez hasonlóan feltételesen működik, de nem
+    A DEFINED az EXIST-hez hasonlóan feltételesen működik, de nem
 fájlnévtől függ a "parancs" végrehajtása, hanem attól, hogy a "változó" nevű
 környezeti változó igaz vagy hamis értéket ad-e vissza, azaz létezik-e vagy
 sem.
@@ -3921,9 +3921,9 @@ az utódfolyamatok részére:
 
 @KeyMacro
 $ #Makrók#
-    A makrók a billentyűleütések sorozatának olyan "felvételét" jelentik, amelyeket aztán akár egyetlen
-gyorsbillentyű leütésével akárhányszor "visszajátszva" ismétlődő feladatok
-ellátására használhatunk.
+    A makrók a billentyűleütések sorozatának olyan "felvételét" jelentik,
+amelyeket aztán akár egyetlen gyorsbillentyű leütésével akárhányszor
+"visszajátszva" ismétlődő feladatok ellátására használhatunk.
 
     Minden makrónak van:
 
@@ -4006,7 +4006,7 @@ $ #Makrók: gyorsbillentyűk#
     A következő kombinációk #nem használhatók# makróhoz: #Alt-Ins#, #Ctrl-<.>#,
 #Ctrl-Shift-<.>#, #Ctrl-Alt#, #Ctrl-Shift#, #Shift-Alt#, #Shift-<szimbólum>#.
 
-    Néhány billentyűkombinációt és egérműveletet nem vihetünk be közvetlenül
+    Néhány billentyűkombinációt és egérműveletet nem vihetünk be közvetlenül,
 főleg az #Enter#, #Esc#, #F1#, #Ctrl-F5#, az #MsWheelUp#
 (EgérGörgőFel) és az #MsWheelDown# (EgérGörgőLe) a #Ctrl#, a #Shift# és az
 #Alt# módosítókkal, speciális funkcióik miatt. Ezeket a legördülő
