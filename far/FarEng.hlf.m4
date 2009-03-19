@@ -365,7 +365,7 @@ active panel. The following sort modes are available:
     The sorting algorithm which is used by the operating system to sort file
 lists was changed in Windows XP. A numeric, not a string sort is used. FAR also
 allows to use a numeric sort as in Windows XP - leading zeros in a file name
-are ingnored. The following example shows how the files are sorted:
+are ignored. The following example shows how the files are sorted:
 
     Numeric sort (Windows XP)    String sort (Windows 2000)
 
@@ -1315,7 +1315,7 @@ match the wildcards. Also the counter of found files takes account of found
 folders.
 
     The #Search in symbolic links# option allows searching files in
-~symbolic links~@HardSymLink@ along with normal sub-foledrs.
+~symbolic links~@HardSymLink@ along with normal sub-folders.
 
     Remark: if the file system contains recursive cycles of symbolic
 links (e.g. a symlink pointing to one of its parent folders), then the
@@ -1354,7 +1354,7 @@ enable or disable these options use the #Advanced options# checkbox.
 $ #Find file advanced options#
     The text string that is entered in #Containing text# (or #Containing hex#)
 field can be searched not only in the whole file, but also inside a specified
-range at the begining of the file, defined by the #Search only in the first#
+range at the beginning of the file, defined by the #Search only in the first#
 property. If the specified value is less than the file size, the rest of the
 file will be ignored even if the required sequence exists there.
 
@@ -2247,7 +2247,7 @@ $ #Viewer: control keys#
     5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
        the beginning of the area currently displayed.
 
-    6. For automatic scrolling of a dynamicly updating file,
+    6. For automatic scrolling of a dynamically updating file,
        position the "cursor" to the end of the file (End key).
 
 
@@ -3111,7 +3111,7 @@ set the size of the column to 10 characters.
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
 the Name, Description or Owner column is 0, it will be calculated
-automatically, dependant upon the panel width. For correct operation with
+automatically, depending upon the panel width. For correct operation with
 different screen widths, it is highly recommended to have at least one column
 with automatically calculated width.
 
