@@ -1,3 +1,8 @@
+svs 19.03.2009 12:51:37 +0300 - build 830
+
+1. Mantis#0000794: Empty menu can't be shown from ANSI plugins
+   from: darkmist
+
 t-rex 19.03.2009 11:04:52 +0200
 
 1. Corrections in FarHun.hlf.m4 from Far Hunor.

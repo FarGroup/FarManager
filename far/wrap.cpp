@@ -945,8 +945,12 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)
 {
 	string strT((Title?Title:"")), strB((Bottom?Bottom:"")), strHT((HelpTopic?HelpTopic:""));
-
-	if (!Item || !ItemsNumber)	return -1;
+	const wchar_t *wszT  = Title?(const wchar_t *)strT:NULL;
+	const wchar_t *wszB  = Bottom?(const wchar_t *)strB:NULL;
+	const wchar_t *wszHT = HelpTopic?(const wchar_t *)strHT:NULL;
+	
+	if (!Item || !ItemsNumber)
+		return FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags,wszT,wszB,wszHT,BreakKeys,BreakCode,NULL,0);
 
 	FarMenuItemEx *mi = (FarMenuItemEx *)xf_malloc(ItemsNumber*sizeof(*mi));
 
@@ -994,7 +998,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 		}
 	}
 
-	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags|FMENU_USEEXT,(Title?(const wchar_t *)strT:NULL),(Bottom?(const wchar_t *)strB:NULL),(HelpTopic?(const wchar_t *)strHT:NULL),BreakKeys,BreakCode,(FarMenuItem *)mi,ItemsNumber);
+	int ret = FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags|FMENU_USEEXT,wszT,wszB,wszHT,BreakKeys,BreakCode,(FarMenuItem *)mi,ItemsNumber);
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
