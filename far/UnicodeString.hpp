@@ -210,6 +210,11 @@ public:
 		return m_pData->GetData();
 	}
 
+	const wchar_t *c_str() const
+	{
+		return m_pData->GetData();
+	}
+
 	const UnicodeString& operator=(const UnicodeString &strCopy);
 	const UnicodeString& operator=(const char *lpszData);
 	const UnicodeString& operator=(const wchar_t *lpwszData);

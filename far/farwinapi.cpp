@@ -90,7 +90,8 @@ HANDLE apiCreateFile (
 		Flags|=FILE_FLAG_POSIX_SEMANTICS;
 	}
 	
-	string strName=NTPath(lpwszFileName);
+	string strName;
+	strName=NTPath(lpwszFileName);
 
 	HANDLE hFile=CreateFileW (
 			strName,

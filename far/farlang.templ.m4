@@ -1567,12 +1567,12 @@ l:
 "Podgląd"
 
 MViewConfigExternalF3
-"Запускать внешнюю программу просмотра по F3"
-"Use external viewer for F3"
-upd:"Use external viewer for F3"
-upd:"Use external viewer for F3"
-upd:"Use external viewer for F3"
-upd:"Use external viewer for F3"
+"Запускать внешнюю программу просмотра по F3 вместо Alt-F3"
+"Use external viewer for F3 instead of Alt-F3"
+upd:"Use external viewer for F3 instead of Alt-F3"
+upd:"Use external viewer for F3 instead of Alt-F3"
+upd:"Use external viewer for F3 instead of Alt-F3"
+upd:"Use external viewer for F3 instead of Alt-F3"
 
 MViewConfigExternalCommand
 "&Команда просмотра:"
@@ -1664,12 +1664,12 @@ l:
 "Edytor"
 
 MEditConfigEditorF4
-"Запускать внешний редактор по F4"
-"Use external editor for F4"
-upd:"Use external editor for F4"
-upd:"Use external editor for F4"
-upd:"Use external editor for F4"
-upd:"Use external editor for F4"
+"Запускать внешний редактор по F4 вместо Alt-F4"
+"Use external editor for F4 instead of Alt-F4"
+upd:"Use external editor for F4 instead of Alt-F4"
+upd:"Use external editor for F4 instead of Alt-F4"
+upd:"Use external editor for F4 instead of Alt-F4"
+upd:"Use external editor for F4 instead of Alt-F4"
 
 MEditConfigEditorCommand
 "&Команда редактирования:"
@@ -1778,12 +1778,12 @@ upd:"Zeichentabelle &automatisch erkennen"
 "Rozpozn&aj tablicę znaków"
 
 MEditShareWrite
-"Редактировать открытые для &записи файлы"
-"Edit files opened for &writing"
-upd:"Edit files opened for &writing"
-upd:"Edit files opened for &writing"
-upd:"Edit files opened for &writing"
-upd:"Edit files opened for &writing"
+"Разрешить редактирование открытых для записи &файлов"
+"Allow editing files ope&ned for writing"
+upd:"Allow editing files opened for &writing"
+upd:"Allow editing files opened for &writing"
+upd:"Allow editing files opened for &writing"
+upd:"Allow editing files opened for &writing"
 
 MEditLockROFileModification
 "Блокировать р&едактирование файлов с атрибутом R/O"

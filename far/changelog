@@ -1,3 +1,11 @@
+drkns 19.03.2009 19:02:25 +0200 - build 831
+
+1. 829 не собирался в гцц. То ли лыжи не едут, то ли...
+
+2. В UnicodeString добавлен const wchar_t *c_str() (название обсуждаемо), равносильный оператору const wchar_t*.
+
+3. Косметические правки в lng.
+
 t-rex 19.03.2009 13:48:11 +0200
 
 1. Polish translation (lng file) from Maciej Ogrodniczuk.
