@@ -1012,6 +1012,7 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(F_EDITOR_SET),
      DEF_MCODE_(F_EDITOR_SEL),
      DEF_MCODE_(F_KEY),
+     DEF_MCODE_(F_CALLPLUGIN),
      DEF_MCODE_(F_ENVIRON),
      DEF_MCODE_(F_EVAL),
      DEF_MCODE_(F_FATTR),

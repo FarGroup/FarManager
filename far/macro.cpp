@@ -61,6 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "plugapi.hpp"
+#include "plugin.hpp"
+#include "plugins.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -2623,7 +2625,48 @@ static bool editorselFunc()
   return Ret.i() == _i64(1);
 }
 
+// V=callplugin(SysID[,param])
+static bool callpluginFunc()
+{
+  __int64 Ret=_i64(0);
+  TVar Param     = VMStack.Pop();
+  TVar SysID     = VMStack.Pop();
 
+  if(CtrlObject->Plugins.FindPlugin((DWORD)SysID.i()))
+  {
+    int OpenFrom = -1;
+    Frame* frame = FrameManager->GetCurrentFrame();
+    if(frame)
+      switch(frame->GetType()) {
+        case MODALTYPE_PANELS:
+          OpenFrom = OPEN_COMMANDLINE | OPEN_FROMMACRO;
+          break;
+        case MODALTYPE_EDITOR:
+          OpenFrom = OPEN_EDITOR      | OPEN_FROMMACRO;
+          break;
+        case MODALTYPE_VIEWER:
+          OpenFrom = OPEN_VIEWER      | OPEN_FROMMACRO;
+          break;
+        case MODALTYPE_DIALOG:
+          OpenFrom = OPEN_DIALOG      | OPEN_FROMMACRO;
+          break;
+        default:
+          break;
+      }
+    if(OpenFrom != -1) {
+      if(CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+                                        Param.isString() ? (void*)Param.s() :
+                                                           (void*)(size_t)Param.i()))
+      {
+        Ret=_i64(1);
+      }
+    }
+  }
+
+  VMStack.Push(Ret);
+
+  return Ret?true:false;
+}
 
 
 const wchar_t *eStackAsString(int)
@@ -3303,6 +3346,7 @@ done:
         {MCODE_F_CHR,chrFunc}, // S=chr(N)
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
         {MCODE_F_KEY,keyFunc}, // S=key(V)
+        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
 
       };
       int J;
