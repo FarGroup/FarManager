@@ -2378,7 +2378,6 @@ static bool editorselFunc()
 static bool callpluginFunc()
 {
   __int64 Ret=_i64(0);
-  TVar typeParam = VMStack.Pop();
   TVar Param     = VMStack.Pop();
   TVar SysID     = VMStack.Pop();
 #if 1
@@ -2399,8 +2398,12 @@ static bool callpluginFunc()
     int OpenFrom=OPEN_PLUGINSMENU; //??? Надо получить... а надо ли?
     /*yjh: с моей точки зрения - не надо. Мы ж подменяем вызов через меню*/
     // CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char *Folder, Panel *DestPanel,bool needUpdatePanel)
-    if(CtrlObject->Plugins.CallPlugin(PlugNum,OpenFrom|OPEN_FROMMACRO,(typeParam.i()?(void*)Param.i():(void*)Param.s())))
+    if(CtrlObject->Plugins.CallPlugin(PlugNum,OpenFrom|OPEN_FROMMACRO,
+                                      Param.isString() ? (void*)Param.s() :
+                                                         (void*)(size_t)Param.i()))
+    {
       Ret=_i64(1);
+    }
 
   }
 #endif
