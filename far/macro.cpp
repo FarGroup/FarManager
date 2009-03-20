@@ -2396,7 +2396,8 @@ static bool callpluginFunc()
       OPEN_FILEPANEL    = 7,
       OPEN_DIALOG       = 8,
     */
-    int OpenFrom=0; //??? Надо получить... а надо ли?
+    int OpenFrom=OPEN_PLUGINSMENU; //??? Надо получить... а надо ли?
+    /*yjh: с моей точки зрения - не надо. Мы ж подменяем вызов через меню*/
     // CallPlugin(int PluginNumber,int OpenFrom, void *Data, const char *Folder, Panel *DestPanel,bool needUpdatePanel)
     if(CtrlObject->Plugins.CallPlugin(PlugNum,OpenFrom|OPEN_FROMMACRO,(typeParam.i()?(void*)Param.i():(void*)Param.s())))
       Ret=_i64(1);
