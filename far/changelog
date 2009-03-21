@@ -1,3 +1,7 @@
+t-rex 21.03.2009 12:59:12 +0200
+
+1. Updates and corrections in Hungarian lng from Far Hunor.
+
 svs 20.03.2009 22:20:25 +0300 - build 832
 
 1. Macro: V=callplugin(SysID[,param])

@@ -1231,7 +1231,7 @@ MConfigSaveViewHistory
 "Save &view and edit history"
 "Ukládat historii Zobraz a Editu&j"
 "Betrachter/&Editor-Historie speichern"
-"Nézőke és &Szerkesztő előzmények mentése"
+"Nézőke és &szerkesztő előzmények mentése"
 "Zapisz historię podglądu i &edycji"
 
 MConfigRegisteredTypes
@@ -1425,7 +1425,7 @@ MConfigViewerEditorClock
 "C&lock in viewer and editor"
 "H&odiny v prohlížeči a editoru"
 "U&hr in Betrachter und Editor anzeigen"
-"Ó&ra a Nézőkében és Szerkesztőben"
+"Ó&ra a nézőkében és szerkesztőben"
 "Zegar w &podglądzie i edytorze"
 
 MConfigMouse
@@ -1514,7 +1514,7 @@ MConfigDialogsEditHistory
 "&History in dialog edit controls"
 "H&istorie v dialozích"
 "&Historie in Eingabefelder von Dialogen"
-"Pár&beszédablak előzmények"
+"&Beviteli sor előzmények mentése"
 "&Historia w polach edycyjnych"
 
 MConfigDialogsEditBlock
@@ -1522,7 +1522,7 @@ MConfigDialogsEditBlock
 "&Persistent blocks in edit controls"
 "&Trvalé bloky v editačních polích"
 "Dauer&hafte Markierungen in Eingabefelder"
-"Maradó b&lokkok a párbeszédablakokban"
+"Maradó b&lokkok a beviteli sorokban"
 "&Trwałe bloki podczas edycji"
 
 MConfigDialogsDelRemovesBlocks
@@ -1530,7 +1530,7 @@ MConfigDialogsDelRemovesBlocks
 "&Del removes blocks in edit controls"
 "&Del maže položky v editačních polích"
 "&Entf löscht Markierungen"
-"A &Del törli a szerk. ablak blokkjait"
+"A &Del törli a beviteli sorok blokkjait"
 "&Del usuwa blok podczas edycji"
 
 MConfigDialogsAutoComplete
@@ -1538,7 +1538,7 @@ MConfigDialogsAutoComplete
 "&AutoComplete in edit controls"
 "Automatické dokončování v editač&ních polích"
 "&Automatisches Vervollständigen"
-"A&utomatikus kiegészítés a beviteli mezőknél"
+"Beviteli sor a&utomatikus kiegészítése"
 "&Autouzupełnianie podczas edycji"
 
 MConfigDialogsEULBsClear
@@ -1554,7 +1554,7 @@ MConfigDialogsMouseButton
 "Mouse click &outside a dialog closes it"
 "Kl&iknutí myší mimo dialog ho zavře"
 "Dial&og schließen wenn Mausklick ausserhalb"
-"&Egérkattintás a párb.ablakon kívül = bezárja"
+"&Egérkattintás a párb.ablakon kívül: bezárja"
 "&Kliknięcie myszy poza oknem zamyka je"
 
 MViewConfigTitle
@@ -1571,7 +1571,7 @@ MViewConfigExternalF3
 "Use external viewer for F3 instead of Alt-F3"
 upd:"Use external viewer for F3 instead of Alt-F3"
 upd:"Use external viewer for F3 instead of Alt-F3"
-upd:"Use external viewer for F3 instead of Alt-F3"
+"Alt-F3 helyett F3 indítja a külső nézőkét"
 upd:"Use external viewer for F3 instead of Alt-F3"
 
 MViewConfigExternalCommand
@@ -1587,7 +1587,7 @@ MViewConfigInternal
 " Internal viewer "
 " Interní prohlížeč "
 " Interner Betracher "
-" Belső Nézőke "
+" Belső nézőke "
 " Podgląd wbudowany "
 
 MViewConfigSavePos
@@ -1668,7 +1668,7 @@ MEditConfigEditorF4
 "Use external editor for F4 instead of Alt-F4"
 upd:"Use external editor for F4 instead of Alt-F4"
 upd:"Use external editor for F4 instead of Alt-F4"
-upd:"Use external editor for F4 instead of Alt-F4"
+"Alt-F4 helyett F4 indítja a külső szerkesztőt"
 upd:"Use external editor for F4 instead of Alt-F4"
 
 MEditConfigEditorCommand
@@ -1684,7 +1684,7 @@ MEditConfigInternal
 " Internal editor "
 " Interní editor "
 " Interner Editor "
-" Belső Szerkesztő "
+" Belső szerkesztő "
 " Edytor wbudowany "
 
 MEditConfigExpandTabsTitle
@@ -1782,7 +1782,7 @@ MEditShareWrite
 "Allow editing files ope&ned for writing"
 upd:"Allow editing files opened for &writing"
 upd:"Allow editing files opened for &writing"
-upd:"Allow editing files opened for &writing"
+"Írásra m&egnyitott fájlok szerkeszthetők"
 upd:"Allow editing files opened for &writing"
 
 MEditLockROFileModification
@@ -2040,7 +2040,7 @@ MCopyDlgRename
 "&Rename"
 "Přej&menovat"
 "&Umbenennen"
-"Át&nevez"
+"Át&nevez/Mozgat"
 "&Zmień nazwę"
 
 MCopyDlgLink
@@ -2476,7 +2476,7 @@ MCopySource
 "&New"
 "&Nový"
 "&Neue Datei"
-"Új verzió:"
+"Ú&j verzió:"
 "&Nowy"
 
 MCopyDest
@@ -2484,7 +2484,7 @@ MCopyDest
 "E&xisting"
 "E&xistující"
 "Be&stehende Datei"
-"Létező verzió:"
+"Létező &verzió:"
 "&Istniejący"
 
 MCopyOverwrite
@@ -3211,7 +3211,7 @@ MEditAskSaveExt
 "The file was changed by an external program"
 "Soubor byl změněný externím programem"
 "Die Datei wurde durch ein externes Programm verändert"
-"A fájlt egy másik program megváltoztatta"
+"A fájlt egy külső program megváltoztatta"
 "Plik został zmieniony przez inny program"
 
 MEditSave
@@ -3507,7 +3507,7 @@ MEditOpenAutoDetect
 "&Automatic detection"
 upd:"Automatic detection"
 upd:"Automatic detection"
-"&Automatikus érzékelés"
+"&Automatikus felismerés"
 "&Wykryj automatycznie"
 
 MEditGoToLine
@@ -7530,7 +7530,7 @@ MSearchWhere
 "Select search &area:"
 upd:"Zvolte oblast hledání:"
 upd:"Suchbereich:"
-upd:"Keresés hatósugara:"
+"Keresés hatós&ugara:"
 "Obszar wyszukiwania:"
 
 MSearchAllDisks
@@ -8826,7 +8826,7 @@ MMenuDescribe
 "Descri&be files     Ctrl-Z"
 "Přidat popisek sou&borům    Ctrl-Z"
 "Beschrei&bung ändern  Strg-Z"
-"Fájlmegje&gyzések     Ctrl-Z"
+"Fájlmegje&gyzés       Ctrl-Z"
 "&Opisz pliki               Ctrl-Z"
 
 MMenuSelectGroup
@@ -9036,7 +9036,7 @@ MMenuLanguages
 "Lan&guages"
 "Nastavení &Jazyka"
 "Sprac&hen"
-"N&yelvek"
+"N&yelvek (Languages)"
 "&Język"
 
 MMenuPluginsConfig
@@ -9844,7 +9844,7 @@ MQuickViewSlack
 "Files slack      "
 "Mrtvé místo        "
 "Verlust          "
-"Meddő adatok     "
+"Meddő terület    "
 "Przestrzeń stracona "
 
 MSetAttrTitle
@@ -10752,7 +10752,7 @@ l:
 "Normal text (Panel)"
 "Normální text (Panel)"
 "Normaler Text (Panel)"
-"Normál szöveg (Panelek)"
+"Normál szöveg (panelek)"
 "Normalny tekst (Panel)"
 
 MSetColorClockNormalEditor
@@ -10760,7 +10760,7 @@ MSetColorClockNormalEditor
 "Normal text (Editor)"
 "Normální text (Editor)"
 "Normaler Text (Editor)"
-"Normál szöveg (Szerkesztő)"
+"Normál szöveg (szerkesztő)"
 "Normalny tekst (Edytor)"
 
 MSetColorClockNormalViewer
@@ -10768,7 +10768,7 @@ MSetColorClockNormalViewer
 "Normal text (Viewer)"
 "Normální text (Prohlížeč)"
 "Normaler Text (Betrachter)"
-"Normál szöveg (Nézőke)"
+"Normál szöveg (nézőke)"
 "Normalny tekst (Podgląd)"
 
 MSetColorViewerNormal
@@ -10916,7 +10916,7 @@ MSetColorItemsTitle
 "Group items"
 "Položky skupin"
 "Gruppeneinträge"
-"Csoport elemei"
+"A színcsoport elemei"
 "Elementy grupy"
 
 MSetColorTitle
@@ -11883,7 +11883,7 @@ MEditPanelReadHelp
 " Read online help for instructions "
 " Pro instrukce si přečtěte online nápovědu "
 " Siehe Hilfe für Anweisungen "
-" Tanácsokat a Súgóban talál (F1) "
+" Tanácsokat a súgóban talál (F1) "
 " Instrukcje zawarte są w pomocy podręcznej "
 
 MSetFolderInfoTitle
@@ -11993,7 +11993,7 @@ MHelpLangTitle
 "Help language"
 "Jazyk nápovědy"
 "Sprache der Hilfedatei"
-"A Súgó nyelve"
+"A súgó nyelve"
 "Język pomocy"
 
 MDefineMacroTitle
@@ -12808,7 +12808,7 @@ MHelpTopicNotFound
 "Requested help topic not found:"
 "požadované téma nápovědy nebylo nalezeno"
 "Angefordertes Hilfethema wurde nicht gefunden:"
-"A kívánt Súgó témakör nem található:"
+"A kívánt súgó témakör nem található:"
 "Nie znaleziono tematu pomocy:"
 
 MPluginsHelpTitle
@@ -12817,7 +12817,7 @@ l:
 "Plugins help"
 "Nápověda Pluginů"
 "Pluginhilfe"
-"Plugin Súgó"
+"Plugin súgó"
 "Pomoc dla pluginów"
 
 MDocumentsHelpTitle
@@ -12825,7 +12825,7 @@ MDocumentsHelpTitle
 "Documents help"
 "Nápověda Dokumentů"
 "Dokumentenhilfe"
-"Dokumentum Súgó"
+"Dokumentum súgó"
 "Pomoc dla dokumentów"
 
 MHelpSearchTitle
@@ -16089,7 +16089,7 @@ l:
 "Environment variable %COMSPEC% not defined!"
 "Proměnná prostředí %COMSPEC% není definována!"
 "Umgebungsvariable %COMSPEC% nicht definiert!"
-"A %COMSPEC% környezeti változó nincs megadva!"
+"A %COMSPEC% környezeti változó nincs definiálva!"
 "Nie zdefiniowano zmiennej środowiskowej %COMSPEC%!"
 
 MExecuteErrorMessage
