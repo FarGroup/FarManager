@@ -78,18 +78,18 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="itoa">itoa</a></dfn>(N[,Radix])</td>
-    <td class="cont" width="60%">Converts numeric value <em>N</em> to a string. Parameter
-    <em>Radix</em> defines the base of the numerical representation for the number
-    conversion. The <em>Radix</em> parameter can be from 2 to 36.
+    <td class="cont" width="60%">Converts numeric value <em>N</em> to a string.
+    <em>Radix</em> parameter defines the radix of the numerical representation for the number
+    conversion. The valid <em>Radix</em> values are from 2 to 36.
     If <em>Radix</em> is omitted, base 10 is implied.
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="atoi">atoi</a></dfn>(S[,Radix])</td>
-    <td class="cont" width="60%">Конвертирует строковое представление строки <em>N</em> в число.
-    Значение <em>Radix</em> определяет базу, которая будет использоваться при
-    преобразовании строки <em>S</em>. Допустимые значения <em>Radix</em> от 2 до 36.<br>
-    Если параметр <em>Radix</em> не указан, то функция попытается сама определить в каком виде представлено строковое представление числа.
+    <td class="cont" width="60%">Converts string representation of a number <em>N</em> into a number.
+    <em>Radix</em> parameter defines a radix to use during conversion of a string <em>S</em>.
+    The valid <em>Radix</em> values are from 2 to 36.<br>
+    If <em>Radix</em> is omitted, function tries to determine the correct value automatically.
     </td>
   </tr>
   <tr class="cont">
@@ -106,14 +106,14 @@
     <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1[,N2])</td>
     <td class="cont" width="60%">Returns the substring of the expression <em>V</em>
     beginning from position <em>N1</em> with the length of <em>N2</em>.<br>
-      Если параметр <em>N2</em> не указан или равен -1, то вернется подстрока от позиции <em>N1</em> до конца строки.<br>
-      Если параметр <em>N2</em> равен 0, то вернется пустая строка.<br>
+      If <em>N2</em> parameter is omitted or equal to -1, function returns the substring from position <em>N1</em> to the end of the string.<br>
+      If <em>N2</em> parameter is equal to 0, function returns empty string.<br>
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="trim">trim</a></dfn>(V[,N])</td>
-    <td class="cont" width="60%">Удаляет все пробельные символы (пробелы, табуляции,
-      переводы строк и возвраты каретки) из строки <em>V</em> снаружи (<em>N</em>=0 или не указан), слева (<em>N</em>=1) или справа (<em>N</em>=2).
+    <td class="cont" width="60%">Removes whitespace (spaces, tabs, line feeds, and carriage returns)
+      from a string <em>V</em>: leading and trailing (<em>N</em>=0 or omitted), only leading (<em>N</em>=1), or only trailing (<em>N</em>=2).
       </td>
   </tr>
   <tr class="cont">
@@ -122,7 +122,7 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
-    <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case .</td>
+    <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case.</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
@@ -357,21 +357,21 @@ $End</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="flock">flock</a></dfn>(Nkey,NState)</td>
-    <td class="cont" width="60%">Позволяет переключить состояние Lock-клавиш (NumLock, CapsLock и ScrollLock).<br>
-    Клавиша <em>Nkey</em>:
+    <td class="cont" width="60%">Toggles Lock keys state (NumLock, CapsLock, and ScrollLock).<br>
+    Key <em>Nkey</em>:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Nkey</th><th class="cont" width="90%">Description</th></tr>
         <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">NumLock</td></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">CapsLock</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">ScrollLock</td></tr>
        </table>
-    Состояние <em>NState</em>:
+    State <em>NState</em>:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">NState</th><th class="cont" width="90%">Description</th></tr>
-        <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">получить состояние клавиши</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">погасить индикатор</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">включить индикатор</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">переключить индикатор в противоположное состояние</td></tr>
+        <tr class="cont"><td class="cont" width="10%">-1</td><td class="cont" width="90%">get key state</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">toggle key to off</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">toggle key to on</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">toggle key to reverse state</td></tr>
        </table>
     В Windows 95/98/Me функция может изменять только состояние клавиш CapsLock и ScrollLock. Для линейки NT (NT/2000/XP/...) этого ограничения нет.<br>
     Функция капризная (возможно зависание компьютера), поэтому пользоваться ей надо осторожно. Например, макрос, повешенный на CtrlCapsLock (переключение между окнами) должен иметь некую обвязку:
@@ -386,7 +386,7 @@ $end</pre>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="sleep">sleep</a></dfn>(N)</td>
     <td class="cont" width="60%">Pause macro execution for <em>N</em> milliseconds.
-     Negative sleep time is considered and error and the function returns 0.<br>
+     Negative sleep time is considered to be an error and the function returns 0.<br>
     </td>
   </tr>
   <tr class="cont">
@@ -635,10 +635,10 @@ $End
     <td class="cont" width="40%">V=<dfn><a name="editor.sel">Editor.Sel</a></dfn>(Action[,Opt])</td>
     <td class="cont" width="60%">Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">получить параметры текущего блока
+       <tr class="cont"><th class="cont" width="10%">Action</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">get parameters of the current block
         <table class="cont">
-          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">вернуть номер строки начала блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">вернуть номер позиции в строке начала блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">вернуть номер строки конца блока</td></tr>
@@ -649,14 +649,14 @@ $End
         </td></tr>
         <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">позиционировать курсор внутри текущего блока (при позиционировании курсора состояние блока не изменяется)
         <table class="cont">
-          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">установить курсор в начало отмеченного блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">установить курсор в конец отмеченного блока</td></tr>
         </table>
         </td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">установка позиций блока
         <table class="cont">
-          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца блока</td></tr>
         </table>
@@ -665,7 +665,7 @@ $End
         </td></tr>
         <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">установка позиций вертикального блока
         <table class="cont">
-          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Описание</th></tr>
+          <tr class="cont"><th class="cont" width="10%">Opt</th><th class="cont" width="90%">Description</th></tr>
           <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">отметить позицию начала вертикального блока</td></tr>
           <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">отметить позицию конца вертикального блока</td></tr>
         </table>
@@ -713,7 +713,7 @@ $end</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Clear">BM.Clear</a></dfn>()</td>
-    <td class="cont" width="60%">Очистить все закладки</td>
+    <td class="cont" width="60%">Clear all bookmarks</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Del">BM.Del</a></dfn>([Idx])</td>
@@ -722,9 +722,9 @@ $end</pre>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Get">BM.Get</a></dfn>(Idx,M)</td>
     <td class="cont" width="60%">Получить параметры закладки с индексом <em>Idx</em> (нумерация начинается с 1), Idx=0 - текущая закладка.<br>
-      Параметр <em>M</em> может быть одним из следующих:
+      <em>M</em> parameter can have these values:
        <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><th class="cont" width="40%">Type</th><th class="cont" width="60%">Description</th></tr>
         <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">координаты строки (начиная с 1)</td></tr>
         <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">координаты колонки (начиная с 1)</td></tr>
         <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">позиция, соответствующая первому видимому символу текста на экране слева</td></tr>
@@ -734,23 +734,23 @@ $end</pre>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Next">BM.Next</a></dfn>()</td>
-    <td class="cont" width="60%">Перейти на следующую закладку</td>
+    <td class="cont" width="60%">Jump to the next bookmark</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Prev">BM.Prev</a></dfn>()</td>
-    <td class="cont" width="60%">Перейти на предыдущую закладку</td>
+    <td class="cont" width="60%">Jump to the previous bookmark</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="BM.Stat">BM.Stat</a></dfn>([M])</td>
-    <td class="cont" width="60%">Получить информацию о закладках.<br>
-      Параметр <em>M</em> может быть одним из следующих:
+    <td class="cont" width="60%">Get bookmark information.<br>
+      <em>M</em> parameter can have these values:
        <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">текущее количество закладок</td></tr>
+        <tr class="cont"><th class="cont" width="40%">Type</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">current number of bookmarks</td></tr>
        </table>
     </td>
   </tr>
-  <tr class="cont"><td class="cont" colspan=2>Пример работы с закладками:<pre class=code>
+  <tr class="cont"><td class="cont" colspan=2>Bookmark handling example:<pre class=code>
 
   </pre></td></tr>
 
@@ -759,7 +759,7 @@ $end</pre>
 <h3>Notes</h3>
 <div class=descr>
 <ol>
-<li>Функции работы с закладками BM.XXX() доступны только в редакторе.
+<li>Bookmark functions BM.XXX() are available only within the editor.
 <li>Function arguments given in square brackets may be omitted. See default values in function description.
 <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
   a macro in a usual way. Macro-language elements can be added to the sequence only by editing
