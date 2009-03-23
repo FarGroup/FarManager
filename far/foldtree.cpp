@@ -53,7 +53,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
 
   ModalMode=iModalMode;
   PrevMacroMode=CtrlObject->Macro.GetMode();
-  SetRestoreScreenMode(FALSE);
+  SetRestoreScreenMode(TRUE);
 
   if(ModalMode != MODALTREE_FREE)
     strResultFolder=L"";
@@ -81,8 +81,8 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
     Tree->SetPosition(X1,Y1,X2,Y2);
     if(ModalMode == MODALTREE_FREE)
       Tree->SetRootDir(strResultFolder);
+		Tree->SetVisible(TRUE);
     Tree->Update(0);
-    Tree->Show();
     // если было прерывание в процессе сканирования и это было дерево копира...
     if(Tree->GetExitCode())
     {
@@ -109,7 +109,6 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
 FolderTree::~FolderTree()
 {
   CtrlObject->Macro.SetMode(PrevMacroMode);
-  SetRestoreScreenMode(FALSE);
   //if ( TopScreen )    delete TopScreen;
   if ( FindEdit )     delete FindEdit;
   if ( Tree )         delete Tree;
@@ -126,12 +125,9 @@ void FolderTree::DisplayObject()
     //Tree->Update(UPDATE_KEEP_SELECTION);
     Tree->Update(0);
     Tree->GoToFile(strSelFolder);
-    Tree->Redraw();
   }
-  else
-    Tree->Redraw();
-  MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
-  MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+	Tree->Redraw();
+	Shadow();
   DrawEdit();
   if (!IsFullScreen)
   {
@@ -159,9 +155,7 @@ void FolderTree::SetCoords()
 void FolderTree::OnChangeFocus(int focus)
 {
   if (focus)
-  {
-    DisplayObject();
-  }
+		Show();
 }
 
 void FolderTree::ResizeConsole()

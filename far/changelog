@@ -1,3 +1,9 @@
+drkns 23.03.2009 20:05:37 +0200 - build 833
+
+1. Неперерисовка после закрытия дерева папок. В 1.7х исправлено ещё в 2194, сюда почему-то не попало.
+
+2. UnicodeString::c_str() -> CPtr().
+
 t-rex 21.03.2009 12:59:12 +0200
 
 1. Updates and corrections in Hungarian lng from Far Hunor.

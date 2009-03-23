@@ -210,7 +210,7 @@ public:
 		return m_pData->GetData();
 	}
 
-	const wchar_t *c_str() const
+	const wchar_t *CPtr() const
 	{
 		return m_pData->GetData();
 	}
