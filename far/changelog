@@ -1,3 +1,7 @@
+drkns 25.03.2009 21:03:34 +0200 - build 836
+
+1. Mantis#0000800: FAR падает при попытке показать дерево, если в файле tree2.far присутвуют длинные пути
+
 svs 25.03.2009 20:58:07 +0300 - build 835
 
 1. Mantis#0000799: Buffer overrun in Editor::BlockLeft

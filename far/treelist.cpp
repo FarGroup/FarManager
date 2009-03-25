@@ -1322,9 +1322,6 @@ void TreeList::ProcessEnter()
 
 int TreeList::ReadTreeFile()
 {
-  wchar_t DirName[NM]; //BUGBUG, todo better!!!
-  wchar_t LastDirName[NM],*ChPtr;
-
   FILE *TreeFile=NULL;
   int RootLength=(int)strRoot.GetLength()-1;
   if (RootLength<0)
@@ -1350,50 +1347,58 @@ int TreeList::ReadTreeFile()
   }
   ListData=NULL;
   TreeCount=0;
-  *LastDirName=0;
 
-  wcscpy (DirName, strRoot);//BUGBUG
+	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
+	if(DirName)
+	{
+		wcscpy (DirName, strRoot);//BUGBUG
 
-  while (fgetws(DirName+RootLength, NM-RootLength,TreeFile)!=NULL)
-  {
-    if ( StrCmpI (DirName,LastDirName)==0)
-      continue;
+		string strLastDirName;
 
-    wcscpy (LastDirName,DirName);
+		while (fgetws(DirName+RootLength,NT_MAX_PATH-RootLength,TreeFile)!=NULL)
+		{
+			if (StrCmpI (DirName,strLastDirName)==0)
+				continue;
 
-    if ((ChPtr=wcschr(DirName,L'\n'))!=NULL)
-      *ChPtr=0;
-		if (RootLength>0 && DirName[RootLength-1]!=L':' && IsSlash(DirName[RootLength]) && DirName[RootLength+1]==0)
-      DirName[RootLength]=0;
+			strLastDirName=DirName;
 
-    if ((TreeCount & 255)==0 )
-    {
-      TreeItem **TmpListData=(TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(TreeItem*));
+			wchar_t *ChPtr=wcschr(DirName,L'\n');
+			if(ChPtr)
+				*ChPtr=0;
+			if (RootLength>0 && DirName[RootLength-1]!=L':' && IsSlash(DirName[RootLength]) && DirName[RootLength+1]==0)
+				DirName[RootLength]=0;
 
-      if ( !TmpListData )
-      {
-        if(ListData)
-        {
-          for (long i=0; i<TreeCount; i++)
-            delete ListData[i];
-          xf_free(ListData);
-        }
-        ListData=NULL;
-        TreeCount=0;
-        fclose(TreeFile);
-        //RestoreState();
-        return(FALSE);
-      }
+			if ((TreeCount & 255)==0 )
+			{
+				TreeItem **TmpListData=(TreeItem **)xf_realloc(ListData,(TreeCount+256+1)*sizeof(TreeItem*));
 
-      ListData = TmpListData;
-    }
+				if ( !TmpListData )
+				{
+					if(ListData)
+					{
+						for (long i=0; i<TreeCount; i++)
+							delete ListData[i];
+						xf_free(ListData);
+					}
+					ListData=NULL;
+					TreeCount=0;
+					delete[] DirName;
+					fclose(TreeFile);
+					//RestoreState();
+					return(FALSE);
+				}
 
-    ListData[TreeCount] = new TreeItem;
-    ListData[TreeCount]->Clear();
-    ListData[TreeCount]->strName = DirName;
+				ListData = TmpListData;
+			}
 
-    TreeCount++;
-  }
+			ListData[TreeCount] = new TreeItem;
+			ListData[TreeCount]->Clear();
+			ListData[TreeCount]->strName = DirName;
+
+			TreeCount++;
+		}
+		delete[] DirName;
+	}
   fclose(TreeFile);
 
   if (TreeCount==0)
@@ -1665,9 +1670,7 @@ void TreeList::ClearCache(int EnableFreeMem)
 void TreeList::ReadCache(const wchar_t *TreeRoot)
 {
   string strTreeName;
-  wchar_t DirName[NM]; //BUGBUG, to do better!!!
 
-  wchar_t *ChPtr;
   FILE *TreeFile=NULL;
 
   if (StrCmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)
@@ -1685,13 +1688,18 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
 
   TreeCache.strTreeName = strTreeName;
 
-  while (fgetws(DirName, NM, TreeFile)!=NULL)
-  {
-    if ((ChPtr=wcschr(DirName,L'\n'))!=NULL)
-      *ChPtr=0;
-
-    TreeCache.Add(DirName);
-  }
+	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
+	if(DirName)
+	{
+		while (fgetws(DirName,NT_MAX_PATH,TreeFile)!=NULL)
+		{
+			wchar_t *ChPtr=wcschr(DirName,L'\n');
+			if(ChPtr)
+				*ChPtr=0;
+			TreeCache.Add(DirName);
+		}
+		delete[] DirName;
+	}
   fclose(TreeFile);
 }
 

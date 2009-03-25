@@ -455,4 +455,6 @@ enum SetCPFlags
 	SETCP_OTHERERROR = 0x10000000,
 };
 
+#define NT_MAX_PATH 32768
+
 #endif // __FARCONST_HPP__
