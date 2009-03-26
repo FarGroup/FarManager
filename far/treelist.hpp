@@ -90,7 +90,7 @@ class TreeList: public Panel
     void Down(int Count);
     void Scroll(int Count);
     void CorrectPosition();
-    void FillLastData();
+    bool FillLastData();
     int CountSlash(const wchar_t *Str);
     int SetDirPosition(const wchar_t *NewDir);
     void GetRoot();

@@ -1032,7 +1032,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			else
 			{
 				NewDir[2]=L'\\';
-				if(FarChDir(strRootDir))
+				if(FarChDir(NewDir))
 				{
 					break;
 				}

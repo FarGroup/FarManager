@@ -495,7 +495,8 @@ int TreeList::ReadTree()
   StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
   far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
-  FillLastData();
+	if(!FillLastData())
+		return FALSE;
 
   if ( !AscAbort )
     SaveTreeFile();
@@ -713,7 +714,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 }
 
 
-void TreeList::FillLastData()
+bool TreeList::FillLastData()
 {
   long Last,Depth,PathLength,SubDirPos,I,J;
   int RootLength = (int)strRoot.GetLength()-1;
@@ -723,6 +724,8 @@ void TreeList::FillLastData()
   {
     PathLength=(long)(wcsrchr(ListData[I]->strName,L'\\')-(const wchar_t*)ListData[I]->strName+1);
     Depth=ListData[I]->Depth=CountSlash((const wchar_t*)ListData[I]->strName+RootLength);
+		if(!Depth)
+			return false;
     for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
       if (CountSlash((const wchar_t*)ListData[J]->strName+RootLength)>Depth)
       {
@@ -738,6 +741,7 @@ void TreeList::FillLastData()
     for (J=I;J<=SubDirPos;J++)
       ListData[J]->Last[Depth-1]=Last;
   }
+	return true;
 }
 
 
@@ -1357,7 +1361,7 @@ int TreeList::ReadTreeFile()
 
 		while (fgetws(DirName+RootLength,NT_MAX_PATH-RootLength,TreeFile)!=NULL)
 		{
-			if (StrCmpI (DirName,strLastDirName)==0)
+			if (!IsSlash(*(DirName+RootLength)) || StrCmpI (DirName,strLastDirName)==0)
 				continue;
 
 			strLastDirName=DirName;
@@ -1406,8 +1410,7 @@ int TreeList::ReadTreeFile()
   CaseSensitiveSort=FALSE;
   NumericSort=FALSE;
 
-  FillLastData();
-  return(TRUE);
+  return FillLastData();
 }
 
 
@@ -1693,6 +1696,8 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
 	{
 		while (fgetws(DirName,NT_MAX_PATH,TreeFile)!=NULL)
 		{
+			if(!IsSlash(*DirName))
+				continue;
 			wchar_t *ChPtr=wcschr(DirName,L'\n');
 			if(ChPtr)
 				*ChPtr=0;
