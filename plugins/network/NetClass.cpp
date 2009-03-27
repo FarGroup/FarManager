@@ -1248,7 +1248,7 @@ BOOL NetBrowser::EditFavorites()
   {
     Info.Control(this,FCTL_GETPANELITEM,PInfo.CurrentItem,(LONG_PTR)PPI);
     lstrcpy(p,PPI->FindData.lpwszFileName);
-  	free(PPI);
+    free(PPI);
   }
 #endif
   NETRESOURCE nr = {0};
@@ -1916,7 +1916,12 @@ void NetBrowser::GetRemoteName(NETRESOURCE *NetRes,TCHAR *RemoteName)
 BOOL NetBrowser::IsReadable(const TCHAR *Remote)
 {
   TCHAR Mask[NM];
+#ifdef UNICODE
+  FSF.sprintf(Mask,_T("\\\\?\\UNC%s\\*"),Remote+1);
+#else
   FSF.sprintf(Mask,_T("%s\\*"),Remote);
+#endif
+
   HANDLE FindHandle;
   WIN32_FIND_DATA FindData;
   FindHandle=FindFirstFile(Mask,&FindData);
@@ -2090,9 +2095,9 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
       PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETPANELITEM,i,0));
       if(PPI)
       {
-      	Info.Control(this,FCTL_GETPANELITEM,i,(LONG_PTR)PPI);
-      	lstrcpy(szAnsiName,PPI->FindData.lpwszFileName);
-      	free(PPI);
+        Info.Control(this,FCTL_GETPANELITEM,i,(LONG_PTR)PPI);
+        lstrcpy(szAnsiName,PPI->FindData.lpwszFileName);
+        free(PPI);
       }
 #endif
       if (!FSF.LStricmp (szAnsiName, Opt.FullPathShares?Share:PointToName(Share)))
