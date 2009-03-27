@@ -348,7 +348,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
   {
     INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
                          //   структура INPUT_RECORD модифицируется!
-    return (int)CalcKeyCode(&Rec,TRUE);
+    return (int)CalcKeyCode(&Rec,FALSE);
   }
   return KEY_NONE;
 }
