@@ -20,7 +20,8 @@ struct MacroRecord
   int    BufferSize;    // Размер буфера компилированной последовательности
   DWORD *Buffer;        // компилированная последовательность (OpCode) макроса
   char  *Src;           // оригинальный "текст" макроса
-  DWORD  Reserved[3];   // зарезервировано
+  char  *Description;   // описание макроса
+  DWORD  Reserved[2];   // зарезервировано
 };
 
 #define STACKLEVEL      32
@@ -157,7 +158,7 @@ class KeyMacro
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
-    static int   GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
+    static int   GetMacroKeyInfo(bool FromReg,int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
     static char *MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
     int  ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);

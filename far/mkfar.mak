@@ -373,6 +373,7 @@ BccW32.cfg : mkfar.mak cc.bat
 -Op
 -Ov
 -w-csu
+-w-inl
 -x
 -I$(INCLUDEPATH)
 $(USE_WFUNC)

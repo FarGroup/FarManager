@@ -4826,7 +4826,7 @@ void Editor::BlockLeft()
       memcpy(TmpStr+Length,EndSeq,EndLength);
       Length+=EndLength;
       TmpStr[Length]=0;
-      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT,Length);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
+      AddUndoData(CurStr,CurPtr->GetEOL(),LineNum,0,UNDO_EDIT,CurPtr->GetLength());// EOL? - CurLine->GetEOL()  GlobalEOL   ""
       BlockUndo=TRUE;
       int CurPos=CurPtr->GetCurPos();
       CurPtr->SetBinaryString(TmpStr,Length);

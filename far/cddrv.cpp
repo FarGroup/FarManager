@@ -602,7 +602,7 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
 
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice)
 {
-    CDROM_DeviceCaps caps = CDDEV_CAPS_NONE;
+    CDROM_DeviceCaps caps;// = CDDEV_CAPS_NONE;
     if((caps = getCapsUsingSCSIPassThrough(hDevice)) !=  CDDEV_CAPS_NONE)
         return caps;
 

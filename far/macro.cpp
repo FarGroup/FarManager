@@ -309,6 +309,8 @@ void KeyMacro::InitInternalLIBVars()
         xf_free(MacroLIB[I].Buffer);
       if(MacroLIB[I].Src)
         xf_free(MacroLIB[I].Src);
+      if(MacroLIB[I].Description)
+        xf_free(MacroLIB[I].Description);
     }
     xf_free(MacroLIB);
   }
@@ -355,6 +357,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
           xf_free(Work.MacroWORK[I].Buffer);
         if(Work.MacroWORK[I].Src)
           xf_free(Work.MacroWORK[I].Src);
+        if(Work.MacroWORK[I].Description)
+          xf_free(Work.MacroWORK[I].Description);
       }
       xf_free(Work.MacroWORK);
       if(Work.AllocVarTable)
@@ -373,6 +377,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
         xf_free(Work.MacroWORK->Buffer);
       if(Work.MacroWORK->Src)
         xf_free(Work.MacroWORK->Src);
+      if(Work.MacroWORK->Description)
+        xf_free(Work.MacroWORK->Description);
       if(Work.AllocVarTable)
       {
         deleteVTable(*Work.locVarTable);
@@ -489,8 +495,11 @@ int KeyMacro::ProcessKey(int Key)
             xf_free(MacroLIB[Pos].Buffer);
           if(MacroLIB[Pos].Src)
             xf_free(MacroLIB[Pos].Src);
+          if(MacroLIB[Pos].Description)
+            xf_free(MacroLIB[Pos].Description);
           MacroLIB[Pos].Buffer=NULL;
           MacroLIB[Pos].Src=NULL;
+          MacroLIB[Pos].Description=NULL;
         }
 
         if(Pos < MacroLIBCount)
@@ -508,6 +517,7 @@ int KeyMacro::ProcessKey(int Key)
 
           MacroLIB[Pos].BufferSize=RecBufferSize;
           MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
+          MacroLIB[Pos].Description=NULL;
 
           // если удал€ем макрос - скорректируем StartMode,
           // иначе макрос из common получит ту область, в которой его решили удалить.
@@ -2370,11 +2380,7 @@ static bool editorselFunc()
 }
 
 
-//*************************
-// јхтунг, недоделано!
-//*************************
-// V=callplugin(SysID[,param[,type]])
-// type: 0 = string, 1 = int
+// V=callplugin(SysID[,param])
 static bool callpluginFunc()
 {
   __int64 Ret=_i64(0);
@@ -3429,7 +3435,7 @@ done:
         {MCODE_F_ASC,ascFunc}, // N=asc(S)
         {MCODE_F_CHR,chrFunc}, // S=chr(N)
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
-        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param[,type]])
+        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
         {MCODE_F_REG_GET,reggetFunc}, // V=reg.get(iRoot, "Key"[, "Value"])
         {MCODE_F_KEY,keyFunc}, // S=key(V)
       };
@@ -3629,6 +3635,11 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 
     if(Ok)
       SetRegKey(RegKeyName,"Sequence",MacroLIB[I].Src);
+
+    if(MacroLIB[I].Description)
+      SetRegKey(RegKeyName,"Description",MacroLIB[I].Description);
+    else
+      DeleteRegValue(RegKeyName,"Description");
 
     // подсократим код”...
     for(int J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
@@ -3839,6 +3850,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro.Key=KeyCode;
     CurMacro.Buffer=NULL;
     CurMacro.Src=NULL;
+    CurMacro.Description=NULL;
     CurMacro.BufferSize=0;
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK)|(regType == REG_MULTI_SZ?MFLAGS_REG_MULTI_SZ:0);
 
@@ -3869,6 +3881,18 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     }
     MacroLIB=NewMacros;
     CurMacro.Src=xf_strdup(Buffer);
+    J=GetRegKeySize(RegKeyName,"Description");
+    if(J)
+    {
+      if((CurMacro.Description=(char *)xf_malloc(J+1)) != NULL)
+      {
+        if(!GetRegKey(RegKeyName,"Description",CurMacro.Description,"",J,&regType))
+        {
+          xf_free(CurMacro.Description);
+          CurMacro.Description=NULL;
+        }
+      }
+    }
     memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
     MacroLIBCount++;
   }
@@ -4533,6 +4557,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
   struct MacroRecord NewMacroWORK2={0};
   memcpy(&NewMacroWORK2,MRec,sizeof(struct MacroRecord));
   NewMacroWORK2.Src=NULL;
+  NewMacroWORK2.Description=NULL;
 
 //  if(MRec->BufferSize > 1)
   {
@@ -4666,22 +4691,36 @@ int KeyMacro::GetSubKey(char *Mode)
   return -1;
 }
 
-int KeyMacro::GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize)
+int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize)
 {
   if(Mode >= MACRO_OTHER && Mode < MACRO_LAST)
   {
     char UpKeyName[100];
     char RegKeyName[150];
-    sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(Mode));
+    if(FromReg)
+    {
+      sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(Mode));
 
-    if (!EnumRegKey(UpKeyName,Pos,RegKeyName,sizeof(RegKeyName)))
-      return -1;
+      if (!EnumRegKey(UpKeyName,Pos,RegKeyName,sizeof(RegKeyName)))
+        return -1;
 
-    char *KeyNamePtr=strrchr(RegKeyName,'\\');
-    if (KeyNamePtr!=NULL)
-      strcpy(KeyName,KeyNamePtr+1);
-    GetRegKey(RegKeyName,"Description",Description,"",DescriptionSize);
-    return Pos+1;
+      char *KeyNamePtr=strrchr(RegKeyName,'\\');
+      if (KeyNamePtr!=NULL)
+        strcpy(KeyName,KeyNamePtr+1);
+      GetRegKey(RegKeyName,"Description",Description,"",DescriptionSize);
+      return Pos+1;
+    }
+    else
+    {
+      int Len=CtrlObject->Macro.IndexMode[Mode][1];
+      if(Len && Pos < Len)
+      {
+        struct MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode][0]+Pos;
+        ::KeyToText(MPtr->Key,KeyName);
+        xstrncpy(Description,NullToEmpty(MPtr->Description),DescriptionSize);
+        return Pos+1;
+      }
+    }
   }
   return -1;
 }

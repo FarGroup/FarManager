@@ -321,6 +321,10 @@ int Help::ReadHelp(const char *Mask)
 
   int RealMaxLength;
 
+  bool MacroProcess=false;
+  int MI=0;
+  char MacroArea[64];
+
   while (TRUE)
   {
     if ( StartPos != -1 )
@@ -328,7 +332,7 @@ int Help::ReadHelp(const char *Mask)
     else
       RealMaxLength = MaxLength;
 
-    if (!RepeatLastLine && !BreakProcess && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
+    if (!MacroProcess && !RepeatLastLine && !BreakProcess && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -343,6 +347,43 @@ int Help::ReadHelp(const char *Mask)
       }
       break;
     }
+
+    if(MacroProcess)
+    {
+      char Description[300], KeyName[64];
+      //char MacroLine[1024];
+
+      if(CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetSubKey(MacroArea),MI,KeyName,Description,sizeof(Description)-1) == -1)
+      {
+        MacroProcess=false;
+        MI=0;
+        continue;
+      }
+      if(*KeyName == '~')
+      {
+        MI++;
+        continue;
+      }
+      ReplaceStrings(KeyName,"~","~~",-1);
+      ReplaceStrings(KeyName,"#","##",-1);
+      ReplaceStrings(KeyName,"@","@@",-1);
+      int SizeKeyName=20;
+      if(strchr(KeyName,'~')) // корректировка размера
+        SizeKeyName++;
+
+      if(*Description)
+      {
+        ReplaceStrings(Description,"#","##",-1);
+        ReplaceStrings(Description,"~","~~",-1);
+        ReplaceStrings(Description,"@","@@",-1);
+        sprintf(ReadStr," #%-*.*s# %s%s",SizeKeyName,SizeKeyName,KeyName,CtrlStartPosChar,TruncStr(Description,(int)sizeof(Description)-1));
+      }
+      else
+        sprintf(ReadStr," #%-*.*s#",SizeKeyName,SizeKeyName,KeyName);
+      MacroProcess=true;
+      MI++;
+    }
+
     RepeatLastLine=FALSE;
 
     while((Ptr=strchr(ReadStr,'\t')) != NULL)
@@ -412,6 +453,19 @@ m1:
         break;
       if (TopicFound)
       {
+        if(!LocalStrnicmp(ReadStr,"<!Macro:",8) && CtrlObject)
+        {
+          char *LPtr=strchr(ReadStr,'>');
+          if(LPtr && LPtr[-1] != '!')
+             continue;
+
+          LPtr[-1]=0;
+          xstrncpy(MacroArea,ReadStr+8,sizeof(MacroArea));
+          MacroProcess=true;
+          MI=0;
+          continue;
+        }
+
         /* $<text> в начале строки, определение темы
            Определяет не прокручиваемую область помощи
            Если идут несколько подряд сразу после строки обозначения темы...
@@ -421,7 +475,6 @@ m1:
           StartPos = (DWORD)-1;
           LastStartPos = (DWORD)-1;
         }
-
 
         if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
         {
@@ -541,7 +594,9 @@ m1:
           else
             StartPos = LastStartPos;
         }
+
       }
+
       if(BreakProcess)
       {
         if(*SplitLine)
@@ -1973,7 +2028,7 @@ static int RunURL(char *Protocol, char *URLPath)
           {
             char *pp=strrchr(Buf,'%');
             if(pp) *pp='\0'; else strcat(Buf," ");
-    
+
             // удалим два идущих в подряд ~~
             pp=URLPath;
             while(*pp && (pp=strstr(pp,"~~")) != NULL)
@@ -1988,7 +2043,7 @@ static int RunURL(char *Protocol, char *URLPath)
               memmove(pp,pp+1,strlen(pp+1)+1);
               ++pp;
             }
-    
+
             Disposition=0;
             if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
             {
@@ -2013,7 +2068,7 @@ static int RunURL(char *Protocol, char *URLPath)
               {
 #if 0
                 SHELLEXECUTEINFO sei;
-  
+
                 FAR_OemToChar(URLPath,Buf);
                 memset(&sei,0,sizeof(sei));
                 sei.cbSize=sizeof(sei);

@@ -272,7 +272,7 @@ static TMacroFunction macroFunction[]={
   {"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
   {"BM.STAT",          1, 1,   MCODE_F_BM_STAT},             // N=BM.Stat([N])
   {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
-  {"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN},          // V=callplugin(SysID[,param[,type]])
+  {"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN},          // V=callplugin(SysID[,param])
   {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
   {"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
   {"DATE",             1, 0,   MCODE_F_DATE},                // S=date(S)
@@ -988,7 +988,7 @@ static int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, cha
     BufPtr++;
   if ( bound2 )
   {
-    if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || isspace(BufPtr[1]) ) )
+    if ( ( *BufPtr != bound2 ) /* ?лишнее ли? ==> */|| !( !BufPtr[1] || isspace(BufPtr[1]) ) )
     {
       tmp[0] = bound2;
       tmp[1] = 0;
@@ -1092,7 +1092,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_PANEL_SETPOSIDX,  "N=panel.SetPosIdx(panelType,Index)"},
     {MCODE_F_PANELITEM,        "V=panelitem(Panel,Index,TypeInfo)"},
     {MCODE_F_EVAL,             "N=eval(S[,N])"},
-    {MCODE_F_CALLPLUGIN,       "V=callplugin(SysID[,param[, type]])"},
+    {MCODE_F_CALLPLUGIN,       "V=callplugin(SysID[,param])"},
     {MCODE_F_REPLACE,          "S=replace(sS,sF,sR[,cnt])"},
     {MCODE_F_RINDEX,           "S=rindex(S1,S2)"},
     {MCODE_F_SLEEP,            "N=Sleep(N)"},
