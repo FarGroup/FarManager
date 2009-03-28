@@ -684,14 +684,11 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
   {
-		if(BoxType!=NO_BOX)
-    {
-      SetColor(VMenu::Colors[VMenuColorScrollBar]);
-      if (BoxType!=NO_BOX)
-				ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,ItemCount);
-      else
-				ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,ItemCount);
-    }
+		SetColor(VMenu::Colors[VMenuColorScrollBar]);
+		if (BoxType!=NO_BOX)
+			ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,ItemCount);
+		else
+			ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,ItemCount);
   }
 }
 
