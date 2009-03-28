@@ -89,7 +89,7 @@ HANDLE apiCreateFile (
 	{
 		Flags|=FILE_FLAG_POSIX_SEMANTICS;
 	}
-	
+
 	string strName;
 	strName=NTPath(lpwszFileName);
 
@@ -292,7 +292,7 @@ DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName
 	DWORD dwRemoteNameSize = 0;
 	DWORD dwResult = WNetGetConnectionW(lpwszLocalName, NULL, &dwRemoteNameSize);
 
-	if ( dwResult == ERROR_SUCCESS )
+	if ( dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
 		wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize);
 
@@ -586,7 +586,7 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 	}
 	return hRet;
 }
-	
+
 BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 {
 	BOOL Ret=FALSE;
@@ -661,7 +661,7 @@ DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
 	int nLength = GetFullPathNameW(strFileName,0,NULL,NULL)+1+3;
 	wchar_t *Buffer=strFullPathName.GetBuffer(nLength+NameLength);
 	GetFullPathNameW(strFileName,nLength,Buffer,NULL);
-	
+
 	// для имён, оканчивающихся пробелами
 	LPWSTR DstPtr=(LPWSTR)PointToName(Buffer);
 	wcsncpy(DstPtr,SrcPtr,NameLength);
@@ -674,5 +674,3 @@ BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer
 {
 	return SetFilePointerEx(hFile,*((PLARGE_INTEGER)&DistanceToMove),(PLARGE_INTEGER)NewFilePointer,dwMoveMethod);
 }
-
-

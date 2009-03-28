@@ -1031,7 +1031,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
 
-			if (NetworkMask & (1<<mitem->nItem))
+			if (NetworkMask & (1<<(mitem->cDrive-L'A')))
 			{
 				ConnectToNetworkDrive(NewDir);
 			}
@@ -1052,15 +1052,16 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strMsgStr.Format (MSG(MChangeDriveCannotReadDisk), mitem->cDrive);
 
 			if ( Message(
-					MSG_WARNING|MSG_ERRORTYPE,
-					2,
-					MSG(MError),
-					strMsgStr,
-					MSG(MRetry),
-					MSG(MCancel)
+							MSG_WARNING|MSG_ERRORTYPE,
+							2,
+							MSG(MError),
+							strMsgStr,
+							MSG(MRetry),
+							MSG(MCancel)
 					) != 0 )
-
-			return -1;
+			{
+				return -1;
+			}
 		}
 
 		string strNewCurDir;
