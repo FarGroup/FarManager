@@ -1,3 +1,9 @@
+t-rex 28.03.2009 17:20:46 +0200 - build 839
+
+1. From dialex: Mantis#363: Support for network disks
+
+2. Теперь вроде pch будет пересобиратся когда надо.
+
 svs 27.03.2009 11:50:18 +0300 - build 838
 
 1. Mantis#0000801: FarInputRecordToKey() игнорирует dwControlKeyState

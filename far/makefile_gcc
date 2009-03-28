@@ -81,6 +81,7 @@ SRCS = 	cddrv.cpp \
 	mkdir.cpp \
 	modal.cpp \
 	namelist.cpp \
+	network.cpp \
 	options.cpp \
 	palette.cpp \
 	panel.cpp \

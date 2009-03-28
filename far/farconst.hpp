@@ -292,7 +292,6 @@ enum {
 // для диалога GetNameAndPassword()
 enum FlagsNameAndPassword{
   GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
-  GNP_NOOEMTOCHAR  = 0x00000002UL, // не конвертировать имя и пароль OEM->CHAR
 };
 
 enum {

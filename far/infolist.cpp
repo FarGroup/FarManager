@@ -221,19 +221,12 @@ void InfoList::DisplayObject()
 
     if (DriveType==DRIVE_REMOTE)
     {
-        DWORD dwRemoteNameSize = 0;
-
-        WNetGetConnectionW (strLocalName, NULL, &dwRemoteNameSize);
-
-        wchar_t *RemoteName = strRemoteName.GetBuffer (dwRemoteNameSize);
-
-        if ( WNetGetConnectionW(strLocalName, RemoteName, &dwRemoteNameSize) == NO_ERROR )
-            ShowRealPath=TRUE;
-
-        strRemoteName.ReleaseBuffer ();
+      apiWNetGetConnection(strLocalName, strRemoteName);
     }
     else if(DriveType == DRIVE_SUBSTITUTE)
-        ShowRealPath=TRUE;
+    {
+      ShowRealPath=TRUE;
+    }
 
     if(ShowRealPath)
     {

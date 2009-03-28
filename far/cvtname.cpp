@@ -259,8 +259,8 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 {
   int NetPathShown=FALSE, IsOK=FALSE;
-  wchar_t LocalName[8]=L" :\0\0\0", RemoteName[NM]; //BUGBUG
-  DWORD RemoteNameSize=sizeof(RemoteName)/sizeof (wchar_t);
+  wchar_t LocalName[8]=L" :\0\0\0";
+  string strRemoteName;
 
   *LocalName=Letter;
   strDest=L"";
@@ -274,13 +274,13 @@ string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 
   if (DriveType==DRIVE_REMOTE)
   {
-    if (WNetGetConnectionW(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
+    DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
+    if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
     {
       NetPathShown=TRUE;
       IsOK=TRUE;
     }
   }
-  string strRemoteName = RemoteName;
 
   if (!NetPathShown)
     if (GetSubstName(DriveType,LocalName,strRemoteName))

@@ -35,10 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "panel.hpp"
-
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
-
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -60,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "syslog.hpp"
 #include "plugapi.hpp"
+#include "network.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -224,6 +223,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	Mask = FarGetLogicalDrives();
 
+	DWORD NetworkMask = 0;
+	AddSavedNetworkDisks(Mask, NetworkMask);
+
 	for (DiskMask=Mask,DiskCount=0;DiskMask!=0; DiskMask>>=1)
 		DiskCount+=DiskMask & 1;
 
@@ -350,6 +352,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME )
 			{
 				string strRemoteName;
+
+				if ((1<<I)&NetworkMask)
+					DriveType = DRIVE_REMOTE;
 
 				DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
 
@@ -1025,6 +1030,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		while ( true )
 		{
 			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
+
+			if (NetworkMask & (1<<mitem->nItem))
+			{
+				ConnectToNetworkDrive(NewDir);
+			}
+
 			if(FarChDir(NewDir))
 			{
 				break;

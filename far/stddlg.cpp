@@ -530,7 +530,7 @@ int WINAPI GetString(
   HelpTopic - тема помощи (может быть NULL)
   Flags     - флаги (GNP_*)
 */
-int WINAPI GetNameAndPasswordW(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
+int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
   static string strLastName, strLastPassword;
   int ExitCode;

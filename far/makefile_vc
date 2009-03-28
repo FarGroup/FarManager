@@ -164,6 +164,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\mkdir.obj" \
 	"$(INTDIR)\modal.obj" \
 	"$(INTDIR)\namelist.obj" \
+	"$(INTDIR)\network.obj" \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
@@ -371,9 +372,9 @@ AllDirs:
 <<
 !endif
 
-"$(INTDIR)\headers.pch": headers.cpp
+$(PCH_FILE): headers.cpp headers.hpp
 	@echo making precompiled headers
-	@$(CPP) $(CPP_PROJ) headers.cpp /Yc /Fp"$(INTDIR)\headers.pch"
+	@$(CPP) $(CPP_PROJ) headers.cpp /Yc /Fp"$(PCH_FILE)"
 
 .c{$(INTDIR)}.obj::
 	@$(CPP) @<<
@@ -382,7 +383,7 @@ AllDirs:
 
 .cpp{$(INTDIR)}.obj::
 	@$(CPP) @<<
-	$(CPP_PROJ) /Yuheaders.hpp /Fp"$(INTDIR)\headers.pch" $<
+	$(CPP_PROJ) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
 <<
 
 .asm{$(INTDIR)}.obj:
