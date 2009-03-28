@@ -194,6 +194,7 @@ const TypeMessage DrTMsg[]={
 	{DRIVE_REMOVABLE,MChangeDriveRemovable},
 	{DRIVE_FIXED,MChangeDriveFixed},
 	{DRIVE_REMOTE,MChangeDriveNetwork},
+	{DRIVE_REMOTE_NOT_CONNECTED,MChangeDriveDisconnectedNetwork},
 	{DRIVE_CDROM,MChangeDriveCDROM},
 	{DRIVE_CD_RW,MChangeDriveCD_RW},
 	{DRIVE_CD_RWDVD,MChangeDriveCD_RWDVD},
@@ -246,6 +247,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		int DriveType,MenuLine;
 		int LabelWidth = Max(11,StrLength(MSG(MChangeDriveLabelAbsent)));
 
+		int DiskTypeWidth=0;
+		for (size_t J=0; J < countof(DrTMsg); ++J)
+		{
+			DiskTypeWidth = Max(DiskTypeWidth,StrLength(MSG(DrTMsg[J].FarMsg)));
+		}
+
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
 		for (DiskMask=Mask,MenuLine=I=0;DiskMask!=0;DiskMask>>=1,I++)
@@ -257,6 +264,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strRootDir.Format (L"%c:\\",L'A'+I);
 
 			DriveType = FAR_GetDriveType(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			if ((1<<I)&NetworkMask)
+				DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_TYPE )
 			{
@@ -282,12 +291,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					DriveType=DRIVE_SUBSTITUTE;
 				}
 
+				strDiskType.Format(L"%-*s",DiskTypeWidth,strDiskType.CPtr());
 				strMenuText += strDiskType;
 			}
 
 			int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
         	               (!IsDriveTypeCDROM(DriveType) || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
-                	       (DriveType!=DRIVE_REMOTE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOTE));
+                	       (!IsDriveTypeRemote(DriveType) || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOTE));
 
 			if ( Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM) )
 			{
@@ -352,9 +362,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME )
 			{
 				string strRemoteName;
-
-				if ((1<<I)&NetworkMask)
-					DriveType = DRIVE_REMOTE;
 
 				DriveLocalToRemoteName(DriveType,strRootDir.At(0),strRemoteName);
 

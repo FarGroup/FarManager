@@ -504,8 +504,9 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
-BOOL IsDriveTypeCDROM(UINT DriveType);
+bool IsDriveTypeCDROM(UINT DriveType);
 UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
+bool IsDriveTypeRemote(UINT DriveType);
 
 bool PathPrefix(const wchar_t *Path);
 BOOL IsNetworkPath(const wchar_t *Path);

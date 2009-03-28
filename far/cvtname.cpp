@@ -272,7 +272,7 @@ string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
     LocalName[2]=0;
   }
 
-  if (DriveType==DRIVE_REMOTE)
+  if (IsDriveTypeRemote(DriveType))
   {
     DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
     if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)

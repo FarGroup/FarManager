@@ -1594,10 +1594,10 @@ bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
 				return false;
 			Octets--;
 		}
-		else		
+		else
 		{
 			if(c&0x80)
-			{  
+			{
 				while(c&0x80)
 				{
 					c<<=1;
@@ -1645,7 +1645,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUs
 		}
 		else
 			fseek (file, 0, SEEK_SET);
-	}                   
+	}
 
 	if( bSignatureFound )
 	{
@@ -1671,13 +1671,13 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUs
 				IS_TEXT_UNICODE_ILLEGAL_CHARS|
 				IS_TEXT_UNICODE_ODD_LENGTH|
 				IS_TEXT_UNICODE_NULL_BYTES;
-				
+
 			if ( IsTextUnicode (Buffer, (int)sz, &test) )
 			{
 				if ( !(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS) )
 				{
-					if( (test&IS_TEXT_UNICODE_NULL_BYTES) || 
-						(test&IS_TEXT_UNICODE_CONTROLS) || 
+					if( (test&IS_TEXT_UNICODE_NULL_BYTES) ||
+						(test&IS_TEXT_UNICODE_CONTROLS) ||
 						(test&IS_TEXT_UNICODE_REVERSE_CONTROLS) )
 					{
 						if ( (test&IS_TEXT_UNICODE_CONTROLS) || (test&IS_TEXT_UNICODE_STATISTICS) )
@@ -1685,8 +1685,8 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUs
 							nCodePage=CP_UNICODE;
 							bDetect=true;
 						}
-						else 
-						
+						else
+
 						if ( (test&IS_TEXT_UNICODE_REVERSE_CONTROLS) || (test&IS_TEXT_UNICODE_REVERSE_STATISTICS) )
 						{
 							nCodePage=CP_REVERSEBOM;
@@ -1695,8 +1695,8 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUs
 					}
 				}
 			}
-			else 
-			
+			else
+
 			if ( IsTextUTF8 ((const LPBYTE)Buffer, sz) )
 			{
 				nCodePage=CP_UTF8;
@@ -1718,7 +1718,7 @@ bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUs
 				}
 
 				delete ns;
-			
+
 			}
 		}
 
@@ -1751,4 +1751,9 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 	A.u.HighPart = ft->dwHighDateTime;
 
 	return A.QuadPart;
+}
+
+bool IsDriveTypeRemote(UINT DriveType)
+{
+	return DriveType == DRIVE_REMOTE || DriveType == DRIVE_REMOTE_NOT_CONNECTED;
 }

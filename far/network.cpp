@@ -95,7 +95,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 void ConnectToNetworkDrive(const wchar_t *NewDir)
 {
 	string strRemoteName;
-	DriveLocalToRemoteName(DRIVE_REMOTE,*NewDir,strRemoteName);
+	DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED,*NewDir,strRemoteName);
 	string strUserName, strPassword;
 	GetStoredUserName(*NewDir, strUserName);
 	NETRESOURCEW netResource;

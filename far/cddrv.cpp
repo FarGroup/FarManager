@@ -316,7 +316,7 @@ UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps)
     return DRIVE_UNKNOWN;
 }
 
-BOOL IsDriveTypeCDROM(UINT DriveType)
+bool IsDriveTypeCDROM(UINT DriveType)
 {
   return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RAM);
 }
