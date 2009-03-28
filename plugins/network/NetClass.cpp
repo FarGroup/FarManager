@@ -1917,7 +1917,10 @@ BOOL NetBrowser::IsReadable(const TCHAR *Remote)
 {
   TCHAR Mask[NM];
 #ifdef UNICODE
-  FSF.sprintf(Mask,_T("\\\\?\\UNC%s\\*"),Remote+1);
+  if (*Remote == _T('\\') && *(Remote+1) == _T('\\'))
+    FSF.sprintf(Mask,_T("\\\\?\\UNC%s\\*"),Remote+1);
+  else
+    FSF.sprintf(Mask,_T("%s\\*"),Remote);
 #else
   FSF.sprintf(Mask,_T("%s\\*"),Remote);
 #endif
