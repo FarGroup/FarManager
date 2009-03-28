@@ -1060,6 +1060,37 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
   _GetRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
 
+bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT TopItem,UINT ItemsCount)
+{
+	if(Length>2 && ItemsCount && Length<ItemsCount)
+	{
+		Length-=2;
+		ItemsCount-=2;
+		UINT CaretPos=Round(Length*TopItem,ItemsCount);
+		UINT CaretLength=Max(1U,Round(Length*Length,ItemsCount));
+		if(!CaretPos && TopItem)
+		{
+			CaretPos++;
+		}
+		else if(CaretPos+CaretLength==Length && TopItem+2+Length<ItemsCount)
+		{
+			CaretPos--;
+		}
+		CaretPos=Min(CaretPos,Length-CaretLength);
+
+		wchar_t OutStr[4096];
+		_wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
+		OutStr[0]=Oem2Unicode[0x1E];
+		for(size_t i=0;i<CaretLength;i++)
+			OutStr[CaretPos+1+i]=BoxSymbols[BS_X_B2];
+		OutStr[Length+1]=Oem2Unicode[0x1F];
+		OutStr[Length+2]=0;
+		GotoXY(X1,Y1);
+		VText(OutStr);
+		return true;
+	}
+	return false;
+}
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {

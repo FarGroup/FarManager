@@ -153,7 +153,7 @@ FileList::~FileList()
 }
 
 
-void FileList::DeleteListData(struct FileListItem **(&ListData),long &FileCount)
+void FileList::DeleteListData(struct FileListItem **(&ListData),int &FileCount)
 {
   if (ListData==NULL)
     return;

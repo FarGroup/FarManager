@@ -171,9 +171,9 @@ struct PluginsStackItem
 struct PrevDataItem
 {
   struct FileListItem **PrevListData;
-  long PrevFileCount;
+	int PrevFileCount;
   string strPrevName;
-  long PrevTopFile;
+	int PrevTopFile;
 };
 
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
@@ -197,7 +197,7 @@ class FileList:public Panel
 
     string strPluginDizName;
     struct FileListItem **ListData;
-    long FileCount;
+		int FileCount;
     HANDLE hPlugin;
     struct PrevDataItem **PrevDataStack;
     int PrevDataStackSize;
@@ -234,7 +234,7 @@ class FileList:public Panel
     virtual void SetSelectedFirstMode(int Mode);
     virtual int GetSelectedFirstMode(void) {return SelectedFirst;};
     virtual void DisplayObject();
-    void DeleteListData(struct FileListItem **(&ListData),long &FileCount);
+		void DeleteListData(struct FileListItem **(&ListData),int &FileCount);
     void Up(int Count);
     void Down(int Count);
     void Scroll(int Count);

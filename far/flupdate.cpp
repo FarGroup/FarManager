@@ -128,7 +128,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   FAR_FIND_DATA_EX fdata;
   struct FileListItem *CurPtr=0,**OldData=0;
   string strCurName, strNextCurName;
-  long OldFileCount=0;
+	int OldFileCount=0;
   int Done;
   int I;
 
@@ -615,7 +615,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   int I;
   struct FileListItem *CurPtr, **OldData=0;
   string strCurName, strNextCurName;
-  long OldFileCount=0;
+	int OldFileCount=0;
 
   CloseChangeNotification();
 

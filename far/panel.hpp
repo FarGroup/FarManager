@@ -98,8 +98,8 @@ class Panel:public ScreenObject
     int SortOrder;
     int SortGroups;
     int PrevViewMode,ViewMode;
-    long CurTopFile;
-    long CurFile;
+		int CurTopFile;
+		int CurFile;
     int ShowShortNames;
     int NumericSort;
     int ModalMode;

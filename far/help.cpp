@@ -718,12 +718,10 @@ void Help::FastShow()
     }
   }
 
-  const int ScrollLength=Y2-Y1-FixSize-1;
-  if (!Locked() && StrCount-FixCount > ScrollLength)
+	if(!Locked())
   {
-    int Scrolled=StrCount-FixCount-ScrollLength;
     SetColor(COL_HELPSCROLLBAR);
-    ScrollBar(X2,Y1+FixSize+1,ScrollLength,StackData.TopStr,Scrolled);
+		ScrollBarEx(X2,Y1+FixSize+1,Y2-Y1-FixSize-1,StackData.TopStr,StrCount-FixCount);
   }
 }
 

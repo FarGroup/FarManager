@@ -684,13 +684,13 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
   {
-    if (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
+		if(BoxType!=NO_BOX)
     {
       SetColor(VMenu::Colors[VMenuColorScrollBar]);
       if (BoxType!=NO_BOX)
-        ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
+				ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,ItemCount);
       else
-        ScrollBar(X2,Y1,Y2-Y1+1,SelectPos,ItemCount);
+				ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,ItemCount);
     }
   }
 }
@@ -1420,11 +1420,13 @@ int VMenu::DeleteItem(int ID,int Count)
   }
 
   SelectPos=SetSelectPos(OldItemSelected,1);
-  if (Item[SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
-    VMFlags.Set(VMENU_SELECTPOSNONE);
 
   if(SelectPos > -1)
-    Item[SelectPos]->Flags|=LIF_SELECTED;
+	{
+		Item[SelectPos]->Flags|=LIF_SELECTED;
+		if (Item[SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
+			VMFlags.Set(VMENU_SELECTPOSNONE);
+	}
 
   return(ItemCount);
 }

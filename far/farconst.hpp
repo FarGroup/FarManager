@@ -43,7 +43,8 @@ inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
-#define  NM          260
+template <class T>
+inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
 #define  DEFAULT_SORT_GROUP 10000
 

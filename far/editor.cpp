@@ -845,6 +845,8 @@ void Editor::ShowEditor(int CurLineOnly)
     _SYS_EE_REDRAW(else SysLog(L"ScrBuf Locked !!!"));
   }
 
+	DrawScrollbar();
+
   if (!CurLineOnly)
   {
     LeftPos=CurLine->GetLeftPos();
@@ -906,7 +908,6 @@ void Editor::ShowEditor(int CurLineOnly)
   }
 
   if(HostFileEditor) HostFileEditor->ShowStatus();
-  DrawScrollbar();
 //_SVS(SysLog(L"Exit from ShowEditor"));
 }
 
@@ -6811,6 +6812,6 @@ void Editor::DrawScrollbar()
 	if(EdOpt.ShowScrollBar)
 	{
 		SetColor(COL_EDITORSCROLLBAR);
-		ScrollBar(X2,Y1,Y2-Y1+1,NumLine,NumLastLine);
+		XX2=X2-(ScrollBarEx(X2,Y1,Y2-Y1+1,NumLine-CalcDistance(TopScreen,CurLine,-1),NumLastLine)?1:0);
 	}
 }

@@ -292,7 +292,7 @@ void TreeList::DisplayTree(int Fast)
   if (Opt.ShowPanelScrollbar)
   {
     SetColor(COL_PANELSCROLLBAR);
-    ScrollBar(X2,Y1+1,Y2-Y1-3,CurFile,TreeCount>1 ? TreeCount-1:TreeCount);
+		ScrollBarEx(X2,Y1+1,Y2-Y1-3,CurTopFile,TreeCount);
   }
   SetColor(COL_PANELTEXT);
 

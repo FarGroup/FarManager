@@ -355,7 +355,7 @@ void FileList::ShowFileList(int Fast)
   if (Opt.ShowPanelScrollbar)
   {
     SetColor(COL_PANELSCROLLBAR);
-    ScrollBar(X2,Y1+1+Opt.ShowColumnTitles,Height,CurFile,FileCount>1 ? FileCount-1:FileCount);
+		ScrollBarEx(X2,Y1+1+Opt.ShowColumnTitles,Height,Round(CurTopFile,Columns),Round(FileCount,Columns));
   }
 
   ShowScreensCount();
