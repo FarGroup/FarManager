@@ -58,9 +58,7 @@ static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 // Стандартный набор разделителей для функции Xlat
 static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
 
-string strPersonalPluginsPath;
 string strKeyNameConsoleDetachKey;
-string strInitedLanguage;
 static const wchar_t szCtrlShiftX[]=L"CtrlShiftX";
 static const wchar_t szCtrlDot[]=L"Ctrl.";
 static const wchar_t szCtrlShiftDot[]=L"CtrlShift.";
@@ -1032,7 +1030,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
   {0, REG_DWORD,  NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
   {0, REG_SZ,     NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
-  {1, REG_SZ,     NKeySystem,L"PersonalPluginsPath",&Opt.LoadPlug.strPersonalPluginsPath, 0, strPersonalPluginsPath}, //BUGBUG
   {0, REG_DWORD,  NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
   {1, REG_DWORD,  NKeySystem,L"MultiMakeDir",&Opt.MultiMakeDir,0, 0},
   {0, REG_DWORD,  NKeySystem,L"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
@@ -1076,7 +1073,6 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
 
-	{1, REG_SZ,     NKeyLanguage,L"Main",&Opt.strLanguage, 0, strInitedLanguage},
   {1, REG_SZ,     NKeyLanguage,L"Help",&Opt.strHelpLanguage, 0, L"English"},
 
   {1, REG_DWORD,  NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
@@ -1091,6 +1087,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,L"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
+  {0, REG_DWORD,  NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
 
   {0, REG_DWORD,  NKeyPanel,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
   {1, REG_DWORD,  NKeyPanel,L"ShowHidden",&Opt.ShowHidden,1, 0},
@@ -1166,6 +1163,7 @@ void ReadConfig()
 {
   DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
   string strKeyNameFromReg;
+  string strPersonalPluginsPath;
 
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   // "Вспомним" путь для дополнительного поиска плагинов
@@ -1174,13 +1172,14 @@ void ReadConfig()
   OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
   OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,L"DisabledOptions",0);
   SetRegRootKey(HKEY_CURRENT_USER);
-  if(Opt.ExceptRules == -1)
+  GetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath, strPersonalPluginsPath);
+  if (Opt.ExceptRules == -1)
     GetRegKey(L"System",L"ExceptRules",Opt.ExceptRules,1);
 
   //Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(size_t I=0; I < countof(CFG); ++I)
+  for (size_t I=0; I < countof(CFG); ++I)
   {
     switch(CFG[I].ValType)
     {
@@ -1192,7 +1191,7 @@ void ReadConfig()
        break;
       case REG_BINARY:
        int Size=GetRegKey(CFG[I].KeyName, CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
-       if(Size && Size < (int)CFG[I].DefDWord)
+       if (Size && Size < (int)CFG[I].DefDWord)
          memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
        break;
     }
@@ -1200,27 +1199,21 @@ void ReadConfig()
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
 
-  // ОНО ранее может переопределяться
-	if(StrCmpI(Opt.strLanguage,strInitedLanguage))
-		Opt.strLanguage=strInitedLanguage;
-
-  GetRegKey(NKeyConfirmations,L"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
-
-  if(Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
+  if (Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
 
   Opt.HelpTabSize=8; // пока жестко пропишем...
 
   //   Уточняем алгоритм "взятия" палитры.
-  for(int I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
-      I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
-      ++I)
+  for (int I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
+       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
+       ++I)
   {
-    if(!Palette[I])
+    if (!Palette[I])
     {
-      if(!Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR])
+      if (!Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR])
         Palette[I]=DefaultPalette[I];
-      else if(Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR] == 1)
+      else if (Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR] == 1)
         Palette[I]=BlackPalette[I];
       /*
       else
@@ -1237,16 +1230,16 @@ void ReadConfig()
       Если EditorUndoSize слишком маленькое или слишком большое,
       то сделаем размер undo такой же, как и в старых версиях
   */
-  if(Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
+  if (Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
     Opt.EdOpt.UndoSize=64;
 
   // Исключаем случайное стирание разделителей ;-)
   if ( Opt.strWordDiv.IsEmpty() )
      Opt.strWordDiv = WordDiv0;
   // Исключаем случайное стирание разделителей
-  if( Opt.XLat.strWordDivForXlat.IsEmpty() )
+  if ( Opt.XLat.strWordDivForXlat.IsEmpty() )
      Opt.XLat.strWordDivForXlat = WordDivForXlat0;
-  if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
+  if (Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
     Opt.MaxPositionCache=64;
   Opt.PanelRightClickRule%=3;
   Opt.PanelCtrlAltShiftRule%=3;
@@ -1257,37 +1250,37 @@ void ReadConfig()
     Opt.ViOpt.TabSize=8;
 
   GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromReg,szCtrlDot);
-  if((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
+  if ((Opt.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
     Opt.KeyMacroCtrlDot=KEY_CTRLDOT;
 
   GetRegKey(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromReg,szCtrlShiftDot);
-  if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
+  if ((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
     Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
   GetRegKey(NKeyXLat,L"EditorKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatEditorKey=0;
   GetRegKey(NKeyXLat,L"CmdLineKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatCmdLineKey=0;
   GetRegKey(NKeyXLat,L"DialogKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatDialogKey=0;
   GetRegKey(NKeyXLat,L"FastFindKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatFastFindKey=0;
 
   GetRegKey(NKeyXLat,L"AltEditorKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatAltEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltEditorKey=0;
   GetRegKey(NKeyXLat,L"AltCmdLineKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltCmdLineKey=0;
   GetRegKey(NKeyXLat,L"AltDialogKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatAltDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltDialogKey=0;
   GetRegKey(NKeyXLat,L"AltFastFindKey",strKeyNameFromReg,szCtrlShiftX);
-  if((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
+  if ((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
     Opt.XLat.XLatAltFastFindKey=0;
 
   Opt.EdOpt.strWordDiv = Opt.strWordDiv;
@@ -1305,7 +1298,7 @@ void ReadConfig()
   // для опций HKCU может только добавлять блокироку пунктов
   Opt.Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 
-  if(Opt.strExecuteBatchType.IsEmpty()) // предохраняемся
+  if (Opt.strExecuteBatchType.IsEmpty()) // предохраняемся
     Opt.strExecuteBatchType=constBatchExt;
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
@@ -1313,7 +1306,7 @@ void ReadConfig()
 
 void SaveConfig(int Ask)
 {
-  if(Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
+  if (Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
     return;
 
   if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
@@ -1360,10 +1353,13 @@ void SaveConfig(int Ask)
   CtrlObject->HiFiles->SaveHiData();
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-  for(size_t I=0; I < countof(CFG); ++I)
+  SetRegKey(NKeySystem,L"PersonalPluginsPath",Opt.LoadPlug.strPersonalPluginsPath);
+	SetRegKey(NKeyLanguage,L"Main",Opt.strLanguage);
+
+  for (size_t I=0; I < countof(CFG); ++I)
   {
-    if(CFG[I].IsSave)
-      switch(CFG[I].ValType)
+    if (CFG[I].IsSave)
+      switch (CFG[I].ValType)
       {
         case REG_DWORD:
          SetRegKey(CFG[I].KeyName, CFG[I].ValName,*(int *)CFG[I].ValPtr);

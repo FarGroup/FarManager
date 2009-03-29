@@ -561,7 +561,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     WaitKey(); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
   }
-	strInitedLanguage=Opt.strLanguage;
   SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
   SetHighlighting();
 
