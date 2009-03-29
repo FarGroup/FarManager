@@ -1,8 +1,8 @@
-#include "NetClass.hpp"
-#include "NetFavorites.hpp"
 #include "NetCommon.hpp"
 #include "NetReg.hpp"
 #include "NetCfg.hpp"
+#include "NetFavorites.hpp"
+#include "NetClass.hpp"
 
 NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
