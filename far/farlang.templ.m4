@@ -1847,7 +1847,7 @@ MSaveSetupAsk1
 "Do you wish to save"
 "Přejete si uložit"
 "Wollen Sie die aktuellen Einstellungen"
-"El akarja menteni a"
+"Elmenti a jelenlegi"
 "Czy chcesz zapisać"
 
 MSaveSetupAsk2
@@ -1855,7 +1855,7 @@ MSaveSetupAsk2
 "current setup?"
 "aktuální nastavení?"
 "speichern?"
-"jelenlegi beállításokat?"
+"beállításokat?"
 "bieżące ustawienia?"
 
 MSaveSetup
@@ -1880,7 +1880,7 @@ MMoveDlgTitle
 "Rename/Move"
 "Přejmenovat/Přesunout"
 "Verschieben/Umbenennen"
-"Átnevezés/mozgatás"
+"Átnevezés-Mozgatás"
 "Zmień nazwę/przenieś"
 
 MLinkDlgTitle
@@ -2040,7 +2040,7 @@ MCopyDlgRename
 "&Rename"
 "Přej&menovat"
 "&Umbenennen"
-"Át&nevez/Mozgat"
+"Át&nevez-Mozgat"
 "&Zmień nazwę"
 
 MCopyDlgLink
@@ -2105,7 +2105,7 @@ MMoveFile
 "Rename or move \"%.55s\""
 "Přejmenovat nebo přesunout \"%.55s\""
 "Verschiebe \"%.55s\""
-" \"%.55s\" átnevezése/mozgatása"
+" \"%.55s\" átnevezése-mozgatása"
 "Zmień nazwę lub przenieś \"%.55s\""
 
 MLinkFile
@@ -2129,7 +2129,7 @@ MMoveFiles
 "Rename or move %d item%s"
 "Přejmenovat nebo přesunout %d polož%s"
 "Verschiebe %d Objekt%s"
-" %d elem átnevezése/mozgatása"
+" %d elem átnevezése-mozgatása"
 "Zmień nazwę lub przenieś %d plików"
 
 MLinkFiles
@@ -3368,7 +3368,7 @@ MEditSearchWholeWords
 "&Whole words"
 "&Celá slova"
 "&Ganze Wörter"
-"E&gész szavakra"
+"Csak e&gész szavak"
 "Tylko całe słowa"
 
 MEditSearchReverse
@@ -3557,7 +3557,7 @@ MEnterShortcut
 "Enter new shortcut:"
 "Zadejte novou zkratku:"
 "Neue Verknüpfung:"
-"Az új gyorsbillentyű:"
+"A gyorsbillentyűhöz rendelt mappa:"
 "Wprowadź nowy skrót:"
 
 MNeedNearPath
@@ -7482,7 +7482,7 @@ MFindFileWholeWords
 "&Whole words"
 "&Celá slova"
 "Nur &ganze Wörter"
-"Egés&z szavakra"
+"Csak egés&z szavak"
 "Tylko &całe słowa"
 
 MFindFileAllCodePages
@@ -7562,7 +7562,7 @@ MSearchFromRootOfDrive
 "From the &root of"
 "V &kořeni"
 "Ab Wu&rzelverz. von"
-"Megh. &gyökerétől:"
+"Meghajtó &gyökerétől:"
 "Od &korzenia"
 
 MSearchFromRootFolder
@@ -8316,7 +8316,7 @@ MErrorNetworkBusy
 "The network is busy"
 "Síť je zaneprázdněna"
 "Das Netzwerk ist beschäftigt"
-"A hálózat foglalt"
+"A hálózat zsúfolt"
 "Sieć jest zajęta"
 
 MErrorNetworkAccessDenied
@@ -8340,7 +8340,7 @@ MErrorDiskLocked
 "The disk is in use or locked by another process"
 "Disk je používán nebo uzamčen jiným procesem"
 "Datenträger wird verwendet oder ist durch einen anderen Prozess gesperrt"
-"A lemezt használja vagy zárolja valami"
+"A lemezt használja vagy zárolja egy folyamat"
 "Dysk jest w użyciu lub zablokowany przez inny proces"
 
 MErrorFileExists
@@ -8380,7 +8380,7 @@ MErrorIncorrectUserName
 "Incorrect user name"
 "Neplatné jméno uživatele"
 "Ungültiger Benutzername"
-"Rossz felhasználói név"
+"Érvénytelen felhasználói név"
 "Niewłaściwa nazwa użytkownika"
 
 MErrorIncorrectPassword
@@ -8388,7 +8388,7 @@ MErrorIncorrectPassword
 "Incorrect password"
 "Neplatné heslo"
 "Ungültiges Passwort"
-"Rossz jelszó"
+"Érvénytelen jelszó"
 "Niewłaściwe hasło"
 
 MErrorLoginFailure
@@ -8754,7 +8754,7 @@ MMenuMove
 "&Rename or move     F6"
 "&Přejmenovat/Přesunout      F6"
 "Ve&rschieben/Umben.   F6"
-"Át&nevez/mozgat       F6"
+"Át&nevez-Mozgat       F6"
 "&Zmień nazwę lub przenieś  F6"
 
 MMenuCreateFolder
@@ -9335,7 +9335,7 @@ MChangeDriveDisconnectedNetwork
 "disconnected"
 upd:"disconnected"
 upd:"disconnected"
-upd:"disconnected"
+"leválasztva"
 upd:"disconnected"
 
 MChangeDriveCDROM
@@ -11433,7 +11433,7 @@ MViewSearchWholeWords
 "&Whole words"
 "Celá &slova"
 "Ganze &Wörter"
-"E&gész szavakra"
+"Csak e&gész szavak"
 "Tylko całe słowa"
 
 MViewSearchReverse
@@ -11646,7 +11646,7 @@ MCfgDizStartPos
 "&Position of new descriptions in the string"
 "&Pozice nových popisů v řetězci"
 "&Position neuer Beschreibungen in der Zeichenkette"
-"Új megjegyzéseknél a szöveg tá&volsága"
+"Új megjegyzéseknél a szöveg &kezdete"
 "Pozy&cja nowych opisów w linii"
 
 MCfgDizNotUpdate
@@ -11654,7 +11654,7 @@ MCfgDizNotUpdate
 "Do &not update descriptions"
 "&Neaktualizovat popisy"
 "Beschreibungen &nie aktualisieren"
-"Ne &frissítse a megjegyzéseket"
+"N&e frissítse a megjegyzéseket"
 "&Nie aktualizuj opisów"
 
 MCfgDizUpdateIfDisplayed
@@ -16123,7 +16123,7 @@ l:
 "Filter"
 "Filtr"
 "Filter"
-"Szűrő"
+"Felhasználói szűrő"
 "Filtr wyszukiwania"
 
 MFileHilightTitle
