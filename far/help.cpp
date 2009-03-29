@@ -1372,7 +1372,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   {
     strNewTopic = StackData.strSelTopic;
 
-    size_t pos;
     if(strNewTopic.Pos(pos,L':') && strNewTopic.At(0) != L':') // наверное подразумевается URL
     {
       wchar_t *lpwszNewTopic = strNewTopic.GetBuffer ();
@@ -1394,7 +1393,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
       lpwszNewTopic[pos] = L':';
       //strNewTopic.ReleaseBuffer (); не надо, так как строка не поменялась
     }
-
   }
   // а вот теперь попробуем...
 
@@ -1485,7 +1483,6 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     StackData.strHelpTopic = strNewTopic;
     if( StackData.strHelpTopic.At(0) == HelpBeginLink)
     {
-			size_t pos;
 			if ( StackData.strHelpTopic.RPos(pos,HelpEndLink) )
 			{
 				StackData.strHelpTopic.SetLength(pos+1);
@@ -1730,7 +1727,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
   const wchar_t *PtrTitle=0, *ContentsName=0;
   string strPath, strFullFileName;
-  string strEntryName, strHelpLine, strSecondParam;
 
   switch(TypeIndex)
   {

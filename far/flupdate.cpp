@@ -821,7 +821,9 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
   Diz.Reset();
 
   if (PanelMode==NORMAL_PANEL)
+  {
     Diz.Read(strCurDir);
+  }
   else
   {
     PluginPanelItem *PanelData=NULL;
@@ -837,7 +839,9 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     /* $ 25.02.2001 VVM
         + Обработка флага RDF_NO_UPDATE */
     if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
+    {
       GetCode=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
+    }
     else
     {
       PanelData=ItemList;
@@ -850,7 +854,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
         PluginPanelItem *CurPanelData=PanelData;
         for (int J=0; J < PluginFileCount; J++, CurPanelData++)
         {
-            string strFileName = CurPanelData->FindData.lpwszFileName;
+          string strFileName = CurPanelData->FindData.lpwszFileName;
 
           if (StrCmpI(strFileName,Info.DescrFiles[I])==0)
           {

@@ -1988,7 +1988,9 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
         }
       }
       else if (SearchMode==FFSEARCH_ROOT)
+      {
         GetPathRootOne(strRoot,strRoot);
+      }
       else if (SearchMode==FFSEARCH_INPATH)
       {
         if(!*Ptr)

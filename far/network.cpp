@@ -114,7 +114,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, NULL, GNP_USELAST))
 				break;
 
-			DWORD res = WNetAddConnection2W(&netResource, strPassword, strUserName, 0);
+			res = WNetAddConnection2W(&netResource, strPassword, strUserName, 0);
 
 			if (!res)
 				break;

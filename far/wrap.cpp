@@ -948,7 +948,7 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	const wchar_t *wszT  = Title?(const wchar_t *)strT:NULL;
 	const wchar_t *wszB  = Bottom?(const wchar_t *)strB:NULL;
 	const wchar_t *wszHT = HelpTopic?(const wchar_t *)strHT:NULL;
-	
+
 	if (!Item || !ItemsNumber)
 		return FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags,wszT,wszB,wszHT,BreakKeys,BreakCode,NULL,0);
 
@@ -1966,12 +1966,12 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 				if(OldListTitle->Title)
 				{
 					ListTitle.TitleLen=OldListTitle->TitleLen;
-					ListTitle.Title=new wchar_t[ListTitle.TitleLen];
+					ListTitle.Title=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.TitleLen);
 				}
 				if(OldListTitle->BottomLen)
 				{
 					ListTitle.BottomLen=OldListTitle->BottomLen;
-					ListTitle.Bottom=new wchar_t[ListTitle.BottomLen];
+					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomLen);
 				}
 				LONG_PTR Ret=FarSendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,(LONG_PTR)&ListTitle);
 				if(Ret)
@@ -1980,9 +1980,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 					UnicodeToOEM(ListTitle.Bottom,OldListTitle->Bottom,OldListTitle->BottomLen);
 				}
 				if(ListTitle.Title)
-					delete[] ListTitle.Title;
+					xf_free((wchar_t *)ListTitle.Title);
 				if(ListTitle.Bottom)
-					delete[] ListTitle.Bottom;
+					xf_free((wchar_t *)ListTitle.Bottom);
 				return Ret;
 			}
 			return FALSE;

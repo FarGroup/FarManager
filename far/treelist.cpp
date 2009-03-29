@@ -35,9 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "treelist.hpp"
-
 #include "flink.hpp"
-
 #include "keyboard.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
@@ -267,13 +265,15 @@ void TreeList::DisplayTree(int Fast)
       CurPtr=ListData[J];
 
       if (J==0)
+      {
         DisplayTreeName(L"\\",J);
+      }
       else
       {
         string strOutStr;
         for (K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
         {
-             strOutStr+=TreeLineSymbol[CurPtr->Last[K]?0:1];
+          strOutStr+=TreeLineSymbol[CurPtr->Last[K]?0:1];
         }
         strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
         BoxText(strOutStr);
@@ -305,7 +305,7 @@ void TreeList::DisplayTree(int Fast)
 
   UpdateViewPanel();
   SetTitle(); // не забудим прорисовать заголовок
-  if(LckScreen)
+  if (LckScreen)
     delete LckScreen;
 }
 
@@ -716,31 +716,40 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 
 bool TreeList::FillLastData()
 {
-  long Last,Depth,PathLength,SubDirPos,I,J;
-  int RootLength = (int)strRoot.GetLength()-1;
-  if (RootLength<0)
-    RootLength=0;
-  for (I=1;I<TreeCount;I++)
-  {
-    PathLength=(long)(wcsrchr(ListData[I]->strName,L'\\')-(const wchar_t*)ListData[I]->strName+1);
-    Depth=ListData[I]->Depth=CountSlash((const wchar_t*)ListData[I]->strName+RootLength);
+	int Last,Depth,PathLength,SubDirPos,I,J;
+	size_t Pos;
+	int RootLength = (int)strRoot.GetLength()-1;
+	if (RootLength<0)
+		RootLength=0;
+
+	for (I=1;I<TreeCount;I++)
+	{
+		if (ListData[I]->strName.RPos(Pos,L'\\'))
+			PathLength=(int)Pos+1;
+		else
+			PathLength=0;
+
+		Depth=ListData[I]->Depth=CountSlash((const wchar_t*)ListData[I]->strName+RootLength);
 		if(!Depth)
 			return false;
-    for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
-      if (CountSlash((const wchar_t*)ListData[J]->strName+RootLength)>Depth)
-      {
-        SubDirPos=J;
-        continue;
-      }
-      else
-      {
-        if ( StrCmpNI(ListData[I]->strName,ListData[J]->strName,PathLength)==0 )
-          Last=0;
-        break;
-      }
-    for (J=I;J<=SubDirPos;J++)
-      ListData[J]->Last[Depth-1]=Last;
-  }
+
+		for (J=I+1,SubDirPos=I,Last=1;J<TreeCount;J++)
+		{
+			if (CountSlash((const wchar_t*)ListData[J]->strName+RootLength)>Depth)
+			{
+				SubDirPos=J;
+				continue;
+			}
+			else
+			{
+				if ( StrCmpNI(ListData[I]->strName,ListData[J]->strName,PathLength)==0 )
+					Last=0;
+				break;
+			}
+		}
+		for (J=I;J<=SubDirPos;J++)
+			ListData[J]->Last[Depth-1]=Last; //BUGBUG: ListData->Last это [NM/2], потэнциально можно выйти за границы, надо думать
+	}
 	return true;
 }
 
@@ -1355,7 +1364,7 @@ int TreeList::ReadTreeFile()
 	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
 	if(DirName)
 	{
-		wcscpy (DirName, strRoot);//BUGBUG
+		xwcsncpy (DirName, strRoot, NT_MAX_PATH-1);
 
 		string strLastDirName;
 

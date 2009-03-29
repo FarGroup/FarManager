@@ -1162,7 +1162,6 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
   {
     if(Opt.Confirm.RemoveSUBST)
     {
-      string strMsgText;
       strMsgText.Format (MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
       if(Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo))!=0)
         return DRIVE_DEL_FAIL;
