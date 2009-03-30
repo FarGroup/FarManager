@@ -23,6 +23,7 @@ execute.cpp
 #include "fn.hpp"
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
+#include "manager.hpp"
 
 static const char strSystemExecutor[]="System\\Executor";
 
@@ -1464,7 +1465,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   }
 
   // SET [переменная=[строка]]
-  if (strnicmp(CmdLine,"SET ",4)==0)
+  else if (!strnicmp(CmdLine,"SET",3) && IsSpace(CmdLine[3]))
   {
     char Cmd[1024];
 #if 0
@@ -1521,16 +1522,13 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     return(TRUE);
   }
 
-  if (!memicmp(CmdLine,"REM ",4) || !memicmp(CmdLine,"::",2))
+  else if ((!strnicmp(CmdLine,"REM",3) && IsSpace(CmdLine[3])) || !strnicmp(CmdLine,"::",2))
   {
     return TRUE;
   }
 
-  if (!memicmp(CmdLine,"CLS",3))
+  else if (!stricmp(CmdLine,"CLS"))
   {
-    if(CmdLine[3])
-      return FALSE;
-
     ClearScreen(COL_COMMANDLINEUSERSCREEN);
     return TRUE;
   }
@@ -1541,11 +1539,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     nnn   Specifies a code page number (Dec or Hex).
   Type CHCP without a parameter to display the active code page number.
   */
-  if (!memicmp(CmdLine,"CHCP",4))
+  else if (!strnicmp(CmdLine,"CHCP",4) && IsSpace(CmdLine[4]))
   {
-    if(CmdLine[4] == 0 || !(CmdLine[4] == ' ' || CmdLine[4] == '\t'))
-      return(FALSE);
-
     char *Ptr=RemoveExternalSpaces(CmdLine+5), Chr;
 
     if(!isdigit(*Ptr))
@@ -1579,7 +1574,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
        "IF [NOT] EXIST filename command"
        "IF [NOT] DEFINED variable command"
   */
-  if (memicmp(CmdLine,"IF ",3)==0)
+  else if (!strnicmp(CmdLine,"IF",2) && IsSpace(CmdLine[2]))
   {
     const char *PtrCmd=PrepareOSIfExist(CmdLine);
     // здесь PtrCmd - уже готовая команда, без IF
@@ -1598,7 +1593,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   /* $ 16.04.2002 DJ
      пропускаем обработку, если нажат Shift-Enter
   */
-  if (!SeparateWindow &&  /* DJ $ */
+  else if (!SeparateWindow &&  /* DJ $ */
       (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
       (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || CmdLine[Length]=='/' || TestParentFolderName(CmdLine+Length)))
   {
@@ -1686,18 +1681,24 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       return(TRUE);
     }
 
-    //if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+    if(FarChDir(ExpandedDir))
     {
-      if (!FarChDir(ExpandedDir))
-        return(FALSE);
+      SetPanel->ChangeDirToCurrent();
+      if(!SetPanel->IsVisible())
+        SetPanel->SetTitle();
     }
-
-    SetPanel->ChangeDirToCurrent();
-    if (!SetPanel->IsVisible())
-      SetPanel->SetTitle();
-
+    else
+    {
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),ExpandedDir,MSG(MOk));
+    }
     return(TRUE);
   }
+  else if(!stricmp(CmdLine,"EXIT"))
+  {
+    FrameManager->ExitMainLoop(FALSE);
+    return TRUE;
+  }
+
   return(FALSE);
 }
 
