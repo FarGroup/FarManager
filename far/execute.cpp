@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "registry.hpp"
 #include "localOEM.hpp"
+#include "manager.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -1288,7 +1289,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   }
 
   // SET [переменная=[строка]]
-  if (StrCmpNI(strCmdLine,L"SET ",4)==0)
+	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpace(strCmdLine.At(3)))
   {
     size_t pos;
     string strCmd = (const wchar_t *)strCmdLine+4;
@@ -1315,16 +1316,13 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     return TRUE;
   }
 
-  if (!StrCmpNI(strCmdLine,L"REM ",4) || !StrCmpNI(strCmdLine,L"::",2))
+	else if ((!StrCmpNI(strCmdLine,L"REM",3) && IsSpace(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",2))
   {
     return TRUE;
   }
 
-  if (!StrCmpNI(strCmdLine,L"CLS",3))
+	else if (!StrCmpI(strCmdLine,L"CLS"))
   {
-    if(strCmdLine.At(3))
-      return FALSE;
-
     ClearScreen(COL_COMMANDLINEUSERSCREEN);
     return TRUE;
   }
@@ -1335,11 +1333,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     nnn   Specifies a code page number (Dec or Hex).
   Type CHCP without a parameter to display the active code page number.
   */
-  if (!StrCmpNI(strCmdLine,L"CHCP",4))
+	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpace(strCmdLine.At(4)))
   {
-    if(strCmdLine.At(4) == 0 || !(strCmdLine.At(4) == L' ' || strCmdLine.At(4) == L'\t'))
-      return(FALSE);
-
     strCmdLine = (const wchar_t*)strCmdLine+5;
 
     const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
@@ -1374,7 +1369,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
      return FALSE;
   }
 
-  if (StrCmpNI(strCmdLine,L"IF ",3)==0)
+	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpace(strCmdLine.At(2)))
   {
     const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
     // здесь PtrCmd - уже готовая команда, без IF
@@ -1393,7 +1388,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   /* $ 16.04.2002 DJ
      пропускаем обработку, если нажат Shift-Enter
   */
-  if (!SeparateWindow &&
+	else if (!SeparateWindow &&
       (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
       (IsSpace(strCmdLine.At(Length)) || IsSlash(strCmdLine.At(Length)) ||
       TestParentFolderName((const wchar_t*)strCmdLine+Length)))
@@ -1483,18 +1478,26 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       return(TRUE);
     }
 
-    //if (ExpandEnvironmentStrW(strExpandedDir,strExpandedDir)!=0)
-    {
-      if (!FarChDir(strExpandedDir))
-        return(FALSE);
-    }
-
-    SetPanel->ChangeDirToCurrent();
-    if (!SetPanel->IsVisible())
-      SetPanel->SetTitle();
-
+		if(FarChDir(strExpandedDir))
+		{
+			SetPanel->ChangeDirToCurrent();
+			if(!SetPanel->IsVisible())
+				SetPanel->SetTitle();
+		}
+		else
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
+		}
     return(TRUE);
   }
+
+
+	else if(!StrCmpI(strCmdLine,L"EXIT"))
+	{
+		FrameManager->ExitMainLoop(FALSE);
+		return TRUE;
+	}
+
   return(FALSE);
 }
 
