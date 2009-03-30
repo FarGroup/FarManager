@@ -345,6 +345,9 @@ int Help::ReadHelp(const wchar_t *Mask)
   LastStartPos = (DWORD)-1;
 
   int RealMaxLength;
+  bool MacroProcess=false;
+  int MI=0;
+  wchar_t MacroArea[64];
 
   while (TRUE)
   {
@@ -353,7 +356,7 @@ int Help::ReadHelp(const wchar_t *Mask)
     else
       RealMaxLength = MaxLength;
 
-    if (!RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==NULL)
+    if (!MacroProcess && !RepeatLastLine && !BreakProcess && ReadString(HelpFile, ReadStr,sizeof(ReadStr)/2/sizeof(wchar_t), nCodePage)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -368,6 +371,47 @@ int Help::ReadHelp(const wchar_t *Mask)
       }
       break;
     }
+
+    if(MacroProcess)
+    {
+      string strDescription;
+      string strKeyName;
+      string strOutTemp;
+
+      if(CtrlObject->Macro.GetMacroKeyInfo(true,CtrlObject->Macro.GetSubKey(MacroArea),MI,strKeyName,strDescription) == -1)
+      {
+        MacroProcess=false;
+        MI=0;
+        continue;
+      }
+      if(strKeyName.At(0) == L'~')
+      {
+        MI++;
+        continue;
+      }
+      ReplaceStrings(strKeyName,L"~",L"~~",-1);
+      ReplaceStrings(strKeyName,L"#",L"##",-1);
+      ReplaceStrings(strKeyName,L"@",L"@@",-1);
+      int SizeKeyName=20;
+      if(wcschr(strKeyName,L'~')) // корректировка размера
+        SizeKeyName++;
+
+      strOutTemp.Format(L" #%-*.*s# ",SizeKeyName,SizeKeyName,strKeyName.CPtr());
+
+      if(!strDescription.IsEmpty())
+      {
+        ReplaceStrings(strDescription,L"#",L"##",-1);
+        ReplaceStrings(strDescription,L"~",L"~~",-1);
+        ReplaceStrings(strDescription,L"@",L"@@",-1);
+        strOutTemp+=strCtrlStartPosChar;
+        strOutTemp+=TruncStrFromEnd(strDescription,300);
+      }
+
+      xwcsncpy (ReadStr, strOutTemp.CPtr(), (countof(ReadStr)));
+      MacroProcess=true;
+      MI++;
+    }
+
     RepeatLastLine=FALSE;
 
     while((Ptr=wcschr(ReadStr,L'\t')) != NULL)
@@ -437,6 +481,19 @@ m1:
         break;
       if (TopicFound)
       {
+        if(!StrCmpNI(ReadStr,L"<!Macro:",8) && CtrlObject)
+        {
+          wchar_t *LPtr=wcschr(ReadStr,L'>');
+          if(LPtr && LPtr[-1] != L'!')
+             continue;
+
+          LPtr[-1]=0;
+          xwcsncpy(MacroArea,ReadStr+8,countof(MacroArea)-1);
+          MacroProcess=true;
+          MI=0;
+          continue;
+        }
+
         /* $<text> в начале строки, определение темы
            Определяет не прокручиваемую область помощи
            Если идут несколько подряд сразу после строки обозначения темы...
