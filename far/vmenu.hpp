@@ -33,6 +33,8 @@ enum{
   VMenuColorArrows              =10,     // '<' & '>' обычные
   VMenuColorArrowsSelect        =11,     // '<' & '>' выбранные
   VMenuColorArrowsDisabled      =12,     // '<' & '>' Disabled
+  VMenuColorGrayed              =13,     // "серый"
+  VMenuColorSelGrayed           =14,     // выбранный "серый"
 
   VMENU_COLOR_COUNT,                     // всегда последн€€ - размерность массива
 };
@@ -143,13 +145,9 @@ class VMenu: public Modal
     int PrevCursorVisible;
     int PrevCursorSize;
     int PrevMacroMode;
-    /* $ 18.07.2000 SVS
-       + переменна€, отвечающа€ за отображение scrollbar в
-         DI_LISTBOX & DI_COMBOBOX
-    */
+
     BitFlags VMFlags;
     BitFlags VMOldFlags;
-    /* SVS $ */
 
     Dialog *ParentDialog;
     int DialogItemID;
@@ -167,9 +165,10 @@ class VMenu: public Modal
         если в ScreenObj уже есть этот член.
     */
 //    SaveScreen *SaveScr;
-    /* KM $ */
+
     struct MenuItem *Item;
     int ItemCount;
+    int ItemHiddenCount;
 
     int LastAddedItem;
     BYTE Colors[VMENU_COLOR_COUNT];
@@ -188,6 +187,7 @@ class VMenu: public Modal
     BOOL CheckHighlights(BYTE Chr);
     char GetHighlights(const struct MenuItem *_item);
     BOOL ShiftItemShowPos(int Pos,int Direct);
+    int RecalcItemHiddenCount();
 
   public:
     VMenu(const char *Title,
@@ -247,6 +247,7 @@ class VMenu: public Modal
     int  FindItem(int StartIndex,const char *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
+    int  GetShowItemCount() {return(ItemCount-ItemHiddenCount);};
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);
@@ -262,7 +263,6 @@ class VMenu: public Modal
        функци€, провер€юща€ корректность текущей позиции и флагов SELECTED
     */
     void AdjustSelectPos();
-    /* DJ $ */
 
     virtual void Process();
     virtual void ResizeConsole();
@@ -281,7 +281,7 @@ class VMenu: public Modal
         ћеню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
     */
     virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
-    /* KM $ */
+
     void SetMaxHeight(int NewMaxHeight);
 
     int GetVDialogItemID() const {return DialogItemID;};

@@ -38,11 +38,13 @@ static struct MenuData ListItems[]=
   (char *)MSetColorDialogListArrows,0,0,
   (char *)MSetColorDialogListArrowsSelected,0,0,
   (char *)MSetColorDialogListArrowsDisabled,0,0,
+  (char *)MSetColorDialogListGrayed,0,0,
+  (char *)MSetColorDialogSelectedListGrayed,0,0,
 };
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
-static int ListPaletteItems[4][11]=
+static int ListPaletteItems[4][13]=
 {
   // Listbox
   { // normal
@@ -57,6 +59,8 @@ static int ListPaletteItems[4][11]=
     COL_DIALOGLISTARROWS,             // Arrow
     COL_DIALOGLISTARROWSSELECTED,     // Выбранный - Arrow
     COL_DIALOGLISTARROWSDISABLED,     // Arrow disabled
+    COL_DIALOGLISTGRAY,                        // "серый"
+    COL_DIALOGLISTSELECTEDGRAYTEXT,            // выбранный "серый"
   },
   { // warn
     COL_WARNDIALOGLISTTEXT,
@@ -70,6 +74,8 @@ static int ListPaletteItems[4][11]=
     COL_WARNDIALOGLISTARROWS,                   // Arrow
     COL_WARNDIALOGLISTARROWSSELECTED,           // Выбранный - Arrow
     COL_WARNDIALOGLISTARROWSDISABLED,           // Arrow disabled
+    COL_WARNDIALOGLISTGRAY,                    // "серый"
+    COL_WARNDIALOGLISTSELECTEDGRAYTEXT,        // выбранный "серый"
   },
   // Combobox
   { // normal
@@ -84,6 +90,8 @@ static int ListPaletteItems[4][11]=
     COL_DIALOGCOMBOARROWS,                      // Arrow
     COL_DIALOGCOMBOARROWSSELECTED,              // Выбранный - Arrow
     COL_DIALOGCOMBOARROWSDISABLED,              // Arrow disabled
+    COL_DIALOGCOMBOGRAY,                       // "серый"
+    COL_DIALOGCOMBOSELECTEDGRAYTEXT,           // выбранный "серый"
   },
   { // warn
     COL_WARNDIALOGCOMBOTEXT,
@@ -97,6 +105,8 @@ static int ListPaletteItems[4][11]=
     COL_WARNDIALOGCOMBOARROWS,                  // Arrow
     COL_WARNDIALOGCOMBOARROWSSELECTED,          // Выбранный - Arrow
     COL_WARNDIALOGCOMBOARROWSDISABLED,          // Arrow disabled
+    COL_WARNDIALOGCOMBOGRAY,                   // "серый"
+    COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,       // выбранный "серый"
   },
 };
 
@@ -234,7 +244,8 @@ void SetColors()
     (char *)MSetColorMenuArrows,0,0,
     (char *)MSetColorMenuArrowsSelected,0,0,
     (char *)MSetColorMenuArrowsDisabled,0,0,
-
+    (char *)MSetColorMenuGrayed,0,0,
+    (char *)MSetColorMenuSelectedGrayed,0,0,
   };
   int MenuPaletteItems[]={
     COL_MENUTEXT,
@@ -248,6 +259,8 @@ void SetColors()
     COL_MENUARROWS,                             // Arrow
     COL_MENUARROWSSELECTED,                     // Выбранный - Arrow
     COL_MENUARROWSDISABLED,
+    COL_MENUGRAYTEXT,                          // "серый"
+    COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
   };
 
   struct MenuData HMenuItems[]=

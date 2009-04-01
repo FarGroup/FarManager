@@ -5386,6 +5386,14 @@ MSetColorDialogListTitle
 "Заголовок"
 "Title"
 
+MSetColorDialogListGrayed
+"Серый текст списка"
+"Grayed list text"
+
+MSetColorDialogSelectedListGrayed
+"Выбранный серый текст списка"
+"Selected grayed list text"
+
 MSetColorDialogListScrollBar
 "Полоса прокрутки"
 "Scrollbar"
@@ -5422,6 +5430,14 @@ MSetColorMenuSelectedHighlighted
 MSetColorMenuDisabled
 "Недоступный пункт"
 "Disabled text"
+
+MSetColorMenuGrayed
+"Серый текст"
+"Grayed text"
+
+MSetColorMenuSelectedGrayed
+"Выбранный серый текст"
+"Selected grayed text"
 
 MSetColorMenuBox
 "Рамка"
