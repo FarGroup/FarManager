@@ -1410,7 +1410,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	bool Detect=false;
 
 	if(m_codepage == CP_AUTODETECT || IsUnicodeOrUTFCP(m_codepage))
-		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound);
+		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound,Opt.EdOpt.AutoDetectCodePage!=0);
 
 	if ( m_codepage == CP_AUTODETECT )
 	{

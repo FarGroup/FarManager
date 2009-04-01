@@ -334,7 +334,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		bool Detect=false;
 		UINT CodePage=0;
 		if(VM.CodePage == CP_AUTODETECT || IsUnicodeOrUTFCP(VM.CodePage))
-			Detect=GetFileFormat(ViewFile,CodePage,&Signature);
+			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Opt.ViOpt.AutoDetectCodePage!=0);
 		if(VM.CodePage==CP_AUTODETECT)
 		{
 			if(Detect)
