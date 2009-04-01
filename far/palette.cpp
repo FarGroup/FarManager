@@ -192,6 +192,17 @@ unsigned char DefaultPalette[]=
   F_YELLOW|B_BLACK,                       // COL_MENUARROWSSELECTED,
   F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
   F_LIGHTCYAN|B_BLUE,                     // COL_EDITORSCROLLBAR,
+
+  F_DARKGRAY|B_CYAN,                      // COL_MENUGRAYTEXT,
+  F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_CYAN,                      // COL_DIALOGCOMBOGRAY,
+  F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCOMBOSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTGRAY,
+  F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGLISTSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCOMBOGRAY,
+  F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTGRAY,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
 };
 
 
@@ -351,6 +362,17 @@ unsigned char BlackPalette[]=
   F_WHITE|B_BLACK,                        // COL_MENUARROWSSELECTED,
   F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
   F_LIGHTGRAY|B_BLACK,                    // COL_EDITORSCROLLBAR,
+
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUGRAYTEXT,
+  F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGCOMBOGRAY,
+  F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCOMBOSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTGRAY,
+  F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCOMBOGRAY,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTGRAY,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
 };
 
 
@@ -375,6 +397,8 @@ int FarColorToReal(int FarColor)
 
   1.71 a4 (2468)  - 0x81
   1.80    (606)   - 0x81
+  1.75 rc1 (2555) - 0x8B
+  2.0 (848)       - 0x8B
 */
 void ConvertCurrentPalette()
 {

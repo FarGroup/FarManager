@@ -60,6 +60,8 @@ enum{
   VMenuColorArrows              =10,     // '<' & '>' обычные
   VMenuColorArrowsSelect        =11,     // '<' & '>' выбранные
   VMenuColorArrowsDisabled      =12,     // '<' & '>' Disabled
+  VMenuColorGrayed              =13,     // "серый"
+  VMenuColorSelGrayed           =14,     // выбранный "серый"
 
   VMENU_COLOR_COUNT,                     // всегда последняя - размерность массива
 };
@@ -217,6 +219,7 @@ class VMenu: public Modal
     MenuItemEx **Item;
 
     int ItemCount;
+    int ItemHiddenCount;
 
     int LastAddedItem;
 
@@ -236,6 +239,7 @@ class VMenu: public Modal
     BOOL CheckHighlights(WORD Chr);
     wchar_t GetHighlights(const struct MenuItemEx *_item);
     BOOL ShiftItemShowPos(int Pos,int Direct);
+    int RecalcItemHiddenCount();
 
   public:
 
@@ -296,6 +300,7 @@ class VMenu: public Modal
     int  FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
+    int  GetShowItemCount() {return(ItemCount-ItemHiddenCount);};
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);

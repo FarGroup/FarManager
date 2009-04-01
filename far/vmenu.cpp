@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
+#include "syslog.hpp"
 
 
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
@@ -112,6 +113,8 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
   RLen[0]=RLen[1]=0; // реальные размеры 2-х половин
 
+  VMenu::ItemHiddenCount=0;
+
   MenuItemEx NewItem;
   for (I=0; I < ItemCount; I++)
   {
@@ -133,7 +136,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
     int Length=(int)Item[I]->strName.GetLength();
     if (Length>MaxLength)
       MaxLength=Length;
-    if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&LIF_DISABLE))
+    if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&(LIF_DISABLE | LIF_HIDDEN)))
       SelectPos=I;
   }
 
@@ -256,20 +259,20 @@ void VMenu::Show()
 
 			if (Y1==-1)
 			{
-				if (MaxHeight!=0 && MaxHeight<ItemCount)
+				if (MaxHeight!=0 && MaxHeight<GetShowItemCount()) //???
 					Y1=(ScrY-MaxHeight-2)/2;
 				else
-					if ((Y1=(ScrY-ItemCount-2)/2)<0)
+					if ((Y1=(ScrY-GetShowItemCount()-2)/2)<0) // ???
 						Y1=0;
 				AutoHeight=TRUE;
 			}
 		}
 		if (Y2<=0)
 		{
-			if (MaxHeight!=0 && MaxHeight<ItemCount)
+			if (MaxHeight!=0 && MaxHeight<GetShowItemCount()) //???
 				Y2=Y1+MaxHeight+1;
 			else
-				Y2=Y1+ItemCount+1;
+				Y2=Y1+GetShowItemCount()+1; //???
 		}
 		if (Y2>ScrY)
 			Y2=ScrY;
@@ -441,9 +444,9 @@ void VMenu::ShowMenu(int IsParent)
 
   if(VMFlags.Check(VMENU_LISTBOX))
   {
-    if((!IsParent || !ItemCount))
+    if((!IsParent || !GetShowItemCount()))
     {
-      if(ItemCount)
+      if(GetShowItemCount())
         BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
       SetScreen(X1,Y1,X2,Y2,L' ',VMenu::Colors[VMenuColorBody]);
     }
@@ -467,11 +470,11 @@ void VMenu::ShowMenu(int IsParent)
       break;
   }
 
-  if (ItemCount <= 0)
+  if (GetShowItemCount() <= 0)
     return;
-  if (SelectPos<ItemCount && SelectPos>=0)
+  if (SelectPos < ItemCount && SelectPos>=0)
   {
-    if(Item[SelectPos]->Flags&LIF_DISABLE)
+    if(Item[SelectPos]->Flags&(LIF_DISABLE | LIF_HIDDEN))
       Item[SelectPos]->Flags&=~LIF_SELECTED;
     else
       Item[SelectPos]->Flags|=LIF_SELECTED;
@@ -486,9 +489,9 @@ void VMenu::ShowMenu(int IsParent)
   /* $ 21.07.2001 KM
    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
   */
-  if (SelectPos>TopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
+  if (SelectPos-ItemHiddenCount > TopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
     TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
-  if (SelectPos<TopPos)
+  if (SelectPos < TopPos)
     TopPos=SelectPos;
   if(TopPos<0)
     TopPos=0;
@@ -496,8 +499,13 @@ void VMenu::ShowMenu(int IsParent)
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
   {
     GotoXY(X1,Y);
-    if (I<ItemCount)
+    if (I < ItemCount)
     {
+      if(Item[I]->Flags&LIF_HIDDEN)
+      {
+        Y--;
+        continue;
+      }
       if (Item[I]->Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
@@ -578,9 +586,9 @@ void VMenu::ShowMenu(int IsParent)
           GotoXY(X1,Y);
 
         if ((Item[I]->Flags&LIF_SELECTED) && !(Item[I]->Flags&LIF_DISABLE))
-          SetColor(VMenu::Colors[VMenuColorSelected]);
+          SetColor(VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected]);
         else
-          SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:VMenuColorText)]);
+          SetColor(VMenu::Colors[Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:(Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)]);
 
         wchar_t Check=L' ';
         if (Item[I]->Flags&LIF_CHECKED)
@@ -615,12 +623,13 @@ void VMenu::ShowMenu(int IsParent)
         if(!(Item[I]->Flags&LIF_DISABLE))
         {
           if (Item[I]->Flags&LIF_SELECTED)
-              Col=VMenu::Colors[VMenuColorHSelect];
+              Col=VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorHSelect];
           else
-              Col=VMenu::Colors[VMenuColorHilite];
+              Col=VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorHilite];
         }
         else
           Col=VMenu::Colors[VMenuColorDisabled];
+
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
           Text(TmpStrW);
         else
@@ -640,6 +649,7 @@ void VMenu::ShowMenu(int IsParent)
         mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
 
         SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
+
         if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
         {
           GotoXY(X1+1,Y);
@@ -686,9 +696,9 @@ void VMenu::ShowMenu(int IsParent)
   {
 		SetColor(VMenu::Colors[VMenuColorScrollBar]);
 		if (BoxType!=NO_BOX)
-			ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,ItemCount);
+			ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,GetShowItemCount());
 		else
-			ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,ItemCount);
+			ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,GetShowItemCount());
   }
 }
 
@@ -716,7 +726,7 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   {
     CurItem = Item[I];
 
-    if(!(CurItem->Flags&LIF_DISABLE) &&
+    if(!(CurItem->Flags&(LIF_DISABLE|LIF_HIDDEN)) &&
        (
          (!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
          (Type && Dialog::IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))
@@ -727,7 +737,7 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
       CurItem->Flags|=LIF_SELECTED;
       SelectPos=I;
       ShowMenu(TRUE);
-      if(!VMenu::ParentDialog)
+      if(!VMenu::ParentDialog && !(Item[SelectPos]->Flags&LIF_GRAYED))
       {
         Modal::ExitCode=I;
         EndLoop=TRUE;
@@ -852,7 +862,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_C_SELECTED:
       return (__int64)(ItemCount > 0 && SelectPos >= 0);
     case MCODE_V_ITEMCOUNT:
-      return (__int64)ItemCount;
+      return (__int64)GetShowItemCount(); // ????
     case MCODE_V_CURPOS:
       return (__int64)(SelectPos+1);
 
@@ -874,6 +884,9 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         for(int I=0; I < ItemCount; ++I)
         {
           struct MenuItemEx *_item=GetItemPtr(I);
+
+          if(_item->Flags&LIF_HIDDEN) //???
+            continue;
 
           Res=0;
           RemoveExternalSpaces(HiText2Str(strTemp,_item->strName));
@@ -918,7 +931,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
       if(iParam == _i64(-1))
         iParam=(__int64)SelectPos;
 
-      if((int)iParam < ItemCount)
+      if((int)iParam < ItemCount)  //???
         return (__int64)((DWORD)GetHighlights(GetItemPtr((int)iParam)));
       return _i64(0);
     }
@@ -947,7 +960,7 @@ int VMenu::ProcessKey(int Key)
   }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  if (ItemCount==0)
+  if (GetShowItemCount()==0)
     if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9)
     {
       Modal::ExitCode=-1;
@@ -980,7 +993,7 @@ int VMenu::ProcessKey(int Key)
     {
       if(!VMenu::ParentDialog)
       {
-        if(!(Item[SelectPos]->Flags&LIF_DISABLE))
+        if(!(Item[SelectPos]->Flags&(LIF_DISABLE | LIF_HIDDEN | LIF_GRAYED)))
         {
           EndLoop=TRUE;
           Modal::ExitCode=SelectPos;
@@ -1152,7 +1165,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int MsPos,MsX,MsY;
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  if (ItemCount==0)
+  if (GetShowItemCount()==0)
   {
     if(MouseEvent->dwButtonState && MouseEvent->dwEventFlags==0)
       EndLoop=TRUE;
@@ -1229,7 +1242,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           MsPos=0;
           Delta=1;
         }
-        if(!(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&LIF_DISABLE))
+        if(!(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&(LIF_DISABLE | LIF_HIDDEN)))
           SelectPos=SetSelectPos(MsPos,Delta); //??
         ShowMenu(TRUE);
       }
@@ -1259,7 +1272,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       (MsX>=X1 && MsX<=X2 && MsY>=Y1 && MsY<=Y2))
   {
     MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
-    if (MsPos<ItemCount && !(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&LIF_DISABLE))
+    if (MsPos<ItemCount && !(Item[MsPos]->Flags&LIF_SEPARATOR) && !(Item[MsPos]->Flags&(LIF_DISABLE | LIF_HIDDEN)))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
       {
@@ -1327,6 +1340,7 @@ void VMenu::DeleteItems()
   }
   Item=NULL;
   ItemCount=0;
+  ItemHiddenCount=0;
   SelectPos=-1;
   TopPos=0;
   MaxLength=(int)Max(strTitle.GetLength(),strBottomTitle.GetLength())+2;
@@ -1390,7 +1404,7 @@ int VMenu::DeleteItem(int ID,int Count)
     /* $ 23.02.2002 DJ
        постараемся не ставить выделение на сепаратор
     */
-    while (SelectPos > 0 &&(Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    while (SelectPos > 0 &&(Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN)))
       SelectPos--;
   }
 
@@ -1421,11 +1435,23 @@ int VMenu::DeleteItem(int ID,int Count)
   if(SelectPos > -1)
 	{
 		Item[SelectPos]->Flags|=LIF_SELECTED;
-		if (Item[SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
+		if (Item[SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN))
 			VMFlags.Set(VMENU_SELECTPOSNONE);
 	}
 
+  RecalcItemHiddenCount();
   return(ItemCount);
+}
+
+int VMenu::RecalcItemHiddenCount()
+{
+  ItemHiddenCount=0;
+  for (int I=0;I<ItemCount;I++)
+  {
+    if (Item[I]->Flags&LIF_HIDDEN)
+      ItemHiddenCount++;
+  }
+  return ItemHiddenCount;
 }
 
 int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
@@ -1538,7 +1564,10 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 //    SortItems(0);
   LastAddedItem = PosAdd;
 
-  return ItemCount++;
+  ItemCount++;
+
+  RecalcItemHiddenCount();
+  return ItemCount-1;
 }
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
@@ -1602,10 +1631,11 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     /* $ 23.02.2002 DJ
        если элемент selected - поставим на него выделение
     */
-    if (PItem->Flags & LIF_SELECTED && !(PItem->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    if (PItem->Flags & LIF_SELECTED && !(PItem->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN)))
       SelectPos = NewItem->Index;
     AdjustSelectPos();
 
+    RecalcItemHiddenCount();
     return TRUE;
   }
   return FALSE;
@@ -1619,7 +1649,10 @@ int VMenu::InsertItem(const struct FarListInsert *NewItem)
   {
     MenuItemEx MItem;
     if (AddItem(FarList2MenuItem(&NewItem->Item,&MItem),NewItem->Index) >= 0)
+    {
+		RecalcItemHiddenCount();
     	return ItemCount;
+    }
   }
   return -1;
 }
@@ -1833,7 +1866,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
       }
     }
 
-    if(!(Item[Pos]->Flags&LIF_SEPARATOR) && !(Item[Pos]->Flags&LIF_DISABLE))
+    if(!(Item[Pos]->Flags&LIF_SEPARATOR) && !(Item[Pos]->Flags&(LIF_DISABLE | LIF_HIDDEN)))
       break;
 
     Pos+=Direct;
@@ -1885,12 +1918,12 @@ void VMenu::AdjustSelectPos()
 //  {
     int OldSelectPos = SelectPos;
     // если selection стоит в некорректном месте - сбросим его
-    if (SelectPos >= 0 && Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
+    if (SelectPos >= 0 && Item [SelectPos]->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN))
       SelectPos = -1;
 
     for (int i=0; i<ItemCount; i++)
     {
-      if (Item [i]->Flags & (LIF_SEPARATOR | LIF_DISABLE))
+      if (Item [i]->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN))
         Item [i]->SetSelect (FALSE);
       else
       {
@@ -2095,6 +2128,8 @@ BOOL VMenu::CheckHighlights(WORD CheckSymbol)
 
   for (int I=0; I < ItemCount; I++)
   {
+    if(Item[I]->Flags&LIF_HIDDEN) //???
+        continue;
     wchar_t Ch=GetHighlights(Item[I]);
 
     if(Ch && Upper(CheckSymbol) == Upper(Ch))
@@ -2121,13 +2156,14 @@ void VMenu::AssignHighlights(int Reverse)
     VMOldFlags.Set(VMENU_SHOWAMPERSAND);
   if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
     VMFlags.Set(VMENU_SHOWAMPERSAND);
+
   int I, Delta=Reverse ? -1:1;
   for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
   {
     wchar_t Ch=0;
     const wchar_t *Name=Item[I]->strName;
     const wchar_t *ChPtr=wcschr(Name,L'&');
-
+    // TODO: проверка на LIF_HIDDEN
     Item[I]->AmpPos=-1;
     if (ChPtr)
     {
@@ -2156,6 +2192,7 @@ void VMenu::AssignHighlights(int Reverse)
     const wchar_t *ChPtr=wcschr(Name,L'&');
     if (ChPtr==NULL || VMFlags.Check(VMENU_SHOWAMPERSAND))
     {
+      // TODO: проверка на LIF_HIDDEN
       for (int J=0; Name[J]; J++)
       {
         wchar_t Ch=Name[J];
@@ -2202,6 +2239,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGLISTARROWS,                      // Arrow
           COL_DIALOGLISTARROWSSELECTED,              // Выбранный - Arrow
           COL_DIALOGLISTARROWSDISABLED,              // Arrow Disabled
+          COL_DIALOGLISTGRAY,                        // "серый"
+          COL_DIALOGLISTSELECTEDGRAYTEXT,            // выбранный "серый"
         },
         { // VMENU_COMBOBOX
           COL_DIALOGCOMBOTEXT,                       // подложка
@@ -2217,6 +2256,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGCOMBOARROWS,                     // Arrow
           COL_DIALOGCOMBOARROWSSELECTED,             // Выбранный - Arrow
           COL_DIALOGCOMBOARROWSDISABLED,             // Arrow Disabled
+          COL_DIALOGCOMBOGRAY,                       // "серый"
+          COL_DIALOGCOMBOSELECTEDGRAYTEXT,           // выбранный "серый"
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2232,6 +2273,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUARROWS,                            // Arrow
           COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
           COL_MENUARROWSDISABLED,                    // Arrow Disabled
+          COL_MENUGRAYTEXT,                          // "серый"
+          COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
         }
       },
 
@@ -2251,6 +2294,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGLISTARROWS,                  // Arrow
           COL_WARNDIALOGLISTARROWSSELECTED,          // Выбранный - Arrow
           COL_WARNDIALOGLISTARROWSDISABLED,          // Arrow Disabled
+          COL_WARNDIALOGLISTGRAY,                    // "серый"
+          COL_WARNDIALOGLISTSELECTEDGRAYTEXT,        // выбранный "серый"
         },
         { // VMENU_COMBOBOX
           COL_WARNDIALOGCOMBOTEXT,                   // подложка
@@ -2266,6 +2311,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGCOMBOARROWS,                 // Arrow
           COL_WARNDIALOGCOMBOARROWSSELECTED,         // Выбранный - Arrow
           COL_WARNDIALOGCOMBOARROWSDISABLED,         // Arrow Disabled
+          COL_WARNDIALOGCOMBOGRAY,                   // "серый"
+          COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,       // выбранный "серый"
         },
         { // VMenu
           COL_MENUBOX,                               // подложка
@@ -2281,6 +2328,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_MENUARROWS,                            // Arrow
           COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
           COL_MENUARROWSDISABLED,                    // Arrow Disabled
+          COL_MENUGRAYTEXT,                          // "серый"
+          COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
         }
       }
     };
@@ -2380,7 +2429,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 
   // скорректируем SelectPos
   for(I=0; I < ItemCount; ++I)
-    if (Item[I]->Flags & LIF_SELECTED && !(Item[I]->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    if (Item[I]->Flags & LIF_SELECTED && !(Item[I]->Flags & (LIF_SEPARATOR | LIF_DISABLE | LIF_HIDDEN)))
     {
       SelectPos=I;
       break;

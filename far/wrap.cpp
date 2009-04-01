@@ -1063,9 +1063,8 @@ void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
 	if(li->Flags&LIF_CHECKED)        liA->Flags|=oldfar::LIF_CHECKED;
 	if(li->Flags&LIF_SEPARATOR)      liA->Flags|=oldfar::LIF_SEPARATOR;
 	if(li->Flags&LIF_DISABLE)        liA->Flags|=oldfar::LIF_DISABLE;
-#ifdef FAR_USE_INTERNALS
 	if(li->Flags&LIF_GRAYED)         liA->Flags|=oldfar::LIF_GRAYED;
-#endif // END FAR_USE_INTERNALS
+	if(li->Flags&LIF_HIDDEN)         liA->Flags|=oldfar::LIF_HIDDEN;
 	if(li->Flags&LIF_DELETEUSERDATA) liA->Flags|=oldfar::LIF_DELETEUSERDATA;
 }
 
@@ -1126,9 +1125,8 @@ void AnsiListItemToUnicode(oldfar::FarListItem* liA, FarListItem* li)
 	if(liA->Flags&oldfar::LIF_CHECKED)        li->Flags|=LIF_CHECKED;
 	if(liA->Flags&oldfar::LIF_SEPARATOR)      li->Flags|=LIF_SEPARATOR;
 	if(liA->Flags&oldfar::LIF_DISABLE)        li->Flags|=LIF_DISABLE;
-#ifdef FAR_USE_INTERNALS
 	if(liA->Flags&oldfar::LIF_GRAYED)         li->Flags|=LIF_GRAYED;
-#endif // END FAR_USE_INTERNALS
+	if(liA->Flags&oldfar::LIF_HIDDEN)         li->Flags|=LIF_HIDDEN;
 	if(liA->Flags&oldfar::LIF_DELETEUSERDATA) li->Flags|=LIF_DELETEUSERDATA;
 }
 

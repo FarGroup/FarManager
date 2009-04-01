@@ -10542,6 +10542,22 @@ MSetColorDialogListTitle
 "Keret neve"
 "Tytuł"
 
+MSetColorDialogListGrayed
+"Серый текст списка"
+"Grayed list text"
+upd:"Grayed list text"
+upd:"Grayed list text"
+upd:"Grayed list text"
+upd:"Grayed list text"
+
+MSetColorDialogSelectedListGrayed
+"Выбранный серый текст списка"
+"Selected grayed list text"
+upd:"Selected grayed list text"
+upd:"Selected grayed list text"
+upd:"Selected grayed list text"
+upd:"Selected grayed list text"
+
 MSetColorDialogListScrollBar
 "Полоса прокрутки"
 "Scrollbar"
@@ -10614,6 +10630,22 @@ MSetColorMenuDisabled
 "Disabled text"
 "Inaktív szöveg"
 "Tekst nieaktywny"
+
+MSetColorMenuGrayed
+"Серый текст"
+"Grayed text"
+upd:"Grayed text"
+upd:"Grayed text"
+upd:"Grayed text"
+upd:"Grayed text"
+
+MSetColorMenuSelectedGrayed
+"Выбранный серый текст"
+"Selected grayed text"
+upd:"Selected grayed text"
+upd:"Selected grayed text"
+upd:"Selected grayed text"
+upd:"Selected grayed text"
 
 MSetColorMenuBox
 "Рамка"
