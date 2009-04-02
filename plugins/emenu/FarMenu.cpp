@@ -24,33 +24,6 @@ CFarMenu::CFarMenu(LPCTSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
 {
   m_pfmi=new FarMenuItemEx[nMaxItems];
   m_pbHasSubMenu=new bool[nMaxItems];
-
-  // Это кривоватый способ вычисления макс. ширины
-  // Хотелось бы от FARа получать эту инфу...
-#ifndef UNICODE
-  const unsigned nArrowLen=ArraySize(m_szArrow);
-  m_nMaxTextLen=ArraySize(m_pfmi->Text.Text)-nArrowLen;
-#else
-  m_nMaxTextLen=14; // for assert :)
-#endif
-  HANDLE hStdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  if (INVALID_HANDLE_VALUE!=hStdOutput
-    && GetConsoleScreenBufferInfo(hStdOutput, &csbi))
-  {
-#ifndef UNICODE
-    m_nMaxTextLen=min(m_nMaxTextLen, csbi.dwSize.X-4*2+1-nArrowLen);
-#else
-    m_nMaxTextLen=max(14u+8u,csbi.dwSize.X)-8;
-#endif
-  }
-  else
-  {
-    assert(0);
-  }
-#ifdef UNICODE
-  if((int)m_nMaxTextLen < 14) m_nMaxTextLen= 14;
-#endif
 }
 
 CFarMenu::~CFarMenu()
@@ -94,15 +67,14 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCTSTR szText
   if (szText)
   {
 #ifndef UNICODE
-    lstrcpyn(m_pfmi[nIndex].Text.Text, szText, m_nMaxTextLen);
+    lstrcpyn(m_pfmi[nIndex].Text.Text, szText, sizeof(m_pfmi[nIndex].Text.Text));
 #else
-    size_t  textLen = lstrlen(szText);
-    if(!textLen)
+    if(!*szText)
       m_pfmi[nIndex].Text=&empty_wstr;
-    else {
-      if(textLen > m_nMaxTextLen) textLen = m_nMaxTextLen;
-      m_pfmi[nIndex].Text = new wchar_t[textLen+1];
-      wcsncpy((wchar_t *)m_pfmi[nIndex].Text, szText, textLen+1);
+    else
+	{
+      m_pfmi[nIndex].Text = new wchar_t[lstrlen(szText)+1];
+      lstrcpy((wchar_t *)m_pfmi[nIndex].Text,szText);
     }
 #endif
   }

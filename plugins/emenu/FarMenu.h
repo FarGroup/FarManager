@@ -31,7 +31,6 @@ protected:
   LPCTSTR m_szArrow;
   bool* m_pbHasSubMenu;
   enum {MAX_HEIGHT=45};
-  unsigned m_nMaxTextLen;
 };
 
 #endif
