@@ -56,16 +56,16 @@ class TList
     DWORD size() const { return Size; }
 
     // возвращает TRUE, если список пуст
-    BOOL empty() const { return !Size; }
+    bool empty() const { return !Size; }
 
     //  получить указатель на текущий элемент списка (возвращает NULL при неудаче)
     const Object *getItem() { return Current?&Current->Item:NULL; }
 
     // возвращает TRUE, если текущая позиция установлена на первый элемент
-    BOOL isBegin() const { return Current==First; }
+    bool isBegin() const { return Current==First; }
 
     // возвращает TRUE, если текущая позиция установлена на последний элемент
-    BOOL isEnd() const { return Current==Last; }
+    bool isEnd() const { return Current==Last; }
 
     // идти в начало списка и вернуть указатель на первый элемент
     // Возвращается NULL, если список пуст
@@ -102,9 +102,8 @@ class TList
     // добавить элемент в начало списка
     // текущая позиция при успехе устанавливается на этот элемент
     // при неудаче возвращается FALSE
-    BOOL push_front(const Object &Source)
+    bool push_front(const Object &Source)
     {
-      SavedPos=NULL;
       Tmp=new OneItem;
       if(Tmp) // сработает, если не будет исключения
       {
@@ -117,17 +116,16 @@ class TList
         if(!Last) // список до операции был пуст
           Last=First;
         ++Size;
-        return TRUE;
+        return true;
       }
-      return FALSE;
+      return false;
     }
 
     // добавить элемент в конец списка
     // текущая позиция при успехе устанавливается на этот элемент
     // при неудаче возвращается FALSE
-    BOOL push_back(const Object &Source)
+    bool push_back(const Object &Source)
     {
-      SavedPos=NULL;
       Tmp=new OneItem;
       if(Tmp) // сработает, если не будет исключения
       {
@@ -140,20 +138,19 @@ class TList
         if(!First) // список до операции был пуст
           First=Last;
         ++Size;
-        return TRUE;
+        return true;
       }
-      return FALSE;
+      return false;
     }
 
     // вставить элемент после текущей позиции в списке
     // если текущая позиция не определена, то элемент добавляется в конец списка (=push_back)
     // текущая позиция при успехе устанавливается на новый элемент
     // при неудаче возвращается FALSE
-    BOOL insert(const Object &Source)
+    bool insert(const Object &Source)
     {
       if(!Current)
         return push_back(Source);
-      SavedPos=NULL;
       Tmp=new OneItem;
       if(Tmp) // сработает, если не будет исключения
       {
@@ -163,16 +160,18 @@ class TList
         Tmp->Next=Current->Next;
         Tmp->Prev=Current;
         Current->Next=Tmp;
+        if (Tmp->Next)
+        	Tmp->Next->Prev=Tmp;
         Current=Tmp;
         ++Size;
-        return TRUE;
+        return true;
       }
-      return FALSE;
+      return false;
     }
 
     // удалить элемент, текущая позиция устанавливается на следующий элемент
     // если текущая позиция до операции не определена, то возвращается FALSE
-    BOOL removeToEnd()
+    bool removeToEnd()
     {
       SavedPos=NULL;
       if (Current)
@@ -180,22 +179,26 @@ class TList
         if(isEnd())
           Last=Last->Prev;
         Tmp=Current->Next;
+        if (Current->Next)
+        	Current->Next->Prev = Current->Prev;
+        if (Current->Prev)
+					Current->Prev->Next = Current->Next;
         delete Current;
         Current=Tmp;
         --Size;
         if(!Size)
           First=Last=NULL;
-        return TRUE;
+        return true;
       }
-      return FALSE;
+      return false;
     }
 
     // синоним removeToEnd
-    BOOL erase() { return removeToEnd(); }
+    bool erase() { return removeToEnd(); }
 
     // удалить элемент, текущая позиция устанавливается на предыдущий элемент
     // если текущая позиция до операции не определена, то возвращается FALSE
-    BOOL removeToBegin()
+    bool removeToBegin()
     {
       SavedPos=NULL;
       if (Current)
@@ -203,14 +206,18 @@ class TList
         if(isBegin())
           First=First->Next;
         Tmp=Current->Prev;
+        if (Current->Next)
+        	Current->Next->Prev = Current->Prev;
+        if (Current->Prev)
+					Current->Prev->Next = Current->Next;
         delete Current;
         Current=Tmp;
         --Size;
         if(!Size)
           First=Last=NULL;
-        return TRUE;
+        return true;
       }
-      return FALSE;
+      return true;
     }
 
     // замещает список на содержимое списка lst и наоборот
@@ -231,7 +238,7 @@ class TList
     // сохранить текущую позицию (см. restorePosition) для последующего
     // восстановления. Возвращается FALSE, если текущая позиция была
     // неопределенной
-    BOOL storePosition()
+    bool storePosition()
     {
       SavedPos=Current;
       return SavedPos!=NULL;
@@ -240,7 +247,7 @@ class TList
     // восстановить текущую позицию (см. storePosition) для последующего
     // восстановления. Возвращается FALSE, если текущая позиция стала
     // неопределенной
-    BOOL restorePosition()
+    bool restorePosition()
     {
       Current=SavedPos;
       return Current!=NULL;

@@ -65,12 +65,12 @@ ControlObject::ControlObject()
 
   CmdLine=new CommandLine;
 
-  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory",&Opt.SaveHistory,false);
+  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,L"SavedFolderHistory",&Opt.SaveFoldersHistory,true);
+  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,L"SavedViewHistory",&Opt.SaveViewHistory,true);
 
-  FolderHistory->SetAddMode(TRUE,2,TRUE);
-  ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
+  FolderHistory->SetAddMode(true,2,true);
+  ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
   if (Opt.SaveHistory)
     CmdHistory->ReadHistory();
   if (Opt.SaveFoldersHistory)

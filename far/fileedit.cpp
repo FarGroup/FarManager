@@ -1900,8 +1900,7 @@ void FileEditor::OnDestroy()
 {
   _OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
   if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,MSG(MNewFileName)))
-    CtrlObject->ViewHistory->AddToHistory(strFullFileName,MSG(MHistoryEdit),
-                  (m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
+    CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
   {
     CtrlObject->Plugins.CurEditor=NULL;

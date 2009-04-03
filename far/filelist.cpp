@@ -2142,8 +2142,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     string strInfoCurDir=Info.CurDir;
     string strInfoFormat=Info.Format;
     string strInfoHostFile=Info.HostFile;
-    CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,strInfoFormat,1,
-                               (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
+    CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,1,strInfoFormat,
+                               (Info.Flags & OPIF_REALNAMES)?false:(Opt.SavePluginFoldersHistory?false:true));
 
     /* $ 25.04.01 DJ
        при неудаче SetDirectory не сбрасываем выделение

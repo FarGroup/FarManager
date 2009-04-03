@@ -245,7 +245,7 @@ int CommandLine::ProcessKey(int Key)
         if (SelectType == 1 || SelectType == 2 || SelectType == 6)
         {
           if (SelectType==2)
-            CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
+            CtrlObject->FolderHistory->SetAddMode(false,2,true);
           // пусть плагин сам прыгает... ;-)
           Panel *Panel=CtrlObject->Cp()->ActivePanel;
           if(SelectType == 6)
@@ -261,7 +261,7 @@ int CommandLine::ProcessKey(int Key)
             {
               Panel->SetCurDir(strStr,Type==0 ? TRUE:FALSE);
               Panel->Redraw();
-              CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
+              CtrlObject->FolderHistory->SetAddMode(true,2,true);
             }
           }
         }
@@ -551,10 +551,9 @@ void CommandLine::GetPrompt(string &strDestStr)
 void CommandLine::ShowViewEditHistory()
 {
   string strStr;
-  string strItemTitle;
   int Type;
 
-  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type,&strItemTitle);
+  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type);
   /*
      SelectType = 0 - Esc
                   1 - Enter
@@ -565,8 +564,8 @@ void CommandLine::ShowViewEditHistory()
   if (SelectType == 1 || SelectType == 2)
   {
     if (SelectType!=2)
-      CtrlObject->ViewHistory->AddToHistory(strStr,strItemTitle,Type);
-    CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
+      CtrlObject->ViewHistory->AddToHistory(strStr,Type);
+    CtrlObject->ViewHistory->SetAddMode(false,Opt.FlagPosixSemantics?1:2,true);
 
     switch(Type)
     {
@@ -605,7 +604,7 @@ void CommandLine::ShowViewEditHistory()
         break;
       }
     }
-    CtrlObject->ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
+    CtrlObject->ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
   }
   else
     if (SelectType==3) // скинуть из истории в ком.строку?

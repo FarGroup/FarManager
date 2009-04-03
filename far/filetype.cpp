@@ -375,7 +375,7 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
     if (!ExtractIfExistCommand (strFullExecStr))
       return;
 
-    CtrlObject->ViewHistory->AddToHistory(strFullExecStr,MSG(MHistoryExt),(AlwaysWaitFinish&1)+2);
+    CtrlObject->ViewHistory->AddToHistory(strFullExecStr,(AlwaysWaitFinish&1)+2);
 
     if ( strExecStr.At(0) != L'@')
       CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish);
