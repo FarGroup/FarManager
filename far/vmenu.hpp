@@ -208,11 +208,11 @@ class VMenu: public Modal
     int DialogItemID;
     FARWINDOWPROC VMenuProc;      // функция обработки меню
 
-    short RLen[2];                // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
     ConsoleTitle *OldTitle;     // предыдущий заголовок
 
     CriticalSection CS;
+		bool *Used;
 
   protected:
 

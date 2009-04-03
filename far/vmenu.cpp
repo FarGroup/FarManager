@@ -111,8 +111,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   */
   MaxLength=(int)strTitle.GetLength ()+2;
 
-  RLen[0]=RLen[1]=0; // реальные размеры 2-х половин
-
   VMenu::ItemHiddenCount=0;
 
   MenuItemEx NewItem;
@@ -165,9 +163,9 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
   if (!VMFlags.Check(VMENU_LISTBOX))
     FrameManager->ModalizeFrame(this);
+
+	Used=new bool[WCHAR_MAX];
 }
-
-
 
 VMenu::~VMenu()
 {
@@ -175,6 +173,8 @@ VMenu::~VMenu()
     CtrlObject->Macro.SetMode(PrevMacroMode);
   Hide();
   DeleteItems();
+	delete[] Used;
+
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
   SetCursorType(PrevCursorVisible,PrevCursorSize);
@@ -1530,38 +1530,6 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
     //SelectPos=0;
   }
 
-  // Вычисление размеров
-  int I=0, J=0;
-  wchar_t Chr;
-  const wchar_t *NamePtr=Item[PosAdd]->strName;
-  while((Chr=NamePtr[I]) != 0)
-  {
-    if(Chr != L'&' && Chr != L'\t')
-      J++;
-    else
-    {
-      if(Chr != L'&')
-        Item[PosAdd]->Idx2=++J;
-      else if(Item[PosAdd]->AmpPos != -1)
-        Item[PosAdd]->AmpPos=J;
-    }
-    ++I;
-  }
-
-  Item[PosAdd]->Len[0]=StrLength(NamePtr)-Item[PosAdd]->Idx2; //??
-  if(Item[PosAdd]->Idx2)
-    Item[PosAdd]->Len[1]=StrLength(&NamePtr[Item[PosAdd]->Idx2]);
-
-  // Уточнение общих размеров
-  if(RLen[0] < Item[PosAdd]->Len[0])
-    RLen[0]=Item[PosAdd]->Len[0];
-  if(RLen[1] < Item[PosAdd]->Len[1])
-    RLen[1]=Item[PosAdd]->Len[1];
-
-  if(VMFlags.Check(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
-    AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
-//  if(VMFlags.Check(VMENU_LISTBOXSORT))
-//    SortItems(0);
   LastAddedItem = PosAdd;
 
   ItemCount++;
@@ -2142,8 +2110,7 @@ void VMenu::AssignHighlights(int Reverse)
 {
   CriticalSectionLock Lock(CS);
 
-	LPWORD Used=new WORD[65536]; //BUGBUG
-	memset(Used,0,65536);
+	memset(Used,0,WCHAR_MAX);
 
   /* $ 02.12.2001 KM
      + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной
@@ -2178,8 +2145,8 @@ void VMenu::AssignHighlights(int Reverse)
 
     if(Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
     {
-      Used[Upper(Ch)]++;
-      Used[Lower(Ch)]++;
+      Used[Upper(Ch)]=true;
+      Used[Lower(Ch)]=true;
       Item[I]->AmpPos=(int)(ChPtr-Name);
     }
   }
@@ -2199,8 +2166,8 @@ void VMenu::AssignHighlights(int Reverse)
         if((Ch ==L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) &&
              !Used[Upper(Ch)] && !Used[Lower(Ch)])
         {
-          Used[Upper(Ch)]++;
-          Used[Lower(Ch)]++;
+          Used[Upper(Ch)]=true;
+          Used[Lower(Ch)]=true;
           Item[I]->AmpPos=J;
           break;
         }
@@ -2210,7 +2177,6 @@ void VMenu::AssignHighlights(int Reverse)
 //_SVS(SysLogDump("Used Post",0,Used,sizeof(Used),NULL));
   VMFlags.Set(VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0));
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
-	delete[] Used;
 }
 
 void VMenu::SetColors(struct FarListColors *Colors)
