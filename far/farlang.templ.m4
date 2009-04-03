@@ -11574,13 +11574,13 @@ MPreparingForPrinting
 "Fájlok előkészítése nyomtatáshoz"
 "Przygotowuję plik(i) do drukowania"
 
-MJobs
-"заданий"
-"jobs"
-"úlohy"
-"Aufträge"
-"feladat"
-"zadania"
+MCannotEnumeratePrinters
+"Не удалось получить список доступных принтеров"
+"Cannot enumerate available printers list"
+upd:"Cannot enumerate available printers list"
+upd:"Cannot enumerate available printers list"
+upd:"Cannot enumerate available printers list"
+upd:"Cannot enumerate available printers list"
 
 MCannotOpenPrinter
 "Не удалось открыть принтер"

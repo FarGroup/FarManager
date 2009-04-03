@@ -34,8 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
-
 #include "lang.hpp"
 #include "panel.hpp"
 #include "vmenu.hpp"
@@ -45,10 +43,43 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 
-static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
-                              int PrinterNumber);
+#define PRINTER_INFO_LEVEL 4
+#define GENERATE_PRINTER_INFO(prefix, value, suffix) prefix##value##suffix
+#define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level, W)
+#define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
 
-static int DefaultPrinterFound;
+static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterNumber)
+{
+	// ѕолучаем принтер по умолчанию
+	string strDefaultPrinter;
+	DWORD pcchBuffer = 0;
+	if (!GetDefaultPrinterW(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
+	{
+		strDefaultPrinter.SetLength(pcchBuffer);
+		if (!GetDefaultPrinterW(strDefaultPrinter.GetBuffer(), &pcchBuffer))
+			strDefaultPrinter = L"";
+	}
+	// Ёлемент меню
+	MenuItemEx Item;
+	// ѕризнак наличи€ принтера по умолчанию
+	bool bDefaultPrinterFound = false;
+	// «аполн€ем список принтеров
+	for (int i=0; i<PrinterNumber; i++)
+	{
+		PRINTER_INFO *printer = &pi[i];
+		Item.Clear();
+		Item.strName = printer->pPrinterName;
+		if (!StrCmp(printer->pPrinterName, strDefaultPrinter))
+		{
+			bDefaultPrinterFound = true;
+			Item.SetCheck(TRUE);
+			Item.SetSelect(TRUE);
+		}
+		PrinterList->SetUserData((void *)printer->pPrinterName,0,PrinterList->AddItem(&Item));
+	}
+	if (!bDefaultPrinterFound)
+		PrinterList->SetSelectPos(0, 1);
+}
 
 static void PR_PrintMsg(void)
 {
@@ -85,16 +116,16 @@ void PrintFiles(Panel *SrcPanel)
   if (DirsCount==SelCount)
     return;
 
-  DefaultPrinterFound=FALSE;
-
-  const int pi_count=1024;
-  PRINTER_INFO_2W *pi=new PRINTER_INFO_2W[pi_count];
-
-  if (pi==NULL || !EnumPrintersW(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&Returned))
-  {
-    delete[] pi;
-    return;
-  }
+	PRINTER_INFO *pi = NULL;
+	if (EnumPrintersW(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,NULL,0,&Needed,&Returned) || Needed<=0)
+		return;
+	pi = (PRINTER_INFO *)xf_malloc(Needed);
+	if (!EnumPrintersW(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
+	{
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
+		xf_free(pi);
+		return;
+	}
 
   {
     _ALGO(CleverSysLog clv2(L"Show Menu"));
@@ -122,18 +153,11 @@ void PrintFiles(Panel *SrcPanel)
 
     AddToPrintersMenu(&PrinterList,pi,Returned);
 
-    DWORD NetReturned;
-    if (EnumPrintersW(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2W),&Needed,&NetReturned))
-    {
-      AddToPrintersMenu(&PrinterList,pi,NetReturned);
-      Returned+=NetReturned;
-    }
-
     PrinterList.Process();
     PrinterNumber=PrinterList.Modal::GetExitCode();
     if (PrinterNumber<0)
     {
-      delete[] pi;
+      xf_free(pi);
       _ALGO(SysLog(L"ESC"));
       return;
     }
@@ -152,7 +176,7 @@ void PrintFiles(Panel *SrcPanel)
   {
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
             strPrinterName,MSG(MOk));
-    delete[] pi;
+    xf_free(pi);
     _ALGO(SysLog(L"Error: Cannot Open Printer"));
     return;
   }
@@ -241,36 +265,5 @@ void PrintFiles(Panel *SrcPanel)
     ClosePrinter(hPrinter);
   }
   SrcPanel->Redraw();
-  delete[] pi;
-}
-
-
-static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2W *pi,
-                              int PrinterNumber)
-{
-  int IDItem;
-  for (int I=0;I<PrinterNumber;I++)
-  {
-    string strMenuText, strPrinterName;
-    MenuItemEx ListItem;
-    ListItem.Clear ();
-
-    strPrinterName = pi[I].pPrinterName;
-
-    strMenuText.Format (L"%-22.22s %c %-10s %3d %s  %s", (const wchar_t*)strPrinterName,BoxSymbols[BS_V1],
-            NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
-            NullToEmpty(pi[I].pComment));
-
-    ListItem.strName = strMenuText;
-    if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
-    {
-      DefaultPrinterFound=TRUE;
-      ListItem.SetSelect(TRUE);
-    }
-    else
-      ListItem.SetSelect(FALSE);
-    IDItem=PrinterList->AddItem(&ListItem);
-    // ј вот теперь добавим данные дл€ этого пункта (0 - передаем строку)
-    PrinterList->SetUserData((void *)NullToEmpty(pi[I].pPrinterName),0,IDItem);
-  }
+  xf_free(pi);
 }
