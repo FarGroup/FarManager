@@ -1487,8 +1487,6 @@ void PluginA::FreePluginInfo()
 
 void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 {
-#define ANSI_MARK
-
 	FreePluginInfo();
 
 	PI.StructSize = sizeof(PI);
@@ -1498,16 +1496,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.DiskMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.DiskMenuStringsNumber; i++)
-#ifdef ANSI_MARK
-		{
-			string strLabel=Src.DiskMenuStrings[i];
-			strLabel+=L" [A]";
-			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
-			wcscpy(p[i],strLabel);
-		}
-#else
 			p[i] = AnsiToUnicode(Src.DiskMenuStrings[i]);
-#endif
 		PI.DiskMenuStrings = p;
 		PI.DiskMenuNumbers = Src.DiskMenuNumbers;
 		PI.DiskMenuStringsNumber = Src.DiskMenuStringsNumber;
@@ -1516,16 +1505,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginMenuStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginMenuStringsNumber; i++)
-#ifdef ANSI_MARK
-		{
-			string strLabel=Src.PluginMenuStrings[i];
-			strLabel+=L" [A]";
-			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
-			wcscpy(p[i],strLabel);
-		}
-#else
 			p[i] = AnsiToUnicode(Src.PluginMenuStrings[i]);
-#endif
 		PI.PluginMenuStrings = p;
 		PI.PluginMenuStringsNumber = Src.PluginMenuStringsNumber;
   }
@@ -1533,16 +1513,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 	{
 		wchar_t **p = (wchar_t **) xf_malloc(Src.PluginConfigStringsNumber*sizeof(wchar_t*));
 		for (int i=0; i<Src.PluginConfigStringsNumber; i++)
-#ifdef ANSI_MARK
-		{
-			string strLabel=Src.PluginConfigStrings[i];
-			strLabel+=L" [A]";
-			p[i]=(wchar_t*)xf_malloc((strLabel.GetLength()+1)*sizeof(wchar_t));
-			wcscpy(p[i],strLabel);
-		}
-#else
 			p[i] = AnsiToUnicode(Src.PluginConfigStrings[i]);
-#endif
 		PI.PluginConfigStrings = p;
 		PI.PluginConfigStringsNumber = Src.PluginConfigStringsNumber;
   }

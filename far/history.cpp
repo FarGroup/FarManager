@@ -151,7 +151,7 @@ bool History::SaveHistory()
 	HKEY hKey = NULL;
 
 	wchar_t *BufferLines=NULL, *PtrBuffer;
-	DWORD SizeLines=0, SizeTypes=0;
+	size_t SizeLines=0, SizeTypes=0;
 
 	HistoryList.storePosition();
 
@@ -182,10 +182,10 @@ bool History::SaveHistory()
 	hKey=CreateRegKey(strRegKey);
 	if (hKey!=NULL)
 	{
-		RegSetValueExW(hKey,L"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines*sizeof(wchar_t));
+		RegSetValueExW(hKey,L"Lines",0,REG_BINARY,(unsigned char *)BufferLines,static_cast<DWORD>(SizeLines*sizeof(wchar_t)));
 
 		if (SaveType)
-			RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,(SizeTypes+1)*sizeof(wchar_t));
+			RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,static_cast<DWORD>((SizeTypes+1)*sizeof(wchar_t)));
 
 		RegSetValueExW(hKey,L"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
 

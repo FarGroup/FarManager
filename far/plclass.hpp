@@ -38,6 +38,8 @@ public:
 
 	virtual ~Plugin () { }
 
+	virtual bool IsOemPlugin() = 0;
+
 	virtual int Load() = 0;
 	virtual int LoadFromCache(bool bCheckID = false) = 0;
 

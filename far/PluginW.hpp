@@ -124,6 +124,8 @@ public:
 	PluginW (PluginManager *owner, const wchar_t *lpwzModuleName);
 	~PluginW ();
 
+	bool IsOemPlugin() {return false;}
+
 	int Load();
 	int LoadFromCache(bool bCheckID = false);
 

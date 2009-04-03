@@ -527,6 +527,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						item->pPlugin = pPlugin;
 						item->nItem = PluginItem;
 
+						if(pPlugin->IsOemPlugin())
+							OneItem.Item.Flags=LIF_CHECKED|L'A';
+
 						OneItem.Item.strName = strMenuText;
 
 						OneItem.Item.UserDataSize=sizeof (PanelMenuItem);
