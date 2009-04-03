@@ -55,9 +55,9 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 	DWORD pcchBuffer = 0;
 	if (!GetDefaultPrinterW(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
 	{
-		strDefaultPrinter.SetLength(pcchBuffer);
-		if (!GetDefaultPrinterW(strDefaultPrinter.GetBuffer(), &pcchBuffer))
+		if (!GetDefaultPrinterW(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
 			strDefaultPrinter = L"";
+		strDefaultPrinter.ReleaseBuffer();
 	}
 	// Ёлемент меню
 	MenuItemEx Item;
