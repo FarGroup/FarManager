@@ -89,8 +89,6 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   /* DJ $ */
   /* SVS $ */
 
-  RLen[0]=RLen[1]=0; // реальные размеры 2-х половин
-
   VMenu::ItemHiddenCount=0;
 
   struct MenuItem NewItem;
@@ -1520,38 +1518,6 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     //SelectPos=0;
   }
 
-  // Вычисление размеров
-  int I=0, J=0;
-  char Chr;
-  const char *NamePtr=Item[PosAdd].PtrName();
-  while((Chr=NamePtr[I]) != 0)
-  {
-    if(Chr != '&' && Chr != '\t')
-      J++;
-    else
-    {
-      if(Chr != '&')
-        Item[PosAdd].Idx2=++J;
-      else if(Item[PosAdd].AmpPos != -1)
-        Item[PosAdd].AmpPos=J;
-    }
-    ++I;
-  }
-
-  Item[PosAdd].Len[0]=(int)strlen(NamePtr)-Item[PosAdd].Idx2; //??
-  if(Item[PosAdd].Idx2)
-    Item[PosAdd].Len[1]=(int)strlen(&NamePtr[Item[PosAdd].Idx2]);
-
-  // Уточнение общих размеров
-  if(RLen[0] < Item[PosAdd].Len[0])
-    RLen[0]=Item[PosAdd].Len[0];
-  if(RLen[1] < Item[PosAdd].Len[1])
-    RLen[1]=Item[PosAdd].Len[1];
-
-  if(VMFlags.Check(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
-    AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
-//  if(VMFlags.Check(VMENU_LISTBOXSORT))
-//    SortItems(0);
   LastAddedItem = PosAdd;
 
   ItemCount++;
