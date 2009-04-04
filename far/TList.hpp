@@ -222,7 +222,7 @@ class TList
 					First=Last=NULL;
 				return true;
 			}
-			return true;
+			return false;
 		}
 
 		// замещает список на содержимое списка lst и наоборот
