@@ -2418,7 +2418,7 @@ l:
 "Cannot copy the file"
 "Nelze kopírovat soubor"
 "Folgende Datei kann nicht kopiert werden:"
-"A fájl:"
+"A fájl"
 "Nie można skopiować pliku"
 
 MCannotCopyFileToItself2
@@ -10547,7 +10547,7 @@ MSetColorDialogListGrayed
 "Grayed list text"
 upd:"Grayed list text"
 upd:"Grayed list text"
-upd:"Grayed list text"
+"Szürke listaszöveg"
 upd:"Grayed list text"
 
 MSetColorDialogSelectedListGrayed
@@ -10555,7 +10555,7 @@ MSetColorDialogSelectedListGrayed
 "Selected grayed list text"
 upd:"Selected grayed list text"
 upd:"Selected grayed list text"
-upd:"Selected grayed list text"
+"Kijelölt szürke listaszöveg"
 upd:"Selected grayed list text"
 
 MSetColorDialogListScrollBar
@@ -10636,7 +10636,7 @@ MSetColorMenuGrayed
 "Grayed text"
 upd:"Grayed text"
 upd:"Grayed text"
-upd:"Grayed text"
+"Szürke szöveg"
 upd:"Grayed text"
 
 MSetColorMenuSelectedGrayed
@@ -10644,7 +10644,7 @@ MSetColorMenuSelectedGrayed
 "Selected grayed text"
 upd:"Selected grayed text"
 upd:"Selected grayed text"
-upd:"Selected grayed text"
+"Kijelölt szürke szöveg"
 upd:"Selected grayed text"
 
 MSetColorMenuBox
@@ -11579,7 +11579,7 @@ MCannotEnumeratePrinters
 "Cannot enumerate available printers list"
 upd:"Cannot enumerate available printers list"
 upd:"Cannot enumerate available printers list"
-upd:"Cannot enumerate available printers list"
+"Az elérhető nyomtatók listája nem állítható össze"
 upd:"Cannot enumerate available printers list"
 
 MCannotOpenPrinter
