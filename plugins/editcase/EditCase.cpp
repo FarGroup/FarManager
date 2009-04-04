@@ -107,10 +107,17 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
        // Forever :-) (Line processing loop)
        for(;;)
        {
+         if (IsBlock)
+         {
+           if (CurLine >= ei.TotalLines)
+             break;
+           struct EditorSetPosition esp = {CurLine++,-1,-1,-1,-1,-1};
+           Info.EditorControl(ECTL_SETPOSITION,&esp);
+         }
+
          struct EditorGetString egs;
 
-         // Increase CurLine
-         egs.StringNumber=CurLine++;
+         egs.StringNumber=-1;
 
          // If can't get line
          if (!Info.EditorControl(ECTL_GETSTRING,&egs))
@@ -193,7 +200,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
              // Put converted string to editor
              struct EditorSetString ess;
-             ess.StringNumber=egs.StringNumber;
+             ess.StringNumber=-1;
              ess.StringText=NewString;
              ess.StringEOL=(TCHAR*)egs.StringEOL;
              ess.StringLength=egs.StringLength;
@@ -219,6 +226,12 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
          if(!IsBlock)
              break;
        }
+       if (IsBlock)
+       {
+         struct EditorSetPosition esp = {ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
+         Info.EditorControl(ECTL_SETPOSITION,&esp);
+       }
+
   }; // switch
 
   return(INVALID_HANDLE_VALUE);
