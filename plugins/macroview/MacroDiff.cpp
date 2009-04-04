@@ -256,12 +256,12 @@ LONG_PTR WINAPI MacroDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
       Info.DialogEx(Info.ModuleNumber,-1,-1,40,5,NULL,Macro->DefKeyDialog,
                     ArraySize(Macro->DefKeyDialog),0,0,DefKeyDialogProc,0);
 #else
-      HANDLE hDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,40,5,NULL,Macro->DefKeyDialog,
+      HANDLE hDefKeyDlg = Info.DialogInit(Info.ModuleNumber,-1,-1,40,5,NULL,Macro->DefKeyDialog,
                       ArraySize(Macro->DefKeyDialog),0,0,DefKeyDialogProc,0);
-      if (hDlg != INVALID_HANDLE_VALUE)
+      if (hDefKeyDlg != INVALID_HANDLE_VALUE)
       {
-        Info.DialogRun(hDlg);
-        Info.DialogFree(hDlg);
+        Info.DialogRun(hDefKeyDlg);
+        Info.DialogFree(hDefKeyDlg);
       }
 #endif
 
@@ -3332,6 +3332,7 @@ INSERT_RETRY:
       lstrcpyn(_Button,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,4,0),ArraySize(_Button));
       lstrcpyn(_Descr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,10,0),ArraySize(_Descr));
       lstrcpyn(_DataPtr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,8,0),(int)_DataPtrSize);
+      EditDialog[28].Param.Selected=static_cast<int>(Info.SendDlgMessage(hDlg,DM_GETCHECK,28,0));
 #endif
 
       // конвертируем из длинного имени группы короткое,
@@ -3799,6 +3800,7 @@ EDIT_RETRY:
           lstrcpyn(_Button,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,4,0),ArraySize(_Button));
           lstrcpyn(_Descr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,10,0),ArraySize(_Descr));
           lstrcpyn(_DataPtr,(const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,8,0),(int)_DataPtrSize);
+          EditDialog[28].Param.Selected=static_cast<int>(Info.SendDlgMessage(hDlg,DM_GETCHECK,28,0));
 #endif
 
           // конвертируем из длинного имени группы короткое,

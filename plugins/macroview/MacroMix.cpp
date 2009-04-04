@@ -6,7 +6,7 @@
   #pragma optimize("", off)
 #endif
 
-#define MakePtr(Type, Base, Offset) ((Type)((Base) + (Offset)))
+#define MakePtr(Type, Base, Offset) ((Type)((DWORD_PTR)(Base)+(DWORD_PTR)(Offset)))
 
 BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFuncName,
                       PVOID pApiNew,PVOID* pApiOrig)
@@ -45,37 +45,40 @@ BOOL InterceptDllCall(HMODULE hLocalModule,const char* cDllName,const char* cFun
 
     while (pOrigThunk->u1.Function)
     {
-      pName=MakePtr(PIMAGE_IMPORT_BY_NAME,hLocalModule,pOrigThunk->u1.AddressOfData);
-
-      if (lstrcmpA((char *)&(pName->Name),cFuncName)==0)
+      if((pOrigThunk->u1.Ordinal & IMAGE_ORDINAL_FLAG) != IMAGE_ORDINAL_FLAG)
       {
-        if (!IsBadWritePtr((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR)) /*!IsBadWritePtr*/)
-        {
-          if (pApiOrig)
-            *pApiOrig=PVOID(pRealThunk->u1.Function);
-          pRealThunk->u1.Function=(DWORD_PTR)pApiNew;
-          bSuccess=TRUE;
-          break;
-        }
-        else
-        {
-          if (VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
-              PAGE_EXECUTE_READWRITE,&dwProtect) /*VirtualProtect*/)
-          {
-            DWORD dwNewProtect;
+        pName=MakePtr(PIMAGE_IMPORT_BY_NAME,hLocalModule,pOrigThunk->u1.AddressOfData);
 
+        if (lstrcmpA((char *)&(pName->Name),cFuncName)==0)
+        {
+          if (!IsBadWritePtr((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR)) /*!IsBadWritePtr*/)
+          {
             if (pApiOrig)
               *pApiOrig=PVOID(pRealThunk->u1.Function);
             pRealThunk->u1.Function=(DWORD_PTR)pApiNew;
             bSuccess=TRUE;
-
-            dwNewProtect=dwProtect;
-            VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
-                           dwNewProtect,&dwProtect) /*VirtualProtect*/;
             break;
-          } /*if*/
-        } /*iff*/
-      } /*if*/
+          }
+          else
+          {
+            if (VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
+                PAGE_EXECUTE_READWRITE,&dwProtect) /*VirtualProtect*/)
+            {
+              DWORD dwNewProtect;
+
+              if (pApiOrig)
+                *pApiOrig=PVOID(pRealThunk->u1.Function);
+              pRealThunk->u1.Function=(DWORD_PTR)pApiNew;
+              bSuccess=TRUE;
+
+              dwNewProtect=dwProtect;
+              VirtualProtect((LPVOID)(&pRealThunk->u1.Function),sizeof(DWORD_PTR),
+                             dwNewProtect,&dwProtect) /*VirtualProtect*/;
+              break;
+            } /*if*/
+          } /*iff*/
+        } /*if*/
+      }
       pOrigThunk++;
       pRealThunk++;
     } /*while*/
