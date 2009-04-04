@@ -170,6 +170,8 @@ private:
     int CheckCharMask(wchar_t Chr);
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
+		int RealLengthToTab(int Length, int StartPos, int EndPos);
+
   public:
     Edit(ScreenObject *pOwner = NULL,Callback* aCallback = NULL);
     virtual ~Edit();

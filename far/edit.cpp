@@ -2143,30 +2143,36 @@ void Edit::SetTabCurPos(int NewPos)
 
 int Edit::RealPosToTab(int Pos)
 {
-  int TabPos,I;
-
-  if ( (TabExpandMode == EXPAND_ALLTABS) || wmemchr(Str,L'\t',StrSize)==NULL)
-    return(Pos);
+	return RealLengthToTab(0, 0, Pos);
+}
 
 
-  /* $ 10.10.2004 KM
-     После исправления Bug #1122 привнесён баг с невозможностью
-     выйти за пределы строки в редакторе при установленном
-     Cursor beyond end of line.
-  */
-  for (TabPos=0,I=0;I<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
-  {
-    if (I>=StrSize)
-    {
-      TabPos+=Pos-I;
-      break;
-    }
-    if (Str[I]==L'\t')
-      TabPos+=TabSize - (TabPos % TabSize);
-    else
-      TabPos++;
-  }
-  return(TabPos);
+int Edit::RealLengthToTab(int Length, int StartPos, int EndPos)
+{
+	if (TabExpandMode == EXPAND_ALLTABS)
+		return(Length+abs(EndPos-StartPos));
+
+	/* $ 10.10.2004 KM
+	После исправления Bug #1122 привнесён баг с невозможностью
+	выйти за пределы строки в редакторе при установленном
+	Cursor beyond end of line.
+	*/
+	int TabPos = 0;
+	bool negative = StartPos>EndPos;
+	bool editBeyondEnd = Flags.Check(FEDITLINE_EDITBEYONDEND)?true:false;
+	for (int I=(!negative?StartPos:EndPos);I<(!negative?EndPos:StartPos) && (editBeyondEnd?TRUE:Str[I]);I++)
+	{
+		if (I>=StrSize)
+		{
+			TabPos += EndPos-StartPos-I;
+			break;
+		}
+		if (Str[I]==L'\t')
+			TabPos += TabSize-((Length+TabPos) % TabSize);
+		else
+			TabPos++;
+	}
+	return(negative?Length-TabPos:Length+TabPos);
 }
 
 
@@ -2363,58 +2369,103 @@ int Edit::GetColor(struct ColorItem *col,int Item)
 
 void Edit::ApplyColor()
 {
-  int Col,I,SelColor0;
+	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
+	for (int Col=0; Col<ColorCount; Col++)
+	{
+		struct ColorItem *CurItem=ColorList+Col;
+		// Отсекаем элементы заведомо не попадающие на экран
+		if (CurItem->StartPos-LeftPos>X2 && CurItem->EndPos-LeftPos<X1)
+			continue;
+		int Attr=CurItem->Color;
+		int Length=CurItem->EndPos-CurItem->StartPos+1;
+		if(CurItem->StartPos+Length >= StrSize)
+			Length=StrSize-CurItem->StartPos;
 
-  for (Col=0;Col<ColorCount;Col++)
-  {
-    struct ColorItem *CurItem=ColorList+Col;
-    int Attr=CurItem->Color;
-    int Length=CurItem->EndPos-CurItem->StartPos+1;
-    if(CurItem->StartPos+Length >= StrSize)
-      Length=StrSize-CurItem->StartPos;
+		// Получаем начальную позицию
+		int RealStart, Start;
+		if (Pos==INT_MIN || StrSize-CurItem->StartPos<abs(CurItem->StartPos-Pos))
+		{
+			RealStart = RealPosToTab(CurItem->StartPos);
+			Start = RealStart-LeftPos;
+		}
+		else if (Pos==CurItem->StartPos)
+		{
+			RealStart = TabPos;
+			Start = TabEditorPos;
+		}
+		else
+		{
+			RealStart = RealLengthToTab(TabPos, Pos, CurItem->StartPos);
+			Start = RealStart-LeftPos;
+		}
+		Pos = CurItem->StartPos;
+		TabPos = RealStart;
+		TabEditorPos = Start;
+		if (Start>X2)
+			continue;
 
-    int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
-    int LengthFind=CurItem->StartPos+Length >= StrSize?StrSize-CurItem->StartPos+1:Length;
-    int CorrectPos=0;
+		int LengthFind=CurItem->StartPos+Length >= StrSize?StrSize-CurItem->StartPos+1:Length;
+		int CorrectPos=0;
 
-    if(Attr&ECF_TAB1)
-      Attr&=~ECF_TAB1;
-    else
-      CorrectPos=LengthFind > 0 && CurItem->StartPos < StrSize && wmemchr(Str+CurItem->StartPos,L'\t',LengthFind)?1:0;
+		if(Attr&ECF_TAB1)
+			Attr&=~ECF_TAB1;
+		else
+			// BUBUG: Тут двойное сканирование строки
+			CorrectPos = LengthFind>0 && CurItem->StartPos<StrSize && wmemchr(Str+CurItem->StartPos,L'\t',LengthFind)?1:0;
 
-    int End=RealPosToTab(CurItem->EndPos+CorrectPos)-LeftPos;
+		// Получаем конечную позицию
+		int EndPos = CurItem->EndPos+CorrectPos;
+		int RealEnd, End;
+		if (StrSize-EndPos<abs(EndPos-Pos))
+		{
+			RealEnd = RealPosToTab(EndPos);
+			End = RealEnd-LeftPos;
+		}
+		else if (Pos==EndPos)
+		{
+			RealEnd = TabPos;
+			End = TabEditorPos;
+		}
+		else
+		{
+			RealEnd = RealLengthToTab(TabPos, Pos, EndPos);
+			End = RealEnd-LeftPos;
+		}
+		Pos = EndPos;
+		TabPos = RealEnd;
+		TabEditorPos = End;
+		if (End<X1)
+			continue;
 
-    CHAR_INFO TextData[1024];
-    if (Start<=X2 && End>=X1)
-    {
-      if (Start<X1)
-        Start=X1;
+		CHAR_INFO TextData[1024];
 
-      if (End>X2)
-        End=X2;
+		if (Start<X1)
+			Start=X1;
 
-      Length=End-Start+1;
+		if (End>X2)
+			End=X2;
 
-      if(Length < X2)
-        Length-=CorrectPos;
+		Length=End-Start+1;
 
-      if (Length > 0 && Length < (int)countof(TextData))
-      {
-        ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
+		if(Length < X2)
+			Length-=CorrectPos;
 
-        SelColor0=SelColor;
+		if (Length > 0 && Length < (int)countof(TextData))
+		{
+			ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
 
-        if(SelColor >= COL_FIRSTPALETTECOLOR)
-          SelColor0=Palette[SelColor-COL_FIRSTPALETTECOLOR];
+			int SelColor0=SelColor;
 
-        for (I=0;I < Length;I++)
-          if (TextData[I].Attributes != SelColor0)
-            TextData[I].Attributes=Attr;
+			if(SelColor >= COL_FIRSTPALETTECOLOR)
+				SelColor0=Palette[SelColor-COL_FIRSTPALETTECOLOR];
 
-        ScrBuf.Write(Start,Y1,TextData,Length);
-      }
-    }
-  }
+			for (int I=0;I < Length;I++)
+				if (TextData[I].Attributes != SelColor0)
+					TextData[I].Attributes=Attr;
+
+			ScrBuf.Write(Start,Y1,TextData,Length);
+		}
+	}
 }
 
 /* $ 24.09.2000 SVS $
