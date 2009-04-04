@@ -802,7 +802,7 @@ in the command line may be used to change the plugin file system folder. Unlike
 "CD", "CHDIR" command always treats the specified parameter as a real folder
 name regardless a file panel type.
 
-    Комбинация #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних 
+    Комбинация #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних
 модулей.
 
 
@@ -810,7 +810,7 @@ name regardless a file panel type.
 $ #Plugins configuration#
     You can configure the installed ~plugin modules~@Plugins@ using the command
 #"Plugins configuration"# from the ~Options menu~@OptMenu@
-или нажав комбинацию клавиш #Alt-Shift-F9# из меню ~выбора дисков~@DriveDlg@ 
+или нажав комбинацию клавиш #Alt-Shift-F9# из меню ~выбора дисков~@DriveDlg@
 и меню команд подключаемых модулей.
 
     To get the help on the currently selected plugin, press #Shift-F1# -
@@ -1530,6 +1530,8 @@ available:
 
   Clear the commands history                                      #Del#
 
+  Delete the current history item                           #Shift-Del#
+
   Copy the text of the current command to the clipboard        #Ctrl-C#
   without closing the list                                or #Ctrl-Ins#
 
@@ -1554,6 +1556,8 @@ shortcuts are available:
   Copy the file name to the command line                   #Ctrl-Enter#
 
   Clear the history list                                          #Del#
+
+  Delete the current history item                           #Shift-Del#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1594,6 +1598,8 @@ available:
   Copy the folder name to the command line                 #Ctrl-Enter#
 
   Clear the history list                                          #Del#
+
+  Delete the current history item                           #Shift-Del#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -2433,7 +2439,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
 @FileOpenCreate
 $ #Редактор: Открыть/создать файл#
-    С помощью комбинации #Shift-F4# можно открыть существующий или 
+    С помощью комбинации #Shift-F4# можно открыть существующий или
 создать новый файл.
 
     В зависимости от ~настроек редактора~@EditorSettings@ для нового файла
@@ -2447,11 +2453,11 @@ $ #Редактор: Открыть/создать файл#
 @FileSaveAs
 $ #Editor: save file as...#
     Редактируемый файл можно сохранить под другим именем - нажать #Shift-F2# и
-указать другое имя, кодовую страницу и формат представления символа перевода 
+указать другое имя, кодовую страницу и формат представления символа перевода
 строки.
 
-    Если для сохраняемого файла выбрана одна из кодовых страниц: UTF-8, 
-UNICODE или REVERSEBOM, то при включенной опции #Добавить сигнатуру (BOM)# 
+    Если для сохраняемого файла выбрана одна из кодовых страниц: UTF-8,
+UNICODE или REVERSEBOM, то при включенной опции #Добавить сигнатуру (BOM)#
 в начало файла добавляется специальный маркер, позволяющий другим приложениям
 однозначно идентифицировать этот файл.
 
@@ -2598,13 +2604,13 @@ or all local users, when it's stated explicitly in the Local Policy Editor
 #Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
 #user only#' setting to '#Enabled#').
 
-    #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних 
+    #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних
 модулей (работает, если включен показ имен подключаемых модулей).
 
-    #Shift-F9# в области подключаемых внешних модулей вызывает диалог настройки 
+    #Shift-F9# в области подключаемых внешних модулей вызывает диалог настройки
 соответствующего модуля.
 
-    #Shift-F1# в области подключаемых внешних модулей показывает соответствующую 
+    #Shift-F1# в области подключаемых внешних модулей показывает соответствующую
 модулю контекстно-зависимую подсказку (если плагин имеет файла-помощи).
 
 @DisconnectDrive

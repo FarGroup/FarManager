@@ -60,7 +60,7 @@ struct HistoryRecord
 	}
 };
 
-class History
+class History: protected TList<HistoryRecord>
 {
 	private:
 		string strRegKey;
@@ -69,17 +69,15 @@ class History
 		int TypeHistory;
 		int HistoryCount;
 		const int *EnableSave;
-		TList<HistoryRecord> HistoryList;
 
 	private:
 		void AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int Type);
-		void EmptyHistory();
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
 
 	public:
 		History(int TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
-	~History();
+		~History();
 
 	public:
 		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=NULL, bool SaveForbid=false);
@@ -90,7 +88,7 @@ class History
 		void GetNext(string &strStr);
 		void GetSimilar(string &strStr, int LastCmdPartLength);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-		void SetFirst() {HistoryList.toEnd(); HistoryList.toNext();}
+		void ResetPosition();
 };
 
 #endif  // __HISTORY_HPP__

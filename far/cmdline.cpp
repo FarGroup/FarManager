@@ -179,7 +179,7 @@ int CommandLine::ProcessKey(int Key)
       {
         // $ 24.09.2000 SVS - ≈сли задано поведение по "Ќесохранению при Esc", то позицию в хистори не мен€ем и ставим в первое положение.
         if(Opt.CmdHistoryRule)
-          CtrlObject->CmdHistory->SetFirst();
+          CtrlObject->CmdHistory->ResetPosition();
         PStr=L"";
       }
       else
