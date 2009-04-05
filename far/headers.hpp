@@ -114,6 +114,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #include <ctype.h>
 #endif
 
+#ifdef __GNUC__
+ #include <limits.h>
+#endif
+
 #define _wmemset wmemset
 
 #define vsnprintf _vsnprintf
