@@ -2150,7 +2150,7 @@ int Edit::RealPosToTab(int Pos)
 int Edit::RealLengthToTab(int Length, int StartPos, int EndPos)
 {
 	if (TabExpandMode == EXPAND_ALLTABS)
-		return(Length+abs(EndPos-StartPos));
+		return(Length+EndPos-StartPos);
 
 	/* $ 10.10.2004 KM
 	После исправления Bug #1122 привнесён баг с невозможностью
