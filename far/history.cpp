@@ -401,9 +401,10 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
 			if (SetUpMenuPos)
 			{
-				HistoryMenu.SetSelectPos(StrPos,0);
+				HistoryMenu.SetSelectPos(StrPos < (int)size() ? StrPos : (int)size()-1, 0);
 				SetUpMenuPos=false;
 			}
+
 
 			HistoryMenu.Show();
 			while (!HistoryMenu.Done())
