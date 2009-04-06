@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "findfile.hpp"
 
-
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -83,7 +82,6 @@ static DWORD       ArcListCount;
 
 static CriticalSection ffCS; // чтобы не ресайзили список найденных файлов, пока мы из него читаем
 static CriticalSection statusCS; // чтобы не писали в FindMessage/FindFileCount/FindDirCount пока мы оттуда читаем
-
 
 static DWORD FindFileArcIndex;
 // Используются для отправки файлов на временную панель.
@@ -132,7 +130,8 @@ static unsigned char *hexFindString;
 static size_t hexFindStringSize;
 static wchar_t *findString;
 
-static size_t *skipCharsTable; /* Officially called: bad character shift */
+static size_t *skipCharsTable;
+static int favoriteCodePages = 0;
 
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
@@ -206,29 +205,56 @@ void InitInFileSearch()
 			// Формируем список кодовых страниц
 			if (UseAllCodePages)
 			{
-				// Добавляем стандартные таблицы символов
-				const int standardCodePagesCount = 6;
-				codePagesCount = standardCodePagesCount;
-				codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
-				codePages[0].CodePage = GetOEMCP();
-				codePages[1].CodePage = GetACP();
-				codePages[2].CodePage = CP_UTF7;
-				codePages[3].CodePage = CP_UTF8;
-				codePages[4].CodePage = CP_UNICODE;
-				codePages[5].CodePage = CP_REVERSEBOM;
-				// Добавляем выбранные таблицы символов
 				DWORD data;
-				UnicodeString codePageName;
-				for(DWORD i=0;EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data));i++)
+				string codePageName;
+				bool hasSelected = false;
+				// Проверяем наличие выбранных страниц символов
+				for (int i=0; EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data)); i++)
 				{
-					if (data)
+					if (data & CPST_FIND)
+					{
+						hasSelected = true;
+						break;
+					}
+				}
+				// Добавляем стандартные таблицы символов
+				if (!hasSelected)
+				{
+					codePagesCount = StandardCPCount;
+					codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
+					codePages[0].CodePage = GetOEMCP();
+					codePages[1].CodePage = GetACP();
+					codePages[2].CodePage = CP_UTF7;
+					codePages[3].CodePage = CP_UTF8;
+					codePages[4].CodePage = CP_UNICODE;
+					codePages[5].CodePage = CP_REVERSEBOM;
+				}
+				else
+				{
+					codePagesCount = 0;
+					codePages = NULL;
+				}
+				// Добавляем стандартные таблицы символов
+				for (int i=0; EnumRegValue(FavoriteCodePagesKey, i, codePageName, (BYTE *)&data, sizeof(data)); i++)
+				{
+					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
 						UINT codePage = _wtoi(codePageName);
-						if (codePage != codePages[0].CodePage && codePage != codePages[1].CodePage)
+						// Проверяем дубли
+						if (!hasSelected)
 						{
-							codePages = (CodePageInfo *)xf_realloc((void *)codePages, ++codePagesCount*sizeof(CodePageInfo));
-							codePages[codePagesCount-1].CodePage = codePage;
+							bool isDouble = false;
+							for (int j = 0; j<StandardCPCount; j++)
+								if (codePage == codePages[0].CodePage)
+								{
+									isDouble =true;
+									break;
+								}
+							if (isDouble)
+								continue;
 						}
+						codePages = (CodePageInfo *)xf_realloc((void *)codePages, ++codePagesCount*sizeof(CodePageInfo));
+						codePages[codePagesCount-1].CodePage = codePage;
 					}
 				}
 			}
@@ -382,13 +408,14 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,1);
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(Dlg->Item[FAD_CHECKBOX_HEX]->Selected?FindHex:FindText));
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)FindCode);
+			Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,CBET_KEY);
 
       /* Установка запомненных ранее параметров */
 			UseAllCodePages=Opt.CodePage.AllPages;
 			CodePage=Opt.CodePage.CodePage;
       /* -------------------------------------- */
 
-			AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, UseAllCodePages ? CP_AUTODETECT : CodePage, false, true);
+			favoriteCodePages = AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, UseAllCodePages ? CP_AUTODETECT : CodePage, false, true);
 
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
@@ -514,9 +541,42 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			case FAD_CHECKBOX_ADVANCED:
 				EnableSearchInFirst=(int)Param2;
 				break;
-}
+			}
       return TRUE;
     }
+		case DM_KEY:
+		{
+			// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
+			if (Param1==FAD_COMBOBOX_CP && (Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE))
+			{
+				FarListPos position;
+				Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&position);
+				int index = 2 + StandardCPCount + 2;
+				if (position.SelectPos > 1 && position.SelectPos < index + (favoriteCodePages ? favoriteCodePages + 1 : 0))
+				{
+					FarListGetItem item = { position.SelectPos };
+					Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&item);
+					UINT codePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, position.SelectPos);
+					wchar_t codePageName[6];
+					_itow(codePage, codePageName, 10);
+					if (item.Item.Flags&LIF_CHECKED)
+					{
+						if (position.SelectPos < index)
+							DeleteRegValue(FavoriteCodePagesKey, codePageName);
+						else
+							SetRegKey(FavoriteCodePagesKey, codePageName, CPST_FAVORITE);
+						item.Item.Flags &= ~LIF_CHECKED;
+					}
+					else
+					{
+						SetRegKey(FavoriteCodePagesKey, codePageName, CPST_FIND | (position.SelectPos < index ? 0 : CPST_FAVORITE));
+						item.Item.Flags |= LIF_CHECKED;
+					}
+					Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&item);
+				}
+			}
+			break;
+		}
     case DN_EDITCHANGE:
     {
       FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);

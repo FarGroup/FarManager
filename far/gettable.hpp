@@ -33,12 +33,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Тип выбранной таблицы символов
+enum CPSelectType
+{
+	// "Любимая" таблица символов
+	CPST_FAVORITE = 1,
+	// Таблица символов участвующая в поиске по всем таблицам символов
+	CPST_FIND = 2
+};
+
+const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
+
+inline bool IsStandardCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
+
 inline bool IsUnicodeCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
 
 inline bool IsUnicodeOrUTFCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
 
 UINT GetTableEx(UINT nCurrent, bool bShowUnicode, bool bShowUTF);
 
-void AddCodepagesToList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
+UINT AddCodepagesToList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
 
 #endif	// __GETTABLE_HPP__

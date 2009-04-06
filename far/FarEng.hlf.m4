@@ -1318,10 +1318,15 @@ containing hexadecimal sequence of the specified bytes. In this case #Case#
 #sensitive#, #Whole words#, #Using code page# and #Search for folders#
 options are disabled and their values doesn't affect the search process.
 
-    The #Using code page# combo box allows to select the concrete
-code page for the text search or forces usage of all code pages
-available to FAR by selecting #All code pages# item to search text in
-files with different code pages.
+    Выпадающий список #Используя кодовую страницу# позволяет выбрать конкретную
+кодовую страницу, применяемую для поиска текста. Если в выпадающем списке выбрать
+пункт #Все кодовые страницы#, то FAR будет использовать для поиска все стандартные
+и #Любимые# кодовые страницы (список #Любимых# кодовых страниц можно настроить в
+диалоге выбора кодовой страницы редактора или программы просмотра). Если перечень
+кодовых страниц, поиск по которым производится при выборе пункта #Все кодовые#
+#страницы#, является для вас избыточным, то вы можете, при помощи клавиш #Ins# и
+#Space#, выбрать из списка стандартных и #Любимых# кодовых страниц только те кодовые
+страницы, по которым вам необходимо осуществлять поиск.
 
     If the option #Search in archives# is set, FAR also performs the search in
 archives with known formats. However, using this option significantly decreases

@@ -3449,9 +3449,13 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		default:
 			{
 				int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
-				BYTE dTemp[4];
-
-				if(!EnumRegValue (FavoriteCodePagesKey, iSelCT, sTableName, dTemp, sizeof (dTemp))) return -1;
+				DWORD selectType;
+				do
+				{
+					selectType = 0;
+					if (!EnumRegValue(FavoriteCodePagesKey, iSelCT++, sTableName, (BYTE *)&selectType, sizeof(selectType)))
+						return -1;
+				} while (!(selectType & CPST_FIND));
 				nCP = _wtoi (sTableName);
 			}
 		}
