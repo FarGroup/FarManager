@@ -261,21 +261,16 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   for (FileCount=0; !Done; )
   {
-    if ((fdata.strFileName.At(0) != L'.' || fdata.strFileName.At(1) != 0) &&
+		if (!(fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == 0 && !FileCount) &&
         (Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) &&
         (//(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
         Filter->FileInFilter(&fdata)))
     {
       int UpperDir=FALSE;
-      if (fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)
+      if (fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0 && !FileCount)
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
-        if (IsLocalRootPath(strCurDir))
-        {
-          Done=!apiFindNextFile (FindHandle,&fdata);
-          continue;
-        }
       }
       if (FileCount>=AllocatedCount)
       {

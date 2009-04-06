@@ -282,8 +282,8 @@ class Dialog: public Frame
     unsigned ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
 
     unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
-    BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr,int MaxLen);
-    int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
+		BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
+		int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
     int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
     int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 

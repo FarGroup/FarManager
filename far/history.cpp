@@ -340,7 +340,8 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 	MenuItemEx MenuItem;
 
 	OneItem *SelectedRecord=NULL;
-	int Code=-1,Height=ScrY-8,StrPos=0;
+	int Code=-1,Height=ScrY-8;
+	FarListPos Pos={0,0};
 	int RetCode=1;
 
 	{
@@ -401,7 +402,9 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
 			if (SetUpMenuPos)
 			{
-				HistoryMenu.SetSelectPos(StrPos < (int)size() ? StrPos : (int)size()-1, 0);
+				Pos.SelectPos=Pos.SelectPos < (int)size() ? Pos.SelectPos : (int)size()-1;
+				Pos.TopPos=Min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
+				HistoryMenu.SetSelectPos(&Pos);
 				SetUpMenuPos=false;
 			}
 
@@ -410,7 +413,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 			while (!HistoryMenu.Done())
 			{
 				int Key=HistoryMenu.ReadInput();
-				StrPos=HistoryMenu.GetSelectPos();
+				HistoryMenu.GetSelectPos(&Pos);
 
 				switch(Key)
 				{
@@ -436,7 +439,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 							if (ModifiedHistory) // избавляемся от лишних телодвижений
 							{
 								SaveHistory(); // сохранить
-								HistoryMenu.Modal::SetExitCode(StrPos);
+								HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 								HistoryMenu.SetUpdateRequired(TRUE);
 								IsUpdate=true;
 							}
@@ -452,7 +455,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 					case KEY_CTRLENTER:
 					case KEY_SHIFTENTER:
 					{
-						HistoryMenu.Modal::SetExitCode(StrPos);
+						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 						Done=true;
 						RetCode=Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3);
 						break;
@@ -462,7 +465,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 					case KEY_F4:
 					case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 					{
-						HistoryMenu.Modal::SetExitCode(StrPos);
+						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 						Done=true;
 						RetCode=(Key==KEY_F4? 5 : 4);
 						break;
@@ -472,7 +475,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 					case KEY_CTRLC:
 					case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
 					{
-						OneItem *Record=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),StrPos);
+						OneItem *Record=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),Pos.SelectPos);
 
 						if (Record)
 							CopyToClipboard(Record->Item.strName);
@@ -486,11 +489,11 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 						if (HistoryMenu.GetItemCount()/* > 1*/)
 						{
 							HistoryMenu.Hide();
-							Current=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),StrPos);
+							Current=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),Pos.SelectPos);
 							erase();
 							ResetPosition();
 							SaveHistory();
-							HistoryMenu.Modal::SetExitCode(StrPos);
+							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 							HistoryMenu.SetUpdateRequired(TRUE);
 							IsUpdate=true;
 							SetUpMenuPos=true;
@@ -514,7 +517,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 							HistoryMenu.Hide();
 							clear();
 							SaveHistory();
-							HistoryMenu.Modal::SetExitCode(StrPos);
+							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 							HistoryMenu.SetUpdateRequired(TRUE);
 							IsUpdate=true;
 						}
@@ -555,7 +558,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
 					Done=false;
 					SetUpMenuPos=true;
-					HistoryMenu.Modal::SetExitCode(StrPos=Code);
+					HistoryMenu.Modal::SetExitCode(Pos.SelectPos=Code);
 					continue;
 				}
 			}

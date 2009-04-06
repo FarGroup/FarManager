@@ -100,7 +100,6 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
     pDest->nMaxLength = 0;
     pDest->strData = pSrc->strData;
-		pDest->nMaxLength = Max(pSrc->strData.GetLength(),(size_t)1024); //BUGBUG
 
     pDest->ID = pSrc->ID;
     pDest->IFlags = pSrc->IFlags;
@@ -1421,7 +1420,6 @@ void Dialog::ShowDialog(unsigned ID)
   if ( Locked () )
     return;
 
-  //char Str[1024];
   string strStr;
   wchar_t *lpwszStr;
 
@@ -2168,7 +2166,6 @@ int Dialog::ProcessKey(int Key)
   _DIALOG(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
 
   unsigned I;
-  wchar_t Str[1024]; //BUGBUG
   string strStr;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
@@ -2578,10 +2575,12 @@ int Dialog::ProcessKey(int Key)
                 {
                   // добавляем к предыдущему и...
                   DlgEdit *edt_1=(DlgEdit *)Item[FocusPos-1]->ObjPtr;
-                  edt_1->GetString(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
-                  CurPos=StrLength(Str);
-                  edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
-                  edt_1->SetString(Str);
+									edt_1->GetString(strStr);
+									CurPos=strStr.GetLength();
+									string strAdd;
+									edt->GetString(strAdd);
+									strStr+=strAdd;
+									edt_1->SetString(strStr);
 
                   for (I=FocusPos+1;I<ItemCount;I++)
                   {
@@ -2589,8 +2588,8 @@ int Dialog::ProcessKey(int Key)
                     {
                       if (I>FocusPos)
                       {
-                        ((DlgEdit *)(Item[I]->ObjPtr))->GetString(Str,sizeof(Str)/sizeof (wchar_t)); //BUGBUG
-                        ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(Str);
+												((DlgEdit *)(Item[I]->ObjPtr))->GetString(strStr);
+												((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(strStr);
                       }
                       ((DlgEdit *)(Item[I]->ObjPtr))->SetString(L"");
                     }
@@ -2619,8 +2618,8 @@ int Dialog::ProcessKey(int Key)
                 {
                   if (I>FocusPos)
                   {
-                    ((DlgEdit *)(Item[I]->ObjPtr))->GetString(Str,sizeof(Str)/sizeof (wchar_t));
-                    ((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(Str);
+										((DlgEdit *)(Item[I]->ObjPtr))->GetString(strStr);
+										((DlgEdit *)(Item[I-1]->ObjPtr))->SetString(strStr);
                   }
                   ((DlgEdit *)(Item[I]->ObjPtr))->SetString(L"");
                 }
@@ -2647,12 +2646,14 @@ int Dialog::ProcessKey(int Key)
                 int SelStart, SelEnd;
 
                 edt->GetSelection(SelStart, SelEnd);
-                edt->GetString(Str,sizeof(Str)/sizeof (wchar_t));
-                int LengthStr=StrLength(Str);
+								edt->GetString(strStr);
+								int LengthStr=strStr.GetLength();
                 if(SelStart > -1)
                 {
-                  wmemmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
-                  edt->SetString(Str);
+									string strEnd=strStr.CPtr()+SelEnd;
+									strStr.SetLength(SelStart);
+									strStr+=strEnd;
+									edt->SetString(strStr);
                   edt->SetCurPos(SelStart);
 
                   ShowDialog();
@@ -2668,11 +2669,13 @@ int Dialog::ProcessKey(int Key)
                   if (CurPos > Length)
                   {
                     LengthStr=CurPos;
+										LPWSTR Str=strStr.GetBuffer(CurPos);
                     wmemset(Str+Length,L' ',CurPos-Length);
+										strStr.ReleaseBuffer(CurPos);
                   }
-
-                  edt_1->GetString(Str+LengthStr,sizeof(Str)-LengthStr);
-                  edt_1->SetString(Str);
+									string strAdd;
+									edt_1->GetString(strAdd);
+									edt_1->SetString(strStr+strAdd);
                   ProcessKey(KEY_CTRLY);
                   edt->SetCurPos(CurPos);
                   ShowDialog();
@@ -3280,11 +3283,9 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned 
        !(CurItem->Flags & DIF_READONLY))
   {
     // Передаем то, что в строке ввода в функцию выбора из истории для выделения нужного пункта в истории.
-    int MaxLen = 512; //BUGBUG
-
     CurEditLine->GetString(strStr);
 
-    SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,strStr,MaxLen);
+		SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,strStr);
 
   }
   // $ 18.07.2000 SVS:  +обработка DI_COMBOBOX - выбор из списка!
@@ -3292,9 +3293,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned 
           !(CurItem->Flags & DIF_READONLY) &&
           CurItem->ListPtr->GetItemCount() > 0) //??
   {
-    int MaxLen=(int)CurItem->nMaxLength; //BUGBUG
-
-    SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen);
+		SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr);
   }
   return(TRUE);
 }
@@ -3872,8 +3871,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 int Dialog::SelectFromComboBox(
          struct DialogItemEx *CurItem,
          DlgEdit *EditLine,                   // строка редактирования
-         VMenu *ComboBox,    // список строк
-         int MaxLen)
+         VMenu *ComboBox)    // список строк
 {
   CriticalSectionLock Lock(CS);
 
@@ -4006,8 +4004,7 @@ int Dialog::SelectFromComboBox(
 BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
                                    const wchar_t *HistoryName,
-                                   string &strIStr,
-                                   int MaxLen)
+                                   string &strIStr)
 {
   CriticalSectionLock Lock(CS);
 
@@ -6044,10 +6041,6 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           case DI_FIXEDIT:
             if(!CurItem->ObjPtr)
               break;
-            /* $ 04.06.2002 KM
-                Уберём ограничение в 1024 байта, для чего возьмём
-                указатель на редактируемую строку.
-            */
             Ptr=const_cast <const wchar_t *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
 
           case DI_TEXT:

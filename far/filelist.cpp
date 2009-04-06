@@ -352,6 +352,8 @@ int _cdecl SortList(const void *el1,const void *el2)
         return -ListSortOrder*(RetCode64<0?-1:1);
 
       case BY_SIZE:
+				if(SPtr1->UnpSize==SPtr2->UnpSize)
+					break;
         return((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
 
       case BY_DIZ:
@@ -3831,7 +3833,7 @@ bool FileList::ApplyCommand()
     {
       int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
       PreserveLongName PreserveName(strSelShortName,PreserveLFN);
-
+			ProcessOSAliases(strConvertedCommand);
       Execute(strConvertedCommand,FALSE,FALSE);
 
       ClearLastGetSelection();
