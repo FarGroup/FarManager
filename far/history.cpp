@@ -535,7 +535,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
 			Done=true;
 			Code=HistoryMenu.Modal::GetExitCode();
-			if (Code > 0)
+			if (Code >= 0)
 			{
 				SelectedRecord=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),Code);
 
