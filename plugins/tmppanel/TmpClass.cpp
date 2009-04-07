@@ -475,7 +475,12 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
           free(CurItem->Owner);
           CurItem->Owner=NULL;
         }
-        if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner,80))
+        if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner
+#ifdef UNICODE
+                             ,80
+#endif
+                           )
+          )
           CurItem->Owner=_tcsdup(Owner);
       }
       if(ShowLinks)
