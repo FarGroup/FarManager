@@ -1,10 +1,6 @@
 NAME = FExcept
 SRCS = FExcept.cpp
-ifndef WIDE
 DOCS = SetFarExceptionHandler.reg demangle32.dll
-else
-DOCS = SetFarExceptionHandlerW.reg demangle32.dll
-endif
 
 NEEDDEFLIB=1
 NEEDENTRY=1

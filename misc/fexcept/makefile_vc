@@ -4,11 +4,7 @@
 
 NAME = FExcept
 LINK_OBJS = $(OBJDIR)\FExcept.obj
-!ifndef WIDE
 DOCS = SetFarExceptionHandler.reg
-!else
-DOCS = SetFarExceptionHandlerW.reg
-!endif
 !if defined(AMD64) || "$(CPU)" == "AMD64"
 DOCS = $(DOCS) demangle64.dll
 !else
