@@ -2190,6 +2190,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
           strFindDir = PrevDataStack[PrevDataStackSize]->strPrevName;
 
         DeleteListData(PrevDataStack[PrevDataStackSize]->PrevListData,PrevDataStack[PrevDataStackSize]->PrevFileCount);
+				delete PrevDataStack[PrevDataStackSize];
         if (ListSelectedFirst)
           SortFileList(FALSE);
         else if (FileCount>0)

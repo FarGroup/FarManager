@@ -93,7 +93,6 @@ string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 void InfoList::DisplayObject()
 {
-  //char Title[NM],OutStr[200];
   string strTitle;
   string strOutStr;
 

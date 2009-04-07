@@ -45,22 +45,25 @@ ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
   Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
   Flags.Change(FSCANTREE_RECUR,Recurse);
   Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?Opt.ScanJunction:ScanJunction));
+	DataCount=MAX_PATH/2;
+	Data=static_cast<ScanTreeData*>(xf_malloc(sizeof(ScanTreeData)*DataCount));
   Init();
 }
 
 
 ScanTree::~ScanTree()
 {
-  for (int I=FindHandleCount;I>=0;I--)
-    if (Data[I].FindHandle && Data[I].FindHandle!=INVALID_HANDLE_VALUE)
-      apiFindClose(Data[I].FindHandle);
+	for(size_t i=0;i<FindHandleCount;i++)
+		if(Data[i].FindHandle && Data[i].FindHandle!=INVALID_HANDLE_VALUE)
+			apiFindClose(Data[i].FindHandle);
+	xf_free(Data);
 }
 
 
 
 void ScanTree::Init()
 {
-  memset(Data,0,sizeof(Data));
+	memset(Data,0,sizeof(ScanTreeData)*DataCount);
   FindHandleCount=0;
   Flags.Clear(FSCANTREE_FILESFIRST);
 }
@@ -175,7 +178,15 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       strFindPath += L"\\";
       strFindPath += strFindMask;
 
-      Data[++FindHandleCount].FindHandle=0;
+			FindHandleCount++;
+
+			if(FindHandleCount>=DataCount)
+			{
+				DataCount<<=1;
+				Data=static_cast<ScanTreeData*>(xf_realloc(Data,sizeof(ScanTreeData)*DataCount));
+			}
+
+			Data[FindHandleCount].FindHandle=0;
       Data[FindHandleCount].Flags=Data[FindHandleCount-1].Flags; // наследуем флаг
       Data[FindHandleCount].Flags.Clear(FSCANTREE_SECONDPASS);
       if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)

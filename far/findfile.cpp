@@ -480,17 +480,17 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 					item.ItemIndex=FADC_ALLDISKS;
 					Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 					if(PluginMode)
-						item.Item.Flags|=LIF_DISABLE;
+						item.Item.Flags|=LIF_GRAYED;
 					else
-						item.Item.Flags&=~LIF_DISABLE;
+						item.Item.Flags&=~LIF_GRAYED;
 					Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 
 					item.ItemIndex=FADC_ALLBUTNET;
 					Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 					if(PluginMode)
-						item.Item.Flags|=LIF_DISABLE;
+						item.Item.Flags|=LIF_GRAYED;
 					else
-						item.Item.Flags&=~LIF_DISABLE;
+						item.Item.Flags&=~LIF_GRAYED;
 					Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,(LONG_PTR)&item);
 				}
 				break;
@@ -721,8 +721,8 @@ FindFiles::FindFiles()
 				li[FADC_ALLBUTNET].Flags=0;
 				li[FADC_ROOT].Flags|=LIF_SELECTED;
 			}
-			li[FADC_ALLDISKS].Flags|=LIF_DISABLE;
-			li[FADC_ALLBUTNET].Flags|=LIF_DISABLE;
+			li[FADC_ALLDISKS].Flags|=LIF_GRAYED;
+			li[FADC_ALLBUTNET].Flags|=LIF_GRAYED;
 
 			FindAskDlg[FAD_CHECKBOX_LINKS].Selected=0;
 			FindAskDlg[FAD_CHECKBOX_LINKS].Flags|=DIF_DISABLE;

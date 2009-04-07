@@ -273,17 +273,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   DestPanelMode=DestPlugin ? DestPanel->GetMode():NORMAL_PANEL;
   SrcPanelMode=SrcPanel->GetMode();
 
-  int SizeBuffer=2048;
-  if(DestPanelMode == PLUGIN_PANEL)
-  {
-    struct OpenPluginInfo Info;
-    DestPanel->GetOpenPluginInfo(&Info);
-    int LenCurDir=StrLength(NullToEmpty(Info.CurDir));
-    if(SizeBuffer < LenCurDir)
-      SizeBuffer=LenCurDir;
-  }
-  SizeBuffer+=NM; // добавка :-)
-
   /* $ 03.08.2001 IS
        CopyDlgValue - в этой переменной храним заветную строчку из диалога,
        именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
@@ -641,8 +630,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 			if(WinVer.dwMajorVersion<6)
 			{
-				ComboList.Items[2].Flags|=LIF_DISABLE;
-				ComboList.Items[3].Flags|=LIF_DISABLE;
+				ComboList.Items[2].Flags|=LIF_GRAYED;
+				ComboList.Items[3].Flags|=LIF_GRAYED;
 			}
 		}
 		else
@@ -2105,8 +2094,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       */
       if (UseFilter)
       {
-        //char OldPath[2*NM],NewPath[2*NM];
-
         string strOldPath, strNewPath;
         const wchar_t *path=PathPtr,*p1=NULL;
 
@@ -2634,7 +2621,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
       return COPY_FAILURE;
     //????
 
-    //char Msg1[2*NM],Msg2[2*NM];
     string strMsg1, strMsg2;
     int MsgMCannot=(ShellCopy::Flags&FCOPY_LINK) ? MCannotLink: (ShellCopy::Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
 

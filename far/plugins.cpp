@@ -693,7 +693,7 @@ void PluginManager::ClosePlugin(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 {
-	Plugin *pPlugin = NULL;;
+	Plugin *pPlugin = NULL;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{

@@ -9444,7 +9444,7 @@ MChangeDriveOpenFiles
 
 MChangeSUBSTDisconnectDriveTitle
 l:
-"Отключение виртуального драйвера"
+"Отключение виртуального устройства"
 "Virtual device disconnection"
 "Odpojování virtuálního zařízení"
 "Virtuelles Gerät trennen"

@@ -793,7 +793,7 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 
     if ( FarMkTempEx(strDest, Prefix, TRUE) )
     {
-        xwcsncpy (Dest, strDest, size);  //?? а разве не size-1
+				xwcsncpy (Dest, strDest, size-1);
         return Dest;
     }
 

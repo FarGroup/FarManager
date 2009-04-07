@@ -716,8 +716,8 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 
 bool TreeList::FillLastData()
 {
-	int Last,Depth,PathLength,SubDirPos,I,J;
-	size_t Pos;
+	int Last,PathLength,SubDirPos,I,J;
+	size_t Pos,Depth;
 	int RootLength = (int)strRoot.GetLength()-1;
 	if (RootLength<0)
 		RootLength=0;
@@ -748,15 +748,22 @@ bool TreeList::FillLastData()
 			}
 		}
 		for (J=I;J<=SubDirPos;J++)
-			ListData[J]->Last[Depth-1]=Last; //BUGBUG: ListData->Last это [NM/2], потэнциально можно выйти за границы, надо думать
+		{
+			if(Depth>ListData[J]->LastCount)
+			{
+				ListData[J]->LastCount<<=1;
+				ListData[J]->Last=static_cast<int*>(xf_realloc(ListData[J]->Last,ListData[J]->LastCount*sizeof(int)));
+			}
+			ListData[J]->Last[Depth-1]=Last;
+		}
 	}
 	return true;
 }
 
 
-int TreeList::CountSlash(const wchar_t *Str)
+UINT TreeList::CountSlash(const wchar_t *Str)
 {
-  int Count=0;
+	UINT Count=0;
 	for(;*Str;Str++)
 		if(IsSlash(*Str))
 			Count++;

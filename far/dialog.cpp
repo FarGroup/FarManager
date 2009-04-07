@@ -2576,7 +2576,7 @@ int Dialog::ProcessKey(int Key)
                   // добавляем к предыдущему и...
                   DlgEdit *edt_1=(DlgEdit *)Item[FocusPos-1]->ObjPtr;
 									edt_1->GetString(strStr);
-									CurPos=strStr.GetLength();
+									CurPos=static_cast<int>(strStr.GetLength());
 									string strAdd;
 									edt->GetString(strAdd);
 									strStr+=strAdd;
@@ -2647,7 +2647,6 @@ int Dialog::ProcessKey(int Key)
 
                 edt->GetSelection(SelStart, SelEnd);
 								edt->GetString(strStr);
-								int LengthStr=strStr.GetLength();
                 if(SelStart > -1)
                 {
 									string strEnd=strStr.CPtr()+SelEnd;
@@ -2668,7 +2667,6 @@ int Dialog::ProcessKey(int Key)
                   */
                   if (CurPos > Length)
                   {
-                    LengthStr=CurPos;
 										LPWSTR Str=strStr.GetBuffer(CurPos);
                     wmemset(Str+Length,L' ',CurPos-Length);
 										strStr.ReleaseBuffer(CurPos);

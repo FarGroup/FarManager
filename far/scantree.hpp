@@ -63,8 +63,9 @@ class ScanTree
 {
   private:
     BitFlags Flags;
-    struct ScanTreeData Data[NM/2];
-    int FindHandleCount;
+		ScanTreeData *Data;
+		size_t DataCount;
+		size_t FindHandleCount;
 
     string strFindPath;
     string strFindMask;

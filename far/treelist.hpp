@@ -39,8 +39,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct TreeItem
 {
   string strName;
-  int Last[NM/2];        // ?
+	int *Last;
+	size_t LastCount;
   int Depth;             // уровень вложенности
+
+	TreeItem()
+	{
+			LastCount=MAX_PATH/2;
+			Last=static_cast<int*>(xf_malloc(LastCount*sizeof(int)));
+			Clear();
+	}
+	~TreeItem()
+	{
+		xf_free(Last);
+	}
 
   void Clear()
   {
@@ -91,7 +103,7 @@ class TreeList: public Panel
     void Scroll(int Count);
     void CorrectPosition();
     bool FillLastData();
-    int CountSlash(const wchar_t *Str);
+		UINT CountSlash(const wchar_t *Str);
     int SetDirPosition(const wchar_t *NewDir);
     void GetRoot();
     Panel* GetRootPanel();

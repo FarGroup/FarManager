@@ -113,13 +113,12 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 FILE * OpenLogStream(const wchar_t *file)
 {
 #if defined(SYSLOG)
-  wchar_t RealLogName[NM*2];
+	string strRealLogName;
   SYSTEMTIME st;
 
   GetLocalTime(&st);
-  swprintf(RealLogName,L"%s\\Far.%04d%02d%02d.%05d.log",
-      file,st.wYear,st.wMonth,st.wDay,HIWORD(FAR_VERSION));
-  return _wfsopen(RealLogName,L"a+t",SH_DENYWR);
+	strRealLogName.Format(L"%s\\Far.%04d%02d%02d.%05d.log",file,st.wYear,st.wMonth,st.wDay,HIWORD(FAR_VERSION));
+	return _wfsopen(strRealLogName,L"a+t",SH_DENYWR);
 #else
   return NULL;
 #endif

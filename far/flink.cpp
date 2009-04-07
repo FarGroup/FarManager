@@ -518,39 +518,36 @@ int DelSubstDrive(const wchar_t *DosDeviceName)
   return(-1);
 }
 
-BOOL GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
+bool GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 {
-  /* $28.04.2001 VVM
-    + Обработка в зависимости от Opt.SubstNameRule
-      битовая маска:
-      0 - если установлен, то опрашивать сменные диски
-      1 - если установлен, то опрашивать все остальные */
-  if (DriveType!=DRIVE_NOT_INIT)
-  {
-    int DriveRemovable = (DriveType==DRIVE_REMOVABLE) || (DriveType==DRIVE_CDROM);
-    if ((!(Opt.SubstNameRule & 1)) && (DriveRemovable))
-      return(FALSE);
-    if ((!(Opt.SubstNameRule & 2)) && (!DriveRemovable))
-      return(FALSE);
-  }
-
-  string strLocalName = LocalName;
-
-  wchar_t Name[NM*2]=L""; //BUGBUG
-
-  strLocalName.Upper ();
-  if ((strLocalName.At(0)>=L'A') && ((strLocalName.At(0)<=L'Z')))
-  {
-    if (QueryDosDeviceW(strLocalName,Name,countof(Name)) >= 3)
-    {
-      if (!StrCmpN(Name,L"\\??\\",4))
-      {
-        strSubstName = Name+4;
-        return TRUE;
-      }
-    }
-  }
-  return FALSE;
+	bool Ret=false;
+	/*
+	+ Обработка в зависимости от Opt.SubstNameRule
+	битовая маска:
+	0 - если установлен, то опрашивать сменные диски
+	1 - если установлен, то опрашивать все остальные
+	*/
+	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
+	if (DriveType==DRIVE_NOT_INIT || ((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable))
+	{
+		if(IsLocalPath(LocalName))
+		{
+			wchar_t *Name=new wchar_t[NT_MAX_PATH];
+			if(Name)
+			{
+				if (QueryDosDeviceW(LocalName,Name,NT_MAX_PATH))
+				{
+						if(!StrCmpN(Name,L"\\??\\",4))
+						{
+							strSubstName=Name+4;
+							Ret=true;
+						}
+				}
+				delete[] Name;
+			}
+		}
+	}
+	return Ret;
 }
 
 void GetPathRootOne(const wchar_t *Path,string &strRoot)

@@ -1308,7 +1308,7 @@ static bool substrFunc()
 #define FLAG_NAME   4
 #define FLAG_EXT    8
 
-static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
+static BOOL SplitFileName (const wchar_t *lpFullName,string &strDest,int nFlags)
 {
   wchar_t *s = (wchar_t*)lpFullName; //start of sub-string
   wchar_t *p = s; //current string pointer
@@ -1334,7 +1334,10 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
       p = es;
 
     if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-      xwcsncpy (lpDest, s, p-s);
+		{
+			strDest=s;
+			strDest.SetLength(p-s);
+		}
   }
   else
   {
@@ -1343,7 +1346,11 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
       p += 2;
 
       if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-        wcsncat (lpDest, s, p-s);
+			{
+				size_t Length=strDest.GetLength()+p-s;
+				strDest+=s;
+				strDest.SetLength(Length);
+			}
     }
   }
 
@@ -1364,7 +1371,11 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
   if ( e )
   {
     if ( (nFlags & FLAG_PATH) )
-      wcsncat (lpDest, s, e-s);
+		{
+			size_t Length=strDest.GetLength()+e-s;
+			strDest+=s;
+			strDest.SetLength(Length);
+		}
 
     s = e+1;
     p = s;
@@ -1386,21 +1397,21 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
   if ( !e )
       e = es;
 
-  //FSF.AddEndSlash replacement
-
-	if ( *lpDest && !IsSlash(lpDest[StrLength(lpDest)]) ) //hack, just in case of "disk+name" etc.
-      wcscat (lpDest, L"\\");
+	if(!strDest.IsEmpty())
+		AddEndSlash(strDest);
 
   if ( nFlags & FLAG_NAME )
   {
     wchar_t *ptr=wcspbrk(s,L":");
     if(ptr)
       s=ptr+1;
-    wcsncat (lpDest, s, e-s);
+		size_t Length=strDest.GetLength()+e-s;
+		strDest+=s;
+		strDest.SetLength(Length);
   }
 
   if ( nFlags & FLAG_EXT )
-      wcscat (lpDest, e);
+		strDest+=e;
 
   return TRUE;
 }
@@ -1409,17 +1420,16 @@ static BOOL SplitFileName (const wchar_t *lpFullName,wchar_t *lpDest,int nFlags)
 // S=fsplit(S,N)
 static bool fsplitFunc()
 {
-  wchar_t path[NM*2];
   int m = (int)VMStack.Pop().toInteger();
   TVar Val= VMStack.Pop();
   const wchar_t *s = Val.toString();
   bool Ret=false;
-  *path=0;
-  if(!SplitFileName(s,path,m))
-    *path=0;
+	string strPath;
+	if(!SplitFileName(s,strPath,m))
+		strPath=L"";
   else
     Ret=true;
-  VMStack.Push(path);
+	VMStack.Push(strPath.CPtr());
   return Ret;
 }
 
@@ -1466,7 +1476,7 @@ static bool itowFunc()
   TVar N = VMStack.Pop();
   if(N.isInteger())
   {
-    wchar_t value[NM];
+		wchar_t value[65];
     int Radix=(int)R.toInteger();
     if(Radix == 0)
       Radix=10;

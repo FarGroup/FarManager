@@ -2090,12 +2090,13 @@ int __stdcall farIsAlphaNum(wchar_t Ch)
 	return IsAlphaNum(Ch);
 }
 
-int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner)
+int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t *Owner,int Size)
 {
 	string strOwner;
 	int Ret=GetFileOwner(Computer,Name,strOwner);
-	wcsncpy(Owner,strOwner,NM);
-	return Ret;
+	if(Owner && Size)
+		xwcsncpy(Owner,strOwner,Size-1);
+	return static_cast<int>(strOwner.GetLength()+1);
 }
 
 int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize)

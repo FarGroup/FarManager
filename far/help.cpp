@@ -108,7 +108,7 @@ static const wchar_t *PluginContents=L"__PluginContents__";
 #if defined(WORK_HELP_DOCUMS)
 static const wchar_t *DocumentContents=L"__DocumentContents__";
 #endif
-static const wchar_t *HelpOnHelpTopic=L":Help";
+static const wchar_t *HelpOnHelpTopic=L"Help";
 static const wchar_t *HelpContents=L"Contents";
 
 static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
@@ -1468,7 +1468,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   }
   else
   {
-    strNewTopic = (const wchar_t*)StackData.strSelTopic+(!StrCmp(StackData.strSelTopic,HelpOnHelpTopic)?1:0);
+    strNewTopic = (const wchar_t*)StackData.strSelTopic;
   }
 
   // удалим ссылку на .DLL

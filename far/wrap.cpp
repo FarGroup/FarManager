@@ -744,12 +744,12 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 
 char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
 {
-	string strP((Prefix?Prefix:""));
+	string strP(Prefix);
 	wchar_t D[NM] = {0};
 
 	FarMkTemp(D,countof(D),strP);
 
-	UnicodeToOEM(D,Dest,StrLength(D)+1);
+	UnicodeToOEM(D,Dest,sizeof(D));
 	return Dest;
 }
 

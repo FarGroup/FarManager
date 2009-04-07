@@ -45,7 +45,7 @@ BOOL  WINAPI DeleteReparsePoint(const wchar_t *szMountDir);
 
 DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &szDestBuff,LPDWORD lpReparseTag=NULL);
 
-BOOL GetSubstName(int DriveType,const wchar_t *LocalName,string &strSubstName);
+bool GetSubstName(int DriveType,const wchar_t *LocalName,string &strSubstName);
 
 int DelSubstDrive(const wchar_t *DosDeviceName);
 void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter=0);
