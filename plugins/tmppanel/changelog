@@ -1,3 +1,7 @@
+t-rex 08.04.2009 02:03:13 +0200 - build 49
+
+1. Update for GetFileOwner API change in 2.0 863.
+
 svs 12.03.2009 19:12:59 +0300 - build 48
 
 1. Mantis#0000779: TmpPanel неправильно отрисовывает меню из файла-списка (*.temp) 

@@ -475,7 +475,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
           free(CurItem->Owner);
           CurItem->Owner=NULL;
         }
-        if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner))
+        if(FSF.GetFileOwner(NULL,CurItem->FindData.cFileName,Owner,80))
           CurItem->Owner=_tcsdup(Owner);
       }
       if(ShowLinks)
@@ -494,8 +494,8 @@ int TmpPanel::ProcessEvent(int Event,void *)
 #ifndef UNICODE
     struct PanelInfo PInfo;
     Info.Control(this,FCTL_GETPANELINFO,&PInfo);
-		int UpdateOwners=IsOwnersDisplayed (PInfo.ColumnTypes) && !LastOwnersRead;
-		int UpdateLinks=IsLinksDisplayed (PInfo.ColumnTypes) && !LastLinksRead;
+    int UpdateOwners=IsOwnersDisplayed (PInfo.ColumnTypes) && !LastOwnersRead;
+    int UpdateLinks=IsLinksDisplayed (PInfo.ColumnTypes) && !LastLinksRead;
 #else
     int Size=Info.Control(this,FCTL_GETCOLUMNTYPES,0,NULL);
     wchar_t* ColumnTypes=new wchar_t[Size];

@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 48
+#define PLUGIN_BUILD 49
 #define PLUGIN_DESC "Temp Panel for FAR Manager"
 #define PLUGIN_NAME "TmpPanel"
 #define PLUGIN_FILENAME "TmpPanel.dll"
