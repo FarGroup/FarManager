@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 789
+  Plugin API for FAR Manager 2.0 build 863
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 789
+#define FARMANAGERVERSION_BUILD 863
 
 #ifndef RC_INVOKED
 
@@ -368,6 +368,8 @@ enum LISTITEMFLAGS {
   LIF_CHECKED            = 0x00020000UL,
   LIF_SEPARATOR          = 0x00040000UL,
   LIF_DISABLE            = 0x00080000UL,
+  LIF_GRAYED             = 0x00100000UL,
+  LIF_HIDDEN             = 0x00200000UL,
   LIF_DELETEUSERDATA     = 0x80000000UL,
 };
 
@@ -609,6 +611,8 @@ enum MENUITEMFLAGS {
   MIF_CHECKED    = 0x00020000UL,
   MIF_SEPARATOR  = 0x00040000UL,
   MIF_DISABLE    = 0x00080000UL,
+  MIF_GRAYED     = 0x00100000UL,
+  MIF_HIDDEN     = 0x00200000UL,
   MIF_USETEXTPTR = 0x80000000UL,
 };
 
@@ -1081,7 +1085,7 @@ enum VIEWER_CONTROL_COMMANDS {
 
 enum VIEWER_OPTIONS {
   VOPT_SAVEFILEPOSITION=1,
-  VOPT_AUTODETECTTABLE=2,
+  VOPT_AUTODETECTCODEPAGE=2,
 };
 
 enum VIEWER_SETMODE_TYPES {
@@ -1223,7 +1227,7 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_AUTOINDENT,
   ESPT_CURSORBEYONDEOL,
   ESPT_CHARCODEBASE,
-  ESPT_CHARTABLE,
+  ESPT_CODEPAGE,
   ESPT_SAVEFILEPOSITION,
   ESPT_LOCKMODE,
   ESPT_SETWORDDIV,
@@ -1276,7 +1280,7 @@ enum EDITOR_OPTIONS {
   EOPT_DELREMOVESBLOCKS  = 0x00000004,
   EOPT_AUTOINDENT        = 0x00000008,
   EOPT_SAVEFILEPOSITION  = 0x00000010,
-  EOPT_AUTODETECTTABLE   = 0x00000020,
+  EOPT_AUTODETECTCODEPAGE   = 0x00000020,
   EOPT_CURSORBEYONDEOL   = 0x00000040,
   EOPT_EXPANDONLYNEWTABS = 0x00000080,
 };
@@ -1423,7 +1427,7 @@ typedef int     (WINAPIV *FARSTDSSCANF)(const wchar_t *Buffer, const wchar_t *Fo
 typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 typedef void    (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef int     (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner);
+typedef int     (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner,int Size);
 typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
 typedef int     (WINAPI *FARSTDATOI)(const wchar_t *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const wchar_t *s);
@@ -1748,6 +1752,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
   OPEN_DIALOG       = 8,
+  OPEN_FROMMACRO    = 0x10000,
 };
 
 enum FAR_PKF_FLAGS {

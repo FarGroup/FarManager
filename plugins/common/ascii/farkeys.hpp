@@ -3,10 +3,10 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.75 build 2479
+  Inside KeyName for FAR Manager 1.75 build 2556
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2008 FAR group
+  Copyrigth (c) 2000-2009 FAR group
 */
 
 
@@ -52,12 +52,14 @@ enum BaseDefKeyboard
   KEY_UP                   =0x00000126,
   KEY_RIGHT                =0x00000127,
   KEY_DOWN                 =0x00000128,
+  KEY_PRNTSCRN             =0x0000012C,
   KEY_INS                  =0x0000012D,
   KEY_DEL                  =0x0000012E,
 
   KEY_LWIN                 =0x0000015B,
   KEY_RWIN                 =0x0000015C,
   KEY_APPS                 =0x0000015D,
+  KEY_STANDBY              =0x0000015F,
 
   KEY_NUMPAD0              =0x00000160,
   KEY_NUMPAD1              =0x00000161,
@@ -74,6 +76,7 @@ enum BaseDefKeyboard
   KEY_MULTIPLY             =0x0000016A,
   KEY_ADD                  =0x0000016B,
   KEY_SUBTRACT             =0x0000016D,
+  KEY_DECIMAL              =0x0000016E,
   KEY_DIVIDE               =0x0000016F,
 
   KEY_F1                   =0x00000170,
@@ -129,15 +132,19 @@ enum BaseDefKeyboard
 
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
+
   KEY_NUMDEL               =0x00000209,
-  KEY_DECIMAL              =0x0000020A,
   KEY_NUMENTER             =0x0000020B,
 
   KEY_MSWHEEL_LEFT         =0x0000020C,
   KEY_MSWHEEL_RIGHT        =0x0000020D,
 
-  KEY_SLEEP                =0x0000020E,
+  KEY_MSLCLICK             =0x0000020F,
+  KEY_MSRCLICK             =0x00000210,
 
+  KEY_MSM1CLICK            =0x00000211,
+  KEY_MSM2CLICK            =0x00000212,
+  KEY_MSM3CLICK            =0x00000213,
   KEY_VK_0xFF_BEGIN        =0x00000300,
   KEY_VK_0xFF_END          =0x000003FF,
 
@@ -649,5 +656,6 @@ enum AddDefKeyboard
   KEY_ALT_BASE             =KEY_ALT,
   KEY_ALTSHIFT_BASE        =KEY_ALTSHIFT,
 };
+
 
 #endif  // __FARKEYS_HPP__

@@ -3,7 +3,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 2.0 build 757
+  Inside KeyName for FAR Manager 2.0 build 863
 */
 
 /*
@@ -92,6 +92,7 @@ enum BaseDefKeyboard
   KEY_LWIN                 =EXTENDED_KEY_BASE+VK_LWIN,
   KEY_RWIN                 =EXTENDED_KEY_BASE+VK_RWIN,
   KEY_APPS                 =EXTENDED_KEY_BASE+VK_APPS,
+  KEY_STANDBY              =EXTENDED_KEY_BASE+VK_SLEEP,
 
   KEY_NUMPAD0              =EXTENDED_KEY_BASE+VK_NUMPAD0,
   KEY_NUMPAD1              =EXTENDED_KEY_BASE+VK_NUMPAD1,
@@ -108,6 +109,7 @@ enum BaseDefKeyboard
   KEY_MULTIPLY             =EXTENDED_KEY_BASE+VK_MULTIPLY,
   KEY_ADD                  =EXTENDED_KEY_BASE+VK_ADD,
   KEY_SUBTRACT             =EXTENDED_KEY_BASE+VK_SUBTRACT,
+  KEY_DECIMAL              =EXTENDED_KEY_BASE+VK_DECIMAL,
   KEY_DIVIDE               =EXTENDED_KEY_BASE+VK_DIVIDE,
 
   KEY_F1                   =EXTENDED_KEY_BASE+VK_F1,
@@ -166,13 +168,19 @@ enum BaseDefKeyboard
   KEY_MSWHEEL_UP           =INTERNAL_KEY_BASE+3,
   KEY_MSWHEEL_DOWN         =INTERNAL_KEY_BASE+4,
   KEY_NUMDEL               =INTERNAL_KEY_BASE+9,
-  KEY_DECIMAL              =INTERNAL_KEY_BASE+0xA,
   KEY_NUMENTER             =INTERNAL_KEY_BASE+0xB,
 
   KEY_MSWHEEL_LEFT         =INTERNAL_KEY_BASE+0xC,
   KEY_MSWHEEL_RIGHT        =INTERNAL_KEY_BASE+0xD,
 
-  KEY_SLEEP                =INTERNAL_KEY_BASE+0xE,
+  KEY_MSLCLICK             =INTERNAL_KEY_BASE+0xF,
+  KEY_MSRCLICK             =INTERNAL_KEY_BASE+0x10,
+
+  KEY_MSM1CLICK            =INTERNAL_KEY_BASE+0x11,
+  KEY_MSM2CLICK            =INTERNAL_KEY_BASE+0x12,
+  KEY_MSM3CLICK            =INTERNAL_KEY_BASE+0x13,
+
+
 
   KEY_VK_0xFF_BEGIN        =EXTENDED_KEY_BASE+0x00000100,
   KEY_VK_0xFF_END          =EXTENDED_KEY_BASE+0x000001FF,
@@ -686,5 +694,6 @@ enum AddDefKeyboard
   KEY_ALT_BASE             =KEY_ALT,
   KEY_ALTSHIFT_BASE        =KEY_ALTSHIFT,
 };
+
 
 #endif  // __FARKEYS_HPP__

@@ -4,15 +4,15 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.75 build 2479
+  Plugin API for FAR Manager 1.75 build 2556
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyright (c) 2000-2008 FAR group
+  Copyright (c) 2000-2009 FAR group
 */
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 75
-#define FARMANAGERVERSION_BUILD 2479
+#define FARMANAGERVERSION_BUILD 2556
 
 #ifndef RC_INVOKED
 
@@ -322,6 +322,8 @@ enum LISTITEMFLAGS {
   LIF_CHECKED            = 0x00020000UL,
   LIF_SEPARATOR          = 0x00040000UL,
   LIF_DISABLE            = 0x00080000UL,
+  LIF_GRAYED             = 0x00100000UL,
+  LIF_HIDDEN             = 0x00200000UL,
   LIF_DELETEUSERDATA     = 0x80000000UL,
 };
 
@@ -579,6 +581,8 @@ enum MENUITEMFLAGS {
   MIF_CHECKED    = 0x00020000UL,
   MIF_SEPARATOR  = 0x00040000UL,
   MIF_DISABLE    = 0x00080000UL,
+  MIF_GRAYED     = 0x00100000UL,
+  MIF_HIDDEN     = 0x00200000UL,
   MIF_USETEXTPTR = 0x80000000UL,
 };
 
@@ -601,10 +605,6 @@ enum FARMENUFLAGS{
   FMENU_REVERSEAUTOHIGHLIGHT = 0x00000008,
   FMENU_USEEXT               = 0x00000020,
   FMENU_CHANGECONSOLETITLE   = 0x00000040,
-
-  FMENU_TRUNCPATH            = 0x10000000,
-  FMENU_TRUNCSTR             = 0x20000000,
-  FMENU_TRUNCSTREND          = 0x30000000,
 };
 
 typedef int (WINAPI *FARAPIMENU)(
@@ -686,7 +686,6 @@ enum PANELINFOFLAGS {
   PFLAGS_REALNAMES          = 0x00000020,
   PFLAGS_NUMERICSORT        = 0x00000040,
   PFLAGS_PANELLEFT          = 0x00000080,
-  PFLAGS_PANELRIGHT         = 0x00000100,
 };
 
 enum PANELINFOTYPE{
@@ -1764,7 +1763,7 @@ struct OpenPluginInfo
   int                   StartSortOrder;
   const struct KeyBarTitles *KeyBar;
   const char           *ShortcutData;
-  long                  Reserverd;
+  long                  Reserved;
 };
 
 enum OPENPLUGIN_OPENFROM{
