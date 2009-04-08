@@ -441,10 +441,7 @@ void Viewer::ShowPage (int nMode)
 
 
   if ( HideCursor )
-  {
-    MoveCursor(79,ScrY);
     SetCursorType(0,10);
-  }
 
   vseek(ViewFile,FilePos,SEEK_SET);
 

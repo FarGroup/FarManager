@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "panel.hpp"
+#include "chgmmode.hpp"
 
 static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
@@ -471,6 +472,8 @@ static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,in
 
 void GetColor(int PaletteIndex)
 {
+  ChangeMacroMode chgMacroMode(MACRO_MENU);
+
   unsigned int NewColor=Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
   if (GetColorDialog(NewColor))
   {
