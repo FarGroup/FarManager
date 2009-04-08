@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="EMenu"
 	ProjectGUID="{F49B5724-0420-46A9-A3F4-647C5722031C}"
 	RootNamespace="FARCmds"
@@ -108,7 +108,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -199,7 +198,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -290,7 +288,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -386,7 +383,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -484,7 +480,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -582,7 +577,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -671,7 +665,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -762,7 +755,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -853,7 +845,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -949,7 +940,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -1047,7 +1037,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -1145,7 +1134,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y .\*.hlf &quot;$(OutDir)\&quot;&#x0D;&#x0A;copy /Y .\*.lng &quot;$(OutDir)&quot;\&#x0D;&#x0A;copy /Y .\*.reg &quot;$(OutDir)&quot;\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -1448,10 +1436,250 @@
 			<File
 				RelativePath=".\EMenuEng.lng"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\EMenuRus.lng"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -1460,10 +1688,250 @@
 			<File
 				RelativePath=".\EMenuEng.hlf"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\EMenuRus.hlf"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -1472,18 +1940,498 @@
 			<File
 				RelativePath=".\EMenuDel.reg"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Hotkey Clipboard.reg"
+				RelativePath=".\HotkeyClipboard.reg"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Hotkey Properties.reg"
+				RelativePath=".\HotkeyProperties.reg"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Hotkey.reg"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="copy /y &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Unicode|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Converting $(InputFileName)"
+						CommandLine="..\common\convert.exe &quot;$(InputFileName)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

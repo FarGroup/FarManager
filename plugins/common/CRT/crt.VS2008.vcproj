@@ -542,8 +542,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description=""
-						CommandLine=""
-						Outputs=" "
+								Outputs=" "
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -573,8 +572,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description=""
-						CommandLine=""
-						Outputs=" "
+								Outputs=" "
 					/>
 				</FileConfiguration>
 			</File>
