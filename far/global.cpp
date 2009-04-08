@@ -104,8 +104,6 @@ int CmpNameSearchMode=FALSE;
 int DisablePluginsOutput=FALSE;
 int CmdMode=FALSE;
 
-PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
-
 int WidthNameForMessage=0;
 
 const wchar_t DOS_EOL_fmt[]  = L"\r\n";

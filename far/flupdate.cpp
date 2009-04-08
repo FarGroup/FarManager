@@ -271,6 +271,15 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
+				if(IsLocalRootPath(strCurDir))
+				{
+					wchar_t Check[]={L'\\',L'\\',L'?',L'\\',strCurDir.At(0),L':',L'\\',L'.',L'.',0};
+					if(apiGetFileAttributes(Check)==INVALID_FILE_ATTRIBUTES)
+					{
+						Done=!apiFindNextFile (FindHandle,&fdata);
+						continue;
+					}
+				}
       }
       if (FileCount>=AllocatedCount)
       {

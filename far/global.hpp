@@ -95,8 +95,6 @@ extern BOOL IsRedrawFramesInProcess;
 
 extern const char *Copyright;
 
-extern PISDEBUGGERPRESENT pIsDebuggerPresent;
-
 extern int WidthNameForMessage;
 
 extern const wchar_t DOS_EOL_fmt[];

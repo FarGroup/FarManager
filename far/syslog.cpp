@@ -244,7 +244,7 @@ void SysLog(const wchar_t *fmt,...)
     fflush(LogStream);
   }
   CloseSysLog();
-  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  if(IsDebuggerPresent())
   {
     OutputDebugStringW(msg);
 #ifdef _MSC_VER
@@ -276,11 +276,11 @@ void SysLogLastError(void)
     fflush(LogStream);
   }
   CloseSysLog();
-  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  if(IsDebuggerPresent())
   {
     OutputDebugStringW(lpMsgBuf);
 #ifdef _MSC_VER
-    OutputDebugStringW(L"\n");
+     OutputDebugStringW(L"\n");
 #endif _MSC_VER
   }
   LocalFree(lpMsgBuf);
@@ -312,7 +312,7 @@ void SysLog(int l,const wchar_t *fmt,...)
     if(l > 0) SysLog(l);
   }
   CloseSysLog();
-  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  if(IsDebuggerPresent())
   {
     OutputDebugStringW(msg);
 #ifdef _MSC_VER
@@ -715,7 +715,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
     fflush(LogStream);
   }
   CloseSysLog();
-  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  if(IsDebuggerPresent())
   {
     OutputDebugStringW(msg);
 #ifdef _MSC_VER

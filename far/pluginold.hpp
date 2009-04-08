@@ -3,115 +3,6 @@
 
 namespace oldfar
 {
-
-
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-/*
-  plugin.hpp
-
-  Plugin API for FAR Manager <%VERSION%>
-
-  Copyright (c) 1996-2000 Eugene Roshal
-  Copyright (c) 2000-<%YEAR%> FAR group
-*/
-
-#define MAKEFARVERSIONA(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
-
-#define FARMANAGERVERSIONA  MAKEFARVERSIONA(1,70,1069)
-
-
-#ifdef FAR_USE_INTERNALS
-#else // ELSE FAR_USE_INTERNALS
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
- #if (defined(__GNUC__) || defined(_MSC_VER)) && !defined(_WIN64)
-  #if !defined(_WINCON_H) && !defined(_WINCON_)
-    #define _WINCON_H
-    #define _WINCON_ // to prevent including wincon.h
-    #if defined(_MSC_VER)
-     #pragma pack(push,2)
-    #else
-     #pragma pack(2)
-    #endif
-    #include<windows.h>
-    #if defined(_MSC_VER)
-     #pragma pack(pop)
-    #else
-     #pragma pack()
-    #endif
-    #undef _WINCON_
-    #undef  _WINCON_H
-
-    #if defined(_MSC_VER)
-     #pragma pack(push,8)
-    #else
-     #pragma pack(8)
-    #endif
-    #include<wincon.h>
-    #if defined(_MSC_VER)
-     #pragma pack(pop)
-    #else
-     #pragma pack()
-    #endif
-  #endif
-  #define _WINCON_
- #else
-   #include<windows.h>
- #endif
-#endif
-#endif // END FAR_USE_INTERNALS
-
-#if defined(__BORLANDC__)
-  #ifndef _WIN64
-    #pragma option -a2
-  #endif
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #ifndef _WIN64
-    #pragma pack(2)
-  #endif
-  #if defined(__LCC__)
-    #define _export __declspec(dllexport)
-  #endif
-#else
-  #ifndef _WIN64
-    #pragma pack(push,2)
-  #endif
-  #if _MSC_VER
-    #ifdef _export
-      #undef _export
-    #endif
-    #define _export
-  #endif
-#endif
-
-#undef DefDlgProc
-
-//#define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
-
-#ifdef FAR_USE_INTERNALS
-#define _FAR_NO_NAMELESS_UNIONS
-#else // ELSE FAR_USE_INTERNALS
-// To ensure compatibility of plugin.hpp with compilers not supporting C++,
-// you can #define _FAR_NO_NAMELESS_UNIONS. In this case, to access,
-// for example, the Data field of the FarDialogItem structure
-// you will need to use Data.Data, and the Selected field - Param.Selected
-//#define _FAR_NO_NAMELESS_UNIONS
-
-// To ensure correct structure packing, you can #define _FAR_USE_FARFINDDATA.
-// In this case, the member PluginPanelItem.FindData will have the type
-// FAR_FIND_DATA, not WIN32_FIND_DATA. The structure FAR_FIND_DATA has the
-// same layout as WIN32_FIND_DATA, but since it is declared in this file,
-// it is generated with correct 2-byte alignment.
-// This #define is necessary to compile plugins with Borland C++ 5.5.
-//#define _FAR_USE_FARFINDDATA
-#endif // END FAR_USE_INTERNALS
-
-#ifndef _WINCON_
-typedef struct _INPUT_RECORD INPUT_RECORD;
-typedef struct _CHAR_INFO    CHAR_INFO;
-#endif
-
 enum FARMESSAGEFLAGS{
   FMSG_WARNING             = 0x00000001,
   FMSG_ERRORTYPE           = 0x00000002,
@@ -665,16 +556,6 @@ struct PluginPanelItem
   DWORD                CRC32;
   DWORD_PTR            Reserved[2];
 };
-
-#if defined(__BORLANDC__)
-#if sizeof(struct PluginPanelItem) != 366
-#if defined(STRICT)
-#error Incorrect alignment: sizeof(PluginPanelItem)!=366
-#else
-#pragma message Incorrect alignment: sizeof(PluginPanelItem)!=366
-#endif
-#endif
-#endif
 
 enum PANELINFOFLAGS {
   PFLAGS_SHOWHIDDEN         = 0x00000001,
@@ -1881,8 +1762,6 @@ enum OPERATION_MODES {
   OPM_QUICKVIEW  =0x0040,
 };
 
-//#define MAXSIZE_SHORTCUTDATA  8192
-
 struct OpenPluginInfo
 {
   int                   StructSize;
@@ -1936,16 +1815,6 @@ enum FAR_EVENTS {
   FE_GOTFOCUS       =6,
   FE_KILLFOCUS      =7,
 };
-
-#ifndef _WIN64
-#if defined(__BORLANDC__)
-  #pragma option -a.
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack()
-#else
-  #pragma pack(pop)
-#endif
-#endif
 
 }
 

@@ -3,7 +3,7 @@
 /*
 imports.hpp
 
-импортируемые функции
+шьяюЁЄшЁєхь√х ЇєэъЎшш
 */
 /*
 Copyright (c) 1996 Eugene Roshal
