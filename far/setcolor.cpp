@@ -20,6 +20,7 @@ setcolor.cpp
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 #include "panel.hpp"
+#include "chgmmode.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
@@ -448,6 +449,7 @@ static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int 
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
+
     if(TypeSub == 1 && PaletteItems[ItemsCode] < 4)
     {
       SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],sizeof(ListItems)/sizeof(ListItems[0]),2);
@@ -461,6 +463,8 @@ static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int 
 
 void GetColor(int PaletteIndex)
 {
+  ChangeMacroMode chgMacroMode(MACRO_MENU);
+
   unsigned int NewColor=Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
   if (GetColorDialog(NewColor))
   {
