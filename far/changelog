@@ -1,3 +1,7 @@
+t-rex 08.04.2009 17:03:46 +0200 - build 2557
+
+1. ”жасы в TList.hpp.
+
 drkns 03.04.2009 20:37:18 +0200 - build 2556
 
 1. »з VMenu::AddItem убран AssignHighlights, ибо:
