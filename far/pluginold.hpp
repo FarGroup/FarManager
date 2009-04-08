@@ -3,6 +3,14 @@
 
 namespace oldfar
 {
+#ifndef _WIN64
+	#ifdef __GNUC__
+		#pragma pack(2)
+	#else
+		#pragma pack(push,2)
+	#endif
+#endif
+
 enum FARMESSAGEFLAGS{
   FMSG_WARNING             = 0x00000001,
   FMSG_ERRORTYPE           = 0x00000002,
@@ -1816,6 +1824,13 @@ enum FAR_EVENTS {
   FE_KILLFOCUS      =7,
 };
 
+#ifndef _WIN64
+	#ifdef __GNUC__
+		#pragma pack()
+	#else
+		#pragma pack(pop)
+	#endif
+#endif
 }
 
 #endif /* __PLUGINOLD_HPP__ */
