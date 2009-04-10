@@ -46,6 +46,27 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+#define  LHD_LARGE          0x0100
+#define  LHD_UNICODE        0x0200
+#define  LHD_SALT           0x0400
+#define  LHD_EXTTIME        0x1000
+#define  LHD_WINDOWMASK     0x00e0
+#define  LHD_DIRECTORY      0x00e0
+#define  LONG_BLOCK         0x8000
+
+enum HEADER_TYPE {
+  MARK_HEAD=0x72,
+  MAIN_HEAD=0x73,
+  FILE_HEAD=0x74,
+  COMM_HEAD=0x75,
+  AV_HEAD=0x76,
+  SUB_HEAD=0x77,
+  PROTECT_HEAD=0x78,
+  SIGN_HEAD=0x79,
+  NEWSUB_HEAD=0x7a,
+  ENDARC_HEAD=0x7b
+};
+
 #ifndef _WIN64
 typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
 typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
@@ -83,6 +104,12 @@ static FARAPIGETMSG   FarGetMsg=NULL;
 static INT_PTR MainModuleNumber=-1;
 static FARAPIMESSAGE FarMessage=NULL;
 static FARSTDSPRINTF FarSprintf=NULL;
+
+void UtfToWide(const char *Src,wchar_t *Dest,int DestSize);
+void DecodeFileName(const char *Name,BYTE *EncName,int EncSize,wchar_t *NameW,int MaxDecSize);
+#define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define  Min(x,y) (((x)<(y)) ? (x):(y))
+
 
 void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
 {
@@ -275,7 +302,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     RHCode=pRARReadHeaderEx(hArcData,&HeaderData);
     if(!RHCode)
     {
-      lstrcpyn(Item->FindData.cFileName,HeaderData.FileName,sizeof(Item->FindData.cFileName)-1);
+      UnicodeToOEM(HeaderData.FileNameW,Item->FindData.cFileName,sizeof(Item->FindData.cFileName)-1);
+      //lstrcpyn(Item->FindData.cFileName,HeaderData.FileName,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.dwFileAttributes=HeaderData.FileAttr;
       Item->FindData.nFileSizeLow=HeaderData.UnpSize;
       Item->FindData.nFileSizeHigh=HeaderData.UnpSizeHigh;
@@ -411,12 +439,12 @@ struct RARHeaderDataEx
         return(GETARC_READERROR);
       if (ReadSize==0)
         return(GETARC_EOF);
-      if (RarHeader.HeadType==0x7B)
+      if (RarHeader.HeadType==ENDARC_HEAD)
         return GETARC_EOF;
       NextPosition+=RarHeader.HeadSize;
       if (NextPosition<RarHeader.HeadSize)
         NextPositionHigh++;
-      if (RarHeader.Flags & 0x8000)
+      if (RarHeader.Flags & LONG_BLOCK)
       {
         NextPosition+=RarHeader.PackSize;
         if (NextPosition<RarHeader.PackSize)
@@ -424,10 +452,10 @@ struct RARHeaderDataEx
       }
       if (RarHeader.HeadSize==0)
         return(GETARC_BROKEN);
-      if (RarHeader.HeadType!=0x74)
+      if (RarHeader.HeadType!=FILE_HEAD)
         continue;
       DWORD PackSizeHigh=0,UnpSizeHigh=0;
-      if (RarHeader.Flags & 0x100)
+      if (RarHeader.Flags & LHD_LARGE)
       {
         if (!ReadFile(ArcHandle,&PackSizeHigh,4,&ReadSize,NULL))
           return(GETARC_READERROR);
@@ -439,19 +467,46 @@ struct RARHeaderDataEx
           return(GETARC_EOF);
         NextPositionHigh+=PackSizeHigh;
       }
+
+      if (RarHeader.HostOS >= 3)
+        RarHeader.FileAttr=(RarHeader.Flags & LHD_WINDOWMASK) == LHD_DIRECTORY ? 0x10:0x20;
+
       //if (RarHeader.NameSize>sizeof(Item->FindData.cFileName)-1)
       //  return(GETARC_BROKEN);
+      /*
       if (RarHeader.NameSize>sizeof(Item->FindData.cFileName)-1)
       {
         RarHeader.NameSize=sizeof(Item->FindData.cFileName)-1;
         Item->FindData.cFileName[RarHeader.NameSize]=0;
       }
+      */
 
-      if (RarHeader.HostOS>=3)
-        RarHeader.FileAttr=(RarHeader.Flags & 0x00e0)==0x00e0 ? 0x10:0x20;
-      if (!ReadFile(ArcHandle,&Item->FindData.cFileName,RarHeader.NameSize,&ReadSize,NULL) ||
-          ReadSize!=RarHeader.NameSize)
+      char FileName[1024];
+      int NameSize=Min(RarHeader.NameSize,sizeof(FileName)-1);
+
+      if (!ReadFile(ArcHandle,FileName,NameSize,&ReadSize,NULL) || ReadSize!=RarHeader.NameSize)
         return(GETARC_READERROR);
+      FileName[NameSize]=0;
+
+      if(RarHeader.Flags&LHD_UNICODE)
+      {
+        wchar_t FileNameW[1024];
+        int Length=lstrlen(FileName);
+        if (Length == RarHeader.NameSize)
+        {
+          UtfToWide(FileName,FileNameW,ArraySize(FileNameW)-1);
+          UnicodeToOEM(FileNameW,FileName,ArraySize(FileName)-1);
+        }
+        else
+        {
+          Length++;
+          DecodeFileName(FileName,(BYTE *)FileName+Length,RarHeader.NameSize-Length,FileNameW,ArraySize(FileNameW));
+          UnicodeToOEM(FileNameW,FileName,ArraySize(FileName)-1);
+        }
+      }
+
+      lstrcpyn(Item->FindData.cFileName,FileName,sizeof(Item->FindData.cFileName)-1);
+
       Item->CRC32=RarHeader.FileCRC;
       Item->FindData.dwFileAttributes=RarHeader.FileAttr;
       Item->PackSizeHigh=PackSizeHigh;
@@ -461,10 +516,10 @@ struct RARHeaderDataEx
       FILETIME lft;
       DosDateTimeToFileTime(HIWORD(RarHeader.FileTime),LOWORD(RarHeader.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
-      if(RarHeader.Flags & 0x1000)
+      if(RarHeader.Flags & LHD_EXTTIME)
       {
         // Skip Salt (8 bytes)
-        if (RarHeader.Flags & 0x400)
+        if (RarHeader.Flags & LHD_SALT)
           SetFilePointer(ArcHandle,8,NULL,FILE_CURRENT);
         BYTE ExtRARTime[19], *PtrExtTime=ExtRARTime+2;
 /*
@@ -590,4 +645,101 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
+}
+
+
+void DecodeFileName(const char *Name,BYTE *EncName,int EncSize,wchar_t *NameW,int MaxDecSize)
+{
+  int FlagBits=0;
+  BYTE Flags=0;
+  int EncPos=0,DecPos=0;
+  BYTE HighByte=EncName[EncPos++];
+
+  while (EncPos < EncSize && DecPos < MaxDecSize)
+  {
+    if (FlagBits==0)
+    {
+      Flags=EncName[EncPos++];
+      FlagBits=8;
+    }
+    switch(Flags >> 6)
+    {
+      case 0:
+        NameW[DecPos++]=EncName[EncPos++];
+        break;
+      case 1:
+        NameW[DecPos++]=EncName[EncPos++]+(HighByte<<8);
+        break;
+      case 2:
+        NameW[DecPos++]=EncName[EncPos]+(EncName[EncPos+1]<<8);
+        EncPos+=2;
+        break;
+      case 3:
+        {
+          int Length=EncName[EncPos++];
+          if (Length & 0x80)
+          {
+            BYTE Correction=EncName[EncPos++];
+            for (Length=(Length&0x7f)+2; Length >0 && DecPos < MaxDecSize; Length--,DecPos++)
+              NameW[DecPos]=((Name[DecPos]+Correction)&0xff)+(HighByte<<8);
+          }
+          else
+            for (Length+=2;Length>0 && DecPos<MaxDecSize;Length--,DecPos++)
+              NameW[DecPos]=Name[DecPos];
+        }
+        break;
+    }
+    Flags<<=2;
+    FlagBits-=2;
+  }
+  NameW[DecPos<MaxDecSize ? DecPos:MaxDecSize-1]=0;
+}
+
+void UtfToWide(const char *Src,wchar_t *Dest,int DestSize)
+{
+  DestSize--;
+  while (*Src!=0)
+  {
+    UINT c=(BYTE)*(Src++),d;
+    if (c<0x80)
+      d=c;
+    else
+      if ((c>>5)==6)
+      {
+        if ((*Src&0xc0)!=0x80)
+          break;
+        d=((c&0x1f)<<6)|(*Src&0x3f);
+        Src++;
+      }
+      else
+        if ((c>>4)==14)
+        {
+          if ((Src[0]&0xc0)!=0x80 || (Src[1]&0xc0)!=0x80)
+            break;
+          d=((c&0xf)<<12)|((Src[0]&0x3f)<<6)|(Src[1]&0x3f);
+          Src+=2;
+        }
+        else
+          if ((c>>3)==30)
+          {
+            if ((Src[0]&0xc0)!=0x80 || (Src[1]&0xc0)!=0x80 || (Src[2]&0xc0)!=0x80)
+              break;
+            d=((c&7)<<18)|((Src[0]&0x3f)<<12)|((Src[1]&0x3f)<<6)|(Src[2]&0x3f);
+            Src+=3;
+          }
+          else
+            break;
+    if (--DestSize<0)
+      break;
+    if (d>0xffff)
+    {
+      if (--DestSize<0 || d>0x10ffff)
+        break;
+      *(Dest++)=((d-0x10000)>>10)+0xd800;
+      *(Dest++)=(d&0x3ff)+0xdc00;
+    }
+    else
+      *(Dest++)=d;
+  }
+  *Dest=0;
 }

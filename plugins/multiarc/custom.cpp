@@ -59,6 +59,14 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 //#pragma comment(linker, "-merge:.rdata=.text")
 #endif
 
+typedef union {
+  __int64 i64;
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } Part;
+} FAR_INT64;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Forward declarations
@@ -74,6 +82,7 @@ UINT GetIniInt(LPCTSTR lpAppName,LPCTSTR lpKeyName,INT lpDefault);
 void FillFormat(const char *TypeName);
 void MakeFiletime(SYSTEMTIME st, SYSTEMTIME syst, LPFILETIME pft);
 int StringToInt(const char *str);
+__int64 StringToInt64(const char *str);
 int StringToIntHex(const char *str);
 void ParseListingItemRegExp(Match match,
     struct PluginPanelItem *Item, struct ArcItemInfo *Info,
@@ -754,7 +763,7 @@ int GetSectionName(int Num, char *Name, int MaxSize)
 {
     char Buf[8192];
     char *Section = Buf;
-   
+
     GetPrivateProfileSectionNames(Buf, sizeof(Buf), FormatFileName);
     char tmp[3];
     while(*Section)
@@ -996,6 +1005,15 @@ int StringToInt(const char *str)
     return i;
 }
 
+__int64 StringToInt64(const char *str)
+{
+    __int64 i = 0;
+    for(const char *p = str; p && *p; ++p)
+        if(isdigit(*p))
+            i = i * 10 + (*p - '0');
+    return i;
+}
+
 int StringToIntHex(const char *str)
 {
     int i = 0;
@@ -1018,8 +1036,13 @@ void ParseListingItemRegExp(Match match,
     if(const char *p = match["description"])
         lstrcat(Info->Description, p);
 
-    Item->FindData.nFileSizeLow = StringToInt(match["size"]);
-    Item->PackSize              = StringToInt(match["packedSize"]);
+    FAR_INT64 SizeFile;
+    SizeFile.i64 = StringToInt64(match["size"]);
+    Item->FindData.nFileSizeLow  = SizeFile.Part.LowPart;
+    Item->FindData.nFileSizeHigh = SizeFile.Part.HighPart;
+    SizeFile.i64 = StringToInt64(match["packedSize"]);
+    Item->PackSize               = SizeFile.Part.LowPart;
+    Item->PackSizeHigh           = SizeFile.Part.HighPart;
 
     for(const char *p = match["attr"]; p && *p; ++p)
     {
@@ -1101,6 +1124,8 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
     OptionalPart = OP_OUTSIDE;
     int IsChapter = 0;
 
+    FAR_INT64 SizeFile;
+
     for(; *CurStr && *CurFormat; CurFormat++, CurStr++)
     {
         if(OptionalPart == OP_SKIP)
@@ -1137,8 +1162,13 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             break;
         case 'z':
             if(isdigit(*CurStr))
-                Item->FindData.nFileSizeLow =
-                    Item->FindData.nFileSizeLow * 10 + (*CurStr - '0');
+            {
+                SizeFile.Part.LowPart=Item->FindData.nFileSizeLow;
+                SizeFile.Part.HighPart=Item->FindData.nFileSizeHigh;
+                SizeFile.i64=SizeFile.i64 * 10 + (*CurStr - '0');
+                Item->FindData.nFileSizeLow=SizeFile.Part.LowPart;
+                Item->FindData.nFileSizeHigh=SizeFile.Part.HighPart;
+            }
             else if(OP_INSIDE == OptionalPart)
             {
                 CurStr--;
@@ -1147,7 +1177,13 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             break;
         case 'p':
             if(isdigit(*CurStr))
-                Item->PackSize = Item->PackSize * 10 + (*CurStr - '0');
+            {
+                SizeFile.Part.LowPart=Item->PackSize;
+                SizeFile.Part.HighPart=Item->PackSizeHigh;
+                SizeFile.i64=SizeFile.i64 * 10 + (*CurStr - '0');
+                Item->PackSize=SizeFile.Part.LowPart;
+                Item->PackSizeHigh=SizeFile.Part.HighPart;
+            }
             else if(OP_INSIDE == OptionalPart)
             {
                 CurStr--;
