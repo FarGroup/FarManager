@@ -260,6 +260,28 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 #endif
 }
 
+/* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
+*/
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,int ExceptColor)
+{
+	CriticalSectionLock Lock(CS);
+
+	for (int I = 0; I < Y2-Y1+1; I++)
+	{
+		CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
+		for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
+			if (PtrBuf->Attributes != ExceptColor)
+				PtrBuf->Attributes = Color;
+	}
+
+#ifdef DIRECT_SCREEN_OUT
+	Flush();
+#elif defined(DIRECT_RT)
+	if ( DirectRT  )
+		Flush();
+#endif
+}
+
 /* Закрасить прямоугольник символом Ch и цветом Color
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)

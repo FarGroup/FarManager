@@ -78,7 +78,8 @@ class ScreenBuf
     void RestoreMacroChar();
 
     void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
-    void ApplyColor(int X1,int Y1,int X2,int Y2,int ColorMask);
+    void ApplyColor(int X1,int Y1,int X2,int Y2,int Color);
+	void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,int ExceptColor);
     void FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 
     void Scroll(int);

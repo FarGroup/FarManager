@@ -2143,70 +2143,87 @@ void Edit::SetTabCurPos(int NewPos)
 
 int Edit::RealPosToTab(int Pos)
 {
-	return RealLengthToTab(0, 0, Pos);
+	return RealPosToTab(0, 0, Pos, NULL);
 }
 
 
-int Edit::RealLengthToTab(int Length, int StartPos, int EndPos)
+int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 {
+	// Если у нас все табы преобразуются в пробелы, то просто вычисляем расстояние
 	if (TabExpandMode == EXPAND_ALLTABS)
-		return(Length+EndPos-StartPos);
+		return PrevLength+Pos-PrevPos;
 
-	/* $ 10.10.2004 KM
-	После исправления Bug #1122 привнесён баг с невозможностью
-	выйти за пределы строки в редакторе при установленном
-	Cursor beyond end of line.
-	*/
-	int TabPos = 0;
-	bool negative = StartPos>EndPos;
-	bool editBeyondEnd = Flags.Check(FEDITLINE_EDITBEYONDEND)?true:false;
-	for (int I=(!negative?StartPos:EndPos);I<(!negative?EndPos:StartPos) && (editBeyondEnd?TRUE:Str[I]);I++)
+	// Корректировка табов
+	bool bCorrectPos = CorrectPos && *CorrectPos;
+	if (CorrectPos)
+		*CorrectPos = 0;
+
+	// Инциализируем результирующую длину предыдущим значением
+	int TabPos = PrevLength;
+	
+	// Если предыдущая позиция за концом строки, то табов там точно нет и 
+	// вычислять особо ничего не надо, иначе производим вычисление
+	if (PrevPos >= StrSize)
+		TabPos += Pos-PrevPos;
+	else 
 	{
-		if (I>=StrSize)
-		{
-			TabPos += EndPos-StartPos-I;
-			break;
-		}
-		if (Str[I]==L'\t')
-			TabPos += TabSize-((Length+TabPos) % TabSize);
-		else
-			TabPos++;
+		// Начинаем вычисление с предыдущей позиции
+		int Index = PrevPos;
+		// Проходим по всем символам до позиции поиска, если она ещё в пределах строки,
+		// либо до конца строки, если позиция поиска за пределами строки
+		for (; Index < min(Pos, StrSize); Index++)
+			// Обрабатываем табы
+			if (Str[Index] == L'\t')
+			{
+				// Если есть необходимость делать корректировку табов и эта коректировка 
+				// ещё не проводилась, то увеличиваем длину обрабатываемой строки на еденицу
+				if (bCorrectPos)
+				{
+					++Pos;
+					*CorrectPos = 1;
+					bCorrectPos = false;
+				}
+				// Расчитываем длину таба с учётом настроек и текущей позиции в строке
+				TabPos += TabSize-(TabPos%TabSize);
+			}
+			// Обрабатываем все отсальные симовлы
+			else
+				TabPos++;
+		
+		// Если позиция находится за пределами строки, то там точно нет табов и всё просто
+		if (Pos >= StrSize)
+			TabPos += Pos-Index;
 	}
-	return(negative?Length-TabPos:Length+TabPos);
+
+	return TabPos;
 }
 
 
 int Edit::TabPosToReal(int Pos)
 {
-  int TabPos,I;
+  if (TabExpandMode == EXPAND_ALLTABS)
+	return Pos;
 
-  if ( (TabExpandMode == EXPAND_ALLTABS) || wmemchr(Str,L'\t',StrSize)==NULL)
-    return(Pos);
-
-
-  /* $ 10.10.2004 KM
-     После исправления Bug #1122 привнесён баг с невозможностью
-     выйти за пределы строки в редакторе при установленном
-     Cursor beyond end of line.
-  */
-  for (TabPos=0,I=0;TabPos<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
+  int Index = 0;
+  for (int TabPos = 0; TabPos < Pos; Index++)
   {
-    if (I>StrSize)
-    {
-      I+=Pos-TabPos;
-      break;
-    }
-    if (Str[I]==L'\t')
-    {
-      int NewTabPos=TabPos+TabSize - (TabPos % TabSize);
-      if (NewTabPos>Pos)
-        break;
-      TabPos=NewTabPos;
-    }
-    else
-      TabPos++;
+	if (Index > StrSize)
+	{
+	  Index += Pos-TabPos;
+	  break;
+	}
+	if (Str[Index] == L'\t')
+	{
+	  int NewTabPos = TabPos+TabSize-(TabPos%TabSize);
+	  if (NewTabPos > Pos)
+		break;
+	  TabPos = NewTabPos;
+	}
+	else
+	  TabPos++;
   }
-  return(I);
+
+  return Index;
 }
 
 
@@ -2369,101 +2386,127 @@ int Edit::GetColor(struct ColorItem *col,int Item)
 
 void Edit::ApplyColor()
 {
+	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
-	for (int Col=0; Col<ColorCount; Col++)
+	// Обрабатываем элементы ракраски
+	for (int Col = 0; Col < ColorCount; Col++)
 	{
-		struct ColorItem *CurItem=ColorList+Col;
-		// Отсекаем элементы заведомо не попадающие на экран
-		if (CurItem->StartPos-LeftPos>X2 && CurItem->EndPos-LeftPos<X1)
+		struct ColorItem *CurItem = ColorList+Col;
+		// Пропускаем элементы у которых начало больше конца
+		if (CurItem->StartPos > CurItem->EndPos)
 			continue;
-		int Attr=CurItem->Color;
-		int Length=CurItem->EndPos-CurItem->StartPos+1;
-		if(CurItem->StartPos+Length >= StrSize)
-			Length=StrSize-CurItem->StartPos;
+		// Отсекаем элементы заведомо не попадающие на экран
+		if (CurItem->StartPos-LeftPos > X2 && CurItem->EndPos-LeftPos < X1)
+			continue;
+		int Attr = CurItem->Color;
+		int Length = CurItem->EndPos-CurItem->StartPos+1;
+		if (CurItem->StartPos+Length >= StrSize)
+			Length = StrSize-CurItem->StartPos;
 
 		// Получаем начальную позицию
 		int RealStart, Start;
-		if (Pos==INT_MIN || StrSize-CurItem->StartPos<abs(CurItem->StartPos-Pos))
-		{
-			RealStart = RealPosToTab(CurItem->StartPos);
-			Start = RealStart-LeftPos;
-		}
-		else if (Pos==CurItem->StartPos)
+		// Если предыдущая позиция равна текущей, то ничего не вычисляем
+		// и сразу берём ранее вычисленное значение
+		if (Pos == CurItem->StartPos)
 		{
 			RealStart = TabPos;
 			Start = TabEditorPos;
 		}
-		else
+		// Если вычисление идёт первый раз или предыдущая позиция больше текущей,
+		// то производим вычисление с начала строки
+		else if (Pos == INT_MIN || CurItem->StartPos < Pos)
 		{
-			RealStart = RealLengthToTab(TabPos, Pos, CurItem->StartPos);
+			RealStart = RealPosToTab(CurItem->StartPos);
 			Start = RealStart-LeftPos;
 		}
+		// Для отптимизации делаем вычисление относительно предыдущей позиции
+		else
+		{
+			RealStart = RealPosToTab(TabPos, Pos, CurItem->StartPos, NULL);
+			Start = RealStart-LeftPos;
+		}
+		// Запоминаем вычисленные значения для их дальнейшего повторного использования
 		Pos = CurItem->StartPos;
 		TabPos = RealStart;
 		TabEditorPos = Start;
-		if (Start>X2)
+		// Пропускаем элементы раскраски у которых начальная позиция за экраном
+		if (Start > X2)
 			continue;
 
-		int LengthFind=CurItem->StartPos+Length >= StrSize?StrSize-CurItem->StartPos+1:Length;
-		int CorrectPos=0;
-
-		if(Attr&ECF_TAB1)
-			Attr&=~ECF_TAB1;
-		else
-			// BUBUG: Тут двойное сканирование строки
-			CorrectPos = LengthFind>0 && CurItem->StartPos<StrSize && wmemchr(Str+CurItem->StartPos,L'\t',LengthFind)?1:0;
+		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TAB1)
+		int CorrectPos = Attr & ECF_TAB1 ? 0 : 1;
+		if (!CorrectPos)
+			Attr &= ~ECF_TAB1;
 
 		// Получаем конечную позицию
-		int EndPos = CurItem->EndPos+CorrectPos;
+		int EndPos = CurItem->EndPos;
 		int RealEnd, End;
-		if (StrSize-EndPos<abs(EndPos-Pos))
+		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
+		// длина раскрашиваемой строкии равна 1
+		if (Pos == EndPos)
 		{
-			RealEnd = RealPosToTab(EndPos);
+			// Если необходимо делать корректироку относительно табов и единственный
+			// символ строки -- это таб, то делаем расчёт с учтом корректировки,
+			// иначе ничего не вычисялем и берём старые значения
+			if (CorrectPos && EndPos < StrSize && Str[EndPos] == L'\t')
+			{
+				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, NULL);
+				End = RealEnd-LeftPos;
+			}
+			else
+			{
+				RealEnd = TabPos;
+				CorrectPos = 0;
+				End = TabEditorPos;
+			}
+		}
+		// Если предыдущая позиция больше текущей, то производим вычисление 
+		// с начала строки (с учётом корректировки относительно табов)
+		else if (EndPos < Pos)
+		{
+			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
+			EndPos += CorrectPos;
 			End = RealEnd-LeftPos;
 		}
-		else if (Pos==EndPos)
-		{
-			RealEnd = TabPos;
-			End = TabEditorPos;
-		}
+		// Для отптимизации делаем вычисление относительно предыдущей позиции (с учётом 
+		// корректировки относительно табов)
 		else
 		{
-			RealEnd = RealLengthToTab(TabPos, Pos, EndPos);
+			RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
+			EndPos += CorrectPos;
 			End = RealEnd-LeftPos;
 		}
+		// Запоминаем вычисленные значения для их дальнейшего повторного использования
 		Pos = EndPos;
 		TabPos = RealEnd;
 		TabEditorPos = End;
-		if (End<X1)
+		// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
+		if (End < X1)
 			continue;
 
-		CHAR_INFO TextData[1024];
+		// Обрезаем раскраску элемента по экрану
+		if (Start < X1)
+			Start = X1;
+		if (End > X2)
+			End = X2;
 
-		if (Start<X1)
-			Start=X1;
-
-		if (End>X2)
-			End=X2;
-
-		Length=End-Start+1;
-
-		if(Length < X2)
-			Length-=CorrectPos;
-
-		if (Length > 0 && Length < (int)countof(TextData))
+		// Устанавливаем длину раскрашиваемого элемента
+		Length = End-Start+1;
+		if (Length < X2)
+			Length -= CorrectPos;
+		
+		// Раскрашиваем элемент, если есть что раскрашивать
+		if (Length > 0)
 		{
-			ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
-
-			int SelColor0=SelColor;
-
-			if(SelColor >= COL_FIRSTPALETTECOLOR)
-				SelColor0=Palette[SelColor-COL_FIRSTPALETTECOLOR];
-
-			for (int I=0;I < Length;I++)
-				if (TextData[I].Attributes != SelColor0)
-					TextData[I].Attributes=Attr;
-
-			ScrBuf.Write(Start,Y1,TextData,Length);
+			ScrBuf.ApplyColor(
+					Start,
+					Y1,
+					Start+Length-1,
+					Y1,
+					Attr,
+					// Не раскрашиваем выделение
+					SelColor >= COL_FIRSTPALETTECOLOR ? Palette[SelColor-COL_FIRSTPALETTECOLOR] : SelColor
+				);
 		}
 	}
 }
