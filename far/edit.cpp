@@ -2149,14 +2149,14 @@ int Edit::RealPosToTab(int Pos)
 
 int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 {
-	// Если у нас все табы преобразуются в пробелы, то просто вычисляем расстояние
-	if (TabExpandMode == EXPAND_ALLTABS)
-		return PrevLength+Pos-PrevPos;
-
 	// Корректировка табов
 	bool bCorrectPos = CorrectPos && *CorrectPos;
 	if (CorrectPos)
 		*CorrectPos = 0;
+
+	// Если у нас все табы преобразуются в пробелы, то просто вычисляем расстояние
+	if (TabExpandMode == EXPAND_ALLTABS)
+		return PrevLength+Pos-PrevPos;
 
 	// Инциализируем результирующую длину предыдущим значением
 	int TabPos = PrevLength;
