@@ -87,6 +87,11 @@ MY_DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2
 #define CM_DEVCAP_REMOVABLE         (0x00000004)
 #define CM_DEVCAP_SURPRISEREMOVALOK (0x00000080)
 #define CM_DEVCAP_DOCKDEVICE        (0x00000008)
+
+#ifndef CM_DEVCAP_UNIQUEID
+#define CM_DEVCAP_UNIQUEID 0x00000010
+#endif
+
 typedef LPCSTR PCTSTR, LPCTSTR, PCUTSTR, LPCUTSTR;
 
 #else
@@ -517,6 +522,21 @@ TRUE if this is a HotPlug device
 FALSE if this is not a HotPlug device.
 -**/
 
+bool CheckChild(DEVINST hDevInst)
+{
+  bool Result=false;
+  DEVINST hDevChild;
+  if(pfnGetChild(&hDevChild,hDevInst,0)==CR_SUCCESS)
+  {
+    DWORD Capabilities;
+    ULONG Length=sizeof(Capabilities);
+    if(pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,NULL,&Capabilities,&Length,0)==CR_SUCCESS)
+    {
+      Result=!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK)&&(Capabilities&CM_DEVCAP_UNIQUEID);
+    }
+  }
+  return Result;
+}
 
 BOOL IsHotPlugDevice (DEVINST hDevInst)
 {
@@ -550,7 +570,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
            (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
            (Problem != CM_PROB_DISABLED) &&
            (Capabilities & CM_DEVCAP_REMOVABLE) &&
-           !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
+           (!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || CheckChild(hDevInst)) &&
            !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
          return TRUE;
     }
