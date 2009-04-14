@@ -256,6 +256,21 @@ TRUE if this is a HotPlug device
 FALSE if this is not a HotPlug device.
 -**/
 
+bool CheckChild(DEVINST hDevInst)
+{
+	bool Result=false;
+	DEVINST hDevChild;
+	if(ifn.pfnGetChild(&hDevChild,hDevInst,0)==CR_SUCCESS)
+	{
+		DWORD Capabilities;
+		ULONG Length=sizeof(Capabilities);
+		if(ifn.pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,NULL,&Capabilities,&Length,0)==CR_SUCCESS)
+		{
+			Result=!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK)&&(Capabilities&CM_DEVCAP_UNIQUEID);
+		}
+	}
+	return Result;
+}
 
 BOOL IsHotPlugDevice (DEVINST hDevInst)
 {
@@ -289,7 +304,7 @@ BOOL IsHotPlugDevice (DEVINST hDevInst)
            (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
            (Problem != CM_PROB_DISABLED) &&
          (Capabilities & CM_DEVCAP_REMOVABLE) &&
-         !(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) &&
+					(!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || CheckChild(hDevInst)) &&
          !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
          return TRUE;
     }

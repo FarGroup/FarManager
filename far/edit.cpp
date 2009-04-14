@@ -2171,7 +2171,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 		int Index = PrevPos;
 		// ѕроходим по всем символам до позиции поиска, если она ещЄ в пределах строки,
 		// либо до конца строки, если позици€ поиска за пределами строки
-		for (; Index < min(Pos, StrSize); Index++)
+		for (; Index < Min(Pos, StrSize); Index++)
 			// ќбрабатываем табы
 			if (Str[Index] == L'\t')
 			{

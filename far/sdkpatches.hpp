@@ -242,6 +242,10 @@ DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
 #define CM_DEVCAP_DOCKDEVICE 0x00000008
 #endif
 
+#ifndef CM_DEVCAP_UNIQUEID
+#define CM_DEVCAP_UNIQUEID 0x00000010
+#endif
+
 #ifdef _MSC_VER
 #pragma pack(push,4)
 #endif
