@@ -228,12 +228,16 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	if (GetCPInfoExW(codePage, 0, &cpi) && cpi.MaxCharSize == 1)
 	{
 		// Формируем имя таблиц символов
-		wchar_t *codePageName = wcschr(cpi.CodePageName, L'(')+1;
-		codePageName[wcslen(codePageName)-1] = L'\0';
+		// под виндой на входе "XXXX (Name)" а например под wine просто "Name"
+		wchar_t *codePageName = wcschr(cpi.CodePageName, L'(');
+		if (codePageName && *(++codePageName))
+			codePageName[wcslen(codePageName)-1] = L'\0';
+		else
+			codePageName = cpi.CodePageName;
 		// Получаем признак выбранности таблицы символов
 		int selectType = 0;
 		GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
-		// Добавляем таблицу символовЮ либо в нормальные, либо в выбранные таблицы симовлов
+		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
 		if (selectType & CPST_FAVORITE)
 		{
 			// добавляем разделитель между стандартными и системными таблицами символов
