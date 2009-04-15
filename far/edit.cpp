@@ -139,50 +139,52 @@ DWORD Edit::SetCodePage (UINT codepage)
 
 	if ( codepage != m_codepage )
 	{
-		//m_codepage = codepage;
-
-		int length = WideCharToMultiByte (m_codepage, wc2mbFlags, Str, StrSize, NULL, 0, NULL, lpUsedDefaultChar);
-
-		if(UsedDefaultChar)
-			Ret|=SETCP_WC2MBERROR;
-
-		char *decoded = (char*)xf_malloc (length);
-
-		if ( !decoded )
+		if(Str && *Str)
 		{
-			Ret|=SETCP_OTHERERROR;
-			return Ret;
-		}
+			//m_codepage = codepage;
 
-		WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
+			int length = WideCharToMultiByte (m_codepage, wc2mbFlags, Str, StrSize, NULL, 0, NULL, lpUsedDefaultChar);
 
-		int length2 = MultiByteToWideChar (codepage, mb2wcFlags, decoded, length, NULL, 0);
+			if(UsedDefaultChar)
+				Ret|=SETCP_WC2MBERROR;
 
-		if(!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
-		{
-			Ret|=SETCP_MB2WCERROR;
-			length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
-		}
+			char *decoded = (char*)xf_malloc (length);
 
-		wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
+			if ( !decoded )
+			{
+				Ret|=SETCP_OTHERERROR;
+				return Ret;
+			}
 
-		if ( !encoded )
-		{
+			WideCharToMultiByte (m_codepage, 0, Str, StrSize, decoded, length, NULL, NULL);
+
+			int length2 = MultiByteToWideChar (codepage, mb2wcFlags, decoded, length, NULL, 0);
+
+			if(!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
+			{
+				Ret|=SETCP_MB2WCERROR;
+				length2 = MultiByteToWideChar (codepage, 0, decoded, length, NULL, 0);
+			}
+
+			wchar_t *encoded = (wchar_t*)xf_malloc ((length2+1)*sizeof (wchar_t));
+
+			if ( !encoded )
+			{
+				xf_free (decoded);
+				Ret|=SETCP_OTHERERROR;
+				return Ret;
+			}
+
+			memset (encoded, 0, (length2+1)*sizeof (wchar_t));
+
+			MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
+
 			xf_free (decoded);
-			Ret|=SETCP_OTHERERROR;
-			return Ret;
+			xf_free (Str);
+
+			Str = encoded;
+			StrSize = length2;
 		}
-
-		memset (encoded, 0, (length2+1)*sizeof (wchar_t));
-
-		MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
-
-		xf_free (decoded);
-		xf_free (Str);
-
-		Str = encoded;
-		StrSize = length2;
-
 		m_codepage = codepage;
 		Changed();
 	}

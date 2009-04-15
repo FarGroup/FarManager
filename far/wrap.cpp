@@ -2316,20 +2316,16 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if (ret)
 				{
 					ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
-					OldPI->PanelItems = (oldfar::PluginPanelItem *)xf_malloc(PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
-					memset(OldPI->PanelItems,0,PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
-					OldPI->SelectedItems = (oldfar::PluginPanelItem *)xf_malloc(PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
-					memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
-					if(OldPI->PanelItems&&OldPI->SelectedItems)
+					if(PI.ItemsNumber)
 					{
-						PluginPanelItem* PPI=NULL; int PPISize=0;
-						oldfar::PluginPanelItem* oldPanelItems=OldPI->PanelItems;
-						int Control=FCTL_GETPANELITEM; int ItemsNumber=PI.ItemsNumber;
-						for(int ii=0;ii<2;ii++)
+						OldPI->PanelItems = (oldfar::PluginPanelItem *)xf_malloc(PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
+						if(OldPI->PanelItems)
 						{
-							for(int jj=0;jj<ItemsNumber;jj++)
+							memset(OldPI->PanelItems,0,PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
+							PluginPanelItem* PPI=NULL; int PPISize=0;
+							for(int i=0;i<PI.ItemsNumber;i++)
 							{
-								int NewPPISize=FarControl(hPlugin,Control,jj,0);
+								int NewPPISize=FarControl(hPlugin,FCTL_GETPANELITEM,i,0);
 								if(NewPPISize>PPISize)
 								{
 									PluginPanelItem* NewPPI=(PluginPanelItem*)xf_realloc(PPI,NewPPISize);
@@ -2338,15 +2334,43 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 										PPI=NewPPI;
 										PPISize=NewPPISize;
 									}
-									else break;
+									else
+										break;
 								}
-								FarControl(hPlugin,Control,jj,(LONG_PTR)PPI);
-								ConvertPanelItemToAnsi(*PPI,oldPanelItems[jj]);
+								FarControl(hPlugin,FCTL_GETPANELITEM,i,(LONG_PTR)PPI);
+								ConvertPanelItemToAnsi(*PPI,OldPI->PanelItems[i]);
 							}
-							oldPanelItems=OldPI->SelectedItems;
-							Control=FCTL_GETSELECTEDPANELITEM; ItemsNumber=PI.SelectedItemsNumber;
+							if(PPI)
+								xf_free(PPI);
 						}
-						xf_free(PPI);
+					}
+					if(PI.SelectedItemsNumber)
+					{
+						OldPI->SelectedItems = (oldfar::PluginPanelItem *)xf_malloc(PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
+						if(OldPI->SelectedItems)
+						{
+							memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
+							PluginPanelItem* PPI=NULL; int PPISize=0;
+							for(int i=0;i<PI.SelectedItemsNumber;i++)
+							{
+								int NewPPISize=FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0);
+								if(NewPPISize>PPISize)
+								{
+									PluginPanelItem* NewPPI=(PluginPanelItem*)xf_realloc(PPI,NewPPISize);
+									if(NewPPI)
+									{
+										PPI=NewPPI;
+										PPISize=NewPPISize;
+									}
+									else
+										break;
+								}
+								FarControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)PPI);
+								ConvertPanelItemToAnsi(*PPI,OldPI->SelectedItems[i]);
+							}
+							if(PPI)
+								xf_free(PPI);
+						}
 					}
 
 					wchar_t CurDir[sizeof(OldPI->CurDir)];

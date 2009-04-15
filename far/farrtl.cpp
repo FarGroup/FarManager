@@ -64,10 +64,6 @@ __int64 filelen64(FILE *FPtr)
   return(ftell64(FPtr));
 }
 
-#if defined(SYSLOG)
-extern long CallMallocFree;
-#endif
-
 void __cdecl  xf_free(void *__block)
 {
 #if defined(SYSLOG)

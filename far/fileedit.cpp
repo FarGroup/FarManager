@@ -1767,42 +1767,52 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 			if ( codepage == CP_UNICODE )
 			{
-				if ((!WriteFile(hEditFile,SaveStr,Length*sizeof(wchar_t),&dwWritten,NULL)||dwWritten!=Length*sizeof(wchar_t)) ||
-					(!WriteFile(hEditFile,EndSeq,EndLength*sizeof (wchar_t),&dwWritten,NULL)||dwWritten!=EndLength*sizeof(wchar_t)))
+				if(
+						Length && (!WriteFile(hEditFile,SaveStr,Length*sizeof(wchar_t),&dwWritten,NULL)||dwWritten!=Length*sizeof(wchar_t)) ||
+						EndLength && (!WriteFile(hEditFile,EndSeq,EndLength*sizeof (wchar_t),&dwWritten,NULL)||dwWritten!=EndLength*sizeof(wchar_t))
+					)
 					bError = true;
 			}
 			else
 			{
-				DWORD length = (codepage == CP_REVERSEBOM?Length*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
-				char *SaveStrCopy=(char *)xf_malloc(length);
-				if ( SaveStrCopy )
+				if(Length)
 				{
-					DWORD endlength = (codepage == CP_REVERSEBOM?EndLength*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
-					char *EndSeqCopy=(char *)xf_malloc(endlength);
-					if ( EndSeqCopy )
+					DWORD length = (codepage == CP_REVERSEBOM?Length*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, SaveStr, Length, NULL, 0, NULL, NULL));
+					char *SaveStrCopy=(char *)xf_malloc(length);
+					if(SaveStrCopy)
 					{
 						if(codepage == CP_REVERSEBOM)
-						{
 							swab((char*)SaveStr,SaveStrCopy,length);
-							swab((char*)EndSeq,EndSeqCopy,endlength);
-						}
 						else
-						{
 							WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
-							WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
-						}
-						if ((!WriteFile(hEditFile,SaveStrCopy,length,&dwWritten,NULL)||dwWritten!=length) ||
-							(!WriteFile(hEditFile,EndSeqCopy,endlength,&dwWritten,NULL)||dwWritten!=endlength))
-							bError = true;
-						xf_free(EndSeqCopy);
+						if(!WriteFile(hEditFile,SaveStrCopy,length,&dwWritten,NULL)||dwWritten!=length)
+								bError = true;
+						xf_free(SaveStrCopy);
 					}
 					else
 						bError = true;
-
-					xf_free(SaveStrCopy);
 				}
-				else
-					bError = true;
+
+				if(!bError)
+				{
+					if(EndLength)
+					{
+						DWORD endlength = (codepage == CP_REVERSEBOM?EndLength*sizeof(wchar_t):WideCharToMultiByte (codepage, 0, EndSeq, EndLength, NULL, 0, NULL, NULL));
+						char *EndSeqCopy=(char *)xf_malloc(endlength);
+						if(EndSeqCopy)
+						{
+							if(codepage == CP_REVERSEBOM)
+								swab((char*)EndSeq,EndSeqCopy,endlength);
+							else
+								WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
+							if(!WriteFile(hEditFile,EndSeqCopy,endlength,&dwWritten,NULL)||dwWritten!=endlength)
+								bError = true;
+							xf_free(EndSeqCopy);
+						}
+						else
+							bError = true;
+					}
+				}
 			}
 
 			if ( bError )
