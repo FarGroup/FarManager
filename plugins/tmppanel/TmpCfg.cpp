@@ -187,7 +187,7 @@ int Config()
   int Ret=Info.DialogRun(hDlg);
 #endif
 
-  if((unsigned)Ret >= ArraySize(InitItems)) goto done;
+  if((unsigned)Ret >= ArraySize(InitItems)-1) goto done;
 
   for(i=AddToDisksMenu;i<=Prefix;i++)
   {
