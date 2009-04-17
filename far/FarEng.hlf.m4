@@ -1,6 +1,7 @@
 m4_include(`farversion.m4')m4_dnl
 .Language=English,English
 .Options CtrlColorChar=\
+.Options CtrlStartPosChar=^<wrap>
 
 @Contents
 $^#File and archive manager#
@@ -2220,7 +2221,7 @@ $ #Viewer: control keys#
                        the search to the clipboard.
     #Ctrl-U#             Remove the highlighting of the search results.
 
-
+    См. так же список ~макроклавиш~@KeyMacroViewerList@, доступных в программе просмотра.
 
     Notes:
 
@@ -2322,14 +2323,14 @@ then a new file will be created.
 
     Remarks:
 
-    1. If a name of a nonexistent folder is entered when creating a new file
+    1. ^<wrap>If a name of a nonexistent folder is entered when creating a new file
 then a "~Path to the file to edit does not exist~@WarnEditorPath@" warning
 will be shown.
 
-    2. When trying to reload a file already opened in the editor the
+    2. ^<wrap>When trying to reload a file already opened in the editor the
 "~reloading a file~@EditorReload@" warning message will be shown.
 
-    3. The WIN encoding is used by default when creating new files, this
+    3. ^<wrap>The WIN encoding is used by default when creating new files, this
 behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
   #Control keys#
@@ -2337,9 +2338,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
   Cursor movement
 
    #Left#                    Character left
-   #Ctrl-S#                  Move the cursor one character to the left,
-                           but don't move to the previous line if
-                           the line beginning is reached.
+   #Ctrl-S#                  ^<wrap>Move the cursor one character to the left, but don't move to the previous line if the line beginning is reached.
    #Right#                   Character right
    #Up#                      Line up
    #Down#                    Line down
@@ -2358,8 +2357,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
   Delete operations
 
-   #Del#                     Delete char (also may delete block,
-                           depending upon ~Editor settings~@EditorSettings@).
+   #Del#                     ^<wrap>Delete char (also may delete block, depending upon ~Editor settings~@EditorSettings@).
    #BS#                      Delete char left
    #Ctrl-Y#                  Delete line
    #Ctrl-K#                  Delete to end of line
@@ -2380,10 +2378,8 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl-Ins, Ctrl-C#        Copy block to clipboard
    #Ctrl-<Gray +>#           Append block to clipboard
    #Ctrl-D#                  Delete block
-   #Ctrl-P#                  Copy block to current cursor position
-                           (in persistent blocks mode only)
-   #Ctrl-M#                  Move block to current cursor position
-                           (in persistent blocks mode only)
+   #Ctrl-P#                  ^<wrap>Copy block to current cursor position (in persistent blocks mode only)
+   #Ctrl-M#                  ^<wrap>Move block to current cursor position (in persistent blocks mode only)
    #Alt-U#                   Shift block left
    #Alt-I#                   Shift block right
 
@@ -2393,15 +2389,13 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F2#                      Save file
    #Shift-F2#                ~Save file as...~@FileSaveAs@
    #Shift-F4#                Edit new file
-   #Alt-F5#                  Print file or selected block
-                           ("Print manager" plugin is used).
+   #Alt-F5#                  ^<wrap>Print file or selected block ("Print manager" plugin is used).
    #F6#                      Switch to ~viewer~@Viewer@
    #F7#                      Search
    #Ctrl-F7#                 Replace
    #Shift-F7#                Continue search/replace
    #F8#                      Toggle DOS/Windows text
-   #Shift-F8#                Select custom character table
-                           (see notes below)
+   #Shift-F8#                ^<wrap>Select custom character table (see notes below)
    #Alt-F8#                  ~Go to~@EditorGotoPos@ specified line and column
    #Alt-F9#                  Toggles the size of the FAR console window
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
@@ -2413,46 +2407,40 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
-   #Ctrl-Alt-Shift#          Temporarily show user screen
-                           (as long as these keys are held down)
-   #Ctrl-Q#                  Treat the next key combination
-                           as a character code
-   #RightCtrl-0..9#          Set a bookmark 0..9 at the current
-                           position
-   #Ctrl-Shift-0..9#         Set a bookmark 0..9 at the current
-                           position
+   #Ctrl-Alt-Shift#          ^<wrap>Temporarily show user screen (as long as these keys are held down)
+   #Ctrl-Q#                  ^<wrap>Treat the next key combination as a character code
+   #RightCtrl-0..9#          ^<wrap>Set a bookmark 0..9 at the current position
+   #Ctrl-Shift-0..9#         ^<wrap>Set a bookmark 0..9 at the current position
    #LeftCtrl-0..9#           Go to bookmark 0..9
-   #Shift-Enter#             Insert the name of the current file on
-                           the active panel at the cursor position.
-   #Ctrl-Shift-Enter#        Insert the name of the current file on
-                           the passive panel at the cursor position.
-   #Ctrl-F#                  Insert the full name of the file being
-                           edited at the cursor position.
-   #Ctrl-B#                  Show/Hide functional key bar at the bottom
-                           line.
+   #Shift-Enter#             ^<wrap>Insert the name of the current file on the active panel at the cursor position.
+   #Ctrl-Shift-Enter#        ^<wrap>Insert the name of the current file on the passive panel at the cursor position.
+   #Ctrl-F#                  ^<wrap>Insert the full name of the file being edited at the cursor position.
+   #Ctrl-B#                  ^<wrap>Show/Hide functional key bar at the bottom line.
    #Ctrl-Shift-B#            Show/Hide status line
+
+   См. так же список ~макроклавиш~@KeyMacroEditList@, доступных в редакторе.
 
     Notes:
 
-    1. Custom character tables are provided in the "Addons\\Tables"
-       subfolder of the FAR folder in the form of .reg files.
-       Before any table may be used it must be installed: just press
-       Shift-Enter on the corresponding file.
+    1. ^<wrap>Custom character tables are provided in the "Addons\\Tables"
+subfolder of the FAR folder in the form of .reg files.
+Before any table may be used it must be installed: just press
+Shift-Enter on the corresponding file.
 
     2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
 
-    3. Holding down #Alt# and typing a character code on the numeric
-       keypad inserts the character that has the specified code in
-       the OEM codepage. The character is not translated to the
-       current codepage of the editor.
+    3. ^<wrap>Holding down #Alt# and typing a character code on the numeric
+keypad inserts the character that has the specified code in
+the OEM codepage. The character is not translated to the
+current codepage of the editor.
 
-    4. Dragging a file name from the Explorer to the FAR editor window
-       inserts the name in the OEM (DOS) codepage, and the current
-       editor codepage is not taken into account. This issue will be
-       addressed in future versions of FAR.
+    4. ^<wrap>Dragging a file name from the Explorer to the FAR editor window
+inserts the name in the OEM (DOS) codepage, and the current
+editor codepage is not taken into account. This issue will be
+addressed in future versions of FAR.
 
-    5. If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
-       line as a block and copies it to the clipboard.
+    5. ^<wrap>If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
+line as a block and copies it to the clipboard.
 
 
 @FileSaveAs
@@ -3888,6 +3876,20 @@ by manually editing the registry or by using special tools/plugins.
     Description of the macro language can be found in the accompanying
 documentation.
 
+@KeyMacroEditList
+$ #Макросы: Редактор#
+    Ниже приведены комбинации макроклавиш, используемых в редакторе. Описание для каждой макроклавиши берется из реестра (поле Description).
+
+<!Macro:Common!>
+<!Macro:Editor!>
+
+
+@KeyMacroViewerList
+$ #Макросы: Программа просмотра#
+    Ниже приведены комбинации макроклавиш, используемых в программе просмотра. Описание для каждой макроклавиши берется из реестра (поле Description).
+
+<!Macro:Common!>
+<!Macro:Viewer!>
 
 @Index
 $ #Index help file#

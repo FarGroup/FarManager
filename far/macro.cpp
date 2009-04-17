@@ -1715,7 +1715,7 @@ static bool msgBoxFunc()
   if(HIWORD(Flags) == 0 || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
     Flags|=FMSG_MB_OK;
 
-  char *TempBuf=(char *)alloca(strlen(title)+strlen(text)+16);
+  char *TempBuf=(char *)xf_malloc(sizeof(char)*(strlen(title)+strlen(text)+16));
   int Result=0;
   if(TempBuf)
   {
@@ -1723,6 +1723,7 @@ static bool msgBoxFunc()
     strcat(TempBuf,"\n");
     strcat(TempBuf,text);
     Result=FarMessageFn(-1,Flags,NULL,(const char * const *)TempBuf,0,0)+1;
+    xf_free(TempBuf);
     Ret=true;
   }
   VMStack.Push((__int64)Result);
