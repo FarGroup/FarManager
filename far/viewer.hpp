@@ -184,6 +184,7 @@ class Viewer:public ScreenObject
     __int64 vtell(FILE *SrcFile);
     int vgetc(FILE *SrcFile);
     void SetFileSize();
+	int GetStrBytesNum(const wchar_t *Str, int Length);
 
   public:
     Viewer(bool bQuickView = false);

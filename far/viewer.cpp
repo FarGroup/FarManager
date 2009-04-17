@@ -1867,7 +1867,7 @@ void Viewer::Up()
     return;
   }
   vseek(ViewFile,FilePos-(__int64)BufSize,SEEK_SET);
-  vread(Buf,BufSize,ViewFile);
+  BufSize = vread(Buf,BufSize,ViewFile);
   Skipped=0;
   if (Buf[BufSize-1]==(unsigned int)CRSym)
   {
@@ -1888,7 +1888,7 @@ void Viewer::Up()
     {
       if (!VM.Wrap)
       {
-        FilePos-=BufSize-(I+1)+Skipped;
+        FilePos -= GetStrBytesNum(Buf + (I+1), BufSize-(I+1)) + Skipped;
         return;
       }
       else
@@ -1910,7 +1910,7 @@ void Viewer::Up()
             }
             if (CalcStrSize(&Buf[J],BufSize-J) <= Width)
             {
-              FilePos-=BufSize-J+Skipped;
+              FilePos -= GetStrBytesNum(Buf + J, BufSize-J) + Skipped;
               return;
             }
             else
@@ -1955,6 +1955,13 @@ int Viewer::CalcStrSize(const wchar_t *Str,int Length)
   return(Size);
 }
 
+int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
+{
+	if (IsUnicodeCP(VM.CodePage))
+		return Length;
+	else
+		return WideCharToMultiByte(VM.CodePage, 0, Str, Length, NULL, 0, NULL, NULL);
+}
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
 {
@@ -2654,7 +2661,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw)
 		}
 		else
 		{
-			MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
+			ReadSize = MultiByteToWideChar (VM.CodePage, 0, TmpBuf, ConvertSize, Buf, Count);
 		}
 
     xf_free(TmpBuf);

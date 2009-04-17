@@ -3489,8 +3489,15 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		if (!GetCPInfoExW (nCP, 0, &cpi) || cpi.MaxCharSize != 1)
 			return -1;
 
-		sTableName.Format (L"%5u%c %s", nCP, BoxSymbols[BS_V1], wcschr (cpi.CodePageName, L'(') + 1);
-		sTableName.SetLength (sTableName.GetLength () - 1);
+		wchar_t *codePageName = wcschr (cpi.CodePageName, L'(');
+		if (codePageName && *(++codePageName))
+		{
+			sTableName.Format (L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
+			sTableName.SetLength (sTableName.GetLength () - 1);
+		}
+		else
+			sTableName = cpi.CodePageName;
+
 		sTableName.GetCharString (TableSet->TableName, sizeof (TableSet->TableName) - 1, CP_OEMCP);
 
 		MultiByteRecode (nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof (TableSet->DecodeTable));
