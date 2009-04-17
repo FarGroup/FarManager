@@ -116,38 +116,24 @@ $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
 
 
 <p><p>Следующий макрос служит для того чтобы помечать вместе с htm-файлом и парную ему папку:
-<pre class=code>
-%Current=APanel.Current;
-%Ext=substr(%Current,len(%Current)-6);
-$If (%Ext=="_files")
-  %Name=substr(%Current,0,len(%Current)-6);
-  $Else
-       %Ext=fsplit(%Current,FSPLIT_EXT);
-       %Name=fsplit(%Current,FSPLIT_NAME);
-$End
+<pre class=code>REGEDIT4
 
-;; Ищем пару для html-файла
-$if (%Ext==".htm" || %Ext==".html")
-  panel.setpos(ACTIVEPANEL,%Name+".files")
-  panel.setpos(ACTIVEPANEL,%Name+"_files")
-$end
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftIns]
+"Sequence"="%Current=APanel.Current; %Ext=substr(%Current,len(%Current)-6);
+$If (%Ext==\"_files\") %Name=substr(%Current,0,len(%Current)-6); $Else
+%Ext=fsplit(%Current,FSPLIT_EXT); %Name=fsplit(%Current,FSPLIT_NAME); $End
+$if (%Ext==\".htm\" || %Ext==\".html\") panel.setpos(ACTIVEPANEL,%Name+\".files\")
+panel.setpos(ACTIVEPANEL,%Name+\"_files\") $end $if (%Ext==\".files\" || %Ext==\"_files\")
+panel.setpos(ACTIVEPANEL,%Name+\".htm\") panel.setpos(ACTIVEPANEL,%Name+\".html\") $End
+$if (APanel.Current!=%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
+panel.setpos(ACTIVEPANEL,%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED))
+Ins $End $End $MMode 1 $MMode 1"
+"DisableOutput"=dword:00000001
 
-;;Ищем пару для директории
-$if (%Ext==".files" || %Ext=="_files")
-  panel.setpos(ACTIVEPANEL,%Name+".htm")
-  panel.setpos(ACTIVEPANEL,%Name+".html")
-$End
-
-;; Если нашли что-то ещё не помеченное, то помечаем...
-$if (APanel.Current!=%Current)
-  $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
-  panel.setpos(ACTIVEPANEL,%Current)
-  $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
-$End
-
-$MMode 1 $MMode 1
+;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
+;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+"EmptyCommandLine"=dword:00000001
 </pre>
-Параметр макроса "EmptyCommandLine" должен быть равен 1.
 
 
 </body>

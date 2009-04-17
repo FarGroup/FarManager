@@ -37,6 +37,8 @@ KBD
 P
 {
     COLOR: #000000;
+    MARGIN-TOP: 8pt;
+    MARGIN-BOTTOM: 6pt;
     FONT-FAMILY: verdana, tahoma, arial, helvetica
 }
 DIV
@@ -63,11 +65,6 @@ DL
 {
     COLOR: #000000;
     FONT-FAMILY: verdana, tahoma, arial, helvetica
-}
-P
-{
-    MARGIN-TOP: 8pt;
-    MARGIN-BOTTOM: 6pt
 }
 BLOCKQUOTE
 {
