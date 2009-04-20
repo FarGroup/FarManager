@@ -187,9 +187,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   if (Opt.ShowPanelFree)
   {
     unsigned __int64 TotalSize,TotalFree;
-    string strDriveRoot;
-    GetPathRoot(strCurDir,strDriveRoot);
-    if (!apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+		if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -631,9 +629,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
   {
     unsigned __int64 TotalSize,TotalFree;
-    string strDriveRoot;
-    GetPathRoot(strCurDir,strDriveRoot);
-    if (!apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+		if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
       FreeDiskSize=0;
   }
 

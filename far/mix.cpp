@@ -1556,9 +1556,9 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
     unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
     unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
 
-    if (!apiGetDiskSize(strSrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+		if (!apiGetDiskSize(SrcPath,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
       return FALSE;
-    if (!apiGetDiskSize(strDestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
+		if (!apiGetDiskSize(DestPath,&DestTotalSize,&DestTotalFree,&DestUserFree))
       return FALSE;
 
     if (!(SrcVolumeNumber!=0 &&

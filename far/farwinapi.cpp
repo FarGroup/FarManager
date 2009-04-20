@@ -540,7 +540,7 @@ int apiGetFileTypeByName(const wchar_t *Name)
 	return Type;
 }
 
-BOOL apiGetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
 	int ExitCode=0;
 
@@ -549,7 +549,7 @@ BOOL apiGetDiskSize(const wchar_t *Root,unsigned __int64 *TotalSize, unsigned __
 	uiTotalSize=_i64(0);
 	uiTotalFree=_i64(0);
 
-	ExitCode=GetDiskFreeSpaceExW(Root,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+	ExitCode=GetDiskFreeSpaceExW(Path,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
 	if ( TotalSize )
 		*TotalSize = uiTotalSize;

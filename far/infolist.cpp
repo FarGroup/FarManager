@@ -238,7 +238,7 @@ void InfoList::DisplayObject()
     PrintText(strTitle);
 
     unsigned __int64 TotalSize,TotalFree,UserFree;
-    if (apiGetDiskSize(strDriveRoot,&TotalSize,&TotalFree,&UserFree))
+		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
     {
       GotoXY(X1+2,Y1+4);
       PrintText(MInfoDiskTotal);

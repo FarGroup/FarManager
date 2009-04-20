@@ -175,7 +175,7 @@ int apiGetFileTypeByName(
 		);
 
 BOOL apiGetDiskSize(
-		const wchar_t *Root,
+		const wchar_t *Path,
 		unsigned __int64 *TotalSize,
 		unsigned __int64 *TotalFree,
 		unsigned __int64 *UserFree

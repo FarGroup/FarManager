@@ -67,7 +67,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
 
 
 @Help
-$ # FAR: how to use help#
+$ #FAR: how to use help#
     Help screens may have reference items on them that lead to another help
 screen. Also, the main page has the "~Help Index~@Index@", which lists all the
 topics available in the help file and in some cases helps to find the needed
@@ -92,7 +92,7 @@ previous size.
 
 
 @About
-$ # FAR: about#
+$ #FAR: about#
     #FAR# is a text mode file and archive manager for Windows
 2000/XP/2003/Vista/2008. It supports #long file names# and provides a wide set
 of file and folder operations.
@@ -108,24 +108,24 @@ transforms your commands into the corresponding external archiver calls.
 
 
 @License
-$ # FAR: License#
-@-
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
-All rights reserved.
+$ #FAR: License#
 
-Redistribution and use in source and binary forms, with or without
+ Copyright (c) 1996 Eugene Roshal
+ Copyright (c) 2000 Far Group
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. The name of the authors may not be used to endorse or promote products
-   derived from this software without specific prior written permission.
+ 1. ^<wrap>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+ 3. The name of the authors may not be used to endorse or promote products
+derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -135,11 +135,10 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-@+
 
 
 @CmdLine
-$ # FAR: command line switches#
+$ #FAR: command line switches#
     The following switches may be used in the command line:
 
   #/a#    Disable display of characters with codes 0 - 31
