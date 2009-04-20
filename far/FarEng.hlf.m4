@@ -67,7 +67,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
 
 
 @Help
-$ #FAR: how to use help#
+$ # FAR: how to use help#
     Help screens may have reference items on them that lead to another help
 screen. Also, the main page has the "~Help Index~@Index@", which lists all the
 topics available in the help file and in some cases helps to find the needed
@@ -92,7 +92,7 @@ previous size.
 
 
 @About
-$ #FAR: about#
+$ # FAR: about#
     #FAR# is a text mode file and archive manager for Windows
 2000/XP/2003/Vista/2008. It supports #long file names# and provides a wide set
 of file and folder operations.
@@ -108,7 +108,7 @@ transforms your commands into the corresponding external archiver calls.
 
 
 @License
-$ #FAR: License#
+$ # FAR: License#
 
  Copyright (c) 1996 Eugene Roshal
  Copyright (c) 2000 Far Group
@@ -138,7 +138,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ #FAR: command line switches#
+$ # FAR: command line switches#
     The following switches may be used in the command line:
 
   #/a#    Disable display of characters with codes 0 - 31

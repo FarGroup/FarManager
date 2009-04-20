@@ -68,7 +68,7 @@ $^(help file last translated for build 843)
 
    
 @Help
-$ #FAR: a súgó használata#
+$ # FAR: a súgó használata#
     A súgó oldalain hivatkozásokat találunk, amelyek további súgóoldalakra
 mutatnak. Szintén a főoldalon található ~A súgó betűrendes tartalomjegyzéke~@Index@,
 is, rajta az összes témakör listája, ami egyes esetekben megkönnyíti a
@@ -92,7 +92,7 @@ lenyomása az előző méretre állítja vissza a súgó ablakát.
 
 
 @About
-$ #FAR: a programról#
+$ # FAR: a programról#
     A #FAR# szövegmódú fájl- és tömörítettkezelő program Windows 2000,
 XP, 2003, Vista és 2008 operációs rendszerhez. Kezeli a #hosszú fájlneveket#,
 valamint a fájlokon és mappákon elvégezhető műveletek széles skáláját kínálja.
@@ -109,7 +109,7 @@ alakítja át.
 
 
 @License
-$ #FAR: License#
+$ # FAR: License#
 
  Copyright (c) 1996 Eugene Roshal
  Copyright (c) 2000 Far Group
@@ -140,7 +140,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ #FAR: a FAR parancssori kapcsolói#
+$ # FAR: a FAR parancssori kapcsolói#
           A FAR a következő parancssori kapcsolókkal indítható:
 
   #/a#      Letiltja a 0-31-ig terjedő és a 255-ös ASCII kódú
