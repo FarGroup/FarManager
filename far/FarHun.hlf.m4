@@ -2320,6 +2320,7 @@ $ #Nézőke: vezérlőbillentyűk#
                        a vágólapra másolja.
     #Ctrl-U#             Leveszi a keresés találatáról a kiemelést.
 
+    См. так же список ~макроклавиш~@KeyMacroViewerList@, доступных в программе просмотра.
 
     Megjegyzések:
 
@@ -2463,9 +2464,7 @@ kikapcsolható.
 
   Törlő műveletek
 
-   #Del#                     A kurzor alatti karakter törlése
-                           (a kijelölt szöveget is törölheti, a
-                           ~szerkesztő beállításaitól~@EditorSettings@ függően)
+   #Del#                     ^<wrap>A kurzor alatti karakter törlése (a kijelölt szöveget is törölheti, a ~szerkesztő beállításaitól~@EditorSettings@ függően)
    #BackSpace#               Egy karakterrel balra töröl
    #Ctrl-Y#                  Egy sort töröl
    #Ctrl-K#                  Törlés a sor végéig
@@ -2486,10 +2485,8 @@ kikapcsolható.
    #Ctrl-Ins, Ctrl-C#        Blokk másolása a vágólapra
    #Ctrl-<Szürke +>#         Blokk hozzáfűzése a vágólaphoz
    #Ctrl-D#                  Blokk törlése
-   #Ctrl-P#                  Blokk másolása a jelenlegi kurzor-
-                           pozícióba (csak maradó blokk módban)
-   #Ctrl-M#                  Blokk mozgatása a jelenlegi kurzor-
-                           pozícióba (csak maradó blokk módban)
+   #Ctrl-P#                  ^<wrap>Blokk másolása a jelenlegi kurzor-pozícióba (csak maradó blokk módban)
+   #Ctrl-M#                  ^<wrap>Blokk mozgatása a jelenlegi kurzor-pozícióba (csak maradó blokk módban)
    #Alt-U#                   Blokk eltolása balra
    #Alt-I#                   Blokk eltolása jobbra
 
@@ -2499,8 +2496,7 @@ kikapcsolható.
    #F2#                      Fájl mentése
    #Shift-F2#                ~Fájl mentése másként~@FileSaveAs@
    #Shift-F4#                ~Új fájl~@FileOpenCreate@ szerkesztése
-   #Alt-F5#                  Fájl vagy kijelölt blokk nyomtatása
-                           (a Nyomtatásvezérlő pluginnel)
+   #Alt-F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása (a Nyomtatásvezérlő pluginnel)
    #F6#                      ~Nézőke~@Viewer@ módba kapcsol
    #F7#                      Keresés
    #Ctrl-F7#                 Keresés és csere
@@ -2510,47 +2506,39 @@ kikapcsolható.
    #Shift-F8#                Kódlap kiválasztása
    #Alt-F8#                  ~Ugrás~@EditorGotoPos@ megadott sorra és oszlopra
    #Alt-F9#                  A FAR konzolablak méretének átváltása
-   #Alt-Shift-F9#            A ~szerkesztő beállítások~@EditorSettings@
-                           párbeszédablakot jeleníti meg
+   #Alt-Shift-F9#            ^<wrap>A ~szerkesztő beállítások~@EditorSettings@ párbeszédablakot jeleníti meg
    #F10, Esc#                Kilépés
    #Shift-F10#               Mentés és kilépés
    #Ctrl-F10#                A szerkesztett fájl helyzete a fán
-   #F11#                     A ~plugin parancsok~@Plugins@ menü
-                           (a szerkesztőhöz tervezett pluginekkel)
+   #F11#                     ^<wrap>A ~plugin parancsok~@Plugins@ menü (a szerkesztőhöz tervezett pluginekkel)
    #Alt-F11#                 ~Szerkesztő előzmények~@HistoryViews@ megjelenítése
    #Alt-BackSpace, Ctrl-Z#   Utolsó művelet visszavonása
    #Ctrl-L#                  A szerkesztett szöveg módosítását tiltja
    #Ctrl-O#                  A konzolablak hátterére vált
-   #Ctrl-Alt-Shift#          A konzolablak háttere (amíg a billentyűk
-                           lenyomva vannak)
-   #Ctrl-Q#                  A következő billentyűkombinációt karakter-
-                           kódként kezeli
-   #JobbCtrl-0...9#          0-tól 9-ig könyvjelzőt tesz az aktuális
-                           pozícióba
-   #Ctrl-Shift-0...9#        0-tól 9-ig könyvjelzőt tesz az aktuális
-                           pozícióba
+   #Ctrl-Alt-Shift#          ^<wrap>A konzolablak háttere (amíg a billentyűk lenyomva vannak)
+   #Ctrl-Q#                  ^<wrap>A következő billentyűkombinációt karakter-kódként kezeli
+   #JobbCtrl-0...9#          ^<wrap>0-tól 9-ig könyvjelzőt tesz az aktuális pozícióba
+   #Ctrl-Shift-0...9#        ^<wrap>0-tól 9-ig könyvjelzőt tesz az aktuális pozícióba
    #BalCtrl-0...9#           A 0...9-es könyvjelzőre ugrik
-   #Shift-Enter#             Beszúrja az aktív panelről az aktuális
-                           fájlnevet a kurzorpozícióba
-   #Ctrl-Shift-Enter#        Beszúrja a passzív panelről az aktuális
-                           fájlnevet a kurzorpozícióba
-   #Ctrl-F#                  Beszúrja a most szerkesztett fájl elérési
-                           útját és nevét a kurzorpozícióba
-   #Ctrl-B#                  Megmutatja/elrejti a funkcióbillentyűsort
-                           az alsó sorban
+   #Shift-Enter#             ^<wrap>Beszúrja az aktív panelről az aktuális fájlnevet a kurzorpozícióba
+   #Ctrl-Shift-Enter#        ^<wrap>Beszúrja a passzív panelről az aktuális fájlnevet a kurzorpozícióba
+   #Ctrl-F#                  ^<wrap>Beszúrja a most szerkesztett fájl elérési útját és nevét a kurzorpozícióba
+   #Ctrl-B#                  ^<wrap>Megmutatja/elrejti a funkcióbillentyűsort az alsó sorban
    #Ctrl-Shift-B#            Megmutatja/elrejti a felső állapotsort
+
+   См. так же список ~макроклавиш~@KeyMacroEditList@, доступных в редакторе.
 
     Megjegyzések:
 
 
-    1. Az #Alt-U#/#Alt-I# a sor behúzását állítja, ha nincs
-       kijelölt blokk. 
+    1. ^<wrap>Az #Alt-U#/#Alt-I# a sor behúzását állítja, ha nincs
+kijelölt blokk. 
 
-    2. Lenyomott #Alt#-tal a karaktereket decimális kódjukkal
-       írhatjuk be a numerikus billentyűzeten (0-65535).
+    2. ^<wrap>Lenyomott #Alt#-tal a karaktereket decimális kódjukkal
+írhatjuk be a numerikus billentyűzeten (0-65535).
 
-    3. Ha nincs kijelölt blokk, a #Ctrl-Ins#/#Ctrl-C# kijelöli
-       a teljes aktuális sort és a vágólapra másolja.
+    3. ^<wrap>Ha nincs kijelölt blokk, a #Ctrl-Ins#/#Ctrl-C# kijelöli
+a teljes aktuális sort és a vágólapra másolja.
 
 
 @FileOpenCreate
@@ -4095,6 +4083,20 @@ erre a célra kifejlesztett segédprogramokkal és pluginekkel adhatunk a
 
     A makrónyelv leírása megtalálható a kísérő dokumentációban.
 
+
+@KeyMacroEditList
+$ #Макросы: Редактор#
+    Ниже приведены комбинации макроклавиш, используемых в редакторе. Описание для каждой макроклавиши берется из реестра (поле Description).
+
+<!Macro:Common!>
+<!Macro:Editor!>
+
+@KeyMacroViewerList
+$ #Макросы: Программа просмотра#
+    Ниже приведены комбинации макроклавиш, используемых в программе просмотра. Описание для каждой макроклавиши берется из реестра (поле Description).
+
+<!Macro:Common!>
+<!Macro:Viewer!>
 
 @Index
 $ #A súgó betűrendes tartalomjegyzéke#
