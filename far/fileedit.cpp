@@ -1768,8 +1768,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			if ( codepage == CP_UNICODE )
 			{
 				if(
-						Length && (!WriteFile(hEditFile,SaveStr,Length*sizeof(wchar_t),&dwWritten,NULL)||dwWritten!=Length*sizeof(wchar_t)) ||
-						EndLength && (!WriteFile(hEditFile,EndSeq,EndLength*sizeof (wchar_t),&dwWritten,NULL)||dwWritten!=EndLength*sizeof(wchar_t))
+						(Length && (!WriteFile(hEditFile,SaveStr,Length*sizeof(wchar_t),&dwWritten,NULL)||dwWritten!=Length*sizeof(wchar_t))) ||
+						(EndLength && (!WriteFile(hEditFile,EndSeq,EndLength*sizeof (wchar_t),&dwWritten,NULL)||dwWritten!=EndLength*sizeof(wchar_t)))
 					)
 					bError = true;
 			}

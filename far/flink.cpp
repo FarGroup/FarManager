@@ -528,7 +528,7 @@ bool GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
 	1 - если установлен, то опрашивать все остальные
 	*/
 	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
-	if (DriveType==DRIVE_NOT_INIT || ((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable))
+	if (DriveType==DRIVE_NOT_INIT || (((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable)))
 	{
 		if(IsLocalPath(LocalName))
 		{
