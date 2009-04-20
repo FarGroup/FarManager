@@ -570,7 +570,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   initMacroVarTable(1);
 
   int Result=0;
-  SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | SEM_NOGPFAULTERRORBOX
+  SetErrorMode (SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX | (Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)
 #if defined (_M_IA64) && defined (_WIN64)
   | ( GetRegKey (L"System\\Exception", L"IgnoreDataAlignmentFaults", 0) ? SEM_NOALIGNMENTFAULTEXCEPT:0 )
 #endif
