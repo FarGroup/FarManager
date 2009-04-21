@@ -122,7 +122,7 @@ int CommandLine::ProcessKey(int Key)
 
     xstrncpy(Str,LastCmdStr,sizeof(Str)-1);
     int CurCmdPartLength=(int)strlen(Str);
-    CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
+    CtrlObject->CmdHistory->GetSimilar(Str,sizeof(Str),LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
       if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
@@ -183,7 +183,7 @@ int CommandLine::ProcessKey(int Key)
            хистори не меняем и ставим в первое положение.
         */
         if(Opt.CmdHistoryRule)
-          CtrlObject->CmdHistory->SetFirst();
+          CtrlObject->CmdHistory->ResetPosition();
         PStr="";
       }
       else
@@ -567,10 +567,10 @@ void CommandLine::GetPrompt(char *DestStr)
 */
 void CommandLine::ShowViewEditHistory()
 {
-  char Str[1024], ItemTitle[256];
+  char Str[1024];
   int Type;
 
-  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type,ItemTitle);
+  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type);
   /*
      SelectType = 0 - Esc
                   1 - Enter
@@ -581,7 +581,7 @@ void CommandLine::ShowViewEditHistory()
   if (SelectType == 1 || SelectType == 2)
   {
     if (SelectType!=2)
-      CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
+      CtrlObject->ViewHistory->AddToHistory(Str,Type);
     CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
 
     switch(Type)

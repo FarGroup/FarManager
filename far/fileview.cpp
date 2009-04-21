@@ -450,7 +450,7 @@ void FileViewer::OnDestroy()
   {
     char FullFileName[NM];
     View.GetFileName(FullFileName);
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
+    CtrlObject->ViewHistory->AddToHistory(FullFileName,0);
   }
 }
 

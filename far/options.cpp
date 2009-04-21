@@ -474,7 +474,6 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               delete HelpMenu;
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
-              CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariable("FARLANG",Opt.Language);
               PrepareStrFTime();
               __PrepareKMGTbStr();

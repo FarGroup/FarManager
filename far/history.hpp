@@ -7,6 +7,8 @@ history.hpp
 
 */
 
+#include "TList.hpp"
+
 #include "farconst.hpp"
 
 enum{
@@ -15,50 +17,51 @@ enum{
   HISTORYTYPE_VIEW,
 };
 
-#define HISTORY_TITLESIZE 32
-
 struct HistoryRecord
 {
+  bool  Lock;
   int   Type;
-  char  Title[HISTORY_TITLESIZE];
   char *Name;
+
+  HistoryRecord()
+  {
+    Lock = false;
+    Type = 0;
+    Name = NULL;
+  }
+
+  const HistoryRecord& operator=(const HistoryRecord &rhs);
 };
 
-class History
+class History: protected TList<HistoryRecord>
 {
   private:
     char RegKey[256];
-    unsigned int LastPtr,CurLastPtr;
-    unsigned int LastPtr0,CurLastPtr0;
-    int EnableAdd,RemoveDups,KeepSelectedPos;
+    bool EnableAdd, KeepSelectedPos, SaveType;
+    int RemoveDups;
     int TypeHistory;
     int HistoryCount;
     const int *EnableSave;
-    int SaveTitle,SaveType;
-    int LastSimilar;
-    int ReturnSimilarTemplate;
-    struct HistoryRecord *LastStr;
 
   private:
-    void AddToHistoryLocal(const char *Str,const char *Title,int Type);
-    void FreeHistory();
-    BOOL EqualType(int Type1, int Type2);
+    void AddToHistoryLocal(const char *Str,const char *Prefix,int Type);
+    const char *GetTitle(int Type);
+    bool EqualType(int Type1, int Type2);
 
   public:
-    History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
+    History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,bool SaveType);
    ~History();
 
   public:
-    void AddToHistory(const char *Str,const char *Title=NULL,int Type=0,int SaveForbid=0);
-    BOOL ReadHistory();
-    BOOL SaveHistory();
-    int  Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle=NULL);
+    void AddToHistory(const char *Str,int Type=0,const char *Prefix=NULL,bool SaveForbid=false);
+    bool ReadHistory();
+    bool SaveHistory();
+    int  Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type);
     void GetPrev(char *Str,int StrLength);
     void GetNext(char *Str,int StrLength);
-    void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
-    void GetSimilar(char *Str,int LastCmdPartLength);
-    void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
-    void ReloadTitle();
+    void GetSimilar(char *Str,int StrLength,int LastCmdPartLength);
+    void SetAddMode(bool EnableAdd,int RemoveDups,bool KeepSelectedPos);
+    void ResetPosition();
 };
 
 #endif  // __HISTORY_HPP__

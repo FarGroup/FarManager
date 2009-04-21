@@ -42,9 +42,9 @@ ControlObject::ControlObject()
   */
   CmdLine=new CommandLine;
 
-  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,"SavedHistory",&Opt.SaveHistory,false);
+  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,"SavedFolderHistory",&Opt.SaveFoldersHistory,true);
+  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,"SavedViewHistory",&Opt.SaveViewHistory,true);
 
   FolderHistory->SetAddMode(TRUE,2,TRUE);
   ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);

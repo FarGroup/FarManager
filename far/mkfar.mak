@@ -307,15 +307,13 @@ $(FARINCLUDE)\plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 
 
 # ************************************************************************
-$(OBJPATH)\Far.res :  Far.rc
-	-@settitle "Compiling resource..."
+$(OBJPATH)\Far.res :  far.rc res.hpp Far.ico
+	@echo Compiling resource...
 	@if not exist $(OBJPATH) mkdir $(OBJPATH)
-	$(BRC32) -R @&&|
-	$(RESFLAGS)  -FO$@ Far.rc
-|
+	$(BRC32) -R $(RESFLAGS)  -FO$@ Far.rc
 
 !ifdef ILINK
-$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest far.rc copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
+$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
 	-@settitle "Linking..."
 	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)

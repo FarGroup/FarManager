@@ -2149,8 +2149,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
 
     /* $ 16.01.2002 VVM
       + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
-    CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1,
-                               (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
+    CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),1,Info.Format,(Info.Flags & OPIF_REALNAMES)?false:(Opt.SavePluginFoldersHistory?false:true));
     /* VVM $ */
 
     /* $ 25.04.01 DJ

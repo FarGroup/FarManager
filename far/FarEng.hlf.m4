@@ -1517,6 +1517,10 @@ available:
 
   Clear the commands history                                      #Del#
 
+  Удалить текущий пункт истории                             #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
+
   Copy the text of the current command to the clipboard        #Ctrl-C#
   without closing the list                                or #Ctrl-Ins#
 
@@ -1534,6 +1538,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. Under Windows 9x/Me, long commands are truncated to 511
      symbols before they are stored in the history.
 
+  2. Заблокированные пункты не будут удаляться при очистке истории.
 
 @HistoryViews
 $ #History: file view and edit#
@@ -1546,6 +1551,10 @@ shortcuts are available:
   Copy the file name to the command line                   #Ctrl-Enter#
 
   Clear the history list                                          #Del#
+
+  Удалить текущий пункт истории                             #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1576,6 +1585,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a file was located on a currently unavailable remote
      resource.
 
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
+
 @HistoryFolders
 $ #History: folders#
     The folders history shows the list of folders that have been recently
@@ -1589,6 +1601,10 @@ available:
   Copy the folder name to the command line                 #Ctrl-Enter#
 
   Clear the history list                                          #Del#
+
+  Удалить текущий пункт истории                             #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1613,6 +1629,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
   2. List refresh operation (Ctrl-R) can take a considerable amount
      of time if a folder was located on a currently unavailable
      remote resource.
+
+  3. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
 
 @TaskList
 $ #Task list#
