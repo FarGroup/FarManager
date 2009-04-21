@@ -1606,6 +1606,10 @@ használhatjuk:
 
   Parancs előzmények törlése                                      #Del#
 
+  Установить/снять пометку блокировки пункт истории               #Ins#
+
+  Очистка текущего пункта истории                           #Shift-Del#
+
   A kiválasztott parancsot a vágólapra másolja,                #Ctrl-C#
   a lista legördítve marad                              vagy #Ctrl-Ins#
 
@@ -1619,6 +1623,7 @@ szeretnénk meghívni, használjuk a #Ctrl-E# vagy a #Ctrl-X# billentyűket.
 jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
 párbeszédablakban.
 
+    Заблокированные пункты не будут удаляться при очистке истории.
 
 @HistoryViews
 $ #Előzmények: megnézett és szerkesztett fájlok előzménye#
@@ -1631,6 +1636,10 @@ billentyűkombinációkat használhatjuk:
   Fájlnév másolása a parancssorba                          #Ctrl-Enter#
 
   Előzménylista törlése                                           #Del#
+
+  Очистка текущего пункта истории                           #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
 
@@ -1654,8 +1663,11 @@ párbeszédablakban.
 
   Megjegyzés:
 
-     A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+  1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
      pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
+
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
 
 @HistoryFolders
 $ #Előzmények: mappa előzmények#
@@ -1669,6 +1681,10 @@ kurzorvezérlőkön kívül a következő billentyűkombinációkat használhatj
   Mappa nevének másolása a parancssorba                    #Ctrl-Enter#
 
   Előzménylista törlése                                           #Del#
+
+  Очистка текущего пункта истории                           #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
 
@@ -1686,8 +1702,11 @@ jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@ p
 
   Megjegyzés:
 
-     A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+  1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
      pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
+
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
 
 @TaskList
 $ #Futó programok#

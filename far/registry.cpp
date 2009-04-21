@@ -474,15 +474,45 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
   }
 
   int I;
+  wchar_t ValueDataStatic[1000];
+  DWORD AllocDataSize=sizeof(ValueDataStatic);
+  bool allocData=false;
+  wchar_t *ValueData=ValueDataStatic;
+
   for (I=0;;I++)
   {
-    wchar_t ValueName[200],ValueData[1000]; //BUGBUG, dynamic
-    DWORD Type,NameSize=countof(ValueName),DataSize=sizeof(ValueData);
-    if (RegEnumValueW(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize)!=ERROR_SUCCESS)
-      break;
+    wchar_t ValueName[200];
+    DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
+    int ExitCode=RegEnumValueW(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+    if (ExitCode != ERROR_SUCCESS)
+    {
+      if(ExitCode != ERROR_MORE_DATA)
+        break;
+
+      if(DataSize > AllocDataSize)
+      {
+        AllocDataSize=DataSize;
+        wchar_t *NewValueData=(wchar_t *)xf_malloc(AllocDataSize);
+
+        if(!NewValueData)
+          break;
+
+        allocData=true;
+        ValueData=NewValueData;
+      }
+
+      ExitCode=RegEnumValueW(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
+      if (ExitCode != ERROR_SUCCESS)
+        break;
+    }
     RegSetValueExW(hDestKey,ValueName,0,Type,(BYTE *)ValueData,DataSize);
   }
+
+  if(allocData && ValueData)
+    xf_free(ValueData);
+
   CloseRegKey(hDestKey);
+
   for (I=0;;I++)
   {
     string strSubkeyName, strSrcKeyName, strDestKeyName;

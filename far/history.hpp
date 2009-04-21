@@ -43,11 +43,13 @@ enum{
 
 struct HistoryRecord
 {
+	bool   Lock;
 	int    Type;
 	string strName;
 
 	HistoryRecord()
 	{
+		Lock = false;
 		Type = 0;
 		strName = L"";
 	}
@@ -56,6 +58,7 @@ struct HistoryRecord
 	{
 		strName = rhs.strName;
 		Type = rhs.Type;
+		Lock = rhs.Lock;
 		return *this;
 	}
 };

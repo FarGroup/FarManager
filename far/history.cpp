@@ -97,6 +97,7 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 		{
 			if (EqualType(AddRecord.Type,HistoryItem->Type))
 			{
+				AddRecord.Lock=HistoryItem->Lock;
 				if ((RemoveDups==1 && StrCmp(AddRecord.strName,HistoryItem->strName)==0) ||
 						(RemoveDups==2 && StrCmpI(AddRecord.strName,HistoryItem->strName)==0))
 				{
@@ -138,11 +139,20 @@ bool History::SaveHistory()
 		wmemset(TypesBuffer,0,size()+1);
 	}
 
+	wchar_t *LocksBuffer=NULL;
+	if(!(LocksBuffer=(wchar_t *)xf_malloc((size()+1)*sizeof(wchar_t))))
+	{
+		if (TypesBuffer)
+			xf_free(TypesBuffer);
+		return false;
+	}
+	wmemset(LocksBuffer,0,size()+1);
+
 	bool ret = false;
 	HKEY hKey = NULL;
 
 	wchar_t *BufferLines=NULL, *PtrBuffer;
-	size_t SizeLines=0, SizeTypes=0;
+	size_t SizeLines=0, SizeTypes=0, SizeLocks=0;
 
 	storePosition();
 
@@ -164,6 +174,8 @@ bool History::SaveHistory()
 		if (SaveType)
 			TypesBuffer[SizeTypes++]=HistoryItem->Type+L'0';
 
+		LocksBuffer[SizeLocks++]=HistoryItem->Lock+L'0';
+
 		if (HistoryItem == SelectedItem)
 			Position = i;
 
@@ -177,6 +189,8 @@ bool History::SaveHistory()
 
 		if (SaveType)
 			RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,static_cast<DWORD>((SizeTypes+1)*sizeof(wchar_t)));
+
+		RegSetValueExW(hKey,L"Locks",0,REG_SZ,(unsigned char *)LocksBuffer,static_cast<DWORD>((SizeLocks+1)*sizeof(wchar_t)));
 
 		RegSetValueExW(hKey,L"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
 
@@ -193,6 +207,8 @@ end:
 		xf_free(BufferLines);
 	if (TypesBuffer)
 		xf_free(TypesBuffer);
+	if (LocksBuffer)
+		xf_free(LocksBuffer);
 
 	return ret;
 }
@@ -201,6 +217,7 @@ end:
 bool History::ReadHistory()
 {
 	bool NeedReadType = SaveType && CheckRegValue(strRegKey, L"Types");
+	bool NeedReadLock = CheckRegValue(strRegKey, L"Locks")?true:false;
 
 	DWORD Type;
 	HKEY hKey=OpenRegKey(strRegKey);
@@ -210,6 +227,7 @@ bool History::ReadHistory()
 	bool ret = false;
 
 	wchar_t *TypesBuffer=NULL;
+	wchar_t *LocksBuffer=NULL;
 	wchar_t *Buffer=NULL;
 	DWORD Size;
 
@@ -232,6 +250,21 @@ bool History::ReadHistory()
 			goto end;
 	}
 
+	if (NeedReadLock)
+	{
+		Size=GetRegKeySize(hKey, L"Locks");
+		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(wchar_t)));
+		LocksBuffer=(wchar_t *)xf_malloc(Size);
+		if (LocksBuffer)
+		{
+			memset(LocksBuffer,0,Size);
+			if (RegQueryValueEx(hKey,L"Locks",0,&Type,(BYTE *)LocksBuffer,&Size)!=ERROR_SUCCESS)
+				goto end;
+		}
+		else
+			goto end;
+	}
+
 	Size=GetRegKeySize(hKey, L"Lines");
 	if (!Size) // Нету ничерта
 	{
@@ -246,6 +279,7 @@ bool History::ReadHistory()
 	{
 		bool bPosFound = false;
 		wchar_t *TypesBuf=TypesBuffer;
+		wchar_t *LockBuf=LocksBuffer;
 		int StrPos=0;
 		wchar_t *Buf=Buffer;
 		Size/=sizeof(wchar_t);
@@ -266,6 +300,15 @@ bool History::ReadHistory()
 				{
 					AddRecord.Type = *TypesBuf-L'0';
 					TypesBuf++;
+				}
+			}
+
+			if (NeedReadLock)
+			{
+				if (iswdigit(*LockBuf))
+				{
+					AddRecord.Lock = (*LockBuf-L'0') == 0?false:true;
+					LockBuf++;
 				}
 			}
 
@@ -302,6 +345,8 @@ end:
 		xf_free(TypesBuffer);
 	if (Buffer)
 		xf_free(Buffer);
+	if (LocksBuffer)
+		xf_free(LocksBuffer);
 
 	//if (!ret)
 		//clear();
@@ -385,6 +430,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 
 				MenuItem.Clear ();
 				MenuItem.strName = strRecord;
+				MenuItem.SetCheck(HistoryItem->Lock?1:0);
 
 				if (!SetUpMenuPos)
 					MenuItem.SetSelect(HistoryCurrentItem==HistoryItem || (!HistoryCurrentItem && isEnd()));
@@ -424,6 +470,12 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 							bool ModifiedHistory=false;
 							for (const HistoryRecord *HistoryItem=toBegin(); HistoryItem != NULL;)
 							{
+								if(HistoryItem->Lock) // залоченные не трогаем
+								{
+									HistoryItem=toNext();
+									continue;
+								}
+
 								// убить запись из истории
 								if (apiGetFileAttributes(HistoryItem->strName) == INVALID_FILE_ATTRIBUTES)
 								{
@@ -483,20 +535,42 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 						break;
 					}
 
-					case KEY_SHIFTNUMDEL:
-					case KEY_SHIFTDEL:
+					// Lock/Unlock
+					case KEY_INS:
+					case KEY_NUMPAD0:
 					{
 						if (HistoryMenu.GetItemCount()/* > 1*/)
 						{
-							HistoryMenu.Hide();
 							Current=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),Pos.SelectPos);
-							erase();
+							Current->Item.Lock=Current->Item.Lock?false:true;
+							HistoryMenu.Hide();
 							ResetPosition();
 							SaveHistory();
 							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 							HistoryMenu.SetUpdateRequired(TRUE);
 							IsUpdate=true;
 							SetUpMenuPos=true;
+						}
+						break;
+					}
+
+					case KEY_SHIFTNUMDEL:
+					case KEY_SHIFTDEL:
+					{
+						if (HistoryMenu.GetItemCount()/* > 1*/)
+						{
+							Current=(OneItem *)HistoryMenu.GetUserData(NULL,sizeof(OneItem *),Pos.SelectPos);
+							if(!Current->Item.Lock)
+							{
+								HistoryMenu.Hide();
+								erase();
+								ResetPosition();
+								SaveHistory();
+								HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+								HistoryMenu.SetUpdateRequired(TRUE);
+								IsUpdate=true;
+								SetUpMenuPos=true;
+							}
 						}
 						break;
 					}
@@ -514,8 +588,27 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 										MSG(MHistoryClear),
 										MSG(MClear),MSG(MCancel))==0)))
 						{
+							bool FoundLock=false;
+							for (const HistoryRecord *HistoryItem=toBegin(); HistoryItem != NULL; HistoryItem=toNext())
+							{
+								if(HistoryItem->Lock) // залоченные не трогаем
+								{
+									FoundLock=true;
+									ResetPosition();
+									break;
+								}
+							}
 							HistoryMenu.Hide();
-							clear();
+							if(!FoundLock)
+								clear();
+							else
+							{
+								for (toBegin(); Current; )
+									if(!Current->Item.Lock) // залоченные не трогаем
+										erase();
+									else
+										toNext();
+							}
 							SaveHistory();
 							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 							HistoryMenu.SetUpdateRequired(TRUE);

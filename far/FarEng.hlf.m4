@@ -1535,6 +1535,8 @@ available:
 
   Clear the commands history                                      #Del#
 
+  Установить/снять пометку блокировки пункт истории               #Ins#
+
   Delete the current history item                           #Shift-Del#
 
   Copy the text of the current command to the clipboard        #Ctrl-C#
@@ -1549,6 +1551,7 @@ use the highlighted shortcut letters.
     If you want to save the commands history after exiting FAR, use the
 respective option in the ~system settings dialog~@SystemSettings@.
 
+    Заблокированные пункты не будут удаляться при очистке истории.
 
 @HistoryViews
 $ #History: file view and edit#
@@ -1563,6 +1566,8 @@ shortcuts are available:
   Clear the history list                                          #Del#
 
   Delete the current history item                           #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1590,6 +1595,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a file was located on a currently unavailable remote
      resource.
 
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
+
 @HistoryFolders
 $ #History: folders#
     The folders history shows the list of folders that have been recently
@@ -1605,6 +1613,8 @@ available:
   Clear the history list                                          #Del#
 
   Delete the current history item                           #Shift-Del#
+
+  Установить/снять пометку блокировки пункт истории               #Ins#
 
   Refresh list and remove non-existing entries                 #Ctrl-R#
 
@@ -1626,6 +1636,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. List refresh operation (Ctrl-R) can take a considerable amount
      of time if a folder was located on a currently unavailable
      remote resource.
+
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+     истории.
 
 @TaskList
 $ #Task list#
