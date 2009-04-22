@@ -80,10 +80,10 @@ void History::AddToHistoryLocal(const char *Str,const char *Prefix,int Type)
     {
       if (EqualType(AddRecord.Type,HistoryItem->Type))
       {
-        AddRecord.Lock=HistoryItem->Lock;
         if ((RemoveDups==1 && strcmp(AddRecord.Name,HistoryItem->Name)==0) ||
             (RemoveDups==2 && LocalStricmp(AddRecord.Name,HistoryItem->Name)==0))
         {
+          AddRecord.Lock=HistoryItem->Lock;
           erase();
           break;
         }
