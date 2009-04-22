@@ -3,5 +3,5 @@ REGEDIT4
 [-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\AltBS]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\AltBS]
 "Description"="Use Alt-BS to undo folder changes"
-"Sequence"="AltF12 Up ShiftEnter"
+"Sequence"="AltF12 $if(CurPos == ItemCount) $if(%%AltBS == 0) %%AltBS=1; $else %%AltBS=0; Up $end $else %%AltBS=0; Up $end ShiftEnter"
 "DisableOutput"=dword:00000001
