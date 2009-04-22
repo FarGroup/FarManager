@@ -478,10 +478,10 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
           {
             case 0:  // return FirstLine
             case 2:  // return LastLine
-              return 1;
+              return IsSelection()?1:0;
 
             case 1:  // return FirstPos
-              return SelStart+1;
+              return IsSelection()?SelStart+1:0;
 
             case 3:  // return LastPos
               return IsSelection()?SelEnd:0;
