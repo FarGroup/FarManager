@@ -984,6 +984,8 @@ int Editor::BlockEnd2NumLine(int *Pos)
       while (eLine)  // поиск строки, содержащую конец блока
       {
         eLine->GetSelection(StartSel,EndSel);
+		if(EndSel == -1) // это значит, что конец блока "за строкой"
+			eLine->GetRealSelection(StartSel,EndSel);
 
         if (StartSel == -1)
         {
@@ -991,6 +993,8 @@ int Editor::BlockEnd2NumLine(int *Pos)
           if(eLine->m_next)
           {
             eLine->m_next->GetSelection(StartSel,EndSel);
+			if(EndSel == -1) // это значит, что конец блока "за строкой"
+				eLine->m_next->GetRealSelection(StartSel,EndSel);
 
             if(StartSel==-1)
             {

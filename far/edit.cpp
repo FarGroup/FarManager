@@ -545,10 +545,10 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
           {
             case 0:  // return FirstLine
             case 2:  // return LastLine
-              return 1;
+              return IsSelection()?1:0;
 
             case 1:  // return FirstPos
-              return SelStart+1;
+              return IsSelection()?SelStart+1:0;
 
             case 3:  // return LastPos
               return IsSelection()?SelEnd:0;
@@ -2162,12 +2162,12 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 
 	// Инциализируем результирующую длину предыдущим значением
 	int TabPos = PrevLength;
-	
-	// Если предыдущая позиция за концом строки, то табов там точно нет и 
+
+	// Если предыдущая позиция за концом строки, то табов там точно нет и
 	// вычислять особо ничего не надо, иначе производим вычисление
 	if (PrevPos >= StrSize)
 		TabPos += Pos-PrevPos;
-	else 
+	else
 	{
 		// Начинаем вычисление с предыдущей позиции
 		int Index = PrevPos;
@@ -2177,7 +2177,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 			// Обрабатываем табы
 			if (Str[Index] == L'\t')
 			{
-				// Если есть необходимость делать корректировку табов и эта коректировка 
+				// Если есть необходимость делать корректировку табов и эта коректировка
 				// ещё не проводилась, то увеличиваем длину обрабатываемой строки на еденицу
 				if (bCorrectPos)
 				{
@@ -2191,7 +2191,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 			// Обрабатываем все отсальные симовлы
 			else
 				TabPos++;
-		
+
 		// Если позиция находится за пределами строки, то там точно нет табов и всё просто
 		if (Pos >= StrSize)
 			TabPos += Pos-Index;
@@ -2462,7 +2462,7 @@ void Edit::ApplyColor()
 				End = TabEditorPos;
 			}
 		}
-		// Если предыдущая позиция больше текущей, то производим вычисление 
+		// Если предыдущая позиция больше текущей, то производим вычисление
 		// с начала строки (с учётом корректировки относительно табов)
 		else if (EndPos < Pos)
 		{
@@ -2470,7 +2470,7 @@ void Edit::ApplyColor()
 			EndPos += CorrectPos;
 			End = RealEnd-LeftPos;
 		}
-		// Для отптимизации делаем вычисление относительно предыдущей позиции (с учётом 
+		// Для отптимизации делаем вычисление относительно предыдущей позиции (с учётом
 		// корректировки относительно табов)
 		else
 		{
@@ -2496,7 +2496,7 @@ void Edit::ApplyColor()
 		Length = End-Start+1;
 		if (Length < X2)
 			Length -= CorrectPos;
-		
+
 		// Раскрашиваем элемент, если есть что раскрашивать
 		if (Length > 0)
 		{
