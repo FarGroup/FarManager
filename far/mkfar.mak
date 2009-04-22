@@ -18,6 +18,7 @@
 #
 # make -fmkfar.mak [options]
 #   -DALLOC - вставляет переопределенные функции работы с памятью
+#   -DUSEMSRC - заставляем использовать rc из sdk
 # Надо, иначе не будет перекомпиляция при изменении H*-файлов
 .AUTODEPEND
 
@@ -88,6 +89,12 @@ BRC32   = $(BCCPATH)\bin\Brc32
 # TLIB    = $(BCCPATH)\TLib - а зачем он тут нужен?
 # IMPLIB  = $(BCCPATH)\bin\Implib - и этот тоже?
 
+!ifdef USEMSRC
+BRC32   = $(BCCPATH)\bin\rc
+RESFLAGS=/D__FARBIT__=32 /l 0x409 /d NDEBUG -i$(INCLUDEPATH)
+!else
+RESFLAGS = -i$(INCLUDEPATH) -R
+!endif
 
 #
 # Options
@@ -100,8 +107,6 @@ LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
 
 
 CCFLAGS =
-
-RESFLAGS = -i$(INCLUDEPATH)
 
 DEPFILE=far.bc.dep
 
@@ -310,7 +315,7 @@ $(FARINCLUDE)\plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 $(OBJPATH)\Far.res :  far.rc res.hpp Far.ico
 	@echo Compiling resource...
 	@if not exist $(OBJPATH) mkdir $(OBJPATH)
-	$(BRC32) -R $(RESFLAGS)  -FO$@ Far.rc
+	$(BRC32) $(RESFLAGS) /fo$@ far.rc
 
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
