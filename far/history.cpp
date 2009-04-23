@@ -114,6 +114,8 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 		erase();
 	}
 
+	GetSystemTimeAsFileTime(&AddRecord.Timestamp); // in UTC
+
 	push_back(AddRecord);
 
 	ResetPosition();
@@ -136,7 +138,6 @@ bool History::SaveHistory()
 		TypesBuffer=(wchar_t *)xf_malloc((size()+1)*sizeof(wchar_t));
 		if (!TypesBuffer)
 			return false;
-		wmemset(TypesBuffer,0,size()+1);
 	}
 
 	wchar_t *LocksBuffer=NULL;
@@ -146,13 +147,27 @@ bool History::SaveHistory()
 			xf_free(TypesBuffer);
 		return false;
 	}
+
+	FILETIME *TimesBuffer=NULL;
+	if(!(TimesBuffer=(FILETIME *)xf_malloc((size()+1)*sizeof(FILETIME))))
+	{
+		if (LocksBuffer)
+			xf_free(LocksBuffer);
+		if (TypesBuffer)
+			xf_free(TypesBuffer);
+		return false;
+	}
+
+	memset(TimesBuffer,0,(size()+1)*sizeof(FILETIME));
 	wmemset(LocksBuffer,0,size()+1);
+	if (SaveType)
+		wmemset(TypesBuffer,0,size()+1);
 
 	bool ret = false;
 	HKEY hKey = NULL;
 
 	wchar_t *BufferLines=NULL, *PtrBuffer;
-	size_t SizeLines=0, SizeTypes=0, SizeLocks=0;
+	size_t SizeLines=0, SizeTypes=0, SizeLocks=0, SizeTimes=0;
 
 	storePosition();
 
@@ -176,6 +191,10 @@ bool History::SaveHistory()
 
 		LocksBuffer[SizeLocks++]=HistoryItem->Lock+L'0';
 
+		TimesBuffer[SizeTimes].dwLowDateTime=HistoryItem->Timestamp.dwLowDateTime;
+		TimesBuffer[SizeTimes].dwHighDateTime=HistoryItem->Timestamp.dwHighDateTime;
+		SizeTimes++;
+
 		if (HistoryItem == SelectedItem)
 			Position = i;
 
@@ -191,6 +210,7 @@ bool History::SaveHistory()
 			RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,static_cast<DWORD>((SizeTypes+1)*sizeof(wchar_t)));
 
 		RegSetValueExW(hKey,L"Locks",0,REG_SZ,(unsigned char *)LocksBuffer,static_cast<DWORD>((SizeLocks+1)*sizeof(wchar_t)));
+		RegSetValueExW(hKey,L"Times",0,REG_BINARY,(unsigned char *)TimesBuffer,(DWORD)SizeTimes*sizeof(FILETIME));
 
 		RegSetValueExW(hKey,L"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
 
@@ -218,6 +238,7 @@ bool History::ReadHistory()
 {
 	bool NeedReadType = SaveType && CheckRegValue(strRegKey, L"Types");
 	bool NeedReadLock = CheckRegValue(strRegKey, L"Locks")?true:false;
+	bool NeedReadTime = CheckRegValue(strRegKey, L"Times")?true:false;
 
 	DWORD Type;
 	HKEY hKey=OpenRegKey(strRegKey);
@@ -228,6 +249,7 @@ bool History::ReadHistory()
 
 	wchar_t *TypesBuffer=NULL;
 	wchar_t *LocksBuffer=NULL;
+	FILETIME *TimesBuffer=NULL;
 	wchar_t *Buffer=NULL;
 	DWORD Size;
 
@@ -265,6 +287,21 @@ bool History::ReadHistory()
 			goto end;
 	}
 
+	if (NeedReadTime)
+	{
+		Size=GetRegKeySize(hKey, L"Times");
+		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(FILETIME)));
+		TimesBuffer=(FILETIME *)xf_malloc(Size);
+		if (TimesBuffer)
+		{
+			memset(TimesBuffer,0,Size);
+			if (RegQueryValueEx(hKey,L"Times",0,&Type,(BYTE *)TimesBuffer,&Size)!=ERROR_SUCCESS)
+				goto end;
+		}
+		else
+			goto end;
+	}
+
 	Size=GetRegKeySize(hKey, L"Lines");
 	if (!Size) // ═хЄє эшўхЁЄр
 	{
@@ -280,6 +317,7 @@ bool History::ReadHistory()
 		bool bPosFound = false;
 		wchar_t *TypesBuf=TypesBuffer;
 		wchar_t *LockBuf=LocksBuffer;
+		FILETIME *TimeBuf=TimesBuffer;
 		int StrPos=0;
 		wchar_t *Buf=Buffer;
 		Size/=sizeof(wchar_t);
@@ -310,6 +348,13 @@ bool History::ReadHistory()
 					AddRecord.Lock = (*LockBuf-L'0') == 0?false:true;
 					LockBuf++;
 				}
+			}
+
+			if (NeedReadTime)
+			{
+				AddRecord.Timestamp.dwLowDateTime=TimeBuf->dwLowDateTime;
+				AddRecord.Timestamp.dwHighDateTime=TimeBuf->dwHighDateTime;
+				TimeBuf++;
 			}
 
 			if (AddRecord.strName.GetLength())
@@ -414,17 +459,22 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 			{
 				string strRecord = HistoryItem->strName;
 
+				strRecord = L"";
 				if (TypeHistory == HISTORYTYPE_VIEW)
 				{
-					strRecord = GetTitle(HistoryItem->Type);
+					strRecord += GetTitle(HistoryItem->Type);
 					strRecord += L":";
 					strRecord += (HistoryItem->Type==4?L"-":L" ");
-					strRecord += HistoryItem->strName;;
 				}
-				else
-				{
-					strRecord = HistoryItem->strName;
-				}
+                /*
+                 TODO: возможно здесь! или выше....
+					char Date[16],Time[16], OutStr[32];
+					ConvertDate(HistoryItem->Timestamp,Date,Time,5,TRUE,FALSE,TRUE,TRUE);
+					а дальше
+					strRecord += дату и время
+                */
+
+				strRecord += HistoryItem->strName;;
 
 				ReplaceStrings(strRecord, L"&",L"&&", -1);
 

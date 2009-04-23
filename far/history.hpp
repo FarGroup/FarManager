@@ -46,12 +46,15 @@ struct HistoryRecord
 	bool   Lock;
 	int    Type;
 	string strName;
+	FILETIME Timestamp;
 
 	HistoryRecord()
 	{
 		Lock = false;
 		Type = 0;
 		strName = L"";
+		Timestamp.dwLowDateTime=0;
+		Timestamp.dwHighDateTime=0;
 	}
 
 	const HistoryRecord& operator=(const HistoryRecord &rhs)
@@ -59,6 +62,8 @@ struct HistoryRecord
 		strName = rhs.strName;
 		Type = rhs.Type;
 		Lock = rhs.Lock;
+		Timestamp.dwLowDateTime  = rhs.Timestamp.dwLowDateTime;
+		Timestamp.dwHighDateTime = rhs.Timestamp.dwHighDateTime;
 		return *this;
 	}
 };
