@@ -22,12 +22,15 @@ struct HistoryRecord
   bool  Lock;
   int   Type;
   char *Name;
+  FILETIME Timestamp;
 
   HistoryRecord()
   {
     Lock = false;
     Type = 0;
     Name = NULL;
+    Timestamp.dwLowDateTime=0;
+    Timestamp.dwHighDateTime=0;
   }
 
   const HistoryRecord& operator=(const HistoryRecord &rhs);

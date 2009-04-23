@@ -920,7 +920,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
                 eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
                 eSel.BlockStartPos=MBlockStartX;
                 eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
-                if(eSel.BlockWidth)
+                if(eSel.BlockWidth || (Action == 2 && MBlockStart != CurLine))
                 {
                   int bl=CalcDistance(TopList,MBlockStart,-1);
                   int el=CalcDistance(TopList,CurLine,-1);

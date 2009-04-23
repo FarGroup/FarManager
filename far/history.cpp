@@ -97,6 +97,8 @@ void History::AddToHistoryLocal(const char *Str,const char *Prefix,int Type)
     erase();
   }
 
+  GetSystemTimeAsFileTime(&AddRecord.Timestamp); // in UTC
+
   push_back(AddRecord);
 
   ResetPosition();
@@ -118,7 +120,6 @@ bool History::SaveHistory()
   {
     if(!(TypesBuffer=(unsigned char *)xf_malloc((size()+1)*sizeof(char))))
       return false;
-    memset(TypesBuffer,0,size()+1);
   }
 
   unsigned char *LocksBuffer=NULL;
@@ -128,13 +129,27 @@ bool History::SaveHistory()
       xf_free(TypesBuffer);
     return false;
   }
+
+  FILETIME *TimesBuffer=NULL;
+  if(!(TimesBuffer=(FILETIME *)xf_malloc((size()+1)*sizeof(FILETIME))))
+  {
+    if (LocksBuffer)
+      xf_free(LocksBuffer);
+    if (TypesBuffer)
+      xf_free(TypesBuffer);
+    return false;
+  }
+
+  memset(TimesBuffer,0,(size()+1)*sizeof(FILETIME));
   memset(LocksBuffer,0,size()+1);
+  if (SaveType)
+    memset(TypesBuffer,0,size()+1);
 
   bool ret = false;
   HKEY hKey = NULL;
 
   char *BufferLines=NULL,*PtrBuffer;
-  size_t SizeLines=0, SizeTypes=0, SizeLocks=0;
+  size_t SizeLines=0, SizeTypes=0, SizeLocks=0, SizeTimes=0;
 
   storePosition();
 
@@ -160,6 +175,10 @@ bool History::SaveHistory()
 
     LocksBuffer[SizeLocks++]=HistoryItem->Lock+'0';
 
+    TimesBuffer[SizeTimes].dwLowDateTime=HistoryItem->Timestamp.dwLowDateTime;
+    TimesBuffer[SizeTimes].dwHighDateTime=HistoryItem->Timestamp.dwHighDateTime;
+    SizeTimes++;
+
     if (HistoryItem == SelectedItem)
       Position = i;
 
@@ -174,14 +193,10 @@ bool History::SaveHistory()
        //BufferLines[SizeLines++]=0;
        RegSetValueEx(hKey,"Lines",0,REG_MULTI_SZ,(unsigned char *)BufferLines,(DWORD)SizeLines); //REG_BINARY
        if (SaveType)
-       {
-         if(TypesBuffer && *TypesBuffer)
-           RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,(DWORD)SizeTypes);
-         else
-           RegDeleteValue(hKey,"Types");
-       }
+         RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,(DWORD)SizeTypes);
 
        RegSetValueEx(hKey,"Locks",0,REG_SZ,LocksBuffer,(DWORD)SizeLocks);
+       RegSetValueEx(hKey,"Times",0,REG_BINARY,(BYTE*)TimesBuffer,(DWORD)SizeTimes*sizeof(FILETIME));
 
        RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
        RegCloseKey(hKey);
@@ -215,6 +230,7 @@ bool History::ReadHistory()
 {
   bool NeedReadType = SaveType && CheckRegValue(RegKey, "Types");
   bool NeedReadLock = CheckRegValue(RegKey, "Locks")?true:false;
+  bool NeedReadTime = CheckRegValue(RegKey, "Times")?true:false;
 
   HKEY hKey;
   if ((hKey=OpenRegKey(RegKey))==NULL)
@@ -236,6 +252,7 @@ bool History::ReadHistory()
 
   char *TypesBuffer=NULL;
   char *LocksBuffer=NULL;
+  FILETIME *TimesBuffer=NULL;
 
   if (NeedReadType)
   {
@@ -267,6 +284,21 @@ bool History::ReadHistory()
       goto end;
   }
 
+  if (NeedReadTime)
+  {
+    Size=GetRegKeySize(hKey, "Times");
+    Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(FILETIME)));
+    TimesBuffer=(FILETIME *)xf_malloc(Size);
+    if (TimesBuffer)
+    {
+      memset(TimesBuffer,0,Size);
+      if (RegQueryValueEx(hKey,"Times",0,&Type,(BYTE *)TimesBuffer,&Size)!=ERROR_SUCCESS)
+        goto end;
+    }
+    else
+      goto end;
+  }
+
   if((Buffer=(char*)xf_malloc(SizeLines)) == NULL)
   {
     goto end;
@@ -277,6 +309,7 @@ bool History::ReadHistory()
     bool bPosFound = false;
     char *TypesBuf=TypesBuffer;
     char *LockBuf=LocksBuffer;
+    FILETIME *TimeBuf=TimesBuffer;
 
     int StrPos=0;
     char *Buf=Buffer;
@@ -304,6 +337,13 @@ bool History::ReadHistory()
           AddRecord.Lock = (*LockBuf-'0') == 0?false:true;
           LockBuf++;
         }
+      }
+
+      if (NeedReadTime)
+      {
+        AddRecord.Timestamp.dwLowDateTime=TimeBuf->dwLowDateTime;
+        AddRecord.Timestamp.dwHighDateTime=TimeBuf->dwHighDateTime;
+        TimeBuf++;
       }
 
       if (strlen(AddRecord.Name))
@@ -412,8 +452,24 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
         #define _snprintf FarSnprintf
         #endif
         Record[0]=0;
+
         if (TypeHistory == HISTORYTYPE_VIEW)
           _snprintf(Record,sizeof(Record)-1,"%s:%c",GetTitle(HistoryItem->Type),(HistoryItem->Type==4?'-':' '));
+
+#if 0
+        char Date[16],Time[16], OutStr[32];
+        ConvertDate(HistoryItem->Timestamp,Date,Time,5,TRUE,FALSE,TRUE,TRUE);
+//                                                     int Brief,int TextMonth,int FullYear,int DynInit)
+
+        if(*Date)
+        {
+          sprintf(OutStr,"%s %s",Date,Time);
+          strncat(Record,OutStr,sizeof(Record)-1);
+        }
+        else
+          strncat(Record,"           ",sizeof(Record)-1);
+        strncat(Record," ",sizeof(Record)-1);
+#endif
         strncat(Record,HistoryItem->Name,sizeof(Record)-1);
 
         ReplaceStrings(Record,"&","&&",-1);
@@ -776,5 +832,7 @@ const HistoryRecord& HistoryRecord::operator=(const HistoryRecord &rhs)
   Name = xf_strdup(rhs.Name);
   Type = rhs.Type;
   Lock = rhs.Lock;
+  Timestamp.dwLowDateTime=rhs.Timestamp.dwLowDateTime;
+  Timestamp.dwHighDateTime=rhs.Timestamp.dwHighDateTime;
   return *this;
 }
