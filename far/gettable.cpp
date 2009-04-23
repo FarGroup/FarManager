@@ -142,10 +142,10 @@ void AddStandardTable(const wchar_t *codePageName, UINT codePage, int position =
 	bool checked = false;
 	if (selectedCodePages && codePage!=CP_AUTODETECT)
 	{
-		wchar_t lpwszCodePage[6];
-		_itow(codePage, lpwszCodePage, 10);
+		string strCodePageName;
+		strCodePageName.Format(L"%u", codePage);
 		int selectType = 0;
-		GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
+		GetRegKey(FavoriteCodePagesKey, strCodePageName, selectType, 0);
 		if (selectType & CPST_FIND)
 			checked = true;
 	}
@@ -220,9 +220,6 @@ int GetTableInsertPosition(UINT codePage, int start, int length)
 BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
-	// Пропускаем стандартные кодовые страницы
-	if (IsStandardCP(codePage))
-		return TRUE;
 	// BUBBUG: Существует много кодировок с cpi.MaxCharSize > 1, пока их не поддерживаем
 	CPINFOEXW cpi;
 	if (GetCPInfoExW(codePage, 0, &cpi) && cpi.MaxCharSize == 1)
@@ -316,11 +313,17 @@ void ProcessSelected(bool select)
 	UINT codePage = (UINT)(UINT_PTR)curItem->UserData;
 	if ((select && itemPosition >= itemCount-normalCodePages) || (!select && itemPosition>=itemCount-normalCodePages-favoriteCodePages-(normalCodePages?1:0) && itemPosition < itemCount-normalCodePages))
 	{
-		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
+		// Преобразуем номер таблицы символов в строку
 		string strCPName;
 		strCPName.Format(L"%u", curItem->UserData);
+		// Получаем текущее состояние флага в реестре
+		int selectType = 0;
+		GetRegKey(FavoriteCodePagesKey, strCPName, selectType, 0);
+		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
 		if (select)
-			SetRegKey(FavoriteCodePagesKey, strCPName, CPST_FAVORITE);
+			SetRegKey(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
+		else if (selectType & CPST_FIND)
+			SetRegKey(FavoriteCodePagesKey, strCPName, CPST_FIND);
 		else
 			DeleteRegValue(FavoriteCodePagesKey, strCPName);
 

@@ -422,18 +422,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       return TRUE;
     }
-    case DN_LISTCHANGE:
-    {
-			if (Param1==FAD_COMBOBOX_CP)
-      {
-				UINT cp = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
-				UseAllCodePages = (cp == CP_AUTODETECT);
-				if (!UseAllCodePages) {
-					CodePage = cp;
-				}
-      }
-      return TRUE;
-    }
     /* 22.11.2001 VVM
       ! Сбрасыватьсостояние FindFolders при вводе текста.
         Но только если не меняли этот состояние вручную */
@@ -549,30 +537,65 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
 			if (Param1==FAD_COMBOBOX_CP && (Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE))
 			{
-				FarListPos position;
-				Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&position);
-				int index = 2 + StandardCPCount + 2;
-				if (position.SelectPos > 1 && position.SelectPos < index + (favoriteCodePages ? favoriteCodePages + 1 : 0))
+				// Получаем текущую позицию в выпадающем списке таблиц символов
+				FarListPos Position;
+				Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&Position);
+				// Получаем номер выбранной таблицы симолов
+				FarListGetItem Item = { Position.SelectPos };
+				Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
+				UINT SelectedCodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
+				// Разрешаем отмечать только стандартные и любимые таблицы символов
+				int FavoritesIndex = 2 + StandardCPCount + 2;
+				if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
 				{
-					FarListGetItem item = { position.SelectPos };
-					Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&item);
-					UINT codePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, position.SelectPos);
-					wchar_t codePageName[6];
-					_itow(codePage, codePageName, 10);
-					if (item.Item.Flags&LIF_CHECKED)
+					// Преобразуем номер таблицы сиволов к строке
+					string strCodePageName;
+					strCodePageName.Format(L"%u", SelectedCodePage);
+					// Получаем текущее состояние флага в реестре
+					int SelectType = 0;
+					GetRegKey(FavoriteCodePagesKey, strCodePageName, SelectType, 0);
+					// Отмечаем/разотмечаем таблицу символов
+					if (Item.Item.Flags & LIF_CHECKED)
 					{
-						if (position.SelectPos < index)
-							DeleteRegValue(FavoriteCodePagesKey, codePageName);
+						// Для стандартных таблиц символов просто удаляем значение из рееста, для
+						// любимых же оставляем в реестре флаг, что таблица символов любимая
+						if (SelectType & CPST_FAVORITE)
+							SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
 						else
-							SetRegKey(FavoriteCodePagesKey, codePageName, CPST_FAVORITE);
-						item.Item.Flags &= ~LIF_CHECKED;
+							DeleteRegValue(FavoriteCodePagesKey, strCodePageName);
+
+						Item.Item.Flags &= ~LIF_CHECKED;
 					}
 					else
 					{
-						SetRegKey(FavoriteCodePagesKey, codePageName, CPST_FIND | (position.SelectPos < index ? 0 : CPST_FAVORITE));
-						item.Item.Flags |= LIF_CHECKED;
+						SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
+
+						Item.Item.Flags |= LIF_CHECKED;
 					}
-					Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&item);
+					// Обновляем текущий элемент в выпадающем списке
+					Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
+					// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в любимых,
+					// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
+					bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
+					for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
+					{
+						// Получаем элемент таблицы симолов
+						FarListGetItem CheckItem = { Index };
+						Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
+						// Обрабатываем только таблицы симовлов
+						if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
+						{
+							if (SelectedCodePage == (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Index))
+							{
+								if (Item.Item.Flags & LIF_CHECKED)
+									CheckItem.Item.Flags |= LIF_CHECKED;
+								else
+									CheckItem.Item.Flags &= ~LIF_CHECKED;
+								Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
+								break;
+							}
+						}
+					}
 				}
 			}
 			break;
@@ -581,20 +604,30 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
 
-			if (Param1==FAD_EDIT_TEXT)
-      {
-        if(!FindFoldersChanged)
-        // Строка "Содержащих текст"
-        {
-
-          BOOL Checked = (Item.PtrData && *Item.PtrData)?FALSE:Opt.FindOpt.FindFolders;
+			switch (Param1)
+			{
+			case FAD_EDIT_TEXT:
+				// Строка "Содержащих текст"
+				if (!FindFoldersChanged)
+				{
+					BOOL Checked = (Item.PtrData && *Item.PtrData)?FALSE:Opt.FindOpt.FindFolders;
 					Dialog::SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, Checked?BSTATE_CHECKED:BSTATE_UNCHECKED);
-        }
+				}
 				return TRUE;
-      }
-			else if(Param1==FAD_COMBOBOX_WHERE)
+			case FAD_COMBOBOX_CP:
+				{
+					// Получаем выбранную в выпадающем списке таблицу символов
+					UINT cp = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
+					UseAllCodePages = (cp == CP_AUTODETECT);
+					if (!UseAllCodePages) {
+						CodePage = cp;
+					}
+				}
+				return TRUE;
+			case FAD_COMBOBOX_WHERE:
 				SearchFromChanged=TRUE;
-			break;
+				return TRUE;
+			}
 
     }
     case DN_HOTKEY:
