@@ -723,7 +723,6 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 					PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(InfoBlock+sizeof(ULONG));
 					IO_STATUS_BLOCK ioStatus;
 					int res=ifn.pfnNtQueryInformationFile(hFile,&ioStatus,pStreamInfo,Size-sizeof(ULONG),FileStreamInformation);
-					CloseHandle(hFile);
 					if(!res)
 					{
 						PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
@@ -737,6 +736,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 						}
 					}
 				}
+				CloseHandle(hFile);
 			}
 		}
 		else
