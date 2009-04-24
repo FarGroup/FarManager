@@ -459,7 +459,8 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
       DEF_SORTMODE_(UNSORTED),  DEF_SORTMODE_(BY_NAME),  DEF_SORTMODE_(BY_EXT),
       DEF_SORTMODE_(BY_MTIME),  DEF_SORTMODE_(BY_CTIME), DEF_SORTMODE_(BY_ATIME),
       DEF_SORTMODE_(BY_SIZE),   DEF_SORTMODE_(BY_DIZ),   DEF_SORTMODE_(BY_OWNER),
-      DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS)
+			DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS),
+			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
     };
 
     if(!StackItems || !ItemNumber)
@@ -480,7 +481,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
          (StackItems[I].Modified?L"True ":L"False"),
          StackItems[I].PrevViewMode,
          StackItems[I].PrevSortMode,
-           (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:L"<Unknown>"),
+           (StackItems[I].PrevSortMode<BY_STREAMSSIZE?__SORT[StackItems[I].PrevSortMode].Name:L"<Unknown>"),
          StackItems[I].PrevSortOrder,
          StackItems[I].PrevNumericSort,
          (const wchar_t*)StackItems[I].strHostFile);

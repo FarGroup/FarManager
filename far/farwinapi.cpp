@@ -572,17 +572,28 @@ BOOL apiGetConsoleKeyboardLayoutName (string &strDest)
 			ret=TRUE;
 		strDest.ReleaseBuffer();
 	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	}
 	return ret;
 }
 
 HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName)
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
-	DWORD StringLength=0;
-	if(ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if(ifn.pfnFindFirstFileNameW)
 	{
-		hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
-		strLinkName.ReleaseBuffer();
+		DWORD StringLength=0;
+		if(ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+		{
+			hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
+			strLinkName.ReleaseBuffer();
+		}
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
 	return hRet;
 }
@@ -590,11 +601,18 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 {
 	BOOL Ret=FALSE;
-	DWORD StringLength=0;
-	if(!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
+	if(ifn.pfnFindNextFileNameW)
 	{
-		Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
-		strLinkName.ReleaseBuffer();
+		DWORD StringLength=0;
+		if(!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
+		{
+			Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
+			strLinkName.ReleaseBuffer();
+		}
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
 	return Ret;
 }
@@ -630,9 +648,17 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 
 BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
-	BOOL Ret=ifn.pfnCreateSymbolicLink(lpSymlinkFileName,lpTargetFileName,dwFlags);
-	if(!Ret)
-		Ret=ifn.pfnCreateSymbolicLink(NTPath(lpSymlinkFileName),NTPath(lpTargetFileName),dwFlags);
+	BOOL Ret=FALSE;
+	if(ifn.pfnCreateSymbolicLink)
+	{
+		Ret=ifn.pfnCreateSymbolicLink(lpSymlinkFileName,lpTargetFileName,dwFlags);
+		if(!Ret)
+			Ret=ifn.pfnCreateSymbolicLink(NTPath(lpSymlinkFileName),NTPath(lpTargetFileName),dwFlags);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	}
 	return Ret;
 }
 
@@ -673,4 +699,99 @@ DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
 BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)
 {
 	return SetFilePointerEx(hFile,*((PLARGE_INTEGER)&DistanceToMove),(PLARGE_INTEGER)NewFilePointer,dwMoveMethod);
+}
+
+HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
+{
+	HANDLE Ret=INVALID_HANDLE_VALUE;
+	if(ifn.pfnFindFirstStreamW)
+	{
+		Ret=ifn.pfnFindFirstStreamW(lpFileName,InfoLevel,lpFindStreamData,dwFlags);
+	}
+	else
+	{
+		if(InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
+		{
+			HANDLE hFile = CreateFileW(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,NULL);
+			if(hFile!=INVALID_HANDLE_VALUE)
+			{
+				const size_t Size=sizeof(ULONG)+(64<<10);
+				LPBYTE InfoBlock=static_cast<LPBYTE>(xf_malloc(Size));
+				if(InfoBlock)
+				{
+					memset(InfoBlock,0,Size);
+					PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(InfoBlock+sizeof(ULONG));
+					IO_STATUS_BLOCK ioStatus;
+					int res=ifn.pfnNtQueryInformationFile(hFile,&ioStatus,pStreamInfo,Size-sizeof(ULONG),FileStreamInformation);
+					CloseHandle(hFile);
+					if(!res)
+					{
+						PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+						*reinterpret_cast<PLONG>(InfoBlock)=pStreamInfo->NextEntryOffset;
+						if(pStreamInfo->StreamNameLength)
+						{
+							memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
+							pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+							pFsd->StreamSize=pStreamInfo->StreamSize;
+							Ret=InfoBlock;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	}
+	return Ret;
+}
+
+BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
+{
+	BOOL Ret=FALSE;
+	if(ifn.pfnFindNextStreamW)
+	{
+		Ret=ifn.pfnFindNextStreamW(hFindStream,lpFindStreamData);
+	}
+	else
+	{
+		if(ifn.pfnNtQueryInformationFile)
+		{
+			ULONG NextEntryOffset=*reinterpret_cast<PULONG>(hFindStream);
+			if(NextEntryOffset)
+			{
+				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(hFindStream)+sizeof(ULONG)+NextEntryOffset);
+				PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+				*reinterpret_cast<PLONG>(hFindStream)=pStreamInfo->NextEntryOffset?NextEntryOffset+pStreamInfo->NextEntryOffset:0;
+				if(pStreamInfo->StreamNameLength)
+				{
+					memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
+					pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+					pFsd->StreamSize=pStreamInfo->StreamSize;
+					Ret=TRUE;
+				}
+			}
+		}
+		else
+		{
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		}
+	}
+	return Ret;
+}
+
+BOOL apiFindStreamClose(HANDLE hFindFile)
+{
+	BOOL Ret=FALSE;
+	if(ifn.pfnFindFirstStreamW && ifn.pfnFindNextStreamW)
+	{
+		Ret=apiFindClose(hFindFile);
+	}
+	else
+	{
+		xf_free(hFindFile);
+		Ret=TRUE;
+	}
+	return Ret;
 }

@@ -223,6 +223,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   int ReadOwners=IsColumnDisplayed(OWNER_COLUMN);
   int ReadPacked=IsColumnDisplayed(PACKED_COLUMN);
   int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
+	int ReadNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
+	int ReadStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
+
 
   string strComputerName;
 
@@ -344,6 +347,14 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         GetFileOwner(strComputerName, NewPtr->strName,strOwner);
         NewPtr->strOwner = strOwner;
       }
+
+			NewPtr->NumberOfStreams=1;
+			NewPtr->StreamsSize=NewPtr->UnpSize;
+
+			if(ReadNumStreams||ReadStreamsSize)
+			{
+				EnumStreams(TestParentFolderName(fdata.strFileName)?strCurDir:fdata.strFileName,NewPtr->StreamsSize,NewPtr->NumberOfStreams);
+			}
 
       if (NeedHighlight)
         CtrlObject->HiFiles->GetHiColor(&NewPtr,1);

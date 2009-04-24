@@ -42,6 +42,7 @@ void ImportedFunctions::Load()
 {
 	memset(this,0,sizeof(*this));
 
+	HMODULE hNtdll = GetModuleHandleW (L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandleW (L"kernel32.dll");
 	HMODULE hShell = GetModuleHandleW (L"shell32.dll");
 	HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
@@ -127,6 +128,14 @@ void ImportedFunctions::Load()
 		
 		pfnFindFirstFileNameW = (FINDFIRSTFILENAMEW)GetProcAddress(hKernel, "FindFirstFileNameW");
 		pfnFindNextFileNameW = (FINDNEXTFILENAMEW)GetProcAddress(hKernel, "FindNextFileNameW");
+
+		pfnFindFirstStreamW = (FINDFIRSTSTREAMW)GetProcAddress(hKernel, "FindFirstStreamW");
+		pfnFindNextStreamW = (FINDNEXTSTREAMW)GetProcAddress(hKernel, "FindNextStreamW");
+	}
+
+	if(hNtdll)
+	{
+		pfnNtQueryInformationFile = (NTQUERYINFORMATIONFILE)GetProcAddress(hNtdll, "NtQueryInformationFile");
 	}
 
 	if (hShell)

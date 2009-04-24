@@ -497,6 +497,26 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 
 */
 
+bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
+{
+	bool Ret=false;
+	WIN32_FIND_STREAM_DATA fsd;
+	HANDLE hFind=apiFindFirstStream(FileName,FindStreamInfoStandard,&fsd);
+	if(hFind!=INVALID_HANDLE_VALUE)
+	{
+		StreamsCount=1;
+		StreamsSize=fsd.StreamSize.QuadPart;
+		while(apiFindNextStream(hFind,&fsd))
+		{
+			StreamsCount++;
+			StreamsSize+=fsd.StreamSize.QuadPart;
+		}
+		apiFindStreamClose(hFind);
+		Ret=true;
+	}
+	return Ret;
+}
+
 /*
    Функция DelSubstDrive - удаление Subst драйвера
    Return: -1 - это либо не SUBST-драйвер, либо OS не та.

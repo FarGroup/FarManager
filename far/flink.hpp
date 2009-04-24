@@ -57,6 +57,8 @@ void GetPathRootOne(const wchar_t *Path, string &strRoot);
 typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
 
+bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
+
 bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable);
 
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);

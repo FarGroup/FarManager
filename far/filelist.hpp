@@ -47,6 +47,7 @@ struct FileListItem
 	struct HighlightDataColor Colors;
 
 	DWORD NumberOfLinks;
+	DWORD NumberOfStreams;
 	DWORD UserFlags;
 	DWORD_PTR UserData;
 
@@ -67,6 +68,7 @@ struct FileListItem
 
 	unsigned __int64 UnpSize;
 	unsigned __int64 PackSize;
+	unsigned __int64 StreamsSize;
 
 	string strName;
 	string strShortName;
@@ -83,6 +85,7 @@ struct FileListItem
 		memset (&Colors, 0, sizeof (HighlightDataColor));
 
 		NumberOfLinks = 0;
+		NumberOfStreams = 0;
 		UserFlags = 0;
 		UserData = 0;
 
@@ -124,6 +127,7 @@ struct FileListItem
 		memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
 
 		NumberOfLinks = fliCopy.NumberOfLinks;
+		NumberOfStreams = fliCopy.NumberOfStreams;
 		UserFlags = fliCopy.UserFlags;
 		UserData = fliCopy.UserData;
 
@@ -178,7 +182,7 @@ struct PrevDataItem
 
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
       MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN,DIZ_COLUMN,
-      OWNER_COLUMN,NUMLINK_COLUMN,
+      OWNER_COLUMN,NUMLINK_COLUMN,NUMSTREAMS_COLUMN,STREAMSSIZE_COLUMN,
       CUSTOM_COLUMN0,CUSTOM_COLUMN1,CUSTOM_COLUMN2,CUSTOM_COLUMN3,
       CUSTOM_COLUMN4,CUSTOM_COLUMN5,CUSTOM_COLUMN6,CUSTOM_COLUMN7,
       CUSTOM_COLUMN8,CUSTOM_COLUMN9};

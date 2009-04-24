@@ -116,6 +116,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
  #include <limits.h>
+ #include <ntdef.h>
 #endif
 
 #define _wmemset wmemset

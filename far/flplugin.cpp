@@ -322,6 +322,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
   fi->CreationTime=pi->FindData.ftCreationTime;
   fi->AccessTime=pi->FindData.ftLastAccessTime;
   fi->NumberOfLinks=pi->NumberOfLinks;
+	fi->NumberOfStreams=1;
   fi->UserFlags=pi->Flags;
 
   if (pi->UserData && (pi->Flags & PPIF_USERDATA))

@@ -3239,6 +3239,7 @@ elválasztott) karakter jelképez, a következők lehetnek:
 
     S[C,T,F,E] - fájlméret
     P[C,T,F,E] - tömörített fájlméret
+    G[C,T,F,E] - size of file streams
                  ahol:  C - rendezett fájlméret formátum;
                         T - 1024 helyett 1000 az osztó;
                         F - a fájlméretek a Windows Exploreréhez
@@ -3264,6 +3265,8 @@ elválasztott) karakter jelképez, a következők lehetnek:
                  ahol:  L - tartománynév mutatva (domain);
 
     LN         - hardlinkek száma
+
+    F          - streams number
 
     Ha az oszloptípusok leírójában több fájlnévoszlop szerepel, a fájlpanel
 többoszlopos formában jelenik meg.

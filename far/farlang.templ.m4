@@ -5422,6 +5422,22 @@ MColumnMumLinks
 "Lnk"
 "NmL"
 
+MColumnNumStreams
+"КлП"
+"NmS"
+upd:"NmS"
+upd:"NmS"
+upd:"NmS"
+upd:"NmS"
+
+MColumnStreamsSize
+"РазмПт"
+"StrmSz"
+upd:"StrmSz"
+upd:"StrmSz"
+upd:"StrmSz"
+upd:"StrmSz"
+
 MListUp
 l:
 "Вверх"
@@ -9272,6 +9288,22 @@ MMenuSortByNumLinks
 "Anzahl an &Links"
 "Hardlinkek s&záma"
 "&liczby dowiązań"
+
+MMenuSortByNumStreams
+"Количество &потоков"
+"Number of s&treams"
+upd:"Number of s&treams"
+upd:"Number of s&treams"
+upd:"Number of s&treams"
+upd:"Number of s&treams"
+
+MMenuSortByStreamsSize
+"Размер по&токов"
+"Size of st&reams"
+upd:"Size of st&reams"
+upd:"Size of st&reams"
+upd:"Size of st&reams"
+upd:"Size of st&reams"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки   Shift-F11"

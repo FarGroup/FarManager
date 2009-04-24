@@ -212,6 +212,19 @@ DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
 };
 #undef INTERFACE
 
+typedef enum _STREAM_INFO_LEVELS
+{
+	FindStreamInfoStandard,
+}
+STREAM_INFO_LEVELS;
+
+typedef struct _WIN32_FIND_STREAM_DATA
+{
+	LARGE_INTEGER StreamSize;
+	WCHAR cStreamName[MAX_PATH+36];
+}
+WIN32_FIND_STREAM_DATA,*PWIN32_FIND_STREAM_DATA;
+
 #endif // __GNUC__
 
 #ifndef FSCTL_QUERY_ALLOCATED_RANGES
@@ -413,5 +426,28 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
 #ifndef IOCTL_SCSI_PASS_THROUGH
 #define IOCTL_SCSI_PASS_THROUGH CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 #endif
+
+typedef struct _FILE_STREAM_INFORMATION
+{
+	ULONG NextEntryOffset;
+	ULONG StreamNameLength;
+	LARGE_INTEGER StreamSize;
+	LARGE_INTEGER StreamAllocationSize;
+	WCHAR StreamName[1];
+}
+FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
+
+typedef struct _IO_STATUS_BLOCK
+{
+	union
+	{
+		NTSTATUS Status;
+		PVOID Pointer;
+	};
+	ULONG_PTR Information;
+}
+IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
+
+#define FileStreamInformation 22
 
 #endif // __SDKPATCHES_HPP__

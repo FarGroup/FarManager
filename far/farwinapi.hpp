@@ -92,6 +92,10 @@ BOOL apiFindClose(
 		HANDLE hFindFile
 		);
 
+BOOL apiFindStreamClose(
+		HANDLE hFindFile
+		);
+
 void apiFindDataToDataEx (
 		const FAR_FIND_DATA *pSrc,
 		FAR_FIND_DATA_EX *pDest);
@@ -242,5 +246,17 @@ BOOL apiSetFilePointerEx(
 		PINT64 NewFilePointer,
 		DWORD dwMoveMethod
 		);
+
+HANDLE apiFindFirstStream(
+	LPCWSTR lpFileName,
+	STREAM_INFO_LEVELS InfoLevel,
+	LPVOID lpFindStreamData,
+	DWORD dwFlags=0
+	);
+
+BOOL apiFindNextStream(
+	HANDLE hFindStream,
+	LPVOID lpFindStreamData
+);
 
 #endif // __FARWINAPI_HPP__

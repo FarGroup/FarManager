@@ -44,9 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "registry.hpp"
 
-int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
+int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
 
-static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
+static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"F",L"G",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
 
 struct PanelViewSettings ViewSettingsArray[]=
 {
@@ -291,10 +291,10 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
     }
     else
     {
-      if ( strArgName.At(0)==L'S' || strArgName.At(0)==L'P')
+      if ( strArgName.At(0)==L'S' || strArgName.At(0)==L'P' || strArgName.At(0)==L'G')
       {
         unsigned int &ColumnType=ViewColumnTypes[ColumnCount];
-        ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:PACKED_COLUMN;
+				ColumnType=(strArgName.At(0)==L'S') ? SIZE_COLUMN:(strArgName.At(0)==L'P')?PACKED_COLUMN:STREAMSSIZE_COLUMN;
 
         const wchar_t *Ptr = (const wchar_t*)strArgName+1;
 
@@ -411,7 +411,7 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
       if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
         strType += L"R";
     }
-    if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN)
+		if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN || ColumnType==STREAMSSIZE_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_COMMAS)
         strType += L"C";

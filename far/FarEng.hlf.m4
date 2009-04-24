@@ -3065,6 +3065,7 @@ characters, delimited with commas. Allowed column types are:
 
     S[C,T,F,E] - file size
     P[C,T,F,E] - packed file size
+    G[C,T,F,E] - size of file streams
                  where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;
                         F - show file sizes similar to Windows
@@ -3090,6 +3091,8 @@ characters, delimited with commas. Allowed column types are:
                  where: L - show domain name;
 
     LN         - hard links number
+    
+    F          - streams number
 
     If the column types description contains more than one file name column,
 the file panel will be displayed in multicolumn form.

@@ -143,6 +143,26 @@ typedef BOOL(WINAPI *FINDNEXTFILENAMEW) (
 		PWCHAR LinkName
 );
 
+typedef HANDLE(WINAPI *FINDFIRSTSTREAMW)(
+	LPCWSTR lpFileName,
+	STREAM_INFO_LEVELS InfoLevel,
+	LPVOID lpFindStreamData,
+	DWORD dwFlags
+	);
+
+typedef BOOL(WINAPI * FINDNEXTSTREAMW)(
+	HANDLE hFindStream,
+	LPVOID lpFindStreamData
+	);
+
+typedef NTSTATUS (WINAPI *NTQUERYINFORMATIONFILE)(
+	HANDLE FileHandle,
+	PIO_STATUS_BLOCK IoStatusBlock,
+	PVOID FileInformation,
+	ULONG Length,
+	int FileInformationClass
+	);
+
 struct ImportedFunctions {
 
 	//
@@ -169,7 +189,11 @@ struct ImportedFunctions {
 	
 	FINDFIRSTFILENAMEW pfnFindFirstFileNameW;
 	FINDNEXTFILENAMEW pfnFindNextFileNameW;
-	
+
+	FINDFIRSTSTREAMW pfnFindFirstStreamW;
+	FINDNEXTSTREAMW pfnFindNextStreamW;
+
+	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;
 
 	void Load();
 };

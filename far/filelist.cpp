@@ -384,6 +384,16 @@ int _cdecl SortList(const void *el1,const void *el2)
         if (SPtr1->NumberOfLinks==SPtr2->NumberOfLinks)
           break;
         return((SPtr1->NumberOfLinks > SPtr2->NumberOfLinks) ? -ListSortOrder : ListSortOrder);
+
+			case BY_NUMSTREAMS:
+				if (SPtr1->NumberOfStreams==SPtr2->NumberOfStreams)
+					break;
+				return((SPtr1->NumberOfStreams > SPtr2->NumberOfStreams) ? -ListSortOrder : ListSortOrder);
+
+			case BY_STREAMSSIZE:
+				if(SPtr1->StreamsSize==SPtr2->StreamsSize)
+					break;
+				return((SPtr1->StreamsSize > SPtr2->StreamsSize) ? -ListSortOrder : ListSortOrder);
     }
   }
 
@@ -2547,6 +2557,8 @@ void FileList::SetViewMode(int ViewMode)
   int OldOwner=IsColumnDisplayed(OWNER_COLUMN);
   int OldPacked=IsColumnDisplayed(PACKED_COLUMN);
   int OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
+	int OldNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
+	int OldStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
   int OldDiz=IsColumnDisplayed(DIZ_COLUMN);
   int OldCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
   int OldNumericSort=NumericSort;
@@ -2554,6 +2566,8 @@ void FileList::SetViewMode(int ViewMode)
   int NewOwner=IsColumnDisplayed(OWNER_COLUMN);
   int NewPacked=IsColumnDisplayed(PACKED_COLUMN);
   int NewNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
+	int NewNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
+	int NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
   int NewDiz=IsColumnDisplayed(DIZ_COLUMN);
   int NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
   int NewCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
@@ -2570,6 +2584,8 @@ void FileList::SetViewMode(int ViewMode)
   if (FileCount>0 && PanelMode!=PLUGIN_PANEL &&
       ((!OldOwner && NewOwner) || (!OldPacked && NewPacked) ||
        (!OldNumLink && NewNumLink) ||
+				(!OldNumStreams && NewNumStreams) ||
+				(!OldStreamsSize && NewStreamsSize) ||
        (AccessTimeUpdateRequired && NewAccessTime)))
     Update(UPDATE_KEEP_SELECTION);
   else
@@ -3655,16 +3671,19 @@ void FileList::SelectSortMode()
    /* 08 */(const wchar_t *)MMenuSortByOwner,0,KEY_CTRLF11,
    /* 09 */(const wchar_t *)MMenuSortByCompressedSize,0,0,
    /* 10 */(const wchar_t *)MMenuSortByNumLinks,0,0,
-   /* 11 */L"",LIF_SEPARATOR,0,
-   /* 12 */(const wchar_t *)MMenuSortUseNumeric,0,0,
-   /* 13 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
-   /* 14 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
+		/* 11 */(const wchar_t *)MMenuSortByNumStreams,0,0,
+		/* 12 */(const wchar_t *)MMenuSortByStreamsSize,0,0,
+		/* 13 */L"",LIF_SEPARATOR,0,
+		/* 14 */(const wchar_t *)MMenuSortUseNumeric,0,0,
+		/* 15 */(const wchar_t *)MMenuSortUseGroups,0,KEY_SHIFTF11,
+		/* 16 */(const wchar_t *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
   };
 
   static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
                           BY_SIZE,   UNSORTED,  BY_CTIME,
                           BY_ATIME,  BY_DIZ,    BY_OWNER,
-                          BY_COMPRESSEDSIZE,BY_NUMLINKS};
+													BY_COMPRESSEDSIZE,BY_NUMLINKS,
+													BY_NUMSTREAMS,BY_STREAMSSIZE};
 
   for (size_t I=0;I<countof(SortModes);I++)
     if (SortMode==SortModes[I])
@@ -3674,9 +3693,9 @@ void FileList::SelectSortMode()
     }
 
   int SG=GetSortGroups();
-  SortMenu[12].SetCheck(NumericSort);
-  SortMenu[13].SetCheck(SG);
-  SortMenu[14].SetCheck(SelectedFirst);
+	SortMenu[14].SetCheck(NumericSort);
+	SortMenu[15].SetCheck(SG);
+	SortMenu[16].SetCheck(SelectedFirst);
 
   int SortCode;
   {
@@ -3694,13 +3713,13 @@ void FileList::SelectSortMode()
   else
     switch(SortCode)
     {
-      case 13:
+      case 15:
         ProcessKey(KEY_SHIFTF11);
         break;
-      case 14:
+      case 16:
         ProcessKey(KEY_SHIFTF12);
         break;
-      case 12:
+      case 14:
         NumericSort=NumericSort?0:1;
         Update(UPDATE_KEEP_SELECTION);
         Redraw();

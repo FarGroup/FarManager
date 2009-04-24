@@ -167,6 +167,12 @@ void FileList::ShowFileList(int Fast)
         case NUMLINK_COLUMN:
           IDMessage=MColumnMumLinks;
           break;
+				case NUMSTREAMS_COLUMN:
+					IDMessage=MColumnNumStreams;
+					break;
+				case STREAMSSIZE_COLUMN:
+					IDMessage=MColumnStreamsSize;
+					break;
       }
       if(IDMessage != -1)
         strTitle=MSG(IDMessage);
@@ -211,11 +217,12 @@ void FileList::ShowFileList(int Fast)
   {
     static int SortModes[]={UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,
                             BY_ATIME,BY_SIZE,BY_DIZ,BY_OWNER,
-                            BY_COMPRESSEDSIZE,BY_NUMLINKS};
+														BY_COMPRESSEDSIZE,BY_NUMLINKS,
+														BY_NUMSTREAMS,BY_STREAMSSIZE};
     static int SortStrings[]={MMenuUnsorted,MMenuSortByName,
       MMenuSortByExt,MMenuSortByModification,MMenuSortByCreation,
       MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
-      MMenuSortByCompressedSize,MMenuSortByNumLinks};
+      MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize};
     for (size_t I=0;I<countof(SortModes);I++)
     {
       if (SortModes[I]==SortMode)
@@ -961,8 +968,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case SIZE_COLUMN:
             case PACKED_COLUMN:
+						case STREAMSSIZE_COLUMN:
               {
-                int Packed=(ColumnType==PACKED_COLUMN);
+								bool Packed=(ColumnType==PACKED_COLUMN);
+								bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
                 string strStr;
                 int Width=ColumnWidth;
                 if (CurPtr->ShowFolderSize==2)
@@ -970,7 +979,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   Width--;
                   Text(L"~");
                 }
-                if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
+								if (!Streams && !Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
                   const wchar_t *PtrName=MSG(MListFolder);
                   if (TestParentFolderName(CurPtr->strName))
@@ -1003,7 +1012,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   // подсократим - весь код по форматированию размера
                   //   в отдельную функцию - FileSizeToStr().
                   mprintf(L"%s", (const wchar_t*)FileSizeToStr(strOutStr,
-                           Packed?CurPtr->PackSize:CurPtr->UnpSize,
+										Packed?CurPtr->PackSize:Streams?CurPtr->StreamsSize:CurPtr->UnpSize,
                            Width,ColumnTypes[K]));
                 }
               }
@@ -1130,6 +1139,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(CurPtr->NumberOfLinks,OutStr,10));
               }
               break;
+						case NUMSTREAMS_COLUMN:
+							{
+								wchar_t OutStr[20];
+								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(CurPtr->NumberOfStreams,OutStr,10));
+							}
+							break;
           }
         }
       }

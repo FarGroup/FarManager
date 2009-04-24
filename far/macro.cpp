@@ -2509,6 +2509,12 @@ static bool panelitemFunc()
       case 17:  // WriteTime (FILETIME)
         Ret=TVar((__int64)FileTimeToUI64(&filelistItem.WriteTime));
         break;
+			case 18: // NumberOfStreams
+				Ret=TVar((__int64)filelistItem.NumberOfStreams);
+				break;
+			case 19: // StreamsSize
+				Ret=TVar((__int64)filelistItem.StreamsSize);
+				break;
     }
   }
 
