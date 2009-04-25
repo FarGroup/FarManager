@@ -251,7 +251,7 @@ class Panel:public ScreenObject
     int GetFocus() {return(Focus);};
     int GetType() {return(Type);};
     void SetUpdateMode(int Mode) {EnableUpdate=Mode;};
-    int MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Modifers=NULL);
+    bool MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers=NULL);
     int SetCurPath();
 
     BOOL NeedUpdatePanel(Panel *AnotherPanel);

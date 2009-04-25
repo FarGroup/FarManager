@@ -798,75 +798,135 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
   return 1;
 }
 
-int Panel::MakeListFile(string &strListFileName,int ShortNames,const wchar_t *Modifers)
+bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers)
 {
-  FILE *ListFile;
-
-  if (!FarMkTempEx(strListFileName) || (ListFile=_wfopen(strListFileName,L"wb"))==NULL)
-  {
-    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
-    return(FALSE);
-  }
-
-  string strFileName, strShortName;
-  DWORD FileAttr;
-  GetSelName(NULL,FileAttr);
-  while (GetSelName(&strFileName,FileAttr,&strShortName))
-  {
-    if (ShortNames)
-      strFileName = strShortName;
-
-    if(Modifers && *Modifers)
-    {
-      if(wcschr(Modifers,L'F') && PointToName((const wchar_t*)strFileName) == (const wchar_t*)strFileName) // 'F' - использовать полный путь; //BUGBUG
-      {
-        string strTempFileName;
-				strTempFileName.Format (L"%s%s%s", (const wchar_t*)strCurDir,(!IsSlash(strCurDir.At(strCurDir.GetLength()-1))?L"\\":L""), (const wchar_t*)strFileName); //BUGBUG
-        if (ShortNames)
-          ConvertNameToShort(strTempFileName, strTempFileName);
-        strFileName = strTempFileName;
-      }
-      if(wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-        QuoteSpaceOnly(strFileName);
-
-      if(wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
-      {
-        int I,Len=(int)strFileName.GetLength();
-
-        wchar_t *Name = strFileName.GetBuffer ();
-
-        for(I=0; I < Len; ++I)
-          if(Name[I] == L'\\')
-            Name[I]=L'/';
-
-        strFileName.ReleaseBuffer ();
-      }
-    }
-
-    char *lpFileName = (char *) xf_malloc(strFileName.GetLength()+1);
-		strFileName.GetCharString(lpFileName, strFileName.GetLength()+1);
-
-//_D(SysLog(L"%s[%s] %s",__FILE__,Modifers,FileName));
-    if (fprintf(ListFile,"%s\r\n", lpFileName)==EOF)
-    {
-      xf_free (lpFileName);
-      fclose(ListFile);
-			apiDeleteFile (strListFileName);
-      Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
-      return(FALSE);
-    }
-
-    xf_free (lpFileName);
-  }
-  if (fclose(ListFile)==EOF)
-  {
-    clearerr(ListFile);
-    fclose(ListFile);
-		apiDeleteFile (strListFileName);
-    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
-    return(FALSE);
-  }
-  return(TRUE);
+	bool Ret=false;
+	if(FarMkTempEx(strListFileName))
+	{
+		HANDLE hListFile=apiCreateFile(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,CREATE_ALWAYS,0);
+		if(hListFile!=INVALID_HANDLE_VALUE)
+		{
+			UINT CodePage=CP_OEMCP;
+			LPCVOID Eol=DOS_EOL_fmtA;
+			int EolSize=2;
+			if(Modifers && *Modifers)
+			{
+				if(wcschr(Modifers,L'A')) // ANSI
+				{
+					CodePage=CP_ACP;
+				}
+				else
+				{
+					DWORD Signature=0;
+					int SignatureSize=0;
+					if(wcschr(Modifers,L'W')) // UTF16LE
+					{
+						CodePage=CP_UNICODE;
+						Signature=SIGN_UNICODE;
+						SignatureSize=2;
+						Eol=DOS_EOL_fmt;
+						EolSize=2*sizeof(WCHAR);
+					}
+					else
+					{
+						if(wcschr(Modifers,L'U')) // UTF8
+						{
+							CodePage=CP_UTF8;
+							Signature=SIGN_UTF8;
+							SignatureSize=3;
+						}
+					}
+					if(Signature && SignatureSize)
+					{
+						DWORD NumberOfBytesWritten;
+						WriteFile(hListFile,&Signature,SignatureSize,&NumberOfBytesWritten,NULL);
+					}
+				}
+			}
+			string strFileName,strShortName;
+			DWORD FileAttr;
+			GetSelName(NULL,FileAttr);
+			while(GetSelName(&strFileName,FileAttr,&strShortName))
+			{
+				if(ShortNames)
+					strFileName = strShortName;
+				if(Modifers && *Modifers)
+				{
+					if(wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.CPtr()) // 'F' - использовать полный путь; //BUGBUG ?
+					{
+						string strTempFileName=strCurDir;
+						if(ShortNames)
+							ConvertNameToShort(strTempFileName,strTempFileName);
+						AddEndSlash(strTempFileName);
+						strTempFileName+=strFileName; //BUGBUG ?
+						strFileName=strTempFileName;
+					}
+					if(wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+						QuoteSpaceOnly(strFileName);
+					if(wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+					{
+						size_t Len=strFileName.GetLength();
+						wchar_t *FileName=strFileName.GetBuffer();
+						for(size_t i=0;i<Len;i++)
+						{
+							if(FileName[i]==L'\\')
+							{
+								FileName[i]=L'/';
+							}
+						}
+						strFileName.ReleaseBuffer ();
+					}
+				}
+				LPCVOID Ptr=NULL;
+				LPSTR Buffer=NULL;
+				DWORD NumberOfBytesToWrite=0,NumberOfBytesWritten=0;
+				if(CodePage==CP_UNICODE)
+				{
+					Ptr=strFileName.CPtr();
+					NumberOfBytesToWrite=static_cast<DWORD>(strFileName.GetLength()*sizeof(WCHAR));
+				}
+				else
+				{
+					int Size=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),NULL,0,NULL,NULL);
+					if(Size)
+					{
+						Buffer=static_cast<LPSTR>(xf_malloc(Size));
+						if(Buffer)
+						{
+							NumberOfBytesToWrite=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),Buffer,Size,NULL,NULL);
+							Ptr=Buffer;
+						}
+					}
+				}
+				BOOL Written=WriteFile(hListFile,Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten,NULL);
+				if(Buffer)
+					xf_free(Buffer);
+				if(Written && NumberOfBytesWritten==NumberOfBytesToWrite)
+				{
+					if(WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,NULL) && NumberOfBytesWritten==EolSize)
+					{
+						Ret=true;
+					}
+				}
+				else
+				{
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
+					apiDeleteFile(strListFileName);
+					break;
+				}
+			}
+			CloseHandle(hListFile);
+		}
+		else
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
+		}
+	}
+	else
+	{
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
+	}
+	return Ret;
 }
 
 static int IsReplaceVariable(const wchar_t *str,

@@ -1874,7 +1874,9 @@ enclosed in quotes, you should specify #program.exe "!.!"# and not
      'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\\' in pathnames;
      'F' - use full pathnames;
-     'A' - use ANSI encoding.
+     'A' - use ANSI code page;
+     'U' - use UTF-8 code page;
+     'W' - use UTF-16 (Little endian) code page.
 
     For example, the association #!@@AFQ!# means "name of file with the list of
 selected file names, in ANSI encoding, include full pathnames, names with
