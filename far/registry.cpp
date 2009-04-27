@@ -692,95 +692,78 @@ int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName)
 
 int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
 {
-  HKEY hKey=OpenRegKey(Key);
-  int RetCode=REG_NONE;
-
-  if(hKey)
-  {
-    wchar_t ValueName[512]; //BUGBUG, dynamic
-
-    while( TRUE )
-    {
-      DWORD ValSize=countof(ValueName);
-      DWORD Type=(DWORD)-1;
-
-      if (RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
-        break;
-
-      RetCode=Type;
-
-      strDestName = ValueName;
-
-      if(Type == REG_SZ)
-        break;
-      else if(Type == REG_DWORD)
-      {
-        if(IData)
-          *IData=*(DWORD*)SData;
-        break;
-      }
-      else if(Type == REG_QWORD)
-      {
-        if(IData64)
-          *IData64=*(__int64*)SData;
-        break;
-      }
-    }
-
-    CloseRegKey(hKey);
-  }
-  return RetCode;
+	string strSData;
+	int ExitCode=EnumRegValueEx(Key,Index,strDestName,strSData,IData,IData64);
+	if(ExitCode != REG_NONE)
+	{
+		// ??? need check ExitCode ???
+		memcpy(SData,(const wchar_t*)strDestName,Min(SDataSize,(DWORD)(strDestName.GetLength()*sizeof(wchar_t))));
+	}
+	return ExitCode;
 }
 
 int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64)
 {
-  HKEY hKey=OpenRegKey(Key);
-  int RetCode=REG_NONE;
+	HKEY hKey=OpenRegKey(Key);
+	int RetCode=REG_NONE;
 
-  if (hKey)
-  {
-    wchar_t ValueName[512]; //BUGBUG, dynamic
+	if (hKey)
+	{
+		string strValueName;
+		DWORD ValSize=512, ValSize0;
+		LONG ExitCode=ERROR_MORE_DATA;
 
-    while ( TRUE )
-    {
-      DWORD ValSize=countof(ValueName);
-      DWORD Type=(DWORD)-1;
-      DWORD Size = 0;
+		// get size value name
+		for(;ExitCode==ERROR_MORE_DATA;ValSize<<=1)
+		{
+			wchar_t *Name=strValueName.GetBuffer(ValSize);
+			ValSize0=ValSize;
+			ExitCode=RegEnumValueW(hKey,Index,Name,&ValSize0,NULL,NULL,NULL,NULL);
+			strValueName.ReleaseBuffer();
+		}
 
-      if(RegEnumValueW(hKey,Index,ValueName,&ValSize, NULL, &Type, NULL, &Size) != ERROR_SUCCESS)
-        break;
+		while ( TRUE )
+		{
+			DWORD Type=(DWORD)-1;
+			DWORD Size = 0;
 
-      wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
-      ValSize=countof(ValueName); // НАДА, иначе получаем ERROR_MORE_DATA
-      int Ret=RegEnumValueW(hKey,Index,ValueName,&ValSize,NULL,&Type,(LPBYTE)Data,&Size);
-      strSData.ReleaseBuffer (Size/sizeof (wchar_t));
+			ValSize0=ValSize;
+			ExitCode = RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValSize, NULL, &Type, NULL, &Size);
+			if(ExitCode != ERROR_SUCCESS)
+			{
+				if(ExitCode == ERROR_MORE_DATA)
+				{
+					wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
+					ValSize0=ValSize;
+					ExitCode=RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValSize0,NULL,&Type,(LPBYTE)Data,&Size);
+					strSData.ReleaseBuffer (Size/sizeof (wchar_t));
 
-      if (Ret != ERROR_SUCCESS)
-        break;
+					if (ExitCode != ERROR_SUCCESS)
+						break;
+				}
+				else
+					break;
+			}
 
-      RetCode=Type;
+			RetCode=Type;
 
-      strDestName = ValueName;
+			strDestName = strValueName;
 
-      if (Type == REG_SZ)
-        break;
-      else if (Type == REG_DWORD)
-      {
-        if (IData)
-          *IData=*(DWORD*)(const wchar_t*)strSData;
-        break;
-      }
-      else if (Type == REG_QWORD)
-      {
-        if (IData64)
-          *IData64=*(__int64*)(const wchar_t*)strSData;
-        break;
-      }
-    }
-
-    CloseRegKey(hKey);
-  }
-  return RetCode;
+			if (Type == REG_DWORD)
+			{
+				if (IData)
+					*IData=*(DWORD*)(const wchar_t*)strSData;
+			}
+			else if (Type == REG_QWORD)
+			{
+				if (IData64)
+					*IData64=*(__int64*)(const wchar_t*)strSData;
+			}
+			break;
+		}
+		CloseRegKey(hKey);
+	}
+	return RetCode;
 }
 
 

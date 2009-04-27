@@ -3656,6 +3656,20 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 
     if (Type == REG_SZ)
 			varInsert(*t, lpwszValueName)->value = (const wchar_t*)strSData;
+	else if (Type == REG_MULTI_SZ)
+	{
+		// Различаем так же REG_MULTI_SZ
+		wchar_t *ptrSData = strSData.GetBuffer ();
+		while(1)
+		{
+			ptrSData+=StrLength(ptrSData);
+			if(!ptrSData[0] && !ptrSData[1])
+				break;
+			*ptrSData=L'\n';
+		}
+		strSData.ReleaseBuffer ();
+		varInsert(*t, lpwszValueName)->value = (const wchar_t*)strSData;
+	}
     else if (Type == REG_DWORD)
 			varInsert(*t, lpwszValueName)->value = (__int64)IData;
     else if (Type == REG_QWORD)
