@@ -42,7 +42,7 @@ FARINCLUDE=Include
 FINALPATH=$(OUTPATH)
 
 # путь к каталогу с временными файлами - obj, etc
-OBJPATH=$(OUTPATH)\OBJ
+OBJPATH=$(OUTPATH)\\OBJ
 
 OUTDIR=$(OUTPATH)
 
@@ -57,7 +57,7 @@ OPTDEBUG2=
 CSMFILE=Far.csm
 OPTLINKDEBUG=-v
 # FAR_STDHDR_OBJ - это как раз тот файл, в котором все говно по DEBUG инфе из стд.хёдеров
-FAR_STDHDR_OBJ="$(OBJPATH)\Far.#00"
+FAR_STDHDR_OBJ="$(OBJPATH)\\Far.#00"
 !else
 OPTDEBUG=-v- -R- -y-
 OPTDEBUG2=-DNDEBUG
@@ -69,7 +69,7 @@ FAR_STDHDR_OBJ=
 
 
 !ifdef PRECOMP
-PRECOMPOPT=-H -H=$(OBJPATH)\$(CSMFILE)
+PRECOMPOPT=-H -H=$(OBJPATH)\\$(CSMFILE)
 !else
 PRECOMPOPT=-H-
 !endif
@@ -78,23 +78,16 @@ PRECOMPOPT=-H-
 #
 # Borland C++ tools
 #
-BCC32   = $(BCCPATH)\bin\Bcc32 +BccW32.cfg
+BCC32   = $(BCCPATH)\\bin\\Bcc32 +BccW32.cfg
 !ifdef ILINK
-TLINK32 = $(BCCPATH)\bin\ilink32
-BRC32   = $(BCCPATH)\bin\Brcc32
+TLINK32 = $(BCCPATH)\\bin\\ilink32
+BRC32   = $(BCCPATH)\\bin\\Brcc32
 !else
-TLINK32 = $(BCCPATH)\bin\Tlink32
-BRC32   = $(BCCPATH)\bin\Brc32
+TLINK32 = $(BCCPATH)\\bin\\Tlink32
+BRC32   = $(BCCPATH)\\bin\\Brc32
 !endif
-# TLIB    = $(BCCPATH)\TLib - а зачем он тут нужен?
-# IMPLIB  = $(BCCPATH)\bin\Implib - и этот тоже?
-
-!ifdef USEMSRC
-BRC32   = $(BCCPATH)\bin\rc
-RESFLAGS=/D__FARBIT__=32 /l 0x409 /d NDEBUG -i$(INCLUDEPATH)
-!else
-RESFLAGS = -i$(INCLUDEPATH) -R
-!endif
+# TLIB    = $(BCCPATH)\\TLib - а зачем он тут нужен?
+# IMPLIB  = $(BCCPATH)\\bin\\Implib - и этот тоже?
 
 #
 # Options
@@ -109,6 +102,15 @@ LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
 CCFLAGS =
 
 DEPFILE=far.bc.dep
+
+!ifdef USEMSRC
+BRC32   = $(BCCPATH)\\bin\\rc
+RESFLAGS= /D__FARBIT__=32 /l 0x409 /d NDEBUG -i$(INCLUDEPATH)
+!else
+RESFLAGS = -i$(INCLUDEPATH) -R
+!endif
+
+
 
 FAROBJ=\
    $(OBJPATH)\checkver.obj\
@@ -320,6 +322,7 @@ $(OBJPATH)\Far.res :  far.rc res.hpp Far.ico
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
 	-@settitle "Linking..."
+	@echo "Linking..."
 	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
@@ -333,6 +336,7 @@ $(OBJPATH)\Far.res
 !else
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ) Far.exe.manifest far.rc copyright.inc farversion.inc "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf"
 	-@settitle "Linking..."
+	@echo "Linking..."
 	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
@@ -343,7 +347,8 @@ $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 Far.def
 |
 	@copy Far.map $(FINALPATH)\Far.map
-	@$(BRC32) $(OBJPATH)\Far.res $(OBJPATH)\Far.res $<
+	#@$(BRC32) $(OBJPATH)\Far.res $(OBJPATH)\Far.res $<
+
 !endif
 
 # обязательно! Что бы в ручную не делать...

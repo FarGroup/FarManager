@@ -937,6 +937,10 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
                   Ret=EditorControl(ECTL_SELECT,&eSel);
                 }
+                else if(!eSel.BlockWidth && MBlockStart == CurLine)
+                {
+                  UnmarkBlock();
+                }
               }
 
               UnmarkMacroBlock();
