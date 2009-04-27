@@ -628,10 +628,10 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 
 		if (TempRoot[0]==L'\\' && TempRoot[1]==L'\\')
 		{
-			if ((ChPtr=wcschr(TempRoot+2,L'\\'))!=NULL || (ChPtr=wcschr(TempRoot+2,L'/'))!=NULL)
+			if ((ChPtr=FirstSlash(TempRoot+2))!=NULL)
 			{
 				const wchar_t *ChPtr2 = NULL;
-				if ((ChPtr2=wcschr(ChPtr+1,L'\\'))!=NULL || (ChPtr2=wcschr(ChPtr+1,L'/'))!=NULL)
+				if ((ChPtr2=FirstSlash(ChPtr+1))!=NULL)
 				{
 					ChPtr=ChPtr2;
 					strTempRoot.SetLength((ChPtr - TempRoot) + 1);
@@ -642,7 +642,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
 		}
 		else
 		{
-			if ((ChPtr=wcschr(TempRoot,L'\\'))!=NULL || (ChPtr=wcschr(TempRoot,L'/'))!=NULL)
+			if ((ChPtr=FirstSlash(TempRoot))!=NULL)
 			{
 				strTempRoot.SetLength((ChPtr - TempRoot) + 1);
 			}
@@ -695,7 +695,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   if (!IsUNC || strTempRoot.Pos(posCtlChar,L'\\',2))
   {
     size_t pos = 0;
-		bool bFound = (strTempRoot.RPos(pos,L'\\')||strTempRoot.RPos(pos,L'/'));
+		bool bFound = LastSlash(strTempRoot,pos);
     while (pos >= posCtlChar && strTempRoot.GetLength() > 2)
     {
 			FileAttr=apiGetFileAttributes(strTempRoot);
@@ -720,7 +720,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
               if (strTempRoot.GetLength() == pos+1)
               {
               	strTempRoot.SetLength(pos);
-								if (strTempRoot.RPos(pos,L'\\')||strTempRoot.RPos(pos,L'/'))
+								if (LastSlash(strTempRoot,pos))
                   strTempRoot.SetLength(pos);
               }
               else
@@ -745,7 +745,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
       else
         break;
 
-			bFound = (strTempRoot.RPos(pos,L'\\')||strTempRoot.RPos(pos,L'/'));
+			bFound = LastSlash(strTempRoot,pos);
     } /* while */
   } /* if */
 

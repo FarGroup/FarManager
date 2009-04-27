@@ -969,7 +969,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         {
           size_t pos;
           // проверим путь к файлу, может его уже снесли...
-					if (strFullFileName.RPos(pos,L'\\')||strFullFileName.RPos(pos,L'/'))
+					if(LastSlash(strFullFileName,pos))
           {
 						wchar_t *lpwszPtr = strFullFileName.GetBuffer ();
 						wchar_t wChr = lpwszPtr[pos+1];
@@ -1596,9 +1596,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     // проверим путь к файлу, может его уже снесли...
     string strCreatedPath = Name;
 
-    const wchar_t *Ptr = wcsrchr (strCreatedPath, L'\\');
-		if(!Ptr)
-			Ptr=wcsrchr (strCreatedPath, L'/');
+		const wchar_t *Ptr=LastSlash(strCreatedPath);
 
     if ( Ptr )
     {

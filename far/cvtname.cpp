@@ -186,9 +186,7 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
           CtrlChar = TempDest;
           if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')
           {
-            CtrlChar = wcschr(TempDest + 2, L'\\');
-						if(!CtrlChar)
-							CtrlChar=wcschr(TempDest + 2, L'/');
+						CtrlChar=FirstSlash(TempDest+2);
           }
           // Устанавливаем длину возвращаемой строки
           Ret = StrLength(TempDest);
@@ -330,9 +328,7 @@ void ConvertNameToUNC(string &strFileName)
 
 		if(!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
 		{
-			const wchar_t *NamePtr;
-			if((NamePtr=wcschr(strFileName, L'/')) == NULL)
-				NamePtr=wcschr(strFileName, L'\\');
+			const wchar_t *NamePtr=FirstSlash(strFileName);
 			if(NamePtr != NULL)
 			{
 				AddEndSlash(strTemp);

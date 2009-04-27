@@ -373,7 +373,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
             wcscpy (lpwszMountPoint, p);
 
-						if ( !wcschr (p+4, L'\\') && !wcschr (p+4, L'/'))
+						if(!FirstSlash(p+4))
               wcscat (lpwszMountPoint, L"\\");
 
             wchar_t wszVolumeName[MAX_PATH];

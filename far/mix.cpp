@@ -493,9 +493,7 @@ int GetDirInfo(const wchar_t *Title,
   const wchar_t *ShowDirName = DirName;
   if (DirName[0] == L'.' && DirName[1] == 0)
   {
-    const wchar_t *p = wcsrchr (strFullDirName, L'\\');
-		if(!p)
-			p = wcsrchr (strFullDirName, L'/');
+		const wchar_t *p = LastSlash(strFullDirName);
     if (p)
       ShowDirName = p + 1;
   }
@@ -1498,7 +1496,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     strComputerName = (const wchar_t*)strNetDir+2;
 
     size_t pos;
-		if (!strComputerName.Pos(pos,L'\\') && !strComputerName.Pos(pos,L'/'))
+		if (!FirstSlash(strComputerName,pos))
     {
       strComputerName.SetLength(0);
     }

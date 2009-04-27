@@ -545,10 +545,10 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
       {
         if ( (Str[0] == L'\\') && (Str[1] == L'\\') )
         {
-					if ( ((lpStart = wcschr (Str+2, L'\\')) != NULL) || ((lpStart = wcschr (Str+2, L'/')) != NULL) )
+					if ((lpStart = const_cast<wchar_t*>(FirstSlash(Str+2))) != NULL)
 					{
 						wchar_t *lpStart2=lpStart;
-						if ( (lpStart-Str < nLength) && (((lpStart = wcschr (lpStart2+1, L'\\')) != NULL) || ((lpStart = wcschr (lpStart2+1, L'/')) != NULL )))
+						if ( (lpStart-Str < nLength) && ((lpStart=const_cast<wchar_t*>(FirstSlash(lpStart2+1)))!=NULL))
               lpStart++;
 					}
         }
@@ -1534,8 +1534,8 @@ BOOL TestCurrentFolderName(const wchar_t *Name)
 bool CutToSlash(string &strStr, bool bInclude)
 {
   size_t pos;
-	bool bFound=(strStr.RPos(pos,L'\\') || strStr.RPos(pos,L'/'));
-  if (bFound)
+	bool bFound=LastSlash(strStr,pos);
+	if(bFound)
 	{
 		if ( bInclude )
 			strStr.SetLength(pos);
@@ -1819,4 +1819,49 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodeP
     xf_free (lpDest);
 
     return lpwszDest;
+}
+
+const wchar_t *FirstSlash(const wchar_t *String)
+{
+	do
+	{
+		if(IsSlash(*String))
+			return String;
+	}
+	while (*String++);
+	return NULL;
+}
+
+bool FirstSlash(const wchar_t *String,size_t &pos)
+{
+	bool Ret=false;
+	const wchar_t *Ptr=FirstSlash(String);
+	if(Ptr)
+	{
+		pos=Ptr-String;
+		Ret=true;
+	}
+	return Ret;
+}
+
+const wchar_t *LastSlash(const wchar_t *String)
+{
+	const wchar_t *Start = String;
+	while (*String++)
+		;
+	while (--String!=Start && !IsSlash(*String))
+		;
+	return IsSlash(*String)?String:NULL;
+}
+
+bool LastSlash(const wchar_t *String,size_t &pos)
+{
+	bool Ret=false;
+	const wchar_t *Ptr=LastSlash(String);
+	if(Ptr)
+	{
+		pos=Ptr-String;
+		Ret=true;
+	}
+	return Ret;
 }

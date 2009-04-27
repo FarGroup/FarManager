@@ -1174,7 +1174,7 @@ int FileList::ProcessKey(int Key)
               {
               	size_t pos;
                 // проверим путь к файлу
-								if ((strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/')) && pos!=0)
+								if (LastSlash(strFileName,pos) && pos!=0)
                 {
                   wchar_t *lpwszFileName = strFileName.GetBuffer();
                   wchar_t wChr = lpwszFileName[pos+1];
@@ -2270,10 +2270,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
         if( !strNewCurDir.IsEmpty() ) // проверим - может не удалось определить RemoteName
         {
-          const wchar_t *PtrS1=wcschr((const wchar_t*)strNewCurDir+2,L'\\');
-					if(!PtrS1)
-						PtrS1=wcschr((const wchar_t*)strNewCurDir+2,L'/');
-					if(PtrS1 && !wcschr(PtrS1+1,L'\\') && !wcschr(PtrS1+1,L'/'))
+					const wchar_t *PtrS1=FirstSlash(strNewCurDir.CPtr()+2);
+					if(PtrS1 && !FirstSlash(PtrS1+1))
           {
             if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)(const wchar_t *)strNewCurDir)) // NetWork Plugin :-)
               return(FALSE);
@@ -3480,14 +3478,8 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 {
   string strFileName = strDest;
 
-	const wchar_t *ShortNameLastSlash=wcsrchr(ShortName, L'\\');
-	if(!ShortNameLastSlash)
-		ShortNameLastSlash=wcsrchr(ShortName, L'/');
-
-	const wchar_t *NameLastSlash=wcsrchr(Name, L'\\');
-	if(!NameLastSlash)
-		NameLastSlash=wcsrchr(Name, L'/');
-
+	const wchar_t *ShortNameLastSlash=LastSlash(ShortName);
+	const wchar_t *NameLastSlash=LastSlash(Name);
 
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
   {
@@ -3534,7 +3526,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
       else
       {
 				size_t pos;
-				if (strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/'))
+				if (LastSlash(strFileName,pos))
 					strFileName.Upper(0,pos);
 				else
 					strFileName.Upper();
@@ -3543,13 +3535,13 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
     if (ViewSettings.FileUpperToLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
 			size_t pos;
-			if ((strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/')) && !IsCaseMixed((const wchar_t *)strFileName+pos))
+			if (LastSlash(strFileName,pos) && !IsCaseMixed((const wchar_t *)strFileName+pos))
 				strFileName.Lower(pos);
     }
-		if ( ViewSettings.FileLowerCase && (wcsrchr(strFileName,L'\\')||wcsrchr(strFileName,L'/')) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ( ViewSettings.FileLowerCase && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
 			size_t pos;
-			if (strFileName.RPos(pos,L'\\')||strFileName.RPos(pos,L'/'))
+			if (LastSlash(strFileName,pos))
 				strFileName.Lower(pos);
     }
   }

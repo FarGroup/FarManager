@@ -151,7 +151,7 @@ void ProcessUserMenu(int EditMenu)
             if (!RunFirst)
             {
               size_t pos;
-							if (strMenuFilePath.RPos(pos,L'\\') || strMenuFilePath.RPos(pos,L'/'))
+							if (LastSlash(strMenuFilePath,pos))
               {
                 strMenuFilePath.SetLength(pos--);
                 if (strMenuFilePath.At(pos)!=L':')
@@ -213,7 +213,7 @@ void ProcessUserMenu(int EditMenu)
         if (MenuMode==MM_LOCAL)
         {
           size_t pos;
-					if (strMenuFilePath.RPos(pos,L'\\') || strMenuFilePath.RPos(pos,L'/'))
+					if(LastSlash(strMenuFilePath,pos))
           {
             strMenuFilePath.SetLength(pos--);
             if (strMenuFilePath.At(pos)!=L':')

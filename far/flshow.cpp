@@ -333,7 +333,7 @@ void FileList::ShowFileList(int Fast)
       {
         strCurDir = CurPtr->strName;
         size_t pos;
-				if (strCurDir.RPos(pos,L'\\')||strCurDir.RPos(pos,L'/'))
+				if(LastSlash(strCurDir,pos))
         {
           if (pos)
           {

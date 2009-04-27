@@ -278,9 +278,7 @@ void TreeList::DisplayTree(int Fast)
         strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
         BoxText(strOutStr);
 
-        const wchar_t *ChPtr=wcsrchr(CurPtr->strName,L'\\');
-				if(!ChPtr)
-					ChPtr=wcsrchr(CurPtr->strName,L'/');
+				const wchar_t *ChPtr=LastSlash(CurPtr->strName);
         if (ChPtr!=NULL)
           DisplayTreeName(ChPtr+1,J);
       }
@@ -1542,7 +1540,7 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
   Name += strRoot.GetLength ()-1;
 
-	if (!wcsrchr(Name,L'\\') && !wcsrchr(Name,L'/'))
+	if (!LastSlash(Name))
     return;
 
   ReadCache(strRoot);

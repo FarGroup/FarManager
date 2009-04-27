@@ -808,7 +808,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 		{
 			UINT CodePage=CP_OEMCP;
 			LPCVOID Eol=DOS_EOL_fmtA;
-			int EolSize=2;
+			DWORD EolSize=2;
 			if(Modifers && *Modifers)
 			{
 				if(wcschr(Modifers,L'A')) // ANSI

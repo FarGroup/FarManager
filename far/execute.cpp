@@ -1428,11 +1428,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
       if (apiGetFindDataEx(strExpandedDir, &wfd))
       {
         size_t pos;
-        bool bFound = strExpandedDir.RPos(pos,L'\\');
-        if (!bFound)
-          bFound = strExpandedDir.RPos(pos,L'/');
-
-        if (bFound)
+				if(LastSlash(strExpandedDir,pos))
           strExpandedDir.SetLength(pos+1);
         else
           strExpandedDir.SetLength(0);

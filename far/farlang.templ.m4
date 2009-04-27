@@ -2527,6 +2527,14 @@ MCopyResume
 "Fol&ytat"
 "Ponó&w"
 
+MCopyRename
+"&Имя"
+"R&ename"
+upd:"R&ename"
+upd:"R&ename"
+upd:"R&ename"
+upd:"R&ename"
+
 MCopyCancelOvr
 "&Отменить"
 "&Cancel"
@@ -2542,6 +2550,22 @@ MCopyRememberChoice
 "Auswahl me&rken"
 "Mind&ent a kiválasztott módon"
 "&Zapamiętaj ustawienia"
+
+MCopyRenameTitle
+"Переименовать"
+"Rename"
+"Rename"
+"Rename"
+"Rename"
+"Rename"
+
+MCopyRenameText
+"&Имя:"
+"&Name:"
+"&Name:"
+"&Name:"
+"&Name:"
+"&Name:"
 
 MCopyFileRO
 l:

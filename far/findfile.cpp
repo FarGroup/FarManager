@@ -1625,16 +1625,16 @@ int FindFiles::FindFilesProcess()
   DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
 
   int IncY=Max(0,ScrY-DLG_HEIGHT);
-  FindDlg[0].Y2+=IncY;
-  FindDlg[1].Y2+=IncY;
-  FindDlg[2].Y1+=IncY;
-  FindDlg[3].Y1+=IncY;
-  FindDlg[4].Y1+=IncY;
-  FindDlg[5].Y1+=IncY;
-  FindDlg[6].Y1+=IncY;
-  FindDlg[7].Y1+=IncY;
-  FindDlg[8].Y1+=IncY;
-  FindDlg[9].Y1+=IncY;
+	FindDlg[FD_DOUBLEBOX].Y2+=IncY;
+	FindDlg[FD_LISTBOX].Y2+=IncY;
+	FindDlg[FD_SEPARATOR1].Y1+=IncY;
+	FindDlg[FD_TEXT_STATUS].Y1+=IncY;
+	FindDlg[FD_SEPARATOR2].Y1+=IncY;
+	FindDlg[FD_BUTTON_NEW].Y1+=IncY;
+	FindDlg[FD_BUTTON_GOTO].Y1+=IncY;
+	FindDlg[FD_BUTTON_VIEW].Y1+=IncY;
+	FindDlg[FD_BUTTON_PANEL].Y1+=IncY;
+	FindDlg[FD_BUTTON_STOP].Y1+=IncY;
 
   DlgHeight+=IncY;
 
@@ -1652,8 +1652,8 @@ int FindFiles::FindFilesProcess()
 
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
-      FindDlg[8].Type=DI_TEXT;
-      FindDlg[8].strData=L"";
+			FindDlg[FD_BUTTON_PANEL].Type=DI_TEXT;
+			FindDlg[FD_BUTTON_PANEL].strData=L"";
     }
   }
 
@@ -1668,8 +1668,8 @@ int FindFiles::FindFilesProcess()
 	}
 	if(!AnySetFindList)
 	{
-		FindDlg[8].Type=DI_TEXT;
-		FindDlg[8].strData=L"";
+		FindDlg[FD_BUTTON_PANEL].Type=DI_TEXT;
+		FindDlg[FD_BUTTON_PANEL].strData=L"";
 	}
 
 	Dialog Dlg=Dialog(FindDlg,countof(FindDlg),FindDlgProc);

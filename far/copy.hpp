@@ -45,7 +45,8 @@ enum COPY_CODES {
   COPY_FAILURE,
   COPY_FAILUREREAD,
   COPY_SUCCESS,
-  COPY_SUCCESS_MOVE
+	COPY_SUCCESS_MOVE,
+	COPY_RETRY,
 };
 
 enum COPY_FLAGS {
@@ -132,7 +133,7 @@ class ShellCopy
 
     COPY_CODES ShellCopyOneFile(const wchar_t *Src,
                                 const FAR_FIND_DATA_EX &SrcData,
-                                const wchar_t *Dest,
+                                string &strDest,
                                 int KeepPathPos, int Rename);
 
 
@@ -140,7 +141,7 @@ class ShellCopy
 
 
     int  ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
-                       const wchar_t *DestName, DWORD DestAttr,int Append);
+                       string &strDestName,DWORD &DestAttr,int Append);
 
 
     int  ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
@@ -151,7 +152,7 @@ class ShellCopy
 
     int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *SrcName,const wchar_t *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
-                      int &Append,int &RetCode);
+                      int &Append,string &strNewName,int &RetCode);
 
 
     int  GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa);

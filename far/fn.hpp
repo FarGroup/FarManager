@@ -545,4 +545,9 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft);
 
 wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
 
+const wchar_t *FirstSlash(const wchar_t *String);
+bool FirstSlash(const wchar_t *String,size_t &pos);
+const wchar_t *LastSlash(const wchar_t *String);
+bool LastSlash(const wchar_t *String,size_t &pos);
+
 #endif  // __FARFUNC_HPP__

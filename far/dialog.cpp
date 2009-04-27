@@ -328,14 +328,17 @@ void Dialog::Show()
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
 
+	if(!Locked() && DialogMode.Check(DMODE_RESIZED))
+	{
+		PreRedrawItem preRedrawItem=PreRedraw.Peek();
+		if(preRedrawItem.PreRedrawFunc)
+			preRedrawItem.PreRedrawFunc();
+	}
+
   DialogMode.Clear(DMODE_RESIZED);
 
    if ( Locked() )
      return;
-
-  PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  if(preRedrawItem.PreRedrawFunc)
-    preRedrawItem.PreRedrawFunc();
 
    DialogMode.Set(DMODE_SHOW);
    ScreenObject::Show();

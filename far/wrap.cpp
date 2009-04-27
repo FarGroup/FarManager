@@ -29,6 +29,51 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(int)(lendst),NULL,NULL)
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
+const char *FirstSlashA(const char *String)
+{
+	do
+	{
+		if(IsSlashA(*String))
+			return String;
+	}
+	while (*String++);
+	return NULL;
+}
+
+bool FirstSlashA(const char *String,size_t &pos)
+{
+	bool Ret=false;
+	const char *Ptr=FirstSlashA(String);
+	if(Ptr)
+	{
+		pos=Ptr-String;
+		Ret=true;
+	}
+	return Ret;
+}
+
+const char *LastSlashA(const char *String)
+{
+	const char *Start = String;
+	while (*String++)
+		;
+	while (--String!=Start && !IsSlashA(*String))
+		;
+	return IsSlashA(*String)?String:NULL;
+}
+
+bool LastSlashA(const char *String,size_t &pos)
+{
+	bool Ret=false;
+	const char *Ptr=LastSlashA(String);
+	if(Ptr)
+	{
+		pos=Ptr-String;
+		Ret=true;
+	}
+	return Ret;
+}
+
 void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
 {
 	if(lpszAnsiString && lpwszUnicodeString && nLength)
@@ -566,8 +611,8 @@ char* WINAPI TruncPathStrA(char *Str, int MaxLength)
       {
         if ( (Str[0] == '\\') && (Str[1] == '\\') )
         {
-					if ( (lpStart = strchr (Str+2, '\\')) != NULL || (lpStart = strchr (Str+2, '/')) != NULL)
-						if ( (lpStart = strchr (lpStart+1, '\\')) != NULL || (lpStart = strchr (lpStart+1, '/')) != NULL)
+					if((lpStart = const_cast<char*>(FirstSlashA(Str+2))) != NULL)
+						if((lpStart = const_cast<char*>(FirstSlashA(lpStart+1)))!=NULL)
               lpStart++;
         }
       }
