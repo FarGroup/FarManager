@@ -424,7 +424,7 @@ HKEY CreateRegKey(const char *Key);
 HKEY OpenRegKey(const char *Key);
 int GetRegKeySize(const char *Key,const char *ValueName);
 int GetRegKeySize(HKEY hKey,const char *ValueName);
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,DWORD *NeedSDataSize=NULL,LPDWORD IData=NULL,__int64* IData64=NULL);
 void DeleteRegKey(const char *Key);
 void DeleteRegValue(const char *Key,const char *Value);
 void DeleteKeyRecord(const char *KeyMask,int Position);

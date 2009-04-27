@@ -631,72 +631,135 @@ int CheckRegValue(const char *Key,const char *ValueName)
     return(FALSE);
   return(TRUE);
 }
-/* IS $ */
 
 
 int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
 {
+  int Ret=FALSE;
+  DWORD SubSize=512;
+  char *SubName;
+  if(!(SubName=(char *)xf_malloc(SubSize)))
+    return Ret;
+
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
-    FILETIME LastWriteTime;
-    char SubName[512];
-    DWORD SubSize=sizeof(SubName);
-    int ExitCode=RegEnumKeyEx(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
-    CloseRegKey(hKey);
-    if (ExitCode==ERROR_SUCCESS)
+    while(TRUE)
     {
-      char TempName[512];
-      xstrncpy(TempName,Key,sizeof(TempName)-1);
-      if (*TempName)
-        AddEndSlash(TempName);
-      xstrncat(TempName,SubName,sizeof(TempName)-1);
-      xstrncpy(DestName,TempName,DestSize-1);
-      return(TRUE);
+      FILETIME LastWriteTime;
+
+      LONG ExitCode=ERROR_MORE_DATA;
+
+      for(;ExitCode==ERROR_MORE_DATA;)
+      {
+        DWORD SubSize0=SubSize;
+        ExitCode=RegEnumKeyEx(hKey,Index,SubName,&SubSize0,NULL,NULL,NULL,&LastWriteTime);
+        if(ExitCode!=ERROR_MORE_DATA)
+          break;
+        SubSize0<<=1;
+        if(!(SubName=(char *)xf_realloc(SubName,SubSize0)))
+          break;
+      }
+      if(ExitCode == ERROR_NO_MORE_ITEMS || !SubName)
+        break;
+
+      ExitCode=RegEnumKeyEx(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
+
+      if (ExitCode==ERROR_SUCCESS)
+      {
+        SubSize+=(DWORD)strlen(Key)+16;
+        char *TempName=(char *)xf_malloc(SubSize);
+        if(TempName)
+        {
+          strcpy(TempName,Key);
+          if (*TempName)
+            AddEndSlash(TempName);
+          strcat(TempName,SubName);
+          xstrncpy(DestName,TempName,DestSize-1);
+          Ret=TRUE;
+          xf_free(TempName);
+        }
+      }
+      break;
     }
+
+    CloseRegKey(hKey);
   }
-  return(FALSE);
+
+  if(SubName)
+    xf_free(SubName);
+
+  return Ret;
 }
 
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
+// Если Ret = какому-то типу, отличному от REG_NONE, но NeedSDataSize > 0, то недостаточно данных и в NeedSDataSize будет нужный размер.
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,DWORD *NeedSDataSize,LPDWORD IData,__int64* IData64)
 {
+  DWORD ValSize=512;
+  char *ValueName;
+  if(!(ValueName=(char *)xf_malloc(ValSize)))
+    return REG_NONE;
+
   HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;
+  if(NeedSDataSize)
+     *NeedSDataSize=0;
 
   if(hKey)
   {
-    char ValueName[512];
-
-    while( TRUE )
+    while(TRUE)
     {
-      DWORD ValSize=sizeof(ValueName);
-      DWORD Type=(DWORD)-1;
+      LONG ExitCode=ERROR_MORE_DATA;
 
-      if (RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
+      for(;ExitCode==ERROR_MORE_DATA;)
+      {
+        DWORD ValSize0=ValSize;
+        ExitCode=RegEnumValue(hKey,Index,ValueName,&ValSize0,NULL,NULL,NULL,NULL);
+        if(ExitCode!=ERROR_MORE_DATA)
+          break;
+        ValSize<<=1;
+        if(!(ValueName=(char *)xf_realloc(ValueName,ValSize)))
+          break;
+      }
+      if(ExitCode == ERROR_NO_MORE_ITEMS || !ValueName)
         break;
+
+      DWORD Type=(DWORD)-1;
+      ExitCode=RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize);
+
+      if (ExitCode != ERROR_SUCCESS)
+      {
+        if(ExitCode == ERROR_MORE_DATA)
+        {
+          RetCode=Type;
+          if(NeedSDataSize)
+            *NeedSDataSize=SDataSize;
+        }
+        break;
+      }
 
       RetCode=Type;
       if(DestName)
         xstrncpy(DestName,ValueName,DestSize-1);
 
-      if(Type == REG_SZ)
-        break;
-      else if(Type == REG_DWORD)
+      if(Type == REG_DWORD)
       {
         if(IData)
           *IData=*(DWORD*)SData;
-        break;
       }
       else if(Type == REG_QWORD)
       {
         if(IData64)
           *IData64=*(__int64*)SData;
-        break;
       }
+      break;
     }
 
     CloseRegKey(hKey);
   }
+
+  if(ValueName)
+    xf_free(ValueName);
   return RetCode;
 }
 

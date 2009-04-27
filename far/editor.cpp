@@ -944,6 +944,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
               }
 
               UnmarkMacroBlock();
+              Show();
 
               return (__int64)Ret;
             }
@@ -953,8 +954,11 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
         case 4: // UnMark sel block
         {
+          bool NeedRedraw=BlockStart || VBlockStart;
           UnmarkBlock();
           UnmarkMacroBlock();
+          if ( NeedRedraw )
+            Show();
           return 1;
         }
 

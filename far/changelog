@@ -1,3 +1,12 @@
+svs 27.04.2009 21:08:57 +0300 - build 2567
+
+1. Mantis#0000843: Задержка при установке блока с помощью Editor.Sel 
+
+2. Mantis#0000842: Far повисает на старте встретив Multi-String в разделе KeyMacros\Vars
+   Так, здесь проблема не в макросах, а в EnumRegValue
+
+3. KeyMacro\Vars & KeyMacro\Consts могут быть REG_MULTI_SZ
+
 svs 27.04.2009 10:57:26 +0300 - build 2566
 
 1. Mantis#0000838: Ошибка при выделении блока (Editor.Sel)

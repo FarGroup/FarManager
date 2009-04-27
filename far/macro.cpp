@@ -3707,6 +3707,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
   char *ptrValueName=ValueName;
   long IData;
   __int64 IData64;
+  DWORD NeedSDataSize;
 
   if(ReadMode==MACRO_VARS)
     ptrValueName=ValueName+1;
@@ -3719,8 +3720,9 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     IData=0;
     *ValueName=0;
     *SData=0;
+    NeedSDataSize=0;
 
-    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,&NeedSDataSize,(LPDWORD)&IData,(__int64*)&IData64);
 
     if (Type == REG_NONE)
       break;
@@ -3730,6 +3732,18 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
 
     if (Type == REG_SZ)
       varInsert(*t, ptrValueName)->value = SData;
+    else if (Type == REG_MULTI_SZ)
+    {
+      char *ptrSData=SData;
+      while(1)
+      {
+        ptrSData+=(int)strlen(ptrSData);
+        if(!ptrSData[0] && !ptrSData[1])
+          break;
+        *ptrSData='\n';
+      }
+      varInsert(*t, ptrValueName)->value = SData;
+    }
     else if (Type == REG_DWORD)
       varInsert(*t, ptrValueName)->value = (__int64)IData;
     else if (Type == REG_QWORD)
