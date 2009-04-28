@@ -565,13 +565,13 @@ void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
       TextToViewSettings(Info.PanelModesArray[ViewMode].ColumnTypes,
                          Info.PanelModesArray[ViewMode].ColumnWidths,
                          ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-                         ViewSettings.ColumnCount);
+                         ViewSettings.ColumnWidthType,ViewSettings.ColumnCount);
       if (Info.PanelModesArray[ViewMode].StatusColumnTypes!=NULL &&
           Info.PanelModesArray[ViewMode].StatusColumnWidths!=NULL)
         TextToViewSettings(Info.PanelModesArray[ViewMode].StatusColumnTypes,
                            Info.PanelModesArray[ViewMode].StatusColumnWidths,
                            ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
-                           ViewSettings.StatusColumnCount);
+                           ViewSettings.StatusColumnWidthType,ViewSettings.StatusColumnCount);
       else
         if (Info.PanelModesArray[ViewMode].DetailedStatus)
         {

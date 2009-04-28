@@ -54,6 +54,8 @@ struct PanelViewSettings
   int FileLowerCase;
   int FileUpperToLowerCase;
   int CaseSensitiveSort;
+  int ColumnWidthType[20];
+  int StatusColumnWidthType[20];
 };
 
 enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};

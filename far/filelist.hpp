@@ -187,6 +187,8 @@ enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
       CUSTOM_COLUMN4,CUSTOM_COLUMN5,CUSTOM_COLUMN6,CUSTOM_COLUMN7,
       CUSTOM_COLUMN8,CUSTOM_COLUMN9};
 
+enum {COUNT_WIDTH=0, PERCENT_WIDTH};
+
 class FileList:public Panel
 {
   private:
@@ -308,9 +310,9 @@ class FileList:public Panel
     int  ProcessOneHostFile(int Idx);
 
     static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
-           unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
+           unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
     static void ViewSettingsToText(unsigned int *ViewColumnTypes,
-           int *ViewColumnWidths,int ColumnCount,string &strColumnTitles,
+           int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
            string &strColumnWidths);
 
   public:

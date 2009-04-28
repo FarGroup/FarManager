@@ -2624,7 +2624,7 @@ void FileList::SetViewMode(int ViewMode)
     string strColumnTypes,strColumnWidths;
 
 //    SetScreenPosition();
-    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,ViewSettings.ColumnWidthType,
         ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
     ProcessPluginEvent(FE_CHANGEVIEWMODE,(void*)(const wchar_t*)strColumnTypes);
   }

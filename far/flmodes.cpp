@@ -50,16 +50,16 @@ static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA"
 
 struct PanelViewSettings ViewSettingsArray[]=
 {
-/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,0,0,0},
-/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0},
-/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,0,0,0},
-/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,0,0,0},
-/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,0,0,0},
-/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,0,0,0},
-/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{12,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0},
-/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,54},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,0,0,0},
-/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0},
-/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0}
+/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{12,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,54},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
+/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
+/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
 };
 
 void FileList::SetFilePanelModes()
@@ -144,9 +144,9 @@ void FileList::SetFilePanelModes()
     ModeDlg[16].Selected=NewSettings.FileUpperToLowerCase;
     ModeDlg[17].Selected=NewSettings.CaseSensitiveSort;
 
-    ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
+    ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
         NewSettings.ColumnCount,ModeDlg[2].strData,ModeDlg[4].strData);
-    ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,
+    ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
         NewSettings.StatusColumnCount,ModeDlg[6].strData,ModeDlg[8].strData);
 
     {
@@ -169,9 +169,9 @@ void FileList::SetFilePanelModes()
     NewSettings.CaseSensitiveSort=ModeDlg[17].Selected;
 
     TextToViewSettings(ModeDlg[2].strData,ModeDlg[4].strData,NewSettings.ColumnType,
-                       NewSettings.ColumnWidth,NewSettings.ColumnCount);
+                       NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
     TextToViewSettings(ModeDlg[6].strData,ModeDlg[8].strData,NewSettings.StatusColumnType,
-                       NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
+                       NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
 
     ViewSettingsArray[ModeNumber]=NewSettings;
     CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
@@ -207,10 +207,10 @@ void FileList::ReadPanelModes()
 
     if ( !strColumnTitles.IsEmpty() )
       TextToViewSettings(strColumnTitles,strColumnWidths,NewSettings.ColumnType,
-                         NewSettings.ColumnWidth,NewSettings.ColumnCount);
+                         NewSettings.ColumnWidth,NewSettings.ColumnWidthType,NewSettings.ColumnCount);
     if ( !strStatusColumnTitles.IsEmpty() )
       TextToViewSettings(strStatusColumnTitles,strStatusColumnWidths,NewSettings.StatusColumnType,
-                         NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
+                         NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
 
     GetRegKey(strRegKey,L"FullScreen",NewSettings.FullScreen,0);
     GetRegKey(strRegKey,L"AlignExtensions",NewSettings.AlignExtensions,1);
@@ -233,9 +233,9 @@ void FileList::SavePanelModes()
     string strStatusColumnTitles, strStatusColumnWidths, strRegKey;
     strRegKey.Format (L"Panel\\ViewModes\\Mode%d",I);
     struct PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
-    ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
+    ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
         NewSettings.ColumnCount,strColumnTitles,strColumnWidths);
-    ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,
+    ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
         NewSettings.StatusColumnCount,strStatusColumnTitles,strStatusColumnWidths);
 
     SetRegKey(strRegKey,L"Columns",strColumnTitles);
@@ -255,7 +255,7 @@ void FileList::SavePanelModes()
 
 
 void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
-     unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount)
+     unsigned int *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
 {
   const wchar_t *TextPtr=ColumnTitles;
   for (ColumnCount=0;ColumnCount<(int)countof(ViewSettingsArray[0].ColumnType);ColumnCount++)
@@ -386,12 +386,23 @@ void FileList::TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *Col
     if ((TextPtr=GetCommaWord(TextPtr,strArgName))==NULL)
       break;
     ViewColumnWidths[I]=_wtoi(strArgName);
+	ViewColumnWidthsTypes[I]=COUNT_WIDTH;
+
+	if (strArgName.GetLength()>1)
+	{
+		switch ( strArgName.At(strArgName.GetLength()-1) )
+		{
+		case L'%':
+            ViewColumnWidthsTypes[I]=PERCENT_WIDTH;
+            break;
+		}
+	}
   }
 }
 
 
-void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
-     int *ViewColumnWidths,int ColumnCount,string &strColumnTitles,
+void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,int *ViewColumnWidths,
+     int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
      string &strColumnWidths)
 {
   strColumnTitles=L"";
@@ -445,7 +456,14 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
 
     strColumnWidths += strType;
 
-    if (I<ColumnCount-1)
+	switch ( ViewColumnWidthsTypes[I] )
+	{
+		case PERCENT_WIDTH:
+            strColumnWidths += L"%";
+            break;
+	}
+
+	if (I<ColumnCount-1)
     {
       strColumnTitles += L",";
       strColumnWidths += L",";
