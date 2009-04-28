@@ -487,8 +487,8 @@ int _cdecl main(int Argc, char *Argv[])
         case 'U':
           if (I+1<Argc)
           {
-            strcat(Opt.RegRoot,"\\Users\\");
-            strcat(Opt.RegRoot,Argv[I+1]);
+            xstrncat(Opt.RegRoot,"\\Users\\",sizeof(Opt.RegRoot)-1);
+            xstrncat(Opt.RegRoot,Argv[I+1],sizeof(Opt.RegRoot)-1);
             SetEnvironmentVariable("FARUSER",Argv[I+1]);
             CopyGlobalSettings();
             I++;

@@ -306,6 +306,7 @@ static TMacroFunction macroFunction[]={
   {"PANEL.SETPOSIDX",  2, 0,   MCODE_F_PANEL_SETPOSIDX},     // N=Panel.SetPosIdx(panelType,Idx)
   {"PANELITEM",        3, 0,   MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"PROMPT",           5, 4,   MCODE_F_PROMPT},              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+  {"REG.CHECK",        3, 1,   MCODE_F_REG_CHECK},           // V=reg.check(iRoot, "Key"[, "Value"])
   {"REG.GET",          3, 1,   MCODE_F_REG_GET},             // V=reg.get(iRoot, "Key"[, "Value"])
   {"REPLACE",          4, 1,   MCODE_F_REPLACE},             // S=replace(Str,Find,Replace[,Cnt])
   {"RINDEX",           2, 0,   MCODE_F_RINDEX},              // S=rindex(S1,S2)
@@ -1110,6 +1111,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_BM_DEL,           "N=BM.Del([Idx])"},
     {MCODE_F_TRIM,             "S=trim(S[,N])"},
     {MCODE_F_REG_GET,          "V=reg.get(iRoot, \"Key\"[, \"Value\"])"},
+    {MCODE_F_REG_CHECK,        "V=reg.check(iRoot, \"Key\"[, \"Value\"])"},
     {MCODE_F_KEY,              "S=key(V)"},
  };
 

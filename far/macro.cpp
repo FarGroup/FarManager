@@ -2435,48 +2435,12 @@ static bool callpluginFunc()
   return Ret?true:false;
 }
 
-//*************************
-// Ахтунг, недоделано!
-//*************************
-// V=reg.get(iRoot, "Key"[, "Value"])
-/* iRoot=0:
-0 = FAR Root, HKEY_CURRENT_USER (в зависимости от юзера)
-1 = FAR Root, HKEY_LOCAL_MACHINE
-2 = HKEY_CLASSES_ROOT
-3 = HKEY_CURRENT_USER
-4 = HKEY_LOCAL_MACHINE
-*/
-static bool reggetFunc()
-{
-  bool Ret=false;
+
+
 #if 0
-  bool checkKey=false;
-
-  HKEY SaveRootKey=GetRegRootKey();
-  HKEY NewRootKey=SaveRootKey;
-
-  char SaveRegRoot[sizeof(Opt.RegRoot)];
-  strcpy(SaveRegRoot,Opt.RegRoot);
-
-  TVar V = VMStack.Pop();
-  // принудительно параметр ставим AS string
-  if(V.isInteger() && V.i() == 0)
-    checkKey=true;
-
-  TVar K = VMStack.Pop();
-  // принудительно параметр ставим AS string
-  if(K.isInteger() && K.i() == 0)
-  {
-    K=(const char *)"";
-    K.toString();
-  }
-
-  TVar R = VMStack.Pop();
-  int RType=(int)R.i();
-
-  TVar RetVal=_i64(-1);
-  varLook(glbConstTable, constRegError,1)->value = _i64(0);
-
+static int ChangeRegRootValue(int RType,HKEY& NewRootKey,HKEY& SaveRootKey,char *SaveRegRoot)
+{
+  HKEY NewRootKey;
   switch(RType)
   {
     case 0:  NewRootKey=HKEY_CURRENT_USER;  break;
@@ -2489,11 +2453,151 @@ static bool reggetFunc()
 
   if(RType != -1)
   {
+    SaveRootKey=GetRegRootKey();
+    strcpy(SaveRegRoot,Opt.RegRoot);
+    switch(RType)
+    {
+      case 0:
+        NewRootKey=HKEY_CURRENT_USER;
+        AddEndSlash(Opt.RegRoot);
+        break;
+      case 1:
+        NewRootKey=HKEY_LOCAL_MACHINE;
+        xstrncpy(Opt.RegRoot,"Software\\Far\\",sizeof(Opt.RegRoot)-1);
+        break;
+      default:
+        Opt.RegRoot[0]=0;
+        break;
+    }
     SetRegRootKey(NewRootKey);
-    xstrncpy(Opt.RegRoot,K.s(),sizeof(Opt.RegRoot)-1);
+  }
 
-    //if(GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType))
-    //  checkKey
+  return RType;
+}
+#endif
+
+//*************************
+// Ахтунг, недоделано!
+//*************************
+// V=reg.check(iRoot, "Key"[, "Value"])
+/*
+iRoot:
+   0 = FAR Root, HKEY_CURRENT_USER (в зависимости от юзера)
+   1 = FAR Root, HKEY_LOCAL_MACHINE
+   2 = HKEY_CLASSES_ROOT
+   3 = HKEY_CURRENT_USER
+   4 = HKEY_LOCAL_MACHINE
+*/
+static bool regcheckFunc()
+{
+  bool Ret=false;
+#if 0
+  bool checkKey=false;
+
+  TVar V = VMStack.Pop();
+  TVar K = VMStack.Pop();
+  // принудительно параметр ставим AS string
+  if(K.isInteger() && K.i() == 0)
+  {
+    K=(const char *)"";
+    K.toString();
+  }
+
+  TVar R = VMStack.Pop();
+  int RType=(int)R.i();
+
+  if(V.isInteger() && V.i() == 0)
+  {
+    checkKey=true;
+  }
+
+  varLook(glbConstTable, constRegError,1)->value = _i64(0);
+
+  char SaveRegRoot[sizeof(Opt.RegRoot)];
+  HKEY SaveRootKey;
+
+  if(ChangeRegRootValue(RType,SaveRootKey,SaveRegRoot) != -1)
+  {
+    if(checkKey)
+    {
+      VMStack.Push((__int64)CheckRegKey(K.s()));
+      Ret=true;
+    }
+    else if(checkVal)
+    {
+      VMStack.Push((__int64)CheckRegValue(K.s(),V.s()));
+      Ret=true;
+    }
+    else
+      varLook(glbConstTable, constRegError,1)->value = _i64(1);
+  }
+
+  VMStack.Push( (__int64)(Ret?1:0) );
+#else
+  VMStack.Pop();
+  VMStack.Pop();
+  VMStack.Pop();
+  VMStack.Push( _i64(0) );
+#endif
+
+  return Ret;
+}
+
+
+//*************************
+// Ахтунг, недоделано!
+//*************************
+// V=reg.get(iRoot, "Key"[, "Value"])
+/*
+iRoot:
+   0 = FAR Root, HKEY_CURRENT_USER (в зависимости от юзера)
+   1 = FAR Root, HKEY_LOCAL_MACHINE
+   2 = HKEY_CLASSES_ROOT
+   3 = HKEY_CURRENT_USER
+   4 = HKEY_LOCAL_MACHINE
+*/
+static bool reggetFunc()
+{
+  bool Ret=false;
+#if 0
+  bool checkKey=false;
+
+  TVar V = VMStack.Pop();
+
+  TVar K = VMStack.Pop();
+  // принудительно параметр ставим AS string
+  if(K.isInteger() && K.i() == 0)
+  {
+    K=(const char *)"";
+    K.toString();
+  }
+
+  TVar R = VMStack.Pop();
+  int RType=(int)R.i();
+
+  if(V.isInteger() && V.i() == 0)
+    checkKey=true;
+
+  TVar RetVal=_i64(-1);
+  varLook(glbConstTable, constRegError,1)->value = _i64(0);
+
+  char SaveRegRoot[sizeof(Opt.RegRoot)];
+  HKEY SaveRootKey;
+
+  if(ChangeRegRootValue(RType,SaveRootKey,SaveRegRoot) != -1)
+  {
+    if(checkKey)
+    {
+      VMStack.Push((__int64)CheckRegKey(K.s()));
+      Ret=true;
+    }
+    else
+    {
+      if(GetRegKey(K.s(),const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType))
+      {
+        Ret=true;
+      }
+    }
 
     // Restore
     SetRegRootKey(SaveRootKey);
@@ -2502,7 +2606,7 @@ static bool reggetFunc()
   }
 
   varLook(glbConstTable, constRegError,1)->value = Ret?_i64(0):_i64(1);
-  VMStack.Push( RetVal );
+  VMStack.Push( (__int64)(Ret?1:0) );
 #else
   VMStack.Pop();
   VMStack.Pop();
@@ -2901,6 +3005,7 @@ done:
       _SVS(SysLog("Mantis#0000581"));
       GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
       Work.KeyProcess=0;
+      VMStack.Pop();              // Mantis#0000841 - (TODO: возможно здесь одним Pop`ом не обойтись, нужно проверить!)
       goto done;                  // ...и завершаем макрос.
     }
   }
@@ -3438,6 +3543,7 @@ done:
         {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
         {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
         {MCODE_F_REG_GET,reggetFunc}, // V=reg.get(iRoot, "Key"[, "Value"])
+        {MCODE_F_REG_CHECK,regcheckFunc}, // V=reg.check(iRoot, "Key"[, "Value"])
         {MCODE_F_KEY,keyFunc}, // S=key(V)
       };
       int J;

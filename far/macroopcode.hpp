@@ -150,6 +150,7 @@ enum MACRO_OP_CODE {
   MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
   MCODE_F_TRIM,                     // S=trim(S[,N])
   MCODE_F_REG_GET,                  // V=reg.get(iRoot, "Key"[, "Value"])
+  MCODE_F_REG_CHECK,                // V=reg.check(iRoot, "Key"[, "Value"])
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
