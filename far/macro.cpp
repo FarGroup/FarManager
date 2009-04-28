@@ -2838,6 +2838,7 @@ done:
     {
       GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
       Work.KeyProcess=0;
+      VMStack.Pop();              // Mantis#0000841 - (TODO: возможно здесь одним Pop`ом не обойтись, нужно проверить!)
       goto done;                  // ...и завершаем макрос.
     }
   }
