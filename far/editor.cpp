@@ -239,7 +239,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
   {
     unsigned __int64 RealSizeFile;
 
-    if ( apiGetFileSize(hEdit, &RealSizeFile) )
+    if ( apiGetFileSizeEx(hEdit, &RealSizeFile) )
     {
       unsigned __int64 NeedSizeFile = EdOpt.FileSizeLimitHi*_ui64(0x100000000)+EdOpt.FileSizeLimitLo;
       if(RealSizeFile > NeedSizeFile)

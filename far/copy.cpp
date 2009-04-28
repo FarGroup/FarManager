@@ -3710,9 +3710,27 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				break;
 			case WDLG_RENAME:
 				{
+					string** WFN=reinterpret_cast<string**>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+					string DestName=*WFN[1];
+					for(int i=1;apiGetFileAttributes(*WFN[1])!=INVALID_FILE_ATTRIBUTES;i++)
+					{
+						WCHAR Suffix[20]=L"_";
+						_itow(i,Suffix+1,10);
+						LPCWSTR Ext=PointToExt(DestName);
+						if(Ext)
+						{
+							WFN[1]->SetLength(Ext-DestName);
+							*WFN[1]+=Suffix;
+							*WFN[1]+=Ext;
+						}
+						else
+						{
+							*WFN[1]+=Suffix;
+						}
+					}
+					
 					if(!Dialog::SendDlgMessage(hDlg,DM_GETCHECK,WDLG_CHECKBOX,0))
 					{
-						string** WFN=reinterpret_cast<string**>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 						if(!GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),NULL,*WFN[1],*WFN[1],L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND))
 						{
 							return TRUE;
@@ -3878,29 +3896,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 			return FALSE;
 
 		case 5:
-			{
-				OvrMode=5;
-				RetCode=COPY_RETRY;
-				for(int i=1;apiGetFileAttributes(strDestName)!=INVALID_FILE_ATTRIBUTES;i++)
-				{
-					WCHAR Suffix[20]=L"_0";
-					_itow(i,Suffix+1,10);
-					LPCWSTR Ext=PointToExt(DestName);
-					if(Ext)
-					{
-						strDestName.SetLength(Ext-DestName);
-						strDestName+=Suffix;
-						strDestName+=Ext;
-					}
-					else
-					{
-						strDestName+=Suffix;
-					}
-				}
-					strNewName=strDestName;
-			}
-			break;
-
+			OvrMode=5;
 		case 4:
 			RetCode=COPY_RETRY;
 				strNewName=strDestName;

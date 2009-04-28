@@ -814,7 +814,7 @@ int WipeFile(const wchar_t *Name)
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
 
-  if ( !apiGetFileSize(WipeHandle, &FileSize) )
+  if ( !apiGetFileSizeEx(WipeHandle, &FileSize) )
   {
     CloseHandle(WipeHandle);
     return(FALSE);

@@ -114,7 +114,7 @@ BOOL apiGetFindDataEx (
 		FAR_FIND_DATA_EX *pFindData,
 		bool ScanSymLink=true);
 
-BOOL apiGetFileSize (
+BOOL apiGetFileSizeEx (
 		HANDLE hFile,
 		unsigned __int64 *pSize);
 

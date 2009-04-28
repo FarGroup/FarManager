@@ -2560,12 +2560,12 @@ MCopyRenameTitle
 "Rename"
 
 MCopyRenameText
-"&Имя:"
-"&Name:"
-"&Name:"
-"&Name:"
-"&Name:"
-"&Name:"
+"&Новое имя:"
+"&New name:"
+"&New name:"
+"&New name:"
+"&New name:"
+"&New name:"
 
 MCopyFileRO
 l:
