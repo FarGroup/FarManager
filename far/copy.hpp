@@ -110,6 +110,8 @@ class ShellCopy
     string strCopiedName;
     string strRenamedName;
 
+		string strRenamedFilesPath;
+
     int OvrMode;
     int ReadOnlyOvrMode;
     int ReadOnlyDelMode;

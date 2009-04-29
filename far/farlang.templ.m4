@@ -2552,7 +2552,7 @@ MCopyRememberChoice
 "&Zapamiętaj ustawienia"
 
 MCopyRenameTitle
-"Переименовать"
+"Переименование"
 "Rename"
 "Rename"
 "Rename"

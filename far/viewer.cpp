@@ -818,7 +818,16 @@ void Viewer::DrawScrollbar()
 		else
 			SetColor(COL_VIEWERSCROLLBAR);
 
-		ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+		if(!VM.Hex)
+		{
+			ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+		}
+		else
+		{
+			UINT64 Total=FileSize/16+(FileSize%16?1:0);
+			UINT64 Top=FilePos/16+(FilePos%16?1:0);
+			ScrollBarEx(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,LastPage?Top?Total:0:Top,Total);
+		}
 	}
 }
 

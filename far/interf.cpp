@@ -1060,14 +1060,14 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
   _GetRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
 
-bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT TopItem,UINT ItemsCount)
+bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 {
 	if(Length>2 && ItemsCount && Length<ItemsCount)
 	{
 		Length-=2;
 		ItemsCount-=2;
-		UINT CaretPos=Round(Length*TopItem,ItemsCount);
-		UINT CaretLength=Max(1U,Round(Length*Length,ItemsCount));
+		UINT CaretPos=static_cast<UINT>(Round(Length*TopItem,ItemsCount));
+		UINT CaretLength=Max(1U,static_cast<UINT>(Round(static_cast<UINT64>(Length*Length),ItemsCount)));
 		if(!CaretPos && TopItem)
 		{
 			CaretPos++;

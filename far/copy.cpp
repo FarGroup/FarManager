@@ -185,8 +185,38 @@ enum CopyMode
 	CM_RENAME,
 	CM_APPEND,
 	CM_ONLYNEWER,
+	CM_SEPARATOR,
 	CM_ASKRO,
 };
+
+static void GenerateName(string &strName,const wchar_t *Path=NULL)
+{
+	if(Path&&*Path)
+	{
+		string strTmp=Path;
+		AddEndSlash(strTmp);
+		strTmp+=PointToName(strName);
+		strName=strTmp;
+	}
+
+	string strExt=PointToExt(strName);
+	size_t NameLength=strName.GetLength()-strExt.GetLength();
+	for(int i=1;apiGetFileAttributes(strName)!=INVALID_FILE_ATTRIBUTES;i++)
+	{
+		WCHAR Suffix[20]=L"_";
+		_itow(i,Suffix+1,10);
+		if(!strExt.IsEmpty())
+		{
+			strName.SetLength(NameLength);
+			strName+=Suffix;
+			strName+=strExt;
+		}
+		else
+		{
+			strName+=Suffix;
+		}
+	}
+}
 
 ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int Move,               // =1 - операция Move
@@ -1097,7 +1127,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		break;
 	case DM_SWITCHRO:
 		{
-			FarListGetItem LGI={7};
+			FarListGetItem LGI={CM_ASKRO};
 			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
 			if(LGI.Item.Flags&LIF_CHECKED)
 				LGI.Item.Flags&=~LIF_CHECKED;
@@ -1149,7 +1179,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			{
 				if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
 				{
-					if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6)
+					if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
 						return Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
 				}
 			}
@@ -1159,7 +1189,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		if(Dialog::SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
 		{
 			MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
-			if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==6 && mer->dwButtonState && !mer->dwEventFlags)
+			if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO && mer->dwButtonState && !(mer->dwEventFlags&MOUSE_MOVED))
 			{
 				Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
 				return FALSE;
@@ -1339,7 +1369,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 	{
 		if(Param1==ID_SC_BTNCOPY)
 		{
-			FarListGetItem LGI={7};
+			FarListGetItem LGI={CM_ASKRO};
 			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
 			if(LGI.Item.Flags&LIF_CHECKED)
 				DlgParam->AskRO=TRUE;
@@ -3711,30 +3741,28 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			case WDLG_RENAME:
 				{
 					string** WFN=reinterpret_cast<string**>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
-					string DestName=*WFN[1];
-					for(int i=1;apiGetFileAttributes(*WFN[1])!=INVALID_FILE_ATTRIBUTES;i++)
+					string strDestName=*WFN[1];
+					GenerateName(strDestName,*WFN[2]);
+					if(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
 					{
-						WCHAR Suffix[20]=L"_";
-						_itow(i,Suffix+1,10);
-						LPCWSTR Ext=PointToExt(DestName);
-						if(Ext)
+						int All=BSTATE_UNCHECKED;
+						if(GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),NULL,strDestName,*WFN[1],L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND|FIB_EXPANDENV|FIB_CHECKBOX,&All,MSG(MCopyRememberChoice)))
 						{
-							WFN[1]->SetLength(Ext-DestName);
-							*WFN[1]+=Suffix;
-							*WFN[1]+=Ext;
+							if(All!=BSTATE_UNCHECKED)
+							{
+								*WFN[2]=*WFN[1];
+								CutToSlash(*WFN[2]);
+							}
+							Dialog::SendDlgMessage(hDlg,DM_SETCHECK,WDLG_CHECKBOX,All);
 						}
 						else
 						{
-							*WFN[1]+=Suffix;
-						}
-					}
-					
-					if(!Dialog::SendDlgMessage(hDlg,DM_GETCHECK,WDLG_CHECKBOX,0))
-					{
-						if(!GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),NULL,*WFN[1],*WFN[1],L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND))
-						{
 							return TRUE;
 						}
+					}
+					else
+					{
+						*WFN[1]=strDestName;
 					}
 				}
 				break;
@@ -3851,7 +3879,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				MakeDialogItemsEx(WarnCopyDlgData,WarnCopyDlg);
 				string strFullSrcName;
 				ConvertNameToFull(SrcName,strFullSrcName);
-				string *WFN[]={&strFullSrcName,&strDestName};
+				string *WFN[]={&strFullSrcName,&strDestName,&strRenamedFilesPath};
 				Dialog WarnDlg(WarnCopyDlg,countof(WarnCopyDlg),WarnDlgProc,(LONG_PTR)&WFN);
 				WarnDlg.SetDialogMode(DMODE_WARNINGSTYLE);
 				WarnDlg.SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
@@ -3897,9 +3925,10 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
 		case 5:
 			OvrMode=5;
+			GenerateName(strDestName,strRenamedFilesPath);
 		case 4:
 			RetCode=COPY_RETRY;
-				strNewName=strDestName;
+			strNewName=strDestName;
 			break;
 
 		case 7:

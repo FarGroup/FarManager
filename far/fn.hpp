@@ -259,7 +259,7 @@ string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
-bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT TopItem,UINT ItemsCount);
+bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount);
 
 int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
 
