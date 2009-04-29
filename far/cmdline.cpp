@@ -210,17 +210,30 @@ int CommandLine::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTF10:
       {
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         {
+          // TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
           FolderTree Tree(strStr,MODALTREE_ACTIVE,TRUE,FALSE);
         }
         CtrlObject->Cp()->RedrawKeyBar();
         if ( !strStr.IsEmpty() )
         {
-          Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
           ActivePanel->SetCurDir(strStr,TRUE);
           ActivePanel->Show();
           if (ActivePanel->GetType()==TREE_PANEL)
             ActivePanel->ProcessKey(KEY_ENTER);
+        }
+        else
+        {
+          // TODO: ... а здесь проверить факт изменения/появления файла Tree.Far и мы опять же в корне (чтобы лишний раз не апдейтить панель)
+          ActivePanel->Update(UPDATE_KEEP_SELECTION);
+          ActivePanel->Redraw();
+          Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+          if(AnotherPanel->NeedUpdatePanel(ActivePanel))
+          {
+            AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
+            AnotherPanel->Redraw();
+          }
         }
       }
       return(TRUE);
