@@ -37,7 +37,6 @@ Grabber::Grabber()
      хоть и не решает баг, но уже на трапается */
   memset(&GArea,0,sizeof(GArea));
   memset(&PrevArea,0,sizeof(PrevArea));
-  /* tran 14.08.2000 $ */
 
   int Visible,Size;
 
@@ -235,12 +234,11 @@ int Grabber::ProcessKey(int Key)
     Не было учтено режима выполнения макроса.
   */
   SetCursorType(TRUE,60);
-
   if(CtrlObject->Macro.IsExecuting())
   {
-    if ((Key&KEY_SHIFT) && ResetArea)
+    if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
       Reset();
-    else if(!(Key&KEY_SHIFT))
+    else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
   else
@@ -250,7 +248,6 @@ int Grabber::ProcessKey(int Key)
     else if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
-  /* SVS $ */
 
   switch(Key)
   {
@@ -385,7 +382,7 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   */
   GArea.CurX=(MouseX<ScrX?(MouseX<0?0:MouseX):ScrX);
   GArea.CurY=(MouseY<ScrY?(MouseY<0?0:MouseY):ScrY);
-  /* SVS $ */
+
   if (MouseEvent->dwEventFlags==0)
     ResetArea=TRUE;
   else
