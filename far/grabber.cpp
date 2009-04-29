@@ -258,9 +258,9 @@ int Grabber::ProcessKey(int Key)
 
   if(CtrlObject->Macro.IsExecuting())
   {
-    if ((Key&KEY_SHIFT) && ResetArea)
+    if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
       Reset();
-    else if(!(Key&KEY_SHIFT))
+    else if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
   else
