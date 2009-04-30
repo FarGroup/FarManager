@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);
+static bool SetFileSparse(const wchar_t *Name,bool State);
 
 
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
@@ -256,4 +257,58 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
     }
   }
   return SETATTR_RET_OK;
+}
+
+static bool SetFileSparse(const wchar_t *Name,bool State)
+{
+	bool Ret=false;
+	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
+	if(hFile!=INVALID_HANDLE_VALUE)
+	{
+		DWORD BytesReturned;
+		FILE_SET_SPARSE_BUFFER sb={State};
+		Ret=(DeviceIoControl(hFile,FSCTL_SET_SPARSE,&sb,sizeof(sb),NULL,0,&BytesReturned,NULL)!=0);
+		CloseHandle(hFile);
+	}
+	return Ret;
+}
+
+int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
+{
+	int Ret=SETATTR_RET_OK;
+	if(!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	{
+		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
+			apiSetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+
+		while (!SetFileSparse(Name,State))
+		{
+			int Code;
+			if(SkipMode!=-1)
+				Code=SkipMode;
+			else
+				Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+									MSG(MSetAttrSparseCannotFor),Name,MSG(MHRetry),
+									MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			if(Code==1 || Code<0)
+			{
+				Ret=SETATTR_RET_SKIP;
+				break;
+			}
+			else if (Code==2)
+			{
+				Ret=SETATTR_RET_SKIPALL;
+				break;
+			}
+			else if (Code==3)
+			{
+				Ret=SETATTR_RET_ERROR;
+				break;
+			}
+		}
+
+	if(FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
+		apiSetFileAttributes(Name,FileAttr);
+	}
+	return Ret;
 }

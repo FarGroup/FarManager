@@ -496,7 +496,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 09 */DI_CHECKBOX,5,10,0,10,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrEncrypted,
 
   /* 10 */DI_CHECKBOX,35,5,0,5,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrNotIndexed,
-  /* 11 */DI_CHECKBOX,35,6,0,6,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrSparse,
+	/* 11 */DI_CHECKBOX,35,6,0,6,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSparse,
   /* 12 */DI_CHECKBOX,35,7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
   /* 13 */DI_CHECKBOX,35,8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
   /* 14 */DI_CHECKBOX,35,9,0,9,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrVirtual,
@@ -926,12 +926,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (AttrDlg[SETATTR_COMPRESSED].Selected) NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
         if (AttrDlg[SETATTR_ENCRYPTED].Selected)  NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
         if (AttrDlg[SETATTR_INDEXED].Selected)    NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+				if (AttrDlg[SETATTR_SPARSE].Selected)     NewAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
 
         /*
         AY: мы с этими атрибутами не работаем
-        if(!(AttrDlg[SETATTR_SPARSE].Flags&DIF_DISABLE))
-          if (AttrDlg[SETATTR_SPARSE].Selected)
-            NewAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
         if(!(AttrDlg[SETATTR_TEMP].Flags&DIF_DISABLE))
           if (AttrDlg[SETATTR_TEMP].Selected)
             NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
@@ -975,7 +973,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
             Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
 
-          Ret=ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)),SkipMode);
+					if((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					{
+						Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
+					}
+					else if(!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+					{
+						Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
+					}
+
+					Ret=ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)),SkipMode);
           if(Ret==SETATTR_RET_SKIPALL)
             SkipMode=SETATTR_RET_SKIP;
         }
@@ -1022,14 +1029,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (AttrDlg[SETATTR_INDEXED].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
       else if (!AttrDlg[SETATTR_INDEXED].Selected)       ClearAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
 
+			if(AttrDlg[SETATTR_SPARSE].Selected==BSTATE_CHECKED)
+				SetAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+			else if(AttrDlg[SETATTR_SPARSE].Selected==BSTATE_UNCHECKED)
+				ClearAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+
       /*
       AY: мы с этими атрибутами не работаем
-      if(!(AttrDlg[SETATTR_SPARSE].Flags&DIF_DISABLE))
-      {
-        if (AttrDlg[SETATTR_SPARSE].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
-        else if (!AttrDlg[SETATTR_SPARSE].Selected)       ClearAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
-      }
-
       if(!(AttrDlg[SETATTR_TEMP].Flags&DIF_DISABLE))
       {
         if (AttrDlg[SETATTR_TEMP].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_TEMPORARY;
@@ -1126,6 +1132,25 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               }
             }
           }
+
+					if(AttrDlg[SETATTR_SPARSE].Selected!=BSTATE_3STATE)
+					{
+						RetCode=ESetFileSparse(strSelName,AttrDlg[SETATTR_SPARSE].Selected==BSTATE_CHECKED,FileAttr,SkipMode);
+						if(RetCode == SETATTR_RET_ERROR)
+						{
+							break;
+						}
+						else if(RetCode == SETATTR_RET_SKIP)
+						{
+							continue;
+						}
+						else if(RetCode == SETATTR_RET_SKIPALL)
+						{
+							SkipMode=SETATTR_RET_SKIP;
+							continue;
+						}
+					}
+
           RetCode=ESetFileAttributes(strSelName,((FileAttr|SetAttr)&(~ClearAttr)),SkipMode);
           if(RetCode == SETATTR_RET_ERROR)
             break;
@@ -1230,6 +1255,26 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                   }
                 }
               }
+
+							if(AttrDlg[SETATTR_SPARSE].Selected!=BSTATE_3STATE)
+							{
+								RetCode=ESetFileSparse(strFullName,AttrDlg[SETATTR_SPARSE].Selected==BSTATE_CHECKED,FindData.dwFileAttributes,SkipMode);
+								if(RetCode == SETATTR_RET_ERROR)
+								{
+									Cancel=1;
+									break;
+								}
+								else if(RetCode == SETATTR_RET_SKIP)
+								{
+									continue;
+								}
+								else if(RetCode == SETATTR_RET_SKIPALL)
+								{
+									SkipMode=SETATTR_RET_SKIP;
+									continue;
+								}
+							}
+
               RetCode=ESetFileAttributes(strFullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr),SkipMode);
               if (RetCode == SETATTR_RET_ERROR)
               {

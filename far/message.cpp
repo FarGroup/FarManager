@@ -196,8 +196,6 @@ int Message(
       MaxLength=I;
   }
 
-  #define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX-13)
-
   // певая коррекция максимального размера
   if (MaxLength > MAX_WIDTH_MESSAGE)
     MaxLength=MAX_WIDTH_MESSAGE;

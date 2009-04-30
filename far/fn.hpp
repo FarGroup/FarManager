@@ -144,6 +144,8 @@ BOOL IsCaseLower(const string &strStr);
 
 int DeleteFileWithFolder(const wchar_t *FileName);
 
+#define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX-13)
+
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=NULL,const wchar_t *Str3=NULL,const wchar_t *Str4=NULL,
             INT_PTR PluginNumber=-1);
@@ -428,6 +430,7 @@ void ShowHotplugDevice ();
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
 int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
+int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode=-1);
 #define ESetFileEncryptionSilent(Name,State,FileAttr,SkipMode) ESetFileEncryptionW(Name,State,FileAttr,SkipMode,1)
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,

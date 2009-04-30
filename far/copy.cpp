@@ -205,16 +205,9 @@ static void GenerateName(string &strName,const wchar_t *Path=NULL)
 	{
 		WCHAR Suffix[20]=L"_";
 		_itow(i,Suffix+1,10);
-		if(!strExt.IsEmpty())
-		{
-			strName.SetLength(NameLength);
-			strName+=Suffix;
-			strName+=strExt;
-		}
-		else
-		{
-			strName+=Suffix;
-		}
+		strName.SetLength(NameLength);
+		strName+=Suffix;
+		strName+=strExt;
 	}
 }
 
@@ -1895,7 +1888,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 						string strDest=Dest;
 						do
 						{
-							ShellCopyOneFile(strFullName,SrcData,strDest,KeepPathPos,NeedRename);
+							Ret=ShellCopyOneFile(strFullName,SrcData,strDest,KeepPathPos,NeedRename);
 						}
 						while(Ret==COPY_RETRY);
 						switch(Ret) // 1

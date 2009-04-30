@@ -3861,7 +3861,6 @@ BOOL Editor::Search(int Next)
 
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,-1);
-    EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
 
     Count=0;
     Match=0;
@@ -3900,11 +3899,12 @@ BOOL Editor::Search(int Next)
 
     NewNumLine=NumLine;
     CurPtr=CurLine;
-    BOOL MessageShown=FALSE;
+
+		DWORD StartTime=GetTickCount();
 
     while (CurPtr!=NULL)
     {
-      if ((++Count & 0xfff)==0)
+			if (!(++Count & 0xfff) && GetTickCount()-StartTime>500)
       {
         if( CheckForEscSilent() )
         {
@@ -3913,16 +3913,11 @@ BOOL Editor::Search(int Next)
             UserBreak=TRUE;
             break;
           }
-          MessageShown=FALSE;
         }
 
-        if (!MessageShown)
-        {
-          strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
-          SetCursorType(FALSE,-1);
-          EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr);
-          MessageShown=TRUE;
-        }
+				strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
+				SetCursorType(FALSE,-1);
+				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Count*100/NumLastLine);
       }
 
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
@@ -6547,20 +6542,39 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
       EdOpt.SaveShortPos=SaveShortPos;
 }
 
-void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name)
+void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent)
 {
-  Message(0,0,Title,Msg,Name);
+	string strProgress;
+	if(Percent!=-1)
+	{
+		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(Name)),40)-5; // -5 под проценты
+		wchar_t *Progress=strProgress.GetBuffer(Length);
+		if(Progress)
+		{
+			size_t CurPos=Percent*(Length)/100;
+			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
+			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
+			strProgress.ReleaseBuffer(Length);
+			string strTmp;
+			strTmp.Format(L" %3d%%",Percent);
+			strProgress+=strTmp;
+		}
+	}
+	Message(0,0,Title,Msg,Name,strProgress.IsEmpty()?NULL:strProgress.CPtr());
+	//if(Progress)
+		//xf_free(Progress);
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   preRedrawItem.Param.Param1=(void *)Title;
   preRedrawItem.Param.Param2=(void *)Msg;
   preRedrawItem.Param.Param3=(void *)Name;
+	preRedrawItem.Param.Param4=(void *)Percent;
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg(void)
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3);
+	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)preRedrawItem.Param.Param4);
 }
 
 

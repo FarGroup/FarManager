@@ -10033,12 +10033,12 @@ MSetAttrNotIndexed
 "Nie z&indeksowany"
 
 MSetAttrSparse
-"Разреженный"
-"Sparse"
-"Rozptýlený"
-"Reserve"
-"Ritkított"
-"Sparse"
+"Разре&женный"
+"S&parse"
+upd:"Rozptýlený"
+upd:"Reserve"
+upd:"Ritkított"
+upd:"Sparse"
 
 MSetAttrTemp
 "Временный"
@@ -10185,6 +10185,14 @@ MSetAttrEncryptedCannotFor
 "Konnte Verschlüsselung nicht setzen für"
 "A TITKOSÍTOTT attribútum nem állítható be:"
 "Nie mogę ustawić atrybutu ZASZYFROWANY dla"
+
+MSetAttrSparseCannotFor
+"Не удалось установить атрибут РАЗРЕЖЕННЫЙ для"
+"Cannot set attribute SPARSE for"
+upd:"Cannot set attribute SPARSE for"
+upd:"Cannot set attribute SPARSE for"
+upd:"Cannot set attribute SPARSE for"
+upd:"Cannot set attribute SPARSE for"
 
 MSetAttrTimeCannotFor
 "Не удалось установить время файла для"

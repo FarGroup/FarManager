@@ -1434,10 +1434,12 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 	}
 	m_editor->SetCodePage (m_codepage); //BUGBUG
-	BOOL MessageShown=FALSE;
 
 	if(!IsUnicodeOrUTFCP(m_codepage))
 		fseek(EditFile,0,SEEK_SET);
+
+	UINT64 FileSize=0;
+	apiGetFileSizeEx(hEdit,&FileSize);
 
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
@@ -1459,15 +1461,12 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
   					fclose(EditFile);
 	  				return FALSE;
 				}
-				MessageShown=FALSE;
 			}
 
-			if (!MessageShown)
-			{
-				SetCursorType(FALSE,0);
-				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
-				MessageShown=TRUE;
-			}
+			SetCursorType(FALSE,0);
+			INT64 CurPos=0;
+			apiSetFilePointerEx(hEdit,0,&CurPos,FILE_CURRENT);
+			Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name,static_cast<int>(CurPos*100/FileSize));
 		}
 
 		const wchar_t *CurEOL;
@@ -1715,8 +1714,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 
 		TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
-		Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
-
 		if(!bSaveAs)
 			AddSignature=(m_bSignatureFound || Flags.Check(FFILEEDIT_NEW));
 		if(AddSignature)
@@ -1747,8 +1744,16 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 		}
 
-		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next)
+		
+		DWORD StartTime=GetTickCount();
+		size_t LineNumber=0;
+		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next,LineNumber++)
     {
+			if(!(LineNumber&0xfff) && GetTickCount()-StartTime>500)
+			{
+				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,LineNumber*100/m_editor->NumLastLine);
+			}
+
       const wchar_t *SaveStr, *EndSeq;
       int Length;
       CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);

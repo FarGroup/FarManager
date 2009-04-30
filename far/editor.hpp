@@ -221,7 +221,7 @@ class Editor:public ScreenObject
     void VPaste(wchar_t *ClipText);
     void VBlockShift(int Left);
     Edit* GetStringByNumber(int DestLine);
-    static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name);
+		static void EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent);
 
     int SetBookmark(DWORD Pos);
     int GotoBookmark(DWORD Pos);
