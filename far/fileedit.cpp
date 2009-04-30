@@ -1751,7 +1751,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     {
 			if(!(LineNumber&0xfff) && GetTickCount()-StartTime>500)
 			{
-				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,LineNumber*100/m_editor->NumLastLine);
+				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
 			}
 
       const wchar_t *SaveStr, *EndSeq;

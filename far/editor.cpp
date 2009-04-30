@@ -6567,14 +6567,14 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
   preRedrawItem.Param.Param1=(void *)Title;
   preRedrawItem.Param.Param2=(void *)Msg;
   preRedrawItem.Param.Param3=(void *)Name;
-	preRedrawItem.Param.Param4=(void *)Percent;
+	preRedrawItem.Param.Param4=(void *)(INT_PTR)(Percent);
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg(void)
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)preRedrawItem.Param.Param4);
+	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(INT_PTR)preRedrawItem.Param.Param4);
 }
 
 
