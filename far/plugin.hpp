@@ -1894,8 +1894,6 @@ enum OPERATION_MODES {
   OPM_QUICKVIEW  =0x0040,
 };
 
-#define MAXSIZE_SHORTCUTDATA  8192
-
 struct OpenPluginInfo
 {
   int                   StructSize;

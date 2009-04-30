@@ -1356,8 +1356,8 @@ void PluginA::FreeOpenPluginInfo()
 		xf_free((void *)OPI.KeyBar);
 	}
 
-	//if (OPI.ShortcutData)
-		//xf_free((void *)OPI.ShortcutData);
+	if (OPI.ShortcutData)
+		xf_free((void *)OPI.ShortcutData);
 
 	memset(&OPI,0,sizeof(OPI));
 }
@@ -1408,8 +1408,8 @@ void PluginA::ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo 
 		ConvertKeyBarTitlesA(Src.KeyBar, (KeyBarTitles*)OPI.KeyBar, Src.StructSize>=(int)sizeof(oldfar::OpenPluginInfo));
 	}
 
-	//if (Src.ShortcutData)
-		//OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
+	if (Src.ShortcutData)
+		OPI.ShortcutData = AnsiToUnicode(Src.ShortcutData);
 
 	memcpy(Dest,&OPI,sizeof(OpenPluginInfo));
 }

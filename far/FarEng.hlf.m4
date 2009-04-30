@@ -2899,7 +2899,7 @@ corresponding checkboxes was changed from the initial state.
 "Offline" and "Virtual" attributes are available only on NTFS drives. The
 "Virtual" attribute can be used in Windows Vista/2008 only. The "Compressed"
 and "Encrypted" attributes are mutually exclusive, that is, you can set only
-one of them.
+one of them. You cannot clear the "Sparse" attribute in Windows 2000/XP/2003.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
 information (NTFS only). If the information on the original folder is not

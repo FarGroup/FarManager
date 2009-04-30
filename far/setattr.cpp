@@ -106,7 +106,7 @@ struct SetAttrDlgParam{
   int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
   int OriginalCBAttr2[16]; //
   DWORD OriginalCBFlag[16];
-  int OStateF_12, OStateC_8, OStateC_9;
+	int OSubfoldersState, OCompressState, OEncryptState;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
   string strFSysName;
 
@@ -120,9 +120,9 @@ struct SetAttrDlgParam{
   	memset(OriginalCBAttr,0,sizeof(OriginalCBAttr));
   	memset(OriginalCBAttr2,0,sizeof(OriginalCBAttr2));
   	memset(OriginalCBFlag,0,sizeof(OriginalCBFlag));
-  	OStateF_12 = 0;
-  	OStateC_8 = 0;
-  	OStateC_9 = 0;
+		OSubfoldersState = 0;
+		OCompressState = 0;
+		OEncryptState = 0;
   	OLastWriteTime = 0;
   	OCreationTime = 0;
   	OLastAccessTime = 0;
@@ -140,7 +140,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name);
 LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   int FocusPos,I;
-  int StateC_8, StateC_9, StateF_12;
+	int CompressState, EncryptState, SubfoldersState;
   struct SetAttrDlgParam *DlgParam;
 
   DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -153,9 +153,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
         DlgParam->OriginalCBAttr2[Param1-SETATTR_ATTR_FIRST] = 0;
 
         FocusPos=(int)Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
-        StateC_8=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
-        StateC_9=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
-        StateF_12=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
+				CompressState=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_COMPRESSED,0);
+				EncryptState=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_ENCRYPTED,0);
+				SubfoldersState=(int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SETATTR_SUBFOLDERS,0);
 
         if(!DlgParam->ModeDialog) // =0 - одиночный
         {
@@ -163,9 +163,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
-              if(FocusPos == SETATTR_COMPRESSED && /*StateC_8 &&*/ StateC_9)
+							if(FocusPos == SETATTR_COMPRESSED && /*CompressState &&*/ EncryptState)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-              if(FocusPos == SETATTR_ENCRYPTED && /*StateC_9 &&*/ StateC_8)
+							if(FocusPos == SETATTR_ENCRYPTED && /*EncryptState &&*/ CompressState)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
           }
         }
@@ -176,29 +176,29 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
-            if(FocusPos == SETATTR_COMPRESSED && DlgParam->OStateC_8 != StateC_8) // Состояние изменилось?
+						if(FocusPos == SETATTR_COMPRESSED && DlgParam->OCompressState != CompressState) // Состояние изменилось?
             {
-              if(StateC_8 == BSTATE_CHECKED && StateC_9)
+							if(CompressState == BSTATE_CHECKED && EncryptState)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-              else if(StateC_8 == BSTATE_3STATE)
+							else if(CompressState == BSTATE_3STATE)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_3STATE);
             }
-            else if(FocusPos == SETATTR_ENCRYPTED && DlgParam->OStateC_9 != StateC_9) // Состояние изменилось?
+						else if(FocusPos == SETATTR_ENCRYPTED && DlgParam->OEncryptState != EncryptState) // Состояние изменилось?
             {
-              if(StateC_9 == BSTATE_CHECKED && StateC_8)
+							if(EncryptState == BSTATE_CHECKED && CompressState)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
-              else if(StateC_9 == 2)
+							else if(EncryptState == BSTATE_3STATE)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_3STATE);
             }
 
             // еще одна проверка
-            if(FocusPos == SETATTR_COMPRESSED && /* DlgParam->OStateC_8 && */ StateC_9)
+						if(FocusPos == SETATTR_COMPRESSED && /* DlgParam->OCompressState && */ EncryptState)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_ENCRYPTED,BSTATE_UNCHECKED);
-            if(FocusPos == SETATTR_ENCRYPTED && /* DlgParam->OStateC_9 && */ StateC_8)
+						if(FocusPos == SETATTR_ENCRYPTED && /* DlgParam->OEncryptState && */ CompressState)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SETATTR_COMPRESSED,BSTATE_UNCHECKED);
 
-            DlgParam->OStateC_9=StateC_9;
-            DlgParam->OStateC_8=StateC_8;
+						DlgParam->OEncryptState=EncryptState;
+						DlgParam->OCompressState=CompressState;
           }
 
           // если снимаем атрибуты для SubFolders
@@ -208,12 +208,12 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
           {
             if(DlgParam->ModeDialog==1) // каталог однозначно!
             {
-              if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
+							if(DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
               {
                 // убираем 3-State
                 for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
                 {
-                  if(!StateF_12) // сняли?
+									if(!SubfoldersState) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,FALSE);
                     Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-SETATTR_ATTR_FIRST]);
@@ -231,7 +231,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
                   if ( apiGetFindDataEx (DlgParam->strSelName,&FindData) )
                   {
-                    if(!StateF_12)
+										if(!SubfoldersState)
                     {
                       if(!DlgParam->OLastWriteTime)
                       {
@@ -274,11 +274,11 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
             }
             else  // много объектов
             {
-              if(DlgParam->OStateF_12 != StateF_12) // Состояние изменилось?
+							if(DlgParam->OSubfoldersState != SubfoldersState) // Состояние изменилось?
               {
                 for(I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
                 {
-                  if(!StateF_12) // сняли?
+									if(!SubfoldersState) // сняли?
                   {
                     Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,
                               ((DlgParam->OriginalCBFlag[I-SETATTR_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
@@ -295,7 +295,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
                 }
               }
             }
-            DlgParam->OStateF_12=StateF_12;
+						DlgParam->OSubfoldersState=SubfoldersState;
           }
         }
         return TRUE;
@@ -497,8 +497,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   /* 10 */DI_CHECKBOX,35,5,0,5,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrNotIndexed,
 	/* 11 */DI_CHECKBOX,35,6,0,6,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrSparse,
-  /* 12 */DI_CHECKBOX,35,7,0,7,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrTemp,
-  /* 13 */DI_CHECKBOX,35,8,0,8,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrOffline,
+	/* 12 */DI_CHECKBOX,35,7,0,7,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrTemp,
+	/* 13 */DI_CHECKBOX,35,8,0,8,0,0,DIF_3STATE,0,(wchar_t *)MSetAttrOffline,
   /* 14 */DI_CHECKBOX,35,9,0,9,0,0,DIF_3STATE|DIF_DISABLE,0,(wchar_t *)MSetAttrVirtual,
 
   /* 15 */DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
@@ -671,7 +671,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else
       {
         // убираем 3-State
-        for (I=SETATTR_RO; I <= SETATTR_TEMP; ++I)
+				for (I=SETATTR_ATTR_FIRST; I <= SETATTR_ATTR_LAST; ++I)
           AttrDlg[I].Flags&=~DIF_3STATE;
       }
 
@@ -892,9 +892,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)?0:(SelCount==1?1:2));
     DlgParam.strSelName=strSelName;
-    DlgParam.OStateF_12=AttrDlg[SETATTR_SUBFOLDERS].Selected;
-    DlgParam.OStateC_8=AttrDlg[SETATTR_COMPRESSED].Selected;
-    DlgParam.OStateC_9=AttrDlg[SETATTR_ENCRYPTED].Selected;
+		DlgParam.OSubfoldersState=AttrDlg[SETATTR_SUBFOLDERS].Selected;
+		DlgParam.OCompressState=AttrDlg[SETATTR_COMPRESSED].Selected;
+		DlgParam.OEncryptState=AttrDlg[SETATTR_ENCRYPTED].Selected;
 
     // <Dialog>
     {
@@ -927,15 +927,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (AttrDlg[SETATTR_ENCRYPTED].Selected)  NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
         if (AttrDlg[SETATTR_INDEXED].Selected)    NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
 				if (AttrDlg[SETATTR_SPARSE].Selected)     NewAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+				if (AttrDlg[SETATTR_TEMP].Selected)       NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
+				if (AttrDlg[SETATTR_OFFLINE].Selected)    NewAttr|=FILE_ATTRIBUTE_OFFLINE;
 
         /*
         AY: мы с этими атрибутами не работаем
-        if(!(AttrDlg[SETATTR_TEMP].Flags&DIF_DISABLE))
-          if (AttrDlg[SETATTR_TEMP].Selected)
-            NewAttr|=FILE_ATTRIBUTE_TEMPORARY;
-        if(!(AttrDlg[SETATTR_OFFLINE].Flags&DIF_DISABLE))
-          if (AttrDlg[SETATTR_OFFLINE].Selected)
-            NewAttr|=FILE_ATTRIBUTE_OFFLINE;
         if(!(AttrDlg[SETATTR_VIRTUAL].Flags&DIF_DISABLE))
           if (AttrDlg[SETATTR_VIRTUAL].Selected)
             NewAttr|=FILE_ATTRIBUTE_VIRTUAL;
@@ -1034,18 +1030,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 			else if(AttrDlg[SETATTR_SPARSE].Selected==BSTATE_UNCHECKED)
 				ClearAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
 
+			if(AttrDlg[SETATTR_TEMP].Selected==BSTATE_CHECKED)
+				SetAttr|=FILE_ATTRIBUTE_TEMPORARY;
+			else if(!AttrDlg[SETATTR_TEMP].Selected==BSTATE_UNCHECKED)
+				ClearAttr|=FILE_ATTRIBUTE_TEMPORARY;
+			if(AttrDlg[SETATTR_OFFLINE].Selected==BSTATE_CHECKED)
+				SetAttr|=FILE_ATTRIBUTE_OFFLINE;
+			else if(!AttrDlg[SETATTR_OFFLINE].Selected==BSTATE_UNCHECKED)
+				ClearAttr|=FILE_ATTRIBUTE_OFFLINE;
+
       /*
       AY: мы с этими атрибутами не работаем
-      if(!(AttrDlg[SETATTR_TEMP].Flags&DIF_DISABLE))
-      {
-        if (AttrDlg[SETATTR_TEMP].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_TEMPORARY;
-        else if (!AttrDlg[SETATTR_TEMP].Selected)       ClearAttr|=FILE_ATTRIBUTE_TEMPORARY;
-      }
-      if(!(AttrDlg[SETATTR_OFFLINE].Flags&DIF_DISABLE))
-      {
-        if (AttrDlg[SETATTR_OFFLINE].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_OFFLINE;
-        else if (!AttrDlg[SETATTR_OFFLINE].Selected)       ClearAttr|=FILE_ATTRIBUTE_OFFLINE;
-      }
       if(!(AttrDlg[SETATTR_VIRTUAL].Flags&DIF_DISABLE))
       {
         if (AttrDlg[SETATTR_VIRTUAL].Selected == 1)        SetAttr|=FILE_ATTRIBUTE_VIRTUAL;
