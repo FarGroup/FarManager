@@ -343,19 +343,29 @@ HANDLE apiFindFirstFile (
         )
 {
     WIN32_FIND_DATAW fdata;
-
-		HANDLE hResult = FindFirstFileW (NTPath(lpwszFileName), &fdata);
+		string strName;
+		strName=NTPath(lpwszFileName);
+		HANDLE hResult = FindFirstFileW (strName, &fdata);
 
 		if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
 		{
-			string strRealName;
-			ConvertNameToReal(lpwszFileName,strRealName);
-			hResult=FindFirstFileW(NTPath(strRealName),&fdata);
+			ConvertNameToReal(strName,strName);
+			strName=NTPath(strName);
+			hResult=FindFirstFileW(strName,&fdata);
 		}
 
     if ( hResult != INVALID_HANDLE_VALUE )
     {
-        pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+				// надо, т. к. FindFirstFile иногда лжёт.
+				DWORD dwFileAttributes=apiGetFileAttributes(fdata.cFileName);
+				if(dwFileAttributes!=INVALID_FILE_ATTRIBUTES)
+				{
+					pFindFileData->dwFileAttributes = dwFileAttributes;
+				}
+				else
+				{
+					pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+				}
         pFindFileData->ftCreationTime = fdata.ftCreationTime;
         pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
         pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
@@ -377,7 +387,16 @@ BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 
     if ( bResult )
     {
-        pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+				// надо, т. к. FindNextFile иногда лжёт.
+				DWORD dwFileAttributes=apiGetFileAttributes(fdata.cFileName);
+				if(dwFileAttributes!=INVALID_FILE_ATTRIBUTES)
+				{
+					pFindFileData->dwFileAttributes = dwFileAttributes;
+				}
+				else
+				{
+					pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+				}
         pFindFileData->ftCreationTime = fdata.ftCreationTime;
         pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
         pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;

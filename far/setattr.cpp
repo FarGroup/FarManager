@@ -108,7 +108,6 @@ struct SetAttrDlgParam{
   DWORD OriginalCBFlag[16];
 	int OSubfoldersState, OCompressState, OEncryptState;
   int OLastWriteTime,OCreationTime,OLastAccessTime;
-  string strFSysName;
 
   void Clear()
   {
@@ -126,7 +125,6 @@ struct SetAttrDlgParam{
   	OLastWriteTime = 0;
   	OCreationTime = 0;
   	OLastAccessTime = 0;
-  	strFSysName = L"";
   }
 };
 
@@ -159,8 +157,8 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
         if(!DlgParam->ModeDialog) // =0 - одиночный
         {
-          if(((DlgParam->FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+					if(((DlgParam->FileSystemFlags & (FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION))==
+							(FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
 							if(FocusPos == SETATTR_COMPRESSED && /*CompressState &&*/ EncryptState)
@@ -172,8 +170,8 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
         else // =1|2 Multi
         {
           // отработаем взаимоисключения
-          if(((DlgParam->FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+					if(((DlgParam->FileSystemFlags & (FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION))==
+							(FILE_FILE_COMPRESSION|FILE_SUPPORTS_ENCRYPTION)) &&
              (FocusPos == SETATTR_COMPRESSED || FocusPos == SETATTR_ENCRYPTED))
           {
 						if(FocusPos == SETATTR_COMPRESSED && DlgParam->OCompressState != CompressState) // Состояние изменилось?
@@ -559,21 +557,20 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   }
   else
   {
-    string strRootPathName,strFSysName;
+		string strRootPathName;
     apiGetCurrentDirectory(strRootPathName);
     GetPathRoot(strRootPathName,strRootPathName);
-    if (apiGetVolumeInformation(strRootPathName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
+		if (apiGetVolumeInformation(strRootPathName,NULL,0,NULL,&DlgParam.FileSystemFlags,NULL))
     {
-      if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
+			if (!(DlgParam.FileSystemFlags & FILE_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-      if (!(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+			if (!(DlgParam.FileSystemFlags & FILE_SUPPORTS_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-      if(StrCmpI(strFSysName,L"NTFS"))
-        AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
+			if(!(DlgParam.FileSystemFlags & FILE_SUPPORTS_SPARSE_FILES))
+				AttrDlg[SETATTR_SPARSE].Flags|=DIF_DISABLE;
     }
-    DlgParam.strFSysName=strFSysName;
   }
 
   {
@@ -733,17 +730,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         */
         DlgParam.FileSystemFlags=0;
         GetPathRoot(strSelName,strJuncName);
-        string strFSysName;
-        if (apiGetVolumeInformation (strJuncName,NULL,0,NULL,&DlgParam.FileSystemFlags,&strFSysName))
+        if (apiGetVolumeInformation (strJuncName,NULL,0,NULL,&DlgParam.FileSystemFlags,NULL))
         {
-          if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
+					if (!(DlgParam.FileSystemFlags & FILE_FILE_COMPRESSION))
             AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
-          if (!(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+					if (!(DlgParam.FileSystemFlags & FILE_SUPPORTS_ENCRYPTION))
             AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
 
-          if(StrCmpI(strFSysName,L"NTFS"))
-            AttrDlg[SETATTR_INDEXED].Flags|=DIF_DISABLE;
+					if(!(DlgParam.FileSystemFlags & FILE_SUPPORTS_SPARSE_FILES))
+						AttrDlg[SETATTR_SPARSE].Flags|=DIF_DISABLE;
         }
         /* SVS $ */
       }
@@ -1032,11 +1028,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
 			if(AttrDlg[SETATTR_TEMP].Selected==BSTATE_CHECKED)
 				SetAttr|=FILE_ATTRIBUTE_TEMPORARY;
-			else if(!AttrDlg[SETATTR_TEMP].Selected==BSTATE_UNCHECKED)
+			else if(AttrDlg[SETATTR_TEMP].Selected==BSTATE_UNCHECKED)
 				ClearAttr|=FILE_ATTRIBUTE_TEMPORARY;
 			if(AttrDlg[SETATTR_OFFLINE].Selected==BSTATE_CHECKED)
 				SetAttr|=FILE_ATTRIBUTE_OFFLINE;
-			else if(!AttrDlg[SETATTR_OFFLINE].Selected==BSTATE_UNCHECKED)
+			else if(AttrDlg[SETATTR_OFFLINE].Selected==BSTATE_UNCHECKED)
 				ClearAttr|=FILE_ATTRIBUTE_OFFLINE;
 
       /*
@@ -1075,9 +1071,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
-          //  RetCode=1;
-          //else
           if(SkipMode!=-1)
             RetCode=SkipMode;
           else
@@ -1192,9 +1185,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[SETATTR_ADATE].strData,AttrDlg[SETATTR_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              //if(StrstriW(DlgParam.strFSysName,L"FAT") && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
-              //  RetCode=1;
-              //else
                 RetCode=ESetFileTime(strFullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,

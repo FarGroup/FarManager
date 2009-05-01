@@ -2576,7 +2576,7 @@ void FileList::SetViewMode(int ViewMode)
   DWORD FileSystemFlags;
   GetPathRoot(strCurDir,strDriveRoot);
   if (NewPacked && apiGetVolumeInformation (strDriveRoot,NULL,NULL,NULL,&FileSystemFlags,NULL))
-    if ((FileSystemFlags & FS_FILE_COMPRESSION)==0)
+		if(!(FileSystemFlags&FILE_FILE_COMPRESSION))
       NewPacked=FALSE;
 
   if (FileCount>0 && PanelMode!=PLUGIN_PANEL &&

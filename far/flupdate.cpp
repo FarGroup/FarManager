@@ -120,7 +120,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     return;
   }
 
-  Is_FS_NTFS=FALSE;
   UpdateRequired=FALSE;
   AccessTimeUpdateRequired=FALSE;
   DizRead=FALSE;
@@ -161,16 +160,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDir(strCurDir);
-
-  {
-    string strFileSysName;
-    string strRootDir;
-
-    ConvertNameToFull(strCurDir,strRootDir);
-    GetPathRoot(strRootDir, strRootDir);
-    if ( apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
-      Is_FS_NTFS=!StrCmpI(strFileSysName,L"NTFS")?TRUE:FALSE;
-  }
 
   LastCurFile=-1;
 

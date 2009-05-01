@@ -1564,32 +1564,36 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
     fwprintf(fp,L"%*s %s    lpMaximumComponentLength  =%u\n",12,L"",space,lpMaximumComponentLength);
 
     fwprintf(fp,L"%*s %s    lpFileSystemFlags         =%u\n",12,L"",space,lpFileSystemFlags);
-    if(lpFileSystemFlags&FS_CASE_IS_PRESERVED)
-      fwprintf(fp,L"%*s %s         FS_CASE_IS_PRESERVED\n",12,L"",space);
-    if(lpFileSystemFlags&FS_CASE_SENSITIVE)
-      fwprintf(fp,L"%*s %s         FS_CASE_SENSITIVE\n",12,L"",space);
-    if(lpFileSystemFlags&FS_UNICODE_STORED_ON_DISK)
-      fwprintf(fp,L"%*s %s         FS_UNICODE_STORED_ON_DISK\n",12,L"",space);
-    if(lpFileSystemFlags&FS_PERSISTENT_ACLS)
-      fwprintf(fp,L"%*s %s         FS_PERSISTENT_ACLS\n",12,L"",space);
-    if(lpFileSystemFlags&FS_FILE_COMPRESSION)
-      fwprintf(fp,L"%*s %s         FS_FILE_COMPRESSION\n",12,L"",space);
-    if(lpFileSystemFlags&FS_VOL_IS_COMPRESSED)
-      fwprintf(fp,L"%*s %s         FS_VOL_IS_COMPRESSED\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_NAMED_STREAMS)
-      fwprintf(fp,L"%*s %s         FILE_NAMED_STREAMS\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_READ_ONLY_VOLUME)
-      fwprintf(fp,L"%*s %s         FILE_READ_ONLY_VOLUME\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_ENCRYPTION\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_OBJECT_IDS\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_REPARSE_POINTS\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES)
-      fwprintf(fp,L"%*s %s         FILE_SUPPORTS_SPARSE_FILES\n",12,L"",space);
-    if(lpFileSystemFlags&FILE_VOLUME_QUOTAS)
-      fwprintf(fp,L"%*s %s         FILE_VOLUME_QUOTAS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_CASE_PRESERVED_NAMES)
+			fwprintf(fp,L"%*s %s         FILE_CASE_PRESERVED_NAMES\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_CASE_SENSITIVE_SEARCH)
+			fwprintf(fp,L"%*s %s         FILE_CASE_SENSITIVE_SEARCH\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_FILE_COMPRESSION)
+			fwprintf(fp,L"%*s %s         FILE_FILE_COMPRESSION\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_NAMED_STREAMS)
+			fwprintf(fp,L"%*s %s         FILE_NAMED_STREAMS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_PERSISTENT_ACLS)
+			fwprintf(fp,L"%*s %s         FILE_PERSISTENT_ACLS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_READ_ONLY_VOLUME)
+			fwprintf(fp,L"%*s %s         FILE_READ_ONLY_VOLUME\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SEQUENTIAL_WRITE_ONCE)
+			fwprintf(fp,L"%*s %s         FILE_SEQUENTIAL_WRITE_ONCE\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION)
+			fwprintf(fp,L"%*s %s         FILE_SUPPORTS_ENCRYPTION\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS)
+			fwprintf(fp,L"%*s %s         FILE_SUPPORTS_OBJECT_IDS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS)
+			fwprintf(fp,L"%*s %s         FILE_SUPPORTS_REPARSE_POINTS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES)
+			fwprintf(fp,L"%*s %s         FILE_SUPPORTS_SPARSE_FILES\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_SUPPORTS_TRANSACTIONS)
+			fwprintf(fp,L"%*s %s         FILE_SUPPORTS_TRANSACTIONS\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_UNICODE_ON_DISK)
+			fwprintf(fp,L"%*s %s         FILE_UNICODE_ON_DISK\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_VOLUME_IS_COMPRESSED)
+			fwprintf(fp,L"%*s %s         FILE_VOLUME_IS_COMPRESSED\n",12,L"",space);
+		if(lpFileSystemFlags&FILE_VOLUME_QUOTAS)
+			fwprintf(fp,L"%*s %s         FILE_VOLUME_QUOTAS\n",12,L"",space);
 
     fwprintf(fp,L"%*s %s    lpFileSystemNameBuffer    ='%s'\n",12,L"",space,lpFileSystemNameBuffer);
     fwprintf(fp,L"%*s %s    nFileSystemNameSize       =%u\n",12,L"",space,nFileSystemNameSize);

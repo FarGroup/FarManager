@@ -48,6 +48,8 @@ static bool SetFileSparse(const wchar_t *Name,bool State);
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
+	if(Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
+		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
 	while (!apiSetFileAttributes(Name,Attr))
   {
     int Code;

@@ -986,12 +986,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           // собственно - один проход копирования
           // Mantis#45: Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
           {
-            string strFileSysName;
             string strRootDir;
             ConvertNameToFull(strNameTmp,strRootDir);
             GetPathRoot(strRootDir, strRootDir);
-            if (apiGetVolumeInformation (strRootDir,NULL,NULL,NULL,NULL,&strFileSysName))
-              if(StrCmpI(strFileSysName,L"NTFS"))
+						DWORD FileSystemFlags=0;
+						if(apiGetVolumeInformation(strRootDir,NULL,NULL,NULL,&FileSystemFlags,NULL))
+							if(!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
                 ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
           }
 
@@ -4700,9 +4700,9 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
   int GetInfoSuccess = apiGetVolumeInformation (strRoot,NULL,NULL,NULL,&FileSystemFlagsDst,&strFSysNameDst);
   if (GetInfoSuccess)
   {
-     if(!(FileSystemFlagsDst&FS_FILE_COMPRESSION))
+			if(!(FileSystemFlagsDst&FILE_FILE_COMPRESSION))
        Attr&=~FILE_ATTRIBUTE_COMPRESSED;
-     if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
+			if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
        Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
 	if (!apiSetFileAttributes(Dest,Attr))
@@ -4718,7 +4718,7 @@ int ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
   }
   // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
   // для каталога, если он есть
-  if (GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
+	if (GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
      (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
   {
     int Ret=ESetFileEncryption(Dest,1,0,SkipMode);
