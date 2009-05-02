@@ -278,7 +278,7 @@ static bool SetFileSparse(const wchar_t *Name,bool State)
 int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
 {
 	int Ret=SETATTR_RET_OK;
-	if(!(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	if((((FileAttr&FILE_ATTRIBUTE_SPARSE_FILE)!=0)!=State) && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 			apiSetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
