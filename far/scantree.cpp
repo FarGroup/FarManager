@@ -53,7 +53,7 @@ ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
 
 ScanTree::~ScanTree()
 {
-	for(size_t i=0;i<FindHandleCount;i++)
+	for(size_t i=0;i<=FindHandleCount;i++)
 		if(Data[i].FindHandle && Data[i].FindHandle!=INVALID_HANDLE_VALUE)
 			apiFindClose(Data[i].FindHandle);
 	xf_free(Data);
