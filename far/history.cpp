@@ -221,6 +221,8 @@ end:
     xf_free(TypesBuffer);
   if (LocksBuffer)
     xf_free(LocksBuffer);
+  if(TimesBuffer)
+    xf_free(TimesBuffer);
 
   return ret;
 }
@@ -380,6 +382,8 @@ end:
     xf_free(Buffer);
   if (LocksBuffer)
     xf_free(LocksBuffer);
+  if(TimesBuffer)
+    xf_free(TimesBuffer);
 
   //if (!ret)
     //clear();

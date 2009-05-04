@@ -10,6 +10,7 @@ history.hpp
 #include "TList.hpp"
 
 #include "farconst.hpp"
+#include "fn.hpp"
 
 enum{
   HISTORYTYPE_CMD,
@@ -31,6 +32,12 @@ struct HistoryRecord
     Name = NULL;
     Timestamp.dwLowDateTime=0;
     Timestamp.dwHighDateTime=0;
+  }
+
+  ~HistoryRecord()
+  {
+    if(Name)
+      xf_free(Name);
   }
 
   const HistoryRecord& operator=(const HistoryRecord &rhs);
