@@ -699,7 +699,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 	{
 		if(InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
 		{
-			HANDLE hFile = CreateFileW(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,NULL);
+			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
 			if(hFile!=INVALID_HANDLE_VALUE)
 			{
 				const size_t Size=sizeof(ULONG)+(64<<10);
@@ -721,6 +721,10 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 							pFsd->StreamSize=pStreamInfo->StreamSize;
 							Ret=InfoBlock;
 						}
+					}
+					if(Ret==INVALID_HANDLE_VALUE)
+					{
+						xf_free(InfoBlock);
 					}
 				}
 				CloseHandle(hFile);

@@ -1,3 +1,9 @@
+drkns 04.05.2009 12:36:22 +0200 - build 899
+
+1. Mantis#0000852: Memory leak in apiFindFirstStream().
+
+2. Утечки памяти в History::ReadHistory() и History::SaveHistory().
+
 drkns 03.05.2009 16:29:21 +0200 - build 898
 
 1. В ScanTree закрывались не все хендлы.
