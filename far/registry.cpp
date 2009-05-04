@@ -697,7 +697,7 @@ int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDat
 	if(ExitCode != REG_NONE)
 	{
 		// ??? need check ExitCode ???
-		memcpy(SData,(const wchar_t*)strDestName,Min(SDataSize,(DWORD)(strDestName.GetLength()*sizeof(wchar_t))));
+		memcpy(SData,(const wchar_t*)strSData,Min(SDataSize,(DWORD)(strSData.GetLength()*sizeof(wchar_t))));
 	}
 	return ExitCode;
 }
@@ -736,6 +736,16 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 					wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
 					ValSize0=ValSize;
 					ExitCode=RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValSize0,NULL,&Type,(LPBYTE)Data,&Size);
+					if (Type == REG_DWORD)
+					{
+						if (IData)
+						*IData=*(DWORD*)Data;
+					}
+					else if (Type == REG_QWORD)
+					{
+						if (IData64)
+						*IData64=*(__int64*)Data;
+					}
 					strSData.ReleaseBuffer (Size/sizeof (wchar_t));
 
 					if (ExitCode != ERROR_SUCCESS)
@@ -748,17 +758,6 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 			RetCode=Type;
 
 			strDestName = strValueName;
-
-			if (Type == REG_DWORD)
-			{
-				if (IData)
-					*IData=*(DWORD*)(const wchar_t*)strSData;
-			}
-			else if (Type == REG_QWORD)
-			{
-				if (IData64)
-					*IData64=*(__int64*)(const wchar_t*)strSData;
-			}
 			break;
 		}
 		CloseRegKey(hKey);

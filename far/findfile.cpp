@@ -128,10 +128,12 @@ static struct CodePageInfo
 } *codePages;
 static unsigned char *hexFindString;
 static size_t hexFindStringSize;
-static wchar_t *findString;
+static wchar_t *findString,*findStringBuffer;
 
 static size_t *skipCharsTable;
 static int favoriteCodePages = 0;
+
+bool InFileSearchInited=false;
 
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
@@ -161,7 +163,7 @@ int _cdecl SortItems(const void *p1,const void *p2)
 
 void InitInFileSearch()
 {
-	if (!strFindStr.IsEmpty())
+	if (!InFileSearchInited && !strFindStr.IsEmpty())
 	{
 		size_t findStringCount = strFindStr.GetLength();
 		// Инициализируем буферы чтения из файла
@@ -173,7 +175,8 @@ void InitInFileSearch()
 			// Формируем строку поиска
 			if (!CmpCase)
 			{
-				findString = (wchar_t *)xf_malloc(2*findStringCount*sizeof(wchar_t));
+				findStringBuffer = (wchar_t *)xf_malloc(2*findStringCount*sizeof(wchar_t));
+				findString=findStringBuffer;
 				for (size_t index = 0; index<strFindStr.GetLength(); index++)
 				{
 					wchar_t ch = strFindStr[index];
@@ -317,24 +320,45 @@ void InitInFileSearch()
 			for (size_t index = 0; index < (size_t)hexFindStringSize-1; index++)
 				skipCharsTable[hexFindString[index]] = hexFindStringSize-1-index;
 		}
+		InFileSearchInited=true;
 	}
 }
 
 void ReleaseInFileSearch()
 {
-	if (!strFindStr.IsEmpty())
+	if (InFileSearchInited && !strFindStr.IsEmpty())
 	{
-		xf_free(readBuffer);
-		xf_free(readBufferW);
-		xf_free(skipCharsTable);
-		if (!SearchHex)
+		if(readBuffer)
+		{
+			xf_free(readBuffer);
+			readBuffer=NULL;
+		}
+		if(readBufferW)
+		{
+			xf_free(readBufferW);
+			readBufferW=NULL;
+		}
+		if(skipCharsTable)
+		{
+			xf_free(skipCharsTable);
+			skipCharsTable=NULL;
+		}
+		if(codePages)
 		{
 			xf_free(codePages);
-			if (!CmpCase)
-				xf_free(findString);
+			codePages=NULL;
 		}
-		else
+		if(findStringBuffer)
+		{
+			xf_free(findStringBuffer);
+			findStringBuffer=NULL;
+		}
+		if(hexFindString)
+		{
 			xf_free(hexFindString);
+			hexFindString=NULL;
+		}
+		InFileSearchInited=false;
 	}
 }
 
