@@ -710,56 +710,65 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 	if (hKey)
 	{
 		string strValueName;
-		DWORD ValSize=512, ValSize0;
+		DWORD ValNameSize=512, ValNameSize0;
 		LONG ExitCode=ERROR_MORE_DATA;
 
 		// get size value name
-		for(;ExitCode==ERROR_MORE_DATA;ValSize<<=1)
+		for(;ExitCode==ERROR_MORE_DATA;ValNameSize<<=1)
 		{
-			wchar_t *Name=strValueName.GetBuffer(ValSize);
-			ValSize0=ValSize;
-			ExitCode=RegEnumValueW(hKey,Index,Name,&ValSize0,NULL,NULL,NULL,NULL);
+			wchar_t *Name=strValueName.GetBuffer(ValNameSize);
+			ValNameSize0=ValNameSize;
+			ExitCode=RegEnumValueW(hKey,Index,Name,&ValNameSize0,NULL,NULL,NULL,NULL);
 			strValueName.ReleaseBuffer();
 		}
 
-		while ( TRUE )
+		if(ExitCode != ERROR_NO_MORE_ITEMS)
 		{
 			DWORD Type=(DWORD)-1;
-			DWORD Size = 0;
+			DWORD Size = 0, Size0;
 
-			ValSize0=ValSize;
-			ExitCode = RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValSize, NULL, &Type, NULL, &Size);
-			if(ExitCode != ERROR_SUCCESS)
+			ValNameSize0=ValNameSize;
+			// Get DataSize
+			/*ExitCode = */RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0, NULL, &Type, NULL, &Size);
+			// здесь ExitCode == ERROR_SUCCESS
+
+			// корректировка размера
+			if (Type == REG_DWORD)
 			{
-				if(ExitCode == ERROR_MORE_DATA)
-				{
-					wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
-					ValSize0=ValSize;
-					ExitCode=RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValSize0,NULL,&Type,(LPBYTE)Data,&Size);
-					if (Type == REG_DWORD)
-					{
-						if (IData)
-						*IData=*(DWORD*)Data;
-					}
-					else if (Type == REG_QWORD)
-					{
-						if (IData64)
-						*IData64=*(__int64*)Data;
-					}
-					strSData.ReleaseBuffer (Size/sizeof (wchar_t));
-
-					if (ExitCode != ERROR_SUCCESS)
-						break;
-				}
-				else
-					break;
+				if(Size < sizeof(DWORD))
+					Size = sizeof(DWORD);
+			}
+			else if (Type == REG_QWORD)
+			{
+				if(Size < sizeof(__int64))
+					Size = sizeof(__int64);
 			}
 
-			RetCode=Type;
+			wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
+			wmemset(Data,0,Size/sizeof (wchar_t)+1);
+			ValNameSize0=ValNameSize;
+			Size0=Size;
+			ExitCode=RegEnumValueW(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0,NULL,&Type,(LPBYTE)Data,&Size0);
 
-			strDestName = strValueName;
-			break;
+			if(ExitCode == ERROR_SUCCESS)
+			{
+				if (Type == REG_DWORD)
+				{
+					if (IData)
+						*IData=*(DWORD*)Data;
+				}
+				else if (Type == REG_QWORD)
+				{
+					if (IData64)
+						*IData64=*(__int64*)Data;
+				}
+
+				RetCode=Type;
+				strDestName = strValueName;
+			}
+			strSData.ReleaseBuffer (Size/sizeof (wchar_t));
 		}
+
 		CloseRegKey(hKey);
 	}
 	return RetCode;
