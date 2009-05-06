@@ -9,11 +9,26 @@ cmdline.hpp
 
 #include "scrobj.hpp"
 #include "edit.hpp"
+#include "tstack.hpp"
 #include "farconst.hpp"
 
 enum {
   FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
 };
+
+struct PushPopRecord
+{
+  char *Name;
+
+  PushPopRecord()
+  {
+    Name = NULL;
+  }
+
+  ~PushPopRecord();
+  const PushPopRecord& operator=(const PushPopRecord &rhs);
+};
+
 
 class CommandLine:public ScreenObject
 {
@@ -24,6 +39,7 @@ class CommandLine:public ScreenObject
     char *LastCmdStr;
     int  LastCmdLength;
     int  LastCmdPartLength;
+    TStack<PushPopRecord> ppstack;
 
   private:
     virtual void DisplayObject();
@@ -31,6 +47,7 @@ class CommandLine:public ScreenObject
     int ProcessOSCommands(char *CmdLine,int SeparateWindow);
     void GetPrompt(char *DestStr);
     BOOL SetLastCmdStr(const char *Ptr,int LenPtr);
+    BOOL IntChDir(char *CmdLine,int ClosePlugin,bool Selent=false);
 
   public:
     CommandLine();

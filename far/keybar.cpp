@@ -150,7 +150,7 @@ void KeyBar::ReadRegGroup(const char *RegGroup, const char *szLanguage)
     for (I=0;;I++)
     {
       *ValueName=0;
-      int Type=EnumRegValue(RegName,I,ValueName,sizeof(ValueName),(LPBYTE)Value,sizeof(Value)-1);
+      int Type=EnumRegValue(RegName,I,ValueName,sizeof(ValueName)-1,(LPBYTE)Value,sizeof(Value)-1);
 
       if (Type == REG_NONE)
         break;

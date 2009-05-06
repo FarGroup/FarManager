@@ -2169,19 +2169,24 @@ code words:
      $s - space
      $t - current time in HH:MM:SS format
      $$ - the $ character
+     $+ - глубина стека каталогов
 
    By default the #$p$g# sequence is used - current drive and
 path ("C:\>").
 
    Examples.
 
-   1. A prompt of the following format #[%COMPUTERNAME%]$S$P$G#
-      will contain the computer name, current drive and path
-      (the %COMPUTERNAME% environment variable must be defined)
+   1. ^<wrap>A prompt of the following format #[%COMPUTERNAME%]$S$P$G#
+will contain the computer name, current drive and path
+(the %COMPUTERNAME% environment variable must be defined)
 
-   2. A prompt of the following format #[$T$H$H$H]$S$P$G# will
-      display the current time in HH:MM format before the current
-      drive and path
+   2. ^<wrap>A prompt of the following format #[$T$H$H$H]$S$P$G# will
+display the current time in HH:MM format before the current
+drive and path
+
+   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости 
+от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на 
+каждый сохраненный путь.
 
 @Viewer
 $ #Viewer: control keys#
@@ -3605,10 +3610,23 @@ defined.
     will be executed if the file "file1" exists, the file "file2" does not
 exist and the environment variable "variable" is defined.
 
+    #pushd path#
+
+    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает 
+текущим каталог path. 
+
+    #popd#
+
+    Переходит в каталог, сохраненный командой PUSHD.
+
+    #clrd#
+
+    Очищает стек каталогов, сохраненных командой PUSHD.
+
     Notes:
 
-    1. Any other commands will be sent to the operating
-       system command processor.
+    1. ^<wrap>Any other commands will be sent to the operating
+system command processor.
 
     2. The commands listed above work in:
        - ~Command line~@CmdLineCmd@
@@ -3629,6 +3647,8 @@ to child processes:
     #FARUSER#            the name of the current user given by the /u
                        ~command line~@CmdLine@ option.
 
+    #DIRSTACK#           содержимое вершины стека каталогов
+                       (который управляется командами pushd и popd)
 
 @KeyMacro
 $ #Macro command #

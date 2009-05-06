@@ -430,8 +430,7 @@ void CommandLine::SetString(const char *Str,BOOL Redraw)
 }
 
 
-void CommandLine::ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow,
-                             int DirectRun)
+void CommandLine::ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 {
   SetString(Str);
   CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun);
@@ -454,46 +453,6 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void CommandLine::GetPrompt(char *DestStr)
 {
-#if 0
-  char FormatStr[512],ExpandedFormatStr[512];
-  xstrncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
-  char *Format=FormatStr;
-  if (Opt.UsePromptFormat)
-  {
-    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
-    Format=ExpandedFormatStr;
-  }
-  while (*Format)
-  {
-    if (*Format=='$')
-    {
-      Format++;
-      switch(*Format)
-      {
-        case '$':
-          *(DestStr++)='$';
-          break;
-        case 'p':
-          strcpy(DestStr,CurDir);
-          DestStr+=strlen(CurDir);
-          break;
-        case 'n':
-          if (IsLocalPath(CurDir) && CurDir[2]=='\\')
-            *(DestStr++)=LocalUpper(*CurDir);
-          else
-            *(DestStr++)='?';
-          break;
-        case 'g':
-          *(DestStr++)='>';
-          break;
-      }
-      Format++;
-    }
-    else
-      *(DestStr++)=*(Format++);
-  }
-  *DestStr=0;
-#else
   // продвинутый вариант промптера, как в XP
   if (Opt.UsePromptFormat)
   {
@@ -534,7 +493,24 @@ void CommandLine::GetPrompt(char *DestStr)
             $E - Escape code (ASCII code 27)
             $V - Windows XP version number
             $_ - Carriage return and linefeed
+            $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
             */
+            case '+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
+            {
+              DWORD ppstacksize=ppstack.size();
+              if(ppstacksize)
+              {
+                char *stacksize=(char *)alloca(ppstacksize+1);
+                if(stacksize)
+                {
+                  memset(stacksize,'+',ppstacksize);
+                  stacksize[ppstacksize]=0;
+                  strcpy(DestStr,stacksize);
+                  DestStr+=strlen(stacksize);
+                }
+              }
+              break;
+            }
             case 'H': // $H - Backspace (erases previous character)
               DestStr--;
               break;
@@ -571,7 +547,6 @@ void CommandLine::GetPrompt(char *DestStr)
     strcpy(DestStr,CurDir);
     strcat(DestStr,">");
   }
-#endif
 }
 
 
@@ -672,4 +647,17 @@ void CommandLine::ResizeConsole()
 {
   BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
 //  this->DisplayObject();
+}
+
+
+PushPopRecord::~PushPopRecord()
+{
+  if(Name)
+    xf_free(Name);
+}
+
+const PushPopRecord& PushPopRecord::operator=(const PushPopRecord &rhs)
+{
+  Name = xf_strdup(rhs.Name);
+  return *this;
 }

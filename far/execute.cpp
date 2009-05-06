@@ -1213,8 +1213,7 @@ int Execute(const char *CmdStr,    //  ом.строка дл€ исполнени€
 }
 
 
-int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
-                            int SeparateWindow,int DirectRun)
+int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 {
   LastCmdPartLength=-1;
   if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
@@ -1450,6 +1449,13 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
   RemoveTrailingSpaces(CmdLine);
 
+  bool SilentInt=false;
+  if(*CmdLine == '@')
+  {
+    SilentInt=true;
+    CmdLine++;
+  }
+
   if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
   {
     char NewDir[10];
@@ -1533,6 +1539,52 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     return TRUE;
   }
 
+  // PUSHD путь | ..
+  else if (!strnicmp(CmdLine,"PUSHD",5) && IsSpace(CmdLine[5]))
+  {
+    char *Ptr=RemoveExternalSpaces(CmdLine+6);
+    if(!stricmp(Ptr,"/?") || !stricmp(Ptr,"-?"))
+      return FALSE; // пусть cmd скажет про синтаксис
+    PushPopRecord prec;
+    prec.Name = xf_strdup(CurDir);
+    int ret=IntChDir(Ptr,true,SilentInt);
+    if(ret)
+    {
+      ppstack.Push(prec);
+      FAR_OemToChar(prec.Name, prec.Name);
+      SetEnvironmentVariable("DIRSTACK",prec.Name);
+    }
+    else
+    {
+      ;
+    }
+    return TRUE;
+  }
+
+  // POPD
+  else if (!stricmp(CmdLine,"POPD"))
+  {
+    PushPopRecord prec;
+    if(ppstack.Pop(prec))
+    {
+      int Ret=IntChDir(prec.Name,true,SilentInt);
+      PushPopRecord *ptrprec=ppstack.Peek();
+      if(ptrprec)
+        FAR_OemToChar(ptrprec->Name, ptrprec->Name);
+      SetEnvironmentVariable("DIRSTACK",ptrprec?ptrprec->Name:NULL);
+      return Ret;
+    }
+    return TRUE;
+  }
+
+  // CLRD
+  else if (!stricmp(CmdLine,"CLRD"))
+  {
+    ppstack.Free();
+    SetEnvironmentVariable("DIRSTACK",NULL);
+    return TRUE;
+  }
+
   /*
   Displays or sets the active code page number.
   CHCP [nnn]
@@ -1602,95 +1654,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     while (IsSpace(CmdLine[Length]))
       Length++;
 
-    char ExpandedDir[8192];
-    xstrncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
+    IntChDir(CmdLine+Length,ChDir,SilentInt);
 
-    Unquote(ExpandedDir);
-    ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
-
-    // скорректируем букву диска на "подступах"
-    if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
-      ExpandedDir[0]=toupper(ExpandedDir[0]);
-
-    if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && (!ExpandedDir[1] || IsSlash(ExpandedDir[1])) && GetFileAttributes(ExpandedDir) == (DWORD)-1)
-    {
-      char tempExpandedDir[8192];
-      GetRegKey(strSystemExecutor,"~",(char*)tempExpandedDir,FarPath,sizeof(tempExpandedDir)-1);
-      if(ExpandedDir[1])
-      {
-        AddEndSlash(tempExpandedDir);
-        xstrncat(tempExpandedDir,ExpandedDir+2,sizeof(tempExpandedDir)-1);
-      }
-      DeleteEndSlash(tempExpandedDir);
-      xstrncpy(ExpandedDir,tempExpandedDir,sizeof(ExpandedDir)-1);
-    }
-
-    if(strpbrk(&ExpandedDir[PathPrefix(ExpandedDir)?4:0],"?*")) // это маска?
-    {
-      WIN32_FIND_DATA wfd;
-      if(GetFileWin32FindData(ExpandedDir,&wfd))
-      {
-        char *Ptr=strrchr(ExpandedDir,'\\');
-        if (!Ptr)
-          Ptr=strrchr(ExpandedDir,'/');
-        if(Ptr)
-          *++Ptr=0;
-        else
-          *ExpandedDir=0;
-        xstrncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
-      }
-    }
-
-    // \\?\UNC\<hostname>\<sharename>\<dirname> , а также cd \\.\<disk>:\<dirname>
-
-    /* $ 15.11.2001 OT
-      —начала провер€ем есть ли така€ "обычна€" директори€.
-      если уж нет, то тогда начинаем думать, что это директори€ плагинна€
-    */
-    DWORD DirAtt=GetFileAttributes(ExpandedDir);
-    if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
-    {
-      ReplaceStrings(ExpandedDir,"/","\\",-1);
-      SetPanel->SetCurDir(ExpandedDir,TRUE);
-      return TRUE;
-    }
-    /* OT $ */
-
-    /* $ 20.09.2002 SKV
-      Ёто отключает возможность выполн€ть такие команды как:
-      cd net:server и cd ftp://server/dir
-      “ак как под ту же гребЄнку попадают и
-      cd s&r:, cd make: и т.д., которые к смене
-      каталога не имеют никакого отношени€.
-    */
-    /*
-    if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
-    {
-      //CmdStr.SetString("");
-      GotoXY(X1,Y1);
-      mprintf("%*s",X2-X1+1,"");
-      Show();
-      return(TRUE);
-    }
-    */
-    /* SKV $ */
-
-    if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
-    {
-      SetPanel->SetCurDir(ExpandedDir,ChDir);
-      return(TRUE);
-    }
-
-    if(FarChDir(ExpandedDir))
-    {
-      SetPanel->ChangeDirToCurrent();
-      if(!SetPanel->IsVisible())
-        SetPanel->SetTitle();
-    }
-    else
-    {
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),ExpandedDir,MSG(MOk));
-    }
     return(TRUE);
   }
   else if(!stricmp(CmdLine,"EXIT"))
@@ -1700,6 +1665,111 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   }
 
   return(FALSE);
+}
+
+BOOL CommandLine::IntChDir(char *CmdLine,int ClosePlugin,bool Selent)
+{
+  Panel *SetPanel;
+
+  SetPanel=CtrlObject->Cp()->ActivePanel;
+
+  if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+    SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+
+  //RemoveTrailingSpaces(CmdLine);
+
+  char ExpandedDir[8192];
+  xstrncpy(ExpandedDir,CmdLine,sizeof(ExpandedDir)-1);
+
+  Unquote(ExpandedDir);
+  ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
+
+  // скорректируем букву диска на "подступах"
+  if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
+    ExpandedDir[0]=toupper(ExpandedDir[0]);
+
+  if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && (!ExpandedDir[1] || IsSlash(ExpandedDir[1])) && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+  {
+    char tempExpandedDir[8192];
+    GetRegKey(strSystemExecutor,"~",(char*)tempExpandedDir,FarPath,sizeof(tempExpandedDir)-1);
+    if(ExpandedDir[1])
+    {
+      AddEndSlash(tempExpandedDir);
+      xstrncat(tempExpandedDir,ExpandedDir+2,sizeof(tempExpandedDir)-1);
+    }
+    DeleteEndSlash(tempExpandedDir);
+    xstrncpy(ExpandedDir,tempExpandedDir,sizeof(ExpandedDir)-1);
+  }
+
+  if(strpbrk(&ExpandedDir[PathPrefix(ExpandedDir)?4:0],"?*")) // это маска?
+  {
+    WIN32_FIND_DATA wfd;
+    if(GetFileWin32FindData(ExpandedDir,&wfd))
+    {
+      char *Ptr=strrchr(ExpandedDir,'\\');
+      if (!Ptr)
+        Ptr=strrchr(ExpandedDir,'/');
+      if(Ptr)
+        *++Ptr=0;
+      else
+        *ExpandedDir=0;
+      xstrncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
+    }
+  }
+
+  // \\?\UNC\<hostname>\<sharename>\<dirname> , а также cd \\.\<disk>:\<dirname>
+
+  /* $ 15.11.2001 OT
+    —начала провер€ем есть ли така€ "обычна€" директори€.
+    если уж нет, то тогда начинаем думать, что это директори€ плагинна€
+  */
+  DWORD DirAtt=GetFileAttributes(ExpandedDir);
+  if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
+  {
+    ReplaceStrings(ExpandedDir,"/","\\",-1);
+    SetPanel->SetCurDir(ExpandedDir,TRUE);
+    return TRUE;
+  }
+  /* OT $ */
+
+  /* $ 20.09.2002 SKV
+    Ёто отключает возможность выполн€ть такие команды как:
+    cd net:server и cd ftp://server/dir
+    “ак как под ту же гребЄнку попадают и
+    cd s&r:, cd make: и т.д., которые к смене
+    каталога не имеют никакого отношени€.
+  */
+  /*
+  if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
+  {
+    //CmdStr.SetString("");
+    GotoXY(X1,Y1);
+    mprintf("%*s",X2-X1+1,"");
+    Show();
+    return(TRUE);
+  }
+  */
+  /* SKV $ */
+
+  if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
+  {
+    SetPanel->SetCurDir(ExpandedDir,ClosePlugin);
+    return(TRUE);
+  }
+
+  if(FarChDir(ExpandedDir))
+  {
+    SetPanel->ChangeDirToCurrent();
+    if(!SetPanel->IsVisible())
+      SetPanel->SetTitle();
+  }
+  else
+  {
+    if(!Selent)
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),ExpandedDir,MSG(MOk));
+    return FALSE;
+  }
+  return TRUE;
 }
 
 // ѕроверить "Ёто батник?"

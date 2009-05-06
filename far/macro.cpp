@@ -410,10 +410,10 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   if(Buffer)
   {
     int I;
-    ReadVarsConst(MACRO_VARS,Buffer,TEMP_BUFFER_SIZE);
-    ReadVarsConst(MACRO_CONSTS,Buffer,TEMP_BUFFER_SIZE);
+    ReadVarsConst(MACRO_VARS,Buffer,TEMP_BUFFER_SIZE-1);
+    ReadVarsConst(MACRO_CONSTS,Buffer,TEMP_BUFFER_SIZE-1);
     for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
-      if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE))
+      if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE-1))
         break;
     delete[] Buffer;
     // выставим код возврата - если не все ВСЕ загрузились, то
@@ -3813,7 +3813,6 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
   char *ptrValueName=ValueName;
   long IData;
   __int64 IData64;
-  DWORD NeedSDataSize;
 
   if(ReadMode==MACRO_VARS)
     ptrValueName=ValueName+1;
@@ -3826,9 +3825,8 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     IData=0;
     *ValueName=0;
     *SData=0;
-    NeedSDataSize=0;
 
-    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,&NeedSDataSize,(LPDWORD)&IData,(__int64*)&IData64);
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName)-1,(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
 
     if (Type == REG_NONE)
       break;
@@ -3895,7 +3893,7 @@ int KeyMacro::ReadMacroFunction(int ReadMode, char *SData, int SDataSize)
     *ValueName=0;
     *SData=0;
 
-    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName)-1,(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
   }
 #endif
   return TRUE;
