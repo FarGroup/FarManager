@@ -3812,7 +3812,7 @@ BOOL Editor::Search(int Next)
   static int LastSuccessfulReplaceMode=0;
   string strMsgStr;
   const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-  int CurPos,Count,Case,WholeWords,ReverseSearch,SelectFound,Match,NewNumLine,UserBreak;
+  int CurPos,Case,WholeWords,ReverseSearch,SelectFound,Match,NewNumLine,UserBreak;
   int iPosCorrection = 0;
 
   if (Next && strLastSearchStr.IsEmpty() )
@@ -3862,7 +3862,6 @@ BOOL Editor::Search(int Next)
     strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
     SetCursorType(FALSE,-1);
 
-    Count=0;
     Match=0;
     SuccessfulSearch=0;
     UserBreak=0;
@@ -3901,11 +3900,14 @@ BOOL Editor::Search(int Next)
     CurPtr=CurLine;
 
 		DWORD StartTime=GetTickCount();
+		int StartLine=NumLine;
 
     while (CurPtr!=NULL)
     {
-			if (!(++Count & 0xfff) && GetTickCount()-StartTime>500)
+			DWORD CurTime=GetTickCount();
+			if(CurTime-StartTime>500)
       {
+				StartTime=CurTime;
         if( CheckForEscSilent() )
         {
           if ( ConfirmAbortOp() )
@@ -3917,7 +3919,7 @@ BOOL Editor::Search(int Next)
 
 				strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
 				SetCursorType(FALSE,-1);
-				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Count*100/NumLastLine);
+				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,(NumLine-StartLine)*100/(NumLastLine-StartLine));
       }
 
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))

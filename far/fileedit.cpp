@@ -1340,7 +1340,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
-	int LastLineCR = 0, Count = 0;
+	int LastLineCR = 0;
 	EditorCacheParams cp;
 
 	UserBreak = 0;
@@ -1404,8 +1404,6 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	wchar_t *Str;
 	int StrLength,GetCode;
 
-	clock_t StartTime=clock();
-
 	UINT dwCP=0;
 	bool Detect=false;
 
@@ -1441,6 +1439,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	UINT64 FileSize=0;
 	apiGetFileSizeEx(hEdit,&FileSize);
 
+	DWORD StartTime=GetTickCount();
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)
 	{
 		if ( GetCode == -1 )
@@ -1450,9 +1449,10 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		}
 
 		LastLineCR=0;
-
-		if ( (++Count & 0xfff) == 0 && (clock()-StartTime > 500) )
+		DWORD CurTime=GetTickCount();
+		if(CurTime-StartTime>500)
 		{
+			StartTime=CurTime;
 			if (CheckForEscSilent())
 			{
 	  			if ( ConfirmAbortOp() )
@@ -1493,7 +1493,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 	if(!GetStr.IsConversionValid())
 		Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditDataLostWarn1),MSG(MEditDataLostWarn2),MSG(MEditDataLostWarn4),MSG(MOk));
-	if ( LastLineCR || (Count == 0) )
+	if(LastLineCR||!m_editor->NumLastLine)
 		m_editor->InsertString (L"", 0);
 
 	fclose (EditFile);
@@ -1749,8 +1749,10 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		size_t LineNumber=0;
 		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next,LineNumber++)
     {
-			if(!(LineNumber&0xfff) && GetTickCount()-StartTime>500)
+			DWORD CurTime=GetTickCount();
+			if(CurTime-StartTime>500)
 			{
+				StartTime=CurTime;
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
 			}
 
