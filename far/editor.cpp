@@ -3919,7 +3919,9 @@ BOOL Editor::Search(int Next)
 
 				strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
 				SetCursorType(FALSE,-1);
-				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,(NumLine-StartLine)*100/(NumLastLine-StartLine));
+				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
+				int Current=abs(NewNumLine-StartLine);
+				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Current*100/Total);
       }
 
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
@@ -6563,8 +6565,6 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 		}
 	}
 	Message(0,0,Title,Msg,Name,strProgress.IsEmpty()?NULL:strProgress.CPtr());
-	//if(Progress)
-		//xf_free(Progress);
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   preRedrawItem.Param.Param1=(void *)Title;
   preRedrawItem.Param.Param2=(void *)Msg;
