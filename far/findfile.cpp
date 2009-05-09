@@ -446,39 +446,29 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       return TRUE;
     }
-    /* 22.11.2001 VVM
-      ! Сбрасыватьсостояние FindFolders при вводе текста.
-        Но только если не меняли этот состояние вручную */
-    case DN_BTNCLICK:
-    {
-      Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-      string strSearchFromRoot;
 
-      /* $ 23.11.2001 KM
-         - БЛИН! Правил глюк и глюк добавил :-(
-           Перестали работать чекбоксы и радиобатоны.
-      */
-      /* $ 22.11.2001 KM
-         - Забыли однако, что DN_BTNCLICK работает со всеми "нажимающимися"
-           контролами, только с кнопками немного по-другому, поэтому простое
-           нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
-      */
+		case DN_CLOSE:
+		{
 			switch(Param1)
 			{
 			case FAD_BUTTON_FIND:
-			case FAD_BUTTON_CANCEL:
-				return FALSE;
+				{
+					LPCWSTR Mask=(LPCWSTR)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,FAD_EDIT_MASK,NULL);
+					if(!Mask||!*Mask)
+						Mask=L"*";
+					return FileMaskForFindFile.Set(Mask,0);
+				}
 
 			case FAD_BUTTON_DRIVE:
 				{
 					IsRedrawFramesInProcess++;
-					ActivePanel->ChangeDisk();
+					CtrlObject->Cp()->ActivePanel->ChangeDisk();
 					// Ну что ж, раз пошла такая пьянка рефрешить фреймы
 					// будем таким способом.
 					//FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 					FrameManager->ResizeAllFrame();
 					IsRedrawFramesInProcess--;
-
+					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot, PARTIAL_DLG_STR_LEN);
 
 					FarListGetItem item={FADC_ROOT};
@@ -515,47 +505,55 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				AdvancedDialog();
 				break;
 
-			case FAD_CHECKBOX_DIRS:
-				FindFoldersChanged = TRUE;
-				break;
-
-			case FAD_CHECKBOX_HEX:
+			case -2:
+			case -1:
+			case FAD_BUTTON_CANCEL:
+				return TRUE;
+			}
+			return FALSE;
+    }
+		case DN_BTNCLICK:
+			{
+				switch(Param1)
 				{
-					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+				case FAD_CHECKBOX_DIRS:
+					FindFoldersChanged = TRUE;
+					break;
 
-					/* $ 21.09.2003 KM
-						 Переключение видимости строки ввода искомого текста
-						 в зависимости от установленного чекбокса hex mode
-					*/
-					string strDataStr;
-					Transform(strDataStr,(LPCWSTR)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,NULL),Param2?L'X':L'S');
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Param2);
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Param2);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Param2);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,!Param2);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,!Param2);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,!Param2);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,!Param2);
-
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)(Param2?FindHex:FindText));
-
-					if (strDataStr.GetLength()>0)
+				case FAD_CHECKBOX_HEX:
 					{
-						int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,-1);
-						Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,UnchangeFlag);
-					}
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+						string strDataStr;
+						Transform(strDataStr,(LPCWSTR)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,NULL),Param2?L'X':L'S');
+						Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
+						Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Param2);
+						Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Param2);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Param2);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_COMBOBOX_CP,!Param2);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_CASE,!Param2);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,!Param2);
+						Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,!Param2);
+
+						Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(const wchar_t*)(Param2?FindHex:FindText));
+
+						if (strDataStr.GetLength()>0)
+						{
+							int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,-1);
+							Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,UnchangeFlag);
+						}
+
+						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+					}
+					break;
+
+				case FAD_CHECKBOX_ADVANCED:
+					EnableSearchInFirst=(int)Param2;
+					break;
 				}
 				break;
-
-			case FAD_CHECKBOX_ADVANCED:
-				EnableSearchInFirst=(int)Param2;
-				break;
 			}
-      return TRUE;
-    }
+
 		case DM_KEY:
 		{
 			// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
@@ -810,43 +808,29 @@ FindFiles::FindFiles()
     // Включить дополнительные опции поиска. KM
 		FindAskDlg[FAD_CHECKBOX_ADVANCED].Selected=EnableSearchInFirst;
 
-    while (1)
-    {
-      int ExitCode;
-      {
-				Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
+		int ExitCode;
+		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
-        Dlg.SetHelp(L"FindFile");
-        Dlg.SetPosition(-1,-1,78,22);
-        Dlg.Process();
-        ExitCode=Dlg.GetExitCode();
-      }
+		Dlg.SetHelp(L"FindFile");
+		Dlg.SetPosition(-1,-1,78,22);
+		Dlg.Process();
+		ExitCode=Dlg.GetExitCode();
 
-      //Рефреш текущему времени для фильтра сразу после выхода из диалога
-      Filter->UpdateCurrentTime();
+		//Рефреш текущему времени для фильтра сразу после выхода из диалога
+		Filter->UpdateCurrentTime();
 
-			if(ExitCode!=FAD_BUTTON_FIND)
-      {
-        CloseHandle(hPluginMutex);
-        return;
-      }
+		if(ExitCode!=FAD_BUTTON_FIND)
+		{
+			CloseHandle(hPluginMutex);
+			return;
+		}
 
-      /* Запоминание установленных параметров */
-			Opt.CodePage.AllPages=UseAllCodePages;
-			if (!UseAllCodePages) {
-				Opt.CodePage.CodePage=CodePage;
-			}
-      /****************************************/
-
-      /* $ 01.07.2001 IS
-         Проверим маску на корректность
-      */
-			if( FindAskDlg[FAD_EDIT_MASK].strData.IsEmpty() )             // если строка с масками пуста,
-					FindAskDlg[FAD_EDIT_MASK].strData = L"*"; // то считаем, что маска есть "*"
-
-			if(FileMaskForFindFile.Set(FindAskDlg[FAD_EDIT_MASK].strData, 0))
-           break;
-    }
+		/* Запоминание установленных параметров */
+		Opt.CodePage.AllPages=UseAllCodePages;
+		if (!UseAllCodePages)
+		{
+			Opt.CodePage.CodePage=CodePage;
+		}
 
 		CmpCase=FindAskDlg[FAD_CHECKBOX_CASE].Selected;
 		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected;
