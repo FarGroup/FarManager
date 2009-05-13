@@ -277,13 +277,6 @@ struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
 };
 
-// Хранилище параметров поиска code page
-struct FindCodePage
-{
-	int AllPages;
-	int CodePage;
-};
-
 struct ScreenSizes{
   COORD DeltaXY;            // на сколько поз. изменить размеры для распахнутого экрана
 #if defined(DETECT_ALT_ENTER)
@@ -586,7 +579,7 @@ struct Options
   struct NowellOptions Nowell;
   struct ScreenSizes ScrSize;
 
-	struct FindCodePage CodePage; // Структура для запоминания параметров кодовых страниц в поиске
+	int FindCodePage;
 
   struct TreeOptions Tree;
 

@@ -109,8 +109,8 @@ static int PluginMode;
 
 static HANDLE hPluginMutex;
 
-static int UseAllCodePages=FALSE,UseFilter=0;
-static UINT CodePage = (UINT)-1;
+static int UseFilter=0;
+static UINT CodePage=(UINT)CP_AUTODETECT;
 static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
 
@@ -206,7 +206,7 @@ void InitInFileSearch()
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
 			// ‘ормируем список кодовых страниц
-			if (UseAllCodePages)
+			if (CodePage == CP_AUTODETECT)
 			{
 				DWORD data;
 				string codePageName;
@@ -270,12 +270,12 @@ void InitInFileSearch()
 			for (int index = 0; index<codePagesCount; index++)
 			{
 				CodePageInfo *cp = codePages+index;
-				if (IsUnicodeCP(CodePage))
+				if (IsUnicodeCP(cp->CodePage))
 					cp->MaxCharSize = 2;
 				else
 				{
 					CPINFO cpi;
-					if (!GetCPInfo(CodePage, &cpi))
+					if (!GetCPInfo(cp->CodePage, &cpi))
 						cpi.MaxCharSize = 0; //—читаем, что ошибка и потом такие таблицы в поиске пропускаем
 					cp->MaxCharSize = cpi.MaxCharSize;
 				}
@@ -435,14 +435,21 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,CBET_KEY);
 
       /* ”становка запомненных ранее параметров */
-			UseAllCodePages=Opt.CodePage.AllPages;
-			CodePage=Opt.CodePage.CodePage;
+			CodePage = Opt.FindCodePage;
       /* -------------------------------------- */
 
-			favoriteCodePages = AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, UseAllCodePages ? CP_AUTODETECT : CodePage, false, true);
+			favoriteCodePages = AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
 
+			// “екущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
+			// так что получаем CodePage из списка выбора
+			FarListPos Position;
+			Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&Position);
+			FarListGetItem Item = { Position.SelectPos };
+			Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
+			CodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
+			
       FindFoldersChanged = FALSE;
-      SearchFromChanged=FALSE;
+      SearchFromChanged = FALSE;
 
       return TRUE;
     }
@@ -639,11 +646,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			case FAD_COMBOBOX_CP:
 				{
 					// ѕолучаем выбранную в выпадающем списке таблицу символов
-					UINT cp = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
-					UseAllCodePages = (cp == CP_AUTODETECT);
-					if (!UseAllCodePages) {
-						CodePage = cp;
-					}
+					CodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, NULL));
 				}
 				return TRUE;
 			case FAD_COMBOBOX_WHERE:
@@ -826,11 +829,7 @@ FindFiles::FindFiles()
 		}
 
 		/* «апоминание установленных параметров */
-		Opt.CodePage.AllPages=UseAllCodePages;
-		if (!UseAllCodePages)
-		{
-			Opt.CodePage.CodePage=CodePage;
-		}
+		Opt.FindCodePage = CodePage;
 
 		CmpCase=FindAskDlg[FAD_CHECKBOX_CASE].Selected;
 		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected;
@@ -2559,7 +2558,7 @@ bool IsWordDiv(const wchar_t symbol) {
 int FindFiles::LookForString(const wchar_t *Name)
 {
 	#define RETURN(r) { result = (r); goto exit; }
-	#define CONTINUE(r) { if ((r) || !UseAllCodePages || (cpIndex==codePagesCount-1)) RETURN(r) else continue; }
+	#define CONTINUE(r) { if ((r) || cpIndex==codePagesCount-1) RETURN(r) else continue; }
 
 	// ƒлина строки поиска
 	size_t findStringCount;
@@ -2771,7 +2770,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 				cpi->LastSymbol = buffer[bufferCount-1];
 			}
 			// ѕолучаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((UseAllCodePages?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
+			offset = (int)((CodePage==CP_AUTODETECT?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
 		}
 		// ≈сли мы потенциально прочитали не весь файл
 		if (readBlockSize==readBufferSize)
