@@ -152,6 +152,7 @@ extern "C" {
 #if defined(__GNUC__)
  #define _strtoi64 strtoll
  #define _wcstoi64 wcstoll
+ #define _abs64 llabs
 #endif
 
 #ifdef __GNUC__

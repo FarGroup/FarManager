@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+#include "TaskBar.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
@@ -112,6 +113,7 @@ static void PR_ReadFileNamesMsg(void)
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
   TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
+	TaskBar TB;
 
   if (!IsVisible() && !IgnoreVisible)
   {
@@ -356,7 +358,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
       if ((FileCount & 0x3f)==0 && clock()-StartTime>1000)
       {
-
         if (IsVisible())
         {
           string strReadMsg;

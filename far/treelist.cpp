@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RefreshFrameManager.hpp"
 #include "ScrBuf.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 
 #define DELTA_TREECOUNT 31
@@ -426,7 +427,7 @@ int TreeList::ReadTree()
 
   /* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
-  Redraw();
+  //Redraw();
 
 	if (RootLength>0 && strRoot.At (RootLength-1) != L':' && IsSlash(strRoot.At (RootLength)))
     ListData[0]->strName.SetLength (RootLength);
@@ -441,6 +442,7 @@ int TreeList::ReadTree()
   ScTree.SetFindPath(strRoot, L"*.*", 0);
   LastScrX = ScrX;
   LastScrY = ScrY;
+	TaskBar TB;
   while (ScTree.GetNextName(&fdata,strFullName))
   {
 //    if(TreeCount > 3)

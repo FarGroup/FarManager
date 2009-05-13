@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
@@ -88,7 +89,7 @@ void DizList::PR_ReadingMsg(void)
 void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 {
   Reset();
-
+  TaskBar TB;
   TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
 
   const wchar_t *NamePtr=Opt.Diz.strListNames;

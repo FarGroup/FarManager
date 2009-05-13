@@ -195,6 +195,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \

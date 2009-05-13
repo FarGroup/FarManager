@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "imports.hpp"
+#include "taskbar.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 
@@ -1046,6 +1047,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       SrcPanel->GetSelName(NULL,FileAttr);
 
+			TaskBar TB;
       while (SrcPanel->GetSelName(&strSelName,FileAttr,NULL,&FindData) && !Cancel)
       {
 //_SVS(SysLog(L"SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",

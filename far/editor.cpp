@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+#include "TaskBar.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -3902,6 +3903,7 @@ BOOL Editor::Search(int Next)
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
 
+		TaskBar TB;
     while (CurPtr!=NULL)
     {
 			DWORD CurTime=GetTickCount();
@@ -3922,6 +3924,7 @@ BOOL Editor::Search(int Next)
 				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
 				int Current=abs(NewNumLine-StartLine);
 				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Current*100/Total);
+				TBC.SetProgressValue(Current,Total);
       }
 
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
@@ -6563,6 +6566,7 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 			strTmp.Format(L" %3d%%",Percent);
 			strProgress+=strTmp;
 		}
+		TBC.SetProgressValue(Percent,100);
 	}
 	Message(0,0,Title,Msg,Name,strProgress.IsEmpty()?NULL:strProgress.CPtr());
   PreRedrawItem preRedrawItem=PreRedraw.Peek();

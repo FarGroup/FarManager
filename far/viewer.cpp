@@ -53,9 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+#include "TaskBar.hpp"
 
 static void PR_ViewerSearchMsg(void);
-static void ViewerSearchMsg(const wchar_t *Name);
+static void ViewerSearchMsg(const wchar_t *Name,int Percent);
 
 static int InitHex=FALSE,SearchHex=FALSE;
 
@@ -2128,14 +2129,33 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 static void PR_ViewerSearchMsg(void)
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  ViewerSearchMsg((const wchar_t*)preRedrawItem.Param.Param1);
+  ViewerSearchMsg((const wchar_t*)preRedrawItem.Param.Param1,(int)(INT_PTR)preRedrawItem.Param.Param2);
 }
 
-void ViewerSearchMsg(const wchar_t *MsgStr)
+void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
 {
-  Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr);
+	string strProgress;
+	if(Percent!=-1)
+	{
+		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(MsgStr)),40)-5; // -5 под проценты
+		wchar_t *Progress=strProgress.GetBuffer(Length);
+		if(Progress)
+		{
+			size_t CurPos=Percent*(Length)/100;
+			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
+			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
+			strProgress.ReleaseBuffer(Length);
+			string strTmp;
+			strTmp.Format(L" %3d%%",Percent);
+			strProgress+=strTmp;
+		}
+		TBC.SetProgressValue(Percent,100);
+	}
+
+	Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr,strProgress.IsEmpty()?NULL:strProgress.CPtr());
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   preRedrawItem.Param.Param1=(void*)MsgStr;
+	preRedrawItem.Param.Param2=(LPVOID)(INT_PTR)Percent;
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
@@ -2255,8 +2275,6 @@ void Viewer::Search(int Next,int FirstChar)
       TruncStrFromEnd(strMsgStr, ObjWidth-18);
     InsertQuote(strMsgStr);
 
-    ViewerSearchMsg(strMsgStr);
-
     if (SearchHex)
     {
       Transform(strSearchStr,strSearchStr,L'S');
@@ -2307,6 +2325,9 @@ void Viewer::Search(int Next,int FirstChar)
       }
 
       int ReadSize;
+			TaskBar TB;
+			INT64 StartPos=vtell(ViewFile);
+			DWORD StartTime=GetTickCount();
       while (!Match)
       {
         /* $ 01.08.2000 KM
@@ -2321,15 +2342,22 @@ void Viewer::Search(int Next,int FirstChar)
 				if ((ReadSize=vread(Buf,BufSize,ViewFile,SearchHex!=0))<=0)
           break;
 
-        if(CheckForEscSilent())
-        {
-          if (ConfirmAbortOp())
-          {
-            Redraw ();
-            return;
-          }
-          ViewerSearchMsg(strMsgStr);
-        }
+				DWORD CurTime=GetTickCount();
+				if(CurTime-StartTime>500)
+				{
+					StartTime=CurTime;
+					if(CheckForEscSilent())
+					{
+						if (ConfirmAbortOp())
+						{
+							Redraw();
+							return;
+						}
+					}
+					INT64 Total=ReverseSearch?StartPos:FileSize-StartPos;
+					INT64 Current=_abs64(CurPos-StartPos);
+					ViewerSearchMsg(strMsgStr,static_cast<int>(Current*100/Total));
+				}
 
         /* $ 01.08.2000 KM
            Сделана сразу проверка на Case sensitive и Hex

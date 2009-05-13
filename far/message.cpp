@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"
+#include "TaskBar.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;
@@ -385,14 +386,20 @@ int Message(
       if ( !strHelpTopic.IsEmpty() )
         Dlg.SetHelp(strHelpTopic);
       Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
-      if (Flags & MSG_WARNING)
-        Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+			TaskBarError *TBE=NULL;
+			if(IsWarningStyle)
+			{
+				Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+				TBE=new TaskBarError;
+			}
       Dlg.SetDialogMode(DMODE_MSGINTERNAL);
       FlushInputBuffer();
       if(Flags & MSG_KILLSAVESCREEN)
         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
+			if(TBE)
+				delete TBE;
     }
     delete [] MsgDlg;
     xf_free(Str);
@@ -607,6 +614,7 @@ void SetMessageHelp(const wchar_t *Topic)
 */
 int AbortMessage()
 {
+	TaskBarPause TBP;
   int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
             MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
             MSG(MYes),MSG(MNo));

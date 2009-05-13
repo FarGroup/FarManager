@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
@@ -263,6 +264,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     FarChDir(L"\\");
 
   {
+		TaskBar TB;
     int Cancel=0;
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);

@@ -1,10 +1,9 @@
 /*
-sdkpatches.cpp
+TaskBar.hpp
 
-Типы и определения, отсутствующие в поддерживаемых SDK.
+Windows 7 taskbar support
 */
 /*
-Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
 All rights reserved.
 
@@ -31,12 +30,41 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
+class TaskBarCore
+{
+	bool CoInited;
+	TBPFLAG State;
+	ITaskbarList3* pTaskbarList;
+public:
+	TaskBarCore();
+	~TaskBarCore();
+	TBPFLAG GetProgressState();
+	void SetProgressState(TBPFLAG tbpFlags);
+	void SetProgressValue(UINT64 Completed, UINT64 Total);
+	void Flash();
+};
 
-#ifdef __GNUC__
+extern TaskBarCore TBC;
 
-const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
-const IID IID_ITaskbarList3                       = { 0xEA1AFB91, 0x9E28, 0x4B86, 0x90, 0xE9, 0x9E, 0x9F, 0x8A, 0x5E, 0xEF, 0xAF };
+class TaskBar
+{
+public:
+	TaskBar();
+	~TaskBar();
+};
 
-#endif
+class TaskBarPause
+{
+	TBPFLAG PrevState;
+public:
+	TaskBarPause();
+	~TaskBarPause();
+};
+
+class TaskBarError
+{
+	TBPFLAG PrevState;
+public:
+	TaskBarError();
+	~TaskBarError();
+};

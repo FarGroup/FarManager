@@ -452,4 +452,49 @@ IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
 
 #define FileStreamInformation 22
 
+#ifndef __ITaskbarList3_INTERFACE_DEFINED__
+#define __ITaskbarList3_INTERFACE_DEFINED__
+
+typedef enum TBPFLAG
+{
+	TBPF_NOPROGRESS    = 0,
+	TBPF_INDETERMINATE = 0x1,
+	TBPF_NORMAL        = 0x2,
+	TBPF_ERROR         = 0x4,
+	TBPF_PAUSED        = 0x8
+}
+TBPFLAG;
+
+typedef enum TBATFLAG
+{
+	TBATF_USEMDITHUMBNAIL   = 0x1,
+	TBATF_USEMDILIVEPREVIEW = 0x2
+}
+TBATFLAG;
+
+EXTERN_C const IID IID_ITaskbarList3;
+
+#ifdef __GNUC__
+DECLARE_INTERFACE_(ITaskbarList3,IUnknown) //BUGBUG, ITaskbarList2
+#else
+MIDL_INTERFACE("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf") ITaskbarList3 : public ITaskbarList2
+#endif
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE SetProgressValue(HWND hwnd,ULONGLONG ullCompleted,ULONGLONG ullTotal)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetProgressState(HWND hwnd,TBPFLAG tbpFlags)=0;
+	virtual HRESULT STDMETHODCALLTYPE RegisterTab(HWND hwndTab,HWND hwndMDI)=0;
+	virtual HRESULT STDMETHODCALLTYPE UnregisterTab(HWND hwndTab)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetTabOrder(HWND hwndTab,HWND hwndInsertBefore)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetTabActive(HWND hwndTab,HWND hwndMDI,TBATFLAG tbatFlags)=0;
+	virtual HRESULT STDMETHODCALLTYPE ThumbBarAddButtons(HWND hwnd,UINT cButtons,/*LPTHUMBBUTTON*/LPVOID pButton)=0;
+	virtual HRESULT STDMETHODCALLTYPE ThumbBarUpdateButtons(HWND hwnd,UINT cButtons,/*LPTHUMBBUTTON*/LPVOID pButton)=0;
+	virtual HRESULT STDMETHODCALLTYPE ThumbBarSetImageList(HWND hwnd,HIMAGELIST himl)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetOverlayIcon(HWND hwnd,HICON hIcon,LPCWSTR pszDescription)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetThumbnailTooltip(HWND hwnd,LPCWSTR pszTip)=0;
+	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
+};
+
+#endif // __ITaskbarList3_INTERFACE_DEFINED__
+
 #endif // __SDKPATCHES_HPP__

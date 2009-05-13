@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "localOEM.hpp"
 #include "gettable.hpp"
 #include "registry.hpp"
+#include "TaskBar.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74
@@ -132,6 +133,8 @@ static wchar_t *findString,*findStringBuffer;
 
 static size_t *skipCharsTable;
 static int favoriteCodePages = 0;
+
+TaskBar *TB=NULL;
 
 bool InFileSearchInited=false;
 
@@ -1081,6 +1084,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   Dialog* Dlg=(Dialog*)hDlg;
 	VMenu *ListBox=Dlg->Item[FD_LISTBOX]->ListPtr;
 
+	if(StopSearch && TB)
+	{
+		delete TB;
+		TB=NULL;
+	}
+
   CriticalSectionLock Lock(Dlg->CS);
 
   switch(Msg)
@@ -1688,6 +1697,7 @@ int FindFiles::FindFilesProcess()
   // иногда при поиске и первые элементы не добавл€ютс€
   Dlg.InitDialog();
   Dlg.Show();
+	TB=new TaskBar;
 
   LastFoundNumber=0;
   SearchDone=FALSE;

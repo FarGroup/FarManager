@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "TaskBar.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;
@@ -872,6 +873,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   int NeedDizUpdate=FALSE;
   int NeedUpdateAPanel=FALSE;
 
+	TaskBar TB;
   // ПОКА! принудительно выставим обновление.
   // В последствии этот флаг будет выставляться в ShellCopy::CheckUpdatePanel()
   ShellCopy::Flags|=FCOPY_UPDATEPPANEL;
@@ -3539,6 +3541,8 @@ static void GetTimeText(DWORD Time, string &strTimeText)
 //  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE
 int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
+	if(ShowTotalCopySize == TotalBar)
+		TBC.SetProgressValue(WrittenSize,TotalSize);
   // // _LOGCOPYR(CleverSysLog clv(L"ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog(L"WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   if (!ShowTotalCopySize || TotalBar)

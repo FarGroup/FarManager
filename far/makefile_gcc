@@ -112,6 +112,7 @@ SRCS = 	cddrv.cpp \
 	strmix.cpp \
 	syntax.cpp \
 	syslog.cpp \
+	TaskBar.cpp \
 	TPreRedrawFunc.cpp \
 	treelist.cpp \
 	tvar.cpp \

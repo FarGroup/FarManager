@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "gettable.hpp"
+#include "TaskBar.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,
@@ -1339,6 +1340,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
+	TaskBar TB;
 
 	int LastLineCR = 0;
 	EditorCacheParams cp;
@@ -1511,6 +1513,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT Codepage, bool AddSignature)
 {
+	TaskBar TB;
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
 
@@ -1744,7 +1747,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 			}
 		}
 
-		
 		DWORD StartTime=GetTickCount();
 		size_t LineNumber=0;
 		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next,LineNumber++)

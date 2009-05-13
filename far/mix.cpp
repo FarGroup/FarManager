@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "nsUniversalDetectorEx.h"
+#include "TaskBar.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
@@ -443,19 +444,23 @@ int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWOR
   return FALSE;
 }
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name)
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64 Size)
 {
-  Message(0,0,Title,MSG(MScanningFolder),Name);
+	string strSize;
+	FileSizeToStr(strSize,Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
+	RemoveLeadingSpaces(strSize);
+	Message(0,0,Title,MSG(MScanningFolder),Name,strSize);
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   preRedrawItem.Param.Param1=(void*)Title;
   preRedrawItem.Param.Param2=(void*)Name;
+	preRedrawItem.Param.Param3=reinterpret_cast<LPCVOID>(Size);
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 static void PR_DrawGetDirInfoMsg(void)
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2);
+	DrawGetDirInfoMsg((const wchar_t*)preRedrawItem.Param.Param1,(const wchar_t *)preRedrawItem.Param.Param2,reinterpret_cast<const UINT64>(preRedrawItem.Param.Param3));
 }
 
 int GetDirInfo(const wchar_t *Title,
@@ -478,10 +483,10 @@ int GetDirInfo(const wchar_t *Title,
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
   TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
+	TaskBar TB;
 
   ScanTree ScTree(FALSE,TRUE,(Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)));
   FAR_FIND_DATA_EX FindData;
-  int MsgOut=0;
   clock_t StartTime=clock();
 
   SetCursorType(FALSE,0);
@@ -546,12 +551,14 @@ int GetDirInfo(const wchar_t *Title,
       }
     }
 
-    if (!MsgOut && MsgWaitTime!=-1 && clock()-StartTime > MsgWaitTime)
+		clock_t CurTime=clock();
+    if (MsgWaitTime!=-1 && CurTime-StartTime > MsgWaitTime)
     {
+			StartTime=CurTime;
+			MsgWaitTime=500;
       OldTitle.Set(L"%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
-      DrawGetDirInfoMsg(Title,ShowDirName);
-      MsgOut=1;
+      DrawGetDirInfoMsg(Title,ShowDirName,FileSize);
     }
 
     if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
