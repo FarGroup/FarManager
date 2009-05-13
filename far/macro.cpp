@@ -267,6 +267,9 @@ TVarTable glbConstTable;
 static TVar __varTextDate;
 TVMStack VMStack;
 
+static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data);
+
+
 // функция преобразования кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 {
@@ -2135,7 +2138,7 @@ static bool msaveFunc()
     }
     case vtString:
     {
-      Ret=SetRegKey(L"KeyMacros\\Vars",strValueName,Result.toString());
+      Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
       break;
     }
   }
@@ -3614,7 +3617,7 @@ int KeyMacro::WriteVarsConst(int WriteMode)
           SetRegKey64(strUpKeyName,strValueName,var->value.i());
           break;
         case vtString:
-          SetRegKey(strUpKeyName,strValueName,var->value.s());
+          _RegWriteString(strUpKeyName,strValueName,var->value.s());
           break;
       }
 
@@ -5017,4 +5020,28 @@ BOOL KeyMacro::GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg
 bool KeyMacro::IsOpCode(DWORD p)
 {
   return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
+}
+
+static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data)
+{
+  LONG Ret=-1;
+  if(wcschr(Data,L'\n'))
+  {
+    int Len=StrLength(Data)+2;
+    wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
+    if(ptrSrc)
+    {
+      wcscpy(ptrSrc,Data);
+      for(int J=0; ptrSrc[J]; ++J)
+        if(ptrSrc[J] == L'\n')
+          ptrSrc[J]=0;
+      ptrSrc[Len-1]=0;
+      Ret=SetRegKey(Key,ValueName,ptrSrc,(DWORD)Len*sizeof(wchar_t),REG_MULTI_SZ);
+      xf_free(ptrSrc);
+    }
+  }
+  else
+    Ret=SetRegKey(Key,ValueName,Data);
+
+  return Ret;
 }
