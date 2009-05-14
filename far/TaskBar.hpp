@@ -1,3 +1,6 @@
+#ifndef __TASKBAR_HPP__
+#define __TASKBAR_HPP__
+
 /*
 TaskBar.hpp
 
@@ -68,3 +71,5 @@ public:
 	TaskBarError();
 	~TaskBarError();
 };
+
+#endif __TASKBAR_HPP__

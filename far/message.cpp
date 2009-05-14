@@ -386,11 +386,9 @@ int Message(
       if ( !strHelpTopic.IsEmpty() )
         Dlg.SetHelp(strHelpTopic);
       Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
-			TaskBarError *TBE=NULL;
 			if(IsWarningStyle)
 			{
 				Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
-				TBE=new TaskBarError;
 			}
       Dlg.SetDialogMode(DMODE_MSGINTERNAL);
       FlushInputBuffer();
@@ -398,8 +396,6 @@ int Message(
         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
-			if(TBE)
-				delete TBE;
     }
     delete [] MsgDlg;
     xf_free(Str);

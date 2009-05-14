@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "TaskBar.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 
@@ -4682,6 +4683,8 @@ void Dialog::Process()
 
   InitDialog();
 
+	TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:NULL;
+
   if(ExitCode == -1)
   {
     static LONG in_dialog = -1;
@@ -4706,6 +4709,10 @@ void Dialog::Process()
     for (unsigned i = 0; i < ItemCount; i++)
         DialogItemExToDialogItemEx (Item[i], &pSaveItemEx[i]);
 
+	if(TBE)
+	{
+		delete TBE;
+	}
 }
 
 void Dialog::CloseDialog()

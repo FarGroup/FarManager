@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "BlockExtKey.hpp"
 #include "registry.hpp"
 #include "plugapi.hpp"
+#include "TaskBar.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -477,6 +478,7 @@ Plugin *PluginManager::GetPlugin (const wchar_t *lpwszModuleName)
 
 void PluginManager::LoadPlugins()
 {
+	TaskBar TB;
   BlockExtKey blockExtKey;
   Flags.Clear(PSIF_PLUGINSLOADDED);
 
