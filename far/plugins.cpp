@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-
-
 #include "flink.hpp"
 #include "scantree.hpp"
 #include "chgprior.hpp"
@@ -550,34 +548,24 @@ void PluginManager::LoadPlugins()
 void PluginManager::LoadPluginsFromCache()
 {
   /*
-    [HKEY_CURRENT_USER\Software\Far\PluginsCache\Plugin0]
-    "Name"="C:\\PROGRAM FILES\\FAR\\Plugins\\ABOOK\\AddrBook.dll"
-    "ID"="e400a14def00a37ea900"
-    "DiskMenuString0"="Address Book"
-    "PluginMenuString0"="Address Book"
-    "PluginConfigString0"="Address Book"
-    "PluginConfigString1"="Address: E-Mail"
-    "PluginConfigString2"="Address: Birthday"
-    "PluginConfigString3"="Address: Phone number"
-    "PluginConfigString4"="Address: Fidonet"
-    "CommandPrefix"=""
-    "Flags"=dword:00000000
-
-    [HKEY_CURRENT_USER\Software\Far\PluginsCache\Plugin0\Exports]
-    "OpenPlugin"=dword:00000001
-    "OpenFilePlugin"=dword:00000000
-    "SetFindList"=dword:00000000
-    "ProcessEditorInput"=dword:00000000
-    "ProcessEditorEvent"=dword:00000000
+    [HKEY_CURRENT_USER\Software\Far2\PluginsCache\C:/PROGRAM FILES/FAR/Plugins/ABOOK/AddrBook.dll]
   */
-	string strRegKey;
 	string strModuleName;
 
 	int i = 0;
 
-	while ( EnumRegKey(RKN_PluginsCache, i, strRegKey) )
+	while ( EnumRegKey(RKN_PluginsCache, i, strModuleName) )
 	{
-		GetRegKey(strRegKey, L"Name", strModuleName, L"");
+		strModuleName.LShift(wcslen(RKN_PluginsCache)+1);
+
+		wchar_t *p = strModuleName.GetBuffer();
+		while (*p)
+		{
+			if (*p == L'/')
+				*p = L'\\';
+			p++;
+		}
+		strModuleName.ReleaseBuffer();
 
 		LoadPlugin (strModuleName);
 
