@@ -620,10 +620,7 @@ int _cdecl main(int Argc, char *Argv[])
     std::set_new_handler(0);
   #endif
 
-  /* $ 08.01.2003 SVS
-     BugZ#765 - Ключи командной строки парсятся неоднозначно.
-  */
-  if(Opt.LoadPlug.MainPluginDir)
+  if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
     Opt.LoadPlug.PluginsCacheOnly=FALSE;
 
   if(Opt.LoadPlug.PluginsCacheOnly)
