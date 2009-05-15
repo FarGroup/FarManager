@@ -51,7 +51,6 @@ struct PLUGINRECORD{      // информация о плагине
   DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
   DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
 
-  short CachePos;         // позиция в кеше
   DWORD SysID;
 
   const wchar_t *ModuleName;
