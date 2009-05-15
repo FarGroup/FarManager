@@ -147,7 +147,6 @@ PluginA::PluginA (
 		)
 {
 	m_hModule = NULL;
-	CachePos = 0;
 	//more initialization here!!!
 
 	m_owner = owner;
@@ -155,6 +154,16 @@ PluginA::PluginA (
 	RootKey = NULL;
 
 	m_strModuleName = lpwszModuleName;
+	m_strCacheName = lpwszModuleName;
+
+	wchar_t *p = m_strCacheName.GetBuffer();
+	while (*p)
+	{
+		if (*p == L'\\')
+			*p = L'/';
+		p++;
+	}
+	m_strCacheName.ReleaseBuffer();
 
 	ClearExports();
 
@@ -171,20 +180,35 @@ PluginA::~PluginA()
 }
 
 
-int PluginA::LoadFromCache (bool bCheckID)
+int PluginA::LoadFromCache (bool bCheckID, FAR_FIND_DATA_EX *FindData)
 {
 	string strRegKey;
 
-	int cp = GetCacheNumber(bCheckID);
+	strRegKey.Format (FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 
-	if ( cp != -1 )
+	if ( CheckRegKey(strRegKey) )
 	{
-		strRegKey.Format (FmtPluginsCache_PluginD, cp);
-
 		if ( GetRegKey(strRegKey,wszReg_Preload,0) == 1 ) //PF_PRELOAD plugin, skip cache
 			return Load ();
 
-		strRegKey.Format (FmtPluginsCache_PluginDExport,cp);
+		if ( bCheckID && FindData )
+		{
+			string strPluginID, strCurPluginID;
+
+			strCurPluginID.Format (
+					L"%I64x%x%x",
+					FindData->nFileSize,
+					FindData->ftCreationTime.dwLowDateTime,
+					FindData->ftLastWriteTime.dwLowDateTime
+					);
+
+			GetRegKey(strRegKey, L"ID", strPluginID, L"");
+
+			if ( StrCmp(strPluginID, strCurPluginID) != 0 ) //одинаковые ли бинарники?
+				return FALSE;
+		}
+
+		strRegKey += L"\\Exports";
 		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
 
 		pOpenPlugin=(PLUGINOPENPLUGIN)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
@@ -195,8 +219,6 @@ int PluginA::LoadFromCache (bool bCheckID)
 		pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessViewerEvent,0);
 		pProcessDialogEvent=(PLUGINPROCESSDIALOGEVENT)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessDialogEvent,0);
 		pConfigure=(PLUGINCONFIGURE)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
-
-		CachePos = cp;
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 
@@ -223,95 +245,83 @@ int PluginA::SaveToCache()
 
 		SysID = Info.SysID; //LAME!!!
 
-		int j = 0;
+		string strRegKey;
 
-		while ( true )
+		strRegKey.Format (FmtPluginsCache_PluginS, m_strCacheName.CPtr());
+
+		DeleteKeyTree(strRegKey);
+
 		{
-			string strRegKey, strPluginName, strCurPluginID;
+			bool bPreload = (Info.Flags & PF_PRELOAD);
 
-			strRegKey.Format (FmtPluginsCache_PluginD, j);
+			SetRegKey(strRegKey, wszReg_Preload, bPreload?1:0);
+			WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
-			GetRegKey(strRegKey, L"Name", strPluginName, L"");
-
-			if ( strPluginName.IsEmpty() || StrCmpI(strPluginName, m_strModuleName) == 0)
-			{
-				DeleteKeyTree(strRegKey);
-
-				SetRegKey(strRegKey, L"Name", m_strModuleName);
-
-				{
-					FAR_FIND_DATA_EX fdata;
-					apiGetFindDataEx(m_strModuleName, &fdata);
-
-					strCurPluginID.Format (
-							L"%I64x%x%x",
-							fdata.nFileSize,
-							fdata.ftCreationTime.dwLowDateTime,
-							fdata.ftLastWriteTime.dwLowDateTime
-							);
-				}
-
-				SetRegKey(strRegKey, L"ID", strCurPluginID);
-
-				bool bPreload = (Info.Flags & PF_PRELOAD);
-
-				SetRegKey(strRegKey, wszReg_Preload, bPreload?1:0);
-				WorkFlags.Change(PIWF_PRELOADED, bPreload);
-
-				if ( bPreload )
-					break;
-
-				for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
-				{
-					string strValue;
-
-					strValue.Format (FmtDiskMenuStringD, i);
-
-					SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
-
-					if ( Info.DiskMenuNumbers )
-					{
-						strValue.Format (FmtDiskMenuNumberD, i);
-						SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
-					}
-				}
-
-				for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
-				{
-					string strValue;
-
-					strValue.Format (FmtPluginMenuStringD, i);
-					SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
-				}
-
-				for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
-				{
-					string strValue;
-
-					strValue.Format (FmtPluginConfigStringD, i);
-					SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
-				}
-
-				SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
-				SetRegKey(strRegKey, L"Flags", Info.Flags);
-
-				strRegKey.Format (FmtPluginsCache_PluginDExport, j);
-
-				SetRegKey(strRegKey, wszReg_SysID, SysID);
-				SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPlugin!=NULL);
-				SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePlugin!=NULL);
-				SetRegKey(strRegKey, wszReg_SetFindList, pSetFindList!=NULL);
-				SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInput!=NULL);
-				SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEvent!=NULL);
-				SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEvent!=NULL);
-				SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEvent!=NULL);
-				SetRegKey(strRegKey, wszReg_Configure, pConfigure!=NULL);
-
-				break;
-			}
-
-			j++;
+			if ( bPreload )
+				return TRUE;
 		}
+
+		{
+			string strCurPluginID;
+			FAR_FIND_DATA_EX fdata;
+
+			apiGetFindDataEx(m_strModuleName, &fdata);
+
+			strCurPluginID.Format (
+					L"%I64x%x%x",
+					fdata.nFileSize,
+					fdata.ftCreationTime.dwLowDateTime,
+					fdata.ftLastWriteTime.dwLowDateTime
+					);
+
+			SetRegKey(strRegKey, L"ID", strCurPluginID);
+		}
+
+		for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
+		{
+			string strValue;
+
+			strValue.Format (FmtDiskMenuStringD, i);
+
+			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
+
+			if ( Info.DiskMenuNumbers )
+			{
+				strValue.Format (FmtDiskMenuNumberD, i);
+				SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
+			}
+		}
+
+		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
+		{
+			string strValue;
+
+			strValue.Format (FmtPluginMenuStringD, i);
+			SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
+		}
+
+		for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
+		{
+			string strValue;
+
+			strValue.Format (FmtPluginConfigStringD, i);
+			SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
+		}
+
+		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
+		SetRegKey(strRegKey, L"Flags", Info.Flags);
+
+		strRegKey += L"\\Exports";
+
+		SetRegKey(strRegKey, wszReg_SysID, SysID);
+		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPlugin!=NULL);
+		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePlugin!=NULL);
+		SetRegKey(strRegKey, wszReg_SetFindList, pSetFindList!=NULL);
+		SetRegKey(strRegKey, wszReg_ProcessEditorInput, pProcessEditorInput!=NULL);
+		SetRegKey(strRegKey, wszReg_ProcessEditorEvent, pProcessEditorEvent!=NULL);
+		SetRegKey(strRegKey, wszReg_ProcessViewerEvent, pProcessViewerEvent!=NULL);
+		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEvent!=NULL);
+		SetRegKey(strRegKey, wszReg_Configure, pConfigure!=NULL);
 
 		return TRUE;
 	}
@@ -413,23 +423,7 @@ int PluginA::Load()
 
 	FuncFlags.Set(PICFF_LOADED);
 
-	if ( SaveToCache () )
-	{
-		for (int I=0;;I++)
-		{
-			string strRegKey, strPluginName;
-			strRegKey.Format (FmtPluginsCache_PluginD,I);
-			GetRegKey(strRegKey,L"Name",strPluginName,L"");
-			if ( strPluginName.IsEmpty() )
-				break;
-			if (apiGetFileAttributes(strPluginName)==INVALID_FILE_ATTRIBUTES)
-			{
-				DeleteKeyRecord(FmtPluginsCache_PluginD,I);
-				I--;
-			}
-	  }
-	}
-
+	SaveToCache();
 
 	return TRUE;
 }
@@ -1553,52 +1547,6 @@ void PluginA::ExitFAR()
 		EXECUTE_FUNCTION(pExitFAR(), es);
 	}
 }
-
-int PluginA::GetCacheNumber (bool bCheckID)
-{
-	for (int i = -1 ;; i++)
-	{
-		if ( (i == -1) && (CachePos == 0) )
-			continue;
-
-		int Pos = (i == -1)?CachePos:i;
-
-		string strRegKey, strPluginName, strPluginID, strCurPluginID;
-
-		strRegKey.Format (FmtPluginsCache_PluginD, Pos);
-
-		GetRegKey(strRegKey, L"Name", strPluginName, L"");
-
-		if ( strPluginName.IsEmpty() )
-			break;
-
-		if ( StrCmpI(strPluginName, m_strModuleName) != 0 )
-			continue;
-
-		if ( bCheckID )
-		{
-			FAR_FIND_DATA_EX fdata;
-			apiGetFindDataEx(m_strModuleName, &fdata);
-
-			strCurPluginID.Format (
-					L"%I64x%x%x",
-					fdata.nFileSize,
-					fdata.ftCreationTime.dwLowDateTime,
-					fdata.ftLastWriteTime.dwLowDateTime
-					);
-
-			GetRegKey(strRegKey, L"ID", strPluginID, L"");
-
-			if ( StrCmp(strPluginID, strCurPluginID) != 0 ) //одинаковые ли бинарники?
-				continue;
-		}
-
-		return Pos;
-	}
-
-	return -1;
-}
-
 
 void PluginA::ClearExports()
 {

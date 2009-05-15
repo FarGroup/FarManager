@@ -107,7 +107,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
                                                 LPDWORD Result);
 
          ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
-         
+
          if (p)
          {
            static struct PluginStartupInfo LocalStartupInfo;
@@ -164,7 +164,6 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
              PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
              PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
              PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
-             PlugRec.CachePos=Module->GetCachePos();
            }
            Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
          }

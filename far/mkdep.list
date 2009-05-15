@@ -207,3 +207,5 @@ sdkpatches.cpp
 sdkpatches.hpp
 network.cpp
 network.hpp
+TaskBar.cpp
+TaskBar.hpp

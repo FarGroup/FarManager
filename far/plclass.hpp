@@ -41,13 +41,12 @@ public:
 	virtual bool IsOemPlugin() = 0;
 
 	virtual int Load() = 0;
-	virtual int LoadFromCache(bool bCheckID = false) = 0;
+	virtual int LoadFromCache(bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL) = 0;
 
 	virtual int SaveToCache () = 0;
 
 	virtual int Unload (bool bExitFAR = false) = 0;
 
-	virtual int GetCacheNumber (bool bCheckID = false) = 0;
 	virtual bool IsPanelPlugin () = 0;
 
 	virtual bool HasOpenPlugin() = 0;
@@ -79,8 +78,8 @@ public:
 	virtual bool HasProcessDialogEvent() = 0;
 
 	virtual const string &GetModuleName() = 0;
+	virtual const wchar_t *GetCacheName() = 0;
 	virtual DWORD GetSysID() = 0;
-	virtual int GetCachePos() = 0;
 	virtual bool CheckWorkFlags(DWORD flags) = 0;
 	virtual DWORD GetWorkFlags() = 0;
 	virtual DWORD GetFuncFlags() = 0;

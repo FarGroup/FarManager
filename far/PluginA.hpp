@@ -32,8 +32,6 @@ class PluginManager;
 
 #include "language.hpp"
 #include "bitflags.hpp"
-
-
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "pluginold.hpp"
@@ -74,6 +72,7 @@ private:
 	PluginManager *m_owner; //BUGBUG
 
 	string m_strModuleName;
+	string m_strCacheName;
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
 	BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
@@ -89,7 +88,6 @@ private:
   */
 	DWORD SysID;
 
-	int CachePos;
 	string strRootKey;
 	char *RootKey;
 
@@ -134,13 +132,12 @@ public:
 	bool IsOemPlugin() {return true;}
 
 	int Load();
-	int LoadFromCache(bool bCheckID = false);
+	int LoadFromCache(bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL);
 
 	int SaveToCache ();
 
 	int Unload (bool bExitFAR = false);
 
-	int GetCacheNumber (bool bCheckID = false);
 	bool IsPanelPlugin ();
 
 	bool HasOpenPlugin() { return pOpenPlugin!=NULL; }
@@ -172,8 +169,8 @@ public:
 	bool HasProcessDialogEvent() { return pProcessDialogEvent!=NULL; }
 
 	const string &GetModuleName() { return m_strModuleName; }
+	const wchar_t *GetCacheName() { return m_strCacheName; }
 	DWORD GetSysID() { return SysID; }
-	int GetCachePos() { return CachePos; }
 	bool CheckWorkFlags(DWORD flags) { return WorkFlags.Check(flags)==TRUE; }
 	DWORD GetWorkFlags() { return WorkFlags.Flags; }
 	DWORD GetFuncFlags() { return FuncFlags.Flags; }

@@ -65,9 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable:4509)
 #endif
 
-
-const wchar_t *FmtPluginsCache_PluginD=L"PluginsCache\\Plugin%d";
-const wchar_t *FmtPluginsCache_PluginDExport=L"PluginsCache\\Plugin%d\\Exports";
+const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
 const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d";
 const wchar_t *FmtPluginMenuStringD=L"PluginMenuString%d";
@@ -347,7 +345,8 @@ int PluginManager::RemovePlugin (Plugin *pPlugin)
 
 int PluginManager::LoadPlugin (
 		const wchar_t *lpwszModuleName,
-		bool bCheckID
+		bool bCheckID,
+		FAR_FIND_DATA_EX *FindData
 		)
 {
 	Plugin *pPlugin = GetPlugin (lpwszModuleName);
@@ -369,7 +368,7 @@ int PluginManager::LoadPlugin (
 		AddPlugin (pPlugin);
 	}
 
-	BOOL bResult = pPlugin->LoadFromCache(bCheckID);
+	BOOL bResult = pPlugin->LoadFromCache(bCheckID, FindData);
 
 	if ( !bResult && !Opt.LoadPlug.PluginsCacheOnly )
 	{
@@ -457,19 +456,13 @@ int PluginManager::UnloadPluginExternal (const wchar_t *lpwszModuleName)
 
 Plugin *PluginManager::GetPlugin (const wchar_t *lpwszModuleName)
 {
-	string strFileName1, strFileName2;
-
-	ConvertNameToShort (lpwszModuleName, strFileName1);
-
 	Plugin *pPlugin;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 
-		ConvertNameToShort (pPlugin->GetModuleName(), strFileName2);
-
-		if ( !StrCmpI (strFileName1, strFileName2) )
+		if ( !StrCmpI (lpwszModuleName, pPlugin->GetModuleName()) )
 			return pPlugin;
 	}
 
@@ -543,7 +536,7 @@ void PluginManager::LoadPlugins()
              (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0
            )
         {
-          LoadPlugin (strFullName, true);
+          LoadPlugin (strFullName, true, &FindData);
         }
       } // end while
     }
@@ -1146,41 +1139,37 @@ void PluginManager::Configure(int StartPos)
           if (pPlugin->CheckWorkFlags(PIWF_CACHED))
           {
             string strRegKey, strValue;
-            int RegNumber=pPlugin->GetCacheNumber();
-            if (RegNumber==-1)
-              continue;
-            else
-              for (J=0;;J++)
-              {
-                strHotKey=L"";
-                if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                  GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
-                MenuItemEx ListItem;
-                ListItem.Clear ();
-								if(pPlugin->IsOemPlugin())
-									ListItem.Flags=LIF_CHECKED|L'A';
-                strRegKey.Format (FmtPluginsCache_PluginD,RegNumber);
-                strValue.Format (FmtPluginConfigStringD,J);
-                string strName;
-                if ( !GetRegKey(strRegKey,strValue,strName,L"") )
-                  break;
-                if (!HotKeysPresent)
-                  ListItem.strName = strName;
-                else
-                  if ( !strHotKey.IsEmpty() )
-                    ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
-                  else
-                    ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-                //ListItem.SetSelect(MenuItemNumber++ == StartPos);
-                MenuItemNumber++;
+						strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+						for (J=0;;J++)
+						{
+							strHotKey=L"";
+							if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
+								GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
+							MenuItemEx ListItem;
+							ListItem.Clear ();
+							if(pPlugin->IsOemPlugin())
+								ListItem.Flags=LIF_CHECKED|L'A';
+							strValue.Format (FmtPluginConfigStringD,J);
+							string strName;
+							if ( !GetRegKey(strRegKey,strValue,strName,L"") )
+								break;
+							if (!HotKeysPresent)
+								ListItem.strName = strName;
+							else
+								if ( !strHotKey.IsEmpty() )
+									ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
+								else
+									ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
+							//ListItem.SetSelect(MenuItemNumber++ == StartPos);
+							MenuItemNumber++;
 
-                PluginMenuItemData item;
+							PluginMenuItemData item;
 
-                item.pPlugin = pPlugin;
-                item.nItem = J;
+							item.pPlugin = pPlugin;
+							item.nItem = J;
 
-                PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
-              }
+							PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						}
           }
           else
           {
@@ -1342,49 +1331,47 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
           if (pPlugin->CheckWorkFlags(PIWF_CACHED))
           {
             string strRegKey, strValue;
-            int RegNumber=pPlugin->GetCacheNumber();
-            if (RegNumber==-1)
-              continue;
-            else
-            {
-              strRegKey.Format (FmtPluginsCache_PluginD,RegNumber);
-              int IFlags=GetRegKey(strRegKey,L"Flags",0);
-              if ((Editor && (IFlags & PF_EDITOR)==0) ||
-                (Viewer && (IFlags & PF_VIEWER)==0) ||
-                (Dialog && (IFlags & PF_DIALOG)==0) ||
-                (!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
-                continue;
-              for (int J=0;;J++)
-              {
-                strHotKey=L"";
-                if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                  GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
-                MenuItemEx ListItem;
-                ListItem.Clear();
-								if(pPlugin->IsOemPlugin())
-									ListItem.Flags=LIF_CHECKED|L'A';
-                strValue.Format (FmtPluginMenuStringD,J);
-                string strName;
-                if ( !GetRegKey(strRegKey,strValue,strName,L"") )
-                  break;
-                if (!HotKeysPresent)
-                  ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
-                else
-                  if ( !strHotKey.IsEmpty() )
-                    ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""),(const wchar_t*)strName);
-                  else
-                    ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-                  //ListItem.SetSelect(MenuItemNumber++ == StartPos);
-                  MenuItemNumber++;
+						strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+						int IFlags=GetRegKey(strRegKey,L"Flags",0);
+						if ((Editor && (IFlags & PF_EDITOR)==0) ||
+								(Viewer && (IFlags & PF_VIEWER)==0) ||
+								(Dialog && (IFlags & PF_DIALOG)==0) ||
+								(!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
+							continue;
+						for (int J=0;;J++)
+						{
+							strHotKey=L"";
+							if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
+								GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
+							MenuItemEx ListItem;
+							ListItem.Clear();
+							if(pPlugin->IsOemPlugin())
+								ListItem.Flags=LIF_CHECKED|L'A';
+							strValue.Format (FmtPluginMenuStringD,J);
+							string strName;
+							if ( !GetRegKey(strRegKey,strValue,strName,L"") )
+								break;
+							if (!HotKeysPresent)
+							{
+								ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
+							}
+							else
+							{
+								if ( !strHotKey.IsEmpty() )
+									ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""),(const wchar_t*)strName);
+								else
+									ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
+							}
+							//ListItem.SetSelect(MenuItemNumber++ == StartPos);
+							MenuItemNumber++;
 
-                  PluginMenuItemData item;
+							PluginMenuItemData item;
 
-                  item.pPlugin = pPlugin;
-                  item.nItem = J;
+							item.pPlugin = pPlugin;
+							item.nItem = J;
 
-                  PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
-              }
-            }
+							PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						}
           }
           else
           {
@@ -1659,40 +1646,36 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
 int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
                 int &ItemPresent,int &PluginTextNumber,string &strPluginText)
 {
-  LoadIfCacheAbsent();
+	LoadIfCacheAbsent();
 
-  if (pPlugin->CheckWorkFlags(PIWF_CACHED))
-  {
-    string strRegKey, strValue;
-    int RegNumber=pPlugin->GetCacheNumber();
-    if (RegNumber==-1)
-      ItemPresent=0;
-    else
-    {
-      strRegKey.Format (FmtPluginsCache_PluginD,RegNumber);
-      strValue.Format (FmtDiskMenuStringD,PluginItem);
-      GetRegKey(strRegKey,strValue,strPluginText,L"");
-      strValue.Format (FmtDiskMenuNumberD,PluginItem);
-      GetRegKey(strRegKey,strValue,PluginTextNumber,0);
-      ItemPresent=!strPluginText.IsEmpty();
-    }
-    return(TRUE);
-  }
+	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
+	{
+		string strRegKey, strValue;
+		strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+		strValue.Format (FmtDiskMenuStringD,PluginItem);
+		GetRegKey(strRegKey,strValue,strPluginText,L"");
+		strValue.Format (FmtDiskMenuNumberD,PluginItem);
+		GetRegKey(strRegKey,strValue,PluginTextNumber,0);
+		ItemPresent=!strPluginText.IsEmpty();
+		return(TRUE);
+	}
 
-  PluginInfo Info;
-  if (!GetPluginInfo(pPlugin,&Info) || Info.DiskMenuStringsNumber <= PluginItem)
-    ItemPresent=FALSE;
-  else
-  {
-    if (Info.DiskMenuNumbers)
-      PluginTextNumber=Info.DiskMenuNumbers[PluginItem];
-    else
-      PluginTextNumber=0;
-    strPluginText = Info.DiskMenuStrings[PluginItem];
+	PluginInfo Info;
+	if (!GetPluginInfo(pPlugin,&Info) || Info.DiskMenuStringsNumber <= PluginItem)
+	{
+		ItemPresent=FALSE;
+	}
+	else
+	{
+		if (Info.DiskMenuNumbers)
+			PluginTextNumber=Info.DiskMenuNumbers[PluginItem];
+		else
+			PluginTextNumber=0;
+		strPluginText = Info.DiskMenuStrings[PluginItem];
 
-    ItemPresent=TRUE;
-  }
-  return(TRUE);
+		ItemPresent=TRUE;
+	}
+	return(TRUE);
 }
 
 int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
@@ -1794,16 +1777,10 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
     PData = PluginsData[I];
     if (PData->CheckWorkFlags(PIWF_CACHED))
     {
-      int RegNumber=PData->GetCacheNumber();
-      if (RegNumber!=-1)
-      {
-        string strRegKey;
-        strRegKey.Format (FmtPluginsCache_PluginD, RegNumber);
-        GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
-        PluginFlags=GetRegKey(strRegKey,L"Flags",0);
-      }
-      else
-        continue;
+			string strRegKey;
+			strRegKey.Format (FmtPluginsCache_PluginS, PData->GetCacheName());
+			GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
+			PluginFlags=GetRegKey(strRegKey,L"Flags",0);
     }
     else
     {

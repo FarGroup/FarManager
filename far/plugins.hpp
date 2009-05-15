@@ -42,8 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "PluginW.hpp"
 
-extern const wchar_t *FmtPluginsCache_PluginD;
-extern const wchar_t *FmtPluginsCache_PluginDExport;
+extern const wchar_t *FmtPluginsCache_PluginS;
 extern const wchar_t *FmtDiskMenuStringD;
 extern const wchar_t *FmtDiskMenuNumberD;
 extern const wchar_t *FmtPluginMenuStringD;
@@ -152,7 +151,7 @@ public:
 
 public:
 
-	int LoadPlugin (const wchar_t *lpwszModuleName, bool bCheckID = false);
+	int LoadPlugin (const wchar_t *lpwszModuleName, bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL);
 	int UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemove = false);
 	int UnloadPluginExternal (const wchar_t *lpwszModuleName);
 
