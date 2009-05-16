@@ -1,6 +1,21 @@
+#The following variables can be set by the user:
+#
+#DEBUG - set if a debug build is needed
+#
+
+ifndef DEBUG
+DIRNAME=Release
+DEBUGCFLAGS=
+DEBUGLINKFLAGS=-s
+else
+DIRNAME=Debug
+DEBUGCFLAGS=-g
+DEBUGLINKFLAGS=
+endif                   
+
 DIRBIT = 32
-OBJDIR = ./Release.$(DIRBIT).gcc/obj
-EXEDIR = ./Release.$(DIRBIT).gcc
+OBJDIR = ./$(DIRNAME).$(DIRBIT).gcc/obj
+EXEDIR = ./$(DIRNAME).$(DIRBIT).gcc
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)/$(EXENAME)
 FARINCLUDE = ./Include
@@ -167,9 +182,9 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES = windres -D__FARBIT__=$(DIRBIT)
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
-CCFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch -Wno-strict-aliasing
-CFLAGS = -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
-LNKFLAGS = -mno-cygwin -s -lmpr -lwinspool -lole32
+CCFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch -Wno-strict-aliasing
+CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
+LNKFLAGS = -mno-cygwin $(DEBUGLINKFLAGS) -lmpr -lwinspool -lole32
 
 .PHONY: all
 all: dirs lng depfile
