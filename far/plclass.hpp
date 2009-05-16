@@ -40,10 +40,10 @@ public:
 
 	virtual bool IsOemPlugin() = 0;
 
-	virtual int Load() = 0;
-	virtual int LoadFromCache(bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL) = 0;
+	virtual bool Load() = 0;
+	virtual bool LoadFromCache(const FAR_FIND_DATA_EX &FindData) = 0;
 
-	virtual int SaveToCache () = 0;
+	virtual bool SaveToCache () = 0;
 
 	virtual int Unload (bool bExitFAR = false) = 0;
 
@@ -84,11 +84,11 @@ public:
 	virtual DWORD GetWorkFlags() = 0;
 	virtual DWORD GetFuncFlags() = 0;
 
-	virtual int InitLang(const wchar_t *Path) = 0;
+	virtual bool InitLang(const wchar_t *Path) = 0;
 	virtual void CloseLang() = 0;
 
-	virtual int SetStartupInfo (bool &bUnloaded) = 0;
-	virtual int CheckMinFarVersion (bool &bUnloaded) = 0;
+	virtual bool SetStartupInfo (bool &bUnloaded) = 0;
+	virtual bool CheckMinFarVersion (bool &bUnloaded) = 0;
 
 	virtual HANDLE OpenPlugin (int OpenFrom, INT_PTR Item) = 0;
 	virtual HANDLE OpenFilePlugin (const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode) = 0;

@@ -280,7 +280,7 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const 
 
 static string &MkKeyName(const wchar_t *Key, string &strDest)
 {
-	int len = Opt.strRegRoot.GetLength();
+	int len = (int)Opt.strRegRoot.GetLength();
 	int len2 = StrLength(Key);
 	wchar_t *p = strDest.GetBuffer(len + len2 + 2);
 

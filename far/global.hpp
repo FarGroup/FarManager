@@ -86,7 +86,7 @@ extern const DWORD FAR_VERSION;
 
 extern wchar_t RegColorsHighlight[];
 
-extern BOOL LanguageLoaded;
+extern bool LanguageLoaded;
 
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;

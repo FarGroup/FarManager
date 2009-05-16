@@ -188,7 +188,7 @@ PluginW::~PluginW()
 }
 
 
-int PluginW::LoadFromCache (bool bCheckID, FAR_FIND_DATA_EX *FindData)
+bool PluginW::LoadFromCache (const FAR_FIND_DATA_EX &FindData)
 {
 	string strRegKey;
 
@@ -199,21 +199,20 @@ int PluginW::LoadFromCache (bool bCheckID, FAR_FIND_DATA_EX *FindData)
 		if ( GetRegKey(strRegKey,wszReg_Preload,0) == 1 ) //PF_PRELOAD plugin, skip cache
 			return Load ();
 
-		if ( bCheckID && FindData )
 		{
 			string strPluginID, strCurPluginID;
 
 			strCurPluginID.Format (
 					L"%I64x%x%x",
-					FindData->nFileSize,
-					FindData->ftCreationTime.dwLowDateTime,
-					FindData->ftLastWriteTime.dwLowDateTime
+					FindData.nFileSize,
+					FindData.ftCreationTime.dwLowDateTime,
+					FindData.ftLastWriteTime.dwLowDateTime
 					);
 
 			GetRegKey(strRegKey, L"ID", strPluginID, L"");
 
 			if ( StrCmp(strPluginID, strCurPluginID) != 0 ) //одинаковые ли бинарники?
-				return FALSE;
+				return false;
 		}
 
 		strRegKey += L"\\Exports";
@@ -230,13 +229,13 @@ int PluginW::LoadFromCache (bool bCheckID, FAR_FIND_DATA_EX *FindData)
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int PluginW::SaveToCache()
+bool PluginW::SaveToCache()
 {
 	if ( pGetPluginInfoW ||
 		 pOpenPluginW ||
@@ -266,7 +265,7 @@ int PluginW::SaveToCache()
 			WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
 			if ( bPreload )
-				return TRUE;
+				return true;
 		}
 
 		{
@@ -330,19 +329,19 @@ int PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=NULL);
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int PluginW::Load()
+bool PluginW::Load()
 {
 	if ( WorkFlags.Check(PIWF_DONTLOADAGAIN) )
-		return (FALSE);
+		return false;
 
 	if ( m_hModule )
-		return TRUE; //BUGBUG
+		return true; //BUGBUG
 
 	DWORD LstErr;
 
@@ -385,7 +384,7 @@ int PluginW::Load()
 
 		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
 
-		return FALSE;
+		return false;
 	}
 
 	WorkFlags.Clear(PIWF_CACHED);
@@ -425,14 +424,14 @@ int PluginW::Load()
 		if ( !bUnloaded )
 			Unload();
 
-		return FALSE;
+		return false;
 	}
 
 	FuncFlags.Set(PICFF_LOADED);
 
 	SaveToCache();
 
-	return TRUE;
+	return true;
 }
 
 void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
@@ -601,7 +600,7 @@ struct ExecuteStruct {
 
 
 
-int PluginW::SetStartupInfo (bool &bUnloaded)
+bool PluginW::SetStartupInfo (bool &bUnloaded)
 {
 	if ( pSetStartupInfoW && !ProcessException )
 	{
@@ -624,11 +623,11 @@ int PluginW::SetStartupInfo (bool &bUnloaded)
 		if ( es.bUnloaded )
 		{
 			bUnloaded = true;
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
@@ -644,7 +643,7 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 }
 
 
-int PluginW::CheckMinFarVersion (bool &bUnloaded)
+bool PluginW::CheckMinFarVersion (bool &bUnloaded)
 {
 	if ( pMinFarVersionW && !ProcessException )
 	{
@@ -658,7 +657,7 @@ int PluginW::CheckMinFarVersion (bool &bUnloaded)
 		if ( es.bUnloaded )
 		{
 			bUnloaded = true;
-			return FALSE;
+			return false;
 		}
 
 		DWORD FVer = (DWORD)es.nResult;
@@ -668,11 +667,11 @@ int PluginW::CheckMinFarVersion (bool &bUnloaded)
 			HIWORD(FVer) >  HIWORD(FAR_VERSION)) )
 		{
 			ShowMessageAboutIllegalPluginVersion(m_strModuleName,FVer);
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 int PluginW::Unload (bool bExitFAR)

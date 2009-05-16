@@ -55,7 +55,7 @@ class Language
 
   private:
     void ConvertString(const wchar_t *Src,string &strDest);
-    BOOL CheckMsgId(int MsgId);
+    bool CheckMsgId(int MsgId);
     void Free();
 
   public:
@@ -63,7 +63,7 @@ class Language
     ~Language();
 
   public:
-    int Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
+    bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
     void Close();
 
     const wchar_t* GetMsg (int nID);

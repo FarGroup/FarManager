@@ -159,16 +159,16 @@ BOOL apiMoveFileEx (
 
 BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 {
-  string strTemp;
-  BOOL rc = FALSE;
+	string strTemp;
+	BOOL rc = FALSE;
 
-  if ( FarMkTempEx(strTemp, NULL, FALSE) )
-  {
-      if ( apiMoveFile (Src, strTemp) )
-          rc = apiMoveFile (strTemp, Dest);
-  }
+	if ( FarMkTempEx(strTemp, NULL, FALSE) )
+	{
+		if ( apiMoveFile (Src, strTemp) )
+			rc = apiMoveFile (strTemp, Dest);
+	}
 
-  return rc;
+	return rc;
 }
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
@@ -313,27 +313,27 @@ BOOL apiGetVolumeInformation (
         string *pFileSystemName
         )
 {
-    wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer (MAX_PATH+1):NULL; //MSDN!
-    wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer (MAX_PATH+1):NULL;
+	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer (MAX_PATH+1):NULL; //MSDN!
+	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer (MAX_PATH+1):NULL;
 
-    BOOL bResult = GetVolumeInformationW (
-            lpwszRootPathName,
-            lpwszVolumeName,
-            lpwszVolumeName?MAX_PATH:0,
-            lpVolumeSerialNumber,
-            lpMaximumComponentLength,
-            lpFileSystemFlags,
-            lpwszFileSystemName,
-            lpwszFileSystemName?MAX_PATH:0
-            );
+	BOOL bResult = GetVolumeInformationW (
+					lpwszRootPathName,
+					lpwszVolumeName,
+					lpwszVolumeName?MAX_PATH:0,
+					lpVolumeSerialNumber,
+					lpMaximumComponentLength,
+					lpFileSystemFlags,
+					lpwszFileSystemName,
+					lpwszFileSystemName?MAX_PATH:0
+					);
 
-    if ( lpwszVolumeName )
-        pVolumeName->ReleaseBuffer ();
+	if ( lpwszVolumeName )
+		pVolumeName->ReleaseBuffer ();
 
-    if ( lpwszFileSystemName )
-        pFileSystemName->ReleaseBuffer ();
+	if ( lpwszFileSystemName )
+		pFileSystemName->ReleaseBuffer ();
 
-    return bResult;
+	return bResult;
 }
 
 HANDLE apiFindFirstFile (
@@ -342,54 +342,54 @@ HANDLE apiFindFirstFile (
         bool ScanSymLink
         )
 {
-    WIN32_FIND_DATAW fdata;
-		string strName;
-		strName=NTPath(lpwszFileName);
-		HANDLE hResult = FindFirstFileW (strName, &fdata);
+	WIN32_FIND_DATAW fdata;
+	string strName;
+	strName=NTPath(lpwszFileName);
+	HANDLE hResult = FindFirstFileW (strName, &fdata);
 
-		if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
-		{
-			ConvertNameToReal(strName,strName);
-			strName=NTPath(strName);
-			hResult=FindFirstFileW(strName,&fdata);
-		}
+	if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
+	{
+		ConvertNameToReal(strName,strName);
+		strName=NTPath(strName);
+		hResult=FindFirstFileW(strName,&fdata);
+	}
 
-    if ( hResult != INVALID_HANDLE_VALUE )
-    {
-				pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
-        pFindFileData->ftCreationTime = fdata.ftCreationTime;
-        pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
-        pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-        pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
-        pFindFileData->dwReserved0 = fdata.dwReserved0;
-        pFindFileData->dwReserved1 = fdata.dwReserved1;
-        pFindFileData->strFileName = fdata.cFileName;
-        pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
-    }
+	if ( hResult != INVALID_HANDLE_VALUE )
+	{
+		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+		pFindFileData->ftCreationTime = fdata.ftCreationTime;
+		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
+		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
+		pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
+		pFindFileData->dwReserved0 = fdata.dwReserved0;
+		pFindFileData->dwReserved1 = fdata.dwReserved1;
+		pFindFileData->strFileName = fdata.cFileName;
+		pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
+	}
 
-    return hResult;
+	return hResult;
 }
 
 BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 {
-    WIN32_FIND_DATAW fdata;
+	WIN32_FIND_DATAW fdata;
 
-    BOOL bResult = FindNextFileW (hFindFile, &fdata);
+	BOOL bResult = FindNextFileW (hFindFile, &fdata);
 
-    if ( bResult )
-    {
-				pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
-        pFindFileData->ftCreationTime = fdata.ftCreationTime;
-        pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
-        pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-        pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
-        pFindFileData->dwReserved0 = fdata.dwReserved0;
-        pFindFileData->dwReserved1 = fdata.dwReserved1;
-        pFindFileData->strFileName = fdata.cFileName;
-        pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
-    }
+	if ( bResult )
+	{
+		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
+		pFindFileData->ftCreationTime = fdata.ftCreationTime;
+		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
+		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
+		pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
+		pFindFileData->dwReserved0 = fdata.dwReserved0;
+		pFindFileData->dwReserved1 = fdata.dwReserved1;
+		pFindFileData->strFileName = fdata.cFileName;
+		pFindFileData->strAlternateFileName = fdata.cAlternateFileName;
+	}
 
-    return bResult;
+	return bResult;
 }
 
 BOOL apiFindClose(HANDLE hFindFile)
@@ -399,44 +399,44 @@ BOOL apiFindClose(HANDLE hFindFile)
 
 void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 {
-    pDest->dwFileAttributes = pSrc->dwFileAttributes;
-    pDest->ftCreationTime = pSrc->ftCreationTime;
-    pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
-    pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
-    pDest->nFileSize = pSrc->nFileSize;
-    pDest->nPackSize = pSrc->nPackSize;
-    pDest->strFileName = pSrc->lpwszFileName;
-    pDest->strAlternateFileName = pSrc->lpwszAlternateFileName;
+	pDest->dwFileAttributes = pSrc->dwFileAttributes;
+	pDest->ftCreationTime = pSrc->ftCreationTime;
+	pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
+	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
+	pDest->nFileSize = pSrc->nFileSize;
+	pDest->nPackSize = pSrc->nPackSize;
+	pDest->strFileName = pSrc->lpwszFileName;
+	pDest->strAlternateFileName = pSrc->lpwszAlternateFileName;
 }
 
 void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
 {
-    pDest->dwFileAttributes = pSrc->dwFileAttributes;
-    pDest->ftCreationTime = pSrc->ftCreationTime;
-    pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
-    pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
-    pDest->nFileSize = pSrc->nFileSize;
-    pDest->nPackSize = pSrc->nPackSize;
-    pDest->lpwszFileName = xf_wcsdup (pSrc->strFileName);
-    pDest->lpwszAlternateFileName = xf_wcsdup (pSrc->strAlternateFileName);
+	pDest->dwFileAttributes = pSrc->dwFileAttributes;
+	pDest->ftCreationTime = pSrc->ftCreationTime;
+	pDest->ftLastAccessTime = pSrc->ftLastAccessTime;
+	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
+	pDest->nFileSize = pSrc->nFileSize;
+	pDest->nPackSize = pSrc->nPackSize;
+	pDest->lpwszFileName = xf_wcsdup (pSrc->strFileName);
+	pDest->lpwszAlternateFileName = xf_wcsdup (pSrc->strAlternateFileName);
 }
 
 void apiFreeFindData (FAR_FIND_DATA *pData)
 {
-    xf_free (pData->lpwszFileName);
-    xf_free (pData->lpwszAlternateFileName);
+	xf_free (pData->lpwszFileName);
+	xf_free (pData->lpwszAlternateFileName);
 }
 
 BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink)
 {
-    HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData,ScanSymLink);
+	HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData,ScanSymLink);
 
-    if ( hSearch != INVALID_HANDLE_VALUE )
-    {
-        apiFindClose (hSearch);
-        return TRUE;
-    }
-    else
+	if ( hSearch != INVALID_HANDLE_VALUE )
+	{
+		apiFindClose (hSearch);
+		return TRUE;
+	}
+	else
 	{
 		DWORD dwAttr=apiGetFileAttributes(lpwszFileName);
 		if(dwAttr!=INVALID_FILE_ATTRIBUTES)
@@ -474,7 +474,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 		pFindData->Clear();
 		pFindData->dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 	}
-    return FALSE;
+	return FALSE;
 }
 
 BOOL apiGetFileSizeEx(HANDLE hFile, unsigned __int64 *pSize)

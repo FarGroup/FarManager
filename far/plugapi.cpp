@@ -2159,7 +2159,7 @@ int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR P
 					string strPath;
 					ConvertNameToFull((const wchar_t *)Param2, strPath);
 					if (Command == PCTL_LOADPLUGIN)
-						return CtrlObject->Plugins.LoadPlugin(strPath, true);
+						return CtrlObject->Plugins.LoadPluginExternal(strPath);
 					else
 						return CtrlObject->Plugins.UnloadPluginExternal(strPath);
 				}

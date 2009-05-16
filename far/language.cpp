@@ -70,10 +70,10 @@ Language::Language()
 }
 
 
-int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
+bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 {
   if (MsgList!=NULL || MsgListA!=NULL)
-    return(TRUE);
+    return true;
 
   int LastError=GetLastError();
 
@@ -86,7 +86,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
     Opt.strLanguage=strLangName;
 
   if (LangFile==NULL)
-    return(FALSE);
+    return false;
 
   wchar_t ReadStr[1024];
   memset (&ReadStr, 0, sizeof (ReadStr));
@@ -111,7 +111,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			if ( (MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof (wchar_t)))==NULL )
 			{
 				fclose(LangFile);
-				return FALSE;
+				return false;
 			}
 
     	*(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
@@ -122,7 +122,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			if ( (MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof (char))) == NULL )
 			{
 				fclose(LangFile);
-				return FALSE;
+				return false;
 			}
 
 	    *(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
@@ -137,7 +137,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
   if(CountNeed != -1 && CountNeed != MsgCount-1)
   {
     fclose(LangFile);
-    return(FALSE);
+    return false;
   }
 
   if (m_bUnicode)
@@ -149,7 +149,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 		if ( MsgAddr == NULL )
 		{
 			fclose(LangFile);
-			return(FALSE);
+			return false;
 		}
 
 		for (int I=0;I<MsgCount;I++)
@@ -169,7 +169,7 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			delete[] MsgAddr;
 			MsgAddr=NULL;
 			fclose(LangFile);
-			return FALSE;
+			return false;
 		}
 
 		for (int I=0;I<MsgCount;I++)
@@ -183,8 +183,8 @@ int Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
   SetLastError(LastError);
   if (this == &Lang)
     OldLang.Free();
-  LanguageLoaded=TRUE;
-  return(TRUE);
+  LanguageLoaded=true;
+  return true;
 }
 
 Language::~Language()
@@ -229,7 +229,7 @@ void Language::Close()
   MsgCount=0;
   MsgSize=0;
   m_bUnicode = true;
-  LanguageLoaded=FALSE;
+  LanguageLoaded=false;
 }
 
 
@@ -286,7 +286,7 @@ void Language::ConvertString(const wchar_t *Src,string &strDest)
   strDest.ReleaseBuffer();
 }
 
-BOOL Language::CheckMsgId(int MsgId)
+bool Language::CheckMsgId(int MsgId)
 {
   /* $ 19.03.2002 DJ
      при отрицательном индексе - также покажем сообщение об ошибке
@@ -295,7 +295,7 @@ BOOL Language::CheckMsgId(int MsgId)
   if (MsgId>=MsgCount || MsgId < 0)
   {
     if(this == &Lang && !LanguageLoaded && this != &OldLang && OldLang.CheckMsgId(MsgId))
-      return TRUE;
+      return true;
 
     /* $ 26.03.2002 DJ
        если менеджер уже в дауне - сообщение не выводим
@@ -315,9 +315,9 @@ BOOL Language::CheckMsgId(int MsgId)
         exit(0);
     }
 
-    return FALSE;
+    return false;
   }
-  return TRUE;
+  return true;
 }
 
 const wchar_t* Language::GetMsg (int nID)

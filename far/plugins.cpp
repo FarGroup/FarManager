@@ -283,12 +283,9 @@ PluginManager::PluginManager()
   PluginsData=NULL;
   PluginsCount=0;
   CurPluginItem=NULL;
-  Reserved=0;
   CurEditor=NULL;
   CurViewer=NULL;
 }
-
-
 
 PluginManager::~PluginManager()
 {
@@ -308,21 +305,21 @@ PluginManager::~PluginManager()
 	xf_free (PluginsData);
 }
 
-int PluginManager::AddPlugin (Plugin *pPlugin)
+bool PluginManager::AddPlugin (Plugin *pPlugin)
 {
 	Plugin **NewPluginsData=(Plugin**)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
 
 	if ( !NewPluginsData )
-		return FALSE;
+		return false;
 
 	PluginsData = NewPluginsData;
 	PluginsData[PluginsCount]=pPlugin;
 	PluginsCount++;
 
-	return TRUE;
+	return true;
 }
 
-int PluginManager::RemovePlugin (Plugin *pPlugin)
+bool PluginManager::RemovePlugin (Plugin *pPlugin)
 {
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -333,40 +330,40 @@ int PluginManager::RemovePlugin (Plugin *pPlugin)
 			memmove (&PluginsData[i], &PluginsData[i+1], (PluginsCount-i-1)*sizeof (Plugin*));
 			PluginsCount--;
 
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 
-int PluginManager::LoadPlugin (
-		const wchar_t *lpwszModuleName,
-		bool bCheckID,
-		FAR_FIND_DATA_EX *FindData
+bool PluginManager::LoadPlugin (
+			const wchar_t *lpwszModuleName,
+			const FAR_FIND_DATA_EX &FindData
 		)
 {
-	Plugin *pPlugin = GetPlugin (lpwszModuleName);
+	Plugin *pPlugin = NULL;
 
-	if ( !pPlugin )
+	switch (IsModulePlugin(lpwszModuleName))
 	{
-		switch (IsModulePlugin(lpwszModuleName))
-		{
-			case UNICODE_PLUGIN: pPlugin = (Plugin *) new PluginW(this, lpwszModuleName); break;
+		case UNICODE_PLUGIN: pPlugin = (Plugin *) new PluginW(this, lpwszModuleName); break;
 
-			case OEM_PLUGIN: pPlugin = (Plugin *) new PluginA(this, lpwszModuleName); break;
+		case OEM_PLUGIN: pPlugin = (Plugin *) new PluginA(this, lpwszModuleName); break;
 
-			default: return FALSE;
-		}
-
-		if ( !pPlugin )
-			return FALSE;
-
-		AddPlugin (pPlugin);
+		default: return false;
 	}
 
-	BOOL bResult = pPlugin->LoadFromCache(bCheckID, FindData);
+	if ( !pPlugin )
+		return false;
+
+	if ( !AddPlugin (pPlugin))
+	{
+		delete pPlugin;
+		return false;
+	}
+
+	bool bResult = pPlugin->LoadFromCache(FindData);
 
 	if ( !bResult && !Opt.LoadPlug.PluginsCacheOnly )
 	{
@@ -376,14 +373,27 @@ int PluginManager::LoadPlugin (
 			RemovePlugin (pPlugin);
 	}
 
-	if ( bResult )
-	{
-		far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
+	return bResult;
+}
 
-		return TRUE;
+bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName)
+{
+	Plugin *pPlugin = GetPlugin (lpwszModuleName);
+
+	if (pPlugin)
+		return true;
+
+	FAR_FIND_DATA_EX FindData;
+	if (apiGetFindDataEx(lpwszModuleName, &FindData, false))
+	{
+		if (LoadPlugin(lpwszModuleName, FindData))
+		{
+			far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
+			return true;
+		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemove)
@@ -406,8 +416,6 @@ int PluginManager::UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemov
 			Flags.Clear(PSIF_DIALOG);
 			FrameManager->DeleteFrame();
 		}
-
-		//
 
 		bool bPanelPlugin = pPlugin->IsPanelPlugin();
 
@@ -467,6 +475,14 @@ Plugin *PluginManager::GetPlugin (const wchar_t *lpwszModuleName)
 	return NULL;
 }
 
+Plugin *PluginManager::GetPlugin (int PluginNumber)
+{
+	if (PluginNumber < PluginsCount && PluginNumber >= 0)
+		return PluginsData[PluginNumber];
+
+	return NULL;
+}
+
 void PluginManager::LoadPlugins()
 {
 	TaskBar TB;
@@ -476,10 +492,8 @@ void PluginManager::LoadPlugins()
   if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
   {
      LoadPluginsFromCache();
-     return;
   }
-
-  if(Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
+  else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
   {
     ScanTree ScTree(FALSE,TRUE);
     UserDefinedList PluginPathList;  // хранение списка каталогов
@@ -534,13 +548,15 @@ void PluginManager::LoadPlugins()
              (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0
            )
         {
-          LoadPlugin (strFullName, true, &FindData);
+          LoadPlugin (strFullName, FindData);
         }
       } // end while
     }
   }
 
   Flags.Set(PSIF_PLUGINSLOADDED);
+
+  far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
 }
 
 /* $ 01.09.2000 tran
@@ -567,12 +583,13 @@ void PluginManager::LoadPluginsFromCache()
 		}
 		strModuleName.ReleaseBuffer();
 
-		LoadPlugin (strModuleName);
+		FAR_FIND_DATA_EX FindData;
+
+		if (apiGetFindDataEx(strModuleName, &FindData, false))
+			LoadPlugin (strModuleName, FindData);
 
 		i++;
 	}
-
-	Flags.Set(PSIF_PLUGINSLOADDED);
 }
 
 int _cdecl PluginsSort(const void *el1,const void *el2)
@@ -1918,87 +1935,85 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 /* $ 23.10.2000 SVS
    Функция TestPluginInfo - проверка на вшивость переданных плагином данных
 */
-
-BOOL PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
+bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 {
-  if(!Opt.ExceptRules)
-    return TRUE;
+  if (!Opt.ExceptRules)
+    return true;
 
   char Buf[1];
-  int I=FALSE;
+  bool bResult=false;
   //EXCEPTION_POINTERS *xp;
   TRY {
-    if(Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
+    if (Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
       RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-    else for (I=0; I<Info->DiskMenuStringsNumber; I++)
+    else for (int I=0; I<Info->DiskMenuStringsNumber; I++)
       memcpy(Buf,Info->DiskMenuStrings[I],1);
 
-    if(Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
+    if (Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
       RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-    else for (I=0; I<Info->PluginMenuStringsNumber; I++)
+    else for (int I=0; I<Info->PluginMenuStringsNumber; I++)
      memcpy(Buf,Info->PluginMenuStrings[I],1);
 
-    if(Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
+    if (Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
       RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-    else for (I=0; I<Info->PluginConfigStringsNumber; I++)
+    else for (int I=0; I<Info->PluginConfigStringsNumber; I++)
       memcpy(Buf,Info->PluginConfigStrings[I],1);
 
     if (Info->CommandPrefix)
       memcpy(Buf,Info->CommandPrefix,1);
 
-    I=TRUE;
+    bResult=true;
   }
   EXCEPT(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
   {
      UnloadPlugin(Item,EXCEPT_GETPLUGININFO_DATA); // тест не пройден, выгружаем его
-     I=FALSE;
+     bResult=false;
 //     ProcessException=FALSE;
   }
-  return I;
+  return bResult;
 }
 
 /* $ 31.10.2000 SVS
    Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
 */
-
-BOOL PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
+bool PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 {
-  if(!Opt.ExceptRules)
-    return TRUE;
+  if (!Opt.ExceptRules)
+    return true;
 
   char Buf[1];
-  int I=FALSE;
+  bool bResult=false;
   //EXCEPTION_POINTERS *xp;
   TRY {
-    if(Info->HostFile) memcpy(Buf,Info->HostFile,1);
-    if(Info->CurDir) memcpy(Buf,Info->CurDir,1);
-    if(Info->Format) memcpy(Buf,Info->Format,1);
-    if(Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
+    if (Info->HostFile) memcpy(Buf,Info->HostFile,1);
+    if (Info->CurDir) memcpy(Buf,Info->CurDir,1);
+    if (Info->Format) memcpy(Buf,Info->Format,1);
+    if (Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
 
-    if(Info->InfoLinesNumber > 0 && !Info->InfoLines)
+    if (Info->InfoLinesNumber > 0 && !Info->InfoLines)
       RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-    else for (I=0; I<Info->InfoLinesNumber; I++)
+    else for (int I=0; I<Info->InfoLinesNumber; I++)
       memcpy(Buf,&Info->InfoLines[I],1);
 
-    if(Info->DescrFilesNumber > 0 && !Info->DescrFiles)
+    if (Info->DescrFilesNumber > 0 && !Info->DescrFiles)
       RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-    else for (I=0; I<Info->DescrFilesNumber; I++)
+    else for (int I=0; I<Info->DescrFilesNumber; I++)
       memcpy(Buf,Info->DescrFiles[I],1);
 
-    if(Info->PanelModesNumber > 0 && !Info->PanelModesArray)
+    if (Info->PanelModesNumber > 0 && !Info->PanelModesArray)
       RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-    for (I=0; I<Info->PanelModesNumber; I++)
+    for (int I=0; I<Info->PanelModesNumber; I++)
       memcpy(Buf,&Info->PanelModesArray[I],1);
 
-    if(Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
-    if(Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
-    I=TRUE;
+    if (Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
+    if (Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
+    bResult=true;
   }
   EXCEPT(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
   {
      UnloadPlugin(Item,EXCEPT_GETOPENPLUGININFO_DATA); // тест не пройден, выгружаем его
-     I=FALSE;
+     bResult=false;
 //     ProcessException=FALSE;
   }
-  return I;
+  return bResult;
 }

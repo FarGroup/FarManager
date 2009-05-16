@@ -124,10 +124,10 @@ public:
 
 	bool IsOemPlugin() {return false;}
 
-	int Load();
-	int LoadFromCache(bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL);
+	bool Load();
+	bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
 
-	int SaveToCache ();
+	bool SaveToCache ();
 
 	int Unload (bool bExitFAR = false);
 
@@ -168,14 +168,14 @@ public:
 	DWORD GetWorkFlags() { return WorkFlags.Flags; }
 	DWORD GetFuncFlags() { return FuncFlags.Flags; }
 
-	int InitLang(const wchar_t *Path) { return Lang.Init(Path,true); }
+	bool InitLang(const wchar_t *Path) { return Lang.Init(Path,true); }
 	void CloseLang() { Lang.Close(); }
 	const wchar_t *GetMsg (int nID) { return Lang.GetMsg(nID); }
 
 public:
 
-	int SetStartupInfo (bool &bUnloaded);
-	int CheckMinFarVersion (bool &bUnloaded);
+	bool SetStartupInfo (bool &bUnloaded);
+	bool CheckMinFarVersion (bool &bUnloaded);
 
 	HANDLE OpenPlugin (int OpenFrom, INT_PTR Item);
 	HANDLE OpenFilePlugin (const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);

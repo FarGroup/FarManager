@@ -1551,104 +1551,109 @@ static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
 
 int WINAPI KeyNameToKey(const wchar_t *Name)
 {
-   if(!Name || !*Name)
-     return -1;
+	if(!Name || !*Name)
+		return -1;
 
-   DWORD Key=0;
+	DWORD Key=0;
 
 //// // _SVS(SysLog(L"KeyNameToKey('%s')",Name));
 
-   // Это макроклавиша?
-   if(Name[0] == L'$' && Name[1])
-     return -1;// KeyNameMacroToKey(Name);
-   if(Name[0] == L'%' && Name[1])
-     return -1;
-   if(Name[1] && wcspbrk(Name,L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
-     return -1;
+	// Это макроклавиша?
+	if(Name[0] == L'$' && Name[1])
+		return -1;// KeyNameMacroToKey(Name);
+	if(Name[0] == L'%' && Name[1])
+		return -1;
+	if(Name[1] && wcspbrk(Name,L"()")) // если не один символ и встречаются '(' или ')', то это явно не клавиша!
+		return -1;
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
 //     return Key;
 
-   int I, Pos, Len=StrLength(Name);
+		int I, Pos;
 
-   string strTmpName;
-   strTmpName = Name;
+		static string strTmpName;
+		strTmpName = Name;
 
-   // пройдемся по всем модификаторам
-	for(Pos=I=0; I < int(countof(ModifKeyName)); ++I)
-   {
-     if(StrStrI(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
-     {
-       ReplaceStrings(strTmpName,ModifKeyName[I].Name,L"",-1,TRUE);
-       Key|=ModifKeyName[I].Key;
-       Pos+=ModifKeyName[I].Len;
-     }
-   }
-   //Pos=strlen(TmpName);
+		int Len=(int)strTmpName.GetLength();
+
+		// пройдемся по всем модификаторам
+		for(Pos=I=0; I < int(countof(ModifKeyName)); ++I)
+		{
+			if(StrStrI(strTmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
+			{
+				ReplaceStrings(strTmpName,ModifKeyName[I].Name,L"",-1,TRUE);
+				Key|=ModifKeyName[I].Key;
+				Pos+=ModifKeyName[I].Len;
+			}
+		}
+	//Pos=strlen(TmpName);
 //// // _SVS(SysLog(L"Name=%s",Name));
-   // если что-то осталось - преобразуем.
-   if(Pos < Len)
-   {
-     // сначала - FKeys1
-     const wchar_t* Ptr=Name+Pos;
-		for (I=0;I<int(countof(FKeys1));I++)
-       if (!StrCmpNI (Ptr,FKeys1[I].Name,FKeys1[I].Len))
-       {
-         Key|=FKeys1[I].Key;
-         Pos+=FKeys1[I].Len;
-         break;
-       }
-		if(I  == countof(FKeys1))
-     {
-       if(Len == 1 || Pos == Len-1)
-       {
-         WORD Chr=(WORD)Name[Pos];
-         if (Chr > 0 && Chr < 0xFFFF)
-         {
-           if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
-           {
-             if(Chr > 0x7F)
-                Chr=LocalKeyToKey(Chr);
-             Chr=Upper(Chr);
-           }
-           Key|=Chr;
-           if(Chr)
-             Pos++;
-         }
-       }
-       else if(Key & (KEY_ALT|KEY_RALT))
-       {
-         int K=_wtoi(Ptr);
-         if(K != -1)
-         {
-           // Было введение Alt-Num
-           Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
-           Pos=Len;
-         }
-       }
-       else if(Key & (KEY_M_SPEC|KEY_M_OEM))
-       {
-         int K=_wtoi(Ptr);
-         if(K != -1)
-         {
-           if(Key & KEY_M_SPEC)
-             Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
-           else if(Key & KEY_M_OEM)
-             Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
-           Pos=Len;
-         }
-       }
-     }
-   }
+	// если что-то осталось - преобразуем.
+	if(Pos < Len)
+	{
+		// сначала - FKeys1
+		const wchar_t* Ptr=Name+Pos;
+		int PtrLen = Len-Pos;
+		for (I=(int)countof(FKeys1)-1; I>=0; I--)
+		{
+			if (PtrLen == FKeys1[I].Len && !StrCmpI(Ptr,FKeys1[I].Name))
+			{
+				Key|=FKeys1[I].Key;
+				Pos+=FKeys1[I].Len;
+				break;
+			}
+		}
+		if (I == -1)
+		{
+			if(Len == 1 || Pos == Len-1)
+			{
+				WORD Chr=(WORD)Name[Pos];
+				if (Chr > 0 && Chr < 0xFFFF)
+				{
+					if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
+					{
+						if(Chr > 0x7F)
+								Chr=LocalKeyToKey(Chr);
+						Chr=Upper(Chr);
+					}
+					Key|=Chr;
+					if(Chr)
+						Pos++;
+				}
+			}
+			else if(Key & (KEY_ALT|KEY_RALT))
+			{
+				int K=_wtoi(Ptr);
+				if(K != -1)
+				{
+					// Было введение Alt-Num
+					Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
+					Pos=Len;
+				}
+			}
+			else if(Key & (KEY_M_SPEC|KEY_M_OEM))
+			{
+				int K=_wtoi(Ptr);
+				if(K != -1)
+				{
+					if(Key & KEY_M_SPEC)
+						Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+					else if(Key & KEY_M_OEM)
+						Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+					Pos=Len;
+				}
+			}
+		}
+	}
 /*
-   if(!(Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALTDIGIT)) && (Key&KEY_SHIFT) && LocalIsalpha(Key&(~KEY_CTRLMASK)))
-   {
-     Key&=~KEY_SHIFT;
-     Key=LocalUpper(Key);
-   }
+	if(!(Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALTDIGIT)) && (Key&KEY_SHIFT) && LocalIsalpha(Key&(~KEY_CTRLMASK)))
+	{
+		Key&=~KEY_SHIFT;
+		Key=LocalUpper(Key);
+	}
 */
 //// // _SVS(SysLog(L"Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
-   return (!Key || Pos < Len)? -1: (int)Key;
+	return (!Key || Pos < Len)? -1: (int)Key;
 }
 
 BOOL WINAPI KeyToText(int Key0, string &strKeyText0)

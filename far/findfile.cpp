@@ -450,7 +450,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			FarListGetItem Item = { Position.SelectPos };
 			Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
 			CodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
-			
+
       FindFoldersChanged = FALSE;
       SearchFromChanged = FALSE;
 
@@ -1674,9 +1674,9 @@ int FindFiles::FindFilesProcess()
   }
 
 	bool AnySetFindList=false;
-	for (int i=0;i<CtrlObject->Plugins.PluginsCount; i++)
+	for (int i=0;i<CtrlObject->Plugins.GetPluginsCount(); i++)
 	{
-		if(CtrlObject->Plugins.PluginsData[i]->HasSetFindList())
+		if (CtrlObject->Plugins.GetPlugin(i)->HasSetFindList())
 		{
 			AnySetFindList=true;
 			break;

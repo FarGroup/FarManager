@@ -637,9 +637,9 @@ int FileList::ProcessKey(int Key)
               case -1:
                 return TRUE;
             }
-            for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+            for (int I=0;I<CtrlObject->Plugins.GetPluginsCount();I++)
             {
-              Plugin *pPlugin = CtrlObject->Plugins.PluginsData[I];
+              Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(I);
 
               if ( StrCmpI(pPlugin->GetModuleName(),strPluginModule)==0)
               {

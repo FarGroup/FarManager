@@ -48,7 +48,7 @@ OSVERSIONINFOW WinVer={0};
 struct Options Opt;// BUG !! ={0};
 
 // языковой файл загружен?
-BOOL LanguageLoaded=FALSE;
+bool LanguageLoaded=false;
 
 // флаг на запрет юзание Ctrl-Alt-Shift
 BOOL NotUseCAS=FALSE;

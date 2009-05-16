@@ -438,13 +438,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			{
 				for (PluginItem=0;;++PluginItem)
 				{
-					if ( PluginNumber >= CtrlObject->Plugins.PluginsCount )
+					if ( PluginNumber >= CtrlObject->Plugins.GetPluginsCount() )
 					{
 						Done=TRUE;
 						break;
 					}
 
-					Plugin *pPlugin = CtrlObject->Plugins.PluginsData[PluginNumber];
+					Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(PluginNumber);
 
 					if ( !CtrlObject->Plugins.GetDiskMenuItem(
 							pPlugin,

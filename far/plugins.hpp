@@ -123,13 +123,14 @@ enum PLUGINSETFLAGS{
 
 class PluginManager
 {
-public:
-
-	BitFlags Flags;        // флаги манагера плагинов
-	DWORD Reserved;        // в будущем это может быть второй порцией флагов
+private:
 
 	Plugin **PluginsData;
 	int    PluginsCount;
+
+public:
+
+	BitFlags Flags;        // флаги манагера плагинов
 
 	Plugin *CurPluginItem;
 
@@ -141,8 +142,18 @@ private:
 	void LoadIfCacheAbsent();
 	void ReadUserBackgound(SaveScreen *SaveScr);
 	int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
-	BOOL TestPluginInfo(Plugin *Item,PluginInfo *Info);
-	BOOL TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
+	bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
+	bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
+
+	bool LoadPlugin (const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX &FindData);
+
+	bool AddPlugin (Plugin *pPlugin);
+	bool RemovePlugin (Plugin *pPlugin);
+
+	void LoadPluginsFromCache();
+
+	void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
+	void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
 
 public:
 
@@ -151,26 +162,27 @@ public:
 
 public:
 
-	int LoadPlugin (const wchar_t *lpwszModuleName, bool bCheckID = false, FAR_FIND_DATA_EX *FindData=NULL);
+	bool LoadPluginExternal (const wchar_t *lpwszModuleName);
+
 	int UnloadPlugin (Plugin *pPlugin, DWORD dwException, bool bRemove = false);
 	int UnloadPluginExternal (const wchar_t *lpwszModuleName);
 
-	Plugin *GetPlugin (const wchar_t *lpwszModuleName);
-
-	int AddPlugin (Plugin *pPlugin);
-	int RemovePlugin (Plugin *pPlugin);
-
 	void LoadPlugins();
-	void LoadPluginsFromCache();
 
-	BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
+	Plugin *GetPlugin (const wchar_t *lpwszModuleName);
+	Plugin *GetPlugin (int PluginNumber);
+
+	int GetPluginsCount() { return PluginsCount; }
+
+	BOOL IsPluginsLoaded() { return Flags.Check(PSIF_PLUGINSLOADDED); }
+
+	BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 
 	void Configure(int StartPos=0);
 	void ConfigureCurrent(Plugin *pPlugin,int INum);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
 	// $ 21.08.2002 IS - Параметр PluginTextSize, чтобы знать, сколько брать
-	int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent,
-	int &PluginTextNumber, string &strPluginText);
+	int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent, int &PluginTextNumber, string &strPluginText);
 
 	int UseFarCommand(HANDLE hPlugin,int CommandType);
 	void ReloadLanguage();
@@ -180,10 +192,6 @@ public:
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
 	Plugin *FindPlugin(DWORD SysID);
-
-	void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
-	void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
-	BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 
 //api functions
 
