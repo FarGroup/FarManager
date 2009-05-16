@@ -72,4 +72,4 @@ public:
 	~TaskBarError();
 };
 
-#endif __TASKBAR_HPP__
+#endif //__TASKBAR_HPP__

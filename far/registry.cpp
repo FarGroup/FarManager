@@ -280,14 +280,26 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const 
 
 static string &MkKeyName(const wchar_t *Key, string &strDest)
 {
-  strDest = Opt.strRegRoot;
+	int len = Opt.strRegRoot.GetLength();
+	int len2 = StrLength(Key);
+	wchar_t *p = strDest.GetBuffer(len + len2 + 2);
 
-  if(*Key)
+  wcscpy(p, Opt.strRegRoot);
+  p+=len;
+
+  if (*Key)
   {
-    if( !strDest.IsEmpty() )
-      strDest += L"\\";
-    strDest += Key;
+    if (len)
+    {
+      *(p++) = L'\\';
+      *p = 0;
+      len++;
+    }
+    wcscpy(p, Key);
+    len+=len2;
   }
+
+  strDest.ReleaseBuffer(len);
 
   return strDest;
 }
@@ -300,7 +312,7 @@ HKEY CreateRegKey(const wchar_t *Key)
   HKEY hKey;
   DWORD Disposition;
 
-  string strFullKeyName;
+  static string strFullKeyName;
   MkKeyName(Key,strFullKeyName);
   if(RegCreateKeyExW(hRegRootKey,strFullKeyName,0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition) != ERROR_SUCCESS)
@@ -319,7 +331,7 @@ HKEY OpenRegKey(const wchar_t *Key)
   if (hRegCurrentKey)
     return(hRegCurrentKey);
   HKEY hKey;
-  string strFullKeyName;
+  static string strFullKeyName;
   MkKeyName(Key,strFullKeyName);
   if (RegOpenKeyExW(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS,&hKey)!=ERROR_SUCCESS)
   {
