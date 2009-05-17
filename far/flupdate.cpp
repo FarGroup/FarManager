@@ -249,20 +249,54 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
 
-	string strDotFullPath(NTPath(strCurDir).Str);
-	strDotFullPath += L"\\.";
+	bool bDotExists, bTwoDotsExists;
+	bool bDotSeen=false, bTwoDotsSeen=false;
+	bool bCurDirRoot=IsLocalRootPath(strCurDir)?true:false;
 
-	string strTwoDotsFullPath(NTPath(strCurDir).Str);
-	strTwoDotsFullPath += L"\\..";
+	{
+		string strTemp(NTPath(strCurDir).Str);
+		DWORD dw;
+
+		strTemp += L"\\.";
+		dw = apiGetFileAttributes(strTemp);
+		bDotExists = dw!=INVALID_FILE_ATTRIBUTES && dw&FILE_ATTRIBUTE_DIRECTORY;
+
+		strTemp += L".";
+		dw = apiGetFileAttributes(strTemp);
+		bTwoDotsExists = dw!=INVALID_FILE_ATTRIBUTES && dw&FILE_ATTRIBUTE_DIRECTORY;
+	}
 
 	for (FileCount=0; !Done; )
 	{
-		if (fdata.strFileName.At(0) == L'.' && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY &&
-			(   (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0 && apiGetFileAttributes(strTwoDotsFullPath)==INVALID_FILE_ATTRIBUTES)
-			 || (fdata.strFileName.At(1) == 0 && apiGetFileAttributes(strDotFullPath)==INVALID_FILE_ATTRIBUTES)))
+		// ¬есь смысл этого ужаса в том что на FAT можно создать папки "." и "..".
+		// ѕоэтому извращаемс€ вот по такой системе:
+		// если существует реальна€ папка "." или ".." (проверка сверху)
+		// то если мы не в корне диска (так как только в корне нету обычных "." и "..")
+		// то скипаем первое вхождение "." или ".." так как это обычные, а потом не скипаем
+		// так как это уже те которые буратино создал.
+		// ≈сть один прокол, если на замапленом диске есть такие папки и к тому же листинг такого
+		// диска возвращает обычные тоже, то уж увольте но это просто у вас в глазах двоитс€/троитс€ будет,
+		// ни чем помочь не могу. —мерть фату и всЄ такое.
+		if (fdata.strFileName.At(0) == L'.' && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 		{
-			Done=!apiFindNextFile (FindHandle,&fdata);
-			continue;
+			if (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)
+			{
+				if (!bTwoDotsExists || (!bCurDirRoot && !bTwoDotsSeen))
+				{
+					bTwoDotsSeen=true;
+					Done=!apiFindNextFile (FindHandle,&fdata);
+					continue;
+				}
+			}
+			else if (fdata.strFileName.At(1) == 0)
+			{
+				if (!bDotExists || (!bCurDirRoot && !bDotSeen))
+				{
+					bDotSeen=true;
+					Done=!apiFindNextFile (FindHandle,&fdata);
+					continue;
+				}
+			}
 		}
 
 		if ((Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) && Filter->FileInFilter(&fdata))
@@ -411,7 +445,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	*/
 
 	// пока кусок закомментим, возможно он даже и не пригодитс€.
-	if (!IsLocalRootPath(strCurDir) )// && !NetRoot)
+	if (!bCurDirRoot )// && !NetRoot)
 	{
 		if (FileCount>=AllocatedCount)
 		{
