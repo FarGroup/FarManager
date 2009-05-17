@@ -4,11 +4,11 @@
 .Options CtrlStartPosChar=^<wrap>
 
 @Contents
-$^#Fájl- és tömörítettkezelő program#
+$^#Fájl- és archívumkezelő program#
 `$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright (C) 1996-2000 Eugene Roshal#
 `$^#Copyright (C)' COPYRIGHTYEARS `FAR Group#'
-$^(help file last translated for build 843)
+$^(help file last translated for build 882)
    ~A súgó betűrendes tartalomjegyzéke~@Index@
    ~A súgó használata~@Help@
 
@@ -141,99 +141,89 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 @CmdLine
 $ # FAR: a FAR parancssori kapcsolói#
-          A FAR a következő parancssori kapcsolókkal indítható:
+  A FAR a következő parancssori kapcsolókkal indítható:
 
-  #/a#      Letiltja a 0-31-ig terjedő és a 255-ös ASCII kódú
-        karakterek megjelenítését. Hasznos lehet, ha a FAR-t
-        telnet alól használjuk.
+  #/a#    ^<wrap>Letiltja a 0-31-ig terjedő és a 255-ös ASCII kódú
+karakterek megjelenítését. Hasznos lehet, ha a FAR-t telnet alól használjuk.
 
-  #/ag#     Letiltja a pszeudografikus karakterek megjelenítését.
+  #/ag#   Letiltja a pszeudografikus karakterek megjelenítését.
+        ^<wrap>
+  #/e[<sor>[:<pozíció>]] <fájlnév>#  A megadott fájlt szerkesztésre
+nyitja meg. A /e után megadható, hogy melyik sor hányadik karakterhelyére
+álljon a kurzor.
 
-  #/e[<sor>[:<pozíció>]] <fájlnév>#
-          A megadott fájlt szerkesztésre nyitja meg. A /e után
-        megadható, hogy melyik sor hányadik karakterhelyére
-        álljon a kurzor.
+          Például: far /e70:2 readme.
 
-        Például: far /e70:2 readme.
+  #/i#    ^<wrap>Kicsi, 16x16-os ikont állít be a FAR konzolhoz. Néhány
+konfigurációnál a kapcsoló használata instabil működést eredményezhet.
+          ^<wrap>
+  #/p[<path>]#  A "fő" plugineket a <path>-ben megadott elérési út
+          ^<wrap>mappáiban keresi. Több keresési útvonal is megadható,
+";"-vel elválasztva.
 
-  #/i#      Kicsi, 16x16-os ikont állít be a FAR konzolhoz.
-        Néhány konfigurációnál a kapcsoló használata instabil
-        működést eredményezhet.
+          Példa: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
 
-  #/p[<path>]#
-          A "fő" plugineket a <path>-ben megadott elérési út
-        mappáiban keresi. Több keresési útvonal is megadható,
-        ";"-vel elválasztva.
-
-        Példa: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
-
-  #/co#     A FAR pluginjei csak a gyorsítótárból töltődhetnek be.
-        Bár így a betöltésük gyorsabb, az új vagy megváltozott
-        plugineket a FAR nem érzékeli. CSAK állandó pluginek
-        esetén használjuk! Pluginek hozzáadása, cseréje vagy
-        törlése után a FAR-t a kapcsoló nélkül kell elindítani.
-        Ha a gyorsítótár üres, nem töltődik be plugin.
+  #/co#   ^<wrap>A FAR pluginjei csak a gyorsítótárból töltődhetnek be.
+Bár így a betöltésük gyorsabb, az új vagy megváltozott plugineket a FAR nem
+érzékeli. CSAK állandó pluginek esetén használjuk! Pluginek hozzáadása,
+cseréje vagy törlése után a FAR-t a kapcsoló nélkül kell elindítani. Ha a
+gyorsítótár üres, nem töltődik be plugin.
 
           Megjegyzések a /p és /co kapcsolókhoz:
 
-        - ha a /p után nincs érték, a FAR pluginek nélkül
-          fog elindulni;
-        - ha /p-nek adtunk <path> értéket, csak a
-          megadott útvonalról töltődnek be pluginek;
-        - ha csak a /co kapcsolóval indítjuk és a plugin
-          gyorsítótár nem üres, a gyorsítótárból töltődnek
-          be a pluginek;
-        - a /co kapcsolót a FAR figyelmen kívül hagyja,
-          ha /p is áll mellette;
-        - ha sem a /p, sem a /co kapcsoló nem szerepel
-          a parancssorban, akkor a pluginek csak az
-          alapértelmezett plugin mappából, valamint a
-          ~Saját pluginek elérési útvonala~@SystemSettings@ által
-          meghatározott mappákból töltődnek be.
+        - ^<wrap>ha a /p után nincs érték, a FAR pluginek nélkül
+fog elindulni;
+        - ha /p-nek adtunk <path> értéket, csak a megadott útvonalról
+töltődnek be pluginek;
+        - ha csak a /co kapcsolóval indítjuk és a plugin gyorsítótár
+nem üres, a gyorsítótárból töltődnek be a pluginek;
+        - a /co kapcsolót a FAR figyelmen kívül hagyja, ha /p is áll
+mellette;
+        - ha sem a /p, sem a /co kapcsoló nem szerepel a parancssorban,
+akkor a pluginek csak az alapértelmezett plugin mappából, valamint a
+~saját pluginek elérési útvonala~@SystemSettings@ által meghatározott
+mappákból töltődnek be.
 
-  #/rc#     A FAR bezárása után a konzolablak címkéje és mérete
-        visszaáll a FAR előtti állapotába.
+  #/rc#   ^<wrap>A FAR bezárása után a konzolablak címkéje és mérete
+visszaáll a FAR előtti állapotába.
 
-  #/m#      A FAR induláskor nem tölti be a registryből a makróit.
+  #/m#    ^<wrap>A FAR induláskor nem tölti be a registryből a makróit.
 
-  #/ma#     A "Futtatás a FAR indítása után" opciójú makrók nem
-        indulnak el a FAR-ral.
-
-  #/u <felhasználónév>#
-          Lehetővé teszi, hogy a felhasználóknak saját FAR
-        beállításuk legyen.
+  #/ma#   ^<wrap>A "Futtatás a FAR indítása után" opciójú makrók nem
+indulnak el a FAR-ral.
+          ^<wrap>
+  #/u <felhasználónév>#  Lehetővé teszi, hogy a felhasználóknak saját
+FAR beállításaik legyenek.
 
           Például: far /u guest
 
-          A FAR Manager a "FARUSER" ~környezeti változónak~@FAREnv@
-        a <felhasználónév> értéket adja.
+        ^<wrap>A FAR Manager a "FARUSER" ~környezeti változónak~@FAREnv@
+a <felhasználónév> értéket adja.
+        ^<wrap>
+  #/v <fájlnév>#  Megnézi a megadott fájlt. Ha a <fájlnév> #-#, akkor az
+stdin adatát olvassa ki.
 
-  #/v <fájlnév>#
-          Megnézi a megadott fájlt. Ha a <fájlnév> #-#, akkor az
-        stdin adatát olvassa ki.
+        ^<wrap>Például a "dir|far /v -" a dir parancs kimenetét fogja
+kiolvasni.
 
-          Például a "dir|far /v -" a dir parancs kimenetét fogja
-        kiolvasni.
+        ^<wrap>Ha a bemenő adatfolyam üres, amikor a fájlnév "-" (ha
+az előző példánál maradva a "dir" parancsot elhagyjuk), akkor a FAR a
+végtelenségig fog várakozni a bemenő adatfolyam végére. Ezt a hibát a FAR
+egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
 
-          Ha a bemenő adatfolyam üres, amikor a fájlnév "-" (ha
-        az előző példánál maradva a "dir" parancsot elhagyjuk),
-        akkor a FAR a végtelenségig fog várakozni a bemenő adat-
-        folyam végére. Ezt a hibát a FAR egy későbbi verziójában
-        a szerzők valószínűleg ki fogják javítani.
-
-  #/x#      Letiltja a kivételek hibakezelését. Ezt a lehetőséget
-        a szerzők a pluginek fejlesztői részére tervezték, ezért
-        nem ajánlott normál használat közben alkalmazni.
+  #/x#    ^<wrap>Letiltja a kivételek kezelését. Ezt a lehetőséget
+a szerzők a pluginek fejlesztői részére tervezték, ezért nem ajánlott normál
+használat közben alkalmazni.
 
     A parancssorban megadható legfeljebb két olyan elérési út, ami mappára,
 fájlra vagy tömörített fájlra mutat. Az első elérési út az aktív, a második a
 passzív panelre vonatkozik:
 
-  - ha az elérési út mappára vagy tömörített fájlra mutat, a FAR
-    megjeleníti a tartalmát;
+  - ^<wrap>ha az elérési út mappára vagy tömörített fájlra mutat, a FAR
+megjeleníti a tartalmát;
 
-  - ha az elérési út fájlra mutat, a FAR belép a mappába, ahol
-    a fájl található és ráállítja a kurzort (ha a fájl létezik).
+  - ^<wrap>ha az elérési út fájlra mutat, a FAR belép a mappába, ahol
+a fájl található és ráállítja a kurzort (ha a fájl létezik).
 
 
 @KeyRef
@@ -262,32 +252,34 @@ $ #Panelvezérlő parancsok#
   Fastruktúra panel be/ki                                     #Ctrl-T#
   Mindkét panelt elrejti/megmutatja                           #Ctrl-O#
   Átmenetileg elrejti mindkét panelt
-  (amíg a billentyűk le vannak nyomva)                #Ctrl-Alt-Shift#
+    (amíg a billentyűk le vannak nyomva)              #Ctrl-Alt-Shift#
   Elrejti/megmutatja az inaktív panelt                        #Ctrl-P#
   Elrejti/megmutatja a bal panelt                            #Ctrl-F1#
   Elrejti/megmutatja a jobb panelt                           #Ctrl-F2#
   A panelek magasságán változtat                    #Ctrl-Fel,Ctrl-Le#
   A panelek szélességén változtat
-  (ha a parancssor üres)                          #Ctrl-Jobb,Ctrl-Bal#
+    (ha a parancssor üres)                        #Ctrl-Jobb,Ctrl-Bal#
   Visszaállítja a panelszélességek alapértékét          #Ctrl-Numpad5#
   Visszaállítja a panelmagasságok alapértékét     #Ctrl-Shift-Numpad5#
-  Megmutatja/elrejti a funkcióbill. sort a kép alján          #Ctrl-B#
+  Megmutatja/elrejti a funkcióbillentyűk sorát
+    a képernyő alján                                          #Ctrl-B#
 
   #Fájlpanel parancsok#
 
-  Fájlokat kijelöl/kijelölést levesz         #Ins, Shift-Kurzor bill.#
+  Fájlokat kijelöl/kijelölést levesz           #Ins,Shift-Kurzorbill.#
   Csoport kijelölése                                        #Szürke +#
   Csoportkijelölést levesz                                  #Szürke -#
   Kijelölést megfordít                                      #Szürke *#
   Kijelöli az aktuális fájl kiterjesztésével
-  megegyező fájlokat                                 #Ctrl-<Szürke +>#
+    megegyező fájlokat                               #Ctrl-<Szürke +>#
   A kijelölést leveszi az aktuális fájl
-  kiterjesztésével megegyező fájlokról               #Ctrl-<Szürke ->#
-  A kijelölést megfordítja a mappákon is (a parancssor állapotától és
-  a mappák kijelölhetőségi opciójától függetlenül)   #Ctrl-<Szürke *>#
+    kiterjesztésével megegyező fájlokról             #Ctrl-<Szürke ->#
+  A kijelölést megfordítja a mappákon is
+    (a parancssor állapotától és a mappák
+    kijelölhetőségi opciójától függetlenül)          #Ctrl-<Szürke *>#
   Kijelöli az aktuális fájllal azonos nevű fájlokat   #Alt-<Szürke +>#
   A kijelölést leveszi az aktuális fájllal
-  megegyező nevű fájlokról                            #Alt-<Szürke ->#
+    megegyező nevű fájlokról                          #Alt-<Szürke ->#
   Minden fájl kijelölése                            #Shift-<Szürke +>#
   Minden fájlról leveszi a kijelölést               #Shift-<Szürke ->#
   Visszaállítja az előző kijelölést                           #Ctrl-M#
@@ -328,49 +320,48 @@ $ #Panelvezérlő parancsok#
   ~Mappa gyorsbillentyűt~@FolderShortcuts@ készít                      #Ctrl-Shift-0...9#
   Gyorsbillentyűvel mappára ugrik                     #JobbCtrl-0...9#
 
-      Ha az aktív panel ~gyorsnézet panel~@QViewPanel@, ~fastruktúra panel~@TreePanel@ vagy
+    Ha az aktív panel ~gyorsnézet panel~@QViewPanel@, ~fastruktúra panel~@TreePanel@ vagy
     ~info panel~@InfoPanel@, nem az aktív, hanem a passzív panel vált a
     megfelelő mappára.
 
   A kijelölt fájlok neveit a vágólapra másolja
-  (ha a parancssor üres)                                    #Ctrl-Ins#
+    (ha a parancssor üres)                                  #Ctrl-Ins#
   A kijelölt fájlok neveit a vágólapra másolja
-  (a parancssor állapotától függetlenül)              #Ctrl-Shift-Ins#
-  A kijelölt fájlok neveit elérési úttal a vágólapra másolja
-  (a parancssor állapotától függetlenül)               #Alt-Shift-Ins#
-  A kijelölt fájlok hálózati (UNC) neveit a vágólapra másolja
-  (a parancssor állapotától függetlenül)                #Ctrl-Alt-Ins#
+    (a parancssor állapotától függetlenül)            #Ctrl-Shift-Ins#
+  A kijelölt fájlok neveit elérési úttal a vágólapra
+    másolja (a parancssor állapotától függetlenül)     #Alt-Shift-Ins#
+  A kijelölt fájlok hálózati (UNC) neveit a vágólapra
+    másolja (a parancssor állapotától függetlenül)      #Ctrl-Alt-Ins#
 
   Megjegyzések:
 
-  1. Ha a ~Panel beállítások~@PanelSettings@ menü "Fordított rendezés engedélyezése"
-     opciója be van kapcsolva, akkor az aktuális rendezési elv
-     másodszori használata a rendezést növekvőről csökkenőre állítja
-     át és fordítva.
+  1. ^<wrap>Ha a ~Panel beállítások~@PanelSettings@ menü "Fordított rendezés
+engedélyezése" opciója be van kapcsolva, akkor az aktuális rendezési elv
+másodszori használata a rendezést növekvőről csökkenőre állítja át és
+fordítva.
 
-  2. A túl hosszú fájlneveket és megjegyzéseket jobbra-balra görgető
-     #Alt-Bal# és #Alt-Jobb# billentyűkombináció csak a normál #Bal# és
-     #Jobb# kurzornyilakkal működik, a numerikus billentyűzet
-     kurzorvezérlőivel nem. Ez azért van így, mert lenyomott #Alt#-nál
-     a numerikus billentyűzet számai karakterek bevitelére szolgál-
-     nak, a karakterek decimális kódjaival.
+  2. ^<wrap>A túl hosszú fájlneveket és megjegyzéseket jobbra-balra görgető
+#Alt-Bal# és #Alt-Jobb# billentyűkombináció csak a normál #Bal# és #Jobb#
+kurzornyilakkal működik, a numerikus billentyűzet kurzorvezérlőivel nem. Ez
+azért van így, mert lenyomott #Alt#-nál a numerikus billentyűzet számai
+karakterek bevitelére szolgálnak, a karakterek decimális kódjaival.
 
-  3. A #Ctrl-Alt-Ins# billentyűkombináció a következő szabály szerint
-     másol szöveget a vágólapra:
+  3. ^<wrap>A #Ctrl-Alt-Ins# billentyűkombináció a következő szabály szerint
+másol szöveget a vágólapra:
 
-     - hálózati meghajtóknál a fájl hálózati (UNC) nevét másolja ki;
+     - ^<wrap>hálózati meghajtóknál a fájl hálózati (UNC) nevét másolja ki;
      - helyi meghajtóknál a fájl helyi nevét másolja ki, a
-       ~szimbolikus linkjeivel~@HardSymLink@ együtt.
+~szimbolikus linkjeivel~@HardSymLink@ együtt.
 
-  4. Ha az #Alt-Shift-Ins# vagy a #Ctrl-Alt-Ins# kombináció használatánál
-     a kurzor a #..# nevű elem felett áll, akkor az aktuális mappa neve
-     másolódik a vágólapra.
+  4. ^<wrap>Ha az #Alt-Shift-Ins# vagy a #Ctrl-Alt-Ins# kombináció
+használatánál a kurzor a #..# nevű elem felett áll, akkor az aktuális mappa
+neve másolódik a vágólapra.
 
 
 @PanelCmdSort
 $ #Rendezési elv#
     A Rendezési elv menü a #Ctrl-F12#-vel hívható meg és az éppen
-aktív panelre fog hatni. A következő rendezési módok használhatók:
+aktív panelre fog vonatkozni. A következő rendezési módok használhatók:
 
   Nevük szerint rendezi a fájlokat                           #Ctrl-F3#
   Kiterjesztésük szerint rendezi a fájlokat                  #Ctrl-F4#
@@ -425,9 +416,9 @@ sorban végiglép a beírt karaktereknek megfelelő fájlneveken. A
     A keresőablakba a vágólapról is beilleszthető szöveg (#Ctrl-V# vagy
 #Shift-Ins#), ebben az esetben az első találatig keres.
 
-    A keresőablakban idegen ábécé betűi is használhatók. Ha a bevitt szövegnél
-alkalmazzuk ezt a transzliteráló funkciót, akkor az új szövegnek megfelelő
-következő találatig tart a keresés. A TechInfo##10-ben leírtak szerint
+    A keresőablakban idegen ábécé betűi is használhatók. Ha alkalmazzuk a
+transzliteráló funkciót, a bevitt szöveg átíródik és az új szövegnek megfelelő
+következő találatig tart a keresés. A TechInfo ##10-ben leírtak szerint
 állítható be a transzliteráció gyorsbillentyűje.
 
 
@@ -454,8 +445,8 @@ $ #A parancssor parancsai#
 
  #Beszúró parancsok#
 
-  Beszúrja a parancssorba az aktuális fájl nevét
-     az aktív panelről                             #Ctrl-J,Ctrl-Enter#
+  Beszúrja a parancssorba az akív panel
+  aktuális fájljának nevét                         #Ctrl-J,Ctrl-Enter#
 
      ~Gyorskeresés~@FastFind@ módban a #Ctrl-Enter# nem fájlnevet szúr be,
      hanem a találatnak megfelelő fájlokon lépked végig.
@@ -478,27 +469,27 @@ $ #A parancssor parancsai#
 
   Megjegyzések:
 
-  1. Ha a parancssor üres, a #Ctrl-Ins# ugyanúgy átmásolja a kijelölt
-     fájlneveket a panelről a vágólapra, mint a #Ctrl-Shift-Ins# (lásd
-     ~Panelvezérlő parancsok~@PanelCmd@);
+  1. ^<wrap>Ha a parancssor üres, a #Ctrl-Ins# ugyanúgy átmásolja a kijelölt
+fájlneveket a panelről a vágólapra, mint a #Ctrl-Shift-Ins# (lásd
+~Panelvezérlő parancsok~@PanelCmd@);
 
-  2. A #Ctrl-End# lenyomása a parancssor végén azt eredményezi,
-     hogy a parancssor jelenlegi tartalma helyére a parancssori
-     ~előzmények~@History@ első olyan parancsa kerül, ami a parancssor
-     aktuális tartalmával kezdődik, ha ilyen létezik. A #Ctrl-End#
-     többszöri lenyomása sorban előhívja a többi ilyen parancsot.
+  2. ^<wrap>A #Ctrl-End# lenyomása a parancssor végén azt eredményezi,
+hogy a parancssor jelenlegi tartalma helyére a parancssori
+~előzmények~@History@ első olyan parancsa kerül, ami a parancssor aktuális
+tartalmával kezdődik, ha ilyen létezik. A #Ctrl-End# többszöri lenyomása
+sorban előhívja a többi ilyen parancsot.
 
-  3. A fent leírt parancsok többsége működik minden szerkesztő-
-     funkcióban, beleértve a párbeszédablakok beviteli sorait
-     és a belső szerkesztőt is.
+  3. ^<wrap>A fent leírt parancsok többsége működik minden
+szerkesztőfunkcióban, beleértve a párbeszédablakok beviteli sorait és a belső
+szerkesztőt is.
 
-  4. Az #Alt-Shift-Bal#, #Alt-Shift-Jobb#, #Alt-Shift-Home# és
-     az #Alt-Shift-End# kijelölik a blokkot a parancssorban
-     akkor is, ha a panelek be vannak kapcsolva.
+  4. ^<wrap>Az #Alt-Shift-Bal#, #Alt-Shift-Jobb#, #Alt-Shift-Home# és
+az #Alt-Shift-End# kijelölik a blokkot a parancssorban akkor is, ha a panelek
+be vannak kapcsolva.
 
-  5. A helyi meghajtókra kiadott "Fájl hálózati (UNC) nevének
-     beszúrása" parancs a fájlok helyi nevét illeszti be, elé-
-     rési útjukkal és ~szimbolikus linkjeikkel~@HardSymLink@ együtt.
+  5. ^<wrap>A helyi meghajtókra kiadott "Fájl hálózati (UNC) nevének
+beszúrása" parancs a fájlok helyi nevét illeszti be, elérési útjukkal és
+~szimbolikus linkjeikkel~@HardSymLink@ együtt.
 
 
 @FuncCmd
@@ -509,32 +500,31 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
 
   Megnéz                                 #Ctrl-Shift-F3, Numpad 5, F3#
 
-    Fájlon lenyomva a #Numpad 5# vagy az #F3# meghívja a ~belső~@Viewer@, a
-külső vagy a ~társított~@FileAssoc@ nézőkét, a fájl típusától és a
-~külső nézőke beállításaitól~@ViewerSettings@ függően.
-    A #Ctrl-Shift-F3# mindig a belső nézőkét hívja meg, a fájl kiterjesztésétől
-függetlenül.
-    Mappán lenyomva kiszámítja és megmutatja a kijelölt mappák méretét.
+    Fájlon lenyomva a #Numpad 5# vagy az #F3# meghívja a ~belső~@Viewer@, a külső
+    vagy a ~társított~@FileAssoc@ nézőkét, a fájl típusától és a
+    ~külső nézőke beállításaitól~@ViewerSettings@ függően. A #Ctrl-Shift-F3# mindig a
+    belső nézőkét hívja meg, a fájl kiterjesztésétől függetlenül.
+    Mappán lenyomva kiszámítja és megmutatja a kijelölt mappák
+    méretét.
 
   Szerkeszt                                        #Ctrl-Shift-F4, F4#
 
-    Az #F4# meghívja a ~belső~@Editor@, a külső vagy a ~társított~@FileAssoc@
-szerkesztőt, a fájl típusától és a ~külső szerkesztő beállításaitól~@EditorSettings@
-függően.
+    Az #F4# meghívja a ~belső~@Editor@, a külső vagy a ~társított~@FileAssoc@ szerkesztőt,
+    a fájl típusától és a ~külső szerkesztő beállításaitól~@EditorSettings@ függően.
     A #Ctrl-Shift-F4# mindig a belső szerkesztőt hívja meg, a fájlok
-társításaitól függetlenül.
-    Az #F4# és a #Ctrl-Shift-F4# a mappákon az ~attribútumok~@FileAttrDlg@
-megváltoztatása párbeszédablakot hívja elő.
+    társításaitól függetlenül. Az #F4# és a #Ctrl-Shift-F4# a mappákon
+    az ~attribútumok~@FileAttrDlg@ megváltoztatása párbeszédablakot hívja elő.
 
   ~Másol~@CopyFiles@                                                           #F5#
 
-    Fájlokat és mappákat másol. Ha másolás előtt szeretnénk létrehozni a
-célmappát, a név végére tegyünk lezáró \\-jelet.
+    Fájlokat és mappákat másol. Ha másolás előtt szeretnénk létre-
+    hozni a célmappát, a név végére tegyünk lezáró \\-jelet.
 
   ~Átnevezés vagy mozgatás~@CopyFiles@                                         #F6#
 
     Fájlokat és mappákat nevez át vagy helyez át. Ha a mozgatás előtt
-szeretnénk létrehozni a célmappát, a név végére tegyünk lezáró \\-jelet.
+    szeretnénk létrehozni a célmappát, a név végére tegyünk lezáró
+    \\-jelet.
 
   ~Új mappát hoz létre~@MakeFolder@                                             #F7#
 
@@ -555,27 +545,27 @@ szeretnénk létrehozni a célmappát, a név végére tegyünk lezáró \\-jele
   Belső/külső nézőke váltó                                    #Alt-F3#
 
     Ha a belső nézőke az alapértelmezett, meghívja a Beállítások
-~nézőke beállításokban~@ViewerSettings@ megadott külső nézőkét vagy a fájl
-típusához ~társított nézőkét~@FileAssoc@. Ha a külső nézőke az alapértelmezett,
-meghívja a belső nézőkét.
+    ~nézőke beállításokban~@ViewerSettings@ megadott külső nézőkét vagy a fájl
+    típusához ~társított nézőkét~@FileAssoc@. Ha a külső nézőke alapértelmezett,
+    meghívja a belső nézőkét.
 
   Belső/külső szerkesztő váltó                                #Alt-F4#
 
     Ha a belső szerkesztő az alapértelmezett, meghívja a Beállítások
-~szerkesztő beállításokban~@EditorSettings@ megadott külső szerkesztőt vagy a fájl
-típusához ~társított szerkesztőt~@FileAssoc@. Ha a külső szerkesztő az
-alapértelmezett, akkor meghívja a belső szerkesztőt.
+    ~szerkesztő beállításokban~@EditorSettings@ megadott külső szerkesztőt vagy a fájl
+    típusához ~társított szerkesztőt~@FileAssoc@. Ha a külső szerkesztő az
+    alapértelmezett, akkor meghívja a belső szerkesztőt.
 
   Fájlok nyomtatása                                           #Alt-F5#
 
     Ha a "Print Manager" plugin telepítve van, a kijelölt fájlok
-    nyomtatása ezen keresztül történik. Ha nincs, akkor a belső
-    lehetőségek szerint.
+    nyomtatása ezen a nyomtatóvezérlő pluginen keresztül történik.
+    Ha nincs telepítve, akkor a belső lehetőségek szerint.
 
   ~Fájl linkek~@HardSymLink@ létrehozása (csak NTFS)                         #Alt-F6#
 
-    A hardlinkek segítségével különböző fájlnevekkel hivatkozhatunk ugyanarra
-az adatra.
+    A hardlinkek segítségével különböző fájlnevekkel hivatkozhatunk
+    ugyanarra az adatra.
 
   ~Fájlkeresés~@FindFile@ parancs végrehajtása                            #Alt-F7#
 
@@ -583,10 +573,11 @@ az adatra.
 
   A FAR konzolablak méretének átkapcsolása                    #Alt-F9#
                                                               
-    Ablakban futtatás módban ezzel a paranccsal váltogatni lehet az aktuális
-ablakméret és a konzolablak lehető legnagyobb mérete között. Teljes képernyős
-módban az #Alt-F9# váltogat a 25 soros és az 50 soros függőleges felbontás
-között. Részletek a TechInfo##38-nál.
+    Ablakban futtatás módban ezzel a paranccsal váltogatni lehet az
+    aktuális ablakméret és a konzolablak lehető legnagyobb mérete
+    között. Teljes képernyős módban az #Alt-F9# váltogat a 25 soros
+    és az 50 soros függőleges felbontás között. Részletek a TechInfo
+    ##38-nál.
 
   ~Plugin beállítások~@Plugins@                                    #Alt-Shift-F9#
 
@@ -602,21 +593,23 @@ között. Részletek a TechInfo##38-nál.
   ~Új fájl~@FileOpenCreate@ szerkesztése                                      #Shift-F4#
 
     Új fájl megnyitásánál a fájl ugyanazt a kódlapot kapja, mint amit
-a szerkesztőben utoljára használtunk. A FAR szerkesztője első megnyitásakor
-az alapértelmezett kódlapot fogja használni.
+    a szerkesztőben utoljára használtunk. A FAR szerkesztője első
+    megnyitásakor az alapértelmezett kódlapot fogja használni.
 
   A kurzor alatti fájl másolása                             #Shift-F5#
   A kurzor alatti fájl átnevezése/áthelyezése               #Shift-F6#
 
-    Mappákon: ha a megadott (abszolút vagy relatív) elérési út létező mappára
-mutat, akkor a forrásmappát e célmappa belsejébe mozgatja. Ha nem, akkor a
-forrásmappát az új elérési útra nevezi át (vagy helyezi át).
+    Mappákon: ha a megadott (abszolút vagy relatív) elérési út létező
+    mappára mutat, akkor a forrásmappát e célmappa belsejébe mozgatja.
+    Ha nem, akkor a forrásmappát az új elérési útra nevezi át (vagy
+    helyezi át).
 
     Példaként #c:\mappa1\#-et mozgassuk #d:\mappa2\#-re:
+
     - ha #d:\mappa2\# létezik, akkor #c:\mappa1\# tartalma átkerül
-#d:\mappa2\mappa1\# mappába;
-    - ha nem létezik, akkor #c:\mappa1\# áthelyeződik (átneveződik) az
-újonnan létrehozott #d:\mappa2\# mappába (mappára).
+      #d:\mappa2\mappa1\# mappába;
+    - ha nem létezik, akkor #c:\mappa1\# áthelyeződik (átneveződik)
+      az újonnan létrehozott #d:\mappa2\# mappába (mappára).
 
   A kurzor alatti ~fájl törlése~@DeleteFile@                              #Shift-F8#
   Beállítások mentése                                       #Shift-F9#
@@ -625,25 +618,25 @@ forrásmappát az új elérési útra nevezi át (vagy helyezi át).
   Végrehajtás, belépés mappába vagy tömörített fájlba          #Enter#
   Végrehajtás külön ablakban                             #Shift-Enter#
 
-    A #Shift-Enter# mappán lenyomva meghívja a Windows Intézőt és megjeleníti
-a kijelölt mappa tartalmát. Ha egy meghajtó gyökerét szeretnénk látni az
-Intézőben, használjuk a #Shift-Enter#-t a ~meghajtók~@DriveDlg@
-menü megfelelő meghajtóján. A #Shift-Enter# a mappák "#..#" elemén
-lenyomva az aktuális mappát nyitja meg az Intézőben.
+    A #Shift-Enter# mappán lenyomva meghívja a Windows Intézőt és
+    megjeleníti a kijelölt mappa tartalmát. Ha egy meghajtó gyökerét
+    szeretnénk látni az Intézőben, használjuk a #Shift-Enter#-t a
+    ~meghajtók~@DriveDlg@ menü megfelelő meghajtóján. A #Shift-Enter# a mappák
+    #..# elemén lenyomva az aktuális mappát nyitja meg az Intézőben.
 
   Belépés a gyökérmappába                                     #Ctrl-\\#
 
   Belépés mappába vagy tömörített fájlba (SFX-be is)       #Ctrl-PgDn#
 
-    Ha a kurzor mappán áll, a #Ctrl-PgDn# beléptet a mappába. Ha a kurzor
-fájlon áll, a fájl típusához ~társított parancsot~@FileAssoc@ hajtja végre,
-vagy belép a tömörítettbe.
+    Ha a kurzor mappán áll, a #Ctrl-PgDn# beléptet a mappába. Ha a
+    kurzor fájlon áll, a fájl típusához ~társított parancsot~@FileAssoc@ hajtja
+    végre, vagy belép a tömörítettbe.
 
   Visszalépés a szülőmappába                               #Ctrl-PgUp#
 
     Ha a "Kezelőfelület beállítások" ~A Ctrl-PgUp meghajtót vált~@InterfSettings@
-opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl-PgUp# lenyomása a
-hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
+    opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl-PgUp#
+    lenyomása a hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
 
   Gyorsbillentyűt rendel az aktuális mappához       #Ctrl-Shift-0...9#
 
@@ -656,18 +649,17 @@ hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
 
 @DeleteFile
 $ #Fájlok és mappák törlése és kisöprése#
-    A következő billentyűket használhatjuk fájlok és mappák
-    törlésére és kisöprésére:
+    ^<wrap>A következő billentyűket használhatjuk fájlok és mappák
+törlésére és kisöprésére:
 
-    #F8#         - ha vannak a panelen kijelölt fájlok vagy mappák,
-                 törlődnek, egyébként csak a kurzor alatti fájl
-                 vagy mappa törlődik;
+    #F8#         - ^<wrap>ha vannak a panelen kijelölt fájlok vagy mappák,
+törlődnek, egyébként csak a kurzor alatti fájl vagy mappa törlődik;
 
-    #Shift-F8#   - csak a kurzor alatti elem törlődik, függetlenül
-                 attól, hogy van-e kijelölt fájl vagy mappa;
+    #Shift-F8#   - ^<wrap>csak a kurzor alatti elem törlődik, függetlenül
+attól, hogy van-e kijelölt fájl vagy mappa;
 
-    #Shift-Del#  - végleg törli a kijelölt elemeket, ezért a Lomtárban
-                 sem jelennek meg;
+    #Shift-Del#  - ^<wrap>végleg törli a kijelölt elemeket, ezért a Lomtárban
+sem jelennek meg;
 
     #Alt-Del#    - kisöpri a fájlokat és mappákat (biztonsági törlés).
 
@@ -705,100 +697,103 @@ kiterjesztést, kezdve a ".BAT;.CMD;.EXE;.COM;" kiterjesztésekkel:
 $ #Panelvezérlő parancsok - egyebek#
   Képernyőgrabber                                            #Alt-Ins#
 
-    A képernyőgrabberrel bármelyik képernyőterület kijelölhető és a vágólapra
-másolható. A kurzor a #kurzornyilakkal# vagy az #egérrel# mozgatható.
-A szöveg a #Shift-kurzornyilakkal# vagy az egérrel, lenyomott #bal gombnál#
-mozgatással jelölhető ki. Az #Enter#, a #Ctrl-Ins#, a #jobb egérgomb# vagy a
-#kettős kattintás# a kijelölt szöveget a vágólapra másolja, a #Ctrl-<Szürke +>#
-hozzáfűzi a vágólap aktuális tartalmához, az #Esc# pedig kiléptet a grab módból.
-A #Ctrl-U# leveszi a kijelölést a blokkról.
+    A képernyőgrabberrel bármelyik képernyőterület kijelölhető és a
+    vágólapra másolható. A kurzor a #kurzornyilakkal# vagy az #egérrel#
+    mozgatható. A szöveg a #Shift-kurzornyilakkal# vagy az egérrel,
+    lenyomott #bal gombnál# mozgatással jelölhető ki. Az #Enter#, a
+    #Ctrl-Ins#, a #jobb egérgomb# vagy a #kettős kattintás# a kijelölt
+    szöveget a vágólapra másolja, a #Ctrl-<Szürke +># hozzáfűzi a
+    vágólap aktuális tartalmához, az #Esc# pedig kiléptet a grab
+    módból. A #Ctrl-U# leveszi a kijelölést a blokkról.
 
   ~Makró~@KeyMacro@ rögzítése                                           #Ctrl-<.>#
 
   Párbeszédablak előzmények                        #Ctrl-Fel, Ctrl-Le#
 
-    A párbeszédablak szerkesztési előzményeiből az #Enterrel# másolhatjuk ki
-a lista kivánt elemét a beviteli mezőbe. Az #Ins# billentyű megjelöli
-vagy leveszi a jelölést egy-egy elemről. Az így megjelölt előzményeket a
-később hozzáadódó elemek nem tudják lelökni a listáról, így a gyakran
-használt sztringek mindig megmaradnak.
+    A párbeszédablak szerkesztési előzményeiből az #Enterrel#
+    másolhatjuk ki a lista kivánt elemét a beviteli mezőbe.
+    Az #Ins# billentyű megjelöli vagy leveszi a jelölést egy-egy
+    elemről. Az így megjelölt előzményeket a később hozzáadódó
+    elemek nem tudják lelökni a listáról, így a gyakran használt
+    sztringek mindig megmaradnak.
 
   Párbeszédablak szerkesztési előzményeinek törlése              #Del#
 
   Párbeszédablak szerkesztési előzmény aktuális elemének törlése
-  a listából (ha az elem nincs rögzítve)                   #Shift-Del#
+    a listából (ha az elem nincs rögzítve)                 #Shift-Del#
 
   A párbeszédablak alapértelmezett elemére állítja a kurzort    #PgDn#
 
   A kurzor alatti fájlnevet a párbeszédablakba illeszti  #Shift-Enter#
 
   A paszív panel kurzora alatti fájlnevet
-  illeszti a párbeszédablakba                       #Ctrl-Shift-Enter#
+    illeszti a párbeszédablakba                     #Ctrl-Shift-Enter#
 
     Ez a billentyűkombináció minden szerkesztett sornál működik,
-  beleértve a párbeszédablakokat és a ~belső szerkesztőt~@Editor@ is, de
-  kivétel ez alól a parancssor.
+    beleértve a párbeszédablakokat és a ~belső szerkesztőt~@Editor@ is,
+    kivéve a parancssort.
 
     A #Ctrl-Enter# a párbeszédablakok alapértelmezett műveletét
-  hajtja végre (lenyomja az alapértelmezett gombot vagy más
-  hasonló dolgot művel).
+    hajtja végre (lenyomja az alapértelmezett gombot vagy más
+    hasonló dolgot művel).
 
     Párbeszédablakok jelölőnégyzeteinek billentyűparancsai:
 
-  - bejelöli (#[x]#)                                          #Szürke +#
-  - a jelölést kiveszi (#[ ]#)                                #Szürke -#
-  - határozatlanul hagyja (#[?]#)                             #Szürke *#
-    (Utóbbi csak a háromállapotú jelölőnégyzeteknél működik.)
+    - bejelöli (#[x]#)                                        #Szürke +#
+    - a jelölést kiveszi (#[ ]#)                              #Szürke -#
+    - határozatlanul hagyja (#[?]#)                           #Szürke *#
+      (utóbbi csak a háromállapotú jelölőnégyzeteknél
+      működik)
 
     A #bal egérkattintás# a párbeszédablakon kívül eső területen
-  egyenértékű az #Esc# lenyomásával.
+    egyenértékű az #Esc# lenyomásával.
 
     A #jobb egérkattintás# a párbeszédablakon kívül eső területen
-  egyenértékű az #Enter# lenyomásával.
+    egyenértékű az #Enter# lenyomásával.
 
     A FAR Manager kezeli az ~egér görgőjét~@MsWheel@.
 
-    A párbeszédablakok elmozdíthatók, ha az egérrel megfogjuk őket és
-húzzuk, vagy mozgathatók a #Ctrl-F5# lenyomása után a #kurzornyilakkal# is.
+    A párbeszédablakok elmozdíthatók, ha az egérrel megfogjuk őket
+    és húzzuk, vagy mozgathatók a #Ctrl-F5# lenyomása után a
+    #kurzornyilakkal# is.
 
 
 @MsWheel
 $ #Egér: görgő támogatása#
 
-   #Panelek#      A görgő forgatása a fájlok listáját gördíti, a kurzor
-                helyzete változatlan marad.
+   #Panelek#      ^<wrap>A görgő forgatása a fájlok listáját gördíti, a kurzor
+helyzete változatlan marad.
 
-   #Szerkesztő#   A görgő a szöveget gördíti, a kurzor helyzete nem
-                változik (hasonló, mint a #Ctrl-Fel#/#Ctrl-Le#).
+   #Szerkesztő#   ^<wrap>A görgő a szöveget gördíti, a kurzor helyzete nem
+változik (hasonló, mint a #Ctrl-Fel#/#Ctrl-Le#).
 
    #Nézőke#       A görgő a szöveget gördíti.
 
    #Súgó#         A görgő a szöveget gördíti.
 
-   #Menük#        A görgő #Fel#/#Le# billentyűként viselkedik, így
-                kurzorvezérlők nélkül is választhatunk menüpontot.
+   #Menük#        ^<wrap>A görgő #Fel#/#Le# billentyűként viselkedik, így
+kurzorvezérlők nélkül is választhatunk menüpontot.
 
-   #Párbeszéd-#   A párbeszédablakokban, ha a szerkesztett sornak van
-   #ablakok#      előzménylistája vagy lenyíló ablaka, a görgő
-                lenyitja a legördülő listát és ezután a görgő úgy
-                viselkedik, mint a menükben.
+   #Párbeszéd-#
+   #ablakok#      ^<wrap>A párbeszédablakokban, ha a szerkesztett sornak van
+előzménylistája vagy lenyíló ablaka, a görgő lenyitja a legördülő listát és
+ezután a görgő úgy viselkedik, mint a menükben.
 
     A görgő elfordításával arányos elmozduló sorok száma beállítható
-a panelekre, a szerkesztőre és a nézőkére (lásd TechInfo##33).
+a panelekre, a szerkesztőre és a nézőkére (lásd TechInfo ##33).
 
 @Plugins
 $ #Pluginek támogatása#
     A külső DLL modulok (pluginek) segítségével a FAR-t új parancsokkal
 és emulált fájlrendszerekkel bővíthetjük. Például a tömörített fájlok
-kezeléséről, valamint az FTP kliens, az átmeneti panel és a hálózati böngésző
-működéséről fájlrendszert emuláló pluginek gondoskodnak.
+kezeléséről, valamint az FTP kliens, az ideiglenes panel és a hálózati
+böngésző működéséről fájlrendszert emuláló pluginek gondoskodnak.
 
-    Minden pluginnek saját mappája van a Plugins mappán belül, a Plugins
-mappa pedig a FAR.EXE-vel azonos mappából nyílik. Ha a FAR új plugint érzékel,
-elmenti az adatait és később a plugint csak szükség esetén tölti be, így a nem
-használt pluginek feleslegesen nem foglalnak memóriát. Ha biztosak vagyunk
-benne, hogy egyes plugineket soha nem használunk, törlésükkel lemezterületet
-takaríthatunk meg.
+    Minden pluginnek saját mappája van a FAR.EXE-vel azonos mappából nyíló
+Plugins mappán belül. Ha a FAR új plugint érzékel, elmenti az adatait és
+később a plugint csak szükség esetén tölti be, így a nem használt pluginek
+feleslegesen nem foglalnak memóriát. Ha biztosak vagyunk benne, hogy egyes
+plugineket soha nem használunk, törlésükkel lemezterületet takaríthatunk meg.
 
     A pluginek meghívhatók a ~Meghajtók~@DriveDlg@ menüből, a
 #Plugin parancsok# menüből az #F11# leütésével és a ~Parancsok~@CmdMenu@
@@ -809,12 +804,12 @@ fájlpanelekről, valamint (csak az #F11#-gyel) a belső nézőkéből és a
 szerkesztőből is, de a nézőkében és a szerkesztőben csak az
 oda tervezett pluginek listája jelenik meg.
 
-    A pluginek jellemzőit a ~Beállítások~@OptMenu@ menüben, a
+    A pluginek jellemzőit a ~Beállítások menüben~@OptMenu@, a
 ~Plugin beállítások~@PluginsConfig@ almenüben állíthatjuk be.
 
-    A fájlműveletek, mint a másolás, áthelyezés, törlés,
-szerkesztés, átnevezés vagy ~fájlkeresés~@FindFile@ működnek a fájlrendszert
-emuláló pluginekkel is, ha erre a plugin is képes. A "Fájlkeresés" parancs
+    A fájlműveletek, mint a másolás, áthelyezés, törlés, szerkesztés,
+átnevezés vagy ~fájlkeresés~@FindFile@ működnek fájlrendszert emuláló
+pluginekkel is, ha erre a plugin is képes. A "Fájlkeresés" parancs
 az aktuális mappától kiadva kevesebb funkcionalitást vár el a plugintől,
 mintha a gyökértől kezdve kerestetnénk, tehát ha az utóbbi módszer
 nem működik megfelelően, használjuk az előbbit!
@@ -824,8 +819,8 @@ pluginek súgóinak listája a következők szerint jeleníthető meg:
 
     #Shift-F2# - a teljes FAR súgórendszerből használható
 
-    #Shift-F1# - a pluginek listájában használható (helyzetérzékeny
-               súgó).
+    #Shift-F1# - ^<wrap>a pluginek listájában használható
+(helyzetérzékeny súgó).
 
     Ha a pluginnek nincs súgója, a helyzetérzékeny súgó ablaka nem
 jelenik meg.
@@ -867,20 +862,20 @@ bővítési lehetőséget biztosítanak a FAR-nak.
     Néhány lehetőség, a részletek és a teljesség igénye nélkül:
 
   * Szintaktikai szövegkiemelés a programok forrásszövegeiben.
-  * Együttműködés az FTP szerverekkel (beleértve a proxyn
-    keresztüli elérést).
+  * ^<wrap>Együttműködés az FTP szerverekkel (beleértve a proxyn
+keresztüli elérést).
   * Keresés és csere egyszerre több fájlban, reguláris
-    kifejezésekkel.
+kifejezésekkel.
   * Fájlok csoportos átnevezése, a helyettesítő szimbólumok és
-    a sablonok összetett, vegyes alkalmazásával a maszkokban.
+a sablonok összetett, vegyes alkalmazásával a maszkokban.
   * NNTP/SMTP/POP3/IMAP4 kliensek, üzenet küldése személyhívóra.
   * Nem szabványos felbontású szöveges képernyőmódok.
   * Szövegek kódlapkonverziója (nemzeti karakterek).
   * A Lomtár tartalmának kezelése.
   * A futó folyamatok prioritásainak szabályozása helyi és hálózati
-    számítógépeken.
+számítógépeken.
   * Szavak automatikus kiegészítése a szerkesztőben, sablonok
-    kezelése.
+kezelése.
   * A Windows regisztrációs adatbázisának szerkesztése.
   * Windows gyorsbillentyűk létrehozása, módosítása.
   * A FidoNetes fájlok és szövegek kényelmesebb kezelése.
@@ -889,19 +884,19 @@ bővítési lehetőséget biztosítanak a FAR-nak.
   * A Quake (nevű játékprogram) PAK fájljainak kezelése.
   * Nyomtatóvezérlés, helyi és hálózati egyaránt.
   * ODBC kompatibilis adatbázisok lekérdezéseihez kapcsolódás,
-    hibakeresés.
+hibakeresés.
   * RAS szolgáltatás kezelése.
-  * Külső programok (compilerek, konverterek stb.) futtatása,
-    miközben a FAR szerkesztőjében szöveget szerkesztünk.
+  * Külső programok (compilerek, konverterek stb.) futtatása, miközben
+a FAR szerkesztőjében szöveget szerkesztünk.
   * A windows-os súgófájlok (.hlp és .chm) tartalmának
-    megjelenítése.
+megjelenítése.
   * Számológépek, különböző képességekkel.
   * Játékok :-)
   * Helyesírás-ellenőrző funkciók a FAR szövegszerkesztőben.
   * Cserélhető (lemezes) meghajtókhoz katalógus készítése és
-    sok más lehetőség...
+sok más lehetőség...
 
-    Néhány link, ami a letölthető pluginekről tájékoztat:
+    A letölthető pluginekről tájékoztató linkek:
 
   - A Far Group honlapja
     ~http://www.farmanager.com~@http://www.farmanager.com@
@@ -946,31 +941,31 @@ műveleteket hajthatunk végre rajtuk. A parancsok listája a
 
     A fájlpanelek alapértelmezett nézet módjai a következők:
 
- #Rövid#            Fájlnevek három oszlopban.
+ #Rövid#              Fájlnevek három oszlopban.
 
- #Közepes#          Fájlnevek két oszlopban.
+ #Közepes#            Fájlnevek két oszlopban.
 
- #Teljes#           A fájlok neve, mérete, dátuma és ideje.
+ #Teljes#             A fájlok neve, mérete, dátuma és ideje.
 
- #Széles#           A fájlok neve és mérete.
+ #Széles#             A fájlok neve és mérete.
 
- #Részletes#        A fájlok neve, mérete, tömörített mérete; utolsó
-                  módosítás, a létrehozás és hozzáférés dátuma/ideje
-                  és az attribútumok. Teljes képernyős mód.
+ #Részletes#          ^<wrap>A fájlok neve, mérete, tömörített mérete; utolsó
+módosítás, a létrehozás és hozzáférés dátuma/ideje és az attribútumok. Teljes
+képernyős mód.
 
- #Megjegyzések#     A fájlnevek és a ~fájlmegjegyzések~@FileDiz@.
+ #Megjegyzések#       A fájlnevek és a ~fájlmegjegyzések~@FileDiz@.
 
- #Hosszú#           A fájlok neve, mérete és megjegyzése.
- #megjegyzés#       Teljes képernyős mód.
+ #Hosszú megjegyzés#  ^<wrap>A fájlok neve, mérete és megjegyzése.
+Teljes képernyős mód.
 
- #Fájl tulajdonos#  Fájlnevek, méretük és tulajdonosuk.
+ #Fájl tulajdonos#    Fájlnevek, méretük és tulajdonosuk.
 
- #Fájl linkek#      Fájlnevek, méretük, hardlinkjeik száma.
+ #Fájl linkek#        Fájlnevek, méretük, hardlinkjeik száma.
 
- #Alternatív#       Fájlok neve, mérete (számjegyei ezresenként
- #teljes#           vesszővel elkülönítve) és a fájlok dátuma.
+ #Alternatív teljes#  ^<wrap>Fájlok neve, mérete (számjegyei ezresenként elkülönítve)
+és a fájlok dátuma.
 
-    A ~fájlpanel nézet módjai~@PanelViewModes@ testreszabhatók.
+    A ~fájlpanel nézetek módjai~@PanelViewModes@ testreszabhatók.
 
     A "Tömörített méret" (TMéret) az NTFS tömörített fájljainál és az egyéb
 tömörített fájloknál értelmezett. A "Fájltulajdonos" és a "Fájl linkek" csak
@@ -1014,16 +1009,17 @@ a szintnek a mappáin.
 $ #Panelek: info panel#
     Az információs panelről a következő adatok olvashatók le:
 
-  - a számítógép és az aktuális felhasználó #hálózati# neve;
+    - ^<wrap>a számítógép és az aktuális felhasználó #hálózati# neve;
 
-  - az #aktuális lemez# betűjele és fajtája, a fájlrendszer típusa, a hálózat
-neve, a teljes és a szabad lemezterület, a kötet címkéje és sorozatszáma;
+    - ^<wrap>az #aktuális lemez# betűjele és fajtája, a fájlrendszer típusa,
+a hálózat neve, a teljes és a szabad lemezterület, a kötet címkéje és
+sorozatszáma;
 
-  - a #memória# foglaltsága százalékban (a 100% a teljes rendelkezésre álló
-memória foglaltságát jelenti), a fizikai és a virtuális memória
+    - ^<wrap>a #memória# foglaltsága százalékban (a 100% a teljes rendelkezésre
+álló memória foglaltságát jelenti), a fizikai és a virtuális memória
 teljes és szabad mérete;
 
-  - #mappa megjegyzésfájl#.
+    - #mappa megjegyzésfájl#.
 
     A mappa megjegyzésfájlok tartalmát teljes képernyőn tekinthetjük meg az
 #F3#-mal vagy a #bal egérgombbal#. A megjegyzés megnézéséhez vagy
@@ -1109,7 +1105,7 @@ passzív panel aktivizálódik.
 
 @LeftRightMenu
 $ #Menük: Bal és Jobb menü#
-    A #Bal# és #Jobb# menüben a két panel jellemzőit egymástól függetlenül
+   A #Bal# és #Jobb# menüben a két panel jellemzőit egymástól függetlenül
 állíthatjuk be. A menük elemei:
 
    #Rövid#                A fájlok három oszlopban jelennek meg.
@@ -1120,9 +1116,9 @@ $ #Menük: Bal és Jobb menü#
 
    #Széles#               A fájlok neve és mérete jelenik meg.
 
-   #Részletes#            A fájlok neve, mérete, tömörített mérete,
-                        a módosítás, létrehozás és hozzáférés ideje,
-                        attribútumok. Teljes képernyős mód.
+   #Részletes#            ^<wrap>A fájlok neve, mérete, tömörített mérete,
+a módosítás, létrehozás és hozzáférés ideje, attribútumok. Teljes képernyős
+mód.
 
    #Fájlmegjegyzések#     A fájlok neve, ~megjegyzésükkel~@FileDiz@.
 
@@ -1133,8 +1129,8 @@ $ #Menük: Bal és Jobb menü#
 
    #Fájl linkek#          A fájlok neve, mérete, hardlinkek száma.
 
-   #Alternatív teljes#    A fájlok neve, mérete (rendezett formátumú
-                        számokkal) és dátuma.
+   #Alternatív teljes#    ^<wrap>A fájlok neve, mérete (rendezett formátumú
+számokkal) és dátuma.
 
    #Info panel#           A panelt ~info panel~@InfoPanel@ módra váltja.
 
@@ -1150,53 +1146,54 @@ $ #Menük: Bal és Jobb menü#
 
    #Frissítés#            Újraolvassa a panel tartalmát.
 
-   #Meghajtóváltás#       Átváltja az aktuális meghajtót.
-
+   #Meghajtóváltás#       ^<wrap>Az aktuális meghajtóról másikra válthatunk a
+Meghajtók menüben.
 
 @FilesMenu
 $ #Menük: Fájlok menü#
-   #Megnéz#               ~Fájlokba néz bele~@Viewer@ vagy megméri a mappák
-                        tartalmának méretét.
 
-   #Szerkeszt#            Fájlok ~szerkesztése~@Editor@.
+   #Megnéz#                 ^<wrap>~Fájlokba néz bele~@Viewer@ vagy megméri a
+mappák tartalmának méretét.
 
-   #Másol#                Fájlokat és mappákat ~másol~@CopyFiles@.
+   #Szerkeszt#              Fájlok ~szerkesztése~@Editor@.
 
-   #Átnevez-Mozgat#       Fájlokat és mappákat ~nevez át vagy mozgat~@CopyFiles@.
+   #Másol#                  Fájlokat és mappákat ~másol~@CopyFiles@.
 
-   #Új mappa#             ~Új mappát~@MakeFolder@ hoz létre.
+   #Átnevez-Mozgat#         ^<wrap>Fájlokat és mappákat
+~nevez át vagy mozgat~@CopyFiles@.
 
-   #Töröl#                Fájlokat és mappákat töröl.
+   #Új mappa#               ~Új mappát~@MakeFolder@ hoz létre.
 
-   #Kisöpör#              Fájlokat és mappákat söpör ki (biztonsági
-                        törlés). Az adatokat nullákkal írja felül,
-                        majd a fájlt megcsonkítja, átmeneti nevet
-                        ad neki, végül törli.
+   #Töröl#                  Fájlokat és mappákat töröl.
 
-   #Tömörhöz hozzáad#     A kijelölt fájlokat tömöríti.
+   #Kisöpör#                ^<wrap>Fájlokat és mappákat söpör ki (biztonsági
+törlés). Az adatokat nullákkal írja felül, majd a fájlt megcsonkítja,
+átmeneti nevet ad neki, végül törli.
 
-   #Tömörből kibont#      Fájlokat csomagol ki tömörített fájlból.
+   #Tömörhöz hozzáad#       A kijelölt fájlokat tömöríti.
 
-   #Tömörítő parancsok#   Parancsokat hajt végre tömörített fájlokon.
+   #Tömörből kibont#        Fájlokat csomagol ki tömörített fájlból.
 
-   #Fájl attribútumok#    A ~fájlok attribútumait~@FileAttrDlg@ és
-                        dátumát/idejét változtatja meg.
+   #Tömörítő parancsok#     Parancsokat hajt végre tömörített fájlokon.
 
-   #Parancs#              ~Parancsot hajt végre~@ApplyCmd@ a kijelölt
-   #végrehajtás#          fájlokon.
+   #Fájl attribútumok#      ^<wrap>A ~fájlok attribútumait~@FileAttrDlg@ és
+dátumát/idejét változtatja meg.
 
-   #Fájlmegjegyzések#     ~Megjegyzést fűz~@FileDiz@ a kijelölt fájlokhoz.
+   #Parancs végrehajtása#   ^<wrap>~Parancsot hajt végre~@ApplyCmd@ a kijelölt
+fájlokon.
 
-   #Csoport#              Fájlok csoportját ~jelöli ki~@SelectFiles@, joker
-   #kijelölése#           karakterek segítségével.
+   #Fájlmegjegyzések#       ~Megjegyzést fűz~@FileDiz@ a kijelölt fájlokhoz.
 
-   #Jelölést levesz#      Fájlok csoportjáról ~leveszi a jelölést~@SelectFiles@,
-                        joker karakterek segítségével.
+   #Csoport kijelölése#     ^<wrap>Fájlok csoportját ~jelöli ki~@SelectFiles@,
+joker karakterek segítségével.
 
-   #Jelölést megfordít#   ~Megfordítja~@SelectFiles@ a fájlok kijelölését.
+   #Jelölést levesz#        ^<wrap>Fájlok csoportjáról
+~leveszi a jelölést~@SelectFiles@, joker karakterek segítségével.
 
-   #Jelölést visszatesz#  ~Visszateszi~@SelectFiles@ a fájlok előző kijelölését
-                        fájlművelet vagy csoport kijelölése után.
+   #Jelölést megfordít#     ~Megfordítja~@SelectFiles@ a fájlok kijelölését.
+
+   #Jelölést visszatesz#    ^<wrap>~Visszateszi~@SelectFiles@ a fájlok előző
+kijelölését fájlművelet vagy csoport kijelölése után.
 
    A menü néhány parancsáról további leírást olvashatunk a
 ~Fájlkezelő és rendszerparancsok~@FuncCmd@ témakörben.
@@ -1204,55 +1201,51 @@ $ #Menük: Fájlok menü#
 
 @CmdMenu
 $ #Menük: Parancsok menü#
-   #Fájlkeresés#          Fájlokat keres a mappák fáiban, joker
-                        karakterek is használhatók. Bővebben
-                        a ~fájlkeresés~@FindFile@ témakörben.
 
-   #Parancs előzmények#   Kilistázza a korábbi parancsokat. Bővebb
-                        információ a ~parancs előzmények~@History@ témakörben
-                        található.
+   #Fájlkeresés#          ^<wrap>Fájlokat keres a mappák fáiban, joker
+karakterek is használhatók. Bővebben a ~fájlkeresés~@FindFile@ témakörben.
 
-   #Video mód#            Teljes képernyőn 25 és 50 soros felbontás
-                        között vált, konzolablakban az ablak eredeti
-                        mérete és maximális mérete között vált.
+   #Parancs előzmények#   ^<wrap>Kilistázza a korábbi parancsokat. Bővebb
+információ a ~parancs előzmények~@History@ témakörben található.
 
-   #Mappakeresés#         Mappát keres a mappák fáiban. További
-                        információk a ~mappakeresés~@FindFolder@ témakörben.
+   #Video mód#            ^<wrap>Teljes képernyőn 25 és 50 soros felbontás
+között vált, konzolablakban az ablak eredeti mérete és maximális mérete
+között vált.
 
-   #Fájl előzmények#      A korábban ~megnézett vagy szerkesztett~@HistoryViews@.
-                        fájlok listáját mutatja meg.
+   #Mappakeresés#         ^<wrap>Mappát keres a mappák fáiban. További
+információk a ~mappakeresés~@FindFolder@ témakörben.
 
-   #Mappa előzmények#     A bejárt ~mappák előzményeit~@HistoryFolders@ jeleníti
-                        meg. A "Mappa előzmények" és a "Fájl
-                        előzmények" listák elemei kiválasztás
-                        után a lista aljára kerülnek. Ezt
-                        elkerülhetjük, ha Enter helyett
-                        #Shift-Enterrel# választunk közülük.
+   #Fájl előzmények#      ^<wrap>A korábban
+~megnézett vagy szerkesztett~@HistoryViews@ fájlok listáját mutatja meg.
+
+   #Mappa előzmények#     ^<wrap>A bejárt ~mappák előzményeit~@HistoryFolders@
+jeleníti meg. A "Mappa előzmények" és a "Fájl előzmények" listák elemei
+kiválasztás után a lista aljára kerülnek. Ezt elkerülhetjük, ha Enter helyett
+#Shift-Enterrel# választunk közülük.
 
    #Panelcsere#           Megcseréli a bal és jobb panelt.
 
    #Panelek be/ki#        Megjeleníti/elrejti mindkét panelt.
 
    #Mappák#               Összeveti a mappák tartalmát.
-   #összehasonlítása#     A ~mappák összehasonlítása~@CompFolders@ témakör
-                        részletezi a funkciót.
+   #összehasonlítása#     ^<wrap>A ~mappák összehasonlítása~@CompFolders@
+témakör részletezi a funkciót.
 
    #Felhasználói menü#    Fő vagy helyi ~felhasználói menüt~@UserMenu@
    #szerkesztése#         szerkeszthetünk. Az #Ins# billentyű beszúrja,
                         a #Del# törli, az #F4# pedig szerkeszti a menü
                         elemeit.
 
-   #Fájltársítások#       Megjeleníti a ~fájltársításokat~@FileAssoc@.
-                        Az #Ins# billentyűvel beszúrhatjuk, a #Del#-lel
-                        törölhetjük, az #F4#-gyel pedig szerkeszthetjük
-                        a fájlok társításait.
+   #Fájltársítások#       ^<wrap>Megjeleníti a ~fájltársításokat~@FileAssoc@.
+Az #Ins# billentyűvel beszúrhatjuk, a #Del#-lel törölhetjük, az #F4#-gyel
+pedig szerkeszthetjük a fájlok társításait.
 
    #Mappa#                A ~mappa gyorsbillentyűk~@FolderShortcuts@ aktuális
    #gyorsbillentyűk#      összerendeléseit jeleníti meg.
 
    #Fájlpanel szűrő#      A fájlpanelek tartalmát szűrhetjük.
-                        A ~szűrők menü~@FiltersMenu@ témakör részletezi
-                        a lehetőségeit.
+                        ^<wrap>A ~Szűrők menü~@FiltersMenu@ témakör
+részletezi a lehetőségeit.
 
    #Plugin parancsok#     A ~plugin parancsok~@Plugins@ listája.
 
@@ -1277,16 +1270,17 @@ $ #Menük: Beállítások menü#
    #beállítások#          párbeszédablakot jeleníti meg.
 
    #Nyelvek#              A program és a súgó nyelve választható ki.
-                        Használjuk a "Beállítások mentése" funkciót!
+                        ^<wrap>Használjuk a "Beállítások mentése" funkciót!
 
    #Plugin#               A ~pluginek~@Plugins@ működése állítható be, a pluginek
    #beállítások#          beállítási párbeszédablakaiban.
 
-   #Megerősítések#        Egyes műveletek végrehajtására ~megerősítés~@ConfirmDlg@
-                        (rákérdezés) kapcsolható ki vagy be.
+   #Megerősítések#        ^<wrap>Egyes műveletek végrehajtására
+~megerősítés~@ConfirmDlg@ (rákérdezés) kapcsolható ki vagy be.
 
-   #Fájlpanel módok#      A ~fájlpanel nézet módok testreszabása~@PanelViewModes@
-                        végezhető el a funkcióval.
+   #Fájlpanel módok#      ^<wrap>A
+~fájlpanel nézet módok testreszabása~@PanelViewModes@ végezhető el a
+funkcióval.
 
    #Fájl megjegyzés-#     Megadható, hogy a ~fájlok megjegyzéseit~@FileDiz@
    #fájlok#               mely fájlokból olvassa ki a FAR. Beállíthatók
@@ -1301,10 +1295,9 @@ $ #Menük: Beállítások menü#
    #Szerkesztő#           A külső és belső ~szerkesztő beállításai~@EditorSettings@.
    #beállítások#
 
-   #Színek#               Kiválasztható minden egyes képernyőelem
-                        színe, a FAR teljes palettája fekete-fehérre
-                        cserélhető, vagy visszaállítható az eredeti
-                        színkombináció.
+   #Színek#               ^<wrap>Kiválasztható minden egyes képernyőelem
+színe, a FAR teljes palettája fekete-fehérre cserélhető vagy visszaállítható
+az eredeti színkombináció.
 
    #Fájlkiemelések,#      A ~fájlkiemelések, rendezési csoportok~@Highlight@
    #rendezési csoportok#  beállításai.
@@ -1330,7 +1323,8 @@ kapcsolhatjuk ki vagy be:
 
     - művelet megszakítása;
 
-    - ~hálózati meghajtók leválasztása~@DisconnectDrive@ a Meghajtók menüből;
+    - ^<wrap>~hálózati meghajtók leválasztása~@DisconnectDrive@ a Meghajtók
+menüből;
 
     - virtuális (SUBST) meghajtók törlése a Meghajtók menüből;
 
@@ -1352,7 +1346,7 @@ mappák neveit #\\#-karakterrel választjuk el. Példa:
 
     #%USERDOMAIN%\\%USERNAME%\\Mappa3#
 
-    Ha a "#Több név feldolgozása#" opciót engedélyezzük, egyszerre több mappát
+    Ha a #Több név feldolgozása# opciót engedélyezzük, egyszerre több mappát
 készíthetünk. Ebben az esetben a mappák neveit "#;#" vagy "#,#" karakterrel kell
 elválasztani. Ha a fent említett opciót engedélyeztük és a mappa nevében van
 "#;#" (vagy "#,#") karakter, akkor a nevet idézőjelek közé kell tenni. Például
@@ -1374,60 +1368,67 @@ Több ~joker~@FileMasks@ karakteres maszk is használható (vesszővel elválasz
 fájlokat keresi meg, valamint bekapcsolható a #Nagy/kisbetű érzékeny# keresés
 is.
 
-    A #Csak egész szavak# opcióval csak azokat a szövegrészeket keresi meg,
-ahol a megadott karaktersort a többitől a szóköz, tabulátor vagy soremelés
-karakter választja el, vagy a szabványos határoló karakterek, amelyek
-alapértelmezés szerint a következők: #!%^&*()+|{}:"<>?`-=\\[];',./#.
+    A #Csak egész szavak# opció csak akkor értékeli találatnak a megtalált
+szövegrészeket, ha a megadott karaktersort a többitől a szóköz, tabulátor vagy
+soremelés karakter választja el, vagy a szabványos határoló karakterek,
+amelyek alapértelmezés szerint: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
     A #Keresés hexákra# opcióval hexadecimális számsorokat adhatunk meg
-keresési feltételként. Ebben az esetben a #Nagy/kisbetű érzékelés#, az
+keresési feltételként. Ebben az esetben a #Nagy/kisbetű érzékeny#, a
 #Csak egész szavak#, a #Kódlap# és a #Keresés mappákra# opciók
 lehetőségét a FAR kikapcsolja és a korábban beállított értéküket sem veszi
 figyelembe a keresés során.
 
     A #Kódlap# legördülő listájában a szöveg kereséséhez kiválaszthatunk
-egy kódlapot vagy megjelölhető a #Minden kódlappal# lehetőség is, utóbbi
-esetben a FAR a rendelkezésére álló kódlapok szerint keresi a szövegeket
-a fájlokban.
+egy konkrét kódlapot, vagy megjelölhető a #Minden kódlappal# lehetőség is,
+utóbbi esetben a FAR a szabványos és a #Kedvenc# kódlapok szerint keresi a
+szövegeket a fájlokban. A #Kedvenc# kódlapokat a nézőke vagy a szerkesztő
+kódlapválasztó párbeszédablakában (Shift-F8) jelölhetjük ki. Ha a
+#Minden kódlappal# opciót választottuk, de a kódlapok kínálatát túlzóan
+bőségesnek találjuk, az #Ins# vagy a #Space# billentyűvel leszűkíthetjük
+a szabványos és #Kedvenc# kódlapok körét, így kizárólag a megjelölt
+kódlapok szerint megy végbe a keresés.
 
     A #Keresés tömörítettekben# opció hatására a FAR a számára ismert
-tömörített formátumokba is belenéz, bár ez jelentősen csökkenti a keresés
-hatékonyságát. A FAR nem tud keresni egymásba ágyazott tömörített fájlokban.
+tömörítési formátumú archívumokba is belenéz, bár ez jelentősen csökkenti a
+keresés hatékonyságát. A FAR nem tud keresni egymásba ágyazott tömörített
+fájlokban.
 
     A #Keresés mappákra# opció a keresett nevek hatókörét kiterjeszti a
-mappák neveire, és siker esetén ezekkel is nő a találatszám.
+mappák neveire és siker esetén ezekkel is nő a találatszám.
 
     A #Keresés szimbolikus linkekben# opció hatására a keresés ugyanúgy
 zajlik le a ~szimbolikus linkekben~@HardSymLink@, mintha szabályos almappák
 lennének.
 
     Megjegyzés: ha a fájlrendszer önmagára hivatkozó szimbolikus link
-                ciklusokat tartalmaz (például, ha a szimlink az egyik
-                saját szülő mappájára mutat), akkor a keresés addig
-                tart, amíg eljut az elérési útvonalak hosszának
-                megengedett maximumáig.
+ciklusokat tartalmaz (például ha a szimlink az egyik saját szülőmappájára
+mutat), a keresés addig tart, amíg eljut az elérési útvonalak hosszának
+megengedett maximumáig. Ebben az esetben a keresés jóval hosszabb időt vehet
+igénybe.
 
+    #Keresés hatósugara#
 
-    A keresés kiadható:
+    A keresés kiadható
 
     - minden fix meghajtóra;
 
-    - minden helyi meghajtóra, a kivehető és hálózati meghajtók
-      kivételével;
+    - ^<wrap>minden helyi meghajtóra, a kivehető és hálózati meghajtók
+kivételével;
 
-    - az összes, a %PATH% környezeti változóban megadott mappára
-      (a belőlük nyíló almappákra nem);
+    - ^<wrap>A %PATH% környezeti változóban megadott összes mappára
+(a belőlük nyíló almappákra nem);
 
-    - a meghajtó gyökeréből nyíló összes mappára (a keresés
-      párbeszédablak lekérdezi az aktív panel meghajtójának
-      betűjelét, ebből adódik a #Meghajtó gyökerétől:#
-      opció);
+    - ^<wrap>az aktuális meghajtó vagy a #Meghajtó# gombbal
+definiált meghajtó gyökeréből nyíló összes mappára (a keresés
+párbeszédablak lekérdezi az aktív panel meghajtójának betűjelét, ebből
+adódik a #Meghajtó gyökerétől:# opció);
 
     - az aktuális mappára;
 
-    - az aktuális mappában vagy csak a kijelölt mappákban
-      (a FAR jelenlegi verziója nem keres olyan mappákban,
-      amelyek ~szimbolikus linkek~@HardSymLink@).
+    - ^<wrap>csak az aktuális mappában vagy a kijelölt mappákban (a FAR
+jelenlegi verziója nem keres olyan mappákban, amelyek
+~szimbolikus linkek~@HardSymLink@).
 
     A keresés beállításai a többi beállítással mentődnek.
 
@@ -1443,18 +1444,19 @@ végezhetjük el.
 
 @FindFileAdvanced
 $ #Fájlkeresés haladó beállításai#
-    A #Tartalmazza a szöveget# (vagy a #Tartalmazza a hexát#) mezőben megadott
+    A #Tartalmazza a szöveget# (vagy a #Tartalmazza a hexát#) mezőben beírt
 karaktersorozatot nem csak az egész fájlban, hanem a fájl elejének megadott
 tartományában is kerestethetjük a #Keresés csak az első x bájtban# opcióval.
 Ha a megadott érték kisebb a fájl méreténél, hiába tartalmazza a fájl
 tartományon túli része a szöveget, oda nem terjed ki a keresés.
 
-    A keresési tartomány mértékegységéhez a következő utótagok használhatók:
-B - bájt (ha nincs utótag, az is bájtot jelent);
-K - kilobájt;
-M - megabájt;
-G - gigabájt;
-T - terabájt.
+    A keresési tartomány mértékegységeként a következő utótagok használhatók:
+
+    B - bájt (ha nincs utótag, az is bájtot jelent);
+    K - kilobájt;
+    M - megabájt;
+    G - gigabájt;
+    T - terabájt.
 
 @FindFileResult
 $ #Fájlkeresés: vezérlőgombok#
@@ -1464,26 +1466,24 @@ vagy lépkedhetünk a műveleti gombokon és aktiválhatjuk őket.
 
     Keresés közben vagy a keresés után a következő gombok használhatók:
 
-   #Új keresés#      Új keresést indít el.
+    #Új keresés#      Új keresést indít el.
 
-   #Ugrás#           Megszakítja a keresést (ha még tart), átvált a
-                   mappák paneljére és a kurzort a kiválasztott
-                   fájlra állítja.
+    #Ugrás#           ^<wrap>Megszakítja a keresést (ha még tart), átvált a
+mappák paneljére és a kurzort a kiválasztott fájlra állítja.
 
-   #Megnéz#          Megnézi a kiválasztott fájlt. Ha a keresés még
-                   nincs kész, a fájl megnézése közben a keresés a
-                   háttérben folytatódik.
+    #Megnéz#          ^<wrap>Megnézi a kiválasztott fájlt. Ha a keresés még
+nincs kész, a fájl megnézése közben a keresés a háttérben folytatódik.
 
-   #Panel#           A megtalált fájlok listáját átmeneti panelen
-                   jeleníti meg.
+    #Panel#           ^<wrap>A megtalált fájlok listáját ideiglenes panelen
+jeleníti meg.
 
-   #Állj#            Megszakítja a keresést. Csak a keresés folyamán
-                   aktív.
+    #Állj#            ^<wrap>Megszakítja a keresést. Csak a keresés folyamán
+aktív.
 
-   #Mégsem#          Bezárja a keresés párbeszédablakát.
+    #Mégsem#          Bezárja a keresés párbeszédablakát.
 
     Az #F3# és az #F4# a megtalált fájlok megnézésére és szerkesztésére
-szolgál és pluginnel emulált fájlrendszerekben is használható. Fontos
+szolgál és pluginnel emulált fájlrendszerekben is használható. Érdemes
 megjegyezni, hogy ha emulált fájlrendszerben mentjük a szerkesztés változásait
 az #F2#-vel, egyszerű #Mentés# helyett #Mentés másként# művelet történik.
 
@@ -1510,26 +1510,23 @@ felfelé léptet.
 
 @Filter
 $ #Szűrő#
-    A műveleti szűrővel az általunk megadott szűrőfeltételeknek megfelelő
+   A műveleti szűrővel az általunk megadott szűrőfeltételeknek megfelelő
 fájlok csoportján végeztethetjük el a kívánt műveletet. Egy-egy szűrő több
 különböző szabálykészletet is tartalmazhat.
 
-    A Szűrő párbeszédablak elemei:
+   A Szűrő párbeszédablak elemei:
 
-   #Szűrő neve#      A szűrő neve, ami majd a szűrő menüben látszik.
-                   Ez a mező üres is lehet.
+   #Szűrő neve#      ^<wrap>A szűrő neve, ami majd a szűrő menüben látszik.
+Ez a mező üres is lehet.
 
-                   A szűrők neve nem elérhető, ha a szűrőt a
-                   ~Fájlkiemelések, rendezési csoportok~@Highlight@
-                   menüből nyitottuk meg.
+                   ^<wrap>A szűrők neve nem érhető el, ha a szűrőt a
+~Fájlkiemelések, rendezési csoportok~@Highlight@ menüből nyitottuk meg.
 
    #Maszk#           Egy vagy több ~fájlmaszk~@FileMasks@.
 
-                   A szűrőfeltételek akkor teljesülnek, ha a
-                   fájlmaszkelemzés be van kapcsolva és a név
-                   megfelel valamelyik maszknak. Ha a maszkok
-                   elemzése ki van kapcsolva, a fájl nevét a
-                   FAR nem veszi figyelembe.
+                   ^<wrap>A szűrőfeltételek akkor teljesülnek, ha a
+fájlmaszkelemzés be van kapcsolva és a név megfelel valamelyik maszknak. Ha a
+maszkok elemzése ki van kapcsolva, a fájl nevét a FAR nem veszi figyelembe.
 
    #Méret#           A fájlméret minimális és maximális értéke.
                    A következő fájlméret utótagok használhatók:
@@ -1540,63 +1537,53 @@ különböző szabálykészletet is tartalmazhat.
                    G - gigabájt;
                    T - terabájt.
 
-                   A szűrőfeltételek akkor teljesülnek, ha a
-                   fájlméretelemzés be van kapcsolva és a fájl
-                   mérete a tartományon belül esik. Ahol vala-
-                   melyik értéket nem korlátozzuk (üresen ha-
-                   gyott sorral), ott a fájl mérete bármilyen
-                   értéket felvehet.
+                   ^<wrap>A szűrőfeltételek akkor teljesülnek, ha a
+fájlméretelemzés be van kapcsolva és a fájl mérete a tartományon belül esik.
+Ahol valamelyik értéket nem korlátozzuk (üresen hagyott sorral), ott a fájl
+mérete bármilyen értéket felvehet.
 
    #Dátum/Idő#       A fájl dátumának/idejének tartománya.
-                   Választhatunk az utolsó #módosítás#, a
-                   #létrehozás# vagy a #hozzáférés# dátuma
-                   és időpontja közt.
+                   ^<wrap>Választhatunk az utolsó #módosítás#, a #létrehozás#
+vagy a #hozzáférés# dátuma és időpontja közt.
 
-                   A #Jelenlegi# gomb az aktuális dátummal és
-                   idővel tölti fel a dátum/idő mezőt, ezután
-                   a mezők értékeit módosíthatjuk, például
-                   akár külön a hónap vagy a perc értékét is.
-                   Az #Üres# gomb törli a dátum- és időmezők
-                   tartalmát.
+                   ^<wrap>A #Jelenlegi# gomb az aktuális dátummal és idővel
+tölti fel a dátum/idő mezőt, ezután a mezők értékeit módosíthatjuk, például
+akár külön a hónap vagy a perc értékét is. Az #Üres# gomb törli a dátum- és
+időmezők tartalmát.
 
-                   A szűrőfeltételek akkor teljesülnek, ha a
-                   dátum/időanalízis be van kapcsolva és a
-                   fájl dátuma/ideje a kiválasztott időtípus
-                   (módosítás, létrehozás vagy hozzáférés)
-                   megadott tartományán belül van. Ha egyik
-                   vagy mindkét időmezőt üresen hagyjuk, a
-                   kitöltetlen sor nem lesz szűrőfeltétel.
+                   ^<wrap>A szűrőfeltételek akkor teljesülnek, ha a
+dátum/időanalízis be van kapcsolva és a fájl dátuma/ideje a kiválasztott
+időtípus (módosítás, létrehozás vagy hozzáférés) megadott tartományán belül
+van. Ha egyik vagy mindkét időmezőt üresen hagyjuk, a kitöltetlen sor nem lesz
+szűrőfeltétel.
 
    #Attribútumok#    Befoglaló és kizáró attribútumok.
 
-                   A szűrőfeltételek akkor teljesülnek, ha az
-                   attribútumelemzés be van kapcsolva és a
-                   fájl minden megadott befoglaló attribútummal
-                   rendelkezik, de nincs egyetlen kizáró
-                   attribútuma sem:
+                   ^<wrap>A szűrőfeltételek akkor teljesülnek, ha az
+attribútumelemzés be van kapcsolva és a fájl minden megadott befoglaló
+attribútummal rendelkezik, de nincs egyetlen kizáró attribútuma sem:
 
-                   #[x]# - befoglaló attribútum - a fájlnak
-                         rendelkeznie kell az attribútummal;
+                   #[x]# - ^<wrap>befoglaló attribútum - a fájlnak
+rendelkeznie kell az attribútummal;
                    #[ ]# - kizáró attribútum - a fájlnak nem
-                         lehet ilyen attribútuma;
+lehet ilyen attribútuma;
                    #[?]# - az attribútum értéke nem számít.
 
-                   A #Tömörített#, #Titkosított#, #Nem indexelt#,
-                   #Ritkított#, #Átmeneti# és #Offline# attribútum
-                   csak NTFS fájlrendszerű lemezeken létezik.
-                   A #Virtuális# attribútumot csak a Windows
-                   Vista/2008 operációs rendszerek használják.
+                   ^<wrap>A #Tömörített#, #Titkosított#, #Nem indexelt#,
+#Ritkított#, #Átmeneti# és #Offline# attribútum csak NTFS fájlrendszerű
+lemezeken létezik. A #Virtuális# attribútumot csak a Windows Vista/2008
+operációs rendszerek használják.
 
-    A megfelelő jelölőnégyzetekkel egyszerűen tilthatunk le vagy
+   A megfelelő jelölőnégyzetekkel egyszerűen tilthatunk le vagy
 engedélyezhetünk egy-egy szűrőfeltételt, a #Reset# gomb pedig minden
 szűrőfeltételt töröl.
 
 
 @History
 $ #Parancs előzmények#
-    A Parancs előzmények menü a korábban végrehajtott parancsok listáját
-jeleníti meg. A listán a kurzorvezérlőkön kívül a következő billentyűket
-használhatjuk:
+    A Parancs előzmények menü a korábban végrehajtott parancsok
+  listáját jeleníti meg. A listán a kurzorvezérlőkön kívül a
+  következő billentyűket használhatjuk:
 
   Előzőleg kiadott parancs végrehajtása                         #Enter#
 
@@ -1604,32 +1591,36 @@ használhatjuk:
 
   Parancs másolása a parancssorba                          #Ctrl-Enter#
 
-  Parancs előzmények törlése                                      #Del#
+  Az előzménylista törlése                                        #Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Az aktuális előzményelem törlése                          #Shift-Del#
 
-  Очистка текущего пункта истории                           #Shift-Del#
+  Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
   A kiválasztott parancsot a vágólapra másolja,                #Ctrl-C#
-  a lista legördítve marad                              vagy #Ctrl-Ins#
+    a lista legördítve marad                            vagy #Ctrl-Ins#
 
-    Ha az előző vagy a következő parancsot közvetlenül a parancssorból
-szeretnénk meghívni, használjuk a #Ctrl-E# vagy a #Ctrl-X# billentyűket.
+    Ha az előző vagy a következő parancsot közvetlenül a
+  parancssorból szeretnénk meghívni, használjuk a #Ctrl-E# vagy
+  a #Ctrl-X# billentyűket.
 
-    Ha parancsot szeretnénk választani a listából, a kurzorvezérlőkön és az
-#Enteren# kívül használhatjuk közvetlenül a parancs kiemelt betűjelét is.
+    Ha parancsot szeretnénk választani a listából, a kurzorvezérlőkön
+  és az #Enteren# kívül használhatjuk közvetlenül a parancs kiemelt
+  betűjelét is.
 
-    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a parancsok előzményét,
-jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
-párbeszédablakban.
+    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a parancsok
+  előzményét, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
+  párbeszédablakban.
 
-    Заблокированные пункты не будут удаляться при очистке истории.
+    A zárolt előzményelemek nem törlődnek az előzménylista módosulása
+  vagy törlése esetén sem.
+
 
 @HistoryViews
 $ #Előzmények: megnézett és szerkesztett fájlok előzménye#
-    A "Fájl előzmények" az utoljára megnézett vagy szerkesztett fájlok listáját
-mutatja, elérési útvonalukkal. A kurzorvezérlőkön kívül a következő
-billentyűkombinációkat használhatjuk:
+    A "Fájl előzmények" az utoljára megnézett vagy szerkesztett
+  fájlok listáját mutatja, elérési útvonalukkal. A kurzorvezérlőkön
+  kívül a következő billentyűkombinációkat használhatjuk:
 
   Újbóli megnyitás a nézőkében vagy a szerkesztőben             #Enter#
 
@@ -1637,42 +1628,44 @@ billentyűkombinációkat használhatjuk:
 
   Előzménylista törlése                                           #Del#
 
-  Очистка текущего пункта истории                           #Shift-Del#
+  Az aktuális előzményelem törlése                          #Shift-Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
   Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
 
   A lista kiválasztott elemének vágólapra másolása,            #Ctrl-C#
-  a lista legördítve marad                              vagy #Ctrl-Ins#
+    a lista legördítve marad                            vagy #Ctrl-Ins#
 
   Fájl megnyitása a ~szerkesztőben~@Editor@                                  #F4#
 
   Fájl megnyitása a ~nézőkében~@Viewer@                                      #F3#
                                                         vagy #Numpad 5#
 
-    A lista fájljainak megnyitását a kurzorvezérlőkön és az #Enteren# kívül
-elvégezhetjük közvetlenül a kiemelt betűjelükkel is.
+    A lista fájljainak megnyitását a kurzorvezérlőkön és az #Enteren#
+  kívül elvégezhetjük közvetlenül a kiemelt betűjelükkel is.
 
-    Az előzménylista aktivizált elemei a lista végére kerülnek. Ezt a hatást
-elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
+    Az előzménylista aktivizált elemei a lista végére kerülnek. Ezt a
+  hatást elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
 
-    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a fájlok előzményeit,
-jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
-párbeszédablakban.
+    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a fájlok
+  előzményeit, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
+  párbeszédablakban.
 
-  Megjegyzés:
+  Megjegyzések:
 
-  1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
-     pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
+     1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+        jelenleg nem elérhető távoli helyeket kell vizsgálnia.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
-     истории.
+     2. A zárolt előzményelemek nem törlődnek az előzménylista
+        módosulása vagy törlése esetén sem.
+
 
 @HistoryFolders
 $ #Előzmények: mappa előzmények#
-    A mappák előzménye a korábban bejárt mappák listáját jeleníti meg. A
-kurzorvezérlőkön kívül a következő billentyűkombinációkat használhatjuk:
+    A mappák előzménye a korábban bejárt mappák listáját jeleníti
+  meg. A kurzorvezérlőkön kívül a következő billentyűkombinációkat
+  használhatjuk:
 
   Belépés a listán kiválasztott mappába                         #Enter#
 
@@ -1682,9 +1675,9 @@ kurzorvezérlőkön kívül a következő billentyűkombinációkat használhatj
 
   Előzménylista törlése                                           #Del#
 
-  Очистка текущего пункта истории                           #Shift-Del#
+  Az aktuális előzményelem törlése                          #Shift-Del#
 
-  Установить/снять пометку блокировки пункт истории               #Ins#
+  Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
   Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
 
@@ -1692,21 +1685,23 @@ kurzorvezérlőkön kívül a következő billentyűkombinációkat használhatj
   a lista legördítve marad                              vagy #Ctrl-Ins#
 
     A lista mappáinak megnyitására a kurzorvezérlőkön és az #Enteren#
-kívül használatjuk a kiemelt betűjelüket is.
+  kívül használatjuk a kiemelt betűjelüket is.
 
-    Az előzménylista újraaktivált elemei a lista végére kerülnek. Ezt a hatást
-elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
+    Az előzménylista újraaktivált elemei a lista végére kerülnek. Ezt
+  a hatást elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
 
-    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a mappák előzményeit,
-jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@ párbeszédablakban.
+    Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a mappák
+  előzményeit, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
+  párbeszédablakban.
 
-  Megjegyzés:
+  Megjegyzések:
 
-  1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
-     pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
+    1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+       pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
-     истории.
+    2. A zárolt előzményelemek nem törlődnek az előzménylista
+       módosulása vagy törlése esetén sem.
+
 
 @TaskList
 $ #Futó programok#
@@ -1716,8 +1711,8 @@ sorai megegyeznek a futó programok ablakainak megnevezéseivel.
     A listán átválthatunk a futó program ablakára vagy a programokat
 "kilőhetjük" a memóriából a #Del# billentyűvel. Utóbbi művelettel bánjunk
 óvatosan, mert azonnal leállítja a kiválasztott program futását és annak
-minden elmentetlen adata elvész! Ezt a funkciót tehát csak végszükség esetén
-használjuk, például nem válaszoló programoknál.
+minden elmentetlen adata elvész, ezért ezt a funkciót csak végszükség esetén
+használjuk, például a nem válaszoló programoknál.
 
     A Futó programokat a ~Parancsok menüből~@CmdMenu@ vagy a #Ctrl-W#
 billentyűkombinációval hívhatjuk meg. A #Ctrl-W# kombináció a nézőkében és a
@@ -1731,9 +1726,9 @@ $ #Hotplug eszközök#
     A Hotplug eszközök menü a PC kártyaolvasók és a számítógéphez
 csatlakoztatott egyéb analóg eszközök listáját jeleníti meg.
 
-    Az eltávolítandó eszköz nevét ki kell választani a listából és #Del#-t ütni
+    A leválasztandó eszköz nevét ki kell választani a listából és #Del#-t ütni
 rajta. Ezután a Windows gondoskodik az eszköz biztonságos eltávolításáról és
-értesítést kapunk, ha eltávolítása már biztosan nem jár adatvesztéssel.
+értesítést kapunk, ha az eltávolítás már biztosan nem jár adatvesztéssel.
 
     A #Ctrl-R# frissíti a csatlakozó eszközök listáját.
 
@@ -1753,16 +1748,16 @@ a művelet eredményére.
 
 @UserMenu
 $ #Felhasználói menü#
-    A Felhasználói menü a sűrűn használt parancsok egyszerűbb meghívását teszi
-lehetővé. Számos általunk definiálható parancs és parancssorozat létezik,
-amit a felhasználói menüből hajthatunk végre. A menü tartalmazhat almenüket
-is. A ~különleges szimbólumok~@MetaSymbols@ a parancsokban és a parancsok
-nevében is használhatók. Jegyezzük meg, hogy a #!?<név>?<alapérték>!# szimbólum
+    A Felhasználói menüvel a sűrűn használt parancsokat egyszerűbben hívhatjuk
+meg. Számos általunk definiálható parancs és parancssorozat létezik, amit a
+felhasználói menüből hajthatunk végre. A menü tartalmazhat almenüket is. A
+~különleges szimbólumok~@MetaSymbols@ a parancsokban és a parancsok nevében is
+használhatók. Jegyezzük meg, hogy a #!?<név>?<alapérték>!# szimbólum
 segítségével olyan párbeszédablakot készíthetünk, amelynek beviteli mezőiben
-közvetlenül a végrehajtás előtt paramétereket adhatunk a parancsoknak.
+közvetlenül a végrehajtás előtt paraméterezhetjük a parancsokat.
 
     A ~Parancsok menü~@CmdMenu@ #Felhasználói menü szerkesztése# menüpontjában
-szerkeszthetjük vagy létrehozhatjuk fő- és helyi felhasználói menüinket.
+szerkeszthetjük vagy létrehozhatjuk fő és helyi felhasználói menüinket.
 Főmenüből csak egy lehet, helyi menüje bármelyik mappának lehet. Ha egy
 mappának nincs helyi menüje, F2-re a főmenü aktivizálódik. A fő- és a helyi
 menük között #Shift-F2#-vel váltogathatunk. A #BackSpace#-szel a helyi menüből
@@ -1783,7 +1778,7 @@ bilentyűvel szerkeszthetjük a jellemzőiket, a #Del#-lel pedig törölhetjük 
 menü elemeit. #Alt-F4#-gyel a menüket szövegfájl formátumban szerkeszthetjük.
 
     A felhasználói menü elemeinek gyorsbillentyűjeként megadhatunk számokat,
-betűket vagy funkcióbillentyűket (#F1#..#F12#), utóbbiakat beírás útján
+betűket vagy funkcióbillentyűket (#F1#..#F12#), utóbbiakat csak beírás útján
 fogadja el. Ha az #F1# vagy #F4# eredetileg más művelethez volt rendelve,
 a felhasználói menü felülbírálja eredeti funkcióikat, bár a #Shift-F4#-gyel
 ezután is szerkeszthetjük a menüt.
@@ -1798,7 +1793,8 @@ mentődik. A főmenüt a FAR alaphelyzetben a regisztrációs adatbázisba menti
 fájlba is menthető. Ha helyi menüt készítettünk a FAR mappájában, a FAR ezt
 fogja használni a registrybe mentett főmenü helyett.
 
-    A #Shift-F10# azonnal bezárja a felhasználói menü ablakát.
+    A #Shift-F10# azonnal bezárja a felhasználói menü ablakát, akár főmenü,
+akár almenü volt megnyitva benne.
 
 
 @FileAssoc
@@ -1821,9 +1817,10 @@ társításokat menüből választhatjuk ki.
 
     #Del#        - Jelenlegi társítás törlése
 
-    Ha egy fájltípushoz nincs definiált társítás és a ~Rendszer beállítások~@SystemSettings@
-menüben a #Windows regisztrált fájltípusainak használata# opció be van
-kapcsolva, a FAR megpróbálja a Windows társításait alkalmazni.
+    Ha egy fájltípushoz nincs definiált társítás és a
+~Rendszer beállítások~@SystemSettings@ menüben a #Windows regisztrált#
+#fájltípusainak használata# opció be van kapcsolva, a FAR megpróbálja a
+Windows társításait alkalmazni.
 
 
 @FileAssocModify
@@ -1831,23 +1828,23 @@ $ #Fájltársítások: szerkesztés#
     A FAR minden ~maszkkal~@FileMasks@ definiált fájltípusához hat
 végrehajtható parancsot lehet hozzárendelni:
 
-   #Végrehajtandó parancs#         #Enter#-re indul
-   #(Enterre)#
+    #Végrehajtandó parancs#         #Enter#-re indul
+    #(Enterre)#
 
-   #Végrehajtandó parancs#         #Ctrl-PgDn#-ra indul
-   #(Ctrl-PgDn-ra)#
+    #Végrehajtandó parancs#         #Ctrl-PgDn#-ra indul
+    #(Ctrl-PgDn-ra)#
 
-   #Nézőke parancs#                #F3#-ra indul
-   #(F3-ra)#
+    #Nézőke parancs#                #F3#-ra indul
+    #(F3-ra)#
 
-   #Nézőke parancs#                #Alt-F3#-ra indul
-   #(Alt-F3-ra)#
+    #Nézőke parancs#                #Alt-F3#-ra indul
+    #(Alt-F3-ra)#
 
-   #Szerkesztés parancs#           #F4#-re indul
-   #(F4-re)#
+    #Szerkesztés parancs#           #F4#-re indul
+    #(F4-re)#
 
-   #Szerkesztés parancs#           #Alt-F4#-re indul
-   #(Alt-F4-re)#
+    #Szerkesztés parancs#           #Alt-F4#-re indul
+    #(Alt-F4-re)#
 
     A társítások tulajdonságait néhány szóval jellemezhetjük
 #A társítás leírása# mezőben.
@@ -1859,20 +1856,22 @@ paneljei kikapcsolódjanak, kezdjük a parancssort #@@# karakterrel.
 
   Megjegyzések:
 
-  1. Ha egy fájltípushoz nincs definiált társítás és a ~Rendszer beállítások~@SystemSettings@
-menüben a #Windows regisztrált fájltípusainak használata# opció be van
-kapcsolva, a FAR megpróbálja a Windowsban definiált társításokat alkalmazni.
+  1. ^<wrap>Ha egy fájltípushoz nincs definiált társítás és a
+~Rendszer beállítások~@SystemSettings@ menüben a #Windows regisztrált#
+#fájltípusainak használata# opció be van kapcsolva, a FAR megpróbálja a
+Windowsban definiált társításokat alkalmazni.
 
-  2. Az operációs rendszer "IF EXIST" és "IF DEFINED" ~parancsaival~@OSCommands@
-a társításoknak kifinomultabb feltételrendszert szabhatunk. Ha azonos
-fájltípushoz több különböző társítást adtunk meg, az említett szabályok
-hatására a menüben csak a feltételeknek megfelelő társítások jelennek meg.
+  2. ^<wrap>Az operációs rendszer "IF EXIST" és "IF DEFINED"
+~parancsaival~@OSCommands@ a társításoknak kifinomultabb feltételrendszert
+szabhatunk. Ha azonos fájltípushoz több különböző társítást adtunk meg, az
+említett szabályok hatására a menüben csak a feltételeknek megfelelő
+társítások jelennek meg.
 
 
 @MetaSymbols
 $ #Különleges szimbólumok#
-    A ~Fájltársításoknál~@FileAssoc@, a ~Felhasználói menüben~@UserMenu@ és
-a ~Parancs végrehajtása~@ApplyCmd@ menüben a következő különleges szimbólumokat
+    A ~fájltársításoknál~@FileAssoc@, a ~Felhasználói menüben~@UserMenu@ és a
+~Parancs végrehajtása~@ApplyCmd@ menüben a következő különleges szimbólumokat
 használhatjuk:
 
     #!!#       "!" karakter
@@ -1882,148 +1881,135 @@ használhatjuk:
     #!`~~#      Rövid kiterjesztés fájlnév nélkül (ext)
     #!.!#      Hosszú fájlnév, kiterjesztéssel
     #!-!#      Rövid fájlnév, kiterjesztéssel
-    #!+!#      Hasonló a !-!-hoz, de ha a hosszú fájlnév elveszett
-             a parancs végrehajtása után, a FAR visszaállítja
+    #!+!#      ^<wrap>Hasonló a !-!-hoz, de ha a hosszú fájlnév elveszett
+a parancs végrehajtása után, a FAR visszaállítja
     #!@@!#      A fájl neve, a kijelölt fájlnevek listájával
     #!$!#      A fájl neve, a kijelölt rövid fájlnevek listájával
     #!&#       A kijelölt fájlok listája
     #!&~~#      A kijelölt rövid fájlnevek listája
-    #!:#       Az aktuális meghajtó, "C:" formátumban
-             Távoli mappáknál "\\\\server\\share"
+    #!:#       Az aktuális meghajtó, "C:" formátumban, távoli mappáknál
+"\\\\server\\share"
     #!\\#       Az aktuális elérési útvonal
     #!/#       Az aktuális elérési út rövid neve
     #!=\\#      Az aktuális elérési út, a ~szimbolikus linkeket~@HardSymLink@
-             is figyelembe véve.
+is figyelembe véve.
     #!=/#      Az aktuális elérési út rövid neve,
-             a ~szimbolikus linkeket~@HardSymLink@ is figyelembe véve.
-
-    #!?<név>?<alapérték>!#
-             A parancs végrehajtásakor e szimbólum helyén
-             egy felhasználói beviteli ablak jelenik meg.
-             A <név> a beviteli mező neve, az <alapérték> pedig
-             a szerkesztőmezőbe eredetileg kerülő karaktersor.
+a ~szimbolikus linkeket~@HardSymLink@ is figyelembe véve.
+    #!?<név>?<alapérték>!#   A parancs végrehajtásakor e szimbólum helyén
+egy felhasználói beviteli ablak jelenik meg. A <név> a beviteli mező neve, az
+<alapérték> pedig a szerkesztőmezőbe eredetileg kerülő karaktersor.
 
              Több ilyen szimbólum lehet egy sorban, például:
 
-             grep !?Keresés:?! !?Maszk:?*.*!|c:\\far\\far.exe -v -
+               grep !?Keresés:?! !?Maszk:?*.*!|c:\\far\\far.exe -v -
 
-             A <név> mező kiegészülhet az <alapérték> sztringre
-             vonatkozó előzménnyel (az <előzmény> változó nevével).
+             ^<wrap>A <név> mező kiegészülhet az <alapérték> sztringre
+vonatkozó előzménnyel (az <előzmény> változó nevével).
              Ebben az esetben a parancssor formátuma:
 
-             #!?$<előzmény>$<név>?<alapérték>!#
+               #!?$<előzmény>$<név>?<alapérték>!#
 
              Példa:
 
-             grep !?#$GrepHist$#Keresés:?! !?Maszk:?*.*!|far.exe -v -
+               grep !?#$GrepHist$#Keresés:?! !?Maszk:?*.*!|far.exe -v -
 
-             A <név> és az <alapérték> beírásánál más különleges
-             szimbólumot is használhatunk, zárójelek között.
+             ^<wrap>A <név> és az <alapérték> beírásánál más különleges
+szimbólumot is használhatunk, zárójelek között.
 
              Példa:
 
-             grep !?Maszk (!.!):?! |far.exe -v -)
+               grep !?Maszk (!.!):?! |far.exe -v -)
 
-    #!###       A fájlokra hivatkozó szimbólumok elé írt "!##"
-             módosítóval elérhetjük, hogy a szimbólum (és minden
-             utána következő karakter) a passzív panelre
-             vonatkozzon (lásd 4-es számú megjegyzés). Például
-             a !##!.! a passzív panel aktuális fájlnevére utal.
+    #!###       ^<wrap>A fájlokra hivatkozó szimbólumok elé írt "!##"
+módosítóval elérhetjük, hogy a szimbólum (és minden utána következő karakter)
+a passzív panelre vonatkozzon (lásd 4-es számú megjegyzés). Például a !##!.! a
+passzív panel aktuális fájlnevére utal.
 
-    #!^#        A fájlokra hivatkozó szimbólumok elé írt "!^"
-             módosító hatására a szimbólum (és az összes azt
-             követő karakter) az aktív panelre vonatkozik
-             (lásd 4-es számú megjegyzés). Például a !^!.!
-             szimbólum az aktív panel aktuális fájljára utal,
-             a !##!\\!^!.! pedig a passzív panelen lévő fájl
-             nevére és az aktív panel aktuális, azonos
-             nevű fájljára utal.
+    #!^#       ^<wrap>A fájlokra hivatkozó szimbólumok elé írt "!^" módosító
+hatására a szimbólum (és az összes azt követő karakter) az aktív panelre
+vonatkozik (lásd 4-es számú megjegyzés). Például a !^!.! szimbólum az aktív
+panel aktuális fájljára utal, a !##!\\!^!.! pedig a passzív panelen lévő fájl
+nevére és az aktív panel aktuális, azonos nevű fájljára utal.
 
-  Megjegyzések:
+    Megjegyzések:
 
-    1. A FAR a különleges szimbólumok kezelésénél kizárólag a szimbólumnak
-megfelelő sztringet helyettesíti be, semmiféle további karaktert (például
-idézőjelet) nem tesz hozzá, így ha szükséges, erről nekünk kell gondoskodni.
-Például ha egy program idézőjelek közé tett fájlmaszkot igényel, akkor
-#program.exe !.!# helyett #program.exe "!.!"# sort kell írnunk.
+    1. ^<wrap>A FAR a különleges szimbólumok kezelésénél kizárólag a
+szimbólumnak megfelelő sztringet helyettesíti be, semmiféle további karaktert
+(például idézőjelet) nem tesz hozzá, így ha szükséges, erről nekünk kell
+gondoskodni. Például ha egy program idézőjelek közé tett fájlmaszkot igényel,
+akkor #program.exe !.!# helyett #program.exe "!.!"# kifejezést kell írni.
 
     2. A !@@! és !$! szimbólummal a következő módosítók használhatók:
 
-     Q - a szóközöket tartalmazó neveket idézőjelek közé teszi;
-     S - elérési utaknál '/' jelet használ '\\'-helyett;
-     F - teljes elérési utat használ;
-     A - ANSI kódolást használ.
+         Q - a szóközöket tartalmazó neveket idézőjelek közé teszi;
+         S - elérési utaknál '/' jelet használ '\\'-helyett;
+         F - teljes elérési utat használ;
+         A - ANSI kódolást használ.
 
-    Például a #!@@AFQ!# azt jelenti, hogy "fájlnév a kijelölt fájlok neveinek
-listájával, ANSI kódolással, teljes elérési útvonalakkal, szóközt tartalmazó
-fájlnevek idézőjelben".
+       ^<wrap>Például a #!@@AFQ!# azt jelenti, hogy "fájlnév a kijelölt fájlok
+neveinek listájával, ANSI kódolással, teljes elérési útvonalakkal, szóközt
+tartalmazó fájlnevek idézőjelben".
 
-    3. Ha összetett hivatkozást adtunk meg, a !@@! és !$! metakarakter eredeti
-alakjában jelenik meg a menüben. Ezeket a FAR a parancs végrehajtásakor fogja
-értelmezni.
+    3. ^<wrap>Ha összetett hivatkozást adtunk meg, a !@@! és !$! metakarakter
+eredeti alakjában jelenik meg a menüben. Ezeket a FAR a parancs
+végrehajtásakor fogja értelmezni.
 
-    4. A "!##" és a "!^" előtag a hivatkozások paneloldali átkapcsolójaként
-szolgál. Az ilyen előtag hatóköre a sorban utána következő, szintén átkapcsoló
-előtagig terjed.
+    4. ^<wrap>A "!##" és a "!^" előtag a hivatkozások paneloldali
+átkapcsolójaként szolgál. Az ilyen előtag hatóköre a sorban utána következő,
+szintén átkapcsoló előtagig terjed.
 
-Például:
+       Például:
 
-    if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
+         if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
 
-  "Ha a passzív panelen létezik ugyanolyan nevű fájl, mint amin az
-   aktív panel sávkurzora áll, mutassa meg a két fájl különbségét,
-   függetlenül attól, hogy a passzív panelen mi a jelenleg aktív
-   fájl neve."
+       ^<wrap>"Ha a passzív panelen létezik ugyanolyan nevű fájl, mint amin az
+aktív panel sávkurzora áll, mutassa meg a két fájl különbségét, függetlenül
+attól, hogy a passzív panelen mi a jelenleg aktív fájl neve."
 
-    5. Ha valamelyik program a név megadásánál lezáró \\-jelet igényel,
+    5. ^<wrap>Ha valamelyik program a név megadásánál lezáró \\-jelet igényel,
 használjuk a #!.\# metaszimbólumot. Például, ha egy RAR-ral tömörített fájlt
 szeretnénk a fájllal azonos nevű mappába kibontani, a parancs:
 
-    winrar x "!.!" "!.\"
+         winrar x "!.!" "!.\"
 
 @SystemSettings
 $ #Beállítások: rendszer beállítások#
   #Csak olvasható attr.#    Törli a CD-ről másolt fájlok "csak
-  #törlése CD fájlokról#    olvasható" (R) attribútumát.
+  #törlése CD fájlokról#    olvasható" attribútumát.
 
-  #Törlés a Lomtárba#       A fájlok vagy mappák törlésénél közbeik-
-                          tatja a Lomtárat. A "Törlés a Lomtárba"
-                          művelet csak helyi merevlemezeken működik.
+  #Törlés a Lomtárba#       ^<wrap>A fájlok vagy mappák törlésénél
+közbeiktatja a Lomtárat. A "Törlés a Lomtárba" művelet csak helyi
+merevlemezeken működik.
 
   #Szimbolikus linkek#      Megkeresi és törli a mappák szimbolikus
   #törlése#                 linkjeit, mielőtt a Lomtárba dobná őket.
 
   #Másoláshoz a rendszer-#  A FAR beépített másolórutinja helyett az
   #rutin használata#        operációs rendszer rutinját használja.
-                          Alkalmazása NTFS fájlrendszerben hasznos
-                          lehet, mert a CopyFileEx rendszerfunkció
-                          ésszerűbb lemezfoglalási módszert használ,
-                          azonkívül a fájlokat bővített attribútum-
-                          készletükkel együtt másolja át. Másrészt
-                          viszont az operációs rendszer metódusa
-                          meggátolja a fájlok feloszthatóságát, ha
-                          a ~másolás~@CopyFiles@ vagy mozgatás nem
-                          használható.
+                          ^<wrap>Alkalmazása NTFS fájlrendszerben hasznos
+lehet, mert a CopyFileEx rendszerfunkció ésszerűbb lemezfoglalási módszert
+használ, azonkívül a fájlokat bővített attribútumkészletükkel együtt másolja
+át. Másrészt viszont az operációs rendszer metódusa meggátolja a fájlok
+feloszthatóságát, ha a ~másolás~@CopyFiles@ vagy mozgatás nem használható.
 
-  #Írásra megnyitott#       Megengedi más programokban írásra megnyi-
-  #fájlok másolhatók#       tott fájlok másolását. A módszer praktikus
-                          lehet a hosszú időre megnyitott fájlok má-
-                          solására, de veszélyessé is válhat, ha a
-                          fájl a másolás ideje alatt módosul.
+  #Írásra megnyitott#       Megengedi más programokban írásra
+  #fájlok másolhatók#       megnyitott fájlok másolását.
+                          ^<wrap>A módszer praktikus lehet a hosszú időre
+megnyitott fájlok másolására, de veszélyessé is válhat, ha a fájl a másolás
+ideje alatt módosul.
 
   #Szimbolikus linkek#      Ha ez az opció be van kapcsolva, akkor a
   #vizsgálata#              a mappák fastruktúrájának feltérképezése
-                          során a normál mappák mérete, valamint a
-                          ~szimbolikus linkjeik~@HardSymLink@ mérete együttesen
-                          fogják meghatározni a mappákban található
-                          fájlok méretének összegét.
+                          ^<wrap>során a normál mappák mérete, valamint a
+~szimbolikus linkjeik~@HardSymLink@ mérete együttesen fogják meghatározni a
+mappákban található fájlok méretének összegét.
 
-    Megjegyzés: ha a fájlrendszer önmagára hivatkozó szimbolikus link
-                ciklusokat tartalmaz (például a szimlink valamelyik
-                saját szülő mappájára mutat), akkor a keresés addig
-                tart, amíg eljut az elérési útvonalak hosszának
-                megengedett maximumáig. Ebben az esetben a keresés
-                jóval tovább tarthat.
+                          Megjegyzés:
+                          ^<wrap>ha a fájlrendszer önmagára hivatkozó
+szimbolikus link ciklusokat tartalmaz (például a szimlink valamelyik saját
+szülő mappájára mutat), akkor a keresés addig tart, amíg eljut az elérési
+útvonalak hosszának megengedett maximumáig. Ebben az esetben a keresés jóval
+tovább tarthat.
 
   #Mappák létrehozása#      Ha az új mappa nevét csupa kisbetűvel
   #NAGYBETŰKKEL#            írjuk be és ez az opció be van kapcsolva,
@@ -2031,46 +2017,43 @@ $ #Beállítások: rendszer beállítások#
 
   #A FAR kilép x perc#      A FAR futása abbamarad, ha a megadott
   #tétlenség után#          időtartam alatt nem történik billentyű-
-                          vagy egérművelet. A funkció csak akkor
-                          működik, ha a FAR-nak csupán parancssori
-                          bevitelre kell várnia és nincs a háttérben
-                          megnyitott nézőke vagy szerkesztő.
+                          vagy egérművelet.
+                          ^<wrap>A funkció csak akkor működik, ha a FAR-nak
+csupán parancssori bevitelre kell várnia és nincs a háttérben megnyitott
+nézőke vagy szerkesztő.
 
   #Parancs előzmények#      A FAR kilépés előtt elmenti, indításnál
   #mentése#                 visszatölti a ~parancs előzményeket~@History@.
 
   #Mappa előzmények#        A FAR kilépés előtt elmenti, indításnál
   #mentése#                 visszatölti a ~mappa előzményeket~@HistoryFolders@.
-                          A mappa előzmények listája az #Alt-F12#-vel
-                          is megjeleníthető.
+                          ^<wrap>A mappa előzmények listája az #Alt-F12#-vel
+is megjeleníthető.
 
   #Nézőke és szerkesztő#    A FAR kilépés előtt elmenti, indításnál
   #előzmények mentése#      pedig betölti a ~nézőke és a szerkesztő~@HistoryViews@
-                          ~előzményeit~@HistoryViews@. Az előzmények listáját
-                          az #Alt-F11#-gyel is megjeleníthetjük.
+                          ~előzményeit~@HistoryViews@.
+                          ^<wrap>Az előzmények listáját az #Alt-F11#-gyel is
+megjeleníthetjük.
 
   #Windows regisztrált#     Ha az opció be van kapcsolva és #Enter#-t
   #fájltípusok használata#  ütünk egy olyan típusú fájlon, amit a
-                          Windows ismer és a típus nem szerepel a FAR
-                          ~fájltársítások~@FileAssoc@ listáján, a Windows a
-                          saját társítású programjával próbálja
-                          megnyitni.
+                          ^<wrap>Windows ismer és a típus nem szerepel a FAR
+~fájltársítások~@FileAssoc@ listáján, a Windows a saját társítású programjával
+próbálja megnyitni.
 
   #CD tálca automatikus#    Ha CD-ROM típusú meghajtót választottunk a
   #behúzása#                ~Meghajtók menüben~@DriveDlg@, a FAR megpróbálja
                           behúzni a meghajtó nyitott tálcáját.
-                          Kapcsoljuk ki az opciót, ha nem működik
-                          megfelelően (néhány CD-ROM meghajtó hibás
-                          drivere miatt ez előfordulhat).
+                          ^<wrap>Kapcsoljuk ki az opciót, ha nem működik
+megfelelően (néhány CD-ROM meghajtó hibás drivere miatt ez előfordulhat).
 
   #Saját pluginek#          Itt adhatjuk meg "saját" pluginjeink
   #útvonala#                mappáinak elérési útvonalait, ahol a
-                          FAR-nak a "fő" plugineken túl modulokat
-                          kell keresnie. Több útvonalat beírhatunk,
-                          ";"-vel elválasztva, környezeti változók
-                          is használhatók. A saját pluginek nem
-                          töltődnek be, ha a FAR a /p vagy /co
-                          ~parancssori~@CmdLine@ kapcsolóval indul.
+                          ^<wrap>FAR-nak a "fő" plugineken túl modulokat
+kell keresnie. Több útvonalat beírhatunk, ";"-vel elválasztva, környezeti
+változók is használhatók. A saját pluginek nem töltődnek be, ha a FAR a /p
+vagy /co ~parancssori~@CmdLine@ kapcsolóval indul.
 
   #Beállítások automatikus# Ha az opció be van kapcsolva, kilépéskor
   #mentése#                 a FAR önműködően menti a beállításait, a
@@ -2079,30 +2062,27 @@ $ #Beállítások: rendszer beállítások#
 
 @PanelSettings
 $ #Beállítások: panel beállítások#
-  #Rejtett és rendszer-#    Megjeleníti a rejtett (H) és rendszer
-  #fájlok mutatva#          (S) attribútumú fájlokat. Ez az opció
+  #Rejtett és rendszer-#    Megjeleníti a rejtett és rendszer
+  #fájlok mutatva#          attribútumú fájlokat. Ez az opció
                           a #Ctrl-H#-val is átkapcsolható.
 
   #Fájlok kiemelése#        A ~fájlkiemelések~@Highlight@ engedélyezése.
 
   #Automatikus#             Ha engedélyezett, a ~fastruktúra panelen~@TreePanel@
   #mappaváltás#             a kurzor mozgatására a másik panel is
-                          mappát vált. Ha nincs engedélyezve,
-                          akkor a fastruktúrán a mappaváltáshoz
-                          #Entert# kell ütni.
+                          ^<wrap>mappát vált. Ha nincs engedélyezve,
+a fastruktúrán a mappaváltáshoz #Entert# kell ütni.
 
   #A mappák is#             A #Szürke +# és a #Szürke *# nem csak a
   #kijelölhetők#            fájlokat, hanem a mappákat is kijelöli.
-                          Kikapcsolt opciónál csak a fájlok kapnak
-                          jelölést.
+                          ^<wrap>Kikapcsolt opciónál csak a fájlok kapnak
+jelölést.
 
   #Mappák is rendezhetők#   A kiterjesztés szerinti rendezés nem csak
   #kiterjesztés szerint#    fájlokra, hanem mappákra is lehetséges.
-                          Bekapcsolt opciónál a FAR 1.65-ös
-                          verziójában alkalmazott rendezés
-                          lesz érvényes. Kikapcsolt opciónál a
-                          mappákat akkor is név szerint rendezi,
-                          ha a fájlokat kiterjesztésük szerint.
+                          ^<wrap>Bekapcsolt opciónál a FAR 1.65-ös
+verziójában alkalmazott rendezés lesz érvényes. Kikapcsolt opciónál a
+mappákat akkor is név szerint rendezi, ha a fájlokat kiterjesztésük szerint.
 
   #Fordított rendezés#      Bekapcsolt opciónál az adott rendezési
   #engedélyezése#           elv másodszori aktiválása megfordítja
@@ -2114,18 +2094,18 @@ $ #Beállítások: panel beállítások#
                           nem vonja maga után a panel automatikus
                           frissítését.
 
-    Az automatikus frissítés csak FAT, FAT32 és NTFS fájlrendszerben
-    működik. A "0" érték azt jelenti, hogy "mindig frissít".
-    A frissítés kézzel is elvégezhető a #Ctrl-R#-rel.
+                          ^<wrap>Az automatikus frissítés csak FAT,
+FAT32 és NTFS fájlrendszerben működik. A "0" érték azt jelenti, hogy
+"mindig frissít". A frissítés kézzel is elvégezhető a #Ctrl-R#-rel.
 
   #Hálózati meghajtók#      Engedélyezi a panelek automatikus
   #autom. frissítése#       frissítését, ha a hálózati meghajtók
                           fájlrendszerének állapota megváltozik.
-                          Lassú hálózatoknál célszerűbb lehet az
-                          opciót kikapcsolni.
+                          ^<wrap>Lassú hálózatoknál célszerűbb lehet az
+opciót kikapcsolni.
 
-  #Oszlopnevek mutatva#     Megjeleníti a ~fájlpanelek~@FilePanel@ oszlopainak
-                          neveit.
+  #Oszlopnevek mutatva#     ^<wrap>Megjeleníti a ~fájlpanelek~@FilePanel@
+oszlopainak neveit.
 
   #Állapotsor mutatva#      Megjeleníti a fájlpanel állapotsorát.
 
@@ -2135,8 +2115,8 @@ $ #Beállítások: panel beállítások#
   #Szabad lemezterület#     Megjeleníti az aktuális meghajtó
   #mutatva#                 szabad lemezterületének méretét.
 
-  #Gördítősáv#              Megjeleníti a fájl- és ~fa panel~@TreePanel@
-  #mutatva#                 oldalsó gördítősávját.
+  #Gördítősáv mutatva#      ^<wrap>Megjeleníti a fájl- és ~fa panel~@TreePanel@
+oldalsó gördítősávját.
 
   #Háttérképernyők száma#   Megmutatja a ~háttérképernyők~@ScrSwitch@
   #mutatva#                 számát.
@@ -2147,8 +2127,9 @@ $ #Beállítások: panel beállítások#
 
 @InterfSettings
 $ #Beállítások: kezelőfelület beállítások#
-  #Óra a paneleken#         Megjeleníti az órát a képernyő jobb felső
-                          sarkában.
+
+  #Óra a paneleken#         ^<wrap>Megjeleníti az órát a képernyő jobb felső
+sarkában.
 
   #Óra a nézőkében#         Megjeleníti az órát a nézőkében és a
   #és a szerkesztőben#      szerkesztőben is.
@@ -2156,19 +2137,18 @@ $ #Beállítások: kezelőfelület beállítások#
   #Egér kezelése#           A FAR egérrel is vezérelhető.
 
   #Funkcióbillentyűk#       Megjeleníti a funkcióbillentyűk sorát a
-  #sora mutatva#            képernyő alján. Ez az opció #Ctrl-B#-vel
-                          is átváltható.
+  #sora mutatva#            ^<wrap>képernyő alján. Ez az opció #Ctrl-B#-vel
+is átváltható.
 
   #A menüsor mindig#        A felső menüsor mindig látható, akkor
   #látszik#                 is, ha nem aktív.
 
   #Képernyőpihentető X#     Elindul a képernyőpihentető, ha nem
   #perc tétlenség után#     történt egér- vagy billentyűművelet
-                          a percben megadott időtartam alatt. Ha
-                          az opció be van kapcsolva, a pihentető
-                          akkor is elindul, ha a FAR képernyő
-                          jobb felső sarka fölé visszük az egér
-                          kurzorát.
+                          a percben megadott időtartam alatt.
+                          ^<wrap>Ha az opció be van kapcsolva, a pihentető
+akkor is elindul, ha a FAR képernyő jobb felső sarka fölé visszük az egér
+kurzorát.
 
   #Parancssori prompt#      Itt állíthatjuk be a FAR alapértelmezett
   #formátuma#               ~parancssori prompt~@CommandPrompt@ formátumát.
@@ -2176,41 +2156,39 @@ $ #Beállítások: kezelőfelület beállítások#
   #Másolás összesen#        Fájlok másolása során nem csak az egyes
   #folyamatjelző#           fájlra mutatja meg analóg sávon, hogy hol
                           tart a folyamat, hanem az összes fájlra.
-                          Valamivel több időt igényelhet a másolások
-                          beindulása, mivel folyton figyelnie kell a
-                          fájlok összméretét.
+                          ^<wrap>Valamivel több időt igényelhet a másolások
+beindulása, mivel folyton figyelnie kell a fájlok összméretét.
 
   #Másolási idő mutatva#    Tájékoztat az átlagos másolási sebességről,
-                          a másolás eltelt idejéről és a becsült hát-
-                          ralévő időről a Másolás párbeszédablakban.
+                          ^<wrap>a másolás eltelt idejéről és a becsült
+hátralévő időről a Másolás párbeszédablakban.
 
-    Mivel a becslések kiszámítása némi időt igényel, ezért ha a
-    "Másolás összesen folyamatjelző" ki van kapcsolva és sok apró
-    fájlt kell másolni, valószínűleg semmilyen információ nem
-    jelenik meg.
+                          ^<wrap>Mivel a becslések kiszámítása némi időt
+igényel, ezért ha a "Másolás összesen folyamatjelző" ki van kapcsolva és
+sok apró fájlt kell másolni, valószínűleg semmilyen információ nem jelenik
+meg.
 
   #A Ctrl-PgUp#             A #Ctrl-PgUp# leütése egy meghajtó
   #meghajtót vált#          gyökérmappájában:
-                        - helyi meghajtónál megjeleníti a Meghajtók
-                          menüt;
+                        - ^<wrap>helyi meghajtónál megjeleníti a Meghajtók
+menüt;
                         - hálózati meghajtónál elindítja a Hálózat
-                          plugint (ha lehetséges) vagy a Meghajtók
-                          menüt (ha a Hálózat plugint nem találja).
+plugint (ha lehetséges) vagy meghívja a Meghajtók menüt (ha a Hálózat plugin
+nem elérhető).
 
 @DialogSettings
 $ #Beállítások: párbeszédablak beállítások#
-  #Beviteli sorok#          Megőrzi egyes FAR párbeszédablakok bevi-
-  #előzménykövetése#        teli sorainak előzményeit. Az előzőleg
-                          beírt sztringek listáját legördíthetjük
-                          az egérrel vagy a #Ctrl-Fel# és #Ctrl-Le#
-                          billentyűvel. Ha nem szeretnénk ezt a
-                          fajta előzménykövetést használni (például
-                          biztonsági megfontolásból), kapcsoljuk ki.
+  #Beviteli sorok#          Megőrzi egyes FAR párbeszédablakok
+  #előzménykövetése#        beviteli sorainak előzményeit.
+                          ^<wrap>Az előzőleg beírt sztringek listáját
+legördíthetjük az egérrel vagy a #Ctrl-Fel# és #Ctrl-Le# billentyűvel. Ha nem
+szeretnénk ezt a fajta előzménykövetést használni (például biztonsági
+megfontolásból), kapcsoljuk ki.
 
   #Maradó blokkok a#        Nem veszi le a kijelölt szövegekről a
   #beviteli sorokban#       kijelölést, ha a kurzort megmozdítjuk;
-                          sem a párbeszédablakok beviteli soraiban,
-                          sem a párbeszédablakok parancssoraiban.
+                          ^<wrap>sem a párbeszédablakok beviteli soraiban,
+sem a párbeszédablakok parancssoraiban.
 
   #A Del törli a bevite-#   Ha van kijelölt szövegrész, a Del nem a
   #li sorok blokkjait#      kurzor alatti karaktert, hanem előbb a
@@ -2218,12 +2196,10 @@ $ #Beállítások: párbeszédablak beállítások#
 
   #Beviteli sorok auto-#    Engedélyezi az előzménylistával rendelkező
   #matikus kiegészítése#    szövegbeviteli sorok és lenyíló ablakok
-                          önműködő kiegészítését beírásnál. Ha az
-                          opciót letiltottuk, a #Ctrl-End#-del ideig-
-                          lenesen feloldható a tiltás egy-egy sorra.
-                          A makrók rögzítése vagy végrehajtása átme-
-                          netileg letiltja az automatikus kiegészí-
-                          tést.
+                          önműködő kiegészítését beírásnál.
+                          ^<wrap>Ha az opciót letiltottuk, a #Ctrl-End#-del
+ideiglenesen feloldható a tiltás egy-egy sorra. A makrók rögzítése vagy
+végrehajtása átmenetileg letiltja az automatikus kiegészítést.
 
   #A Backspace törli a#     Ha engedélyezzük, a #BackSpace# ugyanúgy
   #változatlan szöveget#    kitörli a beviteli mezőkben az egész vál-
@@ -2231,8 +2207,8 @@ $ #Beállítások: párbeszédablak beállítások#
 
   #Egérkattintás a párb.#   Ha a #bal/jobb egérgombot# lenyomjuk egy
   #ablakon kívül=bezárja#   párbeszédablak területén túl, bezárul az
-                          ablak (lásd ~egyebek~@MiscCmd@). Az opcióval
-                          letilthatjuk ezt a működést.
+                          ^<wrap>ablak (lásd ~egyebek~@MiscCmd@). Az
+opcióval letilthatjuk ezt a működést.
 
 
 @CommandPrompt
@@ -2257,7 +2233,7 @@ jeleníthet meg.
      $p - az aktuális meghajtó és elérési út
      $q - = karakter
      $s - szóköz
-     $t - az aktuális idő ÓÓ:PP:MM formátumban
+     $t - az aktuális idő óó:pp:mm formátumban
      $$ - $ karakter
 
    Alapértelmezett a #$p$g# formátum - az aktuális meghajtó és az elérési
@@ -2265,13 +2241,13 @@ jeleníthet meg.
 
    Példák:
 
-   1. A #[%COMPUTERNAME%]$S$P$G# formátumú prompt a számítógép
-      nevét, az aktuális meghajtó betűjelét és az elérési utat
-      tartalmazza (ehhez a %COMPUTERNAME% környezeti változónak
-      is definiáltnak kell lennie).
+   1. ^<wrap>A #[%COMPUTERNAME%]$S$P$G# formátumú prompt a számítógép nevét,
+az aktuális meghajtó betűjelét és az elérési utat tartalmazza (ehhez a
+%COMPUTERNAME% környezeti változónak is definiáltnak kell lennie).
 
-   2. A #[$T$H$H$H]$S$P$G# formátumú promptban az aktuális idő
-      (ÓÓ:PP) után a meghajtó betűjele és az elérési út áll.
+   2. ^<wrap>A #[$T$H$H$H]$S$P$G# formátumú promptban az aktuális idő
+(óó:pp) után a meghajtó betűjele és az elérési út áll.
+
 
 @Viewer
 $ #Nézőke: vezérlőbillentyűk#
@@ -2281,18 +2257,16 @@ $ #Nézőke: vezérlőbillentyűk#
     #Jobb#               Egy karakterrel jobbra
     #Fel#                Egy sorral fel
     #Le#                 Egy sorral le
-    #Ctrl-Bal#           20 karakterrel balra
-                       Hexa módban 1 hellyel balra
-    #Ctrl-Jobb#          20 karakterrel jobbra
-                       Hexa módban 1 hellyel jobbra
+    #Ctrl-Bal#           ^<wrap>20 karakterrel balra, hexa módban 1 hellyel
+balra
+    #Ctrl-Jobb#          20 karakterrel jobbra, hexa módban 1 hellyel
+jobbra
     #PgUp#               Egy oldallal fel
     #PgDn#               Egy oldallal le
-    #Ctrl-Shift-Bal#     A sorok kezdő pozíciójára ugrik
-                       (ha a sortörés nincs bekapcsolva és
-                       a sorok túlnyúlnak a kép méretén)
-    #Ctrl-Shift-Jobb#    A sorok végső pozíciójára ugrik
-                       (ha a sortörés nincs bekapcsolva és
-                       a sorok túlnyúlnak a kép méretén)
+    #Ctrl-Shift-Bal#     A sorok kezdő pozíciójára ugrik (ha a sortörés
+nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
+    #Ctrl-Shift-Jobb#    A sorok végső pozíciójára ugrik (ha a sortörés
+nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
     #Home, Ctrl-Home#    A fájl elejére ugrik
     #End, Ctrl-End#      A fájl végére ugrik
 
@@ -2301,33 +2275,32 @@ $ #Nézőke: vezérlőbillentyűk#
     #Shift-F2#           Betűtörés/szótörés átkapcsoló
     #F4#                 Szöveg/hexa mód átkapcsoló
     #F6#                 Átvált ~szerkesztésre~@Editor@
-    #Alt-F5#             Fájl nyomtatása (a Nyomtatóvezérlő
-                       plugin segítségével)
+    #Alt-F5#             ^<wrap>Fájl nyomtatása (a Nyomtatóvezérlő plugin
+segítségével)
     #F7#                 ~Keresés~@ViewerSearch@
     #Shift-F7, Szóköz#   Tovább keres
     #Alt-F7#             Tovább keres, de visszafelé
     #F8#                 OEM/ANSI kódlap váltó
     #Shift-F8#           Kódlap kiválasztása
-    #Alt-F8#             ~Ugrás~@ViewerGotoPos@ a jelenlegi szövegpozícióból
-                       másik pozícióba
+    #Alt-F8#             ~Ugrás~@ViewerGotoPos@ a jelenlegi
+szövegpozícióból másik pozícióba
     #Alt-F9#             Átváltja a FAR konzolablak méretét (video)
-    #Alt-Shift-F9#       Meghívja a ~nézőke beállítások~@ViewerSettings@
-                       párbeszédablakot
+    #Alt-Shift-F9#       Meghívja a
+~nézőke beállítások~@ViewerSettings@ párbeszédablakot
     #Numpad5,F3,F10,Esc# Kilépés
     #Ctrl-F10#           Megállapítja a megnézett fájl helyét
-                       (a konzolablak fejlécének szövegét - "X
-                       fájl megnézése" - a "(meghajtó+elérési út)"
-                       információra cseréli, tehát megmutatja a
-                       fájl helyét a fastruktúrán - a ford.)
+(a konzolablak fejlécének szövegét - "X fájl megnézése" - a "(meghajtó+elérési
+út)" információra cseréli, tehát megmutatja a fájl helyét a fastruktúrán - a
+ford.)
     #F11#                Meghívja a ~plugin parancsok~@Plugins@ menüt
     #Alt-F11#            Megjeleníti a ~fájl előzményeket~@HistoryViews@
     #+#                  A mappa következő fájlját nyitja meg
     #-#                  A mappa előző fájlját nyitja meg
     #Ctrl-O#             Megjeleníti a konzolhátteret
     #Ctrl-Alt-Shift#     Átmenetileg megmutatja a konzolhátteret
-                       (amíg a billentyűket lenyomva tartjuk)
+(amíg a billentyűket lenyomva tartjuk)
     #Ctrl-B#             Elrejti vagy megmutatja a képernyő alján
-                       a funkcióbillentyűsort
+a funkcióbillentyűsort
     #Ctrl-Shift-B#       Megmutatja/elrejti az állapotsort
     #Ctrl-S#             Megmutatja/elrejti a gördítősávot
     #Alt-BS, Ctrl-Z#     Visszalép a fájlban az előző pozícióra
@@ -2335,37 +2308,33 @@ $ #Nézőke: vezérlőbillentyűk#
     #Ctrl-Shift-0..9#    0-tól 9-ig könyvjelzőt tesz a pozícióba
     #LeftCtrl-0..9#      A 0...9-es könyvjelzőre ugrik
 
-    #Ctrl-Ins, Ctrl-C#   A keresés találataként kiemelt szöveget
-                       a vágólapra másolja.
+    #Ctrl-Ins, Ctrl-C#   ^<wrap>A keresés találataként kiemelt szöveget
+a vágólapra másolja.
     #Ctrl-U#             Leveszi a keresés találatáról a kiemelést.
 
-    См. так же список ~макроклавиш~@KeyMacroViewerList@, доступных в программе просмотра.
+    Lásd még a ~nézőke makróinak~@KeyMacroViewerList@ listáját.
 
     Megjegyzések:
 
-    1. A keresőablak meghívásához a nézőkében az is elég, ha
-       elkezdjük begépelni a keresett szöveget.
+    1. ^<wrap>A keresőablak meghívásához a nézőkében az is elég, ha elkezdjük
+begépelni a keresett szöveget.
 
-    2. Az, hogy a nézőkében megnyitunk egy fájlt, nem zárja ki,
-       hogy közben egy másik folyamat ne törölhetné azt. Annak
-       ellenére, hogy a fájl valójában csak a nézőke bezárásakor
-       törlődik, a törölt fájlra irányuló további műveletek
-       hibával fognak leállni - ez Windows sajátosság.
+    2. ^<wrap>Az, hogy a nézőkében megnyitunk egy fájlt, nem zárja ki,
+hogy közben egy másik folyamat ne törölhetné azt. Annak ellenére, hogy a fájl
+valójában csak a nézőke bezárásakor törlődik, a törölt fájlra irányuló további
+műveletek hibával fognak leállni - ez Windows sajátosság.
 
-    3. A FAR jelenlegi verziója korlátozza a belső nézőkében
-       megnyitott fájlok oszlopainak egy sorban megjeleníthető
-       maximális számát: értéke nem haladhatja meg a 2048-at.
-       Ha valamelyik sor túllépi ezt az értéket, a FAR akkor is
-       több sorban jeleníti meg, ha a sortörés ki van kapcsolva.
-       (Oszlopok száma: karakterek száma.)
+    3. ^<wrap>A FAR jelenlegi verziója korlátozza a belső nézőkében megnyitott
+fájlok oszlopainak egy sorban megjeleníthető maximális számát: értéke nem
+haladhatja meg a 2048-at. Ha valamelyik sor túllépi ezt, a FAR akkor is
+több sorban jeleníti meg, ha a sortörés ki van kapcsolva. (Oszlopok száma =
+karakterek száma.)
 
-    4. A FAR nézőke ~keresője~@ViewerSearch@ (#F7#) a fájl képernyőn megjelenő
-       részének kezdetétől az első előfordulásig keresi a
-       sztringet.
+    4. ^<wrap>A FAR nézőke ~keresője~@ViewerSearch@ (#F7#) a fájl képernyőn
+megjelenő részének kezdetétől az első előfordulásig keresi a sztringet.
 
-    5. Ha automatikusan szeretnénk gördíteni egy folyamatosan
-       változó tartalmú fájlt, vigyük a kurzort a fájl végére
-       (az End billentyűvel).
+    5. ^<wrap>Ha automatikusan szeretnénk gördíteni egy folyamatosan változó
+tartalmú fájlt, vigyük a kurzort a fájl végére (az End billentyűvel).
 
 
 @ViewerGotoPos
@@ -2388,12 +2357,11 @@ módját a rádiógombokkal jelölhetjük ki.
 
    Példák:
 
-   #50%#                     A fájl közepére ugrik (50%).
-   #-10%#                    A jelenlegi helyzettől 10%-ot lép
-                           visszafelé (ha 50%-on álltunk, az új
-                           pozíció 40%-on lesz).
-   #0x100#                   A 0x100 (256) bájtpozícióba lép.
-   #+0x300#                  0x300 (768) bájtot lép előre.
+     #50%#           A fájl közepére ugrik (50%).
+     #-10%#          ^<wrap>A jelenlegi helyzettől 10%-ot lép
+visszafelé (ha 50%-on álltunk, az új pozíció 40%-on lesz).
+     #0x100#         A 0x100 (256) bájtpozícióba lép.
+     #+0x300#        0x300 (768) bájtot lép előre.
 
     Ha a számértéket az említett formátumleírók valamelyikével ("%", "0x",
 "h", "$", "d") kiegészítve adtuk meg, a rádiógombok állapotát a FAR nem veszi
@@ -2405,66 +2373,62 @@ $ #Nézőke: keresés#
     A ~nézőke~@Viewer@ keresőjében a következő keresési módok és lehetőségek
 közül választhatunk:
 
-        #Szöveg keresése#    A #Keresés# szerkesztősorába beírt
-                           bármilyen szöveg keresése.
+    #Szöveg keresése#
 
-        A használható opciók:
+    ^<wrap>A #Keresés# szerkesztősorába beírt bármilyen szöveg keresése.
 
-        #Nagy/kisbetű#       Keresésnél a szöveg betűinek mérete
-        #érzékeny#           is számít (ha például a #text#-et
-                           keressük, a fájlban előforduló #Text#
-                           szöveget a FAR nem értékeli találatnak)
+      #Nagy/kisbetű érzékeny#  - ^<wrap>Keresésnél a szöveg betűinek mérete
+is számít (ha például a #text#-et keressük, a fájlban előforduló #Text#
+szöveget a FAR nem értékeli találatnak)
 
-        #Csak egész szavak#  A megadott szöveg előfordulásait csak
-                           akkor veszi találatnak, ha soremelések,
-                           tabulátorok vagy szóközök határolják,
-                           vagy a szabványos elválasztó karakterek:
-                           #!%^&*()+|{}:"<>?`-=\\[];',./#
+      #Csak egész szavak#      - ^<wrap>A megadott szöveg előfordulásait csak
+akkor veszi találatnak, ha soremelések, tabulátorok vagy szóközök határolják,
+vagy a szabványos elválasztó karakterek: #!%^&*()+|{}:"<>?`-=\\[];',./#
 
-        #Hexa keresése#      A #Keresés# mezőben beírt szöveget
-                           hexadecimális kóddá alakítja és ezt fogja
-                           keresni (a "Nagy/kisbetű érzékeny" és a
-                           "Csak egész szavak" opció ez esetben nem
-                           jelölhető be).
+    #Hexa keresése#
 
-        #Visszafelé keres#   Megfordítja a keresés irányát, a fájl
-                           végétől keres a fájl elejéig.
+    ^<wrap>A #Keresés# mezőben beírt szöveget
+hexadecimális kóddá alakítja és ezt fogja keresni (a "Nagy/kisbetű érzékeny"
+és a "Csak egész szavak" opció ez esetben nem jelölhető be).
+
+      #Visszafelé keres#       - ^<wrap>Megfordítja a keresés irányát, a fájl
+végétől keres a fájl elejéig.
 
 
 @Editor
 $ #Szerkesztő#
     A kurzor alatti fájl szerkesztéséhez nyomjuk le az #F4# billentyűt.
 Így vagy a belső szerkesztővel, vagy bármelyik, előzőleg a
-~Szerkesztő beállítások~@EditorSettings@ menüben beállított külső
+~szerkesztő beállítások~@EditorSettings@ menüben beállított külső
 szerkesztővel nyithatjuk meg.
 
     #Új fájl létrehozása a szerkesztővel#
 
-    Ha a #Shift-F4# billentyűk lenyomása után egy nemlétező fájl nevét
+    Ha a #Shift-F4# billentyűk lenyomása után egy nem létező fájl nevét
 adjuk meg, ~új fájlt~@FileOpenCreate@ hozhatunk létre.
 
     Megjegyzések:
 
-    1. Ha az új fájl létrehozása során egy nemlétező mappa nevét is
+    1. ^<wrap>Ha az új fájl létrehozása során egy nem létező mappa nevét is
 beírjuk, ~"A szerkesztendő fájl célmappája még nem létezik,~@WarnEditorPath@
 ~de mentéskor létrejön. Folytatja?"~@WarnEditorPath@ figyelmeztetést kapjuk.
 
-    2. Ha olyan fájlt próbálunk szerkesztésre megnyitni, ami a szerkesztőben
-jelenleg is nyitva van, "~a szerkesztett fájl újbóli megnyitása~@EditorReload@"
-ablakban választhatunk a lehetőségek közül.
+    2. ^<wrap>Ha olyan fájlt próbálunk szerkesztésre megnyitni, ami a
+szerkesztőben jelenleg is nyitva van,
+"~a szerkesztett fájl újbóli megnyitása~@EditorReload@" ablakban választhatunk
+a lehetőségek közül.
 
-    3. Az új fájl létrehozásakor alapértelmezés szerint a Windows kódlapját
-kapja, de ez az opció a ~szerkesztő beállítások~@EditorSettings@ menüben
-kikapcsolható.
+    3. ^<wrap>Az új fájl létrehozásakor alapértelmezés szerint a Windows
+kódlapját kapja, de ez az opció a ~szerkesztő beállítások~@EditorSettings@
+menüben kikapcsolható.
 
   #Vezérlőbillentyűk#
 
   Kurzorvezérlés
 
    #Bal#                     Egy karakterrel balra
-   #Ctrl-S#                  Egy karakterrel balra viszi a kurzort,
-                           de ha eléri a sor elejét, nem lép fel az
-                           előző sorra
+   #Ctrl-S#                  ^<wrap>Egy karakterrel balra viszi a kurzort,
+de ha eléri a sor elejét, nem lép fel az előző sorra
    #Jobb#                    Egy karakterrel jobbra
    #Fel#                     Egy sort fel
    #Le#                      Egy sort le
@@ -2483,7 +2447,9 @@ kikapcsolható.
 
   Törlő műveletek
 
-   #Del#                     ^<wrap>A kurzor alatti karakter törlése (a kijelölt szöveget is törölheti, a ~szerkesztő beállításaitól~@EditorSettings@ függően)
+   #Del#                     ^<wrap>A kurzor alatti karakter törlése (a
+kijelölt szöveget is törölheti, a
+~szerkesztő beállításaitól~@EditorSettings@ függően)
    #BackSpace#               Egy karakterrel balra töröl
    #Ctrl-Y#                  Egy sort töröl
    #Ctrl-K#                  Törlés a sor végéig
@@ -2504,8 +2470,10 @@ kikapcsolható.
    #Ctrl-Ins, Ctrl-C#        Blokk másolása a vágólapra
    #Ctrl-<Szürke +>#         Blokk hozzáfűzése a vágólaphoz
    #Ctrl-D#                  Blokk törlése
-   #Ctrl-P#                  ^<wrap>Blokk másolása a jelenlegi kurzor-pozícióba (csak maradó blokk módban)
-   #Ctrl-M#                  ^<wrap>Blokk mozgatása a jelenlegi kurzor-pozícióba (csak maradó blokk módban)
+   #Ctrl-P#                  ^<wrap>Blokk másolása a jelenlegi
+kurzorpozícióba (csak maradó blokk módban)
+   #Ctrl-M#                  Blokk mozgatása a jelenlegi
+kurzorpozícióba (csak maradó blokk módban)
    #Alt-U#                   Blokk eltolása balra
    #Alt-I#                   Blokk eltolása jobbra
 
@@ -2515,40 +2483,52 @@ kikapcsolható.
    #F2#                      Fájl mentése
    #Shift-F2#                ~Fájl mentése másként~@FileSaveAs@
    #Shift-F4#                ~Új fájl~@FileOpenCreate@ szerkesztése
-   #Alt-F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása (a Nyomtatásvezérlő pluginnel)
+   #Alt-F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása
+(a Nyomtatásvezérlő pluginnel)
    #F6#                      ~Nézőke~@Viewer@ módba kapcsol
    #F7#                      Keresés
    #Ctrl-F7#                 Keresés és csere
    #Shift-F7#                Keresés és csere folytatása
    #Alt-F7#                  Keresés és csere folytatása, visszafelé
-   #F8#                      OEM/ANSI szöveg között vált
+   #F8#                      OEM/ANSI kódlap váltó
    #Shift-F8#                Kódlap kiválasztása
    #Alt-F8#                  ~Ugrás~@EditorGotoPos@ megadott sorra és oszlopra
    #Alt-F9#                  A FAR konzolablak méretének átváltása
-   #Alt-Shift-F9#            ^<wrap>A ~szerkesztő beállítások~@EditorSettings@ párbeszédablakot jeleníti meg
+   #Alt-Shift-F9#            A ~szerkesztő beállítások~@EditorSettings@
+párbeszédablakot jeleníti meg
    #F10, Esc#                Kilépés
    #Shift-F10#               Mentés és kilépés
    #Ctrl-F10#                A szerkesztett fájl helyzete a fán
-   #F11#                     ^<wrap>A ~plugin parancsok~@Plugins@ menü (a szerkesztőhöz tervezett pluginekkel)
-   #Alt-F11#                 ~Szerkesztő előzmények~@HistoryViews@ megjelenítése
+   #F11#                     A ~plugin parancsok~@Plugins@ menü (a
+szerkesztőhöz tervezett pluginekkel)
+   #Alt-F11#                 ~Szerkesztő előzmények~@HistoryViews@
+megjelenítése
    #Alt-BackSpace, Ctrl-Z#   Utolsó művelet visszavonása
    #Ctrl-L#                  A szerkesztett szöveg módosítását tiltja
    #Ctrl-O#                  A konzolablak hátterére vált
-   #Ctrl-Alt-Shift#          ^<wrap>A konzolablak háttere (amíg a billentyűk lenyomva vannak)
-   #Ctrl-Q#                  ^<wrap>A következő billentyűkombinációt karakter-kódként kezeli
-   #JobbCtrl-0...9#          ^<wrap>0-tól 9-ig könyvjelzőt tesz az aktuális pozícióba
-   #Ctrl-Shift-0...9#        ^<wrap>0-tól 9-ig könyvjelzőt tesz az aktuális pozícióba
+   #Ctrl-Alt-Shift#          A konzolablak háttere (amíg a billentyűk
+le vannak nyomva)
+   #Ctrl-Q#                  A következő billentyűkombinációt
+karakterkódként kezeli
+   #JobbCtrl-0...9#          0-tól 9-ig könyvjelzőt tesz az aktuális
+kurzorpozícióba
+   #Ctrl-Shift-0...9#        0-tól 9-ig könyvjelzőt tesz az aktuális
+kurzorpozícióba
    #BalCtrl-0...9#           A 0...9-es könyvjelzőre ugrik
-   #Shift-Enter#             ^<wrap>Beszúrja az aktív panelről az aktuális fájlnevet a kurzorpozícióba
-   #Ctrl-Shift-Enter#        ^<wrap>Beszúrja a passzív panelről az aktuális fájlnevet a kurzorpozícióba
-   #Ctrl-F#                  ^<wrap>Beszúrja a most szerkesztett fájl elérési útját és nevét a kurzorpozícióba
-   #Ctrl-B#                  ^<wrap>Megmutatja/elrejti a funkcióbillentyűsort az alsó sorban
+   #Shift-Enter#             Beszúrja az aktív panelről az aktuális
+fájlnevet a kurzorpozícióba
+   #Ctrl-Shift-Enter#        Beszúrja a passzív panelről az aktuális
+fájlnevet a kurzorpozícióba
+   #Ctrl-F#                  Beszúrja a most szerkesztett fájl elérési
+útját és nevét a kurzorpozícióba
+   #Ctrl-B#                  Megmutatja/elrejti a funkcióbillentyűsort
+a képernyő alján
    #Ctrl-Shift-B#            Megmutatja/elrejti a felső állapotsort
 
-   См. так же список ~макроклавиш~@KeyMacroEditList@, доступных в редакторе.
+    Lásd még a ~szerkesztő makróinak~@KeyMacroEditList@ listáját.
+
 
     Megjegyzések:
-
 
     1. ^<wrap>Az #Alt-U#/#Alt-I# a sor behúzását állítja, ha nincs
 kijelölt blokk. 
@@ -2566,8 +2546,8 @@ $ #Szerkesztő: fájl megnyitása/létrehozása#
 szerkesztésre.
 
     A ~szerkesztő beállításaitól~@EditorSettings@ függően az új fájl OEM
-vagy ANSI kódolású lesz, de szükség esetén a kódlapok #listájából# más kódlapot
-is választhatunk.
+vagy ANSI kódolású lesz, de szükség esetén a kódlapok #listájából# más
+kódlapot is választhatunk.
 
     Létező fájlnál is szükség lehet a #Кódlap# paraméter átállítására,
 ha például az "Automatikus felismerés" funkció rossz kódlapot állít be.
@@ -2583,24 +2563,24 @@ a #Unicode bájtsorrend jelzővel (BOM)# opció bekapcsolása speciális jelzőt
 állít be a fájlban, lehetővé téve a programok számára a formátumon belüli
 egyedi formátumazonosító felismerését.
 
-    Az új néven és a kódlapon kívül megadhatjuk a sortörés karakterek
+    ^<wrap>Az új néven és a kódlapon kívül megadhatjuk a sortörés karakterek
 formátumát is:
 
     #Nincs konverzió#
-    A sortörés karakterek nem változnak.
+    ^<wrap>A sortörés karakterek nem változnak.
 
     #DOS/Windows formátum (CR LF)#
-    A sortöréseket két tagból álló szekvenciává, Carriage Return
-    (CR), azaz "kocsi vissza" és Line Feed (LF), azaz "soremelés"
-    karakterré konvertálja, a DOS/Windows formátumnak megfelelően.
+    ^<wrap>A sortöréseket két tagból álló szekvenciává, Carriage Return
+(CR), azaz "kocsi vissza" és Line Feed (LF), azaz "soremelés" karakterré
+konvertálja, a DOS/Windows formátumnak megfelelően.
 
     #Unix formátum (LF)#
-    A sortöréseket Line Feed (LF) karakterré konvertálja, a UNIX
-    formátumnak megfelelően.
+    ^<wrap>A sortöréseket Line Feed (LF) karakterré konvertálja, a UNIX
+formátumnak megfelelően.
 
     #Mac formátum (CR)#
-    A sortöréseket Carriage Return (CR) karakterré konvertálja, a Mac
-    OS formátumnak megfelelően.
+    ^<wrap>A sortöréseket Carriage Return (CR) karakterré konvertálja, a
+Mac OS formátumnak megfelelően.
 
 
 @EditorGotoPos
@@ -2627,33 +2607,31 @@ $ #Szerkesztő: szerkesztett fájl újbóli betöltése#
 már szerkesztett fájlt próbálunk meg ismét megnyitni szerkesztésre. A fájl
 újratöltésének szabályai:
 
-    1. Ha a fájl nem változott és a ~Megerősítések~@ConfirmDlg@ párbeszédablak
-"Szerkesztett fájl újratöltése" opciója nincs engedélyezve, a FAR minden
-további figyelmeztetés nélkül a megnyitott példányra vált.
+    1. ^<wrap>Ha a fájl nem változott és a ~Megerősítések~@ConfirmDlg@
+párbeszédablak "Szerkesztett fájl újratöltése" opciója nincs engedélyezve,
+a FAR minden további figyelmeztetés nélkül a megnyitott példányra vált.
 
-    2. Ha a fájl a szerkesztés során megváltozott vagy a "Szerkesztett fájl
-újratöltése" opció engedélyezve volt, az előugró ablak szerkesztési módra
-vonatkozó kérdésére háromféle módon válaszolhatunk:
+    2. ^<wrap>Ha a fájl a szerkesztés során megváltozott vagy a "Szerkesztett
+fájl újratöltése" opció engedélyezve volt, az előugró ablak szerkesztési
+módra vonatkozó kérdésére háromféle módon válaszolhatunk:
 
     #A mostanit#     Folytatja a jelenleg megnyitott fájl
     #folytatja#      szerkesztését.
 
-    #Új példányban#  A fájlt a szerkesztő új példányában nyitja meg.
-                   Ebben az esetben gondosan ügyeljünk arra, hogy a
-                   mentésnél mindig az utolsóként bezárt példány
-                   aktuális állapota fogja eldönteni a mentett fájl
-                   végleges tartalmát!
+    #Új példányban#  ^<wrap>A fájlt a szerkesztő új példányában nyitja meg.
+Ebben az esetben gondosan ügyeljünk arra, hogy a mentésnél mindig az
+utolsóként bezárt példány aktuális állapota fogja eldönteni a mentett fájl
+végleges tartalmát!
 
-    #Újratölti#      Az eddigi változtatások elvesznek és a fájlt
-                   eredeti állapotában tölti be a lemezről a
-                   szerkesztőbe.
+    #Újratölti#      ^<wrap>Az eddigi változtatások elvesznek és a fájlt
+eredeti állapotában tölti be a lemezről a szerkesztőbe.
 
 @WarnEditorPath
 $ #Figyelem: A szerkesztendő fájl célmappája még nem létezik...#
     Ezt az üzenetet akkor kapjuk, ha a ~szerkesztőben~@Editor@ megnyitott új
-fájl elérési útvonalaként nemlétező mappát adunk meg. Mentés előtt a FAR
+fájl elérési útvonalaként nem létező mappát adunk meg. Mentés előtt a FAR
 létrehozza a mappát, feltéve, ha az elérési út helyes (például elfogadhatatlan,
-ha nemlétező meghajtó nevével kezdődik az elérési út), valamint kellő
+ha nem létező meghajtó nevével kezdődik az elérési út), valamint kellő
 jogosultsággal rendelkezünk a mappa létrehozásához.
 
 @WarnEditorPluginName
@@ -2685,16 +2663,16 @@ nem ~fájlpanel~@FilePanel@ volt, meghajtóváltás után az lesz.
 
     A #Del# billentyűvel:
 
-     - ~leválaszthatunk~@DisconnectDrive@ hálózati meghajtókat;
+    - ~leválaszthatjuk~@DisconnectDrive@ a hálózati meghajtókat;
 
-     - törölhetünk SUBST paranccsal létrehozott virtuális
-       meghajtókat;
+    - ^<wrap>törölhetjük a SUBST paranccsal létrehozott virtuális
+meghajtókat;
 
-     - kiadathatjuk a CD-ROM-ok vagy más cserélhető lemezes meghajtók
-       lemezeit.
-       A ZIP meghajtók lemezének kiadásához rendszergazda jogosultság
-       szükséges. A CD-ROM-ok tálcáját az #Ins# billentyűvel tolhatjuk
-       be.
+    - ^<wrap>kiadathatjuk a CD-ROM-ok vagy más cserélhető lemezes meghajtók
+lemezeit.
+
+      ^<wrap>A ZIP meghajtók lemezének kiadásához rendszergazda jogosultság
+szükséges. A CD-ROM-ok tálcáját az #Ins# billentyűvel tolhatjuk be.
 
     A #Shift-Del# billentyűkombinációval biztonságosan eltávolíthatjuk az USB
 portra csatlakoztatott tárolóeszközöket. Ha olyan kártyaolvasóba
@@ -2702,25 +2680,23 @@ helyezett flash memóriakártyára adtuk ki a ~biztonságos eltávolítás~@HotP
 parancsot, ahol a kártyalvasó több lemez kezelésére képes, a parancs a
 kártyaolvasót választja le.
 
-    A Meghajtók menüben a #Ctrl-1...Ctrl-9# billentyűkkel a meghajtókra
+    A Meghajtók menüben a #Ctrl-1 - Ctrl-9# billentyűkkel a meghajtókra
 vonatkozó különféle információk megjelenítését kapcsolhatjuk ki vagy be:
 
     Ctrl-1 - a lemez típusa;
-    Ctrl-2 - a hálózat neve
-             (és a SUBST meghajtó gazdalemezén annak a
-             mappának az elérési útvonala, amihez a
-             virtuális meghajtót hozzárendeltük);
+    Ctrl-2 - ^<wrap>a hálózat neve (és a SUBST meghajtó gazdalemezén annak a
+mappának az elérési útvonala, amihez a virtuális meghajtót hozzárendeltük);
     Ctrl-3 - a lemez címkéje;
     Ctrl-4 - a fájlrendszer;
     Ctrl-5 - a teljes és a szabad lemezterület mérete (kétféle
-             megjelenítési módja van, nyomjuk le kétszer);
+megjelenítési módja van, nyomjuk le kétszer);
     Ctrl-6 - a kivehető lemez paraméterei;
     Ctrl-7 - pluginek megjelenítése;
     Ctrl-8 - a CD meghajtók fajtái;
     Ctrl-9 - a hálózat jellemzői.
 
-    A #Meghajtók# menü beállításait a FAR a többi konfigurációs
-adattal együtt menti.
+    A #Meghajtók# menü beállításait a FAR a többi konfigurációs adattal együtt
+menti.
 
     Ha ~A Ctrl-PgUp meghajtót vált~@InterfSettings@ opciót engedélyeztük, a
 #Ctrl-PgUp# ugyanúgy működik, mint az #Esc#: kilép a Meghajtók menüből és
@@ -2796,8 +2772,8 @@ műveleteket hajthatunk végre a csoportok listáján, a következő billentyűk
 
   #Enter# vagy #F4#  - Az aktuális kiemelési csoport ~szerkesztése~@HighlightEdit@
 
-  #Ctrl-R#         - Visszaállítja az alapértelmezett kiemelési
-                   csoportokat
+  #Ctrl-R#         - ^<wrap>Visszaállítja az alapértelmezett kiemelési
+csoportokat
 
   #Ctrl-Fel#       - A csoportot felfelé mozgatja
 
@@ -2818,29 +2794,27 @@ csoportdefiníció tartalmazhat:
      - méretbeli és dátum/idő korlátokat;
 
      - befoglaló vagy kizáró attribútumokat:
-       #[x]# - befoglaló attribútum - a fájlnak rendelkeznie kell
-             az attribútummal
+       #[x]# - ^<wrap>befoglaló attribútum - a fájlnak rendelkeznie kell
+az attribútummal
        #[ ]# - kizáró attribútum - a fájlnak nem lehet ilyen
-             attribútuma
+attribútuma
        #[?]# - az attribútum értéke nem számít;
 
-     - a normál fájlnév, a kijelölt fájlnév, a kurzor alatti
-       fájlnév és a kurzor alatti kijelölt fájlnév színét.
-       Ha egy elemre az alapértelmezett színeket szeretnénk
-       használni, a színeket állítsuk "feketén fekete", azaz
-       fekete háttéren fekete szöveg színösszetételre;
+     - ^<wrap>a normál fájlnév, a kijelölt fájlnév, a kurzor alatti
+fájlnév és a kurzor alatti kijelölt fájlnév színét. Ha egy elemre az
+alapértelmezett színeket szeretnénk használni, a színeket állítsuk "feketén
+fekete", azaz fekete háttéren fekete szöveg színösszetételre;
 
-     - megadható fájljelölő karaktert. A jelölő karaktert
-       használhatjuk színkiemeléssel együtt vagy helyette.
+     - ^<wrap>megadható fájljelölő karaktert. A jelölő karaktert használhatjuk
+színkiemeléssel együtt vagy helyette.
 
     Ha a "Maszk" opció ki van kapcsolva, a FAR a maszkokat nem elemzi, csak a
 többi bekapcsolt analízis számít (méret, dátum/idő, attribútum).
 
     Egy fájl akkor tartozik egy kiemelési csoportba, ha:
 
-     - a fájlmaszkelemzés engedélyezve van és a fájl megfelel
-       legalább egy maszknak (kikapcsolt maszkelemzésnél a
-       fájlnév nem számít);
+     - ^<wrap>a fájlmaszkelemzés engedélyezve van és a fájl megfelel
+legalább egy maszknak (kikapcsolt maszkelemzésnél a fájlnév nem számít);
 
      - a méret és a dátum/idő határértékeinek megfelel;
 
@@ -2865,39 +2839,31 @@ beállításait változtathatjuk meg.
   #dítja a külső nézőkét#   a külső nézőkét.
 
   #Nézőke parancs#          A külső nézőkét elindító parancssor.
-                          A parancssorban alkalmazhatunk
-                          ~különleges szimbólumokat~@MetaSymbols@ is, a
-                          a megnézendő fájlnevek megadásához.
-                          Ha nem szeretnénk, hogy a külső
-                          nézőke futtatása előtt a FAR paneljei
-                          kikapcsolódjanak, kezdjük a parancsot
-                          #@@# karakterrel.
+                          ^<wrap>A parancssorban a megnézendő fájlnevek
+megadásához alkalmazhatunk ~különleges szimbólumokat~@MetaSymbols@ is. Ha nem
+szeretnénk, hogy a külső nézőke futtatása előtt a FAR paneljei
+kikapcsolódjanak, kezdjük a parancsot #@@# karakterrel.
 
     Belső nézőke
 
-  #Maradó blokkok#          Nem veszi le a kijelölést a blokkokról,
-                          ha megmozdítjuk a kurzort.
+  #Maradó blokkok#          ^<wrap>Nem veszi le a kijelölést a blokkokról,
+ha megmozdítjuk a kurzort.
 
-  #Gördítőnyilak mutatva#   Kikapcsolt sortörésnél a vízszintesen
-                          túlnyúló sorok végein gördítőnyilak
-                          jelennek meg.
+  #Gördítőnyilak mutatva#   ^<wrap>Kikapcsolt sortörésnél a vízszintesen
+túlnyúló sorok végein gördítőnyilak jelennek meg.
 
-  #Fájlpozíció mentése#     Elmenti és visszatölti a legutóbb
-                          megnézett fájlok szöveghelyzetét, vele
-                          a kódlapot is (ha "kézzel" választottuk
-                          ki), valamint a nézet módját (normál vagy
-                          hexadecimális).
+  #Fájlpozíció mentése#     ^<wrap>Elmenti és visszatölti a legutóbb
+megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választottuk
+ki), valamint a nézet módját (normál vagy hexadecimális).
 
-  #Könyvjelzők mentése#     Elmenti és visszatölti az utoljára
-                          megnézett fájlokban a #JobbCtrl-0...9#
-                          vagy a #Ctrl-Shift-0...9# leütésével
-                          elhelyezett könyvjelzőinket.
+  #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
+megnézett fájlokban a #JobbCtrl-0...9# vagy a #Ctrl-Shift-0...9# leütésével
+elhelyezett könyvjelzőinket.
 
   #Tabulátor mérete#        A tabulátor szóközökben mért hossza.
 
-  #Gördítősáv mutatva#      Az oldalsó gördítősáv megjelenítése a
-                          a belső nézőkében. Ezt a lehetőséget a
-                          #Ctrl-S# leütésével is bekapcsolhatjuk.
+  #Gördítősáv mutatva#      ^<wrap>Az oldalsó gördítősáv megjelenítése a
+belső nézőkében. Ezt a lehetőséget a #Ctrl-S# leütésével is bekapcsolhatjuk.
 
   #Kódlap automatikus#      ~Automatikusan felismeri~@CodePage@ a megnézett
   #felismerése#             szöveg kódlapját.
@@ -2924,74 +2890,65 @@ alapértelmezett beállításait változtathatjuk meg.
 
     Külső szerkesztő
 
-  #Alt-F4 helyett F4#      Az #Alt-F4# helyett #F4# hívja meg a külső
-  #indítja a külső#        szerkesztőt.
+  #Alt-F4 helyett F4#       Az #Alt-F4# helyett #F4# hívja meg a külső
+  #indítja a külső#         szerkesztőt.
   #szerkesztőt#
 
-  #Szerkesztő parancs#      A külső szerkesztőt indító parancssor.
-                          ~Különleges szimbólumokat~@MetaSymbols@ is használhatunk
-                          a szerkesztendő fájl megadásánál. Ha
-                          nem szeretnénk, hogy a külső szerkesztő
-                          futtatása előtt a FAR paneljei kikap-
-                          csolódjanak, kezdjük a parancssort #@@#
-                          karakterrel.
+  #Szerkesztő parancs#      ^<wrap>A külső szerkesztőt indító parancssor.
+~Különleges szimbólumokat~@MetaSymbols@ is használhatunk a szerkesztendő fájl
+megadásánál. Ha nem szeretnénk, hogy a külső szerkesztő futtatása előtt a FAR
+paneljei kikapcsolódjanak, kezdjük a parancssort #@@# karakterrel.
 
     Belső szerkesztő
 
-  Tabulátorból szóközök:
+    Tabulátorból szóközök:
 
-  #Ne helyettesítse a#      A tabulátorokat nem konvertálja szóközzé
-  #tabulátorokat#           a szerkesztés során.
+    #Ne helyettesítse a#    A tabulátorokat nem konvertálja szóközzé
+    #tabulátorokat#         a szerkesztés során.
 
-  #Újonnan beírt tabu-#     Szövegszerkesztés közben minden beírt
-  #látorokból szóközök#     #Tab# karaktert megfelelő számú szóközzel
-                          helyettesít, de a korábbi tabulátorokat
-                          nem konvertálja.
+    #Újonnan beírt tabu-#   Szövegszerkesztés közben minden beírt
+    #látorokból szóközök#   ^<wrap>#Tab# karaktert megfelelő számú szóközzel
+helyettesít, de a korábbi tabulátorokat nem konvertálja.
 
-  #Minden tabulátorból#     A szöveg megnyitásakor automatikusan
-  #szóközök#                minden tabulátort szóközzé alakít.
+    #Minden tabulátorból#   A szöveg megnyitásakor automatikusan
+    #szóközök#              minden tabulátort szóközzé alakít.
 
 
-  #Maradó blokkok#          Nem veszi le a blokkokról a kijelölést,
-                          ha megmozdítjuk a kurzort.
+  #Maradó blokkok#          ^<wrap>Nem veszi le a blokkokról a kijelölést,
+ha megmozdítjuk a kurzort.
 
   #A Del törli#             Ha van kijelölt blokk, a #Del# nem a
-  #a blokkokat#             kurzor alatti karaktert, hanem a
-                          blokkot törli.
+  #a blokkokat#             ^<wrap>kurzor alatti karaktert, hanem a blokkot
+törli.
 
-  #Fájlpozíció mentése#     Elmenti és visszatölti a legutóbb
-                          szerkesztett fájlok szöveghelyzetét
-                          és a kódlapot is, ha utóbbit kézzel
-                          választottuk ki.
+  #Fájlpozíció mentése#     ^<wrap>Elmenti és visszatölti a legutóbb
+szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel
+választottuk ki.
 
-  #Könyvjelzők mentése#     Elmenti és visszatölti az utoljára
-                          szerkesztett fájlokban a #JobbCtrl-0...9#
-                          vagy a #Ctrl-Shift-0...9# leütésével
-                          elhelyezett könyvjelzőinket.
+  #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
+szerkesztett fájlokban a #JobbCtrl-0...9# vagy a #Ctrl-Shift-0...9# leütésével
+elhelyezett könyvjelzőinket.
 
-  #Automatikus behúzás#     Szöveg beírásánál engedélyezi az
-                          önműködő behúzást.
+  #Automatikus behúzás#     ^<wrap>Szöveg beírásánál engedélyezi az
+önműködő behúzást.
 
   #Kurzor a sorvégjel#      A szerkesztőben a kurzor a sorvégjel
   #után is#                 mögé is vihető.
 
   #Tabulátor mérete#        A tabulátor hossza, szóközökben.
 
-  #Gördítősáv mutatva#      Az oldalsó gördítősáv megjelenítése a
-                          a belső szerkesztőben.
+  #Gördítősáv mutatva#      ^<wrap>Az oldalsó gördítősáv megjelenítése a
+a belső szerkesztőben.
 
 
   #Írásra megnyitott fáj-#  Lehetővé teszi a más programokban írásra
-  #lok szerkeszthetők#      megnyitott fájlok szerkesztését. Ez a
-                          funkció praktikus, ha hosszú időre meg-
-                          nyitott fájlt szeretnénk szerkeszteni,
-                          de veszélyessé válhat, ha a fájl szer-
-                          kesztés közben módosul.
+  #lok szerkeszthetők#      ^<wrap>megnyitott fájlok szerkesztését. Ez a
+funkció praktikus, ha hosszú időre megnyitott fájlt szeretnénk szerkeszteni,
+de veszélyessé válhat, ha a fájl szerkesztés közben módosul.
 
   #Csak olvasható fájlok#   Ha "csak olvasható" attribútumú fájlt
-  #szerkesztése tiltva#     nyitottunk meg szerkesztésre, a
-                          szerkesztő ugyanúgy letiltja a szöveg
-                          módosítását, mintha #Ctrl-L#-t ütnénk.
+  #szerkesztése tiltva#     ^<wrap>nyitottunk meg szerkesztésre, a
+szerkesztő ugyanúgy letiltja a szöveg módosítását, mintha #Ctrl-L#-t ütnénk.
 
   #Figyelmeztet csak#       Ha "csak olvasható" attribútumú fájlt
   #olvasható fájl#          próbálunk megnyitni szerkesztésre,
@@ -3022,7 +2979,7 @@ változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra
 $ #Kódlapok automatikus felismerése#
     A FAR megpróbálja megállapítani a fájl megnézéséhez vagy szerkesztéséhez
 megfelelő kódlapot. Ne feledjük azonban, hogy a helyes felismerés nem
-garantálható, különösen, ha rövid vagy nem tipikus fájlt nyitunk meg.
+garantálható, különösen, ha rövid vagy nem tipikus szövegfájlt nyitunk meg.
 
 
 @FileAttrDlg
@@ -3036,14 +2993,14 @@ végbemenjenek, "Az almappákon is" opciót ne kapcsoljuk be.
 
     A párbeszédablak jelölőnégyzetei három állapotot vehetnek fel:
 
-     #[x]# - minden kijelölt elemnek van ilyen attribútuma
-           (minden kijelölt elemre ráteszi az attribútumot)
+     #[x]# - ^<wrap>minden kijelölt elemnek van ilyen attribútuma (minden
+kijelölt elemre ráteszi az attribútumot)
 
-     #[ ]# - egyetlen kijelölt elemnek sincs ilyen attribútuma
-           (minden kijelölt elemről leveszi az attribútumot)
+     #[ ]# - ^<wrap>egyetlen kijelölt elemnek sincs ilyen attribútuma (minden
+kijelölt elemről leveszi az attribútumot)
 
-     #[?]# - nincs minden kijelölt elemnek ilyen attribútuma
-           (ne változtasson az attribútumon)
+     #[?]# - ^<wrap>nincs minden kijelölt elemnek ilyen attribútuma (ne
+változtasson az attribútumon)
 
     Azok a jelölőnégyzetek, ahol minden kijelölt fájlnak megegyeznek az
 attribútumai, kétállapotúra változnak: csak bejelölni vagy törölni lehet az
@@ -3123,9 +3080,8 @@ panelen egyetlen fájl sem felel meg.)
 
     A #Felhasználói szűrők# menüben a következő parancsokat használhatjuk:
 
-   #Ins#        Új szűrő létrehozása (egy üres ~szűrő~@Filter@
-              párbeszédablakot kapunk, amit nekünk kell
-              beállítani).
+   #Ins#        ^<wrap>Új szűrő létrehozása (egy üres ~szűrő~@Filter@
+párbeszédablakot kapunk, amit nekünk kell beállítani).
 
    #F4#         Meglévő ~szűrő~@Filter@ szerkesztése.
 
@@ -3141,18 +3097,16 @@ panelen egyetlen fájl sem felel meg.)
     A #Felhasználói szűrőkre# és az automatikusan generált szűrőkre (azaz a
 fájlmaszkokra) egyaránt alkalmazhatók a következő parancsok:
 
-   #Szóköz#,             Amelyik menüelemen #Szóközt# vagy #+#-t ütünk,
-   #Plusz#               "+" jelet kap. Ha vannak ilyen elemek, a
-                       művelet csak az ezeknek megfelelő fájlokon
-                       megy végbe.
+   #Szóköz#, #Plusz#       ^<wrap>Amelyik menüelemen #Szóközt# vagy #+#-t
+ütünk, "+" jelet kap. Ha vannak ilyen elemek, a művelet csak az ezeknek
+megfelelő fájlokon megy végbe.
 
-   #Minusz#              A #-# billentyűvel kijelölt elemek "-" jelet
-                       kapnak. Az így megjelölt szűrőknek megfelelő
-                       fájlokon nem megy végbe a művelet.
+   #Minusz#              ^<wrap>A #-# billentyűvel kijelölt elemek "-" jelet
+kapnak. Az így megjelölt szűrőknek megfelelő fájlokon nem megy végbe a
+művelet.
 
-   #I# vagy #X#            Szerepük hasonló a #Plusz# és a #Minusz#
-                       funkciójához, de találat esetén magasabb a
-                       prioritásuk.
+   #I# vagy #X#            ^<wrap>Szerepük hasonló a #Plusz# és a #Minusz#
+funkciójához, de találat esetén magasabb a prioritásuk.
 
    #Backspace#           Az aktuális elem jelölését törli.
 
@@ -3232,22 +3186,21 @@ elválasztott) karakter jelképez, a következők lehetnek:
 
     N[M,O,R]   - fájlnév
                  ahol:  M - jelölő karakter mutatva;
-                        O - nevek, elérési út nélkül
-                            (elsősorban pluginekhez);
+                        O - ^<wrap>nevek, elérési út nélkül (elsősorban
+pluginekhez);
                         R - jobbra igazított nevek;
                  A módosítókat kombinálni is lehet, például NMR.
 
     S[C,T,F,E] - fájlméret
     P[C,T,F,E] - tömörített fájlméret
-    G[C,T,F,E] - size of file streams
+    G[C,T,F,E] - a fájlstream-ek mérete
                  ahol:  C - rendezett fájlméret formátum;
                         T - 1024 helyett 1000 az osztó;
-                        F - a fájlméretek a Windows Exploreréhez
-                            hasonló formátumúak (például 999 bájt
-                            999-ként, de 1000 bájt 0.97 kB
-                            formában jelenik meg);
+                        F - ^<wrap>a fájlméretek a Windows Exploreréhez
+hasonló formátumúak (például 999 bájt 999-ként, de 1000 bájt 0.97 kB formában
+jelenik meg);
                         E - takarékos mód, nincs szóköz a fájlméret
-                            és az utótag közt;
+és az utótag közt;
 
     D          - a fájl módosításának dátuma
     T          - a fájl módosításának ideje
@@ -3266,7 +3219,7 @@ elválasztott) karakter jelképez, a következők lehetnek:
 
     LN         - hardlinkek száma
 
-    F          - streams number
+    F          - stream-ek száma
 
     Ha az oszloptípusok leírójában több fájlnévoszlop szerepel, a fájlpanel
 többoszlopos formában jelenik meg.
@@ -3278,8 +3231,8 @@ többoszlopos formában jelenik meg.
        #H#         - Hidden (Rejtett)
        #A#         - Archive (Archiv)
        #L#         - Mappa csomópont vagy szimbolikus link
-       #C# vagy #E#  - Compressed vagy Encrypted
-                   (Tömörített vagy Titkosított)
+       #C# vagy #E#  - ^<wrap>Compressed vagy Encrypted (Tömörített vagy
+Titkosított)
        #$#         - Sparse (Ritkított)
        #T#         - Temporary (Átmeneti)
        #I#         - Nem (tartalom)indexelt
@@ -3363,14 +3316,13 @@ ezek csoportjainak kijelölésére. A maszkok egyaránt tartalmazhatnak általá
 érvényű fájlnév szimbólumokat, joker (* és ?) karaktereket és különleges
 kifejezéseket:
 
-    #*#           bármilyen hosszúságú és tartalmú karaktersor
-                (vagy akár semmilyen karakter);
+    #*#           ^<wrap>bármilyen hosszúságú és tartalmú karaktersor (vagy
+akár semmilyen karakter);
 
     #?#           egyetlen helyiértéknyi karakter;
 
-    #[c,x-z]#     a szögletes zárójelek közt álló bármelyik
-                karakter. Lehet egyedüli, lehet tartomány
-                vagy a kettő kombinációja.
+    #[c,x-z]#     ^<wrap>a szögletes zárójelek közt álló bármelyik karakter.
+Lehet egyedüli, lehet tartomány vagy a kettő kombinációja.
 
     Például az ftp.exe, fc.exe és az f.ext fájl az f*.ex? maszkkal írható le,
 a *co* maszba belefér a color.ini és az edit.com is, a [c-f,t]*.txt maszknak
@@ -3396,17 +3348,17 @@ befoglaló maszkok után kell állniuk, #|# karakterrel elválasztva.
 
     Néhány példa a befoglaló és kizáró maszkok használatára:
 
- 1. *.cpp
-    Minden #cpp# kiterjesztésű fájl.
- 2. *.*|*.bak,*.tmp
-    Minden fájl, a #bak# és #tmp# kiterjesztésűeket kivéve.
- 3. *.*|
-    Ez a maszk hibát generál, mert a | karakter után nincs maszk.
- 4. *.*|*.bak|*.tmp
-    Szintén hibás szintakszis, mert a | karakter egy sorban csak
-    egyszer szerepelhet.
- 5. |*.bak
-    Ugyanaz, mint a *|*.bak
+    1. *.cpp
+       Minden #cpp# kiterjesztésű fájl.
+    2. *.*|*.bak,*.tmp
+       Minden fájl, a #bak# és #tmp# kiterjesztésűeket kivéve.
+    3. *.*|
+       Ez a maszk hibát generál, mert a | karakter után nincs maszk.
+    4. *.*|*.bak|*.tmp
+       ^<wrap>Szintén hibás szintakszis, mert a | karakter egy sorban csak
+egyszer szerepelhet.
+    5. |*.bak
+       Ugyanaz, mint a *|*.bak
 
     A "," (vagy ";") az egyes maszkokat, a "|" karakter pedig a befoglaló és a
 kizáró maszkok csoportját választja el egymástól.
@@ -3437,11 +3389,14 @@ be van kapcsolva, ugyanaz a hatása, mint a #Szürke *#-nak.
     A #Shift-<Szürke +># minden fájlt kijelöl, a #Shift-<Szürke -># minden
 kijelölést levesz.
 
+    Ha nincsenek kjelölt fájlok, a műveletek csak a kurzor alatti fájlra
+hatnak.
+
 
 @CopyFiles
 $ #Másolás, mozgatás, átnevezés és linkek létrehozása#
-    Fájlok és mappák másolására, mozgatására és átnevezésére a következő
-parancsokat használhatjuk:
+    Fájlok és mappák másolására, mozgatására és átnevezésére a
+ következő parancsokat használhatjuk:
 
   A ~kijelölt~@SelectFiles@ fájlok másolása                                    #F5#
 
@@ -3453,9 +3408,10 @@ parancsokat használhatjuk:
   A kurzor alatti fájl átnevezése vagy mozgatása,
   a kijelöléstől függetlenül                              #Shift-F6#
 
-    Mappákon: ha a megadott (abszolút vagy relatív) elérési út létező mappára
-mutat, akkor a forrásmappát a célmappa belsejébe mozgatja. Ha nem, akkor a
-forrásmappát az új elérési útra nevezi át (vagy helyezi át).
+    Mappákon: ha a megadott (abszolút vagy relatív) elérési út
+ létező mappára mutat, akkor a forrásmappát a célmappa belsejébe
+ mozgatja. Ha nem, akkor a forrásmappát az új elérési útra nevezi
+ át (vagy helyezi át).
 
     Példaként #c:\mappa1\#-et mozgassuk #d:\mappa2\#-re:
     - ha #d:\mappa2\# létezik, akkor #c:\mappa1\# tartalma átkerül
@@ -3465,13 +3421,12 @@ forrásmappát az új elérési útra nevezi át (vagy helyezi át).
 
   ~Fájl linkek~@HardSymLink@ létrehozása                                   #Alt-F6#
 
-
     Ha a "#Többszörös cél létrehozása#" opciót engedélyeztük, a beviteli
 mezőben másolási vagy mozgatási célként több elérési utat is megadhatunk,
 #;# vagy #,# karakterrel elválasztva egymástól. Ha a cél neve tartalmaz
 ";" vagy "," karaktert, idézőjelek közé kell tenni az elérési útjukat.
 
-    Ha nemlétező célmappákat adunk meg, amit szeretnénk létrehozni, a
+    Ha nem létező célmappákat adunk meg, amit szeretnénk létrehozni, a
 mappák nevei közt és után mindig álljon \\-jel. A Másolás párbeszédablakban
 #F10#-zel az aktív panel, #Alt-F10#-zel a passzív panel fastruktúrájának mappái
 között kereshetünk célmappát. A #Shift-F10# a beviteli sorba beírt elérési út
@@ -3504,16 +3459,18 @@ FAR, ha azonos nevű fájllal találkozik a célhelyen.
 
     A legördülő listában a következő lehetőségek közül választhatunk:
 
-    #Kérdez#   - megjeleníti a ~Figyelem, a fájl már létezik...~@CopyAskOverwrite@
-               figyelmeztető színű párbeszédablakot;
-    #Felülír#  - a létező fájlt felülírja;
-    #Kihagy#   - a létező fájlt nem írja felül;
-    #Hozzáfűz# - a létező fájl végéhez hozzáfűzi az új fájl tartalmát;
+    #Kérdez#    - ^<wrap>megjeleníti a
+~Figyelem, a fájl már létezik...~@CopyAskOverwrite@ figyelmeztető színű
+párbeszédablakot;
+    #Felülír#   - a létező fájlt felülírja;
+    #Kihagy#    - a létező fájlt nem írja felül;
+    #Hozzáfűz#  - a létező fájl végéhez hozzáfűzi az új fájl
+tartalmát;
     #Csak az újabb fájlokat# - csak a frissebb módosítási dátumú
-               fájlok írják felül a célhelyen létezőket;
+fájlok írják felül a célhelyen létezőket;
     #Csak olvasható fájloknál is kérdez# - ha a célhelyen "csak
-               olvasható" attribútumú fájllal találkozik, a
-               felülírás előtt újabb megerősítést kér.
+olvasható" attribútumú fájllal találkozik, a
+felülírás előtt újabb megerősítést kér.
 
     A ~Rendszer beállítások~@SystemSettings@ menü "Másoláshoz a rendszerrutin
 használata" opciójával a FAR a Windows operációs rendszer CopyFileEx nevű
@@ -3557,8 +3514,8 @@ párbeszédablakban a következő lehetőségek közül választhatunk:
 
     #Kihagy#     - a forrással azonos nevű fájlt nem írja felül;
 
-    #Hozzáfűz#   - a létező fájl végéhez hozzáfűzi a forrásfájl
-                 tartalmát.
+    #Hozzáfűz#   - ^<wrap>a létező fájl végéhez hozzáfűzi a forrásfájl
+tartalmát.
 
     Ha másolás során bekapcsoljuk a #Mindent a kiválasztott módon# opciót,
 a FAR megjegyzi választásainkat és az adott másolási feladat minden azonos
@@ -3684,7 +3641,7 @@ a titkosított fájlok aktuális lemezétől eltérő céllemezre másolásakor,
 
 
 @WarnCopyStream
-$ #Figyelmeztetés: több streamet tartalmazó fájl másolása vagy mozgatása#
+$ #Figyelem: több streamet tartalmazó fájl másolása vagy mozgatása#
     A forrásfájl több adatstreamet tartalmaz, vagy a célhely fájlrendszere
 nem támogatja az ilyen többszintű adatstruktúrával rendelkező fájlokat.
 
@@ -3712,11 +3669,11 @@ mozgatásával vihetők át (#F6#).
 $ #Hiba: plugin betöltési hiba#
    A hibaüzenet ezekben az esetekben jelenhet meg:
 
-   1. A plugin helyes működéséhez szükséges .dll fájl nem található
-      a rendszerben.
+   1. ^<wrap>A plugin helyes működéséhez szükséges .dll fájl nem található
+a rendszerben.
 
-   2. Valamilyen oknál fogva a plugin hibakóddal tér vissza és nem
-      engedi, hogy a plugin a rendszerbe töltődjön.
+   2. ^<wrap>Valamilyen oknál fogva a plugin hibakóddal tér vissza és nem
+engedi, hogy a plugin a rendszerbe töltődjön.
 
    3. A plugint képviselő .dll fájl hibás.
 
@@ -3730,8 +3687,8 @@ A #Ctrl-Tab# a következő, a #Ctrl-Shift-Tab# az előző képernyőre vált, az
 #F12# pedig listát jelenít meg a megnyitott példányokról.
 
     \1B[1+3]════ C:\\\-    A háttérben futó nézőkék és szerkesztők
-    \1B║\1E    Név     \-    példányszámát a FAR a bal panel bal fel-
-    \1B║\1F..          \-    ső sarkában jeleníti meg.
+    \1B║\1E    Név     \-    példányszámát a FAR a bal panel bal
+    \1B║\1F..          \-    felső sarkában jeleníti meg.
 
     A funkciót a ~Panel beállítások~@PanelSettings@ párbeszédablak
 "Háttérképernyők száma mutatva" opciójával letilthatjuk.
@@ -3739,8 +3696,8 @@ A #Ctrl-Tab# a következő, a #Ctrl-Shift-Tab# az előző képernyőre vált, az
 
 @ApplyCmd
 $ #Parancs végrehajtása#
-    A ~Fájlok~@FilesMenu@ menü #Parancs végrehajtása# menüpontjával az összes
-kijelölt fájlra közös parancsot adhatunk ki. A ~Fájltársításoknál~@FileAssoc@
+    A ~Fájlok menü~@FilesMenu@ #Parancs végrehajtása# menüpontjával az összes
+kijelölt fájlra közös parancsot adhatunk ki. A ~fájltársításoknál~@FileAssoc@
 alkalmazható ~különleges szimbólumok~@MetaSymbols@ itt is használhatók.
 
     Például a "type !.!" parancs sorban egyenként a képernyőre irányítja a
@@ -3749,7 +3706,7 @@ megegyező nevű RAR tömörített fájlokba mozgatja a kijelölt fájlokat. Az
 "explorer /select,!.!" parancs megnyitja a Windows Intézőt és ráállítja a
 kurzort az aktuális fájlra vagy mappára.
 
-    Lásd még ~"Operációs rendszer parancsok"~@OSCommands@.
+    Lásd még ~Operációs rendszer parancsok~@OSCommands@.
 
 
 @OSCommands
@@ -3810,8 +3767,8 @@ létezik és a "változó" nevű környezeti változó létezik.
 
     Megjegyzések:
 
-    1. A FAR a fentieken kívül minden más parancsot továbbít
-       az operációs rendszer parancsértelmezőjének.
+    1. ^<wrap>A FAR a fentieken kívül minden más parancsot továbbít
+az operációs rendszer parancsértelmezőjének.
 
     2. A fenti parancsok a következő helyeken működnek:
        ~Parancssor~@CmdLineCmd@
@@ -3825,12 +3782,12 @@ $ #Környezeti változók#
     A FAR Manager indításakor a következő környezeti változókat definiálja
 az utódfolyamatok részére:
 
-    #FARHOME#            A mappa elérési útja, ahonnan a FAR indult.
+    #FARHOME#          A mappa elérési útja, ahonnan a FAR indult.
 
-    #FARLANG#            A kezelőfelület aktuális nyelve.
+    #FARLANG#          A kezelőfelület aktuális nyelve.
 
-    #FARUSER#            A ~parancssorban~@CmdLine@ a /u kapcsolóval
-                       megadott felhasználói név.
+    #FARUSER#          ^<wrap>A ~parancssorban~@CmdLine@ a /u kapcsolóval
+megadott felhasználói név.
 
 
 @KeyMacro
@@ -3842,10 +3799,10 @@ feladatok ellátására használhatunk.
 
     Minden makrónak van:
 
-    - gyorsbillentyűje, ami elindítja az előzőleg rögzített
-      billentyűszekvencia végrehajtását;
+    - ^<wrap>gyorsbillentyűje, ami elindítja az előzőleg rögzített
+billentyűszekvencia végrehajtását;
     - további ~beállítási~@KeyMacroSetting@ lehetősége, amelyekkel
-      befolyásolhatjuk a végrehajtás módját és hatókörét.
+befolyásolhatjuk a végrehajtás módját és hatókörét.
 
     A makrók olyan különleges ~utasításokat~@KeyMacroLang@ is tartalmazhatnak,
 amelyeket végrehajtásuk során a FAR speciális módon értelmez, így bonyolultabb
@@ -3853,12 +3810,12 @@ konstrukciókat is összeállíthatunk.
 
     A makrók általában a következő célokra praktikusak:
 
-    1. Ismétlődő feladatok ellátására a gyorsbillentyű korlátlan
-       számú leütésével.
+    1. ^<wrap>Ismétlődő feladatok ellátására a gyorsbillentyű korlátlan
+számú leütésével.
     2. A makrók szövegében különleges utasításként megadható
-       funkciók végrehajtására.
-    3. Az eredetileg a FAR belső parancsaihoz rendelt gyorsbil-
-       lentyűk alapértékeinek újradefiniálására.
+funkciók végrehajtására.
+    3. Az eredetileg a FAR belső parancsaihoz rendelt gyorsbillentyűk
+alapértékeinek újradefiniálására.
 
     A makrók leggyakoribb alkalmazási területe gyorsbillentyűk hozzárendelése
 külső pluginek meghívásához, illetve a FAR műveleteinek újradefiniálása.
@@ -3878,9 +3835,8 @@ $ #Makrók: a végrehajtás hatóköre#
     A FAR lehetővé teszi, hogy hatókörönként azonos gyorsbillentyűvel induló,
 de a hatókörtől függően eltérő működésű ~makrókat~@KeyMacro@ hozzunk létre.
 
-    Vigyázat: A végrehajtás hatókörét (ahol a makrót használhatjuk)
-              az a terület szabja meg, ahol a makró rögzítését
-              #elindítottuk#.
+    Vigyázat: ^<wrap>A végrehajtás hatókörét (ahol a makrót használhatjuk)
+az a terület szabja meg, ahol a makró rögzítését #elindítottuk#.
 
     A jelenleg használható, egymástól elkülönített területek:
 
@@ -3912,12 +3868,11 @@ $ #Makrók: gyorsbillentyűk#
     ~Makrókat~@KeyMacro@ rendelhetünk:
 
     1. bármelyik billentyűhöz;
-    2. bármelyik, módosítóval (#Ctrl#, #Alt# vagy #Shift#)
-       együtt lenyomott billentyűhöz;
-    3. bármelyik két módosítóval együtt lenyomott
-       billentyűhöz. A lehetséges módosítópárok:
-       #Ctrl-Shift-<bill.>#, #Ctrl-Alt-<bill.># és
-       #Alt-Shift-<bill.>#
+    2. ^<wrap>bármelyik, módosítóval (#Ctrl#, #Alt# vagy #Shift#) együtt
+lenyomott billentyűhöz;
+    3. bármelyik két módosítóval együtt lenyomott billentyűhöz. A
+lehetséges módosítópárok:  #Ctrl-Shift-<bill.>#, #Ctrl-Alt-<bill.># és
+#Alt-Shift-<bill.>#
 
     A következő kombinációk #nem használhatók# makróhoz: #Alt-Ins#, #Ctrl-<.>#,
 #Ctrl-Shift-<.>#, #Ctrl-Alt#, #Ctrl-Shift#, #Shift-Alt#, #Shift-<szimbólum>#.
@@ -3933,12 +3888,11 @@ listából választhatjuk ki és rendelhetjük a makróhoz.
 $ #Makrók: rögzítés és visszajátszás#
     A ~makrók~@KeyMacro@ a következő módokban játszhatók vissza:
 
-    1. Normál mód: a felvétel vagy lejátszás közben lenyomott
-       billentyűket #elküldi# a pluginekhez.
+    1. ^<wrap>Normál mód: a felvétel vagy lejátszás közben lenyomott
+billentyűket #elküldi# a pluginekhez.
 
-    2. Különleges mód: a felvétel vagy lejátszás közben lenyomott
-       billentyűket #nem küldi el# a szerkesztés eseményeit kezelő
-       pluginekhez.
+    2. ^<wrap>Különleges mód: a felvétel vagy lejátszás közben lenyomott
+billentyűket #nem küldi el# a szerkesztés eseményeit kezelő pluginekhez.
 
     Például, ha valamelyik plugin normál módban lekezeli a #Ctrl+A#
 kombinációt, különleges módban "nem kerülhet a látókörébe", így nem is reagál
@@ -3948,44 +3902,40 @@ rá a szokott módon.
 
     1. Makrórögzítés inditása
 
-       Normál módú makrófelvételhez nyomjuk le a #Ctrl-<.># (először
-       a #Ctrl# és utána rövid ideig vele kell nyomni a #<.>#-ot), a
-       különleges módú makrófelvételhez pedig a #Ctrl-Shift-<.>#
-       kombinációt (#Ctrl# és #Shift#, utána rövid ideig velük kell
-       nyomni a #<.>#-ot).
+       ^<wrap>Normál módú makrófelvételhez nyomjuk le a #Ctrl-<.># (először
+a #Ctrl# és utána rövid ideig vele kell nyomni a #<.>#-ot), a különleges módú
+makrófelvételhez pedig a #Ctrl-Shift-<.># kombinációt (#Ctrl# és #Shift#,
+utána rövid ideig velük kell nyomni a #<.>#-ot).
 
-       Bármelyik módú felvételt indítottuk ek, a makrórögzítésről
-       tájékoztató \4FR\- szimbólum megjelenik a képernyő bal felső
-       sarkában.
+       ^<wrap>Bármelyik módú felvételt indítottuk ek, a makrórögzítésről
+tájékoztató \4FR\- szimbólum megjelenik a képernyő bal felső sarkában.
 
     2. A makrók tartalma
 
-       Makrórögzítés során a FAR minden billentyűleütést tárol, a
-       következő kivétellel:
+       ^<wrap>Makrórögzítés során a FAR minden billentyűleütést tárol, a
+következő kivétellel:
 
-         A FAR csak a közvetlenül általa feldolgozott műveleteket
-         jegyzi meg. Ez annyit jelent, hogy ha rögzítés közben egy
-         külső program indul el az aktuális konzolban, a FAR csak
-         a program futása előtti és utáni billentyűműveleteket
-         tárolja a makróban.
+         ^<wrap>A FAR csak a közvetlenül általa feldolgozott műveleteket
+jegyzi meg. Ez annyit jelent, hogy ha rögzítés közben egy külső program indul
+el az aktuális konzolban, a FAR csak a program futása előtti és utáni
+billentyűműveleteket tárolja a makróban.
 
     3. Makrórögzítés befejezése
 
-       A felvételek leállításához ki kell választanunk a célnak
-       megfelelőbb módszert. Mivel a makrók a rögzítés leállítása
-       után is konfigurálhatók, kétféle megoldás kínálkozik: a
-       #Ctrl-<.># és a #Ctrl-Shift-<.>#. Az első esetben a makró
-       leállítása után csak gyorsbillentyűt kell megadni és a makró
-       az alapértelmezett beállítások szerint játszható vissza. A
-       második esetben is megtörténik a leállítás és a billentyű-
-       hozzárendelés, de ezután egy párbeszédablakban módosíthatjuk
-       a makró futási feltételeinek ~beállításait~@KeyMacroSetting@.
+       ^<wrap>A felvételek leállításához ki kell választanunk a célnak
+megfelelőbb módszert. Mivel a makrók a rögzítés leállítása után is
+konfigurálhatók, kétféle megoldás kínálkozik: a #Ctrl-<.># és a
+#Ctrl-Shift-<.>#. Az első esetben a makró leállítása után csak gyorsbillentyűt
+kell megadni és a makró az alapértelmezett beállítások szerint játszható
+vissza. A második esetben is megtörténik a leállítás és a billentyű
+hozzárendelése, de ezután egy párbeszédablakban módosíthatjuk a makró futási
+feltételeinek ~beállításait~@KeyMacroSetting@.
 
     4. Gyorsbillentyű hozzárendelése a makróhoz
 
-       A makrórögzítés befejeztével a ~gyorsbillentyű hozzárendelés~@KeyMacroSetting@
-       párbeszédablak jelenik meg, ahol kiválaszthatjuk a makrót
-       indító billentyűkombinációt.
+       ^<wrap>A makrórögzítés befejeztével a
+~gyorsbillentyű hozzárendelés~@KeyMacroSetting@ párbeszédablak jelenik meg,
+ahol kiválaszthatjuk a makrót indító billentyűkombinációt.
 
 
 @KeyMacroDelete
@@ -3999,13 +3949,12 @@ választ.
 
     1. Indítsuk el a makrórögzítést (#Ctrl-<.>#).
     2. Állítsuk le a rögzítést (#Ctrl-<.>#).
-    3. Nyomjuk le, vagy a listából válasszuk ki a törölni kívánt
-       gyorsbillentyűt.
+    3. ^<wrap>Nyomjuk le, vagy a listából válasszuk ki a törölni kívánt
+gyorsbillentyűt.
 
-    Vigyázat:  a makró törlése után a gyorsbillentyű visszanyeri
-               eredeti funkcióját, tehát ha azelőtt a FAR vagy
-               egy plugin kezelte a billentyűkombinációt, az a
-               korábbi beállításnak megfelelően működik ezután.
+    Vigyázat:  ^<wrap>a makró törlése után a gyorsbillentyű visszanyeri
+eredeti funkcióját, tehát ha azelőtt a FAR vagy egy plugin kezelte a
+billentyűkombinációt, az a korábbi beállításnak megfelelően működik ezután.
 
 
 @KeyMacroSetting
@@ -4017,7 +3966,7 @@ a kívánt jellemzőket:
 
    #Szekvencia:#
 
-    A felvett billentyűsorozatot szerkeszthetjük vele.
+    Itt szerkeszthető a rögzített billentyűsorozat.
 
    #Képernyőkimenet a makró futása közben#
 
@@ -4043,10 +3992,8 @@ passzív panelre:
          [?] - mindkét esetben hajtsa végre
 
      #Ha van kijelölés#
-         [x] - csak ha van kijelölt fájl vagy mappa a
-               panelen
-         [ ] - csak ha nincs kijelölt fájl vagy mappa
-               a panelen
+         [x] - ^<wrap>csak ha van kijelölt fájl vagy mappa a panelen
+         [ ] - csak ha nincs kijelölt fájl vagy mappa a panelen
          [?] - a kijelöléstől függetlenül
 
    További végrehajtási feltételek:
@@ -4057,23 +4004,23 @@ passzív panelre:
          [?] - a parancssor állapotától függetlenül
 
      #Ha van kijelölt blokk#
-         [x] - csak ha a nézőke, a szerkesztő, a parancssor
-               vagy a párbeszédablak szövegsorában van
-               kijelölt blokk
+         [x] - ^<wrap>csak ha a nézőke, a szerkesztő, a parancssor vagy a
+párbeszédablak szövegsorában van kijelölt blokk
          [ ] - csak ha nincs kijelölt blokk
          [?] - a kijelöléstől függetlenül
 
 
    Megjegyzések:
 
-    1. A makró végrehajtása előtt a FAR minden fenti feltételt ellenőriz.
+    1. ^<wrap>A makró végrehajtása előtt a FAR minden fenti feltételt
+ellenőriz.
 
-    2. Egyes billentyűkombinációkat, például az #Enter#, #Esc#, #F1# és a
-#Ctrl-F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
+    2. ^<wrap>Egyes billentyűkombinációkat, például az #Enter#, #Esc#, #F1# és
+a #Ctrl-F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
 valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval
 együtt nem vihetünk be közvetlenül gyorsbillentyűként, a párbeszédablakban
 betöltött speciális szerepük miatt. Ezeket a billentyűkombinációkat
-egy legördülő listából választhatjuk ki és rendelhetjük makrókhoz.
+legördülő listából választhatjuk ki és rendelhetjük makrókhoz.
 
 
 @KeyMacroLang
@@ -4083,7 +4030,7 @@ utasításokat illeszthetünk az egyszerű billentyűszekvenciák közé, ez tes
 a makrórögzítést a ~pluginek~@Plugins@ lehetőségei mellett a FAR Managerrel
 végzett mindennapi munka hatékony segédeszközévé.
 
-    Néhány utasítás, felsorolásszerűen:
+      Néhány utasítás, felsorolásszerűen:
 
     #$Date#         - beszúrja az aktuális dátumot/időt
     #$Exit#         - leállítja a makró lejátszását
@@ -4096,7 +4043,7 @@ végzett mindennapi munka hatékony segédeszközévé.
     #$Rep#          - ciklus operátor
     #%var#          - változók használata
 
-     és így tovább...
+      és így tovább...
 
     Makrónyelvi utasításokat csak a Windows regisztrációs adatbázisának
 szerkesztésével (HKEY_CURRENT_USER\\Software\\Far2\\KeyMacros) vagy az
@@ -4107,18 +4054,23 @@ erre a célra kifejlesztett segédprogramokkal és pluginekkel adhatunk a
 
 
 @KeyMacroEditList
-$ #Макросы: Редактор#
-    Ниже приведены комбинации макроклавиш, используемых в редакторе. Описание для каждой макроклавиши берется из реестра (поле Description).
+$ #Makrók: a szerkesztő makrói#
+    A következő lista a jelenleg a szerkesztőből elérhető makrók
+gyorsbillentyűit tartalmazza, a Windows regisztrációs
+adatbázisából kiolvasott leírásaikkal együtt:
 
 <!Macro:Common!>
 <!Macro:Editor!>
 
 @KeyMacroViewerList
-$ #Макросы: Программа просмотра#
-    Ниже приведены комбинации макроклавиш, используемых в программе просмотра. Описание для каждой макроклавиши берется из реестра (поле Description).
+$ #Makrók: a nézőke makrói#
+    A következő lista a jelenleg a nézőkéből elérhető makrók
+gyorsbillentyűit tartalmazza, a Windows regisztrációs
+adatbázisából kiolvasott leírásaikkal együtt:
 
 <!Macro:Common!>
 <!Macro:Viewer!>
+
 
 @Index
 $ #A súgó betűrendes tartalomjegyzéke#

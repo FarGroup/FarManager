@@ -5451,7 +5451,7 @@ MColumnNumStreams
 "NmS"
 upd:"NmS"
 upd:"NmS"
-upd:"NmS"
+"Stm"
 upd:"NmS"
 
 MColumnStreamsSize
@@ -5459,7 +5459,7 @@ MColumnStreamsSize
 "StrmSz"
 upd:"StrmSz"
 upd:"StrmSz"
-upd:"StrmSz"
+"StmMér"
 upd:"StrmSz"
 
 MListUp
@@ -9318,7 +9318,7 @@ MMenuSortByNumStreams
 "Number of s&treams"
 upd:"Number of s&treams"
 upd:"Number of s&treams"
-upd:"Number of s&treams"
+"Stream-e&k száma"
 upd:"Number of s&treams"
 
 MMenuSortByStreamsSize
@@ -9326,7 +9326,7 @@ MMenuSortByStreamsSize
 "Size of st&reams"
 upd:"Size of st&reams"
 upd:"Size of st&reams"
-upd:"Size of st&reams"
+"Stream-ek m&érete"
 upd:"Size of st&reams"
 
 MMenuSortUseGroups
@@ -12921,7 +12921,7 @@ l:
 "Plugins help"
 "Nápověda Pluginů"
 "Pluginhilfe"
-"Plugin súgó"
+"Pluginek súgói"
 "Pomoc dla pluginów"
 
 MDocumentsHelpTitle
@@ -12929,7 +12929,7 @@ MDocumentsHelpTitle
 "Documents help"
 "Nápověda Dokumentů"
 "Dokumentenhilfe"
-"Dokumentum súgó"
+"Dokumentumok súgói"
 "Pomoc dla dokumentów"
 
 MHelpSearchTitle
