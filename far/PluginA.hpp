@@ -210,7 +210,7 @@ public:
 	int ProcessViewerEvent (int Event, PVOID Param);
 	int ProcessDialogEvent (int Event, PVOID Param);
 
-	void GetPluginInfo (PluginInfo *pi);
+	bool GetPluginInfo (PluginInfo *pi);
 	int Configure (int MenuItem);
 
 	void ExitFAR();

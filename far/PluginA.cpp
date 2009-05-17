@@ -1516,7 +1516,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
   memcpy(Dest,&PI,sizeof(*Dest));
 }
 
-void PluginA::GetPluginInfo (PluginInfo *pi)
+bool PluginA::GetPluginInfo (PluginInfo *pi)
 {
 	memset (pi, 0, sizeof (PluginInfo));
 
@@ -1531,8 +1531,14 @@ void PluginA::GetPluginInfo (PluginInfo *pi)
 
 		EXECUTE_FUNCTION(pGetPluginInfo(&InfoA), es);
 
-		ConvertPluginInfo(InfoA, pi);
+		if ( !es.bUnloaded )
+		{
+			ConvertPluginInfo(InfoA, pi);
+			return true;
+		}
 	}
+
+	return false;
 }
 
 void PluginA::ExitFAR()

@@ -141,7 +141,11 @@ private:
 
 	void LoadIfCacheAbsent();
 	void ReadUserBackgound(SaveScreen *SaveScr);
-	int GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
+
+	void GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey);
+	void GetPluginHotKey(Plugin *pPlugin,int ItemNumber,const wchar_t *HotKeyType,string &strHotKey);
+	bool SetHotKeyDialog(const wchar_t *DlgPluginTitle,const wchar_t *RegKey,const wchar_t *RegValueName);
+
 	bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 	bool TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info);
 
@@ -201,7 +205,6 @@ public:
 	HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);
 	HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
 	void ClosePlugin(HANDLE hPlugin);
-	int GetPluginInfo(Plugin *pPlugin, PluginInfo *Info);
 	void GetOpenPluginInfo(HANDLE hPlugin, OpenPluginInfo *Info);
 	int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,int *pItemsNumber,int Silent);
 	void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber);

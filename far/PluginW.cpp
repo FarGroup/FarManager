@@ -598,8 +598,6 @@ struct ExecuteStruct {
 			es.nResult = (INT_PTR)function; \
 	}
 
-
-
 bool PluginW::SetStartupInfo (bool &bUnloaded)
 {
 	if ( pSetStartupInfoW && !ProcessException )
@@ -1272,7 +1270,7 @@ int PluginW::Configure(
 }
 
 
-void PluginW::GetPluginInfo (PluginInfo *pi)
+bool PluginW::GetPluginInfo (PluginInfo *pi)
 {
 	memset (pi, 0, sizeof (PluginInfo));
 
@@ -1283,7 +1281,12 @@ void PluginW::GetPluginInfo (PluginInfo *pi)
 		es.id = EXCEPT_GETPLUGININFO;
 
 		EXECUTE_FUNCTION(pGetPluginInfoW(pi), es);
+
+		if ( !es.bUnloaded )
+			return true;
 	}
+
+	return false;
 }
 
 void PluginW::ExitFAR()

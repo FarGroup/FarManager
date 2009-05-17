@@ -222,7 +222,6 @@ class Panel:public ScreenObject
     virtual int GetColumnsCount(){ return 1;};
     virtual void SetReturnCurrentFile(int Mode) {};
     virtual void QViewDelTempName() {};
-    virtual void GetPluginInfo(struct PluginInfo *Info) {};
     virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info) {};
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false) {};
     virtual void SetPluginModified() {};

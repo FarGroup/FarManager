@@ -116,7 +116,7 @@ public:
 	virtual int ProcessViewerEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessDialogEvent (int Event, PVOID Param) = 0;
 
-	virtual void GetPluginInfo (PluginInfo *pi) = 0;
+	virtual bool GetPluginInfo (PluginInfo *pi) = 0;
 	virtual int Configure (int MenuItem) = 0;
 
 	virtual void ExitFAR() = 0;

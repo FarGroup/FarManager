@@ -384,7 +384,6 @@ class FileList:public Panel
     virtual int IsColumnDisplayed(int Type);
     virtual int GetColumnsCount(){ return Columns;};
     virtual void SetReturnCurrentFile(int Mode);
-    virtual void GetPluginInfo(struct PluginInfo *Info);
     virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 

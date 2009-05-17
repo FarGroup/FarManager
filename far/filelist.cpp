@@ -4228,7 +4228,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 		{
 			PluginInfo PInfo;
 
-			CtrlObject->Plugins.GetPluginInfo(ph->pPlugin, &PInfo);
+			ph->pPlugin->GetPluginInfo(&PInfo);
 
 			if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{

@@ -76,32 +76,32 @@ static const wchar_t *RKN_PluginsCache=L"PluginsCache";
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 
 unsigned long CRC32(
-    unsigned long crc,
-    const char *buf,
-    unsigned int len
-    )
+	unsigned long crc,
+	const char *buf,
+	unsigned int len
+	)
 {
-  static unsigned long crc_table[256];
+	static unsigned long crc_table[256];
 
-  if (!crc_table[1])
-  {
-    unsigned long c;
-    int n, k;
+	if (!crc_table[1])
+	{
+		unsigned long c;
+		int n, k;
 
-    for (n = 0; n < 256; n++)
-    {
-      c = (unsigned long)n;
-      for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
-        crc_table[n] = c;
-    }
-  }
+		for (n = 0; n < 256; n++)
+		{
+			c = (unsigned long)n;
+			for (k = 0; k < 8; k++) c = (c >> 1) ^ (c & 1 ? 0xedb88320L : 0);
+				crc_table[n] = c;
+		}
+	}
 
-  crc = crc ^ 0xffffffffL;
-  while (len-- > 0) {
-    crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
-  }
+	crc = crc ^ 0xffffffffL;
+	while (len-- > 0) {
+		crc = crc_table[(crc ^ (*buf++)) & 0xff] ^ (crc >> 8);
+	}
 
-  return crc ^ 0xffffffffL;
+	return crc ^ 0xffffffffL;
 }
 
 
@@ -124,15 +124,15 @@ unsigned long CRC32(
 #define CRC32_GETMINFARVERSIONW 0xA243A1DB
 
 DWORD ExportCRC32[] = {
-    CRC32_SETSTARTUPINFO,
-    CRC32_GETPLUGININFO,
-    CRC32_OPENPLUGIN,
-    CRC32_OPENFILEPLUGIN,
-    CRC32_EXITFAR,
-    CRC32_SETFINDLIST,
-    CRC32_CONFIGURE,
-    CRC32_GETMINFARVERSION
-    };
+	CRC32_SETSTARTUPINFO,
+	CRC32_GETPLUGININFO,
+	CRC32_OPENPLUGIN,
+	CRC32_OPENFILEPLUGIN,
+	CRC32_EXITFAR,
+	CRC32_SETFINDLIST,
+	CRC32_CONFIGURE,
+	CRC32_GETMINFARVERSION
+};
 
 DWORD ExportCRC32W[] = {
 	CRC32_SETSTARTUPINFOW,
@@ -280,11 +280,11 @@ PluginType IsModulePlugin (const wchar_t *lpModuleName)
 
 PluginManager::PluginManager()
 {
-  PluginsData=NULL;
-  PluginsCount=0;
-  CurPluginItem=NULL;
-  CurEditor=NULL;
-  CurViewer=NULL;
+	PluginsData=NULL;
+	PluginsCount=0;
+	CurPluginItem=NULL;
+	CurEditor=NULL;
+	CurViewer=NULL;
 }
 
 PluginManager::~PluginManager()
@@ -339,9 +339,9 @@ bool PluginManager::RemovePlugin (Plugin *pPlugin)
 
 
 bool PluginManager::LoadPlugin (
-			const wchar_t *lpwszModuleName,
-			const FAR_FIND_DATA_EX &FindData
-		)
+	const wchar_t *lpwszModuleName,
+	const FAR_FIND_DATA_EX &FindData
+	)
 {
 	Plugin *pPlugin = NULL;
 
@@ -486,86 +486,84 @@ Plugin *PluginManager::GetPlugin (int PluginNumber)
 void PluginManager::LoadPlugins()
 {
 	TaskBar TB;
-  BlockExtKey blockExtKey;
-  Flags.Clear(PSIF_PLUGINSLOADDED);
+	BlockExtKey blockExtKey;
+	Flags.Clear(PSIF_PLUGINSLOADDED);
 
-  if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
-  {
-     LoadPluginsFromCache();
-  }
-  else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
-  {
-    ScanTree ScTree(FALSE,TRUE);
-    UserDefinedList PluginPathList;  // хранение списка каталогов
+	if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
+	{
+		LoadPluginsFromCache();
+	}
+	else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
+	{
+		ScanTree ScTree(FALSE,TRUE);
+		UserDefinedList PluginPathList;  // хранение списка каталогов
 
-    string strPluginsDir;
-    string strFullName;
-    FAR_FIND_DATA_EX FindData;
+		string strPluginsDir;
+		string strFullName;
+		FAR_FIND_DATA_EX FindData;
 
-    PluginPathList.SetParameters(0,0,ULF_UNIQUE);
-    // сначала подготовим список
-    if(Opt.LoadPlug.MainPluginDir) // только основные и персональные?
-    {
-      strPluginsDir.Format (L"%s%s",(const wchar_t*)g_strFarPath, PluginsFolderName);
-      PluginPathList.AddItem(strPluginsDir);
-      // ...а персональные есть?
-      if(Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
-        PluginPathList.AddItem(Opt.LoadPlug.strPersonalPluginsPath);
-    }
-    else if( !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() ) // только "заказные" пути?
-      PluginPathList.AddItem(Opt.LoadPlug.strCustomPluginsPath);
+		PluginPathList.SetParameters(0,0,ULF_UNIQUE);
+		// сначала подготовим список
+		if(Opt.LoadPlug.MainPluginDir) // только основные и персональные?
+		{
+			strPluginsDir.Format (L"%s%s",(const wchar_t*)g_strFarPath, PluginsFolderName);
+			PluginPathList.AddItem(strPluginsDir);
+			// ...а персональные есть?
+			if(Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
+				PluginPathList.AddItem(Opt.LoadPlug.strPersonalPluginsPath);
+		}
+		else if( !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() ) // только "заказные" пути?
+			PluginPathList.AddItem(Opt.LoadPlug.strCustomPluginsPath);
 
-    const wchar_t *NamePtr;
-    PluginPathList.Reset();
-    // теперь пройдемся по всему ранее собранному списку
-    while(NULL!=(NamePtr=PluginPathList.GetNext()))
-    {
-      // расширяем значение пути
-      apiExpandEnvironmentStrings (NamePtr,strFullName);
-      Unquote(strFullName); //??? здесь ХЗ
-      if(!PathMayBeAbsolute(strFullName))
-      {
-        strPluginsDir = g_strFarPath;
-        strPluginsDir += strFullName;
-        strFullName = strPluginsDir;
-      }
-      // Получим реальное значение полного длинного пути
-      ConvertNameToFull(strFullName,strFullName);
-      ConvertNameToLong(strFullName,strFullName);
+		const wchar_t *NamePtr;
+		PluginPathList.Reset();
+		// теперь пройдемся по всему ранее собранному списку
+		while(NULL!=(NamePtr=PluginPathList.GetNext()))
+		{
+			// расширяем значение пути
+			apiExpandEnvironmentStrings (NamePtr,strFullName);
+			Unquote(strFullName); //??? здесь ХЗ
+			if(!PathMayBeAbsolute(strFullName))
+			{
+				strPluginsDir = g_strFarPath;
+				strPluginsDir += strFullName;
+				strFullName = strPluginsDir;
+			}
+			// Получим реальное значение полного длинного пути
+			ConvertNameToFull(strFullName,strFullName);
+			ConvertNameToLong(strFullName,strFullName);
 
-      strPluginsDir = strFullName;
+			strPluginsDir = strFullName;
 
-      if( strPluginsDir.IsEmpty() ) // Хмм... а нужно ли ЭТО условие после такой модернизации алгоритма загрузки?
-        continue;
+			if( strPluginsDir.IsEmpty() ) // Хмм... а нужно ли ЭТО условие после такой модернизации алгоритма загрузки?
+				continue;
 
-      // ставим на поток очередной путь из списка...
-      ScTree.SetFindPath(strPluginsDir,L"*.*");
+			// ставим на поток очередной путь из списка...
+			ScTree.SetFindPath(strPluginsDir,L"*.*");
 
-      // ...и пройдемся по нему
-      while (ScTree.GetNextName(&FindData,strFullName))
-      {
-        if ( CmpName(L"*.dll",FindData.strFileName,FALSE) &&
-             (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0
-           )
-        {
-          LoadPlugin (strFullName, FindData);
-        }
-      } // end while
-    }
-  }
+			// ...и пройдемся по нему
+			while (ScTree.GetNextName(&FindData,strFullName))
+			{
+				if ( CmpName(L"*.dll",FindData.strFileName,FALSE) && (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0 )
+				{
+					LoadPlugin (strFullName, FindData);
+				}
+			} // end while
+		}
+	}
 
-  Flags.Set(PSIF_PLUGINSLOADDED);
+	Flags.Set(PSIF_PLUGINSLOADDED);
 
-  far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
+	far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
 }
 
 /* $ 01.09.2000 tran
    Load cache only plugins  - '/co' switch */
 void PluginManager::LoadPluginsFromCache()
 {
-  /*
-    [HKEY_CURRENT_USER\Software\Far2\PluginsCache\C:/PROGRAM FILES/FAR/Plugins/ABOOK/AddrBook.dll]
-  */
+	/*
+		[HKEY_CURRENT_USER\Software\Far2\PluginsCache\C:/PROGRAM FILES/FAR/Plugins/ABOOK/AddrBook.dll]
+	*/
 	string strModuleName;
 
 	int i = 0;
@@ -598,7 +596,6 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 	Plugin *Plugin2=*((Plugin**)el2);
 	return (StrCmpI(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
 }
-
 
 
 HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
@@ -769,11 +766,11 @@ int PluginManager::ProcessDialogEvent(int Event, void *Param)
 }
 
 int PluginManager::GetFindData (
-		HANDLE hPlugin,
-		PluginPanelItem **pPanelData,
-		int *pItemsNumber,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem **pPanelData,
+	int *pItemsNumber,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle *)hPlugin;
@@ -785,10 +782,10 @@ int PluginManager::GetFindData (
 
 
 void PluginManager::FreeFindData (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber
+	)
 {
 	PluginHandle *ph = (PluginHandle *)hPlugin;
 	ph->pPlugin->FreeFindData (ph->hPlugin, PanelItem, ItemsNumber);
@@ -796,11 +793,11 @@ void PluginManager::FreeFindData (
 
 
 int PluginManager::GetVirtualFindData (
-		HANDLE hPlugin,
-		PluginPanelItem **pPanelData,
-		int *pItemsNumber,
-		const wchar_t *Path
-		)
+	HANDLE hPlugin,
+	PluginPanelItem **pPanelData,
+	int *pItemsNumber,
+	const wchar_t *Path
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -813,10 +810,10 @@ int PluginManager::GetVirtualFindData (
 
 
 void PluginManager::FreeVirtualFindData (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	return ph->pPlugin->FreeVirtualFindData (ph->hPlugin, PanelItem, ItemsNumber);
@@ -824,10 +821,10 @@ void PluginManager::FreeVirtualFindData (
 
 
 int PluginManager::SetDirectory (
-		HANDLE hPlugin,
-		const wchar_t *Dir,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	const wchar_t *Dir,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
@@ -837,12 +834,12 @@ int PluginManager::SetDirectory (
 
 
 int PluginManager::GetFile (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		const wchar_t *DestPath,
-		string &strResultName,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	const wchar_t *DestPath,
+	string &strResultName,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -903,11 +900,11 @@ int PluginManager::GetFile (
 
 
 int PluginManager::DeleteFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -926,10 +923,10 @@ int PluginManager::DeleteFiles (
 
 
 int PluginManager::MakeDirectory (
-		HANDLE hPlugin,
-		const wchar_t **Name,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	const wchar_t **Name,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
@@ -947,11 +944,11 @@ int PluginManager::MakeDirectory (
 
 
 int PluginManager::ProcessHostFile (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber,
+	int OpMode
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -969,13 +966,13 @@ int PluginManager::ProcessHostFile (
 
 
 int PluginManager::GetFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int Move,
-		const wchar_t **DestPath,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber,
+	int Move,
+	const wchar_t **DestPath,
+	int OpMode
+	)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph=(PluginHandle*)hPlugin;
@@ -985,12 +982,12 @@ int PluginManager::GetFiles (
 
 
 int PluginManager::PutFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int Move,
-		int OpMode
-		)
+	HANDLE hPlugin,
+	PluginPanelItem *PanelItem,
+	int ItemsNumber,
+	int Move,
+	int OpMode
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1006,24 +1003,12 @@ int PluginManager::PutFiles (
 	return Code;
 }
 
-
-// этой функции вообще быть не должно!!!
-int PluginManager::GetPluginInfo (Plugin *pPlugin, PluginInfo *Info)
-{
-	if ( !pPlugin )
-		MessageBoxW (0, L"null ", L"asD", MB_OK);
-
-	pPlugin->GetPluginInfo (Info);
-	return TRUE; //BUGBUG
-}
-
-
 void PluginManager::GetOpenPluginInfo (
-		HANDLE hPlugin,
-		OpenPluginInfo *Info
-		)
+	HANDLE hPlugin,
+	OpenPluginInfo *Info
+	)
 {
- 	if ( !Info )
+	if ( !Info )
 		return;
 
 	memset(Info, 0, sizeof(*Info));
@@ -1038,10 +1023,10 @@ void PluginManager::GetOpenPluginInfo (
 
 
 int PluginManager::ProcessKey (
-		HANDLE hPlugin,
-		int Key,
-		unsigned int ControlState
-		)
+	HANDLE hPlugin,
+	int Key,
+	unsigned int ControlState
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	return ph->pPlugin->ProcessKey(ph->hPlugin, Key, ControlState);
@@ -1049,10 +1034,10 @@ int PluginManager::ProcessKey (
 
 
 int PluginManager::ProcessEvent (
-		HANDLE hPlugin,
-		int Event,
-		void *Param
-		)
+	HANDLE hPlugin,
+	int Event,
+	void *Param
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 
@@ -1061,11 +1046,11 @@ int PluginManager::ProcessEvent (
 
 
 int PluginManager::Compare (
-		HANDLE hPlugin,
-		const PluginPanelItem *Item1,
-		const PluginPanelItem *Item2,
-		unsigned int Mode
-		)
+	HANDLE hPlugin,
+	const PluginPanelItem *Item1,
+	const PluginPanelItem *Item2,
+	unsigned int Mode
+	)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	return ph->pPlugin->Compare(ph->hPlugin, Item1, Item2, Mode);
@@ -1108,463 +1093,418 @@ struct PluginMenuItemData {
 */
 void PluginManager::Configure(int StartPos)
 {
-  // Полиция 4 - Параметры внешних модулей
-  if(Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
-    return;
+	// Полиция 4 - Параметры внешних модулей
+	if (Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
+		return;
 
-  {
-    VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
-    PluginList.SetFlags(VMENU_WRAPMODE);
-    PluginList.SetHelp(L"PluginsConfig");
+	{
+		VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+		PluginList.SetFlags(VMENU_WRAPMODE);
+		PluginList.SetHelp(L"PluginsConfig");
 
-    for(;;)
-    {
-      int I, J;
-      BOOL NeedUpdateItems=TRUE;
-      int MenuItemNumber=0;
+		for(;;)
+		{
+			BOOL NeedUpdateItems=TRUE;
+			int MenuItemNumber=0;
 
-      string strFirstHotKey;
-      int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
+			string strFirstHotKey;
+			int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
 
-      if(NeedUpdateItems)
-      {
-        PluginList.ClearDone();
-        PluginList.DeleteItems();
-        PluginList.SetPosition(-1,-1,0,0);
-        MenuItemNumber=0;
+			if (NeedUpdateItems)
+			{
+				PluginList.ClearDone();
+				PluginList.DeleteItems();
+				PluginList.SetPosition(-1,-1,0,0);
+				MenuItemNumber=0;
 
-        LoadIfCacheAbsent();
+				LoadIfCacheAbsent();
 
-        string strHotRegKey, strHotKey;
+				string strHotKey, strRegKey, strValue, strName;
+				PluginInfo Info;
 
-        for (I=0;I<PluginsCount;I++)
-        {
-          Plugin *pPlugin = PluginsData[I];
+				for (int I=0; I<PluginsCount; I++)
+				{
+					Plugin *pPlugin = PluginsData[I];
 
-          if (pPlugin->CheckWorkFlags(PIWF_CACHED))
-          {
-            string strRegKey, strValue;
+					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
+
+					if (bCached)
+					{
 						strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
-						for (J=0;;J++)
+					}
+					else
+					{
+						if (!pPlugin->GetPluginInfo(&Info))
+							continue;
+					}
+
+					for (int J=0; ; J++)
+					{
+						if (bCached)
 						{
-							strHotKey=L"";
-							if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-								GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
-							MenuItemEx ListItem;
-							ListItem.Clear ();
-							if(pPlugin->IsOemPlugin())
-								ListItem.Flags=LIF_CHECKED|L'A';
-							strValue.Format (FmtPluginConfigStringD,J);
-							string strName;
-							if ( !GetRegKey(strRegKey,strValue,strName,L"") )
+							strValue.Format(FmtPluginConfigStringD, J);
+							if (!GetRegKey(strRegKey, strValue, strName, L""))
 								break;
-							if (!HotKeysPresent)
-								ListItem.strName = strName;
-							else
-								if ( !strHotKey.IsEmpty() )
-									ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
-								else
-									ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-							//ListItem.SetSelect(MenuItemNumber++ == StartPos);
-							MenuItemNumber++;
-
-							PluginMenuItemData item;
-
-							item.pPlugin = pPlugin;
-							item.nItem = J;
-
-							PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
 						}
-          }
-          else
-          {
-            PluginInfo Info;
-            if (!GetPluginInfo(pPlugin,&Info))
-              continue;
-            for (J=0;J<Info.PluginConfigStringsNumber;J++)
-            {
-              strHotKey=L"";
-              if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                GetRegKey(strHotRegKey,L"ConfHotkey",strHotKey,L"");
-              MenuItemEx ListItem;
+						else
+						{
+							if (J >= Info.PluginConfigStringsNumber)
+								break;
+							strName = Info.PluginConfigStrings[J];
+						}
 
-              ListItem.Clear();
-							if(pPlugin->IsOemPlugin())
-								ListItem.Flags=LIF_CHECKED|L'A';
-              string strName = Info.PluginConfigStrings[J];
-              if (!HotKeysPresent)
-                ListItem.strName = strName;
-              else
-                if ( !strHotKey.IsEmpty() )
-                  ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
-                else
-                  ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-              //ListItem.SetSelect(MenuItemNumber++ == StartPos);
-              MenuItemNumber++;
+						GetPluginHotKey(pPlugin,J,L"ConfHotkey",strHotKey);
 
-              PluginMenuItemData item;
+						MenuItemEx ListItem;
+						ListItem.Clear ();
+						if (pPlugin->IsOemPlugin())
+							ListItem.Flags=LIF_CHECKED|L'A';
+						if (!HotKeysPresent)
+							ListItem.strName = strName;
+						else if ( !strHotKey.IsEmpty() )
+							ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
+						else
+							ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
+						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
+						MenuItemNumber++;
 
-              item.pPlugin = pPlugin;
-              item.nItem = J;
-              PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
-            }
-          }
-        }
-        PluginList.AssignHighlights(FALSE);
-        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
+						PluginMenuItemData item;
 
-        PluginList.ClearDone();
-        PluginList.SortItems(0,3);
-        PluginList.SetSelectPos(StartPos,1);
-        NeedUpdateItems=FALSE;
-      }
+						item.pPlugin = pPlugin;
+						item.nItem = J;
 
+						PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+					}
+				}
 
-      string strPluginModuleName;
+				PluginList.AssignHighlights(FALSE);
+				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
-      PluginList.Show();
+				PluginList.ClearDone();
+				PluginList.SortItems(0,3);
+				PluginList.SetSelectPos(StartPos,1);
+				NeedUpdateItems=FALSE;
+			}
 
-      while (!PluginList.Done())
-      {
-        DWORD Key=PluginList.ReadInput();
-        int SelPos=PluginList.GetSelectPos();
+			string strPluginModuleName;
 
-        PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
-        string strRegKey;
-        switch(Key)
-        {
-          case KEY_SHIFTF1:
+			PluginList.Show();
 
-            strPluginModuleName = item->pPlugin->GetModuleName();
-            if(!FarShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-               !FarShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
-            {
-              //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-              FarShowHelp(strPluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
-            }
-            break;
-          case KEY_F4:
-            if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey))
-            {
-              BlockExtKey blockExtKey;
-              string strName00;
+			while (!PluginList.Done())
+			{
+				DWORD Key=PluginList.ReadInput();
+				int SelPos=PluginList.GetSelectPos();
 
-              int nOffset = HotKeysPresent?3:0;
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
+				string strRegKey;
+				switch(Key)
+				{
+					case KEY_SHIFTF1:
 
-              strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
-              RemoveExternalSpaces(strName00);
+						strPluginModuleName = item->pPlugin->GetModuleName();
+						if (!FarShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+							!FarShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+						{
+							//strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+							FarShowHelp(strPluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+						}
+						break;
+					case KEY_F4:
+						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+						{
+							BlockExtKey blockExtKey;
+							string strName00;
 
-              string strHotKey;
+							int nOffset = HotKeysPresent?3:0;
 
-              if(GetMenuHotKey(strHotKey,1,
-                        (const wchar_t *)MPluginHotKeyTitle,
-                        (const wchar_t *)MPluginHotKey,
-                        strName00,
-                        NULL,strRegKey,L"ConfHotkey"))
-              {
-                PluginList.Hide();
-                NeedUpdateItems=TRUE;
-                StartPos=SelPos;
-                PluginList.SetExitCode(SelPos);
-                PluginList.Show();
-                break;
-              }
-            }
-            break;
+							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
+							RemoveExternalSpaces(strName00);
 
-          default:
-            PluginList.ProcessInput();
-            break;
-        }
-      }
+							GetHotKeyRegKey(item->pPlugin, item->nItem,strRegKey);
 
-      if(!NeedUpdateItems)
-      {
-        StartPos=PluginList.Modal::GetExitCode();
-        PluginList.Hide();
-        if (StartPos<0)
-          break;
+							if (SetHotKeyDialog(strName00,strRegKey,L"ConfHotkey"))
+							{
+								PluginList.Hide();
+								NeedUpdateItems=TRUE;
+								StartPos=SelPos;
+								PluginList.SetExitCode(SelPos);
+								PluginList.Show();
+								break;
+							}
+						}
+						break;
 
-        PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,StartPos);
-        ConfigureCurrent(item->pPlugin, item->nItem);
-      }
-    }
-  }
+					default:
+						PluginList.ProcessInput();
+						break;
+				}
+			}
+
+			if (!NeedUpdateItems)
+			{
+				StartPos=PluginList.Modal::GetExitCode();
+				PluginList.Hide();
+				if (StartPos<0)
+					break;
+
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,StartPos);
+				ConfigureCurrent(item->pPlugin, item->nItem);
+			}
+		}
+	}
 }
 
 
 ///int PluginManager::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
-  int MenuItemNumber=0;
-  int PrevMacroMode=CtrlObject->Macro.GetMode();
-  CtrlObject->Macro.SetMode(MACRO_MENU);
+	int MenuItemNumber=0;
+	int PrevMacroMode=CtrlObject->Macro.GetMode();
+	CtrlObject->Macro.SetMode(MACRO_MENU);
 
-  int Editor = ModalType==MODALTYPE_EDITOR,
-      Viewer = ModalType==MODALTYPE_VIEWER,
-      Dialog = ModalType==MODALTYPE_DIALOG;
+	int Editor = ModalType==MODALTYPE_EDITOR,
+		Viewer = ModalType==MODALTYPE_VIEWER,
+		Dialog = ModalType==MODALTYPE_DIALOG;
 
-  string strRegKey;
-  PluginMenuItemData item;
-  {
-    VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
-    PluginList.SetFlags(VMENU_WRAPMODE);
-    PluginList.SetHelp(L"Plugins");
-    BOOL NeedUpdateItems=TRUE;
-    BOOL Done=FALSE;
+	string strRegKey;
+	PluginMenuItemData item;
+	{
+		VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
+		PluginList.SetFlags(VMENU_WRAPMODE);
+		PluginList.SetHelp(L"Plugins");
+		BOOL NeedUpdateItems=TRUE;
+		BOOL Done=FALSE;
 
 
-    while(!Done)
-    {
-
-      string strFirstHotKey;
-      int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
-
-      if(NeedUpdateItems)
-      {
-        PluginList.ClearDone();
-        PluginList.DeleteItems();
-        PluginList.SetPosition(-1,-1,0,0);
-
-        LoadIfCacheAbsent();
-
-        for (int I=0;I<PluginsCount;I++)
-        {
-          Plugin *pPlugin = PluginsData[I];
-
-          string strHotRegKey, strHotKey;
-          if (pPlugin->CheckWorkFlags(PIWF_CACHED))
-          {
-            string strRegKey, strValue;
-						strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
-						int IFlags=GetRegKey(strRegKey,L"Flags",0);
-						if ((Editor && (IFlags & PF_EDITOR)==0) ||
-								(Viewer && (IFlags & PF_VIEWER)==0) ||
-								(Dialog && (IFlags & PF_DIALOG)==0) ||
-								(!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
-							continue;
-						for (int J=0;;J++)
-						{
-							strHotKey=L"";
-							if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-								GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
-							MenuItemEx ListItem;
-							ListItem.Clear();
-							if(pPlugin->IsOemPlugin())
-								ListItem.Flags=LIF_CHECKED|L'A';
-							strValue.Format (FmtPluginMenuStringD,J);
-							string strName;
-							if ( !GetRegKey(strRegKey,strValue,strName,L"") )
-								break;
-							if (!HotKeysPresent)
-							{
-								ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
-							}
-							else
-							{
-								if ( !strHotKey.IsEmpty() )
-									ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""),(const wchar_t*)strName);
-								else
-									ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-							}
-							//ListItem.SetSelect(MenuItemNumber++ == StartPos);
-							MenuItemNumber++;
-
-							PluginMenuItemData item;
-
-							item.pPlugin = pPlugin;
-							item.nItem = J;
-
-							PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
-						}
-          }
-          else
-          {
-            PluginInfo Info;
-            if (!GetPluginInfo(pPlugin,&Info))
-              continue;
-            if ((Editor && (Info.Flags & PF_EDITOR)==0) ||
-              (Viewer && (Info.Flags & PF_VIEWER)==0) ||
-              (Dialog && (Info.Flags & PF_DIALOG)==0) ||
-              (!Editor && !Viewer && !Dialog && (Info.Flags & PF_DISABLEPANELS)))
-              continue;
-            for (int J=0;J<Info.PluginMenuStringsNumber;J++)
-            {
-              strHotKey=L"";
-              if (GetHotKeyRegKey(pPlugin,J,strHotRegKey))
-                GetRegKey(strHotRegKey,L"Hotkey",strHotKey,L"");
-              MenuItemEx ListItem;
-              ListItem.Clear();
-							if(pPlugin->IsOemPlugin())
-								ListItem.Flags=LIF_CHECKED|L'A';
-              string strName = Info.PluginMenuStrings[J];
-              if (!HotKeysPresent)
-                ListItem.strName.Format (L"   %s", (const wchar_t*)strName);//strcpy(ListItem.Name,Name);
-              else
-                if ( !strHotKey.IsEmpty() )
-                  ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
-                else
-                  ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
-                //ListItem.SetSelect(MenuItemNumber++ == StartPos);
-                MenuItemNumber++;
-
-                PluginMenuItemData item;
-
-                item.pPlugin = pPlugin;
-                item.nItem = J;
-
-                PluginList.SetUserData((void*)&item,sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
-            }
-          }
-        }
-
-        PluginList.AssignHighlights(FALSE);
-        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-
-        PluginList.SortItems(0,3);
-        PluginList.SetSelectPos(StartPos,1);
-        NeedUpdateItems=FALSE;
-      }
-
-      PluginList.Show();
-
-      while (!PluginList.Done())
-      {
-        DWORD Key=PluginList.ReadInput();
-        int SelPos=PluginList.GetSelectPos();
-
-        PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
-
-        switch(Key)
-        {
-        case KEY_SHIFTF1:
-          {
-            // Вызываем нужный топик, который передали в CommandsMenu()
-            FarShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
-            break;
-          }
-        case KEY_ALTF11:
-          WriteEvent(FLOG_PLUGINSINFO);
-          break;
-        case KEY_F4:
-          if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(item->pPlugin, item->nItem, strRegKey))
-          {
-            BlockExtKey blockExtKey;
-            string strName00;
-
-            int nOffset = HotKeysPresent?3:0;
-
-            strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
-            RemoveExternalSpaces(strName00);
-
-            string strHotKey;
-
-            if(GetMenuHotKey(strHotKey,1,(const wchar_t *)MPluginHotKeyTitle,(const wchar_t *)MPluginHotKey,strName00,NULL,strRegKey,L"Hotkey"))
-            {
-              PluginList.Hide();
-              NeedUpdateItems=TRUE;
-              StartPos=SelPos;
-              PluginList.SetExitCode(SelPos);
-              PluginList.Show();
-              break;
-            }
-          }
-          break;
-
-		case KEY_ALTSHIFTF9:
+		while(!Done)
 		{
-			PluginList.Hide();
-			NeedUpdateItems=TRUE;
-			StartPos=SelPos;
-			PluginList.SetExitCode(SelPos);
-			Configure();
-			PluginList.Show();
-			break;
-		}
+			string strFirstHotKey;
+			int HotKeysPresent=EnumRegKey(L"PluginHotkeys",0,strFirstHotKey);
 
-		case KEY_SHIFTF9:
-		{
-			if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+			if (NeedUpdateItems)
 			{
-				NeedUpdateItems=TRUE;
-				StartPos=SelPos;
-				if (item->pPlugin->HasConfigure())
-					ConfigureCurrent(item->pPlugin, item->nItem);
-				PluginList.SetExitCode(SelPos);
-				PluginList.Show();
-				break;
+				PluginList.ClearDone();
+				PluginList.DeleteItems();
+				PluginList.SetPosition(-1,-1,0,0);
+
+				LoadIfCacheAbsent();
+
+				string strHotKey, strRegKey, strValue, strName;
+				PluginInfo Info;
+
+				for (int I=0;I<PluginsCount;I++)
+				{
+					Plugin *pPlugin = PluginsData[I];
+
+					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
+					int IFlags;
+
+					if (bCached)
+					{
+						strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+						IFlags=GetRegKey(strRegKey,L"Flags",0);
+					}
+					else
+					{
+						if (!pPlugin->GetPluginInfo(&Info))
+							continue;
+						IFlags = Info.Flags;
+					}
+
+					if ((Editor && (IFlags & PF_EDITOR)==0) ||
+						(Viewer && (IFlags & PF_VIEWER)==0) ||
+						(Dialog && (IFlags & PF_DIALOG)==0) ||
+						(!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
+						continue;
+
+					for (int J=0; ; J++)
+					{
+						if (bCached)
+						{
+							strValue.Format(FmtPluginMenuStringD, J);
+							if (!GetRegKey(strRegKey, strValue, strName, L""))
+								break;
+						}
+						else
+						{
+							if (J >= Info.PluginMenuStringsNumber)
+								break;
+							strName = Info.PluginMenuStrings[J];
+						}
+
+						GetPluginHotKey(pPlugin,J,L"Hotkey",strHotKey);
+
+						MenuItemEx ListItem;
+						ListItem.Clear ();
+						if (pPlugin->IsOemPlugin())
+							ListItem.Flags=LIF_CHECKED|L'A';
+						if (!HotKeysPresent)
+							ListItem.strName = strName;
+						else if ( !strHotKey.IsEmpty() )
+							ListItem.strName.Format (L"&%c%s  %s",strHotKey.At(0),(strHotKey.At(0)==L'&'?L"&":L""), (const wchar_t*)strName);
+						else
+							ListItem.strName.Format (L"   %s", (const wchar_t*)strName);
+						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
+						MenuItemNumber++;
+
+						PluginMenuItemData item;
+
+						item.pPlugin = pPlugin;
+						item.nItem = J;
+
+						PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+					}
+				}
+
+				PluginList.AssignHighlights(FALSE);
+				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
+
+				PluginList.SortItems(0,3);
+				PluginList.SetSelectPos(StartPos,1);
+				NeedUpdateItems=FALSE;
 			}
+
+			PluginList.Show();
+
+			while (!PluginList.Done())
+			{
+				DWORD Key=PluginList.ReadInput();
+				int SelPos=PluginList.GetSelectPos();
+
+				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(NULL,0,SelPos);
+
+				switch(Key)
+				{
+					case KEY_SHIFTF1:
+						// Вызываем нужный топик, который передали в CommandsMenu()
+						FarShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+						break;
+
+					case KEY_ALTF11:
+						WriteEvent(FLOG_PLUGINSINFO);
+						break;
+
+					case KEY_F4:
+						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+						{
+							BlockExtKey blockExtKey;
+							string strName00;
+
+							int nOffset = HotKeysPresent?3:0;
+
+							strName00 = (const wchar_t*)PluginList.GetItemPtr()->strName+nOffset;
+							RemoveExternalSpaces(strName00);
+
+							GetHotKeyRegKey(item->pPlugin, item->nItem, strRegKey);
+
+							if (SetHotKeyDialog(strName00,strRegKey,L"Hotkey"))
+							{
+								PluginList.Hide();
+								NeedUpdateItems=TRUE;
+								StartPos=SelPos;
+								PluginList.SetExitCode(SelPos);
+								PluginList.Show();
+							}
+						}
+						break;
+
+					case KEY_ALTSHIFTF9:
+					{
+						PluginList.Hide();
+						NeedUpdateItems=TRUE;
+						StartPos=SelPos;
+						PluginList.SetExitCode(SelPos);
+						Configure();
+						PluginList.Show();
+						break;
+					}
+
+					case KEY_SHIFTF9:
+					{
+						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+						{
+							NeedUpdateItems=TRUE;
+							StartPos=SelPos;
+							if (item->pPlugin->HasConfigure())
+								ConfigureCurrent(item->pPlugin, item->nItem);
+							PluginList.SetExitCode(SelPos);
+							PluginList.Show();
+						}
+						break;
+					}
+
+					default:
+						PluginList.ProcessInput();
+						break;
+				}
+			}
+
+			if (!NeedUpdateItems && PluginList.Done())
+				break;
 		}
 
-        default:
-          PluginList.ProcessInput();
-          break;
-        }
-      }
+		int ExitCode=PluginList.Modal::GetExitCode();
 
-      if(!NeedUpdateItems && PluginList.Done())
-        break;
-    }
+		PluginList.Hide();
+		if (ExitCode<0)
+		{
+			CtrlObject->Macro.SetMode(PrevMacroMode);
+			return(FALSE);
+		}
+		ScrBuf.Flush();
 
-    int ExitCode=PluginList.Modal::GetExitCode();
+		item = *(PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
+	}
 
-    PluginList.Hide();
-    if (ExitCode<0)
-    {
-      CtrlObject->Macro.SetMode(PrevMacroMode);
-      return(FALSE);
-    }
-    ScrBuf.Flush();
+	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 
-    item = *(PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
-  }
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	int OpenCode=OPEN_PLUGINSMENU;
+	INT_PTR Item=item.nItem;
+	OpenDlgPluginData pd;
 
-  int OpenCode=OPEN_PLUGINSMENU;
-  INT_PTR Item=item.nItem;
-  OpenDlgPluginData pd;
+	if (Editor)
+	{
+		OpenCode=OPEN_EDITOR;
+	}
+	else if (Viewer)
+	{
+		OpenCode=OPEN_VIEWER;
+	}
+	else if (Dialog)
+	{
+		OpenCode=OPEN_DIALOG;
+		pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
+		pd.ItemNumber=item.nItem;
+		Item=(INT_PTR)&pd;
+	}
 
-  if (Editor)
-    OpenCode=OPEN_EDITOR;
-  else if (Viewer)
-    OpenCode=OPEN_VIEWER;
-  else if (Dialog)
-  {
-    OpenCode=OPEN_DIALOG;
-    pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
-    pd.ItemNumber=item.nItem;
-    Item=(INT_PTR)&pd;
-  }
+	HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,Item);
 
-  HANDLE hPlugin=OpenPlugin(item.pPlugin,OpenCode,Item);
+	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
+	{
+		if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
+		{
+			ClosePlugin (hPlugin);
+			return(FALSE);
+		}
 
-  if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
-  {
-    if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
-    {
-      ClosePlugin (hPlugin);
-      return(FALSE);
-    }
+		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+		NewPanel->SetPluginMode(hPlugin,L"",true);
+		NewPanel->Update(0);
+		NewPanel->Show();
+	}
 
+	if (Editor && CurEditor)
+	{
+		CurEditor->SetPluginTitle(NULL);
+	}
 
-    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-    NewPanel->SetPluginMode(hPlugin,L"",true);
-    NewPanel->Update(0);
-    NewPanel->Show();
-  }
-  if (Editor && CurEditor)
-  {
-    CurEditor->SetPluginTitle(NULL);
-  }
-
-  CtrlObject->Macro.SetMode(PrevMacroMode);
-  return(TRUE);
+	CtrlObject->Macro.SetMode(PrevMacroMode);
+	return(TRUE);
 }
 
-int PluginManager::GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey)
+void PluginManager::GetHotKeyRegKey(Plugin *pPlugin,int ItemNumber,string &strRegKey)
 {
-#if 1
-// Старый вариант
 /*
 FarPath
 C:\Program Files\Far\
@@ -1572,84 +1512,97 @@ C:\Program Files\Far\
 ModuleName                                             PluginName
 ---------------------------------------------------------------------------------------
 C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC.DLL
-C:\MultiArc\MULTIARC.DLL                            -> DLL
+C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 ---------------------------------------------------------------------------------------
 */
-  size_t FarPathLength=g_strFarPath.GetLength();
-  strRegKey=L"";
-  if (FarPathLength < pPlugin->GetModuleName().GetLength())
-  {
-    string strPluginName;
+	string strPluginName(pPlugin->GetCacheName());
+	size_t FarPathLength=g_strFarPath.GetLength();
+	strRegKey.SetLength(0);;
 
-//    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
-    strPluginName = (const wchar_t *)pPlugin->GetModuleName() +
-        (StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength) ?
-                                                            0 : FarPathLength);
+	if (FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
+		strPluginName.LShift(FarPathLength);
 
-    wchar_t *Ptr = strPluginName.GetBuffer (strPluginName.GetLength()+20);
+	if (ItemNumber>0)
+	{
+		strRegKey.Format (L"PluginHotkeys\\%s%%%d", strPluginName.CPtr(), ItemNumber);
+	}
+	else
+	{
+		strRegKey = L"PluginHotkeys\\";
+		strRegKey += strPluginName;
+	}
 
-    while ( *Ptr )
-    {
-      if (*Ptr==L'\\')
-        *Ptr=L'/';
-
-      Ptr++;
-    }
-
-    if (ItemNumber>0)
-      swprintf(Ptr,L"%%%d",ItemNumber);
-
-    strPluginName.ReleaseBuffer ();
-
-    strRegKey.Format (L"PluginHotkeys\\%s",(const wchar_t*)strPluginName);
-    return(TRUE);
-  }
-  return(FALSE);
-#else
-// Новый вариант, с полными путями
-  *RegKey=0;
-  char PluginName[NM], *Ptr;
-  strcpy(PluginName,PluginsData[PluginNumber]->ModuleName);
-  for (Ptr=PluginName;*Ptr;++Ptr)
-  {
-    if (*Ptr=='\\')
-      *Ptr='/';
-  }
-  if (ItemNumber>0)
-    sprintf(Ptr,"%%%d",ItemNumber);
-
-  sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
-
-#if 1
-/*  // конвертация - потом убрать
-  unsigned int FarPathLength=strlen(FarPath);
-  if (FarPathLength < strlen(PluginsData[PluginNumber]->ModuleName))
-  {
-    char OldRevKey[NM];
-    sprintf(OldRevKey,"PluginHotkeys\\%s",PluginName+FarPathLength);
-    if(CheckRegKey(OldRevKey))
-    {
-      char ConfHotkey[32];
-      char Hotkey[32];
-      GetRegKey(OldRevKey,"ConfHotkey",ConfHotkey,"",sizeof(ConfHotkey));
-      GetRegKey(OldRevKey,"Hotkey",Hotkey,"",sizeof(Hotkey));
-      if(*ConfHotkey)
-        SetRegKey(RegKey,"ConfHotkey",ConfHotkey);
-      if(*Hotkey)
-        SetRegKey(RegKey,"Hotkey",Hotkey);
-      DeleteRegKey(OldRevKey); //??? А нужно?
-    }
-  }*/
-#endif
-  return(TRUE);
-#endif
 }
+
+void PluginManager::GetPluginHotKey(Plugin *pPlugin, int ItemNumber, const wchar_t *HotKeyType, string &strHotKey)
+{
+	string strRegKey;
+	strHotKey.SetLength(0);
+	GetHotKeyRegKey(pPlugin, ItemNumber, strRegKey);
+	GetRegKey(strRegKey, HotKeyType, strHotKey, L"");
+}
+
+bool PluginManager::SetHotKeyDialog(
+	const wchar_t *DlgPluginTitle,  // имя плагина
+	const wchar_t *RegKey,          // ключ, откуда берем значение
+	const wchar_t *RegValueName     // название параметра из реестра
+	)
+{
+/*
+г================ Assign plugin hot key =================¬
+¦ Enter hot key (letter or digit)                        ¦
+¦ _                                                      ¦
+L========================================================-
+*/
+	static struct DialogDataEx PluginDlgData[]=
+	{
+		/* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(const wchar_t *)MPluginHotKeyTitle,
+		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MPluginHotKey,
+		/* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,L"",
+		/* 03 */DI_TEXT,8,3,58,3,0,0,0,0,L"",
+	};
+
+	PluginDlgData[3].Data=DlgPluginTitle;
+
+	MakeDialogItemsEx(PluginDlgData,PluginDlg);
+
+	GetRegKey(RegKey,RegValueName,PluginDlg[2].strData,L"");
+
+	int ExitCode;
+
+	{
+		Dialog Dlg(PluginDlg,countof(PluginDlg));
+		Dlg.SetPosition(-1,-1,64,6);
+		Dlg.Process();
+		ExitCode=Dlg.GetExitCode();
+	}
+
+	if (ExitCode==2)
+	{
+		PluginDlg[2].strData.SetLength(1);
+		RemoveLeadingSpaces(PluginDlg[2].strData);
+		if ( PluginDlg[2].strData.IsEmpty() )
+			DeleteRegValue(RegKey,RegValueName);
+		else
+			SetRegKey(RegKey,RegValueName,PluginDlg[2].strData);
+
+		return true;
+	}
+
+	return false;
+}
+
 
 /* $ 21.08.2002 IS
    + Параметр PluginTextSize, чтобы знать, сколько брать
 */
-int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
-                int &ItemPresent,int &PluginTextNumber,string &strPluginText)
+int PluginManager::GetDiskMenuItem(
+	Plugin *pPlugin,
+	int PluginItem,
+	int &ItemPresent,
+	int &PluginTextNumber,
+	string &strPluginText
+	)
 {
 	LoadIfCacheAbsent();
 
@@ -1666,7 +1619,7 @@ int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
 	}
 
 	PluginInfo Info;
-	if (!GetPluginInfo(pPlugin,&Info) || Info.DiskMenuStringsNumber <= PluginItem)
+	if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenuStringsNumber <= PluginItem)
 	{
 		ItemPresent=FALSE;
 	}
@@ -1685,26 +1638,26 @@ int PluginManager::GetDiskMenuItem(Plugin *pPlugin,int PluginItem,
 
 int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)
 {
-  OpenPluginInfo Info;
-  GetOpenPluginInfo(hPlugin,&Info);
-  if ((Info.Flags & OPIF_REALNAMES)==0)
-    return(FALSE);
+		OpenPluginInfo Info;
+		GetOpenPluginInfo(hPlugin,&Info);
+		if ((Info.Flags & OPIF_REALNAMES)==0)
+			return(FALSE);
 
-  PluginHandle *ph = (PluginHandle*)hPlugin;
+		PluginHandle *ph = (PluginHandle*)hPlugin;
 
-  switch(CommandType)
-  {
-    case PLUGIN_FARGETFILE:
-    case PLUGIN_FARGETFILES:
-      return(!ph->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET));
-    case PLUGIN_FARPUTFILES:
-      return(!ph->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT));
-    case PLUGIN_FARDELETEFILES:
-      return(!ph->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE));
-    case PLUGIN_FARMAKEDIRECTORY:
-      return(!ph->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
-  }
-  return(TRUE);
+		switch(CommandType)
+		{
+			case PLUGIN_FARGETFILE:
+			case PLUGIN_FARGETFILES:
+				return(!ph->pPlugin->HasGetFiles() || (Info.Flags & OPIF_EXTERNALGET));
+			case PLUGIN_FARPUTFILES:
+				return(!ph->pPlugin->HasPutFiles() || (Info.Flags & OPIF_EXTERNALPUT));
+			case PLUGIN_FARDELETEFILES:
+				return(!ph->pPlugin->HasDeleteFiles() || (Info.Flags & OPIF_EXTERNALDELETE));
+			case PLUGIN_FARMAKEDIRECTORY:
+				return(!ph->pPlugin->HasMakeDirectory() || (Info.Flags & OPIF_EXTERNALMKDIR));
+		}
+		return(TRUE);
 }
 
 
@@ -1722,147 +1675,148 @@ void PluginManager::ReloadLanguage()
 
 void PluginManager::DiscardCache()
 {
-  for (int I=0;I<PluginsCount;I++)
-  {
-    Plugin *pPlugin = PluginsData[I];
-    pPlugin->Load();
-  }
-  DeleteKeyTree(RKN_PluginsCache);
+	for (int I=0;I<PluginsCount;I++)
+	{
+		Plugin *pPlugin = PluginsData[I];
+		pPlugin->Load();
+	}
+	DeleteKeyTree(RKN_PluginsCache);
 }
 
 
 void PluginManager::LoadIfCacheAbsent()
 {
-  if (!CheckRegKey(RKN_PluginsCache))
-    for (int I=0;I<PluginsCount;I++)
-    {
-      Plugin *pPlugin = PluginsData[I];
-      pPlugin->Load();
-    }
+	if (!CheckRegKey(RKN_PluginsCache))
+	{
+		for (int I=0;I<PluginsCount;I++)
+		{
+			Plugin *pPlugin = PluginsData[I];
+			pPlugin->Load();
+		}
+	}
 }
 
 
 int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 {
-  size_t PrefixLength=0;
+	size_t PrefixLength=0;
 
-  string strCommand=CommandParam;
+	string strCommand=CommandParam;
 
-  UnquoteExternal(strCommand);
-  RemoveLeadingSpaces(strCommand);
+	UnquoteExternal(strCommand);
+	RemoveLeadingSpaces(strCommand);
 
-  while (1)
-  {
-    wchar_t Ch=strCommand.At(PrefixLength);
-    if (Ch==0 || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
-      return(FALSE);
-    if (Ch==L':' && PrefixLength>0)
-      break;
-    PrefixLength++;
-  }
+	while (1)
+	{
+		wchar_t Ch=strCommand.At(PrefixLength);
+		if (Ch==0 || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
+			return(FALSE);
+		if (Ch==L':' && PrefixLength>0)
+			break;
+		PrefixLength++;
+	}
 
-  LoadIfCacheAbsent();
+	LoadIfCacheAbsent();
 
-  string strPrefix;
+	string strPrefix;
 
-  wchar_t *Prefix = strPrefix.GetBuffer(PrefixLength+1);
+	wchar_t *Prefix = strPrefix.GetBuffer(PrefixLength+1);
 
-  xwcsncpy(Prefix,strCommand,PrefixLength);
+	xwcsncpy(Prefix,strCommand,PrefixLength);
 
-  strPrefix.ReleaseBuffer ();
+	strPrefix.ReleaseBuffer ();
 
-  Plugin *PluginPos=NULL;
+	Plugin *PluginPos=NULL;
 
-  DWORD PluginFlags = 0;
-  string strPluginPrefix;
+	DWORD PluginFlags = 0;
+	string strPluginPrefix;
 
-  Plugin *PData;
-  for (int I=0;I<PluginsCount;I++)
-  {
-    PData = PluginsData[I];
-    if (PData->CheckWorkFlags(PIWF_CACHED))
-    {
+	Plugin *PData;
+	for (int I=0;I<PluginsCount;I++)
+	{
+		PData = PluginsData[I];
+		if (PData->CheckWorkFlags(PIWF_CACHED))
+		{
 			string strRegKey;
 			strRegKey.Format (FmtPluginsCache_PluginS, PData->GetCacheName());
 			GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
 			PluginFlags=GetRegKey(strRegKey,L"Flags",0);
-    }
-    else
-    {
-      PluginInfo Info;
-      if (GetPluginInfo(PData,&Info))
-      {
-        strPluginPrefix = Info.CommandPrefix;
-        PluginFlags = Info.Flags;
-      }
-      else
-        continue;
-    }
-    if ( strPluginPrefix.IsEmpty() )
-      continue;
+		}
+		else
+		{
+			PluginInfo Info;
+			if (PData->GetPluginInfo(&Info))
+			{
+				strPluginPrefix = Info.CommandPrefix;
+				PluginFlags = Info.Flags;
+			}
+			else
+				continue;
+		}
+		if ( strPluginPrefix.IsEmpty() )
+			continue;
 
-    const wchar_t *PrStart = strPluginPrefix;
+		const wchar_t *PrStart = strPluginPrefix;
 
-    PrefixLength=strPrefix.GetLength ();
-    while(1)
-    {
-      const wchar_t *PrEnd = wcschr(PrStart, L':');
-      size_t Len=PrEnd==NULL ? StrLength(PrStart):(PrEnd-PrStart);
-      if(Len<PrefixLength)Len=PrefixLength;
-      if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
-      {
-        PluginPos=PData;
-        break;
-      }
-      if (PrEnd == NULL)
-        break;
-      PrStart = ++PrEnd;
-    }
-    if (PluginPos)
-      break;
-  }
+		PrefixLength=strPrefix.GetLength ();
+		while(1)
+		{
+			const wchar_t *PrEnd = wcschr(PrStart, L':');
+			size_t Len=PrEnd==NULL ? StrLength(PrStart):(PrEnd-PrStart);
+			if(Len<PrefixLength)Len=PrefixLength;
+			if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
+			{
+				PluginPos=PData;
+				break;
+			}
+			if (PrEnd == NULL)
+				break;
+			PrStart = ++PrEnd;
+		}
+		if (PluginPos)
+			break;
+	}
 
-  if (PluginPos==NULL)
-    return(FALSE);
-  if ( !PluginPos->Load() || !PluginPos->HasOpenPlugin())
-    return(FALSE);
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  Panel *CurPanel=(Target)?Target:ActivePanel;
-  if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
-    return(FALSE);
-  CtrlObject->CmdLine->SetString(L"");
+	if (PluginPos==NULL)
+		return(FALSE);
+	if ( !PluginPos->Load() || !PluginPos->HasOpenPlugin())
+		return(FALSE);
+	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *CurPanel=(Target)?Target:ActivePanel;
+	if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+		return(FALSE);
+	CtrlObject->CmdLine->SetString(L"");
 
-  string strPluginCommand;
+	string strPluginCommand;
 
-  strPluginCommand = (const wchar_t*)strCommand+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
-  RemoveTrailingSpaces(strPluginCommand);
-  HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
-  if (hPlugin!=INVALID_HANDLE_VALUE)
-  {
-    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
-    NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
-    NewPanel->Update(0);
-    NewPanel->Show();
-  }
-  return(TRUE);
+	strPluginCommand = (const wchar_t*)strCommand+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
+	RemoveTrailingSpaces(strPluginCommand);
+	HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
+	if (hPlugin!=INVALID_HANDLE_VALUE)
+	{
+		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
+		NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
+		NewPanel->Update(0);
+		NewPanel->Show();
+	}
+	return(TRUE);
 }
 
 
 void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 {
-  FilePanels *FPanel=CtrlObject->Cp();
-  FPanel->LeftPanel->ProcessingPluginCommand++;
-  FPanel->RightPanel->ProcessingPluginCommand++;
-  if (KeepUserScreen)
-  {
-    if(SaveScr)
-      SaveScr->Discard();
-    RedrawDesktop Redraw;
-  }
-  FPanel->LeftPanel->ProcessingPluginCommand--;
-  FPanel->RightPanel->ProcessingPluginCommand--;
+	FilePanels *FPanel=CtrlObject->Cp();
+	FPanel->LeftPanel->ProcessingPluginCommand++;
+	FPanel->RightPanel->ProcessingPluginCommand++;
+	if (KeepUserScreen)
+	{
+		if(SaveScr)
+			SaveScr->Discard();
+		RedrawDesktop Redraw;
+	}
+	FPanel->LeftPanel->ProcessingPluginCommand--;
+	FPanel->RightPanel->ProcessingPluginCommand--;
 }
-
 
 
 /* $ 27.09.2000 SVS
@@ -1871,48 +1825,48 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 */
 int PluginManager::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
 {
-  Plugin *pPlugin = FindPlugin(SysID);
+	Plugin *pPlugin = FindPlugin(SysID);
 
-  if ( pPlugin )
-  {
-    if (pPlugin->HasOpenPlugin() && !ProcessException)
-    {
-      HANDLE hNewPlugin=OpenPlugin(pPlugin,OpenFrom,(INT_PTR)Data);
+	if ( pPlugin )
+	{
+		if (pPlugin->HasOpenPlugin() && !ProcessException)
+		{
+			HANDLE hNewPlugin=OpenPlugin(pPlugin,OpenFrom,(INT_PTR)Data);
 
-      if (hNewPlugin!=INVALID_HANDLE_VALUE &&
-         (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
-      {
-        int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
-        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-        NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-        if (Data && *(const wchar_t *)Data)
-          SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
-        /* $ 04.04.2001 SVS
-           Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
-           Если что-то не так - раскомментировать!!!
-        */
+			if (hNewPlugin!=INVALID_HANDLE_VALUE &&
+				(OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
+			{
+				int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
+				Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
+				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+				if (Data && *(const wchar_t *)Data)
+					SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
+				/* $ 04.04.2001 SVS
+					Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
+					Если что-то не так - раскомментировать!!!
+				*/
 //        NewPanel->Update(0);
 //        NewPanel->Show();
-      }
-      return TRUE;
-    }
-  }
-  return FALSE;
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 Plugin *PluginManager::FindPlugin(DWORD SysID)
 {
-  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
-  {
-    Plugin *PData;
-    for (int I=0;I<PluginsCount;I++)
-    {
-      PData = PluginsData[I];
-      if (PData->GetSysID() == SysID)
-        return PData;
-    }
-  }
-  return NULL;
+	if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
+	{
+		Plugin *PData;
+		for (int I=0;I<PluginsCount;I++)
+		{
+			PData = PluginsData[I];
+			if (PData->GetSysID() == SysID)
+				return PData;
+		}
+	}
+	return NULL;
 }
 
 HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
@@ -1937,40 +1891,40 @@ HANDLE PluginManager::OpenPlugin(Plugin *pPlugin,int OpenFrom,INT_PTR Item)
 */
 bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 {
-  if (!Opt.ExceptRules)
-    return true;
+	if (!Opt.ExceptRules)
+		return true;
 
-  char Buf[1];
-  bool bResult=false;
-  //EXCEPTION_POINTERS *xp;
-  TRY {
-    if (Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
-      RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-    else for (int I=0; I<Info->DiskMenuStringsNumber; I++)
-      memcpy(Buf,Info->DiskMenuStrings[I],1);
+	char Buf[1];
+	bool bResult=false;
+	//EXCEPTION_POINTERS *xp;
+	TRY {
+		if (Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
+			RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
+		else for (int I=0; I<Info->DiskMenuStringsNumber; I++)
+			memcpy(Buf,Info->DiskMenuStrings[I],1);
 
-    if (Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
-      RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-    else for (int I=0; I<Info->PluginMenuStringsNumber; I++)
-     memcpy(Buf,Info->PluginMenuStrings[I],1);
+		if (Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
+			RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
+		else for (int I=0; I<Info->PluginMenuStringsNumber; I++)
+		memcpy(Buf,Info->PluginMenuStrings[I],1);
 
-    if (Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
-      RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-    else for (int I=0; I<Info->PluginConfigStringsNumber; I++)
-      memcpy(Buf,Info->PluginConfigStrings[I],1);
+		if (Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
+			RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
+		else for (int I=0; I<Info->PluginConfigStringsNumber; I++)
+			memcpy(Buf,Info->PluginConfigStrings[I],1);
 
-    if (Info->CommandPrefix)
-      memcpy(Buf,Info->CommandPrefix,1);
+		if (Info->CommandPrefix)
+			memcpy(Buf,Info->CommandPrefix,1);
 
-    bResult=true;
-  }
-  EXCEPT(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
-  {
-     UnloadPlugin(Item,EXCEPT_GETPLUGININFO_DATA); // тест не пройден, выгружаем его
-     bResult=false;
+		bResult=true;
+	}
+	EXCEPT(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
+	{
+		UnloadPlugin(Item,EXCEPT_GETPLUGININFO_DATA); // тест не пройден, выгружаем его
+		bResult=false;
 //     ProcessException=FALSE;
-  }
-  return bResult;
+	}
+	return bResult;
 }
 
 /* $ 31.10.2000 SVS
@@ -1978,42 +1932,42 @@ bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 */
 bool PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 {
-  if (!Opt.ExceptRules)
-    return true;
+	if (!Opt.ExceptRules)
+		return true;
 
-  char Buf[1];
-  bool bResult=false;
-  //EXCEPTION_POINTERS *xp;
-  TRY {
-    if (Info->HostFile) memcpy(Buf,Info->HostFile,1);
-    if (Info->CurDir) memcpy(Buf,Info->CurDir,1);
-    if (Info->Format) memcpy(Buf,Info->Format,1);
-    if (Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
+	char Buf[1];
+	bool bResult=false;
+	//EXCEPTION_POINTERS *xp;
+	TRY {
+		if (Info->HostFile) memcpy(Buf,Info->HostFile,1);
+		if (Info->CurDir) memcpy(Buf,Info->CurDir,1);
+		if (Info->Format) memcpy(Buf,Info->Format,1);
+		if (Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
 
-    if (Info->InfoLinesNumber > 0 && !Info->InfoLines)
-      RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
-    else for (int I=0; I<Info->InfoLinesNumber; I++)
-      memcpy(Buf,&Info->InfoLines[I],1);
+		if (Info->InfoLinesNumber > 0 && !Info->InfoLines)
+			RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
+		else for (int I=0; I<Info->InfoLinesNumber; I++)
+			memcpy(Buf,&Info->InfoLines[I],1);
 
-    if (Info->DescrFilesNumber > 0 && !Info->DescrFiles)
-      RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
-    else for (int I=0; I<Info->DescrFilesNumber; I++)
-      memcpy(Buf,Info->DescrFiles[I],1);
+		if (Info->DescrFilesNumber > 0 && !Info->DescrFiles)
+			RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
+		else for (int I=0; I<Info->DescrFilesNumber; I++)
+			memcpy(Buf,Info->DescrFiles[I],1);
 
-    if (Info->PanelModesNumber > 0 && !Info->PanelModesArray)
-      RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
-    for (int I=0; I<Info->PanelModesNumber; I++)
-      memcpy(Buf,&Info->PanelModesArray[I],1);
+		if (Info->PanelModesNumber > 0 && !Info->PanelModesArray)
+			RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
+		for (int I=0; I<Info->PanelModesNumber; I++)
+			memcpy(Buf,&Info->PanelModesArray[I],1);
 
-    if (Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
-    if (Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
-    bResult=true;
-  }
-  EXCEPT(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
-  {
-     UnloadPlugin(Item,EXCEPT_GETOPENPLUGININFO_DATA); // тест не пройден, выгружаем его
-     bResult=false;
+		if (Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
+		if (Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
+		bResult=true;
+	}
+	EXCEPT(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
+	{
+		UnloadPlugin(Item,EXCEPT_GETOPENPLUGININFO_DATA); // тест не пройден, выгружаем его
+		bResult=false;
 //     ProcessException=FALSE;
-  }
-  return bResult;
+	}
+	return bResult;
 }
