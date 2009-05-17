@@ -1181,7 +1181,7 @@ void PluginManager::Configure(int StartPos)
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
 				PluginList.ClearDone();
-				PluginList.SortItems(0,3);
+				PluginList.SortItems(0,HotKeysPresent?3:0);
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems=FALSE;
 			}
@@ -1359,7 +1359,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.AssignHighlights(FALSE);
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
-				PluginList.SortItems(0,3);
+				PluginList.SortItems(0,HotKeysPresent?3:0);
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems=FALSE;
 			}
