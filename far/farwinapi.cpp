@@ -38,36 +38,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "imports.hpp"
 
-class NTPath
+NTPath::NTPath(LPCWSTR Src)
 {
-	string Str;
-public:
-	NTPath(LPCWSTR Src)
+	Str=Src;
+	if(!PathPrefix(Src))
 	{
-		Str=Src;
-		if(!PathPrefix(Src))
+		ConvertNameToFull(Str,Str);
+		if(!PathPrefix(Str))
 		{
-			ConvertNameToFull(Str,Str);
-			if(!PathPrefix(Str))
-			{
-				if(IsNetworkPath(Str))
-					Str=string(L"\\\\?\\UNC\\")+&Str[2];
-				else
-					Str=string(L"\\\\?\\")+Str;
-			}
+			if(IsLocalPath(Str))
+				Str=string(L"\\\\?\\")+Str;
+			else
+				Str=string(L"\\\\?\\UNC\\")+&Str[2];
 		}
 	}
-	operator LPCWSTR() const
-	{
-		return Str;
-	}
-};
+}
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {
 	return DeleteFile(NTPath(lpwszFileName));
 }
-
 
 BOOL apiRemoveDirectory (const wchar_t *DirName)
 {

@@ -209,8 +209,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	ListData=NULL;
 
-	int DotsPresent=0;
-
 	int ReadOwners=IsColumnDisplayed(OWNER_COLUMN);
 	int ReadPacked=IsColumnDisplayed(PACKED_COLUMN);
 	int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
@@ -251,29 +249,24 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
 
+	string strDotFullPath(NTPath(strCurDir).Str);
+	strDotFullPath += L"\\.";
+
+	string strTwoDotsFullPath(NTPath(strCurDir).Str);
+	strTwoDotsFullPath += L"\\..";
+
 	for (FileCount=0; !Done; )
 	{
-		if (!(fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == 0 && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) &&
-				(Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) &&
-				Filter->FileInFilter(&fdata))
+		if (fdata.strFileName.At(0) == L'.' && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY &&
+			(   (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0 && apiGetFileAttributes(strTwoDotsFullPath)==INVALID_FILE_ATTRIBUTES)
+			 || (fdata.strFileName.At(1) == 0 && apiGetFileAttributes(strDotFullPath)==INVALID_FILE_ATTRIBUTES)))
 		{
-			int UpperDir=FALSE;
-			if (fdata.strFileName.At(0) == L'.' && fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0 && fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-			{
-				UpperDir=TRUE;
-				DotsPresent=TRUE;
-				if(IsLocalRootPath(strCurDir))
-				{
-					wchar_t Check[]={L'\\',L'\\',L'?',L'\\',strCurDir.At(0),L':',L'\\',L'.',L'.',0};
-					if(apiGetFileAttributes(Check)==INVALID_FILE_ATTRIBUTES)
-					{
-						Done=!apiFindNextFile (FindHandle,&fdata);
-						continue;
-					}
-				}
-				//Done=!apiFindNextFile (FindHandle,&fdata);
-				//continue;
-			}
+			Done=!apiFindNextFile (FindHandle,&fdata);
+			continue;
+		}
+
+		if ((Opt.ShowHidden || (fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))==0) && Filter->FileInFilter(&fdata))
+		{
 			if (FileCount>=AllocatedCount)
 			{
 				AllocatedCount=AllocatedCount+256+AllocatedCount/4;
@@ -353,7 +346,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			if (NeedHighlight)
 				CtrlObject->HiFiles->GetHiColor(&NewPtr,1);
 
-			if (!UpperDir && (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
 				TotalFileCount++;
 
 			//memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
@@ -418,7 +411,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	*/
 
 	// пока кусок закомментим, возможно он даже и не пригодится.
-	if (!DotsPresent && !IsLocalRootPath(strCurDir) )// && !NetRoot)
+	if (!IsLocalRootPath(strCurDir) )// && !NetRoot)
 	{
 		if (FileCount>=AllocatedCount)
 		{

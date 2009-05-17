@@ -37,6 +37,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "UnicodeString.hpp"
 
+class NTPath
+{
+public:
+	string Str;
+	NTPath(LPCWSTR Src);
+
+	operator LPCWSTR() const
+	{
+		return Str;
+	}
+};
+
 DWORD apiGetEnvironmentVariable (
 		const wchar_t *lpwszName,
 		string &strBuffer
