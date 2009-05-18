@@ -117,6 +117,7 @@ SRCS = 	cddrv.cpp \
 	TVMStack.cpp \
 	TPreRedrawFunc.cpp \
 	syslog.cpp \
+	TaskBar.cpp \
 	treelist.cpp \
 	udlist.cpp \
 	usermenu.cpp \

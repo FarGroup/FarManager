@@ -32,6 +32,7 @@ plugins.cpp
 #include "fileedit.hpp"
 #include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
+#include "TaskBar.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -140,6 +141,7 @@ void PluginsSet::SendExit()
 
 void PluginsSet::LoadPlugins()
 {
+  TaskBar TB;
   BlockExtKey blockExtKey;
   Flags.Clear(PSIF_PLUGINSLOADDED);
 

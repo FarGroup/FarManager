@@ -30,6 +30,7 @@ Tree panel
 #include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 #define DELTA_TREECOUNT 31
 
@@ -458,6 +459,7 @@ int TreeList::ReadTree()
   ScTree.SetFindPath(Root,"*.*",0);
   LastScrX = ScrX;
   LastScrY = ScrY;
+  TaskBar TB;
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
 //    if(TreeCount > 3)

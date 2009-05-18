@@ -14,6 +14,7 @@ dizlist.cpp
 #include "lang.hpp"
 #include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 struct DizRecord
 {
@@ -67,6 +68,7 @@ void DizList::PR_ReadingMsg(void)
 void DizList::Read(char *Path,char *DizName)
 {
   Reset();
+  TaskBar TB;
   TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
 
   const char *NamePtr=Opt.Diz.ListNames;

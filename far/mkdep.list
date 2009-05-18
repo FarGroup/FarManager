@@ -194,6 +194,8 @@ TVMStack.hpp
 TVMStack.cpp
 headers.c.c
 headers.cpp.cpp
+TaskBar.hpp
+TaskBar.cpp
 TPreRedrawFunc.hpp
 TPreRedrawFunc.cpp
 TStack.hpp

@@ -26,6 +26,7 @@ dialog.cpp
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 #define VTEXT_ADN_SEPARATORS  1
 
@@ -4863,6 +4864,9 @@ void Dialog::Process()
     SetRestoreScreenMode(TRUE);
 
   InitDialog();
+
+  TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:NULL;
+
   if(ExitCode == -1)
   {
     static LONG in_dialog = -1;
@@ -4883,6 +4887,10 @@ void Dialog::Process()
       WaitUserTime = save;
   }
   /* DJ $ */
+  if(TBE)
+  {
+    delete TBE;
+  }
 }
 /* SVS $ */
 

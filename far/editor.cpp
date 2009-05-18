@@ -23,6 +23,7 @@ editor.cpp
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 static struct CharTableSet InitTableSet;
 
@@ -3770,6 +3771,7 @@ BOOL Editor::Search(int Next)
     CurPtr=CurLine;
     BOOL MessageShown=FALSE;
 
+    TaskBar TB;
     while (CurPtr!=NULL)
     {
       if ((++Count & 0xfff)==0)

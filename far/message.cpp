@@ -18,6 +18,7 @@ message.cpp
 #include "farftp.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"
+#include "TaskBar.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static char MsgHelpTopic[80];
@@ -565,6 +566,7 @@ void SetMessageHelp(const char *Topic)
 */
 int AbortMessage()
 {
+  TaskBarPause TBP;  
   int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
             MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
             MSG(MYes),MSG(MNo));

@@ -156,6 +156,8 @@ bool History::SaveHistory()
   const HistoryRecord *SelectedItem = getItem();
   int Position = -1, i=size()-1;
 
+  bool isDeleteRegKey=false;
+
   for (const HistoryRecord *HistoryItem=toEnd(); HistoryItem != NULL; HistoryItem=toPrev())
   {
     int Len=(int)strlen(HistoryItem->Name);
@@ -185,7 +187,6 @@ bool History::SaveHistory()
     i--;
   }
 
-  bool isDeleteRegKey=false;
   if(BufferLines && *BufferLines)
   {
     if((hKey=CreateRegKey(RegKey)) != NULL)

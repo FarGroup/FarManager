@@ -98,7 +98,6 @@ typedef LPCSTR PCTSTR, LPCTSTR, PCUTSTR, LPCUTSTR;
 #include <cfgmgr32.h>
 #endif
 
-#include <setupapi.h>
 #pragma hdrstop
 
 #include "lang.hpp"

@@ -21,6 +21,7 @@ setattr.cpp
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "taskbar.hpp"
 
 
 #define DM_SETATTR      (DM_USER+1)
@@ -950,6 +951,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       SrcPanel->GetSelName(NULL,FileAttr);
 
+      TaskBar TB;
       while (SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData) && !Cancel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",

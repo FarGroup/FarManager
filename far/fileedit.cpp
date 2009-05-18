@@ -31,6 +31,7 @@ fileedit.cpp
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 
 FileEditor::FileEditor(const char *Name,DWORD InitFlags,int StartLine,int StartChar,char *PluginData,int OpenModeExstFile)
@@ -1093,6 +1094,7 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
 {
   FILE *EditFile;
   EditorCacheParams cp;
+  TaskBar TB;
 
   UserBreak=0;
   Flags.Clear(FFILEEDIT_OPENFAILED);
@@ -1305,6 +1307,7 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
 // сюды плавно переносить код из Editor::SaveFile()
 int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 {
+  TaskBar TB;
   TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(

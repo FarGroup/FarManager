@@ -33,6 +33,7 @@ mix.cpp
 #include "RefreshFrameManager.hpp"
 #include "filefilter.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -281,6 +282,7 @@ int GetDirInfo(char *Title,
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
   TPreRedrawFuncGuard preRedrawFuncGuard(PR_DrawGetDirInfoMsg);
+  TaskBar TB;
 
   ScanTree ScTree(FALSE,TRUE,
                   (Flags&GETDIRINFO_SCANSYMLINKDEF?(DWORD)-1:(Flags&GETDIRINFO_SCANSYMLINK)),

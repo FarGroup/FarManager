@@ -22,6 +22,7 @@ flupdate.cpp
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
@@ -85,6 +86,7 @@ static void PR_ReadFileNamesMsg(void)
 void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
   TPreRedrawFuncGuard preRedrawFuncGuard(PR_ReadFileNamesMsg);
+  TaskBar TB;
 
   if (!IsVisible() && !IgnoreVisible)
   {

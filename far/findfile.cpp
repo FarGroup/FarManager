@@ -34,6 +34,7 @@ findfile.cpp
 #include "CFileMask.hpp"
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
+#include "TaskBar.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74
@@ -88,6 +89,8 @@ static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALS
 static int EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=_i64(0);
 static struct CharTableSet TableSet;
+
+TaskBar *TB=NULL;
 
 /* $ 01.07.2001 IS
    ќбъект "маска файлов". »менно его будем использовать дл€ проверки имени
@@ -912,6 +915,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
 
+  if(StopSearch && TB)
+  {
+    delete TB;
+    TB=NULL;
+  }
+
   CriticalSectionLock Lock(Dlg->CS);
 
   switch(Msg)
@@ -1509,6 +1518,7 @@ int FindFiles::FindFilesProcess()
   // иногда при поиске и первые элементы не добавл€ютс€
   Dlg.InitDialog();
   Dlg.Show();
+  TB=new TaskBar;
 
   LastFoundNumber=0;
   SearchDone=FALSE;

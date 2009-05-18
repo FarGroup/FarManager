@@ -10,6 +10,12 @@ headers.hpp
 
 #define STRICT
 
+#define _WIN32_WINNT 0x0600
+#define _WIN32_IE 0x0600
+#if defined(__GNUC__)
+#define WINVER 0x0500
+#endif
+
 #if defined(__BORLANDC__) && !defined(_WIN64)
   #pragma option -a2
 #endif
@@ -321,7 +327,7 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #endif
 
 
-#if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
+#if (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
   #ifndef _DWORDLONG_
   typedef unsigned __int64 DWORDLONG;
   typedef DWORDLONG *PDWORDLONG;
@@ -399,6 +405,8 @@ typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
 #define VK_SLEEP          0x5F
 #endif
+
+#include <setupapi.h>
 
 #if !(defined(__BORLANDC__) || defined(__GNUC__))
 #include <shobjidl.h>

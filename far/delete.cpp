@@ -23,6 +23,7 @@ delete.cpp
 #include "constitle.hpp"
 #include "fn.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 static void ShellDeleteMsg(const char *Name,int Wipe);
 static int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe);
@@ -239,6 +240,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     FarChDir("\\");
 
   {
+    TaskBar TB;
     int Cancel=0;
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);

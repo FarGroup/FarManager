@@ -6247,6 +6247,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TaskBar.cpp"
+				>
+			</File>
+			<File
 				RelativePath="timefunc.cpp"
 				>
 				<FileConfiguration
@@ -7254,6 +7258,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TaskBar.hpp"
+				>
+			</File>
+			<File
 				RelativePath="TList.hpp"
 				>
 			</File>
@@ -7263,6 +7271,10 @@
 			</File>
 			<File
 				RelativePath="treelist.hpp"
+				>
+			</File>
+			<File
+				RelativePath="TStack.hpp"
 				>
 			</File>
 			<File

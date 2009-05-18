@@ -212,6 +212,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\udlist.obj" \
 	"$(INTDIR)\usermenu.obj" \

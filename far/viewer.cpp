@@ -27,6 +27,7 @@ Internal viewer
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
+#include "TaskBar.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(char *Name);
@@ -2472,6 +2473,7 @@ void Viewer::Search(int Next,int FirstChar)
           BufSize+=(int)CurPos;
       }
       int ReadSize;
+      TaskBar TB;
       while (!Match)
       {
         /* $ 01.08.2000 KM
