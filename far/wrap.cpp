@@ -3524,7 +3524,7 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 					selectType = 0;
 					if (!EnumRegValue(FavoriteCodePagesKey, iSelCT++, sTableName, (BYTE *)&selectType, sizeof(selectType)))
 						return -1;
-				} while (!(selectType & CPST_FIND));
+				} while (!(selectType & CPST_FAVORITE));
 				nCP = _wtoi (sTableName);
 			}
 		}
