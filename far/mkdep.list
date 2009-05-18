@@ -209,3 +209,4 @@ network.cpp
 network.hpp
 TaskBar.cpp
 TaskBar.hpp
+TStack.hpp

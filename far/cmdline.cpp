@@ -432,56 +432,6 @@ void add_char (string &str, wchar_t c) //BUGBUG
 
 void CommandLine::GetPrompt(string &strDestStr)
 {
-#if 0
-  // старый вариант промптера
-  char FormatStr[512],ExpandedFormatStr[512];
-  string strFormatStr;
-  string strExpandedFormatStr;
-
-  if ( Opt.UsePromptFormat )
-    strFormatStr = Opt.strPromptFormat;
-  else
-    strFormatStr = L"$p$g";
-
-  const wchar_t *Format=strFormatStr;
-
-  if (Opt.UsePromptFormat)
-  {
-    ExpandEnvironmentStrW(strFormatStr, strExpandedFormatStr);
-    Format = strExpandedFormatStr;
-  }
-
-  while (*Format)
-  {
-    if (*Format==L'$')
-    {
-      Format++;
-      switch(*Format)
-      {
-        case L'$':
-          strDestStr += L'$';
-          break;
-        case L'p':
-          strDestStr += strCurDir;
-          break;
-        case L'n':
-          if (IsLocalPath(strCurDir) && strCurDir.At(2)==L'\\')
-            add_char (strDestStr, Upper(strCurDir.At(0)));
-          else
-            add_char (strDestStr, L'?');
-          break;
-        case L'g':
-          add_char (strDestStr, L'>');
-          break;
-      }
-      Format++;
-    }
-    else
-      add_char (strDestStr, *(Format++));
-  }
-
-#else
-  // продвинутый вариант промптера, как в XP
   if (Opt.UsePromptFormat)
   {
     string strFormatStr, strExpandedFormatStr;
@@ -522,7 +472,19 @@ void CommandLine::GetPrompt(string &strDestStr)
             $E - Escape code (ASCII code 27)
             $V - Windows XP version number
             $_ - Carriage return and linefeed
+            $M - Отображение полного имени удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым.
             */
+			case L'+': // $+  - Отображение нужного числа знаков плюс (+) в зависимости от текущей глубины стека каталогов PUSHD, по одному знаку на каждый сохраненный путь.
+			{
+				DWORD ppstacksize=ppstack.size();
+				if(ppstacksize)
+				{
+					wchar_t * p = strDestStr.GetBuffer(strDestStr.GetLength()+ppstacksize+1);
+					wmemset(p + strDestStr.GetLength(),L'+',ppstacksize);
+					strDestStr.ReleaseBuffer(strDestStr.GetLength()+ppstacksize);
+				}
+				break;
+			}
             case L'H': // $H - Backspace (erases previous character)
               if (!strDestStr.IsEmpty())
                 strDestStr.SetLength(strDestStr.GetLength()-1);
@@ -557,7 +519,6 @@ void CommandLine::GetPrompt(string &strDestStr)
     strDestStr = strCurDir;
     strDestStr += L">";
   }
-#endif
 }
 
 

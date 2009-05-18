@@ -35,12 +35,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "edit.hpp"
-
+#include "tstack.hpp"
 
 
 enum {
   FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
 };
+
+struct PushPopRecord
+{
+  string strName;
+
+  const PushPopRecord& operator=(const PushPopRecord &rhs){strName=rhs.strName;return *this;}
+};
+
 
 class CommandLine:public ScreenObject
 {
@@ -50,6 +58,7 @@ class CommandLine:public ScreenObject
     string strCurDir;
     string strLastCmdStr;
     int LastCmdPartLength;
+    TStack<PushPopRecord> ppstack;
 
   private:
     virtual void DisplayObject();
@@ -57,6 +66,7 @@ class CommandLine:public ScreenObject
     int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
     void GetPrompt(string &strDestStr);
     BOOL SetLastCmdStr(const wchar_t *Ptr);
+    BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
 
   public:
     CommandLine();

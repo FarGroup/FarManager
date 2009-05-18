@@ -1274,6 +1274,13 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
   RemoveTrailingSpaces(strCmdLine);
 
+  bool SilentInt=false;
+  if(*CmdLine == L'@')
+  {
+    SilentInt=true;
+    strCmdLine.LShift(1);
+  }
+
 	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
     wchar_t NewDir[10];
@@ -1327,6 +1334,51 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     return TRUE;
   }
 
+	// PUSHD путь | ..
+	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpace(strCmdLine.At(5)))
+	{
+		string strCmd = (const wchar_t *)CmdLine+6;
+		RemoveExternalSpaces(strCmd);
+
+		if(!StrCmpI(strCmd,L"/?") || !StrCmpI(strCmd,L"-?"))
+			return FALSE; // пусть cmd скажет про синтаксис
+
+		PushPopRecord prec;
+		prec.strName = strCurDir;
+		if(IntChDir(strCmd,true,SilentInt))
+		{
+			ppstack.Push(prec);
+			SetEnvironmentVariableW(L"FARDIRSTACK",prec.strName);
+		}
+		else
+		{
+			;
+		}
+		return TRUE;
+	}
+
+	// POPD
+	else if (!StrCmpI(CmdLine,L"POPD"))
+	{
+		PushPopRecord prec;
+		if(ppstack.Pop(prec))
+		{
+			int Ret=IntChDir(prec.strName,true,SilentInt);
+			PushPopRecord *ptrprec=ppstack.Peek();
+			SetEnvironmentVariableW(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():NULL));
+			return Ret;
+		}
+		return TRUE;
+	}
+
+	// CLRD
+	else if (!StrCmpI(CmdLine,L"CLRD"))
+	{
+		ppstack.Free();
+		SetEnvironmentVariableW(L"FARDIRSTACK",NULL);
+		return TRUE;
+	}
+
   /*
   Displays or sets the active code page number.
   CHCP [nnn]
@@ -1370,83 +1422,107 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   }
 
 	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpace(strCmdLine.At(2)))
-  {
-    const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
-    // здесь PtrCmd - уже готовая команда, без IF
+	{
+		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
+		// здесь PtrCmd - уже готовая команда, без IF
 
-    if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
-    {
-      //CmdStr.SetString(L"");
-      GotoXY(X1,Y1);
-      mprintf(L"%*s",X2-X1+1,L"");
-      Show();
-      return TRUE;
-    }
-    return FALSE;
-  }
+		if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
+		{
+			//CmdStr.SetString(L"");
+			GotoXY(X1,Y1);
+			mprintf(L"%*s",X2-X1+1,L"");
+			Show();
+			return TRUE;
+		}
+		return FALSE;
+	}
 
   /* $ 16.04.2002 DJ
      пропускаем обработку, если нажат Shift-Enter
   */
 	else if (!SeparateWindow &&
-      (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
-      (IsSpace(strCmdLine.At(Length)) || IsSlash(strCmdLine.At(Length)) ||
-      TestParentFolderName((const wchar_t*)strCmdLine+Length)))
-  {
-    int ChDir=(Length==5);
+			(StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
+			(IsSpace(strCmdLine.At(Length)) || IsSlash(strCmdLine.At(Length)) ||
+			TestParentFolderName((const wchar_t*)strCmdLine+Length)))
+	{
+		int ChDir=(Length==5);
 
-    while (IsSpace(strCmdLine.At(Length)))
-      Length++;
+		while (IsSpace(strCmdLine.At(Length)))
+			Length++;
 
-    string strExpandedDir;
-    strExpandedDir = (const wchar_t*)strCmdLine+Length;
+		IntChDir((const wchar_t *)strCmdLine+Length,ChDir,SilentInt);
 
-    Unquote(strExpandedDir);
-    apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+		return(TRUE);
+	}
+
+
+	else if(!StrCmpI(strCmdLine,L"EXIT"))
+	{
+		FrameManager->ExitMainLoop(FALSE);
+		return TRUE;
+	}
+
+  return(FALSE);
+}
+
+BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
+{
+	Panel *SetPanel;
+
+	SetPanel=CtrlObject->Cp()->ActivePanel;
+
+	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+
+	string strExpandedDir;
+	strExpandedDir = (const wchar_t*)CmdLine;
+
+	Unquote(strExpandedDir);
+	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
 
 
     // скорректируем букву диска на "подступах"
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-		if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && (!strExpandedDir.At(1) || IsSlash(strExpandedDir.At(1))) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
-    {
-    	string strTemp;
-      GetRegKey(strSystemExecutor,L"~",strTemp,g_strFarPath);
-      if(strExpandedDir.At(1))
-      {
-        AddEndSlash(strTemp);
-        strTemp += (const wchar_t*)strExpandedDir+2;
-      }
-      DeleteEndSlash(strTemp);
-      strExpandedDir=strTemp;
-    }
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && (!strExpandedDir.At(1) || IsSlash(strExpandedDir.At(1))) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
+	{
+		string strTemp;
+		GetRegKey(strSystemExecutor,L"~",strTemp,g_strFarPath);
+		if(strExpandedDir.At(1))
+		{
+			AddEndSlash(strTemp);
+			strTemp += (const wchar_t*)strExpandedDir+2;
+		}
+		DeleteEndSlash(strTemp);
+		strExpandedDir=strTemp;
+	}
 
-    if (wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
-    {
-      FAR_FIND_DATA_EX wfd;
-      if (apiGetFindDataEx(strExpandedDir, &wfd))
-      {
-        size_t pos;
-				if(LastSlash(strExpandedDir,pos))
-          strExpandedDir.SetLength(pos+1);
-        else
-          strExpandedDir.SetLength(0);
+	if (wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
+	{
+		FAR_FIND_DATA_EX wfd;
+		if (apiGetFindDataEx(strExpandedDir, &wfd))
+		{
+			size_t pos;
+			if(LastSlash(strExpandedDir,pos))
+				strExpandedDir.SetLength(pos+1);
+			else
+				strExpandedDir.SetLength(0);
 
-        strExpandedDir += wfd.strFileName;
-      }
-    }
-    /* $ 15.11.2001 OT
-      Сначала проверяем есть ли такая "обычная" директория.
-      если уж нет, то тогда начинаем думать, что это директория плагинная
-    */
-		DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
-    if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
-    {
-      ReplaceStrings(strExpandedDir,L"/",L"\\",-1);
-      SetPanel->SetCurDir(strExpandedDir,TRUE);
-      return TRUE;
-    }
+			strExpandedDir += wfd.strFileName;
+		}
+	}
+	/* $ 15.11.2001 OT
+		Сначала проверяем есть ли такая "обычная" директория.
+		если уж нет, то тогда начинаем думать, что это директория плагинная
+	*/
+	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
+	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
+	{
+		ReplaceStrings(strExpandedDir,L"/",L"\\",-1);
+		SetPanel->SetCurDir(strExpandedDir,TRUE);
+		return TRUE;
+	}
 
     /* $ 20.09.2002 SKV
       Это отключает возможность выполнять такие команды как:
@@ -1466,35 +1542,27 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
     }
     */
 
-    strExpandedDir.ReleaseBuffer ();
+	strExpandedDir.ReleaseBuffer ();
 
-    if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
-    {
-      SetPanel->SetCurDir(strExpandedDir,ChDir);
-      return(TRUE);
-    }
-
-		if(FarChDir(strExpandedDir))
-		{
-			SetPanel->ChangeDirToCurrent();
-			if(!SetPanel->IsVisible())
-				SetPanel->SetTitle();
-		}
-		else
-		{
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
-		}
-    return(TRUE);
-  }
-
-
-	else if(!StrCmpI(strCmdLine,L"EXIT"))
+	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{
-		FrameManager->ExitMainLoop(FALSE);
-		return TRUE;
+		SetPanel->SetCurDir(strExpandedDir,ClosePlugin);
+		return(TRUE);
 	}
 
-  return(FALSE);
+	if(FarChDir(strExpandedDir))
+	{
+		SetPanel->ChangeDirToCurrent();
+		if(!SetPanel->IsVisible())
+			SetPanel->SetTitle();
+	}
+	else
+	{
+		if(!Selent)
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
+		return FALSE;
+	}
+	return TRUE;
 }
 
 // Проверить "Это батник?"
