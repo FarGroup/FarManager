@@ -47,7 +47,7 @@ class CommandLine:public ScreenObject
     int ProcessOSCommands(char *CmdLine,int SeparateWindow);
     void GetPrompt(char *DestStr);
     BOOL SetLastCmdStr(const char *Ptr,int LenPtr);
-    BOOL IntChDir(char *CmdLine,int ClosePlugin,bool Selent=false);
+    BOOL IntChDir(const char *CmdLine,int ClosePlugin,bool Selent=false);
 
   public:
     CommandLine();

@@ -228,6 +228,7 @@ FAROBJ=\
    $(OBJPATH)\syntax.obj\
    $(OBJPATH)\tvar.obj\
    $(OBJPATH)\TVMStack.obj\
+   $(OBJPATH)\TaskBar.obj\
    $(OBJPATH)\main.obj
 
 

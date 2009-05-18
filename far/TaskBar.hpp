@@ -29,7 +29,7 @@ TBATFLAG;
 
 EXTERN_C const IID IID_ITaskbarList3;
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__BORLANDC__)
 DECLARE_INTERFACE_(ITaskbarList3,IUnknown) //BUGBUG, ITaskbarList2
 #else
 MIDL_INTERFACE("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf") ITaskbarList3 : public ITaskbarList2
@@ -52,7 +52,9 @@ public:
 
 #endif // __ITaskbarList3_INTERFACE_DEFINED__
 
+#if !defined(__BORLANDC__)
 typedef BOOL (WINAPI *FLASHWINDOWEX)(PFLASHWINFO pfwi);
+#endif
 
 class TaskBarCore
 {

@@ -1552,7 +1552,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     {
       ppstack.Push(prec);
       FAR_OemToChar(prec.Name, prec.Name);
-      SetEnvironmentVariable("DIRSTACK",prec.Name);
+      SetEnvironmentVariable("FARDIRSTACK",prec.Name);
     }
     else
     {
@@ -1571,7 +1571,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       PushPopRecord *ptrprec=ppstack.Peek();
       if(ptrprec)
         FAR_OemToChar(ptrprec->Name, ptrprec->Name);
-      SetEnvironmentVariable("DIRSTACK",ptrprec?ptrprec->Name:NULL);
+      SetEnvironmentVariable("FARDIRSTACK",ptrprec?ptrprec->Name:NULL);
       return Ret;
     }
     return TRUE;
@@ -1581,7 +1581,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   else if (!stricmp(CmdLine,"CLRD"))
   {
     ppstack.Free();
-    SetEnvironmentVariable("DIRSTACK",NULL);
+    SetEnvironmentVariable("FARDIRSTACK",NULL);
     return TRUE;
   }
 
@@ -1667,7 +1667,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   return(FALSE);
 }
 
-BOOL CommandLine::IntChDir(char *CmdLine,int ClosePlugin,bool Selent)
+BOOL CommandLine::IntChDir(const char *CmdLine,int ClosePlugin,bool Selent)
 {
   Panel *SetPanel;
 

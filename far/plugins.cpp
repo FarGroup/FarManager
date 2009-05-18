@@ -2745,8 +2745,6 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 
 int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
 {
-#if 1
-// Старый вариант
 /*
 FarPath
 C:\Program Files\Far\
@@ -2757,61 +2755,25 @@ C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC
 C:\MultiArc\MULTIARC.DLL                            -> DLL
 ---------------------------------------------------------------------------------------
 */
-  size_t FarPathLength=strlen(FarPath);
-  *RegKey=0;
-  if (FarPathLength < strlen(PluginsData[PluginNumber].ModuleName))
-  {
-    char PluginName[NM], *Ptr;
-//    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
-    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+
-           (strncmp(PluginsData[PluginNumber].ModuleName,FarPath,FarPathLength)?0:FarPathLength));
-    for (Ptr=PluginName;*Ptr;++Ptr)
-      if (*Ptr=='\\')
-        *Ptr='/';
-    if (ItemNumber>0)
-      sprintf(Ptr,"%%%d",ItemNumber);
-    sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
-    return(TRUE);
-  }
-  return(FALSE);
-#else
-// Новый вариант, с полными путями
-  *RegKey=0;
   char PluginName[NM], *Ptr;
-  strcpy(PluginName,PluginsData[PluginNumber].ModuleName);
+  size_t FarPathLength=strlen(FarPath);
+
+  xstrncpy(PluginName,PluginsData[PluginNumber].ModuleName,sizeof(PluginName)-1);
+  if (FarPathLength < strlen(PluginName) && !LocalStrnicmp(PluginName, FarPath, (int)FarPathLength))
+    memmove(PluginName,PluginName+FarPathLength,strlen(PluginName)-FarPathLength+1);
+
   for (Ptr=PluginName;*Ptr;++Ptr)
   {
     if (*Ptr=='\\')
       *Ptr='/';
   }
+
   if (ItemNumber>0)
-    sprintf(Ptr,"%%%d",ItemNumber);
+    sprintf(RegKey,"PluginHotkeys\\%s%%%d",PluginName,ItemNumber);
+  else
+    sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
 
-  sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
-
-#if 1
-  // конвертация - потом убрать
-  unsigned int FarPathLength=strlen(FarPath);
-  if (FarPathLength < strlen(PluginsData[PluginNumber].ModuleName))
-  {
-    char OldRevKey[NM];
-    sprintf(OldRevKey,"PluginHotkeys\\%s",PluginName+FarPathLength);
-    if(CheckRegKey(OldRevKey))
-    {
-      char ConfHotkey[32];
-      char Hotkey[32];
-      GetRegKey(OldRevKey,"ConfHotkey",ConfHotkey,"",sizeof(ConfHotkey));
-      GetRegKey(OldRevKey,"Hotkey",Hotkey,"",sizeof(Hotkey));
-      if(*ConfHotkey)
-        SetRegKey(RegKey,"ConfHotkey",ConfHotkey);
-      if(*Hotkey)
-        SetRegKey(RegKey,"Hotkey",Hotkey);
-      DeleteRegKey(OldRevKey); //??? А нужно?
-    }
-  }
-#endif
   return(TRUE);
-#endif
 }
 
 /* $ 21.08.2002 IS

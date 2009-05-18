@@ -26,7 +26,7 @@ TaskBarCore::TaskBarCore()
 	case S_FALSE:
 		CoInited=true;
 	case RPC_E_CHANGED_MODE:
-#ifndef __GNUC__ //BUGBUG
+#if !defined(__GNUC__) && !defined(__BORLANDC__) //BUGBUG
 		CoCreateInstance(CLSID_TaskbarList,NULL,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&pTaskbarList));
 #endif
 		break;
@@ -75,6 +75,7 @@ TBPFLAG TaskBarCore::GetProgressState()
 
 void TaskBarCore::Flash()
 {
+#if !defined(__BORLANDC__)
 	static FLASHWINDOWEX pFlashWindowEx=NULL;
 	if(!pFlashWindowEx)
 	{
@@ -84,7 +85,7 @@ void TaskBarCore::Flash()
 			pFlashWindowEx=(FLASHWINDOWEX)GetProcAddress(hUser32,"FlashWindowEx");
 		}
 	}
-	
+
 	if(pFlashWindowEx)
 	{
 		WINDOWINFO WI={sizeof(WI)};
@@ -97,6 +98,7 @@ void TaskBarCore::Flash()
 			}
 		}
 	}
+#endif
 }
 
 

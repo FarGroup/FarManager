@@ -3647,7 +3647,7 @@ to child processes:
     #FARUSER#            the name of the current user given by the /u
                        ~command line~@CmdLine@ option.
 
-    #DIRSTACK#           содержимое вершины стека каталогов
+    #FARDIRSTACK#        содержимое вершины стека каталогов
                        (который управляется командами pushd и popd)
 
 @KeyMacro
