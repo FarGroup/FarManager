@@ -199,7 +199,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \
-	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\udlist.obj" \
 	"$(INTDIR)\UnicodeString.obj" \
 	"$(INTDIR)\usermenu.obj" \

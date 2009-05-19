@@ -34,13 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "macro.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
 #include "lang.hpp"
-
 #include "lockscrn.hpp"
 #include "viewer.hpp"
 #include "fileedit.hpp"
@@ -57,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "treelist.hpp"
 #include "flink.hpp"
-#include "TVMStack.hpp"
+#include "TStack.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "plugapi.hpp"
@@ -265,6 +263,34 @@ TVarTable glbVarTable;
 TVarTable glbConstTable;
 
 static TVar __varTextDate;
+
+class TVMStack: public TStack<TVar>
+{
+  public:
+    TVMStack() {}
+    ~TVMStack() {}
+
+  public:
+
+    TVar Pop()
+    {
+      TVar Destination;
+      TStack<TVar>::Pop(Destination);
+      return Destination;
+    }
+
+    TVar Peek()
+    {
+      TVar Destination;
+      Destination = *TStack<TVar>::Peek();
+      return Destination;
+    }
+
+  private:
+    TVMStack& operator=(const TVMStack& rhs); /* чтобы не генерировалось */
+    TVMStack(const TVMStack& rhs);            /* по умолчанию            */
+};
+
 TVMStack VMStack;
 
 static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data);
@@ -2902,7 +2928,7 @@ done:
 
     case MCODE_OP_PLAINTEXT:          // $Text "Text"
     {
-      if(VMStack.isEmpty())
+      if(VMStack.empty())
         return KEY_NONE;
       __varTextDate=VMStack.Pop();
       return KEY_OP_PLAINTEXT;

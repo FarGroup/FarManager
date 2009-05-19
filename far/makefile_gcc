@@ -131,7 +131,6 @@ SRCS = 	cddrv.cpp \
 	TPreRedrawFunc.cpp \
 	treelist.cpp \
 	tvar.cpp \
-	TVMStack.cpp \
 	udlist.cpp \
 	UnicodeString.cpp \
 	usermenu.cpp \

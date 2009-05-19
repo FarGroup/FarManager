@@ -77,7 +77,6 @@ syslog.hpp
 tvar.hpp
 TList.hpp
 treelist.hpp
-TVMStack.hpp
 udlist.hpp
 UnicodeString.hpp
 viewer.hpp
@@ -195,7 +194,6 @@ usermenu.cpp
 viewer.cpp
 vmenu.cpp
 xlat.cpp
-TVMStack.cpp
 headers.cpp
 TPreRedrawFunc.hpp
 TPreRedrawFunc.cpp
