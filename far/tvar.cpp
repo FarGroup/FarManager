@@ -138,14 +138,18 @@ const wchar_t *TVar::toString()
 
 __int64 TVar::toInteger()
 {
-  switch ( vType )
-  {
-    case vtString:
-      inum = str ? _wtoi64(str) : 0;
-      break;
-  }
+  if ( vType == vtString )
+    inum = str ? _wtoi64(str) : 0;
   vType = vtInteger;
   return inum;
+};
+
+__int64 TVar::getInteger() const
+{
+	__int64 ret = inum;
+  if ( vType == vtString )
+    ret = str ? _wtoi64(str) : 0;
+  return ret;
 };
 
 int operator==(const TVar& a, const TVar& b)

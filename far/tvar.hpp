@@ -53,7 +53,6 @@ private:
   wchar_t *str;
 public:
   TVar(__int64 = 0);
-//  TVar(const char*);
   TVar(const wchar_t*);
   TVar(const TVar&);
   ~TVar();
@@ -103,6 +102,7 @@ public:
 
   const wchar_t *toString();
   __int64 toInteger();
+  __int64 getInteger() const;
 };
 
 //---------------------------------------------------------------

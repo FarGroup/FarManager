@@ -70,7 +70,7 @@ public:
 		m_nRefCount = 1;
 		m_pData = AllocData(nSize,&m_nSize);
 		if (m_pData)
-			m_pData[0] = 0;
+			*m_pData = 0;
 		else
 			m_nSize=0;
 	}
@@ -148,7 +148,6 @@ public:
 	}
 };
 
-
 class UnicodeString {
 private:
 	UnicodeStringData *m_pData;
@@ -160,7 +159,9 @@ private:
 	}
 
 public:
-	UnicodeString(size_t nSize=0, size_t nDelta=0)
+	UnicodeString();
+
+	UnicodeString(size_t nSize, size_t nDelta=0)
 	{
 		m_pData = new UnicodeStringData(nSize, nDelta);
 	}

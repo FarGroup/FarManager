@@ -36,6 +36,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fn.hpp"
 
+//для оптимизации создания пустых UnicodeString
+static UnicodeStringData EmptyUnicodeStringData(1,1);
+
+UnicodeString::UnicodeString()
+{
+	m_pData = &EmptyUnicodeStringData;
+	EmptyUnicodeStringData.AddRef();
+}
 
 void UnicodeString::Inflate(size_t nSize)
 {
