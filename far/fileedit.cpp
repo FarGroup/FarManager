@@ -117,7 +117,7 @@ bool dlgOpenEditor (string &strFileName, UINT &codepage)
 	DialogDataEx EditDlgData[]=	{
 		/* 00 */DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditTitle,
 		/* 01 */DI_TEXT,     5,2, 0,2,0,0,0,0,(const wchar_t *)MEditOpenCreateLabel,
-		/* 02 */DI_EDIT,     5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
+		/* 02 */DI_EDIT,     5,3,70,3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_EDITEXPAND,0,L"",
 		/* 03 */DI_TEXT,     3,4, 0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 04 */DI_TEXT,     5,5, 0,5,0,0,0,0,(const wchar_t *)MEditCodePage,
 		/* 05 */DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
@@ -178,8 +178,16 @@ LONG_PTR __stdcall hndSaveFileAs (
 		{
 			UINT codepage = *(UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
-			if(!IsUnicodeOrUTFCP(codepage))
+			if(IsUnicodeOrUTFCP(codepage))
+			{
+				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
+				Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+			}
+			else
+			{
 				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+				Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+			}
 			break;
 		}
 
@@ -202,7 +210,16 @@ LONG_PTR __stdcall hndSaveFileAs (
 			{
 				FarListPos pos;
 				Dialog::SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
-				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,IsUnicodeOrUTFCP((UINT)Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))?BSTATE_CHECKED:BSTATE_UNCHECKED);
+				if(IsUnicodeOrUTFCP(static_cast<UINT>(Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
+				{
+					Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+				}
+				else
+				{
+					Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+				}
 				return TRUE;
 			}
 			break;
@@ -226,7 +243,7 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage,bool &A
 		/* 03 */ DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 04 */ DI_TEXT,5,5,0,5,0,0,0,0,(const wchar_t *)MEditCodePage,
 		/* 05 */ DI_COMBOBOX,25,5,70,5,0,0,DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT,0,L"",
-		/* 06 */ DI_CHECKBOX,5,6,0,6,0,AddSignature,0,0,(const wchar_t *)MEditAddSignature,
+		/* 06 */ DI_CHECKBOX,5,6,0,6,0,AddSignature,DIF_DISABLE,0,(const wchar_t *)MEditAddSignature,
 		/* 07 */ DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		/* 08 */ DI_TEXT,5,8,0,8,0,0,0,0,(const wchar_t *)MEditSaveAsFormatTitle,
 		/* 09 */ DI_RADIOBUTTON,5,9,0,9,0,0,DIF_GROUP,0,(const wchar_t *)MEditSaveOriginal,

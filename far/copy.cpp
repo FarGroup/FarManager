@@ -653,7 +653,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			else
 				ComboList.Items[1].Flags|=LIF_SELECTED;
 
-			if(WinVer.dwMajorVersion<6)
+			if(!ifn.pfnCreateSymbolicLink)
 			{
 				ComboList.Items[2].Flags|=LIF_GRAYED;
 				ComboList.Items[3].Flags|=LIF_GRAYED;

@@ -236,14 +236,13 @@ PluginType IsModulePlugin (const wchar_t *lpModuleName)
 {
 	PluginType bResult = NOT_PLUGIN;
 
-	HANDLE hModuleFile = CreateFileW (
+	HANDLE hModuleFile = apiCreateFile(
 			lpModuleName,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			NULL,
 			OPEN_EXISTING,
-			0,
-			NULL
+			0
 			);
 
 	if ( hModuleFile != INVALID_HANDLE_VALUE )

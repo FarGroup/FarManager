@@ -46,6 +46,13 @@ int ConvertNameToFull (
 	string strSrc = lpwszSrc; //копирование в другую переменную на случай dest == src
 	lpwszSrc = strSrc;
 
+	// путь с префиксом - по определению полный.
+	if(PathPrefix(lpwszSrc))
+	{
+		strDest=lpwszSrc;
+		return (int)strDest.GetLength();
+	}
+
 	const wchar_t *lpwszName = PointToName(lpwszSrc);
 
 	if ( (lpwszName == lpwszSrc) &&

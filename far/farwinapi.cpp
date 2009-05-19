@@ -505,7 +505,7 @@ BOOL apiIsDiskInDrive(const wchar_t *Root)
 
 int apiGetFileTypeByName(const wchar_t *Name)
 {
-	HANDLE hFile=apiCreateFile(NTPath(Name),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+	HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
 
 	if (hFile==INVALID_HANDLE_VALUE)
 		return FILE_TYPE_UNKNOWN;
@@ -683,7 +683,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 	HANDLE Ret=INVALID_HANDLE_VALUE;
 	if(ifn.pfnFindFirstStreamW)
 	{
-		Ret=ifn.pfnFindFirstStreamW(lpFileName,InfoLevel,lpFindStreamData,dwFlags);
+		Ret=ifn.pfnFindFirstStreamW(NTPath(lpFileName),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{

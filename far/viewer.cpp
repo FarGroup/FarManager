@@ -2356,7 +2356,7 @@ void Viewer::Search(int Next,int FirstChar)
 					}
 					INT64 Total=ReverseSearch?StartPos:FileSize-StartPos;
 					INT64 Current=_abs64(CurPos-StartPos);
-					ViewerSearchMsg(strMsgStr,static_cast<int>(Current*100/Total));
+					ViewerSearchMsg(strMsgStr,Total>0?static_cast<int>(Current*100/Total):-1);
 				}
 
         /* $ 01.08.2000 KM
@@ -2928,6 +2928,20 @@ void Viewer::SetFileSize()
   SaveFilePos SavePos(ViewFile);
   vseek(ViewFile,0,SEEK_END);
   FileSize=ftell64(ViewFile);
+
+	HANDLE hView=reinterpret_cast<HANDLE>(_get_osfhandle(ViewFile->_file));
+	if(hView!=INVALID_HANDLE_VALUE)
+	{
+		if(GetFileType(hView)==FILE_TYPE_DISK)
+		{
+			GET_LENGTH_INFORMATION gli;
+			DWORD BytesReturned;
+			if(DeviceIoControl(hView,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
+			{
+				FileSize=gli.Length.QuadPart;
+			}
+		}
+	}
   /* $ 20.02.2003 IS
      Везде сравниваем FilePos с FileSize, FilePos для юникодных файлов
      уменьшается в два раза, поэтому FileSize тоже надо уменьшать

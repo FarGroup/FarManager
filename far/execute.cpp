@@ -715,6 +715,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   DWORD dwError = 0;
 
   HANDLE hProcess = NULL, hThread = NULL;
+	LPCWSTR lpVerb=NULL;
 
   if(FolderRun && SeparateWindow==2)
     AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
@@ -729,8 +730,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
       if(ExtPtr && !(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 ||
          IsBatchExtType(ExtPtr)))
-        if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
-          dwSubSystem=dwSubSystem2;
+			{
+				lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
+				if(lpVerb && Error != ERROR_NO_ASSOCIATION)
+				{
+					dwSubSystem=dwSubSystem2;
+				}
+			}
     }
 
     if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
@@ -748,7 +754,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     seInfo.lpParameters = strNewCmdPar;
     seInfo.nShow = SW_SHOWNORMAL;
 
-    seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
+		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
     //seInfo.lpVerb = "open";
 		seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOZONECHECKS;
 
@@ -1283,12 +1289,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
   {
-    wchar_t NewDir[10];
-    swprintf(NewDir,L"%c:",Upper(strCmdLine.At(0)));
     FarChDir(strCmdLine);
+		wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
     if (getdisk()!=(int)(NewDir[0]-L'A'))
     {
-      wcscat(NewDir,L"\\");
       FarChDir(NewDir);
     }
     SetPanel->ChangeDirToCurrent();
