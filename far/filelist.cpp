@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filelist.hpp"
 #include "keyboard.hpp"
-
 #include "flink.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"

@@ -35,11 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "keyboard.hpp"
-
 #include "filepanels.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
-
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"

@@ -35,10 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filelist.hpp"
-
-
 #include "flink.hpp"
-
 #include "colors.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
@@ -56,7 +53,7 @@ int _cdecl SortSearchList(const void *el1,const void *el2);
 void FileList::Update(int Mode)
 {
   _ALGO(CleverSysLog clv(L"FileList::Update"));
-  _ALGO(SysLog(L"(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?"UPDATE_KEEP_SELECTION":"")));
+  _ALGO(SysLog(L"(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?L"UPDATE_KEEP_SELECTION":L"")));
 
   if (EnableUpdate)
     switch(PanelMode)

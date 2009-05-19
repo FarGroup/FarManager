@@ -626,7 +626,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       EndList->SetTabSize(EdOpt.TabSize);
       EndList->SetPersistentBlocks(EdOpt.PersistentBlocks);
       EndList->SetConvertTabs(EdOpt.ExpandTabs);
-      EndList->SetString("");
+      EndList->SetString(L"");
       EndList->SetCurPos(0);
       EndList->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->SetEditorMode(TRUE);
@@ -5694,7 +5694,7 @@ int Editor::EditorControl(int Command,void *Param)
         struct EditorSelect *Sel=(struct EditorSelect *)Param;
 
         _ECTLLOG(SysLog(L"struct EditorSelect{"));
-        _ECTLLOG(SysLog(L"  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?"":(Sel->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))),Sel->BlockType));
+        _ECTLLOG(SysLog(L"  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?L"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?L"":(Sel->BlockType==BTYPE_COLUMN?L"BTYPE_COLUMN":L"BTYPE_?????"))),Sel->BlockType));
         _ECTLLOG(SysLog(L"  BlockStartLine=%d",Sel->BlockStartLine));
         _ECTLLOG(SysLog(L"  BlockStartPos =%d",Sel->BlockStartPos));
         _ECTLLOG(SysLog(L"  BlockWidth    =%d",Sel->BlockWidth));
@@ -5947,19 +5947,19 @@ int Editor::EditorControl(int Command,void *Param)
             SetTabSize(espar->Param.iParam);
             break;
           case ESPT_EXPANDTABS:
-            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?"On":"Off"));
+            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             SetConvertTabs(espar->Param.iParam);
             break;
           case ESPT_AUTOINDENT:
-            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?"On":"Off"));
+            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             SetAutoIndent(espar->Param.iParam);
             break;
           case ESPT_CURSORBEYONDEOL:
-            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?"On":"Off"));
+            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             SetCursorBeyondEOL(espar->Param.iParam);
             break;
           case ESPT_CHARCODEBASE:
-            _ECTLLOG(SysLog(L"  iParam      =%s",(espar->Param.iParam==0?"0 (Oct)":(espar->Param.iParam==1?"1 (Dec)":(espar->Param.iParam==2?"2 (Hex)":"?????")))));
+            _ECTLLOG(SysLog(L"  iParam      =%s",(espar->Param.iParam==0?L"0 (Oct)":(espar->Param.iParam==1?L"1 (Dec)":(espar->Param.iParam==2?L"2 (Hex)":L"?????")))));
             SetCharCodeBase(espar->Param.iParam);
             break;
           /* $ 07.08.2001 IS сменить кодировку из плагина */
@@ -5972,12 +5972,12 @@ int Editor::EditorControl(int Command,void *Param)
           }
           /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
           case ESPT_SAVEFILEPOSITION:
-            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?"On":"Off"));
+            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             SetSavePosMode(espar->Param.iParam, -1);
             break;
           /* $ 23.03.2002 IS запретить/отменить изменение файла */
           case ESPT_LOCKMODE:
-            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?"On":"Off"));
+            _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             Flags.Change(FEDITOR_LOCKMODE, espar->Param.iParam);
             break;
           default:

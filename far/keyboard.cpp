@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "farqueue.hpp"
 #include "fn.hpp"
-
 #include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"

@@ -34,14 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "fn.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "treelist.hpp"
 #include "ctrlobj.hpp"
-
 #include "udlist.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
