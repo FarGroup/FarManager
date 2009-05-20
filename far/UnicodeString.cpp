@@ -36,13 +36,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fn.hpp"
 
-//для оптимизации создания пустых UnicodeString
-static UnicodeStringData EmptyUnicodeStringData(1,1);
+
+UnicodeStringData *eus()
+{
+	//для оптимизации создания пустых UnicodeString
+	static UnicodeStringData *EmptyUnicodeStringData = new UnicodeStringData(1,1);
+	return EmptyUnicodeStringData;
+}
 
 UnicodeString::UnicodeString()
 {
-	m_pData = &EmptyUnicodeStringData;
-	EmptyUnicodeStringData.AddRef();
+	m_pData = eus();
+	m_pData->AddRef();
 }
 
 void UnicodeString::Inflate(size_t nSize)
