@@ -635,8 +635,7 @@ the main help file, that is actual for the current FAR Manager version.
    "UseAppPath":REG_DWORD
    When executing the contents of the command line, FAR  searches  for  the
    executable in the  following  sequence  (sequentially  substituting  all
-   extensions listed in the environment variable %PATHEXT%,  starting  with
-   the extensions ".BAT;.CMD;.EXE;.COM;"):
+   extensions listed in the environment variable %PATHEXT%):
    1. The current directory
    2. The directories that are listed in the PATH environment variable
    3. Windows 95/98/Me: The Windows system directory.
