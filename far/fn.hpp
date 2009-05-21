@@ -440,7 +440,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
-BOOL IsBatchExtType(const wchar_t *ExtPtr);
+bool IsBatchExtType(const wchar_t *ExtPtr);
 
 int WINAPI GetSearchReplaceString (
          int IsReplaceMode,

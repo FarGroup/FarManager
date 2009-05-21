@@ -59,112 +59,109 @@ static const wchar_t strSystemExecutor[]=L"System\\Executor";
 // При выходе из процедуры IMAGE_SUBSYTEM_UNKNOWN означает
 // "файл не является исполняемым".
 // Для DOS-приложений определим еще одно значение флага.
-#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE  255
 
-static int IsCommandPEExeGUI(const wchar_t *FileName,DWORD& ImageSubsystem)
+//#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE  255
+
+struct IMAGE_HEADERS
 {
-  //_SVS(CleverSysLog clvrSLog(L"IsCommandPEExeGUI()"));
-  //_SVS(SysLog(L"Param: FileName='%s'",FileName));
-  HANDLE hFile;
-  int Ret=FALSE;
-  ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+	DWORD Signature;
+	IMAGE_FILE_HEADER FileHeader;
+	union
+	{
+		IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
+		IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
+	};
+};
 
-  if((hFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0)) != INVALID_HANDLE_VALUE)
-  {
-    DWORD ReadSize;
-    IMAGE_DOS_HEADER dos_head;
+static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
+{
+	bool Result=false;
+	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
+	HANDLE hModuleFile=apiCreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0);
+	if(hModuleFile!=INVALID_HANDLE_VALUE)
+	{
+		IMAGE_DOS_HEADER DOSHeader;
+		DWORD ReadSize;
+		if(ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,NULL))
+		{
+			if(DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
+			{
+				//ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
+				Result=true;
+				if(apiSetFilePointerEx(hModuleFile,DOSHeader.e_lfanew,NULL,FILE_BEGIN))
+				{
+					IMAGE_HEADERS PEHeader;
+					if(ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,NULL))
+					{
+						if(PEHeader.Signature==IMAGE_NT_SIGNATURE)
+						{
+							switch(PEHeader.OptionalHeader32.Magic)
+							{
+							case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+								{
+									ImageSubsystem=PEHeader.OptionalHeader32.Subsystem;
+								}
+								break;
+							case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+								{
+									ImageSubsystem=PEHeader.OptionalHeader64.Subsystem;
+								}
+								break;
+							/*default:
+								{
+									// unknown magic
+								}*/
+							}
+						}
+						else if((WORD)PEHeader.Signature==IMAGE_OS2_SIGNATURE)
+						{
+							/*
+							NE,  хмм...  а как определить что оно ГУЕВОЕ?
 
-    BOOL RetReadFile=ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL);
-
-    if(RetReadFile && dos_head.e_magic == IMAGE_DOS_SIGNATURE)
-    {
-      Ret=TRUE;
-      ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
-      /*  Если значение слова по смещению 18h (OldEXE - MZ) >= 40h,
-      то значение слова в 3Ch является смещением заголовка Windows. */
-      /* 31.07.2003 VVM
-        ! Перерыл весь MSDN - этого условия не нашел */
-//      if (dos_head.e_lfarlc >= 0x40)
-      {
-        DWORD signature;
-        #include <pshpack1.h>
-        struct __HDR
-        {
-           DWORD signature;
-           IMAGE_FILE_HEADER _head;
-           union
-           {
-             IMAGE_OPTIONAL_HEADER32 opt_head32;
-             IMAGE_OPTIONAL_HEADER64 opt_head64;
-           };
-           // IMAGE_SECTION_HEADER section_header[];  /* actual number in NumberOfSections */
-        } header, *pheader;
-        #include <poppack.h>
-
-				if(apiSetFilePointerEx(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN))
-        {
-          // читаем очередной заголовок
-          if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
-          {
-            signature=header.signature;
-            pheader=&header;
-
-            if(signature == IMAGE_NT_SIGNATURE) // PE
-            {
-               if (header.opt_head32.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
-                 ImageSubsystem = header.opt_head64.Subsystem;
-               else
-                 ImageSubsystem = header.opt_head32.Subsystem;
-            }
-//            {
-//              IsPEGUI=1;
-//              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;
-//            }
-            else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
-            {
-              /*
-                 NE,  хмм...  а как определить что оно ГУЕВОЕ?
-
-                 Andrzej Novosiolov <andrzej@se.kiev.ua>
-                 AN> ориентироваться по флагу "Target operating system" NE-заголовка
-                 AN> (1 байт по смещению 0x36). Если там Windows (значения 2, 4) - подразумеваем
-                 AN> GUI, если OS/2 и прочая экзотика (остальные значения) - подразумеваем консоль.
-              */
-              BYTE ne_exetyp=((IMAGE_OS2_HEADER *)pheader)->ne_exetyp;
-              if(ne_exetyp == 2 || ne_exetyp == 4)
-                ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_GUI;
-            }
-          }
-          else
-          {
-            ; // обломс вышел с чтением следующего заголовка ;-(
-          }
-        }
-        else
-        {
-          ; // видимо улетиели куда нить в трубу, т.к. dos_head.e_lfanew
-            // указал слишком в неправдоподное место (например это чистой
-            // воды DOS-файл
-        }
-      }
-/*      else
-      {
-        ; // Это конечно EXE, но не виндовое EXE
-      }
-*/
-    }
-    else
-    {
-      if(!RetReadFile)
-        ; // ошибка чтения
-      else
-        ; // это не исполняемый файл - у него нету заголовка MZ, например, NLM-модуль
-        // TODO: здесь можно разбирать POSIX нотацию, например "/usr/bin/sh"
-    }
-    CloseHandle(hFile);
-  }
-
-  return Ret;
+							Andrzej Novosiolov <andrzej@se.kiev.ua>
+							AN> ориентироваться по флагу "Target operating system" NE-заголовка
+							AN> (1 байт по смещению 0x36). Если там Windows (значения 2, 4) - подразумеваем
+							AN> GUI, если OS/2 и прочая экзотика (остальные значения) - подразумеваем консоль.
+							*/
+							BYTE ne_exetyp=reinterpret_cast<PIMAGE_OS2_HEADER>(&PEHeader)->ne_exetyp;
+							if(ne_exetyp==2||ne_exetyp==4)
+							{
+								ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_GUI;
+							}
+						}
+						/*else
+						{
+							// unknown signature
+						}*/
+					}
+					/*else
+					{
+						// обломс вышел с чтением следующего заголовка ;-(
+					}*/
+				}
+				/*else
+				{
+					// видимо улетели куда нить в трубу, т.к. dos_head.e_lfanew указал
+					// слишком в неправдоподное место (например это чистой воды DOS-файл)
+				}*/
+			}
+			/*else
+			{
+				// это не исполняемый файл - у него нету заголовка MZ, например, NLM-модуль
+				// TODO: здесь можно разбирать POSIX нотацию, например "/usr/bin/sh"
+			}*/
+		}
+		/*else
+		{
+			// ошибка чтения
+		}*/
+		CloseHandle(hModuleFile);
+	}
+	/*else
+	{
+		// ошибка открытия
+	}*/
+	return Result;
 }
 
 bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
@@ -374,7 +371,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
         strNewValue.ReleaseBuffer ();
 
-        IsCommandPEExeGUI(strNewValue,ImageSubsystem);
+				GetImageSubsystem(strNewValue,ImageSubsystem);
       }
       else
       {
@@ -388,249 +385,173 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 }
 
 /*
- Фунция PrepareExecuteModule пытается найти исполняемый модуль (в т.ч. и по
- %PATHEXT%). В случае успеха заменяет в Command порцию, ответственную за
- исполянемый модуль на найденное значение, копирует результат в Dest и
- пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
- в отдельном окне и не ждать завершения).
- В случае неудачи Dest не заполняется!
- Return: TRUE/FALSE - нашли/не нашли
+Фунция FindModule пытается найти исполняемый модуль (в т.ч. и по
+%PATHEXT%). В случае успеха заменяет в Module порцию, ответственную за
+исполянемый модуль на найденное значение, копирует результат в strDest и
+пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
+в отдельном окне и не ждать завершения).
+В случае неудачи strDest не заполняется!
+Return: true/false - нашли/не нашли
+Команда в функцию передается уже разкавыченная. Ничего не меняем.
+И подменять ничего не надо, т.к. все параметры мы отсекли раньше
 */
-/* $ 14.06.2002 VVM
- Команда в функцию передается уже разкавыченная. Ничего не меняем.
- И подменять ничего не надо, т.к. все параметры мы отсекли раньше
-*/
-int WINAPI PrepareExecuteModule(const wchar_t *Command, string &strDest,DWORD& ImageSubsystem)
+
+bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem)
 {
-  int Ret;
-  wchar_t *Ptr;
-
-  string strCommand = Command;
-
-  string strFileName;
-  string strFullName;
-
-  // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
-  static wchar_t StdExecuteExt[NM]=L".BAT;.CMD;.EXE;.COM;";
-  static const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-  static int PreparePrepareExt=FALSE;
-
-  if(!PreparePrepareExt) // самоинициилизирующийся кусок
-  {
-    // если переменная %PATHEXT% доступна...
-    if(apiGetEnvironmentVariable(L"PATHEXT",strFullName) != 0)
-    {
-      static wchar_t const * const StdExecuteExt0[4]={L".BAT;",L".CMD;",L".EXE;",L".COM;"};
-			for(size_t I=0; I < countof(StdExecuteExt0); ++I)
-        ReplaceStrings(strFullName,StdExecuteExt0[I],L"",-1);
-    }
-
-    strFullName += ";";
-
-    Ptr=wcscat(StdExecuteExt, strFullName);  //BUGBUG
-    StdExecuteExt[StrLength(StdExecuteExt)]=0;
-    while(*Ptr)
-    {
-      if(*Ptr == L';')
-        *Ptr=0;
-      ++Ptr;
-    }
-    PreparePrepareExt=TRUE;
-  }
-
-  /* Берем "исключения" из реестра, которые должны исполянться директом,
-     например, некоторые внутренние команды ком.процессора.
-  */
-  static wchar_t ExcludeCmds[4096]={0};
-  static int PrepareExcludeCmds=FALSE;
-  if(GetRegKey(strSystemExecutor,L"Type",0))
-  {
-    if (!PrepareExcludeCmds)
-    {
-      GetRegKey(strSystemExecutor,L"ExcludeCmds",(PBYTE)ExcludeCmds,(PBYTE)L"",sizeof(ExcludeCmds));
-      Ptr=wcscat(ExcludeCmds,L";"); //!!!
-      ExcludeCmds[StrLength(ExcludeCmds)]=0;
-      while(*Ptr)
-      {
-        if(*Ptr == L';')
-          *Ptr=0;
-        ++Ptr;
-      }
-      PrepareExcludeCmds=TRUE;
-    }
-  }
-  else
-  {
-    *ExcludeCmds=0;
-    PrepareExcludeCmds=FALSE;
-  }
-
-  ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN; // GUIType всегда вначале инициализируется в FALSE
-  Ret=FALSE;
-
-  if( strCommand.IsEmpty() ) // вот же, надо же... пустышку передали :-(
-    return 0;
-
-  strFileName = strCommand;
-
-  // нулевой проход - смотрим исключения
-  {
-    wchar_t *Ptr=ExcludeCmds;
-    while(*Ptr)
-    {
-      if(!StrCmpI(strFileName,Ptr))
-      {
-        ImageSubsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
-        return TRUE;
-      }
-      Ptr+=StrLength(Ptr)+1;
-    }
-  }
-
-
-  {
-    wchar_t *lpwszFilePart;
-
-    strFullName = strFileName;
-
-    const wchar_t *PtrFName = PointToName(strFullName);
-    PtrFName = wcsrchr (PtrFName, L'.');
-
-    string strWorkName;
-
-    wchar_t *PtrExt=StdExecuteExt;
-    while(*PtrExt) // первый проход - в текущем каталоге
-    {
-      strWorkName = strFullName;
-
-      if (!PtrFName)
-        strWorkName += PtrExt;
-
-			DWORD dwFileAttr = apiGetFileAttributes(strWorkName);
-			if ((dwFileAttr != INVALID_FILE_ATTRIBUTES) && !(dwFileAttr & FILE_ATTRIBUTE_DIRECTORY))
-      {
-        ConvertNameToFull (strWorkName, strFullName);
-        Ret=TRUE;
-        break;
-      }
-      PtrExt+=StrLength(PtrExt)+1;
-    }
-
-    if(!Ret) // второй проход - по правилам SearchPath
-    {
-      string strPathEnv;
-      if (apiGetEnvironmentVariable(L"PATH",strPathEnv) != 0)
-      {
-        PtrExt=StdExecuteExt;
-
-        DWORD dwSize = 0;
-
-        while(*PtrExt)
-        {
-          if ( (dwSize = SearchPathW (strPathEnv, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
-          {
-            wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
-
-						SearchPathW(strPathEnv,string(lpwszFullName),PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
-
-            strFullName.ReleaseBuffer ();
-
-            Ret=TRUE;
-            break;
-          }
-
-          PtrExt+=StrLength(PtrExt)+1;
-        }
-      }
-
-      DWORD dwSize;
-
-      if (!Ret)
-      {
-        PtrExt=StdExecuteExt;
-        while(*PtrExt)
-        {
-          if ( (dwSize = SearchPathW (NULL, strFullName, PtrExt, 0, NULL, NULL)) != 0 )
-          {
-            wchar_t *lpwszFullName = strFullName.GetBuffer (dwSize);
-
-						SearchPathW(NULL,string(lpwszFullName),PtrExt,dwSize,lpwszFullName,&lpwszFilePart);
-
-            strFullName.ReleaseBuffer ();
-
-            Ret=TRUE;
-            break;
-          }
-
-          PtrExt+=StrLength(PtrExt)+1;
-        }
-      }
-
-      if (!Ret && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
-      {
-        // В строке Command заменть исполняемый модуль на полный путь, который
-        // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-        // Сначала смотрим в HKCU, затем - в HKLM
-        HKEY hKey;
-        HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
-
-        strFullName = RegPath+strFileName;
-
-				for (size_t I=0; I < countof(RootFindKey); ++I)
-        {
-          if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-          {
-            RegQueryStringValueEx(hKey, L"", strFullName, L"");
-
-            RegCloseKey(hKey);
-            /* $ 03.10.2001 VVM Обработать переменные окружения */
-            strFileName = strFullName;
-            apiExpandEnvironmentStrings(strFileName, strFullName);
-            Unquote(strFullName);
-            Ret=TRUE;
-            break;
-          }
-        }
-
-        if (!Ret && Opt.ExecuteUseAppPath)
-        {
-          PtrExt=StdExecuteExt;
-
-          while(*PtrExt && !Ret)
-          {
-            strFullName = RegPath+strFileName+PtrExt;
-
-						for(size_t I=0; I < countof(RootFindKey); ++I)
-            {
-              if (RegOpenKeyExW(RootFindKey[I], strFullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-              {
-                RegQueryStringValueEx(hKey, L"", strFullName, L"");
-
-                RegCloseKey(hKey);
-                /* $ 03.10.2001 VVM Обработать переменные окружения */
-                strFileName = strFullName;
-                apiExpandEnvironmentStrings(strFileName, strFullName);
-                Unquote(strFullName);
-                Ret=TRUE;
-                break;
-              }
-            } /* for */
-            PtrExt+=StrLength(PtrExt)+1;
-          }
-        } /* if */
-      } /* if */
-    }
-  }
-
-  if(Ret) // некоторые "подмены" данных
-  {
-    IsCommandPEExeGUI(strFullName,ImageSubsystem);
-
-    strDest = strFullName;
-  }
-
-  return(Ret);
+	bool Result=false;
+	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+	if(Module&&*Module)
+	{
+		// нулевой проход - смотрим исключения
+		// Берем "исключения" из реестра, которые должны исполняться директом,
+		// например, некоторые внутренние команды ком. процессора.
+		if(GetRegKey(strSystemExecutor,L"Type",0))
+		{
+			string strExcludeCmds;
+			GetRegKey(strSystemExecutor,L"ExcludeCmds",strExcludeCmds,L"");
+			UserDefinedList ExcludeCmdsList;
+			ExcludeCmdsList.Set(strExcludeCmds);
+			while(!ExcludeCmdsList.IsEmpty())
+			{
+				if(!StrCmpI(Module,ExcludeCmdsList.GetNext()))
+				{
+					ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
+					Result=true;
+					break;
+				}
+			}
+		}
+		if(!Result)
+		{
+			string strFullName=Module;
+			LPCWSTR ModuleExt=wcsrchr(Module,L'.');
+			string strPathExt=L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH";
+			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
+			UserDefinedList PathExtList;
+			PathExtList.Set(strPathExt);
+			PathExtList.Reset();
+			while(!PathExtList.IsEmpty()) // первый проход - в текущем каталоге
+			{
+				LPCWSTR Ext=PathExtList.GetNext();
+				string strTmpName=strFullName;
+				if(!ModuleExt)
+				{
+					strTmpName+=Ext;
+				}
+				DWORD Attr=apiGetFileAttributes(strTmpName);
+				if((Attr!=INVALID_FILE_ATTRIBUTES)&&!(Attr&FILE_ATTRIBUTE_DIRECTORY))
+				{
+					ConvertNameToFull(strTmpName,strFullName);
+					Result=true;
+					break;
+				}
+				if(ModuleExt)
+				{
+					break;
+				}
+			}
+			if(!Result) // второй проход - по правилам SearchPath
+			{
+				string strPathEnv;
+				if(apiGetEnvironmentVariable(L"PATH",strPathEnv))
+				{
+					PathExtList.Reset();
+					while(!PathExtList.IsEmpty())
+					{
+						LPCWSTR Ext=PathExtList.GetNext();
+						DWORD dwSize=SearchPathW(strPathEnv,strFullName,Ext,0,NULL,NULL);
+						if(dwSize)
+						{
+							wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
+							SearchPathW(strPathEnv,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
+							strFullName.ReleaseBuffer();
+							Result=true;
+							break;
+						}
+					}
+				}
+				if(!Result)
+				{
+					PathExtList.Reset();
+					while(!PathExtList.IsEmpty())
+					{
+						LPCWSTR Ext=PathExtList.GetNext();
+						DWORD dwSize=SearchPathW(NULL,strFullName,Ext,0,NULL,NULL);
+						if(dwSize)
+						{
+							wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
+							SearchPathW(NULL,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
+							strFullName.ReleaseBuffer();
+							Result=true;
+							break;
+						}
+					}
+				}
+				if(!Result && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
+				{
+					LPCWSTR RegPath=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+					// В строке Module заменть исполняемый модуль на полный путь, который
+					// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+					// Сначала смотрим в HKCU, затем - в HKLM
+					HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
+					strFullName=RegPath;
+					strFullName+=Module;
+					for(size_t i=0;i<countof(RootFindKey);i++)
+					{
+						HKEY hKey;
+						if (RegOpenKeyExW(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+						{
+							int RegResult=RegQueryStringValueEx(hKey,L"",strFullName,L"");
+							RegCloseKey(hKey);
+							if(RegResult==ERROR_SUCCESS)
+							{
+								apiExpandEnvironmentStrings(strFullName,strFullName);
+								Unquote(strFullName);
+								Result=true;
+								break;
+							}
+						}
+					}
+					if(!Result)
+					{
+						PathExtList.Reset();
+						while(!PathExtList.IsEmpty()&&!Result)
+						{
+							LPCWSTR Ext=PathExtList.GetNext();
+							strFullName=RegPath;
+							strFullName+=Module;
+							strFullName+=Ext;
+							for(size_t i=0;i<countof(RootFindKey);i++)
+							{
+								HKEY hKey;
+								if(RegOpenKeyExW(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+								{
+									int RegResult=RegQueryStringValueEx(hKey,L"",strFullName,L"");
+									RegCloseKey(hKey);
+									if(RegResult==ERROR_SUCCESS)
+									{
+										apiExpandEnvironmentStrings(strFullName,strFullName);
+										Unquote(strFullName);
+										Result=true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(Result) // некоторые "подмены" данных
+			{
+				GetImageSubsystem(strFullName,ImageSubsystem);
+				strDest=strFullName;
+			}
+		}
+	}
+	return Result;
 }
+
+
 
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
@@ -719,7 +640,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
   else
   {
-    PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
+		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 
     if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
     {
@@ -1568,17 +1489,17 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 }
 
 // Проверить "Это батник?"
-BOOL IsBatchExtType(const wchar_t *ExtPtr)
+bool IsBatchExtType(const wchar_t *ExtPtr)
 {
-	string strExecuteBatchType(Opt.strExecuteBatchType);
-	wchar_t *token = wcstok(strExecuteBatchType.GetBuffer(), L";");
-
-	while(token)
+	bool Result=false;
+	UserDefinedList BatchExtList;
+	BatchExtList.Set(Opt.strExecuteBatchType);
+	while(!Result&&!BatchExtList.IsEmpty())
 	{
-		if(StrCmpI(ExtPtr,token)==0)
-			return TRUE;
-		token = wcstok(NULL, L";");
+		if(!StrCmpI(ExtPtr,BatchExtList.GetNext()))
+		{
+			Result=true;
+		}
 	}
-
-	return FALSE;
+	return Result;
 }

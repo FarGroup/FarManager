@@ -669,8 +669,7 @@ external command, operable program or batch file.
 
     When executing the contents of the command line, FAR searches for the
 executable in the following sequence (sequentially substituting all extensions
-listed in the environment variable %PATHEXT%, starting with the extensions
-".BAT;.CMD;.EXE;.COM;"):
+listed in the environment variable %PATHEXT%):
 
   1. The current directory
   2. The directories that are listed in the PATH environment variable
