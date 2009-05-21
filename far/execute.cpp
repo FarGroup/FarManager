@@ -433,25 +433,15 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   // int IsQuoted=FALSE;
   // int IsExistExt=FALSE;
 
-  // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
-  static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
+  char StdExecuteExt[NM]=".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH";
   static const char RegPath[]="SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
   static int PreparePrepareExt=FALSE;
 
   if(!PreparePrepareExt) // самоинициилизирующийся кусок
   {
-    // если переменная %PATHEXT% доступна...
-    if((I=GetEnvironmentVariable("PATHEXT",FullName,sizeof(FullName)-1)) != 0)
-    {
-      FullName[I]=0;
-      // удаляем дубляжи из PATHEXT
-      static char const * const StdExecuteExt0[4]={".BAT;",".CMD;",".EXE;",".COM;"};
-      for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
-        ReplaceStrings(FullName,StdExecuteExt0[I],"",-1);
-    }
+    GetEnvironmentVariable("PATHEXT",StdExecuteExt,sizeof(StdExecuteExt)-1);
 
-    Ptr=strcat(StdExecuteExt,strcat(FullName,";")); //!!!
-    StdExecuteExt[strlen(StdExecuteExt)]=0;
+    Ptr=strcat(StdExecuteExt,";");
     while(*Ptr)
     {
       if(*Ptr == ';')
