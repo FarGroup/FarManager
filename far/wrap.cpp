@@ -100,30 +100,33 @@ wchar_t *AnsiToUnicode(const char *lpszAnsiString)
 char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 {
 	/* $ 06.01.2008 TS
-	   ! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
-	   	 работы старых плагинов, которые не знали, что надо смотреть на длину,
-	   	 а не на завершающий ноль (например в EditorGetString.StringText).
+		! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
+			работы старых плагинов, которые не знали, что надо смотреть на длину,
+			а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
 
-  if ( !lpwszUnicodeString || (nLength < 0) )
-    return NULL;
+	if ( !lpwszUnicodeString || (nLength < 0) )
+		return NULL;
 
-  char *lpResult = (char*)xf_malloc (nLength+1);
+	char *lpResult = (char*)xf_malloc (nLength+1);
 
-  memset (lpResult, 0, nLength+1);
+	memset (lpResult, 0, nLength+1);
 
-  WideCharToMultiByte (
-          CP_OEMCP,
-          0,
-          lpwszUnicodeString,
-          nLength,
-          lpResult,
-          nLength,
-          NULL,
-          NULL
-          );
+	if (nLength)
+	{
+		WideCharToMultiByte (
+					CP_OEMCP,
+					0,
+					lpwszUnicodeString,
+					nLength,
+					lpResult,
+					nLength,
+					NULL,
+					NULL
+					);
+	}
 
-  return lpResult;
+	return lpResult;
 }
 
 char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
