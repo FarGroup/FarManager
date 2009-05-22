@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "manager.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "frame.hpp"
@@ -47,6 +46,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "grabber.hpp"
+#include "iswind.hpp"
+#include "message.hpp"
 
 Manager *FrameManager;
 

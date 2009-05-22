@@ -63,6 +63,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "cddrv.hpp"
 #include "TaskBar.hpp"
+#include "interf.hpp"
+#include "palette.hpp"
+#include "message.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74

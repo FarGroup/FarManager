@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "frame.hpp"
 #include "macroopcode.hpp"
+#include "keyboard.hpp"
+#include "iswind.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT)             || \

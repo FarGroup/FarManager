@@ -39,6 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
 
 Modal::Modal()
 {

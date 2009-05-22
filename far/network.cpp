@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "lang.hpp"
 #include "registry.hpp"
+#include "message.hpp"
 
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {

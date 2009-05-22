@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "registry.hpp"
-#include "fn.hpp"
+#include "iswind.hpp"
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,

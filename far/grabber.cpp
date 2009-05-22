@@ -43,8 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "frame.hpp"
-
-extern WCHAR Oem2Unicode[];
+#include "interf.hpp"
+#include "clipboard.hpp"
 
 Grabber::Grabber()
 {
@@ -429,16 +429,18 @@ void Grabber::Reset()
   //DisplayObject();
 }
 
-BOOL RunGraber(void)
+bool RunGraber()
 {
+	static bool InGrabber=false;
+
   if (!InGrabber)
   {
-    InGrabber=TRUE;
+    InGrabber=true;
     WaitInMainLoop=FALSE;
     FlushInputBuffer();
     Grabber Grabber;
-    InGrabber=FALSE;
-    return TRUE;
+    InGrabber=false;
+    return true;
   }
-  return FALSE;
+  return false;
 }

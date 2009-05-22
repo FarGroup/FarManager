@@ -33,24 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// типы рамок
-enum {
-  NO_BOX,
-  SINGLE_BOX,
-  SHORT_SINGLE_BOX,
-  DOUBLE_BOX,
-  SHORT_DOUBLE_BOX
-};
-
-enum {
-  MSG_WARNING        =0x00000001,
-  MSG_ERRORTYPE      =0x00000002,
-  MSG_KEEPBACKGROUND =0x00000004,
-  MSG_DOWN           =0x00000008,
-  MSG_LEFTALIGN      =0x00000010,
-  MSG_KILLSAVESCREEN =0x00000020,
-};
-
 // Работа с ассоциациями файлов
 enum {
   FILETYPE_EXEC,       // Enter
@@ -181,58 +163,6 @@ enum SETATTR_RET_CODES
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
-
-enum BOX_DEF_SYMBOLS
-{
-	BS_X_B0,          // 0xB0
-	BS_X_B1,          // 0xB1
-	BS_X_B2,          // 0xB2
-	BS_V1,            // 0xB3
-	BS_R_H1V1,        // 0xB4
-	BS_R_H2V1,        // 0xB5
-	BS_R_H1V2,        // 0xB6
-	BS_RT_H1V2,       // 0xB7
-	BS_RT_H2V1,       // 0xB8
-	BS_R_H2V2,        // 0xB9
-	BS_V2,            // 0xBA
-	BS_RT_H2V2,       // 0xBB
-	BS_RB_H2V2,       // 0xBC
-	BS_RB_H1V2,       // 0xBD
-	BS_RB_H2V1,       // 0xBE
-	BS_RT_H1V1,       // 0xBF
-	BS_LB_H1V1,       // 0xС0
-	BS_B_H1V1,        // 0xС1
-	BS_T_H1V1,        // 0xС2
-	BS_L_H1V1,        // 0xС3
-	BS_H1,            // 0xС4
-	BS_C_H1V1,        // 0xС5
-	BS_L_H2V1,        // 0xС6
-	BS_L_H1V2,        // 0xС7
-	BS_LB_H2V2,       // 0xС8
-	BS_LT_H2V2,       // 0xС9
-	BS_B_H2V2,        // 0xСA
-	BS_T_H2V2,        // 0xСB
-	BS_L_H2V2,        // 0xСC
-	BS_H2,            // 0xСD
-	BS_C_H2V2,        // 0xСE
-	BS_B_H2V1,        // 0xСF
-	BS_B_H1V2,        // 0xD0
-	BS_T_H2V1,        // 0xD1
-	BS_T_H1V2,        // 0xD2
-	BS_LB_H1V2,       // 0xD3
-	BS_LB_H2V1,       // 0xD4
-	BS_LT_H2V1,       // 0xD5
-	BS_LT_H1V2,       // 0xD6
-	BS_C_H1V2,        // 0xD7
-	BS_C_H2V1,        // 0xD8
-	BS_RB_H1V1,       // 0xD9
-	BS_LT_H1V1,       // 0xDA
-	BS_X_DB,          // 0xDB
-	BS_X_DC,          // 0xDC
-	BS_X_DD,          // 0xDD
-	BS_X_DE,          // 0xDE
-	BS_X_DF,          // 0xDF
-};
 
 enum SetCPFlags
 {

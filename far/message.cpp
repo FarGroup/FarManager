@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "message.hpp"
 #include "ctrlobj.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
@@ -42,12 +42,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "keys.hpp"
 #include "TaskBar.hpp"
+#include "interf.hpp"
+#include "palette.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;
 static int FirstButtonIndex,LastButtonIndex;
 static BOOL IsWarningStyle;
-
 
 
 int Message(DWORD Flags,int Buttons,const wchar_t *Title,const wchar_t *Str1,

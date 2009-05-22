@@ -62,6 +62,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "plugins.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "grabber.hpp"
+#include "iswind.hpp"
+#include "message.hpp"
+#include "clipboard.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -660,12 +665,12 @@ int KeyMacro::ProcessKey(int Key)
       DWORD CurFlags;
       if((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
       {
-//        Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+//        Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
         //_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
 
         if((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
-          Key=LocalKeyToKey(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+          Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
       }
 
       int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
@@ -4113,7 +4118,7 @@ M1:
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFFFF)
-      Param2=LocalKeyToKey((int)(Param2&0x0000FFFF))|(DWORD)(Param2&(~0x0000FFFF));
+      Param2=KeyToKeyLayout((int)(Param2&0x0000FFFF))|(DWORD)(Param2&(~0x0000FFFF));
 
     //косметика
 		if(Param2<0xFFFF)

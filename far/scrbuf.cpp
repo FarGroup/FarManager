@@ -35,10 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "scrbuf.hpp"
-#include "fn.hpp"
 #include "colors.hpp"
 #include "ctrlobj.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "palette.hpp"
 
 enum{
   SBFLAGS_FLUSHED         = 0x00000001,
@@ -55,8 +56,6 @@ enum{
 #ifdef DIRECT_RT
 extern int DirectRT;
 #endif
-
-extern WCHAR Oem2Unicode[];
 
 ScreenBuf ScrBuf;
 

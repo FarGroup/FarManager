@@ -11,11 +11,13 @@ chgmmode.hpp
 chgprior.cpp
 chgprior.hpp
 clipboard.cpp
+clipboard.hpp
 cmdline.cpp
 cmdline.hpp
 cmem.cpp
 colors.hpp
 config.cpp
+config.hpp
 constitle.cpp
 constitle.hpp
 copy.cpp
@@ -37,6 +39,7 @@ edit.hpp
 editor.cpp
 editor.hpp
 eject.cpp
+eject.hpp
 execute.cpp
 farconst.hpp
 farexcpt.cpp
@@ -100,12 +103,15 @@ history.hpp
 hmenu.cpp
 hmenu.hpp
 hotplug.cpp
+hotplug.hpp
 imports.cpp
 imports.hpp
 infolist.cpp
 infolist.hpp
 interf.cpp
+interf.hpp
 iswind.cpp
+iswind.hpp
 keybar.cpp
 keybar.hpp
 keyboard.cpp
@@ -129,6 +135,7 @@ manager.hpp
 menubar.cpp
 menubar.hpp
 message.cpp
+message.hpp
 mix.cpp
 mkdir.cpp
 modal.cpp
@@ -139,6 +146,7 @@ network.cpp
 network.hpp
 options.cpp
 palette.cpp
+palette.hpp
 panel.cpp
 panel.hpp
 plclass.hpp

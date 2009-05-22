@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "fn.hpp"
 #include "language.hpp"
+#include "interf.hpp"
 
 void MenuBar::DisplayObject()
 {

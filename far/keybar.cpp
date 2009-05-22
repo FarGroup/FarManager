@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "language.hpp"
+#include "interf.hpp"
+
 
 KeyBar::KeyBar()
 {

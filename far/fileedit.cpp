@@ -60,6 +60,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "gettable.hpp"
 #include "TaskBar.hpp"
+#include "interf.hpp"
+#include "message.hpp"
+#include "config.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,

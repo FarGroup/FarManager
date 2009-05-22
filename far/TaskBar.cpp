@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "TaskBar.hpp"
+#include "iswind.hpp"
 
 TaskBarCore TBC;
 

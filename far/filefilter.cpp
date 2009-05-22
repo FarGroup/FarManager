@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "array.hpp"
 #include "filelist.hpp"
 #include "registry.hpp"
+#include "message.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
 

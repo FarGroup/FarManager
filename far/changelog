@@ -1,3 +1,10 @@
+t-rex 22.05.2009 19:45:37 +0200 - build 930
+
+1. Продолжаем дивайдить и конкурить хидеры.
+
+2. По дороге было замечено что InitKeysArray() и KeyToKeyLayout() (бывший LocalKeyToKey) вообще не правильно
+   для 2.0 сделаны. Пометил как BUGBUG.
+
 svs 22.05.2009 14:03:57 +0300 - build 929
 
 1. Неправльно работала функция KeyNameToKey() для "полупрямых" клавишь вида ShiftShiftCtrlDown (ну или ShiftCtrlShiftDown)

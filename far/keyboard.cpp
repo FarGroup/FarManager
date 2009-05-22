@@ -51,6 +51,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "iswind.hpp"
+#include "registry.hpp"
+#include "message.hpp"
 
 /* start Глобальные переменные */
 
@@ -67,6 +71,7 @@ int ReturnAltValue=0;
 
 /* end Глобальные переменные */
 
+//static unsigned char KeyToKey[256]; BUGBUG InitKeysArray
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -299,6 +304,119 @@ static struct TFKey3 SpecKeyName[]={
 #endif
 
 /* ----------------------------------------------------------------- */
+
+/*
+   Инициализация массива клавиш.
+   Вызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
+   считает правильные данные.
+*/
+void InitKeysArray() //BUGBUG
+{
+// надо переделать функу для юникода, пока что KeyToKeyLayout отдаёт фигню из за этого
+#if 0
+  GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
+  int I;
+  HKL Layout[10];
+
+  int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
+
+	if (LayoutNumber==0)
+	{
+		HKEY hk=NULL;
+		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
+		{
+			DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
+			wchar_t SData[16], SValue[16];
+
+			for (dwIndex=0; dwIndex < (int)countof(Layout); dwIndex++)
+			{
+				dwValueSize=16;
+				dwDataSize=16*sizeof(wchar_t);
+
+				if (ERROR_SUCCESS==RegEnumValueW(hk, dwIndex, SValue, &dwValueSize, NULL, &dwType,(LPBYTE)SData, &dwDataSize))
+				{
+					if (dwType == REG_SZ && isdigit(SValue[0]) &&
+						(isdigit(SData[0]) || (SData[0] >= L'a' && SData[0] <= L'f') || (SData[0] >= L'A' && SData[0] <= L'F')))
+					{
+						wchar_t *endptr=NULL;
+						dwKeyb=wcstoul(SData, &endptr, 16); // SData=="00000419"
+
+						if (dwKeyb)
+						{
+							if (dwKeyb <= 0xFFFF)
+								dwKeyb |= (dwKeyb << 16);
+
+							Layout[LayoutNumber++] = (HKL)((DWORD_PTR)dwKeyb);
+						}
+					}
+				}
+				else
+					break;
+			}
+			RegCloseKey(hk);
+		}
+	}
+
+  if (LayoutNumber < (int)countof(Layout))
+  {
+    if(!Opt.HotkeyRules)
+    {
+      unsigned char CvtStr[2];
+      CvtStr[1]=0;
+      for (I=0;I<=255;I++)
+      {
+        int Keys[10];
+        memset(Keys,0,sizeof(Keys));
+        for (int J=0; J < LayoutNumber; J++)
+        {
+          int AnsiKey=MapVirtualKeyExA(I,2,Layout[J]) & 0xff;
+          if (AnsiKey==0)
+            continue;
+          CvtStr[0]=AnsiKey;
+          CvtStr[1]=0;
+          //CharToOemA((char *)CvtStr,(char *)CvtStr); //???
+          Keys[J]=CvtStr[0];
+        }
+        if (Keys[0]!=0 && Keys[1]!=0)
+        {
+          KeyToKey[LocalLower(Keys[0])]=LocalUpper(Keys[1]);
+          KeyToKey[LocalUpper(Keys[0])]=LocalUpper(Keys[1]);
+          KeyToKey[LocalLower(Keys[1])]=LocalUpper(Keys[0]);
+          KeyToKey[LocalUpper(Keys[1])]=LocalUpper(Keys[0]);
+        }
+      }
+    }
+    else
+    {
+      for (I=0;I<=255;I++)
+      {
+        for (int J=0;J<LayoutNumber;J++)
+        {
+          DWORD AnsiKey=VkKeyScanExA(I,Layout[J])&0xFF;
+          if (AnsiKey==0xFF)
+            continue;
+          DWORD MapKey=MapVirtualKeyA(AnsiKey,2);
+          KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
+          break;
+        }
+      }
+    }
+  }
+  _SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
+  unsigned char KeyToKeyMap[256];
+  if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
+    memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
+  //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
+#endif
+}
+
+int KeyToKeyLayout(int Key) //BUGBUG не работает как надо пока InitKeysArray не доделан
+{
+  _KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
+  _KEYMACRO(SysLog(L"Param: Key=%08X",Key));
+  //_SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
+  return Key&0x0000FFFF;
+}
 
 /*
   State:
@@ -1613,7 +1731,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 					if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
 					{
 						if(Chr > 0x7F)
-								Chr=LocalKeyToKey(Chr);
+								Chr=KeyToKeyLayout(Chr);
 						Chr=Upper(Chr);
 					}
 					Key|=Chr;

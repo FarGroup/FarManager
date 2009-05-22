@@ -60,6 +60,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nsUniversalDetectorEx.h"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {

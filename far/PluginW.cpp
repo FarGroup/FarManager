@@ -54,6 +54,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "PluginW.hpp"
 #include "registry.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
+#include "clipboard.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";

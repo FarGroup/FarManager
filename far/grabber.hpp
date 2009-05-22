@@ -63,5 +63,6 @@ class Grabber:Modal
     virtual ~Grabber();
 };
 
+bool RunGraber();
 
 #endif	// __GRABBER_HPP__

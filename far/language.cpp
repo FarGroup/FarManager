@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "vmenu.hpp"
 #include "manager.hpp"
+#include "message.hpp"
 
 extern wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType);
 

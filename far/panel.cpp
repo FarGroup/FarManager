@@ -60,6 +60,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "network.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "message.hpp"
+#include "hotplug.hpp"
+#include "eject.hpp"
+#include "clipboard.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

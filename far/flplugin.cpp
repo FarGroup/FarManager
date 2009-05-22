@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "ctrlobj.hpp"
 #include "syslog.hpp"
+#include "message.hpp"
 
 /*
    В стеке ФАРова панель не хранится - только плагиновые!

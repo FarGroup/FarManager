@@ -46,6 +46,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "savescr.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
+#include "config.hpp"
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,

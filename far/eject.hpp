@@ -1,10 +1,9 @@
-#ifndef __FileMasksWithExclude_HPP
-#define __FileMasksWithExclude_HPP
+#ifndef __EJECT_HPP__
+#define __EJECT_HPP__
 /*
-FileMasksWithExclude.hpp
+eject.hpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+Eject съемных носителей
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,32 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FileMasksProcessor.hpp"
+BOOL EjectVolume(wchar_t Letter,DWORD Flags);
+BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
 
-extern const wchar_t EXCLUDEMASKSEPARATOR;
-
-class FileMasksWithExclude:public BaseFileMask
-{
-private:
-	void Free();
-	static const wchar_t *FindExcludeChar(const wchar_t *masks);
-
-public:
-	FileMasksWithExclude();
-	virtual ~FileMasksWithExclude() {}
-
-public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
-	static bool IsExcludeMask(const wchar_t *masks);
-
-private:
-	FileMasksProcessor Include, Exclude;
-
-private:
-	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
-};
-
-#endif // __FileMasksWithExclude_HPP
+#endif // __EJECT_HPP__

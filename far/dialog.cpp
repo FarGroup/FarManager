@@ -53,6 +53,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "TaskBar.hpp"
+#include "interf.hpp"
+#include "palette.hpp"
+#include "message.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 
@@ -4468,10 +4471,10 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   int UpperStrKey=Upper ((int)Str[AmpPos]);
   if (Key < 0xFFFF)
   {
-    int KeyToKey=LocalKeyToKey(Key); // может возвращать 0 под telnet
+    int KeyToKey=KeyToKeyLayout(Key); // может возвращать 0 под telnet
     return UpperStrKey == (int)Upper(Key) ||
            (Translate && ((!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey)) ||
-           (Opt.HotkeyRules && KeyToKey && LocalKeyToKey(UpperStrKey)==KeyToKey)));
+           (Opt.HotkeyRules && KeyToKey && KeyToKeyLayout(UpperStrKey)==KeyToKey)));
   }
 
   if(Key&KEY_ALT)
@@ -4482,7 +4485,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
       if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
         return(AltKey==UpperStrKey);
 
-      int AltKeyToKey=LocalKeyToKey(AltKey);
+      int AltKeyToKey=KeyToKeyLayout(AltKey);
       if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
   //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
@@ -4490,7 +4493,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
       {
         return(UpperStrKey==(int)Upper(AltKey) ||
                (Translate && (!Opt.HotkeyRules && UpperStrKey==(int)Upper(AltKeyToKey))) ||
-                  (Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
+                  (Opt.HotkeyRules && KeyToKeyLayout(UpperStrKey)==AltKeyToKey));
       }
     }
   }

@@ -59,6 +59,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "palette.hpp"
+#include "iswind.hpp"
+#include "message.hpp"
+#include "eject.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {

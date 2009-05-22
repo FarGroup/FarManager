@@ -52,6 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "TaskBar.hpp"
+#include "interf.hpp"
+#include "message.hpp"
+#include "clipboard.hpp"
 
 static int ReplaceMode,ReplaceAll;
 

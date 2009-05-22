@@ -56,6 +56,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "localOEM.hpp"
 #include "plugapi.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
+#include "interf.hpp"
+#include "clipboard.hpp"
 
 #include "wrap.cpp"
 

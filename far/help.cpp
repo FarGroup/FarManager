@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "interf.hpp"
+#include "message.hpp"
 
 // Стек возврата
 class CallBackStack

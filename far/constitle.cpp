@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "constitle.hpp"
-#include "fn.hpp"
-
+#include "interf.hpp"
 
 ConsoleTitle::ConsoleTitle (const wchar_t *title)
 {

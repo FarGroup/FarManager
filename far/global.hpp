@@ -75,13 +75,6 @@ extern int CmpNameSearchMode;
 extern int DisablePluginsOutput;
 extern int CmdMode;
 
-extern unsigned char DefaultPalette[];
-extern unsigned char Palette[];
-extern unsigned char BlackPalette[];
-extern int SizeArrayPalette;
-
-extern HWND hFarWnd;
-
 extern const DWORD FAR_VERSION;
 
 extern wchar_t RegColorsHighlight[];
@@ -115,8 +108,6 @@ extern const wchar_t *FarTitleAddons;
 
 extern const wchar_t FAR_VerticalBlock[];
 extern const wchar_t FAR_VerticalBlock_Unicode[];
-
-extern int InGrabber;    // Мы сейчас в грабере?
 
 extern const wchar_t *HelpFileMask;
 extern const wchar_t *HelpFormatLinkModule;

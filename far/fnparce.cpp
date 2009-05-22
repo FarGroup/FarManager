@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "dialog.hpp"
 #include "lang.hpp"
-
+#include "message.hpp"
 
 struct TSubstDataW
 {

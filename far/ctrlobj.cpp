@@ -45,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "filepanels.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "config.hpp"
 
 ControlObject *CtrlObject;
 

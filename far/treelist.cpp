@@ -57,6 +57,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "message.hpp"
+#include "clipboard.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);

@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "registry.hpp"
+#include "interf.hpp"
 
 static int LastWrapMode = -1;
 static int LastWrapType = -1;

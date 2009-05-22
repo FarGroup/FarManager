@@ -58,4 +58,25 @@ extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int PreMouseEventFlags,MouseEventFlags;
 extern int ReturnAltValue;
 
+void InitKeysArray();
+int KeyToKeyLayout(int Key);
+
+// возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
+int IsMouseButtonPressed();
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
+int WINAPI KeyNameToKey(const wchar_t *Name);
+BOOL WINAPI KeyToText (int Key, string &strKeyText);
+int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
+DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
+DWORD PeekInputRecord(INPUT_RECORD *rec);
+DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
+DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
+int SetFLockState(UINT vkKey, int State);
+int WriteInput(int Key,DWORD Flags=0);
+int IsNavKey(DWORD Key);
+int IsShiftKey(DWORD Key);
+int CheckForEsc();
+int CheckForEscSilent();
+int ConfirmAbortOp();
+
 #endif //__KEYBOARD_HPP__

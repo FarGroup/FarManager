@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "cddrv.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;

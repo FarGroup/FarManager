@@ -39,10 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FileMasksWithExclude.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-
-const int EXCLUDEMASKSEPARATOR=0x7C; // '|'
-
-////////////////////////
+#include "message.hpp"
 
 CFileMask::CFileMask()
 {

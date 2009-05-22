@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "language.hpp"
 #include "dialog.hpp"
+#include "interf.hpp"
 
 // Стандартные кодовое страницы
 enum StandardCodePages

@@ -50,7 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rdrwdsk.hpp"
 #include "savescr.hpp"
 #include "scrbuf.hpp"
+#include "interf.hpp"
 #include "syslog.hpp"
+#include "config.hpp"
 
 CommandLine::CommandLine()
 {

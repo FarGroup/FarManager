@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "config.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
@@ -49,6 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "findfile.hpp"
 #include "hilight.hpp"
 #include "registry.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "palette.hpp"
+#include "message.hpp"
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";

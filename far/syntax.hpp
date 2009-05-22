@@ -1,3 +1,5 @@
+#ifndef __SYNTAX_HPP__
+#define __SYNTAX_HPP__
 /*
 syntax.hpp
 
@@ -43,9 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // и строковое значение)
 //---------------------------------------------------------------
 
-#ifndef __SYNTAX_H
-#define __SYNTAX_H
-
 //---------------------------------------------------------------
 // Парсер выражений
 //---------------------------------------------------------------
@@ -90,4 +89,8 @@ extern struct TMacroKeywords MKeywords[];
 extern int MKeywordsFlagsSize;
 extern struct TMacroKeywords MKeywordsFlags[];
 
-#endif
+int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
+BOOL __getMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
+int  __getMacroErrorCode(int *nErr=NULL);
+
+#endif // __SYNTAX_HPP__

@@ -34,11 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "colors.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
 
 static void ShowSaver(int Step);
 

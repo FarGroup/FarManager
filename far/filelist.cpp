@@ -60,6 +60,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CFileMask.hpp"
 #include "cddrv.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
+#include "message.hpp"
+#include "clipboard.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 

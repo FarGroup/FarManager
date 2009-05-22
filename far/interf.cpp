@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "farqueue.hpp"
+#include "interf.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "palette.hpp"
+#include "iswind.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 
@@ -53,7 +55,7 @@ static int CurX,CurY;
 static int CurColor;
 
 static int OutputCP;
-BYTE RecodeOutTable[256];
+static BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 static const char CONOUT[]="CONOUT$";
 static const char CONIN[]="CONIN$";

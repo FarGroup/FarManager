@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "dialog.hpp"
@@ -48,6 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "imports.hpp"
 #include "taskbar.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 

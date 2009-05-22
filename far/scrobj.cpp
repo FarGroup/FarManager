@@ -35,8 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "scrobj.hpp"
-#include "fn.hpp"
 #include "savescr.hpp"
+#include "interf.hpp"
 
 ScreenObject *ScreenObject::CaptureMouseObject=NULL;
 

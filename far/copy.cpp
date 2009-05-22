@@ -60,6 +60,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "palette.hpp"
+#include "iswind.hpp"
+#include "message.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;

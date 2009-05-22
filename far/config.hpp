@@ -1,10 +1,9 @@
-#ifndef __FileMasksWithExclude_HPP
-#define __FileMasksWithExclude_HPP
+#ifndef __CONFIG_HPP__
+#define __CONFIG_HPP__
 /*
-FileMasksWithExclude.hpp
+config.hpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+Конфигурация
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,32 +33,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FileMasksProcessor.hpp"
+void SystemSettings();
+void PanelSettings();
+void InterfaceSettings();
+void DialogSettings();
+void SetConfirmations();
+void SetDizConfig();
+void ViewerConfig(struct ViewerOptions &ViOpt,int Local=0);
+void EditorConfig(struct EditorOptions &EdOpt,int Local=0);
+void ReadConfig();
+void SaveConfig(int Ask);
+void SetFolderInfoFiles();
 
-extern const wchar_t EXCLUDEMASKSEPARATOR;
-
-class FileMasksWithExclude:public BaseFileMask
-{
-private:
-	void Free();
-	static const wchar_t *FindExcludeChar(const wchar_t *masks);
-
-public:
-	FileMasksWithExclude();
-	virtual ~FileMasksWithExclude() {}
-
-public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
-	static bool IsExcludeMask(const wchar_t *masks);
-
-private:
-	FileMasksProcessor Include, Exclude;
-
-private:
-	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
-};
-
-#endif // __FileMasksWithExclude_HPP
+#endif // __CONFIG_HPP__

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void LocalUpperInit();
 void InitLCIDSort();
-void InitKeysArray();
 
 inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
 inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }

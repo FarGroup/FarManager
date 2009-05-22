@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "registry.hpp"
+#include "palette.hpp"
+#include "message.hpp"
 
 struct HighlightStrings
 {

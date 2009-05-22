@@ -1,10 +1,9 @@
-#ifndef __FileMasksWithExclude_HPP
-#define __FileMasksWithExclude_HPP
+#ifndef __PALETTE_HPP__
+#define __PALETTE_HPP__
 /*
-FileMasksWithExclude.hpp
+palette.hpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+Таблица цветов
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,32 +33,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FileMasksProcessor.hpp"
+extern unsigned char DefaultPalette[];
+extern unsigned char Palette[];
+extern unsigned char BlackPalette[];
+extern int SizeArrayPalette;
 
-extern const wchar_t EXCLUDEMASKSEPARATOR;
+int FarColorToReal(int FarColor);
+void ConvertCurrentPalette();
 
-class FileMasksWithExclude:public BaseFileMask
-{
-private:
-	void Free();
-	static const wchar_t *FindExcludeChar(const wchar_t *masks);
-
-public:
-	FileMasksWithExclude();
-	virtual ~FileMasksWithExclude() {}
-
-public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
-	static bool IsExcludeMask(const wchar_t *masks);
-
-private:
-	FileMasksProcessor Include, Exclude;
-
-private:
-	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
-};
-
-#endif // __FileMasksWithExclude_HPP
+#endif // __PALETTE_HPP__

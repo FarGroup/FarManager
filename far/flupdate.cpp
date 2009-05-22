@@ -48,6 +48,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "message.hpp"
 
 // Флаги для ReadDiz()
 enum ReadDizFlags {

@@ -53,6 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "localOEM.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
+#include "iswind.hpp"
+#include "clipboard.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colors.hpp"
 #include "CFileMask.hpp"
+#include "FileMasksWithExclude.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -43,6 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "filelist.hpp"
 #include "filefilterparams.hpp"
+#include "palette.hpp"
+#include "message.hpp"
+#include "interf.hpp"
 
 FileFilterParams::FileFilterParams()
 {

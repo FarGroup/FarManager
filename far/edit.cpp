@@ -45,6 +45,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "panel.hpp"
 #include "scrbuf.hpp"
+#include "interf.hpp"
+#include "palette.hpp"
+#include "iswind.hpp"
+#include "clipboard.hpp"
 
 static int Recurse=0;
 

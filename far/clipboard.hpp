@@ -1,10 +1,9 @@
-#ifndef __FileMasksWithExclude_HPP
-#define __FileMasksWithExclude_HPP
+#ifndef __CLIPBOARD_HPP__
+#define __CLIPBOARD_HPP__
 /*
-FileMasksWithExclude.hpp
+clipboard.hpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+Работа с буфером обмена.
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,32 +33,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FileMasksProcessor.hpp"
+wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
+int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
+wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
+wchar_t* WINAPI PasteFromClipboardEx(int max);
+BOOL WINAPI FAR_EmptyClipboard(VOID);
+int WINAPI CopyToClipboard(const wchar_t *Data);
+wchar_t* WINAPI PasteFromClipboard(void);
+wchar_t* InternalPasteFromClipboard(int AnsiMode);
+wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode);
+int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode);
 
-extern const wchar_t EXCLUDEMASKSEPARATOR;
-
-class FileMasksWithExclude:public BaseFileMask
-{
-private:
-	void Free();
-	static const wchar_t *FindExcludeChar(const wchar_t *masks);
-
-public:
-	FileMasksWithExclude();
-	virtual ~FileMasksWithExclude() {}
-
-public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
-	static bool IsExcludeMask(const wchar_t *masks);
-
-private:
-	FileMasksProcessor Include, Exclude;
-
-private:
-	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
-};
-
-#endif // __FileMasksWithExclude_HPP
+#endif // __CLIPBOARD_HPP__

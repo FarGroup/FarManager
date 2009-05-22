@@ -266,4 +266,11 @@ class KeyMacro
     static void SetMacroConst(const wchar_t *ConstName, const TVar Value);
 };
 
+BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);
+int WINAPI KeyNameMacroToKey(const wchar_t *Name);
+void initMacroVarTable(int global);
+void doneMacroVarTable(int global);
+bool checkMacroConst(const wchar_t *name);
+const wchar_t *eStackAsString(int Pos=0);
+
 #endif // __KEYMACRO_HPP__

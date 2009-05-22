@@ -50,6 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "localOEM.hpp"
 #include "manager.hpp"
+#include "interf.hpp"
+#include "iswind.hpp"
+#include "message.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 

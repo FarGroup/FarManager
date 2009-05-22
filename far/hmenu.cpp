@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
+#include "interf.hpp"
+#include "keyboard.hpp"
 
 HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 {

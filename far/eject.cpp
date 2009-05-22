@@ -34,11 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "eject.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "imports.hpp"
 #include "cddrv.hpp"
+#include "message.hpp"
 
 #if 0
 static BOOL DismountVolume(HANDLE hVolume)
