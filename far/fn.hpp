@@ -942,6 +942,19 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _YJH(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_CHANGEDIR)
+#define _CHANGEDIR(x)  x
+#else
+#define _CHANGEDIR(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_KBDLOG)
+#define _KBDLOG(x)  x
+#else
+#define _KBDLOG(x)
+#endif
+
+
 void OpenSysLog();
 void CloseSysLog();
 

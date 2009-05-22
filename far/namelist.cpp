@@ -86,7 +86,12 @@ void NamesList::GetCurDir(char *Dir,int DestSize)
 
 void NamesList::SetCurDir(const char *Dir)
 {
-  PrepareDiskPath(xstrncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
+  _CHANGEDIR(CleverSysLog clv("NamesList::SetCurDir"));
+  _CHANGEDIR(SysLog("(Dir  =\"%s\")",Dir));
+  _CHANGEDIR(SysLog("CurDir=\"%s\"",CurDir));
+
+  if(LocalStricmp(CurDir,Dir))
+    PrepareDiskPath(xstrncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
 }
 
 void NamesList::Init()

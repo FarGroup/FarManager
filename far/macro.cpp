@@ -30,7 +30,7 @@ macro.cpp
 #include "filelist.hpp"
 #include "treelist.hpp"
 #include "flink.hpp"
-#include "TVMStack.hpp"
+#include "TStack.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -235,6 +235,34 @@ TVarTable glbVarTable;
 TVarTable glbConstTable;
 
 static TVar __varTextDate;
+
+class TVMStack: public TStack<TVar>
+{
+  public:
+    TVMStack() {}
+    ~TVMStack() {}
+
+  public:
+
+    TVar Pop()
+    {
+      TVar Destination;
+      TStack<TVar>::Pop(Destination);
+      return Destination;
+    }
+
+    TVar Peek()
+    {
+      TVar Destination;
+      Destination = *TStack<TVar>::Peek();
+      return Destination;
+    }
+
+  private:
+    TVMStack& operator=(const TVMStack& rhs); /* чтобы не генерировалось */
+    TVMStack(const TVMStack& rhs);            /* по умолчанию            */
+};
+
 TVMStack VMStack;
 
 static LONG _RegWriteString(const char *Key,const char *ValueName,const char *Data);
@@ -3069,7 +3097,7 @@ done:
 
     case MCODE_OP_PLAINTEXT:          // $Text "Text"
     {
-      if(VMStack.isEmpty())
+      if(VMStack.empty())
         return KEY_NONE;
       __varTextDate=VMStack.Pop();
       return KEY_OP_PLAINTEXT;

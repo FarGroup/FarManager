@@ -210,7 +210,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\tvar.obj" \
 	"$(INTDIR)\TPreRedrawFunc.obj" \
-	"$(INTDIR)\TVMStack.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\TaskBar.obj" \
 	"$(INTDIR)\treelist.obj" \

@@ -40,7 +40,9 @@ syslog.cpp
      defined(SYSLOG_TREX)           || \
      defined(SYSLOG_KEYMACRO_PARSE) || \
      defined(SYSLOG_MANAGERLOG)     || \
-     defined(SYSLOG_YJH)
+     defined(SYSLOG_YJH)            || \
+     defined(SYSLOG_CHANGEDIR)      || \
+     defined(SYSLOG_KBDLOG)
   #define SYSLOG
  #endif
 #endif

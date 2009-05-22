@@ -433,7 +433,6 @@ void FileList::SetFocus()
   */
   if (!IsRedrawFramesInProcess)
     SetTitle();
-  /* KM $ */
 }
 
 int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
@@ -2120,20 +2119,31 @@ BOOL FileList::SetCurDir(const char *NewDir,int ClosePlugin)
 
 BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
 {
+  _CHANGEDIR(CleverSysLog clv("FileList::ChangeDir"));
+  _CHANGEDIR(SysLog("(NewDir=\"%s\", IsUpdated=%d)",NewDir,IsUpdated));
+
+  {
+    _CHANGEDIR(char CurDir2[1024]);
+    _CHANGEDIR(FarGetCurDir(sizeof(CurDir2),CurDir2));
+    _CHANGEDIR(SysLog("[%d] CurDir2=\"%s\"",__LINE__,CurDir2));
+  }
+
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
 
   strcpy(SetDir,NewDir);
-    /* $ 28.08.2007 YJH
-      + У форточек сносит крышу на GetFileAttributes("..") при нахождении в
-        корне UNC пути. Приходится обходить в ручную */
-  if (PanelMode!=PLUGIN_PANEL && !strcmp(SetDir,"..") &&
-      !strncmp(CurDir, "\\\\?\\", 4) && CurDir[4] && !strcmp(&CurDir[5], ":\\"))
+
+  if(PanelMode != PLUGIN_PANEL)
   {
-    strcpy(SetDir, CurDir+4);
-  }
-  if(PanelMode!=PLUGIN_PANEL)
+      /* $ 28.08.2007 YJH
+        + У форточек сносит крышу на GetFileAttributes("..") при нахождении в
+          корне UNC пути. Приходится обходить в ручную */
+    if (!strcmp(SetDir,"..") && !strncmp(CurDir, "\\\\?\\", 4) && CurDir[4] && !strcmp(&CurDir[5], ":\\"))
+      strcpy(SetDir, CurDir+4);
+
     PrepareDiskPath(SetDir,sizeof(SetDir)-1);
+    _CHANGEDIR(SysLog("[%d] SetDir=\"%s\"",__LINE__,SetDir));
+  }
 
   if (!TestParentFolderName(SetDir) && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;
@@ -2142,6 +2152,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     ClearSelection();
 
   int PluginClosed=FALSE,GoToPanelFile=FALSE;
+
   if (PanelMode==PLUGIN_PANEL)
   {
     struct OpenPluginInfo Info;
@@ -2150,13 +2161,11 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     /* $ 16.01.2002 VVM
       + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
     CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),1,Info.Format,(Info.Flags & OPIF_REALNAMES)?false:(Opt.SavePluginFoldersHistory?false:true));
-    /* VVM $ */
 
     /* $ 25.04.01 DJ
        при неудаче SetDirectory не сбрасываем выделение
     */
     BOOL SetDirectorySuccess = TRUE;
-    /* DJ $ */
     int UpperFolder=TestParentFolderName(SetDir);
     if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
@@ -2187,7 +2196,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
       Update(0);
     else
       Update(UPDATE_KEEP_SELECTION);
-    /* DJ $ */
+
     if (PluginClosed && PrevDataStackSize>0)
     {
       PrevDataStackSize--;
@@ -2221,28 +2230,31 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     */
     else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
-    /* DJ $ */
+
     return(TRUE);
   }
-  else
+  else // PanelMode != PLUGIN_PANEL
   {
-    char FullNewDir[NM];
-    //_SVS(char FullCurDir[NM]);
-//    ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir));
-    if (ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir)) >= sizeof(FullNewDir)){
-      return (TRUE);
-    }
-    //_SVS(ConvertNameToFull(CurDir,FullCurDir, sizeof(FullCurDir)));
-    //_SVS(SysLog("\nFullNewDir=%s\nFullCurDir=%s",FullNewDir,FullCurDir));
+    _CHANGEDIR(CleverSysLog clv2("PanelMode != PLUGIN_PANEL"));
+    {
+      char FullNewDir[NM];
 
-    if (LocalStricmp(FullNewDir,CurDir)!=0)
-      CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
+      if (ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir)) >= sizeof(FullNewDir))
+      {
+        _CHANGEDIR(SysLog("[%d] ConvertNameToFull > sizeof(FullNewDir) ==> return(TRUE);",__LINE__));
+        return (TRUE);
+      }
+
+      if (LocalStricmp(FullNewDir,CurDir)!=0)
+        CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
+    }
 
     /* $ 21.09.2000 SVS
        Отловим момент ".." и "\\host\share"
     */
     if(TestParentFolderName(SetDir))
     {
+      _CHANGEDIR(CleverSysLog clv3("if(TestParentFolderName(SetDir))"));
       /* $ 21.08.2001 KM
         - Исправление глюка с вызовом меню выбора дисков на UNC путях
           при выходе из подкаталогов сетевого ресурса:
@@ -2255,10 +2267,9 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
       AddEndSlash(TempDir);
       GetPathRoot(TempDir,RootDir);
 
-      if((CurDir[0] == '\\' && CurDir[1] == '\\' && strcmp(TempDir,RootDir)==0) ||
-         (CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0))
+      if((CurDir[0] == '\\' && CurDir[1] == '\\' && strcmp(TempDir,RootDir)==0) || (CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0))
       {
-      /* KM $ */
+        _CHANGEDIR(CleverSysLog clv4("if((CurDir[0] == '\\' && CurDir[1] == '\\' && strcmp(TempDir,RootDir)==0) || (CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0))"));
         /* $ 08.05.2001 SVS
            Для неремотных дисков ПОКА покажем меню выбора дисков
            Потом сюды можно воткнуть вызов какого-нить плагина.
@@ -2278,44 +2289,58 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
            CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
+          _CHANGEDIR(SysLog("[%d] return(TRUE);",__LINE__));
           return TRUE;
         }
-        /* KM $ */
-        /* SVS $ */
+
         /* $ 26.03.2001 SVS
            Добавим возможность вызова Network-плагина из корня зашаренных
            дисков.
         */
         char NewCurDir[NM*2];
         strcpy(NewCurDir,CurDir);
+
         if(NewCurDir[1] == ':')
         {
           char Letter=*NewCurDir;
           DriveLocalToRemoteName(DRIVE_REMOTE,Letter,NewCurDir);
         }
+
         if(*NewCurDir) // проверим - может не удалось определить RemoteName
         {
           char *PtrS1=strchr(NewCurDir+2,'\\');
           if(PtrS1 && !strchr(PtrS1+1,'\\'))
           {
-  // _D(SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
+            // _D(SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
             if(CtrlObject->Plugins.CallPlugin(CtrlObject->Plugins.FindPlugin(SYSID_NETWORK),OPEN_FILEPANEL,NewCurDir,NewCurDir)) // NetWork Plugin :-)
             {
-  //_D(SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
+              _CHANGEDIR(SysLog("[%d] SetDir=%s  NewCurDir=%s",__LINE__,SetDir,NewCurDir));
+              _CHANGEDIR(SysLog("[%d] return(FALSE);",__LINE__));
               return(FALSE);
             }
           }
         }
-        /* SVS $ */
       }
     }
-    /* SVS $ */
   }
 
+  {
+    _CHANGEDIR(char CurDir2[1024]);
+    _CHANGEDIR(FarGetCurDir(sizeof(CurDir2),CurDir2));
+    _CHANGEDIR(SysLog("[%d] CurDir2=\"%s\"",__LINE__,CurDir2));
+  }
+  _CHANGEDIR(SysLog("[%d] CurDir =\"%s\"",__LINE__,CurDir));
+  _CHANGEDIR(SysLog("[%d] SetDir =\"%s\"",__LINE__,SetDir));
   strcpy(FindDir,PointToName(CurDir));
 
+/*
   if (SetDir[0]==0 || SetDir[1]!=':' || SetDir[2]!='\\')
+  {
+    _CHANGEDIR(CleverSysLog clv2("if (SetDir[0]==0 || SetDir[1]!=':' || SetDir[2]!='\\')"));
+    _CHANGEDIR(SysLog("CALL FarChDir(CurDir=\"%s\")",CurDir));
     FarChDir(CurDir);
+  }
+*/
 
   /* $ 26.04.2001 DJ
      проверяем, удалось ли сменить каталог, и обновляем с KEEP_SELECTION,
@@ -2324,8 +2349,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   int UpdateFlags = 0;
 
   // ...когда ввели в масдае cd //host/share
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT &&
-    SetDir[0] == '/' && SetDir[1] == '/')
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && SetDir[0] == '/' && SetDir[1] == '/')
   {
     char *Ptr=SetDir;
     while(*Ptr)
@@ -2347,6 +2371,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
 #endif
   }
 
+  _CHANGEDIR(SysLog("CALL FarChDir(SetDir=\"%s\")",SetDir));
   if (!FarChDir(SetDir))
   {
     // $ 03.11.2001 IS - Укажем имя неудачного каталога
@@ -2368,12 +2393,17 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
       setdisk(CurDisk);
     }
   }*/
-  /* IS $ */
+
   FarGetCurDir(sizeof(CurDir),CurDir);
+  _CHANGEDIR(SysLog("[%d] CurDir =\"%s\"",__LINE__,CurDir));
 
   if(!IsUpdated)
+  {
+    _CHANGEDIR(SysLog("[%d] if(!IsUpdated) ==> return TRUE",__LINE__));
     return(TRUE);
+  }
 
+  _CHANGEDIR(SysLog("[%d] CALL Update()",__LINE__));
   Update(UpdateFlags);
 
   if (TestParentFolderName(SetDir))
@@ -2385,21 +2415,25 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   }
   else if (UpdateFlags != UPDATE_KEEP_SELECTION)
     CurFile=CurTopFile=0;
-  /* DJ $ */
 
   if (GetFocus())
   {
+    _CHANGEDIR(SysLog("[%d] CALL CtrlObject->CmdLine->SetCurDir(CurDir=\"%s\");",__LINE__,CurDir));
     CtrlObject->CmdLine->SetCurDir(CurDir);
     CtrlObject->CmdLine->Show();
   }
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=FILE_PANEL)
   {
+    _CHANGEDIR(SysLog("[%d] CALL AnotherPanel->SetCurDir(CurDir=\"%s\",FALSE);",__LINE__,CurDir));
     AnotherPanel->SetCurDir(CurDir,FALSE);
+    _CHANGEDIR(SysLog("[%d] CALL AnotherPanel->Redraw()",__LINE__));
     AnotherPanel->Redraw();
   }
   if (PanelMode==PLUGIN_PANEL)
     CtrlObject->Cp()->RedrawKeyBar();
+
+  _CHANGEDIR(SysLog("[%d] return TRUE",__LINE__));
   return(TRUE);
 }
 

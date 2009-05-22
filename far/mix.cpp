@@ -52,27 +52,35 @@ __int64 filelen64(FILE *FPtr)
 
 
 /* $ 14.01.2002 IS
-   Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-*/
-/* $ 22.01.2002 IS
-   + Обработаем самостоятельно пути типа "буква:"
-*/
-/* $ 15.02.2002 IS
-   + Новый параметр ChangeDir, если FALSE, то не меняем текущий диск, а только
-     устанавливаем переменные окружения. По умолчанию - TRUE.
-*/
-/* $ 07.11.2002 IS
-   + Принудительно меняем все / на \ (попытка побороть bugz#568)
+     Установка нужного диска и каталога и установление соответствующей переменной
+     окружения. В случае успеха возвращается не ноль.
+   $ 22.01.2002 IS
+     + Обработаем самостоятельно пути типа "буква:"
+   $ 15.02.2002 IS
+     + Новый параметр ChangeDir, если FALSE, то не меняем текущий диск, а только
+       устанавливаем переменные окружения. По умолчанию - TRUE.
+   $ 07.11.2002 IS
+     + Принудительно меняем все / на \ (попытка побороть bugz#568)
 */
 BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 {
+  _CHANGEDIR(CleverSysLog clv("FarChDir"));
+  _CHANGEDIR(SysLog("(NewDir=\"%s\", ChangeDir=%d)",NewDir,ChangeDir));
+
   if(!NewDir || *NewDir == 0)
     return FALSE;
 
   BOOL rc=FALSE;
 
-  char CurDir[NM*2], Drive[4]="=A:";
+  char CurDir[NM*2];
+
+  if(GetCurrentDirectory(sizeof(CurDir),CurDir) && !LocalStricmp(CurDir,NewDir))
+  {
+    _CHANGEDIR(SysLog("(CurDir == NewDir) ==> return TRUE;"));
+    return TRUE;
+  }
+
+  char Drive[4]="=A:";
   if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
     Drive[1]=toupper(*NewDir);                          // возьмем из переменной
@@ -94,35 +102,50 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   }
   else
   {
-    xstrncpy(CurDir,NewDir,sizeof(CurDir)-1);
-    if(!strcmp(CurDir,"\\"))
-      FarGetCurDir(sizeof(CurDir),CurDir); // здесь берем корень
-    char *Chr=CurDir;
-    while(*Chr)
-    {
-      if(*Chr=='/') *Chr='\\';
-      ++Chr;
-    }
     if(ChangeDir)
     {
-      char *ptr;
-      char FullDir[sizeof(CurDir)];
-      GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
-      AddEndSlash(FullDir);
-      PrepareDiskPath(FullDir,sizeof(FullDir)-1);
-      DWORD att1=GetFileAttributes(NewDir);
-      DWORD att2=GetFileAttributes(FullDir);
-      if(att2==INVALID_FILE_ATTRIBUTES || ( att1!=att2 && strcmp(NewDir,"..")))
-        rc=SetCurrentDirectory(NewDir);
+      if(strcmp(NewDir,".."))
+      {
+        xstrncpy(CurDir,NewDir,sizeof(CurDir)-1);
+        if(!strcmp(CurDir,"\\"))
+          FarGetCurDir(sizeof(CurDir),CurDir); // здесь берем корень
+        char *Chr=CurDir;
+        while(*Chr)
+        {
+          if(*Chr=='/')
+            *Chr='\\';
+          ++Chr;
+        }
+
+        DWORD att1=GetFileAttributes(NewDir);
+
+        char *ptr;
+        char FullDir[sizeof(CurDir)];
+        GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
+        _CHANGEDIR(SysLog("[%d] FullDir=\"%s\"",__LINE__,FullDir));
+        AddEndSlash(FullDir);
+        DWORD att2=GetFileAttributes(FullDir);
+        if(att2==INVALID_FILE_ATTRIBUTES)
+        {
+          _CHANGEDIR(SysLog("[%d] att2==INVALID_FILE_ATTRIBUTES, CALL PrepareDiskPath()",__LINE__));
+          PrepareDiskPath(FullDir,sizeof(FullDir)-1);
+          att2=GetFileAttributes(FullDir);
+        }
+
+        _SVS(SysLog("[%d] att1=0x%08X att2=0x%08X",__LINE__,att1,att2));
+        if(att2==INVALID_FILE_ATTRIBUTES || ( att1!=att2 && strcmp(NewDir,"..")))
+          rc=SetCurrentDirectory(NewDir);
+        else
+          rc=SetCurrentDirectory(FullDir);
+      }
       else
-        rc=SetCurrentDirectory(FullDir);
+        rc=SetCurrentDirectory(NewDir);
     }
   }
 
   if(rc || !ChangeDir)
   {
-    if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
-        isalpha(*CurDir) && CurDir[1]==':')
+    if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) && isalpha(*CurDir) && CurDir[1]==':')
     {
       Drive[1]=toupper(*CurDir);
       FAR_OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
@@ -132,10 +155,6 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   }
   return rc;
 }
-/* IS 07.11.2002 $ */
-/* IS 15.02.2002 $ */
-/* IS 22.01.2002 $ */
-/* IS 14.01.2002 $ */
 
 /* $ 20.03.2002 SVS
  обертка вокруг функции получения текущего пути.
@@ -1143,6 +1162,8 @@ BOOL IsLocalVolumeRootPath(const char *Path)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
+  _CHANGEDIR(CleverSysLog clv("PrepareDiskPath"));
+  _CHANGEDIR(SysLog("(Path=\"%s\", MaxSize=%d, CheckFullPath=%d)",Path,MaxSize,CheckFullPath));
   if(Path && *Path)
   {
     if(((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\')))
@@ -1151,6 +1172,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
       {
         char NPath[1024];
         *NPath=0;
+        _CHANGEDIR(SysLog("CALL RawConvertShortNameToLongName()"));
         RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
         if(*NPath)
           xstrncpy(Path,NPath,MaxSize);
@@ -1395,8 +1417,6 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
       break;
   }
 }
-/* KM $ */
-/* KM $ */
 
 /*
  возвращает PipeFound
