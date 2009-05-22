@@ -2120,21 +2120,24 @@ BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 
 BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 {
-  Panel *AnotherPanel;
-  string strFindDir, strSetDir;
+	Panel *AnotherPanel;
+	string strFindDir, strSetDir;
 
-  strSetDir = NewDir;
-    /* $ 28.08.2007 YJH
-      + ” форточек сносит крышу на GetFileAttributes("..") при нахождении в
-        корне UNC пути. ѕриходитс€ обходить в ручную */
-  if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir, L"..") &&
-      !StrCmpN(strCurDir, L"\\\\?\\", 4) && strCurDir.At(4) &&
-      !StrCmp(&strCurDir[5], L":\\"))
-  {
-    strSetDir = (const wchar_t*)strCurDir+4;
-  }
-  if(PanelMode!=PLUGIN_PANEL)
-    PrepareDiskPath(strSetDir);
+	strSetDir = NewDir;
+
+	if(PanelMode!=PLUGIN_PANEL)
+	{
+    	/* $ 28.08.2007 YJH
+		+ ” форточек сносит крышу на GetFileAttributes("..") при нахождении в
+		корне UNC пути. ѕриходитс€ обходить в ручную */
+		if (!StrCmp(strSetDir, L"..") &&
+			!StrCmpN(strCurDir, L"\\\\?\\", 4) && strCurDir.At(4) &&
+			!StrCmp(&strCurDir[5], L":\\"))
+		{
+			strSetDir = (const wchar_t*)strCurDir+4;
+		}
+		PrepareDiskPath(strSetDir);
+	}
 
   if ( !TestParentFolderName(strSetDir) && StrCmp(strSetDir,L"\\")!=0)
     UpperFolderTopFile=CurTopFile;
@@ -2224,16 +2227,17 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     */
     else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
+
     return(TRUE);
   }
   else
   {
-    string strFullNewDir;
-
-    ConvertNameToFull(strSetDir, strFullNewDir);
-
-    if ( StrCmpI(strFullNewDir, strCurDir)!=0)
-      CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
+  	{
+		string strFullNewDir;
+		ConvertNameToFull(strSetDir, strFullNewDir);
+		if ( StrCmpI(strFullNewDir, strCurDir)!=0)
+			CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
+	}
 
     if(TestParentFolderName(strSetDir))
     {
@@ -2282,9 +2286,12 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   }
 
   strFindDir = PointToName(strCurDir);
-
+/*
+	// вот и зачем это? мы уже и так здесь, в strCurDir
+	// + дальше по тексту strSetDir уже содержит полный путь
 	if ( strSetDir.IsEmpty() || strSetDir.At(1) != L':' || !IsSlash(strSetDir.At(2)))
-    FarChDir(strCurDir);
+		FarChDir(strCurDir);
+*/
 
   /* $ 26.04.2001 DJ
      провер€ем, удалось ли сменить каталог, и обновл€ем с KEEP_SELECTION,

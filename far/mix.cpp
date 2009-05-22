@@ -89,19 +89,17 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
   }
   else
   {
-    strCurDir = NewDir;
-
-    if(!StrCmp(strCurDir,L"\\"))
-			apiGetCurrentDirectory(strCurDir); // здесь берем корень
-
-    ReplaceSlashToBSlash(strCurDir);
-
     if(ChangeDir)
     {
-			apiGetFullPathName(NewDir,strCurDir);
-      PrepareDiskPath(strCurDir);
-			rc=apiSetCurrentDirectory(strCurDir);
+		strCurDir = NewDir;
 
+		if(!StrCmp(strCurDir,L"\\"))
+			apiGetCurrentDirectory(strCurDir); // здесь берем корень
+
+		ReplaceSlashToBSlash(strCurDir);
+		apiGetFullPathName(NewDir,strCurDir);
+		PrepareDiskPath(strCurDir,FALSE); // TRUE ???
+		rc=apiSetCurrentDirectory(strCurDir);
     }
   }
 
