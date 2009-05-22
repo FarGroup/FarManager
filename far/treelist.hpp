@@ -35,6 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 
+enum {
+  MODALTREE_ACTIVE  =1,
+  MODALTREE_PASSIVE =2,
+  MODALTREE_FREE    =3
+};
 
 struct TreeItem
 {

@@ -505,10 +505,6 @@ string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 // возвращает указатель на начало слова
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
 
-CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
-UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
-bool IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
 bool IsDriveTypeRemote(UINT DriveType);
 
 bool PathPrefix(const wchar_t *Path);

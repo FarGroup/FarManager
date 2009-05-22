@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "plugapi.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
@@ -60,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "nsUniversalDetectorEx.h"
 #include "TaskBar.hpp"
+#include "cddrv.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
-
 #include "dialog.hpp"
 #include "vmenu.hpp"
 #include "ctrlobj.hpp"

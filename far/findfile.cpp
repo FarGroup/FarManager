@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "localOEM.hpp"
 #include "gettable.hpp"
 #include "registry.hpp"
+#include "cddrv.hpp"
 #include "TaskBar.hpp"
 
 #define DLG_HEIGHT 23

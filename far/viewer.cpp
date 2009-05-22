@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "TaskBar.hpp"
+#include "cddrv.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);

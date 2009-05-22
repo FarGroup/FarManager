@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plognmn.hpp"
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
+#include "cddrv.hpp"
 #include "syslog.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];

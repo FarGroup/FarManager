@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "keys.hpp"
 #include "rdrwdsk.hpp"
-
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"

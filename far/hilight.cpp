@@ -35,10 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "colors.hpp"
-
 #include "hilight.hpp"
 #include "fn.hpp"
-
 #include "lang.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"

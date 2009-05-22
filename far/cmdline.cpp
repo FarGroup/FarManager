@@ -35,17 +35,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "cmdline.hpp"
-
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
-
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "history.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "foldtree.hpp"
+#include "treelist.hpp"
 #include "fileview.hpp"
 #include "fileedit.hpp"
 #include "rdrwdsk.hpp"

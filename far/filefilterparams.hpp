@@ -34,14 +34,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
-
 #include "CFileMask.hpp"
 #include "bitflags.hpp"
-
 
 struct FileListItem;
 
 #define FILEFILTER_SIZE_SIZE 32
+
+#define DEFAULT_SORT_GROUP 10000
 
 enum enumFileFilterFlagsType
 {

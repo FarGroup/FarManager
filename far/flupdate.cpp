@@ -47,6 +47,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "TaskBar.hpp"
+#include "cddrv.hpp"
+
+// Флаги для ReadDiz()
+enum ReadDizFlags {
+  RDF_NO_UPDATE         = 0x00000001UL,
+};
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 

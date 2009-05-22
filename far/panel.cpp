@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "plugapi.hpp"
 #include "network.hpp"
+#include "cddrv.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

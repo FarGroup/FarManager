@@ -35,6 +35,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farqueue.hpp"
 
+typedef union {
+  WCHAR UnicodeChar;
+  CHAR  AsciiChar;
+} CHAR_WCHAR;
+
+enum {
+  SKEY_VK_KEYS           = 0x40000000,
+  SKEY_IDLE              = 0x80000000,
+  SKEY_NOTMACROS         = 0x00000001,
+};
+
+#define MOUSE_ANY_BUTTON_PRESSED (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED|FROM_LEFT_2ND_BUTTON_PRESSED|FROM_LEFT_3RD_BUTTON_PRESSED|FROM_LEFT_4TH_BUTTON_PRESSED)
+
 extern FarQueue<DWORD> *KeyQueue;
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;

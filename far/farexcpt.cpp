@@ -34,16 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
+#include "farexcpt.hpp"
 #include "lang.hpp"
-
-
 #include "plugins.hpp"
 #include "macro.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "farexcpt.hpp"
 #include "BlockExtKey.hpp"
 #include "registry.hpp"
 

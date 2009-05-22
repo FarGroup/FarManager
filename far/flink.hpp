@@ -33,6 +33,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+enum ReparsePointTypes
+{
+	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
+	RP_HARDLINK,    // жёсткая ссылка
+	RP_JUNCTION,    // связь
+	RP_VOLMOUNT,    // монтированный том
+	RP_SYMLINKFILE, // файл-ссылка, NT>=6
+	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
+};
+
 int   WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest);
 int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 

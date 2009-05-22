@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
+#include "cddrv.hpp"
 #include "fn.hpp"
-
 #include "flink.hpp"
+
 
 static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)
 {

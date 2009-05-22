@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-
 #include "lang.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))

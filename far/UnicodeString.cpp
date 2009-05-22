@@ -95,8 +95,7 @@ const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 
 const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 {
-	lpwszData=NullToEmpty(lpwszData);
-	size_t nLength = StrLength(lpwszData);
+	size_t nLength = StrLength(NullToEmpty(lpwszData));
 	if (m_pData && m_pData->GetRef() == 1 && nLength + 1 <= m_pData->GetSize())
 	{
 		wmemmove(m_pData->GetData(),lpwszData,nLength);
@@ -104,12 +103,22 @@ const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 	}
 	else
 	{
-		UnicodeStringData *pNewData = new UnicodeStringData(nLength + 1);
-		wmemcpy(pNewData->GetData(),lpwszData,nLength);
-		pNewData->SetLength(nLength);
-		if (m_pData)
-			m_pData->DecRef();
-		m_pData = pNewData;
+		if (!nLength)
+		{
+			if (m_pData)
+				m_pData->DecRef();
+			m_pData = eus();
+			m_pData->AddRef();
+		}
+		else
+		{
+			UnicodeStringData *pNewData = new UnicodeStringData(nLength + 1);
+			wmemcpy(pNewData->GetData(),lpwszData,nLength);
+			pNewData->SetLength(nLength);
+			if (m_pData)
+				m_pData->DecRef();
+			m_pData = pNewData;
+		}
 	}
 	return *this;
 }

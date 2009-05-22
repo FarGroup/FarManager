@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "UnicodeString.hpp"
 
+#define NT_MAX_PATH 32768
+
 class NTPath
 {
 public:

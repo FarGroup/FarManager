@@ -34,8 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
-
 #include "lang.hpp"
 #include "flink.hpp"
 #include "panel.hpp"
@@ -50,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "TaskBar.hpp"
+#include "cddrv.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);

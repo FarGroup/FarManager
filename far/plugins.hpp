@@ -35,8 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "language.hpp"
 #include "bitflags.hpp"
-
-
 #include "plugin.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
@@ -55,6 +53,19 @@ class Viewer;
 class Frame;
 class Panel;
 
+enum {
+  SYSID_PRINTMANAGER      =0x6E614D50,
+  SYSID_NETWORK           =0x5774654E,
+};
+
+enum {
+  PLUGIN_FARGETFILE,
+  PLUGIN_FARGETFILES,
+  PLUGIN_FARPUTFILES,
+  PLUGIN_FARDELETEFILES,
+  PLUGIN_FARMAKEDIRECTORY,
+  PLUGIN_FAROTHER
+};
 
 // флаги для поля Plugin.WorkFlags
 enum PLUGINITEMWORKFLAGS{

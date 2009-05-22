@@ -35,9 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-
 #include "flink.hpp"
-
 #include "lang.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"

@@ -36,9 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lang.hpp"
 #include "filelist.hpp"
-
-
-
 #include "filepanels.hpp"
 #include "history.hpp"
 #include "ctrlobj.hpp"

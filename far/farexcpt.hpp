@@ -41,6 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #pragma pack(push,2)
 #endif
 
+#define STATUS_STRUCTWRONGFILLED       0xE0001000
+#define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
+
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
       ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \

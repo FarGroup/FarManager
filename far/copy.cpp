@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "registry.hpp"
 #include "TaskBar.hpp"
+#include "cddrv.hpp"
 
 /* ќбщее врем€ ожидани€ пользовател€ */
 extern long WaitUserTime;
@@ -79,6 +80,15 @@ enum {COPY_BUFFER_SIZE  = 0x10000};
 enum {
   COPY_RULE_NUL    = 0x0001,
   COPY_RULE_FILES  = 0x0002,
+};
+
+enum COPYSECURITYOPTIONS{
+  CSO_MOVE_SETCOPYSECURITY       = 0x00000001,  // Move: по умолчанию выставл€ть опцию "Copy access rights"?
+  CSO_MOVE_SETINHERITSECURITY    = 0x00000003,  // Move: по умолчанию выставл€ть опцию "Inherit access rights"?
+  CSO_MOVE_SESSIONSECURITY       = 0x00000004,  // Move: сохран€ть состо€ние "access rights" внутри сессии?
+  CSO_COPY_SETCOPYSECURITY       = 0x00000008,  // Copy: по умолчанию выставл€ть опцию "Copy access rights"?
+  CSO_COPY_SETINHERITSECURITY    = 0x00000018,  // Copy: по умолчанию выставл€ть опцию "Inherit access rights"?
+  CSO_COPY_SESSIONSECURITY       = 0x00000020,  // Copy: сохран€ть состо€ние "access rights" внутри сессии?
 };
 
 static int TotalFilesToProcess;

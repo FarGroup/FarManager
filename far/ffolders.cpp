@@ -34,9 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-
 #include "keys.hpp"
-
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "cmdline.hpp"

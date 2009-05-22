@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "plugin.hpp"
 #include "plugins.hpp"
+#include "cddrv.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{

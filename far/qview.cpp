@@ -36,12 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "qview.hpp"
 #include "macroopcode.hpp"
-
 #include "flink.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
-
 #include "filepanels.hpp"
 #include "help.hpp"
 #include "viewer.hpp"

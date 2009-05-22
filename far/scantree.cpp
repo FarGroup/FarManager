@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scantree.hpp"
 #include "fn.hpp"
-
 #include "syslog.hpp"
 
 ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)

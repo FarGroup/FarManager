@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dizlist.hpp"
 #include "udlist.hpp"
+#include "flink.hpp"
 
 class Panel;
 

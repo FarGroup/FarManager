@@ -163,6 +163,29 @@ extern "C" {
  #define _ui64(num)  num##ui64
 #endif
 
+#if defined(__GNUC__)
+ #define TRY
+ #define EXCEPT(a) if (0)
+#else
+ #define TRY    __try
+ #define EXCEPT __except
+#endif
+
+#define countof(a) (sizeof(a)/sizeof(a[0]))
+
+#define NullToEmpty(s) (s?s:L"")
+
+#ifdef  __cplusplus
+template <class T>
+inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
+
+template <class T>
+inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
+
+template <class T>
+inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
+#endif
+
 //#include <crtdbg.h>
 
 #include "sdkpatches.hpp"

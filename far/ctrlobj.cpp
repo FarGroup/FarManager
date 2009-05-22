@@ -35,8 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "ctrlobj.hpp"
-
-
 #include "lang.hpp"
 #include "manager.hpp"
 #include "cmdline.hpp"

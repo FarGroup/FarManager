@@ -35,9 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-
 #include "ctrlobj.hpp"
-
 #include "lang.hpp"
 #include "colors.hpp"
 #include "dialog.hpp"

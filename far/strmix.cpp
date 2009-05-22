@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fn.hpp"
-
 #include "lang.hpp"
 #include "language.hpp"
 
@@ -1250,6 +1249,10 @@ FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9
 ---
 
 */
+
+enum FFTMODE{
+  FFTM_BREAKLONGWORD = 0x00000001,
+};
 
 string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
                            int Width,               // заданная ширина
