@@ -4471,10 +4471,7 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
   int UpperStrKey=Upper ((int)Str[AmpPos]);
   if (Key < 0xFFFF)
   {
-    int KeyToKey=KeyToKeyLayout(Key); // может возвращать 0 под telnet
-    return UpperStrKey == (int)Upper(Key) ||
-           (Translate && ((!Opt.HotkeyRules && UpperStrKey==(int)Upper(KeyToKey)) ||
-           (Opt.HotkeyRules && KeyToKey && KeyToKeyLayout(UpperStrKey)==KeyToKey)));
+    return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
   }
 
   if(Key&KEY_ALT)
@@ -4485,15 +4482,12 @@ int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos
       if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
         return(AltKey==UpperStrKey);
 
-      int AltKeyToKey=KeyToKeyLayout(AltKey);
       if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
   //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
       {
-        return(UpperStrKey==(int)Upper(AltKey) ||
-               (Translate && (!Opt.HotkeyRules && UpperStrKey==(int)Upper(AltKeyToKey))) ||
-                  (Opt.HotkeyRules && KeyToKeyLayout(UpperStrKey)==AltKeyToKey));
+        return(UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey)));
       }
     }
   }

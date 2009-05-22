@@ -59,6 +59,7 @@ extern int PreMouseEventFlags,MouseEventFlags;
 extern int ReturnAltValue;
 
 void InitKeysArray();
+bool KeyToKeyLayoutCompare(int Key, int CompareKey);
 int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none

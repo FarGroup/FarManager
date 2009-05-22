@@ -71,7 +71,7 @@ int ReturnAltValue=0;
 
 /* end Глобальные переменные */
 
-//static unsigned char KeyToKey[256]; BUGBUG InitKeysArray
+//static WCHAR KeyToKey[WCHAR_MAX]; BUBUG
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -369,7 +369,7 @@ void InitKeysArray() //BUGBUG
         memset(Keys,0,sizeof(Keys));
         for (int J=0; J < LayoutNumber; J++)
         {
-          int AnsiKey=MapVirtualKeyExA(I,2,Layout[J]) & 0xff;
+          int AnsiKey=MapVirtualKeyExA(I,MAPVK_VK_TO_CHAR,Layout[J]) & 0xff;
           if (AnsiKey==0)
             continue;
           CvtStr[0]=AnsiKey;
@@ -395,7 +395,7 @@ void InitKeysArray() //BUGBUG
           DWORD AnsiKey=VkKeyScanExA(I,Layout[J])&0xFF;
           if (AnsiKey==0xFF)
             continue;
-          DWORD MapKey=MapVirtualKeyA(AnsiKey,2);
+          DWORD MapKey=MapVirtualKeyA(AnsiKey,MAPVK_VK_TO_CHAR);
           KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
           break;
         }
@@ -410,12 +410,86 @@ void InitKeysArray() //BUGBUG
 #endif
 }
 
+//Сравнивает если Key в текущей раскладке это одна и таже клавиша как CompareKey в какой нибудь другой
+bool KeyToKeyLayoutCompare(int Key, int CompareKey) //BUGBUG не работает как надо пока InitKeysArray не доделан
+{
+	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayoutCompare()"));
+	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
+	static string strLayoutName;
+
+	apiGetConsoleKeyboardLayoutName(strLayoutName);
+	HKL CL = (HKL)wcstoul(strLayoutName,NULL,16);
+
+	if (!CL)
+		return false;
+
+//	if (!Opt.HotkeyRules)
+//	{
+//	}
+//	else
+	{
+		SHORT VK = VkKeyScanExW(Key,CL)&0xFF;
+
+		if (VK == 255)
+			return false;
+
+		HKL Layout[10];
+		int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
+		for (int i=0; i<LayoutNumber; i++)
+		{
+			SHORT CompareVK = VkKeyScanExW(CompareKey,Layout[i])&0xFF;
+			if (CompareVK == VK)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+//Должно вернуть клавишный Eng эквивалент Key
 int KeyToKeyLayout(int Key) //BUGBUG не работает как надо пока InitKeysArray не доделан
 {
-  _KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
-  _KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-  //_SVS(SysLog(L"CvtStr[0]=%X, return KeyToKey[CvtStr[0]] ==> %X",CvtStr[0],KeyToKey[CvtStr[0]]));
-  return Key&0x0000FFFF;
+	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
+	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
+//	if (!Opt.HotkeyRules)
+//	{
+//	}
+//	else
+	{
+		HKL Layout[10];
+		int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
+    static BYTE KeyState[0x100]={0};
+    WCHAR buf[1];
+		for (int i=0; i<LayoutNumber; i++)
+		{
+			SHORT VK = VkKeyScanExW(Key,Layout[i]);
+			if (VK != -1)
+			{
+
+				if (HIBYTE(VK)&1)
+					KeyState[VK_SHIFT]=0x80;
+				else
+					KeyState[VK_SHIFT]=0;
+
+				int Ret=ToUnicodeEx(LOBYTE(VK),0,KeyState,buf,1,0,(HKL)0x409);
+
+				if (Ret > 0)
+					return Upper(buf[0]);
+
+				/*
+				int NewKey = MapVirtualKeyEx(VK,MAPVK_VK_TO_CHAR,(HKL)0x409)&0xFFFF;
+				if (NewKey != 0)
+				{
+					return Upper(NewKey);
+				}
+				*/
+
+				return Key;
+			}
+		}
+	}
+
+	return Key;
 }
 
 /*
@@ -1731,7 +1805,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 					if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
 					{
 						if(Chr > 0x7F)
-								Chr=KeyToKeyLayout(Chr);
+							Chr=KeyToKeyLayout(Chr);
 						Chr=Upper(Chr);
 					}
 					Key|=Chr;
