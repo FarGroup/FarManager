@@ -433,7 +433,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   // int IsQuoted=FALSE;
   // int IsExistExt=FALSE;
 
-  char StdExecuteExt[NM]=".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH";
+  static char StdExecuteExt[NM]=".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH";
   static const char RegPath[]="SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
   static int PreparePrepareExt=FALSE;
 
