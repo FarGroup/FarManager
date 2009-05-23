@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "TList.hpp"
+#include "DList.hpp"
 #include "plugin.hpp"
 #include "fn.hpp"
 
@@ -62,11 +62,10 @@ class NamesList
       }
     };
 
-    typedef TList<OneName> StrList;
+    typedef DList<OneName> StrList;
 
     StrList Names;
-    OneName CurName;
-    const OneName *pCurName;
+    const OneName *CurrentName;
 
     string strCurrentDir;
 

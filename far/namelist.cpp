@@ -48,21 +48,22 @@ NamesList::~NamesList()
 
 void NamesList::AddName(const wchar_t *Name,const wchar_t *ShortName)
 {
-    CurName.Value.strName = Name?Name:L"";
-    CurName.Value.strShortName = ShortName?ShortName:L"";
-    Names.push_back(CurName);
+  OneName *pName=Names.Push();
+  pName->Value.strName = Name?Name:L"";
+  pName->Value.strShortName = ShortName?ShortName:L"";
+  CurrentName=pName;
 }
 
 
 bool NamesList::GetNextName(string &strName, string &strShortName)
 {
-  if(Names.isEnd())
+  const OneName *pName=Names.Next(CurrentName);
+  if (!pName)
     return(false);
-
-  const OneName *pName=Names.toNext();
 
   strName = pName->Value.strName;
   strShortName = pName->Value.strShortName;
+  CurrentName=pName;
 
   return(true);
 }
@@ -70,13 +71,13 @@ bool NamesList::GetNextName(string &strName, string &strShortName)
 
 bool NamesList::GetPrevName (string &strName, string &strShortName)
 {
-  if (Names.isBegin())
+  const OneName *pName=Names.Prev(CurrentName);
+  if (!pName)
     return(false);
-
-  const OneName *pName=Names.toPrev();
 
   strName = pName->Value.strName;
   strShortName = pName->Value.strShortName;
+  CurrentName=pName;
 
   return(true);
 }
@@ -84,36 +85,31 @@ bool NamesList::GetPrevName (string &strName, string &strShortName)
 
 void NamesList::SetCurName(const wchar_t *Name)
 {
-    Names.storePosition();
-
-    pCurName=Names.toBegin();
-
-    while ( pCurName )
+  for (const OneName *pCurName=Names.First(); pCurName; pCurName=Names.Next(pCurName))
+  {
+    if (!StrCmp(Name, pCurName->Value.strName))
     {
-        if ( !StrCmp (Name, pCurName->Value.strName) )
-            return;
-
-        pCurName=Names.toNext();
+      CurrentName=pCurName;
+      return;
     }
-
-    Names.restorePosition();
+  }
 }
 
 
 void NamesList::MoveData(NamesList &Dest)
 {
-    Dest.Names.swap(Names);
-    Dest.CurName=CurName;
+  Dest.Names.Swap(Names);
 
-    Dest.strCurrentDir = strCurrentDir;
+  Dest.strCurrentDir = strCurrentDir;
+  Dest.CurrentName = CurrentName;
 
-    Init();
+  Init();
 }
 
 
 void NamesList::GetCurDir (string &strDir)
 {
-    strDir = strCurrentDir;
+  strDir = strCurrentDir;
 }
 
 
@@ -128,10 +124,8 @@ void NamesList::SetCurDir (const wchar_t *Dir)
 
 void NamesList::Init()
 {
-    Names.clear();
+  Names.Clear();
 
-    CurName.Value.strName = L"";
-    CurName.Value.strShortName = L"";
-
-    strCurrentDir = L"";
+  strCurrentDir = L"";
+  CurrentName=NULL;
 }

@@ -219,7 +219,6 @@ syslog.cpp
 syslog.hpp
 TaskBar.cpp
 TaskBar.hpp
-TList.hpp
 TPreRedrawFunc.cpp
 TPreRedrawFunc.hpp
 treelist.cpp

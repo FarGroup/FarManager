@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TList.hpp"
+#include "DList.hpp"
 
 enum{
 	HISTORYTYPE_CMD,
@@ -68,7 +68,7 @@ struct HistoryRecord
 	}
 };
 
-class History: protected TList<HistoryRecord>
+class History
 {
 	private:
 		string strRegKey;
@@ -77,6 +77,9 @@ class History: protected TList<HistoryRecord>
 		int TypeHistory;
 		int HistoryCount;
 		const int *EnableSave;
+
+		DList<HistoryRecord> HistoryList;
+		HistoryRecord *CurrentItem;
 
 	private:
 		void AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int Type);
