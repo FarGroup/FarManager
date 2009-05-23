@@ -1257,6 +1257,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\datetime.cpp"
+				>
+			</File>
+			<File
 				RelativePath="delete.cpp"
 				>
 				<FileConfiguration
@@ -1359,6 +1363,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\dirinfo.cpp"
+				>
 			</File>
 			<File
 				RelativePath="dizlist.cpp"
@@ -4613,6 +4621,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pathmix.cpp"
+				>
+			</File>
+			<File
 				RelativePath="plist.cpp"
 				>
 				<FileConfiguration
@@ -5614,58 +5626,6 @@
 			</File>
 			<File
 				RelativePath="stddlg.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Itanium"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Itanium"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="strftime.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -7922,11 +7882,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\datetime.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\delete.hpp"
 				>
 			</File>
 			<File
 				RelativePath="dialog.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\dirinfo.hpp"
 				>
 			</File>
 			<File
@@ -7950,6 +7918,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\execute.hpp"
+				>
+			</File>
+			<File
 				RelativePath="farconst.hpp"
 				>
 			</File>
@@ -7967,6 +7939,10 @@
 			</File>
 			<File
 				RelativePath="farwinapi.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ffolders.hpp"
 				>
 			</File>
 			<File
@@ -8010,6 +7986,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\filetype.hpp"
+				>
+			</File>
+			<File
 				RelativePath="fileview.hpp"
 				>
 			</File>
@@ -8023,6 +8003,10 @@
 			</File>
 			<File
 				RelativePath="fn.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fnparce.hpp"
 				>
 			</File>
 			<File
@@ -8220,11 +8204,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\options.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\palette.hpp"
 				>
 			</File>
 			<File
 				RelativePath="panel.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pathmix.hpp"
 				>
 			</File>
 			<File
@@ -8399,10 +8391,6 @@
 			</File>
 			<File
 				RelativePath=".\stddlg.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\strftime.hpp"
 				>
 			</File>
 			<File
