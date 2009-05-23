@@ -71,7 +71,8 @@ int ReturnAltValue=0;
 
 /* end Глобальные переменные */
 
-//static WCHAR KeyToKey[WCHAR_MAX]; BUBUG
+static SHORT KeyToVKey[WCHAR_MAX];
+static WCHAR VKeyToASCII[0x200];
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -310,15 +311,12 @@ static struct TFKey3 SpecKeyName[]={
    Вызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
    считает правильные данные.
 */
-void InitKeysArray() //BUGBUG
+void InitKeysArray()
 {
-// надо переделать функу для юникода, пока что KeyToKeyLayout отдаёт фигню из за этого
-#if 0
-  GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
-  int I;
-  HKL Layout[10];
+	//GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
 
-  int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
+	HKL Layout[10];
+	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
 
 	if (LayoutNumber==0)
 	{
@@ -357,137 +355,84 @@ void InitKeysArray() //BUGBUG
 		}
 	}
 
-  if (LayoutNumber < (int)countof(Layout))
-  {
-    if(!Opt.HotkeyRules)
-    {
-      unsigned char CvtStr[2];
-      CvtStr[1]=0;
-      for (I=0;I<=255;I++)
-      {
-        int Keys[10];
-        memset(Keys,0,sizeof(Keys));
-        for (int J=0; J < LayoutNumber; J++)
-        {
-          int AnsiKey=MapVirtualKeyExA(I,MAPVK_VK_TO_CHAR,Layout[J]) & 0xff;
-          if (AnsiKey==0)
-            continue;
-          CvtStr[0]=AnsiKey;
-          CvtStr[1]=0;
-          //CharToOemA((char *)CvtStr,(char *)CvtStr); //???
-          Keys[J]=CvtStr[0];
-        }
-        if (Keys[0]!=0 && Keys[1]!=0)
-        {
-          KeyToKey[LocalLower(Keys[0])]=LocalUpper(Keys[1]);
-          KeyToKey[LocalUpper(Keys[0])]=LocalUpper(Keys[1]);
-          KeyToKey[LocalLower(Keys[1])]=LocalUpper(Keys[0]);
-          KeyToKey[LocalUpper(Keys[1])]=LocalUpper(Keys[0]);
-        }
-      }
-    }
-    else
-    {
-      for (I=0;I<=255;I++)
-      {
-        for (int J=0;J<LayoutNumber;J++)
-        {
-          DWORD AnsiKey=VkKeyScanExA(I,Layout[J])&0xFF;
-          if (AnsiKey==0xFF)
-            continue;
-          DWORD MapKey=MapVirtualKeyA(AnsiKey,MAPVK_VK_TO_CHAR);
-          KeyToKey[I]=static_cast<unsigned char>( MapKey ? MapKey : AnsiKey );
-          break;
-        }
-      }
-    }
-  }
-  _SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
-  unsigned char KeyToKeyMap[256];
-  if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
-    memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
-  //_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
-#endif
+	memset(KeyToVKey,0,sizeof(KeyToVKey));
+	memset(VKeyToASCII,0,sizeof(VKeyToASCII));
+
+	if (LayoutNumber && LayoutNumber < (int)countof(Layout))
+	{
+
+		BYTE KeyState[0x100]={0};
+		WCHAR buf[1];
+
+		//KeyToVKey - используется чтоб проверить если два символа это одна и таже кнопка на клаве
+		//*********
+		//Так как сделать полноценное мапирование между всеми раскладками не реально,
+		//по причине того что во время проигрывания макросов нет такого понятия раскладка
+		//то сделаем наилучшую попытку - смысл такой, делаем полное мапирование всех возможных
+		//VKs и ShiftVKs в юникодные символы проходясь по всем раскладкам с одним но:
+		//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
+		//раскладки которая вернула этот символ
+		//
+		for (int j=0; j<2; j++)
+		{
+			KeyState[VK_SHIFT]=j*0x80;
+
+			for (int i=0; i<LayoutNumber; i++)
+			{
+				for (int VK=0; VK<256; VK++)
+				{
+					if (ToUnicodeEx(LOBYTE(VK),0,KeyState,buf,1,0,Layout[i]) > 0)
+					{
+						if (!KeyToVKey[buf[0]])
+							KeyToVKey[buf[0]] = VK + j*0x100;
+					}
+				}
+			}
+		}
+
+		//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
+		//***********
+		//Имея мапирование юникод -> VK строим обратное мапирование
+		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
+		for (int i=1, x=0; i < 0x80; i++)
+		{
+			x = KeyToVKey[i];
+			if (x && !VKeyToASCII[x])
+				VKeyToASCII[x]=Upper(i);
+		}
+	}
+
+	//_SVS(SysLogDump(L"KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
+	//unsigned char KeyToKeyMap[256];
+	//if(GetRegKey(L"System",L"KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
+		//memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
+	//_SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
 }
 
-//Сравнивает если Key в текущей раскладке это одна и таже клавиша как CompareKey в какой нибудь другой
-bool KeyToKeyLayoutCompare(int Key, int CompareKey) //BUGBUG не работает как надо пока InitKeysArray не доделан
+//Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках
+bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayoutCompare()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-	static string strLayoutName;
 
-	apiGetConsoleKeyboardLayoutName(strLayoutName);
-	HKL CL = (HKL)wcstoul(strLayoutName,NULL,16);
+	Key = KeyToVKey[Key&0xFFFF]&0xFF;
+	CompareKey = KeyToVKey[CompareKey&0xFFFF]&0xFF;
 
-	if (!CL)
-		return false;
-
-//	if (!Opt.HotkeyRules)
-//	{
-//	}
-//	else
-	{
-		SHORT VK = VkKeyScanExW(Key,CL)&0xFF;
-
-		if (VK == 255)
-			return false;
-
-		HKL Layout[10];
-		int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
-		for (int i=0; i<LayoutNumber; i++)
-		{
-			SHORT CompareVK = VkKeyScanExW(CompareKey,Layout[i])&0xFF;
-			if (CompareVK == VK)
-				return true;
-		}
-	}
+	if (Key != 0 && Key == CompareKey)
+		return true;
 
 	return false;
 }
 
 //Должно вернуть клавишный Eng эквивалент Key
-int KeyToKeyLayout(int Key) //BUGBUG не работает как надо пока InitKeysArray не доделан
+int KeyToKeyLayout(int Key)
 {
 	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
 	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-//	if (!Opt.HotkeyRules)
-//	{
-//	}
-//	else
-	{
-		HKL Layout[10];
-		int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
-    static BYTE KeyState[0x100]={0};
-    WCHAR buf[1];
-		for (int i=0; i<LayoutNumber; i++)
-		{
-			SHORT VK = VkKeyScanExW(Key,Layout[i]);
-			if (VK != -1)
-			{
 
-				if (HIBYTE(VK)&1)
-					KeyState[VK_SHIFT]=0x80;
-				else
-					KeyState[VK_SHIFT]=0;
-
-				int Ret=ToUnicodeEx(LOBYTE(VK),0,KeyState,buf,1,0,(HKL)0x409);
-
-				if (Ret > 0)
-					return Upper(buf[0]);
-
-				/*
-				int NewKey = MapVirtualKeyEx(VK,MAPVK_VK_TO_CHAR,(HKL)0x409)&0xFFFF;
-				if (NewKey != 0)
-				{
-					return Upper(NewKey);
-				}
-				*/
-
-				return Key;
-			}
-		}
-	}
+	int VK = KeyToVKey[Key&0xFFFF];
+	if (VK && VKeyToASCII[VK])
+		return VKeyToASCII[VK];
 
 	return Key;
 }
@@ -1799,19 +1744,16 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 		{
 			if(Len == 1 || Pos == Len-1)
 			{
-				WORD Chr=(WORD)Name[Pos];
-				if (Chr > 0 && Chr < 0xFFFF)
+				int Chr=Name[Pos];
+				if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
 				{
-					if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
-					{
-						if(Chr > 0x7F)
-							Chr=KeyToKeyLayout(Chr);
-						Chr=Upper(Chr);
-					}
-					Key|=Chr;
-					if(Chr)
-						Pos++;
+					if(Chr > 0x7F)
+						Chr=KeyToKeyLayout(Chr);
+					Chr=Upper(Chr);
 				}
+				Key|=Chr;
+				if(Chr)
+					Pos++;
 			}
 			else if(Key & (KEY_ALT|KEY_RALT))
 			{
@@ -1911,7 +1853,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
             else
               KeyText[0]=(wchar_t)(Key&0xFFFF);
           }
-          else if ((Key&0xFFFF) > 0 && (Key&0xFFFF) < 0xFFFF)
+          else
             KeyText[0]=(wchar_t)Key&0xFFFF;
 
           strKeyText += (const wchar_t*)KeyText;
