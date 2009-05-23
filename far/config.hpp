@@ -518,7 +518,6 @@ struct Options
   int SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
   int ExceptRules; // Правило на счет вызова исключений
   int ExceptCallDebugger; // вызывать дебаггер при исключении
-  int HotkeyRules; // Правило на счет выбора механизма хоткеев
   /*
    + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
      Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
@@ -722,7 +721,6 @@ struct Options
     SetAttrFolderRules=0;
     ExceptRules=0;
     ExceptCallDebugger=0;
-    HotkeyRules=0;
     ShiftsKeyRules=0;
     MacroReuseRules=0;
 

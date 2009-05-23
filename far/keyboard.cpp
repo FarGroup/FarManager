@@ -315,9 +315,6 @@ static struct TFKey3 SpecKeyName[]={
 */
 void InitKeysArray()
 {
-	//GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
-	Opt.HotkeyRules=1;
-
 	HKL Layout[10];
 	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
 
@@ -2873,9 +2870,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPU
     {
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
         return(Upper(Char.UnicodeChar)+KEY_ALT);
-      else if(WaitInMainLoop ||
-              !Opt.HotkeyRules //????
-           )
+      else if(WaitInMainLoop)
         return(KEY_ALT+Char.UnicodeChar);
     }
     if (!RealKey && KeyCode==VK_MENU)
