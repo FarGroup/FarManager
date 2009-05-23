@@ -40,6 +40,7 @@ SRCS = 	cddrv.cpp \
 	dirinfo.cpp \
 	dizlist.cpp \
 	dlgedit.cpp \
+	DList.cpp \
 	edit.cpp \
 	editor.cpp \
 	eject.cpp \

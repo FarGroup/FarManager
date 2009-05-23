@@ -971,7 +971,7 @@ static struct FARConfig{
 	{1, REG_DWORD,  NKeyEditor,L"AutoDetectCodePage",&Opt.EdOpt.AutoDetectCodePage,0, 0},
   {1, REG_DWORD,  NKeyEditor,L"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
   {1, REG_DWORD,  NKeyEditor,L"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
-  {0, REG_DWORD,  NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,2048,0}, // $ 03.12.2001 IS размер буфера undo в редакторе
+  {0, REG_DWORD,  NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,0, 0}, // $ 03.12.2001 IS размер буфера undo в редакторе
   {0, REG_SZ,     NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
   {0, REG_DWORD,  NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
   {0, REG_DWORD,  NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,1, 0},
@@ -1231,13 +1231,6 @@ void ReadConfig()
 
   Opt.ViOpt.ViewerIsWrap&=1;
   Opt.ViOpt.ViewerWrap&=1;
-
-  /* $ 03.12.2001 IS
-      Если EditorUndoSize слишком маленькое или слишком большое,
-      то сделаем размер undo такой же, как и в старых версиях
-  */
-  if (Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
-    Opt.EdOpt.UndoSize=64;
 
   // Исключаем случайное стирание разделителей ;-)
   if ( Opt.strWordDiv.IsEmpty() )

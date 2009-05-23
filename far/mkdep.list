@@ -39,6 +39,8 @@ dizlist.cpp
 dizlist.hpp
 dlgedit.cpp
 dlgedit.hpp
+DList.cpp
+DList.hpp
 edit.cpp
 edit.hpp
 editor.cpp

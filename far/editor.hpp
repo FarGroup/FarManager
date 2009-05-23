@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
+#include "DList.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -70,12 +71,41 @@ struct EditorCacheParams {
 struct EditorUndoData
 {
   int Type;
-  int UndoNext;
   int StrPos;
   int StrNum;
   wchar_t EOL[10];
   int Length;
   wchar_t *Str;
+
+  EditorUndoData()
+  {
+    memset(this, 0, sizeof(*this));
+  }
+  ~EditorUndoData()
+  {
+    delete[] Str;
+  }
+  void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)
+  {
+    if(Length == -1 && Str)
+      Length=(int)StrLength(Str);
+
+    this->Type=Type;
+    this->StrPos=StrPos;
+    this->StrNum=StrNum;
+    this->Length=Length;
+    xwcsncpy(EOL,Eol?Eol:L"",countof(EOL)-1);
+
+    delete[] this->Str;
+    if (Str!=NULL)
+    {
+      this->Str=new wchar_t[Length+1];
+      if (this->Str!=NULL)
+        wmemmove(this->Str,Str,Length);
+    }
+    else
+      this->Str=NULL;
+  }
 };
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
@@ -88,8 +118,8 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_MARKINGVBLOCK         = 0x00001000,
   FEDITOR_WASCHANGED            = 0x00002000,
   FEDITOR_OVERTYPE              = 0x00004000,
-  FEDITOR_UNDOOVERFLOW          = 0x00008000,   // Переполнение в ундо?
   FEDITOR_NEWUNDO               = 0x00010000,
+  FEDITOR_UNDOSAVEPOSLOST       = 0x00020000,
   FEDITOR_DISABLEUNDO           = 0x00040000,   // возможно процесс Undo уже идет?
   FEDITOR_LOCKMODE              = 0x00080000,
   FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
@@ -131,9 +161,10 @@ class Editor:public ScreenObject
     Edit *TopScreen;
     Edit *CurLine;
 
-    struct EditorUndoData *UndoData;  // $ 03.12.2001 IS: теперь указатель, т.к. размер может меняться
-    int UndoDataPos;
-    int UndoSavePos;
+    DList<EditorUndoData> UndoData;
+    EditorUndoData *UndoPos;
+    EditorUndoData *UndoSavePos;
+    int UndoSkipLevel;
 
     int LastChangeStrPos;
     int NumLastLine;
@@ -159,7 +190,6 @@ class Editor:public ScreenObject
     int VBlockSizeX;
     int VBlockY;
     int VBlockSizeY;
-    int BlockUndo;
 
     int MaxRightPos;
 
@@ -210,8 +240,8 @@ class Editor:public ScreenObject
     void UnmarkEmptyBlock();
     void UnmarkMacroBlock();
 
-    void AddUndoData(const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Type,int Length=-1);
-    void Undo();
+    void AddUndoData(int Type,const wchar_t *Str=NULL,const wchar_t *Eol=NULL,int StrNum=0,int StrPos=0,int Length=-1);
+    void Undo(int redo);
     void SelectAll();
     //void SetStringsTable();
     void BlockLeft();

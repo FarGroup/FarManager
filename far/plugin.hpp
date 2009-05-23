@@ -1368,6 +1368,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_CLEARSTACKBOOKMARKS,
   ECTL_DELETESTACKBOOKMARK,
   ECTL_GETSTACKBOOKMARKS,
+  ECTL_UNDOREDO,
 #ifdef FAR_USE_INTERNALS
   ECTL_SERVICEREGION,
 #endif // END FAR_USE_INTERNALS
@@ -1405,6 +1406,21 @@ struct EditorSetParameter
   } Param;
   DWORD Flags;
   DWORD Reserved2;
+};
+
+
+enum EDITOR_UNDOREDO_COMMANDS {
+  EUR_BEGIN,
+  EUR_END,
+  EUR_UNDO,
+  EUR_REDO
+};
+
+
+struct EditorUndoRedo
+{
+  int Command;
+  DWORD_PTR Reserved[3];
 };
 
 struct EditorGetString

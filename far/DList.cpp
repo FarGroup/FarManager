@@ -1,13 +1,10 @@
-#ifndef __FARCONST_HPP__
-#define __FARCONST_HPP__
 /*
-farconst.hpp
+DList.cpp
 
-содержит все enum, #define, etc
+двусвязный список
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright (c) 2009 lort
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,5 +30,74 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "headers.hpp"
+#pragma hdrstop
 
-#endif // __FARCONST_HPP__
+#include "DList.hpp"
+
+CDList::CDList()
+{
+  Length=0;
+  root.next=&root;
+  root.prev=&root;
+}
+void CDList::Clear()
+{
+  Node *f=root.next;
+  while(f!=&root)
+  {
+    Node *f1=f;
+    f=f->next;
+    DeleteNode(f1);
+  }
+  Length=0;
+  root.next=&root;
+  root.prev=&root;
+}
+void CDList::CSwap(CDList &l)
+{
+  Node *pr=root.prev;
+  root.next->prev=&l.root;
+  pr->next=&l.root;
+  pr=l.root.prev;
+  l.root.next->prev=&root;
+  pr->next=&root;
+
+  int tLength=Length;
+  Node troot=root;
+  Length=l.Length;
+  root=l.root;
+  l.Length=tLength;
+  l.root=troot;
+}
+void *CDList::CInsertBefore(void *b, void *item)
+{
+  Node *Before=b ? (Node*)((BYTE*)b-sizeof(Node)) : &root;
+
+  Node *node=AllocNode(item);
+  node->prev=Before->prev;
+  node->next=Before;
+  Before->prev->next=node;
+  Before->prev=node;
+
+  ++Length;
+  return ((BYTE*)node)+sizeof(Node);
+}
+void *CDList::CInsertAfter(void *a, void *item)
+{
+  Node *After=a ? (Node*)((BYTE*)a-sizeof(Node)) : &root;
+  return CInsertBefore((BYTE*)After->next+sizeof(Node), item);
+}
+void *CDList::CDelete(void *item)
+{
+  Node *node=(Node*)((BYTE*)item-sizeof(Node));
+
+  Node *pr=node->prev;
+  Node *nx=node->next;
+  pr->next=nx;
+  nx->prev=pr;
+
+  --Length;
+  DeleteNode(node);
+  return pr==&root ? NULL : ((BYTE*)pr)+sizeof(Node);
+}

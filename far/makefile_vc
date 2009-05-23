@@ -108,6 +108,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\dirinfo.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\dlgedit.obj" \
+	"$(INTDIR)\DList.obj" \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \

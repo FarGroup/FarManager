@@ -4962,7 +4962,7 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 
 /*
   Return: 0 - не в режиме макро, 1 - Executing, 2 - Executing common, 3 - Recording, 4 - Recording common
-  See farconst.hpp::MacroRecordAndExecuteType
+  See MacroRecordAndExecuteType
 */
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {

@@ -1723,8 +1723,8 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
       goto end;
     }
 
-    m_editor->UndoSavePos=m_editor->UndoDataPos;
-    m_editor->Flags.Clear(FEDITOR_UNDOOVERFLOW);
+    m_editor->UndoSavePos=m_editor->UndoPos;
+    m_editor->Flags.Clear(FEDITOR_UNDOSAVEPOSLOST);
 
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
 /*
