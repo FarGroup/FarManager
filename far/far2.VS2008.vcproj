@@ -1473,6 +1473,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\DList.cpp"
+				>
+			</File>
+			<File
 				RelativePath="edit.cpp"
 				>
 				<FileConfiguration
@@ -7906,6 +7910,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DList.hpp"
+				>
+			</File>
+			<File
 				RelativePath="edit.hpp"
 				>
 			</File>
@@ -7919,10 +7927,6 @@
 			</File>
 			<File
 				RelativePath=".\execute.hpp"
-				>
-			</File>
-			<File
-				RelativePath="farconst.hpp"
 				>
 			</File>
 			<File
@@ -8403,10 +8407,6 @@
 			</File>
 			<File
 				RelativePath=".\TaskBar.hpp"
-				>
-			</File>
-			<File
-				RelativePath="TList.hpp"
 				>
 			</File>
 			<File
