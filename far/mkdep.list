@@ -192,7 +192,6 @@ setcolor.cpp
 stddlg.cpp
 strftime.cpp
 strmix.cpp
-struct.hpp
 syntax.cpp
 syntax.hpp
 syslog.cpp

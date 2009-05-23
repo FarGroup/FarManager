@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "bitflags.hpp"
 
-
 //изменить флаги (подвинуть убрав FEDITLINE_CONVERTTABS)
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
@@ -61,6 +60,12 @@ enum FLAGS_CLASS_EDITLINE{
   FEDITLINE_PARENT_EDITOR        = 0x00400000,  // "вверху" обычный редактор
 };
 
+struct ColorItem
+{
+  int StartPos;
+  int EndPos;
+  int Color;
+};
 
 interface ICPEncoder {
 

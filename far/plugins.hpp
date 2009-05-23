@@ -132,6 +132,12 @@ enum PLUGINSETFLAGS{
   PSIF_PLUGINSLOADDED           = 0x80000000, // пагины загружены
 };
 
+struct PluginHandle
+{
+  HANDLE hPlugin;
+  class Plugin *pPlugin;
+};
+
 class PluginManager
 {
 private:

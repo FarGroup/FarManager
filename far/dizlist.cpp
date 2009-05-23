@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 int _cdecl SortDizSearch(const void *key,const void *elem);

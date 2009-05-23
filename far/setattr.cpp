@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 

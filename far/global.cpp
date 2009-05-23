@@ -45,8 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OSVERSIONINFOW WinVer={0};
 
-struct Options Opt;// BUG !! ={0};
-
 // языковой файл загружен?
 bool LanguageLoaded=false;
 

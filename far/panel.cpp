@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hotplug.hpp"
 #include "eject.hpp"
 #include "clipboard.hpp"
+#include "config.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "iswind.hpp"
 #include "imports.hpp"
+#include "config.hpp"
 
 HWND hFarWnd;
 static BOOL WindowedMode=FALSE;

@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "interf.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 // Стек возврата
 class CallBackStack

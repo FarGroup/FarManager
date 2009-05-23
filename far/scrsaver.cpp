@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
+#include "config.hpp"
 
 static void ShowSaver(int Step);
 

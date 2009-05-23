@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "localOEM.hpp"
 #include "syslog.hpp"
 #include "registry.hpp"
+#include "config.hpp"
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 

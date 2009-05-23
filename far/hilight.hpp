@@ -34,12 +34,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CFileMask.hpp"
-
-#include "filefilterparams.hpp"
 #include "array.hpp"
 
 class VMenu;
+class FileFilterParams;
 struct FileListItem;
+
+enum enumHighlightDataColor
+{
+  HIGHLIGHTCOLOR_NORMAL = 0,
+  HIGHLIGHTCOLOR_SELECTED,
+  HIGHLIGHTCOLOR_UNDERCURSOR,
+  HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
+
+  HIGHLIGHTCOLORTYPE_FILE = 0,
+  HIGHLIGHTCOLORTYPE_MARKCHAR = 1,
+};
+
+struct HighlightDataColor
+{
+  WORD Color[2][4]; // [0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]; if HIBYTE == 0xFF then transparent
+  DWORD MarkChar;
+};
 
 class HighlightFiles
 {

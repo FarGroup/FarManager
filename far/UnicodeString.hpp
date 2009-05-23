@@ -231,15 +231,7 @@ public:
 	wchar_t *GetBuffer (size_t nSize = (size_t)-1);
 	void ReleaseBuffer (size_t nLength = (size_t)-1);
 
-	size_t SetLength(size_t nLength)
-	{
-		if (nLength < m_pData->GetLength())
-		{
-			Inflate(nLength+1);
-			return m_pData->SetLength(nLength);
-		}
-		return m_pData->GetLength();
-	}
+	size_t SetLength(size_t nLength);
 
 	wchar_t At (size_t nIndex) const
 	{

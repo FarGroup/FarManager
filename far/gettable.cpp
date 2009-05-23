@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
+#include "config.hpp"
 
 // Стандартные кодовое страницы
 enum StandardCodePages

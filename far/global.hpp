@@ -42,8 +42,6 @@ extern DWORD InitialConsoleMode;
 extern OSVERSIONINFOW WinVer;
 #endif
 
-extern struct Options Opt;
-
 class FileEditor;
 extern FileEditor *CurrentEditor;
 

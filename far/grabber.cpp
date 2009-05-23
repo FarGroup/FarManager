@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
+#include "config.hpp"
 
 Grabber::Grabber()
 {

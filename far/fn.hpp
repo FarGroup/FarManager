@@ -34,7 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plugin.hpp"
-#include "filefilter.hpp"
+
+class FileFilter;
 
 void SetHighlighting();
 void _export StartFAR();

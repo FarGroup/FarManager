@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "palette.hpp"
+#include "config.hpp"
 
 enum{
   SBFLAGS_FLUSHED         = 0x00000001,

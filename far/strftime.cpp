@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fn.hpp"
 #include "lang.hpp"
+#include "config.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 

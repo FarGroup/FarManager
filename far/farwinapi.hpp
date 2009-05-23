@@ -39,6 +39,51 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define NT_MAX_PATH 32768
 
+struct FAR_FIND_DATA_EX
+{
+	DWORD    dwFileAttributes;
+	FILETIME ftCreationTime;
+	FILETIME ftLastAccessTime;
+	FILETIME ftLastWriteTime;
+	unsigned __int64 nFileSize;
+
+	union {
+		unsigned __int64 nPackSize; //same as reserved
+		struct {
+			DWORD dwReserved0;
+			DWORD dwReserved1;
+		};
+	};
+
+	string   strFileName;
+	string   strAlternateFileName;
+
+	void Clear()
+	{
+		dwFileAttributes=0;
+		memset(&ftCreationTime,0,sizeof(ftCreationTime));
+		memset(&ftLastAccessTime,0,sizeof(ftLastAccessTime));
+		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
+		nFileSize=_ui64(0);
+		nPackSize=_ui64(0);
+		strFileName=L"";
+		strAlternateFileName=L"";
+	}
+
+	FAR_FIND_DATA_EX& operator=(const FAR_FIND_DATA_EX &ffdexCopy)
+	{
+		dwFileAttributes=ffdexCopy.dwFileAttributes;
+		memcpy(&ftCreationTime,&ffdexCopy.ftCreationTime,sizeof(ftCreationTime));
+		memcpy(&ftLastAccessTime,&ffdexCopy.ftLastAccessTime,sizeof(ftLastAccessTime));
+		memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
+		nFileSize=ffdexCopy.nFileSize;
+		nPackSize=ffdexCopy.nPackSize;
+		strFileName=ffdexCopy.strFileName;
+		strAlternateFileName=ffdexCopy.strAlternateFileName;
+		return *this;
+	}
+};
+
 class NTPath
 {
 public:

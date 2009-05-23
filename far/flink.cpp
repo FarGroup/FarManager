@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "lasterror.hpp"
 #include "cddrv.hpp"
+#include "config.hpp"
 
 struct TMN_REPARSE_DATA_BUFFER
 {

@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "registry.hpp"
 #include "iswind.hpp"
+#include "config.hpp"
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
                     int StartPos,

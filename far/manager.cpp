@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "grabber.hpp"
 #include "iswind.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 Manager *FrameManager;
 

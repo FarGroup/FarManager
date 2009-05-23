@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "udlist.hpp"
 #include "registry.hpp"
+#include "config.hpp"
 
 #define MSIZE_PARAM            (Opt.MaxPositionCache*SizeValue*5)
 #define MSIZE_POSITION         (BOOKMARK_COUNT*Opt.MaxPositionCache*SizeValue*4)

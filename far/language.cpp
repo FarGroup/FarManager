@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "manager.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 extern wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType);
 

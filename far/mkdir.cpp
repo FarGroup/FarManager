@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "udlist.hpp"
 #include "message.hpp"
+#include "config.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {

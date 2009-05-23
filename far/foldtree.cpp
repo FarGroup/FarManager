@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
+#include "config.hpp"
 
 FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen)
 {

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "registry.hpp"
 #include "array.hpp"
+#include "config.hpp"
 
 static LONG CloseRegKey(HKEY hKey);
 

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "poscache.hpp"
 #include "bitflags.hpp"
-#include "fn.hpp"
+#include "config.hpp"
 
 class FileEditor;
 class KeyBar;

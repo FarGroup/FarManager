@@ -254,6 +254,23 @@ void UnicodeString::ReleaseBuffer (size_t nLength)
 	m_pData->SetLength (nLength);
 }
 
+size_t UnicodeString::SetLength(size_t nLength)
+{
+	if (!nLength && m_pData->GetRef() > 1)
+	{
+		m_pData->DecRef();
+		m_pData = eus();
+		m_pData->AddRef();
+	}
+	else if (nLength < m_pData->GetLength())
+	{
+		Inflate(nLength+1);
+		return m_pData->SetLength(nLength);
+	}
+	return m_pData->GetLength();
+}
+
+
 int __cdecl UnicodeString::Format (const wchar_t * format, ...)
 {
 	wchar_t *buffer = NULL;

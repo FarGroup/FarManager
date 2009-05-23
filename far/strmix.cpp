@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "lang.hpp"
 #include "language.hpp"
+#include "config.hpp"
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 {

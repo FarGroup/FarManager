@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "interf.hpp"
 #include "palette.hpp"
+#include "config.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;

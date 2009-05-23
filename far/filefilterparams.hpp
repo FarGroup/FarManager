@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "CFileMask.hpp"
 #include "bitflags.hpp"
+#include "hilight.hpp"
 
 struct FileListItem;
 
