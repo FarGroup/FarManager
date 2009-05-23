@@ -1174,3 +1174,118 @@ int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int L
   }
   return TRUE;
 }
+
+string& HiText2Str(string& strDest, const wchar_t *Str)
+{
+  const wchar_t *ChPtr;
+  strDest = Str;
+  if ((ChPtr=wcschr(Str,L'&')) != NULL)
+  {
+    /*
+       &&      = '&'
+       &&&     = '&'
+                  ^H
+       &&&&    = '&&'
+       &&&&&   = '&&'
+                  ^H
+       &&&&&&  = '&&&'
+    */
+    int I=0;
+    const wchar_t *ChPtr2=ChPtr;
+    while (*ChPtr2++ == L'&')
+      ++I;
+
+    if (I&1) // нечет?
+    {
+      strDest.SetLength(ChPtr-Str);
+
+      if (ChPtr[1])
+      {
+        wchar_t Chr[2];
+        Chr[0]=ChPtr[1]; Chr[1]=0;
+        strDest+=Chr;
+
+        string strText = (ChPtr+1);
+
+        ReplaceStrings(strText,L"&&",L"&",-1);
+
+        strDest+=(const wchar_t*)strText+1;
+      }
+    }
+    else
+    {
+      ReplaceStrings(strDest,L"&&",L"&",-1);
+    }
+  }
+  return strDest;
+}
+
+int HiStrlen(const wchar_t *Str)
+{
+  int Length=0;
+
+  if (Str && *Str)
+  {
+    while (*Str)
+    {
+      if (*Str!=L'&')
+      {
+        Length++;
+      }
+      else
+      {
+        if (Str[1] == L'&')
+        {
+          Length++;
+          ++Str;
+        }
+      }
+      Str++;
+    }
+  }
+  return(Length);
+}
+
+int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
+{
+	/*
+			&&      = '&'
+			&&&     = '&'
+								 ^H
+			&&&&    = '&&'
+			&&&&&   = '&&'
+								 ^H
+			&&&&&&  = '&&&'
+	*/
+
+	if (ShowAmp)
+	{
+		return Pos;
+	}
+
+	int RealPos = 0;
+	int VisPos = 0;
+
+	if (Str)
+	{
+		while (VisPos < Pos && *Str)
+		{
+			if (*Str == L'&')
+			{
+				Str++;
+				RealPos++;
+				if (*Str == L'&' && *(Str+1) == L'&' && *(Str+2) != L'&')
+				{
+					Str++;
+					RealPos++;
+				}
+			}
+
+			Str++;
+			VisPos++;
+			RealPos++;
+		}
+	}
+
+	return RealPos;
+}

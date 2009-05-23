@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "cddrv.hpp"
 #include "syslog.hpp"
+#include "pathmix.hpp"
 
 int ConvertNameToFull (
         const wchar_t *lpwszSrc,

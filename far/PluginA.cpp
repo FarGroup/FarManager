@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "xlat.hpp"
 #include "fileowner.hpp"
+#include "pathmix.hpp"
 
 #include "wrap.cpp"
 

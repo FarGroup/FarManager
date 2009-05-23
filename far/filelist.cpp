@@ -68,6 +68,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "print.hpp"
 #include "mkdir.hpp"
 #include "setattr.hpp"
+#include "filetype.hpp"
+#include "execute.hpp"
+#include "ffolders.hpp"
+#include "fnparce.hpp"
+#include "datetime.hpp"
+#include "dirinfo.hpp"
+#include "pathmix.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 

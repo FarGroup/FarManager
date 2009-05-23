@@ -53,6 +53,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "fileowner.hpp"
+#include "delete.hpp"
+#include "pathmix.hpp"
+#include "network.hpp"
 
 // Флаги для ReadDiz()
 enum ReadDizFlags {

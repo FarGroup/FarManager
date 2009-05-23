@@ -50,6 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "message.hpp"
 #include "usermenu.hpp"
+#include "filetype.hpp"
+#include "fnparce.hpp"
+#include "execute.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*

@@ -177,4 +177,9 @@ inline void SetVidChar(CHAR_INFO& CI,wchar_t Chr)
 	CI.Char.UnicodeChar = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
 }
 
+int HiStrlen(const wchar_t *Str);
+int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
+string& HiText2Str(string& strDest, const wchar_t *Str);
+#define RemoveHighlights(Str) RemoveChar(Str,L'&')
+
 #endif // __INTERF_HPP__

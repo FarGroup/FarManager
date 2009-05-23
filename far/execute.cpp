@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "execute.hpp"
 #include "keyboard.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
@@ -54,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "iswind.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -552,7 +554,67 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 	return Result;
 }
 
+/*
+ возвращает PipeFound
+*/
+int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar)
+{
+  int PipeFound = FALSE;
+  int QuoteFound = FALSE;
 
+  apiExpandEnvironmentStrings (CmdStr, strNewCmdStr);
+  RemoveExternalSpaces(strNewCmdStr);
+
+  wchar_t *NewCmdStr = strNewCmdStr.GetBuffer();
+  wchar_t *CmdPtr = NewCmdStr;
+  wchar_t *ParPtr = NULL;
+
+  // Разделим собственно команду для исполнения и параметры.
+  // При этом заодно определим наличие символов переопределения потоков
+  // Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+
+  while (*CmdPtr)
+  {
+    if (*CmdPtr == L'"')
+      QuoteFound = !QuoteFound;
+    if (!QuoteFound && CmdPtr != NewCmdStr)
+    {
+      if (*CmdPtr == L'>' ||
+          *CmdPtr == L'<' ||
+          *CmdPtr == L'|' ||
+          *CmdPtr == L' ' ||
+          *CmdPtr == L'/' || // вариант "far.exe/?"
+          *CmdPtr == L'&'    // обработаем разделитель команд
+         )
+      {
+        if (!ParPtr)
+          ParPtr = CmdPtr;
+        if (*CmdPtr != L' ' && *CmdPtr != L'/')
+          PipeFound = TRUE;
+      }
+    }
+
+    if (ParPtr && PipeFound)
+    // Нам больше ничего не надо узнавать
+      break;
+    CmdPtr++;
+  }
+
+  if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
+  {
+    if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
+      *(ParPtr++)=0;     //    он добавляется заново в Execute.
+
+    strNewCmdPar = ParPtr;
+    *ParPtr = 0;
+  }
+
+  strNewCmdStr.ReleaseBuffer ();
+
+  Unquote(strNewCmdStr);
+
+  return PipeFound;
+}
 
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
@@ -1503,4 +1565,34 @@ bool IsBatchExtType(const wchar_t *ExtPtr)
 		}
 	}
 	return Result;
+}
+
+BOOL ProcessOSAliases(string &strStr)
+{
+  string strNewCmdStr;
+  string strNewCmdPar;
+
+  PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
+
+  string strModuleName;
+  apiGetModuleFileName(NULL,strModuleName);
+  const wchar_t* lpwszExeName=PointToName(strModuleName);
+  int nSize=(int)strNewCmdStr.GetLength()+4096;
+  wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
+  int ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+  if(!ret)
+  {
+    if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
+    {
+      lpwszExeName=PointToName(strModuleName);
+      ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+    }
+  }
+  strNewCmdStr.ReleaseBuffer();
+  if(!ret)
+    return FALSE;
+  if(!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
+    strNewCmdStr+=L" "+strNewCmdPar;
+  strStr=strNewCmdStr;
+  return TRUE;
 }

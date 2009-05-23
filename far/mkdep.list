@@ -27,10 +27,14 @@ ctrlobj.cpp
 ctrlobj.hpp
 cvtname.cpp
 cvtname.hpp
+datetime.cpp
+datetime.hpp
 delete.cpp
 delete.hpp
 dialog.cpp
 dialog.hpp
+dirinfo.cpp
+dirinfo.hpp
 dizlist.cpp
 dizlist.hpp
 dlgedit.cpp
@@ -42,7 +46,7 @@ editor.hpp
 eject.cpp
 eject.hpp
 execute.cpp
-farconst.hpp
+execute.hpp
 farexcpt.cpp
 farexcpt.hpp
 farqueue.cpp
@@ -52,6 +56,7 @@ farrtl.hpp
 farwinapi.cpp
 farwinapi.hpp
 ffolders.cpp
+ffolders.hpp
 fileattr.cpp
 fileattr.hpp
 fileedit.cpp
@@ -73,6 +78,7 @@ filepanels.hpp
 filestr.cpp
 filestr.hpp
 filetype.cpp
+filetype.hpp
 fileview.cpp
 fileview.hpp
 findfile.cpp
@@ -85,6 +91,7 @@ flshow.cpp
 flupdate.cpp
 fn.hpp
 fnparce.cpp
+fnparce.hpp
 foldtree.cpp
 foldtree.hpp
 frame.cpp
@@ -149,10 +156,13 @@ namelist.hpp
 network.cpp
 network.hpp
 options.cpp
+options.hpp
 palette.cpp
 palette.hpp
 panel.cpp
 panel.hpp
+pathmix.cpp
+pathmix.hpp
 plclass.hpp
 plist.cpp
 plist.hpp
@@ -200,8 +210,6 @@ setcolor.cpp
 setcolor.hpp
 stddlg.cpp
 stddlg.hpp
-strftime.cpp
-strftime.hpp
 strmix.cpp
 syntax.cpp
 syntax.hpp

@@ -67,6 +67,14 @@ struct ColorItem
   int Color;
 };
 
+enum SetCPFlags
+{
+	SETCP_NOERROR    = 0x00000000,
+	SETCP_WC2MBERROR = 0x00000001,
+	SETCP_MB2WCERROR = 0x00000002,
+	SETCP_OTHERERROR = 0x10000000,
+};
+
 interface ICPEncoder {
 
 	virtual int __stdcall AddRef () = 0;

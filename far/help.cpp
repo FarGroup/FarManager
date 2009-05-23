@@ -51,6 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "execute.hpp"
+#include "pathmix.hpp"
 
 // Стек возврата
 class CallBackStack

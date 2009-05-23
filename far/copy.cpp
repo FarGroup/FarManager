@@ -68,6 +68,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "stddlg.hpp"
 #include "fileattr.hpp"
+#include "datetime.hpp"
+#include "dirinfo.hpp"
+#include "pathmix.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;

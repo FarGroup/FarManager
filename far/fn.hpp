@@ -33,114 +33,106 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plugin.hpp"
+enum {
+  COLUMN_MARK           = 0x80000000,
+  COLUMN_NAMEONLY       = 0x40000000,
+  COLUMN_RIGHTALIGN     = 0x20000000,
+  COLUMN_FORMATTED      = 0x10000000,
+  COLUMN_COMMAS         = 0x08000000,
+  COLUMN_THOUSAND       = 0x04000000,
+  COLUMN_BRIEF          = 0x02000000,
+  COLUMN_MONTH          = 0x01000000,
+  COLUMN_FLOATSIZE      = 0x00800000,
+  COLUMN_ECONOMIC       = 0x00400000,
+  COLUMN_MINSIZEINDEX   = 0x00200000,
+  COLUMN_SHOWBYTESINDEX = 0x00100000,
+  COLUMN_FULLOWNER      = 0x00080000,
 
-class FileFilter;
+  //MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T)
+  COLUMN_MINSIZEINDEX_MASK = 0x00000003,
+};
 
-const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error);
+enum {
+  // DRIVE_UNKNOWN            = 0,
+  // DRIVE_NO_ROOT_DIR        = 1,
+  // DRIVE_REMOVABLE          = 2,
+  // DRIVE_FIXED              = 3,
+  // DRIVE_REMOTE             = 4,
+  // DRIVE_CDROM              = 5,
+  // DRIVE_RAMDISK            = 6,
+
+  DRIVE_SUBSTITUTE            =15,
+  DRIVE_REMOTE_NOT_CONNECTED  =16,
+  DRIVE_CD_RW                 =18,
+  DRIVE_CD_RWDVD              =19,
+  DRIVE_DVD_ROM               =20,
+  DRIVE_DVD_RW                =21,
+  DRIVE_DVD_RAM               =22,
+  DRIVE_USBDRIVE              =40,
+  DRIVE_NOT_INIT              =255,
+};
+
+enum {
+    XC_QUIT                = (unsigned long) -777,
+    XC_OPEN_ERROR          = 0,
+    XC_MODIFIED            = 1,
+    XC_NOT_MODIFIED        = 2,
+    XC_LOADING_INTERRUPTED = 3,
+    XC_EXISTS              = 4,
+};
+
+enum CHECKFOLDERCONST{ // for CheckFolder()
+  CHKFLD_ERROR     = -2,
+  CHKFLD_NOTACCESS = -1,
+  CHKFLD_EMPTY     =  0,
+  CHKFLD_NOTEMPTY  =  1,
+  CHKFLD_NOTFOUND  =  2,
+};
+
+enum CHECKEDPROPS_TYPE{
+  CHECKEDPROPS_ISSAMEDISK,
+  CHECKEDPROPS_ISDST_ENCRYPTION,
+};
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
 
-void DeleteDirTree(const wchar_t *Dir);
-
-void Log(char *fmt,...);
-
 string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup=TRUE);
-
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
-
 int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
-
-#define RemoveHighlights(Str) RemoveChar(Str,L'&')
-
 BOOL IsCaseMixed(const string &strStr);
 BOOL IsCaseLower(const string &strStr);
 
-int DeleteFileWithFolder(const wchar_t *FileName);
-
 int ToPercent(unsigned long N1,unsigned long N2);
 int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
+
+const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath=TRUE);
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags);
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str);
 string &QuoteSpace(string &strStr);
-
-
 wchar_t* WINAPI InsertQuote(wchar_t *Str);
 string& InsertQuote(string& strStr);
-
-int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish);
-int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish);
-void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish);
-
-int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
-                  string *strListName=NULL,
-                  string *strAnotherListName = NULL,
-                  string *strShortListName=NULL,
-                  string *strAnotherShortListName=NULL,
-                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
-BOOL ExtractIfExistCommand(string &strCommandText);
-void EditFileTypes();
-
-int  IsLocalDrive(const wchar_t *Path);
-
-int HiStrlen(const wchar_t *Str);
-int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
-
-bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
-
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 
-int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL,
-                      string *pPluginFile=NULL,string *pPluginData=NULL);
-int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL,
-                       string *pPluginFile=NULL,string *pPluginData=NULL);
-int GetShortcutFolderSize(int Key);
-void ShowFolderShortcut();
-void ShowFilter();
-
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
-const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
-
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
-
-void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
-void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
 
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
 
-void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
-        int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
-void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
-
-void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
-
 int CheckFolder(const wchar_t *Name);
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
-
-int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 
 class Panel;
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
-
-int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,unsigned __int64 &FileSize,
-               unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
-               unsigned long &ClusterSize,clock_t MsgWaitTime,
-               FileFilter *Filter,
-               DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
-int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,unsigned __int64 &FileSize,
-               unsigned __int64 &CompressedFileSize);
 
 BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize);
 BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
@@ -182,12 +174,9 @@ BOOL TestCurrentFolderName(const wchar_t *Name);
 
 BOOL  AddEndSlash(string &strPath, wchar_t TypeSlash);
 BOOL  AddEndSlash(string &strPath);
-
 BOOL  AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 BOOL  WINAPI AddEndSlash(wchar_t *Path);
-
 BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
-
 string& ReplaceSlashToBSlash(string& strStr);
 
 #ifdef __cplusplus
@@ -199,8 +188,6 @@ void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSE
 
 wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
-
-void CreatePath(string &strPath);
 
 /* $ 15.02.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
@@ -214,56 +201,26 @@ BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 };
 #endif
 
-//int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
-
-const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
-bool IsBatchExtType(const wchar_t *ExtPtr);
 
 void __PrepareKMGTbStr(void);
 string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
-
+bool IsDriveTypeRemote(UINT DriveType);
+int IsLocalDrive(const wchar_t *Path);
 DWORD WINAPI FarGetLogicalDrives(void);
 
 string &Add_PATHEXT(string &strDest);
 
 string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
-
-int PathMayBeAbsolute(const wchar_t *Src);
-
-string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
-
 //   WordDiv  - набор разделителей слова в кодировке OEM
 // возвращает указатель на начало слова
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
 
-bool IsDriveTypeRemote(UINT DriveType);
-
-bool PathPrefix(const wchar_t *Path);
-BOOL IsNetworkPath(const wchar_t *Path);
-BOOL IsLocalPath(const wchar_t *Path);
-BOOL IsLocalRootPath(const wchar_t *Path);
-BOOL IsLocalPrefixPath(const wchar_t *Path);
-BOOL IsLocalVolumePath(const wchar_t *Path);
-BOOL IsLocalVolumeRootPath(const wchar_t *Path);
-
-BOOL ProcessOSAliases(string &strStr);
-
-int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPar);
-
-int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
-
-string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
-
-string& HiText2Str(string& strDest, const wchar_t *Str);
-
-__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);
-unsigned __int64 FileTimeToUI64(const FILETIME *ft);
 
 wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
 

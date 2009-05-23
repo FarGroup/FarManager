@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fnparce.hpp"
 #include "panel.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -43,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "lang.hpp"
 #include "message.hpp"
+#include "pathmix.hpp"
 
 struct TSubstDataW
 {

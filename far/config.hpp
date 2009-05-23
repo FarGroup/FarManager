@@ -33,6 +33,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+//  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
+enum {
+  CASR_PANEL  = 0x0001,
+  CASR_EDITOR = 0x0002,
+  CASR_VIEWER = 0x0004,
+  CASR_HELP   = 0x0008,
+  CASR_DIALOG = 0x0010,
+};
+
+enum ExcludeCmdHistoryType{
+  EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // не помещать в историю команды ассоциаций Windows
+  EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
+  EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // не помещать в историю команды выполнения с панели
+  EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // не помещать в историю команды выполнения с ком.строки
+};
+
+// для Opt.QuotedName
+enum QUOTEDNAMETYPE{
+  QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
+  QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
+};
+
+//Для Opt.Dialogs.MouseButton
+#define DMOUSEBUTTON_LEFT   0x00000001
+#define DMOUSEBUTTON_RIGHT  0x00000002
+
+//Для Opt.Diz.UpdateMode
+enum DIZUPDATETYPE {
+  DIZ_NOT_UPDATE,
+  DIZ_UPDATE_IF_DISPLAYED,
+  DIZ_UPDATE_ALWAYS
+};
+
 struct PanelOptions
 {
   int Type;

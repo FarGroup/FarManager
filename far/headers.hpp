@@ -186,6 +186,10 @@ template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #endif
 
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8       0xBFBBEF
+
 //#include <crtdbg.h>
 
 #include "sdkpatches.hpp"
@@ -193,7 +197,6 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
 #ifdef  __cplusplus
 #include "UnicodeString.hpp"
-#include "farconst.hpp"
 #include "global.hpp"
 #include "local.hpp"
 #include "plugin.hpp"

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "cddrv.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 struct TMN_REPARSE_DATA_BUFFER
 {

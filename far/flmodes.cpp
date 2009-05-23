@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "dialog.hpp"
 #include "registry.hpp"
+#include "interf.hpp"
 
 int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
 

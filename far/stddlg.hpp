@@ -106,6 +106,11 @@ int __stdcall GetString(
 		const wchar_t *CheckBoxText = NULL
 		);
 
+// для диалога GetNameAndPassword()
+enum FlagsNameAndPassword{
+  GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
+};
+
 int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 

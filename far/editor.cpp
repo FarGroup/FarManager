@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "xlat.hpp"
-#include "strftime.hpp"
+#include "datetime.hpp"
 #include "stddlg.hpp"
 
 static int ReplaceMode,ReplaceAll;

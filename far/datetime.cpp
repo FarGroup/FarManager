@@ -1,7 +1,7 @@
 /*
-strftime.cpp
+datetime.cpp
 
-Функция StrFTime
+Функции для работы с датой и временем
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,10 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "datetime.hpp"
 #include "lang.hpp"
+#include "language.hpp"
 #include "config.hpp"
-#include "strftime.hpp"
+#include "fn.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 
@@ -534,4 +535,255 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	if(!Fmt||!*Fmt)
 		Fmt=Opt.strDateFormat;
 	return StrFTime(strDest,Fmt,time_now);
+}
+
+__int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
+{
+	LARGE_INTEGER A, B;
+
+	A.u.LowPart  = a->dwLowDateTime;
+	A.u.HighPart = a->dwHighDateTime;
+	B.u.LowPart  = b->dwLowDateTime;
+	B.u.HighPart = b->dwHighDateTime;
+
+	return A.QuadPart - B.QuadPart;
+}
+
+unsigned __int64 FileTimeToUI64(const FILETIME *ft)
+{
+	ULARGE_INTEGER A;
+
+	A.u.LowPart  = ft->dwLowDateTime;
+	A.u.HighPart = ft->dwHighDateTime;
+
+	return A.QuadPart;
+}
+
+void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
+{
+  string strDigit;
+  const wchar_t *PtrDigit;
+  int I;
+
+  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
+  I=0;
+  const wchar_t *Ptr=Src;
+  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
+  {
+    PtrDigit=strDigit;
+    while (*PtrDigit && !iswdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      Dst[I]=_wtoi(PtrDigit);
+    if(++I > 2) //не должно быть больше трёх чисел
+      break;
+  }
+}
+
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
+{
+  unsigned DateN[3],TimeN[3];
+  SYSTEMTIME st;
+  FILETIME lft;
+
+  // Преобразуем введённые пользователем дату и время
+  GetFileDateAndTime(CDate,DateN,DateSeparator);
+  GetFileDateAndTime(CTime,TimeN,TimeSeparator);
+
+  if (!bRelative)
+  {
+    if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1)
+    {
+      // Пользователь оставил дату пустой, значит обнулим дату и время.
+      memset(&ft,0,sizeof(ft));
+      return;
+    }
+
+    memset(&st,0,sizeof(st));
+
+    // "Оформим"
+    switch(DateFormat)
+    {
+      case 0:
+        st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+      case 1:
+        st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+      default:
+        st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
+        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+        st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
+        break;
+    }
+
+    if (st.wYear<100)
+    {
+      if (st.wYear<80)
+        st.wYear+=2000;
+      else
+        st.wYear+=1900;
+    }
+  }
+  else
+  {
+    st.wDay = DateN[0]!=(unsigned)-1?DateN[0]:0;
+  }
+
+  st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
+  st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;
+  st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
+
+  // преобразование в "удобоваримый" формат
+  if (bRelative)
+  {
+    ULARGE_INTEGER time;
+
+    time.QuadPart  = (unsigned __int64)st.wSecond * _ui64(10000000);
+    time.QuadPart += (unsigned __int64)st.wMinute * _ui64(10000000) * _ui64(60);
+    time.QuadPart += (unsigned __int64)st.wHour   * _ui64(10000000) * _ui64(60) * _ui64(60);
+    time.QuadPart += (unsigned __int64)st.wDay    * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24);
+    ft.dwLowDateTime  = time.u.LowPart;
+    ft.dwHighDateTime = time.u.HighPart;
+  }
+  else
+  {
+    SystemTimeToFileTime(&st,&lft);
+    LocalFileTimeToFileTime(&lft,&ft);
+  }
+}
+
+void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
+                 int Brief,int TextMonth,int FullYear,int DynInit)
+{
+  static int WDateFormat,WDateSeparator,WTimeSeparator;
+  static int Init=FALSE;
+  static SYSTEMTIME lt;
+  int DateFormat,DateSeparator,TimeSeparator;
+  if (!Init)
+  {
+    WDateFormat=GetDateFormat();
+    WDateSeparator=GetDateSeparator();
+    WTimeSeparator=GetTimeSeparator();
+    GetLocalTime(&lt);
+    Init=TRUE;
+  }
+  DateFormat=DynInit?GetDateFormat():WDateFormat;
+  DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
+  TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
+
+  int CurDateFormat=DateFormat;
+  if (Brief && CurDateFormat==2)
+    CurDateFormat=0;
+
+  SYSTEMTIME st;
+  FILETIME ct;
+
+  if (ft.dwHighDateTime==0)
+  {
+    strDateText=L"";
+    strTimeText=L"";
+    return;
+  }
+
+  FileTimeToLocalFileTime(&ft,&ct);
+  FileTimeToSystemTime(&ct,&st);
+
+  //if ( !strTimeText.IsEmpty() )
+  {
+    const wchar_t *Letter=L"";
+    if (TimeLength==6)
+    {
+      Letter=(st.wHour<12) ? L"a":L"p";
+      if (st.wHour>12)
+        st.wHour-=12;
+      if (st.wHour==0)
+        st.wHour=12;
+    }
+    if (TimeLength<7)
+      strTimeText.Format (L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
+    else
+    {
+      string strFullTime;
+      strFullTime.Format (L"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
+              st.wMinute,TimeSeparator,st.wSecond,st.wMilliseconds);
+      strTimeText.Format (L"%.*s",TimeLength, (const wchar_t*)strFullTime);
+    }
+  }
+
+  //if ( !strDateText.IsEmpty() )
+  {
+    int Year=st.wYear;
+    if (!FullYear)
+      Year%=100;
+    if (TextMonth)
+    {
+      const wchar_t *Month=MSG(MMonthJan+st.wMonth-1);
+      switch(CurDateFormat)
+      {
+        case 0:
+          strDateText.Format (L"%3.3s %2d %02d",Month,st.wDay,Year);
+          break;
+        case 1:
+          strDateText.Format (L"%2d %3.3s %02d",st.wDay,Month,Year);
+          break;
+        default:
+          strDateText.Format (L"%02d %3.3s %2d",Year,Month,st.wDay);
+          break;
+      }
+    }
+    else
+    {
+      int p1,p2,p3=Year;
+      switch(CurDateFormat)
+      {
+        case 0:
+          p1=st.wMonth;
+          p2=st.wDay;
+          break;
+        case 1:
+          p1=st.wDay;
+          p2=st.wMonth;
+          break;
+        default:
+          p1=Year;
+          p2=st.wMonth;
+          p3=st.wDay;
+          break;
+      }
+      strDateText.Format (L"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
+    }
+  }
+
+  if (Brief)
+  {
+    strDateText.SetLength(TextMonth ? 6 : 5);
+
+    if (lt.wYear!=st.wYear)
+      strTimeText.Format (L"%5d",st.wYear);
+  }
+}
+
+void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
+{
+  WORD d,h,m,s;
+  ULARGE_INTEGER time;
+
+  time.u.LowPart  = ft.dwLowDateTime;
+  time.u.HighPart = ft.dwHighDateTime;
+
+  d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
+  h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
+  m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
+  time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
+  s = (WORD)(time.QuadPart / _ui64(10000000));
+
+  strDaysText.Format(L"%u",d);
+  strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
 }

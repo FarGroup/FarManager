@@ -1,9 +1,9 @@
-#ifndef __FARCONST_HPP__
-#define __FARCONST_HPP__
+#ifndef __DIRINFO_HPP___
+#define __DIRINFO_HPP___
 /*
-farconst.hpp
+dirinfo.hpp
 
-содержит все enum, #define, etc
+GetDirInfo & GetPluginDirInfo
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,5 +33,25 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+class FileFilter;
 
-#endif // __FARCONST_HPP__
+enum GETDIRINFOFLAGS{
+  GETDIRINFO_ENHBREAK           =0x00000001,
+  GETDIRINFO_DONTREDRAWFRAME    =0x00000002,
+  GETDIRINFO_SCANSYMLINK        =0x00000004,
+  GETDIRINFO_SCANSYMLINKDEF     =0x00000008,
+  GETDIRINFO_USEFILTER          =0x00000010,
+};
+
+int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
+               unsigned long &FileCount,unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
+               unsigned long &ClusterSize,clock_t MsgWaitTime,
+               FileFilter *Filter,
+               DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
+
+int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
+               unsigned long &FileCount,unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize);
+
+#endif // __DIRINFO_HPP___

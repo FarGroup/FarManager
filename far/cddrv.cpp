@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
-
+#include "pathmix.hpp"
 
 static CDROM_DeviceCaps getCapsUsingMediaType(HANDLE hDevice)
 {

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
+#include "datetime.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];

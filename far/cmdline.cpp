@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "cmdline.hpp"
+#include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
@@ -54,7 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "config.hpp"
 #include "usermenu.hpp"
-#include "strftime.hpp"
+#include "datetime.hpp"
+#include "pathmix.hpp"
 
 CommandLine::CommandLine()
 {

@@ -66,6 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "message.hpp"
+#include "delete.hpp"
+#include "datetime.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74

@@ -34,6 +34,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+enum SETATTR_RET_CODES
+{
+  SETATTR_RET_ERROR,
+  SETATTR_RET_OK,
+  SETATTR_RET_SKIP,
+  SETATTR_RET_SKIPALL,
+};
+
 int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
 int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);

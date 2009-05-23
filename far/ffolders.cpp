@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "ffolders.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
@@ -45,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
+#include "pathmix.hpp"
 
 static int ShowFolderShortcutMenu(int Pos);
 static const wchar_t HelpFolderShortcuts[]=L"FolderShortcuts";

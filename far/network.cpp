@@ -131,3 +131,46 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 		}
 	}
 }
+
+string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
+{
+  string strNetDir;
+
+  strComputerName=L"";
+
+  if ( CurDir[0]==L'\\' && CurDir[1]==L'\\')
+  {
+    strNetDir = CurDir;
+  }
+  else
+  {
+    /* $ 28.03.2002 KM
+       - Падение VC на
+         char *LocalName="A:";
+         *LocalName=*CurDir;
+         Так как память в LocalName ReadOnly.
+    */
+    wchar_t LocalName[3];
+
+    xwcsncpy (LocalName, CurDir, 2);
+
+    apiWNetGetConnection (LocalName, strNetDir);
+  }
+
+  if ( strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
+  {
+    strComputerName = (const wchar_t*)strNetDir+2;
+
+    size_t pos;
+		if (!FirstSlash(strComputerName,pos))
+    {
+      strComputerName.SetLength(0);
+    }
+    else
+    {
+      strComputerName.SetLength(pos);
+    }
+  }
+
+  return strComputerName;
+}

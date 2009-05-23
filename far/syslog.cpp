@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "iswind.hpp"
+#include "datetime.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT)             || \

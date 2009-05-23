@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "delete.hpp"
+#include "datetime.hpp"
 
 /*
    В стеке ФАРова панель не хранится - только плагиновые!

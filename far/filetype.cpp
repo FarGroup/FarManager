@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "filetype.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "config.hpp"
+#include "execute.hpp"
+#include "fnparce.hpp"
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);

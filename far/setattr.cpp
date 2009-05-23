@@ -50,9 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "strftime.hpp"
+#include "datetime.hpp"
 #include "fileattr.hpp"
 #include "setattr.hpp"
+#include "pathmix.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 

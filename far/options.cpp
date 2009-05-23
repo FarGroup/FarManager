@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "options.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
 #include "keys.hpp"
 #include "hmenu.hpp"
 #include "vmenu.hpp"
@@ -53,9 +53,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hotplug.hpp"
 #include "config.hpp"
 #include "usermenu.hpp"
-#include "strftime.hpp"
+#include "datetime.hpp"
 #include "setcolor.hpp"
 #include "plist.hpp"
+#include "filetype.hpp"
+#include "ffolders.hpp"
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {

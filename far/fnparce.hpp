@@ -1,9 +1,9 @@
-#ifndef __STRFTIME_HPP__
-#define __STRFTIME_HPP__
+#ifndef __FNPARCE_HPP__
+#define __FNPARCE_HPP___
 /*
-strftime.hpp
+fnparce.hpp
 
-Функция StrFTime
+Парсер файловых ассоциаций
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,12 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int GetDateFormat();
-wchar_t GetDateSeparator();
-wchar_t GetTimeSeparator();
+int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
+                  string *strListName=NULL,
+                  string *strAnotherListName = NULL,
+                  string *strShortListName=NULL,
+                  string *strAnotherShortListName=NULL,
+                  int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
 
-void PrepareStrFTime();
-size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
-size_t MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
-
-#endif // __STRFTIME_HPP__
+#endif // __FNPARCE_HPP__

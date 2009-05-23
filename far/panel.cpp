@@ -67,6 +67,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 #include "scrsaver.hpp"
+#include "execute.hpp"
+#include "ffolders.hpp"
+#include "options.hpp"
+#include "pathmix.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

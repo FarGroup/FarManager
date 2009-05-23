@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "iswind.hpp"
 #include "clipboard.hpp"
+#include "pathmix.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;

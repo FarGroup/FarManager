@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "namelist.hpp"
+#include "pathmix.hpp"
 
 NamesList::NamesList()
 {

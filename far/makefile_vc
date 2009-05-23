@@ -102,8 +102,10 @@ LINK32_OBJS= \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\cvtname.obj" \
+	"$(INTDIR)\datetime.obj" \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
+	"$(INTDIR)\dirinfo.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\edit.obj" \
@@ -168,6 +170,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
+	"$(INTDIR)\pathmix.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plognmn.obj" \
 	"$(INTDIR)\plugapi.obj" \
@@ -191,7 +194,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\stddlg.obj" \
-	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\syslog.obj" \

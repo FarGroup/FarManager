@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "plugapi.hpp"
 #include "TaskBar.hpp"
+#include "pathmix.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)

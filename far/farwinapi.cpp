@@ -37,22 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
-
-NTPath::NTPath(LPCWSTR Src)
-{
-	Str=Src;
-	if(!PathPrefix(Src))
-	{
-		ConvertNameToFull(Str,Str);
-		if(!PathPrefix(Str))
-		{
-			if(IsLocalPath(Str))
-				Str=string(L"\\\\?\\")+Str;
-			else
-				Str=string(L"\\\\?\\UNC\\")+&Str[2];
-		}
-	}
-}
+#include "pathmix.hpp"
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {

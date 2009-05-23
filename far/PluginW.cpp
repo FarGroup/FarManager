@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "xlat.hpp"
+#include "pathmix.hpp"
 
 static const wchar_t *wszReg_Preload=L"Preload";
 static const wchar_t *wszReg_SysID=L"SysID";

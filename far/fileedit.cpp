@@ -58,11 +58,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-#include "gettable.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "delete.hpp"
+#include "datetime.hpp"
+#include "pathmix.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,

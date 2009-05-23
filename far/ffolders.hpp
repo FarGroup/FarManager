@@ -1,9 +1,9 @@
-#ifndef __FARCONST_HPP__
-#define __FARCONST_HPP__
+#ifndef __FFOLDERS_HPP__
+#define __FFOLDERS_HPP__
 /*
-farconst.hpp
+ffolders.hpp
 
-содержит все enum, #define, etc
+Folder shortcuts
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,5 +33,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL, string *pPluginFile=NULL,string *pPluginData=NULL);
+int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL, string *pPluginFile=NULL,string *pPluginData=NULL);
+int GetShortcutFolderSize(int Key);
+void ShowFolderShortcut();
 
-#endif // __FARCONST_HPP__
+#endif // __FFOLDERS_HPP__

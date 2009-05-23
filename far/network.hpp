@@ -1,3 +1,5 @@
+#ifndef __NETWORK_HPP__
+#define __NETWORK_HPP__
 /*
 network.hpp
 
@@ -33,3 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask);
 
 void ConnectToNetworkDrive(const wchar_t *NewDir);
+
+string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
+
+#endif // __NETWORK_HPP__

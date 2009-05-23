@@ -51,6 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
+#include "options.hpp"
+#include "pathmix.hpp"
 
 FilePanels::FilePanels()
 {
