@@ -7804,6 +7804,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cddrv.hpp"
+				>
+			</File>
+			<File
 				RelativePath="CFileMask.hpp"
 				>
 			</File>
@@ -7813,6 +7817,10 @@
 			</File>
 			<File
 				RelativePath="chgprior.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\clipboard.hpp"
 				>
 			</File>
 			<File
@@ -7890,6 +7898,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\config.hpp"
+				>
+			</File>
+			<File
 				RelativePath="constitle.hpp"
 				>
 			</File>
@@ -7927,6 +7939,10 @@
 			</File>
 			<File
 				RelativePath="editor.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\eject.hpp"
 				>
 			</File>
 			<File
@@ -8038,11 +8054,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hotplug.hpp"
+				>
+			</File>
+			<File
 				RelativePath="imports.hpp"
 				>
 			</File>
 			<File
 				RelativePath="infolist.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\interf.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\iswind.hpp"
 				>
 			</File>
 			<File
@@ -8160,6 +8188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\message.hpp"
+				>
+			</File>
+			<File
 				RelativePath="modal.hpp"
 				>
 			</File>
@@ -8169,6 +8201,10 @@
 			</File>
 			<File
 				RelativePath=".\network.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\palette.hpp"
 				>
 			</File>
 			<File
