@@ -315,6 +315,7 @@ static struct TFKey3 SpecKeyName[]={
 void InitKeysArray()
 {
 	//GetRegKey(L"Interface",L"HotkeyRules",Opt.HotkeyRules,1);
+	Opt.HotkeyRules=1;
 
 	HKL Layout[10];
 	int LayoutNumber=GetKeyboardLayoutList(countof(Layout),Layout); // возвращает 0! в telnet
