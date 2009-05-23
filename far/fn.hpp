@@ -37,16 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 
-void SetHighlighting();
-void _export StartFAR();
-
-int GetDateFormat();
-int GetDateSeparator();
-int GetTimeSeparator();
-
 const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWORD& Error);
-
-int ScreenSaver(int EnableExit);
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
 string &InsertCommas(unsigned __int64 li, string &strDest);
@@ -93,15 +84,11 @@ int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
                   int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
 BOOL ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
-void ProcessUserMenu(int EditMenu);
 
 int  IsLocalDrive(const wchar_t *Path);
 
-void SetColors();
-int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
 int HiStrlen(const wchar_t *Str);
 int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
-void ShowProcessList();
 
 bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
@@ -121,10 +108,6 @@ void ShowFilter();
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
-
-int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
-
-void SIDCacheFlush(void);
 
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
@@ -146,10 +129,6 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 
 class Panel;
-void ShellMakeDir(Panel *SrcPanel);
-void ShellDelete(Panel *SrcPanel,int Wipe);
-int  ShellSetFileAttributes(Panel *SrcPanel);
-void PrintFiles(Panel *SrcPanel);
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
 
@@ -211,25 +190,6 @@ BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
 
 string& ReplaceSlashToBSlash(string& strStr);
 
-int __stdcall GetString(
-		const wchar_t *Title,
-		const wchar_t *SubTitle,
-		const wchar_t *HistoryName,
-		const wchar_t *SrcText,
-		string &strDestText,
-		const wchar_t *HelpTopic = NULL,
-		DWORD Flags = 0,
-		int *CheckBoxValue = NULL,
-		const wchar_t *CheckBoxText = NULL
-		);
-
-int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
-
-wchar_t* WINAPI Xlat(wchar_t *Line,
-                    int StartPos,
-                    int EndPos,
-                    DWORD Flags);
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -254,32 +214,11 @@ BOOL FarChDir(const wchar_t *NewDir,BOOL ChangeDir=TRUE);
 };
 #endif
 
-int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
-int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
-int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
-int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode=-1);
-#define ESetFileEncryptionSilent(Name,State,FileAttr,SkipMode) ESetFileEncryptionW(Name,State,FileAttr,SkipMode,1)
-int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,
-                  FILETIME *CreationTime,FILETIME *LastAccessTime,
-                  DWORD FileAttr,int SkipMode=-1);
-
 //int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 int ConvertWildcards(const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
 bool IsBatchExtType(const wchar_t *ExtPtr);
-
-int WINAPI GetSearchReplaceString (
-         int IsReplaceMode,
-         string *pSearchStr,
-         string *pReplaceStr,
-         const wchar_t *TextHistoryName,
-         const wchar_t *ReplaceHistoryName,
-         int *Case,
-         int *WholeWords,
-         int *Reverse,
-         int *SelectFound);
-
 
 void __PrepareKMGTbStr(void);
 string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
@@ -288,18 +227,6 @@ string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int W
 DWORD WINAPI FarGetLogicalDrives(void);
 
 string &Add_PATHEXT(string &strDest);
-
-void PrepareStrFTime();
-size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
-size_t MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
-
-BOOL WINAPI GetMenuHotKey(string &strHotKey,int LenHotKey,
-                          const wchar_t *DlgHotKeyTitle,
-                          const wchar_t *DlgHotKeyText,
-                          const wchar_t *DlgPluginTitle,  // заголовок
-                          const wchar_t *HelpTopic,
-                          const wchar_t *RegKey,
-                          const wchar_t *RegValueName);
 
 string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 

@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
+#include "setcolor.hpp"
 
 static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);

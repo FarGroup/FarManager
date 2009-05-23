@@ -1,9 +1,9 @@
-#ifndef __HILIGHT_HPP__
-#define __HILIGHT_HPP__
+#ifndef __FILEOWNER_HPP__
+#define __FILEOWNER_HPP__
 /*
-hilight.hpp
+fileowner.hpp
 
-Files highlighting
+Кэш SID`ов и функция GetOwner
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,58 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CFileMask.hpp"
-#include "array.hpp"
+int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
+void SIDCacheFlush(void);
 
-class VMenu;
-class FileFilterParams;
-struct FileListItem;
-
-enum enumHighlightDataColor
-{
-  HIGHLIGHTCOLOR_NORMAL = 0,
-  HIGHLIGHTCOLOR_SELECTED,
-  HIGHLIGHTCOLOR_UNDERCURSOR,
-  HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
-
-  HIGHLIGHTCOLORTYPE_FILE = 0,
-  HIGHLIGHTCOLORTYPE_MARKCHAR = 1,
-};
-
-struct HighlightDataColor
-{
-  WORD Color[2][4]; // [0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]; if HIBYTE == 0xFF then transparent
-  DWORD MarkChar;
-};
-
-class HighlightFiles
-{
-  private:
-    TPointerArray<FileFilterParams> HiData;
-    int FirstCount, UpperCount, LowerCount, LastCount;
-    unsigned __int64 CurrentTime;
-
-  private:
-    void InitHighlightFiles();
-    void ClearData();
-
-    int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
-    void FillMenu(VMenu *HiMenu,int MenuPos);
-    void ProcessGroups();
-
-  public:
-    HighlightFiles();
-    ~HighlightFiles();
-
-  public:
-  	void UpdateCurrentTime();
-    void GetHiColor(FileListItem **FileItem,int FileCount,bool UseAttrHighlighting=false);
-    int  GetGroup(const FileListItem *fli);
-    void HiEdit(int MenuPos);
-
-    void SaveHiData();
-};
-
-void SetHighlighting();
-
-#endif // __HILIGHT_HPP__
+#endif // __FILEOWNER_HPP__

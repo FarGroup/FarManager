@@ -66,6 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "iswind.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "stddlg.hpp"
+#include "fileattr.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;

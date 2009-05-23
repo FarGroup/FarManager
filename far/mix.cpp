@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "strftime.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
@@ -347,30 +348,6 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
   strDaysText.Format(L"%u",d);
   strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
 }
-
-int GetDateFormat()
-{
-  wchar_t Info[100];
-  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info, sizeof(Info)/sizeof (wchar_t));
-  return(_wtoi(Info));
-}
-
-
-int GetDateSeparator()
-{
-  wchar_t Info[100];
-  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,sizeof(Info)/sizeof (wchar_t));
-  return(*Info);
-}
-
-
-int GetTimeSeparator()
-{
-  wchar_t Info[100];
-  GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,sizeof(Info)/sizeof (wchar_t));
-  return(*Info);
-}
-
 
 int ToPercent(unsigned long N1,unsigned long N2)
 {

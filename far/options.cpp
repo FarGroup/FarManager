@@ -52,6 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "hotplug.hpp"
 #include "config.hpp"
+#include "usermenu.hpp"
+#include "strftime.hpp"
+#include "setcolor.hpp"
+#include "plist.hpp"
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {

@@ -7922,6 +7922,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\delete.hpp"
+				>
+			</File>
+			<File
 				RelativePath="dialog.hpp"
 				>
 			</File>
@@ -7966,6 +7970,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\fileattr.hpp"
+				>
+			</File>
+			<File
 				RelativePath="fileedit.hpp"
 				>
 			</File>
@@ -7987,6 +7995,10 @@
 			</File>
 			<File
 				RelativePath="FileMasksWithExclude.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fileowner.hpp"
 				>
 			</File>
 			<File
@@ -8192,6 +8204,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mkdir.hpp"
+				>
+			</File>
+			<File
 				RelativePath="modal.hpp"
 				>
 			</File>
@@ -8213,6 +8229,10 @@
 			</File>
 			<File
 				RelativePath="plclass.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\plist.hpp"
 				>
 			</File>
 			<File
@@ -8314,6 +8334,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\print.hpp"
+				>
+			</File>
+			<File
 				RelativePath="qview.hpp"
 				>
 			</File>
@@ -8358,11 +8382,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\scrsaver.hpp"
+				>
+			</File>
+			<File
 				RelativePath="sdkpatches.hpp"
 				>
 			</File>
 			<File
-				RelativePath="struct.hpp"
+				RelativePath=".\setattr.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\setcolor.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stddlg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\strftime.hpp"
 				>
 			</File>
 			<File
@@ -8406,11 +8446,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\usermenu.hpp"
+				>
+			</File>
+			<File
 				RelativePath="viewer.hpp"
 				>
 			</File>
 			<File
 				RelativePath="vmenu.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\xlat.hpp"
 				>
 			</File>
 			<Filter

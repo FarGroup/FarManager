@@ -66,6 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "eject.hpp"
 #include "filefilter.hpp"
+#include "fileowner.hpp"
+#include "stddlg.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {

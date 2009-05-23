@@ -47,6 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "message.hpp"
 #include "interf.hpp"
+#include "setcolor.hpp"
+#include "strftime.hpp"
 
 FileFilterParams::FileFilterParams()
 {

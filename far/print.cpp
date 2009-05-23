@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "message.hpp"
+#include "print.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define GENERATE_PRINTER_INFO(prefix, value, suffix) prefix##value##suffix

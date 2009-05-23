@@ -67,6 +67,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "iswind.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
+#include "xlat.hpp"
+#include "strftime.hpp"
+#include "stddlg.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{

@@ -28,6 +28,7 @@ ctrlobj.hpp
 cvtname.cpp
 cvtname.hpp
 delete.cpp
+delete.hpp
 dialog.cpp
 dialog.hpp
 dizlist.cpp
@@ -52,6 +53,7 @@ farwinapi.cpp
 farwinapi.hpp
 ffolders.cpp
 fileattr.cpp
+fileattr.hpp
 fileedit.cpp
 fileedit.hpp
 filefilter.cpp
@@ -65,6 +67,7 @@ FileMasksProcessor.hpp
 FileMasksWithExclude.cpp
 FileMasksWithExclude.hpp
 fileowner.cpp
+fileowner.hpp
 filepanels.cpp
 filepanels.hpp
 filestr.cpp
@@ -138,6 +141,7 @@ message.cpp
 message.hpp
 mix.cpp
 mkdir.cpp
+mkdir.hpp
 modal.cpp
 modal.hpp
 namelist.cpp
@@ -151,6 +155,7 @@ panel.cpp
 panel.hpp
 plclass.hpp
 plist.cpp
+plist.hpp
 plognmn.cpp
 plognmn.hpp
 plugapi.cpp
@@ -163,6 +168,7 @@ PluginW.cpp
 poscache.cpp
 poscache.hpp
 print.cpp
+print.hpp
 qview.cpp
 qview.hpp
 rdrwdsk.cpp
@@ -185,12 +191,17 @@ scrbuf.hpp
 scrobj.cpp
 scrobj.hpp
 scrsaver.cpp
+scrsaver.hpp
 sdkpatches.cpp
 sdkpatches.hpp
 setattr.cpp
+setattr.hpp
 setcolor.cpp
+setcolor.hpp
 stddlg.cpp
+stddlg.hpp
 strftime.cpp
+strftime.hpp
 strmix.cpp
 syntax.cpp
 syntax.hpp
@@ -211,8 +222,10 @@ udlist.hpp
 UnicodeString.cpp
 UnicodeString.hpp
 usermenu.cpp
+usermenu.hpp
 viewer.cpp
 viewer.hpp
 vmenu.cpp
 vmenu.hpp
 xlat.cpp
+xlat.hpp

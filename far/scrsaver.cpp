@@ -41,8 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "config.hpp"
-
-static void ShowSaver(int Step);
+#include "scrsaver.hpp"
 
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
@@ -62,63 +61,6 @@ static wchar_t StarSymbol[5][2]={
   {0x00B0,0x0000},
   {0x00B7,0x0000},
 };
-
-int ScreenSaver(int EnableExit)
-{
-  INPUT_RECORD rec;
-  clock_t WaitTime;
-
-  if (ScreenSaverActive)
-    return(1);
-  ChangePriority ChPriority(THREAD_PRIORITY_IDLE);
-  for (WaitTime=clock();clock()-WaitTime<500;)
-  {
-    if (PeekInputRecord(&rec))
-      return(1);
-    Sleep(100);
-  }
-  ScreenSaverActive=TRUE;
-
-  int CursorVisible, CursorSize;
-  GetRealCursorType(CursorVisible, CursorSize);
-
-  {
-    SaveScreen SaveScr;
-    SetCursorType(0,10);
-    randomize();
-    SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
-
-    for (size_t I=0;I<countof(Star);I++)
-    {
-      Star[I].Type=STAR_NONE;
-      Star[I].Color=0;
-    }
-
-    int Step=0;
-    while (!PeekInputRecord(&rec))
-    {
-      clock_t CurTime=clock();
-
-      if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
-          CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-          FrameManager->GetFrameCount()==1)
-      {
-        FrameManager->ExitMainLoop(FALSE);
-        return(0);
-      }
-
-      Sleep(50);
-      ShowSaver(Step++);
-    }
-  }
-
-  SetCursorType(CursorVisible, CursorSize);
-  ScreenSaverActive=FALSE;
-  FlushInputBuffer();
-  StartIdleTime=clock();
-  return 1;
-}
-
 
 static void ShowSaver(int Step)
 {
@@ -197,3 +139,61 @@ static void ShowSaver(int Step)
       break;
     }
 }
+
+int ScreenSaver(int EnableExit)
+{
+  INPUT_RECORD rec;
+  clock_t WaitTime;
+
+  if (ScreenSaverActive)
+    return(1);
+  ChangePriority ChPriority(THREAD_PRIORITY_IDLE);
+  for (WaitTime=clock();clock()-WaitTime<500;)
+  {
+    if (PeekInputRecord(&rec))
+      return(1);
+    Sleep(100);
+  }
+  ScreenSaverActive=TRUE;
+
+  int CursorVisible, CursorSize;
+  GetRealCursorType(CursorVisible, CursorSize);
+
+  {
+    SaveScreen SaveScr;
+    SetCursorType(0,10);
+    randomize();
+    SetScreen(0,0,ScrX,ScrY,L' ',F_LIGHTGRAY|B_BLACK);
+
+    for (size_t I=0;I<countof(Star);I++)
+    {
+      Star[I].Type=STAR_NONE;
+      Star[I].Color=0;
+    }
+
+    int Step=0;
+    while (!PeekInputRecord(&rec))
+    {
+      clock_t CurTime=clock();
+
+      if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
+          CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
+          FrameManager->GetFrameCount()==1)
+      {
+        FrameManager->ExitMainLoop(FALSE);
+        return(0);
+      }
+
+      Sleep(50);
+      ShowSaver(Step++);
+    }
+  }
+
+  SetCursorType(CursorVisible, CursorSize);
+  ScreenSaverActive=FALSE;
+  FlushInputBuffer();
+  StartIdleTime=clock();
+  return 1;
+}
+
+

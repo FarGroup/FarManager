@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "language.hpp"
 #include "message.hpp"
+#include "fileattr.hpp"
 
 static int SetFileEncryption(const wchar_t *Name,int State);
 static int SetFileCompression(const wchar_t *Name,int State);

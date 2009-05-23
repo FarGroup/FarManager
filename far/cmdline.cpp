@@ -53,6 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "syslog.hpp"
 #include "config.hpp"
+#include "usermenu.hpp"
+#include "strftime.hpp"
 
 CommandLine::CommandLine()
 {

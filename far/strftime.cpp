@@ -37,12 +37,34 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fn.hpp"
 #include "lang.hpp"
 #include "config.hpp"
+#include "strftime.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 
 string AMonth[2][12],AWeekday[2][7],Month[2][12],Weekday[2][7];
 
 int CurLang=-1,WeekFirst=0;
+
+int GetDateFormat()
+{
+	wchar_t Info[100];
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info,countof(Info));
+	return _wtoi(Info);
+}
+
+wchar_t GetDateSeparator()
+{
+	wchar_t Info[100];
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE,Info,countof(Info));
+	return *Info;
+}
+
+wchar_t GetTimeSeparator()
+{
+	wchar_t Info[100];
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME,Info,countof(Info));
+	return *Info;
+}
 
 void PrepareStrFTime()
 {

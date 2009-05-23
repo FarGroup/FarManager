@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "registry.hpp"
 #include "message.hpp"
+#include "usermenu.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*

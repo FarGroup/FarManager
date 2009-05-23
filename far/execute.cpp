@@ -409,20 +409,17 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// нулевой проход - смотрим исключени€
 		// Ѕерем "исключени€" из реестра, которые должны исполн€тьс€ директом,
 		// например, некоторые внутренние команды ком. процессора.
-		if(GetRegKey(strSystemExecutor,L"Type",0))
+		string strExcludeCmds;
+		GetRegKey(strSystemExecutor,L"ExcludeCmds",strExcludeCmds,L"");
+		UserDefinedList ExcludeCmdsList;
+		ExcludeCmdsList.Set(strExcludeCmds);
+		while(!ExcludeCmdsList.IsEmpty())
 		{
-			string strExcludeCmds;
-			GetRegKey(strSystemExecutor,L"ExcludeCmds",strExcludeCmds,L"");
-			UserDefinedList ExcludeCmdsList;
-			ExcludeCmdsList.Set(strExcludeCmds);
-			while(!ExcludeCmdsList.IsEmpty())
+			if(!StrCmpI(Module,ExcludeCmdsList.GetNext()))
 			{
-				if(!StrCmpI(Module,ExcludeCmdsList.GetNext()))
-				{
-					ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
-					Result=true;
-					break;
-				}
+				ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
+				Result=true;
+				break;
 			}
 		}
 		if(!Result)

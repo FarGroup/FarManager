@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "stddlg.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {

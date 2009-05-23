@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "iswind.hpp"
 #include "clipboard.hpp"
+#include "xlat.hpp"
+#include "strftime.hpp"
 
 static int Recurse=0;
 

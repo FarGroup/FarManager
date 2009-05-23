@@ -60,6 +60,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
+#include "xlat.hpp"
+#include "fileowner.hpp"
 
 #include "wrap.cpp"
 

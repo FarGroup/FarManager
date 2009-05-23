@@ -1,9 +1,10 @@
-#ifndef __HILIGHT_HPP__
-#define __HILIGHT_HPP__
-/*
-hilight.hpp
+#ifndef __FILEATTR_HPP__
+#define __FILEATTR_HPP__
 
-Files highlighting
+/*
+fileattr.hpp
+
+Работа с атрибутами файлов
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,58 +34,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CFileMask.hpp"
-#include "array.hpp"
+int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode=-1);
+int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1);
+int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
+int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode=-1);
+int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode=-1);
 
-class VMenu;
-class FileFilterParams;
-struct FileListItem;
-
-enum enumHighlightDataColor
-{
-  HIGHLIGHTCOLOR_NORMAL = 0,
-  HIGHLIGHTCOLOR_SELECTED,
-  HIGHLIGHTCOLOR_UNDERCURSOR,
-  HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR,
-
-  HIGHLIGHTCOLORTYPE_FILE = 0,
-  HIGHLIGHTCOLORTYPE_MARKCHAR = 1,
-};
-
-struct HighlightDataColor
-{
-  WORD Color[2][4]; // [0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]; if HIBYTE == 0xFF then transparent
-  DWORD MarkChar;
-};
-
-class HighlightFiles
-{
-  private:
-    TPointerArray<FileFilterParams> HiData;
-    int FirstCount, UpperCount, LowerCount, LastCount;
-    unsigned __int64 CurrentTime;
-
-  private:
-    void InitHighlightFiles();
-    void ClearData();
-
-    int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
-    void FillMenu(VMenu *HiMenu,int MenuPos);
-    void ProcessGroups();
-
-  public:
-    HighlightFiles();
-    ~HighlightFiles();
-
-  public:
-  	void UpdateCurrentTime();
-    void GetHiColor(FileListItem **FileItem,int FileCount,bool UseAttrHighlighting=false);
-    int  GetGroup(const FileListItem *fli);
-    void HiEdit(int MenuPos);
-
-    void SaveHiData();
-};
-
-void SetHighlighting();
-
-#endif // __HILIGHT_HPP__
+#endif // __FILEATTR_HPP__

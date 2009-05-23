@@ -63,6 +63,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
+#include "delete.hpp"
+#include "stddlg.hpp"
+#include "print.hpp"
+#include "mkdir.hpp"
+#include "setattr.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 
