@@ -1369,6 +1369,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dirmix.cpp"
+				>
+			</File>
+			<File
 				RelativePath="dizlist.cpp"
 				>
 				<FileConfiguration
@@ -1474,6 +1478,10 @@
 			</File>
 			<File
 				RelativePath=".\DList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\drivemix.cpp"
 				>
 			</File>
 			<File
@@ -4625,6 +4633,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\panelmix.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pathmix.cpp"
 				>
 			</File>
@@ -4899,6 +4911,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\processname.cpp"
+				>
 			</File>
 			<File
 				RelativePath="qview.cpp"
@@ -7902,6 +7918,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dirmix.hpp"
+				>
+			</File>
+			<File
 				RelativePath="dizlist.hpp"
 				>
 			</File>
@@ -7911,6 +7931,10 @@
 			</File>
 			<File
 				RelativePath=".\DList.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\drivemix.hpp"
 				>
 			</File>
 			<File
@@ -7927,6 +7951,10 @@
 			</File>
 			<File
 				RelativePath=".\execute.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\exitcode.hpp"
 				>
 			</File>
 			<File
@@ -8003,10 +8031,6 @@
 			</File>
 			<File
 				RelativePath="flink.hpp"
-				>
-			</File>
-			<File
-				RelativePath="fn.hpp"
 				>
 			</File>
 			<File
@@ -8192,6 +8216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mix.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mkdir.hpp"
 				>
 			</File>
@@ -8217,6 +8245,10 @@
 			</File>
 			<File
 				RelativePath="panel.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\panelmix.hpp"
 				>
 			</File>
 			<File
@@ -8334,6 +8366,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\processname.hpp"
+				>
+			</File>
+			<File
 				RelativePath="qview.hpp"
 				>
 			</File>
@@ -8395,6 +8431,10 @@
 			</File>
 			<File
 				RelativePath=".\stddlg.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\strmix.hpp"
 				>
 			</File>
 			<File
