@@ -3130,7 +3130,10 @@ If the width is equal to 0, the default value will be used. If the width of
 the Name, Description or Owner column is 0, it will be calculated
 automatically, depending upon the panel width. For correct operation with
 different screen widths, it is highly recommended to have at least one column
-with automatically calculated width.
+with automatically calculated width. Width can be also set as a percentage of
+free space remaining after the columns with a fixed width by adding % symbol
+after numerical value. If the total size of such columns exceeds 100%,
+their sizes are scaled.
 
     Incrementing the default width of the file time column or file date and
 time column by 1 will force a 12-hour time format. Further increase will lead

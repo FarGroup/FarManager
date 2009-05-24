@@ -628,19 +628,20 @@ void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
 
 int FileList::PreparePanelView(struct PanelViewSettings *PanelView)
 {
-  PrepareColumnWidths(PanelView->StatusColumnType,PanelView->StatusColumnWidth,
+  PrepareColumnWidths(PanelView->StatusColumnType,PanelView->StatusColumnWidth,PanelView->StatusColumnWidthType,
                       PanelView->StatusColumnCount,PanelView->FullScreen);
-  return(PrepareColumnWidths(PanelView->ColumnType,PanelView->ColumnWidth,
+  return(PrepareColumnWidths(PanelView->ColumnType,PanelView->ColumnWidth,PanelView->ColumnWidthType,
                              PanelView->ColumnCount,PanelView->FullScreen));
 }
 
 
 int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
-              int &ColumnCount,int FullScreen)
+              int *ColumnWidthsTypes,int &ColumnCount,int FullScreen)
 {
-  int TotalWidth,ZeroLengthCount,EmptyColumns,I;
+  int TotalWidth,TotalPercentWidth,TotalPercentCount,ZeroLengthCount,EmptyColumns,I;
   ZeroLengthCount=EmptyColumns=0;
   TotalWidth=ColumnCount-1;
+  TotalPercentCount=TotalPercentWidth=0;
   for (I=0;I<ColumnCount;I++)
   {
     if (ColumnWidths[I]<0)
@@ -651,7 +652,9 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
     int ColumnType=ColumnTypes[I] & 0xff;
     if (ColumnWidths[I]==0)
     {
+			ColumnWidthsTypes[I] = COUNT_WIDTH; //manage all zero-width columns in same way
       ColumnWidths[I]=ColumnTypeWidth[ColumnType];
+
       if (ColumnType==MDATE_COLUMN || ColumnType==CDATE_COLUMN || ColumnType==ADATE_COLUMN)
       {
         if (ColumnTypes[I] & COLUMN_BRIEF)
@@ -662,7 +665,17 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
     }
     if (ColumnWidths[I]==0)
       ZeroLengthCount++;
-    TotalWidth+=ColumnWidths[I];
+
+    switch (ColumnWidthsTypes[I])
+    {
+    	case COUNT_WIDTH:
+    		TotalWidth+=ColumnWidths[I];
+    		break;
+    	case PERCENT_WIDTH:
+    		TotalPercentWidth+=ColumnWidths[I];
+    		TotalPercentCount++;
+    		break;
+    }
   }
 
   TotalWidth-=EmptyColumns;
@@ -671,6 +684,27 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
     PanelTextWidth=ScrX-1;
 
   int ExtraWidth=PanelTextWidth-TotalWidth;
+
+  if (TotalPercentCount>0)
+  {
+	  int ExtraPercentWidth=(TotalPercentWidth>100)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
+	  int TempWidth=0;
+
+		for (I=0;I<ColumnCount && ZeroLengthCount>0 && TotalPercentCount>0;I++)
+			if (ColumnWidthsTypes[I]==PERCENT_WIDTH)
+			{
+				int PercentWidth = (TotalPercentCount>1)?(ExtraPercentWidth*ColumnWidths[I]/TotalPercentWidth):(ExtraPercentWidth-TempWidth);
+				if (PercentWidth<1)
+					PercentWidth=1;
+				TempWidth+=PercentWidth;
+				ColumnWidths[I]=PercentWidth;
+				ColumnWidthsTypes[I] = COUNT_WIDTH;
+				TotalPercentCount--;
+			}
+
+	  ExtraWidth-=TempWidth;
+	 }
+
   for (I=0;I<ColumnCount && ZeroLengthCount>0;I++)
     if (ColumnWidths[I]==0)
     {

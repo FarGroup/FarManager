@@ -290,7 +290,7 @@ class FileList:public Panel
     HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr=0);
     int PreparePanelView(struct PanelViewSettings *PanelView);
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
-                            int &ColumnCount,int FullScreen);
+                            int *ColumnWidthsTypes,int &ColumnCount,int FullScreen);
     void PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo);
 
     void PluginDelete();
