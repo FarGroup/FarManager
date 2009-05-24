@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 static int ShowFolderShortcutMenu(int Pos);
 static const wchar_t HelpFolderShortcuts[]=L"FolderShortcuts";

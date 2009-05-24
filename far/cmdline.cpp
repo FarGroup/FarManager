@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "usermenu.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
 
 CommandLine::CommandLine()
 {

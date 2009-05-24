@@ -45,13 +45,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "macroopcode.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
 #include "syntax.hpp"
 #include "tvar.hpp"
 #include "syslog.hpp"
 #include "language.hpp"
 #include "keyboard.hpp"
 #include "macro.hpp"
+#include "strmix.hpp"
 
 #define EOFCH 65536
 

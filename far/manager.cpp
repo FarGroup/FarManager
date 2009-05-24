@@ -53,6 +53,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "plist.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
+#include "exitcode.hpp"
 
 Manager *FrameManager;
 

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "FileMasksWithExclude.hpp"
-#include "fn.hpp"
 
 const wchar_t EXCLUDEMASKSEPARATOR=0x7C; // '|'
 

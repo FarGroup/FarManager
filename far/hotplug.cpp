@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "hotplug.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "keys.hpp"
@@ -45,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 DEFINE_GUID(GUID_DEVINTERFACE_VOLUME,0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b)=
                                     {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};

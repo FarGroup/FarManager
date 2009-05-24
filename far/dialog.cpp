@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "message.hpp"
+#include "strmix.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 

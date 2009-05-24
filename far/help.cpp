@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "help.hpp"
 #include "keyboard.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
@@ -53,6 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "execute.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
+#include "exitcode.hpp"
+#include "filestr.hpp"
 
 // Стек возврата
 class CallBackStack

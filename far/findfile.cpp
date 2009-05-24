@@ -68,6 +68,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
+#include "drivemix.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
+#include "mix.hpp"
 
 #define DLG_HEIGHT 23
 #define DLG_WIDTH 74

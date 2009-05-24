@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "execute.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
+#include "mix.hpp"
 
 static int LastWrapMode = -1;
 static int LastWrapType = -1;

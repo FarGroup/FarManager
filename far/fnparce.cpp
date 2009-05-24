@@ -45,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "message.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
+#include "mix.hpp"
 
 struct TSubstDataW
 {

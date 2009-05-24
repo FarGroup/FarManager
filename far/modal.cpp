@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 #include "keys.hpp"
-#include "fn.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
 #include "interf.hpp"

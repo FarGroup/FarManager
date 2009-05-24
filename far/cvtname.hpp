@@ -43,7 +43,6 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 
 void ConvertNameToUNC(string &strFileName);
 
-// Получить из имени диска RemoteName
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
+string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
 
 #endif // __CVTNAME_HPP__

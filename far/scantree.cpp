@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "scantree.hpp"
-#include "fn.hpp"
 #include "syslog.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
 {

@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "filetype.hpp"
 #include "ffolders.hpp"
+#include "strmix.hpp"
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {

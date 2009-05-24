@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "savefpos.hpp"
-#include "fn.hpp"
 
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {

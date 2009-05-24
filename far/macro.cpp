@@ -71,6 +71,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "stddlg.hpp"
 #include "pathmix.hpp"
+#include "drivemix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{

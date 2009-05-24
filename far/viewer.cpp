@@ -59,6 +59,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "delete.hpp"
+#include "dirmix.hpp"
+#include "pathmix.hpp"
+#include "filestr.hpp"
+#include "mix.hpp"
 
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);

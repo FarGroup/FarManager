@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "cddrv.hpp"
-#include "fn.hpp"
+#include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
 

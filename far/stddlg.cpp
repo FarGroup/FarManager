@@ -34,14 +34,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "stddlg.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "farexcpt.hpp"
 #include "registry.hpp"
-#include "stddlg.hpp"
+#include "strmix.hpp"
 
 int WINAPI GetSearchReplaceString (
          int IsReplaceMode,

@@ -53,6 +53,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filetype.hpp"
 #include "fnparce.hpp"
 #include "execute.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
+#include "filestr.hpp"
+#include "mix.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*

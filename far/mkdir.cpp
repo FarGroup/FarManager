@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "mkdir.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "stddlg.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {

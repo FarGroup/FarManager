@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "plist.hpp"
 #include "keys.hpp"
 #include "help.hpp"
 #include "lang.hpp"
@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "plist.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);

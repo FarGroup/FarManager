@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menubar.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
-#include "fn.hpp"
 #include "language.hpp"
 #include "interf.hpp"
 

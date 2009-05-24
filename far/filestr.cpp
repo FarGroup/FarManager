@@ -34,8 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "filestr.hpp"
+#include "nsUniversalDetectorEx.h"
 
 GetFileString::GetFileString(FILE *SrcFile)
 {
@@ -272,4 +272,226 @@ int GetFileString::GetReverseUnicodeString(wchar_t **DestStr,int &Length)
 	*DestStr=wStr;
 	Length=CurLength;
 	return(ExitCode);
+}
+
+bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
+{
+  bool Ascii=true;
+  UINT Octets=0;
+  for(size_t i=0;i<Length;i++)
+  {
+    BYTE c=Buffer[i];
+    if(c&0x80)
+      Ascii=false;
+    if(Octets)
+    {
+      if((c&0xC0)!=0x80)
+        return false;
+      Octets--;
+    }
+    else
+    {
+      if(c&0x80)
+      {
+        while(c&0x80)
+        {
+          c<<=1;
+          Octets++;
+        }
+        Octets--;
+        if(!Octets)
+          return false;
+      }
+    }
+  }
+  return (Octets>0||Ascii)?false:true;
+}
+
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUseHeuristics)
+{
+  DWORD dwTemp=0;
+
+  bool bSignatureFound = false;
+  bool bDetect=false;
+
+  if ( fread (&dwTemp, 1, 4, file) )
+  {
+    if ( LOWORD (dwTemp) == SIGN_UNICODE )
+    {
+      nCodePage = CP_UNICODE;
+      fseek (file, 2, SEEK_SET);
+      bSignatureFound = true;
+    }
+    else
+
+    if ( LOWORD (dwTemp) == SIGN_REVERSEBOM )
+    {
+      nCodePage = CP_REVERSEBOM;
+      fseek (file, 2, SEEK_SET);
+      bSignatureFound = true;
+    }
+    else
+
+    if ( (dwTemp & 0x00FFFFFF) == SIGN_UTF8 )
+    {
+      nCodePage = CP_UTF8;
+      fseek (file, 3, SEEK_SET);
+      bSignatureFound = true;
+    }
+    else
+      fseek (file, 0, SEEK_SET);
+  }
+
+  if( bSignatureFound )
+  {
+    bDetect = true;
+  }
+  else
+
+  if ( bUseHeuristics )
+  {
+    fseek (file, 0, SEEK_SET);
+    size_t sz=0x8000; // BUGBUG. TODO: configurable
+    LPVOID Buffer=xf_malloc(sz);
+    sz=fread(Buffer,1,sz,file);
+    fseek (file,0,SEEK_SET);
+
+    if ( sz )
+    {
+      int test=
+        IS_TEXT_UNICODE_STATISTICS|
+        IS_TEXT_UNICODE_REVERSE_STATISTICS|
+        IS_TEXT_UNICODE_CONTROLS|
+        IS_TEXT_UNICODE_REVERSE_CONTROLS|
+        IS_TEXT_UNICODE_ILLEGAL_CHARS|
+        IS_TEXT_UNICODE_ODD_LENGTH|
+        IS_TEXT_UNICODE_NULL_BYTES;
+
+      if ( IsTextUnicode (Buffer, (int)sz, &test) )
+      {
+        if ( !(test&IS_TEXT_UNICODE_ODD_LENGTH) && !(test&IS_TEXT_UNICODE_ILLEGAL_CHARS) )
+        {
+          if( (test&IS_TEXT_UNICODE_NULL_BYTES) ||
+            (test&IS_TEXT_UNICODE_CONTROLS) ||
+            (test&IS_TEXT_UNICODE_REVERSE_CONTROLS) )
+          {
+            if ( (test&IS_TEXT_UNICODE_CONTROLS) || (test&IS_TEXT_UNICODE_STATISTICS) )
+            {
+              nCodePage=CP_UNICODE;
+              bDetect=true;
+            }
+            else
+
+            if ( (test&IS_TEXT_UNICODE_REVERSE_CONTROLS) || (test&IS_TEXT_UNICODE_REVERSE_STATISTICS) )
+            {
+              nCodePage=CP_REVERSEBOM;
+              bDetect=true;
+            }
+          }
+        }
+      }
+      else
+
+      if ( IsTextUTF8 ((const LPBYTE)Buffer, sz) )
+      {
+        nCodePage=CP_UTF8;
+        bDetect=true;
+      }
+      else
+      {
+        nsUniversalDetectorEx *ns = new nsUniversalDetectorEx();
+
+        ns->HandleData((const char*)Buffer,(PRUint32)sz);
+        ns->DataEnd();
+
+        int cp = ns->getCodePage();
+
+        if ( cp != -1 )
+        {
+          nCodePage = cp;
+          bDetect = true;
+        }
+
+        delete ns;
+
+      }
+    }
+
+    xf_free(Buffer);
+  }
+
+  if ( pSignatureFound )
+    *pSignatureFound = bSignatureFound;
+
+  return bDetect;
+}
+
+wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage)
+{
+    char *lpDest = (char*)xf_malloc ((nDestLength+1)*3); //UTF-8, up to 3 bytes per char support
+
+    memset (lpDest, 0, (nDestLength+1)*3);
+    memset (lpwszDest, 0, nDestLength*sizeof (wchar_t));
+
+    if ( (nCodePage == CP_UNICODE) || (nCodePage == CP_REVERSEBOM) )
+    {
+        if ( !fgetws (lpwszDest, nDestLength, file) )
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+
+        if ( nCodePage == CP_REVERSEBOM )
+        {
+            swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
+
+            wchar_t *Ch = lpwszDest;
+            int nLength = Min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
+
+            while ( *Ch )
+            {
+                if ( *Ch == L'\n' )
+                {
+                    *(Ch+1) = 0;
+                    break;
+                }
+
+                Ch++;
+            }
+
+            int nNewLength = Min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
+
+            fseek (file, (nNewLength-nLength)*sizeof (wchar_t), SEEK_CUR);
+        }
+
+    }
+    else
+
+    if ( nCodePage == CP_UTF8 )
+    {
+        if ( fgets (lpDest, nDestLength*3, file) )
+            MultiByteToWideChar (CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
+        else
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+
+    }
+    else
+
+    if ( nCodePage != -1 )
+    {
+        if ( fgets (lpDest, nDestLength, file) )
+            MultiByteToWideChar (nCodePage, 0, lpDest, -1, lpwszDest, nDestLength);
+        else
+        {
+            xf_free (lpDest);
+            return NULL;
+        }
+    }
+
+    xf_free (lpDest);
+
+    return lpwszDest;
 }

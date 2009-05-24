@@ -56,6 +56,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 

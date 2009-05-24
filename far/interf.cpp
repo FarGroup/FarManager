@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "registry.hpp"
 #include "palette.hpp"
 #include "iswind.hpp"
+#include "strmix.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 

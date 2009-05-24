@@ -65,6 +65,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "exitcode.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,

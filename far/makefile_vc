@@ -106,9 +106,11 @@ LINK32_OBJS= \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dirinfo.obj" \
+	"$(INTDIR)\dirmix.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\DList.obj" \
+	"$(INTDIR)\drivemix.obj" \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \
@@ -171,6 +173,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
+	"$(INTDIR)\panelmix.obj" \
 	"$(INTDIR)\pathmix.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plognmn.obj" \
@@ -180,6 +183,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\PluginW.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \
+	"$(INTDIR)\processname.obj" \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\rdrwdsk.obj" \
 	"$(INTDIR)\RefreshFrameManager.obj" \

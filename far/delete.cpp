@@ -54,6 +54,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
+#include "mix.hpp"
 
 static void ShellDeleteMsg(const wchar_t *Name,int Wipe);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);

@@ -35,12 +35,16 @@ dialog.cpp
 dialog.hpp
 dirinfo.cpp
 dirinfo.hpp
+dirmix.cpp
+dirmix.hpp
 dizlist.cpp
 dizlist.hpp
 dlgedit.cpp
 dlgedit.hpp
 DList.cpp
 DList.hpp
+drivemix.cpp
+drivemix.hpp
 edit.cpp
 edit.hpp
 editor.cpp
@@ -49,6 +53,7 @@ eject.cpp
 eject.hpp
 execute.cpp
 execute.hpp
+exitcode.hpp
 farexcpt.cpp
 farexcpt.hpp
 farqueue.cpp
@@ -91,7 +96,6 @@ flmodes.cpp
 flplugin.cpp
 flshow.cpp
 flupdate.cpp
-fn.hpp
 fnparce.cpp
 fnparce.hpp
 foldtree.cpp
@@ -149,6 +153,7 @@ menubar.hpp
 message.cpp
 message.hpp
 mix.cpp
+mix.hpp
 mkdir.cpp
 mkdir.hpp
 modal.cpp
@@ -163,6 +168,8 @@ palette.cpp
 palette.hpp
 panel.cpp
 panel.hpp
+panelmix.cpp
+panelmix.hpp
 pathmix.cpp
 pathmix.hpp
 plclass.hpp
@@ -181,6 +188,8 @@ poscache.cpp
 poscache.hpp
 print.cpp
 print.hpp
+processname.cpp
+processname.hpp
 qview.cpp
 qview.hpp
 rdrwdsk.cpp
@@ -213,6 +222,7 @@ setcolor.hpp
 stddlg.cpp
 stddlg.hpp
 strmix.cpp
+strmix.hpp
 syntax.cpp
 syntax.hpp
 syslog.cpp

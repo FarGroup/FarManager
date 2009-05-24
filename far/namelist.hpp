@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DList.hpp"
 #include "plugin.hpp"
-#include "fn.hpp"
 
 class NamesList
 {

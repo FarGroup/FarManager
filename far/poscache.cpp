@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "poscache.hpp"
-#include "fn.hpp"
 #include "udlist.hpp"
 #include "registry.hpp"
 #include "config.hpp"

@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "setcolor.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
-#include "setcolor.hpp"
 
 static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);

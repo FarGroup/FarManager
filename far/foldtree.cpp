@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "foldtree.hpp"
 #include "keyboard.hpp"
-#include "fn.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
 #include "treelist.hpp"
@@ -48,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "config.hpp"
+#include "exitcode.hpp"
 
 FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,int IsFullScreen)
 {

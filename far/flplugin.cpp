@@ -44,6 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
+#include "dirmix.hpp"
+#include "pathmix.hpp"
+#include "mix.hpp"
 
 /*
    В стеке ФАРова панель не хранится - только плагиновые!

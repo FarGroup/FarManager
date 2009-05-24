@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filelist.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
@@ -43,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "registry.hpp"
 #include "interf.hpp"
+#include "strmix.hpp"
 
 int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   };
 

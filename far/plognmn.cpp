@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plognmn.hpp"
-#include "fn.hpp"
-
+#include "pathmix.hpp"
 
 PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
 {

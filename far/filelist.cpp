@@ -75,6 +75,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
+#include "network.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "exitcode.hpp"
+#include "panelmix.hpp"
+#include "processname.hpp"
+#include "mix.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 

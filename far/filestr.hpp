@@ -59,4 +59,7 @@ class GetFileString
 		bool IsConversionValid(){return !SomeDataLost;};
 };
 
+bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
+wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
+
 #endif  // __GETFILESTRING_HPP__

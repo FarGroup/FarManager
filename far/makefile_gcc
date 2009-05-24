@@ -38,9 +38,11 @@ SRCS = 	cddrv.cpp \
 	delete.cpp \
 	dialog.cpp \
 	dirinfo.cpp \
+	dirmix.cpp \
 	dizlist.cpp \
 	dlgedit.cpp \
 	DList.cpp \
+	drivemix.cpp \
 	edit.cpp \
 	editor.cpp \
 	eject.cpp \
@@ -103,6 +105,7 @@ SRCS = 	cddrv.cpp \
 	options.cpp \
 	palette.cpp \
 	panel.cpp \
+	panelmix.cpp \
 	pathmix.cpp \
 	plist.cpp \
 	plognmn.cpp \
@@ -112,6 +115,7 @@ SRCS = 	cddrv.cpp \
 	PluginW.cpp \
 	poscache.cpp \
 	print.cpp \
+	processname.cpp \
 	qview.cpp \
 	rdrwdsk.cpp \
 	RefreshFrameManager.cpp \

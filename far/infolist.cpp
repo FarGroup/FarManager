@@ -50,6 +50,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
+#include "drivemix.hpp"
+#include "dirmix.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
+#include "mix.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;

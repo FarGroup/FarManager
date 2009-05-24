@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "filefilter.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -42,12 +42,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "scantree.hpp"
-#include "filefilter.hpp"
 #include "array.hpp"
 #include "filelist.hpp"
 #include "registry.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
 

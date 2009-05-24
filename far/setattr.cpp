@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileattr.hpp"
 #include "setattr.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 #define DM_SETATTR      (DM_USER+1)
 

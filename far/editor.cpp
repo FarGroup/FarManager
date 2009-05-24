@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "editor.hpp"
 #include "edit.hpp"
 #include "keyboard.hpp"
@@ -58,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "datetime.hpp"
 #include "stddlg.hpp"
+#include "strmix.hpp"
 
 static int ReplaceMode,ReplaceAll;
 

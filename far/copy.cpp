@@ -71,6 +71,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
+#include "drivemix.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
+#include "processname.hpp"
+#include "mix.hpp"
 
 /* Общее время ожидания пользователя */
 extern long WaitUserTime;

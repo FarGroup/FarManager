@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filelist.hpp"
-#include "fn.hpp"
 #include "colors.hpp"
 #include "lang.hpp"
 #include "filefilter.hpp"
@@ -46,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];

@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "execute.hpp"
 #include "fnparce.hpp"
+#include "strmix.hpp"
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);

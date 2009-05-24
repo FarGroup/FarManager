@@ -63,6 +63,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "fileowner.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
+#include "processname.hpp"
+#include "mix.hpp"
 
 #include "wrap.cpp"
 

@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "print.hpp"
 #include "delete.hpp"
+#include "pathmix.hpp"
+#include "mix.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define GENERATE_PRINTER_INFO(prefix, value, suffix) prefix##value##suffix

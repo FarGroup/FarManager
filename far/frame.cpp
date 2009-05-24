@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "frame.hpp"
-#include "fn.hpp"
 #include "keybar.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"

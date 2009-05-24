@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UINT64 Size)
 {

@@ -38,9 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "udlist.hpp"
-#include "fn.hpp"
-
-//unicode
 
 UserDefinedListItem::~UserDefinedListItem()
 {

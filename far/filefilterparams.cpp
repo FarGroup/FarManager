@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "CFileMask.hpp"
 #include "FileMasksWithExclude.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -49,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "setcolor.hpp"
 #include "datetime.hpp"
+#include "strmix.hpp"
 
 FileFilterParams::FileFilterParams()
 {
@@ -82,6 +82,37 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 void FileFilterParams::SetTitle(const wchar_t *Title)
 {
   m_strTitle = Title;
+}
+
+// Преобразование корявого формата PATHEXT в ФАРовский :-)
+// Функции передается нужные расширения, она лишь добавляет то, что есть
+// в %PATHEXT%
+// IS: Сравнений на совпадение очередной маски с тем, что имеется в Dest
+// IS: не делается, т.к. дубли сами уберутся при компиляции маски
+string &Add_PATHEXT(string &strDest)
+{
+  string strBuf;
+  size_t curpos=strDest.GetLength()-1;
+  UserDefinedList MaskList(0,0,ULF_UNIQUE);
+  if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
+  {
+    /* $ 13.10.2002 IS проверка на '|' (маски исключения) */
+    if( !strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
+      strDest += L",";
+    const wchar_t *Ptr;
+    MaskList.Reset();
+    while(NULL!=(Ptr=MaskList.GetNext()))
+    {
+      strDest += L"*";
+      strDest += Ptr;
+      strDest += L",";
+    }
+  }
+  // лишняя запятая - в морг!
+  curpos=strDest.GetLength()-1;
+  if(strDest.At(curpos) == L',')
+    strDest.SetLength(curpos);
+  return strDest;
 }
 
 void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)

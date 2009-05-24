@@ -34,10 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "strmix.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 {
@@ -94,304 +95,6 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
    return strDest;
 */
 }
-
-const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
-{
-  if ( !lpwszPath )
-    return NULL;
-
-  if ( *lpwszPath!=0 && *(lpwszPath+1)==L':' ) lpwszPath+=2;
-
-  const wchar_t *lpwszNamePtr = lpwszPath;
-  while ( *lpwszNamePtr ) lpwszNamePtr++;
-
-  while (lpwszNamePtr != lpwszPath)
-  {
-    if (IsSlash(*lpwszNamePtr))
-      return lpwszNamePtr+1;
-    lpwszNamePtr--;
-  }
-  if (IsSlash(*lpwszPath))
-    return lpwszPath+1;
-  else
-    return lpwszPath;
-}
-
-
-//   Аналог PointToName, только для строк типа
-//   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
-//   строку
-
-const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
-{
-  if(!Path)
-    return NULL;
-
-  const wchar_t *NamePtr=Path, *prevNamePtr=Path;
-
-  while (*Path)
-  {
-    if (IsSlash(*Path) ||
-        (*Path==L':' && Path==NamePtr+1))
-    {
-      prevNamePtr=NamePtr;
-      NamePtr=Path+1;
-    }
-    ++Path;
-  }
-  return ((*NamePtr)?NamePtr:prevNamePtr);
-}
-
-const wchar_t* PointToExt(const wchar_t *lpwszPath)
-{
-  if ( !lpwszPath )
-    return NULL;
-
-  const wchar_t *lpwszEndPtr = lpwszPath;
-  while ( *lpwszEndPtr ) lpwszEndPtr++;
-  const wchar_t *lpwszExtPtr = lpwszEndPtr;
-
-  while (lpwszExtPtr != lpwszPath)
-  {
-    if ( *lpwszExtPtr==L'.' )
-    {
-      if (IsSlash(*(lpwszExtPtr-1)) || *(lpwszExtPtr-1)==L':' )
-        return lpwszEndPtr;
-      else
-        return lpwszExtPtr;
-    }
-    if (IsSlash(*lpwszExtPtr) || *lpwszExtPtr==L':' )
-      return lpwszEndPtr;
-    lpwszExtPtr--;
-  }
-  return lpwszEndPtr;
-}
-
-
-/* $ 10.05.2003 IS
-   + Облегчим CmpName за счет выноса проверки skippath наружу
-   - Ошибка: *Name*.* не находило Name
-*/
-
-// IS: это реальное тело функции сравнения с маской, но использовать
-// IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
-// IS: после CmpName_Body)
-
-int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
-{
-  wchar_t stringc,patternc,rangec;
-  int match;
-
-  for (;; ++str)
-  {
-    /* $ 01.05.2001 DJ
-       используем инлайновые версии
-    */
-    stringc=Upper(*str);
-    patternc=Upper(*pattern++);
-    switch (patternc)
-    {
-      case 0:
-        return(stringc==0);
-      case L'?':
-        if (stringc == 0)
-          return(FALSE);
-
-        break;
-      case L'*':
-        if (!*pattern)
-          return(TRUE);
-
-        /* $ 01.05.2001 DJ
-           оптимизированная ветка работает и для имен с несколькими
-           точками
-        */
-        if (*pattern==L'.')
-        {
-          if (pattern[1]==L'*' && pattern[2]==0)
-            return(TRUE);
-          if (wcspbrk (pattern, L"*?[") == NULL)
-          {
-            const wchar_t *dot = wcsrchr (str, L'.');
-            if (pattern[1] == 0)
-              return (dot==NULL || dot[1]==0);
-            const wchar_t *patdot = wcschr (pattern+1, L'.');
-            if (patdot != NULL && dot == NULL)
-              return(FALSE);
-            if (patdot == NULL && dot != NULL)
-              return(StrCmpI (pattern+1,dot+1) == 0);
-          }
-        }
-
-        while (*str)
-        {
-          if (CmpName(pattern,str++,FALSE))
-            return(TRUE);
-        }
-        return(FALSE);
-      case L'[':
-        if (wcschr(pattern,L']')==NULL)
-        {
-          if (patternc != stringc)
-            return (FALSE);
-          break;
-        }
-        if (*pattern && *(pattern+1)==L']')
-        {
-          if (*pattern!=*str)
-            return(FALSE);
-          pattern+=2;
-          break;
-        }
-        match = 0;
-        while ((rangec = Upper(*pattern++))!=0)
-        {
-          if (rangec == L']')
-          {
-            if (match)
-              break;
-            else
-              return(FALSE);
-          }
-          if (match)
-            continue;
-          if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
-          {
-            match = (stringc <= Upper(*pattern) &&
-                     Upper(*(pattern - 2)) <= stringc);
-            pattern++;
-          }
-          else
-            match = (stringc == rangec);
-        }
-        if (rangec == 0)
-          return(FALSE);
-        break;
-      default:
-        if (patternc != stringc)
-        {
-          if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
-            return(*pattern!=L'.' && CmpName(pattern,str));
-          else
-            return(FALSE);
-        }
-        break;
-    }
-  }
-}
-
-
-// IS: функция для внешнего мира, использовать ее
-int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
-{
-  if (!pattern||!str) return FALSE;
-  if (skippath)
-    str=PointToName(str);
-  return CmpName_Body(pattern,str);
-}
-
-
-int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolderNameLength)
-{
-	string strPartAfterFolderName;
-	string strSrc = SrcName;
-
-	wchar_t *DestName = strDest.GetBuffer (strDest.GetLength()+strSrc.GetLength()+1); //???
-	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
-
-	string strWildName = DestNamePtr;
-
-	if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
-	{
-		//strDest.ReleaseBuffer (); не надо так как строка не поменялась
-		return(FALSE);
-	}
-
-	if (SelectedFolderNameLength!=0)
-	{
-		strPartAfterFolderName = ((const wchar_t *)strSrc+SelectedFolderNameLength);
-		strSrc.SetLength(SelectedFolderNameLength);
-	}
-
-	const wchar_t *Src = strSrc;
-	const wchar_t *SrcNamePtr = PointToName(Src);
-
-	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
-
-	wchar_t *PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
-
-	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
-
-	const wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
-
-	const wchar_t *CurWildPtr = strWildName;
-
-	while (*CurWildPtr)
-	{
-		switch(*CurWildPtr)
-		{
-			case L'?':
-				CurWildPtr++;
-				if (*SrcNamePtr)
-					*(DestNamePtr++)=*(SrcNamePtr++);
-				break;
-			case L'*':
-				CurWildPtr++;
-				while (*SrcNamePtr)
-				{
-					if (*CurWildPtr==L'.' && SrcNameDot!=NULL && wcschr(CurWildPtr+1,L'.')==NULL)
-					{
-						if (SrcNamePtr==SrcNameDot)
-							break;
-					}
-					else
-						if (*SrcNamePtr==*CurWildPtr)
-							break;
-					*(DestNamePtr++)=*(SrcNamePtr++);
-				}
-				break;
-			case L'.':
-				CurWildPtr++;
-				*(DestNamePtr++)=L'.';
-				if (wcspbrk(CurWildPtr,L"*?")!=NULL)
-					while (*SrcNamePtr)
-						if (*(SrcNamePtr++)==L'.')
-							break;
-				break;
-			default:
-				*(DestNamePtr++)=*(CurWildPtr++);
-				if (*SrcNamePtr && *SrcNamePtr!=L'.')
-					SrcNamePtr++;
-				break;
-		}
-	}
-
-	*DestNamePtr=0;
-	if (DestNamePtr!=DestName && *(DestNamePtr-1)==L'.')
-		*(DestNamePtr-1)=0;
-
-	strDest.ReleaseBuffer ();
-
-	if (*PartBeforeName)
-		strDest = PartBeforeName+strDest;
-	if (SelectedFolderNameLength!=0)
-		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
-
-	xf_free (PartBeforeName);
-
-	return(TRUE);
-}
-
-
-/* $ 09.10.2000 IS
-    Генерация нового имени по маске
-    (взял из ShellCopy::ShellCopyConvertWildcards)
-*/
-// На основе имени файла (Src) и маски (Dest) генерируем новое имя
-// SelectedFolderNameLength - длина каталога. Например, есть
-// каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
-// Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
-// или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
 
 wchar_t * WINAPI InsertQuote(wchar_t *Str)
 {
@@ -661,7 +364,6 @@ string&  WINAPI RemoveExternalSpaces(string &strStr)
    Заменяет пробелами непечатные символы в строке. В настоящий момент
    обрабатываются только cr и lf.
 */
-
 string& WINAPI RemoveUnprintableCharacters(string &strStr)
 {
   wchar_t *Str = strStr.GetBuffer ();
@@ -703,107 +405,6 @@ string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
   strStr.ReleaseBuffer ();
 
   return strStr;
-}
-
-BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
-{
-  BOOL Result=FALSE;
-  if (Path)
-  {
-    /* $ 06.12.2000 IS
-      ! Теперь функция работает с обоими видами слешей, также происходит
-        изменение уже существующего конечного слеша на такой, который
-        встречается чаще.
-    */
-    wchar_t *end;
-    int Slash=0, BackSlash=0;
-    if (!TypeSlash)
-    {
-      end=Path;
-      while (*end)
-      {
-        Slash+=(*end==L'\\');
-        BackSlash+=(*end==L'/');
-        end++;
-      }
-    }
-    else
-    {
-      end=Path+StrLength(Path);
-      if (TypeSlash == L'\\')
-        Slash=1;
-      else
-        BackSlash=1;
-    }
-    int Length=(int)(end-Path);
-    char c=(Slash<BackSlash)?L'/':L'\\';
-    Result=TRUE;
-    if (Length==0)
-    {
-      *end=c;
-      end[1]=0;
-    }
-    else
-    {
-      end--;
-      if (!IsSlash(*end))
-      {
-        end[1]=c;
-        end[2]=0;
-      }
-      else
-      {
-        *end=c;
-      }
-    }
-  }
-  return Result;
-}
-
-
-BOOL WINAPI AddEndSlash(wchar_t *Path)
-{
-	return AddEndSlash(Path, 0);
-}
-
-
-BOOL AddEndSlash(string &strPath)
-{
-	return AddEndSlash(strPath, 0);
-}
-
-BOOL AddEndSlash(
-		string &strPath,
-		wchar_t TypeSlash
-		)
-{
-	wchar_t *lpwszPath = strPath.GetBuffer (strPath.GetLength()+2);
-
-	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
-
-	strPath.ReleaseBuffer ();
-
-	return Result;
-}
-
-
-BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
-{
-  BOOL Ret=FALSE;
-  if ( !strPath.IsEmpty() )
-  {
-    size_t len=strPath.GetLength();
-    wchar_t *lpwszPath = strPath.GetBuffer ();
-		while ( len && IsSlash(lpwszPath[--len]) )
-    {
-      Ret=TRUE;
-      lpwszPath[len] = L'\0';
-      if (!allendslash)
-        break;
-    }
-    strPath.ReleaseBuffer();
-  }
-  return Ret;
 }
 
 string& CenterStr(const wchar_t *Src, string &strDest, int Length)
@@ -1454,135 +1055,6 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
   return Str+StartWPos;
 }
 
-BOOL TestParentFolderName(const wchar_t *Name)
-{
-	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));
-}
-
-BOOL TestCurrentFolderName(const wchar_t *Name)
-{
-	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
-}
-
-bool CutToSlash(string &strStr, bool bInclude)
-{
-  size_t pos;
-	bool bFound=LastSlash(strStr,pos);
-	if(bFound)
-	{
-		if ( bInclude )
-			strStr.SetLength(pos);
-		else
-			strStr.SetLength(pos+1);
-	}
-
-  return bFound;
-}
-
-string& CutToNameUNC(string &strPath)
-{
-  wchar_t *lpwszPath = strPath.GetBuffer ();
-
-  if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
-  {
-    lpwszPath+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*lpwszPath && !IsSlash(*lpwszPath))
-        lpwszPath++;
-      if (*lpwszPath)
-        lpwszPath++;
-    }
-  }
-
-  wchar_t *lpwszNamePtr = lpwszPath;
-
-  while ( *lpwszPath )
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
-      lpwszNamePtr = lpwszPath+1;
-
-    lpwszPath++;
-  }
-
-  *lpwszNamePtr = 0;
-
-  strPath.ReleaseBuffer ();
-
-  return strPath;
-
-}
-
-string& CutToFolderNameIfFolder(string &strPath)
-{
-  wchar_t *lpwszPath = strPath.GetBuffer ();
-
-  wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
-
-  while (*lpwszPath)
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath==lpwszNamePtr+1))
-    {
-      lpwszprevNamePtr=lpwszNamePtr;
-      lpwszNamePtr=lpwszPath+1;
-    }
-    ++lpwszPath;
-  }
-
-  if (*lpwszNamePtr)
-    *lpwszNamePtr=0;
-  else
-    *lpwszprevNamePtr=0;
-
-  strPath.ReleaseBuffer ();
-
-  return strPath;
-}
-
-const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
-{
-  if ( !lpwszPath )
-    return NULL;
-
-  if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
-  {
-    lpwszPath+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*lpwszPath && !IsSlash(*lpwszPath))
-        lpwszPath++;
-      if (*lpwszPath)
-        lpwszPath++;
-    }
-  }
-
-  const wchar_t *lpwszNamePtr = lpwszPath;
-
-  while ( *lpwszPath )
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
-      lpwszNamePtr = lpwszPath+1;
-
-    lpwszPath++;
-  }
-  return lpwszNamePtr;
-}
-
-string& ReplaceSlashToBSlash(string& strStr)
-{
-	wchar_t *lpwszStr = strStr.GetBuffer ();
-
-	while ( *lpwszStr )
-	{
-		if ( *lpwszStr == L'/' )
-			*lpwszStr = L'\\';
-		lpwszStr++;
-	}
-
-	strStr.ReleaseBuffer ();
-
-	return strStr;
-}
 
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
 {
@@ -1639,117 +1111,45 @@ unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
   return n;
 }
 
-wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage)
+/* $ 21.09.2003 KM
+   Трансформация строки по заданному типу.
+*/
+void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
 {
-    char *lpDest = (char*)xf_malloc ((nDestLength+1)*3); //UTF-8, up to 3 bytes per char support
-
-    memset (lpDest, 0, (nDestLength+1)*3);
-    memset (lpwszDest, 0, nDestLength*sizeof (wchar_t));
-
-    if ( (nCodePage == CP_UNICODE) || (nCodePage == CP_REVERSEBOM) )
+  string strTemp;
+  switch(TransformType)
+  {
+    case L'X': // Convert common string to hexadecimal string representation
     {
-        if ( !fgetws (lpwszDest, nDestLength, file) )
-        {
-            xf_free (lpDest);
-            return NULL;
-        }
-
-        if ( nCodePage == CP_REVERSEBOM )
-        {
-            swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
-
-            wchar_t *Ch = lpwszDest;
-            int nLength = Min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
-
-            while ( *Ch )
-            {
-                if ( *Ch == L'\n' )
-                {
-                    *(Ch+1) = 0;
-                    break;
-                }
-
-                Ch++;
-            }
-
-            int nNewLength = Min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
-
-            fseek (file, (nNewLength-nLength)*sizeof (wchar_t), SEEK_CUR);
-        }
-
+      string strHex;
+      while(*ConvStr)
+      {
+        strHex.Format(L"%02X",*ConvStr);
+        strTemp += strHex;
+        ConvStr++;
+      }
+      break;
     }
-    else
-
-    if ( nCodePage == CP_UTF8 )
+    case L'S': // Convert hexadecimal string representation to common string
     {
-        if ( fgets (lpDest, nDestLength*3, file) )
-            MultiByteToWideChar (CP_UTF8, 0, lpDest, -1, lpwszDest, nDestLength);
-        else
+      const wchar_t *ptrConvStr=ConvStr;
+      while(*ptrConvStr)
+      {
+        if(*ptrConvStr != L' ')
         {
-            xf_free (lpDest);
-            return NULL;
+          WCHAR Hex[]={ptrConvStr[0],ptrConvStr[1],0};
+          size_t l=strTemp.GetLength();
+          wchar_t *Temp=strTemp.GetBuffer(l+2);
+          Temp[l]=(wchar_t)wcstoul(Hex,NULL,16)&0xFFFF;
+          strTemp.ReleaseBuffer(l+1);
+          ptrConvStr++;
         }
-
+        ptrConvStr++;
+      }
+      break;
     }
-    else
-
-    if ( nCodePage != -1 )
-    {
-        if ( fgets (lpDest, nDestLength, file) )
-            MultiByteToWideChar (nCodePage, 0, lpDest, -1, lpwszDest, nDestLength);
-        else
-        {
-            xf_free (lpDest);
-            return NULL;
-        }
-    }
-
-    xf_free (lpDest);
-
-    return lpwszDest;
-}
-
-const wchar_t *FirstSlash(const wchar_t *String)
-{
-	do
-	{
-		if(IsSlash(*String))
-			return String;
-	}
-	while (*String++);
-	return NULL;
-}
-
-bool FirstSlash(const wchar_t *String,size_t &pos)
-{
-	bool Ret=false;
-	const wchar_t *Ptr=FirstSlash(String);
-	if(Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-	return Ret;
-}
-
-const wchar_t *LastSlash(const wchar_t *String)
-{
-	const wchar_t *Start = String;
-	while (*String++)
-		;
-	while (--String!=Start && !IsSlash(*String))
-		;
-	return IsSlash(*String)?String:NULL;
-}
-
-bool LastSlash(const wchar_t *String,size_t &pos)
-{
-	bool Ret=false;
-	const wchar_t *Ptr=LastSlash(String);
-	if(Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-	return Ret;
+    default:
+      break;
+  }
+  strBuffer=strTemp;
 }

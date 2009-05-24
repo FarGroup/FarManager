@@ -34,10 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
 #include "pathmix.hpp"
+#include "mix.hpp"
 
 BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 {

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "edit.hpp"
 #include "keyboard.hpp"
-#include "fn.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "editor.hpp"
@@ -53,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "ffolders.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
+#include "panelmix.hpp"
 
 static int Recurse=0;
 

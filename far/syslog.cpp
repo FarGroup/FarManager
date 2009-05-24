@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "syslog.hpp"
-#include "fn.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "frame.hpp"
@@ -43,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "iswind.hpp"
 #include "datetime.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT)             || \

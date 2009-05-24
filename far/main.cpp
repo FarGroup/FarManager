@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "iswind.hpp"
 #include "clipboard.hpp"
 #include "pathmix.hpp"
+#include "strmix.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;

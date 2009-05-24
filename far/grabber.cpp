@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "grabber.hpp"
 #include "keyboard.hpp"
-#include "fn.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
 #include "savescr.hpp"

@@ -34,11 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "cvtname.hpp"
 #include "flink.hpp"
 #include "cddrv.hpp"
 #include "syslog.hpp"
 #include "pathmix.hpp"
+#include "drivemix.hpp"
+#include "network.hpp"
 
 int ConvertNameToFull (
         const wchar_t *lpwszSrc,
@@ -263,42 +265,6 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 		strDest = strCopy;
 }
 
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
-{
-  int NetPathShown=FALSE, IsOK=FALSE;
-  wchar_t LocalName[8]=L" :\0\0\0";
-  string strRemoteName;
-
-  *LocalName=Letter;
-  strDest=L"";
-
-  if(DriveType == DRIVE_UNKNOWN)
-  {
-    LocalName[2]=L'\\';
-    DriveType = FAR_GetDriveType(LocalName);
-    LocalName[2]=0;
-  }
-
-  if (IsDriveTypeRemote(DriveType))
-  {
-    DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
-    if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
-    {
-      NetPathShown=TRUE;
-      IsOK=TRUE;
-    }
-  }
-
-  if (!NetPathShown)
-    if (GetSubstName(DriveType,LocalName,strRemoteName))
-      IsOK=TRUE;
-
-  if(IsOK)
-    strDest = strRemoteName;
-
-  return strDest;
-}
-
 void ConvertNameToUNC(string &strFileName)
 {
 	ConvertNameToFull(strFileName,strFileName);
@@ -348,4 +314,103 @@ void ConvertNameToUNC(string &strFileName)
 	}
 	xf_free(uni);
 	ConvertNameToReal(strFileName,strFileName);
+}
+
+// Косметические преобразования строки пути.
+// CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
+string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
+{
+	if( !strPath.IsEmpty() )
+	{
+		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
+		{
+			if(CheckFullPath)
+			{
+				ConvertNameToFull(strPath,strPath);
+				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath,*Dst=lpwszPath;
+				if(IsLocalPath(lpwszPath))
+				{
+					Src+=2;
+					if(IsSlash(*Src))
+						Src++;
+					Dst+=2;
+					if(IsSlash(*Dst))
+						Dst++;
+				}
+				if(*Src)
+				{
+					for(wchar_t c=*Src;;Src++,c=*Src)
+					{
+						if (!c||IsSlash(c))
+						{
+							*Src=0;
+							FAR_FIND_DATA_EX fd;
+							BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
+							*Src=c;
+							if(find)
+							{
+								size_t n=fd.strFileName.GetLength();
+								size_t n1 = n-(Src-Dst);
+								if((int)n1>0)
+								{
+									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
+									strPath.ReleaseBuffer();
+									lpwszPath=strPath.GetBuffer(int(strPath.GetLength()+n1));
+									Src=lpwszPath+dSrc;
+									Dst=lpwszPath+dDst;
+									wmemmove(Src+n1,Src,StrLength(Src)+1);
+									Src+=n1;
+								}
+								wcsncpy(Dst,fd.strFileName,n);
+								Dst+=n;
+								wcscpy(Dst,Src);
+								if(c)
+								{
+									Dst++;
+									Src=Dst;
+								}
+							}
+							else
+							{
+								if(c)
+								{
+									Src++;
+									Dst=Src;
+								}
+							}
+						}
+						if(!*Src)
+							break;
+					}
+				}
+				strPath.ReleaseBuffer();
+			}
+
+			wchar_t *lpwszPath = strPath.GetBuffer ();
+
+			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
+			{
+				if(IsLocalPrefixPath(lpwszPath))
+				{
+					lpwszPath[4] = Upper(lpwszPath[4]);
+				}
+				else
+				{
+					wchar_t *ptr=&lpwszPath[2];
+					while (*ptr && !IsSlash(*ptr))
+					{
+						*ptr=Upper(*ptr);
+						ptr++;
+					}
+				}
+			}
+			else
+			{
+				lpwszPath[0]=Upper(lpwszPath[0]);
+			}
+
+			strPath.ReleaseBuffer ();
+		}
+	}
+	return strPath;
 }

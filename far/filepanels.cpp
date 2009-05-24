@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "options.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
 
 FilePanels::FilePanels()
 {

@@ -1,3 +1,5 @@
+#ifndef __TVAR_HPP__
+#define __TVAR_HPP__
 /*
 tvar.hpp
 
@@ -37,11 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
-
-#ifndef __TVAR_H
-#define __TVAR_H
-
-#include "fn.hpp"
 
 enum TVarType { vtInteger, vtString };
 
@@ -155,4 +152,4 @@ inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
   return varLook(t, s, true);
 }
 
-#endif // __TVAR_H
+#endif // __TVAR_HPP__

@@ -66,6 +66,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setattr.hpp"
 #include "execute.hpp"
 #include "ffolders.hpp"
+#include "dirmix.hpp"
+#include "pathmix.hpp"
+#include "processname.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);

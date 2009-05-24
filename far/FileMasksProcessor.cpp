@@ -36,8 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "FileMasksProcessor.hpp"
-#include "fn.hpp"
-
+#include "processname.hpp"
 
 FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 {

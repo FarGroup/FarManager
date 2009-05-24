@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "dizlist.hpp"
-#include "fn.hpp"
 #include "language.hpp"
 #include "lang.hpp"
 #include "savescr.hpp"
@@ -45,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
+#include "strmix.hpp"
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 int _cdecl SortDizSearch(const void *key,const void *elem);

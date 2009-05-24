@@ -35,13 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "scantree.hpp"
 #include "vmenu.hpp"
 #include "manager.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "strmix.hpp"
+#include "filestr.hpp"
 
 extern wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType);
 

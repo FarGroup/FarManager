@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "config.hpp"
-#include "fn.hpp"
+#include "strmix.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 

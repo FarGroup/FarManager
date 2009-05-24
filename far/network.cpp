@@ -33,12 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "fn.hpp"
+#include "network.hpp"
 #include "language.hpp"
 #include "lang.hpp"
 #include "registry.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
+#include "drivemix.hpp"
+#include "flink.hpp"
+#include "cddrv.hpp"
+#include "pathmix.hpp"
 
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
@@ -173,4 +177,40 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
   }
 
   return strComputerName;
+}
+
+string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
+{
+  int NetPathShown=FALSE, IsOK=FALSE;
+  wchar_t LocalName[8]=L" :\0\0\0";
+  string strRemoteName;
+
+  *LocalName=Letter;
+  strDest=L"";
+
+  if(DriveType == DRIVE_UNKNOWN)
+  {
+    LocalName[2]=L'\\';
+    DriveType = FAR_GetDriveType(LocalName);
+    LocalName[2]=0;
+  }
+
+  if (IsDriveTypeRemote(DriveType))
+  {
+    DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
+    if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
+    {
+      NetPathShown=TRUE;
+      IsOK=TRUE;
+    }
+  }
+
+  if (!NetPathShown)
+    if (GetSubstName(DriveType,LocalName,strRemoteName))
+      IsOK=TRUE;
+
+  if(IsOK)
+    strDest = strRemoteName;
+
+  return strDest;
 }

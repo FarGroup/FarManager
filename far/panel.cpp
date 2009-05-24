@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ffolders.hpp"
 #include "options.hpp"
 #include "pathmix.hpp"
+#include "dirmix.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

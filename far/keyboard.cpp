@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farqueue.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -57,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "config.hpp"
 #include "scrsaver.hpp"
+#include "strmix.hpp"
 
 /* start Глобальные переменные */
 

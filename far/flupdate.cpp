@@ -56,6 +56,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "pathmix.hpp"
 #include "network.hpp"
+#include "dirmix.hpp"
+#include "strmix.hpp"
+#include "mix.hpp"
 
 // Флаги для ReadDiz()
 enum ReadDizFlags {

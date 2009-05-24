@@ -45,9 +45,7 @@ public:
 	}
 };
 
-void CreatePath(string &strPath);
-
-string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
+inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 bool PathPrefix(const wchar_t *Path);
 BOOL IsNetworkPath(const wchar_t *Path);
@@ -58,6 +56,27 @@ BOOL IsLocalVolumePath(const wchar_t *Path);
 BOOL IsLocalVolumeRootPath(const wchar_t *Path);
 int PathMayBeAbsolute(const wchar_t *Src);
 
-int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
+bool CutToSlash(string &strStr, bool bInclude = false);
+string &CutToNameUNC(string &strPath);
+string &CutToFolderNameIfFolder(string &strPath);
+const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
+const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
+const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
+const wchar_t* PointToExt(const wchar_t *lpwszPath);
+
+BOOL  AddEndSlash(string &strPath, wchar_t TypeSlash);
+BOOL  AddEndSlash(string &strPath);
+BOOL  AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
+BOOL  WINAPI AddEndSlash(wchar_t *Path);
+BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
+string& ReplaceSlashToBSlash(string& strStr);
+
+const wchar_t *FirstSlash(const wchar_t *String);
+bool FirstSlash(const wchar_t *String,size_t &pos);
+const wchar_t *LastSlash(const wchar_t *String);
+bool LastSlash(const wchar_t *String,size_t &pos);
+
+BOOL TestParentFolderName(const wchar_t *Name);
+BOOL TestCurrentFolderName(const wchar_t *Name);
 
 #endif // __PATHMIX_HPP__

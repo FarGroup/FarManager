@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "keyboard.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
 #include "colors.hpp"
@@ -55,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
+#include "processname.hpp"
 
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
