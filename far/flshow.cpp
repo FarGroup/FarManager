@@ -690,7 +690,7 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
 	  int ExtraPercentWidth=(TotalPercentWidth>100)?ExtraWidth:ExtraWidth*TotalPercentWidth/100;
 	  int TempWidth=0;
 
-		for (I=0;I<ColumnCount && ZeroLengthCount>0 && TotalPercentCount>0;I++)
+		for (I=0;I<ColumnCount && TotalPercentCount>0;I++)
 			if (ColumnWidthsTypes[I]==PERCENT_WIDTH)
 			{
 				int PercentWidth = (TotalPercentCount>1)?(ExtraPercentWidth*ColumnWidths[I]/TotalPercentWidth):(ExtraPercentWidth-TempWidth);
