@@ -2423,6 +2423,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #F11#                     Call "~Plugin commands~@Plugins@" menu
    #Alt-F11#                 Display ~edit history~@HistoryViews@
    #Alt-BS, Ctrl-Z#          Undo
+   #Ctrl-Shift-Z#            Redo
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
    #Ctrl-Alt-Shift#          ^<wrap>Temporarily show user screen (as long as these keys are held down)

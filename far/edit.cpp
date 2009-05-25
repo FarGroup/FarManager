@@ -688,6 +688,7 @@ int Edit::ProcessKey(int Key)
       !IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
       Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
+      Key!=KEY_INS &&
       Key!=KEY_KILLFOCUS && Key != KEY_GOTFOCUS &&
       ((Key&(~KEY_CTRLMASK)) != KEY_LWIN && (Key&(~KEY_CTRLMASK)) != KEY_RWIN && (Key&(~KEY_CTRLMASK)) != KEY_APPS)
      )
