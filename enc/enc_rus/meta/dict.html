@@ -4,7 +4,6 @@
 <title>Словарь</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
-<script language="JavaScript" src='links.js' type="text/javascript"></script>
 </head>
 <body>
 <img src="../images/bookmarks.png" align=right width=48 height=48 alt="">
@@ -15,7 +14,8 @@
 
 <div class=shortdescr>
 Часть материалов, описывающих свойства файловой системы взяты с сайта
-<a href="http://winfaq.com.ru/" target="_blank" title="Часто задаваемые вопросы по Windows 95/98/ME/NT/2000/XP">http://winfaq.com.ru/</a>
+<a href="http://winfaq.com.ru/" target="_blank" title="Часто задаваемые вопросы по Windows 95/98/ME/NT/2000/XP">http://winfaq.com.ru/</a>.
+Все ссылки на MSDN, упомянутые в <em>Словаре</em>, открываются в отдельном окне в виде результатов поиска по сайту <a href="http://msdn.microsoft.com/" target="_blank">msdn.microsoft.com</a>.
 </div>
 
 <div class=dfn><h3><a name="plugin">Plugin - плагин</a></h3></div>
@@ -54,7 +54,7 @@
 
 <br>
 См. так же:
-<a title="MSDN: Reparse Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/reparse_points.asp" target="_blank">MSDN: Reparse Points</a>
+<a title="MSDN: Reparse Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Reparse+Points" target="_blank">MSDN: Reparse Points</a>
 
 <br>
 <br>
@@ -111,9 +111,10 @@ Junctions могут быть созданы при помощи API,
 <li>Система DFS требует программы-клиента, а
   Directory Junctions - нет.</li>
 </ul>
-
+<br>
 См. так же:
-<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>
+<a title="MSDN: Directory Junctions" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Directory+Junctions" target="_blank">MSDN: Directory Junctions</a>,
+<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>.
 <br>
 <br>
 </div>
@@ -137,30 +138,11 @@ Mount Points (точки подключения) по сути
 C: пространства.
 <br>
 См. так же:
-<a title="MSDN: Volume Mount Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/volume_mount_points.asp" target="_blank">MSDN: Volume Mount Points</a>
+<a title="MSDN: Volume Mount Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Volume+Mount+Points" target="_blank">MSDN: Volume Mount Points</a>
 
 <br>
 <br>
 </div>
-
-
-<div class=dfn><h3><a name="sparsefile">Sparse File - разреженный (распределенные) файл</a></h3></div>
-<div class=dfndescr>
-NTFS5 поддерживает разреженные файлы, которые состоят из больших
-областей последовательных нулевых разрядов. Такой файл можно пометить
-как разреженный и дать файловой системе возможность выделять место для
-хранения только значимых разрядов данного файла. NTFS хранит
-информацию только о том, где размещены значимые данные. Подобный
-способ позволяет оптимально распределять дисковую память на томах NTFS
-при хранении разреженных файлов и обработке этих файлов приложениями.
-<br>
-См. так же: <a title="Возможности NTFS (на osp.ru)" href="http://www.osp.ru/win2000/2001/08/031_print.htm" target="_blank">Возможности NTFS</a>,
-<a title="MSDN: Sparse Files" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/sparse_files.asp" target="_blank">MSDN: Sparse Files</a>
-
-<br>
-<br>
-</div>
-
 
 <div class=dfn><h3><a name="hardlinks">Hard Links - жесткая связь</a></h3></div>
 <div class=dfndescr>
@@ -172,24 +154,48 @@ Hard Link - это когда один и тот же файл имеет два имени. Допустим, один и
 Жесткая связь может быть создана только в пределах одного раздела диска
 (естественно, файловая система должна поддерживать жесткие связи).
 <br>
-См. так же: <a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp"
-target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
+См. так же:
+<a title="MSDN: Hard Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Hard+Links" target="_blank">MSDN: Hard Links</a>,
+<a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp" target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
 <br>
 <br>
 </div>
 
 <div class=dfn><h3><a name="symboliclinks">Symbolic Links - символическая связь</a></h3></div>
 <div class=dfndescr>
-Гораздо более практичная возможность, позволяющая делать виртуальные
+<p>Гораздо более практичная возможность, позволяющая делать виртуальные
 каталоги - ровно так же, как и виртуальные диски командой subst в DOSе.
 Применения достаточно разнообразны: во-первых, упрощение системы каталогов.
 Если вам не нравится каталог "<code>Documents and settings\Administrator\Documents</code>",
 вы можете прилинковать его в корневой каталог - система будет по прежнему
 общаться с каталогом с дремучим путем, а вы - с гораздо более коротким именем,
-полностью ему эквивалентным.
+полностью ему эквивалентным.</p>
+<p>Символические ссылки (SymLink) на NTFS поддерживаются, начиная с
+Windows Vista (NT 6.0). Они представляют собой улучшеный вариант
+связей каталогов - символические ссылки могут указывать как на
+папки, так и на файлы, как на локальные, так и на сетевые, при этом
+поддерживаются относительные пути.</p>
 <br>
-См. так же: <a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp"
-target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
+См. так же:
+<a title="MSDN: Symbolic Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Symbolic+Links" target="_blank">MSDN: Symbolic Links</a>,
+<a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="sparsefile">Sparse File - разреженный (распределенные) файл</a></h3></div>
+<div class=dfndescr>
+NTFS5 поддерживает разреженные файлы, которые состоят из больших
+областей последовательных нулевых разрядов. Такой файл можно пометить
+как разреженный и дать файловой системе возможность выделять место для
+хранения только значимых разрядов данного файла. NTFS хранит
+информацию только о том, где размещены значимые данные. Подобный
+способ позволяет оптимально распределять дисковую память на томах NTFS
+при хранении разреженных файлов и обработке этих файлов приложениями.
+<br>
+См. так же:
+<a title="MSDN: Sparse Files" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Sparse+Files" target="_blank">MSDN: Sparse Files</a>,
+<a title="Возможности NTFS (на osp.ru)" href="http://www.osp.ru/win2000/2001/07/175039/" target="_blank">Возможности NTFS</a>.
 <br>
 <br>
 </div>
@@ -212,8 +218,8 @@ target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
 <tr class="cont"><td class="cont" width="50%">88.txt</td><td class="cont" width="50%">88.txt </td></tr>
 </table>
 <br>
-См. так же: <a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827"
-target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
+См. так же:
+<a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827" target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
 <br>
 
 <br>

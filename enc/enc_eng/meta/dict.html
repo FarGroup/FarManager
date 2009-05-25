@@ -4,7 +4,6 @@
 <title>Dictionary</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
-<script language="JavaScript" src='links.js' type="text/javascript"></script>
 </head>
 <body>
 <img src="../images/bookmarks.png" align=right width=48 height=48 alt="">
@@ -15,7 +14,8 @@
 
 <div class=shortdescr>
 Some materials about the file system properties have been taken from
-<a href="http://winfaq.com.ru/" target="_blank" title="Frequently asked questions about Windows 95/98/ME/NT/2000/XP">http://winfaq.com.ru/</a>
+<a href="http://winfaq.com.ru/" target="_blank" title="Frequently asked questions about Windows 95/98/ME/NT/2000/XP">http://winfaq.com.ru/</a>.
+Все ссылки на MSDN, упомянутые в <em>Словаре</em>, открываются в отдельном окне в виде результатов поиска по сайту <a href="http://msdn.microsoft.com/" target="_blank">msdn.microsoft.com</a>.
 </div>
 
 <div class=dfn><h3><a name="plugin">Plugin</a></h3></div>
@@ -42,7 +42,7 @@ several kinds of extended functionality are available at once when accessing
 the resource at the same path.
 <br>
 See also:
-<a title="MSDN: Reparse Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/reparse_points.asp" target="_blank">MSDN: Reparse Points</a>
+<a title="MSDN: Reparse Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Reparse+Points" target="_blank">MSDN: Reparse Points</a>
 
 <br>
 <br>
@@ -80,7 +80,8 @@ between them:</p>
 </ul>
 
 See also:
-<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>
+<a title="MSDN: Directory Junctions" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Directory+Junctions" target="_blank">MSDN: Directory Junctions</a>,
+<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>.
 <br>
 <br>
 </div>
@@ -98,8 +99,47 @@ mount point set the user might see drive D as "C:\Documents" as well as
 "D:", and the size of drive C will seem to increase.
 <br>
 See also:
-<a title="MSDN: Volume Mount Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/volume_mount_points.asp" target="_blank">MSDN: Volume Mount Points</a>
+<a title="MSDN: Volume Mount Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Volume+Mount+Points" target="_blank">MSDN: Volume Mount Points</a>
 
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="hardlinks">Hard Links</a></h3></div>
+<div class=dfndescr>
+Hard Link is the term used when a file has more than one name. For example,
+a file has names 1.txt and 2.txt. If the user deletes 1.txt, 2.txt remains,
+and vice versa. In other words, once the file has a new name, the names are
+equivalent. A file actually is deleted when its last hard link is deleted.
+Hard links cannot be cross volume boundaries, this means you cannot hardlink,
+for example, D:\somefile.txt to C:\somefilelink.txt. Keep in mind, that having
+the same drive letter in the path, files may reside on different volumes
+(see <a href="#mountpoints">Mount Points</a>). You can create a hard link
+only if the underlying filesystem supports it.
+<br>
+See also:
+<a title="MSDN: Hard Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Hard+Links" target="_blank">MSDN: Hard Links</a>,
+<a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp" target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="symboliclinks">Symbolic Links</a></h3></div>
+<div class=dfndescr>
+<p>Much more efficient feature that allows virtual folders creating -
+just as virtual disks created using SUBST command in DOS.
+It has a wide range of uses - folder structure simplification, for example.
+If you don't like the name
+"<code>Documents and settings\Administrator\Documents</code>", you can link
+it to the root folder, so the system will still handle the real name of this
+folder while you are working with much more convenient, shorter name, fully equivalent
+to the real one.</p>
+<p>Keep in mind, that symbolic links created under Windows Vista will not be
+accessible under previous versions of Windows.</p>
+<br>
+See also:
+<a title="MSDN: Symbolic Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Symbolic+Links" target="_blank">MSDN: Symbolic Links</a>,
+<a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
 <br>
 <br>
 </div>
@@ -114,49 +154,12 @@ It keeps the information about location of nonzero values only. This method
 allows optimal data allocation on NTFS volumes when storing sparse files
 and handling them by applications.
 <br>
-See also: <a title="NTFS possibilities (at osp.ru)" href="http://www.osp.ru/win2000/2001/08/031_print.htm" target="_blank">NTFS possibilities</a>,
-<a title="MSDN: Sparse Files" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/sparse_files.asp" target="_blank">MSDN: Sparse Files</a>
-
+See also:
+<a title="MSDN: Sparse Files" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Sparse+Files" target="_blank">MSDN: Sparse Files</a>,
+<a title="NTFS possibilities (at osp.ru)" href="http://www.osp.ru/win2000/2001/08/031_print.htm" target="_blank">NTFS possibilities</a>.
 <br>
 <br>
 </div>
-
-
-<div class=dfn><h3><a name="hardlinks">Hard Links</a></h3></div>
-<div class=dfndescr>
-Hard Link is the term used when a file has more than one name. For example,
-a file has names 1.txt and 2.txt. If the user deletes 1.txt, 2.txt remains,
-and vice versa. In other words, once the file has a new name, the names are
-equivalent. A file actually is deleted when its last hard link is deleted.
-Hard links cannot be cross volume boundaries, this means you cannot hardlink,
-for example, D:\somefile.txt to C:\somefilelink.txt. Keep in mind, that having
-the same drive letter in the path, files may reside on different volumes
-(see <a href="#mountpoints">Mount Points</a>). You can create a hard link
-only if the underlying filesystem supports it.
-<br>
-See also: <a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp"
-target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
-<br>
-<br>
-</div>
-
-<div class=dfn><h3><a name="symboliclinks">Symbolic Links</a></h3></div>
-<div class=dfndescr>
-Much more efficient feature that allows virtual folders creating -
-just as virtual disks created using SUBST command in DOS.
-It has a wide range of uses - folder structure simplification, for example.
-If you don't like the name
-"<code>Documents and settings\Administrator\Documents</code>", you can link
-it to the root folder, so the system will still handle the real name of this
-folder while you are working with much more convenient, shorter name, fully equivalent
-to the real one.
-<br>
-See also: <a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp"
-target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
-<br>
-<br>
-</div>
-
 
 <div class=dfn><h3><a name="numericsort">Numeric sort</a></h3></div>
 <div class=dfndescr>
@@ -177,8 +180,8 @@ how the files are sorted:
 <tr class="cont"><td class="cont" width="50%">88.txt</td><td class="cont" width="50%">88.txt </td></tr>
 </table>
 <br>
-See also: <a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827"
-target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
+See also:
+<a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827" target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
 <br>
 
 <br>
