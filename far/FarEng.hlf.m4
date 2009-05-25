@@ -1367,8 +1367,7 @@ reached. In this case search may take much more time.
 defined conditions. Press the #Filter# button to open the ~filters menu~@FiltersMenu@.
 
     The #Advanced# button invokes the ~find file advanced options~@FindFileAdvanced@
-dialog that can be used to specify extended set of search properties. To quickly
-enable or disable these options use the #Advanced options# checkbox.
+dialog that can be used to specify extended set of search properties.
 
 
 @FindFileAdvanced
@@ -1385,6 +1384,14 @@ K - for kilobytes;
 M - for megabytes;
 G - for gigabytes;
 T - for terabytes.
+
+
+    #Process alternate data streams#
+
+    Помимо основного потока данных (представляющего собой непосредственно содержимое файла)
+производить поиск также в альтернативных именованных потоках, поддерживаемых некоторыми
+файловыми системами (например, #NTFS#).
+
 
 @FindFileResult
 $ #Find file: control keys#

@@ -294,9 +294,9 @@ int _cdecl SortList(const void *el1,const void *el2)
   SPtr1=((FileListItem **)el1)[0];
   SPtr2=((FileListItem **)el2)[0];
 
-  if (SPtr1->strName.GetLength() == 2 && SPtr1->strName[0]==L'.' && SPtr1->strName[1]==L'.')
+	if (SPtr1->strName.GetLength() == 2 && SPtr1->strName.At(0)==L'.' && SPtr1->strName.At(1)==L'.')
     return(-1);
-  if (SPtr2->strName.GetLength() == 2 && SPtr2->strName[0]==L'.' && SPtr2->strName[1]==L'.')
+	if (SPtr2->strName.GetLength() == 2 && SPtr2->strName.At(0)==L'.' && SPtr2->strName.At(1)==L'.')
     return(1);
 
   if (ListSortMode==UNSORTED)

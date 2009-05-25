@@ -354,11 +354,12 @@ struct LoadPluginsOptions
 
 struct FindFileOptions
 {
-  int FindFolders;
-  int FindSymLinks;
-  int CollectFiles;
-  int FileSearchMode;
-  int UseFilter;
+	int FileSearchMode;
+	bool FindFolders;
+	bool FindSymLinks;
+	bool CollectFiles;
+	bool UseFilter;
+	bool FindAlternateStreams;
   string strSearchInFirstSize;
 
   /*

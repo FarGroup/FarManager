@@ -7645,14 +7645,6 @@ MFindUseFilter
 "Sz&űrővel"
 "&Filtruj"
 
-MFindAdvancedOptions
-"Дополнит&ельные параметры"
-"Advanced options"
-"Pokročilé nastavení"
-"Erweiterte Optionen"
-"Haladó beáll&ítások"
-"Opcje &zaawansowane"
-
 MFindUsingFilter
 "используя фильтр"
 "using filter"
@@ -7792,6 +7784,14 @@ MFindFileSearchFirst
 "Nur &in den ersten x Bytes:"
 "Keresés csak az első &x bájtban:"
 "Szukaj wyłącznie w &pierwszych:"
+
+MFindAlternateStreams
+"Обрабатывать &альтернативные потоки данных"
+"Process &alternate data streams"
+upd:"Process &alternate data streams"
+upd:"Process &alternate data streams"
+upd:"Process &alternate data streams"
+upd:"Process &alternate data streams"
 
 MFoldTreeSearch
 l:

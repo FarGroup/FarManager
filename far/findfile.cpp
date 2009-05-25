@@ -121,8 +121,7 @@ static HANDLE hPluginMutex;
 
 static int UseFilter=0;
 static UINT CodePage=(UINT)CP_AUTODETECT;
-static int EnableSearchInFirst=FALSE;
-static __int64 SearchInFirst=_i64(0);
+static UINT64 SearchInFirst=0;
 
 static const unsigned int readBufferSize = 32768;
 static const unsigned int readBufferSizeW = sizeof(wchar_t)*readBufferSize;
@@ -398,7 +397,6 @@ enum FINDASKDLG
 	FAD_COMBOBOX_WHERE,
 	FAD_SEPARATOR_4,
 	FAD_CHECKBOX_FILTER,
-	FAD_CHECKBOX_ADVANCED,
 	FAD_SEPARATOR_5,
 	FAD_BUTTON_FIND,
 	FAD_BUTTON_DRIVE,
@@ -431,7 +429,7 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
          Переключение видимости строки ввода искомого текста
 				в зависимости от Dlg->Item[FAD_CHECKBOX_HEX].Selected
       */
-			bool Hex=(Dlg->Item[FAD_CHECKBOX_HEX]->Selected!=0);
+			bool Hex=(Dlg->Item[FAD_CHECKBOX_HEX]->Selected==BSTATE_CHECKED);
 			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,!Hex);
 			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,Hex);
 			Dialog::SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,!Hex);
@@ -565,10 +563,6 @@ LONG_PTR WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 					}
 					break;
-
-				case FAD_CHECKBOX_ADVANCED:
-					EnableSearchInFirst=(int)Param2;
-					break;
 				}
 				break;
 			}
@@ -697,9 +691,6 @@ FindFiles::FindFiles()
   SearchMode=Opt.FindOpt.FileSearchMode;
   UseFilter=Opt.FindOpt.UseFilter;
 
-  // По-умолчанию дополнительные параметры не используются
-  EnableSearchInFirst=FALSE;
-
   strFindMask = strLastFindMask;
   strFindStr = strLastFindStr;
   BreakMainThread=0;
@@ -748,13 +739,12 @@ FindFiles::FindFiles()
 			/* 19 */DI_COMBOBOX,5,15,72,15,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,L"",
 			/* 20 */DI_TEXT,3,16,0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 			/* 21 */DI_CHECKBOX,5,17,0,17,0,0,0,0,(const wchar_t *)MFindUseFilter,
-			/* 22 */DI_CHECKBOX,40,17,0,17,0,0,0,0,(const wchar_t *)MFindAdvancedOptions,
-			/* 23 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-			/* 24 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
-			/* 25 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
-			/* 26 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
-			/* 27 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
-			/* 28 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+			/* 22 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+			/* 23 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MFindFileFind,
+			/* 24 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileDrive,
+			/* 25 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileSetFilter,
+			/* 26 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MFindFileAdvanced,
+			/* 27 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
     };
 
     MakeDialogItemsEx(FindAskDlgData,FindAskDlg);
@@ -820,9 +810,6 @@ FindFiles::FindFiles()
     // Использовать фильтр. KM
 		FindAskDlg[FAD_CHECKBOX_FILTER].Selected=UseFilter;
 
-    // Включить дополнительные опции поиска. KM
-		FindAskDlg[FAD_CHECKBOX_ADVANCED].Selected=EnableSearchInFirst;
-
 		int ExitCode;
 		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
@@ -848,15 +835,18 @@ FindFiles::FindFiles()
 		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected;
 		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected;
     if (FindFoldersChanged)
-			Opt.FindOpt.FindFolders=FindAskDlg[FAD_CHECKBOX_DIRS].Selected;
+		{
+			Opt.FindOpt.FindFolders=(FindAskDlg[FAD_CHECKBOX_DIRS].Selected==BSTATE_CHECKED);
+		}
 
-		if (!PluginMode && FindAskDlg[FAD_CHECKBOX_LINKS].Selected != Opt.FindOpt.FindSymLinks)
+		if (!PluginMode)
     {
-			Opt.FindOpt.FindSymLinks=FindAskDlg[FAD_CHECKBOX_LINKS].Selected;
+			Opt.FindOpt.FindSymLinks=(FindAskDlg[FAD_CHECKBOX_LINKS].Selected==BSTATE_CHECKED);
     }
 
     // Запомнить признак использования фильтра. KM
-		Opt.FindOpt.UseFilter=UseFilter=FindAskDlg[FAD_CHECKBOX_FILTER].Selected;
+		UseFilter=(FindAskDlg[FAD_CHECKBOX_FILTER].Selected==BSTATE_CHECKED);
+		Opt.FindOpt.UseFilter=UseFilter;
 
 		strFindMask = !FindAskDlg[FAD_EDIT_MASK].strData.IsEmpty() ? FindAskDlg[FAD_EDIT_MASK].strData:L"*";
 
@@ -934,6 +924,7 @@ enum ADVANCEDDLG
 	AD_DOUBLEBOX,
 	AD_TEXT_SEARCHFIRST,
 	AD_EDIT_SEARCHFIRST,
+	AD_CHECKBOX_FINDALTERNATESTREAMS,
 	AD_SEPARATOR1,
 	AD_BUTTON_OK,
 	AD_BUTTON_CANCEL,
@@ -946,10 +937,8 @@ LONG_PTR WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_P
     case DN_CLOSE:
 			if (Param1 == AD_BUTTON_OK)
       {
-        string strTemp;
-				wchar_t *temp = strTemp.GetBuffer(Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,AD_EDIT_SEARCHFIRST,0));
-				Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,AD_EDIT_SEARCHFIRST,(LONG_PTR)temp);
-        if (!CheckFileSizeStringFormat(temp))
+				LPCWSTR Data=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,AD_EDIT_SEARCHFIRST,NULL));
+				if(Data && *Data && !CheckFileSizeStringFormat(Data))
         {
           Message(MSG_WARNING,1,MSG(MFindFileAdvancedTitle),MSG(MBadFileSizeFormat),MSG(MOk));
           return FALSE;
@@ -965,23 +954,25 @@ void FindFiles::AdvancedDialog()
 {
   static struct DialogDataEx AdvancedDlgData[]=
   {
-    /* 00 */DI_DOUBLEBOX,3,1,38,6,0,0,0,0,(const wchar_t *)MFindFileAdvancedTitle,
+		/* 00 */DI_DOUBLEBOX,3,1,52,7,0,0,0,0,(const wchar_t *)MFindFileAdvancedTitle,
     /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MFindFileSearchFirst,
-    /* 02 */DI_EDIT,5,3,36,3,0,0,0,0,L"",
-    /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-    /* 04 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-    /* 05 */DI_BUTTON,0,5,0,5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+    /* 02 */DI_EDIT,5,3,50,3,0,0,0,0,L"",
+		/* 03 */DI_CHECKBOX,5,4,0,4,0,0,0,0,(const wchar_t *)MFindAlternateStreams,
+		/* 04 */DI_TEXT,3,5,0,5,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 05 */DI_BUTTON,0,6,0,6,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+		/* 06 */DI_BUTTON,0,6,0,6,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
   };
 
   MakeDialogItemsEx(AdvancedDlgData,AdvancedDlg);
 
   // Установим размер, который будет использован для ограничения поиска строки
 	AdvancedDlg[AD_EDIT_SEARCHFIRST].strData = Opt.FindOpt.strSearchInFirstSize;
+	AdvancedDlg[AD_CHECKBOX_FINDALTERNATESTREAMS].Selected = Opt.FindOpt.FindAlternateStreams;
 
 	Dialog Dlg(AdvancedDlg,countof(AdvancedDlg),AdvancedDlgProc);
 
   Dlg.SetHelp(L"FindFileAdvanced");
-  Dlg.SetPosition(-1,-1,38+4,6+2);
+	Dlg.SetPosition(-1,-1,52+4,7+2);
   Dlg.Process();
   int ExitCode=Dlg.GetExitCode();
 
@@ -989,6 +980,7 @@ void FindFiles::AdvancedDialog()
   {
 		Opt.FindOpt.strSearchInFirstSize = AdvancedDlg[AD_EDIT_SEARCHFIRST].strData;
     SearchInFirst=ConvertFileSizeString(Opt.FindOpt.strSearchInFirstSize);
+		Opt.FindOpt.FindAlternateStreams=(AdvancedDlg[AD_CHECKBOX_FINDALTERNATESTREAMS].Selected==BSTATE_CHECKED);
   }
 }
 
@@ -1741,7 +1733,9 @@ int FindFiles::FindFilesProcess()
   IsProcessAssignMacroKey--;
 
   while(WriteDataUsed || PrepareFilesListUsed > 0)
-    Sleep(10);
+	{
+		Sleep(1);
+	}
 
   ::hDlg=NULL;
 
@@ -1872,7 +1866,12 @@ int FindFiles::FindFilesProcess()
           const wchar_t *NamePtr = PointToName(strFileName);
 
           strSetName = NamePtr;
-
+					if(Opt.FindOpt.FindAlternateStreams)
+					{
+						size_t Pos=0;
+						if(strSetName.Pos(Pos,L':'))
+							strSetName.SetLength(Pos);
+					}
           strFileName.SetLength(NamePtr-(const wchar_t *)strFileName);
 
           Length=(int)strFileName.GetLength();
@@ -2009,41 +2008,87 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 			while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
 			{
 				while (PauseSearch)
-					Sleep(10);
-
-				/* $ 30.09.2003 KM
-					Отфильтруем файлы не попадающие в действующий фильтр
-				*/
-				if (UseFilter)
 				{
-					enumFileInFilterType foundType;
-					if (!Filter->FileInFilter(&FindData,&foundType))
+					Sleep(1);
+				}
+				bool bContinue=false;
+				WIN32_FIND_STREAM_DATA sd;
+				HANDLE hFindStream=INVALID_HANDLE_VALUE;
+				bool FirstCall=true;
+				string strFindDataFileName=FindData.strFileName;
+
+				if(Opt.FindOpt.FindAlternateStreams)
+				{
+					hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
+				}
+				while(true)
+				{
+					string strFullStreamName=strFullName;
+					if(Opt.FindOpt.FindAlternateStreams)
 					{
-						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
-							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-						continue;
+						if(hFindStream!=INVALID_HANDLE_VALUE)
+						{
+							if(!FirstCall)
+							{
+								if(!apiFindNextStream(hFindStream,&sd))
+								{
+									apiFindStreamClose(hFindStream);
+									break;
+								}
+							}
+							else
+							{
+								FirstCall=false;
+							}
+							LPWSTR NameEnd=wcschr(sd.cStreamName+1,L':');
+							if(NameEnd)
+							{
+								*NameEnd=L'\0';
+							}
+							if(sd.cStreamName[1]) // alternate stream
+							{
+								strFullStreamName+=sd.cStreamName;
+								FindData.strFileName=strFindDataFileName+sd.cStreamName;
+								FindData.nFileSize=sd.StreamSize.QuadPart;
+							}
+						}
+					}
+					if(UseFilter)
+					{
+						enumFileInFilterType foundType;
+						if (!Filter->FileInFilter(&FindData,&foundType))
+						{
+							// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+							if((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
+								ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+							{
+								bContinue=true;
+								continue;
+							}
+						}
+					}
+
+					if(((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
+							(!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
+					{
+						statusCS.Enter();
+						strFindMessage = strFullName;
+						FindMessageReady=TRUE;
+						statusCS.Leave();
+					}
+					if(IsFileIncluded(NULL,strFullStreamName,FindData.dwFileAttributes))
+					{
+						AddMenuRecord(strFullStreamName,&FindData);
+					}
+					if(!Opt.FindOpt.FindAlternateStreams || hFindStream==INVALID_HANDLE_VALUE)
+					{
+						break;
 					}
 				}
-
-				/* $ 14.06.2004 KM
-					Уточнение действия при обработке каталогов
-				*/
-				if (((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
-					  (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
-
+				if(bContinue)
 				{
-					statusCS.Enter();
-
-					strFindMessage = strFullName;
-					FindMessageReady=TRUE;
-
-					statusCS.Leave();
+					continue;
 				}
-
-				if (IsFileIncluded(NULL,strFullName,FindData.dwFileAttributes))
-					AddMenuRecord(strFullName,&FindData);
-
 				if (SearchInArchives)
 					ArchiveSearch(strFullName);
 			}
@@ -2127,8 +2172,9 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
     delete strPathEnv;
 
     while (!StopSearch && FindMessageReady)
-      Sleep(10);
-
+		{
+			Sleep(1);
+		}
     statusCS.Enter ();
 
     strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
@@ -2628,7 +2674,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 		offset = (int)hexFindStringSize-1;
 
 	// Основной цикл чтения из файла
-	while (!StopSearch && ReadFile(fileHandle, readBuffer, !EnableSearchInFirst || alreadyRead+readBufferSize<=(unsigned __int64)SearchInFirst ? readBufferSize : static_cast<int>(SearchInFirst-alreadyRead), &readBlockSize, NULL))
+	while (!StopSearch && ReadFile(fileHandle,readBuffer,(!SearchInFirst || alreadyRead+readBufferSize<=SearchInFirst)?readBufferSize:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,NULL))
 	{
 		// Увеличиваем счётчик прочитыннх байт
 		alreadyRead += readBlockSize;
@@ -2783,7 +2829,7 @@ int FindFiles::LookForString(const wchar_t *Name)
 				} while (++index<=bufferCount-findStringCount);
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
-				if (EnableSearchInFirst && (unsigned __int64)SearchInFirst>=alreadyRead)
+				if(SearchInFirst && SearchInFirst>=alreadyRead)
 					CONTINUE (FALSE)
 				// Запоминаем последний символ блока
 				cpi->LastSymbol = buffer[bufferCount-1];
@@ -2817,8 +2863,7 @@ exit:
 void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
 {
   TRY {
-
-    Sleep(200);
+		Sleep(1);
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -2843,7 +2888,9 @@ void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
       CtrlObject->Plugins.SetDirectory(hPlugin,strSaveDir,OPM_FIND);
     ReleaseMutex(hPluginMutex);
     while (!StopSearch && FindMessageReady)
-      Sleep(10);
+		{
+			Sleep(1);
+		}
     if (Param==NULL)
     {
       statusCS.Enter();
@@ -2902,8 +2949,9 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
     for (int I=0;I<ItemCount && !StopSearch;I++)
     {
       while (PauseSearch)
-        Sleep(10);
-
+			{
+				Sleep(1);
+			}
       PluginPanelItem *CurPanelItem=PanelData+I;
       string strCurName=CurPanelItem->FindData.lpwszFileName;
       string strFullName;
@@ -3093,7 +3141,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
     if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
         break;
 
-    Sleep(20);
+		Sleep(1);
   }
 
   WriteDataUsed=FALSE;
