@@ -132,3 +132,19 @@ TPreRedrawFunc
 copy.cpp
    При вызовах apiGetDiskSize использовать не Root, а Dest (если Dest существует)
    drkns 20.04.2009 14:07:34 +0200
+
+Повторные имплементации стека/списка/вектора которые в общем надо убить:
+   PluginsStack
+   sid_cache
+   FarQueue?
+   Frame
+   CallBackStack
+   Manager?
+   FilePositionCache?
+   TPreRedrawFunc
+   TreeListCache
+   wrap.cpp::DialogData
+
+   Есть наверно ещё но эти сразу в глаза бросаются.
+
+   t-rex 25.05.2009 21:16:54 +0200
