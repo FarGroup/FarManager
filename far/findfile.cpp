@@ -119,7 +119,7 @@ static int PluginMode;
 
 static HANDLE hPluginMutex;
 
-static int UseFilter=0;
+static bool UseFilter=false;
 static UINT CodePage=(UINT)CP_AUTODETECT;
 static UINT64 SearchInFirst=0;
 
@@ -808,7 +808,7 @@ FindFiles::FindFiles()
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 
     // Использовать фильтр. KM
-		FindAskDlg[FAD_CHECKBOX_FILTER].Selected=UseFilter;
+		FindAskDlg[FAD_CHECKBOX_FILTER].Selected=UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED;
 
 		int ExitCode;
 		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
@@ -2052,6 +2052,13 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 								FindData.nFileSize=sd.StreamSize.QuadPart;
 							}
 						}
+						else
+						{
+							if(bContinue)
+							{
+								break;
+							}
+						}
 					}
 					if(UseFilter)
 					{
@@ -2063,7 +2070,14 @@ void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& 
 								ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
 							{
 								bContinue=true;
-								continue;
+								if(Opt.FindOpt.FindAlternateStreams)
+								{
+									continue;
+								}
+								else
+								{
+									break;
+								}
 							}
 						}
 					}
