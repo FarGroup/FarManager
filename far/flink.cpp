@@ -126,11 +126,9 @@ BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFold
     // проверка на subst
     if(IsLocalPath(strFullDir))
     {
-      wchar_t LocalName[8];
+			wchar_t LocalName[]={strFullDir.At(0),L':',L'\0'};
 
       string strSubstName;
-
-      swprintf (LocalName,L"%c:",*(const wchar_t*)strFullDir);
 
       if(GetSubstName(DRIVE_NOT_INIT,LocalName, strSubstName))
       {

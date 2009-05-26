@@ -142,7 +142,7 @@ void mprintf(const WCHAR *fmt,...);
 void vmprintf(const WCHAR *fmt,...);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize);
-void BoxText(WORD Chr);
+void BoxText(wchar_t Chr);
 void BoxText(const wchar_t *Str,int IsVert=0);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);

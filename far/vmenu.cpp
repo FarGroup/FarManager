@@ -406,7 +406,7 @@ void VMenu::ShowMenu(int IsParent)
 {
   CriticalSectionLock Lock(CS);
 
-  wchar_t TmpStrW[1024]; //BUGBUG, dynamic
+  string strTmpStr;
 
   wchar_t BoxChar[2]={0};
   int Y,I;
@@ -511,9 +511,9 @@ void VMenu::ShowMenu(int IsParent)
       if (Item[I]->Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
-        wchar_t *Ptr=TmpStrW+1;
-        MakeSeparator(SepWidth,TmpStrW,
-          BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
+				wchar_t *TmpStr=strTmpStr.GetBuffer(SepWidth);
+        wchar_t *Ptr=TmpStr+1;
+				MakeSeparator(SepWidth,TmpStr,BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
         if (I>0 && I<ItemCount-1 && SepWidth>3)
           for (unsigned int J=0;Ptr[J+3]!=0;J++)
@@ -544,7 +544,7 @@ void VMenu::ShowMenu(int IsParent)
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         SetColor(VMenu::Colors[VMenuColorSeparator]);
-        BoxText(TmpStrW,FALSE);
+        BoxText(TmpStr,FALSE);
 
         if ( !Item[I]->strName.IsEmpty() )
         {
@@ -555,6 +555,7 @@ void VMenu::ShowMenu(int IsParent)
           mprintf(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
           //??????
         }
+				strTmpStr.ReleaseBuffer();
       }
       else
       {
@@ -607,18 +608,22 @@ void VMenu::ShowMenu(int IsParent)
         else
           Len_MItemPtr=HiStrlen(_MItemPtr);
 
-        swprintf(TmpStrW,L"%c ",Check);
-        xwcsncat(TmpStrW,_MItemPtr,countof(TmpStrW)-1-StrLength(TmpStrW));
+				wchar_t Tmp[]={Check,L' ',L'\0'};
+				strTmpStr=Tmp;
+        strTmpStr+=_MItemPtr;
 
         if(Len_MItemPtr+2 > X2-X1-3)
-          TmpStrW[HiFindRealPos(TmpStrW,X2-X1-1,VMFlags.Check(VMENU_SHOWAMPERSAND))]=0;
+				{
+					strTmpStr.SetLength(HiFindRealPos(strTmpStr,X2-X1-1,VMFlags.Check(VMENU_SHOWAMPERSAND)));
+				}
 
-        { // табуляции меняем только при показе!!!
-          // для сохранение оригинальной строки!!!
-          wchar_t *TabPtr;
-          while ((TabPtr=wcschr(TmpStrW,L'\t'))!=NULL)
-            *TabPtr=L' ';
-        }
+				// табуляции меняем только при показе!!!
+				// для сохранение оригинальной строки!!!
+				wchar_t * TmpStr=strTmpStr.GetBuffer();
+				wchar_t *TabPtr;
+				while((TabPtr=wcschr(TmpStr,L'\t')))
+					*TabPtr=L' ';
+				strTmpStr.ReleaseBuffer();
 
         int Col;
 
@@ -633,18 +638,20 @@ void VMenu::ShowMenu(int IsParent)
           Col=VMenu::Colors[VMenuColorDisabled];
 
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          Text(TmpStrW);
+          Text(strTmpStr);
         else
         {
           short AmpPos=Item[I]->AmpPos+2;
 //_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-          if(AmpPos >= 2 && TmpStrW[AmpPos] != L'&')
+					if(AmpPos >= 2 && strTmpStr.At(AmpPos)!=L'&')
           {
-            wmemmove(TmpStrW+AmpPos+1,TmpStrW+AmpPos,StrLength(TmpStrW+AmpPos)+1);
-            TmpStrW[AmpPos]=L'&';
+						string strEnd=strTmpStr.CPtr()+AmpPos;
+						strTmpStr.SetLength(AmpPos);
+						strTmpStr+=L"&";
+						strTmpStr+=strEnd;
           }
 //_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
-          HiText(TmpStrW,Col);
+          HiText(strTmpStr,Col);
         }
 
         // сделаем добавочку для NO_BOX
@@ -655,7 +662,7 @@ void VMenu::ShowMenu(int IsParent)
         if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
         {
           GotoXY(X1+1,Y);
-          BoxText((WORD)0x00ab);// '<'
+					BoxText(L'\xab'); // '<<'
         }
 
         if(Len_MItemPtr > X2-X1-3)
@@ -664,7 +671,7 @@ void VMenu::ShowMenu(int IsParent)
           //  GotoXY(WhereX()-1,Y);
           //else
             GotoXY(X2-1,Y);
-          BoxText((WORD)0x00bb);// '>'
+					BoxText(L'\xbb');// '>>'
         }
       }
     }

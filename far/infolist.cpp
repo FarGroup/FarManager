@@ -174,18 +174,8 @@ void InfoList::DisplayObject()
                             &VolumeNumber,&MaxNameLength,&FileSystemFlags,
                             &strFileSystemName))
   {
-    string strLocalName, strDiskType, strRemoteName, strDiskName;
-    int ShowRealPath=FALSE;
-    int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
-    strLocalName.Format (L"%c:", strDriveRoot.At(0));
-
-    if ( !strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')
-      strDiskName.Format (L"%c:",Upper(strDriveRoot.At(0)));
-    else
-      strDiskName = strDriveRoot;
-
     int IdxMsgID=-1;
-    strDiskType=L"";
+    int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
     switch(DriveType)
     {
       case DRIVE_REMOVABLE:
@@ -206,36 +196,28 @@ void InfoList::DisplayObject()
       default:
         if(IsDriveTypeCDROM(DriveType))
           IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
-        else
-          strDiskType=L"";
         break;
     }
-    if(IdxMsgID != -1)
-      strDiskType= MSG(IdxMsgID);
+		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
 
-    {
-      if(GetSubstName(DriveType,strLocalName,strRemoteName))
-      {
-        strDiskType = MSG(MInfoSUBST);
-        DriveType=DRIVE_SUBSTITUTE;
-      }
-    }
+		wchar_t LocalName[]={strDriveRoot.At(0),L':',L'\0'};
+		string strRemoteName;
+		if(GetSubstName(DriveType,LocalName,strRemoteName))
+		{
+			DiskType = MSG(MInfoSUBST);
+			DriveType=DRIVE_SUBSTITUTE;
+		}
 
-    strTitle.Format (L" %s %s %s (%s) ", (const wchar_t*)strDiskType, MSG(MInfoDisk), (const wchar_t*)strDiskName, (const wchar_t*)strFileSystemName);
+		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L")";
 
     if (DriveType==DRIVE_REMOTE)
     {
-      apiWNetGetConnection(strLocalName, strRemoteName);
+			apiWNetGetConnection(LocalName, strRemoteName);
     }
     else if(DriveType == DRIVE_SUBSTITUTE)
     {
-      ShowRealPath=TRUE;
-    }
-
-    if(ShowRealPath)
-    {
-      strTitle += strRemoteName;
-      strTitle += L" ";
+			strTitle += strRemoteName;
+			strTitle += L" ";
     }
 
     TruncStr(strTitle,X2-X1-3);

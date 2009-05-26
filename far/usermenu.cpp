@@ -790,12 +790,13 @@ int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *Title)
 
 int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos)
 {
-  string strRecText, strItemName, strRegKey;
-  int SubMenu;
+  string strRecText,strRegKey;
   strRegKey.Format (L"%s\\Item%d",MenuKey,DeletePos);
   GetRegKey(strRegKey,L"Label",strRecText,L"");
-  GetRegKey(strRegKey,L"Submenu",SubMenu,0);
-  strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
+	int SubMenu;
+	GetRegKey(strRegKey,L"Submenu",SubMenu,0);
+  string strItemName=strRecText;
+	InsertQuote(strItemName);
   if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),
           MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
               strItemName,MSG(MDelete),MSG(MCancel))!=0)

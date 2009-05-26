@@ -163,7 +163,8 @@ void HighlightFiles::InitHighlightFiles()
     for (int i=0;;i++)
     {
       strGroupName.Format(GroupNames[j],i);
-      strRegKey.Format(L"%s\\%s",KeyNames[j],(const wchar_t *)strGroupName);
+			strRegKey=KeyNames[j];
+			strRegKey+=L"\\"+strGroupName;
 
       if (GroupDelta[j]!=DEFAULT_SORT_GROUP)
       {
@@ -724,8 +725,8 @@ void HighlightFiles::SaveHiData()
     for (int i=Count[j][0]; i<Count[j][1]; i++)
     {
       strGroupName.Format(GroupNames[j],i-Count[j][0]);
-      strRegKey.Format(L"%s\\%s",KeyNames[j],(const wchar_t *)strGroupName);
-
+			strRegKey=KeyNames[j];
+			strRegKey+=L"\\"+strGroupName;
       FileFilterParams *CurHiData=HiData.getItem(i);
 
       if (j!=0 && j!=3)
@@ -741,7 +742,8 @@ void HighlightFiles::SaveHiData()
     for (int i=0; i<5; i++)
     {
       strGroupName.Format(GroupNames[j],Count[j][1]-Count[j][0]+i);
-      strRegKey.Format(L"%s\\%s",KeyNames[j],(const wchar_t *)strGroupName);
+			strRegKey=KeyNames[j];
+			strRegKey+=L"\\"+strGroupName;
       if (j!=0 && j!=3)
         DeleteRegValue(KeyNames[j],strGroupName);
       DeleteRegKey(strRegKey);

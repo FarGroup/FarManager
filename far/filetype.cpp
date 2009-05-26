@@ -528,7 +528,8 @@ int DeleteTypeRecord(int DeletePos)
   string strRecText, strItemName, strRegKey;
   strRegKey.Format (FTSW.TypeFmt,DeletePos);
   GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
-  strItemName.Format (L"\"%s\"", (const wchar_t*)strRecText);
+	strItemName=strRecText;
+	InsertQuote(strItemName);
   if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),
               strItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);

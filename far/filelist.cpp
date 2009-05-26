@@ -1264,7 +1264,7 @@ int FileList::ProcessKey(int Key)
             return(TRUE);
 
 					apiCreateDirectory(strTempDir,NULL);
-          strTempName.Format (L"%s\\%s",(const wchar_t*)strTempDir,(const wchar_t*)PointToName(strFileName));
+          strTempName=strTempDir+L"\\"+PointToName(strFileName);
           if (Key==KEY_SHIFTF4)
           {
             int Pos=FindFile(strFileName);
@@ -3082,7 +3082,8 @@ void FileList::SelectFiles(int Mode)
     if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
     {
       // Учтем тот момент, что имя может содержать символы-разделители
-      strRawMask.Format (L"\"%s", (const wchar_t*)strCurName);
+			strRawMask=L"\"";
+			strRawMask+=strCurName;
 
       size_t pos;
       if (strRawMask.RPos(pos,L'.'))

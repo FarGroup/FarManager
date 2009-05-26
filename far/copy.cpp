@@ -4502,9 +4502,8 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
         strDestFullName += PtrSelName;
       else
       {
-        string strTmp;
-        strTmp.Format(L"Disk_%c",*SelName);
-        strDestFullName += strTmp;
+				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',*SelName,L'\0'};
+				strDestFullName+=Tmp;
       }
     }
 

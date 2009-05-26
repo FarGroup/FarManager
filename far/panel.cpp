@@ -273,8 +273,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if ( (DiskMask & 1) == 0 ) //нету диска
 				continue;
 
-			strMenuText.Format (L"&%c: ",L'A'+I);
-			strRootDir.Format (L"%c:\\",L'A'+I);
+			wchar_t Drv[]={L'&',L'A'+I,L':',L'\\',L'\0'};
+			strRootDir=Drv+1;
+			Drv[3]=L' ';
+			strMenuText=Drv;
 
 			DriveType = FAR_GetDriveType(strRootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 			if ((1<<I)&NetworkMask)
@@ -293,12 +295,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					}
 				}
 
-				string strLocalName;
+				const wchar_t LocalName[]={strRootDir.At(0),L':',L'\0'};
 				string strSubstName;
-
-				strLocalName.Format (L"%c:",strRootDir.At(0));
-
-				if (GetSubstName(DriveType, strLocalName, strSubstName) )
+				if(GetSubstName(DriveType,LocalName,strSubstName))
 				{
 					strDiskType = MSG(MChangeDriveSUBST);
 					DriveType=DRIVE_SUBSTITUTE;
@@ -510,13 +509,24 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						strMenuText = ShowSpecial?strPluginText:L"";
 					else
 					{
+						const wchar_t HotKeyStr[]={L'&',HotKey,L':',L' ',L'\0'};
 						if ( PluginTextNumber < 10 )
-							strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
+						{
+							strMenuText=HotKeyStr;
+							if(ShowSpecial)
+							{
+								strMenuText+=strPluginText;
+							}
+						}
 						else
 						{
 							if ( AHKPos<AHKSize )
 							{
-								strMenuText.Format (L"&%c: %s", HotKey, ShowSpecial ? (const wchar_t*)strPluginText:L"");
+								strMenuText=HotKeyStr;
+								if(ShowSpecial)
+								{
+									strMenuText+=strPluginText;
+								}
 								++AHKPos;
 							}
 							else
@@ -524,7 +534,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 								if ( ShowSpecial ) // IS: не добавляем пустые строки!
 								{
 									HotKey=0;
-									strMenuText.Format (L"   %s", (const wchar_t*)strPluginText);
+									strMenuText=L"   ";
+									strMenuText+=strPluginText;
 								}
 							}
 						}
@@ -591,17 +602,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 				strMenuText=L"";
 
+				wchar_t HotKeyStr[]={L'&',L' ',L':',L' ',L'\0'};
 				if ( PluginTextNumber<10 )
 				{
 					item->HotKey=PluginTextNumber+'0';
-					strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
+					HotKeyStr[1]=item->HotKey;
+					strMenuText=HotKeyStr;
+					strMenuText+=item->Item.strName;
 				}
 				else
 				{
 					if( AHKPos < AHKSize )
 					{
 						item->HotKey=AdditionalHotKey[AHKPos];
-						strMenuText.Format (L"&%c: %s", item->HotKey, (const wchar_t*)item->Item.strName);
+						HotKeyStr[1]=item->HotKey;
+						strMenuText=HotKeyStr;
+						strMenuText+=item->Item.strName;
 						++AHKPos;
 					}
 					else
@@ -609,7 +625,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						if ( ShowSpecial ) // IS: не добавляем пустые строки!
 						{
 							item->HotKey=0;
-							strMenuText.Format (L"   %s", (const wchar_t*)item->Item.strName);
+							strMenuText="   ";
+							strMenuText+=item->Item.strName;
 						}
 					}
 				}
@@ -694,10 +711,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if ( item && !item->bIsPlugin )
 					{
-						string strDosDeviceName;
-
-						strDosDeviceName.Format (L"%c:\\", item->cDrive);
-						Execute(strDosDeviceName,FALSE,TRUE,TRUE);
+						wchar_t DosDeviceName[]={item->cDrive,L':',L'\\',L'\0'};
+						Execute(DosDeviceName,FALSE,TRUE,TRUE);
 					}
 				}
 				break;
@@ -1024,9 +1039,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	} // эта скобка надо, см. M#605
 	if (Opt.CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType) )
 	{
-		strRootDir.Format (L"%c:", mitem->cDrive);
-
-		if ( !apiIsDiskInDrive(strRootDir) )
+		const wchar_t RootDir[]={mitem->cDrive,L':',L'\0'};
+		if ( !apiIsDiskInDrive(RootDir) )
 		{
 			if ( !EjectVolume(mitem->cDrive, EJECT_READY|EJECT_NO_MESSAGE) )
 			{
@@ -1226,9 +1240,8 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
         else
           return DRIVE_DEL_FAIL;
       }
-      string strRootDir;
-      strRootDir.Format (L"%c:\\", *DiskLetter);
-      if (FAR_GetDriveType(strRootDir)==DRIVE_REMOTE)
+			const wchar_t RootDir[]={*DiskLetter,L':',L'\\',L'\0'};
+      if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgText,MSG(MOk));
     }
     return DRIVE_DEL_FAIL;
@@ -2299,9 +2312,8 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
   {
     HKEY hKey;
     IsPersistent=TRUE;
-    strMsgText.Format (L"Network\\%c",Upper(Letter));
-
-    if(RegOpenKeyExW(HKEY_CURRENT_USER,strMsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+		const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',Letter,L'\0'};
+    if(RegOpenKeyExW(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
       DCDlg[5].Flags|=DIF_DISABLE;
       DCDlg[5].Selected=0;

@@ -143,7 +143,8 @@ void PrintFiles(Panel *SrcPanel)
       SrcPanel->GetSelName(NULL,FileAttr);
       SrcPanel->GetSelName(&strName,FileAttr);
       TruncStr(strName,50);
-      strSelName.Format (L"\"%s\"", (const wchar_t*)strName);
+			strSelName=strName;
+			InsertQuote(strSelName);
       strTitle.Format (MSG(MPrintTo), (const wchar_t*)strSelName);
     }
     else

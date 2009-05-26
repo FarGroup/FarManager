@@ -508,7 +508,7 @@ void PluginManager::LoadPlugins()
 		// сначала подготовим список
 		if(Opt.LoadPlug.MainPluginDir) // только основные и персональные?
 		{
-			strPluginsDir.Format (L"%s%s",(const wchar_t*)g_strFarPath, PluginsFolderName);
+			strPluginsDir=g_strFarPath+PluginsFolderName;
 			PluginPathList.AddItem(strPluginsDir);
 			// ...а персональные есть?
 			if(Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))

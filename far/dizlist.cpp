@@ -219,10 +219,9 @@ int DizList::GetDizPosEx(const wchar_t *Name,const wchar_t *ShortName,int *TextP
   int DizPos=GetDizPos(Name,ShortName,TextPos);
   if (DizPos==-1)
   {
-    string strQuotedName, strQuotedShortName;
-
-    strQuotedName.Format (L"\"%s\"", Name);
-    strQuotedShortName.Format (L"\"%s\"", ShortName);
+		string strQuotedName=Name, strQuotedShortName=ShortName;
+		InsertQuote(strQuotedName);
+		InsertQuote(strQuotedShortName);
     DizPos=GetDizPos(strQuotedName,strQuotedShortName,TextPos);
   }
   return(DizPos);

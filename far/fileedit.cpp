@@ -2525,17 +2525,16 @@ bool FileEditor::LoadFromCache (EditorCacheParams *pp)
 	memset (pp, 0, sizeof (EditorCacheParams));
 
 	string strCacheName;
-
-	if (*GetPluginData())
+	if(*GetPluginData())
 	{
-		strCacheName.Format (L"%s%s", GetPluginData(), (const wchar_t*)PointToName(strFullFileName));
+		strCacheName=GetPluginData();
+		strCacheName+=PointToName(strFullFileName);
 	}
 	else
 	{
-		strCacheName = strFullFileName;
+		strCacheName+=strFullFileName;
 		ReplaceSlashToBSlash(strCacheName);
 	}
-
 
 	TPosCache32 PosCache={0};
 
@@ -2576,12 +2575,7 @@ void FileEditor::SaveToCache ()
 
 	m_editor->GetCacheParams (&cp);
 
-	string strCacheName;
-
-	if ( !strPluginData.IsEmpty() )
-		strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFullFileName));
-	else
-		strCacheName = strFullFileName;
+	string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFullFileName);
 
 	if ( !Flags.Check(FFILEEDIT_OPENFAILED) ) //????
 	{

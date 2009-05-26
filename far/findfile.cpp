@@ -2154,7 +2154,8 @@ void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& Find
         if ((DiskMask & 1)==0)
           continue;
 
-        strRoot.Format (L"%c:\\", L'A'+CurrentDisk);
+				const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
+				strRoot=Root;
         int DriveType=FAR_GetDriveType(strRoot);
         if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
            (DriveType==DRIVE_REMOTE && SearchMode==FFSEARCH_ALL_BUTNETWORK))

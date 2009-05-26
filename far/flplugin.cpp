@@ -523,17 +523,17 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
       }
     if (DizPresent)
     {
-      string strTempDir, strDizName;
+      string strTempDir;
 			if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,NULL))
       {
         string strSaveDir;
 				apiGetCurrentDirectory(strSaveDir);
 
-        strDizName.Format (L"%s\\%s",(const wchar_t*)strTempDir, (const wchar_t*)DestPanel->strPluginDizName);
+        string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
 
-        DestDiz->Flush(L"", (const wchar_t*)strDizName);
+				DestDiz->Flush(L"",strDizName);
         if (Move)
-          SrcDiz->Flush(L"",NULL);
+					SrcDiz->Flush(L"");
         struct PluginPanelItem PanelItem;
 
         if (FileNameToPluginItem(strDizName,&PanelItem))

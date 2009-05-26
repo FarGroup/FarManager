@@ -3549,9 +3549,14 @@ string &KeyMacro::MkRegKeyName(int IdxMacro, string &strRegKeyName)
 {
   string strKeyText;
   KeyToText(MacroLIB[IdxMacro].Key, strKeyText);
-
-  strRegKeyName.Format (L"KeyMacros\\%s\\%s%s",
-       GetSubKey(MacroLIB[IdxMacro].Flags&MFLAGS_MODEMASK),  (MacroLIB[IdxMacro].Flags&MFLAGS_DISABLEMACRO?L"~":L""),  (const wchar_t*)strKeyText); //BUGBUG
+	strRegKeyName=L"KeyMacros\\";
+	strRegKeyName+=GetSubKey(MacroLIB[IdxMacro].Flags&MFLAGS_MODEMASK);
+	AddEndSlash(strRegKeyName);
+	if(MacroLIB[IdxMacro].Flags&MFLAGS_DISABLEMACRO)
+	{
+		strRegKeyName+=L"~";
+	}
+	strRegKeyName+=strKeyText;
   return strRegKeyName;
 }
 
@@ -3683,10 +3688,10 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 
 int KeyMacro::WriteVarsConst(int WriteMode)
 {
-  string strUpKeyName;
-  string strValueName;
+	string strUpKeyName=L"KeyMacros\\";
+	strUpKeyName+=(WriteMode==MACRO_VARS?L"Vars":L"Consts");
 
-  strUpKeyName.Format (L"KeyMacros\\%s",(WriteMode==MACRO_VARS?L"Vars":L"Consts"));
+	string strValueName;
 
   TVarTable *t = (WriteMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
 
@@ -3721,12 +3726,13 @@ int KeyMacro::WriteVarsConst(int WriteMode)
 int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 {
   int I;
-  string strUpKeyName;
   string strValueName;
   long IData;
   __int64 IData64;
 
-  strUpKeyName.Format (L"KeyMacros\\%s",(ReadMode==MACRO_VARS?L"Vars":L"Consts"));
+	string strUpKeyName=L"KeyMacros\\";
+	strUpKeyName+=(ReadMode==MACRO_VARS?L"Vars":L"Consts");
+
   TVarTable *t = (ReadMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
 
   for (I=0;;I++)
@@ -3799,11 +3805,10 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
   struct MacroRecord CurMacro;
   memset(&CurMacro,0,sizeof(CurMacro));
 
-  string strUpKeyName;
+	string strUpKeyName=L"KeyMacros\\";
+	strUpKeyName+=GetSubKey(ReadMode);
   string strRegKeyName, strKeyText;
   string strDescription;
-
-  strUpKeyName.Format (L"KeyMacros\\%s", GetSubKey(ReadMode));
 
   for (I=0;;I++)
   {

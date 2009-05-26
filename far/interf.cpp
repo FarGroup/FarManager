@@ -176,8 +176,9 @@ void SetFarTitle(const wchar_t *Title)
 	if ( Title )
 	{
 		apiGetConsoleTitle (strOldFarTitle);
-
-		strFarTitle.Format (L"%.256s%s", Title, FarTitleAddons);
+		strFarTitle=Title;
+		strFarTitle.SetLength(0x100);
+		strFarTitle+=FarTitleAddons;
 
 		TitleModified=TRUE;
 
@@ -942,11 +943,9 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
     ScrBuf.Write(X1,Y,SrcPtr,Width);
 }
 
-void BoxText(WORD Chr)
+void BoxText(wchar_t Chr)
 {
-  wchar_t Str[2];
-  Str[0]=(wchar_t)Chr;
-  Str[1]=0;
+	wchar_t Str[]={Chr,L'\0'};
   BoxText(Str);
 }
 

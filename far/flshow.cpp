@@ -1093,9 +1093,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       CmpWidth==19 || CmpWidth>21)
                     FullYear=TRUE;
                 }
-                string strDateStr, strTimeStr, strOutStr;
+								string strDateStr, strTimeStr;
                 ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
-                strOutStr.Format (L"%s %s", (const wchar_t*)strDateStr, (const wchar_t*)strTimeStr);
+								string strOutStr=strDateStr+L" "+strTimeStr;
                 mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strOutStr);
               }
               break;

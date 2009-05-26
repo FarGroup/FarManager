@@ -803,8 +803,6 @@ __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int TreeList::ProcessKey(int Key)
 {
-  struct TreeItem *CurPtr;
-
   if (!IsVisible())
     return(FALSE);
   if (TreeCount==0 && Key!=KEY_CTRLR)
@@ -820,9 +818,7 @@ int TreeList::ProcessKey(int Key)
   {
     case KEY_F1:
     {
-      {
-         Help Hlp (L"TreePanel");
-      }
+			Help Hlp (L"TreePanel");
       return TRUE;
     }
 
@@ -831,27 +827,28 @@ int TreeList::ProcessKey(int Key)
     case KEY_SHIFTENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLF:
-    case KEY_CTRLALTINS:  case KEY_CTRLALTNUMPAD0:
-    {
-      {
-        string strQuotedName;
-        int CAIns=(Key == KEY_CTRLALTINS || Key == KEY_CTRLALTNUMPAD0);
-
-        CurPtr=ListData[CurFile];
-        if (wcschr(CurPtr->strName,L' ')!=NULL)
-          strQuotedName.Format (L"\"%s\"%s",(const wchar_t *)CurPtr->strName,(CAIns?L"":L" "));
-        else
-          strQuotedName.Format (L"%s%s",(const wchar_t *)CurPtr->strName,(CAIns?L"":L" "));
-
-        if(CAIns)
-          CopyToClipboard(strQuotedName);
-
-        else if(Key == KEY_SHIFTENTER||Key == KEY_SHIFTNUMENTER)
-          Execute(strQuotedName,FALSE,TRUE,TRUE);
-        else
-          CtrlObject->CmdLine->InsertString(strQuotedName);
-      }
-      return(TRUE);
+    case KEY_CTRLALTINS:
+		case KEY_CTRLALTNUMPAD0:
+		{
+			string strQuotedName=ListData[CurFile]->strName;
+			QuoteSpace(strQuotedName);
+			if(Key==KEY_CTRLALTINS||Key==KEY_CTRLALTNUMPAD0)
+			{
+				CopyToClipboard(strQuotedName);
+			}
+			else
+			{
+				if(Key == KEY_SHIFTENTER||Key == KEY_SHIFTNUMENTER)
+				{
+					Execute(strQuotedName,FALSE,TRUE,TRUE);
+				}
+				else
+				{
+					strQuotedName+=L" ";
+					CtrlObject->CmdLine->InsertString(strQuotedName);
+				}
+			}
+			return TRUE;
     }
 
     case KEY_CTRLBACKSLASH:

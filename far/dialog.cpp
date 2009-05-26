@@ -1724,21 +1724,29 @@ void Dialog::ShowDialog(unsigned ID)
         SetColor(Attr&0xFF);
 
         GotoXY(X1+CX1,Y1+CY1);
-        const wchar_t *AddSpace=CurItem->strData.GetLength() > 0?L" ":L"";
 
         if (CurItem->Type==DI_CHECKBOX)
         {
-          const wchar_t *Chk3State=MSG(MCheckBox2State);
-          strStr.Format (L"[%c]%s",(CurItem->Selected ?
-             (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
-                *Chk3State:L'x'):L' '),AddSpace);
+					const wchar_t Check[]={L'[',(CurItem->Selected ?(((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?*MSG(MCheckBox2State):L'x'):L' '),L']',L'\0'};
+					strStr=Check;
+					if(CurItem->strData.GetLength())
+						strStr+=L" ";
         }
         else
         {
-          if (CurItem->Flags & DIF_MOVESELECT)
-            strStr.Format (L" %c ",CurItem->Selected ? 0x2022:L' ');
-          else
-            strStr.Format (L"(%c)%s",(CurItem->Selected ? 0x2022:L' '),AddSpace);
+					wchar_t Dot[]={L' ',CurItem->Selected ? L'\x2022':L' ',L' ',L'\0'};
+					if(CurItem->Flags&DIF_MOVESELECT)
+					{
+						strStr=Dot;
+					}
+					else
+					{
+						Dot[0]=L'(';
+						Dot[2]=L')';
+						strStr=Dot;
+						if(CurItem->strData.GetLength())
+							strStr+=L" ";
+					}
         }
 
         strStr += CurItem->strData;

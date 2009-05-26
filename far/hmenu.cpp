@@ -82,7 +82,9 @@ void HMenu::ShowMenu()
     else
       SetColor(COL_HMENUTEXT);
 
-    strTmpStr = L"  "+(string)Item[I].Name+L"  ";
+		strTmpStr=L"  ";
+		strTmpStr+=Item[I].Name;
+		strTmpStr+=L"  ";
     HiText(strTmpStr,Item[I].Selected ? COL_HMENUSELECTEDHIGHLIGHT:COL_HMENUHIGHLIGHT);
   }
   ItemX[ItemCount]=WhereX();

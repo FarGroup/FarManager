@@ -3851,7 +3851,8 @@ BOOL Editor::Search(int Next)
 
     int SearchLength=(int)strSearchStr.GetLength();
 
-    strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
+		strMsgStr=strSearchStr;
+		InsertQuote(strMsgStr);
     SetCursorType(FALSE,-1);
 
     Match=0;
@@ -3910,7 +3911,8 @@ BOOL Editor::Search(int Next)
           }
         }
 
-				strMsgStr.Format (L"\"%s\"", (const wchar_t*)strSearchStr);
+				strMsgStr=strSearchStr;
+				InsertQuote(strMsgStr);
 				SetCursorType(FALSE,-1);
 				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
 				int Current=abs(NewNumLine-StartLine);
@@ -3987,9 +3989,9 @@ BOOL Editor::Search(int Next)
             Text(TmpStr);
             delete[] TmpStr;
 
-            string strQSearchStr, strQReplaceStr;
-            strQSearchStr.Format (L"\"%s\"", (const wchar_t*)strLastSearchStr);
-            strQReplaceStr.Format (L"\"%s\"", (const wchar_t*)strLastReplaceStr);
+						string strQSearchStr=strLastSearchStr, strQReplaceStr=strLastReplaceStr;
+						InsertQuote(strQSearchStr);
+						InsertQuote(strQReplaceStr);
 
             PreRedrawItem pitem=PreRedraw.Pop();
             MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),

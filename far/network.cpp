@@ -46,12 +46,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
-  //Тут может быть надо заюзать WNetGetUser
+	//Тут может быть надо заюзать WNetGetUser
 	strUserName = L"";
-	string strKeyName;
-	strKeyName.Format(L"Network\\%c", cDrive);
+	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 	HKEY hKey;
-	if (RegOpenKeyExW(HKEY_CURRENT_USER,strKeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+	if (RegOpenKeyExW(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
 	{
 		RegQueryStringValueEx(hKey, L"UserName", strUserName);
 		RegCloseKey(hKey);

@@ -135,13 +135,7 @@ Viewer::~Viewer()
     fclose(ViewFile);
     if (Opt.ViOpt.SaveViewerPos)
     {
-      string strCacheName;
-
-      if ( !strPluginData.IsEmpty() )
-        strCacheName.Format (L"%s%s",(const wchar_t*)strPluginData,PointToName(strFileName));
-      else
-        strCacheName = strFullFileName;
-
+      string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFileName);
 			UINT CodePage=0;
 			if (CodePageChangedByUser)
       {
@@ -304,12 +298,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
 	{
 		__int64 NewLeftPos,NewFilePos;
-		string strCacheName;
-		if ( !strPluginData.IsEmpty() )
-			strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
-		else
-			strCacheName = strFileName;
-
+		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
 		{
 			struct /*TPosCache32*/ TPosCache64 PosCache={0};
@@ -1269,13 +1258,7 @@ int Viewer::ProcessKey(int Key)
         {
           if (Opt.ViOpt.SaveViewerPos)
           {
-            string strCacheName;
-
-            if ( !strPluginData.IsEmpty() )
-              strCacheName.Format (L"%s%s", (const wchar_t*)strPluginData,PointToName(strFileName));
-            else
-              strCacheName = strFileName;
-
+						string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 						UINT CodePage=0;
 						if (CodePageChangedByUser)
 							CodePage=VM.CodePage;

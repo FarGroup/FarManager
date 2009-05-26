@@ -42,13 +42,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void MenuBar::DisplayObject()
 {
-  string strMsg, strFullMsg;
-
-  strMsg.Format (L"    %s    %s    %s    %s    %s  ", MSG(MMenuLeftTitle), MSG(MMenuFilesTitle), MSG(MMenuCommandsTitle), MSG(MMenuOptionsTitle),MSG(MMenuRightTitle));
+	string strSpace=L"    ";
+	string strMsg=strSpace+MSG(MMenuLeftTitle)+strSpace+MSG(MMenuFilesTitle)+strSpace+MSG(MMenuCommandsTitle)+strSpace+MSG(MMenuOptionsTitle)+strSpace+MSG(MMenuRightTitle);
   RemoveHighlights(strMsg);
 
   int Length=X2-X1+1;
 
+	string strFullMsg;
   strFullMsg.Format (L"%-*.*s", Length,Length, (const wchar_t*)strMsg);
   GotoXY(X1,Y1);
   SetColor(COL_HMENUTEXT);

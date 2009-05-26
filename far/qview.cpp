@@ -78,7 +78,9 @@ QuickView::~QuickView()
 
 string &QuickView::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-  strTitle.Format (L" %s ", MSG(MQuickViewTitle));
+	strTitle=L" ";
+	strTitle+=MSG(MQuickViewTitle);
+	strTitle+=L" ";
   TruncStr(strTitle,X2-X1-3);
   return strTitle;
 }
@@ -110,8 +112,9 @@ void QuickView::DisplayObject()
 
   if ( !strCurFileType.IsEmpty() )
   {
-    string strTypeText;
-    strTypeText.Format (L" %s ", (const wchar_t*)strCurFileType);
+    string strTypeText=L" ";
+		strTypeText+=strCurFileType;
+		strTypeText+=L" ";
     TruncStr(strTypeText,X2-X1-1);
     SetColor(COL_PANELSELECTEDINFO);
     GotoXY(X1+(X2-X1+1-(int)strTypeText.GetLength())/2,Y2-2);

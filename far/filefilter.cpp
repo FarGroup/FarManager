@@ -349,8 +349,8 @@ bool FileFilter::FilterEdit()
         int SelPos=FilterList.GetSelectPos();
         if (SelPos<(int)FilterData.getCount())
         {
-          string strQuotedTitle;
-          strQuotedTitle.Format(L"\"%s\"",FilterData.getItem(SelPos)->GetTitle());
+					string strQuotedTitle=FilterData.getItem(SelPos)->GetTitle();
+					InsertQuote(strQuotedTitle);
           if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
                       (const wchar_t *)strQuotedTitle,MSG(MDelete),MSG(MCancel))==0)
           {
