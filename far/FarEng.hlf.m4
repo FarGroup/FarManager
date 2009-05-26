@@ -926,7 +926,7 @@ files and folders, perform different file and archive operations. Read
 
  #File owners#   File names, sizes and owners.
 
- #File links#    File names, sizes and hard links number.
+ #File links#    File names, sizes and number of hard links.
 
  #Alternative#   File name, size (formatted with commas) and date
  #full#          of the file are displayed.
@@ -934,7 +934,7 @@ files and folders, perform different file and archive operations. Read
     You may ~customize file panel view modes~@PanelViewModes@.
 
     Packed sizes are valid for NTFS compressed files or files inside an
-archive. File owners and hard links number have meaning for NTFS only. Some
+archive. File owners and number of hard links have meaning for NTFS only. Some
 file systems may not support file creation and access dates.
 
     If you wish to change the panel view mode, choose it from the
@@ -1088,7 +1088,7 @@ respectively. These menus include the following items:
 
    #File owners#          File name, size and owner.
 
-   #File links#           File name, size and hard links number.
+   #File links#           File name, size and number of hard links.
 
    #Alternative full#     File name, formatted size and date.
 
@@ -1601,7 +1601,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a file was located on a currently unavailable remote
      resource.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @HistoryFolders
@@ -1643,7 +1643,7 @@ respective option in the ~system settings dialog~@SystemSettings@.
      of time if a folder was located on a currently unavailable
      remote resource.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении 
+  2. Заблокированные пункты не будут удаляться при очистке или обновлении
      истории.
 
 @TaskList
@@ -2190,8 +2190,8 @@ will contain the computer name, current drive and path
 display the current time in HH:MM format before the current
 drive and path
 
-   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости 
-от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на 
+   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости
+от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на
 каждый сохраненный путь.
 
 @Viewer
@@ -3104,9 +3104,9 @@ characters, delimited with commas. Allowed column types are:
     O[L]       - file owner
                  where: L - show domain name;
 
-    LN         - hard links number
-    
-    F          - streams number
+    LN         - number of hard links
+
+    F          - number of streams
 
     If the column types description contains more than one file name column,
 the file panel will be displayed in multicolumn form.
@@ -3139,8 +3139,8 @@ the Name, Description or Owner column is 0, it will be calculated
 automatically, depending upon the panel width. For correct operation with
 different screen widths, it is highly recommended to have at least one column
 with automatically calculated width. Width can be also set as a percentage of
-free space remaining after the columns with a fixed width by adding % symbol
-after numerical value. If the total size of such columns exceeds 100%,
+remaining free space after the fixed width columns by adding the "%" character
+after the numerical value. If the total size of such columns exceeds 100%,
 their sizes are scaled.
 
     Incrementing the default width of the file time column or file date and
@@ -3626,8 +3626,8 @@ exist and the environment variable "variable" is defined.
 
     #pushd path#
 
-    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает 
-текущим каталог path. 
+    Команда PUSHD сохраняет текущий каталог во внутреннем стеке и делает
+текущим каталог path.
 
     #popd#
 
