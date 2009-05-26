@@ -412,6 +412,12 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType)
 {
+/*
+    TODO: need handle
+       CTRL_CLOSE_EVENT
+       CTRL_LOGOFF_EVENT
+       CTRL_SHUTDOWN_EVENT
+*/
   if (CtrlType==CTRL_C_EVENT || CtrlType==CTRL_BREAK_EVENT)
   {
     if (CtrlType==CTRL_BREAK_EVENT)

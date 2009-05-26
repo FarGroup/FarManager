@@ -194,7 +194,7 @@ int CommandLine::ProcessKey(int Key)
       SetString(PStr);
       return(TRUE);
     case KEY_F2:
-      ProcessUserMenu(0);
+      ProcessUserMenu(false);
       return(TRUE);
     case KEY_ALTF8:
       {

@@ -101,7 +101,7 @@ static wchar_t SubMenuSymbol[]={0x0020,0x25BA,0x0000};
 
 const wchar_t LocalMenuFileName[]=L"FarMenu.Ini";
 
-void ProcessUserMenu(int EditMenu)
+void ProcessUserMenu(bool ChoiceMenuType)
 {
   FILE *MenuFile;
 
@@ -119,7 +119,7 @@ void ProcessUserMenu(int EditMenu)
 
   MenuModified=MenuNeedRefresh=FALSE;
 
-  if (EditMenu)
+  if (ChoiceMenuType)
   {
     int EditChoice=Message(0,3,MSG(MUserMenuTitle),MSG(MChooseMenuType),
                    MSG(MChooseMenuMain),MSG(MChooseMenuLocal),MSG(MCancel));
@@ -154,7 +154,7 @@ void ProcessUserMenu(int EditMenu)
           MenuMode=MM_MAIN;
         else
         {
-          if (!EditMenu)
+          if (!ChoiceMenuType)
           {
             if (!RunFirst)
             {

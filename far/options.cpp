@@ -455,7 +455,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           CtrlObject->Cp()->ActivePanel->CompareDir();
           break;
         case 11: // Edit user menu
-          ProcessUserMenu(1);
+          ProcessUserMenu(true);
           break;
         case 12: // File associations
           EditFileTypes();

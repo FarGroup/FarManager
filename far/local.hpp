@@ -37,6 +37,7 @@ inline int __cdecl StrLength(const wchar_t *str) { return (int) wcslen(str); }
 
 inline int IsSpace(wchar_t x) { return x==L' '  || x==L'\t';  }
 inline int IsEol(wchar_t x)   { return x==L'\r' || x==L'\n'; }
+inline int IsSpaceOrEos(wchar_t x) { return x==0 || x==L' '  || x==L'\t';  }
 
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);

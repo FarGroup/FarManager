@@ -176,10 +176,11 @@ int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,c
             )) == ERROR_SUCCESS )
     {
       wchar_t *TempBuffer = strValueData.GetBuffer (QueryDataSize/sizeof(wchar_t)+1); // ...то выделим сколько надо
-
       ExitCode = RegQueryValueExW(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize);
-
       strValueData.ReleaseBuffer(QueryDataSize/sizeof(wchar_t));
+
+      if (strValueData.GetLength() > 0 && strValueData.At(strValueData.GetLength()-1) == 0)
+        strValueData.SetLength(strValueData.GetLength()-1);
     }
     if(pType)
       *pType=Type;
