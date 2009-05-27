@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "dirmix.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -253,9 +254,27 @@ static int MainProcess(
       // а теперь "провалимся" в каталог или хост-файл (если получится ;-)
       if( *lpwszDestName1 ) // актиная панель
       {
+		string strCurDir;
         LockScreen LockScr;
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+        if( *lpwszDestName2 ) // пассивная панель
+        {
+			strPath = PointToNameUNC(lpwszDestName2);
+
+			AnotherPanel->GetCurDir(strCurDir);
+			FarChDir(strCurDir);
+
+          if ( !strPath.IsEmpty() )
+          {
+            if (AnotherPanel->GoToFile(strPath))
+              AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+          }
+        }
+
+		ActivePanel->GetCurDir(strCurDir);
+		FarChDir(strCurDir);
 
         strPath = PointToNameUNC(lpwszDestName1);
 
@@ -263,17 +282,6 @@ static int MainProcess(
         {
           if (ActivePanel->GoToFile(strPath))
             ActivePanel->ProcessKey(KEY_CTRLPGDN);
-        }
-
-        if( *lpwszDestName2 ) // пассивная панель
-        {
-          strPath = PointToNameUNC(lpwszDestName2);
-
-          if ( !strPath.IsEmpty() )
-          {
-            if (AnotherPanel->GoToFile(strPath))
-              AnotherPanel->ProcessKey(KEY_CTRLPGDN);
-          }
         }
 
         // !!! ВНИМАНИЕ !!!

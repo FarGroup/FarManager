@@ -2145,14 +2145,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	Panel *AnotherPanel;
 	string strFindDir, strSetDir;
 
-	if(!PathMayBeAbsolute(NewDir))
-	{
-		strSetDir = strCurDir;
-		AddEndSlash(strSetDir);
-		strSetDir += NewDir;
-	}
-	else
-		strSetDir = NewDir;
+	strSetDir = NewDir;
 
 	if(PanelMode!=PLUGIN_PANEL)
 	{
