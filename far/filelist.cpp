@@ -2131,7 +2131,15 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
 
-  strcpy(SetDir,NewDir);
+  if(!PathMayBeAbsolute(NewDir))
+  {
+    strcpy(SetDir,CurDir);
+    xstrncpy(SetDir,CurDir,sizeof(SetDir)-1);
+    AddEndSlash(SetDir);
+    xstrncat(SetDir,NewDir,sizeof(SetDir)-1);
+  }
+  else
+    strcpy(SetDir,NewDir);
 
   if(PanelMode != PLUGIN_PANEL)
   {
@@ -2374,9 +2382,12 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   _CHANGEDIR(SysLog("CALL FarChDir(SetDir=\"%s\")",SetDir));
   if (!FarChDir(SetDir))
   {
-    // $ 03.11.2001 IS - Укажем имя неудачного каталога
-    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), SetDir, MSG (MOk));
-    UpdateFlags = UPDATE_KEEP_SELECTION;
+    if (FrameManager && FrameManager->ManagerStarted())
+    {
+      // $ 03.11.2001 IS - Укажем имя неудачного каталога
+      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), SetDir, MSG (MOk));
+      UpdateFlags = UPDATE_KEEP_SELECTION;
+    }
   }
 
   /* $ 28.04.2001 IS
