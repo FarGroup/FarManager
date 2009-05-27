@@ -964,12 +964,6 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
   return strDestText;
 }
 
-BOOL IsWordDiv(const wchar_t *WordDiv, wchar_t Chr)
-{
-  return NULL!=wcschr (WordDiv, Chr);
-}
-
-
 /*
   Ptr=CalcWordFromString(Str,I,&Start,&End);
   xstrncpy(Dest,Ptr,End-Start+1);

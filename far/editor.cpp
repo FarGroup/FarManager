@@ -1646,13 +1646,7 @@ int Editor::ProcessKey(int Key)
 
           if (CurPos==0)
             break;
-          /* $ 12.01.2004 IS
-             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-          */
-          if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
-              //IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
+          if (IsSpace(Str[CurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
           {
             if (SkipSpace)
             {
@@ -1692,8 +1686,7 @@ int Editor::ProcessKey(int Key)
           CurPos=CurLine->GetCurPos();
           if (CurPos>=Length)
             break;
-          if (IsSpace(Str[CurPos]) ||
-              IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
+          if (IsSpace(Str[CurPos]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
           {
             if (SkipSpace)
             {
@@ -2613,8 +2606,7 @@ int Editor::ProcessKey(int Key)
           }
           if (CurPos==0)
             break;
-          if (IsSpace(Str[CurPos-1]) ||
-              IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
+          if (IsSpace(Str[CurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
           {
             if (SkipSpace)
             {
@@ -2650,8 +2642,7 @@ int Editor::ProcessKey(int Key)
           int CurPos=CurLine->GetCurPos();
           if (CurPos>=Length)
             break;
-          if (IsSpace(Str[CurPos]) ||
-              IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
+          if (IsSpace(Str[CurPos]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
           {
             if (SkipSpace)
             {

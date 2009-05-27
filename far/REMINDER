@@ -49,19 +49,6 @@ Editor:Save bookmarks
    svs 09.09.2007 18:18:00 +0300
 
 
-IsWordDiv: editor.cpp & strmix.cpp
-
-    В editor.cpp во всех подобных кусках кода:
-
-      if (IsSpace(Str[CurPos-1]) ||
-          IsWordDiv(NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
-          //IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.strWordDiv,Str[CurPos-1])) //BUGBUG
-
-    для первого параметра IsWordDiv() вместо NULL поставить "правильное" значение,
-    когда ОНО устаканится...
-
-   svs 11.10.2007 11:44:09 +0300
-
 scrbuf.cpp
    FAR слабо адаптирован к работе на больших разрешениях консоли, например,
    размер редактора 1024 символа, вывод имен файлов не до конца

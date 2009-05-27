@@ -817,10 +817,6 @@ int Edit::ProcessKey(int Key)
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
 
-      /* $ 12.01.2004 IS
-         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-      */
       while (CurPos>0 && !(!IsWordDiv(WordDiv, Str[CurPos]) &&
              IsWordDiv(WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
@@ -2557,10 +2553,6 @@ void Edit::Xlat(BOOL All)
    int start=CurPos, end, StrSize=StrLength(Str);
    BOOL DoXlat=TRUE;
 
-   /* $ 12.01.2004 IS
-      Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
-      текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
-   */
    if(IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
    {
       if(start) start--;

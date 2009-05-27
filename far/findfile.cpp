@@ -2624,15 +2624,8 @@ const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCo
 // Проверяем символ на принадлежность разделителям слов
 bool IsWordDiv(const wchar_t symbol) {
 	// Проверяем символ на принадлежность FAR-м разделителям
-	wchar_t *wordDiv = Opt.strWordDiv.GetBuffer();
-	size_t length = Opt.strWordDiv.GetLength();
-	for (size_t index = 0; index<length; index++) {
-		if (symbol == wordDiv[index]) {
-			return true;
-		}
-	}
 	// Так же разделителем является конец строки и пробельные символы
-	return symbol==0||IsSpace(symbol)||IsEol(symbol) ? true : false;
+	return symbol==0||IsSpace(symbol)||IsEol(symbol)||IsWordDiv(Opt.strWordDiv,symbol);
 }
 
 int FindFiles::LookForString(const wchar_t *Name)
