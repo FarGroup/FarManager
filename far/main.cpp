@@ -260,21 +260,27 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-        strcpy(Path,PointToNameUNC(DestName1));
-        if (*Path)
-        {
-          if (ActivePanel->GoToFile(Path))
-            ActivePanel->ProcessKey(KEY_CTRLPGDN);
-        }
-
         if(*DestName2) // пассивная панель
         {
+          AnotherPanel->GetCurDir(Path);
+          FarChDir(Path, TRUE);
           strcpy(Path,PointToNameUNC(DestName2));
+
           if (*Path)
           {
             if (AnotherPanel->GoToFile(Path))
               AnotherPanel->ProcessKey(KEY_CTRLPGDN);
           }
+        }
+
+        ActivePanel->GetCurDir(Path);
+        FarChDir(Path, TRUE);
+        strcpy(Path,PointToNameUNC(DestName1));
+
+        if (*Path)
+        {
+          if (ActivePanel->GoToFile(Path))
+            ActivePanel->ProcessKey(KEY_CTRLPGDN);
         }
 
         // !!! ВНИМАНИЕ !!!

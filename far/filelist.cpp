@@ -2131,15 +2131,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
 
-  if(!PathMayBeAbsolute(NewDir))
-  {
-    strcpy(SetDir,CurDir);
-    xstrncpy(SetDir,CurDir,sizeof(SetDir)-1);
-    AddEndSlash(SetDir);
-    xstrncat(SetDir,NewDir,sizeof(SetDir)-1);
-  }
-  else
-    strcpy(SetDir,NewDir);
+  strcpy(SetDir,NewDir);
 
   if(PanelMode != PLUGIN_PANEL)
   {
