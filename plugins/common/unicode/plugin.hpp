@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 863
+  Plugin API for FAR Manager 2.0 build 953
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 863
+#define FARMANAGERVERSION_BUILD 953
 
 #ifndef RC_INVOKED
 
@@ -1219,6 +1219,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_CLEARSTACKBOOKMARKS,
   ECTL_DELETESTACKBOOKMARK,
   ECTL_GETSTACKBOOKMARKS,
+  ECTL_UNDOREDO,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1246,6 +1247,21 @@ struct EditorSetParameter
   } Param;
   DWORD Flags;
   DWORD Reserved2;
+};
+
+
+enum EDITOR_UNDOREDO_COMMANDS {
+  EUR_BEGIN,
+  EUR_END,
+  EUR_UNDO,
+  EUR_REDO
+};
+
+
+struct EditorUndoRedo
+{
+  int Command;
+  DWORD_PTR Reserved[3];
 };
 
 struct EditorGetString
@@ -1717,8 +1733,6 @@ enum OPERATION_MODES {
   OPM_DESCR      =0x0020,
   OPM_QUICKVIEW  =0x0040,
 };
-
-#define MAXSIZE_SHORTCUTDATA  8192
 
 struct OpenPluginInfo
 {
