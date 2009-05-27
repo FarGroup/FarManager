@@ -2145,7 +2145,14 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	Panel *AnotherPanel;
 	string strFindDir, strSetDir;
 
-	strSetDir = NewDir;
+	if(!PathMayBeAbsolute(NewDir))
+	{
+		strSetDir = strCurDir;
+		AddEndSlash(strSetDir);
+		strSetDir += NewDir;
+	}
+	else
+		strSetDir = NewDir;
 
 	if(PanelMode!=PLUGIN_PANEL)
 	{
@@ -2332,14 +2339,16 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 #endif
   }
 
-  if (!FarChDir(strSetDir))
-  {
-    /* $ 03.11.2001 IS
-         Укажем имя неудачного каталога
-    */
-    Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strSetDir, MSG (MOk));
-    UpdateFlags = UPDATE_KEEP_SELECTION;
-  }
+	if (!FarChDir(strSetDir))
+	{
+		if (FrameManager && FrameManager->ManagerStarted())
+		{
+			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strSetDir, MSG (MOk));
+			UpdateFlags = UPDATE_KEEP_SELECTION;
+		}
+	}
+
   /* $ 28.04.2001 IS
        Закомментарим "до лучших времен".
        Я не знаю, почему глюк проявлялся только у меня, но зато знаю, почему он
