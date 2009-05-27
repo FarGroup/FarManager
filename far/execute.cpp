@@ -1098,7 +1098,6 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
   return(Code);
 }
 
-
 /* $ 14.01.2001 SVS
    + В ProcessOSCommands добавлена обработка
      "IF [NOT] EXIST filename command"
@@ -1253,88 +1252,102 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
 
 int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 {
-  Panel *SetPanel;
-  int Length;
+	Panel *SetPanel;
+	int Length;
 
-  string strCmdLine = CmdLine;
+	string strCmdLine = CmdLine;
 
-  SetPanel=CtrlObject->Cp()->ActivePanel;
+	SetPanel=CtrlObject->Cp()->ActivePanel;
 
-  if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
-    SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-  RemoveTrailingSpaces(strCmdLine);
+	RemoveTrailingSpaces(strCmdLine);
 
-  bool SilentInt=false;
-  if(*CmdLine == L'@')
-  {
-    SilentInt=true;
-    strCmdLine.LShift(1);
-  }
+	bool SilentInt=false;
+	if(*CmdLine == L'@')
+	{
+		SilentInt=true;
+		strCmdLine.LShift(1);
+	}
 
 	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && strCmdLine.At(2)==0)
-  {
-    FarChDir(strCmdLine);
+	{
+		FarChDir(strCmdLine);
 		wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
-    if (getdisk()!=(int)(NewDir[0]-L'A'))
-    {
-      FarChDir(NewDir);
-    }
-    SetPanel->ChangeDirToCurrent();
-    return(TRUE);
-  }
+		if (getdisk()!=(int)(NewDir[0]-L'A'))
+		{
+			FarChDir(NewDir);
+		}
+		SetPanel->ChangeDirToCurrent();
+		return(TRUE);
+	}
 
-  // SET [переменная=[строка]]
-	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpace(strCmdLine.At(3)))
-  {
-    size_t pos;
-    string strCmd = (const wchar_t *)strCmdLine+4;
+	// SET [переменная=[строка]]
+	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpaceOrEos(strCmdLine.At(3)))
+	{
+		size_t pos;
+		strCmdLine = (const wchar_t *)strCmdLine+3;
+		RemoveLeadingSpaces(strCmdLine);
 
-    if (!strCmd.Pos(pos,L'='))
-      return FALSE;
+		if(CheckCmdLineForHelp(strCmdLine) || strCmdLine.IsEmpty())
+			return FALSE; // отдадимся COMSPEC`у
 
-    if (strCmd.GetLength() == pos+1) //set var=
-    {
-    	strCmd.SetLength(pos);
-      SetEnvironmentVariableW(strCmd,NULL);
-    }
-    else
-    {
-      string strExpandedStr;
+		if (strCmdLine.Pos(pos,L'/')) // вариант для /A и /P
+			return FALSE;
 
-      if (apiExpandEnvironmentStrings((const wchar_t *)strCmd+pos+1,strExpandedStr) != 0)
-      {
-      	strCmd.SetLength(pos);
-        SetEnvironmentVariableW(strCmd,strExpandedStr);
-      }
-    }
+		if (!strCmdLine.Pos(pos,L'='))
+			return FALSE;
 
-    return TRUE;
-  }
+		if (strCmdLine.GetLength() == pos+1) //set var=
+		{
+			strCmdLine.SetLength(pos);
+			SetEnvironmentVariableW(strCmdLine,NULL);
+		}
+		else
+		{
+			string strExpandedStr;
 
-	else if ((!StrCmpNI(strCmdLine,L"REM",3) && IsSpace(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",2))
-  {
-    return TRUE;
-  }
+			if (apiExpandEnvironmentStrings((const wchar_t *)strCmdLine+pos+1,strExpandedStr) != 0)
+			{
+				strCmdLine.SetLength(pos);
+				SetEnvironmentVariableW(strCmdLine,strExpandedStr);
+			}
+		}
 
-	else if (!StrCmpI(strCmdLine,L"CLS"))
-  {
-    ClearScreen(COL_COMMANDLINEUSERSCREEN);
-    return TRUE;
-  }
+		return TRUE;
+	}
+
+	// REM все остальное
+	else if ((!StrCmpNI(strCmdLine,L"REM",Length=3) && IsSpaceOrEos(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",Length=2))
+	{
+		if(Length == 3 && CheckCmdLineForHelp((const wchar_t*)strCmdLine+Length))
+			return FALSE; // отдадимся COMSPEC`у
+
+    	return TRUE;
+	}
+
+	else if (!StrCmpNI(strCmdLine,L"CLS",3) && IsSpaceOrEos(strCmdLine.At(3)))
+	{
+		if(CheckCmdLineForHelp((const wchar_t*)strCmdLine+3))
+			return FALSE; // отдадимся COMSPEC`у
+
+		ClearScreen(COL_COMMANDLINEUSERSCREEN);
+		return TRUE;
+	}
 
 	// PUSHD путь | ..
-	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpace(strCmdLine.At(5)))
+	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpaceOrEos(strCmdLine.At(5)))
 	{
-		string strCmd = (const wchar_t *)CmdLine+6;
-		RemoveExternalSpaces(strCmd);
+		strCmdLine = (const wchar_t *)strCmdLine+5;
+		RemoveLeadingSpaces(strCmdLine);
 
-		if(!StrCmpI(strCmd,L"/?") || !StrCmpI(strCmd,L"-?"))
-			return FALSE; // пусть cmd скажет про синтаксис
+		if(CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
 
 		PushPopRecord prec;
 		prec.strName = strCurDir;
-		if(IntChDir(strCmd,true,SilentInt))
+		if(IntChDir(strCmdLine,true,SilentInt))
 		{
 			ppstack.Push(prec);
 			SetEnvironmentVariableW(L"FARDIRSTACK",prec.strName);
@@ -1347,8 +1360,11 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	}
 
 	// POPD
-	else if (!StrCmpI(CmdLine,L"POPD"))
+	else if (!StrCmpNI(CmdLine,L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
+		if(CheckCmdLineForHelp((const wchar_t *)strCmdLine+4))
+			return FALSE; // отдадимся COMSPEC`у
+
 		PushPopRecord prec;
 		if(ppstack.Pop(prec))
 		{
@@ -1368,50 +1384,57 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		return TRUE;
 	}
 
-  /*
-  Displays or sets the active code page number.
-  CHCP [nnn]
-    nnn   Specifies a code page number (Dec or Hex).
-  Type CHCP without a parameter to display the active code page number.
-  */
-	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpace(strCmdLine.At(4)))
-  {
-    strCmdLine = (const wchar_t*)strCmdLine+5;
-
-    const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
-    wchar_t Chr;
-
-    if(!iswdigit(*Ptr))
-      return FALSE;
-
-    while((Chr=*Ptr) != 0)
-    {
-      if(!iswdigit(Chr))
-        break;
-      ++Ptr;
-    }
-
-    wchar_t *Ptr2;
-
-    UINT cp=(UINT)wcstol((const wchar_t*)strCmdLine+5,&Ptr2,10); //BUGBUG
-    BOOL r1=SetConsoleCP(cp);
-    BOOL r2=SetConsoleOutputCP(cp);
-    if(r1 && r2) // Если все ОБИ, то так  и...
-    {
-      InitRecodeOutTable(cp);
-      LocalUpperInit();
-      InitLCIDSort();
-      InitKeysArray();
-      CtrlObject->Cp()->Redraw();
-      ScrBuf.Flush();
-      return TRUE;
-    }
-    else  // про траблы внешняя chcp сама скажет ;-)
-     return FALSE;
-  }
-
-	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpace(strCmdLine.At(2)))
+	/*
+		Displays or sets the active code page number.
+		CHCP [nnn]
+			nnn   Specifies a code page number (Dec or Hex).
+		Type CHCP without a parameter to display the active code page number.
+	*/
+	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
+		strCmdLine = (const wchar_t*)strCmdLine+4;
+		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
+
+		if(CheckCmdLineForHelp(Ptr))
+			return FALSE; // отдадимся COMSPEC`у
+
+		wchar_t Chr;
+
+		if(!iswdigit(*Ptr))
+			return FALSE;
+
+		while((Chr=*Ptr) != 0)
+		{
+			if(!iswdigit(Chr))
+				break;
+			++Ptr;
+		}
+
+		wchar_t *Ptr2;
+
+		UINT cp=(UINT)wcstol((const wchar_t*)strCmdLine+5,&Ptr2,10); //BUGBUG
+		BOOL r1=SetConsoleCP(cp);
+		BOOL r2=SetConsoleOutputCP(cp);
+
+		if(r1 && r2) // Если все ОБИ, то так  и...
+		{
+			InitRecodeOutTable(cp);
+			LocalUpperInit();
+			InitLCIDSort();
+			InitKeysArray();
+			CtrlObject->Cp()->Redraw();
+			ScrBuf.Flush();
+			return TRUE;
+		}
+		else  // про траблы внешняя chcp сама скажет ;-)
+			return FALSE;
+	}
+
+	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpaceOrEos(strCmdLine.At(2)))
+	{
+		if(CheckCmdLineForHelp((const wchar_t*)strCmdLine+2))
+			return FALSE; // отдадимся COMSPEC`у
+
 		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
 		// здесь PtrCmd - уже готовая команда, без IF
 
@@ -1426,32 +1449,46 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		return FALSE;
 	}
 
-  /* $ 16.04.2002 DJ
-     пропускаем обработку, если нажат Shift-Enter
-  */
-	else if (!SeparateWindow &&
-			(StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0) &&
-			(IsSpace(strCmdLine.At(Length)) || IsSlash(strCmdLine.At(Length)) ||
-			TestParentFolderName((const wchar_t*)strCmdLine+Length)))
+	// пропускаем обработку, если нажат Shift-Enter
+	else if (!SeparateWindow && (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0))
 	{
-		int ChDir=(Length==5);
+		if (!IsSpaceOrEos(strCmdLine.At(Length)))
+			return FALSE;
 
-		while (IsSpace(strCmdLine.At(Length)))
-			Length++;
+		strCmdLine = (const wchar_t*)strCmdLine+Length;
+		RemoveLeadingSpaces(strCmdLine);
 
-		IntChDir((const wchar_t *)strCmdLine+Length,ChDir,SilentInt);
+		if(CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
 
-		return(TRUE);
+		IntChDir(strCmdLine,Length==5,SilentInt);
+		return TRUE;
 	}
 
 
-	else if(!StrCmpI(strCmdLine,L"EXIT"))
+	else if(!StrCmpNI(strCmdLine,L"EXIT",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
+		if(CheckCmdLineForHelp((const wchar_t*)strCmdLine+4))
+			return FALSE; // отдадимся COMSPEC`у
+
 		FrameManager->ExitMainLoop(FALSE);
 		return TRUE;
 	}
 
   return(FALSE);
+}
+
+bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
+{
+	if ( CmdLine && *CmdLine )
+	{
+		while (IsSpace(*CmdLine))
+			CmdLine++;
+
+		if ( *CmdLine && (CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?' )
+			return true;
+	}
+	return false;
 }
 
 BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)

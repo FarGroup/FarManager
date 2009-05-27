@@ -67,6 +67,7 @@ class CommandLine:public ScreenObject
     void GetPrompt(string &strDestStr);
     BOOL SetLastCmdStr(const wchar_t *Ptr);
     BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
+    bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 
   public:
     CommandLine();
@@ -76,6 +77,8 @@ class CommandLine:public ScreenObject
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+
+    virtual void ResizeConsole();
 
     int GetCurDir(string &strCurDir);
     BOOL SetCurDir(const wchar_t *CurDir);
@@ -103,7 +106,6 @@ class CommandLine:public ScreenObject
     void SaveBackground();
     void ShowBackground();
     void CorrectRealScreenCoord();
-    virtual void ResizeConsole();
     void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };
 

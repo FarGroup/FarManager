@@ -262,9 +262,17 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
       return TRUE;
 
     PreserveLongName PreserveName(ShortName,PreserveLFN);
+    RemoveExternalSpaces(strCommand);
     if ( !strCommand.IsEmpty() )
     {
-      if ( strCommand.At(0) != L'@')
+      bool isSilent=false;
+      if(strCommand.At(0) == L'@')
+      {
+        strCommand=(const wchar_t*)strCommand+1;
+        isSilent=true;
+      }
+      ProcessOSAliases(strCommand);
+      if ( !isSilent )
       {
         CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
         if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
@@ -277,14 +285,14 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         CtrlObject->Cp()->LeftPanel->CloseFile();
         CtrlObject->Cp()->RightPanel->CloseFile();
 
-				Execute(&strCommand[1],AlwaysWaitFinish);
+				Execute(strCommand,AlwaysWaitFinish);
 #else
         // здесь была бага с прорисовкой (и... вывод данных
         // на команду "@type !@!" пропадал с экрана)
         // сделаем по аналогии с CommandLine::CmdExecute()
         {
           RedrawDesktop RdrwDesktop(TRUE);
-          Execute((const wchar_t*)strCommand+1,AlwaysWaitFinish);
+          Execute(strCommand,AlwaysWaitFinish);
           ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
                            // проредравив экран забьет последнюю строку вывода.
         }
@@ -525,16 +533,15 @@ void EditFileTypes()
 
 int DeleteTypeRecord(int DeletePos)
 {
-  string strRecText, strItemName, strRegKey;
-  strRegKey.Format (FTSW.TypeFmt,DeletePos);
-  GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
+	string strRecText, strItemName, strRegKey;
+	strRegKey.Format (FTSW.TypeFmt,DeletePos);
+	GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
 	strItemName=strRecText;
 	InsertQuote(strItemName);
-  if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),
-              strItemName,MSG(MDelete),MSG(MCancel))!=0)
-    return(FALSE);
-  DeleteKeyRecord(FTSW.TypeFmt,DeletePos);
-  return(TRUE);
+	if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel))!=0)
+		return(FALSE);
+	DeleteKeyRecord(FTSW.TypeFmt,DeletePos);
+	return(TRUE);
 }
 
 int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
