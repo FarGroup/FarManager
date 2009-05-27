@@ -2877,9 +2877,18 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
   {
 	string strTotalMsg;
     if ( !strTotalCopySizeText.IsEmpty() ) //BUGBUG, but really not used
-			strTotalMsg.Format(L" %s: %s ",MSG(MCopyDlgTotal),(const wchar_t*)strTotalCopySizeText);
+		{
+			strTotalMsg=L" ";
+			strTotalMsg+=MSG(MCopyDlgTotal);
+			strTotalMsg+=L": ";
+			strTotalMsg+=strTotalCopySizeText;
+		}
     else
-			strTotalMsg.Format(L" %s ",MSG(MCopyDlgTotal));
+		{
+			strTotalMsg=L" ";
+			strTotalMsg+=MSG(MCopyDlgTotal);
+			strTotalMsg+=L" ";
+		}
 
 		strBarStr+=strTotalMsg;
 		strFilesStr.Format(MSG(MCopyProcessedTotal),TotalFiles,TotalFilesToProcess);

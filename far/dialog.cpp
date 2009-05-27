@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTEXT_ADN_SEPARATORS	1
 
-static const wchar_t fmtSavedDialogHistory[]=L"SavedDialogHistory\\%s";
+static const wchar_t fmtSavedDialogHistory[]=L"SavedDialogHistory\\";
 
 //////////////////////////////////////////////////////////////////////////
 /*
@@ -857,13 +857,13 @@ void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
 {
 	CriticalSectionLock Lock(CS);
 
-	string strRegKey;
 	string &strData = CurItem->strData;
 
 	if (strData.IsEmpty())
 	{
 		DWORD UseFlags;
-		strRegKey.Format (fmtSavedDialogHistory,CurItem->History);
+		string strRegKey=fmtSavedDialogHistory;
+		strRegKey+=CurItem->History;
 		UseFlags=GetRegKey(strRegKey,L"Flags",1);
 		if (UseFlags)
 		{
@@ -3838,8 +3838,8 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 
   if(!TypeFind)
   {
-    string strRegKey;
-    strRegKey.Format (fmtSavedDialogHistory, HistoryName);
+		string strRegKey=fmtSavedDialogHistory;
+		strRegKey+=HistoryName;
     // просмотр пунктов истории
     for (I=0; I < Opt.DialogsHistoryCount; I++)
     {
@@ -4023,7 +4023,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   if(!EditLine)
     return FALSE;
 
-  string strRegKey, strStr;
+	string strStr;
   int I,Dest,Ret=FALSE;
   int Locked;
   int IsOk=FALSE, Done, IsUpdate;
@@ -4033,7 +4033,9 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   int IsDeleted=FALSE;
   int EditX1,EditY1,EditX2,EditY2;
 
-  strRegKey.Format (fmtSavedDialogHistory,HistoryName);
+	string strRegKey=fmtSavedDialogHistory;
+	strRegKey+=HistoryName;
+
   {
     // создание пустого вертикального меню
     VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
@@ -4300,12 +4302,10 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 {
   CriticalSectionLock Lock(CS);
 
-#define MAXSIZESTRING 4096
   int AddLine=-1, I, J, Locked, HistCount, LockedCount=0;
   string strStr;
-  string strRegKey;
-
-  strRegKey.Format (fmtSavedDialogHistory,HistoryName);
+	string strRegKey=fmtSavedDialogHistory;
+	strRegKey+=HistoryName;
 
   if (*AddStr==0)
   {
