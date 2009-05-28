@@ -1,3 +1,10 @@
+t-rex 29.05.2009 01:43:23 +0200 - build 957
+
+from netghost:
+
+1. Mantis#890: Far unicode (both x86 and x64) crash when opening Drive Menu on Windows 7 x64
+   Add additional checks for WNetEnumResource call output
+
 drkns 28.05.2009 21:26:32 +0200 - build 956
 
 1. С форума: "Падает Far 2.0 build 952 из-за MultiArc..."

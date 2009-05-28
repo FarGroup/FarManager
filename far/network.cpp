@@ -73,7 +73,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 				bufsz = 16*1024;
 				memset(netResource,0,bufsz);
 				DWORD res = WNetEnumResourceW(hEnum, &size, netResource, &bufsz);
-				if (res == NO_ERROR)
+				if (res == NO_ERROR && size > 0 && netResource->lpLocalName != NULL)
 				{
 					wchar_t letter = Lower(netResource->lpLocalName[0]);
 					if (letter >= L'a' && letter <= L'z' && !wcscmp(netResource->lpLocalName+1, L":"))
