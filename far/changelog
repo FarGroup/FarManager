@@ -1,3 +1,8 @@
+drkns 28.05.2009 21:26:32 +0200 - build 956
+
+1. С форума: "Падает Far 2.0 build 952 из-за MultiArc..."
+   Только не из-за MultiArc, а из-за попыток дописать NULL к UnicodeString.
+
 t-rex 28.05.2009 15:10:00 +0200 - build 955
 
 from lort:
