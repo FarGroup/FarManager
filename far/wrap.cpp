@@ -74,30 +74,30 @@ bool LastSlashA(const char *String,size_t &pos)
 	return Ret;
 }
 
-void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength)
+void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, UINT CodePage=CP_OEMCP)
 {
 	if(lpszAnsiString && lpwszUnicodeString && nLength)
 	{
 		wmemset (lpwszUnicodeString, 0, nLength);
-		MultiByteToWideChar(CP_OEMCP,0,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
+		MultiByteToWideChar(CodePage,0,lpszAnsiString,nLength,lpwszUnicodeString,nLength);
 	}
 }
 
-wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength)
+wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, UINT CodePage=CP_OEMCP)
 {
 	wchar_t *lpResult = (wchar_t*)xf_malloc(nLength*sizeof(wchar_t));
-	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength);
+	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength,CodePage);
 	return lpResult;
 }
 
-wchar_t *AnsiToUnicode(const char *lpszAnsiString)
+wchar_t *AnsiToUnicode(const char *lpszAnsiString, UINT CodePage=CP_OEMCP)
 {
 	if(!lpszAnsiString)
 		return NULL;
-	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1);
+	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1,CodePage);
 }
 
-char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
+char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength, UINT CodePage=CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 		! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
@@ -115,7 +115,7 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 	if (nLength)
 	{
 		WideCharToMultiByte (
-					CP_OEMCP,
+					CodePage,
 					0,
 					lpwszUnicodeString,
 					nLength,
@@ -129,7 +129,7 @@ char *UnicodeToAnsiBin (const wchar_t *lpwszUnicodeString, int nLength)
 	return lpResult;
 }
 
-char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString)
+char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, UINT CodePage=CP_OEMCP)
 {
 	if(!lpwszUnicodeString)
 		return NULL;
@@ -3054,6 +3054,32 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 	return FALSE;
 }
 
+UINT GetEditorCodePageA()
+{
+	EditorInfo info;
+	FarEditorControl(ECTL_GETINFO,&info);
+	UINT CodePage=info.CodePage;
+	CPINFO cpi;
+	GetCPInfo(CodePage, &cpi);
+	if(cpi.MaxCharSize>1)
+		CodePage=GetACP();
+	return CodePage;
+}
+
+void MultiByteRecode (UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
+{
+	if (szBuffer && nLength > 0)
+	{
+		wchar_t *wszTempTable = (wchar_t *) xf_malloc (nLength * sizeof (wchar_t));
+		if (wszTempTable)
+		{
+			MultiByteToWideChar (nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
+			WideCharToMultiByte (nCPout, 0, wszTempTable, nLength, szBuffer, nLength, NULL, NULL);
+			xf_free (wszTempTable);
+		}
+	}
+};
+
 int WINAPI FarEditorControlA(int Command,void* Param)
 {
 	static char *gt=NULL;
@@ -3099,8 +3125,10 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				oegs->SelEnd=egs.SelEnd;
 				if (gt) xf_free(gt);
 				if (geol) xf_free(geol);
-				gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength);
-				geol = UnicodeToAnsi(egs.StringEOL);
+
+				UINT CodePage=GetEditorCodePageA();
+				gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength,CodePage);
+				geol = UnicodeToAnsi(egs.StringEOL,CodePage);
 				oegs->StringText=gt;
 				oegs->StringEOL=geol;
 				return TRUE;
@@ -3141,7 +3169,9 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				oei->BlockType=ei.BlockType;
 				oei->BlockStartLine=ei.BlockStartLine;
 				oei->AnsiMode=0;
-				oei->TableNum=-1;
+
+				oei->TableNum=-((int)GetEditorCodePageA()+2);
+
 				oei->Options=ei.Options;
 				oei->TabSize=ei.TabSize;
 				oei->BookMarkCount=ei.BookMarkCount;
@@ -3153,22 +3183,31 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 		case oldfar::ECTL_EDITORTOOEM:
 		case oldfar::ECTL_OEMTOEDITOR:
+		{
+			if(!Param)
+				return FALSE;
+			oldfar::EditorConvertText *ect=(oldfar::EditorConvertText*) Param;
+
+			UINT CodePage=GetEditorCodePageA();
+			MultiByteRecode(Command==oldfar::ECTL_OEMTOEDITOR ? CP_OEMCP : CodePage, Command==oldfar::ECTL_OEMTOEDITOR ?  CodePage : CP_OEMCP, ect->Text, ect->TextLength);
+
 			return TRUE;
+		}
 
 		case oldfar::ECTL_SAVEFILE:
-	{
-		EditorSaveFile newsf = {0,0};
-		if (Param)
 		{
-			oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
-			newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):NULL;
-			newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):NULL;
+			EditorSaveFile newsf = {0,0};
+			if (Param)
+			{
+				oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
+				newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):NULL;
+				newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):NULL;
+			}
+			int ret = FarEditorControl(ECTL_SAVEFILE, Param?(void *)&newsf:0);
+			if (newsf.FileName) xf_free((void*)newsf.FileName);
+			if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
+			return ret;
 		}
-		int ret = FarEditorControl(ECTL_SAVEFILE, Param?(void *)&newsf:0);
-		if (newsf.FileName) xf_free((void*)newsf.FileName);
-		if (newsf.FileEOL) xf_free((void*)newsf.FileEOL);
-		return ret;
-	}
 
 		case oldfar::ECTL_PROCESSINPUT:	//BUGBUG?
 		{
@@ -3334,8 +3373,10 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			{
 				oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
 				newss.StringNumber=oldss->StringNumber;
-				newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength):NULL;
-				newss.StringEOL=(oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL):NULL;
+
+				UINT CodePage=GetEditorCodePageA();
+				newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):NULL;
+				newss.StringEOL=(oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL,CodePage):NULL;
 				newss.StringLength=oldss->StringLength;
 			}
 			int ret = FarEditorControl(ECTL_SETSTRING, Param?(void *)&newss:0);
@@ -3479,23 +3520,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 	return TRUE;
 }
 
-void MultiByteRecode (UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
-{
-	if (szBuffer && nLength > 0)
-	{
-		wchar_t *wszTempTable = (wchar_t *) xf_malloc (nLength * sizeof (wchar_t));
-		if (wszTempTable)
-		{
-			MultiByteToWideChar (nCPin, 0, szBuffer, nLength, wszTempTable, nLength);
-			WideCharToMultiByte (nCPout, 0, wszTempTable, nLength, szBuffer, nLength, NULL, NULL);
-			xf_free (wszTempTable);
-		}
-	}
-};
-
 int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 {
-	if (Command != oldfar::FCT_DETECT && Command >= 0)
+	if (Command != oldfar::FCT_DETECT)
 	{
 		if (BufferSize != (int) sizeof(oldfar::CharTableSet))
 			return -1;
@@ -3513,25 +3540,30 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 
 		string sTableName;
 		UINT nCP = 0;
-
-		switch (Command)
+		if(Command<0)
 		{
-		case 0 /* OEM */: 	nCP = GetOEMCP();	break;
-		case 1 /* ANSI */:	nCP = GetACP(); 	break;
-		default:
+			nCP=-(Command+2);
+		}
+		else
+		{
+			switch (Command)
 			{
-				int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
-				DWORD selectType;
-				do
+			case 0 /* OEM */: 	nCP = GetOEMCP();	break;
+			case 1 /* ANSI */:	nCP = GetACP(); 	break;
+			default:
 				{
-					selectType = 0;
-					if (!EnumRegValue(FavoriteCodePagesKey, iSelCT++, sTableName, (BYTE *)&selectType, sizeof(selectType)))
-						return -1;
-				} while (!(selectType & CPST_FAVORITE));
-				nCP = _wtoi (sTableName);
+					int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
+					DWORD selectType;
+					do
+					{
+						selectType = 0;
+						if (!EnumRegValue(FavoriteCodePagesKey, iSelCT++, sTableName, (BYTE *)&selectType, sizeof(selectType)))
+							return -1;
+					} while (!(selectType & CPST_FAVORITE));
+					nCP = _wtoi (sTableName);
+				}
 			}
 		}
-
 		CPINFOEXW cpi;
 
 		if (!GetCPInfoExW (nCP, 0, &cpi) || cpi.MaxCharSize != 1)
@@ -3544,14 +3576,21 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 			sTableName.SetLength (sTableName.GetLength () - 1);
 		}
 		else
+		{
 			sTableName = cpi.CodePageName;
+		}
 
 		sTableName.GetCharString (TableSet->TableName, sizeof (TableSet->TableName) - 1, CP_OEMCP);
 
+		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof (TableSet->DecodeTable), nCP);
+		CharLowerBuff(us, sizeof (TableSet->DecodeTable));
+		WideCharToMultiByte(nCP, 0, us, sizeof (TableSet->DecodeTable), (char*)TableSet->LowerTable, sizeof (TableSet->DecodeTable), NULL, NULL);
+		CharUpperBuff(us, sizeof (TableSet->DecodeTable));
+		WideCharToMultiByte(nCP, 0, us, sizeof (TableSet->DecodeTable), (char*)TableSet->UpperTable, sizeof (TableSet->DecodeTable), NULL, NULL);
+		xf_free(us);
+
 		MultiByteRecode (nCP, CP_OEMCP, (char *) TableSet->DecodeTable, sizeof (TableSet->DecodeTable));
 		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->EncodeTable, sizeof (TableSet->EncodeTable));
-		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->UpperTable, sizeof (TableSet->UpperTable));
-		MultiByteRecode (CP_OEMCP, nCP, (char *) TableSet->LowerTable, sizeof (TableSet->LowerTable));
 
 		return Command;
 	}
