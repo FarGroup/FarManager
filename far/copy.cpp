@@ -3258,7 +3258,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 
     for(DWORD i=0;i<(CopySparse?n:i+1);i++)
     {
-			INT64 Size;
+			INT64 Size=0;
       if(CopySparse)
       {
 				Size=ranges[i].Length.QuadPart;

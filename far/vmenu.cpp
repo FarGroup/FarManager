@@ -511,7 +511,7 @@ void VMenu::ShowMenu(int IsParent)
       if (Item[I]->Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
-				wchar_t *TmpStr=strTmpStr.GetBuffer(SepWidth);
+				wchar_t *TmpStr=strTmpStr.GetBuffer(SepWidth+1);
         wchar_t *Ptr=TmpStr+1;
 				MakeSeparator(SepWidth,TmpStr,BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
