@@ -737,7 +737,6 @@ static demangler_t get_demangler(bool unload = false)
       char *p;
       if (GetModuleFileName((HMODULE)&__ImageBase, s, MAX_PATH))
       {
-      	MessageBox(0,s,0,0);
       	p=strrchr(s,'\\');
       	if(p)
       	{
@@ -748,7 +747,6 @@ static demangler_t get_demangler(bool unload = false)
                      "demangle64.dll"
 #endif
                      );
-          MessageBox(0,s,0,0);
           m = LoadLibrary(s);
       	}
       }
