@@ -400,6 +400,9 @@ void VMenu::DrawTitles()
 
 int VMenu::GetVisualPos(int Pos)
 {
+	if (ItemCount == GetShowItemCount())
+		return Pos;
+
 	if (Pos < 0 || Pos > ItemCount) //???
 		return 0;
 
@@ -441,13 +444,20 @@ void VMenu::ShowMenu(int IsParent)
   // коррекция Top`а
   if(GetVisualPos(TopPos)+GetShowItemCount() >= Y2-Y1 && SelectPos == GetShowItemCount()-1)
   {
-    int i=TopPos;
-    for (int v=0; i >0 && v < 1; i--)
+    if (GetShowItemCount() == ItemCount)
     {
-      if(!(Item[i]->Flags&LIF_HIDDEN))
-        v++;
+      int i=TopPos;
+      for (int v=0; i >0 && v < 1; i--)
+      {
+        if(!(Item[i]->Flags&LIF_HIDDEN))
+          v++;
+      }
+      TopPos=i;
     }
-    TopPos=i;
+    else
+    {
+    	TopPos--;
+    }
   }
   if (TopPos<0)
     TopPos=0;
@@ -519,13 +529,20 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (VisualSelectPos > GetVisualPos(TopPos)+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
   {
-    int i=SelectPos;
-    for (int v=0; i >0 && v < ((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1); i--)
+    if (GetShowItemCount() == ItemCount)
     {
-      if(!(Item[i]->Flags&LIF_HIDDEN))
-        v++;
+      int i=SelectPos;
+      for (int v=0; i >0 && v < ((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1); i--)
+      {
+        if(!(Item[i]->Flags&LIF_HIDDEN))
+          v++;
+      }
+      TopPos=i;
     }
-    TopPos=i;
+    else
+    {
+      TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
+    }
   }
   if (SelectPos < TopPos)
     TopPos=SelectPos;
