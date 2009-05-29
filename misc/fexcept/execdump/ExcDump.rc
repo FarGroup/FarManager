@@ -1,8 +1,6 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 1, 3, 0
-PRODUCTVERSION 1, 7, 0, 0
 FILEOS 4
 FILETYPE 2 {
  BLOCK "StringFileInfo" {
@@ -12,8 +10,7 @@ FILETYPE 2 {
    VALUE "InternalName",     "ExcDump\000"
    VALUE "LegalCopyright",   "Copyright © Jouri Mamaev\000\000"
    VALUE "OriginalFilename", "ExcDump.dll\000"
-   VALUE "ProductVersion",   "1.7\000\000"
-   VALUE "FileVersion",      "build 13.01.2009\000\000"
+   VALUE "FileVersion",      "build 29.05.2009\000\000"
    VALUE "Comments",         "Developer: JouriM<at>uran.ru. Far Group build.\000\000"
   }
  }
