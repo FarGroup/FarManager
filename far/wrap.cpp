@@ -3060,8 +3060,7 @@ UINT GetEditorCodePageA()
 	FarEditorControl(ECTL_GETINFO,&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
-	GetCPInfo(CodePage, &cpi);
-	if(cpi.MaxCharSize>1)
+	if(!GetCPInfo(CodePage, &cpi) || cpi.MaxCharSize>1)
 		CodePage=GetACP();
 	return CodePage;
 }

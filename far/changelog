@@ -1,3 +1,9 @@
+t-rex 29.05.2009 03:58:00 +0200 - build 958
+
+1. from lort: Исправление для 955. GetCPInfo для некоторых таблиц не работает, преобразовываем к ANSI в таких случаях.
+
+2. from Kostia Romanov (kildor): немного переводов в eng.hlf.
+
 t-rex 29.05.2009 01:43:23 +0200 - build 957
 
 from netghost:

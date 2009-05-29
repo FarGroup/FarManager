@@ -801,16 +801,14 @@ in the command line may be used to change the plugin file system folder. Unlike
 "CD", "CHDIR" command always treats the specified parameter as a real folder
 name regardless a file panel type.
 
-    Комбинация #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних
-модулей.
+    Use #Alt-Shift-F9# to ~configure plugins~@PluginsConfig@.
 
 
 @PluginsConfig
 $ #Plugins configuration#
     You can configure the installed ~plugin modules~@Plugins@ using the command
-#"Plugins configuration"# from the ~Options menu~@OptMenu@
-или нажав комбинацию клавиш #Alt-Shift-F9# из меню ~выбора дисков~@DriveDlg@
-и меню команд подключаемых модулей.
+#"Plugins configuration"# from the ~Options menu~@OptMenu@ or by pressing
+#Alt-Shift-F9# in the ~drive selection menu~@DriveDlg@ or plugins menu.
 
     To get the help on the currently selected plugin, press #Shift-F1# -
 context-sensitive help on plugin configuration. If the plugin doesn't have a
@@ -2624,14 +2622,14 @@ or all local users, when it's stated explicitly in the Local Policy Editor
 #Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
 #user only#' setting to '#Enabled#').
 
-    #Alt-Shift-F9# позволяет ~настроить параметры~@PluginsConfig@ подключаемых внешних
-модулей (работает, если включен показ имен подключаемых модулей).
+    #Alt-Shift-F9# allows you to ~configure plugins~@PluginsConfig@ (it works only if
+display of plugin items is enabled).
 
-    #Shift-F9# в области подключаемых внешних модулей вызывает диалог настройки
-соответствующего модуля.
+    #Shift-F9# in the plugins list opens the configuration dialog of the
+currently selected plugin.
 
-    #Shift-F1# в области подключаемых внешних модулей показывает соответствующую
-модулю контекстно-зависимую подсказку (если плагин имеет файла-помощи).
+    #Shift-F1# in the plugins list displays the context-sensitive help of the
+currently selected plugin, if the plugin has a help file.
 
 @DisconnectDrive
 $ #Disconnect network drive#
@@ -3333,18 +3331,17 @@ folders. If the "Inherit" action is selected then after copying/moving the
 inheritable access rights of the destination parent folder will be applied to
 the copied/moved files and folders.
 
-    Параметр "Уже существующие файлы" определяет поведение FAR для случая,
-когда одноимённый файл уже существует в папке-приёмнике.
-    Возможные значения:
-    #Запрос действия# - будет отображён ~диалог~@CopyAskOverwrite@ с запросом;
-    #Вместо# - все существующие файлы будут заменёны копируемыми;
-    #Пропустить# - существующие файлы останутся без изменений;
-    #Имя# - существующие файлы останутся без изменений, копируемым будут присвоены другие имена;
-    #Дописать# - копируемые файлы будут дописаны в конец существующих;
-    #Только новые/обновленные файлы# - копировать только файлы с более новыми
-датой и временем модификации.
-    #Запрос подтверждения для R/O файлов# - определяет, нужно ли дополнительное
-подтверждение для файлов с установленным атрибутом "только для чтения".
+    The "Already existing files" option controls FAR behavior if a target file
+of the same name already exists.
+    Possible values:
+    #Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
+    #Overwrite# - all target files will be replaced;
+    #Skip# - target files will not be replaced;
+    #Append# - target file will be appended with the file being copied;
+    #Only newer file(s)# - only files with newer modification date and time
+will be copied;
+    #Also ask on R/O files# - controls whether an additional confirmation
+dialog should be displayed for read-only files.
 
     Option "Use system copy routine" from ~System settings~@SystemSettings@
 dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
@@ -3380,24 +3377,25 @@ destination.
 
 
 @CopyAskOverwrite
-$ #Копирование: запрос действия#
-    Если одноимённый файл уже существует в папке-приёмнике, FAR предложит на выбор
-несколько возможных действий:
+$ #Copying: confirmation dialog#
+    If a file of the same name exists in the target folder the user will be
+prompted to select on of the following actions:
 
-    #Вместо# - существующий файл будет заменён копируемым;
+    #Overwrite# - target file will be replaced;
 
-    #Пропустить# - существующий файл останется без изменений;
+    #Skip# - target file will not be replaced;
 
-    #Имя# - существующие файлы останутся без изменений, копируемым будут присвоены другие имена;
+    #Rename# - existing file will not be changed, a new name will be given to
+the file being copied;
 
-    #Дописать# - копируемый файл будет дописан в конец существующего.
+    #Append# - target file will be appended with the file being copied;
 
-    Если отмечен переключатель #Запомнить выбор#, выбранное действие будет
-использовано для всех существующих файлов в текущем сеансе копирования
-и повторные запросы появляться не будут.
+    If #Remember choice# is checked, the selected action will be applied to
+all existing files and the confirmation dialog will not be displayed again for
+the current copying session.
 
-    Если для принятия решения вам недостаточно информации о размере и дате
-модификации файлов, вы также можете сравнить их содержимое при помощи встроенной программы просмотра.
+    If the displayed information is not sufficient you can also view the files
+in the internal viewer without exiting the confirmation dialog.
 
 
 @CopyRule
@@ -3936,14 +3934,14 @@ documentation.
 
 @KeyMacroEditList
 $ #Макросы: Редактор#
-    Ниже приведены комбинации макроклавиш, используемых в редакторе. Описание для каждой макроклавиши берется из реестра (поле Description).
+    Macro-commands available in the editor are listed below. Descriptions are read from the registry.
 
 <!Macro:Common!>
 <!Macro:Editor!>
 
 @KeyMacroViewerList
 $ #Макросы: Программа просмотра#
-    Ниже приведены комбинации макроклавиш, используемых в программе просмотра. Описание для каждой макроклавиши берется из реестра (поле Description).
+    Macro-commands available in the viewer are listed below. Descriptions are read from the registry.
 
 <!Macro:Common!>
 <!Macro:Viewer!>
