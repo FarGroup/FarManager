@@ -560,44 +560,36 @@ bool ArcListGrow()
 
 void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false)
 {
-  /* $ 19.01.2003 KM
-     Восстановлю поведение до 4 беты. Если в DirName есть
-     символ '\x1' значит это путь из плагина. Таким образом
-     легче определить плагиновые пути и, соответственно,
-     сделать правильный переход.
-  */
 	if(DirName && *DirName)
 	{
-		wchar_t PathSeparator=L'\\';
-		string strName = DirName;
-		if(strName.Contains(L'\x1'))
-			PathSeparator=L'\x1';
-		LPWSTR StartName=strName.GetBuffer(),EndName;
-		while((EndName=wcschr(StartName,PathSeparator))!=NULL)
+		string strName(DirName);
+		wchar_t* DirPtr = strName.GetBuffer();
+		wchar_t* NamePtr = (wchar_t*) PointToName(DirPtr);
+		if (NamePtr != DirPtr)
 		{
-			*EndName=0;
-			// RereadPlugin
+			*(NamePtr-1) = 0;
+
+			if (*DirPtr)
+				CtrlObject->Plugins.SetDirectory(hPlugin,DirPtr,0);
+			else
 			{
-				int FileCount=0;
-				PluginPanelItem *PanelData=NULL;
-				if(CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_FIND))
-				{
-					CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,FileCount);
-				}
+				// change to root directory only if not already there
+				// otherwise plugin may close
+				struct OpenPluginInfo Info;
+				CtrlObject->Cp()->ActivePanel->GetOpenPluginInfo(&Info);
+				if (wcscmp(Info.CurDir, L"\\") != 0)
+					CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",0);
 			}
-			CtrlObject->Plugins.SetDirectory(hPlugin,StartName,OPM_FIND);
-			StartName=EndName+1;
 		}
+
 		// Отрисуем панель при необходимости.
-		if(UpdatePanel)
+		if (UpdatePanel)
 		{
 			CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-			if(!CtrlObject->Cp()->ActivePanel->GoToFile(StartName))
-			{
-				CtrlObject->Cp()->ActivePanel->GoToFile(DirName);
-			}
+			CtrlObject->Cp()->ActivePanel->GoToFile(NamePtr);
 			CtrlObject->Cp()->ActivePanel->Show();
 		}
+
 		//strName.ReleaseBuffer(); Не надо. Строка все ровно удаляется, лишний вызов StrLength.
 	}
 }
@@ -930,8 +922,8 @@ int GetPluginFile(size_t ArcIndex, struct PluginPanelItem *PanelItem,const wchar
   wchar_t *lpFileName = xf_wcsdup (PanelItem->FindData.lpwszFileName);
   wchar_t *lpFileNameShort = xf_wcsdup (PanelItem->FindData.lpwszAlternateFileName);
 
-  const wchar_t *lpFileNameToFind = PointToName(RemovePseudoBackSlash(lpFileName));
-  const wchar_t *lpFileNameToFindShort = PointToName(RemovePseudoBackSlash(lpFileNameShort));
+  const wchar_t *lpFileNameToFind = PointToName(lpFileName);
+  const wchar_t *lpFileNameToFindShort = PointToName(lpFileNameShort);
 
   if ( CtrlObject->Plugins.GetFindData (
       hPlugin,
@@ -946,11 +938,11 @@ int GetPluginFile(size_t ArcIndex, struct PluginPanelItem *PanelItem,const wchar
       PluginPanelItem Item = *pItem;
 
       wchar_t *lpwszFileName = xf_wcsdup(NullToEmpty(pItem->FindData.lpwszFileName));
-      Item.FindData.lpwszFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      Item.FindData.lpwszFileName = xf_wcsdup (PointToName(lpwszFileName));
       xf_free (lpwszFileName);
 
       lpwszFileName = xf_wcsdup(NullToEmpty(pItem->FindData.lpwszAlternateFileName));
-      Item.FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(RemovePseudoBackSlash(lpwszFileName)));
+      Item.FindData.lpwszAlternateFileName = xf_wcsdup (PointToName(lpwszFileName));
       xf_free (lpwszFileName);
 
       if ( !StrCmp (lpFileNameToFind, Item.FindData.lpwszFileName) &&
@@ -1315,21 +1307,28 @@ int IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD FileA
         break;
       string strSearchFileName;
       int RemoveTemp=FALSE;
-      if ((hPlugin != INVALID_HANDLE_VALUE) && (ArcList[FindFileArcIndex]->Flags & OPIF_REALNAMES)==0)
+      if (hPlugin != INVALID_HANDLE_VALUE)
       {
-        string strTempDir;
-        FarMkTempEx(strTempDir); // А проверка на NULL???
-				apiCreateDirectory(strTempDir,NULL);
-        WaitForSingleObject(hPluginMutex,INFINITE);
-        if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
+        if (!CtrlObject->Plugins.UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
         {
-          ReleaseMutex(hPluginMutex);
-          apiRemoveDirectory(strTempDir);
-          break;
+          string strTempDir;
+          FarMkTempEx(strTempDir); // А проверка на NULL???
+          apiCreateDirectory(strTempDir,NULL);
+          WaitForSingleObject(hPluginMutex,INFINITE);
+          if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND))
+          {
+            ReleaseMutex(hPluginMutex);
+            apiRemoveDirectory(strTempDir);
+            break;
+          }
+          else
+            ReleaseMutex(hPluginMutex);
+          RemoveTemp=TRUE;
         }
-        else
-          ReleaseMutex(hPluginMutex);
-        RemoveTemp=TRUE;
+        else 
+        {
+          strSearchFileName = strPluginSearchPath + FullName;
+        }
       }
       else
       {
@@ -1424,7 +1423,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT || Param2 == KEY_NUMPAD4 || Param2 == KEY_NUMPAD6)
         FindPositionChanged = TRUE;
 
-      // некторые спец.клавиши всеже отбработаем.
+      // Некоторые спец.клавиши все-же обработаем.
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
       {
         IsProcessAssignMacroKey--;
@@ -2083,8 +2082,7 @@ bool FindFiles::FindFilesProcess()
 					string strFileName=FindList[FindExitIndex]->FindData.strFileName;
 					Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
-					if ((FindList[FindExitIndex]->ArcIndex != LIST_INDEX_NONE) &&
-							(!(ArcList[FindList[FindExitIndex]->ArcIndex]->Flags & OPIF_REALNAMES)))
+					if (FindList[FindExitIndex]->ArcIndex != LIST_INDEX_NONE)
 					{
 						HANDLE hPlugin = ArcList[FindList[FindExitIndex]->ArcIndex]->hPlugin;
 						if (hPlugin == INVALID_HANDLE_VALUE)
@@ -2113,7 +2111,7 @@ bool FindFiles::FindFilesProcess()
 									SearchMode==FFSEARCH_ALL ||
 									SearchMode==FFSEARCH_ALL_BUTNETWORK ||
 									SearchMode==FFSEARCH_INPATH)
-								CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
+								CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",0);
 
 							SetPluginDirectory(strFileName,hPlugin,TRUE);
 						}
@@ -2619,8 +2617,6 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
   string strPathName;
   strPathName = FullName;
 
-  RemovePseudoBackSlash(strPathName);
-
   CutToSlash(strPathName);
 
   if ( strPathName.IsEmpty() )
@@ -2738,7 +2734,8 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     strSaveDir = Info.CurDir;
-		strPluginSearchPath=strSaveDir+L"\x1";
+    strPluginSearchPath=Info.CurDir;
+    if (!strPluginSearchPath.IsEmpty()) AddEndSlash(strPluginSearchPath);
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==FFSEARCH_ROOT ||
         SearchMode==FFSEARCH_ALL ||
@@ -2827,15 +2824,9 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
       string strFullName;
       if (StrCmp(strCurName,L".")==0 || TestParentFolderName(strCurName))
         continue;
-      if (Flags & OPIF_REALNAMES)
-      {
-        strFullName = strCurName;
-      }
-      else
-      {
-        strFullName = strPluginSearchPath;
-        strFullName += strCurName;
-      }
+
+      strFullName = strPluginSearchPath;
+      strFullName += strCurName;
 
       /* $ 30.09.2003 KM
         Отфильтруем файлы не попадающие в действующий фильтр
@@ -2851,7 +2842,6 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
           statusCS.Enter();
 
           strFindMessage = strFullName;
-          RemovePseudoBackSlash(strFindMessage);
           FindMessageReady=TRUE;
 
           statusCS.Leave();
@@ -2881,28 +2871,29 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
         WaitForSingleObject(hPluginMutex,INFINITE);
 
 				size_t pos;
-        if (!strCurName.Contains(L'\x1') && CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
+        if (CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
 
           strPluginSearchPath += strCurName;
-          strPluginSearchPath += L"\x1";
-          ScanPluginTree(hDlg,hPlugin, Flags);
-          if (strPluginSearchPath.RPos(pos,L'\x1'))
+          strPluginSearchPath += L"\\";
+          ScanPluginTree(hDlg, hPlugin, Flags);
+          if (strPluginSearchPath.RPos(pos,L'\\'))
             strPluginSearchPath.SetLength(pos);
+          if (strPluginSearchPath.RPos(pos,L'\\'))
+            strPluginSearchPath.SetLength(pos+1);
+          else
+            strPluginSearchPath.SetLength(0);
+
+          WaitForSingleObject(hPluginMutex,INFINITE);
+          if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
+            StopSearch=TRUE;
+          ReleaseMutex(hPluginMutex);
         }
-        if (strPluginSearchPath.RPos(pos,L'\x1'))
-          strPluginSearchPath.SetLength(pos+1);
         else
-          strPluginSearchPath.SetLength(0);
-        WaitForSingleObject(hPluginMutex,INFINITE);
-        if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
-          StopSearch=TRUE;
-        ReleaseMutex(hPluginMutex);
-        if (StopSearch) break;
+          ReleaseMutex(hPluginMutex);
       }
-      else
-        ReleaseMutex(hPluginMutex);
+      if (StopSearch) break;
     }
   }
   CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,ItemCount);

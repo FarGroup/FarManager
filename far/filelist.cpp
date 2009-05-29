@@ -891,7 +891,7 @@ int FileList::ProcessKey(int Key)
             {
               CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
             }
-            if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
+            if (PanelMode!=PLUGIN_PANEL)
               CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF);
             else
             {
@@ -3429,7 +3429,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
     if(FillPathName)
     {
 
-      if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
+      if (PanelMode!=PLUGIN_PANEL)
       {
         /* $ 14.02.2002 IS
            ".." в текущем каталоге обработаем как имя текущего каталога

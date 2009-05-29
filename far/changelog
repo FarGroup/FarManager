@@ -1,3 +1,14 @@
+t-rex 30.05.2009 02:47:02 +0200 - build 965
+
+from chupakabra:
+
+1. Mantis#691: Патч для FindFiles::SetPluginDirectory
+   Коректировка и оптимизация.
+
+2. Mantis#637: Проблемы плагинов с OPIF_REALNAMES
+
+3. Mantis#878: Сообщение при отсутствии прав на чтение каталога
+
 t-rex 30.05.2009 02:16:58 +0200 - build 964
 
 1. Ещё штрих.

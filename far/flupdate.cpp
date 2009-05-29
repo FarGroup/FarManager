@@ -267,6 +267,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	bool bDotSeen=false, bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)?true:false;
 
+	if (!Done)
 	{
 		string strTemp(NTPath(strCurDir).Str);
 		DWORD dw;
@@ -771,10 +772,6 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
     //memset(CurListData,0,sizeof(*CurListData));
     PluginToFileListItem(CurPanelData,CurListData);
-    if(Info.Flags & OPIF_REALNAMES)
-    {
-        ConvertNameToShort (CurListData->strName, CurListData->strShortName);
-    }
     CurListData->Position=I;
 
     if ((Info.Flags & OPIF_USESORTGROUPS)/* && (CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0*/)
