@@ -153,6 +153,17 @@ static inline int cmp_names(const WIN32_FIND_DATA &wfd, const FAR_FIND_DATA &ffd
 #undef _NAME
 }
 
+bool IsSlash(TCHAR ch) {
+  return (ch == _T('\\')) || (ch == _T('/'));
+}
+
+bool IsAbsPath(const TCHAR* path) {
+  unsigned len = lstrlen(path);
+  if (len < 2) return false;
+  if ((path[1] == _T(':')) && ((len == 2) || IsSlash(path[2]))) return true;
+  else if (IsSlash(path[0]) && IsSlash(path[1])) return true;
+  else return false;
+}
 
 int TmpPanel::PutOneFile(PluginPanelItem &PanelItem)
 {
@@ -175,16 +186,17 @@ int TmpPanel::PutOneFile(PluginPanelItem &PanelItem)
   if(CheckForCorrect(CurName,&CurPanelItem->FindData,Opt.AnyInPanel))
   {
     int NameOnly=(FSF.PointToName(CurName)==CurName);
+    bool IsRelPath=!IsAbsPath(CurName);
 #undef CurName
 
 #ifndef UNICODE
-    lstrcpy(CurPanelItem->FindData.cFileName, NameOnly ? CurDir : "");
+    lstrcpy(CurPanelItem->FindData.cFileName, IsRelPath ? CurDir : "");
     lstrcat(CurPanelItem->FindData.cFileName,PanelItem.FindData.cFileName);
 #else
     size_t wlen = lstrlen(PanelItem.FindData.lpwszFileName);
-    if (NameOnly) wlen += lstrlen(CurDir);
+    if (IsRelPath) wlen += lstrlen(CurDir);
     register wchar_t *wp = (wchar_t*)malloc((wlen+1)*sizeof(wchar_t));
-    lstrcpy(wp, NameOnly ? CurDir : L"");
+    lstrcpy(wp, IsRelPath ? CurDir : L"");
     lstrcat(wp, PanelItem.FindData.lpwszFileName);
     CurPanelItem->FindData.lpwszFileName = wp;
 #endif
@@ -275,6 +287,8 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
 #ifdef UNICODE
       if(TmpPanelItem[i].FindData.lpwszFileName)
         TmpPanelItem[i].FindData.lpwszFileName = wcsdup(TmpPanelItem[i].FindData.lpwszFileName);
+      if(TmpPanelItem[i].FindData.lpwszAlternateFileName)
+        TmpPanelItem[i].FindData.lpwszAlternateFileName = wcsdup(TmpPanelItem[i].FindData.lpwszAlternateFileName);
 #endif
     }
   }

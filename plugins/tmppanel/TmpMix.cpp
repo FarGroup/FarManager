@@ -49,10 +49,10 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
 #ifdef UNICODE
       if (Items[I].FindData.lpwszFileName)
         free ((wchar_t*)Items[I].FindData.lpwszFileName);
-/*
+
       if (Items[I].FindData.lpwszAlternateFileName)
         free ((wchar_t*)Items[I].FindData.lpwszAlternateFileName);
-*/
+
 #endif
     }
     free (Items);
