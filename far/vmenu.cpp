@@ -1101,8 +1101,9 @@ int VMenu::ProcessKey(int Key)
       int y=((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
       if (GetShowItemCount() != ItemCount)
       {
-        int i=SelectPos;
-        for (int v=0; i >0 && v < y; i--)
+        int p=GetVisualPos(SelectPos)-y;
+        int i=0;
+        for (int v=0; i < ItemCount && v < p; i++)
         {
           if(!(Item[i]->Flags&LIF_HIDDEN))
             v++;
