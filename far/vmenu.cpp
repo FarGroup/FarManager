@@ -442,12 +442,12 @@ void VMenu::ShowMenu(int IsParent)
   int VisualSelectPos = GetVisualPos(SelectPos);
 
   // коррекция Top`а
-  if(GetVisualPos(TopPos)+GetShowItemCount() >= Y2-Y1 && SelectPos == GetShowItemCount()-1)
+  if(GetVisualPos(TopPos)+GetShowItemCount() >= Y2-Y1 && VisualSelectPos == GetShowItemCount()-1)
   {
-    if (GetShowItemCount() == ItemCount)
+    if (GetShowItemCount() != ItemCount)
     {
       int i=TopPos;
-      for (int v=0; i >0 && v < 1; i--)
+      for (int v=0; i > 0 && v < 1; i--)
       {
         if(!(Item[i]->Flags&LIF_HIDDEN))
           v++;
@@ -529,10 +529,11 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (VisualSelectPos > GetVisualPos(TopPos)+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
   {
-    if (GetShowItemCount() == ItemCount)
+    if (GetShowItemCount() != ItemCount)
     {
-      int i=SelectPos;
-      for (int v=0; i >0 && v < ((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1); i--)
+      int p=VisualSelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
+      int i=0;
+      for (int v=0; i < ItemCount && v < p; i++)
       {
         if(!(Item[i]->Flags&LIF_HIDDEN))
           v++;
@@ -1097,7 +1098,22 @@ int VMenu::ProcessKey(int Key)
        ! Исправление неточности перехода по PgUp/PgDn
          с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
       */
-      if((I=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1)) < 0)
+      int y=((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
+      if (GetShowItemCount() != ItemCount)
+      {
+        int i=SelectPos;
+        for (int v=0; i >0 && v < y; i--)
+        {
+          if(!(Item[i]->Flags&LIF_HIDDEN))
+            v++;
+        }
+        I=i;
+      }
+      else
+      {
+        I=SelectPos-y;
+      }
+      if(I < 0)
         I=0;
       SelectPos=SetSelectPos(I,1);
       ShowMenu(TRUE);
@@ -1106,7 +1122,22 @@ int VMenu::ProcessKey(int Key)
 
     case KEY_PGDN:         case KEY_NUMPAD3:
     {
-      if((I=SelectPos+((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1)) >= ItemCount)
+      int y=((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
+      if (GetShowItemCount() != ItemCount)
+      {
+        int i=SelectPos;
+        for (int v=0; i < ItemCount && v < y; i++)
+        {
+          if(!(Item[i]->Flags&LIF_HIDDEN))
+            v++;
+        }
+        I=i;
+      }
+      else
+      {
+        I=SelectPos+y;
+      }
+      if(I >= ItemCount)
         I=ItemCount-1;
       SelectPos=SetSelectPos(I,-1);
       ShowMenu(TRUE);
