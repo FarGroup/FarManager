@@ -301,6 +301,7 @@ class VMenu: public Modal
 
     int  GetItemCount() {return(ItemCount);};
     int  GetShowItemCount() {return(ItemCount-ItemHiddenCount);};
+    int  GetVisualPos(int Pos);
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);

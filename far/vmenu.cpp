@@ -398,6 +398,22 @@ void VMenu::DrawTitles()
   }
 }
 
+int VMenu::GetVisualPos(int Pos)
+{
+	if (Pos < 0 || Pos > ItemCount) //???
+		return 0;
+
+	int v=0;
+
+	for (int i=0; i < Pos; i++)
+	{
+		if(!(Item[i]->Flags&LIF_HIDDEN))
+			v++;
+	}
+
+	return v;
+}
+
 /* $ 28.07.2000 SVS
    Переработка функции с учетом VMenu::Colors[] -
       заменены константы на VMenu::Colors[]
@@ -420,9 +436,19 @@ void VMenu::ShowMenu(int IsParent)
   }
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
+  int VisualSelectPos = GetVisualPos(SelectPos);
+
   // коррекция Top`а
-  if(TopPos+ItemCount >= Y2-Y1 && SelectPos == ItemCount-1)
-    TopPos--;
+  if(GetVisualPos(TopPos)+GetShowItemCount() >= Y2-Y1 && SelectPos == GetShowItemCount()-1)
+  {
+    int i=TopPos;
+    for (int v=0; i >0 && v < 1; i--)
+    {
+      if(!(Item[i]->Flags&LIF_HIDDEN))
+        v++;
+    }
+    TopPos=i;
+  }
   if (TopPos<0)
     TopPos=0;
 
@@ -474,7 +500,7 @@ void VMenu::ShowMenu(int IsParent)
 
   if (GetShowItemCount() <= 0)
     return;
-  if (SelectPos < ItemCount && SelectPos>=0)
+  if (VisualSelectPos>=0 && VisualSelectPos < GetShowItemCount())
   {
     if(Item[SelectPos]->Flags&(LIF_DISABLE | LIF_HIDDEN))
       Item[SelectPos]->Flags&=~LIF_SELECTED;
@@ -491,8 +517,16 @@ void VMenu::ShowMenu(int IsParent)
   /* $ 21.07.2001 KM
    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
   */
-  if (SelectPos-ItemHiddenCount > TopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
-    TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
+  if (VisualSelectPos > GetVisualPos(TopPos)+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
+  {
+    int i=SelectPos;
+    for (int v=0; i >0 && v < ((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1); i--)
+    {
+      if(!(Item[i]->Flags&LIF_HIDDEN))
+        v++;
+    }
+    TopPos=i;
+  }
   if (SelectPos < TopPos)
     TopPos=SelectPos;
   if(TopPos<0)
@@ -705,9 +739,9 @@ void VMenu::ShowMenu(int IsParent)
   {
 		SetColor(VMenu::Colors[VMenuColorScrollBar]);
 		if (BoxType!=NO_BOX)
-			ScrollBarEx(X2,Y1+1,Y2-Y1-1,TopPos,GetShowItemCount());
+			ScrollBarEx(X2,Y1+1,Y2-Y1-1,GetVisualPos(TopPos),GetShowItemCount());
 		else
-			ScrollBarEx(X2,Y1,Y2-Y1+1,TopPos,GetShowItemCount());
+			ScrollBarEx(X2,Y1,Y2-Y1+1,GetVisualPos(TopPos),GetShowItemCount());
   }
 }
 
