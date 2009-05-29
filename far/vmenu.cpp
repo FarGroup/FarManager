@@ -1132,6 +1132,8 @@ int VMenu::ProcessKey(int Key)
           if(!(Item[i]->Flags&LIF_HIDDEN))
             v++;
         }
+        while (i<ItemCount && (Item[i]->Flags&LIF_HIDDEN))
+          i++;
         I=i;
       }
       else
