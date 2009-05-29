@@ -22,7 +22,7 @@
   1. Unpack all files from archive to any directory
 
   2. Copy ExcDump.dll, fexcept.dll (and demangle32.dll optional)
-     into the FAR directory  (directory from where far.exe run)
+     into the %FARHOME%\FExcept directory
 
   3. Import SetFarExceptionHandler.reg into registry
 

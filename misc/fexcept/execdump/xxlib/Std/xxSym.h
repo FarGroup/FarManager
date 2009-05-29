@@ -93,4 +93,6 @@ HDECLSPEC BOOL       MYRTLEXP IsSystemModule( HMODULE Module );
 HDECLSPEC BOOL       MYRTLEXP IsSystemModule( CONSTSTR ModulePathName );
 HDECLSPEC void       MYRTLEXP MakeSymDisasm( HPrintProc_t print,SymDisasm& ui );
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 #endif

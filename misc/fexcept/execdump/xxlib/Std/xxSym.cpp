@@ -731,23 +731,29 @@ static demangler_t get_demangler(bool unload = false)
       return NULL;
     }
 
-    if ( m == NULL ) {
-      union {
-        MEMORY_BASIC_INFORMATION  mbi;
-        char                      s[MAX_PATH+32];
-      };
+    if ( m == NULL )
+    {
+      char s[MAX_PATH];
       char *p;
-      if (   VirtualQuery(&get_demangler, &mbi, sizeof(mbi)) != sizeof(mbi)
-          || !GetModuleFileName((HMODULE)mbi.AllocationBase, s, MAX_PATH)
-          || (p = strrchr(s, '\\')) == NULL) p = s - 1;
-      strcpy(p+1,
+      if (GetModuleFileName((HMODULE)&__ImageBase, s, MAX_PATH))
+      {
+      	MessageBox(0,s,0,0);
+      	p=strrchr(s,'\\');
+      	if(p)
+      	{
+          strcpy(p+1,
 #ifndef _WIN64
-             "demangle32.dll"
+                     "demangle32.dll"
 #else
-             "demangle64.dll"
+                     "demangle64.dll"
 #endif
-            );
-      if ( (m = LoadLibrary(s)) == NULL ) goto no_demangler;
+                     );
+          MessageBox(0,s,0,0);
+          m = LoadLibrary(s);
+      	}
+      }
+      if (!m)
+        goto no_demangler;
 
       if((demangler = (demangler_t)GetProcAddress( m, LPCSTR(1) )) == NULL) {
         FreeLibrary(m);
