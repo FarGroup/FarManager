@@ -112,7 +112,7 @@ static int TotalFilesToProcess;
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
-static clock_t LastShowTime;
+DWORD LastShowTime=0,LastShowBarTime=0,LastShowTotalBarTime=0,LastShowTitleTime=0;
 
 static int OrigScrX,OrigScrY;
 
@@ -1598,7 +1598,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
   ShellCopyMsg(L"",L"",MSG_LEFTALIGN);
 
-  LastShowTime = 0;
+	LastShowTime=0;
+	LastShowBarTime=0;
+	LastShowTotalBarTime=0;
+	LastShowTitleTime=0;
 
   // Создание структуры каталогов в месте назначения
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -2859,7 +2862,10 @@ COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 
 void ShellCopy::PR_ShellCopyMsg(void)
 {
-  LastShowTime = 0;
+	LastShowTime=0;
+	LastShowBarTime=0;
+	LastShowTotalBarTime=0;
+	LastShowTitleTime=0;
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   if(preRedrawItem.Param.Param1)
     ((ShellCopy*)preRedrawItem.Param.Param1)->ShellCopyMsg((wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
@@ -2868,6 +2874,19 @@ void ShellCopy::PR_ShellCopyMsg(void)
 
 void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 {
+	if(Src&&*Src&&Dest&&*Dest)
+	{
+		DWORD CurTime=GetTickCount();
+		if(CurTime-LastShowTime<COPY_TIMEOUT)
+		{
+			return;
+		}
+		else
+		{
+			LastShowTime=CurTime;
+		}
+	}
+
 	string strFilesStr,strBarStr=L"\x1";
   string strSrcName, strDestName;
 
@@ -2875,7 +2894,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 
   if (ShowTotalCopySize)
   {
-	string strTotalMsg;
+		string strTotalMsg;
     if ( !strTotalCopySizeText.IsEmpty() ) //BUGBUG, but really not used
 		{
 			strTotalMsg=L" ";
@@ -2900,7 +2919,10 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
     if ((Src!=NULL) && (ShowCopyTime))
     {
       CopyStartTime = clock();
-      LastShowTime = 0;
+			LastShowTime=0;
+			LastShowBarTime=0;
+			LastShowTotalBarTime=0;
+			LastShowTitleTime=0;
       WaitUserTime = OldCalcTime = 0;
     }
   }
@@ -3508,16 +3530,12 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
         if (ShowTotalCopySize)
           TotalCopiedSize+=BytesWritten;
 
-        //  + Показывать прогресс не чаще 5 раз в секунду
-				if ((CurCopiedSize == SrcData.nFileSize) || (clock() - LastShowTime > COPY_TIMEOUT))
-        {
-					ShowBar(CurCopiedSize,SrcData.nFileSize,false);
-          if (ShowTotalCopySize)
-          {
-            ShowBar(TotalCopiedSize,TotalCopySize,true);
-            ShowTitle(FALSE);
-          }
-        }
+				ShowBar(CurCopiedSize,SrcData.nFileSize,false);
+				if(ShowTotalCopySize)
+				{
+					ShowBar(TotalCopiedSize,TotalCopySize,true);
+					ShowTitle(FALSE);
+				}
         if(CopySparse)
 					Size -= BytesRead;
       }
@@ -3575,12 +3593,21 @@ static void GetTimeText(DWORD Time, string &strTimeText)
 //  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE
 int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
+	DWORD &Time=TotalBar?LastShowTotalBarTime:	LastShowBarTime;
+	DWORD CurTime=GetTickCount();
+	if(CurTime-Time<COPY_TIMEOUT)
+	{
+		return FALSE;
+	}
+	else
+	{
+		Time=CurTime;
+	}
+
 	if(ShowTotalCopySize == TotalBar)
 		TBC.SetProgressValue(WrittenSize,TotalSize);
   // // _LOGCOPYR(CleverSysLog clv(L"ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog(L"WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
-  if (!ShowTotalCopySize || TotalBar)
-    LastShowTime = clock();
 
   unsigned __int64 OldWrittenSize = WrittenSize;
   unsigned __int64 OldTotalSize = TotalSize;
@@ -4247,16 +4274,13 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
   CurCopiedSize = TransferredSize;
 
-  if (IsChangeConsole || (CurCopiedSize == TotalSize) || (clock() - LastShowTime > COPY_TIMEOUT))
-  {
-    ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
-    if (ShowTotalCopySize && dwStreamNumber==1)
-    {
-      TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
-      ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
-      ShellCopy::ShowTitle(FALSE);
-    }
-  }
+	ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
+	if(ShowTotalCopySize && dwStreamNumber==1)
+	{
+		TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
+		ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
+		ShellCopy::ShowTitle(FALSE);
+	}
   return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
 
@@ -4341,6 +4365,19 @@ bool ShellCopy::CalcTotalSize()
 
 void ShellCopy::ShowTitle(int FirstTime)
 {
+	if(!FirstTime)
+	{
+		DWORD CurTime=GetTickCount();
+		if(CurTime-LastShowTitleTime<COPY_TIMEOUT)
+		{
+			return;
+		}
+		else
+		{
+			LastShowTitleTime=CurTime;
+		}
+	}
+
   if (ShowTotalCopySize && !FirstTime)
   {
     unsigned __int64 CopySize=TotalCopiedSize>>8,TotalSize=TotalCopySize>>8;

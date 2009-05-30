@@ -371,7 +371,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 TreeList::DelTreeName(strFullName);
                 if (UpdateDiz)
                   SrcPanel->DeleteDiz(strFullName,strSelShortName);
-                ScTree.SkipDir(); // ??? щрн мсфмн дкъ рнцн, врнаш...
                 continue;
               }
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
