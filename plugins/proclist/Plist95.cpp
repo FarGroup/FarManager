@@ -316,9 +316,9 @@ void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
     if (hModuleSnap==INVALID_HANDLE_VALUE)
         return;
     me32.dwSize = sizeof(me32);
-    for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet;
-             bRet = pModule32Next (hModuleSnap, &me32)) {
-        int len = fprintf(InfoFile, _T(" %p  %6X  %s"), me32.modBaseAddr, me32.modBaseSize,OUT_STRING(me32.szExePath));
+    for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet; bRet = pModule32Next (hModuleSnap, &me32)) {
+        int len = 0;
+        fprintf2(len, InfoFile, _T(" %p  %6X  %s"), me32.modBaseAddr, me32.modBaseSize,OUT_STRING(me32.szExePath));
         TCHAR   *pVersion, *pDesc;
         LPBYTE  pBuf;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo(me32.szExePath, pBuf, pVersion, pDesc)) {

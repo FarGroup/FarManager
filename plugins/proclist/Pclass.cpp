@@ -629,11 +629,10 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
         fprintf(InfoFile,_T("%s %u\n"),PrintTitle(MTitleThreads),CurItem.NumberOfLinks);
 
         if(!pPerfThread) {
-            fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleModuleSize),
 #ifndef UNICODE
-                    CurItem.PackSize);
+            fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleModuleSize),CurItem.PackSize);
 #else
-                    (DWORD)CurItem.FindData.nPackSize);
+            fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleModuleSize),(DWORD)CurItem.FindData.nPackSize);
 #endif
             fprintf(InfoFile,_T("%s %8u\n"),PrintTitle(MTitleHeapSize),GetHeapSize(pdata->dwPID));
         }
@@ -655,12 +654,14 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
             TCHAR DateText[MAX_DATETIME],TimeText[MAX_DATETIME];
             ConvertDate(CurItem.FindData.ftCreationTime,DateText,TimeText);
 
-            if (Current.wYear!=Compare.wYear || Current.wMonth!=Compare.wMonth ||
-                Current.wDay!=Compare.wDay)
+            if (Current.wYear!=Compare.wYear || Current.wMonth!=Compare.wMonth || Current.wDay!=Compare.wDay)
+            {
                 fprintf(InfoFile,_T("\n%s %s %s\n"),PrintTitle(MTitleStarted),DateText,TimeText);
+            }
             else
+            {
                 fprintf(InfoFile,_T("\n%s %s\n"),PrintTitle(MTitleStarted),TimeText);
-
+            }
             //fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleUptime),PrintNTUptime((void*)CurItem.UserData));
             FileTimeToText  (&CurFileTime,&CurItem.FindData.ftCreationTime,TimeText);
             fprintf(InfoFile,_T("%s %s\n"),PrintTitle(MTitleUptime),TimeText);
@@ -671,7 +672,9 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
         if (NT && !*HostName) // local only
         {
             if (*((ProcessDataNT*)pdata)->CommandLine)
+            {
                 fprintf(InfoFile, _T("\n%s:\n%s\n"), GetMsg(MCommandLine), OUT_STRING(((ProcessDataNT*)pdata)->CommandLine));
+            }
 
             DebugToken token;
             hProcess = OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|READ_CONTROL,pdata->dwPID);
@@ -686,9 +689,13 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
                 Lock l(pPerfThread);
                 ProcessPerfData& pd = *pPerfThread->GetProcessData(pdata->dwPID, CurItem.NumberOfLinks);
                 if(pd.dwGDIObjects)
+                {
                     fprintf(InfoFile,_T("\n%s %u\n"),PrintTitle(MGDIObjects), pd.dwGDIObjects);
+                }
                 if(pd.dwUSERObjects)
+                {
                     fprintf(InfoFile,_T("%s %u\n"),PrintTitle(MUSERObjects), pd.dwUSERObjects);
+                }
             }
         }// NT && !*HostName
 
@@ -1563,8 +1570,8 @@ bool Plist::GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, 
 #endif
     static const wchar_t WSFI[] = L"StringFileInfo";
 
-	if(!memcmp(pFullPath,_T("\\??\\"),4*sizeof(TCHAR)))
-		pFullPath+=4;
+  if(!memcmp(pFullPath,_T("\\??\\"),4*sizeof(TCHAR)))
+    pFullPath+=4;
     DWORD size =
 #ifndef UNICODE
                  pFullPath[1] ? GetFileVersionInfoSize(pFullPath, &size) :
@@ -1682,7 +1689,7 @@ void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
         if(*Domain)
             fprintf(InfoFile, _T("%s\\"), Domain);
         if(*User)
-            fprintf(InfoFile, User);
+            fprintf(InfoFile, _T("%s"), User);
         if(*UserSid)
             fprintf(InfoFile,_T(" (%s)"), UserSid);
         fputc(_T('\n'),InfoFile);

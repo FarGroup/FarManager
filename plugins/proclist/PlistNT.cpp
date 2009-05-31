@@ -397,10 +397,10 @@ void GetOpenProcessDataNT(HANDLE hProcess, TCHAR* pProcessName, DWORD cbProcessN
         if(pCommandLine) {
             UNICODE_STRING pCmd;
             if(ReadProcessMemory(hProcess, &pProcessParams->CommandLine, &pCmd, sizeof(pCmd), 0)) {
-                SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length + 1);
+                SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length/sizeof(WCHAR) + 1);
                 Array<WCHAR> sCommandLine((DWORD)sz);
                 *pCommandLine = 0;
-                if(ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, sz-1,0)) {
+                if(ReadProcessMemory(hProcess, pCmd.Buffer, sCommandLine, (sz-1)*sizeof(WCHAR),0)) {
                     sCommandLine[sz-1] = 0;
 #ifndef UNICODE
                     WideCharToMultiByte(CP_ACP, 0, sCommandLine, -1,
@@ -659,29 +659,39 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 
       switch(pf->CounterTypes[i]) {
           case PERF_COUNTER_RAWCOUNT:
+          {
           // Display as is.  No Display Suffix.
               FSF.sprintf(tmp, _T("%10d\n"), *(DWORD*)&pdata->qwResults[i]);
               fprintf(InfoFile, _T("%s"), tmp);
+          }
           break;
           case PERF_COUNTER_LARGE_RAWCOUNT: //  same, large int
+          {
               FSF.sprintf(tmp, _T("%10.0f\n"), (FLOAT)pdata->qwResults[i]);
               fprintf(InfoFile, _T("%s"), tmp);
+          }
           break;
           case PERF_100NSEC_TIMER:
+          {
           // 64-bit Timer in 100 nsec units. Display delta divided by
           // delta time.  Display suffix: "%"
               //fprintf(InfoFile, _T("%10.0f%%\n"), (FLOAT)pdata->qwResults[i]);
               FSF.sprintf(tmp, _T("%s %7.0f%%\n"), PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
               fprintf(InfoFile, _T("%s"), tmp);
+          }
           break;
           case PERF_COUNTER_COUNTER:
+          {
           // 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
               fprintf(InfoFile, _T("%10d  %5d%s\n"), *(DWORD*)&pdata->qwCounters[i], *(DWORD*)&pdata->qwResults[i], GetMsg(MperSec));
+          }
           break;
           case PERF_COUNTER_BULK_COUNT: //PERF_COUNTER_BULK_COUNT
+          {
           // 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
               FSF.sprintf(tmp, _T("%10.0f  %5.0f%s\n"), (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));
               fprintf(InfoFile, _T("%s"), tmp);
+          }
           break;
           default:
               fputc(_T('\n'),InfoFile);
@@ -724,15 +734,19 @@ void PrintModuleVersion(HANDLE InfoFile, TCHAR* pVersion, TCHAR* pDesc, int len)
     CharToOem(pDesc,pDesc);
 #endif
 
-    do
+    do {
         fputc(_T('\t'), InfoFile);
-    while((len=(len|7)+1) < 56);
-      len += fprintf(InfoFile, pVersion?pVersion:_T(""));
+    } while((len=(len|7)+1) < 56);
+
+    int len2=0;
+    fprintf2(len2, InfoFile, _T("%s"), pVersion?pVersion:_T(""));
+    len += len2;
+
     if(pDesc) {
-      do
+      do {
         fputc(_T(' '), InfoFile);
-      while(len++ < 72);
-      fprintf(InfoFile, pDesc);
+      } while(len++ < 72);
+      fprintf(InfoFile, _T("%s"), pDesc);
     }
 }
 
@@ -746,18 +760,21 @@ void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
     if(hProcess && GetInternalProcessData( hProcess, &Data, pProcessParams, pEnd, true)) {
     char *p4;
     do {
-        int len = fprintf(InfoFile, _T("  %p  %6X"), Data.BaseAddress, Data.SizeOfImage);
+        int len = 0;
+        fprintf2(len, InfoFile, _T("  %p  %6X"), Data.BaseAddress, Data.SizeOfImage);
         WCHAR wszModuleName[MAX_PATH];
         SIZE_T sz = sizeof(wszModuleName);//min(sizeof(wszModuleName), Data.BaseDllName.MaximumLength*2);
 
         if(ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sz,0)) {
-            len += fprintf(InfoFile, _T(" %s"), OUT_STRING(wszModuleName));
-        TCHAR   *pVersion, *pDesc;
-        LPBYTE  pBuf;
-        if(Opt.ExportModuleVersion && Plist::GetVersionInfo((TCHAR*)wszModuleName, pBuf, pVersion, pDesc)) {
-            PrintModuleVersion(InfoFile, pVersion, pDesc, len);
-            delete pBuf;
-        }
+            int len2=0;
+            fprintf2(len2, InfoFile, _T(" %s"), OUT_STRING(wszModuleName));
+            len += len2;
+            TCHAR   *pVersion, *pDesc;
+            LPBYTE  pBuf;
+            if(Opt.ExportModuleVersion && Plist::GetVersionInfo((TCHAR*)wszModuleName, pBuf, pVersion, pDesc)) {
+              PrintModuleVersion(InfoFile, pVersion, pDesc, len);
+              delete pBuf;
+            }
         }
         fputc(_T('\n'), InfoFile);
 

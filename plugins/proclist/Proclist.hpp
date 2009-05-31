@@ -45,7 +45,7 @@ typedef unsigned long ULONG_PTR, *PULONG_PTR;
 #define  Min(x,y) (((x)<(y)) ? (x):(y))
 #define  Max(x,y) (((x)>(y)) ? (x):(y))
 
-#define MAX_CMDLINE     512     // Max length of displayed process's cmd line
+#define MAX_CMDLINE     8192    // Max length of displayed process's cmd line
 #define NPANELMODES     10      // Number of panel modes
 #define MAX_MODE_STR    80      // Max length of panel mode string and width string
 #define MAX_CUSTOM_COLS 20      // Max number of custom cols in any panel mode
@@ -317,7 +317,35 @@ typedef HRESULT (WINAPI *PCoInitializeSecurity)(PSECURITY_DESCRIPTOR,LONG,SOLE_A
 extern PCoInitializeSecurity pCoInitializeSecurity;
 //------
 
-int fprintf(HANDLE stream, const TCHAR *format, ...);
+extern TCHAR FPRINTFbuffer[];
+#define FPRINTFbufferLen (64*1024)
+
+#define fprintf(FPRINTFstream, FPRINTFformat, ...) \
+{ \
+  int FPRINTFret=0; \
+  HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
+  DWORD FPRINTFtmp; \
+  if (FPRINTFformat) \
+  { \
+    FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
+    if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
+      FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
+  } \
+}
+
+#define fprintf2(FPRINTFret, FPRINTFstream, FPRINTFformat, ...) \
+{ \
+  FPRINTFret=0; \
+  HANDLE FPRINTFhFile = (HANDLE)(FPRINTFstream); \
+  DWORD FPRINTFtmp; \
+  if (FPRINTFformat) \
+  { \
+    FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
+    if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(TCHAR),&FPRINTFtmp,NULL)) \
+      FPRINTFret = (FPRINTFtmp + sizeof(TCHAR)-1) / sizeof(TCHAR); \
+  } \
+}
+
 int fputc(int c, HANDLE stream);
 
 //-------

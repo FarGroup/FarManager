@@ -178,9 +178,13 @@ static bool PrintFileName(HANDLE handle, HANDLE file)
             UCHAR* lpBuffer = new UCHAR[size];
             if ( pNtQueryObject( handle, 1, lpBuffer, size, 0 ) == 0 &&
                  ((UNICODE_STRING*)lpBuffer)->Length)
-                    fprintf(file, _T("%ls"), ((UNICODE_STRING*)lpBuffer)->Buffer);
+            {
+                fprintf(file, _T("%ls"), ((UNICODE_STRING*)lpBuffer)->Buffer);
+            }
             else
+            {
                 ret = true;
+            }
             delete lpBuffer;
         }
     }
