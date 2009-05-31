@@ -1191,7 +1191,7 @@ int FileList::ProcessKey(int Key)
               {
                 // проверим путь к файлу
                 char *Ptr=strrchr(FileName,'\\');
-                if(Ptr && Ptr != FileName)
+                if(Ptr && Ptr != FileName && !(PathPrefix(FileName) && Ptr-FileName==3))
                 {
                   char Chr=Ptr[1];
                   Ptr[1]=0;
