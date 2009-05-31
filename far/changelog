@@ -1,3 +1,7 @@
+drkns 31.05.2009 20:56:30 +0200 - build 968
+
+1. Неправильно работал apiGetFileSizeEx в предыдущем билде.
+
 drkns 31.05.2009 17:25:14 +0200 - build 967
 
 1. Mantis#0000900: Exception: при попытке выполнить команду edit:\\.\PhysicalDrive0.

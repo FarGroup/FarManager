@@ -455,23 +455,18 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 {
 	bool Result=false;
-	switch(GetFileType(hFile))
+	if(GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
 	{
-	case FILE_TYPE_DISK:
+		Result=true;
+	}
+	else
+	{
+		GET_LENGTH_INFORMATION gli;
+		DWORD BytesReturned;
+		if(DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
 		{
-			GET_LENGTH_INFORMATION gli;
-			DWORD BytesReturned;
-			if(DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
-			{
-				Size=gli.Length.QuadPart;
-				Result=true;
-			}
-		}
-		break;
-
-	default:
-		{
-			Result=(GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size))!=FALSE);
+			Size=gli.Length.QuadPart;
+			Result=true;
 		}
 	}
 	return Result;
