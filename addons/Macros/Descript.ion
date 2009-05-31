@@ -28,7 +28,6 @@ CtrlS.reg Editor: Save File
 CtrlDel.reg Ctrl-Del removes selected editor block
 CtrlW.reg Editor: Save File and Exit
 ShiftBS.reg Converts the word before cursor using XLat function.
-Viewer.HomeEnd.reg Viewer: Start of file
 ViewerAddSubstract.reg Viewer: update panel position when navigating through files
 F9DeactivateMenu.reg Use F9 to deactivate main menu
 CtrlShiftPgUpDn.reg Jump to the previous/next folder on the same level
