@@ -60,7 +60,7 @@ int PathMayBeAbsolute(const wchar_t *Path)
 
 BOOL IsNetworkPath(const wchar_t *Path)
 {
-  return (Path && Path[0] == L'\\' && Path[1] == L'\\' && Path[2] != L'\\' && wcsrchr(Path+2,L'\\'));
+	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !PathPrefix(Path))||(PathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
 }
 
 BOOL IsLocalPath(const wchar_t *Path)

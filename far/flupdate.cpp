@@ -263,7 +263,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
 
-	bool bDotExists, bTwoDotsExists;
+	bool bDotExists=false, bTwoDotsExists=false;
 	bool bDotSeen=false, bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)?true:false;
 

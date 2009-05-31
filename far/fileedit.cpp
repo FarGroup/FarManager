@@ -1464,7 +1464,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		fseek(EditFile,0,SEEK_SET);
 
 	UINT64 FileSize=0;
-	apiGetFileSizeEx(hEdit,&FileSize);
+	apiGetFileSizeEx(hEdit,FileSize);
 
 	DWORD StartTime=GetTickCount();
 	while ((GetCode=GetStr.GetString(&Str, m_codepage, StrLength))!=0)

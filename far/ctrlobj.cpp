@@ -63,6 +63,8 @@ ControlObject::ControlObject()
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
 
+	Macro.LoadMacros();
+
   ReadConfig();
 
   CmdLine=new CommandLine;

@@ -425,7 +425,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 				if(hFile!=INVALID_HANDLE_VALUE)
 				{
 					GetFileTime(hFile,&pFindData->ftCreationTime,&pFindData->ftLastAccessTime,&pFindData->ftLastWriteTime);
-					apiGetFileSizeEx(hFile,&pFindData->nFileSize);
+					apiGetFileSizeEx(hFile,pFindData->nFileSize);
 					CloseHandle(hFile);
 				}
 				if(pFindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -452,9 +452,29 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 	return FALSE;
 }
 
-BOOL apiGetFileSizeEx(HANDLE hFile, unsigned __int64 *pSize)
+bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 {
-	return GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(pSize));
+	bool Result=false;
+	switch(GetFileType(hFile))
+	{
+	case FILE_TYPE_DISK:
+		{
+			GET_LENGTH_INFORMATION gli;
+			DWORD BytesReturned;
+			if(DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
+			{
+				Size=gli.Length.QuadPart;
+				Result=true;
+			}
+		}
+		break;
+
+	default:
+		{
+			Result=(GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size))!=FALSE);
+		}
+	}
+	return Result;
 }
 
 int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime)

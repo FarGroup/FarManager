@@ -12375,6 +12375,14 @@ MMacroPErrExpr_Expected
 "Szintaktikai hiba"
 "Oczekiwano wyrażenia"
 
+MMacroPErrorTitle
+"Ошибка при разборе макроса"
+"Macro parsing error"
+"Macro parsing error"
+"Macro parsing error"
+"Macro parsing error"
+"Macro parsing error"
+
 MCannotSaveFile
 l:
 "Ошибка сохранения файла"

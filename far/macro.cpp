@@ -367,7 +367,7 @@ KeyMacro::KeyMacro()
 	RecBufferSize=0;
 	RecSrc=NULL;
   Mode=MACRO_SHELL;
-  LoadMacros();
+	memset(&IndexMode,0,sizeof(IndexMode));
 }
 
 KeyMacro::~KeyMacro()
@@ -4326,12 +4326,6 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 						Macro->RecSrc=xf_wcsdup(Sequence);
 						return TRUE;
 					}
-					else
-					{
-						string ErrMsg[3];
-						Macro->GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
-						Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MError),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
-					}
 				}
 				return FALSE;
 			}
@@ -4649,9 +4643,19 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
 
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr)
 {
-  if ( CurMacro )
-    return __parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
-  return FALSE;
+	BOOL Result=FALSE;
+	if(CurMacro)
+	{
+		Result=__parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
+
+		if(!Result)
+		{
+			string ErrMsg[3];
+			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
+			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+		}
+	}
+	return Result;
 }
 
 

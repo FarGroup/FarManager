@@ -839,7 +839,7 @@ string &Viewer::GetTitle(string &strName,int,int)
   }
   else
   {
-		if ( !(strFileName.At(1)==L':' && IsSlash(strFileName.At(2))) ) //BUGBUG
+		if(!PathMayBeAbsolute(strFileName))
     {
         string strPath;
 
@@ -2917,23 +2917,14 @@ void Viewer::SetFileSize()
   if(!ViewFile)
     return;
 
-  SaveFilePos SavePos(ViewFile);
-  vseek(ViewFile,0,SEEK_END);
-  FileSize=ftell64(ViewFile);
-
 	HANDLE hView=reinterpret_cast<HANDLE>(_get_osfhandle(ViewFile->_file));
 	if(hView!=INVALID_HANDLE_VALUE)
 	{
-		if(GetFileType(hView)==FILE_TYPE_DISK)
-		{
-			GET_LENGTH_INFORMATION gli;
-			DWORD BytesReturned;
-			if(DeviceIoControl(hView,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
-			{
-				FileSize=gli.Length.QuadPart;
-			}
-		}
+		UINT64 uFileSize=0; // BUGBUG, sign
+		apiGetFileSizeEx(hView,uFileSize);
+		FileSize=uFileSize;
 	}
+
   /* $ 20.02.2003 IS
      Везде сравниваем FilePos с FileSize, FilePos для юникодных файлов
      уменьшается в два раза, поэтому FileSize тоже надо уменьшать

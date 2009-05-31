@@ -1198,24 +1198,27 @@ int FileList::ProcessKey(int Key)
                 // проверим путь к файлу
 								if (LastSlash(strFileName,pos) && pos!=0)
                 {
-                  wchar_t *lpwszFileName = strFileName.GetBuffer();
-                  wchar_t wChr = lpwszFileName[pos+1];
-                  lpwszFileName[pos+1]=0;
-									DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
-                  if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
-                  {
-                    SetMessageHelp(L"WarnEditorPath");
-                    if (Message(MSG_WARNING,2,MSG(MWarning),
-                                MSG(MEditNewPath1),
-                                MSG(MEditNewPath2),
-                                MSG(MEditNewPath3),
-                                MSG(MHYes),MSG(MHNo))!=0)
+									if(!(PathPrefix(strFileName) && pos==3))
+									{
+										wchar_t *lpwszFileName = strFileName.GetBuffer();
+										wchar_t wChr = lpwszFileName[pos+1];
+										lpwszFileName[pos+1]=0;
+										DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
+										if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
+										{
+											SetMessageHelp(L"WarnEditorPath");
+											if (Message(MSG_WARNING,2,MSG(MWarning),
+																	MSG(MEditNewPath1),
+																	MSG(MEditNewPath2),
+																	MSG(MEditNewPath3),
+																	MSG(MHYes),MSG(MHNo))!=0)
 
-                      return(FALSE);
-                  }
-                  lpwszFileName[pos+1]=wChr;
-                  //strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
-                }
+												return FALSE;
+										}
+										lpwszFileName[pos+1]=wChr;
+										//strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
+									}
+								}
               }
             }
             else if(PluginMode) // пустое имя файла в панели плагина не разрешается!
