@@ -631,36 +631,40 @@ void FileEditor::Init (
   if(Flags.Check(FFILEEDIT_LOCKED))
     m_editor->Flags.Set(FEDITOR_LOCKMODE);
 
-  if (!LoadFile(strFullFileName,UserBreak))
-  {
-    if(BlankFileName)
-    {
-      Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
-      UserBreak=0;
-    }
-    if(!Flags.Check(FFILEEDIT_NEW) || UserBreak)
-    {
-      if (UserBreak!=1)
-      {
-        SetLastError(SysErrorCode);
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strFileName,MSG(MOk));
-        ExitCode=XC_OPEN_ERROR;
-      }
-      else
-      {
-        ExitCode=XC_LOADING_INTERRUPTED;
-      }
-      //FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
-      //CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы
-                                    //    с проресовкой если в редакторе из истории
-                                    //    попытаться выбрать несуществующий файл
+	if (!LoadFile(strFullFileName,UserBreak))
+	{
+		if(BlankFileName)
+		{
+			Flags.Clear(FFILEEDIT_OPENFAILED); //AY: ну так как редактор мы открываем то видимо надо и сбросить ошибку открытия
+			UserBreak=0;
+		}
 
-      return;
-    }
+		if(!Flags.Check(FFILEEDIT_NEW) || UserBreak)
+		{
+			if (UserBreak!=1)
+			{
+				SetLastError(SysErrorCode);
+				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strFileName,MSG(MOk));
+				ExitCode=XC_OPEN_ERROR;
+			}
+			else
+			{
+				ExitCode=XC_LOADING_INTERRUPTED;
+			}
+			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
+			//FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
+			//CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
+
+			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
+			if(!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+				FrameManager->RefreshFrame();
+
+			return;
+		}
 		if(m_codepage==CP_AUTODETECT)
 			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 		m_editor->SetCodePage (m_codepage);
-  }
+	}
 
   CtrlObject->Plugins.CurEditor=this;//&FEdit;
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
@@ -1120,6 +1124,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 								int UserBreak;
 								LoadFile (strFullSaveAsName, UserBreak);
+								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
+								//if(!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+								//  FrameManager->RefreshFrame();
 
 								Show();//!!! BUGBUG
 							}

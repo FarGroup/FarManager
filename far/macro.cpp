@@ -4644,17 +4644,37 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr)
 {
 	BOOL Result=FALSE;
+
 	if(CurMacro)
 	{
 		Result=__parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
 
 		if(!Result)
 		{
+			// TODO: ЭТОТ КУСОК ДОЛЖЕН ПРЕДПОЛАГАТЬ ВОЗМОЖНОСТЬ РЕЖИМА SILENT!
 			string ErrMsg[3];
+			DWORD Flags=Work.MacroWORK->Flags;
+			if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+			{
+				if(LockScr) delete LockScr;
+				LockScr=NULL;
+			}
+
+			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
+
 			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
 			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+
+			InternalInput--;
+
+			if(Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+			{
+				if(LockScr) delete LockScr;
+				LockScr=new LockScreen;
+			}
 		}
 	}
+
 	return Result;
 }
 
