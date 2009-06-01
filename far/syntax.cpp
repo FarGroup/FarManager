@@ -348,6 +348,11 @@ static void calcFunc(void)
 
       if(oParam > 0)  //???
       {
+        if ( nParam-(i+1) > oParam )
+        {
+          keyMacroParseError(err_Func_Param, nameString);
+          currTok = tEnd;
+        }
         // добьем нулями опциональные параметры
         for( ; i < nParam-1; ++i)
         {

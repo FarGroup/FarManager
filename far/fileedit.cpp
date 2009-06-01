@@ -1419,6 +1419,51 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		return FALSE;
 	}
 
+	if(Opt.EdOpt.FileSizeLimitLo || Opt.EdOpt.FileSizeLimitHi)
+	{
+		UINT64 RealSizeFile=0;
+
+		if ( apiGetFileSizeEx(hEdit, RealSizeFile) )
+		{
+			unsigned __int64 NeedSizeFile = Opt.EdOpt.FileSizeLimitHi*_ui64(0x100000000)+Opt.EdOpt.FileSizeLimitLo;
+
+			if(RealSizeFile > NeedSizeFile)
+			{
+				string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
+				// Ўирина = 8 - это будет... в Kb и выше...
+				FileSizeToStr(strTempStr1,RealSizeFile,8);
+				FileSizeToStr(strTempStr2,NeedSizeFile,8);
+				strTempStr3.Format (MSG(MEditFileLong),(const wchar_t *)RemoveExternalSpaces(strTempStr1));
+				strTempStr4.Format (MSG(MEditFileLong2),(const wchar_t *)RemoveExternalSpaces(strTempStr2));
+
+				if(Message(MSG_WARNING,2,MSG(MEditTitle),
+						Name,
+						strTempStr3,
+						strTempStr4,
+						MSG(MEditROOpen),
+						MSG(MYes),MSG(MNo)))
+				{
+					fclose(EditFile);
+					SetLastError(ERROR_OPEN_FAILED);
+					UserBreak=1;
+					Flags.Set(FFILEEDIT_OPENFAILED);
+					return FALSE;
+				}
+			}
+		}
+		else
+		{
+			if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+			{
+				fclose(EditFile);
+				SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+				UserBreak=1;
+				Flags.Set(FFILEEDIT_OPENFAILED);
+				return FALSE;
+			}
+		}
+	}
+
 
 	m_editor->FreeAllocatedData (false);
 

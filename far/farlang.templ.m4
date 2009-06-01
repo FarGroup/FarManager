@@ -3329,6 +3329,14 @@ l:
 "csak olvasható fájl"
 "jest plikiem tylko do odczytu"
 
+MEditFileGetSizeError
+"Не удалось определить размер."
+"File size could not be determined."
+upd:"File size could not be determined."
+upd:"File size could not be determined."
+upd:"File size could not be determined."
+upd:"File size could not be determined."
+
 MEditFileLong
 "имеет размер %s,"
 "has the size of %s,"
@@ -12310,6 +12318,14 @@ MMacroPErrUnrecognized_function
 "Unbekannte Funktion '%s'"
 "Ismeretlen funkció "%s""
 "Nie rozpoznano funkcji'%s'"
+
+MMacroPErrFuncParam
+"Неверное количество параметров у функции '%s'"
+"Incorrect number of arguments for function '%s'"
+upd:"Incorrect number of arguments for function '%s'"
+upd:"Incorrect number of arguments for function '%s'"
+upd:"Incorrect number of arguments for function '%s'"
+upd:"Incorrect number of arguments for function '%s'"
 
 MMacroPErrNot_expected_ELSE
 "Неожиданное появление $Else"

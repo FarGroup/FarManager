@@ -2149,22 +2149,33 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	string strFindDir, strSetDir;
 
 	strSetDir = NewDir;
+	bool dot2Present = StrCmp(strSetDir, L"..")==0;
 
 	if(PanelMode!=PLUGIN_PANEL)
 	{
     	/* $ 28.08.2007 YJH
 		+ У форточек сносит крышу на GetFileAttributes("..") при нахождении в
 		корне UNC пути. Приходится обходить в ручную */
-		if (!StrCmp(strSetDir, L"..") &&
+		if (dot2Present &&
 			!StrCmpN(strCurDir, L"\\\\?\\", 4) && strCurDir.At(4) &&
-			!StrCmp(&strCurDir[5], L":\\"))
+			!StrCmpN(&strCurDir[5], L":\\",2))
 		{
-			strSetDir = (const wchar_t*)strCurDir+4;
+			if(!strCurDir.At(7))
+				strSetDir = (const wchar_t*)strCurDir+4;
+			else
+			{
+				strSetDir = strCurDir;
+				AddEndSlash(strSetDir);
+				strSetDir += L"..";
+			}
 		}
 		PrepareDiskPath(strSetDir);
+
+		if(!StrCmpN(strSetDir, L"\\\\?\\", 4) && strSetDir.At(5) == L':' && !strSetDir.At(6))
+			AddEndSlash(strSetDir);
 	}
 
-  if ( !TestParentFolderName(strSetDir) && StrCmp(strSetDir,L"\\")!=0)
+  if ( !dot2Present && StrCmp(strSetDir,L"\\")!=0)
     UpperFolderTopFile=CurTopFile;
 
   if (SelFileCount>0)
@@ -2189,8 +2200,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
        при неудаче SetDirectory не сбрасываем выделение
     */
     BOOL SetDirectorySuccess = TRUE;
-    int UpperFolder=TestParentFolderName(strSetDir);
-    if (UpperFolder && strInfoCurDir.IsEmpty())
+    if (dot2Present && strInfoCurDir.IsEmpty())
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return(TRUE);
@@ -2236,7 +2246,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
       }
     }
 
-    if (UpperFolder)
+    if (dot2Present)
     {
       long Pos=FindFile(PointToName(strFindDir));
       if (Pos!=-1)
@@ -2264,7 +2274,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
 	}
 
-    if(TestParentFolderName(strSetDir))
+    if(dot2Present)
     {
       string strRootDir, strTempDir;
 
@@ -2340,7 +2350,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		if (FrameManager && FrameManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strSetDir, MSG (MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), (dot2Present?L"..":strSetDir), MSG (MOk));
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
 	}
@@ -2366,7 +2376,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
   Update(UpdateFlags);
 
-  if (TestParentFolderName(strSetDir))
+  if (dot2Present)
   {
     GoToFile(strFindDir);
     CurTopFile=UpperFolderTopFile;

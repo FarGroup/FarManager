@@ -74,6 +74,7 @@ enum errParseCode
   err_Success,
   err_Unrecognized_keyword,
   err_Unrecognized_function,
+  err_Func_Param,
   err_Not_expected_ELSE,
   err_Not_expected_END,
   err_Unexpected_EOS,
