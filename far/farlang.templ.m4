@@ -11146,7 +11146,7 @@ MSetConfirmDeleteFolders
 "Usuwanie &niepustych katalogów"
 
 MSetConfirmEsc
-"Прерыва&ние операций (Esc)"
+"Прерыва&ние операций"
 "&Interrupt operation"
 "Pře&rušit operaci"
 "&Unterbrechen von Vorgängen"
