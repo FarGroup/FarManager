@@ -1736,6 +1736,10 @@ l:
 "предназначен только для чтения"
 "is a read-only file"
 
+MEditFileGetSizeError
+"Не удалось определить размер."
+"File size could not be determined."
+
 MEditFileLong
 "имеет размер %s,"
 "has the size of %s,"
@@ -6258,6 +6262,10 @@ l:
 MMacroPErrUnrecognized_function
 "Неизвестная функция '%s'"
 "Unrecognized function '%s'"
+
+MMacroPErrFuncParam
+"Неверное количество параметров у функции '%s'"
+"Incorrect number of arguments for function '%s'"
 
 MMacroPErrNot_expected_ELSE
 "Неожиданное появление $Else"

@@ -1182,6 +1182,17 @@ int FileEditor::LoadFile(const char *Name,int &UserBreak)
         }
       }
     }
+    else
+    {
+      if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileGetSizeError),MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+      {
+        fclose(EditFile);
+        SetLastError(SysErrorCode=ERROR_OPEN_FAILED);
+        UserBreak=1;
+        Flags.Set(FFILEEDIT_OPENFAILED);
+        return(FALSE);
+      }
+    }
   }
 
   bool bCached = LoadFromCache (&cp);

@@ -326,7 +326,31 @@ BOOL FAR_GetFileSize (HANDLE hFile, unsigned __int64 *pSize)
   SetLastError (nError);
 
   if ( (dwLo == INVALID_FILE_SIZE) && (nError != NO_ERROR) )
+  {
+    if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    {
+      #if defined(__BORLANDC__)
+      #define IOCTL_DISK_GET_LENGTH_INFO          CTL_CODE(IOCTL_DISK_BASE, 0x0017, METHOD_BUFFERED, FILE_READ_ACCESS)
+      // The structure GET_LENGTH_INFORMATION is used with the ioctl
+      // IOCTL_DISK_GET_LENGTH_INFO to obtain the length, in bytes, of the
+      // disk, partition, or volume.
+      //
+
+      typedef struct _GET_LENGTH_INFORMATION {
+          LARGE_INTEGER   Length;
+      } GET_LENGTH_INFORMATION, *PGET_LENGTH_INFORMATION;
+      #endif
+      GET_LENGTH_INFORMATION gli;
+      DWORD BytesReturned;
+      if(DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
+      {
+        if ( pSize )
+          *pSize=gli.Length.QuadPart;
+        return TRUE;
+      }
+    }
     return FALSE;
+  }
   else
   {
     if ( pSize )

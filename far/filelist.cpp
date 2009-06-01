@@ -2132,20 +2132,34 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   char FindDir[4096],SetDir[4096];
 
   strcpy(SetDir,NewDir);
+  bool dot2Present = strcmp(SetDir,"..")==0;
 
   if(PanelMode != PLUGIN_PANEL)
   {
       /* $ 28.08.2007 YJH
         + У форточек сносит крышу на GetFileAttributes("..") при нахождении в
           корне UNC пути. Приходится обходить в ручную */
-    if (!strcmp(SetDir,"..") && !strncmp(CurDir, "\\\\?\\", 4) && CurDir[4] && !strcmp(&CurDir[5], ":\\"))
-      strcpy(SetDir, CurDir+4);
+    if (dot2Present && !strncmp(CurDir, "\\\\?\\", 4) && CurDir[4] && !strncmp(&CurDir[5], ":\\",2))
+    {
+      if(!CurDir[7])
+        strcpy(SetDir, CurDir+4);
+      else
+      {
+        strcpy(SetDir, CurDir);
+        AddEndSlash(SetDir);
+        strcat(SetDir,"..");
+      }
+    }
 
     PrepareDiskPath(SetDir,sizeof(SetDir)-1);
+
+    if(!strncmp(SetDir, "\\\\?\\", 4) && SetDir[5] == ':' && !SetDir[6])
+       AddEndSlash(SetDir);
+
     _CHANGEDIR(SysLog("[%d] SetDir=\"%s\"",__LINE__,SetDir));
   }
 
-  if (!TestParentFolderName(SetDir) && strcmp(SetDir,"\\")!=0)
+  if (!dot2Present && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;
 
   if (SelFileCount>0)
@@ -2162,36 +2176,38 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
       + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
     CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),1,Info.Format,(Info.Flags & OPIF_REALNAMES)?false:(Opt.SavePluginFoldersHistory?false:true));
 
-    /* $ 25.04.01 DJ
-       при неудаче SetDirectory не сбрасываем выделение
-    */
+    /* $ 25.04.01 DJ - при неудаче SetDirectory не сбрасываем выделение */
     BOOL SetDirectorySuccess = TRUE;
-    int UpperFolder=TestParentFolderName(SetDir);
-    if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
+    if (dot2Present && *NullToEmpty(Info.CurDir)==0)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return(TRUE);
+
       PluginClosed=TRUE;
       strcpy(FindDir,NullToEmpty(Info.HostFile));
+
       if (*FindDir==0 && (Info.Flags & OPIF_REALNAMES) && CurFile<FileCount)
       {
         strcpy(FindDir,ListData[CurFile].Name);
         GoToPanelFile=TRUE;
       }
+
       PopPlugin(TRUE);
+
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+
       if (AnotherPanel->GetType()==INFO_PANEL)
         AnotherPanel->Redraw();
     }
     else
     {
       strcpy(FindDir,NullToEmpty(Info.CurDir));
-      /* $ 25.04.01 DJ
-         при неудаче SetDirectory не сбрасываем выделение
-      */
+      /* $ 25.04.01 DJ при неудаче SetDirectory не сбрасываем выделение */
       SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,SetDir,0);
     }
+
     ProcessPluginCommand();
+
     if (SetDirectorySuccess)
       Update(0);
     else
@@ -2214,7 +2230,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
       }
     }
 
-    if (UpperFolder)
+    if (dot2Present)
     {
       long Pos=FindFile(PointToName(FindDir));
       if (Pos!=-1)
@@ -2252,7 +2268,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     /* $ 21.09.2000 SVS
        Отловим момент ".." и "\\host\share"
     */
-    if(TestParentFolderName(SetDir))
+    if(dot2Present)
     {
       _CHANGEDIR(CleverSysLog clv3("if(TestParentFolderName(SetDir))"));
       /* $ 21.08.2001 KM
@@ -2377,7 +2393,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
     if (FrameManager && FrameManager->ManagerStarted())
     {
       // $ 03.11.2001 IS - Укажем имя неудачного каталога
-      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), SetDir, MSG (MOk));
+      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), (dot2Present?"..":SetDir), MSG (MOk));
       UpdateFlags = UPDATE_KEEP_SELECTION;
     }
   }
@@ -2409,7 +2425,7 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   _CHANGEDIR(SysLog("[%d] CALL Update()",__LINE__));
   Update(UpdateFlags);
 
-  if (TestParentFolderName(SetDir))
+  if (dot2Present)
   {
     GoToFile(FindDir);
     CurTopFile=UpperFolderTopFile;
