@@ -358,10 +358,15 @@ void FileEditor::Init(const char *Name,const char *Title,DWORD InitFlags,int Sta
       {
         ExitCode=XC_LOADING_INTERRUPTED;
       }
+      // Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
       //FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
       //CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы
                                     //    с проресовкой если в редакторе из истории
                                     //    попытаться выбрать несуществующий файл
+
+      // если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
+      if(!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+        FrameManager->RefreshFrame();
 
       return;
     }
