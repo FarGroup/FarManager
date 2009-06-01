@@ -5662,7 +5662,7 @@ MSetConfirmDeleteFolders
 "Delete non-empty &folders"
 
 MSetConfirmEsc
-"Прерыва&ние операций (Esc)"
+"Прерыва&ние операций"
 "&Interrupt operation"
 
 MSetConfirmRemoveConnection
