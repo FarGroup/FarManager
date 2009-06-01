@@ -74,12 +74,12 @@ class UserDefinedList
     TArray<UserDefinedListItem> Array;
     unsigned int CurrentItem;
     WORD Separator1, Separator2;
-    BOOL ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
+    bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
 
   private:
-    BOOL CheckSeparators() const; // проверка разделителей на корректность
+    bool CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
-    const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, BOOL &Error);
+    const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
     static int __cdecl CmpItems(const UserDefinedListItem **el1,
       const UserDefinedListItem **el2);
 
@@ -89,8 +89,8 @@ class UserDefinedList
 
   public:
     // по умолчанию разделителем считается ';' и ',', а
-    // ProcessBrackets=AddAsterisk=PackAsterisks=FALSE
-    // Unique=Sort=FALSE
+    // ProcessBrackets=AddAsterisk=PackAsterisks=false
+    // Unique=Sort=false
     UserDefinedList();
 
     // Явно указываются разделители. См. описание SetParameters
@@ -104,24 +104,24 @@ class UserDefinedList
     // (т.е. в Set)
     // Если оба разделителя равны 0x00, то восстанавливаются разделители по
     // умолчанию (';' & ',').
-    // Если AddAsterisk равно TRUE, то к концу элемента списка будет
+    // Если AddAsterisk равно true, то к концу элемента списка будет
     // добавляться '*', если этот элемент не содержит '?', '*' и '.'
-    // Возвращает FALSE, если один из разделителей является кавычкой или
+    // Возвращает false, если один из разделителей является кавычкой или
     // включена обработка скобок и один из разделителей является квадратной
     // скобкой.
-    BOOL SetParameters(WORD Separator1, WORD Separator2, DWORD Flags);
+    bool SetParameters(WORD Separator1, WORD Separator2, DWORD Flags);
 
     // Инициализирует список. Принимает список, разделенный разделителями.
-    // Возвращает FALSE при неудаче.
+    // Возвращает false при неудаче.
     // Фича: если List==NULL, то происходит освобождение занятой ранее памяти
-    BOOL Set(const wchar_t *List, BOOL AddToList=FALSE);
+    bool Set(const wchar_t *List, bool AddToList=false);
 
     // Добавление к уже существующему списку
     // Фича: если NewItem==NULL, то происходит освобождение занятой ранее
     // памяти
-    BOOL AddItem(const wchar_t *NewItem)
+    bool AddItem(const wchar_t *NewItem)
     {
-      return Set(NewItem,TRUE);
+      return Set(NewItem,true);
     }
 
     // Вызывать перед началом работы со списком
@@ -133,8 +133,8 @@ class UserDefinedList
     // Освободить память
     void Free();
 
-    // TRUE, если больше элементов в списке нет
-    BOOL IsEmpty();
+    // true, если больше элементов в списке нет
+    bool IsEmpty();
 
     // Вернуть количество элементов в списке
     DWORD GetTotal () const { return Array.getSize(); }
