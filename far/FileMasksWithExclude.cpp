@@ -80,17 +80,17 @@ const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
+bool FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
 	if (NULL==masks || !*masks) return FALSE;
 
 	size_t len=StrLength(masks)+1;
-	BOOL rc=FALSE;
+	bool rc=false;
 	wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
 	if (MasksStr)
 	{
-		rc=TRUE;
+		rc=true;
 		wcscpy(MasksStr, masks);
 
 		wchar_t *pExclude = (wchar_t *) FindExcludeChar(MasksStr);
@@ -122,12 +122,12 @@ BOOL FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksWithExclude::Compare(const wchar_t *FileName)
+bool FileMasksWithExclude::Compare(const wchar_t *FileName)
 {
 	return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
-BOOL FileMasksWithExclude::IsEmpty(void)
+bool FileMasksWithExclude::IsEmpty(void)
 {
 	return (Include.IsEmpty() && Exclude.IsEmpty());
 }

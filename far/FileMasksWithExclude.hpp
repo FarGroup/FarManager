@@ -49,9 +49,9 @@ public:
 	virtual ~FileMasksWithExclude() {}
 
 public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
+	virtual bool Set(const wchar_t *Masks, DWORD Flags);
+	virtual bool Compare(const wchar_t *Name);
+	virtual bool IsEmpty();
 	static bool IsExcludeMask(const wchar_t *masks);
 
 private:

@@ -61,11 +61,11 @@ void CFileMask::Free()
  масок равна 0).
 */
 
-BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
+bool CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 {
 	Free();
 
-	BOOL rc=FALSE;
+	bool Result=false;
 	int Silent=Flags & FMF_SILENT;
 	DWORD flags=0;
 	if (Flags & FMF_ADDASTERISK)
@@ -84,29 +84,29 @@ BOOL CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 		}
 
 		if (FileMask)
-			rc=FileMask->Set(Masks, flags);
+			Result=FileMask->Set(Masks, flags);
 
-		if (!rc)
+		if (!Result)
 			Free();
 	}
 
-	if (!Silent && !rc)
+	if (!Silent && !Result)
 		Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
 
-	return rc;
+	return Result;
 }
 
 // Возвращает TRUE, если список масок пустой
-BOOL CFileMask::IsEmpty(void)
+bool CFileMask::IsEmpty(void)
 {
-	return FileMask?FileMask->IsEmpty():TRUE;
+	return FileMask?FileMask->IsEmpty():true;
 }
 
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь в имени файла игнорируется.
 */
-BOOL CFileMask::Compare(const wchar_t *FileName)
+bool CFileMask::Compare(const wchar_t *FileName)
 {
-	return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):FALSE;
+	return FileMask?FileMask->Compare(PointToName((wchar_t*)FileName)):false;
 }

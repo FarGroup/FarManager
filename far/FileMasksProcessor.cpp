@@ -65,7 +65,7 @@ void FileMasksProcessor::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
+bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
 
@@ -86,22 +86,22 @@ BOOL FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 			if (m == NULL)
 			{
 				n = 0;
-				return FALSE;
+				return false;
 			}
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 
 	Masks.SetParameters(L',',L';',flags);
 	return Masks.Set(masks);
 }
 
-BOOL FileMasksProcessor::IsEmpty(void)
+bool FileMasksProcessor::IsEmpty()
 {
 	if (bRE)
 	{
-		return (n ? FALSE : TRUE);
+		return !n;
 	}
 
 	Masks.Reset();
@@ -111,13 +111,13 @@ BOOL FileMasksProcessor::IsEmpty(void)
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
+bool FileMasksProcessor::Compare(const wchar_t *FileName)
 {
 	if (bRE)
 	{
 		int i = n;
 		int len = StrLength(FileName);
-		BOOL ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
+		bool ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
 
 		//Освободим память если большая строка, чтоб не накапливалось.
 		if (len > 1024)
@@ -131,7 +131,7 @@ BOOL FileMasksProcessor::Compare(const wchar_t *FileName)
 	{
 		// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
 		if (CmpName(MaskPtr,FileName, FALSE))
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }

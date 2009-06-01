@@ -40,9 +40,9 @@ class BaseFileMask
     virtual ~BaseFileMask() {}
 
   public:
-    virtual BOOL Set(const wchar_t *Masks, DWORD Flags)=0;
-    virtual BOOL Compare(const wchar_t *Name)=0;
-    virtual BOOL IsEmpty(void) { return TRUE; }
+    virtual bool Set(const wchar_t *Masks, DWORD Flags)=0;
+    virtual bool Compare(const wchar_t *Name)=0;
+    virtual bool IsEmpty(void) { return true; }
 
   private:
     BaseFileMask& operator=(const BaseFileMask& rhs); /* чтобы не */

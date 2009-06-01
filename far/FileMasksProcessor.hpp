@@ -52,9 +52,9 @@ public:
 	virtual ~FileMasksProcessor() { Free(); }
 
 public:
-	virtual BOOL Set(const wchar_t *Masks, DWORD Flags);
-	virtual BOOL Compare(const wchar_t *Name);
-	virtual BOOL IsEmpty(void);
+	virtual bool Set(const wchar_t *Masks, DWORD Flags);
+	virtual bool Compare(const wchar_t *Name);
+	virtual bool IsEmpty();
 	void Free();
 
 private:

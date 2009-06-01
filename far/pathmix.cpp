@@ -39,16 +39,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NTPath::NTPath(LPCWSTR Src)
 {
-	Str=Src;
-	if(!PathPrefix(Src))
+	if(Src&&*Src)
 	{
-		ConvertNameToFull(Str,Str);
-		if(!PathPrefix(Str))
+		Str=Src;
+		if(!PathPrefix(Src))
 		{
-			if(IsLocalPath(Str))
-				Str=string(L"\\\\?\\")+Str;
-			else
-				Str=string(L"\\\\?\\UNC\\")+&Str[2];
+			ConvertNameToFull(Str,Str);
+			if(!PathPrefix(Str))
+			{
+				if(IsLocalPath(Str))
+					Str=string(L"\\\\?\\")+Str;
+				else
+					Str=string(L"\\\\?\\UNC\\")+&Str[2];
+			}
 		}
 	}
 }
