@@ -24,7 +24,7 @@
 
 <h3>4 March 2009</h3>
 <ul>
-  <li>Macro: <a href="macro/macrocmd/functions.html#eval">Eval</a> function now has second parameter, allowing just to check macro sequence for correctness.
+  <li>Macro: <a href="macro/macrocmd/functions.html#eval">Eval</a> function now has a second parameter, allowing just to check macro sequence for correctness.
     Also, function return codes are described.
     <br><br>
 </ul>
@@ -32,13 +32,13 @@
 
 <h3>3 March 2009</h3>
 <ul>
-  <li>Macro: <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> function returns -1, if called not from menu.
+  <li>Macro: <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> function returns -1, if not called from the menu.
     <br><br>
 </ul>
 
 <h3>2 March 2009</h3>
 <ul>
-  <li>Macro: macros can be assigned to mouse buttons. These constants can be used in macro sequence: MsX, MsY, MsButton, MsCtrlState.
+  <li>Macro: macros can be assigned to mouse buttons. These constants can be used in macro sequences: MsX, MsY, MsButton, MsCtrlState.
     <br><br>
 </ul>
 
@@ -50,7 +50,7 @@
 
 <h3>23 January 2009</h3>
 <ul>
-  <li>Macro: additions and adjustments in <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> function - it now works in editor, dialog edit lines, and command line.
+  <li>Macro: additions and adjustments in <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> function - it now works in the editor, dialog edit lines, and command line.
     <br><br>
 
   <li>Fixed errors in <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
@@ -67,13 +67,13 @@
 
 <h3>16 January 2009</h3>
 <ul>
-  <li>Macro: <a href="macro/macrocmd/functions.html#waitkey">waitkey</a> function has second optional parameter - type of returned value
+  <li>Macro: <a href="macro/macrocmd/functions.html#waitkey">waitkey</a> function has a second optional parameter - type of returned value
     <br><br>
 
   <li>Macro: new function <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> handles blocks in text.
     <br><br>
 
-  <li>Macro: new function <a href="macro/macrocmd/functions.html#key">key</a> converts V value into string equivalent of the key name.
+  <li>Macro: new function <a href="macro/macrocmd/functions.html#key">key</a> converts the value V into string equivalent of the key name.
     <br><br>
 
   <li>Macro: Named keys (i.e. CtrlK) can be present in any expressions; in this case they are treated as numbers.
@@ -82,7 +82,7 @@
 
 <h3>26 November 2008</h3>
 <ul>
-  <li>A new color is added to palette - <a href="defs/farcolors.html#COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a>.
+  <li>A new color was added to the palette - <a href="defs/farcolors.html#COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a>.
     <br><br>
 </ul>
 
@@ -223,10 +223,10 @@
 
 <h3>6 December 2007</h3>
 <ul>
-  <li>2 new events for panel plugins: <a href="exported_functions/processevent.html#FE_GOTFOCUS">FE_GOTFOCUS</a> и <a href="exported_functions/processevent.html#FE_KILLFOCUS">FE_KILLFOCUS</a>.
+  <li>2 new events for panel plugins: <a href="exported_functions/processevent.html#FE_GOTFOCUS">FE_GOTFOCUS</a> and <a href="exported_functions/processevent.html#FE_KILLFOCUS">FE_KILLFOCUS</a>.
     <br><br>
 
-  <li>2 new events for editor plugins: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> и <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
+  <li>2 new events for editor plugins: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> and <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
     <br><br>
 
   <li>В диалогах, сразу после <a href="dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a> приходит <a href="dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> для того элемента, который Focus=1.
