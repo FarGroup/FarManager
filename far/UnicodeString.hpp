@@ -216,13 +216,35 @@ public:
 		return m_pData->GetData();
 	}
 
-	const UnicodeString& operator=(const UnicodeString &strCopy);
-	const UnicodeString& operator=(const char *lpszData);
-	const UnicodeString& operator=(const wchar_t *lpwszData);
+	const UnicodeString& UnicodeString::operator=(const UnicodeString &strCopy)
+	{
+		return SetData(strCopy);
+	}
 
-	const UnicodeString& operator+=(const UnicodeString &strAdd);
-	const UnicodeString& operator+=(const char *lpszAdd);
-	const UnicodeString& operator+=(const wchar_t *lpwszAdd);
+	const UnicodeString& UnicodeString::operator=(const char *lpszData)
+	{
+		return SetData(lpszData);
+	}
+
+	const UnicodeString& UnicodeString::operator=(const wchar_t *lpwszData)
+	{
+		return SetData(lpwszData);
+	}
+
+	const UnicodeString& UnicodeString::operator+=(const UnicodeString &strAdd)
+	{
+		return Append(strAdd);
+	}
+
+	const UnicodeString& UnicodeString::operator+=(const char *lpszAdd)
+	{
+		return Append(lpszAdd);
+	}
+
+	const UnicodeString& UnicodeString::operator+=(const wchar_t *lpwszAdd)
+	{
+		return Append(lpwszAdd);
+	}
 
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
