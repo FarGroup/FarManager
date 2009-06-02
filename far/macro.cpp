@@ -4654,8 +4654,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPt
 		if(!Result)
 		{
 			// TODO: Ё“ќ“  ”—ќ  ƒќЋ∆≈Ќ ѕ–≈ƒѕќЋј√ј“№ ¬ќ«ћќ∆Ќќ—“№ –≈∆»ћј SILENT!
+			bool scrLocks=LockScr != NULL;
 			string ErrMsg[3];
-			if(CurMacro->Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+			if(scrLocks) // если был - удалим
 			{
 				if(LockScr) delete LockScr;
 				LockScr=NULL;
@@ -4663,13 +4664,16 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPt
 
 			InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
 
-			// BUGBUG - при InternalInput!=0 диалог создаетс€, но не отрисовываетс€.
 			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
-			Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+
+			if(FrameManager && FrameManager->ManagerStarted()) // ѕадение, если в процессе загрузки попадалс€ кривой макрос.
+				Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
+			//else
+			// вывести диагностику в файл
 
 			InternalInput--;
 
-			if(CurMacro->Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+			if(scrLocks) // если стал - залочим
 			{
 				if(LockScr) delete LockScr;
 				LockScr=new LockScreen;
