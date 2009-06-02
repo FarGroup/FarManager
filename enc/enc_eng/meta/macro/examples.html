@@ -130,8 +130,8 @@ panel.setpos(ACTIVEPANEL,%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECT
 Ins $End $End $MMode 1 $MMode 1"
 "DisableOutput"=dword:00000001
 
-;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
-;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+;Macro is not called when command line is not empty, in order to keep the primary
+;action of CtrlShiftIns combination - Copy names of selected files to clipboard
 "EmptyCommandLine"=dword:00000001</pre>
 
 </body>

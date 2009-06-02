@@ -12,48 +12,48 @@
 <a href="index.html">main</a>
 </div>
 
-<h3>1 апреля 2009</h3>
+<h3>1 April 2009</h3>
 <ul>
-  <li>Добавлены флаги <a href="dialogapi/structures/farlistitem.html#LIF_HIDDEN">LIF_HIDDEN</a>, <a href="dialogapi/structures/farlistitem.html#LIF_GRAYED">LIF_GRAYED</a>,
+  <li>Added flags <a href="dialogapi/structures/farlistitem.html#LIF_HIDDEN">LIF_HIDDEN</a>, <a href="dialogapi/structures/farlistitem.html#LIF_GRAYED">LIF_GRAYED</a>,
   <a href="structures/farmenuitemex.html#MIF_HIDDEN">MIF_HIDDEN</a>, <a href="structures/farmenuitemex.html#MIF_GRAYED">MIF_GRAYED</a>.
     <br><br>
 
-  <li><a href="defs/farcolors.html">Цветовая палитра</a> увеличена на 10 цветов.
+  <li><a href="defs/farcolors.html">Color palette</a> now contains 10 more colors.
     <br><br>
 </ul>
 
-<h3>4 марта 2009</h3>
+<h3>4 March 2009</h3>
 <ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#eval">Eval</a> теперь имеет второй аргумент, позволяющий только проверить макропоследовательность на корректность.
-    Так же описаны коды возврата функции.
+  <li>Macro: <a href="macro/macrocmd/functions.html#eval">Eval</a> function now has second parameter, allowing just to check macro sequence for correctness.
+    Also, function return codes are described.
     <br><br>
 </ul>
 
 
-<h3>3 марта 2009</h3>
+<h3>3 March 2009</h3>
 <ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> возвращает -1, если вызвана не из контента (не из меню).
+  <li>Macro: <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> function returns -1, if called not from menu.
     <br><br>
 </ul>
 
-<h3>2 марта 2009</h3>
+<h3>2 March 2009</h3>
 <ul>
-  <li>Macro: макросы можно назначать на клавиши мыши. В теле макропоследовательности доступны константы: MsX, MsY, MsButton, MsCtrlState.
+  <li>Macro: macros can be assigned to mouse buttons. These constants can be used in macro sequence: MsX, MsY, MsButton, MsCtrlState.
     <br><br>
 </ul>
 
-<h3>24 февраля 2009</h3>
+<h3>24 February 2009</h3>
 <ul>
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#atoi">atoi</a> - преобразует число из строкового представления в числовое.
+  <li>Macro: new function <a href="macro/macrocmd/functions.html#atoi">atoi</a> - converts number from string representation into numeric.
     <br><br>
 </ul>
 
-<h3>23 января 2009</h3>
+<h3>23 January 2009</h3>
 <ul>
-  <li>Macro: дополнения и учтонения функционал у функции <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> - работает в редакторе, в строках ввода в диалогах, в командной строке.
+  <li>Macro: additions and adjustments in <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> function - it now works in editor, dialog edit lines, and command line.
     <br><br>
 
-  <li>Исправлены ошибки в <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
+  <li>Fixed errors in <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
      <ul>
      <li>отметка блока снимается всегда, даже если были неправильные параметры
      <li>отметка блока снимается всегда, даже если указанной строки (BlockStartLine) нет (BlockStartLine больше количества строк в редакторе)
@@ -65,69 +65,69 @@
     <br><br>
 </ul>
 
-<h3>16 января 2009</h3>
+<h3>16 January 2009</h3>
 <ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#waitkey">waitkey</a> имеет второй необязательный параметр - тип возвращаемого значения.
+  <li>Macro: <a href="macro/macrocmd/functions.html#waitkey">waitkey</a> function has second optional parameter - type of returned value
     <br><br>
 
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> позволяет манипулировать блоками в тексте.
+  <li>Macro: new function <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> handles blocks in text.
     <br><br>
 
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#key">key</a> преобразует значение V в строковый эквивалент названия клавиши.
+  <li>Macro: new function <a href="macro/macrocmd/functions.html#key">key</a> converts V value into string equivalent of the key name.
     <br><br>
 
-  <li>Macro: Именованные клавиши (например, CtrlK) могут участвовать в любых выражениях; в этом случае они считаются как числа.
+  <li>Macro: Named keys (i.e. CtrlK) can be present in any expressions; in this case they are treated as numbers.
     <br><br>
 </ul>
 
-<h3>26 ноября 2008</h3>
+<h3>26 November 2008</h3>
 <ul>
-  <li>Добавлен новый цвет в палитру - <a href="defs/farcolors.html#COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a>.
+  <li>A new color is added to palette - <a href="defs/farcolors.html#COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a>.
     <br><br>
 </ul>
 
-<h3>November 6 2008</h3>
+<h3>6 November 2008</h3>
 <ul>
   <li>Диалоги с флагом FDLG_SMALLDIALOG теперь отрисовываются с тенью. Чтобы запретить рисовать тень, укажите флаг FDLG_NODRAWSHADOW.
     <br><br>
 </ul>
 
-<h3>September 24 2008</h3>
+<h3>24 September 2008</h3>
 <ul>
   <li>Новые флаги функции <a href="fsf/mklink.html">MkLink</a>: FLINK_SYMLINKFILE, FLINK_SYMLINKDIR, позволяющие создавать символические ссылки Windows Vista/2008. Флаг FLINK_SYMLINK переименован в FLINK_JUNCTION.
     <br><br>
 </ul>
 
-<h3>August 11 2008</h3>
+<h3>11 August 2008</h3>
 <ul>
-  <li>В <a href="defs/farcolors.html">цветовую палитру</a> добавлен цвет пользовательского экрана.
+  <li>User screen color is added to <a href="defs/farcolors.html">color palette</a>.
     <br><br>
 </ul>
 
-<h3>06 августа 2008 г.</h3>
+<h3>06 August 2008</h3>
 <ul>
-  <li>Macro: Комбинация CtrlBreak прерывает выполнение макроса.
+  <li>Macro: CtrlBreak combination breaks macro execution.
     <br><br>
   <li>Macro: Добавлена функция <a href="macro/macrocmd/functions.html#trim">S=trim(S[,Mode])</a> - удаляет все пробельные символы.
     <br><br>
-  <li>Viewer API: Команда <a href="service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> возвращала значение WindowSizeY на 1 меньше реального значения.
+  <li>Viewer API: <a href="service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> command returned WindowSizeY value на 1 меньше реального значения.
     <br><br>
 </ul>
 
-<h3>19 июня 2008 г.</h3>
+<h3>19 June 2008</h3>
 <ul>
   <li>Macro: Теперь <a href="macro/macrocmd/states.html#Dlg.ItemType">Dlg.ItemType</a> "отдает" все то же самое, что возвращает Dlg.GetValue(XXX,1).
     <br><br>
 </ul>
 
-<h3>17 июня 2008 г.</h3>
+<h3>17 June 2008</h3>
 <ul>
-  <li>Viewer API: добавлены два события <a href="exported_functions/processviewerevent.html#VE_GOTFOCUS">VE_GOTFOCUS</a> и <a href="exported_functions/processviewerevent.html#VE_KILLFOCUS">VE_KILLFOCUS</a>.
+  <li>Viewer API: added two events <a href="exported_functions/processviewerevent.html#VE_GOTFOCUS">VE_GOTFOCUS</a> and <a href="exported_functions/processviewerevent.html#VE_KILLFOCUS">VE_KILLFOCUS</a>.
     <br><br>
 </ul>
 
 
-<h3>May 15 2008</h3>
+<h3>15 May 2008</h3>
 <ul>
   <li>New constants in <a href="defs/fardialogsettings.html">FarDialogSettings</a> enum:
   FDIS_DELREMOVESBLOCKS ("Del removes blocks in edit controls") and
@@ -135,13 +135,13 @@
     <br><br>
 </ul>
 
-<h3>3 апреля 2008 г.</h3>
+<h3>3 April 2008</h3>
 <ul>
-  <li>Macro: добавлены функции для работы со стековыми закладками <a href="macro/macrocmd/functions.html">BM.XXX()</a>.
+  <li>Macro: added functions to handle stack bookmarks <a href="macro/macrocmd/functions.html">BM.XXX()</a>.
     <br><br>
 </ul>
 
-<h3>March 30 2008</h3>
+<h3>30 March 2008</h3>
 <ul>
   <li>6 new EditorControl commands for navigation positions ("stack bookmarks") control in editor:<br>
   <a href="service_functions/editorcontrol.html#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a>,
@@ -156,19 +156,19 @@
     <br><br>
 </ul>
 
-<h3>29 марта 2008 г.</h3>
+<h3>29 March 2008</h3>
 <ul>
-  <li>новый флаг панели: <a href="structures/panelinfo.html#PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a>.
+  <li>new panel flag: <a href="structures/panelinfo.html#PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a>.
     <br><br>
 </ul>
 
-<h3>27 марта 2008 г.</h3>
+<h3>27 March 2008</h3>
 <ul>
-  <li>Macro: добавлена макрообласть "Consts" для хранения <a href="macro/macrocmd/consts.html">именованных констант</a>.
+  <li>Macro: added "Consts" macro area to store <a href="macro/macrocmd/consts.html">named constants</a>.
     <br><br>
 </ul>
 
-<h3>25 марта 2008 г.</h3>
+<h3>25 March 2008</h3>
 <ul>
   <li>В <a href="defs/farcolors.html">цветовую палитру</a> добавлены цвета для индикаторов длинных строк в меню, списках и комбинированных списках.
     <br><br>
@@ -183,7 +183,7 @@
     <br><br>
 </ul>
 
-<h3>11 марта 2008 г.</h3>
+<h3>11 March 2008</h3>
 <ul>
   <li>
     <br><br>
@@ -192,13 +192,13 @@
     <br><br>
 </ul>
 
-<h3>December 31 2007</h3>
+<h3>31 December 2007</h3>
 <ul>
   <li>API: New command <a href="service_functions/advcontrol.html#ACTL_REDRAWALL">ACTL_REDRAWALL</a> - redraw all FAR windows.
     <br><br>
 </ul>
 
-<h3>December 23 2007</h3>
+<h3>23 December 2007</h3>
 <ul>
   <li>Plugins menu can be opened from dialog.
     <br><br>
@@ -208,25 +208,25 @@
 
 </ul>
 
-<h3>14 декабря 2007 г.</h3>
+<h3>14 December 2007</h3>
 <ul>
   <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#replace">Result=replace(Str,Find,Replace,Cnt)</a>.
     <br><br>
 
-  <li>API: Новая команда <a href="structures/actlkeymacro.html#MCMD_GETSTATE">MCMD_GETSTATE</a> для <a href="service_functions/advcontrol.html#ACTL_KEYMACRO">ACTL_KEYMACRO</a>, возвращает статус работы макродвижка.
+  <li>API: New <a href="structures/actlkeymacro.html#MCMD_GETSTATE">MCMD_GETSTATE</a> command for <a href="service_functions/advcontrol.html#ACTL_KEYMACRO">ACTL_KEYMACRO</a>, возвращает статус работы макродвижка.
     <br><br>
 
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> теперь с двумя параметрами.
+  <li>Macro: <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> function now has two parameters.
     <br><br>
 
 </ul>
 
-<h3>6 декабря 2007 г.</h3>
+<h3>6 December 2007</h3>
 <ul>
-  <li>2 новых эвента для панельного плагина: <a href="exported_functions/processevent.html#FE_GOTFOCUS">FE_GOTFOCUS</a> и <a href="exported_functions/processevent.html#FE_KILLFOCUS">FE_KILLFOCUS</a>.
+  <li>2 new events for panel plugins: <a href="exported_functions/processevent.html#FE_GOTFOCUS">FE_GOTFOCUS</a> и <a href="exported_functions/processevent.html#FE_KILLFOCUS">FE_KILLFOCUS</a>.
     <br><br>
 
-  <li>2 новых эвента для редакторного плагина: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> и <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
+  <li>2 new events for editor plugins: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> и <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
     <br><br>
 
   <li>В диалогах, сразу после <a href="dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a> приходит <a href="dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> для того элемента, который Focus=1.
@@ -234,7 +234,7 @@
 
 </ul>
 
-<h3>4 декабря 2007 г.</h3>
+<h3>4 December 2007</h3>
 <ul>
   <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#mod">n=mod(n1,n2)</a>.
     <br><br>
@@ -248,7 +248,7 @@
 </ul>
 
 
-<h3>12 октября 2007 г.</h3>
+<h3>12 October 2007</h3>
 <ul>
   <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#MacroArea">MacroArea</a>" - возвращает имя текущей макрообласти.
     <br><br>
@@ -257,7 +257,7 @@
     <br><br>
 </ul>
 
-<h3>13 сентября 2007 г.</h3>
+<h3>13 September 2007</h3>
 <ul>
   <li>Теперь при открытом DI_COMBOBOX в диалоговую процедуру посылаются
     события DN_KEY или DN_MOUSEEVENT. Управлять этим поведением можно с помощью
@@ -266,7 +266,7 @@
 </ul>
 
 
-<h3>30 августа 2007 г.</h3>
+<h3>30 August 2007</h3>
 <ul>
   <li>Bug: Macro: Если пункт меню не содержит горячую клавишу, то <a href="macro/macrocmd/functions.html">GetHotkey()</a> возвращает "0" вместо ""
     <br><br>
@@ -279,7 +279,7 @@
 
 </ul>
 
-<h3>7 августа 2007 г.</h3>
+<h3>7 August 2007</h3>
 <ul>
   <li>Bug: Если плагин для списка отключал реакцию слежения за курсором мыши
     (<a href="dialogapi/dmsg/dm_listsetmousereaction.html#LMRT_NEVER">LMRT_NEVER</a>), то в диалоговую процедуру не приходило событие DN_MOUSECLICK
@@ -293,14 +293,14 @@
 
 </ul>
 
-<h3>23 июля 2007 г.</h3>
+<h3>23 July 2007</h3>
 <ul>
   <li>Добавлены команды <a href="dialogapi/dmsg/dm_geteditposition.html">DM_GETEDITPOSITION</a> и <a href="dialogapi/dmsg/dm_seteditposition.html">DM_SETEDITPOSITION</a> - управление позицией строки в строках ввода в диалогах.
     <br><br>
 
 </ul>
 
-<h3>5 июля 2007 г.</h3>
+<h3>5 July 2007</h3>
 <ul>
   <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#gethotkey">gethotkey</a>.
     <br><br>
@@ -314,22 +314,22 @@
 </ul>
 
 
-<h3>31 мая 2007 г.</h3>
+<h3>31 May 2007</h3>
 <ul>
   <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#panel.setposidx">Panel.SetPosIdx</a> - позиционирование на файловой панели по индексу.
     <br><br>
 
 </ul>
 
-<h3>10 мая 2007 г.</h3>
+<h3>10 May 2007</h3>
 <ul>
-  <li>Macro: новые функции <a href="macro/macrocmd/functions.html#asc">asc()</a> и
+  <li>Macro: new functions <a href="macro/macrocmd/functions.html#asc">asc()</a> and
      <a href="macro/macrocmd/functions.html#chr">chr</a>.
     <br><br>
 
 </ul>
 
-<h3>23 марта 2007 г.</h3>
+<h3>23 March 2007</h3>
 <ul>
   <li>Макросы в реестре могут иметь тип REG_MULTI_SZ.
     <br><br>
@@ -338,7 +338,7 @@
 
 </ul>
 
-<h3>14 марта 2007 г.</h3>
+<h3>14 March 2007</h3>
 <ul>
   <li>После вызова <a href="service_functions/editorcontrol.html#ECTL_SELECT">EditorControl(ECTL_SELECT)</a> с установленным значением
       поля <a href="structures/editorselect.html">BlockStartLine</a> = -1, последующий вызов
@@ -347,7 +347,7 @@
 
 </ul>
 
-<h3>13 марта 2007 г.</h3>
+<h3>13 March 2007</h3>
 <ul>
   <li>Macro: новые функции <a href="macro/macrocmd/functions.html#waitkey">waitkey()</a> и
      <a href="macro/macrocmd/functions.html#eval">eval</a>.
@@ -355,13 +355,13 @@
 
 </ul>
 
-<h3>20 февраля 2007 г.</h3>
+<h3>20 February 2007</h3>
 <ul>
   <li>Добавлен флаг <a href="dialogapi/flags/dif_notcvtusercontrol.html">DIF_NOTCVTUSERCONTROL</a> для <a href="dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.
     <br><br>
 
 </ul>
-<h3>7 февраля 2007 г.</h3>
+<h3>7 February 2007</h3>
 <ul>
   <li>Macro: новые слова <a href="macro/macrocmd/states.html#APanel.ColumnCount">APanel.ColumnCount</a> и
      <a href="macro/macrocmd/states.html#PPanel.ColumnCount">PPanel.ColumnCount</a>.
@@ -369,13 +369,13 @@
 
 </ul>
 
-<h3>January 30 2007</h3>
+<h3>30 January 2007</h3>
 <ul>
   <li>New command: <a href="service_functions/control.html#FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a>.
   <br><br>
 </ul>
 
-<h3>25 января 2007 г.</h3>
+<h3>25 January 2007</h3>
 <ul>
   <li>Для элемента <a href="dialogapi/controls/di_vtext.html">DI_VTEXT</a> добавлена обработка флагов: DIF_CENTERGROUP, DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
     <br><br>
@@ -389,14 +389,14 @@
 </ul>
 
 
-<h3>24 января 2007 г.</h3>
+<h3>24 January 2007</h3>
 <ul>
   <li>Ужесточение правил, касаемых координат X2 и Y2 в элементах диалогов. Y2 указывать всегда, а не 0.
     <br><br>
 
 </ul>
 
-<h3>January 18 2007</h3>
+<h3>18 January 2007</h3>
 <ul>
   <li>Не посылался <a href="exported_functions/processeditorevent.html#EE_CLOSE">EE_CLOSE</a> для "?New File?".
     <br><br>
@@ -405,7 +405,7 @@
     <br><br>
 </ul>
 
-<h3>December 27 2006</h3>
+<h3>27 December 2006</h3>
 <ul>
   <li>Macro: New states <a href="macro/macrocmd/states.html#Help.FileName">Help.FileName</a>,
      <a href="macro/macrocmd/states.html#Help.Topic">Help.Topic</a> and
@@ -417,7 +417,7 @@
     <br><br>
 </ul>
 
-<h3>December 01 2006</h3>
+<h3>01 December 2006</h3>
 <ul>
   <li>Viewer API: Structure member <a href="structures/viewermode.html">ViewerMode</a>.TypeWrap renamed to ViewerMode.WordWrap
     <br><br>
@@ -427,13 +427,13 @@
 </ul>
 
 
-<h3>November 23 2006</h3>
+<h3>23 November 2006</h3>
 <ul>
   <li>Macro: <a href="macro/macrocmd/akey.html">$AKey</a>.
     <br><br>
 </ul>
 
-<h3>November 21 2006</h3>
+<h3>21 November 2006</h3>
 <ul>
   <li>Bringing the API to 64bit compatibility:
      <ul>
@@ -449,7 +449,7 @@
     <br><br>
 </ul>
 
-<h3>September 20 2006</h3>
+<h3>20 September 2006</h3>
 <ul>
   <li>Macro: <a href="macro/macrocmd/functions.html#fexist">fexist()</a> understands file mask symbols '*' and '?'.
     <br><br>
@@ -457,24 +457,24 @@
   <li>Macro: If the name contains '*' or '?', then <a href="macro/macrocmd/functions.html#fattr">fattr()</a> will return the attributes of the first found file.
     <br><br>
 
-  <li>Macro: fexist() and fattr() no longer work with the panels, to work with the panels new functions were added: <a href="macro/macrocmd/functions.html#panel.fexist">panel.fexist()</a> and <a href="macro/macrocmd/functions.html#panel.fattr">panel.fattr()</a>.
+  <li>Macro: fexist() and fattr() do not longer work with the panels, new functions were added to work with the panels: <a href="macro/macrocmd/functions.html#panel.fexist">panel.fexist()</a> and <a href="macro/macrocmd/functions.html#panel.fattr">panel.fattr()</a>.
     <br><br>
 
 </ul>
 
-<h3>August 25 2006</h3>
+<h3>25 August 2006</h3>
 <ul>
   <li>Corrected the description of the <a href="dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> event for <a href="dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a>.
     <br><br>
 </ul>
 
-<h3>July 29</h3>
+<h3>29 July 2006</h3>
 <ul>
   <li>New function: <a href="fsf/snprintf.html">FSF.snprintf</a>.
     <br><br>
 </ul>
 
-<h3>June 20 2006</h3>
+<h3>20 June 2006</h3>
 <ul>
 <li>Macro function "<a href="macro/macrocmd/functions.html#sleep">N=sleep(N)</a>".
     <br><br>
@@ -495,7 +495,7 @@
     <br><br>
 </ul>
 
-<a href="history.html">long History</a>,
+<a href="history.html">Long history</a>,
 <a href="historyapi.html">API history</a>
 
 </body>
