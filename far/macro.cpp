@@ -4666,7 +4666,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPt
 
 			GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2]);
 
-			if(FrameManager && FrameManager->ManagerStarted()) // Падение, если в процессе загрузки попадался кривой макрос.
+			//if(...)
 				Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
 			//else
 			// вывести диагностику в файл

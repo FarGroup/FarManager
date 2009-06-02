@@ -384,7 +384,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				NewPtr->strOwner = strOwner;
 			}
 
-			NewPtr->NumberOfStreams=1;
+			NewPtr->NumberOfStreams=NewPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
 			NewPtr->StreamsSize=NewPtr->UnpSize;
 
 			if(ReadNumStreams||ReadStreamsSize)
