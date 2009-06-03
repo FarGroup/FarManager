@@ -19,10 +19,8 @@ Internet distribution:
 
 1. http://www.farmanager.com
 2. http://www.rarlab.com
-3. http://plugring.farmanager.com/
 
 Please post your comments and bug
-reports in the forums:
+reports in the forum:
 
-http://enforum.farmanager.com/
 http://forum.farmanager.com/
