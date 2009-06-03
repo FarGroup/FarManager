@@ -1,6 +1,7 @@
 m4_include(`farversion.m4')m4_dnl
 Far Manager `v'FULLVERSIONNOBRACES
 for Windows 95/98/Me/NT/2000/XP/2003/Vista/2008
+    and DosWin32
 
 Text mode file and archive manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,10 +20,8 @@ Internet distribution:
 
 1. http://www.farmanager.com
 2. http://www.rarlab.com
-3. http://plugring.farmanager.com/
 
 Please post your comments and bug
-reports in the forums:
+reports in the forum:
 
-http://enforum.farmanager.com/
 http://forum.farmanager.com/
