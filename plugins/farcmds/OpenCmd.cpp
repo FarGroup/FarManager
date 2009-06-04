@@ -476,17 +476,20 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           }
           else if(WhereIs)
           {
-             TCHAR *Path = NULL, *pFile, temp[NM*5];
+             TCHAR *Path = NULL, *pFile, temp[NM*5], *FARHOMEPath = NULL;
              int Length=GetCurrentDirectory(ArraySize(cmd), cmd),
-                 PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
+                 PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0),
+                 FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
              Unquote(pCmd);
              ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
              if(Length+PathLength)
              {
-               if(NULL!=(Path=(TCHAR *)malloc((Length+1+PathLength)*sizeof(TCHAR))))
+               if(NULL!=(Path=(TCHAR *)malloc((Length+PathLength+FARHOMELength+3)*sizeof(TCHAR))))
                {
                  FarSprintf(Path,_T("%s;"), cmd);
-                 GetEnvironmentVariable(_T("PATH"), Path+Length+1, PathLength);
+                 GetEnvironmentVariable(_T("FARHOME"), Path+Length+1, FARHOMELength);
+                 lstrcat(Path,_T(";"));
+                 GetEnvironmentVariable(_T("PATH"), Path+Length+FARHOMELength+1, PathLength);
                  SearchPath(Path, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
 #ifndef UNICODE
                  CharToOem(selectItem, selectItem);

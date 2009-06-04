@@ -204,14 +204,15 @@ $ #Команда WhereIs#
 
    Поиск осуществляется в следующем порядке:
    1. Текущий каталог
-   2. Windows 95: Системный каталог Windows (SYSTEM).
+   2. Каталог, на котрый указывает переменная среды %FARHOME%
+   3. Windows 95: Системный каталог Windows (SYSTEM).
       Windows NT: 32-битный системный каталог Windows (SYSTEM32)
-   3. Windows NT: 16-битный системный каталог Windows (SYSTEM)
-   4. Каталог Windows.
-   5. Каталоги, которые перечислены в переменной окружения #PATH#
-   6. Содержимое ветки реестра:
-      #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   4. Windows NT: 16-битный системный каталог Windows (SYSTEM)
+   5. Каталог Windows.
+   6. Каталоги, которые перечислены в переменной окружения #PATH#
    7. Содержимое ветки реестра:
+      #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   8. Содержимое ветки реестра:
       #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
    При выключенных панелях курсор на нужный объект не устанавливается,

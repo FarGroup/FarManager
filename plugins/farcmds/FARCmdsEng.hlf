@@ -212,14 +212,15 @@ successful.
    The search is performed in the following order:
 
    1. Current folder
-   2. Windows 95: Windows' system folder (SYSTEM)
+   2. Каталог, на котрый указывает переменная среды %FARHOME%
+   3. Windows 95: Windows' system folder (SYSTEM)
       Windows NT: 32 bit Windows' system folder (SYSTEM32)
-   3. Windows NT: 16 bit Windows' system folder (SYSTEM)
-   4. Windows folder.
-   5. Folders in the system environment variable #PATH#
-   6. Contents of the registry key:
-      #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   4. Windows NT: 16 bit Windows' system folder (SYSTEM)
+   5. Windows folder.
+   6. Folders in the system environment variable #PATH#
    7. Contents of the registry key:
+      #HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   8. Contents of the registry key:
       #HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
    When panels are turned off, the cursor is not positioned on the requested object,
