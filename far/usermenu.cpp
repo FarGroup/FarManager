@@ -1232,7 +1232,7 @@ void MenuFileToReg(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu)
 
 		if (*MenuStr==L'{' && KeyNumber>=0)
 		{
-			MenuFileToReg(strItemKey,MenuFile,true);
+			MenuFileToReg(strItemKey,MenuFile,false);
 			continue;
 		}
 
