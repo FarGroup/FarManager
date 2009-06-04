@@ -417,7 +417,7 @@ static int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *
 				UserMenuItem.Flags |=  LIF_SEPARATOR;
 				UserMenuItem.Flags &= ~LIF_SELECTED;
 				UserMenuItem.strName = L"";
-				if (IndexItemKey == MenuPos)
+				if ((int)IndexItemKey == MenuPos)
 					MenuPos++;
 			}
 			else
@@ -447,7 +447,7 @@ static int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *
 				}
 
 				UserMenuItem.strName = strMenuText;
-				UserMenuItem.SetSelect(IndexItemKey == MenuPos);
+				UserMenuItem.SetSelect((int)IndexItemKey == MenuPos);
 				UserMenuItem.Flags &= ~LIF_SEPARATOR;
 			}
 
@@ -464,7 +464,7 @@ static int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *
 
 	UserMenuItem.strName=L"";
 	UserMenuItem.Flags&=~LIF_SEPARATOR;
-	UserMenuItem.SetSelect(IndexItemKey == MenuPos);
+	UserMenuItem.SetSelect((int)IndexItemKey == MenuPos);
 	UserMenu.AddItem(&UserMenuItem);
 	return NumLines;
 }
