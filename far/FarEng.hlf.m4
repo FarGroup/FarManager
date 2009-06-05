@@ -93,8 +93,8 @@ previous size.
 
 @About
 $ # FAR: about#
-    #FAR# is a text mode file and archive manager for Windows 95/98/Me, Windows
-NT and Windows 2000/XP/2003/Vista/2008. It supports #long file names# and
+    #FAR# is a text mode file and archive manager for Windows
+95/98/Me/NT/2000/XP/2003/Vista/2008/7. It supports #long file names# and
 provides a wide set of file and folder operations.
 
     #FAR# is #shareware# software. You must ~register~@Register@ it to continue
@@ -1493,9 +1493,9 @@ rule sets.
                    #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
                    Although the #Encrypted# and #Offline# attributes
-                   are used only in Windows 2000/XP/2003/Vista/2008.
+                   are used only in Windows 2000/XP/2003/Vista/2008/7.
                    #Virtual# attribute is used only in Windows
-                   Vista/2008.
+                   Vista/2008/7.
 
 
     To quickly disable one or several conditions, uncheck the corresponding
@@ -2701,7 +2701,7 @@ will not be analyzed, and only file attributes will be taken into account.
 
     The Compressed, Encrypted, Not indexed, Sparse, Temporary attributes and
 Symbolic links are valid for NTFS drives only. The Encrypted attribute and
-Symbolic links can be used only in Windows 2000/XP/2003/Vista/2008.
+Symbolic links can be used only in Windows 2000/XP/2003/Vista/2008/7.
 
 
 @ViewerSettings
@@ -2897,12 +2897,12 @@ corresponding checkboxes was changed from the initial state.
     The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary",
 "Offline" and "Virtual" attributes are available only on NTFS drives. The
 "Encrypted" and "Offline" attributes can be used in Windows
-2000/XP/2003/Vista/2008 only. The "Virtual" attribute can be used in
-Windows Vista/2008 only. The "Compressed" and "Encrypted" attributes are
+2000/XP/2003/Vista/2008/7 only. The "Virtual" attribute can be used in
+Windows Vista/2008/7 only. The "Compressed" and "Encrypted" attributes are
 mutually exclusive, that is, you can set only one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
-information (NTFS/Windows 2000/XP/2003/Vista/2008 only). If the information on
+information (NTFS/Windows 2000/XP/2003/Vista/2008/7 only). If the information on
 the original folder is not available (in particular, for symbolic links in
 remote folders), then the "#(data not available)#" message will be shown.
 
@@ -2931,7 +2931,7 @@ unchanged.
 values. Available only when the dialog is invoked for a single file object.
 
     For ~symbolic links~@HardSymLink@ (supported only under NTFS/Windows
-2000/XP/2003/Vista/2008) the date and time cannot be set.
+2000/XP/2003/Vista/2008/7) the date and time cannot be set.
 
 
 @FolderShortcuts
@@ -3448,7 +3448,7 @@ can only be created on the same drive as the source file.
 
     #Junctions#
 
-    NTFS starting with version 5.0 (Windows 2000/XP/2003/Vista/2008) supports
+    NTFS starting with version 5.0 (Windows 2000/XP/2003/Vista/2008/7) supports
 directory junctions. This technology allowing to map any local directories to
 any other local directories. For example, if the directory D:\\SYMLINK has
 C:\\WINNT\\SYSTEM32 as its target, a program accessing D:\\SYMLINK\\DRIVERS
@@ -3501,7 +3501,7 @@ system does not support files with multiple streams.
 additional information with a file (for example, author's name, title, keywords
 and so on, or any other data). This information is stored together with the
 file and is invisible to programs that do not support streams. For example,
-streams are used by Windows Explorer in Windows 2000/XP/2003/Vista/2008 to
+streams are used by Windows Explorer in Windows 2000/XP/2003/Vista/2008/7 to
 store additional file properties (summary). FAT/FAT32 file systems do not
 support streams.
 

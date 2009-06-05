@@ -1,6 +1,7 @@
 m4_include(`farversion.m4')m4_dnl
 Far Manager `v'FULLVERSIONNOBRACES
-for Windows 95/98/Me/NT/2000/XP/2003/Vista/2008
+for Windows NT/2000/XP/2003/Vista/2008/7,
+    Windows 95/98/Me
     and DosWin32
 
 Text mode file and archive manager
