@@ -94,7 +94,7 @@ previous size.
 @About
 $ # FAR: about#
     #FAR# is a text mode file and archive manager for Windows
-2000/XP/2003/Vista/2008. It supports #long file names# and provides a wide set
+2000/XP/2003/Vista/2008/7. It supports #long file names# and provides a wide set
 of file and folder operations.
 
     #FAR# is #freeware# and #open source# software distributed under the
@@ -1518,7 +1518,7 @@ rule sets.
                    #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
                    #Virtual# attribute is used only in Windows
-                   Vista/2008.
+                   Vista/2008/7.
 
 
     To quickly disable one or several conditions, uncheck the corresponding
@@ -2907,7 +2907,7 @@ corresponding checkboxes was changed from the initial state.
 
     The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary",
 "Offline" and "Virtual" attributes are available only on NTFS drives. The
-"Virtual" attribute can be used in Windows Vista/2008 only. The "Compressed"
+"Virtual" attribute can be used in Windows Vista/2008/7 only. The "Compressed"
 and "Encrypted" attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the "Sparse" attribute in Windows 2000/XP/2003.
 

@@ -34,7 +34,7 @@ Compilation
    For example, to build with the makefile run the following command:
    nmake /f makefile_vc
 
-2. To compile with GCC there is a makefile_gcc that does everything.
+2. To compile with GCC you can use makefile_gcc.
    For example, to build with Mingw run the following command:
    mingw32-make -f makefile_gcc
 
@@ -63,8 +63,8 @@ farversion.m4
         committed yet to the SVN so we and the users will not be confused.
         Far version will look something like that:
         FarVersion alpha AnyThingElse based on build BuildNumber
-   b. MAJOR - MAJOR Far version (i.e. 1).
-   c. MINOR - MINOR Far version (i.e. 71).
+   b. MAJOR - MAJOR Far version (i.e. 2).
+   c. MINOR - MINOR Far version (i.e. 0).
 
 
 vbuild.m4
