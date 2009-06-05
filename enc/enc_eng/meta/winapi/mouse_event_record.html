@@ -95,7 +95,12 @@ This member can be one or more of the following values.
        <td class="cont" width="60%">A change in mouse position occurred.</td>
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
-       <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008:</strong> The mouse wheel was rolled.
+       <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008/7:</strong> The vertical mouse wheel was moved.
+           If this flag is set, high word of <strong>dwButtonState</strong> will
+           contain the value of multiple WHEEL_DELTA, depending on the mouse driver.       </td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
+       <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> The horizontal mouse wheel was moved.
            If this flag is set, high word of <strong>dwButtonState</strong> will
            contain the value of multiple WHEEL_DELTA, depending on the mouse driver.       </td>
        </tr>

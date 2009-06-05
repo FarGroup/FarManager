@@ -92,7 +92,13 @@ typedef struct _MOUSE_EVENT_RECORD {
        <tr class="cont"><td class="cont" width="40%">MOUSE_MOVED</td>
        <td class="cont" width="60%">Позиция мыши изменилась.</td></tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
-       <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008:</strong> Устанавливается при "прокрутке" колесика
+       <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008/7:</strong> Устанавливается при вертикальной прокрутке колесика
+           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
+           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
+           изменяться в зависимости от драйвера мыши.</td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
+       <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> Устанавливается при горизонтальной прокрутке колесика
            на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
            значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
            изменяться в зависимости от драйвера мыши.</td>
