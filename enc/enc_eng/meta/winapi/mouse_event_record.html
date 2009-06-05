@@ -96,13 +96,13 @@ This member can be one or more of the following values.
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
        <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008/7:</strong> The vertical mouse wheel was moved.
-           If this flag is set, high word of <strong>dwButtonState</strong> will
-           contain the value of multiple WHEEL_DELTA, depending on the mouse driver.       </td>
+           If this flag is set, high word of <strong>dwButtonState</strong> indicates the distance the wheel is rotated,
+           expressed in multiples or divisions of WHEEL_DELTA.</td>
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
        <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> The horizontal mouse wheel was moved.
-           If this flag is set, high word of <strong>dwButtonState</strong> will
-           contain the value of multiple WHEEL_DELTA, depending on the mouse driver.       </td>
+           If this flag is set, high word of <strong>dwButtonState</strong> indicates the distance the wheel is rotated,
+           expressed in multiples or divisions of WHEEL_DELTA.</td>
        </tr>
        </table>
     </div>
@@ -114,9 +114,9 @@ This member can be one or more of the following values.
   Mouse events are placed in the input buffer when the console is in mouse mode
   (<strong>ENABLE_MOUSE_INPUT</strong>).<br>
   Mouse events are generated whenever the user moves the mouse, or presses or
-  releases one of the mouse buttons. Mouse events are placed in a console's input
+  releases one of the mouse buttons. Mouse events are placed in the console input
   buffer only when the console group has the keyboard focus and the cursor is within
-  the borders of the console's window.  
+  the borders of the console window.
 </div>
 
 <div class=see>See also:</div><div class=seecont>
