@@ -549,18 +549,24 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 		{
 			*(NamePtr-1) = 0;
 
+ 			// force plugin to update its file list (that can be empty at this time)
+ 			// if not done SetDirectory may fail
+ 			{
+ 				int FileCount=0;
+ 				PluginPanelItem *PanelData=NULL;
+ 				if(CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
+ 				{
+ 					CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,FileCount);
+ 				}
+ 			}
+
 			if (*DirPtr)
 			{
-				CtrlObject->Plugins.SetDirectory(hPlugin,DirPtr,0);
+				CtrlObject->Plugins.SetDirectory(hPlugin,DirPtr,OPM_SILENT);
 			}
 			else
 			{
-				// change to root directory only if not already there
-				// otherwise plugin may close
-				OpenPluginInfo Info;
-				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-				if (!Info.CurDir || StrCmp(Info.CurDir, L"\\") != 0)
-					CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",0);
+				CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT);
 			}
 		}
 
@@ -644,9 +650,9 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)MSG(MFindFileCodePage));
 			Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,CBET_KEY);
 
-      /* Установка запомненных ранее параметров */
+			/* Установка запомненных ранее параметров */
 			CodePage = Opt.FindCodePage;
-      /* -------------------------------------- */
+			/* -------------------------------------- */
 
 			favoriteCodePages = AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
 
@@ -658,11 +664,11 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
 			CodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
 
-      FindFoldersChanged = FALSE;
-      SearchFromChanged = FALSE;
+			FindFoldersChanged = FALSE;
+			SearchFromChanged = FALSE;
 
-      return TRUE;
-    }
+			return TRUE;
+		}
 
 		case DN_CLOSE:
 		{
@@ -728,7 +734,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				return TRUE;
 			}
 			return FALSE;
-    }
+		}
 		case DN_BTNCLICK:
 			{
 				switch(Param1)
@@ -874,7 +880,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-bool GetPluginFile(size_t ArcIndex, struct PluginPanelItem *PanelItem,const wchar_t *DestPath, string &strResultName)
+bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX *FindData,const wchar_t *DestPath, string &strResultName)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 
@@ -882,21 +888,21 @@ bool GetPluginFile(size_t ArcIndex, struct PluginPanelItem *PanelItem,const wcha
 	OpenPluginInfo Info;
 	CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-	string strSaveDir = Info.CurDir;
+	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
 
-	CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT|OPM_FIND);
+	CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT);
 	//SetPluginDirectory(ArcList[ArcIndex]->strRootPath,hPlugin);
-	SetPluginDirectory(PanelItem->FindData.lpwszFileName,hPlugin);
+	SetPluginDirectory(FindData->strFileName,hPlugin);
 
 
-	const wchar_t *lpFileNameToFind = PointToName(PanelItem->FindData.lpwszFileName);
-	const wchar_t *lpFileNameToFindShort = PointToName(PanelItem->FindData.lpwszAlternateFileName);
+	const wchar_t *lpFileNameToFind = PointToName(FindData->strFileName);
+	const wchar_t *lpFileNameToFindShort = PointToName(FindData->strAlternateFileName);
 
 	PluginPanelItem *pItems;
 	int nItemsNumber;
 	bool nResult=false;
-	if(CtrlObject->Plugins.GetFindData(hPlugin,&pItems,&nItemsNumber,OPM_FIND))
+	if(CtrlObject->Plugins.GetFindData(hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
 	{
 		for(int i=0;i<nItemsNumber;i++)
 		{
@@ -905,14 +911,14 @@ bool GetPluginFile(size_t ArcIndex, struct PluginPanelItem *PanelItem,const wcha
 			Item.FindData.lpwszAlternateFileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FindData.lpwszAlternateFileName)));
 			if(!StrCmp(lpFileNameToFind,Item.FindData.lpwszFileName) && !StrCmp(lpFileNameToFindShort,Item.FindData.lpwszAlternateFileName))
 			{
-				nResult=(CtrlObject->Plugins.GetFile(hPlugin,&Item,DestPath,strResultName,OPM_SILENT|OPM_FIND)!=0);
+				nResult=(CtrlObject->Plugins.GetFile(hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0);
 				break;
 			}
 		}
 		CtrlObject->Plugins.FreeFindData(hPlugin,pItems,nItemsNumber);
 	}
 
-	CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT|OPM_FIND);
+	CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT);
 	//SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
 	SetPluginDirectory(strSaveDir,hPlugin);
 
@@ -1264,7 +1270,9 @@ bool IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD File
             break;
           }
           else
+          {
             ReleaseMutex(hPluginMutex);
+          }
           RemoveTemp=true;
         }
         else
@@ -1407,13 +1415,13 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			case KEY_NUMPAD5:
 			case KEY_SHIFTNUMPAD5:
 			case KEY_F4:
+			{
+				if (ListBox->GetItemCount()==0)
 				{
-        if (ListBox->GetItemCount()==0)
-        {
-          return TRUE;
-        }
+					return TRUE;
+				}
 
-        ffCS.Enter ();
+				ffCS.Enter ();
 
 				size_t ItemIndex = reinterpret_cast<size_t>(ListBox->GetUserData(NULL,0));
 				int RemoveTemp=FALSE;
@@ -1471,20 +1479,13 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						}
 					}
 
-					PluginPanelItem FileItem;
-					memset(&FileItem,0,sizeof(FileItem));
-
-					apiFindDataExToData(&FindList[ItemIndex]->FindData, &FileItem.FindData);
-
-					FarMkTempEx(strTempDir); // А проверка на NULL???
+					FarMkTempEx(strTempDir);
 					apiCreateDirectory(strTempDir, NULL);
 
 					// if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
 					WaitForSingleObject(hPluginMutex,INFINITE);
-					if (!GetPluginFile(FindList[ItemIndex]->ArcIndex,&FileItem,strTempDir,strSearchFileName))
+					if (!GetPluginFile(FindList[ItemIndex]->ArcIndex,&FindList[ItemIndex]->FindData,strTempDir,strSearchFileName))
 					{
-						apiFreeFindData(&FileItem.FindData);
-
 						apiRemoveDirectory(strTempDir);
 						if (ClosePlugin)
 						{
@@ -1498,8 +1499,6 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 					}
 					else
 					{
-						apiFreeFindData(&FileItem.FindData);
-
 						if (ClosePlugin)
 						{
 							CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex]->ArcIndex]->hPlugin);
@@ -1663,15 +1662,15 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 					DeleteFileWithFolder(strSearchFileName);
 				}
 
-        ffCS.Leave ();
+				ffCS.Leave ();
 
-        return TRUE;
-      }
+				return TRUE;
+			}
 			}
 			return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-    }
-    case DN_BTNCLICK:
-    {
+		}
+		case DN_BTNCLICK:
+		{
 			FindPositionChanged = TRUE;
 			switch(Param1)
 			{
@@ -1867,7 +1866,7 @@ bool FindFiles::FindFilesProcess()
   DlgHeight=DLG_HEIGHT-2;
   DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
 
-  int IncY=Max(0,ScrY-DLG_HEIGHT);
+	int IncY=Max(0,ScrY-DLG_HEIGHT);
 	FindDlg[FD_DOUBLEBOX].Y2+=IncY;
 	FindDlg[FD_LISTBOX].Y2+=IncY;
 	FindDlg[FD_SEPARATOR1].Y1+=IncY;
@@ -2475,17 +2474,13 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 
 void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA_EX *FindData)
 {
-  if(!hDlg)
-  {
-    return;
-  }
+	if (!hDlg)
+		return;
 
 	VMenu *ListBox=reinterpret_cast<Dialog*>(hDlg)->Item[1]->ListPtr;
 
-	if(!ListBox)
-	{
+	if (!ListBox)
 		return;
-	}
 
 	MenuItemEx ListItem;
 	ListItem.Clear();
@@ -2493,64 +2488,67 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	string strMenuText, strSizeText;
 	string strDateStr, strTimeStr, strDate;
 
-  if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-  {
-    strSizeText.Format (L"%13s", MSG(MFindFileFolder));
-  }
-  else
-  {
-    wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!
+	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+	{
+		strSizeText.Format (L"%13s", MSG(MFindFileFolder));
+	}
+	else
+	{
+		wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!
 
-    _ui64tow(FindData->nFileSize, wszSizeText, 10);
+		_ui64tow(FindData->nFileSize, wszSizeText, 10);
 
-    strSizeText.ReleaseBuffer ();
-  }
-  const wchar_t *DisplayName=FindData->strFileName;
-  /* $ 24.03.2002 KM
-     В плагинах принудительно поставим указатель в имени на имя
-     для корректного его отображения в списке, отбросив путь,
-     т.к. некоторые плагины возвращают имя вместе с полным путём,
-     к примеру временная панель.
-  */
-  if (FindFileArcIndex != LIST_INDEX_NONE)
-    DisplayName=PointToName(DisplayName);
+		strSizeText.ReleaseBuffer ();
+	}
+
+	const wchar_t *DisplayName=FindData->strFileName;
+	/* $ 24.03.2002 KM
+		В плагинах принудительно поставим указатель в имени на имя
+		для корректного его отображения в списке, отбросив путь,
+		т.к. некоторые плагины возвращают имя вместе с полным путём,
+		к примеру временная панель.
+	*/
+	if (FindFileArcIndex != LIST_INDEX_NONE)
+		DisplayName=PointToName(DisplayName);
 	string strDisplayName=DisplayName;
 	TruncStrFromEnd(strDisplayName,24);
 	strMenuText.Format (L" %-25.25s%c%13.13s",(LPCWSTR)strDisplayName,BoxSymbols[BS_V1],(const wchar_t*)strSizeText);
 
 
-  /* $ 05.10.2003 KM
-     При использовании фильтра по дате будем отображать тот тип
-     даты, который задан в фильтре.
+	/* $ 05.10.2003 KM
+		При использовании фильтра по дате будем отображать тот тип
+		даты, который задан в фильтре.
 
-     $ 24.01.2007 AY
-     Так как теперь есть больше чем один фильтр то этот момент я
-     пока не знаю как красиво сделать.
+		$ 24.01.2007 AY
+		Так как теперь есть больше чем один фильтр то этот момент я
+		пока не знаю как красиво сделать.
 
-  if (UseFilter && Filter->GetParams()->FDate.Used)
-  {
-    switch(Filter->GetParams()->FDate.DateType)
-    {
-      case FDATE_MODIFIED:
-        // Отображаем дату последнего изменения
-        ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-        break;
-      case FDATE_CREATED:
-        // Отображаем дату создания
-        ConvertDate(FindData->ftCreationTime,strDateStr,strTimeStr,5);
-        break;
-      case FDATE_OPENED:
-        // Отображаем дату последнего доступа
-        ConvertDate(FindData->ftLastAccessTime,strDateStr,strTimeStr,5);
-        break;
-    }
-  }
-  else
-  */
-    // Отображаем дату последнего изменения
-    ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
+	if (UseFilter && Filter->GetParams()->FDate.Used)
+	{
+		switch(Filter->GetParams()->FDate.DateType)
+		{
+			case FDATE_MODIFIED:
+				// Отображаем дату последнего изменения
+				ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
+				break;
+			case FDATE_CREATED:
+				// Отображаем дату создания
+				ConvertDate(FindData->ftCreationTime,strDateStr,strTimeStr,5);
+				break;
+			case FDATE_OPENED:
+				// Отображаем дату последнего доступа
+				ConvertDate(FindData->ftLastAccessTime,strDateStr,strTimeStr,5);
+				break;
+		}
+	}
+	else
+	*/
+	{
+		// Отображаем дату последнего изменения
+		ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
 		strDate.Format (L"%c%s%c%s",BoxSymbols[BS_V1],(const wchar_t*)strDateStr,BoxSymbols[BS_V1],(const wchar_t*)strTimeStr);
-  strMenuText += strDate;
+	}
+	strMenuText += strDate;
 
   /* $ 05.10.2003 KM
      Отобразим в панели поиска атрибуты найденных файлов
@@ -2574,87 +2572,88 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	strMenuText += AttrStr;
 
 	string strPathName=FullName;
-	CutToSlash(strPathName);
+	{
+		size_t pos;
+		if(LastSlash(strPathName,pos))
+			strPathName.SetLength(pos);
+		else
+			strPathName.SetLength(0);
+	}
+	AddEndSlash(strPathName);
 
-	if(strPathName.IsEmpty())
-			strPathName = L".\\";
-	else
-		AddEndSlash(strPathName);
-
-  if ( StrCmpI(strPathName,strLastDirName)!=0)
-  {
-    if ( !strLastDirName.IsEmpty() )
-    {
+	if ( StrCmpI(strPathName,strLastDirName)!=0)
+	{
+		if ( !strLastDirName.IsEmpty() )
+		{
 			ListItem.Flags|=LIF_SEPARATOR;
 			ListBox->AddItem(&ListItem);
 			ListItem.Flags&=~LIF_SEPARATOR;
-    }
-    ffCS.Enter ();
+		}
+		ffCS.Enter ();
 
-    strLastDirName = strPathName;
+		strLastDirName = strPathName;
 
-    if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-        (!(ArcList[FindFileArcIndex]->Flags & OPIF_REALNAMES)) &&
-        (!ArcList[FindFileArcIndex]->strArcName.IsEmpty()))
-    {
+		if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+				(!(ArcList[FindFileArcIndex]->Flags & OPIF_REALNAMES)) &&
+				(!ArcList[FindFileArcIndex]->strArcName.IsEmpty()))
+		{
 			string strArcPathName=ArcList[FindFileArcIndex]->strArcName;
 			strArcPathName+=L":";
 			if(!IsSlash(strPathName.At(0)))
 				AddEndSlash(strArcPathName);
 			strArcPathName+=(!StrCmp(strPathName,L".\\")?L"\\":(const wchar_t*)strPathName);
-      strPathName = strArcPathName;
-    }
+			strPathName = strArcPathName;
+		}
 
 		ListItem.strName=TruncPathStr(strPathName,DLG_WIDTH-8);
 
-    size_t ItemIndex = AddFindListItem(FindData);
-    if (ItemIndex != LIST_INDEX_NONE)
-    {
-      // Сбросим данные в FindData. Они там от файла
-      FindList[ItemIndex]->FindData.Clear();
-      // Используем LastDirName, т.к. PathName уже может быть искажена
+		size_t ItemIndex = AddFindListItem(FindData);
+		if (ItemIndex != LIST_INDEX_NONE)
+		{
+			// Сбросим данные в FindData. Они там от файла
+			FindList[ItemIndex]->FindData.Clear();
+			// Используем LastDirName, т.к. PathName уже может быть искажена
 
-      FindList[ItemIndex]->FindData.strFileName = strLastDirName;
-      /* $ 07.04.2002 KM
-        - Вместо пустого имени используем флаг, в противном
-          случае не работает переход на каталог из списка.
-          Used=0 - Имя не попададёт во временную панель.
-      */
-      FindList[ItemIndex]->Used=0;
-      // Поставим атрибут у каталога, что-бы он не был файлом :)
-      FindList[ItemIndex]->FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-      if (FindFileArcIndex != LIST_INDEX_NONE)
-        FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
+			FindList[ItemIndex]->FindData.strFileName = strLastDirName;
+			/* $ 07.04.2002 KM
+				- Вместо пустого имени используем флаг, в противном
+					случае не работает переход на каталог из списка.
+					Used=0 - Имя не попададёт во временную панель.
+			*/
+			FindList[ItemIndex]->Used=0;
+			// Поставим атрибут у каталога, что-бы он не был файлом :)
+			FindList[ItemIndex]->FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+			if (FindFileArcIndex != LIST_INDEX_NONE)
+				FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
 
 			ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex),ListBox->AddItem(&ListItem));
 		}
 
-    ffCS.Leave ();
-  }
+		ffCS.Leave ();
+	}
 
-  /* $ 24.03.2002 KM
-     Дополнительно добавляем в список найденного
-     папки. Так было в 1.65 и в 3 бете, но при
-     полной переделке поиска я это где-то отломил,
-     теперь возвращаю на место.
-  */
+	/* $ 24.03.2002 KM
+		Дополнительно добавляем в список найденного
+		папки. Так было в 1.65 и в 3 бете, но при
+		полной переделке поиска я это где-то отломил,
+		теперь возвращаю на место.
+	*/
 
-  ffCS.Enter ();
+	ffCS.Enter ();
 
 	size_t ItemIndex = AddFindListItem(FindData);
-  if (ItemIndex != LIST_INDEX_NONE)
-  {
-
-    FindList[ItemIndex]->FindData.strFileName = FullName;
-    /* $ 07.04.2002 KM
-       Used=1 - Имя попададёт во временную панель.
-    */
-    FindList[ItemIndex]->Used=1;
-    if (FindFileArcIndex != LIST_INDEX_NONE)
-      FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
-  }
+	if (ItemIndex != LIST_INDEX_NONE)
+	{
+		FindList[ItemIndex]->FindData.strFileName = FullName;
+		/* $ 07.04.2002 KM
+			Used=1 - Имя попададёт во временную панель.
+		*/
+		FindList[ItemIndex]->Used=1;
+		if (FindFileArcIndex != LIST_INDEX_NONE)
+			FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
+	}
 	ListItem.strName = strMenuText;
-  ffCS.Leave ();
+	ffCS.Leave ();
 
 	int ListPos = ListBox->AddItem(&ListItem);
 	ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);
@@ -2662,17 +2661,17 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	if(!FindFileCount && !FindDirCount)
 		ListBox->SetSelectPos(ListPos, -1);
 
-  statusCS.Enter();
+	statusCS.Enter();
 
-  if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    FindDirCount++;
-  else
-    FindFileCount++;
+	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		FindDirCount++;
+	else
+		FindFileCount++;
 
-  statusCS.Leave();
+	statusCS.Leave();
 
-  LastFoundNumber++;
-  FindCountReady=TRUE;
+	LastFoundNumber++;
+	FindCountReady=TRUE;
 }
 
 void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal)
@@ -2684,7 +2683,8 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     strSaveDir = Info.CurDir;
     strPluginSearchPath=Info.CurDir;
-    if (!strPluginSearchPath.IsEmpty()) AddEndSlash(strPluginSearchPath);
+    if (!strPluginSearchPath.IsEmpty())
+      AddEndSlash(strPluginSearchPath);
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==FFSEARCH_ROOT ||
         SearchMode==FFSEARCH_ALL ||
@@ -2693,9 +2693,7 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
       CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
     ReleaseMutex(hPluginMutex);
     RecurseLevel=0;
-		InitInFileSearch();
     ScanPluginTree(hDlg,hPlugin,ArcList[FindFileArcIndex]->Flags);
-		ReleaseInFileSearch();
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==FFSEARCH_ROOT ||
         SearchMode==FFSEARCH_ALL ||
@@ -2727,7 +2725,9 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
 DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 {
 	string strSaveDir;
+	InitInFileSearch();
 	DoPreparePluginList(Param, strSaveDir,false);
+	ReleaseInFileSearch();
 	return 0;
 }
 
@@ -2743,7 +2743,9 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
     return;
   }
   else
+  {
     ReleaseMutex(hPluginMutex);
+  }
   RecurseLevel++;
 
   /* $ 19.01.2003 KM
@@ -2840,7 +2842,9 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
           ReleaseMutex(hPluginMutex);
         }
         else
+        {
           ReleaseMutex(hPluginMutex);
+        }
       }
       if (StopSearch) break;
     }
