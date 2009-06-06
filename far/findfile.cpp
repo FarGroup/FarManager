@@ -550,14 +550,16 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 			*(NamePtr-1) = 0;
 
 			if (*DirPtr)
+			{
 				CtrlObject->Plugins.SetDirectory(hPlugin,DirPtr,0);
+			}
 			else
 			{
 				// change to root directory only if not already there
 				// otherwise plugin may close
 				OpenPluginInfo Info;
-				CtrlObject->Cp()->ActivePanel->GetOpenPluginInfo(&Info);
-				if (wcscmp(Info.CurDir, L"\\") != 0)
+				CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+				if (!Info.CurDir || StrCmp(Info.CurDir, L"\\") != 0)
 					CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",0);
 			}
 		}
@@ -1265,7 +1267,7 @@ bool IsFileIncluded(PluginPanelItem *FileItem,const wchar_t *FullName,DWORD File
             ReleaseMutex(hPluginMutex);
           RemoveTemp=true;
         }
-        else 
+        else
         {
           strSearchFileName = strPluginSearchPath + FullName;
         }
@@ -1728,7 +1730,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			}
 			break;
 		}
-		
+
 		case DN_CTLCOLORDLGLIST:
 		{
 			if(Param2)
@@ -3197,4 +3199,3 @@ FindFiles::~FindFiles()
   if (Filter)
     delete Filter;
 }
-
