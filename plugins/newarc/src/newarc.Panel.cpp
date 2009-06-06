@@ -143,23 +143,23 @@ int __stdcall ArchivePanel::pGetFindData(
 		int OpMode
 		)
 {
+	bool bSilent = OpMode & (OPM_SILENT|OPM_FIND);
+
 	if ( m_bFirstTime )
 	{
 		if ( m_pArchives->count() )
 		{
-			FarMenuItem *pItems = (FarMenuItem*)malloc (
-					m_pArchives->count()*sizeof (FarMenuItem)
-					);
-
-			memset (pItems, 0, m_pArchives->count()*sizeof (FarMenuItem));
-
-			for (int i = 0; i < m_pArchives->count(); i++)
-				FSF.sprintf (pItems[i].Text, "%s", m_pArchives->at(i)->m_pInfo->lpName);
-
 			int nResult = 0;
 
-			if ( m_pArchives->count() > 1 )
+			if ( m_pArchives->count() > 1 && !bSilent)
 			{
+				FarMenuItem *pItems = (FarMenuItem*)malloc (m_pArchives->count()*sizeof (FarMenuItem));
+
+				memset (pItems, 0, m_pArchives->count()*sizeof (FarMenuItem));
+
+				for (int i = 0; i < m_pArchives->count(); i++)
+					FSF.sprintf (pItems[i].Text, "%s", m_pArchives->at(i)->m_pInfo->lpName);
+
 				nResult = Info.Menu (
 						Info.ModuleNumber,
 						-1,
@@ -174,9 +174,9 @@ int __stdcall ArchivePanel::pGetFindData(
 						(const FarMenuItem*)pItems,
 						m_pArchives->count()
 						);
-			}
 
-			free (pItems);
+				free (pItems);
+			}
 
 			if ( nResult != -1 )
 			{
@@ -202,8 +202,6 @@ int __stdcall ArchivePanel::pGetFindData(
 
 	if ( m_pArchive->WasUpdated () )
 	{
-		bool bSilent = OpMode & (OPM_SILENT|OPM_FIND);
-
 		if ( !ReadArchive (bSilent) )
 			return FALSE;
 	}
@@ -2006,7 +2004,7 @@ int __stdcall ArchivePanel::pSetDirectory (
 		{
 			InternalArchiveItemInfo *item = &m_pArchiveFiles[i];
 
-			const char *lpCurName = (const char*)&item->ItemInfo.pi.FindData.cFileName;
+			const char *lpCurName = item->ItemInfo.pi.FindData.cFileName;
 
 			if ( ((int)StrLength(lpCurName) >= nCurDirLength+nDirLength) &&
 					!FSF.LStrnicmp (Dir, lpCurName+nCurDirLength, nDirLength) )
