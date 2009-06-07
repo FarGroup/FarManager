@@ -3878,21 +3878,23 @@ bool FileList::ApplyCommand()
   RedrawDesktop Redraw(TRUE);
   SaveSelection();
 
+	//начинаем вывод с новой строки
+	int X,Y;
+	ScrBuf.GetCursorPos(X,Y);
+	MoveCursor(0,Y);
+	ScrollScreen(1);
+
   GetSelName(NULL,FileAttr);
   while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
   {
-    string strConvertedCommand;
     string strListName, strAnotherListName;
     string strShortListName, strAnotherShortListName;
-
-    strConvertedCommand = strCommand;
-
+    string strConvertedCommand = strCommand;
     {
       int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
       PreserveLongName PreserveName(strSelShortName,PreserveLFN);
 			ProcessOSAliases(strConvertedCommand);
       Execute(strConvertedCommand,FALSE,FALSE);
-
       ClearLastGetSelection();
     }
   }

@@ -1458,7 +1458,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		strCmdLine = (const wchar_t*)strCmdLine+Length;
 		RemoveLeadingSpaces(strCmdLine);
 
-		if(CheckCmdLineForHelp(strCmdLine))
+		if(strCmdLine.IsEmpty() || CheckCmdLineForHelp(strCmdLine))
 			return FALSE; // מעהאהטלסÿ COMSPEC`ף
 
 		IntChDir(strCmdLine,Length==5,SilentInt);

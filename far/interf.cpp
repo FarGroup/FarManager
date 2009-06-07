@@ -540,10 +540,8 @@ void GetCursorType(int &Visible,int &Size)
 
 void MoveRealCursor(int X,int Y)
 {
-  COORD C;
-  C.X=X;
-  C.Y=Y;
-  SetConsoleCursorPosition(hConOut,C);
+	COORD C={X,Y};
+	SetConsoleCursorPosition(hConOut,C);
 }
 
 
