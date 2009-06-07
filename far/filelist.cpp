@@ -3876,6 +3876,12 @@ void FileList::ApplyCommand()
   RedrawDesktop Redraw(TRUE);
   SaveSelection();
 
+  //начинаем вывод с новой строки
+  int X,Y;
+  ScrBuf.GetCursorPos(X,Y);
+  MoveCursor(0,Y);
+  ScrollScreen(1);
+
   GetSelName(NULL,FileAttr);
   while (GetSelName(SelName,FileAttr,SelShortName) && !CheckForEsc())
   {
