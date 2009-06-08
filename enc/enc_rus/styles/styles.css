@@ -41,6 +41,14 @@ P
     MARGIN-BOTTOM: 6pt;
     FONT-FAMILY: verdana, tahoma, arial, helvetica
 }
+SUP.R
+{
+    COLOR: #FF0000
+}
+SUP.G
+{
+    COLOR: #C0C0C0
+}
 DIV
 {
     COLOR: #000000;
