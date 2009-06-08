@@ -1304,11 +1304,13 @@ void ReadConfig()
   }
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
+  if(Opt.ShowMenuBar)
+    Opt.ShowMenuBar=1;
+
   /* $ 02.04.2001 VVM
     + Opt.FlagPosixSemantics не пашет под 9x */
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     Opt.FlagPosixSemantics=0;
-  /* VVM $ */
 
   // ОНО ранее может переопределяться
   if(LocalStricmp(Opt.Language,InitedLanguage))

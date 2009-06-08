@@ -1199,4 +1199,6 @@ bool GetShellType(const char *Ext, char *Type, LONG Size,ASSOCIATIONTYPE aType=A
 // Проверка типа файловой системы. Если TargetFS не задан (NULL или ""), то проверяем на "NTFS"
 BOOL CheckFileSystem(const char *CurDir,const char *TargetFS=NULL);
 
+bool TestCurrentDirectory(const char *TestDir);
+
 #endif  // __FARFUNC_HPP__

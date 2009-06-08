@@ -152,6 +152,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   }
   if (CommandCount==0)
     return(FALSE);
+
   if (CommandCount>1)
   {
     struct MenuItem TypesMenuItem;

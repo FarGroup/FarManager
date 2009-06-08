@@ -969,12 +969,17 @@ int FileList::ProcessKey(int Key)
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && SetCurPath())
         {
-          ApplyCommand();
-          Update(UPDATE_KEEP_SELECTION);
-          Redraw();
-          Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-          AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-          AnotherPanel->Redraw();
+          if(ApplyCommand())
+          {
+            // позиционируемся в панели
+            if(!FrameManager->IsPanelsActive())
+              FrameManager->ActivateFrame(0);
+            Update(UPDATE_KEEP_SELECTION);
+            Redraw();
+            Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+            AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+            AnotherPanel->Redraw();
+          }
         }
       return(TRUE);
     }
@@ -3858,20 +3863,20 @@ void FileList::SetReturnCurrentFile(int Mode)
 }
 
 
-void FileList::ApplyCommand()
+bool FileList::ApplyCommand()
 {
   static char PrevCommand[512];
   char Command[512];
 
   if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd",FIB_BUTTONS))
-    return;
+    return false;
 
   strcpy(PrevCommand,Command);
   char SelName[NM],SelShortName[NM];
   int FileAttr;
   int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
-  RedrawDesktop Redraw(TRUE);
+  //RedrawDesktop Redraw(TRUE);
   SaveSelection();
 
   //начинаем вывод с новой строки
@@ -3904,6 +3909,8 @@ void FileList::ApplyCommand()
         if ( !isSilent )
         {
           CtrlObject->CmdLine->ExecString(ConvertedCommand,FALSE); // TRUE?
+          //if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
+          //   CtrlObject->CmdHistory->AddToHistory(ConvertedCommand);
         }
         else
         {
@@ -3951,6 +3958,7 @@ void FileList::ApplyCommand()
     ScrBuf.Scroll(1);
     ScrBuf.Flush();
   }
+  return true;
 }
 
 

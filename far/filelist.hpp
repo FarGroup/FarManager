@@ -184,7 +184,7 @@ class FileList:public Panel
     int PopPlugin(int EnableRestoreViewMode);
     void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
     void SelectSortMode();
-    void ApplyCommand();
+    bool ApplyCommand();
     void DescribeFiles();
     void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
     void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);

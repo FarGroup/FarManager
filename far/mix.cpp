@@ -156,6 +156,15 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   return rc;
 }
 
+bool TestCurrentDirectory(const char *TestDir)
+{
+  char CurDir[NM*2];
+  if(GetCurrentDirectory(sizeof(CurDir),CurDir) && !LocalStricmp(CurDir,TestDir))
+      return true;
+  return false;
+}
+
+
 /* $ 20.03.2002 SVS
  обертка вокруг функции получени€ текущего пути.
  дл€ локального пути переводит букву диска в uppercase
