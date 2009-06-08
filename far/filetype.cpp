@@ -252,71 +252,72 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
     strCommand = Commands[NumCommands[ExitCode]];
   }
 
-  string strListName, strAnotherListName;
-  string strShortListName, strAnotherShortListName;
-  {
-      int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+	string strListName, strAnotherListName;
+	string strShortListName, strAnotherShortListName;
 
-    // Снова все "подставлено", теперь проверим условия "if exist"
-    if (!ExtractIfExistCommand (strCommand))
-      return TRUE;
+	int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
-    PreserveLongName PreserveName(ShortName,PreserveLFN);
-    RemoveExternalSpaces(strCommand);
-    if ( !strCommand.IsEmpty() )
-    {
-      bool isSilent=false;
-      if(strCommand.At(0) == L'@')
-      {
-        strCommand=(const wchar_t*)strCommand+1;
-        isSilent=true;
-      }
-      ProcessOSAliases(strCommand);
-      if ( !isSilent )
-      {
-        CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
-        if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-          CtrlObject->CmdHistory->AddToHistory(strCommand);
-      }
-      else
-      {
+	// Снова все "подставлено", теперь проверим условия "if exist"
+	if (ExtractIfExistCommand (strCommand))
+	{
+		PreserveLongName PreserveName(ShortName,PreserveLFN);
+		RemoveExternalSpaces(strCommand);
+		if ( !strCommand.IsEmpty() )
+		{
+			bool isSilent=false;
+			if(strCommand.At(0) == L'@')
+			{
+				strCommand=(const wchar_t*)strCommand+1;
+				isSilent=true;
+			}
+
+			ProcessOSAliases(strCommand);
+
+			if ( !isSilent )
+			{
+				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
+				if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
+					CtrlObject->CmdHistory->AddToHistory(strCommand);
+			}
+			else
+			{
 #if 1
-        SaveScreen SaveScr;
-        CtrlObject->Cp()->LeftPanel->CloseFile();
-        CtrlObject->Cp()->RightPanel->CloseFile();
+				SaveScreen SaveScr;
+				CtrlObject->Cp()->LeftPanel->CloseFile();
+				CtrlObject->Cp()->RightPanel->CloseFile();
 
 				Execute(strCommand,AlwaysWaitFinish);
 #else
-        // здесь была бага с прорисовкой (и... вывод данных
-        // на команду "@type !@!" пропадал с экрана)
-        // сделаем по аналогии с CommandLine::CmdExecute()
-        {
-          RedrawDesktop RdrwDesktop(TRUE);
-          Execute(strCommand,AlwaysWaitFinish);
-          ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
-                           // проредравив экран забьет последнюю строку вывода.
-        }
-        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-        CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-        CtrlObject->Cp()->Redraw();
+				// здесь была бага с прорисовкой (и... вывод данных
+				// на команду "@type !@!" пропадал с экрана)
+				// сделаем по аналогии с CommandLine::CmdExecute()
+				{
+					RedrawDesktop RdrwDesktop(TRUE);
+					Execute(strCommand,AlwaysWaitFinish);
+					ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
+							// проредравив экран забьет последнюю строку вывода.
+				}
+				CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+				CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+				CtrlObject->Cp()->Redraw();
 #endif
-      }
-    }
-  }
+			}
+		}
+	}
 
-  if ( !strListName.IsEmpty() )
+	if ( !strListName.IsEmpty() )
 		apiDeleteFile (strListName);
 
-  if ( !strAnotherListName.IsEmpty() )
+	if ( !strAnotherListName.IsEmpty() )
 		apiDeleteFile (strAnotherListName);
 
-  if ( !strShortListName.IsEmpty() )
+	if ( !strShortListName.IsEmpty() )
 		apiDeleteFile (strShortListName);
 
-  if ( !strAnotherShortListName.IsEmpty() )
+	if ( !strAnotherShortListName.IsEmpty() )
 		apiDeleteFile (strAnotherShortListName);
 
-  return(TRUE);
+	return(TRUE);
 }
 
 

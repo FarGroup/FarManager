@@ -1453,7 +1453,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	else if (!SeparateWindow && (StrCmpNI(strCmdLine,L"CD",Length=2)==0 || StrCmpNI(strCmdLine,L"CHDIR",Length=5)==0))
 	{
 		if (!IsSpaceOrEos(strCmdLine.At(Length)))
-			return FALSE;
+		{
+			if(!IsSlash(strCmdLine.At(Length)))
+				return FALSE;
+		}
 
 		strCmdLine = (const wchar_t*)strCmdLine+Length;
 		RemoveLeadingSpaces(strCmdLine);
@@ -1511,7 +1514,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && (!strExpandedDir.At(1) || IsSlash(strExpandedDir.At(1))) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES)
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && (!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES || IsSlash(strExpandedDir.At(1))) )
 	{
 		string strTemp;
 		GetRegKey(strSystemExecutor,L"~",strTemp,g_strFarPath);

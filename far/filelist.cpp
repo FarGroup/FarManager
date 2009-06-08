@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "fileedit.hpp"
 #include "namelist.hpp"
+#include "savescr.hpp"
 #include "fileview.hpp"
 #include "copy.hpp"
 #include "history.hpp"
@@ -3864,49 +3865,92 @@ void FileList::SetReturnCurrentFile(int Mode)
 
 bool FileList::ApplyCommand()
 {
-  static string strPrevCommand;
-  string strCommand;
+	static string strPrevCommand;
+	string strCommand;
 
-  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
-    return false;
+	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
+		return false;
 
-  strPrevCommand = strCommand;
-  string strSelName, strSelShortName;
-  DWORD FileAttr;
-  int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
+	strPrevCommand = strCommand;
+	string strSelName, strSelShortName;
+	DWORD FileAttr;
+	int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
-  RedrawDesktop Redraw(TRUE);
-  SaveSelection();
+	RedrawDesktop Redraw(TRUE);
+	SaveSelection();
 
+	// спорный момент, особено для @set a=b
 	//начинаем вывод с новой строки
 	int X,Y;
 	ScrBuf.GetCursorPos(X,Y);
 	MoveCursor(0,Y);
 	ScrollScreen(1);
 
-  GetSelName(NULL,FileAttr);
-  while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
-  {
-    string strListName, strAnotherListName;
-    string strShortListName, strAnotherShortListName;
-    string strConvertedCommand = strCommand;
-    {
-      int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
-      PreserveLongName PreserveName(strSelShortName,PreserveLFN);
-			ProcessOSAliases(strConvertedCommand);
-      Execute(strConvertedCommand,FALSE,FALSE);
-      ClearLastGetSelection();
-    }
-  }
-  /*$ 23.07.2001 SKV
-    что бы не затирать последнюю строку вывода.
-  */
-  if(RdrwDskt)
-  {
-    ScrBuf.Scroll(1);
-    ScrBuf.Flush();
-  }
-  return true;
+	GetSelName(NULL,FileAttr);
+	while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
+	{
+		string strListName, strAnotherListName;
+		string strShortListName, strAnotherShortListName;
+		string strConvertedCommand = strCommand;
+
+		int PreserveLFN=SubstFileName(strConvertedCommand,strSelName,strSelShortName,&strListName,&strAnotherListName,&strShortListName, &strAnotherShortListName);
+
+		if(ExtractIfExistCommand(strConvertedCommand))
+		{
+			PreserveLongName PreserveName(strSelShortName,PreserveLFN);
+			RemoveExternalSpaces(strConvertedCommand);
+			if ( !strConvertedCommand.IsEmpty() )
+			{
+				bool isSilent=false;
+				if(strConvertedCommand.At(0) == L'@')
+				{
+					strConvertedCommand=(const wchar_t*)strConvertedCommand+1;
+					isSilent=true;
+				}
+
+				ProcessOSAliases(strConvertedCommand);
+
+				if ( !isSilent )
+				{
+					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE); // TRUE?
+					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
+						//CtrlObject->CmdHistory->AddToHistory(strCommand);
+				}
+				else
+				{
+					SaveScreen SaveScr;
+					CtrlObject->Cp()->LeftPanel->CloseFile();
+					CtrlObject->Cp()->RightPanel->CloseFile();
+
+					Execute(strConvertedCommand,FALSE,FALSE);
+				}
+			}
+			ClearLastGetSelection();
+		}
+
+		if ( !strListName.IsEmpty() )
+			apiDeleteFile (strListName);
+
+		if ( !strAnotherListName.IsEmpty() )
+			apiDeleteFile (strAnotherListName);
+
+		if ( !strShortListName.IsEmpty() )
+			apiDeleteFile (strShortListName);
+
+		if ( !strAnotherShortListName.IsEmpty() )
+			apiDeleteFile (strAnotherShortListName);
+	}
+
+	if(GetSelPosition >= FileCount)
+		ClearSelection();
+
+	/*$ 23.07.2001 SKV - что бы не затирать последнюю строку вывода. */
+	if(RdrwDskt)
+	{
+		ScrBuf.Scroll(1);
+		ScrBuf.Flush();
+	}
+	return true;
 }
 
 
