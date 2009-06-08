@@ -239,10 +239,19 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     */
     if (!ExtractIfExistCommand (Command))
       return TRUE;
-    /* DJ $ */
+
     PreserveLongName PreserveName(ShortName,PreserveLFN);
+    RemoveExternalSpaces(Command);
+
     if (*Command)
-      if (*Command!='@')
+    {
+      bool isSilent=false;
+      if(*Command == '@')
+          isSilent=true;
+
+      ProcessOSAliases(Command+(isSilent?1:0),sizeof(Command)-1);
+
+      if (!isSilent)
       {
         CtrlObject->CmdLine->ExecString(Command,AlwaysWaitFinish);
         if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
@@ -270,9 +279,9 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         CtrlObject->Cp()->Redraw();
 #endif
       }
+    }
   }
-  /* $ 02.09.2000 tran
-     remove 4 files, not 2*/
+
   if (*ListName)
     remove(ListName);
   if (*(ListName+NM))
@@ -281,12 +290,9 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     remove(ShortListName);
   if (*(ShortListName+NM))
     remove(ShortListName+NM);
-  /* tran $ */
+
   return(TRUE);
 }
-/* IS $ */
-/* SVS $ */
-
 
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 {
@@ -410,7 +416,6 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     */
     if (!ExtractIfExistCommand (ExecStr))
       return;
-    /* DJ $ */
 
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
@@ -426,7 +431,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     */
     if (!ExtractIfExistCommand (FullExecStr))
       return;
-    /* DJ $ */
+
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,(AlwaysWaitFinish&1)+2);
 
     if (*ExecStr!='@')

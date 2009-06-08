@@ -1678,7 +1678,7 @@ BOOL CommandLine::IntChDir(const char *CmdLine,int ClosePlugin,bool Selent)
   if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
     ExpandedDir[0]=toupper(ExpandedDir[0]);
 
-  if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && (!ExpandedDir[1] || IsSlash(ExpandedDir[1])) && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+  if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && ( !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1 || IsSlash(ExpandedDir[1]) ) )
   {
     char tempExpandedDir[8192];
     GetRegKey(strSystemExecutor,"~",(char*)tempExpandedDir,FarPath,sizeof(tempExpandedDir)-1);

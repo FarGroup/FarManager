@@ -32,6 +32,7 @@ filelist.cpp
 #include "rdrwdsk.hpp"
 #include "plognmn.hpp"
 #include "scrbuf.hpp"
+#include "savescr.hpp"
 #include "CFileMask.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
@@ -120,11 +121,9 @@ FileList::~FileList()
   struct PrevDataItem *CurPrevDataStack=PrevDataStack;
   for (int I=0;I < PrevDataStackSize; I++, CurPrevDataStack++)
     DeleteListData(CurPrevDataStack->PrevListData,CurPrevDataStack->PrevFileCount);
-  /* $ 29.11.2001 DJ
-     выдел€ли через realloc - освобождать надо через free
-  */
+
   if(PrevDataStack) xf_free (PrevDataStack);
-  /* DJ $ */
+
   DeleteListData(ListData,FileCount);
   if (PanelMode==PLUGIN_PANEL)
     while (PopPlugin(FALSE))
@@ -148,11 +147,10 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
         delete[] CurPtr->CustomColumnData[J];
       delete[] CurPtr->CustomColumnData;
     }
-    /* $ 18.01.2003 VVM
-      - ¬ыдел€ли через malloc() и освобождать будем через free() */
+
     if (CurPtr->UserFlags & PPIF_USERDATA)
       xf_free((void *)CurPtr->UserData);
-    /* VVM $ */
+
     if (CurPtr->DizText && CurPtr->DeleteDiz)
       delete[] CurPtr->DizText;
   }
@@ -1977,7 +1975,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
           ! SHIFT+ENTER на ".." срабатывает дл€ текущего каталога, а не родительского */
         if (!TestParentFolderName(CurPtr->Name))
           strcat(FullPath,CurPtr->Name);
-        /* VVM $ */
+
       }
       else
       {
@@ -3889,13 +3887,62 @@ void FileList::ApplyCommand()
     char ListName[NM*2],ShortListName[NM*2];
     strcpy(ConvertedCommand,Command);
 
+    int PreserveLFN=SubstFileName(ConvertedCommand,sizeof (ConvertedCommand),SelName,SelShortName,ListName,ShortListName);
+
+    if (ExtractIfExistCommand (ConvertedCommand))
     {
-      int PreserveLFN=SubstFileName(ConvertedCommand,sizeof (ConvertedCommand),SelName,SelShortName,ListName,ShortListName);
       PreserveLongName PreserveName(SelShortName,PreserveLFN);
-      Execute(ConvertedCommand,FALSE,FALSE);
+      RemoveExternalSpaces(ConvertedCommand);
+      if(*ConvertedCommand)
+      {
+        bool isSilent=false;
+        if(*ConvertedCommand == '@')
+          isSilent=true;
+
+        ProcessOSAliases(ConvertedCommand+(isSilent?1:0),sizeof(ConvertedCommand)-1);
+
+        if ( !isSilent )
+        {
+          CtrlObject->CmdLine->ExecString(ConvertedCommand,FALSE); // TRUE?
+        }
+        else
+        {
+#if 1
+          SaveScreen SaveScr;
+          CtrlObject->Cp()->LeftPanel->CloseFile();
+          CtrlObject->Cp()->RightPanel->CloseFile();
+          Execute(ConvertedCommand+1,FALSE,FALSE);
+#else
+        // здесь была бага с прорисовкой (и... вывод данных
+        // на команду "@type !@!" пропадал с экрана)
+        // сделаем по аналогии с CommandLine::CmdExecute()
+        {
+          RedrawDesktop RdrwDesktop(TRUE);
+          Execute(ConvertedCommand+1,FALSE); // TRUE?
+          ScrollScreen(1); // об€зательно, иначе деструктор RedrawDesktop
+                           // проредравив экран забьет последнюю строку вывода.
+        }
+        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+        CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+        CtrlObject->Cp()->Redraw();
+#endif
+        }
+      }
       ClearLastGetSelection();
     }
+    if (*ListName)
+      remove(ListName);
+    if (ListName[NM])
+      remove(ListName+NM);
+    if (*ShortListName)
+      remove(ShortListName);
+    if (ShortListName[NM])
+      remove(ShortListName+NM);
   }
+
+  if(GetSelPosition >= FileCount)
+    ClearSelection();
+
   /*$ 23.07.2001 SKV
     что бы не затирать последнюю строку вывода.
   */
@@ -3904,7 +3951,6 @@ void FileList::ApplyCommand()
     ScrBuf.Scroll(1);
     ScrBuf.Flush();
   }
-  /* SKV$*/
 }
 
 
