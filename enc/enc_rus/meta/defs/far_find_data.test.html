@@ -139,38 +139,38 @@ struct FAR_FIND_DATA
     записи в файл. Время хранится в UTC формате; элементы структуры
     установлены в ноль, если файловая система не поддерживает этого свойства.</div>
 
-    <div class=dfn>nFileSizeHigh</div>
+    <div class=dfn>nFileSizeHigh<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Верхнее двойное слово 64-х разрядного размера файла в байтах.
     Размер файла равен <code>(<var>nFileSizeHigh</var> * MAXDWORD) + <var>nFileSizeLow</var></code>.</div>
 
-    <div class=dfn>nFileSizeLow</div>
+    <div class=dfn>nFileSizeLow<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Младшее двойное слово размера файла.</div>
 
-    <div class=dfn>nFileSize</div>
+    <div class=dfn>nFileSize<sup>&nbsp;2.x</sup></div>
     <div class=dfndescr>Размера файла в байтах.</div>
 
-    <div class=dfn>nPackSize</div>
+    <div class=dfn>nPackSize<sup>&nbsp;2.x</sup></div>
     <div class=dfndescr>Размера сжатого файла в байтах.</div>
 
-    <div class=dfn>dwReserved0</div>
+    <div class=dfn>dwReserved0<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Если поле <var>dwFileAttributes</var> включает атрибут
        <dfn>FILE_ATTRIBUTE_REPARSE_POINT</dfn>, это поле содержит тэг reparse. В
        противном случае значение этого поля не определено и не должно
        использоваться.</div>
 
-    <div class=dfn>dwReserved1</div>
+    <div class=dfn>dwReserved1<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Резерв.</div>
 
-    <div class=dfn>cFileName</div>
+    <div class=dfn>cFileName<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Строка с именем файла. </div>
 
-    <div class=dfn>lpwszFileName</div>
+    <div class=dfn>lpwszFileName<sup>&nbsp;2.x</sup></div>
     <div class=dfndescr>Указатель на строку с именем файла. </div>
 
-    <div class=dfn>cAlternateFileName</div>
+    <div class=dfn>cAlternateFileName<sup>&nbsp;1.x</sup></div>
     <div class=dfndescr>Альтернативное имя файла (классическая 8.3 (filename.ext) форма). </div>
 
-    <div class=dfn>lpwszAlternateFileName</div>
+    <div class=dfn>lpwszAlternateFileName<sup>&nbsp;2.x</sup></div>
     <div class=dfndescr>Указатель на строку альтернативным имем файла (классическая 8.3 (filename.ext) форма). </div>
 
 </div>
