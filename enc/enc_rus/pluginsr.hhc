@@ -10,7 +10,7 @@
 </OBJECT>
 <UL>
 <LI> <OBJECT type="text/sitemap">
-        <param name="Name" value="Programming FAR plugins. Encyclopedia for Developers">
+        <param name="Name" value="Far Manager Encyclopedia">
         <param name="Local" value="html/index.html">
         </OBJECT>
 <UL>
@@ -2619,6 +2619,11 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="WinRAR archiver, a powerful tool to process RAR and ZIP files">
+                        <param name="Local" value="http://www.rarlab.com/">
+                        <param name="ImageNumber" value="15">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="FAR Manager official forum">
                         <param name="Local" value="http://forum.farmanager.com/">
                         <param name="ImageNumber" value="15">
@@ -2629,8 +2634,18 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="WinRAR archiver, a powerful tool to process RAR and ZIP files">
-                        <param name="Local" value="http://www.rarlab.com/">
+                        <param name="Name" value="Mantis. Bugtracking System">
+                        <param name="Local" value="http://www.farmanager.com/mantis/">
+                        <param name="ImageNumber" value="15">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="SVN репозитарий">
+                        <param name="Local" value="http://farmanager.com/svn/">
+                        <param name="ImageNumber" value="15">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Список рассылки Far Manager Development">
+                        <param name="Local" value="http://groups.google.com/group/fardev/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
