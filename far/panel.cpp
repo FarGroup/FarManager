@@ -1711,7 +1711,7 @@ int Panel::GetCurDir(string &strCurDir)
 
 BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
 {
-	if(StrCmpI(strCurDir,CurDir))
+	if(StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 		if(PanelMode!=PLUGIN_PANEL)
@@ -1723,7 +1723,7 @@ BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(const wchar_t *CurDir)
 {
-	if(StrCmpI(strCurDir,CurDir))
+	if(StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 		if(PanelMode!=PLUGIN_PANEL)

@@ -974,6 +974,9 @@ int FileList::ProcessKey(int Key)
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && ApplyCommand())
         {
+          // позиционируемся в панели
+          if(!FrameManager->IsPanelsActive())
+            FrameManager->ActivateFrame(0);
           Update(UPDATE_KEEP_SELECTION);
           Redraw();
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -2119,29 +2122,29 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 {
 	int CheckFullScreen=0;
-  if (ClosePlugin && PanelMode==PLUGIN_PANEL)
-  {
+	if (ClosePlugin && PanelMode==PLUGIN_PANEL)
+	{
 		CheckFullScreen=IsFullScreen();
-    while (1)
-    {
-      if (ProcessPluginEvent(FE_CLOSE,NULL))
-        return FALSE;
-      if (!PopPlugin(TRUE))
-        break;
-    }
-    CtrlObject->Cp()->RedrawKeyBar();
+		while (1)
+		{
+			if (ProcessPluginEvent(FE_CLOSE,NULL))
+				return FALSE;
+			if (!PopPlugin(TRUE))
+				break;
+		}
+		CtrlObject->Cp()->RedrawKeyBar();
 		if(CheckFullScreen!=IsFullScreen())
 		{
 			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 		}
-  }
-  /* $ 20.07.2001 VVM
-    ! Проверить на непустую строку */
-  if ((NewDir) && (*NewDir))
-  {
-    return ChangeDir(NewDir);
-  }
-  return FALSE;
+	}
+
+	if ((NewDir) && (*NewDir))
+	{
+		return ChangeDir(NewDir);
+	}
+
+	return FALSE;
 }
 
 BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
@@ -3859,7 +3862,7 @@ void FileList::DescribeFiles()
 
 void FileList::SetReturnCurrentFile(int Mode)
 {
-  ReturnCurrentFile=Mode;
+	ReturnCurrentFile=Mode;
 }
 
 
@@ -3876,7 +3879,7 @@ bool FileList::ApplyCommand()
 	DWORD FileAttr;
 	int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
-	RedrawDesktop Redraw(TRUE);
+	//RedrawDesktop Redraw(TRUE);
 	SaveSelection();
 
 	// спорный момент, особено для @set a=b
@@ -3912,9 +3915,9 @@ bool FileList::ApplyCommand()
 
 				if ( !isSilent )
 				{
-					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE); // TRUE?
-					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-						//CtrlObject->CmdHistory->AddToHistory(strCommand);
+					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE); // Param2 == TRUE?
+					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
+					//	CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 				}
 				else
 				{

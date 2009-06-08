@@ -78,5 +78,6 @@ bool LastSlash(const wchar_t *String,size_t &pos);
 
 BOOL TestParentFolderName(const wchar_t *Name);
 BOOL TestCurrentFolderName(const wchar_t *Name);
+bool TestCurrentDirectory(const wchar_t *TestDir);
 
 #endif // __PATHMIX_HPP__

@@ -382,7 +382,7 @@ int CommandLine::ProcessKey(int Key)
 
 BOOL CommandLine::SetCurDir(const wchar_t *CurDir)
 {
-	if(StrCmpI(strCurDir,CurDir))
+	if(StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		strCurDir = CurDir;
 		if(CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)

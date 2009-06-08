@@ -1207,6 +1207,8 @@ void ReadConfig()
   }
 
   /* <оняропнжеяяш> *************************************************** */
+	if(Opt.ShowMenuBar)
+		Opt.ShowMenuBar=1;
 
   if (Opt.PluginMaxReadData < 0x1000) // || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
