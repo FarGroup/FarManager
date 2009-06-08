@@ -358,7 +358,6 @@ int OpenFromCommandLine(TCHAR *_farcmd)
       int SeparatorLen=lstrlen(Opt.Separator);
       TCHAR *cBracket=NULL, runFile[NM]=_T("");
       BOOL BracketsOk=TRUE;
-
       if(Edit)
       {
         // edit:['['<options>']'<separator>]<object>
@@ -456,6 +455,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
         if(*pCmd && BracketsOk)
         {
           showhelp=FALSE;
+
+          ProcessOSAliases(pCmd,ArraySize(farcmdbuf));
 
           if(Goto)
           {

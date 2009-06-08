@@ -32,6 +32,8 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #define FreePanelInfo() Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&PInfo)
 #endif
 
+OSVERSIONINFO WinVer;
+
 FARSTDCOPYTOCLIPBOARD CopyToClipboard;
 FARSTDATOI FarAtoi;
 FARSTDITOA FarItoa;
@@ -118,6 +120,13 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
   Opt.CatchMode=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.CatchMode,0);
   Opt.ViewZeroFiles=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ViewZeroFiles,1);
   Opt.EditNewFiles=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditNewFiles,1);
+
+  WinVer.dwOSVersionInfoSize=sizeof(WinVer);
+#ifndef UNICODE
+  GetVersionEx(&WinVer);
+#else
+  GetVersionExW(&WinVer);
+#endif
 }
 
 
