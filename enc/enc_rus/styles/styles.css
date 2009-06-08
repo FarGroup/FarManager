@@ -47,7 +47,7 @@ SUP.R
 }
 SUP.G
 {
-    COLOR: #C0C0C0
+    COLOR: gray
 }
 DIV
 {
@@ -322,7 +322,7 @@ DIV.dfn
     MARGIN-TOP: 6pt;
     MARGIN-BOTTOM: 2pt;
     MARGIN-LEFT: 0px;
-    FONT-STYLE: italic;
+    FONT-WEIGHT: bold;
     FONT-FAMILY: verdana,arial,tahoma, Lucida console,  helvetica
 }
 DIV.dfndescr
