@@ -2152,6 +2152,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	Panel *AnotherPanel;
 	string strFindDir, strSetDir;
 
+	if(!TestCurrentDirectory(strCurDir))
+		FarChDir(strCurDir);
+
 	strSetDir = NewDir;
 	bool dot2Present = StrCmp(strSetDir, L"..")==0;
 
@@ -3870,16 +3873,33 @@ bool FileList::ApplyCommand()
 {
 	static string strPrevCommand;
 	string strCommand;
+	bool isSilent=false;
 
 	if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),L"ApplyCmd",strPrevCommand,strCommand,L"ApplyCmd",FIB_BUTTONS) || !SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;
+
+	RemoveLeadingSpaces(strCommand);
+	if(strCommand.At(0) == L'@')
+	{
+		strCommand=(const wchar_t*)strCommand+1;
+		isSilent=true;
+	}
+
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
-	int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
-	//RedrawDesktop Redraw(TRUE);
+	int NeedCountScroll=0;
+	if(CtrlObject->MainKeyBar->IsVisible())
+		NeedCountScroll++;
+	if(CtrlObject->CmdLine->IsVisible())
+		NeedCountScroll++;
+
+	RedrawDesktop *Redraw=NULL;
+	if(isSilent)
+		Redraw=new RedrawDesktop(TRUE);
+
 	SaveSelection();
 
 	// спорный момент, особено для @set a=b
@@ -3904,16 +3924,9 @@ bool FileList::ApplyCommand()
 			RemoveExternalSpaces(strConvertedCommand);
 			if ( !strConvertedCommand.IsEmpty() )
 			{
-				bool isSilent=false;
-				if(strConvertedCommand.At(0) == L'@')
-				{
-					strConvertedCommand=(const wchar_t*)strConvertedCommand+1;
-					isSilent=true;
-				}
-
 				ProcessOSAliases(strConvertedCommand);
 
-				if ( !isSilent )
+				if ( !isSilent ) // TODO: Здесь не isSilent!
 				{
 					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE); // Param2 == TRUE?
 					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
@@ -3921,7 +3934,7 @@ bool FileList::ApplyCommand()
 				}
 				else
 				{
-					SaveScreen SaveScr;
+					//SaveScreen SaveScr;
 					CtrlObject->Cp()->LeftPanel->CloseFile();
 					CtrlObject->Cp()->RightPanel->CloseFile();
 
@@ -3947,12 +3960,15 @@ bool FileList::ApplyCommand()
 	if(GetSelPosition >= FileCount)
 		ClearSelection();
 
-	/*$ 23.07.2001 SKV - что бы не затирать последнюю строку вывода. */
-	if(RdrwDskt)
+	if(NeedCountScroll)
 	{
-		ScrBuf.Scroll(1);
+		ScrBuf.Scroll(NeedCountScroll);
 		ScrBuf.Flush();
 	}
+
+	if(Redraw)
+		delete Redraw;
+
 	return true;
 }
 

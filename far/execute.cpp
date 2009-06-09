@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
+#include "syslog.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -580,7 +581,11 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
   {
     if (*CmdPtr == L'"')
       QuoteFound = !QuoteFound;
-    if (!QuoteFound && CmdPtr != NewCmdStr)
+    if(!QuoteFound && *CmdPtr == L'^') // для "^>" и еже с ним
+    {
+      CmdPtr++;
+    }
+    else if (!QuoteFound && CmdPtr != NewCmdStr)
     {
       if (*CmdPtr == L'>' ||
           *CmdPtr == L'<' ||
@@ -680,6 +685,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   GetCursorType(Visible,Size);
   SetInitialCursorType();
 
+  // BUGBUG: если команда начинается с "@", то эта строка херит все начинания
+  // TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
   ScrBuf.SetLockCount(0);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -702,31 +709,40 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 	LPCWSTR lpVerb=NULL;
 
-  if(FolderRun && SeparateWindow==2)
-    AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
-  else
-  {
+	if(FolderRun && SeparateWindow==2)
+		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+	else
+	{
 		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 
-    if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
-    {
-      DWORD Error=0, dwSubSystem2=0;
-      const wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
+		if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+		{
+			DWORD Error=0, dwSubSystem2=0;
+			wchar_t *ExtPtr=(wchar_t *)wcsrchr(strNewCmdStr,L'.');
 
-      if(ExtPtr && !(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 ||
-         IsBatchExtType(ExtPtr)))
+			if(ExtPtr)
 			{
-				lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
-				if(lpVerb && Error != ERROR_NO_ASSOCIATION)
+				if(!(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 || IsBatchExtType(ExtPtr)))
 				{
-					dwSubSystem=dwSubSystem2;
+					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
+					if(lpVerb && Error != ERROR_NO_ASSOCIATION)
+					{
+						dwSubSystem=dwSubSystem2;
+					}
+				}
+
+				if(dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr,L"ECHO.",5)) // вариант "echo."
+				{
+					*ExtPtr=L' ';
+					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
+					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 				}
 			}
-    }
+    	}
 
-    if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
-      SeparateWindow = 2;
-  }
+		if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
+			SeparateWindow = 2;
+	}
 
   ScrBuf.Flush ();
 
@@ -1025,77 +1041,84 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,
-                            int SeparateWindow,int DirectRun)
+int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 {
-  LastCmdPartLength=-1;
+	LastCmdPartLength=-1;
 
-  if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
-  {
-    /* $ 12.05.2001 DJ
-       рисуемся только если остались верхним фреймом
-    */
-    if (CtrlObject->Cp()->IsTopFrame())
-    {
-      //CmdStr.SetString(L"");
-      GotoXY(X1,Y1);
-      mprintf(L"%*s",X2-X1+1,L"");
-      Show();
-      ScrBuf.Flush();
-    }
-    return(-1);
-  }
-  int Code;
-  /* 21.11.2001 VVM
-    ! В очередной раз проблемы с прорисовкой фона.
-      Вроде бы теперь полегче стало :) */
-  {
-    CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
-    GetConsoleScreenBufferInfo(hConOut,&sbi0);
-    {
-      RedrawDesktop Redraw(TRUE);
+	if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
+	{
+		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
+		if (CtrlObject->Cp()->IsTopFrame())
+		{
+			//CmdStr.SetString(L"");
+			GotoXY(X1,Y1);
+			mprintf(L"%*s",X2-X1+1,L"");
+			Show();
+			ScrBuf.Flush();
+		}
+		return(-1);
+	}
 
-      ScrollScreen(1);
-      MoveCursor(X1,Y1);
-      if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
-        FarChDir(strCurDir);
-      CmdStr.SetString(L"");
-      if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
-        Code=-1;
-      else
-      {
-        string strTempStr;
-        strTempStr = CmdLine;
-        if(Code == -1)
-          ReplaceStrings(strTempStr,L"/",L"\\",-1);
-        Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
-      }
+	int Code;
 
-      GetConsoleScreenBufferInfo(hConOut,&sbi1);
-      if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
-        CtrlObject->CmdLine->CorrectRealScreenCoord();
+	CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
+	GetConsoleScreenBufferInfo(hConOut,&sbi0);
 
-      //if(Code != -1)
-      {
-        int CurX,CurY;
-        GetCursorPos(CurX,CurY);
-        if (CurY>=Y1-1)
-          ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
-      }
-    }
+	{
+		RedrawDesktop *Redraw=NULL;
+		if(IsVisible() /* && ScrBuf.GetLockCount()==0 */)
+			Redraw=new RedrawDesktop(TRUE);
 
-    if(!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
-      ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
-    /*else
-    {
-      CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-      CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-      CtrlObject->Cp()->Redraw();
-    }*/
-  }
+		ScrollScreen(1);
+		MoveCursor(X1,Y1);
 
-  ScrBuf.Flush();
-  return(Code);
+		if ( !strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+			FarChDir(strCurDir);
+
+		CmdStr.SetString(L"");
+
+		if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
+			Code=-1;
+		else
+		{
+			string strTempStr;
+			strTempStr = CmdLine;
+			if(Code == -1)
+				ReplaceStrings(strTempStr,L"/",L"\\",-1);
+
+			Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
+		}
+
+		GetConsoleScreenBufferInfo(hConOut,&sbi1);
+
+		if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
+			CtrlObject->CmdLine->CorrectRealScreenCoord();
+
+		//if(Code != -1)
+		{
+			int CurX,CurY;
+			GetCursorPos(CurX,CurY);
+			if (CurY>=Y1-1)
+				ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
+		}
+
+		if(Redraw)
+			delete Redraw;
+	}
+
+	if(!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+	/*
+	else
+	{
+		CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+		CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+		CtrlObject->Cp()->Redraw();
+	}
+	*/
+
+	ScrBuf.Flush();
+	return(Code);
 }
 
 /* $ 14.01.2001 SVS
@@ -1360,6 +1383,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	}
 
 	// POPD
+	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
 	else if (!StrCmpNI(CmdLine,L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
 		if(CheckCmdLineForHelp((const wchar_t *)strCmdLine+4))
@@ -1612,30 +1636,30 @@ bool IsBatchExtType(const wchar_t *ExtPtr)
 
 BOOL ProcessOSAliases(string &strStr)
 {
-  string strNewCmdStr;
-  string strNewCmdPar;
+	string strNewCmdStr;
+	string strNewCmdPar;
 
-  PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
+	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
-  string strModuleName;
-  apiGetModuleFileName(NULL,strModuleName);
-  const wchar_t* lpwszExeName=PointToName(strModuleName);
-  int nSize=(int)strNewCmdStr.GetLength()+4096;
-  wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-  int ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
-  if(!ret)
-  {
-    if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
-    {
-      lpwszExeName=PointToName(strModuleName);
-      ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
-    }
-  }
-  strNewCmdStr.ReleaseBuffer();
-  if(!ret)
-    return FALSE;
-  if(!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
-    strNewCmdStr+=L" "+strNewCmdPar;
-  strStr=strNewCmdStr;
-  return TRUE;
+	string strModuleName;
+	apiGetModuleFileName(NULL,strModuleName);
+	const wchar_t* lpwszExeName=PointToName(strModuleName);
+	int nSize=(int)strNewCmdStr.GetLength()+4096;
+	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
+	int ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+	if(!ret)
+	{
+		if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
+		{
+			lpwszExeName=PointToName(strModuleName);
+			ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+		}
+	}
+	strNewCmdStr.ReleaseBuffer();
+	if(!ret)
+		return FALSE;
+	if(!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
+		strNewCmdStr+=L" "+strNewCmdPar;
+	strStr=strNewCmdStr;
+	return TRUE;
 }
