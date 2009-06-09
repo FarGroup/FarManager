@@ -436,7 +436,7 @@ void FileList::SetFocus()
 int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 {
   _ALGO(CleverSysLog clv("FileList::SendKeyToPlugin()"));
-  _ALGO(SysLog("Key=%u (0x%08X) Pred=%d",Key,Key,Pred));
+  _ALGO(SysLog("Key=%s Pred=%d",_FARKEY_ToName(Key),Pred));
   if (PanelMode==PLUGIN_PANEL &&
       (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
      )
@@ -971,6 +971,7 @@ int FileList::ProcessKey(int Key)
         {
           if(ApplyCommand())
           {
+#if 1
             // позиционируемся в панели
             if(!FrameManager->IsPanelsActive())
               FrameManager->ActivateFrame(0);
@@ -979,6 +980,18 @@ int FileList::ProcessKey(int Key)
             Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
             AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
             AnotherPanel->Redraw();
+#else
+            if(!FrameManager->IsPanelsActive())
+              FrameManager->ResizeAllFrame();  // чтобы корректно отрисовались фреймы.
+            else
+            {
+              Update(UPDATE_KEEP_SELECTION);
+              Redraw();
+              Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+              AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+              AnotherPanel->Redraw();
+            }
+#endif
           }
         }
       return(TRUE);
@@ -1885,6 +1898,9 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
+    {
+      _CHANGEDIR(CleverSysLog clv("FileList::ProcessKey ==> CtrlPgUp ==> .."));
+      _CHANGEDIR(SysLog("[%d] CurDir =\"%s\"",__LINE__,CurDir));
       ChangeDir("..");
       {
         //"this" мог быть удалён в ChangeDir
@@ -1896,6 +1912,7 @@ int FileList::ProcessKey(int Key)
         NewActivePanel->Show();
       }
       return(TRUE);
+    }
 
     case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
       ProcessEnter(0,0);
@@ -2116,6 +2133,7 @@ BOOL FileList::SetCurDir(const char *NewDir,int ClosePlugin)
   {
     return ChangeDir(NewDir);
   }
+  _CHANGEDIR(SysLog("[%d] CurDir =\"%s\"",__LINE__,CurDir));
   return FALSE;
 }
 
@@ -2125,11 +2143,8 @@ BOOL FileList::ChangeDir(const char *NewDir,BOOL IsUpdated)
   _CHANGEDIR(CleverSysLog clv("FileList::ChangeDir"));
   _CHANGEDIR(SysLog("(NewDir=\"%s\", IsUpdated=%d)",NewDir,IsUpdated));
 
-  {
-    _CHANGEDIR(char CurDir2[1024]);
-    _CHANGEDIR(FarGetCurDir(sizeof(CurDir2),CurDir2));
-    _CHANGEDIR(SysLog("[%d] CurDir2=\"%s\"",__LINE__,CurDir2));
-  }
+  if(!TestCurrentDirectory(CurDir))
+    FarChDir(CurDir);
 
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
@@ -3871,12 +3886,32 @@ bool FileList::ApplyCommand()
   if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd",FIB_BUTTONS))
     return false;
 
+  bool isSilent=false;
+
   strcpy(PrevCommand,Command);
+  RemoveLeadingSpaces(Command);
+  if(*Command == '@')
+     isSilent=true;
+
   char SelName[NM],SelShortName[NM];
   int FileAttr;
-  int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
+	int NeedCountScroll=0;
+	if(CtrlObject->MainKeyBar->IsVisible())
+		NeedCountScroll++;
+	if(CtrlObject->CmdLine->IsVisible())
+		NeedCountScroll++;
 
-  //RedrawDesktop Redraw(TRUE);
+#if 1
+	RedrawDesktop *Redraw=NULL;
+	if(isSilent)
+		Redraw=new RedrawDesktop(TRUE);
+#else
+	//SaveScreen *SaveScr=NULL;
+	LockScreen *LckScreen=NULL;
+	if(isSilent)
+		//SaveScr=new SaveScreen;
+		LckScreen=new LockScreen;
+#endif
   SaveSelection();
 
   //начинаем вывод с новой строки
@@ -3890,7 +3925,7 @@ bool FileList::ApplyCommand()
   {
     char ConvertedCommand[512];
     char ListName[NM*2],ShortListName[NM*2];
-    strcpy(ConvertedCommand,Command);
+    strcpy(ConvertedCommand,Command+(isSilent?1:0));
 
     int PreserveLFN=SubstFileName(ConvertedCommand,sizeof (ConvertedCommand),SelName,SelShortName,ListName,ShortListName);
 
@@ -3900,13 +3935,10 @@ bool FileList::ApplyCommand()
       RemoveExternalSpaces(ConvertedCommand);
       if(*ConvertedCommand)
       {
-        bool isSilent=false;
-        if(*ConvertedCommand == '@')
-          isSilent=true;
 
         ProcessOSAliases(ConvertedCommand+(isSilent?1:0),sizeof(ConvertedCommand)-1);
 
-        if ( !isSilent )
+        if ( !isSilent ) // TODO: Здесь не isSilent!
         {
           CtrlObject->CmdLine->ExecString(ConvertedCommand,FALSE); // TRUE?
           //if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
@@ -3914,25 +3946,10 @@ bool FileList::ApplyCommand()
         }
         else
         {
-#if 1
-          SaveScreen SaveScr;
+          //SaveScreen SaveScr;
           CtrlObject->Cp()->LeftPanel->CloseFile();
           CtrlObject->Cp()->RightPanel->CloseFile();
-          Execute(ConvertedCommand+1,FALSE,FALSE);
-#else
-        // здесь была бага с прорисовкой (и... вывод данных
-        // на команду "@type !@!" пропадал с экрана)
-        // сделаем по аналогии с CommandLine::CmdExecute()
-        {
-          RedrawDesktop RdrwDesktop(TRUE);
-          Execute(ConvertedCommand+1,FALSE); // TRUE?
-          ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
-                           // проредравив экран забьет последнюю строку вывода.
-        }
-        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-        CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-        CtrlObject->Cp()->Redraw();
-#endif
+          Execute(ConvertedCommand,FALSE,FALSE);
         }
       }
       ClearLastGetSelection();
@@ -3950,14 +3967,20 @@ bool FileList::ApplyCommand()
   if(GetSelPosition >= FileCount)
     ClearSelection();
 
-  /*$ 23.07.2001 SKV
-    что бы не затирать последнюю строку вывода.
-  */
-  if(RdrwDskt)
+  if(NeedCountScroll)
   {
-    ScrBuf.Scroll(1);
+    ScrBuf.Scroll(NeedCountScroll);
     ScrBuf.Flush();
   }
+
+#if 1
+	if(Redraw)
+		delete Redraw;
+#else
+	if(LckScreen)
+		delete LckScreen;
+#endif
+
   return true;
 }
 

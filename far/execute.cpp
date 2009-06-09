@@ -846,6 +846,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   SetInitialCursorType();
 
   int PrevLockCount=ScrBuf.GetLockCount();
+  // BUGBUG: если команда начинается с "@", то эта строка херит все начинания
+  // TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
   ScrBuf.SetLockCount(0);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -881,14 +883,22 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
       DWORD Error=0, dwSubSystem2=0;
       char *ExtPtr=strrchr(NewCmdStr,'.');
 
-      if(ExtPtr &&
-        !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
-          IsBatchExtType(ExtPtr))
-        )
-        if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
-          dwSubSystem=dwSubSystem2;
-    }
+      if(ExtPtr)
+      {
+        if(!(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 || IsBatchExtType(ExtPtr)) )
+        {
+          if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
+            dwSubSystem=dwSubSystem2;
+        }
+        if(dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !memicmp(NewCmdStr,"ECHO.",5)) // вариант "echo."
+        {
+          *ExtPtr=' ';
+          PartCmdLine (NewCmdStr,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
+          PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
+        }
 
+      }
+    }
     if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
       SeparateWindow = 2;
   }
@@ -1222,54 +1232,55 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindo
     return(-1);
   }
   int Code;
-  /* 21.11.2001 VVM
-    ! В очередной раз проблемы с прорисовкой фона.
-      Вроде бы теперь полегче стало :) */
+
+  CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
+  GetConsoleScreenBufferInfo(hConOut,&sbi0);
   {
-    CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
-    GetConsoleScreenBufferInfo(hConOut,&sbi0);
+     RedrawDesktop *Redraw=NULL;
+     if(IsVisible() /* && ScrBuf.GetLockCount()==0 */)
+        Redraw=new RedrawDesktop(TRUE);
+
+    ScrollScreen(1);
+    MoveCursor(X1,Y1);
+    if (CurDir[0] && CurDir[1]==':')
+      FarChDir(CurDir);
+    CmdStr.SetString("");
+    if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
+      Code=-1;
+    else
     {
-      RedrawDesktop Redraw(TRUE);
-
-      ScrollScreen(1);
-      MoveCursor(X1,Y1);
-      if (CurDir[0] && CurDir[1]==':')
-        FarChDir(CurDir);
-      CmdStr.SetString("");
-      if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
-        Code=-1;
-      else
-      {
-        char TempStr[2048];
-        xstrncpy(TempStr,CmdLine,sizeof(TempStr)-1);
-        if(Code == -1)
-          ReplaceStrings(TempStr,"/","\\",-1);
-        Code=Execute(TempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
-      }
-
-      GetConsoleScreenBufferInfo(hConOut,&sbi1);
-      if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
-        CtrlObject->CmdLine->CorrectRealScreenCoord();
-
-      //if(Code != -1)
-      {
-        int CurX,CurY;
-        GetCursorPos(CurX,CurY);
-        if (CurY>=Y1-1)
-          ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
-      }
+      char TempStr[2048];
+      xstrncpy(TempStr,CmdLine,sizeof(TempStr)-1);
+      if(Code == -1)
+        ReplaceStrings(TempStr,"/","\\",-1);
+      Code=Execute(TempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
     }
 
-    if(!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
-      ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
-    /*else
+    GetConsoleScreenBufferInfo(hConOut,&sbi1);
+    if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
+      CtrlObject->CmdLine->CorrectRealScreenCoord();
+
+    //if(Code != -1)
     {
-      CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-      CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-      CtrlObject->Cp()->Redraw();
-    }*/
+      int CurX,CurY;
+      GetCursorPos(CurX,CurY);
+      if (CurY>=Y1-1)
+        ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
+    }
+
+    if(Redraw)
+      delete Redraw;
   }
-  /* VVM $ */
+
+  if(!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+    ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+  /*else
+  {
+    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+    CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+    CtrlObject->Cp()->Redraw();
+  }*/
+
   ScrBuf.Flush();
   return(Code);
 }
@@ -1551,7 +1562,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     return TRUE;
   }
 
-  // POPD
+  // POPD [n] <--todo
   else if (!stricmp(CmdLine,"POPD"))
   {
     PushPopRecord prec;

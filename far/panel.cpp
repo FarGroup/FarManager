@@ -1484,12 +1484,13 @@ BOOL Panel::SetCurDir(const char *CurDir,int ClosePlugin)
   _CHANGEDIR(SysLog("(CurDir=\"%s\", ClosePlugin=%d)",CurDir,ClosePlugin));
   _CHANGEDIR(SysLog("Panel::CurDir=\"%s\"",Panel::CurDir));
   _CHANGEDIR(SysLog("PanelMode!=PLUGIN_PANEL ==> %d",PanelMode!=PLUGIN_PANEL));
-  if(LocalStricmp(Panel::CurDir,CurDir))
+  if(LocalStricmp(Panel::CurDir,CurDir) || !TestCurrentDirectory(CurDir))
   {
     xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
     if(PanelMode!=PLUGIN_PANEL)
       PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
   }
+  _CHANGEDIR(SysLog("Panel::CurDir=\"%s\"",Panel::CurDir));
   return TRUE;
 }
 #if defined(__BORLANDC__)
@@ -1504,12 +1505,13 @@ void Panel::InitCurDir(char *CurDir)
   _CHANGEDIR(SysLog("Panel::CurDir=\"%s\"",Panel::CurDir));
   _CHANGEDIR(SysLog("PanelMode!=PLUGIN_PANEL ==> %d",PanelMode!=PLUGIN_PANEL));
 
-  if(LocalStricmp(Panel::CurDir,CurDir))
+  if(LocalStricmp(Panel::CurDir,CurDir) || !TestCurrentDirectory(CurDir))
   {
     xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1);
     if(PanelMode!=PLUGIN_PANEL)
       PrepareDiskPath(Panel::CurDir,sizeof(Panel::CurDir)-1);
   }
+  _CHANGEDIR(SysLog("Panel::CurDir=\"%s\"",Panel::CurDir));
 }
 
 

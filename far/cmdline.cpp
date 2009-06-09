@@ -400,13 +400,14 @@ BOOL CommandLine::SetCurDir(const char *CurDir)
   _CHANGEDIR(SysLog("CurDir             =\"%s\"",CurDir));
   _CHANGEDIR(SysLog("CommandLine::CurDir=\"%s\"",CommandLine::CurDir));
 
-  if(LocalStricmp(CommandLine::CurDir,CurDir))
+  if(LocalStricmp(CommandLine::CurDir,CurDir) || !TestCurrentDirectory(CurDir))
   {
     xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1);
 
     if(CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
       PrepareDiskPath(CommandLine::CurDir,sizeof(CommandLine::CurDir)-1);
   }
+  _CHANGEDIR(SysLog("CommandLine::CurDir=\"%s\"",CommandLine::CurDir));
   return TRUE;
 }
 

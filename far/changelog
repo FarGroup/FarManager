@@ -1,3 +1,11 @@
+svs 09.06.2009 23:19:18 +0300 - build 2591
+
+1. В исполняторе учтем экрано-символ '^' и вариант "echo." (эхо с точкой!)
+
+2. Mantis#0000912: Ctrl+PageUp problem after using Temp panel 
+
+3. Очередное "изнасилование" ApplyCommand.
+
 svs 08.06.2009 22:37:05 +0300 - build 2590
 
 1. Значение параметра "Interface/ShowMenuBar" (Opt.ShowMenuBar) влияло на позицию начала показа панелей.

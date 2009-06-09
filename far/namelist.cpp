@@ -90,7 +90,7 @@ void NamesList::SetCurDir(const char *Dir)
   _CHANGEDIR(SysLog("(Dir  =\"%s\")",Dir));
   _CHANGEDIR(SysLog("CurDir=\"%s\"",CurDir));
 
-  if(LocalStricmp(CurDir,Dir))
+  if(LocalStricmp(CurDir,Dir) || !TestCurrentDirectory(Dir))
     PrepareDiskPath(xstrncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
 }
 
