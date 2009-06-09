@@ -210,9 +210,9 @@ BOOL ProcessOSAliases(TCHAR *Str,int SizeStr)
   if(!pGetConsoleAlias)
   {
   #ifdef UNICODE
-    pGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandle(_T("kernel32")),(LPCSTR)_T("GetConsoleAliasW"));
+    pGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandleW(_T("kernel32")),"GetConsoleAliasW");
   #else
-    pGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandle(_T("kernel32")),_T("GetConsoleAliasA"));
+    pGetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandle(_T("kernel32")),"GetConsoleAliasA");
   #endif // !UNICODE
     if(!pGetConsoleAlias)
       return FALSE;
