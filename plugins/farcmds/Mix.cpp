@@ -120,7 +120,7 @@ int ReplaceStrings(TCHAR *Str,const TCHAR *FindStr,const TCHAR *ReplStr,int Coun
 
   while(I <= L-LenFindStr)
   {
-    Res=IgnoreCase?memicmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR)):memcmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR));
+    Res=IgnoreCase?_memicmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR)):memcmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR));
     if(Res == 0)
     {
       if(LenReplStr > LenFindStr)

@@ -128,39 +128,39 @@ static void dynamic_bind(void)
 
     if ((h = GetModuleHandle(_T("ntdll"))) != NULL) {
       if ((f = GetProcAddress(h, "NtQueryInformationProcess")) != NULL)
-          *(FARPROC*)&pNtQueryInformationProcess = f;
+          pNtQueryInformationProcess = (PNtQueryInformationProcess)f;
       if ((f = GetProcAddress(h, "NtQueryInformationThread")) != NULL)
-          *(FARPROC*)&pNtQueryInformationThread = f;
+          pNtQueryInformationThread = (PNtQueryInformationThread)f;
       if ((f = GetProcAddress(h, "NtQueryObject")) != NULL)
-          *(FARPROC*)&pNtQueryObject = f;
+          pNtQueryObject = (PNtQueryObject)f;
       if ((f = GetProcAddress(h, "NtQuerySystemInformation")) != NULL)
-          *(FARPROC*)&pNtQuerySystemInformation = f;
+          pNtQuerySystemInformation = (PNtQuerySystemInformation)f;
       if ((f = GetProcAddress(h, "NtQueryInformationFile")) != NULL)
-          *(FARPROC*)&pNtQueryInformationFile = f;
+          pNtQueryInformationFile = (PNtQueryInformationFile)f;
     }
     if ((h = GetModuleHandle(_T("kernel32"))) != NULL) {
       if ((f = GetProcAddress(h, "IsWow64Process")) != NULL)
-          *(FARPROC*)&pIsWow64Process = f;
+          pIsWow64Process = (PIsWow64Process)f;
     }
     if ((h = GetModuleHandle(_T("advapi32"))) != NULL) {
       if ((f = GetProcAddress(h, "IsValidSid")) != NULL)
-          *(FARPROC*)&pIsValidSid = f;
+          pIsValidSid = (PIsValidSid)f;
       if ((f = GetProcAddress(h, "GetSidIdentifierAuthority")) != NULL)
-          *(FARPROC*)&pGetSidIdentifierAuthority = f;
+          pGetSidIdentifierAuthority = (PGetSidIdentifierAuthority)f;
       if ((f = GetProcAddress(h, "GetSidSubAuthorityCount")) != NULL)
-          *(FARPROC*)&pGetSidSubAuthorityCount = f;
+          pGetSidSubAuthorityCount = (PGetSidSubAuthorityCount)f;
       if ((f = GetProcAddress(h, "GetSidSubAuthority")) != NULL)
-          *(FARPROC*)&pGetSidSubAuthority = f;
+          pGetSidSubAuthority = (PGetSidSubAuthority)f;
       if ((f = GetProcAddress(h, "LookupAccountName" FUNC_AW_SUFFIX)) != NULL)
-          *(FARPROC*)&pLookupAccountName = f;
+          pLookupAccountName = (PLookupAccountName)f;
     }
     if ((h = GetModuleHandle(_T("user32"))) != NULL) {
       if ((f = GetProcAddress(h, "GetGuiResources")) != NULL)
-          *(FARPROC*)&pGetGuiResources = f;
+          pGetGuiResources = (PGetGuiResources)f;
     }
     if ((h = GetModuleHandle(_T("ole32"))) != NULL) {
       if ((f = GetProcAddress(h, "CoInitializeSecurity")) != NULL)
-          *(FARPROC*)&pCoInitializeSecurity = f;
+          pCoInitializeSecurity = (PCoInitializeSecurity)f;
     }
     Inited = TRUE;
   }

@@ -331,8 +331,8 @@ void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
     Info->StartSortMode = SortMode >= SM_CUSTOM ? SM_CTIME : SortMode; //SM_UNSORTED;
 
     static KeyBarTitles keybartitles = {
-        { 0, 0, 0, 0, 0, _T(""), _T(""), }, { 0, }, { 0, 0, 0, 0, 0, _T(""),},
-        { _T(""), _T(""), _T(""), 0, _T(""), _T(""), _T(""), }
+        { 0, 0, 0, 0, 0, (TCHAR*)_T(""), (TCHAR*)_T(""), }, { 0, }, { 0, 0, 0, 0, 0, (TCHAR*)_T(""),},
+        { (TCHAR*)_T(""), (TCHAR*)_T(""), (TCHAR*)_T(""), 0, (TCHAR*)_T(""), (TCHAR*)_T(""), (TCHAR*)_T(""), }
     };
     keybartitles.Titles[5] = GetMsg(MFRemote);
     keybartitles.ShiftTitles[0] = GetMsg(MFPriorMinus);
@@ -352,7 +352,7 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
     if (dwProcID==((EnumWndData*)lParam)->dwPID && GetParent(hWnd)==NULL )
     {
         BOOL bVisible = IsWindowVisible(hWnd) ||
-            IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0 ;
+            (IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0);
         if(!((EnumWndData*)lParam)->hWnd || bVisible)
             ((EnumWndData*)lParam)->hWnd = hWnd;
         return !bVisible;
@@ -387,7 +387,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
 
         // Make descriptions
         TCHAR Title[NM]; *Title=0;
-        TCHAR* pDesc=_T("");
+        TCHAR* pDesc=(TCHAR *)_T("");
         LPBYTE pBuf=0;
         EnumWndData ewdata = { pdata.dwPID, 0 };
         EnumWindows((WNDENUMPROC)EnumWndProc, (LPARAM)&ewdata);
@@ -407,7 +407,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
             case _T('D'):
                 TCHAR *pVersion;
                 if(!Plist::GetVersionInfo(pdata.FullPath, pBuf, pVersion, pDesc))
-                    pDesc = _T("");
+                    pDesc = (TCHAR *)_T("");
                 break;
             case _T('C'):
                 if(NT)
@@ -641,7 +641,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
         // Time information
 
-        if(*(ULONGLONG*)&CurItem.FindData.ftCreationTime)
+        if(CurItem.FindData.ftCreationTime.dwLowDateTime || CurItem.FindData.ftCreationTime.dwHighDateTime)
         {
             FILETIME CurFileTime;
             GetSystemTimeAsFileTime(&CurFileTime);
@@ -972,7 +972,7 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
     if(pUser && *pUser) {
         static NETRESOURCE nr =
             { RESOURCE_GLOBALNET, RESOURCETYPE_DISK, RESOURCEDISPLAYTYPE_SERVER,
-              RESOURCEUSAGE_CONTAINER, NULL, NULL, _T(""), NULL};
+              RESOURCEUSAGE_CONTAINER, NULL, NULL, (TCHAR *)_T(""), NULL};
         nr.lpRemoteName = Machine;
         DWORD dwErr = WNetAddConnection2(&nr,pPasw,pUser,0);
         if(dwErr==ERROR_SESSION_CREDENTIAL_CONFLICT) {
@@ -1051,7 +1051,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             delete [] (char*)_CurItem;
 #endif
             if (hWnd!=NULL && (IsWindowVisible(hWnd) ||
-                IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0)
+                (IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0))
                 )
             {
 #ifndef SPI_GETFOREGROUNDLOCKTIMEOUT
@@ -1094,7 +1094,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         {
           return TRUE;
         }
-        InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions, };
+        InitDialogItem InitItems[]={ {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(TCHAR *)MViewWithOptions}, };
         FarDialogItem DialogItems[NVIEWITEMS + 1];
         InitDialogItems(InitItems,DialogItems,ArraySize(InitItems));
         _Opt LocalOpt = Opt;
@@ -1300,8 +1300,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                             WinError();
                         else {
                             for(int i=0; i<N; i++)
-                                if( bNewPri && dwPriorityClass==PrClasses2k[i] ||
-                                    !bNewPri && dwPriorityClass==PrClasses[i]) {
+                                if( (bNewPri && dwPriorityClass==PrClasses2k[i]) ||
+                                    (!bNewPri && dwPriorityClass==PrClasses[i])) {
                                         bool bChange = false;
                                         if(Key==VK_F1 && i>0) {
                                             i--; bChange = true;
@@ -1591,7 +1591,7 @@ bool Plist::GetVersionInfo(TCHAR* pFullPath, LPBYTE &pBuffer, TCHAR* &pVersion, 
     for(ofs = NT ? 92 : 70; ofs < size; ofs += *(WORD*)(pBuffer+ofs) )
         if(
 #ifndef UNICODE
-            !NT && !FSF.LStricmp((PCH)pBuffer+ofs+6, SFI) || NT &&
+            (!NT && !FSF.LStricmp((PCH)pBuffer+ofs+6, SFI)) || NT &&
 #endif
                           !lstrcmpiW((wchar_t*)(pBuffer+ofs+6), WSFI))
             break;

@@ -96,8 +96,8 @@ enum { OB_TYPE_UNKNOWN = 0, OB_TYPE_TYPE = 1, OB_TYPE_DIRECTORY,
         OB_TYPE_IO_COMPLETION, OB_TYPE_FILE, OB_TYPE_WMI_GUID,
 };
 
-static wchar_t* GetUserAccountID();
-static wchar_t* pUserAccountID;
+static const wchar_t* GetUserAccountID();
+static const wchar_t* pUserAccountID;
 
 static BOOL GetProcessId(HANDLE handle, DWORD& dwPID)
 {
@@ -141,7 +141,7 @@ static BOOL GetThreadId( HANDLE h, DWORD& threadID)
     return ret;
 }
 
-inline bool GOODSTATUS(DWORD st) { return !(st) || (st)==STATUS_INFO_LENGTH_MISMATCH; }
+inline bool GOODSTATUS(LONG st) { return !(st) || (st)==STATUS_INFO_LENGTH_MISMATCH; }
 
 static DWORD WINAPI GetFileNameThread(PVOID Param)
 {
@@ -293,7 +293,7 @@ static bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* p
                 wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
                 if(type==OB_TYPE_KEY && !_memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
                     wchar_t *ws1 = ws + ArraySize(REGISTRY) - 1;
-                    TCHAR *s0 = 0;
+                    const TCHAR *s0 = 0;
                     if(!_memicmp(ws1, USER, sizeof(USER)-2)) {
                             ws1 += ArraySize(USER) - 1;
                             size_t l  = lstrlenW(pUserAccountID);
@@ -503,9 +503,9 @@ static BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 
 }
 
-static wchar_t* GetUserAccountID()
+static const wchar_t *GetUserAccountID()
 {
-static TCHAR UserAccountID[256];
+   static TCHAR UserAccountID[256];
    DWORD size = ArraySize(UserAccountID);
    SID_NAME_USE eUse;
    DWORD cbSid=0,cbDomainName=0;
@@ -524,5 +524,5 @@ static TCHAR UserAccountID[256];
    if(!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
    delete (char *)pSid;
    delete pDomainName;
-   return (wchar_t*)UserAccountID;
+   return (const wchar_t *)UserAccountID;
 }

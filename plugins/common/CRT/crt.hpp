@@ -107,7 +107,6 @@ extern "C"
 #endif
   WMEM * __cdecl wmemcpy(WMEM *dst, const WMEM *src, size_t count);
   int __cdecl _memicmp(const void *first, const void *last, size_t count);
-  int __cdecl memicmp(const void *first, const void *last, size_t count);
   void * __cdecl memmove(void *dst, const void *src, size_t count);
   void * __cdecl memset(void *dst, int val, size_t count);
 #ifdef __BORLANDC__

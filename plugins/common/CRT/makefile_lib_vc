@@ -49,13 +49,8 @@ $(OBJDIR)\vc_llshr.obj \
 $(OBJDIR)\vc_ulldiv.obj \
 $(OBJDIR)\vc_ullrem.obj \
 $(OBJDIR)\vc_ulldvrm.obj \
-$(OBJDIR)\vc_ullshr.obj \
-$(OBJDIR)\aliases.obj 
-!elseif defined(AMD64)
-LINK32_OBJS = \
-$(OBJDIR)\aliases.obj 
+$(OBJDIR)\vc_ullshr.obj
 !endif
-
 
 LINK_OBJS = $(LINK32_OBJS) \
 $(OBJDIR)\delete.obj \

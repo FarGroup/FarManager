@@ -28,7 +28,7 @@ template <class T> class Array {
 };
 
 extern struct _Counters {
-   TCHAR* Name; DWORD idName; DWORD idCol;
+   const TCHAR* Name; DWORD idName; DWORD idCol;
 } Counters[NCOUNTERS];
 
 struct ProcessPerfData {

@@ -165,8 +165,8 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads) const
 {
     for(DWORD i=0; i< pData->length(); i++)
         if((*pData)[i].dwProcessId==dwPid &&
-           (dwPid ||(dwThreads >5 && (*pData)[i].dwThreads >5 ||
-                     dwThreads<=5 && (*pData)[i].dwThreads<=5) )
+           (dwPid ||((dwThreads >5 && (*pData)[i].dwThreads >5) ||
+                     (dwThreads<=5 && (*pData)[i].dwThreads<=5)) )
           )
           return &(*pData)[i];
     return 0;
