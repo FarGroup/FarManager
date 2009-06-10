@@ -68,6 +68,7 @@ class CommandLine:public ScreenObject
     BOOL SetLastCmdStr(const wchar_t *Ptr);
     BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
     bool CheckCmdLineForHelp(const wchar_t *CmdLine);
+    bool CheckCmdLineForSet(const string& CmdLine);
 
   public:
     CommandLine();

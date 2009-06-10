@@ -1318,7 +1318,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		if(CheckCmdLineForHelp(strCmdLine) || strCmdLine.IsEmpty())
 			return FALSE; // отдадимся COMSPEC`у
 
-		if (strCmdLine.Pos(pos,L'/')) // вариант для /A и /P
+		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
 			return FALSE;
 
 		if (!strCmdLine.Pos(pos,L'='))
@@ -1520,6 +1520,12 @@ bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
 	return false;
 }
 
+bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
+{
+	if(CmdLine.GetLength()>1&&CmdLine.At(0)==L'/'&&IsSpaceOrEos(CmdLine.At(2))) return true;
+	return false;
+}
+
 BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 {
 	Panel *SetPanel;
@@ -1540,7 +1546,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
 //      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && (!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES || IsSlash(strExpandedDir.At(1))) )
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))) )
 	{
 		string strTemp;
 		GetRegKey(strSystemExecutor,L"~",strTemp,g_strFarPath);
