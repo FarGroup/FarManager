@@ -1515,22 +1515,27 @@ static bool evalFunc()
   struct MacroRecord RBuf;
   int KeyPos;
 
-  if(Cmd&1)
+  if(!(Val.isInteger() && Val.i() == 0))
   {
-    CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
-    Ret=false;  // всегда! т.к. мы проверяем, а не исполняем
+    if(Cmd&1)
+    {
+      CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
+      Ret=false;  // всегда! т.к. мы проверяем, а не исполняем
+    }
+    else
+    {
+      CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+      CtrlObject->Macro.PushState(true);
+      if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+      {
+        CtrlObject->Macro.PopState();
+        Ret=false;
+      }
+    }
+    VMStack.Push((__int64)__getMacroErrorCode());
   }
   else
-  {
-    CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-    CtrlObject->Macro.PushState(true);
-    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
-    {
-      CtrlObject->Macro.PopState();
-      Ret=false;
-    }
-  }
-  VMStack.Push((__int64)__getMacroErrorCode());
+    VMStack.Push(_i64(-1));
 
   return Ret;
 }

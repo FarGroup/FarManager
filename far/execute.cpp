@@ -894,6 +894,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
         {
           *ExtPtr=' ';
           PartCmdLine (NewCmdStr,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
+          if(!*NewCmdPar)
+            *ExtPtr='.';
           PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
         }
 

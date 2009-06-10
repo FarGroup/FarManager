@@ -347,11 +347,14 @@ static void calcFunc(void)
     if ( nParam )
     {
       int i=0;
+      int foundparam=0;
       if (nParam >= oParam)
       {
         for ( ; i < nParam ; i++ )
         {
           getToken();
+          if(currTok != tRp)
+            foundparam++;
           expr();
           _KEYMACRO_PARSE(SysLog("i=%d, nParam=%d  oParam=%d currTok=%s",i,nParam,oParam,_MacroParserToken_ToName(currTok)));
           if ( currTok != ( (i == nParam-1 ) ? tRp : tComma ) )
@@ -376,7 +379,7 @@ static void calcFunc(void)
 
       if(oParam > 0)  //???
       {
-        if ( nParam-(i+1) > oParam )
+        if ( nParam-(i+1) > oParam || (!i && nParam && nParam > oParam && !foundparam)) // проскакивает eval() без параметров!
         {
           keyMacroParseError(err_Func_Param, nameString);
           currTok = tEnd;
@@ -713,8 +716,17 @@ static TToken getToken(void)
                  __currTok = tConst;
               else
               {
-                _KEYMACRO_PARSE(SysLog("[%d] IsProcessFunc = %d, currTok=%s",__LINE__,IsProcessFunc,_MacroParserToken_ToName(currTok)));
-                keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+                DWORD k=KeyNameToKey(nameString);
+                if(k != (DWORD)-1)
+                {
+                  currVar = (__int64)k;
+                  __currTok = tInt; //??
+                }
+                else
+                {
+                  _KEYMACRO_PARSE(SysLog("[%d] IsProcessFunc = %d, currTok=%s",__LINE__,IsProcessFunc,_MacroParserToken_ToName(currTok)));
+                  keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+                }
               }
             }
             else
