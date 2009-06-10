@@ -272,6 +272,20 @@ static void ParseCmdSyntax(TCHAR*& pCmd, int& ShowCmdOutput, int& stream)
   FarLTrim(pCmd);
 }
 
+// тестирует префиск Pref
+// сдвигает Src, если нашел (на длину префиска)
+// возвращает длину.
+static int TestPrefix(TCHAR*& Src,const TCHAR *Pref)
+{
+	int lenPref=lstrlen(Pref);
+	if(!_memicmp(Src,Pref,lenPref))
+	{
+		Src+=lenPref;
+		return lenPref;
+	}
+	return 0;
+}
+
 int OpenFromCommandLine(TCHAR *_farcmd)
 {
   if ( !_farcmd ) return FALSE;
@@ -288,72 +302,71 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     int StartLine=-1, StartChar=-1;
     int ShowCmdOutput=Opt.ShowCmdOutput;
     int stream=Opt.CatchMode;
-    BOOL outputtofile=0, allOK=TRUE, View,Edit,Goto,Far,Clip,WhereIs,Macro,Link,Run;
-#ifdef UNICODE
-    BOOL PLoad,UnloadP;
-#endif
-    TCHAR *Ptr, *pCmd=NULL, Pref;
+    BOOL outputtofile=0, allOK=TRUE;
+    int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, PLoad=0,UnloadP=0;
+    TCHAR *Ptr, *pCmd=NULL;
+    size_t I;
 
-    Ptr=_tcschr(farcmd,_T(':')); ++Ptr;
+    static struct {
+      int& Pref;
+      TCHAR *Name;
+    } Pref[]= {
+      // far:<command>[<options>]<separator><object>
+      {Far,_T("FAR")},  // ЭТОТ самый первый!
+      // view:[<separator>]<object>
+      // view<separator><object>
+      {View,_T("VIEW")},
+      // clip:[<separator>]<object>
+      // clip:<separator><object>
+      {Clip,_T("CLIP")},
+      // whereis:[<separator>]<object>
+      // whereis<separator><object>
+      {WhereIs,_T("WHEREIS")},
+      // edit:[[<options>]<separator>]<object>
+      // edit[<options>]<separator><object>
+      {Edit,_T("EDIT")},
+      // goto:[<separator>]<object>
+      // goto<separator><object>
+      {Goto,_T("GOTO")},
+      // macro:[<separator>]<object>
+      // macro<separator><object>
+      {Macro,_T("MACRO")},
+      // link:[<separator>][<op>]<separator><source><separator><dest>
+      // link<separator>[<op>]<separator><source><separator><dest>
+      {Link,_T("LINK")},
+      // run:[<separator>]<file> < <command>
+      // run<separator><file> < <command>
+      {Run,_T("RUN")},
+      #ifdef UNICODE
+      // pload:[<separator>]<file>
+      // pload<separator><file>
+      {PLoad,_T("PLOAD")},
+      // unloadp:[<separator>]<file>
+      // unloadp<separator><file>
+      {UnloadP,_T("UNLOADP")},
+      #endif
+    };
 
-    Pref=(TCHAR)((*farcmd)&(~0x20));
-
-    // far:<command>[<options>]<separator><object>
-    Far =(Pref == _T('F'));
-    if(Far)
+    for(I=0; I < ArraySize(Pref); ++I)
     {
-      farcmd=Ptr;
-      Pref=(TCHAR)((*farcmd)&(~0x20));
-      // farcmd = <command>[<options>]<separator><object>
-      // farcmd = <command><separator><object>
-      // Pref   = V|E|G|C|W|M|L|R|P|U
+      Pref[I].Pref=TestPrefix(farcmd,Pref[I].Name);
+      if(Pref[I].Pref)
+      {
+    	if(*farcmd == _T(':'))
+    		farcmd++;
+    	if(!I)
+    	{
+          //  farcmd = <command>[<options>]<separator><object>
+          //  farcmd = <command><separator><object>
+    	  continue;  // для "FAR:" продолжаем
+    	}
+    	break;
+      }
     }
+    // farcmd = [[<options>]<separator>]<object>
+    // farcmd = [<separator>]<object>
 
-    // view:[<separator>]<object>
-    // view<separator><object>
-    View=(Pref == _T('V'));
-    // clip:[<separator>]<object>
-    // clip:<separator><object>
-    Clip=(Pref == _T('C'));
-    // whereis:[<separator>]<object>
-    // whereis:<separator><object>
-    WhereIs=(Pref == _T('W'));
-    // edit:[[<options>]<separator>]<object>
-    // edit[<options>]<separator><object>
-    Edit=(Pref == _T('E'));
-    // goto:[<separator>]<object>
-    // goto<separator><object>
-    Goto=(Pref == _T('G'));
-    // macro:[<separator>]<object>
-    // macro<separator><object>
-    Macro=(Pref == _T('M'));
-    // link:[<separator>][<op>]<separator><source><separator><dest>
-    // link<separator>[<op>]<separator><source><separator><dest>
-    Link=(Pref == _T('L'));
-    // run:[<separator>]<file> < <command>
-    // run<separator><file> < <command>
-    Run=(Pref == _T('R'));
-#ifdef UNICODE
-    // pload:[<separator>]<file>
-    // pload<separator><file>
-    PLoad=(Pref == _T('P'));
-    // unloadp:[<separator>]<file>
-    // unloadp<separator><file>
-    UnloadP=(Pref == _T('U'));
-#endif
-
-    if(!Far)
-    {
-      farcmd=Ptr;
-      // farcmd = [[<options>]<separator>]<object>
-      // farcmd = [<separator>]<object>
-    }
-
-    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run
-#ifdef UNICODE
-       ||PLoad||UnloadP
-#endif
-      )
+    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||PLoad||UnloadP)
     {
       int SeparatorLen=lstrlen(Opt.Separator);
       TCHAR *cBracket=NULL, runFile[NM]=_T("");
@@ -503,7 +516,6 @@ int OpenFromCommandLine(TCHAR *_farcmd)
              {
                HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
                TCHAR FullKeyName[512];
-               size_t I;
                for(I=0; I < ArraySize(RootFindKey); ++I)
                {
                  FarSprintf(FullKeyName,
@@ -639,11 +651,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #ifdef UNICODE
           else if (PLoad || UnloadP)
           {
+            TCHAR temp[NM*5];
             Unquote(pCmd);
+            ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
             if (PLoad)
-              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)pCmd);
+              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
             else
-              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)pCmd);
+              Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
           }
 #endif
           else
