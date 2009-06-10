@@ -404,6 +404,9 @@ $^#Notes#
 
    4. If you make a syntax error, the help will pop up.
 
+   5. You can use console aliases as #command#
+      (Console aliases - macros defined by command DOSKEY)
+
    See also: ~Contents~@Contents@
 
 @Config
