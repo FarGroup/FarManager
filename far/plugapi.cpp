@@ -429,7 +429,9 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
           case MCMD_POSTMACROSTRING:
           {
-            return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
+            if(KeyMacro->Param.PlainText.SequenceText && *KeyMacro->Param.PlainText.SequenceText)
+              return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
+            return FALSE;
           }
 
           case MCMD_CHECKMACRO:  // проверка макроса

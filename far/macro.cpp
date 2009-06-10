@@ -1565,33 +1565,38 @@ static bool sleepFunc()
 // N=eval(S[,N])
 static bool evalFunc()
 {
-  bool Ret=true;
-  DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
-  TVar Val;
-  VMStack.Pop(Val);
+	bool Ret=true;
+	DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
+	TVar Val;
+	VMStack.Pop(Val);
 
-  struct MacroRecord RBuf;
-  int KeyPos;
+	struct MacroRecord RBuf;
+	int KeyPos;
 
-  if(Cmd&1)
-  {
-    CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
-    Ret=false; // всегда! т.к. мы проверяем, а не исполняем
-  }
-  else
-  {
-    CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
-    CtrlObject->Macro.PushState(true);
-    if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
-    {
-      CtrlObject->Macro.PopState();
-      Ret=false;
-    }
-  }
+	if(!(Val.isInteger() && Val.i() == 0)) // учитываем только нормальное содержимое строки компиляции
+	{
+		if(Cmd&1) // только проверка?
+		{
+			CtrlObject->Macro.PostNewMacro(Val.toString(),0,0,TRUE);
+			Ret=false; // всегда! т.к. мы проверяем, а не исполняем
+		}
+		else
+		{
+			CtrlObject->Macro.GetCurRecord(&RBuf,&KeyPos);
+			CtrlObject->Macro.PushState(true);
+			if(!CtrlObject->Macro.PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+			{
+				CtrlObject->Macro.PopState();
+				Ret=false;
+			}
+		}
 
-  VMStack.Push((__int64)__getMacroErrorCode());
+		VMStack.Push((__int64)__getMacroErrorCode());
+	}
+	else
+		VMStack.Push(_i64(-1));
 
-  return Ret;
+	return Ret;
 }
 
 

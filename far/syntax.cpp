@@ -296,91 +296,101 @@ static TMacroFunction macroFunction[]={
 
 static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 {
-  oParam=nParam=0;
-  for(size_t I=0; I < countof(macroFunction); ++I)
-    //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
-    if(!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
-    {
-      nParam = macroFunction[I].nParam;
-      oParam = macroFunction[I].oParam;
-      return (DWORD)macroFunction[I].Code;
-    }
+	oParam=nParam=0;
 
-  return (DWORD)MCODE_F_NOFUNC;
+	for(size_t I=0; I < countof(macroFunction); ++I)
+	{
+		//if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
+		if(!StrCmpNI(s, macroFunction[I].Name, (int)Max(StrLength(macroFunction[I].Name),StrLength(s))))
+		{
+			nParam = macroFunction[I].nParam;
+			oParam = macroFunction[I].oParam;
+
+			return (DWORD)macroFunction[I].Code;
+		}
+	}
+
+	return (DWORD)MCODE_F_NOFUNC;
 }
 
 static TToken getToken(void);
 
 static void calcFunc(void)
 {
-  int nParam, oParam;
-  TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
-  if ( nFunc != MCODE_F_NOFUNC )
-  {
-    IsProcessFunc++;
-    if ( nParam )
-    {
-      int i=0;
-      if (nParam >= oParam)
-      {
-        for ( ; i < nParam ; i++ )
-        {
-          getToken();
-          expr();
-          if ( currTok != ( (i == nParam-1) ? tRp : tComma ) )
-          {
-            if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
-              break;
+	int nParam, oParam;
+	TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
 
-            if ( i == nParam-1 )
-              keyMacroParseError(err_Expected, L")");
-            else
-              keyMacroParseError(err_Expected, L",");
-            currTok = tEnd;
-          }
-        }
-      }
-      else
-      {
-        getToken();
-        expr();
-      }
+	if ( nFunc != MCODE_F_NOFUNC )
+	{
+		IsProcessFunc++;
+		if ( nParam )
+		{
+			int i=0;
+			int foundparam=0;
+			if (nParam >= oParam)
+			{
+				for ( ; i < nParam ; i++ )
+				{
+					getToken();
+					if(currTok != tRp)
+						foundparam++;
+					expr();
+					if ( currTok != ( (i == nParam-1) ? tRp : tComma ) )
+					{
+						if ( oParam > 0 &&  currTok != tEnd) // если опциональные параметры есть и...
+							break;
 
-      if(oParam > 0)  //???
-      {
-        if ( nParam-(i+1) > oParam )
-        {
-          keyMacroParseError(err_Func_Param, nameString);
-          currTok = tEnd;
-        }
-        // добьем нулями опциональные параметры
-        for( ; i < nParam-1; ++i)
-        {
-          put(MCODE_OP_PUSHINT);
-          // исключение для substr
-          if(nFunc == MCODE_F_SUBSTR)
-            put64((unsigned __int64)_i64(-1));
-          else
-            put64(_i64(0));
-        }
-      }
-    }
-    else
-    {
-      getToken();
-      if ( currTok != tRp )
-      {
-        keyMacroParseError(err_Expected, L")");
-        currTok = tEnd;
-      }
-    }
-    put(nFunc);
-    IsProcessFunc--;
-  }
-  else if(currTok == tFunc)
-  {
-    keyMacroParseError(err_Unrecognized_function, nameString);
-  }
+						if ( i == nParam-1 )
+							keyMacroParseError(err_Expected, L")");
+						else
+							keyMacroParseError(err_Expected, L",");
+						currTok = tEnd;
+					}
+				}
+			}
+			else
+			{
+				getToken();
+				expr();
+			}
+
+			if(oParam > 0)  //???
+			{
+				if ( nParam-(i+1) > oParam || (!i && nParam && nParam > oParam && !foundparam)) // проскакивает eval() без параметров!
+				{
+					keyMacroParseError(err_Func_Param, nameString);
+					currTok = tEnd;
+				}
+
+				// добьем нулями опциональные параметры
+				for( ; i < nParam-1; ++i)
+				{
+					put(MCODE_OP_PUSHINT);
+					// исключение для substr
+					if(nFunc == MCODE_F_SUBSTR)
+						put64((unsigned __int64)_i64(-1));
+					else
+						put64(_i64(0));
+				}
+			}
+		}
+		else
+		{
+			getToken();
+			if ( currTok != tRp )
+			{
+				keyMacroParseError(err_Expected, L")");
+				currTok = tEnd;
+			}
+		}
+
+		put(nFunc);
+		IsProcessFunc--;
+	}
+	else if(currTok == tFunc)
+	{
+		keyMacroParseError(err_Unrecognized_function, nameString);
+	}
 }
 
 static void getVarName(int& ch)
@@ -677,7 +687,18 @@ static TToken getToken(void)
               if(KeyNameMacroToKey(nameString) == -1 && KeyNameToKey(nameString) == -1 && checkMacroConst(nameString))
                 __currTok = tConst;
               else
-                keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+              {
+                DWORD k=KeyNameToKey(nameString);
+                if(k != (DWORD)-1)
+                {
+                  currVar = (__int64)k;
+                  __currTok = tInt; //??
+                }
+                else
+                {
+                  keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+                }
+              }
             }
             else
             {

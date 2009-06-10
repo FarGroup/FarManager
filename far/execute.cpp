@@ -735,6 +735,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				{
 					*ExtPtr=L' ';
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
+					if(strNewCmdPar.IsEmpty())
+						*ExtPtr=L'.';
 					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 				}
 			}
