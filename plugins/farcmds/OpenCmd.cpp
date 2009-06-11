@@ -307,9 +307,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     TCHAR *Ptr, *pCmd=NULL;
     size_t I;
 
-    static struct {
+    struct {
       int& Pref;
-      TCHAR *Name;
+      LPCTSTR Name;
     } Pref[]= {
       // far:<command>[<options>]<separator><object>
       {Far,_T("FAR")},  // ЭТОТ самый первый!

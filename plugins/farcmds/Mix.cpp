@@ -112,12 +112,6 @@ int ReplaceStrings(TCHAR *Str,const TCHAR *FindStr,const TCHAR *ReplStr,int Coun
   int LenFindStr=(int)lstrlen(FindStr);
   int L=(int)lstrlen(Str);
 
-  #ifndef UNICODE
-  #define _tmemmove(t,c,s) memmove(t,c,s)
-  #else
-  #define _tmemmove(t,c,s) wmemmove(t,c,s)
-  #endif
-
   while(I <= L-LenFindStr)
   {
     Res=IgnoreCase?_memicmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR)):memcmp(Str+I, FindStr, LenFindStr*sizeof(TCHAR));
