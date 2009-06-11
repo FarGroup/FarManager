@@ -107,7 +107,14 @@ extern "C"
 #endif
   WMEM * __cdecl wmemcpy(WMEM *dst, const WMEM *src, size_t count);
   int __cdecl _memicmp(const void *first, const void *last, size_t count);
+
   void * __cdecl memmove(void *dst, const void *src, size_t count);
+#ifdef __BORLANDC__
+#undef wmemmove
+#define wmemmove _wmemmove 
+#endif
+  WMEM * __cdecl wmemmove(WMEM *dst, const WMEM *src, size_t count);
+
   void * __cdecl memset(void *dst, int val, size_t count);
 #ifdef __BORLANDC__
 #undef wmemset
@@ -158,10 +165,12 @@ extern "C"
 #define _tmemset(t,c,s) memset(t,c,s)
 #define _tmemcpy(t,s,c) memcpy(t,s,c)
 #define _tmemchr(b,c,n) memchr(b,c,n)
+#define _tmemmove(b,c,n) memmove(b,c,n)
 #else
 #define _tmemset(t,c,s) wmemset(t,c,s)
 #define _tmemcpy(t,s,c) wmemcpy(t,s,c)
 #define _tmemchr(b,c,n) wmemchr(b,c,n)
+#define _tmemmove(b,c,n) wmemmove(b,c,n)
 #endif
 
 #define ArraySize(a)  (sizeof(a)/sizeof(a[0]))

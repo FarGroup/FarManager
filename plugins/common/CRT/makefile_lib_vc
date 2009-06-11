@@ -66,6 +66,7 @@ $(OBJDIR)\memcpy.obj \
 $(OBJDIRW)\memcpy.obj \
 $(OBJDIR)\memicmp.obj \
 $(OBJDIR)\memmove.obj \
+$(OBJDIRW)\memmove.obj \
 $(OBJDIR)\memset.obj \
 $(OBJDIRW)\memset.obj \
 $(OBJDIR)\new.obj \

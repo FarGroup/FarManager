@@ -36,6 +36,7 @@ realloc.cpp
 SRCSW = i64toa.cpp \
 memset.cpp \
 memcpy.cpp \
+memmove.cpp \
 strchr.cpp \
 strcpy.cpp \
 strdup.cpp \
