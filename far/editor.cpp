@@ -148,6 +148,9 @@ void Editor::FreeAllocatedData(bool FreeUndo)
   }
 
   UndoData.Clear();
+  UndoSavePos=NULL;
+  UndoPos=NULL;
+  UndoSkipLevel=0;
 
   ClearStackBookmarks();
 
@@ -4403,7 +4406,6 @@ void Editor::DeleteBlock()
     int EndLength=StrLength(EndSeq);
     wmemcpy(TmpStr+Length,EndSeq,EndLength);
     Length+=EndLength;
-    TmpStr[Length]=0;
     CurPtr->SetBinaryString(TmpStr,Length);
     xf_free(TmpStr);
     CurPtr->SetCurPos(CurPos);
@@ -5077,7 +5079,6 @@ void Editor::DeleteVBlock()
     int EndLength=StrLength(EndSeq);
     wmemcpy(TmpStr+CurLength,EndSeq,EndLength);
     CurLength+=EndLength;
-    TmpStr[CurLength]=0;
 
     int CurPos=CurPtr->GetCurPos();
     CurPtr->SetBinaryString(TmpStr,CurLength);
@@ -5317,7 +5318,6 @@ void Editor::VBlockShift(int Left)
     int EndLength=StrLength(EndSeq);
     wmemcpy(TmpStr+StrLen,EndSeq,EndLength);
     StrLen+=EndLength;
-    TmpStr[StrLen]=0;
 
     CurPtr->SetBinaryString(TmpStr,StrLen);
     delete[] TmpStr;
