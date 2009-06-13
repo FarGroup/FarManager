@@ -488,6 +488,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\memmove.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\memset.cpp"
 				>
 			</File>
