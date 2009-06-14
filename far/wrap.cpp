@@ -3065,6 +3065,37 @@ UINT GetEditorCodePageA()
 	return CodePage;
 }
 
+int GetEditorCodePageFavA(void)
+{
+	UINT CodePage=GetEditorCodePageA(),nCP;
+	DWORD selectType,Index=0,FavIndex=2;
+	string sTableName;
+	int result=-((int)CodePage+2);
+	if(GetOEMCP()==CodePage)
+	{
+		result=0;
+	}
+	else if(GetACP()==CodePage)
+	{
+		result=1;
+	}
+	else
+	{
+		while(EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType)))
+		{
+			if(!(selectType&CPST_FAVORITE)) continue;
+			nCP=_wtoi(sTableName);
+			if(nCP==CodePage)
+			{
+				result=FavIndex;
+				break;
+			}
+			FavIndex++;
+		}
+	}
+	return result;
+}
+
 void MultiByteRecode (UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 {
 	if (szBuffer && nLength > 0)
@@ -3169,7 +3200,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				oei->BlockStartLine=ei.BlockStartLine;
 				oei->AnsiMode=0;
 
-				oei->TableNum=-((int)GetEditorCodePageA()+2);
+				oei->TableNum=GetEditorCodePageFavA();
 
 				oei->Options=ei.Options;
 				oei->TabSize=ei.TabSize;
@@ -3551,15 +3582,19 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 			case 1 /* ANSI */:	nCP = GetACP(); 	break;
 			default:
 				{
-					int iSelCT = Command-2; //"Favorite" tables index, after OEM and ANSI
-					DWORD selectType;
-					do
+					DWORD selectType,Index=0;
+					int FavIndex=2;
+					while(true)
 					{
-						selectType = 0;
-						if (!EnumRegValue(FavoriteCodePagesKey, iSelCT++, sTableName, (BYTE *)&selectType, sizeof(selectType)))
-							return -1;
-					} while (!(selectType & CPST_FAVORITE));
-					nCP = _wtoi (sTableName);
+						if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return -1;
+						if(!(selectType&CPST_FAVORITE)) continue;
+						if(FavIndex==Command)
+						{
+							nCP=_wtoi(sTableName);
+						    break;
+						}
+						FavIndex++;
+					}
 				}
 			}
 		}
