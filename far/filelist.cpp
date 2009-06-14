@@ -3896,10 +3896,11 @@ bool FileList::ApplyCommand()
 	if(CtrlObject->CmdLine->IsVisible())
 		NeedCountScroll++;
 
-	RedrawDesktop *Redraw=NULL;
-	if(isSilent)
-		Redraw=new RedrawDesktop(TRUE);
-
+	//redraw надо запрещать обязательно.
+	//иначе после выполнения каждой комманды текущая директория перечитывается.
+	//и если выполняемая комманда создаёт файлы в текущей директории,
+	//то возможно неоднократное выполнение комманды для одного и того же файла.
+	RedrawDesktop Redraw(TRUE);
 	SaveSelection();
 
 	// спорный момент, особено для @set a=b
@@ -3965,9 +3966,6 @@ bool FileList::ApplyCommand()
 		ScrBuf.Scroll(NeedCountScroll);
 		ScrBuf.Flush();
 	}
-
-	if(Redraw)
-		delete Redraw;
 
 	return true;
 }
