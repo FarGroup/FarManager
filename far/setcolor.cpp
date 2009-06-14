@@ -526,7 +526,8 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
         int NewColor;
         int *CurColor = (int *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        FarDialogItem *DlgItem = (FarDialogItem *)Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, 0);
+        FarDialogItem *DlgItem = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, 0));
+        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)DlgItem);
 
         NewColor=*CurColor;
         if(Param1 >= 2 && Param1 <= 17) // Fore
@@ -543,7 +544,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
         if (NewColor!=*CurColor)
           *CurColor=NewColor;
 
-        Dialog::SendDlgMessage (hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)DlgItem);
+        xf_free(DlgItem);
 
         return TRUE;
       }

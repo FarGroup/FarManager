@@ -2018,7 +2018,8 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
          Переключение видимости строки ввода искомого текста
          в зависимости от Dlg->Item[6].Selected
       */
-      Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0);
+      Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0));
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)Item);
 
       if (Item->Param.Selected)
       {
@@ -2038,7 +2039,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,1);
 
-      Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+      xf_free(Item);
 
       return TRUE;
     }
@@ -2056,10 +2057,11 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
         if (Param1 == 6 && Param2)
         {
           _SVS(SysLog(L"Param1=%d",Param1));
-          Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,0);
+          Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,0));
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(LONG_PTR)Item);
           Transform(strDataStr,Item->PtrData,L'X');
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)(const wchar_t*)strDataStr);
-          Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+          xf_free(Item);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
@@ -2076,10 +2078,11 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
         if (Param1 == 5 && Param2)
         {
           _SVS(SysLog(L"Param1=%d",Param1));
-          Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,0);
+          Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,0));
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,(LONG_PTR)Item);
           Transform(strDataStr,Item->PtrData,L'S');
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strDataStr);
-          Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+          xf_free(Item);
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
@@ -2102,14 +2105,15 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
     {
       if (Param1==1)
       {
-        Item = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0);
+        Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)Item);
 
         if (Item->Param.Selected)
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,3,0);
         else
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
 
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)Item);
+        xf_free(Item);
 
         return FALSE;
       }

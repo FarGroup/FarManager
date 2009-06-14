@@ -349,6 +349,8 @@ class Dialog: public Frame
     // преобразования из внутреннего представления в FarDialogItem и обратно
     static bool ConvertItemEx (CVTITEMFLAGS FromPlugin, struct FarDialogItem *Item,
                                struct DialogItemEx *Data, unsigned Count);
+    // преобразования из внутреннего представления в FarDialogItem в пользовательский буффер
+	static size_t ConvertItemEx2(struct FarDialogItem *Item,struct DialogItemEx *Data);
 
     static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
                            int Count);

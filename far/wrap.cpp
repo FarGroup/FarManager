@@ -1690,12 +1690,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_GETDLGITEM:
 		{
-			FarDialogItem *di = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
+			FarDialogItem *di = (FarDialogItem *)xf_malloc(FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0));
 
 			if (di)
 			{
+				FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)di);
 				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
-				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)di);
+				xf_free(di);
 
 				memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
 				return TRUE;
@@ -2194,9 +2195,10 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			FarDialogItem *pdi = (FarDialogItem *)FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0);
+			FarDialogItem *pdi = (FarDialogItem *)xf_malloc(FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0));
 			if (pdi)
 			{
+			    FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, (LONG_PTR)pdi);
 				UnicodeDialogItemToAnsiSafe(*pdi,Item[i]);
 				const wchar_t *res = pdi->PtrData;
 				if (!res) res = L"";
@@ -2210,7 +2212,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 					di[i].Param.VBuf=pdi->Param.VBuf;
 					Item[i].Param.VBuf=GetAnsiVBufPtr(pdi->Param.VBuf,GetAnsiVBufSize(Item[i]));
 				}
-				FarSendDlgMessage(hDlg, DM_FREEDLGITEM, 0, (LONG_PTR)pdi);
+				xf_free(pdi);
 			}
 			FreeAnsiDialogItem(diA[i]);
 		}

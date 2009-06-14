@@ -751,14 +751,15 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         GetColorDialog(Color,true,true);
         EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=(WORD)Color;
 
-        FarDialogItem *ColorExample = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
+        FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         wchar_t MarkChar[2];
         //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
         Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
         EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)ColorExample);
+        xf_free(ColorExample);
 
         return TRUE;
       }
@@ -768,14 +769,15 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       if (Param1 == ID_HER_MARKEDIT)
       {
         HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-        FarDialogItem *ColorExample = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
+        FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         wchar_t MarkChar[2];
         //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
         Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
         EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)ColorExample);
+        xf_free(ColorExample);
         return TRUE;
       }
       break;

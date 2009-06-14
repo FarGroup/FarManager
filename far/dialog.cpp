@@ -3667,6 +3667,38 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
   }
 }
 
+static size_t ItemStringAndSize(struct DialogItemEx *Data,string& ItemString)
+{
+	//TODO: тут видимо надо сделать поумнее
+	ItemString=Data->strData;
+	if (IsEdit(Data->Type))
+	{
+		DlgEdit *EditPtr;
+		if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
+			EditPtr->GetString(ItemString);
+	}
+	size_t sz = ItemString.GetLength();
+	if (sz > Data->nMaxLength && Data->nMaxLength > 0)
+		sz = Data->nMaxLength;
+	return sz;
+}
+
+static void ConvertItemSmall(struct FarDialogItem *Item,struct DialogItemEx *Data)
+{
+	Item->Type = Data->Type;
+	Item->X1 = Data->X1;
+	Item->Y1 = Data->Y1;
+	Item->X2 = Data->X2;
+	Item->Y2 = Data->Y2;
+	Item->Focus = Data->Focus;
+
+	Item->Param.History = Data->History;
+	Item->Flags = Data->Flags;
+	Item->DefaultButton = Data->DefaultButton;
+	Item->MaxLen = Data->nMaxLength;
+	Item->PtrData = NULL;
+}
+
 bool Dialog::ConvertItemEx (
         CVTITEMFLAGS FromPlugin,
         struct FarDialogItem *Item,
@@ -3684,34 +3716,15 @@ bool Dialog::ConvertItemEx (
 		case CVTITEM_TOPLUGINSHORT:
 			for (I=0; I < Count; I++, ++Item, ++Data)
 			{
-				Item->Type = Data->Type;
-				Item->X1 = Data->X1;
-				Item->Y1 = Data->Y1;
-				Item->X2 = Data->X2;
-				Item->Y2 = Data->Y2;
-				Item->Focus = Data->Focus;
-
-				Item->Param.History = Data->History;
-				Item->Flags = Data->Flags;
-				Item->DefaultButton = Data->DefaultButton;
-				Item->MaxLen = Data->nMaxLength;
-				Item->PtrData = NULL;
+				ConvertItemSmall(Item,Data);
 
 				if(FromPlugin==CVTITEM_TOPLUGIN)
 				{
-					//TODO: тут видимо надо сделать поумнее
-					string str(Data->strData);
-					if (IsEdit(Data->Type))
-					{
-						DlgEdit *EditPtr;
-						if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
-							EditPtr->GetString(str);
-					}
+
+					string str;
+					size_t sz = ItemStringAndSize(Data,str);
 
 					{
-						size_t sz = str.GetLength();
-						if (sz > Data->nMaxLength && Data->nMaxLength > 0)
-							sz = Data->nMaxLength;
 						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
 						Item->PtrData = p;
 						if (!p) // TODO: may be needed message?
@@ -3756,6 +3769,25 @@ bool Dialog::ConvertItemEx (
 			break;
 	}
 	return true;
+}
+
+size_t Dialog::ConvertItemEx2(struct FarDialogItem *Item,struct DialogItemEx *Data)
+{
+	size_t size=sizeof(*Item);
+	string str;
+	size_t sz = ItemStringAndSize(Data,str);
+	size+=(sz+1)*sizeof(wchar_t);
+	if(Item)
+	{
+		ConvertItemSmall(Item,Data);
+		wchar_t* p=(wchar_t*)(((char*)Item)+sizeof(*Item));
+		Item->PtrData = p;
+		wmemcpy(p, (const wchar_t*)str, sz);
+		p[sz] = L'\0';
+		if(Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
+			Item->Param.ListPos=Data->ListPtr?Data->ListPtr->GetSelectPos():0;
+	}
+	return size;
 }
 
 void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,int Count)
@@ -6310,32 +6342,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		/*****************************************************************/
 		case DM_GETDLGITEM:
 		{
-    	FarDialogItem *Item = (FarDialogItem *) xf_malloc(sizeof(FarDialogItem));
-			if(!Item || !Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,CurItem,1))
-				return 0; // no memory TODO: may be needed diagnostic
-			if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
-				Item->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
-/*
-			if(IsEdit(Type))
-			{
-				((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
-				strcpy((char *)Param2,Str);
-			}
-			else
-				strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
-*/
-			return (LONG_PTR)Item;
-		}
-
-		/*****************************************************************/
-		case DM_FREEDLGITEM:
-		{
-			if(!Param2 || IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
-					return FALSE;
-			if (((FarDialogItem *)Param2)->PtrData)
-				xf_free((wchar_t *)(((FarDialogItem *)Param2)->PtrData));
-			xf_free(((FarDialogItem *)Param2));
-			return TRUE;
+			FarDialogItem* Item = (FarDialogItem*)Param2;
+			return (LONG_PTR)Dialog::ConvertItemEx2(Item,CurItem);
 		}
 
 		/*****************************************************************/

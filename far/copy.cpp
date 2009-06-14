@@ -1224,11 +1224,16 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         DlgParam->thisClass->SrcPanel->GetCurDir(strTmpSrcDir);
 
-        DItemACCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0);
-        DItemACInherit = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0);
-        DItemACLeave = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0);
-        //DItemOnlyNewer = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0);
-        DItemBtnCopy = (FarDialogItem *)Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0);
+        DItemACCopy = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
+        DItemACInherit = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
+        DItemACLeave = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
+        //DItemOnlyNewer = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0));
+        //Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
+        DItemBtnCopy = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0));
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
@@ -1292,11 +1297,11 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         //Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemACLeave);
-        //Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_FREEDLGITEM,0,(LONG_PTR)DItemBtnCopy);
+        xf_free(DItemACCopy);
+        xf_free(DItemACInherit);
+        xf_free(DItemACLeave);
+        //xf_free(DItemOnlyNewer);
+        xf_free(DItemBtnCopy);
       }
       break;
 
@@ -3781,8 +3786,6 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if(Param1==WDLG_FILENAME)
 			{
-				FarDialogItem di;
-				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
 				int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
 				return ((Param2&0xFF00FF00)|(Color<<16)|Color);
 			}
