@@ -539,8 +539,22 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         if (Command==ACTL_GETWINDOWINFO)
         {
           f->GetTypeAndName(strType, strName);
-          wi->TypeName=xf_wcsdup(strType);
-          wi->Name=xf_wcsdup(strName);
+					if(wi->TypeNameSize)
+					{
+						xwcsncpy(wi->TypeName,strType,wi->TypeNameSize-1);
+					}
+					else
+					{
+						wi->TypeNameSize=static_cast<int>(strType.GetLength()+1);
+					}
+					if(wi->NameSize)
+					{
+						xwcsncpy(wi->Name,strName,wi->NameSize-1);
+					}
+					else
+					{
+						wi->NameSize=static_cast<int>(strName.GetLength()+1);
+					}
         }
         else
         {
@@ -554,15 +568,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         return TRUE;
       }
       return FALSE;
-    }
-    case ACTL_FREEWINDOWINFO:
-    {
-      if(!Param)
-        return FALSE;
-      WindowInfo *wi=(WindowInfo*)Param;
-      xf_free((void *)wi->TypeName);
-      xf_free((void *)wi->Name);
-      return TRUE;
     }
 
     case ACTL_GETWINDOWCOUNT:

@@ -2198,7 +2198,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 			FarDialogItem *pdi = (FarDialogItem *)xf_malloc(FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, 0));
 			if (pdi)
 			{
-			    FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, (LONG_PTR)pdi);
+				FarSendDlgMessage(hDlg, DM_GETDLGITEM, i, (LONG_PTR)pdi);
 				UnicodeDialogItemToAnsiSafe(*pdi,Item[i]);
 				const wchar_t *res = pdi->PtrData;
 				if (!res) res = L"";
@@ -2914,9 +2914,28 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				wiA->Current = wi.Current;
 				if(cmd==ACTL_GETWINDOWINFO)
 				{
-					UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
-					UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
-					FarAdvControl(ModuleNumber,ACTL_FREEWINDOWINFO,&wi);
+					if(wi.TypeNameSize)
+					{
+						wi.TypeName=new wchar_t[wi.TypeNameSize];
+					}
+					if(wi.NameSize)
+					{
+						wi.Name=new wchar_t[wi.TypeNameSize];
+					}
+					if(wi.TypeName && wi.Name)
+					{
+						FarAdvControl(ModuleNumber,ACTL_GETWINDOWINFO,&wi);
+						UnicodeToOEM(wi.TypeName,wiA->TypeName,sizeof(wiA->TypeName));
+						UnicodeToOEM(wi.Name,wiA->Name,sizeof(wiA->Name));
+					}
+					if(wi.TypeName)
+					{
+						delete[] wi.TypeName;
+					}
+					if(wi.Name)
+					{
+						delete[] wi.Name;
+					}
 				}
 				else
 				{
@@ -3058,7 +3077,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 
 UINT GetEditorCodePageA()
 {
-	EditorInfo info;
+	EditorInfo info={0};
 	FarEditorControl(ECTL_GETINFO,&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
@@ -3178,17 +3197,28 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 		case oldfar::ECTL_GETINFO:
 		{
-			EditorInfo ei;
+			EditorInfo ei={0};
 			oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
-			if (!oei) return FALSE;
+			if (!oei)
+				return FALSE;
 			int ret=FarEditorControl(ECTL_GETINFO,&ei);
 			if (ret)
 			{
+				if(fn)
+					xf_free(fn);
 				memset(oei,0,sizeof(*oei));
+				if(ei.FileNameSize)
+				{
+					ei.FileName=new wchar_t[ei.FileNameSize];
+					if(ei.FileName)
+					{
+						FarEditorControl(ECTL_GETINFO,&ei);
+						fn = UnicodeToAnsi(ei.FileName);
+						oei->FileName=fn;
+						delete[] ei.FileName;
+					}
+				}
 				oei->EditorID=ei.EditorID;
-				if (fn)	xf_free(fn);
-				fn = UnicodeToAnsi(ei.FileName);
-				oei->FileName=fn;
 				oei->WindowSizeX=ei.WindowSizeX;
 				oei->WindowSizeY=ei.WindowSizeY;
 				oei->TotalLines=ei.TotalLines;

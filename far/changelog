@@ -1,3 +1,14 @@
+drkns 15.06.2009 20:30:24 +0200 - build 994
+
+1. ECTL_FREEINFO больше нет. Память под EditorInfo::FileName выделяет плагин.
+   Требуемый размер можно получить в поле EditorInfo::FileNameSize передав туда 0,
+   либо передав NULL в качестве EditorInfo::FileName.
+   Также надо пересобрать плагины, работающие со стековыми закладками редактора и ECTL_UNDOREDO.
+
+2. ACTL_FREEWINDOWINFO больше нет. Память под WindowInfo::TypeName и WindowInfo::Name выделяет плагин.
+   Требуемые размеры можно получить в полях WindowInfo::TypeNameSize и WindowInfo::NameSize передав туда 0,
+   либо передав NULL в качестве WindowInfo::TypeName и WindowInfo::Name соответственно.
+
 garry 15.06.2009 20:16:33 +0300 - build 993
 
 1. Ускорена загрузка файлов в редактор:

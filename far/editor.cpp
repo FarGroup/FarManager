@@ -5517,23 +5517,19 @@ int Editor::EditorControl(int Command,void *Param)
       return(TRUE);
     }
 
-
-    case ECTL_FREEINFO:
-    {
-      struct EditorInfo *Info=(struct EditorInfo *)Param;
-      xf_free ((void*)Info->FileName);
-      return(TRUE);
-    }
-
-
     case ECTL_GETINFO:
     {
       struct EditorInfo *Info=(struct EditorInfo *)Param;
-      if(Info && !IsBadWritePtr(Info,sizeof(struct EditorInfo)))
+			if(Info)
       {
-        memset(Info,0,sizeof(*Info));
         Info->EditorID=Editor::EditorID;
-        Info->FileName=xf_wcsdup (L""); //BUGBUG mem leak
+
+				//это поле _здесь_ трогать не надо, трогать надо в FileEditor
+				// Info->FileName;
+
+				// и это тоже:
+				// Info->FileNameSize;
+
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1+1;
         Info->TotalLines=NumLastLine;

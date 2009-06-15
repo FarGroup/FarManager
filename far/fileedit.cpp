@@ -2310,7 +2310,7 @@ int FileEditor::EditorControl(int Command, void *Param)
   _ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
   _ECTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
-	if ( m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS) && (Command != ECTL_FREEINFO) )
+	if ( m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS))
 		return FALSE;
 
 
@@ -2321,19 +2321,18 @@ int FileEditor::EditorControl(int Command, void *Param)
 			if ( m_editor->EditorControl(Command, Param) )
 			{
 				EditorInfo *Info = (EditorInfo*)Param;
-				Info->FileName = xf_wcsdup(strFullFileName); //BUGBUG mem leak
+				if(Info->FileName && Info->FileNameSize)
+				{
+					xwcsncpy(Info->FileName,strFullFileName,Info->FileNameSize-1);
+				}
+				else
+				{
+					Info->FileNameSize=static_cast<int>(strFullFileName.GetLength()+1);
+				}
 				return TRUE;
 			}
 
 			return FALSE;
-		}
-
-		case ECTL_FREEINFO:
-		{
-			EditorInfo *Info = (EditorInfo*)Param;
-			xf_free ((void*)Info->FileName);
-
-			return TRUE;
 		}
 
 		case ECTL_GETBOOKMARKS:
