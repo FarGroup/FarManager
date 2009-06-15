@@ -152,27 +152,32 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 
 int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 {
+#ifdef UNICODE
+  LPWSTR FileName=NULL;
+#endif
   BOOL Result=FALSE;
   if(!IsOldFar && Opt.ProcessEditorInput)
   {
     if(Rec->EventType==KEY_EVENT && Rec->Event.KeyEvent.bKeyDown &&
        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
     {
-#ifdef UNICODE
-      ei.FileNameSize=0;
-#endif
       Info.EditorControl(ECTL_GETINFO,&ei);
 #ifdef UNICODE
-      if(ei.FileNameSize)
+      size_t FileNameSize=Info.EditorControl(ECTL_GETFILENAME,NULL);
+      if(FileNameSize)
       {
-        ei.FileName=new wchar_t[ei.FileNameSize];
-        if(ei.FileName)
+        FileName=new wchar_t[FileNameSize];
+        if(FileName)
         {
-          Info.EditorControl(ECTL_GETINFO,&ei);
+          Info.EditorControl(ECTL_GETFILENAME,FileName);
         }
       }
 #endif
-      if(CheckExtension(ei.FileName))
+      if(CheckExtension(
+#ifndef UNICODE
+                        ei.
+#endif
+                           FileName))
       {
         ShowCurrentHelpTopic();
         Result=TRUE;
@@ -180,9 +185,9 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
     }
   }
 #ifdef UNICODE
-  if(ei.FileName)
+  if(FileName)
   {
-    delete[] ei.FileName;
+    delete[] FileName;
   }
 #endif
   return Result;
@@ -191,16 +196,17 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 void ShowCurrentHelpTopic()
 {
 #ifdef UNICODE
-  ei.FileNameSize=0;
+  size_t FileNameSize=Info.EditorControl(ECTL_GETFILENAME,NULL);
+  LPWSTR FileName=NULL;
 #endif
   Info.EditorControl(ECTL_GETINFO,&ei);
 #ifdef UNICODE
-  if(ei.FileNameSize)
+  if(FileNameSize)
   {
-    ei.FileName=new wchar_t[ei.FileNameSize];
-    if(ei.FileName)
+    FileName=new wchar_t[FileNameSize];
+    if(FileName)
     {
-      Info.EditorControl(ECTL_GETINFO,&ei);
+      Info.EditorControl(ECTL_GETFILENAME,FileName);
     }
   }
 #endif
@@ -210,19 +216,27 @@ void ShowCurrentHelpTopic()
       if(!(ei.CurState&ECSTATE_SAVED))
         ShowHelpFromTempFile();
       else
-        ShowHelp(ei.FileName,FindTopic());
+        ShowHelp(
+#ifndef UNICODE
+                 ei.
+#endif
+                    FileName,FindTopic());
       break;
     case 2:
       if(!(ei.CurState&ECSTATE_SAVED))
         Info.EditorControl(ECTL_SAVEFILE, NULL);
     default:
-      ShowHelp(ei.FileName,FindTopic());
+      ShowHelp(
+#ifndef UNICODE
+               ei.
+#endif
+                  FileName,FindTopic());
       break;
   }
 #ifdef UNICODE
-  if(ei.FileName)
+  if(FileName)
   {
-    delete[] ei.FileName;
+    delete[] FileName;
   }
 #endif
 }
@@ -253,9 +267,6 @@ void ShowHelpFromTempFile()
                              NULL, CREATE_NEW, 0, NULL);
     if(Handle != INVALID_HANDLE_VALUE)
     {
-#ifdef UNICODE
-      ei.FileNameSize=0;
-#endif
       Info.EditorControl(ECTL_GETINFO,&ei);
       for(egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
       {

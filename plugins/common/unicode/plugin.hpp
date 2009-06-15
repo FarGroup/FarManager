@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 994
+  Plugin API for FAR Manager 2.0 build 995
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 994
+#define FARMANAGERVERSION_BUILD 995
 
 #ifndef RC_INVOKED
 
@@ -1219,6 +1219,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_DELETESTACKBOOKMARK,
   ECTL_GETSTACKBOOKMARKS,
   ECTL_UNDOREDO,
+  ECTL_GETFILENAME,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1317,8 +1318,6 @@ enum EDITOR_CURRENTSTATE {
 struct EditorInfo
 {
   int EditorID;
-  wchar_t *FileName;
-  int FileNameSize;
   int WindowSizeX;
   int WindowSizeY;
   int TotalLines;

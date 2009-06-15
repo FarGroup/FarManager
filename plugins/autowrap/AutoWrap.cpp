@@ -132,15 +132,17 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 
   for (int Pass=1;;Pass++)
   {
-    struct EditorInfo ei={0};
+    EditorInfo ei;
     Info.EditorControl(ECTL_GETINFO,&ei);
 #ifdef UNICODE
-    if(ei.FileNameSize)
+    LPWSTR FileName=NULL;
+    size_t FileNameSize=Info.EditorControl(ECTL_GETFILENAME,NULL);
+    if(FileNameSize)
     {
-      ei.FileName=new wchar_t[ei.FileNameSize];
-      if(ei.FileName)
+      FileName=new wchar_t[FileNameSize];
+      if(FileName)
       {
-        Info.EditorControl(ECTL_GETINFO,&ei);
+        Info.EditorControl(ECTL_GETFILENAME,FileName);
       }
     }
 #endif
@@ -149,9 +151,9 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
       if (ei.CurLine!=startei.CurLine)
       {
 #ifdef UNICODE
-        if(ei.FileName)
+        if(FileName)
         {
-          delete[] ei.FileName;
+          delete[] FileName;
         }
 #endif
         return TRUE;
@@ -159,7 +161,11 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
       int Found=FALSE;
       TCHAR FileMask[NM],*MaskPtr=Opt.FileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-        if (Info.CmpName(FileMask,ei.FileName,TRUE))
+        if (Info.CmpName(FileMask,
+#ifndef UNICODE
+                                  ei.
+#endif
+                                     FileName,TRUE))
         {
           Found=TRUE;
           break;
@@ -167,16 +173,20 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
       if (!Found)
       {
 #ifdef UNICODE
-        if(ei.FileName)
+        if(FileName)
         {
-          delete[] ei.FileName;
+          delete[] FileName;
         }
 #endif
         return TRUE;
       }
       MaskPtr=Opt.ExcludeFileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-        if (Info.CmpName(FileMask,ei.FileName,TRUE))
+        if (Info.CmpName(FileMask,
+#ifndef UNICODE
+                                  ei.
+#endif
+                                     FileName,TRUE))
         {
           Found=FALSE;
           break;
@@ -184,18 +194,18 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
       if (!Found)
       {
 #ifdef UNICODE
-        if(ei.FileName)
+        if(FileName)
         {
-          delete[] ei.FileName;
+          delete[] FileName;
         }
 #endif
         return TRUE;
       }
     }
 #ifdef UNICODE
-    if(ei.FileName)
+    if(FileName)
     {
-      delete[] ei.FileName;
+      delete[] FileName;
     }
 #endif
 

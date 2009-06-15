@@ -108,7 +108,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   int idxBrackets2=0;
   int lenBrackets2=0;
 
-  EditorInfo ei={0};
+  EditorInfo ei;
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   espo.CurTabPos=ei.CurTabPos;
