@@ -85,8 +85,10 @@ void *__cdecl xf_realloc_nomove(void *__block, size_t __size)
 {
 	if(!__block)
 		return xf_malloc(__size);
+#if defined(_MSC_VER)
 	else if (_expand(__block,__size))
 		return __block;
+#endif
 	else
 	{
 		void *Ptr=xf_malloc(__size);

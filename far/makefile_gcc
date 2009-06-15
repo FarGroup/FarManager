@@ -5,11 +5,11 @@
 
 ifndef DEBUG
 DIRNAME=Release
-DEBUGCFLAGS=
+DEBUGFLAGS=
 DEBUGLINKFLAGS=-s
 else
 DIRNAME=Debug
-DEBUGCFLAGS=-g
+DEBUGFLAGS=-g
 DEBUGLINKFLAGS=
 endif                   
 

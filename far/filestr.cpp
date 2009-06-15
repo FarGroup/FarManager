@@ -154,9 +154,7 @@ int GetFileString::GetAnsiString(char **DestStr, int &Length)
 	EolType Eol = FEOL_NONE;
 	int x = 0;
 
-	char *ReadBufPtr;
-	if (ReadPos < ReadSize)
-		ReadBufPtr = ReadBuf + ReadPos;
+	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : NULL;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n. 
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
@@ -249,9 +247,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEnd
 	EolType Eol = FEOL_NONE;
 	int x = 0;
 
-	wchar_t *ReadBufPtr;
-	if (ReadPos < ReadSize)
-		ReadBufPtr = wReadBuf + ReadPos / sizeof(wchar_t);
+	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : NULL;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n. 
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.

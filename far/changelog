@@ -1,3 +1,14 @@
+garry 16.06.2009 00:29:18 +0300 - build 967
+
+1. Исправлены gcc warnings после 993;
+
+2. Исправлена опечатка в makefile_gcc.
+
+3. В xf_realloc_nomove вызов _expand сделан только для VC, так как в GCC far линкуется с msvcrt, где
+   _expand работает несколько по другому:
+     - http://msdn.microsoft.com/en-us/library/wfzt8b7y(VS.71).aspx
+     - http://msdn.microsoft.com/en-us/library/wfzt8b7y(VS.80).aspx
+
 t-rex 15.06.2009 22:44:49 +0200 - build 996
 
 1. Пару мелочей.
