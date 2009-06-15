@@ -843,7 +843,7 @@ int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
 	{
 		string strSrc(Src);
 		string strDest;
-		AddEndSlash(strDest);
+		AddEndSlash(strDest); //BUGBUG: Что это? Может имелось ввиду AddEndSlash(strSrc)?
 		DWORD Size=GetReparsePointInfo(strSrc,strDest,NULL);
 		if (DestSize && Dest)
 			strDest.GetCharString(Dest,DestSize);
@@ -856,7 +856,7 @@ typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
 {
 	oldfar::FRSUSERFUNC Func;
 	void *Param;
-}FAR_SEARCH_A_CALLBACK_PARAM, *PFAR_SEARCH_A_CALLBACK_PARAM;
+} FAR_SEARCH_A_CALLBACK_PARAM, *PFAR_SEARCH_A_CALLBACK_PARAM;
 
 static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param)
 {
@@ -932,15 +932,15 @@ void WINAPI FarTextA(int X,int Y,int Color,const char *Str)
 
 BOOL WINAPI FarShowHelpA(const char *ModuleName,const char *HelpTopic,DWORD Flags)
 {
-	string strMN((ModuleName?ModuleName:"")), strHT((HelpTopic?HelpTopic:""));
-	return FarShowHelp(strMN,(HelpTopic?(const wchar_t *)strHT:NULL),Flags);
+	string strMN(ModuleName), strHT(HelpTopic);
+	return FarShowHelp(strMN,(HelpTopic?strHT.CPtr():NULL),Flags);
 }
 
 int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *HistoryName,const char *SrcText,char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
 {
-	string strT((Title?Title:"")), strP((Prompt?Prompt:"")), strHN((HistoryName?HistoryName:"")), strST((SrcText?SrcText:"")), strD, strHT((HelpTopic?HelpTopic:""));
+	string strT(Title), strP(Prompt), strHN(HistoryName), strST(SrcText), strD, strHT(HelpTopic);
 	wchar_t *D = strD.GetBuffer(DestLength);
-	int ret = FarInputBox((Title?(const wchar_t *)strT:NULL),(Prompt?(const wchar_t *)strP:NULL),(HistoryName?(const wchar_t *)strHN:NULL),(SrcText?(const wchar_t *)strST:NULL),D,DestLength,(HelpTopic?(const wchar_t *)strHT:NULL),Flags);
+	int ret = FarInputBox((Title?strT.CPtr():NULL),(Prompt?strP.CPtr():NULL),(HistoryName?strHN.CPtr():NULL),(SrcText?strST.CPtr():NULL),D,DestLength,(HelpTopic?strHT.CPtr():NULL),Flags);
 	strD.ReleaseBuffer();
 	if (ret && DestText)
 		strD.GetCharString(DestText,DestLength+1);
@@ -949,7 +949,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 
 int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,const char * const *Items,int ItemsNumber,int ButtonsNumber)
 {
-	string strHT((HelpTopic?HelpTopic:""));
+	string strHT(HelpTopic);
 	wchar_t **p;
 	int c=0;
 
@@ -965,7 +965,7 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 			p[i] = AnsiToUnicode(Items[i]);
 	}
 
-	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?(const wchar_t *)strHT:NULL),p,ItemsNumber,ButtonsNumber);
+	int ret = FarMessageFn(PluginNumber,Flags,(HelpTopic?strHT.CPtr():NULL),p,ItemsNumber,ButtonsNumber);
 
 	for (int i=0; i<c; i++)
 		xf_free(p[i]);
@@ -992,10 +992,10 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 
 int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)
 {
-	string strT((Title?Title:"")), strB((Bottom?Bottom:"")), strHT((HelpTopic?HelpTopic:""));
-	const wchar_t *wszT  = Title?(const wchar_t *)strT:NULL;
-	const wchar_t *wszB  = Bottom?(const wchar_t *)strB:NULL;
-	const wchar_t *wszHT = HelpTopic?(const wchar_t *)strHT:NULL;
+	string strT(Title), strB(Bottom), strHT(HelpTopic);
+	const wchar_t *wszT  = Title?strT.CPtr():NULL;
+	const wchar_t *wszB  = Bottom?strB.CPtr():NULL;
+	const wchar_t *wszHT = HelpTopic?strHT.CPtr():NULL;
 
 	if (!Item || !ItemsNumber)
 		return FarMenuFn(PluginNumber,X,Y,MaxHeight,Flags,wszT,wszB,wszHT,BreakKeys,BreakCode,NULL,0);
@@ -2149,7 +2149,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
 {
-	string strHT((HelpTopic?HelpTopic:""));
+	string strHT(HelpTopic);
 
 	if (!Item || !ItemsNumber) return -1;
 
@@ -2177,7 +2177,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	int ret = -1;
 
-	HANDLE hDlg = FarDialogInit(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?(const wchar_t *)strHT:NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
+	HANDLE hDlg = FarDialogInit(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
 
 	DlgData* NewDialogData=(DlgData*)xf_malloc(sizeof(DlgData));
 	NewDialogData->DlgProc=DlgProc;
@@ -3192,7 +3192,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 			const char *p=(const char *)Param;
 			if (!p) return FALSE;
 			string strP(p);
-			return FarEditorControl(ECTL_INSERTTEXT,(void *)(const wchar_t *)strP);
+			return FarEditorControl(ECTL_INSERTTEXT,(void *)strP.CPtr());
 		}
 
 		case oldfar::ECTL_GETINFO:
@@ -3693,7 +3693,7 @@ char* WINAPI XlatA(
 
 int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 {
-	string strComputer=Computer,strName=Name,strOwner;
+	string strComputer(Computer), strName(Name), strOwner;
 	int Ret=GetFileOwner(strComputer,strName,strOwner);
 	strOwner.GetCharString(Owner,NM);
 	return Ret;
