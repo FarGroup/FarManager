@@ -2310,30 +2310,20 @@ int FileEditor::EditorControl(int Command, void *Param)
   _ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
   _ECTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
-	if ( m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS))
+	if ( m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS) && (Command!=ECTL_GETFILENAME))
 		return FALSE;
 
 
 	switch ( Command )
 	{
-		case ECTL_GETINFO:
-		{
-			if ( m_editor->EditorControl(Command, Param) )
+		case ECTL_GETFILENAME:
 			{
-				EditorInfo *Info = (EditorInfo*)Param;
-				if(Info->FileName && Info->FileNameSize)
+				if(Param)
 				{
-					xwcsncpy(Info->FileName,strFullFileName,Info->FileNameSize-1);
+					wcscpy(reinterpret_cast<LPWSTR>(Param),strFullFileName);
 				}
-				else
-				{
-					Info->FileNameSize=static_cast<int>(strFullFileName.GetLength()+1);
-				}
-				return TRUE;
+				return static_cast<int>(strFullFileName.GetLength()+1);
 			}
-
-			return FALSE;
-		}
 
 		case ECTL_GETBOOKMARKS:
 		{

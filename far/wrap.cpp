@@ -3207,16 +3207,14 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 				if(fn)
 					xf_free(fn);
 				memset(oei,0,sizeof(*oei));
-				if(ei.FileNameSize)
+				size_t FileNameSize=FarEditorControl(ECTL_GETFILENAME,NULL);
+				if(FileNameSize)
 				{
-					ei.FileName=new wchar_t[ei.FileNameSize];
-					if(ei.FileName)
-					{
-						FarEditorControl(ECTL_GETINFO,&ei);
-						fn = UnicodeToAnsi(ei.FileName);
-						oei->FileName=fn;
-						delete[] ei.FileName;
-					}
+					LPWSTR FileName=new wchar_t[FileNameSize];
+					FarEditorControl(ECTL_GETFILENAME,FileName);
+					fn = UnicodeToAnsi(FileName);
+					oei->FileName=fn;
+					delete[] FileName;
 				}
 				oei->EditorID=ei.EditorID;
 				oei->WindowSizeX=ei.WindowSizeX;

@@ -5523,13 +5523,6 @@ int Editor::EditorControl(int Command,void *Param)
 			if(Info)
       {
         Info->EditorID=Editor::EditorID;
-
-				//это поле _здесь_ трогать не надо, трогать надо в FileEditor
-				// Info->FileName;
-
-				// и это тоже:
-				// Info->FileNameSize;
-
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1+1;
         Info->TotalLines=NumLastLine;

@@ -1368,6 +1368,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_DELETESTACKBOOKMARK,
   ECTL_GETSTACKBOOKMARKS,
   ECTL_UNDOREDO,
+  ECTL_GETFILENAME,
 #ifdef FAR_USE_INTERNALS
   ECTL_SERVICEREGION,
 #endif // END FAR_USE_INTERNALS
@@ -1481,8 +1482,6 @@ enum EDITOR_CURRENTSTATE {
 struct EditorInfo
 {
   int EditorID;
-  wchar_t *FileName;
-  int FileNameSize;
   int WindowSizeX;
   int WindowSizeY;
   int TotalLines;
