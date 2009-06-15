@@ -186,7 +186,7 @@ private:
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 
   public:
-    Edit(ScreenObject *pOwner = NULL,Callback* aCallback = NULL);
+    Edit(ScreenObject *pOwner = NULL, Callback* aCallback = NULL, bool bAllocateData = true);
     virtual ~Edit();
 
   public:

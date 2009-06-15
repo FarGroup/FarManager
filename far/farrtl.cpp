@@ -81,6 +81,21 @@ void *__cdecl xf_malloc(size_t __size)
   return Ptr;
 }
 
+void *__cdecl xf_realloc_nomove(void *__block, size_t __size)
+{
+	if(!__block)
+		return xf_malloc(__size);
+	else if (_expand(__block,__size))
+		return __block;
+	else
+	{
+		void *Ptr=xf_malloc(__size);
+		if(Ptr)
+			xf_free(__block);
+		return Ptr;
+	}
+}
+
 void *__cdecl xf_realloc(void *__block, size_t __size)
 {
   void *Ptr=realloc(__block,__size);

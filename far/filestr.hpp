@@ -35,31 +35,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class GetFileString
 {
-  private:
-    char ReadBuf[8192];
-    wchar_t wReadBuf[8192];
-    int ReadPos,ReadSize;
-    char *Str;
-    wchar_t *wStr;
-    int m_nStrLength;
-    FILE *SrcFile;
+	private:
+		FILE *SrcFile;
+		int ReadPos, ReadSize;
+
+		char ReadBuf[8192];
+		wchar_t wReadBuf[8192];
+
+		char *Str;
+		int m_nStrLength;
+		wchar_t *wStr;
+		int m_nwStrLength;
+
 		bool SomeDataLost;
+		bool bCrCr;
 
-  private:
-    int GetAnsiString(char **DestStr,int &Length);
-    int GetUnicodeString(wchar_t **DestStr,int &Length);
-    int GetReverseUnicodeString(wchar_t **DestStr,int &Length);
+	private:
+		int GetAnsiString(char **DestStr, int &Length);
+		int GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEndian);
 
-  public:
-    GetFileString(FILE *SrcFile);
-    ~GetFileString();
+	public:
+		GetFileString(FILE *SrcFile);
+		~GetFileString();
 
-  public:
-    int GetString(wchar_t **DestStr, int nCodePage, int &Length);
-		bool IsConversionValid(){return !SomeDataLost;};
+	public:
+		int GetString(wchar_t **DestStr, int nCodePage, int &Length);
+		bool IsConversionValid() { return !SomeDataLost; };
 };
 
-bool GetFileFormat (FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
-wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
+bool GetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
+wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
 
 #endif  // __GETFILESTRING_HPP__

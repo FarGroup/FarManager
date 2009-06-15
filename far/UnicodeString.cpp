@@ -264,7 +264,7 @@ int __cdecl UnicodeString::Format (const wchar_t * format, ...)
 	do
 	{
 		Size <<= 1;
-		wchar_t *tmpbuffer = (wchar_t*)xf_realloc (buffer, Size*sizeof (wchar_t));
+		wchar_t *tmpbuffer = (wchar_t*)xf_realloc_nomove(buffer, Size*sizeof (wchar_t));
 
 		if (!tmpbuffer)
 		{

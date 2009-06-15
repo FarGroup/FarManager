@@ -28,6 +28,7 @@ void __cdecl far_qsort (
 
 void  __cdecl xf_free(void *__block);
 void *__cdecl xf_malloc(size_t __size);
+void *__cdecl xf_realloc_nomove(void *__block, size_t __size);
 void *__cdecl xf_realloc(void *__block, size_t __size);
 
 #ifdef __cplusplus

@@ -67,7 +67,7 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 #define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 
-Edit::Edit(ScreenObject *pOwner,Callback* aCallback)
+Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
 {
 	m_Callback.m_Callback=NULL;
 	m_Callback.m_Param=NULL;
@@ -78,12 +78,13 @@ Edit::Edit(ScreenObject *pOwner,Callback* aCallback)
 	m_next = NULL;
 	m_prev = NULL;
 
-	Str=(wchar_t*) xf_malloc(sizeof(wchar_t));
+	Str=bAllocateData ? (wchar_t*) xf_malloc(sizeof(wchar_t)) : NULL;
 	StrSize=0;
 
 	WordDiv=Opt.strWordDiv;
 
-	*Str=0;
+	if (bAllocateData)
+		*Str=0;
 
 	Mask=NULL;
 	PrevCurPos=0;
@@ -183,9 +184,8 @@ DWORD Edit::SetCodePage (UINT codepage)
 				return Ret;
 			}
 
-			memset (encoded, 0, (length2+1)*sizeof (wchar_t));
-
-			MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
+			length2 = MultiByteToWideChar (codepage, 0, decoded, length, encoded, length2);
+			encoded[length2] = L'\0';
 
 			xf_free (decoded);
 			xf_free (Str);
@@ -1702,7 +1702,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
   }
   else
   {
-    wchar_t *NewStr=(wchar_t *)xf_realloc(Edit::Str,(Length+1)*sizeof (wchar_t));
+		wchar_t *NewStr=(wchar_t *)xf_realloc_nomove(Edit::Str,(Length+1)*sizeof (wchar_t));
     if (NewStr==NULL)
       return;
     Edit::Str=NewStr;

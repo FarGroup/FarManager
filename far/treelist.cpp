@@ -2116,7 +2116,7 @@ bool TreeList::RestoreState()
   }
   TreeCount=WorkDir=0;
   ListData=NULL;
-  if(SaveTreeCount > 0 && (ListData=(struct TreeItem **)xf_realloc(ListData,SaveTreeCount*sizeof(struct TreeItem*))) != NULL)
+  if(SaveTreeCount > 0 && (ListData=(struct TreeItem **)xf_realloc_nomove(ListData,SaveTreeCount*sizeof(struct TreeItem*))) != NULL)
   {
     for (int i=0; i<SaveTreeCount; i++)
     {

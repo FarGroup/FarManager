@@ -6572,7 +6572,7 @@ void Editor::PR_EditorShowMsg(void)
 
 Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
 {
-  Edit *pEdit = new Edit (this);
+	Edit *pEdit = new Edit (this, NULL, lpwszStr ? false : true);
 
   if ( pEdit )
   {

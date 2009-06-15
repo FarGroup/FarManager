@@ -204,7 +204,7 @@ DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
 	do {
 		dwBufferSize <<= 1;
 
-		lpwszFileName = (wchar_t*)xf_realloc (lpwszFileName, dwBufferSize*sizeof (wchar_t));
+		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof (wchar_t));
 
 		dwSize = GetModuleFileNameW (hModule, lpwszFileName, dwBufferSize);
 	} while ( dwSize && (dwSize >= dwBufferSize) );
@@ -247,7 +247,7 @@ DWORD apiGetConsoleTitle (string &strConsoleTitle)
 	do {
 		dwBufferSize <<= 1;
 
-		lpwszTitle = (wchar_t*)xf_realloc (lpwszTitle, dwBufferSize*sizeof (wchar_t));
+		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof (wchar_t));
 
 		dwSize = GetConsoleTitleW (lpwszTitle, dwBufferSize);
 
