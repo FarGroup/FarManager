@@ -3,7 +3,7 @@
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 1.75 build 2556
+  Inside KeyName for FAR Manager 1.75 build 2593
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2009 FAR group

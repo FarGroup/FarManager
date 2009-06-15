@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 1.75 build 2556
+  Plugin API for FAR Manager 1.75 build 2593
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2009 FAR group
@@ -12,7 +12,7 @@
 
 #define FARMANAGERVERSION_MAJOR 1
 #define FARMANAGERVERSION_MINOR 75
-#define FARMANAGERVERSION_BUILD 2556
+#define FARMANAGERVERSION_BUILD 2593
 
 #ifndef RC_INVOKED
 

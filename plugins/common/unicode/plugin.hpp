@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 953
+  Plugin API for FAR Manager 2.0 build 992
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 953
+#define FARMANAGERVERSION_BUILD 992
 
 #ifndef RC_INVOKED
 
@@ -310,7 +310,6 @@ enum FarMessagesProc{
   DM_SETCOMBOBOXEVENT,
   DM_GETCOMBOBOXEVENT,
 
-  DM_FREEDLGITEM,
   DM_GETCONSTTEXTPTR,
   DM_GETDLGITEMSHORT,
   DM_SETDLGITEMSHORT,
