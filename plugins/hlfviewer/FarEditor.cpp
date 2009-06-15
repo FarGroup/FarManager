@@ -15,7 +15,9 @@ void RestorePosition(void)
 BOOL IsHlf(void)
 {
   BOOL ret=FALSE;
-
+#ifdef UNICODE
+  ei.FileNameSize=0;
+#endif
   Info.EditorControl(ECTL_GETINFO,&ei);
   memset(&esp,-1,sizeof(esp));
   egs.StringNumber=-1;
@@ -39,7 +41,9 @@ const TCHAR *FindTopic(void)
 {
   const TCHAR *ret=NULL;
   const TCHAR *tmp;
-
+#ifdef UNICODE
+  ei.FileNameSize=0;
+#endif
   Info.EditorControl(ECTL_GETINFO,&ei);
   memset(&esp,-1,sizeof(esp));
   egs.StringNumber=-1;

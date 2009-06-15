@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 992
+  Plugin API for FAR Manager 2.0 build 994
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 992
+#define FARMANAGERVERSION_BUILD 994
 
 #ifndef RC_INVOKED
 
@@ -905,7 +905,6 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETDIALOGSETTINGS    = 22,
   ACTL_GETSHORTWINDOWINFO   = 23,
   ACTL_REDRAWALL            = 27,
-  ACTL_FREEWINDOWINFO       = 28,
 };
 
 
@@ -1061,8 +1060,10 @@ struct WindowInfo
   int  Type;
   int  Modified;
   int  Current;
-  const wchar_t *TypeName;
-  const wchar_t *Name;
+  wchar_t *TypeName;
+  int TypeNameSize;
+  wchar_t *Name;
+  int NameSize;
 };
 
 typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
@@ -1211,7 +1212,6 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_GETBOOKMARKS,
   ECTL_TURNOFFMARKINGBLOCK,
   ECTL_DELETEBLOCK,
-  ECTL_FREEINFO, //!!!!!
   ECTL_ADDSTACKBOOKMARK,
   ECTL_PREVSTACKBOOKMARK,
   ECTL_NEXTSTACKBOOKMARK,
@@ -1317,7 +1317,8 @@ enum EDITOR_CURRENTSTATE {
 struct EditorInfo
 {
   int EditorID;
-  const wchar_t *FileName;
+  wchar_t *FileName;
+  int FileNameSize;
   int WindowSizeX;
   int WindowSizeY;
   int TotalLines;

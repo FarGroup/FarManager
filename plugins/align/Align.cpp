@@ -115,7 +115,7 @@ done:
 
 void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 {
-  struct EditorInfo ei;
+  EditorInfo ei={0};
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   if (ei.BlockType!=BTYPE_STREAM || RightMargin<1)
@@ -303,7 +303,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 
 void JustifyBlock(int RightMargin)
 {
-  struct EditorInfo ei;
+  EditorInfo ei={0};
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   if (ei.BlockType!=BTYPE_STREAM)

@@ -83,7 +83,7 @@ int WINAPI EXP_NAME(Configure)(int ItemNumber)
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-  struct EditorInfo ei;
+
   struct EditorGetString egs;
   struct EditorSetPosition esp,espo;
   struct EditorSelect es;
@@ -108,6 +108,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
   int idxBrackets2=0;
   int lenBrackets2=0;
 
+  EditorInfo ei={0};
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   espo.CurTabPos=ei.CurTabPos;

@@ -202,7 +202,7 @@ void SetTitle(int LineWidth,int IDTitle)
 
 void ProcessShiftKey(int KeyCode,int LineWidth)
 {
-  struct EditorInfo ei;
+  EditorInfo ei={0};
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   struct EditorSetPosition esp;
@@ -243,6 +243,9 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
     int StringNumber=ei.CurLine+1;
     Info.EditorControl(ECTL_EXPANDTABS,&StringNumber);
   }
+#ifdef UNICODE
+  ei.FileNameSize=0;
+#endif
   Info.EditorControl(ECTL_GETINFO,&ei);
 
   struct EditorGetString egs;

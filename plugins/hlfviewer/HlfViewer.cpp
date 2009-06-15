@@ -152,25 +152,58 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 
 int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 {
+  BOOL Result=FALSE;
   if(!IsOldFar && Opt.ProcessEditorInput)
   {
     if(Rec->EventType==KEY_EVENT && Rec->Event.KeyEvent.bKeyDown &&
        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
     {
-      Info.EditorControl(ECTL_GETINFO,(void*)&ei);
+#ifdef UNICODE
+      ei.FileNameSize=0;
+#endif
+      Info.EditorControl(ECTL_GETINFO,&ei);
+#ifdef UNICODE
+      if(ei.FileNameSize)
+      {
+        ei.FileName=new wchar_t[ei.FileNameSize];
+        if(ei.FileName)
+        {
+          Info.EditorControl(ECTL_GETINFO,&ei);
+        }
+      }
+#endif
       if(CheckExtension(ei.FileName))
       {
         ShowCurrentHelpTopic();
-        return TRUE;
+        Result=TRUE;
       }
     }
   }
-  return FALSE;
+#ifdef UNICODE
+  if(ei.FileName)
+  {
+    delete[] ei.FileName;
+  }
+#endif
+  return Result;
 }
 
 void ShowCurrentHelpTopic()
 {
-  Info.EditorControl(ECTL_GETINFO,(void*)&ei);
+#ifdef UNICODE
+  ei.FileNameSize=0;
+#endif
+  Info.EditorControl(ECTL_GETINFO,&ei);
+#ifdef UNICODE
+  if(ei.FileNameSize)
+  {
+    ei.FileName=new wchar_t[ei.FileNameSize];
+    if(ei.FileName)
+    {
+      Info.EditorControl(ECTL_GETINFO,&ei);
+    }
+  }
+#endif
   switch(Opt.Style)
   {
     case 1:
@@ -186,6 +219,12 @@ void ShowCurrentHelpTopic()
       ShowHelp(ei.FileName,FindTopic());
       break;
   }
+#ifdef UNICODE
+  if(ei.FileName)
+  {
+    delete[] ei.FileName;
+  }
+#endif
 }
 
 void ShowHelpFromTempFile()
@@ -214,6 +253,9 @@ void ShowHelpFromTempFile()
                              NULL, CREATE_NEW, 0, NULL);
     if(Handle != INVALID_HANDLE_VALUE)
     {
+#ifdef UNICODE
+      ei.FileNameSize=0;
+#endif
       Info.EditorControl(ECTL_GETINFO,&ei);
       for(egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
       {

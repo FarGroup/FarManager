@@ -83,7 +83,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         break;
 
       default:
-       struct EditorInfo ei;
+       EditorInfo ei={0};
        Info.EditorControl(ECTL_GETINFO,&ei);
 
        // Current line number

@@ -132,13 +132,30 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
 
   for (int Pass=1;;Pass++)
   {
-    struct EditorInfo ei;
+    struct EditorInfo ei={0};
     Info.EditorControl(ECTL_GETINFO,&ei);
-
+#ifdef UNICODE
+    if(ei.FileNameSize)
+    {
+      ei.FileName=new wchar_t[ei.FileNameSize];
+      if(ei.FileName)
+      {
+        Info.EditorControl(ECTL_GETINFO,&ei);
+      }
+    }
+#endif
     if (Pass==1 && *Opt.FileMasks)
     {
       if (ei.CurLine!=startei.CurLine)
-        return(TRUE);
+      {
+#ifdef UNICODE
+        if(ei.FileName)
+        {
+          delete[] ei.FileName;
+        }
+#endif
+        return TRUE;
+      }
       int Found=FALSE;
       TCHAR FileMask[NM],*MaskPtr=Opt.FileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
@@ -148,7 +165,15 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
           break;
         }
       if (!Found)
-        return(TRUE);
+      {
+#ifdef UNICODE
+        if(ei.FileName)
+        {
+          delete[] ei.FileName;
+        }
+#endif
+        return TRUE;
+      }
       MaskPtr=Opt.ExcludeFileMasks;
       while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
         if (Info.CmpName(FileMask,ei.FileName,TRUE))
@@ -157,8 +182,22 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
           break;
         }
       if (!Found)
-        return(TRUE);
+      {
+#ifdef UNICODE
+        if(ei.FileName)
+        {
+          delete[] ei.FileName;
+        }
+#endif
+        return TRUE;
+      }
     }
+#ifdef UNICODE
+    if(ei.FileName)
+    {
+      delete[] ei.FileName;
+    }
+#endif
 
     struct EditorGetString egs;
     egs.StringNumber=ei.CurLine;
