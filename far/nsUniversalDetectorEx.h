@@ -1,5 +1,5 @@
-#include "ucd/nscore.h"
-#include "ucd/nsUniversalDetector.h"
+#include "UCD/nscore.h"
+#include "UCD/nsUniversalDetector.h"
 
 class nsUniversalDetectorEx : public nsUniversalDetector {
 public:

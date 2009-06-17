@@ -104,7 +104,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
  #define __NTDDK_H
- #include <ddk\cfgmgr32.h>
+ #include <ddk/cfgmgr32.h>
 #else
  #include <cfgmgr32.h>
 #endif

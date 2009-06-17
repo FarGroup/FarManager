@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "imports.hpp"
-#include "taskbar.hpp"
+#include "TaskBar.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"

@@ -1418,7 +1418,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	*/
 	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
-		strCmdLine = (const wchar_t*)strCmdLine+4;
+		strCmdLine.LShift(4);
 		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
 
 		if(CheckCmdLineForHelp(Ptr))
@@ -1438,7 +1438,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
 		wchar_t *Ptr2;
 
-		UINT cp=(UINT)wcstol((const wchar_t*)strCmdLine+5,&Ptr2,10); //BUGBUG
+		UINT cp=(UINT)wcstol(strCmdLine,&Ptr2,10); //BUGBUG
 		BOOL r1=SetConsoleCP(cp);
 		BOOL r2=SetConsoleOutputCP(cp);
 

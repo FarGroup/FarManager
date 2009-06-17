@@ -83,7 +83,10 @@ struct EditorUndoData
   }
   ~EditorUndoData()
   {
-    delete[] Str;
+		if(Str)
+		{
+			delete[] Str;
+		}
   }
   void SetData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrNum,int StrPos,int Length=-1)
   {
@@ -96,7 +99,11 @@ struct EditorUndoData
     this->Length=Length;
     xwcsncpy(EOL,Eol?Eol:L"",countof(EOL)-1);
 
-    delete[] this->Str;
+		if(this->Str)
+		{
+			delete[] this->Str;
+		}
+
     if (Str!=NULL)
     {
       this->Str=new wchar_t[Length+1];

@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
-#include "ScrBuf.hpp"
+#include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"

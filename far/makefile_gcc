@@ -238,7 +238,7 @@ $(OBJDIR)/%.o: ./UCD/%.cpp
 	@echo compiling $<
 	@$(CXX) $(CCFLAGS) -c -o $@ $<
 	
-$(OBJDIR)/far.rc.o: far.rc res.hpp far.ico
+$(OBJDIR)/far.rc.o: far.rc res.hpp Far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 

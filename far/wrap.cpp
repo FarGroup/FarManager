@@ -843,7 +843,6 @@ int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
 	{
 		string strSrc(Src);
 		string strDest;
-		AddEndSlash(strDest); //BUGBUG: Что это? Может имелось ввиду AddEndSlash(strSrc)?
 		DWORD Size=GetReparsePointInfo(strSrc,strDest,NULL);
 		if (DestSize && Dest)
 			strDest.GetCharString(Dest,DestSize);
