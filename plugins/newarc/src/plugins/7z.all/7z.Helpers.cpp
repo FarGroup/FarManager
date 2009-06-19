@@ -510,25 +510,25 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
    		memset (&ftLastAccessTime, 0, sizeof (FILETIME));
    		memset (&ftLastWriteTime, 0, sizeof (FILETIME));
 
-   		if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
+   		if ( archive->GetProperty (index, kpidAttrib, &value) == S_OK )
    		{
    			if ( value.vt == VT_UI4 )
    				dwFileAttributes = value.ulVal;
    		}
 
-   		if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
+   		if ( archive->GetProperty (index, kpidCTime, &value) == S_OK )
    		{
    			if ( value.vt == VT_FILETIME )
    				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
    		}
 
-   		if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
+   		if ( archive->GetProperty (index, kpidATime, &value) == S_OK )
    		{
    			if ( value.vt == VT_FILETIME )
    				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
    		}
 
-   		if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
+   		if ( archive->GetProperty (index, kpidMTime, &value) == S_OK )
    		{
    			if ( value.vt == VT_FILETIME )
    				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
@@ -536,7 +536,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
    		bool bIsFolder = false;
 
-   		if ( archive->GetProperty (index, kpidIsFolder, &value) == S_OK )
+   		if ( archive->GetProperty (index, kpidIsDir, &value) == S_OK )
    		{
    			if (value.vt == VT_BOOL)
    				bIsFolder = (value.boolVal == VARIANT_TRUE);
@@ -1078,35 +1078,35 @@ HRESULT __stdcall CArchiveUpdateCallback::GetProperty (unsigned int index, PROPI
 		}
 		else
 
-		if ( propID == kpidAttributes )
+		if ( propID == kpidAttrib )
 		{
 			value->vt = VT_UI4;
 			value->ulVal = pitem->FindData.dwFileAttributes;
 		}
 		else
 
-		if ( propID == kpidLastWriteTime )
+		if ( propID == kpidMTime )
 		{
 			value->vt = VT_FILETIME;
 			memcpy (&value->filetime, &pitem->FindData.ftLastWriteTime, sizeof (FILETIME));
 		}
 		else
 
-		if ( propID == kpidCreationTime )
+		if ( propID == kpidCTime )
 		{
 			value->vt = VT_FILETIME;
 			memcpy (&value->filetime, &pitem->FindData.ftCreationTime, sizeof (FILETIME));
 		}
 		else
 
-		if ( propID == kpidLastAccessTime )
+		if ( propID == kpidATime )
 		{
 			value->vt = VT_FILETIME;
 			memcpy (&value->filetime, &pitem->FindData.ftLastAccessTime, sizeof (FILETIME));
 		}
 		else
 
-		if ( propID == kpidIsFolder )
+		if ( propID == kpidIsDir )
 		{
 			value->vt = VT_BOOL;
 			value->boolVal = OptionIsOn (pitem->FindData.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY)?VARIANT_TRUE:VARIANT_FALSE;

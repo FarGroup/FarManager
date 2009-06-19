@@ -6,13 +6,9 @@
 #include "../Common/MyUnknown.h"
 #include "../Common/Types.h"
 
-// "23170F69-40C1-278A-0000-000300xx0000"
+#include "IDecl.h"
 
-#define STREAM_INTERFACE_SUB(i, b, x) \
-DEFINE_GUID(IID_ ## i, \
-0x23170F69, 0x40C1, 0x278A, 0x00, 0x00, 0x00, 0x03, 0x00, x, 0x00, 0x00); \
-struct i: public b
-
+#define STREAM_INTERFACE_SUB(i, base, x) DECL_INTERFACE_SUB(i, base, 3, x)
 #define STREAM_INTERFACE(i, x) STREAM_INTERFACE_SUB(i, IUnknown, x)
 
 STREAM_INTERFACE(ISequentialInStream, 0x01)
@@ -21,7 +17,7 @@ STREAM_INTERFACE(ISequentialInStream, 0x01)
   /*
   Out: if size != 0, return_value = S_OK and (*processedSize == 0),
     then there are no more bytes in stream.
-  if (size > 0) && there are bytes in stream, 
+  if (size > 0) && there are bytes in stream,
   this function must read at least 1 byte.
   This function is allowed to read less than number of remaining bytes in stream.
   You must call Read function in loop, if you need exact amount of data

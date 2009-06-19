@@ -575,13 +575,13 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			CutTo (pItem->pi.FindData.cFileName, '.', true);
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidAttributes, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidAttrib, &value) == S_OK )
 		{
 			if ( value.vt == VT_UI4 )
 				pItem->pi.FindData.dwFileAttributes = value.ulVal;
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidIsFolder, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidIsDir, &value) == S_OK )
 		{
 			if ( value.vt == VT_BOOL )
 			{
@@ -598,7 +598,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			pItem->pi.FindData.nFileSizeHigh = (DWORD)(size >> 32);
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidPackedSize, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidPackSize, &value) == S_OK )
 		{
 			unsigned __int64 size = VariantToInt64 (&value);
 
@@ -612,19 +612,19 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 				pItem->pi.CRC32 = value.ulVal;
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidCreationTime, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidCTime, &value) == S_OK )
 		{
 			if ( value.vt == VT_FILETIME )
 				memcpy (&pItem->pi.FindData.ftCreationTime, &value.filetime, sizeof (FILETIME));
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidLastAccessTime, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidATime, &value) == S_OK )
 		{
 			if ( value.vt == VT_FILETIME )
 				memcpy (&pItem->pi.FindData.ftLastAccessTime, &value.filetime, sizeof (FILETIME));
 		}
 
-		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidLastWriteTime, &value) == S_OK )
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidMTime, &value) == S_OK )
 		{
 			if ( value.vt == VT_FILETIME )
 				memcpy (&pItem->pi.FindData.ftLastWriteTime, &value.filetime, sizeof (FILETIME));
