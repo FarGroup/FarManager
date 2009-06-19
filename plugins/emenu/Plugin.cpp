@@ -830,11 +830,22 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
     (1==pi.SelectedItemsNumber && 0==lstrcmp(pi.SelectedItems[0].FindData.cFileName, ".."))
     )
 #else
-  PluginPanelItem *PPI=(PluginPanelItem*)new char[Control(FCTL_GETSELECTEDPANELITEM,0,NULL)];
-  Control(FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
-  bool tmp=!pi.SelectedItemsNumber || (1==pi.SelectedItemsNumber && 0==lstrcmp(PPI->FindData.lpwszFileName,L".."));
-  delete[] PPI;
-  if(tmp)
+  bool Root=!pi.SelectedItemsNumber;
+  if(!Root)
+  {
+    size_t Size=Control(FCTL_GETSELECTEDPANELITEM,0,NULL);
+    if(Size)
+    {
+      PluginPanelItem *PPI=(PluginPanelItem*)new char[Size];
+       if(PPI)
+      {
+        Control(FCTL_GETSELECTEDPANELITEM,0,(LONG_PTR)PPI);
+        Root=(pi.SelectedItemsNumber==1 && !lstrcmp(PPI->FindData.lpwszFileName,L".."));
+        delete[] PPI;
+      }
+    }
+  }
+  if(Root)
 #endif
   {
     *pnFolders=1;
