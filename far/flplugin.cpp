@@ -998,26 +998,34 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 
 size_t FileList::PluginGetPanelItem(int ItemNumber,PluginPanelItem *Item)
 {
-	return FileListToPluginItem2(ListData[ItemNumber],Item);
+	size_t result=0;
+	if(ListData && ItemNumber<FileCount)
+	{
+		result=FileListToPluginItem2(ListData[ItemNumber],Item);
+	}
+	return result;
 }
 
 size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item)
 {
 	size_t result=0;
-	int CurSel=-1;
-	for(int i=0;i<FileCount;i++)
+	if(ListData && ItemNumber<FileCount)
 	{
-		if(ListData[i]->Selected)
-			CurSel++;
-		if(CurSel==ItemNumber)
+		int CurSel=-1;
+		for(int i=0;i<FileCount;i++)
 		{
-			result=FileListToPluginItem2(ListData[i],Item);
-			break;
+			if(ListData[i]->Selected)
+				CurSel++;
+			if(CurSel==ItemNumber)
+			{
+				result=FileListToPluginItem2(ListData[i],Item);
+				break;
+			}
 		}
-	}
-	if(CurSel==-1 && !ItemNumber)
-	{
-		result=FileListToPluginItem2(ListData[CurFile],Item);
+		if(CurSel==-1 && !ItemNumber)
+		{
+			result=FileListToPluginItem2(ListData[CurFile],Item);
+		}
 	}
 	return result;
 }
