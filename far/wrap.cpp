@@ -2919,7 +2919,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					}
 					if(wi.NameSize)
 					{
-						wi.Name=new wchar_t[wi.TypeNameSize];
+						wi.Name=new wchar_t[wi.NameSize];
 					}
 					if(wi.TypeName && wi.Name)
 					{
