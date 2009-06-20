@@ -1689,18 +1689,21 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 
 		case oldfar::DM_GETDLGITEM:
 		{
-			FarDialogItem *di = (FarDialogItem *)xf_malloc(FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0));
-
-			if (di)
+			size_t item_size=FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, 0);
+			if(item_size)
 			{
-				FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)di);
-				oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
-				xf_free(di);
+				FarDialogItem *di = (FarDialogItem *)xf_malloc(item_size);
 
-				memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
-				return TRUE;
+				if (di)
+				{
+					FarSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)di);
+					oldfar::FarDialogItem *FarDiA=UnicodeDialogItemToAnsi(*di,hDlg,Param1);
+					xf_free(di);
+
+					memcpy((oldfar::FarDialogItem *)Param2,FarDiA,sizeof(oldfar::FarDialogItem));
+					return TRUE;
+				}
 			}
-
 			return FALSE;
 		}
 
