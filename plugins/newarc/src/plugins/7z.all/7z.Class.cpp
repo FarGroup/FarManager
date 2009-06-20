@@ -18,6 +18,11 @@ const unsigned char ELFSig[]      = {0x7F, 'E', 'L', 'F'};
 const unsigned char MubSig[]      = {0xCA, 0xFE, 0xBA, 0xBE, 0, 0, 0};
 const unsigned char XarSig[]      = {'x', 'a', 'r', '!', 0, 0x1C};
 const unsigned char DmgSig[]      = {0x78, 0xDA}; //BUGBUG: тупо наугад поставил, в тех 2-ух dmg что я видел было так.
+const unsigned char XzSig[]       = {0xFD, '7' , 'z', 'X', 'Z', '\0'};
+const unsigned char VhdSig[]      = { 'c', 'o', 'n', 'e', 'c', 't', 'i', 'x', 0, 0 };
+const unsigned char MbrSig[]      = { 1, 1, 0 };
+const unsigned char FatSig[]      = { 0x55, 0xAA };
+const unsigned char NtfsSig[]     = { 'N', 'T', 'F', 'S', ' ', ' ', ' ', ' ', 0 };
 
 struct FormatInfo {
 	const GUID *puid;
@@ -54,7 +59,13 @@ const FormatInfo signs[] = {
 	{&CLSID_CXarHandler,      (const unsigned char *)&XarSig,      6, true,  NULL},
 	{&CLSID_CHfsHandler,      NULL,                                0, true,  IsHfsHeader},
 	{&CLSID_CLzmaHandler,     NULL,                                0, true,  IsLzmaHeader},
+//	{&CLSID_CLzma86Handler,     NULL,                                0, true,  IsLzma86Header},
 	{&CLSID_CDmgHandler,      (const unsigned char *)&DmgSig,      2, true,  NULL},
+	{&CLSID_CXzHandler,       (const unsigned char *)&XzSig,       6, true,  NULL},
+	{&CLSID_CVhdHandler,      (const unsigned char *)&VhdSig,     10, true,  NULL},
+	{&CLSID_CMbrHandler,      (const unsigned char *)&MbrSig,      3, true,  NULL},
+	{&CLSID_CFatHandler,      (const unsigned char *)&FatSig,      2, true,  NULL},
+	{&CLSID_CNtfsHandler,     (const unsigned char *)&NtfsSig,     9, true,  NULL},
 };
 
 
