@@ -200,6 +200,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
+	"$(INTDIR)\synchro.obj" \
 	"$(INTDIR)\syntax.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\TaskBar.obj" \

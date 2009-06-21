@@ -223,6 +223,8 @@ stddlg.cpp
 stddlg.hpp
 strmix.cpp
 strmix.hpp
+synchro.cpp
+synchro.hpp
 syntax.cpp
 syntax.hpp
 syslog.cpp

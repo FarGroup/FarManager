@@ -5,7 +5,6 @@ synchro.hpp
 синхронизация для плагинов.
 */
 /*
-Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2009 Far Group
 All rights reserved.
 
