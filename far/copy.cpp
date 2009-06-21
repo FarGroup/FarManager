@@ -1584,7 +1584,11 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
         CopyCode=COPY_FAILURE;
       else
       {
-        CopyCode=ShellCopyOneFile(strSelName,SrcData,strDestPath,KeepPathPos,1);
+				do
+				{
+					CopyCode=ShellCopyOneFile(strSelName,SrcData,strDestPath,KeepPathPos,1);
+				}
+				while(CopyCode==COPY_RETRY);
         if (CopyCode==COPY_SUCCESS_MOVE)
         {
           if ( !strDestDizPath.IsEmpty() )
