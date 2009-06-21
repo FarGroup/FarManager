@@ -981,6 +981,10 @@
 				>
 			</File>
 			<File
+				RelativePath="synchro.cpp"
+				>
+			</File>
+			<File
 				RelativePath="syntax.cpp"
 				>
 			</File>
@@ -3093,6 +3097,10 @@
 			</File>
 			<File
 				RelativePath="strmix.hpp"
+				>
+			</File>
+			<File
+				RelativePath="synchro.hpp"
 				>
 			</File>
 			<File
