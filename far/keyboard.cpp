@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "strmix.hpp"
+#include "synchro.hpp"
 
 /* start Глобальные переменные */
 
@@ -546,6 +547,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
   int NotMacros=FALSE;
   static int LastMsClickMacroKey=0;
 
+  PluginSynchroManager.Process();
   if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
   {
 //     _KEYMACRO(CleverSysLog SL(L"GetInputRecord()"));
@@ -900,6 +902,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
         return(KEY_IDLE);
       }
     }
+    PluginSynchroManager.Process();
     LoopCount++;
   } // while (1)
 

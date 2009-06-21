@@ -970,6 +970,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETPOLICIES          = 26,
 #endif // END FAR_USE_INTERNALS
   ACTL_REDRAWALL            = 27,
+  ACTL_SYNCHRO              = 28,
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -1328,6 +1329,10 @@ enum DIALOG_EVENTS {
   DE_DLGPROCINIT    =0,
   DE_DEFDLGPROCINIT =1,
   DE_DLGPROCEND     =2,
+};
+
+enum SYNCHRO_EVENTS {
+  SE_COMMONSYNCHRO  =0,
 };
 
 #define EEREDRAW_ALL    (void*)0
@@ -2017,6 +2022,7 @@ int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
 int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
+int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
 int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);

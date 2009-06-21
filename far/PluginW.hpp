@@ -62,6 +62,7 @@ typedef int (WINAPI *PLUGINSETFINDLISTW)(HANDLE hPlugin,const PluginPanelItem *P
 typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
+typedef int (WINAPI *PLUGINPROCESSSYNCHROEVENTW)(int Event,void *Param);
 
 
 class PluginW: public Plugin
@@ -116,6 +117,7 @@ private:
 	PLUGINMINFARVERSIONW         pMinFarVersionW;
 	PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
 	PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
+	PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
 
 public:
 
@@ -160,6 +162,7 @@ public:
 	bool HasMinFarVersion() { return pMinFarVersionW!=NULL; }
 	bool HasProcessViewerEvent() { return pProcessViewerEventW!=NULL; }
 	bool HasProcessDialogEvent() { return pProcessDialogEventW!=NULL; }
+	bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=NULL; }
 
 	const string &GetModuleName() { return m_strModuleName; }
 	const wchar_t *GetCacheName() { return m_strCacheName; }
@@ -202,6 +205,7 @@ public:
 	int ProcessEditorEvent (int Event, PVOID Param);
 	int ProcessViewerEvent (int Event, PVOID Param);
 	int ProcessDialogEvent (int Event, PVOID Param);
+	int ProcessSynchroEvent (int Event, PVOID Param);
 
 	bool GetPluginInfo (PluginInfo *pi);
 	int Configure (int MenuItem);

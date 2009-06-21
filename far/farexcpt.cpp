@@ -163,6 +163,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
              PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
              PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
              PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
+             PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
            }
            Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
          }

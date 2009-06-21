@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "exitcode.hpp"
 #include "processname.hpp"
+#include "synchro.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -218,6 +219,11 @@ BOOL WINAPI FarShowHelp (
 */
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 {
+  if(ACTL_SYNCHRO==Command) //must be first
+  {
+  	PluginSynchroManager.Synchro(ModuleNumber,Param);
+  	return 0;
+  }
   struct Opt2Flags{
     int *Opt;
     DWORD Flags;

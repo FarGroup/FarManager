@@ -132,6 +132,7 @@ SRCS = 	cddrv.cpp \
 	setcolor.cpp \
 	stddlg.cpp \
 	strmix.cpp \
+	synchro.cpp \
 	syntax.cpp \
 	syslog.cpp \
 	TaskBar.cpp \

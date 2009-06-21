@@ -74,6 +74,7 @@ public:
 	virtual bool HasMinFarVersion() = 0;
 	virtual bool HasProcessViewerEvent() = 0;
 	virtual bool HasProcessDialogEvent() = 0;
+	virtual bool HasProcessSynchroEvent() = 0;
 
 	virtual const string &GetModuleName() = 0;
 	virtual const wchar_t *GetCacheName() = 0;
@@ -113,6 +114,7 @@ public:
 	virtual int ProcessEditorEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessViewerEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessDialogEvent (int Event, PVOID Param) = 0;
+	virtual int ProcessSynchroEvent (int Event, PVOID Param) = 0;
 
 	virtual bool GetPluginInfo (PluginInfo *pi) = 0;
 	virtual int Configure (int MenuItem) = 0;
