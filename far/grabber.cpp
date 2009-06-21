@@ -77,7 +77,7 @@ Grabber::Grabber()
   PrevArea=GArea;
   ResetArea=TRUE;
   VerticalBlock=FALSE;
-
+  DisplayObject();
   Process();
 
   delete SaveScr;
