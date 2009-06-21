@@ -71,7 +71,7 @@ PreserveLongName::~PreserveLongName()
 				strNewName += "\\";
 				strNewName += strSaveLongName;
 			}
-			MoveFileW (strSaveShortName, strNewName);
+			MoveFile(strSaveShortName, strNewName);
 		}
 	}
 }

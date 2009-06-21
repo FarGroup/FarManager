@@ -50,7 +50,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	strUserName = L"";
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 	HKEY hKey;
-	if (RegOpenKeyExW(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
 	{
 		RegQueryStringValueEx(hKey, L"UserName", strUserName);
 		RegCloseKey(hKey);
@@ -61,10 +61,10 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 {
 	HANDLE hEnum;
 
-	if (!WNetOpenEnumW(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))
+	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, 0, &hEnum))
 	{
 		DWORD bufsz = 16*1024;
-		NETRESOURCEW *netResource = (NETRESOURCEW *)xf_malloc(bufsz);
+		NETRESOURCE *netResource = (NETRESOURCE *)xf_malloc(bufsz);
 		if (netResource)
 		{
 			while (1)
@@ -72,7 +72,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 				DWORD size=1;
 				bufsz = 16*1024;
 				memset(netResource,0,bufsz);
-				DWORD res = WNetEnumResourceW(hEnum, &size, netResource, &bufsz);
+				DWORD res = WNetEnumResource(hEnum, &size, netResource, &bufsz);
 				if (res == NO_ERROR && size > 0 && netResource->lpLocalName != NULL)
 				{
 					wchar_t letter = Lower(netResource->lpLocalName[0]);
@@ -103,14 +103,14 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 	DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED,*NewDir,strRemoteName);
 	string strUserName, strPassword;
 	GetStoredUserName(*NewDir, strUserName);
-	NETRESOURCEW netResource;
+	NETRESOURCE netResource;
 	netResource.dwType = RESOURCETYPE_DISK;
 	netResource.lpLocalName = (wchar_t *)NewDir;
 	netResource.lpRemoteName = (wchar_t *)strRemoteName.CPtr();
 	netResource.lpProvider = 0;
-	DWORD res = WNetAddConnection2W(&netResource, 0, strUserName, 0);
+	DWORD res = WNetAddConnection2(&netResource, 0, strUserName, 0);
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
-		res = WNetAddConnection2W(&netResource, 0, 0, 0);
+		res = WNetAddConnection2(&netResource, 0, 0, 0);
 
 	if (res)
 	{
@@ -119,7 +119,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 			if (!GetNameAndPassword(strRemoteName, strUserName, strPassword, NULL, GNP_USELAST))
 				break;
 
-			res = WNetAddConnection2W(&netResource, strPassword, strUserName, 0);
+			res = WNetAddConnection2(&netResource, strPassword, strUserName, 0);
 
 			if (!res)
 				break;

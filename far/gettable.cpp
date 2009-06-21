@@ -222,8 +222,8 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
 	// BUBBUG: Существует много кодировок с cpi.MaxCharSize > 1, пока их не поддерживаем
-	CPINFOEXW cpi;
-	if (GetCPInfoExW(codePage, 0, &cpi) && cpi.MaxCharSize == 1)
+	CPINFOEX cpi;
+	if (GetCPInfoEx(codePage, 0, &cpi) && cpi.MaxCharSize == 1)
 	{
 		// Формируем имя таблиц символов
 		// под виндой на входе "XXXX (Name)" а например под wine просто "Name"
@@ -300,7 +300,7 @@ void AddTables(DWORD codePages)
 	AddStandardTable(L"UTF-16 (Little endian)", CP_UNICODE, -1, (codePages & ::UTF16LE)?1:0);
 	AddStandardTable(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE)?1:0);
 	// Получаем таблицы символов установленные в системе
-	EnumSystemCodePagesW((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 }
 
 // Обработка добавления/удаления в/из список выбранных таблиц символов

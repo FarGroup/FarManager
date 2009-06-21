@@ -81,7 +81,7 @@ class TConsoleRestore{
     ~TConsoleRestore(){
       if(IsRectoreConsole)
       {
-        SetConsoleTitleW(strOldTitle);
+				SetConsoleTitle(strOldTitle);
         //SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
         SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
         SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
@@ -345,7 +345,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   CmdMode=FALSE;
 
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
-  GetVersionExW(&WinVer);
+	GetVersionEx(&WinVer);
 
   /*$ 18.04.2002 SKV
     Попользуем floating point что бы проинициализировался vc-ный fprtl.
@@ -382,7 +382,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
     ConvertNameToLong (g_strFarPath, g_strFarPath);
 		PrepareDiskPath(g_strFarPath);
-    SetEnvironmentVariableW (L"FARHOME", g_strFarPath);
+		SetEnvironmentVariable(L"FARHOME", g_strFarPath);
 
     AddEndSlash(g_strFarPath);
   }
@@ -465,7 +465,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           {
             Opt.strRegRoot += L"\\Users\\";
             Opt.strRegRoot += Argv[I+1];
-            SetEnvironmentVariableW(L"FARUSER", Argv[I+1]);
+						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
             CopyGlobalSettings();
             I++;
           }
@@ -486,8 +486,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 /*
             if(Argv[I][2]==L'.' && (Argv[I][3]==0 || Argv[I][3]==L'\\' || Argv[I][3]==L'.'))
             {
-              GetCurrentDirectoryExW(Opt.LoadPlug.strCustomPluginsPath);
-              AddEndSlashW(Opt.LoadPlug.strCustomPluginsPath);
+							GetCurrentDirectoryEx(Opt.LoadPlug.strCustomPluginsPath);
+							AddEndSlash(Opt.LoadPlug.strCustomPluginsPath);
               Opt.LoadPlug.strCustomPluginsPath += Argv[I][2];
             }
             else
@@ -571,7 +571,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
     WaitKey(); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
   }
-  SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
+	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
   SetHighlighting();
 
 

@@ -201,7 +201,7 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 	}
 }
 
-void FreeInfoPanelLinesW(InfoPanelLine *iplW,int InfoLinesNumber)
+void FreeUnicodeInfoPanelLines(InfoPanelLine *iplW,int InfoLinesNumber)
 {
 	for(int i=0;i<InfoLinesNumber;i++)
 	{
@@ -259,7 +259,7 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, int iC
 	}
 }
 
-void FreePanelModesW(PanelMode *pnmW, int iCount)
+void FreeUnicodePanelModes(PanelMode *pnmW, int iCount)
 {
 	if (pnmW)
 	{
@@ -292,7 +292,7 @@ void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, 
 	}
 }
 
-void FreeKeyBarTitlesW(KeyBarTitles *kbtW)
+void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 {
 	if (kbtW)
 	{
@@ -410,7 +410,7 @@ void ConvertPanelItemsPtrArrayToAnsi(PluginPanelItem **PanelItemW, oldfar::Plugi
 	}
 }
 
-void FreePanelItemW(PluginPanelItem *PanelItem, int ItemsNumber)
+void FreeUnicodePanelItem(PluginPanelItem *PanelItem, int ItemsNumber)
 {
 	for (int i=0; i<ItemsNumber; i++)
 	{
@@ -851,15 +851,15 @@ int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
 	return 0;
 }
 
-typedef struct _FAR_SEARCH_A_CALLBACK_PARAM
+struct FAR_SEARCH_A_CALLBACK_PARAM
 {
 	oldfar::FRSUSERFUNC Func;
 	void *Param;
-} FAR_SEARCH_A_CALLBACK_PARAM, *PFAR_SEARCH_A_CALLBACK_PARAM;
+};
 
 static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param)
 {
-	PFAR_SEARCH_A_CALLBACK_PARAM pCallbackParam = static_cast<PFAR_SEARCH_A_CALLBACK_PARAM>(param);
+	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 
 	WIN32_FIND_DATAA FindData;
 	memset(&FindData,0,sizeof(FindData));
@@ -989,7 +989,7 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 	return "";
 }
 
-int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const struct oldfar::FarMenuItem *Item,int ItemsNumber)
+int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags,const char *Title,const char *Bottom,const char *HelpTopic,const int *BreakKeys,int *BreakCode,const oldfar::FarMenuItem *Item,int ItemsNumber)
 {
 	string strT(Title), strB(Bottom), strHT(HelpTopic);
 	const wchar_t *wszT  = Title?strT.CPtr():NULL;
@@ -1324,7 +1324,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA.Param.ListItems && !IsBadReadPtr(diA.Param.ListItems,sizeof(oldfar::FarList)))
+			if (diA.Param.ListItems)
 			{
 				l.Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
 				l.ItemsNumber = diA.Param.ListItems->ItemsNumber;
@@ -2149,7 +2149,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 	return FarSendDlgMessage(hDlg, Msg, Param1, Param2);
 }
 
-int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
+int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber,DWORD Reserved,DWORD Flags,oldfar::FARWINDOWPROC DlgProc,LONG_PTR Param)
 {
 	string strHT(HelpTopic);
 
@@ -2242,7 +2242,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	return ret;
 }
 
-int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,struct oldfar::FarDialogItem *Item,int ItemsNumber)
+int WINAPI FarDialogFnA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const char *HelpTopic,oldfar::FarDialogItem *Item,int ItemsNumber)
 {
 	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, 0, 0);
 }
@@ -2553,13 +2553,15 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 		case oldfar::FCTL_GETCMDLINE:
 		case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 		{
-			if ( !Param || IsBadWritePtr(Param, sizeof(char) * 1024) )
-				return FALSE;
-			int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
-			wchar_t s[1024];
-			FarControl(hPlugin,CmdW,countof(s),(LONG_PTR)s);
-			UnicodeToOEM(s, (char*)Param,countof(s));
-			return TRUE;
+			if(Param)
+			{
+				int CmdW=(Command==oldfar::FCTL_GETCMDLINE)?FCTL_GETCMDLINE:FCTL_GETCMDLINESELECTEDTEXT;
+				wchar_t s[1024];
+				FarControl(hPlugin,CmdW,countof(s),(LONG_PTR)s);
+				UnicodeToOEM(s, (char*)Param,countof(s));
+				return TRUE;
+			}
+			return FALSE;
 		}
 
 		case oldfar::FCTL_GETCMDLINEPOS:
@@ -2638,7 +2640,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 	return FALSE;
 }
 
-int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
 		return FALSE;
@@ -2693,7 +2695,7 @@ int WINAPI FarGetDirListA(const char *Dir,struct oldfar::PluginPanelItem **pPane
 	return ret;
 }
 
-int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *Dir,struct oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
+int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
 		return FALSE;
@@ -2740,7 +2742,7 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 	return ret;
 }
 
-void WINAPI FarFreeDirListA(const struct oldfar::PluginPanelItem *PanelItem)
+void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
 {
 	if (!PanelItem)
 		return;
@@ -3344,7 +3346,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					KeyBarTitles newkbt;
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
 					int ret = FarEditorControl(ECTL_SETKEYBAR, (void*)&newkbt);
-					FreeKeyBarTitlesW(&newkbt);
+					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}
 		}
@@ -3529,7 +3531,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 					KeyBarTitles kbt;
 					ConvertKeyBarTitlesA(kbtA, &kbt);
 					int ret=FarViewerControl(VCTL_SETKEYBAR, &kbt);
-					FreeKeyBarTitlesW(&kbt);
+					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}
 		}
@@ -3630,9 +3632,9 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 				}
 			}
 		}
-		CPINFOEXW cpi;
+		CPINFOEX cpi;
 
-		if (!GetCPInfoExW (nCP, 0, &cpi) || cpi.MaxCharSize != 1)
+		if (!GetCPInfoEx(nCP, 0, &cpi) || cpi.MaxCharSize != 1)
 			return -1;
 
 		wchar_t *codePageName = wcschr (cpi.CodePageName, L'(');
@@ -3667,7 +3669,7 @@ char* WINAPI XlatA(
    char *Line,                    // исходная строка
    int StartPos,                  // начало переконвертирования
    int EndPos,                    // конец переконвертирования
-   const struct oldfar::CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
+   const oldfar::CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
 	string strLine(Line);

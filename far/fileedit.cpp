@@ -1077,7 +1077,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if(!SetFileName(strFileNameTemp))
             {
               SetLastError(ERROR_INVALID_NAME);
-              MessageW(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),strFileNameTemp,MSG(MOk));
+							Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),strFileNameTemp,MSG(MOk));
               if(!NameChanged)
                 FarChDir(strOldCurDir);
               continue;
@@ -1286,7 +1286,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       case KEY_ALTSHIFTF9:
       {
         //     Работа с локальной копией EditorOptions
-        struct EditorOptions EdOpt;
+				EditorOptions EdOpt;
         GetEditorOptions(EdOpt);
 
         EditorConfig(EdOpt,1); // $ 27.11.2001 DJ - Local в EditorConfig
@@ -2268,12 +2268,12 @@ void FileEditor::SetDeleteOnClose(int NewMode)
     Flags.Set(FFILEEDIT_DELETEONLYFILEONCLOSE);
 }
 
-void FileEditor::GetEditorOptions(struct EditorOptions& EdOpt)
+void FileEditor::GetEditorOptions(EditorOptions& EdOpt)
 {
   m_editor->EdOpt.CopyTo(EdOpt);
 }
 
-void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
+void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
 {
   m_editor->SetTabSize(EdOpt.TabSize);
   m_editor->SetConvertTabs(EdOpt.ExpandTabs);
@@ -2327,20 +2327,20 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 		case ECTL_GETBOOKMARKS:
 		{
-			if( !Flags.Check(FFILEEDIT_OPENFAILED) && Param && !IsBadReadPtr(Param, sizeof(EditorBookMarks)) )
+			if( !Flags.Check(FFILEEDIT_OPENFAILED) && Param )
 			{
 				EditorBookMarks *ebm = (EditorBookMarks*)Param;
 
-				if ( ebm->Line && !IsBadWritePtr(ebm->Line, BOOKMARK_COUNT*sizeof(long)) )
+				if(ebm->Line)
 					memcpy(ebm->Line, m_editor->SavePos.Line, BOOKMARK_COUNT*sizeof(long));
 
-				if ( ebm->Cursor && !IsBadWritePtr(ebm->Cursor, BOOKMARK_COUNT*sizeof(long)) )
+				if(ebm->Cursor)
 					memcpy(ebm->Cursor,m_editor->SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
 
-				if ( ebm->ScreenLine && !IsBadWritePtr(ebm->ScreenLine, BOOKMARK_COUNT*sizeof(long)) )
+				if(ebm->ScreenLine)
 					memcpy(ebm->ScreenLine, m_editor->SavePos.ScreenLine, BOOKMARK_COUNT*sizeof(long));
 
-				if ( ebm->LeftPos && !IsBadWritePtr(ebm->LeftPos, BOOKMARK_COUNT*sizeof(long)) )
+				if(ebm->LeftPos)
 					memcpy(ebm->LeftPos, m_editor->SavePos.LeftPos, BOOKMARK_COUNT*sizeof(long));
 
 				return TRUE;
@@ -2410,7 +2410,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				InitKeyBar();
 			else
 			{
-				if ( ((LONG_PTR)Param != (LONG_PTR)-1) && !IsBadReadPtr(Param, sizeof(KeyBarTitles)) ) // не только перерисовать?
+				if((LONG_PTR)Param != (LONG_PTR)-1) // не только перерисовать?
 				{
 					for (int I = 0; I < 12; ++I)
 					{
@@ -2444,11 +2444,11 @@ int FileEditor::EditorControl(int Command, void *Param)
 
     case ECTL_SAVEFILE:
     {
-      EditorSaveFile *esf=(EditorSaveFile *)Param;
       string strName = strFullFileName;
       int EOL=0;
-      if (esf && !IsBadReadPtr(esf,sizeof(EditorSaveFile)))
+			if(Param)
       {
+				EditorSaveFile *esf=(EditorSaveFile *)Param;
         if (*esf->FileName)
           strName=esf->FileName;
         if (esf->FileEOL!=NULL)
@@ -2487,9 +2487,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 //        return FALSE;
       }
 
-      if(!Param || IsBadReadPtr(Param,sizeof(INPUT_RECORD)))
-        return FALSE;
-      else
+      if(Param)
       {
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         DWORD Key;
@@ -2515,15 +2513,14 @@ int FileEditor::EditorControl(int Command, void *Param)
                              rec->Event.KeyEvent.dwControlKeyState);
         }
 #endif
+				return TRUE;
       }
-      return(TRUE);
+			return FALSE;
     }
 
     case ECTL_PROCESSINPUT:
     {
-      if(!Param || IsBadReadPtr(Param,sizeof(INPUT_RECORD)))
-        return FALSE;
-      else
+			if(Param)
       {
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         if (ProcessEditorInput(rec))
@@ -2546,8 +2543,9 @@ int FileEditor::EditorControl(int Command, void *Param)
           int Key=CalcKeyCode(rec,FALSE);
           ReProcessKey(Key);
         }
+				return TRUE;
       }
-      return(TRUE);
+			return FALSE;
     }
 
     case ECTL_PROCESSKEY:

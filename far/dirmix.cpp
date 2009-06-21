@@ -96,7 +96,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
       strCurDir.At(0) && strCurDir.At(1)==L':')
     {
       Drive[1]=Upper(strCurDir.At(0));
-      SetEnvironmentVariableW(Drive,strCurDir);
+			SetEnvironmentVariable(Drive,strCurDir);
     }
   }
   return rc;
@@ -263,7 +263,7 @@ void CreatePath(string &strPath)
       *ChPtr = 0;
 
 			if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES) //BUGBUG
-        CharUpperW (DirPart);
+				CharUpper(DirPart);
 
 			if ( apiCreateDirectory(strPath, NULL) )
         TreeList::AddTreeName(strPath);

@@ -63,7 +63,7 @@ static int ReplaceMode,ReplaceAll;
 
 static int EditorID=0;
 
-// struct EditorUndoData
+// EditorUndoData
 enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 
 Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
@@ -183,7 +183,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
   Flags.Clear(FEDITOR_OPENFAILED);
 
 
-  HANDLE hEdit = FAR_CreateFileW (
+	HANDLE hEdit = FAR_CreateFile (
       Name,
       GENERIC_READ,
       FILE_SHARE_READ,
@@ -335,7 +335,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
 
       string strCacheName;
       if (HostFileEditor && *HostFileEditor->GetPluginData())
-        strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToNameW(Name));
+				strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
       else
       {
         strCacheName = Name;
@@ -351,7 +351,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       }
       unsigned int Table;
       {
-        struct TPosCache32 PosCache={0};
+				TPosCache32 PosCache={0};
         if(Opt.EdOpt.SaveShortPos)
         {
           PosCache.Position[0]=SavePos.Line;
@@ -424,7 +424,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
       {
         string strCacheName;
         if (HostFileEditor && *HostFileEditor->GetPluginData())
-          strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToNameW(Name));
+					strCacheName.Format (L"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
         else
         {
           strCacheName = Name;
@@ -440,7 +440,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
         }
         unsigned int Table;
         {
-          struct TPosCache32 PosCache={0};
+					TPosCache32 PosCache={0};
           if(Opt.EdOpt.SaveShortPos)
           {
             PosCache.Position[0]=SavePos.Line;
@@ -1126,7 +1126,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
               int Ret=0;
               if(CheckLine(MBlockStart))
               {
-                struct EditorSelect eSel;
+								EditorSelect eSel;
                 eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
                 eSel.BlockStartPos=MBlockStartX;
                 eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
@@ -3339,7 +3339,7 @@ void Editor::DeleteString(Edit *DelPtr,int DeleteLast,int UndoLine)
 
   if (StackPos)
   {
-    struct InternalEditorStackBookMark *sb_temp = StackPos, *sb_new;
+		InternalEditorStackBookMark *sb_temp = StackPos, *sb_new;
 
     while(sb_temp->prev)
       sb_temp=sb_temp->prev;
@@ -3457,7 +3457,7 @@ void Editor::InsertString()
 
   if (StackPos)
   {
-    struct InternalEditorStackBookMark *sb_temp = StackPos;
+		InternalEditorStackBookMark *sb_temp = StackPos;
 
     while(sb_temp->prev)
       sb_temp=sb_temp->prev;
@@ -4568,7 +4568,7 @@ void Editor::GoToPosition()
   CurPos=CurLine->GetCurPos();
 
   const wchar_t *LineHistoryName=L"LineNumber";
-  static struct DialogDataEx GoToDlgData[]=
+	static DialogDataEx GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(const wchar_t *)MEditGoToLine,
     DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE,1,L"",
@@ -5337,14 +5337,14 @@ int Editor::EditorControl(int Command,void *Param)
   {
     case ECTL_GETSTRING:
     {
-      struct EditorGetString *GetString=(struct EditorGetString *)Param;
+			EditorGetString *GetString=(EditorGetString *)Param;
 
-      if(GetString && !IsBadReadPtr(GetString,sizeof(struct EditorGetString)))
+			if(GetString)
       {
         Edit *CurPtr=GetStringByNumber(GetString->StringNumber);
         if (!CurPtr)
         {
-          _ECTLLOG(SysLog(L"struct EditorGetString => GetStringByNumber(%d) return NULL",GetString->StringNumber));
+          _ECTLLOG(SysLog(L"EditorGetString => GetStringByNumber(%d) return NULL",GetString->StringNumber));
           return(FALSE);
         }
         CurPtr->GetBinaryString(const_cast<const wchar_t **>(&GetString->StringText),
@@ -5366,7 +5366,7 @@ int Editor::EditorControl(int Command,void *Param)
                             CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
                             CurPtr->TabPosToReal(VBlockX);
         }
-        _ECTLLOG(SysLog(L"struct EditorGetString{"));
+        _ECTLLOG(SysLog(L"EditorGetString{"));
         _ECTLLOG(SysLog(L"  StringNumber    =%d",GetString->StringNumber));
         _ECTLLOG(SysLog(L"  StringText      ='%s'",GetString->StringText));
         _ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL,StrLength(GetString->StringEOL)):L"(null)"));
@@ -5429,12 +5429,12 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_SETSTRING:
     {
 
-      struct EditorSetString *SetString=(struct EditorSetString *)Param;
+			EditorSetString *SetString=(EditorSetString *)Param;
 
-      if(!SetString || IsBadReadPtr(SetString,sizeof(struct EditorSetString)))
+			if(!SetString)
         break;
 
-      _ECTLLOG(SysLog(L"struct EditorSetString{"));
+      _ECTLLOG(SysLog(L"EditorSetString{"));
       _ECTLLOG(SysLog(L"  StringNumber    =%d",SetString->StringNumber));
       _ECTLLOG(SysLog(L"  StringText      ='%s'",SetString->StringText));
       _ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL,StrLength(SetString->StringEOL)):L"(null)"));
@@ -5519,7 +5519,7 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_GETINFO:
     {
-      struct EditorInfo *Info=(struct EditorInfo *)Param;
+			EditorInfo *Info=(EditorInfo *)Param;
 			if(Info)
       {
         Info->EditorID=Editor::EditorID;
@@ -5563,18 +5563,18 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CodePage=m_codepage;
         return TRUE;
       }
-      _ECTLLOG(SysLog(L"Error: Param == NULL or IsBadWritePtr(Param,sizeof(struct EditorInfo))"));
+			_ECTLLOG(SysLog(L"Error: Param == NULL"));
       return FALSE;
     }
 
     case ECTL_SETPOSITION:
     {
       // "Вначале было слово..."
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorSetPosition)))
+			if(Param)
       {
         // ...а вот теперь поработаем с тем, что передалаи
-        struct EditorSetPosition *Pos=(struct EditorSetPosition *)Param;
-        _ECTLLOG(SysLog(L"struct EditorSetPosition{"));
+				EditorSetPosition *Pos=(EditorSetPosition *)Param;
+				_ECTLLOG(SysLog(L"EditorSetPosition{"));
         _ECTLLOG(SysLog(L"  CurLine       = %d",Pos->CurLine));
         _ECTLLOG(SysLog(L"  CurPos        = %d",Pos->CurPos));
         _ECTLLOG(SysLog(L"  CurTabPos     = %d",Pos->CurTabPos));
@@ -5633,17 +5633,17 @@ int Editor::EditorControl(int Command,void *Param)
         Unlock ();
         return TRUE;
       }
-      _ECTLLOG(SysLog(L"Error: Param == NULL or IsBadReadPtr(Param,sizeof(struct EditorSetPosition))"));
+			_ECTLLOG(SysLog(L"Error: Param == NULL"));
       break;
     }
 
     case ECTL_SELECT:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorSelect)))
+			if(Param)
       {
-        struct EditorSelect *Sel=(struct EditorSelect *)Param;
+				EditorSelect *Sel=(EditorSelect *)Param;
 
-        _ECTLLOG(SysLog(L"struct EditorSelect{"));
+				_ECTLLOG(SysLog(L"EditorSelect{"));
         _ECTLLOG(SysLog(L"  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?L"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?L"":(Sel->BlockType==BTYPE_COLUMN?L"BTYPE_COLUMN":L"BTYPE_?????"))),Sel->BlockType));
         _ECTLLOG(SysLog(L"  BlockStartLine=%d",Sel->BlockStartLine));
         _ECTLLOG(SysLog(L"  BlockStartPos =%d",Sel->BlockStartPos));
@@ -5718,7 +5718,7 @@ int Editor::EditorControl(int Command,void *Param)
         }
         return(TRUE);
       }
-      _ECTLLOG(SysLog(L"Error: Param == NULL or IsBadReadPtr(Param,sizeof(struct EditorSelect))"));
+      _ECTLLOG(SysLog(L"Error: Param == NULL"));
       break;
     }
 
@@ -5731,9 +5731,9 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_TABTOREAL:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorConvertPos)))
+			if(Param)
       {
-        struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
+				EditorConvertPos *ecp=(EditorConvertPos *)Param;
         Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
         if (CurPtr==NULL)
         {
@@ -5741,7 +5741,7 @@ int Editor::EditorControl(int Command,void *Param)
           return(FALSE);
         }
         ecp->DestPos=CurPtr->TabPosToReal(ecp->SrcPos);
-        _ECTLLOG(SysLog(L"struct EditorConvertPos{"));
+				_ECTLLOG(SysLog(L"EditorConvertPos{"));
         _ECTLLOG(SysLog(L"  StringNumber =%d",ecp->StringNumber));
         _ECTLLOG(SysLog(L"  SrcPos       =%d",ecp->SrcPos));
         _ECTLLOG(SysLog(L"  DestPos      =%d",ecp->DestPos));
@@ -5753,9 +5753,9 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_REALTOTAB:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorConvertPos)))
+			if(Param)
       {
-        struct EditorConvertPos *ecp=(struct EditorConvertPos *)Param;
+				EditorConvertPos *ecp=(EditorConvertPos *)Param;
         Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
         if (CurPtr==NULL)
         {
@@ -5763,7 +5763,7 @@ int Editor::EditorControl(int Command,void *Param)
           return(FALSE);
         }
         ecp->DestPos=CurPtr->RealPosToTab(ecp->SrcPos);
-        _ECTLLOG(SysLog(L"struct EditorConvertPos{"));
+				_ECTLLOG(SysLog(L"EditorConvertPos{"));
         _ECTLLOG(SysLog(L"  StringNumber =%d",ecp->StringNumber));
         _ECTLLOG(SysLog(L"  SrcPos       =%d",ecp->SrcPos));
         _ECTLLOG(SysLog(L"  DestPos      =%d",ecp->DestPos));
@@ -5798,10 +5798,10 @@ int Editor::EditorControl(int Command,void *Param)
     // TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
     case ECTL_ADDCOLOR:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
+			if(Param)
       {
-        struct EditorColor *col=(struct EditorColor *)Param;
-        _ECTLLOG(SysLog(L"struct EditorColor{"));
+				EditorColor *col=(EditorColor *)Param;
+				_ECTLLOG(SysLog(L"EditorColor{"));
         _ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
         _ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
         _ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
@@ -5809,7 +5809,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog(L"  Color       =%d (0x%08X)",col->Color,col->Color));
         _ECTLLOG(SysLog(L"}"));
 
-        struct ColorItem newcol;
+				ColorItem newcol;
         newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
         newcol.EndPos=col->EndPos+X1;
         newcol.Color=col->Color;
@@ -5830,16 +5830,16 @@ int Editor::EditorControl(int Command,void *Param)
     // TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
     case ECTL_GETCOLOR:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorColor)))
+			if(Param)
       {
-        struct EditorColor *col=(struct EditorColor *)Param;
+				EditorColor *col=(EditorColor *)Param;
         Edit *CurPtr=GetStringByNumber(col->StringNumber);
-        if (!CurPtr || IsBadWritePtr(col,sizeof(struct EditorColor)))
+				if(!CurPtr)
         {
-          _ECTLLOG(SysLog(L"GetStringByNumber(%d) return NULL or IsBadWritePtr(col,sizeof(struct EditorColor)",col->StringNumber));
+          _ECTLLOG(SysLog(L"GetStringByNumber(%d) return NULL",col->StringNumber));
           return FALSE;
         }
-        struct ColorItem curcol;
+				ColorItem curcol;
         if (!CurPtr->GetColor(&curcol,col->ColorItem))
         {
           _ECTLLOG(SysLog(L"GetColor() return NULL"));
@@ -5848,7 +5848,7 @@ int Editor::EditorControl(int Command,void *Param)
         col->StartPos=curcol.StartPos-X1;
         col->EndPos=curcol.EndPos-X1;
         col->Color=curcol.Color;
-        _ECTLLOG(SysLog(L"struct EditorColor{"));
+				_ECTLLOG(SysLog(L"EditorColor{"));
         _ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
         _ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
         _ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
@@ -5873,17 +5873,17 @@ int Editor::EditorControl(int Command,void *Param)
     */
     case ECTL_SETPARAM:
     {
-      struct EditorSetParameter *espar=(struct EditorSetParameter *)Param;
-      if(espar && !IsBadReadPtr(espar,sizeof(struct EditorSetParameter)))
+			if(Param)
       {
+				EditorSetParameter *espar=(EditorSetParameter *)Param;
         int rc=TRUE;
-        _ECTLLOG(SysLog(L"struct EditorSetParameter{"));
+				_ECTLLOG(SysLog(L"EditorSetParameter{"));
         _ECTLLOG(SysLog(L"  Type        =%s",_ESPT_ToName(espar->Type)));
         switch(espar->Type)
         {
           case ESPT_GETWORDDIV:
             _ECTLLOG(SysLog(L"  cParam      =(%p)",espar->Param.cParam));
-            if(!IsBadWritePtr(espar->Param.cParam, EdOpt.strWordDiv.GetLength()+1))
+						if(espar->Param.cParam)
               xwcsncpy(espar->Param.cParam,EdOpt.strWordDiv,EdOpt.strWordDiv.GetLength()); //BUGBUG
             else
               rc=FALSE;
@@ -5964,9 +5964,9 @@ int Editor::EditorControl(int Command,void *Param)
 
     case ECTL_UNDOREDO:
     {
-      EditorUndoRedo *eur=(EditorUndoRedo *)Param;
-      if (eur && !IsBadReadPtr(eur,sizeof(EditorUndoRedo)))
+			if(Param)
       {
+				EditorUndoRedo *eur=(EditorUndoRedo *)Param;
         switch(eur->Command)
         {
           case EUR_BEGIN:
@@ -6045,7 +6045,7 @@ int Editor::RestoreStackBookmark()
 
 int Editor::AddStackBookmark()
 {
-  struct InternalEditorStackBookMark *sb_old=StackPos,*sb_new;
+	InternalEditorStackBookMark *sb_old=StackPos,*sb_new;
 
   if (StackPos && StackPos->next)
   {
@@ -6114,7 +6114,7 @@ int Editor::ClearStackBookmarks()
 {
   if (StackPos)
   {
-    struct InternalEditorStackBookMark *sb_prev = StackPos->prev, *sb_next;
+		InternalEditorStackBookMark *sb_prev = StackPos->prev, *sb_next;
 
     while(StackPos)
     {
@@ -6171,7 +6171,7 @@ int Editor::GetStackBookmark(int iIdx,EditorBookMarks *Param)
 {
   InternalEditorStackBookMark *sb_temp = PointerToStackBookmark(iIdx);
 
-  if (sb_temp && Param && !IsBadWritePtr(Param,sizeof(EditorBookMarks)))
+	if(sb_temp && Param)
   {
     if(Param->Line)       Param->Line[0]       =sb_temp->Line;
     if(Param->Cursor)     Param->Cursor[0]     =sb_temp->Cursor;
@@ -6195,22 +6195,21 @@ int Editor::GetStackBookmarks(EditorBookMarks *Param)
     for (sb_temp=StackPos;sb_temp;iCount++)
       sb_temp=sb_temp->next;
 
-    if (Param && !IsBadReadPtr(Param,sizeof(EditorBookMarks)))
+		if(Param)
     {
-      bool blLine = Param->Line && !IsBadWritePtr(Param->Line,iCount*sizeof(long));
-      bool blCursor = Param->Cursor && !IsBadWritePtr(Param->Cursor,iCount*sizeof(long));
-      bool blLeftPos = Param->LeftPos && !IsBadWritePtr(Param->LeftPos,iCount*sizeof(long));
-      bool blScreenLine = Param->ScreenLine && !IsBadWritePtr(Param->ScreenLine,iCount*sizeof(long));
-
-      if (blLine || blCursor || blLeftPos || blScreenLine)
+			if(Param->Line || Param->Cursor || Param->LeftPos || Param->ScreenLine)
       {
         sb_temp=sb_start;
         for(int i=0;i<iCount;i++)
         {
-          if (blLine) Param->Line[i]=sb_temp->Line;
-          if (blCursor) Param->Cursor[i]=sb_temp->Cursor;
-          if (blLeftPos) Param->LeftPos[i]=sb_temp->LeftPos;
-          if (blScreenLine) Param->ScreenLine[i]=sb_temp->ScreenLine;
+					if(Param->Line)
+						Param->Line[i]=sb_temp->Line;
+					if(Param->Cursor)
+						Param->Cursor[i]=sb_temp->Cursor;
+					if(Param->LeftPos)
+						Param->LeftPos[i]=sb_temp->LeftPos;
+					if(Param->ScreenLine)
+						Param->ScreenLine[i]=sb_temp->ScreenLine;
           sb_temp=sb_temp->next;
         }
       }

@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 
-HMenu::HMenu(struct HMenuData *Item,int ItemCount)
+HMenu::HMenu(HMenuData *Item,int ItemCount)
 {
   SetDynamicallyBorn(FALSE);
   SubMenu=NULL;
@@ -131,7 +131,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         iParam=(__int64)SelectPos;
 
       if((int)iParam < ItemCount)
-        return (__int64)((DWORD)GetHighlights((const struct HMenuData *)(Item+(int)iParam)));
+        return (__int64)((DWORD)GetHighlights((const HMenuData *)(Item+(int)iParam)));
       return _i64(0);
     }
   }
@@ -346,7 +346,7 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 }
 
 
-void HMenu::ProcessSubMenu(struct MenuDataEx *Data,int DataCount,
+void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
   if (SubMenu!=NULL)
@@ -428,7 +428,7 @@ HMenu::~HMenu()
   FrameManager->RefreshFrame();
 }
 
-wchar_t HMenu::GetHighlights(const struct HMenuData *_item)
+wchar_t HMenu::GetHighlights(const HMenuData *_item)
 {
   CriticalSectionLock Lock(CS);
 
@@ -455,7 +455,7 @@ BOOL HMenu::CheckHighlights(WORD CheckSymbol)
 
   for (int I=0; I < ItemCount; I++)
   {
-    wchar_t Ch=GetHighlights((const struct HMenuData *)(Item+I));
+		wchar_t Ch=GetHighlights((const HMenuData *)(Item+I));
 
     if(Ch && Upper(CheckSymbol) == Upper(Ch))
       return TRUE;

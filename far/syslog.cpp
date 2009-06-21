@@ -135,7 +135,7 @@ void OpenSysLog()
       fclose(LogStream);
   DWORD Attr;
 
-  GetModuleFileNameW(NULL,LogFileName,countof(LogFileName));
+	GetModuleFileName(NULL,LogFileName,countof(LogFileName));
 	wchar_t *Ptr=(wchar_t*)PointToName(LogFileName);
 	wcscpy(Ptr,L"$Log");
 	Attr=apiGetFileAttributes(LogFileName);
@@ -250,9 +250,9 @@ void SysLog(const wchar_t *fmt,...)
   CloseSysLog();
   if(IsDebuggerPresent())
   {
-    OutputDebugStringW(msg);
+		OutputDebugString(msg);
 #ifdef _MSC_VER
-    OutputDebugStringW(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
   }
 #endif
@@ -267,7 +267,7 @@ void SysLogLastError(void)
   wchar_t *lpMsgBuf;
 
   DWORD LastErr=GetLastError();
-	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
                 (LPWSTR) &lpMsgBuf,0,NULL);
 
@@ -275,16 +275,16 @@ void SysLogLastError(void)
   if (LogStream)
   {
     wchar_t timebuf[64];
-    // RemoveUnprintableCharactersW(lpMsgBuf);
+		// RemoveUnprintableCharacters(lpMsgBuf);
     fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
     fflush(LogStream);
   }
   CloseSysLog();
   if(IsDebuggerPresent())
   {
-    OutputDebugStringW(lpMsgBuf);
+		OutputDebugString(lpMsgBuf);
 #ifdef _MSC_VER
-     OutputDebugStringW(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
   }
   LocalFree(lpMsgBuf);
@@ -318,9 +318,9 @@ void SysLog(int l,const wchar_t *fmt,...)
   CloseSysLog();
   if(IsDebuggerPresent())
   {
-    OutputDebugStringW(msg);
+		OutputDebugString(msg);
 #ifdef _MSC_VER
-    OutputDebugStringW(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
   }
 #endif
@@ -439,7 +439,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 
 
 
-void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
+void PluginsStackItem_Dump(const wchar_t *Title,const PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())
@@ -499,7 +499,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const struct PluginsStackItem *S
 #endif
 }
 
-void GetOpenPluginInfo_Dump(const wchar_t *Title,const struct OpenPluginInfo *Info,FILE *fp)
+void GetOpenPluginInfo_Dump(const wchar_t *Title,const OpenPluginInfo *Info,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())
@@ -722,9 +722,9 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
   CloseSysLog();
   if(IsDebuggerPresent())
   {
-    OutputDebugStringW(msg);
+		OutputDebugString(msg);
 #ifdef _MSC_VER
-    OutputDebugStringW(L"\n");
+		OutputDebugString(L"\n");
 #endif _MSC_VER
   }
 }
@@ -772,7 +772,7 @@ struct __XXX_Name{
   const wchar_t *Name;
 };
 
-static string _XXX_ToName(int Val,const wchar_t *Pref,struct __XXX_Name *arrDef,int cntArr)
+static string _XXX_ToName(int Val,const wchar_t *Pref,__XXX_Name *arrDef,int cntArr)
 {
   int I;
   string Name;
@@ -792,7 +792,7 @@ string __ECTL_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   #define DEF_ECTL_(m) { ECTL_##m , L#m }
-  struct __XXX_Name ECTL[]={
+	__XXX_Name ECTL[]={
     DEF_ECTL_(GETSTRING),      DEF_ECTL_(SETSTRING),
     DEF_ECTL_(INSERTSTRING),   DEF_ECTL_(DELETESTRING),
     DEF_ECTL_(DELETECHAR),     DEF_ECTL_(INSERTTEXT),
@@ -818,7 +818,7 @@ string __EE_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_EE_(m) { EE_##m , L#m }
-  struct __XXX_Name EE[]={
+	__XXX_Name EE[]={
     DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
     DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
   };
@@ -833,7 +833,7 @@ string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_EEREDRAW_(m) { (int)(INT_PTR)EEREDRAW_##m , L#m }
-  struct __XXX_Name EEREDRAW[]={
+	__XXX_Name EEREDRAW[]={
     DEF_EEREDRAW_(ALL),  DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
   };
 
@@ -847,7 +847,7 @@ string __ESPT_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   #define DEF_ESPT_(m) { ESPT_##m , L#m }
-  struct __XXX_Name ESPT[]={
+	__XXX_Name ESPT[]={
     DEF_ESPT_(TABSIZE),
     DEF_ESPT_(EXPANDTABS),
     DEF_ESPT_(AUTOINDENT),
@@ -868,7 +868,7 @@ string __VE_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_VE_(m) { VE_##m , L#m }
-  struct __XXX_Name VE[]={
+	__XXX_Name VE[]={
     DEF_VE_(READ),     DEF_VE_(CLOSE),
     DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
   };
@@ -883,7 +883,7 @@ string __FCTL_ToName(int Command)
 {
 #if defined(SYSLOG)
   #define DEF_FCTL_(m) { FCTL_##m , L#m }
-  struct __XXX_Name FCTL[]={
+	__XXX_Name FCTL[]={
      DEF_FCTL_(CLOSEPLUGIN),           DEF_FCTL_(GETPANELINFO),
      DEF_FCTL_(UPDATEPANEL),
      DEF_FCTL_(REDRAWPANEL),
@@ -908,7 +908,7 @@ string __ACTL_ToName(int Command)
 {
 #if defined(SYSLOG_ACTL)
 #define DEF_ACTL_(m) { ACTL_##m , L#m }
-  struct __XXX_Name ACTL[]={
+	__XXX_Name ACTL[]={
     DEF_ACTL_(GETFARVERSION),          DEF_ACTL_(CONSOLEMODE),
     DEF_ACTL_(GETSYSWORDDIV),          DEF_ACTL_(WAITKEY),
     DEF_ACTL_(GETCOLOR),               DEF_ACTL_(GETARRAYCOLOR),
@@ -936,7 +936,7 @@ string __VCTL_ToName(int Command)
 {
 #if defined(SYSLOG_VCTL)
 #define DEF_VCTL_(m) { VCTL_##m , L#m }
-  struct __XXX_Name VCTL[]={
+	__XXX_Name VCTL[]={
     DEF_VCTL_(GETINFO),
     DEF_VCTL_(QUIT),
     DEF_VCTL_(REDRAW),
@@ -956,7 +956,7 @@ string __MCODE_ToName(int OpCode)
 {
 #if defined(SYSLOG)
 #define DEF_MCODE_(m) { MCODE_##m , L#m }
-  struct __XXX_Name MCODE[]={
+	__XXX_Name MCODE[]={
      DEF_MCODE_(C_APANEL_BOF),
      DEF_MCODE_(C_APANEL_EOF),
      DEF_MCODE_(C_APANEL_FILEPANEL),
@@ -1201,7 +1201,7 @@ string __DLGMSG_ToName(int Msg)
 {
 #if defined(SYSLOG)
   #define DEF_MESSAGE(m) { m , L#m }
-  struct __XXX_Name Message[]={
+	__XXX_Name Message[]={
     DEF_MESSAGE(DM_FIRST),              DEF_MESSAGE(DM_CLOSE),
     DEF_MESSAGE(DM_ENABLE),             DEF_MESSAGE(DM_ENABLEREDRAW),
     DEF_MESSAGE(DM_GETDLGDATA),         DEF_MESSAGE(DM_GETDLGITEM),
@@ -1264,7 +1264,7 @@ string __VK_KEY_ToName(int VkKey)
 {
 #if defined(SYSLOG)
   #define DEF_VK(k) { VK_##k , L#k }
-  struct __XXX_Name VK[]={
+	__XXX_Name VK[]={
     DEF_VK(ACCEPT),                           DEF_VK(ADD),
     DEF_VK(APPS),                             DEF_VK(ATTN),
     DEF_VK(BACK),                             DEF_VK(BROWSER_BACK),
@@ -1507,7 +1507,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
       {
         DWORD ReadCount3;
 
-        PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
+				PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
 
         for(DWORD I=0; I < ReadCount2; ++I)
         {
@@ -1702,7 +1702,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 #endif
 }
 
-void PanelViewSettings_Dump(const wchar_t *Title,const struct PanelViewSettings &ViewSettings,FILE *fp)
+void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSettings,FILE *fp)
 {
 #if defined(SYSLOG)
   if(!IsLogON())

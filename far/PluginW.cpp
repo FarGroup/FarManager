@@ -369,7 +369,7 @@ bool PluginW::Load()
 
 		PrepareModulePath(m_strModuleName);
 
-		m_hModule = LoadLibraryExW(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
 
 		if( !m_hModule )
 			LstErr=GetLastError();
@@ -377,7 +377,7 @@ bool PluginW::Load()
 		FarChDir(strCurPath);
 
 		if(Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
+			SetEnvironmentVariable(Drive,strCurPlugDiskPath);
 	}
 
 	if ( !m_hModule )
@@ -775,7 +775,7 @@ HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
       else
         if ( !g_strDirToSet.IsEmpty() )
         {
-          CtrlObject->Cp()->ActivePanel->SetCurDirW(g_strDirToSet,TRUE);
+					CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
           CtrlObject->Cp()->ActivePanel->Redraw();
         }
     } */

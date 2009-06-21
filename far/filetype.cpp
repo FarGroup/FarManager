@@ -60,7 +60,7 @@ static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
 static int GetDescriptionWidth (const wchar_t *Name=NULL, const wchar_t *ShortName=NULL);
 
-struct FileTypeStringsW
+struct FileTypeStrings
 {
     const wchar_t *Help,*HelpModify,
         *Associations,*TypeFmt, *Type0,
@@ -69,7 +69,7 @@ struct FileTypeStringsW
 };
 
 
-const FileTypeStringsW FTSW=
+const FileTypeStrings FTS=
 {
     L"FileAssoc",L"FileAssocModify",
     L"Associations",L"Associations\\Type%d",L"Associations\\Type",
@@ -132,13 +132,13 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
   int NumCommands[32];
   int CommandCount=0;
 
-  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 
   for (int I=0;;I++)
   {
     string strRegKey, strMask;
-    strRegKey.Format (FTSW.TypeFmt,I);
-    if (!GetRegKey(strRegKey,FTSW.Mask,strMask,L""))
+		strRegKey.Format (FTS.TypeFmt,I);
+		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
       break;
     if(FMask.Set(strMask, FMF_SILENT))
     {
@@ -148,22 +148,22 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         switch(Mode)
         {
           case FILETYPE_EXEC:
-            GetRegKey(strRegKey,FTSW.Execute,strNewCommand,L"");
+						GetRegKey(strRegKey,FTS.Execute,strNewCommand,L"");
             break;
           case FILETYPE_VIEW:
-            GetRegKey(strRegKey,FTSW.View,strNewCommand, L"");
+						GetRegKey(strRegKey,FTS.View,strNewCommand, L"");
             break;
           case FILETYPE_EDIT:
-            GetRegKey(strRegKey,FTSW.Edit,strNewCommand,L"");
+						GetRegKey(strRegKey,FTS.Edit,strNewCommand,L"");
             break;
           case FILETYPE_ALTEXEC:
-            GetRegKey(strRegKey,FTSW.AltExec,strNewCommand,L"");
+						GetRegKey(strRegKey,FTS.AltExec,strNewCommand,L"");
             break;
           case FILETYPE_ALTVIEW:
-            GetRegKey(strRegKey,FTSW.AltView,strNewCommand,L"");
+						GetRegKey(strRegKey,FTS.AltView,strNewCommand,L"");
             break;
           case FILETYPE_ALTEDIT:
-            GetRegKey(strRegKey,FTSW.AltEdit,strNewCommand,L"");
+						GetRegKey(strRegKey,FTS.AltEdit,strNewCommand,L"");
             break;
           default:
             strNewCommand=L""; // обнулим на всякий пожарный
@@ -173,7 +173,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
         {
           strCommand = strNewCommand;
           Commands[CommandCount] = strCommand;
-          GetRegKey(strRegKey,FTSW.Desc,Descriptions[CommandCount],L"");
+					GetRegKey(strRegKey,FTS.Desc,Descriptions[CommandCount],L"");
           CommandCount++;
         }
       }
@@ -187,7 +187,7 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
     VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
 
 
-    TypesMenu.SetHelp(FTSW.Help);
+		TypesMenu.SetHelp(FTS.Help);
     TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
 
@@ -330,7 +330,7 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
   if ((ExtPtr=wcsrchr(Name,L'.'))==NULL)
     return(FALSE);
 
-  if (RegOpenKeyW(HKEY_CLASSES_ROOT,ExtPtr,&hClassesKey)!=ERROR_SUCCESS)
+	if (RegOpenKey(HKEY_CLASSES_ROOT,ExtPtr,&hClassesKey)!=ERROR_SUCCESS)
       return(FALSE);
 
 /*
@@ -364,14 +364,13 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 */
 void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish)
 {
-  string strExecStr, strFullExecStr;
   string strListName, strAnotherListName;
   string strShortListName, strAnotherShortListName;
 
   string strFullName, strFullShortName;
 
-  strExecStr = Command;
-  strFullExecStr = Command;
+	string strExecStr = Command;
+	string strFullExecStr = Command;
   {
     int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
     // Снова все "подставлено", теперь проверим условия "if exist"
@@ -426,18 +425,18 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
   while (1)
   {
     string strRegKey, strMask, strMenuText;
-    strRegKey.Format (FTSW.TypeFmt,NumLine);
+		strRegKey.Format (FTS.TypeFmt,NumLine);
 
     TypesMenuItem.Clear ();
 
-    if (!GetRegKey(strRegKey,FTSW.Mask,strMask,L""))
+		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
       break;
     if (DizWidth==0)
       strMenuText=L"";
     else
     {
       string strTitle, strDescription;
-      GetRegKey(strRegKey,FTSW.Desc,strDescription,L"");
+			GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
       if ( !strDescription.IsEmpty() )
         strTitle = strDescription;
       else
@@ -468,10 +467,10 @@ void EditFileTypes()
   int m;
   BOOL MenuModified;
 
-  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
-  TypesMenu.SetHelp(FTSW.Help);
+	TypesMenu.SetHelp(FTS.Help);
   TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);
   TypesMenu.SetBottomTitle(MSG(MAssocBottom));
@@ -534,14 +533,14 @@ void EditFileTypes()
 
 int DeleteTypeRecord(int DeletePos)
 {
-	string strRecText, strItemName, strRegKey;
-	strRegKey.Format (FTSW.TypeFmt,DeletePos);
-	GetRegKey(strRegKey,FTSW.Mask,strRecText,L"");
-	strItemName=strRecText;
+	string strRecText, strRegKey;
+	strRegKey.Format (FTS.TypeFmt,DeletePos);
+	GetRegKey(strRegKey,FTS.Mask,strRecText,L"");
+	string strItemName=strRecText;
 	InsertQuote(strItemName);
 	if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel))!=0)
 		return(FALSE);
-	DeleteKeyRecord(FTSW.TypeFmt,DeletePos);
+	DeleteKeyRecord(FTS.TypeFmt,DeletePos);
 	return(TRUE);
 }
 
@@ -549,7 +548,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 {
   const wchar_t *HistoryName=L"Masks";
 
-  static struct DialogDataEx EditDlgData[]={
+	static DialogDataEx EditDlgData[]={
 /* 00 */ DI_DOUBLEBOX,3, 1,72,21,0,0,0,0,(const wchar_t *)MFileAssocTitle,
 /* 01 */ DI_TEXT,     5, 2, 0, 2,0,0,0,0,(const wchar_t *)MFileAssocMasks,
 /* 02 */ DI_EDIT,     5, 3,70, 3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
@@ -575,22 +574,22 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   MakeDialogItemsEx(EditDlgData,EditDlg);
 
   string strRegKey;
-  strRegKey.Format (FTSW.TypeFmt,EditPos);
+	strRegKey.Format (FTS.TypeFmt,EditPos);
   if (!NewRec)
   {
-    GetRegKey(strRegKey,FTSW.Mask,EditDlg[2].strData,L"");
-    GetRegKey(strRegKey,FTSW.Desc,EditDlg[4].strData,L"");
-    GetRegKey(strRegKey,FTSW.Execute,EditDlg[7].strData,L"");
-    GetRegKey(strRegKey,FTSW.AltExec,EditDlg[9].strData,L"");
-    GetRegKey(strRegKey,FTSW.View,EditDlg[11].strData,L"");
-    GetRegKey(strRegKey,FTSW.AltView,EditDlg[13].strData,L"");
-    GetRegKey(strRegKey,FTSW.Edit,EditDlg[15].strData,L"");
-    GetRegKey(strRegKey,FTSW.AltEdit,EditDlg[17].strData,L"");
+		GetRegKey(strRegKey,FTS.Mask,EditDlg[2].strData,L"");
+		GetRegKey(strRegKey,FTS.Desc,EditDlg[4].strData,L"");
+		GetRegKey(strRegKey,FTS.Execute,EditDlg[7].strData,L"");
+		GetRegKey(strRegKey,FTS.AltExec,EditDlg[9].strData,L"");
+		GetRegKey(strRegKey,FTS.View,EditDlg[11].strData,L"");
+		GetRegKey(strRegKey,FTS.AltView,EditDlg[13].strData,L"");
+		GetRegKey(strRegKey,FTS.Edit,EditDlg[15].strData,L"");
+		GetRegKey(strRegKey,FTS.AltEdit,EditDlg[17].strData,L"");
   }
 
   {
 		Dialog Dlg(EditDlg,countof(EditDlg));
-    Dlg.SetHelp(FTSW.HelpModify);
+		Dlg.SetHelp(FTS.HelpModify);
     Dlg.SetPosition(-1,-1,76,23);
 
     CFileMask FMask;
@@ -613,16 +612,16 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   }
 
   if (NewRec)
-    InsertKeyRecord(FTSW.TypeFmt,EditPos,TotalRecords);
+		InsertKeyRecord(FTS.TypeFmt,EditPos,TotalRecords);
 
-  SetRegKey(strRegKey,FTSW.Mask,EditDlg[2].strData);
-  SetRegKey(strRegKey,FTSW.Desc,EditDlg[4].strData);
-  SetRegKey(strRegKey,FTSW.Execute,EditDlg[7].strData);
-  SetRegKey(strRegKey,FTSW.AltExec,EditDlg[9].strData);
-  SetRegKey(strRegKey,FTSW.View,EditDlg[11].strData);
-  SetRegKey(strRegKey,FTSW.AltView,EditDlg[13].strData);
-  SetRegKey(strRegKey,FTSW.Edit,EditDlg[15].strData);
-  SetRegKey(strRegKey,FTSW.AltEdit,EditDlg[17].strData);
+	SetRegKey(strRegKey,FTS.Mask,EditDlg[2].strData);
+	SetRegKey(strRegKey,FTS.Desc,EditDlg[4].strData);
+	SetRegKey(strRegKey,FTS.Execute,EditDlg[7].strData);
+	SetRegKey(strRegKey,FTS.AltExec,EditDlg[9].strData);
+	SetRegKey(strRegKey,FTS.View,EditDlg[11].strData);
+	SetRegKey(strRegKey,FTS.AltView,EditDlg[13].strData);
+	SetRegKey(strRegKey,FTS.Edit,EditDlg[15].strData);
+	SetRegKey(strRegKey,FTS.AltEdit,EditDlg[17].strData);
 
   return(TRUE);
 }
@@ -630,21 +629,21 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
 {
   int Width=0,NumLine=0;
-  RenumKeyRecord(FTSW.Associations,FTSW.TypeFmt,FTSW.Type0);
+	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
   while (1)
   {
     CFileMask FMask;
 
     string strRegKey, strMask, strDescription;
-    strRegKey.Format (FTSW.TypeFmt, NumLine);
-    if (!GetRegKey(strRegKey,FTSW.Mask, strMask, L""))
+		strRegKey.Format (FTS.TypeFmt, NumLine);
+		if (!GetRegKey(strRegKey,FTS.Mask, strMask, L""))
       break;
     NumLine++;
 
     if(!FMask.Set(strMask, FMF_SILENT))
       continue;
 
-    GetRegKey(strRegKey,FTSW.Desc,strDescription,L"");
+		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
     int CurWidth;
     if (Name == NULL)
       CurWidth = HiStrlen(strDescription);

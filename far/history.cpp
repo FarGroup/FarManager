@@ -204,15 +204,15 @@ bool History::SaveHistory()
 	hKey=CreateRegKey(strRegKey);
 	if (hKey!=NULL)
 	{
-		RegSetValueExW(hKey,L"Lines",0,REG_MULTI_SZ,(unsigned char *)BufferLines,static_cast<DWORD>(SizeLines*sizeof(wchar_t)));
+		RegSetValueEx(hKey,L"Lines",0,REG_MULTI_SZ,(unsigned char *)BufferLines,static_cast<DWORD>(SizeLines*sizeof(wchar_t)));
 
 		if (SaveType)
-			RegSetValueExW(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,static_cast<DWORD>((SizeTypes+1)*sizeof(wchar_t)));
+			RegSetValueEx(hKey,L"Types",0,REG_SZ,(unsigned char *)TypesBuffer,static_cast<DWORD>((SizeTypes+1)*sizeof(wchar_t)));
 
-		RegSetValueExW(hKey,L"Locks",0,REG_SZ,(unsigned char *)LocksBuffer,static_cast<DWORD>((SizeLocks+1)*sizeof(wchar_t)));
-		RegSetValueExW(hKey,L"Times",0,REG_BINARY,(unsigned char *)TimesBuffer,(DWORD)SizeTimes*sizeof(FILETIME));
+		RegSetValueEx(hKey,L"Locks",0,REG_SZ,(unsigned char *)LocksBuffer,static_cast<DWORD>((SizeLocks+1)*sizeof(wchar_t)));
+		RegSetValueEx(hKey,L"Times",0,REG_BINARY,(unsigned char *)TimesBuffer,(DWORD)SizeTimes*sizeof(FILETIME));
 
-		RegSetValueExW(hKey,L"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
+		RegSetValueEx(hKey,L"Position",0,REG_DWORD,(BYTE *)&Position,sizeof(Position));
 
 		RegCloseKey(hKey);
 
@@ -254,7 +254,7 @@ bool History::ReadHistory()
 
 	int Position=-1;
 	Size=sizeof(Position);
-	RegQueryValueExW(hKey,L"Position",0,&Type,(BYTE *)&Position,&Size);
+	RegQueryValueEx(hKey,L"Position",0,&Type,(BYTE *)&Position,&Size);
 
 	if (NeedReadType)
 	{
@@ -264,7 +264,7 @@ bool History::ReadHistory()
 		if (TypesBuffer)
 		{
 			memset(TypesBuffer,0,Size);
-			if (RegQueryValueExW(hKey,L"Types",0,&Type,(BYTE *)TypesBuffer,&Size)!=ERROR_SUCCESS)
+			if (RegQueryValueEx(hKey,L"Types",0,&Type,(BYTE *)TypesBuffer,&Size)!=ERROR_SUCCESS)
 				goto end;
 		}
 		else
@@ -311,7 +311,7 @@ bool History::ReadHistory()
 	if ((Buffer=(wchar_t*)xf_malloc(Size)) == NULL)
 		goto end;
 
-	if (RegQueryValueExW(hKey,L"Lines",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
 	{
 		CurrentItem=NULL;
 		wchar_t *TypesBuf=TypesBuffer;

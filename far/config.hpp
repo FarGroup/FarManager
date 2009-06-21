@@ -424,7 +424,7 @@ struct Options
   int DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
   int WipeSymbol; // символ заполнитель для "ZAP-операции"
 
-  struct CopyMoveOptions CMOpt;
+	CopyMoveOptions CMOpt;
 
   int MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
 
@@ -437,9 +437,9 @@ struct Options
   int ViewHistoryCount;
 
   string strExternalEditor;
-  struct EditorOptions EdOpt;
+	EditorOptions EdOpt;
   string strExternalViewer;
-  struct ViewerOptions ViOpt;
+	ViewerOptions ViOpt;
 
 
   string strWordDiv; // $ 03.08.2000 SVS Разграничитель слов из реестра
@@ -457,7 +457,7 @@ struct Options
   int FoldersHistoryCount;
   int DialogsHistoryCount;
 
-  struct FindFileOptions FindOpt;
+	FindFileOptions FindOpt;
 
   string strTempPath;
   int HeightDecrement;
@@ -477,12 +477,12 @@ struct Options
   int NoGraphics;
   string strFolderInfoFiles;
 
-  struct Confirmation Confirm;
-  struct DizOptions Diz;
+	Confirmation Confirm;
+	DizOptions Diz;
 
   int ShellRightLeftArrowsRule;
-  struct PanelOptions LeftPanel;
-  struct PanelOptions RightPanel;
+	PanelOptions LeftPanel;
+	PanelOptions RightPanel;
 
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   int AutoUpdateRemoteDrive;
@@ -533,7 +533,7 @@ struct Options
   DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
   int CursorSize[4];   // Размер курсора ФАРа
 
-  struct CodeXLAT XLat;
+	CodeXLAT XLat;
 
   int ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
 
@@ -603,16 +603,16 @@ struct Options
                   // Highly experimental feature, use at your own risk"
 
   string strDateFormat; // Для $Date
-  struct LoadPluginsOptions LoadPlug;
+	LoadPluginsOptions LoadPlug;
 
-  struct DialogsOptions Dialogs;
-  struct PoliciesOptions Policies;
-  struct NowellOptions Nowell;
-  struct ScreenSizes ScrSize;
+	DialogsOptions Dialogs;
+	PoliciesOptions Policies;
+	NowellOptions Nowell;
+	ScreenSizes ScrSize;
 
 	int FindCodePage;
 
-  struct TreeOptions Tree;
+	TreeOptions Tree;
 
   DWORD CPMenuMode;
 
@@ -781,7 +781,7 @@ struct Options
   */
 };
 
-extern struct Options Opt;
+extern Options Opt;
 
 void SystemSettings();
 void PanelSettings();
@@ -789,8 +789,8 @@ void InterfaceSettings();
 void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
-void ViewerConfig(struct ViewerOptions &ViOpt,int Local=0);
-void EditorConfig(struct EditorOptions &EdOpt,int Local=0);
+void ViewerConfig(ViewerOptions &ViOpt,int Local=0);
+void EditorConfig(EditorOptions &EdOpt,int Local=0);
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetFolderInfoFiles();

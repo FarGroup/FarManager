@@ -88,10 +88,10 @@ int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkF
   // We should do some error checking on the inputs. Make sure
   // there are colons and backslashes in the right places, etc.
 
-  if ( !GetVolumeNameForVolumeMountPointW(SrcVolume, Buf, 50) )
+	if ( !GetVolumeNameForVolumeMountPoint(SrcVolume, Buf, 50) )
     return 1;
 
-  if ( !SetVolumeMountPointW(LinkFolder, Buf) ) // volume to be mounted
+	if ( !SetVolumeMountPoint(LinkFolder, Buf) ) // volume to be mounted
     return 2;
 
   return 0;
@@ -275,7 +275,7 @@ bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable)
   if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken))
   {
     TOKEN_PRIVILEGES tp;
-    if(LookupPrivilegeValueW(NULL,Privilege,&tp.Privileges->Luid))
+		if(LookupPrivilegeValue(NULL,Privilege,&tp.Privileges->Luid))
     {
       tp.PrivilegeCount=1;
       tp.Privileges->Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
@@ -429,10 +429,10 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
       if (StrLength(wszStreamName))
       {
         WCHAR Wsz[MAX_PATH], *pwsz=Wsz;
-        lstrcpyW(pwsz, wszStreamName + sizeof(CHAR));
+				lstrcpy(pwsz, wszStreamName + sizeof(CHAR));
         LPWSTR wp = wcsstr(pwsz, L":");
         pwsz[wp-pwsz] = 0;
-        lstrcpyW(wszStreamName, pwsz);
+				lstrcpy(wszStreamName, pwsz);
       }
 
       StreamsCount++;
@@ -487,7 +487,7 @@ int DelSubstDrive(const wchar_t *DosDeviceName)
   {
     strNtDeviceName = (string)L"\\??\\"+strNtDeviceName;
 
-    return !DefineDosDeviceW(DDD_RAW_TARGET_PATH|
+		return !DefineDosDevice(DDD_RAW_TARGET_PATH|
                        DDD_REMOVE_DEFINITION|
                        DDD_EXACT_MATCH_ON_REMOVE,
                        DosDeviceName, strNtDeviceName)?1:0;
@@ -512,7 +512,7 @@ bool GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
       wchar_t *Name=new wchar_t[NT_MAX_PATH];
       if(Name)
       {
-        if (QueryDosDeviceW(LocalName,Name,NT_MAX_PATH))
+				if (QueryDosDevice(LocalName,Name,NT_MAX_PATH))
         {
             if(!StrCmpN(Name,L"\\??\\",4))
             {
@@ -545,7 +545,7 @@ void GetPathRootOne(const wchar_t *Path,string &strRoot)
     for (wchar_t chDrive = L'A'; chDrive <= L'Z';  chDrive++ )
     {
       *szDrive = chDrive;
-      if ( GetVolumeNameForVolumeMountPointW(
+			if ( GetVolumeNameForVolumeMountPoint(
               szDrive,            // input volume mount point or directory
               pVolumeName,        // output volume name buffer
               MAX_VOLUME_ID       // size of volume name buffer

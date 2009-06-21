@@ -45,7 +45,7 @@ struct FileListItem
 	char PrevSelected;
 	char ShowFolderSize;
 	char ShortNamePresent;
-	struct HighlightDataColor Colors;
+	HighlightDataColor Colors;
 
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
@@ -170,12 +170,12 @@ struct PluginsStackItem
   int PrevSortMode;
   int PrevSortOrder;
   int PrevNumericSort;
-  struct PanelViewSettings PrevViewSettings;
+	PanelViewSettings PrevViewSettings;
 };
 
 struct PrevDataItem
 {
-  struct FileListItem **PrevListData;
+	FileListItem **PrevListData;
 	int PrevFileCount;
   string strPrevName;
 	int PrevTopFile;
@@ -203,10 +203,10 @@ class FileList:public Panel
     wchar_t openBracket[2], closeBracket[2];
 
     string strPluginDizName;
-    struct FileListItem **ListData;
+		FileListItem **ListData;
 		int FileCount;
     HANDLE hPlugin;
-    struct PrevDataItem **PrevDataStack;
+		PrevDataItem **PrevDataStack;
     int PrevDataStackSize;
     PluginsStackItem **PluginsStack;
     int PluginsStackSize;
@@ -241,7 +241,7 @@ class FileList:public Panel
     virtual void SetSelectedFirstMode(int Mode);
     virtual int GetSelectedFirstMode(void) {return SelectedFirst;};
     virtual void DisplayObject();
-		void DeleteListData(struct FileListItem **(&ListData),int &FileCount);
+		void DeleteListData(FileListItem **(&ListData),int &FileCount);
     void Up(int Count);
     void Down(int Count);
     void Scroll(int Count);
@@ -251,10 +251,10 @@ class FileList:public Panel
     void SetShowColor(int Position, int ColorType=HIGHLIGHTCOLORTYPE_FILE);
     int  GetShowColor(int Position, int ColorType);
     void ShowSelectedSize();
-    void ShowTotalSize(struct OpenPluginInfo &Info);
+		void ShowTotalSize(OpenPluginInfo &Info);
     int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
 
-    void Select(struct FileListItem *SelPtr,int Selection);
+		void Select(FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);
     // ChangeDir возвращает FALSE, eсли файловая панель была закрыта
@@ -266,15 +266,14 @@ class FileList:public Panel
     void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
     void UpdatePlugin(int KeepSelection, int IgnoreVisible);
 
-    void MoveSelection(struct FileListItem **FileList,long FileCount,
-                       struct FileListItem **OldList,long OldFileCount);
+		void MoveSelection(FileListItem **FileList,long FileCount,FileListItem **OldList,long OldFileCount);
     virtual int GetSelCount();
     virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=NULL,FAR_FIND_DATA_EX *fd=NULL);
     virtual void UngetSelName();
     virtual void ClearLastGetSelection();
 
     virtual unsigned __int64 GetLastSelectedSize ();
-    virtual int GetLastSelectedItem(struct FileListItem *LastItem);
+		virtual int GetLastSelectedItem(FileListItem *LastItem);
 
     virtual int GetCurName(string &strName, string &strShortName);
     virtual int GetCurBaseName(string &strName, string &strShortName);
@@ -285,16 +284,16 @@ class FileList:public Panel
     void SelectSortMode();
     bool ApplyCommand();
     void DescribeFiles();
-    void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
-    void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
+		void CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
+		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
     HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr=0);
-    int PreparePanelView(struct PanelViewSettings *PanelView);
+		int PreparePanelView(PanelViewSettings *PanelView);
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
                             int *ColumnWidthsTypes,int &ColumnCount,int FullScreen);
-    void PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo);
+		void PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo);
 
     void PluginDelete();
-    void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemList,
+		void PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
                         int ItemNumber,int Delete,int Move,DizList *SrcDiz,
                         DizList *DestDiz);
     void PluginGetFiles(const wchar_t **DestPath,int Move);
@@ -304,10 +303,10 @@ class FileList:public Panel
     // возвращает то, что возвращает PutFiles
     int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
     void ProcessPluginCommand();
-    void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
+		void PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-    void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
+		void AddParentPoint(FileListItem *CurPtr,long CurFilePos);
     int  ProcessOneHostFile(int Idx);
 
     static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
@@ -373,7 +372,7 @@ class FileList:public Panel
     virtual void SaveSelection();
     virtual void RestoreSelection();
     virtual void EditFilter();
-    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
+		virtual void ReadDiz(PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
     virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
     virtual void FlushDiz();
     virtual void GetDizName(string &strDizName);
@@ -385,7 +384,7 @@ class FileList:public Panel
     virtual int IsColumnDisplayed(int Type);
     virtual int GetColumnsCount(){ return Columns;};
     virtual void SetReturnCurrentFile(int Mode);
-    virtual void GetOpenPluginInfo(struct OpenPluginInfo *Info);
+		virtual void GetOpenPluginInfo(OpenPluginInfo *Info);
     virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 
 		void PluginGetPanelInfo(PanelInfo &Info);
@@ -416,10 +415,10 @@ class FileList:public Panel
     static void SavePanelModes();
     static void ReadPanelModes();
     static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi);
-    static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
+		static void FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi);
 		static void FreePluginPanelItem(PluginPanelItem *pi);
-		size_t FileListToPluginItem2(struct FileListItem *fi,struct PluginPanelItem *pi);
-    static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
+		size_t FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi);
+		static void PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi);
     static int IsModeFullScreen(int Mode);
     static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
 };

@@ -141,7 +141,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 
 static int SetFileEncryption(const wchar_t *Name,int State)
 {
-	return State?EncryptFileW(Name):DecryptFileW(Name,0);
+	return State?EncryptFile(Name):DecryptFile(Name,0);
 }
 
 
@@ -229,7 +229,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
       {
         string strDriveRoot;
         GetPathRoot (Name, strDriveRoot);
-        if ( GetDriveTypeW (strDriveRoot)==DRIVE_REMOTE ) break;
+				if ( GetDriveType(strDriveRoot)==DRIVE_REMOTE ) break;
       }
     }
 

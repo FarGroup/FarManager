@@ -336,7 +336,7 @@ int FileViewer::ProcessKey(int Key)
 
     case KEY_ALTSHIFTF9:
       // Работа с локальной копией ViewerOptions
-      struct ViewerOptions ViOpt;
+			ViewerOptions ViOpt;
 
       ViOpt.TabSize=View.GetTabSize();
 			ViOpt.AutoDetectCodePage=View.GetAutoDetectCodePage();

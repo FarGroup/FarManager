@@ -305,8 +305,8 @@ int Message(
   if (Buttons>0)
   {
     DWORD ItemCount;
-    struct DialogItemEx *PtrMsgDlg;
-    struct DialogItemEx *MsgDlg = new DialogItemEx[ItemCount=StrCount+Buttons+1];
+		DialogItemEx *PtrMsgDlg;
+		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount=StrCount+Buttons+1];
 
     if(!MsgDlg)
     {
@@ -574,7 +574,7 @@ int GetErrorString (string &strErrStr)
     if ( LastError != ERROR_SUCCESS )
     {
       LPWSTR lpBuffer;
-			FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
+			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
                     NULL,
                     LastError,
                     0,

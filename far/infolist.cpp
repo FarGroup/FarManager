@@ -129,13 +129,13 @@ void InfoList::DisplayObject()
     DWORD dwSize = MAX_COMPUTERNAME_LENGTH+1;
 
     wchar_t *ComputerName = strComputerName.GetBuffer (dwSize);
-    GetComputerNameW (ComputerName, &dwSize);
+		GetComputerName(ComputerName, &dwSize);
     strComputerName.ReleaseBuffer ();
 
     dwSize = 256; //UNLEN
 
     wchar_t *UserName = strUserName.GetBuffer (dwSize);
-    GetUserNameW (UserName, &dwSize);
+		GetUserName(UserName, &dwSize);
     strUserName.ReleaseBuffer ();
 
     GotoXY(X1+2,Y1+1);
@@ -514,14 +514,14 @@ void InfoList::ShowPluginDescription()
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
   CloseFile();
-  struct OpenPluginInfo Info;
+	OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
   {
     int Y=Y2-Info.InfoLinesNumber+I;
     if (Y<=Y1)
       continue;
-    const struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
+		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
     Text(VertcalLine);

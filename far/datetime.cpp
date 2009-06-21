@@ -71,9 +71,9 @@ void PrepareStrFTime()
 {
 	DWORD Loc[]={LANG_ENGLISH,LANG_NEUTRAL},ID;
 	string strTemp;
-	int size=GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,NULL,0);
+	int size=GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,NULL,0);
 	wchar_t *lpwszTemp=strTemp.GetBuffer(size);
-	GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,lpwszTemp,size);
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,lpwszTemp,size);
 	strTemp.ReleaseBuffer();
 	WeekFirst=_wtoi(strTemp);
 
@@ -83,36 +83,36 @@ void PrepareStrFTime()
 
 		for(ID=LOCALE_SMONTHNAME1;ID<=LOCALE_SMONTHNAME12;ID++)
 		{
-			size=GetLocaleInfoW(CurLCID,ID,NULL,0);
+			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
-			GetLocaleInfoW(CurLCID,ID,lpwszTemp,size);
+			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
 		}
 
 		for(ID=LOCALE_SABBREVMONTHNAME1;ID<=LOCALE_SABBREVMONTHNAME12;ID++)
 		{
-			size=GetLocaleInfoW(CurLCID,ID,NULL,0);
+			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
-			GetLocaleInfoW(CurLCID,ID,lpwszTemp,size);
+			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
 		}
 
 		for(ID=LOCALE_SDAYNAME1;ID<=LOCALE_SDAYNAME7;ID++)
 		{
-			size=GetLocaleInfoW(CurLCID,ID,NULL,0);
+			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
-			GetLocaleInfoW(CurLCID,ID,lpwszTemp,size);
+			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
 		}
 
 		for(ID=LOCALE_SABBREVDAYNAME1;ID<=LOCALE_SABBREVDAYNAME7;ID++)
 		{
-			size=GetLocaleInfoW(CurLCID,ID,NULL,0);
+			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
-			GetLocaleInfoW(CurLCID,ID,lpwszTemp,size);
+			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
 			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
 		}

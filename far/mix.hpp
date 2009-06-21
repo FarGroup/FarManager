@@ -40,8 +40,8 @@ int ToPercent64(unsigned __int64 N1,unsigned __int64 N2);
 extern "C" {
 #endif
 
-typedef int  (WINAPI *FRSUSERFUNCW)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
-void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNCW func,DWORD flags,void *param);
+typedef int  (WINAPI *FRSUSERFUNC)(const FAR_FIND_DATA *FData,const wchar_t *FullName,void *param);
+void WINAPI FarRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNC func,DWORD flags,void *param);
 
 wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 

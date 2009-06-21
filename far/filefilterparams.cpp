@@ -579,7 +579,7 @@ enum enumFileFilterConfig {
     ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct HighlightDataColor &Colors)
+void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColor &Colors)
 {
   const wchar_t *ptr;
   DWORD Color;
@@ -704,7 +704,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         if (!ColorConfig)
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
 
-        struct FarListPos LPos={0,0};
+				FarListPos LPos={0,0};
         Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
 
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_CHECKED);
@@ -842,7 +842,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   // Маска времени
   strTimeMask.Format(L"99%c99%c99",TimeSeparator,TimeSeparator);
 
-  struct DialogDataEx FilterDlgData[]=
+	DialogDataEx FilterDlgData[]=
   {
     DI_DOUBLEBOX,3,1,73,18,0,0,DIF_SHOWAMPERSAND,0,(const wchar_t *)MFileFilterTitle,
 

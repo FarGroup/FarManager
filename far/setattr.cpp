@@ -145,9 +145,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   int FocusPos,I;
 	int CompressState, EncryptState, SubfoldersState;
-  struct SetAttrDlgParam *DlgParam;
 
-  DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam *>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+
   switch(Msg)
   {
     case DN_BTNCLICK:
@@ -308,7 +308,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
       else if(Param1 == SETATTR_ORIGINAL)
       {
         FAR_FIND_DATA_EX FindData;
-        DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+        DlgParam=(SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
         if ( apiGetFindDataEx (DlgParam->strSelName,&FindData) )
         {
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,SETATTR_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
@@ -486,7 +486,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 23   +-------------------------------------+   23
 24                                             24
 */
-  static struct DialogDataEx AttrDlgData[]={
+	static DialogDataEx AttrDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,65,21,0,0,0,0,(wchar_t *)MSetAttrTitle,
   /* 01 */DI_TEXT,-1,2,0,2,0,0,0,0,(wchar_t *)MSetAttrFor,
   /* 02 */DI_TEXT,-1,3,0,3,0,0,DIF_SHOWAMPERSAND,0,L"",
@@ -533,7 +533,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 	string *strLinks=NULL;
 
   int SelCount, I, J;
-  struct SetAttrDlgParam DlgParam;
+	SetAttrDlgParam DlgParam;
   DlgParam.Clear();
 
   if ((SelCount=SrcPanel->GetSelCount())==0)
@@ -541,7 +541,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL)
   {
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     HANDLE hPlugin=SrcPanel->GetPluginHandle();
     if(hPlugin == INVALID_HANDLE_VALUE)
       return 0;

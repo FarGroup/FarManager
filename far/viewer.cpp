@@ -143,7 +143,7 @@ Viewer::~Viewer()
       }
 
       {
-        struct /*TPosCache32*/ TPosCache64 PosCache={0};
+				/*TPosCache32*/ TPosCache64 PosCache={0};
         PosCache.Param[0]=FilePos;
         PosCache.Param[1]=LeftPos;
         PosCache.Param[2]=VM.Hex;
@@ -301,7 +301,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		memset(&BMSavePos,0xff,sizeof(BMSavePos)); //??!!??
 		{
-			struct /*TPosCache32*/ TPosCache64 PosCache={0};
+			/*TPosCache32*/ TPosCache64 PosCache={0};
 			if(Opt.ViOpt.SaveViewerShortPos)
 			{
 				PosCache.Position[0]=BMSavePos.SavePosAddr;
@@ -1264,7 +1264,7 @@ int Viewer::ProcessKey(int Key)
 							CodePage=VM.CodePage;
 
             {
-              struct /*TPosCache32*/ TPosCache64 PosCache={0};
+							/*TPosCache32*/ TPosCache64 PosCache={0};
               PosCache.Param[0]=FilePos;
               PosCache.Param[1]=LeftPos;
               PosCache.Param[2]=VM.Hex;
@@ -2000,8 +2000,8 @@ void Viewer::ChangeViewKeyBar()
 
     ViewKeyBar->Redraw();
   }
-  struct ViewerMode vm;
-  memmove(&vm,&VM,sizeof(struct ViewerMode));
+	ViewerMode vm;
+	memmove(&vm,&VM,sizeof(ViewerMode));
   CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
@@ -2165,7 +2165,7 @@ void Viewer::Search(int Next,int FirstChar)
 {
   const wchar_t *TextHistoryName=L"SearchText";
   const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
-  static struct DialogDataEx SearchDlgData[]={
+	static DialogDataEx SearchDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MViewSearchTitle,
   /* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MViewSearchFor,
   /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
@@ -2360,7 +2360,7 @@ void Viewer::Search(int Next,int FirstChar)
            и если нет, тогда Buf приводится к верхнему регистру
         */
         if (!Case && !SearchHex)
-          CharUpperBuffW (Buf,ReadSize);
+					CharUpperBuff(Buf,ReadSize);
 
         /* $ 01.08.2000 KM
            Убран кусок текста после приведения поисковой строки
@@ -2750,7 +2750,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
   __int64 Relative=0;
   const wchar_t *LineHistoryName=L"ViewerOffset";
-  static struct DialogDataEx GoToDlgData[]=
+	static DialogDataEx GoToDlgData[]=
   {
     /* 0 */ DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(const wchar_t *)MViewerGoTo,
     /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,L"",
@@ -3026,9 +3026,9 @@ int Viewer::ViewerControl(int Command,void *Param)
   {
     case VCTL_GETINFO:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerInfo)))
+			if(Param)
       {
-        struct ViewerInfo *Info=(struct ViewerInfo *)Param;
+				ViewerInfo *Info=(ViewerInfo *)Param;
         memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=strFullFileName;
@@ -3036,7 +3036,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->WindowSizeY=Y2-Y1+1;
         Info->FilePos=FilePos;
         Info->FileSize=FileSize;
-        memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
+				memmove(&Info->CurMode,&VM,sizeof(ViewerMode));
         Info->CurMode.CodePage=VM.CodePage;
         Info->Options=0;
         if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;
@@ -3048,15 +3048,15 @@ int Viewer::ViewerControl(int Command,void *Param)
       break;
     }
     /*
-       Param = struct ViewerSetPosition
+       Param = ViewerSetPosition
                сюда же будет записано новое смещение
                В основном совпадает с переданным
     */
     case VCTL_SETPOSITION:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct ViewerSetPosition)))
+			if(Param)
       {
-        struct ViewerSetPosition *vsp=(struct ViewerSetPosition*)Param;
+				ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
         bool isReShow=vsp->StartPos != FilePos;
         if((LeftPos=vsp->LeftPos) < 0)
           LeftPos=0;
@@ -3081,9 +3081,9 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=ViewerSelect
     case VCTL_SELECT:
     {
-      struct ViewerSelect *vs=(struct ViewerSelect *)Param;
-      if(vs && !IsBadReadPtr(vs,sizeof(struct ViewerSelect)))
+			if(Param)
       {
+				ViewerSelect *vs=(ViewerSelect *)Param;
         __int64 SPos=vs->BlockStartPos;
         int SSize=vs->BlockLen;
         if(SPos < FileSize)
@@ -3112,7 +3112,7 @@ int Viewer::ViewerControl(int Command,void *Param)
     */
     case VCTL_SETKEYBAR:
     {
-      struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
+			KeyBarTitles *Kbt=(KeyBarTitles*)Param;
       if(!Kbt)
       {        // восстановить пред значение!
         if (HostFileViewer!=NULL)
@@ -3120,7 +3120,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       else
       {
-        if((LONG_PTR)Param != (LONG_PTR)-1 && !IsBadReadPtr(Param,sizeof(struct KeyBarTitles))) // не только перерисовать?
+				if((LONG_PTR)Param != (LONG_PTR)-1) // не только перерисовать?
         {
           for(I=0; I < 12; ++I)
           {
@@ -3180,8 +3180,8 @@ int Viewer::ViewerControl(int Command,void *Param)
     */
     case VCTL_SETMODE:
     {
-      struct ViewerSetMode *vsmode=(struct ViewerSetMode *)Param;
-      if(vsmode && !IsBadReadPtr(vsmode,sizeof(struct ViewerSetMode)))
+			ViewerSetMode *vsmode=(ViewerSetMode *)Param;
+			if(vsmode)
       {
         bool isRedraw=vsmode->Flags&VSMFL_REDRAW?true:false;
         switch(vsmode->Type)

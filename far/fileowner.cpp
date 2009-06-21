@@ -45,7 +45,7 @@ struct SIDCacheRecord
   SIDCacheRecord *next;
 };
 
-static struct SIDCacheRecord *sid_cache=NULL;
+static SIDCacheRecord *sid_cache=NULL;
 
 void SIDCacheFlush(void)
 {
@@ -73,14 +73,14 @@ static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
       CopySid(GetLengthSid(sid),new_rec->sid,sid);
       DWORD AccountLength=0,DomainLength=0;
       SID_NAME_USE snu;
-      LookupAccountSidW(computer,new_rec->sid,NULL,&AccountLength,NULL,&DomainLength,&snu);
+			LookupAccountSid(computer,new_rec->sid,NULL,&AccountLength,NULL,&DomainLength,&snu);
       if(AccountLength && DomainLength)
       {
         wchar_t* AccountName=(wchar_t*)xf_malloc(AccountLength*sizeof(wchar_t));
         wchar_t* DomainName=(wchar_t*)xf_malloc(DomainLength*sizeof(wchar_t));
         if(AccountName && DomainName)
         {
-          if (LookupAccountSidW(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+					if (LookupAccountSid(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
           {
             if((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
             {
@@ -154,7 +154,7 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
   si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
   sd=(SECURITY_DESCRIPTOR *)sddata;
 
-  int GetCode=GetFileSecurityW(Name,si,sd,sizeof(sddata),&Needed);
+	int GetCode=GetFileSecurity(Name,si,sd,sizeof(sddata),&Needed);
 
   if (!GetCode || (Needed>sizeof(sddata)))
     return(FALSE);

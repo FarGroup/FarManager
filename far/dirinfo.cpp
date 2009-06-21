@@ -117,7 +117,7 @@ int GetDirInfo(const wchar_t *Title,
 
   DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-  if (GetDiskFreeSpaceW(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+	if (GetDiskFreeSpace(strDriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
     ClusterSize=SectorsPerCluster*BytesPerSector;
 
   // Временные хранилища имён каталогов
@@ -242,7 +242,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize)
 {
-  struct PluginPanelItem *PanelItem=NULL;
+	PluginPanelItem *PanelItem=NULL;
   int ItemsNumber,ExitCode;
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=0;

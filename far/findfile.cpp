@@ -135,11 +135,11 @@ bool UseFilter=false;
 UINT CodePage=CP_AUTODETECT;
 UINT64 SearchInFirst=0;
 
-#define readBufferSize 32768
-#define readBufferSizeW (readBufferSize*sizeof(wchar_t))
+#define readBufferSizeA 32768
+#define readBufferSize (readBufferSizeA*sizeof(wchar_t))
 
-char *readBuffer;
-wchar_t *readBufferW;
+char *readBufferA;
+wchar_t *readBuffer;
 int codePagesCount;
 
 struct CodePageInfo
@@ -260,8 +260,8 @@ void InitInFileSearch()
 	{
 		size_t findStringCount = strFindStr.GetLength();
 		// Инициализируем буферы чтения из файла
-		readBuffer = (char *)xf_malloc(readBufferSize);
-		readBufferW = (wchar_t *)xf_malloc(readBufferSizeW);
+		readBufferA = (char *)xf_malloc(readBufferSizeA);
+		readBuffer = (wchar_t *)xf_malloc(readBufferSize);
 
 		if (!SearchHex)
 		{
@@ -273,7 +273,7 @@ void InitInFileSearch()
 				for (size_t index = 0; index<strFindStr.GetLength(); index++)
 				{
 					wchar_t ch = strFindStr[index];
-					if (IsCharLowerW(ch))
+					if (IsCharLower(ch))
 					{
 						findString[index]=Upper(ch);
 						findString[index+findStringCount]=ch;
@@ -421,15 +421,15 @@ void ReleaseInFileSearch()
 {
 	if (InFileSearchInited && !strFindStr.IsEmpty())
 	{
+		if(readBufferA)
+		{
+			xf_free(readBufferA);
+			readBufferA=NULL;
+		}
 		if(readBuffer)
 		{
 			xf_free(readBuffer);
 			readBuffer=NULL;
-		}
-		if(readBufferW)
-		{
-			xf_free(readBufferW);
-			readBufferW=NULL;
 		}
 		if(skipCharsTable)
 		{
@@ -603,7 +603,7 @@ LONG_PTR WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 void AdvancedDialog()
 {
-	struct DialogDataEx AdvancedDlgData[]=
+	DialogDataEx AdvancedDlgData[]=
 	{
 		/* 00 */DI_DOUBLEBOX,3,1,52,7,0,0,0,0,MSG(MFindFileAdvancedTitle),
 		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,MSG(MFindFileSearchFirst),
@@ -1043,7 +1043,7 @@ int LookForString(const wchar_t *Name)
 		offset = (int)hexFindStringSize-1;
 
 	// Основной цикл чтения из файла
-	while (!StopSearch && ReadFile(fileHandle,readBuffer,(!SearchInFirst || alreadyRead+readBufferSize<=SearchInFirst)?readBufferSize:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,NULL))
+	while (!StopSearch && ReadFile(fileHandle,readBufferA,(!SearchInFirst || alreadyRead+readBufferSizeA<=SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,NULL))
 	{
 		// Увеличиваем счётчик прочитыннх байт
 		alreadyRead += readBlockSize;
@@ -1054,7 +1054,7 @@ int LookForString(const wchar_t *Name)
 			if (readBlockSize == 0 || readBlockSize<hexFindStringSize)
 				RETURN (FALSE)
 			// Ищем
-			if (FindStringBMH((unsigned char *)readBuffer, readBlockSize)!=-1)
+			if (FindStringBMH((unsigned char *)readBufferA, readBlockSize)!=-1)
 				RETURN (TRUE)
 		}
 		else
@@ -1099,20 +1099,20 @@ int LookForString(const wchar_t *Name)
 						bufferCount = LCMapStringW(
 								LOCALE_NEUTRAL,//LOCALE_INVARIANT,
 								LCMAP_BYTEREV,
-								(wchar_t *)readBuffer,
+								(wchar_t *)readBufferA,
 								(int)bufferCount,
-								readBufferW,
-								readBufferSizeW
+								readBuffer,
+								readBufferSize
 							);
 						if (!bufferCount)
 							CONTINUE (FALSE)
 						// Устанавливаем буфер стравнения
-						buffer = readBufferW;
+						buffer = readBuffer;
 					}
 					else
 					{
 						// Если поиск в UTF-16 (little endian), то используем исходный буфер
-						buffer = (wchar_t *)readBuffer;
+						buffer = (wchar_t *)readBufferA;
 					}
 				}
 				else
@@ -1121,10 +1121,10 @@ int LookForString(const wchar_t *Name)
 					bufferCount = MultiByteToWideChar(
 							cpi->CodePage,
 							0,
-							(char *)readBuffer,
+							(char *)readBufferA,
 							readBlockSize,
-							readBufferW,
-							readBufferSizeW
+							readBuffer,
+							readBufferSize
 						);
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
@@ -1139,7 +1139,7 @@ int LookForString(const wchar_t *Name)
 							RETURN (TRUE)
 						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
 						// при переходе между блоками
-						cpi->LastSymbol = readBufferW[findStringCount-1];
+						cpi->LastSymbol = readBuffer[findStringCount-1];
 						if (IsWordDiv(cpi->LastSymbol))
 							RETURN (TRUE)
 						// Если размер буфера меньше размера слова, то выходим
@@ -1147,7 +1147,7 @@ int LookForString(const wchar_t *Name)
 							CONTINUE (FALSE)
 					}
 					// Устанавливаем буфер стравнения
-					buffer = readBufferW;
+					buffer = readBuffer;
 				}
 
 				unsigned int index = 0;
@@ -1207,7 +1207,7 @@ int LookForString(const wchar_t *Name)
 			offset = (int)((CodePage==CP_AUTODETECT?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
 		}
 		// Если мы потенциально прочитали не весь файл
-		if (readBlockSize==readBufferSize)
+		if (readBlockSize==readBufferSizeA)
 		{
 			// Отступаем назад на длину слова поиска минус 1
 			if (!apiSetFilePointerEx(fileHandle, -1*offset, NULL, FILE_CURRENT))
@@ -1655,7 +1655,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 						Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
 					}
-					SetConsoleTitleW (strOldTitle);
+					SetConsoleTitle (strOldTitle);
 				}
 				if (RemoveTemp)
 				{
@@ -1845,7 +1845,7 @@ bool FindFiles::FindFilesProcess()
 		strSearchStr.Format(MSG(MFindSearchingIn), L"");
 	}
 
-	struct DialogDataEx FindDlgData[]=
+	DialogDataEx FindDlgData[]=
 	{
 		/* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-3,0,0,DIF_SHOWAMPERSAND,0,strTitle,
 		/* 01 */DI_LISTBOX,4,2,73,DLG_HEIGHT-8,0,0,DIF_LISTNOBOX,0,0,
@@ -1884,7 +1884,7 @@ bool FindFiles::FindFilesProcess()
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     HANDLE hPlugin=ActivePanel->GetPluginHandle();
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     FindFileArcIndex = AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir);
@@ -2050,7 +2050,7 @@ bool FindFiles::FindFilesProcess()
 						}
 						if (hPlugin != INVALID_HANDLE_VALUE)
 						{
-							struct OpenPluginInfo Info;
+							OpenPluginInfo Info;
 							CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
 							/* $ 19.01.2003 KM
@@ -2431,7 +2431,7 @@ void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
   size_t SaveArcIndex = FindFileArcIndex;
   {
     SearchMode=FFSEARCH_FROM_CURRENT;
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
 
     FindFileArcIndex = AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir);
@@ -2679,7 +2679,7 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
   TRY {
 		Sleep(1);
     HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     strSaveDir = Info.CurDir;
     strPluginSearchPath=Info.CurDir;
@@ -3000,7 +3000,7 @@ FindFiles::FindFiles()
 
 		static const wchar_t VSeparator[]={BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
-    static struct DialogDataEx FindAskDlgData[]=
+		struct DialogDataEx FindAskDlgData[]=
     {
 			/* 00 */DI_DOUBLEBOX,3,1,74,20,0,0,0,0,(const wchar_t *)MFindFileTitle,
 			/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MFindFileMasks,

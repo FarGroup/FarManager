@@ -71,7 +71,7 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
   int nCount = GetHotplugDevicesInfo (&pInfo);
   if ( nCount )
   {
-    struct MenuItemEx ListItem;
+		MenuItemEx ListItem;
 
     for (int I = 0; I < nCount; I++)
     {
@@ -326,7 +326,7 @@ DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
   {
     wszMountPoint[0] = Letter;
 
-    GetVolumeNameForVolumeMountPointW (wszMountPoint, wszCurrentVolumeName, MAX_PATH);
+		GetVolumeNameForVolumeMountPoint(wszMountPoint, wszCurrentVolumeName, MAX_PATH);
 
     if ( !StrCmpI (wszCurrentVolumeName, lpwszVolumeName) )
       return (1 << (Letter-L'A'));
@@ -381,7 +381,7 @@ DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
 
             wchar_t wszVolumeName[MAX_PATH];
 
-            if ( GetVolumeNameForVolumeMountPointW (
+						if ( GetVolumeNameForVolumeMountPoint(
                 lpwszMountPoint,
                 (wchar_t*)&wszVolumeName,
                 MAX_PATH

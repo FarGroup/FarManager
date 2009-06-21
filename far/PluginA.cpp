@@ -365,7 +365,7 @@ bool PluginA::Load()
 
 		PrepareModulePath(m_strModuleName);
 
-		m_hModule = LoadLibraryExW(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
 
 		if( !m_hModule )
 			LstErr=GetLastError();
@@ -373,7 +373,7 @@ bool PluginA::Load()
 		FarChDir(strCurPath);
 
 		if(Drive[0]) // вернем ее (переменную окружения) обратно
-			SetEnvironmentVariableW(Drive,strCurPlugDiskPath);
+			SetEnvironmentVariable(Drive,strCurPlugDiskPath);
 	}
 
 	if ( !m_hModule )
@@ -781,7 +781,7 @@ HANDLE PluginA::OpenPlugin (int OpenFrom, INT_PTR Item)
       else
         if ( !g_strDirToSet.IsEmpty() )
         {
-          CtrlObject->Cp()->ActivePanel->SetCurDirW(g_strDirToSet,TRUE);
+					CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
           CtrlObject->Cp()->ActivePanel->Redraw();
         }
     } */
@@ -1241,7 +1241,7 @@ void PluginA::FreeFindData (
 		int ItemsNumber
 		)
 {
-	FreePanelItemW(PanelItem, ItemsNumber);
+	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
 	if ( pFreeFindData && !ProcessException && pFDPanelItemA)
 	{
@@ -1340,7 +1340,7 @@ void PluginA::FreeOpenPluginInfo()
 
 	if (OPI.InfoLines && OPI.InfoLinesNumber)
 	{
-		FreeInfoPanelLinesW((InfoPanelLine*)OPI.InfoLines,OPI.InfoLinesNumber);
+		FreeUnicodeInfoPanelLines((InfoPanelLine*)OPI.InfoLines,OPI.InfoLinesNumber);
 	}
 
 	if (OPI.DescrFiles)
@@ -1350,12 +1350,12 @@ void PluginA::FreeOpenPluginInfo()
 
 	if (OPI.PanelModesArray)
 	{
-		FreePanelModesW((PanelMode*)OPI.PanelModesArray, OPI.PanelModesNumber);
+		FreeUnicodePanelModes((PanelMode*)OPI.PanelModesArray, OPI.PanelModesNumber);
 	}
 
 	if (OPI.KeyBar)
 	{
-		FreeKeyBarTitlesW((KeyBarTitles*)OPI.KeyBar);
+		FreeUnicodeKeyBarTitles((KeyBarTitles*)OPI.KeyBar);
 		xf_free((void *)OPI.KeyBar);
 	}
 

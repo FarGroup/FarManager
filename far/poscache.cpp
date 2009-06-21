@@ -109,22 +109,30 @@ void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
 
   Names[Pos] = strFullName;
 
-  int I;
-
   memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
   memcpy(Param+PARAM_POS(Pos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
   if (SizeValue == sizeof(DWORD))
   {
-    for (I=0; I < 4; ++I)
-      if (((struct TPosCache32*)PosCache)->Position[I])
-        memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache32*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+		TPosCache32* PosCache32=reinterpret_cast<TPosCache32*>(PosCache);
+		for(size_t i=0;i<4;i++)
+		{
+			if(PosCache32->Position[i])
+			{
+				memcpy(Position+POSITION_POS(Pos,i),PosCache32->Position[i],BOOKMARK_COUNT*SizeValue);
+			}
+		}
   }
   else
   {
-    for (I=0; I < 4; ++I)
-      if (((struct TPosCache64*)PosCache)->Position[I])
-        memcpy(Position+POSITION_POS(Pos,I),((struct TPosCache64*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+		TPosCache64* PosCache64=reinterpret_cast<TPosCache64*>(PosCache);
+		for(size_t i=0;i<4;i++)
+		{
+			if(PosCache64->Position[i])
+			{
+				memcpy(Position+POSITION_POS(Pos,i),PosCache64->Position[i],BOOKMARK_COUNT*SizeValue);
+			}
+		}
   }
 
   if (FoundPos < 0)
@@ -153,19 +161,28 @@ BOOL FilePositionCache::GetPosition(const wchar_t *Name,void *PosCache)
 
   if (Pos >= 0)
   {
-    int I;
     memcpy(PosCache,Param+PARAM_POS(Pos),SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
     if (SizeValue == sizeof(DWORD))
     {
-      for (I=0; I < 4; ++I)
-        if (((struct TPosCache32*)PosCache)->Position[I])
-          memcpy(((struct TPosCache32*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
+			TPosCache32* PosCache32=reinterpret_cast<TPosCache32*>(PosCache);
+			for(size_t i=0;i<4;i++)
+			{
+				if(PosCache32->Position[i])
+				{
+					memcpy(PosCache32->Position[i],Position+POSITION_POS(Pos,i),BOOKMARK_COUNT*SizeValue);
+				}
+			}
     }
     else
     {
-      for (I=0; I < 4; ++I)
-        if (((struct TPosCache64*)PosCache)->Position[I])
-          memcpy(((struct TPosCache64*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
+			for(size_t i=0;i<4; i++)
+			{
+				TPosCache64* PosCache64=reinterpret_cast<TPosCache64*>(PosCache);
+				if(PosCache64->Position[i])
+				{
+					memcpy(PosCache64->Position[i],Position+POSITION_POS(Pos,i),BOOKMARK_COUNT*SizeValue);
+				}
+			}
     }
     return TRUE;
   }

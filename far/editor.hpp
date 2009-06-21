@@ -55,7 +55,7 @@ struct InternalEditorStackBookMark{
   DWORD Cursor;
   DWORD ScreenLine;
   DWORD LeftPos;
-  struct InternalEditorStackBookMark *prev, *next;
+	InternalEditorStackBookMark *prev, *next;
 };
 
 struct EditorCacheParams {
@@ -180,7 +180,7 @@ class Editor:public ScreenObject
          —юда запомним размер табул€ции и в дальнейшем будем использовать его,
          а не Opt.TabSize
     */
-    struct EditorOptions EdOpt;
+		EditorOptions EdOpt;
 
     int Pasting;
     wchar_t GlobalEOL[10];
@@ -214,9 +214,9 @@ class Editor:public ScreenObject
     int StartLine;
     int StartChar;
 
-    struct InternalEditorBookMark SavePos;
+		InternalEditorBookMark SavePos;
 
-    struct InternalEditorStackBookMark *StackPos;
+		InternalEditorStackBookMark *StackPos;
     BOOL NewStackPos;
 
     int EditorID;

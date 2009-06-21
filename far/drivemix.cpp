@@ -61,11 +61,11 @@ DWORD WINAPI FarGetLogicalDrives(void)
   if(!Opt.Policies.ShowHiddenDrives)
   {
     HKEY hKey;
-    if (RegOpenKeyExW(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+		if (RegOpenKeyEx(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
     {
       int ExitCode;
       DWORD Type,Size=sizeof(NoDrives);
-      ExitCode=RegQueryValueExW(hKey,L"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
+			ExitCode=RegQueryValueEx(hKey,L"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
       RegCloseKey(hKey);
       if(ExitCode != ERROR_SUCCESS)
         NoDrives=0;

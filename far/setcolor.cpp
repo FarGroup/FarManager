@@ -50,11 +50,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 
-static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
 static VMenu *MenuToRedraw1=NULL,*MenuToRedraw2=NULL,*MenuToRedraw3=NULL;
 
-static struct MenuDataEx ListItems[]=
+static MenuDataEx ListItems[]=
 {
   (const wchar_t *)MSetColorDialogListText,LIF_SELECTED,0,
   (const wchar_t *)MSetColorDialogListHighLight,0,0,
@@ -141,7 +141,7 @@ static int ListPaletteItems[4][13]=
 
 void SetColors()
 {
-  struct MenuDataEx Groups[]=
+	MenuDataEx Groups[]=
   {
     (const wchar_t *)MSetColorPanel,LIF_SELECTED,0,
     (const wchar_t *)MSetColorDialog,0,0,
@@ -159,7 +159,7 @@ void SetColors()
     (const wchar_t *)MSetBW,0,0,
   };
 
-  struct MenuDataEx PanelItems[]=
+	MenuDataEx PanelItems[]=
   {
     (const wchar_t *)MSetColorPanelNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorPanelSelected,0,0,
@@ -184,7 +184,7 @@ void SetColors()
     COL_PANELSCREENSNUMBER
   };
 
-  struct MenuDataEx DialogItems[]=
+	MenuDataEx DialogItems[]=
   {
     (const wchar_t *)MSetColorDialogNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorDialogHighlighted,0,0,
@@ -222,7 +222,7 @@ void SetColors()
     2,
   };
 
-  struct MenuDataEx WarnDialogItems[]=
+	MenuDataEx WarnDialogItems[]=
   {
     (const wchar_t *)MSetColorDialogNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorDialogHighlighted,0,0,
@@ -260,7 +260,7 @@ void SetColors()
     3,
   };
 
-  struct MenuDataEx MenuItems[]=
+	MenuDataEx MenuItems[]=
   {
     (const wchar_t *)MSetColorMenuNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorMenuSelected,0,0,
@@ -287,7 +287,7 @@ void SetColors()
     COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
   };
 
-  struct MenuDataEx HMenuItems[]=
+	MenuDataEx HMenuItems[]=
   {
     (const wchar_t *)MSetColorHMenuNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorHMenuSelected,0,0,
@@ -299,7 +299,7 @@ void SetColors()
     COL_HMENUSELECTEDHIGHLIGHT
   };
 
-  struct MenuDataEx KeyBarItems[]=
+	MenuDataEx KeyBarItems[]=
   {
     (const wchar_t *)MSetColorKeyBarNumbers,LIF_SELECTED,0,
     (const wchar_t *)MSetColorKeyBarNames,0,0,
@@ -309,7 +309,7 @@ void SetColors()
     COL_KEYBARNUM,COL_KEYBARTEXT,COL_KEYBARBACKGROUND
   };
 
-  struct MenuDataEx CommandLineItems[]=
+	MenuDataEx CommandLineItems[]=
   {
     (const wchar_t *)MSetColorCommandLineNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorCommandLineSelected,0,0,
@@ -320,7 +320,7 @@ void SetColors()
     COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX,COL_COMMANDLINEUSERSCREEN
   };
 
-  struct MenuDataEx ClockItems[]=
+	MenuDataEx ClockItems[]=
   {
     (const wchar_t *)MSetColorClockNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorClockNormalEditor,0,0,
@@ -331,7 +331,7 @@ void SetColors()
     COL_EDITORCLOCK,COL_VIEWERCLOCK,
   };
 
-  struct MenuDataEx ViewerItems[]=
+	MenuDataEx ViewerItems[]=
   {
     (const wchar_t *)MSetColorViewerNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorViewerSelected,0,0,
@@ -344,7 +344,7 @@ void SetColors()
   };
 
 
-  struct MenuDataEx EditorItems[]=
+	MenuDataEx EditorItems[]=
   {
     (const wchar_t *)MSetColorEditorNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorEditorSelected,0,0,
@@ -355,7 +355,7 @@ void SetColors()
     COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS,COL_EDITORSCROLLBAR
   };
 
-  struct MenuDataEx HelpItems[]=
+	MenuDataEx HelpItems[]=
   {
     (const wchar_t *)MSetColorHelpNormal,LIF_SELECTED,0,
     (const wchar_t *)MSetColorHelpHighlighted,0,0,
@@ -440,7 +440,7 @@ void SetColors()
 }
 
 
-static void SetItemColors(struct MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
 {
   int ItemsCode;
 
@@ -556,7 +556,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
 
 int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
 {
-  static struct DialogDataEx ColorDlgData[]={
+	static DialogDataEx ColorDlgData[]={
     /*   0 */ DI_DOUBLEBOX,   3, 1,35,13, 0,0,0,0,(const wchar_t *)MSetColorTitle,
     /*   1 */ DI_SINGLEBOX,   5, 2,18, 7, 0,0,0,0,(const wchar_t *)MSetColorForeground,
     /*   2 */ DI_RADIOBUTTON, 6, 3, 0, 3, 0,0,F_LIGHTGRAY|B_BLACK|DIF_GROUP|DIF_SETCOLOR|DIF_MOVESELECT,0,L"",

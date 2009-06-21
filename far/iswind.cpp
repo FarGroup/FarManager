@@ -57,12 +57,12 @@ void InitDetectWindowedMode()
     string strFarName;
     apiGetModuleFileName (NULL, strFarName);
     HICON hSmallIcon=NULL,hLargeIcon=NULL;
-    ExtractIconExW(strFarName,0,&hLargeIcon,&hSmallIcon,1);
+		ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
     if (hLargeIcon!=NULL)
-      hOldLargeIcon=(HICON)SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+			hOldLargeIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
     if (hSmallIcon!=NULL)
-      hOldSmallIcon=(HICON)SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+			hOldSmallIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
   }
 
   DetectWindowedMode();
@@ -80,8 +80,8 @@ void RestoreIcons()
   {
     if (hOldLargeIcon!=NULL)
     {
-      SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
-      SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
+			SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
+			SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
     }
   }
 }

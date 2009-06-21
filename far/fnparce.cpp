@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 
-struct TSubstDataW
+struct TSubstData
 {
   // параметры функции SubstFileName
   const wchar_t *Name;           // Длинное имя
@@ -85,12 +85,12 @@ static int IsReplaceVariable(const wchar_t *str,int *scr = NULL,
                                 int *end_txt_break = NULL);
 
 
-static int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData);
-static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wchar_t *TempStr,int MaxTempStrSize);
+static int ReplaceVariables(wchar_t *Str,TSubstData *PSubstData);
+static wchar_t *_SubstFileName(wchar_t *CurStr,TSubstData *PSubstData,wchar_t *TempStr,int MaxTempStrSize);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 
-static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wchar_t *TmpStr,int MaxTempStrSize)
+static wchar_t *_SubstFileName(wchar_t *CurStr,TSubstData *PSubstData,wchar_t *TmpStr,int MaxTempStrSize)
 {
   // рассмотрим переключатели активности/пассивности панели.
   if (StrCmpN(CurStr,L"!#",2)==0)
@@ -449,7 +449,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 
   wchar_t TmpStr2[10240]; //BUGBUGBUGBUGBUGBUG!!!!
 
-  struct TSubstDataW SubstData, *PSubstData=&SubstData;
+	TSubstData SubstData, *PSubstData=&SubstData;
 
   // Сделаем пока поболее - 10240, но везде нужно проверять размер... (see below)
   wchar_t TmpStr[10240]; //BUGBUGBUG!!!
@@ -531,7 +531,7 @@ int SubstFileName(string &strStr,            // результирующая строка
   return(PSubstData->PreserveLFN);
 }
 
-int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
+int ReplaceVariables(wchar_t *Str,TSubstData *PSubstData)
 {
   const int MaxSize=20;
 
@@ -541,7 +541,7 @@ int ReplaceVariables(wchar_t *Str,struct TSubstDataW *PSubstData)
     while (*Str && *Str!=L'\"')
       Str++;
 
-  struct DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
+	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
   int DlgSize=0;
   int StrPos[128],StrEndPos[128],StrPosSize=0;
 

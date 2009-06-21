@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "farversion.inc"
 
-OSVERSIONINFOW WinVer={0};
+OSVERSIONINFO WinVer={0};
 
 // языковой файл загружен?
 bool LanguageLoaded=false;

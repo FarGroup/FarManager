@@ -45,8 +45,8 @@ class Grabber:Modal
 {
   private:
     SaveScreen *SaveScr;
-    struct GrabberArea PrevArea;
-    struct GrabberArea GArea;
+		GrabberArea PrevArea;
+		GrabberArea GArea;
     int ResetArea;
     int PrevMacroMode;
     int VerticalBlock;

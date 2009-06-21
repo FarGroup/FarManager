@@ -229,12 +229,13 @@ static inline int getChar()
   return EOFCH;
 }
 
-typedef struct __TMacroFunction{
+struct TMacroFunction
+{
   const wchar_t *Name;             // имя функции
   int nParam;                      // количество параметров
   int oParam;                      // необязательные параметры
   TMacroOpCode Code;               // байткод функции
-} TMacroFunction;
+};
 
 static TMacroFunction macroFunction[]={
   {L"ABS",              1, 0,   MCODE_F_ABS},                 // N=abs(N)

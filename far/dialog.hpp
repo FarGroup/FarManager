@@ -101,7 +101,7 @@ enum DLGITEMINTERNALFLAGS {
 
 
 #define MakeDialogItemsEx(Data,Item) \
-	struct DialogItemEx Item[countof(Data)]; \
+	DialogItemEx Item[countof(Data)]; \
 	Dialog::DataToItemEx(Data,Item,countof(Data));
 
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
@@ -139,7 +139,7 @@ struct DialogItemEx
     int Selected;
     const wchar_t *History;
     const wchar_t *Mask;
-    struct FarList *ListItems;
+		FarList *ListItems;
     int  ListPos;
     CHAR_INFO *VBuf;
   };
@@ -152,7 +152,7 @@ struct DialogItemEx
   WORD ID;
   BitFlags IFlags;
   unsigned AutoCount;   // Автоматизация
-  struct DialogItemAutomation* AutoPtr;
+	DialogItemAutomation* AutoPtr;
   DWORD_PTR UserData; // ассоциированные данные
 
   // прочее
@@ -209,7 +209,7 @@ struct DialogDataEx
     unsigned int Selected;
     const wchar_t *History;
     const wchar_t *Mask;
-    struct FarList *ListItems;
+		FarList *ListItems;
     int  ListPos;
     CHAR_INFO *VBuf;
   };
@@ -246,8 +246,8 @@ class Dialog: public Frame
 
     LONG_PTR DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 
-    struct DialogItemEx **Item; // массив элементов диалога
-    struct DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
+		DialogItemEx **Item; // массив элементов диалога
+		DialogItemEx *pSaveItemEx; // пользовательский массив элементов диалога
 
     unsigned ItemCount;         // количество элементов диалога
 
@@ -283,12 +283,12 @@ class Dialog: public Frame
     unsigned ChangeFocus2(unsigned KillFocusPos,unsigned SetFocusPos);
 
     unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
-		BOOL SelectFromEditHistory(struct DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
-		int SelectFromComboBox(struct DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
+		BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
+		int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
     int FindInEditForAC(int TypeFind, const wchar_t *HistoryName, string &strFindStr);
     int AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName);
 
-    void ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex); // обработка DIF_USELASTHISTORY
+    void ProcessLastHistory (DialogItemEx *CurItem, int MsgIndex); // обработка DIF_USELASTHISTORY
 
     int ProcessHighlighting(int Key,unsigned FocusPos,int Translate);
     BOOL CheckHighlights(WORD Chr);
@@ -315,7 +315,7 @@ class Dialog: public Frame
 
     unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 
-    int ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem,unsigned CurFocusPos);
+    int ProcessOpenComboBox(int Type,DialogItemEx *CurItem,unsigned CurFocusPos);
     int ProcessMoveDialog(DWORD Key);
 
     int Do_ProcessTab(int Next);
@@ -327,9 +327,9 @@ class Dialog: public Frame
     LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
 
   public:
-    Dialog(struct DialogItemEx *SrcItem, unsigned SrcItemCount,
+    Dialog(DialogItemEx *SrcItem, unsigned SrcItemCount,
            FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
-    Dialog(struct FarDialogItem *SrcItem, unsigned SrcItemCount,
+    Dialog(FarDialogItem *SrcItem, unsigned SrcItemCount,
            FARWINDOWPROC DlgProc=NULL,LONG_PTR InitParam=0);
     bool InitOK() {return bInitOK;}
     virtual ~Dialog();
@@ -347,12 +347,12 @@ class Dialog: public Frame
     void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
     // преобразования из внутреннего представления в FarDialogItem и обратно
-    static bool ConvertItemEx (CVTITEMFLAGS FromPlugin, struct FarDialogItem *Item,
-                               struct DialogItemEx *Data, unsigned Count);
+    static bool ConvertItemEx (CVTITEMFLAGS FromPlugin,FarDialogItem *Item,
+                               DialogItemEx *Data, unsigned Count);
     // преобразования из внутреннего представления в FarDialogItem в пользовательский буффер
-	static size_t ConvertItemEx2(struct FarDialogItem *Item,struct DialogItemEx *Data);
+	static size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data);
 
-    static void DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,
+    static void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,
                            int Count);
 
     static int IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
@@ -390,7 +390,7 @@ class Dialog: public Frame
 //    virtual void OnDestroy();
 
     // For MACRO
-    const struct DialogItemEx **GetAllItem(){return (const DialogItemEx**)Item;};
+		const DialogItemEx **GetAllItem(){return (const DialogItemEx**)Item;};
     unsigned GetAllItemCount(){return ItemCount;};              // количество элементов диалога
     unsigned GetDlgFocusPos(){return FocusPos;};
 

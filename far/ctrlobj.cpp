@@ -132,7 +132,7 @@ void ControlObject::Init()
     apiGetConsoleTitle (strOldTitle);
     FrameManager->PluginCommit();
     Plugins.LoadPlugins();
-    SetConsoleTitleW(strOldTitle);
+		SetConsoleTitle(strOldTitle);
   }
 /*
 	FarChDir(StartCurDir);

@@ -83,7 +83,7 @@ struct DlgParam{
   int Recurse;
 };
 
-struct TMacroKeywords MKeywords[] ={
+TMacroKeywords MKeywords[] ={
   {0,  L"Other",              MCODE_C_AREA_OTHER,0},
   {0,  L"Shell",              MCODE_C_AREA_SHELL,0},
   {0,  L"Viewer",             MCODE_C_AREA_VIEWER,0},
@@ -200,7 +200,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  L"Windowed",           MCODE_C_WINDOWEDMODE,0},
 };
 
-struct TMacroKeywords MKeywordsArea[] ={
+TMacroKeywords MKeywordsArea[] ={
   {0,  L"Other",              MACRO_OTHER,0},
   {0,  L"Shell",              MACRO_SHELL,0},
   {0,  L"Viewer",             MACRO_VIEWER,0},
@@ -219,7 +219,7 @@ struct TMacroKeywords MKeywordsArea[] ={
   {0,  L"Common",             MACRO_COMMON,0},
 };
 
-struct TMacroKeywords MKeywordsFlags[] ={
+TMacroKeywords MKeywordsFlags[] ={
   // ФЛАГИ
   {1,  L"DisableOutput",      MFLAGS_DISABLEOUTPUT,0},
   {1,  L"RunAfterFARStart",   MFLAGS_RUNAFTERFARSTART,0},
@@ -467,8 +467,8 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
       }
       Work.MacroWORKCount--;
 
-      memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*Work.MacroWORKCount);
-      Work.MacroWORK=(struct MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(struct MacroRecord)*Work.MacroWORKCount);
+			memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(MacroRecord),sizeof(MacroRecord)*Work.MacroWORKCount);
+			Work.MacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*Work.MacroWORKCount);
     }
   }
 }
@@ -551,7 +551,7 @@ int KeyMacro::ProcessKey(int Key)
           Pos=MacroLIBCount;
 					if(RecBufferSize > 0)
           {
-            struct MacroRecord *NewMacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
+						MacroRecord *NewMacroLIB=(MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
             if (NewMacroLIB==NULL)
             {
               WaitInFastFind++;
@@ -717,7 +717,7 @@ bool KeyMacro::GetPlainText(string& strDest)
   if(!Work.MacroWORK)
     return false;
 
-  struct MacroRecord *MR=Work.MacroWORK;
+	MacroRecord *MR=Work.MacroWORK;
 
   int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
   if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
@@ -741,7 +741,7 @@ int KeyMacro::GetPlainTextSize()
 {
   if(!Work.MacroWORK)
     return 0;
-  struct MacroRecord *MR=Work.MacroWORK;
+	MacroRecord *MR=Work.MacroWORK;
   return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
@@ -1082,7 +1082,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
           {
-            struct OpenPluginInfo Info;
+						OpenPluginInfo Info;
             SelPanel->GetOpenPluginInfo(&Info);
             Cond = (__int64)Info.Flags;
           }
@@ -1251,7 +1251,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
             }
             else if(CheckCode == MCODE_V_EDITORVALUE)
             {
-              struct EditorGetString egs;
+							EditorGetString egs;
               egs.StringNumber=-1;
               CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETSTRING,&egs);
               Cond=egs.StringText;
@@ -1570,7 +1570,7 @@ static bool evalFunc()
 	TVar Val;
 	VMStack.Pop(Val);
 
-	struct MacroRecord RBuf;
+	MacroRecord RBuf;
 	int KeyPos;
 
 	if(!(Val.isInteger() && Val.i() == 0)) // учитываем только нормальное содержимое строки компиляции
@@ -1978,7 +1978,7 @@ static bool dlggetvalueFunc()
   if(CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
   {
     unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
-    const struct DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
+		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
     if(Index == (unsigned)-1)
     {
       SMALL_RECT Rect;
@@ -1997,7 +1997,7 @@ static bool dlggetvalueFunc()
     }
     else if(Index < DlgItemCount && DlgItem)
     {
-      const struct DialogItemEx *Item=DlgItem[Index];
+			const DialogItemEx *Item=DlgItem[Index];
       int ItemType=Item->Type;
       DWORD ItemFlags=Item->Flags;
 
@@ -2009,7 +2009,7 @@ static bool dlggetvalueFunc()
         }
         else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
         {
-          struct FarListGetItem ListItem;
+					FarListGetItem ListItem;
           ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
           if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,Index,(LONG_PTR)&ListItem))
           {
@@ -2052,7 +2052,7 @@ static bool dlggetvalueFunc()
     int Item->Selected;
     const char *Item->History;
     const char *Item->Mask;
-    struct FarList *Item->ListItems;
+		FarList *Item->ListItems;
     int  Item->ListPos;
     CHAR_INFO *Item->VBuf;
 */
@@ -2097,7 +2097,7 @@ static bool editorsetFunc()
     if(Index != 12)
       longState=(long)_longState.toInteger();
 
-    struct EditorOptions EdOpt;
+		EditorOptions EdOpt;
     CtrlObject->Plugins.CurEditor->GetEditorOptions(EdOpt);
 
     switch(Index)
@@ -2512,10 +2512,10 @@ static bool panelitemFunc()
   int Index=(int)(P1.toInteger())-1;
   int TypeInfo=(int)P2.toInteger();
 
-  struct FileListItem filelistItem;
+	FileListItem filelistItem;
   if(TypePanel == TREE_PANEL)
   {
-    struct TreeItem treeItem;
+		TreeItem treeItem;
 
     if(SelPanel->GetItem(Index,&treeItem) && !TypeInfo)
     {
@@ -2800,7 +2800,7 @@ const wchar_t *eStackAsString(int)
 
 int KeyMacro::GetKey()
 {
-  struct MacroRecord *MR;
+	MacroRecord *MR;
   TVar tmpVar;
   TVarSet *tmpVarSet=NULL;
 
@@ -3025,7 +3025,7 @@ done:
         InitDetectWindowedMode();
       if(hFarWnd)
       {
-        PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+				PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
         //if(Flags & XLAT_SWITCHKEYBBEEP)
         //  MessageBeep(0);
       }
@@ -3536,7 +3536,7 @@ int KeyMacro::PeekKey()
   if (InternalInput || !Work.MacroWORK)
     return(0);
 
-  struct MacroRecord *MR=Work.MacroWORK;
+	MacroRecord *MR=Work.MacroWORK;
   if((Work.Executing == MACROMODE_NOMACRO && !Work.MacroWORK) || Work.ExecLIBPos >= MR->BufferSize)
     return(FALSE);
 
@@ -3809,7 +3809,7 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string &strBuffer)
 int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 {
   int I, J;
-  struct MacroRecord CurMacro;
+	MacroRecord CurMacro;
   memset(&CurMacro,0,sizeof(CurMacro));
 
 	string strUpKeyName=L"KeyMacros\\";
@@ -3897,7 +3897,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
     if(!ParseMacroString(&CurMacro,strBuffer))
       continue;
 
-    struct MacroRecord *NewMacros=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
+		MacroRecord *NewMacros=(MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
     if (NewMacros==NULL)
     {
       return FALSE;
@@ -3965,7 +3965,7 @@ void KeyMacro::RunStartMacro()
   if(!IndexMode[MACRO_SHELL][1])
     return;
 
-  struct MacroRecord *MR=MacroLIB+IndexMode[MACRO_SHELL][0];
+	MacroRecord *MR=MacroLIB+IndexMode[MACRO_SHELL][0];
   for(int I=0; I < IndexMode[MACRO_SHELL][1]; ++I)
   {
     DWORD CurFlags;
@@ -3989,7 +3989,7 @@ void KeyMacro::RunStartMacro()
     return;
 
   int I;
-  struct MacroRecord *MR=MacroLIB+IndexMode[Mode][0];
+	MacroRecord *MR=MacroLIB+IndexMode[Mode][0];
   for(I=0; I < IndexMode[Mode][1]; ++I)
   {
     DWORD CurFlags;
@@ -4027,12 +4027,12 @@ LONG_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG
 {
   string strKeyText;
   static int LastKey=0;
-  static struct DlgParam *KMParam=NULL;
+	static DlgParam *KMParam=NULL;
   int Index, I;
   //_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
   if(Msg == DN_INITDIALOG)
   {
-    KMParam=(struct DlgParam *)Param2;
+		KMParam=(DlgParam *)Param2;
     LastKey=0;
 
     // <Клавиши, которые не введешь в диалоге назначения>
@@ -4150,7 +4150,7 @@ M1:
     // если УЖЕ есть такой макрос...
     if((Index=MacroDlg->GetIndex((int)Param2,KMParam->Mode)) != -1)
     {
-      struct MacroRecord *Mac=MacroDlg->MacroLIB+Index;
+			MacroRecord *Mac=MacroDlg->MacroLIB+Index;
       // общие макросы учитываем только при удалении.
 			if(!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
       {
@@ -4246,13 +4246,13 @@ DWORD KeyMacro::AssignMacroKey()
   | ________________________ |
   +--------------------------+
 */
-  static struct DialogDataEx MacroAssignDlgData[]={
+	static DialogDataEx MacroAssignDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,30,4,0,0,0,0,(const wchar_t *)MDefineMacroTitle,
   /* 01 */ DI_TEXT,-1,2,0,2,0,0,DIF_BOXCOLOR|DIF_READONLY,0,(const wchar_t *)MDefineMacro,
   /* 02 */ DI_COMBOBOX,5,3,28,3,1,0,0,1,L"",
   };
   MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
-  struct DlgParam Param={this,0,StartMode,0};
+	DlgParam Param={this,0,StartMode,0};
 //_SVS(SysLog(L"StartMode=%d",StartMode));
 
   IsProcessAssignMacroKey++;
@@ -4303,12 +4303,12 @@ enum MACROSETTINGSDLG
 
 LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-	static struct DlgParam *KMParam=NULL;
+	static DlgParam *KMParam=NULL;
 
 	switch(Msg)
 	{
 		case DN_INITDIALOG:
-			KMParam=(struct DlgParam *)Param2;
+			KMParam=(DlgParam *)Param2;
 			break;
 
 		case DN_BTNCLICK:
@@ -4368,7 +4368,7 @@ LONG_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_
 					;
 				else
 				{
-					struct MacroRecord NewMacroWORK2={0};
+					MacroRecord NewMacroWORK2={0};
 					long FileSize=filelen(MacroFile);
 					TextBuffer=(char*)xf_malloc(FileSize);
 					if(TextBuffer)
@@ -4425,7 +4425,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 */
 
-  static struct DialogDataEx MacroSettingsDlgData[]={
+	static DialogDataEx MacroSettingsDlgData[]={
 	/* 00 */DI_DOUBLEBOX,3,1,69,17,0,0,0,0,L"",
 	/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MMacroSequence,
 	/* 02 */DI_EDIT,5,3,67,3,1,0,0,0,L"",
@@ -4475,7 +4475,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 	xf_free(Sequence);
 
-  struct DlgParam Param={this,0,0,0};
+	DlgParam Param={this,0,0,0};
 	Dialog Dlg(MacroSettingsDlg,countof(MacroSettingsDlg),ParamMacroDlgProc,(LONG_PTR)&Param);
 	Dlg.SetPosition(-1,-1,73,19);
   Dlg.SetHelp(L"KeyMacroSetting");
@@ -4515,7 +4515,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
 {
-  struct MacroRecord NewMacroWORK2={0};
+	MacroRecord NewMacroWORK2={0};
 
   wchar_t *Buffer=(wchar_t *)PlainText;
   bool allocBuffer=false;
@@ -4576,8 +4576,8 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
   NewMacroWORK2.Key=AKey;
 
   // теперь попробуем выделить немного нужной памяти
-  struct MacroRecord *NewMacroWORK;
-  if((NewMacroWORK=(struct MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
+	MacroRecord *NewMacroWORK;
+	if((NewMacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
   {
     if(NewMacroWORK2.BufferSize > 1)
       xf_free(NewMacroWORK2.Buffer);
@@ -4587,7 +4587,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
   // теперь добавим в нашу "очередь" новые данные
   Work.MacroWORK=NewMacroWORK;
   NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;
-  memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(struct MacroRecord));
+	memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(MacroRecord));
   Work.MacroWORKCount++;
 
 //  Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
@@ -4596,13 +4596,13 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
   return TRUE;
 }
 
-int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginSend)
+int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginSend)
 {
   if(!MRec)
     return FALSE;
 
-  struct MacroRecord NewMacroWORK2={0};
-  memcpy(&NewMacroWORK2,MRec,sizeof(struct MacroRecord));
+	MacroRecord NewMacroWORK2={0};
+	memcpy(&NewMacroWORK2,MRec,sizeof(MacroRecord));
   NewMacroWORK2.Src=NULL;
   NewMacroWORK2.Description=NULL;
 
@@ -4615,8 +4615,8 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
   }
 
   // теперь попробуем выделить немного нужной памяти
-  struct MacroRecord *NewMacroWORK;
-  if((NewMacroWORK=(struct MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
+	MacroRecord *NewMacroWORK;
+  if((NewMacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*(Work.MacroWORKCount+1))) == NULL)
   {
 //    if(MRec->BufferSize > 1)
       xf_free(NewMacroWORK2.Buffer);
@@ -4639,7 +4639,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
 
   Work.MacroWORK=NewMacroWORK;
   NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;
-  memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(struct MacroRecord));
+	memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(MacroRecord));
   Work.MacroWORKCount++;
 
 //  Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
@@ -4648,7 +4648,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL Is
   return TRUE;
 }
 
-int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr)
+int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr)
 {
 	BOOL Result=FALSE;
 
@@ -4713,7 +4713,7 @@ int KeyMacro::PushState(bool CopyLocalVars)
     return FALSE;
   ++CurPCStack;
   Work.UsedInternalClipboard=::UsedInternalClipboard;
-  memcpy(PCStack+CurPCStack,&Work,sizeof(struct MacroState));
+	memcpy(PCStack+CurPCStack,&Work,sizeof(MacroState));
   Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
   return TRUE;
 }
@@ -4722,7 +4722,7 @@ int KeyMacro::PopState()
 {
   if(CurPCStack < 0)
     return FALSE;
-  memcpy(&Work,PCStack+CurPCStack,sizeof(struct MacroState));
+	memcpy(&Work,PCStack+CurPCStack,sizeof(MacroState));
   ::UsedInternalClipboard=Work.UsedInternalClipboard;
   CurPCStack--;
   return TRUE;
@@ -4738,7 +4738,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
     for(int I=0; I < 2; ++I)
     {
       int Pos,Len;
-      struct MacroRecord *MPtr;
+			MacroRecord *MPtr;
       if(ChechMode == -1)
       {
         Len=MacroLIBCount;
@@ -4789,7 +4789,7 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
   int Pos=GetIndex(Key,CheckMode);
   if(Pos == -1)
     return 0;
-  return sizeof(struct MacroRecord)+MacroLIB[Pos].BufferSize;
+	return sizeof(MacroRecord)+MacroLIB[Pos].BufferSize;
 }
 
 // получить название моды по коду
@@ -4841,7 +4841,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
       int Len=CtrlObject->Macro.IndexMode[Mode][1];
       if(Len && Pos < Len)
       {
-        struct MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode][0]+Pos;
+				MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode][0]+Pos;
         ::KeyToText(MPtr->Key,strKeyName);
         strDescription=NullToEmpty(MPtr->Description);
         return Pos+1;
@@ -5007,20 +5007,20 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
   Return: 0 - не в режиме макро, 1 - Executing, 2 - Executing common, 3 - Recording, 4 - Recording common
   See MacroRecordAndExecuteType
 */
-int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
+int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 {
   if(KeyPos && RBuf)
   {
     *KeyPos=Work.Executing?Work.ExecLIBPos:0;
-    memset(RBuf,0,sizeof(struct MacroRecord));
+		memset(RBuf,0,sizeof(MacroRecord));
     if(Recording == MACROMODE_NOMACRO)
     {
       if(Work.Executing)
       {
-        memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(struct MacroRecord)); //????
+				memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(MacroRecord)); //????
         return Work.Executing;
       }
-      memset(RBuf,0,sizeof(struct MacroRecord));
+			memset(RBuf,0,sizeof(MacroRecord));
       return MACROMODE_NOMACRO;
     }
 		RBuf->BufferSize=RecBufferSize;
@@ -5030,8 +5030,8 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
   return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
 }
 
-static int __cdecl SortMacros(const struct MacroRecord *el1,
-                           const struct MacroRecord *el2)
+static int __cdecl SortMacros(const MacroRecord *el1,
+                           const MacroRecord *el2)
 {
   int Mode1, Mode2;
   if((Mode1=(el1->Flags&MFLAGS_MODEMASK)) == (Mode2=(el2->Flags&MFLAGS_MODEMASK)))
@@ -5046,18 +5046,13 @@ void KeyMacro::Sort(void)
 {
   typedef int (__cdecl *qsort_fn)(const void*,const void*);
   // сортируем
-  far_qsort(MacroLIB,
-        MacroLIBCount,
-        sizeof(struct MacroRecord),
-        (qsort_fn)SortMacros);
+	far_qsort(MacroLIB,MacroLIBCount,sizeof(MacroRecord),(qsort_fn)SortMacros);
   // перестраиваем индекс начал
-  struct MacroRecord *MPtr;
-  int I,J;
   int CurMode=MACRO_OTHER;
   memset(IndexMode,0,sizeof(IndexMode));
-  for(MPtr=MacroLIB,I=0; I < MacroLIBCount; ++I,++MPtr)
+	for(int I=0;I<MacroLIBCount;I++)
   {
-    J=MPtr->Flags&MFLAGS_MODEMASK;
+		int J=MacroLIB[I].Flags&MFLAGS_MODEMASK;
     if(CurMode != J)
     {
       IndexMode[J][0]=I;
@@ -5069,14 +5064,14 @@ void KeyMacro::Sort(void)
 //_SVS(for(I=0; I < countof(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
 
-DWORD KeyMacro::GetOpCode(struct MacroRecord *MR,int PC)
+DWORD KeyMacro::GetOpCode(MacroRecord *MR,int PC)
 {
   DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)(DWORD_PTR)MR->Buffer;
   return OpCode;
 }
 
 // кинуть OpCode в буфер. Возвращает предыдущее значение
-DWORD KeyMacro::SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode)
+DWORD KeyMacro::SetOpCode(MacroRecord *MR,int PC,DWORD OpCode)
 {
   DWORD OldOpCode;
   if(MR->BufferSize > 1)

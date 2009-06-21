@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
-extern struct PanelViewSettings ViewSettingsArray[];
+extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
 static wchar_t OutCharacter[8]={0,0,0,0,0,0,0,0};
@@ -94,7 +94,7 @@ void FileList::ShowFileList(int Fast)
   string strTitle;
   string strInfoCurDir;
   int Length;
-  struct OpenPluginInfo Info;
+	OpenPluginInfo Info;
 
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -330,10 +330,9 @@ void FileList::ShowFileList(int Fast)
     }
     else
     {
-      struct FileListItem *CurPtr=ListData[CurFile];
-      if (!TestParentFolderName(CurPtr->strName))
+			if(!TestParentFolderName(ListData[CurFile]->strName))
       {
-        strCurDir = CurPtr->strName;
+				strCurDir=ListData[CurFile]->strName;
         size_t pos;
 				if(LastSlash(strCurDir,pos))
         {
@@ -387,22 +386,17 @@ int FileList::GetShowColor(int Position, int ColorType)
 
   if (ListData && Position < FileCount)
   {
-    struct FileListItem *CurPtr=ListData[Position];
-
     int Pos = HIGHLIGHTCOLOR_NORMAL;
 
     if (CurFile==Position && Focus && FileCount > 0)
     {
-      if (CurPtr->Selected)
-        Pos = HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR;
-      else
-        Pos = HIGHLIGHTCOLOR_UNDERCURSOR;
+			Pos=ListData[Position]->Selected?HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR:HIGHLIGHTCOLOR_UNDERCURSOR;
     }
     else
-      if (CurPtr->Selected)
+			if (ListData[Position]->Selected)
         Pos = HIGHLIGHTCOLOR_SELECTED;
 
-    ColorAttr=CurPtr->Colors.Color[ColorType][Pos];
+		ColorAttr=ListData[Position]->Colors.Color[ColorType][Pos];
     if (!ColorAttr || !Opt.Highlight)
       ColorAttr=FarColor[Pos];
   }
@@ -450,7 +444,7 @@ void FileList::ShowSelectedSize()
 }
 
 
-void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
+void FileList::ShowTotalSize(OpenPluginInfo &Info)
 {
   if (!Opt.ShowPanelTotals && PanelMode==PLUGIN_PANEL && (Info.Flags & OPIF_REALNAMES)==0)
     return;
@@ -546,9 +540,9 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 }
 
 
-void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
+void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 {
-  struct OpenPluginInfo Info;
+	OpenPluginInfo Info;
   if (PanelMode==PLUGIN_PANEL)
   {
     if (PlugInfo==NULL)
@@ -627,7 +621,7 @@ void FileList::PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo)
 }
 
 
-int FileList::PreparePanelView(struct PanelViewSettings *PanelView)
+int FileList::PreparePanelView(PanelViewSettings *PanelView)
 {
   PrepareColumnWidths(PanelView->StatusColumnType,PanelView->StatusColumnWidth,PanelView->StatusColumnWidthType,
                       PanelView->StatusColumnCount,PanelView->FullScreen);
@@ -834,8 +828,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       }
       if (ListPos<FileCount)
       {
-        struct FileListItem *CurPtr=ListData[ListPos];
-
         if (!ShowStatus && !StatusShown && CurFile==ListPos && Opt.ShowPanelStatus)
         {
           ShowList(TRUE,CurColumn);
@@ -850,8 +842,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
           const wchar_t *ColumnData=NULL;
-          if (ColumnNumber<CurPtr->CustomColumnNumber)
-            ColumnData=CurPtr->CustomColumnData[ColumnNumber];
+					if (ColumnNumber<ListData[ListPos]->CustomColumnNumber)
+						ColumnData=ListData[ListPos]->CustomColumnData[ColumnNumber];
           if (ColumnData==NULL)
             ColumnData=L"";
           int CurLeftPos=0;
@@ -879,13 +871,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int ViewFlags=ColumnTypes[K];
                 if ((ViewFlags & COLUMN_MARK) && Width>2)
                 {
-									Text(CurPtr->Selected?L"\x221A ":L"  ");
+									Text(ListData[ListPos]->Selected?L"\x221A ":L"  ");
                   Width-=2;
                 }
-                if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
+								if (ListData[ListPos]->Colors.MarkChar && Opt.Highlight && Width>1)
                 {
                   Width--;
-                  OutCharacter[0]=(wchar_t)CurPtr->Colors.MarkChar;
+									OutCharacter[0]=(wchar_t)ListData[ListPos]->Colors.MarkChar;
                   int OldColor=GetColor();
                   if (!ShowStatus)
                     SetShowColor(ListPos,HIGHLIGHTCOLORTYPE_MARKCHAR);
@@ -893,7 +885,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   SetColor(OldColor);
                 }
 
-                const wchar_t *NamePtr = ShowShortNames && !CurPtr->strShortName.IsEmpty () && !ShowStatus ? CurPtr->strShortName:CurPtr->strName;
+								const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty () && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
                 const wchar_t *NameCopy = NamePtr;
 
                 if (ViewFlags & COLUMN_NAMEONLY)
@@ -946,7 +938,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
                 string strName;
 
-                int TooLong=ConvertName(NamePtr, strName, Width, RightAlign,ShowStatus,CurPtr->FileAttr);
+								int TooLong=ConvertName(NamePtr, strName, Width, RightAlign,ShowStatus,ListData[ListPos]->FileAttr);
 
                 if (CurLeftPos!=0)
                   LeftBracket=TRUE;
@@ -961,11 +953,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!ShowStatus)
                 {
                   if (!ShowShortNames && ViewSettings.FileUpperToLowerCase)
-                    if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
+										if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
                       strName.Lower ();
-                  if ((ShowShortNames || ViewSettings.FolderUpperCase) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+									if ((ShowShortNames || ViewSettings.FolderUpperCase) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
                     strName.Upper ();
-                  if ((ShowShortNames || ViewSettings.FileLowerCase) && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+									if ((ShowShortNames || ViewSettings.FileLowerCase) && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
                     strName.Lower ();
                 }
                 Text(strName);
@@ -1010,21 +1002,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
                 string strStr;
                 int Width=ColumnWidth;
-                if (CurPtr->ShowFolderSize==2)
+								if (ListData[ListPos]->ShowFolderSize==2)
                 {
                   Width--;
                   Text(L"~");
                 }
-								if (!Streams && !Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
+								if (!Streams && !Packed && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !ListData[ListPos]->ShowFolderSize)
                 {
                   const wchar_t *PtrName=MSG(MListFolder);
-                  if (TestParentFolderName(CurPtr->strName))
+									if(TestParentFolderName(ListData[ListPos]->strName))
                     PtrName=MSG(MListUp);
                   else
                   {
-                    if(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+                    if(ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
                     {
-                      switch(CurPtr->ReparseTag)
+                      switch(ListData[ListPos]->ReparseTag)
                       {
                       case IO_REPARSE_TAG_SYMLINK:
                         PtrName=MSG(MListSymLink);
@@ -1047,24 +1039,24 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   string strOutStr;
                   // подсократим - весь код по форматированию размера
                   //   в отдельную функцию - FileSizeToStr().
-                  mprintf(L"%s", (const wchar_t*)FileSizeToStr(strOutStr,
-										Packed?CurPtr->PackSize:Streams?CurPtr->StreamsSize:CurPtr->UnpSize,
-                           Width,ColumnTypes[K]));
+                  mprintf(L"%s",FileSizeToStr(strOutStr,
+										Packed?ListData[ListPos]->PackSize:Streams?ListData[ListPos]->StreamsSize:ListData[ListPos]->UnpSize,
+                           Width,ColumnTypes[K]).CPtr());
                 }
               }
               break;
             case DATE_COLUMN:
               {
                 string strOutStr;
-                ConvertDate(CurPtr->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDateStr);
+								ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,0,FALSE,FALSE,ColumnWidth>9);
+								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,strDateStr.CPtr());
               }
               break;
             case TIME_COLUMN:
               {
                 string strOutStr;
-                ConvertDate(CurPtr->WriteTime,strDateStr,strTimeStr,ColumnWidth);
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strTimeStr);
+								ConvertDate(ListData[ListPos]->WriteTime,strDateStr,strTimeStr,ColumnWidth);
+								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,strTimeStr.CPtr());
               }
               break;
             case MDATE_COLUMN:
@@ -1075,13 +1067,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 switch(ColumnType)
                 {
                   case CDATE_COLUMN:
-                    FileTime=&CurPtr->CreationTime;
+										FileTime=&ListData[ListPos]->CreationTime;
                     break;
                   case ADATE_COLUMN:
-                    FileTime=&CurPtr->AccessTime;
+										FileTime=&ListData[ListPos]->AccessTime;
                     break;
                   default: //case MDATE_COLUMN:
-                    FileTime=&CurPtr->WriteTime;
+										FileTime=&ListData[ListPos]->WriteTime;
                 }
                 int TextMonth=(ColumnTypes[K] & COLUMN_MONTH)!=0;
                 int Brief=ColumnTypes[K] & COLUMN_BRIEF;
@@ -1101,22 +1093,22 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case ATTR_COLUMN:
               {
-                wchar_t OutStr[16];
-                DWORD FileAttr=CurPtr->FileAttr;
-                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? L'R':L' ';
-                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? L'S':L' ';
-                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? L'H':L' ';
-                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? L'A':L' ';
-                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? L'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? L'$':L' ');
-                // $ 20.10.2000 SVS - Encrypted NTFS - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
-                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? L'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' ');
-                OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? L'T':L' ';
-                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? L'I':L' ';
-                OutStr[8]=(FileAttr & FILE_ATTRIBUTE_OFFLINE) ? L'O':L' ';
-                OutStr[9]=(FileAttr & FILE_ATTRIBUTE_VIRTUAL) ? L'V':L' ';
-                OutStr[10]=0;
-                wchar_t *OutPtr=OutStr;
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,OutPtr);
+                wchar_t OutStr[]=
+								{
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_READONLY)?L'R':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_SYSTEM)?L'S':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_HIDDEN)?L'H':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_ARCHIVE)?L'A':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)?L'L':((ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_SPARSE_FILE)?L'$':L' '),
+									// $ 20.10.2000 SVS - Encrypted NTFS - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_COMPRESSED)?L'C':((ListData[ListPos]->FileAttr&FILE_ATTRIBUTE_ENCRYPTED)?L'E':L' '),
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_TEMPORARY)?L'T':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)?L'I':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_OFFLINE)?L'O':L' ',
+									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_VIRTUAL)?L'V':L' ',
+									L'\0',
+								};
+                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,OutStr);
               }
               break;
             case DIZ_COLUMN:
@@ -1124,7 +1116,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
                 {
-                  int Length=CurPtr->DizText ? StrLength(CurPtr->DizText):0;
+                  int Length=ListData[ListPos]->DizText ? StrLength(ListData[ListPos]->DizText):0;
                   if (Length>ColumnWidth)
                   {
                     CurLeftPos=LeftPos;
@@ -1134,8 +1126,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                string strDizText;
-                strDizText = CurPtr->DizText ? CurPtr->DizText+CurLeftPos:L"";
+								string strDizText=ListData[ListPos]->DizText ? ListData[ListPos]->DizText+CurLeftPos:L"";
 
                 size_t pos;
                 if (strDizText.Pos(pos,L'\4'))
@@ -1146,11 +1137,12 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case OWNER_COLUMN:
               {
-                const wchar_t* Owner=(const wchar_t*)CurPtr->strOwner;
+								const wchar_t* Owner=ListData[ListPos]->strOwner;
                 if (Owner && !(ColumnTypes[K]&COLUMN_FULLOWNER) && PanelMode!=PLUGIN_PANEL)
                 {
-                  const wchar_t* SlashPos=wcschr(Owner,L'\\');
-                  if(SlashPos)Owner=SlashPos+1;
+									const wchar_t* SlashPos=FirstSlash(Owner);
+                  if(SlashPos)
+										Owner=SlashPos+1;
                 }
                 int CurLeftPos=0;
                 if (!ShowStatus && LeftPos>0)
@@ -1172,13 +1164,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case NUMLINK_COLUMN:
               {
                 wchar_t OutStr[20];
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(CurPtr->NumberOfLinks,OutStr,10));
+								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(ListData[ListPos]->NumberOfLinks,OutStr,10));
               }
               break;
 						case NUMSTREAMS_COLUMN:
 							{
 								wchar_t OutStr[20];
-								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(CurPtr->NumberOfStreams,OutStr,10));
+								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(ListData[ListPos]->NumberOfStreams,OutStr,10));
 							}
 							break;
           }

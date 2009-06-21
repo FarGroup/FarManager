@@ -73,7 +73,7 @@ class CallBackStack
       string strSelTopic;         // текущее выделение
       string strHelpMask;         // маска
 
-      ListNode(const struct StackHelpData *Data, ListNode* n=NULL)
+			ListNode(const StackHelpData *Data, ListNode* n=NULL)
       {
         strHelpTopic=Data->strHelpTopic;
         strHelpPath=Data->strHelpPath;
@@ -101,8 +101,8 @@ class CallBackStack
     void ClearStack();
     BOOL isEmpty() const {return topOfStack==NULL;};
 
-    void Push(const struct StackHelpData *Data);
-    int Pop(struct StackHelpData *Data=NULL);
+		void Push(const StackHelpData *Data);
+		int Pop(StackHelpData *Data=NULL);
 
     void PrintStack(const wchar_t *Title);
 };
@@ -2053,7 +2053,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 		{
 			strType+=L"\\shell\\open\\command";
 			HKEY hKey;
-			if(RegOpenKeyExW(HKEY_CLASSES_ROOT,strType,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+			if(RegOpenKeyEx(HKEY_CLASSES_ROOT,strType,0,KEY_READ,&hKey) == ERROR_SUCCESS)
 			{
 				string strAction;
 				int Disposition=RegQueryStringValueEx(hKey,L"",strAction,L"");
@@ -2117,16 +2117,16 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
                 EditCode=1;
 #else
 							strAction=URLPath;
-							EditCode=ShellExecuteW(0, 0, RemoveExternalSpaces(strAction), 0, 0, SW_SHOWNORMAL)?1:2;
+							EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction), 0, 0, SW_SHOWNORMAL)?1:2;
 #endif
 						}
 						else
 						{
-							STARTUPINFOW si={0};
+							STARTUPINFO si={0};
 							PROCESS_INFORMATION pi={0};
 							si.cb=sizeof(si);
 							strAction+=URLPath;
-							if(!CreateProcessW(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+							if(!CreateProcess(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
 							{
 								EditCode=1;
 							}
@@ -2201,7 +2201,7 @@ void CallBackStack::ClearStack()
     Pop();
 }
 
-int CallBackStack::Pop(struct StackHelpData *Dest)
+int CallBackStack::Pop(StackHelpData *Dest)
 {
   if(!isEmpty())
   {
@@ -2225,7 +2225,7 @@ int CallBackStack::Pop(struct StackHelpData *Dest)
   return FALSE;
 }
 
-void CallBackStack::Push(const struct StackHelpData *Data)
+void CallBackStack::Push(const StackHelpData *Data)
 {
   topOfStack=new ListNode(Data,topOfStack);
 }

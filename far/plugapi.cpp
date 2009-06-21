@@ -279,21 +279,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
       return 0;//Opt.UseUnicodeConsole;
     }
 
-    /* $ 03.08.2000 SVS
-       получение строки с разделителями слов
-       Возвращает размер полученных данных без '\0'
-       Максимальный размер приемного буфера = 80 с заключительным '\0'
-       Строка выбирается не из реестра, а из Opt.
-    */
-    case ACTL_GETSYSWORDDIV:
-    {
-      int LenWordDiv=(int)Opt.strWordDiv.GetLength ();
-      /* $ 09.08.2000 tran
-       + if param==NULL, plugin хочет только узнать длину строки  */
-      if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
-        wcscpy((wchar_t *)Param,Opt.strWordDiv);
-      return LenWordDiv;
-    }
+		case ACTL_GETSYSWORDDIV:
+		{
+			if(Param)
+				wcscpy((wchar_t *)Param,Opt.strWordDiv);
+			return (int)Opt.strWordDiv.GetLength()+1;
+		}
 
     /* $ 24.08.2000 SVS
        ожидать определенную (или любую) клавишу
@@ -326,13 +317,13 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     */
     case ACTL_GETARRAYCOLOR:
     {
-      if(Param && !IsBadWritePtr(Param,SizeArrayPalette))
-        memmove(Param,Palette,SizeArrayPalette);
+			if(Param)
+				memcpy(Param,Palette,SizeArrayPalette);
       return SizeArrayPalette;
     }
 
     /*
-      Param=struct FARColor{
+      Param=FARColor{
         DWORD Flags;
         int StartIndex;
         int ColorItem;
@@ -341,14 +332,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     */
     case ACTL_SETARRAYCOLOR:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct FarSetColors)))
+			if(Param)
       {
-        struct FarSetColors *Pal=(struct FarSetColors*)Param;
+				FarSetColors *Pal=(FarSetColors*)Param;
         if(Pal->Colors &&
            Pal->StartIndex >= 0 &&
-           Pal->StartIndex+Pal->ColorCount <= SizeArrayPalette &&
-           !IsBadReadPtr(Pal->Colors,Pal->ColorCount)
-          )
+           Pal->StartIndex+Pal->ColorCount <= SizeArrayPalette)
         {
           memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorCount);
           if(Pal->Flags&FCLR_REDRAW)
@@ -376,7 +365,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 /*
       if(Param)
       {
-        struct ActlEjectMedia *aem=(struct ActlEjectMedia *)Param;
+				ActlEjectMedia *aem=(ActlEjectMedia *)Param;
         char DiskLetter[4]=" :\\";
         DiskLetter[0]=(char)aem->Letter;
         int DriveType = FAR_GetDriveType(DiskLetter,NULL,FALSE); // здесь не определяем тип CD
@@ -395,7 +384,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 /*
     case ACTL_GETMEDIATYPE:
     {
-      struct ActlMediaType *amt=(struct ActlMediaType *)Param;
+			ActlMediaType *amt=(ActlMediaType *)Param;
       char DiskLetter[4]=" :\\";
       DiskLetter[0]=(amt)?(char)amt->Letter:0;
       return FAR_GetDriveType(DiskLetter,NULL,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)?TRUE:FALSE));
@@ -409,7 +398,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
       if(CtrlObject && Param) // все зависит от этой бадяги.
       {
         KeyMacro& Macro=CtrlObject->Macro; //??
-        struct ActlKeyMacro *KeyMacro=(struct ActlKeyMacro*)Param;
+				ActlKeyMacro *KeyMacro=(ActlKeyMacro*)Param;
         switch(KeyMacro->Command)
         {
           case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
@@ -436,7 +425,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
           case MCMD_CHECKMACRO:  // проверка макроса
           {
-            struct MacroRecord CurMacro={0};
+						MacroRecord CurMacro={0};
             int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
             if(Ret)
             {
@@ -462,7 +451,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 #if 0
           case MCMD_COMPILEMACRO:
           {
-            struct MacroRecord CurMacro={0};
+						MacroRecord CurMacro={0};
             int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
             if(Ret)
             {
@@ -480,16 +469,16 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 
     case ACTL_POSTKEYSEQUENCE:
     {
-      if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
+      if(CtrlObject && Param && ((KeySequence*)Param)->Count > 0)
       {
-        struct MacroRecord MRec;
-        memset(&MRec,0,sizeof(struct MacroRecord));
-        MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
-        MRec.BufferSize=((struct KeySequence*)Param)->Count;
+				MacroRecord MRec;
+				memset(&MRec,0,sizeof(MacroRecord));
+				MRec.Flags=(((KeySequence*)Param)->Flags)<<8;
+				MRec.BufferSize=((KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)
-          MRec.Buffer=(DWORD *)(DWORD_PTR)((struct KeySequence*)Param)->Sequence[0];
+					MRec.Buffer=(DWORD *)(DWORD_PTR)((KeySequence*)Param)->Sequence[0];
         else
-          MRec.Buffer=((struct KeySequence*)Param)->Sequence;
+					MRec.Buffer=((KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
 #if 0
         // Этот кусок - для дальнейших экспериментов
@@ -523,7 +512,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
          thread safe window info */
     case ACTL_GETSHORTWINDOWINFO:
     {
-      if(FrameManager && Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
+			if(FrameManager && Param)
       {
         string strType, strName;
         WindowInfo *wi=(WindowInfo*)Param;
@@ -615,7 +604,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     case ACTL_GETDIALOGSETTINGS:
     {
       DWORD Options=0;
-      static struct Opt2Flags ODlg[]={
+			static Opt2Flags ODlg[]={
         {&Opt.Dialogs.EditHistory,FDIS_HISTORYINDIALOGEDITCONTROLS},
         {&Opt.Dialogs.EditBlock,FDIS_PERSISTENTBLOCKSINEDITCONTROLS},
         {&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
@@ -634,7 +623,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     case ACTL_GETSYSTEMSETTINGS:
     {
       DWORD Options=0;
-      static struct Opt2Flags OSys[]={
+			static Opt2Flags OSys[]={
         {&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
         {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
         {&Opt.CMOpt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
@@ -656,7 +645,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     case ACTL_GETPANELSETTINGS:
     {
       DWORD Options=0;
-      static struct Opt2Flags OSys[]={
+			static Opt2Flags OSys[]={
         {&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
         {&Opt.Highlight,FPS_HIGHLIGHTFILES},
         {&Opt.Tree.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
@@ -679,7 +668,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     case ACTL_GETINTERFACESETTINGS:
     {
       DWORD Options=0;
-      static struct Opt2Flags OSys[]={
+			static Opt2Flags OSys[]={
         {&Opt.Clock,FIS_CLOCKINPANELS},
         {&Opt.ViewerEditorClock,FIS_CLOCKINVIEWERANDEDITOR},
         {&Opt.Mouse,FIS_MOUSE},
@@ -698,7 +687,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     case ACTL_GETCONFIRMATIONS:
     {
       DWORD Options=0;
-      static struct Opt2Flags OSys[]={
+			static Opt2Flags OSys[]={
         {&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
         {&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
         {&Opt.Confirm.Drag,FCS_DRAGANDDROP},
@@ -800,7 +789,7 @@ int WINAPI FarMenuFn (
 
     if(Flags&FMENU_USEEXT)
     {
-      struct FarMenuItemEx *ItemEx=(struct FarMenuItemEx*)Item;
+			FarMenuItemEx *ItemEx=(FarMenuItemEx*)Item;
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
@@ -969,7 +958,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 }
 
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
-                       const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                       const wchar_t *HelpTopic, FarDialogItem *Item,
                        unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
                        FARWINDOWPROC DlgProc, LONG_PTR Param)
 {
@@ -978,10 +967,7 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2
   if (FrameManager->ManagerIsDown())
     return hDlg;
 
-  if (DisablePluginsOutput ||
-      ItemsNumber <= 0 ||
-      !Item ||
-      IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
+	if(DisablePluginsOutput || ItemsNumber <= 0 || !Item)
     return hDlg;
 
   // ФИЧА! нельзя указывать отрицательные X2 и Y2
@@ -1286,12 +1272,12 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
       Panel *LeftPanel=FPanels->LeftPanel;
       Panel *RightPanel=FPanels->RightPanel;
       int Processed=FALSE;
-      struct PluginHandle *PlHandle;
+			PluginHandle *PlHandle;
 
       if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
       {
-        PlHandle=(struct PluginHandle *)LeftPanel->GetPluginHandle();
-        if (PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
+				PlHandle=(PluginHandle *)LeftPanel->GetPluginHandle();
+				if(PlHandle)
         {
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
@@ -1303,8 +1289,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 
       if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
       {
-        PlHandle=(struct PluginHandle *)RightPanel->GetPluginHandle();
-        if (PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
+				PlHandle=(PluginHandle *)RightPanel->GetPluginHandle();
+				if(PlHandle)
         {
           hInternal=PlHandle->hPlugin;
           if (hPlugin==hInternal)
@@ -1395,9 +1381,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 
     case FCTL_GETCMDLINESELECTION:
     {
-      CmdLineSelect *sel=(CmdLineSelect*)Param2;
-      if(sel && !IsBadWritePtr(sel,sizeof(struct CmdLineSelect)))
+			if(Param2)
       {
+				CmdLineSelect *sel=(CmdLineSelect*)Param2;
         CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
         return TRUE;
       }
@@ -1406,9 +1392,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 
     case FCTL_SETCMDLINESELECTION:
     {
-      CmdLineSelect *sel=(CmdLineSelect*)Param2;
-      if(sel && !IsBadReadPtr(sel,sizeof(struct CmdLineSelect)))
+			if(Param2)
       {
+				CmdLineSelect *sel=(CmdLineSelect*)Param2;
         CmdLine->Select(sel->SelStart,sel->SelEnd);
         CmdLine->Redraw();
         return TRUE;
@@ -1428,7 +1414,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		{
 			PlHandle = (PluginHandle *)pPanel->GetPluginHandle();
 
-			if ( PlHandle && !IsBadReadPtr(PlHandle, sizeof(PluginHandle)) )
+			if(PlHandle)
 			{
 				if ( PlHandle->hPlugin == hPlugin )
 					return TRUE;
@@ -1545,7 +1531,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
 }
 
 
-static struct PluginPanelItem *PluginDirList;
+static PluginPanelItem *PluginDirList;
 static int DirListItemsNumber;
 static string strPluginSearchPath;
 static int StopSearch;
@@ -1570,7 +1556,7 @@ static void PR_FarGetPluginDirListMsg(void)
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
                                HANDLE hPlugin,
                                const wchar_t *Dir,
-                               struct PluginPanelItem **pPanelItem,
+                               PluginPanelItem **pPanelItem,
                                int *pItemsNumber)
 {
   if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
@@ -1580,7 +1566,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
     if (StrCmp(Dir,L".")==0 || TestParentFolderName(Dir))
       return FALSE;
 
-    static struct PluginHandle DirListPlugin;
+		static PluginHandle DirListPlugin;
 
     // А не хочет ли плагин посмотреть на текущую панель?
     if (hPlugin==INVALID_HANDLE_VALUE)
@@ -1592,7 +1578,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
       if (!Handle || Handle == INVALID_HANDLE_VALUE)
         return FALSE;
 
-      DirListPlugin=*((struct PluginHandle *)Handle);
+			DirListPlugin=*(PluginHandle *)Handle;
     }
     else
     {
@@ -1619,7 +1605,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
         *pItemsNumber=DirListItemsNumber=0;
         *pPanelItem=PluginDirList=NULL;
 
-        struct OpenPluginInfo Info;
+				OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&Info);
 
         string strPrevDir = Info.CurDir;
@@ -1640,7 +1626,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
           if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
             CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
 
-          struct OpenPluginInfo NewInfo;
+					OpenPluginInfo NewInfo;
           CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
           if ( StrCmpI (strPrevDir, NewInfo.CurDir) !=0 )
@@ -1720,7 +1706,7 @@ void ScanPluginDir()
 
 	if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
 		return;
-	struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
+	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
 	if (NewList==NULL)
 	{
 		StopSearch=TRUE;
@@ -1741,7 +1727,7 @@ void ScanPluginDir()
 				!TestParentFolderName(CurPanelItem->FindData.lpwszFileName))
 
 		{
-			struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
+			PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
 			if (NewList==NULL)
 			{
 				StopSearch=TRUE;

@@ -71,14 +71,14 @@ enum FARRECORDTYPE{
 struct RECHEADER{         // заголовок рекорда
   DWORD TypeRec;          // Тип записи
   DWORD SizeRec;          // Размер структуры
-  struct RECHEADER *Next; // Следующий элемент в списке
+	RECHEADER *Next; // Следующий элемент в списке
   // Data                 // Данные размером SizeRec
 };
 
 struct SYSINFOHEADER{     // информация о системе
   DWORD TypeRec;          // Тип записи = RTYPE_SYSINFO
-  DWORD SizeRec;          // Размер данных = sizeof(struct DUMPHEADER)-sizeof(WORD)*2
-  struct RECHEADER *Next; // Следующий элемент в списке
+  DWORD SizeRec;          // Размер данных = sizeof(DUMPHEADER)-sizeof(WORD)*2
+	RECHEADER *Next; // Следующий элемент в списке
   DWORD DumpFlags;        // дополнительные флаги (пока =0)
   DWORD FARVersion;       // версия FAR Manager в формате FAR_VERSION
   SYSTEMTIME DumpTime;    // the system time is expressed in Coordinated Universal Time (UTC))
@@ -115,7 +115,7 @@ struct PLUGINRECORD{      // информация о плагине
 struct EXCEPTIONRECORD{   // про исключение
   DWORD TypeRec;          // Тип записи = RTYPE_EXCEPTION
   DWORD SizeRec;          // Размер данных
-  struct RECHEADER *Next; // Следующий элемент в списке
+	RECHEADER *Next; // Следующий элемент в списке
 
   EXCEPTION_POINTERS *Exception;
 };
@@ -123,7 +123,7 @@ struct EXCEPTIONRECORD{   // про исключение
 struct MACRORECORD{       // Макросы
   DWORD TypeRec;          // Тип записи = RTYPE_MACRO
   DWORD SizeRec;          // Размер
-  struct RECHEADER *Next; // Следующий элемент в списке
+	RECHEADER *Next; // Следующий элемент в списке
   WORD  MacroStatus;      // 0 - не в режиме макро, 1 - Recording, 2 - Executing
   WORD  MacroPos;         // текущая позиция в MacroKeyBuffer
   DWORD MacroFlags;       // флаги - младшее слово = MACRO_AREA
@@ -135,7 +135,7 @@ struct MACRORECORD{       // Макросы
 struct FARAREARECORD{     // "где мы сейчас находимся?"
   DWORD TypeRec;          // Тип записи = RTYPE_FARAREA
   DWORD SizeRec;          // Размер данных
-  struct RECHEADER *Next; // Следующий элемент в списке
+	RECHEADER *Next; // Следующий элемент в списке
   DWORD ObjectType;       // то, что возвращает CtrlObject->Cp()->GetType()
   COORD ScrWH;            // размеры экрана - ширина, высота
 };
@@ -148,7 +148,7 @@ enum {
 struct RAWDARARECORD{     // произвольные данные
   DWORD TypeRec;          // Тип записи = RTYPE_RAWDARA
   DWORD SizeRec;          // Размер данных
-  struct RECHEADER *Next; // Следующий элемент в списке
+	RECHEADER *Next; // Следующий элемент в списке
   DWORD RawFlags;         // Дополнительные флаги для расширябильности :-)
   DWORD RawType;          // Тип данных = RAWTYPE_BINARY, RAWTYPE_TEXT
   DWORD SizeData;         // Размер произвольных данных
@@ -183,7 +183,7 @@ struct FARExceptionState {
   const char         *RootKey;
 
   //FAR error context
-  struct RECHEADER   *Head;
+	RECHEADER   *Head;
 };
 
 #if defined(__GNUC__)
@@ -231,7 +231,7 @@ enum ExceptFunctionsType{
   EXCEPT_PROCESSDIALOGEVENT,
 };
 
-typedef BOOL (WINAPI *FARPROCESSEVENT)(struct FARExceptionState * Context);
+typedef BOOL (WINAPI *FARPROCESSEVENT)(FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp=NULL,

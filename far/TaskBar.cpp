@@ -4,7 +4,7 @@ TaskBar.cpp
 Windows 7 taskbar support
 */
 /*
-Copyright (c) 2000 Far Group
+Copyright (c) 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

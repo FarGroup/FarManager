@@ -119,7 +119,7 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
 
 
-Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
+Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
                unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                LONG_PTR InitParam)             // Ассоцированные с диалогом данные
@@ -142,7 +142,7 @@ Dialog::Dialog(struct DialogItemEx *SrcItem,    // Набор элементов диалога
 	Init(DlgProc, InitParam);
 }
 
-Dialog::Dialog(struct FarDialogItem *SrcItem,    // Набор элементов диалога
+Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
                unsigned SrcItemCount,              // Количество элементов
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                LONG_PTR InitParam)             // Ассоцированные с диалогом данные
@@ -183,7 +183,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	FocusPos=(unsigned)-1;
 	PrevFocusPos=(unsigned)-1;
 
-	if(!DlgProc || IsBadCodePtr((FARPROC)DlgProc)) // функция должна быть всегда!!!
+	if(!DlgProc) // функция должна быть всегда!!!
 	{
 		DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
 		// знать диалог в старом стиле - учтем этот факт!
@@ -381,7 +381,7 @@ void Dialog::ProcessCenterGroup(void)
 
   int Length,StartX;
   int Type;
-  struct DialogItemEx *CurItem, *JCurItem;
+	DialogItemEx *CurItem, *JCurItem;
   DWORD ItemFlags;
 
   for (unsigned I=0; I < ItemCount; I++)
@@ -495,7 +495,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
   unsigned I, J;
   int Type;
-  struct DialogItemEx *CurItem;
+	DialogItemEx *CurItem;
   unsigned InitItemCount;
   DWORD ItemFlags;
 
@@ -773,7 +773,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
       if (Type==DI_COMBOBOX && CurItem->strData.IsEmpty () && CurItem->ListItems)
       {
-        struct FarListItem *ListItems=CurItem->ListItems->Items;
+				FarListItem *ListItems=CurItem->ListItems->Items;
         unsigned Length=CurItem->ListItems->ItemsNumber;
 
         //CurItem->ListPtr->AddItem(CurItem->ListItems);
@@ -826,7 +826,7 @@ const wchar_t *Dialog::GetDialogTitle()
 {
   CriticalSectionLock Lock(CS);
 
-  struct DialogItemEx *CurItem, *CurItemList=NULL;
+	DialogItemEx *CurItem, *CurItemList=NULL;
 
   for(unsigned I=0; I < ItemCount; I++)
   {
@@ -853,7 +853,7 @@ const wchar_t *Dialog::GetDialogTitle()
   return NULL; //""
 }
 
-void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
+void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -872,7 +872,7 @@ void Dialog::ProcessLastHistory (struct DialogItemEx *CurItem, int MsgIndex)
 			{
 				// обработка DM_SETHISTORY => надо пропустить изменение текста через
 				// диалоговую функцию
-				struct FarDialogItemData IData;
+				FarDialogItemData IData;
 				IData.PtrData=(wchar_t *)(const wchar_t *)strData;
 				IData.PtrLength=(int)strData.GetLength();
 				Dialog::SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
@@ -946,7 +946,7 @@ BOOL Dialog::GetItemRect(unsigned I,RECT& Rect)
   if(I >= ItemCount)
     return FALSE;
 
-  struct DialogItemEx *CurItem=Item[I];
+	DialogItemEx *CurItem=Item[I];
   DWORD ItemFlags=CurItem->Flags;
   int Type=CurItem->Type;
   int Len=0;
@@ -1055,7 +1055,7 @@ void Dialog::DeleteDialogObjects()
 {
   CriticalSectionLock Lock(CS);
 
-  struct DialogItemEx *CurItem;
+	DialogItemEx *CurItem;
 
   for (unsigned I=0; I < ItemCount; I++)
   {
@@ -1098,7 +1098,7 @@ void Dialog::GetDialogObjectsData()
   CriticalSectionLock Lock(CS);
 
   int Type;
-  struct DialogItemEx *CurItem;
+	DialogItemEx *CurItem;
 
   for (unsigned I=0; I < ItemCount; I++)
   {
@@ -1429,7 +1429,7 @@ void Dialog::ShowDialog(unsigned ID)
   string strStr;
   wchar_t *lpwszStr;
 
-  struct DialogItemEx *CurItem;
+	DialogItemEx *CurItem;
   int X,Y;
   unsigned I,DrawItemCount;
   DWORD Attr;
@@ -1648,12 +1648,12 @@ void Dialog::ShowDialog(unsigned ID)
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
         {
-          //MessageBoxW (0, strStr, strStr, MB_OK);
+          //MessageBox(0, strStr, strStr, MB_OK);
           Text(strStr);
         }
         else
         {
-          //MessageBoxW (0, strStr, strStr, MB_OK);
+          //MessageBox(0, strStr, strStr, MB_OK);
           HiText(strStr,HIBYTE(LOWORD(Attr)));
         }
         break;
@@ -1842,7 +1842,7 @@ void Dialog::ShowDialog(unsigned ID)
         {
           //   Перед отрисовкой спросим об изменении цветовых атрибутов
           BYTE RealColors[VMENU_COLOR_COUNT];
-          struct FarListColors ListColors={0};
+					FarListColors ListColors={0};
           ListColors.ColorCount=VMENU_COLOR_COUNT;
           ListColors.Colors=RealColors;
 
@@ -3276,7 +3276,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Dialog::ProcessOpenComboBox(int Type,struct DialogItemEx *CurItem, unsigned CurFocusPos)
+int Dialog::ProcessOpenComboBox(int Type,DialogItemEx *CurItem, unsigned CurFocusPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -3667,7 +3667,7 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
   }
 }
 
-static size_t ItemStringAndSize(struct DialogItemEx *Data,string& ItemString)
+static size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
 {
 	//TODO: тут видимо надо сделать поумнее
 	ItemString=Data->strData;
@@ -3683,7 +3683,7 @@ static size_t ItemStringAndSize(struct DialogItemEx *Data,string& ItemString)
 	return sz;
 }
 
-static void ConvertItemSmall(struct FarDialogItem *Item,struct DialogItemEx *Data)
+static void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
 {
 	Item->Type = Data->Type;
 	Item->X1 = Data->X1;
@@ -3701,8 +3701,8 @@ static void ConvertItemSmall(struct FarDialogItem *Item,struct DialogItemEx *Dat
 
 bool Dialog::ConvertItemEx (
         CVTITEMFLAGS FromPlugin,
-        struct FarDialogItem *Item,
-        struct DialogItemEx *Data,
+				FarDialogItem *Item,
+				DialogItemEx *Data,
         unsigned Count
         )
 {
@@ -3771,7 +3771,7 @@ bool Dialog::ConvertItemEx (
 	return true;
 }
 
-size_t Dialog::ConvertItemEx2(struct FarDialogItem *Item,struct DialogItemEx *Data)
+size_t Dialog::ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 {
 	size_t size=sizeof(*Item);
 	string str;
@@ -3790,7 +3790,7 @@ size_t Dialog::ConvertItemEx2(struct FarDialogItem *Item,struct DialogItemEx *Da
 	return size;
 }
 
-void Dialog::DataToItemEx(struct DialogDataEx *Data,struct DialogItemEx *Item,int Count)
+void Dialog::DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
 {
   int I;
 
@@ -3892,8 +3892,8 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
   }
   else
   {
-    struct FarListItem *ListItems=((struct FarList *)HistoryName)->Items;
-    int Count=((struct FarList *)HistoryName)->ItemsNumber;
+		FarListItem *ListItems=((FarList *)HistoryName)->Items;
+		int Count=((FarList *)HistoryName)->ItemsNumber;
 
     for (I=0; I < Count ;I++)
     {
@@ -3913,7 +3913,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
    Заполняем выпадающий список для ComboBox
 */
 int Dialog::SelectFromComboBox(
-         struct DialogItemEx *CurItem,
+         DialogItemEx *CurItem,
          DlgEdit *EditLine,                   // строка редактирования
          VMenu *ComboBox)    // список строк
 {
@@ -3934,7 +3934,7 @@ int Dialog::SelectFromComboBox(
 		SetComboBoxPos();
     // Перед отрисовкой спросим об изменении цветовых атрибутов
     BYTE RealColors[VMENU_COLOR_COUNT];
-    struct FarListColors ListColors={0};
+    FarListColors ListColors={0};
     ListColors.ColorCount=VMENU_COLOR_COUNT;
     ListColors.Colors=RealColors;
     ComboBox->SetColors(NULL);
@@ -3993,7 +3993,7 @@ int Dialog::SelectFromComboBox(
         //  Очень медленная реакция!
         if(EditLine->GetDropDownBox())
         {
-          struct MenuItem *CurCBItem=ComboBox->GetItemPtr();
+          MenuItem *CurCBItem=ComboBox->GetItemPtr();
           EditLine->SetString(CurCBItem->Name);
           EditLine->Show();
           //EditLine->FastShow();
@@ -4045,7 +4045,7 @@ int Dialog::SelectFromComboBox(
 /* Private:
    Заполняем выпадающий список из истории
 */
-BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
+BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
                                    const wchar_t *HistoryName,
                                    string &strIStr)
@@ -4137,7 +4137,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
 
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       BYTE RealColors[VMENU_COLOR_COUNT];
-      struct FarListColors ListColors={0};
+			FarListColors ListColors={0};
       ListColors.ColorCount=VMENU_COLOR_COUNT;
       ListColors.Colors=RealColors;
       HistoryMenu.GetColors(&ListColors);
@@ -4350,18 +4350,18 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
     int  Locked;
   } *His,*HisTemp;
 
-  His=(struct HistArray*)xf_malloc(Opt.DialogsHistoryCount*sizeof(struct HistArray));
+	His=(HistArray*)xf_malloc(Opt.DialogsHistoryCount*sizeof(HistArray));
   if (!His)
     return FALSE;
-  HisTemp=(struct HistArray*)xf_malloc((Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
+	HisTemp=(HistArray*)xf_malloc((Opt.DialogsHistoryCount+1)*sizeof(HistArray));
   if (!HisTemp)
   {
     xf_free(His);
     return FALSE;
   }
 
-  memset(His,0,Opt.DialogsHistoryCount*sizeof(struct HistArray));
-  memset(HisTemp,0,(Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
+	memset(His,0,Opt.DialogsHistoryCount*sizeof(HistArray));
+	memset(HisTemp,0,(Opt.DialogsHistoryCount+1)*sizeof(HistArray));
 
   string strLine, strLocked;
   // Read content & delete
@@ -4661,7 +4661,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
 {
   CriticalSectionLock Lock(CS);
 
-  struct DialogItemEx *CurItem;
+	DialogItemEx *CurItem;
   int x1,x2,y1,y2;
 
   if(!DialogMode.Check(DMODE_CREATEOBJECTS))
@@ -4925,7 +4925,7 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
 
   CriticalSectionLock Lock(Dlg->CS);
 
-  struct DialogItemEx *CurItem=NULL;
+	DialogItemEx *CurItem=NULL;
   int Type=0;
 
   switch(Msg)
@@ -5297,7 +5297,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_GETDLGRECT:
     {
-      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
+			if(Param2)
       {
         int x1,y1,x2,y2;
         Dlg->GetPosition(x1,y1,x2,y2);
@@ -5370,7 +5370,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   }
 
   /*****************************************************************/
-  struct DialogItemEx *CurItem=NULL;
+	DialogItemEx *CurItem=NULL;
   int Type=0;
   size_t Len=0;
   // предварительно проверим...
@@ -5405,9 +5405,9 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
     case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
     case DM_LISTGETDATA: // Param1=ID Param2=Index
-    case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
-    case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
-    case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+		case DM_LISTSETDATA: // Param1=ID Param2=FarListItemData
+		case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+		case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
     case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=FARLISTMOUSEREACTIONTYPE Ret=OldSets
     case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
@@ -5423,7 +5423,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           {
             case DM_LISTINFO:// Param1=ID Param2=FarListInfo
             {
-              return ListBox->GetVMenuInfo((struct FarListInfo*)Param2);
+							return ListBox->GetVMenuInfo((FarListInfo*)Param2);
             }
 
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
@@ -5438,9 +5438,8 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
             {
-              return ListBox->FindItem(((struct FarListFind *)Param2)->StartIndex,
-                                       ((struct FarListFind *)Param2)->Pattern,
-                                       ((struct FarListFind *)Param2)->Flags);
+							FarListFind* lf=reinterpret_cast<FarListFind*>(Param2);
+							return ListBox->FindItem(lf->StartIndex,lf->Pattern,lf->Flags);
             }
 
             case DM_LISTADDSTR: // Param1=ID Param2=String
@@ -5452,7 +5451,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
             {
-              struct FarList *ListItems=(struct FarList *)Param2;
+							FarList *ListItems=(FarList *)Param2;
               if(!ListItems)
                 return FALSE;
               Ret=ListBox->AddItem(ListItems);
@@ -5463,7 +5462,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
             {
               int Count;
-              struct FarListDelete *ListItems=(struct FarListDelete *)Param2;
+							FarListDelete *ListItems=(FarListDelete *)Param2;
               if(!ListItems || (Count=ListItems->Count) <= 0)
                 ListBox->DeleteItems();
               else
@@ -5473,7 +5472,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
             {
-              if((Ret=ListBox->InsertItem((struct FarListInsert *)Param2)) == -1)
+							if((Ret=ListBox->InsertItem((FarListInsert *)Param2)) == -1)
                 return -1;
               ListBox->AdjustSelectPos();
               break;
@@ -5481,22 +5480,22 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTUPDATE: // Param1=ID Param2=FarListUpdate: Index=Index, Items=Src
             {
-              if(Param2 && ListBox->UpdateItem((struct FarListUpdate *)Param2))
+							if(Param2 && ListBox->UpdateItem((FarListUpdate *)Param2))
                 break;
               return FALSE;
             }
 
             case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
             {
-              struct FarListGetItem *ListItems=(struct FarListGetItem *)Param2;
+							FarListGetItem *ListItems=(FarListGetItem *)Param2;
               if(!ListItems)
                 return FALSE;
               MenuItemEx *ListMenuItem;
               if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != NULL)
               {
                 //ListItems->ItemIndex=1;
-                struct FarListItem *Item=&ListItems->Item;
-                memset(Item,0,sizeof(struct FarListItem));
+								FarListItem *Item=&ListItems->Item;
+								memset(Item,0,sizeof(FarListItem));
                 Item->Flags=ListMenuItem->Flags;
 
                 Item->Text=ListMenuItem->strName;
@@ -5523,9 +5522,9 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               return 0;
             }
 
-            case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
+						case DM_LISTSETDATA: // Param1=ID Param2=FarListItemData
             {
-              struct FarListItemData *ListItems=(struct FarListItemData *)Param2;
+							FarListItemData *ListItems=(FarListItemData *)Param2;
               if(ListItems &&
                  ListItems->Index < ListBox->GetItemCount())
               {
@@ -5545,7 +5544,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             */
             case DM_LISTSET: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
             {
-              struct FarList *ListItems=(struct FarList *)Param2;
+							FarList *ListItems=(FarList *)Param2;
               if(!ListItems)
                 return FALSE;
               ListBox->DeleteItems();
@@ -5555,31 +5554,15 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             }
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
 
-            case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles
+						case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles
             {
-              struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
-
-              string strTitle;
-              string strBottomTitle;
-
-
-              if ( ListTitle )
-                strTitle = ListTitle->Title;
-              else
-                strTitle = L"";
-
-              if ( ListTitle )
-                strBottomTitle = ListTitle->Bottom;
-              else
-                strBottomTitle = L"";
-
-
-              ListBox->SetTitle(strTitle);
-              ListBox->SetBottomTitle(strBottomTitle);
-              break;   //return TRUE;
+							FarListTitles *ListTitle=(FarListTitles *)Param2;
+							ListBox->SetTitle(ListTitle->Title);
+							ListBox->SetBottomTitle(ListTitle->Bottom);
+							break;   //return TRUE;
             }
 
-						case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
+						case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles
 						{
 							if(Param2)
 							{
@@ -5605,17 +5588,14 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
             case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
             {
-              if (Param2)
-                return ListBox->GetSelectPos((struct FarListPos *)Param2);
-              else
-                return ListBox->GetSelectPos();
+							return Param2?ListBox->GetSelectPos((FarListPos *)Param2):ListBox->GetSelectPos();
             }
 
             case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
             {
               /* 26.06.2001 KM Подадим перед изменением позиции об этом сообщение */
               int CurListPos=ListBox->GetSelectPos();
-              Ret=ListBox->SetSelectPos((struct FarListPos *)Param2);
+							Ret=ListBox->SetSelectPos((FarListPos *)Param2);
               if(Ret!=CurListPos)
                 if(!Dlg->CallDlgProc(DN_LISTCHANGE,Param1,Ret))
                   Ret=ListBox->SetSelectPos(CurListPos,1);
@@ -5794,16 +5774,16 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_GETEDITPOSITION:
     {
-      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct EditorSetPosition)) && IsEdit(Type))
+			if(Param2 && IsEdit(Type))
       {
         if(Type == DI_MEMOEDIT)
         {
-          //EditorControl(ECTL_GETINFO,(struct EditorSetPosition *)Param2);
+					//EditorControl(ECTL_GETINFO,(EditorSetPosition *)Param2);
           return TRUE;
         }
         else
         {
-          struct EditorSetPosition *esp=(struct EditorSetPosition *)Param2;
+					EditorSetPosition *esp=(EditorSetPosition *)Param2;
           DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
           esp->CurLine=0;
           esp->CurPos=EditPtr->GetCurPos();
@@ -5820,16 +5800,16 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     case DM_SETEDITPOSITION:
     {
-      if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct EditorSetPosition)) && IsEdit(Type))
+			if(Param2 && IsEdit(Type))
       {
         if(Type == DI_MEMOEDIT)
         {
-          //EditorControl(ECTL_SETPOSITION,(struct EditorSetPosition *)Param2);
+					//EditorControl(ECTL_SETPOSITION,(EditorSetPosition *)Param2);
           return TRUE;
         }
         else
         {
-          struct EditorSetPosition *esp=(struct EditorSetPosition *)Param2;
+					EditorSetPosition *esp=(EditorSetPosition *)Param2;
           DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
           EditPtr->SetCurPos(esp->CurPos);
           EditPtr->SetTabCurPos(esp->CurTabPos);
@@ -6063,9 +6043,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DM_GETTEXTPTR:
       if(Param2)
       {
-        struct FarDialogItemData IData;
-        IData.PtrData=(wchar_t *)Param2;
-        IData.PtrLength=0;
+				FarDialogItemData IData={0,(wchar_t *)Param2};
         return Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(LONG_PTR)&IData);
       }
 
@@ -6073,7 +6051,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DM_GETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер
       {
-        struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
+        FarDialogItemData *did=(FarDialogItemData*)Param2;
         Len=0;
         switch(Type)
         {
@@ -6195,9 +6173,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(!Param2)
         return 0;
 
-      struct FarDialogItemData IData;
-      IData.PtrData=(wchar_t *)Param2;
-      IData.PtrLength=StrLength(IData.PtrData);
+			FarDialogItemData IData={StrLength((wchar_t *)Param2),(wchar_t *)Param2};
       return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
     }
 
@@ -6207,7 +6183,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2)
       {
         int NeedInit=TRUE;
-        struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
+				FarDialogItemData *did=(FarDialogItemData*)Param2;
         switch(Type)
         {
           case DI_MEMOEDIT:
@@ -6286,7 +6262,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             VMenu *ListBox=CurItem->ListPtr;
             if(ListBox)
             {
-              struct FarListUpdate LUpdate;
+							FarListUpdate LUpdate;
               LUpdate.Index=ListBox->GetSelectPos();
               MenuItemEx *ListMenuItem=ListBox->GetItemPtr(LUpdate.Index);
               if(ListMenuItem)
@@ -6349,12 +6325,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
 		{
-			if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
+			if(Param2)
 			{
-				if(Dialog::ConvertItemEx(CVTITEM_TOPLUGINSHORT,(struct FarDialogItem *)Param2,CurItem,1))
+				if(Dialog::ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
 				{
 					if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
-						((struct FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
+						((FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
 					return TRUE;
 				}
 			}
@@ -6365,7 +6341,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		case DM_SETDLGITEM:
 		case DM_SETDLGITEMSHORT:
 		{
-			if(!Param2 || IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)))
+			if(!Param2)
 				return FALSE;
 			if(Type != ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
 				return FALSE;
@@ -6490,7 +6466,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     /*****************************************************************/
     // получить позицию и размеры контрола
     case DM_GETITEMPOSITION: // Param1=ID, Param2=*SMALL_RECT
-      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
+			if(Param2)
       {
         RECT Rect;
         if(Dlg->GetItemRect(Param1,Rect))
@@ -6548,28 +6524,25 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       {
         if(Msg == DM_GETSELECTION)
         {
-          if(!IsBadWritePtr((void*)Param2,sizeof(struct EditorSelect)))
-          {
-            struct EditorSelect *EdSel=(struct EditorSelect *)Param2;
-            DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
-            EdSel->BlockStartLine=0;
-            EdSel->BlockHeight=1;
-            EditLine->GetSelection(EdSel->BlockStartPos,EdSel->BlockWidth);
-            if(EdSel->BlockStartPos == -1 && EdSel->BlockWidth==0)
-              EdSel->BlockType=BTYPE_NONE;
-            else
-            {
-              EdSel->BlockType=BTYPE_STREAM;
-              EdSel->BlockWidth-=EdSel->BlockStartPos;
-            }
-            return TRUE;
-          }
+					EditorSelect *EdSel=(EditorSelect *)Param2;
+					DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
+					EdSel->BlockStartLine=0;
+					EdSel->BlockHeight=1;
+					EditLine->GetSelection(EdSel->BlockStartPos,EdSel->BlockWidth);
+					if(EdSel->BlockStartPos == -1 && EdSel->BlockWidth==0)
+						EdSel->BlockType=BTYPE_NONE;
+					else
+					{
+						EdSel->BlockType=BTYPE_STREAM;
+						EdSel->BlockWidth-=EdSel->BlockStartPos;
+					}
+					return TRUE;
         }
         else
         {
-          if(!IsBadReadPtr((void*)Param2,sizeof(struct EditorSelect)))
+					if(Param2)
           {
-            struct EditorSelect *EdSel=(struct EditorSelect *)Param2;
+						EditorSelect *EdSel=(EditorSelect *)Param2;
             DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
             //EdSel->BlockType=BTYPE_STREAM;
             //EdSel->BlockStartLine=0;

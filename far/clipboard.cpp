@@ -57,7 +57,7 @@ static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
     }
     return 0;
   }
-  return RegisterClipboardFormatW(lpszFormat);
+	return RegisterClipboardFormat(lpszFormat);
 }
 
 

@@ -86,7 +86,7 @@ int WINAPI GetSearchReplaceString (
 12   +--------------------------------------------------------------------+
 13
 */
-    static struct DialogDataEx ReplaceDlgData[]={
+		static DialogDataEx ReplaceDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(const wchar_t *)MEditReplaceTitle,
     /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
@@ -208,7 +208,7 @@ int WINAPI GetSearchReplaceString (
 09   |                       [ Search ]  [ Cancel ]                       |
 10   +--------------------------------------------------------------------+
 */
-    static struct DialogDataEx SearchDlgData[]={
+		static DialogDataEx SearchDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MEditSearchTitle,
     /*  1 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSearchFor,
     /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
@@ -357,7 +357,7 @@ int WINAPI GetString(
   bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
   int offset=addCheckBox?2:0;
 
-  static struct DialogDataEx StrDlgData[]=
+	static DialogDataEx StrDlgData[]=
   {
 /*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
                                       Selected               Data
@@ -496,7 +496,7 @@ int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string 
 |8   +---------------------------------------------------------------------+   |
 |9                                                                             |
 */
-  static struct DialogDataEx PassDlgData[]=
+	static DialogDataEx PassDlgData[]=
   {
 /* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,L"",
 /* 1 */ DI_TEXT,       5, 2, 0, 2,0,0,0,0,L"",

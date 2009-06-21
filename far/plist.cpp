@@ -102,11 +102,11 @@ void ShowProcessList()
           if (ProcWnd!=NULL)
           {
             wchar_t *lpwszTitle=0;
-            int LenTitle=GetWindowTextLengthW(ProcWnd);
+						int LenTitle=GetWindowTextLength(ProcWnd);
             if (LenTitle)
             {
               lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
-              if (lpwszTitle!=NULL && (LenTitle=GetWindowTextW(ProcWnd,lpwszTitle,LenTitle+1)))
+							if (lpwszTitle!=NULL && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
                 lpwszTitle[LenTitle]=0;
             }
             DWORD ProcID;
@@ -145,12 +145,12 @@ void ShowProcessList()
       // Allow SetForegroundWindow on Win98+.
       DWORD dwMs;
       // Remember the current value.
-      BOOL bSPI = SystemParametersInfoW(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
+			BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
       if(bSPI) // Reset foreground lock timeout
-        bSPI = SystemParametersInfoW(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+				bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
       SetForegroundWindow(ProcWnd);
       if(bSPI) // Restore old value
-        SystemParametersInfoW(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
+				SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
 
       WINDOWPLACEMENT wp;
       wp.length=sizeof(wp);
@@ -187,15 +187,15 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
   VMenu *ProcList=(VMenu *)lParam;
   if (IsWindowVisible(hwnd) ||
-      (IsIconic(hwnd) && (GetWindowLongW(hwnd,GWL_STYLE) & WS_DISABLED)==0))
+			(IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0))
   {
-    int LenTitle=GetWindowTextLengthW(hwnd);
+		int LenTitle=GetWindowTextLength(hwnd);
     if (LenTitle)
     {
       wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
       if (lpwszTitle!=NULL)
       {
-        if ((LenTitle=GetWindowTextW(hwnd,lpwszTitle,LenTitle+1))!=0)
+				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1))!=0)
         {
           lpwszTitle[LenTitle]=0;
           MenuItemEx ListItem;

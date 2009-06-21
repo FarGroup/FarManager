@@ -48,7 +48,7 @@ int ColumnTypeWidth[]={ 0,  6,  6,  8,  5,  14,  14,  14,  6,  0,  0,  3,  3,  6
 
 static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA",L"A",L"Z",L"O",L"LN",L"F",L"G",L"C0",L"C1",L"C2",L"C3",L"C4",L"C5",L"C6",L"C7",L"C8",L"C9"};
 
-struct PanelViewSettings ViewSettingsArray[]=
+PanelViewSettings ViewSettingsArray[]=
 {
 /* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH}},
 /* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}},
@@ -72,7 +72,7 @@ void FileList::SetFilePanelModes()
   }
   while (1)
   {
-    struct MenuDataEx ModeListMenu[]=
+		MenuDataEx ModeListMenu[]=
     {
       (const wchar_t *)MEditPanelModesBrief,0,0,
       (const wchar_t *)MEditPanelModesMedium,0,0,
@@ -99,7 +99,7 @@ void FileList::SetFilePanelModes()
       return;
     CurMode=ModeNumber;
 
-    static struct DialogDataEx ModeDlgData[]=
+		static DialogDataEx ModeDlgData[]=
     {
     /* 00 */DI_DOUBLEBOX, 3, 1,72,16,0,0,0,0,L"",
     /* 01 */DI_TEXT,      5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditPanelModeTypes,
@@ -134,7 +134,7 @@ void FileList::SetFilePanelModes()
     else
       ModeNumber++;
 
-    struct PanelViewSettings NewSettings=ViewSettingsArray[ModeNumber];
+		PanelViewSettings NewSettings=ViewSettingsArray[ModeNumber];
 
     ModeDlg[11].Selected=NewSettings.FullScreen;
     ModeDlg[12].Selected=NewSettings.AlignExtensions;
@@ -203,7 +203,7 @@ void FileList::ReadPanelModes()
     if ( strColumnTitles.IsEmpty() || strColumnWidths.IsEmpty() )
       continue;
 
-    struct PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
+		PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
 
     if ( !strColumnTitles.IsEmpty() )
       TextToViewSettings(strColumnTitles,strColumnWidths,NewSettings.ColumnType,
@@ -232,7 +232,7 @@ void FileList::SavePanelModes()
     string strColumnTitles, strColumnWidths;
     string strStatusColumnTitles, strStatusColumnWidths, strRegKey;
     strRegKey.Format (L"Panel\\ViewModes\\Mode%d",I);
-    struct PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
+		PanelViewSettings NewSettings=ViewSettingsArray[VIEW_0+I];
     ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,NewSettings.ColumnWidthType,
         NewSettings.ColumnCount,strColumnTitles,strColumnWidths);
     ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,

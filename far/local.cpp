@@ -104,7 +104,7 @@ wchar_t __cdecl Upper(wchar_t Ch)
 {
     wchar_t Buf = Ch;
 
-    CharUpperBuffW (&Buf, 1);
+		CharUpperBuff(&Buf, 1);
 
     return Buf;
 }
@@ -114,14 +114,14 @@ wchar_t __cdecl Lower(wchar_t Ch)
 {
     wchar_t Buf = Ch;
 
-    CharLowerBuffW (&Buf, 1);
+		CharLowerBuff(&Buf, 1);
 
     return Buf;
 }
 
 int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 {
-	return CompareStringW (
+	return CompareString(
 			0,
 			NORM_IGNORECASE,
 			s1,
@@ -133,7 +133,7 @@ int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 
 int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
-	return CompareStringW (
+	return CompareString(
 			0,
 			NORM_IGNORECASE,
 			s1,
@@ -146,7 +146,7 @@ int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
 
 int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 {
-	return CompareStringW (
+	return CompareString(
 			0,
 			0,
 			s1,
@@ -158,7 +158,7 @@ int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 
 int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
 {
-	return CompareStringW (
+	return CompareString(
 			0,
 			0,
 			s1,
@@ -265,34 +265,34 @@ int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2)
 
 int __cdecl IsUpper(wchar_t Ch)
 {
-    return IsCharUpperW(Ch);
+		return IsCharUpper(Ch);
 }
 
 int __cdecl IsLower(wchar_t Ch)
 {
-    return IsCharLowerW(Ch);
+		return IsCharLower(Ch);
 }
 
 int __cdecl IsAlpha(wchar_t Ch)
 {
-    return IsCharAlphaW(Ch);
+		return IsCharAlpha(Ch);
 }
 
 int __cdecl IsAlphaNum(wchar_t Ch)
 {
-    return IsCharAlphaNumericW(Ch);
+		return IsCharAlphaNumeric(Ch);
 }
 
 
 void __cdecl UpperBuf(wchar_t *Buf, int Length)
 {
-    CharUpperBuffW(Buf, Length);
+		CharUpperBuff(Buf, Length);
 }
 
 
 void __cdecl LowerBuf(wchar_t *Buf,int Length)
 {
-    CharLowerBuffW(Buf, Length);
+		CharLowerBuff(Buf, Length);
 }
 
 void __cdecl StrUpper(wchar_t *s1)

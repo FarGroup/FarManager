@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
-struct Options Opt;// BUG !! ={0};
+Options Opt;// BUG !! ={0};
 
 // Стандартный набор разделителей
 static const wchar_t *WordDiv0 = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
@@ -108,7 +108,7 @@ void SystemSettings()
 {
   const wchar_t *HistoryName=L"PersPath";
 
-  struct DialogDataEx CfgDlgData[]={
+	DialogDataEx CfgDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigSystemTitle,
   /* 01 */ DI_CHECKBOX, 5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigRO,
   /* 02 */ DI_CHECKBOX, 5, 3, 0, 3,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigRecycleBin,
@@ -225,7 +225,7 @@ void PanelSettings()
 		DLG_PANEL_CANCEL
 	};
 
-  static struct DialogDataEx CfgDlgData[]={
+	static DialogDataEx CfgDlgData[]={
   /* 00 */DI_DOUBLEBOX, 3, 1,52,21,0,0,0,0,(const wchar_t *)MConfigPanelTitle,
   /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigHidden,
   /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigHighlight,
@@ -340,7 +340,7 @@ void InterfaceSettings()
 		DLG_INTERF_CANCEL
 	};
 
-  static struct DialogDataEx CfgDlgData[]={
+	static DialogDataEx CfgDlgData[]={
   /* 00 */DI_DOUBLEBOX, 3, 1,54,16,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigClock,
   /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
@@ -483,7 +483,7 @@ void DialogSettings()
 
 void SetConfirmations()
 {
-  static struct DialogDataEx ConfDlgData[]={
+	static DialogDataEx ConfDlgData[]={
   /* 00 */DI_DOUBLEBOX,  3, 1,46,16,0,0,0,0,(const wchar_t *)MSetConfirmTitle,
   /* 01 */DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MSetConfirmCopy,
   /* 02 */DI_CHECKBOX,   5, 3, 0, 3,0,0,0,0,(const wchar_t *)MSetConfirmMove,
@@ -540,7 +540,7 @@ void SetConfirmations()
 
 void SetDizConfig()
 {
-  static struct DialogDataEx DizDlgData[]=
+	static DialogDataEx DizDlgData[]=
   {
   /* 00 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MCfgDizTitle,
   /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MCfgDizListNames,
@@ -594,7 +594,7 @@ void SetDizConfig()
       Opt.Diz.UpdateMode=DIZ_UPDATE_ALWAYS;
 }
 
-void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
+void ViewerConfig(ViewerOptions &ViOpt,int Local)
 {
   enum enumViewerConfig {
       ID_VC_TITLE,
@@ -616,7 +616,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
       ID_VC_CANCEL
   };
 
-  static struct DialogDataEx CfgDlgData[]={
+	static DialogDataEx CfgDlgData[]={
 	/*  0 */  DI_DOUBLEBOX,  3, 1,70,14,0,0,0,0,(const wchar_t *)MViewConfigTitle,
 	/*  1 */  DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MViewConfigExternalF3,
 	/*  2 */  DI_TEXT,       5, 3, 0, 3,0,0,0,0,(const wchar_t *)MViewConfigExternalCommand,
@@ -703,7 +703,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
     ViOpt.TabSize=8;
 }
 
-void EditorConfig(struct EditorOptions &EdOpt,int Local)
+void EditorConfig(EditorOptions &EdOpt,int Local)
 {
   enum enumEditorConfig {
     ID_EC_TITLE,
@@ -733,7 +733,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     ID_EC_CANCEL
   };
 
-  static struct DialogDataEx CfgDlgData[]={
+	static DialogDataEx CfgDlgData[]={
 	/*  0 */  DI_DOUBLEBOX, 3, 1,70,21,0,0,0,0,(const wchar_t *)MEditConfigTitle,
 	/*  1 */  DI_CHECKBOX,  5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditConfigEditorF4,
 	/*  2 */  DI_TEXT,      5, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,

@@ -97,21 +97,21 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
      static string strFarEventSvc;
      if(GetRegKey(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
      {
-       HMODULE m = LoadLibraryW(strFarEventSvc);
+				HMODULE m = LoadLibrary(strFarEventSvc);
        if (m)
        {
          typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
-                                                const struct PLUGINRECORD *Module,
-                                                const struct PluginStartupInfo *LocalStartupInfo,
+                                                const PLUGINRECORD *Module,
+                                                const PluginStartupInfo *LocalStartupInfo,
                                                 LPDWORD Result);
 
          ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
 
          if (p)
          {
-           static struct PluginStartupInfo LocalStartupInfo;
+					static PluginStartupInfo LocalStartupInfo;
            memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
-           static struct FarStandardFunctions LocalStandardFunctions;
+					static FarStandardFunctions LocalStandardFunctions;
            memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
 
            CreatePluginStartupInfo (NULL, &LocalStartupInfo, &LocalStandardFunctions);
@@ -121,13 +121,13 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
            strRootKey = Opt.strRegRoot;
            LocalStartupInfo.RootKey=strRootKey;
 
-           static struct PLUGINRECORD PlugRec;
+						static PLUGINRECORD PlugRec;
            if (Module)
            {
              memset(&PlugRec,0,sizeof(PlugRec));
 
              PlugRec.TypeRec=RTYPE_PLUGIN;
-             PlugRec.SizeRec=sizeof(struct PLUGINRECORD);
+							PlugRec.SizeRec=sizeof(PLUGINRECORD);
 
              PlugRec.ModuleName=Module->GetModuleName();
 

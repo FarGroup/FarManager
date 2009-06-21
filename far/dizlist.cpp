@@ -157,9 +157,9 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 void DizList::AddRecord(const wchar_t *DizText)
 {
-  struct DizRecord *NewDizData=DizData;
+	DizRecord *NewDizData=DizData;
   if ((DizCount & 15)==0)
-    NewDizData=(struct DizRecord *)xf_realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
+		NewDizData=(DizRecord *)xf_realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
 
   if (NewDizData!=NULL)
   {
@@ -239,7 +239,7 @@ int DizList::GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos
   if (DizData==NULL)
     return(-1);
 
-  struct DizRecord *DizRecordAddr;
+	DizRecord *DizRecordAddr;
   int *DestIndex;
   SearchDizData=DizData;
   DestIndex=(int *)bsearch((const wchar_t*)strQuotedName,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);

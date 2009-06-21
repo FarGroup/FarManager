@@ -247,7 +247,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 {
   DestList.SetParameters(0,0,ULF_UNIQUE);
   /* IS $ */
-  struct CopyDlgParam CDP;
+	CopyDlgParam CDP;
 
   string strCopyStr;
   string strSelNameShort, strSelName;
@@ -338,7 +338,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   const wchar_t *HistoryName=L"Copy";
   /* $ 03.08.2001 IS добавим новую опцию: мультикопирование */
-  static struct DialogDataEx CopyDlgData[]={
+	static DialogDataEx CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(wchar_t *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,        5, 2, 0, 2,0,0,0,0,(wchar_t *)MCMLTargetTO,
   /* 02 */  DI_EDIT,        5, 3,70, 3,1,(DWORD_PTR)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,L"",
@@ -568,7 +568,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         break;
       case PLUGIN_PANEL:
         {
-          struct OpenPluginInfo Info;
+					OpenPluginInfo Info;
           DestPanel->GetOpenPluginInfo(&Info);
 
           string strFormat = Info.Format;
@@ -610,32 +610,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Link) // рулесы по поводу линков (предварительные!)
   {
-/*
-    if(((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
-    {
-      CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
-      CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
-    }
-*/
     // задисаблим опцию про копирование права.
     CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
-
-/*
-    int SelectedSymLink=CopyDlg[ID_SC_ONLYNEWER].Selected;
-    if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
-      SelectedSymLink=1;
-    if(!LinkRules(&CopyDlg[ID_SC_BTNCOPY].Flags,
-                  &CopyDlg[ID_SC_ONLYNEWER].Flags,
-                  &SelectedSymLink,
-                  strSrcDir,
-                  CopyDlg[ID_SC_TARGETEDIT].strData,
-                  &CDP))
-      return;
-
-    CopyDlg[ID_SC_ONLYNEWER].Selected=SelectedSymLink;
-*/
   }
 
   RemoveTrailingSpaces(CopyDlg[ID_SC_SOURCEFILENAME].strData);
@@ -1136,8 +1114,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   #define DM_CALLTREE (DM_USER+1)
   #define DM_SWITCHRO (DM_USER+2)
 
-  struct CopyDlgParam *DlgParam;
-  DlgParam=(struct CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+	CopyDlgParam *DlgParam=(CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
   switch(Msg)
   {
@@ -1235,18 +1212,8 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         DItemBtnCopy = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0));
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
-        // Это создание линка?
-        if((DlgParam->thisClass->Flags)&FCOPY_LINK)
-        {
-/* пока отключим
-          DlgParam->thisClass->LinkRules(&DItemBtnCopy->Flags,
-                    &DItemOnlyNewer->Flags,
-                    &DItemOnlyNewer->Param.Selected,
-                    strTmpSrcDir,
-                    ((FarDialogItem *)Param2)->PtrData,DlgParam);
-*/
-        }
-        else // обычные Copy/Move
+				// не создание линка, обычные Copy/Move
+				if(!(DlgParam->thisClass->Flags&FCOPY_LINK))
         {
           string strBuf = ((FarDialogItem *)Param2)->PtrData;
           strBuf.Upper();
@@ -1323,7 +1290,7 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
       string strOldFolder;
       int nLength;
-      struct FarDialogItemData Data;
+			FarDialogItemData Data;
 
       nLength = (int)Dialog::SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
 
@@ -1404,152 +1371,6 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
-
-
-
-BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
-                         const wchar_t *SrcDir,const wchar_t *DstDir,struct CopyDlgParam *CDP)
-{
-// пока отключим
-#if 0
-  string strRoot;
-  *Flags9|=DIF_DISABLE; // дисаблим сразу!
-  *Flags5|=DIF_DISABLE;
-
-  if(DstDir && DstDir[0] == L'\\' && DstDir[1] == L'\\')
-  {
-    *Selected5=0;
-    return TRUE;
-  }
-  // _SVS(SysLog(L"\n---"));
-  // получаем полную инфу о источнике и приемнике
-  if(CDP->IsDTSrcFixed == -1)
-  {
-    string strFSysNameSrc;
-    strRoot = SrcDir;
-
-    Unquote(strRoot);
-    ConvertNameToFull(strRoot, strRoot);
-    GetPathRoot(strRoot,strRoot);
-    // _SVS(SysLog(L"SrcDir=%s",SrcDir));
-    // _SVS(SysLog(L"Root=%s",Root));
-    CDP->IsDTSrcFixed=FAR_GetDriveType(strRoot);
-    CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
-                      IsDriveTypeCDROM(CDP->IsDTSrcFixed);
-    apiGetVolumeInformation(strRoot,NULL,NULL,NULL,&CDP->FileSystemFlagsSrc,&strFSysNameSrc);
-    CDP->FSysNTFS=!StrCmpI(strFSysNameSrc,L"NTFS")?TRUE:FALSE;
-    // _SVS(SysLog(L"FSysNameSrc=%s",FSysNameSrc));
-  }
-
-  /*
-  С сетевого на локаль - имеем задисабленную [ ] Symbolic link.
-  С локали на сетевой  - происходит удачная попытка
-  */
-  // 1. если источник находится не на логическом диске
-  if(CDP->IsDTSrcFixed || CDP->FSysNTFS)
-  {
-    string strFSysNameDst;
-    DWORD FileSystemFlagsDst;
-
-    strRoot = DstDir;
-    Unquote(strRoot);
-
-    ConvertNameToFull(strRoot,strRoot);
-    GetPathRoot(strRoot,strRoot);
-		if(apiGetFileAttributes(strRoot) == INVALID_FILE_ATTRIBUTES)
-      return TRUE;
-
-    //GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
-    // 3. если приемник находится не на логическом диске
-    CDP->IsDTDstFixed=FAR_GetDriveType(strRoot);
-    CDP->IsDTDstFixed=CDP->IsDTDstFixed == DRIVE_FIXED || IsDriveTypeCDROM(CDP->IsDTSrcFixed);
-    apiGetVolumeInformation(strRoot,NULL,NULL,NULL,&FileSystemFlagsDst,&strFSysNameDst);
-    int SameDisk=IsSameDisk(SrcDir,DstDir);
-    int IsHardLink=(!CDP->FolderPresent && CDP->FilesPresent && SameDisk && (CDP->IsDTDstFixed || !StrCmpI(strFSysNameDst,L"NTFS")));
-    // 4. если источник находится на логическом диске, отличном от NTFS
-    if((!IsHardLink && (CDP->IsDTDstFixed || !StrCmpI(strFSysNameDst,L"NTFS"))) || IsHardLink)
-    {
-      if(CDP->SelCount == 1)
-      {
-        if(CDP->FolderPresent) // Folder?
-        {
-          // . если источник находится на логическом диске NTFS, но не поддерживающим repase point
-          if((CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
-             (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS) &&
-//    ! заблокирована возможность создавать симлинки с локали на сеть -
-//      все равно в такой каталог не ввалишь (то биш, бага была)
-             CDP->IsDTDstFixed && CDP->IsDTSrcFixed)
-          {
-            *Flags5 &=~ DIF_DISABLE;
-            // это проверка на вшивость, когда на делаем линк на каталог на другом
-            // диске и... сняли галку с симлинка.
-            if(*Selected5 || (!*Selected5 && SameDisk))
-               *Flags9 &=~ DIF_DISABLE;
-
-            if(!CDP->IsDTDstFixed && SameDisk)
-            {
-              *Selected5=0;
-              *Flags5 |= DIF_DISABLE;
-              *Flags9 &=~ DIF_DISABLE;
-            }
-          }
-          else if(SameDisk)
-          {
-            *Selected5=0;
-            *Flags9 &=~ DIF_DISABLE;
-          }
-          else
-          {
-            *Selected5=0;
-//            *Flags9 &=~ DIF_DISABLE;
-          }
-        }
-        else if(SameDisk)// && CDP->FSysNTFS) // это файл!
-        {
-          *Selected5=0;
-          *Flags9 &=~ DIF_DISABLE;
-        }
-      }
-      else
-      {
-        if(CDP->FolderPresent)
-        {
-          if(FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS)
-          {
-            *Flags5 &=~ DIF_DISABLE;
-            if(!CDP->FilesPresent)
-            {
-              *Flags9 &=~ DIF_DISABLE;
-            }
-
-            if(!CDP->IsDTDstFixed && SameDisk)
-            {
-              *Selected5=0;
-              *Flags5 |= DIF_DISABLE;
-              *Flags9 &=~ DIF_DISABLE;
-            }
-          }
-
-          if(CDP->FilesPresent && SameDisk)// && CDP->FSysNTFS)
-          {
-//            *Selected5=0;
-            *Flags9 &=~ DIF_DISABLE;
-          }
-        }
-        else if(SameDisk)// && CDP->FSysNTFS) // это файл!
-        {
-          *Selected5=0;
-          *Flags9 &=~ DIF_DISABLE;
-        }
-      }
-    }
-  }
-  else
-    return FALSE;
-#endif
-  return TRUE;
-}
-
 
 ShellCopy::~ShellCopy()
 {
@@ -3212,13 +3033,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     string strDriveRoot;
     GetPathRoot(SrcName,strDriveRoot);
     DWORD VolFlags=0;
-    GetVolumeInformationW(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+		GetVolumeInformation(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
     CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
     if(CopySparse)
     {
 			GetPathRoot(strDestName,strDriveRoot);
       VolFlags=0;
-      GetVolumeInformationW(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+			GetVolumeInformation(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
       CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
       if(CopySparse)
       {
@@ -4107,7 +3928,7 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
-  BOOL RetSec=GetFileSecurityW(FileName,si,sd,SDDATA_SIZE,&Needed);
+	BOOL RetSec=GetFileSecurity(FileName,si,sd,SDDATA_SIZE,&Needed);
   int LastError=GetLastError();
   if (!RetSec)
   {
@@ -4129,7 +3950,7 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
 int ShellCopy::SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa)
 {
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
-  BOOL RetSec=SetFileSecurityW(FileName,si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
+	BOOL RetSec=SetFileSecurity(FileName,si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
 
   int LastError=GetLastError();
 

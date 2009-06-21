@@ -231,13 +231,13 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
 
-	int nSize = GetShortPathNameW (strCopy, NULL, 0);
+	int nSize = GetShortPathName(strCopy, NULL, 0);
 
 	if ( nSize )
 	{
 		wchar_t *lpwszDest = strDest.GetBuffer (nSize);
 
-		GetShortPathNameW (strCopy, lpwszDest, nSize);
+		GetShortPathName(strCopy, lpwszDest, nSize);
 
 		strDest.ReleaseBuffer ();
 	}
@@ -251,13 +251,13 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
 
-	int nSize = GetLongPathNameW (strCopy, NULL, 0);
+	int nSize = GetLongPathName(strCopy, NULL, 0);
 
 	if ( nSize )
 	{
 		wchar_t *lpwszDest = strDest.GetBuffer (nSize);
 
-		GetLongPathNameW (strCopy, lpwszDest, nSize);
+		GetLongPathName(strCopy, lpwszDest, nSize);
 
 		strDest.ReleaseBuffer ();
 	}
@@ -277,12 +277,12 @@ void ConvertNameToUNC(string &strFileName)
 		strFileSystemName=L"";
 
 	DWORD uniSize = 1024;
-	UNIVERSAL_NAME_INFOW *uni=(UNIVERSAL_NAME_INFOW*)xf_malloc(uniSize);
+	UNIVERSAL_NAME_INFO *uni=(UNIVERSAL_NAME_INFO*)xf_malloc(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
 	if (StrCmpI(strFileSystemName,L"NWFS"))
 	{
-		DWORD dwRet=WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
+		DWORD dwRet=WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
 		switch(dwRet)
 		{
 		case NO_ERROR:
@@ -290,7 +290,7 @@ void ConvertNameToUNC(string &strFileName)
 			break;
 		case ERROR_MORE_DATA:
 			uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
-			if(WNetGetUniversalNameW(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+			if(WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
 				strFileName = uni->lpUniversalName;
 			break;
 		}

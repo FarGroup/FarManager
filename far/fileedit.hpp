@@ -199,8 +199,8 @@ public:
     void SetPluginData(const wchar_t *PluginData);
     const wchar_t *GetPluginData(void){return (const wchar_t*)strPluginData;};
 
-    void GetEditorOptions(struct EditorOptions& EdOpt);
-    void SetEditorOptions(struct EditorOptions& EdOpt);
+		void GetEditorOptions(EditorOptions& EdOpt);
+		void SetEditorOptions(EditorOptions& EdOpt);
 
     bool LoadFromCache (EditorCacheParams *pp);
     void SaveToCache ();

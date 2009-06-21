@@ -185,7 +185,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 			InitDetectWindowedMode();
 		if (hFarWnd)
 		{
-			PostMessageW(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+			PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);
 		}

@@ -250,7 +250,7 @@ PluginType IsModulePlugin (const wchar_t *lpModuleName)
 
 	if ( hModuleFile != INVALID_HANDLE_VALUE )
 	{
-		HANDLE hModuleMapping = CreateFileMappingW (
+		HANDLE hModuleMapping = CreateFileMapping(
 				hModuleFile,
 				NULL,
 				PAGE_READONLY,
@@ -1556,7 +1556,7 @@ bool PluginManager::SetHotKeyDialog(
 ¦ _                                                      ¦
 L========================================================-
 */
-	static struct DialogDataEx PluginDlgData[]=
+	static DialogDataEx PluginDlgData[]=
 	{
 		/* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(const wchar_t *)MPluginHotKeyTitle,
 		/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MPluginHotKey,

@@ -141,7 +141,7 @@ static struct TreeListCache
   }
 
   //TODO: необходимо оптимизировать!
-  void Copy(struct TreeListCache *Dest)
+	void Copy(TreeListCache *Dest)
   {
     Dest->Clean();
     for(int I=0; I < TreeCount; I++)
@@ -241,8 +241,7 @@ void TreeList::DisplayTree(int Fast)
 		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
 	};
 
-  int I,J,K;
-  struct TreeItem *CurPtr;
+	TreeItem *CurPtr;
 
   string strTitle;
   LockScreen *LckScreen=NULL;
@@ -266,7 +265,7 @@ void TreeList::DisplayTree(int Fast)
       Text(strTitle);
     }
   }
-  for (I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
+  for (int I=Y1+1,J=CurTopFile;I<Y2-2-(ModalMode!=0);I++,J++)
   {
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
@@ -282,9 +281,9 @@ void TreeList::DisplayTree(int Fast)
       else
       {
         string strOutStr;
-        for (K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
+				for(int i=0;i<CurPtr->Depth-1 && WhereX()+3*i<X2-6;i++)
         {
-          strOutStr+=TreeLineSymbol[CurPtr->Last[K]?0:1];
+          strOutStr+=TreeLineSymbol[CurPtr->Last[i]?0:1];
         }
         strOutStr+=TreeLineSymbol[CurPtr->Last[CurPtr->Depth-1]?2:3];
         BoxText(strOutStr);
@@ -295,7 +294,7 @@ void TreeList::DisplayTree(int Fast)
       }
     }
     SetColor(COL_PANELTEXT);
-    if ((K=WhereX())<X2)
+		if(WhereX()<X2)
       mprintf(L"%*s",X2-WhereX(),L"");
   }
   if (Opt.ShowPanelScrollbar)
@@ -375,7 +374,7 @@ void TreeList::Update(int Mode)
   {
     SyncDir();
 
-    struct TreeItem *CurPtr=ListData[CurFile];
+		TreeItem *CurPtr=ListData[CurFile];
 		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
     {
       DelTreeName(CurPtr->strName);
@@ -421,7 +420,7 @@ int TreeList::ReadTree()
     xf_free(ListData);
   }
   TreeCount=0;
-  if ((ListData=(struct TreeItem**)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem*)))==NULL)
+	if((ListData=(TreeItem**)xf_malloc((TreeCount+256+1)*sizeof(TreeItem*)))==NULL)
   {
     RestoreState();
     return FALSE;
@@ -919,7 +918,7 @@ int TreeList::ProcessKey(int Key)
 
         if (ToPlugin==1)
         {
-          struct PluginPanelItem *ItemList=new PluginPanelItem[1];
+					PluginPanelItem *ItemList=new PluginPanelItem[1];
           int ItemNumber=1;
           HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 
@@ -1323,7 +1322,7 @@ void TreeList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::ProcessEnter()
 {
-  struct TreeItem *CurPtr;
+	TreeItem *CurPtr;
   DWORD Attr;
   CurPtr=ListData[CurFile];
 	if ((Attr=apiGetFileAttributes(CurPtr->strName))!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
@@ -1799,15 +1798,9 @@ int TreeList::GoToFile(const wchar_t *Name,BOOL OnlyPartName)
 
 long TreeList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 {
-  long I;
-  struct TreeItem *CurPtr;
-
-  for (I=0; I < TreeCount; I++)
+	for(long I=0;I<TreeCount;I++)
   {
-  	CurPtr=ListData[I];
-    const wchar_t *CurPtrName=CurPtr->strName;
-    if(OnlyPartName)
-      CurPtrName=PointToName(CurPtr->strName);
+		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.CPtr();
 
     if (StrCmp(Name,CurPtrName)==0)
       return I;
@@ -1826,16 +1819,11 @@ long TreeList::FindFirst(const wchar_t *Name)
 
 long TreeList::FindNext(int StartPos, const wchar_t *Name)
 {
-  int I;
-  struct TreeItem *CurPtr;
-
   if((DWORD)StartPos < (DWORD)TreeCount)
-    for( I=StartPos; I < TreeCount; I++)
+		for(int I=StartPos; I < TreeCount; I++)
     {
-      CurPtr=ListData[I];
-      const wchar_t *CurPtrName=CurPtr->strName;
-      if (CmpName(Name,CurPtrName,TRUE))
-        if (!TestParentFolderName(CurPtrName))
+			if(CmpName(Name,ListData[I]->strName,TRUE))
+				if(!TestParentFolderName(ListData[I]->strName))
           return I;
     }
   return -1;
@@ -1856,12 +1844,12 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
 
 int _cdecl SortList(const void *el1,const void *el2)
 {
-  string strName1=((struct TreeItem **)el1)[0]->strName;
-  string strName2=((struct TreeItem **)el2)[0]->strName;
+	const wchar_t *Name1=((TreeItem **)el1)[0]->strName;
+	const wchar_t *Name2=((TreeItem **)el2)[0]->strName;
   if(!StaticSortNumeric)
-    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):StrCmpI(strName1,strName2));
+		return(StaticSortCaseSensitive ? TreeCmp(Name1,Name2):StrCmpI(Name1,Name2));
   else
-    return(StaticSortCaseSensitive ? TreeCmp(strName1,strName2):NumStrCmpI(strName1,strName2));
+		return(StaticSortCaseSensitive ? TreeCmp(Name1,Name2):NumStrCmpI(Name1,Name2));
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
@@ -1938,10 +1926,9 @@ void TreeList::KillFocus()
 {
   if (CurFile<TreeCount)
   {
-    struct TreeItem *CurPtr=ListData[CurFile];
-		if (apiGetFileAttributes(CurPtr->strName)==INVALID_FILE_ATTRIBUTES)
+		if (apiGetFileAttributes(ListData[CurFile]->strName)==INVALID_FILE_ATTRIBUTES)
     {
-      DelTreeName(CurPtr->strName);
+			DelTreeName(ListData[CurFile]->strName);
       Update(UPDATE_KEEP_SELECTION);
     }
   }
@@ -1988,16 +1975,14 @@ void TreeList::SetTitle()
   if (GetFocus())
   {
     string strTitleDir; //BUGBUG
-    const wchar_t *Ptr=L"";
-    if(ListData)
-    {
-      struct TreeItem *CurPtr=ListData[CurFile];
-      Ptr=CurPtr->strName;
-    }
-    if (*Ptr)
-      strTitleDir.Format (L"{%s - Tree}",Ptr);
-    else
-      strTitleDir = L"{Tree}";
+		const wchar_t *Ptr=ListData?ListData[CurFile]->strName:L"";
+		strTitleDir=L"{";
+		if (*Ptr)
+		{
+			strTitleDir+=Ptr;
+			strTitleDir+=L" - ";
+		}
+		strTitleDir+= L"Tree}";
 
     strLastFarTitle = strTitleDir;
     SetFarTitle(strTitleDir);
@@ -2116,7 +2101,7 @@ bool TreeList::RestoreState()
   }
   TreeCount=WorkDir=0;
   ListData=NULL;
-  if(SaveTreeCount > 0 && (ListData=(struct TreeItem **)xf_realloc_nomove(ListData,SaveTreeCount*sizeof(struct TreeItem*))) != NULL)
+	if(SaveTreeCount > 0 && (ListData=(TreeItem **)xf_realloc_nomove(ListData,SaveTreeCount*sizeof(TreeItem*))) != NULL)
   {
     for (int i=0; i<SaveTreeCount; i++)
     {

@@ -67,7 +67,7 @@ WCHAR Oem2Unicode[256];
 
 static void __Create_CONOUT()
 {
-  hConOut=CreateFileW(LCONOUT,GENERIC_READ|GENERIC_WRITE,
+	hConOut=CreateFile(LCONOUT,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
   ScrBuf.SetHandle(hConOut);
@@ -75,7 +75,7 @@ static void __Create_CONOUT()
 
 static void __Create_CONIN()
 {
-    hConInp=CreateFileW(LCONIN,GENERIC_READ|GENERIC_WRITE,
+		hConInp=CreateFile(LCONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 }
 
@@ -186,7 +186,7 @@ void SetFarTitle(const wchar_t *Title)
 				((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
 				!CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()) )
 		{
-			SetConsoleTitleW (strFarTitle);
+			SetConsoleTitle(strFarTitle);
 			TitleModified=FALSE;
 		}
 	}
@@ -197,7 +197,7 @@ void SetFarTitle(const wchar_t *Title)
 			SetFarTitle(NULL) - это не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
-		SetConsoleTitleW (strFarTitle);
+		SetConsoleTitle(strFarTitle);
 		TitleModified=FALSE;
 		//_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
 	}
@@ -258,14 +258,14 @@ void ChangeVideoMode(int Maximized)
   COORD coordScreen;
   if (Maximized)
   {
-    SendMessageW(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
+		SendMessage(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
     coordScreen = GetLargestConsoleWindowSize(hConOut);
     coordScreen.X+=Opt.ScrSize.DeltaXY.X;
     coordScreen.Y+=Opt.ScrSize.DeltaXY.Y;
   }
   else
   {
-    SendMessageW(hFarWnd,WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
+		SendMessage(hFarWnd,WM_SYSCOMMAND,SC_RESTORE,(LPARAM)0);
     coordScreen = InitScreenBufferInfo.dwSize;
   }
   ChangeVideoMode(coordScreen.Y,coordScreen.X);
@@ -393,7 +393,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
   Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?csbi.dwSize.X:Sx;
   Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?csbi.dwSize.Y:Sy;
 //_SVS(SysLog(L"[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
-  WriteConsoleInputW(hConInp,&Rec,1,&Writes);
+	WriteConsoleInput(hConInp,&Rec,1,&Writes);
 }
 
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
@@ -1026,7 +1026,7 @@ void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Right=X2;
   Coord.Bottom=Y2;
 
-  WriteConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
+	WriteConsoleOutput(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
 }
 
 
@@ -1056,7 +1056,7 @@ void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Right=X2;
   Coord.Bottom=Y2;
 
-  ReadConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
+	ReadConsoleOutput(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
 }
 
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)

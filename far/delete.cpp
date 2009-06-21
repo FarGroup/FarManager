@@ -745,7 +745,7 @@ DWORD SHErrorToWinError(DWORD SHError)
 
 int RemoveToRecycleBin(const wchar_t *Name)
 {
-  SHFILEOPSTRUCTW fop;
+	SHFILEOPSTRUCT fop;
   string strFullName;
   ConvertNameToFull(Name, strFullName);
 
@@ -776,7 +776,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
   fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
-  DWORD RetCode=SHFileOperationW(&fop);
+	DWORD RetCode=SHFileOperation(&fop);
   DWORD RetCode2=RetCode;
 
   strFullName.ReleaseBuffer();
@@ -802,7 +802,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 		lpwszName = strFullNameAlt.GetBuffer (strFullNameAlt.GetLength()+2);
 		lpwszName[strFullNameAlt.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 		fop.pFrom=lpwszName;
-    RetCode=SHFileOperationW(&fop);
+		RetCode=SHFileOperation(&fop);
 		strFullNameAlt.ReleaseBuffer();
   }
   #endif
@@ -852,7 +852,7 @@ int WipeFile(const wchar_t *Name)
 
   FarMkTempEx(strTempName,NULL,FALSE);
 
-  if(MoveFileW(Name,strTempName))
+	if(MoveFile(Name,strTempName))
 		return(apiDeleteFile(strTempName)); //BUGBUG
   SetLastError((_localLastError = GetLastError()));
   return FALSE;
@@ -872,7 +872,7 @@ int WipeDirectory(const wchar_t *Name)
   FarMkTempEx(strTempName,NULL,usePath);
   Opt.strTempPath = strSavePath;
 
-  if(!MoveFileW(Name, strTempName))
+	if(!MoveFile(Name, strTempName))
   {
     SetLastError((_localLastError = GetLastError()));
     return FALSE;

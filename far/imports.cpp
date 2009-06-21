@@ -42,10 +42,10 @@ void ImportedFunctions::Load()
 {
 	memset(this,0,sizeof(*this));
 
-	HMODULE hNtdll = GetModuleHandleW (L"ntdll.dll");
-	HMODULE hKernel = GetModuleHandleW (L"kernel32.dll");
-	HMODULE hShell = GetModuleHandleW (L"shell32.dll");
-	HMODULE hSetupAPI = LoadLibraryW (L"setupapi.dll");
+	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
+	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
+	HMODULE hShell = GetModuleHandle(L"shell32.dll");
+	HMODULE hSetupAPI = LoadLibrary(L"setupapi.dll");
 
 	if (hSetupAPI)
 	{

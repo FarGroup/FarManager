@@ -944,7 +944,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         int Res;
         for(int I=0; I < ItemCount; ++I)
         {
-          struct MenuItemEx *_item=GetItemPtr(I);
+					MenuItemEx *_item=GetItemPtr(I);
 
           if(_item->Flags&LIF_HIDDEN) //???
             continue;
@@ -1636,8 +1636,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 {
   CriticalSectionLock Lock(CS);
 
-  struct FarList FarList0;
-  struct FarListItem FarListItem0;
+	FarListItem FarListItem0;
 
   memset(&FarListItem0,0,sizeof(FarListItem0));
   if(!NewStrItem || NewStrItem[0] == 0x1)
@@ -1649,27 +1648,26 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
   {
     FarListItem0.Text=NewStrItem;
   }
-  FarList0.ItemsNumber=1;
-  FarList0.Items=&FarListItem0;
+	FarList FarList0={1,&FarListItem0};
   return VMenu::AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
 }
 
-int VMenu::AddItem(const struct FarList *List)
+int VMenu::AddItem(const FarList *List)
 {
   CriticalSectionLock Lock(CS);
 
   if(List && List->Items)
   {
     MenuItemEx MItem;
-    struct FarListItem *FItem=List->Items;
-
-    for (int J=0; J < List->ItemsNumber; J++, ++FItem)
-      AddItem(FarList2MenuItem(FItem,&MItem));
+		for(int i=0;i<List->ItemsNumber;i++)
+		{
+			AddItem(FarList2MenuItem(&List->Items[i],&MItem));
+		}
   }
   return ItemCount;
 }
 
-int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
+int VMenu::UpdateItem(const FarListUpdate *NewItem)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1703,7 +1701,7 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
   return FALSE;
 }
 
-int VMenu::InsertItem(const struct FarListInsert *NewItem)
+int VMenu::InsertItem(const FarListInsert *NewItem)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1811,11 +1809,11 @@ void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
   return(PtrData);
 }
 
-struct FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
+FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
 {
   if(FItem && MItem)
   {
-    memset(FItem,0,sizeof(struct FarListItem));
+		memset(FItem,0,sizeof(FarListItem));
     FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
 
     FItem->Text=MItem->strName;
@@ -1824,7 +1822,7 @@ struct FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem
   return NULL;
 }
 
-struct MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem,
+MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem,
                                          MenuItemEx *MItem)
 {
   if(FItem && MItem)
@@ -1840,7 +1838,7 @@ struct MenuItemEx *VMenu::FarList2MenuItem(const FarListItem *FItem,
 }
 
 // получить позицию курсора и верхнюю позицию итема
-int VMenu::GetSelectPos(struct FarListPos *ListPos)
+int VMenu::GetSelectPos(FarListPos *ListPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -1861,7 +1859,7 @@ void VMenu::SetMaxHeight(int NewMaxHeight)
 }
 
 // установить курсор и верхний итем
-int VMenu::SetSelectPos(struct FarListPos *ListPos)
+int VMenu::SetSelectPos(FarListPos *ListPos)
 {
   CriticalSectionLock Lock(CS);
 
@@ -2143,7 +2141,7 @@ void VMenu::SetSelection(int Selection,int Position)
 }
 
 // Функция GetItemPtr - получить указатель на нужный Item.
-struct MenuItemEx *VMenu::GetItemPtr(int Position)
+MenuItemEx *VMenu::GetItemPtr(int Position)
 {
   CriticalSectionLock Lock(CS);
 
@@ -2152,14 +2150,14 @@ struct MenuItemEx *VMenu::GetItemPtr(int Position)
   return Item[GetItemPosition(Position)];
 }
 
-wchar_t VMenu::GetHighlights(const struct MenuItemEx *_item)
+wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
 {
   CriticalSectionLock Lock(CS);
 
   wchar_t Ch=0;
   if(_item)
   {
-    const wchar_t *Name=((struct MenuItemEx *)_item)->strName;
+		const wchar_t *Name=((MenuItemEx *)_item)->strName;
     const wchar_t *ChPtr=wcschr(Name,L'&');
 
     if (ChPtr || _item->AmpPos > -1)
@@ -2273,7 +2271,7 @@ void VMenu::AssignHighlights(int Reverse)
   VMFlags.Clear(VMENU_SHOWAMPERSAND);
 }
 
-void VMenu::SetColors(struct FarListColors *Colors)
+void VMenu::SetColors(FarListColors *Colors)
 {
   CriticalSectionLock Lock(CS);
 
@@ -2409,7 +2407,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
   }
 }
 
-void VMenu::GetColors(struct FarListColors *Colors)
+void VMenu::GetColors(FarListColors *Colors)
 {
   CriticalSectionLock Lock(CS);
 
@@ -2467,7 +2465,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
   CriticalSectionLock Lock(CS);
 
   typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
-  struct SortItemParam Param;
+	SortItemParam Param;
   Param.Direction=Direction;
   Param.Offset=Offset;
 
@@ -2499,7 +2497,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 }
 
 // return Pos || -1
-int VMenu::FindItem(const struct FarListFind *FItem)
+int VMenu::FindItem(const FarListFind *FItem)
 {
   return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
@@ -2534,7 +2532,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
   return -1;
 }
 
-BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
+BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 {
   CriticalSectionLock Lock(CS);
 

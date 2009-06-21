@@ -46,7 +46,7 @@ BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 
 BOOL apiRemoveDirectory (const wchar_t *DirName)
 {
-	return RemoveDirectoryW (NTPath(DirName));
+	return RemoveDirectory (NTPath(DirName));
 }
 
 HANDLE apiCreateFile (
@@ -68,7 +68,7 @@ HANDLE apiCreateFile (
 	string strName;
 	strName=NTPath(lpwszFileName);
 
-	HANDLE hFile=CreateFileW (
+	HANDLE hFile=CreateFile (
 			strName,
 			dwDesiredAccess,
 			dwShareMode,
@@ -81,7 +81,7 @@ HANDLE apiCreateFile (
 	if(hFile==INVALID_HANDLE_VALUE)
 	{
 		Flags&=~FILE_FLAG_POSIX_SEMANTICS;
-		hFile=CreateFileW (
+		hFile=CreateFile (
 				strName,
 				dwDesiredAccess,
 				dwShareMode,
@@ -103,7 +103,7 @@ BOOL apiCopyFileEx (
 		DWORD dwCopyFlags
 		)
 {
-		return CopyFileExW(
+		return CopyFileEx(
 				NTPath(lpwszExistingFileName),
 				NTPath(lpwszNewFileName),
 				lpProgressRoutine,
@@ -119,7 +119,7 @@ BOOL apiMoveFile (
 		const wchar_t *lpwszNewFileName   // address of new name for the file
 		)
 {
-	return MoveFileW (NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName));
+	return MoveFile(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName));
 }
 
 BOOL apiMoveFileEx (
@@ -128,7 +128,7 @@ BOOL apiMoveFileEx (
 		DWORD dwFlags   // flag to determine how to move file
 		)
 {
-	return MoveFileExW (NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName),dwFlags);
+	return MoveFileEx(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName),dwFlags);
 }
 
 
@@ -148,13 +148,13 @@ BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 {
-	int nSize = GetEnvironmentVariableW (lpwszName, NULL, 0);
+	int nSize = GetEnvironmentVariable(lpwszName, NULL, 0);
 
 	if ( nSize )
 	{
 		wchar_t *lpwszBuffer = strBuffer.GetBuffer (nSize);
 
-		nSize = GetEnvironmentVariableW (lpwszName, lpwszBuffer, nSize);
+		nSize = GetEnvironmentVariable(lpwszName, lpwszBuffer, nSize);
 
 		strBuffer.ReleaseBuffer ();
 	}
@@ -164,9 +164,9 @@ DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 
 DWORD apiGetCurrentDirectory (string &strCurDir)
 {
-	DWORD dwSize = GetCurrentDirectoryW (0, NULL);
+	DWORD dwSize = GetCurrentDirectory(0, NULL);
 	wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize);
-	GetCurrentDirectoryW (dwSize, lpwszCurDir);
+	GetCurrentDirectory(dwSize, lpwszCurDir);
 
 	if(IsLocalPath(lpwszCurDir))
 		lpwszCurDir[0]=Upper(lpwszCurDir[0]);
@@ -183,11 +183,11 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 
 DWORD apiGetTempPath (string &strBuffer)
 {
-	DWORD dwSize = GetTempPathW (0, NULL);
+	DWORD dwSize = GetTempPath(0, NULL);
 
 	wchar_t *lpwszBuffer = strBuffer.GetBuffer (dwSize);
 
-	dwSize = GetTempPathW (dwSize, lpwszBuffer);
+	dwSize = GetTempPath(dwSize, lpwszBuffer);
 
 	strBuffer.ReleaseBuffer ();
 
@@ -206,7 +206,7 @@ DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
 
 		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof (wchar_t));
 
-		dwSize = GetModuleFileNameW (hModule, lpwszFileName, dwBufferSize);
+		dwSize = GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
 	} while ( dwSize && (dwSize >= dwBufferSize) );
 
 	if ( dwSize )
@@ -221,13 +221,13 @@ DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
 {
 	string strSrc = src;
 
-	DWORD length = ExpandEnvironmentStringsW(strSrc, NULL, 0);
+	DWORD length = ExpandEnvironmentStrings(strSrc, NULL, 0);
 
 	if ( length )
 	{
 		wchar_t *lpwszDest = strDest.GetBuffer (length);
 
-		ExpandEnvironmentStringsW(strSrc, lpwszDest, length);
+		ExpandEnvironmentStrings(strSrc, lpwszDest, length);
 
 		strDest.ReleaseBuffer ();
 
@@ -249,7 +249,7 @@ DWORD apiGetConsoleTitle (string &strConsoleTitle)
 
 		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof (wchar_t));
 
-		dwSize = GetConsoleTitleW (lpwszTitle, dwBufferSize);
+		dwSize = GetConsoleTitle(lpwszTitle, dwBufferSize);
 
 	} while ( !dwSize && GetLastError() == ERROR_SUCCESS );
 
@@ -265,13 +265,13 @@ DWORD apiGetConsoleTitle (string &strConsoleTitle)
 DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
-	DWORD dwResult = WNetGetConnectionW(lpwszLocalName, NULL, &dwRemoteNameSize);
+	DWORD dwResult = WNetGetConnection(lpwszLocalName, NULL, &dwRemoteNameSize);
 
 	if ( dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
 		wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize);
 
-		dwResult = WNetGetConnectionW (lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
+		dwResult = WNetGetConnection(lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
 
 		strRemoteName.ReleaseBuffer ();
 	}
@@ -291,7 +291,7 @@ BOOL apiGetVolumeInformation (
 	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer (MAX_PATH+1):NULL; //MSDN!
 	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer (MAX_PATH+1):NULL;
 
-	BOOL bResult = GetVolumeInformationW (
+	BOOL bResult = GetVolumeInformation(
 					lpwszRootPathName,
 					lpwszVolumeName,
 					lpwszVolumeName?MAX_PATH:0,
@@ -317,16 +317,16 @@ HANDLE apiFindFirstFile (
         bool ScanSymLink
         )
 {
-	WIN32_FIND_DATAW fdata;
+	WIN32_FIND_DATA fdata;
 	string strName;
 	strName=NTPath(lpwszFileName);
-	HANDLE hResult = FindFirstFileW (strName, &fdata);
+	HANDLE hResult = FindFirstFile(strName, &fdata);
 
 	if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
 	{
 		ConvertNameToReal(strName,strName);
 		strName=NTPath(strName);
-		hResult=FindFirstFileW(strName,&fdata);
+		hResult=FindFirstFile(strName,&fdata);
 	}
 
 	if ( hResult != INVALID_HANDLE_VALUE )
@@ -347,9 +347,9 @@ HANDLE apiFindFirstFile (
 
 BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 {
-	WIN32_FIND_DATAW fdata;
+	WIN32_FIND_DATA fdata;
 
-	BOOL bResult = FindNextFileW (hFindFile, &fdata);
+	BOOL bResult = FindNextFile(hFindFile, &fdata);
 
 	if ( bResult )
 	{
@@ -479,7 +479,7 @@ int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWr
 	{
 		wchar_t *Name=strName.GetBuffer(Size);
 		DWORD Size0=Size;
-		ExitCode=RegEnumKeyExW(hKey,dwIndex,Name,&Size0,NULL,NULL,NULL,lpftLastWriteTime);
+		ExitCode=RegEnumKeyEx(hKey,dwIndex,Name,&Size0,NULL,NULL,NULL,lpftLastWriteTime);
 		strName.ReleaseBuffer();
 	}
 	return ExitCode;
@@ -526,7 +526,7 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 	uiTotalSize=_i64(0);
 	uiTotalFree=_i64(0);
 
-	ExitCode=GetDiskFreeSpaceExW(Path,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+	ExitCode=GetDiskFreeSpaceEx(Path,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
 	if ( TotalSize )
 		*TotalSize = uiTotalSize;
@@ -661,9 +661,9 @@ DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
 		AddEndSlash(strFileName);
 
 	//Mantis#459 - нужно +3 так как в Win2K SP4 есть глюк у GetFullPathNameW
-	int nLength = GetFullPathNameW(strFileName,0,NULL,NULL)+1+3;
+	int nLength = GetFullPathName(strFileName,0,NULL,NULL)+1+3;
 	wchar_t *Buffer=strFullPathName.GetBuffer(nLength+NameLength);
-	GetFullPathNameW(strFileName,nLength,Buffer,NULL);
+	GetFullPathName(strFileName,nLength,Buffer,NULL);
 
 	// для имён, оканчивающихся пробелами
 	LPWSTR DstPtr=(LPWSTR)PointToName(Buffer);

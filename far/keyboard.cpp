@@ -145,7 +145,7 @@ struct TFKey3{
   const wchar_t *UName;
 };
 
-static struct TFKey3 FKeys1[]={
+static TFKey3 FKeys1[]={
   { KEY_RCTRLALTSHIFTRELEASE,24, L"RightCtrlAltShiftRelease", L"RIGHTCTRLALTSHIFTRELEASE"},
   { KEY_RCTRLALTSHIFTPRESS,  22, L"RightCtrlAltShiftPress", L"RIGHTCTRLALTSHIFTPRESS"},
   { KEY_CTRLALTSHIFTRELEASE, 19, L"CtrlAltShiftRelease", L"CTRLALTSHIFTRELEASE"},
@@ -275,7 +275,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_COMMA,                1, L",",  L","},
 };
 
-static struct TFKey3 ModifKeyName[]={
+static TFKey3 ModifKeyName[]={
   { KEY_RCTRL  ,5 ,L"RCtrl", L"RCTRL"},
   { KEY_SHIFT  ,5 ,L"Shift", L"SHIFT"},
   { KEY_CTRL   ,4 ,L"Ctrl", L"CTRL"},
@@ -290,7 +290,7 @@ static struct TFKey3 ModifKeyName[]={
 };
 
 #if defined(SYSLOG)
-static struct TFKey3 SpecKeyName[]={
+static TFKey3 SpecKeyName[]={
   { KEY_CONSOLE_BUFFER_RESIZE,19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
   { KEY_LOCKSCREEN           ,10, L"LockScreen", L"LOCKSCREEN"},
   { KEY_OP_SELWORD           ,10, L"OP_SelWord", L"OP_SELWORD"},
@@ -321,7 +321,7 @@ void InitKeysArray()
 	if (LayoutNumber==0)
 	{
 		HKEY hk=NULL;
-		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
+		if (RegOpenKeyEx(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload", 0, KEY_READ, &hk)==ERROR_SUCCESS)
 		{
 			DWORD dwType, dwIndex, dwDataSize, dwValueSize, dwKeyb;
 			wchar_t SData[16], SValue[16];
@@ -331,7 +331,7 @@ void InitKeysArray()
 				dwValueSize=16;
 				dwDataSize=16*sizeof(wchar_t);
 
-				if (ERROR_SUCCESS==RegEnumValueW(hk, dwIndex, SValue, &dwValueSize, NULL, &dwType,(LPBYTE)SData, &dwDataSize))
+				if (ERROR_SUCCESS==RegEnumValue(hk, dwIndex, SValue, &dwValueSize, NULL, &dwType,(LPBYTE)SData, &dwDataSize))
 				{
 					if (dwType == REG_SZ && isdigit(SValue[0]) &&
 						(isdigit(SData[0]) || (SData[0] >= L'a' && SData[0] <= L'f') || (SData[0] >= L'A' && SData[0] <= L'F')))
@@ -640,7 +640,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
       ChangeVideoMode(ZoomedState);
     }
 
-    PeekConsoleInputW(hConInp,rec,1,&ReadCount);
+		PeekConsoleInput(hConInp,rec,1,&ReadCount);
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)
@@ -650,7 +650,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
       {
         INPUT_RECORD pinp;
         DWORD nread;
-        ReadConsoleInputW(hConInp, &pinp, 1, &nread);
+				ReadConsoleInput(hConInp, &pinp, 1, &nread);
       	continue;
       }
 
@@ -689,7 +689,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
           TmpRec2.EventType=WINDOW_BUFFER_SIZE_EVENT;
           TmpRec2.Event.WindowBufferSizeEvent.dwSize.X=csbi.dwSize.X;
           TmpRec2.Event.WindowBufferSizeEvent.dwSize.Y=csbi.dwSize.Y;
-          WriteConsoleInputW(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
+					WriteConsoleInput(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
         }
         else
           AltEnter=1;
@@ -726,7 +726,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
             */
             INPUT_RECORD pinp;
             DWORD nread;
-            ReadConsoleInputW(hConInp, &pinp, 1, &nread);
+						ReadConsoleInput(hConInp, &pinp, 1, &nread);
             continue;
           }
 
@@ -747,7 +747,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
             {
               INPUT_RECORD pinp;
               DWORD nread;
-              ReadConsoleInputW(hConInp, &pinp, 1, &nread);
+							ReadConsoleInput(hConInp, &pinp, 1, &nread);
               continue;
             }
           }
@@ -776,7 +776,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
             INPUT_RECORD TmpRec2;
             int I;
 
-            PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
+						PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
 
             for(I=0; I < ReadCount2; ++I)
             {
@@ -785,7 +785,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 
               // // _SVS(SysLog(L"%d> %s",I,_INPUT_RECORD_Dump(rec)));
 
-              ReadConsoleInputW(hConInp,&TmpRec2,1,&ReadCount3);
+							ReadConsoleInput(hConInp,&TmpRec2,1,&ReadCount3);
 
               if(TmpRec[I].Event.KeyEvent.bKeyDown==1)
               {
@@ -915,7 +915,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
     ShiftState=FALSE;
     PressedLastTime=0;
-    ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+		ReadConsoleInput(hConInp,rec,1,&ReadCount);
     CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
     memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
     rec->EventType=KEY_EVENT;
@@ -980,7 +980,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
           INPUT_RECORD pinp;
           DWORD nread;
           // Удалим из очереди...
-          ReadConsoleInputW(hConInp, &pinp, 1, &nread);
+					ReadConsoleInput(hConInp, &pinp, 1, &nread);
           return KEY_NONE;
         }
       }
@@ -1039,7 +1039,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     }
     return(CalcKey);
   }
-  ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+	ReadConsoleInput(hConInp,rec,1,&ReadCount);
 #if 0
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
 
@@ -1339,7 +1339,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
       };
       DWORD WriteCount;
       TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-      WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
+			WriteConsoleInput(hConInp,TempRec,2,&WriteCount);
     }
 */
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
@@ -1480,7 +1480,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
   }
   else
   {
-    PeekConsoleInputW(hConInp,rec,1,&ReadCount);
+		PeekConsoleInput(hConInp,rec,1,&ReadCount);
   }
   if (ReadCount==0)
     return(0);
@@ -1558,7 +1558,7 @@ int WriteInput(int Key,DWORD Flags)
       Rec.Event.KeyEvent.dwControlKeyState=0;
     }
 
-    return WriteConsoleInputW(hConInp,&Rec,1,&WriteCount);
+		return WriteConsoleInput(hConInp,&Rec,1,&WriteCount);
   }
   else if(KeyQueue)
   {
@@ -2056,7 +2056,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       //FlushInputBuffer();//???
       INPUT_RECORD TempRec;
       DWORD ReadCount;
-      ReadConsoleInputW(hConInp,&TempRec,1,&ReadCount);
+			ReadConsoleInput(hConInp,&TempRec,1,&ReadCount);
 
       ReturnAltValue=TRUE;
       //_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));

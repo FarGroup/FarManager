@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
-  struct MenuDataEx LeftMenu[]=
+	MenuDataEx LeftMenu[]=
   {
     (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
     (const wchar_t *)MMenuMediumView,0,KEY_CTRL2,
@@ -86,7 +86,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     (const wchar_t *)MMenuChangeDrive,0,KEY_ALTF1,
   };
 
-  struct MenuDataEx FilesMenu[]=
+	MenuDataEx FilesMenu[]=
   {
     (const wchar_t *)MMenuView,LIF_SELECTED,KEY_F3,
     (const wchar_t *)MMenuEdit,0,KEY_F4,
@@ -111,7 +111,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   };
 
 
-  struct MenuDataEx CmdMenu[]=
+	MenuDataEx CmdMenu[]=
   {
   /* 00 */(const wchar_t *)MMenuFindFile,LIF_SELECTED,KEY_ALTF7,
   /* 01 */(const wchar_t *)MMenuHistory,0,KEY_ALTF8,
@@ -136,7 +136,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   };
 
 
-  struct MenuDataEx OptionsMenu[]=
+	MenuDataEx OptionsMenu[]=
   {
    /* 00 */(const wchar_t *)MMenuSystemSettings,LIF_SELECTED,0,
    /* 01 */(const wchar_t *)MMenuPanelSettings,0,0,
@@ -160,7 +160,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   };
 
 
-  struct MenuDataEx RightMenu[]=
+	MenuDataEx RightMenu[]=
   {
     (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
     (const wchar_t *)MMenuMediumView,0,KEY_CTRL2,
@@ -185,7 +185,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   };
 
 
-  struct HMenuData MainMenu[]=
+	HMenuData MainMenu[]=
   {
 		MSG(MMenuLeftTitle),1,LeftMenu,countof(LeftMenu),L"LeftRightMenu",
 		MSG(MMenuFilesTitle),0,FilesMenu,countof(FilesMenu),L"FilesMenu",
@@ -511,7 +511,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               delete HelpMenu;
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
-              SetEnvironmentVariableW(L"FARLANG",Opt.strLanguage);
+							SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
               PrepareStrFTime();
               __PrepareKMGTbStr();
               FrameManager->InitKeyBar();

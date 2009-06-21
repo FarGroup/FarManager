@@ -221,7 +221,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
             if(ActivePanel->GetMode() == PLUGIN_PANEL)
             {
-              struct OpenPluginInfo Info;
+							OpenPluginInfo Info;
               ActivePanel->GetOpenPluginInfo(&Info);
 
               string strTemp;

@@ -130,7 +130,7 @@ void ScreenBuf::FillBuf()
         Coord.Bottom=y;
         BOOL r;
 
-        r=ReadConsoleOutputW(hScreen,ci,Size,Corner,&Coord);
+				r=ReadConsoleOutput(hScreen,ci,Size,Corner,&Coord);
 
         ci+=BufX;
     }
@@ -138,7 +138,7 @@ void ScreenBuf::FillBuf()
   }
   else
   {
-    ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+		ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
   }
 
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
@@ -421,12 +421,12 @@ void ScreenBuf::Flush()
           yy+=maxY;
           Coord.Bottom=yy-1;
 
-          WriteConsoleOutputW (hScreen, BufPtr, Size, Corner, &Coord);
+					WriteConsoleOutput(hScreen, BufPtr, Size, Corner, &Coord);
         }
       }
       else
       {
-      	WriteConsoleOutputW (hScreen, Buf, Size, Corner, &Coord);
+				WriteConsoleOutput(hScreen, Buf, Size, Corner, &Coord);
       }
 
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));

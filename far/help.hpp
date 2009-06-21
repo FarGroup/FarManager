@@ -85,7 +85,7 @@ class Help:public Frame
     CallBackStack *Stack;       // стек возврата
     string  strFullHelpPathName;
 
-    struct StackHelpData StackData;
+		StackHelpData StackData;
     wchar_t *HelpData;             // "хелп" в памяти.
     int   StrCount;             // количество строк в теме
     int   FixCount;             // количество строк непрокручиваемой области

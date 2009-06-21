@@ -200,7 +200,7 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 	if (!bVistaType)
 	{
 		HKEY hKey;
-		if (RegOpenKeyW(HKEY_CLASSES_ROOT,Ext,&hKey)!=ERROR_SUCCESS)
+		if (RegOpenKey(HKEY_CLASSES_ROOT,Ext,&hKey)!=ERROR_SUCCESS)
 			return false;
 		if(aType==AT_URLPROTOCOL)
 		{
@@ -241,9 +241,9 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   	return NULL;
 
 	HKEY hKey;
-	if(RegOpenKeyExW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	if(RegOpenKeyEx(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 	{
-		int nResult=RegQueryValueExW(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
+		int nResult=RegQueryValueEx(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
 		RegCloseKey(hKey);
 		if(nResult==ERROR_SUCCESS)
 			return NULL;
@@ -251,7 +251,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
   strValue += L"\\shell";
 
-  if (RegOpenKeyW(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKey(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
   static string strAction;
@@ -279,7 +279,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
         strNewValue += ActionPtr;
         strNewValue += command_action;
 
-        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+        if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
           strValue += ActionPtr;
@@ -317,7 +317,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     strNewValue += strAction;
     strNewValue += command_action;
 
-    if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+    if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
       strValue += strAction;
@@ -335,7 +335,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
         strNewValue = strValue;
         strNewValue += strAction;
         strNewValue += command_action;
-        if (RegOpenKeyW(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+        if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
           strValue += strAction;
@@ -353,7 +353,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     strValue += command_action;
 
     // а теперь проверим ГУЕвость запускаемой проги
-    if (RegOpenKeyW(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
+    if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
     {
       RetQuery=RegQueryStringValueEx(hKey,L"",strNewValue,L"");
       RegCloseKey(hKey);
@@ -466,11 +466,11 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					while(!PathExtList.IsEmpty())
 					{
 						LPCWSTR Ext=PathExtList.GetNext();
-						DWORD dwSize=SearchPathW(strPathEnv,strFullName,Ext,0,NULL,NULL);
+						DWORD dwSize=SearchPath(strPathEnv,strFullName,Ext,0,NULL,NULL);
 						if(dwSize)
 						{
 							wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
-							SearchPathW(strPathEnv,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
+							SearchPath(strPathEnv,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
 							strFullName.ReleaseBuffer();
 							Result=true;
 							break;
@@ -483,11 +483,11 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					while(!PathExtList.IsEmpty())
 					{
 						LPCWSTR Ext=PathExtList.GetNext();
-						DWORD dwSize=SearchPathW(NULL,strFullName,Ext,0,NULL,NULL);
+						DWORD dwSize=SearchPath(NULL,strFullName,Ext,0,NULL,NULL);
 						if(dwSize)
 						{
 							wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
-							SearchPathW(NULL,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
+							SearchPath(NULL,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
 							strFullName.ReleaseBuffer();
 							Result=true;
 							break;
@@ -506,7 +506,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					for(size_t i=0;i<countof(RootFindKey);i++)
 					{
 						HKEY hKey;
-						if (RegOpenKeyExW(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+						if (RegOpenKeyEx(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 						{
 							int RegResult=RegQueryStringValueEx(hKey,L"",strFullName,L"");
 							RegCloseKey(hKey);
@@ -531,7 +531,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 							for(size_t i=0;i<countof(RootFindKey);i++)
 							{
 								HKEY hKey;
-								if(RegOpenKeyExW(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+								if(RegOpenKeyEx(RootFindKey[i],strFullName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 								{
 									int RegResult=RegQueryStringValueEx(hKey,L"",strFullName,L"");
 									RegCloseKey(hKey);
@@ -664,7 +664,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       }
   }
 
-  STARTUPINFOW si;
+	STARTUPINFO si;
   PROCESS_INFORMATION pi;
 
   memset (&si, 0, sizeof (si));
@@ -701,7 +701,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   GetConsoleScreenBufferInfo(hConOut,&sbi);
 
   wchar_t OldTitle[512];
-	GetConsoleTitleW(OldTitle, countof(OldTitle));
+	GetConsoleTitle(OldTitle, countof(OldTitle));
 
   DWORD dwSubSystem;
   DWORD dwError = 0;
@@ -750,7 +750,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 2 )
   {
-		SHELLEXECUTEINFOW seInfo;
+		SHELLEXECUTEINFO seInfo;
 		memset (&seInfo, 0, sizeof (seInfo));
 		seInfo.cbSize = sizeof (seInfo);
     seInfo.lpFile = strNewCmdStr;
@@ -763,7 +763,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
     if ( !dwError )
     {
-      if ( ShellExecuteExW (&seInfo) )
+			if ( ShellExecuteEx (&seInfo) )
       {
         hProcess = seInfo.hProcess;
         StartExecTime=clock();
@@ -788,7 +788,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
         strFarTitle += strNewCmdPar;
       }
     }
-    SetConsoleTitleW(strFarTitle);
+		SetConsoleTitle(strFarTitle);
 
     if (SeparateWindow)
       si.lpTitle=(wchar_t*)(const wchar_t*)strFarTitle;
@@ -820,7 +820,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     // // попытка борьбы с синим фоном в 4NT при старте консоль
     SetRealColor (COL_COMMANDLINEUSERSCREEN);
 
-    if ( CreateProcessW (
+		if ( CreateProcess (
         NULL,
         (wchar_t*)(const wchar_t*)strExecLine,
         NULL,
@@ -886,7 +886,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
               ) != WAIT_OBJECT_0
               )
           {
-            if ( PeekConsoleInputW(hHandles[1],ir,256,&rd) && rd)
+						if ( PeekConsoleInput(hHandles[1],ir,256,&rd) && rd)
             {
               int stop=0;
 
@@ -911,11 +911,11 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
                     if ( hFarWnd )
                     {
-                      hSmallIcon = CopyIcon((HICON)SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)0));
-                      hLargeIcon = CopyIcon((HICON)SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)0));
+											hSmallIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
+											hLargeIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
                     }
 
-                    ReadConsoleInputW(hInput,ir,256,&rd);
+										ReadConsoleInput(hInput,ir,256,&rd);
 
                     /*
                       Не будем вызыват CloseConsole, потому, что она поменяет
@@ -932,7 +932,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
                     AllocConsole();
 
                     if ( hFarWnd ) // если окно имело HOTKEY, то старое должно его забыть.
-                      SendMessageW(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
+											SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
                     SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
                     SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
@@ -950,14 +950,14 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
                       {
                         string strFarName;
                         apiGetModuleFileName (NULL, strFarName);
-                        ExtractIconExW(strFarName,0,&hLargeIcon,&hSmallIcon,1);
+												ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
                       }
 
                       if ( hLargeIcon != NULL )
-                        SendMessageW(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+												SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
 
                       if ( hSmallIcon != NULL )
-                        SendMessageW(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+												SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
                     }
 
                     stop=1;
@@ -1022,7 +1022,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   SetCursorType(Visible,Size);
   SetRealCursorType(Visible,Size);
 
-  SetConsoleTitleW(OldTitle);
+	SetConsoleTitle(OldTitle);
 
   /* Если юзер выполнил внешнюю команду, например
      mode con lines=50 cols=100
@@ -1327,7 +1327,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		if (strCmdLine.GetLength() == pos+1) //set var=
 		{
 			strCmdLine.SetLength(pos);
-			SetEnvironmentVariableW(strCmdLine,NULL);
+			SetEnvironmentVariable(strCmdLine,NULL);
 		}
 		else
 		{
@@ -1336,7 +1336,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			if (apiExpandEnvironmentStrings((const wchar_t *)strCmdLine+pos+1,strExpandedStr) != 0)
 			{
 				strCmdLine.SetLength(pos);
-				SetEnvironmentVariableW(strCmdLine,strExpandedStr);
+				SetEnvironmentVariable(strCmdLine,strExpandedStr);
 			}
 		}
 
@@ -1375,7 +1375,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		if(IntChDir(strCmdLine,true,SilentInt))
 		{
 			ppstack.Push(prec);
-			SetEnvironmentVariableW(L"FARDIRSTACK",prec.strName);
+			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName);
 		}
 		else
 		{
@@ -1396,7 +1396,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		{
 			int Ret=IntChDir(prec.strName,true,SilentInt);
 			PushPopRecord *ptrprec=ppstack.Peek();
-			SetEnvironmentVariableW(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():NULL));
+			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():NULL));
 			return Ret;
 		}
 		return TRUE;
@@ -1406,7 +1406,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	else if (!StrCmpI(CmdLine,L"CLRD"))
 	{
 		ppstack.Free();
-		SetEnvironmentVariableW(L"FARDIRSTACK",NULL);
+		SetEnvironmentVariable(L"FARDIRSTACK",NULL);
 		return TRUE;
 	}
 
@@ -1654,13 +1654,13 @@ BOOL ProcessOSAliases(string &strStr)
 	const wchar_t* lpwszExeName=PointToName(strModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-	int ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+	int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
 	if(!ret)
 	{
 		if(apiExpandEnvironmentStrings(L"%COMSPEC%",strModuleName))
 		{
 			lpwszExeName=PointToName(strModuleName);
-			ret=GetConsoleAliasW(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
+			ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);
 		}
 	}
 	strNewCmdStr.ReleaseBuffer();

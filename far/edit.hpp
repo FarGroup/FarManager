@@ -137,7 +137,7 @@ private:
 
     wchar_t *Mask;
 
-    struct ColorItem *ColorList;
+		ColorItem *ColorList;
     int    ColorCount;
 
     int    Color;
@@ -275,9 +275,9 @@ private:
 
     void  InsertTab ();
 
-    void  AddColor(struct ColorItem *col);
+    void  AddColor(ColorItem *col);
     int   DeleteColor(int ColorPos);
-    int   GetColor(struct ColorItem *col,int Item);
+    int   GetColor(ColorItem *col,int Item);
 
     void Xlat(BOOL All=FALSE);
 

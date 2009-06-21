@@ -2350,7 +2350,7 @@ void Edit::DeleteBlock()
 }
 
 
-void Edit::AddColor(struct ColorItem *col)
+void Edit::AddColor(ColorItem *col)
 {
   if ((ColorCount & 15)==0)
     ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
@@ -2382,7 +2382,7 @@ int Edit::DeleteColor(int ColorPos)
 }
 
 
-int Edit::GetColor(struct ColorItem *col,int Item)
+int Edit::GetColor(ColorItem *col,int Item)
 {
   if (Item >= ColorCount)
     return(FALSE);
@@ -2398,7 +2398,7 @@ void Edit::ApplyColor()
 	// Обрабатываем элементы ракраски
 	for (int Col = 0; Col < ColorCount; Col++)
 	{
-		struct ColorItem *CurItem = ColorList+Col;
+		ColorItem *CurItem = ColorList+Col;
 		// Пропускаем элементы у которых начало больше конца
 		if (CurItem->StartPos > CurItem->EndPos)
 			continue;

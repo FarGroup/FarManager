@@ -43,13 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 {
 	static bool first = true;
-	static NUMBERFMTW fmt;
+	static NUMBERFMT fmt;
 	static wchar_t DecimalSep[4];
 	static wchar_t ThousandSep[4];
 	if (first)
 	{
-		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,countof(ThousandSep));
-		GetLocaleInfoW(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,countof(DecimalSep));
+		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STHOUSAND,ThousandSep,countof(ThousandSep));
+		GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,DecimalSep,countof(DecimalSep));
 		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
 		ThousandSep[1]=0; //но для нас это будет не очень хорошо
 
@@ -67,9 +67,9 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 	}
 	fmt.NumDigits = NumDigits;
 	string strSrc=Src;
-	int Size=GetNumberFormatW(LOCALE_USER_DEFAULT,0,strSrc,&fmt,NULL,0);
+	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,NULL,0);
 	wchar_t* lpwszDest=strDest.GetBuffer(Size);
-	GetNumberFormatW(LOCALE_USER_DEFAULT,0,strSrc,&fmt,lpwszDest,Size);
+	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc,&fmt,lpwszDest,Size);
 	strDest.ReleaseBuffer();
 	return strDest;
 }
@@ -559,8 +559,8 @@ void __PrepareKMGTbStr(void)
   {
     xwcsncpy(KMGTbStrW[I][0],MSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
     wcscpy(KMGTbStrW[I][1],KMGTbStrW[I][0]);
-    CharLowerW (KMGTbStrW[I][0]);
-    CharUpperW (KMGTbStrW[I][1]);
+		CharLower(KMGTbStrW[I][0]);
+		CharUpper(KMGTbStrW[I][1]);
   }
 }
 

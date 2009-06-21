@@ -59,9 +59,9 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
 	DWORD pcchBuffer = 0;
-	if (!GetDefaultPrinterW(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
+	if (!GetDefaultPrinter(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
 	{
-		if (!GetDefaultPrinterW(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
+		if (!GetDefaultPrinter(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
 			strDefaultPrinter = L"";
 		strDefaultPrinter.ReleaseBuffer();
 	}
@@ -123,10 +123,10 @@ void PrintFiles(Panel *SrcPanel)
     return;
 
 	PRINTER_INFO *pi = NULL;
-	if (EnumPrintersW(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,NULL,0,&Needed,&Returned) || Needed<=0)
+	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,NULL,0,&Needed,&Returned) || Needed<=0)
 		return;
 	pi = (PRINTER_INFO *)xf_malloc(Needed);
-	if (!EnumPrintersW(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
+	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
 		xf_free(pi);
@@ -179,7 +179,7 @@ void PrintFiles(Panel *SrcPanel)
   }
 
   HANDLE hPrinter;
-  if (!OpenPrinterW((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
+  if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
   {
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
             strPrinterName,MSG(MOk));
@@ -216,10 +216,10 @@ void PrintFiles(Panel *SrcPanel)
         if (FarMkTempEx(strTempDir))
         {
 					apiCreateDirectory(strTempDir,NULL);
-          struct FileListItem ListItem;
+					FileListItem ListItem;
           if (SrcPanel->GetLastSelectedItem(&ListItem))
           {
-            struct PluginPanelItem PanelItem;
+						PluginPanelItem PanelItem;
             FileList::FileListToPluginItem(&ListItem,&PanelItem);
             if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
               SrcFile=_wfopen(strTempName,L"rb");
@@ -234,13 +234,13 @@ void PrintFiles(Panel *SrcPanel)
 
       if (SrcFile!=NULL)
       {
-        DOC_INFO_1W di1;
+				DOC_INFO_1 di1;
 
         di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
         di1.pOutputFile=NULL;
         di1.pDatatype=NULL;
 
-        if (StartDocPrinterW(hPrinter,1,(LPBYTE)&di1))
+				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
         {
           char Buffer[8192];
           DWORD Read,Written;

@@ -75,7 +75,7 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
         зап€тыми или точкой с зап€той, можно указывать маски исключени€,
         можно заключать маски в кавычки.  ороче, все как и должно быть :-)
 */
-void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNCW Func,DWORD Flags,void *Param)
+void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
   if(Func && InitDir && *InitDir && Mask && *Mask)
   {
@@ -150,7 +150,7 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
   UINT uniq = GetCurrentProcessId(), savePid = uniq;
   for(;;) {
     if(!uniq) ++uniq;
-    if(   GetTempFileNameW (strPath, Prefix, uniq, lpwszDest)
+		if(GetTempFileName(strPath, Prefix, uniq, lpwszDest)
       && apiGetFileAttributes (lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
     if(++uniq == savePid) {
       *lpwszDest = 0;

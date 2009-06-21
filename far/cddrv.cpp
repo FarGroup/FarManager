@@ -331,7 +331,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect
   LocalName[0]=RootDir?*RootDir:0;
 
   CDROM_DeviceCaps caps=CDDEV_CAPS_NONE;
-  UINT DrvType = GetDriveTypeW(RootDir);
+	UINT DrvType = GetDriveType(RootDir);
 
   // анализ CD-привода
   if ((Detect&1) && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)

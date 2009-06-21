@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "options.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
+#include "imports.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1222,7 +1223,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 
   if(Processed)
   {
-    if (WNetCancelConnection2W(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
+		if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
       return DRIVE_DEL_SUCCESS;
     else
     {
@@ -1234,7 +1235,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
                 L"\x1",MSG(MChangeDriveOpenFiles),
                 MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
-          if (WNetCancelConnection2W(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
+					if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
             return DRIVE_DEL_SUCCESS;
         }
         else
@@ -1961,7 +1962,7 @@ string &Panel::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
   if (PanelMode==PLUGIN_PANEL)
   {
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     GetOpenPluginInfo(&Info);
     strTitleDir = Info.PanelTitle;
     RemoveExternalSpaces(strTitleDir);
@@ -2032,7 +2033,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		{
 			if(!Param2)
 				break;
-			struct PanelInfo *Info=(struct PanelInfo *)Param2;
+			PanelInfo *Info=(PanelInfo *)Param2;
 			memset(Info,0,sizeof(*Info));
 
 			UpdateIfRequired();
@@ -2096,7 +2097,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 				if (!Reenter && Info->Plugin)
 				{
 					Reenter++;
-					struct OpenPluginInfo PInfo;
+					OpenPluginInfo PInfo;
 					DestFilePanel->GetOpenPluginInfo(&PInfo);
 					if (PInfo.Flags & OPIF_REALNAMES)
 						Info->Flags |= PFLAGS_REALNAMES;
@@ -2201,7 +2202,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		case FCTL_REDRAWPANEL:
 		{
 			PanelRedrawInfo *Info=(PanelRedrawInfo *)Param2;
-			if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
+			if(Info)
 			{
 				CurFile=Info->CurrentItem;
 				CurTopFile=Info->TopPanelItem;
@@ -2266,7 +2267,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 10  +------------------------------------------------+
 11
 */
-  static struct DialogDataEx DCDlgData[]=
+	static DialogDataEx DCDlgData[]=
   {
 /*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
                                       Selected               Data
@@ -2313,7 +2314,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
     HKEY hKey;
     IsPersistent=TRUE;
 		const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',Letter,L'\0'};
-    if(RegOpenKeyExW(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+		if(RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
       DCDlg[5].Flags|=DIF_DISABLE;
       DCDlg[5].Selected=0;

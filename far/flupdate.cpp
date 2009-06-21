@@ -80,7 +80,7 @@ void FileList::Update(int Mode)
         break;
       case PLUGIN_PANEL:
         {
-          struct OpenPluginInfo Info;
+					OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           ProcessPluginCommand();
           if (PanelMode!=PLUGIN_PANEL)
@@ -141,7 +141,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	DizRead=FALSE;
 	HANDLE FindHandle;
 	FAR_FIND_DATA_EX fdata;
-	struct FileListItem *CurPtr=0,**OldData=0;
+	FileListItem *CurPtr=0,**OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
 	int Done;
@@ -245,7 +245,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	Done=((FindHandle=apiFindFirstFile(L"*.*",&fdata))==INVALID_HANDLE_VALUE);
 
 	int AllocatedCount=0;
-	struct FileListItem *NewPtr;
+	FileListItem *NewPtr;
 
 	// сформируем заголовок вне цикла
 	wchar_t Title[2048];
@@ -322,7 +322,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 				FileListItem **pTemp;
 
-				if ((pTemp=(struct FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
+				if ((pTemp=(FileListItem **)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
 					break;
 				ListData=pTemp;
 			}
@@ -465,7 +465,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		if (FileCount>=AllocatedCount)
 		{
 			FileListItem **pTemp;
-			if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
+			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
 				ListData=pTemp;
 		}
 		if (ListData!=NULL)
@@ -490,7 +490,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
 		{
 			FileListItem **pTemp;
-			if ((pTemp=(struct FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
+			if ((pTemp=(FileListItem **)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
 			{
 				ListData=pTemp;
 				for (PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
@@ -604,7 +604,7 @@ void FileList::CreateChangeNotification(int CheckTree)
 
   if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
   {
-    hListChange=FindFirstChangeNotificationW(strCurDir,CheckTree,
+		hListChange=FindFirstChangeNotification(strCurDir,CheckTree,
                         FILE_NOTIFY_CHANGE_FILE_NAME|
                         FILE_NOTIFY_CHANGE_DIR_NAME|
                         FILE_NOTIFY_CHANGE_ATTRIBUTES|
@@ -624,16 +624,16 @@ void FileList::CloseChangeNotification()
 }
 
 
-void FileList::MoveSelection(struct FileListItem **ListData,long FileCount,
-                             struct FileListItem **OldData,long OldFileCount)
+void FileList::MoveSelection(FileListItem **ListData,long FileCount,
+                             FileListItem **OldData,long OldFileCount)
 {
-  struct FileListItem **OldPtr;
+	FileListItem **OldPtr;
   SelFileCount=0;
   SelFileSize=0;
   far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
   while (FileCount--)
   {
-    OldPtr=(struct FileListItem **)bsearch((void *)ListData,(void *)OldData,
+		OldPtr=(FileListItem **)bsearch((void *)ListData,(void *)OldData,
                                   OldFileCount,sizeof(*ListData),SortSearchList);
     if (OldPtr!=NULL)
     {
@@ -663,7 +663,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   DizRead=FALSE;
 
   int I;
-  struct FileListItem *CurPtr, **OldData=0;
+	FileListItem *CurPtr, **OldData=0;
   string strCurName, strNextCurName;
 	int OldFileCount=0;
 
@@ -671,7 +671,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   LastCurFile=-1;
 
-  struct OpenPluginInfo Info;
+	OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
   if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
@@ -734,7 +734,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-  ListData=(struct FileListItem**)xf_malloc(sizeof(struct FileListItem*)*(FileCount+1));
+	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
 
   if (ListData==NULL)
   {
@@ -753,12 +753,12 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   int FileListCount=0;
 
-  struct PluginPanelItem *CurPanelData=PanelData;
+	PluginPanelItem *CurPanelData=PanelData;
   for (I=0; I < FileCount; I++, CurPanelData++)
   {
     ListData[FileListCount] = new FileListItem;
 
-    struct FileListItem *CurListData=ListData[FileListCount];
+		FileListItem *CurListData=ListData[FileListCount];
 
 	CurListData->Clear ();
 
@@ -804,7 +804,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   {
     ListData[FileCount] = new FileListItem;
 
-    struct FileListItem *CurPtr = ListData[FileCount];
+		FileListItem *CurPtr = ListData[FileCount];
 
 	CurPtr->Clear ();
 
@@ -857,7 +857,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 }
 
 
-void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
+void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 {
   if (DizRead)
     return;
@@ -873,7 +873,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     PluginPanelItem *PanelData=NULL;
     int PluginFileCount=0;
 
-    struct OpenPluginInfo Info;
+		OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     if (Info.DescrFilesNumber==0)
@@ -927,14 +927,12 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
         CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
     }
   }
-  struct FileListItem *CurPtr;
   for (int I=0;I<FileCount;I++)
   {
-    CurPtr = ListData[I];
-    if (CurPtr->DizText==NULL)
+    if (ListData[I]->DizText==NULL)
     {
-      CurPtr->DeleteDiz=FALSE;
-      CurPtr->DizText=(wchar_t*)Diz.GetDizTextAddr(CurPtr->strName,CurPtr->strShortName,CurPtr->UnpSize);
+			ListData[I]->DeleteDiz=FALSE;
+			ListData[I]->DizText=(wchar_t*)Diz.GetDizTextAddr(ListData[I]->strName,ListData[I]->strShortName,ListData[I]->UnpSize);
     }
   }
 }
@@ -942,21 +940,22 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
 
 void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 {
-  if (SortGroupsRead)
-    return;
-  if (UpdateFilterCurrentTime)
-    CtrlObject->HiFiles->UpdateCurrentTime();
-  SortGroupsRead=TRUE;
-  struct FileListItem *CurPtr;
-  for (int I=0;I<FileCount;I++)
-  {
-    CurPtr = ListData[I];
-    CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
-  }
+	if(!SortGroupsRead)
+	{
+		if(UpdateFilterCurrentTime)
+		{
+			CtrlObject->HiFiles->UpdateCurrentTime();
+		}
+		SortGroupsRead=TRUE;
+		for(int i=0;i<FileCount;i++)
+		{
+			ListData[i]->SortGroup=CtrlObject->HiFiles->GetGroup(ListData[i]);
+		}
+	}
 }
 
 // Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
-void FileList::AddParentPoint(struct FileListItem *CurPtr,long CurFilePos)
+void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos)
 {
 	CurPtr->Clear ();
 

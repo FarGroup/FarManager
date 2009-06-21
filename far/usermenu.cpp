@@ -888,7 +888,7 @@ static LONG_PTR WINAPI UserMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
 {
-	static struct DialogDataEx EditDlgData[]={
+	static DialogDataEx EditDlgData[]={
 	/* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(const wchar_t *)MEditMenuTitle,
 	/* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditMenuHotKey,
 	/* 02 */DI_FIXEDIT,5,3,7,3,1,0,0,0,L"",
@@ -1051,7 +1051,7 @@ int EditMenuRecord(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRe
 
 int EditSubMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,int NewRec)
 {
-	static struct DialogDataEx EditDlgData[]=
+	static DialogDataEx EditDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(const wchar_t *)MEditSubmenuTitle,
 		DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MEditSubmenuHotKey,

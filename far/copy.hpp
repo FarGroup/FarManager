@@ -172,8 +172,6 @@ class ShellCopy
 
     int  CmpFullPath(const wchar_t *Src,const wchar_t *Dest);
 
-    BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,const wchar_t *SrcDir,const wchar_t *DstDir,struct CopyDlgParam *CDP);
-
     int  ShellSetAttr(const wchar_t *Dest,DWORD Attr);
 
     BOOL CheckNulOrCon(const wchar_t *Src);
