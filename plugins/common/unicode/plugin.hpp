@@ -4,7 +4,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 995
+  Plugin API for FAR Manager 2.0 build 1007
 */
 
 /*
@@ -41,7 +41,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 995
+#define FARMANAGERVERSION_BUILD 1007
 
 #ifndef RC_INVOKED
 
@@ -905,6 +905,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETDIALOGSETTINGS    = 22,
   ACTL_GETSHORTWINDOWINFO   = 23,
   ACTL_REDRAWALL            = 27,
+  ACTL_SYNCHRO              = 28,
 };
 
 
@@ -1179,6 +1180,10 @@ enum DIALOG_EVENTS {
   DE_DLGPROCINIT    =0,
   DE_DEFDLGPROCINIT =1,
   DE_DLGPROCEND     =2,
+};
+
+enum SYNCHRO_EVENTS {
+  SE_COMMONSYNCHRO  =0,
 };
 
 #define EEREDRAW_ALL    (void*)0
@@ -1841,6 +1846,7 @@ int    WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEventW(HANDLE hPlugin,int Event,void *Param);
 int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
+int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
 int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
