@@ -2748,6 +2748,24 @@ static bool editorselFunc()
   return Ret.i() == _i64(1);
 }
 
+// V=Editor.Undo(N)
+static bool editorundoFunc()
+{
+  TVar Ret(_i64(0));
+  TVar Action; VMStack.Pop(Action);
+
+  if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+  {
+    EditorUndoRedo eur;
+    eur.Command=(int)Action.toInteger();
+    Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
+  }
+
+  VMStack.Push(Ret);
+
+  return Ret.i() != 0;
+}
+
 // V=callplugin(SysID[,param])
 static bool callpluginFunc()
 {
@@ -3460,6 +3478,7 @@ done:
         {MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
         {MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
         {MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
+        {MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
         {MCODE_F_STRING,stringFunc},  // S=string(V)
         {MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
         {MCODE_F_INT,intFunc}, // N=int(V)

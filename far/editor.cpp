@@ -1144,6 +1144,11 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
                     eSel.BlockStartLine=bl;
                     eSel.BlockHeight=CalcDistance(MBlockStart,CurLine,-1)+1;
                   }
+                  if(bl > el || (bl == el && eSel.BlockWidth<0))
+                  {
+                    eSel.BlockWidth*=-1;
+                    eSel.BlockStartPos=CurLine->GetCurPos();
+                  }
 
                   Ret=EditorControl(ECTL_SELECT,&eSel);
                 }
@@ -4748,26 +4753,37 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 
 void Editor::Undo(int redo)
 {
+  EditorUndoData *ustart=redo ? UndoData.Next(UndoPos) : UndoPos;
+  if (!ustart)
+    return;
+
   TextChanged(1);
   Flags.Set(FEDITOR_DISABLEUNDO);
 
   int level=0;
-  do
+
+  EditorUndoData *uend;
+  for (uend=ustart; uend; uend=redo ? UndoData.Next(uend) : UndoData.Prev(uend))
   {
-    EditorUndoData *ud=redo ? UndoData.Next(UndoPos) : UndoPos;
-    if (!ud)
-      break;
-    UndoPos=redo ? ud : UndoData.Prev(UndoPos);
-
-    if (ud->Type==UNDO_BEGIN || ud->Type==UNDO_END)
+    if (uend->Type==UNDO_BEGIN || uend->Type==UNDO_END)
     {
-      int l=ud->Type==UNDO_BEGIN ? -1 : 1;
+      int l=uend->Type==UNDO_BEGIN ? -1 : 1;
       level+=redo ? -l : l;
-      continue;
     }
+    if (level<=0)
+      break;
+  }
 
-    UnmarkBlock();
-    GoToLine(ud->StrNum);
+  if (level)
+    uend=ustart;
+
+  UnmarkBlock();
+  EditorUndoData *ud=ustart;
+  while(1)
+  {
+    if (ud->Type!=UNDO_BEGIN && ud->Type!=UNDO_END)
+      GoToLine(ud->StrNum);
+
     switch(ud->Type)
     {
       case UNDO_INSSTR:
@@ -4809,7 +4825,12 @@ void Editor::Undo(int redo)
         break;
       }
     }
-  } while(level);
+
+    if(ud==uend)
+      break;
+    ud=redo ? UndoData.Next(ud) : UndoData.Prev(ud);
+  }
+  UndoPos=redo ? ud : UndoData.Prev(ud);
 
   if (!Flags.Check(FEDITOR_UNDOSAVEPOSLOST) && UndoPos==UndoSavePos)
     TextChanged(0);
@@ -5705,16 +5726,13 @@ int Editor::EditorControl(int Command,void *Param)
           VBlockSizeX=Sel->BlockWidth;
           VBlockSizeY=Sel->BlockHeight;
 
-          /* ????
           if (VBlockSizeX < 0)
           {
             VBlockSizeX=-VBlockSizeX;
-            VBlockX-=Sel->BlockWidth;
+            VBlockX-=VBlockSizeX;
             if(VBlockX < 0)
               VBlockX=0;
           }
-          */
-
         }
         return(TRUE);
       }
@@ -5971,20 +5989,19 @@ int Editor::EditorControl(int Command,void *Param)
         {
           case EUR_BEGIN:
             AddUndoData(UNDO_BEGIN);
-            break;
+            return TRUE;
           case EUR_END:
             AddUndoData(UNDO_END);
-            break;
+            return TRUE;
           case EUR_UNDO:
-        	case EUR_REDO:
+          case EUR_REDO:
             Lock ();
             Undo(eur->Command==EUR_REDO);
             Unlock ();
-            Show();
-            break;
+            return TRUE;
         }
       }
-      break;
+      return FALSE;
     }
 
   }

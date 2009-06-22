@@ -257,6 +257,7 @@ static TMacroFunction macroFunction[]={
   {L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
   {L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL},          // V=Editor.Sel(Action[,Opt])
   {L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
+  {L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO},         // V=Editor.Undo(N)
   {L"ENV",              1, 0,   MCODE_F_ENVIRON},             // S=env(S)
   {L"EVAL",             2, 1,   MCODE_F_EVAL},                // N=eval(S[,N])
   {L"FATTR",            1, 0,   MCODE_F_FATTR},               // N=fattr(S)
@@ -1070,6 +1071,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_DLG_GETVALUE,     L"V=Dlg.GetValue(ID,N)"},
     {MCODE_F_EDITOR_SEL,       L"V=Editor.Sel(Action[,Opt])"},
     {MCODE_F_EDITOR_SET,       L"N=Editor.Set(N,Var)"},
+    {MCODE_F_EDITOR_UNDO,      L"V=Editor.Undo(N)"},
     {MCODE_F_ENVIRON,          L"S=env(S)"},
     {MCODE_F_FATTR,            L"N=fattr(S)"},
     {MCODE_F_FEXIST,           L"S=fexist(S)"},
