@@ -1,3 +1,9 @@
+drkns 22.06.2009 15:23:38 +0200 - build 1009
+
+1. Mantis#0000947: Новое поведение Executor'а и %PATHEXT%
+
+2. Не всегда правильно перерисовывался диалог копирования.
+
 drkns 22.06.2009 10:43:06 +0200 - build 1008
 
 1. Исправление во враппере на тему FarDialogItem.Param.ListItems/FarDialogItem.Param.ListPos.

@@ -2704,6 +2704,13 @@ void ShellCopy::PR_ShellCopyMsg(void)
 
 void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 {
+	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	preRedrawItem.Param.Flags=Flags;
+	preRedrawItem.Param.Param1=this;
+	preRedrawItem.Param.Param2=Src;
+	preRedrawItem.Param.Param3=Dest;
+	PreRedraw.SetParam(preRedrawItem.Param);
+
 	if(Src&&*Src&&Dest&&*Dest)
 	{
 		DWORD CurTime=GetTickCount();
@@ -2808,12 +2815,6 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
       ShowTitle(FALSE);
     }
   }
-  PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  preRedrawItem.Param.Flags=Flags;
-  preRedrawItem.Param.Param1=this;
-  preRedrawItem.Param.Param2=Src;
-  preRedrawItem.Param.Param3=Dest;
-  PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 
@@ -3366,6 +3367,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 					ShowBar(TotalCopiedSize,TotalCopySize,true);
 					ShowTitle(FALSE);
 				}
+				ShellCopyMsg(SrcData.strFileName,strDestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if(CopySparse)
 					Size -= BytesRead;
       }
