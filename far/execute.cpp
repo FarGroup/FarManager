@@ -556,17 +556,22 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       char PathEnv[4096];
       if (GetEnvironmentVariable("PATH",PathEnv,sizeof(PathEnv)-1) != 0)
       {
-        PtrExt=StdExecuteExt;
-        while(*PtrExt)
+        UserDefinedList PathList;
+        PathList.Set(PathEnv);
+        while(!PathList.IsEmpty())
         {
-          if(!PtrFName)
-            strcpy(WorkPtrFName,PtrExt);
-          if(SearchPath(PathEnv,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+          PtrExt=StdExecuteExt;
+          while(*PtrExt)
           {
-            Ret=TRUE;
-            break;
+            if(!PtrFName)
+              strcpy(WorkPtrFName,PtrExt);
+            if(SearchPath(PathList.GetNext(),FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+            {
+              Ret=TRUE;
+              break;
+            }
+            PtrExt+=strlen(PtrExt)+1;
           }
-          PtrExt+=strlen(PtrExt)+1;
         }
       }
 

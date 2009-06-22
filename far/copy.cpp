@@ -4007,8 +4007,6 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
     {
       if(Param1==WDLG_FILENAME)
       {
-        FarDialogItem di;
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Param1,(LONG_PTR)&di);
         int Color=FarColorToReal(COL_WARNDIALOGTEXT)&0xFF;
         return ((Param2&0xFF00FF00)|(Color<<16)|Color);
       }
