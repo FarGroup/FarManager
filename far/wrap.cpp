@@ -1324,7 +1324,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA.Param.ListItems)
+			if (diA.Param.ListItems && IsPtr(diA.Param.ListItems))
 			{
 				l.Items = (FarListItem *)xf_malloc(diA.Param.ListItems->ItemsNumber*sizeof(FarListItem));
 				l.ItemsNumber = diA.Param.ListItems->ItemsNumber;

@@ -143,6 +143,8 @@ static int MainProcess(
     GetConsoleScreenBufferInfo(hConOut,&InitCsbi);
     SetRealColor(COL_COMMANDLINEUSERSCREEN);
 
+		GetSystemInfo(&SystemInfo);
+
     // учтем настройки максимизации окна при старте
     if(IsZoomed(hFarWnd)) ChangeVideoMode(1);
 

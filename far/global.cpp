@@ -161,3 +161,5 @@ const wchar_t constMsX[]=L"MsX";
 const wchar_t constMsY[]=L"MsY";
 const wchar_t constMsButton[]=L"MsButton";
 const wchar_t constMsCtrlState[]=L"MsCtrlState";
+
+SYSTEM_INFO SystemInfo;

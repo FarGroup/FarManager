@@ -42,8 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 
-#define MAX_MSG 5000
-
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
 #define DMODE_CREATEOBJECTS 0x00000002 // объекты (Edit,...) созданы?

@@ -146,4 +146,8 @@ extern const wchar_t constMsY[];
 extern const wchar_t constMsButton[];
 extern const wchar_t constMsCtrlState[];
 
+extern SYSTEM_INFO SystemInfo;
+
+#define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
+
 #endif  // __FARGLOBAL_HPP__

@@ -120,7 +120,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   {
     NewItem.Clear ();
 
-    if ((DWORD_PTR)Data[I].Name < MAX_MSG)
+		if(!IsPtr(Data[I].Name))
       NewItem.strName = MSG((int)(DWORD_PTR)Data[I].Name);
     else
       NewItem.strName = Data[I].Name;

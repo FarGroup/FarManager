@@ -3763,7 +3763,7 @@ bool Dialog::ConvertItemEx (
 
 				if(Data->X2 < Data->X1) Data->X2=Data->X1;
 				if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-				if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && (DWORD_PTR)Item->Param.ListItems < 0x2000)
+				if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->Param.ListItems))
 					Data->ListItems=NULL;
 			}
 			break;
@@ -3815,7 +3815,7 @@ void Dialog::DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
     Item->SelStart=-1;
 
 
-    if ( (DWORD_PTR)Data->Data < MAX_MSG)
+		if(!IsPtr(Data->Data))
         Item->strData = MSG((int)(DWORD_PTR)Data->Data);
     else
         Item->strData = Data->Data;

@@ -1,3 +1,9 @@
+drkns 22.06.2009 10:43:06 +0200 - build 1008
+
+1. Исправление во враппере на тему FarDialogItem.Param.ListItems/FarDialogItem.Param.ListPos.
+   И кто только придумал засунуть их в union :(
+   Ну и заодно во всех подобных местах используем SYSTEMINFO::<Minimum|Maximum>ApplicationAddress вместо "магических чисел" 0x2000, 0x5000, MAX_MSG и т. п.
+
 drkns 21.06.2009 19:22:36 +0200 - build 1007
 
 1. Mantis#0000945: Не работает Rename при перемещении файлов (F6, Move) на одном диске
