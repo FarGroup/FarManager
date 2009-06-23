@@ -464,17 +464,18 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 				{
 					UserDefinedList PathList;
 					PathList.Set(strPathEnv);
-					while(!PathList.IsEmpty())
+					while(!PathList.IsEmpty() && !Result)
 					{
+						LPCWSTR Path=PathList.GetNext();
 						PathExtList.Reset();
 						while(!PathExtList.IsEmpty())
 						{
 							LPCWSTR Ext=PathExtList.GetNext();
-							DWORD dwSize=SearchPath(PathList.GetNext(),strFullName,Ext,0,NULL,NULL);
+							DWORD dwSize=SearchPath(Path,strFullName,Ext,0,NULL,NULL);
 							if(dwSize)
 							{
 								wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
-								SearchPath(strPathEnv,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
+								SearchPath(Path,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
 								strFullName.ReleaseBuffer();
 								Result=true;
 								break;
