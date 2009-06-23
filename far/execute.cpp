@@ -558,14 +558,15 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       {
         UserDefinedList PathList;
         PathList.Set(PathEnv);
-        while(!PathList.IsEmpty())
+        while(!PathList.IsEmpty() && !Ret)
         {
+          LPCSTR Path=PathList.GetNext();
           PtrExt=StdExecuteExt;
           while(*PtrExt)
           {
             if(!PtrFName)
               strcpy(WorkPtrFName,PtrExt);
-            if(SearchPath(PathList.GetNext(),FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+            if(SearchPath(Path,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
             {
               Ret=TRUE;
               break;
