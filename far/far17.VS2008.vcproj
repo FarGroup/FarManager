@@ -92,7 +92,8 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
+				FixedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
@@ -190,7 +191,7 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
@@ -289,7 +290,7 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				TargetMachine="5"
 			/>
@@ -390,7 +391,8 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
+				FixedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
@@ -491,7 +493,7 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
 			/>
@@ -593,7 +595,7 @@
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
+				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				TargetMachine="5"
 			/>
