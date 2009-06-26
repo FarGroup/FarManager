@@ -267,6 +267,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	bool bDotSeen=false, bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)?true:false;
 
+	FILETIME TwoDotsTimes[3];
+	memset (TwoDotsTimes, 0, sizeof (TwoDotsTimes));
+	string TwoDotsOwner;
+
 	if (!Done)
 	{
 		string strTemp(NTPath(strCurDir).Str);
@@ -299,6 +303,13 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				if (!bTwoDotsExists || (!bCurDirRoot && !bTwoDotsSeen))
 				{
 					bTwoDotsSeen=true;
+					TwoDotsTimes[0]=fdata.ftCreationTime;
+					TwoDotsTimes[1]=fdata.ftLastAccessTime;
+					TwoDotsTimes[2]=fdata.ftLastWriteTime;
+					if (ReadOwners)
+					{
+						GetFileOwner(strComputerName,fdata.strFileName,TwoDotsOwner);
+					}
 					Done=!apiFindNextFile (FindHandle,&fdata);
 					continue;
 				}
@@ -471,7 +482,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		if (ListData!=NULL)
 		{
 			ListData[FileCount] = new FileListItem;
-			AddParentPoint(ListData[FileCount],FileCount);
+			AddParentPoint(ListData[FileCount],FileCount,TwoDotsTimes,TwoDotsOwner);
 			if (NeedHighlight)
 				CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],1);
 			FileCount++;
@@ -955,12 +966,19 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 }
 
 // Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
-void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos)
+void FileList::AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times,string Owner)
 {
 	CurPtr->Clear ();
 
 	CurPtr->FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	CurPtr->strName = L"..";
 	CurPtr->strShortName = L"..";
+	if(Times)
+	{
+		CurPtr->CreationTime = Times[0];
+		CurPtr->AccessTime = Times[1];
+		CurPtr->WriteTime = Times[2];
+	}
+	CurPtr->strOwner = Owner;
 	CurPtr->Position = CurFilePos;
 }

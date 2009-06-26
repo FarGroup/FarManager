@@ -306,7 +306,7 @@ class FileList:public Panel
 		void PluginClearSelection(PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups(bool UpdateFilterCurrentTime=true);
-		void AddParentPoint(FileListItem *CurPtr,long CurFilePos);
+		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=NULL,string Owner=L"");
     int  ProcessOneHostFile(int Idx);
 
     static void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
