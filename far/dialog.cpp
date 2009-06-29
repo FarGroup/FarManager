@@ -2182,6 +2182,13 @@ int Dialog::ProcessKey(int Key)
   unsigned I;
   string strStr;
 
+  if(DialogMode.Check(DMODE_ENDLOOP))
+  {
+    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+      FrameManager->DeleteFrame (this);
+    return TRUE;
+  }
+
   if (Key==KEY_NONE || Key==KEY_IDLE)
   {
     DlgProc((HANDLE)this,DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
@@ -4716,6 +4723,7 @@ void Dialog::Process()
 {
 //  if(DialogMode.Check(DMODE_SMALLDIALOG))
     SetRestoreScreenMode(TRUE);
+    ClearDone();
 
   InitDialog();
 
@@ -4761,8 +4769,8 @@ void Dialog::CloseDialog()
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
 
-    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
-      FrameManager->DeleteFrame (this);
+//    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+//      FrameManager->DeleteFrame (this);
 
     _DIALOG(CleverSysLog CL(L"Close Dialog"));
   }
@@ -4892,6 +4900,9 @@ void Dialog::ResizeConsole()
 
 LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
+  if(DialogMode.Check(DMODE_ENDLOOP))
+    return 0;
+
   FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
   LONG_PTR ret;
   if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
