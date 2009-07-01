@@ -731,8 +731,12 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
       return Opt.Policies.DisabledOptions|(Opt.Policies.ShowHiddenDrives?FFPOL_SHOWHIDDENDRIVES:0);
     }
 
-    case ACTL_REDRAWALL:
-      return FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+		case ACTL_REDRAWALL:
+		{
+			int Ret=FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+			FrameManager->PluginCommit();
+			return Ret;
+		}
 
   }
   return FALSE;

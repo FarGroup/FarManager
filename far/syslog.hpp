@@ -118,6 +118,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_
 #define _DIALOG(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_MANAGER)
+#define _MANAGER(x)  x
+#else
+#define _MANAGER(x)
+#endif
+
 #if defined(_DEBUG) && defined(SYSLOG_KEYMACRO)
 #define _KEYMACRO(x)  x
 #else

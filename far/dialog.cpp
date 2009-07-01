@@ -2184,8 +2184,12 @@ int Dialog::ProcessKey(int Key)
 
   if(DialogMode.Check(DMODE_ENDLOOP))
   {
-    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+    if(Key >= INTERNAL_KEY_BASE_2 && Key < KEY_OP_BASE && DialogMode.Check(DMODE_ENDLOOP) &&
+       DialogMode.Check(DMODE_BEGINLOOP) &&
+       (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+    {
       FrameManager->DeleteFrame (this);
+    }
     return TRUE;
   }
 
@@ -4759,7 +4763,7 @@ void Dialog::Process()
 	}
 }
 
-void Dialog::CloseDialog()
+void Dialog::CloseDialog(bool deleteFrame)
 {
   CriticalSectionLock Lock(CS);
 
@@ -4769,8 +4773,11 @@ void Dialog::CloseDialog()
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
 
-//    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
-//      FrameManager->DeleteFrame (this);
+    if(deleteFrame && DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+    {
+      DialogMode.Clear(DMODE_BEGINLOOP);
+      FrameManager->DeleteFrame (this);
+    }
 
     _DIALOG(CleverSysLog CL(L"Close Dialog"));
   }
@@ -5300,7 +5307,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dlg->ExitCode=Dlg->FocusPos;
       else
         Dlg->ExitCode=Param1;
-      Dlg->CloseDialog();
+      Dlg->CloseDialog(false);
       return TRUE;  // согласен с закрытием
     }
 

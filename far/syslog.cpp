@@ -63,7 +63,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
      defined(SYSLOG_EE_REDRAW)      || \
      defined(SYSLOG_TREX)           || \
      defined(SYSLOG_KEYMACRO_PARSE) || \
-     defined(SYSLOG_YJH)
+     defined(SYSLOG_YJH)            || \
+     defined(SYSLOG_MANAGER)
   #define SYSLOG
  #endif
 #endif
