@@ -277,4 +277,5 @@ void CreatePath(string &strPath)
 
     ChPtr++;
   }
+	strPath.ReleaseBuffer();
 }

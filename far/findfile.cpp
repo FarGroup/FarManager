@@ -2546,7 +2546,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	{
 		// Отображаем дату последнего изменения
 		ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-		strDate.Format (L"%c%s%c%s",BoxSymbols[BS_V1],(const wchar_t*)strDateStr,BoxSymbols[BS_V1],(const wchar_t*)strTimeStr);
+		strDate.Format (L"%c%8.8s%c%5.5s",BoxSymbols[BS_V1],(const wchar_t*)strDateStr,BoxSymbols[BS_V1],(const wchar_t*)strTimeStr);
 	}
 	strMenuText += strDate;
 

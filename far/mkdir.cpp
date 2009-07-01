@@ -43,9 +43,60 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "stddlg.hpp"
+#include "dialog.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "dirmix.hpp"
+
+enum
+{
+  MKDIR_BORDER,
+	MKDIR_TEXT,
+	MKDIR_EDIT,
+	MKDIR_SEPARATOR0,
+	MKDIR_CHECKBOX,
+	MKDIR_SEPARATOR2,
+	MKDIR_OK,
+	MKDIR_CANCEL,
+};
+
+LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	switch(Msg)
+	{
+	case DN_CLOSE:
+		{
+			if(Param1==MKDIR_OK)
+			{
+				string strDirName=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,NULL));
+				Opt.MultiMakeDir=(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,NULL)==BSTATE_CHECKED);
+				// это по поводу создания одиночного каталога, который
+				// начинается с пробела! Чтобы ручками не заключать
+				// такой каталог в кавычки
+				if(Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == NULL)
+				{
+					QuoteSpaceOnly(strDirName);
+				}
+				// нужно создать только ОДИН каталог
+				if(!Opt.MultiMakeDir)
+				{
+					// уберем все лишние кавычки
+					Unquote(strDirName);
+					// возьмем в кавычки, т.к. могут быть разделители
+					InsertQuote(strDirName);
+				}
+				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,NULL));
+				if(!(pDirList->Set(strDirName)&&!wcspbrk(strDirName,ReservedFilenameSymbols)))
+				{
+					Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
+					return FALSE;
+				}
+			}
+		}
+		break;
+	}
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 void ShellMakeDir(Panel *SrcPanel)
 {
@@ -55,35 +106,27 @@ void ShellMakeDir(Panel *SrcPanel)
 
   UserDefinedList DirList(0,0,ULF_UNIQUE);
 
-  BOOL MultiMakeDir=Opt.MultiMakeDir;
-  for(;;)
-  {
-    if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),L"NewFolder",
-         L"",strDirName,L"MakeFolder",
-         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
-         MSG(MMultiMakeDir)))
-      return;
+	DialogDataEx MkDirDlgData[]=
+	{
+		DI_DOUBLEBOX,3,1,72,8,0,0,0,0,MSG(MMakeFolderTitle),
+		DI_TEXT,     5,2, 0,2,0,0,0,0,MSG(MCreateFolder),
+		DI_EDIT,     5,3,70,3,1,(DWORD_PTR)L"NewFolder",DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
+		DI_TEXT,     0,4, 0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_CHECKBOX, 5,5, 0,5,0,Opt.MultiMakeDir, 0,0,MSG(MMultiMakeDir),
+		DI_TEXT,     0,6, 0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,7, 0,7,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+	};
+	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
 
-    Opt.MultiMakeDir=MultiMakeDir;
+	Dialog Dlg(MkDirDlg,countof(MkDirDlg),MkDirDlgProc,reinterpret_cast<LONG_PTR>(&DirList));
+	Dlg.SetPosition(-1,-1,76,10);
+	Dlg.SetHelp(L"MakeFolder");
+	Dlg.Process();
 
-    // это по поводу создания одиночного каталога, который
-    // начинается с пробела! Чтобы ручками не заключать
-    // такой каталог в кавычки
-    if(Opt.MultiMakeDir && wcspbrk(strDirName,L";,\"") == NULL)
-       QuoteSpaceOnly(strDirName);
-
-    if(!Opt.MultiMakeDir)   // нужно создать только ОДИН каталог
-    {
-      Unquote(strDirName);     // уберем все лишние кавычки
-      InsertQuote(strDirName); // возьмем в кавычки, т.к. могут быть разделители
-    }
-
-    if(DirList.Set(strDirName) && !wcspbrk(strDirName, ReservedFilenameSymbols))
-      break;
-    else
-      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
-                 MSG(MIncorrectDirList), MSG(MOk));
-  }
+	if(Dlg.GetExitCode()==MKDIR_OK)
+	{
+		strDirName=MkDirDlg[MKDIR_EDIT].strData;
 
   const wchar_t *OneDir;
 
@@ -98,17 +141,11 @@ void ShellMakeDir(Panel *SrcPanel)
     if (Opt.CreateUppercaseFolders && !IsCaseMixed(strDirName))
       strDirName.Upper();
 
-    int Length=(int)strDirName.GetLength();
+		DeleteEndSlash(strDirName,true);
 
     lpwszDirName = strDirName.GetBuffer ();
-    while (Length>0 && lpwszDirName[Length-1]==L' ')
-      Length--;
-    lpwszDirName[Length]=0;
 
     bool bSuccess = false;
-
-    if (Length>0 && IsSlash(lpwszDirName[Length-1]))
-      lpwszDirName[Length-1]=0;
 
     for (wchar_t *ChPtr=lpwszDirName;*ChPtr!=0;ChPtr++)
     {
@@ -194,4 +231,5 @@ void ShellMakeDir(Panel *SrcPanel)
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     AnotherPanel->Redraw();
   }
+	}
 }
