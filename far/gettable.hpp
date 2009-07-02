@@ -54,4 +54,6 @@ UINT GetTableEx(UINT nCurrent, bool bShowUnicode, bool bShowUTF);
 
 UINT AddCodepagesToList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
 
+wchar_t *FormatCodepageName(UINT CodePage, wchar_t *CodePageName, size_t Length);
+
 #endif	// __GETTABLE_HPP__

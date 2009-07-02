@@ -3647,14 +3647,8 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		if (cpiex.MaxCharSize != 1)
 			return -1;
 
-		wchar_t *codePageName = wcschr(cpiex.CodePageName, L'(');
-		if (codePageName && *(++codePageName))
-		{
-			sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
-			sTableName.SetLength(sTableName.GetLength() - 1);
-		}
-		else
-			sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], cpiex.CodePageName);
+		wchar_t *codePageName = FormatCodepageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+		sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
 
 		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
 

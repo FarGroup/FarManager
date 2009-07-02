@@ -45,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 
+// Ключ где хранятся имена кодовых страниц
+const wchar_t *NamesOfCodePagesKey = L"CodePages\\Names";
+
 // Стандартные кодовое страницы
 enum StandardCodePages
 {
@@ -232,20 +235,12 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		if (!GetCPInfo(codePage, &cpi))
 			return TRUE;
 		cpiex.MaxCharSize = cpi.MaxCharSize;
-		// BUBUG: Пока оставляем пустое имя для таких кодовых страниц. В прниципе можно сделать
-        // ключик Far2\CodePages\Names откуда бы бралось имя в случае, если его не удалось
-        // получить от системы
 		cpiex.CodePageName[0] = L'\0';
 	}
 	if (cpiex.MaxCharSize != 1)
 		return TRUE;
 	// Формируем имя таблиц символов
-	// под виндой на входе "XXXX (Name)" а например под wine просто "Name"
-	wchar_t *codePageName = wcschr(cpiex.CodePageName, L'(');
-	if (codePageName && *(++codePageName))
-		codePageName[wcslen(codePageName)-1] = L'\0';
-	else
-		codePageName = cpiex.CodePageName;
+	wchar_t *codePageName = FormatCodepageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 	// Получаем признак выбранности таблицы символов
 	int selectType = 0;
 	GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
@@ -438,6 +433,38 @@ void FillTablesVMenu(bool bShowUnicode, bool bShowUTF)
 	tables->SetPosition(-1, -1, 0, 0);
 	// Показываем меню
 	tables->Show();
+}
+
+// Форматируем имя таблицы символов
+wchar_t *FormatCodepageName(UINT CodePage, wchar_t *CodePageName, size_t Length)
+{
+	if (!CodePageName || !Length)
+		return CodePageName;
+	// Формируем имя таблиц символов
+	if (!*CodePageName)
+	{
+		string strCodePage;
+		strCodePage.Format(L"%u", CodePage);
+		// Если имя не задано, то пытаемся получить его из Far2\CodePages\Names
+		string strCodePageName;
+		GetRegKey(NamesOfCodePagesKey, strCodePage, strCodePageName, L"");
+		Length = Min(Length-1, strCodePageName.GetLength());
+		wmemcpy(CodePageName, strCodePageName, Length);
+		CodePageName[Length] = L'\0';
+		return CodePageName;
+	}
+	else
+	{
+		// Под виндой на входе "XXXX (Name)", а, например, под wine просто "Name"
+		wchar_t *Name = wcschr(CodePageName, L'(');
+		if (Name && *(++Name))
+		{
+			Name[wcslen(Name)-1] = L'\0';
+			return Name;
+		}
+		else
+			return CodePageName;
+	}
 }
 
 UINT GetTableEx(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
