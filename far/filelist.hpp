@@ -237,6 +237,7 @@ class FileList:public Panel
 
     BOOL Is_FS_NTFS;
 
+    long CacheSelIndex,CacheSelPos;
   private:
     virtual void SetSelectedFirstMode(int Mode);
     virtual int GetSelectedFirstMode(void) {return SelectedFirst;};

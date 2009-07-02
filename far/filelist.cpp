@@ -155,6 +155,7 @@ FileList::FileList()
   InternalProcessKey=FALSE;
   GetSelPosition = 0;
   Is_FS_NTFS=FALSE;
+  CacheSelIndex=-1;
 }
 
 
@@ -1938,6 +1939,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 {
   if (!TestParentFolderName(SelPtr->strName) && SelPtr->Selected!=Selection)
   {
+    CacheSelIndex=-1;
     if ((SelPtr->Selected=Selection)!=0)
     {
       SelFileCount++;

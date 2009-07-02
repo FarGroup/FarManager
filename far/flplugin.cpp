@@ -1008,20 +1008,32 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item
 	size_t result=0;
 	if(ListData && ItemNumber<FileCount)
 	{
-		int CurSel=-1;
-		for(int i=0;i<FileCount;i++)
+		if(ItemNumber==CacheSelIndex)
 		{
-			if(ListData[i]->Selected)
-				CurSel++;
-			if(CurSel==ItemNumber)
-			{
-				result=FileListToPluginItem2(ListData[i],Item);
-				break;
-			}
+			result=FileListToPluginItem2(ListData[CacheSelPos],Item);
 		}
-		if(CurSel==-1 && !ItemNumber)
+		else
 		{
-			result=FileListToPluginItem2(ListData[CurFile],Item);
+			if(ItemNumber<CacheSelIndex) CacheSelIndex=-1;
+			int CurSel=CacheSelIndex,StartValue=CacheSelIndex>=0?CacheSelPos+1:0;
+			for(int i=StartValue;i<FileCount;i++)
+			{
+				if(ListData[i]->Selected)
+					CurSel++;
+				if(CurSel==ItemNumber)
+				{
+					result=FileListToPluginItem2(ListData[i],Item);
+					CacheSelIndex=ItemNumber;
+					CacheSelPos=i;
+					break;
+				}
+			}
+			if(CurSel==-1 && !ItemNumber)
+			{
+				result=FileListToPluginItem2(ListData[CurFile],Item);
+				CacheSelIndex=ItemNumber;
+				CacheSelPos=CurFile;
+			}
 		}
 	}
 	return result;

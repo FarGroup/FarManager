@@ -188,6 +188,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	SelFileSize=0;
 	TotalFileCount=0;
 	TotalFileSize=0;
+    CacheSelIndex=-1;
 
 	if (Opt.ShowPanelFree)
 	{
@@ -641,6 +642,7 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 	FileListItem **OldPtr;
   SelFileCount=0;
   SelFileSize=0;
+  CacheSelIndex=-1;
   far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
   while (FileCount--)
   {
@@ -713,6 +715,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   SelFileSize=0;
   TotalFileCount=0;
   TotalFileSize=0;
+  CacheSelIndex=-1;
 
   strPluginDizName = L"";
 

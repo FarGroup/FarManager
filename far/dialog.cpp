@@ -2184,7 +2184,7 @@ int Dialog::ProcessKey(int Key)
 
   if(DialogMode.Check(DMODE_ENDLOOP))
   {
-    if(Key >= INTERNAL_KEY_BASE_2 && Key < KEY_OP_BASE && DialogMode.Check(DMODE_ENDLOOP) &&
+    if((unsigned int)Key >= INTERNAL_KEY_BASE_2 && (unsigned int)Key < KEY_OP_BASE && DialogMode.Check(DMODE_ENDLOOP) &&
        DialogMode.Check(DMODE_BEGINLOOP) &&
        (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
     {
