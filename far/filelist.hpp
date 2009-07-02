@@ -393,7 +393,10 @@ class FileList:public Panel
 		size_t PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item);
 		void PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths);
 
+		void PluginBeginSelection();
 		void PluginSetSelection(int ItemNumber,bool Selection);
+		void PluginEndSelection();
+
     virtual void SetPluginModified();
     virtual int ProcessPluginEvent(int Event,void *Param);
     virtual void SetTitle();

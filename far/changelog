@@ -1,3 +1,14 @@
+drkns 02.07.2009 21:40:21 +0200 - build 1017
+
+1. Внезапно выяснилось, что FCTL_SETSELECTION, во первых, криво работал при "Show selected first",
+   во вторых, после него не работал CtrlM.
+
+   Теперь, ВНИМАНИЕ! - правильно выделять из плагинов надо так:
+   
+   FCTL_BEGINSELECTION
+   FCTL_SETSELECTION сколько нужно раз
+   FCTL_ENDSELECTION.
+
 zg 02.07.2009 18:51:52 +0200 - build 1016
 
 1. сильно ускорен последовательный вызов FCTL_GETSELECTEDPANELITEM с неуменьшающимися индексами.

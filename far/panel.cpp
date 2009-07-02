@@ -2180,11 +2180,31 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			}
 			break;
 
+		case FCTL_BEGINSELECTION:
+			{
+				if (GetType()==FILE_PANEL)
+				{
+					((FileList *)this)->PluginBeginSelection();
+					Result=TRUE;
+				}
+			}
+			break;
+
 		case FCTL_SETSELECTION:
 			{
 				if (GetType()==FILE_PANEL)
 				{
 					((FileList *)this)->PluginSetSelection(Param1,Param2?true:false);
+					Result=TRUE;
+				}
+			}
+			break;
+
+		case FCTL_ENDSELECTION:
+			{
+				if (GetType()==FILE_PANEL)
+				{
+					((FileList *)this)->PluginEndSelection();
 					Result=TRUE;
 				}
 			}

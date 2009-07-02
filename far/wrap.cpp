@@ -2484,10 +2484,12 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				if(!Param )
 					return FALSE;
 				oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
+				FarControl(hPlugin,FCTL_BEGINSELECTION,0,NULL);
 				for(int i=0;i<OldPI->ItemsNumber;i++)
 				{
 					FarControl(hPlugin,FCTL_SETSELECTION,i,OldPI->PanelItems[i].Flags & oldfar::PPIF_SELECTED);
 				}
+				FarControl(hPlugin,FCTL_ENDSELECTION,0,NULL);
 				return TRUE;
 			}
 

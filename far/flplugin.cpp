@@ -1045,14 +1045,23 @@ void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strC
 		ViewSettings.ColumnCount,strColumnTypes,strColumnWidths);
 }
 
-void FileList::PluginSetSelection(int ItemNumber,bool Selection)
+void FileList::PluginBeginSelection()
 {
-  SaveSelection();
-  Select(ListData[ItemNumber],Selection);
-  if (SelectedFirst)
-    SortFileList(TRUE);
+	SaveSelection();
 }
 
+void FileList::PluginSetSelection(int ItemNumber,bool Selection)
+{
+	Select(ListData[ItemNumber],Selection);
+}
+
+void FileList::PluginEndSelection()
+{
+	if(SelectedFirst)
+	{
+		SortFileList(TRUE);
+	}
+}
 
 void FileList::ProcessPluginCommand()
 {
