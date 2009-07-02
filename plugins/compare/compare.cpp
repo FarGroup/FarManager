@@ -1202,7 +1202,6 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 
   for(int i=0;i<PInfo.ItemsNumber;i++)
   {
-    Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
     free(PInfo.PanelItems[i].FindData.lpwszFileName);
     free(PInfo.PanelItems[i].FindData.lpwszAlternateFileName);
   }
@@ -1422,14 +1421,19 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWPANEL, NULL);
     Info.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWANOTHERPANEL, NULL);
 #else
+    Info.Control(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
     for(int i=0;i<AInfo.ItemsNumber;i++)
     {
       Info.Control(PANEL_ACTIVE, FCTL_SETSELECTION,i,AInfo.PanelItems[i].Flags&PPIF_SELECTED);
     }
+    Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,NULL);
+
+    Info.Control(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,NULL);
     for(int i=0;i<PInfo.ItemsNumber;i++)
     {
       Info.Control(PANEL_PASSIVE, FCTL_SETSELECTION,i,PInfo.PanelItems[i].Flags&PPIF_SELECTED);
     }
+    Info.Control(PANEL_PASSIVE,FCTL_ENDSELECTION,0,NULL);
 
     Info.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,NULL);
     Info.Control(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
