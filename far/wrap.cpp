@@ -3634,23 +3634,29 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 				}
 			}
 		}
-		CPINFOEX cpi;
 
-		if (!GetCPInfoEx(nCP, 0, &cpi) || cpi.MaxCharSize != 1)
+		CPINFOEX cpiex;
+		if (!GetCPInfoEx(nCP, 0, &cpiex))
+		{
+			CPINFO cpi;
+			if (!GetCPInfo(nCP, &cpi))
+				return -1;
+			cpiex.MaxCharSize = cpi.MaxCharSize;
+			cpiex.CodePageName[0] = L'\0';
+		}
+		if (cpiex.MaxCharSize != 1)
 			return -1;
 
-		wchar_t *codePageName = wcschr (cpi.CodePageName, L'(');
+		wchar_t *codePageName = wcschr(cpiex.CodePageName, L'(');
 		if (codePageName && *(++codePageName))
 		{
-			sTableName.Format (L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
-			sTableName.SetLength (sTableName.GetLength () - 1);
+			sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
+			sTableName.SetLength(sTableName.GetLength() - 1);
 		}
 		else
-		{
-			sTableName = cpi.CodePageName;
-		}
+			sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], cpiex.CodePageName);
 
-		sTableName.GetCharString (TableSet->TableName, sizeof (TableSet->TableName) - 1, CP_OEMCP);
+		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
 
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof (TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof (TableSet->DecodeTable));

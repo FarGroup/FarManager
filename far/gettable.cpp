@@ -221,65 +221,78 @@ int GetTableInsertPosition(UINT codePage, int start, int length)
 BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
-	// BUBBUG: Существует много кодировок с cpi.MaxCharSize > 1, пока их не поддерживаем
-	CPINFOEX cpi;
-	if (GetCPInfoEx(codePage, 0, &cpi) && cpi.MaxCharSize == 1)
+	// BUBBUG: Существует много кодировок с cpiex.MaxCharSize > 1, пока их не поддерживаем
+	CPINFOEX cpiex;
+	if (!GetCPInfoEx(codePage, 0, &cpiex))
 	{
-		// Формируем имя таблиц символов
-		// под виндой на входе "XXXX (Name)" а например под wine просто "Name"
-		wchar_t *codePageName = wcschr(cpi.CodePageName, L'(');
-		if (codePageName && *(++codePageName))
-			codePageName[wcslen(codePageName)-1] = L'\0';
-		else
-			codePageName = cpi.CodePageName;
-		// Получаем признак выбранности таблицы символов
-		int selectType = 0;
-		GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
-		// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
-		if (selectType & CPST_FAVORITE)
-		{
-			// добавляем разделитель между стандартными и системными таблицами символов
-			if (!favoriteCodePages && !normalCodePages)
-				AddSeparator();
-			// Добавляем таблицу символов в выбранные
-			AddTable(
-					codePageName,
-					codePage,
-					GetTableInsertPosition(
-							codePage,
-							GetItemsCount()-normalCodePages-favoriteCodePages-((favoriteCodePages && normalCodePages)?1:0),
-							favoriteCodePages
-						),
-					true,
-					selectType & CPST_FIND ? true : false
-				);
-			// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
-			if (!favoriteCodePages && normalCodePages)
-				AddSeparator(GetItemsCount()-normalCodePages);
-			// Увеличиваем счётчик выбранных таблиц символов
-			favoriteCodePages++;
-		}
-		else if (!tables || !Opt.CPMenuMode)
-		{
-			// добавляем разделитель между стандартными и системными таблицами символов
-			if (!favoriteCodePages && !normalCodePages)
-				AddSeparator();
-			// Добавляем таблицу символов в нормальные
-			AddTable(
-					codePageName,
-					codePage,
-					GetTableInsertPosition(
-							codePage,
-							GetItemsCount()-normalCodePages,
-							normalCodePages
-						)
-				);
-			// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
-			if (favoriteCodePages && !normalCodePages)
-				AddSeparator(GetItemsCount()-normalCodePages);
-			// Увеличиваем счётчик выбранных таблиц символов
-			normalCodePages++;
-		}
+		// GetCPInfoEx возвращает ошибку для кодовых страниц без имени (например 1125), которые 
+		// сами по себе работают. Так что, прежде чем пропускать кодовую страницу из-за ошибки,
+		// пробуем получить для неё информауию через GetCPInfo
+		CPINFO cpi;
+		if (!GetCPInfo(codePage, &cpi))
+			return TRUE;
+		cpiex.MaxCharSize = cpi.MaxCharSize;
+		// BUBUG: Пока оставляем пустое имя для таких кодовых страниц. В прниципе можно сделать
+        // ключик Far2\CodePages\Names откуда бы бралось имя в случае, если его не удалось
+        // получить от системы
+		cpiex.CodePageName[0] = L'\0';
+	}
+	if (cpiex.MaxCharSize != 1)
+		return TRUE;
+	// Формируем имя таблиц символов
+	// под виндой на входе "XXXX (Name)" а например под wine просто "Name"
+	wchar_t *codePageName = wcschr(cpiex.CodePageName, L'(');
+	if (codePageName && *(++codePageName))
+		codePageName[wcslen(codePageName)-1] = L'\0';
+	else
+		codePageName = cpiex.CodePageName;
+	// Получаем признак выбранности таблицы символов
+	int selectType = 0;
+	GetRegKey(FavoriteCodePagesKey, lpwszCodePage, selectType, 0);
+	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
+	if (selectType & CPST_FAVORITE)
+	{
+		// добавляем разделитель между стандартными и системными таблицами символов
+		if (!favoriteCodePages && !normalCodePages)
+			AddSeparator();
+		// Добавляем таблицу символов в выбранные
+		AddTable(
+				codePageName,
+				codePage,
+				GetTableInsertPosition(
+						codePage,
+						GetItemsCount()-normalCodePages-favoriteCodePages-((favoriteCodePages && normalCodePages)?1:0),
+						favoriteCodePages
+					),
+				true,
+				selectType & CPST_FIND ? true : false
+			);
+		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
+		if (!favoriteCodePages && normalCodePages)
+			AddSeparator(GetItemsCount()-normalCodePages);
+		// Увеличиваем счётчик выбранных таблиц символов
+		favoriteCodePages++;
+	}
+	else if (!tables || !Opt.CPMenuMode)
+	{
+		// добавляем разделитель между стандартными и системными таблицами символов
+		if (!favoriteCodePages && !normalCodePages)
+			AddSeparator();
+		// Добавляем таблицу символов в нормальные
+		AddTable(
+				codePageName,
+				codePage,
+				GetTableInsertPosition(
+						codePage,
+						GetItemsCount()-normalCodePages,
+						normalCodePages
+					)
+			);
+		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
+		if (favoriteCodePages && !normalCodePages)
+			AddSeparator(GetItemsCount()-normalCodePages);
+		// Увеличиваем счётчик выбранных таблиц символов
+		normalCodePages++;
 	}
 	return TRUE;
 }
