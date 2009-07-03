@@ -7819,13 +7819,53 @@ upd:"Tabellen"
 "Kódlapok"
 "Strony kodowe"
 
+MGetTableSystem
+"Системные"
+"System"
+upd:"System"
+upd:"System"
+upd:"System"
+upd:"System"
+
+MGetTableUnicode
+"Юникод"
+"Unicode"
+upd:"Unicode"
+upd:"Unicode"
+upd:"Unicode"
+upd:"Unicode"
+
+MGetTableFavorites
+"Избранные"
+"Favorites"
+upd:"Favorites"
+upd:"Favorites"
+upd:"Favorites"
+upd:"Favorites"
+
+MGetTableOther
+"Прочие"
+"Other"
+upd:"Other"
+upd:"Other"
+upd:"Other"
+upd:"Other"
+
 MGetTableBottomTitle
 "Ctrl-H, Del, Ins"
 "Ctrl-H, Del, Ins"
 "Ctrl-H, Del, Ins"
 "Strg-H, Entf, Einf"
-"Ctrl-H,Del,Ins"
 "Ctrl-H, Del, Ins"
+"Ctrl-H, Del, Ins"
+
+MGetTableBottomShortTitle
+"Ctrl-H, Del"
+"Ctrl-H, Del"
+"Ctrl-H, Del"
+"Strg-H, Entf"
+"Ctrl-H, Del"
+"Ctrl-H, Del"
 
 MHighlightTitle
 l:

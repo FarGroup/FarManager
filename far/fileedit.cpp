@@ -1583,6 +1583,8 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	SysErrorCode=GetLastError();
 	apiGetFindDataEx (Name,&FileInfo);
 
+	EditorGetFileAttributes(Name);
+
 	return TRUE;
 }
 
@@ -1922,6 +1924,8 @@ end:
 
 	apiGetFindDataEx (Name,&FileInfo);
 
+	EditorGetFileAttributes(Name);
+
   if (m_editor->Flags.Check(FEDITOR_MODIFIED) || NewFile)
     m_editor->Flags.Set(FEDITOR_WASCHANGED);
 
@@ -2194,12 +2198,25 @@ void FileEditor::ShowStatus()
     int CurPos=m_editor->CurLine->GetCurPos();
     if (CurPos<Length)
     {
-      GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 11:4),Y1);
+      GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 16:9),Y1);
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */
-      static const wchar_t *FmtCharCode[3]={L"%05o",L"%5d",L"%04Xh"};
-      mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%3],(wchar_t)Str[CurPos]);
+			static const wchar_t *FmtWCharCode[]={L"%05o",L"%5d",L"%04Xh"};
+			mprintf(FmtWCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtWCharCode)],Str[CurPos]);
+			if(!IsUnicodeOrUTFCP(m_codepage))
+			{
+				char C=0;
+				BOOL UsedDefaultChar=FALSE;
+				WideCharToMultiByte(m_codepage,WC_NO_BEST_FIT_CHARS,&Str[CurPos],1,&C,1,0,&UsedDefaultChar);
+				if(C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
+				{
+					static const wchar_t *FmtCharCode[]={L"%o",L"%d",L"%Xh"};
+					mprintf(L" (");
+					mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtCharCode)],C);
+					mprintf(L")");
+				}
+			}
     }
   }
 
@@ -2211,7 +2228,7 @@ void FileEditor::ShowStatus()
      Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
      статуса.
 */
-DWORD FileEditor::GetFileAttributes(const wchar_t *Name)
+DWORD FileEditor::EditorGetFileAttributes(const wchar_t *Name)
 {
 	FileAttributes=apiGetFileAttributes(Name);
 	int ind=0;

@@ -194,7 +194,7 @@ public:
     void ChangeEditKeyBar();
     void ShowStatus();
 
-    DWORD GetFileAttributes(const wchar_t *Name);                 // $ 13.02.2001 IS - Обертка вокруг одноименной функции из win32 api
+    DWORD EditorGetFileAttributes(const wchar_t *Name);                 // $ 13.02.2001 IS - Обертка вокруг одноименной функции из win32 api
 
     void SetPluginData(const wchar_t *PluginData);
     const wchar_t *GetPluginData(void){return (const wchar_t*)strPluginData;};
