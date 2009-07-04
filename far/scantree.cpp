@@ -105,7 +105,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       pm = fdata->cAlternateFileName;
   }
 
-  if(strlen(FindPath)+strlen(pm)+1+strlen(FindMask)>=NM)
+  if(strlen(FindPath)+strlen(pm)-strlen(FindMask)>=NM)
   {
     _SVS(SysLog("2! FullName EXCEED(%s%s\\%s)",FindPath,pm,FindMask));
     Done=TRUE;
