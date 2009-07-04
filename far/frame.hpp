@@ -122,6 +122,7 @@ class Frame: public ScreenObject
     bool HasSaveScreen();
 //    bool ifFullConsole();
     virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0){ return Title; };
+	virtual bool ProcessEvents(void) {return true;};
 };
 
 #endif // __FRAME_HPP__

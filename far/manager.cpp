@@ -607,19 +607,26 @@ void Manager::EnterMainLoop()
 
 void Manager::ProcessMainLoop()
 {
-                                  // Mantis#0000073: Не работает автоскролинг в QView
-  WaitInMainLoop=IsPanelsActive() && ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL;
+	if(CurrentFrame&&!CurrentFrame->ProcessEvents())
+	{
+		ProcessKey(KEY_IDLE);
+	}
+	else
+	{
+		// Mantis#0000073: Не работает автоскролинг в QView
+		WaitInMainLoop=IsPanelsActive() && ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL;
 
-  //WaitInFastFind++;
-  int Key=GetInputRecord(&LastInputRecord);
-  //WaitInFastFind--;
-  WaitInMainLoop=FALSE;
-  if (EndLoop)
-    return;
-  if (LastInputRecord.EventType==MOUSE_EVENT)
-    ProcessMouse(&LastInputRecord.Event.MouseEvent);
-  else
-    ProcessKey(Key);
+		//WaitInFastFind++;
+		int Key=GetInputRecord(&LastInputRecord);
+		//WaitInFastFind--;
+		WaitInMainLoop=FALSE;
+		if (EndLoop)
+			return;
+		if (LastInputRecord.EventType==MOUSE_EVENT)
+			ProcessMouse(&LastInputRecord.Event.MouseEvent);
+		else
+			ProcessKey(Key);
+	}
 }
 
 void Manager::ExitMainLoop(int Ask)

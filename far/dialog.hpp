@@ -409,6 +409,7 @@ class Dialog: public Frame
 
     BOOL IsInited(void);
     BOOL IsEditChanged(unsigned ID);
+	bool ProcessEvents(void);
 };
 
 #endif // __DIALOG_HPP__

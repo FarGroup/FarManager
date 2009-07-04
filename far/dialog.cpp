@@ -6630,3 +6630,8 @@ void Dialog::SetComboBoxPos()
 			Item[FocusPos]->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
 	}
 }
+
+bool Dialog::ProcessEvents(void)
+{
+	return !DialogMode.Check(DMODE_ENDLOOP);
+}
