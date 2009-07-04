@@ -1031,8 +1031,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,PluginPanelItem *Item
 			if(CurSel==-1 && !ItemNumber)
 			{
 				result=FileListToPluginItem2(ListData[CurFile],Item);
-				CacheSelIndex=ItemNumber;
-				CacheSelPos=CurFile;
+				CacheSelIndex=-1;
 			}
 		}
 	}
