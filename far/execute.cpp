@@ -974,7 +974,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( bIsNT && strpbrk (NewCmdStr, "&<>()@^|=;,") )
+    if ( bIsNT && strpbrk (NewCmdStr, "&<>()@^|=;, ") )
       bDoubleQ = true;
 
     if ( (bIsNT && *NewCmdPar) || bDoubleQ )

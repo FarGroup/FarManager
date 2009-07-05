@@ -1,3 +1,9 @@
+zeroes 05.07.2009 03:44:27 +200  - build 2599
+
+1. пробуем выполнить "%Programfiles%\test.exe" в ответ:
+'D:\Program' is not recognized as an internal or external command,
+operable program or batch file.
+
 zeroes 04.07.2009 23:22:25 +0200 - build 2598
 
 1. фикс поиска файлов, если в каталоге был файл с длиной 255 символов в пути, 
