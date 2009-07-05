@@ -458,9 +458,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	apiFindClose(FindHandle);
 
-	if (IsColumnDisplayed(DIZ_COLUMN))
-		ReadDiz();
-
 	/*
 	int NetRoot=FALSE;
 	if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
@@ -489,6 +486,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			FileCount++;
 		}
 	}
+
+	if (IsColumnDisplayed(DIZ_COLUMN))
+		ReadDiz();
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
 	{
