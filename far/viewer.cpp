@@ -2275,6 +2275,7 @@ void Viewer::Search(int Next,int FirstChar)
     {
       Transform(strSearchStr,strSearchStr,L'S');
       SearchLength=(int)strSearchStr.GetLength();
+      WholeWords=0;
     }
 
     if (!Case && !SearchHex)
