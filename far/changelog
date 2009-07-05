@@ -1,3 +1,10 @@
+zeroes 05.07.2009 03:51:27 +200  - build 1023
+
+1. пробуем выполнить "%Programfiles%\test.exe" в ответ:
+'D:\Program' is not recognized as an internal or external command,
+operable program or batch file.
+
+
 zg 04.07.2009 16:00:28 +0200 - build 1022
 
 1. уточнение 1016.1.

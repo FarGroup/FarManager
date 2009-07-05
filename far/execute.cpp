@@ -806,7 +806,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( wcspbrk (strNewCmdStr, L"&<>()@^|=;,") )
+    if ( wcspbrk (strNewCmdStr, L"&<>()@^|=;, ") )
       bDoubleQ = true;
 
     if ( !strNewCmdPar.IsEmpty() || bDoubleQ )
