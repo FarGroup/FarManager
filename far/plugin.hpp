@@ -1958,6 +1958,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
   OPEN_DIALOG       = 8,
+  OPEN_ANALYSE      = 9, 
   OPEN_FROMMACRO    = 0x10000,
 };
 

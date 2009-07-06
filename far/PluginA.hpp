@@ -168,6 +168,7 @@ public:
 	bool HasProcessViewerEvent() { return pProcessViewerEvent!=NULL; }
 	bool HasProcessDialogEvent() { return pProcessDialogEvent!=NULL; }
 	bool HasProcessSynchroEvent() { return false; }
+	bool HasAnalyse() { return false; }
 
 	const string &GetModuleName() { return m_strModuleName; }
 	const wchar_t *GetCacheName() { return m_strCacheName; }
@@ -210,6 +211,7 @@ public:
 	int ProcessEditorEvent (int Event, PVOID Param);
 	int ProcessViewerEvent (int Event, PVOID Param);
 	int ProcessDialogEvent (int Event, PVOID Param);
+
 	int ProcessSynchroEvent (int Event, PVOID Param) {return 0;};
 
 	bool GetPluginInfo (PluginInfo *pi);

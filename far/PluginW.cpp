@@ -95,7 +95,7 @@ static const wchar_t wszReg_ProcessKey[]=L"ProcessKeyW";
 static const wchar_t wszReg_ProcessEvent[]=L"ProcessEventW";
 static const wchar_t wszReg_Compare[]=L"CompareW";
 static const wchar_t wszReg_GetMinFarVersion[]=L"GetMinFarVersionW";
-
+static const wchar_t wszReg_Analyse[] = L"AnalyseW";
 
 static const char NFMP_OpenPlugin[]="OpenPluginW";
 static const char NFMP_OpenFilePlugin[]="OpenFilePluginW";
@@ -125,6 +125,7 @@ static const char NFMP_ProcessKey[]="ProcessKeyW";
 static const char NFMP_ProcessEvent[]="ProcessEventW";
 static const char NFMP_Compare[]="CompareW";
 static const char NFMP_GetMinFarVersion[]="GetMinFarVersionW";
+static const char NFMP_Analyse[]="AnalyseW";
 
 
 static BOOL PrepareModulePath(const wchar_t *ModuleName)
@@ -236,6 +237,7 @@ bool PluginW::LoadFromCache (const FAR_FIND_DATA_EX &FindData)
 		pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessDialogEvent,0);
 		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessSynchroEvent,0);
 		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
+		pAnalyseW=(PLUGINANALYSEW)(INT_PTR)GetRegKey(strRegKey, wszReg_Analyse, 0);
 
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
 
@@ -255,7 +257,8 @@ bool PluginW::SaveToCache()
 		 pProcessEditorEventW ||
 		 pProcessViewerEventW ||
 		 pProcessDialogEventW ||
-		 pProcessSynchroEventW
+		 pProcessSynchroEventW ||
+		 pAnalyseW
 	)
 	{
 		PluginInfo Info;
@@ -341,6 +344,7 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessDialogEvent, pProcessDialogEventW!=NULL);
 		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=NULL);
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
+		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW != NULL);
 
 		return true;
 	}
@@ -430,6 +434,7 @@ bool PluginW::Load()
 	pProcessDialogEventW=(PLUGINPROCESSDIALOGEVENTW)GetProcAddress(m_hModule,NFMP_ProcessDialogEvent);
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
 	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
+	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
 
 	bool bUnloaded = false;
 
@@ -723,6 +728,24 @@ bool PluginW::IsPanelPlugin()
 		pFreeFindDataW ||
 		pFreeVirtualFindDataW ||
 		pClosePluginW;
+}
+
+int PluginW::Analyse (const AnalyseData *pData)
+{
+  	if ( Load() && pAnalyseW && !ProcessException )
+  	{
+		ExecuteStruct es;
+
+		es.id = EXCEPT_ANALYSE;
+		es.bDefaultResult = FALSE;
+		es.bResult = FALSE;
+
+		EXECUTE_FUNCTION_EX(pAnalyseW(pData), es);
+
+		return es.bResult;
+  	}
+
+  	return FALSE;
 }
 
 HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
@@ -1363,4 +1386,5 @@ void PluginW::ClearExports()
 	pProcessDialogEventW=0;
 	pProcessSynchroEventW=0;
 	pMinFarVersionW=0;
+	pAnalyseW = 0;
 }

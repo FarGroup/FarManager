@@ -35,6 +35,9 @@ class PluginManager;
 #include "plugin.hpp"
 #include "plclass.hpp"
 
+
+typedef int (WINAPI *PLUGINANALYSEW)(const AnalyseData *pData);
+
 typedef void (WINAPI *PLUGINCLOSEPLUGINW)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPAREW)(HANDLE hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINCONFIGUREW)(int ItemNumber);
@@ -63,6 +66,8 @@ typedef void (WINAPI *PLUGINSETSTARTUPINFOW)(const PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENTW)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 typedef int (WINAPI *PLUGINPROCESSDIALOGEVENTW)(int Event,void *Param);
 typedef int (WINAPI *PLUGINPROCESSSYNCHROEVENTW)(int Event,void *Param);
+
+
 
 
 class PluginW: public Plugin
@@ -118,6 +123,7 @@ private:
 	PLUGINPROCESSVIEWEREVENTW    pProcessViewerEventW;
 	PLUGINPROCESSDIALOGEVENTW    pProcessDialogEventW;
 	PLUGINPROCESSSYNCHROEVENTW   pProcessSynchroEventW;
+	PLUGINANALYSEW               pAnalyseW;
 
 public:
 
@@ -163,6 +169,7 @@ public:
 	bool HasProcessViewerEvent() { return pProcessViewerEventW!=NULL; }
 	bool HasProcessDialogEvent() { return pProcessDialogEventW!=NULL; }
 	bool HasProcessSynchroEvent() { return pProcessSynchroEventW!=NULL; }
+	bool HasAnalyse() { return pAnalyseW != NULL; }
 
 	const string &GetModuleName() { return m_strModuleName; }
 	const wchar_t *GetCacheName() { return m_strCacheName; }
@@ -179,6 +186,8 @@ public:
 
 	bool SetStartupInfo (bool &bUnloaded);
 	bool CheckMinFarVersion (bool &bUnloaded);
+
+	int Analyse(const AnalyseData *pData);
 
 	HANDLE OpenPlugin (int OpenFrom, INT_PTR Item);
 	HANDLE OpenFilePlugin (const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode);

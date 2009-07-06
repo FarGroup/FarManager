@@ -599,7 +599,6 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 	return (StrCmpI(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
 }
 
-
 HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -609,7 +608,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 	Plugin *pPlugin = NULL;
 
 	string strFullName;
-
+	
 	if (Name)
 	{
 		ConvertNameToFull(Name,strFullName);
@@ -620,13 +619,30 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 	{
 		pPlugin = PluginsData[i];
 
-		if ( !pPlugin->HasOpenFilePlugin() )
+		if ( !pPlugin->HasOpenFilePlugin() || (pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()) )
 			continue;
 
 		if ( Opt.ShowCheckingFile )
 			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
 
-		HANDLE hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
+		HANDLE hPlugin;
+
+		if ( pPlugin->HasOpenFilePlugin() )
+			hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
+		else
+		{
+			AnalyseData AData;
+
+			AData.lpwszFileName = Name;
+			AData.pBuffer = Data;
+			AData.dwBufferSize = DataSize;
+			AData.OpMode = OpMode;
+
+			if ( !pPlugin->Analyse(&AData) )
+				continue;
+
+			hPlugin = pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
+		}
 
 		if (hPlugin == (HANDLE)-2)
 			return hPlugin;

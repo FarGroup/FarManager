@@ -30,6 +30,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 
+struct AnalyseData {
+	int StructSize;
+	const wchar_t *lpwszFileName;
+	const unsigned char *pBuffer;
+	DWORD dwBufferSize;
+	int OpMode;
+};
+
+
 class Plugin
 {
 public:
@@ -75,6 +84,7 @@ public:
 	virtual bool HasProcessViewerEvent() = 0;
 	virtual bool HasProcessDialogEvent() = 0;
 	virtual bool HasProcessSynchroEvent() = 0;
+	virtual bool HasAnalyse() = 0;
 
 	virtual const string &GetModuleName() = 0;
 	virtual const wchar_t *GetCacheName() = 0;
@@ -115,6 +125,8 @@ public:
 	virtual int ProcessViewerEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessDialogEvent (int Event, PVOID Param) = 0;
 	virtual int ProcessSynchroEvent (int Event, PVOID Param) = 0;
+
+	virtual int Analyse(const AnalyseData *pData) { return FALSE; };
 
 	virtual bool GetPluginInfo (PluginInfo *pi) = 0;
 	virtual int Configure (int MenuItem) = 0;
