@@ -2182,17 +2182,6 @@ int Dialog::ProcessKey(int Key)
   unsigned I;
   string strStr;
 
-  if(DialogMode.Check(DMODE_ENDLOOP))
-  {
-    if((unsigned int)Key >= INTERNAL_KEY_BASE_2 && (unsigned int)Key < KEY_OP_BASE && DialogMode.Check(DMODE_ENDLOOP) &&
-       DialogMode.Check(DMODE_BEGINLOOP) &&
-       (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
-    {
-      FrameManager->DeleteFrame (this);
-    }
-    return TRUE;
-  }
-
   if (Key==KEY_NONE || Key==KEY_IDLE)
   {
     DlgProc((HANDLE)this,DN_ENTERIDLE,0,0); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
@@ -4763,7 +4752,7 @@ void Dialog::Process()
 	}
 }
 
-void Dialog::CloseDialog(bool deleteFrame)
+void Dialog::CloseDialog(void)
 {
   CriticalSectionLock Lock(CS);
 
@@ -4773,7 +4762,7 @@ void Dialog::CloseDialog(bool deleteFrame)
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
 
-    if(deleteFrame && DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
+    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
     {
       DialogMode.Clear(DMODE_BEGINLOOP);
       FrameManager->DeleteFrame (this);
@@ -5307,7 +5296,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         Dlg->ExitCode=Dlg->FocusPos;
       else
         Dlg->ExitCode=Param1;
-      Dlg->CloseDialog(false);
+      Dlg->CloseDialog();
       return TRUE;  // согласен с закрытием
     }
 

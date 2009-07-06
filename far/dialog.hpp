@@ -374,7 +374,7 @@ class Dialog: public Frame
     void ClearDone();
     virtual void SetExitCode (int Code);
 
-    void CloseDialog(bool deleteFrame=true);
+    void CloseDialog(void);
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_DIALOG; }
