@@ -4922,18 +4922,12 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 	LONG_PTR Result;
 	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
-	if(Msg!=DN_GETDIALOGINFO)
-	{
-		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
+	if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
-	}
 	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
-	if(Msg!=DN_GETDIALOGINFO)
-	{
-		de.Result=Result;
-		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
-			return de.Result;
-	}
+	de.Result=Result;
+	if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
+		return de.Result;
 	return Result;
 }
 
@@ -4951,13 +4945,10 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
 	if(!hDlg || hDlg==INVALID_HANDLE_VALUE)
 		return 0;
 
-	if(Msg!=DN_GETDIALOGINFO)
+	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
+	if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
 	{
-		FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
-		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
-		{
-			return de.Result;
-		}
+		return de.Result;
 	}
 
   Dialog* Dlg=(Dialog*)hDlg;
