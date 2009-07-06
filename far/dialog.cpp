@@ -203,6 +203,9 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	// запоминаем предыдущий заголовок консоли
 	OldTitle=new ConsoleTitle;
 
+	IdExist=false;
+	memset(&Id,0,sizeof(Id));
+
 	bInitOK = true;
 }
 
@@ -311,6 +314,17 @@ void Dialog::InitDialog(void)
     }
     // все объекты проинициализированы!
     DialogMode.Set(DMODE_INITOBJECTS);
+
+		DialogInfo di={0};
+		if(DlgProc(reinterpret_cast<HANDLE>(this),DN_GETDIALOGINFO,0,reinterpret_cast<LONG_PTR>(&di)))
+		{
+			if(static_cast<size_t>(di.StructSize)>=offsetof(DialogInfo,Id)+sizeof(di.Id))
+			{
+				Id=di.Id;
+				IdExist=true;
+			}
+		}
+
     DlgProc((HANDLE)this,DN_GOTFOCUS,InitFocus,0);
   }
 
@@ -2129,6 +2143,13 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return (__int64)(FocusPos+1);
     }
 
+		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
+		{
+			static string strId;
+			strId.Format(L"{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",Id.Data1,Id.Data2,Id.Data3,Id.Data4[0],Id.Data4[1],Id.Data4[2],Id.Data4[3],Id.Data4[4],Id.Data4[5],Id.Data4[6],Id.Data4[7]);
+			return reinterpret_cast<INT64>(strId.CPtr());
+		}
+
     case MCODE_V_ITEMCOUNT:
     case MCODE_V_CURPOS:
     {
@@ -2947,10 +2968,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       if(!DialogMode.Check(DMODE_SHOW))
         return FALSE;
 //      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
-      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+			if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
         ProcessKey(KEY_ESC);
 //      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
-      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+			else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
         ProcessKey(KEY_ENTER);
     }
 
@@ -3186,10 +3207,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
         while (1)
         {
-          int mb=IsMouseButtonPressed();
+					DWORD Mb=IsMouseButtonPressed();
 
           int mx,my,X0,Y0;
-          if ( mb==1 ) // left key, still dragging
+					if(Mb==FROM_LEFT_1ST_BUTTON_PRESSED) // still dragging
           {
             int AdjX=0,AdjY=0;
             int OX1=X1;
@@ -3240,7 +3261,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             }
           }
 
-          else if (mb==2) // right key, abort
+					else if (Mb==RIGHTMOST_BUTTON_PRESSED) // abort
           {
             LockScreen LckScr;
             Hide();
@@ -4899,15 +4920,21 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   if(DialogMode.Check(DMODE_ENDLOOP))
     return 0;
 
-  FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
-  LONG_PTR ret;
-  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
-    return de.Result;
-  ret=RealDlgProc(hDlg,Msg,Param1,Param2);
-  de.Result=ret;
-  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
-    return de.Result;
-  return ret;
+	LONG_PTR Result;
+	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
+	if(Msg!=DN_GETDIALOGINFO)
+	{
+		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
+			return de.Result;
+	}
+	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
+	if(Msg!=DN_GETDIALOGINFO)
+	{
+		de.Result=Result;
+		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
+			return de.Result;
+	}
+	return Result;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -4924,9 +4951,14 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
 	if(!hDlg || hDlg==INVALID_HANDLE_VALUE)
 		return 0;
 
-  FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
-  if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
-    return de.Result;
+	if(Msg!=DN_GETDIALOGINFO)
+	{
+		FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
+		if(CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+		{
+			return de.Result;
+		}
+	}
 
   Dialog* Dlg=(Dialog*)hDlg;
 
@@ -4988,6 +5020,24 @@ LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param
 
     case DN_ENTERIDLE:
       return 0;     // always 0
+
+		case DM_GETDIALOGINFO:
+			{
+				bool Result=false;
+				if(Param2)
+				{
+					if(Dlg->IdExist)
+					{
+						DialogInfo *di=reinterpret_cast<DialogInfo*>(Param2);
+						if(static_cast<size_t>(di->StructSize)>=offsetof(DialogInfo,Id)+sizeof(di->Id))
+						{
+							di->Id=Dlg->Id;
+							Result=true;
+						}
+					}
+				}
+				return Result;
+			}
   }
 
   // предварительно проверим...
@@ -5368,6 +5418,12 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     {
       return Dlg->CallDlgProc(Msg,Param1,Param2);
     }
+
+		case DM_GETDIALOGINFO:
+		{
+			return DefDlgProc(hDlg,DM_GETDIALOGINFO,Param1,Param2);
+		}
+
   }
 
   /*****************************************************************/
@@ -6623,4 +6679,10 @@ void Dialog::SetComboBoxPos()
 bool Dialog::ProcessEvents(void)
 {
 	return !DialogMode.Check(DMODE_ENDLOOP);
+}
+
+void Dialog::SetId(const GUID& Id)
+{
+	this->Id=Id;
+	IdExist=true;
 }

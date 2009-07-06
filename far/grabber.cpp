@@ -396,7 +396,7 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ProcessKey(KEY_ENTER);
     return(TRUE);
   }
-  if (!LButtonPressed)
+	if (MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
     return(FALSE);
 
 	GArea.CurX=Min(Max(0,MouseX),ScrX);

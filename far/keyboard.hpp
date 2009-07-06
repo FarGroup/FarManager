@@ -51,9 +51,7 @@ enum {
 extern FarQueue<DWORD> *KeyQueue;
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;
-extern int LButtonPressed, PrevLButtonPressed;
-extern int RButtonPressed, PrevRButtonPressed;
-extern int MButtonPressed, PrevMButtonPressed;
+extern DWORD MouseButtonState,PrevMouseButtonState;
 extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int PreMouseEventFlags,MouseEventFlags;
 extern int ReturnAltValue;
@@ -63,7 +61,7 @@ bool KeyToKeyLayoutCompare(int Key, int CompareKey);
 int KeyToKeyLayout(int Key);
 
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
-int IsMouseButtonPressed();
+DWORD IsMouseButtonPressed();
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
 int WINAPI KeyNameToKey(const wchar_t *Name);
 BOOL WINAPI KeyToText (int Key, string &strKeyText);

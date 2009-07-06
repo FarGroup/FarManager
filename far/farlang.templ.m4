@@ -7517,6 +7517,14 @@ upd:"Zeichenta&belle verwenden:"
 "Kó&dlap:"
 "Użyj tablicy znaków:"
 
+MFindFileCodePageBottom
+"Space, Ins"
+"Space, Ins"
+"Space, Ins"
+"Space, Ins"
+"Space, Ins"
+"Space, Ins"
+
 MFindFileCase
 "&Учитывать регистр"
 "&Case sensitive"

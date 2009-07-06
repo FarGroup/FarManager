@@ -186,6 +186,7 @@ TMacroKeywords MKeywords[] ={
   {2,  L"Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
   {2,  L"Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
   {2,  L"Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
+	{2,  L"Dlg.Info.Id",        MCODE_V_DLGINFOID,0},
 
   {2,  L"Help.FileName",      MCODE_V_HELPFILENAME, 0},
   {2,  L"Help.Topic",         MCODE_V_HELPTOPIC, 0},
@@ -938,6 +939,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
           }
           break;
         }
+
+				case MCODE_V_DLGINFOID:        // Dlg.Info.Id
+					{
+						if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? Mode == MACRO_DIALOG ??
+						{
+							Cond=reinterpret_cast<LPCWSTR>(CurFrame->VMProcess(CheckCode));
+						}
+					}
+					break;
 
         case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
         case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible

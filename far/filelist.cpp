@@ -2515,7 +2515,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     while (IsMouseButtonPressed() && MouseY<=Y1+1)
     {
       Up(1);
-      if (RButtonPressed)
+			if(MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
       {
         CurPtr=ListData[CurFile];
         Select(CurPtr,MouseSelection);
@@ -2533,7 +2533,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     while (IsMouseButtonPressed() && MouseY>=Y2-2)
     {
       Down(1);
-      if (RButtonPressed)
+			if(MouseButtonState!=RIGHTMOST_BUTTON_PRESSED)
       {
         CurPtr=ListData[CurFile];
         Select(CurPtr,MouseSelection);

@@ -207,8 +207,7 @@ void SetFarTitle(const wchar_t *Title)
 void FlushInputBuffer()
 {
   FlushConsoleInputBuffer(hConInp);
-  LButtonPressed=PrevLButtonPressed=0;
-  RButtonPressed=PrevRButtonPressed=0;
+	MouseButtonState=0;
   MouseEventFlags=0;
 }
 

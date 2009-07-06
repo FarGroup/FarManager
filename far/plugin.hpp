@@ -342,6 +342,8 @@ enum FarMessagesProc{
   DM_GETDLGITEMSHORT,
   DM_SETDLGITEMSHORT,
 
+  DM_GETDIALOGINFO,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -363,6 +365,8 @@ enum FarMessagesProc{
   DN_MOUSEEVENT,
   DN_DRAWDIALOGDONE,
   DN_LISTHOTKEY,
+
+  DN_GETDIALOGINFO=DM_GETDIALOGINFO,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
@@ -550,6 +554,12 @@ struct OpenDlgPluginData
 {
   int ItemNumber;
   HANDLE hDlg;
+};
+
+struct DialogInfo
+{
+  int StructSize;
+  GUID Id;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)

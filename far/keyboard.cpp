@@ -65,7 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FarQueue<DWORD> *KeyQueue=NULL;
 int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
 int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
-int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
+DWORD MouseButtonState=0,PrevMouseButtonState=0;
 int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
 int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
 int PreMouseEventFlags=0,MouseEventFlags=0;
@@ -492,19 +492,13 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 }
 
 
-int IsMouseButtonPressed()
+DWORD IsMouseButtonPressed()
 {
   INPUT_RECORD rec;
   if (PeekInputRecord(&rec))
     GetInputRecord(&rec);
   Sleep(1);
-  if (LButtonPressed)
-    return(1);
-  if (RButtonPressed)
-    return(2);
-  if(MButtonPressed)
-    return(3);
-  return(0);
+	return MouseButtonState;
 }
 
 static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
@@ -915,7 +909,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     ShiftPressed=RightShiftPressedLast=ShiftPressedLast=FALSE;
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
-    LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
+    MouseButtonState=0;
     ShiftState=FALSE;
     PressedLastTime=0;
 		ReadConsoleInput(hConInp,rec,1,&ReadCount);
@@ -1358,14 +1352,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     if(MouseEventFlags != MOUSE_MOVED)
     {
 //// // _SVS(SysLog(L"1. CtrlState=%X PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,PrevRButtonPressed,RButtonPressed));
-      PrevLButtonPressed=LButtonPressed;
-      PrevRButtonPressed=RButtonPressed;
-      PrevMButtonPressed=MButtonPressed;
+			PrevMouseButtonState=MouseButtonState;
     }
-
-    LButtonPressed=(BtnState & FROM_LEFT_1ST_BUTTON_PRESSED);
-    RButtonPressed=(BtnState & RIGHTMOST_BUTTON_PRESSED);
-    MButtonPressed=(BtnState & FROM_LEFT_2ND_BUTTON_PRESSED);
+		MouseButtonState=BtnState;
 //// // _SVS(SysLog(L"2. BtnState=%X PrevRButtonPressed=%d,RButtonPressed=%d",BtnState,PrevRButtonPressed,RButtonPressed));
 
     PrevMouseX=MouseX;

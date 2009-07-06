@@ -265,6 +265,9 @@ class Dialog: public Frame
 
     int RealWidth, RealHeight;
 
+		GUID Id;
+		bool IdExist;
+
   private:
     void Init(FARWINDOWPROC DlgProc,LONG_PTR InitParam);
     virtual void DisplayObject();
@@ -409,7 +412,9 @@ class Dialog: public Frame
 
     BOOL IsInited(void);
     BOOL IsEditChanged(unsigned ID);
-	bool ProcessEvents(void);
+		bool ProcessEvents(void);
+
+		void SetId(const GUID& Id);
 };
 
 #endif // __DIALOG_HPP__

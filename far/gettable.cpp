@@ -249,24 +249,21 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
 	if (selectType & CPST_FAVORITE)
 	{
-		// добавляем разделитель между стандартными и системными таблицами символов
-		if (!favoriteCodePages && !normalCodePages)
-			AddSeparator(MSG(MGetTableFavorites));
 		// Добавляем таблицу символов в выбранные
 		AddTable(
 				codePageName,
 				codePage,
 				GetTableInsertPosition(
 						codePage,
-						GetItemsCount()-normalCodePages-favoriteCodePages-((favoriteCodePages && normalCodePages)?1:0),
+						GetItemsCount()-normalCodePages-favoriteCodePages-(favoriteCodePages?1:0)-(normalCodePages?1:0),
 						favoriteCodePages
 					),
 				true,
 				selectType & CPST_FIND ? true : false
 			);
 		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
-		if (!favoriteCodePages && normalCodePages)
-			AddSeparator(MSG(MGetTableOther),GetItemsCount()-normalCodePages);
+		if(!favoriteCodePages)
+			AddSeparator(MSG(MGetTableFavorites),GetItemsCount()-normalCodePages-(normalCodePages?1:0)-1);
 		// Увеличиваем счётчик выбранных таблиц символов
 		favoriteCodePages++;
 	}
@@ -274,7 +271,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	{
 		// добавляем разделитель между стандартными и системными таблицами символов
 		if (!favoriteCodePages && !normalCodePages)
-			AddSeparator(MSG(MGetTableFavorites));
+			AddSeparator(MSG(MGetTableOther));
 		// Добавляем таблицу символов в нормальные
 		AddTable(
 				codePageName,
@@ -285,9 +282,6 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 						normalCodePages
 					)
 			);
-		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
-		if (favoriteCodePages && !normalCodePages)
-			AddSeparator(MSG(MGetTableOther),GetItemsCount()-normalCodePages);
 		// Увеличиваем счётчик выбранных таблиц символов
 		normalCodePages++;
 	}
@@ -422,7 +416,7 @@ void FillTablesVMenu(bool bShowUnicode, bool bShowUTF)
 	// Устанавливаем заголовок меню
 	UnicodeString title = MSG(MGetTableTitle);
 	if (Opt.CPMenuMode)
-		title += L"*";
+		title += L" *";
 	tables->SetTitle(title);
 	// Добавляем таблицы символов
 	AddTables(::OEM | ::ANSI | (bShowUTF ? /* BUBUG ::UTF7 | */ ::UTF8 : 0) | (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0));

@@ -649,6 +649,8 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,(LONG_PTR)(Hex?MSG(MFindFileHex):MSG(MFindFileText)));
 			Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,FAD_TEXT_CP,(LONG_PTR)MSG(MFindFileCodePage));
 			Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,CBET_KEY);
+			FarListTitles Titles={0,NULL,0,MSG(MFindFileCodePageBottom)};
+			Dialog::SendDlgMessage(hDlg,DM_LISTSETTITLES,FAD_COMBOBOX_CP,reinterpret_cast<LONG_PTR>(&Titles));
 
 			/* Установка запомненных ранее параметров */
 			CodePage = Opt.FindCodePage;
@@ -775,69 +777,87 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 		case DM_KEY:
 		{
-			// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
-			if (Param1==FAD_COMBOBOX_CP && (Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE))
+			switch(Param1)
 			{
-				// Получаем текущую позицию в выпадающем списке таблиц символов
-				FarListPos Position;
-				Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&Position);
-				// Получаем номер выбранной таблицы симолов
-				FarListGetItem Item = { Position.SelectPos };
-				Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
-				UINT SelectedCodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
-				// Разрешаем отмечать только стандартные и любимые таблицы символов
-				int FavoritesIndex = 2 + StandardCPCount + 2;
-				if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
+			case FAD_COMBOBOX_CP:
 				{
-					// Преобразуем номер таблицы сиволов к строке
-					string strCodePageName;
-					strCodePageName.Format(L"%u", SelectedCodePage);
-					// Получаем текущее состояние флага в реестре
-					int SelectType = 0;
-					GetRegKey(FavoriteCodePagesKey, strCodePageName, SelectType, 0);
-					// Отмечаем/разотмечаем таблицу символов
-					if (Item.Item.Flags & LIF_CHECKED)
+					switch(Param2)
 					{
-						// Для стандартных таблиц символов просто удаляем значение из рееста, для
-						// любимых же оставляем в реестре флаг, что таблица символов любимая
-						if (SelectType & CPST_FAVORITE)
-							SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
-						else
-							DeleteRegValue(FavoriteCodePagesKey, strCodePageName);
-
-						Item.Item.Flags &= ~LIF_CHECKED;
-					}
-					else
-					{
-						SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
-
-						Item.Item.Flags |= LIF_CHECKED;
-					}
-					// Обновляем текущий элемент в выпадающем списке
-					Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
-					// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в любимых,
-					// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
-					bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
-					for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
-					{
-						// Получаем элемент таблицы симолов
-						FarListGetItem CheckItem = { Index };
-						Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
-						// Обрабатываем только таблицы симовлов
-						if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
+					case KEY_INS:
+					case KEY_NUMPAD0:
+					case KEY_SPACE:
 						{
-							if (SelectedCodePage == (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Index))
+							// Обработка установки/снятия флажков для стандартных и любимых таблиц символов
+							// Получаем текущую позицию в выпадающем списке таблиц символов
+							FarListPos Position;
+							Dialog::SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, (LONG_PTR)&Position);
+							// Получаем номер выбранной таблицы симолов
+							FarListGetItem Item = { Position.SelectPos };
+							Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
+							UINT SelectedCodePage = (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
+							// Разрешаем отмечать только стандартные и любимые таблицы символов
+							int FavoritesIndex = 2 + StandardCPCount + 2;
+							if (Position.SelectPos > 1 && Position.SelectPos < FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0))
 							{
+								// Преобразуем номер таблицы сиволов к строке
+								string strCodePageName;
+								strCodePageName.Format(L"%u", SelectedCodePage);
+								// Получаем текущее состояние флага в реестре
+								int SelectType = 0;
+								GetRegKey(FavoriteCodePagesKey, strCodePageName, SelectType, 0);
+								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
-									CheckItem.Item.Flags |= LIF_CHECKED;
+								{
+									// Для стандартных таблиц символов просто удаляем значение из рееста, для
+									// любимых же оставляем в реестре флаг, что таблица символов любимая
+									if (SelectType & CPST_FAVORITE)
+										SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
+									else
+										DeleteRegValue(FavoriteCodePagesKey, strCodePageName);
+
+									Item.Item.Flags &= ~LIF_CHECKED;
+								}
 								else
-									CheckItem.Item.Flags &= ~LIF_CHECKED;
-								Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
-								break;
+								{
+									SetRegKey(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
+
+									Item.Item.Flags |= LIF_CHECKED;
+								}
+								// Обновляем текущий элемент в выпадающем списке
+								Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
+								if(Position.SelectPos<FavoritesIndex + (favoriteCodePages ? favoriteCodePages + 1 : 0)-2)
+								{
+									FarListPos Pos={Position.SelectPos+1,Position.TopPos};
+									Dialog::SendDlgMessage(hDlg, DM_LISTSETCURPOS, FAD_COMBOBOX_CP,reinterpret_cast<LONG_PTR>(&Pos));
+								}
+								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в любимых,
+								// т.е. выбор/снятие флага автоматичекски происходуит у обоих элементов
+								bool bStandardCodePage = Position.SelectPos < FavoritesIndex;
+								for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
+								{
+									// Получаем элемент таблицы симолов
+									FarListGetItem CheckItem = { Index };
+									Dialog::SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
+									// Обрабатываем только таблицы симовлов
+									if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
+									{
+										if (SelectedCodePage == (UINT)Dialog::SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Index))
+										{
+											if (Item.Item.Flags & LIF_CHECKED)
+												CheckItem.Item.Flags |= LIF_CHECKED;
+											else
+												CheckItem.Item.Flags &= ~LIF_CHECKED;
+											Dialog::SendDlgMessage(hDlg, DM_LISTUPDATE, FAD_COMBOBOX_CP, (LONG_PTR)&CheckItem);
+											break;
+										}
+									}
+								}
 							}
 						}
+						break;
 					}
 				}
+				break;
 			}
 			break;
 		}
@@ -3099,6 +3119,11 @@ FindFiles::FindFiles()
 		Dialog Dlg(FindAskDlg,countof(FindAskDlg),MainDlgProc);
 
 		Dlg.SetHelp(L"FindFile");
+
+		// {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
+		static const GUID FindFileId={0x8c9ead29,0x910f,0x4b24,{0xa6,0x69,0xed,0xaf,0xba,0x6e,0xd9,0x64}};
+		Dlg.SetId(FindFileId);
+
 		Dlg.SetPosition(-1,-1,78,22);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
