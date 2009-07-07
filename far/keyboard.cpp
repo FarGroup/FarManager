@@ -1484,7 +1484,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
      Если KeyWait = -1 - как и раньше
 */
-DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
+DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 {
   int Visible=0,Size=0;
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
@@ -1501,7 +1501,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS)
     INPUT_RECORD rec;
     Key=KEY_NONE;
     if (PeekInputRecord(&rec))
-			Key=GetInputRecord(&rec,true,true);
+			Key=GetInputRecord(&rec,ExcludeMacro,true);
     if(KeyWait == (DWORD)-1)
     {
 			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key))

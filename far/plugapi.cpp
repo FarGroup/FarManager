@@ -300,7 +300,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     */
     case ACTL_WAITKEY:
     {
-      return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1);
+      return WaitKey(Param?(DWORD)(DWORD_PTR)Param:(DWORD)-1,0,false);
     }
 
     /* $ 04.12.2000 SVS

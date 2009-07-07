@@ -69,7 +69,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
-DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0);
+DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
