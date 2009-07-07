@@ -62,6 +62,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 
+//BUGBUG
+#include "_array.hpp"
+
+
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
 #endif
@@ -599,6 +603,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 	return (StrCmpI(PointToName(Plugin1->GetModuleName()),PointToName(Plugin2->GetModuleName())));
 }
 
+/* OLD
 HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -660,6 +665,151 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 	return INVALID_HANDLE_VALUE;
 }
 
+*/
+
+
+HANDLE PluginManager::OpenFilePlugin(
+		const wchar_t *Name, 
+		const unsigned char *Data, 
+		int DataSize, 
+		int OpMode
+		)
+{
+	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):NULL);
+
+	HANDLE hResult = INVALID_HANDLE_VALUE;
+	PluginHandle *pResult = NULL;
+
+	pointer_array<PluginHandle*> items;
+
+	items.create(ARRAY_OPTIONS_SKIP);
+
+	string strFullName;
+	
+	if ( Name )
+	{
+		ConvertNameToFull(Name,strFullName);
+		Name = strFullName;
+	}
+
+	Plugin *pPlugin = NULL;
+
+	for (int i = 0; i < PluginsCount; i++)
+	{
+		pPlugin = PluginsData[i];
+
+		if ( !pPlugin->HasOpenFilePlugin() || (pPlugin->HasAnalyse() && pPlugin->HasOpenPlugin()) )
+			continue;
+
+		if ( Opt.ShowCheckingFile )
+			ct.Set(L"%s - [%s]...",MSG(MCheckingFileInPlugin),PointToName(pPlugin->GetModuleName()));
+
+		HANDLE hPlugin;
+
+		if ( pPlugin->HasOpenFilePlugin() )
+		{
+			hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
+
+			if ( hPlugin != INVALID_HANDLE_VALUE )
+			{
+				PluginHandle *handle = new PluginHandle;
+
+				handle->hPlugin = hPlugin;
+				handle->pPlugin = pPlugin;
+
+				items.add(handle);
+			}
+		}
+		else
+		{
+			AnalyseData AData;
+
+			AData.lpwszFileName = Name;
+			AData.pBuffer = Data;
+			AData.dwBufferSize = DataSize;
+			AData.OpMode = OpMode;
+
+			if ( pPlugin->Analyse(&AData) )
+			{
+				PluginHandle *handle = new PluginHandle;
+
+				handle->pPlugin = pPlugin;
+				handle->hPlugin = INVALID_HANDLE_VALUE;
+
+				items.add(handle);
+			}
+		}
+
+		//не поддерживается
+		//if (hPlugin == (HANDLE)-2)
+		//	return hPlugin;
+
+	}
+
+	if ( items.count() )
+	{
+		VMenu menu(L"Choose", NULL, 0, ScrY-4);
+
+		menu.SetPosition(-1, -1, 0, 0);
+		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+
+		MenuItemEx mitem;
+		
+		for (int i = 0; i < items.count(); i++)
+		{
+			PluginHandle *handle = items.at(i);
+
+			mitem.Clear();
+			mitem.strName = PointToName(handle->pPlugin->GetModuleName());
+
+			menu.SetUserData((void*)handle, sizeof(handle), menu.AddItem(&mitem));
+		}
+
+		menu.Show();
+
+		while ( !menu.Done() )
+		{
+			menu.ReadInput();
+			menu.ProcessInput();
+		}
+
+		if ( menu.GetExitCode() != -1 )
+		{
+			pResult = (PluginHandle*)menu.GetUserData(NULL, 0);
+
+			if ( pResult->hPlugin == INVALID_HANDLE_VALUE ) //Analyse
+			{
+				HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
+
+				if ( h != INVALID_HANDLE_VALUE )
+					pResult->hPlugin = h;
+				else
+					pResult = NULL;
+			}
+		}
+		else
+			hResult = (HANDLE)-2;
+	}
+
+    for (int i = 0; i < items.count(); i++)
+	{
+		PluginHandle *handle = items.at(i);
+
+		if ( handle != pResult )
+		{
+			if ( handle->hPlugin != INVALID_HANDLE_VALUE )
+				handle->pPlugin->ClosePlugin(handle->hPlugin);
+
+			delete handle;
+		}
+	}
+
+	if ( pResult )
+		hResult = (HANDLE)pResult;
+
+	return hResult;
+}
 
 HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int ItemsNumber)
 {
