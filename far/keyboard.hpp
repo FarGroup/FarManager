@@ -67,7 +67,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name);
 BOOL WINAPI KeyToText (int Key, string &strKeyText);
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
-DWORD PeekInputRecord(INPUT_RECORD *rec);
+DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);

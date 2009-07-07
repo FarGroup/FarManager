@@ -1460,25 +1460,29 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
   return(CalcKey);
 }
 
-DWORD PeekInputRecord(INPUT_RECORD *rec)
+DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
-  DWORD ReadCount;
-  DWORD Key;
-  ScrBuf.Flush();
-  if(KeyQueue && (Key=KeyQueue->Peek()) != 0)
-  {
-    int VirtKey,ControlState;
-    ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
-  }
-  else
-  {
+	DWORD ReadCount;
+	DWORD Key;
+	ScrBuf.Flush();
+	if(KeyQueue && (Key=KeyQueue->Peek()) != 0)
+	{
+		int VirtKey,ControlState;
+		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
+	}
+	else if((!ExcludeMacro) && (Key=CtrlObject->Macro.PeekKey()) != 0)
+	{
+		int VirtKey,ControlState;
+		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
+	}
+	else
+	{
 		PeekConsoleInput(hConInp,rec,1,&ReadCount);
-  }
-  if (ReadCount==0)
-    return(0);
-  return(CalcKeyCode(rec,TRUE));
+	}
+	if (ReadCount==0)
+		return(0);
+	return(CalcKeyCode(rec,TRUE));
 }
-
 
 /* $ 24.08.2000 SVS
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
@@ -1500,7 +1504,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
   {
     INPUT_RECORD rec;
     Key=KEY_NONE;
-    if (PeekInputRecord(&rec))
+    if (PeekInputRecord(&rec,ExcludeMacro))
 			Key=GetInputRecord(&rec,ExcludeMacro,true);
     if(KeyWait == (DWORD)-1)
     {
