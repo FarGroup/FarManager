@@ -4401,8 +4401,7 @@ void Editor::DeleteBlock()
 
       if (CurLine==CurPtr && CurPtr->m_next!=NULL && CurPtr->m_next==TopScreen)
       {
-        CurLine=CurPtr->m_next;
-        NumLine++;
+        TopScreen=CurPtr;
       }
       DeleteString(CurPtr->m_next,FALSE,BlockStartLine+1);
       if (BlockStartLine+1<NumLine)
