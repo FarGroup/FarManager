@@ -115,7 +115,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
            memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
 
            CreatePluginStartupInfo (NULL, &LocalStartupInfo, &LocalStandardFunctions);
-           LocalStartupInfo.ModuleName = (const wchar_t *)strFarEventSvc;
+						LocalStartupInfo.ModuleName = strFarEventSvc;
 
            static string strRootKey;
            strRootKey = Opt.strRegRoot;

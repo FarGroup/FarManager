@@ -75,30 +75,30 @@ class TPreRedrawFunc
     ~TPreRedrawFunc() { Free(); }
 
   public:
-    // вернуть количество элементов на стеке
+		// тхЁэєЄ№ ъюышўхёЄтю ¤ыхьхэЄют эр ёЄхъх
     unsigned int Size() const { return Total; }
 
-    // взять элемент со стека
+		// тч Є№ ¤ыхьхэЄ ёю ёЄхър
     PreRedrawItem Pop();
 
-    // взять элемент со стека без изменения стека
+		// тч Є№ ¤ыхьхэЄ ёю ёЄхър схч шчьхэхэш  ёЄхър
     PreRedrawItem Peek();
 
-    // положить элемент на стек
+		// яюыюцшЄ№ ¤ыхьхэЄ эр ёЄхъ
     PreRedrawItem Push(const PreRedrawItem &Source);
     PreRedrawItem Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Param=NULL);
 
     PreRedrawItem SetParam(PreRedrawParamStruct Param);
 
-    // очистить стек
+		// юўшёЄшЄ№ ёЄхъ
     void Free();
 
     bool isEmpty() const {return Total==0;};
 
 
   private:
-    //TPreRedrawFunc& operator=(const TPreRedrawFunc&){return *this;}; /* чтобы не генерировалось */
-    //TPreRedrawFunc(const TPreRedrawFunc&){};            /* по умолчанию            */
+		//TPreRedrawFunc& operator=(const TPreRedrawFunc&){return *this;}; /* ўЄюс√ эх ухэхЁшЁютрыюё№ */
+		//TPreRedrawFunc(const TPreRedrawFunc&){};            /* яю єьюыўрэш■            */
 
     //PREREDRAWFUNC Set(PREREDRAWFUNC fn);
 

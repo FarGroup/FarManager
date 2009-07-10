@@ -3801,7 +3801,7 @@ size_t Dialog::ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
 	if(Item)
 	{
 		ConvertItemSmall(Item,Data);
-		wchar_t* p=(wchar_t*)(((char*)Item)+sizeof(*Item));
+		wchar_t* p=(wchar_t*)(Item+1);
 		Item->PtrData = p;
 		wmemcpy(p, (const wchar_t*)str, sz);
 		p[sz] = L'\0';
@@ -3924,7 +3924,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
     if (I  == Count)
       return FALSE;
 
-    strFindStr += (const wchar_t *)&ListItems[I].Text[LenFindStr];
+		strFindStr += &ListItems[I].Text[LenFindStr];
   }
   return TRUE;
 }

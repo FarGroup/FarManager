@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "syslog.hpp"
+#include "constitle.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System\\Executor";
 
@@ -241,7 +242,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   	return NULL;
 
 	HKEY hKey;
-	if(RegOpenKeyEx(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	if(RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
 	{
 		int nResult=RegQueryValueEx(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
 		RegCloseKey(hKey);
@@ -251,7 +252,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 
   strValue += L"\\shell";
 
-  if (RegOpenKey(HKEY_CLASSES_ROOT,(const wchar_t *)strValue,&hKey)!=ERROR_SUCCESS)
+	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
   static string strAction;
@@ -284,7 +285,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
           RegCloseKey(hOpenKey);
           strValue += ActionPtr;
           strAction = ActionPtr;
-          RetPtr = (const wchar_t *)strAction;
+					RetPtr = strAction;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
@@ -321,7 +322,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
     {
       RegCloseKey(hOpenKey);
       strValue += strAction;
-      RetPtr = (const wchar_t *)strAction;
+			RetPtr = strAction;
       RetEnum = ERROR_NO_MORE_ITEMS;
     } /* if */
 
@@ -339,7 +340,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
         {
           RegCloseKey(hOpenKey);
           strValue += strAction;
-          RetPtr = (const wchar_t *)strAction;
+					RetPtr = strAction;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* if */
@@ -706,8 +707,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
   GetConsoleScreenBufferInfo(hConOut,&sbi);
 
-  wchar_t OldTitle[512];
-	GetConsoleTitle(OldTitle, countof(OldTitle));
+	ConsoleTitle OldTitle;
 
   DWORD dwSubSystem;
   DWORD dwError = 0;
@@ -1028,8 +1028,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   SetCursorType(Visible,Size);
   SetRealCursorType(Visible,Size);
 
-	SetConsoleTitle(OldTitle);
-
   /* Если юзер выполнил внешнюю команду, например
      mode con lines=50 cols=100
      то ФАР не знал об изменении размера консоли.
@@ -1318,7 +1316,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpaceOrEos(strCmdLine.At(3)))
 	{
 		size_t pos;
-		strCmdLine = (const wchar_t *)strCmdLine+3;
+		strCmdLine.LShift(3);
 		RemoveLeadingSpaces(strCmdLine);
 
 		if(CheckCmdLineForHelp(strCmdLine) || strCmdLine.IsEmpty())
@@ -1370,7 +1368,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	// PUSHD путь | ..
 	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpaceOrEos(strCmdLine.At(5)))
 	{
-		strCmdLine = (const wchar_t *)strCmdLine+5;
+		strCmdLine.LShift(5);
 		RemoveLeadingSpaces(strCmdLine);
 
 		if(CheckCmdLineForHelp(strCmdLine))

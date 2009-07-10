@@ -1098,7 +1098,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
     if (ExitCode==ID_FF_OK) // Ok
     {
       // Если введённая пользователем маска не корректна, тогда вернёмся в диалог
-      if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set((const wchar_t *)FilterDlg[ID_FF_MASKEDIT].strData,0))
+			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.Set(FilterDlg[ID_FF_MASKEDIT].strData,0))
         continue;
 
       if (FilterDlg[ID_HER_MARKTRANSPARENT].Selected)

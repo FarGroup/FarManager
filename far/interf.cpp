@@ -58,16 +58,12 @@ static int CurColor;
 static int OutputCP;
 static BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
-static const char CONOUT[]="CONOUT$";
-static const char CONIN[]="CONIN$";
-static const WCHAR LCONOUT[]=L"CONOUT$";
-static const WCHAR LCONIN[]=L"CONIN$";
 
 WCHAR Oem2Unicode[256];
 
 static void __Create_CONOUT()
 {
-	hConOut=CreateFile(LCONOUT,GENERIC_READ|GENERIC_WRITE,
+	hConOut=CreateFile(L"CONOUT$",GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
   ScrBuf.SetHandle(hConOut);
@@ -75,7 +71,7 @@ static void __Create_CONOUT()
 
 static void __Create_CONIN()
 {
-		hConInp=CreateFile(LCONIN,GENERIC_READ|GENERIC_WRITE,
+		hConInp=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 }
 

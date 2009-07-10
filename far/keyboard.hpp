@@ -35,11 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farqueue.hpp"
 
-typedef union {
-  WCHAR UnicodeChar;
-  CHAR  AsciiChar;
-} CHAR_WCHAR;
-
 enum {
   SKEY_VK_KEYS           = 0x40000000,
   SKEY_IDLE              = 0x80000000,

@@ -240,7 +240,7 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,PluginPanelItem *pi)
 	}
 	if(pi)
 	{
-		char* data=((char*)pi)+sizeof(*pi);
+		char* data=(char*)(pi+1);
 		pi->FindData.lpwszFileName=wcscpy((wchar_t*)data,fi->strName);
 		data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
 		pi->FindData.lpwszAlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
@@ -1073,7 +1073,7 @@ void FileList::ProcessPluginCommand()
     {
       case FCTL_CLOSEPLUGIN:
         _ALGO(SysLog(L"Command=FCTL_CLOSEPLUGIN"));
-        SetCurDir((const wchar_t *)strPluginParam,TRUE);
+				SetCurDir(strPluginParam,TRUE);
         if(strPluginParam.IsEmpty())
           Update(UPDATE_KEEP_SELECTION);
         Redraw();

@@ -56,12 +56,12 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 		}
 
 		if ( !*s2 )
-			return (const wchar_t *)cp;
+			return cp;
 
 		cp++;
 	}
 
-	return (const wchar_t *)NULL;
+	return NULL;
 }
 
 
@@ -71,7 +71,7 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	int len2 = StrLength(str2);
 
 	if (len2 > len1)
-		return (const wchar_t *)NULL;
+		return NULL;
 
 	if ( !*str2 )
 		return &str1[len1];
@@ -91,12 +91,12 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 		}
 
 		if ( !*s2 )
-			return (const wchar_t *)cp;
+			return cp;
 
 		cp--;
 	}
 
-	return (const wchar_t *)NULL;
+	return NULL;
 }
 
 

@@ -71,7 +71,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #if defined(SYSLOG)
-wchar_t      LogFileName[MAX_FILE];
 static FILE *LogStream=0;
 static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf);
@@ -134,20 +133,16 @@ void OpenSysLog()
 #if defined(SYSLOG)
   if ( LogStream )
       fclose(LogStream);
-  DWORD Attr;
-
-	GetModuleFileName(NULL,LogFileName,countof(LogFileName));
-	wchar_t *Ptr=(wchar_t*)PointToName(LogFileName);
-	wcscpy(Ptr,L"$Log");
-	Attr=apiGetFileAttributes(LogFileName);
+	string strLogFileName=g_strFarPath+L"$Log";
+	DWORD Attr=apiGetFileAttributes(strLogFileName);
   if(Attr == INVALID_FILE_ATTRIBUTES)
   {
-		if(!apiCreateDirectory(LogFileName,NULL))
-      *Ptr=0;
+		if(!apiCreateDirectory(strLogFileName,NULL))
+			strLogFileName.SetLength(g_strFarPath.GetLength());
   }
   else if(!(Attr&FILE_ATTRIBUTE_DIRECTORY))
-    *Ptr=0;
-  LogStream=OpenLogStream(LogFileName);
+		strLogFileName.SetLength(g_strFarPath.GetLength());
+	LogStream=OpenLogStream(strLogFileName);
   //if ( !LogStream )
   //{
   //    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);

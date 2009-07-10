@@ -774,7 +774,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 						NameList.Items[Current].Text=strLinks[Current];
 						Current++;
 					}
-					FindClose(hFind);
+					apiFindClose(hFind);
 					AttrDlg[SETATTR_NAMECOMBO].strData.Format(MSG(MSetAttrHardLinks),NameList.ItemsNumber);
 					AttrDlg[SETATTR_NAMECOMBO].ListItems=&NameList;
 				}

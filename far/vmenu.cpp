@@ -619,8 +619,8 @@ void VMenu::ShowMenu(int IsParent)
           BoxText(BoxChar);
         }
 
-        const wchar_t *Item_I_PtrName=(const wchar_t *)Item[I]->strName;
-        const wchar_t *_MItemPtr=(const wchar_t *)Item_I_PtrName+Item[I]->ShowPos;
+				const wchar_t *Item_I_PtrName=Item[I]->strName;
+				const wchar_t *_MItemPtr=Item_I_PtrName+Item[I]->ShowPos;
 
 //        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
 //          SetColor(VMenu::Colors[VMenuColorSelected]);
@@ -1802,7 +1802,7 @@ void* VMenu::_GetUserData(MenuItemEx *PItem,void *Data,int Size)
     }
     else // ... данных нет, значит лудим имя пункта!
     {
-      memcpy ((char*)Data,(const char *)((const wchar_t *)PItem->strName),
+			memcpy (Data,(const wchar_t *)PItem->strName,
               Min(Size,static_cast<int>((PItem->strName.GetLength()+1)*sizeof(wchar_t))));
     }
   }

@@ -352,7 +352,7 @@ bool FileFilter::FilterEdit()
 					string strQuotedTitle=FilterData.getItem(SelPos)->GetTitle();
 					InsertQuote(strQuotedTitle);
           if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-                      (const wchar_t *)strQuotedTitle,MSG(MDelete),MSG(MCancel))==0)
+											strQuotedTitle,MSG(MDelete),MSG(MCancel))==0)
           {
             FilterData.deleteItem(SelPos);
 

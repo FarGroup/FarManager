@@ -83,7 +83,6 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
   Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);
 }
 
-
 int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
   int Done;
@@ -143,7 +142,8 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         strFullName = strFindPath;
-        apiGetFindDataEx (strFindPath, fdata);
+				AddEndSlash(strFullName);
+				apiGetFindDataEx(strFullName,fdata);
       }
 
       CutToSlash(strFindPath);

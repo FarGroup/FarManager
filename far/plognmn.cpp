@@ -71,7 +71,7 @@ PreserveLongName::~PreserveLongName()
 				strNewName += "\\";
 				strNewName += strSaveLongName;
 			}
-			MoveFile(strSaveShortName, strNewName);
+			apiMoveFile(strSaveShortName, strNewName);
 		}
 	}
 }

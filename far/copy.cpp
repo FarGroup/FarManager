@@ -3038,13 +3038,13 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
     string strDriveRoot;
     GetPathRoot(SrcName,strDriveRoot);
     DWORD VolFlags=0;
-		GetVolumeInformation(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+		apiGetVolumeInformation(strDriveRoot,NULL,NULL,NULL,&VolFlags,NULL);
     CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
     if(CopySparse)
     {
 			GetPathRoot(strDestName,strDriveRoot);
       VolFlags=0;
-			GetVolumeInformation(strDriveRoot,NULL,0,NULL,NULL,&VolFlags,NULL,0);
+			apiGetVolumeInformation(strDriveRoot,NULL,NULL,NULL,&VolFlags,NULL);
       CopySparse=((VolFlags&FILE_SUPPORTS_SPARSE_FILES)==FILE_SUPPORTS_SPARSE_FILES);
       if(CopySparse)
       {

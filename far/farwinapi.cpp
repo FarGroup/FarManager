@@ -46,7 +46,9 @@ BOOL apiDeleteFile (const wchar_t *lpwszFileName)
 
 BOOL apiRemoveDirectory (const wchar_t *DirName)
 {
-	return RemoveDirectory (NTPath(DirName));
+	string strDirName=DirName;
+	AddEndSlash(strDirName);
+	return RemoveDirectory(NTPath(strDirName));
 }
 
 HANDLE apiCreateFile (
@@ -596,7 +598,9 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 
 BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateDirectory(NTPath(lpPathName),lpSecurityAttributes);
+	string strPathName=lpPathName;
+	AddEndSlash(strPathName);
+	return CreateDirectory(NTPath(strPathName),lpSecurityAttributes);
 }
 
 DWORD apiGetFileAttributes(LPCWSTR lpFileName)

@@ -328,7 +328,13 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           string strFullName;
           ScanTree ScTree(TRUE,TRUE);
-          ScTree.SetFindPath(strSelName,L"*.*", 0);
+
+					string strSelFullName;
+					SrcPanel->GetCurDir(strSelFullName);
+					AddEndSlash(strSelFullName);
+					strSelFullName+=strSelName;
+					ScTree.SetFindPath(strSelFullName,L"*.*", 0);
+
           while (ScTree.GetNextName(&FindData,strFullName))
           {
             if(CheckForEscSilent())
@@ -852,7 +858,7 @@ int WipeFile(const wchar_t *Name)
 
   FarMkTempEx(strTempName,NULL,FALSE);
 
-	if(MoveFile(Name,strTempName))
+	if(apiMoveFile(Name,strTempName))
 		return(apiDeleteFile(strTempName)); //BUGBUG
   SetLastError((_localLastError = GetLastError()));
   return FALSE;
@@ -872,7 +878,7 @@ int WipeDirectory(const wchar_t *Name)
   FarMkTempEx(strTempName,NULL,usePath);
   Opt.strTempPath = strSavePath;
 
-	if(!MoveFile(Name, strTempName))
+	if(!apiMoveFile(Name, strTempName))
   {
     SetLastError((_localLastError = GetLastError()));
     return FALSE;
