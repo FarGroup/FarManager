@@ -170,15 +170,49 @@ void FreeArrayUnicode (wchar_t ** lpawszUnicodeString)
 
 DWORD OldKeyToKey (DWORD dOldKey)
 {
-	if (dOldKey&0x100) dOldKey=(dOldKey^0x100)|EXTENDED_KEY_BASE;
-		else if (dOldKey&0x200) dOldKey=(dOldKey^0x200)|INTERNAL_KEY_BASE;
+	if(dOldKey&0x100)
+	{
+		dOldKey=(dOldKey^0x100)|EXTENDED_KEY_BASE;
+	}
+	else if(dOldKey&0x200)
+	{
+		dOldKey=(dOldKey^0x200)|INTERNAL_KEY_BASE;
+	}
+	else
+	{
+		DWORD CleanKey=dOldKey&~KEY_CTRLMASK;
+		if(CleanKey>0x80 && CleanKey<0x100)
+		{
+			char OemChar=static_cast<char>(CleanKey);
+			wchar_t WideChar=0;
+			MultiByteToWideChar(CP_OEMCP,0,&OemChar,1,&WideChar,1);
+			dOldKey=(dOldKey^CleanKey)|WideChar;
+		}
+	}
 	return dOldKey;
 }
 
 DWORD KeyToOldKey (DWORD dKey)
 {
-	if (dKey&EXTENDED_KEY_BASE) dKey=(dKey^EXTENDED_KEY_BASE)|0x100;
-		else if (dKey&INTERNAL_KEY_BASE) dKey=(dKey^INTERNAL_KEY_BASE)|0x200;
+	if(dKey&EXTENDED_KEY_BASE)
+	{
+		dKey=(dKey^EXTENDED_KEY_BASE)|0x100;
+	}
+	else if(dKey&INTERNAL_KEY_BASE)
+	{
+		dKey=(dKey^INTERNAL_KEY_BASE)|0x200;
+	}
+	else
+	{
+		DWORD CleanKey=dKey&~KEY_CTRLMASK;
+		if(CleanKey>0x80 && CleanKey<0x10000)
+		{
+			wchar_t WideChar=static_cast<wchar_t>(CleanKey);
+			char OemChar=0;
+			WideCharToMultiByte(CP_OEMCP,0,&WideChar,1,&OemChar,1,0,NULL);
+			dKey=(dKey^CleanKey)|OemChar;
+		}
+	}
 	return dKey;
 }
 
