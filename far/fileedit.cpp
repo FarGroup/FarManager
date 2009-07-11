@@ -1662,8 +1662,14 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
-int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT Codepage, bool AddSignature)
+int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
 {
+	if(!bSaveAs)
+	{
+		TextFormat=0;
+		codepage=m_editor->GetCodePage();
+	}
+
 	TaskBar TB;
   if (m_editor->Flags.Check(FEDITOR_LOCKMODE) && !m_editor->Flags.Check(FEDITOR_MODIFIED) && !bSaveAs)
     return SAVEFILE_SUCCESS;
@@ -1800,8 +1806,6 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
-
-		int codepage=bSaveAs?Codepage:m_editor->GetCodePage();
 
 		if(!IsUnicodeOrUTFCP(codepage))
 		{

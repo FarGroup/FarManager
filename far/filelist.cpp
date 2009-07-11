@@ -3473,6 +3473,21 @@ void FileList::CopyNames(int FillPathName,int UNC)
         }
       }
     }
+		else
+		{
+			if(TestParentFolderName(strQuotedName) && TestParentFolderName(strSelShortName))
+			{
+				if(PanelMode==PLUGIN_PANEL)
+				{
+					strQuotedName=Info.CurDir;
+				}
+				else
+				{
+					GetCurDir(strQuotedName);
+				}
+				strQuotedName=PointToName(strQuotedName);
+			}
+		}
     if(Opt.QuotedName&QUOTEDNAME_CLIPBOARD)
       QuoteSpace(strQuotedName);
     int Length=(int)strQuotedName.GetLength();
