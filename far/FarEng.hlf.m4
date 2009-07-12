@@ -1381,7 +1381,9 @@ B - for bytes (no suffix also means bytes);
 K - for kilobytes;
 M - for megabytes;
 G - for gigabytes;
-T - for terabytes.
+T - for terabytes;
+P - for petabytes;
+E - for exabytes.
 
 
     #Process alternate data streams#
@@ -1474,7 +1476,9 @@ rule sets.
                    K - for kilobytes;
                    M - for megabytes;
                    G - for gigabytes;
-                   T - for terabytes.
+                   T - for terabytes;
+                   P - for petabytes;
+                   E - for exabytes.
 
                    Filter conditions are met if file size analysis
                    is on, and it is inside the given range.
