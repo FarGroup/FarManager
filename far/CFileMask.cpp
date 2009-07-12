@@ -97,7 +97,7 @@ bool CFileMask::Set(const wchar_t *Masks, DWORD Flags)
 }
 
 // ¬озвращает TRUE, если список масок пустой
-bool CFileMask::IsEmpty(void)
+bool CFileMask::IsEmpty()
 {
 	return FileMask?FileMask->IsEmpty():true;
 }

@@ -68,7 +68,7 @@ class FolderTree:public Frame
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    virtual void InitKeyBar(void);
+		virtual void InitKeyBar();
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
     virtual void SetScreenPosition();
     virtual void ResizeConsole();

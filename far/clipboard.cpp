@@ -75,7 +75,7 @@ static BOOL WINAPI FAR_OpenClipboard(HWND hWndNewOwner)
   return OpenClipboard(hWndNewOwner);
 }
 
-static BOOL WINAPI FAR_CloseClipboard(VOID)
+static BOOL WINAPI FAR_CloseClipboard()
 {
   if(UsedInternalClipboard)
   {
@@ -89,7 +89,7 @@ static BOOL WINAPI FAR_CloseClipboard(VOID)
   return CloseClipboard();
 }
 
-BOOL WINAPI FAR_EmptyClipboard(VOID)
+BOOL WINAPI FAR_EmptyClipboard()
 {
   if(UsedInternalClipboard)
   {
@@ -263,7 +263,7 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
 }
 
 
-wchar_t* WINAPI PasteFromClipboard(void)
+wchar_t* WINAPI PasteFromClipboard()
 {
   return InternalPasteFromClipboard(0);
 }

@@ -71,7 +71,7 @@ class FileViewer:public Frame
   public:
     void Init(const wchar_t *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
-    virtual void InitKeyBar(void);
+		virtual void InitKeyBar();
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);

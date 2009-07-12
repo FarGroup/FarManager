@@ -1371,7 +1371,7 @@ int Edit::ProcessKey(int Key)
 }
 
 // обработка Ctrl-Q
-int Edit::ProcessCtrlQ(void)
+int Edit::ProcessCtrlQ()
 {
   INPUT_RECORD rec;
   DWORD Key;
@@ -1616,7 +1616,7 @@ void Edit::SetEOL(const wchar_t *EOL)
 
 }
 
-const wchar_t *Edit::GetEOL(void)
+const wchar_t *Edit::GetEOL()
 {
   return EOL_TYPE_CHARS[EndType];
 }
@@ -2618,7 +2618,7 @@ void Edit::SetDialogParent(DWORD Sets)
   }
 }
 
-void Edit::Changed(void)
+void Edit::Changed()
 {
 	if(m_Callback.m_Callback) m_Callback.m_Callback(m_Callback.m_Param);
 }

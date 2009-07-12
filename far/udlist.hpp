@@ -125,10 +125,10 @@ class UserDefinedList
     }
 
     // Вызывать перед началом работы со списком
-    void Reset(void);
+		void Reset();
 
     // Выдает указатель на очередной элемент списка или NULL
-    const wchar_t *GetNext(void);
+		const wchar_t *GetNext();
 
     // Освободить память
     void Free();

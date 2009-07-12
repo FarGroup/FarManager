@@ -6567,7 +6567,7 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-void Editor::PR_EditorShowMsg(void)
+void Editor::PR_EditorShowMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(INT_PTR)preRedrawItem.Param.Param4);
@@ -6795,7 +6795,7 @@ void Editor::SetClearFlag(int Flag)
 {
 }
 
-int Editor::GetClearFlag(void)
+int Editor::GetClearFlag()
 {
   return 0;
 }

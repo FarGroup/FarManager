@@ -83,8 +83,8 @@ class FilePanels:public Frame
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    int SetAnhoterPanelFocus(void);
-    int SwapPanels(void);
+		int SetAnhoterPanelFocus();
+		int SwapPanels();
     int ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame);
 
     virtual void SetScreenPosition();

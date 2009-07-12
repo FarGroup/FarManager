@@ -143,7 +143,7 @@ class Help:public Frame
     virtual void Hide();
     virtual int  ProcessKey(int Key);
     virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual void InitKeyBar(void);
+		virtual void InitKeyBar();
     BOOL GetError() {return ErrorHelp;}
     virtual void SetScreenPosition();
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса

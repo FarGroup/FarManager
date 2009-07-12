@@ -177,7 +177,7 @@ class Panel:public ScreenObject
     virtual long FindNext(int StartPos, const wchar_t *Name) {return -1;}
 
     virtual void SetSelectedFirstMode(int) {};
-    virtual int GetSelectedFirstMode(void) {return 0;};
+		virtual int GetSelectedFirstMode() {return 0;};
     int GetMode() {return(PanelMode);};
     void SetMode(int Mode) {PanelMode=Mode;};
     int GetModalMode() {return(ModalMode);};

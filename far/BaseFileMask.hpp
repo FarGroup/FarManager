@@ -42,7 +42,7 @@ class BaseFileMask
   public:
     virtual bool Set(const wchar_t *Masks, DWORD Flags)=0;
     virtual bool Compare(const wchar_t *Name)=0;
-    virtual bool IsEmpty(void) { return true; }
+		virtual bool IsEmpty() { return true; }
 
   private:
     BaseFileMask& operator=(const BaseFileMask& rhs); /* чтобы не */

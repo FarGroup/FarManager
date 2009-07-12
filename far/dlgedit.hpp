@@ -70,7 +70,7 @@ class DlgEdit: public ScreenObject
   private: // приватные методы
     virtual void DisplayObject();
     static void EditChange(void* aParam);
-    void DoEditChange(void);
+		void DoEditChange();
 
   public:
     DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
@@ -109,7 +109,7 @@ class DlgEdit: public ScreenObject
     void  SetEditBeyondEnd(int Mode);
 
     void  SetClearFlag(int Flag);
-    int   GetClearFlag(void);
+		int   GetClearFlag();
 
     void  SetString(const wchar_t *Str);
     void  SetHiString(const wchar_t *Str);
@@ -125,9 +125,9 @@ class DlgEdit: public ScreenObject
     void  SetTabCurPos(int NewPos);
 
     void  SetPersistentBlocks(int Mode);
-    int   GetPersistentBlocks(void);
+		int   GetPersistentBlocks();
     void  SetDelRemovesBlocks(int NewMode);
-    int   GetDelRemovesBlocks(void);
+		int   GetDelRemovesBlocks();
 
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
     long  GetObjectColor();

@@ -5071,7 +5071,7 @@ static int __cdecl SortMacros(const MacroRecord *el1,
 }
 
 // Сортировка элементов списка
-void KeyMacro::Sort(void)
+void KeyMacro::Sort()
 {
   typedef int (__cdecl *qsort_fn)(const void*,const void*);
   // сортируем

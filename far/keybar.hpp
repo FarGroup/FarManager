@@ -87,7 +87,7 @@ class KeyBar: public ScreenObject
 
     void ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language);
     void SetRegGroup(int Group);
-    void SetAllRegGroup(void);
+		void SetAllRegGroup();
 
     void SetGroup(int Group,const wchar_t * const *Key,int KeyCount);
     // Групповая установка идущих подряд строк LNG для указанной группы

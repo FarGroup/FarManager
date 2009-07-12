@@ -375,7 +375,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
    return NULL;
 }
 
-void UserDefinedList::Reset(void)
+void UserDefinedList::Reset()
 {
   CurrentItem=0;
 }

@@ -765,7 +765,7 @@ int WINAPI CopyToClipboardA(const char *Data)
 	return ret;
 }
 
-char* WINAPI PasteFromClipboardA(void)
+char* WINAPI PasteFromClipboardA()
 {
 	wchar_t *p = PasteFromClipboard();
 	if (p)
@@ -3126,7 +3126,7 @@ UINT GetEditorCodePageA()
 	return CodePage;
 }
 
-int GetEditorCodePageFavA(void)
+int GetEditorCodePageFavA()
 {
 	UINT CodePage=GetEditorCodePageA(),nCP;
 	DWORD selectType,Index=0,FavIndex=2;

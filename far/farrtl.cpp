@@ -13,7 +13,7 @@ farrtl.cpp
 #pragma intrinsic (memcpy)
 #endif
 
-int _cdecl getdisk(void)
+int _cdecl getdisk()
 {
   /* Use GetCurrentDirectory to get the current directory path, then
    * parse the drive name.

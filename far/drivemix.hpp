@@ -60,7 +60,7 @@ enum CHECKEDPROPS_TYPE{
 
 bool IsDriveTypeRemote(UINT DriveType);
 int IsLocalDrive(const wchar_t *Path);
-DWORD WINAPI FarGetLogicalDrives(void);
+DWORD WINAPI FarGetLogicalDrives();
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType);
 
 #endif // __DRIVEMIX_HPP__

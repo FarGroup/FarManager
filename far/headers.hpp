@@ -141,7 +141,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef  __cplusplus
 extern "C" {
 #endif
- int _cdecl getdisk(void);
+ int _cdecl getdisk();
 #ifdef  __cplusplus
 }
 #endif

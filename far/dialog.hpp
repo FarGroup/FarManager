@@ -296,7 +296,7 @@ class Dialog: public Frame
 
     void SelectOnEntry(unsigned Pos,BOOL Selected);
 
-    void CheckDialogCoord(void);
+		void CheckDialogCoord();
     BOOL GetItemRect(unsigned I,RECT& Rect);
 
     // возвращает заголовок диалога (текст первого текста или фрейма)
@@ -311,7 +311,7 @@ class Dialog: public Frame
     volatile void SetDropDownOpened(int Status){ DropDownOpened=Status; }
     volatile int GetDropDownOpened(){ return DropDownOpened; }
 
-    void ProcessCenterGroup(void);
+		void ProcessCenterGroup();
     unsigned ProcessRadioButton(unsigned);
 
     unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
@@ -363,11 +363,11 @@ class Dialog: public Frame
 
     int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
     void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
-    int  GetModeMoving(void) {return DialogMode.Check(DMODE_ISCANMOVE);}
+		int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
     void SetDialogData(LONG_PTR NewDataDialog);
-    LONG_PTR GetDialogData(void) {return DataDialog;};
+		LONG_PTR GetDialogData() {return DataDialog;};
 
-    void InitDialog(void);
+		void InitDialog();
     void Process();
     void SetPluginNumber(INT_PTR NewPluginNumber){PluginNumber=NewPluginNumber;}
 
@@ -377,7 +377,7 @@ class Dialog: public Frame
     void ClearDone();
     virtual void SetExitCode (int Code);
 
-    void CloseDialog(void);
+		void CloseDialog();
 
     virtual int GetTypeAndName(string &strType, string &strName);
     virtual int GetType() { return MODALTYPE_DIALOG; }
@@ -410,9 +410,9 @@ class Dialog: public Frame
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
-    BOOL IsInited(void);
+		BOOL IsInited();
     BOOL IsEditChanged(unsigned ID);
-		bool ProcessEvents(void);
+		bool ProcessEvents();
 
 		void SetId(const GUID& Id);
 };

@@ -85,7 +85,7 @@ void DizList::Reset()
   IndexCount=0;
 }
 
-void DizList::PR_ReadingMsg(void)
+void DizList::PR_ReadingMsg()
 {
   Message(0,0,L"",MSG(MReadingDiz));
 }

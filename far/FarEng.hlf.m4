@@ -3105,9 +3105,10 @@ characters, delimited with commas. Allowed column types are:
                         F - show file sizes similar to Windows
                             Explorer (i.e. 999 bytes will be
                             displayed as 999 and 1000 bytes will
-                            be displayed as 0.97 KB);
+                            be displayed as 0.97 K);
                         E - economic mode, no space between file
-                            size and suffix will be shown;
+                            size and suffix will be shown
+                            (i.e. 0.97K);
 
     D          - file modification date
     T          - file modification time

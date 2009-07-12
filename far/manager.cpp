@@ -665,7 +665,7 @@ void Manager::ExitMainLoop(int Ask)
 //#ifdef __cplusplus
 //#if defined(_MSC_VER < 1500) // TODO: See REMINDER file, section intrin.h
 #ifndef _M_IA64
-extern "C" void __ud2 (void);
+extern "C" void __ud2 ();
 #else
 extern "C" void __setReg (int, unsigned __int64);
 #endif
@@ -1584,7 +1584,7 @@ void Manager::ResizeAllFrame()
   //RefreshFrame();
 }
 
-void Manager::InitKeyBar(void)
+void Manager::InitKeyBar()
 {
   for (int I=0;I < FrameCount;I++)
     FrameList[I]->InitKeyBar();

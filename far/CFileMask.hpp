@@ -55,7 +55,7 @@ class CFileMask
   public:
 		bool Set(const wchar_t *Masks, DWORD Flags);
 		bool Compare(const wchar_t *Name);
-		bool IsEmpty(void);
+		bool IsEmpty();
     void Free();
 
   private:

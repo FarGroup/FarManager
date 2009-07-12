@@ -241,7 +241,7 @@ Dialog::~Dialog()
 	_DIALOG(CleverSysLog CL(L"Destroy Dialog"));
 }
 
-void Dialog::CheckDialogCoord(void)
+void Dialog::CheckDialogCoord()
 {
   CriticalSectionLock Lock(CS);
 
@@ -292,7 +292,7 @@ void Dialog::CheckDialogCoord(void)
 }
 
 
-void Dialog::InitDialog(void)
+void Dialog::InitDialog()
 {
   CriticalSectionLock Lock(CS);
 
@@ -389,7 +389,7 @@ void Dialog::DisplayObject()
 }
 
 // пересчитать координаты для элементов с DIF_CENTERGROUP
-void Dialog::ProcessCenterGroup(void)
+void Dialog::ProcessCenterGroup()
 {
   CriticalSectionLock Lock(CS);
 
@@ -4773,7 +4773,7 @@ void Dialog::Process()
 	}
 }
 
-void Dialog::CloseDialog(void)
+void Dialog::CloseDialog()
 {
   CriticalSectionLock Lock(CS);
 
@@ -6639,7 +6639,7 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
   ScreenObject::SetPosition (X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
-BOOL Dialog::IsInited(void)
+BOOL Dialog::IsInited()
 {
 	CriticalSectionLock Lock(CS);
 	return DialogMode.Check(DMODE_INITOBJECTS);
@@ -6667,7 +6667,7 @@ void Dialog::SetComboBoxPos()
 	}
 }
 
-bool Dialog::ProcessEvents(void)
+bool Dialog::ProcessEvents()
 {
 	return !DialogMode.Check(DMODE_ENDLOOP);
 }

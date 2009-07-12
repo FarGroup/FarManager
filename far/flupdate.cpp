@@ -114,7 +114,7 @@ void ReadFileNamesMsg(const wchar_t *Msg)
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-static void PR_ReadFileNamesMsg(void)
+static void PR_ReadFileNamesMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   ReadFileNamesMsg((wchar_t *)preRedrawItem.Param.Param1);

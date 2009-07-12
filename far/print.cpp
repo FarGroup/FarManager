@@ -87,7 +87,7 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 		PrinterList->SetSelectPos(0, 1);
 }
 
-static void PR_PrintMsg(void)
+static void PR_PrintMsg()
 {
   Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
 }

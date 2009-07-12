@@ -689,7 +689,7 @@ void TreeList::SyncDir()
 }
 
 
-void TreeList::PR_MsgReadTree(void)
+void TreeList::PR_MsgReadTree()
 {
   int FirstCall=1;
   PreRedrawItem preRedrawItem=PreRedraw.Peek();

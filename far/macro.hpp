@@ -195,7 +195,7 @@ class KeyMacro
     BOOL CheckCmdLine(int CmdLength,DWORD Flags);
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags, BOOL IsPassivePanel);
     BOOL CheckAll(int CheckMode,DWORD CurFlags);
-    void Sort(void);
+		void Sort();
     TVar FARPseudoVariable(DWORD Flags,DWORD Code,DWORD& Err);
     DWORD GetOpCode(struct MacroRecord *MR,int PC);
     DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);

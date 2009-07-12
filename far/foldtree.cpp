@@ -359,7 +359,7 @@ void FolderTree::DrawEdit()
 }
 
 
-void FolderTree::InitKeyBar(void)
+void FolderTree::InitKeyBar()
 {
   static const wchar_t *FTreeKeysLabel[]={L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L"",L""};
   TreeKeyBar.Set(FTreeKeysLabel,countof(FTreeKeysLabel));

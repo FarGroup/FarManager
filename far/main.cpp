@@ -91,7 +91,7 @@ class TConsoleRestore{
 
 static void CopyGlobalSettings();
 
-static void show_help(void)
+static void show_help()
 {
 wprintf(
 L"Usage: far [switches] [apath [ppath]]\n\n"

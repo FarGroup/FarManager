@@ -761,7 +761,7 @@ void FileEditor::Init (
 
 }
 
-void FileEditor::InitKeyBar(void)
+void FileEditor::InitKeyBar()
 {
   EditKeyBar.SetAllGroup (KBL_MAIN,         Opt.OnlyEditorViewerUsed?MSingleEditF1:MEditF1, 12);
   EditKeyBar.SetAllGroup (KBL_SHIFT,        Opt.OnlyEditorViewerUsed?MSingleEditShiftF1:MEditShiftF1, 12);

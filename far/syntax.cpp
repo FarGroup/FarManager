@@ -69,7 +69,7 @@ static wchar_t *oSrcString = NULL;
 static TToken currTok = tNo;
 static TVar currVar;
 
-static void expr(void);
+static void expr();
 static __int64 _cdecl getInt64();
 
 #ifdef _DEBUG
@@ -315,9 +315,9 @@ static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 	return (DWORD)MCODE_F_NOFUNC;
 }
 
-static TToken getToken(void);
+static TToken getToken();
 
-static void calcFunc(void)
+static void calcFunc()
 {
 	int nParam, oParam;
 	TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
@@ -468,7 +468,7 @@ static wchar_t hex2ch(wchar_t b1)
   return (wchar_t)(b1&0x000F);
 }
 
-static TToken getToken(void)
+static TToken getToken()
 {
   oSrcString = sSrcString;
   int ch = getNextChar();
@@ -734,7 +734,7 @@ static TToken getToken(void)
   return currTok;
 }
 
-static void prim(void)
+static void prim()
 {
   switch ( currTok )
   {
@@ -798,7 +798,7 @@ static void prim(void)
   }
 }
 
-static void multExpr(void)
+static void multExpr()
 {
   prim();
   for ( ; ; )
@@ -811,7 +811,7 @@ static void multExpr(void)
     }
 }
 
-static void additionExpr(void)
+static void additionExpr()
 {
   multExpr();
   for ( ; ; )
@@ -824,7 +824,7 @@ static void additionExpr(void)
     }
 }
 
-static void shiftExpr(void)
+static void shiftExpr()
 {
   additionExpr();
   for ( ; ; )
@@ -837,7 +837,7 @@ static void shiftExpr(void)
     }
 }
 
-static void relation2Expr(void)
+static void relation2Expr()
 {
   shiftExpr();
   for ( ; ; )
@@ -852,7 +852,7 @@ static void relation2Expr(void)
     }
 }
 
-static void relationExpr(void)
+static void relationExpr()
 {
   relation2Expr();
   for ( ; ; )
@@ -865,7 +865,7 @@ static void relationExpr(void)
     }
 }
 
-static void bitAndPrim(void)
+static void bitAndPrim()
 {
   relationExpr();
   for ( ; ; )
@@ -877,7 +877,7 @@ static void bitAndPrim(void)
     }
 }
 
-static void bitXorPrim(void)
+static void bitXorPrim()
 {
   bitAndPrim();
   for ( ; ; )
@@ -889,7 +889,7 @@ static void bitXorPrim(void)
     }
 }
 
-static void bitOrPrim(void)
+static void bitOrPrim()
 {
   bitXorPrim();
   for ( ; ; )
@@ -901,7 +901,7 @@ static void bitOrPrim(void)
     }
 }
 
-static void boolAndPrim(void)
+static void boolAndPrim()
 {
   bitOrPrim();
   for ( ; ; )
@@ -914,7 +914,7 @@ static void boolAndPrim(void)
 }
 
 
-static void expr(void)
+static void expr()
 {
   boolAndPrim();
   for ( ; ; )

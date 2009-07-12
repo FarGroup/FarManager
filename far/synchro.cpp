@@ -62,7 +62,7 @@ void PluginSynchro::Synchro(INT_PTR ModuleNumber,void* Param)
 	}
 }
 
-void PluginSynchro::Process(void)
+void PluginSynchro::Process()
 {
 	if(Mutex)
 	{

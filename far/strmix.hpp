@@ -77,7 +77,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator
 
 string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
-void __PrepareKMGTbStr(void);
+void PrepareUnitStr();
 string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);

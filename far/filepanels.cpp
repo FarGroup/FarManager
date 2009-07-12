@@ -320,7 +320,7 @@ void FilePanels::DeletePanel(Panel *Deleted)
   delete Deleted;
 }
 
-int FilePanels::SetAnhoterPanelFocus(void)
+int FilePanels::SetAnhoterPanelFocus()
 {
   int Ret=FALSE;
   if (ActivePanel==LeftPanel)
@@ -343,7 +343,7 @@ int FilePanels::SetAnhoterPanelFocus(void)
 }
 
 
-int FilePanels::SwapPanels(void)
+int FilePanels::SwapPanels()
 {
   int Ret=FALSE; // это значит ни одна из панелей не видна
 

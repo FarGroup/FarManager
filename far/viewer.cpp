@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "mix.hpp"
 
-static void PR_ViewerSearchMsg(void);
+static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);
 
 static int InitHex=FALSE,SearchHex=FALSE;
@@ -2122,7 +2122,7 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-static void PR_ViewerSearchMsg(void)
+static void PR_ViewerSearchMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   ViewerSearchMsg((const wchar_t*)preRedrawItem.Param.Param1,(int)(INT_PTR)preRedrawItem.Param.Param2);

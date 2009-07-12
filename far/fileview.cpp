@@ -155,7 +155,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, /
 }
 
 
-void FileViewer::InitKeyBar(void)
+void FileViewer::InitKeyBar()
 {
   ViewKeyBar.SetAllGroup (KBL_MAIN,         Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
   ViewKeyBar.SetAllGroup (KBL_SHIFT,        Opt.OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);

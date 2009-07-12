@@ -223,7 +223,7 @@ void DlgEdit::SetClearFlag(int Flag)
     lineEdit->SetClearFlag(Flag);
 }
 
-int DlgEdit::GetClearFlag(void)
+int DlgEdit::GetClearFlag()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -354,7 +354,7 @@ void DlgEdit::SetPersistentBlocks(int Mode)
     lineEdit->SetPersistentBlocks(Mode);
 }
 
-int  DlgEdit::GetPersistentBlocks(void)
+int  DlgEdit::GetPersistentBlocks()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -374,7 +374,7 @@ void DlgEdit::SetDelRemovesBlocks(int Mode)
     lineEdit->SetDelRemovesBlocks(Mode);
 }
 
-int  DlgEdit::GetDelRemovesBlocks(void)
+int  DlgEdit::GetDelRemovesBlocks()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   if(Type == DLGEDIT_MULTILINE)
@@ -619,7 +619,7 @@ void DlgEdit::EditChange(void* aParam)
 	static_cast<DlgEdit*>(aParam)->DoEditChange();
 }
 
-void DlgEdit::DoEditChange(void)
+void DlgEdit::DoEditChange()
 {
 	if(m_Dialog->IsInited()&&!m_Dialog->IsEditChanged(m_Index))
 	{

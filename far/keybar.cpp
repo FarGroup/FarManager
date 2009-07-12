@@ -225,7 +225,7 @@ void KeyBar::SetRegGroup(int Group)
       xwcsncpy (KeyTitles[Group][I], RegKeyTitles[Group][I], countof(KeyTitles[Group][I])-1);
 }
 
-void KeyBar::SetAllRegGroup(void)
+void KeyBar::SetAllRegGroup()
 {
   for(int I=0; I < KBL_GROUP_COUNT; ++I)
     SetRegGroup(I);

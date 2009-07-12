@@ -95,7 +95,7 @@ class Frame: public ScreenObject
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
     virtual void Refresh() {OnChangeFocus(1);};  // Просто перерисоваться :)
 
-    virtual void InitKeyBar(void) {}
+		virtual void InitKeyBar() {}
     void SetKeyBar(KeyBar *FrameKeyBar);
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
@@ -122,7 +122,7 @@ class Frame: public ScreenObject
     bool HasSaveScreen();
 //    bool ifFullConsole();
     virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0){ return Title; };
-	virtual bool ProcessEvents(void) {return true;};
+		virtual bool ProcessEvents() {return true;};
 };
 
 #endif // __FRAME_HPP__

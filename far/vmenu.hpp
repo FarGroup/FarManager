@@ -285,7 +285,7 @@ class VMenu: public Modal
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    BOOL UpdateRequired(void);
+		BOOL UpdateRequired();
 
     void DeleteItems();
     int  DeleteItem(int ID,int Count=1);

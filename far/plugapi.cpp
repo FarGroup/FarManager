@@ -1466,7 +1466,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 }
 
 
-static void PR_FarGetDirListMsg(void)
+static void PR_FarGetDirListMsg()
 {
   Message(MSG_DOWN,0,L"",MSG(MPreparingList));
 }
@@ -1559,7 +1559,7 @@ static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
   PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-static void PR_FarGetPluginDirListMsg(void)
+static void PR_FarGetPluginDirListMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));

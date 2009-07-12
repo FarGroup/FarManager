@@ -550,20 +550,22 @@ void UnquoteExternal(string &strStr)
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
 */
-#define MAX_KMGTBSTR_SIZE 16
-static wchar_t KMGTbStrW[5][2][MAX_KMGTBSTR_SIZE]={0};
+#define MAX_UNITSTR_SIZE 16
 
-void __PrepareKMGTbStr(void)
+#define UNIT_COUNT 7 // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
+
+static wchar_t UnitStr[UNIT_COUNT][2][MAX_UNITSTR_SIZE]={0};
+
+void PrepareUnitStr()
 {
-  for(int I=0; I < 5; ++I)
-  {
-    xwcsncpy(KMGTbStrW[I][0],MSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
-    wcscpy(KMGTbStrW[I][1],KMGTbStrW[I][0]);
-		CharLower(KMGTbStrW[I][0]);
-		CharUpper(KMGTbStrW[I][1]);
-  }
+	for(int i=0;i<UNIT_COUNT;i++)
+	{
+		xwcsncpy(UnitStr[i][0],MSG(MListBytes+i),MAX_UNITSTR_SIZE-1);
+		wcscpy(UnitStr[i][1],UnitStr[i][0]);
+		CharLower(UnitStr[i][0]);
+		CharUpper(UnitStr[i][1]);
+	}
 }
-
 
 string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, int ViewFlags)
 {
@@ -572,9 +574,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
   int IndexDiv, IndexB;
 
   // подготовительные мероприятия
-  if(KMGTbStrW[0][0][0] == 0)
+	if(UnitStr[0][0][0] == 0)
   {
-    __PrepareKMGTbStr();
+		PrepareUnitStr();
   }
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
@@ -602,7 +604,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
     unsigned __int64 Divider64F = 1, Divider64F_mul = _ui64(1000), Divider64F2 = _ui64(1), Divider64F2_mul = Divider;
     //выравнивание идёт по 1000 но само деление происходит на Divider
     //например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
-    for (IndexB=0; IndexB<4; IndexB++)
+		for (IndexB=0; IndexB<UNIT_COUNT-1; IndexB++)
     {
       if (Sz < Divider64F*Divider64F_mul)
         break;
@@ -630,9 +632,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
       if (Width<0)
         Width=0;
       if (Economic)
-        strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,KMGTbStrW[IndexB][IndexDiv]);
+				strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[IndexB][IndexDiv]);
       else
-        strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,KMGTbStrW[IndexB][IndexDiv]);
+				strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[IndexB][IndexDiv]);
     }
     else
       strDestStr.Format (L"%*.*s",Width,Width,(const wchar_t *)strStr);
@@ -653,9 +655,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
       if (Width<0)
         Width=0;
       if (Economic)
-        strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,KMGTbStrW[0][IndexDiv]);
+				strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[0][IndexDiv]);
       else
-        strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,KMGTbStrW[0][IndexDiv]);
+				strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t *)strStr,UnitStr[0][IndexDiv]);
     }
     else
       strDestStr.Format (L"%*.*s",Width,Width,(const wchar_t *)strStr);
@@ -679,9 +681,9 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
     } while((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
 
     if (Economic)
-      strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t*)strStr,KMGTbStrW[IndexB][IndexDiv]);
+			strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t*)strStr,UnitStr[IndexB][IndexDiv]);
     else
-      strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t*)strStr,KMGTbStrW[IndexB][IndexDiv]);
+			strDestStr.Format (L"%*.*s %1.1s",Width,Width,(const wchar_t*)strStr,UnitStr[IndexB][IndexDiv]);
   }
   return strDestStr;
 }
@@ -1052,7 +1054,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
 {
-//проверяет если формат строки такой: [0-9]+[BbKkMmGgTt]?
+//проверяет если формат строки такой: [0-9]+[BbKkMmGgTtPpEe]?
 
   const wchar_t *p = FileSizeStr;
 
@@ -1067,7 +1069,7 @@ bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
     if (*(p+1))
       return false;
 
-    if (!StrStrI(L"BKMGT", p))
+		if (!StrStrI(L"BKMGTPE", p))
       return false;
   }
 
@@ -1100,6 +1102,15 @@ unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
     case L'T':
       n <<= 40;
       break;
+
+		case L'E':
+			n <<= 50;
+			break;
+
+		case L'P':
+			n <<= 60;
+			break;
+
   }
 
   return n;

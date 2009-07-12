@@ -309,34 +309,34 @@ class Editor:public ScreenObject
     void PrepareResizedConsole(){Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
     void SetTabSize(int NewSize);
-    int  GetTabSize(void) const {return EdOpt.TabSize; }
+		int  GetTabSize() const {return EdOpt.TabSize; }
 
     void SetConvertTabs(int NewMode);
-    int  GetConvertTabs(void) const {return EdOpt.ExpandTabs; }
+		int  GetConvertTabs() const {return EdOpt.ExpandTabs; }
 
     void SetDelRemovesBlocks(int NewMode);
-    int  GetDelRemovesBlocks(void) const {return EdOpt.DelRemovesBlocks; }
+		int  GetDelRemovesBlocks() const {return EdOpt.DelRemovesBlocks; }
 
     void SetPersistentBlocks(int NewMode);
-    int  GetPersistentBlocks(void) const {return EdOpt.PersistentBlocks; }
+		int  GetPersistentBlocks() const {return EdOpt.PersistentBlocks; }
 
     void SetAutoIndent(int NewMode) { EdOpt.AutoIndent=NewMode; }
-    int  GetAutoIndent(void) const {return EdOpt.AutoIndent; }
+		int  GetAutoIndent() const {return EdOpt.AutoIndent; }
 
 		void SetAutoDetectCodePage(int NewMode) { EdOpt.AutoDetectCodePage=NewMode; }
-		int  GetAutoDetectCodePage(void) const {return EdOpt.AutoDetectCodePage; }
+		int  GetAutoDetectCodePage() const {return EdOpt.AutoDetectCodePage; }
 
     void SetCursorBeyondEOL(int NewMode);
-    int  GetCursorBeyondEOL(void) const {return EdOpt.CursorBeyondEOL; }
+		int  GetCursorBeyondEOL() const {return EdOpt.CursorBeyondEOL; }
 
     void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
-    int  GetBSLikeDel(void) const {return EdOpt.BSLikeDel; }
+		int  GetBSLikeDel() const {return EdOpt.BSLikeDel; }
 
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
-    int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
+		int  GetCharCodeBase() const {return EdOpt.CharCodeBase; }
 
     void SetReadOnlyLock(int NewMode)  { EdOpt.ReadOnlyLock=NewMode&3; }
-    int  GetReadOnlyLock(void) const {return EdOpt.ReadOnlyLock; }
+		int  GetReadOnlyLock() const {return EdOpt.ReadOnlyLock; }
 
     void SetShowScrollBar(int NewMode){EdOpt.ShowScrollBar=NewMode;}
 
@@ -356,7 +356,7 @@ class Editor:public ScreenObject
     void AdjustVBlock(int PrevX);
 
     void Xlat();
-    static void PR_EditorShowMsg(void);
+		static void PR_EditorShowMsg();
 
     void FreeAllocatedData(bool FreeUndo=true);
 
@@ -370,7 +370,7 @@ class Editor:public ScreenObject
     int  GetOvertypeMode();
     void SetEditBeyondEnd(int Mode);
     void SetClearFlag(int Flag);
-    int  GetClearFlag(void);
+		int  GetClearFlag();
 
     int  GetCurCol();
     int  GetCurRow(){return NumLine;};

@@ -66,7 +66,7 @@ static int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wip
 static int RemoveToRecycleBin(const wchar_t *Name);
 static int WipeFile(const wchar_t *Name);
 static int WipeDirectory(const wchar_t *Name);
-static void PR_ShellDeleteMsg(void);
+static void PR_ShellDeleteMsg();
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
 static clock_t DeleteStartTime;
@@ -510,7 +510,7 @@ done:
   }
 }
 
-static void PR_ShellDeleteMsg(void)
+static void PR_ShellDeleteMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),(int)preRedrawItem.Param.Param5);

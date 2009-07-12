@@ -566,7 +566,7 @@ void GetRealCursorType(int &Visible,int &Size)
   Visible=cci.bVisible;
 }
 
-static BOOL DetectTTFFont(void)
+static BOOL DetectTTFFont()
 {
   string strAppName, strOptRegRoot;
   BOOL UseTTFConsoleFont=FALSE;

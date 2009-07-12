@@ -2690,7 +2690,7 @@ COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 }
 
 
-void ShellCopy::PR_ShellCopyMsg(void)
+void ShellCopy::PR_ShellCopyMsg()
 {
 	LastShowTime=0;
 	LastShowBarTime=0;
@@ -2727,7 +2727,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 	string strFilesStr,strBarStr=L"\x1";
   string strSrcName, strDestName;
 
-  #define BAR_SIZE  46
+  #define BAR_SIZE  52
 
   if (ShowTotalCopySize)
   {
@@ -3496,35 +3496,21 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     CalcTime /= 1000;
 
     string strTimeStr;
-    wchar_t c[2];
-    c[1]=0;
 
     if (OldTotalSize == 0 || WorkTime == 0)
-      strTimeStr.Format (MSG(MCopyTimeInfo), L" ", L" ", 0, L" ");
+			strTimeStr.Format (MSG(MCopyTimeInfo), L" ", L" ", L" ");
     else
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
-      unsigned long CPS = static_cast<int>(CalcTime?OldWrittenSize/CalcTime:0);
-      unsigned long TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
-      c[0]=L' ';
-      if (CPS > 99999) {
-        c[0]=L'K';
-        CPS = CPS/1024;
-      }
-      if (CPS > 99999) {
-        c[0]=L'M';
-        CPS = CPS/1024;
-      }
-      if (CPS > 99999) {
-        c[0]=L'G';
-        CPS = CPS/1024;
-      }
-      string strWorkTimeStr;
-      string strTimeLeftStr;
+			UINT64 CPS =CalcTime?OldWrittenSize/CalcTime:0;
+			DWORD TimeLeft = static_cast<DWORD>(CPS?SizeLeft/CPS:0);
+			string strSpeed=L" ";
+			FileSizeToStr(strSpeed,CPS,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
+			string strWorkTimeStr,strTimeLeftStr;
       GetTimeText(WorkTime, strWorkTimeStr);
       GetTimeText(TimeLeft, strTimeLeftStr);
-      strTimeStr.Format (MSG(MCopyTimeInfo), (const wchar_t*)strWorkTimeStr, (const wchar_t*)strTimeLeftStr, CPS, c);
+			strTimeStr.Format (MSG(MCopyTimeInfo),strWorkTimeStr.CPtr(),strTimeLeftStr.CPtr(),strSpeed.CPtr());
     }
     GotoXY(BarX,BarY+(TotalBar?6:4));
     Text(strTimeStr);

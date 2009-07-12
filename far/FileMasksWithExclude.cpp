@@ -127,7 +127,7 @@ bool FileMasksWithExclude::Compare(const wchar_t *FileName)
 	return (Include.Compare(FileName) && !Exclude.Compare(FileName));
 }
 
-bool FileMasksWithExclude::IsEmpty(void)
+bool FileMasksWithExclude::IsEmpty()
 {
 	return (Include.IsEmpty() && Exclude.IsEmpty());
 }

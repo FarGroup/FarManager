@@ -5543,6 +5543,22 @@ MListTb
 "T"
 "T"
 
+MListPb
+"П"
+"P"
+"P"
+"P"
+"P"
+"P"
+
+MListEb
+"Э"
+"E"
+"E"
+"E"
+"E"
+"E"
+
 MListFileSize
 " %s байт в 1 файле "
 " %s bytes in 1 file "
@@ -16167,12 +16183,12 @@ MKBTreeCtrlAltShiftF12
 
 MCopyTimeInfo
 l:
-"Время: %8.8s  Осталось: %8.8s  %5d%1.1sб/с"
-"Time: %8.8s  Remaining: %8.8s  %5d%1.1sb/s"
-"Čas: %8.8s  Zbývá: %8.8s  %5d%1.1sb/s"
-"Zeit: %8.8s  Verbleibend: %8.8s  %5d%1.1sb/s"
-"Eltelt: %8.8s  Maradt: %8.8s  %5d%1.1sb/s"
-"Czas: %8.8s  Pozostało: %8.8s  %5d%1.1sb/s"
+"Время: %8.8s    Осталось: %8.8s    %8.8sб/с"
+"Time: %8.8s    Remaining: %8.8s    %8.8sb/s"
+"Čas: %8.8s      Zbývá: %8.8s      %8.8sb/s"
+"Zeit: %8.8s   Verbleibend: %8.8s   %8.8sb/s"
+"Eltelt: %8.8s    Maradt: %8.8s    %8.8sb/s"
+"Czas: %8.8s    Pozostało: %8.8s    %8.8sb/s"
 
 MKeyESCWasPressed
 l:

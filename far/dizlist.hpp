@@ -68,7 +68,7 @@ class DizList
     int CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName,
                  const wchar_t *DestShortName,DizList *DestDiz);
     void GetDizName(string &strDizName);
-    static void PR_ReadingMsg(void);
+		static void PR_ReadingMsg();
 };
 
 

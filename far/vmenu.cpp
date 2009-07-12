@@ -763,7 +763,7 @@ void VMenu::ShowMenu(int IsParent)
   }
 }
 
-BOOL VMenu::UpdateRequired(void)
+BOOL VMenu::UpdateRequired()
 {
   CriticalSectionLock Lock(CS);
 

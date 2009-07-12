@@ -176,7 +176,7 @@ private:
     void   RefreshStrByMask(int InitMode=FALSE);
     int KeyMatchedMask(int Key);
 
-    int ProcessCtrlQ(void);
+		int ProcessCtrlQ();
     int ProcessInsDate(const wchar_t *Str);
     int ProcessInsPlainText(const wchar_t *Str);
 
@@ -206,13 +206,13 @@ private:
     int   GetObjectColorUnChanged() {return ColorUnChanged;}
 
     void SetTabSize(int NewSize) { TabSize=NewSize; }
-    int  GetTabSize(void) {return TabSize; }
+		int  GetTabSize() {return TabSize; }
 
     void SetDelRemovesBlocks(int Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
-    int  GetDelRemovesBlocks(void) {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
+		int  GetDelRemovesBlocks() {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 
     void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
-    int  GetPersistentBlocks(void) {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
+		int  GetPersistentBlocks() {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 
     void  GetString(wchar_t *Str, int MaxSize);
     void  GetString(string &strStr);
@@ -227,7 +227,7 @@ private:
     void  GetBinaryString(const wchar_t **Str, const wchar_t **EOL,int &Length);
 
     void  SetEOL(const wchar_t *EOL);
-    const wchar_t *GetEOL(void);
+		const wchar_t *GetEOL();
 
     int   GetSelString(wchar_t *Str,int MaxSize);
     int   GetSelString(string &strStr);
@@ -240,7 +240,7 @@ private:
     int   Search(const string& Str,int Position,int Case,int WholeWords,int Reverse);
 
     void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
-    int   GetClearFlag(void) {return Flags.Check(FEDITLINE_CLEARFLAG);}
+		int   GetClearFlag() {return Flags.Check(FEDITLINE_CLEARFLAG);}
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
     int   GetCurPos() {return(CurPos);}
     int   GetTabCurPos();
@@ -289,7 +289,7 @@ private:
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
     void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
-    void Changed(void);
+		void Changed();
 };
 
 #endif  // __EDIT_HPP__

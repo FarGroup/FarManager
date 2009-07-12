@@ -197,7 +197,7 @@ class Manager
     BOOL ManagerIsDown() {return EndLoop;}
     BOOL ManagerStarted() {return StartManager;}
 
-    void InitKeyBar(void);
+		void InitKeyBar();
 
     /* $ 15.05.2002 SKV
       Так как нужно это в разных местах,

@@ -240,7 +240,7 @@ class FileList:public Panel
     long CacheSelIndex,CacheSelPos;
   private:
     virtual void SetSelectedFirstMode(int Mode);
-    virtual int GetSelectedFirstMode(void) {return SelectedFirst;};
+		virtual int GetSelectedFirstMode() {return SelectedFirst;};
     virtual void DisplayObject();
 		void DeleteListData(FileListItem **(&ListData),int &FileCount);
     void Up(int Count);

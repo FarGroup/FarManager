@@ -513,7 +513,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               CtrlObject->Plugins.ReloadLanguage();
 							SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
               PrepareStrFTime();
-              __PrepareKMGTbStr();
+							PrepareUnitStr();
               FrameManager->InitKeyBar();
               CtrlObject->Cp()->RedrawKeyBar();
               CtrlObject->Cp()->SetScreenPosition();

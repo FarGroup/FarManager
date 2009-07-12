@@ -2005,7 +2005,7 @@ void Help::SetScreenPosition()
   Show();
 }
 
-void Help::InitKeyBar(void)
+void Help::InitKeyBar()
 {
   HelpKeyBar.SetAllGroup (KBL_MAIN, MHelpF1, 12);
   HelpKeyBar.SetAllGroup (KBL_SHIFT, MHelpShiftF1, 12);

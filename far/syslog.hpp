@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void SysLog(int l);
 void SysLog(const wchar_t *fmt,...);
 void SysLog(int l,const wchar_t *fmt,...); ///
-void SysLogLastError(void);
+void SysLogLastError();
 void ShowHeap();
 void CheckHeap(int NumLine);
 

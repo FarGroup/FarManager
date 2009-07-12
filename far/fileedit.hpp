@@ -141,7 +141,7 @@ public:
 			int OpenModeExstFile
 			);
 
-    virtual void InitKeyBar(void);                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
+		virtual void InitKeyBar();                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
     virtual int ProcessKey(int Key);
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
@@ -197,7 +197,7 @@ public:
     DWORD EditorGetFileAttributes(const wchar_t *Name);                 // $ 13.02.2001 IS - Обертка вокруг одноименной функции из win32 api
 
     void SetPluginData(const wchar_t *PluginData);
-    const wchar_t *GetPluginData(void){return (const wchar_t*)strPluginData;};
+		const wchar_t *GetPluginData(){return (const wchar_t*)strPluginData;};
 
 		void GetEditorOptions(EditorOptions& EdOpt);
 		void SetEditorOptions(EditorOptions& EdOpt);

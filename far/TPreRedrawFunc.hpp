@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-typedef void (*PREREDRAWFUNC)(void);
+typedef void (*PREREDRAWFUNC)();
 
 struct PreRedrawParamStruct
 {

@@ -137,7 +137,7 @@ struct SetAttrDlgParam{
 static int IsFileWritable(const wchar_t *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg, int SkipMode);
 static int ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME *FileTime,
                        const wchar_t *OSrcDate, const wchar_t *OSrcTime);
-static void PR_ShellSetFileAttributesMsg(void);
+static void PR_ShellSetFileAttributesMsg();
 void ShellSetFileAttributesMsg(const wchar_t *Name);
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
@@ -413,7 +413,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-static void PR_ShellSetFileAttributesMsg(void)
+static void PR_ShellSetFileAttributesMsg()
 {
   PreRedrawItem preRedrawItem=PreRedraw.Peek();
   ShellSetFileAttributesMsg((wchar_t *)preRedrawItem.Param.Param1);

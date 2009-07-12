@@ -47,7 +47,7 @@ struct SIDCacheRecord
 
 static SIDCacheRecord *sid_cache=NULL;
 
-void SIDCacheFlush(void)
+void SIDCacheFlush()
 {
   SIDCacheRecord *tmp_rec;
   while(sid_cache)

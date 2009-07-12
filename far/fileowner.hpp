@@ -34,6 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
-void SIDCacheFlush(void);
+void SIDCacheFlush();
 
 #endif // __FILEOWNER_HPP__

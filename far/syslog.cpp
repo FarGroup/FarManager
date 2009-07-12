@@ -76,12 +76,12 @@ static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf);
 
 
-static BOOL IsLogON(void)
+static BOOL IsLogON()
 {
   return GetKeyState(VK_SCROLL)?TRUE:FALSE;
 }
 
-static const wchar_t *MakeSpace(void)
+static const wchar_t *MakeSpace()
 {
   static wchar_t Buf[60]=L" ";
   Buf[0]=L' ';
@@ -150,7 +150,7 @@ void OpenSysLog()
 #endif
 }
 
-void CloseSysLog(void)
+void CloseSysLog()
 {
 #if defined(SYSLOG)
     fclose(LogStream);
@@ -254,7 +254,7 @@ void SysLog(const wchar_t *fmt,...)
 #endif
 }
 
-void SysLogLastError(void)
+void SysLogLastError()
 {
 #if defined(SYSLOG)
   if(!IsLogON())
