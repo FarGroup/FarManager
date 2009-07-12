@@ -1,3 +1,13 @@
+zg 12.07.2009 11:29:40 +0200 - build 1038
+
+1. в StrCmp* добавлен флаг SORT_STRINGSORT. причина - разница результатов:
+   printf("%d\n",CompareString(0,NORM_IGNORECASE,"\"aaa aaa\"",9,"\"aaa aaa-2\"",9));
+   printf("%d\n",CompareString(0,NORM_IGNORECASE,"\"aaa aaa\"",-1,"\"aaa aaa-2\"",-1));
+   в фаре очень желательно, чтобы совпадали.
+   починился Mantis#0000804: не отображается существующий description для одной из папок.
+
+2. InsertQuote теперь пустую строку превращает в две кавычки, а не в одну.
+
 drkns 12.07.2009 01:21:59 +0200 - build 1037
 
 1. В D<N|M>_KEY, ECTL_PROCESSKEY, FarKeyToName, FarNameToKey, меню и ACTL_POSTKEYSEQUENCE не производилось unicode<->oem преобразование кодов клавиш для старых плагинов.

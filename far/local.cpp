@@ -123,7 +123,7 @@ int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	return CompareString(
 			0,
-			NORM_IGNORECASE|NORM_STOP_ON_NULL,
+			NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,
 			s1,
 			n,
 			s2,
@@ -135,7 +135,7 @@ int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
 	return CompareString(
 			0,
-			NORM_IGNORECASE,
+			NORM_IGNORECASE|SORT_STRINGSORT,
 			s1,
 			-1,
 			s2,
@@ -148,7 +148,7 @@ int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	return CompareString(
 			0,
-			NORM_STOP_ON_NULL,
+			NORM_STOP_ON_NULL|SORT_STRINGSORT,
 			s1,
 			n,
 			s2,
@@ -160,7 +160,7 @@ int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
 {
 	return CompareString(
 			0,
-			0,
+			SORT_STRINGSORT,
 			s1,
 			-1,
 			s2,

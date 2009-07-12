@@ -104,7 +104,7 @@ wchar_t * WINAPI InsertQuote(wchar_t *Str)
     wmemmove(Str+1,Str,++l);
     *Str=L'"';
   }
-  if (Str[l-1] != L'"')
+  if ((l-1) == 0 || Str[l-1] != L'"')
   {
     Str[l++] = L'\"';
     Str[l] = 0;
@@ -131,7 +131,7 @@ string& InsertQuote(string &strStr)
     wmemmove(Str+1,Str,++l);
     *Str=L'"';
   }
-  if(Str[l-1] != L'"')
+  if((l-1) == 0 || Str[l-1] != L'"')
   {
     Str[l++] = L'\"';
   }
