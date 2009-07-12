@@ -2710,14 +2710,14 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 			for (int i=0; i<ItemsNumber; i++)
 			{
-				pPanelItem[i]->FindData.dwFileAttributes = pItems[i].dwFileAttributes;
-				pPanelItem[i]->FindData.ftCreationTime = pItems[i].ftCreationTime;
-				pPanelItem[i]->FindData.ftLastAccessTime = pItems[i].ftLastAccessTime;
-				pPanelItem[i]->FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
-				pPanelItem[i]->FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
-				pPanelItem[i]->FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
-				UnicodeToOEM(pItems[i].lpwszFileName,pPanelItem[i]->FindData.cFileName,MAX_PATH);
-				UnicodeToOEM(pItems[i].lpwszAlternateFileName,pPanelItem[i]->FindData.cAlternateFileName,14);
+				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].dwFileAttributes;
+				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].ftCreationTime;
+				(*pPanelItem)[i].FindData.ftLastAccessTime = pItems[i].ftLastAccessTime;
+				(*pPanelItem)[i].FindData.ftLastWriteTime = pItems[i].ftLastWriteTime;
+				(*pPanelItem)[i].FindData.nFileSizeLow = (DWORD)pItems[i].nFileSize;
+				(*pPanelItem)[i].FindData.nFileSizeHigh = (DWORD)(pItems[i].nFileSize>>32);
+				UnicodeToOEM(pItems[i].lpwszFileName,(*pPanelItem)[i].FindData.cFileName,MAX_PATH);
+				UnicodeToOEM(pItems[i].lpwszAlternateFileName,(*pPanelItem)[i].FindData.cAlternateFileName,14);
 			}
 		}
 		else
