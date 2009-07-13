@@ -159,24 +159,26 @@ struct MenuItemEx
 
 struct MenuDataEx
 {
-  const wchar_t *Name;
-  DWORD Flags;
-  DWORD AccelKey;
+	const wchar_t *Name;
 
-  DWORD SetCheck(int Value)
-  {
-    if(Value)
-    {
-      Flags &= ~0xFFFF;
-      Flags|=((Value&0xFFFF)|LIF_CHECKED);
-    }
-    else
-      Flags&=~(0xFFFF|LIF_CHECKED);
-    return Flags;
-  }
+	DWORD Flags;
+	DWORD AccelKey;
 
-  DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-  DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	DWORD SetCheck(int Value)
+	{
+		if(Value)
+		{
+			Flags &= ~0xFFFF;
+			Flags|=((Value&0xFFFF)|LIF_CHECKED);
+		}
+		else
+			Flags&=~(0xFFFF|LIF_CHECKED);
+
+		return Flags;
+	}
+
+	DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+	DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
 

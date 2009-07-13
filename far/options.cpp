@@ -60,6 +60,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ffolders.hpp"
 #include "strmix.hpp"
 
+enum enumMenus {
+	MENU_LEFT,
+	MENU_FILES,
+	MENU_COMMANDS,
+	MENU_OPTIONS,
+	MENU_RIGHT
+};
 
 enum enumLeftMenu {
 	MENU_LEFT_BRIEFVIEW,
@@ -105,7 +112,7 @@ enum enumFilesMenu {
 };
 
 enum enumCommandsMenu {
-	MENU_COMMANDS_FINDDILE,
+	MENU_COMMANDS_FINDFILE,
 	MENU_COMMANDS_HISTORY,
 	MENU_COMMANDS_VIDEOMODE,
 	MENU_COMMANDS_FINDFOLDER,
@@ -114,7 +121,7 @@ enum enumCommandsMenu {
 	MENU_COMMANDS_SWAPPANELS = MENU_COMMANDS_FOLDERHISTORY+2,
 	MENU_COMMANDS_TOGGLEPANELS,
 	MENU_COMMANDS_COMPAREFOLDERS,
-	MENU_COMMANDS_USERMENU = MENU_COMMANDS_COMPAREFOLDERS+2,
+	MENU_COMMANDS_EDITUSERMENU = MENU_COMMANDS_COMPAREFOLDERS+2,
 	MENU_COMMANDS_FILEASSOCIATIONS,
 	MENU_COMMANDS_FOLDERSHORTCUTS,
 	MENU_COMMANDS_FILTER,
@@ -127,25 +134,60 @@ enum enumCommandsMenu {
 enum enumOptionsMenu {
 	MENU_OPTIONS_SYSTEMSETTINGS,
 	MENU_OPTIONS_PANELSETTINGS,
-	MENU_OPTIONS_INTERFACE,
+	MENU_OPTIONS_INTERFACESETTINGS,
 	MENU_OPTIONS_LANGUAGES,
 	MENU_OPTIONS_PLUGINSCONFIG,
 	MENU_OPTIONS_DIALOGSETTINGS,
-	MENU_OPTIONS_COMFIRMATION = MENU_OPTIONS_DIALOGSETTINGS+2,
+	MENU_OPTIONS_CONFIRMATIONS = MENU_OPTIONS_DIALOGSETTINGS+2,
 	MENU_OPTIONS_FILEPANELMODES,
 	MENU_OPTIONS_FILEDESCRIPTIONS,
 	MENU_OPTIONS_FOLDERINFOFILES,
-	MENU_OPTIONS_VIEWER = MENU_OPTIONS_FOLDERINFOFILES+2,
-	MENU_OPTIONS_EDITOR,
-	MENU_OPTIONS_COLORS = MENU_OPTIONS_EDITOR+2,
+	MENU_OPTIONS_VIEWERSETTINGS = MENU_OPTIONS_FOLDERINFOFILES+2,
+	MENU_OPTIONS_EDITORSETTINGS,
+	MENU_OPTIONS_COLORS = MENU_OPTIONS_EDITORSETTINGS+2,
 	MENU_OPTIONS_FILESHIGHLIGHTING,
 	MENU_OPTIONS_SAVESETUP = MENU_OPTIONS_FILESHIGHLIGHTING+2
 };
 
+void SetLeftRightMenuChecks (MenuDataEx *pMenu, bool bLeft)
+{
+	Panel *pPanel = bLeft?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+
+	switch ( pPanel->GetType() ) {
+
+	case FILE_PANEL:
+		{
+       		int MenuLine = pPanel->GetViewMode()-VIEW_0;
+
+			if ( MenuLine <= MENU_LEFT_ALTERNATIVEVIEW )
+			{
+				if ( MenuLine == 0 )
+					pMenu[MENU_LEFT_ALTERNATIVEVIEW].SetCheck(1);
+          		else
+            		pMenu[MenuLine-1].SetCheck(1);
+			}
+		}
+
+		break;
+
+	case INFO_PANEL:
+		pMenu[MENU_LEFT_INFOPANEL].SetCheck(1);
+		break;
+
+	case TREE_PANEL:
+		pMenu[MENU_LEFT_TREEPANEL].SetCheck(1);
+		break;
+
+	case QVIEW_PANEL:
+		pMenu[MENU_LEFT_QUICKVIEW].SetCheck(1);
+		break;
+	}
+
+	pMenu[MENU_LEFT_LONGNAMES].SetCheck(!pPanel->GetShowShortNamesMode());
+}
+
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
-
-
 	MenuDataEx LeftMenu[]=
   {
     (const wchar_t *)MMenuBriefView,LIF_SELECTED,KEY_CTRL1,
@@ -169,7 +211,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     (const wchar_t *)MMenuReread,0,KEY_CTRLR,
     (const wchar_t *)MMenuChangeDrive,0,KEY_ALTF1,
   };
-
+ 
 	MenuDataEx FilesMenu[]=
   {
     (const wchar_t *)MMenuView,LIF_SELECTED,KEY_F3,
@@ -278,420 +320,410 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuRightTitle),0,RightMenu,countof(RightMenu),L"LeftRightMenu"
   };
 
-  static int LastHItem=-1,LastVItem=0;
-  int HItem,VItem;
+	static int LastHItem=-1,LastVItem=0;
+	int HItem,VItem;
 
-  // дисаблим
-  CmdMenu[19].SetDisable(!ifn.bSetupAPIFunctions);
+	// дисаблим
+	CmdMenu[MENU_COMMANDS_HOTPLUGLIST].SetDisable(!ifn.bSetupAPIFunctions);
 
-  if (Opt.Policies.DisabledOptions)
-    for(size_t I=0; I < countof(OptionsMenu); ++I)
-    {
-      if(I > 6)
-        OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> (I-1)) & 1);
-      else
-        OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
-    }
+	if ( Opt.Policies.DisabledOptions )
+	{
+		for(size_t I = 0; I < countof(OptionsMenu); ++I)
+		{
+			if( I >= MENU_OPTIONS_CONFIRMATIONS )
+				OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> (I-1)) & 1);
+			else
+				OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
+		}
+	}
 
-  // расставим "чеки" для левой панели
-  switch(CtrlObject->Cp()->LeftPanel->GetType())
-  {
-    case FILE_PANEL:
-      {
-        int MenuLine=CtrlObject->Cp()->LeftPanel->GetViewMode()-VIEW_0;
-        if (MenuLine<10)
-        {
-          if (MenuLine==0)
-            LeftMenu[9].SetCheck(1);
-          else
-            LeftMenu[MenuLine-1].SetCheck(1);
-        }
-      }
-      break;
-    case INFO_PANEL:
-      LeftMenu[11].SetCheck(1);
-      break;
-    case TREE_PANEL:
-      LeftMenu[12].SetCheck(1);
-      break;
-    case QVIEW_PANEL:
-      LeftMenu[13].SetCheck(1);
-      break;
-  }
+    SetLeftRightMenuChecks(LeftMenu, true);
+    SetLeftRightMenuChecks(RightMenu, false);
 
-  LeftMenu[16].SetCheck(!CtrlObject->Cp()->LeftPanel->GetShowShortNamesMode());
+	// Навигация по меню
 
-  // расставим "чеки" для правой панели
-  switch(CtrlObject->Cp()->RightPanel->GetType())
-  {
-    case FILE_PANEL:
-      {
-        int MenuLine=CtrlObject->Cp()->RightPanel->GetViewMode()-VIEW_0;
-        if (MenuLine<10)
-        {
-          if (MenuLine==0)
-            RightMenu[9].SetCheck(1);
-          else
-            RightMenu[MenuLine-1].SetCheck(1);
-        }
-      }
-      break;
-    case INFO_PANEL:
-      RightMenu[11].SetCheck(1);
-      break;
-    case TREE_PANEL:
-      RightMenu[12].SetCheck(1);
-      break;
-    case QVIEW_PANEL:
-      RightMenu[13].SetCheck(1);
-      break;
-  }
-
-  RightMenu[16].SetCheck(!CtrlObject->Cp()->RightPanel->GetShowShortNamesMode());
-
-  // Навигация по меню
-  {
+	{
 		HMenu HOptMenu(MainMenu,countof(MainMenu));
-    HOptMenu.SetHelp(L"Menus");
-    HOptMenu.SetPosition(0,0,ScrX,0);
-    if (LastCommand)
-    {
-      MenuDataEx *VMenuTable[]={LeftMenu,FilesMenu,CmdMenu,OptionsMenu,RightMenu};
+		
+		HOptMenu.SetHelp(L"Menus");
+		HOptMenu.SetPosition(0,0,ScrX,0);
 
-      int HItemToShow = LastHItem;
-      if (HItemToShow == -1)
-      {
-        if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
-          CtrlObject->Cp()->ActivePanel->IsVisible())
-          HItemToShow = 4;
-        else
-          HItemToShow = 0;
-      }
-      MainMenu[0].Selected=0;
-      MainMenu[HItemToShow].Selected=1;
-      VMenuTable[HItemToShow][0].SetSelect(0);
-      VMenuTable[HItemToShow][LastVItem].SetSelect(1);
+		if ( LastCommand )
+		{
 
-      HOptMenu.Show();
+			MenuDataEx *VMenuTable[] = {LeftMenu, FilesMenu, CmdMenu, OptionsMenu, RightMenu};
 
-      {
-        ChangeMacroMode MacroMode(MACRO_MAINMENU);
-        HOptMenu.ProcessKey(KEY_DOWN);
-      }
+			int HItemToShow = LastHItem;
+			
+			if ( HItemToShow == -1 )
+			{
+				if ( CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->RightPanel &&
+					 CtrlObject->Cp()->ActivePanel->IsVisible() )
+					HItemToShow = 4;
+				else
+					HItemToShow = 0;
+			}
 
-    }
-    else
-      if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
-          CtrlObject->Cp()->ActivePanel->IsVisible())
-      {
-        MainMenu[0].Selected=0;
-        MainMenu[4].Selected=1;
-      }
-    if (MouseEvent!=NULL)
-    {
-      ChangeMacroMode MacroMode(MACRO_MAINMENU);
-      HOptMenu.Show();
-      HOptMenu.ProcessMouse(MouseEvent);
-    }
+			MainMenu[0].Selected = 0;
+			MainMenu[HItemToShow].Selected = 1;
 
-    {
-      ChangeMacroMode MacroMode(MACRO_MAINMENU);
-      HOptMenu.Process();
-    }
-    HOptMenu.GetExitCode(HItem,VItem);
-  }
+			VMenuTable[HItemToShow][0].SetSelect(0);
+			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
 
-  // "Исполнятор команд меню"
-  switch(HItem)
-  {
-    // *** Left
-    case 0:
-    {
-      if (VItem>=0 && VItem<=9) // Режимы левой панели
-      {
-        CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,FILE_PANEL);
-        int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
-        CtrlObject->Cp()->LeftPanel->SetViewMode(NewViewMode);
-      }
-      else
-      {
-        switch(VItem)
-        {
-          case 11: // Info panel
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,INFO_PANEL);
-            break;
-          case 12: // Tree panel
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,TREE_PANEL);
-            break;
-          case 13: // Quick view
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,QVIEW_PANEL);
-            break;
-          case 15: // Sort modes
-            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLF12);
-            break;
-          case 16: // Show long names
-            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLN);
-            break;
-          case 17: // Panel On/Off
-            FrameManager->ProcessKey(KEY_CTRLF1);
-            break;
-          case 18: // Re-read
-            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLR);
-            break;
-          case 19: // Change drive
-            CtrlObject->Cp()->LeftPanel->ChangeDisk();
-            break;
-        }
-      }
-      break;
-    }
+			HOptMenu.Show();
 
-    // *** Files
-    case 1:
-    {
-      switch(VItem)
-      {
-        case 0:  // View
-          FrameManager->ProcessKey(KEY_F3);
-          break;
-        case 1:  // Edit
-          FrameManager->ProcessKey(KEY_F4);
-          break;
-        case 2:  // Copy
-          FrameManager->ProcessKey(KEY_F5);
-          break;
-        case 3:  // Rename or move
-          FrameManager->ProcessKey(KEY_F6);
-          break;
-        case 4:  // Make folder
-          FrameManager->ProcessKey(KEY_F7);
-          break;
-        case 5:  // Delete
-          FrameManager->ProcessKey(KEY_F8);
-          break;
-        case 6:  // Wipe
-          FrameManager->ProcessKey(KEY_ALTDEL);
-          break;
-        case 8:  // Add to archive
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
-          break;
-        case 9:  // Extract files
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
-          break;
-        case 10:  // Archive commands
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
-          break;
-        case 12: // File attributes
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
-          break;
-        case 13: // Apply command
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
-          break;
-        case 14: // Describe files
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
-          break;
-        case 16: // Select group
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
-          break;
-        case 17: // Unselect group
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
-          break;
-        case 18: // Invert selection
-          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
-          break;
-        case 19: // Restore selection
-          CtrlObject->Cp()->ActivePanel->RestoreSelection();
-          break;
-      }
-      break;
-    }
+			{
+				ChangeMacroMode MacroMode(MACRO_MAINMENU);
+				HOptMenu.ProcessKey(KEY_DOWN);
+			}
 
-    // *** Commands
-    case 2:
-    {
-      switch(VItem)
-      {
-        case 0: // Find file
-          FrameManager->ProcessKey(KEY_ALTF7);
-          break;
-        case 1: // History
-          FrameManager->ProcessKey(KEY_ALTF8);
-          break;
-        case 2: // Video mode
-          FrameManager->ProcessKey(KEY_ALTF9);
-          break;
-        case 3: // Find folder
-          FrameManager->ProcessKey(KEY_ALTF10);
-          break;
-        case 4: // File view history
-          FrameManager->ProcessKey(KEY_ALTF11);
-          break;
-        case 5: // Folders history
-          FrameManager->ProcessKey(KEY_ALTF12);
-          break;
-        case 7: // Swap panels
-          FrameManager->ProcessKey(KEY_CTRLU);
-          break;
-        case 8: // Panels On/Off
-          FrameManager->ProcessKey(KEY_CTRLO);
-          break;
-        case 9: // Compare folders
-          CtrlObject->Cp()->ActivePanel->CompareDir();
-          break;
-        case 11: // Edit user menu
-          ProcessUserMenu(true);
-          break;
-        case 12: // File associations
-          EditFileTypes();
-          break;
-        case 13: // Folder shortcuts
-          ShowFolderShortcut();
-          break;
-        case 14: // File panel filter
-          CtrlObject->Cp()->ActivePanel->EditFilter();
-          break;
-        case 16: // Plugin commands
-          FrameManager->ProcessKey(KEY_F11);
-          break;
-        case 17: // Screens list
-          FrameManager->ProcessKey(KEY_F12);
-          break;
-        case 18: // Task list
-          ShowProcessList();
-          break;
-        case 19: // HotPlug list
-          ShowHotplugDevice();
-          break;
-      }
-      break;
-    }
+		}
+		else
+		{
+			if ( CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
+				 CtrlObject->Cp()->ActivePanel->IsVisible() )
+			{
+				MainMenu[0].Selected = 0;
+				MainMenu[4].Selected = 1;
+			}
+		}
 
-    // *** Options
-    case 3:
-    {
-      switch(VItem)
-      {
-        case 0:   // System settings
-          SystemSettings();
-          break;
-        case 1:   // Panel settings
-          PanelSettings();
-          break;
-        case 2:   // Interface settings
-          InterfaceSettings();
-          break;
-        case 3:   // Languages
-          {
-            VMenu *LangMenu,*HelpMenu;
-            if (Language::Select(FALSE,&LangMenu))
-            {
-              Lang.Close();
-              if (!Lang.Init(g_strFarPath,true,MNewFileName))
-              {
-                Message(MSG_WARNING,1,L"Error",L"Cannot load language data",L"Ok");
-                exit(0);
-              }
-              Language::Select(TRUE,&HelpMenu);
-              delete HelpMenu;
-              LangMenu->Hide();
-              CtrlObject->Plugins.ReloadLanguage();
-							SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
-              PrepareStrFTime();
-							PrepareUnitStr();
-              FrameManager->InitKeyBar();
-              CtrlObject->Cp()->RedrawKeyBar();
-              CtrlObject->Cp()->SetScreenPosition();
-            }
-            delete LangMenu;
-          }
-          break;
-        case 4:   // Plugins configuration
-          CtrlObject->Plugins.Configure();
-          break;
-        case 5:   // Dialog settings (police=5)
-          DialogSettings();
-          break;
-        case 7:   // Confirmations
-          SetConfirmations();
-          break;
-        case 8:   // File panel modes
-          FileList::SetFilePanelModes();
-          break;
-        case 9:   // File descriptions
-          SetDizConfig();
-          break;
-        case 10:   // Folder description files
-          SetFolderInfoFiles();
-          break;
-        case 12:  // Viewer settings
-          ViewerConfig(Opt.ViOpt);
-          break;
-        case 13:  // Editor settings
-          EditorConfig(Opt.EdOpt);
-          break;
-        case 15:  // Colors
-          SetColors();
-          break;
-        case 16:  // Files highlighting
-          CtrlObject->HiFiles->HiEdit(0);
-          break;
-        case 18:  // Save setup
-          SaveConfig(1);
-          break;
-      }
-      break;
-    }
+		if (MouseEvent!=NULL)
+		{
+			ChangeMacroMode MacroMode(MACRO_MAINMENU);
+      
+			HOptMenu.Show();
+			HOptMenu.ProcessMouse(MouseEvent);
+		}
 
-    // *** Right
-    case 4:
-    {
-      if (VItem>=0 && VItem<=9) // Режимы правой панели
-      {
-        CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,FILE_PANEL);
-        int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
-        CtrlObject->Cp()->RightPanel->SetViewMode(NewViewMode);
-      }
-      else
-        switch(VItem)
-        {
-          case 11: // Info panel
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,INFO_PANEL);
-            break;
-          case 12: // Tree panel
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,TREE_PANEL);
-            break;
-          case 13: // Quick view
-            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,QVIEW_PANEL);
-            break;
-          case 15: // Sort modes
-            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLF12);
-            break;
-          case 16: // Show long names
-            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLN);
-            break;
-          case 17: // Panel On/Off
-            FrameManager->ProcessKey(KEY_CTRLF2);
-            break;
-          case 18: // Re-read
-            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLR);
-            break;
-          case 19: // Change drive
-            CtrlObject->Cp()->RightPanel->ChangeDisk();
-            break;
-        }
-      break;
-    }
-  }
+		{
+			ChangeMacroMode MacroMode(MACRO_MAINMENU);
+			HOptMenu.Process();
+		}
 
-  int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
-  // TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
-  //      или то, что, скажем редактор/вьювер может быть не полноэкранным
-  if(!(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR))
-    CtrlObject->CmdLine->Show();
+		HOptMenu.GetExitCode(HItem,VItem);
+	}
 
-  if (HItem!=-1 && VItem!=-1)
-  {
-    LastHItem=HItem;
-    LastVItem=VItem;
-  }
+	// "Исполнятор команд меню"
+	switch ( HItem )  {
+
+		case MENU_LEFT:
+		case MENU_RIGHT:
+		{
+			Panel *pPanel = (HItem == MENU_LEFT)?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+
+      		if ( VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW ) 
+      		{
+      			CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
+        		int NewViewMode = (VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem;
+
+        		pPanel->SetViewMode(NewViewMode);
+			}
+      		else
+      		{
+        		switch ( VItem ) {
+          			case MENU_LEFT_INFOPANEL: // Info panel
+            			CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
+			            break;
+
+					case MENU_LEFT_TREEPANEL: // Tree panel
+						CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
+						break;
+
+					case MENU_LEFT_QUICKVIEW: // Quick view
+						CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
+						break;
+
+					case MENU_LEFT_SORTMODES: // Sort modes
+						pPanel->ProcessKey(KEY_CTRLF12);
+						break;
+
+					case MENU_LEFT_LONGNAMES: // Show long names
+						pPanel->ProcessKey(KEY_CTRLN);
+						break;
+
+					case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
+						if ( HItem == MENU_LEFT )
+							FrameManager->ProcessKey(KEY_CTRLF1);
+						else
+							FrameManager->ProcessKey(KEY_CTRLF2);
+			            break;
+
+					case MENU_LEFT_REREAD: // Re-read
+						pPanel->ProcessKey(KEY_CTRLR);
+						break;
+
+					case MENU_LEFT_CHANGEDRIVE: // Change drive
+						pPanel->ChangeDisk();
+						break;
+				}
+			}
+
+			break;
+		}
+
+		case MENU_FILES:
+		{
+			switch ( VItem ) {
+				case MENU_FILES_VIEW:  // View
+					FrameManager->ProcessKey(KEY_F3);
+					break;
+
+				case MENU_FILES_EDIT:  // Edit
+					FrameManager->ProcessKey(KEY_F4);
+					break;
+
+				case MENU_FILES_COPY:  // Copy
+					FrameManager->ProcessKey(KEY_F5);
+					break;
+
+				case MENU_FILES_MOVE:  // Rename or move
+					FrameManager->ProcessKey(KEY_F6);
+					break;
+
+				case MENU_FILES_CREATEFOLDER:  // Make folder
+					FrameManager->ProcessKey(KEY_F7);
+					break;
+
+				case MENU_FILES_DELETE:  // Delete
+					FrameManager->ProcessKey(KEY_F8);
+					break;
+
+				case MENU_FILES_WIPE:  // Wipe
+					FrameManager->ProcessKey(KEY_ALTDEL);
+					break;
+
+				case MENU_FILES_ADD:  // Add to archive
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
+					break;
+
+				case MENU_FILES_EXTRACT:  // Extract files
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
+					break;
+
+				case MENU_FILES_ARCHIVECOMMANDS:  // Archive commands
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
+					break;
+
+				case MENU_FILES_ATTRIBUTES: // File attributes
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
+					break;
+
+				case MENU_FILES_APPLYCOMMAND: // Apply command
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
+					break;
+
+				case MENU_FILES_DESCRIBE: // Describe files
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
+					break;
+
+				case MENU_FILES_SELECTGROUP: // Select group
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
+					break;
+
+				case MENU_FILES_UNSELECTGROUP: // Unselect group
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
+					break;
+
+				case MENU_FILES_INVERTSELECTION: // Invert selection
+					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
+					break;
+
+				case MENU_FILES_RESTORESELECTION: // Restore selection
+					CtrlObject->Cp()->ActivePanel->RestoreSelection();
+					break;
+			}
+
+      		break;
+		}
+
+		case MENU_COMMANDS:
+		{
+			switch ( VItem ) {
+
+				case MENU_COMMANDS_FINDFILE: // Find file
+					FrameManager->ProcessKey(KEY_ALTF7);
+					break;
+
+				case MENU_COMMANDS_HISTORY: // History
+					FrameManager->ProcessKey(KEY_ALTF8);
+					break;
+
+				case MENU_COMMANDS_VIDEOMODE: // Video mode
+					FrameManager->ProcessKey(KEY_ALTF9);
+					break;
+
+				case MENU_COMMANDS_FINDFOLDER: // Find folder
+					FrameManager->ProcessKey(KEY_ALTF10);
+					break;
+
+				case MENU_COMMANDS_VIEWHISTORY: // File view history
+					FrameManager->ProcessKey(KEY_ALTF11);
+					break;
+
+				case MENU_COMMANDS_FOLDERHISTORY: // Folders history
+					FrameManager->ProcessKey(KEY_ALTF12);
+					break;
+
+				case MENU_COMMANDS_SWAPPANELS: // Swap panels
+					FrameManager->ProcessKey(KEY_CTRLU);
+					break;
+
+				case MENU_COMMANDS_TOGGLEPANELS: // Panels On/Off
+					FrameManager->ProcessKey(KEY_CTRLO);
+					break;
+
+				case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
+					CtrlObject->Cp()->ActivePanel->CompareDir();
+					break;
+
+				case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
+					ProcessUserMenu(true);
+					break;
+
+				case MENU_COMMANDS_FILEASSOCIATIONS: // File associations
+					EditFileTypes();
+					break;
+
+				case MENU_COMMANDS_FOLDERSHORTCUTS: // Folder shortcuts
+					ShowFolderShortcut();
+					break;
+
+				case MENU_COMMANDS_FILTER: // File panel filter
+					CtrlObject->Cp()->ActivePanel->EditFilter();
+					break;
+
+				case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
+					FrameManager->ProcessKey(KEY_F11);
+					break;
+
+				case MENU_COMMANDS_WINDOWSLIST: // Screens list
+					FrameManager->ProcessKey(KEY_F12);
+					break;
+
+				case MENU_COMMANDS_PROCESSLIST: // Task list
+					ShowProcessList();
+					break;
+
+				case MENU_COMMANDS_HOTPLUGLIST: // HotPlug list
+					ShowHotplugDevice();
+					break;
+			}
+
+			break;
+		}
+
+		case MENU_OPTIONS:
+		{
+			switch ( VItem ) {
+
+				case MENU_OPTIONS_SYSTEMSETTINGS:   // System settings
+					SystemSettings();
+					break;
+
+				case MENU_OPTIONS_PANELSETTINGS:   // Panel settings
+					PanelSettings();
+					break;
+
+				case MENU_OPTIONS_INTERFACESETTINGS:   // Interface settings
+					InterfaceSettings();
+					break;
+
+				case MENU_OPTIONS_LANGUAGES:   // Languages
+				{
+					VMenu *LangMenu, *HelpMenu;
+
+					if ( Language::Select(FALSE, &LangMenu) )
+					{
+						Lang.Close();
+
+						if ( !Lang.Init(g_strFarPath, true, MNewFileName) )
+						{
+							Message(MSG_WARNING, 1, L"Error", L"Cannot load language data", L"Ok");
+							exit(0);
+						}
+
+						Language::Select(TRUE,&HelpMenu);
+						delete HelpMenu;
+
+						LangMenu->Hide();
+
+						CtrlObject->Plugins.ReloadLanguage();
+						SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
+						
+						PrepareStrFTime();
+						PrepareUnitStr();
+
+						FrameManager->InitKeyBar();
+						CtrlObject->Cp()->RedrawKeyBar();
+						CtrlObject->Cp()->SetScreenPosition();
+					}
+
+					delete LangMenu; //???? BUGBUG
+
+					break;
+				}
+
+				case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
+					CtrlObject->Plugins.Configure();
+					break;
+
+				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
+					DialogSettings();
+					break;
+				
+				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
+					SetConfirmations();
+					break;
+
+				case MENU_OPTIONS_FILEPANELMODES:   // File panel modes
+					FileList::SetFilePanelModes();
+					break;
+
+				case MENU_OPTIONS_FILEDESCRIPTIONS:   // File descriptions
+					SetDizConfig();
+					break;
+
+				case MENU_OPTIONS_FOLDERINFOFILES:   // Folder description files
+					SetFolderInfoFiles();
+					break;
+
+				case MENU_OPTIONS_VIEWERSETTINGS:  // Viewer settings
+					ViewerConfig(Opt.ViOpt);
+					break;
+
+				case MENU_OPTIONS_EDITORSETTINGS:  // Editor settings
+					EditorConfig(Opt.EdOpt);
+					break;
+
+				case MENU_OPTIONS_COLORS:  // Colors
+					SetColors();
+					break;
+
+				case MENU_OPTIONS_FILESHIGHLIGHTING:  // Files highlighting
+					CtrlObject->HiFiles->HiEdit(0);
+					break;
+
+				case MENU_OPTIONS_SAVESETUP:  // Save setup
+					SaveConfig(1);
+					break;
+			}
+
+			break;
+		}
+	}
+
+	int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
+
+	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
+	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
+	
+	if ( !(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR) )
+		CtrlObject->CmdLine->Show();
+
+	if ( HItem != -1 && VItem != -1 )
+ 	{
+		LastHItem = HItem;
+		LastVItem = VItem;
+	}
 }
