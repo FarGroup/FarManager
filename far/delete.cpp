@@ -330,9 +330,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           ScanTree ScTree(TRUE,TRUE);
 
 					string strSelFullName;
-					SrcPanel->GetCurDir(strSelFullName);
-					AddEndSlash(strSelFullName);
-					strSelFullName+=strSelName;
+					if(PathMayBeAbsolute(strSelName))
+					{
+						strSelFullName=strSelName;
+					}
+					else
+					{
+						SrcPanel->GetCurDir(strSelFullName);
+						AddEndSlash(strSelFullName);
+						strSelFullName+=strSelName;
+					}
 					ScTree.SetFindPath(strSelFullName,L"*.*", 0);
 
           while (ScTree.GetNextName(&FindData,strFullName))
