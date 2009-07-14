@@ -33,6 +33,7 @@ plugins.cpp
 #include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
 #include "TaskBar.hpp"
+#include "lasterror.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -581,7 +582,6 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     return (FALSE);
   }
 
-  DWORD LstErr;
   HMODULE hModule=CurPlugin.hModule;
   if(!hModule)
   {
@@ -604,9 +604,9 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     if ( bIsPlugin )
     {
       hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
-      if(!hModule)
-        LstErr=GetLastError();
     }
+
+    GuardLastError Err;
 
     FarChDir(CurPath, TRUE);
     if(Drive[0]) // вернем ее (переменную окружения) обратно
@@ -622,7 +622,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     if(!Opt.LoadPlug.SilentLoadPlugin)
     {
       SetMessageHelp("ErrLoadPlugin");
-      Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),CurPlugin.ModuleName,MSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),CurPlugin.ModuleName,MSG(MOk));
     }
     CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
     return(FALSE);
