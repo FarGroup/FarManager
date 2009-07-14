@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
+#include "lasterror.hpp"
 
 #include "wrap.cpp"
 
@@ -346,8 +347,6 @@ bool PluginA::Load()
 	if ( m_hModule )
 		return true; //BUGBUG
 
-	DWORD LstErr;
-
 	if( !m_hModule )
 	{
 		string strCurPath, strCurPlugDiskPath;
@@ -367,8 +366,7 @@ bool PluginA::Load()
 
 		m_hModule = LoadLibraryEx(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
 
-		if( !m_hModule )
-			LstErr=GetLastError();
+		GuardLastError Err;
 
 		FarChDir(strCurPath);
 
@@ -382,7 +380,7 @@ bool PluginA::Load()
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
 
-			Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
 		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
