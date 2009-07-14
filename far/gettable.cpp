@@ -95,8 +95,14 @@ void AddTable(const wchar_t *codePageName, UINT codePage, int position = -1, boo
 		else
 			name.Format(L"%5u%c %s", codePage, BoxSymbols[BS_V1], codePageName);
 		item.Item.Text = name.GetBuffer();
-		if (checked)
+		if (selectedCodePages && checked)
+		{
 			item.Item.Flags |= MIF_CHECKED;
+		}
+		if (!enabled)
+		{
+			item.Item.Flags |= MIF_GRAYED;
+		}
 		Dialog::SendDlgMessage(dialog, DM_LISTINSERT, control, (LONG_PTR)&item);
 		// Устанавливаем данные для элемента
 		FarListItemData data;
@@ -249,6 +255,9 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
 	if (selectType & CPST_FAVORITE)
 	{
+		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
+		if(!favoriteCodePages)
+			AddSeparator(MSG(MGetTableFavorites),GetItemsCount()-normalCodePages-(normalCodePages?1:0));
 		// Добавляем таблицу символов в выбранные
 		AddTable(
 				codePageName,
@@ -261,9 +270,6 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 				true,
 				selectType & CPST_FIND ? true : false
 			);
-		// Если надо добавляем разделитель между выбранными и нормальными таблицами симовлов
-		if(!favoriteCodePages)
-			AddSeparator(MSG(MGetTableFavorites),GetItemsCount()-normalCodePages-(normalCodePages?1:0)-1);
 		// Увеличиваем счётчик выбранных таблиц символов
 		favoriteCodePages++;
 	}

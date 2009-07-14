@@ -137,7 +137,7 @@ typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
 
 #define CP_UNICODE 1200
-#define CP_REVERSEBOM 65534
+#define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
 
 enum FARMESSAGEFLAGS{
