@@ -85,6 +85,7 @@ const wchar_t NKeySystemNowell[]=L"System\\Nowell";
 const wchar_t NKeyHelp[]=L"Help";
 const wchar_t NKeyLanguage[]=L"Language";
 const wchar_t NKeyConfirmations[]=L"Confirmations";
+const wchar_t NKeyPluginConfirmations[]=L"PluginConfirmations";
 const wchar_t NKeyPanel[]=L"Panel";
 const wchar_t NKeyPanelLeft[]=L"Panel\\Left";
 const wchar_t NKeyPanelRight[]=L"Panel\\Right";
@@ -537,6 +538,64 @@ void SetConfirmations()
   Opt.Confirm.HistoryClear=ConfDlg[11].Selected;
   Opt.Confirm.Exit=ConfDlg[12].Selected;
 }
+
+void SetPluginConfirmations()
+{
+
+	static DialogDataEx ConfDlgData[]={
+  /* 00 */DI_DOUBLEBOX,  3, 1,46,9,0,0,0,0,L"Choose plugin menu",
+  /* 01 */DI_CHECKBOX,   5, 2, 0, 2,1,0,DIF_AUTOMATION,0,L"OpenFilePlugin",
+  /* 02 */DI_CHECKBOX,   7, 3, 0, 3,0,0,DIF_AUTOMATION,0,L"Standard associations",
+  /* 03 */DI_CHECKBOX,   7, 4, 0, 4,0,0,0,0,L"Even if only one plugin found",
+  /* 04 */DI_CHECKBOX,   5, 5, 0, 5,0,0,0,0,L"SetFindList",
+  /* 05 */DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,L"Prefix",
+  /* 06 */DI_TEXT,       3,7, 0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 07 */DI_BUTTON,     0,8, 0,8,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 08 */DI_BUTTON,     0,8, 0,8,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+
+  };
+
+  MakeDialogItemsEx(ConfDlgData, ConfDlg);
+
+  ConfDlg[1].Selected = Opt.PluginConfirm.OpenFilePlugin;
+  ConfDlg[2].Selected = Opt.PluginConfirm.StandardAssociation;
+  ConfDlg[3].Selected = Opt.PluginConfirm.EvenIfOnlyOnePlugin;
+  ConfDlg[4].Selected = Opt.PluginConfirm.SetFindList;
+  ConfDlg[5].Selected = Opt.PluginConfirm.Prefix;
+
+  if ( !Opt.PluginConfirm.OpenFilePlugin )
+  {
+  	ConfDlg[2].Flags |= DIF_DISABLE;
+  	ConfDlg[3].Flags |= DIF_DISABLE;
+	}
+
+  if ( !Opt.PluginConfirm.StandardAssociation )
+	  ConfDlg[3].Flags |= DIF_DISABLE;
+
+  ConfDlg[4].Flags |= DIF_DISABLE;
+  ConfDlg[5].Flags |= DIF_DISABLE;
+
+  Dialog Dlg(ConfDlg,countof(ConfDlg));
+ // Dlg.SetHelp(L"ConfirmDlg");
+  Dlg.SetPosition(-1,-1,50,11);
+
+  Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(1,3,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
+
+  
+  Dlg.Process();
+
+  if ( Dlg.GetExitCode() != 7 )
+    return;
+
+  Opt.PluginConfirm.OpenFilePlugin = ConfDlg[1].Selected;
+  Opt.PluginConfirm.StandardAssociation = ConfDlg[2].Selected;
+  Opt.PluginConfirm.EvenIfOnlyOnePlugin = ConfDlg[3].Selected;
+  Opt.PluginConfirm.SetFindList = ConfDlg[4].Selected;
+  Opt.PluginConfirm.Prefix = ConfDlg[5].Selected;
+}
+
 
 void SetDizConfig()
 {
@@ -1097,6 +1156,12 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
   {0, REG_DWORD,  NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
+
+  {1, REG_DWORD,  NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 1, 0},
+  {1, REG_DWORD,  NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 1, 0},
+  {1, REG_DWORD,  NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 1, 0},
+  {1, REG_DWORD,  NKeyPluginConfirmations, L"SetFindList", &Opt.PluginConfirm.SetFindList, 1, 0},
+  {1, REG_DWORD,  NKeyPluginConfirmations, L"Prefix", &Opt.PluginConfirm.Prefix, 1, 0},
 
   {0, REG_DWORD,  NKeyPanel,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
   {1, REG_DWORD,  NKeyPanel,L"ShowHidden",&Opt.ShowHidden,1, 0},

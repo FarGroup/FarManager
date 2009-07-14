@@ -139,6 +139,7 @@ enum enumOptionsMenu {
 	MENU_OPTIONS_PLUGINSCONFIG,
 	MENU_OPTIONS_DIALOGSETTINGS,
 	MENU_OPTIONS_CONFIRMATIONS = MENU_OPTIONS_DIALOGSETTINGS+2,
+	MENU_OPTIONS_PLUGINCONFIRMATIONS,
 	MENU_OPTIONS_FILEPANELMODES,
 	MENU_OPTIONS_FILEDESCRIPTIONS,
 	MENU_OPTIONS_FOLDERINFOFILES,
@@ -272,6 +273,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
    /* 05 */(const wchar_t *)MMenuDialogSettings,0,0,
    /* 06 */L"",LIF_SEPARATOR,0,
    /* 07 */(const wchar_t *)MMenuConfirmation,0,0,
+           L"Plugin confirmation", 0, 0,   			
    /* 08 */(const wchar_t *)MMenuFilePanelModes,0,0,
    /* 09 */(const wchar_t *)MMenuFileDescriptions,0,0,
    /* 10 */(const wchar_t *)MMenuFolderInfoFiles,0,0,
@@ -674,6 +676,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				
 				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
 					SetConfirmations();
+					break;
+
+				case MENU_OPTIONS_PLUGINCONFIRMATIONS:
+					SetPluginConfirmations();
 					break;
 
 				case MENU_OPTIONS_FILEPANELMODES:   // File panel modes

@@ -694,6 +694,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	}
 
 	Plugin *pPlugin = NULL;
+	bool bFirstFound = false;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -719,6 +720,8 @@ HANDLE PluginManager::OpenFilePlugin(
 				handle->pPlugin = pPlugin;
 
 				items.add(handle);
+
+				bFirstFound = true;
 			}
 		}
 		else
@@ -738,8 +741,13 @@ HANDLE PluginManager::OpenFilePlugin(
 				handle->hPlugin = INVALID_HANDLE_VALUE;
 
 				items.add(handle);
+
+				bFirstFound = true;
 			}
 		}
+
+		if ( bFirstFound && !Opt.PluginConfirm.OpenFilePlugin )
+			break;
 
 		//не поддерживается
 		//if (hPlugin == (HANDLE)-2)
@@ -749,47 +757,63 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	if ( items.count() )
 	{
-		VMenu menu(L"Choose", NULL, 0, ScrY-4);
+		if ( (items.count() > 1) || (Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin) )
+		{
+			VMenu menu(L"Choose", NULL, 0, ScrY-4);
 
-		menu.SetPosition(-1, -1, 0, 0);
-		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			menu.SetPosition(-1, -1, 0, 0);
+			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
-		MenuItemEx mitem;
+			MenuItemEx mitem;
 		
-		for (int i = 0; i < items.count(); i++)
-		{
-			PluginHandle *handle = items.at(i);
-
-			mitem.Clear();
-			mitem.strName = PointToName(handle->pPlugin->GetModuleName());
-
-			menu.SetUserData((void*)handle, sizeof(handle), menu.AddItem(&mitem));
-		}
-
-		menu.Show();
-
-		while ( !menu.Done() )
-		{
-			menu.ReadInput();
-			menu.ProcessInput();
-		}
-
-		if ( menu.GetExitCode() != -1 )
-		{
-			pResult = (PluginHandle*)menu.GetUserData(NULL, 0);
-
-			if ( pResult->hPlugin == INVALID_HANDLE_VALUE ) //Analyse
+			for (int i = 0; i < items.count(); i++)
 			{
-				HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
+				PluginHandle *handle = items.at(i);
 
-				if ( h != INVALID_HANDLE_VALUE )
-					pResult->hPlugin = h;
-				else
-					pResult = NULL;
+				mitem.Clear();
+				mitem.strName = PointToName(handle->pPlugin->GetModuleName());
+
+				menu.SetUserData((void*)handle, sizeof(handle), menu.AddItem(&mitem));
 			}
+
+			if ( Opt.PluginConfirm.StandardAssociation )
+			{
+				mitem.Clear();
+				mitem.Flags |= MIF_SEPARATOR;
+
+				menu.AddItem(&mitem);
+
+				mitem.Clear();
+				mitem.strName = L"Standard association";
+
+				menu.AddItem(&mitem);
+			}					
+
+			menu.Show();
+
+			while ( !menu.Done() )
+			{
+				menu.ReadInput();
+				menu.ProcessInput();
+			}
+
+			if ( menu.GetExitCode() == -1 )
+				hResult = (HANDLE)-2;
+			else
+				pResult = (PluginHandle*)menu.GetUserData(NULL, 0);
 		}
 		else
-			hResult = (HANDLE)-2;
+			pResult = items.at(0);
+
+		if ( pResult && pResult->hPlugin == INVALID_HANDLE_VALUE )
+		{
+			HANDLE h = pResult->pPlugin->OpenPlugin(OPEN_ANALYSE, 0);
+
+			if ( h != INVALID_HANDLE_VALUE )
+				pResult->hPlugin = h;
+			else
+				pResult = NULL;
+		}
 	}
 
     for (int i = 0; i < items.count(); i++)

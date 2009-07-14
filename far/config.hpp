@@ -80,6 +80,15 @@ struct PanelOptions
   int NumericSort;
 };
 
+struct PluginConfirmation
+{
+	int OpenFilePlugin;
+	int StandardAssociation;
+	int EvenIfOnlyOnePlugin;
+	int SetFindList;
+	int Prefix;
+};
+
 struct Confirmation
 {
   int Copy;
@@ -478,6 +487,8 @@ struct Options
   string strFolderInfoFiles;
 
 	Confirmation Confirm;
+	PluginConfirmation PluginConfirm;
+
 	DizOptions Diz;
 
   int ShellRightLeftArrowsRule;
@@ -788,6 +799,7 @@ void PanelSettings();
 void InterfaceSettings();
 void DialogSettings();
 void SetConfirmations();
+void SetPluginConfirmations();
 void SetDizConfig();
 void ViewerConfig(ViewerOptions &ViOpt,int Local=0);
 void EditorConfig(EditorOptions &EdOpt,int Local=0);
