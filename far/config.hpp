@@ -93,6 +93,7 @@ struct Confirmation
 {
   int Copy;
   int Move;
+	int RO;
   int Drag;
   int Delete;
   int DeleteFolder;

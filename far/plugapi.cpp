@@ -696,6 +696,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
 			static Opt2Flags OSys[]={
         {&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
         {&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
+        {&Opt.Confirm.RO,FCS_OVERWRITEDELETEROFILES},
         {&Opt.Confirm.Drag,FCS_DRAGANDDROP},
         {&Opt.Confirm.Delete,FCS_DELETE},
         {&Opt.Confirm.DeleteFolder,FCS_DELETENONEMPTYFOLDERS},

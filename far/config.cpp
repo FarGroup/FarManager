@@ -484,59 +484,77 @@ void DialogSettings()
 
 void SetConfirmations()
 {
-	static DialogDataEx ConfDlgData[]={
-  /* 00 */DI_DOUBLEBOX,  3, 1,46,16,0,0,0,0,(const wchar_t *)MSetConfirmTitle,
-  /* 01 */DI_CHECKBOX,   5, 2, 0, 2,1,0,0,0,(const wchar_t *)MSetConfirmCopy,
-  /* 02 */DI_CHECKBOX,   5, 3, 0, 3,0,0,0,0,(const wchar_t *)MSetConfirmMove,
-  /* 03 */DI_CHECKBOX,   5, 4, 0, 4,0,0,0,0,(const wchar_t *)MSetConfirmDrag,
-  /* 04 */DI_CHECKBOX,   5, 5, 0, 5,0,0,0,0,(const wchar_t *)MSetConfirmDelete,
-  /* 05 */DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,(const wchar_t *)MSetConfirmDeleteFolders,
-  /* 06 */DI_CHECKBOX,   5, 7, 0, 7,0,0,0,0,(const wchar_t *)MSetConfirmEsc,
-  /* 07 */DI_CHECKBOX,   5, 8, 0, 8,0,0,0,0,(const wchar_t *)MSetConfirmRemoveConnection,
-  /* 08 */DI_CHECKBOX,   5, 9, 0, 9,0,0,0,0,(const wchar_t *)MSetConfirmRemoveSUBST,
-  /* 09 */DI_CHECKBOX,   5,10, 0,10,0,0,0,0,(const wchar_t *)MSetConfirmRemoveHotPlug,
-  /* 10 */DI_CHECKBOX,   5,11, 0,11,0,0,0,0,(const wchar_t *)MSetConfirmAllowReedit,
-  /* 11 */DI_CHECKBOX,   5,12, 0,12,0,0,0,0,(const wchar_t *)MSetConfirmHistoryClear,
-  /* 12 */DI_CHECKBOX,   5,13, 0,13,0,0,0,0,(const wchar_t *)MSetConfirmExit,
-  /* 13 */DI_TEXT,       3,14, 0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 14 */DI_BUTTON,     0,15, 0,15,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 15 */DI_BUTTON,     0,15, 0,15,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	enum ConfirmationsDlg
+	{
+		CF_DOUBLEBOX,
+		CF_CHECKBOX_COPY,
+		CF_CHECKBOX_MOVE,
+		CF_CHECKBOX_RO,
+		CF_CHECKBOX_DRAG,
+		CF_CHECKBOX_DELETE,
+		CF_CHECKBOX_DELETE_DIR,
+		CF_CHECKBOX_ESC,
+		CF_CHECKBOX_DISCONNECT,
+		CF_CHECKBOX_SUBST,
+		CF_CHECKBOX_HOTPLUG,
+		CF_CHECKBOX_REEDIT,
+		CF_CHECKBOX_HISTORY,
+		CF_CHECKBOX_EXIT,
+		CF_CHECKBOX_SEPARATOR,
+		CF_CHECKBOX_OK,
+		CF_CHECKBOX_CANCEL,
+	};
 
-  };
-  MakeDialogItemsEx(ConfDlgData,ConfDlg);
-  ConfDlg[1].Selected=Opt.Confirm.Copy;
-  ConfDlg[2].Selected=Opt.Confirm.Move;
-  ConfDlg[3].Selected=Opt.Confirm.Drag;
-  ConfDlg[4].Selected=Opt.Confirm.Delete;
-  ConfDlg[5].Selected=Opt.Confirm.DeleteFolder;
-  ConfDlg[6].Selected=Opt.Confirm.Esc;
-  ConfDlg[7].Selected=Opt.Confirm.RemoveConnection;
-  ConfDlg[8].Selected=Opt.Confirm.RemoveSUBST;
-  ConfDlg[9].Selected=Opt.Confirm.RemoveHotPlug;
-  ConfDlg[10].Selected=Opt.Confirm.AllowReedit;
-  ConfDlg[11].Selected=Opt.Confirm.HistoryClear;
-  ConfDlg[12].Selected=Opt.Confirm.Exit;
+	enum DlgCoord
+	{
+		DLG_X=50,
+		DLG_Y=19,
+	};
 
-  Dialog Dlg(ConfDlg,countof(ConfDlg));
-  Dlg.SetHelp(L"ConfirmDlg");
-  Dlg.SetPosition(-1,-1,50,18);
-  Dlg.Process();
+	DialogDataEx ConfDlgData[]=
+	{
+		DI_DOUBLEBOX,3, 1,DLG_X-4,DLG_Y-2,0,0,0,0,MSG(MSetConfirmTitle),
+		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Confirm.Copy,0,0,MSG(MSetConfirmCopy),
+		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.Confirm.Move,0,0,MSG(MSetConfirmMove),
+		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Confirm.RO,0,0,MSG(MSetConfirmRO),
+		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.Confirm.Drag,0,0,MSG(MSetConfirmDrag),
+		DI_CHECKBOX, 5, 6, 0, 6,0,Opt.Confirm.Delete,0,0,MSG(MSetConfirmDelete),
+		DI_CHECKBOX, 5, 7, 0, 7,0,Opt.Confirm.DeleteFolder,0,0,MSG(MSetConfirmDeleteFolders),
+		DI_CHECKBOX, 5, 8, 0, 8,0,Opt.Confirm.Esc,0,0,MSG(MSetConfirmEsc),
+		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.Confirm.RemoveConnection,0,0,MSG(MSetConfirmRemoveConnection),
+		DI_CHECKBOX, 5,10, 0,10,0,Opt.Confirm.RemoveSUBST,0,0,MSG(MSetConfirmRemoveSUBST),
+		DI_CHECKBOX, 5,11, 0,11,0,Opt.Confirm.RemoveHotPlug,0,0,MSG(MSetConfirmRemoveHotPlug),
+		DI_CHECKBOX, 5,12, 0,12,0,Opt.Confirm.AllowReedit,0,0,MSG(MSetConfirmAllowReedit),
+		DI_CHECKBOX, 5,13, 0,13,0,Opt.Confirm.HistoryClear,0,0,MSG(MSetConfirmHistoryClear),
+		DI_CHECKBOX, 5,14, 0,14,0,Opt.Confirm.Exit,0,0,MSG(MSetConfirmExit),
+		DI_TEXT,     3,DLG_Y-4, 0,DLG_Y-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,DLG_Y-3, 0,DLG_Y-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,DLG_Y-3, 0,DLG_Y-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+	};
 
-  if (Dlg.GetExitCode()!=14)
-    return;
+	MakeDialogItemsEx(ConfDlgData,ConfDlg);
 
-  Opt.Confirm.Copy=ConfDlg[1].Selected;
-  Opt.Confirm.Move=ConfDlg[2].Selected;
-  Opt.Confirm.Drag=ConfDlg[3].Selected;
-  Opt.Confirm.Delete=ConfDlg[4].Selected;
-  Opt.Confirm.DeleteFolder=ConfDlg[5].Selected;
-  Opt.Confirm.Esc=ConfDlg[6].Selected;
-  Opt.Confirm.RemoveConnection=ConfDlg[7].Selected;
-  Opt.Confirm.RemoveSUBST=ConfDlg[8].Selected;
-  Opt.Confirm.RemoveHotPlug=ConfDlg[9].Selected;
-  Opt.Confirm.AllowReedit=ConfDlg[10].Selected;
-  Opt.Confirm.HistoryClear=ConfDlg[11].Selected;
-  Opt.Confirm.Exit=ConfDlg[12].Selected;
+	Dialog Dlg(ConfDlg,countof(ConfDlg));
+	Dlg.SetHelp(L"ConfirmDlg");
+	Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
+	Dlg.Process();
+
+	if(Dlg.GetExitCode()==CF_CHECKBOX_OK)
+	{
+		Opt.Confirm.Copy=ConfDlg[CF_CHECKBOX_COPY].Selected;
+		Opt.Confirm.Move=ConfDlg[CF_CHECKBOX_MOVE].Selected;
+		Opt.Confirm.RO=ConfDlg[CF_CHECKBOX_RO].Selected;
+		Opt.Confirm.Drag=ConfDlg[CF_CHECKBOX_DRAG].Selected;
+		Opt.Confirm.Delete=ConfDlg[CF_CHECKBOX_DELETE].Selected;
+		Opt.Confirm.DeleteFolder=ConfDlg[CF_CHECKBOX_DELETE_DIR].Selected;
+		Opt.Confirm.Esc=ConfDlg[CF_CHECKBOX_ESC].Selected;
+		Opt.Confirm.RemoveConnection=ConfDlg[CF_CHECKBOX_DISCONNECT].Selected;
+		Opt.Confirm.RemoveSUBST=ConfDlg[CF_CHECKBOX_SUBST].Selected;
+		Opt.Confirm.RemoveHotPlug=ConfDlg[CF_CHECKBOX_HOTPLUG].Selected;
+		Opt.Confirm.AllowReedit=ConfDlg[CF_CHECKBOX_REEDIT].Selected;
+		Opt.Confirm.HistoryClear=ConfDlg[CF_CHECKBOX_HISTORY].Selected;
+		Opt.Confirm.Exit=ConfDlg[CF_CHECKBOX_EXIT].Selected;
+	}
 }
 
 void SetPluginConfirmations()
@@ -1145,6 +1163,7 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"Move",&Opt.Confirm.Move,1, 0},
+	{1, REG_DWORD,  NKeyConfirmations,L"RO",&Opt.Confirm.RO,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"Drag",&Opt.Confirm.Drag,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"Delete",&Opt.Confirm.Delete,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,L"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},

@@ -11185,6 +11185,15 @@ MSetConfirmMove
 "Moz&gatás"
 "&Przenoszenie"
 
+MSetConfirmRO
+"Перезапись и удаление R/O &файлов"
+"&Overwrite and delete R/O files"
+upd:"&Overwrite and delete R/O files"
+upd:"&Overwrite and delete R/O files"
+upd:"&Overwrite and delete R/O files"
+upd:"&Overwrite and delete R/O files"
+
+
 MSetConfirmDrag
 "Пере&таскивание"
 "&Drag and drop"
@@ -11234,8 +11243,8 @@ MSetConfirmRemoveSUBST
 "Odłączenie dysku &SUBST"
 
 MSetConfirmRemoveHotPlug
-"Отключение HotPlug-устройства"
-"HotPlug-device removal"
+"Отключение HotPlug-у&стройства"
+"Hot&Plug-device removal"
 "Odpojení vyjímatelného zařízení"
 "Sicheres Entfernen von Hardware"
 "H&otPlug eszköz eltávolítása"

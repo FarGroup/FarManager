@@ -1257,6 +1257,8 @@ following operations:
 
     - overwrite destination files when performing file moving;
 
+    - overwrite and delete files with "read only" arrtibute;
+
     - ~drag and drop~@DragAndDrop@ files;
 
     - delete files;

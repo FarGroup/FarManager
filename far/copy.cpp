@@ -667,17 +667,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			ComboList.ItemsNumber=countof(CopyModeItems);
 			ComboList.Items=CopyModeItems;
 			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
-			ComboList.Items[0].Text=MSG(MCopyAsk);
-			ComboList.Items[1].Text=MSG(MCopyOverwrite);
-			ComboList.Items[2].Text=MSG(MCopySkipOvr);
-			ComboList.Items[3].Text=MSG(MCopyRename);
-			ComboList.Items[4].Text=MSG(MCopyAppend);
-			ComboList.Items[5].Text=MSG(MCopyOnlyNewerFiles);
-			ComboList.Items[7].Text=MSG(MCopyAskRO);
+			ComboList.Items[CM_ASK].Text=MSG(MCopyAsk);
+			ComboList.Items[CM_OVERWRITE].Text=MSG(MCopyOverwrite);
+			ComboList.Items[CM_SKIP].Text=MSG(MCopySkipOvr);
+			ComboList.Items[CM_RENAME].Text=MSG(MCopyRename);
+			ComboList.Items[CM_APPEND].Text=MSG(MCopyAppend);
+			ComboList.Items[CM_ONLYNEWER].Text=MSG(MCopyOnlyNewerFiles);
+			ComboList.Items[CM_ASKRO].Text=MSG(MCopyAskRO);
 
-			ComboList.Items[0].Flags=LIF_SELECTED;
-			ComboList.Items[6].Flags=LIF_SEPARATOR;
-			ComboList.Items[7].Flags=LIF_CHECKED;
+			ComboList.Items[CM_ASK].Flags=LIF_SELECTED;
+			ComboList.Items[CM_SEPARATOR].Flags=LIF_SEPARATOR;
+			if(Opt.Confirm.RO)
+			{
+				ComboList.Items[CM_ASKRO].Flags=LIF_CHECKED;
+			}
 		}
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
 
@@ -2823,6 +2826,10 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
   if (Attr & FILE_ATTRIBUTE_READONLY)
   {
     int MsgCode;
+
+		if(!Opt.Confirm.RO)
+			ReadOnlyDelMode=1;
+
     if (ReadOnlyDelMode!=-1)
       MsgCode=ReadOnlyDelMode;
     else

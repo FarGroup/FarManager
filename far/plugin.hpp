@@ -1072,6 +1072,7 @@ enum FarConfirmationsSettings{
   FCS_RELOADEDITEDFILE               = 0x00000080,
   FCS_CLEARHISTORYLIST               = 0x00000100,
   FCS_EXIT                           = 0x00000200,
+  FCS_OVERWRITEDELETEROFILES         = 0x00000400,
 };
 
 enum FarDescriptionSettings {

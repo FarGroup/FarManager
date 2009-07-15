@@ -565,6 +565,10 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
   int MsgCode;
   if ((Attr & FILE_ATTRIBUTE_READONLY)==0)
     return(DELETE_YES);
+
+	if(!Opt.Confirm.RO)
+		ReadOnlyDeleteMode=1;
+
   if (ReadOnlyDeleteMode!=-1)
     MsgCode=ReadOnlyDeleteMode;
   else
@@ -879,6 +883,7 @@ int WipeDirectory(const wchar_t *Name)
   BOOL usePath = FALSE;
 	if(FirstSlash(Name)) {
     Opt.strTempPath = Name;
+		DeleteEndSlash(Opt.strTempPath);
     CutToSlash(Opt.strTempPath);
     usePath = TRUE;
   }
