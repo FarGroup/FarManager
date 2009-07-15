@@ -304,7 +304,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 #ifndef UNICODE
   Info->CommandPrefix=_T("far:view:edit:goto:clip:whereis:macro:ln:run");
 #else
-  Info->CommandPrefix=_T("far:view:edit:goto:clip:whereis:macro:ln:run:pload:unloadp");
+  Info->CommandPrefix=_T("far:view:edit:goto:clip:whereis:macro:ln:run:load:unload");
 #endif
 }
 

@@ -303,7 +303,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     int ShowCmdOutput=Opt.ShowCmdOutput;
     int stream=Opt.CatchMode;
     BOOL outputtofile=0, allOK=TRUE;
-    int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, PLoad=0,UnloadP=0;
+    int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, Load=0,Unload=0;
     TCHAR *Ptr, *pCmd=NULL;
     size_t I;
 
@@ -338,12 +338,12 @@ int OpenFromCommandLine(TCHAR *_farcmd)
       // run<separator><file> < <command>
       {Run,_T("RUN")},
       #ifdef UNICODE
-      // pload:[<separator>]<file>
-      // pload<separator><file>
-      {PLoad,_T("PLOAD")},
-      // unloadp:[<separator>]<file>
-      // unloadp<separator><file>
-      {UnloadP,_T("UNLOADP")},
+      // load:[<separator>]<file>
+      // load<separator><file>
+      {Load,_T("LOAD")},
+      // unload:[<separator>]<file>
+      // unload<separator><file>
+      {Unload,_T("UNLOAD")},
       #endif
     };
 
@@ -366,7 +366,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
     // farcmd = [[<options>]<separator>]<object>
     // farcmd = [<separator>]<object>
 
-    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||PLoad||UnloadP)
+    if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||Load||Unload)
     {
       int SeparatorLen=lstrlen(Opt.Separator);
       TCHAR *cBracket=NULL, runFile[NM]=_T("");
@@ -649,12 +649,12 @@ int OpenFromCommandLine(TCHAR *_farcmd)
             }
           }
 #ifdef UNICODE
-          else if (PLoad || UnloadP)
+          else if (Load || Unload)
           {
             TCHAR temp[NM*5];
             Unquote(pCmd);
             ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
-            if (PLoad)
+            if (Load)
               Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,(LONG_PTR)temp);
             else
               Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,(LONG_PTR)temp);

@@ -1,3 +1,9 @@
+drkns 15.07.2009 20:36:17 +0200 - build 42
+
+1. 0000933: Названия префиксов pload: и unloadp:
+   pload -> load
+   unloadp -> unload
+
 drkns 11.06.2009 10:36:49 +0200 - build 41
 
 1. Не собиралось в gcc.

@@ -33,8 +33,8 @@ $^#FARCmds Syntax
                  ~macro~@Macro@   - Macros
                  ~ln~@Ln@      - create of links
                  ~run~@Run@     - execute commands
-                 ~pload~@PLoad@   - load plugin
-                 ~unloadp~@UnLoadp@ - unload plugin
+                 ~load~@Load@   - load plugin
+                 ~unload~@Unload@ - unload plugin
 
    #<options>#   - only for the #edit# command; one of the following:
                  #[line]#
@@ -60,31 +60,31 @@ $^#FARCmds Syntax
    operating system command enclosed in #'|'# characters.
    Example: '#edit:<|%TEMP%|dir#'.
 
-   Команды #pload# и #unloadp# доступны только в Unicode-версии (для FAR 2.x)
+   Команды #load# и #unload# доступны только в Unicode-версии (для FAR 2.x)
 
    See also: ~Contents~@Contents@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@
 
-@PLoad
-$ #The PLoad command#
-   Команда #pload# позволяет загрузить плагин #имя_DLL_модуля#.
+@Load
+$ #The Load command#
+   Команда #load# позволяет загрузить плагин #имя_DLL_модуля#.
 
-   #far:pload имя_DLL_модуля#
-   #pload:имя_DLL_модуля#
-
-   Команда доступна только в Unicode-версии (для FAR 2.x)
-
-   See also: ~unloadp~@UnLoadp@ | ~Notes~@Remark@
-
-@UnLoadp
-$ #The UnLoadp command#
-   Команда #unloadp# позволяет загрузить плагин #имя_DLL_модуля#.
-
-   #far:unloadp имя_DLL_модуля#
-   #unloadp:имя_DLL_модуля#
+   #far:load имя_DLL_модуля#
+   #load:имя_DLL_модуля#
 
    Команда доступна только в Unicode-версии (для FAR 2.x)
 
-   See also: ~PLoad~@pload@ | ~Notes~@Remark@
+   See also: ~unload~@Unload@ | ~Notes~@Remark@
+
+@Unload
+$ #The Unload command#
+   Команда #unload# позволяет загрузить плагин #имя_DLL_модуля#.
+
+   #far:unload имя_DLL_модуля#
+   #unload:имя_DLL_модуля#
+
+   Команда доступна только в Unicode-версии (для FAR 2.x)
+
+   See also: ~Load~@load@ | ~Notes~@Remark@
 
 @Clip
 $^#The Clip command#
