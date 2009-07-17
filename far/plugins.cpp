@@ -712,6 +712,12 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			hPlugin = pPlugin->OpenFilePlugin (Name, Data, DataSize, OpMode);
 
+			if ( hPlugin == (HANDLE)-2 ) //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
+			{
+				hResult = (HANDLE)-2;
+				break;
+			}
+
 			if ( hPlugin != INVALID_HANDLE_VALUE )
 			{
 				PluginHandle *handle = new PluginHandle;
@@ -748,14 +754,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if ( bFirstFound && !Opt.PluginConfirm.OpenFilePlugin )
 			break;
-
-		//не поддерживается
-		//if (hPlugin == (HANDLE)-2)
-		//	return hPlugin;
-
 	}
 
-	if ( items.count() )
+	if ( items.count() && (hResult != (HANDLE)-2) )
 	{
 		if ( (items.count() > 1) || (Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin) )
 		{
