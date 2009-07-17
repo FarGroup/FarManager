@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static LONG CloseRegKey(HKEY hKey);
 
-int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=NULL);
 void DeleteFullKeyTree(const wchar_t *KeyName);
 static void DeleteKeyTreePart(const wchar_t *KeyName);
 
@@ -560,6 +559,14 @@ int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
   }
   CloseRegKey(hSrcKey);
   return(TRUE);
+}
+
+int CopyLocalKeyTree(const wchar_t *Src,const wchar_t *Dst)
+{
+	string strFullSrc,strFullDst;
+	MkKeyName(Src,strFullSrc);
+	MkKeyName(Dst,strFullDst);
+	return CopyKeyTree(strFullSrc,strFullDst);
 }
 
 void DeleteKeyTree(const wchar_t *KeyName)

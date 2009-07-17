@@ -1,13 +1,12 @@
-#ifndef __USERMENU_HPP__
-#define __USERMENU_HPP__
+#ifndef __CACHEDWRITE_HPP__
+#define __CACHEDWRITE_HPP__
 /*
-usermenu.hpp
+CachedWrite.hpp
 
-User menu и есть
+Кеширование записи в файл
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright (c) 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,29 +32,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class UserMenu
+class CachedWrite
 {
-	// Режимы показа меню (Menu mode)
-	enum MENUMODE
-	{
-		MM_LOCAL, // Локальное меню
-		MM_FAR, // Меню из каталога ФАРа
-		MM_MAIN, // Главное меню
-	};
-
-	MENUMODE MenuMode;
-	bool MenuModified;
-	bool MenuNeedRefresh;
-
-	void ProcessUserMenu(bool ChoiceMenuType);
-	int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos);
-	bool EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool Create);
-	int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *MenuRootKey,const wchar_t *Title=NULL);
-	bool MoveMenuItem(const wchar_t *MenuKey,int Pos,int NewPos);
+	LPBYTE Buffer;
+	HANDLE hFile;
+	enum {BufferSize=0x10000};
+	size_t FreeSize;
+	bool Flushed;
 
 public:
-	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-	~UserMenu();
+	CachedWrite(HANDLE hFile);
+	~CachedWrite();
+	bool Write(LPCVOID Data,size_t DataSize);
+	bool Flush();
 };
 
-#endif // __USERMENU_HPP__
+#endif // __CACHEDWRITE_HPP__

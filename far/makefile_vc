@@ -89,7 +89,8 @@ RES_FILE = "$(INTDIR)\far.res"
 
 PCH_FILE = "$(INTDIR)\headers.pch"
 
-LINK32_OBJS= \
+LINK32_OBJS = \
+	"$(INTDIR)\CachedWrite.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
 	"$(INTDIR)\chgmmode.obj" \

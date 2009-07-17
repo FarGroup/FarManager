@@ -1707,8 +1707,8 @@ the main menu and the user menu by pressing #Shift-F2#. Also you may call the
 user menu of the parent folder by pressing #BS#.
 
     You may add command separators to the user menu. To do this, you should add
-a new menu command, define "#-#" as "hot key" and leave field "Label" empty. To
-delete a menu separator, you must switch to file mode with #Alt-F4# key.
+a new menu command and define "#-#" as "hot key". To delete a menu separator,you
+must switch to file mode with #Alt-F4# key.
 
     To execute a user menu command, select it with cursor keys and press #Enter#.
 You may also press the hot key assigned to the required menu item.
@@ -1717,7 +1717,7 @@ You may also press the hot key assigned to the required menu item.
 submenu or menu item with the #Ins# key or edit an existing submenu or menu
 item with the #F4# key. Press #Alt-F4# to edit the menu in text file form.
 
-    It is possible to use digits, letters and function keys (#F1#..#F12#) as
+    It is possible to use digits, letters and function keys (#F1#..#F24#) as
 hot keys in user menu. If #F1# or #F4# is used, its original function in user
 menu is overridden. However, you still may use #Shift-F4# to edit the menu.
 

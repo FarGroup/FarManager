@@ -92,7 +92,9 @@ int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName);
 
 int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName);
 
-int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip);
+int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip=NULL);
+
+int CopyLocalKeyTree(const wchar_t *Src,const wchar_t *Dest);
 
 void UseSameRegKey();
 

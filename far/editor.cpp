@@ -512,7 +512,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak, EditorCacheParams *pp)
 */
 
 // преобразование из буфера в список
-int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
+int Editor::ReadData(LPCWSTR SrcBuf,int SizeSrcBuf)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
   Edit *PrevPtr;
@@ -617,31 +617,30 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
     SizeDestBuf - размер сохранения
     TextFormat  - тип концовки строк
 */
-int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
+int Editor::SaveData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
-  char *PDest=NULL;
+	wchar_t* PDest=NULL;
   SizeDestBuf=0; // общий размер = 0
 
   // выставляем EOL
   switch(TextFormat)
   {
     case 1:
-      strcpy(GlobalEOL,DOS_EOL_fmt);
+			wcscpy(GlobalEOL,DOS_EOL_fmt);
       break;
     case 2:
-      strcpy(GlobalEOL,UNIX_EOL_fmt);
+			wcscpy(GlobalEOL,UNIX_EOL_fmt);
       break;
     case 3:
-      strcpy(GlobalEOL,MAC_EOL_fmt);
+			wcscpy(GlobalEOL,MAC_EOL_fmt);
       break;
     case 4:
-      strcpy(GlobalEOL,WIN_EOL_fmt);
+			wcscpy(GlobalEOL,WIN_EOL_fmt);
       break;
   }
 
-  int StrLength=0;
-  const char *SaveStr, *EndSeq;
+  const wchar_t *SaveStr, *EndSeq;
   int Length;
 
   // посчитаем количество строк и общий размер памяти (чтобы не дергать realloc)
@@ -650,7 +649,7 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
   DWORD AllLength=0;
   while (CurPtr!=NULL)
   {
-    CurPtr->GetBinaryString(SaveStr,&EndSeq,Length);
+    CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
     // выставляем концовку строк
     if (*EndSeq==0 && CurPtr->m_next!=NULL)
       EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
@@ -668,10 +667,10 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
 
       CurPtr->SetEOL(EndSeq);
     }
-    AllLength+=Length+strlen(EndSeq)+16;
+    AllLength+=Length+StrLength(EndSeq)+16;
   }
 
-  char *MemEditStr=(char *)xf_malloc(sizeof(char) * AllLength);
+	wchar_t * MemEditStr=reinterpret_cast<wchar_t*>(xf_malloc(AllLength*sizeof(wchar_t)));
 
   if(MemEditStr)
   {
@@ -681,15 +680,15 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
     CurPtr=TopList;
     while (CurPtr!=NULL)
     {
-      CurPtr->GetBinaryString(SaveStr,&EndSeq,Length);
+      CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
-      strcpy(PDest,SaveStr);
-      strcat(PDest,EndSeq);
-      PDest+=strlen(PDest);
+			wcscpy(PDest,SaveStr);
+			wcscat(PDest,EndSeq);
+			PDest+=StrLength(PDest);
 
       CurPtr=CurPtr->m_next;
     }
-    SizeDestBuf=strlen(MemEditStr);
+		SizeDestBuf=StrLength(MemEditStr);
     DestBuf=&MemEditStr;
     return TRUE;
   }

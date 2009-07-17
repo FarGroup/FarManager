@@ -580,7 +580,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 
 				case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
-					ProcessUserMenu(true);
+					{
+						UserMenu Menu(true);
+					}
 					break;
 
 				case MENU_COMMANDS_FILEASSOCIATIONS: // File associations

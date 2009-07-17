@@ -22,7 +22,9 @@ FARINCLUDE = ./Include
 DEF = far.def
 DEPFILE = far.gcc.dep
 
-SRCS = 	cddrv.cpp \
+SRCS = \
+	CachedWrite.cpp \
+	cddrv.cpp \
 	CFileMask.cpp \
 	chgmmode.cpp \
 	chgprior.cpp \

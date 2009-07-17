@@ -463,6 +463,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="CachedWrite.cpp"
+				>
+			</File>
+			<File
 				RelativePath="cddrv.cpp"
 				>
 			</File>
@@ -2544,6 +2548,10 @@
 						Outputs="Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="CachedWrite.hpp"
+				>
 			</File>
 			<File
 				RelativePath="config.hpp"

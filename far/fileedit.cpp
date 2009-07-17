@@ -68,78 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
-
-class CachedWrite
-{
-	LPBYTE Buffer;
-	HANDLE hFile;
-	enum {BufferSize=0x10000};
-	size_t FreeSize;
-	bool Flushed;
-
-public:
-	CachedWrite(HANDLE hFile)
-	{
-		this->hFile=hFile;
-		Buffer=reinterpret_cast<LPBYTE>(xf_malloc(BufferSize));
-		FreeSize=BufferSize;
-		Flushed=false;
-	}
-
-	~CachedWrite()
-	{
-		Flush();
-		if(Buffer)
-		{
-			xf_free(Buffer);
-		}
-	}
-
-	bool Write(LPCVOID Data,size_t DataSize)
-	{
-		bool Result=false;
-		if(Buffer)
-		{
-			if(DataSize>FreeSize)
-			{
-				Flush();
-			}
-			if(DataSize>FreeSize)
-			{
-				DWORD WrittenSize=0;
-				if(WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
-				{
-					Result=true;
-				}
-			}
-			else
-			{
-				memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
-				FreeSize-=DataSize;
-				Flushed=false;
-				Result=true;
-			}
-		}
-		return Result;
-	}
-
-	bool Flush()
-	{
-		if(Buffer)
-		{
-			if(!Flushed)
-			{
-				DWORD WrittenSize=0;
-				if(WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,NULL) && BufferSize-FreeSize==WrittenSize)
-				{
-					Flushed=true;
-					FreeSize=BufferSize;
-				}
-			}
-		}
-		return Flushed;
-	}
-};
+#include "CachedWrite.hpp"
 
 enum enumOpenEditor {
 	ID_OE_TITLE,

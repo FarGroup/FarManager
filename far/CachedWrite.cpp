@@ -1,13 +1,10 @@
-#ifndef __USERMENU_HPP__
-#define __USERMENU_HPP__
 /*
-usermenu.hpp
+CachedWrite.cpp
 
-User menu и есть
+Кеширование записи в файл
 */
 /*
-Copyright (c) 1996 Eugene Roshal
-Copyright (c) 2000 Far Group
+Copyright (c) 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -33,29 +30,69 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class UserMenu
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "CachedWrite.hpp"
+
+CachedWrite::CachedWrite(HANDLE hFile)
 {
-	// Режимы показа меню (Menu mode)
-	enum MENUMODE
+	this->hFile=hFile;
+	Buffer=reinterpret_cast<LPBYTE>(xf_malloc(BufferSize));
+	FreeSize=BufferSize;
+	Flushed=false;
+}
+
+CachedWrite::~CachedWrite()
+{
+	Flush();
+	if(Buffer)
 	{
-		MM_LOCAL, // Локальное меню
-		MM_FAR, // Меню из каталога ФАРа
-		MM_MAIN, // Главное меню
-	};
+		xf_free(Buffer);
+	}
+}
 
-	MENUMODE MenuMode;
-	bool MenuModified;
-	bool MenuNeedRefresh;
+bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
+{
+	bool Result=false;
+	if(Buffer)
+	{
+		if(DataSize>FreeSize)
+		{
+			Flush();
+		}
+		if(DataSize>FreeSize)
+		{
+			DWORD WrittenSize=0;
+			if(WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
+			{
+				Result=true;
+			}
+		}
+		else
+		{
+			memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
+			FreeSize-=DataSize;
+			Flushed=false;
+			Result=true;
+		}
+	}
+	return Result;
+}
 
-	void ProcessUserMenu(bool ChoiceMenuType);
-	int DeleteMenuRecord(const wchar_t *MenuKey,int DeletePos);
-	bool EditMenu(const wchar_t *MenuKey,int EditPos,int TotalRecords,bool Create);
-	int ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t *MenuRootKey,const wchar_t *Title=NULL);
-	bool MoveMenuItem(const wchar_t *MenuKey,int Pos,int NewPos);
-
-public:
-	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-	~UserMenu();
-};
-
-#endif // __USERMENU_HPP__
+bool CachedWrite::Flush()
+{
+	if(Buffer)
+	{
+		if(!Flushed)
+		{
+			DWORD WrittenSize=0;
+			if(WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,NULL) && BufferSize-FreeSize==WrittenSize)
+			{
+				Flushed=true;
+				FreeSize=BufferSize;
+			}
+		}
+	}
+	return Flushed;
+}

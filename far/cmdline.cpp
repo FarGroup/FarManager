@@ -193,9 +193,13 @@ int CommandLine::ProcessKey(int Key)
         PStr=strStr;
       SetString(PStr);
       return(TRUE);
-    case KEY_F2:
-      ProcessUserMenu(false);
-      return(TRUE);
+
+		case KEY_F2:
+			{
+				UserMenu Menu(false);
+				return TRUE;
+			}
+
     case KEY_ALTF8:
       {
         int Type;
