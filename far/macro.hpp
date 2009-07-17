@@ -260,7 +260,7 @@ class KeyMacro
     static int   GetMacroKeyInfo(bool FromReg,int Mode,int Pos,string &strKeyName,string &strDescription);
     static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
-    int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr);
+    int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck=FALSE);
     BOOL GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg3);
 
     static void SetMacroConst(const wchar_t *ConstName, const TVar Value);

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveScreen;
 
-// можно юзать только бладший байт (т.е. мыска 0xFF) остальное - порожденным классам
+// можно использовать только младший байт (т.е. маска 0x000000FF), остальное отдается порожденным классам
 enum {
   FSCROBJ_VISIBLE              = 0x00000001,
   FSCROBJ_ENABLERESTORESCREEN  = 0x00000002,

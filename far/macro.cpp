@@ -4583,7 +4583,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
   }
 
   // סםאקאכא סלמענטל םא ןאנסונ
-  BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer);
+  BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer,onlyCheck);
   if(allocBuffer && Buffer)
     xf_free(Buffer);
 
@@ -4677,7 +4677,7 @@ int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginS
   return TRUE;
 }
 
-int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr)
+int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck)
 {
 	BOOL Result=FALSE;
 
@@ -4685,7 +4685,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr)
 	{
 		Result=__parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
 
-		if(!Result)
+		if(!Result && !onlyCheck)
 		{
 			// TODO: ÝÒÎÒ ÊÓÑÎÊ ÄÎËÆÅÍ ÏÐÅÄÏÎËÀÃÀÒÜ ÂÎÇÌÎÆÍÎÑÒÜ ÐÅÆÈÌÀ SILENT!
 			bool scrLocks=LockScr != NULL;
