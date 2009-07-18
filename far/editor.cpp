@@ -5551,13 +5551,9 @@ int Editor::EditorControl(int Command,void *Param)
         Info->TopScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
         Info->LeftPos=CurLine->GetLeftPos();
         Info->Overtype=Flags.Check(FEDITOR_OVERTYPE);
-        Info->BlockType=BTYPE_NONE;
-        if (BlockStart!=NULL)
-          Info->BlockType=BTYPE_STREAM;
-        if (VBlockStart!=NULL)
-          Info->BlockType=BTYPE_COLUMN;
+        Info->BlockType=VBlockStart?BTYPE_COLUMN:BlockStart?BTYPE_STREAM:BTYPE_NONE;
         Info->BlockStartLine=Info->BlockType==BTYPE_NONE ? 0:BlockStartLine;
-        //Info->Options=0;
+				Info->Options=0;
         if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
           Info->Options|=EOPT_EXPANDALLTABS;
         if (EdOpt.ExpandTabs == EXPAND_NEWTABS)
