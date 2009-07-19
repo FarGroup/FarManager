@@ -427,157 +427,58 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 // заполнение меню
 int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos,const wchar_t *Name,const wchar_t *ShortName)
 {
-	/*
-		TODO:
-			сейчас, если встречается пункт меню без обязательных полей HotKey и Label, то цикл наполнения менюхи прекращается.
-			правильно ли это?
-			или нужно просто пропустить такой пункт и следовать дальше?
-	*/
-	DWORD NumLines=0;
-	DWORD IndexItemKey=0;
-	string strItemKey, strHotKey, strLabel, strMenuText;
-
-	DWORD *AKeyItems=NULL;
-	DWORD AllocatedCount=0;
-
-	MenuItemEx UserMenuItem;
-	UserMenuItem.Clear ();
-
 	UserMenu.DeleteItems();
-
-	bool HotKeyPresent=false; // наличие Хоткея в любом из пунктов меню
-	int MaxLen=20;
-
-	// перый проход - выясняем есть ли хотя бы один хоткей и запоминаем индексы "нормальных" пунктов меню
-	for (NumLines=0, IndexItemKey=0 ; ; IndexItemKey++)
+	DWORD NumLines=0;
+	for(NumLines=0;;NumLines++)
 	{
-		if (!EnumRegKey(MenuKey,IndexItemKey,strItemKey))
+		string strItemKey;
+		strItemKey.Format (L"%s\\Item%d",MenuKey,NumLines);
+		if(!CheckRegKey(strItemKey))
+		{
 			break;
-
-		if (!GetRegKey(strItemKey,L"HotKey",strHotKey,L""))
-			continue;
-
-		if (!GetRegKey(strItemKey,L"Label",strLabel,L""))
-			continue;
-
-		if (NumLines >= AllocatedCount)
-		{
-			AllocatedCount += 32;
-			DWORD *pTemp;
-			if ((pTemp=(DWORD*)xf_realloc(AKeyItems,AllocatedCount*sizeof(DWORD)))==NULL)
-				break;
-			AKeyItems=pTemp;
 		}
-
-		if( !strHotKey.IsEmpty() )
-			HotKeyPresent=true;
-
-		// запомним правильный номер
-		AKeyItems[NumLines]=IndexItemKey;
-		NumLines++;
-
-		int MenuTextLen;
-
+		MenuItemEx UserMenuItem;
+		UserMenuItem.Clear();
+		string strHotKey;
+		GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
+		string strLabel;
+		GetRegKey(strItemKey,L"Label",strLabel,L"");
+		int FuncNum=0;
 		// сепаратором является случай, когда хоткей == "-"
-		if(StrCmp(strHotKey, L"-"))
+		if(!StrCmp(strHotKey,L"-"))
 		{
-			// произведем подстановки метасимволов и раскроем переменные среды
+			UserMenuItem.Flags|=LIF_SEPARATOR;
+			UserMenuItem.Flags&=~LIF_SELECTED;
+			UserMenuItem.strName=strLabel;
+			if(NumLines==MenuPos)
+			{
+				MenuPos++;
+			}
+		}
+		else
+		{
 			SubstFileName(strLabel,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 			apiExpandEnvironmentStrings (strLabel, strLabel);
-			int FuncNum=PrepareHotKey(strHotKey);
-
-			if(HotKeyPresent)
+			FuncNum=PrepareHotKey(strHotKey);
+			int Offset=strHotKey.At(0)==L'&'?4:3;
+			UserMenuItem.strName.Format (L"%s%-*.*s ",(!strHotKey.IsEmpty() && !FuncNum)?L"&":L"",Offset,Offset,strHotKey.CPtr());
+			UserMenuItem.strName+=strLabel;
+			if(GetRegKey(strItemKey,L"Submenu",0))
 			{
-				int AddHotKey = ( !strHotKey.IsEmpty() ) && (!FuncNum);
-				strMenuText.Format (L"%s%-*.*s %-20.*s%s",
-						(AddHotKey?L"&":L""),
-						( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3), (const wchar_t*)strHotKey,
-						ScrX-12,
-						(const wchar_t*)strLabel,
-						((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
+				UserMenuItem.Flags|=MIF_SUBMENU;
 			}
-			else
-			{
-				const wchar_t *Ptr=(wcschr(strLabel, L'&')==NULL?L"":L" ");
-				strMenuText.Format (L"%-20.*s%s",ScrX-12,(const wchar_t*)strLabel,Ptr);
-			}
-
-			MenuTextLen=(int)strMenuText.GetLength()-(FuncNum>0?1:0);
-			MaxLen=Max(MenuTextLen,MaxLen);
+			UserMenuItem.SetSelect(NumLines==MenuPos);
+			UserMenuItem.Flags &= ~LIF_SEPARATOR;
+		}
+		int ItemPos=UserMenu.AddItem(&UserMenuItem);
+		if(FuncNum>0)
+		{
+			FuncPos[FuncNum-1]=ItemPos;
 		}
 	}
-
-	// коррекция максимальной длины
-	// по полной программе!
-	MaxLen=Min(MaxLen,ScrX-14);
-
-	if(AKeyItems)
-	{
-		// заполняем меню
-		for (IndexItemKey=0; IndexItemKey < NumLines; ++IndexItemKey)
-		{
-			UserMenuItem.Clear ();
-
-			strItemKey.Format (L"%s\\Item%d", MenuKey,AKeyItems[IndexItemKey]);
-			GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
-			GetRegKey(strItemKey,L"Label",strLabel,L"");
-
-			int FuncNum=0;
-
-			// сепаратором является случай, когда хоткей == "-"
-			if(!StrCmp(strHotKey, L"-"))
-			{
-				UserMenuItem.Flags |=  LIF_SEPARATOR;
-				UserMenuItem.Flags &= ~LIF_SELECTED;
-				UserMenuItem.strName = strLabel;
-				if ((int)IndexItemKey == MenuPos)
-					MenuPos++;
-			}
-			else
-			{
-				SubstFileName(strLabel,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-				apiExpandEnvironmentStrings (strLabel, strLabel);
-				FuncNum=PrepareHotKey(strHotKey);
-
-				if(HotKeyPresent)
-				{
-					int AddHotKey = ( !strHotKey.IsEmpty() ) && (!FuncNum);
-					strMenuText.Format (L"%s%-*.*s %-*.*s%s",
-							(AddHotKey?L"&":L""),
-							( strHotKey.At(0)==L'&'?4:3),( strHotKey.At(0)==L'&'?4:3),(const wchar_t*)strHotKey,
-							MaxLen,MaxLen,(const wchar_t*)strLabel,
-							((wcschr(strLabel, L'&')==NULL)||(AddHotKey))?L"":L" ");
-				}
-				else
-				{
-					const wchar_t *Ptr=(wcschr(strLabel, L'&')==NULL?L"":L" ");
-					strMenuText.Format (L"%-*.*s%s",MaxLen,MaxLen,(const wchar_t*)strLabel,Ptr);
-				}
-
-				if (GetRegKey(strItemKey,L"Submenu",0))
-				{
-					strMenuText+=L" \x25BA";
-				}
-
-				UserMenuItem.strName = strMenuText;
-				UserMenuItem.SetSelect((int)IndexItemKey == MenuPos);
-				UserMenuItem.Flags &= ~LIF_SEPARATOR;
-			}
-
-			int ItemPos = UserMenu.AddItem(&UserMenuItem);
-
-			if ( FuncNum > 0 )
-				FuncPos[FuncNum-1]=ItemPos;
-		} // for
-
-		xf_free(AKeyItems);
-
-	} // if(AKeyItems)
-
-
-	UserMenuItem.strName=L"";
-	UserMenuItem.Flags&=~LIF_SEPARATOR;
-	UserMenuItem.SetSelect((int)IndexItemKey == MenuPos);
+	MenuItemEx UserMenuItem;
+	UserMenuItem.Clear();
+	UserMenuItem.SetSelect(NumLines==MenuPos);
 	UserMenu.AddItem(&UserMenuItem);
 	return NumLines;
 }
@@ -715,11 +616,13 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 					case KEY_CTRLDOWN:
 						{
 							int Pos=UserMenu.GetSelectPos();
-							
-							if(!(Key==KEY_CTRLUP && !Pos) && !(Key==KEY_CTRLDOWN && Pos==(UserMenu.GetItemCount()-2)))
+							if(Pos!=UserMenu.GetItemCount()-1)
 							{
-								MenuPos=Pos+(Key==KEY_CTRLUP?-1:+1);
-								MoveMenuItem(MenuKey,Pos,MenuPos);
+								if(!(Key==KEY_CTRLUP && !Pos) && !(Key==KEY_CTRLDOWN && Pos==UserMenu.GetItemCount()-2))
+								{
+									MenuPos=Pos+(Key==KEY_CTRLUP?-1:+1);
+									MoveMenuItem(MenuKey,Pos,MenuPos);
+								}
 							}
 						}
 						break;

@@ -125,9 +125,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       WORD Chr2 = PtrCharBuf->Char.UnicodeChar;
       Chr=GetVidChar(*PtrCharBuf);
 
-           if(Chr2 == 0xBB) Chr=L'>';
-      else if(Chr2 == 0xAB) Chr=L'<';
-      else if(Opt.CleanAscii)
+			if(Opt.CleanAscii)
       {
         switch(Chr2)
         {

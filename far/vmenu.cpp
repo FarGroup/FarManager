@@ -244,7 +244,7 @@ void VMenu::Show()
 			if(X1<2)
 				X1=2;
 			if (X2<=0)
-				X2=X1+MaxLength+4;
+				X2=X1+MaxLength+4+((VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:2);
 
 			if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
 			{
@@ -664,11 +664,18 @@ void VMenu::ShowMenu(int IsParent)
 				strTmpStr=Tmp;
         strTmpStr+=_MItemPtr;
 
-        if(Len_MItemPtr+2 > X2-X1-3)
-				{
-					strTmpStr.SetLength(HiFindRealPos(strTmpStr,X2-X1-1,VMFlags.Check(VMENU_SHOWAMPERSAND)));
-				}
+				int RightOffset=(VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:2;
 
+				if(Len_MItemPtr+2+RightOffset > X2-X1-3)
+				{
+					strTmpStr.SetLength(HiFindRealPos(strTmpStr,X2-X1-1-(RightOffset?3:0),VMFlags.Check(VMENU_SHOWAMPERSAND)));
+				}
+				if(RightOffset)
+				{
+					string strSubSymbol;
+					strSubSymbol.Format(L" %*c",X2-X1-1-2-(VMFlags.Check(VMENU_SHOWAMPERSAND)?static_cast<int>(strTmpStr.GetLength()):HiStrlen(strTmpStr)),Item[I]->Flags&MIF_SUBMENU?L'\x25BA':L' ');
+					strTmpStr+=strSubSymbol;
+				}
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
 				wchar_t * TmpStr=strTmpStr.GetBuffer();
@@ -713,16 +720,16 @@ void VMenu::ShowMenu(int IsParent)
 
         if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
         {
-          GotoXY(X1+1,Y);
+          GotoXY(X1+2,Y);
 					BoxText(L'\xab'); // '<<'
         }
 
-        if(Len_MItemPtr > X2-X1-3)
+				if(Len_MItemPtr > X2-X1-3-(RightOffset?3:0))
         {
           //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
           //  GotoXY(WhereX()-1,Y);
           //else
-            GotoXY(X2-1,Y);
+            GotoXY(X2-1-RightOffset,Y);
 					BoxText(L'\xbb');// '>>'
         }
       }
@@ -868,7 +875,7 @@ int FindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
 BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 {
 	int _len;
-	int _OWidth=X2-X1-3;
+	int _OWidth=X2-X1-3-((VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:3);
 	int ItemShowPos=Item[Pos]->ShowPos;
 
 	if(VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -1270,10 +1277,10 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
 
-	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED&&(MsX==X1+1||MsX==X2-1))
+	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED&&(MsX==X1+2||MsX==X2-1-((VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:2)))
 	{
 		while(IsMouseButtonPressed())
-			ProcessKey(MsX==X1+1?KEY_ALTLEFT:KEY_ALTRIGHT);
+			ProcessKey(MsX==X1+2?KEY_ALTLEFT:KEY_ALTRIGHT);
 		return TRUE;
 	}
 
