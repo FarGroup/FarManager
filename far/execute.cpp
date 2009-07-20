@@ -175,6 +175,59 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 	return Result;
 }
 
+bool IsProperProgID(const wchar_t* ProgID)
+{
+	if (ProgID && *ProgID)
+	{
+		HKEY hProgID;
+		if (RegOpenKey(HKEY_CLASSES_ROOT, ProgID, &hProgID) == ERROR_SUCCESS)
+		{
+			int nResult = RegQueryValueEx(hProgID, L"IsShortcut", NULL, NULL, NULL, NULL);
+			RegCloseKey(hProgID);
+			return (nResult != ERROR_SUCCESS);
+		}
+	}
+	return false;
+}
+
+// Ищем валидный ProgID для файлового расширения по списку возможных
+// hExtKey - корневой ключ для поиска (ключ расширения)
+// strType - сюда запишется результат, если будет найден
+bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
+{
+	const DWORD dwNameBufSize = 64;
+
+	HKEY hExtIDListSubKey;
+	if (RegOpenKey(hExtKey, L"OpenWithProgids", &hExtIDListSubKey) == ERROR_SUCCESS)
+	{
+		DWORD nValueIndex = 0;
+		LONG nRet;
+		wchar_t wszValueName[dwNameBufSize];
+		DWORD nValueNameSize = dwNameBufSize;
+		DWORD nValueType;
+
+		// Пройдемся по всем значениям и проверим имена на пренадлежность к валидным типам
+		while ((nRet = RegEnumValue(hExtIDListSubKey, nValueIndex, wszValueName, &nValueNameSize, NULL, &nValueType, NULL, NULL)) != ERROR_NO_MORE_ITEMS)
+		{
+			if (nRet != ERROR_SUCCESS) break;
+			if ((nValueType == REG_SZ || nValueType == REG_NONE) && IsProperProgID(wszValueName))
+			{
+				strType = wszValueName;
+
+				RegCloseKey(hExtIDListSubKey);
+				return true;
+			}
+
+			nValueIndex++;
+			nValueNameSize = dwNameBufSize;	// сбросим значение до полного размера буфера (после функции тут будет размер строки)
+		}
+
+		RegCloseKey(hExtIDListSubKey);
+	}
+	
+	return false;
+}
+
 bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
@@ -200,22 +253,42 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 
 	if (!bVistaType)
 	{
-		HKEY hKey;
-		if (RegOpenKey(HKEY_CLASSES_ROOT,Ext,&hKey)!=ERROR_SUCCESS)
-			return false;
-		if(aType==AT_URLPROTOCOL)
+		HKEY hCRKey = 0, hUserKey = 0;
+		string strFoundValue;
+		
+		if (aType == AT_FILEEXTENSION)
 		{
-			strType=Ext;
+			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
+			strExplorerTypeKey.Append(Ext);
+
+			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
+			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey, &hUserKey) == ERROR_SUCCESS)
+				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
+				{
+					strType = strFoundValue;
+				}
 		}
-		else
-		{
-			if (RegQueryStringValue(hKey,L"",strType,L"")!=ERROR_SUCCESS)
+
+		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
+		if (strType.IsEmpty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext, &hCRKey) == ERROR_SUCCESS))
+			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 			{
-				RegCloseKey(hKey);
-				return false;
+				strType = strFoundValue;
 			}
+
+		if (strType.IsEmpty() && hUserKey)
+		{
+			SearchExtHandlerFromList(hUserKey, strType);
 		}
-		RegCloseKey(hKey);
+		if (strType.IsEmpty() && hCRKey)
+		{
+			SearchExtHandlerFromList(hCRKey, strType);
+		}
+
+		if (hUserKey)
+			RegCloseKey(hUserKey);
+		if (hCRKey)
+			RegCloseKey(hCRKey);
 	}
 
 	return !strType.IsEmpty();
@@ -242,13 +315,6 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   	return NULL;
 
 	HKEY hKey;
-	if(RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
-	{
-		int nResult=RegQueryValueEx(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
-		RegCloseKey(hKey);
-		if(nResult==ERROR_SUCCESS)
-			return NULL;
-	}
 
   strValue += L"\\shell";
 

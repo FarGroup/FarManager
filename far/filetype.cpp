@@ -325,22 +325,13 @@ int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
   string strValue;
   const wchar_t *ExtPtr;
-  HKEY hClassesKey;
 
   if ((ExtPtr=wcsrchr(Name,L'.'))==NULL)
     return(FALSE);
 
-	if (RegOpenKey(HKEY_CLASSES_ROOT,ExtPtr,&hClassesKey)!=ERROR_SUCCESS)
-      return(FALSE);
-
-/*
-  if (RegQueryStringValueEx(hClassesKey,L"",strValue)!=ERROR_SUCCESS)
-  {
-      RegCloseKey(hClassesKey);
-      return(FALSE);
-  }
-*/
-  RegCloseKey(hClassesKey);
+  string strType;
+  if (!GetShellType(ExtPtr, strType, AT_FILEEXTENSION))
+	  return(FALSE);
 
   string strFullName;
 

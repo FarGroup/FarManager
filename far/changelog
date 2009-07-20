@@ -1,3 +1,14 @@
+svs 20.07.2009 18:27:06 +0300 - build 1052
+
+1. Mantis#0000961: Неполная проверка на наличие файловых ассоциаций в реестре.
+   from Ariman.
+   Порядок проверки ассоциаций:
+
+     1. [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ext] ProgID
+     2. [HKСR\.ext] дефолтное значение
+     3. [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ext\OpenWithProgids] до первого попадания
+     4. [HKCR\.ext] OpenWithProgids до первого попадания
+
 drkns 20.07.2009 00:36:26 +0200 - build 1051
 
 1. Продолжаем трясти UserMenu:
