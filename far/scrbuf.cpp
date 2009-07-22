@@ -399,7 +399,11 @@ void ScreenBuf::Flush()
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
 
-      if (BufX*BufY*sizeof(CHAR_INFO)>0xFFFF) // See REMINDER file section scrbuf.cpp
+      // BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
+      // посему пишем по 32 K.
+      
+      const int MaxSize=0x7FFF;
+      if (BufX*BufY*sizeof(CHAR_INFO)>MaxSize) // See REMINDER file section scrbuf.cpp
       {
         Corner.Y=0;
         PCHAR_INFO BufPtr;
@@ -409,7 +413,7 @@ void ScreenBuf::Flush()
         {
           Coord.Top=yy;
           BufPtr=Buf+yy*BufX;
-          maxY=0xFFFF/(BufX*sizeof(CHAR_INFO));
+          maxY=MaxSize/(BufX*sizeof(CHAR_INFO));
           if (maxY==0)
           {
             maxY=1;

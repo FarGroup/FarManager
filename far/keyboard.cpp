@@ -2041,6 +2041,12 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     return KEY_IDLE;
   }
 
+	static DWORD Time=0;
+	if(!AltValue)
+	{
+		Time=GetTickCount();
+	}
+
   if (!rec->Event.KeyEvent.bKeyDown)
   {
     KeyCodeForALT_LastPressed=0;
@@ -2076,9 +2082,19 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			*/
 
 			if(rec->Event.KeyEvent.uChar.UnicodeChar)
-				AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
+			{
+				// BUGBUG: в Windows 7 Event.KeyEvent.uChar.UnicodeChar _всегда_ заполнен, но далеко не всегда тем, чем надо.
+				// условно считаем, что если интервал между нажатиями не превышает 50 мс, то это сгенерированная при D&D или вставке комбинация,
+				// иначе - ручной ввод.
+				if(GetTickCount()-Time<50)
+				{
+					AltValue=rec->Event.KeyEvent.uChar.UnicodeChar;
+				}
+			}
 			else
+			{
 				rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
+			}
       //// // _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }
