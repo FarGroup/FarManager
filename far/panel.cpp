@@ -841,6 +841,26 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 				break;
 
+				case KEY_CTRLA:
+				case KEY_F4:
+				{
+					if ( item && !item->bIsPlugin )
+					{
+						string strDosDeviceName;
+
+						strDosDeviceName.Format (L"%c:\\", item->cDrive);
+						SHELLEXECUTEINFOW seInfo;
+						memset(&seInfo, 0, sizeof(seInfo));
+						seInfo.cbSize = sizeof(seInfo);
+						seInfo.nShow = SW_SHOW;
+						seInfo.fMask = SEE_MASK_INVOKEIDLIST;
+						seInfo.lpFile = strDosDeviceName.GetBuffer();
+						seInfo.lpVerb = L"properties";
+						ShellExecuteExW(&seInfo);
+					}
+					break;
+				}
+
 				case KEY_SHIFTNUMDEL:
 				case KEY_SHIFTDECIMAL:
 				case KEY_SHIFTDEL:

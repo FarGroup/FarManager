@@ -613,7 +613,7 @@ int FileList::ProcessKey(int Key)
         {
           if( !strPluginFile.IsEmpty() )
           {
-            switch(CheckShortcutFolder(&strPluginFile,0,TRUE))
+            switch(CheckShortcutFolder(&strPluginFile,TRUE))
             {
               case 0:
   //              return FALSE;
@@ -645,7 +645,7 @@ int FileList::ProcessKey(int Key)
           }
           else
           {
-            switch(CheckShortcutFolder(NULL,0,TRUE))
+            switch(CheckShortcutFolder(NULL,TRUE))
             {
               case 0:
   //              return FALSE;
@@ -688,7 +688,7 @@ int FileList::ProcessKey(int Key)
           }
           return(TRUE);
         }
-        switch(CheckShortcutFolder(&strShortcutFolder,SizeFolderNameShortcut,FALSE))
+        switch(CheckShortcutFolder(&strShortcutFolder,FALSE))
         {
           case 0:
   //          return FALSE;
