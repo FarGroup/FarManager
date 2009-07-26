@@ -94,7 +94,7 @@
 				SubSystem="1"
 				RandomizedBaseAddress="0"
 				FixedBaseAddress="1"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -192,7 +192,7 @@
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
 				RandomizedBaseAddress="0"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -291,7 +291,7 @@
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
 				RandomizedBaseAddress="0"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="5"
 			/>
 			<Tool
@@ -393,7 +393,7 @@
 				SubSystem="1"
 				RandomizedBaseAddress="0"
 				FixedBaseAddress="1"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -494,7 +494,7 @@
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
 				RandomizedBaseAddress="0"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -596,7 +596,7 @@
 				MapFileName="$(OutDir)\far.map"
 				SubSystem="1"
 				RandomizedBaseAddress="0"
-				DataExecutionPrevention="0"
+				DataExecutionPrevention="2"
 				TargetMachine="5"
 			/>
 			<Tool
