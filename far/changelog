@@ -1,3 +1,12 @@
+svs 26.07.2009 19:34:54 +0300 - build 1055
+
+1. Mantis#0000405: по Ctrl-Enter выводить Win-диалог свойств диска. 
+   from igor_yudincev
+   добавлена информация про Ctrl-A и F4 в файлы помощи.
+
+2. Mantis#0000980: FAR2 падает в FileList::PluginGetPanelInfo
+   from Maximus.
+
 svs 24.07.2009 17:34:55 +0300 - build 1054
 
 1. Уточнения про CheckShortcutFolder()

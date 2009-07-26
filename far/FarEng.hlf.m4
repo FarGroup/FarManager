@@ -2601,6 +2601,8 @@ network drive or open a new ~plugin~@Plugins@ panel.
 the item with the plugin name to create a new plugin panel. If the panel type
 is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
+    #Ctrl-A#, #F4# hotkeys invoke the Windows drive properties dialog.
+
     #Del# key can be used:
 
      - to ~disconnect~@DisconnectDrive@ from network drives.

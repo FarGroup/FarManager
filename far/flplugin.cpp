@@ -989,7 +989,9 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	Info.ShortNames=ShowShortNames;
 	Info.ItemsNumber=FileCount;
 	Info.SelectedItemsNumber=GetSelCount();
-	if(Info.SelectedItemsNumber==1 && TestParentFolderName(ListData[CurFile]->strName))
+	if (!ListData)
+		Info.SelectedItemsNumber=0;
+	else if(Info.SelectedItemsNumber==1 && TestParentFolderName(ListData[CurFile]->strName))
 		Info.SelectedItemsNumber=0;
 }
 

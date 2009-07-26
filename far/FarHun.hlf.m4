@@ -2661,6 +2661,8 @@ nyithatunk meg.
 betűjelekkel és számokkal választhatunk. Ha a panel típusa eredetileg
 nem ~fájlpanel~@FilePanel@ volt, meghajtóváltás után az lesz.
 
+    #Ctrl-A#, #F4# nyílt a Windows meghajtó tulajdonságai párbeszédpanelen.
+
     A #Del# billentyűvel:
 
     - ~leválaszthatjuk~@DisconnectDrive@ a hálózati meghajtókat;
