@@ -2456,7 +2456,9 @@ static bool callpluginFunc()
       default:
         break;
     }
-    if(OpenFrom != -1) {
+
+    if(OpenFrom != -1)
+    {
       if(CtrlObject->Plugins.CallPlugin(PlugNum,OpenFrom,
                                         Param.isString() ? (void*)Param.s() :
                                                            (void*)(size_t)Param.i()))
@@ -3586,7 +3588,9 @@ done:
       for(J=0; J < sizeof(MCode2Func)/sizeof(MCode2Func[0]); ++J)
         if(MCode2Func[J].Op == Key)
         {
+          InternalInput++; // в процессе работы функций макросы отключаются
           MCode2Func[J].Func();
+          InternalInput--;
           break;
         }
 
