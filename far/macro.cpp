@@ -3506,7 +3506,9 @@ done:
 			for(J=0; J < int(countof(MCode2Func)); ++J)
         if(MCode2Func[J].Op == Key)
         {
+          InternalInput++; // в процессе работы функций макросы отключаются
           MCode2Func[J].Func();
+          InternalInput--;
           break;
         }
 
