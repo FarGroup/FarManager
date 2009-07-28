@@ -227,19 +227,24 @@ static void init_hook(void)
        || (*(FARPROC*)&rwow.disable = GetProcAddress(ur.h, dis_c)) == NULL
        || (*(FARPROC*)&rwow.revert = GetProcAddress(ur.h, rev_c)) == NULL
        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
-       || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL
-       || *(LPBYTE)ur.p != 0x68) return;   // push m32
+       || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL) return;
 
-
+    if(   *(LPBYTE)ur.p != 0x68   // push m32
+       && (*(LPDWORD)ur.p != 0x8B55FF8B || ((LPBYTE)ur.p)[4] != 0xEC)) return;
+      // (Win2008-R2) mov edi, edi; push ebp; mov ebp, esp
     {
       DWORD   loff = *(LPDWORD)((LPBYTE)ur.p+1);
-      LPVOID  p_loff = (LPBYTE)&hook_ldr + HOOK_PUSH_OFFSET;
+      LPBYTE  p_loff = (LPBYTE)&hook_ldr + HOOK_PUSH_OFFSET;
       if(loff != *(LPDWORD)p_loff) { // 0x240 in non vista, 0x244 in vista/2008
         // don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-        if(!VirtualProtect(p_loff, sizeof(loff), PAGE_EXECUTE_READWRITE, &p))
+        if(!VirtualProtect(p_loff-1, 1+sizeof(loff), PAGE_EXECUTE_READWRITE, &p))
           return;
+        if(*(LPBYTE)ur.p != 0x68) { // Win7r2 (not push .... => mov edi,edi)
+          ((LPBYTE)p_loff)[-1] = 0x90;  // nop
+          loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
+        }
         *(LPDWORD)p_loff = loff;
-        VirtualProtect(p_loff, sizeof(loff), p, (LPDWORD)&p_loff);
+        VirtualProtect(p_loff-1, 1+sizeof(loff), p, (LPDWORD)&p_loff);
       }
     }
 
