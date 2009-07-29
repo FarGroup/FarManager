@@ -42,7 +42,7 @@ BEGIN{
     if(substr(lnsrc,1,length("#include \"")) == "#include \"")
     {
       lnsrc=gensub(/^#include[ \t]?\"([^\"]+)\"/, "\\1", "g", lnsrc);
-      if(lnsrc != "")
+      if(lnsrc != "" && lnsrc != $0)
         print " " lnsrc;
     }
   }
