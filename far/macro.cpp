@@ -310,10 +310,6 @@ class TVMStack: public TStack<TVar>
 				return *var;
 			return Error;
 		}
-
-	private:
-		TVMStack& operator=(const TVMStack& rhs); /* чтобы не генерировалось */
-		TVMStack(const TVMStack& rhs);            /* по умолчанию            */
 };
 
 TVMStack VMStack;

@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "array.hpp"
+#include "noncopyable.hpp"
 
 enum UDL_FLAGS
 {
@@ -68,7 +69,7 @@ class UserDefinedListItem
    ~UserDefinedListItem();
 };
 
-class UserDefinedList
+class UserDefinedList : private NonCopyable
 {
   private:
     TArray<UserDefinedListItem> Array;
@@ -82,10 +83,6 @@ class UserDefinedList
     const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
     static int __cdecl CmpItems(const UserDefinedListItem **el1,
       const UserDefinedListItem **el2);
-
-  private:
-    UserDefinedList& operator=(const UserDefinedList& rhs); // чтобы не
-    UserDefinedList(const UserDefinedList& rhs); // генерировалось по умолчанию
 
   public:
     // по умолчанию разделителем считается ';' и ',', а

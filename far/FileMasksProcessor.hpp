@@ -65,10 +65,6 @@ private:
 	int n;
 	bool bRE;
 
-private:
-	FileMasksProcessor& operator=(const FileMasksProcessor& rhs); /* чтобы не */
-	FileMasksProcessor(const FileMasksProcessor& rhs); /* генерировалось по умолчанию */
-
 };
 
 #endif // __FileMasksProcessor_HPP

@@ -2912,6 +2912,10 @@
 				>
 			</File>
 			<File
+				RelativePath="noncopyable.hpp"
+				>
+			</File>
+			<File
 				RelativePath="options.hpp"
 				>
 			</File>

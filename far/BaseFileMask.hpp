@@ -33,7 +33,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class BaseFileMask
+#include "noncopyable.hpp"
+
+class BaseFileMask : private NonCopyable
 {
   public:
     BaseFileMask() {}
@@ -43,10 +45,6 @@ class BaseFileMask
     virtual bool Set(const wchar_t *Masks, DWORD Flags)=0;
     virtual bool Compare(const wchar_t *Name)=0;
 		virtual bool IsEmpty() { return true; }
-
-  private:
-    BaseFileMask& operator=(const BaseFileMask& rhs); /* чтобы не */
-    BaseFileMask(const BaseFileMask& rhs); /* генерировалось по умолчанию */
 
 };
 

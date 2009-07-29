@@ -56,10 +56,6 @@ public:
 
 private:
 	FileMasksProcessor Include, Exclude;
-
-private:
-	FileMasksWithExclude& operator=(const FileMasksWithExclude& rhs); /* чтобы не */
-	FileMasksWithExclude(const FileMasksWithExclude& rhs); /* генерировалось по умолчанию */
 };
 
 #endif // __FileMasksWithExclude_HPP

@@ -35,9 +35,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "noncopyable.hpp"
 
 template <class Object>
-class TStack
+class TStack : private NonCopyable
 {
 	private:
 		struct OneItem
@@ -117,10 +118,6 @@ class TStack
 			}
 			Size=0;
 		}
-
-	private:
-		TStack& operator=(const TStack& rhs); /* чтобы не генерировалось */
-		TStack(const TStack& rhs);            /* по умолчанию            */
 };
 
 #endif // _TSTACK_HPP_
