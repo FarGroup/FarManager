@@ -1568,17 +1568,20 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
           *pPanelItem=PluginDirList;
           *pItemsNumber=DirListItemsNumber;
           CtrlObject->Plugins.SetDirectory(hDirListPlugin,"..",OPM_FIND);
-          PluginPanelItem *PanelData=NULL;
-
-          int ItemCount=0;
-          if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
-            CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
 
           struct OpenPluginInfo NewInfo;
           CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
           if (LocalStricmp(PrevDir,NewInfo.CurDir)!=0)
+          {
+            PluginPanelItem *PanelData=NULL;
+            int ItemCount=0;
+
+            if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
+              CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+
             CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
+          }
         }
       }
     }
