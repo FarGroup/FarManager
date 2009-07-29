@@ -1623,7 +1623,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 
         string strPrevDir = Info.CurDir;
 
-        if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
+        if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
         {
           strPluginSearchPath = Dir;
           strPluginSearchPath += L"\x1";
@@ -1632,18 +1632,20 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 
           *pPanelItem=PluginDirList;
           *pItemsNumber=DirListItemsNumber;
-          CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND);
-          PluginPanelItem *PanelData=NULL;
-
-          int ItemCount=0;
-          if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
-            CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+          CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
 
 					OpenPluginInfo NewInfo;
           CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
 
           if ( StrCmpI (strPrevDir, NewInfo.CurDir) !=0 )
-            CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_FIND);
+          {
+            PluginPanelItem *PanelData=NULL;
+            int ItemCount=0;
+            if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT)) {
+              CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+            }
+            CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);
+          }
         }
       }
     }
