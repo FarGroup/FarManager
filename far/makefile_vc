@@ -295,21 +295,21 @@ CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FARSYSLOG) /EHs-c- $(DEFINES) /G
 CPP_PROJ_RELEASE=/MT /O2
 CPP_PROJ_DEBUG=/MTd /Od /Zi
 
-LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
+LINK_COMMON=$(LINK32_LIBS) $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
 
 !if "$(OUTDIR)" == "Release.32.vc"
 
 USEDEBUG=NDEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) $(CPP_ADD_32) /Zp4
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:i386
+LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:i386 /OPT:REF /OPT:ICF
 
 !elseif "$(OUTDIR)" == "Release.64.vc"
 
 USEDEBUG=NDEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:amd64
+LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:amd64 /OPT:REF /OPT:ICF
 ULINK_FLAGS=-Tpe+
 
 !elseif "$(OUTDIR)" == "Release.IA64.vc"
@@ -317,7 +317,7 @@ ULINK_FLAGS=-Tpe+
 USEDEBUG=NDEBUG
 
 CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:IA64
+LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:IA64 /OPT:REF /OPT:ICF
 
 !elseif "$(OUTDIR)" == "Debug.64.vc"
 

@@ -172,7 +172,7 @@ _LINK_PATH_=$(_BIN_PATH_)
 
 !ifndef ULINK
 LNK=$(_LINK_PATH_)link.exe
-LINK_DEBUG=/pdb:$(PDBNAME)
+LINK_DEBUG=/debug /pdb:$(PDBNAME)
 CPP_DEBUG=/Zi
 !ifndef NEEDENTRY
 NOENTRY = /noentry
