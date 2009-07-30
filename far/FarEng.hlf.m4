@@ -335,25 +335,22 @@ $ #Panel control commands  #
 
   Notes:
 
-  1. If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
-     dialog is enabled, pressing the same sort key second time
-     toggles the sort direction from ascending to descending
-     and vice versa;
+  1. ^<wrap>If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
+dialog is enabled, pressing the same sort key second time toggles the sort direction
+from ascending to descending and vice versa;
 
-  2. #Alt-Left# and #Alt-Right# combinations, used to scroll long names
-     and descriptions, work only with non-numpad #Left# and #Right# keys.
-     This is due to the fact that when #Alt# is pressed, numpad cursor
-     keys are used to enter characters via their decimal codes.
+  2. ^<wrap>If #Alt-Left# and #Alt-Right# combinations, used to scroll long names
+and descriptions, work only with non-numpad #Left# and #Right# keys. This is due to
+the fact that when #Alt# is pressed, numpad cursor keys are used to enter characters
+via their decimal codes.
 
-  3. The key combination #Ctrl-Alt-Ins# puts the following text into
-     the clipboard:
-     * for network drives - the network (UNC) name of the file
-       object;
-     * for local drives - the local name of the file taking into
-       account ~symbolic links~@HardSymLink@.
+  3. ^<wrap>The key combination #Ctrl-Alt-Ins# puts the following text into the clipboard:
+       ^<wrap>* for network drives - the network (UNC) name of the file object;
+       ^<wrap>* for local drives - the local name of the file taking into account
+~symbolic links~@HardSymLink@.
 
-  4. If #Alt-Shift-Ins# or #Ctrl-Alt-Ins# is pressed when the cursor
-     is on the file "#..#", the name of the current folder is copied.
+  4. ^<wrap>If #Ctrl-Ins#, #Alt-Shift-Ins# or #Ctrl-Alt-Ins# is pressed when the cursor
+is on the file "#..#", the name of the current folder is copied.
 
 
 @PanelCmdSort
@@ -465,26 +462,21 @@ $ #Command line commands#
 
   Notes:
 
-  1. If the command line is empty, #Ctrl-Ins# copies selected file
-     names from a panel to the clipboard like #Ctrl-Shift-Ins#
-     (see ~Panel control commands~@PanelCmd@);
+  1. ^<wrap>If the command line is empty, #Ctrl-Ins# copies selected file names
+from a panel to the clipboard like #Ctrl-Shift-Ins# (see ~Panel control commands~@PanelCmd@);
 
-  2. #Ctrl-End# pressed at the end of the command line, replaces
-     its current contents with a command from ~history~@History@
-     beginning with the characters that are in the command line,
-     if such a command exists. You may press #Ctrl-End# again to go
-     to the next such command.
+  2. ^<wrap>#Ctrl-End# pressed at the end of the command line, replaces its current contents
+with a command from ~history~@History@ beginning with the characters that are in the command line,
+if such a command exists. You may press #Ctrl-End# again to go to the next such command.
 
-  3. Most of the described above commands are valid for all edit
-     strings including edit controls in dialogs and internal editor.
+  3. ^<wrap>Most of the described above commands are valid for all edit strings including edit
+controls in dialogs and internal editor.
 
-  4. #Alt-Shift-Left#, #Alt-Shift-Right#, #Alt-Shift-Home# and
-     #Alt-Shift-End# select the block in the command line also when the
-     panels are on.
+  4. ^<wrap>#Alt-Shift-Left#, #Alt-Shift-Right#, #Alt-Shift-Home# and #Alt-Shift-End# select
+the block in the command line also when the panels are on.
 
-  5. For local drives, the commands to insert the network (UNC)
-     name of a file object insert the local name of the file with
-     ~symbolic links~@HardSymLink@ expanded.
+  5. ^<wrap>For local drives, the commands to insert the network (UNC) name of a file object
+insert the local name of the file with ~symbolic links~@HardSymLink@ expanded.
 
 
 @FuncCmd
@@ -613,11 +605,13 @@ Pressing #Shift-Enter# on "#..#" opens the current directory in the Explorer.
 
   Change to the root folder                                   #Ctrl-\\#
 
-  Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
+  Change folder, enter an archive (also a SFX archive)     #Ctrl-[Shift-]PgDn#
 
     If the cursor points to a directory, pressing #Ctrl-PgDn# changes to that
 directory. If the cursor points to a file, then, depending on the file type,
 an ~associated command~@FileAssoc@ is executed or the archive is opened.
+    #Ctrl-Shift-PgDn# всегда инициирует вход в архив, вне зависимости от
+файловых ассоциаций.
 
   Change to the parent folder                              #Ctrl-PgUp#
 
@@ -652,11 +646,11 @@ $ #Deleting and wiping files and folders#
 
     Remarks:
 
-    1. In accordance to ~System Settings~@SystemSettings@ the hotkeys #F8# and
+    1. ^<wrap>In accordance to ~System Settings~@SystemSettings@ the hotkeys #F8# and
 #Shift-F8# do or do not move the deleted files to the Recycle Bin. The
 #Shift-Del# hotkey always deletes, skipping the Recycle Bin.
 
-    2. Before file deletion its data is overwritten with zeroes (you can
+    2. ^<wrap>Before file deletion its data is overwritten with zeroes (you can
 specify other overwrite characters - see TechInfo##29), after which the file
 is truncated to a zero sized file, renamed to a temporary name and then
 deleted.
@@ -1019,11 +1013,11 @@ Compressed size has meaning for NTFS drives only.
 
     For folders, the total size value may not match the actual value:
 
-    1. If the folder or its subfolders contain symbolic links and the option
+    1. ^<wrap>If the folder or its subfolders contain symbolic links and the option
 "Scan symbolic links" in the ~System parameters dialog~@SystemSettings@ is
 enabled.
 
-    2. If the folder or its subfolders contain multiple hard links to the same
+    2. ^<wrap>If the folder or its subfolders contain multiple hard links to the same
 file.
 
 
@@ -1601,12 +1595,10 @@ respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. List refresh operation (Ctrl-R) can take a considerable amount
-     of time if a file was located on a currently unavailable remote
-     resource.
+  1. ^<wrap>List refresh operation (Ctrl-R) can take a considerable amount
+of time if a file was located on a currently unavailable remote resource.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении
-     истории.
+  2. ^<wrap>Заблокированные пункты не будут удаляться при очистке или обновлении истории.
 
 @HistoryFolders
 $ #History: folders#
@@ -1643,12 +1635,10 @@ respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. List refresh operation (Ctrl-R) can take a considerable amount
-     of time if a folder was located on a currently unavailable
-     remote resource.
+  1. ^<wrap>List refresh operation (Ctrl-R) can take a considerable amount
+of time if a folder was located on a currently unavailable remote resource.
 
-  2. Заблокированные пункты не будут удаляться при очистке или обновлении
-     истории.
+  2. ^<wrap>Заблокированные пункты не будут удаляться при очистке или обновлении истории.
 
 @TaskList
 $ #Task list#
@@ -1795,11 +1785,11 @@ command.
 
   Notes:
 
-  1. If no execute command is associated with file and
+  1. ^<wrap>If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, FAR tries to use Windows association to execute this file type;
 
-  2. Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
+  2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
 allow to configure "smarter" associations - if you have specified several
 associations for a file type, the menu will show only the associations
 for which the conditions are true.
@@ -1872,14 +1862,14 @@ $ #Special symbols#
 
   Notes:
 
-    1. When handling special characters, FAR substitutes only the string
+    1. ^<wrap>When handling special characters, FAR substitutes only the string
 corresponding to the special character. No additional characters (for example,
 quotes) are added, and you should add them yourself if it is needed. For
 example, if a program used in the associations requires a file name to be
 enclosed in quotes, you should specify #program.exe "!.!"# and not
 #program.exe !.!#.
 
-    2. The following modifiers may be used with the associations !@@! and !$! :
+    2. ^<wrap>The following modifiers may be used with the associations !@@! and !$! :
 
      'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\\' in pathnames;
@@ -1892,11 +1882,11 @@ enclosed in quotes, you should specify #program.exe "!.!"# and not
 selected file names, in ANSI encoding, include full pathnames, names with
 spaces will be in quotes".
 
-    3. When there are multiple associations specified, the meta-characters !@@!
+    3. ^<wrap>When there are multiple associations specified, the meta-characters !@@!
 and !$! are shown in the menu as is. Those characters are translated when the
 command is executed.
 
-    4. The prefixes "!##" and "!^" work as toggles for associations. The effect
+    4. ^<wrap>The prefixes "!##" and "!^" work as toggles for associations. The effect
 of these prefixes continues up to the next similar prefix. For example:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
@@ -1906,7 +1896,7 @@ of these prefixes continues up to the next similar prefix. For example:
    the file on the passive panel and the file on the active panel,
    regardless of the name of the current file on the passive panel"
 
-    5. If it is needed to pass to a program a name with an ending
+    5. ^<wrap>If it is needed to pass to a program a name with an ending
 backslash, use the following meta-symbol - #!.\#. For example, to
 extract a rar archive to a folder with the same name
 
@@ -1914,93 +1904,74 @@ extract a rar archive to a folder with the same name
 
 @SystemSettings
 $ #Settings dialog: system#
-  #Clear R/O attribute#     Clear read-only attribute from files copied
-  #from CD files#           from CD.
+  #Clear R/O attribute from CD files#
+  Clear read-only attribute from files copied from CD.
 
-  #Delete to Recycle Bin#   Enables file deletion via the Recycle Bin.
-                          The operation of deleting to the Recycle
-                          Bin can be performed only for local hard
-                          disks.
+  #Delete to Recycle Bin#
+  Enables file deletion via the Recycle Bin.The operation of deleting to the Recycle
+Bin can be performed only for local hard disks.
 
-  #Delete symbolic links#   Scan for and delete symbolic links to
-                          subfolders before deleting to Recycle Bin.
+  #Delete symbolic links# 
+  Scan for and delete symbolic links to subfolders before deleting to Recycle Bin.
 
-  #Use system copy#         Use the file copy functions provided by
-  #routine#                 the operating system instead of internal
-                          file copy implementation. It may be useful
-                          on NTFS, because the system function
-                          (CopyFileEx) performs a more rational disk
-                          space allocation and copies file extended
-                          attributes. On the other hand, when using
-                          the system function, the possibility to
-                          split files when ~copying~@CopyFiles@ or moving is not
-                          available.
+  #Use system copy routine#
+  Use the file copy functions provided by the operating system instead of internal
+file copy implementation. It may be useful on NTFS, because the system function
+(CopyFileEx) performs a more rational disk space allocation and copies file extended
+attributes. On the other hand, when using the system function, the possibility to
+split files when ~copying~@CopyFiles@ or moving is not
+available.
 
-  #Copy files opened#       Allows to copy files that are opened
-  #for writing#             by other programs for writing. This mode
-                          is handy to copy a file opened for a long
-                          time, but it could be dangerous, if a file
-                          is being modified at the same time as
-                          copying.
+  #Copy files opened for writing#
+  Allows to copy files that are opened by other programs for writing. This mode
+is handy to copy a file opened for a long time, but it could be dangerous, if a file
+is being modified at the same time as copying.
 
-  #Scan symbolic links#     Scan ~symbolic links~@HardSymLink@ along with normal
-                          sub-folders when building the folder tree,
-                          determining the total file size in the
-                          sub-folders.
-
+  #Scan symbolic links#
+  Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
+determining the total file size in the sub-folders.
     Remark: if the file system contains recursive cycles of symbolic
 links (e.g. a symlink pointing to one of its parent folders), then the
 scanning will be conducted until the maximum allowed path length is
 reached. In this case scanning may take much more time.
 
 
-  #Create folders#          If the name of a new folder contains only
-  #in uppercase#            lowercase letters and this option is on,
-                          the folder will be created in uppercase.
+  #Create folders in uppercase#
+  If the name of a new folder contains only lowercase letters and this option is on, the folder will be created in uppercase.
 
-  #Inactivity time#         Terminate FAR after a specified interval
-                          without keyboard or mouse activity. This
-                          works only if FAR waits for command line
-                          input without viewer or editor screens
-                          in the background.
+  #Inactivity time#
+  Terminate FAR after a specified interval without keyboard or mouse activity. This works only if FAR waits for command line
+input without viewer or editor screens in the background.
 
-  #Save commands history#   Forces saving ~commands history~@History@ before exit
-                          and restoring after starting FAR.
+  #Save commands history#
+  Forces saving ~commands history~@History@ before exit and restoring after starting FAR.
 
-  #Save folders history#    Forces saving ~folders history~@HistoryFolders@ before exit
-                          and restoring after starting FAR. Folders
-                          history list may be activated by #Alt-F12#.
+  #Save folders history#
+  Forces saving ~folders history~@HistoryFolders@ before exit and restoring after starting FAR.
+Folders history list may be activated by #Alt-F12#.
 
-  #Save view and edit#      Forces saving ~history of viewed and edited~@HistoryViews@
-  #history#                 files before exit and restoring it after
-                          starting FAR. View and edit history list
-                          may be activated by #Alt-F11#.
+  #Save view and edit history#
+  Forces saving ~history of viewed and edited~@HistoryViews@ files before exit and restoring it after
+starting FAR. View and edit history list may be activated by #Alt-F11#.
 
-  #Use Windows#             When this option is on and #Enter# is pressed
-  #registered types#        on a file, the type of which is known to
-                          Windows and absent in the list of FAR
-                          ~file associations~@FileAssoc@, the Windows program
-                          registered to process this file type
-                          will be executed.
+  #Use Windows registered types#
+  When this option is on and #Enter# is pressed on a file, the type of which is known to
+Windows and absent in the list of FAR ~file associations~@FileAssoc@, the Windows program
+registered to process this file type will be executed.
 
-  #CD drive auto mount#     When a CD-ROM drive is selected from the
-                          ~drive menu~@DriveDlg@, FAR will close the open
-                          tray of a CD drive. Turn off this option
-                          if automatic CD-ROM mounting does not work
-                          correctly (this can happen because of bugs
-                          in the drivers of some CD-ROM drives).
+  #CD drive auto mount#
+  When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, FAR will close the open
+tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
+correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
-  #Path for#                Enter here the full path, where FAR will search
-  #personal plugins#      for "personal" plugins in addition to the "main"
-                          plugins. Several search paths may be given separated
-                          by ';'. Environment variables can be entered in the
-                          search path. Personal plugins will not be loaded, if
-                          the switches /p or /co are given in the
-                          ~command line~@CmdLine@.
+  #Path for personal plugins#
+  Enter here the full path, where FAR will search for "personal" plugins in addition to the "main"
+plugins. Several search paths may be given separated by ';'. Environment variables can be entered in the
+search path. Personal plugins will not be loaded, if the switches /p or /co are given in the
+~command line~@CmdLine@.
 
-  #Auto save setup#         If checked, FAR will save setup
-                          automatically. The current folders for
-                          both panels will be also saved.
+  #Auto save setup#
+  If checked, FAR will save setup automatically. The current folders for both panels will be also saved.
 
 
 @PanelSettings

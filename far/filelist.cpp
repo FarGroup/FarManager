@@ -1900,9 +1900,12 @@ int FileList::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
-      ProcessEnter(0,0);
-      return(TRUE);
+		case KEY_CTRLPGDN:
+		case KEY_CTRLNUMPAD3:
+		case KEY_CTRLSHIFTPGDN:
+		case KEY_CTRLSHIFTNUMPAD3:
+			ProcessEnter(0,0,!(Key&KEY_SHIFT));
+			return TRUE;
 
     default:
       if(((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) ||
@@ -1954,7 +1957,7 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 }
 
 
-void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
+void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc)
 {
 	FileListItem *CurPtr;
   string strFileName, strShortFileName;
@@ -2083,7 +2086,8 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         HANDLE hOpen=NULL;
         /* $ 02.08.2001 IS обработаем ассоциации для ctrl-pgdn */
 
-        if(!EnableExec &&     // не запускаем и не в отдельном окне,
+				if(EnableAssoc &&
+				   !EnableExec &&     // не запускаем и не в отдельном окне,
            !SeparateWindow && // следовательно это Ctrl-PgDn
            ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_ALTEXEC,
            PluginMode)

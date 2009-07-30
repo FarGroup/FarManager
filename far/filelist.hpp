@@ -257,7 +257,7 @@ class FileList:public Panel
 
 		void Select(FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
-    void ProcessEnter(int EnableExec,int SeparateWindow);
+    void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc=true);
     // ChangeDir возвращает FALSE, eсли файловая панель была закрыта
     BOOL ChangeDir(const wchar_t *NewDir,BOOL IsUpdated=TRUE);
     void CountDirSize(DWORD PluginFlags);
