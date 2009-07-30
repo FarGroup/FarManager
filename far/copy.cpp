@@ -1482,26 +1482,26 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
   while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName))
   {
+    string strDest = Dest;
+
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL))
     {
-      string strFullDest = Dest;
+      if (wcspbrk(Dest,L"*?")!=NULL)
+        ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
 
-      if(wcspbrk(Dest,L"*?")!=NULL)
-        ConvertWildcards(strSelName,strFullDest, SelectedFolderNameLength);
-
-			DestAttr=apiGetFileAttributes(strFullDest);
+			DestAttr=apiGetFileAttributes(strDest);
       // получим данные о месте назначения
       if ( strDestDriveRoot.IsEmpty() )
       {
-        GetPathRoot(strFullDest,strDestDriveRoot);
-        DestDriveType=FAR_GetDriveType(wcschr(strFullDest,L'\\')!=NULL ? (const wchar_t*)strDestDriveRoot:NULL);
+        GetPathRoot(strDest,strDestDriveRoot);
+        DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\')!=NULL ? (const wchar_t*)strDestDriveRoot:NULL);
 				if(apiGetFileAttributes(strDestDriveRoot) != INVALID_FILE_ATTRIBUTES)
           if(!apiGetVolumeInformation(strDestDriveRoot,NULL,NULL,NULL,&DestFSFlags,&strDestFSName))
             strDestFSName=L"";
       }
     }
 
-    string strDestPath = Dest;
+    string strDestPath = strDest;
     FAR_FIND_DATA_EX SrcData;
     int CopyCode=COPY_SUCCESS,KeepPathPos;
 
@@ -1555,7 +1555,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       ConvertNameToReal(SelName,SrcRealName,sizeof(SrcRealName));
       switch(MkSymLink(SrcRealName,Dest,ShellCopy::Flags))
       */
-      switch(MkSymLink(strSelName,Dest,RPT,ShellCopy::Flags))
+      switch(MkSymLink(strSelName,strDest,RPT,ShellCopy::Flags))
       {
         case 2:
           break;
@@ -1575,11 +1575,11 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     if ((ShellCopy::Flags&FCOPY_MOVE))
     {
       // Тыкс, а как на счет "тот же диск"?
-      if (KeepPathPos && PointToName(Dest)==Dest)
+      if (KeepPathPos && PointToName(strDest)==strDest)
       {
         strDestPath = strSelName;
         strDestPath.SetLength(KeepPathPos);
-        strDestPath += Dest;
+        strDestPath += strDest;
         SameDisk=TRUE;
       }
 
@@ -1631,10 +1631,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
     if (!(ShellCopy::Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
     {
-			string strDest=Dest;
+			string strCopyDest=strDest;
 			do
 			{
-				CopyCode=ShellCopyOneFile(strSelName,SrcData,strDest,KeepPathPos,0);
+				CopyCode=ShellCopyOneFile(strSelName,SrcData,strCopyDest,KeepPathPos,0);
 			}
 			while(CopyCode==COPY_RETRY);
       ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
@@ -1748,10 +1748,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
             AttemptToMove=TRUE;
 
 						int Ret=COPY_SUCCESS;
-						string strDest=Dest;
+						string strCopyDest=strDest;
 						do
 						{
-							Ret=ShellCopyOneFile(strFullName,SrcData,strDest,KeepPathPos,NeedRename);
+							Ret=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,NeedRename);
 						}
 						while(Ret==COPY_RETRY);
 						switch(Ret) // 1
@@ -1789,10 +1789,10 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
           if (AttemptToMove)
             OvrMode=1;
-					string strDest=Dest;
+					string strCopyDest=strDest;
 					do
 					{
-						SubCopyCode=ShellCopyOneFile(strFullName,SrcData,strDest,KeepPathPos,0);
+						SubCopyCode=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,0);
 					}
 					while(SubCopyCode==COPY_RETRY);
 
@@ -1922,8 +1922,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
   }
 
 	strDestPath = strDest;
-
-  ConvertWildcards(Src, strDestPath, SelectedFolderNameLength); //BUGBUG, to check!!
 
   const wchar_t *NamePtr=PointToName(strDestPath);
 
