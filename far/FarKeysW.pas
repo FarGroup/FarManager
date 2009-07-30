@@ -1,46 +1,47 @@
-(*
-  farkeys.pas
+{
+  FarKeysW.pas
 
-  Inside KeyName for FAR Manager <%VERSION%>
+  Inside KeyName for FAR Manager 2
+}
 
-  Copyright (c) 1996 Eugene Roshal
-  Copyright (c) 2000 Far Group
-  All rights reserved.
+{
+Copyright (c) 1996 Eugene Roshal
+Copyright (c) 2000 Far Group
+All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-  1. Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-  3. The name of the authors may not be used to endorse or promote products
-     derived from this software without specific prior written permission.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+   derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  EXCEPTION:
-  Far Manager plugins that use this header file can be distributed under any
-  other possible license with no implications from the above license on them.
-*)
+EXCEPTION:
+Far Manager plugins that use this header file can be distributed under any
+other possible license with no implications from the above license on them.
+}
 
-{$IFNDEF VIRTUALPASCAL}
-   {$MINENUMSIZE 4}
-{$ENDIF}
-
-unit FarKeys;
+unit FarKeysW;
 
 interface
+
+uses
+  Windows;
 
 { BaseDefKeyboard }
 
@@ -69,101 +70,128 @@ const
 
    KEY_MASKF               = $00000FFF;
 
-   KEY_FKEY_BEGIN          = $00000100;
+   EXTENDED_KEY_BASE       = $00010000;
+   INTERNAL_KEY_BASE       = $00020000;
+   INTERNAL_KEY_BASE_2     = $00030000;
 
-   KEY_BREAK               = $00000103;
+   KEY_FKEY_BEGIN          = EXTENDED_KEY_BASE;
 
-   KEY_PGUP                = $00000121;
-   KEY_PGDN                = $00000122;
-   KEY_END                 = $00000123;
-   KEY_HOME                = $00000124;
-   KEY_LEFT                = $00000125;
-   KEY_UP                  = $00000126;
-   KEY_RIGHT               = $00000127;
-   KEY_DOWN                = $00000128;
-   KEY_INS                 = $0000012D;
-   KEY_DEL                 = $0000012E;
+   KEY_BREAK               = EXTENDED_KEY_BASE+VK_CANCEL;
 
-   KEY_LWIN                = $0000015B;
-   KEY_RWIN                = $0000015C;
-   KEY_APPS                = $0000015D;
+   KEY_PAUSE               = EXTENDED_KEY_BASE+VK_PAUSE;
+   KEY_CAPSLOCK            = EXTENDED_KEY_BASE+VK_CAPITAL;
 
-   KEY_NUMPAD0             = $00000160;
-   KEY_NUMPAD1             = $00000161;
-   KEY_NUMPAD2             = $00000162;
-   KEY_NUMPAD3             = $00000163;
-   KEY_NUMPAD4             = $00000164;
-   KEY_NUMPAD5             = $00000165;
+   KEY_PGUP                = EXTENDED_KEY_BASE+VK_PRIOR;
+   KEY_PGDN                = EXTENDED_KEY_BASE+VK_NEXT;
+   KEY_END                 = EXTENDED_KEY_BASE+VK_END;
+   KEY_HOME                = EXTENDED_KEY_BASE+VK_HOME;
+   KEY_LEFT                = EXTENDED_KEY_BASE+VK_LEFT;
+   KEY_UP                  = EXTENDED_KEY_BASE+VK_UP;
+   KEY_RIGHT               = EXTENDED_KEY_BASE+VK_RIGHT;
+   KEY_DOWN                = EXTENDED_KEY_BASE+VK_DOWN;
+   KEY_PRNTSCRN            = EXTENDED_KEY_BASE+VK_SNAPSHOT;   
+   KEY_INS                 = EXTENDED_KEY_BASE+VK_INSERT;
+   KEY_DEL                 = EXTENDED_KEY_BASE+VK_DELETE;
+
+   KEY_LWIN                = EXTENDED_KEY_BASE+VK_LWIN;
+   KEY_RWIN                = EXTENDED_KEY_BASE+VK_RWIN;
+   KEY_APPS                = EXTENDED_KEY_BASE+VK_APPS;
+// KEY_STANDBY             = EXTENDED_KEY_BASE+VK_SLEEP;
+
+   KEY_NUMPAD0             = EXTENDED_KEY_BASE+VK_NUMPAD0;
+   KEY_NUMPAD1             = EXTENDED_KEY_BASE+VK_NUMPAD1;
+   KEY_NUMPAD2             = EXTENDED_KEY_BASE+VK_NUMPAD2;
+   KEY_NUMPAD3             = EXTENDED_KEY_BASE+VK_NUMPAD3;
+   KEY_NUMPAD4             = EXTENDED_KEY_BASE+VK_NUMPAD4;
+   KEY_NUMPAD5             = EXTENDED_KEY_BASE+VK_NUMPAD5;
    KEY_CLEAR               = KEY_NUMPAD5;
-   KEY_NUMPAD6             = $00000166;
-   KEY_NUMPAD7             = $00000167;
-   KEY_NUMPAD8             = $00000168;
-   KEY_NUMPAD9             = $00000169;
+   KEY_NUMPAD6             = EXTENDED_KEY_BASE+VK_NUMPAD6;
+   KEY_NUMPAD7             = EXTENDED_KEY_BASE+VK_NUMPAD7;
+   KEY_NUMPAD8             = EXTENDED_KEY_BASE+VK_NUMPAD8;
+   KEY_NUMPAD9             = EXTENDED_KEY_BASE+VK_NUMPAD9;
 
-   KEY_MULTIPLY            = $0000016A;
-   KEY_ADD                 = $0000016B;
-   KEY_SUBTRACT            = $0000016D;
-   KEY_DIVIDE              = $0000016F;
+   KEY_MULTIPLY            = EXTENDED_KEY_BASE+VK_MULTIPLY;
+   KEY_ADD                 = EXTENDED_KEY_BASE+VK_ADD;
+   KEY_SUBTRACT            = EXTENDED_KEY_BASE+VK_SUBTRACT;
+   KEY_DECIMAL             = EXTENDED_KEY_BASE+VK_DECIMAL;
+   KEY_DIVIDE              = EXTENDED_KEY_BASE+VK_DIVIDE;
 
-   KEY_F1                  = $00000170;
-   KEY_F2                  = $00000171;
-   KEY_F3                  = $00000172;
-   KEY_F4                  = $00000173;
-   KEY_F5                  = $00000174;
-   KEY_F6                  = $00000175;
-   KEY_F7                  = $00000176;
-   KEY_F8                  = $00000177;
-   KEY_F9                  = $00000178;
-   KEY_F10                 = $00000179;
-   KEY_F11                 = $0000017A;
-   KEY_F12                 = $0000017B;
+   KEY_F1                  = EXTENDED_KEY_BASE+VK_F1;
+   KEY_F2                  = EXTENDED_KEY_BASE+VK_F2;
+   KEY_F3                  = EXTENDED_KEY_BASE+VK_F3;
+   KEY_F4                  = EXTENDED_KEY_BASE+VK_F4;
+   KEY_F5                  = EXTENDED_KEY_BASE+VK_F5;
+   KEY_F6                  = EXTENDED_KEY_BASE+VK_F6;
+   KEY_F7                  = EXTENDED_KEY_BASE+VK_F7;
+   KEY_F8                  = EXTENDED_KEY_BASE+VK_F8;
+   KEY_F9                  = EXTENDED_KEY_BASE+VK_F9;
+   KEY_F10                 = EXTENDED_KEY_BASE+VK_F10;
+   KEY_F11                 = EXTENDED_KEY_BASE+VK_F11;
+   KEY_F12                 = EXTENDED_KEY_BASE+VK_F12;
 
-   KEY_F13                 = $0000017C;
-   KEY_F14                 = $0000017D;
-   KEY_F15                 = $0000017E;
-   KEY_F16                 = $0000017F;
-   KEY_F17                 = $00000180;
-   KEY_F18                 = $00000181;
-   KEY_F19                 = $00000182;
-   KEY_F20                 = $00000183;
-   KEY_F21                 = $00000184;
-   KEY_F22                 = $00000185;
-   KEY_F23                 = $00000186;
-   KEY_F24                 = $00000187;
+   KEY_F13                 = EXTENDED_KEY_BASE+VK_F13;
+   KEY_F14                 = EXTENDED_KEY_BASE+VK_F14;
+   KEY_F15                 = EXTENDED_KEY_BASE+VK_F15;
+   KEY_F16                 = EXTENDED_KEY_BASE+VK_F16;
+   KEY_F17                 = EXTENDED_KEY_BASE+VK_F17;
+   KEY_F18                 = EXTENDED_KEY_BASE+VK_F18;
+   KEY_F19                 = EXTENDED_KEY_BASE+VK_F19;
+   KEY_F20                 = EXTENDED_KEY_BASE+VK_F20;
+   KEY_F21                 = EXTENDED_KEY_BASE+VK_F21;
+   KEY_F22                 = EXTENDED_KEY_BASE+VK_F22;
+   KEY_F23                 = EXTENDED_KEY_BASE+VK_F23;
+   KEY_F24                 = EXTENDED_KEY_BASE+VK_F24;
 
-   KEY_BROWSER_BACK        = $000001A6;
-   KEY_BROWSER_FORWARD     = $000001A7;
-   KEY_BROWSER_REFRESH     = $000001A8;
-   KEY_BROWSER_STOP        = $000001A9;
-   KEY_BROWSER_SEARCH      = $000001AA;
-   KEY_BROWSER_FAVORITES   = $000001AB;
-   KEY_BROWSER_HOME        = $000001AC;
-   KEY_VOLUME_MUTE         = $000001AD;
-   KEY_VOLUME_DOWN         = $000001AE;
-   KEY_VOLUME_UP           = $000001AF;
-   KEY_MEDIA_NEXT_TRACK    = $000001B0;
-   KEY_MEDIA_PREV_TRACK    = $000001B1;
-   KEY_MEDIA_STOP          = $000001B2;
-   KEY_MEDIA_PLAY_PAUSE    = $000001B3;
-   KEY_LAUNCH_MAIL         = $000001B4;
-   KEY_LAUNCH_MEDIA_SELECT = $000001B5;
-   KEY_LAUNCH_APP1         = $000001B6;
-   KEY_LAUNCH_APP2         = $000001B7;
+   KEY_NUMLOCK             = EXTENDED_KEY_BASE+VK_NUMLOCK;
+   KEY_SCROLLLOCK          = EXTENDED_KEY_BASE+VK_SCROLL;
+(*
+   KEY_BROWSER_BACK        = EXTENDED_KEY_BASE+VK_BROWSER_BACK;
+   KEY_BROWSER_FORWARD     = EXTENDED_KEY_BASE+VK_BROWSER_FORWARD;
+   KEY_BROWSER_REFRESH     = EXTENDED_KEY_BASE+VK_BROWSER_REFRESH;
+   KEY_BROWSER_STOP        = EXTENDED_KEY_BASE+VK_BROWSER_STOP;
+   KEY_BROWSER_SEARCH      = EXTENDED_KEY_BASE+VK_BROWSER_SEARCH;
+   KEY_BROWSER_FAVORITES   = EXTENDED_KEY_BASE+VK_BROWSER_FAVORITES;
+   KEY_BROWSER_HOME        = EXTENDED_KEY_BASE+VK_BROWSER_HOME;
+   KEY_VOLUME_MUTE         = EXTENDED_KEY_BASE+VK_VOLUME_MUTE;
+   KEY_VOLUME_DOWN         = EXTENDED_KEY_BASE+VK_VOLUME_DOWN;
+   KEY_VOLUME_UP           = EXTENDED_KEY_BASE+VK_VOLUME_UP;
+   KEY_MEDIA_NEXT_TRACK    = EXTENDED_KEY_BASE+VK_MEDIA_NEXT_TRACK;
+   KEY_MEDIA_PREV_TRACK    = EXTENDED_KEY_BASE+VK_MEDIA_PREV_TRACK;
+   KEY_MEDIA_STOP          = EXTENDED_KEY_BASE+VK_MEDIA_STOP;
+   KEY_MEDIA_PLAY_PAUSE    = EXTENDED_KEY_BASE+VK_MEDIA_PLAY_PAUSE;
+   KEY_LAUNCH_MAIL         = EXTENDED_KEY_BASE+VK_LAUNCH_MAIL;
+   KEY_LAUNCH_MEDIA_SELECT = EXTENDED_KEY_BASE+VK_LAUNCH_MEDIA_SELECT;
+   KEY_LAUNCH_APP1         = EXTENDED_KEY_BASE+VK_LAUNCH_APP1;
+   KEY_LAUNCH_APP2         = EXTENDED_KEY_BASE+VK_LAUNCH_APP2;
+*)
+   KEY_CTRLALTSHIFTPRESS   = INTERNAL_KEY_BASE+1;
+   KEY_CTRLALTSHIFTRELEASE = INTERNAL_KEY_BASE+2;
 
-   KEY_CTRLALTSHIFTPRESS   = $00000201;
-   KEY_CTRLALTSHIFTRELEASE = $00000202;
+   KEY_MSWHEEL_UP          = INTERNAL_KEY_BASE+3;
+   KEY_MSWHEEL_DOWN        = INTERNAL_KEY_BASE+4;
 
-   KEY_MSWHEEL_UP          = $00000203;
-   KEY_MSWHEEL_DOWN        = $00000204;
+   KEY_NUMDEL              = INTERNAL_KEY_BASE+9;
+   KEY_NUMENTER            = INTERNAL_KEY_BASE+$0B;
 
-   KEY_VK_0xFF_BEGIN       = $00000300;
-   KEY_VK_0xFF_END         = $000003FF;
+   KEY_MSWHEEL_LEFT        = INTERNAL_KEY_BASE+$0C;
+   KEY_MSWHEEL_RIGHT       = INTERNAL_KEY_BASE+$0D;
 
-   KEY_END_FKEY            = $00000FFF;
+   KEY_MSLCLICK            = INTERNAL_KEY_BASE+$0F;
+   KEY_MSRCLICK            = INTERNAL_KEY_BASE+$10;
 
-   KEY_NONE                = $00001001;
-   KEY_IDLE                = $00001002;
-   KEY_END_SKEY            = $0000FFFF;
+   KEY_MSM1CLICK           = INTERNAL_KEY_BASE+$11;
+   KEY_MSM2CLICK           = INTERNAL_KEY_BASE+$12;
+   KEY_MSM3CLICK           = INTERNAL_KEY_BASE+$13;
+
+   KEY_VK_0xFF_BEGIN       = EXTENDED_KEY_BASE+$000000100;
+   KEY_VK_0xFF_END         = EXTENDED_KEY_BASE+$0000001FF;
+
+   KEY_END_FKEY            = $0001FFFF;
+
+   KEY_NONE                = INTERNAL_KEY_BASE_2+1;
+   KEY_IDLE                = INTERNAL_KEY_BASE_2+2;
+
+   KEY_END_SKEY            = $0003FFFF;
    KEY_LAST_BASE           = KEY_END_SKEY;
 
  { AddDefKeyboard }
