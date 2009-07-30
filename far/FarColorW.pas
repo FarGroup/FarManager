@@ -1,7 +1,7 @@
 {
   FarColorW.pas
 
-  Colors Index for FAR Manager 2
+  Colors Index for FAR Manager <%VERSION%>
   HKCU\Software\Far\Colors\CurrentPalette
 }
 

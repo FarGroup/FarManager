@@ -357,7 +357,7 @@ depfile:
 	@$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\pluginW.pas" "$(FARINCLUDE)\farcolorW.pas" "$(FARINCLUDE)\farkeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\FarKeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -468,17 +468,17 @@ $(OUTDIR)\File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) File_id.diz.m4 > $@
 
-$(FARINCLUDE)\pluginW.pas: pluginW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)\PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
-	@$(M4) -DINPUT=pluginW.pas headers.m4 > $@
+	@$(M4) -DINPUT=PluginW.pas headers.m4 > $@
 
-$(FARINCLUDE)\farcolorW.pas: farcolorW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)\FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
-	@$(M4) -DINPUT=farcolorW.pas headers.m4 > $@
+	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
-$(FARINCLUDE)\farkeysW.pas: farkeysW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)\FarKeysW.pas: FarKeysW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
-	@$(M4) -DINPUT=farkeysW.pas headers.m4 > $@
+	@$(M4) -DINPUT=FarKeysW.pas headers.m4 > $@
 
 
 .PHONY: CLEAN

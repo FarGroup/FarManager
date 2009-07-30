@@ -1,7 +1,7 @@
 {
   PluginW.pas
 
-  Plugin API for FAR Manager 2
+  Plugin API for FAR Manager <%VERSION%>
 }
 
 {
@@ -1104,9 +1104,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE	                = -1;
-  PANEL_ACTIVE	                = -1;
-  PANEL_PASSIVE	                = -2;
+  PANEL_NONE                    = -1;
+  PANEL_ACTIVE                  = -1;
+  PANEL_PASSIVE                 = -2;
 
 const
   FCTL_CLOSEPLUGIN              = 0;
@@ -1147,8 +1147,8 @@ type
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-	int Param1,
-	LONG_PTR Param2
+  int Param1,
+  LONG_PTR Param2
 );
 *)
   TFarApiControl = function (
