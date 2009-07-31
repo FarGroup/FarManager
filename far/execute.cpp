@@ -182,9 +182,8 @@ bool IsProperProgID(const wchar_t* ProgID)
 		HKEY hProgID;
 		if (RegOpenKey(HKEY_CLASSES_ROOT, ProgID, &hProgID) == ERROR_SUCCESS)
 		{
-			int nResult = RegQueryValueEx(hProgID, L"IsShortcut", NULL, NULL, NULL, NULL);
 			RegCloseKey(hProgID);
-			return (nResult != ERROR_SUCCESS);
+			return true;
 		}
 	}
 	return false;
@@ -315,6 +314,13 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
   	return NULL;
 
 	HKEY hKey;
+	if(RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	{
+		int nResult=RegQueryValueEx(hKey,L"IsShortcut",NULL,NULL,NULL,NULL);
+		RegCloseKey(hKey);
+		if(nResult==ERROR_SUCCESS)
+			return NULL;
+	}
 
   strValue += L"\\shell";
 
