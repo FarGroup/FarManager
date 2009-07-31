@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
+#include "RegExp.hpp"
 
 static int Recurse=0;
 
@@ -1938,16 +1939,16 @@ void Edit::RefreshStrByMask(int InitMode)
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  if ((MouseEvent->dwButtonState & 3)==0)
-    return(FALSE);
-  if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
-      MouseEvent->dwMousePosition.Y!=Y1)
-    return(FALSE);
-  //SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
-  SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
+	if ((MouseEvent->dwButtonState & 3)==0)
+		return(FALSE);
+	if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
+			MouseEvent->dwMousePosition.Y!=Y1)
+		return(FALSE);
+	//SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
+	SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
 
-  if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-    Select(-1,0);
+	if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
+		Select(-1,0);
 
 	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
@@ -1975,8 +1976,8 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 
 	}
-  Show();
-  return(TRUE);
+	Show();
+	return(TRUE);
 }
 
 
@@ -1984,10 +1985,9 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse)
+int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse, int *SearchLength)
 {
-  int I, J;
-  int Length = (int)Str.GetLength();
+  *SearchLength = 0;
 
   if (Reverse)
   {
@@ -1997,10 +1997,39 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
     if (Position<0)
       return(FALSE);
   }
+
   if (Position<StrSize && !Str.IsEmpty() )
-    for (I=Position;(Reverse && I>=0) || (!Reverse && I<StrSize);Reverse ? I--:I++)
+  {
+    if (!Reverse && Str[0] == L'/')
     {
-      for (J=0;;J++)
+      RegExp re;
+
+      if (re.Compile(Str, OP_PERLSTYLE|OP_OPTIMIZE))
+      {
+        int n = re.GetBracketsCount();
+        SMatch *m = (SMatch *)xf_malloc(n*sizeof(SMatch));
+
+        if (m == NULL)
+          return FALSE;
+
+        if (re.SearchEx(Edit::Str,Edit::Str+Position,Edit::Str+StrSize,m,n))
+        {
+          *SearchLength = m[0].end - m[0].start;
+          CurPos = m[0].start;
+          free(m);
+          return TRUE;
+        }
+
+        free(m);
+      }
+
+      return FALSE;
+    }
+
+    int Length = *SearchLength = (int)Str.GetLength();
+    for (int I=Position;(Reverse && I>=0) || (!Reverse && I<StrSize);Reverse ? I--:I++)
+    {
+      for (int J=0;;J++)
       {
         if (Str[J]==0)
         {
@@ -2024,7 +2053,9 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
             locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight)!=NULL);
           }
           else
+          {
             locResultRight=TRUE;
+          }
           if (!locResultLeft || !locResultRight)
             break;
         }
@@ -2041,6 +2072,7 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
         }
       }
     }
+  }
   return(FALSE);
 }
 
@@ -2208,29 +2240,31 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 
 int Edit::TabPosToReal(int Pos)
 {
-  if (TabExpandMode == EXPAND_ALLTABS)
-	return Pos;
+	if (TabExpandMode == EXPAND_ALLTABS)
+		return Pos;
 
-  int Index = 0;
-  for (int TabPos = 0; TabPos < Pos; Index++)
-  {
-	if (Index > StrSize)
+	int Index = 0;
+	for (int TabPos = 0; TabPos < Pos; Index++)
 	{
-	  Index += Pos-TabPos;
-	  break;
+		if (Index > StrSize)
+		{
+			Index += Pos-TabPos;
+			break;
+		}
+		if (Str[Index] == L'\t')
+		{
+			int NewTabPos = TabPos+TabSize-(TabPos%TabSize);
+			if (NewTabPos > Pos)
+			break;
+			TabPos = NewTabPos;
+		}
+		else
+		{
+			TabPos++;
+		}
 	}
-	if (Str[Index] == L'\t')
-	{
-	  int NewTabPos = TabPos+TabSize-(TabPos%TabSize);
-	  if (NewTabPos > Pos)
-		break;
-	  TabPos = NewTabPos;
-	}
-	else
-	  TabPos++;
-  }
 
-  return Index;
+	return Index;
 }
 
 

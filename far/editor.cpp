@@ -3815,8 +3815,6 @@ BOOL Editor::Search(int Next)
     //SaveScreen SaveScr;
     TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
 
-    int SearchLength=(int)strSearchStr.GetLength();
-
 		strMsgStr=strSearchStr;
 		InsertQuote(strMsgStr);
     SetCursorType(FALSE,-1);
@@ -3886,7 +3884,8 @@ BOOL Editor::Search(int Next)
 				TBC.SetProgressValue(Current,Total);
       }
 
-      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch))
+      int SearchLength=0;
+      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch,&SearchLength))
       {
         if( SelectFound )
         {
@@ -3982,14 +3981,14 @@ BOOL Editor::Search(int Next)
               If Replace string doesn't contain control symbols (tab and return),
               processed with fast method, otherwise use improved old one.
             */
-            if( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(L'\r') )
+            if ( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(L'\r') )
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
               CurLine->SetOvertypeMode(TRUE);
               //int CurPos=CurLine->GetCurPos();
               int I;
-              for (I=0;strSearchStr[I]!=0 && strReplaceStr[I]!=0;I++)
+              for (I=0; SearchLength!=0 && strReplaceStr[I]!=0;I++,SearchLength--)
               {
                 int Ch=strReplaceStr[I];
                 if (Ch==KEY_TAB)
@@ -4006,7 +4005,7 @@ BOOL Editor::Search(int Next)
                   Если реплэйсим на Enter, то overtype не спасёт.
                   Нужно сначала удалить то, что заменяем.
                 */
-                if(Ch==L'\r')
+                if (Ch==L'\r')
                 {
                   ProcessKey(KEY_DEL);
                 }
@@ -4015,7 +4014,7 @@ BOOL Editor::Search(int Next)
                   ProcessKey(Ch);
               }
 
-              if(strSearchStr[I]==0)
+              if (SearchLength==0)
               {
                 Flags.Clear(FEDITOR_OVERTYPE);
                 CurLine->SetOvertypeMode(FALSE);
@@ -4028,7 +4027,7 @@ BOOL Editor::Search(int Next)
               }
               else
               {
-                for (;strSearchStr[I]!=0;I++)
+                for (;SearchLength!=0;SearchLength--)
                 {
                   ProcessKey(KEY_DEL);
                 }
@@ -4053,7 +4052,7 @@ BOOL Editor::Search(int Next)
               /* Fast method */
               const wchar_t *Str,*Eol;
               int StrLen,NewStrLen;
-              int SStrLen=(int)strSearchStr.GetLength(),
+              int SStrLen=SearchLength,
                   RStrLen=(int)strReplaceStr.GetLength();
               CurLine->GetBinaryString(&Str,&Eol,StrLen);
               int EolLen=StrLength(Eol);
@@ -4065,12 +4064,6 @@ BOOL Editor::Search(int Next)
               int CurPos=CurLine->GetCurPos();
               wmemcpy(NewStr,Str,CurPos);
               wmemcpy(NewStr+CurPos,strReplaceStr,RStrLen);
-
-              /*if(UseDecodeTable)
-              {
-                EncodeString(NewStr+CurPos,(unsigned char*)TableSet.EncodeTable,RStrLen);
-              }*/ //BUGBUG!!!
-
               wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
               wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
               AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
@@ -4107,6 +4100,7 @@ BOOL Editor::Search(int Next)
             CurPos++;
       }
       else
+      {
         if (ReverseSearch)
         {
           CurPtr=CurPtr->m_prev;
@@ -4121,6 +4115,7 @@ BOOL Editor::Search(int Next)
           CurPtr=CurPtr->m_next;
           NewNumLine++;
         }
+      }
     }
   }
 
