@@ -113,13 +113,29 @@ BOOL TestCurrentFolderName(const wchar_t *Name)
 
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 {
+	return PointToName(lpwszPath,NULL);
+}
+
+const wchar_t* PointToName(string& strPath)
+{
+	const wchar_t *lpwszPath=strPath.CPtr();
+	const wchar_t *lpwszEndPtr=lpwszPath+strPath.GetLength();
+	return PointToName(lpwszPath,lpwszEndPtr);
+}
+
+const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
+{
   if ( !lpwszPath )
     return NULL;
 
   if ( *lpwszPath!=0 && *(lpwszPath+1)==L':' ) lpwszPath+=2;
 
-  const wchar_t *lpwszNamePtr = lpwszPath;
-  while ( *lpwszNamePtr ) lpwszNamePtr++;
+  const wchar_t *lpwszNamePtr = lpwszEndPtr;
+  if(!lpwszNamePtr)
+  {
+  	lpwszNamePtr=lpwszPath;
+  	while ( *lpwszNamePtr ) lpwszNamePtr++;
+  }
 
   while (lpwszNamePtr != lpwszPath)
   {
@@ -132,7 +148,6 @@ const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
   else
     return lpwszPath;
 }
-
 
 //   Аналог PointToName, только для строк типа
 //   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
@@ -159,11 +174,26 @@ const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath)
 {
-  if ( !lpwszPath )
+	if ( !lpwszPath )
+		return NULL;
+
+	const wchar_t *lpwszEndPtr = lpwszPath;
+	while ( *lpwszEndPtr ) lpwszEndPtr++;
+	return PointToExt(lpwszPath,lpwszEndPtr);
+}
+
+const wchar_t* PointToExt(string& strPath)
+{
+	const wchar_t *lpwszPath=strPath.CPtr();
+	const wchar_t *lpwszEndPtr=lpwszPath+strPath.GetLength();
+	return PointToExt(lpwszPath,lpwszEndPtr);
+}
+
+const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
+{
+  if ( !lpwszPath || !lpwszEndPtr)
     return NULL;
 
-  const wchar_t *lpwszEndPtr = lpwszPath;
-  while ( *lpwszEndPtr ) lpwszEndPtr++;
   const wchar_t *lpwszExtPtr = lpwszEndPtr;
 
   while (lpwszExtPtr != lpwszPath)

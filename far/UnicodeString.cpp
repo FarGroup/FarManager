@@ -93,6 +93,11 @@ const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 {
 	size_t nLength = StrLength(NullToEmpty(lpwszData));
+	return SetData(lpwszData,nLength);
+}
+
+const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData, size_t nLength)
+{
 	if (m_pData && m_pData->GetRef() == 1 && nLength + 1 <= m_pData->GetSize())
 	{
 		wmemmove(m_pData->GetData(),lpwszData,nLength);
@@ -119,6 +124,7 @@ const UnicodeString& UnicodeString::SetData(const wchar_t *lpwszData)
 	}
 	return *this;
 }
+
 
 const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
 {

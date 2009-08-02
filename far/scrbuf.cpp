@@ -401,9 +401,9 @@ void ScreenBuf::Flush()
 
       // BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
       // посему пишем по 32 K.
-      
+
       const int MaxSize=0x7FFF;
-      if (BufX*BufY*sizeof(CHAR_INFO)>MaxSize) // See REMINDER file section scrbuf.cpp
+      if (BufX*BufY*(int)sizeof(CHAR_INFO)>MaxSize) // See REMINDER file section scrbuf.cpp
       {
         Corner.Y=0;
         PCHAR_INFO BufPtr;

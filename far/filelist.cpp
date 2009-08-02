@@ -285,7 +285,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 {
   int RetCode;
   __int64 RetCode64;
-  const wchar_t *Ext1,*Ext2;
+  const wchar_t *Ext1=NULL,*Ext2=NULL;
 	FileListItem *SPtr1,*SPtr2;
   SPtr1=((FileListItem **)el1)[0];
   SPtr2=((FileListItem **)el2)[0];
@@ -417,16 +417,31 @@ int _cdecl SortList(const void *el1,const void *el2)
 
   int NameCmp;
 
-  const wchar_t *Name1=PointToName(SPtr1->strName);
-  const wchar_t *Name2=PointToName(SPtr2->strName);
-  if(!ListNumericSort)
-    NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
-  else
-    NameCmp=ListCaseSensitive?NumStrCmp(Name1,Name2):NumStrCmpI(Name1,Name2);
+  if(!Ext1) Ext1=PointToExt(SPtr1->strName);
+  if(!Ext2) Ext2=PointToExt(SPtr2->strName);
+  const wchar_t *Name1Ptr=PointToName(SPtr1->strName);
+  const wchar_t *Name2Ptr=PointToName(SPtr2->strName);
+  //TODO: в будущем заменить копирование строк на вызов функций сравнения с явным указанием длин сравниваемых строк.
+  string strName1(Name1Ptr,Ext1-Name1Ptr);
+  string strName2(Name2Ptr,Ext2-Name2Ptr);
+  const wchar_t *Name1=strName1.CPtr();
+  const wchar_t *Name2=strName2.CPtr();
+  for(size_t ii=0;ii<2;++ii)
+  {
+  	if(ii==1)
+  	{
+      Name1=Ext1;
+      Name2=Ext1;
+  	}
+    if(!ListNumericSort)
+      NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
+    else
+      NameCmp=ListCaseSensitive?NumStrCmp(Name1,Name2):NumStrCmpI(Name1,Name2);
+    if(NameCmp) break;
+  }
   NameCmp*=ListSortOrder;
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
-
   return(NameCmp);
 }
 
@@ -582,6 +597,7 @@ int FileList::ProcessKey(int Key)
 
     string strShortcutFolder;
     int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
+    (void)SizeFolderNameShortcut;
     //char *ShortcutFolder=NULL;
     string strPluginModule,strPluginFile,strPluginData;
     if (PanelMode==PLUGIN_PANEL)

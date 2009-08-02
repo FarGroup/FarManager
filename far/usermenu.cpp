@@ -117,10 +117,10 @@ void MenuRegToFile(const wchar_t *MenuKey,FILE *MenuFile,bool SingleItemMenu=fal
 
 		string strHotKey;
 		GetRegKey(strItemKey,L"HotKey",strHotKey,L"");
-		
+
 		BOOL SubMenu;
 		GetRegKey(strItemKey,L"Submenu",SubMenu,0);
-		
+
 		fwprintf(MenuFile,L"%s:  %s\r\n",(const wchar_t*)strHotKey,(const wchar_t*)strLabel);
 
 		if(SubMenu)
@@ -428,7 +428,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos,const wchar_t *Name,const wchar_t *ShortName)
 {
 	UserMenu.DeleteItems();
-	DWORD NumLines=0;
+	int NumLines=0;
 	for(NumLines=0;;NumLines++)
 	{
 		string strItemKey;

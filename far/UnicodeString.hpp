@@ -168,6 +168,7 @@ public:
 
 	const UnicodeString& SetData(const UnicodeString &strCopy);
 	const UnicodeString& SetData(const wchar_t *lpwszData);
+	const UnicodeString& SetData(const wchar_t *lpwszData, size_t nLength);
 	const UnicodeString& SetData(const char *lpszData, UINT CodePage=CP_OEMCP);
 
 	UnicodeString(const UnicodeString &strCopy)
@@ -180,6 +181,12 @@ public:
 	{
 		m_pData = NULL;
 		SetData(lpwszData);
+	}
+
+	UnicodeString(const wchar_t *lpwszData, size_t nLength)
+	{
+		m_pData = NULL;
+		SetData(lpwszData,nLength);
 	}
 
 	UnicodeString(const char *lpszData, UINT CodePage=CP_OEMCP)

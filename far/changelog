@@ -1,3 +1,13 @@
+zg 02.08.2009 15:11:16 +0200 - build 1064
+
+1. новый конструктор UnicodeString(const wchar_t *lpwszData, size_t nLength).
+
+2. Mantis#0000974: file-1.txt выше, чем file.txt
+
+3. PointToName(string)/PointToExt(string) работают быстрее.
+
+4. gcc warnings.
+
 t-rex 31.07.2009 18:11:28 +0200 - build 1063
 
 1. На затравку: ужасная имплементация regexp поиска в редакторе.

@@ -2411,8 +2411,8 @@ void Viewer::Search(int Next,int FirstChar)
           }
 
           Match=locResultLeft && locResultRight && strSearchStr.At(0)==Buf[I] &&
-            (SearchLength==1 || strSearchStr.At(1)==Buf[I+1] &&
-            (SearchLength==2 || memcmp((const wchar_t*)strSearchStr+2,&Buf[I+2],(SearchLength-2)*sizeof (wchar_t))==0));
+            (SearchLength==1 || (strSearchStr.At(1)==Buf[I+1] &&
+            (SearchLength==2 || memcmp((const wchar_t*)strSearchStr+2,&Buf[I+2],(SearchLength-2)*sizeof (wchar_t))==0)));
 
           if (Match)
           {
