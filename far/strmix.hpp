@@ -94,6 +94,8 @@ wchar_t* __stdcall TruncStr(wchar_t *Str,int MaxLength);
 string& __stdcall TruncStr(string &strStr,int MaxLength);
 wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength);
 string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength);
+wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength);
+string& TruncStrFromCenter(string &strStr, int MaxLength);
 wchar_t* __stdcall TruncPathStr(wchar_t *Str, int MaxLength);
 string& __stdcall TruncPathStr(string &strStr, int MaxLength);
 

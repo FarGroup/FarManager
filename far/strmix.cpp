@@ -231,6 +231,40 @@ string& __stdcall TruncStr(string &strStr, int MaxLength)
 	return strStr;
 }
 
+wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
+{
+  if (Str)
+  {
+    int Length = StrLength(Str);
+    if (MaxLength < 0)
+      MaxLength=0;
+    if (Length > MaxLength)
+    {
+      const int DotsLen = 3;
+      if (MaxLength > DotsLen)
+      {
+        int Len1 = (MaxLength - DotsLen) / 2;
+        int Len2 = MaxLength - DotsLen - Len1;
+        wmemcpy(Str + Len1, L"...", DotsLen);
+        wmemmove(Str + Len1 + DotsLen, Str + Length - Len2, Len2);
+      }
+      Str[MaxLength] = 0;
+    }
+  }
+
+  return Str;
+}
+
+string& TruncStrFromCenter(string &strStr, int MaxLength)
+{
+	wchar_t *lpwszBuffer = strStr.GetBuffer ();
+
+	TruncStrFromCenter(lpwszBuffer, MaxLength);
+
+	strStr.ReleaseBuffer ();
+
+	return strStr;
+}
 
 wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 {

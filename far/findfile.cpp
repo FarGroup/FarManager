@@ -70,8 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 
-#define DLG_HEIGHT 23
-#define DLG_WIDTH 74
 #define CHAR_TABLE_SIZE 5
 
 #define LIST_DELTA  64
@@ -118,7 +116,7 @@ int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchHex;
 
 int FindFoldersChanged;
 int SearchFromChanged;
-int DlgWidth,DlgHeight;
+int DlgWidth, DlgHeight;
 volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount;
 string strFindMessage;
 string strLastDirName;
@@ -1769,54 +1767,57 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 		case DN_RESIZECONSOLE:
 		{
-			PCOORD pCoord=reinterpret_cast<PCOORD>(Param2);
-			short IncY=pCoord->Y-DlgHeight-3;
+			PCOORD pCoord = reinterpret_cast<PCOORD>(Param2);
+			int IncX = pCoord->X - DlgWidth - 2;
+			int IncY = pCoord->Y - DlgHeight - 2;
 
-			Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-			for(int i=0;i<=FD_BUTTON_STOP;i++)
+			Dialog::SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
+			for (int i = 0; i <= FD_BUTTON_STOP; i++)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,i,FALSE);
+				Dialog::SendDlgMessage(hDlg, DM_SHOWITEM, i, FALSE);
 			}
+
+			if ((IncX > 0) || (IncY > 0))
+			{
+				pCoord->X = DlgWidth + (IncX > 0) ? IncX : 0;
+				pCoord->Y = DlgHeight + (IncY > 0) ? IncY : 0;
+				Dialog::SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, reinterpret_cast<LONG_PTR>(pCoord));
+			}
+			DlgWidth += IncX;
+			DlgHeight += IncY;
 
 			SMALL_RECT rect;
-			Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&rect);
-			pCoord->X=rect.Right-rect.Left+1;
-			DlgHeight+=IncY;
-			pCoord->Y=DlgHeight+1;
-
-			if(IncY>0)
+			for (int i = 0; i < FD_SEPARATOR1; i++)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)pCoord);
+				Dialog::SendDlgMessage(hDlg, DM_GETITEMPOSITION, i, reinterpret_cast<LONG_PTR>(&rect));
+				rect.Right += IncX;
+				rect.Bottom += IncY;
+				Dialog::SendDlgMessage(hDlg, DM_SETITEMPOSITION, i, reinterpret_cast<LONG_PTR>(&rect));
 			}
 
-			for(int i=0;i<FD_SEPARATOR1;i++)
+			for (int i = FD_SEPARATOR1; i <= FD_BUTTON_STOP; i++)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,i,(LONG_PTR)&rect);
-				rect.Bottom+=IncY;
-				Dialog::SendDlgMessage(hDlg,DM_SETITEMPOSITION,i,(LONG_PTR)&rect);
-			}
-
-			for(int i=FD_SEPARATOR1;i<=FD_BUTTON_STOP;i++)
-			{
-				Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,i,(LONG_PTR)&rect);
-				if (i==FD_SEPARATOR1)
+				Dialog::SendDlgMessage(hDlg, DM_GETITEMPOSITION, i, reinterpret_cast<LONG_PTR>(&rect));
+				if (i == FD_TEXT_STATUS)
 				{
-					rect.Left=-1;
+					rect.Right += IncX;
 				}
-				rect.Top+=IncY;
-				Dialog::SendDlgMessage(hDlg,DM_SETITEMPOSITION,i,(LONG_PTR)&rect);
+				rect.Top += IncY;
+				Dialog::SendDlgMessage(hDlg, DM_SETITEMPOSITION, i, reinterpret_cast<LONG_PTR>(&rect));
 			}
 
-			if(IncY<=0)
+			if ((IncX <= 0) || (IncY <= 0))
 			{
-				Dialog::SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)pCoord);
-			}
+				pCoord->X = DlgWidth;
+				pCoord->Y = DlgHeight;
+				Dialog::SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, reinterpret_cast<LONG_PTR>(pCoord));
+			}	
 
-			for(int i=0;i<=FD_BUTTON_STOP;i++)
+			for (int i = 0;i <= FD_BUTTON_STOP; i++)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,i,TRUE);
+				Dialog::SendDlgMessage(hDlg, DM_SHOWITEM, i, TRUE);
 			}
-			Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+			Dialog::SendDlgMessage(hDlg, DM_ENABLEREDRAW, TRUE, 0);
 
 			return TRUE;
 		}
@@ -1865,40 +1866,25 @@ bool FindFiles::FindFilesProcess()
 		strSearchStr.Format(MSG(MFindSearchingIn), L"");
 	}
 
+	DlgWidth = ScrX + 1 - 2;
+	DlgHeight = ScrY + 1 - 2;
 	DialogDataEx FindDlgData[]=
 	{
-		/* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-3,0,0,DIF_SHOWAMPERSAND,0,strTitle,
-		/* 01 */DI_LISTBOX,4,2,73,DLG_HEIGHT-8,0,0,DIF_LISTNOBOX,0,0,
-		/* 02 */DI_TEXT,-1,DLG_HEIGHT-7,0,DLG_HEIGHT-7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
-		/* 03 */DI_TEXT,5,DLG_HEIGHT-6,0,DLG_HEIGHT-6,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
-		/* 04 */DI_TEXT,3,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 05 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,1,0,DIF_CENTERGROUP,1,MSG(MFindNewSearch),
-		/* 06 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,MSG(MFindGoTo),
-		/* 07 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,MSG(MFindView),
-		/* 08 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,MSG(MFindPanel),
-		/* 09 */DI_BUTTON,0,DLG_HEIGHT-4,0,DLG_HEIGHT-4,0,0,DIF_CENTERGROUP,0,MSG(MFindStop),
+		/* 00 */DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,0,DIF_SHOWAMPERSAND,0,strTitle,
+		/* 01 */DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,0,DIF_LISTNOBOX,0,0,
+		/* 02 */DI_TEXT,0,DlgHeight-6,0,DlgHeight-6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
+		/* 03 */DI_TEXT,5,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
+		/* 04 */DI_TEXT,0,DlgHeight-4,0,DlgHeight-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		/* 05 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,1,0,DIF_CENTERGROUP,1,MSG(MFindNewSearch),
+		/* 06 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindGoTo),
+		/* 07 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindView),
+		/* 08 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindPanel),
+		/* 09 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindStop),
 	};
 
   MakeDialogItemsEx(FindDlgData,FindDlg);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
-  DlgHeight=DLG_HEIGHT-2;
-  DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
-
-	int IncY=Max(0,ScrY-DLG_HEIGHT);
-	FindDlg[FD_DOUBLEBOX].Y2+=IncY;
-	FindDlg[FD_LISTBOX].Y2+=IncY;
-	FindDlg[FD_SEPARATOR1].Y1+=IncY;
-	FindDlg[FD_TEXT_STATUS].Y1+=IncY;
-	FindDlg[FD_SEPARATOR2].Y1+=IncY;
-	FindDlg[FD_BUTTON_NEW].Y1+=IncY;
-	FindDlg[FD_BUTTON_GOTO].Y1+=IncY;
-	FindDlg[FD_BUTTON_VIEW].Y1+=IncY;
-	FindDlg[FD_BUTTON_PANEL].Y1+=IncY;
-	FindDlg[FD_BUTTON_STOP].Y1+=IncY;
-
-  DlgHeight+=IncY;
 
   if (PluginMode)
   {
@@ -1937,7 +1923,7 @@ bool FindFiles::FindFilesProcess()
 	Dialog Dlg=Dialog(FindDlg,countof(FindDlg),FindDlgProc);
 //  pDlg->SetDynamicallyBorn();
   Dlg.SetHelp(L"FindFileResult");
-	Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-1+IncY);
+  Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
   Dlg.InitDialog();
@@ -2505,36 +2491,13 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	MenuItemEx ListItem;
 	ListItem.Clear();
 
-	string strMenuText, strSizeText;
-	string strDateStr, strTimeStr, strDate;
-
+	string strSizeText;
 	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-	{
-		strSizeText.Format (L"%13s", MSG(MFindFileFolder));
-	}
+		strSizeText.Format(L"%13s", MSG(MFindFileFolder));
 	else
-	{
-		wchar_t *wszSizeText = strSizeText.GetBuffer (100); //BUGBUG, function!!!
+		strSizeText.Format(L"%13I64d", FindData->nFileSize);
 
-		_ui64tow(FindData->nFileSize, wszSizeText, 10);
-
-		strSizeText.ReleaseBuffer ();
-	}
-
-	const wchar_t *DisplayName=FindData->strFileName;
-	/* $ 24.03.2002 KM
-		В плагинах принудительно поставим указатель в имени на имя
-		для корректного его отображения в списке, отбросив путь,
-		т.к. некоторые плагины возвращают имя вместе с полным путём,
-		к примеру временная панель.
-	*/
-	if (FindFileArcIndex != LIST_INDEX_NONE)
-		DisplayName=PointToName(DisplayName);
-	string strDisplayName=DisplayName;
-	TruncStrFromEnd(strDisplayName,24);
-	strMenuText.Format (L" %-25.25s%c%13.13s",(LPCWSTR)strDisplayName,BoxSymbols[BS_V1],(const wchar_t*)strSizeText);
-
-
+	string strDateText;
 	/* $ 05.10.2003 KM
 		При использовании фильтра по дате будем отображать тот тип
 		даты, который задан в фильтре.
@@ -2565,17 +2528,16 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	*/
 	{
 		// Отображаем дату последнего изменения
+		string strDateStr, strTimeStr;
 		ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-		strDate.Format (L"%c%8.8s%c%5.5s",BoxSymbols[BS_V1],(const wchar_t*)strDateStr,BoxSymbols[BS_V1],(const wchar_t*)strTimeStr);
+		strDateText.Format(L"%8.8s %5.5s", strDateStr.CPtr(), strTimeStr.CPtr());
 	}
-	strMenuText += strDate;
 
   /* $ 05.10.2003 KM
      Отобразим в панели поиска атрибуты найденных файлов
   */
 	const wchar_t AttrStr[]=
 	{
-		BoxSymbols[BS_V1],
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_READONLY? L'R':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
@@ -2589,7 +2551,26 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 		0
 	};
 
-	strMenuText += AttrStr;
+	string strMenuText;
+	strMenuText.Append(BoxSymbols[BS_V1]).Append(strSizeText).Append(BoxSymbols[BS_V1]).Append(strDateText).Append(BoxSymbols[BS_V1]).Append(AttrStr);
+
+	int MaxMenuTextLength = DlgWidth - 8 - 4; // depends on VMenu implementation
+	int DisplayNameWidth = MaxMenuTextLength - static_cast<int>(strMenuText.GetLength()) - 2 /* 2 spaces */;
+	const wchar_t *DisplayName=FindData->strFileName;
+	/* $ 24.03.2002 KM
+		В плагинах принудительно поставим указатель в имени на имя
+		для корректного его отображения в списке, отбросив путь,
+		т.к. некоторые плагины возвращают имя вместе с полным путём,
+		к примеру временная панель.
+	*/
+	if (FindFileArcIndex != LIST_INDEX_NONE)
+		DisplayName = PointToName(DisplayName);
+	string strDisplayName = DisplayName;
+	TruncStrFromCenter(strDisplayName, DisplayNameWidth);
+	string strNameText;
+	strNameText.Format(L" %-*.*s ", DisplayNameWidth, DisplayNameWidth, strDisplayName.CPtr());
+
+	strMenuText = strNameText + strMenuText;
 
 	string strPathName=FullName;
 	{
@@ -2625,7 +2606,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 			strPathName = strArcPathName;
 		}
 
-		ListItem.strName=TruncPathStr(strPathName,DLG_WIDTH-8);
+		ListItem.strName = TruncStrFromCenter(strPathName, MaxMenuTextLength);
 
 		size_t ItemIndex = AddFindListItem(FindData);
 		if (ItemIndex != LIST_INDEX_NONE)
@@ -2921,40 +2902,42 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
         else
           strSearchStr.Format (MSG(MFindSearchingIn), L"");
 
-        int Wid1=(int)strSearchStr.GetLength();
-        int Wid2=DlgWidth-(int)strSearchStr.GetLength()-1;
+        int StatusTextWidth = DlgWidth - 10;
 
         if (SearchDone)
         {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+          Dialog::SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
 
           strDataStr = MSG(MFindCancel);
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,9,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_BUTTON_STOP, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 
-          statusCS.Enter ();
-          strDataStr.Format (L"%-*.*s",DlgWidth,DlgWidth, (const wchar_t*)strFindMessage);
-          statusCS.Leave ();
+          statusCS.Enter();
+          strDataStr.Format(L"%-*.*s", StatusTextWidth, StatusTextWidth, strFindMessage.CPtr());
+          statusCS.Leave();
 
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_TEXT_STATUS, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 
           strDataStr = L"";
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_SEPARATOR1, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 
-          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+          Dialog::SendDlgMessage(hDlg, DM_ENABLEREDRAW, TRUE, 0);
 
           SetFarTitle(strFindMessage);
           StopSearch=TRUE;
         }
         else
         {
-          statusCS.Enter ();
+          int Wid1 = static_cast<int>(strSearchStr.GetLength());
+          int Wid2 = StatusTextWidth - Wid1 - 1;
 
-          TruncPathStr(strFindMessage, Wid2);
+          statusCS.Enter();
 
-          strDataStr.Format(L"%-*.*s %-*.*s",Wid1,Wid1, (const wchar_t*)strSearchStr,Wid2,Wid2,(const wchar_t*)strFindMessage);
+          TruncStrFromCenter(strFindMessage, Wid2);
+
+          strDataStr.Format(L"%-*.*s %-*.*s", Wid1, Wid1, strSearchStr.CPtr(), Wid2, Wid2, strFindMessage.CPtr());
           statusCS.Leave ();
 
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)(const wchar_t*)strDataStr);
+          Dialog::SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_TEXT_STATUS, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
         }
 
         FindMessageReady=FALSE;

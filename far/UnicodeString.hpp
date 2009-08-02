@@ -209,9 +209,11 @@ public:
 
 	size_t GetCharString(char *lpszStr, size_t nSize, UINT CodePage=CP_OEMCP) const;
 
-	const UnicodeString& Append(const UnicodeString &strAdd);
-	const UnicodeString& Append(const wchar_t *lpwszAdd);
-	const UnicodeString& Append(const char *lpszAdd, UINT CodePage=CP_OEMCP);
+	UnicodeString& Append(const wchar_t *lpwszAdd, size_t nAddLength);
+	UnicodeString& Append(const UnicodeString &strAdd);
+	UnicodeString& Append(const wchar_t *lpwszAdd);
+	UnicodeString& Append(wchar_t chAdd);
+	UnicodeString& Append(const char *lpszAdd, UINT CodePage=CP_OEMCP);
 
 	operator const wchar_t *() const
 	{
