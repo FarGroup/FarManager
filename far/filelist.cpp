@@ -431,7 +431,7 @@ int _cdecl SortList(const void *el1,const void *el2)
   	if(ii==1)
   	{
       Name1=Ext1;
-      Name2=Ext1;
+      Name2=Ext2;
   	}
     if(!ListNumericSort)
       NameCmp=ListCaseSensitive?StrCmp(Name1,Name2):StrCmpI(Name1,Name2);
