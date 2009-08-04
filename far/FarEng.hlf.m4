@@ -2390,8 +2390,8 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Shift-F4#                Edit ~new file~@FileOpenCreate@
    #Alt-F5#                  ^<wrap>Print file or selected block ("Print manager" plugin is used).
    #F6#                      Switch to ~viewer~@Viewer@
-   #F7#                      Search
-   #Ctrl-F7#                 Replace
+   #F7#                      ~Search~@EditorSearch@
+   #Ctrl-F7#                 ~Replace~@EditorSearch@
    #Shift-F7#                Continue search/replace
    #Alt-F7#                  Continue search/replace in "reverse" mode
    #F8#                      Toggle OEM/ANSI code page
@@ -2430,6 +2430,21 @@ keypad inserts the character that has the specified code (0-65535).
 
     3. ^<wrap>If no block is selected, #Ctrl-Ins#/#Ctrl-C# marks the current
 line as a block and copies it to the clipboard.
+
+
+@EditorSearch
+$ #Editor: search/replace#
+    Для поиска и замены в ~редакторе~@Editor@ вам доступны следующие режимы и опции:
+
+      #Учитывать регистр#   - ^<wrap>при поиске будет учитываться регистр введенных символов
+
+      #Только целые слова#  - ^<wrap>при поиске будет произведен поиск только целого слова
+
+      #Обратный поиск#      - ^<wrap>изменить поиск на обратный - искать от конца файла к началу
+
+    В режиме поиска так же доступна опция:
+    
+      #Выделять найденное#  - ^<wrap>найденные последовательности будут выделены
 
 
 @FileOpenCreate

@@ -2486,8 +2486,8 @@ kurzorpozícióba (csak maradó blokk módban)
    #Alt-F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása
 (a Nyomtatásvezérlő pluginnel)
    #F6#                      ~Nézőke~@Viewer@ módba kapcsol
-   #F7#                      Keresés
-   #Ctrl-F7#                 Keresés és csere
+   #F7#                      ~Keresés~@EditorSearch@
+   #Ctrl-F7#                 ~Keresés és csere~@EditorSearch@
    #Shift-F7#                Keresés és csere folytatása
    #Alt-F7#                  Keresés és csere folytatása, visszafelé
    #F8#                      OEM/ANSI kódlap váltó
@@ -2538,6 +2538,9 @@ kijelölt blokk.
 
     3. ^<wrap>Ha nincs kijelölt blokk, a #Ctrl-Ins#/#Ctrl-C# kijelöli
 a teljes aktuális sort és a vágólapra másolja.
+
+@EditorSearch
+$ #Editor: search/replace#
 
 
 @FileOpenCreate

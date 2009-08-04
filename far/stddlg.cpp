@@ -219,7 +219,7 @@ int WINAPI GetSearchReplaceString (
     /*  4 */DI_CHECKBOX,5,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchCase,
     /*  5 */DI_CHECKBOX,5,6,0,6,0,0,0,0,(const wchar_t *)MEditSearchWholeWords,
     /*  6 */DI_CHECKBOX,5,7,0,7,0,0,0,0,(const wchar_t *)MEditSearchReverse,
-    /*  7 */DI_CHECKBOX,27,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchSelFound,
+    /*  7 */DI_CHECKBOX,40,5,0,5,0,0,0,0,(const wchar_t *)MEditSearchSelFound,
     /*  8 */DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
     /*  9 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MEditSearchSearch,
     /* 10 */DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MEditSearchCancel

@@ -3788,7 +3788,7 @@ BOOL Editor::Search(int Next)
     if(!GetSearchReplaceString(ReplaceMode,&strSearchStr,
                    &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
-                   &Case,&WholeWords,&ReverseSearch,&SelectFound))
+                   &Case,&WholeWords,&ReverseSearch,&SelectFound,L"EditorSearch"))
       return FALSE;
 
   // Cheack if need to modify current pos
