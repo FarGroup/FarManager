@@ -1,3 +1,10 @@
+svs 04.08.2009 11:27:36 +0300 - build 1067
+
+1. В GetSearchReplaceString() добавлен параметр HelpTopic - пора писать тему помощи для поиска/замены в редакторе (с учетом build 1063)
+
+2. В Panel::ChangeDiskMenu() избавимся от очередного str.Format()
+   (From Alexey Samlyukov)
+
 zg 03.08.2009 22:13:13 +0200 - build 1066
 
 1. опечатка в 1064.

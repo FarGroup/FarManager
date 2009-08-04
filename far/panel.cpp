@@ -846,15 +846,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if ( item && !item->bIsPlugin )
 					{
-						string strDosDeviceName;
-
-						strDosDeviceName.Format (L"%c:\\", item->cDrive);
+						wchar_t DosDeviceName[]={item->cDrive,L':',L'\\',L'\0'};
 						SHELLEXECUTEINFOW seInfo;
 						memset(&seInfo, 0, sizeof(seInfo));
 						seInfo.cbSize = sizeof(seInfo);
 						seInfo.nShow = SW_SHOW;
 						seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-						seInfo.lpFile = strDosDeviceName.GetBuffer();
+						seInfo.lpFile = DosDeviceName;
 						seInfo.lpVerb = L"properties";
 						ShellExecuteExW(&seInfo);
 					}

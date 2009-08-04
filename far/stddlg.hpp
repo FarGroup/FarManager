@@ -79,6 +79,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       Указатель на переменную, указывающую на значение опции "Select found"
       Если = NULL, то принимается значение 0 (не выделять найденное)
 
+    *HelpTopic
+      Имя темы помощи.
+      Если NULL или пустая строка - тема помощи не назначается.
+
   Возвращаемое значение:
     TRUE  - пользователь подтвердил свои намериния
     FALSE - пользователь отказался от диалога (Esc)
@@ -92,7 +96,8 @@ int WINAPI GetSearchReplaceString (
          int *Case,
          int *WholeWords,
          int *Reverse,
-         int *SelectFound);
+         int *SelectFound,
+         const wchar_t *HelpTopic=NULL);
 
 int __stdcall GetString(
 		const wchar_t *Title,

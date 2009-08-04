@@ -52,7 +52,8 @@ int WINAPI GetSearchReplaceString (
          int *Case,
          int *WholeWords,
          int *Reverse,
-         int *SelectFound)
+         int *SelectFound,
+         const wchar_t *HelpTopic)
 {
   if(!pSearchStr || (IsReplaceMode && !pReplaceStr))
     return FALSE;
@@ -178,6 +179,8 @@ int WINAPI GetSearchReplaceString (
     {
       Dialog Dlg(ReplaceDlg,countof(ReplaceDlg));
       Dlg.SetPosition(-1,-1,76,HeightDialog);
+      if (HelpTopic && *HelpTopic)
+        Dlg.SetHelp(HelpTopic);
       Dlg.Process();
       if (Dlg.GetExitCode()!=10)
         return FALSE;
@@ -302,6 +305,8 @@ int WINAPI GetSearchReplaceString (
     {
       Dialog Dlg(SearchDlg,countof(SearchDlg));
       Dlg.SetPosition(-1,-1,76,HeightDialog);
+      if (HelpTopic && *HelpTopic)
+        Dlg.SetHelp(HelpTopic);
       Dlg.Process();
       if (Dlg.GetExitCode()!=9)
         return FALSE;
