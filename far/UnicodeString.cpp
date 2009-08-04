@@ -176,7 +176,7 @@ UnicodeString& UnicodeString::Append(const UnicodeString &strAdd)
 
 UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd)
 {
-	return Append(lpwszAdd, StrLength(lpwszAdd));
+	return (lpwszAdd && *lpwszAdd)?Append(lpwszAdd, StrLength(lpwszAdd)):*this;
 }
 
 UnicodeString& UnicodeString::Append(wchar_t chAdd)

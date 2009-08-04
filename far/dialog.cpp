@@ -4130,7 +4130,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
         GetRegKey(strRegKey,strLine,Locked,0);
         HistoryItem.SetCheck(Locked);
         HistoryItem.strName = strStr;
-        HistoryMenu.SetUserData((void*)(const wchar_t*)strStr,0,HistoryMenu.AddItem(&HistoryItem));
+				HistoryMenu.SetUserData(strStr.CPtr(),0,HistoryMenu.AddItem(&HistoryItem));
         ItemsCount++;
       }
       if (ItemsCount==0)

@@ -84,9 +84,10 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
     Hide();
     Show();
   }
-  if (CloseFARMenu){
-    SetExitCode(TRUE);
-  }
+  if (CloseFARMenu)
+	{
+		SetExitCode(-1);
+	}
   return(ReadKey);
 }
 

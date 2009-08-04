@@ -56,13 +56,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fnparce.hpp"
 #include "strmix.hpp"
 
-static int DeleteTypeRecord(int DeletePos);
-static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
-static int GetDescriptionWidth (const wchar_t *Name=NULL, const wchar_t *ShortName=NULL);
-
 struct FileTypeStrings
 {
-    const wchar_t *Help,*HelpModify,
+	const wchar_t *Help,*HelpModify,*State,
         *Associations,*TypeFmt, *Type0,
         *Execute, *Desc, *Mask, *View, *Edit,
         *AltExec, *AltView, *AltEdit;
@@ -71,7 +67,7 @@ struct FileTypeStrings
 
 const FileTypeStrings FTS=
 {
-    L"FileAssoc",L"FileAssocModify",
+	L"FileAssoc",L"FileAssocModify",L"State",
     L"Associations",L"Associations\\Type%d",L"Associations\\Type",
     L"Execute",L"Description",L"Mask",L"View",L"Edit",
     L"AltExec",L"AltView",L"AltEdit"
@@ -84,31 +80,70 @@ const FileTypeStrings FTS=
    выполено, и FALSE в противном случае/
 */
 
-BOOL ExtractIfExistCommand (string &strCommandText)
+bool ExtractIfExistCommand (string &strCommandText)
 {
-  const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
+	bool Result=true;
+	const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
 
-  if (wPtrCmd)
-  {
-    // Во! Условие не выполнено!!!
-    // (например, пока рассматривали менюху, в это время)
-    // какой-то злобный чебурашка стер файл!
-    if (!*wPtrCmd)
-      return FALSE;
+	// Во! Условие не выполнено!!!
+	// (например, пока рассматривали менюху, в это время)
+	// какой-то злобный чебурашка стер файл!
+	if(wPtrCmd)
+	{
+		if(!*wPtrCmd)
+		{
+			Result=false;
+		}
+		else
+		{
+			size_t offset = wPtrCmd-(const wchar_t*)strCommandText;
+			wchar_t *CommandText = strCommandText.GetBuffer();
+			wchar_t *PtrCmd = CommandText+offset;
+			// прокинем "if exist"
+			wmemmove(CommandText+(*CommandText==L'@'?1:0),PtrCmd,StrLength(PtrCmd)+1);
+			strCommandText.ReleaseBuffer ();
+		}
+	}
+	return Result;
+}
 
-		size_t offset = wPtrCmd-(const wchar_t*)strCommandText;
-		wchar_t *CommandText = strCommandText.GetBuffer();
-		wchar_t *PtrCmd = CommandText+offset;
-    // прокинем "if exist"
-    if (*CommandText == L'@')
-      wmemmove(CommandText+1,PtrCmd,StrLength(PtrCmd)+1);
+int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
+{
+  int Width=0;
+	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
+	for(int NumLine=0;;NumLine++)
+	{
+		string strRegKey;
+		strRegKey.Format (FTS.TypeFmt, NumLine);
+		
+		string strMask;
+		if (!GetRegKey(strRegKey,FTS.Mask, strMask, L""))
+      break;
+
+		CFileMask FMask;
+    if(!FMask.Set(strMask, FMF_SILENT))
+      continue;
+
+		string strDescription;
+		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
+
+    int CurWidth;
+    if (Name == NULL)
+      CurWidth = HiStrlen(strDescription);
     else
-      wmemmove(CommandText,PtrCmd,StrLength(PtrCmd)+1);
-
-    strCommandText.ReleaseBuffer ();
+    {
+      if(!FMask.Compare(Name))
+        continue;
+			string strExpandedDesc = strDescription;
+      SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+      CurWidth = HiStrlen (strExpandedDesc);
+    }
+    if (CurWidth>Width)
+      Width=CurWidth;
   }
-
-  return TRUE;
+  if (Width>ScrX/2)
+    Width=ScrX/2;
+  return(Width);
 }
 
 /* $ 14.01.2001 SVS
@@ -120,137 +155,127 @@ BOOL ExtractIfExistCommand (string &strCommandText)
    Enter в ком строке - ассоциации.
 */
 /* $ 06.07.2001
-   + Используем CFileMaskW вместо GetCommaWord, этим самым добиваемся того, что
+   + Используем CFileMask вместо GetCommaWord, этим самым добиваемся того, что
      можно использовать маски исключения
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish)
+bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish)
 {
-  CFileMask FMask; // для работы с масками файлов
-  string Commands[32],Descriptions[32],strCommand;
-  int NumCommands[32];
-  int CommandCount=0;
-
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 
-  for (int I=0;;I++)
-  {
-    string strRegKey, strMask;
-		strRegKey.Format (FTS.TypeFmt,I);
+	MenuItemEx TypesMenuItem;
+	VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
+
+	TypesMenu.SetHelp(FTS.Help);
+	TypesMenu.SetFlags(VMENU_WRAPMODE);
+	TypesMenu.SetPosition(-1,-1,0,0);
+
+	int DizWidth=GetDescriptionWidth(Name, ShortName);
+	int ActualCmdCount=0; // отображаемых ассоциаций в меню
+
+	CFileMask FMask; // для работы с масками файлов
+	string strCommand, strDescription;
+	int CommandCount=0;
+	for (int I=0;;I++)
+	{
+		strCommand.SetLength(0);
+		string strRegKey, strMask;
+		strRegKey.Format(FTS.TypeFmt,I);
 		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
-      break;
-    if(FMask.Set(strMask, FMF_SILENT))
-    {
-      string strNewCommand;
-      if(FMask.Compare(Name))
-      {
-        switch(Mode)
-        {
-          case FILETYPE_EXEC:
-						GetRegKey(strRegKey,FTS.Execute,strNewCommand,L"");
-            break;
-          case FILETYPE_VIEW:
-						GetRegKey(strRegKey,FTS.View,strNewCommand, L"");
-            break;
-          case FILETYPE_EDIT:
-						GetRegKey(strRegKey,FTS.Edit,strNewCommand,L"");
-            break;
-          case FILETYPE_ALTEXEC:
-						GetRegKey(strRegKey,FTS.AltExec,strNewCommand,L"");
-            break;
-          case FILETYPE_ALTVIEW:
-						GetRegKey(strRegKey,FTS.AltView,strNewCommand,L"");
-            break;
-          case FILETYPE_ALTEDIT:
-						GetRegKey(strRegKey,FTS.AltEdit,strNewCommand,L"");
-            break;
-          default:
-            strNewCommand=L""; // обнулим на всякий пожарный
-        }
+			break;
+		if(FMask.Set(strMask,FMF_SILENT))
+		{
+			if(FMask.Compare(Name))
+			{
+				LPCWSTR Type=NULL;
+				switch(Mode)
+				{
+				case FILETYPE_EXEC:
+					Type=FTS.Execute;
+					break;
+				case FILETYPE_VIEW:
+					Type=FTS.View;
+					break;
+				case FILETYPE_EDIT:
+					Type=FTS.Edit;
+					break;
+				case FILETYPE_ALTEXEC:
+					Type=FTS.AltExec;
+					break;
+				case FILETYPE_ALTVIEW:
+					Type=FTS.AltView;
+					break;
+				case FILETYPE_ALTEDIT:
+					Type=FTS.AltEdit;
+					break;
+				}
+				DWORD State=GetRegKey(strRegKey,FTS.State,0xffffffff);
+				if(State&(1<<Mode))
+				{
+					string strNewCommand;
+					GetRegKey(strRegKey,Type,strNewCommand,L"");
+					if(!strNewCommand.IsEmpty())
+					{
+						strCommand = strNewCommand;
+						GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
+						CommandCount++;
+					}
+				}
+			}
+			if(strCommand.IsEmpty())
+				continue;
+		}
+		TypesMenuItem.Clear();
+		string strCommandText = strCommand;
+		SubstFileName(strCommandText,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 
-        if ( !strNewCommand.IsEmpty() && CommandCount<(int)countof(Commands))
-        {
-          strCommand = strNewCommand;
-          Commands[CommandCount] = strCommand;
-					GetRegKey(strRegKey,FTS.Desc,Descriptions[CommandCount],L"");
-          CommandCount++;
-        }
-      }
-    }
-  }
-  if (CommandCount==0)
-    return(FALSE);
-  if (CommandCount>1)
-  {
-    MenuItemEx TypesMenuItem;
-    VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
+		// все "подставлено", теперь проверим условия "if exist"
+		if (!ExtractIfExistCommand (strCommandText))
+			continue;
 
+		ActualCmdCount++;
 
-		TypesMenu.SetHelp(FTS.Help);
-    TypesMenu.SetFlags(VMENU_WRAPMODE);
-    TypesMenu.SetPosition(-1,-1,0,0);
+		string strMenuText;
+		if (DizWidth)
+		{
+			string strTitle;
+			if ( !strDescription.IsEmpty() )
+			{
+				strTitle = strDescription;
+				SubstFileName(strTitle, Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+			}
+			size_t Pos=0;
+			bool Ampersand=strTitle.Pos(Pos,L'&');
+			if(DizWidth+Ampersand>ScrX/2 && Ampersand && static_cast<int>(Pos)>DizWidth)
+				Ampersand=false;
+			strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
+		}
+		TruncStr(strCommandText,ScrX-DizWidth-14);
+		strMenuText += strCommandText;
+		TypesMenuItem.strName = strMenuText;
+		TypesMenuItem.SetSelect(I==0);
+		TypesMenu.SetUserData(strCommand.CPtr(),0,TypesMenu.AddItem(&TypesMenuItem));
+	}
 
-    int DizWidth=GetDescriptionWidth (Name, ShortName);
-    int ActualCmdCount=0; // отображаемых ассоциаций в меню
+	if(!CommandCount)
+		return false;
 
-    for (int I=0;I<CommandCount;I++)
-    {
-      string strCommandText, strMenuText;
+	if(!ActualCmdCount)
+		return true;
 
-      TypesMenuItem.Clear ();
-
-      strCommandText = Commands[I];
-      SubstFileName(strCommandText,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-
-      // все "подставлено", теперь проверим условия "if exist"
-      if (!ExtractIfExistCommand (strCommandText))
-        continue;
-
-      // запомним индекс оригинальной команды из мессива Commands
-      NumCommands[ActualCmdCount++]=I;
-
-      if (DizWidth==0)
-        strMenuText=L"";
-      else
-      {
-        string strTitle;
-        if ( !Descriptions[I].IsEmpty() )
-        {
-          strTitle = Descriptions[I];
-          SubstFileName(strTitle, Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-        }
-        else
-          strTitle=L"";
-
-        const wchar_t *PtrAmp;
-        int Ampersand=(PtrAmp=wcschr(strTitle,L'&'))!=NULL;
-        if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-(const wchar_t*)strTitle > DizWidth)
-          Ampersand=0;
-        strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,BoxSymbols[BS_V1]);
-      }
-      TruncStr(strCommandText,ScrX-DizWidth-14);
-      strMenuText += strCommandText;
-      TypesMenuItem.strName = strMenuText;
-      TypesMenuItem.SetSelect(I==0);
-      TypesMenu.AddItem(&TypesMenuItem);
-    }
-
-    if(!ActualCmdCount)
-      return(TRUE);
-
-    int ExitCode;
-    if(ActualCmdCount > 1)
-    {
-      TypesMenu.Process();
-      ExitCode=TypesMenu.Modal::GetExitCode();
-      if (ExitCode<0)
-        return(TRUE);
-    }
-    else
-      ExitCode=0;
-    strCommand = Commands[NumCommands[ExitCode]];
-  }
+	int ExitCode=0;
+	if(ActualCmdCount>1)
+	{
+		TypesMenu.Process();
+		ExitCode=TypesMenu.Modal::GetExitCode();
+		if(ExitCode<0)
+			return true;
+	}
+	int Size=TypesMenu.GetUserDataSize(ExitCode);
+	LPWSTR Command=strCommand.GetBuffer(Size/sizeof(wchar_t));
+	TypesMenu.GetUserData(Command,Size,ExitCode);
+	strCommand.ReleaseBuffer(Size);
 
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
@@ -264,16 +289,15 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 		RemoveExternalSpaces(strCommand);
 		if ( !strCommand.IsEmpty() )
 		{
-			bool isSilent=false;
-			if(strCommand.At(0) == L'@')
+			bool isSilent=(strCommand.At(0)==L'@');
+			if(isSilent)
 			{
-				strCommand=(const wchar_t*)strCommand+1;
-				isSilent=true;
+				strCommand.LShift(1);
 			}
 
 			ProcessOSAliases(strCommand);
 
-			if ( !isSilent )
+			if(!isSilent)
 			{
 				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
 				if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
@@ -317,38 +341,34 @@ int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,
 	if ( !strAnotherShortListName.IsEmpty() )
 		apiDeleteFile (strAnotherShortListName);
 
-	return(TRUE);
+	return true;
 }
 
 
-int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
+bool ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
-  string strValue;
-  const wchar_t *ExtPtr;
-
-  if ((ExtPtr=wcsrchr(Name,L'.'))==NULL)
-    return(FALSE);
-
-  string strType;
-  if (!GetShellType(ExtPtr, strType, AT_FILEEXTENSION))
-	  return(FALSE);
-
-  string strFullName;
-
-  ConvertNameToFull(Name,strFullName);
-
-  QuoteSpace(strFullName);
-
-  CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
-  if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish) //AN
-  {
-    string strQuotedName = Name;
-    QuoteSpace(strQuotedName);
-    CtrlObject->CmdHistory->AddToHistory(strQuotedName);
-  }
-  return TRUE;
+	bool Result=false;
+	const wchar_t *ExtPtr=wcsrchr(Name,L'.');
+	if(ExtPtr)
+	{
+		string strType;
+		if(GetShellType(ExtPtr,strType,AT_FILEEXTENSION))
+		{
+			string strFullName;
+			ConvertNameToFull(Name,strFullName);
+			QuoteSpace(strFullName);
+			CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
+			if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
+			{
+				string strQuotedName = Name;
+				QuoteSpace(strQuotedName);
+				CtrlObject->CmdHistory->AddToHistory(strQuotedName);
+			}
+			Result=true;
+		}
+	}
+	return Result;
 }
-
 
 /*
   Используется для запуска внешнего редактора и вьювера
@@ -408,55 +428,224 @@ void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *S
 
 static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 {
-  int NumLine=0;
-  int DizWidth=GetDescriptionWidth();
-  MenuItemEx TypesMenuItem;
-
-  TypesMenu->DeleteItems();
-  while (1)
-  {
-    string strRegKey, strMask, strMenuText;
+	int DizWidth=GetDescriptionWidth();
+	MenuItemEx TypesMenuItem;
+	TypesMenu->DeleteItems();
+	int NumLine=0;
+	for(;;NumLine++)
+	{
+		string strRegKey;
 		strRegKey.Format (FTS.TypeFmt,NumLine);
-
-    TypesMenuItem.Clear ();
-
-		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
-      break;
-    if (DizWidth==0)
-      strMenuText=L"";
-    else
-    {
-      string strTitle, strDescription;
+		TypesMenuItem.Clear();
+		string strMask;
+		if(!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
+		{
+			break;
+		}
+		string strMenuText;
+		if(DizWidth)
+		{
+			string strDescription;
 			GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
-      if ( !strDescription.IsEmpty() )
-        strTitle = strDescription;
-      else
-        strTitle = L"";
-      const wchar_t *PtrAmp;
-      int Ampersand=(PtrAmp=wcschr(strTitle,L'&'))!=NULL;
-      if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-(const wchar_t*)strTitle > DizWidth)
-        Ampersand=0;
-      strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,(const wchar_t*)strTitle,BoxSymbols[BS_V1]);
-    }
-    //TruncStr(strMask,ScrX-DizWidth-14);
-    strMenuText += strMask;
-    TypesMenuItem.strName = strMenuText;
-    TypesMenuItem.SetSelect(NumLine==MenuPos);
-    TypesMenu->AddItem(&TypesMenuItem);
-    NumLine++;
-  }
-  TypesMenuItem.strName=L"";
-  TypesMenuItem.SetSelect(NumLine==MenuPos);
-  TypesMenu->AddItem(&TypesMenuItem);
-  return NumLine;
+			string strTitle=strDescription;
+			size_t Pos=0;
+			bool Ampersand=strTitle.Pos(Pos,L'&');
+			if(DizWidth+Ampersand > ScrX/2 && Ampersand && static_cast<int>(Pos) > DizWidth)
+				Ampersand=false;
+			strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
+		}
+		//TruncStr(strMask,ScrX-DizWidth-14);
+		strMenuText += strMask;
+		TypesMenuItem.strName = strMenuText;
+		TypesMenuItem.SetSelect(NumLine==MenuPos);
+		TypesMenu->AddItem(&TypesMenuItem);
+	}
+	TypesMenuItem.strName=L"";
+	TypesMenuItem.SetSelect(NumLine==MenuPos);
+	TypesMenu->AddItem(&TypesMenuItem);
+	return NumLine;
+}
+
+void MoveMenuItem(int Pos,int NewPos)
+{
+	string strSrc,strDst,strTmp;
+	strSrc.Format(FTS.TypeFmt,Pos);
+	strDst.Format(FTS.TypeFmt,NewPos);
+	strTmp.Format(L"Associations\\Tmp%u",GetTickCount());
+	CopyLocalKeyTree(strDst,strTmp);
+	DeleteKeyTree(strDst);
+	CopyLocalKeyTree(strSrc,strDst);
+	DeleteKeyTree(strSrc);
+	CopyLocalKeyTree(strTmp,strSrc);
+	DeleteKeyTree(strTmp);
+}
+
+enum EDITTYPERECORD
+{
+	ETR_DOUBLEBOX,
+	ETR_TEXT_MASKS,
+	ETR_EDIT_MASKS,
+	ETR_TEXT_DESCR,
+	ETR_EDIT_DESCR,
+	ETR_SEPARATOR1,
+	ETR_COMBO_EXEC,
+	ETR_EDIT_EXEC,
+	ETR_COMBO_ALTEXEC,
+	ETR_EDIT_ALTEXEC,
+	ETR_COMBO_VIEW,
+	ETR_EDIT_VIEW,
+	ETR_COMBO_ALTVIEW,
+	ETR_EDIT_ALTVIEW,
+	ETR_COMBO_EDIT,
+	ETR_EDIT_EDIT,
+	ETR_COMBO_ALTEDIT,
+	ETR_EDIT_ALTEDIT,
+	ETR_SEPARATOR2,
+	ETR_BUTTON_OK,
+	ETR_BUTTON_CANCEL,
+};
+
+LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+{
+	switch(Msg)
+	{
+	case DN_BTNCLICK:
+		switch(Param1)
+		{
+		case ETR_COMBO_EXEC:
+		case ETR_COMBO_ALTEXEC:
+		case ETR_COMBO_VIEW:
+		case ETR_COMBO_ALTVIEW:
+		case ETR_COMBO_EDIT:
+		case ETR_COMBO_ALTEDIT:
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
+			break;
+		}
+		break;
+	case DN_CLOSE:
+		if(Param1==ETR_BUTTON_OK)
+		{
+			BOOL Result=TRUE;
+			LPCWSTR Masks=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
+			CFileMask FMask;
+			if(!FMask.Set(Masks,0))
+			{
+				Result=FALSE;
+			}
+			return Result;
+		}
+		break;
+	}
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
+bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
+{
+	bool Result=false;
+	const int DlgX=76,DlgY=23;
+	DialogDataEx EditDlgData[]=
+	{
+		DI_DOUBLEBOX,3, 1,DlgX-4,DlgY-2,0,0,0,0,MSG(MFileAssocTitle),
+		DI_TEXT,     5, 2, 0, 2,0,0,0,0,MSG(MFileAssocMasks),
+		DI_EDIT,     5, 3,DlgX-6, 3,1,(DWORD_PTR)L"Masks",DIF_HISTORY,0,L"",
+		DI_TEXT,     5, 4, 0, 4,0,0,0,0,MSG(MFileAssocDescr),
+		DI_EDIT,     5, 5,DlgX-6, 5,0,0,0,0,L"",
+		DI_TEXT,     3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_CHECKBOX, 5, 7, 0, 7,0,1,0,0,MSG(MFileAssocExec),
+		DI_EDIT,     9, 8,DlgX-6, 8,0,0,0,0,L"",
+		DI_CHECKBOX, 5, 9, 0, 9,0,1,0,0,MSG(MFileAssocAltExec),
+		DI_EDIT,     9,10,DlgX-6,10,0,0,0,0,L"",
+		DI_CHECKBOX, 5,11, 0,11,0,1,0,0,MSG(MFileAssocView),
+		DI_EDIT,     9,12,DlgX-6,12,0,0,0,0,L"",
+		DI_CHECKBOX, 5,13, 0,13,0,1,0,0,MSG(MFileAssocAltView),
+		DI_EDIT,     9,14,DlgX-6,14,0,0,0,0,L"",
+		DI_CHECKBOX, 5,15, 0,15,0,1,0,0,MSG(MFileAssocEdit),
+		DI_EDIT,     9,16,DlgX-6,16,0,0,0,0,L"",
+		DI_CHECKBOX, 5,17, 0,17,0,1,0,0,MSG(MFileAssocAltEdit),
+		DI_EDIT,     9,18,DlgX-6,18,0,0,0,0,L"",
+		DI_TEXT,     3,DlgY-4, 0,DlgY-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+	};
+	MakeDialogItemsEx(EditDlgData,EditDlg);
+	string strRegKey;
+	strRegKey.Format (FTS.TypeFmt,EditPos);
+	if(!NewRec)
+	{
+		GetRegKey(strRegKey,FTS.Mask,EditDlg[ETR_EDIT_MASKS].strData,L"");
+		GetRegKey(strRegKey,FTS.Desc,EditDlg[ETR_EDIT_DESCR].strData,L"");
+		GetRegKey(strRegKey,FTS.Execute,EditDlg[ETR_EDIT_EXEC].strData,L"");
+		GetRegKey(strRegKey,FTS.AltExec,EditDlg[ETR_EDIT_ALTEXEC].strData,L"");
+		GetRegKey(strRegKey,FTS.View,EditDlg[ETR_EDIT_VIEW].strData,L"");
+		GetRegKey(strRegKey,FTS.AltView,EditDlg[ETR_EDIT_ALTVIEW].strData,L"");
+		GetRegKey(strRegKey,FTS.Edit,EditDlg[ETR_EDIT_EDIT].strData,L"");
+		GetRegKey(strRegKey,FTS.AltEdit,EditDlg[ETR_EDIT_ALTEDIT].strData,L"");
+
+		DWORD State=GetRegKey(strRegKey,FTS.State,0xffffffff);
+		for(int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC;i<=FILETYPE_ALTEDIT;i++,Item+=2)
+		{
+			if(!(State&(1<<i)))
+			{
+				EditDlg[Item].Selected=BSTATE_UNCHECKED;
+				EditDlg[Item+1].Flags|=DIF_DISABLE;
+			}
+		}
+	}
+	Dialog Dlg(EditDlg,countof(EditDlg),EditTypeRecordDlgProc);
+	Dlg.SetHelp(FTS.HelpModify);
+	Dlg.SetPosition(-1,-1,DlgX,DlgY);
+	Dlg.Process();
+	if(Dlg.GetExitCode()==ETR_BUTTON_OK)
+	{
+		if(NewRec)
+		{
+			InsertKeyRecord(FTS.TypeFmt,EditPos,TotalRecords);
+		}
+
+		SetRegKey(strRegKey,FTS.Mask,EditDlg[ETR_EDIT_MASKS].strData);
+		SetRegKey(strRegKey,FTS.Desc,EditDlg[ETR_EDIT_DESCR].strData);
+		SetRegKey(strRegKey,FTS.Execute,EditDlg[ETR_EDIT_EXEC].strData);
+		SetRegKey(strRegKey,FTS.AltExec,EditDlg[ETR_EDIT_ALTEXEC].strData);
+		SetRegKey(strRegKey,FTS.View,EditDlg[ETR_EDIT_VIEW].strData);
+		SetRegKey(strRegKey,FTS.AltView,EditDlg[ETR_EDIT_ALTVIEW].strData);
+		SetRegKey(strRegKey,FTS.Edit,EditDlg[ETR_EDIT_EDIT].strData);
+		SetRegKey(strRegKey,FTS.AltEdit,EditDlg[ETR_EDIT_ALTEDIT].strData);
+
+		DWORD State=0;
+		for(int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC;i<=FILETYPE_ALTEDIT;i++,Item+=2)
+		{
+			if(EditDlg[Item].Selected==BSTATE_CHECKED)
+			{
+				State|=(1<<i);
+			}
+		}
+		SetRegKey(strRegKey,FTS.State,State);
+
+		Result=true;
+	}
+	return Result;
+}
+
+bool DeleteTypeRecord(int DeletePos)
+{
+	bool Result=false;
+	string strRecText, strRegKey;
+	strRegKey.Format (FTS.TypeFmt,DeletePos);
+	GetRegKey(strRegKey,FTS.Mask,strRecText,L"");
+	string strItemName=strRecText;
+	InsertQuote(strItemName);
+	if(!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel)))
+	{
+		DeleteKeyRecord(FTS.TypeFmt,DeletePos);
+		Result=true;
+	}
+	return Result;
 }
 
 void EditFileTypes()
 {
   int NumLine=0;
   int MenuPos=0;
-  int m;
-  BOOL MenuModified;
 
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 
@@ -469,16 +658,16 @@ void EditFileTypes()
   {
     while (1)
     {
-      MenuModified=TRUE;
+			bool MenuModified=true;
       while (!TypesMenu.Done())
       {
-        if (MenuModified==TRUE)
+				if(MenuModified)
         {
           TypesMenu.Hide();
           NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
           TypesMenu.SetPosition(-1,-1,-1,-1);
           TypesMenu.Show();
-          MenuModified=FALSE;
+          MenuModified=false;
         }
 
         DWORD Key=TypesMenu.ReadInput();
@@ -489,29 +678,44 @@ void EditFileTypes()
           case KEY_DEL:
             if (MenuPos<NumLine)
               DeleteTypeRecord(MenuPos);
-            MenuModified=TRUE;
+            MenuModified=true;
             break;
           case KEY_NUMPAD0:
           case KEY_INS:
-            EditTypeRecord(MenuPos,NumLine,1);
-            MenuModified=TRUE;
+            EditTypeRecord(MenuPos,NumLine,true);
+            MenuModified=true;
             break;
           case KEY_NUMENTER:
           case KEY_ENTER:
           case KEY_F4:
             if (MenuPos<NumLine)
-              EditTypeRecord(MenuPos,NumLine,0);
-            MenuModified=TRUE;
+              EditTypeRecord(MenuPos,NumLine,false);
+            MenuModified=true;
             break;
+					case KEY_CTRLUP:
+					case KEY_CTRLDOWN:
+						{
+							if(MenuPos!=TypesMenu.GetItemCount()-1)
+							{
+								if(!(Key==KEY_CTRLUP && !MenuPos) && !(Key==KEY_CTRLDOWN && MenuPos==TypesMenu.GetItemCount()-2))
+								{
+									int NewMenuPos=MenuPos+(Key==KEY_CTRLUP?-1:+1);
+									MoveMenuItem(MenuPos,NewMenuPos);
+									MenuPos=NewMenuPos;
+									MenuModified=true;
+								}
+							}
+						}
+						break;
           default:
             TypesMenu.ProcessInput();
             break;
         }
       }
-      m=TypesMenu.Modal::GetExitCode();
-      if (m!=-1)
+			int ExitCode=TypesMenu.Modal::GetExitCode();
+			if(ExitCode!=-1)
       {
-        MenuPos=m;
+				MenuPos=ExitCode;
         TypesMenu.ClearDone();
         TypesMenu.WriteInput(KEY_F4);
         continue;
@@ -519,139 +723,4 @@ void EditFileTypes()
       break;
     }
   }
-}
-
-
-int DeleteTypeRecord(int DeletePos)
-{
-	string strRecText, strRegKey;
-	strRegKey.Format (FTS.TypeFmt,DeletePos);
-	GetRegKey(strRegKey,FTS.Mask,strRecText,L"");
-	string strItemName=strRecText;
-	InsertQuote(strItemName);
-	if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel))!=0)
-		return(FALSE);
-	DeleteKeyRecord(FTS.TypeFmt,DeletePos);
-	return(TRUE);
-}
-
-int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
-{
-  const wchar_t *HistoryName=L"Masks";
-
-	static DialogDataEx EditDlgData[]={
-/* 00 */ DI_DOUBLEBOX,3, 1,72,21,0,0,0,0,(const wchar_t *)MFileAssocTitle,
-/* 01 */ DI_TEXT,     5, 2, 0, 2,0,0,0,0,(const wchar_t *)MFileAssocMasks,
-/* 02 */ DI_EDIT,     5, 3,70, 3,1,(DWORD_PTR)HistoryName,DIF_HISTORY,0,L"",
-/* 03 */ DI_TEXT,     5, 4, 0, 4,0,0,0,0,(const wchar_t *)MFileAssocDescr,
-/* 04 */ DI_EDIT,     5, 5,70, 5,0,0,0,0,L"",
-/* 05 */ DI_TEXT,     3, 6, 0, 6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-/* 06 */ DI_TEXT,     5, 7, 0, 7,0,0,0,0,(const wchar_t *)MFileAssocExec,
-/* 07 */ DI_EDIT,     5, 8,70, 8,0,0,0,0,L"",
-/* 08 */ DI_TEXT,     5, 9, 0, 9,0,0,0,0,(const wchar_t *)MFileAssocAltExec,
-/* 09 */ DI_EDIT,     5,10,70,10,0,0,0,0,L"",
-/* 10 */ DI_TEXT,     5,11, 0,11,0,0,0,0,(const wchar_t *)MFileAssocView,
-/* 11 */ DI_EDIT,     5,12,70,12,0,0,0,0,L"",
-/* 12 */ DI_TEXT,     5,13, 0,13,0,0,0,0,(const wchar_t *)MFileAssocAltView,
-/* 13 */ DI_EDIT,     5,14,70,14,0,0,0,0,L"",
-/* 14 */ DI_TEXT,     5,15, 0,15,0,0,0,0,(const wchar_t *)MFileAssocEdit,
-/* 15 */ DI_EDIT,     5,16,70,16,0,0,0,0,L"",
-/* 16 */ DI_TEXT,     5,17, 0,17,0,0,0,0,(const wchar_t *)MFileAssocAltEdit,
-/* 17 */ DI_EDIT,     5,18,70,18,0,0,0,0,L"",
-/* 18 */ DI_TEXT,     3,19, 0,19,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-/* 19 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-/* 20 */ DI_BUTTON,   0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
-  };
-  MakeDialogItemsEx(EditDlgData,EditDlg);
-
-  string strRegKey;
-	strRegKey.Format (FTS.TypeFmt,EditPos);
-  if (!NewRec)
-  {
-		GetRegKey(strRegKey,FTS.Mask,EditDlg[2].strData,L"");
-		GetRegKey(strRegKey,FTS.Desc,EditDlg[4].strData,L"");
-		GetRegKey(strRegKey,FTS.Execute,EditDlg[7].strData,L"");
-		GetRegKey(strRegKey,FTS.AltExec,EditDlg[9].strData,L"");
-		GetRegKey(strRegKey,FTS.View,EditDlg[11].strData,L"");
-		GetRegKey(strRegKey,FTS.AltView,EditDlg[13].strData,L"");
-		GetRegKey(strRegKey,FTS.Edit,EditDlg[15].strData,L"");
-		GetRegKey(strRegKey,FTS.AltEdit,EditDlg[17].strData,L"");
-  }
-
-  {
-		Dialog Dlg(EditDlg,countof(EditDlg));
-		Dlg.SetHelp(FTS.HelpModify);
-    Dlg.SetPosition(-1,-1,76,23);
-
-    CFileMask FMask;
-    for(;;)
-    {
-      Dlg.ClearDone();
-      Dlg.Process();
-
-      if (Dlg.GetExitCode()!=19)
-        return(FALSE);
-      if ( EditDlg[2].strData.IsEmpty() )
-      {
-        Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MAssocNeedMask), MSG(MOk));
-        continue;
-      }
-
-      if(FMask.Set(EditDlg[2].strData, 0))
-        break;
-    }
-  }
-
-  if (NewRec)
-		InsertKeyRecord(FTS.TypeFmt,EditPos,TotalRecords);
-
-	SetRegKey(strRegKey,FTS.Mask,EditDlg[2].strData);
-	SetRegKey(strRegKey,FTS.Desc,EditDlg[4].strData);
-	SetRegKey(strRegKey,FTS.Execute,EditDlg[7].strData);
-	SetRegKey(strRegKey,FTS.AltExec,EditDlg[9].strData);
-	SetRegKey(strRegKey,FTS.View,EditDlg[11].strData);
-	SetRegKey(strRegKey,FTS.AltView,EditDlg[13].strData);
-	SetRegKey(strRegKey,FTS.Edit,EditDlg[15].strData);
-	SetRegKey(strRegKey,FTS.AltEdit,EditDlg[17].strData);
-
-  return(TRUE);
-}
-
-int GetDescriptionWidth (const wchar_t *Name, const wchar_t *ShortName)
-{
-  int Width=0,NumLine=0;
-	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
-  while (1)
-  {
-    CFileMask FMask;
-
-    string strRegKey, strMask, strDescription;
-		strRegKey.Format (FTS.TypeFmt, NumLine);
-		if (!GetRegKey(strRegKey,FTS.Mask, strMask, L""))
-      break;
-    NumLine++;
-
-    if(!FMask.Set(strMask, FMF_SILENT))
-      continue;
-
-		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
-    int CurWidth;
-    if (Name == NULL)
-      CurWidth = HiStrlen(strDescription);
-    else
-    {
-      if(!FMask.Compare(Name))
-        continue;
-      string strExpandedDesc;
-
-      strExpandedDesc = strDescription;
-      SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-      CurWidth = HiStrlen (strExpandedDesc);
-    }
-    if (CurWidth>Width)
-      Width=CurWidth;
-  }
-  if (Width>ScrX/2)
-    Width=ScrX/2;
-  return(Width);
 }

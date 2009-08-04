@@ -508,7 +508,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
          if(LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
          {
            LangMenuItem.SetSelect(StrCmpI(*strDest,strLangName)==0);
-           LangMenu->SetUserData((void*)(const wchar_t*)strLangName,0,LangMenu->AddItem(&LangMenuItem));
+						LangMenu->SetUserData(strLangName.CPtr(),0,LangMenu->AddItem(&LangMenuItem));
          }
        }
     }

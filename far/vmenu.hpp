@@ -307,7 +307,7 @@ class VMenu: public Modal
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);
-    int  SetUserData(void *Data,int Size=0,int Position=-1);
+    int  SetUserData(LPCVOID Data,int Size=0,int Position=-1);
 
     int  GetSelectPos() {return VMFlags.Check(VMENU_SELECTPOSNONE)?-1:SelectPos;}
     int  GetSelectPos(struct FarListPos *ListPos);

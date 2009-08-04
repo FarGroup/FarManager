@@ -774,7 +774,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				mitem.Clear();
 				mitem.strName = PointToName(handle->pPlugin->GetModuleName());
 
-				menu.SetUserData((void*)handle, sizeof(handle), menu.AddItem(&mitem));
+				menu.SetUserData(handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
 			if ( Opt.PluginConfirm.StandardAssociation )
@@ -1366,7 +1366,7 @@ void PluginManager::Configure(int StartPos)
 						item.pPlugin = pPlugin;
 						item.nItem = J;
 
-						PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
 					}
 				}
 
@@ -1545,7 +1545,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						item.pPlugin = pPlugin;
 						item.nItem = J;
 
-						PluginList.SetUserData((void*)&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
+						PluginList.SetUserData(&item, sizeof(PluginMenuItemData),PluginList.AddItem(&ListItem));
 					}
 				}
 

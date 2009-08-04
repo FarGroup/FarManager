@@ -1746,6 +1746,10 @@ desired association from the menu.
 
     #Del#        - delete the current association
 
+    #Ctrl-Up#    - move association up
+
+    #Ctrl-Down#  - move association down
+
     If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, FAR tries to use Windows association to execute this file type;

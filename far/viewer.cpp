@@ -1556,7 +1556,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
     {
-      if (LeftPos<MAX_VIEWLINE && ViewFile && !VM.Hex)
+			if (LeftPos<MAX_VIEWLINE && ViewFile && !VM.Hex && !VM.Wrap)
       {
         LeftPos++;
         Show();
@@ -1597,7 +1597,7 @@ int Viewer::ProcessKey(int Key)
           if (FilePos >= FileSize)
             FilePos=FileSize-1; //??
         }
-        else
+				else if(!VM.Wrap)
         {
           LeftPos+=20;
           if (LeftPos>MAX_VIEWLINE)

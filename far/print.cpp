@@ -81,7 +81,7 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
-		PrinterList->SetUserData((void *)printer->pPrinterName,0,PrinterList->AddItem(&Item));
+		PrinterList->SetUserData(printer->pPrinterName,0,PrinterList->AddItem(&Item));
 	}
 	if (!bDefaultPrinterFound)
 		PrinterList->SetSelectPos(0, 1);

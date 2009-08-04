@@ -34,19 +34,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Работа с ассоциациями файлов
-enum {
-  FILETYPE_EXEC,       // Enter
-  FILETYPE_VIEW,       // F3
-  FILETYPE_EDIT,       // F4
-  FILETYPE_ALTEXEC,    // Ctrl-PgDn
-  FILETYPE_ALTVIEW,    // Alt-F3
-  FILETYPE_ALTEDIT     // Alt-F4
+enum
+{
+	FILETYPE_EXEC,       // Enter
+	FILETYPE_ALTEXEC,    // Ctrl-PgDn
+	FILETYPE_VIEW,       // F3
+	FILETYPE_ALTVIEW,    // Alt-F3
+	FILETYPE_EDIT,       // F4
+	FILETYPE_ALTEDIT     // Alt-F4
 };
 
-int ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish);
-int ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish);
+bool ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish);
+bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish);
-BOOL ExtractIfExistCommand(string &strCommandText);
+bool ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
 
 #endif // __FILETYPE_HPP__

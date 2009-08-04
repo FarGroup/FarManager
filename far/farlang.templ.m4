@@ -5708,14 +5708,6 @@ MAskDelAssoc
 "Törölni szeretné a társítást?"
 "Czy chcesz usunąć przypisanie dla"
 
-MAssocNeedMask
-"Пожалуйста, укажите маску файлов"
-"Please specify a file mask"
-"Prosím zadejte masku souborů"
-"Bitte geben Sie eine Dateimaske an"
-"Kérem, adjon meg egy fájlmaszkot!"
-"Proszę podać maskę pliku"
-
 MFileAssocTitle
 l:
 "Редактирование ассоциаций файлов"

@@ -2559,7 +2559,7 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 }
 
 // Присовокупить к итему данные.
-int VMenu::SetUserData(void *Data,   // Данные
+int VMenu::SetUserData(LPCVOID Data,   // Данные
                        int Size,     // Размер, если =0 то предполагается, что в Data-строка
                        int Position) // номер итема
 {

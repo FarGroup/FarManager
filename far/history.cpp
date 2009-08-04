@@ -472,7 +472,7 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 				if (!SetUpMenuPos)
 					MenuItem.SetSelect(CurrentItem==HistoryItem || (!CurrentItem && HistoryItem==HistoryList.Last()));
 
-				HistoryMenu.SetUserData((void*)HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&MenuItem));
+				HistoryMenu.SetUserData(HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&MenuItem));
 			}
 
 			//MenuItem.Clear ();
