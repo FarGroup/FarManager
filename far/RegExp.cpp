@@ -302,59 +302,56 @@ Setter operator[](rechar idx)
     if(high[i])delete [] high[i];
   }
 }
-bool GetBit(rechar chr)const
+bool CheckType(int t, rechar chr) const
 {
-  int tps=negative?~types:types;
-  int ntps=negative?~nottypes:nottypes;
-  if(tps)
+  switch (t)
+  {
+    case TYPE_DIGITCHAR:if(ISDIGIT(chr))return true;else break;
+    case TYPE_SPACECHAR:if(ISSPACE(chr))return true;else break;
+    case TYPE_WORDCHAR: if(ISWORD(chr)) return true;else break;
+    case TYPE_LOWCASE:  if(ISLOWER(chr))return true;else break;
+    case TYPE_UPCASE:   if(ISUPPER(chr))return true;else break;
+    case TYPE_ALPHACHAR:if(ISALPHA(chr))return true;else break;
+  }
+  return false;
+}
+bool GetBit(rechar chr) const
+{
+  if (types)
   {
     int t=TYPE_ALPHACHAR;
-    while(t)
+    while (t)
     {
-      if(tps&t)
+      if (types&t)
       {
-        switch(t)
-        {
-          case TYPE_DIGITCHAR:if(ISDIGIT(chr))return true;else break;
-          case TYPE_SPACECHAR:if(ISSPACE(chr))return true;else break;
-          case TYPE_WORDCHAR: if(ISWORD(chr)) return true;else break;
-          case TYPE_LOWCASE:  if(ISLOWER(chr))return true;else break;
-          case TYPE_UPCASE:   if(ISUPPER(chr))return true;else break;
-          case TYPE_ALPHACHAR:if(ISALPHA(chr))return true;else break;
-        }
+        if (CheckType(t,chr))
+          return negative?false:true;
       }
       t>>=1;
     }
   }
-  if(ntps)
+  if (nottypes)
   {
     int t=TYPE_ALPHACHAR;
-    while(t)
+    while (t)
     {
-      if(ntps&t)
+      if (nottypes&t)
       {
-        switch(t)
-        {
-          case TYPE_DIGITCHAR:if(!ISDIGIT(chr))return true;else break;
-          case TYPE_SPACECHAR:if(!ISSPACE(chr))return true;else break;
-          case TYPE_WORDCHAR: if(!ISWORD(chr)) return true;else break;
-          case TYPE_LOWCASE:  if(!ISLOWER(chr))return true;else break;
-          case TYPE_UPCASE:   if(!ISUPPER(chr))return true;else break;
-          case TYPE_ALPHACHAR:if(!ISALPHA(chr))return true;else break;
-        }
+        if (!CheckType(t,chr))
+          return negative?false:true;
       }
       t>>=1;
     }
   }
+
   unsigned char h=(chr&0xff00)>>8;
-  if(!high[h])return negative?true:false;
+  if(!high[h]) return negative?true:false;
   if(((high[h][(chr&0xff)>>3]&(1<<(chr&7)))!=0?1:0))
   {
     return negative?false:true;
-  }else
-  {
-    return negative?true:false;
   }
+
+  return negative?true:false;
 }
 void SetBit(rechar  chr)
 {
