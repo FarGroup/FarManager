@@ -65,17 +65,20 @@ FileFilterParams::FileFilterParams()
 
 const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 {
-  SetTitle(FF.GetTitle());
-  const wchar_t *Mask;
-  FF.GetMask(&Mask);
-  SetMask(FF.GetMask(NULL),Mask);
-  memcpy(&FSize,&FF.FSize,sizeof(FSize));
-  memcpy(&FDate,&FF.FDate,sizeof(FDate));
-  memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
-  FF.GetColors(&FHighlight.Colors);
-  FHighlight.SortGroup=FF.GetSortGroup();
-  FHighlight.bContinueProcessing=FF.GetContinueProcessing();
-  memcpy(FFlags,FF.FFlags,sizeof(FFlags));
+  if (this != &FF)
+  {
+    SetTitle(FF.GetTitle());
+    const wchar_t *Mask;
+    FF.GetMask(&Mask);
+    SetMask(FF.GetMask(NULL),Mask);
+    memcpy(&FSize,&FF.FSize,sizeof(FSize));
+    memcpy(&FDate,&FF.FDate,sizeof(FDate));
+    memcpy(&FAttr,&FF.FAttr,sizeof(FAttr));
+    FF.GetColors(&FHighlight.Colors);
+    FHighlight.SortGroup=FF.GetSortGroup();
+    FHighlight.bContinueProcessing=FF.GetContinueProcessing();
+    memcpy(FFlags,FF.FFlags,sizeof(FFlags));
+  }
   return *this;
 }
 
@@ -94,14 +97,14 @@ string &Add_PATHEXT(string &strDest)
   string strBuf;
   size_t curpos=strDest.GetLength()-1;
   UserDefinedList MaskList(0,0,ULF_UNIQUE);
-  if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
+  if (apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
   {
     /* $ 13.10.2002 IS проверка на '|' (маски исключени€) */
-    if( !strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
+    if (!strDest.IsEmpty() && strDest.At(curpos)!=L',' && strDest.At(curpos)!=L'|')
       strDest += L",";
     const wchar_t *Ptr;
     MaskList.Reset();
-    while(NULL!=(Ptr=MaskList.GetNext()))
+    while (NULL!=(Ptr=MaskList.GetNext()))
     {
       strDest += L"*";
       strDest += Ptr;
@@ -110,7 +113,7 @@ string &Add_PATHEXT(string &strDest)
   }
   // лишн€€ зап€та€ - в морг!
   curpos=strDest.GetLength()-1;
-  if(strDest.At(curpos) == L',')
+  if (strDest.At(curpos) == L',')
     strDest.SetLength(curpos);
   return strDest;
 }
@@ -270,8 +273,8 @@ bool FileFilterParams::FileInFilter(const FileListItem *fli, unsigned __int64 Cu
   fd.ftLastWriteTime=fli->WriteTime;
   fd.nFileSize=fli->UnpSize;
   fd.nPackSize=fli->PackSize;
-  fd.lpwszFileName=(wchar_t *)(const wchar_t *)fli->strName;
-  fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fli->strShortName;
+  fd.lpwszFileName=(wchar_t *)fli->strName.CPtr();
+  fd.lpwszAlternateFileName=(wchar_t *)fli->strShortName.CPtr();
 
   return FileInFilter(&fd, CurrentTime);
 }
@@ -286,8 +289,8 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX *fde, unsigned __int6
   fd.ftLastWriteTime=fde->ftLastWriteTime;
   fd.nFileSize=fde->nFileSize;
   fd.nPackSize=fde->nPackSize;
-  fd.lpwszFileName=(wchar_t *)(const wchar_t *)fde->strFileName;
-  fd.lpwszAlternateFileName=(wchar_t *)(const wchar_t *)fde->strAlternateFileName;
+  fd.lpwszFileName=(wchar_t *)fde->strFileName.CPtr();
+  fd.lpwszAlternateFileName=(wchar_t *)fde->strAlternateFileName.CPtr();
 
   return FileInFilter(&fd, CurrentTime);
 }

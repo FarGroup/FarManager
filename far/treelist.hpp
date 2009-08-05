@@ -68,9 +68,12 @@ struct TreeItem
 
   TreeItem& operator=(const TreeItem &tiCopy)
   {
-    strName=tiCopy.strName;
-    memcpy(Last,tiCopy.Last,sizeof(Last));
-    Depth=tiCopy.Depth;
+    if (this != &tiCopy)
+    {
+      strName=tiCopy.strName;
+      memcpy(Last,tiCopy.Last,sizeof(Last));
+      Depth=tiCopy.Depth;
+    }
     return *this;
   }
 };

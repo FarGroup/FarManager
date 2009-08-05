@@ -244,6 +244,9 @@ TArray<Object>::TArray(const TArray<Object> &rhs):
 template <class Object>
 TArray<Object>& TArray<Object>::operator=(const TArray<Object> &rhs)
 {
+  if (this == &rhs)
+    return *this;
+
   setDelta(rhs.Delta);
   if(setSize(rhs.Count))
   {

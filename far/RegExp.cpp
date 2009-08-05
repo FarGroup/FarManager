@@ -237,21 +237,24 @@ UniSet(const UniSet& src)
 }
 UniSet& operator=(const UniSet& src)
 {
-  for(int i=0;i<256;i++)
+  if (this != &src)
   {
-    if(src.high[i])
+    for(int i=0;i<256;i++)
     {
-      if(!high[i])high[i]=new unsigned char[32];
-      memcpy(high[i],src.high[i],32);
-    }else
-    {
-      if(high[i])delete [] high[i];
-      high[i]=NULL;
+      if(src.high[i])
+      {
+        if(!high[i])high[i]=new unsigned char[32];
+        memcpy(high[i],src.high[i],32);
+      }else
+      {
+        if(high[i])delete [] high[i];
+        high[i]=NULL;
+      }
     }
+    types=src.types;
+    nottypes=src.nottypes;
+    negative=src.negative;
   }
-  types=src.types;
-  nottypes=src.nottypes;
-  negative=src.negative;
   return (*this);
 }
 

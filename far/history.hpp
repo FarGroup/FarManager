@@ -59,11 +59,14 @@ struct HistoryRecord
 
 	const HistoryRecord& operator=(const HistoryRecord &rhs)
 	{
-		strName = rhs.strName;
-		Type = rhs.Type;
-		Lock = rhs.Lock;
-		Timestamp.dwLowDateTime  = rhs.Timestamp.dwLowDateTime;
-		Timestamp.dwHighDateTime = rhs.Timestamp.dwHighDateTime;
+		if (this != &rhs)
+		{
+			strName = rhs.strName;
+			Type = rhs.Type;
+			Lock = rhs.Lock;
+			Timestamp.dwLowDateTime  = rhs.Timestamp.dwLowDateTime;
+			Timestamp.dwHighDateTime = rhs.Timestamp.dwHighDateTime;
+		}
 		return *this;
 	}
 };

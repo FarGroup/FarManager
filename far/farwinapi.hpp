@@ -72,14 +72,17 @@ struct FAR_FIND_DATA_EX
 
 	FAR_FIND_DATA_EX& operator=(const FAR_FIND_DATA_EX &ffdexCopy)
 	{
-		dwFileAttributes=ffdexCopy.dwFileAttributes;
-		memcpy(&ftCreationTime,&ffdexCopy.ftCreationTime,sizeof(ftCreationTime));
-		memcpy(&ftLastAccessTime,&ffdexCopy.ftLastAccessTime,sizeof(ftLastAccessTime));
-		memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
-		nFileSize=ffdexCopy.nFileSize;
-		nPackSize=ffdexCopy.nPackSize;
-		strFileName=ffdexCopy.strFileName;
-		strAlternateFileName=ffdexCopy.strAlternateFileName;
+		if (this != &ffdexCopy)
+		{
+			dwFileAttributes=ffdexCopy.dwFileAttributes;
+			memcpy(&ftCreationTime,&ffdexCopy.ftCreationTime,sizeof(ftCreationTime));
+			memcpy(&ftLastAccessTime,&ffdexCopy.ftLastAccessTime,sizeof(ftLastAccessTime));
+			memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
+			nFileSize=ffdexCopy.nFileSize;
+			nPackSize=ffdexCopy.nPackSize;
+			strFileName=ffdexCopy.strFileName;
+			strAlternateFileName=ffdexCopy.strAlternateFileName;
+		}
 		return *this;
 	}
 };

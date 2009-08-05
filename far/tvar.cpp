@@ -84,21 +84,26 @@ TVar::TVar(const TVar& v) :
       wcscpy(str, v.str);
   }
   else
+  {
     str = NULL;
+  }
 };
 
 TVar& TVar::operator=(const TVar& v)
 {
-  vType = v.vType;
-  inum = v.inum;
-  if ( str )
-    delete [] str;
-  str = NULL;
-  if ( v.str )
+  if (this != &v)
   {
-    str = new wchar_t[StrLength(v.str)+1];
+    vType = v.vType;
+    inum = v.inum;
     if ( str )
-      wcscpy(str, v.str);
+      delete [] str;
+    str = NULL;
+    if ( v.str )
+    {
+      str = new wchar_t[StrLength(v.str)+1];
+      if ( str )
+        wcscpy(str, v.str);
+    }
   }
   return *this;
 }
@@ -110,7 +115,7 @@ __int64 TVar::i() const
 
 const wchar_t *TVar::s() const
 {
-  if(isString())
+  if (isString())
     return  str ? str : L"";
   return ::toString(inum);
 }
@@ -592,6 +597,7 @@ void initVTable(TVarTable table)
 void deleteVTable(TVarTable table)
 {
   for ( int i = 0 ; i < V_TABLE_SIZE ; i++ )
+  {
     while ( table[i] != NULL )
     {
       TVarSet *n = ((TVarSet*)(table[i]->next));
@@ -599,4 +605,5 @@ void deleteVTable(TVarTable table)
       delete table[i];
       table[i] = n;
     }
+  }
 }

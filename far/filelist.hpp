@@ -120,43 +120,45 @@ struct FileListItem
 
 	FileListItem& operator=(const FileListItem &fliCopy)
 	{
-		Selected = fliCopy.Selected;
-		PrevSelected = fliCopy.PrevSelected;
-		ShowFolderSize = fliCopy.ShowFolderSize;
-		ShortNamePresent = fliCopy.ShortNamePresent;
+		if (this != &fliCopy)
+		{
+			Selected = fliCopy.Selected;
+			PrevSelected = fliCopy.PrevSelected;
+			ShowFolderSize = fliCopy.ShowFolderSize;
+			ShortNamePresent = fliCopy.ShortNamePresent;
 
-		memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
+			memcpy (&Colors, &fliCopy.Colors, sizeof (HighlightDataColor));
 
-		NumberOfLinks = fliCopy.NumberOfLinks;
-		NumberOfStreams = fliCopy.NumberOfStreams;
-		UserFlags = fliCopy.UserFlags;
-		UserData = fliCopy.UserData;
+			NumberOfLinks = fliCopy.NumberOfLinks;
+			NumberOfStreams = fliCopy.NumberOfStreams;
+			UserFlags = fliCopy.UserFlags;
+			UserData = fliCopy.UserData;
 
-		Position = fliCopy.Position;
-		SortGroup = fliCopy.SortGroup;
+			Position = fliCopy.Position;
+			SortGroup = fliCopy.SortGroup;
 
-		DizText = fliCopy.DizText;
-		DeleteDiz = fliCopy.DeleteDiz;
+			DizText = fliCopy.DizText;
+			DeleteDiz = fliCopy.DeleteDiz;
 
-		strOwner = fliCopy.strOwner;
+			strOwner = fliCopy.strOwner;
 
-		CustomColumnData = fliCopy.CustomColumnData;
-		CustomColumnNumber = fliCopy.CustomColumnNumber;
+			CustomColumnData = fliCopy.CustomColumnData;
+			CustomColumnNumber = fliCopy.CustomColumnNumber;
 
-		CRC32 = fliCopy.CRC32;
+			CRC32 = fliCopy.CRC32;
 
-		FileAttr = fliCopy.FileAttr;
+			FileAttr = fliCopy.FileAttr;
 
-		memcpy (&CreationTime, &fliCopy.CreationTime, sizeof (CreationTime));
-		memcpy (&AccessTime, &fliCopy.AccessTime, sizeof (AccessTime));
-		memcpy (&WriteTime, &fliCopy.WriteTime, sizeof (WriteTime));
+			memcpy (&CreationTime, &fliCopy.CreationTime, sizeof (CreationTime));
+			memcpy (&AccessTime, &fliCopy.AccessTime, sizeof (AccessTime));
+			memcpy (&WriteTime, &fliCopy.WriteTime, sizeof (WriteTime));
 
-		UnpSize = fliCopy.UnpSize;
-		PackSize = fliCopy.PackSize;
+			UnpSize = fliCopy.UnpSize;
+			PackSize = fliCopy.PackSize;
 
-		strName = fliCopy.strName;
-		strShortName = fliCopy.strShortName;
-
+			strName = fliCopy.strName;
+			strShortName = fliCopy.strShortName;
+		}
 		return *this;
 	}
 };

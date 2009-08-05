@@ -113,18 +113,22 @@ bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
 
 int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
 {
-  if(HotKey==rhs.HotKey)
+  if (HotKey==rhs.HotKey)
     return StrCmpI(Item.strName,rhs.Item.strName)<0;
-  else if(HotKey && rhs.HotKey)
+  
+  if (HotKey && rhs.HotKey)
     return HotKey < rhs.HotKey;
-  else
-    return HotKey && !rhs.HotKey;
+
+  return HotKey && !rhs.HotKey;
 }
 
 const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 {
-  Item=rhs.Item;
-  HotKey=rhs.HotKey;
+  if (this != &rhs)
+  {
+    Item=rhs.Item;
+    HotKey=rhs.HotKey;
+  }
   return *this;
 }
 
