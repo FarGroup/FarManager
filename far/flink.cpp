@@ -293,7 +293,7 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &strDestBuff,
 {
   char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
   TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
-  WORD SubstituteNameLength=0;
+	WORD NameLength=0;
   if(GetREPARSE_DATA_BUFFER(szMountDir,&rdb))
   {
     const wchar_t *PathBuffer;
@@ -301,19 +301,35 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &strDestBuff,
       *lpReparseTag=rdb.ReparseTag;
     if (rdb.ReparseTag == IO_REPARSE_TAG_SYMLINK)
     {
-      SubstituteNameLength = rdb.SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-      PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+			NameLength = rdb.SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
+			if(NameLength)
+			{
+				PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+			}
+			else
+			{
+				NameLength = rdb.SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+				PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+			}
     }
     else
     {
-      SubstituteNameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-      PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+			NameLength = rdb.MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
+			if(NameLength)
+			{
+				PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+			}
+			else
+			{
+				NameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+				PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+			}
     }
-    wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(SubstituteNameLength+1);
-    wcsncpy(lpwszDestBuff,PathBuffer,SubstituteNameLength);
-    strDestBuff.ReleaseBuffer(SubstituteNameLength);
+    wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
+    wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
+    strDestBuff.ReleaseBuffer(NameLength);
   }
-  return SubstituteNameLength;
+  return NameLength;
 }
 
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
@@ -663,8 +679,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
         {
           if(IsLocalVolumePath(strJuncName))
             Reenter=TRUE;
-          if (!StrCmpN(strJuncName,L"\\??\\",4))
-            strJuncName.LShift(4);
+					NormalizeSymlinkName(strJuncName);
 
           if (strJuncName.At(0) == L'.') //BUGBUG
           {
@@ -801,4 +816,21 @@ int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
     ShellUpdatePanels(NULL,FALSE);
 
   return RetCode;
+}
+
+void NormalizeSymlinkName(string &strLinkName)
+{
+	if(!StrCmpN(strLinkName,L"\\??\\",4))
+	{
+		if(IsNetworkPath(strLinkName) || IsLocalVolumePath(strLinkName))
+		{
+			LPWSTR LinkName=strLinkName.GetBuffer();
+			LinkName[1]=L'\\';
+			strLinkName.ReleaseBuffer();
+		}
+		else
+		{
+			strLinkName.LShift(4);
+		}
+	}
 }

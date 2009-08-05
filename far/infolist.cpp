@@ -161,8 +161,7 @@ void InfoList::DisplayObject()
     string strJuncName;
     if(GetReparsePointInfo(strCurDir, strJuncName))
     {
-      if (!StrCmpN(strJuncName,L"\\??\\",4))
-        strJuncName.LShift(4);
+			NormalizeSymlinkName(strJuncName);
       GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
     }
 

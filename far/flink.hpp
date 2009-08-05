@@ -73,4 +73,6 @@ bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable);
 
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);
 
+void NormalizeSymlinkName(string &strLinkName);
+
 #endif // __FLINK_HPP__

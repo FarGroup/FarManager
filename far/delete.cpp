@@ -161,8 +161,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
     if(GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
     {
-      if(!StrCmpN(strJuncName,L"\\??\\",4))
-        strJuncName.LShift(4);
+			NormalizeSymlinkName(strJuncName);
 
       //SetMessageHelp(L"DeleteLink");
 

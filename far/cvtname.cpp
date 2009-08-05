@@ -153,8 +153,7 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
         if(GetReparsePointInfo(TempDest, strTempDest2))
         {
           // Убираем \\??\ из пути симлинка
-          if(!StrCmpN(strTempDest2,L"\\??\\",4))
-            strTempDest2.LShift(4);
+					NormalizeSymlinkName(strTempDest2);
           // для случая монтированного диска (не имеющего букву)...
           if(!StrCmpNI(strTempDest2, L"Volume{", 7))
           {

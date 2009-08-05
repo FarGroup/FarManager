@@ -161,8 +161,7 @@ void QuickView::DisplayObject()
         }
 
         //"\??\D:\Junc\Src\"
-        if (!StrCmpN(strJuncName,L"\\??\\",4))
-          strJuncName.LShift(4);
+				NormalizeSymlinkName(strJuncName);
 
         TruncPathStr(strJuncName,X2-X1-1-StrLength(MSG(ID_Msg)));
         strMsg.Format (MSG(ID_Msg), (const wchar_t*)strJuncName);

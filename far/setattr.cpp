@@ -722,8 +722,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         }
 
         //"\??\D:\Junc\Src\"
-        if (!StrCmpN(strJuncName,L"\\??\\",4))
-          strJuncName.LShift(4);
+				NormalizeSymlinkName(strJuncName);
 
         AttrDlg[SETATTR_TITLELINK].strData.Format (MSG(ID_Msg),
                (LenJunction?

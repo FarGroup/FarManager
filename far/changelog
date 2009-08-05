@@ -1,3 +1,7 @@
+drkns 06.08.2009 01:07:51 +0200 - build 1073
+
+1. ConvertNameToReal криво работал с симлинками, указывающими на \\?\UNC\... или \\?\Volume{...
+
 svs 05.08.2009 23:03:44 +0300 - build 1072
 
 1. ¬ ConvertFileSizeString() попутаны префиксы exa и peta
