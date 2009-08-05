@@ -1112,42 +1112,45 @@ bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
 
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
 {
-  if (!CheckFileSizeStringFormat(FileSizeStr))
-    return _ui64(0);
+	if (!CheckFileSizeStringFormat(FileSizeStr))
+		return _ui64(0);
 
-  unsigned __int64 n = _wtoi64(FileSizeStr);
+	unsigned __int64 n = _wtoi64(FileSizeStr);
 
-  wchar_t c = Upper(FileSizeStr[StrLength(FileSizeStr)-1]);
+	wchar_t c = Upper(FileSizeStr[StrLength(FileSizeStr)-1]);
 
-  switch (c)
-  {
-    case L'K':
-      n <<= 10;
-      break;
+	// http://en.wikipedia.org/wiki/SI_prefix
+	switch (c)
+	{
+		case L'K':		// kilo 10x3
+			n <<= 10;
+			break;
 
-    case L'M':
-      n <<= 20;
-      break;
+		case L'M':		// mega 10x6
+			n <<= 20;
+			break;
 
-    case L'G':
-      n <<= 30;
-      break;
+		case L'G':		// giga 10x9
+			n <<= 30;
+			break;
 
-    case L'T':
-      n <<= 40;
-      break;
+		case L'T':		// tera 10x12
+			n <<= 40;
+			break;
 
-		case L'E':
+		case L'P':		// peta 10x15
 			n <<= 50;
 			break;
 
-		case L'P':
+		case L'E':		// exa  10x18
 			n <<= 60;
 			break;
 
-  }
+		// Z - zetta 10x21
+		// Y - yotta 10x24
+	}
 
-  return n;
+	return n;
 }
 
 /* $ 21.09.2003 KM

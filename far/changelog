@@ -1,3 +1,8 @@
+svs 05.08.2009 23:03:44 +0300 - build 1072
+
+1. В ConvertFileSizeString() попутаны префиксы exa и peta
+   (see http://en.wikipedia.org/wiki/SI_prefix)
+
 t-rex 05.08.2009 14:56:05 +0200 - build 1071
 
 1. From Evgeny Zhirnov: Mantis#995: Исправление операторов копирования
