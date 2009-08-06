@@ -98,7 +98,7 @@ BOOL IsLocalVolumePath(const wchar_t *Path)
 
 BOOL IsLocalVolumeRootPath(const wchar_t *Path)
 {
-	return IsLocalVolumePath(Path) && !Path[48];
+	return IsLocalVolumePath(Path) && (!Path[48] || (IsSlash(Path[48]) && !Path[49]));
 }
 
 BOOL TestParentFolderName(const wchar_t *Name)

@@ -695,18 +695,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         DlgCountItems++;
         JunctionPresent=TRUE;
 
+				NormalizeSymlinkName(strJuncName);
+
         int ID_Msg;
         if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
         {
-          if (IsLocalVolumePath(strJuncName) && !strJuncName.At(49))
+					if (IsLocalVolumeRootPath(strJuncName))
           {
-            //"\??\\\?\Volume{..."
-            strJuncName.LShift(4);
-
             string strJuncRoot;
             GetPathRootOne(strJuncName,strJuncRoot);
 
-            if (strJuncRoot.At(1) == L':')
+						if (IsLocalPath(strJuncRoot))
               strJuncName = strJuncRoot;
 
             ID_Msg=MSetAttrVolMount;
@@ -720,9 +719,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           ID_Msg=MSetAttrSymlink;
         }
-
-        //"\??\D:\Junc\Src\"
-				NormalizeSymlinkName(strJuncName);
 
         AttrDlg[SETATTR_TITLELINK].strData.Format (MSG(ID_Msg),
                (LenJunction?

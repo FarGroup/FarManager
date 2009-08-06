@@ -4527,8 +4527,7 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
     }
     else
     {
-      int ResultVol=CreateVolumeMountPoint(strSrcFullName,strDestFullName);
-      if(!ResultVol)
+      if(CreateVolumeMountPoint(strSrcFullName,strDestFullName))
       {
         return 1;
       }
@@ -4536,30 +4535,9 @@ int ShellCopy::MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePoint
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
         {
-          switch(ResultVol)
-          {
-            case 1:
-              strMsgBuf.Format (MSG(MCopyRetrVolFailed), SelName);
-              break;
-            case 2:
-              strMsgBuf.Format (MSG(MCopyMountVolFailed), SelName);
-              strMsgBuf2.Format (MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
-              break;
-            case 3:
-              strMsgBuf = MSG(MCopyCannotSupportVolMount);
-              break;
-          }
-
-          if(ResultVol == 2)
-            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-              strMsgBuf,
-              strMsgBuf2,
-              MSG(MOk));
-          else
-            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
-              MSG(MCopyCannotCreateVolMount),
-              strMsgBuf,
-              MSG(MOk));
+					strMsgBuf.Format(MSG(MCopyMountVolFailed),SelName);
+					strMsgBuf2.Format(MSG(MCopyMountVolFailed2),strDestFullName.CPtr());
+					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf,strMsgBuf2,MSG(MOk));
         }
         return 0;
       }

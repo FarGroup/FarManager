@@ -2372,14 +2372,6 @@ l:
 "Kötet mountpont hiba"
 "Błąd montowania napędu"
 
-MCopyRetrVolFailed
-"Невозможно получить информацию о '%s'"
-"Retrieving volume name for '%s' failed"
-"Získání jména zvazku pro '%s' selhalo"
-"Fehler beim Lesen der Datenträgerbezeichnung von '%s'"
-""%s" kötetnevének lekérése sikertelen"
-"Nie udało się odczytać nazwy woluminu '%s'"
-
 MCopyMountVolFailed
 "Ошибка при монтировании диска '%s'"
 "Attempt to volume mount '%s'"
@@ -2395,14 +2387,6 @@ MCopyMountVolFailed2
 "fehlgeschlagen bei '%s'"
 "nem sikerült: "%s""
 "w '%s' nie udało się"
-
-MCopyCannotSupportVolMount
-"Функция монтирования дисков не поддерживается"
-"Volume mounting is not supported"
-"Připojování svazku není podporováno"
-"Datenträgeraktivierung wird nicht unterstützt"
-"Kötet mountolása nem támogatott"
-"Brak możliwości montowania woluminów"
 
 MCopyMountName
 "disk_%c"

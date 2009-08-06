@@ -43,29 +43,28 @@ enum ReparsePointTypes
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-int   WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest);
+int   WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
 int   WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
 
-BOOL  WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName);
 int   WINAPI GetNumberOfLinks(const wchar_t *Name);
-int   WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder);
+bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object);
 
-BOOL  WINAPI CreateReparsePoint(const wchar_t *szMountDir, const wchar_t *szDestDir,DWORD Type=RP_JUNCTION);
-BOOL  WINAPI DeleteReparsePoint(const wchar_t *szMountDir);
+bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type=RP_JUNCTION);
+bool  WINAPI DeleteReparsePoint(const wchar_t *Object);
 
-DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &szDestBuff,LPDWORD lpReparseTag=NULL);
+DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWORD lpReparseTag=NULL);
 
-bool GetSubstName(int DriveType,const wchar_t *LocalName,string &strSubstName);
+bool GetSubstName(int DriveType,const wchar_t *DeviceName,string &strTargetPath);
 
-int DelSubstDrive(const wchar_t *DosDeviceName);
+bool DelSubstDrive(const wchar_t *DeviceName);
 void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter=0);
 void GetPathRootOne(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
 //    передается в параметре StreamName
-typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
-int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
+//typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
+//int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
 
 bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
 

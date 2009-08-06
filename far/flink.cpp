@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy.hpp"
 #include "flink.hpp"
 #include "imports.hpp"
-#include "lasterror.hpp"
 #include "cddrv.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -73,287 +72,210 @@ struct TMN_REPARSE_DATA_BUFFER
 
 #define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, GenericReparseBuffer)
 
-/*
- SrcVolume
-   Pointer to a string that indicates the volume mount point where the
-   volume is to be mounted. This may be a root directory (X:\) or a
-   directory on a volume (X:\mnt\). The string must end with a trailing
-   backslash ('\').
-*/
 
-int WINAPI CreateVolumeMountPoint(const wchar_t *SrcVolume, const wchar_t *LinkFolder)
+bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {
-  wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
+	bool Result=false;
+	wchar_t Buf[50];
+	if(GetVolumeNameForVolumeMountPoint(TargetVolume,Buf,countof(Buf)))
+	{
+		if(SetVolumeMountPoint(Object,Buf))
+		{
+			Result=true;
+		}
+	}
+	return Result;
+}
 
-  // We should do some error checking on the inputs. Make sure
-  // there are colons and backslashes in the right places, etc.
+bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type)
+{
+	bool Result=false;
+	if(Object && *Object && Target && *Target)
+	{
+		switch(Type)
+		{
+		case RP_EXACTCOPY:
+			Result=DuplicateReparsePoint(Target,Object);
+			break;
+		case RP_SYMLINKFILE:
+		case RP_SYMLINKDIR:
+			if(ifn.pfnCreateSymbolicLink)
+			{
+				Result=(apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0)==TRUE);
+			}
+			break;
+		case RP_JUNCTION:
+			{
+				string strPrintName,strSubstituteName;
+				ConvertNameToFull(Target,strPrintName);
+				strSubstituteName=L"\\??\\";
+				strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
 
-	if ( !GetVolumeNameForVolumeMountPoint(SrcVolume, Buf, 50) )
-    return 1;
+				BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+				TMN_REPARSE_DATA_BUFFER *rdb=(TMN_REPARSE_DATA_BUFFER*)szBuff;
 
-	if ( !SetVolumeMountPoint(LinkFolder, Buf) ) // volume to be mounted
-    return 2;
-
-  return 0;
+				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
+				rdb->Reserved=0;
+				rdb->MountPointReparseBuffer.SubstituteNameOffset=0;
+				rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(strSubstituteName.GetLength()*sizeof (wchar_t));
+				rdb->MountPointReparseBuffer.PrintNameOffset=rdb->MountPointReparseBuffer.SubstituteNameLength+2;
+				rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(strPrintName.GetLength()*sizeof(wchar_t));
+				rdb->ReparseDataLength=sizeof(rdb->MountPointReparseBuffer)+rdb->MountPointReparseBuffer.PrintNameOffset+rdb->MountPointReparseBuffer.PrintNameLength;
+				if(rdb->ReparseDataLength+sizeof(DWORD)+sizeof(WORD)+sizeof(WORD)<=MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t))
+				{
+					wcscpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],strSubstituteName);
+					wcscpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],strPrintName);
+					HANDLE hDir=apiCreateFile(Object,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+					if(hDir!=INVALID_HANDLE_VALUE)
+					{
+						DWORD dwBytes;
+						if(DeviceIoControl(hDir,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0))
+						{
+							Result=true;
+						}
+						CloseHandle(hDir);
+					}
+				}
+				else
+				{
+					SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				}
+			}
+			break;
+		}
+	}
+	return Result;
 }
 
 
-BOOL WINAPI CreateReparsePoint(const wchar_t *SrcFolder, const wchar_t *LinkFolder,DWORD Type)
+bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 {
-  if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
-    return FALSE;
-
-  string strDestDir;
-
-  if (SrcFolder[0] == L'\\' && SrcFolder[1] == L'?')
-     strDestDir = SrcFolder;
-  else
-  {
-    string strFullDir;
-
-    if(Type==RP_JUNCTION)
-      strDestDir = L"\\??\\";
-
-    ConvertNameToFull (SrcFolder, strFullDir); //??? было GetFullPathName
-
-    if ( apiGetFileAttributes (strFullDir) == INVALID_FILE_ATTRIBUTES )
-    {
-      SetLastError(ERROR_PATH_NOT_FOUND);
-      return FALSE;
-    }
-
-    const wchar_t *PtrFullDir=(const wchar_t*)strFullDir;
-    // проверка на subst
-    if(IsLocalPath(strFullDir))
-    {
-			wchar_t LocalName[]={strFullDir.At(0),L':',L'\0'};
-
-      string strSubstName;
-
-      if(GetSubstName(DRIVE_NOT_INIT,LocalName, strSubstName))
-      {
-        strDestDir += strSubstName;
-        AddEndSlash(strDestDir);
-        PtrFullDir=(const wchar_t*)strFullDir+3;
-      }
-    }
-    else if(IsLocalPrefixPath(strFullDir) || IsLocalVolumePath(strFullDir))
-      PtrFullDir=(const wchar_t*)strFullDir+4;
-    strDestDir += PtrFullDir;
-  }
-
-  switch(Type)
-  {
-  case RP_EXACTCOPY:
-    return DuplicateReparsePoint(strDestDir,LinkFolder);
-  case RP_SYMLINKFILE:
-  case RP_SYMLINKDIR:
-    {
-      if(ifn.pfnCreateSymbolicLink)
-        return apiCreateSymbolicLink(LinkFolder,strDestDir,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
-      else
-        return FALSE;
-    }
-    break;
-  case RP_JUNCTION:
-    {
-      char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-      TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
-
-      WORD nDestMountPointBytes = (WORD)(strDestDir.GetLength()*sizeof (wchar_t));
-      rdb.ReparseTag            = IO_REPARSE_TAG_MOUNT_POINT;
-      rdb.Reserved              = 0;
-      rdb.MountPointReparseBuffer.SubstituteNameOffset = 0;
-      rdb.MountPointReparseBuffer.SubstituteNameLength = nDestMountPointBytes;
-      rdb.MountPointReparseBuffer.PrintNameOffset      = rdb.MountPointReparseBuffer.SubstituteNameLength+2;
-      rdb.MountPointReparseBuffer.PrintNameLength      = nDestMountPointBytes-4*sizeof(wchar_t);
-      rdb.ReparseDataLength     = sizeof(rdb.MountPointReparseBuffer)+rdb.MountPointReparseBuffer.PrintNameOffset+rdb.MountPointReparseBuffer.PrintNameLength;
-      if(rdb.ReparseDataLength+sizeof(DWORD)+sizeof(WORD)+sizeof(WORD)>MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof (wchar_t))
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return FALSE;
-      }
-      wcscpy(rdb.MountPointReparseBuffer.PathBuffer, strDestDir);
-      wcscpy(&rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],&strDestDir[4]);
-
-      HANDLE hDir=apiCreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
-              FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
-
-      if (hDir == INVALID_HANDLE_VALUE)
-      {
-        SetLastError(ERROR_PATH_NOT_FOUND);
-        return FALSE;
-      }
-      DWORD dwBytes;
-      if(!DeviceIoControl(hDir,
-          FSCTL_SET_REPARSE_POINT,
-          (LPVOID)&rdb,
-          rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
-          NULL,
-          0,
-          &dwBytes,
-          0))
-      {
-        DWORD LastErr=GetLastError();
-        CloseHandle(hDir);
-        apiDeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
-        SetLastError(LastErr);
-        return 0;
-      }
-      CloseHandle(hDir);
-      return TRUE;
-    }
-    break;
-  }
-  return FALSE;
-}
-
-
-BOOL WINAPI DeleteReparsePoint(const wchar_t *szDir)
-{
-  DWORD ReparseTag;
-  string strTmp;
-  GetReparsePointInfo(szDir,strTmp,&ReparseTag);
-  HANDLE hDir=apiCreateFile(szDir,
-          GENERIC_READ | GENERIC_WRITE,
-          0,
-          0,
-          OPEN_EXISTING,
-          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
-  if (hDir == INVALID_HANDLE_VALUE)
-  {
-    SetLastError(ERROR_PATH_NOT_FOUND);
-    return FALSE;
-  }
-
-  REPARSE_GUID_DATA_BUFFER rgdb = { 0 };
-  rgdb.ReparseTag = ReparseTag;
-  DWORD dwBytes;
-  const BOOL bOK =
-    DeviceIoControl(hDir,
-            FSCTL_DELETE_REPARSE_POINT,
-            &rgdb,
-            REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,
-            NULL,
-            0,
-            &dwBytes,
-            0);
-  CloseHandle(hDir);
-  return bOK != 0;
+	bool Result=false;
+	DWORD ReparseTag;
+	string strTmp;
+	GetReparsePointInfo(Object,strTmp,&ReparseTag);
+	HANDLE hObject=apiCreateFile(Object,GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
+	if(hObject!=INVALID_HANDLE_VALUE)
+	{
+		REPARSE_GUID_DATA_BUFFER rgdb={ReparseTag};
+		DWORD dwBytes;
+		Result=(DeviceIoControl(hObject,FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0)==TRUE);
+		CloseHandle(hObject);
+	}
+	return Result;
 }
 
 bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,TMN_REPARSE_DATA_BUFFER *rdb)
 {
-  bool RetVal=false;
-
-  const DWORD FileAttr = apiGetFileAttributes(Object);
-  /* $ 14.06.2003 IS
-     Для нелокальных дисков получить корректную информацию о связи
-     не представляется возможным
-  */
-  if(FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && IsLocalDrive(Object))
-  {
-    HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
-    if (hObject!=INVALID_HANDLE_VALUE)
-    {
-      DWORD dwBytesReturned;
-      if(DeviceIoControl(hObject,FSCTL_GET_REPARSE_POINT,NULL,0,(LPVOID)rdb,MAXIMUM_REPARSE_DATA_BUFFER_SIZE,&dwBytesReturned,0) && IsReparseTagValid(rdb->ReparseTag))
-      {
-        RetVal=true;
-      }
-      GuardLastError LastError;
-      CloseHandle(hObject);
-    }
-  }
-  return RetVal;
+	bool Result=false;
+	const DWORD FileAttr = apiGetFileAttributes(Object);
+	/* $ 14.06.2003 IS
+		Для нелокальных дисков получить корректную информацию о связи
+		не представляется возможным
+	*/
+	if(FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && IsLocalDrive(Object))
+	{
+		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+		if (hObject!=INVALID_HANDLE_VALUE)
+		{
+			DWORD dwBytesReturned;
+			if(DeviceIoControl(hObject,FSCTL_GET_REPARSE_POINT,NULL,0,(LPVOID)rdb,MAXIMUM_REPARSE_DATA_BUFFER_SIZE,&dwBytesReturned,0) && IsReparseTagValid(rdb->ReparseTag))
+			{
+				Result=true;
+			}
+			CloseHandle(hObject);
+		}
+	}
+	return Result;
 }
 
 bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable)
 {
-  bool RetVal=FALSE;
-  HANDLE hToken=0;
-  if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken))
-  {
-    TOKEN_PRIVILEGES tp;
+	bool Result=false;
+	HANDLE hToken=0;
+	if(OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken))
+	{
+		TOKEN_PRIVILEGES tp;
 		if(LookupPrivilegeValue(NULL,Privilege,&tp.Privileges->Luid))
-    {
-      tp.PrivilegeCount=1;
-      tp.Privileges->Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
-      if(AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),NULL,NULL))
-      {
-        RetVal=(GetLastError()==ERROR_SUCCESS);
-      }
-    }
-    CloseHandle(hToken);
-  }
-  return RetVal;
+		{
+			tp.PrivilegeCount=1;
+			tp.Privileges->Attributes=bEnable?SE_PRIVILEGE_ENABLED:0;
+			if(AdjustTokenPrivileges(hToken,FALSE,&tp,sizeof(tp),NULL,NULL) && GetLastError()==ERROR_SUCCESS)
+			{
+				Result=true;
+			}
+		}
+		CloseHandle(hToken);
+	}
+	return Result;
 }
 
-DWORD WINAPI GetReparsePointInfo(const wchar_t *szMountDir, string &strDestBuff,LPDWORD lpReparseTag)
+DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDWORD lpReparseTag)
 {
-  char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
+	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	TMN_REPARSE_DATA_BUFFER *rdb = (TMN_REPARSE_DATA_BUFFER*)szBuff;
 	WORD NameLength=0;
-  if(GetREPARSE_DATA_BUFFER(szMountDir,&rdb))
-  {
-    const wchar_t *PathBuffer;
-    if(lpReparseTag)
-      *lpReparseTag=rdb.ReparseTag;
-    if (rdb.ReparseTag == IO_REPARSE_TAG_SYMLINK)
-    {
-			NameLength = rdb.SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
+	if(GetREPARSE_DATA_BUFFER(Object,rdb))
+	{
+		const wchar_t *PathBuffer;
+		if(lpReparseTag)
+			*lpReparseTag=rdb->ReparseTag;
+		if(rdb->ReparseTag == IO_REPARSE_TAG_SYMLINK)
+		{
+			NameLength = rdb->SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
 			if(NameLength)
 			{
-				PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
 			}
 			else
 			{
-				NameLength = rdb.SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-				PathBuffer = &rdb.SymbolicLinkReparseBuffer.PathBuffer[rdb.SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+				NameLength = rdb->SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+				PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
 			}
-    }
-    else
-    {
-			NameLength = rdb.MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
+		}
+		else
+		{
+			NameLength = rdb->MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
 			if(NameLength)
 			{
-				PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
+				PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
 			}
 			else
 			{
-				NameLength = rdb.MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-				PathBuffer = &rdb.MountPointReparseBuffer.PathBuffer[rdb.MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
+				NameLength = rdb->MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
+				PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
 			}
-    }
-    wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
-    wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
-    strDestBuff.ReleaseBuffer(NameLength);
-  }
-  return NameLength;
+		}
+		wchar_t *lpwszDestBuff=strDestBuff.GetBuffer(NameLength+1);
+		wcsncpy(lpwszDestBuff,PathBuffer,NameLength);
+		strDestBuff.ReleaseBuffer(NameLength);
+	}
+	return NameLength;
 }
 
 int WINAPI GetNumberOfLinks(const wchar_t *Name)
 {
-  HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,0);
-  if (hFile==INVALID_HANDLE_VALUE)
-    return(1);
-  BY_HANDLE_FILE_INFORMATION bhfi;
-  int GetCode=GetFileInformationByHandle(hFile,&bhfi);
-  CloseHandle(hFile);
-  return(GetCode ? bhfi.nNumberOfLinks:0);
+	int NumberOfLinks=1;
+	HANDLE hFile=apiCreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+	if (hFile!=INVALID_HANDLE_VALUE)
+	{
+		BY_HANDLE_FILE_INFORMATION bhfi;
+		if(GetFileInformationByHandle(hFile,&bhfi))
+		{
+			NumberOfLinks=bhfi.nNumberOfLinks;
+		}
+		CloseHandle(hFile);
+	}
+	return NumberOfLinks;
 }
 
 
-
-int WINAPI MkHardLink(const wchar_t *Src,const wchar_t *Dest)
+int WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName)
 {
-  string strFileSource,strFileDest;
-
-  ConvertNameToFull(Src,strFileSource);
-  ConvertNameToFull(Dest,strFileDest);
-
-  return apiCreateHardLink(strFileDest, strFileSource, NULL) != 0;
+	string strExistingName,strNewName;
+	ConvertNameToFull(ExistingName,strExistingName);
+	ConvertNameToFull(NewName,strNewName);
+	return apiCreateHardLink(strNewName,strExistingName,NULL)!=FALSE;
 }
 
 /*
@@ -472,75 +394,66 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 
 bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 {
-  bool Ret=false;
-  WIN32_FIND_STREAM_DATA fsd;
-  HANDLE hFind=apiFindFirstStream(FileName,FindStreamInfoStandard,&fsd);
-  if(hFind!=INVALID_HANDLE_VALUE)
-  {
-    StreamsCount=1;
-    StreamsSize=fsd.StreamSize.QuadPart;
-    while(apiFindNextStream(hFind,&fsd))
-    {
-      StreamsCount++;
-      StreamsSize+=fsd.StreamSize.QuadPart;
-    }
-    apiFindStreamClose(hFind);
-    Ret=true;
-  }
-  return Ret;
+	bool Result=false;
+	WIN32_FIND_STREAM_DATA fsd;
+	HANDLE hFind=apiFindFirstStream(FileName,FindStreamInfoStandard,&fsd);
+	if(hFind!=INVALID_HANDLE_VALUE)
+	{
+		StreamsCount=1;
+		StreamsSize=fsd.StreamSize.QuadPart;
+		while(apiFindNextStream(hFind,&fsd))
+		{
+			StreamsCount++;
+			StreamsSize+=fsd.StreamSize.QuadPart;
+		}
+		apiFindStreamClose(hFind);
+		Result=true;
+	}
+	return Result;
 }
 
-/*
-   Функция DelSubstDrive - удаление Subst драйвера
-   Return: -1 - это либо не SUBST-драйвер, либо OS не та.
-            0 - все удалено на ура
-            1 - ошибка при удалении.
-*/
-int DelSubstDrive(const wchar_t *DosDeviceName)
+bool DelSubstDrive(const wchar_t *DeviceName)
 {
-  string strNtDeviceName;
-  if(GetSubstName(DRIVE_NOT_INIT, DosDeviceName, strNtDeviceName))
-  {
-    strNtDeviceName = (string)L"\\??\\"+strNtDeviceName;
-
-		return !DefineDosDevice(DDD_RAW_TARGET_PATH|
-                       DDD_REMOVE_DEFINITION|
-                       DDD_EXACT_MATCH_ON_REMOVE,
-                       DosDeviceName, strNtDeviceName)?1:0;
-  }
-  return(-1);
+	bool Result=false;
+	string strTargetPath;
+	if(GetSubstName(DRIVE_NOT_INIT,DeviceName,strTargetPath))
+	{
+		strTargetPath=(string)L"\\??\\"+strTargetPath;
+		Result=(DefineDosDevice(DDD_RAW_TARGET_PATH|DDD_REMOVE_DEFINITION|DDD_EXACT_MATCH_ON_REMOVE,DeviceName,strTargetPath)==TRUE);
+	}
+	return Result;
 }
 
-bool GetSubstName(int DriveType,const wchar_t *LocalName, string &strSubstName)
+bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath)
 {
-  bool Ret=false;
-  /*
-  + Обработка в зависимости от Opt.SubstNameRule
-  битовая маска:
-  0 - если установлен, то опрашивать сменные диски
-  1 - если установлен, то опрашивать все остальные
-  */
-  bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
-  if (DriveType==DRIVE_NOT_INIT || (((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable)))
-  {
-    if(IsLocalPath(LocalName))
-    {
-      wchar_t *Name=new wchar_t[NT_MAX_PATH];
-      if(Name)
-      {
-				if (QueryDosDevice(LocalName,Name,NT_MAX_PATH))
-        {
-            if(!StrCmpN(Name,L"\\??\\",4))
-            {
-              strSubstName=Name+4;
-              Ret=true;
-            }
-        }
-        delete[] Name;
-      }
-    }
-  }
-  return Ret;
+	bool Ret=false;
+	/*
+	+ Обработка в зависимости от Opt.SubstNameRule
+	битовая маска:
+	0 - если установлен, то опрашивать сменные диски
+	1 - если установлен, то опрашивать все остальные
+	*/
+	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
+	if (DriveType==DRIVE_NOT_INIT || (((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable)))
+	{
+		if(IsLocalPath(DeviceName))
+		{
+			wchar_t *Name=new wchar_t[NT_MAX_PATH];
+			if(Name)
+			{
+				if(QueryDosDevice(DeviceName,Name,NT_MAX_PATH))
+				{
+					if(!StrCmpN(Name,L"\\??\\",4))
+					{
+						strTargetPath=Name+4;
+						Ret=true;
+					}
+				}
+				delete[] Name;
+			}
+		}
+	}
+	return Ret;
 }
 
 void GetPathRootOne(const wchar_t *Path,string &strRoot)
@@ -724,98 +637,64 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   GetPathRootOne(strNewPath, strRoot);
 }
 
-
-BOOL WINAPI CanCreateHardLinks(const wchar_t *TargetFile,const wchar_t *HardLinkName)
-{
-  if(!TargetFile)
-    return FALSE;
-
-  string strRoot1;
-  string strRoot2;
-  string strFSysName;
-
-  GetPathRoot(TargetFile,strRoot1);
-
-  if(HardLinkName)
-    GetPathRoot(HardLinkName,strRoot2);
-  else
-    strRoot2 = strRoot1;
-
-   // same drive?
-  if( !StrCmp(strRoot1, strRoot2))
-  {
-    // NTFS drive?
-    DWORD FileSystemFlags;
-    if(apiGetVolumeInformation (strRoot1,NULL,NULL,NULL,&FileSystemFlags,&strFSysName))
-    {
-      if(!StrCmp(strFSysName,L"NTFS"))
-        return TRUE;
-    }
-  }
-  return FALSE;
-}
-
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 {
-  bool RetVal=false;
-  char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
-  if(GetREPARSE_DATA_BUFFER(Src,&rdb))
-  {
-    if(rdb.ReparseTag==IO_REPARSE_TAG_SYMLINK)
-      SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
-    HANDLE hLink=apiCreateFile(Dst,FILE_WRITE_ATTRIBUTES,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
-    if(hLink!=INVALID_HANDLE_VALUE)
-    {
-      DWORD dwBytes;
-      RetVal=DeviceIoControl(hLink,FSCTL_SET_REPARSE_POINT,(LPVOID)&rdb,rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0)!=0;
-      GuardLastError LastError;
-      CloseHandle(hLink);
-    }
-  }
-  return RetVal;
+	bool Result=false;
+	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	TMN_REPARSE_DATA_BUFFER* rdb=(TMN_REPARSE_DATA_BUFFER*)szBuff;
+	if(GetREPARSE_DATA_BUFFER(Src,rdb))
+	{
+		if(rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
+			SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
+		HANDLE hLink=apiCreateFile(Dst,FILE_WRITE_ATTRIBUTES,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+		if(hLink!=INVALID_HANDLE_VALUE)
+		{
+			DWORD dwBytes;
+			Result=(DeviceIoControl(hLink,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0)!=FALSE);
+			CloseHandle(hLink);
+		}
+	}
+	return Result;
 }
 
 int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 {
-  int RetCode=0;
+	int Result=0;
 
-  if(Src && *Src && Dest && *Dest)
-  {
-//    int Delete=Flags&FLINK_DELETE;
-    int Op=Flags&0xFFFF;
+	if(Src && *Src && Dest && *Dest)
+	{
+		int Op=Flags&0xFFFF;
 
-    switch(Op)
-    {
-      case FLINK_HARDLINK:
-//        if(Delete)
-//          RetCode=FAR_DeleteFile(Src);
-//        else
-          if(CanCreateHardLinks(Src,Dest))
-            RetCode=MkHardLink(Src,Dest);
-        break;
-      case FLINK_JUNCTION:
-      case FLINK_VOLMOUNT:
-      case FLINK_SYMLINKFILE:
-      case FLINK_SYMLINKDIR:
-//        if(Delete)
-//          RetCode=FAR_RemoveDirectory(Src);
-//        else
-        ReparsePointTypes LinkType=RP_JUNCTION;
-        switch(Op)
-        {
-          case FLINK_VOLMOUNT:    LinkType=RP_VOLMOUNT;break;
-          case FLINK_SYMLINKFILE: LinkType=RP_SYMLINKFILE;break;
-          case FLINK_SYMLINKDIR:  LinkType=RP_SYMLINKDIR;break;
-        }
-        RetCode=ShellCopy::MkSymLink(Src,Dest,LinkType,(Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
-    }
-  }
+		switch(Op)
+		{
+			case FLINK_HARDLINK:
+				Result=MkHardLink(Src,Dest);
+				break;
+			case FLINK_JUNCTION:
+			case FLINK_VOLMOUNT:
+			case FLINK_SYMLINKFILE:
+			case FLINK_SYMLINKDIR:
+				ReparsePointTypes LinkType=RP_JUNCTION;
+				switch(Op)
+				{
+					case FLINK_VOLMOUNT:
+						LinkType=RP_VOLMOUNT;
+						break;
+					case FLINK_SYMLINKFILE:
+						LinkType=RP_SYMLINKFILE;
+						break;
+					case FLINK_SYMLINKDIR:
+						LinkType=RP_SYMLINKDIR;
+						break;
+				}
+				Result=ShellCopy::MkSymLink(Src,Dest,LinkType,(Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+		}
+	}
 
-  if(RetCode && !(Flags&FLINK_DONOTUPDATEPANEL))
-    ShellUpdatePanels(NULL,FALSE);
+	if(Result && !(Flags&FLINK_DONOTUPDATEPANEL))
+		ShellUpdatePanels(NULL,FALSE);
 
-  return RetCode;
+	return Result;
 }
 
 void NormalizeSymlinkName(string &strLinkName)

@@ -1220,7 +1220,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
         return DRIVE_DEL_FAIL;
     }
 
-    if(!DelSubstDrive(DiskLetter))
+		if(DelSubstDrive(DiskLetter))
       return DRIVE_DEL_SUCCESS;
     else
     {
@@ -1232,7 +1232,7 @@ int Panel::ProcessDelDisk (wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
                 L"\x1",MSG(MChangeDriveOpenFiles),
                 MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
-          if(!DelSubstDrive(DiskLetter))
+					if(DelSubstDrive(DiskLetter))
             return DRIVE_DEL_SUCCESS;
         }
         else
