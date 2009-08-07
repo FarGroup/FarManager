@@ -2554,7 +2554,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	string strMenuText;
 	strMenuText.Append(BoxSymbols[BS_V1]).Append(strSizeText).Append(BoxSymbols[BS_V1]).Append(strDateText).Append(BoxSymbols[BS_V1]).Append(AttrStr);
 
-	int MaxMenuTextLength = DlgWidth - 8 - 4; // depends on VMenu implementation
+	int MaxMenuTextLength = ListBox->GetMaxLineWidth();
 	int DisplayNameWidth = MaxMenuTextLength - static_cast<int>(strMenuText.GetLength()) - 2 /* 2 spaces */;
 	const wchar_t *DisplayName=FindData->strFileName;
 	/* $ 24.03.2002 KM

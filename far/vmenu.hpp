@@ -277,7 +277,7 @@ class VMenu: public Modal
 
     void SetFlags(DWORD Flags){ VMFlags.Set(Flags); }
     void ClearFlags(DWORD Flags){ VMFlags.Clear(Flags); }
-    int  CheckFlags(DWORD Flags){ return VMFlags.Check(Flags); }
+    BOOL CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
     DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
 
     void AssignHighlights(int Reverse);
@@ -338,6 +338,8 @@ class VMenu: public Modal
 
     int GetVDialogItemID() const {return DialogItemID;};
     void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
+
+    int GetMaxLineWidth() const;
 
   public:
     static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);

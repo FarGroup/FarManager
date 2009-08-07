@@ -619,9 +619,6 @@ void VMenu::ShowMenu(int IsParent)
           BoxText(BoxChar);
         }
 
-				const wchar_t *Item_I_PtrName=Item[I]->strName;
-				const wchar_t *_MItemPtr=Item_I_PtrName+Item[I]->ShowPos;
-
 //        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
 //          SetColor(VMenu::Colors[VMenuColorSelected]);
 //        else
@@ -645,95 +642,105 @@ void VMenu::ShowMenu(int IsParent)
         else
           SetColor(VMenu::Colors[Item[I]->Flags&LIF_DISABLE?VMenuColorDisabled:(Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)]);
 
-        wchar_t Check=L' ';
-        if (Item[I]->Flags&LIF_CHECKED)
-        {
-          if (!(Item[I]->Flags&0x0000FFFF))
-            Check=0x221A;
-          else
-            Check=(wchar_t)Item[I]->Flags&0x0000FFFF;
-        }
+				string strMenuLine;
 
-        int Len_MItemPtr;
-        if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          Len_MItemPtr=StrLength(_MItemPtr);
-        else
-          Len_MItemPtr=HiStrlen(_MItemPtr);
-
-				wchar_t Tmp[]={Check,L' ',L'\0'};
-				strTmpStr=Tmp;
-        strTmpStr+=_MItemPtr;
-
-				int RightOffset=(VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:2;
-
-				if(Len_MItemPtr+2+RightOffset > X2-X1-3)
+				wchar_t CheckMark=L' ';
+				if (Item[I]->Flags & LIF_CHECKED)
 				{
-					strTmpStr.SetLength(HiFindRealPos(strTmpStr,X2-X1-1-(RightOffset?3:0),VMFlags.Check(VMENU_SHOWAMPERSAND)));
+					if (!(Item[I]->Flags & 0x0000FFFF))
+						CheckMark = 0x221A;
+					else
+						CheckMark = static_cast<wchar_t>(Item[I]->Flags & 0x0000FFFF);
 				}
-				if(RightOffset)
+				strMenuLine.Append(CheckMark);
+
+				strMenuLine.Append(L' '); // left scroller (<<) placeholder
+
+				string strMItemPtr(Item[I]->strName.CPtr() + HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND)));
+				int strMItemPtrLen;
+				if (VMFlags.Check(VMENU_SHOWAMPERSAND))
+					strMItemPtrLen = strMItemPtr.GetLength();
+				else
+					strMItemPtrLen = HiStrlen(strMItemPtr);
+
+				// fit menu string into available space
+				if (strMItemPtrLen > GetMaxLineWidth())
 				{
-					string strSubSymbol;
-					strSubSymbol.Format(L" %*c",X2-X1-1-2-(VMFlags.Check(VMENU_SHOWAMPERSAND)?static_cast<int>(strTmpStr.GetLength()):HiStrlen(strTmpStr)),Item[I]->Flags&MIF_SUBMENU?L'\x25BA':L' ');
-					strTmpStr+=strSubSymbol;
+					strMItemPtr.SetLength(HiFindRealPos(strMItemPtr, GetMaxLineWidth(), VMFlags.Check(VMENU_SHOWAMPERSAND)));
 				}
+				strMenuLine.Append(strMItemPtr);
+
+				if (Item[I]->Flags & MIF_SUBMENU)
+				{
+					// append padding if needed
+					if (strMItemPtrLen < GetMaxLineWidth())
+					{
+						string strPadding;
+						strPadding.Format(L"%*c", GetMaxLineWidth()-strMItemPtrLen, L' ');
+						strMenuLine.Append(strPadding);
+					}
+					strMenuLine.Append(L' '); // right scroller (>>) placeholder
+					strMenuLine.Append(L'\x25BA'); // sub menu arrow
+				}
+
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
-				wchar_t * TmpStr=strTmpStr.GetBuffer();
+				wchar_t *TmpStr = strMenuLine.GetBuffer();
 				wchar_t *TabPtr;
-				while((TabPtr=wcschr(TmpStr,L'\t')))
+				while ((TabPtr = wcschr(TmpStr, L'\t')))
 					*TabPtr=L' ';
-				strTmpStr.ReleaseBuffer();
+				strMenuLine.ReleaseBuffer();
 
-        int Col;
+				int Col;
 
-        if(!(Item[I]->Flags&LIF_DISABLE))
-        {
-          if (Item[I]->Flags&LIF_SELECTED)
-              Col=VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorHSelect];
-          else
-              Col=VMenu::Colors[Item[I]->Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorHilite];
-        }
-        else
-          Col=VMenu::Colors[VMenuColorDisabled];
+				if (!(Item[I]->Flags & LIF_DISABLE))
+				{
+					if (Item[I]->Flags & LIF_SELECTED)
+						Col = VMenu::Colors[Item[I]->Flags & LIF_GRAYED ? VMenuColorSelGrayed : VMenuColorHSelect];
+					else
+						Col = VMenu::Colors[Item[I]->Flags & LIF_GRAYED ? VMenuColorGrayed : VMenuColorHilite];
+				}
+				else
+					Col = VMenu::Colors[VMenuColorDisabled];
 
-        if(VMFlags.Check(VMENU_SHOWAMPERSAND))
-          Text(strTmpStr);
-        else
-        {
-          short AmpPos=Item[I]->AmpPos+2;
+				if (VMFlags.Check(VMENU_SHOWAMPERSAND))
+					Text(strMenuLine);
+				else
+				{
+					short AmpPos=Item[I]->AmpPos+2;
 //_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-					if(AmpPos >= 2 && strTmpStr.At(AmpPos)!=L'&')
-          {
-						string strEnd=strTmpStr.CPtr()+AmpPos;
-						strTmpStr.SetLength(AmpPos);
-						strTmpStr+=L"&";
-						strTmpStr+=strEnd;
-          }
+					if (AmpPos >= 2 && strMenuLine.At(AmpPos)!=L'&')
+					{
+						string strEnd=strMenuLine.CPtr()+AmpPos;
+						strMenuLine.SetLength(AmpPos);
+						strMenuLine+=L"&";
+						strMenuLine+=strEnd;
+					}
 //_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
-          HiText(strTmpStr,Col);
-        }
+					HiText(strMenuLine,Col);
+				}
 
-        // сделаем добавочку для NO_BOX
-        mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
+				// сделаем добавочку для NO_BOX
+				mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
 
-        SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
+				SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
-        if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
-        {
-          GotoXY(X1+2,Y);
+				if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
+				{
+					GotoXY(X1+2,Y);
 					BoxText(L'\xab'); // '<<'
-        }
+				}
 
-				if(Len_MItemPtr > X2-X1-3-(RightOffset?3:0))
-        {
-          //if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
-          //  GotoXY(WhereX()-1,Y);
-          //else
-            GotoXY(X2-1-RightOffset,Y);
+				if (strMItemPtrLen > GetMaxLineWidth())
+				{
+					//if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
+					//	GotoXY(WhereX()-1,Y);
+					//else
+						GotoXY(X1+2+GetMaxLineWidth()+1,Y);
 					BoxText(L'\xbb');// '>>'
-        }
-      }
-    }
+				}
+			}
+		}
     else
     {
       if (BoxType!=NO_BOX)
@@ -875,7 +882,6 @@ int FindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
 BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 {
 	int _len;
-	int _OWidth=X2-X1-3-((VMFlags.Check(VMENU_COMBOBOX)||VMFlags.Check(VMENU_LISTBOX))?0:3);
 	int ItemShowPos=Item[Pos]->ShowPos;
 
 	if(VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -883,7 +889,7 @@ BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 	else
 		_len=HiStrlen(Item[Pos]->strName);
 
-	if(_len < _OWidth ||
+	if(_len < GetMaxLineWidth() ||
 			(Direct < 0 && ItemShowPos==0) ||
 			(Direct > 0 && ItemShowPos > _len))
 		return FALSE;
@@ -903,8 +909,8 @@ BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 	if(ItemShowPos < 0)
 		ItemShowPos=0;
 
-	if(ItemShowPos > _len-_OWidth)
-		ItemShowPos=_len-_OWidth + 1;
+	if (ItemShowPos + GetMaxLineWidth() > _len)
+		ItemShowPos = _len - GetMaxLineWidth();
 
 	if(ItemShowPos != Item[Pos]->ShowPos)
 	{
@@ -1165,8 +1171,6 @@ int VMenu::ProcessKey(int Key)
       else
       {
         int _len;
-        int _OWidth=X2-X1-3;
-
         for(I=0; I < ItemCount; ++I)
         {
           if(VMFlags.Check(VMENU_SHOWAMPERSAND))
@@ -1174,8 +1178,8 @@ int VMenu::ProcessKey(int Key)
           else
             _len=HiStrlen(Item[I]->strName);
 
-          if(_len >= _OWidth)
-            Item[I]->ShowPos=_len-_OWidth+1;
+          if(_len >= GetMaxLineWidth())
+            Item[I]->ShowPos = _len - GetMaxLineWidth();
         }
       }
 
@@ -2654,4 +2658,8 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
   if(hVMenu)
     return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
   return 0;
+}
+
+int VMenu::GetMaxLineWidth() const {
+	return X2 - X1 - 4 - (CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) ? 0 : 2);
 }
