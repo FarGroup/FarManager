@@ -31,7 +31,7 @@ $^#FARCmds Syntax
                  ~clip~@Clip@    - Put data in the clipboard
                  ~whereis~@WhereIs@ - Locate and jump to an object
                  ~macro~@Macro@   - Macros
-                 ~ln~@Ln@      - create of links
+                 ~link~@Link@      - create of links
                  ~run~@Run@     - execute commands
                  ~load~@Load@   - load plugin
                  ~unload~@Unload@ - unload plugin
@@ -188,19 +188,19 @@ only the switching to the required folder occurs.
 
    See also: ~Contents~@Contents@ | ~Notes~@Remark@
 
-@Ln
-$ #The Ln command#
+@Link
+$ #The Link command#
 
-   The #ln# command creates and deletes ~links~@:HardSymLink@
+   The #link# command creates and deletes ~links~@:HardSymLink@
 to files and folders. Hardlinks are created for files, directory junction are
 created for folders. It is possible to mount local disks on file system
-with #ln# command (so-called "volume mount points").
+with #link# command (so-called "volume mount points").
 
-   #ln# syntax:
+   #link# syntax:
 
-   #far:ln [/msg] [/n] [/s] source destination#
+   #far:link [/msg] [/n] [/s] source destination#
    or
-   #ln:[/msg] [/n] [/s] source destination#
+   #link:[/msg] [/n] [/s] source destination#
 
    if "destination" is
 
@@ -220,7 +220,7 @@ with #ln# command (so-called "volume mount points").
    Mounted drives (or volume mount points) is a Windows 2000/XP feature,
 that allows to display specified disks as folders. Example:
 
-   #ln: E:\ C:\cdrom#
+   #link: E:\ C:\cdrom#
 
     After this command the folder C:\cdrom will display the contents of drive E:
 
