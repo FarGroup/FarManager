@@ -659,7 +659,7 @@ void VMenu::ShowMenu(int IsParent)
 				string strMItemPtr(Item[I]->strName.CPtr() + HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND)));
 				int strMItemPtrLen;
 				if (VMFlags.Check(VMENU_SHOWAMPERSAND))
-					strMItemPtrLen = strMItemPtr.GetLength();
+					strMItemPtrLen = static_cast<int>(strMItemPtr.GetLength());
 				else
 					strMItemPtrLen = HiStrlen(strMItemPtr);
 
@@ -709,7 +709,7 @@ void VMenu::ShowMenu(int IsParent)
 				{
 					short AmpPos=Item[I]->AmpPos+2;
 //_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-					if (AmpPos >= 2 && strMenuLine.At(AmpPos)!=L'&')
+					if(AmpPos >= 2 && static_cast<size_t>(AmpPos)<strTmpStr.GetLength() && strTmpStr.At(AmpPos)!=L'&')
 					{
 						string strEnd=strMenuLine.CPtr()+AmpPos;
 						strMenuLine.SetLength(AmpPos);

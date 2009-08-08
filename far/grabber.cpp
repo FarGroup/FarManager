@@ -123,7 +123,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     for (int J=0;J<GWidth;J++, ++PtrCharBuf)
     {
       WORD Chr2 = PtrCharBuf->Char.UnicodeChar;
-      Chr=GetVidChar(*PtrCharBuf);
+      Chr=PtrCharBuf->Char.UnicodeChar;
 
 			if(Opt.CleanAscii)
       {

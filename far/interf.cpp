@@ -459,7 +459,7 @@ void ShowTime(int ShowAlways)
   }
 
   if ((!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-      GetVidChar(ScreenClockText[2])==L':') || ScreenSaverActive)
+      ScreenClockText[2].Char.UnicodeChar==L':') || ScreenSaverActive)
     return;
 
   ProcessShowClock++;

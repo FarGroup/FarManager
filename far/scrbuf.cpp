@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
+#include "DList.hpp"
 
 enum{
   SBFLAGS_FLUSHED         = 0x00000001,
@@ -200,7 +201,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLeng
   if (X1==0 && Y1==0 &&
       CtrlObject!=NULL &&
       CtrlObject->Macro.IsRecording() &&
-      GetVidChar(MacroChar) != L'R')
+      MacroChar.Char.UnicodeChar != L'R')
     Text[0]=MacroChar;
 }
 
@@ -315,145 +316,155 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 */
 void ScreenBuf::Flush()
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (LockCount>0)
-    return;
-
-  if (CtrlObject!=NULL && CtrlObject->Macro.IsRecording())
-  {
-    if (GetVidChar(Buf[0])!=L'R')
-      MacroChar=Buf[0];
-    SetVidChar(Buf[0],L'R');
-    Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
-  }
-
-  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
-  {
-    CONSOLE_CURSOR_INFO cci;
-    cci.dwSize=CurSize;
-    cci.bVisible=CurVisible;
-    SetConsoleCursorInfo(hScreen,&cci);
-    SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
-  }
-
-  if (!SBFlags.Check(SBFLAGS_FLUSHED))
-  {
-    SBFlags.Set(SBFLAGS_FLUSHED);
-    if (WaitInMainLoop && Opt.Clock && !ProcessShowClock)
-      ShowTime(FALSE);
-
-    int WriteX1=BufX-1,WriteY1=BufY-1,WriteX2=0,WriteY2=0;
-    int NoChanges=TRUE;
-    if (SBFlags.Check(SBFLAGS_USESHADOW))
-    {
-      CHAR_INFO *PtrBuf=Buf, *PtrShadow=Shadow;
-
-      for (int I=0; I < BufY; I++)
-      {
-        for (int J=0; J < BufX; J++, ++PtrBuf, ++PtrShadow)
-        {
-          if (PtrBuf->Attributes  != PtrShadow->Attributes ||
-              GetVidChar(*PtrBuf) != GetVidChar(*PtrShadow))
-          {
-            if (WriteX1>J)
-              WriteX1=J;
-            if (WriteX2<J)
-              WriteX2=J;
-            if (WriteY1>I)
-              WriteY1=I;
-            if (WriteY2<I)
-              WriteY2=I;
-            NoChanges=FALSE;
-          }
-        }
-      }
-			if(!NoChanges)
+	if(!LockCount)
+	{
+		if(CtrlObject && CtrlObject->Macro.IsRecording())
+		{
+			if(Buf[0].Char.UnicodeChar!=L'R')
 			{
-				// при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
-				// кстати, и при выключенном тоже (но реже).
-				// баг, конечно, не наш, но что делать.
-				// расширяем область прорисовки влево-вправо на 1 символ:
-				WriteX1=Max(0,WriteX1-1);
-				WriteX2=Min(WriteX2+1,ScrX);
+				MacroChar=Buf[0];
 			}
-    }
-    else
-    {
-      NoChanges=FALSE;
-      WriteX1=0;
-      WriteY1=0;
-      WriteX2=BufX-1;
-      WriteY2=BufY-1;
-    }
-    if (!NoChanges)
-    {
-      COORD Size,Corner;
-      SMALL_RECT Coord;
-      Size.X=BufX;
-      Size.Y=BufY;
-      Corner.X=WriteX1;
-      Corner.Y=WriteY1;
-      Coord.Left=WriteX1;
-      Coord.Top=WriteY1;
-      Coord.Right=WriteX2;
-      Coord.Bottom=WriteY2;
+			Buf[0].Char.UnicodeChar=L'R';
+			Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
+		}
 
-      // BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
-      // посему пишем по 32 K.
+		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
+		{
+			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
+			SetConsoleCursorInfo(hScreen,&cci);
+			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
+		}
 
-      const int MaxSize=0x7FFF;
-      if (BufX*BufY*(int)sizeof(CHAR_INFO)>MaxSize) // See REMINDER file section scrbuf.cpp
-      {
-        Corner.Y=0;
-        PCHAR_INFO BufPtr;
-        int maxY;
+		if(!SBFlags.Check(SBFLAGS_FLUSHED))
+		{
+			SBFlags.Set(SBFLAGS_FLUSHED);
+			if(WaitInMainLoop && Opt.Clock && !ProcessShowClock)
+			{
+				ShowTime(FALSE);
+			}
 
-        for (int yy=WriteY1; yy<=WriteY2;)
-        {
-          Coord.Top=yy;
-          BufPtr=Buf+yy*BufX;
-          maxY=MaxSize/(BufX*sizeof(CHAR_INFO));
-          if (maxY==0)
-          {
-            maxY=1;
-          }
-          else if (maxY-1+yy>WriteY2)
-          {
-            maxY=WriteY2-yy+1;
-          }
-          Size.Y=maxY;
-          yy+=maxY;
-          Coord.Bottom=yy-1;
+			DList<SMALL_RECT>WriteList;
+			SMALL_RECT WriteRegion={BufX-1,BufY-1,0,0};
+			bool Changes=false;
+			if(SBFlags.Check(SBFLAGS_USESHADOW))
+			{
+				PCHAR_INFO PtrBuf=Buf,PtrShadow=Shadow;
+				bool Started=false;
+				for(SHORT I=0;I<BufY;I++)
+				{
+					for(SHORT J=0;J<BufX;J++,++PtrBuf,++PtrShadow)
+					{
+						if(memcmp(PtrBuf,PtrShadow,sizeof(CHAR_INFO)))
+						{
+							WriteRegion.Left=Min(WriteRegion.Left,J);
+							WriteRegion.Top=Min(WriteRegion.Top,I);
+							WriteRegion.Right=Max(WriteRegion.Right,J);
+							WriteRegion.Bottom=Max(WriteRegion.Bottom,I);
+							Changes=true;
+							Started=true;
+						}
+						else
+						{
+							if(Started && WriteRegion.Bottom!=I)
+							{
+								if(I>WriteRegion.Bottom && J>=WriteRegion.Left)
+								{
+									//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
+									// кстати, и при выключенном тоже (но реже).
+									// баг, конечно, не наш, но что делать.
+									// расширяем область прорисовки влево-вправо на 1 символ:
+									WriteRegion.Left=Max(0,WriteRegion.Left-1);
+									WriteRegion.Right=Min(WriteRegion.Right+1,ScrX);
 
-					WriteConsoleOutput(hScreen, BufPtr, Size, Corner, &Coord);
-        }
-      }
-      else
-      {
-				WriteConsoleOutput(hScreen, Buf, Size, Corner, &Coord);
-      }
-
-      memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
-    }
-  }
-  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
-  {
-    COORD C;
-    C.X=CurX;
-    C.Y=CurY;
-    SetConsoleCursorPosition(hScreen,C);
-    SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
-  }
-  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
-  {
-    CONSOLE_CURSOR_INFO cci;
-    cci.dwSize=CurSize;
-    cci.bVisible=CurVisible;
-    SetConsoleCursorInfo(hScreen,&cci);
-    SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
-  }
-  SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
+									bool Merge=false;
+									PSMALL_RECT Last=WriteList.Last();
+									if(Last)
+									{
+										#define MAX_DELTA 5
+										if(WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
+										{
+											Last->Bottom=WriteRegion.Bottom;
+											Last->Left=Min(Last->Left,WriteRegion.Left);
+											Last->Right=Max(Last->Right,WriteRegion.Right);
+											Merge=true;
+										}
+									}
+									
+									if(!Merge)
+									{
+										WriteList.Push(&WriteRegion);
+									}
+									WriteRegion.Left=BufX-1;
+									WriteRegion.Top=BufY-1;
+									WriteRegion.Right=0;
+									WriteRegion.Bottom=0;
+									Started=false;
+								}
+							}
+						}
+					}
+				}
+				if(Started)
+				{
+					WriteList.Push(&WriteRegion);
+				}
+			}
+			else
+			{
+				Changes=true;
+				WriteRegion.Left=0;
+				WriteRegion.Top=0;
+				WriteRegion.Right=BufX-1;
+				WriteRegion.Bottom=BufY-1;
+				WriteList.Push(&WriteRegion);
+			}
+			if(Changes)
+			{
+				for(PSMALL_RECT PtrRect=WriteList.First();PtrRect;PtrRect=WriteList.Next(PtrRect))
+				{
+					COORD Size={BufX,BufY},Corner={PtrRect->Left,PtrRect->Top};
+					SMALL_RECT Coord=*PtrRect;
+					// BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
+					// посему пишем по 32 K.
+					#define MAXSIZE 0x7FFF
+					if(BufX*BufY*sizeof(CHAR_INFO)>MAXSIZE) // See REMINDER file section scrbuf.cpp
+					{
+						Corner.Y=0;
+						int WriteY2=Coord.Bottom;
+						for(int yy=Coord.Top;yy<=WriteY2;)
+						{
+							Coord.Top=yy;
+							PCHAR_INFO BufPtr=Buf+yy*BufX;
+							Size.Y=Min(Max(MAXSIZE/static_cast<int>(BufX*sizeof(CHAR_INFO)),1),WriteY2-yy+1);
+							yy+=Size.Y;
+							Coord.Bottom=yy-1;
+							WriteConsoleOutput(hScreen,BufPtr,Size,Corner,&Coord);
+						}
+					}
+					else
+					{
+						WriteConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+					}
+				}
+				memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
+			}
+		}
+		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
+		{
+			COORD C={CurX,CurY};
+			SetConsoleCursorPosition(hScreen,C);
+			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
+		}
+		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
+		{
+			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
+			SetConsoleCursorInfo(hScreen,&cci);
+			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
+		}
+		SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
+	}
 }
 
 
