@@ -644,7 +644,7 @@ void VMenu::ShowMenu(int IsParent)
 
 				string strMenuLine;
 
-				wchar_t CheckMark=L' ';
+				wchar_t CheckMark = L' ';
 				if (Item[I]->Flags & LIF_CHECKED)
 				{
 					if (!(Item[I]->Flags & 0x0000FFFF))
@@ -656,7 +656,8 @@ void VMenu::ShowMenu(int IsParent)
 
 				strMenuLine.Append(L' '); // left scroller (<<) placeholder
 
-				string strMItemPtr(Item[I]->strName.CPtr() + HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND)));
+				int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND));
+				string strMItemPtr(Item[I]->strName.CPtr() + ShowPos);
 				int strMItemPtrLen;
 				if (VMFlags.Check(VMENU_SHOWAMPERSAND))
 					strMItemPtrLen = static_cast<int>(strMItemPtr.GetLength());
@@ -668,6 +669,20 @@ void VMenu::ShowMenu(int IsParent)
 				{
 					strMItemPtr.SetLength(HiFindRealPos(strMItemPtr, GetMaxLineWidth(), VMFlags.Check(VMENU_SHOWAMPERSAND)));
 				}
+
+				// set highlight
+				if (!VMFlags.Check(VMENU_SHOWAMPERSAND))
+				{
+				  int AmpPos = Item[I]->AmpPos - ShowPos;
+					if((AmpPos >= 0) && (static_cast<size_t>(AmpPos) < strMItemPtr.GetLength()) && (strMItemPtr.At(AmpPos) != L'&'))
+					{
+						string strEnd = strMItemPtr.CPtr() + AmpPos;
+						strMItemPtr.SetLength(AmpPos);
+						strMItemPtr += L"&";
+						strMItemPtr += strEnd;
+					}
+				}
+
 				strMenuLine.Append(strMItemPtr);
 
 				if (Item[I]->Flags & MIF_SUBMENU)
@@ -706,19 +721,7 @@ void VMenu::ShowMenu(int IsParent)
 				if (VMFlags.Check(VMENU_SHOWAMPERSAND))
 					Text(strMenuLine);
 				else
-				{
-					short AmpPos=Item[I]->AmpPos+2;
-//_SVS(SysLog(L">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-					if(AmpPos >= 2 && static_cast<size_t>(AmpPos)<strTmpStr.GetLength() && strTmpStr.At(AmpPos)!=L'&')
-					{
-						string strEnd=strMenuLine.CPtr()+AmpPos;
-						strMenuLine.SetLength(AmpPos);
-						strMenuLine+=L"&";
-						strMenuLine+=strEnd;
-					}
-//_SVS(SysLog(L"<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
-					HiText(strMenuLine,Col);
-				}
+					HiText(strMenuLine, Col);
 
 				// сделаем добавочку дл€ NO_BOX
 				mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
@@ -2227,51 +2230,52 @@ void VMenu::AssignHighlights(int Reverse)
   if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
     VMFlags.Set(VMENU_SHOWAMPERSAND);
 
-  int I, Delta=Reverse ? -1:1;
-  for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
+  int I, Delta = Reverse ? -1 : 1;
+  for (I = Reverse ? ItemCount-1 : 0; I>=0 && I<ItemCount; I+=Delta)
   {
-    wchar_t Ch=0;
-    const wchar_t *Name=Item[I]->strName;
-    const wchar_t *ChPtr=wcschr(Name,L'&');
+    wchar_t Ch = 0;
+    int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND));
+    const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
+    Item[I]->AmpPos = -1;
     // TODO: проверка на LIF_HIDDEN
-    Item[I]->AmpPos=-1;
+    const wchar_t *ChPtr = wcschr(Name, L'&');
     if (ChPtr)
     {
-      Ch=ChPtr[1];
-      if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+      Ch = ChPtr[1];
+      if (Ch && VMFlags.Check(VMENU_SHOWAMPERSAND))
       {
-        ChPtr=wcschr(ChPtr+1,L'&');
-        if(ChPtr)
+        ChPtr = wcschr(ChPtr+1, L'&');
+        if (ChPtr)
           Ch=ChPtr[1];
       }
     }
 
-    if(Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
+    if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
     {
-      Used[Upper(Ch)]=true;
-      Used[Lower(Ch)]=true;
-      Item[I]->AmpPos=(int)(ChPtr-Name);
+      Used[Upper(Ch)] = true;
+      Used[Lower(Ch)] = true;
+      Item[I]->AmpPos = static_cast<int>(ChPtr-Name) + ShowPos;
     }
   }
 //_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));
 
   // TODO:  Ё“ќ“ цикл нужно уточнить - возможно вылезут артефакты (хот€ не уверен)
-  for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
+  for (I = Reverse ? ItemCount-1 : 0; I>=0 && I<ItemCount; I+=Delta)
   {
-    const wchar_t *Name=Item[I]->strName;
-    const wchar_t *ChPtr=wcschr(Name,L'&');
+    int ShowPos = HiFindRealPos(Item[I]->strName, Item[I]->ShowPos, VMFlags.Check(VMENU_SHOWAMPERSAND));
+    const wchar_t *Name = Item[I]->strName.CPtr() + ShowPos;
+    const wchar_t *ChPtr = wcschr(Name, L'&');
     if (ChPtr==NULL || VMFlags.Check(VMENU_SHOWAMPERSAND))
     {
       // TODO: проверка на LIF_HIDDEN
       for (int J=0; Name[J]; J++)
       {
-        wchar_t Ch=Name[J];
-        if((Ch ==L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) &&
-             !Used[Upper(Ch)] && !Used[Lower(Ch)])
+        wchar_t Ch = Name[J];
+        if ((Ch == L'&' || IsAlpha(Ch) || (Ch >= L'0' && Ch <=L'9')) && !Used[Upper(Ch)] && !Used[Lower(Ch)])
         {
-          Used[Upper(Ch)]=true;
-          Used[Lower(Ch)]=true;
-          Item[I]->AmpPos=J;
+          Used[Upper(Ch)] = true;
+          Used[Lower(Ch)] = true;
+          Item[I]->AmpPos = J + ShowPos;
           break;
         }
       }
