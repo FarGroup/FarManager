@@ -31,7 +31,7 @@ $^#FARCmds Syntax
                  ~clip~@Clip@    - Put data in the clipboard
                  ~whereis~@WhereIs@ - Locate and jump to an object
                  ~macro~@Macro@   - Macros
-                 ~link~@Link@      - create of links
+                 ~link~@Link@      - create links
                  ~run~@Run@     - execute commands
                  ~load~@Load@   - load plugin
                  ~unload~@Unload@ - unload plugin
