@@ -2853,7 +2853,7 @@ int FileList::GetSelCount()
 {
   if (FileCount==0)
     return(0);
-  if (SelFileCount==0 || ReturnCurrentFile)
+	if ((SelFileCount==0 || ReturnCurrentFile) && !TestParentFolderName(ListData[CurFile]->strName))
     return(1);
   return(SelFileCount);
 }
