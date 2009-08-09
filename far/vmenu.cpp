@@ -2665,5 +2665,11 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
 }
 
 int VMenu::GetMaxLineWidth() const {
-	return X2 - X1 - 4 - (CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) ? 0 : 2);
+	int width = X2 - X1 + 1;
+	if (BoxType != NO_BOX)
+		width -= 2; // frame
+	width -= 3; // check mark + horz. scroll
+	if (!CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
+		width -= 2; // sub menu arrow
+	return width;
 }
