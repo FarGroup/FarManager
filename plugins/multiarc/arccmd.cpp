@@ -15,7 +15,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
 /* $ 28.11.2000 AS
 */
   ExecCode=(DWORD)-1;
-/* AS $*/
+
   if (*FormatString==0)
     return;
   //char QPassword[NM+5],QTempPath[NM+5];
@@ -360,7 +360,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
 
         while (NameNumber<ItemsNumber || Command[2]=='f')
         {
-          char Name[NM];
+          char Name[NM*2];
+
           int IncreaseNumber=0,FileAttr;
           if (*NextFileName)
           {
@@ -382,9 +383,25 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
               break;
 
             *PrefixFileName=0;
-            if(PanelItem[N].UserData)
-              lstrcpyn(PrefixFileName,(char *)PanelItem[N].UserData,sizeof(PrefixFileName));
-            FSF.sprintf(Name,"%s%s%s",PrefixFileName,CurArcDir,PanelItem[N].FindData.cFileName);
+            char *cFileName=PanelItem[N].FindData.cFileName;
+
+            if(PanelItem[N].UserData && (PanelItem[N].Flags & PPIF_USERDATA))
+            {
+              struct ArcItemUserData *aud=(struct ArcItemUserData*)PanelItem[N].UserData;
+              if(aud->SizeStruct == sizeof(struct ArcItemUserData))
+              {
+                if(aud->Prefix)
+                  lstrcpyn(PrefixFileName,aud->Prefix,sizeof(PrefixFileName));
+                if(aud->LinkName)
+                  cFileName=aud->LinkName;
+              }
+            }
+            // CHECK for BUGS!!
+            if(*cFileName == '\\' || *cFileName == '/')
+              FSF.sprintf(Name,"%s%s",PrefixFileName,cFileName+1);
+            else
+              FSF.sprintf(Name,"%s%s%s",PrefixFileName,CurArcDir,cFileName);
+            NormalizePath(Name,Name);
             FileAttr=PanelItem[N].FindData.dwFileAttributes;
             PrevFileNameNumber=N;
           }
@@ -503,12 +520,10 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   char CurArcDir[NM];
   char Buf[3*NM];
 
-/* $ 23.10.2001 AA */
   if(NameOnly)
     *CurArcDir=0;
   else
     lstrcpy( CurArcDir, ArcDir );
-/* 23.10.2001 AA $ */
 
   int Length=lstrlen(CurArcDir);
   if (Length>0 && CurArcDir[Length-1]!='\\')
@@ -518,10 +533,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     for (int I=0;CurArcDir[I];I++)
       if (CurArcDir[I]=='\\')
 //        CurArcDir[I]='//';
-/* $ 28.11.2000 AS
-*/
         CurArcDir[I]='/';
-/* AS $*/
 
   for (int I=0;I<ItemsNumber;I++)
   {
@@ -542,15 +554,30 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       *Ptr=0;
     }
     int FileAttr=PanelItem[I].FindData.dwFileAttributes;
+
     *PrefixFileName=0;
-    if(PanelItem[I].UserData)
-      lstrcpyn(PrefixFileName,(char *)PanelItem[I].UserData,sizeof(PrefixFileName));
+    if(PanelItem[I].UserData && (PanelItem[I].Flags & PPIF_USERDATA))
+    {
+      struct ArcItemUserData *aud=(struct ArcItemUserData*)PanelItem[I].UserData;
+      if(aud->SizeStruct == sizeof(struct ArcItemUserData))
+      {
+        if(aud->Prefix)
+          lstrcpyn(PrefixFileName,aud->Prefix,sizeof(PrefixFileName));
+        if(aud->LinkName)
+           lstrcpyn(FileName,aud->LinkName,sizeof(FileName));
+      }
+    }
 
     int Error=FALSE;
     if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || FolderName))
     {
       char OutName[NM];
-      FSF.sprintf(OutName,"%s%s%s",PrefixFileName,CurArcDir,FileName);
+      // CHECK for BUGS!!
+      if(*FileName == '\\' || *FileName == '/')
+        FSF.sprintf(OutName,"%s%s",PrefixFileName,FileName+1);
+      else
+        FSF.sprintf(OutName,"%s%s%s",PrefixFileName,CurArcDir,FileName);
+      NormalizePath(OutName,OutName);
       if (QuoteName==1)
         FSF.QuoteSpaceOnly(OutName);
       else

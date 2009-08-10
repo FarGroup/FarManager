@@ -645,7 +645,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       }
 
     for (int I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA временный фикс !!
-      PanelItem[I].UserData=0;
+      PanelItem[I].UserData=0; // CHECK FOR BUGS!!!
 
     int CommandType;
     if (DialogItems[PDI_ADDDELCHECK].Selected)

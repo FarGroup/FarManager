@@ -167,9 +167,19 @@ char ZipName[NM];
 
 FARSTDLOCALSTRICMP LStricmp;
 
+typedef int  (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
+
+typedef void (__cdecl *MAFREE)(void *block);
+typedef void * (__cdecl *MAMALLOC)(size_t size);
+
+MAFREE MA_free;
+MAMALLOC MA_malloc;
+
 void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 {
   LStricmp=Info->FSF->LStricmp;
+  MA_free=(MAFREE)Info->FSF->Reserved[1];
+  MA_malloc=(MAMALLOC)Info->FSF->Reserved[0];
 }
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
@@ -347,9 +357,13 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       return(GETARC_EOF);
 
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGLINK || TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
+    {
       SkipItem=TRUE;
+    }
     else
     {
+      // TODO: GNUTYPE_LONGLINK
+      DWORD dwAddFileAttr=0;
       SkipItem=FALSE;
       char *EndPos;
       if (LongName != NULL)
@@ -370,8 +384,31 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         EndPos = AdjustTARFileName (namebuf);
       }
       lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
-      Item->FindData.dwFileAttributes=((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       Item->FindData.nFileSizeHigh=0;
+      if(((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4))
+         dwAddFileAttr|=FILE_ATTRIBUTE_DIRECTORY;
+
+      if(TAR_hdr.header.typeflag == SYMTYPE || TAR_hdr.header.typeflag == LNKTYPE)
+      {
+        if(TAR_hdr.header.typeflag == SYMTYPE)
+        {
+          #ifndef IO_REPARSE_TAG_SYMLINK
+            #define IO_REPARSE_TAG_SYMLINK 0xA000000C
+          #endif
+          dwAddFileAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+          Item->FindData.dwReserved0=IO_REPARSE_TAG_SYMLINK;
+        }
+
+        if((Item->UserData=(DWORD_PTR)MA_malloc(lstrlen(TAR_hdr.header.linkname)+2)) != NULL)
+        {
+          EndPos = AdjustTARFileName (TAR_hdr.header.linkname);
+          if(TAR_hdr.header.typeflag == LNKTYPE)
+            *(char*)Item->UserData='/';
+          lstrcpyn((char*)Item->UserData+(TAR_hdr.header.typeflag == LNKTYPE?1:0),EndPos,lstrlen(TAR_hdr.header.linkname)+1);
+        }
+      }
+
+      Item->FindData.dwFileAttributes=dwAddFileAttr;
 
       UnixTimeToFileTime((DWORD)GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
     }
@@ -393,7 +430,8 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     if (PrevPosition.i64 >= NextPosition.i64)
       return(GETARC_BROKEN);
 
-    if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
+    // TODO: GNUTYPE_LONGLINK
+    if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME || TAR_hdr.header.typeflag == GNUTYPE_LONGLINK)
     {
       PrevPosition.i64+=(__int64)sizeof(TAR_hdr);
       SetFilePointer (ArcHandle,PrevPosition.Part.LowPart,&PrevPosition.Part.HighPart,FILE_BEGIN);

@@ -26,8 +26,16 @@ void PluginClass::FreeArcData()
     {
       if (ArcData[I].Description!=NULL)
         delete[] ArcData[I].Description;
-      if(ArcData[I].UserData)
+
+      if(ArcData[I].UserData && (ArcData[I].Flags & PPIF_USERDATA))
+      {
+        struct ArcItemUserData *aud=(struct ArcItemUserData*)ArcData[I].UserData;
+        if(aud->Prefix)
+          free((void *)aud->Prefix);
+        if(aud->LinkName)
+          free((void *)aud->LinkName);
         free((void *)ArcData[I].UserData);
+      }
     }
     free (ArcData);
     ArcData=NULL;
@@ -124,7 +132,6 @@ int PluginClass::ReadArchive(char *Name)
     if (lstrcmp(ItemsInfo.HostOS,CurItemInfo.HostOS)!=0)
       lstrcpy(ItemsInfo.HostOS,(*ItemsInfo.HostOS?GetMsg(MSeveralOS):CurItemInfo.HostOS));
 
-    CurArcData.Flags=0;
     ItemsInfo.Solid|=CurItemInfo.Solid;
     ItemsInfo.Comment|=CurItemInfo.Comment;
     ItemsInfo.Encrypted|=CurItemInfo.Encrypted;
@@ -145,7 +152,8 @@ int PluginClass::ReadArchive(char *Name)
       if (*NamePtr=='/')
         *NamePtr='\\';
 
-    CurArcData.UserData=0;
+    struct ArcItemUserData *aud=NULL;
+    char *Pref=NULL;
 
     NamePtr=CurArcData.FindData.cFileName;
     char *EndPos=NamePtr;
@@ -156,14 +164,30 @@ int PluginClass::ReadArchive(char *Name)
       EndPos=NamePtr;
     if(EndPos != NamePtr)
     {
-      char *Pref=(char *)malloc((int)(EndPos-NamePtr)+1);
+      Pref=(char *)malloc((int)(EndPos-NamePtr)+1);
       if(Pref)
       {
         memcpy(Pref,NamePtr,(int)(EndPos-NamePtr));
         Pref[(int)(EndPos-NamePtr)]=0;
-        CurArcData.UserData=(DWORD_PTR)Pref;
       }
     }
+
+    if(CurArcData.UserData || Pref)
+    {
+       if((aud=(struct ArcItemUserData*)malloc(sizeof(struct ArcItemUserData))) != NULL)
+       {
+         CurArcData.Flags |= PPIF_USERDATA;
+         aud->SizeStruct=sizeof(struct ArcItemUserData);
+         aud->Prefix=Pref;
+         aud->LinkName=CurArcData.UserData?(char *)CurArcData.UserData:NULL;
+         CurArcData.UserData=(DWORD_PTR)aud;
+       }
+       else
+         CurArcData.UserData=0;
+    }
+    if(!CurArcData.UserData && Pref)
+      free(Pref);
+
 
     if (EndPos!=CurArcData.FindData.cFileName)
       memmove(CurArcData.FindData.cFileName,EndPos,lstrlen(EndPos)+1);

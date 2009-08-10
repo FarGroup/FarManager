@@ -17,6 +17,7 @@
 #define RETEXEC_ARCNOTFOUND 0x40000
 
 #define F_ENCRYPTED 1
+
 #define MAX_COMMAND_LENGTH 32768
 #define MA_MAX_SIZE_COMMAND_NAME 512
 
@@ -41,6 +42,13 @@ enum {
   CMD_DEFEXT
 };
 
+
+// TODO: add to Archive API (?)
+struct ArcItemUserData{
+   DWORD SizeStruct;
+   char *Prefix;
+   char *LinkName;
+};
 
 typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(const char *ModuleName);
 typedef BOOL (WINAPI *PLUGINISARCHIVE)(const char *Name,const unsigned char *Data,int DataSize);
@@ -301,6 +309,7 @@ char *GetCommaWord(char *Src,char *Word,char Separator);
 BOOL GoToFile(const char *Target, BOOL AllowChangeDir);
 BOOL FileExists(const char* Name);
 int GetScrX(void);
+void NormalizePath(const char *SrcName,char *DestName);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);

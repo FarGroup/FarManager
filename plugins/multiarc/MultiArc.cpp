@@ -30,6 +30,9 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
 
+  ::Info.FSF->Reserved[0]=(DWORD_PTR)malloc;
+  ::Info.FSF->Reserved[1]=(DWORD_PTR)free;
+
   FarVER=(int)::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
   FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);

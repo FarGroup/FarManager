@@ -580,3 +580,95 @@ int GetScrX(void)
     return ConsoleScreenBufferInfo.dwSize.X;
   return 0;
 }
+
+
+
+int PathMayBeAbsolute(const char *Path)
+{
+  return (Path &&
+           (
+             ((*Path >= 'a' && *Path <= 'z' || *Path >= 'A' && *Path <= 'Z') && Path[1]==':') ||
+             (Path[0]=='\\'  && Path[1]=='\\') ||
+             (Path[0]=='/'   && Path[1]=='/')
+           )
+         );
+}
+
+/*
+  преобразует строку
+    "cdrecord-1.6.1/mkisofs-1.12b4/../cdrecord/cd_misc.c"
+  в
+    "cdrecord-1.6.1/cdrecord/cd_misc.c"
+*/
+void NormalizePath(const char *lpcSrcName,char *lpDestName)
+{
+  char *DestName=lpDestName;
+  char *Ptr;
+  char *SrcName=strdup(lpcSrcName);
+  char *oSrcName=SrcName;
+  int dist;
+
+  while(*SrcName)
+  {
+    Ptr=strchr(SrcName,'\\');
+    if(!Ptr)
+      Ptr=strchr(SrcName,'/');
+
+    if(!Ptr)
+      Ptr=SrcName+lstrlen(SrcName);
+
+    dist=(int)(Ptr-SrcName)+1;
+
+    if(dist == 1 && (*SrcName == '\\' || *SrcName == '/'))
+    {
+      *DestName=*SrcName;
+      DestName++;
+      SrcName++;
+    }
+    else if(dist == 2 && *SrcName == '.')
+    {
+      SrcName++;
+
+      if(*SrcName == 0)
+        DestName--;
+      else
+        SrcName++;
+    }
+    else if(dist == 3 && *SrcName == '.' && SrcName[1] == '.')
+    {
+      if(!PathMayBeAbsolute(lpDestName))
+      {
+        char *ptrCurDestName=lpDestName, *Temp=NULL;
+
+        for ( ; ptrCurDestName < DestName-1; ptrCurDestName++)
+        {
+           if (*ptrCurDestName == '\\' || *ptrCurDestName == '/')
+             Temp = ptrCurDestName;
+        }
+
+        if(!Temp)
+          Temp=lpDestName;
+
+        DestName=Temp;
+      }
+      else
+      {
+         if(SrcName[2] == '\\' || SrcName[2] == '/')
+           SrcName++;
+      }
+
+      SrcName+=2;
+    }
+    else
+    {
+      lstrcpyn(DestName, SrcName, dist);
+      dist--;
+      DestName += dist;
+      SrcName  += dist;
+    }
+
+    *DestName=0;
+  }
+
+  free(oSrcName);
+}
