@@ -2220,7 +2220,7 @@ int Editor::ProcessKey(int Key)
         int StartPos=CurLine->GetTabCurPos();
         NumLine=0;
         TopScreen=CurLine=TopList;
-        if (Key==KEY_CTRLHOME)
+        if (Key == KEY_CTRLHOME || Key == KEY_CTRLNUMPAD7)
           CurLine->SetCurPos(0);
         else
           CurLine->SetTabCurPos(StartPos);
@@ -2243,7 +2243,7 @@ int Editor::ProcessKey(int Key)
           TopScreen=TopScreen->m_prev;
         }
         CurLine->SetLeftPos(0);
-        if (Key==KEY_CTRLEND)
+        if (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1)
         {
           CurLine->SetCurPos(CurLine->GetLength());
           CurLine->FastShow();
