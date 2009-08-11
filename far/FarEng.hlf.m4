@@ -2616,6 +2616,8 @@ the Local Policy Editor (to do this, run a #secpol.msc# from the command prompt,
 and set the '#Local Policies/Security Options/Devices: Restrict CD-ROM#
 #access to locally logged-on user only#' setting to '#Enabled#').
 
+    #Shift-F1# in the plugins list displays the context-sensitive help of the
+currently selected plugin, if the plugin has a help file.
 
 @DisconnectDrive
 $ #Disconnect network drive#
