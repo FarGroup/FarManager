@@ -161,7 +161,7 @@ private:
 public:
 	UnicodeString();
 
-	UnicodeString(size_t nSize, size_t nDelta=0)
+	explicit UnicodeString(size_t nSize, size_t nDelta=0)
 	{
 		m_pData = new UnicodeStringData(nSize, nDelta);
 	}
