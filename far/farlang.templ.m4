@@ -9143,6 +9143,14 @@ MMenuConfirmation
 "Meg&erősítések"
 "P&otwierdzenia"
 
+MMenuPluginConfirmation
+"Выбор плагина"
+"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+
 MMenuFilePanelModes
 "Режим&ы панели файлов"
 "File panel &modes"
@@ -11249,6 +11257,55 @@ MSetConfirmExit
 "Be&enden"
 "K&ilépés a FAR-ból"
 "&Wyjście"
+
+MSetPluginConfirmationTitle
+l:
+"Выбор плагина"
+"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+upd:"Plugin selection"
+
+MSetPluginConfirmationOFP
+"Обработка файла (OpenFilePlugin)"
+"File processing (OpenFilePlugin)"
+upd:"File processing (OpenFilePlugin)"
+upd:"File processing (OpenFilePlugin)"
+upd:"File processing (OpenFilePlugin)"
+upd:"File processing (OpenFilePlugin)"
+
+MSetPluginConfirmationStdAssoc
+"Пункт вызова стандартной ассоциации"
+"Show standard association item"
+upd:"Show standard association item"
+upd:"Show standard association item"
+upd:"Show standard association item"
+upd:"Show standard association item"
+
+MSetPluginConfirmationEvenOne
+"Даже если найден всего один плагин"
+"Even if only one plugin found"
+upd:"Even if only one plugin found"
+upd:"Even if only one plugin found"
+upd:"Even if only one plugin found"
+upd:"Even if only one plugin found"
+
+MSetPluginConfirmationSFL
+"Результаты поиска (SetFindList)"
+"Search results (SetFindList)"
+upd:"Search results (SetFindList)"
+upd:"Search results (SetFindList)"
+upd:"Search results (SetFindList)"
+upd:"Search results (SetFindList)"
+
+MSetPluginConfirmationPF
+"Обработка префикса"
+"Prefix processing"
+upd:"Prefix processing"
+upd:"Prefix processing"
+upd:"Prefix processing"
+upd:"Prefix processing"
 
 MFindFolderTitle
 l:

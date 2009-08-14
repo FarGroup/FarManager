@@ -559,59 +559,51 @@ void SetConfirmations()
 
 void SetPluginConfirmations()
 {
+	enum PluginConfirmationDlg
+	{
+		PC_DOUBLEBOX,
+		PC_CHECKBOX_OFP,
+		PC_CHECKBOX_STDASSOC,
+		PC_CHECKBOX_EVENONE,
+		PC_CHECKBOX_SFL,
+		PC_CHECKBOX_PF,
+		PC_SEPARATOR,
+		PC_BUTTON_OK,
+		PC_BUTTON_CANCEL,
+	};
+	const int DlgX=54,DlgY=11;
+	DialogDataEx ConfDlgData[]=
+	{
+		DI_DOUBLEBOX, 3, 1,DlgX-4,DlgY-2,0,0,0,0,MSG(MSetPluginConfirmationTitle),
+		DI_CHECKBOX,  5, 2, 0, 2,1,Opt.PluginConfirm.OpenFilePlugin,DIF_AUTOMATION,0,MSG(MSetPluginConfirmationOFP),
+		DI_CHECKBOX,  7, 3, 0, 3,0,Opt.PluginConfirm.StandardAssociation,DIF_AUTOMATION|(Opt.PluginConfirm.OpenFilePlugin?0:DIF_DISABLE),0,MSG(MSetPluginConfirmationStdAssoc),
+		DI_CHECKBOX,  7, 4, 0, 4,0,Opt.PluginConfirm.EvenIfOnlyOnePlugin,(Opt.PluginConfirm.OpenFilePlugin?0:DIF_DISABLE),0,MSG(MSetPluginConfirmationEvenOne),
+		DI_CHECKBOX,  5, 5, 0, 5,0,Opt.PluginConfirm.SetFindList,0,0,MSG(MSetPluginConfirmationSFL),
+		DI_CHECKBOX,  5, 6, 0, 6,0,Opt.PluginConfirm.Prefix,0,0,MSG(MSetPluginConfirmationPF),
+		DI_TEXT,      3,DlgY-4, 0,DlgY-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,    0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,    0,DlgY-3, 0,DlgY-3,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+	};
 
-	static DialogDataEx ConfDlgData[]={
-  /* 00 */DI_DOUBLEBOX,  3, 1,46,9,0,0,0,0,L"Choose plugin menu",
-  /* 01 */DI_CHECKBOX,   5, 2, 0, 2,1,0,DIF_AUTOMATION,0,L"OpenFilePlugin",
-  /* 02 */DI_CHECKBOX,   7, 3, 0, 3,0,0,DIF_AUTOMATION,0,L"Standard associations",
-  /* 03 */DI_CHECKBOX,   7, 4, 0, 4,0,0,0,0,L"Even if only one plugin found",
-  /* 04 */DI_CHECKBOX,   5, 5, 0, 5,0,0,0,0,L"SetFindList",
-  /* 05 */DI_CHECKBOX,   5, 6, 0, 6,0,0,0,0,L"Prefix",
-  /* 06 */DI_TEXT,       3,7, 0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 07 */DI_BUTTON,     0,8, 0,8,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 08 */DI_BUTTON,     0,8, 0,8,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	MakeDialogItemsEx(ConfDlgData, ConfDlg);
 
-  };
+	Dialog Dlg(ConfDlg,countof(ConfDlg));
+	Dlg.SetHelp(L"ChoosePluginDlg");
+	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 
-  MakeDialogItemsEx(ConfDlgData, ConfDlg);
+	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_STDASSOC,DIF_DISABLE,0,0,DIF_DISABLE);
+	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_EVENONE,DIF_DISABLE,0,0,DIF_DISABLE);
 
-  ConfDlg[1].Selected = Opt.PluginConfirm.OpenFilePlugin;
-  ConfDlg[2].Selected = Opt.PluginConfirm.StandardAssociation;
-  ConfDlg[3].Selected = Opt.PluginConfirm.EvenIfOnlyOnePlugin;
-  ConfDlg[4].Selected = Opt.PluginConfirm.SetFindList;
-  ConfDlg[5].Selected = Opt.PluginConfirm.Prefix;
+	Dlg.Process();
 
-  if ( !Opt.PluginConfirm.OpenFilePlugin )
-  {
-  	ConfDlg[2].Flags |= DIF_DISABLE;
-  	ConfDlg[3].Flags |= DIF_DISABLE;
+	if(Dlg.GetExitCode()==PC_BUTTON_OK)
+	{
+		Opt.PluginConfirm.OpenFilePlugin = ConfDlg[PC_CHECKBOX_OFP].Selected;
+		Opt.PluginConfirm.StandardAssociation = ConfDlg[PC_CHECKBOX_STDASSOC].Selected;
+		Opt.PluginConfirm.EvenIfOnlyOnePlugin = ConfDlg[PC_CHECKBOX_EVENONE].Selected;
+		Opt.PluginConfirm.SetFindList = ConfDlg[PC_CHECKBOX_SFL].Selected;
+		Opt.PluginConfirm.Prefix = ConfDlg[PC_CHECKBOX_PF].Selected;
 	}
-
-  if ( !Opt.PluginConfirm.StandardAssociation )
-	  ConfDlg[3].Flags |= DIF_DISABLE;
-
-  ConfDlg[4].Flags |= DIF_DISABLE;
-  ConfDlg[5].Flags |= DIF_DISABLE;
-
-  Dialog Dlg(ConfDlg,countof(ConfDlg));
- // Dlg.SetHelp(L"ConfirmDlg");
-  Dlg.SetPosition(-1,-1,50,11);
-
-  Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(1,3,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
-
-  
-  Dlg.Process();
-
-  if ( Dlg.GetExitCode() != 7 )
-    return;
-
-  Opt.PluginConfirm.OpenFilePlugin = ConfDlg[1].Selected;
-  Opt.PluginConfirm.StandardAssociation = ConfDlg[2].Selected;
-  Opt.PluginConfirm.EvenIfOnlyOnePlugin = ConfDlg[3].Selected;
-  Opt.PluginConfirm.SetFindList = ConfDlg[4].Selected;
-  Opt.PluginConfirm.Prefix = ConfDlg[5].Selected;
 }
 
 
@@ -1176,11 +1168,11 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
   {0, REG_DWORD,  NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
 
-  {1, REG_DWORD,  NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 1, 0},
-  {1, REG_DWORD,  NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 1, 0},
-  {1, REG_DWORD,  NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 1, 0},
-  {1, REG_DWORD,  NKeyPluginConfirmations, L"SetFindList", &Opt.PluginConfirm.SetFindList, 1, 0},
-  {1, REG_DWORD,  NKeyPluginConfirmations, L"Prefix", &Opt.PluginConfirm.Prefix, 1, 0},
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 0, 0},
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 0, 0},
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 0, 0},
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"SetFindList", &Opt.PluginConfirm.SetFindList, 0, 0},
+	{1, REG_DWORD,  NKeyPluginConfirmations, L"Prefix", &Opt.PluginConfirm.Prefix, 0, 0},
 
   {0, REG_DWORD,  NKeyPanel,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
   {1, REG_DWORD,  NKeyPanel,L"ShowHidden",&Opt.ShowHidden,1, 0},

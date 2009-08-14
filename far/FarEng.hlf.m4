@@ -1274,6 +1274,14 @@ following operations:
     - exit from FAR.
 
 
+@ChoosePluginDlg
+$ #Choose plugin mmenu#
+
+
+@ChoosePluginMenu
+$ #Choose plugin mmenu#
+
+
 @MakeFolder
 $ #Make folder#
     This function allows you to create folders. You can use environment

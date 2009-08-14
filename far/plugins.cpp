@@ -758,11 +758,12 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	if ( items.count() && (hResult != (HANDLE)-2) )
 	{
-		if ( (items.count() > 1) || (Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin) )
+		if ( (items.count() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)) )
 		{
-			VMenu menu(L"Choose", NULL, 0, ScrY-4);
+			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
 
 			menu.SetPosition(-1, -1, 0, 0);
+			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 			MenuItemEx mitem;
@@ -840,7 +841,12 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	Plugin *pPlugin;
+	PluginHandle *pResult = NULL;
+	pointer_array<PluginHandle*> items;
+	items.create(ARRAY_OPTIONS_SKIP);
+
+	Plugin *pPlugin=NULL;
+	bool bFirstFound=false;
 
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -853,20 +859,68 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 
 		if ( hPlugin != INVALID_HANDLE_VALUE )
 		{
-			if ( pPlugin->SetFindList (hPlugin, PanelItem, ItemsNumber) )
+			PluginHandle *handle = new PluginHandle;
+			handle->hPlugin = hPlugin;
+			handle->pPlugin = pPlugin;
+			items.add(handle);
+			bFirstFound = true;
+		}
+		if(bFirstFound && !Opt.PluginConfirm.SetFindList)
+			break;
+	}
+	if(items.count())
+	{
+		if(items.count()>1)
+		{
+			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
+			menu.SetPosition(-1, -1, 0, 0);
+			menu.SetHelp(L"ChoosePluginMenu");
+			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+			MenuItemEx mitem;
+			for(int i=0;i<items.count();i++)
 			{
-				PluginHandle *handle = new PluginHandle;
-				handle->hPlugin = hPlugin;
-				handle->pPlugin = pPlugin;
-
-				return (HANDLE)handle;
+				PluginHandle *handle = items.at(i);
+				mitem.Clear();
+				mitem.strName=PointToName(handle->pPlugin->GetModuleName());
+				menu.AddItem(&mitem);
 			}
-
-			pPlugin->ClosePlugin (hPlugin);
+			menu.Show();
+			while(!menu.Done())
+			{
+				menu.ReadInput();
+				menu.ProcessInput();
+			}
+			int ExitCode=menu.GetExitCode();
+			if(ExitCode>=0)
+			{
+				pResult=items.at(ExitCode);
+			}
+		}
+		else
+		{
+			pResult=items.at(0);
 		}
 	}
 
-	return INVALID_HANDLE_VALUE;
+	if(pResult)
+	{
+		if(!pResult->pPlugin->SetFindList(pResult->hPlugin, PanelItem, ItemsNumber))
+		{
+			pResult=NULL;
+		}
+	}
+
+	for(int i=0;i<items.count();i++)
+	{
+		PluginHandle *handle=items.at(i);
+		if(handle!=pResult)
+		{
+			if(handle->hPlugin!=INVALID_HANDLE_VALUE )
+				handle->pPlugin->ClosePlugin(handle->hPlugin);
+			delete handle;
+		}
+	}
+	return pResult?reinterpret_cast<HANDLE>(pResult):INVALID_HANDLE_VALUE;
 }
 
 
@@ -1919,26 +1973,28 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	strPrefix.ReleaseBuffer ();
 
-	Plugin *PluginPos=NULL;
-
 	DWORD PluginFlags = 0;
 	string strPluginPrefix;
+	bool bFirstFound = false;
 
-	Plugin *PData;
+	Plugin *pPlugin=NULL;
+	pointer_array<Plugin*> items;
+	items.create(ARRAY_OPTIONS_SKIP);
+
 	for (int I=0;I<PluginsCount;I++)
 	{
-		PData = PluginsData[I];
-		if (PData->CheckWorkFlags(PIWF_CACHED))
+		pPlugin = PluginsData[I];
+		if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 		{
 			string strRegKey;
-			strRegKey.Format (FmtPluginsCache_PluginS, PData->GetCacheName());
+			strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
 			GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
 			PluginFlags=GetRegKey(strRegKey,L"Flags",0);
 		}
 		else
 		{
 			PluginInfo Info;
-			if (PData->GetPluginInfo(&Info))
+			if (pPlugin->GetPluginInfo(&Info))
 			{
 				strPluginPrefix = Info.CommandPrefix;
 				PluginFlags = Info.Flags;
@@ -1959,32 +2015,69 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			if(Len<PrefixLength)Len=PrefixLength;
 			if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
 			{
-				PluginPos=PData;
-				break;
+				if(pPlugin->Load() && pPlugin->HasOpenPlugin())
+				{
+					bFirstFound = true;
+					items.add(pPlugin);
+					break;
+				}
 			}
 			if (PrEnd == NULL)
 				break;
 			PrStart = ++PrEnd;
 		}
-		if (PluginPos)
+		if (bFirstFound && !Opt.PluginConfirm.Prefix)
 			break;
 	}
 
-	if (PluginPos==NULL)
+	if(!items.count())
 		return(FALSE);
-	if ( !PluginPos->Load() || !PluginPos->HasOpenPlugin())
-		return(FALSE);
+
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	Panel *CurPanel=(Target)?Target:ActivePanel;
 	if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
 		return(FALSE);
+	if(items.count()>1)
+	{
+		VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
+		menu.SetPosition(-1, -1, 0, 0);
+		menu.SetHelp(L"ChoosePluginMenu");
+		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+		MenuItemEx mitem;
+		for(int i=0;i<items.count();i++)
+		{
+			Plugin* plugin = items.at(i);
+			mitem.Clear();
+			mitem.strName=PointToName(plugin->GetModuleName());
+			menu.AddItem(&mitem);
+		}
+		menu.Show();
+		while(!menu.Done())
+		{
+			menu.ReadInput();
+			menu.ProcessInput();
+		}
+		int ExitCode=menu.GetExitCode();
+		if(ExitCode>=0)
+		{
+			pPlugin=items.at(ExitCode);
+		}
+	}
+	else
+	{
+		pPlugin=items.at(0);
+	}
+
+	if(!pPlugin)
+		return FALSE;
+
 	CtrlObject->CmdLine->SetString(L"");
 
 	string strPluginCommand;
 
 	strPluginCommand = (const wchar_t*)strCommand+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
-	HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
+	HANDLE hPlugin=OpenPlugin(pPlugin,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
 	if (hPlugin!=INVALID_HANDLE_VALUE)
 	{
 		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);

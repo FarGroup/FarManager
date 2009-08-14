@@ -264,28 +264,28 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 
 	MenuDataEx OptionsMenu[]=
-  {
-   /* 00 */(const wchar_t *)MMenuSystemSettings,LIF_SELECTED,0,
-   /* 01 */(const wchar_t *)MMenuPanelSettings,0,0,
-   /* 02 */(const wchar_t *)MMenuInterface,0,0,
-   /* 03 */(const wchar_t *)MMenuLanguages,0,0,
-   /* 04 */(const wchar_t *)MMenuPluginsConfig,0,0,
-   /* 05 */(const wchar_t *)MMenuDialogSettings,0,0,
-   /* 06 */L"",LIF_SEPARATOR,0,
-   /* 07 */(const wchar_t *)MMenuConfirmation,0,0,
-           L"Plugin confirmation", 0, 0,   			
-   /* 08 */(const wchar_t *)MMenuFilePanelModes,0,0,
-   /* 09 */(const wchar_t *)MMenuFileDescriptions,0,0,
-   /* 10 */(const wchar_t *)MMenuFolderInfoFiles,0,0,
-   /* 11 */L"",LIF_SEPARATOR,0,
-   /* 12 */(const wchar_t *)MMenuViewer,0,0,
-   /* 13 */(const wchar_t *)MMenuEditor,0,0,
-   /* 14 */L"",LIF_SEPARATOR,0,
-   /* 15 */(const wchar_t *)MMenuColors,0,0,
-   /* 16 */(const wchar_t *)MMenuFilesHighlighting,0,0,
-   /* 17 */L"",LIF_SEPARATOR,0,
-   /* 18 */(const wchar_t *)MMenuSaveSetup,0,KEY_SHIFTF9,
-  };
+	{
+		(const wchar_t *)MMenuSystemSettings,LIF_SELECTED,0,
+		(const wchar_t *)MMenuPanelSettings,0,0,
+		(const wchar_t *)MMenuInterface,0,0,
+		(const wchar_t *)MMenuLanguages,0,0,
+		(const wchar_t *)MMenuPluginsConfig,0,0,
+		(const wchar_t *)MMenuDialogSettings,0,0,
+		L"",LIF_SEPARATOR,0,
+		(const wchar_t *)MMenuConfirmation,0,0,
+		(const wchar_t *)MMenuPluginConfirmation,0, 0,
+		(const wchar_t *)MMenuFilePanelModes,0,0,
+		(const wchar_t *)MMenuFileDescriptions,0,0,
+		(const wchar_t *)MMenuFolderInfoFiles,0,0,
+		L"",LIF_SEPARATOR,0,
+		(const wchar_t *)MMenuViewer,0,0,
+		(const wchar_t *)MMenuEditor,0,0,
+		L"",LIF_SEPARATOR,0,
+		(const wchar_t *)MMenuColors,0,0,
+		(const wchar_t *)MMenuFilesHighlighting,0,0,
+		L"",LIF_SEPARATOR,0,
+		(const wchar_t *)MMenuSaveSetup,0,KEY_SHIFTF9,
+	};
 
 
 	MenuDataEx RightMenu[]=
