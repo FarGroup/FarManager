@@ -1,3 +1,9 @@
+svs 14.08.2009 11:51:50 +0300 - build 
+
+1. Mantis#0000986: Far 2 API - pascal 
+    from: max rusov 
+      PluginW.pas: Добавил поддержку x64. Тестировалось под FreePascal 2.3.1
+
 t-rex 12.08.2009 12:01:41 +0200 - build 1082
 
 1. From Evgeny Zhirnov: Mantis#1006: Добавить explicit к конструктору UnicodeString::UnicodeString(size_t, size_t=0)

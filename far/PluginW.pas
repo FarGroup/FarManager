@@ -39,6 +39,10 @@ other possible license with no implications from the above license on them.
 {$Align Off}
 {$RangeChecks Off}
 
+{$ifdef CPUX86_64}
+ {$PACKRECORDS C}
+{$endif CPUX86_64}
+
 Unit PluginW;
 
 interface
@@ -56,6 +60,16 @@ type
 
   TFarChar = WideChar;
   PFarChar = PWideChar;
+
+ {$ifdef CPUX86_64}
+  INT_PTR = PtrInt;
+  LONG_PTR = PtrInt;
+  DWORD_PTR = PtrUInt;
+ {$else}
+  INT_PTR = Integer;
+  LONG_PTR = Integer;
+  DWORD_PTR = Cardinal;
+ {$endif CPUX86_64}
 
   PPCharArray = ^TPCharArray;
   TPCharArray = packed array[0..MaxInt div SizeOf(PFarChar) - 1] of PFarChar;
@@ -105,7 +119,7 @@ typedef int (WINAPI *FARAPIMESSAGE)(
 *)
 type
   TFarApiMessage = function (
-    PluginNumber :Integer;
+    PluginNumber :INT_PTR;
     Flags :DWORD;
     HelpTopic :PFarChar;
     Items :PPCharArray;
@@ -382,7 +396,7 @@ struct FarListItem
 *)
 type
   PFarListItem = ^TFarListItem;
-  TFarListItem = packed record
+  TFarListItem = record
     Flags    :DWORD;
     TextPtr  :PFarChar;
     Reserved :array [0..2] of DWORD;
@@ -401,7 +415,7 @@ struct FarListUpdate
 *)
 type
   PFarListUpdate = ^TFarListUpdate;
-  TFarListUpdate = packed record
+  TFarListUpdate = record
     Index :Integer;
     Item :TFarListItem;
   end;
@@ -415,7 +429,7 @@ struct FarListInsert
 *)
 type
   PFarListInsert = ^TFarListInsert;
-  TFarListInsert = packed record
+  TFarListInsert = record
     Index :Integer;
     Item :TFarListItem;
   end;
@@ -429,7 +443,7 @@ struct FarListGetItem
 *)
 type
   PFarListGetItem = ^TFarListGetItem;
-  TFarListGetItem = packed record
+  TFarListGetItem = record
     ItemIndex :Integer;
     Item :TFarListItem;
   end;
@@ -443,7 +457,7 @@ struct FarListPos
 *)
 type
   PFarListPos = ^TFarListPos;
-  TFarListPos = packed record
+  TFarListPos = record
     SelectPos : Integer;
     TopPos : Integer;
   end;
@@ -464,7 +478,7 @@ struct FarListFind
 *)
 type
   PFarListFind = ^TFarListFind;
-  TFarListFind = packed record
+  TFarListFind = record
     StartIndex : Integer;
     Pattern : PFarChar;
     Flags : DWORD;
@@ -480,7 +494,7 @@ struct FarListDelete
 *)
 type
   PFarListDelete = ^TFarListDelete;
-  TFarListDelete = packed record
+  TFarListDelete = record
     StartIndex : Integer;
     Count : Integer;
   end;
@@ -508,7 +522,7 @@ struct FarListInfo
 *)
 type
   PFarListInfo = ^TFarListInfo;
-  TFarListInfo = packed record
+  TFarListInfo = record
     Flags :DWORD;
     ItemsNumber :Integer;
     SelectPos :Integer;
@@ -529,7 +543,7 @@ struct FarListItemData
 *)
 type
   PFarListItemData = ^TFarListItemData;
-  TFarListItemData = packed record
+  TFarListItemData = record
     Index :Integer;
     DataSize :Integer;
     Data :Pointer;
@@ -545,7 +559,7 @@ struct FarList
 *)
 type
   PFarList = ^TFarList;
-  TFarList = packed record
+  TFarList = record
     ItemsNumber : Integer;
     Items :PFarListItemArray;
   end;
@@ -561,7 +575,7 @@ struct FarListTitles
 *)
 type
   PFarListTitles = ^TFarListTitles;
-  TFarListTitles = packed record
+  TFarListTitles = record
     TitleLen :Integer;
     Title :PFarChar;
     BottomLen :Integer;
@@ -578,7 +592,7 @@ struct FarListColors{
 *)
 type
   PFarListColors = ^TFarListColors;
-  TFarListColors = packed record
+  TFarListColors = record
     Flags :DWORD;
     Reserved :DWORD;
     ColorCount :Integer;
@@ -620,7 +634,7 @@ struct FarDialogItem
 
 type
   PFarDialogItem = ^TFarDialogItem;
-  TFarDialogItem = packed record
+  TFarDialogItem = record
     ItemType : Integer;
     X1, Y1, X2, Y2 : Integer;
     Focus : Integer;
@@ -638,7 +652,7 @@ type
     DefaultButton : Integer;
 
     PtrData :PFarChar;
-    MaxLen :DWORD; // terminate 0 not included (if == 0 string size is unlimited)
+    MaxLen :SIZE_T; // terminate 0 not included (if == 0 string size is unlimited)
   end;
 
 type
@@ -654,8 +668,8 @@ struct FarDialogItemData
 *)
 type
   PFarDialogItemData = ^TFarDialogItemData;
-  TFarDialogItemData = packed record
-    PtrLength : Integer;
+  TFarDialogItemData = record
+    PtrLength : SIZE_T;
     PtrData : PFarChar;
   end;
 
@@ -671,12 +685,12 @@ struct FarDialogEvent
 *)
 type
   PFarDialogEvent = ^TFarDialogEvent;
-  TFarDialogEvent = packed record
+  TFarDialogEvent = record
     hDlg :THandle;
     Msg :Integer;
     Param1 :Integer;
-    Param2 :Pointer;
-    Result :Pointer;
+    Param2 :LONG_PTR;
+    Result :LONG_PTR;
   end;
 
 (*
@@ -688,7 +702,7 @@ struct OpenDlgPluginData
 *)
 type
   POpenDlgPluginData = ^TOpenDlgPluginData;
-  TOpenDlgPluginData = packed record
+  TOpenDlgPluginData = record
     ItemNumber :Integer;
     hDlg :THandle;
   end;
@@ -702,7 +716,7 @@ struct DialogInfo
 *)
 type
   PDialogInfo = ^TDialogInfo;
-  TDialogInfo = packed record
+  TDialogInfo = record
     StructSize :Integer;
     Id :TGUID;
   end;
@@ -728,11 +742,11 @@ typedef LONG_PTR (WINAPI *FARWINDOWPROC)(
 );
 *)
   TFarApiWindowProc = function (
-    hDlg : THandle;
-    Msg : Integer;
-    Param1 : Integer;
-    Param2 : Integer
-  ) : Integer; stdcall;
+    hDlg :THandle;
+    Msg :Integer;
+    Param1 :Integer;
+    Param2 :LONG_PTR
+  ) :LONG_PTR; stdcall;
 
 (*
 typedef LONG_PTR (WINAPI *FARAPISENDDLGMESSAGE)(
@@ -746,8 +760,8 @@ typedef LONG_PTR (WINAPI *FARAPISENDDLGMESSAGE)(
     hDlg : THandle;
     Msg : Integer;
     Param1 : Integer;
-    Param2 : Integer
-  ) : Integer; stdcall;
+    Param2 : LONG_PTR
+  ) :LONG_PTR; stdcall;
 
 (*
 typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
@@ -758,11 +772,11 @@ typedef LONG_PTR (WINAPI *FARAPIDEFDLGPROC)(
 );
 *)
   TFarApiDefDlgProc = function (
-    hDlg : THandle;
-    Msg : Integer;
-    Param1 : Integer;
-    Param2 : Integer
-  ) : Integer; stdcall;
+    hDlg :THandle;
+    Msg :Integer;
+    Param1 :Integer;
+    Param2 :LONG_PTR
+  ) :LONG_PTR; stdcall;
 
 (*
 typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
@@ -781,15 +795,15 @@ typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
 );
 *)
   TFarApiDialogInit = function (
-    PluginNumber : Integer;
-    X1, Y1, X2, Y2 : Integer;
-    HelpTopic : PFarChar;
-    Item : PFarDialogItemArray;
-    ItemsNumber : Integer;
-    Reserved : DWORD;
-    Flags : DWORD;
-    DlgProc : TFarApiWindowProc;
-    Param : Integer
+    PluginNumber :INT_PTR;
+    X1, Y1, X2, Y2 :Integer;
+    HelpTopic :PFarChar;
+    Item :PFarDialogItemArray;
+    ItemsNumber :Integer;
+    Reserved :DWORD;
+    Flags :DWORD;
+    DlgProc :TFarApiWindowProc;
+    Param :LONG_PTR
   ) :THandle; stdcall;
 
 
@@ -814,10 +828,6 @@ typedef void (WINAPI *FARAPIDIALOGFREE)(
   ); stdcall;
 
 
-   {Obsolete}
-// TFarApiDialog
-// TFarApiDialogEx
-
 {------------------------------------------------------------------------------}
 { Menu                                                                         }
 {------------------------------------------------------------------------------}
@@ -833,7 +843,7 @@ struct FarMenuItem
 *)
 type
   PFarMenuItem = ^TFarMenuItem;
-  TFarMenuItem = packed record
+  TFarMenuItem = record
     TextPtr :PFarChar;
     Selected :Integer;
     Checked :Integer;
@@ -871,12 +881,12 @@ struct FarMenuItemEx
 *)
 type
   PFarMenuItemEx = ^TFarMenuItemEx;
-  TFarMenuItemEx = packed record
+  TFarMenuItemEx = record
     Flags : DWORD;
     TextPtr : PFarChar;
     AccelKey : DWORD;
     Reserved : DWORD;
-    UserData : DWORD;
+    UserData : DWORD_PTR;
   end;
 
 
@@ -916,7 +926,7 @@ typedef int (WINAPI *FARAPIMENU)(
 *)
 type
   TFarApiMenu = function (
-    PluginNumber : Integer;
+    PluginNumber : INT_PTR;
     X, Y : Integer;
     MaxHeight : Integer;
     Flags : DWORD;
@@ -956,7 +966,7 @@ struct FAR_FIND_DATA
 *)
 type
   PFarFindData = ^TFarFindData;
-  TFarFindData = packed record
+  TFarFindData = record
     dwFileAttributes : DWORD;
     ftCreationTime : TFileTime;
     ftLastAccessTime : TFileTime;
@@ -987,7 +997,7 @@ struct PluginPanelItem
 *)
 type
   PPluginPanelItem = ^TPluginPanelItem;
-  TPluginPanelItem = packed record
+  TPluginPanelItem = record
     FindData : TFarFindData;
     Flags : DWORD;
     NumberOfLinks : DWORD;
@@ -995,9 +1005,9 @@ type
     Owner : PFarChar;
     CustomColumnData : PPCharArray;
     CustomColumnNumber : Integer;
-    UserData : DWORD;
+    UserData : DWORD_PTR;
     CRC32 : DWORD;
-    Reserved : array [0..1] of DWORD;
+    Reserved : array [0..1] of DWORD_PTR;
   end;
 
   TPluginPanelItemArray = packed array[0..MaxInt div sizeof(TPluginPanelItem) - 1] of TPluginPanelItem;
@@ -1046,22 +1056,17 @@ struct PanelInfo
 *)
 type
   PPanelInfo = ^TPanelInfo;
-  TPanelInfo = packed record
+  TPanelInfo = record
     PanelType : Integer;
     Plugin : Integer;
     PanelRect : TRect;
-//  PanelItems : PPluginPanelItemArray;
     ItemsNumber : Integer;
-//  SelectedItems : ^PPluginPanelItemArray;
     SelectedItemsNumber : Integer;
     CurrentItem : Integer;
     TopPanelItem : Integer;
     Visible : Integer;
     Focus : Integer;
     ViewMode : Integer;
-//  ColumnTypes :PFarChar;
-//  ColumnWidths :PFarChar;
-//  CurDir :PFarChar;
     ShortNames : Integer;
     SortMode : Integer;
     Flags : DWORD;
@@ -1077,7 +1082,7 @@ struct PanelRedrawInfo
 *)
 type
   PPanelRedrawInfo = ^TPanelRedrawInfo;
-  TPanelRedrawInfo = packed record
+  TPanelRedrawInfo = record
     CurrentItem : Integer;
     TopPanelItem : Integer;
   end;
@@ -1096,7 +1101,7 @@ struct CmdLineSelect
 *)
 type
   PCmdLineSelect = ^TCmdLineSelect;
-  TCmdLineSelect = packed record
+  TCmdLineSelect = record
     SelStart : Integer;
     SelEnd : Integer;
   end;
@@ -1104,9 +1109,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE                    = -1;
-  PANEL_ACTIVE                  = -1;
-  PANEL_PASSIVE                 = -2;
+  PANEL_NONE	                = -1;
+  PANEL_ACTIVE	                = -1;
+  PANEL_PASSIVE	                = -2;
 
 const
   FCTL_CLOSEPLUGIN              = 0;
@@ -1147,15 +1152,15 @@ type
 typedef int (WINAPI *FARAPICONTROL)(
   HANDLE hPlugin,
   int Command,
-  int Param1,
-  LONG_PTR Param2
+	int Param1,
+	LONG_PTR Param2
 );
 *)
   TFarApiControl = function (
     hPlugin :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer
+    Param2 :Pointer // LONG_PTR
   ) :Integer; stdcall;
 
 (*
@@ -1166,11 +1171,11 @@ typedef void (WINAPI *FARAPITEXT)(
   const wchar_t *Str
 );
 *)
-  TFarApiText = function (
+  TFarApiText = procedure (
     X, Y : Integer;
     Color : Integer;
     Str : PFarChar
-   ) :Integer; stdcall;
+   ); stdcall;
 
 (*
 typedef HANDLE (WINAPI *FARAPISAVESCREEN)(int X1, int Y1, int X2, int Y2);
@@ -1221,7 +1226,7 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
 );
 *)
   TFarApiGetPluginDirList = function (
-    PluginNumber : Integer;
+    PluginNumber : INT_PTR;
     hPlugin : THandle;
     Dir : PFarChar;
     var PanelItem :PPluginPanelItemArray;
@@ -1360,9 +1365,9 @@ typedef const wchar_t* (WINAPI *FARAPIGETMSG)(
 );
 *)
   TFarApiGetMsg = function (
-    PluginNumber : Integer;
-    MsgId : Integer
-  ) : PFarChar; stdcall;
+    PluginNumber :INT_PTR;
+    MsgId :Integer
+  ) :PFarChar; stdcall;
 
 
 { FarHelpFlags }
@@ -1558,7 +1563,7 @@ struct ActlEjectMedia {
 *)
 type
   PActlEjectMedia = ^TActlEjectMedia;
-  TActlEjectMedia = packed record
+  TActlEjectMedia = record
     Letter :DWORD;
     Flags :DWORD;
   end;
@@ -1614,7 +1619,7 @@ struct KeySequence{
 *)
 type
   PKeySequence = ^TKeySequence;
-  TKeySequence = packed record
+  TKeySequence = record
     Flags :DWORD;
     Count :Integer;
     Sequence :^DWORD;
@@ -1664,18 +1669,18 @@ struct ActlKeyMacro{
 *)
 type
   PPlainText = ^TPlainText;
-  TPlainText = packed record
+  TPlainText = record
     SequenceText : PFarChar;
     Flags : DWORD;
   end;
 
   PActlKeyMacro = ^TActlKeyMacro;
-  TActlKeyMacro = packed record
+  TActlKeyMacro = record
     Command : Integer;
 
     Param : record case Integer of
       0 : (PlainText : TPlainText);
-      1 : (Reserved : array [0..2] of DWORD);
+      1 : (Reserved : array [0..2] of DWORD_PTR);
     end;
   end;
 
@@ -1695,7 +1700,7 @@ struct FarSetColors{
 *)
 type
   PFarSetColors = ^TFarSetColors;
-  TFarSetColors = packed record
+  TFarSetColors = record
     Flags : DWORD;
     StartIndex : Integer;
     ColorCount : Integer;
@@ -1733,15 +1738,15 @@ struct WindowInfo
 *)
 type
   PWindowInfo = ^TWindowInfo;
-  TWindowInfo = packed record
-    Pos : Integer;
-    WindowType : Integer;
-    Modified : Integer;
-    Current : Integer;
-    TypeName : PFarChar;
-    TypeNameSize : Integer;
-    Name : PFarChar;
-    NameSize : Integer;
+  TWindowInfo = record
+    Pos :Integer;
+    WindowType :Integer;
+    Modified :Integer;
+    Current :Integer;
+    TypeName :PFarChar;
+    TypeNameSize :Integer;
+    Name :PFarChar;
+    NameSize :Integer;
   end;
 
 (*
@@ -1753,10 +1758,10 @@ typedef INT_PTR (WINAPI *FARAPIADVCONTROL)(
 *)
 type
   TFarApiAdvControl = function (
-    ModuleNumber : Integer;
-    Command : Integer;
-    Param : Pointer
-  ) : Integer; stdcall;
+    ModuleNumber :INT_PTR;
+    Command :Integer;
+    Param :Pointer
+  ) :INT_PTR; stdcall;
 
 
 { VIEWER_CONTROL_COMMANDS }
@@ -1805,7 +1810,7 @@ struct ViewerSetMode {
 
 type
   PViewerSetMode = ^TViewerSetMode;
-  TViewerSetMode = packed record
+  TViewerSetMode = record
     ParamType : Integer;
 
     Param : record case Integer of
@@ -1825,19 +1830,19 @@ struct ViewerSelect
 };
 *)
 type
-  TFarInt64Part = packed record
+  TFarInt64Part = record
     LowPart :DWORD;
     HighPart :DWORD;
   end;
 
-  TFarInt64 = packed record
+  TFarInt64 = record
     case Integer of
       0 : (i64 : Int64);
       1 : (Part : TFarInt64Part);
   end;
 
   PViewerSelect = ^TViewerSelect;
-  TViewerSelect = packed record
+  TViewerSelect = record
     BlockStartPos :TFarInt64;
     BlockLen :Integer;
   end;
@@ -1860,7 +1865,7 @@ struct ViewerSetPosition
 *)
 type
   PViewerSetPosition = ^TViewerSetPosition;
-  TViewerSetPosition = packed record
+  TViewerSetPosition = record
     Flags : DWORD;
     StartPos : TFarInt64;
     LeftPos : TFarInt64;
@@ -1877,7 +1882,7 @@ struct ViewerMode{
 *)
 type
   PViewerMode = ^TViewerMode;
-  TViewerMode = packed record
+  TViewerMode = record
     CodePage :UINT;
     Wrap : Integer;
     WordWrap : Integer;
@@ -1903,7 +1908,7 @@ struct ViewerInfo
 *)
 type
   PViewerInfo = ^TViewerInfo;
-  TViewerInfo = packed record
+  TViewerInfo = record
     StructSize : Integer;
     ViewerID : Integer;
     FileName : PFarChar;
@@ -2042,7 +2047,7 @@ struct EditorSetParameter
 *)
 type
   PEditorSetParameter = ^TEditorSetParameter;
-  TEditorSetParameter = packed record
+  TEditorSetParameter = record
     ParamType : Integer;
     Param : record case Integer of
        0 : (iParam : Integer);
@@ -2071,9 +2076,9 @@ struct EditorUndoRedo
 *)
 type
   PEditorUndoRedo = ^TEditorUndoRedo;
-  TEditorUndoRedo = packed record
+  TEditorUndoRedo = record
     Command :Integer;
-    Reserved :array[0..2] of DWORD;
+    Reserved :array[0..2] of DWORD_PTR;
   end;
 
 (*
@@ -2094,7 +2099,7 @@ struct EditorGetString
 *)
 type
   PEditorGetString = ^TEditorGetString;
-  TEditorGetString = packed record
+  TEditorGetString = record
     StringNumber : Integer;
     StringText : PFarChar;
     StringEOL : PFarChar;
@@ -2114,7 +2119,7 @@ struct EditorSetString
 *)
 type
   PEditorSetString = ^TEditorSetString;
-  TEditorSetString = packed record
+  TEditorSetString = record
     StringNumber : Integer;
     StringText : PFarChar;
     StringEOL : PFarChar;
@@ -2182,7 +2187,7 @@ struct EditorInfo
 *)
 type
   PEditorInfo = ^TEditorInfo;
-  TEditorInfo = packed record
+  TEditorInfo = record
     EditorID : Integer;
     WindowSizeX : Integer;
     WindowSizeY : Integer;
@@ -2215,7 +2220,7 @@ struct EditorBookMarks
 *)
 type
   PEditorBookMarks = ^TEditorBookMarks;
-  TEditorBookMarks = packed record
+  TEditorBookMarks = record
     Line : PIntegerArray;
     Cursor : PIntegerArray;
     ScreenLine : PIntegerArray;
@@ -2236,7 +2241,7 @@ struct EditorSetPosition
 *)
 type
   PEditorSetPosition = ^TEditorSetPosition;
-  TEditorSetPosition = packed record
+  TEditorSetPosition = record
     CurLine : Integer;
     CurPos : Integer;
     CurTabPos : Integer;
@@ -2257,7 +2262,7 @@ struct EditorSelect
 *)
 type
   PEditorSelect = ^TEditorSelect;
-  TEditorSelect = packed record
+  TEditorSelect = record
     BlockType : Integer;
     BlockStartLine : Integer;
     BlockStartPos : Integer;
@@ -2275,7 +2280,7 @@ struct EditorConvertPos
 *)
 type
   PEditorConvertPos = ^TEditorConvertPos;
-  TEditorConvertPos = packed record
+  TEditorConvertPos = record
     StringNumber : Integer;
     SrcPos : Integer;
     DestPos : Integer;
@@ -2299,7 +2304,7 @@ struct EditorColor
 *)
 type
   PEditorColor = ^TEditorColor;
-  TEditorColor = packed record
+  TEditorColor = record
     StringNumber :Integer;
     ColorItem :Integer;
     StartPos :Integer;
@@ -2317,7 +2322,7 @@ struct EditorSaveFile
 *)
 type
   PEditorSaveFile = ^TEditorSaveFile;
-  TEditorSaveFile = packed record
+  TEditorSaveFile = record
     FileName :PFarChar;
     FileEOL :PFarChar;
     CodePage :UINT;
@@ -2388,7 +2393,7 @@ type
     hHandle :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer
+    Param2 :Pointer //LONG_PTR
   ) : Integer; stdcall;
 
 (*
@@ -2404,7 +2409,7 @@ type
     hHandle :THandle;
     Command :Integer;
     Param1 :Integer;
-    Param2 :Pointer
+    Param2 :Pointer //LONG_PTR
   ) : Integer; stdcall;
 
 
@@ -2457,10 +2462,9 @@ type
   TFarStdQSortExFunc = function (Param1 : Pointer; Param2 : Pointer; UserParam : Pointer) : Integer; cdecl;
 
   {&StdCall+}
-  TFarStdQSort = procedure (Base : Pointer; NElem : DWORD; Width : DWORD; FCmp : TFarStdQSortFunc); stdcall;
-  TFarStdQSortEx = procedure (Base : Pointer; NElem : DWORD; Width : DWORD; FCmp : TFarStdQSortExFunc; UserParam : Pointer); stdcall;
-
-  TFarStdBSearch = procedure (Key : Pointer; Base : Pointer; NElem : DWORD; Width : DWORD; FCmp : TFarStdQSortFunc); stdcall;
+  TFarStdQSort = procedure (Base : Pointer; NElem : SIZE_T; Width : SIZE_T; FCmp : TFarStdQSortFunc); stdcall;
+  TFarStdQSortEx = procedure (Base : Pointer; NElem : SIZE_T; Width : SIZE_T; FCmp : TFarStdQSortExFunc; UserParam : Pointer); stdcall;
+  TFarStdBSearch = procedure (Key : Pointer; Base : Pointer; NElem : SIZE_T; Width : SIZE_T; FCmp : TFarStdQSortFunc); stdcall;
 
   TFarStdGetFileOwner = function (Computer : PFarChar; Name : PFarChar; Owner : PFarChar ) : Integer; stdcall;
   TFarStdGetNumberOfLinks = function (Name : PFarChar) : Integer; stdcall;
@@ -2531,9 +2535,9 @@ typedef size_t  (WINAPI *FARSTDKEYTOKEYNAME)(int Key,wchar_t *KeyText,size_t Siz
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
 *)
 type
-  TFarStdXLat = function (Line :PFarChar; StartPos, EndPos :Integer; Flags :DWORD) :PFarChar; stdcall;
-  TFarStdKeyToKeyName = function (Key : Integer; KeyText : PFarChar; Size : Integer) :Integer; stdcall;
-  TFarStdKeyNameToKey = function (Name : PFarChar) : Integer; stdcall;
+  TFarStdXLat = function(Line :PFarChar; StartPos, EndPos :Integer; Flags :DWORD) :PFarChar; stdcall;
+  TFarStdKeyToKeyName = function(Key :Integer; KeyText :PFarChar; Size :SIZE_T) :SIZE_T; stdcall;
+  TFarStdKeyNameToKey = function(Name :PFarChar) :Integer; stdcall;
 
 { FRSMODE }
 
@@ -2645,7 +2649,7 @@ typedef struct FarStandardFunctions
 *)
 type
   PFarStandardFunctions = ^TFarStandardFunctions;
-  TFarStandardFunctions = packed record
+  TFarStandardFunctions = record
     StructSize          : Integer;
 
     atoi                : TFarStdAtoi;
@@ -2662,7 +2666,7 @@ type
 
     snprintf            : Pointer {TFarStdSNPRINTF};
 
-    Reserved            : array [0..7] of DWORD;
+    Reserved            : array [0..7] of DWORD_PTR;
 
     LIsLower            : TFarStdLocalIsLower;
     LIsUpper            : TFarStdLocalIsUpper;
@@ -2747,10 +2751,10 @@ struct PluginStartupInfo
 *)
 type
   PPluginStartupInfo = ^TPluginStartupInfo;
-  TPluginStartupInfo = packed record
+  TPluginStartupInfo = record
     StructSize          : Integer;
     ModuleName          : PFarChar;
-    ModuleNumber        : Integer;
+    ModuleNumber        : INT_PTR;
     RootKey             : PFarChar;
 
     Menu                : TFarApiMenu;
@@ -2780,7 +2784,7 @@ type
 
     SendDlgMessage      : TFarApiSendDlgMessage;
     DefDlgProc          : TFarApiDefDlgProc;
-    Reserved            : DWORD;
+    Reserved            : DWORD_PTR;
     ViewerControl       : TFarApiViewerControl;
     PluginsControl      : TFarApiPluginsControl;
     FileFilterControl   : TFarApiFilterControl;
@@ -2819,7 +2823,7 @@ struct PluginInfo
 *)
 type
   PPluginInfo = ^TPluginInfo;
-  TPluginInfo = packed record
+  TPluginInfo = record
     StructSize : Integer;
     Flags : DWORD;
     DiskMenuStrings : PPCharArray;
@@ -2843,7 +2847,7 @@ struct InfoPanelLine
 *)
 type
   PInfoPanelLine = ^TInfoPanelLine;
-  TInfoPanelLine = packed record
+  TInfoPanelLine = record
     Text :PFarChar;
     Data :PFarChar;
     Separator :Integer;
@@ -2870,7 +2874,7 @@ struct PanelMode
 *)
 type
   PPanelMode = ^TPanelMode;
-  TPanelMode = packed record
+  TPanelMode = record
     ColumnTypes : PFarChar;
     ColumnWidths : PFarChar;
     ColumnTitles : PPCharArray;
@@ -2939,7 +2943,7 @@ struct KeyBarTitles
 *)
 type
   PKeyBarTitles = ^TKeyBarTitles;
-  TKeyBarTitles = packed record
+  TKeyBarTitles = record
     Titles : array [0..11] of PFarChar;
     CtrlTitles : array [0..11] of PFarChar;
     AltTitles : array [0..11] of PFarChar;
@@ -2990,7 +2994,7 @@ struct OpenPluginInfo
 *)
 type
   POpenPluginInfo = ^TOpenPluginInfo;
-  TOpenPluginInfo = packed record
+  TOpenPluginInfo = record
     StructSize : Integer;
     Flags : DWORD;
     HostFile : PFarChar;
@@ -3204,7 +3208,7 @@ end;
 
 function Dlg_SetDlgData(const Info :TPluginStartupInfo; hDlg :THandle; Data :Pointer) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETDLGDATA, 0, Integer(Data));
+  Result := Info.SendDlgMessage(hDlg, DM_SETDLGDATA, 0, LONG_PTR(Data));
 end;
 
 function Dlg_GetDlgItemData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3214,12 +3218,12 @@ end;
 
 function Dlg_SetDlgItemData(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Data :Pointer) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETITEMDATA, 0, Integer(Data));
+  Result := Info.SendDlgMessage(hDlg, DM_SETITEMDATA, 0, LONG_PTR(Data));
 end;
 
 function DlgItem_GetFocus(const Info :TPluginStartupInfo; hDlg :THandle) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
+  Result := Info.SendDlgMessage(hDlg, DM_GETFOCUS,0,0)
 end;
 
 function DlgItem_SetFocus(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3244,7 +3248,7 @@ end;
 
 function DlgItem_SetText(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, ID, Integer(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, ID, LONG_PTR(Str));
 end;
 
 function DlgItem_GetCheck(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3259,12 +3263,12 @@ end;
 
 function DlgEdit_AddHistory(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_ADDHISTORY, ID, Integer(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_ADDHISTORY, ID, LONG_PTR(Str));
 end;
 
 function DlgList_AddString(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer; Str :PFarChar) :Integer;
 begin
-  Result := Info.SendDlgMessage(hDlg, DM_LISTADDSTR, ID, Integer(Str));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTADDSTR, ID, LONG_PTR(Str));
 end;
 
 function DlgList_GetCurPos(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3278,7 +3282,7 @@ var
 begin
   LPos.SelectPos := NewPos;
   LPos.TopPos := -1;
-  Result := Info.SendDlgMessage(hDlg, DM_LISTSETCURPOS, ID, Integer(@LPos));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTSETCURPOS, ID, LONG_PTR(@LPos));
 end;
 
 function DlgList_ClearList(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3292,7 +3296,7 @@ var
 begin
   FLDItem.StartIndex := Index;
   FLDItem.Count := 1;
-  Result := Info.SendDlgMessage(hDlg, DM_LISTDELETE, ID, Integer(@FLDItem));
+  Result := Info.SendDlgMessage(hDlg, DM_LISTDELETE, ID, LONG_PTR(@FLDItem));
 end;
 
 function DlgList_SortUp(const Info :TPluginStartupInfo; hDlg :THandle; ID :Integer) :Integer;
@@ -3318,7 +3322,7 @@ begin
   FLID.DataSize := 0;
   FLID.Data := Str;
   FLID.Reserved := 0;
-  Result := Info.SendDlgMessage (hDlg, DM_LISTSETDATA, ID, Integer(@FLID));
+  Result := Info.SendDlgMessage (hDlg, DM_LISTSETDATA, ID, LONG_PTR(@FLID));
 end;
 
 
