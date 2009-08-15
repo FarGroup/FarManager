@@ -1275,11 +1275,11 @@ following operations:
 
 
 @ChoosePluginDlg
-$ #Choose plugin menu#
+$ #Plugin selection menu#
 
 
 @ChoosePluginMenu
-$ #Choose plugin menu#
+$ #Plugin selection menu#
 
 
 @MakeFolder
