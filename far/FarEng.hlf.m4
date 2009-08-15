@@ -1275,11 +1275,11 @@ following operations:
 
 
 @ChoosePluginDlg
-$ #Choose plugin mmenu#
+$ #Choose plugin menu#
 
 
 @ChoosePluginMenu
-$ #Choose plugin mmenu#
+$ #Choose plugin menu#
 
 
 @MakeFolder
@@ -1923,7 +1923,7 @@ $ #Settings dialog: system#
   Enables file deletion via the Recycle Bin.The operation of deleting to the Recycle
 Bin can be performed only for local hard disks.
 
-  #Delete symbolic links# 
+  #Delete symbolic links#
   Scan for and delete symbolic links to subfolders before deleting to Recycle Bin.
 
   #Use system copy routine#
@@ -2455,7 +2455,7 @@ $ #Editor: search/replace#
       #Обратный поиск#      - ^<wrap>изменить поиск на обратный - искать от конца файла к началу
 
     В режиме поиска так же доступна опция:
-    
+
       #Выделять найденное#  - ^<wrap>найденные последовательности будут выделены
 
 
