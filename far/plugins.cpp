@@ -62,10 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 
-//BUGBUG
-#include "_array.hpp"
-
-
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
 #endif
@@ -681,9 +677,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 	PluginHandle *pResult = NULL;
 
-	pointer_array<PluginHandle*> items;
-
-	items.create(ARRAY_OPTIONS_SKIP);
+	TPointerArray<PluginHandle> items;
 
 	string strFullName;
 	
@@ -720,13 +714,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			if ( hPlugin != INVALID_HANDLE_VALUE )
 			{
-				PluginHandle *handle = new PluginHandle;
-
+				PluginHandle *handle=items.addItem();
 				handle->hPlugin = hPlugin;
 				handle->pPlugin = pPlugin;
-
-				items.add(handle);
-
 				bFirstFound = true;
 			}
 		}
@@ -741,13 +731,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			if ( pPlugin->Analyse(&AData) )
 			{
-				PluginHandle *handle = new PluginHandle;
-
+				PluginHandle *handle=items.addItem();
 				handle->pPlugin = pPlugin;
 				handle->hPlugin = INVALID_HANDLE_VALUE;
-
-				items.add(handle);
-
 				bFirstFound = true;
 			}
 		}
@@ -756,9 +742,9 @@ HANDLE PluginManager::OpenFilePlugin(
 			break;
 	}
 
-	if ( items.count() && (hResult != (HANDLE)-2) )
+	if ( items.getCount() && (hResult != (HANDLE)-2) )
 	{
-		if ( (items.count() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)) )
+		if ( (items.getCount() > 1) || (Opt.PluginConfirm.OpenFilePlugin && (Opt.PluginConfirm.StandardAssociation || Opt.PluginConfirm.EvenIfOnlyOnePlugin)) )
 		{
 			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
 
@@ -768,9 +754,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			MenuItemEx mitem;
 		
-			for (int i = 0; i < items.count(); i++)
+			for (UINT i = 0; i < items.getCount(); i++)
 			{
-				PluginHandle *handle = items.at(i);
+				PluginHandle *handle = items.getItem(i);
 
 				mitem.Clear();
 				mitem.strName = PointToName(handle->pPlugin->GetModuleName());
@@ -805,7 +791,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				pResult = (PluginHandle*)menu.GetUserData(NULL, 0);
 		}
 		else
-			pResult = items.at(0);
+			pResult = items.getItem(0);
 
 		if ( pResult && pResult->hPlugin == INVALID_HANDLE_VALUE )
 		{
@@ -818,22 +804,23 @@ HANDLE PluginManager::OpenFilePlugin(
 		}
 	}
 
-    for (int i = 0; i < items.count(); i++)
+	for (UINT i = 0; i < items.getCount(); i++)
 	{
-		PluginHandle *handle = items.at(i);
-
+		PluginHandle *handle = items.getItem(i);
 		if ( handle != pResult )
 		{
 			if ( handle->hPlugin != INVALID_HANDLE_VALUE )
 				handle->pPlugin->ClosePlugin(handle->hPlugin);
-
-			delete handle;
 		}
 	}
 
-	if ( pResult )
-		hResult = (HANDLE)pResult;
-
+	if(pResult)
+	{
+		PluginHandle* pDup=new PluginHandle;
+		pDup->hPlugin=pResult->hPlugin;
+		pDup->pPlugin=pResult->pPlugin;
+		hResult=reinterpret_cast<HANDLE>(pDup);
+	}
 	return hResult;
 }
 
@@ -842,8 +829,7 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	PluginHandle *pResult = NULL;
-	pointer_array<PluginHandle*> items;
-	items.create(ARRAY_OPTIONS_SKIP);
+	TPointerArray<PluginHandle> items;
 
 	Plugin *pPlugin=NULL;
 	bool bFirstFound=false;
@@ -859,27 +845,26 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 
 		if ( hPlugin != INVALID_HANDLE_VALUE )
 		{
-			PluginHandle *handle = new PluginHandle;
+			PluginHandle *handle=items.addItem();
 			handle->hPlugin = hPlugin;
 			handle->pPlugin = pPlugin;
-			items.add(handle);
 			bFirstFound = true;
 		}
 		if(bFirstFound && !Opt.PluginConfirm.SetFindList)
 			break;
 	}
-	if(items.count())
+	if(items.getCount())
 	{
-		if(items.count()>1)
+		if(items.getCount()>1)
 		{
 			VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 			MenuItemEx mitem;
-			for(int i=0;i<items.count();i++)
+			for(UINT i=0;i<items.getCount();i++)
 			{
-				PluginHandle *handle = items.at(i);
+				PluginHandle *handle = items.getItem(i);
 				mitem.Clear();
 				mitem.strName=PointToName(handle->pPlugin->GetModuleName());
 				menu.AddItem(&mitem);
@@ -893,12 +878,12 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 			int ExitCode=menu.GetExitCode();
 			if(ExitCode>=0)
 			{
-				pResult=items.at(ExitCode);
+				pResult=items.getItem(ExitCode);
 			}
 		}
 		else
 		{
-			pResult=items.at(0);
+			pResult=items.getItem(0);
 		}
 	}
 
@@ -910,15 +895,21 @@ HANDLE PluginManager::OpenFindListPlugin (const PluginPanelItem *PanelItem, int 
 		}
 	}
 
-	for(int i=0;i<items.count();i++)
+	for(UINT i=0;i<items.getCount();i++)
 	{
-		PluginHandle *handle=items.at(i);
+		PluginHandle *handle=items.getItem(i);
 		if(handle!=pResult)
 		{
 			if(handle->hPlugin!=INVALID_HANDLE_VALUE )
 				handle->pPlugin->ClosePlugin(handle->hPlugin);
-			delete handle;
 		}
+	}
+	if(pResult)
+	{
+		PluginHandle* pDup=new PluginHandle;
+		pDup->hPlugin=pResult->hPlugin;
+		pDup->pPlugin=pResult->pPlugin;
+		pResult=pDup;
 	}
 	return pResult?reinterpret_cast<HANDLE>(pResult):INVALID_HANDLE_VALUE;
 }
@@ -1973,28 +1964,31 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	strPrefix.ReleaseBuffer ();
 
-	DWORD PluginFlags = 0;
 	string strPluginPrefix;
 	bool bFirstFound = false;
 
-	Plugin *pPlugin=NULL;
-	pointer_array<Plugin*> items;
-	items.create(ARRAY_OPTIONS_SKIP);
+	struct PluginData
+	{
+		Plugin *pPlugin;
+		DWORD PluginFlags;
+	};
+
+	TPointerArray<PluginData> items;
 
 	for (int I=0;I<PluginsCount;I++)
 	{
-		pPlugin = PluginsData[I];
-		if (pPlugin->CheckWorkFlags(PIWF_CACHED))
+		int PluginFlags=0;
+		if(PluginsData[I]->CheckWorkFlags(PIWF_CACHED))
 		{
 			string strRegKey;
-			strRegKey.Format (FmtPluginsCache_PluginS, pPlugin->GetCacheName());
+			strRegKey.Format (FmtPluginsCache_PluginS,PluginsData[I]->GetCacheName());
 			GetRegKey(strRegKey,L"CommandPrefix",strPluginPrefix, L"");
 			PluginFlags=GetRegKey(strRegKey,L"Flags",0);
 		}
 		else
 		{
 			PluginInfo Info;
-			if (pPlugin->GetPluginInfo(&Info))
+			if (PluginsData[I]->GetPluginInfo(&Info))
 			{
 				strPluginPrefix = Info.CommandPrefix;
 				PluginFlags = Info.Flags;
@@ -2015,10 +2009,12 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			if(Len<PrefixLength)Len=PrefixLength;
 			if (StrCmpNI(Prefix, PrStart, (int)Len)==0)
 			{
-				if(pPlugin->Load() && pPlugin->HasOpenPlugin())
+				if(PluginsData[I]->Load() && PluginsData[I]->HasOpenPlugin())
 				{
 					bFirstFound = true;
-					items.add(pPlugin);
+					PluginData *pD=items.addItem();
+					pD->pPlugin=PluginsData[I];
+					pD->PluginFlags=PluginFlags;
 					break;
 				}
 			}
@@ -2030,25 +2026,25 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			break;
 	}
 
-	if(!items.count())
+	if(!items.getCount())
 		return(FALSE);
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	Panel *CurPanel=(Target)?Target:ActivePanel;
 	if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
 		return(FALSE);
-	if(items.count()>1)
+	PluginData* PData=NULL;
+	if(items.getCount()>1)
 	{
 		VMenu menu(MSG(MMenuPluginConfirmation), NULL, 0, ScrY-4);
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 		MenuItemEx mitem;
-		for(int i=0;i<items.count();i++)
+		for(UINT i=0;i<items.getCount();i++)
 		{
-			Plugin* plugin = items.at(i);
 			mitem.Clear();
-			mitem.strName=PointToName(plugin->GetModuleName());
+			mitem.strName=PointToName(items.getItem(i)->pPlugin->GetModuleName());
 			menu.AddItem(&mitem);
 		}
 		menu.Show();
@@ -2060,30 +2056,28 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		int ExitCode=menu.GetExitCode();
 		if(ExitCode>=0)
 		{
-			pPlugin=items.at(ExitCode);
+			PData=items.getItem(ExitCode);
 		}
 	}
 	else
 	{
-		pPlugin=items.at(0);
+		PData=items.getItem(0);
 	}
 
-	if(!pPlugin)
-		return FALSE;
-
-	CtrlObject->CmdLine->SetString(L"");
-
-	string strPluginCommand;
-
-	strPluginCommand = (const wchar_t*)strCommand+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
-	RemoveTrailingSpaces(strPluginCommand);
-	HANDLE hPlugin=OpenPlugin(pPlugin,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
-	if (hPlugin!=INVALID_HANDLE_VALUE)
+	if(PData)
 	{
-		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
-		NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
-		NewPanel->Update(0);
-		NewPanel->Show();
+		CtrlObject->CmdLine->SetString(L"");
+
+		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
+		RemoveTrailingSpaces(strPluginCommand);
+		HANDLE hPlugin=OpenPlugin(PData->pPlugin,OPEN_COMMANDLINE,(INT_PTR)(const wchar_t*)strPluginCommand); //BUGBUG
+		if (hPlugin!=INVALID_HANDLE_VALUE)
+		{
+			Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
+			NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
+			NewPanel->Update(0);
+			NewPanel->Show();
+		}
 	}
 	return(TRUE);
 }
