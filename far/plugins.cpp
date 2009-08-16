@@ -1934,6 +1934,12 @@ void PluginManager::LoadIfCacheAbsent()
 	}
 }
 
+//template parameters must have external linkage
+struct PluginData
+{
+	Plugin *pPlugin;
+	DWORD PluginFlags;
+};
 
 int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 {
@@ -1966,12 +1972,6 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	string strPluginPrefix;
 	bool bFirstFound = false;
-
-	struct PluginData
-	{
-		Plugin *pPlugin;
-		DWORD PluginFlags;
-	};
 
 	TPointerArray<PluginData> items;
 
