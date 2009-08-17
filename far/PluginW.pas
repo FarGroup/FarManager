@@ -94,11 +94,7 @@ const
   FMSG_KEEPBACKGROUND      = $00000004;
   FMSG_DOWN                = $00000008;
   FMSG_LEFTALIGN           = $00000010;
-
   FMSG_ALLINONE            = $00000020;
- {$ifdef FAR_USE_INTERNALS}
-  FMSG_COLOURS             = $00000040;
- {$endif FAR_USE_INTERNALS}
 
   FMSG_MB_OK               = $00010000;
   FMSG_MB_OKCANCEL         = $00020000;
@@ -143,33 +139,7 @@ const
   DI_RADIOBUTTON  = 9;
   DI_COMBOBOX     = 10;
   DI_LISTBOX      = 11;
- {$ifdef FAR_USE_INTERNALS}
-  DI_MEMOEDIT     = 12;
- {$endif FAR_USE_INTERNALS}
   DI_USERCONTROL  = 255;
-
-
-(*
-/*
-   Check diagol element type has inputstring?
-   (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT, etc)
-*/
-static __inline BOOL IsEdit(int Type)
-{
-    switch(Type) {
-      case DI_EDIT:
-      case DI_FIXEDIT:
-      case DI_PSWEDIT:
-#ifdef FAR_USE_INTERNALS
-      case DI_MEMOEDIT:
-#endif // END FAR_USE_INTERNALS
-      case DI_COMBOBOX:
-        return TRUE;
-      default:
-        return FALSE;
-    }
-}
-*)
 
 
 { FarDialogItemFlags }
@@ -194,25 +164,16 @@ const
   DIF_BTNNOCLOSE            = $00040000;
   DIF_CENTERTEXT            = $00040000;
   DIF_NOTCVTUSERCONTROL     = $00040000;
- {$ifdef FAR_USE_INTERNALS}
-  DIF_SEPARATORUSER         = $00080000;
- {$endif FAR_USE_INTERNALS}
   DIF_EDITEXPAND            = $00080000;
   DIF_DROPDOWNLIST          = $00100000;
   DIF_USELASTHISTORY        = $00200000;
   DIF_MASKEDIT              = $00400000;
   DIF_SELECTONENTRY         = $00800000;
   DIF_3STATE                = $00800000;
- {$ifdef FAR_USE_INTERNALS}
-  DIF_EDITPATH              = $01000000;
- {$endif FAR_USE_INTERNALS}
   DIF_LISTWRAPMODE          = $01000000;
   DIF_NOAUTOCOMPLETE        = $02000000;
   DIF_LISTAUTOHIGHLIGHT     = $02000000;
   DIF_LISTNOCLOSE           = $04000000;
- {$ifdef FAR_USE_INTERNALS}
-  DIF_AUTOMATION            = $08000000;
- {$endif FAR_USE_INTERNALS}
   DIF_HIDDEN                = $10000000;
   DIF_READONLY              = $20000000;
   DIF_NOFOCUS               = $40000000;
@@ -338,13 +299,6 @@ const
 
   DM_USER                 = $4000;
 
- {$ifdef FAR_USE_INTERNALS}
-  DM_KILLSAVESCREEN  = DN_FIRST-1;
-  DM_ALLKEYMODE      = DN_FIRST-2;
-  DN_ACTIVATEAPP     = DM_USER-1;
- {$endif FAR_USE_INTERNALS}
-
-
 { FARCHECKEDSTATE }
 
 const
@@ -381,9 +335,6 @@ const
   LIF_DISABLE        = $00080000;
   LIF_GRAYED         = $00100000;
   LIF_HIDDEN         = $00200000;
- {$ifdef FAR_USE_INTERNALS}
-  LIF_USETEXTPTR     = $40000000;
- {$endif FAR_USE_INTERNALS}
   LIF_DELETEUSERDATA = $80000000;
 
 (*
@@ -728,9 +679,6 @@ const
   FDLG_SMALLDIALOG  = $00000002;
   FDLG_NODRAWSHADOW = $00000004;
   FDLG_NODRAWPANEL  = $00000008;
- {$ifdef FAR_USE_INTERNALS}
-  FDLG_NONMODAL     = $00000010;
- {$endif FAR_USE_INTERNALS}
 
 type
 (*
@@ -806,9 +754,6 @@ typedef HANDLE (WINAPI *FARAPIDIALOGINIT)(
     Param :LONG_PTR
   ) :THandle; stdcall;
 
-
-  { Far 2 Added }
-
 (*
 typedef int (WINAPI *FARAPIDIALOGRUN)(
   HANDLE hDlg
@@ -864,9 +809,6 @@ const
   MIF_DISABLE    = $00080000;
   MIF_GRAYED     = $00100000;
   MIF_HIDDEN     = $00200000;
- {$ifdef FAR_USE_INTERNALS}
-  MIF_SUBMENU    = $00400000;
- {$endif FAR_USE_INTERNALS}
   MIF_USETEXTPTR = $80000000;
 
 (*
@@ -897,9 +839,6 @@ const
   FMENU_WRAPMODE             = $00000002;
   FMENU_AUTOHIGHLIGHT        = $00000004;
   FMENU_REVERSEAUTOHIGHLIGHT = $00000008;
- {$ifdef FAR_USE_INTERNALS}
-  FMENU_SHOWNOBOX            = $00000010;
- {$endif FAR_USE_INTERNALS}
   FMENU_USEEXT               = $00000020;
   FMENU_CHANGECONSOLETITLE   = $00000040;
 
@@ -1134,7 +1073,6 @@ const
   FCTL_GETCMDLINESELECTION      = 17;
   FCTL_CHECKPANELSEXIST         = 18;
   FCTL_SETNUMERICSORT           = 19;
-  { Far 2 Added }
   FCTL_GETUSERSCREEN            = 20;
   FCTL_ISACTIVEPANEL            = 21;
   FCTL_GETPANELITEM             = 22;
@@ -1289,21 +1227,6 @@ const
   EF_IMMEDIATERETURN       = $00000100;
   EF_DELETEONLYFILEONCLOSE = $00000200;
 
- {$ifdef FAR_USE_INTERNALS}
-  EF_LOCKED                = $00000400;
-
-  EF_OPENMODE_MASK         = $F0000000;
-  EF_OPENMODE_NEWIFOPEN    = $10000000;
-  EF_OPENMODE_USEEXISTING  = $20000000;
-  EF_OPENMODE_BREAKIFOPEN  = $30000000;
-  EF_OPENMODE_RELOADIFOPEN = $40000000;
- {$endif FAR_USE_INTERNALS}
-
- {$ifdef FAR_USE_INTERNALS}
-  EF_SERVICEREGION         = $00001000;
- {$endif FAR_USE_INTERNALS}
-
-
 { EDITOR_EXITCODE }
 
 const
@@ -1311,12 +1234,6 @@ const
   EEC_MODIFIED            = 1;
   EEC_NOT_MODIFIED        = 2;
   EEC_LOADING_INTERRUPTED = 3;
- {$ifdef FAR_USE_INTERNALS}
-  EEC_OPENED_EXISTING     = 4;
-  EEC_ALREADY_EXISTS      = 5;
-  EEC_OPEN_NEWINSTANCE    = 6;
-  EEC_RELOAD              = 7;
- {$endif FAR_USE_INTERNALS}
 
 type
 (*
@@ -1423,42 +1340,10 @@ const
   ACTL_GETPLUGINMAXREADDATA = 21;
   ACTL_GETDIALOGSETTINGS    = 22;
   ACTL_GETSHORTWINDOWINFO   = 23;
- {$ifdef FAR_USE_INTERNALS}
-  ACTL_REMOVEMEDIA          = 24;
-  ACTL_GETMEDIATYPE         = 25;
-  ACTL_GETPOLICIES          = 26;
- {$endif FAR_USE_INTERNALS}
   ACTL_REDRAWALL            = 27;
   ACTL_SYNCHRO              = 28;
 
-(*
-#ifdef FAR_USE_INTERNALS
-enum FarPoliciesFlags{
-  FFPOL_MAINMENUSYSTEM        = 0x00000001,
-  FFPOL_MAINMENUPANEL         = 0x00000002,
-  FFPOL_MAINMENUINTERFACE     = 0x00000004,
-  FFPOL_MAINMENULANGUAGE      = 0x00000008,
-  FFPOL_MAINMENUPLUGINS       = 0x00000010,
-  FFPOL_MAINMENUDIALOGS       = 0x00000020,
-  FFPOL_MAINMENUCONFIRMATIONS = 0x00000040,
-  FFPOL_MAINMENUPANELMODE     = 0x00000080,
-  FFPOL_MAINMENUFILEDESCR     = 0x00000100,
-  FFPOL_MAINMENUFOLDERDESCR   = 0x00000200,
-  FFPOL_MAINMENUVIEWER        = 0x00000800,
-  FFPOL_MAINMENUEDITOR        = 0x00001000,
-  FFPOL_MAINMENUCOLORS        = 0x00004000,
-  FFPOL_MAINMENUHILIGHT       = 0x00008000,
-  FFPOL_MAINMENUSAVEPARAMS    = 0x00020000,
-
-  FFPOL_CREATEMACRO           = 0x00040000,
-  FFPOL_USEPSWITCH            = 0x00080000,
-  FFPOL_PERSONALPATH          = 0x00100000,
-  FFPOL_KILLTASK              = 0x00200000,
-  FFPOL_SHOWHIDDENDRIVES      = 0x80000000,
-};
-#endif // END FAR_USE_INTERNALS
-*)
-
+  
 { FarSystemSettings }
 
 const
@@ -1550,10 +1435,6 @@ const
 const
   EJECT_NO_MESSAGE          = $00000001;
   EJECT_LOAD_MEDIA          = $00000002;
- {$ifdef FAR_USE_INTERNALS}
-  EJECT_NOTIFY_AFTERREMOVE  = $00000004;
-  EJECT_READY               = $80000000;
- {$endif FAR_USE_INTERNALS}
 
 (*
 struct ActlEjectMedia {
@@ -1568,41 +1449,7 @@ type
     Flags :DWORD;
   end;
 
-(*
-#ifdef FAR_USE_INTERNALS
-enum FARMEDIATYPE{
-  FMT_DRIVE_ERROR                =  -1,
-  FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
-  FMT_DRIVE_NO_ROOT_DIR          =  DRIVE_NO_ROOT_DIR,
-  FMT_DRIVE_REMOVABLE            =  DRIVE_REMOVABLE,
-  FMT_DRIVE_FIXED                =  DRIVE_FIXED,
-  FMT_DRIVE_REMOTE               =  DRIVE_REMOTE,
-  FMT_DRIVE_CDROM                =  DRIVE_CDROM,
-  FMT_DRIVE_RAMDISK              =  DRIVE_RAMDISK,
-  FMT_DRIVE_SUBSTITUTE           =  15,
-  FMT_DRIVE_REMOTE_NOT_CONNECTED =  16,
-  FMT_DRIVE_CD_RW                =  18,
-  FMT_DRIVE_CD_RWDVD             =  19,
-  FMT_DRIVE_DVD_ROM              =  20,
-  FMT_DRIVE_DVD_RW               =  21,
-  FMT_DRIVE_DVD_RAM              =  22,
-  FMT_DRIVE_USBDRIVE             =  40,
-  FMT_DRIVE_NOT_INIT             = 255,
-};
-
-enum FARMEDIATYPEFLAGS{
- MEDIATYPE_NODETECTCDROM             = 0x80000000,
-};
-
-struct ActlMediaType {
-  DWORD Letter;
-  DWORD Flags;
-  DWORD Reserved[2];
-};
-#endif // END FAR_USE_INTERNALS
-*)
-
-
+  
 { FARKEYSEQUENCEFLAGS }
 
 const
@@ -1632,10 +1479,6 @@ const
   MCMD_LOADALL         = 0;
   MCMD_SAVEALL         = 1;
   MCMD_POSTMACROSTRING = 2;
- {$ifdef FAR_USE_INTERNALS}
-  MCMD_COMPILEMACRO    = 3;
-  MCMD_CHECKMACRO      = 4;
- {$endif FAR_USE_INTERNALS}
   MCMD_GETSTATE        = 5;
 
 { FARMACROSTATE }
@@ -1655,14 +1498,6 @@ struct ActlKeyMacro{
       wchar_t *SequenceText;
       DWORD Flags;
     } PlainText;
-#ifdef FAR_USE_INTERNALS
-    struct KeySequence Compile;
-    struct {
-      const wchar_t *ErrMsg1;
-      const wchar_t *ErrMsg2;
-      const wchar_t *ErrMsg3;
-    } MacroResult;
-#endif // END FAR_USE_INTERNALS
     DWORD_PTR Reserved[3];
   } Param;
 };
@@ -1717,11 +1552,6 @@ const
   WTYPE_DIALOG     = 4;
   WTYPE_VMENU      = 5;
   WTYPE_HELP       = 6;
- {$ifdef FAR_USE_INTERNALS}
-  WTYPE_COMBOBOX   = 7;
-  WTYPE_FINDFOLDER = 8;
-  WTYPE_USER       = 9;
- {$endif FAR_USE_INTERNALS}
 
 (*
 struct WindowInfo
@@ -2004,7 +1834,6 @@ const
   ECTL_GETBOOKMARKS        = 23;
   ECTL_TURNOFFMARKINGBLOCK = 24;
   ECTL_DELETEBLOCK         = 25;
-//ECTL_FREEINFO            =
   ECTL_ADDSTACKBOOKMARK    = 26;
   ECTL_PREVSTACKBOOKMARK   = 27;
   ECTL_NEXTSTACKBOOKMARK   = 28;
@@ -2013,11 +1842,8 @@ const
   ECTL_GETSTACKBOOKMARKS   = 31;
   ECTL_UNDOREDO            = 32;
   ECTL_GETFILENAME         = 33;
- {$ifdef FAR_USE_INTERNALS}
-  ECTL_SERVICEREGION       = 34;
- {$endif FAR_USE_INTERNALS}
 
-
+  
 { EDITOR_SETPARAMETER_TYPES }
 
 const
@@ -2085,13 +1911,8 @@ type
 struct EditorGetString
 {
   int StringNumber;
-#ifdef FAR_USE_INTERNALS
-  wchar_t *StringText;
-  wchar_t *StringEOL;
-#else // ELSE FAR_USE_INTERNALS
   const wchar_t *StringText;
   const wchar_t *StringEOL;
-#endif // END FAR_USE_INTERNALS
   int StringLength;
   int SelStart;
   int SelEnd;
@@ -2351,10 +2172,6 @@ const
   FIB_NOUSELASTHISTORY = $00000008;
   FIB_BUTTONS          = $00000010;
   FIB_NOAMPERSAND      = $00000020;
- {$ifdef FAR_USE_INTERNALS}
-  FIB_CHECKBOX         = $00010000;
-  FIB_EDITPATH         = $01000000;
- {$endif FAR_USE_INTERNALS}
 
 (*
 typedef int (WINAPI *FARAPIINPUTBOX)(
@@ -2435,8 +2252,6 @@ typedef wchar_t   *(WINAPI *FARSTDTRUNCSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*   (WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
-typedef void    (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root);
-->
 typedef int     (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, int DestSize);
 typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
@@ -2523,11 +2338,6 @@ type
 const
   XLAT_SWITCHKEYBLAYOUT  = $00000001;
   XLAT_SWITCHKEYBBEEP    = $00000002;
- {$ifdef FAR_USE_INTERNALS}
-  XLAT_USEKEYBLAYOUTNAME = $00000004;
-  XLAT_CONVERTALLCMDLINE = $00010000;
- {$endif FAR_USE_INTERNALS}
-
 
 (*
 typedef wchar_t* (WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,DWORD Flags);
@@ -2814,11 +2624,7 @@ struct PluginInfo
   const wchar_t * const *PluginConfigStrings;
   int PluginConfigStringsNumber;
   const wchar_t *CommandPrefix;
-#ifdef FAR_USE_INTERNALS
-  DWORD SysID;
-#else // ELSE FAR_USE_INTERNALS
   DWORD Reserved;
-#endif // END FAR_USE_INTERNALS
 };
 *)
 type
@@ -3091,11 +2897,7 @@ int    WINAPI _export DeleteFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelI
 void   WINAPI _export ExitFARW(void);
 void   WINAPI _export FreeFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export FreeVirtualFindDataW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-
-int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
-->
 int    WINAPI _export GetFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t **DestPath,int OpMode);
-
 int    WINAPI _export GetFindDataW(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
 int    WINAPI _export GetMinFarVersionW(void);
 void   WINAPI _export GetOpenPluginInfoW(HANDLE hPlugin,struct OpenPluginInfo *Info);
@@ -3192,7 +2994,7 @@ function DlgList_SetItemStrAsData(const Info :TPluginStartupInfo; hDlg :THandle;
 
 function MakeFarVersion (Major :DWORD; Minor :DWORD; Build :DWORD) :DWORD;
 begin
-   Result := (Major shl 8) or (Minor) or (Build shl 16);
+  Result := (Major shl 8) or (Minor) or (Build shl 16);
 end;
 
 

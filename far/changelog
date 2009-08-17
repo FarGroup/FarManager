@@ -1,3 +1,9 @@
+svs 17.08.2009 12:26:34 +0300 - build 
+
+1. Mantis#0000986: Far 2 API - pascal 
+    from: max rusov 
+      PluginW.pas: убраны FAR_USE_INTERNALS
+
 drkns 16.08.2009 09:05:05 +0200 - build 1085
 
 1. gcc.
