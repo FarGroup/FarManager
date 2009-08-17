@@ -23,6 +23,9 @@ const unsigned char VhdSig[]      = { 'c', 'o', 'n', 'e', 'c', 't', 'i', 'x', 0,
 const unsigned char MbrSig[]      = { 1, 1, 0 };
 const unsigned char FatSig[]      = { 0x55, 0xAA };
 const unsigned char NtfsSig[]     = { 'N', 'T', 'F', 'S', ' ', ' ', ' ', ' ', 0 };
+const unsigned char MsLzSig[]     = { 0x53, 0x5A, 0x44, 0x44, 0x88, 0xF0, 0x27, 0x33, 0x41 };
+const unsigned char FlvSig[]      = { 'F', 'L', 'V' };
+const unsigned char SwfSig[]      = { 'F', 'W', 'S' };
 
 struct FormatInfo {
 	const GUID *puid;
@@ -66,6 +69,9 @@ const FormatInfo signs[] = {
 	{&CLSID_CMbrHandler,      (const unsigned char *)&MbrSig,      3, true,  NULL},
 	{&CLSID_CFatHandler,      (const unsigned char *)&FatSig,      2, true,  NULL},
 	{&CLSID_CNtfsHandler,     (const unsigned char *)&NtfsSig,     9, true,  NULL},
+	{&CLSID_CMsLzHandler,     (const unsigned char *)&MsLzSig,     9, true,  NULL},
+	{&CLSID_CFlvHandler,      (const unsigned char *)&FlvSig,      3, true,  NULL},
+	{&CLSID_CSwfHandler,      (const unsigned char *)&SwfSig,      3, true,  NULL},
 };
 
 
