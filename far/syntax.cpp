@@ -1343,8 +1343,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const ch
   _KEYMACRO(SysLog("Param: BufPtr[%p]='%s'", BufPtr,BufPtr));
 
   _macro_nErr = 0;
+  pSrcString = oSrcString = sSrcString = "";
   if ( BufPtr == NULL || !*BufPtr)
   {
+    keyMacroParseError(err_ZeroLengthMacro);
     _KEYMACRO_PARSE(SysLog("[%d] return FALSE: BufPtr == NULL || !*BufPtr", __LINE__));
     return FALSE;
   }

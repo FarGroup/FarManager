@@ -6299,6 +6299,10 @@ MMacroPErrExpr_Expected
 "Ошибка синтаксиса"
 "Expression Expected"
 
+MMacroPErr_ZeroLengthMacro
+"Пустая макропоследовательность"
+"Zero-length macro"
+
 MCannotSaveFile
 l:
 "Ошибка сохранения файла"

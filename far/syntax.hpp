@@ -56,6 +56,7 @@ enum errParseCode
   err_Bad_Control_Char,
   err_Var_Expected,
   err_Expr_Expected,
+  err_ZeroLengthMacro,
 };
 
 extern int MKeywordsSize;
