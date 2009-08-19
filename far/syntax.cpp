@@ -1243,8 +1243,12 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
   _KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
   _KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
   _macro_nErr = 0;
+  pSrcString = oSrcString = sSrcString = L"";
   if ( BufPtr == NULL || !*BufPtr)
+  {
+    keyMacroParseError(err_ZeroLengthMacro);
     return FALSE;
+  }
 
   int SizeCurKeyText = (int)(StrLength(BufPtr)*2)*sizeof (wchar_t);
 

@@ -12497,6 +12497,14 @@ MMacroPErrExpr_Expected
 "Szintaktikai hiba"
 "Oczekiwano wyrażenia"
 
+MMacroPErr_ZeroLengthMacro
+"Пустая макропоследовательность"
+"Zero-length macro"
+Upd:"Zero-length macro"
+Upd:"Zero-length macro"
+Upd:"Zero-length macro"
+Upd:"Zero-length macro"
+
 MMacroPErrorTitle
 "Ошибка при разборе макроса"
 "Macro parsing error"
