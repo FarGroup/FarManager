@@ -9151,6 +9151,14 @@ upd:"Plugin selection"
 upd:"Plugin selection"
 upd:"Plugin selection"
 
+MMenuPluginStdAssociation
+"Стандартная ассоциация"
+"Standard association"
+upd:"Standard association"
+upd:"Standard association"
+upd:"Standard association"
+upd:"Standard association"
+
 MMenuFilePanelModes
 "Режим&ы панели файлов"
 "File panel &modes"
@@ -10001,28 +10009,28 @@ MSetAttrHardLinks
 "linków trwałych (%d)"
 
 MSetAttrJunction
-"Связь \"%s\""
-"Junction \"%s\""
-"Křížení \"%s\""
-"Knotenpunkte \"%s\""
-"\"%s\" csomópont"
-"Powiązanie \"%s\""
+"Связь:"
+"Junction:"
+"Křížení:"
+"Knotenpunkte:"
+"Сsomópont:"
+"Powiązanie:"
 
 MSetAttrSymlink
-"Ссылка \"%s\""
-"Symlink \"%s\""
-"Link \"%s\""
-"Symlink \"%s\""
-"\"%s\" szimlink"
-"Link \"%s\""
+"Ссылка:"
+"Symlink:"
+"Link:"
+"Symlink:"
+"Szimlink:"
+"Link:"
 
 MSetAttrVolMount
-"Том \"%s\""
-"Volume \"%s\""
-"Svazek \"%s\""
-"Datenträger \"%s\""
-"\"%s\" kötet"
-"Punkt zamontowania \"%s\""
+"Том:"
+"Volume:"
+"Svazek:"
+"Datenträger:"
+"Kötet:"
+"Punkt zamontowania:"
 
 MSetAttrUnknownJunction
 "(нет данных)"

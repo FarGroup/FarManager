@@ -2345,7 +2345,7 @@ void Viewer::Search(int Next,int FirstChar)
           break;
 
 				DWORD CurTime=GetTickCount();
-				if(CurTime-StartTime>500)
+				if(CurTime-StartTime>RedrawTimeout)
 				{
 					StartTime=CurTime;
 					if(CheckForEscSilent())

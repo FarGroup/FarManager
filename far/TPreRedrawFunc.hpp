@@ -39,10 +39,10 @@ typedef void (*PREREDRAWFUNC)();
 struct PreRedrawParamStruct
 {
   DWORD Flags;
-  void *Param1;
-  const void *Param2;
-  const void *Param3;
-  void *Param4;
+	const void *Param1;
+	const void *Param2;
+	const void *Param3;
+	const void *Param4;
   __int64 Param5;
 };
 

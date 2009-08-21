@@ -1530,7 +1530,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		LastLineCR=0;
 		DWORD CurTime=GetTickCount();
-		if(CurTime-StartTime>500)
+		if(CurTime-StartTime>RedrawTimeout)
 		{
 			StartTime=CurTime;
 			if (CheckForEscSilent())
@@ -1837,7 +1837,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 		for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next,LineNumber++)
     {
 			DWORD CurTime=GetTickCount();
-			if(CurTime-StartTime>500)
+			if(CurTime-StartTime>RedrawTimeout)
 			{
 				StartTime=CurTime;
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));

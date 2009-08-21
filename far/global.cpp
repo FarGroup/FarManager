@@ -162,4 +162,6 @@ const wchar_t constMsY[]=L"MsY";
 const wchar_t constMsButton[]=L"MsButton";
 const wchar_t constMsCtrlState[]=L"MsCtrlState";
 
+DWORD RedrawTimeout=200;
+
 SYSTEM_INFO SystemInfo;

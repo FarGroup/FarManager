@@ -1256,11 +1256,9 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			di.Type=DI_LISTBOX;
 			di.Param.ListPos=diA.Param.ListPos;
 			break;
-#ifdef FAR_USE_INTERNALS
 		case oldfar::DI_MEMOEDIT:
 			di.Type=DI_MEMOEDIT;
 			break;
-#endif // END FAR_USE_INTERNALS
 		case oldfar::DI_USERCONTROL:
 			di.Type=DI_USERCONTROL;
 			break;
@@ -1309,10 +1307,8 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			di.Flags|=DIF_CENTERTEXT;
 		if(diA.Flags&oldfar::DIF_NOTCVTUSERCONTROL)
 			di.Flags|=DIF_NOTCVTUSERCONTROL;
-#ifdef FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_SEPARATORUSER)
 			di.Flags|=DIF_SEPARATORUSER;
-#endif // END FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_EDITEXPAND)
 			di.Flags|=DIF_EDITEXPAND;
 		if(diA.Flags&oldfar::DIF_DROPDOWNLIST)
@@ -1325,18 +1321,14 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 			di.Flags|=DIF_SELECTONENTRY;
 		if(diA.Flags&oldfar::DIF_3STATE)
 			di.Flags|=DIF_3STATE;
-#ifdef FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_EDITPATH)
 			di.Flags|=DIF_EDITPATH;
-#endif // END FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_LISTWRAPMODE)
 			di.Flags|=DIF_LISTWRAPMODE;
 		if(diA.Flags&oldfar::DIF_LISTAUTOHIGHLIGHT)
 			di.Flags|=DIF_LISTAUTOHIGHLIGHT;
-#ifdef FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_AUTOMATION)
 			di.Flags|=DIF_AUTOMATION;
-#endif // END FAR_USE_INTERNALS
 		if(diA.Flags&oldfar::DIF_HIDDEN)
 			di.Flags|=DIF_HIDDEN;
 		if(diA.Flags&oldfar::DIF_READONLY)
@@ -1491,11 +1483,9 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			diA.Type=oldfar::DI_LISTBOX;
 			diA.Param.ListPos=di.Param.ListPos;
 			break;
-#ifdef FAR_USE_INTERNALS
 		case DI_MEMOEDIT:
 			diA.Type=oldfar::DI_MEMOEDIT;
 			break;
-#endif // END FAR_USE_INTERNALS
 		case DI_USERCONTROL:
 			diA.Type=oldfar::DI_USERCONTROL;
 			break;
@@ -1544,10 +1534,8 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			diA.Flags|=oldfar::DIF_CENTERTEXT;
 		if(di.Flags&DIF_NOTCVTUSERCONTROL)
 			diA.Flags|=oldfar::DIF_NOTCVTUSERCONTROL;
-#ifdef FAR_USE_INTERNALS
 		if(di.Flags&DIF_SEPARATORUSER)
 			diA.Flags|=oldfar::DIF_SEPARATORUSER;
-#endif // END FAR_USE_INTERNALS
 		if(di.Flags&DIF_EDITEXPAND)
 			diA.Flags|=oldfar::DIF_EDITEXPAND;
 		if(di.Flags&DIF_DROPDOWNLIST)
@@ -1560,18 +1548,14 @@ void UnicodeDialogItemToAnsiSafe(FarDialogItem &di,oldfar::FarDialogItem &diA)
 			diA.Flags|=oldfar::DIF_SELECTONENTRY;
 		if(di.Flags&DIF_3STATE)
 			diA.Flags|=oldfar::DIF_3STATE;
-#ifdef FAR_USE_INTERNALS
 		if(di.Flags&DIF_EDITPATH)
 			diA.Flags|=oldfar::DIF_EDITPATH;
-#endif // END FAR_USE_INTERNALS
 		if(di.Flags&DIF_LISTWRAPMODE)
 			diA.Flags|=oldfar::DIF_LISTWRAPMODE;
 		if(di.Flags&DIF_LISTAUTOHIGHLIGHT)
 			diA.Flags|=oldfar::DIF_LISTAUTOHIGHLIGHT;
-#ifdef FAR_USE_INTERNALS
 		if(di.Flags&DIF_AUTOMATION)
 			diA.Flags|=oldfar::DIF_AUTOMATION;
-#endif // END FAR_USE_INTERNALS
 		if(di.Flags&DIF_HIDDEN)
 			diA.Flags|=oldfar::DIF_HIDDEN;
 		if(di.Flags&DIF_READONLY)
@@ -1692,11 +1676,9 @@ LONG_PTR WINAPI DlgProcA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 		case DN_RESIZECONSOLE:  Msg=oldfar::DN_RESIZECONSOLE; break;
 		case DN_MOUSEEVENT:     Msg=oldfar::DN_MOUSEEVENT; break;
 		case DN_DRAWDIALOGDONE: Msg=oldfar::DN_DRAWDIALOGDONE; break;
-#ifdef FAR_USE_INTERNALS
 		case DM_KILLSAVESCREEN: Msg=oldfar::DM_KILLSAVESCREEN; break;
 		case DM_ALLKEYMODE:     Msg=oldfar::DM_ALLKEYMODE; break;
 		case DN_ACTIVATEAPP:    Msg=oldfar::DN_ACTIVATEAPP; break;
-#endif // END FAR_USE_INTERNALS
 			break;
 
 		case DN_KEY:
@@ -2172,12 +2154,9 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int Msg, int Param1, LONG_PTR Pa
 		case oldfar::DM_GETCOMBOBOXEVENT:
 			Msg=DM_GETCOMBOBOXEVENT;
 			break;
-
-#ifdef FAR_USE_INTERNALS
 		case oldfar::DM_KILLSAVESCREEN:
 		case oldfar::DM_ALLKEYMODE:
 		case oldfar::DN_ACTIVATEAPP:
-#endif // END FAR_USE_INTERNALS
 			break;
 	}
 	return FarSendDlgMessage(hDlg, Msg, Param1, Param2);
@@ -2207,9 +2186,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 	if (Flags&oldfar::FDLG_SMALLDIALOG)  DlgFlags|=FDLG_SMALLDIALOG;
 	if (Flags&oldfar::FDLG_NODRAWSHADOW) DlgFlags|=FDLG_NODRAWSHADOW;
 	if (Flags&oldfar::FDLG_NODRAWPANEL)  DlgFlags|=FDLG_NODRAWPANEL;
-#ifdef FAR_USE_INTERNALS
 	if (Flags&oldfar::FDLG_NONMODAL)     DlgFlags|=FDLG_NONMODAL;
-#endif // END FAR_USE_INTERNALS
 
 	int ret = -1;
 
@@ -2869,7 +2846,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 				case oldfar::MCMD_GETSTATE:
 					km.Command=MCMD_GETSTATE;
 					break;
-	#ifdef FAR_USE_INTERNALS
 					/*
 				case oldfar::MCMD_COMPILEMACRO:
 					km.Command=MCMD_COMPILEMACRO;
@@ -2882,7 +2858,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 					km.Command=MCMD_CHECKMACRO;
 					km.Param.PlainText.SequenceText=AnsiToUnicode(kmA->Param.PlainText.SequenceText);
 					break;
-	#endif // END FAR_USE_INTERNALS
 			}
 			INT_PTR res = FarAdvControl(ModuleNumber, ACTL_KEYMACRO, &km);
 			switch (km.Command)
@@ -3103,12 +3078,10 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 			if (ds&oldfar::FDIS_BSDELETEUNCHANGEDTEXT)          ret|=FDIS_BSDELETEUNCHANGEDTEXT;
 			return ret;
 		}
-	#ifdef FAR_USE_INTERNALS
 		case oldfar::ACTL_REMOVEMEDIA:
 		case oldfar::ACTL_GETMEDIATYPE:
 		case oldfar::ACTL_GETPOLICIES:
 			return FALSE;
-	#endif // END FAR_USE_INTERNALS
 		case oldfar::ACTL_REDRAWALL:
 			return FarAdvControl(ModuleNumber, ACTL_REDRAWALL, 0);
 	}
@@ -3715,12 +3688,10 @@ char* WINAPI XlatA(
 		NewFlags|=XLAT_SWITCHKEYBLAYOUT;
  	if (Flags&oldfar::XLAT_SWITCHKEYBBEEP)
 		NewFlags|=XLAT_SWITCHKEYBBEEP;
-#ifdef FAR_USE_INTERNALS
  	if (Flags&oldfar::XLAT_USEKEYBLAYOUTNAME)
 		NewFlags|=XLAT_USEKEYBLAYOUTNAME;
  	if (Flags&oldfar::XLAT_CONVERTALLCMDLINE)
 		NewFlags|=XLAT_CONVERTALLCMDLINE;
-#endif // END FAR_USE_INTERNALS
 
   Xlat(strLine.GetBuffer(),StartPos,EndPos,NewFlags);
 

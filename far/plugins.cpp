@@ -772,7 +772,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				menu.AddItem(&mitem);
 
 				mitem.Clear();
-				mitem.strName = L"Standard association";
+				mitem.strName = MSG(MMenuPluginStdAssociation);
 
 				menu.AddItem(&mitem);
 			}					

@@ -356,16 +356,62 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
 #pragma pack(pop)
 #endif
 
-#ifndef __GCC__
- // winnt.h
- #ifndef IO_REPARSE_TAG_VALID_VALUES
- #define IO_REPARSE_TAG_VALID_VALUES 0xE000FFFF
- #endif
+// ntifs.h
 
- #ifndef IsReparseTagValid
- #define IsReparseTagValid(x) (!((x)&~IO_REPARSE_TAG_VALID_VALUES)&&((x)>IO_REPARSE_TAG_RESERVED_RANGE))
- #endif //IsReparseTagValid
-#endif //__GCC__
+#ifndef IO_REPARSE_TAG_VALID_VALUES
+#define IO_REPARSE_TAG_VALID_VALUES 0xE000FFFF
+#endif
+
+#ifndef IsReparseTagValid
+#define IsReparseTagValid(x) (!((x)&~IO_REPARSE_TAG_VALID_VALUES)&&((x)>IO_REPARSE_TAG_RESERVED_RANGE))
+#endif
+
+#ifndef SYMLINK_FLAG_RELATIVE
+#define SYMLINK_FLAG_RELATIVE 1
+#endif
+
+#ifndef REPARSE_DATA_BUFFER_HEADER_SIZE
+typedef struct _REPARSE_DATA_BUFFER
+{
+	ULONG ReparseTag;
+	USHORT ReparseDataLength;
+	USHORT Reserved;
+	union
+	{
+		struct
+		{
+			USHORT SubstituteNameOffset;
+			USHORT SubstituteNameLength;
+			USHORT PrintNameOffset;
+			USHORT PrintNameLength;
+			ULONG Flags;
+			WCHAR PathBuffer[1];
+		}
+		SymbolicLinkReparseBuffer;
+		struct
+		{
+			USHORT SubstituteNameOffset;
+			USHORT SubstituteNameLength;
+			USHORT PrintNameOffset;
+			USHORT PrintNameLength;
+			WCHAR PathBuffer[1];
+		}
+		MountPointReparseBuffer;
+		struct
+		{
+			UCHAR  DataBuffer[1];
+		}
+		GenericReparseBuffer;
+	};
+}
+REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
+
+#define REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(REPARSE_DATA_BUFFER,GenericReparseBuffer)
+#endif
+
+#ifndef MAXIMUM_REPARSE_DATA_BUFFER_SIZE
+#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE (16*1024)
+#endif
 
 // wincon.h
 #ifndef MOUSE_HWHEELED

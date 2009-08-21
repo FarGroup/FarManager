@@ -51,6 +51,7 @@ bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *O
 
 bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type=RP_JUNCTION);
 bool  WINAPI DeleteReparsePoint(const wchar_t *Object);
+bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData);
 
 DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWORD lpReparseTag=NULL);
 

@@ -40,7 +40,7 @@ wchar_t GetTimeSeparator();
 __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b);
 unsigned __int64 FileTimeToUI64(const FILETIME *ft);
 
-void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator);
+void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,int Separator);
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);

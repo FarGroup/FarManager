@@ -539,38 +539,25 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 
 __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
 {
-	LARGE_INTEGER A, B;
-
-	A.u.LowPart  = a->dwLowDateTime;
-	A.u.HighPart = a->dwHighDateTime;
-	B.u.LowPart  = b->dwLowDateTime;
-	B.u.HighPart = b->dwHighDateTime;
-
+	LARGE_INTEGER A={a->dwLowDateTime,a->dwHighDateTime},B={b->dwLowDateTime,b->dwHighDateTime};
 	return A.QuadPart - B.QuadPart;
 }
 
 unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 {
-	ULARGE_INTEGER A;
-
-	A.u.LowPart  = ft->dwLowDateTime;
-	A.u.HighPart = ft->dwHighDateTime;
-
+	ULARGE_INTEGER A={ft->dwLowDateTime,ft->dwHighDateTime};
 	return A.QuadPart;
 }
 
-void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
+void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,int Separator)
 {
   string strDigit;
-  const wchar_t *PtrDigit;
-  int I;
-
-  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
-  I=0;
+  Dst[0]=Dst[1]=Dst[2]=(WORD)-1;
+  int I=0;
   const wchar_t *Ptr=Src;
   while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
   {
-    PtrDigit=strDigit;
+    const wchar_t *PtrDigit=strDigit;
     while (*PtrDigit && !iswdigit(*PtrDigit))
       PtrDigit++;
     if(*PtrDigit)
@@ -582,9 +569,8 @@ void GetFileDateAndTime(const wchar_t *Src,unsigned *Dst,int Separator)
 
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
 {
-  unsigned DateN[3],TimeN[3];
-  SYSTEMTIME st;
-  FILETIME lft;
+	WORD DateN[3]={0},TimeN[3]={0};
+	SYSTEMTIME st={0};
 
   // Преобразуем введённые пользователем дату и время
   GetFileDateAndTime(CDate,DateN,DateSeparator);
@@ -592,32 +578,29 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 
   if (!bRelative)
   {
-    if(DateN[0] == (unsigned)-1 || DateN[1] == (unsigned)-1 || DateN[2] == (unsigned)-1)
+		if(DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
     {
       // Пользователь оставил дату пустой, значит обнулим дату и время.
       memset(&ft,0,sizeof(ft));
       return;
     }
-
-    memset(&st,0,sizeof(st));
-
     // "Оформим"
     switch(DateFormat)
     {
       case 0:
-        st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
-        st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
-        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+				st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:0;
+				st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:0;
+				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
         break;
       case 1:
-        st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
-        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
-        st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+				st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:0;
+				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
+				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
         break;
       default:
-        st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
-        st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
-        st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
+				st.wYear =DateN[0]!=(WORD)-1?DateN[0]:0;
+				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
+				st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:0;
         break;
     }
 
@@ -631,12 +614,12 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
   }
   else
   {
-    st.wDay = DateN[0]!=(unsigned)-1?DateN[0]:0;
+		st.wDay = DateN[0]!=(WORD)-1?DateN[0]:0;
   }
 
-  st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
-  st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;
-  st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
+	st.wHour   = TimeN[0]!=(WORD)-1?(TimeN[0]):0;
+	st.wMinute = TimeN[1]!=(WORD)-1?(TimeN[1]):0;
+	st.wSecond = TimeN[2]!=(WORD)-1?(TimeN[2]):0;
 
   // преобразование в "удобоваримый" формат
   if (bRelative)
@@ -652,9 +635,12 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
   }
   else
   {
-    SystemTimeToFileTime(&st,&lft);
-    LocalFileTimeToFileTime(&lft,&ft);
-  }
+		FILETIME lft={0};
+		if(SystemTimeToFileTime(&st,&lft))
+		{
+			LocalFileTimeToFileTime(&lft,&ft);
+		}
+	}
 }
 
 void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
@@ -770,20 +756,14 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
 
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
 {
-  WORD d,h,m,s;
-  ULARGE_INTEGER time;
-
-  time.u.LowPart  = ft.dwLowDateTime;
-  time.u.HighPart = ft.dwHighDateTime;
-
-  d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
-  time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
-  h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
-  time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
-  m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
-  time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
-  s = (WORD)(time.QuadPart / _ui64(10000000));
-
-  strDaysText.Format(L"%u",d);
-  strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
+	ULARGE_INTEGER time={ft.dwLowDateTime,ft.dwHighDateTime};
+	WORD d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
+	time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
+	WORD h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
+	time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
+	WORD m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
+	time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
+	WORD s = (WORD)(time.QuadPart / _ui64(10000000));
+	strDaysText.Format(L"%u",d);
+	strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
 }

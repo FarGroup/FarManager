@@ -3863,7 +3863,7 @@ BOOL Editor::Search(int Next)
     while (CurPtr!=NULL)
     {
 			DWORD CurTime=GetTickCount();
-			if(CurTime-StartTime>500)
+			if(CurTime-StartTime>RedrawTimeout)
       {
 				StartTime=CurTime;
         if( CheckForEscSilent() )

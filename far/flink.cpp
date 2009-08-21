@@ -43,36 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "panelmix.hpp"
 
-struct TMN_REPARSE_DATA_BUFFER
-{
-  DWORD  ReparseTag;
-  WORD   ReparseDataLength;
-  WORD   Reserved;
-  union {
-    struct {
-      WORD   SubstituteNameOffset;
-      WORD   SubstituteNameLength;
-      WORD   PrintNameOffset;
-      WORD   PrintNameLength;
-      ULONG  Flags;
-      WCHAR PathBuffer[1];
-    } SymbolicLinkReparseBuffer;
-    struct {
-      WORD   SubstituteNameOffset;
-      WORD   SubstituteNameLength;
-      WORD   PrintNameOffset;
-      WORD   PrintNameLength;
-      WCHAR PathBuffer[1];
-    } MountPointReparseBuffer;
-    struct {
-      BYTE   DataBuffer[1];
-    } GenericReparseBuffer;
-  };
-};
-
-#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, GenericReparseBuffer)
-
-
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {
 	bool Result=false;
@@ -83,6 +53,42 @@ bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *O
 		{
 			Result=true;
 		}
+	}
+	return Result;
+}
+
+bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t PrintNameLength,LPCWSTR SubstituteName,size_t SubstituteNameLength)
+{
+	bool Result=false;
+	rdb->Reserved=0;
+	switch(rdb->ReparseTag)
+	{
+	case IO_REPARSE_TAG_MOUNT_POINT:
+		rdb->MountPointReparseBuffer.SubstituteNameOffset=0;
+		rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteNameLength*sizeof (wchar_t));
+		rdb->MountPointReparseBuffer.PrintNameOffset=rdb->MountPointReparseBuffer.SubstituteNameLength+2;
+		rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(PrintNameLength*sizeof(wchar_t));
+		rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,MountPointReparseBuffer.PathBuffer)+rdb->MountPointReparseBuffer.PrintNameOffset+rdb->MountPointReparseBuffer.PrintNameLength+1*sizeof(wchar_t)-REPARSE_DATA_BUFFER_HEADER_SIZE;
+		if(rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
+		{
+			wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName,SubstituteNameLength+1);
+			wmemcpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName,PrintNameLength+1);
+			Result=true;
+		}
+		break;
+	case IO_REPARSE_TAG_SYMLINK:
+		rdb->SymbolicLinkReparseBuffer.PrintNameOffset=0;
+		rdb->SymbolicLinkReparseBuffer.PrintNameLength=static_cast<WORD>(PrintNameLength*sizeof(wchar_t));
+		rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset=rdb->MountPointReparseBuffer.PrintNameLength;
+		rdb->SymbolicLinkReparseBuffer.SubstituteNameLength=static_cast<WORD>(SubstituteNameLength*sizeof (wchar_t));
+		rdb->ReparseDataLength=FIELD_OFFSET(REPARSE_DATA_BUFFER,SymbolicLinkReparseBuffer.PathBuffer)+rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset+rdb->SymbolicLinkReparseBuffer.SubstituteNameLength-REPARSE_DATA_BUFFER_HEADER_SIZE;
+		if(rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE<=static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t)))
+		{
+			wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],SubstituteName,SubstituteNameLength);
+			wmemcpy(&rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)],PrintName,PrintNameLength);
+			Result=true;
+		}
+		break;
 	}
 	return Result;
 }
@@ -105,6 +111,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 			}
 			break;
 		case RP_JUNCTION:
+		case RP_VOLMOUNT:
 			{
 				string strPrintName,strSubstituteName;
 				ConvertNameToFull(Target,strPrintName);
@@ -112,24 +119,16 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
 
 				BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-				TMN_REPARSE_DATA_BUFFER *rdb=(TMN_REPARSE_DATA_BUFFER*)szBuff;
+				PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
-				rdb->Reserved=0;
-				rdb->MountPointReparseBuffer.SubstituteNameOffset=0;
-				rdb->MountPointReparseBuffer.SubstituteNameLength=static_cast<WORD>(strSubstituteName.GetLength()*sizeof (wchar_t));
-				rdb->MountPointReparseBuffer.PrintNameOffset=rdb->MountPointReparseBuffer.SubstituteNameLength+2;
-				rdb->MountPointReparseBuffer.PrintNameLength=static_cast<WORD>(strPrintName.GetLength()*sizeof(wchar_t));
-				rdb->ReparseDataLength=sizeof(rdb->MountPointReparseBuffer)+rdb->MountPointReparseBuffer.PrintNameOffset+rdb->MountPointReparseBuffer.PrintNameLength;
-				if(rdb->ReparseDataLength+sizeof(DWORD)+sizeof(WORD)+sizeof(WORD)<=MAXIMUM_REPARSE_DATA_BUFFER_SIZE/sizeof(wchar_t))
+				if(FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
 				{
-					wcscpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)],strSubstituteName);
-					wcscpy(&rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)],strPrintName);
 					HANDLE hDir=apiCreateFile(Object,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
 					if(hDir!=INVALID_HANDLE_VALUE)
 					{
 						DWORD dwBytes;
-						if(DeviceIoControl(hDir,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0))
+						if(DeviceIoControl(hDir,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0))
 						{
 							Result=true;
 						}
@@ -165,7 +164,7 @@ bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 	return Result;
 }
 
-bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,TMN_REPARSE_DATA_BUFFER *rdb)
+bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
 	const DWORD FileAttr = apiGetFileAttributes(Object);
@@ -185,6 +184,29 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,TMN_REPARSE_DATA_BUFFER *rdb)
 			}
 			CloseHandle(hObject);
 		}
+	}
+	return Result;
+}
+
+bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
+{
+	bool Result=false;
+	HANDLE hObject=apiCreateFile(Object,FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+	if(hObject!=INVALID_HANDLE_VALUE)
+	{
+		DWORD dwBytesReturned;
+		if(IsReparseTagValid(rdb->ReparseTag))
+		{
+			if(rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
+			{
+				SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
+			}
+			if(DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytesReturned,0))
+			{
+				Result=true;
+			}
+		}
+		CloseHandle(hObject);
 	}
 	return Result;
 }
@@ -213,7 +235,7 @@ bool SetPrivilege(LPCWSTR Privilege,BOOL bEnable)
 DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDWORD lpReparseTag)
 {
 	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-	TMN_REPARSE_DATA_BUFFER *rdb = (TMN_REPARSE_DATA_BUFFER*)szBuff;
+	PREPARSE_DATA_BUFFER rdb = reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 	WORD NameLength=0;
 	if(GetREPARSE_DATA_BUFFER(Object,rdb))
 	{
@@ -637,22 +659,58 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   GetPathRootOne(strNewPath, strRoot);
 }
 
+bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
+{
+	bool Result=false;
+	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+	if(GetREPARSE_DATA_BUFFER(Object,rdb))
+	{
+		bool FillResult=false;
+		switch(rdb->ReparseTag)
+		{
+		case IO_REPARSE_TAG_MOUNT_POINT:
+			{
+				string strPrintName,strSubstituteName;
+				ConvertNameToFull(NewData,strPrintName);
+				strSubstituteName=L"\\??\\";
+				strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+				FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
+			}
+			break;
+		case IO_REPARSE_TAG_SYMLINK:
+			{
+				string strPrintName=NewData,strSubstituteName=NewData;
+				if(PathMayBeAbsolute(NewData))
+				{
+					strSubstituteName=L"\\??\\";
+					strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+					rdb->SymbolicLinkReparseBuffer.Flags=0;
+				}
+				else
+				{
+					rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+				}
+				FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
+			}
+			break;
+		}
+		if(FillResult&&SetREPARSE_DATA_BUFFER(Object,rdb))
+		{
+			Result=true;
+		}
+	}
+	return Result;
+}
+
 bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
 {
 	bool Result=false;
 	BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-	TMN_REPARSE_DATA_BUFFER* rdb=(TMN_REPARSE_DATA_BUFFER*)szBuff;
-	if(GetREPARSE_DATA_BUFFER(Src,rdb))
+	PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+	if(GetREPARSE_DATA_BUFFER(Src,rdb) && SetREPARSE_DATA_BUFFER(Dst,rdb))
 	{
-		if(rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
-			SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
-		HANDLE hLink=apiCreateFile(Dst,FILE_WRITE_ATTRIBUTES,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
-		if(hLink!=INVALID_HANDLE_VALUE)
-		{
-			DWORD dwBytes;
-			Result=(DeviceIoControl(hLink,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0)!=FALSE);
-			CloseHandle(hLink);
-		}
+		Result=true;
 	}
 	return Result;
 }

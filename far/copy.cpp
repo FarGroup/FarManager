@@ -83,9 +83,6 @@ extern long WaitUserTime;
 /* Длф того, что бы время при одижании пользователя тикало, а remaining/speed нет */
 static long OldCalcTime;
 
-/* Интервал для прорисовки прогресс-бара. */
-#define COPY_TIMEOUT 200
-
 // Высота и ширина диалога
 #define DLG_HEIGHT 16
 #define DLG_WIDTH 76
@@ -2715,7 +2712,7 @@ void ShellCopy::ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags)
 	if(Src&&*Src&&Dest&&*Dest)
 	{
 		DWORD CurTime=GetTickCount();
-		if(CurTime-LastShowTime<COPY_TIMEOUT)
+		if(CurTime-LastShowTime<RedrawTimeout)
 		{
 			return;
 		}
@@ -3432,7 +3429,7 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
 {
 	DWORD &Time=TotalBar?LastShowTotalBarTime:	LastShowBarTime;
 	DWORD CurTime=GetTickCount();
-	if(CurTime-Time<COPY_TIMEOUT)
+	if(CurTime-Time<RedrawTimeout)
 	{
 		return FALSE;
 	}
@@ -4189,7 +4186,7 @@ void ShellCopy::ShowTitle(int FirstTime)
 	if(!FirstTime)
 	{
 		DWORD CurTime=GetTickCount();
-		if(CurTime-LastShowTitleTime<COPY_TIMEOUT)
+		if(CurTime-LastShowTitleTime<RedrawTimeout)
 		{
 			return;
 		}
