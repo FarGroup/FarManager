@@ -1201,4 +1201,6 @@ BOOL CheckFileSystem(const char *CurDir,const char *TargetFS=NULL);
 
 bool TestCurrentDirectory(const char *TestDir);
 
+BOOL WINAPI FAR_GetUserNameEx(int NameFormat,LPSTR lpNameBuffer,PULONG nSize);
+
 #endif  // __FARFUNC_HPP__

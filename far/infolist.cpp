@@ -87,11 +87,9 @@ void InfoList::DisplayObject()
   Panel *AnotherPanel;
   char DriveRoot[NM],VolumeName[NM],FileSystemName[NM];
   DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  /* $ 30.04.2001 DJ
-     CloseDizFile() -> CloseFile()
-  */
+
   CloseFile();
-  /* DJ $ */
+
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -107,11 +105,24 @@ void InfoList::DisplayObject()
 
   SetColor(COL_PANELTEXT);
   {
-    char ComputerName[40],UserName[40];
+    char ComputerName[64],UserName[256];
     DWORD ComputerNameSize=sizeof(ComputerName),UserNameSize=sizeof(UserName);
     *ComputerName=*UserName=0;
     GetComputerName(ComputerName,&ComputerNameSize);
-    GetUserName(UserName,&UserNameSize);
+	/*
+		http://msdn.microsoft.com/en-us/library/ms724268%28VS.85%29.aspx
+		 0 = NameUnknown           An unknown name type.
+		 1 = NameFullyQualifiedDN  The fully-qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
+		 2 = NameSamCompatible     A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
+		 3 = NameDisplay           A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
+		 6 = NameUniqueId          A GUID string that the IIDFromString function returns (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+		 7 = NameCanonical         The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
+		 8 = NameUserPrincipal     The user principal name (for example, someone@example.com).
+		 9 = NameCanonicalEx       The same as NameCanonical except that the rightmost forward slash (/) is replaced with a new line character (\n), even in a domain-only case (for example, engineering.microsoft.com/software\nJSmith).
+		10 = NameServicePrincipal  The generalized service principal name (for example, www/www.microsoft.com@microsoft.com).
+		12 = NameDnsDomain         The DNS domain name followed by a backward-slash and the SAM username.
+	*/
+    FAR_GetUserNameEx(8,UserName,&UserNameSize);
     FAR_CharToOem(ComputerName,ComputerName);
     FAR_CharToOem(UserName,UserName);
     GotoXY(X1+2,Y1+1);

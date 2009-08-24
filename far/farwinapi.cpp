@@ -386,3 +386,21 @@ BOOL WINAPI FAR_SetFilePointerEx(HANDLE hFile,LARGE_INTEGER liDistanceToMove,PLA
     return TRUE;
   }
 }
+
+BOOL WINAPI FAR_GetUserNameEx(int NameFormat,LPSTR lpNameBuffer,PULONG nSize)
+{
+  typedef BOOL (WINAPI * PGETUSERNAMEEX)(int NameFormat,LPSTR lpNameBuffer,PULONG nSize);
+  static PGETUSERNAMEEX pGetUserNameEx=NULL;
+
+  if(!pGetUserNameEx)
+    pGetUserNameEx=(PGETUSERNAMEEX)GetProcAddress(GetModuleHandle("secur32.dll"),"GetUserNameExA");
+
+  BOOL Result=TRUE;
+  if(pGetUserNameEx)
+    Result=pGetUserNameEx(NameFormat,lpNameBuffer,nSize);
+
+  if(!pGetUserNameEx || !Result)
+    Result=GetUserName(lpNameBuffer,nSize);
+
+  return Result;
+}
