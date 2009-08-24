@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "imports.hpp"
 #include "infolist.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
@@ -98,105 +99,130 @@ string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 
 void InfoList::DisplayObject()
 {
-  string strTitle;
-  string strOutStr;
+	string strTitle;
+	string strOutStr;
 
-  Panel *AnotherPanel;
-  string strDriveRoot;
+	Panel *AnotherPanel;
+	string strDriveRoot;
 
-  string strVolumeName, strFileSystemName;
+	string strVolumeName, strFileSystemName;
 
-  DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  CloseFile();
-  Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
-  SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
-  SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
 
-  GetTitle(strTitle);
-  if ( !strTitle.IsEmpty() )
-  {
-    GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
-    Text(strTitle);
-  }
+	CloseFile();
+	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
+	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
+	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 
-  DrawSeparator(Y1+3);
-  DrawSeparator(Y1+8);
+	GetTitle(strTitle);
+	if ( !strTitle.IsEmpty() )
+	{
+		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
+		Text(strTitle);
+	}
 
-  SetColor(COL_PANELTEXT);
-  {
-    string strComputerName, strUserName;
+	DrawSeparator(Y1+3);
+	DrawSeparator(Y1+8);
 
-    DWORD dwSize = MAX_COMPUTERNAME_LENGTH+1;
+	SetColor(COL_PANELTEXT);
 
-    wchar_t *ComputerName = strComputerName.GetBuffer (dwSize);
+	{
+		string strComputerName, strUserName;
+
+		DWORD dwSize = MAX_COMPUTERNAME_LENGTH+1;
+
+		wchar_t *ComputerName = strComputerName.GetBuffer (dwSize);
 		GetComputerName(ComputerName, &dwSize);
-    strComputerName.ReleaseBuffer ();
+		strComputerName.ReleaseBuffer ();
 
-    dwSize = 256; //UNLEN
+		dwSize = 256; //UNLEN
 
-    wchar_t *UserName = strUserName.GetBuffer (dwSize);
-		GetUserName(UserName, &dwSize);
-    strUserName.ReleaseBuffer ();
+		wchar_t *UserName = strUserName.GetBuffer (dwSize);
 
-    GotoXY(X1+2,Y1+1);
-    PrintText(MInfoCompName);
-    PrintInfo(strComputerName);
-    GotoXY(X1+2,Y1+2);
-    PrintText(MInfoUserName);
-    PrintInfo(strUserName);
-  }
+		SetLastError(ERROR_SUCCESS);
+		if (ifn.pfnGetUserNameExW)
+		{
+			/*
+				http://msdn.microsoft.com/en-us/library/ms724268%28VS.85%29.aspx
+				 0 = NameUnknown           An unknown name type.
+				 1 = NameFullyQualifiedDN  The fully-qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
+				 2 = NameSamCompatible     A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
+				 3 = NameDisplay           A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
+				 6 = NameUniqueId          A GUID string that the IIDFromString function returns (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+				 7 = NameCanonical         The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
+				 8 = NameUserPrincipal     The user principal name (for example, someone@example.com).
+				 9 = NameCanonicalEx       The same as NameCanonical except that the rightmost forward slash (/) is replaced with a new line character (\n), even in a domain-only case (for example, engineering.microsoft.com/software\nJSmith).
+				10 = NameServicePrincipal  The generalized service principal name (for example, www/www.microsoft.com@microsoft.com).
+				12 = NameDnsDomain         The DNS domain name followed by a backward-slash and the SAM username.
+			*/
+			ifn.pfnGetUserNameExW(8,UserName, &dwSize);
+		}
+		DWORD LastError=GetLastError();
 
-  AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-  AnotherPanel->GetCurDir(strCurDir);
+		if(LastError != ERROR_SUCCESS) // если не удалось заполучить GetUserNameExW - получаем как раньше.
+			GetUserName(UserName, &dwSize);
+		strUserName.ReleaseBuffer ();
 
-  if ( strCurDir.IsEmpty() )
+		GotoXY(X1+2,Y1+1);
+		PrintText(MInfoCompName);
+		PrintInfo(strComputerName);
+		GotoXY(X1+2,Y1+2);
+		PrintText(MInfoUserName);
+		PrintInfo(strUserName);
+	}
+
+	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	AnotherPanel->GetCurDir(strCurDir);
+
+	if ( strCurDir.IsEmpty() )
 		apiGetCurrentDirectory(strCurDir);
 
-  /*
-     Корректно отображать инфу при заходе в Juction каталог
-     Рут-диск может быть другим
-  */
+	/*
+		Корректно отображать инфу при заходе в Juction каталог
+		Рут-диск может быть другим
+	*/
 	if((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
-  {
-    string strJuncName;
-    if(GetReparsePointInfo(strCurDir, strJuncName))
-    {
+	{
+		string strJuncName;
+		if(GetReparsePointInfo(strCurDir, strJuncName))
+		{
 			NormalizeSymlinkName(strJuncName);
-      GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
-    }
+			GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
+		}
 
-  }
-  else
-     GetPathRoot(strCurDir, strDriveRoot);
+	}
+	else
+		GetPathRoot(strCurDir, strDriveRoot);
 
-  if ( apiGetVolumeInformation (strDriveRoot,&strVolumeName,
-                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
-                            &strFileSystemName))
-  {
-    int IdxMsgID=-1;
-    int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
-    switch(DriveType)
-    {
-      case DRIVE_REMOVABLE:
-        IdxMsgID=MInfoRemovable;
-        break;
-      case DRIVE_FIXED:
-        IdxMsgID=MInfoFixed;
-        break;
-      case DRIVE_REMOTE:
-        IdxMsgID=MInfoNetwork;
-        break;
-      case DRIVE_CDROM:
-        IdxMsgID=MInfoCDROM;
-        break;
-      case DRIVE_RAMDISK:
-        IdxMsgID=MInfoRAM;
-        break;
-      default:
-        if(IsDriveTypeCDROM(DriveType))
-          IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
-        break;
-    }
+	if ( apiGetVolumeInformation (strDriveRoot,&strVolumeName,
+			&VolumeNumber,&MaxNameLength,&FileSystemFlags,
+			&strFileSystemName))
+	{
+		int IdxMsgID=-1;
+		int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
+		switch(DriveType)
+		{
+			case DRIVE_REMOVABLE:
+				IdxMsgID=MInfoRemovable;
+				break;
+			case DRIVE_FIXED:
+				IdxMsgID=MInfoFixed;
+				break;
+			case DRIVE_REMOTE:
+				IdxMsgID=MInfoNetwork;
+				break;
+			case DRIVE_CDROM:
+				IdxMsgID=MInfoCDROM;
+				break;
+			case DRIVE_RAMDISK:
+				IdxMsgID=MInfoRAM;
+				break;
+			default:
+				if(IsDriveTypeCDROM(DriveType))
+					IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
+				break;
+		}
+
 		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
 
 		wchar_t LocalName[]={strDriveRoot.At(0),L':',L'\0'};
@@ -207,48 +233,50 @@ void InfoList::DisplayObject()
 			DriveType=DRIVE_SUBSTITUTE;
 		}
 
-		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L")";
+		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+((!strDriveRoot.IsEmpty() && strDriveRoot.At(1)==L':')?LocalName:strDriveRoot)+L" ("+strFileSystemName+L") ";
 
-    if (DriveType==DRIVE_REMOTE)
-    {
+		if (DriveType==DRIVE_REMOTE)
+		{
 			apiWNetGetConnection(LocalName, strRemoteName);
-    }
-    else if(DriveType == DRIVE_SUBSTITUTE)
-    {
+		}
+		else if(DriveType == DRIVE_SUBSTITUTE)
+		{
 			strTitle += strRemoteName;
 			strTitle += L" ";
-    }
+		}
 
-    TruncStr(strTitle,X2-X1-3);
-    GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
-    PrintText(strTitle);
+		TruncStr(strTitle,X2-X1-3);
+		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
+		PrintText(strTitle);
 
-    unsigned __int64 TotalSize,TotalFree,UserFree;
+		unsigned __int64 TotalSize,TotalFree,UserFree;
 		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
-    {
-      GotoXY(X1+2,Y1+4);
-      PrintText(MInfoDiskTotal);
-      InsertCommas(TotalSize,strOutStr);
-      PrintInfo(strOutStr);
-      GotoXY(X1+2,Y1+5);
-      PrintText(MInfoDiskFree);
-      InsertCommas(UserFree,strOutStr);
-      PrintInfo(strOutStr);
-    }
+		{
+			GotoXY(X1+2,Y1+4);
+			PrintText(MInfoDiskTotal);
+			InsertCommas(TotalSize,strOutStr);
+			PrintInfo(strOutStr);
+			GotoXY(X1+2,Y1+5);
+			PrintText(MInfoDiskFree);
+			InsertCommas(UserFree,strOutStr);
+			PrintInfo(strOutStr);
+		}
 
-    GotoXY(X1+2,Y1+6);
-    PrintText(MInfoDiskLabel);
-    PrintInfo(strVolumeName);
-    GotoXY(X1+2,Y1+7);
-    PrintText(MInfoDiskNumber);
-    strOutStr.Format (L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
-    PrintInfo(strOutStr);
-  }
+		GotoXY(X1+2,Y1+6);
+		PrintText(MInfoDiskLabel);
+		PrintInfo(strVolumeName);
+		GotoXY(X1+2,Y1+7);
+		PrintText(MInfoDiskNumber);
+		strOutStr.Format (L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
+		PrintInfo(strOutStr);
+	}
 
-  strTitle = MSG(MInfoMemory);
-  GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+8);
-  PrintText(strTitle);
+	strTitle = MSG(MInfoMemory);
+	TruncStr(strTitle,X2-X1-3);
+	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+8);
+	PrintText(strTitle);
 	MEMORYSTATUSEX ms={sizeof(ms)};
+
 	if(GlobalMemoryStatusEx(&ms))
 	{
 		if (ms.dwMemoryLoad==0)
@@ -274,8 +302,9 @@ void InfoList::DisplayObject()
 		InsertCommas((__int64)ms.ullAvailPageFile,strOutStr);
 		PrintInfo(strOutStr);
 	}
-  ShowDirDescription();
-  ShowPluginDescription();
+
+	ShowDirDescription();
+	ShowPluginDescription();
 }
 
 

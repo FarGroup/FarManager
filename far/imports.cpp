@@ -46,6 +46,7 @@ void ImportedFunctions::Load()
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hSetupAPI = LoadLibrary(L"setupapi.dll");
+	HMODULE hSecur32 = LoadLibrary(L"secur32.dll");
 
 	if (hSetupAPI)
 	{
@@ -125,7 +126,7 @@ void ImportedFunctions::Load()
 		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress (hKernel, "SetConsoleDisplayMode");
 
 		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
-		
+
 		pfnFindFirstFileNameW = (FINDFIRSTFILENAMEW)GetProcAddress(hKernel, "FindFirstFileNameW");
 		pfnFindNextFileNameW = (FINDNEXTFILENAMEW)GetProcAddress(hKernel, "FindNextFileNameW");
 
@@ -141,5 +142,10 @@ void ImportedFunctions::Load()
 	if (hShell)
 	{
 		pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
+	}
+
+	if (hSecur32)
+	{
+		pfnGetUserNameExW = (GETUSERNAMEEXW)GetProcAddress(hSecur32, "GetUserNameExW");
 	}
 }
