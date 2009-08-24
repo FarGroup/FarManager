@@ -112,9 +112,22 @@ BOOL FtpFindFirstFile( Connection *hConnect, CONSTSTR lpszSearchFile,PFTPFileInf
          hConnect->ConnectMessage( MRequestingFolder,
                                    hConnect->ToOEMDup(hConnect->CurDir.c_str()) );
 
-       if (!hConnect->ProcessCommand(Command)) {
-         SetLastError( hConnect->ErrorCode );
-         return NULL;
+
+       int pc = hConnect->ProcessCommand(Command);
+       if (!pc) {
+         if(hConnect->Host.ServerType==FTP_TYPE_MVS) {
+           if(hConnect->code==550) {
+             pc = 1;  //550 No members found.
+           }
+           if(hConnect->code==501&&AllFiles) {
+             Command="dir *";
+             pc = hConnect->ProcessCommand(Command);
+           }
+         }
+         if(!pc) {
+           SetLastError( hConnect->ErrorCode );
+           return NULL;
+         }
        }
      }
 
@@ -276,7 +289,7 @@ BOOL FtpGetFile( Connection *Connect,CONSTSTR lpszRemoteFile,CONSTSTR lpszNewFil
      }
 
 //Remote file
-     if ( *lpszRemoteFile != '/' ) {
+     if ( Connect->Host.ServerType!=FTP_TYPE_MVS && *lpszRemoteFile != '/' ) {
        full_name = Connect->ToOEMDup( Connect->CurDir.c_str() );
        AddEndSlash( full_name, '/' );
        full_name.Add( lpszRemoteFile );
@@ -337,9 +350,12 @@ Assert( Connect && "FtpPutFile" );
   if ( *rem=='\\' || (rem[0] && rem[1]==':') )
     rem = PointToName( (char *)rem );
 
-  if ( *rem != '/' ) {
-    full_name.printf( "%s/%s", Connect->ToOEMDup(Connect->CurDir.c_str()), rem );
-    rem = full_name.c_str();
+  if(Connect->Host.ServerType!=FTP_TYPE_MVS)
+  {
+    if ( *rem != '/' ) {
+      full_name.printf( "%s/%s", Connect->ToOEMDup(Connect->CurDir.c_str()), rem );
+      rem = full_name.c_str();
+    }
   }
 
   if ( Reput ) {
@@ -398,6 +414,21 @@ BOOL FtpSystemInfo(Connection *Connect,char *Buffer,int MaxSize)
            StrCpy( Connect->SystemInfo,tmp,sizeof(Connect->SystemInfo) );
        } else {
          *Connect->SystemInfo = 0;
+       }
+       FTPDirList    dl;
+       FTPServerInfo si;
+       String        Line;
+       si.ServerType = Connect->Host.ServerType;
+       TStrCpy( si.ServerInfo, Connect->SystemInfo );
+       WORD idx = dl.DetectStringType( &si, Line.c_str(), Line.Length() );
+       PFTPType tp = dl.GetType( idx );
+       if(idx==FTP_TYPE_MVS) 
+       {
+         Log(( "site directorymode" ));
+         if(Connect->ProcessCommand("site directorymode")) {
+           char tmp[ 200 ];  //Do not need to use String. Limit system info by 200 chars.
+           Connect->GetReply( (BYTE*)tmp,sizeof(tmp) );
+         }
        }
      }
 

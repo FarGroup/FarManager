@@ -175,7 +175,7 @@ int FTP::SetDirectory( CONSTSTR Dir,int OpMode )
 
     //Back from root
     if ( Opt.CloseDots &&
-         OldDir[0] == '/' && OldDir[1] == 0 ) {
+         ( OldDir[0] == '/' || OldDir[0] == '*' ) && OldDir[1] == 0 ) {
       if ( !IS_SILENT(OpMode) )
         BackToHosts();
       return FALSE;
@@ -185,11 +185,33 @@ int FTP::SetDirectory( CONSTSTR Dir,int OpMode )
     DelEndSlash( OldDir, '/' );
 
     //Locate prev slash
-    Slash = strrchr( OldDir.c_str(),'/');
+     FTPDirList    dl;
+     FTPServerInfo si;
+     String        Line;
+     si.ServerType = Host.ServerType;
+     TStrCpy( si.ServerInfo, hConnect->SystemInfo );
+     WORD idx = dl.DetectStringType( &si, Line.c_str(), Line.Length() );
+     PFTPType tp = dl.GetType( idx );
+
+    if(idx!=FTP_TYPE_MVS)
+      Slash = strrchr( OldDir.c_str(),'/');
+    else
+      Slash = strrchr( OldDir.c_str(),'.');
 
     //Set currently leaving directory to select in panel
     if ( Slash != NULL )
+    {
       SelectFile = Slash+1;
+      if(idx==FTP_TYPE_MVS&&SelectFile[1]==0)
+      {
+        char* s1 = Slash;
+        *s1=0;
+        Slash = strrchr( OldDir.c_str(),'.');
+        *s1='.';
+        if ( Slash != NULL )
+          SelectFile = Slash+1;
+      }
+    }
   }
 
   //Change directory

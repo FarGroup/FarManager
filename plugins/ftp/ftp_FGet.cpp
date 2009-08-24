@@ -262,7 +262,8 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
     if ( ci.FTPRename ) {
       if ( isDestDir ) {
         DestName = ci.DestPath;
-        AddEndSlash( DestName, '/' );
+        if(hConnect->Host.ServerType!=FTP_TYPE_MVS)
+          AddEndSlash( DestName, '/' );
         DestName.cat( CurName );
       } else
         DestName = ci.DestPath;

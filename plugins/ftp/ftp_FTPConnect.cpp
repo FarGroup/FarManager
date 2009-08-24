@@ -159,6 +159,8 @@ int FTP::Connect()
 
 //Set base directory
       if (hConnect && *Host.Home) {
+        if(Host.Home[0]=='/'&&Host.Home[1]=='\'')
+          memmove(Host.Home,Host.Home+1,sizeof(Host.Home)-1);
         Log(( "HomeDir [%s]",Host.Home ));
         FtpSetCurrentDirectory( hConnect,Host.Home );
       }

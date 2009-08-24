@@ -70,7 +70,7 @@ void FTP::GetOpenPluginInfo(struct OpenPluginInfo *pi)
               " FTP: %s ", pi->CurDir );
    else
     SNprintf( PanelTitle, sizeof(PanelTitle),
-              " FTP: %s@%s%s ",
+      (hConnect&&hConnect->Host.ServerType==FTP_TYPE_MVS)? " FTP: %s@%s/%s ": " FTP: %s@%s%s ",
               Host.User, Host.Host, pi->CurDir );
 
   if ( inside > 1 ) {

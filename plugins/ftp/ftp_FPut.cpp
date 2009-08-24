@@ -124,7 +124,8 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
     LastMsgCode = ci.MsgCode;
   }
 
-  AddEndSlash( ci.DestPath,'/' );
+  if(hConnect->Host.ServerType!=FTP_TYPE_MVS)
+    AddEndSlash( ci.DestPath,'/' );
 
   if ( !ExpandList(PanelItem,ItemsNumber,&il,FALSE) )
     return FALSE;
@@ -175,7 +176,13 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
         LocalLower(Name);
     }
 
+  if(hConnect->Host.ServerType!=FTP_TYPE_MVS)
     DestName.printf( "%s%s", ci.DestPath.c_str(), CurName );
+  else
+  {
+    DestName=CurName;
+    //if(DestName.Length()>8)DestName.SetLength(8);
+  }
 
     if ( IS_FLAG(SrcAttr,FILE_ATTRIBUTE_DIRECTORY) ) {
 

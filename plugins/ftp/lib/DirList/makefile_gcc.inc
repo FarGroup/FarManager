@@ -11,4 +11,5 @@ $(SRCDIR)/pr_skirdin.cpp \
 $(SRCDIR)/pr_tcpc.cpp \
 $(SRCDIR)/pr_unix.cpp \
 $(SRCDIR)/pr_vms.cpp \
+$(SRCDIR)/pr_mvs.cpp \
 $(SRCDIR)/pr_vx.cpp

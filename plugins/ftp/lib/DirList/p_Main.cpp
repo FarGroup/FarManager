@@ -204,7 +204,8 @@ static FTPType ListingTypes[] = {
   /* 8*/ { TRUE,  "Netware", "NETWARE file server",                               idPRParceNETWARE, NULL },
   /* 9*/ { TRUE,  "VxWorks", "VX DOS style parser",                               idPRParceVX_DOS,  NULL },
   /*10*/ { TRUE,  "PC/TCP ", "PC/TCP v 2.11 ftpsrv.exe",                          idPRParcePCTCP,   idDirParcePCTCP },
-  /*11*/ { TRUE,  "OS/400 ", "IBM OS/400",                                        idPRParceOS400,   NULL }
+  /*11*/ { TRUE,  "OS/400 ", "IBM OS/400",                                        idPRParceOS400,   NULL },
+  /*12*/ { TRUE,  "MVS    ", "MVS system",                                        idPRParceMVS,     idDirParceMVS }
 };
 
 static WORD ParseSystemInfo( CONSTSTR str )
@@ -226,6 +227,7 @@ static WORD ParseSystemInfo( CONSTSTR str )
      if ( strstr(str,   "VxWorks") != NULL)                                   return FTP_TYPE_VXDOS; else
      if ( strstr(str,   "PC/TCP ") != NULL)                                   return FTP_TYPE_PCTCP; else
      if ( strstr(str,   "OS/400")  != NULL)                                   return FTP_TYPE_OS400; else
+     if ( StrNCmp(str,  "MVS", 3) == 0)                                       return FTP_TYPE_MVS;  else
        return FTP_TYPE_INVALID;
 }
 

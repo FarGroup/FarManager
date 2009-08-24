@@ -97,5 +97,7 @@ extern BOOL DECLSPEC idPRParceVMS( const PFTPServerInfo Server, PFTPFileInfo p, 
 extern BOOL DECLSPEC idDirPRParceVMS( const PFTPServerInfo Server, CONSTSTR Line, char *CurDir, size_t CurDirSize );
 extern BOOL DECLSPEC idPRParceVX_DOS( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len );
 extern BOOL DECLSPEC idPRParceOS400( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len );
+extern BOOL DECLSPEC idPRParceMVS( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len );
+extern BOOL DECLSPEC idDirParceMVS( const PFTPServerInfo Server, CONSTSTR Line, char *CurDir, size_t CurDirSize );
 
 #endif
