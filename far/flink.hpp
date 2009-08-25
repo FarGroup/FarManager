@@ -75,4 +75,6 @@ bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
+int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags);
+
 #endif // __FLINK_HPP__

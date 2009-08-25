@@ -163,12 +163,6 @@ typedef NTSTATUS (WINAPI *NTQUERYINFORMATIONFILE)(
 	int FileInformationClass
 	);
 
-typedef BOOL (WINAPI * GETUSERNAMEEXW)(
-	int NameFormat,
-	LPWSTR lpNameBuffer,
-	PULONG nSize
-	);
-
 struct ImportedFunctions {
 
 	//
@@ -183,7 +177,6 @@ struct ImportedFunctions {
 	PCMGETCHILD pfnGetChild;
 	PCMGETSIBLING pfnGetSibling;
 	PCMREQUESTDEVICEEJECT pfnRequestDeviceEject;
-	GETUSERNAMEEXW pfnGetUserNameExW;
 
 	bool bSetupAPIFunctions;
 	//

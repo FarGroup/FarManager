@@ -98,6 +98,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <wchar.h>
 #include <setupapi.h>
 
+#define SECURITY_WIN32
+#include <security.h>
+
 #ifndef __GNUC__
 #include <shobjidl.h>
 #endif

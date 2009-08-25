@@ -43,6 +43,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "panelmix.hpp"
 
+#include "message.hpp"
+#include "lang.hpp"
+#include "language.hpp"
+#include "dirmix.hpp"
+#include "treelist.hpp"
+
 bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
 {
 	bool Result=false;
@@ -578,7 +584,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter)
   // ѕроверим им€ на UNC
   if (PathLen > 2 && Path[0] == L'\\' && Path[1] == L'\\')
   {
-    if (PathLen > 3 && Path[2] == L'?' && Path[3] == L'\\' &&
+		if (PathLen > 3 && (Path[2] == L'?'||Path[2] == L'.') && IsSlash(Path[3]) &&
         //"\\?\Volume{GUID}" не трогаем
         StrCmpNI(&Path[4],L"Volume{",7))
     { // ѕроверим на длинное UNC им€
@@ -745,7 +751,7 @@ int WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest,DWORD Flags)
 						LinkType=RP_SYMLINKDIR;
 						break;
 				}
-				Result=ShellCopy::MkSymLink(Src,Dest,LinkType,(Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+				Result=MkSymLink(Src,Dest,LinkType,(Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
 		}
 	}
 
@@ -771,3 +777,226 @@ void NormalizeSymlinkName(string &strLinkName)
 		}
 	}
 }
+
+//  усок дл€ создани€ SymLink дл€ каталогов.
+int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags)
+{
+	if(SelName && *SelName && Dest && *Dest)
+  {
+    string strSrcFullName, strDestFullName, strSelOnlyName;
+    string strMsgBuf, strMsgBuf2;
+
+    // выделим им€
+    strSelOnlyName = SelName;
+
+    DeleteEndSlash(strSelOnlyName);
+
+		const wchar_t *PtrSelName=LastSlash(strSelOnlyName);
+
+    if(!PtrSelName)
+      PtrSelName=strSelOnlyName;
+    else
+      ++PtrSelName;
+
+		if(SelName[1] == L':' && (SelName[2] == 0 || (IsSlash(SelName[2]) && SelName[3] == 0))) // C: или C:/
+    {
+//      if(Flags&FCOPY_VOLMOUNT)
+      {
+        strSrcFullName = SelName;
+        AddEndSlash(strSrcFullName);
+      }
+      /*
+        ¬от здесь - ну очень умное поведение!
+        “.е. если в качестве SelName передали "C:", то в этом куске происходит
+        коррекци€ типа линка - с symlink`а на volmount
+      */
+      LinkType=RP_VOLMOUNT;
+    }
+    else
+      ConvertNameToFull(SelName,strSrcFullName);
+
+    ConvertNameToFull(Dest,strDestFullName);
+
+		if(IsSlash(strDestFullName.At(strDestFullName.GetLength()-1)))
+    {
+      if(LinkType!=RP_VOLMOUNT)
+        strDestFullName += PtrSelName;
+      else
+      {
+				const wchar_t Tmp[]={L'D',L'i',L's',L'k',L'_',*SelName,L'\0'};
+				strDestFullName+=Tmp;
+      }
+    }
+
+    if(LinkType==RP_VOLMOUNT)
+    {
+      AddEndSlash(strSrcFullName);
+      AddEndSlash(strDestFullName);
+    }
+
+		DWORD JSAttr=apiGetFileAttributes(strDestFullName);
+    if (JSAttr != INVALID_FILE_ATTRIBUTES) // —уществует такой?
+    {
+      if((JSAttr&FILE_ATTRIBUTE_DIRECTORY)!=FILE_ATTRIBUTE_DIRECTORY)
+      {
+        if(!(Flags&FCOPY_NOSHOWMSGLINK))
+        {
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                MSG(MCopyCannotCreateJunctionToFile),
+                strDestFullName,MSG(MOk));
+        }
+        return 0;
+      }
+
+      if(CheckFolder(strDestFullName) == CHKFLD_NOTEMPTY) // а пустой?
+      {
+        // не пустой, ну что же, тогда пробуем сделать dest\srcname
+        AddEndSlash(strDestFullName);
+        if(LinkType==RP_VOLMOUNT)
+        {
+          string strTmpName;
+          strTmpName.Format (MSG(MCopyMountName),*SelName);
+
+          strDestFullName += strTmpName;
+          AddEndSlash(strDestFullName);
+        }
+        else
+          strDestFullName += PtrSelName;
+
+				JSAttr=apiGetFileAttributes(strDestFullName);
+
+        if(JSAttr != INVALID_FILE_ATTRIBUTES) // » такой тоже есть???
+        {
+          if(CheckFolder(strDestFullName) == CHKFLD_NOTEMPTY) // а пустой?
+          {
+            if(!(Flags&FCOPY_NOSHOWMSGLINK))
+            {
+              if(LinkType==RP_VOLMOUNT)
+              {
+                strMsgBuf.Format (MSG(MCopyMountVolFailed), SelName);
+                strMsgBuf2.Format (MSG(MCopyMountVolFailed2), (const wchar_t *)strDestFullName);
+                Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                   strMsgBuf,
+                   strMsgBuf2,
+                   MSG(MCopyFolderNotEmpty),
+                   MSG(MOk));
+              }
+              else
+                Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                      MSG(MCopyCannotCreateLink),strDestFullName,
+                      MSG(MCopyFolderNotEmpty),MSG(MOk));
+            }
+            return 0; // однозначно в морг
+          }
+        }
+        else // создаем.
+        {
+					if (apiCreateDirectory(strDestFullName,NULL))
+            TreeList::AddTreeName(strDestFullName);
+          else
+            CreatePath(strDestFullName);
+        }
+				if(apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
+        {
+          if(!(Flags&FCOPY_NOSHOWMSGLINK))
+          {
+            Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                      MSG(MCopyCannotCreateFolder),
+                      strDestFullName,MSG(MOk));
+          }
+          return 0;
+        }
+      }
+    }
+    else
+    {
+			if(LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR)
+			{
+				// в этом случае создаетс€ путь, но не сам каталог
+				string strPath=strDestFullName;
+				if(CutToSlash(strPath))
+				{
+					if(apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
+						CreatePath(strPath);
+				}
+			}
+			else
+			{
+				bool CreateDir=true;
+				if(LinkType==RP_EXACTCOPY)
+				{
+					// в этом случае создаетс€ или каталог, или пустой файл
+					DWORD dwSrcAttr=apiGetFileAttributes(strSrcFullName);
+					if(dwSrcAttr!=INVALID_FILE_ATTRIBUTES && !(dwSrcAttr&FILE_ATTRIBUTE_DIRECTORY))
+						CreateDir=false;
+				}
+				if(CreateDir)
+				{
+					if (apiCreateDirectory(strDestFullName,NULL))
+						TreeList::AddTreeName(strDestFullName);
+					else
+						CreatePath(strDestFullName);
+				}
+				else
+				{
+					string strPath=strDestFullName;
+					if(CutToSlash(strPath))
+					{
+						// создаЄм
+						if(apiGetFileAttributes(strPath)==INVALID_FILE_ATTRIBUTES)
+							CreatePath(strPath);
+						HANDLE hFile=apiCreateFile(strDestFullName,0,0,0,CREATE_NEW,apiGetFileAttributes(strSrcFullName));
+						if(hFile!=INVALID_HANDLE_VALUE)
+						{
+							CloseHandle(hFile);
+						}
+					}
+				}
+				if(apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
+				{
+					if(!(Flags&FCOPY_NOSHOWMSGLINK))
+					{
+						Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+										 MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
+					}
+					return 0;
+				}
+			}
+		}
+		if(LinkType!=RP_VOLMOUNT)
+    {
+      if(CreateReparsePoint(strSrcFullName,strDestFullName,LinkType))
+      {
+        return 1;
+      }
+      else
+      {
+        if(!(Flags&FCOPY_NOSHOWMSGLINK))
+        {
+					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+                 MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
+        }
+        return 0;
+      }
+    }
+    else
+    {
+      if(CreateVolumeMountPoint(strSrcFullName,strDestFullName))
+      {
+        return 1;
+      }
+      else
+      {
+        if(!(Flags&FCOPY_NOSHOWMSGLINK))
+        {
+					strMsgBuf.Format(MSG(MCopyMountVolFailed),SelName);
+					strMsgBuf2.Format(MSG(MCopyMountVolFailed2),strDestFullName.CPtr());
+					Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf,strMsgBuf2,MSG(MOk));
+        }
+        return 0;
+      }
+    }
+  }
+  return 2;
+}
+

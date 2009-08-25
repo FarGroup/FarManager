@@ -1007,7 +1007,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   Width--;
                   Text(L"~");
                 }
-								if (!Streams && !Packed && (ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !ListData[ListPos]->ShowFolderSize)
+								if (!Streams && !Packed && (ListData[ListPos]->FileAttr & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) && !ListData[ListPos]->ShowFolderSize)
                 {
                   const wchar_t *PtrName=MSG(MListFolder);
 									if(TestParentFolderName(ListData[ListPos]->strName))

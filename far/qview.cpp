@@ -344,8 +344,6 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
   CloseFile();
   QView=NULL;
 
-  strCurFileName = L"";
-
   if (!IsVisible())
     return;
   if (FileName==NULL)
@@ -355,7 +353,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
     ProcessingPluginCommand--;
     return;
   }
-
+	bool SameFile=!StrCmp(strCurFileName,FileName);
   strCurFileName = FileName;
 
   size_t pos;
@@ -378,8 +376,11 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
     strCurFileType=L"";
-
-    if (hDirPlugin)
+		if(SameFile)
+		{
+			Directory=1;
+		}
+		else if (hDirPlugin)
     {
       int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize);
@@ -390,7 +391,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
     }
     else
     {
-      int ExitCode=GetDirInfo(MSG(MQuickViewTitle),strCurFileName,DirCount,
+			int ExitCode=GetDirInfo(MSG(MQuickViewTitle),strCurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
                    ClusterSize,500,NULL,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
       if (ExitCode==1)

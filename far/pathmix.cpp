@@ -316,6 +316,12 @@ bool CutToSlash(string &strStr, bool bInclude)
 {
   size_t pos;
 	bool bFound=LastSlash(strStr,pos);
+
+	if(pos==3 && PathPrefix(strStr))
+	{
+		bFound=false;
+	}
+
 	if(bFound)
 	{
 		if ( bInclude )

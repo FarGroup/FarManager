@@ -139,28 +139,10 @@ void InfoList::DisplayObject()
 
 		wchar_t *UserName = strUserName.GetBuffer (dwSize);
 
-		SetLastError(ERROR_SUCCESS);
-		if (ifn.pfnGetUserNameExW)
+		if(!GetUserNameEx(NameUserPrincipal,UserName, &dwSize))
 		{
-			/*
-				http://msdn.microsoft.com/en-us/library/ms724268%28VS.85%29.aspx
-				 0 = NameUnknown           An unknown name type.
-				 1 = NameFullyQualifiedDN  The fully-qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
-				 2 = NameSamCompatible     A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
-				 3 = NameDisplay           A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
-				 6 = NameUniqueId          A GUID string that the IIDFromString function returns (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
-				 7 = NameCanonical         The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
-				 8 = NameUserPrincipal     The user principal name (for example, someone@example.com).
-				 9 = NameCanonicalEx       The same as NameCanonical except that the rightmost forward slash (/) is replaced with a new line character (\n), even in a domain-only case (for example, engineering.microsoft.com/software\nJSmith).
-				10 = NameServicePrincipal  The generalized service principal name (for example, www/www.microsoft.com@microsoft.com).
-				12 = NameDnsDomain         The DNS domain name followed by a backward-slash and the SAM username.
-			*/
-			ifn.pfnGetUserNameExW(8,UserName, &dwSize);
-		}
-		DWORD LastError=GetLastError();
-
-		if(LastError != ERROR_SUCCESS) // если не удалось заполучить GetUserNameExW - получаем как раньше.
 			GetUserName(UserName, &dwSize);
+		}
 		strUserName.ReleaseBuffer ();
 
 		GotoXY(X1+2,Y1+1);

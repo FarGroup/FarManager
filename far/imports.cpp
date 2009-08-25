@@ -143,9 +143,4 @@ void ImportedFunctions::Load()
 	{
 		pfnSHCreateAssociationRegistration = (PSHCREATEASSOCIATIONREGISTRATION)GetProcAddress(hShell, "SHCreateAssociationRegistration");
 	}
-
-	if (hSecur32)
-	{
-		pfnGetUserNameExW = (GETUSERNAMEEXW)GetProcAddress(hSecur32, "GetUserNameExW");
-	}
 }

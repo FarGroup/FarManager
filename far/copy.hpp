@@ -73,127 +73,61 @@ enum COPY_FLAGS {
   FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
 };
 
-class ConsoleTitle;
-
 class ShellCopy
 {
-  private:
     DWORD Flags;
-
-    Panel *SrcPanel;
-    int    SrcPanelMode;
-    int    SrcDriveType;
-
+		Panel *SrcPanel,*DestPanel;
+		int SrcPanelMode,DestPanelMode;
+		int SrcDriveType,DestDriveType;
     string strSrcDriveRoot;
-    string strSrcFSName;
-    DWORD  SrcFSFlags;
-
-    Panel *DestPanel;
-    int    DestPanelMode;
-    int    DestDriveType;
-
     string strDestDriveRoot;
     string strDestFSName;
-    DWORD  DestFSFlags;
-
     char   *sddata; // Security
-
     DizList DestDiz;
-
     string strDestDizPath;
-
     char *CopyBuffer;
-    int CopyBufSize;
     int CopyBufferSize;
-    clock_t StartTime;
-    clock_t StopTime;
-
     string strCopiedName;
     string strRenamedName;
-
 		string strRenamedFilesPath;
-
     int OvrMode;
     int ReadOnlyOvrMode;
     int ReadOnlyDelMode;
     int SkipMode;          // ...для пропуска при копировании залоченных файлов.
     int SkipEncMode;
     int SkipDeleteMode;
-
-    long TotalFiles;
     int SelectedFolderNameLength;
-
     UserDefinedList DestList;
-    ConsoleTitle *CopyTitle;   // заголовок
-
     // тип создаваемого репарспоинта.
     // при AltF6 будет то, что выбрал юзер в диалоге,
     // в остальных случаях - RP_EXACTCOPY - как у источника
     ReparsePointTypes RPT;
 
-  private:
     COPY_CODES CopyFileTree(const wchar_t *Dest);
-
     COPY_CODES ShellCopyOneFile(const wchar_t *Src,
                                 const FAR_FIND_DATA_EX &SrcData,
                                 string &strDest,
                                 int KeepPathPos, int Rename);
-
-
     COPY_CODES CheckStreams(const wchar_t *Src,const wchar_t *DestPath);
-
-
     int  ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
                        string &strDestName,DWORD &DestAttr,int Append);
-
-
     int  ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
-
     int  DeleteAfterMove(const wchar_t *Name,DWORD Attr);
-
     void SetDestDizPath(const wchar_t *DestPath);
-
     int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *SrcName,const wchar_t *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
                       int &Append,string &strNewName,int &RetCode);
-
-
     int  GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa);
     int  SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
     int  SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
-
-    int  IsSameDisk(const wchar_t *SrcPath,const wchar_t *DestPath);
-
     bool CalcTotalSize();
-
-    string& GetParentFolder(const wchar_t *Src, string &strDest);
-
-    int  CmpFullNames(const wchar_t *Src,const wchar_t *Dest);
-
-    int  CmpFullPath(const wchar_t *Src,const wchar_t *Dest);
-
-    int  ShellSetAttr(const wchar_t *Dest,DWORD Attr);
-
-    BOOL CheckNulOrCon(const wchar_t *Src);
-
+		bool ShellSetAttr(const wchar_t *Dest,DWORD Attr);
     void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
-
-    void ShellCopyMsg(const wchar_t *Src,const wchar_t *Dest,int Flags);
-
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
               int &ToPlugin, const wchar_t *PluginDestPath);
-
     ~ShellCopy();
-
-  public:
-    static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
-    static void ShowTitle(int FirstTime);
     static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    static int  MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags);
-		static void PR_ShellCopyMsg();
-    static BOOL CheckAndUpdateConsole(BOOL IsChangeConsole);
 };
-
 
 #endif  // __SHELLCOPY_HPP__
