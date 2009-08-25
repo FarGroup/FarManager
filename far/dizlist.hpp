@@ -47,6 +47,7 @@ class DizList
     int DizCount;
     int *IndexData;
     int IndexCount;
+    int Modified;
 
   private:
     int GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos);

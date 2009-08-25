@@ -61,6 +61,7 @@ DizList::DizList()
   IndexData=NULL;
   IndexCount=0;
   strDizFileName=L"";
+  Modified=0;
 }
 
 
@@ -83,6 +84,7 @@ void DizList::Reset()
     delete[] IndexData;
   IndexData=NULL;
   IndexCount=0;
+  Modified=0;
 }
 
 void DizList::PR_ReadingMsg()
@@ -142,6 +144,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
         AddRecord(strDizText);
       }
 
+      Modified=0;
       //delete SaveScr;
       fclose(DizFile);
       BuildIndex();
@@ -151,6 +154,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
       break;
   }
 
+  Modified=0;
   strDizFileName=L"";
 }
 
@@ -167,6 +171,7 @@ void DizList::AddRecord(const wchar_t *DizText)
     DizData[DizCount].DizText=new wchar_t[StrLength(DizText)+1];
     wcscpy(DizData[DizCount].DizText,DizText);
     DizData[DizCount].Deleted=0;
+    Modified=1;
     DizCount++;
   }
 }
@@ -349,12 +354,15 @@ int DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
     DizData[DizPos].Deleted=TRUE;
     DizPos++;
   }
+  Modified=1;
   return(TRUE);
 }
 
 
 int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 {
+  if (!Modified)
+    return (TRUE);
   if (DizName!=NULL)
     strDizFileName = DizName;
   else if ( strDizFileName.IsEmpty() )
@@ -433,6 +441,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
     return(FALSE);
   }
 
+  Modified=0;
   return(TRUE);
 }
 
