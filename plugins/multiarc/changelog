@@ -1,3 +1,15 @@
+svs 26.08.2009 17:30:22 +0300
+
+1. lzh.fmt build 1.28
+   а) Некорректно конструировалось имя файлового объекта в архиве.
+   б) добавлено 3 новых типа для "Host OS" (Java, Win 95, Win NT)
+
+2. multiarc. build 188
+   а) добавлена нормализация пути файлового объекта, что позволяет "получить доступ" к "кривым" именам, например:
+      к такому файлу не подобраться: "usr/local/www/cached/cached.net/dirig/../../dirigible/foo.txt"
+      превращаем имя в "usr\local\www\cached\dirigible\foo.txt"
+   б) значение PluginPanelItem::NumberOfLinks выставим в 1, как у реальной FS.
+
 svs 26.08.2009 12:06:09 +0300
 
 1. rar.fmt build 1.29.

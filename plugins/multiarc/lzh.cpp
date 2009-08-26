@@ -67,7 +67,21 @@ static struct OSIDType{
   {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
   {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
   {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
-  {'m',"Mac"},      {'R',"Runser"},
+  {'m',"Mac"},      {'R',"Runser"},   {'J',"Java"},
+  {'w',"Win 95"},   {'W',"Win NT"},
+};
+
+// Dictionary size
+static struct DictSizeType{
+  BYTE Type[2];
+  short Size;
+} DictSize[]={
+  {{'h','0'},0},   {{'h','1'},4},
+  {{'h','2'},8},   {{'h','3'},8},
+  {{'h','4'},4},   {{'h','5'},8},
+  {{'z','s'},2},   {{'z','4'},0},
+  {{'h','6'},32},  {{'h','7'},64},
+  {{'h','d'},0},   {{'z','5'},4},
 };
 
 static HANDLE ArcHandle;
@@ -400,6 +414,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (PrevPosition>=NextPosition || PathSize>NM)
     return(GETARC_BROKEN);
 
+  lstrcpy(Item->FindData.cFileName,PathName);
   lstrcat(Item->FindData.cFileName,FileName);
 
   Item->FindData.dwFileAttributes=Attr;
@@ -434,17 +449,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   // Dictionary size
-  static struct DictSizeType{
-    BYTE Type[2];
-    short Size;
-  } DictSize[]={
-    {{'h','0'},0},   {{'h','1'},4},
-    {{'h','2'},8},   {{'h','3'},8},
-    {{'h','4'},4},   {{'h','5'},8},
-    {{'z','s'},2},   {{'z','4'},0},
-    {{'h','6'},32},  {{'h','7'},64},
-    {{'h','d'},0},   {{'z','5'},4},
-  };
   Info->DictSize=0;
   for(I=0; I < ArraySize(DictSize); ++I)
   {

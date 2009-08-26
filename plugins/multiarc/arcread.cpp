@@ -145,7 +145,11 @@ int PluginClass::ReadArchive(char *Name)
     if (CurItemInfo.UnpVer>ItemsInfo.UnpVer)
       ItemsInfo.UnpVer=CurItemInfo.UnpVer;
 
+    CurArcData.NumberOfLinks=1;
+
     *CurArcData.FindData.cAlternateFileName=0;
+
+    NormalizePath(CurArcData.FindData.cFileName,CurArcData.FindData.cFileName);
 
     char *NamePtr=CurArcData.FindData.cFileName;
     for (int I=0; *NamePtr ;I++, NamePtr++)

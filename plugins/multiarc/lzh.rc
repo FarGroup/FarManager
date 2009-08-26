@@ -1,7 +1,7 @@
 #include "multiarcversion.hpp"
 
 #define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 27
+#define PLUGIN_MINOR 28
 #define PLUGIN_NAME "lzh"
 #define PLUGIN_FILENAME "lzh.fmt"
 
