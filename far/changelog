@@ -1,3 +1,8 @@
+svs 26.08.2009 10:31:35 +0300 - build 2607
+
+1. Mantis#0000970: Дата изменения descript.ion не должна обновляться, если изменений не было
+   from Maximus
+
 svs 24.08.2009 21:06:48 +0300 - build 2606
 
 1. Mantis#0000859: RFE: Show UserName@Domain on the information panel

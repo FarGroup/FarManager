@@ -17,6 +17,7 @@ class DizList
     int DizCount;
     int *IndexData;
     int IndexCount;
+    bool Modified;
 
   private:
     int GetDizPos(char *Name,char *ShortName,int *TextPos);
