@@ -3315,7 +3315,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
   FILE_ALLOCATED_RANGE_BUFFER ranges[1024];
   queryrange.FileOffset.QuadPart = 0;
 	queryrange.Length.QuadPart = SrcData.nFileSize;
-
+	CP->SetProgressValue(0,0);
   do
   {
     DWORD n=0,nbytes=0;
@@ -4138,6 +4138,7 @@ int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,co
     return(COPY_CANCEL);
 
 	CP->SetNames(SrcName,DestName);
+	CP->SetProgressValue(0,0);
 
   BOOL Cancel=0;
   TotalCopiedSizeEx=TotalCopiedSize;
@@ -4321,7 +4322,7 @@ bool ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
 	}
 	// При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
 	// для каталога, если он есть
-	if(GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION)&&(Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)))
+	if(GetInfoSuccess && FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION && Attr&FILE_ATTRIBUTE_ENCRYPTED && Attr&FILE_ATTRIBUTE_DIRECTORY)
 	{
 		int Ret=ESetFileEncryption(Dest,1,0,SkipMode);
 		if(Ret==SETATTR_RET_ERROR)
