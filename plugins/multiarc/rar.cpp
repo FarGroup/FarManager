@@ -16,9 +16,7 @@
 #include <plugin.hpp>
 #include "fmt.hpp"
 #include "marclng.hpp"
-#ifndef _WIN64
 #include "unrar.h"
-#endif
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -67,15 +65,17 @@ enum HEADER_TYPE {
   ENDARC_HEAD=0x7b
 };
 
-#ifndef _WIN64
 typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
 typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
-typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LONG UserData);
+typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LPARAM UserData);
 typedef int (PASCAL *RARREADHEADEREX)(HANDLE hArcData,struct RARHeaderDataEx *HeaderData);
 typedef int (PASCAL *RARPROCESSFILE)(HANDLE hArcData,int Operation,char *DestPath,char *DestName);
-#endif
 
+#ifndef _WIN64
 const char UnRARName[]="UNRAR.DLL";
+#else
+const char UnRARName[]="UNRAR64.DLL";
+#endif
 static const char * const RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
 
 static HANDLE ArcHandle;
@@ -83,7 +83,6 @@ static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static long NextPositionHigh;
 static int OldFormat;
 
-#ifndef _WIN64
 static BOOL UsedUnRAR_DLL=FALSE,NeedUsedUnRAR_DLL=FALSE;
 static HANDLE hArcData;
 static int RHCode,PFCode;
@@ -95,7 +94,6 @@ static RARCLOSEARCHIVE pRARCloseArchive=NULL;
 static RARSETCALLBACK pRARSetCallback=NULL;
 static RARREADHEADEREX pRARReadHeaderEx=NULL;
 static RARPROCESSFILE pRARProcessFile=NULL;
-#endif
 
 static char Password[NM/2];
 
@@ -120,8 +118,7 @@ void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
    FarSprintf=Info->FSF->sprintf;
 }
 
-#ifndef _WIN64
-int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
+int CALLBACK CallbackProc(UINT msg,LPARAM UserData,LPARAM P1,LPARAM P2)
 {
   switch(msg)
   {
@@ -132,7 +129,7 @@ int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
                      Password,Password,sizeof(Password)-1,NULL,FIB_PASSWORD))
       {
         OemToChar(Password, Password);
-        lstrcpyn((char *)P1,Password,P2);
+        lstrcpyn((char *)P1,Password,(int)P2);
         return(0);
       }
       return 1;
@@ -140,13 +137,11 @@ int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
   }
   return(0);
 }
-#endif
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  #ifndef _WIN64
   NeedUsedUnRAR_DLL=FALSE;
-  #endif
+
   for (int I=0;I<DataSize-7;I++)
   {
     const unsigned char *D=Data+I;
@@ -165,10 +160,8 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         D[4]==0x1a && D[5]==0x07 && D[6]==0 &&
         D[9]==0x73)                                             // next "archive header"? (Header type: 0x73)
     {
-      #ifndef _WIN64
       if(D[10]&0x80)
         NeedUsedUnRAR_DLL=TRUE;
-      #endif
       OldFormat=FALSE;
       SFXSize=I;
       return(TRUE);
@@ -182,7 +175,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
 
-  #ifndef _WIN64
   UsedUnRAR_DLL=FALSE;
   if(NeedUsedUnRAR_DLL)
   {
@@ -223,7 +215,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
       return FALSE;
 
     Flags=OpenArchiveData.Flags;
-    pRARSetCallback(hArcData,CallbackProc,0);
+    pRARSetCallback(hArcData,(UNRARCALLBACK)CallbackProc,0);
     HeaderData.CmtBuf=NULL;
     HeaderData.CmtBufSize=0;
     /*
@@ -235,7 +227,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     */
   }
   else
-  #endif
   {
     ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                          NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
@@ -296,7 +287,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
-  #ifndef _WIN64
   if(UsedUnRAR_DLL)
   {
     RHCode=pRARReadHeaderEx(hArcData,&HeaderData);
@@ -365,7 +355,6 @@ struct RARHeaderDataEx
       return GETARC_EOF;
     }
   }
-  #endif
 
   while (1)
   {
@@ -589,10 +578,8 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 
   *Password=0;
 
-  #ifndef _WIN64
   if(UsedUnRAR_DLL)
     return pRARCloseArchive(hArcData);
-  #endif
 
   return CloseHandle(ArcHandle);
 }
