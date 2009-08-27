@@ -2479,14 +2479,6 @@ MCopyOverwrite
 "&Felülír"
 "N&adpisz"
 
-MCopyContinue
-"П&родолжить"
-"C&ontinue"
-"P&okračovat"
-"F&ortsetzen"
-"M&égis"
-"&Kontynuuj"
-
 MCopySkipOvr
 "&Пропустить"
 "&Skip"

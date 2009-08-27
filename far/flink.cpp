@@ -99,6 +99,29 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t P
 	return Result;
 }
 
+bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
+{
+	bool Result=false;
+	HANDLE hObject=apiCreateFile(Object,FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+	if(hObject!=INVALID_HANDLE_VALUE)
+	{
+		DWORD dwBytesReturned;
+		if(IsReparseTagValid(rdb->ReparseTag))
+		{
+			if(rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
+			{
+				SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
+			}
+			if(DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytesReturned,0))
+			{
+				Result=true;
+			}
+		}
+		CloseHandle(hObject);
+	}
+	return Result;
+}
+
 bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWORD Type)
 {
 	bool Result=false;
@@ -113,7 +136,49 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 		case RP_SYMLINKDIR:
 			if(ifn.pfnCreateSymbolicLink)
 			{
-				Result=(apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0)==TRUE);
+				Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0)!=FALSE;
+			}
+			else
+			{
+				bool ObjectCreated=false;
+				if(Type==RP_SYMLINKDIR)
+				{
+					ObjectCreated=apiCreateDirectory(Object,NULL)!=FALSE;
+				}
+				else
+				{
+					HANDLE hFile=apiCreateFile(Object,0,0,NULL,CREATE_NEW,0);
+					if(hFile!=INVALID_HANDLE_VALUE)
+					{
+						ObjectCreated=true;
+						CloseHandle(hFile);
+					}
+				}
+				if(ObjectCreated)
+				{
+					BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+					PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
+					rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
+					string strPrintName=Target,strSubstituteName=Target;
+					if(PathMayBeAbsolute(Target))
+					{
+						strSubstituteName=L"\\??\\";
+						strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+						rdb->SymbolicLinkReparseBuffer.Flags=0;
+					}
+					else
+					{
+						rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+					}
+					if(FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
+					{
+						Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+					}
+					else
+					{
+						SetLastError(ERROR_INSUFFICIENT_BUFFER);
+					}
+				}
 			}
 			break;
 		case RP_JUNCTION:
@@ -130,16 +195,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
 				if(FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength()))
 				{
-					HANDLE hDir=apiCreateFile(Object,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
-					if(hDir!=INVALID_HANDLE_VALUE)
-					{
-						DWORD dwBytes;
-						if(DeviceIoControl(hDir,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytes,0))
-						{
-							Result=true;
-						}
-						CloseHandle(hDir);
-					}
+					Result=SetREPARSE_DATA_BUFFER(Object,rdb);
 				}
 				else
 				{
@@ -151,7 +207,6 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 	}
 	return Result;
 }
-
 
 bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 {
@@ -190,29 +245,6 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 			}
 			CloseHandle(hObject);
 		}
-	}
-	return Result;
-}
-
-bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
-{
-	bool Result=false;
-	HANDLE hObject=apiCreateFile(Object,FILE_WRITE_ATTRIBUTES,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
-	if(hObject!=INVALID_HANDLE_VALUE)
-	{
-		DWORD dwBytesReturned;
-		if(IsReparseTagValid(rdb->ReparseTag))
-		{
-			if(rdb->ReparseTag==IO_REPARSE_TAG_SYMLINK)
-			{
-				SetPrivilege(L"SeCreateSymbolicLinkPrivilege",TRUE);
-			}
-			if(DeviceIoControl(hObject,FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,NULL,0,&dwBytesReturned,0))
-			{
-				Result=true;
-			}
-		}
-		CloseHandle(hObject);
 	}
 	return Result;
 }
@@ -701,9 +733,13 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 			}
 			break;
 		}
-		if(FillResult&&SetREPARSE_DATA_BUFFER(Object,rdb))
+		if(FillResult)
 		{
-			Result=true;
+			Result=SetREPARSE_DATA_BUFFER(Object,rdb);
+		}
+		else
+		{
+			SetLastError(ERROR_INSUFFICIENT_BUFFER);
 		}
 	}
 	return Result;

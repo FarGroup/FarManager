@@ -1017,12 +1017,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				ComboList.Items[0].Flags|=LIF_SELECTED;
 			else
 				ComboList.Items[1].Flags|=LIF_SELECTED;
-
-			if(!ifn.pfnCreateSymbolicLink)
-			{
-				ComboList.Items[2].Flags|=LIF_GRAYED;
-				ComboList.Items[3].Flags|=LIF_GRAYED;
-			}
 		}
 		else
 		{
@@ -2421,6 +2415,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	if (!(Flags&FCOPY_COPYTONUL) && StrCmpI(strDestPath,L"prn")!=0)
     SetDestDizPath(strDestPath);
 
+	CP->SetProgressValue(0,0);
 	CP->SetNames(Src,strDestPath);
 
 	if(!(Flags&FCOPY_COPYTONUL))
@@ -3951,7 +3946,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
 
 					WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
-					WarnCopyDlgData[WDLG_OVERWRITE].Data=MSG(MCopyContinue);
+					WarnCopyDlgData[WDLG_OVERWRITE].Data=MSG(Append?MCopyAppend:MCopyOverwrite);
 
 					WarnCopyDlgData[WDLG_RENAME].Type=DI_TEXT;
 					WarnCopyDlgData[WDLG_RENAME].Data=L"";

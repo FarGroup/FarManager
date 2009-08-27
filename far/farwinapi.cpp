@@ -67,8 +67,7 @@ HANDLE apiCreateFile (
 		Flags|=FILE_FLAG_POSIX_SEMANTICS;
 	}
 
-	string strName;
-	strName=NTPath(lpwszFileName);
+	string strName(NTPath(lpwszFileName).Str);
 
 	HANDLE hFile=CreateFile (
 			strName,
@@ -320,8 +319,7 @@ HANDLE apiFindFirstFile (
         )
 {
 	WIN32_FIND_DATA fdata;
-	string strName;
-	strName=NTPath(lpwszFileName);
+	string strName(NTPath(lpwszFileName).Str);
 	HANDLE hResult = FindFirstFile(strName, &fdata);
 
 	if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
@@ -629,18 +627,17 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 
 BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
-	BOOL Ret=FALSE;
+	BOOL Result=FALSE;
+	string strSymlinkFileName(NTPath(lpSymlinkFileName).Str);
 	if(ifn.pfnCreateSymbolicLink)
 	{
-		Ret=ifn.pfnCreateSymbolicLink(lpSymlinkFileName,lpTargetFileName,dwFlags);
-		if(!Ret)
-			Ret=ifn.pfnCreateSymbolicLink(NTPath(lpSymlinkFileName),NTPath(lpTargetFileName),dwFlags);
+		Result=ifn.pfnCreateSymbolicLink(strSymlinkFileName,lpTargetFileName,dwFlags);
 	}
 	else
 	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		Result=CreateReparsePoint(lpTargetFileName,strSymlinkFileName,dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 	}
-	return Ret;
+	return Result;
 }
 
 DWORD apiGetCompressedFileSize(LPCWSTR lpFileName,LPDWORD lpFileSizeHigh)

@@ -3619,9 +3619,6 @@ linkeket. Mivel a szimbolikus link a mappa csomópontok fejlettebb
 változata, ezért az ilyen linkek fájlokra és nem-helyi mappákra is
 mutathatnak, valamint relatív elérési útvonalak is használhatók.
 
-    Ne feledjük azonban, hogy a Vistában létrehozott szimbolikus linkek a
-Windows család Vistánál korábbi változatai számára nem elérhetők.
-
 
 @ErrCopyItSelf
 $ #Hiba: nem másolható vagy mozgatható önmagára#

@@ -3509,8 +3509,6 @@ to a directory on an NTFS partition.
     NTFS supports symbolic links starting from Windows Vista (NT 6.0). It's an
 improved version of directory junctions - symbolic links can also point to files
 and non-local folders, relative paths also supported.
-    Keep in mind, that symbolic links created under Windows Vista will not be
-accessible under previous versions of Windows.
 
 
 @ErrCopyItSelf
