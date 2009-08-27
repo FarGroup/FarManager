@@ -2508,7 +2508,7 @@ MCopyRename
 "R&ename"
 upd:"R&ename"
 upd:"R&ename"
-upd:"R&ename"
+"Á&tnevez"
 upd:"R&ename"
 
 MCopyCancelOvr
@@ -2530,18 +2530,18 @@ MCopyRememberChoice
 MCopyRenameTitle
 "Переименование"
 "Rename"
-"Rename"
-"Rename"
-"Rename"
-"Rename"
+upd:"Rename"
+upd:"Rename"
+"Átnevezés"
+upd:"Rename"
 
 MCopyRenameText
 "&Новое имя:"
 "&New name:"
-"&New name:"
-"&New name:"
-"&New name:"
-"&New name:"
+upd:"&New name:"
+upd:"&New name:"
+"Ú&j név:"
+upd:"&New name:"
 
 MCopyFileRO
 l:
@@ -2850,7 +2850,7 @@ MAskDeleteItems
 "%d item%s"
 "%d polož%s"
 "%d Objekt%s"
-"%d elemet?%s"
+"%d elemet%s"
 "%d plik%s"
 
 MAskDeleteItems0
@@ -3310,7 +3310,7 @@ MEditFileGetSizeError
 "File size could not be determined."
 upd:"File size could not be determined."
 upd:"File size could not be determined."
-upd:"File size could not be determined."
+"A fájlméret megállapíthatatlan."
 upd:"File size could not be determined."
 
 MEditFileLong
@@ -5492,7 +5492,7 @@ MListKb
 "K"
 "K"
 "K"
-"K"
+"k"
 "K"
 
 MListMb
@@ -7790,7 +7790,7 @@ MFindAlternateStreams
 "Process &alternate data streams"
 upd:"Process &alternate data streams"
 upd:"Process &alternate data streams"
-upd:"Process &alternate data streams"
+"&Alternatív adatsávok (stream) feldolgozása"
 upd:"Process &alternate data streams"
 
 MFoldTreeSearch
@@ -7816,7 +7816,7 @@ MGetTableSystem
 "System"
 upd:"System"
 upd:"System"
-upd:"System"
+"Rendszer"
 upd:"System"
 
 MGetTableUnicode
@@ -7824,7 +7824,7 @@ MGetTableUnicode
 "Unicode"
 upd:"Unicode"
 upd:"Unicode"
-upd:"Unicode"
+"Unicode"
 upd:"Unicode"
 
 MGetTableFavorites
@@ -7832,7 +7832,7 @@ MGetTableFavorites
 "Favorites"
 upd:"Favorites"
 upd:"Favorites"
-upd:"Favorites"
+"Kedvencek"
 upd:"Favorites"
 
 MGetTableOther
@@ -7840,7 +7840,7 @@ MGetTableOther
 "Other"
 upd:"Other"
 upd:"Other"
-upd:"Other"
+"Egyéb"
 upd:"Other"
 
 MGetTableBottomTitle
@@ -9140,7 +9140,7 @@ MMenuPluginConfirmation
 "Plugin selection"
 upd:"Plugin selection"
 upd:"Plugin selection"
-upd:"Plugin selection"
+"Plugin választás"
 upd:"Plugin selection"
 
 MMenuPluginStdAssociation
@@ -9148,7 +9148,7 @@ MMenuPluginStdAssociation
 "Standard association"
 upd:"Standard association"
 upd:"Standard association"
-upd:"Standard association"
+"Szabvány társítás"
 upd:"Standard association"
 
 MMenuFilePanelModes
@@ -9745,7 +9745,7 @@ MCannotCreateListFile
 "Cannot create list file"
 "Nelze vytvořit soubor se seznamem"
 "Dateiliste konnte nicht erstellt werden"
-"Listafájl nem hozható létre"
+"A listafájl nem hozható létre"
 "Nie mogę utworzyć listy plików"
 
 MCannotCreateListTemp
@@ -9753,7 +9753,7 @@ MCannotCreateListTemp
 "(cannot create temporary file for list)"
 "(nemohu vytvořit dočasný soubor pro seznam)"
 "(Fehler beim Anlegen einer temporären Datei für Liste)"
-"(lista átmeneti fájl nem hozható létre)"
+"(a lista átmeneti fájl nem hozható létre)"
 "(nie można utworzyć pliku tymczasowego dla listy)"
 
 MCannotCreateListWrite
@@ -10093,7 +10093,7 @@ MSetAttrSparse
 "S&parse"
 upd:"Rozptýlený"
 upd:"Reserve"
-upd:"Ritkított"
+"Ritk&ított"
 upd:"Sparse"
 
 MSetAttrTemp
@@ -10101,7 +10101,7 @@ MSetAttrTemp
 "Temporary"
 "Dočasný"
 "Temporär"
-"Átmeneti"
+"&Átmeneti"
 "&Tymczasowy"
 
 MSetAttrOffline
@@ -10109,7 +10109,7 @@ MSetAttrOffline
 "Offline"
 "Offline"
 "Offline"
-"Offline"
+"O&ffline"
 "Offline"
 
 MSetAttrVirtual
@@ -10117,7 +10117,7 @@ MSetAttrVirtual
 "Virtual"
 "Virtuální"
 "Virtuell"
-"Virtuális"
+"&Virtuális"
 "Wirtualny"
 
 MSetAttrSubfolders
@@ -10247,7 +10247,7 @@ MSetAttrSparseCannotFor
 "Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
-upd:"Cannot set attribute SPARSE for"
+"A RITKÍTOTT attribútum nem állítható be:"
 upd:"Cannot set attribute SPARSE for"
 
 MSetAttrTimeCannotFor
@@ -11174,7 +11174,7 @@ MSetConfirmRO
 "&Overwrite and delete R/O files"
 upd:"&Overwrite and delete R/O files"
 upd:"&Overwrite and delete R/O files"
-upd:"&Overwrite and delete R/O files"
+"&Csak olv. fájlok felülírása/törlése"
 upd:"&Overwrite and delete R/O files"
 
 
@@ -11264,7 +11264,7 @@ l:
 "Plugin selection"
 upd:"Plugin selection"
 upd:"Plugin selection"
-upd:"Plugin selection"
+"Plugin választás"
 upd:"Plugin selection"
 
 MSetPluginConfirmationOFP
@@ -11272,7 +11272,7 @@ MSetPluginConfirmationOFP
 "File processing (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
-upd:"File processing (OpenFilePlugin)"
+"Fájl feldolgozása (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
 
 MSetPluginConfirmationStdAssoc
@@ -11280,7 +11280,7 @@ MSetPluginConfirmationStdAssoc
 "Show standard association item"
 upd:"Show standard association item"
 upd:"Show standard association item"
-upd:"Show standard association item"
+"Szabvány társítás megjelenítése"
 upd:"Show standard association item"
 
 MSetPluginConfirmationEvenOne
@@ -11288,7 +11288,7 @@ MSetPluginConfirmationEvenOne
 "Even if only one plugin found"
 upd:"Even if only one plugin found"
 upd:"Even if only one plugin found"
-upd:"Even if only one plugin found"
+"Akkor is, ha csak egy plugin van"
 upd:"Even if only one plugin found"
 
 MSetPluginConfirmationSFL
@@ -11296,7 +11296,7 @@ MSetPluginConfirmationSFL
 "Search results (SetFindList)"
 upd:"Search results (SetFindList)"
 upd:"Search results (SetFindList)"
-upd:"Search results (SetFindList)"
+"Keresés eredménye (SetFindList)"
 upd:"Search results (SetFindList)"
 
 MSetPluginConfirmationPF
@@ -11304,7 +11304,7 @@ MSetPluginConfirmationPF
 "Prefix processing"
 upd:"Prefix processing"
 upd:"Prefix processing"
-upd:"Prefix processing"
+"Előtag feldolgozása"
 upd:"Prefix processing"
 
 MFindFolderTitle
@@ -12430,7 +12430,7 @@ MMacroPErrFuncParam
 "Incorrect number of arguments for function '%s'"
 upd:"Incorrect number of arguments for function '%s'"
 upd:"Incorrect number of arguments for function '%s'"
-upd:"Incorrect number of arguments for function '%s'"
+"'%s' funkció paramétereinek száma helytelen"
 upd:"Incorrect number of arguments for function '%s'"
 
 MMacroPErrNot_expected_ELSE
@@ -12502,7 +12502,7 @@ MMacroPErr_ZeroLengthMacro
 "Zero-length macro"
 Upd:"Zero-length macro"
 Upd:"Zero-length macro"
-Upd:"Zero-length macro"
+"Nulla hosszúságú makró"
 Upd:"Zero-length macro"
 
 MMacroPErrorTitle
@@ -12510,7 +12510,7 @@ MMacroPErrorTitle
 "Macro parsing error"
 "Macro parsing error"
 "Macro parsing error"
-"Macro parsing error"
+"Makróelemzési hiba"
 "Macro parsing error"
 
 MCannotSaveFile
