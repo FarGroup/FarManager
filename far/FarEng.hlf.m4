@@ -2177,9 +2177,9 @@ will contain the computer name, current drive and path
 display the current time in HH:MM format before the current
 drive and path
 
-   3. ^<wrap>Код "$+" отображает нужное число знаков плюс (+) в зависимости
-от текущей глубины стека каталогов ~PUSHD~@OSCommands@, по одному знаку на
-каждый сохраненный путь.
+   3. ^<wrap>Code "$+" displays the number of pluses (+) needed according to
+current ~PUSHD~@OSCommands@ directory stack depth, one character per each
+saved path.
 
 @Viewer
 $ #Viewer: control keys#
@@ -2441,44 +2441,42 @@ line as a block and copies it to the clipboard.
 
 @EditorSearch
 $ #Editor: search/replace#
-    Для поиска и замены в ~редакторе~@Editor@ вам доступны следующие режимы и опции:
+    The following options are available for search and replace in ~editor~@Editor@:
 
-      #Учитывать регистр#    - ^<wrap>при поиске будет учитываться регистр введенных символов
+      #Case sensitive#      - ^<wrap>the case of the characters entered will be taken into account while searching (so, for example,
+#Text# will not be found when searching for #text#).
 
-      #Только целые слова#   - ^<wrap>при поиске будет произведен поиск только целого слова
+      #Whole words#         - the given text will be found only if it occurs in the text as a whole word.
 
-      #Обратный поиск#       - ^<wrap>изменить поиск на обратный - искать от конца файла к началу
+      #Reverse search#      - ^<wrap>change the direction of search (from the end of file towards the beginning)
 
-      #Регулярные выражения# - ^<wrap>использовать ~регуляные выражения~@RegExp@ для поиска и замены.
+      #Regular expressions# - ^<wrap>treat input as Perl ~regular expression~@RegExp@
 
-    В режиме поиска так же доступна опция:
+    The following option is available in search dialog only:
 
-      #Выделять найденное#   - ^<wrap>найденные последовательности будут выделены
+      #Select found#        - ^<wrap>found text is selected
 
 
 @FileOpenCreate
-$ #Редактор: Открыть/создать файл#
-    С помощью комбинации #Shift-F4# можно открыть существующий или
-создать новый файл.
+$ #Editor: Open/Create file#
+    With #Shift-F4#, one can open the existing file or create a new file.
 
-    В зависимости от ~настроек редактора~@EditorSettings@ для нового файла
-выбирается кодовая страница OEM или ANSI. При необходимости из #списка#
-можно выбрать другую кодовую страницу.
+    According to ~editor settings~@EditorSettings@, newly created file
+is assigned to OEM or ANSI codepage. You can change the codepage with #Shift-F8#.
 
-    Для существующего файла изменять опцию #Кодовая страница:# имеет
-смысл тогда, когда при открытии она определилась неправильно.
+    For existing file, changing the codepage has sense if it hasn't been 
+correctly detected at open.
 
 
 @FileSaveAs
 $ #Editor: save file as...#
-    Редактируемый файл можно сохранить под другим именем - нажать #Shift-F2# и
-указать другое имя, кодовую страницу и формат представления символа перевода
-строки.
+    To save edited file with another name press #Shift-F2# and specify
+new name, codepage and carriage return symbols format.
 
-    Если для сохраняемого файла выбрана одна из кодовых страниц: UTF-8,
-UNICODE или REVERSEBOM, то при включенной опции #Добавить сигнатуру (BOM)#
-в начало файла добавляется специальный маркер, позволяющий другим приложениям
-однозначно идентифицировать этот файл.
+    If file has been edited in one of the following codepages: UTF-8,
+UNICODE or REVERSEBOM, then if the option #Add signature (BOM)# is on,
+the appropriate marker is inserted into the beginning of the file, which
+helps applications to identify the codepage of this file.
 
     You can also specify the format of the line break characters:
 
