@@ -895,8 +895,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const FAR_FIND_DATA *FData,const 
 {
 	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 
-	WIN32_FIND_DATAA FindData;
-	memset(&FindData,0,sizeof(FindData));
+	WIN32_FIND_DATAA FindData={0};
 	FindData.dwFileAttributes = FData->dwFileAttributes;
 	FindData.ftCreationTime = FData->ftCreationTime;
 	FindData.ftLastAccessTime = FData->ftLastAccessTime;
@@ -2825,8 +2824,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,int Command,void *Param)
 		case oldfar::ACTL_KEYMACRO:
 		{
 			if (!Param) return FALSE;
-			ActlKeyMacro km;
-			memset(&km,0,sizeof(km));
+			ActlKeyMacro km={0};
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
 			switch(kmA->Command)
 			{

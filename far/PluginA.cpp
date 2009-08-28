@@ -1429,8 +1429,7 @@ void PluginA::GetOpenPluginInfo (
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPLUGININFO;
 
-		oldfar::OpenPluginInfo InfoA;
-		memset(&InfoA,0,sizeof(InfoA));
+		oldfar::OpenPluginInfo InfoA={0};
 
 		EXECUTE_FUNCTION(pGetOpenPluginInfo(hPlugin, &InfoA), es);
 
@@ -1534,8 +1533,7 @@ bool PluginA::GetPluginInfo (PluginInfo *pi)
 
 		es.id = EXCEPT_GETPLUGININFO;
 
-		oldfar::PluginInfo InfoA;
-		memset(&InfoA,0,sizeof(InfoA));
+		oldfar::PluginInfo InfoA={0};
 
 		EXECUTE_FUNCTION(pGetPluginInfo(&InfoA), es);
 

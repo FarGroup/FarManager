@@ -45,7 +45,6 @@ class FileViewer:public Frame
     Viewer View;
     int RedrawTitle;
     KeyBar ViewKeyBar;
-    char NewTitle[NM];
     int F3KeyOnly;
     int FullScreen;
     int DisableEdit;

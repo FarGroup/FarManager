@@ -2107,9 +2107,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 						if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 						{
 #if 0
-              SHELLEXECUTEINFO sei;
-              memset(&sei,0,sizeof(sei));
-              sei.cbSize=sizeof(sei);
+							SHELLEXECUTEINFO sei={sizeof(sei)};
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
               sei.lpFile=RemoveExternalSpaces(Buf);
               sei.nShow=SW_SHOWNORMAL;

@@ -743,12 +743,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       }
   }
 
-	STARTUPINFO si;
+	STARTUPINFO si={sizeof (si)};
   PROCESS_INFORMATION pi;
-
-  memset (&si, 0, sizeof (si));
-
-  si.cb = sizeof (si);
 
   string strComspec;
   apiGetEnvironmentVariable (L"COMSPEC", strComspec);
@@ -828,9 +824,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 2 )
   {
-		SHELLEXECUTEINFO seInfo;
-		memset (&seInfo, 0, sizeof (seInfo));
-		seInfo.cbSize = sizeof (seInfo);
+		SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
     seInfo.lpFile = strNewCmdStr;
     seInfo.lpParameters = strNewCmdPar;
     seInfo.nShow = SW_SHOWNORMAL;

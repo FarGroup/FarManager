@@ -102,7 +102,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
     if (PStack->Modified)
     {
-			PluginPanelItem PanelItem;
+			PluginPanelItem PanelItem={0};
 
       string strSaveDir;
 
@@ -112,8 +112,6 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
       else
       {
-        memset(&PanelItem,0,sizeof(PanelItem));
-
         PanelItem.FindData.lpwszFileName = xf_wcsdup(PointToName(PStack->strHostFile));
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
 
@@ -540,9 +538,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
         else
           if (Delete)
           {
-            PluginPanelItem pi;
-            memset(&pi,0,sizeof(pi));
-
+						PluginPanelItem pi={0};
             pi.FindData.lpwszFileName = xf_wcsdup (DestPanel->strPluginDizName);
             CtrlObject->Plugins.DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
             xf_free (pi.FindData.lpwszFileName);

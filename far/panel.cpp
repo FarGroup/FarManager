@@ -432,9 +432,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		if ( Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS )
 		{
-			int UsedNumbers[10];
-
-			memset(UsedNumbers,0,sizeof(UsedNumbers));
+			int UsedNumbers[10]={0};
 
 			TArray<ChDiskPluginItem> MPItems, MPItemsNoHotkey;
 			ChDiskPluginItem OneItem;
@@ -851,9 +849,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if ( item && !item->bIsPlugin )
 					{
 						wchar_t DosDeviceName[]={item->cDrive,L':',L'\\',L'\0'};
-						SHELLEXECUTEINFOW seInfo;
-						memset(&seInfo, 0, sizeof(seInfo));
-						seInfo.cbSize = sizeof(seInfo);
+						SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
 						seInfo.nShow = SW_SHOW;
 						seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 						seInfo.lpFile = DosDeviceName;

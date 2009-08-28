@@ -835,9 +835,8 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 
   CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].strData = Opt.strExternalEditor;
 
-  FarListItem ExpandTabListItems[3];
-  memset(ExpandTabListItems,0,sizeof(ExpandTabListItems));
-  FarList ExpandTabList = {3,ExpandTabListItems};
+	FarListItem ExpandTabListItems[3]={0};
+  FarList ExpandTabList = {countof(ExpandTabListItems),ExpandTabListItems};
   CfgDlg[ID_EC_EXPANDTABS].ListItems = &ExpandTabList;
   ExpandTabListItems[0].Text=MSG(MEditConfigDoNotExpandTabs);
   ExpandTabListItems[1].Text=MSG(MEditConfigExpandTabs);

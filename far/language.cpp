@@ -91,8 +91,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
   if (LangFile==NULL)
     return false;
 
-  wchar_t ReadStr[1024];
-  memset (&ReadStr, 0, sizeof (ReadStr));
+	wchar_t ReadStr[1024]={0};
 
   while ( ReadString (LangFile, ReadStr, countof(ReadStr), nCodePage) !=NULL )
   {

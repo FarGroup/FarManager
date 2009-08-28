@@ -114,14 +114,7 @@ static CDROM_DeviceCaps getCapsUsingProductId(const char *prodID)
 
 static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
 {
-    SCSI_PASS_THROUGH_WITH_BUFFERS      sptwb;
-    ULONG                               length;
-    DWORD                               returned;
-    BOOL                                status;
-
-
-    ZeroMemory(&sptwb,sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS));
-
+		SCSI_PASS_THROUGH_WITH_BUFFERS sptwb={0};
     sptwb.Spt.Length = sizeof(SCSI_PASS_THROUGH);
     sptwb.Spt.PathId = 0;
     sptwb.Spt.TargetId = 1;
@@ -133,7 +126,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
     sptwb.Spt.TimeOutValue = 2;
     sptwb.Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf);
     sptwb.Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,SenseBuf);
-    length = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf) + sptwb.Spt.DataTransferLength;
+		ULONG length = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf) + sptwb.Spt.DataTransferLength;
 
     // If device supports SCSI-3, then we can get the CD drive capabilities, i.e. ability to
     // read/write to CD-ROM/R/RW or/and read/write to DVD-ROM/R/RW.
@@ -143,8 +136,8 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
     sptwb.Spt.Cdb[1] = 0x08;                    // target shall not return any block descriptors
     sptwb.Spt.Cdb[2] = MODE_PAGE_CAPABILITIES;
     sptwb.Spt.Cdb[4] = 192;
-
-    status = DeviceIoControl(hDevice,
+		DWORD returned;
+		BOOL status = DeviceIoControl(hDevice,
                              IOCTL_SCSI_PASS_THROUGH,
                              &sptwb,
                              sizeof(SCSI_PASS_THROUGH),

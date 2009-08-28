@@ -2474,7 +2474,7 @@ $ #Editor: save file as...#
 new name, codepage and carriage return symbols format.
 
     If file has been edited in one of the following codepages: UTF-8,
-UNICODE or REVERSEBOM, then if the option #Add signature (BOM)# is on,
+UTF-16 (Little endian) or UTF-16 (Big endian), then if the option #Add signature (BOM)# is on,
 the appropriate marker is inserted into the beginning of the file, which
 helps applications to identify the codepage of this file.
 

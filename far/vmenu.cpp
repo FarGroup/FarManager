@@ -1650,9 +1650,8 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 {
   CriticalSectionLock Lock(CS);
 
-	FarListItem FarListItem0;
+	FarListItem FarListItem0={0};
 
-  memset(&FarListItem0,0,sizeof(FarListItem0));
   if(!NewStrItem || NewStrItem[0] == 0x1)
   {
     FarListItem0.Flags=LIF_SEPARATOR;

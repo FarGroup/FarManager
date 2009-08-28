@@ -627,8 +627,7 @@ int __RemoveHotplugDevice (DEVINST hDevInst)
   PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
   CONFIGRET crResult;
 
-  wchar_t wszDescription[MAX_PATH]; //BUGBUG
-  memset (wszDescription, 0, MAX_PATH*sizeof (wchar_t));
+	wchar_t wszDescription[MAX_PATH]={0}; //BUGBUG
 
   crResult = ifn.pfnRequestDeviceEject (
       hDevInst,

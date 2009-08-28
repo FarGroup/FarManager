@@ -477,8 +477,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
     {
       if(CtrlObject && Param && ((KeySequence*)Param)->Count > 0)
       {
-				MacroRecord MRec;
-				memset(&MRec,0,sizeof(MacroRecord));
+				MacroRecord MRec={0};
 				MRec.Flags=(((KeySequence*)Param)->Flags)<<8;
 				MRec.BufferSize=((KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)

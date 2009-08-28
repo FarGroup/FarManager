@@ -268,8 +268,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	bool bDotSeen=false, bTwoDotsSeen=false;
 	bool bCurDirRoot=IsLocalRootPath(strCurDir)?true:false;
 
-	FILETIME TwoDotsTimes[3];
-	memset (TwoDotsTimes, 0, sizeof (TwoDotsTimes));
+	FILETIME TwoDotsTimes[3]={0};
 	string TwoDotsOwner;
 
 	if (!Done)

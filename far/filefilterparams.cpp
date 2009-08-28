@@ -966,11 +966,10 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
   for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
     FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.GetLength()-(FilterDlg[ID_HER_NORMALFILE].strData.Contains(L'&')?1:0)+1;
 
-  CHAR_INFO VBufColorExample[15*4];
+	CHAR_INFO VBufColorExample[15*4]={0};
   HighlightDataColor Colors;
 
   FF->GetColors(&Colors);
-  memset(VBufColorExample,0,sizeof(VBufColorExample));
   HighlightDlgUpdateUserControl(VBufColorExample,Colors);
   FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
 
@@ -999,12 +998,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
   // Лист для комбобокса времени файла
   FarList DateList;
-  FarListItem TableItemDate[FDATE_COUNT];
+	FarListItem TableItemDate[FDATE_COUNT]={0};
   // Настройка списка типов дат файла
   DateList.Items=TableItemDate;
   DateList.ItemsNumber=FDATE_COUNT;
 
-  memset(TableItemDate,0,sizeof(TableItemDate));
   for(int i=0; i < FDATE_COUNT; ++i)
     TableItemDate[i].Text=MSG(MFileFilterModified+i);
 

@@ -761,7 +761,6 @@ DWORD SHErrorToWinError(DWORD SHError)
 
 int RemoveToRecycleBin(const wchar_t *Name)
 {
-	SHFILEOPSTRUCT fop;
   string strFullName;
   ConvertNameToFull(Name, strFullName);
 
@@ -780,7 +779,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
   }
 
 
-  memset(&fop,0,sizeof(fop)); // говорят помогает :-)
+	SHFILEOPSTRUCT fop={0};
 
   wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+2);
 

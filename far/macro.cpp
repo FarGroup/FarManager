@@ -3836,8 +3836,7 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string &strBuffer)
 int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 {
   int I, J;
-	MacroRecord CurMacro;
-  memset(&CurMacro,0,sizeof(CurMacro));
+	MacroRecord CurMacro={0};
 
 	string strUpKeyName=L"KeyMacros\\";
 	strUpKeyName+=GetSubKey(ReadMode);

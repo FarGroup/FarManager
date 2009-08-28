@@ -1002,12 +1002,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   if (Ask)
   {
 		FarList ComboList;
-		FarListItem LinkTypeItems[4],CopyModeItems[8];
+		FarListItem LinkTypeItems[4]={0},CopyModeItems[8]={0};
 		if(Link)
 		{
 			ComboList.ItemsNumber=countof(LinkTypeItems);
 			ComboList.Items=LinkTypeItems;
-			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
 			ComboList.Items[0].Text=MSG(MLinkTypeHardlink);
 			ComboList.Items[1].Text=MSG(MLinkTypeJunction);
 			ComboList.Items[2].Text=MSG(MLinkTypeSymlinkFile);
@@ -1022,7 +1021,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{
 			ComboList.ItemsNumber=countof(CopyModeItems);
 			ComboList.Items=CopyModeItems;
-			memset(ComboList.Items,0,sizeof(FarListItem)*ComboList.ItemsNumber);
 			ComboList.Items[CM_ASK].Text=MSG(MCopyAsk);
 			ComboList.Items[CM_OVERWRITE].Text=MSG(MCopyOverwrite);
 			ComboList.Items[CM_SKIP].Text=MSG(MCopySkipOvr);
