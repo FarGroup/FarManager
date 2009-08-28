@@ -65,6 +65,7 @@ static wchar_t nameString[1024];
 static wchar_t *sSrcString;
 static wchar_t *pSrcString = NULL;
 static wchar_t *oSrcString = NULL;
+static wchar_t emptyString[1]={0};
 
 static TToken currTok = tNo;
 static TVar currVar;
@@ -1243,7 +1244,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
   _KEYMACRO(CleverSysLog Clev(L"parseMacroString"));
   _KEYMACRO(SysLog(L"BufPtr[%p]='%s'", BufPtr,BufPtr));
   _macro_nErr = 0;
-  pSrcString = oSrcString = sSrcString = L"";
+  pSrcString = oSrcString = sSrcString = emptyString;
   if ( BufPtr == NULL || !*BufPtr)
   {
     keyMacroParseError(err_ZeroLengthMacro);

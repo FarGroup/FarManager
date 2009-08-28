@@ -474,9 +474,9 @@ int DizList::CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t 
   if(!OptDizStartPos || OptDizStartPos < LenQuotedName)
     OptDizStartPos=(int)strQuotedName.GetLength();
 
-  strDizText.Format (L"%-*.*s %.*s",
+  strDizText.Format (L"%-*.*s %s",
        OptDizStartPos,OptDizStartPos,(const wchar_t*)strQuotedName,
-       NM/*(sizeof(DizText)-OptDizStartPos-2)*/,&DizData[DizPos].DizText[TextPos]); //BUGBUG
+       &DizData[DizPos].DizText[TextPos]);
 
   DestDiz->AddDiz(DestName,DestShortName,strDizText);
   while (++DizPos<DizCount)

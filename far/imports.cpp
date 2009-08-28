@@ -46,7 +46,6 @@ void ImportedFunctions::Load()
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hSetupAPI = LoadLibrary(L"setupapi.dll");
-	HMODULE hSecur32 = LoadLibrary(L"secur32.dll");
 
 	if (hSetupAPI)
 	{

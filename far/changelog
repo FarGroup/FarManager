@@ -1,3 +1,9 @@
+zg 28.08.2009 16:10:30 +0200 - build 1093
+
+1. Mantis#0001025: FAR v2.0.1091 ( и v2.0.981) обрезает записи в descript.ion при F5 или F6 до 260 символов.
+
+2. gcc warnings.
+
 t-rex 27.08.2009 20:09:59 +0200
 
 1. Hungarian lng update from Far Hunor.
