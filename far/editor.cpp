@@ -90,7 +90,8 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   LastSearchCase=GlobalSearchCase;
   LastSearchWholeWords=GlobalSearchWholeWords;
   LastSearchReverse=GlobalSearchReverse;
-  LastSearchSelFound=GlobalSearchSelFound;
+  LastSearchSelFound=Opt.EdOpt.SearchSelFound;
+  LastSearchRegexp=Opt.EdOpt.SearchRegexp;
   SuccessfulSearch=0;
 
   Pasting=0;
@@ -169,7 +170,8 @@ void Editor::KeepInitParameters()
   GlobalSearchCase=LastSearchCase;
   GlobalSearchWholeWords=LastSearchWholeWords;
   GlobalSearchReverse=LastSearchReverse;
-  GlobalSearchSelFound=LastSearchSelFound;
+  Opt.EdOpt.SearchSelFound=LastSearchSelFound;
+  Opt.EdOpt.SearchRegexp=LastSearchRegexp;
 }
 
 /*
@@ -3770,7 +3772,7 @@ BOOL Editor::Search(int Next)
   static int LastSuccessfulReplaceMode=0;
   string strMsgStr;
   const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-  int CurPos,Case,WholeWords,ReverseSearch,SelectFound,Match,NewNumLine,UserBreak;
+  int CurPos,Case,WholeWords,ReverseSearch,SelectFound,Regexp,Match,NewNumLine,UserBreak;
   int iPosCorrection = 0;
 
   if (Next && strLastSearchStr.IsEmpty() )
@@ -3783,12 +3785,13 @@ BOOL Editor::Search(int Next)
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
   SelectFound=LastSearchSelFound;
+  Regexp=LastSearchRegexp;
 
   if (!Next)
     if(!GetSearchReplaceString(ReplaceMode,&strSearchStr,
                    &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
-                   &Case,&WholeWords,&ReverseSearch,&SelectFound,L"EditorSearch"))
+                   &Case,&WholeWords,&ReverseSearch,&SelectFound,&Regexp,L"EditorSearch"))
       return FALSE;
 
   // Cheack if need to modify current pos
@@ -3802,6 +3805,7 @@ BOOL Editor::Search(int Next)
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
   LastSearchSelFound=SelectFound;
+  LastSearchRegexp=Regexp;
 
   if ( strSearchStr.IsEmpty() )
     return TRUE;
@@ -3885,7 +3889,7 @@ BOOL Editor::Search(int Next)
       }
 
       int SearchLength=0;
-      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch,&SearchLength))
+      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
       {
         if( SelectFound )
         {

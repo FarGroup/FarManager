@@ -96,20 +96,53 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 */
 }
 
-wchar_t * WINAPI InsertQuote(wchar_t *Str)
+static wchar_t * WINAPI InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 {
   size_t l = StrLength(Str);
-  if (*Str != L'"')
+  if (*Str != QuoteChar)
   {
     wmemmove(Str+1,Str,++l);
-    *Str=L'"';
+    *Str=QuoteChar;
   }
-  if ((l-1) == 0 || Str[l-1] != L'"')
+  if ((l-1) == 0 || Str[l-1] != QuoteChar)
   {
-    Str[l++] = L'\"';
+    Str[l++] = QuoteChar;
     Str[l] = 0;
   }
   return Str;
+}
+
+static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
+{
+  size_t l = strStr.GetLength();
+  wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+3);
+
+  if (*Str != QuoteChar)
+  {
+    wmemmove(Str+1,Str,++l);
+    *Str=QuoteChar;
+  }
+  if((l-1) == 0 || Str[l-1] != QuoteChar)
+  {
+    Str[l++] = QuoteChar;
+  }
+
+  strStr.ReleaseBuffer (l);
+
+  return strStr;
+}
+
+wchar_t * WINAPI InsertQuote(wchar_t *Str)
+{
+  return InsertCustomQuote(Str,L'\"');
+}
+
+wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
+{
+  if (Str!=NULL && *Str != L'/')
+    return InsertCustomQuote(Str,L'/');
+  else          //выражение вида /regexp/i не дополняем слэшем
+    return Str;
 }
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str)
@@ -123,22 +156,15 @@ wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 
 string& InsertQuote(string &strStr)
 {
-  size_t l = strStr.GetLength();
-  wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+3);
+  return InsertCustomQuote(strStr,L'\"');
+}
 
-  if (*Str != L'"')
-  {
-    wmemmove(Str+1,Str,++l);
-    *Str=L'"';
-  }
-  if((l-1) == 0 || Str[l-1] != L'"')
-  {
-    Str[l++] = L'\"';
-  }
-
-  strStr.ReleaseBuffer (l);
-
-  return strStr;
+string& InsertRegexpQuote(string &strStr)
+{
+  if (strStr.GetLength()==0 || strStr[0] != L'/')
+    return InsertCustomQuote(strStr,L'/');
+  else          //выражение вида /regexp/i не дополняем слэшем
+    return strStr;
 }
 
 string &QuoteSpace(string &strStr)

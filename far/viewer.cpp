@@ -88,6 +88,7 @@ Viewer::Viewer(bool bQuickView)
 
   strLastSearchStr = strGlobalSearchString;
   LastSearchCase=GlobalSearchCase;
+  LastSearchRegexp=Opt.ViOpt.SearchRegexp;
 
   LastSearchWholeWords=GlobalSearchWholeWords;
   LastSearchReverse=GlobalSearchReverse;
@@ -204,6 +205,7 @@ void Viewer::KeepInitParameters()
   GlobalSearchHex=LastSearchHex;
   Opt.ViOpt.ViewerIsWrap=VM.Wrap;
   Opt.ViOpt.ViewerWrap=VM.WordWrap;
+  Opt.ViOpt.SearchRegexp=LastSearchRegexp;
   InitHex=VM.Hex;
 }
 
@@ -2171,7 +2173,7 @@ void Viewer::Search(int Next,int FirstChar)
   const wchar_t *TextHistoryName=L"SearchText";
   const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
 	static DialogDataEx SearchDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(const wchar_t *)MViewSearchTitle,
+  /* 00 */ DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(const wchar_t *)MViewSearchTitle,
   /* 01 */ DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MViewSearchFor,
   /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD_PTR)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,L"",
   /* 03 */ DI_FIXEDIT,5,3,70,3,0,(DWORD_PTR)HexMask,DIF_MASKEDIT,0,L"",
@@ -2181,16 +2183,17 @@ void Viewer::Search(int Next,int FirstChar)
   /* 07 */ DI_CHECKBOX,40,5,0,5,0,0,0,0,(const wchar_t *)MViewSearchCase,
   /* 08 */ DI_CHECKBOX,40,6,0,6,0,0,0,0,(const wchar_t *)MViewSearchWholeWords,
   /* 09 */ DI_CHECKBOX,40,7,0,7,0,0,0,0,(const wchar_t *)MViewSearchReverse,
-  /* 10 */ DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 11 */ DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MViewSearchSearch,
-  /* 12 */ DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MViewSearchCancel
+  /* 10 */ DI_CHECKBOX,40,8,0,8,0,0,DIF_DISABLE,0,(const wchar_t *)MViewSearchRegexp,
+  /* 11 */ DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 12 */ DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MViewSearchSearch,
+  /* 13 */ DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MViewSearchCancel
   };
   MakeDialogItemsEx(SearchDlgData,SearchDlg);
 
   string strSearchStr;
   string strMsgStr;
   __int64 MatchPos=0;
-  int SearchLength,Case,WholeWords,ReverseSearch,Match;
+  int SearchLength,Case,WholeWords,ReverseSearch,Match,SearchRegexp;
 
   if (ViewFile==NULL || (Next && strLastSearchStr.IsEmpty()))
     return;
@@ -2206,6 +2209,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   SearchDlg[8].Selected=LastSearchWholeWords;
   SearchDlg[9].Selected=LastSearchReverse;
+  SearchDlg[10].Selected=LastSearchRegexp;
 
   if (SearchFlags.Check(REVERSE_SEARCH))
     SearchDlg[9].Selected = !SearchDlg[9].Selected;
@@ -2229,7 +2233,7 @@ void Viewer::Search(int Next,int FirstChar)
   {
     SearchFlags.Flags = 0;
 		Dialog Dlg(SearchDlg,countof(SearchDlg),ViewerSearchDlgProc);
-    Dlg.SetPosition(-1,-1,76,12);
+    Dlg.SetPosition(-1,-1,76,13);
     Dlg.SetHelp(L"ViewerSearch");
     if (FirstChar)
     {
@@ -2246,6 +2250,7 @@ void Viewer::Search(int Next,int FirstChar)
   Case=SearchDlg[7].Selected;
   WholeWords=SearchDlg[8].Selected;
   ReverseSearch=SearchDlg[9].Selected;
+  SearchRegexp=SearchDlg[10].Selected;
 
   if(SearchHex)
   {
@@ -2261,6 +2266,7 @@ void Viewer::Search(int Next,int FirstChar)
   LastSearchWholeWords=WholeWords;
   if (!SearchFlags.Check(REVERSE_SEARCH))
     LastSearchReverse=ReverseSearch;
+  LastSearchRegexp=SearchRegexp;
 
   if ((SearchLength=(int)strSearchStr.GetLength ())==0)
     return;

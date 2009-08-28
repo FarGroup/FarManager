@@ -3792,6 +3792,10 @@ az utódfolyamatok részére:
 megadott felhasználói név.
 
 
+@RegExp
+$ #Regular expressions#
+
+
 @KeyMacro
 $ #Makrók#
     A makrók (vagy másként billentyűmakrók) a billentyűleütések sorozatának

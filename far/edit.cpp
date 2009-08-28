@@ -1985,7 +1985,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse, int *SearchLength)
+int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength)
 {
   *SearchLength = 0;
 
@@ -2000,11 +2000,14 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
 
   if (Position<StrSize && !Str.IsEmpty() )
   {
-    if (!Reverse && Str[0] == L'/')
+    if (!Reverse && Regexp)
     {
       RegExp re;
+      string strSlash(Str);
+      InsertRegexpQuote(strSlash);
 
-      if (re.Compile(Str, OP_PERLSTYLE|OP_OPTIMIZE))
+      // Q: что важнее: опция диалога или опция RegExp`а?
+      if (re.Compile(strSlash, OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
       {
         int n = re.GetBracketsCount();
         SMatch *m = (SMatch *)xf_malloc(n*sizeof(SMatch));

@@ -3395,6 +3395,14 @@ MEditSearchSelFound
 "&Találat kijelölése"
 "W&ybierz znalezione"
 
+MEditSearchRegexp
+"&Регулярные выражения"
+"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
+
 MEditSearchSearch
 "Искать"
 "Search"
@@ -11648,6 +11656,14 @@ MViewSearchReverse
 "Richtung um&kehren"
 "&Visszafelé keres"
 "Szukaj w &odwrotnym kierunku"
+
+MViewSearchRegexp
+"&Регулярные выражения"
+"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
+upd:"&Regular expressions"
 
 MViewSearchSearch
 "Искать"

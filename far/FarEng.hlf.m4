@@ -2300,25 +2300,20 @@ available:
       Search for any text entered in the #Search for# edit line.
       The following options are available in that mode:
 
-        #Case sensitive#      - the case of the characters
-                              entered will be taken into account
-                              while searching (so, for example,
-                              #Text# will not be found when
-                              searching for #text#).
+        #Case sensitive#      - ^<wrap>the case of the characters entered will be taken into account
+while searching (so, for example, #Text# will not be found when searching for #text#).
 
-        #Whole words#         - the given text will be found only
-                              if it occurs in the text as a whole
-                              word.
+        #Whole words#         - ^<wrap>the given text will be found only if it occurs in the text as a whole word.
+
+        #Regular expressions# - ^<wrap>Для поиска использовать ~регуляные выражения~@RegExp@.
 
     #Search for hex#
 
-      Search for a string corresponding to hexadecimal codes
-      entered in the #Search for# string.
+      ^<wrap>Search for a string corresponding to hexadecimal codes entered in the #Search for# string.
 
     #Reverse search#
 
-      Reverse the search direction - search from the end of file
-      towards the beginning.
+      ^<wrap>Reverse the search direction - search from the end of file towards the beginning.
 
 
 @Editor
@@ -2448,15 +2443,17 @@ line as a block and copies it to the clipboard.
 $ #Editor: search/replace#
     Для поиска и замены в ~редакторе~@Editor@ вам доступны следующие режимы и опции:
 
-      #Учитывать регистр#   - ^<wrap>при поиске будет учитываться регистр введенных символов
+      #Учитывать регистр#    - ^<wrap>при поиске будет учитываться регистр введенных символов
 
-      #Только целые слова#  - ^<wrap>при поиске будет произведен поиск только целого слова
+      #Только целые слова#   - ^<wrap>при поиске будет произведен поиск только целого слова
 
-      #Обратный поиск#      - ^<wrap>изменить поиск на обратный - искать от конца файла к началу
+      #Обратный поиск#       - ^<wrap>изменить поиск на обратный - искать от конца файла к началу
+
+      #Регулярные выражения# - ^<wrap>использовать ~регуляные выражения~@RegExp@ для поиска и замены.
 
     В режиме поиска так же доступна опция:
 
-      #Выделять найденное#  - ^<wrap>найденные последовательности будут выделены
+      #Выделять найденное#   - ^<wrap>найденные последовательности будут выделены
 
 
 @FileOpenCreate
@@ -3688,6 +3685,9 @@ to child processes:
 
     #FARDIRSTACK#        содержимое вершины стека каталогов
                        (который управляется командами pushd и popd)
+
+@RegExp
+$ #Regular expressions#
 
 
 @KeyMacro

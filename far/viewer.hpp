@@ -118,7 +118,7 @@ class Viewer:public ScreenObject
     BOOL DeleteFolder;
 
     string strLastSearchStr;
-    int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
+    int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
 
     struct ViewerMode VM;
 

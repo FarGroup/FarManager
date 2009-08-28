@@ -212,6 +212,8 @@ struct EditorOptions
 	int ShowTitleBar;
 	int ShowScrollBar;
 	int EditOpenedForWrite;
+	int SearchSelFound;
+	int SearchRegexp;
 
 	string strWordDiv;
 
@@ -239,6 +241,8 @@ struct EditorOptions
 		ShowTitleBar = 0;
 		ShowScrollBar=0;
 		EditOpenedForWrite=0;
+		SearchSelFound=0;
+		SearchRegexp=0;
 
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
@@ -270,6 +274,8 @@ struct EditorOptions
 		dest.ShowTitleBar = ShowTitleBar;
 		dest.strWordDiv = strWordDiv;
 		dest.ShowScrollBar=ShowScrollBar;
+		dest.SearchSelFound=SearchSelFound;
+		dest.SearchRegexp=SearchRegexp;
 
 		dest.FileSizeLimitLo = FileSizeLimitLo;
 		dest.FileSizeLimitHi = FileSizeLimitHi;
@@ -294,6 +300,7 @@ struct ViewerOptions
   int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
 	int AnsiCodePageAsDefault;
   int ShowTitleBar;
+	int SearchRegexp;
 };
 
 // "Полиция"

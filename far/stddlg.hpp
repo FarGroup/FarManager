@@ -79,6 +79,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       Указатель на переменную, указывающую на значение опции "Select found"
       Если = NULL, то принимается значение 0 (не выделять найденное)
 
+    *Regexp
+      Указатель на переменную, указывающую на значение опции "Regular expressions"
+      Если = NULL, то принимается значение 0 (не регэксп)
+
     *HelpTopic
       Имя темы помощи.
       Если NULL или пустая строка - тема помощи не назначается.
@@ -97,6 +101,7 @@ int WINAPI GetSearchReplaceString (
          int *WholeWords,
          int *Reverse,
          int *SelectFound,
+         int *Regexp,
          const wchar_t *HelpTopic=NULL);
 
 int __stdcall GetString(

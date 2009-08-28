@@ -58,7 +58,6 @@ extern string g_strFarPath;
 extern string strGlobalSearchString;
 extern int GlobalSearchCase;
 extern int GlobalSearchWholeWords; // значение "Whole words" для поиска
-extern int GlobalSearchSelFound; //значение "Select found"  для поиска
 extern int GlobalSearchHex; // значение "Search for hex" для поиска
 
 extern int GlobalSearchReverse;

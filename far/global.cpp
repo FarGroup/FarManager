@@ -89,7 +89,6 @@ wchar_t RegColorsHighlight[]=L"Colors\\Highlight";
 string strGlobalSearchString;
 int GlobalSearchCase=FALSE;
 int GlobalSearchWholeWords=FALSE; // значение "Whole words" для поиска
-int GlobalSearchSelFound=FALSE; // значение "Select found" для поиска
 int GlobalSearchHex=FALSE;     // значение "Search for hex" для поиска
 int GlobalSearchReverse=FALSE;
 
