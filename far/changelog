@@ -1,3 +1,7 @@
+chupakabra 28.08.2009 18:28:00 +0200 - build 1095
+
+1. FCTL_REDRAWPANEL могла вернуть FALSE в случае успеха
+
 svs 28.08.2009 19:14:22 +0300 - build 
 
 1. Перевод хелпа от Igor Yudincev

@@ -2251,10 +2251,9 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			}
 				// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
 			if (FPanels->IsTopFrame())
-			{
 				Redraw();
-				Result=TRUE;
-			}
+
+			Result=TRUE;
 			break;
 		}
 
