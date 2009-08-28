@@ -9703,16 +9703,11 @@ MChangeVolumeInUse2
 "Jest używany przez inną aplikację"
 
 MChangeWaitingLoadDisk
-ls:;"Ожидание загрузки диска..."
 "Ожидание чтения диска..."
-ls:;"Waiting for disk to load..."
 "Waiting for disk to mount..."
-ls:;"Nahrávání disku..."
 "Čekám na disk k připojení..."
 "Warte auf Datenträger..."
-ls:;"Lemez betöltése..."
 "Lemez betöltése..."
-ls:;"Trwa oczekiwanie na załadowanie dysku..."
 "Trwa montowanie dysku..."
 
 MChangeCouldNotEjectMedia
@@ -10303,7 +10298,7 @@ MSetColorKeyBar
 "&Линейка клавиш"
 "&Key bar"
 "&Řádek kláves"
-"
+upd:"&Key bar"
 "F&unkcióbill.sor"
 "Pasek &klawiszy"
 
@@ -12500,10 +12495,10 @@ MMacroPErrExpr_Expected
 MMacroPErr_ZeroLengthMacro
 "Пустая макропоследовательность"
 "Zero-length macro"
-Upd:"Zero-length macro"
-Upd:"Zero-length macro"
+upd:"Zero-length macro"
+upd:"Zero-length macro"
 "Nulla hosszúságú makró"
-Upd:"Zero-length macro"
+upd:"Zero-length macro"
 
 MMacroPErrorTitle
 "Ошибка при разборе макроса"
