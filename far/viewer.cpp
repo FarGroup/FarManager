@@ -2029,75 +2029,72 @@ enum SEARCHDLG
 	SD_SEPARATOR2,
 	SD_BUTTON_OK,
 	SD_BUTTON_CANCEL,
+
+	DM_SDSETVISIBILITY = DM_USER + 1,
 };
 
 LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  switch(Msg)
-  {
-    case DN_INITDIALOG:
-    {
-      /* $ 22.09.2003 KM
-         Переключение видимости строки ввода искомого текста
-         в зависимости от Dlg->Item[SD_RADIO_HEX].Selected
-      */
-			FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,0)));
-			Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,(LONG_PTR)Item);
-			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Item->Param.Selected);
-			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Item->Param.Selected!=0);
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Item->Param.Selected);
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Item->Param.Selected);
+	switch(Msg)
+	{
+		case DN_INITDIALOG:
+		{
+			Dialog::SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
+
 			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,1);
 			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,1);
 
-      xf_free(Item);
+			return TRUE;
+		}
 
-      return TRUE;
-    }
-    case DN_BTNCLICK:
-    {
-      string strDataStr;
-			if(Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX)
-      {
-				if(Param2)
+		case DM_SDSETVISIBILITY:
+		{
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Param1);
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Param1);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Param1);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Param1);
+			//Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_REGEXP,!Param1);
+
+			return TRUE;
+		}
+
+		case DN_BTNCLICK:
+		{
+			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
+			{
+				Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+				bool Hex=(Param1==SD_RADIO_HEX);
+
+				string strDataStr;
+				Transform(strDataStr,(const wchar_t *)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0),Hex?L'X':L'S');
+				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)strDataStr.CPtr());
+
+				Dialog::SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Hex,0);
+
+				if(!strDataStr.IsEmpty())
 				{
-					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-					bool Hex=(Param1==SD_RADIO_HEX);
-					_SVS(SysLog(L"Param1=%d",Param1));
-					FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0)));
-					Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,(LONG_PTR)Item);
-					Transform(strDataStr,Item->PtrData,Hex?L'X':L'S');
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
-					xf_free(Item);
-
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Hex);
-					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Hex);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Hex);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Hex);
-
-					if(!strDataStr.IsEmpty())
-					{
-						Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
-					}
-					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-					return TRUE;
+					Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
 				}
-      }
-    }
 
-    case DN_HOTKEY:
-    {
-			if(Param1==SD_TEXT_SEARCH)
-      {
-				FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,0)));
-				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,(LONG_PTR)Item);
-				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Item->Param.Selected?SD_EDIT_HEX:SD_EDIT_TEXT,0);
-        xf_free(Item);
-        return FALSE;
-      }
-    }
-  }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+				Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+
+				return TRUE;
+			}
+		}
+
+		case DN_HOTKEY:
+		{
+			if (Param1==SD_TEXT_SEARCH)
+			{
+				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED)?SD_EDIT_HEX:SD_EDIT_TEXT,0);
+
+				return FALSE;
+			}
+		}
+	}
+
+	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 static void PR_ViewerSearchMsg()
@@ -2178,7 +2175,6 @@ void Viewer::Search(int Next,int FirstChar)
 	SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
 	SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
 	SearchDlg[SD_CHECKBOX_CASE].Selected=LastSearchCase;
-
 	SearchDlg[SD_CHECKBOX_WORDS].Selected=LastSearchWholeWords;
 	SearchDlg[SD_CHECKBOX_REVERSE].Selected=LastSearchReverse;
 	SearchDlg[SD_CHECKBOX_REGEXP].Selected=LastSearchRegexp;
@@ -2194,14 +2190,9 @@ void Viewer::Search(int Next,int FirstChar)
   }
 
 	if(SearchDlg[SD_RADIO_HEX].Selected)
-	{
-		SearchDlg[SD_CHECKBOX_CASE].Flags|=DIF_DISABLE;
 		SearchDlg[SD_EDIT_HEX].strData = strSearchStr;
-	}
 	else
-	{
 		SearchDlg[SD_EDIT_TEXT].strData = strSearchStr;
-	}
 
   if (!Next)
   {
