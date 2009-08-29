@@ -2013,38 +2013,42 @@ void Viewer::ChangeViewKeyBar()
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 
+enum SEARCHDLG
+{
+	SD_DOUBLEBOX,
+	SD_TEXT_SEARCH,
+	SD_EDIT_TEXT,
+	SD_EDIT_HEX,
+	SD_SEPARATOR1,
+	SD_RADIO_TEXT,
+	SD_RADIO_HEX,
+	SD_CHECKBOX_CASE,
+	SD_CHECKBOX_WORDS,
+	SD_CHECKBOX_REVERSE,
+	SD_CHECKBOX_REGEXP,
+	SD_SEPARATOR2,
+	SD_BUTTON_OK,
+	SD_BUTTON_CANCEL,
+};
+
 LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-  FarDialogItem *Item;
-
   switch(Msg)
   {
     case DN_INITDIALOG:
     {
       /* $ 22.09.2003 KM
          Переключение видимости строки ввода искомого текста
-         в зависимости от Dlg->Item[6].Selected
+         в зависимости от Dlg->Item[SD_RADIO_HEX].Selected
       */
-      Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0));
-      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)Item);
-
-      if (Item->Param.Selected)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
-      }
-      else
-      {
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
-      }
-
-      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
-      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,1);
+			FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,0)));
+			Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,(LONG_PTR)Item);
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Item->Param.Selected);
+			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Item->Param.Selected!=0);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Item->Param.Selected);
+			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Item->Param.Selected);
+			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,1);
+			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,1);
 
       xf_free(Item);
 
@@ -2053,75 +2057,42 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
     case DN_BTNCLICK:
     {
       string strDataStr;
-      if(Param1 == 5 || Param1 == 6)
+			if(Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+				if(Param2)
+				{
+					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+					bool Hex=(Param1==SD_RADIO_HEX);
+					_SVS(SysLog(L"Param1=%d",Param1));
+					FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0)));
+					Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,(LONG_PTR)Item);
+					Transform(strDataStr,Item->PtrData,Hex?L'X':L'S');
+					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)(const wchar_t*)strDataStr);
+					xf_free(Item);
 
-        /* $ 22.09.2003 KM
-           Переключение видимости строки ввода искомого текста
-           в зависимости от установленного режима hex search
-        */
-        if (Param1 == 6 && Param2)
-        {
-          _SVS(SysLog(L"Param1=%d",Param1));
-          Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,0));
-          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(LONG_PTR)Item);
-          Transform(strDataStr,Item->PtrData,L'X');
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(LONG_PTR)(const wchar_t*)strDataStr);
-          xf_free(Item);
+					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Hex);
+					Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Hex);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Hex);
+					Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Hex);
 
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
-
-          if (!strDataStr.IsEmpty())
-          {
-            int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
-            Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
-          }
-        }
-
-        if (Param1 == 5 && Param2)
-        {
-          _SVS(SysLog(L"Param1=%d",Param1));
-          Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,0));
-          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,(LONG_PTR)Item);
-          Transform(strDataStr,Item->PtrData,L'S');
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(LONG_PTR)(const wchar_t*)strDataStr);
-          xf_free(Item);
-
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
-
-          if (!strDataStr.IsEmpty())
-          {
-            int UnchangeFlag=(int)Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,-1);
-            Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,UnchangeFlag);
-          }
-        }
-
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-        return TRUE;
+					if(!strDataStr.IsEmpty())
+					{
+						Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
+					}
+					Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+					return TRUE;
+				}
       }
     }
 
     case DN_HOTKEY:
     {
-      if (Param1==1)
+			if(Param1==SD_TEXT_SEARCH)
       {
-        Item = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(LONG_PTR)Item);
-
-        if (Item->Param.Selected)
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,3,0);
-        else
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
-
+				FarDialogItem* Item=reinterpret_cast<FarDialogItem*>(xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,0)));
+				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,SD_RADIO_HEX,(LONG_PTR)Item);
+				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Item->Param.Selected?SD_EDIT_HEX:SD_EDIT_TEXT,0);
         xf_free(Item);
-
         return FALSE;
       }
     }
@@ -2168,6 +2139,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr,int Percent)
    1 - Продолжить поиск со следующей позиции
    2 - Продолжить поиск с начала файла
 */
+
 void Viewer::Search(int Next,int FirstChar)
 {
   const wchar_t *TextHistoryName=L"SearchText";
@@ -2203,31 +2175,33 @@ void Viewer::Search(int Next,int FirstChar)
   else
     strSearchStr=L"";
 
-  SearchDlg[5].Selected=!LastSearchHex;
-  SearchDlg[6].Selected=LastSearchHex;
-  SearchDlg[7].Selected=LastSearchCase;
+	SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
+	SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
+	SearchDlg[SD_CHECKBOX_CASE].Selected=LastSearchCase;
 
-  SearchDlg[8].Selected=LastSearchWholeWords;
-  SearchDlg[9].Selected=LastSearchReverse;
-  SearchDlg[10].Selected=LastSearchRegexp;
+	SearchDlg[SD_CHECKBOX_WORDS].Selected=LastSearchWholeWords;
+	SearchDlg[SD_CHECKBOX_REVERSE].Selected=LastSearchReverse;
+	SearchDlg[SD_CHECKBOX_REGEXP].Selected=LastSearchRegexp;
 
   if (SearchFlags.Check(REVERSE_SEARCH))
-    SearchDlg[9].Selected = !SearchDlg[9].Selected;
+		SearchDlg[SD_CHECKBOX_REVERSE].Selected=!SearchDlg[SD_CHECKBOX_REVERSE].Selected;
 
   if (IsUnicodeCP(VM.CodePage))
   {
-    SearchDlg[5].Selected=TRUE;
-    SearchDlg[6].Flags|=DIF_DISABLE;
-    SearchDlg[6].Selected=FALSE;
+		SearchDlg[SD_RADIO_TEXT].Selected=TRUE;
+		SearchDlg[SD_RADIO_HEX].Flags|=DIF_DISABLE;
+		SearchDlg[SD_RADIO_HEX].Selected=FALSE;
   }
 
-  if(SearchDlg[6].Selected)
-    SearchDlg[7].Flags|=DIF_DISABLE;
-
-  if(SearchDlg[6].Selected)
-    SearchDlg[3].strData = strSearchStr;
-  else
-    SearchDlg[2].strData = strSearchStr;
+	if(SearchDlg[SD_RADIO_HEX].Selected)
+	{
+		SearchDlg[SD_CHECKBOX_CASE].Flags|=DIF_DISABLE;
+		SearchDlg[SD_EDIT_HEX].strData = strSearchStr;
+	}
+	else
+	{
+		SearchDlg[SD_EDIT_TEXT].strData = strSearchStr;
+	}
 
   if (!Next)
   {
@@ -2242,23 +2216,23 @@ void Viewer::Search(int Next,int FirstChar)
       Dlg.ProcessKey(FirstChar);
     }
     Dlg.Process();
-    if (Dlg.GetExitCode()!=11)
+		if (Dlg.GetExitCode()!=SD_BUTTON_OK)
       return;
   }
 
-  SearchHex=SearchDlg[6].Selected;
-  Case=SearchDlg[7].Selected;
-  WholeWords=SearchDlg[8].Selected;
-  ReverseSearch=SearchDlg[9].Selected;
-  SearchRegexp=SearchDlg[10].Selected;
+	SearchHex=SearchDlg[SD_RADIO_HEX].Selected;
+	Case=SearchDlg[SD_CHECKBOX_CASE].Selected;
+	WholeWords=SearchDlg[SD_CHECKBOX_WORDS].Selected;
+	ReverseSearch=SearchDlg[SD_CHECKBOX_REVERSE].Selected;
+	SearchRegexp=SearchDlg[SD_CHECKBOX_REGEXP].Selected;
 
   if(SearchHex)
   {
-    strSearchStr = SearchDlg[3].strData;
+		strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
     RemoveTrailingSpaces(strSearchStr);
   }
   else
-    strSearchStr = SearchDlg[2].strData;
+		strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
 
   strLastSearchStr = strSearchStr;
   LastSearchHex=SearchHex;
