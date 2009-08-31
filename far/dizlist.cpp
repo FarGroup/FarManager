@@ -46,11 +46,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "filestr.hpp"
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 int _cdecl SortDizSearch(const void *key,const void *elem);
-
-#define MAX_DIZ_LENGTH  8192
 
 static DizRecord *SearchDizData;
 
@@ -120,12 +119,13 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
     FILE *DizFile;
     if ((DizFile=_wfopen(strDizFileName,L"rb"))!=NULL)
     {
-      string strDizText;
-      char DizText[MAX_DIZ_LENGTH]; //BUGBUG
+      GetFileString GetStr(DizFile);
+      wchar_t *DizText;
+      int DizLength;
       //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
 
-      while (fgets(DizText,sizeof(DizText),DizFile)!=NULL)
+      while (GetStr.GetString(&DizText, CP_OEMCP, DizLength) > 0) //BUGBUG CP_OEMCP
       {
         if ((DizCount & 127)==0 && clock()-StartTime>1000)
         {
@@ -139,9 +139,8 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
             break;
         }
 
-        strDizText.SetData (DizText, CP_OEMCP); //BUGBUG
-        RemoveTrailingSpaces(strDizText);
-        AddRecord(strDizText);
+        RemoveTrailingSpaces(DizText);
+        AddRecord(DizText);
       }
 
       Modified=0;
