@@ -10189,28 +10189,28 @@ MSetAttrSet
 
 MSetAttrTimeTitle1
 l:
-"ММ%cДД%cГГГГ чч%cмм%cсс"
-"MM%cDD%cYYYY hh%cmm%css"
-"MM%cDD%cRRRR hh%cmm%css"
-"MM%cTT%cJJJJ hh%cmm%css"
-"HH%cNN%cÉÉÉÉ óó%cpp%cmm"
-"MM%cDD%cRRRR gg%cmm%css"
+"ММ%cДД%cГГГГ чч%cмм%cсс%cмс"
+"MM%cDD%cYYYY hh%cmm%css%cms"
+upd:"MM%cDD%cRRRR hh%cmm%css%cms"
+upd:"MM%cTT%cJJJJ hh%cmm%css%cms"
+upd:"HH%cNN%cÉÉÉÉ óó%cpp%cmm%cms"
+upd:"MM%cDD%cRRRR gg%cmm%css%cms"
 
 MSetAttrTimeTitle2
-"ДД%cММ%cГГГГ чч%cмм%cсс"
-"DD%cMM%cYYYY hh%cmm%css"
-"DD%cMM%cRRRR hh%cmm%css"
-"TT%cMM%cJJJJ hh%cmm%css"
-"NN%cHH%cÉÉÉÉ óó%cpp%cmm"
-"DD%cMM%cRRRR gg%cmm%css"
+"ДД%cММ%cГГГГ чч%cмм%cсс%cмс"
+"DD%cMM%cYYYY hh%cmm%css%cms"
+upd:"DD%cMM%cRRRR hh%cmm%css%cms"
+upd:"TT%cMM%cJJJJ hh%cmm%css%cms"
+upd:"NN%cHH%cÉÉÉÉ óó%cpp%cmm%cms"
+upd:"DD%cMM%cRRRR gg%cmm%css%cms"
 
 MSetAttrTimeTitle3
-"ГГГГ%cММ%cДД чч%cмм%cсс"
-"YYYY%cMM%cDD hh%cmm%css"
-"RRRR%cMM%cDD hh%cmm%css"
-"JJJJ%cMM%cTT hh%cmm%css"
-"ÉÉÉÉ%cHH%cNN óó%cpp%cmm"
-"RRRR%cMM%cDD gg%cmm%css"
+"ГГГГ%cММ%cДД чч%cмм%cсс%cмс"
+"YYYY%cMM%cDD hh%cmm%css%cms"
+upd:"RRRR%cMM%cDD hh%cmm%css%cms"
+upd:"JJJJ%cMM%cTT hh%cmm%css%cms"
+upd:"ÉÉÉÉ%cHH%cNN óó%cpp%cmm%cms"
+upd:"RRRR%cMM%cDD gg%cmm%css%cms"
 
 MSetAttrSetting
 l:

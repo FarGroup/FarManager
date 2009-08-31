@@ -354,7 +354,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				{
 					ft=*reinterpret_cast<PFILETIME>(Param2);
 				}
-				ConvertDate(ft,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
+				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,TRUE,TRUE);
 			}
 
 			// Глянем на место, где был клик
@@ -420,113 +420,43 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-int IsFileWritable(const wchar_t *Name,DWORD FileAttr,bool ShowErrMsg,int Msg,int SkipMode)
+bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
 {
-	while(true)
-	{
-		if(FileAttr & FILE_ATTRIBUTE_READONLY)
-		{
-			apiSetFileAttributes(Name,FileAttr&~FILE_ATTRIBUTE_READONLY);
-		}
-		HANDLE hFile= apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
-		bool Writable=true;
-		if(hFile == INVALID_HANDLE_VALUE)
-		{
-			Writable=false;
-		}
-		else
-		{
-			CloseHandle(hFile);
-		}
+	WORD DateN[3]={0},TimeN[4]={0};
+	GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
+	GetFileDateAndTime(OSrcTime,TimeN,countof(TimeN),GetTimeSeparator());
 
-		{
-			GuardLastError err;
-			if(FileAttr & FILE_ATTRIBUTE_READONLY)
-			{
-				apiSetFileAttributes(Name,FileAttr);
-			}
-		}
-
-    if (Writable)
-      break;
-
-    int Code;
-		if(ShowErrMsg)
-    {
-      if(SkipMode!=-1)
-        Code=SkipMode;
-      else
-        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                     MSG(Msg),Name,
-                     MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
-    }
-    else
-       return SETATTR_RET_ERROR;
-
-    switch(Code)
-    {
-    case -2:
-    case -1:
-    case 3:
-      return SETATTR_RET_ERROR;
-    case 1:
-      return SETATTR_RET_SKIP;
-    case 2:
-      return SETATTR_RET_SKIPALL;
-    }
-  }
-  return SETATTR_RET_OK;
-}
-
-bool ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
-{
+	FILETIME *OriginalFileTime=NULL;
+	FAR_FIND_DATA_EX ffd={0};
 	SYSTEMTIME st={0}, ost={0};
 
-	WORD DateN[3]={0},TimeN[3]={0};
-	GetFileDateAndTime(OSrcDate,DateN,GetDateSeparator());
-	GetFileDateAndTime(OSrcTime,TimeN,GetTimeSeparator());
-
-	FILETIME *OriginalFileTime=NULL,OFTModify,OFTCreate,OFTLast;
-	bool DigitCount=false;
-
-  // исключаем лишние телодвижения
-  if(DateN[0] == (WORD)-1 || DateN[1] == (WORD)-1 || DateN[2] == (WORD)-1 ||
-     TimeN[0] == (WORD)-1 || TimeN[1] == (WORD)-1 || TimeN[2] == (WORD)-1)
-  {
-		HANDLE hFile=apiCreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
-		if(hFile!=INVALID_HANDLE_VALUE)
+	if(apiGetFindDataEx(Name,&ffd))
+	{
+		switch(Type)
 		{
-			bool GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify)!=FALSE;
-			CloseHandle(hFile);
-			if(GetTime)
-			{
-				switch(Type)
-				{
-					case 0: // Modif
-						OriginalFileTime=&OFTModify;
-						break;
-					case 1: // Creat
-						OriginalFileTime=&OFTCreate;
-						break;
-					case 2: // Last
-						OriginalFileTime=&OFTLast;
-						break;
-				}
-				FILETIME oft={0};
-				if(FileTimeToLocalFileTime(OriginalFileTime,&oft))
-				{
-					FileTimeToSystemTime(&oft,&ost);
-				}
-				DigitCount=true;
-			}
-			else
-				return false;
+			case 0: // Modif
+				OriginalFileTime=&ffd.ftLastWriteTime;
+				break;
+			case 1: // Creat
+				OriginalFileTime=&ffd.ftCreationTime;
+				break;
+			case 2: // Last
+				OriginalFileTime=&ffd.ftLastAccessTime;
+				break;
 		}
-		else
-			return false;
-  }
-  else
-    DigitCount=false;
+
+		SYSTEMTIME s={0};
+		if(FileTimeToSystemTime(OriginalFileTime,&s))
+		{
+			SystemTimeToFileTime(&s,OriginalFileTime);
+		}
+
+		FILETIME oft={0};
+		if(FileTimeToLocalFileTime(OriginalFileTime,&oft))
+		{
+			FileTimeToSystemTime(&oft,&ost);
+		}
+	}
 
   // "Оформим"
   switch(GetDateFormat())
@@ -547,9 +477,10 @@ bool ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME& FileTime
       st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
       break;
   }
-  st.wHour   = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
-  st.wMinute = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
-  st.wSecond = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
+	st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
+	st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
+	st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
+	st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
 
 	if (st.wYear<100)
   {
@@ -559,23 +490,13 @@ bool ReadFileTime(int Type,const wchar_t *Name,DWORD FileAttr,FILETIME& FileTime
       st.wYear+=1900;
   }
 
-  if(TimeN[0]==(WORD)-1 && TimeN[1]==(WORD)-1 && TimeN[2]==(WORD)-1)
-  {
-    st.wMilliseconds=ost.wMilliseconds;
-    // для правильности выставления wDayOfWeek
-    //SystemTimeToFileTime(&st,&ft);
-    //FileTimeToSystemTime(&ft,&st);
-  }
-
   // преобразование в "удобоваримый" формат
 	FILETIME lft={0};
 	if(SystemTimeToFileTime(&st,&lft))
 	{
 		LocalFileTimeToFileTime(&lft,&FileTime);
 	}
-	if(DigitCount)
-		return CompareFileTime(&FileTime,OriginalFileTime)!=0;
-  return true;
+	return CompareFileTime(&FileTime,OriginalFileTime)!=0;
 }
 
 void PR_ShellSetFileAttributesMsg()
@@ -612,16 +533,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
 		DI_CHECKBOX,5,12,0,12,0,0,DIF_DISABLE,0,MSG(MSetAttrSubfolders),
 		DI_TEXT,3,13,0,13,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_TEXT,DlgX-24,14,0,14,0,0,0,0,L"",
+		DI_TEXT,DlgX-28,14,0,14,0,0,0,0,L"",
 		DI_TEXT,    5,15,0,15,0,0,0,0,MSG(MSetAttrModification),
-		DI_FIXEDIT,DlgX-24,15,DlgX-15,15,0,0,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,DlgX-13,15,DlgX-6,15,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-28,15,DlgX-19,15,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-17,15,DlgX-6,15,0,0,DIF_MASKEDIT,0,L"",
 		DI_TEXT,    5,16,0,16,0,0,0,0,MSG(MSetAttrCreation),
-		DI_FIXEDIT,DlgX-24,16,DlgX-15,16,0,0,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,DlgX-13,16,DlgX-6,16,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-28,16,DlgX-19,16,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,0,DIF_MASKEDIT,0,L"",
 		DI_TEXT,    5,17,0,17,0,0,0,0,MSG(MSetAttrLastAccess),
-		DI_FIXEDIT,DlgX-24,17,DlgX-15,17,0,0,DIF_MASKEDIT,0,L"",
-		DI_FIXEDIT,DlgX-13,17,DlgX-6,17,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-28,17,DlgX-19,17,0,0,DIF_MASKEDIT,0,L"",
+		DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,0,DIF_MASKEDIT,0,L"",
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrOriginal),
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrCurrent),
 		DI_BUTTON,0,18,0,18,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,MSG(MSetAttrBlank),
@@ -690,25 +611,26 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
     if (SelCount==0 || (SelCount==1 && TestParentFolderName(strSelName)))
 			return false;
 
-    int DateSeparator=GetDateSeparator();
-    int TimeSeparator=GetTimeSeparator();
+		wchar_t DateSeparator=GetDateSeparator();
+		wchar_t TimeSeparator=GetTimeSeparator();
+		wchar_t DecimalSeparator=GetDecimalSeparator();
 
-		LPCWSTR FmtMask1=L"99%c99%c99",FmtMask2=L"99%c99%c9999",FmtMask3=L"9999%c99%c99";
+		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999",FmtMask3=L"9999%c99%c99";
 		string strDMask, strTMask;
-		strTMask.Format (FmtMask1,TimeSeparator,TimeSeparator);
+		strTMask.Format (FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
 		switch(GetDateFormat())
 		{
 		case 0:
-			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
 			strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 			break;
 		case 1:
-			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
 			strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 			break;
 		default:
-			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+			AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
 			strDMask.Format(FmtMask3,DateSeparator,DateSeparator);
 			break;
 		}
@@ -755,9 +677,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
         {
           if ( apiGetFindDataEx (strSelName,&FindData) )
           {
-            ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,TRUE,TRUE);
           }
 					if(FileAttr!=INVALID_FILE_ATTRIBUTES)
 					{
@@ -893,7 +815,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 			{
 				for(size_t i=0;i<countof(Dates);i++)
 				{
-					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,8,FALSE,FALSE,TRUE,TRUE);
+					ConvertDate(*TimeValues[i],AttrDlg[Dates[i]].strData,AttrDlg[Times[i]].strData,12,FALSE,FALSE,TRUE,TRUE);
 				}
 			}
 		}
@@ -1000,62 +922,67 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 			// BUGBUG: check errors
 			ModifyReparsePoint(strSelName,AttrDlg[SA_EDIT_SYMLINK].strData);
 		}
-
+		const size_t Times[]={SA_EDIT_MTIME,SA_EDIT_CTIME,SA_EDIT_ATIME};
+		for(size_t i=0;i<countof(Times);i++)
+		{
+			LPWSTR TimePtr=AttrDlg[Times[i]].strData.GetBuffer();
+			TimePtr[8]=GetTimeSeparator();
+			AttrDlg[Times[i]].strData.ReleaseBuffer(AttrDlg[Times[i]].strData.GetLength());
+		}
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellSetFileAttributesMsg);
 		ShellSetFileAttributesMsg(SelCount==1?strSelName.CPtr():NULL);
 		int SkipMode=-1;
 		if(SelCount==1 && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
     {
-      if(IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor,SkipMode) == 1)
-      {
-				DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
-				for(size_t i=0;i<countof(AP);i++)
+			DWORD NewAttr=FileAttr&FILE_ATTRIBUTE_DIRECTORY;
+			for(size_t i=0;i<countof(AP);i++)
+			{
+				if(AttrDlg[AP[i].Item].Selected)
 				{
-					if(AttrDlg[AP[i].Item].Selected)
-					{
-						NewAttr|=AP[i].Attribute;
-					}
+					NewAttr|=AP[i].Attribute;
 				}
-				FILETIME LastWriteTime,CreationTime,LastAccessTime;
-				int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-				int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-				int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-  //_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
-				int SetWriteTimeRetCode=SETATTR_RET_OK;
-				if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+			}
+			FILETIME LastWriteTime,CreationTime,LastAccessTime;
+			int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+			int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+			int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+			//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
+			int SetWriteTimeRetCode=SETATTR_RET_OK;
+			if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+			{
+				SetWriteTimeRetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
+			}
+			//if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
+			if(SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
+			{
+				int Ret=SETATTR_RET_OK;
+				if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
+				else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+					Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
+
+				if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+					Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
+				else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+					Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
+
+				if((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
 				{
-					SetWriteTimeRetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
+					Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
 				}
-  //      if(NewAttr != (FileAttr & (~FILE_ATTRIBUTE_DIRECTORY))) // нужно ли что-нить менять???
-        if(SetWriteTimeRetCode == SETATTR_RET_OK) // если время удалось выставить...
-        {
-          int Ret=SETATTR_RET_OK;
-          if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            Ret=ESetFileCompression(strSelName,1,FileAttr,SkipMode);
-          else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-            Ret=ESetFileCompression(strSelName,0,FileAttr,SkipMode);
-
-          if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            Ret=ESetFileEncryption(strSelName,1,FileAttr,SkipMode);
-          else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-            Ret=ESetFileEncryption(strSelName,0,FileAttr,SkipMode);
-
-					if((NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && !(FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
-					{
-						Ret=ESetFileSparse(strSelName,true,FileAttr,SkipMode);
-					}
-					else if(!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
-					{
-						Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
-					}
-
-					Ret=ESetFileAttributes(strSelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)),SkipMode);
-          if(Ret==SETATTR_RET_SKIPALL)
-            SkipMode=SETATTR_RET_SKIP;
-        }
-        else if(SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
-          SkipMode=SETATTR_RET_SKIP;
-      }
+				else if(!(NewAttr&FILE_ATTRIBUTE_SPARSE_FILE) && (FileAttr&FILE_ATTRIBUTE_SPARSE_FILE))
+				{
+					Ret=ESetFileSparse(strSelName,false,FileAttr,SkipMode);
+				}
+				if((FileAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))!=(NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE)))
+				{
+					Ret=ESetFileAttributes(strSelName,NewAttr&~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE),SkipMode);
+				}
+				if(Ret==SETATTR_RET_SKIPALL)
+					SkipMode=SETATTR_RET_SKIP;
+			}
+			else if(SetWriteTimeRetCode==SETATTR_RET_SKIPALL)
+				SkipMode=SETATTR_RET_SKIP;
     }
 
     /* Multi *********************************************************** */
@@ -1106,33 +1033,20 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 						break;
 				}
 
-        RetCode=IsFileWritable(strSelName,FileAttr,TRUE,MSetAttrCannotFor,SkipMode);
-        if(RetCode==SETATTR_RET_ERROR)
-          break;
-        else if(RetCode == SETATTR_RET_SKIP)
-          continue;
-        else if(RetCode == SETATTR_RET_SKIPALL)
-        {
-          SkipMode=SETATTR_RET_SKIP;
-          continue;
-        }
 				FILETIME LastWriteTime,CreationTime,LastAccessTime;
-				int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,FileAttr,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-        int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,FileAttr,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-        int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,FileAttr,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-        if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
-        {
-					RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
-          if(RetCode == SETATTR_RET_ERROR)
-            break;
-          else if(RetCode == SETATTR_RET_SKIP)
-            continue;
-          else if(RetCode == SETATTR_RET_SKIPALL)
-          {
-            SkipMode=SETATTR_RET_SKIP;
-            continue;
-          }
-        }
+				int SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+        int SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+        int SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+				RetCode=SkipMode==-1?ESetFileTime(strSelName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FileAttr,SkipMode):SkipMode;
+				if(RetCode == SETATTR_RET_ERROR)
+					break;
+				else if(RetCode == SETATTR_RET_SKIP)
+					continue;
+				else if(RetCode == SETATTR_RET_SKIPALL)
+				{
+					SkipMode=SETATTR_RET_SKIP;
+					continue;
+				}
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
 					if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_3STATE)
@@ -1215,23 +1129,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 							}
 						}
 
-            RetCode=IsFileWritable(strFullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor,SkipMode);
-            if(RetCode==SETATTR_RET_ERROR)
-            {
-							Cancel=true;
-              break;
-            }
-            else if(RetCode == SETATTR_RET_SKIP)
-              continue;
-            else if(RetCode == SETATTR_RET_SKIPALL)
-            {
-              SkipMode=SETATTR_RET_SKIP;
-              continue;
-            }
-
-            SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,FindData.dwFileAttributes,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
-            SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,FindData.dwFileAttributes,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,FindData.dwFileAttributes,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
+            SetWriteTime=     DlgParam.OLastWriteTime  && ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_MDATE].strData,AttrDlg[SA_EDIT_MTIME].strData);
+            SetCreationTime=  DlgParam.OCreationTime   && ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
+            SetLastAccessTime=DlgParam.OLastAccessTime && ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
             if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
 							RetCode=ESetFileTime(strFullName,SetWriteTime?&LastWriteTime:NULL,SetCreationTime?&CreationTime:NULL,SetLastAccessTime?&LastAccessTime:NULL,FindData.dwFileAttributes,SkipMode);
@@ -1267,7 +1167,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
                   continue;
                 }
               }
-              if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 2) // +E -C
+              if (AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=BSTATE_3STATE) // +E -C
               {
                 if(AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
                 {

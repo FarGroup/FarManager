@@ -1525,8 +1525,8 @@ rule sets.
                    The #Compressed#, #Encrypted#, #Not indexed#,
                    #Sparse#, #Temporary# and #Offline# attributes
                    are used only on disks with the NTFS file system.
-                   #Virtual# attribute is used only in Windows
-                   Vista/2008/7.
+                   #Virtual# attribute is not used in Windows
+                   2000/XP/2003.
 
 
     To quickly disable one or several conditions, uncheck the corresponding
@@ -2928,11 +2928,11 @@ folders, all checkboxes will always be 3-state.
     Only those attributes will be changed for which the state of the
 corresponding checkboxes was changed from the initial state.
 
-    The "Compressed", "Encrypted", "Not indexed", "Sparse", "Temporary",
-"Offline" and "Virtual" attributes are available only on NTFS drives. The
-"Virtual" attribute can be used in Windows Vista/2008/7 only. The "Compressed"
-and "Encrypted" attributes are mutually exclusive, that is, you can set only
-one of them. You cannot clear the "Sparse" attribute in Windows 2000/XP/2003.
+    The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
+#Offline# and #Virtual# attributes are available only on NTFS drives. The
+#Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
+and #Encrypted# attributes are mutually exclusive, that is, you can set only
+one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder
 information (NTFS only). If the information on the original folder is not
@@ -2949,7 +2949,7 @@ available (in particular, for symbolic links in remote folders), then the
 
     - last access time.
 
-    On FAT drives the hours, minutes and seconds of the last access time are
+    On FAT drives the hours, minutes, seconds and milliseconds of the last access time are
 always equal to zero.
 
     If you do not want to change the file time, leave the respective field
@@ -2962,8 +2962,6 @@ unchanged.
 
     The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
-
-    For ~symbolic links~@HardSymLink@ the date and time cannot be set.
 
 
 @FolderShortcuts

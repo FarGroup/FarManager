@@ -102,7 +102,7 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t P
 bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
-	HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+	HANDLE hObject=apiCreateFile(Object,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 	if(hObject!=INVALID_HANDLE_VALUE)
 	{
 		DWORD dwBytesReturned;
@@ -214,7 +214,7 @@ bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 	DWORD ReparseTag;
 	string strTmp;
 	GetReparsePointInfo(Object,strTmp,&ReparseTag);
-	HANDLE hObject=apiCreateFile(Object,GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT);
+	HANDLE hObject=apiCreateFile(Object,GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 	if(hObject!=INVALID_HANDLE_VALUE)
 	{
 		REPARSE_GUID_DATA_BUFFER rgdb={ReparseTag};
@@ -235,7 +235,7 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	*/
 	if(FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && IsLocalDrive(Object))
 	{
-		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT);
+		HANDLE hObject=apiCreateFile(Object,0,0,NULL,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT);
 		if (hObject!=INVALID_HANDLE_VALUE)
 		{
 			DWORD dwBytesReturned;
@@ -381,7 +381,7 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
   int StreamsCount=-1;
 
   HANDLE hFile = FAR_CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
-                     OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+                     OPEN_EXISTING, 0, NULL);
   if (hFile != INVALID_HANDLE_VALUE)
   {
     // Prepare for execution

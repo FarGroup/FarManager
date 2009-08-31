@@ -549,22 +549,34 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 	return A.QuadPart;
 }
 
-void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,int Separator)
+void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator)
 {
-  string strDigit;
-  Dst[0]=Dst[1]=Dst[2]=(WORD)-1;
-  int I=0;
-  const wchar_t *Ptr=Src;
-  while((Ptr=GetCommaWord(Ptr,strDigit,Separator)) != NULL)
-  {
-    const wchar_t *PtrDigit=strDigit;
-    while (*PtrDigit && !iswdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      Dst[I]=_wtoi(PtrDigit);
-    if(++I > 2) //не должно быть больше трёх чисел
-      break;
-  }
+	for(size_t i=0;i<Count;i++)
+	{
+		Dst[i]=(WORD)-1;
+	}
+	string strDigit;
+	const wchar_t *Ptr=Src;
+	for(size_t i=0;i<Count;i++)
+	{
+		Ptr=GetCommaWord(Ptr,strDigit,Separator);
+		if(Ptr)
+		{
+			const wchar_t *PtrDigit=strDigit;
+			while(*PtrDigit&&!iswdigit(*PtrDigit))
+			{
+				PtrDigit++;
+			}
+			if(*PtrDigit)
+			{
+				Dst[i]=_wtoi(PtrDigit);
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
@@ -573,8 +585,8 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	SYSTEMTIME st={0};
 
   // Преобразуем введённые пользователем дату и время
-  GetFileDateAndTime(CDate,DateN,DateSeparator);
-  GetFileDateAndTime(CTime,TimeN,TimeSeparator);
+  GetFileDateAndTime(CDate,DateN,countof(DateN),DateSeparator);
+  GetFileDateAndTime(CTime,TimeN,countof(TimeN),TimeSeparator);
 
   if (!bRelative)
   {
@@ -646,21 +658,25 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {
-  static int WDateFormat,WDateSeparator,WTimeSeparator;
-  static int Init=FALSE;
+  static int WDateFormat;
+	static wchar_t WDateSeparator,WTimeSeparator,WDecimalSeparator;
+	static bool Init=false;
   static SYSTEMTIME lt;
-  int DateFormat,DateSeparator,TimeSeparator;
+  int DateFormat;
+	wchar_t DateSeparator,TimeSeparator,DecimalSeparator;
   if (!Init)
   {
     WDateFormat=GetDateFormat();
     WDateSeparator=GetDateSeparator();
     WTimeSeparator=GetTimeSeparator();
+		WDecimalSeparator=GetDecimalSeparator();
     GetLocalTime(&lt);
-    Init=TRUE;
+		Init=true;
   }
   DateFormat=DynInit?GetDateFormat():WDateFormat;
   DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
   TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
+	DecimalSeparator=DynInit?GetDecimalSeparator():WDecimalSeparator;
 
   int CurDateFormat=DateFormat;
   if (Brief && CurDateFormat==2)
@@ -695,8 +711,8 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
     else
     {
       string strFullTime;
-      strFullTime.Format (L"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
-              st.wMinute,TimeSeparator,st.wSecond,st.wMilliseconds);
+      strFullTime.Format (L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
+              st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
       strTimeText.Format (L"%.*s",TimeLength, (const wchar_t*)strFullTime);
     }
   }

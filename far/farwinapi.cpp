@@ -61,11 +61,11 @@ HANDLE apiCreateFile (
 		HANDLE hTemplateFile          // handle to file with attributes to copy
 		)
 {
-	DWORD Flags=dwFlagsAndAttributes;
 	if(dwCreationDistribution==OPEN_EXISTING)
 	{
-		Flags|=FILE_FLAG_POSIX_SEMANTICS;
+		dwFlagsAndAttributes|=FILE_FLAG_POSIX_SEMANTICS;
 	}
+	dwFlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS;
 
 	string strName(NTPath(lpwszFileName).Str);
 
@@ -75,13 +75,13 @@ HANDLE apiCreateFile (
 			dwShareMode,
 			lpSecurityAttributes,
 			dwCreationDistribution,
-			Flags,
+			dwFlagsAndAttributes,
 			hTemplateFile
 			);
-
-	if(hFile==INVALID_HANDLE_VALUE)
+	DWORD Error=GetLastError();
+	if(hFile==INVALID_HANDLE_VALUE && (Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND))
 	{
-		Flags&=~FILE_FLAG_POSIX_SEMANTICS;
+		dwFlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
 		hFile=CreateFile (
 				strName,
 				dwDesiredAccess,
@@ -421,7 +421,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 			{
 				pFindData->Clear();
 				pFindData->dwFileAttributes=dwAttr;
-				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,(pFindData->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)?FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
 				if(hFile!=INVALID_HANDLE_VALUE)
 				{
 					GetFileTime(hFile,&pFindData->ftCreationTime,&pFindData->ftLastAccessTime,&pFindData->ftLastWriteTime);
@@ -690,7 +690,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 	{
 		if(InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
 		{
-			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
+			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
 			if(hFile!=INVALID_HANDLE_VALUE)
 			{
 				const size_t Size=sizeof(ULONG)+(64<<10);

@@ -1221,3 +1221,11 @@ void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType)
   }
   strBuffer=strTemp;
 }
+
+wchar_t GetDecimalSeparator()
+{
+	wchar_t Separator[4];
+	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator,countof(Separator));
+	return *Separator;
+}
+

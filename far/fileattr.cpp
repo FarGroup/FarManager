@@ -77,7 +77,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 {
   HANDLE hFile=apiCreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
                  FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
-                 FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_SEQUENTIAL_SCAN);
+                 FILE_FLAG_SEQUENTIAL_SCAN);
   if (hFile==INVALID_HANDLE_VALUE)
     return(FALSE);
   USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
@@ -211,7 +211,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 
     HANDLE hFile=apiCreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
-                 (FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? FILE_FLAG_BACKUP_SEMANTICS:0);
+                 FILE_FLAG_OPEN_REPARSE_POINT);
     int SetTime;
     DWORD LastError=0;
     if (hFile==INVALID_HANDLE_VALUE)
@@ -264,7 +264,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 static bool SetFileSparse(const wchar_t *Name,bool State)
 {
 	bool Ret=false;
-	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS);
+	HANDLE hFile=apiCreateFile(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
 	if(hFile!=INVALID_HANDLE_VALUE)
 	{
 		DWORD BytesReturned;

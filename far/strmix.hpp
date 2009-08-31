@@ -108,4 +108,6 @@ string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 
 void Transform(string &strBuffer,const wchar_t *ConvStr,wchar_t TransformType);
 
+wchar_t GetDecimalSeparator();
+
 #endif  // __STRMIX_HPP__
