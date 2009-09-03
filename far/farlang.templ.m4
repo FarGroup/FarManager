@@ -7760,12 +7760,12 @@ MFindCancel
 
 MFindFound
 l:
-"Найдено"
-"Found"
-"Nalezeno"
-"Gefunden"
-"Találat"
-"Znalazłem"
+" Файлов: %d, папок: %d "
+" Files: %d, folders: %d "
+" Souborů: %d, adresářů: %d "
+" Dateien: %d, Ordner: %d "
+" Fájlt: %d, mappát: %d "
+" Plików: %d, folderów: %d "
 
 MFindFileFolder
 l:

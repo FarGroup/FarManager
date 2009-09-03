@@ -119,8 +119,10 @@ int SearchFromChanged;
 int DlgWidth, DlgHeight;
 volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount;
 string strFindMessage;
+string strFindPercentMessage;
 string strLastDirName;
 int FindMessageReady,FindCountReady,FindPositionChanged;
+bool FindMessagePercentReady;
 string strPluginSearchPath;
 
 int RecurseLevel;
@@ -231,6 +233,7 @@ enum FINDDLG
 	FD_LISTBOX,
 	FD_SEPARATOR1,
 	FD_TEXT_STATUS,
+	FD_TEXT_STATUS_PERCENTS,
 	FD_SEPARATOR2,
 	FD_BUTTON_NEW,
 	FD_BUTTON_GOTO,
@@ -1060,9 +1063,25 @@ int LookForString(const wchar_t *Name)
 	if (SearchHex)
 		offset = (int)hexFindStringSize-1;
 
+	UINT64 FileSize=0;
+	apiGetFileSizeEx(fileHandle,FileSize);
+	if(SearchInFirst)
+	{
+		FileSize=Min(SearchInFirst,FileSize);
+	}
+	UINT LastPercents=0;
 	// Основной цикл чтения из файла
 	while (!StopSearch && ReadFile(fileHandle,readBufferA,(!SearchInFirst || alreadyRead+readBufferSizeA<=SearchInFirst)?readBufferSizeA:static_cast<DWORD>(SearchInFirst-alreadyRead),&readBlockSize,NULL))
 	{
+		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
+		if(Percents!=LastPercents)
+		{
+			statusCS.Enter();
+			strFindPercentMessage.Format(L"%3d%%",Percents);
+			statusCS.Leave();
+			FindMessagePercentReady=true;
+			LastPercents=Percents;
+		}
 		// Увеличиваем счётчик прочитыннх байт
 		alreadyRead += readBlockSize;
 		// Для hex и обыкновенного поиска разные ветки
@@ -1802,6 +1821,11 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				{
 					rect.Right += IncX;
 				}
+				else if(i==FD_TEXT_STATUS_PERCENTS)
+				{
+					rect.Right+=IncX;
+					rect.Left+=IncX;
+				}
 				rect.Top += IncY;
 				Dialog::SendDlgMessage(hDlg, DM_SETITEMPOSITION, i, reinterpret_cast<LONG_PTR>(&rect));
 			}
@@ -1870,16 +1894,17 @@ bool FindFiles::FindFilesProcess()
 	DlgHeight = ScrY + 1 - 2;
 	DialogDataEx FindDlgData[]=
 	{
-		/* 00 */DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,0,DIF_SHOWAMPERSAND,0,strTitle,
-		/* 01 */DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,0,DIF_LISTNOBOX,0,0,
-		/* 02 */DI_TEXT,0,DlgHeight-6,0,DlgHeight-6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
-		/* 03 */DI_TEXT,5,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
-		/* 04 */DI_TEXT,0,DlgHeight-4,0,DlgHeight-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		/* 05 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,1,0,DIF_CENTERGROUP,1,MSG(MFindNewSearch),
-		/* 06 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindGoTo),
-		/* 07 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindView),
-		/* 08 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindPanel),
-		/* 09 */DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindStop),
+		DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,0,DIF_SHOWAMPERSAND,0,strTitle,
+		DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,0,DIF_LISTNOBOX,0,0,
+		DI_TEXT,0,DlgHeight-6,0,DlgHeight-6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,L"",
+		DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.IsEmpty()?6:12),DlgHeight-5,0,0,DIF_SHOWAMPERSAND,0,strSearchStr,
+		DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-4,0,0,(strFindStr.IsEmpty()?DIF_HIDDEN:0),0,L"",
+		DI_TEXT,0,DlgHeight-4,0,DlgHeight-4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,1,0,DIF_CENTERGROUP,1,MSG(MFindNewSearch),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindGoTo),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindView),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindPanel),
+		DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,0,DIF_CENTERGROUP,0,MSG(MFindStop),
 	};
 
   MakeDialogItemsEx(FindDlgData,FindDlg);
@@ -1916,8 +1941,7 @@ bool FindFiles::FindFilesProcess()
 	}
 	if(!AnySetFindList)
 	{
-		FindDlg[FD_BUTTON_PANEL].Type=DI_TEXT;
-		FindDlg[FD_BUTTON_PANEL].strData=L"";
+		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
 	Dialog Dlg=Dialog(FindDlg,countof(FindDlg),FindDlgProc);
@@ -1939,6 +1963,8 @@ bool FindFiles::FindFilesProcess()
   FindMessageReady=FindCountReady=FindPositionChanged=0;
   strLastDirName = L"";
   strFindMessage = L"";
+	strFindPercentMessage=L"";
+	FindMessagePercentReady=false;
 
 	HANDLE Threads[]={NULL,NULL};
 
@@ -2361,11 +2387,14 @@ void _cdecl FindFiles::DoPrepareFileList(HANDLE hDlg,string& strRoot, FAR_FIND_D
 
     delete strPathEnv;
 
-    while (!StopSearch && FindMessageReady)
+    while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
 		{
 			Sleep(1);
 		}
     statusCS.Enter ();
+
+		strFindPercentMessage=L"";
+		FindMessagePercentReady=true;
 
     strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
 
@@ -2702,13 +2731,16 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal
         SearchMode==FFSEARCH_INPATH)
       CtrlObject->Plugins.SetDirectory(hPlugin,strSaveDir,OPM_FIND);
     ReleaseMutex(hPluginMutex);
-    while (!StopSearch && FindMessageReady)
+    while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
 		{
 			Sleep(1);
 		}
 		if(!Internal)
     {
       statusCS.Enter();
+
+			strFindPercentMessage=L"";
+			FindMessagePercentReady=true;
 
       strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
       FindMessageReady=TRUE;
@@ -2860,6 +2892,7 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 
 	Dialog* Dlg=reinterpret_cast<Dialog*>(Param);
 	HANDLE hDlg=reinterpret_cast<HANDLE>(Param);
+	DWORD StartTime=GetTickCount();
 	if(Dlg)
 	{
   while( true )
@@ -2871,11 +2904,17 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 			if (BreakMainThread)
         StopSearch=TRUE;
 
+			DWORD CurTime=GetTickCount();
+			if(CurTime-StartTime<RedrawTimeout)
+			{
+				continue;
+			}
+			StartTime=CurTime;
       if (FindCountReady)
       {
         statusCS.Enter ();
 
-        strDataStr.Format (L" %s: %d ", MSG(MFindFound),FindFileCount+FindDirCount);
+				strDataStr.Format (MSG(MFindFound),FindFileCount,FindDirCount);
 
         statusCS.Leave ();
 
@@ -2942,7 +2981,14 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 
         FindMessageReady=FALSE;
       }
-
+			if(FindMessagePercentReady)
+			{
+				statusCS.Enter();
+				strDataStr=strFindPercentMessage;
+				statusCS.Leave();
+				Dialog::SendDlgMessage(hDlg, DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS,reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
+				FindMessagePercentReady=false;
+			}
       if (LastFoundNumber && ListBox)
       {
         LastFoundNumber=0;
@@ -2952,7 +2998,7 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
       }
     }
 
-    if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
+		if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber &&!FindMessagePercentReady)
         break;
 
 		Sleep(1);
