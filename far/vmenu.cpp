@@ -1732,14 +1732,12 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 
 int VMenu::GetUserDataSize(int Position)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (ItemCount==0)
-    return(0);
-
-  int DataSize=Item[GetItemPosition(Position)]->UserDataSize;
-
-  return(DataSize);
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return 0;
+	return Item[ItemPos]->UserDataSize;
 }
 
 int VMenu::_SetUserData(MenuItemEx *PItem,
@@ -2131,36 +2129,39 @@ int VMenu::GetItemPosition(int Position)
 
 int VMenu::GetSelection(int Position)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (ItemCount==0)
-    return(0);
-
-  int DataPos=GetItemPosition(Position);
-  if (Item[DataPos]->Flags&LIF_SEPARATOR)
-    return(0);
-  int Checked=Item[DataPos]->Flags&0xFFFF;
-  return((Item[DataPos]->Flags&LIF_CHECKED)?(Checked?Checked:1):0);
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return 0;
+	if (Item[ItemPos]->Flags & LIF_SEPARATOR)
+		return 0;
+	if (!(Item[ItemPos]->Flags & LIF_CHECKED))
+		return 0;
+	int Checked = Item[ItemPos]->Flags & 0xFFFF;
+	return Checked ? Checked : 1;
 }
 
 
 void VMenu::SetSelection(int Selection,int Position)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (ItemCount==0)
-    return;
-  Item[GetItemPosition(Position)]->SetCheck(Selection);
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return;
+	Item[ItemPos]->SetCheck(Selection);
 }
 
 // Функция GetItemPtr - получить указатель на нужный Item.
 MenuItemEx *VMenu::GetItemPtr(int Position)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (ItemCount==0)
-    return NULL;
-  return Item[GetItemPosition(Position)];
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return NULL;
+	return Item[ItemPos];
 }
 
 wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
@@ -2570,28 +2571,23 @@ int VMenu::SetUserData(LPCVOID Data,   // Данные
                        int Size,     // Размер, если =0 то предполагается, что в Data-строка
                        int Position) // номер итема
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  if (ItemCount==0 || Position < 0)
-    return(0);
-
-  int DataSize=VMenu::_SetUserData(Item[GetItemPosition(Position)],Data,Size);
-
-  return DataSize;
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return 0;
+	return _SetUserData(Item[ItemPos], Data, Size);
 }
 
 // Получить данные
 void* VMenu::GetUserData(void *Data,int Size,int Position)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  void *PtrData=NULL;
-  if (ItemCount || Position < 0)
-  {
-    if((Position=GetItemPosition(Position)) >= 0)
-      PtrData=VMenu::_GetUserData(Item[Position],Data,Size);
-  }
-  return(PtrData);
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0)
+		return NULL;
+	return _GetUserData(Item[ItemPos], Data, Size);
 }
 
 void VMenu::Process()
@@ -2664,6 +2660,8 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
 }
 
 int VMenu::GetMaxLineWidth() const {
+	CriticalSectionLock Lock(CS);
+
 	int width = X2 - X1 + 1;
 	if (BoxType != NO_BOX)
 		width -= 2; // frame

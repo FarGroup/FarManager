@@ -213,10 +213,9 @@ class VMenu: public Modal
     int DialogItemID;
     FARWINDOWPROC VMenuProc;      // функция обработки меню
 
-    CRITICAL_SECTION CSection;
     ConsoleTitle *OldTitle;     // предыдущий заголовок
 
-    CriticalSection CS;
+    mutable CriticalSection CS;
 		bool *Used;
 
   protected:
