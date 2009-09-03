@@ -92,7 +92,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   LastSearchReverse=GlobalSearchReverse;
   LastSearchSelFound=Opt.EdOpt.SearchSelFound;
   LastSearchRegexp=Opt.EdOpt.SearchRegexp;
-  SuccessfulSearch=0;
 
   Pasting=0;
   NumLine=0;
@@ -1326,14 +1325,6 @@ int Editor::ProcessKey(int Key)
       }
       _SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
     }
-  }
-
-  if( Key != KEY_F7 && Key != KEY_SHIFTF7 && Key != KEY_ALTF7 &&
-      Key != KEY_SHIFT && Key != KEY_CTRL && Key != KEY_ALT &&
-      Key != KEY_RCTRL && Key != KEY_RALT )
-  {
-    // Reset flag to allow search from cursor position
-    SuccessfulSearch = 0;
   }
 
   switch(Key)
@@ -3773,7 +3764,6 @@ BOOL Editor::Search(int Next)
   string strMsgStr;
   const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
   int CurPos,Case,WholeWords,ReverseSearch,SelectFound,Regexp,Match,NewNumLine,UserBreak;
-  int iPosCorrection = 0;
 
   if (Next && strLastSearchStr.IsEmpty() )
     return TRUE;
@@ -3794,12 +3784,6 @@ BOOL Editor::Search(int Next)
                    &Case,&WholeWords,&ReverseSearch,&SelectFound,&Regexp,L"EditorSearch"))
       return FALSE;
 
-  // Cheack if need to modify current pos
-  /* CHECK!!!: for Shift-F7, "[x] regexp" & "[x] sel"
-  if( LastSearchSelFound && SuccessfulSearch )
-    iPosCorrection = (int)strLastSearchStr.GetLength();
-  */
-
   strLastSearchStr = strSearchStr;
   strLastReplaceStr = strReplaceStr;
 
@@ -3814,7 +3798,7 @@ BOOL Editor::Search(int Next)
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
-  if(!EdOpt.PersistentBlocks || SelectFound)
+  if (!EdOpt.PersistentBlocks || SelectFound)
     UnmarkBlock();
 
   {
@@ -3826,18 +3810,8 @@ BOOL Editor::Search(int Next)
     SetCursorType(FALSE,-1);
 
     Match=0;
-    SuccessfulSearch=0;
     UserBreak=0;
     CurPos=CurLine->GetCurPos();
-
-    // Modify current position in 'select found' mode
-    /* CHECK!!!: for Shift-F7, "[x] regexp" & "[x] sel"
-    if( iPosCorrection != 0 )
-    {
-      CurPos -= (iPosCorrection);
-      CurLine->SetCurPos( CurPos );
-    }
-    */
 
     /* $ 16.10.2000 tran
        CurPos увеличивается при следующем поиске
@@ -3895,7 +3869,7 @@ BOOL Editor::Search(int Next)
       int SearchLength=0;
       if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
       {
-        if( SelectFound )
+        if ( SelectFound )
         {
           Pasting++;
           Lock ();
@@ -3907,12 +3881,6 @@ BOOL Editor::Search(int Next)
           CurPtr->Select( iFoundPos, iFoundPos+SearchLength );
           BlockStart = CurPtr;
           BlockStartLine = NewNumLine;
-          if (!ReplaceMode)
-          {
-            // Set cursor after selection
-            iFoundPos += SearchLength;
-            CurPtr->SetCurPos(iFoundPos);
-          }
 
           Unlock ();
           Pasting--;
@@ -4099,7 +4067,7 @@ BOOL Editor::Search(int Next)
             Pasting--;
           }
         }
-        SuccessfulSearch=Match=1;
+        Match=1;
         if (!ReplaceMode)
           break;
         CurPos=CurLine->GetCurPos();
