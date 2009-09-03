@@ -3795,8 +3795,10 @@ BOOL Editor::Search(int Next)
       return FALSE;
 
   // Cheack if need to modify current pos
+  /* CHECK!!!: for Shift-F7, "[x] regexp" & "[x] sel"
   if( LastSearchSelFound && SuccessfulSearch )
     iPosCorrection = (int)strLastSearchStr.GetLength();
+  */
 
   strLastSearchStr = strSearchStr;
   strLastReplaceStr = strReplaceStr;
@@ -3829,11 +3831,13 @@ BOOL Editor::Search(int Next)
     CurPos=CurLine->GetCurPos();
 
     // Modify current position in 'select found' mode
+    /* CHECK!!!: for Shift-F7, "[x] regexp" & "[x] sel"
     if( iPosCorrection != 0 )
     {
       CurPos -= (iPosCorrection);
       CurLine->SetCurPos( CurPos );
     }
+    */
 
     /* $ 16.10.2000 tran
        CurPos увеличивается при следующем поиске
