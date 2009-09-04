@@ -1835,7 +1835,7 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				pCoord->X = DlgWidth;
 				pCoord->Y = DlgHeight;
 				Dialog::SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, reinterpret_cast<LONG_PTR>(pCoord));
-			}	
+			}
 
 			for (int i = 0;i <= FD_BUTTON_STOP; i++)
 			{
@@ -2907,6 +2907,7 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
 			DWORD CurTime=GetTickCount();
 			if(CurTime-StartTime<RedrawTimeout)
 			{
+				Sleep(1); //иначе крутим почти пустой цикл и жрём процессор.
 				continue;
 			}
 			StartTime=CurTime;
