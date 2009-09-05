@@ -215,7 +215,7 @@ class VMenu: public Modal
 
     ConsoleTitle *OldTitle;     // предыдущий заголовок
 
-    mutable CriticalSection CS;
+    CriticalSection CS;
 		bool *Used;
 
   protected:
@@ -228,6 +228,8 @@ class VMenu: public Modal
     int LastAddedItem;
 
     BYTE Colors[VMENU_COLOR_COUNT];
+
+    int MaxLineWidth;
 
   public:
     Frame *FrameFromLaunched;
@@ -337,8 +339,6 @@ class VMenu: public Modal
 
     int GetVDialogItemID() const {return DialogItemID;};
     void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
-
-    int GetMaxLineWidth() const;
 
   public:
     static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);

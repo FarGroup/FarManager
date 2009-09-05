@@ -425,6 +425,34 @@ void VMenu::ShowMenu(int IsParent)
 {
   CriticalSectionLock Lock(CS);
 
+	int MaxItemLength = 0;
+	bool HasRightScroll = false;
+	bool HasSubMenus = false;
+	for (int i = 0; i < ItemCount; i++)
+	{
+	 	int ItemLen;
+		if (CheckFlags(VMENU_SHOWAMPERSAND))
+			ItemLen = static_cast<int>(Item[i]->strName.GetLength());
+		else
+			ItemLen = HiStrlen(Item[i]->strName);
+		if (ItemLen > MaxItemLength)
+			MaxItemLength = ItemLen;
+		if (Item[i]->Flags & MIF_SUBMENU)
+			HasSubMenus = true;
+	}
+
+	MaxLineWidth = X2 - X1 + 1;
+	if (BoxType != NO_BOX)
+		MaxLineWidth -= 2; // frame
+	MaxLineWidth -= 2; // check mark + left horz. scroll
+	if (!CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) && HasSubMenus)
+		MaxLineWidth -= 3; // sub menu arrow
+	if (MaxItemLength > MaxLineWidth)
+	{
+		HasRightScroll = true;
+		MaxLineWidth -= 1; // right horz. scroll
+	}	
+
   string strTmpStr;
 
   wchar_t BoxChar[2]={0};
@@ -665,9 +693,9 @@ void VMenu::ShowMenu(int IsParent)
 					strMItemPtrLen = HiStrlen(strMItemPtr);
 
 				// fit menu string into available space
-				if (strMItemPtrLen > GetMaxLineWidth())
+				if (strMItemPtrLen > MaxLineWidth)
 				{
-					strMItemPtr.SetLength(HiFindRealPos(strMItemPtr, GetMaxLineWidth(), VMFlags.Check(VMENU_SHOWAMPERSAND)));
+					strMItemPtr.SetLength(HiFindRealPos(strMItemPtr, MaxLineWidth, VMFlags.Check(VMENU_SHOWAMPERSAND)));
 				}
 
 				// set highlight
@@ -688,13 +716,13 @@ void VMenu::ShowMenu(int IsParent)
 				if (Item[I]->Flags & MIF_SUBMENU)
 				{
 					// append padding if needed
-					if (strMItemPtrLen < GetMaxLineWidth())
+					if (strMItemPtrLen < MaxLineWidth)
 					{
+						int PaddingSize = MaxLineWidth - strMItemPtrLen + (HasRightScroll ? 1 : 0) + 1;
 						string strPadding;
-						strPadding.Format(L"%*c", GetMaxLineWidth()-strMItemPtrLen, L' ');
+						strPadding.Format(L"%*c", PaddingSize, L' ');
 						strMenuLine.Append(strPadding);
 					}
-					strMenuLine.Append(L' '); // right scroller (>>) placeholder
 					strMenuLine.Append(L'\x25BA'); // sub menu arrow
 				}
 
@@ -734,12 +762,12 @@ void VMenu::ShowMenu(int IsParent)
 					BoxText(L'\xab'); // '<<'
 				}
 
-				if (strMItemPtrLen > GetMaxLineWidth())
+				if (strMItemPtrLen > MaxLineWidth)
 				{
 					//if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
 					//	GotoXY(WhereX()-1,Y);
 					//else
-						GotoXY(X1+2+GetMaxLineWidth()+1,Y);
+						GotoXY(X1+2+MaxLineWidth+1,Y);
 					BoxText(L'\xbb');// '>>'
 				}
 			}
@@ -892,7 +920,7 @@ BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 	else
 		_len=HiStrlen(Item[Pos]->strName);
 
-	if(_len < GetMaxLineWidth() ||
+	if(_len < MaxLineWidth ||
 			(Direct < 0 && ItemShowPos==0) ||
 			(Direct > 0 && ItemShowPos > _len))
 		return FALSE;
@@ -912,8 +940,8 @@ BOOL VMenu::ShiftItemShowPos(int Pos,int Direct)
 	if(ItemShowPos < 0)
 		ItemShowPos=0;
 
-	if (ItemShowPos + GetMaxLineWidth() > _len)
-		ItemShowPos = _len - GetMaxLineWidth();
+	if (ItemShowPos + MaxLineWidth > _len)
+		ItemShowPos = _len - MaxLineWidth;
 
 	if(ItemShowPos != Item[Pos]->ShowPos)
 	{
@@ -1181,8 +1209,8 @@ int VMenu::ProcessKey(int Key)
           else
             _len=HiStrlen(Item[I]->strName);
 
-          if(_len >= GetMaxLineWidth())
-            Item[I]->ShowPos = _len - GetMaxLineWidth();
+          if(_len >= MaxLineWidth)
+            Item[I]->ShowPos = _len - MaxLineWidth;
         }
       }
 
@@ -2657,16 +2685,4 @@ LONG_PTR WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR
   if(hVMenu)
     return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
   return 0;
-}
-
-int VMenu::GetMaxLineWidth() const {
-	CriticalSectionLock Lock(CS);
-
-	int width = X2 - X1 + 1;
-	if (BoxType != NO_BOX)
-		width -= 2; // frame
-	width -= 3; // check mark + horz. scroll
-	if (!CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
-		width -= 2; // sub menu arrow
-	return width;
 }
