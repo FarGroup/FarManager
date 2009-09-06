@@ -74,7 +74,7 @@ static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int StaticSortNumeric;
-static int TreeCmp(const wchar_t *Str1, const wchar_t *Str2);
+static int TreeCmp(const wchar_t *Str1,const wchar_t *Str2, int Numeric, int CaseSensitive);
 static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
@@ -1841,47 +1841,68 @@ int TreeList::GetFileName(string &strName,int Pos,DWORD &FileAttr)
   return TRUE;
 }
 
-
 int _cdecl SortList(const void *el1,const void *el2)
 {
-	const wchar_t *Name1=((TreeItem **)el1)[0]->strName;
-	const wchar_t *Name2=((TreeItem **)el2)[0]->strName;
-  if(!StaticSortNumeric)
-		return(StaticSortCaseSensitive ? TreeCmp(Name1,Name2):StrCmpI(Name1,Name2));
-  else
-		return(StaticSortCaseSensitive ? TreeCmp(Name1,Name2):NumStrCmpI(Name1,Name2));
+	return TreeCmp(((TreeItem **)el1)[0]->strName, ((TreeItem **)el2)[0]->strName, StaticSortNumeric, StaticSortCaseSensitive);
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
-  if(!StaticSortNumeric)
-    return(StrCmpI(*(wchar_t **)el1,*(wchar_t **)el2));
-  else
-    return(NumStrCmpI(*(wchar_t **)el1,*(wchar_t **)el2));
+	return TreeCmp(*(wchar_t **)el1, *(wchar_t **)el2, StaticSortNumeric, 0);
 }
 
-
-int TreeCmp(const wchar_t *Str1,const wchar_t *Str2)
+int TreeCmp(const wchar_t *Str1, const wchar_t *Str2, int Numeric, int CaseSensitive)
 {
-  while (1)
-  {
-    if (*Str1 != *Str2)
-    {
-      if (*Str1==0)
-        return(-1);
-      if (*Str2==0)
-        return(1);
-      if (*Str1==L'\\')
-        return(-1);
-      if (*Str2==L'\\')
-        return(1);
-      return(*Str1<*Str2 ? -1:1);
-    }
-    if (*(Str1++) == 0)
-      break;
-    Str2++;
-  }
-  return(0);
+	typedef int (__cdecl *CMPFUNC)(const wchar_t *, const wchar_t *);
+
+	static CMPFUNC funcs[2][2] = { {StrCmp, StrCmpI}, {NumStrCmp, NumStrCmpI} };
+
+	CMPFUNC cmpfunc = funcs[Numeric?1:0][CaseSensitive?0:1];
+
+	if (*Str1 == L'\\' && *Str1 == *Str2)
+	{
+		Str1++;
+		Str2++;
+	}
+
+	wchar_t *s1 = (wchar_t *)wcschr(Str1,L'\\');
+	wchar_t *s2 = (wchar_t *)wcschr(Str2,L'\\');
+
+	while (s1 && s2)
+	{
+		*s1 = *s2 = 0;
+
+		int r = cmpfunc(Str1,Str2);
+
+		*s1 = *s2 = L'\\';
+
+		if (r)
+			return r;
+
+		Str1 = s1 + 1;
+		Str2 = s2 + 1;
+
+		s1 = (wchar_t *)wcschr(Str1,L'\\');
+		s2 = (wchar_t *)wcschr(Str2,L'\\');
+	}
+
+	if (s1 || s2)
+	{
+		wchar_t *s = s1 ? s1 : s2;
+
+		*s = 0;
+
+		int r = cmpfunc(Str1,Str2);
+
+		*s = L'\\';
+
+		if (r)
+			return r;
+
+		return s1 ? 1 : -1;
+	}
+
+	return cmpfunc(Str1, Str2);
 }
 
 /* $ 16.10.2000 tran
