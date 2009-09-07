@@ -146,42 +146,71 @@ const UnicodeString& UnicodeString::SetData(const char *lpszData, UINT CodePage)
 	return *this;
 }
 
-UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd, size_t nAddLength)
+UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen)
 {
-	if (lpwszAdd && *lpwszAdd)
+	// Pos & Len must be valid
+	assert(Pos <= m_pData->GetLength());
+	assert(Len <= m_pData->GetLength());
+	assert(Pos + Len <= m_pData->GetLength());
+	// Data and *this must not intersect
+	assert(Data + DataLen <= m_pData->GetData() || Data >= m_pData->GetData() + m_pData->GetLength());
+
+	if ((Len == 0) && (DataLen == 0))
+		return *this;
+	size_t NewLength = m_pData->GetLength() + DataLen - Len;
+	if (m_pData->GetRef() == 1 && NewLength + 1 <= m_pData->GetSize())
 	{
-		size_t nNewLength = m_pData->GetLength() + nAddLength;
-		if (m_pData->GetRef() == 1 && nNewLength + 1 <= m_pData->GetSize())
-		{
-			wmemcpy(m_pData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
-			m_pData->SetLength(nNewLength);
-		}
-		else
-		{
-			UnicodeStringData *pNewData = new UnicodeStringData(nNewLength + 1);
-			wmemcpy(pNewData->GetData(),m_pData->GetData(),m_pData->GetLength());
-			wmemcpy(pNewData->GetData() + m_pData->GetLength(),lpwszAdd,nAddLength);
-			pNewData->SetLength(nNewLength);
-			m_pData->DecRef();
-			m_pData = pNewData;
-		}
+		wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+		wmemcpy(m_pData->GetData() + Pos, Data, DataLen);
+		m_pData->SetLength(NewLength);
 	}
+	else
+	{
+		UnicodeStringData *NewData = new UnicodeStringData(NewLength + 1);
+		wmemcpy(NewData->GetData(), m_pData->GetData(), Pos);
+		wmemcpy(NewData->GetData() + Pos, Data, DataLen);
+		wmemcpy(NewData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+		NewData->SetLength(NewLength);
+		m_pData->DecRef();
+		m_pData = NewData;
+	}
+
 	return *this;
 }
 
-UnicodeString& UnicodeString::Append(const UnicodeString &strAdd)
+UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const UnicodeString& Str)
 {
-	return Append(strAdd.m_pData->GetData(), strAdd.m_pData->GetLength());
+	return Replace(Pos, Len, Str.CPtr(), Str.GetLength());
 }
 
-UnicodeString& UnicodeString::Append(const wchar_t *lpwszAdd)
+UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Str)
 {
-	return (lpwszAdd && *lpwszAdd)?Append(lpwszAdd, StrLength(lpwszAdd)):*this;
+	return Replace(Pos, Len, Str, StrLength(NullToEmpty(Str)));
 }
 
-UnicodeString& UnicodeString::Append(wchar_t chAdd)
+UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, wchar_t Ch)
 {
-	return Append(&chAdd, 1);
+	return Replace(Pos, Len, &Ch, 1);
+}
+
+UnicodeString& UnicodeString::Append(const wchar_t *Str, size_t StrLen)
+{
+	return Replace(GetLength(), 0, Str, StrLen);
+}
+
+UnicodeString& UnicodeString::Append(const UnicodeString &Str)
+{
+	return Append(Str.CPtr(), Str.GetLength());
+}
+
+UnicodeString& UnicodeString::Append(const wchar_t *Str)
+{
+	return Append(Str, StrLength(NullToEmpty(Str)));
+}
+
+UnicodeString& UnicodeString::Append(wchar_t Ch)
+{
+	return Append(&Ch, 1);
 }
 
 UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
@@ -197,25 +226,69 @@ UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
 	return *this;
 }
 
+UnicodeString& UnicodeString::Insert(size_t Pos, const wchar_t* Str, size_t StrLen)
+{
+	return Replace(Pos, 0, Str, StrLen);
+}
+
+UnicodeString& UnicodeString::Insert(size_t Pos, const UnicodeString& Str)
+{
+	return Insert(Pos, Str.CPtr(), Str.GetLength());
+}
+
+UnicodeString& UnicodeString::Insert(size_t Pos, const wchar_t* Str)
+{
+	return Insert(Pos, Str, StrLength(NullToEmpty(Str)));
+}
+
+UnicodeString& UnicodeString::Insert(size_t Pos, wchar_t Ch)
+{
+	return Insert(Pos, &Ch, 1);
+}
+
+UnicodeString& UnicodeString::Copy(const wchar_t *Str, size_t StrLen)
+{
+	return Replace(0, GetLength(), Str, StrLen);
+}
+
+UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
+{
+	return Copy(Str.CPtr(), Str.GetLength());
+}
+
+UnicodeString& UnicodeString::Copy(const wchar_t *Str)
+{
+	return Copy(Str, StrLength(NullToEmpty(Str)));
+}
+
+UnicodeString& UnicodeString::Copy(wchar_t Ch)
+{
+	return Copy(&Ch, 1);
+}
+
+UnicodeString& UnicodeString::Remove(size_t Pos, size_t Len)
+{
+	return Replace(Pos, Len, NULL, 0);
+}
+
+UnicodeString& UnicodeString::Clear()
+{
+	return Remove(0, GetLength());
+}
+
 const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2)
 {
-	UnicodeString Result(strSrc1);
-	Result += strSrc2;
-	return Result;
+	return UnicodeString(strSrc1).Append(strSrc2);
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2)
 {
-	UnicodeString Result(strSrc1);
-	Result += lpszSrc2;
-	return Result;
+	return UnicodeString(strSrc1).Append(lpszSrc2);
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2)
 {
-	UnicodeString Result(strSrc1);
-	Result += lpwszSrc2;
-	return Result;
+	return UnicodeString(strSrc1).Append(lpwszSrc2);
 }
 
 wchar_t *UnicodeString::GetBuffer (size_t nSize)

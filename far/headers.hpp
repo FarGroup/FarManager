@@ -97,6 +97,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <wininet.h>
 #include <wchar.h>
 #include <setupapi.h>
+#include <assert.h>
 
 #define SECURITY_WIN32
 #include <security.h>

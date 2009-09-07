@@ -163,6 +163,20 @@ typedef NTSTATUS (WINAPI *NTQUERYINFORMATIONFILE)(
 	int FileInformationClass
 	);
 
+typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(
+	HANDLE hFile,
+	LPTSTR lpszFilePath,
+	DWORD cchFilePath,
+	DWORD dwFlags
+);
+
+typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
+	LPCTSTR lpszVolumeName,
+	LPTSTR lpszVolumePathNames,
+	DWORD cchBufferLength,
+	PDWORD lpcchReturnLength
+);
+
 struct ImportedFunctions {
 
 	//
@@ -194,6 +208,9 @@ struct ImportedFunctions {
 	FINDNEXTSTREAMW pfnFindNextStreamW;
 
 	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;
+
+	GETFINALPATHNAMEBYHANDLE pfnGetFinalPathNameByHandle;
+	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
 
 	void Load();
 };

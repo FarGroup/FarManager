@@ -209,11 +209,25 @@ public:
 
 	size_t GetCharString(char *lpszStr, size_t nSize, UINT CodePage=CP_OEMCP) const;
 
-	UnicodeString& Append(const wchar_t *lpwszAdd, size_t nAddLength);
-	UnicodeString& Append(const UnicodeString &strAdd);
-	UnicodeString& Append(const wchar_t *lpwszAdd);
-	UnicodeString& Append(wchar_t chAdd);
+	UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
+	UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str);
+	UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Str);
+	UnicodeString& Replace(size_t Pos, size_t Len, wchar_t Ch);
+	UnicodeString& Append(const wchar_t* Str, size_t StrLen);
+	UnicodeString& Append(const UnicodeString& Str);
+	UnicodeString& Append(const wchar_t* Str);
+	UnicodeString& Append(wchar_t Ch);
 	UnicodeString& Append(const char *lpszAdd, UINT CodePage=CP_OEMCP);
+	UnicodeString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen);
+	UnicodeString& Insert(size_t Pos, const UnicodeString& Str);
+	UnicodeString& Insert(size_t Pos, const wchar_t* Str);
+	UnicodeString& Insert(size_t Pos, wchar_t Ch);
+	UnicodeString& Copy(const wchar_t *Str, size_t StrLen);
+	UnicodeString& Copy(const UnicodeString &Str);
+	UnicodeString& Copy(const wchar_t *Str);
+	UnicodeString& Copy(wchar_t Ch);
+	UnicodeString& Remove(size_t Pos, size_t Len = 1);
+	UnicodeString& Clear();
 
 	operator const wchar_t *() const
 	{
@@ -232,12 +246,17 @@ public:
 
 	const UnicodeString& operator=(const char *lpszData)
 	{
-		return SetData(lpszData);
+		return Copy(lpszData);
 	}
 
 	const UnicodeString& operator=(const wchar_t *lpwszData)
 	{
-		return SetData(lpwszData);
+		return Copy(lpwszData);
+	}
+
+	const UnicodeString& operator=(wchar_t chData)
+	{
+		return Copy(chData);
 	}
 
 	const UnicodeString& operator+=(const UnicodeString &strAdd)
@@ -253,6 +272,11 @@ public:
 	const UnicodeString& operator+=(const wchar_t *lpwszAdd)
 	{
 		return Append(lpwszAdd);
+	}
+
+	const UnicodeString& operator+=(wchar_t chAdd)
+	{
+		return Append(chAdd);
 	}
 
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);

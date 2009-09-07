@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "drivemix.hpp"
 #include "network.hpp"
+#include "imports.hpp"
 
 int ConvertNameToFull (
         const wchar_t *lpwszSrc,
@@ -84,6 +85,65 @@ int ConvertNameToFull (
 	return (int)apiGetFullPathName(lpwszSrc,strDest);
 }
 
+bool ConvertNameToRealModern(const string& Src, string& Dst)
+{
+  bool Result = false;
+  HANDLE hFile = apiCreateFile(Src.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
+  if (hFile != INVALID_HANDLE_VALUE)
+  {
+    DWORD BufSize = 0x10000;
+    string FinalFilePathStr;
+    wchar_t *FinalFilePath = FinalFilePathStr.GetBuffer(BufSize);
+    DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath, BufSize, VOLUME_NAME_GUID);
+    if (Len > BufSize + 1)
+    {
+      BufSize = Len - 1;
+      FinalFilePath = FinalFilePathStr.GetBuffer(BufSize);
+      Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath, BufSize, VOLUME_NAME_GUID);
+    }
+    CloseHandle(hFile);
+    if (Len)
+    {
+      FinalFilePathStr.ReleaseBuffer(Len);
+      // assume FinalFilePath is started with volume GUID: \\?\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\ 
+      const int cVolumeGuidLen = 49;
+      if (FinalFilePathStr.GetLength() >= cVolumeGuidLen)
+      {
+        // try to replace volume GUID with drive letter
+        string VolumeGuid(FinalFilePathStr.CPtr(), cVolumeGuidLen);
+        string VolumePathNamesStr;
+        DWORD BufSize = 0x10000;
+        wchar_t *VolumePathNames = VolumePathNamesStr.GetBuffer(BufSize);
+        DWORD ReturnLen;
+        BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(VolumeGuid.CPtr(), VolumePathNames, BufSize, &ReturnLen);
+        if (Res == 0 && GetLastError() == ERROR_MORE_DATA)
+        {
+          BufSize = ReturnLen;
+          VolumePathNames = VolumePathNamesStr.GetBuffer(BufSize);
+          Res = ifn.pfnGetVolumePathNamesForVolumeName(VolumeGuid.CPtr(), VolumePathNames, BufSize, &ReturnLen);
+        }
+        if (Res)
+        {
+          wchar_t* VolumePath = VolumePathNames;
+          while (*VolumePath)
+          {
+            int VolumePathLen = wcslen(VolumePath);
+            if (VolumePathLen == 3 && VolumePath[1] == L':') // it's a drive letter
+            {
+              FinalFilePathStr.Replace(0, cVolumeGuidLen, VolumePath, VolumePathLen);
+              break;
+            }
+            VolumePath += VolumePathLen + 1;
+          }
+        }
+      }
+      Dst = FinalFilePathStr;
+      Result = true;
+    }
+  }
+  return Result;
+}
+
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point
 */
@@ -107,108 +167,115 @@ int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
   // "разыменовать симлинк")
   if (IsLocalDrive(strTempDest))
   {
-    DWORD FileAttr;
-
-		if((FileAttr=apiGetFileAttributes(strTempDest)) != INVALID_FILE_ATTRIBUTES)
+    if (ifn.pfnGetFinalPathNameByHandle && ifn.pfnGetVolumePathNamesForVolumeName)
     {
-      AddEndSlash(strTempDest);
-      IsAddEndSlash=TRUE;
+      ConvertNameToRealModern(strTempDest, strTempDest);
     }
-
-    TempDest = strTempDest.GetBuffer();
-    wchar_t *Ptr, Chr;
-
-    Ptr = TempDest + strTempDest.GetLength();
-
-    const wchar_t *CtrlChar = TempDest;
-
-    if (strTempDest.GetLength() > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
-      CtrlChar = wcschr(TempDest+2, L'\\');
-
-    // обычный цикл прохода имени от корня
-    while(CtrlChar)
+    else
     {
-			while(Ptr > TempDest && !IsSlash(*Ptr))
-        --Ptr;
-      /* $ 07.01.2003 IS
-         - ошибка: зачем-то обрабатывали путь "буква:" - он равен
-           текущему каталогу на диске "буква", что ведет к
-           непредсказуемым результатам
-      */
-      // Если имя UNC, то работаем до имени сервера, не дальше...
-      if(*Ptr != L'\\' || Ptr == CtrlChar
-        // если дошли до "буква:", то тоже остановимся
-        || *(Ptr-1)==L':')
-        break;
-      /* IS $ */
+      DWORD FileAttr;
 
-      Chr=*Ptr;
-      *Ptr=0;
-			FileAttr=apiGetFileAttributes(TempDest);
-      // О! Это наш клиент - одна из "компонент" пути - симлинк
-      if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      if((FileAttr=apiGetFileAttributes(strTempDest)) != INVALID_FILE_ATTRIBUTES)
       {
-        string strTempDest2;
-        // Получим инфу симлинке
-        if(GetReparsePointInfo(TempDest, strTempDest2))
-        {
-          // Убираем \\??\ из пути симлинка
-					NormalizeSymlinkName(strTempDest2);
-          // для случая монтированного диска (не имеющего букву)...
-          if(!StrCmpNI(strTempDest2, L"Volume{", 7))
-          {
-            string strJuncRoot;
-            // получим либо букву диска, либо...
-            GetPathRootOne(strTempDest2, strJuncRoot);
-            // ...но в любом случае пишем полностью.
-            // (поправка - если букву не получили - вернём точку монтирования)
-            strTempDest2 = (strJuncRoot.At(1)==L':'||!Internal)?strJuncRoot:TempDest;
-          }
-          DeleteEndSlash(strTempDest2);
-          // Длина пути симлинка
-          size_t temp2Length = strTempDest2.GetLength();
-          // Буфер симлинка
-          wchar_t* TempDest2 = strTempDest2.GetBuffer();
-          // Получаем длину левой и правой частей пути
-          size_t leftLength = StrLength(TempDest);
-          size_t rightLength = StrLength(Ptr + 1); // Измеряем длину пути начиная со следующего симовла после курсора
-          // Восстановим символ
-          *Ptr=Chr;
-          // Если путь симлинка больше левой части пути, увеличиваем буфер
-          if (leftLength < temp2Length)
-          {
-            // Выделяем новый буфер
-            TempDest = strTempDest.GetBuffer(strTempDest.GetLength() + temp2Length - leftLength + (IsAddEndSlash?2:1));
-          }
-          // Так как мы производили манипуляции с левой частью пути изменяем указатель на
-          // текущую позицию курсора в пути
-          Ptr = TempDest + temp2Length - 1;
-          // Перемещаем правую часть пути на нужное место, только если левая чать отличается по
-          // размеру от пути симлинка
-          if (leftLength != temp2Length)
-          {
-            // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
-            wmemmove(TempDest + temp2Length, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
-          }
-          // Копируем путь к симлинку вначало пути
-          wmemcpy(TempDest, TempDest2, temp2Length);
-          // Обновляем ссылку на маркер завершения прохождения по пути
-          CtrlChar = TempDest;
-          if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')
-          {
-						CtrlChar=FirstSlash(TempDest+2);
-          }
-          // Устанавливаем длину возвращаемой строки
-          Ret = StrLength(TempDest);
-          // Релизим буфер для установления корректной длины данных. Если этого не делать, то при
-          // увеличенни буфера могут скопироваться не все данные
-          strTempDest.ReleaseBuffer(Ret);
-          // Переходим к следующему шагу
-          continue;
-        }
+        AddEndSlash(strTempDest);
+        IsAddEndSlash=TRUE;
       }
-      *Ptr=Chr;
-      --Ptr;
+
+      TempDest = strTempDest.GetBuffer();
+      wchar_t *Ptr, Chr;
+
+      Ptr = TempDest + strTempDest.GetLength();
+
+      const wchar_t *CtrlChar = TempDest;
+
+      if (strTempDest.GetLength() > 2 && TempDest[0]==L'\\' && TempDest[1]==L'\\')
+        CtrlChar = wcschr(TempDest+2, L'\\');
+
+      // обычный цикл прохода имени от корня
+      while(CtrlChar)
+      {
+        while(Ptr > TempDest && !IsSlash(*Ptr))
+          --Ptr;
+        /* $ 07.01.2003 IS
+           - ошибка: зачем-то обрабатывали путь "буква:" - он равен
+             текущему каталогу на диске "буква", что ведет к
+             непредсказуемым результатам
+        */
+        // Если имя UNC, то работаем до имени сервера, не дальше...
+        if(*Ptr != L'\\' || Ptr == CtrlChar
+          // если дошли до "буква:", то тоже остановимся
+          || *(Ptr-1)==L':')
+          break;
+        /* IS $ */
+
+        Chr=*Ptr;
+        *Ptr=0;
+        FileAttr=apiGetFileAttributes(TempDest);
+        // О! Это наш клиент - одна из "компонент" пути - симлинк
+        if(FileAttr != INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+        {
+          string strTempDest2;
+          // Получим инфу симлинке
+          if(GetReparsePointInfo(TempDest, strTempDest2))
+          {
+            // Убираем \\??\ из пути симлинка
+            NormalizeSymlinkName(strTempDest2);
+            // для случая монтированного диска (не имеющего букву)...
+            if(!StrCmpNI(strTempDest2, L"Volume{", 7))
+            {
+              string strJuncRoot;
+              // получим либо букву диска, либо...
+              GetPathRootOne(strTempDest2, strJuncRoot);
+              // ...но в любом случае пишем полностью.
+              // (поправка - если букву не получили - вернём точку монтирования)
+              strTempDest2 = (strJuncRoot.At(1)==L':'||!Internal)?strJuncRoot:TempDest;
+            }
+            DeleteEndSlash(strTempDest2);
+            // Длина пути симлинка
+            size_t temp2Length = strTempDest2.GetLength();
+            // Буфер симлинка
+            wchar_t* TempDest2 = strTempDest2.GetBuffer();
+            // Получаем длину левой и правой частей пути
+            size_t leftLength = StrLength(TempDest);
+            size_t rightLength = StrLength(Ptr + 1); // Измеряем длину пути начиная со следующего симовла после курсора
+            // Восстановим символ
+            *Ptr=Chr;
+            // Если путь симлинка больше левой части пути, увеличиваем буфер
+            if (leftLength < temp2Length)
+            {
+              // Выделяем новый буфер
+              TempDest = strTempDest.GetBuffer(strTempDest.GetLength() + temp2Length - leftLength + (IsAddEndSlash?2:1));
+            }
+            // Так как мы производили манипуляции с левой частью пути изменяем указатель на
+            // текущую позицию курсора в пути
+            Ptr = TempDest + temp2Length - 1;
+            // Перемещаем правую часть пути на нужное место, только если левая чать отличается по
+            // размеру от пути симлинка
+            if (leftLength != temp2Length)
+            {
+              // Копируемый буфер включает сам буфер, начальный '/', конечный '/' (если он есть) и '\0'
+              wmemmove(TempDest + temp2Length, TempDest + leftLength, rightLength + (IsAddEndSlash ? 3 : 2));
+            }
+            // Копируем путь к симлинку вначало пути
+            wmemcpy(TempDest, TempDest2, temp2Length);
+            // Обновляем ссылку на маркер завершения прохождения по пути
+            CtrlChar = TempDest;
+            if (StrLength(TempDest) > 2 && TempDest[0] == L'\\' && TempDest[1] == L'\\')
+            {
+              CtrlChar=FirstSlash(TempDest+2);
+            }
+            // Устанавливаем длину возвращаемой строки
+            Ret = StrLength(TempDest);
+            // Релизим буфер для установления корректной длины данных. Если этого не делать, то при
+            // увеличенни буфера могут скопироваться не все данные
+            strTempDest.ReleaseBuffer(Ret);
+            // Переходим к следующему шагу
+            continue;
+          }
+        }
+        *Ptr=Chr;
+        --Ptr;
+      }
     }
   }
 
