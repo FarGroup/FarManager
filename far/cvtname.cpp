@@ -88,12 +88,23 @@ int ConvertNameToFull (
 bool ConvertNameToRealModern(const string& Src, string& Dst)
 {
   bool Result = false;
-  HANDLE hFile = apiCreateFile(Src.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
+
+  string Path = Src;
+  HANDLE hFile;
+  while (true)
+  {
+    hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
+    if (hFile != INVALID_HANDLE_VALUE)
+      break;
+    if (IsRootPath(Path))
+      break;
+    Path = ExtractFilePath(Path);
+  }
   if (hFile != INVALID_HANDLE_VALUE)
   {
     DWORD BufSize = 0x10000;
     string FinalFilePathStr;
-    wchar_t *FinalFilePath = FinalFilePathStr.GetBuffer(BufSize);
+    wchar_t* FinalFilePath = FinalFilePathStr.GetBuffer(BufSize);
     DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath, BufSize, VOLUME_NAME_GUID);
     if (Len > BufSize + 1)
     {
@@ -105,6 +116,13 @@ bool ConvertNameToRealModern(const string& Src, string& Dst)
     if (Len)
     {
       FinalFilePathStr.ReleaseBuffer(Len);
+      // append non-existent path part (if present)
+      DeleteEndSlash(Path);
+      if (Src.GetLength() > Path.GetLength() + 1)
+      {
+        AddEndSlash(FinalFilePathStr);
+        FinalFilePathStr.Append(Src.CPtr() + Path.GetLength() + 1, Src.GetLength() - Path.GetLength() - 1);
+      }
       // assume FinalFilePath is started with volume GUID: \\?\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\ 
       const int cVolumeGuidLen = 49;
       if (FinalFilePathStr.GetLength() >= cVolumeGuidLen)
@@ -113,7 +131,7 @@ bool ConvertNameToRealModern(const string& Src, string& Dst)
         string VolumeGuid(FinalFilePathStr.CPtr(), cVolumeGuidLen);
         string VolumePathNamesStr;
         DWORD BufSize = 0x10000;
-        wchar_t *VolumePathNames = VolumePathNamesStr.GetBuffer(BufSize);
+        wchar_t* VolumePathNames = VolumePathNamesStr.GetBuffer(BufSize);
         DWORD ReturnLen;
         BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(VolumeGuid.CPtr(), VolumePathNames, BufSize, &ReturnLen);
         if (Res == 0 && GetLastError() == ERROR_MORE_DATA)
@@ -127,7 +145,7 @@ bool ConvertNameToRealModern(const string& Src, string& Dst)
           wchar_t* VolumePath = VolumePathNames;
           while (*VolumePath)
           {
-            int VolumePathLen = wcslen(VolumePath);
+            size_t VolumePathLen = wcslen(VolumePath);
             if (VolumePathLen == 3 && VolumePath[1] == L':') // it's a drive letter
             {
               FinalFilePathStr.Replace(0, cVolumeGuidLen, VolumePath, VolumePathLen);
@@ -145,7 +163,8 @@ bool ConvertNameToRealModern(const string& Src, string& Dst)
 }
 
 /*
-  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point
+  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
+  Note that Src can be partially non-existent.
 */
 int ConvertNameToReal (const wchar_t *Src, string &strDest, bool Internal)
 {

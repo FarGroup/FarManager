@@ -84,4 +84,9 @@ BOOL TestParentFolderName(const wchar_t *Name);
 BOOL TestCurrentFolderName(const wchar_t *Name);
 bool TestCurrentDirectory(const wchar_t *TestDir);
 
+string ExtractPathRoot(const string& Path);
+string ExtractFileName(const string& Path);
+string ExtractFilePath(const string& Path);
+bool IsRootPath(const string& Path);
+
 #endif // __PATHMIX_HPP__

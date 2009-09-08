@@ -490,3 +490,103 @@ bool TestCurrentDirectory(const wchar_t *TestDir)
 		return true;
 	return false;
 }
+
+bool FindSlash(size_t& Pos, const string& Str, size_t StartPos = 0)
+{
+	size_t p = StartPos;
+	while (p < Str.GetLength()) {
+		if (IsSlash(Str[p]))
+		{
+			Pos = p;
+			return true;
+		}
+		p++;
+	}
+	return false;
+}
+
+bool FindLastSlash(size_t& Pos, const string& Str)
+{
+	size_t p = Str.GetLength();
+	while (p > 0) {
+		if (IsSlash(Str[p - 1]))
+		{
+			Pos = p - 1;
+			return true;
+		}
+		p--;
+	}
+	return false;
+}
+
+// find path root component (drive letter / volume name / server share) and calculate its length
+size_t GetPathRootLength(const string& Path)
+{
+	unsigned PrefixLen = 0;
+	bool IsUNC = false;
+	if (Path.Equal(0, L"\\\\?\\UNC\\"))
+	{
+		PrefixLen = 8;
+		IsUNC = true;
+	}
+	else if (Path.Equal(0, L"\\\\?\\") || Path.Equal(0, L"\\??\\") || Path.Equal(0, L"\\\\.\\"))
+	{
+		PrefixLen = 4;
+	}
+	else if (Path.Equal(0, L"\\\\"))
+	{
+		PrefixLen = 2;
+		IsUNC = true;
+	}
+	if ((PrefixLen == 0) && !Path.Equal(1, L':'))
+		return 0;
+	size_t p;
+	if (!FindSlash(p, Path, PrefixLen))
+		p = Path.GetLength();
+	if (IsUNC)
+		if (!FindSlash(p, Path, p + 1))
+			p = Path.GetLength();
+	return p;
+}
+
+string ExtractPathRoot(const string& Path)
+{
+	size_t PathRootLen = GetPathRootLength(Path);
+	if (PathRootLen)
+		return string(Path.CPtr(), PathRootLen).Append(L'\\');
+	else
+		return string();
+}
+
+string ExtractFileName(const string& Path)
+{
+	size_t p;
+	if (FindLastSlash(p, Path))
+		p++;
+	else
+		p = 0;
+  if (p <= GetPathRootLength(Path))
+  	return string();
+  return string(Path.CPtr() + p, Path.GetLength() - p);
+}
+
+string ExtractFilePath(const string& Path)
+{
+	size_t p;
+	if (!FindLastSlash(p, Path))
+		p = 0;
+	size_t PathRootLen = GetPathRootLength(Path);
+	if (p <= PathRootLen)
+		return string(Path.CPtr(), PathRootLen).Append(L'\\');
+	return string(Path.CPtr(), p);
+}
+
+bool IsRootPath(const string& Path)
+{
+	size_t PathRootLen = GetPathRootLength(Path);
+	if (Path.GetLength() == PathRootLen)
+		return true;
+	if (Path.GetLength() == PathRootLen + 1 && IsSlash(Path[Path.GetLength() - 1]))
+		return true;
+	return false;
+}

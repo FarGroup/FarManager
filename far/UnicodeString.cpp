@@ -152,16 +152,27 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	assert(Pos <= m_pData->GetLength());
 	assert(Len <= m_pData->GetLength());
 	assert(Pos + Len <= m_pData->GetLength());
-	// Data and *this must not intersect
-	assert(Data + DataLen <= m_pData->GetData() || Data >= m_pData->GetData() + m_pData->GetLength());
+	// Data and *this must not intersect (but Data can be located entirely within *this)
+	assert(!(Data < m_pData->GetData() && Data + DataLen > m_pData->GetData()));
+	assert(!(Data < m_pData->GetData() + m_pData->GetLength() && Data + DataLen > m_pData->GetData() + m_pData->GetLength()));
 
 	if ((Len == 0) && (DataLen == 0))
 		return *this;
 	size_t NewLength = m_pData->GetLength() + DataLen - Len;
 	if (m_pData->GetRef() == 1 && NewLength + 1 <= m_pData->GetSize())
 	{
-		wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
-		wmemcpy(m_pData->GetData() + Pos, Data, DataLen);
+		if (Data >= m_pData->GetData() && Data + DataLen <= m_pData->GetData() + m_pData->GetLength())
+		{
+			// copy data from self
+			UnicodeString TmpStr(Data, DataLen);
+			wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+			wmemcpy(m_pData->GetData() + Pos, TmpStr.CPtr(), TmpStr.GetLength());
+		}
+		else
+		{
+			wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+			wmemcpy(m_pData->GetData() + Pos, Data, DataLen);
+		}
 		m_pData->SetLength(NewLength);
 	}
 	else
@@ -274,6 +285,27 @@ UnicodeString& UnicodeString::Remove(size_t Pos, size_t Len)
 UnicodeString& UnicodeString::Clear()
 {
 	return Remove(0, GetLength());
+}
+
+bool UnicodeString::Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const
+{
+	if (Pos >= m_pData->GetLength())
+		Len = 0;
+	else if (Len >= m_pData->GetLength() || Pos + Len >= m_pData->GetLength())
+		Len = m_pData->GetLength() - Pos;
+	if (Len != DataLen)
+		return false;
+	return wmemcmp(m_pData->GetData() + Pos, Data, Len) == 0;
+}
+
+bool UnicodeString::Equal(size_t Pos, const wchar_t* Str) const
+{
+	return Equal(Pos, StrLength(Str), Str, StrLength(Str));
+}
+
+bool UnicodeString::Equal(size_t Pos, wchar_t Ch) const
+{
+	return Equal(Pos, 1, &Ch, 1);
 }
 
 const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2)

@@ -239,6 +239,10 @@ public:
 		return m_pData->GetData();
 	}
 
+	bool Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
+	bool Equal(size_t Pos, const wchar_t* Str) const;
+	bool Equal(size_t Pos, wchar_t Ch) const;
+
 	const UnicodeString& operator=(const UnicodeString &strCopy)
 	{
 		return SetData(strCopy);
