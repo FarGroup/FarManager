@@ -596,9 +596,9 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 
 BOOL apiCreateDirectory(LPCWSTR lpPathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	string strPathName=lpPathName;
+	string strPathName=NTPath(lpPathName).Str;
 	AddEndSlash(strPathName);
-	return CreateDirectory(NTPath(strPathName),lpSecurityAttributes);
+	return CreateDirectory(strPathName,lpSecurityAttributes);
 }
 
 DWORD apiGetFileAttributes(LPCWSTR lpFileName)
