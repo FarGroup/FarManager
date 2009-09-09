@@ -231,6 +231,22 @@ typedef struct _WIN32_FIND_STREAM_DATA
 }
 WIN32_FIND_STREAM_DATA,*PWIN32_FIND_STREAM_DATA;
 
+typedef struct _IO_STATUS_BLOCK
+{
+	union
+	{
+		NTSTATUS Status;
+		PVOID Pointer;
+	};
+	ULONG_PTR Information;
+}
+IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
+
+typedef enum _OBJECT_INFORMATION_CLASS {
+	ObjectBasicInformation = 0,
+	ObjectTypeInformation = 2
+} OBJECT_INFORMATION_CLASS;
+
 #endif // __GNUC__
 
 #ifndef FSCTL_QUERY_ALLOCATED_RANGES
@@ -494,17 +510,6 @@ typedef struct _FILE_STREAM_INFORMATION
 }
 FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
 
-typedef struct _IO_STATUS_BLOCK
-{
-	union
-	{
-		NTSTATUS Status;
-		PVOID Pointer;
-	};
-	ULONG_PTR Information;
-}
-IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
-
 #define FileStreamInformation 22
 
 #ifndef __ITaskbarList3_INTERFACE_DEFINED__
@@ -554,21 +559,21 @@ public:
 
 #ifndef STATUS_SUCCESS
 #define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)
+#endif
+
+#ifndef STATUS_BUFFER_OVERFLOW
 #define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
+#endif
+
+#ifndef STATUS_BUFFER_TOO_SMALL
 #define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
 #endif
 
-typedef enum _OBJECT_INFORMATION_CLASS {
-	ObjectBasicInformation = 0,
-	ObjectNameInformation = 1,
-	ObjectTypeInformation = 2
-} OBJECT_INFORMATION_CLASS;
+#ifndef VOLUME_NAME_GUID
+#define VOLUME_NAME_GUID 0x1
+#endif
 
-typedef struct _UNICODE_STRING {
-	USHORT Length;
-	USHORT MaximumLength;
-	PWSTR  Buffer;
-} UNICODE_STRING, *PUNICODE_STRING;
+const OBJECT_INFORMATION_CLASS ObjectNameInformation = (OBJECT_INFORMATION_CLASS) 1;
 
 typedef struct _OBJECT_NAME_INFORMATION {
 	UNICODE_STRING Name;

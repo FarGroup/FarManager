@@ -136,7 +136,7 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
       else if (ifn.pfnNtQueryObject)
       {
         ULONG RetLen;
-        size_t BufSize = 0x10000;
+        ULONG BufSize = 0x10000;
         OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
         NTSTATUS res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
         if (res == STATUS_BUFFER_OVERFLOW || res == STATUS_BUFFER_TOO_SMALL)
@@ -151,7 +151,7 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
         }
         xf_free(oni);
         wchar_t VolumeName[MAX_PATH];
-        HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
+        HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
         BOOL Res = hEnum != INVALID_HANDLE_VALUE;
         while (Res)
         {
@@ -170,7 +170,7 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
               }
             }
           }
-          Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
+          Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
         }
         if (hEnum != INVALID_HANDLE_VALUE)
           FindVolumeClose(hEnum);
@@ -187,7 +187,7 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
         }
         // try to replace volume GUID with drive letter
         string DriveStringsBuf;
-        size_t BufSize = MAX_PATH;
+        DWORD BufSize = MAX_PATH;
         wchar_t* DriveStrings = DriveStringsBuf.GetBuffer(BufSize);
         DWORD Size = GetLogicalDriveStringsW(BufSize, DriveStrings);
         if (Size > BufSize)
@@ -202,7 +202,7 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
           wchar_t VolumeGuid[cVolumeGuidLen + 1];
           while (*Drive)
           {
-            if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, ARRAYSIZE(VolumeGuid)))
+            if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
             {
               if (FinalFilePath.Equal(0, VolumeGuid, cVolumeGuidLen))
               {

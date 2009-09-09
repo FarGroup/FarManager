@@ -1,3 +1,7 @@
+chupakabra 09.09.2009 05:40:00 +0200 - build 1112
+
+1. Поправлена сборка gcc и x64.
+
 chupakabra 09.09.2009 05:01:00 +0200 - build 1111
 
 1. ConvertNameToReal() теперь использует NtQueryObject() на Windows XP.

@@ -104,6 +104,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __GNUC__
 #include <shobjidl.h>
+#include <winternl.h>
 #endif
 
 #ifdef __GNUC__
