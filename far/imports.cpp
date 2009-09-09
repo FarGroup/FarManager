@@ -133,12 +133,12 @@ void ImportedFunctions::Load()
 		pfnFindNextStreamW = (FINDNEXTSTREAMW)GetProcAddress(hKernel, "FindNextStreamW");
 
 		pfnGetFinalPathNameByHandle = (GETFINALPATHNAMEBYHANDLE)GetProcAddress(hKernel, "GetFinalPathNameByHandleW");
-		pfnGetVolumePathNamesForVolumeName = (GETVOLUMEPATHNAMESFORVOLUMENAME)GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW");
 	}
 
 	if(hNtdll)
 	{
 		pfnNtQueryInformationFile = (NTQUERYINFORMATIONFILE)GetProcAddress(hNtdll, "NtQueryInformationFile");
+		pfnNtQueryObject = (NTQUERYOBJECT)GetProcAddress(hNtdll, "NtQueryObject");
 	}
 
 	if (hShell)

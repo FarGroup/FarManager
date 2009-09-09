@@ -298,9 +298,19 @@ bool UnicodeString::Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t Da
 	return wmemcmp(m_pData->GetData() + Pos, Data, Len) == 0;
 }
 
+bool UnicodeString::Equal(size_t Pos, const wchar_t* Str, size_t StrLen) const
+{
+	return Equal(Pos, StrLen, Str, StrLen);
+}
+
 bool UnicodeString::Equal(size_t Pos, const wchar_t* Str) const
 {
 	return Equal(Pos, StrLength(Str), Str, StrLength(Str));
+}
+
+bool UnicodeString::Equal(size_t Pos, const UnicodeString& Str) const
+{
+	return Equal(Pos, Str.GetLength(), Str.CPtr(), Str.GetLength());
 }
 
 bool UnicodeString::Equal(size_t Pos, wchar_t Ch) const

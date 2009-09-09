@@ -552,4 +552,26 @@ public:
 
 #endif // __ITaskbarList3_INTERFACE_DEFINED__
 
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)
+#define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
+#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
+#endif
+
+typedef enum _OBJECT_INFORMATION_CLASS {
+	ObjectBasicInformation = 0,
+	ObjectNameInformation = 1,
+	ObjectTypeInformation = 2
+} OBJECT_INFORMATION_CLASS;
+
+typedef struct _UNICODE_STRING {
+	USHORT Length;
+	USHORT MaximumLength;
+	PWSTR  Buffer;
+} UNICODE_STRING, *PUNICODE_STRING;
+
+typedef struct _OBJECT_NAME_INFORMATION {
+	UNICODE_STRING Name;
+} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
+
 #endif // __SDKPATCHES_HPP__

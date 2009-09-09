@@ -2123,7 +2123,7 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize)
 {
 	string strSrc(Src),strDest;
-	ConvertNameToReal(strSrc,strDest,false);
+	ConvertNameToReal(strSrc,strDest);
 	if(!Dest)
 		return (int)strDest.GetLength();
 	else

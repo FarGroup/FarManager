@@ -863,7 +863,7 @@ int WINAPI GetNumberOfLinksA(const char *Name)
 int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 {
 	string strSrc(Src),strDest;
-	ConvertNameToReal(strSrc,strDest,false);
+	ConvertNameToReal(strSrc,strDest);
 	if(!Dest)
 		return (int)strDest.GetLength();
 	else

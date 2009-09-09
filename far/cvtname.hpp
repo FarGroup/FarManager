@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest);
 
-int ConvertNameToReal(const wchar_t *Src, string &strDest, bool Internal=true);
+bool ConvertNameToReal(const wchar_t *Src, string &strDest);
 
 void ConvertNameToShort(const wchar_t *Src, string &strDest); //BUGBUG, int
 

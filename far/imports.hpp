@@ -170,11 +170,12 @@ typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(
 	DWORD dwFlags
 );
 
-typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
-	LPCTSTR lpszVolumeName,
-	LPTSTR lpszVolumePathNames,
-	DWORD cchBufferLength,
-	PDWORD lpcchReturnLength
+typedef NTSTATUS (NTAPI *NTQUERYOBJECT) (
+	HANDLE Handle,
+	OBJECT_INFORMATION_CLASS ObjectInformationClass,
+	PVOID ObjectInformation,
+	ULONG ObjectInformationLength,
+	PULONG ReturnLength
 );
 
 struct ImportedFunctions {
@@ -210,7 +211,7 @@ struct ImportedFunctions {
 	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;
 
 	GETFINALPATHNAMEBYHANDLE pfnGetFinalPathNameByHandle;
-	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
+	NTQUERYOBJECT pfnNtQueryObject;
 
 	void Load();
 };
