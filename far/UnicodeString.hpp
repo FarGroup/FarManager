@@ -247,7 +247,7 @@ public:
 
 	const UnicodeString& operator=(const UnicodeString &strCopy)
 	{
-		return SetData(strCopy);
+		return Copy(strCopy);
 	}
 
 	const UnicodeString& operator=(const char *lpszData)

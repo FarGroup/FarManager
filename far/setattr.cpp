@@ -727,7 +727,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 					if(IsLocalVolumeRootPath(strLinkName))
 					{
 						string strLinkRoot;
-						GetPathRootOne(strLinkName,strLinkRoot);
+						GetPathRoot(strLinkName,strLinkRoot);
 						if(IsLocalPath(strLinkRoot))
 						{
 							strLinkName = strLinkRoot;

@@ -136,7 +136,7 @@ int CheckFolder(const wchar_t *Path)
 
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
-    GetPathRootOne(Path,strFindPath);
+    GetPathRoot(Path,strFindPath);
 
     if(!StrCmp(Path,strFindPath))
     {

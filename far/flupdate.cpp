@@ -163,7 +163,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
 			if (StrCmp(strCurDir, strOldCurDir) == 0) //?? i??
 			{
-				GetPathRootOne(strOldCurDir,strOldCurDir);
+				GetPathRoot(strOldCurDir,strOldCurDir);
 				if(!apiIsDiskInDrive(strOldCurDir))
 					IfGoHome(strOldCurDir.At(0));
 				/* При смене каталога путь не изменился */

@@ -460,7 +460,7 @@ string &PrepareDriveNameStr(string &strSearchFromRoot)
 {
 	string strCurDir;
 	CtrlObject->CmdLine->GetCurDir(strCurDir);
-	GetPathRootOne(strCurDir,strCurDir);
+	GetPathRoot(strCurDir,strCurDir);
 	DeleteEndSlash(strCurDir);
 	if(
 			strCurDir.IsEmpty()||
@@ -2369,7 +2369,7 @@ void _cdecl FindFiles::DoPrepareFileList(HANDLE hDlg,string& strRoot, FAR_FIND_D
       }
       else if (SearchMode==FFSEARCH_ROOT)
       {
-        GetPathRootOne(strRoot,strRoot);
+        GetPathRoot(strRoot,strRoot);
       }
       else if (SearchMode==FFSEARCH_INPATH)
       {

@@ -89,12 +89,12 @@ int ConvertNameToFull (
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
 */
-bool ConvertNameToReal(const wchar_t *Src, string &strDest)
+void ConvertNameToReal(const wchar_t *Src, string &strDest)
 {
-  bool Result = false;
   // Получим сначала полный путь до объекта обычным способом
   string FullPath;
   ConvertNameToFull(Src, FullPath);
+  strDest = FullPath;
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
   _SVS(SysLog(L"ConvertNameToFull('%s') -> '%s'",Src,(const wchar_t*)strTempDest));
 
@@ -215,13 +215,9 @@ bool ConvertNameToReal(const wchar_t *Src, string &strDest)
         }
 
         strDest = FinalFilePath;
-        Result = true;
       }
     }
   }
-
-  OutputDebugStringW(strDest.CPtr());
-  return Result;
 }
 
 void ConvertNameToShort(const wchar_t *Src, string &strDest)

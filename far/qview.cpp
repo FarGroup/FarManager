@@ -147,7 +147,7 @@ void QuickView::DisplayObject()
             strJuncName.LShift(4);
 
             string strJuncRoot;
-            GetPathRootOne(strJuncName, strJuncRoot);
+            GetPathRoot(strJuncName, strJuncRoot);
 
             if( strJuncRoot.At(1) == L':')
               strJuncName = strJuncRoot;

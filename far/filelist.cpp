@@ -2375,11 +2375,11 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
   {
 #if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
-    GetPathRootOne(strCurDir,strSetDir);
+    GetPathRoot(strCurDir,strSetDir);
 #else
     GetPathRoot(strCurDir,strSetDir);
     if (!StrCmpNI(SetDir,L"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
-      GetPathRootOne(CurDir,SetDir);
+      GetPathRoot(CurDir,SetDir);
 #endif
   }
 

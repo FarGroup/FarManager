@@ -58,8 +58,7 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWO
 bool GetSubstName(int DriveType,const wchar_t *DeviceName,string &strTargetPath);
 
 bool DelSubstDrive(const wchar_t *DeviceName);
-void GetPathRoot(const wchar_t *Path, string &strRoot, int Reenter=0);
-void GetPathRootOne(const wchar_t *Path, string &strRoot);
+void GetPathRoot(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока

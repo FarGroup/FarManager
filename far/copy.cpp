@@ -510,11 +510,7 @@ string& GetParentFolder(const wchar_t *Src, string &strDest)
 {
   string strDestFullName;
 
-  if (ConvertNameToReal (Src,strDestFullName))
-  {
-    strDest = L"";
-    return strDest;
-  }
+  ConvertNameToReal (Src,strDestFullName);
 
   CutToSlash(strDestFullName,true);
 
@@ -4276,7 +4272,7 @@ bool ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
 	{
 		// ... в этом случае проверим AS IS
 		ConvertNameToFull(Dest,strRoot);
-		GetPathRootOne(strRoot,strRoot);
+		GetPathRoot(strRoot,strRoot);
 		if(apiGetFileAttributes(strRoot)==INVALID_FILE_ATTRIBUTES)
 		{
 			return false;
