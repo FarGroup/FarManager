@@ -1,3 +1,7 @@
+chupakabra 09.09.2009 06:30:00 +0200 - build 1113
+
+1. Mantis#0001039: Не запоминалось состояние опции "Del removes blocks in edit controls".
+
 chupakabra 09.09.2009 05:40:00 +0200 - build 1112
 
 1. Поправлена сборка gcc и x64.
