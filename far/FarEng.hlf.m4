@@ -1340,11 +1340,6 @@ folders.
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-folders.
 
-    Remark: if the file system contains recursive cycles of symbolic
-links (e.g. a symlink pointing to one of its parent folders), then the
-search will be conducted until the maximum allowed path length is
-reached. In this case search may take much more time.
-
     Search may be performed:
 
     - in all non-removable drives;
@@ -1942,10 +1937,6 @@ is being modified at the same time as copying.
   #Scan symbolic links#
   Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
 determining the total file size in the sub-folders.
-    Remark: if the file system contains recursive cycles of symbolic
-links (e.g. a symlink pointing to one of its parent folders), then the
-scanning will be conducted until the maximum allowed path length is
-reached. In this case scanning may take much more time.
 
 
   #Create folders in uppercase#

@@ -1401,12 +1401,6 @@ mappák neveire és siker esetén ezekkel is nő a találatszám.
 zajlik le a ~szimbolikus linkekben~@HardSymLink@, mintha szabályos almappák
 lennének.
 
-    Megjegyzés: ha a fájlrendszer önmagára hivatkozó szimbolikus link
-ciklusokat tartalmaz (például ha a szimlink az egyik saját szülőmappájára
-mutat), a keresés addig tart, amíg eljut az elérési útvonalak hosszának
-megengedett maximumáig. Ebben az esetben a keresés jóval hosszabb időt vehet
-igénybe.
-
     #Keresés hatósugara#
 
     A keresés kiadható
@@ -2003,13 +1997,6 @@ ideje alatt módosul.
                           ^<wrap>során a normál mappák mérete, valamint a
 ~szimbolikus linkjeik~@HardSymLink@ mérete együttesen fogják meghatározni a
 mappákban található fájlok méretének összegét.
-
-                          Megjegyzés:
-                          ^<wrap>ha a fájlrendszer önmagára hivatkozó
-szimbolikus link ciklusokat tartalmaz (például a szimlink valamelyik saját
-szülő mappájára mutat), akkor a keresés addig tart, amíg eljut az elérési
-útvonalak hosszának megengedett maximumáig. Ebben az esetben a keresés jóval
-tovább tarthat.
 
   #Mappák létrehozása#      Ha az új mappa nevét csupa kisbetűvel
   #NAGYBETŰKKEL#            írjuk be és ez az opció be van kapcsolva,
