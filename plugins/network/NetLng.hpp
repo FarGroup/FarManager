@@ -49,6 +49,7 @@ enum
   MConfigDisksMenuDigit,
   MConfigLocalNetwork,
   MNTGetHideShare,
+  MConfigShowPrinters,
   MFullPathShares,
   MNoRootDoublePoint,
   MUpbrowseToFavorites,

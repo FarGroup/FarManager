@@ -8,6 +8,7 @@ const TCHAR *StrAddToPluginsMenu=_T("AddToPluginsMenu");
 const TCHAR *StrDisksMenuDigit=_T("DisksMenuDigit");
 const TCHAR *StrHelpNetBrowse=_T("Contents");
 const TCHAR *StrNTHiddenShare=_T("NTHiddenShare");
+const TCHAR *StrShowPrinters=_T("ShowPrinters");
 const TCHAR *StrLocalNetwork=_T("LocalNetwork");
 const TCHAR *StrDisconnectMode=_T("DisconnectMode");
 const TCHAR *StrRemoveConnection=_T("RemoveConnection");
@@ -21,7 +22,7 @@ const TCHAR *StrPanelMode=_T("PanelMode");
 int Config()
 {
   struct InitDialogItem InitItems[]={
-  /*  0 */{DI_DOUBLEBOX,3,1,72,16,0,0,0,0,(TCHAR *)MConfigTitle},
+  /*  0 */{DI_DOUBLEBOX,3,1,72,17,0,0,0,0,(TCHAR *)MConfigTitle},
   /*  1 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(TCHAR *)MConfigAddToDisksMenu},
   /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0,0,_T("")},
   /*  3 */{DI_TEXT,9,3,0,0,0,0,0,0,(TCHAR *)MConfigDisksMenuDigit},
@@ -30,14 +31,15 @@ int Config()
   /*  6 */{DI_TEXT,5,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
   /*  7 */{DI_CHECKBOX,5,7,0,0,0,0,0,0,(TCHAR *)MConfigLocalNetwork},
   /*  8 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(TCHAR *)MNTGetHideShare},
-  /*  9 */{DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-  /* 10 */{DI_CHECKBOX,5,10,0,0,0,0,0,0,(TCHAR *)MFullPathShares},
-  /* 11 */{DI_TEXT,5,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR|DIF_CENTERGROUP,0,(TCHAR *)MFavorites},
-  /* 12 */{DI_CHECKBOX,5,12,0,0,0,0,0,0,(TCHAR *)MUpbrowseToFavorites},
-  /* 13 */{DI_CHECKBOX,5,13,0,0,0,0,0,0,(TCHAR *)MCheckResource},
-  /* 14 */{DI_TEXT,5,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
-  /* 15 */{DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
-  /* 16 */{DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
+  /*  9 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(TCHAR *)MConfigShowPrinters},
+  /* 10 */{DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+  /* 11 */{DI_CHECKBOX,5,11,0,0,0,0,0,0,(TCHAR *)MFullPathShares},
+  /* 12 */{DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR|DIF_CENTERGROUP,0,(TCHAR *)MFavorites},
+  /* 13 */{DI_CHECKBOX,5,13,0,0,0,0,0,0,(TCHAR *)MUpbrowseToFavorites},
+  /* 14 */{DI_CHECKBOX,5,14,0,0,0,0,0,0,(TCHAR *)MCheckResource},
+  /* 15 */{DI_TEXT,5,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,_T("")},
+  /* 16 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(TCHAR *)MOk},
+  /* 17 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(TCHAR *)MCancel}
   };
 
   struct FarDialogItem DialogItems[ArraySize(InitItems)];
@@ -54,27 +56,29 @@ int Config()
   if (Opt.DisksMenuDigit)
     FSF.sprintf((TCHAR *)DialogItems[2].Data,_T("%d"),Opt.DisksMenuDigit);
 #undef Data
+
   DialogItems[7].Selected=Opt.LocalNetwork;
   DialogItems[8].Selected=Opt.NTGetHideShare;
-  DialogItems[10].Selected=Opt.FullPathShares;
+  DialogItems[9].Selected=Opt.ShowPrinters;
+  DialogItems[11].Selected=Opt.FullPathShares;
 
-  DialogItems[12].Selected=Opt.FavoritesFlags & FAVORITES_UPBROWSE_TO_FAVORITES ? TRUE : FALSE;
-  DialogItems[13].Selected=Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES       ? TRUE : FALSE;
+  DialogItems[13].Selected=Opt.FavoritesFlags & FAVORITES_UPBROWSE_TO_FAVORITES ? TRUE : FALSE;
+  DialogItems[14].Selected=Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES       ? TRUE : FALSE;
 
   int ret=FALSE;
 
 #ifndef UNICODE
-  int ExitCode=Info.Dialog(Info.ModuleNumber, -1, -1, 76, 18,_T("Config"),
+  int ExitCode=Info.Dialog(Info.ModuleNumber, -1, -1, 76, 19,_T("Config"),
                            DialogItems, ArraySize(DialogItems));
 #else
-  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1, -1, 76, 18,_T("Config"),
+  HANDLE hDlg=Info.DialogInit(Info.ModuleNumber, -1, -1, 76, 19,_T("Config"),
                            DialogItems, ArraySize(DialogItems),0,0,NULL,0);
   if (hDlg == INVALID_HANDLE_VALUE)
     return ret;
   int ExitCode=Info.DialogRun(hDlg);
 #endif
 
-  if (ExitCode==15)
+  if (ExitCode==16)
   {
     Opt.AddToDisksMenu=GetCheck(1);
     Opt.AddToPluginsMenu=GetCheck(4);
@@ -82,14 +86,15 @@ int Config()
     Opt.DisksMenuDigit=FSF.atoi(GetDataPtr(2));
     Opt.LocalNetwork=GetCheck(7);
     Opt.NTGetHideShare=GetCheck(8);
-    Opt.FullPathShares=GetCheck(10);
+    Opt.ShowPrinters=GetCheck(9);
+    Opt.FullPathShares=GetCheck(11);
 
-    if(GetCheck(12))
+    if(GetCheck(13))
       Opt.FavoritesFlags |= FAVORITES_UPBROWSE_TO_FAVORITES;
     else
       Opt.FavoritesFlags &= ~FAVORITES_UPBROWSE_TO_FAVORITES;
 
-    if(GetCheck(13))
+    if(GetCheck(14))
       Opt.FavoritesFlags |= FAVORITES_CHECK_RESOURCES;
     else
       Opt.FavoritesFlags &= ~FAVORITES_CHECK_RESOURCES;
@@ -99,6 +104,7 @@ int Config()
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,Opt.DisksMenuDigit);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrLocalNetwork,Opt.LocalNetwork);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,Opt.NTGetHideShare);
+    SetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,Opt.ShowPrinters);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrFullPathShares,Opt.FullPathShares);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrFavoritesFlags,Opt.FavoritesFlags);
     SetRegKey(HKEY_CURRENT_USER,_T(""),StrNoRootDoublePoint,Opt.NoRootDoublePoint);

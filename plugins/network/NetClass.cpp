@@ -376,7 +376,7 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
   int CurItemPos=0;
   for (unsigned I=0;I<NetList.Count();I++)
   {
-    if (NetList[I].dwType==RESOURCETYPE_PRINT)
+    if (NetList[I].dwType==RESOURCETYPE_PRINT && !Opt.ShowPrinters)
       continue;
 
     TCHAR RemoteName[NM],LocalName[NM],Comment[300];
@@ -403,6 +403,8 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int O
 #endif
 
     DWORD attr = FILE_ATTRIBUTE_DIRECTORY;
+    if (NetList[I].dwType==RESOURCETYPE_PRINT)
+       attr = FILE_ATTRIBUTE_VIRTUAL;
     if (Opt.HiddenSharesAsHidden && RemoteName [lstrlen (RemoteName)-1] == _T('$'))
       attr |= FILE_ATTRIBUTE_HIDDEN;
     NewPanelItem[CurItemPos].FindData.dwFileAttributes=attr;
@@ -1306,16 +1308,15 @@ int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
       for (int I=0;I<PInfo.SelectedItemsNumber;I++)
       {
 #ifndef UNICODE
-        if (!MapNetworkDrive (PInfo.SelectedItems[I].FindData.cFileName,
+        if (!MapNetworkDrive (PInfo.SelectedItems[I].FindData.cFileName, (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
 #else
         PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,I,0));
         if(PPI)
         {
           Info.Control(this,FCTL_GETSELECTEDPANELITEM,I,(LONG_PTR)PPI);
         }
-        if (!PPI||!MapNetworkDrive (PPI->FindData.lpwszFileName,
+        if (!PPI||!MapNetworkDrive (PPI->FindData.lpwszFileName, (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
 #endif
-          (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
         {
 #ifdef UNICODE
           free(PPI);

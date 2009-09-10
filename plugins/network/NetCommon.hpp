@@ -38,6 +38,7 @@ extern struct Options
   int AddToPluginsMenu;
   int DisksMenuDigit;
   int NTGetHideShare;
+  BOOL ShowPrinters;
   BOOL LocalNetwork;
   BOOL DisconnectMode;
   BOOL ConfirmRemoveConnection;

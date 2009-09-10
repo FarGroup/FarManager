@@ -109,6 +109,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
     Opt.AddToPluginsMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,1);
     Opt.DisksMenuDigit=GetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,3);
     Opt.NTGetHideShare=GetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,0);
+    Opt.ShowPrinters=GetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,0);
     Opt.LocalNetwork=GetRegKey (HKEY_CURRENT_USER, _T(""), StrLocalNetwork, TRUE);
     Opt.DisconnectMode=GetRegKey (HKEY_CURRENT_USER, _T(""), StrDisconnectMode, FALSE);
     Opt.HiddenSharesAsHidden=GetRegKey (HKEY_CURRENT_USER, _T(""), StrHiddenSharesAsHidden, TRUE);

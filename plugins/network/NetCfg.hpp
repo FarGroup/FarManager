@@ -7,6 +7,7 @@ extern const TCHAR *StrAddToPluginsMenu;
 extern const TCHAR *StrDisksMenuDigit;
 extern const TCHAR *StrHelpNetBrowse;
 extern const TCHAR *StrNTHiddenShare;
+extern const TCHAR *StrShowPrinters;
 extern const TCHAR *StrLocalNetwork;
 extern const TCHAR *StrDisconnectMode;
 extern const TCHAR *StrRemoveConnection;
