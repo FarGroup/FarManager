@@ -49,12 +49,13 @@ class FindFiles
   private:
 		bool FindFilesProcess();
     static LONG_PTR WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    static void DoScanTree(HANDLE hDlg,string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName);
-    static void _cdecl DoPrepareFileList(HANDLE hDlg,string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName);
+    static void DoScanTree(HANDLE hDlg,string& strRoot);
+    static void DoPrepareFileList(HANDLE hDlg);
     static DWORD WINAPI PrepareFilesList(void *Param);
     static void DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal);
 		static DWORD WINAPI PreparePluginList(void* Param);
-		static DWORD WINAPI WriteDialogData(void* Param);
+		static void DoWriteDialogData(HANDLE hDlg);
+		static DWORD WINAPI WriteDialogData(void *Param);
     static void ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags);
     static void ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName);
     static void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA_EX *FindData);

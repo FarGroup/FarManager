@@ -289,7 +289,7 @@ void InitInFileSearch()
 			else
 				findString = strFindStr.GetBuffer();
 
-			// Инизиализируем данные для аглоритма поиска
+			// Инизиализируем данные для алгоритма поиска
 			skipCharsTable = (size_t *)xf_malloc((WCHAR_MAX+1)*sizeof(size_t));
 			for (size_t index = 0; index < WCHAR_MAX+1; index++)
 				skipCharsTable[index] = findStringCount;
@@ -2166,257 +2166,246 @@ bool FindFiles::FindFilesProcess()
 	return false;
 }
 
-void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
+void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot)
 {
+	ScanTree ScTree(FALSE,!(SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH),Opt.FindOpt.FindSymLinks);
+
+	string strSelName;
+	DWORD FileAttr;
+	if (SearchMode==FFSEARCH_SELECTED)
+		CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
+
+	while (1)
 	{
-		ScanTree ScTree(FALSE,!(SearchMode==FFSEARCH_CURRENT_ONLY||SearchMode==FFSEARCH_INPATH),Opt.FindOpt.FindSymLinks);
-
-		string strSelName;
-		DWORD FileAttr;
+		string strCurRoot;
 		if (SearchMode==FFSEARCH_SELECTED)
-			CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
-
-		InitInFileSearch();
-
-		while (1)
 		{
-			string strCurRoot;
-			if (SearchMode==FFSEARCH_SELECTED)
-			{
-				if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
-					break;
-				if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) ||
-						StrCmp(strSelName,L".")==0)
-					continue;
+			if (!CtrlObject->Cp()->ActivePanel->GetSelName(&strSelName,FileAttr))
+				break;
+			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(strSelName) ||
+					StrCmp(strSelName,L".")==0)
+				continue;
 
-				strCurRoot = strRoot;
-				AddEndSlash(strCurRoot);
-				strCurRoot += strSelName;
+			strCurRoot = strRoot;
+			AddEndSlash(strCurRoot);
+			strCurRoot += strSelName;
+		}
+		else
+		{
+			strCurRoot = strRoot;
+		}
+
+		ScTree.SetFindPath(strCurRoot,L"*.*");
+
+		statusCS.Enter ();
+
+		strFindMessage = strCurRoot;
+		FindMessageReady=TRUE;
+
+		statusCS.Leave ();
+
+		FAR_FIND_DATA_EX FindData;
+		string strFullName;
+		while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
+		{
+			while (PauseSearch)
+			{
+				Sleep(1);
 			}
-			else
+			bool bContinue=false;
+			WIN32_FIND_STREAM_DATA sd;
+			HANDLE hFindStream=INVALID_HANDLE_VALUE;
+			bool FirstCall=true;
+			string strFindDataFileName=FindData.strFileName;
+
+			if(Opt.FindOpt.FindAlternateStreams)
 			{
-				strCurRoot = strRoot;
+				hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
 			}
-
-			ScTree.SetFindPath(strCurRoot,L"*.*");
-
-			statusCS.Enter ();
-
-			strFindMessage = strCurRoot;
-			FindMessageReady=TRUE;
-
-			statusCS.Leave ();
-
-			while (!StopSearch && ScTree.GetNextName(&FindData,strFullName))
+			while(true)
 			{
-				while (PauseSearch)
-				{
-					Sleep(1);
-				}
-				bool bContinue=false;
-				WIN32_FIND_STREAM_DATA sd;
-				HANDLE hFindStream=INVALID_HANDLE_VALUE;
-				bool FirstCall=true;
-				string strFindDataFileName=FindData.strFileName;
-
+				string strFullStreamName=strFullName;
 				if(Opt.FindOpt.FindAlternateStreams)
 				{
-					hFindStream=apiFindFirstStream(strFullName,FindStreamInfoStandard,&sd);
-				}
-				while(true)
-				{
-					string strFullStreamName=strFullName;
-					if(Opt.FindOpt.FindAlternateStreams)
+					if(hFindStream!=INVALID_HANDLE_VALUE)
 					{
-						if(hFindStream!=INVALID_HANDLE_VALUE)
+						if(!FirstCall)
 						{
-							if(!FirstCall)
+							if(!apiFindNextStream(hFindStream,&sd))
 							{
-								if(!apiFindNextStream(hFindStream,&sd))
-								{
-									apiFindStreamClose(hFindStream);
-									break;
-								}
-							}
-							else
-							{
-								FirstCall=false;
-							}
-							LPWSTR NameEnd=wcschr(sd.cStreamName+1,L':');
-							if(NameEnd)
-							{
-								*NameEnd=L'\0';
-							}
-							if(sd.cStreamName[1]) // alternate stream
-							{
-								strFullStreamName+=sd.cStreamName;
-								FindData.strFileName=strFindDataFileName+sd.cStreamName;
-								FindData.nFileSize=sd.StreamSize.QuadPart;
+								apiFindStreamClose(hFindStream);
+								break;
 							}
 						}
 						else
 						{
-							if(bContinue)
+							FirstCall=false;
+						}
+						LPWSTR NameEnd=wcschr(sd.cStreamName+1,L':');
+						if(NameEnd)
+						{
+							*NameEnd=L'\0';
+						}
+						if(sd.cStreamName[1]) // alternate stream
+						{
+							strFullStreamName+=sd.cStreamName;
+							FindData.strFileName=strFindDataFileName+sd.cStreamName;
+							FindData.nFileSize=sd.StreamSize.QuadPart;
+						}
+					}
+					else
+					{
+						if(bContinue)
+						{
+							break;
+						}
+					}
+				}
+				if(UseFilter)
+				{
+					enumFileInFilterType foundType;
+					if (!Filter->FileInFilter(&FindData,&foundType))
+					{
+						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+						if((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
+							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+						{
+							bContinue=true;
+							if(Opt.FindOpt.FindAlternateStreams)
+							{
+								continue;
+							}
+							else
 							{
 								break;
 							}
 						}
 					}
-					if(UseFilter)
-					{
-						enumFileInFilterType foundType;
-						if (!Filter->FileInFilter(&FindData,&foundType))
-						{
-							// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-							if((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
-								ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-							{
-								bContinue=true;
-								if(Opt.FindOpt.FindAlternateStreams)
-								{
-									continue;
-								}
-								else
-								{
-									break;
-								}
-							}
-						}
-					}
-
-					if(((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
-							(!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
-					{
-						statusCS.Enter();
-						strFindMessage = strFullName;
-						FindMessageReady=TRUE;
-						statusCS.Leave();
-					}
-					if(IsFileIncluded(NULL,strFullStreamName,FindData.dwFileAttributes))
-					{
-						AddMenuRecord(hDlg,strFullStreamName,&FindData);
-					}
-					if(!Opt.FindOpt.FindAlternateStreams || hFindStream==INVALID_HANDLE_VALUE)
-					{
-						break;
-					}
 				}
-				if(bContinue)
+
+				if(((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
+						(!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
 				{
-					continue;
+					statusCS.Enter();
+					strFindMessage = strFullName;
+					FindMessageReady=TRUE;
+					statusCS.Leave();
 				}
-				if (SearchInArchives)
-					ArchiveSearch(hDlg,strFullName);
+				if(IsFileIncluded(NULL,strFullStreamName,FindData.dwFileAttributes))
+				{
+					AddMenuRecord(hDlg,strFullStreamName,&FindData);
+				}
+				if(!Opt.FindOpt.FindAlternateStreams || hFindStream==INVALID_HANDLE_VALUE)
+				{
+					break;
+				}
 			}
-			if (SearchMode!=FFSEARCH_SELECTED)
-				break;
+			if(bContinue)
+			{
+				continue;
+			}
+			if (SearchInArchives)
+				ArchiveSearch(hDlg,strFullName);
 		}
-
-		ReleaseInFileSearch();
-
+		if (SearchMode!=FFSEARCH_SELECTED)
+			break;
 	}
 }
-void _cdecl FindFiles::DoPrepareFileList(HANDLE hDlg,string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
+void FindFiles::DoPrepareFileList(HANDLE hDlg)
+{
+  string strRoot;
+  wchar_t *Ptr=NULL;
+  DWORD DiskMask=FarGetLogicalDrives();
+
+  //string strRoot; //BUGBUG
+  CtrlObject->CmdLine->GetCurDir(strRoot);
+
+  if (SearchMode==FFSEARCH_INPATH)
+  {
+    string strPathEnv;
+    apiGetEnvironmentVariable(L"PATH",strPathEnv);
+    strPathEnv.Append(L'\0'); 
+    wchar_t* PathEnv = strPathEnv.GetBuffer();
+    Ptr = PathEnv;
+    while (*PathEnv)
+    {
+      if (*PathEnv==L';')
+        *PathEnv=0;
+      ++PathEnv;
+    }
+  }
+
+  for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
+  {
+    if (SearchMode==FFSEARCH_ALL ||
+        SearchMode==FFSEARCH_ALL_BUTNETWORK)
+    {
+      if (DiskMask==0)
+        break;
+
+      if ((DiskMask & 1)==0)
+        continue;
+
+			const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
+			strRoot=Root;
+      int DriveType=FAR_GetDriveType(strRoot);
+      if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
+         (DriveType==DRIVE_REMOTE && SearchMode==FFSEARCH_ALL_BUTNETWORK))
+      {
+        if (DiskMask==1)
+          break;
+        else
+          continue;
+      }
+    }
+    else if (SearchMode==FFSEARCH_ROOT)
+    {
+      GetPathRoot(strRoot,strRoot);
+    }
+    else if (SearchMode==FFSEARCH_INPATH)
+    {
+      if(!*Ptr)
+        break;
+      strRoot = Ptr;
+      Ptr+=StrLength(Ptr)+1;
+    }
+
+    DoScanTree(hDlg, strRoot);
+
+    if (SearchMode!=FFSEARCH_ALL && SearchMode!=FFSEARCH_ALL_BUTNETWORK && SearchMode!=FFSEARCH_INPATH)
+      break;
+  }
+
+  while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
+	{
+		Sleep(1);
+	}
+  statusCS.Enter ();
+
+	strFindPercentMessage=L"";
+	FindMessagePercentReady=true;
+
+  strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
+
+  SetFarTitle(strFindMessage);
+
+  SearchDone=TRUE;
+  FindMessageReady=TRUE;
+
+  statusCS.Leave ();
+}
+DWORD WINAPI FindFiles::PrepareFilesList(void *Param)
 {
   TRY {
-    string *strPathEnv = new string;
-    wchar_t *PathEnv=NULL, *Ptr=NULL;
-    DWORD DiskMask=FarGetLogicalDrives();
-
-    //string strRoot; //BUGBUG
-    CtrlObject->CmdLine->GetCurDir(strRoot);
-
-    if (SearchMode==FFSEARCH_INPATH && strPathEnv)
-    {
-      apiGetEnvironmentVariable(L"PATH",*strPathEnv);
-      PathEnv = strPathEnv->GetBuffer(strPathEnv->GetLength()+1);
-      if (PathEnv)
-      {
-        PathEnv[strPathEnv->GetLength()+1]=0;
-        Ptr=PathEnv;
-        while (*Ptr)
-        {
-          if (*Ptr==L';')
-            *Ptr=0;
-          ++Ptr;
-        }
-      }
-      Ptr=PathEnv;
-    }
-
-    for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
-    {
-      if (SearchMode==FFSEARCH_ALL ||
-          SearchMode==FFSEARCH_ALL_BUTNETWORK)
-      {
-        if (DiskMask==0)
-          break;
-
-        if ((DiskMask & 1)==0)
-          continue;
-
-				const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
-				strRoot=Root;
-        int DriveType=FAR_GetDriveType(strRoot);
-        if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
-           (DriveType==DRIVE_REMOTE && SearchMode==FFSEARCH_ALL_BUTNETWORK))
-        {
-          if (DiskMask==1)
-            break;
-          else
-            continue;
-        }
-      }
-      else if (SearchMode==FFSEARCH_ROOT)
-      {
-        GetPathRoot(strRoot,strRoot);
-      }
-      else if (SearchMode==FFSEARCH_INPATH)
-      {
-        if(!*Ptr)
-          break;
-        strRoot = Ptr;
-        Ptr+=StrLength(Ptr)+1;
-      }
-
-      DoScanTree(hDlg,strRoot, FindData, strFullName);
-
-      if (SearchMode!=FFSEARCH_ALL && SearchMode!=FFSEARCH_ALL_BUTNETWORK && SearchMode!=FFSEARCH_INPATH)
-        break;
-    }
-
-    delete strPathEnv;
-
-    while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
-		{
-			Sleep(1);
-		}
-    statusCS.Enter ();
-
-		strFindPercentMessage=L"";
-		FindMessagePercentReady=true;
-
-    strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
-
-    SetFarTitle(strFindMessage);
-
-    SearchDone=TRUE;
-    FindMessageReady=TRUE;
-
-    statusCS.Leave ();
-
+    InitInFileSearch();
+    DoPrepareFileList(reinterpret_cast<HANDLE>(Param));
+    ReleaseInFileSearch();
   }
   EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
   {
     TerminateProcess( GetCurrentProcess(), 1);
   }
-}
-DWORD WINAPI FindFiles::PrepareFilesList(void *Param)
-{
-	FAR_FIND_DATA_EX FindData;
-	string strFullName,strRoot;
-	DoPrepareFileList(reinterpret_cast<HANDLE>(Param),strRoot, FindData, strFullName);
-	return 0;
+  return 0;
 }
 
 void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
@@ -2706,62 +2695,64 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 
 void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal)
 {
-  TRY {
-		Sleep(1);
-    HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
-		OpenPluginInfo Info;
-    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-    strSaveDir = Info.CurDir;
-    strPluginSearchPath=Info.CurDir;
-    if (!strPluginSearchPath.IsEmpty())
-      AddEndSlash(strPluginSearchPath);
-    WaitForSingleObject(hPluginMutex,INFINITE);
-    if (SearchMode==FFSEARCH_ROOT ||
-        SearchMode==FFSEARCH_ALL ||
-        SearchMode==FFSEARCH_ALL_BUTNETWORK ||
-        SearchMode==FFSEARCH_INPATH)
-      CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
-    ReleaseMutex(hPluginMutex);
-    RecurseLevel=0;
-    ScanPluginTree(hDlg,hPlugin,ArcList[FindFileArcIndex]->Flags);
-    WaitForSingleObject(hPluginMutex,INFINITE);
-    if (SearchMode==FFSEARCH_ROOT ||
-        SearchMode==FFSEARCH_ALL ||
-        SearchMode==FFSEARCH_ALL_BUTNETWORK ||
-        SearchMode==FFSEARCH_INPATH)
-      CtrlObject->Plugins.SetDirectory(hPlugin,strSaveDir,OPM_FIND);
-    ReleaseMutex(hPluginMutex);
-    while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
-		{
-			Sleep(1);
-		}
-		if(!Internal)
-    {
-      statusCS.Enter();
-
-			strFindPercentMessage=L"";
-			FindMessagePercentReady=true;
-
-      strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
-      FindMessageReady=TRUE;
-      SearchDone=TRUE;
-
-      statusCS.Leave();
-    }
-  }
-  EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  Sleep(1);
+  HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
+  OpenPluginInfo Info;
+  WaitForSingleObject(hPluginMutex,INFINITE);
+  CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+  strSaveDir = Info.CurDir;
+  if (SearchMode==FFSEARCH_ROOT ||
+      SearchMode==FFSEARCH_ALL ||
+      SearchMode==FFSEARCH_ALL_BUTNETWORK ||
+      SearchMode==FFSEARCH_INPATH)
   {
-    TerminateProcess( GetCurrentProcess(), 1);
+    CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_FIND);
+    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+  }
+  ReleaseMutex(hPluginMutex);
+  strPluginSearchPath=Info.CurDir;
+  if (!strPluginSearchPath.IsEmpty())
+    AddEndSlash(strPluginSearchPath);
+  RecurseLevel=0;
+  ScanPluginTree(hDlg,hPlugin,ArcList[FindFileArcIndex]->Flags);
+  WaitForSingleObject(hPluginMutex,INFINITE);
+  if (SearchMode==FFSEARCH_ROOT ||
+      SearchMode==FFSEARCH_ALL ||
+      SearchMode==FFSEARCH_ALL_BUTNETWORK ||
+      SearchMode==FFSEARCH_INPATH)
+    CtrlObject->Plugins.SetDirectory(hPlugin,strSaveDir,OPM_FIND);
+  ReleaseMutex(hPluginMutex);
+  while (!StopSearch && (FindMessageReady||FindMessagePercentReady))
+  {
+		Sleep(1);
+	}
+	if(!Internal)
+  {
+    statusCS.Enter();
+
+		strFindPercentMessage=L"";
+		FindMessagePercentReady=true;
+
+    strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
+    FindMessageReady=TRUE;
+    SearchDone=TRUE;
+
+    statusCS.Leave();
   }
 }
 
 DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 {
-	string strSaveDir;
-	InitInFileSearch();
-	DoPreparePluginList(Param, strSaveDir,false);
-	ReleaseInFileSearch();
-	return 0;
+  TRY {
+    InitInFileSearch();
+    DoPreparePluginList(reinterpret_cast<HANDLE>(Param), string(), false);
+    ReleaseInFileSearch();
+  }
+  EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  {
+    TerminateProcess( GetCurrentProcess(), 1);
+  }
+  return 0;
 }
 
 void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
@@ -2886,12 +2877,11 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
   RecurseLevel--;
 }
 
-DWORD WINAPI FindFiles::WriteDialogData(void *Param)
+void FindFiles::DoWriteDialogData(HANDLE hDlg)
 {
   string strDataStr;
 
-	Dialog* Dlg=reinterpret_cast<Dialog*>(Param);
-	HANDLE hDlg=reinterpret_cast<HANDLE>(Param);
+	Dialog* Dlg=reinterpret_cast<Dialog*>(hDlg);
 	DWORD StartTime=GetTickCount();
 	if(Dlg)
 	{
@@ -3006,7 +2996,17 @@ DWORD WINAPI FindFiles::WriteDialogData(void *Param)
   }
 
 	}
-	return 0;
+}
+DWORD WINAPI FindFiles::WriteDialogData(void *Param)
+{
+  TRY {
+    DoWriteDialogData(reinterpret_cast<HANDLE>(Param));
+  }
+  EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  {
+    TerminateProcess( GetCurrentProcess(), 1);
+  }
+  return 0;
 }
 FindFiles::FindFiles()
 {
