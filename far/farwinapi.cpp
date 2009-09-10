@@ -647,7 +647,9 @@ DWORD apiGetCompressedFileSize(LPCWSTR lpFileName,LPDWORD lpFileSizeHigh)
 
 BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes);
+	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
+		//bug in win2k: \\?\ fails
+		CreateHardLink(lpFileName,lpExistingFileName,lpSecurityAttributes);
 }
 
 DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)

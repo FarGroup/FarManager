@@ -36,8 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "bitflags.hpp"
-
-
+#include "array.hpp"
 
 enum{
   // эту фигню может ставить плагин (младшие 8 бит)
@@ -70,8 +69,19 @@ class ScanTree
     string strFindPath;
     string strFindMask;
 
-  private:
+		struct FileId
+		{
+			DWORD FileIndexHigh,FileIndexLow;
+			DWORD VolumeSerialNumber;
+			bool operator==(const FileId& id)
+			{
+				return FileIndexHigh==id.FileIndexHigh && FileIndexLow==id.FileIndexLow && VolumeSerialNumber==id.VolumeSerialNumber;
+			}
+		};
+		TPointerArray<FileId>IdArray;
+
     void Init();
+		bool GetFileId(LPCWSTR Directory,FileId& id);
 
   public:
     ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);

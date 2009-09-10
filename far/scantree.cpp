@@ -57,6 +57,7 @@ ScanTree::~ScanTree()
 		if(Data[i].FindHandle && Data[i].FindHandle!=INVALID_HANDLE_VALUE)
 			apiFindClose(Data[i].FindHandle);
 	xf_free(Data);
+	IdArray.Free();
 }
 
 
@@ -68,6 +69,24 @@ void ScanTree::Init()
   Flags.Clear(FSCANTREE_FILESFIRST);
 }
 
+bool ScanTree::GetFileId(LPCWSTR Directory,FileId& id)
+{
+	bool Result=false;
+	HANDLE hDirectory=apiCreateFile(Directory,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
+	if(hDirectory!=INVALID_HANDLE_VALUE)
+	{
+		BY_HANDLE_FILE_INFORMATION bhfi;
+		if(GetFileInformationByHandle(hDirectory,&bhfi))
+		{
+			id.FileIndexHigh=bhfi.nFileIndexHigh;
+			id.FileIndexLow=bhfi.nFileIndexLow;
+			id.VolumeSerialNumber=bhfi.dwVolumeSerialNumber;
+			Result=true;
+		}
+		CloseHandle(hDirectory);
+	}
+	return Result;
+}
 
 void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
@@ -77,6 +96,22 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
   strFindPath = Path;
 
   AddEndSlash(strFindPath);
+
+	//recursive symlinks guard
+	IdArray.Free();
+	string strPathItem(strFindPath);
+	while(true)
+	{
+		FileId id;
+		if(GetFileId(strPathItem,id))
+		{
+			FileId *pid=IdArray.addItem();
+			*pid=id;
+		}
+		if(IsRootPath(strPathItem))
+			break;
+		strPathItem=ExtractFilePath(strPathItem);
+	}
 
   strFindPath += strFindMask;
 
@@ -161,6 +196,32 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
   }
   else
   {
+
+		//recursive symlinks guard
+		bool Recursion=false;
+		if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+		{
+			string strDir(strFindPath);
+			CutToSlash(strDir);
+			strDir+=fdata->strFileName;
+			FileId id;
+			if(GetFileId(strDir,id))
+			{
+				for(UINT i=0;i<IdArray.getCount()&&!Recursion;i++)
+				{
+					Recursion=(*IdArray.getItem(i)==id);
+				}
+				if(!Recursion)
+				{
+					*IdArray.addItem()=id;
+				}
+			}
+		}
+		if(Recursion)
+		{
+			return(GetNextName(fdata,strFullName));
+		}
+
     /*
        ≈сли каталог €вл€етс€ SymLink (т.н. "Directory Junctions"),
        то в него не ломимс€.

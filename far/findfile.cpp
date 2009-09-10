@@ -2332,7 +2332,7 @@ void _cdecl FindFiles::DoPrepareFileList(HANDLE hDlg,string& strRoot, FAR_FIND_D
       PathEnv = strPathEnv->GetBuffer(strPathEnv->GetLength()+1);
       if (PathEnv)
       {
-        PathEnv[strPathEnv->GetLength()]=0;
+        PathEnv[strPathEnv->GetLength()+1]=0;
         Ptr=PathEnv;
         while (*Ptr)
         {

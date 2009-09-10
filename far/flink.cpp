@@ -332,10 +332,7 @@ int WINAPI GetNumberOfLinks(const wchar_t *Name)
 
 int WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName)
 {
-	string strExistingName,strNewName;
-	ConvertNameToFull(ExistingName,strExistingName);
-	ConvertNameToFull(NewName,strNewName);
-	return apiCreateHardLink(strNewName,strExistingName,NULL)!=FALSE;
+	return apiCreateHardLink(NewName,ExistingName,NULL)!=FALSE;
 }
 
 /*
