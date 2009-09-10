@@ -2472,8 +2472,7 @@ void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
 
       strSaveDirName = strLastDirName;
       strLastDirName = L"";
-			string strTmp;
-			DoPreparePluginList(hDlg,strTmp,true);
+			DoPreparePluginList(hDlg,true);
       strPluginSearchPath = strSaveSearchPath;
       WaitForSingleObject(hPluginMutex,INFINITE);
       CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex]->hPlugin);
@@ -2693,14 +2692,14 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	FindCountReady=TRUE;
 }
 
-void FindFiles::DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal)
+void FindFiles::DoPreparePluginList(HANDLE hDlg,bool Internal)
 {
   Sleep(1);
   HANDLE hPlugin=ArcList[FindFileArcIndex]->hPlugin;
   OpenPluginInfo Info;
   WaitForSingleObject(hPluginMutex,INFINITE);
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-  strSaveDir = Info.CurDir;
+  string strSaveDir = Info.CurDir;
   if (SearchMode==FFSEARCH_ROOT ||
       SearchMode==FFSEARCH_ALL ||
       SearchMode==FFSEARCH_ALL_BUTNETWORK ||
@@ -2745,7 +2744,7 @@ DWORD WINAPI FindFiles::PreparePluginList(void *Param)
 {
   TRY {
     InitInFileSearch();
-    DoPreparePluginList(reinterpret_cast<HANDLE>(Param), string(), false);
+    DoPreparePluginList(reinterpret_cast<HANDLE>(Param), false);
     ReleaseInFileSearch();
   }
   EXCEPT (xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))

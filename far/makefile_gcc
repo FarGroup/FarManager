@@ -5,7 +5,7 @@
 
 ifndef DEBUG
 DIRNAME=Release
-DEBUGFLAGS=
+DEBUGFLAGS=-Os
 DEBUGLINKFLAGS=-s
 else
 DIRNAME=Debug
@@ -191,8 +191,8 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES = windres -D__FARBIT__=$(DIRBIT)
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
-CCFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch -Wno-strict-aliasing
-CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe -Os $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
+CCFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -fno-rtti -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch -Wno-strict-aliasing
+CFLAGS = $(DEBUGFLAGS) -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas -Wno-switch
 LNKFLAGS = -mno-cygwin $(DEBUGLINKFLAGS) -lmpr -lwinspool -lole32 -lsecur32
 
 .PHONY: all
@@ -217,7 +217,7 @@ dirs:
 .PHONY: build
 build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/farkeys.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas $(FARINCLUDE)/FarKeysW.pas
 
-$(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJDIR)/headers.hpp.gch $(OBJS) $(UCD_OBJS) $(DEF)
+$(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJS) $(UCD_OBJS) $(DEF)
 	@echo linking $@
 	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 
@@ -232,6 +232,8 @@ $(OBJDIR)/%.o: %.cpp
 $(OBJDIR)/headers.hpp.gch: headers.hpp
 	@echo making precompiled headers
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
+
+$(OBJS): $(OBJDIR)/headers.hpp.gch
 
 $(OBJDIR)/%.o: ./UCD/%.c
 	@echo compiling $<

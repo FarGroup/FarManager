@@ -52,7 +52,7 @@ class FindFiles
     static void DoScanTree(HANDLE hDlg,string& strRoot);
     static void DoPrepareFileList(HANDLE hDlg);
     static DWORD WINAPI PrepareFilesList(void *Param);
-    static void DoPreparePluginList(HANDLE hDlg,string& strSaveDir,bool Internal);
+    static void DoPreparePluginList(HANDLE hDlg,bool Internal);
 		static DWORD WINAPI PreparePluginList(void* Param);
 		static void DoWriteDialogData(HANDLE hDlg);
 		static DWORD WINAPI WriteDialogData(void *Param);
