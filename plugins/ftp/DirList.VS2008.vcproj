@@ -580,6 +580,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\lib\DirList\pr_mvs.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\lib\DirList\pr_netware.cpp"
 				>
 			</File>

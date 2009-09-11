@@ -1,3 +1,7 @@
+drkns 11.09.2009 18:25:15 +0200
+
+1. Mantis#0001052: pr_mvs.cpp missing in FTP plugin's DirList.VS2008.vcproj compilation list
+
 svs 24.08.2009 12:18:50 +0300 - build 256
 
 1. Mantis#0001005: добавлена поддержка FTP сервера IBM z/OS (MVS)
