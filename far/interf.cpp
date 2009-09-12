@@ -973,7 +973,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 
   {
     WCHAR OutStr[4096];
-		_wmemset(OutStr,BoxSymbols[Type?BS_H2:BS_H1],countof(OutStr));
+		wmemset(OutStr,BoxSymbols[Type?BS_H2:BS_H1],countof(OutStr));
     OutStr[_width+1]=0;
 
     OutStr[0]=BoxSymbols[Type?BS_LT_H2V2:BS_LT_H1V1];
@@ -988,7 +988,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
     Text(OutStr);
     //mprintf(L"%.*s",x2-x1+1,OutStr);
 
-		_wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],countof(OutStr));
+		wmemset(OutStr,BoxSymbols[Type?BS_V2:BS_V1],countof(OutStr));
     OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);
@@ -1078,7 +1078,7 @@ bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 		CaretPos=Min(CaretPos,Length-CaretLength);
 
 		wchar_t OutStr[4096];
-		_wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
+		wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
 		OutStr[0]=Oem2Unicode[0x1E];
 		for(size_t i=0;i<CaretLength;i++)
 			OutStr[CaretPos+1+i]=BoxSymbols[BS_X_B2];
@@ -1108,7 +1108,7 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
     WCHAR OutStr[4096];
     if(Length > (int)(countof(OutStr)-3))
        Length=countof(OutStr)-3;
-    _wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
+    wmemset(OutStr+1,BoxSymbols[BS_X_B0],Length);
     OutStr[ThumbPos+1]=BoxSymbols[BS_X_B2];
     OutStr[0]=Oem2Unicode[0x1E];
     OutStr[Length+1]=Oem2Unicode[0x1F];
@@ -1154,7 +1154,7 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 	if (Length>1 && DestStr)
 	{
 		Type%=countof(BoxType);
-		_wmemset(DestStr,BoxType[Type][2],Length);
+		wmemset(DestStr,BoxType[Type][2],Length);
 		DestStr[0]=BoxType[Type][0];
 		DestStr[Length-1]=BoxType[Type][1];
 		DestStr[Length]=0;

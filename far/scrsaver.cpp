@@ -43,6 +43,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "scrsaver.hpp"
 
+
+#define randomize() srand(67898)
+#define random(x) ((int)(((x)*rand())/(RAND_MAX+1)))
+
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
 static struct

@@ -92,7 +92,7 @@ LONG_PTR __stdcall hndOpenEditor (
 {
 	if ( msg == DN_INITDIALOG )
 	{
-		int codepage = *(int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+		int codepage = *(int*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
 		AddCodepagesToList (hDlg, ID_OE_CODEPAGE, codepage, true, false);
 	}
@@ -101,19 +101,19 @@ LONG_PTR __stdcall hndOpenEditor (
 	{
 		if ( param1 == ID_OE_OK )
 		{
-			int *param = (int*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+			int *param = (int*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
 			FarListPos pos;
 
-			Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (LONG_PTR)&pos);
+			SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, (LONG_PTR)&pos);
 
-			*param = (int)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
+			*param = (int)SendDlgMessage (hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, pos.SelectPos);
 
 			return TRUE;
 		}
 	}
 
-	return Dialog::DefDlgProc (hDlg, msg, param1, param2);
+	return DefDlgProc (hDlg, msg, param1, param2);
 }
 
 
@@ -185,17 +185,17 @@ LONG_PTR __stdcall hndSaveFileAs (
 	{
 		case DN_INITDIALOG:
 		{
-			UINT codepage = *(UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+			UINT codepage = *(UINT*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
 			if(IsUnicodeOrUTFCP(codepage))
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
 			}
 			else
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
-				Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 			}
 			break;
 		}
@@ -204,10 +204,10 @@ LONG_PTR __stdcall hndSaveFileAs (
 		{
 			if ( param1 == ID_SF_OK )
 			{
-				UINT *codepage = (UINT*)Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				UINT *codepage = (UINT*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 				FarListPos pos;
-				Dialog::SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
-				*codepage = (UINT)Dialog::SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
+				SendDlgMessage (hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, (LONG_PTR)&pos);
+				*codepage = (UINT)SendDlgMessage (hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, pos.SelectPos);
 				return TRUE;
 			}
 			break;
@@ -218,16 +218,16 @@ LONG_PTR __stdcall hndSaveFileAs (
 			if(param1==ID_SF_CODEPAGE)
 			{
 				FarListPos pos;
-				Dialog::SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
-				if(IsUnicodeOrUTFCP(static_cast<UINT>(Dialog::SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
+				SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
+				if(IsUnicodeOrUTFCP(static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
 				{
-					Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+					SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
+					SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
 				}
 				else
 				{
-					Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
-					Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+					SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+					SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 				}
 				return TRUE;
 			}
@@ -235,7 +235,7 @@ LONG_PTR __stdcall hndSaveFileAs (
 		}
 
 	}
-	return Dialog::DefDlgProc (hDlg, msg, param1, param2);
+	return DefDlgProc (hDlg, msg, param1, param2);
 }
 
 
@@ -1433,7 +1433,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 		if ( apiGetFileSizeEx(hEdit, RealSizeFile) )
 		{
-			unsigned __int64 NeedSizeFile = Opt.EdOpt.FileSizeLimitHi*_ui64(0x100000000)+Opt.EdOpt.FileSizeLimitLo;
+			unsigned __int64 NeedSizeFile = Opt.EdOpt.FileSizeLimitHi*0x100000000ull+Opt.EdOpt.FileSizeLimitLo;
 
 			if(RealSizeFile > NeedSizeFile)
 			{

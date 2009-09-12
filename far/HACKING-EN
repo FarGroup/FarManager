@@ -73,15 +73,9 @@ vbuild.m4
    changes to the SVN you should call "svn_tag_build.bat".
 
 
-Exceptions (SEH)
-~~~~~~~~~~~~~~~~
-1. Instead of _try, __try, etc. we use a macro - TRY
-2. Instead of __except, etc. we use a macro - EXCEPT
-
-
 GCC - ensuring "successful" compilation with GCC
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. Instead of postfixes i64 and ui64 use the macros _i64() and _ui64().
+1. Instead of postfixes i64 and ui64 use postfixes ll and ull.
 
 
 x64 - ensuring "successful" compilation for x86 and x64

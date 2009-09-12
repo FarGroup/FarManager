@@ -305,7 +305,7 @@ TVar operator/(const TVar& a, const TVar& b)
       switch ( b.vType )
       {
         case vtInteger:
-          r = b.inum ? ( a.inum / b.inum ) : _i64(0);
+          r = b.inum ? ( a.inum / b.inum ):0;
           break;
         case vtString:
           r = a;
@@ -328,7 +328,7 @@ TVar operator%(const TVar& a, const TVar& b)
       switch ( b.vType )
       {
         case vtInteger:
-          r = b.inum ? ( a.inum % b.inum ) : _i64(0);
+          r = b.inum ? ( a.inum % b.inum ):0;
           break;
         case vtString:
           r = a;

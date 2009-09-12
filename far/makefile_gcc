@@ -129,7 +129,6 @@ SRCS = \
 	scrbuf.cpp \
 	scrobj.cpp \
 	scrsaver.cpp \
-	sdkpatches.cpp \
 	setattr.cpp \
 	setcolor.cpp \
 	stddlg.cpp \

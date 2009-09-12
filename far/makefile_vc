@@ -196,7 +196,6 @@ LINK32_OBJS = \
 	"$(INTDIR)\scrbuf.obj" \
 	"$(INTDIR)\scrobj.obj" \
 	"$(INTDIR)\scrsaver.obj" \
-	"$(INTDIR)\sdkpatches.obj" \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\stddlg.obj" \

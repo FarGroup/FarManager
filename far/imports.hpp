@@ -160,7 +160,7 @@ typedef NTSTATUS (WINAPI *NTQUERYINFORMATIONFILE)(
 	PIO_STATUS_BLOCK IoStatusBlock,
 	PVOID FileInformation,
 	ULONG Length,
-	int FileInformationClass
+	FILE_INFORMATION_CLASS FileInformationClass
 	);
 
 typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(

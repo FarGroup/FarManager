@@ -364,17 +364,12 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 			{
 				TotalFileSize += NewPtr->UnpSize;
-				int Compressed=FALSE;
+				bool Compressed=false;
 				if (ReadPacked && ((fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (fdata.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)))
 				{
-					DWORD dwLoPart, dwHighPart;
-
-					dwLoPart = apiGetCompressedFileSize (fdata.strFileName, &dwHighPart);
-
-					if ( (dwLoPart != INVALID_FILE_SIZE) || (GetLastError () != NO_ERROR) )
+					if(apiGetCompressedFileSize(fdata.strFileName,NewPtr->PackSize))
 					{
-						NewPtr->PackSize = dwHighPart*_ui64(0x100000000)+dwLoPart;
-						Compressed=TRUE;
+						Compressed=true;
 					}
 				}
 				if (!Compressed)

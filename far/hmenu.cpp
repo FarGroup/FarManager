@@ -107,36 +107,36 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return (__int64)(ItemCount<=0);
+			return ItemCount<=0;
     case MCODE_C_EOF:
-      return (__int64)(SelectPos==ItemCount-1);
+			return SelectPos==ItemCount-1;
     case MCODE_C_BOF:
-      return (__int64)(SelectPos==0);
+			return SelectPos==0;
     case MCODE_C_SELECTED:
-      return (__int64)(ItemCount > 0 && SelectPos >= 0);
+			return ItemCount > 0 && SelectPos >= 0;
     case MCODE_V_ITEMCOUNT:
-      return (__int64)ItemCount;
+			return ItemCount;
     case MCODE_V_CURPOS:
-      return (__int64)(SelectPos+1);
+			return SelectPos+1;
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const wchar_t *str = (const wchar_t *)vParam;
       if ( *str )
-        return (__int64)CheckHighlights((WORD)*str);
-      return _i64(0);
+        return CheckHighlights((WORD)*str);
+			return 0;
     }
     case MCODE_F_MENU_GETHOTKEY:
     {
-      if(iParam == _i64(-1))
-        iParam=(__int64)SelectPos;
+			if(iParam == -1)
+				iParam=SelectPos;
 
       if((int)iParam < ItemCount)
         return (__int64)((DWORD)GetHighlights((const HMenuData *)(Item+(int)iParam)));
-      return _i64(0);
+			return 0;
     }
   }
 
-  return _i64(0);
+	return 0;
 }
 
 int HMenu::ProcessKey(int Key)
@@ -274,7 +274,7 @@ int HMenu::ProcessKey(int Key)
     {
       for (I=0;I<ItemCount;I++)
       {
-        if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
+        if (IsKeyHighlighted(Item[I].Name,Key,FALSE))
         {
           Item[SelectPos].Selected=0;
           Item[I].Selected=1;
@@ -286,7 +286,7 @@ int HMenu::ProcessKey(int Key)
       }
       for (I=0;I<ItemCount;I++)
       {
-        if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE))
+        if (IsKeyHighlighted(Item[I].Name,Key,TRUE))
         {
           Item[SelectPos].Selected=0;
           Item[I].Selected=1;

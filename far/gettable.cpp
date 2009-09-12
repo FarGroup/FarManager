@@ -84,7 +84,7 @@ void AddTable(const wchar_t *codePageName, UINT codePage, int position = -1, boo
 		if (position==-1)
 		{
 			FarListInfo info;
-			Dialog::SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
+			SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
 			position = info.ItemsNumber;
 		}
 		// Вставляем элемент
@@ -103,20 +103,20 @@ void AddTable(const wchar_t *codePageName, UINT codePage, int position = -1, boo
 		{
 			item.Item.Flags |= MIF_GRAYED;
 		}
-		Dialog::SendDlgMessage(dialog, DM_LISTINSERT, control, (LONG_PTR)&item);
+		SendDlgMessage(dialog, DM_LISTINSERT, control, (LONG_PTR)&item);
 		// Устанавливаем данные для элемента
 		FarListItemData data;
 		data.Index = position;
 		data.Data = (void*)(DWORD_PTR)codePage;
 		data.DataSize = sizeof(UINT);
-		Dialog::SendDlgMessage(dialog, DM_LISTSETDATA, control, (LONG_PTR)&data);
+		SendDlgMessage(dialog, DM_LISTSETDATA, control, (LONG_PTR)&data);
 		// Если надо выбираем элемент
 		FarListInfo info;
-		Dialog::SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
-		if (info.ItemsNumber==1 || (codePage==currentCodePage && (UINT)Dialog::SendDlgMessage(dialog, DM_LISTGETDATA, control, info.SelectPos)!=codePage))
+		SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
+		if (info.ItemsNumber==1 || (codePage==currentCodePage && (UINT)SendDlgMessage(dialog, DM_LISTGETDATA, control, info.SelectPos)!=codePage))
 		{
-			Dialog::SendDlgMessage(dialog, DM_LISTSETCURPOS, control, (LONG_PTR)&position);
-			Dialog::SendDlgMessage(dialog, DM_SETTEXTPTR, control, (LONG_PTR)item.Item.Text);
+			SendDlgMessage(dialog, DM_LISTSETCURPOS, control, (LONG_PTR)&position);
+			SendDlgMessage(dialog, DM_SETTEXTPTR, control, (LONG_PTR)item.Item.Text);
 		}
 	}
 	else
@@ -170,13 +170,13 @@ void AddSeparator(LPCWSTR Label=NULL,int position = -1)
 		if (position==-1)
 		{
 			FarListInfo info;
-			Dialog::SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
+			SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
 			position = info.ItemsNumber;
 		}
 		FarListInsert item = {position};
 		item.Item.Text = Label;
 		item.Item.Flags = LIF_SEPARATOR;
-		Dialog::SendDlgMessage(dialog, DM_LISTINSERT, control, (LONG_PTR)&item);
+		SendDlgMessage(dialog, DM_LISTINSERT, control, (LONG_PTR)&item);
 	}
 	else
 	{
@@ -202,7 +202,7 @@ int GetItemsCount()
 	else
 	{
 		FarListInfo info;
-		Dialog::SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
+		SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
 		return info.ItemsNumber;
 	}
 }
@@ -220,7 +220,7 @@ int GetTableInsertPosition(UINT codePage, int start, int length)
 		if (tables)
 			itemCodePage = (UINT)(UINT_PTR)tables->GetItemPtr(position)->UserData;
 		else
-			itemCodePage = (UINT)(UINT_PTR)Dialog::SendDlgMessage(dialog, DM_LISTGETDATA, control, position);
+			itemCodePage = (UINT)(UINT_PTR)SendDlgMessage(dialog, DM_LISTGETDATA, control, position);
 		if (itemCodePage >= codePage)
 			return position;
 	} while (position++<start+length);

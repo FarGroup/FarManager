@@ -60,6 +60,36 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTEXT_ADN_SEPARATORS	1
 
+// Флаги для функции ConvertItem
+enum CVTITEMFLAGS {
+	CVTITEM_TOPLUGIN        = 0,
+	CVTITEM_FROMPLUGIN      = 1,
+	CVTITEM_TOPLUGINSHORT   = 2,
+	CVTITEM_FROMPLUGINSHORT = 3
+};
+
+enum DLGEDITLINEFLAGS {
+  DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
+  DLGEDITLINE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
+  DLGEDITLINE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
+  DLGEDITLINE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
+  DLGEDITLINE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
+  DLGEDITLINE_PERSISTBLOCK        = 0x00000020, // постоянные блоки в строках ввода
+  DLGEDITLINE_AUTOCOMPLETE        = 0x00000040, // автозавершение в строках ввода
+  DLGEDITLINE_AUTOCOMPLETECTRLEND = 0x00000040, // при автозавершение подтверждать комбинацией Ctrl-End
+  DLGEDITLINE_HISTORY             = 0x00000100, // история в строках ввода диалогов
+};
+
+enum DLGITEMINTERNALFLAGS {
+  DLGIIF_LISTREACTIONFOCUS        = 0x00000001, // MouseReaction для фокусного элемента
+  DLGIIF_LISTREACTIONNOFOCUS      = 0x00000002, // MouseReaction для не фокусного элемента
+  DLGIIF_EDITPATH                 = 0x00000004, // здесь Ctrl-End в строке редактирования будет выдавать на гора автодополнение существующих путей в дополнении к выбору из истории
+  DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
+  DLGIIF_COMBOBOXEVENTKEY         = 0x00000010, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
+  DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
+  DLGIIF_EDITCHANGEPROCESSED      = 0x00000040, // элемент обрабатывает событие DN_EDITCHANGE
+};
+
 static const wchar_t fmtSavedDialogHistory[]=L"SavedDialogHistory\\";
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,7 +115,48 @@ static inline bool CanGetFocus(int Type)
     }
 }
 
+bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos)
+{
+  if(AmpPos == -1)
+  {
+    if ((Str=wcschr(Str,L'&'))==NULL)
+      return(FALSE);
+    AmpPos=1;
+  }
+  else
+  {
+    if(AmpPos >= StrLength(Str))
+      return FALSE;
+    Str=Str+AmpPos;
+    AmpPos=0;
+    if(Str[AmpPos] == L'&')
+      AmpPos++;
+  }
+  int UpperStrKey=Upper ((int)Str[AmpPos]);
+  if (Key < 0xFFFF)
+  {
+    return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
+  }
 
+  if(Key&KEY_ALT)
+  {
+    int AltKey=Key&(~KEY_ALT);
+    if(AltKey < 0xFFFF)
+    {
+      if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
+        return(AltKey==UpperStrKey);
+
+      if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
+  //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
+  //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
+  //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
+      {
+        return(UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey)));
+      }
+    }
+  }
+	return false;
+}
 
 void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 {
@@ -115,6 +186,161 @@ void DialogItemExToDialogItemEx (DialogItemEx *pSrc, DialogItemEx *pDest)
 
     pDest->SelStart = pSrc->SelStart;
     pDest->SelEnd = pSrc->SelEnd;
+}
+
+void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
+{
+	Item->Type = Data->Type;
+	Item->X1 = Data->X1;
+	Item->Y1 = Data->Y1;
+	Item->X2 = Data->X2;
+	Item->Y2 = Data->Y2;
+	Item->Focus = Data->Focus;
+
+	Item->Param.History = Data->History;
+	Item->Flags = Data->Flags;
+	Item->DefaultButton = Data->DefaultButton;
+	Item->MaxLen = Data->nMaxLength;
+	Item->PtrData = NULL;
+}
+
+size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
+{
+	//TODO: тут видимо надо сделать поумнее
+	ItemString=Data->strData;
+	if (IsEdit(Data->Type))
+	{
+		DlgEdit *EditPtr;
+		if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
+			EditPtr->GetString(ItemString);
+	}
+	size_t sz = ItemString.GetLength();
+	if (sz > Data->nMaxLength && Data->nMaxLength > 0)
+		sz = Data->nMaxLength;
+	return sz;
+}
+
+bool ConvertItemEx (
+        CVTITEMFLAGS FromPlugin,
+				FarDialogItem *Item,
+				DialogItemEx *Data,
+        unsigned Count
+        )
+{
+	unsigned I;
+	if(!Item || !Data)
+		return false;
+
+	switch(FromPlugin)
+	{
+		case CVTITEM_TOPLUGIN:
+		case CVTITEM_TOPLUGINSHORT:
+			for (I=0; I < Count; I++, ++Item, ++Data)
+			{
+				ConvertItemSmall(Item,Data);
+
+				if(FromPlugin==CVTITEM_TOPLUGIN)
+				{
+
+					string str;
+					size_t sz = ItemStringAndSize(Data,str);
+
+					{
+						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
+						Item->PtrData = p;
+						if (!p) // TODO: may be needed message?
+							return false;
+						wmemcpy(p, (const wchar_t*)str, sz);
+						p[sz] = L'\0';
+					}
+				}
+			}
+			break;
+		case CVTITEM_FROMPLUGIN:
+		case CVTITEM_FROMPLUGINSHORT:
+			for (I=0; I < Count; I++, ++Item, ++Data)
+			{
+				Data->X1 = Item->X1;
+				Data->Y1 = Item->Y1;
+				Data->X2 = Item->X2;
+				Data->Y2 = Item->Y2;
+				Data->Focus = Item->Focus;
+
+				Data->History = Item->Param.History;
+				Data->Flags = Item->Flags;
+				Data->DefaultButton = Item->DefaultButton;
+
+				Data->Type = Item->Type;
+
+				if(FromPlugin==CVTITEM_FROMPLUGIN)
+				{
+					Data->strData = Item->PtrData;
+					Data->nMaxLength = Item->MaxLen;
+					if (Data->nMaxLength > 0)
+						Data->strData.SetLength(Data->nMaxLength);
+				}
+
+				Data->ListItems = Item->Param.ListItems;
+
+				if(Data->X2 < Data->X1) Data->X2=Data->X1;
+				if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
+				if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->Param.ListItems))
+					Data->ListItems=NULL;
+			}
+			break;
+	}
+	return true;
+}
+
+size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
+{
+	size_t size=sizeof(*Item);
+	string str;
+	size_t sz = ItemStringAndSize(Data,str);
+	size+=(sz+1)*sizeof(wchar_t);
+	if(Item)
+	{
+		ConvertItemSmall(Item,Data);
+		wchar_t* p=(wchar_t*)(Item+1);
+		Item->PtrData = p;
+		wmemcpy(p, (const wchar_t*)str, sz);
+		p[sz] = L'\0';
+		if(Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
+			Item->Param.ListPos=Data->ListPtr?Data->ListPtr->GetSelectPos():0;
+	}
+	return size;
+}
+
+void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
+{
+  int I;
+
+  if(!Item || !Data)
+    return;
+
+  for (I=0; I < Count; I++, ++Item, ++Data)
+  {
+  	Item->Clear();
+    Item->ID=I;
+    Item->Type=Data->Type;
+    Item->X1=Data->X1;
+    Item->Y1=Data->Y1;
+    Item->X2=Data->X2;
+    Item->Y2=Data->Y2;
+    if(Item->X2 < Item->X1) Item->X2=Item->X1;
+    if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
+    Item->Focus=Data->Focus;
+    Item->History=Data->History;
+    Item->Flags=Data->Flags;
+    Item->DefaultButton=Data->DefaultButton;
+    Item->SelStart=-1;
+
+
+		if(!IsPtr(Data->Data))
+        Item->strData = MSG((int)(DWORD_PTR)Data->Data);
+    else
+        Item->strData = Data->Data;
+  }
 }
 
 
@@ -156,7 +382,7 @@ Dialog::Dialog(FarDialogItem *SrcItem,    // Набор элементов диалога
 		Dialog::Item[i] = new DialogItemEx;
 		Dialog::Item[i]->Clear();
 		//BUGBUG add error check
-		Dialog::ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Dialog::Item[i],1);
+		ConvertItemEx(CVTITEM_FROMPLUGIN,&SrcItem[i],Dialog::Item[i],1);
 	}
 
 	Dialog::ItemCount = SrcItemCount;
@@ -185,7 +411,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 
 	if(!DlgProc) // функция должна быть всегда!!!
 	{
-		DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
+		DlgProc=DefDlgProc;
 		// знать диалог в старом стиле - учтем этот факт!
 		DialogMode.Set(DMODE_OLDSTYLE);
 	}
@@ -889,7 +1115,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 				FarDialogItemData IData;
 				IData.PtrData=(wchar_t *)(const wchar_t *)strData;
 				IData.PtrLength=(int)strData.GetLength();
-				Dialog::SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
+				SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
 			}
 		}
 	}
@@ -1180,9 +1406,7 @@ void Dialog::GetDialogObjectsData()
       /**/
     }
 #if 0
-    if((Type == DI_COMBOBOX || Type == DI_LISTBOX) &&
-       CurItem->ListPtr && CurItem->ListItems &&
-       DlgProc == Dialog::DefDlgProc)
+		if((Type == DI_COMBOBOX || Type == DI_LISTBOX) && CurItem->ListPtr && CurItem->ListItems && DlgProc == DefDlgProc)
     {
       int ListPos=CurItem->ListPtr->GetSelectPos();
       if(ListPos < CurItem->ListItems->ItemsNumber)
@@ -1519,7 +1743,7 @@ void Dialog::ShowDialog(unsigned ID)
        Перед прорисовкой каждого элемента посылаем сообщение
        посредством функции SendDlgMessage - в ней делается все!
     */
-    if(!Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
+		if(!SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
        continue;
 
     int LenText;
@@ -1942,7 +2166,7 @@ void Dialog::ShowDialog(unsigned ID)
       Убираем вызов плагиновго обработчика.
     */
     //DlgProc((HANDLE)this,DN_DRAWDIALOGDONE,1,0);
-    Dialog::DefDlgProc((HANDLE)this,DN_DRAWDIALOGDONE,1,0);
+		DefDlgProc((HANDLE)this,DN_DRAWDIALOGDONE,1,0);
   }
   else
     DlgProc((HANDLE)this,DN_DRAWDIALOGDONE,0,0);
@@ -2095,7 +2319,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       const wchar_t *str = (const wchar_t *)vParam;
       if ( *str )
         return (__int64)((DWORD)CheckHighlights(*str));
-      return _i64(0);
+      return 0;
     }
   }
   switch(OpCode)
@@ -2116,31 +2340,31 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
     {
       switch(Item[FocusPos]->Type)
       {
-        case DI_BUTTON:      return _i64(7); // Кнопка (Push Button).
-        case DI_CHECKBOX:    return _i64(8); // Контрольный переключатель (Check Box).
-        case DI_COMBOBOX:    return (__int64)(DropDownOpened?0x800A:10); // Комбинированный список.
-        case DI_DOUBLEBOX:   return _i64(3); // Двойная рамка.
-        case DI_EDIT:        return (__int64)(DropDownOpened?0x8004:4); // Поле ввода.
-        case DI_FIXEDIT:     return _i64(6); // Поле ввода фиксированного размера.
-        case DI_LISTBOX:     return _i64(11); // Окно списка.
-        case DI_PSWEDIT:     return _i64(5); // Поле ввода пароля.
-        case DI_RADIOBUTTON: return _i64(9); // Селекторная кнопка (Radio Button).
-        case DI_SINGLEBOX:   return _i64(2); // Одиночная рамка.
-        case DI_TEXT:        return _i64(0); // Текстовая строка.
-        case DI_USERCONTROL: return _i64(255); // Элемент управления, определяемый программистом.
-        case DI_VTEXT:       return _i64(1); // Вертикальная текстовая строка.
+				case DI_BUTTON:      return 7; // Кнопка (Push Button).
+				case DI_CHECKBOX:    return 8; // Контрольный переключатель (Check Box).
+				case DI_COMBOBOX:    return (DropDownOpened?0x800A:10); // Комбинированный список.
+				case DI_DOUBLEBOX:   return 3; // Двойная рамка.
+				case DI_EDIT:        return DropDownOpened?0x8004:4; // Поле ввода.
+				case DI_FIXEDIT:     return 6; // Поле ввода фиксированного размера.
+				case DI_LISTBOX:     return 11; // Окно списка.
+				case DI_PSWEDIT:     return 5; // Поле ввода пароля.
+				case DI_RADIOBUTTON: return 9; // Селекторная кнопка (Radio Button).
+				case DI_SINGLEBOX:   return 2; // Одиночная рамка.
+				case DI_TEXT:        return 0; // Текстовая строка.
+				case DI_USERCONTROL: return 255; // Элемент управления, определяемый программистом.
+				case DI_VTEXT:       return 1; // Вертикальная текстовая строка.
       }
-      return _i64(-1);
+      return -1;
     }
 
     case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
     {
-      return (__int64)ItemCount;
+      return ItemCount;
     }
 
     case MCODE_V_DLGCURPOS:    // Dlg.CurPos
     {
-      return (__int64)(FocusPos+1);
+      return FocusPos+1;
     }
 
 		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
@@ -2171,9 +2395,9 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
         case DI_BUTTON:
         case DI_CHECKBOX:
         case DI_RADIOBUTTON:
-          return _i64(0);
+          return 0;
       }
-      return _i64(0);
+      return 0;
     }
 
     case MCODE_F_EDITOR_SEL:
@@ -2182,11 +2406,11 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
       {
         return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
       }
-      return _i64(0);
+			return 0;
     }
 
   }
-  return _i64(0);
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2407,7 +2631,7 @@ int Dialog::ProcessKey(int Key)
       {
         Item[FocusPos]->Selected=1;
         // сообщение - "Кнокна кликнута"
-        if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0))
+				if(SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0))
           return TRUE;
 
         if(Item[FocusPos]->Flags&DIF_BTNNOCLOSE)
@@ -2460,7 +2684,7 @@ int Dialog::ProcessKey(int Key)
              ((Key == KEY_MULTIPLY)?2:
               Item[FocusPos]->Selected)));
         if(Item[FocusPos]->Selected != (int)CHKState)
-          if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,CHKState))
+					if(SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,CHKState))
           {
              Item[FocusPos]->Selected=CHKState;
              ShowDialog();
@@ -3372,8 +3596,8 @@ unsigned Dialog::ProcessRadioButton(unsigned CurRB)
     При изменении состояния каждого элемента посылаем сообщение
     посредством функции SendDlgMessage - в ней делается все!
   */
-  if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,PrevRB,0) ||
-     !Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,CurRB,1))
+	if(!SendDlgMessage((HANDLE)this,DN_BTNCLICK,PrevRB,0) ||
+		!SendDlgMessage((HANDLE)this,DN_BTNCLICK,CurRB,1))
   {
      // вернем назад, если пользователь не захотел...
      Item[CurRB]->Selected=0;
@@ -3494,7 +3718,7 @@ int Dialog::Do_ProcessSpace()
       Item[FocusPos]->Selected = !Item[FocusPos]->Selected;
 
     OldFocusPos=FocusPos;
-    if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,Item[FocusPos]->Selected))
+		if(!SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,Item[FocusPos]->Selected))
       Item[OldFocusPos]->Selected = OldSelected;
 
     ShowDialog();
@@ -3687,162 +3911,6 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
     }
   }
 }
-
-static size_t ItemStringAndSize(DialogItemEx *Data,string& ItemString)
-{
-	//TODO: тут видимо надо сделать поумнее
-	ItemString=Data->strData;
-	if (IsEdit(Data->Type))
-	{
-		DlgEdit *EditPtr;
-		if ((EditPtr = (DlgEdit *)(Data->ObjPtr)) != NULL)
-			EditPtr->GetString(ItemString);
-	}
-	size_t sz = ItemString.GetLength();
-	if (sz > Data->nMaxLength && Data->nMaxLength > 0)
-		sz = Data->nMaxLength;
-	return sz;
-}
-
-static void ConvertItemSmall(FarDialogItem *Item,DialogItemEx *Data)
-{
-	Item->Type = Data->Type;
-	Item->X1 = Data->X1;
-	Item->Y1 = Data->Y1;
-	Item->X2 = Data->X2;
-	Item->Y2 = Data->Y2;
-	Item->Focus = Data->Focus;
-
-	Item->Param.History = Data->History;
-	Item->Flags = Data->Flags;
-	Item->DefaultButton = Data->DefaultButton;
-	Item->MaxLen = Data->nMaxLength;
-	Item->PtrData = NULL;
-}
-
-bool Dialog::ConvertItemEx (
-        CVTITEMFLAGS FromPlugin,
-				FarDialogItem *Item,
-				DialogItemEx *Data,
-        unsigned Count
-        )
-{
-	unsigned I;
-	if(!Item || !Data)
-		return false;
-
-	switch(FromPlugin)
-	{
-		case CVTITEM_TOPLUGIN:
-		case CVTITEM_TOPLUGINSHORT:
-			for (I=0; I < Count; I++, ++Item, ++Data)
-			{
-				ConvertItemSmall(Item,Data);
-
-				if(FromPlugin==CVTITEM_TOPLUGIN)
-				{
-
-					string str;
-					size_t sz = ItemStringAndSize(Data,str);
-
-					{
-						wchar_t *p = (wchar_t*)xf_malloc((sz+1)*sizeof(wchar_t));
-						Item->PtrData = p;
-						if (!p) // TODO: may be needed message?
-							return false;
-						wmemcpy(p, (const wchar_t*)str, sz);
-						p[sz] = L'\0';
-					}
-				}
-			}
-			break;
-		case CVTITEM_FROMPLUGIN:
-		case CVTITEM_FROMPLUGINSHORT:
-			for (I=0; I < Count; I++, ++Item, ++Data)
-			{
-				Data->X1 = Item->X1;
-				Data->Y1 = Item->Y1;
-				Data->X2 = Item->X2;
-				Data->Y2 = Item->Y2;
-				Data->Focus = Item->Focus;
-
-				Data->History = Item->Param.History;
-				Data->Flags = Item->Flags;
-				Data->DefaultButton = Item->DefaultButton;
-
-				Data->Type = Item->Type;
-
-				if(FromPlugin==CVTITEM_FROMPLUGIN)
-				{
-					Data->strData = Item->PtrData;
-					Data->nMaxLength = Item->MaxLen;
-					if (Data->nMaxLength > 0)
-						Data->strData.SetLength(Data->nMaxLength);
-				}
-
-				Data->ListItems = Item->Param.ListItems;
-
-				if(Data->X2 < Data->X1) Data->X2=Data->X1;
-				if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
-				if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && !IsPtr(Item->Param.ListItems))
-					Data->ListItems=NULL;
-			}
-			break;
-	}
-	return true;
-}
-
-size_t Dialog::ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data)
-{
-	size_t size=sizeof(*Item);
-	string str;
-	size_t sz = ItemStringAndSize(Data,str);
-	size+=(sz+1)*sizeof(wchar_t);
-	if(Item)
-	{
-		ConvertItemSmall(Item,Data);
-		wchar_t* p=(wchar_t*)(Item+1);
-		Item->PtrData = p;
-		wmemcpy(p, (const wchar_t*)str, sz);
-		p[sz] = L'\0';
-		if(Data->Type==DI_LISTBOX || Data->Type==DI_COMBOBOX)
-			Item->Param.ListPos=Data->ListPtr?Data->ListPtr->GetSelectPos():0;
-	}
-	return size;
-}
-
-void Dialog::DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
-{
-  int I;
-
-  if(!Item || !Data)
-    return;
-
-  for (I=0; I < Count; I++, ++Item, ++Data)
-  {
-  	Item->Clear();
-    Item->ID=I;
-    Item->Type=Data->Type;
-    Item->X1=Data->X1;
-    Item->Y1=Data->Y1;
-    Item->X2=Data->X2;
-    Item->Y2=Data->Y2;
-    if(Item->X2 < Item->X1) Item->X2=Item->X1;
-    if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
-    Item->Focus=Data->Focus;
-    Item->History=Data->History;
-    Item->Flags=Data->Flags;
-    Item->DefaultButton=Data->DefaultButton;
-    Item->SelStart=-1;
-
-
-		if(!IsPtr(Data->Data))
-        Item->strData = MSG((int)(DWORD_PTR)Data->Data);
-    else
-        Item->strData = Data->Data;
-  }
-}
-
 
 int Dialog::SetAutomation(WORD IDParent,WORD id,
                              DWORD UncheckedSet,DWORD UncheckedSkip,
@@ -4508,57 +4576,6 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
   return TRUE;
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-/* Public, Static:
-   Проверка на HotKey
-*/
-int Dialog::IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos)
-{
-  if(AmpPos == -1)
-  {
-    if ((Str=wcschr(Str,L'&'))==NULL)
-      return(FALSE);
-    AmpPos=1;
-  }
-  else
-  {
-    if(AmpPos >= StrLength(Str))
-      return FALSE;
-    Str=Str+AmpPos;
-    AmpPos=0;
-    if(Str[AmpPos] == L'&')
-      AmpPos++;
-  }
-  int UpperStrKey=Upper ((int)Str[AmpPos]);
-  if (Key < 0xFFFF)
-  {
-    return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
-  }
-
-  if(Key&KEY_ALT)
-  {
-    int AltKey=Key&(~KEY_ALT);
-    if(AltKey < 0xFFFF)
-    {
-      if ((unsigned int)AltKey >= L'0' && (unsigned int)AltKey <= L'9')
-        return(AltKey==UpperStrKey);
-
-      if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
-  //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
-  //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
-  //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
-      {
-        return(UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey)));
-      }
-    }
-  }
-
-
-  return(FALSE);
-}
-
-
 BOOL Dialog::CheckHighlights(WORD CheckSymbol)
 {
   CriticalSectionLock Lock(CS);
@@ -4884,7 +4901,7 @@ void Dialog::ResizeConsole()
 
   // коррекция относительного положения диалога (чтобы не центрировать :-)
   c.X=ScrX+1; c.Y=ScrY+1;
-  Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(LONG_PTR)&c);
+	SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(LONG_PTR)&c);
 
   // !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
   //c.X=((X1*100/PrevScrX)*ScrX)/100;
@@ -4892,7 +4909,7 @@ void Dialog::ResizeConsole()
   // !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
 
   c.X=c.Y=-1;
-  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(LONG_PTR)&c);
+	SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(LONG_PTR)&c);
 	Dialog::SetComboBoxPos();
 };
 
@@ -4911,7 +4928,7 @@ void Dialog::ResizeConsole()
 //        диалога происходит без восстановления ShadowSaveScr и вот
 //        они: "артефакты" непрорисовки.
 //    */
-//    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+//		SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
 //  }
 //};
 
@@ -4937,7 +4954,7 @@ LONG_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
-LONG_PTR WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   _DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
   _DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -5084,14 +5101,13 @@ LONG_PTR Dialog::CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2)
     return Dialog::DlgProc ((HANDLE)this, nMsg, nParam1, nParam2);
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
    Посылка сообщения диалогу
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
-LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
+LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
 
@@ -5937,7 +5953,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DN_EDITCHANGE:
     {
     	FarDialogItem Item;
-			if (!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
+			if (!ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
 				return FALSE; // no memory TODO: may be needed diagnostic
 
 	  CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
@@ -6052,7 +6068,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
     case DN_DRAWDLGITEM:
     {
     	FarDialogItem Item;
-			if(!Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
+			if(!ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
 				return FALSE; // no memory TODO: may be needed diagnostic
 
       I=(int)Dlg->CallDlgProc(Msg,Param1,(LONG_PTR)&Item);
@@ -6098,7 +6114,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2)
       {
 				FarDialogItemData IData={0,(wchar_t *)Param2};
-        return Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(LONG_PTR)&IData);
+				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,(LONG_PTR)&IData);
       }
 
     /*****************************************************************/
@@ -6228,7 +6244,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
         return 0;
 
 			FarDialogItemData IData={StrLength((wchar_t *)Param2),(wchar_t *)Param2};
-      return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
+			return SendDlgMessage(hDlg,DM_SETTEXT,Param1,(LONG_PTR)&IData);
     }
 
     /*****************************************************************/
@@ -6323,7 +6339,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
               {
                 LUpdate.Item.Flags=ListMenuItem->Flags;
                 LUpdate.Item.Text=Ptr;
-                Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(LONG_PTR)&LUpdate);
+								SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(LONG_PTR)&LUpdate);
               }
               break;
             }
@@ -6373,7 +6389,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		case DM_GETDLGITEM:
 		{
 			FarDialogItem* Item = (FarDialogItem*)Param2;
-			return (LONG_PTR)Dialog::ConvertItemEx2(Item,CurItem);
+			return (LONG_PTR)ConvertItemEx2(Item,CurItem);
 		}
 
 		/*****************************************************************/
@@ -6381,7 +6397,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		{
 			if(Param2)
 			{
-				if(Dialog::ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
+				if(ConvertItemEx(CVTITEM_TOPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
 				{
 					if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
 						((FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
@@ -6400,7 +6416,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 			if(Type != ((FarDialogItem *)Param2)->Type) // пока нефига менять тип
 				return FALSE;
 			// не менять
-			if(!Dialog::ConvertItemEx((Msg==DM_SETDLGITEM)?CVTITEM_FROMPLUGIN:CVTITEM_FROMPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
+			if(!ConvertItemEx((Msg==DM_SETDLGITEM)?CVTITEM_FROMPLUGIN:CVTITEM_FROMPLUGINSHORT,(FarDialogItem *)Param2,CurItem,1))
 				return FALSE; // invalid parameters
 			CurItem->Type=Type;
 			if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
@@ -6473,7 +6489,7 @@ LONG_PTR WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           Sleep(10);
         }
 
-        if (Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0))
+				if(SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0))
         {
           Dlg->ProcessOpenComboBox(Type,CurItem,Param1); //?? Param1 ??
           //Dlg->ProcessKey(KEY_CTRLDOWN);

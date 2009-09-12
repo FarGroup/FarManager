@@ -371,9 +371,9 @@ static void calcFunc()
 					put(MCODE_OP_PUSHINT);
 					// исключение для substr
 					if(nFunc == MCODE_F_SUBSTR)
-						put64((unsigned __int64)_i64(-1));
+						put64(-1);
 					else
-						put64(_i64(0));
+						put64(0);
 				}
 			}
 		}

@@ -515,7 +515,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
     case DN_CTLCOLORDLGITEM:
       if(Param1 >= 37 && Param1 <= 39)
       {
-        int *CurColor=(int *)Dialog::SendDlgMessage (hDlg,DM_GETDLGDATA,0,0);
+        int *CurColor=(int *)SendDlgMessage (hDlg,DM_GETDLGDATA,0,0);
         return (Param2&0xFFFFFF00U)|((*CurColor)&0xFF);
       }
       break;
@@ -524,10 +524,10 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
       if(Param1 >= 2 && Param1 <= 34)
       {
         int NewColor;
-        int *CurColor = (int *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+        int *CurColor = (int *) SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        FarDialogItem *DlgItem = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, 0));
-        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)DlgItem);
+        FarDialogItem *DlgItem = (FarDialogItem *)xf_malloc(SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, 0));
+        SendDlgMessage (hDlg, DM_GETDLGITEM, Param1, (LONG_PTR)DlgItem);
 
         NewColor=*CurColor;
         if(Param1 >= 2 && Param1 <= 17) // Fore
@@ -550,7 +550,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
       }
       break;
   }
-  return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
+  return DefDlgProc (hDlg, Msg, Param1, Param2);
 }
 
 

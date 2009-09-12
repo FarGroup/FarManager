@@ -323,7 +323,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
        {
          pName=MSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;
-         if (xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+				if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
          {
            int Offset = 0;
 
@@ -399,7 +399,7 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
   ::Module=Module;
   ::Flags=Flags;
 
-    if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW) // restore stack & call_xfilter ;
+	if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW)) // restore stack & call_xfilter ;
   {
     Is_STACK_OVERFLOW=TRUE;
 

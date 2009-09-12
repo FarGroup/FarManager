@@ -119,6 +119,198 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|x64"
+			OutputDirectory="Release.64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="1"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Creating mandatory folders…"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="2"
+				PreprocessorDefinitions="NDEBUG;_WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
+				AssemblerOutput="2"
+				AssemblerListingLocation="$(OutDir)\cod\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="mpr.lib secur32.lib"
+				OutputFile="$(OutDir)\far.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				GenerateManifest="false"
+				ModuleDefinitionFile=""
+				ProgramDatabaseFile="$(OutDir)\far.pdb"
+				GenerateMapFile="true"
+				MapFileName="$(OutDir)\far.map"
+				SubSystem="1"
+				RandomizedBaseAddress="0"
+				DataExecutionPrevention="2"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Itanium"
+			OutputDirectory="Release.IA64.vc"
+			IntermediateDirectory="$(OutDir)\obj"
+			ConfigurationType="1"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				Description="Creating mandatory folders…"
+				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="2"
+				PreprocessorDefinitions="NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
+				StringPooling="true"
+				MinimalRebuild="false"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
+				StructMemberAlignment="4"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				DefaultCharIsUnsigned="true"
+				RuntimeTypeInfo="false"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="headers.hpp"
+				PrecompiledHeaderFile="$(IntDir)\headers.pch"
+				AssemblerOutput="2"
+				AssemblerListingLocation="$(OutDir)\cod\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="mpr.lib secur32.lib"
+				OutputFile="$(OutDir)\far.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				GenerateManifest="false"
+				ModuleDefinitionFile=""
+				ProgramDatabaseFile="$(OutDir)\far.pdb"
+				GenerateMapFile="true"
+				MapFileName="$(OutDir)\far.map"
+				SubSystem="1"
+				RandomizedBaseAddress="0"
+				DataExecutionPrevention="2"
+				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug.32.vc"
 			IntermediateDirectory="$(OutDir)\obj"
@@ -218,123 +410,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|x64"
-			OutputDirectory="Release.64.vc"
-			IntermediateDirectory="$(OutDir)\obj"
-			ConfigurationType="1"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="2"
-				PreprocessorDefinitions="NDEBUG;_WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
-				StringPooling="true"
-				MinimalRebuild="false"
-				ExceptionHandling="0"
-				RuntimeLibrary="0"
-				StructMemberAlignment="4"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				DefaultCharIsUnsigned="true"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.pch"
-				AssemblerOutput="2"
-				AssemblerListingLocation="$(OutDir)\cod\"
-				ProgramDataBaseFileName="$(IntDir)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
-				OutputFile="$(OutDir)\far.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				GenerateManifest="false"
-				ModuleDefinitionFile=""
-				ProgramDatabaseFile="$(OutDir)\far.pdb"
-				GenerateMapFile="true"
-				MapFileName="$(OutDir)\far.map"
-				SubSystem="1"
-				RandomizedBaseAddress="0"
-				DataExecutionPrevention="2"
-				TargetMachine="17"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Itanium"
-			OutputDirectory="Release.IA64.vc"
-			IntermediateDirectory="$(OutDir)\obj"
-			ConfigurationType="1"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				Description="Creating mandatory folders…"
-				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="2"
-				PreprocessorDefinitions="NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS"
-				StringPooling="true"
-				MinimalRebuild="false"
-				ExceptionHandling="0"
-				RuntimeLibrary="0"
-				StructMemberAlignment="4"
-				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
-				DefaultCharIsUnsigned="true"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="headers.hpp"
-				PrecompiledHeaderFile="$(IntDir)\headers.pch"
-				AssemblerOutput="2"
-				AssemblerListingLocation="$(OutDir)\cod\"
-				ProgramDataBaseFileName="$(IntDir)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="mpr.lib secur32.lib"
-				OutputFile="$(OutDir)\far.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				GenerateManifest="false"
-				ModuleDefinitionFile=""
-				ProgramDatabaseFile="$(OutDir)\far.pdb"
-				GenerateMapFile="true"
-				MapFileName="$(OutDir)\far.map"
-				SubSystem="1"
-				RandomizedBaseAddress="0"
-				DataExecutionPrevention="2"
-				TargetMachine="5"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="Debug.64.vc"
 			IntermediateDirectory="$(OutDir)\obj"
@@ -345,6 +420,18 @@
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
 				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -372,9 +459,15 @@
 				DebugInformationFormat="3"
 			/>
 			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
@@ -393,6 +486,27 @@
 				DataExecutionPrevention="2"
 				TargetMachine="17"
 			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Itanium"
@@ -405,6 +519,18 @@
 				Name="VCPreBuildEventTool"
 				Description="Creating mandatory folders…"
 				CommandLine="if not exist $(OutDir)\cod mkdir $(OutDir)\cod&#x0D;&#x0A;if not exist Include mkdir Include&#x0D;&#x0A;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -432,9 +558,15 @@
 				DebugInformationFormat="3"
 			/>
 			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
@@ -452,6 +584,27 @@
 				RandomizedBaseAddress="0"
 				DataExecutionPrevention="2"
 				TargetMachine="5"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 	</Configurations>
@@ -694,14 +847,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -711,6 +856,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -762,6 +915,22 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -770,21 +939,21 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
-					Name="Release|Itanium"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Itanium"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="hotplug.cpp"
@@ -971,10 +1140,6 @@
 				>
 			</File>
 			<File
-				RelativePath="sdkpatches.cpp"
-				>
-			</File>
-			<File
 				RelativePath="setattr.cpp"
 				>
 			</File>
@@ -1050,6 +1215,22 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1058,21 +1239,21 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
-					Name="Release|Itanium"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Itanium"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="xlat.cpp"
@@ -1093,14 +1274,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1110,6 +1283,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1145,14 +1326,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1162,6 +1335,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1197,14 +1378,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1214,6 +1387,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1249,14 +1430,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1266,6 +1439,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1301,14 +1482,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1318,6 +1491,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1353,14 +1534,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1370,6 +1543,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1405,14 +1586,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1422,6 +1595,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1457,14 +1638,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1474,6 +1647,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1509,14 +1690,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1526,6 +1699,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1561,14 +1742,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1578,6 +1751,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1613,14 +1794,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1630,6 +1803,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1665,14 +1846,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1682,6 +1855,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1717,14 +1898,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1734,6 +1907,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1769,14 +1950,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1786,6 +1959,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1821,14 +2002,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1838,6 +2011,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1873,14 +2054,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1890,6 +2063,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1925,14 +2106,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1942,6 +2115,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1977,14 +2158,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -1994,6 +2167,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2029,14 +2210,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2046,6 +2219,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2081,14 +2262,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2098,6 +2271,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2133,14 +2314,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2150,6 +2323,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2185,14 +2366,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2202,6 +2375,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2237,14 +2418,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2254,6 +2427,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2289,14 +2470,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2306,6 +2479,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2341,14 +2522,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2358,6 +2531,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2393,14 +2574,6 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
 						Name="Release|x64"
 						>
 						<Tool
@@ -2410,6 +2583,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Itanium"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2456,6 +2637,10 @@
 				>
 			</File>
 			<File
+				RelativePath="CachedWrite.hpp"
+				>
+			</File>
+			<File
 				RelativePath="cddrv.hpp"
 				>
 			</File>
@@ -2494,17 +2679,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Transforming $(InputFileName) to redistributable form…"
-						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farcolor.hpp&#x0D;&#x0A;"
-						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
-						Outputs="Include\farcolor.hpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -2522,6 +2696,17 @@
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farcolor.hpp&#x0D;&#x0A;"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs="Include\farcolor.hpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Transforming $(InputFileName) to redistributable form…"
+						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farcolor.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs="Include\farcolor.hpp"
 					/>
@@ -2548,10 +2733,6 @@
 						Outputs="Include\farcolor.hpp"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="CachedWrite.hpp"
-				>
 			</File>
 			<File
 				RelativePath="config.hpp"
@@ -2796,17 +2977,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Transforming $(InputFileName) to redistributable form…"
-						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farkeys.hpp&#x0D;&#x0A;"
-						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
-						Outputs="Include\farkeys.hpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -2824,6 +2994,17 @@
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farkeys.hpp&#x0D;&#x0A;"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs="Include\farkeys.hpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Transforming $(InputFileName) to redistributable form…"
+						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\farkeys.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs="Include\farkeys.hpp"
 					/>
@@ -2966,17 +3147,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Transforming $(InputFileName) to redistributable form…"
-						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\plugin.hpp&#x0D;&#x0A;"
-						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
-						Outputs="Include\plugin.hpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -2994,6 +3164,17 @@
 						Name="VCCustomBuildTool"
 						Description="Transforming $(InputFileName) to redistributable form…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 -DINPUT=$(InputFileName) headers.m4 &gt; Include\plugin.hpp&#x0D;&#x0A;"
+						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
+						Outputs="Include\plugin.hpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Transforming $(InputFileName) to redistributable form…"
+						CommandLine="tools\m4 -P -DFARBIT=32 -DINPUT=$(InputFileName) headers.m4 &gt; Include\plugin.hpp&#x0D;&#x0A;"
 						AdditionalDependencies="headers.m4;farversion.m4;vbuild.m4"
 						Outputs="Include\plugin.hpp"
 					/>
@@ -3095,10 +3276,6 @@
 			</File>
 			<File
 				RelativePath="scrsaver.hpp"
-				>
-			</File>
-			<File
-				RelativePath="sdkpatches.hpp"
 				>
 			</File>
 			<File
@@ -3269,6 +3446,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="SDK"
+				>
+				<File
+					RelativePath=".\sdk\sdk.common.h"
+					>
+				</File>
+				<File
+					RelativePath=".\sdk\sdk.vc.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -3298,17 +3487,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3326,6 +3504,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) | tools\gawk -f scripts\enc.awk &gt; $(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -3368,17 +3557,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3396,6 +3574,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -3438,17 +3627,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3466,6 +3644,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -3508,17 +3697,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(OutDir)\$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3536,6 +3714,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -3578,17 +3767,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(OutDir)\$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3606,6 +3784,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -3647,16 +3836,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						Outputs="$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3673,6 +3852,16 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
 						Outputs="$(InputName)"
 					/>
 				</FileConfiguration>
@@ -3712,17 +3901,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(OutDir)\$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3740,6 +3918,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\gawk -f scripts\mkhlf.awk $(InputFileName) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -3782,17 +3971,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3810,6 +3988,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(InputName)"
 					/>
@@ -3856,17 +4045,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Compiling $(InputFileName)…"
-						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
-						AdditionalDependencies="farversion.m4;vbuild.m4"
-						Outputs="$(OutDir)\$(InputName)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -3884,6 +4062,17 @@
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputFileName)…"
 						CommandLine="tools\m4 -P -DFARBIT=IA64 $(InputFileName) &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
+						AdditionalDependencies="farversion.m4;vbuild.m4"
+						Outputs="$(OutDir)\$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Compiling $(InputFileName)…"
+						CommandLine="tools\m4 -P -DFARBIT=32 $(InputFileName) &gt; $(OutDir)\$(InputName)&#x0D;&#x0A;"
 						AdditionalDependencies="farversion.m4;vbuild.m4"
 						Outputs="$(OutDir)\$(InputName)"
 					/>
@@ -3944,6 +4133,22 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Itanium"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -3952,35 +4157,27 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
-					Name="Release|Itanium"
-					ExcludedFromBuild="true"
-				/>
-				<FileConfiguration
 					Name="Debug|x64"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Itanium"
 					ExcludedFromBuild="true"
-				/>
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="far.rc"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						PreprocessorDefinitions="__FARBIT__=32"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -4001,6 +4198,14 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions="__FARBIT__=IA64"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions="__FARBIT__=32"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4043,17 +4248,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Generating language files based on $(InputFileName)…"
-						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
-						AdditionalDependencies="$(InputFileName).m4"
-						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
@@ -4066,6 +4260,17 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Itanium"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating language files based on $(InputFileName)…"
+						CommandLine="tools\lng.generator.exe -nc -i lang.ini -ol $(OutDir) $(InputFileName)&#x0D;&#x0A;"
+						AdditionalDependencies="$(InputFileName).m4"
+						Outputs="lang.ini;$(OutDir)\FarRus.lng;$(OutDir)\FarEng.lng"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"

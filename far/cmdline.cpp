@@ -122,7 +122,7 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
   if(OpCode == MCODE_F_EDITOR_SEL)
     return CmdStr.VMProcess(MCODE_F_EDITOR_SEL,vParam,iParam);
 
-  return _i64(0);
+  return 0;
 }
 
 int CommandLine::ProcessKey(int Key)

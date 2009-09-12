@@ -410,12 +410,12 @@ static LONG_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
     {
       DWORD Arr[1];
       Arr[0]=Param2 == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
-      Dialog::SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
+      SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
       return TRUE;
     }
   }
 */
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 
@@ -516,10 +516,11 @@ int WINAPI GetString(
 #if 0
     if(Opt.ExceptRules)
     {
-      TRY{
+      __try
+			{
         Dlg.Process();
       }
-      EXCEPT ( xfilter(EXCEPT_FARDIALOG,
+			__except( xfilter(EXCEPT_FARDIALOG,
                        GetExceptionInformation(),NULL,1)) // NULL=???
       {
         return FALSE;

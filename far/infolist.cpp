@@ -298,10 +298,10 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return _i64(1);
+			return 1;
   }
 
-  return _i64(0);
+	return 0;
 }
 
 int InfoList::ProcessKey(int Key)

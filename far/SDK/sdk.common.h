@@ -1,7 +1,10 @@
-/*
-sdkpatches.cpp
+#ifndef __SDK_COMMON_H__
+#define __SDK_COMMON_H__
 
-Типы и определения, отсутствующие в поддерживаемых SDK.
+/*
+sdk.common.h
+
+Типы и определения, отсутствующие в SDK.
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -31,12 +34,48 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
-#ifdef __GNUC__
-
-const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
-const IID IID_ITaskbarList3                       = { 0xEA1AFB91, 0x9E28, 0x4B86, 0x90, 0xE9, 0x9E, 0x9F, 0x8A, 0x5E, 0xEF, 0xAF };
-
+#ifndef SYMLINK_FLAG_RELATIVE
+#define SYMLINK_FLAG_RELATIVE 1
 #endif
+
+// scsi.h
+#ifndef SCSIOP_MODE_SENSE
+#define SCSIOP_MODE_SENSE 0x1A
+#endif
+
+#ifndef MODE_PAGE_CAPABILITIES
+#define MODE_PAGE_CAPABILITIES 0x2A
+#endif
+
+// winnls.h
+#ifndef NORM_STOP_ON_NULL
+#define NORM_STOP_ON_NULL 0x10000000
+#endif
+
+typedef struct _FILE_STREAM_INFORMATION
+{
+	ULONG NextEntryOffset;
+	ULONG StreamNameLength;
+	LARGE_INTEGER StreamSize;
+	LARGE_INTEGER StreamAllocationSize;
+	WCHAR StreamName[1];
+}
+FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
+
+typedef struct _OBJECT_NAME_INFORMATION
+{
+	UNICODE_STRING Name;
+}
+OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
+
+typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS
+{
+	SCSI_PASS_THROUGH Spt;
+	ULONG Filler;      // realign buffers to double word boundary
+	UCHAR SenseBuf[32];
+	UCHAR DataBuf[512];
+}
+SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
+
+
+#endif // __SDK_COMMON_H__

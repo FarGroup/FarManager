@@ -934,8 +934,8 @@ LONG_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		if(Param1==EM_BUTTON_OK)
 		{
 			BOOL Result=TRUE;
-			LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,NULL));
-			LPCWSTR Label=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,NULL));
+			LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,NULL));
+			LPCWSTR Label=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,NULL));
 			int FocusPos=-1;
 			if(!*Label && StrCmp(HotKey,L"-"))
 			{
@@ -954,14 +954,14 @@ LONG_PTR WINAPI EditMenuDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			if(FocusPos!=-1)
 			{
 				Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((*Label?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
-				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,FocusPos,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,FocusPos,0);
 				Result=FALSE;
 			}
 			return Result;
 		}
 		break;
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 

@@ -55,16 +55,16 @@ int ToPercent(unsigned long N1,unsigned long N2)
 
 int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 {
-  if (N1 > _ui64(10000))
+  if (N1 > 10000)
   {
-    N1/=_ui64(100);
-    N2/=_ui64(100);
+    N1/=100;
+    N2/=100;
   }
-  if (N2==_ui64(0))
-    return(_ui64(0));
+  if (N2==0)
+		return 0;
   if (N2<N1)
-    return(100);
-  return((int)(N1*_ui64(100)/N2));
+		return 100;
+	return static_cast<int>(N1*100/N2);
 }
 
 /* $ 30.07.2001 IS

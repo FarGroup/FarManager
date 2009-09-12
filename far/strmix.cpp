@@ -648,12 +648,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 
   if (ViewFlags & COLUMN_THOUSAND)
   {
-    Divider=_ui64(1000);
+		Divider=1000;
     IndexDiv=0;
   }
   else
   {
-    Divider=_ui64(1024);
+		Divider=1024;
     IndexDiv=1;
   }
 
@@ -661,7 +661,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 
   if (FloatSize)
   {
-    unsigned __int64 Divider64F = 1, Divider64F_mul = _ui64(1000), Divider64F2 = _ui64(1), Divider64F2_mul = Divider;
+		unsigned __int64 Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
     //выравнивание идёт по 1000 но само деление происходит на Divider
     //например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
 		for (IndexB=0; IndexB<UNIT_COUNT-1; IndexB++)
@@ -1139,7 +1139,7 @@ bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr)
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr)
 {
 	if (!CheckFileSizeStringFormat(FileSizeStr))
-		return _ui64(0);
+		return 0;
 
 	unsigned __int64 n = _wtoi64(FileSizeStr);
 

@@ -43,64 +43,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CriticalSections.hpp"
 
 // Флаги текущего режима диалога
-#define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
-#define DMODE_CREATEOBJECTS 0x00000002 // объекты (Edit,...) созданы?
-#define DMODE_WARNINGSTYLE  0x00000004 // Warning Dialog Style?
-#define DMODE_DRAGGED       0x00000008 // диалог двигается?
-#define DMODE_ISCANMOVE     0x00000010 // можно ли двигать диалог?
-#define DMODE_ALTDRAGGED    0x00000020 // диалог двигается по Alt-Стрелка?
-#define DMODE_SMALLDIALOG   0x00000040 // "короткий диалог"
-#define DMODE_DRAWING       0x00001000 // диалог рисуется?
-#define DMODE_KEY           0x00002000 // Идет посылка клавиш?
-#define DMODE_SHOW          0x00004000 // Диалог виден?
-#define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
-#define DMODE_RESIZED       0x00010000 //
-#define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
-#define DMODE_BEGINLOOP     0x00040000 // Начало цикла обработки диалога?
-//#define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
-#define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
-#define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
-#define DMODE_CLICKOUTSIDE  0x20000000 // было нажатие мыши вне диалога?
-#define DMODE_MSGINTERNAL   0x40000000 // Внутренняя Message?
-#define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
-
-#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
-
-// Флаги для функции ConvertItem
-enum CVTITEMFLAGS {
-	CVTITEM_TOPLUGIN        = 0,
-	CVTITEM_FROMPLUGIN      = 1,
-	CVTITEM_TOPLUGINSHORT   = 2,
-	CVTITEM_FROMPLUGINSHORT = 3
+enum DIALOG_MODES
+{
+	DMODE_INITOBJECTS  =0x00000001, // элементы инициализарованы?
+	DMODE_CREATEOBJECTS=0x00000002, // объекты (Edit,...) созданы?
+	DMODE_WARNINGSTYLE =0x00000004, // Warning Dialog Style?
+	DMODE_DRAGGED      =0x00000008, // диалог двигается?
+	DMODE_ISCANMOVE    =0x00000010, // можно ли двигать диалог?
+	DMODE_ALTDRAGGED   =0x00000020, // диалог двигается по Alt-Стрелка?
+	DMODE_SMALLDIALOG  =0x00000040, // "короткий диалог"
+	DMODE_DRAWING      =0x00001000, // диалог рисуется?
+	DMODE_KEY          =0x00002000, // Идет посылка клавиш?
+	DMODE_SHOW         =0x00004000, // Диалог виден?
+	DMODE_MOUSEEVENT   =0x00008000, // Нужно посылать MouseMove в обработчик?
+	DMODE_RESIZED      =0x00010000, //
+	DMODE_ENDLOOP      =0x00020000, // Конец цикла обработки диалога?
+	DMODE_BEGINLOOP    =0x00040000, // Начало цикла обработки диалога?
+	//DMODE_OWNSITEMS  =0x00080000, // если TRUE, Dialog освобождает список Item в деструкторе
+	DMODE_NODRAWSHADOW =0x00100000, // не рисовать тень?
+	DMODE_NODRAWPANEL  =0x00200000, // не рисовать подложку?
+	DMODE_CLICKOUTSIDE =0x20000000, // было нажатие мыши вне диалога?
+	DMODE_MSGINTERNAL  =0x40000000, // Внутренняя Message?
+	DMODE_OLDSTYLE     =0x80000000, // Диалог в старом (до 1.70) стиле
 };
 
-enum DLGEDITLINEFLAGS {
-  DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
-  DLGEDITLINE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
-  DLGEDITLINE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
-  DLGEDITLINE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
-  DLGEDITLINE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
-  DLGEDITLINE_PERSISTBLOCK        = 0x00000020, // постоянные блоки в строках ввода
-  DLGEDITLINE_AUTOCOMPLETE        = 0x00000040, // автозавершение в строках ввода
-  DLGEDITLINE_AUTOCOMPLETECTRLEND = 0x00000040, // при автозавершение подтверждать комбинацией Ctrl-End
-  DLGEDITLINE_HISTORY             = 0x00000100, // история в строках ввода диалогов
-};
-
-
-enum DLGITEMINTERNALFLAGS {
-  DLGIIF_LISTREACTIONFOCUS        = 0x00000001, // MouseReaction для фокусного элемента
-  DLGIIF_LISTREACTIONNOFOCUS      = 0x00000002, // MouseReaction для не фокусного элемента
-  DLGIIF_EDITPATH                 = 0x00000004, // здесь Ctrl-End в строке редактирования будет выдавать на гора автодополнение существующих путей в дополнении к выбору из истории
-  DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
-  DLGIIF_COMBOBOXEVENTKEY         = 0x00000010, // посылать события клавиатуры в диалоговую проц. для открытого комбобокса
-  DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
-  DLGIIF_EDITCHANGEPROCESSED      = 0x00000040, // элемент обрабатывает событие DN_EDITCHANGE
-};
-
+//#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
 
 #define MakeDialogItemsEx(Data,Item) \
 	DialogItemEx Item[countof(Data)]; \
-	Dialog::DataToItemEx(Data,Item,countof(Data));
+	DataToItemEx(Data,Item,countof(Data));
 
 // Структура, описывающая автоматизацию для DIF_AUTOMATION
 // на первом этапе - примитивная - выставление флагов у элементов для CheckBox
@@ -111,8 +82,8 @@ struct DialogItemAutomation{
                               // [][0] - Set, [][1] - Skip
 };
 
-// Данные для DI_USERCONTROL
-class DlgUserControl{
+class DlgUserControl
+{
   public:
     COORD CursorPos;
     int   CursorVisible,CursorSize;
@@ -217,22 +188,14 @@ struct DialogDataEx
   const wchar_t *Data;
 };
 
-
-struct FarDialogMessage{
-  HANDLE   hDlg;
-  int      Msg;
-  int      Param1;
-  LONG_PTR Param2;
-};
-
 class DlgEdit;
 class ConsoleTitle;
-
-typedef LONG_PTR (WINAPI *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
 class Dialog: public Frame
 {
   friend class FindFiles;
+	friend LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+	friend LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
   private:
     bool bInitOK;               // диалог был успешно инициализирован
@@ -347,17 +310,6 @@ class Dialog: public Frame
 
     void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
-    // преобразования из внутреннего представления в FarDialogItem и обратно
-    static bool ConvertItemEx (CVTITEMFLAGS FromPlugin,FarDialogItem *Item,
-                               DialogItemEx *Data, unsigned Count);
-    // преобразования из внутреннего представления в FarDialogItem в пользовательский буффер
-	static size_t ConvertItemEx2(FarDialogItem *Item,DialogItemEx *Data);
-
-    static void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,
-                           int Count);
-
-    static int IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
-
     // метод для перемещения диалога
     void AdjustEditPos(int dx,int dy);
 
@@ -401,11 +353,6 @@ class Dialog: public Frame
                         DWORD CheckedSet,DWORD CheckedSkip,
                         DWORD Checked3Set=0,DWORD Checked3Skip=0);
 
-    /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
-    static LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-    /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
-    static LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
-
     LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
@@ -416,5 +363,16 @@ class Dialog: public Frame
 
 		void SetId(const GUID& Id);
 };
+
+typedef LONG_PTR (WINAPI *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+
+LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+
+LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
+
+bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
+
+void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count);
+
 
 #endif // __DIALOG_HPP__

@@ -628,7 +628,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
       break;
     }
   }
-  return _i64(0);
+	return 0;
 }
 
 int Edit::ProcessKey(int Key)

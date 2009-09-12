@@ -638,10 +638,10 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
   {
     ULARGE_INTEGER time;
 
-    time.QuadPart  = (unsigned __int64)st.wSecond * _ui64(10000000);
-    time.QuadPart += (unsigned __int64)st.wMinute * _ui64(10000000) * _ui64(60);
-    time.QuadPart += (unsigned __int64)st.wHour   * _ui64(10000000) * _ui64(60) * _ui64(60);
-    time.QuadPart += (unsigned __int64)st.wDay    * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24);
+		time.QuadPart  = st.wSecond * 10000000;
+		time.QuadPart += st.wMinute * 10000000 * 60;
+		time.QuadPart += st.wHour   * 10000000 * 60 * 60;
+		time.QuadPart += st.wDay    * 10000000 * 60 * 60 * 24;
     ft.dwLowDateTime  = time.u.LowPart;
     ft.dwHighDateTime = time.u.HighPart;
   }
@@ -773,13 +773,13 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
 {
 	ULARGE_INTEGER time={ft.dwLowDateTime,ft.dwHighDateTime};
-	WORD d = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24)));
-	time.QuadPart = time.QuadPart - ((unsigned __int64)d * _ui64(10000000) * _ui64(60) * _ui64(60) * _ui64(24));
-	WORD h = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60) * _ui64(60)));
-	time.QuadPart = time.QuadPart - ((unsigned __int64)h * _ui64(10000000) * _ui64(60) * _ui64(60));
-	WORD m = (WORD)(time.QuadPart / (_ui64(10000000) * _ui64(60)));
-	time.QuadPart = time.QuadPart - ((unsigned __int64)m * _ui64(10000000) * _ui64(60));
-	WORD s = (WORD)(time.QuadPart / _ui64(10000000));
+	WORD d = (WORD)(time.QuadPart / (10000000ll * 60 * 60 * 24));
+	time.QuadPart = time.QuadPart - ((UINT64)d * 10000000 * 60 * 60 * 24);
+	WORD h = (WORD)(time.QuadPart / (10000000ll * 60 * 60));
+	time.QuadPart = time.QuadPart - ((UINT64)h * 10000000 * 60 * 60);
+	WORD m = (WORD)(time.QuadPart / (10000000 * 60));
+	time.QuadPart = time.QuadPart - ((UINT64)m * 10000000 * 60);
+	WORD s = (WORD)(time.QuadPart / 10000000);
 	strDaysText.Format(L"%u",d);
 	strTimeText.Format(L"%02d%c%02d%c%02d", h, GetTimeSeparator(), m, GetTimeSeparator(), s);
 }

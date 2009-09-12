@@ -526,22 +526,22 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
           GetPathRoot(strCurDir, strDriveRoot);
           return (__int64)(!StrCmpI(strCurDir, strDriveRoot));
         }
-        return _i64(1);
+				return 1;
       }
     }
     case MCODE_C_EOF:
-      return (__int64)(CurFile == FileCount-1);
+			return (CurFile == FileCount-1);
     case MCODE_C_BOF:
-      return (__int64)(CurFile==0);
+			return (CurFile==0);
     case MCODE_C_SELECTED:
-      return (__int64)(GetRealSelCount()>1);
+			return (GetRealSelCount()>1);
     case MCODE_V_ITEMCOUNT:
-      return (__int64)(FileCount);
+			return (FileCount);
     case MCODE_V_CURPOS:
-      return (__int64)(CurFile+1);
+			return (CurFile+1);
   }
 
-  return _i64(0);
+  return 0;
 }
 
 int FileList::ProcessKey(int Key)

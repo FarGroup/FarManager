@@ -322,10 +322,11 @@ int main()
 #endif
 int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
 {
-  TRY{
+	__try
+	{
 		return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
   }
-  EXCEPT(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
      TerminateProcess( GetCurrentProcess(), 1);
   }
   return -1; // Никогда сюда не попадем

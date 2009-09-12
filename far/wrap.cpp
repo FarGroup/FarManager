@@ -538,9 +538,7 @@ int WINAPI FarAtoiA(const char *s)
 
 __int64 WINAPI FarAtoi64A(const char *s)
 {
-  if(s)
-    return _atoi64(s);
-  return _i64(0);
+	return s?_atoi64(s):0;
 }
 
 char* WINAPI PointToNameA(char *Path)
@@ -3496,8 +3494,8 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			filename = UnicodeToAnsi(viW.FileName);
 			viA->FileName = filename;
 
-			viA->FileSize.i64 = viW.FileSize;
-			viA->FilePos.i64 = viW.FilePos;
+			viA->FileSize = viW.FileSize;
+			viA->FilePos = viW.FilePos;
 			viA->WindowSizeX = viW.WindowSizeX;
 			viA->WindowSizeY = viW.WindowSizeY;
 
@@ -3553,10 +3551,10 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if(vspA->Flags&oldfar::VSP_PERCENT)     vsp.Flags|=VSP_PERCENT;
 			if(vspA->Flags&oldfar::VSP_RELATIVE)    vsp.Flags|=VSP_RELATIVE;
 			if(vspA->Flags&oldfar::VSP_NORETNEWPOS) vsp.Flags|=VSP_NORETNEWPOS;
-			vsp.StartPos = vspA->StartPos.i64;
+			vsp.StartPos = vspA->StartPos;
 			vsp.LeftPos = vspA->LeftPos;
 			int ret = FarViewerControl(VCTL_SETPOSITION, &vsp);
-			vspA->StartPos.i64 = vsp.StartPos;
+			vspA->StartPos = vsp.StartPos;
 			return ret;
 		}
 
@@ -3565,7 +3563,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FarViewerControl(VCTL_SELECT, NULL);
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
-			ViewerSelect vs = {vsA->BlockStartPos.i64,vsA->BlockLen};
+			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
 			return FarViewerControl(VCTL_SELECT, &vs);
 		}
 

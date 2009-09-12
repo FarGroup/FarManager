@@ -1456,23 +1456,23 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
   #define DM_CALLTREE (DM_USER+1)
   #define DM_SWITCHRO (DM_USER+2)
 
-	CopyDlgParam *DlgParam=(CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
   switch(Msg)
   {
 	case DN_INITDIALOG:
-		Dialog::SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
-		Dialog::SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
+		SendDlgMessage(hDlg,DM_SETCOMBOBOXEVENT,ID_SC_COMBO,CBET_KEY|CBET_MOUSE);
+		SendDlgMessage(hDlg,DM_SETMOUSEEVENTNOTIFY,TRUE,0);
 		break;
 	case DM_SWITCHRO:
 		{
 			FarListGetItem LGI={CM_ASKRO};
-			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
 			if(LGI.Item.Flags&LIF_CHECKED)
 				LGI.Item.Flags&=~LIF_CHECKED;
 			else
 				LGI.Item.Flags|=LIF_CHECKED;
-			Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_LISTUPDATE,ID_SC_COMBO,(LONG_PTR)&LGI);
 			return TRUE;
 		}
     case DN_BTNCLICK:
@@ -1484,18 +1484,18 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       }
       if(Param1 == ID_SC_BTNTREE) // Tree
       {
-        Dialog::SendDlgMessage(hDlg,DM_CALLTREE,0,0);
+				SendDlgMessage(hDlg,DM_CALLTREE,0,0);
         return FALSE;
       }
       else if(Param1 == ID_SC_BTNCOPY)
       {
-        Dialog::SendDlgMessage(hDlg,DM_CLOSE,ID_SC_BTNCOPY,0);
+				SendDlgMessage(hDlg,DM_CLOSE,ID_SC_BTNCOPY,0);
       }
       /*
       else if(Param1 == ID_SC_ONLYNEWER && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
         // подсократим код путем эмуляции телодвижений в строке ввода :-))
-        Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,0);
+				SendDlgMessage(hDlg,DN_EDITCHANGE,ID_SC_TARGETEDIT,0);
       }
       */
       else if (Param1==ID_SC_BTNFILTER) // Filter
@@ -1511,26 +1511,26 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
       if(Param2 == KEY_ALTF10 || Param2 == KEY_F10 || Param2 == KEY_SHIFTF10)
       {
         DlgParam->AltF10=Param2 == KEY_ALTF10?1:(Param2 == KEY_SHIFTF10?2:0);
-        Dialog::SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
+				SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
         return TRUE;
       }
 			if(Param1 == ID_SC_COMBO)
 			{
 				if(Param2==KEY_ENTER || Param2==KEY_NUMENTER || Param2==KEY_INS || Param2==KEY_NUMPAD0 || Param2==KEY_SPACE)
 				{
-					if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
-						return Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+					if(SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO)
+						return SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
 				}
 			}
 		}
 		break;
 	case DN_MOUSEEVENT:
-		if(Dialog::SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
+		if(SendDlgMessage(hDlg,DM_GETDROPDOWNOPENED,ID_SC_COMBO,0))
 		{
 			MOUSE_EVENT_RECORD *mer=(MOUSE_EVENT_RECORD *)Param2;
-			if(Dialog::SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO && mer->dwButtonState && !(mer->dwEventFlags&MOUSE_MOVED))
+			if(SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SC_COMBO,0)==CM_ASKRO && mer->dwButtonState && !(mer->dwEventFlags&MOUSE_MOVED))
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
+				SendDlgMessage(hDlg,DM_SWITCHRO,0,0);
 				return FALSE;
 			}
 		}
@@ -1543,16 +1543,16 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
         DlgParam->thisClass->SrcPanel->GetCurDir(strTmpSrcDir);
 
-        DItemACCopy = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
-        DItemACInherit = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
-        DItemACLeave = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
-        //DItemOnlyNewer = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0));
-        //Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
-        DItemBtnCopy = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
+				DItemACCopy = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
+				DItemACInherit = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
+				DItemACLeave = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
+				//DItemOnlyNewer = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,0));
+				//SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
+				DItemBtnCopy = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
 				// не создание линка, обычные Copy/Move
 				if(!(DlgParam->thisClass->Flags&FCOPY_LINK))
@@ -1600,11 +1600,11 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
           }
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
-        //Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACCOPY,(LONG_PTR)DItemACCopy);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACINHERIT,(LONG_PTR)DItemACInherit);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ACLEAVE,(LONG_PTR)DItemACLeave);
+				//SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_ONLYNEWER,(LONG_PTR)DItemOnlyNewer);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_SC_BTNCOPY,(LONG_PTR)DItemBtnCopy);
 
         xf_free(DItemACCopy);
         xf_free(DItemACInherit);
@@ -1628,17 +1628,17 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
            показывался корневой каталог, теперь показывается самый первый каталог
            в списке.
       */
-      BOOL MultiCopy=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_SC_MULTITARGET,0)==BSTATE_CHECKED;
+			BOOL MultiCopy=SendDlgMessage(hDlg,DM_GETCHECK,ID_SC_MULTITARGET,0)==BSTATE_CHECKED;
 
       string strOldFolder;
       int nLength;
 			FarDialogItemData Data;
 
-      nLength = (int)Dialog::SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
+			nLength = (int)SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
 
       Data.PtrData = strOldFolder.GetBuffer(nLength+1);
       Data.PtrLength = nLength;
-      Dialog::SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,(LONG_PTR)&Data);
+			SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,(LONG_PTR)&Data);
 
       strOldFolder.ReleaseBuffer();
 
@@ -1692,8 +1692,8 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
             strOldFolder += strNewFolder;
             strNewFolder = strOldFolder;
           }
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,(LONG_PTR)(const wchar_t*)strNewFolder);
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,ID_SC_TARGETEDIT,0);
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_SC_TARGETEDIT,(LONG_PTR)(const wchar_t*)strNewFolder);
+					SendDlgMessage(hDlg,DM_SETFOCUS,ID_SC_TARGETEDIT,0);
         }
       }
       DlgParam->AltF10=0;
@@ -1704,14 +1704,14 @@ LONG_PTR WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 		if(Param1==ID_SC_BTNCOPY)
 		{
 			FarListGetItem LGI={CM_ASKRO};
-			Dialog::SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
+			SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,(LONG_PTR)&LGI);
 			if(LGI.Item.Flags&LIF_CHECKED)
 				DlgParam->AskRO=TRUE;
 		}
 	}
 	break;
   }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 ShellCopy::~ShellCopy()
@@ -3651,7 +3651,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 	case DM_OPENVIEWER:
 		{
 			LPCWSTR ViewName=NULL;
-			string** WFN=reinterpret_cast<string**>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+			string** WFN=reinterpret_cast<string**>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 			if(WFN)
 			{
 				switch(Param1)
@@ -3691,14 +3691,14 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			{
 			case WDLG_SRCFILEBTN:
 			case WDLG_DSTFILEBTN:
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
+				SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
 				break;
 			case WDLG_RENAME:
 				{
-					string** WFN=reinterpret_cast<string**>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+					string** WFN=reinterpret_cast<string**>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 					string strDestName=*WFN[1];
 					GenerateName(strDestName,*WFN[2]);
-					if(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
+					if(SendDlgMessage(hDlg,DM_GETCHECK,WDLG_CHECKBOX,0)==BSTATE_UNCHECKED)
 					{
 						int All=BSTATE_UNCHECKED;
 						if(GetString(MSG(MCopyRenameTitle),MSG(MCopyRenameText),NULL,strDestName,*WFN[1],L"CopyAskOverwrite",FIB_BUTTONS|FIB_NOAMPERSAND|FIB_EXPANDENV|FIB_CHECKBOX,&All,MSG(MCopyRememberChoice)))
@@ -3708,7 +3708,7 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 								*WFN[2]=*WFN[1];
 								CutToSlash(*WFN[2]);
 							}
-							Dialog::SendDlgMessage(hDlg,DM_SETCHECK,WDLG_CHECKBOX,All);
+							SendDlgMessage(hDlg,DM_SETCHECK,WDLG_CHECKBOX,All);
 						}
 						else
 						{
@@ -3728,13 +3728,13 @@ LONG_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && Param2==KEY_F3)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
+				SendDlgMessage(hDlg,DM_OPENVIEWER,Param1,0);
 			}
 		}
 		break;
 
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,

@@ -68,8 +68,8 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		{
 			if(Param1==MKDIR_OK)
 			{
-				string strDirName=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,NULL));
-				Opt.MultiMakeDir=(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,NULL)==BSTATE_CHECKED);
+				string strDirName=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,NULL));
+				Opt.MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,NULL)==BSTATE_CHECKED);
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
 				// такой каталог в кавычки
@@ -85,7 +85,7 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					// возьмем в кавычки, т.к. могут быть разделители
 					InsertQuote(strDirName);
 				}
-				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,NULL));
+				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,NULL));
 				if(!(pDirList->Set(strDirName)&&!wcspbrk(strDirName,ReservedFilenameSymbols)))
 				{
 					Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectDirList),MSG(MOk));
@@ -95,7 +95,7 @@ LONG_PTR WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		}
 		break;
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 void ShellMakeDir(Panel *SrcPanel)

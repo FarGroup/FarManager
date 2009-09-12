@@ -119,7 +119,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
     sptwb.Spt.PathId = 0;
     sptwb.Spt.TargetId = 1;
     sptwb.Spt.Lun = 0;
-    sptwb.Spt.CdbLength = CDB6GENERIC_LENGTH;
+    sptwb.Spt.CdbLength = 6;
     sptwb.Spt.SenseInfoLength = 24;
     sptwb.Spt.DataIn = SCSI_IOCTL_DATA_IN;
     sptwb.Spt.DataTransferLength = 192;

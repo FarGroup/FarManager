@@ -518,7 +518,7 @@ LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Pa
 		case ETR_COMBO_ALTVIEW:
 		case ETR_COMBO_EDIT:
 		case ETR_COMBO_ALTEDIT:
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
+			SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
 			break;
 		}
 		break;
@@ -526,7 +526,7 @@ LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Pa
 		if(Param1==ETR_BUTTON_OK)
 		{
 			BOOL Result=TRUE;
-			LPCWSTR Masks=reinterpret_cast<LPCWSTR>(Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
+			LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
 			CFileMask FMask;
 			if(!FMask.Set(Masks,0))
 			{
@@ -536,7 +536,7 @@ LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Pa
 		}
 		break;
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)

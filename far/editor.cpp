@@ -1020,7 +1020,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
     case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
     {
-      __int64 Ret=_i64(-1);
+			__int64 Ret=-1;
       long Val[1];
       EditorBookMarks ebm={0};
       int iMode=(int)((LONG_PTR)vParam);
@@ -1183,7 +1183,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
     }
 
   }
-  return _i64(0);
+	return 0;
 }
 
 
@@ -4562,7 +4562,7 @@ void Editor::GoToPosition()
       ѕрибъЄм ShadowSaveScr дл€ предотвращени€ мелькани€
       изображени€.
   */
-  Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
+	SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
 
     // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
   if (Dlg.GetExitCode()!=1 )

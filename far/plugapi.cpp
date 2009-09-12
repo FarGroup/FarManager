@@ -95,9 +95,7 @@ int WINAPI FarAtoi(const wchar_t *s)
 }
 __int64 WINAPI FarAtoi64(const wchar_t *s)
 {
-  if(s)
-    return _wtoi64(s);
-  return _i64(0);
+	return s?_wtoi64(s):0;
 }
 
 void WINAPI FarQsort(void *base, size_t nelem, size_t width,
@@ -920,7 +918,7 @@ int WINAPI FarMenuFn (
 LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   if(hDlg)  // исключаем лишний вызов для hDlg=0
-    return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+    return DefDlgProc(hDlg,Msg,Param1,Param2);
   return 0;
 }
 
@@ -928,7 +926,7 @@ LONG_PTR WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   if(hDlg) // исключаем лишний вызов для hDlg=0
-    return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
+    return SendDlgMessage(hDlg,Msg,Param1,Param2);
   return 0;
 }
 
@@ -956,12 +954,12 @@ static int Except_FarDialogEx()
 
 static int FarDialogExSehed(Dialog *FarDialog)
 {
-  TRY
+	__try
   {
     FarDialog->Process();
     return FarDialog->GetExitCode();
   }
-  EXCEPT (Except_FarDialogEx())
+	__except(Except_FarDialogEx())
   {
     return -1;
   }

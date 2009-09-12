@@ -559,10 +559,11 @@ struct ExecuteStruct {
 		es.bUnloaded = false; \
 		if ( Opt.ExceptRules ) \
 		{ \
-			TRY { \
+			__try \
+			{ \
 				function; \
 			} \
-			EXCEPT(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
+			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
 			{ \
 				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
 				es.bUnloaded = true; \
@@ -581,10 +582,11 @@ struct ExecuteStruct {
 		es.nResult = 0; \
 		if ( Opt.ExceptRules ) \
 		{ \
-			TRY { \
+			__try \
+			{ \
 				es.nResult = (INT_PTR)function; \
 			} \
-			EXCEPT(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
+			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
 			{ \
 				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
 				es.bUnloaded = true; \

@@ -242,7 +242,7 @@ class VMenu: public Modal
     static int _SetUserData(MenuItemEx *PItem,const void *Data,int Size);
     static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
-    BOOL CheckHighlights(WORD Chr);
+		bool CheckHighlights(wchar_t Chr);
     wchar_t GetHighlights(const struct MenuItemEx *_item);
     BOOL ShiftItemShowPos(int Pos,int Direct);
     int RecalcItemHiddenCount();

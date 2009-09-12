@@ -125,7 +125,7 @@ int GetDirInfo(const wchar_t *Title,
   strCurDirName=L"";
 
   DirCount=FileCount=0;
-  FileSize=CompressedFileSize=RealSize=_i64(0);
+	FileSize=CompressedFileSize=RealSize=0;
   ScTree.SetFindPath(DirName,L"*.*");
 
   while (ScTree.GetNextName(&FindData,strFullName))
@@ -218,10 +218,11 @@ int GetDirInfo(const wchar_t *Title,
       FileSize+=CurSize;
       if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
       {
-        DWORD CompressedSize,CompressedSizeHigh;
-				CompressedSize=apiGetCompressedFileSize(strFullName,&CompressedSizeHigh);
-        if (CompressedSize!=INVALID_FILE_SIZE || GetLastError()==NO_ERROR)
-          CurSize = CompressedSizeHigh*_ui64(0x100000000)+CompressedSize;
+				UINT64 Size=0;
+				if(apiGetCompressedFileSize(strFullName,Size))
+				{
+					CurSize=Size;
+				}
       }
       CompressedFileSize+=CurSize;
       if (ClusterSize>0)

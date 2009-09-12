@@ -1308,7 +1308,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 
 __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
-  return _i64(0);
+	return 0;
 }
 
 // корректировка букв

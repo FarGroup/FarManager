@@ -785,19 +785,19 @@ __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return (__int64)(TreeCount<=0);
+			return TreeCount<=0;
     case MCODE_C_EOF:
-      return (__int64)(CurFile==TreeCount-1);
+			return CurFile==TreeCount-1;
     case MCODE_C_BOF:
-      return (__int64)(CurFile==0);
+			return CurFile==0;
     case MCODE_C_SELECTED:
-      return _i64(0);
+			return 0;
     case MCODE_V_ITEMCOUNT:
-      return (__int64)TreeCount;
+			return TreeCount;
     case MCODE_V_CURPOS:
-      return (__int64)(CurFile+1);
+			return CurFile+1;
   }
-  return _i64(0);
+	return 0;
 }
 
 int TreeList::ProcessKey(int Key)

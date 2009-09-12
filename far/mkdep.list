@@ -221,8 +221,6 @@ scrobj.cpp
 scrobj.hpp
 scrsaver.cpp
 scrsaver.hpp
-sdkpatches.cpp
-sdkpatches.hpp
 setattr.cpp
 setattr.hpp
 setcolor.cpp

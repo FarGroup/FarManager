@@ -123,7 +123,7 @@ struct SetAttrDlgParam
 
 LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
 	switch(Msg)
 	{
@@ -133,10 +133,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(Param2);
 				DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
 
-				int FocusPos=static_cast<int>(Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0));
-				FARCHECKEDSTATE CompressState=static_cast<FARCHECKEDSTATE>(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_COMPRESSED,0));
-				FARCHECKEDSTATE EncryptState=static_cast<FARCHECKEDSTATE>(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_ENCRYPTED,0));
-				FARCHECKEDSTATE SubfoldersState=static_cast<FARCHECKEDSTATE>(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_SUBFOLDERS,0));
+				int FocusPos=static_cast<int>(SendDlgMessage(hDlg,DM_GETFOCUS,0,0));
+				FARCHECKEDSTATE CompressState=static_cast<FARCHECKEDSTATE>(SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_COMPRESSED,0));
+				FARCHECKEDSTATE EncryptState=static_cast<FARCHECKEDSTATE>(SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_ENCRYPTED,0));
+				FARCHECKEDSTATE SubfoldersState=static_cast<FARCHECKEDSTATE>(SendDlgMessage(hDlg,DM_GETCHECK,SA_CHECKBOX_SUBFOLDERS,0));
 
 				if(DlgParam->DialogMode==MODE_FILE)
 				{
@@ -145,9 +145,9 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
              (FocusPos == SA_CHECKBOX_COMPRESSED || FocusPos == SA_CHECKBOX_ENCRYPTED))
           {
 							if(FocusPos == SA_CHECKBOX_COMPRESSED && /*CompressState &&*/ EncryptState)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
 							if(FocusPos == SA_CHECKBOX_ENCRYPTED && /*EncryptState &&*/ CompressState)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
           }
         }
 				// =1|2 Multi
@@ -161,16 +161,16 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						if(FocusPos == SA_CHECKBOX_COMPRESSED && DlgParam->OCompressState != CompressState) // Состояние изменилось?
             {
 							if(CompressState == BSTATE_CHECKED && EncryptState)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
 							else if(CompressState == BSTATE_3STATE)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_3STATE);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_3STATE);
             }
 						else if(FocusPos == SA_CHECKBOX_ENCRYPTED && DlgParam->OEncryptState != EncryptState) // Состояние изменилось?
             {
 							if(EncryptState == BSTATE_CHECKED && CompressState)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
 							else if(EncryptState == BSTATE_3STATE)
-                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_3STATE);
+                SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_3STATE);
             }
 
 						// еще одна проверка
@@ -178,11 +178,11 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						{
 							if(FocusPos == SA_CHECKBOX_COMPRESSED && EncryptState)
 							{
-								Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_ENCRYPTED,BSTATE_UNCHECKED);
 							}
 							if(FocusPos == SA_CHECKBOX_ENCRYPTED && CompressState)
 							{
-								Dialog::SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
+								SendDlgMessage(hDlg,DM_SETCHECK,SA_CHECKBOX_COMPRESSED,BSTATE_UNCHECKED);
 							}
 						}
 						DlgParam->OEncryptState=EncryptState;
@@ -203,16 +203,16 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									// сняли?
 									if(!SubfoldersState)
 									{
-										Dialog::SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
-										Dialog::SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+										SendDlgMessage(hDlg,DM_SET3STATE,i,FALSE);
+										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
 									}
 									// установили?
 									else
 									{
-										Dialog::SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
+										SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
 										if(DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
-											Dialog::SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
+											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
 								}
@@ -228,7 +228,7 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 										{
 											if(*ParamTimes[i])
 											{
-												Dialog::SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
+												SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
 											}
 										}
 									}
@@ -246,16 +246,16 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									// сняли?
 									if(!SubfoldersState)
 									{
-										Dialog::SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
-										Dialog::SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
+										SendDlgMessage(hDlg,DM_SET3STATE,i,((DlgParam->OriginalCBFlag[i-SA_ATTR_FIRST]&DIF_3STATE)?TRUE:FALSE));
+										SendDlgMessage(hDlg,DM_SETCHECK,i,DlgParam->OriginalCBAttr[i-SA_ATTR_FIRST]);
 									}
 									// установили?
 									else
 									{
 										if(DlgParam->OriginalCBAttr2[i-SA_ATTR_FIRST]==-1)
 										{
-											Dialog::SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
-											Dialog::SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
+											SendDlgMessage(hDlg,DM_SET3STATE,i,TRUE);
+											SendDlgMessage(hDlg,DM_SETCHECK,i,BSTATE_3STATE);
 										}
 									}
 								}
@@ -272,21 +272,21 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				FAR_FIND_DATA_EX FindData;
 				if(apiGetFindDataEx(DlgParam->strSelName,&FindData))
 				{
-					Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
-					Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(LONG_PTR)&FindData.ftCreationTime);
-					Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,(LONG_PTR)&FindData.ftLastWriteTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,(LONG_PTR)&FindData.ftCreationTime);
+					SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,(LONG_PTR)&FindData.ftLastAccessTime);
 					DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=false;
 				}
-				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
 				return TRUE;
 			}
 			else if(Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,Param1 == SA_BUTTON_CURRENT?-1:0);
-				Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,Param1 == SA_BUTTON_CURRENT?-1:0);
-				Dialog::SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,Param1 == SA_BUTTON_CURRENT?-1:0);
+				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_MODIFICATION,Param1 == SA_BUTTON_CURRENT?-1:0);
+				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_CREATION,Param1 == SA_BUTTON_CURRENT?-1:0);
+				SendDlgMessage(hDlg,DM_SETATTR,SA_TEXT_LASTACCESS,Param1 == SA_BUTTON_CURRENT?-1:0);
 				DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=true;
-				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,SA_EDIT_MDATE,0);
 				return TRUE;
 			}
 			break;
@@ -299,14 +299,14 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 					if(reinterpret_cast<MOUSE_EVENT_RECORD*>(Param2)->dwEventFlags==DOUBLE_CLICK)
 					{
 						// Дадим Менеджеру диалогов "попотеть"
-						Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-						Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+						DefDlgProc(hDlg,Msg,Param1,Param2);
+						SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
 					}
 					if(Param1 == SA_TEXT_MODIFICATION || Param1 == SA_TEXT_CREATION || Param1 == SA_TEXT_LASTACCESS)
 					{
 						Param1++;
 					}
-					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0);
+					SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0);
 				}
 			}
 			break;
@@ -318,10 +318,10 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			case SA_COMBO_HARDLINK:
 				{
 					FarListInfo li;
-					Dialog::SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(LONG_PTR)&li);
+					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,(LONG_PTR)&li);
 					string strTmp;
 					strTmp.Format(MSG(MSetAttrHardLinks),li.ItemsNumber);
-					Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.CPtr());
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,(LONG_PTR)strTmp.CPtr());
 				}
 				break;
 			case SA_EDIT_MDATE:
@@ -386,16 +386,16 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			}
 			if(Set1!=-1)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(LONG_PTR)strDate.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(LONG_PTR)strDate.CPtr());
 			}
 			if(Set2!=-1)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(LONG_PTR)strTime.CPtr());
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(LONG_PTR)strTime.CPtr());
 			}
 			return TRUE;
 		}
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 void ShellSetFileAttributesMsg(const wchar_t *Name)

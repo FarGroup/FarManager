@@ -1,9 +1,10 @@
-#ifndef __SDKPATCHES_HPP__
-#define __SDKPATCHES_HPP__
-/*
-sdkpatches.hpp
+#ifndef __SDK_GCC_H__
+#define __SDK_GCC_H__
 
-Типы и определения, отсутствующие в поддерживаемых SDK.
+/*
+sdk.gcc.h
+
+Типы и определения, отсутствующие в SDK (GCC).
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -33,8 +34,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __GNUC__
-// winioctl.h
+// ntddstor.h
 typedef enum _STORAGE_BUS_TYPE {
     BusTypeUnknown = 0x00,
     BusTypeScsi,
@@ -187,36 +187,14 @@ extern "C" {
 }
 #endif
 
-typedef enum tagASSOCIATIONLEVEL
-{
-	AL_MACHINE,
-	AL_EFFECTIVE,
-	AL_USER,
-} ASSOCIATIONLEVEL;
+#ifndef MAPVK_VK_TO_CHAR
+#define MAPVK_VK_TO_CHAR 2
+#endif
 
-typedef enum tagASSOCIATIONTYPE
-{
-	AT_FILEEXTENSION,
-	AT_URLPROTOCOL,
-	AT_STARTMENUCLIENT,
-	AT_MIMETYPE,
-} ASSOCIATIONTYPE;
-
-EXTERN_C const IID IID_IApplicationAssociationRegistration;
-#define INTERFACE IApplicationAssociationRegistration
-DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
-{
-  STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
-  STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-  STDMETHOD_(ULONG,Release)(THIS) PURE;
-  STDMETHOD(QueryCurrentDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPWSTR *) PURE;
-  STDMETHOD(QueryAppIsDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(QueryAppIsDefaultAll)(THIS_ ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(SetAppAsDefault)(THIS_ LPCWSTR, LPCWSTR, ASSOCIATIONTYPE) PURE;
-  STDMETHOD(SetAppAsDefaultAll)(THIS_ LPCWSTR) PURE;
-  STDMETHOD(ClearUserAssociations)(THIS) PURE;
-};
-#undef INTERFACE
+// winuser.h
+#ifndef INPUTLANGCHANGE_FORWARD
+#define INPUTLANGCHANGE_FORWARD 0x0002
+#endif
 
 typedef enum _STREAM_INFO_LEVELS
 {
@@ -242,12 +220,15 @@ typedef struct _IO_STATUS_BLOCK
 }
 IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
 
-typedef enum _OBJECT_INFORMATION_CLASS {
-	ObjectBasicInformation = 0,
-	ObjectTypeInformation = 2
-} OBJECT_INFORMATION_CLASS;
-
-#endif // __GNUC__
+typedef enum _OBJECT_INFORMATION_CLASS
+{
+	ObjectBasicInformation,
+	ObjectNameInformation,
+	ObjectTypeInformation,
+	ObjectAllTypesInformation,
+	ObjectHandleInformation
+}
+OBJECT_INFORMATION_CLASS;
 
 #ifndef FSCTL_QUERY_ALLOCATED_RANGES
 #define FSCTL_QUERY_ALLOCATED_RANGES    CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 51,  METHOD_NEITHER, FILE_READ_DATA)  // FILE_ALLOCATED_RANGE_BUFFER, FILE_ALLOCATED_RANGE_BUFFER
@@ -281,11 +262,26 @@ typedef enum _OBJECT_INFORMATION_CLASS {
 #define CM_DEVCAP_UNIQUEID 0x00000010
 #endif
 
-#ifdef _MSC_VER
-#pragma pack(push,4)
+// wincon.h
+#ifndef MOUSE_HWHEELED
+#define MOUSE_HWHEELED 0x0008
 #endif
 
-// winioctl.h
+// winnt.h
+#ifndef FILE_ATTRIBUTE_VIRTUAL
+#define FILE_ATTRIBUTE_VIRTUAL 0x00010000
+#endif
+
+// winbase.h
+#ifndef COPY_FILE_ALLOW_DECRYPTED_DESTINATION
+#define COPY_FILE_ALLOW_DECRYPTED_DESTINATION 0x00000008
+#endif
+
+#ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
+#define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
+#endif
+
+//ntddstor.h
 #ifndef IOCTL_STORAGE_QUERY_PROPERTY
 #define IOCTL_STORAGE_QUERY_PROPERTY 0x002D1400
 
@@ -341,176 +337,61 @@ typedef struct _STORAGE_PROPERTY_QUERY {
 
 #endif //IOCTL_STORAGE_QUERY_PROPERTY
 
-// no pack
-typedef struct _SCSI_PASS_THROUGH {
-  USHORT  Length;
-  UCHAR  ScsiStatus;
-  UCHAR  PathId;
-  UCHAR  TargetId;
-  UCHAR  Lun;
-  UCHAR  CdbLength;
-  UCHAR  SenseInfoLength;
-  UCHAR  DataIn;
-  ULONG  DataTransferLength;
-  ULONG  TimeOutValue;
-  ULONG_PTR DataBufferOffset;
-  ULONG  SenseInfoOffset;
-  UCHAR  Cdb[16];
-}SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
-
-#define CDB6GENERIC_LENGTH 6
-#define CDB10GENERIC_LENGTH 10
-
-typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
-    SCSI_PASS_THROUGH Spt;
-    ULONG             Filler;      // realign buffers to double word boundary
-    UCHAR             SenseBuf[32];
-    UCHAR             DataBuf[512];
-} SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
-
-#ifdef _MSC_VER
-#pragma pack(pop)
-#endif
-
-// ntifs.h
-
-#ifndef IO_REPARSE_TAG_VALID_VALUES
-#define IO_REPARSE_TAG_VALID_VALUES 0xE000FFFF
-#endif
-
-#ifndef IsReparseTagValid
-#define IsReparseTagValid(x) (!((x)&~IO_REPARSE_TAG_VALID_VALUES)&&((x)>IO_REPARSE_TAG_RESERVED_RANGE))
-#endif
-
-#ifndef SYMLINK_FLAG_RELATIVE
-#define SYMLINK_FLAG_RELATIVE 1
-#endif
-
-#ifndef REPARSE_DATA_BUFFER_HEADER_SIZE
-typedef struct _REPARSE_DATA_BUFFER
+typedef enum _FILE_INFORMATION_CLASS
 {
-	ULONG ReparseTag;
-	USHORT ReparseDataLength;
-	USHORT Reserved;
-	union
-	{
-		struct
-		{
-			USHORT SubstituteNameOffset;
-			USHORT SubstituteNameLength;
-			USHORT PrintNameOffset;
-			USHORT PrintNameLength;
-			ULONG Flags;
-			WCHAR PathBuffer[1];
-		}
-		SymbolicLinkReparseBuffer;
-		struct
-		{
-			USHORT SubstituteNameOffset;
-			USHORT SubstituteNameLength;
-			USHORT PrintNameOffset;
-			USHORT PrintNameLength;
-			WCHAR PathBuffer[1];
-		}
-		MountPointReparseBuffer;
-		struct
-		{
-			UCHAR  DataBuffer[1];
-		}
-		GenericReparseBuffer;
-	};
+	FileStreamInformation=22,
 }
-REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
+FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;
 
-#define REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(REPARSE_DATA_BUFFER,GenericReparseBuffer)
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)
 #endif
 
-#ifndef MAXIMUM_REPARSE_DATA_BUFFER_SIZE
-#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE (16*1024)
+#ifndef STATUS_BUFFER_OVERFLOW
+#define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
 #endif
 
-// wincon.h
-#ifndef MOUSE_HWHEELED
-#define MOUSE_HWHEELED 0x0008
+#ifndef STATUS_BUFFER_TOO_SMALL
+#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
 #endif
 
-// winnt.h
-#ifndef FILE_ATTRIBUTE_VIRTUAL
-#define FILE_ATTRIBUTE_VIRTUAL 0x00010000
+#ifndef VOLUME_NAME_GUID
+#define VOLUME_NAME_GUID 0x1
 #endif
 
-#ifndef IO_REPARSE_TAG_SYMLINK
-#define IO_REPARSE_TAG_SYMLINK 0xA000000CL
-#endif
-
-#ifndef IO_REPARSE_TAG_DFSR
-#define IO_REPARSE_TAG_DFSR 0x80000012L
-#endif
-
-// winuser.h
-#ifndef INPUTLANGCHANGE_FORWARD
-#define INPUTLANGCHANGE_FORWARD 0x0002
-#endif
-
-#ifndef SPI_GETFOREGROUNDLOCKTIMEOUT
-#define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
-#endif
-
-#ifndef SPI_SETFOREGROUNDLOCKTIMEOUT
-#define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
-#endif
-
-#ifndef MAPVK_VK_TO_CHAR
-#define MAPVK_VK_TO_CHAR 2
-#endif
-
-// winbase.h
-#ifndef COPY_FILE_ALLOW_DECRYPTED_DESTINATION
-#define COPY_FILE_ALLOW_DECRYPTED_DESTINATION 0x00000008
-#endif
-
-#ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
-#define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
-#endif
-
-// scsi.h
-#ifndef SCSIOP_MODE_SENSE
-#define SCSIOP_MODE_SENSE 0x1A
-#endif
-
-#ifndef MODE_PAGE_CAPABILITIES
-#define MODE_PAGE_CAPABILITIES 0x2A
-#endif
-
-// ntddscsi.h
-#ifndef SCSI_IOCTL_DATA_IN
-#define SCSI_IOCTL_DATA_IN 1
-#endif
-
-#ifndef IOCTL_SCSI_BASE
-#define IOCTL_SCSI_BASE FILE_DEVICE_CONTROLLER
-#endif
-
-#ifndef IOCTL_SCSI_PASS_THROUGH
-#define IOCTL_SCSI_PASS_THROUGH CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-#endif
-
-// winnls.h
-#ifndef NORM_STOP_ON_NULL
-#define NORM_STOP_ON_NULL 0x10000000
-#endif
-
-typedef struct _FILE_STREAM_INFORMATION
+// ShObjIdl.h
+typedef enum tagASSOCIATIONLEVEL
 {
-	ULONG NextEntryOffset;
-	ULONG StreamNameLength;
-	LARGE_INTEGER StreamSize;
-	LARGE_INTEGER StreamAllocationSize;
-	WCHAR StreamName[1];
-}
-FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
+	AL_MACHINE,
+	AL_EFFECTIVE,
+	AL_USER,
+} ASSOCIATIONLEVEL;
 
-#define FileStreamInformation 22
+typedef enum tagASSOCIATIONTYPE
+{
+	AT_FILEEXTENSION,
+	AT_URLPROTOCOL,
+	AT_STARTMENUCLIENT,
+	AT_MIMETYPE,
+} ASSOCIATIONTYPE;
+
+
+const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
+#define INTERFACE IApplicationAssociationRegistration
+DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
+{
+  STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
+  STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+  STDMETHOD_(ULONG,Release)(THIS) PURE;
+  STDMETHOD(QueryCurrentDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPWSTR *) PURE;
+  STDMETHOD(QueryAppIsDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
+  STDMETHOD(QueryAppIsDefaultAll)(THIS_ ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
+  STDMETHOD(SetAppAsDefault)(THIS_ LPCWSTR, LPCWSTR, ASSOCIATIONTYPE) PURE;
+  STDMETHOD(SetAppAsDefaultAll)(THIS_ LPCWSTR) PURE;
+  STDMETHOD(ClearUserAssociations)(THIS) PURE;
+};
+#undef INTERFACE
+
 
 #ifndef __ITaskbarList3_INTERFACE_DEFINED__
 #define __ITaskbarList3_INTERFACE_DEFINED__
@@ -532,13 +413,9 @@ typedef enum TBATFLAG
 }
 TBATFLAG;
 
-EXTERN_C const IID IID_ITaskbarList3;
+const IID IID_ITaskbarList3  = { 0xEA1AFB91, 0x9E28, 0x4B86, 0x90, 0xE9, 0x9E, 0x9F, 0x8A, 0x5E, 0xEF, 0xAF };
 
-#ifdef __GNUC__
 DECLARE_INTERFACE_(ITaskbarList3,IUnknown) //BUGBUG, ITaskbarList2
-#else
-MIDL_INTERFACE("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf") ITaskbarList3 : public ITaskbarList2
-#endif
 {
 public:
 	virtual HRESULT STDMETHODCALLTYPE SetProgressValue(HWND hwnd,ULONGLONG ullCompleted,ULONGLONG ullTotal)=0;
@@ -557,26 +434,5 @@ public:
 
 #endif // __ITaskbarList3_INTERFACE_DEFINED__
 
-#ifndef STATUS_SUCCESS
-#define STATUS_SUCCESS                   ((NTSTATUS)0x00000000L)
-#endif
 
-#ifndef STATUS_BUFFER_OVERFLOW
-#define STATUS_BUFFER_OVERFLOW           ((NTSTATUS)0x80000005L)
-#endif
-
-#ifndef STATUS_BUFFER_TOO_SMALL
-#define STATUS_BUFFER_TOO_SMALL          ((NTSTATUS)0xC0000023L)
-#endif
-
-#ifndef VOLUME_NAME_GUID
-#define VOLUME_NAME_GUID 0x1
-#endif
-
-const OBJECT_INFORMATION_CLASS ObjectNameInformation = (OBJECT_INFORMATION_CLASS) 1;
-
-typedef struct _OBJECT_NAME_INFORMATION {
-	UNICODE_STRING Name;
-} OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
-
-#endif // __SDKPATCHES_HPP__
+#endif // __SDK_GCC_H__

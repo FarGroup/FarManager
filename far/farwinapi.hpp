@@ -64,8 +64,8 @@ struct FAR_FIND_DATA_EX
 		memset(&ftCreationTime,0,sizeof(ftCreationTime));
 		memset(&ftLastAccessTime,0,sizeof(ftLastAccessTime));
 		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
-		nFileSize=_ui64(0);
-		nPackSize=_ui64(0);
+		nFileSize=0;
+		nPackSize=0;
 		strFileName=L"";
 		strAlternateFileName=L"";
 	}
@@ -274,9 +274,9 @@ BOOL apiCreateSymbolicLink(
 		DWORD dwFlags
 		);
 
-DWORD apiGetCompressedFileSize(
+bool apiGetCompressedFileSize(
 		LPCWSTR lpFileName,
-		LPDWORD lpFileSizeHigh
+		UINT64& Size
 		);
 
 BOOL apiCreateHardLink(

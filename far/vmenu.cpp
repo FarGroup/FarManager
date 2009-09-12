@@ -835,7 +835,7 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
     if(!(CurItem->Flags&(LIF_DISABLE|LIF_HIDDEN)) &&
        (
          (!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
-         (Type && Dialog::IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))
+         (Type && IsKeyHighlighted(CurItem->strName,Key,Translate,CurItem->AmpPos))
        )
       )
     {
@@ -959,24 +959,24 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
   switch(OpCode)
   {
     case MCODE_C_EMPTY:
-      return (__int64)(ItemCount<=0);
+			return ItemCount<=0;
     case MCODE_C_EOF:
-      return (__int64)(SelectPos==ItemCount-1);
+			return SelectPos==ItemCount-1;
     case MCODE_C_BOF:
-      return (__int64)(SelectPos==0);
+			return SelectPos==0;
     case MCODE_C_SELECTED:
-      return (__int64)(ItemCount > 0 && SelectPos >= 0);
+			return ItemCount > 0 && SelectPos >= 0;
     case MCODE_V_ITEMCOUNT:
-      return (__int64)GetShowItemCount(); // ????
+			return GetShowItemCount(); // ????
     case MCODE_V_CURPOS:
-      return (__int64)(SelectPos+1);
+			return SelectPos+1;
 
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const wchar_t *str = (const wchar_t *)vParam;
       if ( *str )
-        return (__int64)((DWORD)CheckHighlights((WORD)*str));
-      return _i64(0);
+				return CheckHighlights(*str);
+			return 0;
     }
 
     case MCODE_F_MENU_SELECT:
@@ -1021,29 +1021,29 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
             if(SelectPos != I)
             {
               SelectPos=SetSelectPos(SelectPos,1);
-              return _i64(0);
+							return 0;
             }
             ShowMenu(TRUE);
-            return (__int64)(SelectPos+1);
+						return SelectPos+1;
           }
         }
       }
-      return _i64(0);
+			return 0;
     }
 
     case MCODE_F_MENU_GETHOTKEY:
     {
-      if(iParam == _i64(-1))
-        iParam=(__int64)SelectPos;
+			if(iParam ==-1)
+				iParam=SelectPos;
 
-      if((int)iParam < ItemCount)  //???
-        return (__int64)((DWORD)GetHighlights(GetItemPtr((int)iParam)));
-      return _i64(0);
+			if(iParam<(__int64)ItemCount)  //???
+				return GetHighlights(GetItemPtr((int)iParam));
+			return 0;
     }
 
   }
 
-  return _i64(0);
+	return 0;
 }
 
 int VMenu::ProcessKey(int Key)
@@ -1280,7 +1280,7 @@ int VMenu::ProcessKey(int Key)
         }
       }
 
-      if(VMenu::ParentDialog && OldSelectPos!=SelectPos && Dialog::SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
+      if(VMenu::ParentDialog && OldSelectPos!=SelectPos && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
       {
         Item[SelectPos]->Flags&=~LIF_SELECTED;
         Item[OldSelectPos]->Flags|=LIF_SELECTED;
@@ -2224,7 +2224,7 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
   return Ch;
 }
 
-BOOL VMenu::CheckHighlights(WORD CheckSymbol)
+bool VMenu::CheckHighlights(wchar_t CheckSymbol)
 {
   CriticalSectionLock Lock(CS);
 
@@ -2235,9 +2235,9 @@ BOOL VMenu::CheckHighlights(WORD CheckSymbol)
     wchar_t Ch=GetHighlights(Item[I]);
 
     if(Ch && Upper(CheckSymbol) == Upper(Ch))
-      return TRUE;
+			return true;
   }
-  return FALSE;
+	return false;
 }
 
 void VMenu::AssignHighlights(int Reverse)

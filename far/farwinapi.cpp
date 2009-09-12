@@ -335,7 +335,7 @@ HANDLE apiFindFirstFile (
 		pFindFileData->ftCreationTime = fdata.ftCreationTime;
 		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
 		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-		pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
+		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
 		pFindFileData->dwReserved0 = fdata.dwReserved0;
 		pFindFileData->dwReserved1 = fdata.dwReserved1;
 		pFindFileData->strFileName = fdata.cFileName;
@@ -357,7 +357,7 @@ BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 		pFindFileData->ftCreationTime = fdata.ftCreationTime;
 		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
 		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
-		pFindFileData->nFileSize = fdata.nFileSizeHigh*_ui64(0x100000000)+fdata.nFileSizeLow;
+		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
 		pFindFileData->dwReserved0 = fdata.dwReserved0;
 		pFindFileData->dwReserved1 = fdata.dwReserved1;
 		pFindFileData->strFileName = fdata.cFileName;
@@ -522,9 +522,9 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 	int ExitCode=0;
 
 	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
-	uiUserFree=_i64(0);
-	uiTotalSize=_i64(0);
-	uiTotalFree=_i64(0);
+	uiUserFree=0;
+	uiTotalSize=0;
+	uiTotalFree=0;
 
 	ExitCode=GetDiskFreeSpaceEx(Path,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
@@ -640,9 +640,17 @@ BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	return Result;
 }
 
-DWORD apiGetCompressedFileSize(LPCWSTR lpFileName,LPDWORD lpFileSizeHigh)
+bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 {
-	return GetCompressedFileSize(NTPath(lpFileName),lpFileSizeHigh);
+	bool Result=false;
+	DWORD High=0,Low=GetCompressedFileSize(NTPath(lpFileName),&High);
+	if((Low!=INVALID_FILE_SIZE)||(GetLastError()!=NO_ERROR))
+	{
+		ULARGE_INTEGER i={Low,High};
+		Size=i.QuadPart;
+		Result=true;
+	}
+	return Result;
 }
 
 BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)

@@ -1074,7 +1074,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
       return (__int64)(GetViewFilePos()+1);
   }
 
-  return _i64(0);
+	return 0;
 }
 
 /* $ 28.01.2001
@@ -2039,21 +2039,21 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 	{
 		case DN_INITDIALOG:
 		{
-			Dialog::SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
+			SendDlgMessage(hDlg,DM_SDSETVISIBILITY,SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
 
-			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,1);
-			Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,1);
+			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,1);
+			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,1);
 
 			return TRUE;
 		}
 
 		case DM_SDSETVISIBILITY:
 		{
-			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Param1);
-			Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Param1);
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Param1);
-			Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Param1);
-			//Dialog::SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_REGEXP,!Param1);
+			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,!Param1);
+			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,Param1);
+			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,!Param1);
+			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,!Param1);
+			//SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_REGEXP,!Param1);
 
 			return TRUE;
 		}
@@ -2062,22 +2062,22 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 		{
 			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
 				bool Hex=(Param1==SD_RADIO_HEX);
 
 				string strDataStr;
-				Transform(strDataStr,(const wchar_t *)Dialog::SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0),Hex?L'X':L'S');
-				Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)strDataStr.CPtr());
+				Transform(strDataStr,(const wchar_t *)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,0),Hex?L'X':L'S');
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,(LONG_PTR)strDataStr.CPtr());
 
-				Dialog::SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Hex,0);
+				SendDlgMessage(hDlg,DM_SDSETVISIBILITY,Hex,0);
 
 				if(!strDataStr.IsEmpty())
 				{
-					Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
+					SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_HEX:SD_EDIT_TEXT,SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,Hex?SD_EDIT_TEXT:SD_EDIT_HEX,-1));
 				}
 
-				Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 
 				return TRUE;
 			}
@@ -2087,14 +2087,14 @@ LONG_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Para
 		{
 			if (Param1==SD_TEXT_SEARCH)
 			{
-				Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED)?SD_EDIT_HEX:SD_EDIT_TEXT,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,(SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED)?SD_EDIT_HEX:SD_EDIT_TEXT,0);
 
 				return FALSE;
 			}
 		}
 	}
 
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 static void PR_ViewerSearchMsg()

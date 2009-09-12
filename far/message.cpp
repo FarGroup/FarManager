@@ -109,12 +109,12 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		case DN_INITDIALOG:
 			{
 				FarDialogItem di;
-				for(int i=0;Dialog::SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,(LONG_PTR)&di);i++)
+				for(int i=0;SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,(LONG_PTR)&di);i++)
 				{
 					if(di.Type==DI_EDIT)
 					{
 						COORD pos={0,0};
-						Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,i,(LONG_PTR)&pos);
+						SendDlgMessage(hDlg,DM_SETCURSORPOS,i,(LONG_PTR)&pos);
 					}
 				}
 			}
@@ -122,7 +122,7 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 		case DN_CTLCOLORDLGITEM:
 			{
 				FarDialogItem di;
-				Dialog::SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(LONG_PTR)&di);
+				SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,(LONG_PTR)&di);
 				if(di.Type==DI_EDIT)
 				{
 					int Color=FarColorToReal(IsWarningStyle?COL_WARNDIALOGTEXT:COL_DIALOGTEXT)&0xFF;
@@ -134,18 +134,18 @@ LONG_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			{
 				if(Param1==FirstButtonIndex && (Param2==KEY_LEFT || Param2 == KEY_NUMPAD4 || Param2==KEY_SHIFTTAB))
 				{
-					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
+					SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
 					return TRUE;
 				}
 				else if(Param1==LastButtonIndex && (Param2==KEY_RIGHT || Param2 == KEY_NUMPAD6 || Param2==KEY_TAB))
 				{
-					Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
+					SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
 					return TRUE;
 				}
 			}
 			break;
 	}
-	return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int Message(
@@ -393,7 +393,7 @@ int Message(
       Dlg.SetDialogMode(DMODE_MSGINTERNAL);
       FlushInputBuffer();
       if(Flags & MSG_KILLSAVESCREEN)
-        Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
+        SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
     }

@@ -19,9 +19,7 @@ enum FARMESSAGEFLAGS{
   FMSG_LEFTALIGN           = 0x00000010,
 
   FMSG_ALLINONE            = 0x00000020,
-#ifdef FAR_USE_INTERNALS
   FMSG_COLOURS             = 0x00000040,
-#endif // END FAR_USE_INTERNALS
 
   FMSG_MB_OK               = 0x00010000,
   FMSG_MB_OKCANCEL         = 0x00020000,
@@ -54,9 +52,7 @@ enum DialogItemTypes {
   DI_RADIOBUTTON,
   DI_COMBOBOX,
   DI_LISTBOX,
-#ifdef FAR_USE_INTERNALS
   DI_MEMOEDIT,
-#endif // END FAR_USE_INTERNALS
 
   DI_USERCONTROL=255,
 };
@@ -82,24 +78,18 @@ enum FarDialogItemFlags {
   DIF_BTNNOCLOSE            = 0x00040000UL,
   DIF_CENTERTEXT            = 0x00040000UL,
   DIF_NOTCVTUSERCONTROL     = 0x00040000UL,
-#ifdef FAR_USE_INTERNALS
   DIF_SEPARATORUSER         = 0x00080000UL,
-#endif // END FAR_USE_INTERNALS
   DIF_EDITEXPAND            = 0x00080000UL,
   DIF_DROPDOWNLIST          = 0x00100000UL,
   DIF_USELASTHISTORY        = 0x00200000UL,
   DIF_MASKEDIT              = 0x00400000UL,
   DIF_SELECTONENTRY         = 0x00800000UL,
   DIF_3STATE                = 0x00800000UL,
-#ifdef FAR_USE_INTERNALS
   DIF_EDITPATH              = 0x01000000UL,
-#endif // END FAR_USE_INTERNALS
   DIF_LISTWRAPMODE          = 0x01000000UL,
   DIF_LISTAUTOHIGHLIGHT     = 0x02000000UL,
   DIF_LISTNOCLOSE           = 0x04000000UL,
-#ifdef FAR_USE_INTERNALS
   DIF_AUTOMATION            = 0x08000000UL,
-#endif // END FAR_USE_INTERNALS
   DIF_HIDDEN                = 0x10000000UL,
   DIF_READONLY              = 0x20000000UL,
   DIF_NOFOCUS               = 0x40000000UL,
@@ -216,11 +206,9 @@ enum FarMessagesProc{
 
   DM_USER=0x4000,
 
-#ifdef FAR_USE_INTERNALS
   DM_KILLSAVESCREEN=DN_FIRST-1,
   DM_ALLKEYMODE=DN_FIRST-2,
   DN_ACTIVATEAPP=DM_USER-1,
-#endif // END FAR_USE_INTERNALS
 };
 
 enum FARCHECKEDSTATE {
@@ -243,9 +231,7 @@ enum LISTITEMFLAGS {
   LIF_DISABLE            = 0x00080000UL,
   LIF_GRAYED             = 0x00100000UL,
   LIF_HIDDEN             = 0x00200000UL,
-#ifdef FAR_USE_INTERNALS
   LIF_USETEXTPTR         = 0x40000000UL,
-#endif // END FAR_USE_INTERNALS
   LIF_DELETEUSERDATA     = 0x80000000UL,
 };
 
@@ -410,9 +396,7 @@ enum FARDIALOGFLAGS{
   FDLG_SMALLDIALOG         = 0x00000002,
   FDLG_NODRAWSHADOW        = 0x00000004,
   FDLG_NODRAWPANEL         = 0x00000008,
-#ifdef FAR_USE_INTERNALS
   FDLG_NONMODAL            = 0x00000010,
-#endif // END FAR_USE_INTERNALS
 };
 
 typedef LONG_PTR (WINAPI *FARWINDOWPROC)(
@@ -498,9 +482,7 @@ enum FARMENUFLAGS{
   FMENU_WRAPMODE             = 0x00000002,
   FMENU_AUTOHIGHLIGHT        = 0x00000004,
   FMENU_REVERSEAUTOHIGHLIGHT = 0x00000008,
-#ifdef FAR_USE_INTERNALS
   FMENU_SHOWNOBOX            = 0x00000010,
-#endif // END FAR_USE_INTERNALS
   FMENU_USEEXT               = 0x00000020,
   FMENU_CHANGECONSOLETITLE   = 0x00000040,
 };
@@ -527,8 +509,6 @@ enum PLUGINPANELITEMFLAGS{
   PPIF_USERDATA               = 0x20000000,
 };
 
-#ifdef _FAR_USE_FARFINDDATA
-
 struct FAR_FIND_DATA
 {
   DWORD    dwFileAttributes;
@@ -543,15 +523,9 @@ struct FAR_FIND_DATA
   CHAR     cAlternateFileName[14];
 };
 
-#endif
-
 struct PluginPanelItem
 {
-#ifdef _FAR_USE_FARFINDDATA
-  struct FAR_FIND_DATA FindData;
-#else
-  WIN32_FIND_DATAA      FindData;
-#endif
+  FAR_FIND_DATA FindData;
   DWORD                PackSizeHigh;
   DWORD                PackSize;
   DWORD                Flags;
@@ -713,16 +687,12 @@ enum EDITOR_FLAGS {
   EF_ENABLE_F6             = 0x00000004,
   EF_DISABLEHISTORY        = 0x00000008,
   EF_DELETEONCLOSE         = 0x00000010,
-#ifdef FAR_USE_INTERNALS
   EF_USEEXISTING           = 0x00000020,
   EF_BREAKIFOPEN           = 0x00000040,
   EF_NEWIFOPEN             = 0x00000080,
-#endif // END FAR_USE_INTERNALS
   EF_IMMEDIATERETURN       = 0x00000100,
   EF_DELETEONLYFILEONCLOSE = 0x00000200,
-#ifdef FAR_USE_INTERNALS
   EF_SERVICEREGION         = 0x00001000,
-#endif // END FAR_USE_INTERNALS
 };
 
 enum EDITOR_EXITCODE{
@@ -730,12 +700,10 @@ enum EDITOR_EXITCODE{
   EEC_MODIFIED            = 1,
   EEC_NOT_MODIFIED        = 2,
   EEC_LOADING_INTERRUPTED = 3,
-#ifdef FAR_USE_INTERNALS
   EEC_OPENED_EXISTING     = 4,
   EEC_ALREADY_EXISTS      = 5,
   EEC_OPEN_NEWINSTANCE    = 6,
   EEC_RELOAD              = 7,
-#endif // END FAR_USE_INTERNALS
 };
 
 typedef int (WINAPI *FARAPIEDITOR)(
@@ -768,9 +736,6 @@ struct CharTableSet
   unsigned char UpperTable[256];
   unsigned char LowerTable[256];
   char TableName[128];
-#ifdef FAR_USE_INTERNALS
-  //char RFCCharset[128];
-#endif // END FAR_USE_INTERNALS
 };
 
 typedef int (WINAPI *FARAPICHARTABLE)(
@@ -825,15 +790,12 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETPLUGINMAXREADDATA = 21,
   ACTL_GETDIALOGSETTINGS    = 22,
   ACTL_GETSHORTWINDOWINFO   = 23,
-#ifdef FAR_USE_INTERNALS
   ACTL_REMOVEMEDIA          = 24,
   ACTL_GETMEDIATYPE         = 25,
   ACTL_GETPOLICIES          = 26,
-#endif // END FAR_USE_INTERNALS
   ACTL_REDRAWALL            = 27,
 };
 
-#ifdef FAR_USE_INTERNALS
 enum FarPoliciesFlags{
   FFPOL_MAINMENUSYSTEM        = 0x00000001,
   FFPOL_MAINMENUPANEL         = 0x00000002,
@@ -857,8 +819,6 @@ enum FarPoliciesFlags{
   FFPOL_KILLTASK              = 0x00200000,
   FFPOL_SHOWHIDDENDRIVES      = 0x80000000,
 };
-
-#endif // END FAR_USE_INTERNALS
 
 enum FarSystemSettings{
   FSS_CLEARROATTRIBUTE               = 0x00000001,
@@ -938,10 +898,8 @@ enum FarDescriptionSettings {
 enum FAREJECTMEDIAFLAGS{
  EJECT_NO_MESSAGE                    = 0x00000001,
  EJECT_LOAD_MEDIA                    = 0x00000002,
-#ifdef FAR_USE_INTERNALS
  EJECT_NOTIFY_AFTERREMOVE            = 0x00000004,
  EJECT_READY                         = 0x80000000,
-#endif // END FAR_USE_INTERNALS
 };
 
 struct ActlEjectMedia {
@@ -949,7 +907,6 @@ struct ActlEjectMedia {
   DWORD Flags;
 };
 
-#ifdef FAR_USE_INTERNALS
 enum FARMEDIATYPE{
   FMT_DRIVE_ERROR                =  -1,
   FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
@@ -979,7 +936,6 @@ struct ActlMediaType {
   DWORD Flags;
   DWORD Reserved[2];
 };
-#endif // END FAR_USE_INTERNALS
 
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
@@ -997,10 +953,8 @@ enum FARMACROCOMMAND{
   MCMD_LOADALL           = 0,
   MCMD_SAVEALL           = 1,
   MCMD_POSTMACROSTRING   = 2,
-#ifdef FAR_USE_INTERNALS
   MCMD_COMPILEMACRO      = 3,
   MCMD_CHECKMACRO        = 4,
-#endif // END FAR_USE_INTERNALS
   MCMD_GETSTATE          = 5,
 };
 
@@ -1019,14 +973,12 @@ struct ActlKeyMacro{
       char *SequenceText;
       DWORD Flags;
     } PlainText;
-#ifdef FAR_USE_INTERNALS
     struct KeySequence Compile;
     struct {
       const char *ErrMsg1;
       const char *ErrMsg2;
       const char *ErrMsg3;
     } MacroResult;
-#endif // END FAR_USE_INTERNALS
     DWORD_PTR Reserved[3];
   } Param;
 };
@@ -1043,23 +995,19 @@ struct FarSetColors{
 };
 
 enum WINDOWINFO_TYPE{
-#ifdef FAR_USE_INTERNALS
   WTYPE_VIRTUAL,
   // œ–Œ—‹¡¿ Õ≈ «¿¡€¬¿“‹ —»Õ’–ŒÕ»«»–Œ¬¿“‹ »«Ã≈Õ≈Õ»ﬂ
   // WTYPE_* Ë MODALTYPE_* (frame.hpp)!!!
   // (Ë ÌÂ Ì‡‰Ó Û·Ë‡Ú¸ ˝ÚÓÚ ÍÓÏÏÂÌÚ‡ËÈ, ÔÓÍ‡ ÒËÚÛ‡ˆËˇ ÌÂ ËÁÏÂÌËÚÒˇ ;)
-#endif // END FAR_USE_INTERNALS
   WTYPE_PANELS=1,
   WTYPE_VIEWER,
   WTYPE_EDITOR,
   WTYPE_DIALOG,
   WTYPE_VMENU,
   WTYPE_HELP,
-#ifdef FAR_USE_INTERNALS
   WTYPE_COMBOBOX,
   WTYPE_FINDFOLDER,
   WTYPE_USER,
-#endif // END FAR_USE_INTERNALS
 };
 
 struct WindowInfo
@@ -1114,17 +1062,9 @@ struct ViewerSetMode {
   DWORD Reserved;
 };
 
-typedef union {
-  __int64 i64;
-  struct {
-    DWORD LowPart;
-    LONG  HighPart;
-  } Part;
-} FARINT64;
-
 struct ViewerSelect
 {
-  FARINT64 BlockStartPos;
+	INT64 BlockStartPos;
   int      BlockLen;
 };
 
@@ -1138,7 +1078,7 @@ enum VIEWER_SETPOS_FLAGS {
 struct ViewerSetPosition
 {
   DWORD    Flags;
-  FARINT64 StartPos;
+	INT64 StartPos;
   int      LeftPos;
 };
 
@@ -1158,8 +1098,8 @@ struct ViewerInfo
   int               StructSize;
   int               ViewerID;
   const char       *FileName;
-  FARINT64          FileSize;
-  FARINT64          FilePos;
+	INT64          FileSize;
+	INT64          FilePos;
   int               WindowSizeX;
   int               WindowSizeY;
   DWORD             Options;
@@ -1238,9 +1178,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_CLEARSTACKBOOKMARKS,
   ECTL_DELETESTACKBOOKMARK,
   ECTL_GETSTACKBOOKMARKS,
-#ifdef FAR_USE_INTERNALS
   ECTL_SERVICEREGION,
-#endif // END FAR_USE_INTERNALS
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1256,13 +1194,11 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_GETWORDDIV,
 };
 
-#ifdef FAR_USE_INTERNALS
 struct EditorServiceRegion
 {
   int   Command;
   DWORD Flags;
 };
-#endif // END FAR_USE_INTERNALS
 
 
 struct EditorSetParameter
@@ -1280,13 +1216,8 @@ struct EditorSetParameter
 struct EditorGetString
 {
   int StringNumber;
-#ifdef FAR_USE_INTERNALS
   char *StringText;
   char *StringEOL;
-#else // ELSE FAR_USE_INTERNALS
-  const char *StringText;
-  const char *StringEOL;
-#endif // END FAR_USE_INTERNALS
   int StringLength;
   int SelStart;
   int SelEnd;
@@ -1296,13 +1227,8 @@ struct EditorGetString
 struct EditorSetString
 {
   int StringNumber;
-#ifdef FAR_USE_INTERNALS
   const char *StringText;
   const char *StringEOL;
-#else // ELSE FAR_USE_INTERNALS
-  char *StringText;
-  char *StringEOL;
-#endif // END FAR_USE_INTERNALS
   int StringLength;
 };
 
@@ -1438,10 +1364,8 @@ enum INPUTBOXFLAGS{
   FIB_NOUSELASTHISTORY = 0x00000008,
   FIB_BUTTONS          = 0x00000010,
   FIB_NOAMPERSAND      = 0x00000020,
-#ifdef FAR_USE_INTERNALS
   FIB_CHECKBOX         = 0x00010000,
   FIB_EDITPATH         = 0x01000000,
-#endif // END FAR_USE_INTERNALS
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
@@ -1475,11 +1399,7 @@ typedef char   *(WINAPI *FARSTDTRIM)(char *Str);
 typedef char   *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
-#ifdef FAR_USE_INTERNALS
 typedef char*   (WINAPI *FARSTDPOINTTONAME)(char *Path);
-#else // ELSE FAR_USE_INTERNALS
-typedef char*   (WINAPI *FARSTDPOINTTONAME)(const char *Path);
-#endif // END FAR_USE_INTERNALS
 typedef void    (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
 typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(char *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
@@ -1518,10 +1438,8 @@ typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT  = 0x00000001UL,
   XLAT_SWITCHKEYBBEEP    = 0x00000002UL,
-#ifdef FAR_USE_INTERNALS
   XLAT_USEKEYBLAYOUTNAME = 0x00000004UL,
   XLAT_CONVERTALLCMDLINE = 0x00010000UL,
-#endif // END FAR_USE_INTERNALS
 };
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
@@ -1681,11 +1599,7 @@ struct PluginInfo
   const char * const *PluginConfigStrings;
   int PluginConfigStringsNumber;
   const char *CommandPrefix;
-#ifdef FAR_USE_INTERNALS
   DWORD SysID;
-#else // ELSE FAR_USE_INTERNALS
-  DWORD Reserved;
-#endif // END FAR_USE_INTERNALS
 };
 
 

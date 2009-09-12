@@ -337,7 +337,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 Cu
     unsigned __int64 after  = FDate.DateAfter.QuadPart;
     unsigned __int64 before = FDate.DateBefore.QuadPart;
 
-    if (after!=_ui64(0) || before!=_ui64(0))
+		if (after || before)
     {
       const FILETIME *ft;
 
@@ -359,15 +359,15 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 Cu
 
       if (FDate.bRelative)
       {
-        if (after!=_ui64(0))
+				if (after)
           after = CurrentTime - after;
 
-        if (before!=_ui64(0))
+				if (before)
           before = CurrentTime - before;
       }
 
       // Есть введённая пользователем начальная дата?
-      if (after!=_ui64(0))
+			if(after)
       {
         // Дата файла меньше начальной даты по фильтру?
         if (ftime.QuadPart<after)
@@ -376,7 +376,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA *fd, unsigned __int64 Cu
       }
 
       // Есть введённая пользователем конечная дата?
-      if (before!=_ui64(0))
+			if(before)
       {
         // Дата файла больше конечной даты по фильтру?
         if (ftime.QuadPart>before)
@@ -614,36 +614,36 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample,HighlightDataColo
 
 void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
 {
-  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+	SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-  if (Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0))
+	if (SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0))
   {
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,0);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,0);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,0);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,1);
   }
   else
   {
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
-    Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSBEFOREEDIT,0);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DAYSAFTEREDIT,0);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEBEFOREEDIT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_DATEAFTEREDIT,1);
+		SendDlgMessage(hDlg,DM_SHOWITEM,ID_FF_CURRENT,1);
   }
 
   if (bClear)
   {
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)L"");
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)L"");
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)L"");
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)L"");
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)L"");
-    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEAFTEREDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSAFTEREDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DATEBEFOREEDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)L"");
+		SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_DAYSBEFOREEDIT,(LONG_PTR)L"");
   }
 
-  Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+	SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
 
 LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
@@ -671,62 +671,62 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         else
           strDate=strTime=L"";
 
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        int relative = (int)Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
+				int relative = (int)SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_DATERELATIVE,0);
         int db = relative ? ID_FF_DAYSBEFOREEDIT : ID_FF_DATEBEFOREEDIT;
         int da = relative ? ID_FF_DAYSAFTEREDIT  : ID_FF_DATEAFTEREDIT;
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)(const wchar_t*)strDate);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)(const wchar_t*)strTime);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)(const wchar_t*)strDate);
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strTime);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,da,(LONG_PTR)(const wchar_t*)strDate);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEAFTEREDIT,(LONG_PTR)(const wchar_t*)strTime);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,db,(LONG_PTR)(const wchar_t*)strDate);
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_TIMEBEFOREEDIT,(LONG_PTR)(const wchar_t*)strTime);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
+				SendDlgMessage(hDlg,DM_SETFOCUS,da,0);
         COORD r;
         r.X=r.Y=0;
-        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,da,(LONG_PTR)&r);
+				SendDlgMessage(hDlg,DM_SETCURSORPOS,da,(LONG_PTR)&r);
 
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
       }
       else if (Param1==ID_FF_RESET) // Reset
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				LONG_PTR ColorConfig = SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(LONG_PTR)L"*");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)L"");
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)L"");
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,(LONG_PTR)L"*");
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)L"");
+				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)L"");
 
         for (int I=ID_FF_READONLY; I <= ID_FF_VIRTUAL; ++I)
         {
-          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+				SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
         }
         if (!ColorConfig)
-          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,BSTATE_UNCHECKED);
 
 				FarListPos LPos={0,0};
-        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
+				SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,(LONG_PTR)&LPos);
 
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_CHECKED);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,BSTATE_UNCHECKED);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHDATE,BSTATE_UNCHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DATERELATIVE,BSTATE_UNCHECKED);
         FilterDlgRelativeDateItemsUpdate(hDlg, true);
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,ColorConfig?BSTATE_UNCHECKED:BSTATE_CHECKED);
 
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+				SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         break;
       }
       else if (Param1==ID_FF_MAKETRANSPARENT)
       {
-        HighlightDataColor *Colors = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				HighlightDataColor *Colors = (HighlightDataColor *) SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         for (int i=0; i<2; i++)
           for (int j=0; j<4; j++)
             Colors->Color[i][j]|=0xFF00;
-        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,BSTATE_CHECKED);
+				SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,BSTATE_CHECKED);
         break;
       }
       else if (Param1==ID_FF_DATERELATIVE)
@@ -740,7 +740,7 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
          || (Msg==DN_MOUSECLICK && Param1==ID_HER_COLOREXAMPLE && ((MOUSE_EVENT_RECORD *)Param2)->dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
       {
-        HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				HighlightDataColor *EditData = (HighlightDataColor *) SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
         if (Msg==DN_MOUSECLICK)
         {
@@ -754,14 +754,14 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
         GetColorDialog(Color,true,true);
         EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=(WORD)Color;
 
-        FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
+				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         wchar_t MarkChar[2];
         //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
         EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         xf_free(ColorExample);
 
         return TRUE;
@@ -771,41 +771,41 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
     case DN_EDITCHANGE:
       if (Param1 == ID_HER_MARKEDIT)
       {
-        HighlightDataColor *EditData = (HighlightDataColor *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-        FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
+				HighlightDataColor *EditData = (HighlightDataColor *) SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+				FarDialogItem *ColorExample = (FarDialogItem *)xf_malloc(SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0));
+				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         wchar_t MarkChar[2];
         //MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,(LONG_PTR)MarkChar);
         EditData->MarkChar=*MarkChar;
         HighlightDlgUpdateUserControl(ColorExample->Param.VBuf,*EditData);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
+				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(LONG_PTR)ColorExample);
         xf_free(ColorExample);
         return TRUE;
       }
       break;
 
     case DN_CLOSE:
-      if (Param1 == ID_FF_OK && Dialog::SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_MATCHSIZE,0))
+			if (Param1 == ID_FF_OK && SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_MATCHSIZE,0))
       {
         string strTemp;
         wchar_t *temp;
-        temp = strTemp.GetBuffer(Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,0)+1);
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)temp);
+				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,0)+1);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,(LONG_PTR)temp);
         bool bTemp = !*temp || CheckFileSizeStringFormat(temp);
-        temp = strTemp.GetBuffer(Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,0)+1);
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)temp);
+				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,0)+1);
+				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,(LONG_PTR)temp);
         bTemp = bTemp && (!*temp || CheckFileSizeStringFormat(temp));
         if (!bTemp)
         {
-          LONG_PTR ColorConfig = Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+					LONG_PTR ColorConfig = SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
           Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));
           return FALSE;
         }
       }
       break;
   }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)

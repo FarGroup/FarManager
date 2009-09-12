@@ -163,7 +163,8 @@ PluginType IsModulePlugin2 (
 	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
 	PIMAGE_NT_HEADERS pPEHeader;
 
-	TRY {
+	__try
+	{
 
 		if ( pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE )
 			return NOT_PLUGIN;
@@ -229,7 +230,7 @@ PluginType IsModulePlugin2 (
 		}
 		return NOT_PLUGIN;
 	}
-	EXCEPT (EXCEPTION_EXECUTE_HANDLER)
+	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
 		return NOT_PLUGIN;
 	}
@@ -2177,7 +2178,8 @@ bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 	char Buf[1];
 	bool bResult=false;
 	//EXCEPTION_POINTERS *xp;
-	TRY {
+	__try
+	{
 		if (Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
 			RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
 		else for (int I=0; I<Info->DiskMenuStringsNumber; I++)
@@ -2198,7 +2200,7 @@ bool PluginManager::TestPluginInfo(Plugin *Item,PluginInfo *Info)
 
 		bResult=true;
 	}
-	EXCEPT(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
+	__except(xfilter(EXCEPT_GETPLUGININFO_DATA,GetExceptionInformation(),Item,1))
 	{
 		UnloadPlugin(Item,EXCEPT_GETPLUGININFO_DATA); // тест не пройден, выгружаем его
 		bResult=false;
@@ -2218,7 +2220,8 @@ bool PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 	char Buf[1];
 	bool bResult=false;
 	//EXCEPTION_POINTERS *xp;
-	TRY {
+	__try
+	{
 		if (Info->HostFile) memcpy(Buf,Info->HostFile,1);
 		if (Info->CurDir) memcpy(Buf,Info->CurDir,1);
 		if (Info->Format) memcpy(Buf,Info->Format,1);
@@ -2243,7 +2246,7 @@ bool PluginManager::TestOpenPluginInfo(Plugin *Item,OpenPluginInfo *Info)
 		if (Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
 		bResult=true;
 	}
-	EXCEPT(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
+	__except(xfilter(EXCEPT_GETOPENPLUGININFO_DATA,GetExceptionInformation(),Item,1))
 	{
 		UnloadPlugin(Item,EXCEPT_GETOPENPLUGININFO_DATA); // тест не пройден, выгружаем его
 		bResult=false;
