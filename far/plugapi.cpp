@@ -2118,15 +2118,18 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	return static_cast<int>(strOwner.GetLength()+1);
 }
 
-int WINAPI farConvertNameToReal(const wchar_t *Src,wchar_t *Dest,int DestSize)
+int WINAPI farConvertNameToReal(const wchar_t *Src, wchar_t *Dest, int DestSize)
 {
-	string strSrc(Src),strDest;
-	ConvertNameToReal(strSrc,strDest);
-	if(!Dest)
-		return (int)strDest.GetLength();
-	else
-		xwcsncpy(Dest,strDest,DestSize);
-	return Min((int)strDest.GetLength(),DestSize);
+	int Size = 0;
+	if (Src && *Src)
+	{
+		string strDest;
+		ConvertNameToReal(Src, strDest);
+		Size = static_cast<int>(strDest.GetLength()) + 1;
+		if (Dest && DestSize)
+			xwcsncpy(Dest, strDest.CPtr(), DestSize - 1);
+	}
+	return Size;
 }
 
 int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)

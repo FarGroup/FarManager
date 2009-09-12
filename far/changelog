@@ -1,3 +1,7 @@
+chupakabra 12.09.2009 22:53:00 +0200 - build 1119
+
+1. Изменение в API: farConvertNameToReal() всегда возвращает необходимый размер буфера (по аналогии с farGetPathRoot())
+
 drkns 12.09.2009 19:04:40 +0200 - build 1118
 
 1. Очередной divide & conquer:
