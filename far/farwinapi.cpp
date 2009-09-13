@@ -526,7 +526,9 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 	uiTotalSize=0;
 	uiTotalFree=0;
 
-	ExitCode=GetDiskFreeSpaceEx(Path,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+	string strPath(NTPath(Path).Str);
+	AddEndSlash(strPath);
+	ExitCode=GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
 	if ( TotalSize )
 		*TotalSize = uiTotalSize;
