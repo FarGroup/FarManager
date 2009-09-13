@@ -414,19 +414,18 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			Panel *pPanel = (HItem == MENU_LEFT)?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
 
-      		if ( VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW ) 
-      		{
-      			CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
-        		int NewViewMode = (VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem;
-
-        		pPanel->SetViewMode(NewViewMode);
+			if( VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW )
+			{
+				CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
+				pPanel=(HItem == MENU_LEFT)?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+				pPanel->SetViewMode((VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem);
 			}
-      		else
-      		{
-        		switch ( VItem ) {
-          			case MENU_LEFT_INFOPANEL: // Info panel
-            			CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
-			            break;
+			else
+			{
+				switch( VItem ) {
+					case MENU_LEFT_INFOPANEL: // Info panel
+						CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
+						break;
 
 					case MENU_LEFT_TREEPANEL: // Tree panel
 						CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
@@ -445,11 +444,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 						break;
 
 					case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
-						if ( HItem == MENU_LEFT )
-							FrameManager->ProcessKey(KEY_CTRLF1);
-						else
-							FrameManager->ProcessKey(KEY_CTRLF2);
-			            break;
+						FrameManager->ProcessKey((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2);
+						break;
 
 					case MENU_LEFT_REREAD: // Re-read
 						pPanel->ProcessKey(KEY_CTRLR);
