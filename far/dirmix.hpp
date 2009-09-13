@@ -1,5 +1,5 @@
-#ifndef __DIRMIX_HPP__
-#define __DIRMIX_HPP__
+#pragma once
+
 /*
 dirmix.hpp
 
@@ -53,5 +53,3 @@ int CheckFolder(const wchar_t *Name);
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 void CreatePath(string &strPath);
-
-#endif // __DIRMIX_HPP__

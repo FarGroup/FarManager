@@ -1,5 +1,5 @@
-#ifndef __PRESERVELONGNAME_HPP__
-#define __PRESERVELONGNAME_HPP__
+#pragma once
+
 /*
 plognmn.hpp
 
@@ -48,7 +48,3 @@ class PreserveLongName
 		PreserveLongName(const wchar_t *ShortName,int Preserve);
 		~PreserveLongName();
 };
-
-
-
-#endif  // __PRESERVELONGNAME_HPP__

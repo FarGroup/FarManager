@@ -1,5 +1,5 @@
-#ifndef __PLUGINS_HPP__
-#define __PLUGINS_HPP__
+#pragma once
+
 /*
 plugins.hpp
 
@@ -247,5 +247,3 @@ public:
 
 friend class Plugin;
 };
-
-#endif  // __PLUGINS_HPP__

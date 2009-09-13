@@ -1,5 +1,5 @@
-#ifndef __XLAT_HPP__
-#define __XLAT_HPP__
+#pragma once
+
 /*
 xlat.hpp
 
@@ -34,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 wchar_t* WINAPI Xlat(wchar_t *Line,int StartPos,int EndPos,DWORD Flags);
-
-#endif // __XLAT_HPP__

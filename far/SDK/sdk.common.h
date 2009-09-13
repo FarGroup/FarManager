@@ -1,5 +1,4 @@
-#ifndef __SDK_COMMON_H__
-#define __SDK_COMMON_H__
+#pragma once
 
 /*
 sdk.common.h
@@ -76,6 +75,3 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS
 	UCHAR DataBuf[512];
 }
 SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
-
-
-#endif // __SDK_COMMON_H__

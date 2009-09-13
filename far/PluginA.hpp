@@ -1,5 +1,5 @@
-#ifndef __PLUGINA_HPP__
-#define __PLUGINA_HPP__
+#pragma once
+
 /*
 Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
@@ -228,5 +228,3 @@ private:
 	void FreeOpenPluginInfo();
 	void ConvertOpenPluginInfo(oldfar::OpenPluginInfo &Src, OpenPluginInfo *Dest);
 };
-
-#endif  // __PLUGINA_HPP__

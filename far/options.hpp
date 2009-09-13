@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_HPP__
-#define __OPTIONS_HPP__
+#pragma once
+
 /*
 options.hpp
 
@@ -34,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
-
-#endif // __OPTIONS_HPP__

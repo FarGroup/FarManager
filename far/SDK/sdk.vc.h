@@ -1,5 +1,4 @@
-#ifndef __SDK_VC_H__
-#define __SDK_VC_H__
+#pragma once
 
 /*
 sdk.vc.h
@@ -85,5 +84,3 @@ REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
 const OBJECT_INFORMATION_CLASS ObjectNameInformation=(OBJECT_INFORMATION_CLASS)1;
 
 const FILE_INFORMATION_CLASS FileStreamInformation=(FILE_INFORMATION_CLASS)22;
-
-#endif // __SDK_VC_H__

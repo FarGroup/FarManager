@@ -1,5 +1,5 @@
-#ifndef __GRABBER_HPP__
-#define __GRABBER_HPP__
+#pragma once
+
 /*
 grabber.hpp
 
@@ -64,5 +64,3 @@ class Grabber:Modal
 };
 
 bool RunGraber();
-
-#endif	// __GRABBER_HPP__

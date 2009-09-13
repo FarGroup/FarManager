@@ -1,5 +1,5 @@
-#ifndef __PANELMIX_HPP__
-#define __PANELMIX_HPP__
+#pragma once
+
 /*
 panelmix.hpp
 
@@ -39,5 +39,3 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName);
 
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
-
-#endif // __PANELMIX_HPP__

@@ -1,5 +1,5 @@
-#ifndef __FAREXCPT_HPP__
-#define __FAREXCPT_HPP__
+#pragma once
+
 /*
 exception.cpp
 
@@ -247,5 +247,3 @@ DWORD WINAPI xfilter(
     Plugin *Module,// модуль, приведший к исключению.
     DWORD Flags);             // дополнительные флаги - пока только один
                               //        0x1 - спрашивать про выгрузку?
-
-#endif // __FAREXCPT_HPP__

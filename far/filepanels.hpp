@@ -1,5 +1,5 @@
-#ifndef __FILEPANELS_HPP__
-#define __FILEPANELS_HPP__
+#pragma once
+
 /*
 filepanels.hpp
 
@@ -106,5 +106,3 @@ class FilePanels:public Frame
 
     virtual int GetMacroMode();
 };
-
-#endif // __FILEPANELS_HPP__

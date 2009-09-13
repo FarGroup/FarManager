@@ -71,6 +71,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #if defined(SYSLOG)
+
+#define MAX_LOG_LINE 10240
+
 static FILE *LogStream=0;
 static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf);

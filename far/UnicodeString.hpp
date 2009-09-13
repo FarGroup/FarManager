@@ -1,5 +1,5 @@
-#ifndef __UNICODESTRING_HPP__
-#define __UNICODESTRING_HPP__
+#pragma once
+
 /*
 UnicodeString.hpp
 
@@ -378,5 +378,3 @@ public:
 
 	int __cdecl Format (const wchar_t * format, ...);
 };
-
-#endif // __UNICODESTRING_HPP__

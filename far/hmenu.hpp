@@ -1,5 +1,5 @@
-#ifndef __HMENU_HPP__
-#define __HMENU_HPP__
+#pragma once
+
 /*
 hmenu.hpp
 
@@ -81,6 +81,3 @@ class HMenu: public Modal
 
     void GetExitCode(int &ExitCode,int &VExitCode);
 };
-
-
-#endif  // __HMENU_HPP__

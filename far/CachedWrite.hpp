@@ -1,5 +1,5 @@
-#ifndef __CACHEDWRITE_HPP__
-#define __CACHEDWRITE_HPP__
+#pragma once
+
 /*
 CachedWrite.hpp
 
@@ -46,5 +46,3 @@ public:
 	bool Write(LPCVOID Data,size_t DataSize);
 	bool Flush();
 };
-
-#endif // __CACHEDWRITE_HPP__

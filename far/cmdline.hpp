@@ -1,5 +1,5 @@
-#ifndef __COMMANDLINE_HPP__
-#define __COMMANDLINE_HPP__
+#pragma once
+
 /*
 cmdline.hpp
 
@@ -109,5 +109,3 @@ class CommandLine:public ScreenObject
     void CorrectRealScreenCoord();
     void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };
-
-#endif  // __COMMANDLINE_HPP__

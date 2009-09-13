@@ -1,5 +1,4 @@
-#ifndef __FARWINAPI_HPP__
-#define __FARWINAPI_HPP__
+#pragma once
 
 /*
 farwinapi.hpp
@@ -308,5 +307,3 @@ BOOL apiFindNextStream(
 	HANDLE hFindStream,
 	LPVOID lpFindStreamData
 );
-
-#endif // __FARWINAPI_HPP__

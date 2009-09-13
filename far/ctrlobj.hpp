@@ -1,5 +1,5 @@
-#ifndef __CONTROLOBJECT_HPP__
-#define __CONTROLOBJECT_HPP__
+#pragma once
+
 /*
 ctrlobj.hpp
 
@@ -75,5 +75,3 @@ class ControlObject
 };
 
 extern ControlObject *CtrlObject;
-
-#endif // __CONTROLOBJECT_HPP__

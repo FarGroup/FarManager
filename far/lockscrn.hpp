@@ -1,5 +1,5 @@
-#ifndef __LOCKSCREEN_HPP__
-#define __LOCKSCREEN_HPP__
+#pragma once
+
 /*
 lockscrn.hpp
 
@@ -39,7 +39,3 @@ class LockScreen
     LockScreen();
     ~LockScreen();
 };
-
-
-
-#endif	// __LOCKSCREEN_HPP__

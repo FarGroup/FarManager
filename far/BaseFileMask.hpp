@@ -1,5 +1,5 @@
-#ifndef __BaseFileMask_HPP
-#define __BaseFileMask_HPP
+#pragma once
+
 /*
 BaseFileMask.hpp
 
@@ -47,6 +47,3 @@ class BaseFileMask : private NonCopyable
 		virtual bool IsEmpty() { return true; }
 
 };
-
-
-#endif // __BaseFileMask_HPP

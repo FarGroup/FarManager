@@ -1,5 +1,5 @@
-#ifndef __PRINT_HPP__
-#define __PRINT_HPP__
+#pragma once
+
 /*
 print.hpp
 
@@ -34,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void PrintFiles(Panel *SrcPanel);
-
-#endif // __PRINT_HPP__

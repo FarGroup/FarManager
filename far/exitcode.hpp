@@ -1,5 +1,5 @@
-#ifndef __EXITCODE_HPP__
-#define __EXITCODE_HPP__
+#pragma once
+
 /*
 exitcode.hpp
 
@@ -41,5 +41,3 @@ enum {
     XC_LOADING_INTERRUPTED = 3,
     XC_EXISTS              = 4,
 };
-
-#endif // __EXITCODE_HPP__

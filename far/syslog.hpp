@@ -1,5 +1,4 @@
-#ifndef __SYSLOG_HPP__
-#define __SYSLOG_HPP__
+#pragma once
 
 /*
 syslog.hpp
@@ -275,11 +274,3 @@ class CleverSysLog{ // ;-)
     CleverSysLog(const wchar_t *Title=NULL);
     ~CleverSysLog();
 };
-
-
-#define MAX_ARG_LEN   4096
-#define MAX_LOG_LINE 10240
-
-#define MAX_FILE 260
-
-#endif // __SYSLOG_HPP__

@@ -1,5 +1,5 @@
-#ifndef __USERMENU_HPP__
-#define __USERMENU_HPP__
+#pragma once
+
 /*
 usermenu.hpp
 
@@ -57,5 +57,3 @@ public:
 	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
 	~UserMenu();
 };
-
-#endif // __USERMENU_HPP__

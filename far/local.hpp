@@ -1,5 +1,5 @@
-#ifndef __LOCAL_HPP__
-#define __LOCAL_HPP__
+#pragma once
+
 /*
 local.hpp
 
@@ -60,5 +60,3 @@ int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2);
 int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n);
 int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2);
 int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2);
-
-#endif //__LOCAL_HPP__

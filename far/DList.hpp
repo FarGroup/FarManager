@@ -1,5 +1,5 @@
-#ifndef __DLIST_HPP__
-#define __DLIST_HPP__
+#pragma once
+
 /*
 DList.hpp
 Шаблон работы с двусвязным списком.
@@ -115,4 +115,3 @@ class DList : public CDList
     //меняет местами содержимое списков
     void Swap(DList<Type> &l){CSwap(l);}
 };
-#endif // __DLIST_HPP__

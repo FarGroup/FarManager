@@ -1,5 +1,5 @@
-#ifndef __CVTNAME_HPP__
-#define __CVTNAME_HPP__
+#pragma once
+
 /*
 cvtname.hpp
 
@@ -44,5 +44,3 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest); //BUGBUG, int
 void ConvertNameToUNC(string &strFileName);
 
 string& PrepareDiskPath(string &strPath, BOOL CheckFullPath=TRUE);
-
-#endif // __CVTNAME_HPP__

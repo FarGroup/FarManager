@@ -1,5 +1,5 @@
-#ifndef __TVAR_HPP__
-#define __TVAR_HPP__
+#pragma once
+
 /*
 tvar.hpp
 
@@ -151,5 +151,3 @@ inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
 {
   return varLook(t, s, true);
 }
-
-#endif // __TVAR_HPP__

@@ -1,5 +1,5 @@
-#ifndef __MANAGER_HPP__
-#define __MANAGER_HPP__
+#pragma once
+
 /*
 manager.hpp
 
@@ -215,5 +215,3 @@ class Manager
 };
 
 extern Manager *FrameManager;
-
-#endif  // __MANAGER_HPP__

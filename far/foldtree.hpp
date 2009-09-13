@@ -1,5 +1,5 @@
-#ifndef __FOLDERTREE_HPP__
-#define __FOLDERTREE_HPP__
+#pragma once
+
 /*
 foldtree.hpp
 
@@ -80,6 +80,3 @@ class FolderTree:public Frame
     virtual int GetType() { return MODALTYPE_FINDFOLDER; }
 
 };
-
-
-#endif  // __FOLDERTREE_HPP__

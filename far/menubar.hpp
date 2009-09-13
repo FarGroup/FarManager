@@ -1,5 +1,5 @@
-#ifndef __MENUBAR_HPP__
-#define __MENUBAR_HPP__
+#pragma once
+
 /*
 menubar.hpp
 
@@ -44,5 +44,3 @@ class MenuBar:public ScreenObject
     MenuBar() {}
     virtual ~MenuBar() {}
 };
-
-#endif	// __MENUBAR_HPP__

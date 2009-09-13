@@ -1,5 +1,5 @@
-#ifndef __REDRAWDESKTOP_HPP__
-#define __REDRAWDESKTOP_HPP__
+#pragma once
+
 /*
 rdrwdsk.hpp
 
@@ -45,6 +45,3 @@ class RedrawDesktop
     RedrawDesktop(BOOL IsHidden=FALSE);
     ~RedrawDesktop();
 };
-
-
-#endif  // __REDRAWDESKTOP_HPP__

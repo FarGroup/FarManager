@@ -226,13 +226,13 @@ $(OBJDIR)/hook_wow64.o: hook_wow64.c
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
-	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers.hpp -o $@ $<
+	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers -o $@ $<
 
-$(OBJDIR)/headers.hpp.gch: headers.hpp
+$(OBJDIR)/headers.gch: headers.cpp
 	@echo making precompiled headers
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
-$(OBJS): $(OBJDIR)/headers.hpp.gch
+$(OBJS): $(OBJDIR)/headers.gch
 
 $(OBJDIR)/%.o: ./UCD/%.c
 	@echo compiling $<
@@ -316,7 +316,7 @@ clean:
 	@$(RM) $(OBJS)
 	@$(RM) $(UCD_OBJS)
 	@$(RM) $(DEPFILE)
-	@$(RM) $(OBJDIR)/headers.hpp.gch
+	@$(RM) $(OBJDIR)/headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) Far.exe.manifest far.rc copyright.inc farversion.inc
 	@$(RM) $(EXEDIR)/*.lng

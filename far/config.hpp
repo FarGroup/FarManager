@@ -1,5 +1,5 @@
-#ifndef __CONFIG_HPP__
-#define __CONFIG_HPP__
+#pragma once
+
 /*
 config.hpp
 
@@ -814,5 +814,3 @@ void EditorConfig(EditorOptions &EdOpt,int Local=0);
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetFolderInfoFiles();
-
-#endif // __CONFIG_HPP__

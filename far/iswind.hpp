@@ -1,5 +1,5 @@
-#ifndef __ISWIND_HPP__
-#define __ISWIND_HPP__
+#pragma once
+
 /*
 iswind.hpp
 
@@ -50,5 +50,3 @@ void InitDetectWindowedMode();
 void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
-
-#endif // __ISWIND_HPP__

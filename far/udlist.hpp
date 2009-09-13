@@ -1,5 +1,5 @@
-#ifndef __UserDefinedList_HPP__
-#define __UserDefinedList_HPP__
+#pragma once
+
 /*
 udlist.hpp
 
@@ -136,5 +136,3 @@ class UserDefinedList : private NonCopyable
     // Вернуть количество элементов в списке
     DWORD GetTotal () const { return Array.getSize(); }
 };
-
-#endif // __UserDefinedList_HPP

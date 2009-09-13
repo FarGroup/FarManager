@@ -1,5 +1,5 @@
-#ifndef __INFOLIST_HPP__
-#define __INFOLIST_HPP__
+#pragma once
+
 /*
 infolist.hpp
 
@@ -103,5 +103,3 @@ class InfoList:public Panel
     virtual void CloseFile();
     virtual int GetCurName(string &strName, string &strShortName);
 };
-
-#endif  // __INFOLIST_HPP__

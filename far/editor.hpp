@@ -1,5 +1,5 @@
-#ifndef __EDITOR_HPP__
-#define __EDITOR_HPP__
+#pragma once
+
 /*
 editor.hpp
 
@@ -379,5 +379,3 @@ class Editor:public ScreenObject
     void SetObjectColor(int Color,int SelColor,int ColorUnChanged);
     void DrawScrollbar();
 };
-
-#endif // __EDITOR_HPP__

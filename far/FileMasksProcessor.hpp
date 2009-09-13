@@ -1,5 +1,5 @@
-#ifndef __FileMasksProcessor_HPP
-#define __FileMasksProcessor_HPP
+#pragma once
+
 /*
 FileMasksProcessor.hpp
 
@@ -66,5 +66,3 @@ private:
 	bool bRE;
 
 };
-
-#endif // __FileMasksProcessor_HPP

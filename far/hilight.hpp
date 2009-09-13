@@ -1,5 +1,5 @@
-#ifndef __HILIGHT_HPP__
-#define __HILIGHT_HPP__
+#pragma once
+
 /*
 hilight.hpp
 
@@ -86,5 +86,3 @@ class HighlightFiles
 };
 
 void SetHighlighting();
-
-#endif // __HILIGHT_HPP__

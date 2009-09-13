@@ -1,5 +1,5 @@
-#ifndef __BITFLAGS_HPP__
-#define __BITFLAGS_HPP__
+#pragma once
+
 /*
 bitflags.hpp
 
@@ -57,5 +57,3 @@ class BitFlags{
     //сбросить все флаги
     void ClearAll(){Flags=0;}
 };
-
-#endif // __BITFLAGS_HPP__

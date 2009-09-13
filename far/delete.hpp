@@ -1,5 +1,5 @@
-#ifndef __DELETE_HPP__
-#define __DELETE_HPP__
+#pragma once
+
 /*
 delete.hpp
 
@@ -36,5 +36,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void ShellDelete(Panel *SrcPanel,int Wipe);
 void DeleteDirTree(const wchar_t *Dir);
 int DeleteFileWithFolder(const wchar_t *FileName);
-
-#endif // __DELETE_HPP__

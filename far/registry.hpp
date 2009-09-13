@@ -1,5 +1,4 @@
-#ifndef __REGISTRY_HPP__
-#define __REGISTRY_HPP__
+#pragma once
 
 /*
 registry.cpp
@@ -103,5 +102,3 @@ void CloseSameRegKey();
 int RegQueryStringValueEx (HKEY hKey, const wchar_t *lpwszValueName, string &strData, const wchar_t *lpwszDefault = L"");
 
 int RegQueryStringValue (HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
-
-#endif // __REGISTRY_HPP__

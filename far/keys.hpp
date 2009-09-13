@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __FARKEYS_HPP__
 #define __FARKEYS_HPP__
 #ifndef FAR_USE_INTERNALS

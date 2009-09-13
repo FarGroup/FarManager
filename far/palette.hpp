@@ -1,5 +1,5 @@
-#ifndef __PALETTE_HPP__
-#define __PALETTE_HPP__
+#pragma once
+
 /*
 palette.hpp
 
@@ -40,5 +40,3 @@ extern int SizeArrayPalette;
 
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
-
-#endif // __PALETTE_HPP__

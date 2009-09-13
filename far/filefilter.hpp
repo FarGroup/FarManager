@@ -1,5 +1,5 @@
-#ifndef __FILEFILTER_HPP__
-#define __FILEFILTER_HPP__
+#pragma once
+
 /*
 filefilter.hpp
 
@@ -78,5 +78,3 @@ class FileFilter
     static void SwapFilter();
     static void SaveFilters();
 };
-
-#endif  // __FILEFILTER_HPP__

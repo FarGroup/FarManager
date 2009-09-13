@@ -1,5 +1,5 @@
-#ifndef __NAMELIST_HPP__
-#define __NAMELIST_HPP__
+#pragma once
+
 /*
 namelist.hpp
 
@@ -84,5 +84,3 @@ class NamesList
     void GetCurDir(string &strDir);
     void SetCurDir(const wchar_t *Dir);
 };
-
-#endif  // __NAMELIST_HPP__

@@ -1,5 +1,4 @@
-#ifndef __SETATTR_HPP__
-#define __SETATTR_HPP__
+#pragma once
 
 /*
 setattr.cpp
@@ -35,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 bool ShellSetFileAttributes(Panel *SrcPanel);
-
-#endif // __SETATTR_HPP__

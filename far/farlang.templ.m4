@@ -17,12 +17,12 @@ FarHun.lng Hungarian "Hungarian (Magyar)"
 FarPol.lng Polish "Polish (Polski)"
 
 #head of the hpp file
-hhead:#ifndef __FARLANG_HPP__
-hhead:#define __FARLANG_HPP__
+hhead:#pragma once
+hhead:
 
 #tail of the hpp file
-htail:
-htail:#endif  // __FARLANG_HPP__
+#htail:
+#htail:
 #and so on as much as needed
 
 #--------------------------------------------------------------------

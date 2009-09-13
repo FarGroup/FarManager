@@ -1,5 +1,5 @@
-#ifndef __FileMasksWithExclude_HPP
-#define __FileMasksWithExclude_HPP
+#pragma once
+
 /*
 FileMasksWithExclude.hpp
 
@@ -57,5 +57,3 @@ public:
 private:
 	FileMasksProcessor Include, Exclude;
 };
-
-#endif // __FileMasksWithExclude_HPP

@@ -1,5 +1,5 @@
-#ifndef __FFOLDERS_HPP__
-#define __FFOLDERS_HPP__
+#pragma once
+
 /*
 ffolders.hpp
 
@@ -37,5 +37,3 @@ int GetShortcutFolder(int Key,string *pDestFolder, string *pPluginModule=NULL, s
 int SaveFolderShortcut(int Key,string *pSrcFolder,string *pPluginModule=NULL, string *pPluginFile=NULL,string *pPluginData=NULL);
 int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
-
-#endif // __FFOLDERS_HPP__

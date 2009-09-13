@@ -1,5 +1,5 @@
-#ifndef __MODAL_HPP__
-#define __MODAL_HPP__
+#pragma once
+
 /*
 modal.hpp
 
@@ -70,6 +70,3 @@ class Modal: public Frame
     void ShowHelp();
 
 };
-
-
-#endif  //__MODAL_HPP__

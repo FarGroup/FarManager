@@ -1,5 +1,4 @@
-#ifndef __TASKBAR_HPP__
-#define __TASKBAR_HPP__
+#pragma once
 
 /*
 TaskBar.hpp
@@ -71,5 +70,3 @@ public:
 	TaskBarError();
 	~TaskBarError();
 };
-
-#endif //__TASKBAR_HPP__

@@ -1,5 +1,5 @@
-#ifndef __BLOCKEXTKEY_HPP__
-#define __BLOCKEXTKEY_HPP__
+#pragma once
+
 /*
 BlockExtKey.hpp
 
@@ -52,5 +52,3 @@ class BlockExtKey{
    }
   ~BlockExtKey(){IsProcessAssignMacroKey=OldIsProcessAssignMacroKey; IsProcessVE_FindFile=OldIsProcessVE_FindFile;}
 };
-
-#endif // __BLOCKEXTKEY_HPP__

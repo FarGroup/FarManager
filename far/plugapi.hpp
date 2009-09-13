@@ -1,5 +1,5 @@
-#ifndef __PLUGAPI_HPP__
-#define __PLUGAPI_HPP__
+#pragma once
+
 /*
 plugapi.hpp
 
@@ -127,5 +127,3 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
 
 int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
-
-#endif // __PLUGAPI_HPP__

@@ -1,5 +1,5 @@
-#ifndef __FINDFILES_HPP__
-#define __FINDFILES_HPP__
+#pragma once
+
 /*
 findfile.hpp
 
@@ -65,5 +65,3 @@ class FindFiles
     FindFiles();
     ~FindFiles();
 };
-
-#endif  // __FINDFILES_HPP__

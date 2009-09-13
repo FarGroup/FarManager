@@ -1,5 +1,5 @@
-#ifndef __CDDRV_HPP__
-#define __CDDRV_HPP__
+#pragma once
+
 /*
 cddrv.hpp
 
@@ -67,5 +67,3 @@ CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 bool IsDriveTypeCDROM(UINT DriveType);
 UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *caps=NULL, DWORD Detect=0);
-
-#endif  // __CDDRV_HPP__

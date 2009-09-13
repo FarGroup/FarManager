@@ -1,5 +1,5 @@
-#ifndef __MESSAGE_HPP__
-#define __MESSAGE_HPP__
+#pragma once
+
 /*
 message.hpp
 
@@ -81,5 +81,3 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int AbortMessage();
 
 int GetErrorString (string &strErrStr);
-
-#endif // __MESSAGE_HPP__

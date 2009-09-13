@@ -1,5 +1,5 @@
-#ifndef __EXECUTE_HPP__
-#define __EXECUTE_HPP__
+#pragma once
+
 /*
 execute.hpp
 
@@ -39,5 +39,3 @@ int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
 bool IsBatchExtType(const wchar_t *ExtPtr);
 BOOL ProcessOSAliases(string &strStr);
-
-#endif // __EXECUTE_HPP__

@@ -1,5 +1,5 @@
-#ifndef __DLGEDIT_HPP__
-#define __DLGEDIT_HPP__
+#pragma once
+
 /*
 dlgedit.hpp
 
@@ -150,5 +150,3 @@ class DlgEdit: public ScreenObject
     int  GetReadOnly();
     void SetReadOnly(int NewReadOnly);
 };
-
-#endif  // __DLGEDIT_HPP__

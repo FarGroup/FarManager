@@ -1,5 +1,5 @@
-#ifndef __HEADERS_HPP__
-#define __HEADERS_HPP__
+#pragma once
+
 /*
 headers.hpp
 
@@ -150,6 +150,8 @@ template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #endif // __cplusplus
 
+#define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
+
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
@@ -166,5 +168,3 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
 #endif // __cplusplus
-
-#endif // __HEADERS_HPP__

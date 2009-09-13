@@ -1,5 +1,5 @@
-#ifndef __SETCOLOR_HPP__
-#define __SETCOLOR_HPP__
+#pragma once
+
 /*
 setcolor.hpp
 
@@ -35,5 +35,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void SetColors();
 int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
-
-#endif // __SETCOLOR_HPP__

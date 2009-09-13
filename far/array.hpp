@@ -1,5 +1,5 @@
-#ifndef __ARRAY_HPP__
-#define __ARRAY_HPP__
+#pragma once
+
 /*
 array.hpp
 
@@ -407,5 +407,3 @@ class TPointerArray
 
     unsigned int getCount() const { return Count; }
 };
-
-#endif // __ARRAY_HPP__

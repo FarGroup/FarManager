@@ -1,5 +1,5 @@
-#ifndef __CRITICALSECTIONS_HPP__
-#define __CRITICALSECTIONS_HPP__
+#pragma once
+
 /*
 CriticalSections.hpp
 
@@ -60,5 +60,3 @@ class CriticalSectionLock
       {_object.Enter(); }
     ~CriticalSectionLock() { Unlock(); }
 };
-
-#endif  // __CRITICALSECTIONS_HPP__

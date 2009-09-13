@@ -1,5 +1,5 @@
-#ifndef __NETWORK_HPP__
-#define __NETWORK_HPP__
+#pragma once
+
 /*
 network.hpp
 
@@ -40,5 +40,3 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 
 // Получить из имени диска RemoteName
 string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
-
-#endif // __NETWORK_HPP__

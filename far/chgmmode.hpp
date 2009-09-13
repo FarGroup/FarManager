@@ -1,5 +1,5 @@
-#ifndef __CHANGEMACROMODE_HPP__
-#define __CHANGEMACROMODE_HPP__
+#pragma once
+
 /*
 chgmmode.hpp
 
@@ -42,5 +42,3 @@ class ChangeMacroMode
     ChangeMacroMode(int NewMode);
     ~ChangeMacroMode();
 };
-
-#endif	// __CHANGEMACROMODE_HPP__

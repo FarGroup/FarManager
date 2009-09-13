@@ -1,5 +1,4 @@
-#ifndef __FILEATTR_HPP__
-#define __FILEATTR_HPP__
+#pragma once
 
 /*
 fileattr.hpp
@@ -47,5 +46,3 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
 int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,DWORD FileAttr,int SkipMode=-1);
-
-#endif // __FILEATTR_HPP__

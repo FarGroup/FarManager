@@ -1,5 +1,5 @@
-#ifndef __LOCALOEM_HPP__
-#define __LOCALOEM_HPP__
+#pragma once
+
 /*
 localOEM.hpp
 
@@ -55,5 +55,3 @@ int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 const char * __cdecl LocalStrstri(const char *str1, const char *str2);
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
-
-#endif //__LOCALOEM_HPP__

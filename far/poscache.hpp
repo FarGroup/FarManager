@@ -1,5 +1,5 @@
-#ifndef __FILEPOSITIONCACHE_HPP__
-#define __FILEPOSITIONCACHE_HPP__
+#pragma once
+
 /*
 poscache.hpp
 
@@ -80,6 +80,3 @@ class FilePositionCache
     BOOL Read(const wchar_t *Key);
     BOOL Save(const wchar_t *Key);
 };
-
-
-#endif  // __FILEPOSITIONCACHE_HPP__

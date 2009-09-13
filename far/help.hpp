@@ -1,5 +1,5 @@
-#ifndef __HELP_HPP__
-#define __HELP_HPP__
+#pragma once
+
 /*
 help.hpp
 
@@ -159,5 +159,3 @@ class Help:public Frame
 
     static string &MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic);
 };
-
-#endif  // __HELP_HPP__

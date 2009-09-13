@@ -1,5 +1,5 @@
-#ifndef __MACROOPCODE_HPP__
-#define __MACROOPCODE_HPP__
+#pragma once
+
 /*
 macroopcode.hpp
 
@@ -299,6 +299,3 @@ enum MACRO_OP_CODE {
 };
 
 typedef enum MACRO_OP_CODE TMacroOpCode;
-
-
-#endif // __MACROOPCODE_HPP__

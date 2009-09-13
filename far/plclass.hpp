@@ -1,5 +1,5 @@
-#ifndef __PLCLASS_HPP__
-#define __PLCLASS_HPP__
+#pragma once
+
 /*
 Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
@@ -133,5 +133,3 @@ public:
 
 	virtual void ExitFAR() = 0;
 };
-
-#endif  // __PLCLASS_HPP__

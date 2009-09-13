@@ -1,5 +1,5 @@
-#ifndef __SAVEFILEPOS_HPP__
-#define __SAVEFILEPOS_HPP__
+#pragma once
+
 /*
 savefpos.hpp
 
@@ -42,6 +42,3 @@ class SaveFilePos
     SaveFilePos(FILE *SaveFile);
     ~SaveFilePos();
 };
-
-
-#endif	// __SAVEFILEPOS_HPP__

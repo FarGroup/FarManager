@@ -1,5 +1,5 @@
-#ifndef __FILEFILTERPARAMS_HPP__
-#define __FILEFILTERPARAMS_HPP__
+#pragma once
+
 /*
 filefilterparams.hpp
 
@@ -160,5 +160,3 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
 void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType=false, int Hotkey=0, bool bPanelType=false, const wchar_t *FMask=NULL, const wchar_t *Title=NULL);
-
-#endif //__FILEFILTERPARAMS_HPP__

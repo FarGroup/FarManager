@@ -1,5 +1,5 @@
-#ifndef __LANGUAGE_HPP__
-#define __LANGUAGE_HPP__
+#pragma once
+
 /*
 language.hpp
 
@@ -82,5 +82,3 @@ class Language
 extern Language Lang;
 
 #define MSG(ID) ::Lang.GetMsg(ID)
-
-#endif  // __LANGUAGE_HPP__

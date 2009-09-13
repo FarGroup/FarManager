@@ -1,5 +1,5 @@
-#ifndef __SYNCHRO_HPP__
-#define __SYNCHRO_HPP__
+#pragma once
+
 /*
 synchro.hpp
 синхронизация для плагинов.
@@ -52,5 +52,3 @@ class PluginSynchro
 };
 
 extern PluginSynchro PluginSynchroManager;
-
-#endif

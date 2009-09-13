@@ -1,5 +1,5 @@
-#ifndef __MIX_HPP__
-#define __MIX_HPP__
+#pragma once
+
 /*
 mix.hpp
 
@@ -50,5 +50,3 @@ wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix);
 #endif
 
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix=NULL, BOOL WithPath=TRUE);
-
-#endif  // __MIX_HPP__

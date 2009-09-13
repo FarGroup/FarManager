@@ -1,5 +1,5 @@
-#ifndef __IMPORTS_HPP__
-#define __IMPORTS_HPP__
+#pragma once
+
 /*
 imports.hpp
 
@@ -217,5 +217,3 @@ struct ImportedFunctions {
 };
 
 extern ImportedFunctions ifn;
-
-#endif  // __IMPORTS_HPP__

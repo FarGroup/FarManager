@@ -1,5 +1,5 @@
-#ifndef __HISTORY_HPP__
-#define __HISTORY_HPP__
+#pragma once
+
 /*
 history.hpp
 
@@ -104,5 +104,3 @@ class History
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition();
 };
-
-#endif  // __HISTORY_HPP__

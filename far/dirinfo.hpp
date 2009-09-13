@@ -1,5 +1,5 @@
-#ifndef __DIRINFO_HPP___
-#define __DIRINFO_HPP___
+#pragma once
+
 /*
 dirinfo.hpp
 
@@ -53,5 +53,3 @@ int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCou
 int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
                unsigned __int64 &CompressedFileSize);
-
-#endif // __DIRINFO_HPP___

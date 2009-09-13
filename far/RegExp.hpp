@@ -1,3 +1,4 @@
+#pragma once
 /*
   Copyright (c) 2000 Konstantin Stupnik
   Copyright (c) 2008 Far Group

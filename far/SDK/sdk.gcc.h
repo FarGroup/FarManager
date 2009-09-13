@@ -1,5 +1,4 @@
-#ifndef __SDK_GCC_H__
-#define __SDK_GCC_H__
+#pragma once
 
 /*
 sdk.gcc.h
@@ -433,6 +432,3 @@ public:
 };
 
 #endif // __ITaskbarList3_INTERFACE_DEFINED__
-
-
-#endif // __SDK_GCC_H__

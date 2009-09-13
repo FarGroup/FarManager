@@ -1,5 +1,5 @@
-#ifndef __DIZLIST_HPP__
-#define __DIZLIST_HPP__
+#pragma once
+
 /*
 dizlist.hpp
 
@@ -71,6 +71,3 @@ class DizList
     void GetDizName(string &strDizName);
 		static void PR_ReadingMsg();
 };
-
-
-#endif  // __DIZLIST_HPP__

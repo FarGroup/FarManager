@@ -1,5 +1,4 @@
-#ifndef _TSTACK_HPP_
-#define _TSTACK_HPP_
+#pragma once
 
 /*  TStack.hpp
     Шаблон работы со стеком (LIFO)
@@ -119,5 +118,3 @@ class TStack : private NonCopyable
 			Size=0;
 		}
 };
-
-#endif // _TSTACK_HPP_

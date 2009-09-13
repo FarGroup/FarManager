@@ -1,5 +1,5 @@
-#ifndef __SAVESCREEN_HPP__
-#define __SAVESCREEN_HPP__
+#pragma once
+
 /*
 savescr.hpp
 
@@ -66,5 +66,3 @@ class SaveScreen
 
     void DumpBuffer(const wchar_t *Title);
 };
-
-#endif  // __SAVESCREEN_HPP__

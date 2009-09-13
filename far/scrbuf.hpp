@@ -1,5 +1,5 @@
-#ifndef __SCREENBUF_HPP__
-#define __SCREENBUF_HPP__
+#pragma once
+
 /*
 scrbuf.hpp
 
@@ -87,5 +87,3 @@ class ScreenBuf
 };
 
 extern ScreenBuf ScrBuf;
-
-#endif  // __SCREENBUF_HPP__

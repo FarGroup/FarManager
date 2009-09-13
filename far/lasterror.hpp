@@ -1,5 +1,5 @@
-#ifndef __LASTERROR_HPP__
-#define __LASTERROR_HPP__
+#pragma once
+
 /*
 lasterror.hpp
 
@@ -45,5 +45,3 @@ class GuardLastError
   public:
     DWORD Get(){return LastError;}
 };
-
-#endif  // __LASTERROR_HPP__

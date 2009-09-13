@@ -1,5 +1,5 @@
-#ifndef __FILELIST_HPP__
-#define __FILELIST_HPP__
+#pragma once
+
 /*
 filelist.hpp
 
@@ -428,5 +428,3 @@ class FileList:public Panel
     static int IsModeFullScreen(int Mode);
     static string &AddPluginPrefix(FileList *SrcPanel,string &strPrefix);
 };
-
-#endif  // __FILELIST_HPP__

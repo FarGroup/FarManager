@@ -1,5 +1,5 @@
-#ifndef __PLUGINW_HPP__
-#define __PLUGINW_HPP__
+#pragma once
+
 /*
 Copyright (c) 1996 Eugene Roshal
 Copyright (c) 2000 Far Group
@@ -225,5 +225,3 @@ private:
 
 	void ClearExports ();
 };
-
-#endif  // __PLUGINW_HPP__

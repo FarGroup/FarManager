@@ -1,5 +1,5 @@
-#ifndef __DATETIME_HPP__
-#define __DATETIME_HPP__
+#pragma once
+
 /*
 datetime.hpp
 
@@ -48,5 +48,3 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 void PrepareStrFTime();
 size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
 size_t MkStrFTime(string &strDest, const wchar_t *Fmt=NULL);
-
-#endif // __DATETIME_HPP__

@@ -1,5 +1,5 @@
-#ifndef __FILETYPE_HPP__
-#define __FILETYPE_HPP__
+#pragma once
+
 /*
 filetype.hpp
 
@@ -49,5 +49,3 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish);
 bool ExtractIfExistCommand(string &strCommandText);
 void EditFileTypes();
-
-#endif // __FILETYPE_HPP__

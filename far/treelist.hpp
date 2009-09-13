@@ -1,5 +1,5 @@
-#ifndef __TREELIST_HPP__
-#define __TREELIST_HPP__
+#pragma once
+
 /*
 treelist.hpp
 
@@ -192,5 +192,3 @@ class TreeList: public Panel
     static int MustBeCached(const wchar_t *Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла
     static void PR_MsgReadTree();
 };
-
-#endif  // __TREELIST_HPP__

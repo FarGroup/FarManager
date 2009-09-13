@@ -1,5 +1,5 @@
-#ifndef __CFileMask_HPP
-#define __CFileMask_HPP
+#pragma once
+
 /*
 CFileMask.hpp
 
@@ -60,6 +60,3 @@ class CFileMask : private NonCopyable
     void Free();
 
 };
-
-
-#endif // __CFileMask_HPP

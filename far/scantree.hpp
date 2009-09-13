@@ -1,5 +1,5 @@
-#ifndef __SCANTREE_HPP__
-#define __SCANTREE_HPP__
+#pragma once
+
 /*
 scantree.hpp
 
@@ -96,5 +96,3 @@ class ScanTree
     int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
     int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};
 };
-
-#endif  // __SCANTREE_HPP__

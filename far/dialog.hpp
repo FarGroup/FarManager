@@ -1,5 +1,5 @@
-#ifndef __DIALOG_HPP__
-#define __DIALOG_HPP__
+#pragma once
+
 /*
 dialog.hpp
 
@@ -373,6 +373,3 @@ LONG_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 
 void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count);
-
-
-#endif // __DIALOG_HPP__

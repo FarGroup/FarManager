@@ -1,5 +1,5 @@
-#ifndef __KEYBOARD_HPP__
-#define __KEYBOARD_HPP__
+#pragma once
+
 /*
 keyboard.hpp
 
@@ -72,5 +72,3 @@ int IsShiftKey(DWORD Key);
 int CheckForEsc();
 int CheckForEscSilent();
 int ConfirmAbortOp();
-
-#endif //__KEYBOARD_HPP__

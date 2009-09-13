@@ -1,5 +1,5 @@
-#ifndef __VIEWER_HPP__
-#define __VIEWER_HPP__
+#pragma once
+
 /*
 viewer.hpp
 
@@ -261,5 +261,3 @@ class Viewer:public ScreenObject
     int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
     int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
 };
-
-#endif // __VIEWER_HPP__

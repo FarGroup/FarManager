@@ -1,5 +1,5 @@
-#ifndef __SCRSAVER_HPP__
-#define __SCRSAVER_HPP__
+#pragma once
+
 /*
 scrsaver.hpp
 
@@ -34,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 int ScreenSaver(int EnableExit);
-
-#endif  // __SCRSAVER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __EDIT_HPP__
-#define __EDIT_HPP__
+#pragma once
+
 /*
 edit.hpp
 
@@ -291,5 +291,3 @@ private:
     void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
 		void Changed();
 };
-
-#endif  // __EDIT_HPP__

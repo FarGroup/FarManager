@@ -1,5 +1,5 @@
-#ifndef __PATHMIX_HPP__
-#define __PATHMIX_HPP__
+#pragma once
+
 /*
 pathmix.hpp
 
@@ -88,5 +88,3 @@ string ExtractPathRoot(const string& Path);
 string ExtractFileName(const string& Path);
 string ExtractFilePath(const string& Path);
 bool IsRootPath(const string& Path);
-
-#endif // __PATHMIX_HPP__

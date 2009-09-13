@@ -1,5 +1,5 @@
-#ifndef __INTERF_HPP__
-#define __INTERF_HPP__
+#pragma once
+
 /*
 interf.hpp
 
@@ -178,5 +178,3 @@ int HiStrlen(const wchar_t *Str);
 int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
 string& HiText2Str(string& strDest, const wchar_t *Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
-
-#endif // __INTERF_HPP__

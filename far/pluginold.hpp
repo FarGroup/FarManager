@@ -1,5 +1,4 @@
-#ifndef __PLUGINOLD_HPP__
-#define __PLUGINOLD_HPP__
+#pragma once
 
 namespace oldfar
 {
@@ -1746,5 +1745,3 @@ enum FAR_EVENTS {
 	#endif
 #endif
 }
-
-#endif /* __PLUGINOLD_HPP__ */

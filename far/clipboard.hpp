@@ -1,5 +1,5 @@
-#ifndef __CLIPBOARD_HPP__
-#define __CLIPBOARD_HPP__
+#pragma once
+
 /*
 clipboard.hpp
 
@@ -43,5 +43,3 @@ wchar_t* WINAPI PasteFromClipboard();
 wchar_t* InternalPasteFromClipboard(int AnsiMode);
 wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode);
 int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode);
-
-#endif // __CLIPBOARD_HPP__

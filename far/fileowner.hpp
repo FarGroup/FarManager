@@ -1,5 +1,5 @@
-#ifndef __FILEOWNER_HPP__
-#define __FILEOWNER_HPP__
+#pragma once
+
 /*
 fileowner.hpp
 
@@ -35,5 +35,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
 void SIDCacheFlush();
-
-#endif // __FILEOWNER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __NONCOPYABLE_H__
-#define __NONCOPYABLE_H__
+#pragma once
+
 /*
 noncopyable.hpp
 Класс для бысторого запрета оператора присваивания и конструктора копирования.
@@ -50,4 +50,3 @@ class NonCopyable
         ~NonCopyable() {};
 
 };
-#endif // __NONCOPYABLE_H__

@@ -1,5 +1,5 @@
-#ifndef __KEYMACRO_HPP__
-#define __KEYMACRO_HPP__
+#pragma once
+
 /*
 macro.hpp
 
@@ -272,5 +272,3 @@ void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 bool checkMacroConst(const wchar_t *name);
 const wchar_t *eStackAsString(int Pos=0);
-
-#endif // __KEYMACRO_HPP__

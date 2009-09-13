@@ -1,5 +1,5 @@
-#ifndef __REFRESHFRAMEMANAGER_HPP__
-#define __REFRESHFRAMEMANAGER_HPP__
+#pragma once
+
 /*
 RefreshFrameManager.hpp
 
@@ -51,5 +51,3 @@ class RefreshFrameManager{
     RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame=FALSE);
     ~RefreshFrameManager();
 };
-
-#endif  // __REFRESHFRAMEMANAGER_HPP__

@@ -1,5 +1,5 @@
-#ifndef __TPREREDRAWFUNC_HPP__
-#define __TPREREDRAWFUNC_HPP__
+#pragma once
+
 /*
 TPreRedrawFunc.hpp
 
@@ -113,6 +113,3 @@ class TPreRedrawFuncGuard
     TPreRedrawFuncGuard(PREREDRAWFUNC Func);
     ~TPreRedrawFuncGuard();
 };
-
-
-#endif  // __TPREREDRAWFUNC_HPP__

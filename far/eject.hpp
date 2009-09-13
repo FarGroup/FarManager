@@ -1,5 +1,5 @@
-#ifndef __EJECT_HPP__
-#define __EJECT_HPP__
+#pragma once
+
 /*
 eject.hpp
 
@@ -37,5 +37,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 BOOL EjectVolume(wchar_t Letter,DWORD Flags);
 BOOL IsEjectableMedia(wchar_t Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
-
-#endif // __EJECT_HPP__

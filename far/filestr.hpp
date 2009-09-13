@@ -1,5 +1,5 @@
-#ifndef __GETFILESTRING_HPP__
-#define __GETFILESTRING_HPP__
+#pragma once
+
 /*
 filestr.hpp
 
@@ -65,5 +65,3 @@ class GetFileString
 
 bool GetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = NULL, bool bUseHeuristics = true);
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
-
-#endif  // __GETFILESTRING_HPP__

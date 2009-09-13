@@ -1,5 +1,5 @@
-#ifndef __FILEVIEWER_HPP__
-#define __FILEVIEWER_HPP__
+#pragma once
+
 /*
 fileview.hpp
 
@@ -104,5 +104,3 @@ class FileViewer:public Frame
     __int64 GetViewFilePos() const;
     void ShowStatus();
 };
-
-#endif  // __FILEVIEWER_HPP__

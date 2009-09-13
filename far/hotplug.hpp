@@ -1,5 +1,5 @@
-#ifndef __HOTPLUG_HPP__
-#define __HOTPLUG_HPP__
+#pragma once
+
 /*
 hotplug.hpp
 
@@ -37,5 +37,3 @@ int  ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags);
 void ShowHotplugDevice ();
 //BOOL RemoveUSBDrive(char Letter,DWORD Flags);
 //BOOL IsDriveUsb(wchar_t DriveName,void *pDevInst);
-
-#endif // __HOTPLUG_HPP__

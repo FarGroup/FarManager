@@ -1,5 +1,5 @@
-#ifndef __PLIST_HPP__
-#define __PLIST_HPP__
+#pragma once
+
 /*
 plist.hpp
 
@@ -34,5 +34,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void ShowProcessList();
-
-#endif // __PLIST_HPP__

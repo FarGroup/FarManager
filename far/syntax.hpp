@@ -1,5 +1,5 @@
-#ifndef __SYNTAX_HPP__
-#define __SYNTAX_HPP__
+#pragma once
+
 /*
 syntax.hpp
 
@@ -94,5 +94,3 @@ extern struct TMacroKeywords MKeywordsFlags[];
 int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wchar_t *BufPtr);
 BOOL __getMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
 int  __getMacroErrorCode(int *nErr=NULL);
-
-#endif // __SYNTAX_HPP__

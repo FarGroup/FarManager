@@ -1,5 +1,5 @@
-#ifndef __STDDLG_HPP__
-#define __STDDLG_HPP__
+#pragma once
+
 /*
 stddlg.hpp
 
@@ -122,6 +122,3 @@ enum FlagsNameAndPassword{
 };
 
 int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
-
-
-#endif // __STDDLG_HPP__

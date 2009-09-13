@@ -1,5 +1,5 @@
-#ifndef __QVIEW_HPP__
-#define __QVIEW_HPP__
+#pragma once
+
 /*
 qview.hpp
 
@@ -85,6 +85,3 @@ class QuickView:public Panel
     virtual BOOL UpdateKeyBar();
     virtual int GetCurName(string &strName, string &strShortName);
 };
-
-
-#endif  // __QVIEW_HPP__

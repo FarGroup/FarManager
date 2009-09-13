@@ -1,5 +1,4 @@
-#ifndef __FILEEDITOR_HPP__
-#define __FILEEDITOR_HPP__
+#pragma once
 /*
 fileedit.hpp
 
@@ -210,5 +209,3 @@ public:
 };
 
 bool dlgOpenEditor (string &strFileName, UINT &codepage);
-
-#endif  // __FILEEDITOR_HPP__

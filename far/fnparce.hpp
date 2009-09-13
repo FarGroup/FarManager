@@ -1,5 +1,5 @@
-#ifndef __FNPARCE_HPP__
-#define __FNPARCE_HPP___
+#pragma once
+
 /*
 fnparce.hpp
 
@@ -39,5 +39,3 @@ int SubstFileName(string &strStr, const wchar_t *Name, const wchar_t *ShortName,
                   string *strShortListName=NULL,
                   string *strAnotherShortListName=NULL,
                   int IgnoreInput=FALSE,const wchar_t *CmdLineDir=NULL);
-
-#endif // __FNPARCE_HPP__

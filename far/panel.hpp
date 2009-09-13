@@ -1,5 +1,5 @@
-#ifndef __PANEL_HPP__
-#define __PANEL_HPP__
+#pragma once
+
 /*
 panel.hpp
 
@@ -257,5 +257,3 @@ class Panel:public ScreenObject
 
     BOOL NeedUpdatePanel(Panel *AnotherPanel);
 };
-
-#endif  // __PANEL_HPP__

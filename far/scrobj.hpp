@@ -1,5 +1,5 @@
-#ifndef __SCREENOBJECT_HPP__
-#define __SCREENOBJECT_HPP__
+#pragma once
+
 /*
 scrobj.hpp
 
@@ -98,5 +98,3 @@ class ScreenObject
 
     static void SetCapture(ScreenObject *Obj);
 };
-
-#endif  // __SCREENOBJECT_HPP__

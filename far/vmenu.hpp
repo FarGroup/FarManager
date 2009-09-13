@@ -1,5 +1,5 @@
-#ifndef __VMENU_HPP__
-#define __VMENU_HPP__
+#pragma once
+
 /*
 vmenu.hpp
 
@@ -347,6 +347,3 @@ class VMenu: public Modal
     static LONG_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
     static LONG_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,LONG_PTR Param2);
 };
-
-
-#endif  // __VMENU_HPP__

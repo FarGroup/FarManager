@@ -1,5 +1,5 @@
-#ifndef __CONSTITLE_HPP__
-#define __CONSTITLE_HPP__
+#pragma once
+
 /*
 constitle.hpp
 
@@ -46,5 +46,3 @@ class ConsoleTitle
     void Set(const wchar_t *fmt,...);
 
 };
-
-#endif

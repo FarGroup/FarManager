@@ -1,5 +1,4 @@
-#ifndef __MKDIR_HPP__
-#define __MKDIR_HPP__
+#pragma once
 
 /*
 mkdir.hpp
@@ -37,5 +36,3 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 
 void ShellMakeDir(Panel *SrcPanel);
-
-#endif // __MKDIR_HPP__

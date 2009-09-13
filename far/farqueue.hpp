@@ -1,5 +1,5 @@
-#ifndef __FARQUEUE_HPP__
-#define __FARQUEUE_HPP__
+#pragma once
+
 /*
 farqueue.hpp
 
@@ -62,5 +62,3 @@ class FarQueue
     Object Get();
     int Put(const Object& x);
 };
-
-#endif // _FARQUEUE_H

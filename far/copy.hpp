@@ -1,5 +1,5 @@
-#ifndef __SHELLCOPY_HPP__
-#define __SHELLCOPY_HPP__
+#pragma once
+
 /*
 copy.hpp
 
@@ -129,5 +129,3 @@ class ShellCopy
     ~ShellCopy();
     static LONG_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 };
-
-#endif  // __SHELLCOPY_HPP__

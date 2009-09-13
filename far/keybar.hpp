@@ -1,5 +1,5 @@
-#ifndef __KEYBAR_HPP__
-#define __KEYBAR_HPP__
+#pragma once
+
 /*
 keybar.hpp
 
@@ -113,5 +113,3 @@ class KeyBar: public ScreenObject
     void RedrawIfChanged();
     virtual void ResizeConsole();
 };
-
-#endif  // __KEYBAR_HPP__
