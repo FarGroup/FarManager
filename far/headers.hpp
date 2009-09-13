@@ -85,14 +85,14 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #endif // __GNUC__
 
 
-#include "sdk/sdk.common.h"
+#include "SDK/sdk.common.h"
 
 #ifdef _MSC_VER
-#include "sdk/sdk.vc.h"
+#include "SDK/sdk.vc.h"
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-#include "sdk/sdk.gcc.h"
+#include "SDK/sdk.gcc.h"
 #endif // __GNUC__
 
 
