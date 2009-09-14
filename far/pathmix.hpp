@@ -73,6 +73,7 @@ BOOL  AddEndSlash(string &strPath);
 BOOL  AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 BOOL  WINAPI AddEndSlash(wchar_t *Path);
 BOOL  WINAPI DeleteEndSlash(string &strPath,bool allendslash=false);
+string DeleteEndSlash(const string& strPath, bool allendslash=false);
 string& ReplaceSlashToBSlash(string& strStr);
 
 const wchar_t *FirstSlash(const wchar_t *String);
@@ -88,3 +89,4 @@ string ExtractPathRoot(const string& Path);
 string ExtractFileName(const string& Path);
 string ExtractFilePath(const string& Path);
 bool IsRootPath(const string& Path);
+bool PathStartsWith(const string& Path, const string& Start);

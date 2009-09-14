@@ -150,30 +150,34 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
           FinalFilePath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
         }
         xf_free(oni);
-        wchar_t VolumeName[MAX_PATH];
-        HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
-        BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-        while (Res)
+        if (res == STATUS_SUCCESS)
         {
-          if (StrLength(VolumeName) >= cVolumeGuidLen)
+          // need to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+          wchar_t VolumeName[MAX_PATH];
+          HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
+          BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+          while (Res)
           {
-            VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
-            string TargetPath;
-            DWORD Res = QueryDosDeviceW(VolumeName + 4 /* w/o prefix */, TargetPath.GetBuffer(MAX_PATH), MAX_PATH);
-            if (Res)
+            if (StrLength(VolumeName) >= cVolumeGuidLen)
             {
-              TargetPath.ReleaseBuffer();
-              if (FinalFilePath.Equal(0, TargetPath))
+              VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
+              string TargetPath;
+              DWORD Res = QueryDosDeviceW(VolumeName + 4 /* w/o prefix */, TargetPath.GetBuffer(MAX_PATH), MAX_PATH);
+              if (Res)
               {
-                FinalFilePath.Replace(0, TargetPath.GetLength(), VolumeName);
-                break;
+                TargetPath.ReleaseBuffer();
+                if (PathStartsWith(FinalFilePath, TargetPath))
+                {
+                  FinalFilePath.Replace(0, TargetPath.GetLength(), VolumeName);
+                  break;
+                }
               }
             }
+            Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
           }
-          Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
+          if (hEnum != INVALID_HANDLE_VALUE)
+            FindVolumeClose(hEnum);
         }
-        if (hEnum != INVALID_HANDLE_VALUE)
-          FindVolumeClose(hEnum);
       }
       CloseHandle(hFile);
       if (!FinalFilePath.IsEmpty())

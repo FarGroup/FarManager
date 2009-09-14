@@ -312,6 +312,17 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
   return Ret;
 }
 
+string DeleteEndSlash(const string& strPath, bool allendslash)
+{
+  if (strPath.IsEmpty())
+    return strPath;
+  if (!IsSlash(strPath[strPath.GetLength() - 1]))
+    return strPath;
+  string strTmp = strPath;
+  DeleteEndSlash(strTmp, allendslash);
+  return strTmp;
+}
+
 bool CutToSlash(string &strStr, bool bInclude)
 {
   size_t pos;
@@ -589,4 +600,10 @@ bool IsRootPath(const string& Path)
 	if (Path.GetLength() == PathRootLen + 1 && IsSlash(Path[Path.GetLength() - 1]))
 		return true;
 	return false;
+}
+
+bool PathStartsWith(const string& Path, const string& Start)
+{
+  string PathPart(DeleteEndSlash(Start, true));
+  return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
