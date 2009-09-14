@@ -422,16 +422,16 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 
 bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
 {
-	WORD DateN[3]={0},TimeN[4]={0};
-	GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
-	GetFileDateAndTime(OSrcTime,TimeN,countof(TimeN),GetTimeSeparator());
-
-	FILETIME *OriginalFileTime=NULL;
+	bool Result=false;
 	FAR_FIND_DATA_EX ffd={0};
-	SYSTEMTIME st={0}, ost={0};
-
 	if(apiGetFindDataEx(Name,&ffd))
 	{
+		WORD DateN[3]={0},TimeN[4]={0};
+		GetFileDateAndTime(OSrcDate,DateN,countof(DateN),GetDateSeparator());
+		GetFileDateAndTime(OSrcTime,TimeN,countof(TimeN),GetTimeSeparator());
+
+		FILETIME *OriginalFileTime=NULL;
+		SYSTEMTIME st={0}, ost={0};
 		switch(Type)
 		{
 			case 0: // Modif
@@ -456,47 +456,48 @@ bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t 
 		{
 			FileTimeToSystemTime(&oft,&ost);
 		}
+
+		// "ќформим"
+		switch(GetDateFormat())
+		{
+			case 0:
+				st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
+				st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
+				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+				break;
+			case 1:
+				st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
+				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+				break;
+			default:
+				st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
+				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+				st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
+				break;
+		}
+		st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
+		st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
+		st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
+		st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
+
+		if (st.wYear<100)
+		{
+			if (st.wYear<80)
+				st.wYear+=2000;
+			else
+				st.wYear+=1900;
+		}
+
+		// преобразование в "удобоваримый" формат
+		FILETIME lft={0};
+		if(SystemTimeToFileTime(&st,&lft))
+		{
+			LocalFileTimeToFileTime(&lft,&FileTime);
+		}
+		Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
 	}
-
-  // "ќформим"
-  switch(GetDateFormat())
-  {
-    case 0:
-      st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
-      st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
-      st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-      break;
-    case 1:
-      st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
-      st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-      st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-      break;
-    default:
-      st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
-      st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-      st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
-      break;
-  }
-	st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
-	st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
-	st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
-	st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
-
-	if (st.wYear<100)
-  {
-    if (st.wYear<80)
-      st.wYear+=2000;
-    else
-      st.wYear+=1900;
-  }
-
-  // преобразование в "удобоваримый" формат
-	FILETIME lft={0};
-	if(SystemTimeToFileTime(&st,&lft))
-	{
-		LocalFileTimeToFileTime(&lft,&FileTime);
-	}
-	return CompareFileTime(&FileTime,OriginalFileTime)!=0;
+	return Result;
 }
 
 void PR_ShellSetFileAttributesMsg()
