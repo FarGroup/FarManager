@@ -59,6 +59,7 @@ enum MACRO_OP_CODE {
   MCODE_OP_SAVE,                    // ѕрисваивание переменной. »м€ переменной следующие DWORD (как в $Text).
   MCODE_OP_SAVEREPCOUNT,
   MCODE_OP_PUSHINT,                 // ѕоложить значение на стек. —амо
+  MCODE_OP_PUSHFLOAT,               // ѕоложить значение на стек. double
   MCODE_OP_PUSHSTR,                 // значение - следующий DWORD
   MCODE_OP_PUSHVAR,                 // или несколько таковых (как в $Text)
   MCODE_OP_PUSHCONST,               // в стек положить константу
@@ -144,7 +145,7 @@ enum MACRO_OP_CODE {
   MCODE_F_MAX,                      // N=max(N1,N2)
   MCODE_F_MENU_CHECKHOTKEY,         // N=checkhotkey(S)
   MCODE_F_MENU_GETHOTKEY,           // S=gethotkey([N])
-  MCODE_F_MENU_SELECT,              // N=Menu.Select(S[,N])
+  MCODE_F_MENU_SELECT,              // N=Menu.Select(S[,N[,Dir]])
   MCODE_F_MIN,                      // N=min(N1,N2)
   MCODE_F_MOD,                      // N=mod(a,b) == a %  b
   MCODE_F_MSAVE,                    // B=msave(var)
@@ -175,6 +176,7 @@ enum MACRO_OP_CODE {
   MCODE_F_BM_PREV,                  // N=BM.Prev() - перейти на предыдущую закладку
   MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
   MCODE_F_TRIM,                     // S=trim(S[,N])
+  MCODE_F_FLOAT,                    // N=float(V)
 
   /* ************************************************************************* */
   // булевые переменные - различные состо€ни€
@@ -277,11 +279,12 @@ enum MACRO_OP_CODE {
   MCODE_V_EDITORREALPOS,            // Editor.RealPos - текуща€ поз. в редакторе без прив€зки к размеру табул€ции
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_EDITORVALUE,              // Editor.Value - содержимое текущей строки
+  MCODE_V_EDITORSELVALUE,           // Editor.SelValue - содержит содержимое выделенного блока
 
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
   MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
   MCODE_V_DLGCURPOS,                // Dlg.CurPos
-  MCODE_V_DLGINFOID,                    // Dlg.Info.Id
+  MCODE_V_DLGINFOID,                // Dlg.Info.Id
 
   MCODE_V_VIEWERFILENAME,           // Viewer.FileName - им€ просматриваемого файла
   MCODE_V_VIEWERSTATE,              // Viewer.State
@@ -296,6 +299,8 @@ enum MACRO_OP_CODE {
   MCODE_V_HELPFILENAME,             // Help.FileName
   MCODE_V_HELPTOPIC,                // Help.Topic
   MCODE_V_HELPSELTOPIC,             // Help.SelTopic
+
+  MCODE_V_MENU_VALUE,               // Menu.Value
 };
 
 typedef enum MACRO_OP_CODE TMacroOpCode;

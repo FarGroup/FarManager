@@ -85,6 +85,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
+extern size_t SizeViewSettingsArray;
+
 
 static int _cdecl SortList(const void *el1,const void *el2);
 int _cdecl SortSearchList(const void *el1,const void *el2);
@@ -2627,6 +2629,8 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void FileList::SetViewMode(int ViewMode)
 {
+	if ( (DWORD)ViewMode > (DWORD)SizeViewSettingsArray )
+		ViewMode=VIEW_0;
   int CurFullScreen=IsFullScreen();
   int OldOwner=IsColumnDisplayed(OWNER_COLUMN);
   int OldPacked=IsColumnDisplayed(PACKED_COLUMN);

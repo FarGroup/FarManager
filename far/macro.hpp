@@ -43,7 +43,7 @@ enum MACRODISABLEONLOAD{
 
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
 enum MACROMODEAREA {
-  MACRO_FUNC         =  -3,
+  MACRO_FUNCS        =  -3,
   MACRO_CONSTS       =  -2,
   MACRO_VARS         =  -1,
 
@@ -149,6 +149,7 @@ class KeyMacro
 {
   private:
     DWORD MacroVersion;
+    DWORD LastOpCodeUF; // последний не занятый OpCode для UserFunction (относительно KEY_MACRO_U_BASE)
     // тип записи - с вызовом диалога настроек или...
     // 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
     int Recording;
@@ -199,6 +200,7 @@ class KeyMacro
     TVar FARPseudoVariable(DWORD Flags,DWORD Code,DWORD& Err);
     DWORD GetOpCode(struct MacroRecord *MR,int PC);
     DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
+    DWORD GetNewOpCode();
 
   private:
     static LONG_PTR WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
@@ -234,7 +236,7 @@ class KeyMacro
     // Поместить временный рекорд (бинарное представление)
     int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,BOOL IsPluginSend=FALSE);
 
-    int  LoadMacros(BOOL InitedRAM=TRUE);
+    int  LoadMacros(BOOL InitedRAM=TRUE,BOOL LoadAll=TRUE);
     void SaveMacros(BOOL AllSaved=TRUE);
 
     int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST-1?Mode:MACRO_LAST-1][0];}

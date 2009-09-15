@@ -1182,7 +1182,28 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
       break;
     }
 
-  }
+		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
+		{
+			string strText;
+			wchar_t *Text;
+
+			if (VBlockStart!=NULL)
+				Text = VBlock2Text(NULL);
+			else
+				Text = Block2Text(NULL);
+
+			if ( Text )
+			{
+				strText = (const wchar_t *)Text;
+				xf_free(Text);
+			}
+
+			*(string *)vParam=strText;
+
+			return 1;
+		}
+
+	}
 	return 0;
 }
 
@@ -4213,56 +4234,73 @@ void Editor::Paste(const wchar_t *Src)
 
 void Editor::Copy(int Append)
 {
-  if (VBlockStart!=NULL)
-  {
-    VCopy(Append);
-    return;
-  }
+	if (VBlockStart!=NULL)
+	{
+		VCopy(Append);
+		return;
+	}
 
-  Edit *CurPtr=BlockStart;
-  wchar_t *CopyData=NULL;
-  size_t DataSize=0;
+	wchar_t *CopyData=NULL;
 
-  if (Append)
-  {
-    CopyData=PasteFromClipboard();
-    if (CopyData!=NULL)
-      DataSize=StrLength(CopyData);
-  }
+	if (Append)
+		CopyData=PasteFromClipboard();
 
-  while (CurPtr!=NULL)
-  {
-    int StartSel,EndSel;
-    int Length=CurPtr->GetLength()+1;
-    CurPtr->GetSelection(StartSel,EndSel);
-    if (StartSel==-1)
-      break;
-    wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof (wchar_t));
-    if (NewPtr==NULL)
-    {
-      if (CopyData)
-      {
-        xf_free(CopyData);
-        CopyData=NULL;
-      }
-      break;
-    }
-    CopyData=NewPtr;
-    CurPtr->GetSelString(CopyData+DataSize,Length);
-    DataSize+=StrLength(CopyData+DataSize);
-    if (EndSel==-1)
-    {
-      wcscpy(CopyData+DataSize,DOS_EOL_fmt);
-      DataSize+=2;
-    }
-    CurPtr=CurPtr->m_next;
-  }
+	if ( (CopyData=Block2Text(CopyData)) != NULL )
+	{
+		CopyToClipboard(CopyData);
+		xf_free(CopyData);
+	}
+}
 
-  if (CopyData!=NULL)
-  {
-    CopyToClipboard(CopyData);
-    xf_free(CopyData);
-  }
+wchar_t *Editor::Block2Text(const wchar_t *ptrInitData)
+{
+	wchar_t *CopyData=NULL;
+	size_t DataSize=0;
+
+	if ( ptrInitData )
+	{
+		if ( (CopyData = xf_wcsdup(ptrInitData)) == NULL )
+			return NULL;
+
+		xf_free((void*)ptrInitData);
+		DataSize = StrLength(CopyData);
+	}
+
+	Edit *CurPtr=BlockStart;
+
+	while (CurPtr!=NULL)
+	{
+		int StartSel,EndSel;
+		int Length=CurPtr->GetLength()+1;
+		CurPtr->GetSelection(StartSel,EndSel);
+
+		if (StartSel==-1)
+			break;
+
+		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,(DataSize+Length+2)*sizeof (wchar_t));
+
+		if (NewPtr==NULL)
+		{
+			if (CopyData)
+			{
+				xf_free(CopyData);
+				CopyData=NULL;
+			}
+			break;
+		}
+		CopyData=NewPtr;
+
+		CurPtr->GetSelString(CopyData+DataSize,Length);
+		DataSize+=StrLength(CopyData+DataSize);
+		if (EndSel==-1)
+		{
+			wcscpy(CopyData+DataSize,DOS_EOL_fmt);
+			DataSize+=2;
+		}
+		CurPtr=CurPtr->m_next;
+	}
+
+	return CopyData;
 }
 
 
@@ -4562,7 +4600,7 @@ void Editor::GoToPosition()
       Прибъём ShadowSaveScr для предотвращения мелькания
       изображения.
   */
-	SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
+  SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
 
     // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
   if (Dlg.GetExitCode()!=1 )
@@ -5088,71 +5126,84 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-  Edit *CurPtr=VBlockStart;
-  wchar_t *CopyData=NULL;
-  size_t DataSize=0;
+	wchar_t *CopyData=NULL;
 
-  if (Append)
-  {
-    CopyData=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
-    if (CopyData!=NULL)
-      DataSize=StrLength(CopyData);
-    else
-    {
-      CopyData=PasteFromClipboard();
-      if (CopyData!=NULL)
-        DataSize=StrLength(CopyData);
-    }
-  }
+	if (Append)
+	{
+		CopyData=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
+		if ( !CopyData )
+			CopyData=PasteFromClipboard();
+	}
 
-  for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
-  {
-    int TBlockX=CurPtr->TabPosToReal(VBlockX);
-    int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
-                    CurPtr->TabPosToReal(VBlockX);
-    const wchar_t *CurStr,*EndSeq;
-    int Length;
-    CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-
-    size_t AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
-    wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
-    if (NewPtr==NULL)
-    {
-      if (CopyData)
-      {
-        xf_free(CopyData);
-        CopyData=NULL;
-      }
-      break;
-    }
-    CopyData=NewPtr;
-
-    if (Length>TBlockX)
-    {
-      int CopySize=Length-TBlockX;
-      if (CopySize>TBlockSizeX)
-        CopySize=TBlockSizeX;
-      wmemcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
-      if (CopySize<TBlockSizeX)
-        wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
-    }
-    else
-      wmemset(CopyData+DataSize,L' ',TBlockSizeX);
-
-    DataSize+=TBlockSizeX;
-
-
-    wcscpy(CopyData+DataSize,DOS_EOL_fmt);
-    DataSize+=2;
-  }
-
-  if (CopyData!=NULL)
-  {
-    CopyToClipboard(CopyData);
-    CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyData);
-    xf_free(CopyData);
-  }
+	if ( (CopyData=VBlock2Text(CopyData)) !=NULL )
+	{
+		CopyToClipboard(CopyData);
+		CopyFormatToClipboard(FAR_VerticalBlock_Unicode,CopyData);
+		xf_free(CopyData);
+	}
 }
+
+wchar_t *Editor::VBlock2Text(const wchar_t *ptrInitData)
+{
+	wchar_t *CopyData=NULL;
+	size_t DataSize=0;
+
+	if ( ptrInitData )
+	{
+		if ( (CopyData = xf_wcsdup(ptrInitData)) == NULL )
+			return NULL;
+
+		xf_free((void*)ptrInitData);
+		DataSize = StrLength(CopyData);
+	}
+
+	Edit *CurPtr=VBlockStart;
+
+	for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->m_next)
+	{
+		int TBlockX=CurPtr->TabPosToReal(VBlockX);
+		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-CurPtr->TabPosToReal(VBlockX);
+		const wchar_t *CurStr,*EndSeq;
+		int Length;
+
+		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
+
+		size_t AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
+		wchar_t *NewPtr=(wchar_t *)xf_realloc(CopyData,AllocSize*sizeof (wchar_t));
+
+		if (NewPtr==NULL)
+		{
+			if (CopyData)
+			{
+				xf_free(CopyData);
+				CopyData=NULL;
+			}
+			break;
+		}
+		CopyData=NewPtr;
+
+		if (Length>TBlockX)
+		{
+			int CopySize=Length-TBlockX;
+			if (CopySize>TBlockSizeX)
+				CopySize=TBlockSizeX;
+			wmemcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
+			if (CopySize<TBlockSizeX)
+				wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
+		}
+		else
+			wmemset(CopyData+DataSize,L' ',TBlockSizeX);
+
+		DataSize+=TBlockSizeX;
+
+		wcscpy(CopyData+DataSize,DOS_EOL_fmt);
+		DataSize+=2;
+	}
+
+	return CopyData;
+}
+
+
 
 void Editor::VPaste(wchar_t *ClipText)
 {

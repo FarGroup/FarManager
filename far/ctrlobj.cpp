@@ -63,7 +63,7 @@ ControlObject::ControlObject()
   EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
 
-	Macro.LoadMacros();
+	//Macro.LoadMacros();
 
   ReadConfig();
 
@@ -134,6 +134,7 @@ void ControlObject::Init()
     Plugins.LoadPlugins();
 		SetConsoleTitle(strOldTitle);
   }
+  Macro.LoadMacros();
 /*
 	FarChDir(StartCurDir);
 */

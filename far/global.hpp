@@ -148,3 +148,5 @@ extern const wchar_t constMsCtrlState[];
 extern DWORD RedrawTimeout;
 
 extern SYSTEM_INFO SystemInfo;
+
+extern string g_strMacroCONVFMT;

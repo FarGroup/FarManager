@@ -40,66 +40,85 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-enum TVarType { vtInteger, vtString };
+enum TVarType {
+	vtInteger,
+	vtString,
+	vtDouble,
+};
+
+typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
 class TVar
 {
-private:
-  TVarType vType;
-  __int64 inum;
-  wchar_t *str;
-public:
-  TVar(__int64 = 0);
-  TVar(const wchar_t*);
-  TVar(const TVar&);
-  ~TVar();
+	private:
+		TVarType vType;
+		__int64 inum;
+		double  dnum;
+		wchar_t *str;
 
-  friend TVar operator+(const TVar&, const TVar&);
-  friend TVar operator-(const TVar&, const TVar&);
-  friend TVar operator*(const TVar&, const TVar&);
-  friend TVar operator/(const TVar&, const TVar&);
-  friend TVar operator%(const TVar&, const TVar&);
+	private:
+		static int CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);
 
-  friend TVar operator&(const TVar&, const TVar&);
-  friend TVar operator|(const TVar&, const TVar&);
-  friend TVar operator^(const TVar&, const TVar&);
-  friend TVar operator>>(const TVar&, const TVar&);
-  friend TVar operator<<(const TVar&, const TVar&);
+	public:
+		TVar(__int64 = 0);
+		TVar(const wchar_t*);
+		TVar(int);
+		TVar(double);
+		TVar(const TVar&);
+		~TVar();
 
-  friend TVar operator&&(const TVar&, const TVar&);
-  friend TVar operator||(const TVar&, const TVar&);
+	public:
+		friend TVar operator+(const TVar&, const TVar&);
+		friend TVar operator-(const TVar&, const TVar&);
+		friend TVar operator*(const TVar&, const TVar&);
+		friend TVar operator/(const TVar&, const TVar&);
+		friend TVar operator%(const TVar&, const TVar&);
 
-  TVar& operator=(const TVar&);
+		friend TVar operator&(const TVar&, const TVar&);
+		friend TVar operator|(const TVar&, const TVar&);
+		friend TVar operator^(const TVar&, const TVar&);
+		friend TVar operator>>(const TVar&, const TVar&);
+		friend TVar operator<<(const TVar&, const TVar&);
 
-  TVar& operator+=(const TVar& b) { return *this = *this+b; };
-  TVar& operator-=(const TVar& b) { return *this = *this-b; };
-  TVar& operator*=(const TVar& b) { return *this = *this*b; };
-  TVar& operator/=(const TVar& b) { return *this = *this/b; };
-  TVar& operator%=(const TVar& b) { return *this = *this%b; };
+		friend TVar operator&&(const TVar&, const TVar&);
+		friend TVar operator||(const TVar&, const TVar&);
 
-  TVar operator+();
-  TVar operator-();
-  TVar operator!();
-  TVar operator~();
+		TVar& operator=(const TVar&);
 
-  friend int operator==(const TVar&, const TVar&);
-  friend int operator!=(const TVar&, const TVar&);
-  friend int operator<(const TVar&, const TVar&);
-  friend int operator<=(const TVar&, const TVar&);
-  friend int operator>(const TVar&, const TVar&);
-  friend int operator>=(const TVar&, const TVar&);
+		TVar& operator+=(const TVar& b) { return *this = *this+b; };
+		TVar& operator-=(const TVar& b) { return *this = *this-b; };
+		TVar& operator*=(const TVar& b) { return *this = *this*b; };
+		TVar& operator/=(const TVar& b) { return *this = *this/b; };
+		TVar& operator%=(const TVar& b) { return *this = *this%b; };
 
-  TVarType type() { return vType; };
+		TVar operator+();
+		TVar operator-();
+		TVar operator!();
+		TVar operator~();
 
-  int isString()   const { return vType == vtString;  }
-  int isInteger()  const { return vType == vtInteger; }
+		friend int operator==(const TVar&, const TVar&);
+		friend int operator!=(const TVar&, const TVar&);
+		friend int operator<(const TVar&, const TVar&);
+		friend int operator<=(const TVar&, const TVar&);
+		friend int operator>(const TVar&, const TVar&);
+		friend int operator>=(const TVar&, const TVar&);
 
-  __int64 i()         const;// { return isInteger() ? inum : 0; };
-  const wchar_t *s()  const;// { return isString() ? ( str ? str : "" ) : ""; };
+		TVarType type() { return vType; };
 
-  const wchar_t *toString();
-  __int64 toInteger();
-  __int64 getInteger() const;
+		int isString()   const { return vType == vtString;  }
+		int isInteger()  const { return vType == vtInteger; }
+		int isDouble()  const { return vType == vtDouble;  }
+
+		double d()         const;
+		__int64 i()        const;
+		const wchar_t *s() const;
+
+		const wchar_t *toString();
+		double toDouble();
+		__int64 toInteger();
+
+		__int64 getInteger() const;
+		double getDouble() const;
 };
 
 //---------------------------------------------------------------
@@ -108,33 +127,36 @@ public:
 
 class TAbstractSet
 {
-  public:
-    wchar_t *str;
-    TAbstractSet *next;
-    TAbstractSet(const wchar_t *s)
-    {
-      str = NULL;
-      next = NULL;
-      if ( s )
-      {
-        str = new wchar_t[StrLength(s)+1];
-        wcscpy(str, s);
-      }
-    }
-    ~TAbstractSet()
-    {
-      if ( str )
-        delete [] str;
-    }
+	public:
+		wchar_t *str;
+		TAbstractSet *next;
+
+	public:
+		TAbstractSet(const wchar_t *s)
+		{
+			str = NULL;
+			next = NULL;
+			if ( s )
+			{
+				str = new wchar_t[StrLength(s)+1];
+				wcscpy(str, s);
+			}
+		}
+
+		~TAbstractSet()
+		{
+			if ( str )
+				delete [] str;
+		}
 };
 
 class TVarSet : public TAbstractSet
 {
-  public:
-    TVar value;
-    TVarSet(const wchar_t *s) :
-      TAbstractSet(s),
-      value() {}
+	public:
+		TVar value;
+
+	public:
+		TVarSet(const wchar_t *s) : TAbstractSet(s), value() {}
 };
 
 const int V_TABLE_SIZE = 23;
@@ -149,5 +171,5 @@ extern void deleteVTable(TVarTable);
 
 inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
 {
-  return varLook(t, s, true);
+	return varLook(t, s, true);
 }

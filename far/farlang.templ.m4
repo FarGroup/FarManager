@@ -12419,6 +12419,43 @@ MMacroSettingsSelectionBlockPresent
 "Ha van kijelölt &blokk"
 "Obecny &blok zaznaczenia"
 
+MMacroOutputFormatForHelpSz
+l:
+l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 1
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
+
+MMacroOutputFormatForHelpDWord
+l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
+"%d / 0x%X"
+"%d / 0x%X"
+"%d / 0x%X"
+"%d / 0x%X"
+"%d / 0x%X"
+"%d / 0x%X"
+
+MMacroOutputFormatForHelpQWord
+l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
+"%I64d / 0x%I64X"
+"%I64d / 0x%I64X"
+"%I64d / 0x%I64X"
+"%I64d / 0x%I64X"
+"%I64d / 0x%I64X"
+"%I64d / 0x%I64X"
+
+MMacroOutputFormatForHelpDouble
+l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
+"%g"
+"%g"
+"%g"
+"%g"
+"%g"
+"%g"
+
 MMacroPErrUnrecognized_keyword
 l:
 "Неизвестное ключевое слово '%s'"

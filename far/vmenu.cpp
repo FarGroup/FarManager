@@ -451,7 +451,7 @@ void VMenu::ShowMenu(int IsParent)
 	{
 		HasRightScroll = true;
 		MaxLineWidth -= 1; // right horz. scroll
-	}	
+	}
 
   string strTmpStr;
 
@@ -1041,6 +1041,16 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return 0;
     }
 
+		case MCODE_V_MENU_VALUE: // Menu.Value
+		{
+			MenuItemEx *menuEx=GetItemPtr(SelectPos);
+			if ( menuEx )
+			{
+				*(string *)vParam=menuEx->strName;
+				return 1;
+			}
+			break;
+		}
   }
 
 	return 0;

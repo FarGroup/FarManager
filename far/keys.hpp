@@ -279,10 +279,12 @@ enum BaseDefKeyboard
 
 #ifdef FAR_USE_INTERNALS
   KEY_MACRO_BASE           =0x00080000,
-  KEY_MACRO_OP_BASE        =KEY_MACRO_BASE,          // opcode
-  KEY_MACRO_F_BASE         =KEY_MACRO_OP_BASE+256,   // функции
-  KEY_MACRO_C_BASE         =KEY_MACRO_F_BASE+256,    // булевые условия
-  KEY_MACRO_V_BASE         =KEY_MACRO_C_BASE+512,    // разные переменные
+  KEY_MACRO_OP_BASE        =KEY_MACRO_BASE,          // opcode             0x00080000
+  KEY_MACRO_F_BASE         =KEY_MACRO_OP_BASE+256,   // функции            0x00080100
+  KEY_MACRO_C_BASE         =KEY_MACRO_F_BASE+256,    // булевые условия    0x00080200
+  KEY_MACRO_V_BASE         =KEY_MACRO_C_BASE+512,    // разные переменные  0x00080400
+
+  KEY_MACRO_U_BASE         =0x00088000,              // внешние функции    0x00088000
   // см macroopcode.hpp
   KEY_MACRO_ENDBASE        =0x000FFFFF,
 #endif // END FAR_USE_INTERNALS

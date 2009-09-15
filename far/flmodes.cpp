@@ -62,6 +62,8 @@ PanelViewSettings ViewSettingsArray[]=
 /* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,0,0,{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH},{COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH,COUNT_WIDTH}}
 };
 
+size_t SizeViewSettingsArray=countof(ViewSettingsArray);
+
 void FileList::SetFilePanelModes()
 {
   int CurMode=0;

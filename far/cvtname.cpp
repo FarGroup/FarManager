@@ -96,7 +96,6 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
   ConvertNameToFull(Src, FullPath);
   strDest = FullPath;
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
-  _SVS(SysLog(L"ConvertNameToFull('%s') -> '%s'",Src,(const wchar_t*)strTempDest));
 
   /* $ 14.06.2003 IS
      Для нелокальных дисков даже и не пытаемся анализировать симлинки

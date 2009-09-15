@@ -723,10 +723,11 @@ int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SDat
 	return ExitCode;
 }
 
-int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64)
+int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64, DWORD *lpType)
 {
 	HKEY hKey=OpenRegKey(Key);
 	int RetCode=REG_NONE;
+	DWORD Type=(DWORD)-1;
 
 	if (hKey)
 	{
@@ -745,7 +746,6 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 
 		if(ExitCode != ERROR_NO_MORE_ITEMS)
 		{
-			DWORD Type=(DWORD)-1;
 			DWORD Size = 0, Size0;
 
 			ValNameSize0=ValNameSize;
@@ -792,6 +792,10 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 
 		CloseRegKey(hKey);
 	}
+
+	if (lpType)
+		*lpType=Type;
+
 	return RetCode;
 }
 

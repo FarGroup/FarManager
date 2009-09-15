@@ -164,3 +164,5 @@ const wchar_t constMsCtrlState[]=L"MsCtrlState";
 DWORD RedrawTimeout=200;
 
 SYSTEM_INFO SystemInfo;
+
+string g_strMacroCONVFMT;

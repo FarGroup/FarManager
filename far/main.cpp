@@ -158,6 +158,7 @@ static int MainProcess(
       CtrlObj.CreateFilePanels();
       CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
       CtrlObj.Plugins.LoadPlugins();
+      CtrlObj.Macro.LoadMacros(TRUE,FALSE);
 
       if ( *lpwszEditName )
       {

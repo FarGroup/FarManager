@@ -134,6 +134,11 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
         return (__int64)((DWORD)GetHighlights((const HMenuData *)(Item+(int)iParam)));
 			return 0;
     }
+		case MCODE_V_MENU_VALUE: // Menu.Value
+		{
+			*(string *)vParam=Item[SelectPos].Name;
+			return 1;
+		}
   }
 
 	return 0;

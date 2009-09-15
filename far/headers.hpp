@@ -113,6 +113,7 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #include <search.h>
 #include <wchar.h>
 #include <assert.h>
+#include <math.h>
 
 #ifdef __GNUC__
  #include <ctype.h>
