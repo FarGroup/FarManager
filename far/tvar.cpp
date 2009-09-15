@@ -285,8 +285,8 @@ TVar::TVar(int v) :
 
 TVar::TVar(double v) :
 	vType(vtDouble),
-	dnum(v),
-	inum(0)
+	inum(0),
+	dnum(v)
 {
 	str = NULL;
 }
@@ -525,7 +525,7 @@ int TVar::CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 		case vtString:
 		{
 			TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-			if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = fcmp(vtString,a.s(),b.s());
 			else if( tsA == tsInt && tsB == tsInt )
 			{
@@ -621,7 +621,7 @@ TVar operator+(const TVar& a, const TVar& b)
 	    case vtString:
 	    {
 			TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-			if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = addStr(a.s(), b.s());
 			else if( tsA == tsInt && tsB == tsInt )
 				r = a.i() + b.i();
@@ -675,7 +675,7 @@ TVar operator-(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a; //addStr(a.s(), b.s());
       else if( tsA == tsInt && tsB == tsInt )
         r = a.i() - b.i();
@@ -729,7 +729,7 @@ TVar operator*(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else if( tsA == tsInt && tsB == tsInt )
         r = a.i() * b.i();
@@ -795,7 +795,7 @@ TVar operator/(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else if( tsA == tsInt && tsB == tsInt )
       {
@@ -867,7 +867,7 @@ TVar operator%(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else if( tsA == tsInt && tsB == tsInt )
       {
@@ -927,7 +927,7 @@ TVar operator|(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else
         r = a.i() | b.i();
@@ -979,7 +979,7 @@ TVar operator&(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else
         r = a.i() & b.i();
@@ -1031,7 +1031,7 @@ TVar operator^(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else
         r = a.i() ^ b.i();
@@ -1083,7 +1083,7 @@ TVar operator>>(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else
         r = a.i() >> b.i();
@@ -1135,7 +1135,7 @@ TVar operator<<(const TVar& a, const TVar& b)
     case vtString:
     {
       TypeString tsA=checkTypeString(a.str), tsB=checkTypeString(b.str);
-      if ( tsA == tsStr && tsB == tsStr || tsA != tsStr && tsB == tsStr || tsA == tsStr && tsB != tsStr )
+      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
         r = a;
       else
         r = a.i() << b.i();

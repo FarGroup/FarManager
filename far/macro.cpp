@@ -2212,7 +2212,7 @@ static bool editorsetFunc()
       case 14: // AllowEmptySpaceAfterEof;
         Ret=(__int64)EdOpt.AllowEmptySpaceAfterEof; break;
       default:
-        Ret=-1L;
+        Ret=(__int64)-1L;
     }
 
     if((Index != 12 && longState != -1) || (Index == 12 && _longState.i() == -1))
