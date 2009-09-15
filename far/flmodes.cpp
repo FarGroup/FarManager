@@ -35,6 +35,8 @@ struct PanelViewSettings ViewSettingsArray[]=
 /* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,0,1,0}
 };
 
+size_t SizeViewSettingsArray=sizeof(ViewSettingsArray)/sizeof(ViewSettingsArray[0]);
+
 void FileList::SetFilePanelModes()
 {
   int CurMode=0;
