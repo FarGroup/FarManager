@@ -76,6 +76,7 @@
 #define prechar unsigned char*
 #define RECHAR char
 #endif
+#define RE_CHAR_COUNT (1<<sizeof(rechar)*8)
 
 //! Possible compile and runtime errors returned by LastError.
 enum REError{

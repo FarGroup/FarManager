@@ -3930,12 +3930,12 @@ int RegExp::Optimize()
       }
       case opType:
       {
-        for(i=0;i<256;i++)if(ISTYPE(i,OP.type))first[i]=1;
+        for(i=0;i<RE_CHAR_COUNT;i++)if(ISTYPE(i,OP.type))first[i]=1;
         break;
       }
       case opNotType:
       {
-        for(i=0;i<256;i++)if(!(ISTYPE(i,OP.type)))first[i]=1;
+        for(i=0;i<RE_CHAR_COUNT;i++)if(!(ISTYPE(i,OP.type)))first[i]=1;
         break;
       }
       case opSymbol:
@@ -3951,7 +3951,7 @@ int RegExp::Optimize()
       }
       case opSymbolClass:
       {
-        for(i=0;i<256;i++)
+        for(i=0;i<RE_CHAR_COUNT;i++)
         {
           if(GetBit(OP.symbolclass,i))first[i]=1;
         }
@@ -3993,7 +3993,7 @@ int RegExp::Optimize()
       case opTypeRange:
       case opTypeMinRange:
       {
-        for(i=0;i<256;i++)
+        for(i=0;i<RE_CHAR_COUNT;i++)
         {
           if(ISTYPE(i,OP.range.type))first[i]=1;
         }
@@ -4003,7 +4003,7 @@ int RegExp::Optimize()
       case opNotTypeRange:
       case opNotTypeMinRange:
       {
-        for(i=0;i<256;i++)
+        for(i=0;i<RE_CHAR_COUNT;i++)
         {
           if(!(ISTYPE(i,OP.range.type)))first[i]=1;
         }
@@ -4013,7 +4013,7 @@ int RegExp::Optimize()
       case opClassRange:
       case opClassMinRange:
       {
-        for(i=0;i<256;i++)
+        for(i=0;i<RE_CHAR_COUNT;i++)
         {
           if(GetBit(OP.range.symbolclass,i))first[i]=1;
         }
