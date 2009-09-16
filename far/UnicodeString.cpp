@@ -318,6 +318,21 @@ bool UnicodeString::Equal(size_t Pos, wchar_t Ch) const
 	return Equal(Pos, 1, &Ch, 1);
 }
 
+bool UnicodeString::operator==(const UnicodeString& Str) const
+{
+	return Equal(0, GetLength(), Str.CPtr(), Str.GetLength());
+}
+
+bool UnicodeString::operator==(const wchar_t* Str) const
+{
+	return Equal(0, GetLength(), Str, StrLength(Str));
+}
+
+bool UnicodeString::operator==(wchar_t Ch) const
+{
+	return Equal(0, GetLength(), &Ch, 1);
+}
+
 const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2)
 {
 	return UnicodeString(strSrc1).Append(strSrc2);

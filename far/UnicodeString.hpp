@@ -239,12 +239,6 @@ public:
 		return m_pData->GetData();
 	}
 
-	bool Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
-	bool Equal(size_t Pos, const wchar_t* Str, size_t StrLen) const;
-	bool Equal(size_t Pos, const wchar_t* Str) const;
-	bool Equal(size_t Pos, const UnicodeString& Str) const;
-	bool Equal(size_t Pos, wchar_t Ch) const;
-
 	const UnicodeString& operator=(const UnicodeString &strCopy)
 	{
 		return Copy(strCopy);
@@ -288,6 +282,15 @@ public:
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
+
+	bool Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
+	bool Equal(size_t Pos, const wchar_t* Str, size_t StrLen) const;
+	bool Equal(size_t Pos, const wchar_t* Str) const;
+	bool Equal(size_t Pos, const UnicodeString& Str) const;
+	bool Equal(size_t Pos, wchar_t Ch) const;
+	bool operator==(const UnicodeString& Str) const;
+	bool operator==(const wchar_t* Str) const;
+	bool operator==(wchar_t Ch) const;
 
 	wchar_t *GetBuffer (size_t nSize = (size_t)-1);
 	void ReleaseBuffer (size_t nLength = (size_t)-1);

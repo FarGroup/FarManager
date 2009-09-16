@@ -158,7 +158,7 @@ wchar_t * __cdecl xf_wcsdup (const wchar_t * string)
   return(NULL);
 }
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(_MSC_VER)
 
 #define _UI64_MAX     0xffffffffffffffffui64
 #define _I64_MIN      (-9223372036854775807i64 - 1)

@@ -576,9 +576,10 @@ string ExtractFileName(const string& Path)
 		p++;
 	else
 		p = 0;
-  if (p <= GetPathRootLength(Path))
-  	return string();
-  return string(Path.CPtr() + p, Path.GetLength() - p);
+	size_t PathRootLen = GetPathRootLength(Path);
+	if (p <= PathRootLen && PathRootLen)
+		return string();
+	return string(Path.CPtr() + p, Path.GetLength() - p);
 }
 
 string ExtractFilePath(const string& Path)
@@ -587,7 +588,7 @@ string ExtractFilePath(const string& Path)
 	if (!FindLastSlash(p, Path))
 		p = 0;
 	size_t PathRootLen = GetPathRootLength(Path);
-	if (p <= PathRootLen)
+	if (p <= PathRootLen && PathRootLen)
 		return string(Path.CPtr(), PathRootLen).Append(L'\\');
 	return string(Path.CPtr(), p);
 }
@@ -607,3 +608,79 @@ bool PathStartsWith(const string& Path, const string& Start)
   string PathPart(DeleteEndSlash(Start, true));
   return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
+
+SELF_TEST(
+  assert(ExtractPathRoot(L"") == L"");
+  assert(ExtractPathRoot(L"\\") == L"");
+  assert(ExtractPathRoot(L"file") == L"");
+  assert(ExtractPathRoot(L"path\\file") == L"");
+  assert(ExtractPathRoot(L"C:") == L"C:\\");
+  assert(ExtractPathRoot(L"C:\\") == L"C:\\");
+  assert(ExtractPathRoot(L"C:\\path\\file") == L"C:\\");
+  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractPathRoot(L"\\\\server\\share") == L"\\\\server\\share\\");
+  assert(ExtractPathRoot(L"\\\\server\\share\\") == L"\\\\server\\share\\");
+  assert(ExtractPathRoot(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\");
+  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
+  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
+  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\");
+
+  assert(ExtractFilePath(L"") == L"");
+  assert(ExtractFilePath(L"\\") == L"");
+  assert(ExtractFilePath(L"\\file") == L"");
+  assert(ExtractFilePath(L"file") == L"");
+  assert(ExtractFilePath(L"path\\") == L"path");
+  assert(ExtractFilePath(L"path\\file") == L"path");
+  assert(ExtractFilePath(L"C:") == L"C:\\");
+  assert(ExtractFilePath(L"C:\\") == L"C:\\");
+  assert(ExtractFilePath(L"C:\\file") == L"C:\\");
+  assert(ExtractFilePath(L"C:\\path\\file") == L"C:\\path");
+  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
+  assert(ExtractFilePath(L"\\\\server\\share") == L"\\\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\server\\share\\") == L"\\\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\server\\share\\file") == L"\\\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\path");
+  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file") == L"\\\\?\\UNC\\server\\share\\");
+  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\path");
+
+  assert(ExtractFileName(L"") == L"");
+  assert(ExtractFileName(L"\\") == L"");
+  assert(ExtractFileName(L"\\file") == L"file");
+  assert(ExtractFileName(L"file") == L"file");
+  assert(ExtractFileName(L"path\\") == L"");
+  assert(ExtractFileName(L"path\\file") == L"file");
+  assert(ExtractFileName(L"C:") == L"");
+  assert(ExtractFileName(L"C:\\") == L"");
+  assert(ExtractFileName(L"C:\\file") == L"file");
+  assert(ExtractFileName(L"C:\\path\\file") == L"file");
+  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"");
+  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"");
+  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"file");
+  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"file");
+  assert(ExtractFileName(L"\\\\server\\share") == L"");
+  assert(ExtractFileName(L"\\\\server\\share\\") == L"");
+  assert(ExtractFileName(L"\\\\server\\share\\file") == L"file");
+  assert(ExtractFileName(L"\\\\server\\share\\path\\file") == L"file");
+  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share") == L"");
+  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\") == L"");
+  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
+  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
+
+  assert(IsRootPath(L"C:"));
+  assert(IsRootPath(L"C:\\"));
+  assert(IsRootPath(L"\\"));
+  assert(!IsRootPath(L"C:\\path"));
+
+  assert(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
+  assert(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
+  assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
+  assert(PathStartsWith(L"\\", L""));
+  assert(!PathStartsWith(L"C:\\path\\file", L""));
+)

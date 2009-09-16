@@ -169,3 +169,16 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
 #endif // __cplusplus
+
+#ifdef _DEBUG
+#define SELF_TEST(code) \
+namespace { \
+  struct SelfTest { \
+    SelfTest() { \
+      code; \
+    } \
+  } _SelfTest; \
+}
+#else
+#define SELF_TEST(code)
+#endif
