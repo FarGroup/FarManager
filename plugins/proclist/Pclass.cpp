@@ -62,6 +62,8 @@ Plist::Plist()
     pPerfThread = 0;
     dwPluginThread = GetCurrentThreadId();
     SortMode = GetRegKey(0,_T("SortMode"), SM_UNSORTED); //SM_CUSTOM;
+    if(SortMode >= SM_PERSEC)
+       SortMode &= (SM_PERSEC-1); // €åâã­£!
     StartPanelMode = GetRegKey(0,_T("StartPanelMode"), 1)+'0';
 
     InitializePanelModes();
@@ -1731,8 +1733,10 @@ default:
             smode &= ~SM_PERSEC;
         }
         int i = smode - SM_PERFCOUNTER;
-        LONGLONG diff = bPerSec ? data2->qwResults[i] - data1->qwResults[i] :
-        data2->qwCounters[i] - data1->qwCounters[i];
+        //if((DWORD)i >= (DWORD)NCOUNTERS){
+        //  i=0; //????
+        //}
+        LONGLONG diff = bPerSec ? data2->qwResults[i] - data1->qwResults[i] : data2->qwCounters[i] - data1->qwCounters[i];
         return diff<0 ? -1 : diff==0 ? 0 : 1;
     }
     }
