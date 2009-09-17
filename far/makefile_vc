@@ -439,15 +439,15 @@ farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) farlang.templ.m4 > $@
 
-$(FARINCLUDE)\farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=colors.hpp headers.m4 > $@
 
-$(FARINCLUDE)\farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=keys.hpp headers.m4 > $@
 
-$(FARINCLUDE)\plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=plugin.hpp headers.m4 > $@
 
@@ -467,15 +467,15 @@ $(OUTDIR)\File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) File_id.diz.m4 > $@
 
-$(FARINCLUDE)\PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=PluginW.pas headers.m4 > $@
 
-$(FARINCLUDE)\FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
-$(FARINCLUDE)\FarKeysW.pas: FarKeysW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)/FarKeysW.pas: FarKeysW.pas farversion.m4 tools.m4 vbuild.m4
 	@echo generating $@
 	@$(M4) -DINPUT=FarKeysW.pas headers.m4 > $@
 

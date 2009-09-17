@@ -446,7 +446,7 @@ void VMenu::ShowMenu(int IsParent)
 		MaxLineWidth -= 2; // frame
 	MaxLineWidth -= 2; // check mark + left horz. scroll
 	if (!CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) && HasSubMenus)
-		MaxLineWidth -= 3; // sub menu arrow
+		MaxLineWidth -= 2; // sub menu arrow
 	if (MaxItemLength > MaxLineWidth)
 	{
 		HasRightScroll = true;
@@ -722,8 +722,8 @@ void VMenu::ShowMenu(int IsParent)
 						string strPadding;
 						strPadding.Format(L"%*c", PaddingSize, L' ');
 						strMenuLine.Append(strPadding);
+						strMenuLine.Append(L'\x25BA'); // sub menu arrow
 					}
-					strMenuLine.Append(L'\x25BA'); // sub menu arrow
 				}
 
 				// табуляции меняем только при показе!!!
@@ -753,6 +753,12 @@ void VMenu::ShowMenu(int IsParent)
 
 				// сделаем добавочку для NO_BOX
 				mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
+
+				if ( (Item[I]->Flags & MIF_SUBMENU) && strMItemPtrLen >= MaxLineWidth)
+				{
+					GotoXY(X1+2+MaxLineWidth+3,Y);
+					BoxText(L'\x25BA');
+				}
 
 				SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
