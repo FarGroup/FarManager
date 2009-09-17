@@ -713,19 +713,6 @@ void VMenu::ShowMenu(int IsParent)
 
 				strMenuLine.Append(strMItemPtr);
 
-				if (Item[I]->Flags & MIF_SUBMENU)
-				{
-					// append padding if needed
-					if (strMItemPtrLen < MaxLineWidth)
-					{
-						int PaddingSize = MaxLineWidth - strMItemPtrLen + (HasRightScroll ? 1 : 0) + 1;
-						string strPadding;
-						strPadding.Format(L"%*c", PaddingSize, L' ');
-						strMenuLine.Append(strPadding);
-						strMenuLine.Append(L'\x25BA'); // sub menu arrow
-					}
-				}
-
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
 				wchar_t *TmpStr = strMenuLine.GetBuffer();
@@ -754,17 +741,17 @@ void VMenu::ShowMenu(int IsParent)
 				// сделаем добавочку для NO_BOX
 				mprintf(L"%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),L"");
 
-				if ( (Item[I]->Flags & MIF_SUBMENU) && strMItemPtrLen >= MaxLineWidth)
+				if (Item[I]->Flags & MIF_SUBMENU)
 				{
-					GotoXY(X1+2+MaxLineWidth+3,Y);
-					BoxText(L'\x25BA');
+					GotoXY(X1+(BoxType!=NO_BOX?1:0)+2+MaxLineWidth+(HasRightScroll?1:0)+1,Y);
+					BoxText(L'\x25BA'); // sub menu arrow
 				}
 
 				SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
 				if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
 				{
-					GotoXY(X1+2,Y);
+					GotoXY(X1+(BoxType!=NO_BOX?1:0)+1,Y);
 					BoxText(L'\xab'); // '<<'
 				}
 
@@ -773,7 +760,7 @@ void VMenu::ShowMenu(int IsParent)
 					//if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
 					//	GotoXY(WhereX()-1,Y);
 					//else
-						GotoXY(X1+2+MaxLineWidth+1,Y);
+						GotoXY(X1+(BoxType!=NO_BOX?1:0)+2+MaxLineWidth,Y);
 					BoxText(L'\xbb');// '>>'
 				}
 			}
