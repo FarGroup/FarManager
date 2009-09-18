@@ -48,7 +48,7 @@ class PluginSynchro
 		PluginSynchro();
 		~PluginSynchro();
 		void Synchro(INT_PTR ModuleNumber,void* Param);
-		void Process();
+		bool Process(void);
 };
 
 extern PluginSynchro PluginSynchroManager;

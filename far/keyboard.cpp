@@ -896,7 +896,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
         return(KEY_IDLE);
       }
     }
-    PluginSynchroManager.Process();
+    if(PluginSynchroManager.Process())
+    {
+        memset(rec,0,sizeof(*rec));
+    	return KEY_NONE;
+    }
     LoopCount++;
   } // while (1)
 

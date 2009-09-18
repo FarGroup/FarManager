@@ -62,8 +62,9 @@ void PluginSynchro::Synchro(INT_PTR ModuleNumber,void* Param)
 	}
 }
 
-void PluginSynchro::Process()
+bool PluginSynchro::Process(void)
 {
+	bool res=false;
 	if(Mutex)
 	{
 		bool process=false; INT_PTR module=0; void* param=NULL;
@@ -82,7 +83,12 @@ void PluginSynchro::Process()
 		if(process)
 		{
 			Plugin* pPlugin=(Plugin*)module;
-			if(pPlugin) pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+			if(pPlugin)
+			{
+				pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
+				res=true;
+			}
 		}
 	}
+	return res;
 }
