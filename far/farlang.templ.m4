@@ -2446,6 +2446,31 @@ MCopyStream4
 "Az adatok egy része el fog veszni."
 "Nie wszystkie dane zostaną zachowane."
 
+MCopyDirectoryOrFile
+l:
+"Подразумевается имя папки или файла?"
+"Does it specify a folder name or file name?"
+upd:"Does it specify a folder name or file name?"
+upd:"Does it specify a folder name or file name?"
+upd:"Does it specify a folder name or file name?"
+upd:"Does it specify a folder name or file name?"
+
+MCopyDirectoryOrFileDirectory
+"Папка"
+"Folder"
+upd:"Folder"
+upd:"Folder"
+upd:"Folder"
+upd:"Folder"
+
+MCopyDirectoryOrFileFile
+"Файл"
+"File"
+upd:"File"
+upd:"File"
+upd:"File"
+upd:"File"
+
 MCopyFileExist
 l:
 "Файл уже существует"

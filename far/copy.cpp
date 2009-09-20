@@ -1777,6 +1777,21 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     {
       string strNewPath = Dest;
 
+			if(!IsSlash(strNewPath.At(strNewPath.GetLength()-1)) && 
+				SrcPanel->GetSelCount()>1 &&
+				apiGetFileAttributes(strNewPath)==INVALID_FILE_ATTRIBUTES)
+			{
+				switch(Message(FMSG_WARNING,3,MSG(MWarning),strNewPath,MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))
+				{
+				case 0:
+					AddEndSlash(strNewPath);
+					break;
+				case -2:
+				case -1:
+				case 2:
+					return COPY_CANCEL;
+				}
+			}
       size_t pos;
 			if(LastSlash(strNewPath,pos))
       {
