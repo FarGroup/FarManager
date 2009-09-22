@@ -604,6 +604,7 @@ static TToken getToken()
 							break;
 						}
 						case L'x':
+						{
 							if ( iswxdigit(ch = getChar()) )
 							{
 								wchar_t value=hex2ch(ch);
@@ -627,17 +628,19 @@ static TToken getToken()
 								__currTok = tEnd;
 							}
 							break;
+						}
 						default:
+						{
 							keyMacroParseError(err_Bad_Control_Char);
 							__currTok = tEnd;
 							break;
+						}
 					}
 				}
 				if(__currTok != tNo)
 					break;
-				wchar_t p[] = L" ";
-				*p = (wchar_t)ch;
-				currVar = currVar+TVar(p);
+
+				currVar.AppendStr((wchar_t)ch);
 			}
 
 			if(__currTok == tNo)

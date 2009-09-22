@@ -1184,7 +1184,7 @@ string __FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
   string Name;
-  if(KeyToText(Key,Name))
+  if( !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name) )
   {
     string tmp;
     InsertQuote(Name);

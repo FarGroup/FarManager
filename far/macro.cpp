@@ -758,6 +758,7 @@ bool KeyMacro::GetPlainText(string& strDest)
   {
     strDest=L"";
     strDest=(const wchar_t *)&MR->Buffer[Work.ExecLIBPos];
+    _SVS(SysLog(L"strDest='%s'",strDest.CPtr()));
     _SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
     Work.ExecLIBPos+=(LenTextBuf+sizeof(wchar_t))/sizeof(DWORD);
     _SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));

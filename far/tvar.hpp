@@ -103,6 +103,9 @@ class TVar
 		friend int operator>(const TVar&, const TVar&);
 		friend int operator>=(const TVar&, const TVar&);
 
+		TVar& AppendStr(wchar_t);
+		TVar& AppendStr(const TVar&);
+
 		TVarType type() { return vType; };
 
 		int isString()   const { return vType == vtString;  }
