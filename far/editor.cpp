@@ -3888,7 +3888,8 @@ BOOL Editor::Search(int Next)
       }
 
       int SearchLength=0;
-      if (CurPtr->Search(strSearchStr,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
+      string strReplaceStrCurrent(ReplaceMode?strReplaceStr:L"");
+      if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
       {
         if ( SelectFound )
         {
@@ -3951,7 +3952,7 @@ BOOL Editor::Search(int Next)
             Text(TmpStr);
             delete[] TmpStr;
 
-						string strQSearchStr=strLastSearchStr, strQReplaceStr=strLastReplaceStr;
+						string strQSearchStr(Str,SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
 
@@ -3978,16 +3979,16 @@ BOOL Editor::Search(int Next)
               If Replace string doesn't contain control symbols (tab and return),
               processed with fast method, otherwise use improved old one.
             */
-            if ( strReplaceStr.Contains(L'\t') || strReplaceStr.Contains(L'\r') )
+            if ( strReplaceStrCurrent.Contains(L'\t') || strReplaceStrCurrent.Contains(L'\r') )
             {
               int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
               Flags.Set(FEDITOR_OVERTYPE);
               CurLine->SetOvertypeMode(TRUE);
               //int CurPos=CurLine->GetCurPos();
               int I;
-              for (I=0; SearchLength!=0 && strReplaceStr[I]!=0;I++,SearchLength--)
+              for (I=0; SearchLength!=0 && strReplaceStrCurrent[I]!=0;I++,SearchLength--)
               {
-                int Ch=strReplaceStr[I];
+                int Ch=strReplaceStrCurrent[I];
                 if (Ch==KEY_TAB)
                 {
                   Flags.Clear(FEDITOR_OVERTYPE);
@@ -4015,9 +4016,9 @@ BOOL Editor::Search(int Next)
               {
                 Flags.Clear(FEDITOR_OVERTYPE);
                 CurLine->SetOvertypeMode(FALSE);
-                for (;strReplaceStr[I]!=0;I++)
+                for (;strReplaceStrCurrent[I]!=0;I++)
                 {
-                  int Ch=strReplaceStr[I];
+                  int Ch=strReplaceStrCurrent[I];
                   if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
                     ProcessKey(Ch);
                 }
@@ -4031,7 +4032,7 @@ BOOL Editor::Search(int Next)
               }
 
               int Cnt=0;
-              const wchar_t *Tmp=(const wchar_t*)strReplaceStr;
+              const wchar_t *Tmp=(const wchar_t*)strReplaceStrCurrent;
               while( (Tmp=wcschr(Tmp,L'\r')) != NULL )
               {
                 Cnt++;
@@ -4050,7 +4051,7 @@ BOOL Editor::Search(int Next)
               const wchar_t *Str,*Eol;
               int StrLen,NewStrLen;
               int SStrLen=SearchLength,
-                  RStrLen=(int)strReplaceStr.GetLength();
+                  RStrLen=(int)strReplaceStrCurrent.GetLength();
               CurLine->GetBinaryString(&Str,&Eol,StrLen);
               int EolLen=StrLength(Eol);
               NewStrLen=StrLen;
@@ -4060,7 +4061,7 @@ BOOL Editor::Search(int Next)
               wchar_t *NewStr=new wchar_t[NewStrLen+1];
               int CurPos=CurLine->GetCurPos();
               wmemcpy(NewStr,Str,CurPos);
-              wmemcpy(NewStr+CurPos,strReplaceStr,RStrLen);
+              wmemcpy(NewStr+CurPos,strReplaceStrCurrent,RStrLen);
               wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
               wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
               AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());

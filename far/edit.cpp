@@ -1985,7 +1985,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength)
+int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength)
 {
   *SearchLength = 0;
 
@@ -2019,6 +2019,7 @@ int Edit::Search(const string& Str,int Position,int Case,int WholeWords,int Reve
         {
           *SearchLength = m[0].end - m[0].start;
           CurPos = m[0].start;
+          ReplaceStr=ReplaceBrackets(Edit::Str,ReplaceStr,m,n);
           free(m);
           return TRUE;
         }

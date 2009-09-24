@@ -1229,3 +1229,39 @@ wchar_t GetDecimalSeparator()
 	return *Separator;
 }
 
+string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMatch* Match,int Count)
+{
+	string result;
+	size_t pos=0,length=ReplaceStr.GetLength();
+	while(pos<length)
+	{
+		bool common=true;
+		if(ReplaceStr[pos]=='$')
+		{
+			++pos;
+			if(pos>length) break;
+			wchar_t symbol=Upper(ReplaceStr[pos]);
+			int index=-1;
+			if(symbol>='0'&&symbol<='9')
+			{
+				index=symbol-'0';
+			}
+			else if(symbol>='A'&&symbol<='Z')
+			{
+				index=symbol-'A'+10;
+			}
+			if(index>=0&&index<Count)
+			{
+				string bracket(SearchStr.CPtr()+Match[index].start,Match[index].end-Match[index].start);
+				result+=bracket;
+				common=false;
+			}
+		}
+		if(common)
+		{
+			result+=ReplaceStr[pos];
+		}
+		++pos;
+	}
+	return result;
+}
