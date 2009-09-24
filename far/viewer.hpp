@@ -156,6 +156,7 @@ class Viewer:public ScreenObject
 
     bool m_bQuickView;
 
+	UINT DefCodePage;
   private:
     virtual void DisplayObject();
 
@@ -188,7 +189,7 @@ class Viewer:public ScreenObject
 	int GetStrBytesNum(const wchar_t *Str, int Length);
 
   public:
-    Viewer(bool bQuickView = false);
+    Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
     virtual ~Viewer();
 
 

@@ -66,7 +66,7 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
-                       const wchar_t *Title, int X1,int Y1,int X2,int Y2)
+                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,UINT aCodePage): View(false,aCodePage)
 {
   _OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;

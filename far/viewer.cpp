@@ -71,7 +71,7 @@ static int InitHex=FALSE,SearchHex=FALSE;
 
 static int ViewerID=0;
 
-Viewer::Viewer(bool bQuickView)
+Viewer::Viewer(bool bQuickView, UINT aCodePage)
 {
   _OT(SysLog(L"[%p] Viewer::Viewer()", this));
 
@@ -94,7 +94,7 @@ Viewer::Viewer(bool bQuickView)
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=GlobalSearchHex;
 
-	VM.CodePage=CP_AUTODETECT;
+	VM.CodePage=DefCodePage=aCodePage;
   // Вспомним тип врапа
   VM.Wrap=Opt.ViOpt.ViewerIsWrap;
   VM.WordWrap=Opt.ViOpt.ViewerWrap;
@@ -212,7 +212,8 @@ void Viewer::KeepInitParameters()
 
 int Viewer::OpenFile(const wchar_t *Name,int warning)
 {
-	VM.CodePage=CP_AUTODETECT;
+	VM.CodePage=DefCodePage;
+	DefCodePage=CP_AUTODETECT;
   FILE *NewViewFile=NULL;
   OpenFailed=false;
 

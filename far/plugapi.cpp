@@ -1832,7 +1832,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
   if (Flags & VF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2);
+    FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
     if(!Viewer)
       return FALSE;
     /* $ 14.06.2002 IS
@@ -1860,7 +1860,7 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileViewer Viewer (FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2);
+    FileViewer Viewer (FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2,CodePage);
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
     FrameManager->EnterModalEV();
@@ -1937,7 +1937,7 @@ int WINAPI FarEditor(
   if (Flags & EF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,CP_AUTODETECT,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
+    FileEditor *Editor=new FileEditor(FileName,CodePage,(CreateNew?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_ENABLEF6|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,
                                       DeleteOnClose,OpMode);
@@ -1975,7 +1975,7 @@ int WINAPI FarEditor(
   else
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor Editor(FileName,CP_AUTODETECT,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
+    FileEditor Editor(FileName,CodePage,(CreateNew?FFILEEDIT_CANNEWFILE:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0)|(Locked?FFILEEDIT_LOCKED:0),
                       StartLine,StartChar,Title,
                       X1,Y1,X2,Y2,
                       DeleteOnClose,OpMode);
