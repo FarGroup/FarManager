@@ -857,6 +857,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       if (Flags.Check(FFILEEDIT_ENABLEF6))
       {
         int FirstSave=1, NeedQuestion=1;
+        UINT cp=m_codepage;
         // проверка на "а может это говно удалили уже?"
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
@@ -895,7 +896,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             //объект будет в конце удалён в FrameManager
             new FileViewer(strFullFileName, GetCanLoseFocus(), FALSE, FALSE,
-                   FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
+                   FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp);
           }
           ShowTime(2);
         }

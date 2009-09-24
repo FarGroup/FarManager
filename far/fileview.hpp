@@ -62,7 +62,7 @@ class FileViewer:public Frame
   public:
     FileViewer(const wchar_t *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,const wchar_t *PluginData=NULL,
-               NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE);
+               NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE,UINT aCodePage=CP_AUTODETECT);
     FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                const wchar_t *Title,int X1,int Y1,int X2,int Y2,UINT aCodePage=CP_AUTODETECT);
     virtual ~FileViewer();

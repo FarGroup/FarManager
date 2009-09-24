@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
-                       NamesList *ViewNamesList,int ToSaveAs)
+                       NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage): View(false,aCodePage)
 {
   _OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
   FileViewer::DisableEdit=DisableEdit;
@@ -293,6 +293,7 @@ int FileViewer::ProcessKey(int Key)
     case KEY_F6:
       if (!DisableEdit)
       {
+        UINT cp=View.VM.CodePage;
         string strViewFileName;
 
         View.GetFileName(strViewFileName);
@@ -315,7 +316,7 @@ int FileViewer::ProcessKey(int Key)
            “ут кос€к, замеченный при чтении warnings - FilePos тер€ет информацию при преобразовании __int64 -> int
            Ќадо бы поправить FileEditor на этот счет.
         */
-        FileEditor *ShellEditor = new FileEditor (strViewFileName, CP_AUTODETECT,
+        FileEditor *ShellEditor = new FileEditor (strViewFileName, cp,
            (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0),-2, static_cast<int>(FilePos), NULL);
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохран€ем NamesList */
