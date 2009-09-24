@@ -184,10 +184,15 @@ static const int STACK_PAGE_SIZE=16;
 #define LOCALEDEF
 #endif
 
+#ifdef RE_FAR_MODE
+#include "plugin.hpp"
+typedef struct RegExpMatch SMatch,*PMatch;
+#else
 //! Structure that contain single bracket info
 typedef struct tag_Match{
   int start,end;
 }SMatch,*PMatch;
+#endif
 
 //! Add named brackets and named backrefs
 #ifdef NAMEDBRACKETS

@@ -1,3 +1,31 @@
+zg 24.09.2009 19:03:28 +0200 - build 1135
+
+1. RegExp API
+
+   RegExpControl(HANDLE hHandle, int Command, LONG_PTR Param)
+
+   Command:
+
+   RECTL_CREATE           - hHandle - 0.
+                            Param - HANDLE*, в который запишется HANDLE регэкспа.
+                            При неудаче вернёт FALSE и Param=INVALID_HANDLE_VALUE.
+   RECTL_FREE             - hHandle - HANDLE, который вернул RECTL_CREATE.
+   RECTL_COMPILE          - hHandle - HANDLE, который вернул RECTL_CREATE.
+                            Param - указатель на строку с регулярным выражением.
+   RECTL_OPTIMIZE         - hHandle - HANDLE, который вернул RECTL_CREATE.
+   RECTL_MATCHEX          - hHandle - HANDLE, который вернул RECTL_CREATE.
+                            Param - указатель на RegExpSearch.
+                            RegExpSearch:
+                            Text - строка.
+                            Position - позиция в строке.
+                            Length - длина строки.
+                            Match - скобки.
+                            Count - количество скобок.
+                            Reserved - обязательно должен быть нулём.
+   RECTL_SEARCHEX         - hHandle - HANDLE, который вернул RECTL_CREATE.
+                            Param - указатель на RegExpSearch.
+   RECTL_BRACKETSCOUNT    - hHandle - HANDLE, который вернул RECTL_CREATE.
+
 svs 22.09.2009 21:07:01 +0300 - build 1134
 
 1. Macro: по мотивам Mantis#1064

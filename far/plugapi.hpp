@@ -127,3 +127,5 @@ LONG_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, LONG_PTR Param
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
 
 int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2);
+
+int WINAPI farRegExpControl(HANDLE hHandle, int Command, LONG_PTR Param);

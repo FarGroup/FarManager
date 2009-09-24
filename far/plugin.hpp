@@ -1624,6 +1624,12 @@ typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
   LONG_PTR Param2
 );
 
+typedef int (WINAPI *FARAPIREGEXPCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  LONG_PTR Param
+);
+
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1817,6 +1823,7 @@ struct PluginStartupInfo
   FARAPIVIEWERCONTROL    ViewerControl;
   FARAPIPLUGINSCONTROL   PluginsControl;
   FARAPIFILEFILTERCONTROL FileFilterControl;
+  FARAPIREGEXPCONTROL    RegExpControl;
 };
 
 
@@ -1963,7 +1970,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
   OPEN_DIALOG       = 8,
-  OPEN_ANALYSE      = 9, 
+  OPEN_ANALYSE      = 9,
   OPEN_FROMMACRO    = 0x10000,
 };
 
@@ -2009,6 +2016,31 @@ enum FAR_FILE_FILTER_TYPE
   FFT_FINDFILE,
   FFT_COPY,
   FFT_SELECT,
+};
+
+enum FAR_REGEXP_CONTROL_COMMANDS {
+  RECTL_CREATE=0,
+  RECTL_FREE,
+  RECTL_COMPILE,
+  RECTL_OPTIMIZE,
+  RECTL_MATCHEX,
+  RECTL_SEARCHEX,
+  RECTL_BRACKETSCOUNT
+};
+
+struct RegExpMatch
+{
+  int start,end;
+};
+
+struct RegExpSearch
+{
+  const wchar_t* Text;
+  int Position;
+  int Length;
+  struct RegExpMatch* Match;
+  int Count;
+  void* Reserved;
 };
 
 

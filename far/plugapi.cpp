@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "processname.hpp"
 #include "synchro.hpp"
+#include "RegExp.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -2267,5 +2268,63 @@ int WINAPI farFileFilterControl(HANDLE hHandle, int Command, int Param1, LONG_PT
 		}
 	}
 
+	return FALSE;
+}
+
+int WINAPI farRegExpControl(HANDLE hHandle, int Command, LONG_PTR Param)
+{
+	RegExp* re=NULL;
+	if (Command != RECTL_CREATE)
+	{
+		if (hHandle == INVALID_HANDLE_VALUE)
+			return FALSE;
+
+		re = (RegExp*)hHandle;
+	}
+	switch (Command)
+	{
+		case RECTL_CREATE:
+			if (Param == 0)
+				break;
+
+			*((HANDLE*)Param) = INVALID_HANDLE_VALUE;
+
+			re = new RegExp;
+
+			if (re)
+			{
+				*((HANDLE*)Param) = (HANDLE)re;
+				return TRUE;
+			}
+
+			break;
+		case RECTL_FREE:
+			delete re;
+			return TRUE;
+		case RECTL_COMPILE:
+			return re->Compile((const wchar_t*)Param,OP_PERLSTYLE);
+		case RECTL_OPTIMIZE:
+			return re->Optimize();
+		case RECTL_MATCHEX:
+		{
+			RegExpSearch* data=(RegExpSearch*)Param;
+			return re->MatchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
+#ifdef NAMEDBRACKETS
+			,data->Reserved
+#endif
+			);
+		}
+		case RECTL_SEARCHEX:
+		{
+			RegExpSearch* data=(RegExpSearch*)Param;
+			return re->SearchEx(data->Text,data->Text+data->Position,data->Text+data->Length,data->Match,data->Count
+#ifdef NAMEDBRACKETS
+			,data->Reserved
+#endif
+			);
+		}
+		case RECTL_BRACKETSCOUNT:
+			return re->GetBracketsCount();
+	}
 	return FALSE;
 }

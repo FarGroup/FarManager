@@ -538,6 +538,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StartupInfo.InputBox=FarInputBox;
     StartupInfo.PluginsControl=farPluginsControl;
     StartupInfo.FileFilterControl=farFileFilterControl;
+    StartupInfo.RegExpControl=farRegExpControl;
   }
 
   memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
