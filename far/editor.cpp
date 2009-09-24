@@ -5946,14 +5946,23 @@ int Editor::EditorControl(int Command,void *Param)
             _ECTLLOG(SysLog(L"  iParam      =%s",(espar->Param.iParam==0?L"0 (Oct)":(espar->Param.iParam==1?L"1 (Dec)":(espar->Param.iParam==2?L"2 (Hex)":L"?????")))));
             SetCharCodeBase(espar->Param.iParam);
             break;
-          /* $ 07.08.2001 IS сменить кодировку из плагина */
+					/* $ 07.08.2001 IS сменить кодировку из плагина */
 					case ESPT_CODEPAGE:
-          {
-            //BUGBUG
+					{
+						//BUGBUG
 
-            if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
-            Show();
-          }
+						if (HostFileEditor)
+						{
+							HostFileEditor->SetCodePage(espar->Param.iParam);
+							HostFileEditor->CodepageChangedByUser();
+						}
+						else
+						{
+							SetCodePage(espar->Param.iParam);
+						}
+						Show();
+					}
+					break;
           /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
           case ESPT_SAVEFILEPOSITION:
             _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));

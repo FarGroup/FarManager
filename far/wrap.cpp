@@ -3140,6 +3140,41 @@ void MultiByteRecode (UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 	}
 };
 
+UINT ConvertCharTableToCodePage(int Command)
+{
+	string sTableName;
+	UINT nCP = 0;
+	if(Command<0)
+	{
+		nCP=-(Command+2);
+	}
+	else
+	{
+		switch (Command)
+		{
+		case 0 /* OEM */: 	nCP = GetOEMCP();	break;
+		case 1 /* ANSI */:	nCP = GetACP(); 	break;
+		default:
+			{
+				DWORD selectType,Index=0;
+				int FavIndex=2;
+				while(true)
+				{
+					if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return -1;
+					if(!(selectType&CPST_FAVORITE)) continue;
+					if(FavIndex==Command)
+					{
+						nCP=_wtoi(sTableName);
+					    break;
+					}
+					FavIndex++;
+				}
+			}
+		}
+	}
+	return nCP;
+}
+
 int WINAPI FarEditorControlA(int Command,void* Param)
 {
 	static char *gt=NULL;
@@ -3377,6 +3412,7 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
 						newsp.Type = ESPT_CODEPAGE;
+						newsp.Param.iParam=ConvertCharTableToCodePage(oldsp->Param.iParam);
 						break;
 					}
 
@@ -3608,35 +3644,7 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		}
 
 		string sTableName;
-		UINT nCP = 0;
-		if(Command<0)
-		{
-			nCP=-(Command+2);
-		}
-		else
-		{
-			switch (Command)
-			{
-			case 0 /* OEM */: 	nCP = GetOEMCP();	break;
-			case 1 /* ANSI */:	nCP = GetACP(); 	break;
-			default:
-				{
-					DWORD selectType,Index=0;
-					int FavIndex=2;
-					while(true)
-					{
-						if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return -1;
-						if(!(selectType&CPST_FAVORITE)) continue;
-						if(FavIndex==Command)
-						{
-							nCP=_wtoi(sTableName);
-						    break;
-						}
-						FavIndex++;
-					}
-				}
-			}
-		}
+		UINT nCP = ConvertCharTableToCodePage(Command);
 
 		CPINFOEX cpiex;
 		if (!GetCPInfoEx(nCP, 0, &cpiex))

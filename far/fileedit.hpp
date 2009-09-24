@@ -206,6 +206,7 @@ public:
 
     void SetCodePage (UINT codepage); //BUGBUG
     bool UnicodeLostAgreeMsg();
+    void CodepageChangedByUser(void) {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
 };
 
 bool dlgOpenEditor (string &strFileName, UINT &codepage);
