@@ -93,6 +93,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed)
   LastSearchSelFound=Opt.EdOpt.SearchSelFound;
   LastSearchRegexp=Opt.EdOpt.SearchRegexp;
 
+
   Pasting=0;
   NumLine=0;
   NumLastLine=0;
@@ -3799,11 +3800,24 @@ BOOL Editor::Search(int Next)
   Regexp=LastSearchRegexp;
 
   if (!Next)
+  {
+    if( EdOpt.SearchPickUpWord )
+    {
+       int StartPickPos=-1,EndPickPos=-1;
+       const wchar_t *Ptr=CalcWordFromString(CurLine->GetStringAddr(),CurLine->GetCurPos(),&StartPickPos,&EndPickPos, GetWordDiv());
+       if(Ptr)
+       {
+          string strWord(Ptr,(size_t)EndPickPos-StartPickPos+1);
+          strSearchStr=strWord;
+       }
+    }
+
     if(!GetSearchReplaceString(ReplaceMode,&strSearchStr,
                    &strReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
                    &Case,&WholeWords,&ReverseSearch,&SelectFound,&Regexp,L"EditorSearch"))
       return FALSE;
+  }
 
   strLastSearchStr = strSearchStr;
   strLastReplaceStr = strReplaceStr;

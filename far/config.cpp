@@ -791,6 +791,7 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
     ID_EC_TABSIZE,
     ID_EC_TABSIZEEDIT,
     ID_EC_SHOWSCROLLBAR,
+    ID_EC_PICKUPWORD,
 		ID_EC_SHARINGWRITE,
 		ID_EC_LOCKREADONLY,
 		ID_EC_READONLYWARNING,
@@ -803,7 +804,7 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
   };
 
 	static DialogDataEx CfgDlgData[]={
-	/*  0 */  DI_DOUBLEBOX, 3, 1,70,21,0,0,0,0,(const wchar_t *)MEditConfigTitle,
+	/*  0 */  DI_DOUBLEBOX, 3, 1,70,22,0,0,0,0,(const wchar_t *)MEditConfigTitle,
 	/*  1 */  DI_CHECKBOX,  5, 2, 0, 2,0,0,0,0,(const wchar_t *)MEditConfigEditorF4,
 	/*  2 */  DI_TEXT,      5, 3, 0, 3,0,0,0,0,(const wchar_t *)MEditConfigEditorCommand,
 	/*  3 */  DI_EDIT,      5, 4,68, 4,0,(DWORD_PTR)L"ExternalEditor",DIF_HISTORY,0,L"",
@@ -819,15 +820,16 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 	/* 14 */  DI_TEXT,     10,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigTabSize,
 	/* 15 */  DI_FIXEDIT,   5,11, 8,11,0,0,0,0,L"",
 	/* 16 */  DI_CHECKBOX, 38,11, 0,11,0,0,0,0,(const wchar_t *)MEditConfigScrollbar,
-	/* 17 */  DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MEditShareWrite,
-	/* 18 */  DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
-	/* 19 */  DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
-	/* 20 */  DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
-	/* 21 */  DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
-	/* 22 */  DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
-	/* 23 */  DI_TEXT,      0,19, 0,19,0,0, DIF_SEPARATOR, 0, L"",
-	/* 24 */  DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-	/* 25 */  DI_BUTTON,    0,20, 0,20,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
+	/* 17 */  DI_CHECKBOX, 38,12, 0,12,0,0,0,0,(const wchar_t *)MEditConfigPickUpWord,
+	/* 18 */  DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MEditShareWrite,
+	/* 19 */  DI_CHECKBOX,  5,15, 0,15,0,0,0,0,(const wchar_t *)MEditLockROFileModification,
+	/* 20 */  DI_CHECKBOX,  5,16, 0,16,0,0,0,0,(const wchar_t *)MEditWarningBeforeOpenROFile,
+	/* 21 */  DI_CHECKBOX,  5,17, 0,17,0,0,0,0,(const wchar_t *)MEditAutoDetectCodePage,
+	/* 22 */  DI_CHECKBOX,  5,18, 0,18,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageAsDefault,
+	/* 23 */  DI_CHECKBOX,  5,19, 0,19,0,0,0,0,(const wchar_t *)MEditConfigAnsiCodePageForNewFile,
+	/* 24 */  DI_TEXT,      0,20, 0,20,0,0, DIF_SEPARATOR, 0, L"",
+	/* 25 */  DI_BUTTON,    0,21, 0,21,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+	/* 26 */  DI_BUTTON,    0,21, 0,21,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel,
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -870,8 +872,9 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 
   CfgDlg[ID_EC_TABSIZEEDIT].strData.Format (L"%d",EdOpt.TabSize);
   CfgDlg[ID_EC_SHOWSCROLLBAR].Selected = EdOpt.ShowScrollBar;
+  CfgDlg[ID_EC_PICKUPWORD].Selected = EdOpt.SearchPickUpWord;
 
-	int DialogHeight=23;
+	int DialogHeight=24;
 
   if (Local)
   {
@@ -939,6 +942,7 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
   if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
     EdOpt.TabSize=8;
 
+  EdOpt.SearchPickUpWord=CfgDlg[ID_EC_PICKUPWORD].Selected;
   EdOpt.ShowScrollBar=CfgDlg[ID_EC_SHOWSCROLLBAR].Selected;
 
   EdOpt.CursorBeyondEOL=CfgDlg[ID_EC_CURSORBEYONDEOL].Selected;
@@ -1059,6 +1063,7 @@ static struct FARConfig{
 	{1, REG_DWORD,  NKeyEditor,L"EditOpenedForWrite",&Opt.EdOpt.EditOpenedForWrite,1, 0},
 	{1, REG_DWORD,  NKeyEditor,L"SearchSelFound",&Opt.EdOpt.SearchSelFound,0, 0},
 	{1, REG_DWORD,  NKeyEditor,L"SearchRegexp",&Opt.EdOpt.SearchRegexp,0, 0},
+	{1, REG_DWORD,  NKeyEditor,L"SearchPickUpWord",&Opt.EdOpt.SearchPickUpWord,0, 0},
 
   {0, REG_DWORD,  NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
 	{0, REG_SZ,     NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},

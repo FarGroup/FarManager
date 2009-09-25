@@ -1817,6 +1817,14 @@ MEditConfigScrollbar
 "&Gördítősáv mutatva"
 "Pokaż %pasek przewijania"
 
+MEditConfigPickUpWord
+"Cлово под к&урсором"
+"Pick &up the word"
+upd:"Pick &up the word"
+upd:"Pick &up the word"
+upd:"Pick &up the word"
+upd:"Pick &up the word"
+
 MEditConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
 "Use ANS&I code page by default"
@@ -3422,11 +3430,11 @@ MEditSearchSelFound
 
 MEditSearchRegexp
 "&Регулярные выражения"
-"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
+"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
 
 MEditSearchSearch
 "Искать"

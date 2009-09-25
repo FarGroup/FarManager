@@ -341,6 +341,8 @@ class Editor:public ScreenObject
 
     void SetShowScrollBar(int NewMode){EdOpt.ShowScrollBar=NewMode;}
 
+    void SetSearchPickUpWord(int NewMode){EdOpt.SearchPickUpWord=NewMode;}
+
     void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
     const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
 
