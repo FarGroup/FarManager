@@ -1250,10 +1250,13 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMa
 			{
 				index=symbol-'A'+10;
 			}
-			if(index>=0&&index<Count)
+			if(index>=0)
 			{
-				string bracket(SearchStr.CPtr()+Match[index].start,Match[index].end-Match[index].start);
-				result+=bracket;
+				if(index<Count)
+				{
+					string bracket(SearchStr.CPtr()+Match[index].start,Match[index].end-Match[index].start);
+					result+=bracket;
+				}
 				common=false;
 			}
 		}
