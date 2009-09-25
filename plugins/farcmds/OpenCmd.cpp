@@ -717,7 +717,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 #if 0
                 lstrcat(lstrcpy(cmd,_T("%COMSPEC% /c ")), temp);
                 #else
+#ifdef UNICODE
+                lstrcpy(cmd,_T("%COMSPEC% /U /c "));
+#else
                 lstrcpy(cmd,_T("%COMSPEC% /c "));
+#endif
                 if(*temp == _T('"'))
                   lstrcat(cmd, _T("\""));
                 lstrcat(cmd, temp);
