@@ -2468,36 +2468,37 @@ int FileEditor::EditorControl(int Command, void *Param)
 			return TRUE;
 		}
 
-    case ECTL_SAVEFILE:
-    {
-      string strName = strFullFileName;
-      int EOL=0;
+		case ECTL_SAVEFILE:
+		{
+			string strName = strFullFileName;
+			int EOL=0;
+			UINT codepage=m_codepage;
 			if(Param)
-      {
+			{
 				EditorSaveFile *esf=(EditorSaveFile *)Param;
-        if (*esf->FileName)
-          strName=esf->FileName;
-        if (esf->FileEOL!=NULL)
-        {
-          if (StrCmp(esf->FileEOL,DOS_EOL_fmt)==0)
-            EOL=1;
-          else if (StrCmp(esf->FileEOL,UNIX_EOL_fmt)==0)
-            EOL=2;
-          else if (StrCmp(esf->FileEOL,MAC_EOL_fmt)==0)
-            EOL=3;
-          else if (StrCmp(esf->FileEOL,WIN_EOL_fmt)==0)
-            EOL=4;
-        }
-      }
+				if (*esf->FileName) strName=esf->FileName;
+				if (esf->FileEOL!=NULL)
+				{
+					if (StrCmp(esf->FileEOL,DOS_EOL_fmt)==0)
+						EOL=1;
+					else if (StrCmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+						EOL=2;
+					else if (StrCmp(esf->FileEOL,MAC_EOL_fmt)==0)
+						EOL=3;
+					else if (StrCmp(esf->FileEOL,WIN_EOL_fmt)==0)
+						EOL=4;
+				}
+				codepage=esf->CodePage;
+			}
 
-      {
-        string strOldFullFileName = strFullFileName;
+			{
+				string strOldFullFileName = strFullFileName;
 
-        if(SetFileName(strName))
-          return SaveFile(strName,FALSE,!StrCmpI(strName, strOldFullFileName),EOL);
-      }
-      return FALSE;
-    }
+				if(SetFileName(strName))
+					return SaveFile(strName,FALSE,StrCmpI(strFullFileName,strOldFullFileName),EOL,codepage);
+			}
+			return FALSE;
+		}
 
     case ECTL_QUIT:
     {

@@ -180,7 +180,7 @@ public:
     int LoadFile(const wchar_t *Name, int &UserBreak);
 
     //TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-    int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = 0, bool AddSignature=false);
+    int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = CP_UNICODE, bool AddSignature=false);
 
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const wchar_t *PluginTitle);
