@@ -625,6 +625,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\swab.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vc_lldiv.asm"
 				>
 				<FileConfiguration

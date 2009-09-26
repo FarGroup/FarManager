@@ -31,7 +31,8 @@ malloc.cpp \
 calloc.cpp \
 new.cpp \
 new_array.cpp \
-realloc.cpp
+realloc.cpp \
+swab.cpp
 
 SRCSW = i64toa.cpp \
 memset.cpp \

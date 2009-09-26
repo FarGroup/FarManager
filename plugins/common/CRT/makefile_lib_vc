@@ -95,7 +95,8 @@ $(OBJDIRW)\strstr.obj \
 $(OBJDIR)\strtok.obj \
 $(OBJDIRW)\strtok.obj \
 $(OBJDIR)\strtol.obj \
-$(OBJDIRW)\strtol.obj
+$(OBJDIRW)\strtol.obj \
+$(OBJDIR)\swab.obj
 
 CPP_BASE=$(MP) /nologo /c /Gy /J /Gr /GR- /GS- /D_CRT_SECURE_NO_DEPRECATE /EHs-c- /LD /Oi /O2 /W3 $(ENV_INC_OPT)
 !ifdef AMD64

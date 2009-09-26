@@ -111,7 +111,7 @@ extern "C"
   void * __cdecl memmove(void *dst, const void *src, size_t count);
 #ifdef __BORLANDC__
 #undef wmemmove
-#define wmemmove _wmemmove 
+#define wmemmove _wmemmove
 #endif
   WMEM * __cdecl wmemmove(WMEM *dst, const WMEM *src, size_t count);
 
@@ -157,6 +157,7 @@ extern "C"
   int __cdecl _wcsicmp(const wchar_t *first, const wchar_t *last);
   int __cdecl _strnicmp(const char *first, const char *last, size_t count);
   int __cdecl _wcsnicmp(const wchar_t *first, const wchar_t *last, size_t count);
+  void __cdecl swab(const char* b1,char* b2,size_t length);
 #ifdef __cplusplus
 };
 #endif
