@@ -5965,17 +5965,23 @@ int Editor::EditorControl(int Command,void *Param)
 					case ESPT_CODEPAGE:
 					{
 						//BUGBUG
-
-						if (HostFileEditor)
+						if((UINT)espar->Param.iParam==CP_AUTODETECT)
 						{
-							HostFileEditor->SetCodePage(espar->Param.iParam);
-							HostFileEditor->CodepageChangedByUser();
+							rc=FALSE;
 						}
 						else
 						{
-							SetCodePage(espar->Param.iParam);
+							if (HostFileEditor)
+							{
+								HostFileEditor->SetCodePage(espar->Param.iParam);
+								HostFileEditor->CodepageChangedByUser();
+							}
+							else
+							{
+								SetCodePage(espar->Param.iParam);
+							}
+							Show();
 						}
-						Show();
 					}
 					break;
           /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */

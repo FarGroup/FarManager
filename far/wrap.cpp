@@ -3160,7 +3160,7 @@ UINT ConvertCharTableToCodePage(int Command)
 				int FavIndex=2;
 				while(true)
 				{
-					if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return -1;
+					if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return CP_AUTODETECT;
 					if(!(selectType&CPST_FAVORITE)) continue;
 					if(FavIndex==Command)
 					{
@@ -3411,8 +3411,24 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
+						if(oldsp->Param.iParam==0) return FALSE;
 						newsp.Type = ESPT_CODEPAGE;
-						newsp.Param.iParam=ConvertCharTableToCodePage(oldsp->Param.iParam);
+						switch(oldsp->Param.iParam)
+						{
+							case 1:
+							    newsp.Param.iParam=GetOEMCP();
+								break;
+							case 2:
+								newsp.Param.iParam=GetACP();
+								break;
+							default:
+								newsp.Param.iParam=oldsp->Param.iParam;
+								if(newsp.Param.iParam>0) newsp.Param.iParam-=3;
+								newsp.Param.iParam=ConvertCharTableToCodePage(newsp.Param.iParam);
+								if((UINT)newsp.Param.iParam==CP_AUTODETECT) return FALSE;
+								break;
+
+						}
 						break;
 					}
 
@@ -3645,6 +3661,7 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 
 		string sTableName;
 		UINT nCP = ConvertCharTableToCodePage(Command);
+		if(nCP==CP_AUTODETECT) return -1;
 
 		CPINFOEX cpiex;
 		if (!GetCPInfoEx(nCP, 0, &cpiex))
