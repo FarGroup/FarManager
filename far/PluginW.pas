@@ -52,7 +52,7 @@ uses Windows;
 const
   FARMANAGERVERSION_MAJOR = 2;
   FARMANAGERVERSION_MINOR = 0;
-  FARMANAGERVERSION_BUILD = 1050;
+  FARMANAGERVERSION_BUILD = 1135;
 
 type
 //TFarChar = AnsiChar;
@@ -65,10 +65,12 @@ type
   INT_PTR = PtrInt;
   LONG_PTR = PtrInt;
   DWORD_PTR = PtrUInt;
+  SIZE_T = PtrUInt;
  {$else}
   INT_PTR = Integer;
   LONG_PTR = Integer;
   DWORD_PTR = Cardinal;
+  SIZE_T = Cardinal;
  {$endif CPUX86_64}
 
   PPCharArray = ^TPCharArray;
@@ -2231,6 +2233,20 @@ type
 
 
 (*
+typedef int (WINAPI *FARAPIREGEXPCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  LONG_PTR Param
+);
+*)
+type
+  TFarApiRegexpControl = function(
+    hHandle :THandle;
+    Command :Integer;
+    Param :Pointer  //LONG_PTR
+  ) :Integer; stdcall;
+
+(*
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -2557,6 +2573,7 @@ struct PluginStartupInfo
   FARAPIVIEWERCONTROL    ViewerControl;
   FARAPIPLUGINSCONTROL   PluginsControl;
   FARAPIFILEFILTERCONTROL FileFilterControl;
+  FARAPIREGEXPCONTROL    RegExpControl;
 };
 *)
 type
@@ -2598,6 +2615,8 @@ type
     ViewerControl       : TFarApiViewerControl;
     PluginsControl      : TFarApiPluginsControl;
     FileFilterControl   : TFarApiFilterControl;
+
+    RegExpControl       : TFarApiRegexpControl;
   end;
 
 
@@ -2886,6 +2905,53 @@ const
   FFT_COPY      = 2;
   FFT_SELECT    = 3;
 
+
+{FAR_REGEXP_CONTROL_COMMANDS}
+
+const
+  RECTL_CREATE        = 0;
+  RECTL_FREE          = 1;
+  RECTL_COMPILE       = 2;
+  RECTL_OPTIMIZE      = 3;
+  RECTL_MATCHEX       = 4;
+  RECTL_SEARCHEX      = 5;
+  RECTL_BRACKETSCOUNT = 6;
+
+
+(*
+struct RegExpMatch
+{
+  int start,end;
+};
+*)
+type
+  PRegExpMatch = ^TRegExpMatch;
+  TRegExpMatch = record
+    Start :Integer;
+    EndPos :Integer;
+  end;
+
+(*
+struct RegExpSearch
+{
+  const wchar_t* Text;
+  int Position;
+  int Length;
+  struct RegExpMatch* Match;
+  int Count;
+  void* Reserved;
+};
+*)
+type
+  PRegExpSearch = ^TRegExpSearch;
+  TRegExpSearch = record
+    Text :PFarChar;
+    Position :Integer;
+    Length :Integer;
+    Match :PRegExpMatch;
+    Count :Integer;
+    Reserved :Pointer;
+  end;
 
 (*
 // Exported Functions
