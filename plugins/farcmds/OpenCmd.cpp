@@ -215,7 +215,7 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
   HANDLE Handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
   if ( vh(Handle) )
   {
-    DWORD size = GetFileSize(Handle, NULL) / sizeof(TCHAR);
+    DWORD size = (GetFileSize(Handle, NULL)+(sizeof(TCHAR)/2)) / sizeof(TCHAR);
     if ( size >= maxSize )
       size = maxSize-1;
     size *= sizeof(TCHAR);
@@ -232,6 +232,13 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
       {
         if ( ReadFile(Handle, buff, size, &read, NULL) && read >= sizeof(TCHAR) )
         {
+#ifdef UNICODE
+          if(read&1)
+          {
+          	buff[read/sizeof(TCHAR)]=buff[read/sizeof(TCHAR)]&0xff;
+          	read++;
+          }
+#endif
           buff[read/sizeof(TCHAR)] = 0;
           p = buff;
         }
@@ -1041,7 +1048,50 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 TCHAR *Ptr = loadFile(TempFileNameOut, NULL, 1048576/sizeof(TCHAR));
                 if ( Ptr )
                 {
-                  CopyToClipboard(Ptr);
+                  size_t shift=0;
+#ifdef UNICODE
+#define SIGN_UNICODE    0xFEFF
+#define SIGN_REVERSEBOM 0xFFFE
+#define SIGN_UTF8_LO    0xBBEF
+#define SIGN_UTF8_HI    0xBF
+                  if(Ptr[0]==SIGN_UNICODE||outputtofile)
+                  {
+                    shift=1;
+                  }
+                  else if(Ptr[0]==SIGN_REVERSEBOM)
+                  {
+                    shift=1;
+                  	size_t PtrLength=lstrlen(Ptr);
+                    swab((char*)Ptr,(char*)Ptr,PtrLength*sizeof(TCHAR));
+                  }
+                  else
+                  {
+                    UINT cp=GetACP();
+                    if(Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+                    {
+                      shift=1;
+                      cp=CP_UTF8;
+                    }
+                    size_t PtrLength=MultiByteToWideChar(cp,0,(char*)Ptr,-1,NULL,0);
+                    if(PtrLength)
+                    {
+                      TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
+                      if(NewPtr)
+                      {
+                        if(MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,PtrLength))
+                        {
+                          free(Ptr);
+                          Ptr=NewPtr;
+                        }
+                        else
+                        {
+                          free(NewPtr);
+                        }
+                      }
+                    }
+                  }
+#endif
+                  CopyToClipboard(Ptr+shift);
                   free(Ptr);
                 }
               }
