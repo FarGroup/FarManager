@@ -1,8 +1,18 @@
 #include "crt.hpp"
 
-void __cdecl swab(const char* b1,char* b2,size_t length)
+void __cdecl swab
+#ifdef __GNUC__
+                 (const char* b1,char* b2,size_t length)
+#else
+                 (char* b1,char* b2,int length)
+#endif
 {
-  size_t ptr;
+#ifdef __GNUC__
+  size_t
+#else
+  int
+#endif
+         ptr;
   for(ptr=1;ptr<length;ptr+=2)
   {
   	char p=b1[ptr];

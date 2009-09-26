@@ -157,7 +157,12 @@ extern "C"
   int __cdecl _wcsicmp(const wchar_t *first, const wchar_t *last);
   int __cdecl _strnicmp(const char *first, const char *last, size_t count);
   int __cdecl _wcsnicmp(const wchar_t *first, const wchar_t *last, size_t count);
-  void __cdecl swab(const char* b1,char* b2,size_t length);
+  void __cdecl swab
+#ifdef __GNUC__
+                   (const char* b1,char* b2,size_t length);
+#else
+                   (char* b1,char* b2,int length);
+#endif
 #ifdef __cplusplus
 };
 #endif
