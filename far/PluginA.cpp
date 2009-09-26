@@ -550,9 +550,29 @@ struct ExecuteStruct {
 	bool bUnloaded;
 };
 
+class CurrentDirectoryGuard
+{
+	string strSaveDir;
+public:
+	CurrentDirectoryGuard()
+	{
+		DWORD dwSize = GetCurrentDirectory(0,NULL);
+		wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
+		GetCurrentDirectory(dwSize,CurrentDirectory);
+		strSaveDir.ReleaseBuffer();
+		string strNewDir;
+		apiGetCurrentDirectory(strNewDir);
+		SetCurrentDirectory(strNewDir);
+	}
+	~CurrentDirectoryGuard()
+	{
+		SetCurrentDirectory(strSaveDir);
+	}
+};
 
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
+		CurrentDirectoryGuard *cdg=new CurrentDirectoryGuard; \
 		SetFileApisToOEM(); \
 		es.nResult = 0; \
 		es.nDefaultResult = 0; \
@@ -571,12 +591,16 @@ struct ExecuteStruct {
 			} \
 		} \
 		else \
+		{ \
 			function; \
+		} \
+		delete cdg; \
 	}
 
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
+		CurrentDirectoryGuard *cdg=new CurrentDirectoryGuard; \
 		SetFileApisToOEM(); \
 		es.bUnloaded = false; \
 		es.nResult = 0; \
@@ -595,7 +619,10 @@ struct ExecuteStruct {
 			} \
 		} \
 		else \
+		{ \
 			es.nResult = (INT_PTR)function; \
+		} \
+		delete cdg; \
 	}
 
 

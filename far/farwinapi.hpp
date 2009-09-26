@@ -284,11 +284,6 @@ BOOL apiCreateHardLink(
 		LPSECURITY_ATTRIBUTES lpSecurityAttributes
 		);
 
-DWORD apiGetFullPathName(
-		LPCWSTR lpFileName,
-		string &strFullPathName
-		);
-
 BOOL apiSetFilePointerEx(
 		HANDLE hFile,
 		INT64 DistanceToMove,

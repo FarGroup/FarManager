@@ -163,23 +163,55 @@ DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
 	return nSize;
 }
 
+string& strCurrentDirectory()
+{
+	static string strCurrentDirectory;
+	return strCurrentDirectory;
+}
+
+//#define USE_SYSTEM_CURDIR
 DWORD apiGetCurrentDirectory (string &strCurDir)
 {
+#ifdef USE_SYSTEM_CURDIR
 	DWORD dwSize = GetCurrentDirectory(0, NULL);
-	wchar_t *lpwszCurDir = strCurDir.GetBuffer (dwSize);
-	GetCurrentDirectory(dwSize, lpwszCurDir);
+	wchar_t *CurrentDirectory = strCurrentDirectory().GetBuffer(dwSize);
+	GetCurrentDirectory(dwSize,CurrentDirectory);
 
-	if(IsLocalPath(lpwszCurDir))
-		lpwszCurDir[0]=Upper(lpwszCurDir[0]);
-	else if(IsLocalPrefixPath(lpwszCurDir))
-		lpwszCurDir[4]=Upper(lpwszCurDir[4]);
+	if(IsLocalPath(CurrentDirectory))
+		CurrentDirectory[0]=Upper(CurrentDirectory[0]);
+	else if(IsLocalPrefixPath(CurrentDirectory))
+		CurrentDirectory[4]=Upper(CurrentDirectory[4]);
 
-	strCurDir.ReleaseBuffer ();
+	strCurrentDirectory().ReleaseBuffer ();
 
-	if(IsLocalVolumeRootPath(strCurDir))
-		AddEndSlash(strCurDir);
+#endif
+	DeleteEndSlash(strCurrentDirectory());
+	LPCWSTR CD=strCurrentDirectory();
+	int Offset=PathPrefix(CD)?4:0;
+	if((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
+		AddEndSlash(strCurrentDirectory());
 
-	return (DWORD)strCurDir.GetLength();
+	strCurDir=strCurrentDirectory();
+	return static_cast<DWORD>(strCurDir.GetLength());
+}
+
+BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
+{
+	strCurrentDirectory()=lpPathName;
+#ifdef USE_SYSTEM_CURDIR
+	AddEndSlash(strCurrentDirectory());
+	BOOL Ret=SetCurrentDirectory(strCurrentDirectory());
+	if(!Ret)
+	{
+		strCurrentDirectory()=NTPath(lpPathName);
+		AddEndSlash(strCurrentDirectory());
+		Ret=SetCurrentDirectory(strCurrentDirectory());
+	}
+	return Ret;
+#else
+	return TRUE;
+#endif
+
 }
 
 DWORD apiGetTempPath (string &strBuffer)
@@ -613,20 +645,6 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 	return SetFileAttributes(NTPath(lpFileName),dwFileAttributes);
 }
 
-BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
-{
-	string strDir=lpPathName;
-	AddEndSlash(strDir);
-	BOOL Ret=SetCurrentDirectory(strDir);
-	if(!Ret)
-	{
-		strDir=NTPath(lpPathName);
-		AddEndSlash(strDir);
-		Ret=SetCurrentDirectory(strDir);
-	}
-	return Ret;
-}
-
 BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
 {
 	BOOL Result=FALSE;
@@ -660,30 +678,6 @@ BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_
 	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
 		//bug in win2k: \\?\ fails
 		CreateHardLink(lpFileName,lpExistingFileName,lpSecurityAttributes);
-}
-
-DWORD apiGetFullPathName(LPCWSTR lpFileName,string &strFullPathName)
-{
-	// для имён, оканчивающихся пробелами
-	LPCWSTR SrcPtr=PointToName(lpFileName);
-	int NameLength=0;
-	string strFileName=lpFileName;
-	if(!TestParentFolderName(SrcPtr) && !TestCurrentFolderName(SrcPtr))
-		NameLength=StrLength(SrcPtr);
-	else
-		AddEndSlash(strFileName);
-
-	//Mantis#459 - нужно +3 так как в Win2K SP4 есть глюк у GetFullPathNameW
-	int nLength = GetFullPathName(strFileName,0,NULL,NULL)+1+3;
-	wchar_t *Buffer=strFullPathName.GetBuffer(nLength+NameLength);
-	GetFullPathName(strFileName,nLength,Buffer,NULL);
-
-	// для имён, оканчивающихся пробелами
-	LPWSTR DstPtr=(LPWSTR)PointToName(Buffer);
-	wcsncpy(DstPtr,SrcPtr,NameLength);
-
-	strFullPathName.ReleaseBuffer();
-	return (DWORD)strFullPathName.GetLength();
 }
 
 BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)

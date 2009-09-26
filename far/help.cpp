@@ -2104,6 +2104,8 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 						ячдш мсфмн бохмдчкхрэ лемчус я бнглнфмнярэч бшанпю
 						рнцн хкх хмнцн юйрхбюрнпю - ху лнфер ашрэ меяйнкэйн!!!!!
 						*/
+						string strCurDir;
+						apiGetCurrentDirectory(strCurDir);
 						if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 						{
 #if 0
@@ -2111,11 +2113,12 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
               sei.lpFile=RemoveExternalSpaces(Buf);
               sei.nShow=SW_SHOWNORMAL;
+							seInfo.lpDirectory=strCurDir;
               if(ShellExecuteEx(&sei))
                 EditCode=1;
 #else
 							strAction=URLPath;
-							EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction), 0, 0, SW_SHOWNORMAL)?1:2;
+							EditCode=ShellExecute(0, 0, RemoveExternalSpaces(strAction), 0, strCurDir, SW_SHOWNORMAL)?1:2;
 #endif
 						}
 						else
@@ -2124,7 +2127,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 							PROCESS_INFORMATION pi={0};
 							si.cb=sizeof(si);
 							strAction+=URLPath;
-							if(!CreateProcess(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+							if(!CreateProcess(NULL,(wchar_t*)(const wchar_t*)strAction,NULL,NULL,TRUE,0,NULL,strCurDir,&si,&pi))
 							{
 								EditCode=1;
 							}

@@ -43,46 +43,270 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "imports.hpp"
 
-int ConvertNameToFull (
+#define IsColon(str)         (str == L':')
+#define IsDot(str)           (str == L'.')
+#define IsSlashBackward(str) (str == L'\\')
+#define IsSlashForward(str)  (str == L'/')
+#define IsQuestion(str)      (str == L'?')
+
+enum PATH_PFX_TYPE
+{
+	PPT_NONE,
+	PPT_DRIVE,
+	PPT_ROOT,
+	PPT_PREFIX,
+	PPT_NT
+};
+
+PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
+{
+	if (stPath)
+	{
+		PATH_PFX_TYPE nPrefix = PPT_NONE;
+		LPCWSTR pstPath=stPath;
+
+		//Skip root entry, network share, device, nt notation or symlink prefix: "\", "\\", "\\.\", "\\?\", "\??\"
+		//prefix "\" or "/"
+		if (IsSlash (*pstPath))
+		{
+			pstPath++;
+			nPrefix = PPT_ROOT;
+
+			//prefix "\"
+			if (IsSlashBackward (pstPath[-1]))
+			{
+				//prefix "\\" - network
+				if (IsSlashBackward (pstPath[0]))
+				{
+					pstPath++;
+					nPrefix = PPT_PREFIX;
+
+					//prefix "\\.\" - device
+					if (IsDot (pstPath[0]) && IsSlashBackward (pstPath[1]))
+					{
+						pstPath += 2;
+					}
+					else
+					{
+						//prefix "\\?\" - nt notation
+						if (IsQuestion (pstPath[0]) && IsSlashBackward (pstPath[1]))
+						{
+							pstPath += 2;
+							nPrefix = PPT_NT;
+
+							//prefix "\\?\UNC\" - nt notation (UNC)
+							if (!StrCmpN (pstPath, L"UNC\\", 4))
+							{
+								pstPath += 4;
+							}
+						}
+					}
+				}
+				else
+				{
+					if (IsQuestion (pstPath[0]) && IsQuestion (pstPath[1]) && IsSlashBackward (pstPath[2])) //prefix "\??\" symlink
+					{
+						pstPath += 3;
+						nPrefix = PPT_NT;
+					};
+				}
+			}
+		}
+
+		//Skip path to next slash (or path end) if was "special" prefix
+		if (nPrefix == PPT_PREFIX || nPrefix == PPT_NT)
+		{
+			do
+			{
+				if (IsSlash (*pstPath))
+				{
+					pstPath++;
+					break;
+				}
+			} while (*pstPath++);
+		}
+		else
+		{
+			//Skip logical drive letter name
+			if (pstPath[0] && IsColon (pstPath[1]))
+			{
+				pstPath += 2;
+				nPrefix = PPT_DRIVE;
+
+				//Skip root slash
+				if (IsSlash (*pstPath))
+				{
+					pstPath++;
+					nPrefix = PPT_PREFIX;
+				}
+			}
+		}
+		PathOffset=pstPath-stPath;
+		return (nPrefix);
+	}
+
+	return (PPT_NONE);
+}
+
+void MixToFullPath (string& strPath)
+{
+	//Skip all path to root (with slash if exists)
+	LPWSTR pstPath=strPath.GetBuffer();
+	size_t PathOffset=0;
+	Point2Root (strPath,PathOffset);
+	pstPath+=PathOffset;
+
+	//Process "." and ".." if exists
+	for (int m = 0; pstPath[m];)
+	{
+		//fragment "."
+		if (IsDot (pstPath[m]) && (m == 0 || IsSlash (pstPath[m - 1])))
+		{
+			LPCWSTR pstSrc;
+			LPWSTR pstDst;
+			switch (pstPath[m + 1])
+			{
+				//fragment ".\"
+			case L'\\':
+				//fragment "./"
+			case L'/':
+				{
+					for (pstSrc = pstPath + m + 2, pstDst = pstPath + m; *pstSrc; pstSrc++, pstDst++)
+					{
+						*pstDst = *pstSrc;
+					}
+					*pstDst = 0;
+				}
+				break;
+				//fragment "." at the end
+			case 0:
+				{
+					pstPath[m] = 0;
+				}
+				break;
+				//fragment "..\" or "../" or ".." at the end
+			case L'.':
+				{
+					int n;
+					//Calculate subdir name offset
+					for (n = m - 2; (n >= 0) && (!IsSlash (pstPath[n])); n--);
+					n = (n < 0) ? 0 : n + 1;
+					//fragment "..\" or "../"
+					if(IsSlash(pstPath[m + 2]))
+					{
+						for (pstSrc = pstPath + m + 3, pstDst = pstPath + n; *pstSrc; pstSrc++, pstDst++)
+						{
+							*pstDst = *pstSrc;
+						}
+						*pstDst = 0;
+					}
+					//fragment ".." at the end
+					else
+					{
+						pstPath[n] = 0;
+					}
+					m = n;
+				}
+				break;
+			default:
+				{
+					m++;
+				}
+			}
+		}
+		else
+		{
+			m++;
+		}
+	}
+	strPath.ReleaseBuffer();
+}
+
+bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
+{
+	size_t lPath=wcslen(NullToEmpty(stPath)),
+		lCurrentDir=wcslen(NullToEmpty(stCurrentDir)),
+		lFullPath=lPath+lCurrentDir;
+
+	if(lFullPath > 0)
+	{
+		strDest.SetLength(0);
+		LPCWSTR pstPath = NULL, pstCurrentDir = NULL;
+		bool blIgnore = false;
+		size_t PathOffset=0;
+		PATH_PFX_TYPE PathType=Point2Root(stPath,PathOffset);
+		pstPath=stPath+PathOffset;
+		switch(PathType)
+		{
+		case PPT_NONE:
+			{
+				pstCurrentDir=stCurrentDir;
+			}
+			break;
+		case PPT_DRIVE:
+			{
+				WCHAR DriveVar[]={L'=',*stPath,L':',L'\0'};
+				string strValue;
+				if(apiGetEnvironmentVariable(DriveVar,strValue))
+				{
+					strDest=strValue;
+					AddEndSlash(strDest);
+				}
+				else
+				{
+					pstCurrentDir=stCurrentDir;
+				}
+			}
+			break;
+		case PPT_ROOT:
+			{
+				if (stCurrentDir)
+				{
+					size_t PathOffset=0;
+					if(Point2Root(stCurrentDir,PathOffset)!=PPT_NONE)
+					{
+						strDest=string(stCurrentDir,PathOffset);
+					}
+				}
+			}
+			break;
+		case PPT_PREFIX:
+			{
+				pstPath=stPath;
+			}
+			break;
+		case PPT_NT:
+			{
+				blIgnore=true;
+				pstPath=stPath;
+			}
+			break;
+		}
+		if (pstCurrentDir)
+		{
+			strDest+=pstCurrentDir;
+			AddEndSlash(strDest);
+		}
+		if (pstPath)
+		{
+			strDest+=pstPath;
+		}
+		if (!blIgnore)
+			MixToFullPath (strDest);
+		return true;
+	}
+	return false;
+}
+
+void ConvertNameToFull (
         const wchar_t *lpwszSrc,
         string &strDest
         )
 {
-	string strSrc = lpwszSrc; //копирование в другую переменную на случай dest == src
-	lpwszSrc = strSrc;
-
-	// путь с префиксом - по определению полный.
-	if(PathPrefix(lpwszSrc))
-	{
-		strDest=lpwszSrc;
-		return (int)strDest.GetLength();
-	}
-
-	const wchar_t *lpwszName = PointToName(lpwszSrc);
-
-	if ( (lpwszName == lpwszSrc) &&
-				!TestParentFolderName(lpwszName) && !TestCurrentFolderName(lpwszName))
-	{
-		apiGetCurrentDirectory(strDest);
-		AddEndSlash(strDest);
-
-		strDest += lpwszSrc;
-
-		return (int)strDest.GetLength ();
-	}
-
-	if ( PathMayBeAbsolute(lpwszSrc) )
-	{
-		if ( *lpwszName &&
-				(*lpwszName != L'.' || (lpwszName[1] != 0 && (lpwszName[1] != L'.' || lpwszName[2] != 0)) ) &&
-				(wcsstr (lpwszSrc, L"\\..\\") == NULL && wcsstr (lpwszSrc, L"\\.\\") == NULL) )
-		{
-			strDest = lpwszSrc;
-
-			return (int)strDest.GetLength ();
-		}
-	}
-	return (int)apiGetFullPathName(lpwszSrc,strDest);
+	string strCurDir;
+	apiGetCurrentDirectory(strCurDir);
+	string strSrc = lpwszSrc;
+	MixToFullPath(strSrc,strDest,strCurDir);
 }
 
 /*

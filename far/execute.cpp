@@ -828,6 +828,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     seInfo.lpFile = strNewCmdStr;
     seInfo.lpParameters = strNewCmdPar;
     seInfo.nShow = SW_SHOWNORMAL;
+		string strCurDir;
+		apiGetCurrentDirectory(strCurDir);
+		seInfo.lpDirectory=strCurDir;
 
 		seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
     //seInfo.lpVerb = "open";
@@ -891,7 +894,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль
     SetRealColor (COL_COMMANDLINEUSERSCREEN);
-
+		string strCurDir;
+		apiGetCurrentDirectory(strCurDir);
 		if ( CreateProcess (
         NULL,
         (wchar_t*)(const wchar_t*)strExecLine,
@@ -900,7 +904,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
         false,
         SeparateWindow?CREATE_NEW_CONSOLE|CREATE_DEFAULT_ERROR_MODE:CREATE_DEFAULT_ERROR_MODE,
         NULL,
-        NULL,
+        strCurDir,
         &si,
         &pi
         ) )

@@ -2205,8 +2205,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			else
 			{
 				strSetDir = strCurDir;
-				AddEndSlash(strSetDir);
-				strSetDir += L"..";
+				CutToSlash(strSetDir);
 			}
 		}
 		PrepareDiskPath(strSetDir);

@@ -854,6 +854,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 						seInfo.lpFile = DosDeviceName;
 						seInfo.lpVerb = L"properties";
+						string strCurDir;
+						apiGetCurrentDirectory(strCurDir);
+						seInfo.lpDirectory=strCurDir;
 						ShellExecuteExW(&seInfo);
 					}
 					break;
