@@ -1058,17 +1058,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             if( !NameChanged )
               FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
 
-						FNAttr=apiGetFileAttributes(strSaveAsName);
-            if (NameChanged && FNAttr != INVALID_FILE_ATTRIBUTES)
-            {
-              if (Message(MSG_WARNING,2,MSG(MEditTitle),strSaveAsName,MSG(MEditExists),
-                           MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
-              {
-                FarChDir(strOldCurDir);
-                return(TRUE);
-              }
-              Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
-            }
+						if(NameChanged)
+						{
+							if(!AskOverwrite(strSaveAsName))
+							{
+								FarChDir(strOldCurDir);
+								return(TRUE);
+							}
+						}
 
             ConvertNameToFull (strSaveAsName, strFullSaveAsName); //BUGBUG, не проверяем имя на правильность
 
@@ -1130,8 +1127,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								//if(!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
 								//  FrameManager->RefreshFrame();
 
-								Show();//!!! BUGBUG
 							}
+							// перерисовывать надо как минимум когда изменилась кодировка или имя файла
+							ShowConsoleTitle();
+							Show();//!!! BUGBUG
             }
 
             Done=TRUE;
@@ -2495,7 +2494,19 @@ int FileEditor::EditorControl(int Command, void *Param)
 				string strOldFullFileName = strFullFileName;
 
 				if(SetFileName(strName))
-					return SaveFile(strName,FALSE,StrCmpI(strFullFileName,strOldFullFileName),EOL,codepage);
+				{
+					if(StrCmpI(strFullFileName,strOldFullFileName))
+					{
+					    if(!AskOverwrite(strName))
+						{
+						    SetFileName(strOldFullFileName);
+							return FALSE;
+						}
+					}
+					Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
+					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
+					return SaveFile(strName,FALSE,true,EOL,codepage,m_bSignatureFound);
+				}
 			}
 			return FALSE;
 		}
@@ -2678,4 +2689,22 @@ void FileEditor::SetCodePage(UINT codepage)
 			ChangeEditKeyBar(); //???
 		}
 	}
+}
+
+bool FileEditor::AskOverwrite(const string& FileName)
+{
+	bool result=true;
+	DWORD FNAttr=apiGetFileAttributes(FileName);
+	if(FNAttr!=INVALID_FILE_ATTRIBUTES)
+	{
+		if(Message(MSG_WARNING,2,MSG(MEditTitle),FileName,MSG(MEditExists),MSG(MEditOvr),MSG(MYes),MSG(MNo)))
+		{
+			result=false;
+		}
+		else
+		{
+			Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
+		}
+	}
+	return result;
 }

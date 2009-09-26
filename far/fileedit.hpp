@@ -121,6 +121,7 @@ private:
     void SetDeleteOnClose(int NewMode);
     int ReProcessKey(int Key,int CalledFromControl=TRUE);
 
+	bool AskOverwrite(const string& FileName);
 public:
     FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=NULL,int OpenModeExstFile=FEOPMODE_QUERY);
     FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
