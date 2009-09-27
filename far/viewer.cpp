@@ -318,6 +318,9 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			VM.Hex=(int)PosCache.Param[2];
 			//=PosCache.Param[3];
 			CachedCodePage=(UINT)PosCache.Param[4];
+			// Проверяем поддерживается или нет загруженная из кэша кодовая страница
+			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+				CachedCodePage = 0;
 		}
 
 		LastSelPos=FilePos=NewFilePos;
@@ -335,8 +338,13 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
   {
 		bool Detect=false;
 		UINT CodePage=0;
-		if(VM.CodePage == CP_AUTODETECT || IsUnicodeOrUTFCP(VM.CodePage))
+		if(VM.CodePage == CP_AUTODETECT || IsUnicodeOrUtfCodePage(VM.CodePage))
+		{
 			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Opt.ViOpt.AutoDetectCodePage!=0);
+			// Проверяем поддерживается или нет задетектированная кодовая страница
+			if (Detect)
+				Detect = IsCodePageSupported(CodePage);
+		}
 		if(VM.CodePage==CP_AUTODETECT)
 		{
 			if(Detect)
@@ -355,7 +363,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		{
 			CodePageChangedByUser=TRUE;
 		}
-		if(!IsUnicodeOrUTFCP(VM.CodePage))
+		if(!IsUnicodeOrUtfCodePage(VM.CodePage))
 			fseek(ViewFile,0,SEEK_SET);
 	}
 
@@ -524,7 +532,7 @@ void Viewer::ShowPage (int nMode)
 
       if ( StrLen > LeftPos )
       {
-				if (IsUnicodeOrUTFCP(VM.CodePage) && Signature && !I && !Strings[I]->nFilePos)
+				if (IsUnicodeOrUtfCodePage(VM.CodePage) && Signature && !I && !Strings[I]->nFilePos)
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
         else
            mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
@@ -645,7 +653,7 @@ void Viewer::ShowHex()
 
     const wchar_t BorderLine[]={BoxSymbols[BS_V1],L' ',0};
 
-    if (IsUnicodeCP(VM.CodePage))
+    if (IsUnicodeCodePage(VM.CodePage))
     {
       for (X=0;X<8;X++)
       {
@@ -893,8 +901,8 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
   if (VM.Hex)
   {
-    OutPtr=vread(pString->lpData,IsUnicodeCP(VM.CodePage) ? 8:16,ViewFile);
-    pString->lpData[IsUnicodeCP(VM.CodePage) ? 8:16]=0;
+    OutPtr=vread(pString->lpData,IsUnicodeCodePage(VM.CodePage) ? 8:16,ViewFile);
+    pString->lpData[IsUnicodeCodePage(VM.CodePage) ? 8:16]=0;
   }
   else
   {
@@ -1155,7 +1163,7 @@ int Viewer::ProcessKey(int Key)
       if (SelectSize && ViewFile)
       {
         wchar_t *SelData;
-        size_t DataSize = (size_t)SelectSize+(IsUnicodeCP(VM.CodePage)?sizeof(wchar_t):1);
+        size_t DataSize = (size_t)SelectSize+(IsUnicodeCodePage(VM.CodePage)?sizeof(wchar_t):1);
         __int64 CurFilePos=vtell(ViewFile);
 
         if ((SelData=(wchar_t*)xf_malloc(DataSize*sizeof (wchar_t))) != NULL)
@@ -1352,7 +1360,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_F8:
     {
-      if (IsUnicodeCP(VM.CodePage))
+      if (IsUnicodeCodePage(VM.CodePage))
       {
         FilePos*=2;
         SetFileSize();
@@ -1371,19 +1379,19 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_SHIFTF8:
     {
-      UINT nCodePage = GetTableEx(VM.CodePage, true, true);
+      UINT nCodePage = SelectCodePage(VM.CodePage, true, true);
       if (nCodePage!=(UINT)-1)
       {
 				CodePageChangedByUser=TRUE;
 
-        if (IsUnicodeCP(VM.CodePage) && !IsUnicodeCP(nCodePage))
+        if (IsUnicodeCodePage(VM.CodePage) && !IsUnicodeCodePage(nCodePage))
         {
           FilePos*=2;
           SelectPos = 0;
           SelectSize = 0;
           SetCRSym();
         }
-        else if (!IsUnicodeCP(VM.CodePage) && IsUnicodeCP(nCodePage))
+        else if (!IsUnicodeCodePage(VM.CodePage) && IsUnicodeCodePage(nCodePage))
         {
           FilePos=(FilePos+(FilePos&1))/2; //????
           SelectPos = 0;
@@ -1460,7 +1468,7 @@ int Viewer::ProcessKey(int Key)
         Up();
         if (VM.Hex)
         {
-          FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
+          FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
           Show();
         }
         else
@@ -1697,7 +1705,7 @@ int Viewer::ProcessKey(int Key)
         }
 */
         if (VM.Hex)
-          FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
+          FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
 /*
         if (VM.Hex)
         {
@@ -1869,7 +1877,7 @@ void Viewer::Up()
   LastPage=0;
   if (VM.Hex)
   {
-    int UpSize=IsUnicodeCP(VM.CodePage) ? 8:16;
+    int UpSize=IsUnicodeCodePage(VM.CodePage) ? 8:16;
     if (FilePos<(__int64)UpSize)
       FilePos=0;
     else
@@ -1967,7 +1975,7 @@ int Viewer::CalcStrSize(const wchar_t *Str,int Length)
 
 int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
 {
-	if (IsUnicodeCP(VM.CodePage))
+	if (IsUnicodeCodePage(VM.CodePage))
 		return Length;
 	else
 		return WideCharToMultiByte(VM.CodePage, 0, Str, Length, NULL, 0, NULL, NULL);
@@ -2183,7 +2191,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (SearchFlags.Check(REVERSE_SEARCH))
 		SearchDlg[SD_CHECKBOX_REVERSE].Selected=!SearchDlg[SD_CHECKBOX_REVERSE].Selected;
 
-  if (IsUnicodeCP(VM.CodePage))
+  if (IsUnicodeCodePage(VM.CodePage))
   {
 		SearchDlg[SD_RADIO_TEXT].Selected=TRUE;
 		SearchDlg[SD_RADIO_HEX].Flags|=DIF_DISABLE;
@@ -2588,7 +2596,7 @@ int Viewer::vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw)
   if(!SrcFile)
     return -1;
 
-  if (IsUnicodeCP(VM.CodePage))
+  if (IsUnicodeCodePage(VM.CodePage))
   {
     // выделяем столько, сколько нужно!
     char *TmpBuf=(char *)xf_malloc(Count*2+16);
@@ -2686,7 +2694,7 @@ int Viewer::vseek(FILE *SrcFile,__int64 Offset,int Whence)
 {
   if(!SrcFile)
     return -1;
-  if (IsUnicodeCP(VM.CodePage))
+  if (IsUnicodeCodePage(VM.CodePage))
     return(fseek64(SrcFile,Offset*2,Whence));
   else
     return(fseek64(SrcFile,Offset,Whence));
@@ -2698,7 +2706,7 @@ __int64 Viewer::vtell(FILE *SrcFile)
   if(!SrcFile)
     return -1;
   __int64 Pos=ftell64(SrcFile);
-  if (IsUnicodeCP(VM.CodePage))
+  if (IsUnicodeCodePage(VM.CodePage))
     Pos=(Pos+(Pos&1))/2;
   return(Pos);
 }
@@ -2808,7 +2816,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         //if ( Percent<0 )
         //  Percent=0;
         Offset=FileSize/100*Percent;
-        if (IsUnicodeCP(VM.CodePage))
+        if (IsUnicodeCodePage(VM.CodePage))
           Offset*=2;
         while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
@@ -2835,7 +2843,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         //if ( Percent<0 )
         //  Percent=0;
         Offset=FileSize/100*Percent;
-        if (IsUnicodeCP(VM.CodePage))
+        if (IsUnicodeCodePage(VM.CodePage))
           Offset*=2;
         while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
@@ -2847,10 +2855,10 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
             FilePos=0;
         else
-            FilePos=IsUnicodeCP(VM.CodePage)? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
+            FilePos=IsUnicodeCodePage(VM.CodePage)? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
     }
     else
-        FilePos=IsUnicodeCP(VM.CodePage) ? Offset/2:Offset;
+        FilePos=IsUnicodeCodePage(VM.CodePage) ? Offset/2:Offset;
     if ( FilePos>FileSize || FilePos<0 )   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
   }
@@ -2885,7 +2893,7 @@ void Viewer::AdjustFilePos()
       }
     vseek(ViewFile,FilePos+1,SEEK_SET);
     if (VM.Hex)
-      FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
+      FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
     else
     {
       if (FilePos!=StartLinePos)
@@ -2911,7 +2919,7 @@ void Viewer::SetFileSize()
      Везде сравниваем FilePos с FileSize, FilePos для юникодных файлов
      уменьшается в два раза, поэтому FileSize тоже надо уменьшать
   */
-  if (IsUnicodeCP(VM.CodePage))
+  if (IsUnicodeCodePage(VM.CodePage))
     FileSize=(FileSize+(FileSize&1))/2;
 }
 
@@ -2953,7 +2961,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
   SelectFlags=Flags;
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
   if (VM.Hex)
-    FilePos&=~(IsUnicodeCP(VM.CodePage) ? 0x7:0xf);
+    FilePos&=~(IsUnicodeCodePage(VM.CodePage) ? 0x7:0xf);
   else
   {
     if (SelectPos!=StartLinePos)
@@ -2969,7 +2977,7 @@ void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, con
      показывается)
   */
 
-		SelectPosOffSet=(IsUnicodeOrUTFCP(VM.CodePage) && Signature
+		SelectPosOffSet=(IsUnicodeOrUtfCodePage(VM.CodePage) && Signature
            && (MatchPos+SelectSize<=ObjWidth && MatchPos<(__int64)StrLength(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
@@ -3043,7 +3051,7 @@ int Viewer::ViewerControl(int Command,void *Param)
              2 раза. Поэтому увеличим StartPos в 2 раза, т.к. функция
              GoTo принимает смещения в _байтах_.
         */
-        GoTo(FALSE, vsp->StartPos*(IsUnicodeCP(VM.CodePage)?2:1), vsp->Flags);
+        GoTo(FALSE, vsp->StartPos*(IsUnicodeCodePage(VM.CodePage)?2:1), vsp->Flags);
         if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
         if(!(vsp->Flags&VSP_NORETNEWPOS))

@@ -364,7 +364,7 @@ void InitInFileSearch()
 			for (int index = 0; index<codePagesCount; index++)
 			{
 				CodePageInfo *cp = codePages+index;
-				if (IsUnicodeCP(cp->CodePage))
+				if (IsUnicodeCodePage(cp->CodePage))
 					cp->MaxCharSize = 2;
 				else
 				{
@@ -657,7 +657,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			CodePage = Opt.FindCodePage;
 			/* -------------------------------------- */
 
-			favoriteCodePages = AddCodepagesToList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
+			favoriteCodePages = FillCodePagesList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
 
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
@@ -1122,7 +1122,7 @@ int LookForString(const wchar_t *Name)
 				// Буфер для поиска
 				wchar_t *buffer;
 				// Перегоняем буфер в UTF-16
-				if (IsUnicodeCP(cpi->CodePage))
+				if (IsUnicodeCodePage(cpi->CodePage))
 				{
 					// Вычисляем размер буфера в UTF-16
 					bufferCount = readBlockSize/sizeof(wchar_t);

@@ -80,7 +80,9 @@ size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, UINT CodePage) 
 
 const UnicodeString& UnicodeString::SetData(const UnicodeString &strCopy)
 {
-	if ( strCopy.m_pData != m_pData )
+	if (!strCopy)
+		return SetData((const wchar_t *)NULL);
+	if (strCopy.m_pData != m_pData)
 	{
 		if (m_pData)
 			m_pData->DecRef();

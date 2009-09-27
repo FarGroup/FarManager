@@ -44,14 +44,16 @@ enum CPSelectType
 
 const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
 
-inline bool IsStandardCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
+inline bool IsStandardCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
 
-inline bool IsUnicodeCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
 
-inline bool IsUnicodeOrUTFCP(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeOrUtfCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
 
-UINT GetTableEx(UINT nCurrent, bool bShowUnicode, bool bShowUTF);
+bool IsCodePageSupported(UINT CodePage);
 
-UINT AddCodepagesToList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
+UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF);
 
-wchar_t *FormatCodepageName(UINT CodePage, wchar_t *CodePageName, size_t Length);
+UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll);
+
+wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length);

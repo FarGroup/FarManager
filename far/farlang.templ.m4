@@ -7843,7 +7843,7 @@ l:
 "Keresés:"
 "Wyszukiwanie:"
 
-MGetTableTitle
+MGetCodePageTitle
 l:
 "Кодовые страницы"
 "Code pages"
@@ -7852,7 +7852,7 @@ upd:"Tabellen"
 "Kódlapok"
 "Strony kodowe"
 
-MGetTableSystem
+MGetCodePageSystem
 "Системные"
 "System"
 upd:"System"
@@ -7860,7 +7860,7 @@ upd:"System"
 "Rendszer"
 upd:"System"
 
-MGetTableUnicode
+MGetCodePageUnicode
 "Юникод"
 "Unicode"
 upd:"Unicode"
@@ -7868,7 +7868,7 @@ upd:"Unicode"
 "Unicode"
 upd:"Unicode"
 
-MGetTableFavorites
+MGetCodePageFavorites
 "Избранные"
 "Favorites"
 upd:"Favorites"
@@ -7876,7 +7876,7 @@ upd:"Favorites"
 "Kedvencek"
 upd:"Favorites"
 
-MGetTableOther
+MGetCodePageOther
 "Прочие"
 "Other"
 upd:"Other"
@@ -7884,7 +7884,7 @@ upd:"Other"
 "Egyéb"
 upd:"Other"
 
-MGetTableBottomTitle
+MGetCodePageBottomTitle
 "Ctrl-H, Del, Ins"
 "Ctrl-H, Del, Ins"
 "Ctrl-H, Del, Ins"
@@ -7892,7 +7892,7 @@ MGetTableBottomTitle
 "Ctrl-H, Del, Ins"
 "Ctrl-H, Del, Ins"
 
-MGetTableBottomShortTitle
+MGetCodePageBottomShortTitle
 "Ctrl-H, Del"
 "Ctrl-H, Del"
 "Ctrl-H, Del"

@@ -94,7 +94,7 @@ LONG_PTR __stdcall hndOpenEditor (
 	{
 		int codepage = *(int*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 
-		AddCodepagesToList (hDlg, ID_OE_CODEPAGE, codepage, true, false);
+		FillCodePagesList (hDlg, ID_OE_CODEPAGE, codepage, true, false);
 	}
 
 	if ( msg == DN_CLOSE )
@@ -186,8 +186,8 @@ LONG_PTR __stdcall hndSaveFileAs (
 		case DN_INITDIALOG:
 		{
 			UINT codepage = *(UINT*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
-			AddCodepagesToList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
-			if(IsUnicodeOrUTFCP(codepage))
+			FillCodePagesList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
+			if(IsUnicodeOrUtfCodePage(codepage))
 			{
 				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
 				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
@@ -219,7 +219,7 @@ LONG_PTR __stdcall hndSaveFileAs (
 			{
 				FarListPos pos;
 				SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
-				if(IsUnicodeOrUTFCP(static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
+				if(IsUnicodeOrUtfCodePage(static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
 				{
 					SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
 					SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
@@ -1105,7 +1105,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
 						//здесь идет полная жопа, проверка на ошибки вообще пока отсутствует
 						{
-							bool bInPlace = /*(!IsUnicodeOrUTFCP(m_codepage) && !IsUnicodeOrUTFCP(codepage)) || */(m_codepage == codepage);
+							bool bInPlace = /*(!IsUnicodeOrUtfCodePage(m_codepage) && !IsUnicodeOrUtfCodePage(codepage)) || */(m_codepage == codepage);
 
 							if ( !bInPlace )
 							{
@@ -1260,7 +1260,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
     case KEY_F8:
     {
-			if ( !IsUnicodeCP(m_codepage) )
+			if ( !IsUnicodeCodePage(m_codepage) )
 			{
 				SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
 				Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
@@ -1270,9 +1270,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     }
 		case KEY_SHIFTF8:
 		{
-			if ( !IsUnicodeCP(m_codepage) )
+			if ( !IsUnicodeCodePage(m_codepage) )
 			{
-				int codepage = GetTableEx (m_codepage, false, true);
+				int codepage = SelectCodePage(m_codepage, false, true);
 
 				if ( codepage != -1 )
 				{
@@ -1476,6 +1476,9 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	m_editor->FreeAllocatedData (false);
 
 	bool bCached = LoadFromCache (&cp);
+	// Проверяем поддерживается или нет загруженная кодовая страница
+	if (bCached && cp.CodePage && !IsCodePageSupported(cp.CodePage))
+		cp.CodePage = 0;
 
 	GetFileString GetStr(EditFile);
 
@@ -1487,8 +1490,13 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	UINT dwCP=0;
 	bool Detect=false;
 
-	if(m_codepage == CP_AUTODETECT || IsUnicodeOrUTFCP(m_codepage))
+	if(m_codepage == CP_AUTODETECT || IsUnicodeOrUtfCodePage(m_codepage))
+	{
 		Detect=GetFileFormat(EditFile,dwCP,&m_bSignatureFound,Opt.EdOpt.AutoDetectCodePage!=0);
+		// Проверяем поддерживается или нет задетектировання кодовая страница
+		if (Detect)
+			Detect = IsCodePageSupported(dwCP);
+	}
 
 	if ( m_codepage == CP_AUTODETECT )
 	{
@@ -1513,7 +1521,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 	}
 	m_editor->SetCodePage (m_codepage); //BUGBUG
 
-	if(!IsUnicodeOrUTFCP(m_codepage))
+	if(!IsUnicodeOrUtfCodePage(m_codepage))
 		fseek(EditFile,0,SEEK_SET);
 
 	UINT64 FileSize=0;
@@ -1736,7 +1744,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
-		if(!IsUnicodeOrUTFCP(codepage))
+		if(!IsUnicodeOrUtfCodePage(codepage))
 		{
 			bool UnicodeLostAgree=false;
 			for(Edit *CurPtr=m_editor->TopList;CurPtr;CurPtr=CurPtr->m_next)
@@ -2211,7 +2219,7 @@ void FileEditor::ShowStatus()
       Показываем в зависимости от базы */
 			static const wchar_t *FmtWCharCode[]={L"%05o",L"%5d",L"%04Xh"};
 			mprintf(FmtWCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtWCharCode)],Str[CurPos]);
-			if(!IsUnicodeOrUTFCP(m_codepage))
+			if(!IsUnicodeOrUtfCodePage(m_codepage))
 			{
 				char C=0;
 				BOOL UsedDefaultChar=FALSE;

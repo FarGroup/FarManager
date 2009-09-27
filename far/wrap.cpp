@@ -3560,7 +3560,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			viA->CurMode.UseDecodeTable = 0;
 			viA->CurMode.TableNum       = 0;
 			viA->CurMode.AnsiMode       = viW.CurMode.CodePage == GetACP();
-			viA->CurMode.Unicode        = IsUnicodeCP(viW.CurMode.CodePage);
+			viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
 			viA->CurMode.Wrap           = viW.CurMode.Wrap;
 			viA->CurMode.WordWrap       = viW.CurMode.WordWrap;
 			viA->CurMode.Hex            = viW.CurMode.Hex;
@@ -3675,7 +3675,7 @@ int WINAPI FarCharTableA (int Command, char *Buffer, int BufferSize)
 		if (cpiex.MaxCharSize != 1)
 			return -1;
 
-		wchar_t *codePageName = FormatCodepageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+		wchar_t *codePageName = FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 		sTableName.Format(L"%5u%c %s", nCP, BoxSymbols[BS_V1], codePageName);
 
 		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
