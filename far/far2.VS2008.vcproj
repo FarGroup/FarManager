@@ -824,7 +824,7 @@
 				>
 			</File>
 			<File
-				RelativePath="gettable.cpp"
+				RelativePath="codepage.cpp"
 				>
 			</File>
 			<File
@@ -2903,7 +2903,7 @@
 				>
 			</File>
 			<File
-				RelativePath="gettable.hpp"
+				RelativePath="codepage.hpp"
 				>
 			</File>
 			<File

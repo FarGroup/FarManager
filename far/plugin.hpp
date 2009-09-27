@@ -1722,8 +1722,15 @@ enum MKLINKOP{
   FLINK_DONOTUPDATEPANEL = 0x20000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
-typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const wchar_t *Src, wchar_t *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
+
+enum CONVERTPATHMODES
+{
+	CPM_FULL,
+	CPM_REAL,
+};
+
+typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
 
 typedef struct FarStandardFunctions
 {
@@ -1782,7 +1789,7 @@ typedef struct FarStandardFunctions
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
-  FARCONVERTNAMETOREAL       ConvertNameToReal;
+  FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 } FARSTANDARDFUNCTIONS;
 

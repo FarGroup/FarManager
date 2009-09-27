@@ -31,6 +31,7 @@ SRCS = \
 	clipboard.cpp \
 	cmdline.cpp \
 	cmem.cpp \
+	codepage.cpp \
 	config.cpp \
 	constitle.cpp \
 	copy.cpp \
@@ -75,7 +76,6 @@ SRCS = \
 	fnparce.cpp \
 	foldtree.cpp \
 	frame.cpp \
-	gettable.cpp \
 	global.cpp \
 	grabber.cpp \
 	headers.cpp \

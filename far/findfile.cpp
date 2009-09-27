@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "syslog.hpp"
 #include "localOEM.hpp"
-#include "gettable.hpp"
+#include "codepage.hpp"
 #include "registry.hpp"
 #include "cddrv.hpp"
 #include "TaskBar.hpp"

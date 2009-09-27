@@ -104,8 +104,8 @@ foldtree.cpp
 foldtree.hpp
 frame.cpp
 frame.hpp
-gettable.cpp
-gettable.hpp
+codepage.cpp
+codepage.hpp
 global.cpp
 global.hpp
 grabber.cpp

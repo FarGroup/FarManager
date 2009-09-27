@@ -506,7 +506,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.DeleteBuffer=DeleteBuffer;
     StandardFunctions.ProcessName=ProcessName;
     StandardFunctions.MkLink=FarMkLink;
-    StandardFunctions.ConvertNameToReal=farConvertNameToReal;
+    StandardFunctions.ConvertPath=farConvertPath;
     StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
   }
 

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileedit.hpp"
 #include "keyboard.hpp"
-#include "gettable.hpp"
+#include "codepage.hpp"
 #include "lang.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"

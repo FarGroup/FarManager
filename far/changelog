@@ -1,4 +1,17 @@
+drkns 27.09.2009 22:50:36 +0200 - build 1148
+
+1. Фар иногда мог схлопываться, если при старте окно консоли было максимизировано.
+
+2. FSF.ConvertNameToReal больше нет. А есть FSF.ConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Dest, int DestSize)
+   При Mode=CPM_REAL работает как ConvertNameToReal;
+   при Mode=CPM_FULL работает как ConvertNameToFull.
+
+   Ахтунг: использовать GetFullPathNameW для преобразования относительного пути в абсолютный после 1145 билда нельзя, используйте ConvertPath(CPM_FULL, ...).
+
+3. gettable.?pp -> codepage.?pp
+
 garry 27.09.2009 22:54:30 +0300 - build 1147
+
 1. Mantis#0001017  Сделано более общее решение, т.е. поддерживается или нет кодовая страница 
    проверяется как в редакторе так и во вьювере и не только при автодетекте, но и при загрузке 
    кодовой страницы из кэша;

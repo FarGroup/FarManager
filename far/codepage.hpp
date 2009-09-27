@@ -1,9 +1,9 @@
 #pragma once
 
 /*
-gettable.cpp
+codepage.cpp
 
-Работа с таблицами символов
+Работа с кодовыми страницами
 */
 /*
 Copyright (c) 1996 Eugene Roshal

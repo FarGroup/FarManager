@@ -2119,13 +2119,22 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 	return static_cast<int>(strOwner.GetLength()+1);
 }
 
-int WINAPI farConvertNameToReal(const wchar_t *Src, wchar_t *Dest, int DestSize)
+int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Dest, int DestSize)
 {
 	int Size = 0;
 	if (Src && *Src)
 	{
 		string strDest;
-		ConvertNameToReal(Src, strDest);
+		switch(Mode)
+		{
+		case CPM_REAL:
+			ConvertNameToReal(Src, strDest);
+			break;
+		case CPM_FULL:
+		default:
+			ConvertNameToFull(Src, strDest);
+			break;
+		}
 		Size = static_cast<int>(strDest.GetLength()) + 1;
 		if (Dest && DestSize)
 			xwcsncpy(Dest, strDest.CPtr(), DestSize - 1);

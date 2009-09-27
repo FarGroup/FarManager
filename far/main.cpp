@@ -145,9 +145,6 @@ static int MainProcess(
 
 		GetSystemInfo(&SystemInfo);
 
-    // учтем настройки максимизации окна при старте
-    if(IsZoomed(hFarWnd)) ChangeVideoMode(1);
-
     if ( *lpwszEditName || *lpwszViewName )
     {
       NotUseCAS=TRUE;

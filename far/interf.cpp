@@ -109,6 +109,8 @@ void InitConsole(int FirstInit)
       SetConsoleScreenBufferSize (hConOut, newSize);
       GetVideoMode (InitScreenBufferInfo);
     }
+		if(IsZoomed(hFarWnd))
+			ChangeVideoMode(1);
   }
   GetVideoMode(CurScreenBufferInfo);
   ScrBuf.FillBuf();

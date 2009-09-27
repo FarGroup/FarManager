@@ -98,6 +98,7 @@ LINK32_OBJS = \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
 	"$(INTDIR)\cmem.obj" \
+	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
@@ -142,7 +143,6 @@ LINK32_OBJS = \
 	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\foldtree.obj" \
 	"$(INTDIR)\frame.obj" \
-	"$(INTDIR)\gettable.obj" \
 	"$(INTDIR)\global.obj" \
 	"$(INTDIR)\grabber.obj" \
 	"$(INTDIR)\headers.obj" \

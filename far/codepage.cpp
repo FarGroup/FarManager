@@ -1,7 +1,7 @@
 /*
-gettable.cpp
+codepage.cpp
 
-Работа с таблицами символов
+Работа с кодовыми страницами
 */
 /*
 Copyright (c) 1996 Eugene Roshal
@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "gettable.hpp"
+#include "codepage.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "savefpos.hpp"

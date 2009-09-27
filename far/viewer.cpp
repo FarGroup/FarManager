@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "viewer.hpp"
-#include "gettable.hpp"
+#include "codepage.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
