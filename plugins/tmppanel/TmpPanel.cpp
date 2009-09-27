@@ -219,8 +219,21 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     TCHAR consoleTitle[255];
     DWORD tlen = GetConsoleTitle(consoleTitle, ArraySize(consoleTitle));
     SetConsoleTitle(argv);
-
-    if(CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+    LPTSTR CurDir=NULL;
+#ifdef UNICODE
+    size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+    if(Size)
+    {
+      CurDir=new WCHAR[Size];
+      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,reinterpret_cast<LONG_PTR>(CurDir));
+    }
+#endif
+    BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
+    if(CurDir)
+    {
+      delete[] CurDir;
+    }
+    if(Created)
     {
       WaitForSingleObject(pi.hProcess,INFINITE);
       CloseHandle(pi.hThread);

@@ -1,3 +1,7 @@
+drkns 27.09.2009 09:57:00 +0200 - build 52
+
+1. Убираем привязку к CurrentDirectory far'а.
+
 t-rex 30.05.2009 02:54:46 +0200 - build 51
 
 from chupakabra:

@@ -1683,9 +1683,20 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
       lstrcpy(regedit,_T("regedit -e"));
 
     wsprintf(Str,_T("%s \"%s\" \"%s\\%s\""),regedit,TempFileName,HKCU,S);
-
-    int Code=CreateProcess(NULL,Str,NULL,NULL,TRUE,
-                           0,NULL,NULL,&si,&pi);
+    LPTSTR CurDir=NULL;
+#ifdef UNICODE
+    size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+    if(Size)
+    {
+      CurDir=new WCHAR[Size];
+      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,reinterpret_cast<LONG_PTR>(CurDir));
+    }
+#endif
+    int Code=CreateProcess(NULL,Str,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
+    if(CurDir)
+    {
+      delete[] CurDir;
+    }
     if (Code)
     {
       WaitForSingleObject(pi.hProcess,INFINITE);
