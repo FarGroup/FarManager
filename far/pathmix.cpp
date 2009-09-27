@@ -42,6 +42,7 @@ NTPath::NTPath(LPCWSTR Src)
 	if(Src&&*Src)
 	{
 		Str=Src;
+		ReplaceSlashToBSlash(Str);
 		if(!PathPrefix(Src))
 		{
 			ConvertNameToFull(Str,Str);
@@ -444,7 +445,7 @@ string& ReplaceSlashToBSlash(string& strStr)
 		lpwszStr++;
 	}
 
-	strStr.ReleaseBuffer ();
+	strStr.ReleaseBuffer (strStr.GetLength());
 
 	return strStr;
 }

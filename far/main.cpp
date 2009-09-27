@@ -336,6 +336,17 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
   ifn.Load();
 
+	// BUGBUG, function
+	// get real curdir:
+	DWORD Size=GetCurrentDirectory(0,NULL);
+	string strInitCurDir;
+	LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
+	GetCurrentDirectory(Size,InitCurDir);
+	strInitCurDir.ReleaseBuffer(Size-1);
+
+	//set virtual curdir:
+	apiSetCurrentDirectory(strInitCurDir);
+
   _OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 
   string strEditName;
