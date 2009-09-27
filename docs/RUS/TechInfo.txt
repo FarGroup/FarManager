@@ -194,6 +194,20 @@ I. FAR Manager: дополнительные настройки.
       [HKEY_CURRENT_USER\Software\Far\KeyBarLabels\English\Editor]
       "F1"="Мануал"
 
+1.1.14.(TechInfo #80)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far2\CodePages\Names]
+   Содержимое ветки реестра "Names" позволяет задать названия для кодовых
+   страниц, которые установлены в системе, но, в то же время, для них не
+   определены имена. Значение из данной ветки берётся только в том случае,
+   если FAR-у не удаётся получить имя кодовой страницы от системы.
+   Структура:
+    [HKEY_CURRENT_USER\Software\Far2\CodePages\Names]
+    "НомерКодовойСтраницы"="Название"
+   Например,
+      [HKEY_CURRENT_USER\Software\Far2\CodePages\Names]
+      "1125"="RUSCII"
+
 
 =====================
   1.2. System.
