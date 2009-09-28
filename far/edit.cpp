@@ -82,7 +82,7 @@ Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
 	Str=bAllocateData ? (wchar_t*) xf_malloc(sizeof(wchar_t)) : NULL;
 	StrSize=0;
 
-	WordDiv=Opt.strWordDiv;
+	SetWordDiv(Opt.strWordDiv);
 
 	if (bAllocateData)
 		*Str=0;
@@ -818,11 +818,11 @@ int Edit::ProcessKey(int Key)
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
 
-      while (CurPos>0 && !(!IsWordDiv(WordDiv, Str[CurPos]) &&
-             IsWordDiv(WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(WordDiv(), Str[CurPos]) &&
+             IsWordDiv(WordDiv(),Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
-             IsWordDiv(WordDiv, Str[CurPos-1])))
+             IsWordDiv(WordDiv(), Str[CurPos-1])))
           break;
         RecurseProcessKey(KEY_SHIFTLEFT);
       }
@@ -836,10 +836,10 @@ int Edit::ProcessKey(int Key)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
 
-      while (CurPos<StrSize && !(IsWordDiv(WordDiv, Str[CurPos]) &&
-             !IsWordDiv(WordDiv, Str[CurPos-1])))
+      while (CurPos<StrSize && !(IsWordDiv(WordDiv(), Str[CurPos]) &&
+             !IsWordDiv(WordDiv(), Str[CurPos-1])))
       {
-        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(WordDiv, Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(WordDiv(), Str[CurPos-1])))
           break;
         RecurseProcessKey(KEY_SHIFTRIGHT);
         if (MaxLength!=-1 && CurPos==MaxLength-1)
@@ -935,7 +935,7 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        if (IsWordDiv(WordDiv,Str[CurPos-1]))
+        if (IsWordDiv(WordDiv(),Str[CurPos-1]))
           break;
       }
       Unlock ();
@@ -969,7 +969,7 @@ int Edit::ProcessKey(int Key)
 #endif
       {
         int SStart, SEnd;
-        if(CalcWordFromString(Str,CurPos,&SStart,&SEnd,WordDiv))
+        if(CalcWordFromString(Str,CurPos,&SStart,&SEnd,WordDiv()))
           Select(SStart,SEnd+(SEnd < StrSize?1:0));
       }
       CurPos=OldCurPos; // возвращаем обратно
@@ -1013,7 +1013,7 @@ int Edit::ProcessKey(int Key)
           ptr++;
           if (!CheckCharMask(Mask[ptr]) ||
              (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
-             (IsWordDiv(WordDiv, Str[ptr])))
+             (IsWordDiv(WordDiv(), Str[ptr])))
             break;
         }
         for (int i=0;i<ptr-CurPos;i++)
@@ -1029,7 +1029,7 @@ int Edit::ProcessKey(int Key)
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
             break;
-          if (IsWordDiv(WordDiv, Str[CurPos]))
+          if (IsWordDiv(WordDiv(), Str[CurPos]))
             break;
         }
       }
@@ -1202,8 +1202,8 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      while (CurPos>0 && !(!IsWordDiv(WordDiv, Str[CurPos]) &&
-             IsWordDiv(WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      while (CurPos>0 && !(!IsWordDiv(WordDiv(), Str[CurPos]) &&
+             IsWordDiv(WordDiv(), Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1237,8 +1237,8 @@ int Edit::ProcessKey(int Key)
         CurPos++;
       }
 
-      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(WordDiv,Str[CurPos]) &&
-             !IsWordDiv(WordDiv, Str[CurPos-1])))
+      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(WordDiv(),Str[CurPos]) &&
+             !IsWordDiv(WordDiv(), Str[CurPos-1])))
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -2048,13 +2048,13 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
           ChLeft=Edit::Str[I-1];
           if (I>0)
-            locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv,ChLeft)!=NULL);
+            locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft)!=NULL);
           else
             locResultLeft=TRUE;
           if (I+Length<StrSize)
           {
             ChRight=Edit::Str[I+Length];
-            locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight)!=NULL);
+            locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight)!=NULL);
           }
           else
           {

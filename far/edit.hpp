@@ -160,7 +160,7 @@ private:
 
     int    CursorSize;
     int    CursorPos;
-    const wchar_t *WordDiv;
+    const string* strWordDiv;
 
     UINT m_codepage; //BUGBUG
 
@@ -185,6 +185,7 @@ private:
 
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 
+    inline const wchar_t* WordDiv(void) {return strWordDiv->CPtr();};
   public:
     Edit(ScreenObject *pOwner = NULL, Callback* aCallback = NULL, bool bAllocateData = true);
     virtual ~Edit();
@@ -288,6 +289,6 @@ private:
     void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
-    void SetWordDiv(const wchar_t *WordDiv){Edit::WordDiv=WordDiv;}
+    void SetWordDiv(const string& WordDiv){strWordDiv=&WordDiv;}
 		void Changed();
 };

@@ -2213,7 +2213,7 @@ void FileEditor::ShowStatus()
     int CurPos=m_editor->CurLine->GetCurPos();
     if (CurPos<Length)
     {
-      GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 16:9),Y1);
+      GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 16:10),Y1);
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */

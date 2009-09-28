@@ -1,3 +1,13 @@
+zg 28.09.2009 20:33:47 +0200 - build 1151
+
+1. Edit::WordDiv устанавливался в значение Editor::WordDiv::m_pData::m_pData.
+   если плагин менял WordDiv редактору на большее по размеру значение, память
+   переаллоцировалась и Edit::WordDiv указывал в пустоту.
+
+2. при выключенных часах в редакторе и неуникодном тексте обрезалась скобка в строке статуса.
+
+3. gcc warnings.
+
 drkns 28.09.2009 20:02:46 +0200 - build 1150
 
 1. From Tim Sobolev: Mantis#0001074: Impossible to create/edit/view file with name started with 2 or more '.'

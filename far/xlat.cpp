@@ -222,7 +222,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 			HKL Next=(HKL)0;
 			if ( Opt.XLat.Layouts[0] )
 			{
-				if( ++Opt.XLat.CurrentLayout >= countof(Opt.XLat.Layouts) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
+				if( ++Opt.XLat.CurrentLayout >= (int)countof(Opt.XLat.Layouts) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
 					Opt.XLat.CurrentLayout=0;
 				if(Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
 					Next=Opt.XLat.Layouts[Opt.XLat.CurrentLayout];
