@@ -160,6 +160,8 @@ struct CodeXLAT
      Разграничитель слов из реестра для функции Xlat
   */
   string strWordDivForXlat;
+  HKL Layouts[10];
+  int CurrentLayout;
 
 	string Table[2]; // [0] non-english буквы, [1] english буквы
 	string Rules[3]; // правила:

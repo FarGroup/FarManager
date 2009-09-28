@@ -2212,6 +2212,16 @@ static bool editorsetFunc()
         Ret=(__int64)EdOpt.F7Rules; break;
       case 14: // AllowEmptySpaceAfterEof;
         Ret=(__int64)EdOpt.AllowEmptySpaceAfterEof; break;
+      case 15: // ShowScrollBar;
+        Ret=(__int64)EdOpt.ShowScrollBar; break;
+      case 16: // EditOpenedForWrite;
+        Ret=(__int64)EdOpt.EditOpenedForWrite; break;
+      case 17: // SearchSelFound;
+        Ret=(__int64)EdOpt.SearchSelFound; break;
+      case 18: // SearchRegexp;
+        Ret=(__int64)EdOpt.SearchRegexp; break;
+      case 19: // SearchPickUpWord;
+        Ret=(__int64)EdOpt.SearchPickUpWord; break;
       default:
         Ret=(__int64)-1L;
     }
@@ -2250,6 +2260,16 @@ static bool editorsetFunc()
           EdOpt.F7Rules=longState; break;
         case 14: // AllowEmptySpaceAfterEof;
           EdOpt.AllowEmptySpaceAfterEof=longState; break;
+        case 15: // ShowScrollBar;
+          EdOpt.ShowScrollBar=longState; break;
+        case 16: // EditOpenedForWrite;
+          EdOpt.EditOpenedForWrite=longState; break;
+        case 17: // SearchSelFound;
+          EdOpt.SearchSelFound=longState; break;
+        case 18: // SearchRegexp;
+          EdOpt.SearchRegexp=longState; break;
+        case 19: // SearchPickUpWord;
+          EdOpt.SearchPickUpWord=longState; break;
         default:
           Ret=-1;
           break;
