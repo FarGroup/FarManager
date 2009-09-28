@@ -176,48 +176,47 @@ void MixToFullPath (string& strPath)
 						*pstDst = *pstSrc;
 					}
 					*pstDst = 0;
+					continue;
 				}
 				break;
 				//fragment "." at the end
 			case 0:
 				{
 					pstPath[m] = 0;
+					continue;
 				}
 				break;
 				//fragment "..\" or "../" or ".." at the end
 			case L'.':
 				{
-					int n;
-					//Calculate subdir name offset
-					for (n = m - 2; (n >= 0) && (!IsSlash (pstPath[n])); n--);
-					n = (n < 0) ? 0 : n + 1;
-					//fragment "..\" or "../"
-					if(IsSlash(pstPath[m + 2]))
+					if (IsSlash (pstPath[m + 2]) || !pstPath[m + 2])
 					{
-						for (pstSrc = pstPath + m + 3, pstDst = pstPath + n; *pstSrc; pstSrc++, pstDst++)
+						int n;
+						//Calculate subdir name offset
+						for (n = m - 2; (n >= 0) && (!IsSlash (pstPath[n])); n--);
+						n = (n < 0) ? 0 : n + 1;
+						//fragment "..\" or "../"
+						if(IsSlash(pstPath[m + 2]))
 						{
-							*pstDst = *pstSrc;
+							for (pstSrc = pstPath + m + 3, pstDst = pstPath + n; *pstSrc; pstSrc++, pstDst++)
+							{
+								*pstDst = *pstSrc;
+							}
+							*pstDst = 0;
 						}
-						*pstDst = 0;
+						//fragment ".." at the end
+						else
+						{
+							pstPath[n] = 0;
+						}
+						m = n;
+						continue;
 					}
-					//fragment ".." at the end
-					else
-					{
-						pstPath[n] = 0;
-					}
-					m = n;
 				}
 				break;
-			default:
-				{
-					m++;
-				}
 			}
 		}
-		else
-		{
-			m++;
-		}
+		m++;
 	}
 	strPath.ReleaseBuffer();
 }
