@@ -1230,7 +1230,7 @@ int Viewer::ProcessKey(int Key)
           }
         }
       }
-      if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
+			if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
         ShowTime(FALSE);
       return(TRUE);
     }
@@ -1380,6 +1380,14 @@ int Viewer::ProcessKey(int Key)
     case KEY_SHIFTF8:
     {
       UINT nCodePage = SelectCodePage(VM.CodePage, true, true);
+
+      // BUGBUG
+      // пока что запретим переключать hex в UTF8, ибо не работает.
+			if(VM.Hex && nCodePage==CP_UTF8)
+			{
+				return(TRUE);
+			}
+
       if (nCodePage!=(UINT)-1)
       {
 				CodePageChangedByUser=TRUE;
@@ -3199,6 +3207,14 @@ BOOL Viewer::isTemporary()
 
 int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 {
+	// BUGBUG
+	// ƒо тех пор, пока не будет реализован адекватный hex-просмотр в UTF8 - будем смотреть в OEM.
+	// »бо сейчас это не просмотр, а генератор однотипных унылых багрепортов.
+	if(VM.CodePage==CP_UTF8 && newMode)
+	{
+		VM.CodePage=GetOEMCP();
+	}
+
   int oldHex=VM.Hex;
   VM.Hex=newMode&1;
   if(isRedraw)

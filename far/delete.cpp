@@ -339,7 +339,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 						AddEndSlash(strSelFullName);
 						strSelFullName+=strSelName;
 					}
-					ScTree.SetFindPath(strSelFullName,L"*.*", 0);
+					ScTree.SetFindPath(strSelFullName,L"*", 0);
 
           while (ScTree.GetNextName(&FindData,strFullName))
           {
@@ -770,7 +770,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
     string strFullName2;
     FAR_FIND_DATA_EX FindData;
     ScanTree ScTree(TRUE,TRUE,FALSE);
-    ScTree.SetFindPath(Name,L"*.*", 0);
+		ScTree.SetFindPath(Name,L"*", 0);
     while (ScTree.GetNextName(&FindData,strFullName2))
     {
       if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -929,7 +929,7 @@ void DeleteDirTree(const wchar_t *Dir)
   FAR_FIND_DATA_EX FindData;
   ScanTree ScTree(TRUE,TRUE);
 
-  ScTree.SetFindPath(Dir,L"*.*",0);
+	ScTree.SetFindPath(Dir,L"*",0);
   while (ScTree.GetNextName(&FindData, strFullName))
   {
 		apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);

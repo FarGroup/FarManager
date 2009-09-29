@@ -2195,7 +2195,7 @@ void FindFiles::DoScanTree(HANDLE hDlg,string& strRoot)
 			strCurRoot = strRoot;
 		}
 
-		ScTree.SetFindPath(strCurRoot,L"*.*");
+		ScTree.SetFindPath(strCurRoot,L"*");
 
 		statusCS.Enter ();
 

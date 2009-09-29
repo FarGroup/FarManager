@@ -196,7 +196,7 @@ void MixToFullPath (string& strPath)
 						for (n = m - 2; (n >= 0) && (!IsSlash (pstPath[n])); n--);
 						n = (n < 0) ? 0 : n + 1;
 						//fragment "..\" or "../"
-						if(IsSlash(pstPath[m + 2]))
+						if (pstPath[m + 2])
 						{
 							for (pstSrc = pstPath + m + 3, pstDst = pstPath + n; *pstSrc; pstSrc++, pstDst++)
 							{

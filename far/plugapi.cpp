@@ -1489,7 +1489,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,FAR_FIND_DATA **pPanelItem,int *pIte
     string strFullName;
     ScanTree ScTree(FALSE);
 
-    ScTree.SetFindPath(strDirName,L"*.*");
+		ScTree.SetFindPath(strDirName,L"*");
 
     CutToSlash(strDirName); //BUGBUG
 

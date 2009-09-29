@@ -125,7 +125,7 @@ int CheckFolder(const wchar_t *Path)
   // сообразим маску для поиска.
   AddEndSlash(strFindPath);
 
-  strFindPath += L"*.*";
+	strFindPath += L"*";
 
   // первая проверка - че-нить считать можем?
   if((FindHandle=apiFindFirstFile(strFindPath,&fdata)) == INVALID_HANDLE_VALUE)

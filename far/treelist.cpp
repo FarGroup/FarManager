@@ -448,7 +448,7 @@ int TreeList::ReadTree()
 
   RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
 
-  ScTree.SetFindPath(strRoot, L"*.*", 0);
+	ScTree.SetFindPath(strRoot, L"*", 0);
   LastScrX = ScrX;
   LastScrY = ScrY;
 	TaskBar TB;
@@ -1661,7 +1661,7 @@ void TreeList::ReadSubTree(const wchar_t *Path)
 
   int FirstCall=TRUE, AscAbort=FALSE;
 
-  ScTree.SetFindPath(strDirName,L"*.*",0);
+	ScTree.SetFindPath(strDirName,L"*",0);
 
 
   LastScrX = ScrX;

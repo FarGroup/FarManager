@@ -1113,7 +1113,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 				if((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
 				{
 					ScanTree ScTree(FALSE);
-					ScTree.SetFindPath(strSelName,L"*.*");
+					ScTree.SetFindPath(strSelName,L"*");
 					DWORD LastTime=GetTickCount();
 					string strFullName;
           while (ScTree.GetNextName(&FindData,strFullName))

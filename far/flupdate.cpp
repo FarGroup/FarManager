@@ -243,7 +243,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	SetLastError(0);
 
 	//BUGBUG!!!
-	Done=((FindHandle=apiFindFirstFile(L"*.*",&fdata))==INVALID_HANDLE_VALUE);
+	Done=((FindHandle=apiFindFirstFile(L"*",&fdata))==INVALID_HANDLE_VALUE);
 
 	int AllocatedCount=0;
 	FileListItem *NewPtr;

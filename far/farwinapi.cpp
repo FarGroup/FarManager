@@ -197,7 +197,6 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 
 BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 {
-	strCurrentDirectory()=lpPathName;
 #ifdef USE_SYSTEM_CURDIR
 	AddEndSlash(strCurrentDirectory());
 	BOOL Ret=SetCurrentDirectory(strCurrentDirectory());
@@ -209,9 +208,17 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	}
 	return Ret;
 #else
-	return TRUE;
+	string strDir=lpPathName;
+	AddEndSlash(strDir);
+	strDir+=L"*";
+	FAR_FIND_DATA_EX fd;
+	if(apiGetFindDataEx(strDir,&fd))
+	{
+		strCurrentDirectory()=lpPathName;
+		return TRUE;
+	}
 #endif
-
+	return FALSE;
 }
 
 DWORD apiGetTempPath (string &strBuffer)

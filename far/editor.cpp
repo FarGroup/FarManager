@@ -1213,7 +1213,7 @@ int Editor::ProcessKey(int Key)
 {
   if (Key==KEY_IDLE)
   {
-    if (Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen())
+		if (Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen() && Opt.EdOpt.ShowTitleBar)
       ShowTime(FALSE);
     return(TRUE);
   }

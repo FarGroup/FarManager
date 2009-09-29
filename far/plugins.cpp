@@ -542,7 +542,7 @@ void PluginManager::LoadPlugins()
 				continue;
 
 			// ставим на поток очередной путь из списка...
-			ScTree.SetFindPath(strPluginsDir,L"*.*");
+			ScTree.SetFindPath(strPluginsDir,L"*");
 
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
@@ -1100,7 +1100,7 @@ int PluginManager::GetFile (
 	strFindPath = DestPath;
 
 	AddEndSlash(strFindPath);
-	strFindPath += L"*.*";
+	strFindPath += L"*";
 
 	FAR_FIND_DATA_EX fdata;
 

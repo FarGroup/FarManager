@@ -126,7 +126,7 @@ int GetDirInfo(const wchar_t *Title,
 
   DirCount=FileCount=0;
 	FileSize=CompressedFileSize=RealSize=0;
-  ScTree.SetFindPath(DirName,L"*.*");
+	ScTree.SetFindPath(DirName,L"*");
 
   while (ScTree.GetNextName(&FindData,strFullName))
   {

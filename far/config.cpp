@@ -1408,7 +1408,7 @@ void ReadConfig()
 			while(NULL!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
-				Opt.XLat.Layouts[I]=(HKL)(HIWORD(res) == 0?MAKELONG(res,res):res);
+				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res) == 0?MAKELONG(res,res):res);
 				++I;
 				if ( I >= countof(Opt.XLat.Layouts) )
 					break;

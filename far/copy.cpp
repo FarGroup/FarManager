@@ -2055,7 +2055,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 
-      ScTree.SetFindPath(strSubName,L"*.*",FSCANTREE_FILESFIRST);
+			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
       while (ScTree.GetNextName(&SrcData,strFullName))
       {
         // Была попытка скопировать каталог с содержимым при включенном фильтре
@@ -4116,7 +4116,7 @@ int ShellCopy::SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRI
       string strFullName;
       FAR_FIND_DATA_EX SrcData;
 			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
-      ScTree.SetFindPath(FileName,L"*.*",FSCANTREE_FILESFIRST);
+			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
       while (ScTree.GetNextName(&SrcData,strFullName))
       {
         if(!ShellCopySecuryMsg(strFullName))
