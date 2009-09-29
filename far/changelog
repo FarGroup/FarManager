@@ -1,3 +1,25 @@
+svs 29.09.2009 11:50:38 +0300 - build 1152
+
+1. Mantis#0001064: Error in string handling 
+   Очередное уточнение операций:
+     1. string + string = string
+     2. string + num = string
+     3. num + string = string
+     4. strnum + string = string
+     5. string + strnum = string
+     6. num + strnum = num
+     7. strnum + num = num
+
+   Т.е. (применяем принудительное преобразование к string):
+     msgbox("1" + 0) ==> 1
+     msgbox(1 + "2") ==> 3
+     msgbox("foo1" + 0) ==> "foo10"
+     msgbox(string(1) + "2") ==> "12"
+     %i=1; msgbox("0" + string(%i)) ==> "01"
+     %i=1; msgbox(int("012ag") + %i) ==> 13
+     %i=1; msgbox(string(int("012ag")) + %i) ==> 13
+     %i=1; msgbox(string(int("012ag")) + string(%i)) ==> "121"
+
 zg 28.09.2009 20:33:47 +0200 - build 1151
 
 1. Edit::WordDiv устанавливался в значение Editor::WordDiv::m_pData::m_pData.

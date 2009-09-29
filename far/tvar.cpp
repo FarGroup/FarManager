@@ -628,8 +628,8 @@ TVar operator+(const TVar& a, const TVar& b)
 			}
 			break;
 		}
-
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = (double)a.inum + b.dnum;                break;
@@ -646,26 +646,23 @@ TVar operator+(const TVar& a, const TVar& b)
 				}
 			}
 			break;
-
+		}
 	    case vtString:
 	    {
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = addStr(a.s(), b.s());
 			else if( tsA == tsInt && tsB == tsInt )
 				r = a.i() + b.i();
 			else
 				r = a.d() + b.d();
-			#else
-			r = addStr(a.s(), b.s());
-			#endif
 			break;
 		}
 	}
@@ -678,6 +675,7 @@ TVar operator-(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.inum - b.inum;                   break;
@@ -694,7 +692,9 @@ TVar operator-(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = (double)a.inum - b.dnum;                break;
@@ -711,25 +711,23 @@ TVar operator-(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
-				r = a; //addStr(a.s(), b.s());
+				r = a;
 			else if( tsA == tsInt && tsB == tsInt )
 				r = a.i() - b.i();
 			else
 				r = a.d() - b.d();
-			#else
-			r = a; //addStr(a.s(), b.s());
-			#endif
 			break;
 		}
 	}
@@ -742,6 +740,7 @@ TVar operator*(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.inum * b.inum; break;
@@ -758,7 +757,9 @@ TVar operator*(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.dnum * (double)b.inum;          break;
@@ -775,25 +776,23 @@ TVar operator*(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = a;
 			else if( tsA == tsInt && tsB == tsInt )
 				r = a.i() * b.i();
 			else
 				r = a.d() * b.d();
-			#else
-			r = a;
-			#endif
 			break;
 		}
 	}
@@ -806,6 +805,7 @@ TVar operator/(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = b.inum ? ( a.inum / b.inum ) : 0; break;
@@ -830,7 +830,9 @@ TVar operator/(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = b.inum ? ( a.dnum / (double)b.inum ) : 0.0; break;
@@ -851,16 +853,17 @@ TVar operator/(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = a;
 			else if( tsA == tsInt && tsB == tsInt )
@@ -873,9 +876,6 @@ TVar operator/(const TVar& a, const TVar& b)
 				double bd=b.d();
 				r = bd ? ( a.d() / bd ) : 0.0;
 			}
-			#else
-			r = a;
-			#endif
 			break;
 		}
 	}
@@ -884,65 +884,69 @@ TVar operator/(const TVar& a, const TVar& b)
 
 TVar operator%(const TVar& a, const TVar& b)
 {
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = b.inum ? ( a.inum % b.inum ) : 0; break;
-        case vtDouble:  r = b.dnum ? fmod( (double)a.inum, b.dnum ) : 0.0; break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            {
-              __int64 bi=b.i();
-              r = bi ? a.inum % bi : 0; break;
-            }
-            case tsFloat:
-            {
-              double bd=b.d();
-              r = bd ? fmod((double)a.inum, bd) : 0.0; break;
-            }
-          }
-          break;
-        }
-      }
-      break;
-    case vtDouble:
-      switch ( b.vType )
-      {
-        case vtInteger: r = b.inum ? fmod(a.dnum,(double)b.inum) : 0.0; break;
-        case vtDouble:  r = b.dnum ? fmod( a.dnum,b.dnum ) : 0.0; break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat:
-            {
-              double bd=b.d();
-              r = bd ? fmod(a.dnum, bd) : 0.0; break;
-            }
-          }
-          break;
-        }
-      }
-      break;
+	TVar r;
+	switch ( a.vType )
+	{
+		case vtInteger:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = b.inum ? ( a.inum % b.inum ) : 0; break;
+				case vtDouble:  r = b.dnum ? fmod( (double)a.inum, b.dnum ) : 0.0; break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						{
+							__int64 bi=b.i();
+							r = bi ? a.inum % bi : 0; break;
+						}
+						case tsFloat:
+						{
+							double bd=b.d();
+							r = bd ? fmod((double)a.inum, bd) : 0.0; break;
+						}
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtDouble:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = b.inum ? fmod(a.dnum,(double)b.inum) : 0.0; break;
+				case vtDouble:  r = b.dnum ? fmod( a.dnum,b.dnum ) : 0.0; break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat:
+						{
+							double bd=b.d();
+							r = bd ? fmod(a.dnum, bd) : 0.0; break;
+						}
+					}
+					break;
+				}
+			}
+			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = a;
 			else if( tsA == tsInt && tsB == tsInt )
@@ -955,9 +959,6 @@ TVar operator%(const TVar& a, const TVar& b)
 				double bd=b.d();
 				r = bd ? fmod( a.d() , bd ) : 0.0;
 			}
-			#else
-			r = a;
-			#endif
 			break;
 		}
 	}
@@ -966,60 +967,61 @@ TVar operator%(const TVar& a, const TVar& b)
 
 TVar operator|(const TVar& a, const TVar& b)
 {
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum | b.inum;                  break;
-        case vtDouble:  r = a.inum | b.i();                   break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.inum | b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtDouble:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.i() | b.inum;                   break;
-        case vtDouble:  r = a.i() | b.i();                    break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.i() | b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
+	TVar r;
+	switch ( a.vType )
+	{
+		case vtInteger:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.inum | b.inum;                  break;
+				case vtDouble:  r = a.inum | b.i();                   break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.inum | b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtDouble:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.i() | b.inum;                   break;
+				case vtDouble:  r = a.i() | b.i();                    break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.i() | b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = a;
 			else
 				r = a.i() | b.i();
-			#else
-			r = a;
-			#endif
 			break;
 		}
 	}
@@ -1028,188 +1030,191 @@ TVar operator|(const TVar& a, const TVar& b)
 
 TVar operator&(const TVar& a, const TVar& b)
 {
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum & b.inum;                  break;
-        case vtDouble:  r = a.inum & b.i();                   break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.inum & b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtDouble:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.i() & b.inum;                   break;
-        case vtDouble:  r = a.i() & b.i();                    break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.i() & b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtString:
-    {
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+	TVar r;
+	switch ( a.vType )
+	{
+		case vtInteger:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.inum & b.inum;                  break;
+				case vtDouble:  r = a.inum & b.i();                   break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.inum & b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtDouble:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.i() & b.inum;                   break;
+				case vtDouble:  r = a.i() & b.i();                    break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.i() & b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtString:
+		{
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
-      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
-        r = a;
-      else
-        r = a.i() & b.i();
-			#else
-			r = a;
-			#endif
-      break;
-    }
-  }
-  return r;
+				tsA=tsB=tsStr;
+
+			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
+				r = a;
+			else
+				r = a.i() & b.i();
+			break;
+		}
+	}
+	return r;
 };
 
 TVar operator^(const TVar& a, const TVar& b)
 {
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum ^ b.inum;                  break;
-        case vtDouble:  r = a.inum ^ b.i();                   break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.inum ^ b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtDouble:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.i() ^ b.inum;                   break;
-        case vtDouble:  r = a.i() ^ b.i();                    break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.i() ^ b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtString:
-    {
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+	TVar r;
+	switch ( a.vType )
+	{
+		case vtInteger:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.inum ^ b.inum;                  break;
+				case vtDouble:  r = a.inum ^ b.i();                   break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.inum ^ b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtDouble:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.i() ^ b.inum;                   break;
+				case vtDouble:  r = a.i() ^ b.i();                    break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.i() ^ b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtString:
+		{
+	    	TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
-      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
-        r = a;
-      else
-        r = a.i() ^ b.i();
-			#else
-			r = a;
-			#endif
-      break;
-    }
-  }
-  return r;
+				tsA=tsB=tsStr;
+
+			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
+				r = a;
+			else
+				r = a.i() ^ b.i();
+			break;
+		}
+	}
+	return r;
 };
 
 TVar operator>>(const TVar& a, const TVar& b)
 {
-  TVar r;
-  switch ( a.vType )
-  {
-    case vtInteger:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.inum >> b.inum;                  break;
-        case vtDouble:  r = a.inum >> b.i();                   break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.inum >> b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtDouble:
-      switch ( b.vType )
-      {
-        case vtInteger: r = a.i() >> b.inum;                   break;
-        case vtDouble:  r = a.i() >> b.i();                    break;
-        case vtString:
-        {
-          switch(checkTypeString(b.str))
-          {
-            case tsStr:   r = a;     break;
-            case tsInt:
-            case tsFloat: r = a.i() >> b.i(); break;
-          }
-          break;
-        }
-      }
-      break;
-    case vtString:
-    {
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+	TVar r;
+	switch ( a.vType )
+	{
+		case vtInteger:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.inum >> b.inum;                  break;
+				case vtDouble:  r = a.inum >> b.i();                   break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.inum >> b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtDouble:
+		{
+			switch ( b.vType )
+			{
+				case vtInteger: r = a.i() >> b.inum;                   break;
+				case vtDouble:  r = a.i() >> b.i();                    break;
+				case vtString:
+				{
+					switch(checkTypeString(b.str))
+					{
+						case tsStr:   r = a;     break;
+						case tsInt:
+						case tsFloat: r = a.i() >> b.i(); break;
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case vtString:
+		{
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
-      if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
-        r = a;
-      else
-        r = a.i() >> b.i();
-			#else
-			r = a;
-			#endif
-      break;
-    }
-  }
-  return r;
+				tsA=tsB=tsStr;
+
+			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
+				r = a;
+			else
+				r = a.i() >> b.i();
+			break;
+		}
+	}
+	return r;
 }
 
 TVar operator<<(const TVar& a, const TVar& b)
@@ -1218,6 +1223,7 @@ TVar operator<<(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.inum << b.inum;                  break;
@@ -1234,7 +1240,9 @@ TVar operator<<(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.i() << b.inum;                   break;
@@ -1251,23 +1259,21 @@ TVar operator<<(const TVar& a, const TVar& b)
 				}
 			}
 			break;
+		}
 		case vtString:
 		{
-			#if defined(TVAR_USE_STRMUN)
-			TypeString tsA=checkTypeString(a.str), tsB;
+			TypeString tsA=checkTypeString(a.str),tsB;
 			if ( b.vType == vtInteger )
 				tsB=tsInt;
 			else if ( b.vType == vtDouble )
 				tsB=tsFloat;
 			else
-				tsB=checkTypeString(b.str);
+				tsA=tsB=tsStr;
+
 			if ( (tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr) )
 				r = a;
 			else
 				r = a.i() << b.i();
-			#else
-			r = a;
-			#endif
 			break;
 		}
 	}
@@ -1280,6 +1286,7 @@ TVar operator||(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.inum || b.inum?1:0; break;
@@ -1287,7 +1294,9 @@ TVar operator||(const TVar& a, const TVar& b)
 				case vtString:  r = a.inum || *b.str?1:0; break;
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.dnum || b.inum?1:0; break;
@@ -1295,17 +1304,17 @@ TVar operator||(const TVar& a, const TVar& b)
 				case vtString:  r = a.dnum || *b.str?1:0; break;
 			}
 			break;
+		}
 		case vtString:
-			r = *a.str || *b.str?1:0;
-			/*
+		{
 			switch ( b.vType )
 			{
-				case vtInteger: r = a.i() || b.inum?1:0;  break;
-				case vtDouble:  r = a.i() || b.i()?1:0;   break;
+				case vtInteger: r = *a.str || b.inum?1:0;  break;
+				case vtDouble:  r = *a.str || b.dnum?1:0;   break;
 				case vtString:  r = *a.str || *b.str?1:0; break;
 			}
-			*/
 			break;
+		}
 	}
 	return r;
 };
@@ -1316,6 +1325,7 @@ TVar operator&&(const TVar& a, const TVar& b)
 	switch ( a.vType )
 	{
 		case vtInteger:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.inum && b.inum?1:0; break;
@@ -1323,7 +1333,9 @@ TVar operator&&(const TVar& a, const TVar& b)
 				case vtString:  r = a.inum && *b.str?1:0; break;
 			}
 			break;
+		}
 		case vtDouble:
+		{
 			switch ( b.vType )
 			{
 				case vtInteger: r = a.dnum && b.inum?1:0; break;
@@ -1331,17 +1343,17 @@ TVar operator&&(const TVar& a, const TVar& b)
 				case vtString:  r = a.dnum && *b.str?1:0; break;
 			}
 			break;
+		}
 		case vtString:
-			r = *a.str && *b.str?1:0;
-			/*
+		{
 			switch ( b.vType )
 			{
-				case vtInteger: r = a.i() && b.inum?1:0;  break;
-				case vtDouble:  r = a.i() && b.i()?1:0;   break;
+				case vtInteger: r = *a.str && b.inum?1:0;  break;
+				case vtDouble:  r = *a.str && b.dnum?1:0;   break;
 				case vtString:  r = *a.str && *b.str?1:0; break;
 			}
-			*/
 			break;
+		}
 	}
 	return r;
 };
