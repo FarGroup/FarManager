@@ -6,7 +6,13 @@ Windows Registry Editor Version 5.00
 ;
 ; 1 = Automatic keyboard layout switching after the transliteration.
 ; The switching is cyclical: RU->EN->RU... - it's quite enough.
-"Flags"=dword:00000001
+"Flags"=dword:00000005
+
+; Номера раскладок клавиатуры (через ';'), которые будут переключаться,
+; независимо от количества установленных в системе раскладок (больше 2)
+;
+; "Layouts"="04090409;04190419"
+"Layouts"="0409;0419"
 
 ; Пара перекодировочных таблиц (см. свою клавиатуру)
 ;
@@ -29,8 +35,6 @@ Windows Registry Editor Version 5.00
 ; First symbol - what to change, second symbol - to change into what.
 ; (two symbols for each rule!)
 ;
-; RulRus=     ,          ?           .           б           ю           :           Ж           ж           ;           "           Э
-;                  ?           &           /           ,           .           ^           :           ;           $           @           "
 "Rules1"=",??&./б,ю.:^Ж:ж;;$;\"@Э\""
 
 ; 40 Правил для случая "если предыдущий символ латинский".
@@ -41,8 +45,6 @@ Windows Registry Editor Version 5.00
 ; First symbol - what to change, second symbol - to change into what.
 ; (two symbols for each rule!)
 ;
-; RulEng=    ?           &           /           ,           .           ^           :           ;           $           @           "
-;                  ,           ?           .           б           ю           :           Ж           ж           ;           "           Э
 "Rules2"="?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
 
 ; 40 Правил для случая "если предыдущий символ не рус/lat".
@@ -61,6 +63,11 @@ Windows Registry Editor Version 5.00
 ; '&' -> '?' -> ',' -> 'б' -> '&'
 ; '/' -> '.' -> 'ю' -> '/'
 ;
-; RulUnk=    ^           :           Ж           $           ;           ж           @           "           Э           &           ?           ,           б           /           .           ю
-;                  :           Ж           ^           ;           ж           $           "           Э           @           ?           ,           б           &           .           ю           /
 "Rules3"="^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
+
+; набирали по русски в английской раскладке
+; `ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э"Э,б<Б.ю>Ю/.?,
+;"00000409"="`ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э\"Э,б<Б.ю>Ю/.?,"
+; набирали по английски в русской раскладке
+; ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э"б,Б<ю.Ю>./,?
+;"00000419"="ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э\"б,Б<ю.Ю>./,?"
