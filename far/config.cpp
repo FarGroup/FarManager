@@ -24,6 +24,7 @@ config.cpp
 #include "poscache.hpp"
 #include "findfile.hpp"
 #include "hilight.hpp"
+#include "udlist.hpp"
 
 /* $ 03.08.2000 SVS
    Стандартный набор разделителей
@@ -1448,6 +1449,32 @@ void ReadConfig()
       }
     }
   }
+	{
+		Opt.XLat.CurrentLayout=0;
+		memset(Opt.XLat.Layouts,0,sizeof(Opt.XLat.Layouts));
+		char XLatLayouts[NM];
+		GetRegKey(NKeyXLat,"Layouts",XLatLayouts,"",sizeof(XLatLayouts));
+		if ( *XLatLayouts )
+		{
+			char *endptr;
+			const char *ValPtr;
+			UserDefinedList DestList;
+			DestList.SetParameters(';',0,ULF_UNIQUE);
+			DestList.Set(XLatLayouts);
+			I=0;
+			while(NULL!=(ValPtr=DestList.GetNext()))
+			{
+				DWORD res=(DWORD)strtoul(ValPtr, &endptr, 16);
+				Opt.XLat.Layouts[I]=(HKL)(LONG_PTR)(HIWORD(res) == 0?MAKELONG(res,res):res);
+				++I;
+				if ( I >= sizeof(Opt.XLat.Layouts)/sizeof(Opt.XLat.Layouts[0]) )
+					break;
+			}
+
+			if( I <= 1) // если указано меньше двух - "откключаем" эту
+				Opt.XLat.Layouts[0]=0;
+		}
+	}
 
   strcpy(Opt.EdOpt.WordDiv,Opt.WordDiv);
   FileList::ReadPanelModes();

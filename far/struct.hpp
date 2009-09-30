@@ -82,27 +82,17 @@ struct DizOptions
 */
 struct CodeXLAT{
   DWORD Flags;       // дополнительные флаги
-  /* $ 05.09.2000 SVS
-     В Opt добавлены клавиши, вызывающие функцию Xlat
-  */
   int XLatEditorKey;
   int XLatCmdLineKey;
   int XLatDialogKey;
   int XLatFastFindKey;
-  /* SVS $*/
-  /* $ 04.11.2000 SVS
-     В Opt добавлены альтернативные клавиши, вызывающие функцию Xlat
-  */
   int XLatAltEditorKey;
   int XLatAltCmdLineKey;
   int XLatAltDialogKey;
   int XLatAltFastFindKey;
-  /* SVS $*/
-  /* $ 25.11.2000 IS
-     Разграничитель слов из реестра для функции Xlat
-  */
   char WordDivForXlat[256];
-  /* IS $ */
+  HKL Layouts[10];
+  int CurrentLayout;
   // первый байт - размер таблицы
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
   BYTE Rules[3][81]; // 3 по 40 правил:
@@ -110,7 +100,6 @@ struct CodeXLAT{
                     //  [1] "если предыдущий символ нелатинский символ"
                     //  [2] "если предыдущий символ не рус/lat"
 };
-/* SVS $*/
 
 /* $ 21.02.2001 IS
      Новая структура: настройки редактора

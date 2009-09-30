@@ -169,7 +169,15 @@ char* WINAPI Xlat(
       InitDetectWindowedMode();
     if(hFarWnd)
     {
-      PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_FORWARD, 0);
+      HKL Next=(HKL)0;
+      if ( Opt.XLat.Layouts[0] )
+      {
+        if( ++Opt.XLat.CurrentLayout >= (int)sizeof(Opt.XLat.Layouts)/sizeof(Opt.XLat.Layouts[0]) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
+          Opt.XLat.CurrentLayout=0;
+        if(Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
+          Next=Opt.XLat.Layouts[Opt.XLat.CurrentLayout];
+      }
+      PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);
       if(Flags & XLAT_SWITCHKEYBBEEP)
         MessageBeep(0);
     }
