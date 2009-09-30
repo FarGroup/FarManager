@@ -49,20 +49,46 @@ static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
   if (isDevice(FileName, _T("\\\\.\\PhysicalDrive"))) return true;
   if (isDevice(FileName, _T("\\\\.\\cdrom"))) return true;
 
-  if ( *FileName && FileExists(FileName) )
+  const TCHAR *ptrFileName=FileName;
+  TCHAR *ptrCurDir=NULL;
+#ifdef UNICODE
+  if ( *ptrFileName && PointToName(ptrFileName) == ptrFileName )
+  {
+     size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+     if(Size)
+     {
+       ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
+       Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+       lstrcat(ptrCurDir,_T("\\"));
+       lstrcat(ptrCurDir,ptrFileName);
+       ptrFileName=(const TCHAR *)ptrCurDir;
+     }
+  }
+#endif
+
+  if ( *ptrFileName && FileExists(ptrFileName) )
   {
     if ( viewEmpty )
+    {
+      if(ptrCurDir) delete[] ptrCurDir;
       return true;
-    HANDLE Handle = CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+    }
+    HANDLE Handle = CreateFile(ptrFileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
     if ( vh(Handle) )
     {
       DWORD size = GetFileSize(Handle, NULL);
       CloseHandle(Handle);
+      if(ptrCurDir) delete[] ptrCurDir;
       return size && ( size != 0xFFFFFFFF );
     }
   }
   else if ( editNew )
+  {
+    if(ptrCurDir) delete[] ptrCurDir;
     return true;
+  }
+
+  if(ptrCurDir) delete[] ptrCurDir;
   return false;
 }
 
@@ -175,11 +201,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
   return 0;
 }
 
-static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2
-#ifdef UNICODE
-                          , size_t szTempNames
-#endif
-                         )
+static bool MakeTempNames(TCHAR* tempFileName1, TCHAR* tempFileName2, size_t szTempNames )
 {
   static const TCHAR tmpPrefix[] = _T("FCP");
   if ( MkTemp(tempFileName1,
@@ -498,9 +520,14 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           else if(WhereIs)
           {
              TCHAR *Path = NULL, *pFile, temp[NM*5], *FARHOMEPath = NULL;
-             int Length=GetCurrentDirectory(ArraySize(cmd), cmd),
-                 PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0),
-                 FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
+             #ifdef UNICODE
+             int Length=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+             Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,ArraySize(cmd),reinterpret_cast<LONG_PTR>(cmd));
+             #else
+             int Length=GetCurrentDirectory(ArraySize(cmd), cmd);
+             #endif
+             int PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
+             int FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
              Unquote(pCmd);
              ExpandEnvironmentStr(pCmd,temp,ArraySize(temp));
              if(Length+PathLength)
@@ -508,13 +535,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                if(NULL!=(Path=(TCHAR *)malloc((Length+PathLength+FARHOMELength+3)*sizeof(TCHAR))))
                {
                  FarSprintf(Path,_T("%s;"), cmd);
-                 GetEnvironmentVariable(_T("FARHOME"), Path+Length+1, FARHOMELength);
+                 GetEnvironmentVariable(_T("FARHOME"), Path+lstrlen(Path), FARHOMELength);
                  lstrcat(Path,_T(";"));
-                 GetEnvironmentVariable(_T("PATH"), Path+Length+FARHOMELength+1, PathLength);
+                 GetEnvironmentVariable(_T("PATH"), Path+lstrlen(Path), PathLength);
                  SearchPath(Path, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
-#ifndef UNICODE
+                 #ifndef UNICODE
                  CharToOem(selectItem, selectItem);
-#endif
+                 #endif
                  free(Path);
                }
              }
@@ -525,17 +552,14 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                TCHAR FullKeyName[512];
                for(I=0; I < ArraySize(RootFindKey); ++I)
                {
-                 FarSprintf(FullKeyName,
-                   _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),
-                    pCmd);
-#ifndef UNICODE
+                 FarSprintf(FullKeyName,_T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),pCmd);
+                 #ifndef UNICODE
                  OemToChar(FullKeyName, FullKeyName);
-#endif
+                 #endif
                  if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
                  {
                     DWORD Type, DataSize=sizeof(selectItem);
-                    RegQueryValueEx(hKey,_T(""), 0, &Type, (LPBYTE) selectItem,
-                                    &DataSize);
+                    RegQueryValueEx(hKey,_T(""), 0, &Type, (LPBYTE) selectItem, &DataSize);
                     RegCloseKey(hKey);
                     break;
                  }
@@ -712,11 +736,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                 }
               }
               else
-                allOK = MakeTempNames(TempFileNameOut, TempFileNameErr
-#ifdef UNICODE
-                                      , ArraySize(TempFileNameOut)
-#endif
-                                     );
+                allOK = MakeTempNames(TempFileNameOut, TempFileNameErr, ArraySize(TempFileNameOut) );
               if ( allOK )
               {
                 allOK = FALSE;
@@ -876,7 +896,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                   TCHAR consoleTitle[256];
                   DWORD tlen = GetConsoleTitle(consoleTitle, 256);
                   SetConsoleTitle(cmd);
-                  
+
                   LPTSTR CurDir=NULL;
 #ifdef UNICODE
                   size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
