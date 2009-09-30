@@ -212,7 +212,8 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	AddEndSlash(strDir);
 	strDir+=L"*";
 	FAR_FIND_DATA_EX fd;
-	if(apiGetFindDataEx(strDir,&fd))
+	if(apiGetFindDataEx(strDir,&fd) ||
+		GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
 	{
 		strCurrentDirectory()=lpPathName;
 		return TRUE;
@@ -450,7 +451,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 		apiFindClose (hSearch);
 		return TRUE;
 	}
-	else
+	else if(GetLastError()==ERROR_ACCESS_DENIED)
 	{
 		DWORD dwAttr=apiGetFileAttributes(lpwszFileName);
 		if(dwAttr!=INVALID_FILE_ATTRIBUTES)

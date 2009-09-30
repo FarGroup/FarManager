@@ -648,6 +648,10 @@
 				>
 			</File>
 			<File
+				RelativePath="codepage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="config.cpp"
 				>
 			</File>
@@ -821,10 +825,6 @@
 			</File>
 			<File
 				RelativePath="frame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="codepage.cpp"
 				>
 			</File>
 			<File
@@ -2665,6 +2665,10 @@
 				>
 			</File>
 			<File
+				RelativePath="codepage.hpp"
+				>
+			</File>
+			<File
 				RelativePath="colors.hpp"
 				>
 				<FileConfiguration
@@ -2900,10 +2904,6 @@
 			</File>
 			<File
 				RelativePath="frame.hpp"
-				>
-			</File>
-			<File
-				RelativePath="codepage.hpp"
 				>
 			</File>
 			<File
