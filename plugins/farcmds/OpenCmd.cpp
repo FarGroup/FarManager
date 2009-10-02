@@ -1088,7 +1088,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8_LO    0xBBEF
 #define SIGN_UTF8_HI    0xBF
-                  if(Ptr[0]==SIGN_UNICODE||outputtofile)
+                  if(outputtofile)
+                  {
+                  	;
+                  }
+                  else if(Ptr[0]==SIGN_UNICODE)
                   {
                     shift=1;
                   }
