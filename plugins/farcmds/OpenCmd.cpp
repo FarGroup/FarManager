@@ -58,7 +58,7 @@ static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
      if(Size)
      {
        ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
-       Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+       Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
        lstrcat(ptrCurDir,_T("\\"));
        lstrcat(ptrCurDir,ptrFileName);
        ptrFileName=(const TCHAR *)ptrCurDir;
@@ -903,7 +903,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                   if(Size)
                   {
                     CurDir=new WCHAR[Size];
-                    Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,reinterpret_cast<LONG_PTR>(CurDir));
+                    Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir));
                   }
 #endif
                   BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
@@ -1100,7 +1100,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                   {
                     shift=1;
                   	size_t PtrLength=lstrlen(Ptr);
-                    swab((char*)Ptr,(char*)Ptr,PtrLength*sizeof(TCHAR));
+                    swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
                   }
                   else
                   {
@@ -1116,7 +1116,7 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                       TCHAR* NewPtr=(TCHAR*)malloc(PtrLength*sizeof(TCHAR));
                       if(NewPtr)
                       {
-                        if(MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,PtrLength))
+                        if(MultiByteToWideChar(cp,0,(char*)Ptr,-1,NewPtr,(int)PtrLength))
                         {
                           free(Ptr);
                           Ptr=NewPtr;
