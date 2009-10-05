@@ -754,6 +754,7 @@ $ #Mouse: wheel support#
     You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see TechInfo##33).
 
+
 @Plugins
 $ #Plugins support#
     External DLL modules (plugins) may be used to implement new FAR commands
@@ -768,7 +769,7 @@ are useless for you, you may remove them to save disk space.
 
     Plugins may be called either from ~Change drive menu~@DriveDlg@ or from
 #Plugin commands# menu, activated by #F11# or by corresponding item of
-~Commands menu~@CmdMenu@. #F4# in "Plugin commands" menu allows to assign hot
+~Commands menu~@CmdMenu@. #F4# in ~"Plugin commands"~@PluginCommands@ menu allows to assign hot
 keys to menu items (this makes easier to call them from ~keyboard macros~@KeyMacro@).
 This menu is accessible from file panels and (only by #F11#) from the
 internal viewer and editor. Only specially designed plugins will be shown when
@@ -799,6 +800,39 @@ in the command line may be used to change the plugin file system folder. Unlike
 name regardless a file panel type.
 
     Use #Alt-Shift-F9# to ~configure plugins~@PluginsConfig@.
+
+
+@PluginCommands
+$ #Plugin commands#
+    This menu provides user with ability to use plugins functionality (other
+ways are listed in ~"Plugins support"~@Plugins@). 
+The contents of the menu and actions triggered on menu items selection are 
+controlled by plugins.
+
+    The menu can be invoked in the following ways:
+
+  - #F11# at file panels or #Plugins# item at ~commands menu~@CmdMenu@, herewith 
+    the commands intended for use from file panels are shown;
+  - #F11# in viewer or editor, herewith the commands intended for use from 
+    viewer and editor accordingly are shown.
+
+    Each item of plugin commands menu can be assigned a hotkey with #F4#, this 
+possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is 
+displayed left to the item. The #A# symbol in leftmost menu column means that
+the corresponding plugin is written for Far 1.7x and it does not support all 
+possibilities available in Far 2 (these are, in particular, Unicode characters 
+in filenames and in editor).
+
+    #Plugin commands# menu hotkeys:
+
+    #Shift-F1#    - help on use for selected menu item. The text of the help 
+                  is taken from HLF file, associated with the plugin 
+                  that owns the menu item.
+    #F4#          - assign a hotkey for selected menu item. If #Space# is
+                  entered, then Far sets the hotkey automatically.
+    #Ctrl-Alt-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
+
+    See also ~Plugins support~@Plugins@.
 
 
 @PluginsConfig
@@ -2568,27 +2602,26 @@ the contents of the file on the disk.
 the external program will be lost.
 
 @CodePagesMenu
-$ #Меню выбора кодовой страницы#
-    Это меню позволяет выбрать кодовую страницу редактора или программы просмотра.
+$ #Code pages menu#
+    This menu allows codepage selection in editor and viewer.
 
-    Меню разделено на несколько частей:
+    The menu is divided into several parts:
 
-    #Автоматическое определение# - определение правильной кодовой страницы;
+    #Automatic detection# - Far tries to autodetect the codepage of the text;
 
-    #Системные# - основные однобайтные системные кодовые страницы - ASNI и OEM;
+    #System# - main 8-bit system codepages - ANSI and OEM;
 
-    #Юникод# - юникодные кодовые страницы;
+    #Unicode# - Unicode codepages;
 
-    #Избранные# - кодовые страницы, отмеченные пользователем;
+    #Favorites# - codepages selected by user;
 
-    #Прочие# - все остальные установленные в системе кодовые страницы.
+    #Other# - the rest of codepages installed in system.
 
-    Меню имеет два режима - полный, в котором раздел #Прочие# показывается, и
-сокращённый, в котором он скрыт. Переключение режимов осуществляется сочетанием клавиш
-#Ctrl-H#.
+    The menu has two modes: full mode with visible #Other# section and short 
+mode with hidden #Other# section. The modes are switched with #Ctrl-H#.
 
-    Клавиша #Ins# перемещает кодовую страницу из раздела #Прочие# в раздел #Избранные#.
-Клавиша #Del# производит обратное действие.
+    #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the 
+codepage back.
 
 @DriveDlg
 $ #Change drive#
@@ -3254,6 +3287,12 @@ example, you have to do this when a mask contains any of the delimiter
 characters (a comma or a semicolon), so that the mask doesn't get confused with
 a list.
 
+    File mask surrounded with slashes #/# is treated as ~Perl regular expression~@RegExp@.
+
+    Example:
+    #/(eng|rus)/i#  any files with filenames containing string “eng” or “rus”, 
+                  the character case is not taken into account.
+
     In some commands (~find files~@FindFile@, ~filter~@Filter@,
 ~filters menu~@FiltersMenu@, file ~selection~@SelectFiles@,
 file ~associations~@FileAssoc@ and
@@ -3275,6 +3314,8 @@ the character '#|#'.
     more than once.
  5. |*.bak
     The same as *|*.bak
+ 6. *.*|/^pict\d{1,3}\.gif$/i
+    All files except for pict0.gif — pict999.gif, disregard the character case.
 
     The comma (or semicolon) is used for separating file masks from each other,
 and the '|' character separates include masks from exclude masks.
@@ -3691,184 +3732,181 @@ to child processes:
     #FARUSER#            the name of the current user given by the /u
                        ~command line~@CmdLine@ option.
 
-    #FARDIRSTACK#        содержимое вершины стека каталогов
-                       (который управляется командами pushd и popd)
+    #FARDIRSTACK#        the contents of directories stack top
+                       (the stack is managed with #pushd# and #popd# commands)
 
 @RegExp
-$ #Регуляные выражения для поиска#
-    Синтаксис регулярных выражений почти полностью совпадает с перловыми регэкспами.
+$ #Regular expressions#
+    The regular expressions syntax is almost equal to Perl regexp`s.
 
-    Общий вид: #regexp# или /#regexp#/#options#.
+    General form: #regexp# or /#regexp#/#options#.
 
-    Опции (#options#):
-    #i# - игнорировать регистр
-    #s# - ^<wrap>рассматривать текст как одну строку, '.' совпадает с абсолютно любым знаком
-    #m# - ^<wrap>рассматривать текст как много строк. ^ и $ совпадают с началом и концом 
-любой "внутренней" строки
-    #x# - ^<wrap>просто пробельные знаки (без обратного слеша впереди) игнорируются - 
-полезно в сложных выражениях для структуризации
+    #Options#:
+    #i# - ignore character case;
+    #s# - ^<wrap>consider the whole text as one line, '.' matches any character;
+    #m# - ^<wrap>consider the whole text as multiple lines. ^ и $ match the
+    beginning and the end of any "inner" string;
+    #x# - ^<wrap>ignore space characters (unscreened ones, i.e. without backslash before).
+This is useful to outline the complex expressions.
 
-    #regexp# - последовательность знаков и метасимволов. К знакам
-относятся буквы и цифры, всё остальное, если и не является метасимволом, может
-им стать, поэтому всё, что не есть буква и не есть цифра, следует делать
-знаком "насильственно". Для этого надо перед ним поставить обратный слеш -
-#\#.
+    #regexp# - the sequence of characters and metacharacters. The characters are
+letters and digits, any other symbol becomes character when screened, i.e.
+prepended the backslash #\#.
 
-    Обратите внимание на то, что все слеши (и прямые, и обратные) в вашем
-регулярном выражении должны писаться со спецсимволом #\# впереди, чтобы не
-быть спутанными с другими спецсимволами или концом выражения. Пример: строка
-"большое\белое/страшное" в виде регулярного выражения должна выглядеть так -
-"большое\\белое\/страшное".
+    Pay attention that all slashes and backslashes in regular expression must
+be prepended with the symbol #\# to differ from other special symbols or with
+the end of expression. An example: the string "big\white/scary" looks in the
+form of regular expression like "big\\white\/scary".
 
-    #Метасимволы#
-    
-    #\#  - ^<wrap>следующий за ним знак будет рассмотрен именно как знак, а не как метасимвол
-    #^#  - ^<wrap>начало строки
-    #$#  - ^<wrap>конец строки
-    #|#  - ^<wrap>альтернатива. Должно совпасть выражение до или после |.
+    #Metacharacters#
 
-          ^<wrap>Пример: "\d+\w+|Hello\d+" работает как "(\d+\w+)|(Hello\d+)", а не как "\d+(\w+|H)ello\d+".
+    #\#  - ^<wrap>the next symbol is treated as itself, not a metacharacter
+    #^#  - ^<wrap>the beginning of string
+    #$#  - ^<wrap>the end of string
+    #|#  - ^<wrap>the alternative. Either expression before or after #|# has to match.
 
-    #()# - ^<wrap>группировка - группировка служит либо для использования
-"ссылок", либо для использования попавшего в скобку фрагмента текста при замене.
-    #[]# - ^<wrap>класс знаков - это метасимвол который совпадёт с любым из
-перечисленных в #[]# знаком или диапазоном знаков. Диапазоны указываются например так: [a-z]
-Метасимволы не учитываются в классах символов. Если первый знак класса - #^#, то это делается негативный класс. Если
-хочется добавить в класс знак #^#, он либо не должен быть первым, либо перед ним должен быть #\#.
+          ^<wrap>An example: "\d+\w+|Hello\d+" means "(\d+\w+)|(Hello\d+)", not "\d+(\w+|H)ello\d+".
 
-    Кроме группировки круглые скобки служат еще для следующих операций:
-    #(?:pattern)#  - ^<wrap>обычная группировка, но только эта скобка не получает "номера".
-    #(?=pattern)#  - ^<wrap>просмотр вперёд. Совпадение продолжится с того же места, но только если pattern в этой скобке
-совпал. Например, #\w+(?=\s)# совпадет со словом, за которым идет пробел, причем пробел не будет
-включен в результат поиска.
-    #(?!pattern)#  - ^<wrap>отрицание просмотра вперёд. Совпадение продолжится с того же места, если pattern НЕ
-совпадёт. Например, #foo(?!bar)# совпадет с любым вхождением "foo", которое встречается без
-последующего "bar". Помните, что это выражение имеет нулевой размер, что означает, что
-#a(?!b)d# совпадет с #ad#, потому что #a# сопровождается знаком, который не #b# (а #d#),
-а #d# идет за выражением нулевого размера.
-    #(?<=pattern)# - ^<wrap>просмотр назад. К сожалению, pattern должен быть фиксированной длины.
-    #(?<!pattern)# - ^<wrap>отрицание просмотра назад. Те же ограничения, что и для просмотра назад.
+    #()# - ^<wrap>grouping - it is used for references or when replacing matched text.
+    #[]# - ^<wrap>character class - the metacharacter which matches any symbol
+or range of symbols enumerated in #[]#. Ranges are defined as [a-z].
+Metacharacters are not taken into account in character classes. If the first
+symbol in class is #^# then this is a negative class. If the character #^# has
+to be added to class, then it either must not to be at first place or it must
+be prepended with #\#.
 
-    Можно также создавать поименованные скобки: #(?{name}pattern)#
-    В качестве имени "name" может быть пустая строка (получается
-#безымянная скобка#, на которую нельзя сослаться) или последовательность из
-знаков слова (\w) и пробелов (\s).
+    Except grouping, the parentheses are used for the following operations:
+    #(?:pattern)#  - ^<wrap>usual grouping, but it does not get a number.
+    #(?=pattern)#  - ^<wrap>the forward lookup. The matching continues from
+the same place, but only if the pattern in these parentheses has matched. For
+example, #\w+(?=\s)# matches the word followed by space symbol, and the space
+is not included into the search result.
+    #(?!pattern)#  - ^<wrap>the negation of forward lookup. The matching
+continues from the same place if the pattern does not match. For example,
+#foo(?!bar)# matches any "foo" without following "bar". Remember that this
+expression has zero size, which means that #a(?!b)d# matches #ad# because #a#
+is followed by the symbol, which is not #b# (but #d#), and #d# follows the
+zero-size expression.
+    #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
+    #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
 
-    #Квантификаторы#
+    One can create named parentheses: #(?{name}pattern)#. "name" can be empty
+    (#unnamed parentheses#, which cannot be referred to) or the sequence of
+word characters (\w) and spaces (\s).
 
-    За любым знаком, группой или классом знаков может идти один из
-квантификаторов:
+    #Quantifiers#
 
-    #?#      - ^<wrap>жадное совпадение 0 или один раз.
-    #??#     - ^<wrap>нежадное совпадение 0 или один раз.
-    #*#      - ^<wrap>жадное совпадение 0 или более раз.
-    #*?#     - ^<wrap>нежадное совпадение 0 или более раз.
-    #+#      - ^<wrap>жадное совпадение 1 или более раз.
-    #+?#     - ^<wrap>нежадное совпадение 1 или более раз.
-    #{n}#    - ^<wrap>совпадение точно n раз.
-    #{n,}#   - ^<wrap>жадное совпадение n или более раз.
-    #{n,}?#  - ^<wrap>нежадное совпадение n или более раз.
-    #{n,m}#  - ^<wrap>жадное совпадение не меньше чем n, но не больше чем m раз.
-    #{n,m}?# - ^<wrap>нежадное совпадение не меньше чем n, но не больше чем m раз.
-    #{,m}#   - ^<wrap>эквивалентно {0,m}
-    #{,m}?#  - ^<wrap>эквивалентно {0,m}?
+    Any character, group or class can be followed by a quantifier:
+
+    #?#      - ^<wrap>Match 0 or 1 time, greedily.
+    #??#     - ^<wrap>Match 0 or 1 time, not greedily.
+    #*#      - ^<wrap>Match 0 or more times, greedily.
+    #*?#     - ^<wrap>Match 0 or more times, not greedily.
+    #+#      - ^<wrap>Match 1 or more times, greedily.
+    #+?#     - ^<wrap>Match 1 or more times, not greedily
+    #{n}#    - ^<wrap>Match exactly n times.
+    #{n,}#   - ^<wrap>Match at least n times, greedily.
+    #{n,}?#  - ^<wrap>Match at least n times, not greedily.
+    #{n,m}#  - ^<wrap>Match at least n but not more than m times, greedily.
+    #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
+    #{,m}#   - ^<wrap>equals to {0,m}
+    #{,m}?#  - ^<wrap>equals to {0,m}?
 
 
-    #Что такое "жадный" и "нежадный" квантификатор#
-    
-    Жадный квантификатор захватывает как можно больше. И только, если
-дальнейшего совпадения не получилось, "отдаёт" захваченное (происходит
-"откат", не самая "дешевая" операция).
-    Если выражение "A.*Z" сопоставить строке
-"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", то #.*# сначала захватит всю строку, а
-потом будет по одному знаку "откатываться" пока не найдёт Z. А если
-выражение будет "A.*?Z" то Z найдётся сразу же. Нежадный квантификатор еще
-называют #минимизирующим#, он захватывает минимально возможное количество
-знаков, и только, если дальнейшее совпадение не получилось, захватывает еще.
+    #"Greedy" and "not greedy" quantifiers#
 
-    #Спецсимволы#
+    Greedy quantifier captures as much symbols as possible, and only if
+    further match fails, it "returns" the captured string (the rollback
+happens, which is rather expensive).
+    When expression "A.*Z" is matched to string
+"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
+rolls back symbol by symbol until it finds Z. On the opposite, if the expression
+is "A.*?Z" then Z is found aat once. Not greedy quantifier is also known as
+#mininizing#, it captures minimal possible quantity of symbols, and only if
+further match fails it captures more.
 
-   Перед небуквой и нецифрой можно в большинстве случаев ставить знак '#\#',  а
-для букв и цифр это делать нужно осторожно, ибо таким образом обозначаются
-спецсимволы:
+    #Special symbols#
 
-    #.#    - ^<wrap>любой знак, кроме перевода строки. Если среди опций есть s, то вообще любой знак.
+   Non-letter and non-digit symbol can be prepended by '#\#' in most cases,
+but in case of letters and digits this must be done with care because this is
+the way thew special symbols are written:
+
+    #.#    - ^<wrap>any symbol except carriage return. If there is “s” among
+the options then this can be any symbol.
     #\t#   - tab (0x09)
     #\n#   - new line (lf, 0x0a)
-    #\r#   - return (cr, 0x0d)
+    #\r#   - carriage return (cr, 0x0d)
     #\f#   - form feed (0x0c)
     #\a#   - bell (0x07)
     #\e#   - escape (0x1b)
-    #\xNN# - hex char, где N - [0-9A-Fa-f].
-    #\Q#   - ^<wrap>начало квотирования метасимволов - все, что квотируется,
-будет обрабатываться как текст, а не как регулярное выражение
-    #\E#   - конец квотирования метасимволов
-    #\w#   - буква, цифра или '_'.
-    #\W#   - не \w
-    #\s#   - пробельный знак (tab/space/lf/cr).
-    #\S#   - не \s
-    #\d#   - цифра
-    #\D#   - не цифра
-    #\i#   - буква
-    #\I#   - не буква
-    #\l#   - знак в нижнем регистре
-    #\L#   - не знак в нижнем регистре
-    #\u#   - знак в верхнем регистре
-    #\U#   - не знак в верхнем регистре
-    #\b#   - ^<wrap>граница слова - означает, что слева или справа от текущей
-позиции находится знак из "слова", а справа или слева, соответственно, из "не слова"
-    #\B#   - не \b
-    #\A#   - начало текста, независимо от опции m
-    #\Z#   - конец текста, независимо от опции m
-    #\O#   - ^<wrap>точка "невозврата". Если при матчинге пройден этот знак,
-то отката назад не будет, сразу выдаст no match. Можно
-использовать в сложном выражении после обязательного
-фрагмента с квантификатором. Этот спецсимвол можно
-использовать, когда обрабатываемые объёмы данных очень
-большие.
-         Пример:
+    #\xNN# - hex character, where N - [0-9A-Fa-f].
+    #\Q#   - ^<wrap>the beginning of metacharacters quoting - the whole quoted
+text is treated as text itself, not the regular expression
+    #\E#   - the end of metacharacters quoting
+    #\w#   - letter, digit or '_'.
+    #\W#   - not \w
+    #\s#   - space symbol (tab/space/lf/cr).
+    #\S#   - not \s
+    #\d#   - digit
+    #\D#   - not digit
+    #\i#   - letter
+    #\I#   - not letter
+    #\l#   - lower case symbol
+    #\L#   - not lower case symbol
+    #\u#   - upper case symbol
+    #\U#   - not upper case symbol
+    #\b#   - ^<wrap>the word margin - means that to the left or right from the
+current position there is a word symbol, and to the right or left,
+accordingly, there is non-word symbol
+    #\B#   - not \b
+    #\A#   - the beginning of the text, disregard the option “m”
+    #\Z#   - the end of the text, disregard the option “m”
+    #\O#   - ^<wrap>the no-return point. If the matching has passed by this symbol,
+it won't roll back and and will return "no match". It can be used in complex expressions
+after mandatory fragment with quantifier. This special symbol can be used when
+big amounts of data are processed.
+         Example:
          /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
-         ^<wrap>Строки,  в которых есть "name=", но нету "value=", будут обрабатываться (фактически - пропускаться) быстрее.
+         ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
 
-    #\NN#  - ^<wrap>ссылка на ранее совпавшую скобку. NN - целое число
-от 0 до 15. Каждая скобка кроме (?:pattern), (?=pattern),
-(?!pattern), (?<=pattern), (?<!pattern) и (?{name}pattern)
-имеет номер (по порядку появления открывающей скобки).
+    #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is an integer from 0 to 15. 
+Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and 
+(?{name}pattern) have a number (in the order of appearance).
 
-         Пример: 
-         "(['"])hello\1" совпадёт с "hello" или 'hello'.
+         Example:
+         "(['"])hello\1" matches to "hello" or 'hello'.
 
-    #\p{name}# - ^<wrap>ссылка на ранее совпавшую скобку с именем name.
+    #\p{name}# - ^<wrap>reference to earlier matched parentheses with the specified name.
 
 
-    #Примеры#
+    #Examples:#
 
     #/foobar/#
-       совпадет с "foobar", но не с "FOOBAR"
+       matches to "foobar", but not to "FOOBAR"
     #/ FOO bar /ix#
-       совпадет с "foobar" и с "FOOBAR"
+       matches to "foobar" and "FOOBAR"
     #/(foo)?bar/#
-       совпадет с "foobar" и "bar"
+       matches to "foobar" and "bar"
     #/^foobar$/#
-       совпадет _только_ с "foobar", но не с "foofoofoobarfoobar"
+       matches to "foobar" only, but not to "foofoofoobarfoobar"
     #/[\d\.]+/#
-       совпадет с любым числом с десятичной точкой
+       matches to any number with decimal point
     #/(foo|bar)+/#
-       совпадет с "foofoofoobarfoobar" и "bar"
+       matches to "foofoofoobarfoobar" and "bar"
     #/\Q.)))$\E/#
-       эквивалентно "\.\)\)\)\$"
+       equals to "\.\)\)\)\$"
 
 @RegExpRepl
-$ #Регуляные выражения для замены#
-    В строке замены помимо обычных знаков вы можете использовать специальные
-операторы - регулярные выражения для строки замены.
+$ #Regular expressions in replace#
+    In "Replace with" line one can use special replace string regular 
+expressions:
 
     #$0#..#$9#, #$A#..#$Z#    
 
-    Номера найденных групп. Соответствующая группа подставляется в строку во время 
-работы. Номера группам присваиваются в порядке следования открывающих скобок в 
-регулярном выражении. #$0# означает всю найденную последовательность 
-целиком. #$*# заменяется на символ '*'.
+    The found group numbers, they are replaced with appropriate groups. 
+The numbers are assigned to the groups in order of opening parentheses 
+sequence in regular expression. #$0# means the whole found sequence. 
+#$*# is replaced with '*' character.
 
 
 @KeyMacro

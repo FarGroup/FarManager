@@ -298,7 +298,7 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
   {
     int nLength = (int)wcslen (Str);
 
-		if((nLength > MaxLength) && (nLength >= 2))
+		if((MaxLength > 0) && (nLength > MaxLength) && (nLength >= 2))
     {
       wchar_t *lpStart = NULL;
 

@@ -543,7 +543,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
       {
         apiExpandEnvironmentStrings (Argv[I], DestNames[CntDestName]);
         Unquote(DestNames[CntDestName]);
-        ConvertNameToFull(Argv[I],DestNames[CntDestName]);
+        ConvertNameToFull(DestNames[CntDestName],DestNames[CntDestName]);
 				if(apiGetFileAttributes(DestNames[CntDestName]) != INVALID_FILE_ATTRIBUTES)
           CntDestName++; //???
       }
