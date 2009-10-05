@@ -139,6 +139,9 @@ void ImportedFunctions::Load()
 	{
 		pfnNtQueryInformationFile = (NTQUERYINFORMATIONFILE)GetProcAddress(hNtdll, "NtQueryInformationFile");
 		pfnNtQueryObject = (NTQUERYOBJECT)GetProcAddress(hNtdll, "NtQueryObject");
+		pfnNtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtOpenSymbolicLinkObject");
+		pfnNtQuerySymbolicLinkObject = (NTQUERYSYMBOLICLINKOBJECT)GetProcAddress(hNtdll, "NtQuerySymbolicLinkObject");
+		pfnNtClose = (NTCLOSE)GetProcAddress(hNtdll, "NtClose");
 	}
 
 	if (hShell)

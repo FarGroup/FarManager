@@ -178,6 +178,22 @@ typedef NTSTATUS (NTAPI *NTQUERYOBJECT) (
 	PULONG ReturnLength
 );
 
+typedef NTSTATUS (NTAPI *NTOPENSYMBOLICLINKOBJECT)(
+	PHANDLE LinkHandle,
+	ACCESS_MASK DesiredAccess,
+	POBJECT_ATTRIBUTES ObjectAttributes
+);
+
+typedef NTSTATUS (NTAPI *NTQUERYSYMBOLICLINKOBJECT)(
+	HANDLE LinkHandle,
+	PUNICODE_STRING LinkTarget,
+	PULONG ReturnedLength
+);
+
+typedef NTSTATUS (NTAPI *NTCLOSE)(
+	HANDLE Handle
+);
+
 struct ImportedFunctions {
 
 	//
@@ -212,6 +228,9 @@ struct ImportedFunctions {
 
 	GETFINALPATHNAMEBYHANDLE pfnGetFinalPathNameByHandle;
 	NTQUERYOBJECT pfnNtQueryObject;
+	NTOPENSYMBOLICLINKOBJECT pfnNtOpenSymbolicLinkObject;
+	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;
+	NTCLOSE pfnNtClose;
 
 	void Load();
 };

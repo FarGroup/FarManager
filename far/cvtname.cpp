@@ -360,19 +360,19 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
         ULONG RetLen;
         ULONG BufSize = 0x10000;
         OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-        NTSTATUS res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-        if (res == STATUS_BUFFER_OVERFLOW || res == STATUS_BUFFER_TOO_SMALL)
+        NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+        if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
         {
           BufSize = RetLen;
           oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-          res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+          Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
         }
-        if (res == STATUS_SUCCESS)
+        if (Res == STATUS_SUCCESS)
         {
           FinalFilePath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
         }
         xf_free(oni);
-        if (res == STATUS_SUCCESS)
+        if (Res == STATUS_SUCCESS)
         {
           // need to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
           wchar_t VolumeName[MAX_PATH];
@@ -388,6 +388,28 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
               if (Res)
               {
                 TargetPath.ReleaseBuffer();
+                // path could be an Object Manager symlink, try to resolve
+                UNICODE_STRING ObjName;
+                ObjName.Length = ObjName.MaximumLength = TargetPath.GetLength() * sizeof(wchar_t);
+                ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+                OBJECT_ATTRIBUTES ObjAttrs;
+                InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+                HANDLE hSymLink;
+                NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+                if (Res == STATUS_SUCCESS)
+                {
+                  ULONG BufSize = 0x7FFF;
+                  string Buffer;
+                  UNICODE_STRING LinkTarget;
+                  LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+                  LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+                  Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+                  if (Res == STATUS_SUCCESS)
+                  {
+                    TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+                  }
+                  ifn.pfnNtClose(hSymLink);
+                }
                 if (PathStartsWith(FinalFilePath, TargetPath))
                 {
                   FinalFilePath.Replace(0, TargetPath.GetLength(), VolumeName);
