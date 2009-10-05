@@ -1258,6 +1258,9 @@ void PluginManager::GetOpenPluginInfo (
 
 	if ( Info->CurDir == NULL) //υμμ...
 		Info->CurDir = L"";
+
+	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir)
+		strCurrentDirectory() = Info->CurDir;
 }
 
 

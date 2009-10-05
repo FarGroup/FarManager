@@ -263,6 +263,8 @@ BOOL apiSetFileAttributes(
 		DWORD dwFileAttributes
 		);
 
+string& strCurrentDirectory();
+
 BOOL apiSetCurrentDirectory(
 		LPCWSTR lpPathName
 		);
