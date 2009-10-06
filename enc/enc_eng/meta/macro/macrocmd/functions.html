@@ -527,7 +527,7 @@ $End
     <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
     <td class="cont" width="60%">Returns 1 if there is a hot key <em>S</em> in a menu
     and the current 'object' is a menu. Если горячей клавиши нет - возвращает 0.
-      Если функция вызывана не из своей области (MainMenu, Menu, Disks или UserMenu), то возвращается -1.<br>
+      Если функция вызывана не из своей области (MainMenu, Menu, Disks, UserMenu и Dialog), то возвращается -1.<br>
     <p>For example there's a hotkey '7' assigned to 'S&amp;R' plugin in the plugins menu (F11).
     The following macro command sequence for the internal file editor should call 'S&amp;R'
     plugin if there is a hot key assigned and the standard search dialog if not:
