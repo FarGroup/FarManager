@@ -3520,7 +3520,7 @@ done:
        VMStack.Pop(tmpVar);
        //const wchar_t *checkStr=tmpVar.toString();
        int CurMMode=CtrlObject->Macro.GetMode();
-       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU)
+       if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU || CurMMode == MACRO_DIALOG)
        {
          Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
          //f=f->GetTopModal();

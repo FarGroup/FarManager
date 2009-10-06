@@ -1,3 +1,8 @@
+svs 06.10.2009 20:51:50 +0300 - build 1158
+
+1. Macro: CheckHotkey() работает в области "Dialog".
+   Если текущий элемент ListBox или открытый Combobox (или открытый History), то CheckHotkey() работает с этим элементов.
+
 chupakabra 05.10.2009 20:49:00 +0200 - build 1157
 
 1. Обновляем текущий каталог для плагинов с OPIF_REALNAMES.
