@@ -2093,7 +2093,15 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
     {
       const char *str = (const char *)vParam;
       if ( *str )
-        return (__int64)((DWORD)CheckHighlights(*str));
+      {
+        if ( GetDropDownOpened() || Item[FocusPos].Type == DI_LISTBOX)
+        {
+          if(Item[FocusPos].ListPtr)
+            return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
+        }
+        else
+          return (__int64)((DWORD)CheckHighlights(*str));
+      }
       return _i64(0);
     }
   }
