@@ -526,15 +526,17 @@ $End
     <th class="cont" width="60%">Описание</th>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
-    <td class="cont" width="60%">Возвращает 1, если в меню присутствует горячая
-      клавиша <em>S</em> и текущий &quot;объект&quot; - меню. Если горячей клавиши нет - возвращает 0.
-      Если функция вызывана не из своей области (MainMenu, Menu, Disks, UserMenu и Dialog), то возвращается -1.<br>
+    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S[,Pos])</td>
+    <td class="cont" width="60%">Функция позволяет проверить и получить позицию элемента (начиная с <em>Pos</em>), который содержит горячую клавишу <em>S</em>.
+    Если <em>S</em> - пустая строка, то функция вернет позицию элемента, который не содержит ни одной горячей клавиши.<br>
+    Возвращает: -1 - если функция вызывана не из своей области (MainMenu, Menu, Disks, UserMenu и Dialog), 0 - ничего не найдено, > 0 - если в меню/диалоге/списке присутствует горячая
+    клавиша <em>S</em>.<br>
       <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
       горячая клавиша '7'. Последовательность макрокоманды для редактора:
       <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
       вызовет плагин, если хоткей назначен или стандартный диалог
-      поиска, если хоткей не назначен.</td>
+      поиска, если хоткей не назначен.
+   </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="gethotkey">gethotkey</a></dfn>(N)</td>
