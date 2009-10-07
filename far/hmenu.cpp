@@ -128,9 +128,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = (const char *)vParam;
-      if ( *str )
-        return (__int64)((DWORD)CheckHighlights(*str));
-      return _i64(0);
+      return (__int64)(CheckHighlights(*str,(int)iParam)+1);
     }
     case MCODE_F_MENU_GETHOTKEY:
     {
@@ -451,16 +449,23 @@ char HMenu::GetHighlights(const struct HMenuData *_item)
   return Ch;
 }
 
-BOOL HMenu::CheckHighlights(BYTE CheckSymbol)
+int HMenu::CheckHighlights(BYTE CheckSymbol,int StartPos)
 {
   CriticalSectionLock Lock(CS);
+  if(StartPos < 0)
+    StartPos=0;
 
-  for (int I=0; I < ItemCount; I++)
+  for (int I=StartPos; I < ItemCount; I++)
   {
     char Ch=GetHighlights(Item+I);
 
-    if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
-      return TRUE;
+    if(Ch)
+    {
+      if(LocalUpper(CheckSymbol) == LocalUpper(Ch))
+        return I;
+    }
+    else if(!CheckSymbol)
+      return I;
   }
-  return FALSE;
+  return -1;
 }

@@ -2092,16 +2092,13 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = (const char *)vParam;
-      if ( *str )
+      if ( GetDropDownOpened() || Item[FocusPos].Type == DI_LISTBOX)
       {
-        if ( GetDropDownOpened() || Item[FocusPos].Type == DI_LISTBOX)
-        {
-          if(Item[FocusPos].ListPtr)
-            return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
-        }
-        else
-          return (__int64)((DWORD)CheckHighlights(*str));
+        if(Item[FocusPos].ListPtr)
+          return Item[FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
       }
+      else
+        return (__int64)(CheckHighlights(*str,(int)iParam)+1);
       return _i64(0);
     }
   }
@@ -4676,14 +4673,16 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 /* SVS $ */
 
 
-BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
+int Dialog::CheckHighlights(BYTE CheckSymbol,int StartPos)
 {
   CriticalSectionLock Lock(CS);
 
   int I, Type;
   DWORD Flags;
+  if(StartPos < 0)
+    StartPos=0;
 
-  for (I=0;I<ItemCount;I++)
+  for (I=StartPos;I<ItemCount;I++)
   {
     Type=Item[I].Type;
     Flags=Item[I].Flags;
@@ -4696,11 +4695,13 @@ BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
       {
         BYTE Ch=ChPtr[1];
         if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
-          return TRUE;
+          return I;
       }
+      else if(!CheckSymbol)
+        return I;
     }
   }
-  return FALSE;
+  return -1;
 }
 
 //////////////////////////////////////////////////////////////////////////

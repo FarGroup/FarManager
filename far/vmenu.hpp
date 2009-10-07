@@ -183,7 +183,7 @@ class VMenu: public Modal
     static int _SetUserData(struct MenuItem *PItem,const void *Data,int Size);
     static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
-    BOOL CheckHighlights(BYTE Chr);
+    int CheckHighlights(BYTE Chr,int StartPos=0);
     char GetHighlights(const struct MenuItem *_item);
     BOOL ShiftItemShowPos(int Pos,int Direct);
     int RecalcItemHiddenCount();

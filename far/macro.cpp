@@ -3478,16 +3478,16 @@ done:
     }
 
     case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N])
-    case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
+    case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
     {
        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? "MCODE_F_MENU_CHECKHOTKEY":"MCODE_F_MENU_SELECT"));
        __int64 Result=_i64(-1);
        __int64 tmpMode=_i64(0);
-       if(Key == MCODE_F_MENU_SELECT)
-       {
-         tmpMode=VMStack.Pop().toInteger();
-       }
+       tmpMode=VMStack.Pop().toInteger();
        tmpVar=VMStack.Pop();
+       if(Key == MCODE_F_MENU_CHECKHOTKEY && tmpMode > 0)
+           tmpMode--;
+
        const char *checkStr=tmpVar.toString();
        int CurMMode=CtrlObject->Macro.GetMode();
        if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS || CurMMode == MACRO_USERMENU || CurMMode == MACRO_DIALOG)

@@ -280,7 +280,7 @@ class Dialog: public Frame
     /* DJ $ */
 
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
-    BOOL CheckHighlights(BYTE Chr);
+    int CheckHighlights(BYTE Chr,int StartPos=0);
 
     /* $ 08.09.2000 SVS
       Функция SelectOnEntry - выделение строки редактирования
@@ -330,9 +330,9 @@ class Dialog: public Frame
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
     void SetComboBoxPos();
-    
+
     LONG_PTR CallDlgProc (int nMsg, int nParam1, LONG_PTR nParam2);
-    
+
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,LONG_PTR Param=0);
     virtual ~Dialog();

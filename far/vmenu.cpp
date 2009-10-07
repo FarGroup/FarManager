@@ -753,9 +753,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = (const char *)vParam;
-      if ( *str )
-        return (__int64)((DWORD)CheckHighlights(*str));
-      return _i64(0);
+      return (__int64)(CheckHighlights(*str,(int)iParam)+1);
     }
 
     case MCODE_F_MENU_SELECT:
@@ -2094,21 +2092,29 @@ char VMenu::GetHighlights(const struct MenuItem *_item)
   return Ch;
 }
 
-BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
+int VMenu::CheckHighlights(BYTE CheckSymbol,int StartPos)
 {
   CriticalSectionLock Lock(CS);
 
-  for (int I=0; I < ItemCount; I++)
+  if(StartPos < 0)
+    StartPos=0;
+
+  for (int I=StartPos; I < ItemCount; I++)
   {
     if(Item[I].Flags&LIF_HIDDEN) //???
         continue;
 
     char Ch=GetHighlights(Item+I);
 
-    if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
-      return TRUE;
+    if(Ch)
+    {
+      if(LocalUpper(CheckSymbol) == LocalUpper(Ch))
+        return I;
+    }
+    else if(!CheckSymbol)
+      return I;
   }
-  return FALSE;
+  return -1;
 }
 
 void VMenu::AssignHighlights(int Reverse)

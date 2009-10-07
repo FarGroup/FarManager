@@ -271,7 +271,7 @@ static TMacroFunction macroFunction[]={
   {"BM.NEXT",          0, 0,   MCODE_F_BM_NEXT},             // N=BM.Next()
   {"BM.PREV",          0, 0,   MCODE_F_BM_PREV},             // N=BM.Prev()
   {"BM.STAT",          1, 1,   MCODE_F_BM_STAT},             // N=BM.Stat([N])
-  {"CHECKHOTKEY",      1, 0,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {"CHECKHOTKEY",      2, 1,   MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S[,N])
   {"CALLPLUGIN",       2, 1,   MCODE_F_CALLPLUGIN},          // V=callplugin(SysID[,param])
   {"CHR",              1, 0,   MCODE_F_CHR},                 // S=chr(N)
   {"CLIP",             2, 1,   MCODE_F_CLIP},                // V=clip(N[,S])
@@ -1096,7 +1096,7 @@ static void printKeyValue(DWORD* k, int& i)
     {MCODE_F_LCASE,            "S=lcase(S1)"},
     {MCODE_F_LEN,              "N=len(S)"},
     {MCODE_F_MAX,              "N=max(N1,N2)"},
-    {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S)"},
+    {MCODE_F_MENU_CHECKHOTKEY, "N=checkhotkey(S[,N])"},
     {MCODE_F_MENU_SELECT,      "N=Menu.Select(S[,N])"},
     {MCODE_F_MENU_GETHOTKEY,   "S=gethotkey([N])"},
     {MCODE_F_MIN,              "N=min(N1,N2)"},
