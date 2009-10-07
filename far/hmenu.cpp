@@ -118,13 +118,13 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return ItemCount;
     case MCODE_V_CURPOS:
 			return SelectPos+1;
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const wchar_t *str = (const wchar_t *)vParam;
-      if ( *str )
-        return CheckHighlights((WORD)*str);
-			return 0;
-    }
+
+		case MCODE_F_MENU_CHECKHOTKEY:
+		{
+			const wchar_t *str = (const wchar_t *)vParam;
+			return (__int64)(CheckHighlights((WORD)*str, (int)iParam)+1);
+		}
+
     case MCODE_F_MENU_GETHOTKEY:
     {
 			if(iParam == -1)
@@ -454,16 +454,25 @@ wchar_t HMenu::GetHighlights(const HMenuData *_item)
   return Ch;
 }
 
-BOOL HMenu::CheckHighlights(WORD CheckSymbol)
+int HMenu::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  for (int I=0; I < ItemCount; I++)
-  {
+	if (StartPos < 0)
+		StartPos=0;
+
+	for (int I=StartPos; I < ItemCount; I++)
+	{
 		wchar_t Ch=GetHighlights((const HMenuData *)(Item+I));
 
-    if(Ch && Upper(CheckSymbol) == Upper(Ch))
-      return TRUE;
-  }
-  return FALSE;
+		if( Ch )
+		{
+			if (Upper(CheckSymbol) == Upper(Ch))
+				return I;
+		}
+		else if (!CheckSymbol)
+			return I;
+	}
+
+	return -1;
 }

@@ -65,7 +65,7 @@ class HMenu: public Modal
     void ProcessSubMenu(struct MenuDataEx *Data,int DataCount,const wchar_t *SubMenuHelp,
                         int X,int Y,int &Position);
     wchar_t GetHighlights(const struct HMenuData *_item);
-    BOOL CheckHighlights(WORD CheckSymbol);
+    int CheckHighlights(WORD CheckSymbol,int StartPos=0);
 
   public:
     HMenu(struct HMenuData *Item,int ItemCount);

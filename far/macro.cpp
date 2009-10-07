@@ -3507,15 +3507,21 @@ done:
     }
 
     case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N[,Dir]])
-    case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
+    case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
     {
        _KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_CHECKHOTKEY? L"MCODE_F_MENU_CHECKHOTKEY":L"MCODE_F_MENU_SELECT"));
 				__int64 Result=-1;
 				__int64 tmpMode=0;
+				__int64 tmpDir=0;
        if(Key == MCODE_F_MENU_SELECT)
+         tmpDir=VMStack.Pop().getInteger();
+       tmpMode=VMStack.Pop().getInteger();
+       if(Key == MCODE_F_MENU_SELECT)
+         tmpMode |= (tmpDir << 8);
+       else
        {
-         __int64 tmpDir=VMStack.Pop().getInteger();
-         tmpMode=VMStack.Pop().getInteger() | (tmpDir << 8);
+         if(tmpMode > 0)
+           tmpMode--;
        }
        VMStack.Pop(tmpVar);
        //const wchar_t *checkStr=tmpVar.toString();

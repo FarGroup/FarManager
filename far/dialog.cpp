@@ -2317,16 +2317,14 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const wchar_t *str = (const wchar_t *)vParam;
-      if ( *str )
+
+      if ( GetDropDownOpened() || Item[FocusPos]->Type == DI_LISTBOX )
       {
-        if ( GetDropDownOpened() || Item[FocusPos]->Type == DI_LISTBOX )
-        {
-          if(Item[FocusPos]->ListPtr)
-            return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
-        }
-        else
-          return (__int64)((DWORD)CheckHighlights(*str));
+        if(Item[FocusPos]->ListPtr)
+           return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
       }
+      else
+         return (__int64)(CheckHighlights(*str,(int)iParam) + 1);
       return 0;
     }
   }
@@ -4584,31 +4582,36 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
   return TRUE;
 }
 
-BOOL Dialog::CheckHighlights(WORD CheckSymbol)
+int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  int Type;
-  DWORD Flags;
+	int Type, I;
+	DWORD Flags;
 
-  for (unsigned I=0;I<ItemCount;I++)
-  {
-    Type=Item[I]->Type;
-    Flags=Item[I]->Flags;
+	if (StartPos < 0)
+		StartPos=0;
 
-    if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) &&
-        (Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
-    {
-      const wchar_t *ChPtr=wcschr(Item[I]->strData,L'&');
-      if (ChPtr)
-      {
-        WORD Ch=ChPtr[1];
-        if(Ch && Upper(CheckSymbol) == Upper(Ch))
-          return TRUE;
-      }
-    }
-  }
-  return FALSE;
+	for ( I=StartPos; I < (int)ItemCount; I++ )
+	{
+		Type=Item[I]->Type;
+		Flags=Item[I]->Flags;
+
+		if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) && (Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
+		{
+			const wchar_t *ChPtr=wcschr(Item[I]->strData,L'&');
+			if (ChPtr)
+			{
+				WORD Ch=ChPtr[1];
+				if(Ch && Upper(CheckSymbol) == Upper(Ch))
+					return I;
+			}
+			else if ( !CheckSymbol )
+				return I;
+		}
+	}
+
+	return -1;
 }
 
 //////////////////////////////////////////////////////////////////////////

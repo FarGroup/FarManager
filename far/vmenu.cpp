@@ -964,13 +964,11 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
     case MCODE_V_CURPOS:
 			return SelectPos+1;
 
-    case MCODE_F_MENU_CHECKHOTKEY:
-    {
-      const wchar_t *str = (const wchar_t *)vParam;
-      if ( *str )
-				return CheckHighlights(*str);
-			return 0;
-    }
+		case MCODE_F_MENU_CHECKHOTKEY:
+		{
+			const wchar_t *str = (const wchar_t *)vParam;
+			return (__int64)(CheckHighlights(*str,(int)iParam)+1);
+		}
 
     case MCODE_F_MENU_SELECT:
     {
@@ -2227,20 +2225,27 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
   return Ch;
 }
 
-bool VMenu::CheckHighlights(wchar_t CheckSymbol)
+int VMenu::CheckHighlights(wchar_t CheckSymbol,int StartPos)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  for (int I=0; I < ItemCount; I++)
-  {
-    if(Item[I]->Flags&LIF_HIDDEN) //???
-        continue;
-    wchar_t Ch=GetHighlights(Item[I]);
+	for (int I=StartPos; I < ItemCount; I++)
+	{
+		if(Item[I]->Flags&LIF_HIDDEN) //???
+			continue;
 
-    if(Ch && Upper(CheckSymbol) == Upper(Ch))
-			return true;
-  }
-	return false;
+		wchar_t Ch=GetHighlights(Item[I]);
+
+		if(Ch)
+		{
+			if(Upper(CheckSymbol) == Upper(Ch))
+				return I;
+		}
+		else if (!CheckSymbol)
+			return I;
+	}
+
+	return -1;
 }
 
 void VMenu::AssignHighlights(int Reverse)
