@@ -88,7 +88,27 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       int hasTopic = (*ptrTopic == _T(' '));
 
       *ptrTopic=0;
+
+#ifdef UNICODE
+      TCHAR *ptrCurDir=NULL;
+      if(PointToName(ptrName) == ptrName)
+      {
+        size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+        if(Size)
+        {
+          ptrCurDir=new WCHAR[Size+lstrlen(ptrName)+8];
+          Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+          lstrcat(ptrCurDir,_T("\\"));
+          lstrcat(ptrCurDir,ptrName);
+          ptrName=(TCHAR *)ptrCurDir;
+        }
+      }
+#endif
       GetFullPathName(ptrName,NM,FileName,&ptrName);
+#ifdef UNICODE
+      if(ptrCurDir)
+        delete[] ptrCurDir;
+#endif
 
       if (hasTopic)
       {
