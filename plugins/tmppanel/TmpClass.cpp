@@ -114,9 +114,15 @@ int TmpPanel::SetDirectory(const TCHAR *Dir,int OpMode)
 }
 
 
-int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,int)
+int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,const wchar_t *SrcPath,int)
 {
   UpdateNotNeeded=FALSE;
+
+#ifdef UNICODE //BUGBUG
+	WCHAR CurDir[MAX_PATH];
+	GetCurrentDirectory(ArraySize(CurDir),CurDir);
+	SetCurrentDirectory(SrcPath);
+#endif
 
   HANDLE hScreen = BeginPutFiles();
   for(int i=0;i<ItemsNumber;i++)
@@ -128,6 +134,11 @@ int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,int
     }
   }
   CommitPutFiles (hScreen, TRUE);
+
+#ifdef UNICODE //BUGBUG
+	SetCurrentDirectory(CurDir);
+#endif
+
   return(1);
 }
 

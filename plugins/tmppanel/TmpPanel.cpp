@@ -594,10 +594,17 @@ int WINAPI EXP_NAME(SetDirectory)(HANDLE hPlugin,const TCHAR *Dir,int OpMode)
 
 
 int WINAPI EXP_NAME(PutFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
-                              int ItemsNumber,int Move,int OpMode)
+                              int ItemsNumber,int Move,
+#ifdef UNICODE
+                              const wchar_t* SrcPath,
+#endif
+                              int OpMode)
 {
+#ifndef UNICODE
+	const wchar_t* SrcPath=0;
+#endif
   TmpPanel *Panel=(TmpPanel *)hPlugin;
-  return(Panel->PutFiles(PanelItem,ItemsNumber,Move,OpMode));
+  return(Panel->PutFiles(PanelItem,ItemsNumber,Move,SrcPath,OpMode));
 }
 
 

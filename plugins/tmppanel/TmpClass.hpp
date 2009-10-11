@@ -41,7 +41,7 @@ class TmpPanel
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     int SetDirectory(const TCHAR *Dir,int OpMode);
 
-    int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+    int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
     HANDLE BeginPutFiles();
     void CommitPutFiles (HANDLE hRestoreScreen, int Success);
     int PutOneFile (PluginPanelItem &PanelItem);
