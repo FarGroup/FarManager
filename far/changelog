@@ -1,3 +1,22 @@
+drkns 11.10.2009 21:50:10 +0200 - build 1160
+
+1. PutFilesW теперь выгл€дит так:
+
+   int WINAPI PutFilesW(
+     HANDLE hPlugin,
+     struct PluginPanelItem *PanelItem,
+     int ItemsNumber,
+     int Move,
+     const wchar_t *SrcPath,
+     int OpMode
+   );
+
+   где SrcPath - путь источника (откуда получим файлы).
+
+   ѕлагины, использующие PutFilesW - сломались, как обычно :)
+  
+2. Mantis#0001090: ѕанель с пр€мыми слэшами становитс€ "нерабочей".
+
 svs 07.10.2009 17:30:36 +0300 - build 1159
 
 1. Mantis#0001099: ”знать, есть ли элемент без гор€чей клавиши

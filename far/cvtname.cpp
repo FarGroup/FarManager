@@ -390,7 +390,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
                 TargetPath.ReleaseBuffer();
                 // path could be an Object Manager symlink, try to resolve
                 UNICODE_STRING ObjName;
-                ObjName.Length = ObjName.MaximumLength = TargetPath.GetLength() * sizeof(wchar_t);
+                ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
                 ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
                 OBJECT_ATTRIBUTES ObjAttrs;
                 InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);

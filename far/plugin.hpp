@@ -2081,7 +2081,7 @@ int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *Pa
 int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
 int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
-int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
 int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
 int    WINAPI _export SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);

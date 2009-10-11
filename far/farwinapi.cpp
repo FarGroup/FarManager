@@ -169,22 +169,8 @@ string& strCurrentDirectory()
 	return strCurrentDirectory;
 }
 
-//#define USE_SYSTEM_CURDIR
 DWORD apiGetCurrentDirectory (string &strCurDir)
 {
-#ifdef USE_SYSTEM_CURDIR
-	DWORD dwSize = GetCurrentDirectory(0, NULL);
-	wchar_t *CurrentDirectory = strCurrentDirectory().GetBuffer(dwSize);
-	GetCurrentDirectory(dwSize,CurrentDirectory);
-
-	if(IsLocalPath(CurrentDirectory))
-		CurrentDirectory[0]=Upper(CurrentDirectory[0]);
-	else if(IsLocalPrefixPath(CurrentDirectory))
-		CurrentDirectory[4]=Upper(CurrentDirectory[4]);
-
-	strCurrentDirectory().ReleaseBuffer ();
-
-#endif
 	DeleteEndSlash(strCurrentDirectory());
 	LPCWSTR CD=strCurrentDirectory();
 	int Offset=PathPrefix(CD)?4:0;
@@ -197,17 +183,6 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 
 BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 {
-#ifdef USE_SYSTEM_CURDIR
-	AddEndSlash(strCurrentDirectory());
-	BOOL Ret=SetCurrentDirectory(strCurrentDirectory());
-	if(!Ret)
-	{
-		strCurrentDirectory()=NTPath(lpPathName);
-		AddEndSlash(strCurrentDirectory());
-		Ret=SetCurrentDirectory(strCurrentDirectory());
-	}
-	return Ret;
-#else
 	string strDir=lpPathName;
 	AddEndSlash(strDir);
 	strDir+=L"*";
@@ -216,9 +191,9 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 		GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
 	{
 		strCurrentDirectory()=lpPathName;
+		ReplaceSlashToBSlash(strCurrentDirectory());
 		return TRUE;
 	}
-#endif
 	return FALSE;
 }
 

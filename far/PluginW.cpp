@@ -1048,8 +1048,9 @@ int PluginW::PutFiles (
 
 		es.id = EXCEPT_PUTFILES;
 		es.nDefaultResult = -1;
-
-		EXECUTE_FUNCTION_EX(pPutFilesW(hPlugin, PanelItem, ItemsNumber, Move, OpMode), es);
+		static string strCurrentDirectory;
+		apiGetCurrentDirectory(strCurrentDirectory);
+		EXECUTE_FUNCTION_EX(pPutFilesW(hPlugin, PanelItem, ItemsNumber, Move, strCurrentDirectory, OpMode), es);
 
 		nResult = (int)es.nResult;
 	}
