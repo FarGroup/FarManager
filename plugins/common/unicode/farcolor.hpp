@@ -1,9 +1,10 @@
+#pragma once
 #ifndef __COLORS_HPP__
 #define __COLORS_HPP__
 /*
   farcolor.hpp
 
-  Colors Index for FAR Manager 2.0 build 1017
+  Colors Index for FAR Manager 2.0 build 1160
   HKCU\Software\Far\Colors\CurrentPalette
 */
 

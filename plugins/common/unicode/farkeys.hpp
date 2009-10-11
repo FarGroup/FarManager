@@ -1,9 +1,10 @@
+#pragma once
 #ifndef __FARKEYS_HPP__
 #define __FARKEYS_HPP__
 /*
   farkeys.hpp
 
-  Inside KeyName for FAR Manager 2.0 build 1017
+  Inside KeyName for FAR Manager 2.0 build 1160
 */
 
 /*

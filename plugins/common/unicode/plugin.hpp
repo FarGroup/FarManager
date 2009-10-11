@@ -1,10 +1,11 @@
+#pragma once
 #ifndef __PLUGIN_HPP__
 #define __PLUGIN_HPP__
 
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1017
+  Plugin API for FAR Manager 2.0 build 1160
 */
 
 /*
@@ -41,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1017
+#define FARMANAGERVERSION_BUILD 1160
 
 #ifndef RC_INVOKED
 
@@ -127,7 +128,7 @@ typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
 
 #define CP_UNICODE 1200
-#define CP_REVERSEBOM 65534
+#define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
 
 enum FARMESSAGEFLAGS{
@@ -314,6 +315,8 @@ enum FarMessagesProc{
   DM_GETDLGITEMSHORT,
   DM_SETDLGITEMSHORT,
 
+  DM_GETDIALOGINFO,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -335,6 +338,8 @@ enum FarMessagesProc{
   DN_MOUSEEVENT,
   DN_DRAWDIALOGDONE,
   DN_LISTHOTKEY,
+
+  DN_GETDIALOGINFO=DM_GETDIALOGINFO,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
@@ -514,6 +519,12 @@ struct OpenDlgPluginData
 {
   int ItemNumber;
   HANDLE hDlg;
+};
+
+struct DialogInfo
+{
+  int StructSize;
+  GUID Id;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -971,6 +982,7 @@ enum FarConfirmationsSettings{
   FCS_RELOADEDITEDFILE               = 0x00000080,
   FCS_CLEARHISTORYLIST               = 0x00000100,
   FCS_EXIT                           = 0x00000200,
+  FCS_OVERWRITEDELETEROFILES         = 0x00000400,
 };
 
 enum FarDescriptionSettings {
@@ -1441,6 +1453,12 @@ typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
   LONG_PTR Param2
 );
 
+typedef int (WINAPI *FARAPIREGEXPCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  LONG_PTR Param
+);
+
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1529,8 +1547,15 @@ enum MKLINKOP{
   FLINK_DONOTUPDATEPANEL = 0x20000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
-typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const wchar_t *Src, wchar_t *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
+
+enum CONVERTPATHMODES
+{
+	CPM_FULL,
+	CPM_REAL,
+};
+
+typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
 
 typedef struct FarStandardFunctions
 {
@@ -1589,7 +1614,7 @@ typedef struct FarStandardFunctions
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
-  FARCONVERTNAMETOREAL       ConvertNameToReal;
+  FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 } FARSTANDARDFUNCTIONS;
 
@@ -1630,6 +1655,7 @@ struct PluginStartupInfo
   FARAPIVIEWERCONTROL    ViewerControl;
   FARAPIPLUGINSCONTROL   PluginsControl;
   FARAPIFILEFILTERCONTROL FileFilterControl;
+  FARAPIREGEXPCONTROL    RegExpControl;
 };
 
 
@@ -1772,6 +1798,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
   OPEN_DIALOG       = 8,
+  OPEN_ANALYSE      = 9,
   OPEN_FROMMACRO    = 0x10000,
 };
 
@@ -1819,6 +1846,31 @@ enum FAR_FILE_FILTER_TYPE
   FFT_SELECT,
 };
 
+enum FAR_REGEXP_CONTROL_COMMANDS {
+  RECTL_CREATE=0,
+  RECTL_FREE,
+  RECTL_COMPILE,
+  RECTL_OPTIMIZE,
+  RECTL_MATCHEX,
+  RECTL_SEARCHEX,
+  RECTL_BRACKETSCOUNT
+};
+
+struct RegExpMatch
+{
+  int start,end;
+};
+
+struct RegExpSearch
+{
+  const wchar_t* Text;
+  int Position;
+  int Length;
+  struct RegExpMatch* Match;
+  int Count;
+  void* Reserved;
+};
+
 
 #if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__) || defined(__WATCOMC__)
 #ifdef __cplusplus
@@ -1850,7 +1902,7 @@ int    WINAPI _export ProcessHostFileW(HANDLE hPlugin,struct PluginPanelItem *Pa
 int    WINAPI _export ProcessKeyW(HANDLE hPlugin,int Key,unsigned int ControlState);
 int    WINAPI _export ProcessSynchroEventW(int Event,void *Param);
 int    WINAPI _export ProcessViewerEventW(int Event,void *Param);
-int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+int    WINAPI _export PutFilesW(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
 int    WINAPI _export SetDirectoryW(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
 int    WINAPI _export SetFindListW(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfoW(const struct PluginStartupInfo *Info);
