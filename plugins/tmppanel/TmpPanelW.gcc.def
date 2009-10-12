@@ -9,7 +9,7 @@ EXPORTS
    OpenPluginW=OpenPluginW@8
    ProcessEventW=ProcessEventW@12
    ProcessKeyW=ProcessKeyW@12
-   PutFilesW=PutFilesW@20
+   PutFilesW=PutFilesW@24
    SetDirectoryW=SetDirectoryW@12
    SetFindListW=SetFindListW@12
    SetStartupInfoW=SetStartupInfoW@4
