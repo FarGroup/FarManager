@@ -766,3 +766,20 @@ BOOL apiFindStreamClose(HANDLE hFindFile)
 	}
 	return Ret;
 }
+
+bool apiGetLogicalDriveStrings(string& DriveStrings)
+{
+	DWORD BufSize = MAX_PATH;
+	DWORD Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
+	if (Size > BufSize)
+	{
+		BufSize = Size;
+		Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
+	}
+	if ((Size > 0) && (Size <= BufSize))
+	{
+		DriveStrings.ReleaseBuffer(Size);
+		return true;
+	}
+	return false;
+}

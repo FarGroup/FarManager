@@ -304,3 +304,7 @@ BOOL apiFindNextStream(
 	HANDLE hFindStream,
 	LPVOID lpFindStreamData
 );
+
+bool apiGetLogicalDriveStrings(
+	string& DriveStrings
+);

@@ -367,60 +367,88 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
           oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
           Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
         }
+        string NtPath;
         if (Res == STATUS_SUCCESS)
         {
-          FinalFilePath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+          NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
         }
         xf_free(oni);
         if (Res == STATUS_SUCCESS)
         {
-          // need to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-          wchar_t VolumeName[MAX_PATH];
-          HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
-          BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-          while (Res)
+          // try to convert NT path (\Device\HarddiskVolume1) to drive letter
+          string DriveStrings;
+          if (apiGetLogicalDriveStrings(DriveStrings))
           {
-            if (StrLength(VolumeName) >= cVolumeGuidLen)
+            wchar_t DiskName[3] = L"A:";
+            const wchar_t* Drive = DriveStrings.CPtr();
+            while (*Drive)
             {
-              VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
+              DiskName[0] = *Drive;
               string TargetPath;
-              DWORD Res = QueryDosDeviceW(VolumeName + 4 /* w/o prefix */, TargetPath.GetBuffer(MAX_PATH), MAX_PATH);
+              DWORD Res = QueryDosDeviceW(DiskName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
               if (Res)
               {
                 TargetPath.ReleaseBuffer();
-                // path could be an Object Manager symlink, try to resolve
-                UNICODE_STRING ObjName;
-                ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
-                ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
-                OBJECT_ATTRIBUTES ObjAttrs;
-                InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
-                HANDLE hSymLink;
-                NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
-                if (Res == STATUS_SUCCESS)
+                if (PathStartsWith(NtPath, TargetPath))
                 {
-                  ULONG BufSize = 0x7FFF;
-                  string Buffer;
-                  UNICODE_STRING LinkTarget;
-                  LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-                  LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-                  Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
-                  if (Res == STATUS_SUCCESS)
-                  {
-                    TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
-                  }
-                  ifn.pfnNtClose(hSymLink);
-                }
-                if (PathStartsWith(FinalFilePath, TargetPath))
-                {
-                  FinalFilePath.Replace(0, TargetPath.GetLength(), VolumeName);
+                  FinalFilePath = NtPath.Replace(0, TargetPath.GetLength(), DiskName);
                   break;
                 }
               }
+              Drive += StrLength(Drive) + 1;
             }
-            Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
           }
-          if (hEnum != INVALID_HANDLE_VALUE)
-            FindVolumeClose(hEnum);
+
+          if (FinalFilePath.IsEmpty())
+          {
+            // try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+            wchar_t VolumeName[MAX_PATH];
+            HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
+            BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+            while (Res)
+            {
+              if (StrLength(VolumeName) >= cVolumeGuidLen)
+              {
+                VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
+                string TargetPath;
+                DWORD Res = QueryDosDeviceW(VolumeName + 4 /* w/o prefix */, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+                if (Res)
+                {
+                  TargetPath.ReleaseBuffer();
+                  // path could be an Object Manager symlink, try to resolve
+                  UNICODE_STRING ObjName;
+                  ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
+                  ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+                  OBJECT_ATTRIBUTES ObjAttrs;
+                  InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+                  HANDLE hSymLink;
+                  NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+                  if (Res == STATUS_SUCCESS)
+                  {
+                    ULONG BufSize = 0x7FFF;
+                    string Buffer;
+                    UNICODE_STRING LinkTarget;
+                    LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+                    LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+                    Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+                    if (Res == STATUS_SUCCESS)
+                    {
+                      TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+                    }
+                    ifn.pfnNtClose(hSymLink);
+                  }
+                  if (PathStartsWith(NtPath, TargetPath))
+                  {
+                    FinalFilePath = NtPath.Replace(0, TargetPath.GetLength(), VolumeName);
+                    break;
+                  }
+                }
+              }
+              Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
+            }
+            if (hEnum != INVALID_HANDLE_VALUE)
+              FindVolumeClose(hEnum);
+          }
         }
       }
       CloseHandle(hFile);
@@ -433,32 +461,26 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
           AddEndSlash(FinalFilePath);
           FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
         }
-        // try to replace volume GUID with drive letter
-        string DriveStringsBuf;
-        DWORD BufSize = MAX_PATH;
-        wchar_t* DriveStrings = DriveStringsBuf.GetBuffer(BufSize);
-        DWORD Size = GetLogicalDriveStringsW(BufSize, DriveStrings);
-        if (Size > BufSize)
+        if (FinalFilePath.Equal(0, L"\\\\?\\Volume"))
         {
-          BufSize = Size;
-          DriveStrings = DriveStringsBuf.GetBuffer(BufSize);
-          Size = GetLogicalDriveStringsW(BufSize, DriveStrings);
-        }
-        if (Size)
-        {
-          wchar_t* Drive = DriveStrings;
-          wchar_t VolumeGuid[cVolumeGuidLen + 1];
-          while (*Drive)
+          // try to replace volume GUID with drive letter
+          string DriveStrings;
+          if (apiGetLogicalDriveStrings(DriveStrings))
           {
-            if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
+            const wchar_t* Drive = DriveStrings.CPtr();
+            wchar_t VolumeGuid[cVolumeGuidLen + 1];
+            while (*Drive)
             {
-              if (FinalFilePath.Equal(0, VolumeGuid, cVolumeGuidLen))
+              if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
               {
-                FinalFilePath.Replace(0, cVolumeGuidLen, Drive);
-                break;
+                if (FinalFilePath.Equal(0, VolumeGuid, cVolumeGuidLen))
+                {
+                  FinalFilePath.Replace(0, cVolumeGuidLen, Drive);
+                  break;
+                }
               }
+              Drive += StrLength(Drive) + 1;
             }
-            Drive += StrLength(Drive) + 1;
           }
         }
 
