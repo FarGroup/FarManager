@@ -308,6 +308,42 @@ void ConvertNameToFull (
 	MixToFullPath(strSrc,strDest,strCurDir);
 }
 
+int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
+{
+  string TargetPath;
+  DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+  if (Res)
+  {
+    TargetPath.ReleaseBuffer();
+    if (PathStartsWith(NtPath, TargetPath))
+      return TargetPath.GetLength();
+    // path could be an Object Manager symlink, try to resolve
+    UNICODE_STRING ObjName;
+    ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
+    ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+    OBJECT_ATTRIBUTES ObjAttrs;
+    InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+    HANDLE hSymLink;
+    NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+    if (Res == STATUS_SUCCESS)
+    {
+      ULONG BufSize = 0x7FFF;
+      string Buffer;
+      UNICODE_STRING LinkTarget;
+      LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+      LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+      Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+      if (Res == STATUS_SUCCESS)
+      {
+        TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+      }
+      ifn.pfnNtClose(hSymLink);
+    }
+    if (PathStartsWith(NtPath, TargetPath))
+      return TargetPath.GetLength();
+  }
+  return 0;
+}
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
@@ -384,16 +420,11 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
             while (*Drive)
             {
               DiskName[0] = *Drive;
-              string TargetPath;
-              DWORD Res = QueryDosDeviceW(DiskName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
-              if (Res)
+              int Len = MatchNtPathRoot(NtPath, DiskName);
+              if (Len)
               {
-                TargetPath.ReleaseBuffer();
-                if (PathStartsWith(NtPath, TargetPath))
-                {
-                  FinalFilePath = NtPath.Replace(0, TargetPath.GetLength(), DiskName);
-                  break;
-                }
+                FinalFilePath = NtPath.Replace(0, Len, DiskName);
+                break;
               }
               Drive += StrLength(Drive) + 1;
             }
@@ -410,38 +441,11 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
               if (StrLength(VolumeName) >= cVolumeGuidLen)
               {
                 VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
-                string TargetPath;
-                DWORD Res = QueryDosDeviceW(VolumeName + 4 /* w/o prefix */, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
-                if (Res)
+                int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+                if (Len)
                 {
-                  TargetPath.ReleaseBuffer();
-                  // path could be an Object Manager symlink, try to resolve
-                  UNICODE_STRING ObjName;
-                  ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
-                  ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
-                  OBJECT_ATTRIBUTES ObjAttrs;
-                  InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
-                  HANDLE hSymLink;
-                  NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
-                  if (Res == STATUS_SUCCESS)
-                  {
-                    ULONG BufSize = 0x7FFF;
-                    string Buffer;
-                    UNICODE_STRING LinkTarget;
-                    LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-                    LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-                    Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
-                    if (Res == STATUS_SUCCESS)
-                    {
-                      TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
-                    }
-                    ifn.pfnNtClose(hSymLink);
-                  }
-                  if (PathStartsWith(NtPath, TargetPath))
-                  {
-                    FinalFilePath = NtPath.Replace(0, TargetPath.GetLength(), VolumeName);
-                    break;
-                  }
+                  FinalFilePath = NtPath.Replace(0, Len, VolumeName);
+                  break;
                 }
               }
               Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
