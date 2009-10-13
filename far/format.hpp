@@ -54,7 +54,7 @@ namespace fmt
 		WCHAR Value;
 	public:
 		FillChar(WCHAR Value=L' '){this->Value=Value;}
-		size_t GetValue()const{return Value;}
+		WCHAR GetValue()const{return Value;}
 	};
 
 	class LeftAlign{};

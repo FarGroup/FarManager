@@ -316,7 +316,7 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
   {
     TargetPath.ReleaseBuffer();
     if (PathStartsWith(NtPath, TargetPath))
-      return TargetPath.GetLength();
+      return static_cast<int>(TargetPath.GetLength());
     // path could be an Object Manager symlink, try to resolve
     UNICODE_STRING ObjName;
     ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
@@ -340,7 +340,7 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
       ifn.pfnNtClose(hSymLink);
     }
     if (PathStartsWith(NtPath, TargetPath))
-      return TargetPath.GetLength();
+      return static_cast<int>(TargetPath.GetLength());
   }
   return 0;
 }
