@@ -102,6 +102,8 @@ fnparce.cpp
 fnparce.hpp
 foldtree.cpp
 foldtree.hpp
+format.cpp
+format.hpp
 frame.cpp
 frame.hpp
 codepage.cpp

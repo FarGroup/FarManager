@@ -824,6 +824,10 @@
 				>
 			</File>
 			<File
+				RelativePath="format.cpp"
+				>
+			</File>
+			<File
 				RelativePath="frame.cpp"
 				>
 			</File>
@@ -2900,6 +2904,10 @@
 			</File>
 			<File
 				RelativePath="foldtree.hpp"
+				>
+			</File>
+			<File
+				RelativePath="format.hpp"
 				>
 			</File>
 			<File

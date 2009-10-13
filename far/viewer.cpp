@@ -442,7 +442,7 @@ void Viewer::ShowPage (int nMode)
       SetScreen(X1,Y1,X2,Y2,L' ',COL_VIEWERTEXT);
       GotoXY(X1,Y1);
       SetColor(COL_WARNDIALOGTEXT);
-      mprintf(L"%.*s", XX2-X1+1, MSG(MViewerCannotOpenFile));
+			FS<<fmt::Precision(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
       ShowStatus();
     }
 
@@ -533,13 +533,18 @@ void Viewer::ShowPage (int nMode)
       if ( StrLen > LeftPos )
       {
 				if (IsUnicodeOrUtfCodePage(VM.CodePage) && Signature && !I && !Strings[I]->nFilePos)
-           mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
+				{
+					FS<<fmt::LeftAlign()<<fmt::Width(Width)<<fmt::Precision(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos+1)];
+				}
         else
-           mprintf(L"%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
+				{
+					FS<<fmt::LeftAlign()<<fmt::Width(Width)<<fmt::Precision(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
+				}
       }
-      else
-        mprintf(L"%*s",Width,L"");
-
+			else
+			{
+				FS<<fmt::Width(Width)<<L"";
+			}
       if ( SelectSize && Strings[I]->bSelection )
       {
         __int64 SelX1;
@@ -573,7 +578,7 @@ void Viewer::ShowPage (int nMode)
           if ( LeftPos > Strings[I]->nSelEnd )
             Length = 0;
 
-          mprintf(L"%.*s",(int)Length,&Strings[I]->lpData[(int)(SelX1+LeftPos+SelectPosOffSet)]);
+					FS<<fmt::Precision(static_cast<int>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos+SelectPosOffSet)];
         }
       }
 
@@ -625,7 +630,7 @@ void Viewer::ShowHex()
     GotoXY(X1,Y);
     if (EndFile)
     {
-      mprintf(L"%*s",ObjWidth,L"");
+			FS<<fmt::Width(ObjWidth)<<L"";
       continue;
     }
 
@@ -804,16 +809,19 @@ void Viewer::ShowHex()
         OutStr[I]=L'?';
 #endif
     if (StrLength(OutStr)>HexLeftPos)
-      mprintf(L"%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
+		{
+			FS<<fmt::LeftAlign()<<fmt::Width(ObjWidth)<<fmt::Precision(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
+		}
     else
-      mprintf(L"%*s",ObjWidth,L"");
-
+		{
+			FS<<fmt::Width(ObjWidth)<<L"";
+		}
     if ( bSelStartFound && bSelEndFound )
     {
       SetColor(COL_VIEWERSELECTEDTEXT);
       GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
 
-      mprintf(L"%.*s",SelEnd-SelStart+1,OutStr+(int)SelStart);
+			FS<<fmt::Precision(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
 
       SelSize = 0;
     }

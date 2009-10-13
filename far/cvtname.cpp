@@ -237,27 +237,27 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 		pstPath=stPath+PathOffset;
 		switch(PathType)
 		{
-		case PPT_NONE:
+		case PPT_NONE: //"abc"
 			{
 				pstCurrentDir=stCurrentDir;
 			}
 			break;
-		case PPT_DRIVE:
+		case PPT_DRIVE: //"C:" or "C:abc"
 			{
 				WCHAR DriveVar[]={L'=',*stPath,L':',L'\0'};
 				string strValue;
 				if(apiGetEnvironmentVariable(DriveVar,strValue))
 				{
 					strDest=strValue;
-					AddEndSlash(strDest);
 				}
 				else
 				{
-					pstCurrentDir=stCurrentDir;
+					strDest=DriveVar+1;
 				}
+				AddEndSlash(strDest);
 			}
 			break;
-		case PPT_ROOT:
+		case PPT_ROOT: //"\" or "\abc"
 			{
 				if (stCurrentDir)
 				{
@@ -269,12 +269,12 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 				}
 			}
 			break;
-		case PPT_PREFIX:
+		case PPT_PREFIX: //"C:\abc"
 			{
 				pstPath=stPath;
 			}
 			break;
-		case PPT_NT:
+		case PPT_NT: //"\\?\abc"
 			{
 				blIgnore=true;
 				pstPath=stPath;

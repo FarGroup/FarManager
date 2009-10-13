@@ -405,14 +405,18 @@ void Edit::FastShow()
       SetColor(ColorUnChanged);
       if (Mask && *Mask)
         OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
-      mprintf(L"%-*.*s",OutStrLength,OutStrLength,OutStr);
+			FS<<fmt::LeftAlign()<<fmt::Width(OutStrLength)<<fmt::Precision(OutStrLength)<<OutStr;
       SetColor(Color);
       int BlankLength=EditLength-OutStrLength;
       if (BlankLength > 0)
-        mprintf(L"%*s",BlankLength,L"");
+			{
+				FS<<fmt::Width(BlankLength)<<L"";
+			}
     }
     else
-      mprintf(L"%-*.*s",EditLength,EditLength,OutStr);
+		{
+			FS<<fmt::LeftAlign()<<fmt::Width(EditLength)<<fmt::Precision(EditLength)<<OutStr;
+		}
   }
   else
   {
@@ -436,18 +440,18 @@ void Edit::FastShow()
       if(Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
         SetColor(SelColor);
-        mprintf(L"%*s",X2-X1+1,OutStr);
+				FS<<fmt::Width(X2-X1+1)<<OutStr;
       }
       else
         Text(OutStr);
     }
     else
     {
-      mprintf(L"%.*s",TabSelStart,OutStr);
+			FS<<fmt::Precision(TabSelStart)<<OutStr;
       SetColor(SelColor);
       if(!Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
-        mprintf(L"%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
+				FS<<fmt::Precision(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
         if (TabSelEnd<EditLength)
         {
           //SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
@@ -457,7 +461,7 @@ void Edit::FastShow()
       }
       else
       {
-        mprintf(L"%*s",X2-X1+1,OutStr);
+				FS<<fmt::Width(X2-X1+1)<<OutStr;
       }
     }
   }

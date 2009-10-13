@@ -166,3 +166,5 @@ DWORD RedrawTimeout=200;
 SYSTEM_INFO SystemInfo;
 
 string g_strMacroCONVFMT;
+
+FormatScreen FS;

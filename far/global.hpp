@@ -150,3 +150,5 @@ extern DWORD RedrawTimeout;
 extern SYSTEM_INFO SystemInfo;
 
 extern string g_strMacroCONVFMT;
+
+extern FormatScreen FS;

@@ -75,6 +75,7 @@ SRCS = \
 	flupdate.cpp \
 	fnparce.cpp \
 	foldtree.cpp \
+	format.cpp \
 	frame.cpp \
 	global.cpp \
 	grabber.cpp \

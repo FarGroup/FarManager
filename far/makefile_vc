@@ -141,6 +141,7 @@ LINK32_OBJS = \
 	"$(INTDIR)\flshow.obj" \
 	"$(INTDIR)\flupdate.obj" \
 	"$(INTDIR)\fnparce.obj" \
+	"$(INTDIR)\format.obj" \
 	"$(INTDIR)\foldtree.obj" \
 	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\global.obj" \

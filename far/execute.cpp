@@ -1654,7 +1654,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
 	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
 	{
-		ReplaceStrings(strExpandedDir,L"/",L"\\",-1);
+		ReplaceSlashToBSlash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,TRUE);
 		return TRUE;
 	}
