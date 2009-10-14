@@ -146,16 +146,6 @@ struct CodeXLAT
 {
   DWORD Flags;       // дополнительные флаги
 
-  int XLatEditorKey;
-  int XLatCmdLineKey;
-  int XLatDialogKey;
-  int XLatFastFindKey;
-
-  int XLatAltEditorKey;
-  int XLatAltCmdLineKey;
-  int XLatAltDialogKey;
-  int XLatAltFastFindKey;
-
   /* $ 25.11.2000 IS
      Разграничитель слов из реестра для функции Xlat
   */
@@ -173,14 +163,6 @@ struct CodeXLAT
   void Clear()
   {
     Flags=0;
-    XLatEditorKey=0;
-    XLatCmdLineKey=0;
-    XLatDialogKey=0;
-    XLatFastFindKey=0;
-    XLatAltEditorKey=0;
-    XLatAltCmdLineKey=0;
-    XLatAltDialogKey=0;
-    XLatAltFastFindKey=0;
     strWordDivForXlat=L"";
     memset(Table,0,sizeof(Table));
     memset(Rules,0,sizeof(Rules));

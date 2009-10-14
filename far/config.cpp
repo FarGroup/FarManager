@@ -1348,32 +1348,6 @@ void ReadConfig()
   if ((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromReg)) == (DWORD)-1)
     Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
-  GetRegKey(NKeyXLat,L"EditorKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatEditorKey=0;
-  GetRegKey(NKeyXLat,L"CmdLineKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatCmdLineKey=0;
-  GetRegKey(NKeyXLat,L"DialogKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatDialogKey=0;
-  GetRegKey(NKeyXLat,L"FastFindKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatFastFindKey=0;
-
-  GetRegKey(NKeyXLat,L"AltEditorKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatAltEditorKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltEditorKey=0;
-  GetRegKey(NKeyXLat,L"AltCmdLineKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltCmdLineKey=0;
-  GetRegKey(NKeyXLat,L"AltDialogKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatAltDialogKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltDialogKey=0;
-  GetRegKey(NKeyXLat,L"AltFastFindKey",strKeyNameFromReg,szCtrlShiftX);
-  if ((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(strKeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltFastFindKey=0;
-
   Opt.EdOpt.strWordDiv = Opt.strWordDiv;
   FileList::ReadPanelModes();
 

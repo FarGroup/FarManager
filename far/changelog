@@ -1,3 +1,16 @@
+drkns 15.10.2009 00:46:56 +0200 - build 1166
+
+1. Из TechInfo #10 убраны читерские опции [Alt]EditorKey, [Alt]CmdLineKey, [Alt]DialogKey, [Alt]FastFindKey.
+
+   Кнопкосочетания для XLat теперь настраиваются честными макросами, примерно так:
+   -------------------------------------------------------------
+   REGEDIT4
+
+   [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\CtrlShiftX]
+   "Sequence"="$XLat"
+   -------------------------------------------------------------
+   AltR.reg, Apps.reg, CtrlR.reg, CtrlShiftX.reg в addons\XLat\Russian переведены на использование макроязыка.
+
 drkns 14.10.2009 19:25:48 +0200 - build 1165
 
 1. Warnings (level 4).

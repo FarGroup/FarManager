@@ -2969,9 +2969,7 @@ int Dialog::ProcessKey(int Key)
           }
         }
 
-        if(((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey) ||
-           (Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)) ||
-           (Key == KEY_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY)))
+				if(Key == KEY_OP_XLAT && !(Item[FocusPos]->Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();

@@ -3061,9 +3061,7 @@ int Editor::ProcessKey(int Key)
 
         int LeftPos=CurLine->GetLeftPos();
 
-        if(((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey) ||
-            (Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey)) ||
-            Key == KEY_OP_XLAT)
+				if(Key == KEY_OP_XLAT)
         {
           Xlat();
           Show();

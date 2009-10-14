@@ -325,6 +325,17 @@ int CommandLine::ProcessKey(int Key)
       CmdStr.Show();
       return(TRUE);
 
+		case KEY_OP_XLAT:
+			{
+				// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
+				CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
+				if(SetLastCmdStr(CmdStr.GetStringAddr()))
+				{
+					LastCmdPartLength=(int)strLastCmdStr.GetLength();
+				}
+				return TRUE;
+			}
+
     /* дополнительные клавиши для выделения в ком строке.
        ВНИМАНИЕ!
        Для сокращения кода этот кусок должен стоять перед "default"
@@ -336,17 +347,6 @@ int CommandLine::ProcessKey(int Key)
       Key&=~KEY_ALT;
 
     default:
-      if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
-         (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
-         Key == KEY_OP_XLAT)
-      {
-        // 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-        CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
-        if(SetLastCmdStr(CmdStr.GetStringAddr()))
-          LastCmdPartLength=(int)strLastCmdStr.GetLength ();
-        return(TRUE);
-      }
-
       //   Сбрасываем выделение на некоторых клавишах
       if (!Opt.Dialogs.EditBlock)
       {
