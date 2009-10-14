@@ -1,7 +1,6 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\XLat]
-"CmdLineKey"="Apps"
-"DialogKey"="Apps"
-"EditorKey"="Apps"
-"FastFindKey"="Apps"
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\Apps]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\Apps]
+"Sequence"="$XLat"
+"DisableOutput"=dword:00000000

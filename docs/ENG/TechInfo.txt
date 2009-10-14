@@ -1124,31 +1124,17 @@ the main help file, that is actual for the current FAR Manager version.
   1.9. XLat.
 =====================
 
+   Translate  the  selected  block according to the rules table
+   (see %FARHOME%\Addons\Xlat\*.reg).
+   Вызов функции производится при помощи оператора $XLat макроязыка FAR,
+   назначенного на любое удобное вам сочетание клавиш.
 
 1.9.0.(TechInfo #10)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\XLat]
-   "CmdLineKey":REG_SZ
-   "DialogKey":REG_SZ
-   "EditorKey":REG_SZ
-   "FastFindKey":REG_SZ
-   "AltCmdLineKey":REG_SZ
-   "AltDialogKey":REG_SZ
-   "AltEditorKey":REG_SZ
-   "AltFastFindKey":REG_SZ
-   "Flags":REG_DWORD
-   The "XLat/*Key" parameters of REG_SZ types specify the names of the keys
-   used to  invoke  the  Xlat  feature  to  translate  the  selected  block
-   according to the rules table (see %FAR%\Addons\Xlat\*.reg):
-      "AltCmdLineKey",  "CmdLineKey"  - in the command line.
-      "AltDialogKey",   "DialogKey"   - in the dialog input lines.
-      "AltEditorKey",   "EditorKey"   - in the internal editor.
-      "AltFastFindKey", "FastFindKey" - for fast find in panels.
-   Parameters "Alt*Key" allow to set alternative keys.
-   The default keys are CtrlShiftX.
    The parameter "Flags" determines the behaviour of the XLat function.
      Bits:
-       0 - under Windows NT/2000, switch to the next available
+       0 - under Windows NT family, switch to the next available
            keyboard layout after performing the translation.
        1 - emit a beep after performing the translation.
    The default value is 1 (switch the keyboard layout).

@@ -1,7 +1,6 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\XLat]
-"CmdLineKey"="CtrlR"
-"DialogKey"="CtrlR"
-"EditorKey"="CtrlR"
-"FastFindKey"="CtrlR"
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlR]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlR]
+"Sequence"="$XLat"
+"DisableOutput"=dword:00000000

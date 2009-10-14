@@ -1,11 +1,6 @@
 REGEDIT4
 
-[HKEY_CURRENT_USER\Software\Far\XLat]
-"CmdLineKey"="AltR"
-"AltCmdLineKey"="Altä"
-"DialogKey"="AltR"
-"AltDialogKey"="Altä"
-"EditorKey"="AltR"
-"AltEditorKey"="Altä"
-"FastFindKey"="AltR"
-"AltFastFindKey"="Altä"
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltR]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltR]
+"Sequence"="$XLat"
+"DisableOutput"=dword:00000000
