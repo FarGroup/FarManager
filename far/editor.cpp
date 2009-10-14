@@ -2926,15 +2926,10 @@ int Editor::ProcessKey(int Key)
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
         */
-        /* $ 04.11.2000 SVS
-           Проверка на альтернативную клавишу
-        */
         /* $ 25.11.2000 IS
            Теперь Xlat работает даже при отсутствии выделения
         */
-        if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
-            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
-           Key == KEY_OP_XLAT)
+        if(Key == KEY_OP_XLAT)
         /* IS  $ */
         {
           Xlat();

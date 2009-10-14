@@ -2762,12 +2762,7 @@ int Dialog::ProcessKey(int Key)
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
         */
-        /* $ 04.11.2000 SVS
-           Проверка на альтернативную клавишу
-        */
-        if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
-           Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == KEY_OP_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
+        if(Key == KEY_OP_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();

@@ -82,14 +82,6 @@ struct DizOptions
 */
 struct CodeXLAT{
   DWORD Flags;       // дополнительные флаги
-  int XLatEditorKey;
-  int XLatCmdLineKey;
-  int XLatDialogKey;
-  int XLatFastFindKey;
-  int XLatAltEditorKey;
-  int XLatAltCmdLineKey;
-  int XLatAltDialogKey;
-  int XLatAltFastFindKey;
   char WordDivForXlat[256];
   HKL Layouts[10];
   int CurrentLayout;

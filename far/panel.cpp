@@ -1135,9 +1135,7 @@ void Panel::FastFind(int FirstKey)
             }
             continue;
           }
-          else if((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey ||
-                   Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
-                  Key == KEY_OP_XLAT)                              // MCODE_??????
+          else if(Key == KEY_OP_XLAT)
           {
             char TempName[NM*2];
             FindEdit.Xlat();

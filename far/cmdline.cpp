@@ -326,6 +326,16 @@ int CommandLine::ProcessKey(int Key)
       CmdStr.Show();
       return(TRUE);
 
+    case KEY_OP_XLAT:
+      {
+        //   ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
+        CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
+        /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
+        if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
+          LastCmdPartLength=(int)strlen(LastCmdStr);
+        return TRUE;
+      }
+
     /* дополнительные клавиши для выделения в ком строке.
        ВНИМАНИЕ!
        Для сокращения кода этот кусок должен стоять перед "default"
@@ -337,25 +347,6 @@ int CommandLine::ProcessKey(int Key)
       Key&=~KEY_ALT;
 
     default:
-      /* $ 24.09.2000 SVS
-         Если попалась клавиша вызова функции Xlat, то
-         подставим клавишу для редактора, если она != 0
-      */
-      /* $ 04.11.2000 SVS
-         Проверка на альтернативную клавишу
-      */
-      if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
-         (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
-         Key == KEY_OP_XLAT)
-      {
-        //   ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
-        CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
-        /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
-        if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
-          LastCmdPartLength=(int)strlen(LastCmdStr);
-        return(TRUE);
-      }
-
       //   Сбрасываем выделение на некоторых клавишах
       if (!Opt.Dialogs.EditBlock)
       {

@@ -1398,33 +1398,6 @@ void ReadConfig()
   if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
-  GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatEditorKey=0;
-  GetRegKey(NKeyXLat,"CmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatCmdLineKey=0;
-  GetRegKey(NKeyXLat,"DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatDialogKey=0;
-  GetRegKey(NKeyXLat,"FastFindKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatFastFindKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatFastFindKey=0;
-
-  GetRegKey(NKeyXLat,"AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltEditorKey=0;
-  GetRegKey(NKeyXLat,"AltCmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltCmdLineKey=0;
-  GetRegKey(NKeyXLat,"AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltDialogKey=0;
-  GetRegKey(NKeyXLat,"AltFastFindKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltFastFindKey=0;
-
-
   for(I=0; I < 2; ++I)
   {
     for(J=1; J < sizeof(Opt.XLat.Table[0]); ++J)
