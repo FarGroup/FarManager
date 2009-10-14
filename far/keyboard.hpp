@@ -47,7 +47,7 @@ extern FarQueue<DWORD> *KeyQueue;
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;
 extern DWORD MouseButtonState,PrevMouseButtonState;
-extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
+extern SHORT PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int PreMouseEventFlags,MouseEventFlags;
 extern int ReturnAltValue;
 

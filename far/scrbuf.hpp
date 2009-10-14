@@ -46,8 +46,8 @@ class ScreenBuf
     CHAR_INFO MacroChar;
     HANDLE hScreen;
 
-    int BufX,BufY;
-    int CurX,CurY;
+		SHORT BufX,BufY;
+		SHORT CurX,CurY;
     int CurVisible,CurSize;
 
     int LockCount;
@@ -67,7 +67,7 @@ class ScreenBuf
     void SetHandle(HANDLE hScreen);
     void ResetShadow();
     void MoveCursor(int X,int Y);
-    void GetCursorPos(int& X,int& Y);
+    void GetCursorPos(SHORT& X,SHORT& Y);
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
 
@@ -78,9 +78,9 @@ class ScreenBuf
     void RestoreMacroChar();
 
     void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
-    void ApplyColor(int X1,int Y1,int X2,int Y2,int Color);
-	void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,int ExceptColor);
-    void FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color);
+    void ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color);
+	void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor);
+    void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color);
 
     void Scroll(int);
     void Flush();

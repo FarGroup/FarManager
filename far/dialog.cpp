@@ -321,7 +321,7 @@ void DataToItemEx(DialogDataEx *Data,DialogItemEx *Item,int Count)
   for (I=0; I < Count; I++, ++Item, ++Data)
   {
   	Item->Clear();
-    Item->ID=I;
+		Item->ID=static_cast<WORD>(I);
     Item->Type=Data->Type;
     Item->X1=Data->X1;
     Item->Y1=Data->Y1;
@@ -3435,7 +3435,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
         int NeedSendMsg=0;
 
-        while (1)
+				for(;;)
         {
 					DWORD Mb=IsMouseButtonPressed();
 
@@ -3775,7 +3775,7 @@ unsigned Dialog::ChangeFocus(unsigned CurFocusPos,int Step,int SkipGroup)
 //    FocusPos=FucusPosNeed;
 //  else
   {
-    while (1)
+		for(;;)
     {
       CurFocusPos+=Step;
       if ((int)CurFocusPos<0)
@@ -3919,9 +3919,9 @@ void Dialog::SelectOnEntry(unsigned Pos,BOOL Selected)
 }
 
 int Dialog::SetAutomation(WORD IDParent,WORD id,
-                             DWORD UncheckedSet,DWORD UncheckedSkip,
-                             DWORD CheckedSet,DWORD CheckedSkip,
-                             DWORD Checked3Set,DWORD Checked3Skip)
+                             FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
+                             FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
+                             FarDialogItemFlags Checked3Set,FarDialogItemFlags Checked3Skip)
 {
   CriticalSectionLock Lock(CS);
 
@@ -4133,7 +4133,7 @@ int Dialog::SelectFromComboBox(
     //xf_free(Str);
     return KEY_ENTER;
   }
-  return KEY_ESC;
+  //return KEY_ESC;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -67,7 +67,7 @@ int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
 int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
 DWORD MouseButtonState=0,PrevMouseButtonState=0;
 int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
-int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
+SHORT PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
 int PreMouseEventFlags=0,MouseEventFlags=0;
 // только что был ввод Alt-Цифира?
 int ReturnAltValue=0;
@@ -374,7 +374,7 @@ void InitKeysArray()
 		//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
 		//раскладки которая вернула этот символ
 		//
-		for (int j=0; j<2; j++)
+		for (BYTE j=0; j<2; j++)
 		{
 			KeyState[VK_SHIFT]=j*0x80;
 
@@ -395,7 +395,7 @@ void InitKeysArray()
 		//***********
 		//Имея мапирование юникод -> VK строим обратное мапирование
 		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-		for (int i=1, x=0; i < 0x80; i++)
+		for (WCHAR i=1, x=0; i < 0x80; i++)
 		{
 			x = KeyToVKey[i];
 			if (x && !VKeyToASCII[x])
@@ -627,7 +627,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
   BOOL ZoomedState=IsZoomed(hFarWnd);
   BOOL IconicState=IsIconic(hFarWnd);
 
-  while (1)
+	for(;;)
   {
     // "Реакция" на максимизацию/восстановление окна консоли
     if(ZoomedState!=IsZoomed(hFarWnd) && IconicState==IsIconic(hFarWnd))
@@ -847,11 +847,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
           if (!Reenter)
           {
             Reenter++;
-            int X,Y;
+						SHORT X,Y;
             GetRealCursorPos(X,Y);
             if (X==0 && Y==ScrY && CtrlObject->CmdLine->IsVisible())
             {
-              while (1)
+							for(;;)
               {
                 INPUT_RECORD tmprec;
                 int Key=GetInputRecord(&tmprec);
@@ -1504,7 +1504,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
   clock_t CheckTime=clock()+delayMS;
 
   DWORD Key;
-  while (1)
+	for(;;)
   {
     INPUT_RECORD rec;
     Key=KEY_NONE;
@@ -2097,7 +2097,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			}
 			else
 			{
-				rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
+				rec->Event.KeyEvent.uChar.UnicodeChar=static_cast<WCHAR>(AltValue);
 			}
       //// // _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);

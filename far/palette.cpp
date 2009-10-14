@@ -380,12 +380,9 @@ unsigned char BlackPalette[]=
 int SizeArrayPalette=countof(DefaultPalette);
 unsigned char Palette[countof(DefaultPalette)];
 
-int FarColorToReal(int FarColor)
+BYTE FarColorToReal(int FarColor)
 {
-  if (FarColor<COL_FIRSTPALETTECOLOR)
-    return(FarColor);
-  else
-    return(Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette]);
+	return (FarColor<COL_FIRSTPALETTECOLOR)?FarColor:Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette];
 }
 
 /*

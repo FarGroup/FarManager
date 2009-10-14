@@ -569,7 +569,7 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 			}
 			if(*PtrDigit)
 			{
-				Dst[i]=_wtoi(PtrDigit);
+				Dst[i]=static_cast<WORD>(_wtoi(PtrDigit));
 			}
 		}
 		else

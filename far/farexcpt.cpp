@@ -182,9 +182,9 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
      return (::From=Result);
    }
 
-
-   struct __ECODE {
-     DWORD Code;     // код исключения
+		struct __ECODE
+		{
+			NTSTATUS Code;     // код исключения
      DWORD IdMsg;    // ID сообщения из LNG-файла
      DWORD RetCode;  // Что вернем?
    } ECode[]={
@@ -319,7 +319,7 @@ static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
      // просмотрим "знакомые" FAR`у исключения и обработаем...
      for (size_t I=0; I < countof(ECode); ++I)
      {
-       if (ECode[I].Code == xr->ExceptionCode)
+			if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
        {
          pName=MSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;

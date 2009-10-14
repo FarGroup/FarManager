@@ -99,11 +99,11 @@ public:
 	BaseFormat& operator<<(string& String);
 
 	// manipulators
-	BaseFormat& operator<<(fmt::Width& Manipulator);
-	BaseFormat& operator<<(fmt::Precision& Manipulator);
-	BaseFormat& operator<<(fmt::LeftAlign& Manipulator);
-	BaseFormat& operator<<(fmt::RightAlign& Manipulator);
-	BaseFormat& operator<<(fmt::FillChar& Manipulator);
+	BaseFormat& operator<<(const fmt::Width& Manipulator);
+	BaseFormat& operator<<(const fmt::Precision& Manipulator);
+	BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
+	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
+	BaseFormat& operator<<(const fmt::FillChar& Manipulator);
 };
 
 class FormatString:public BaseFormat

@@ -606,7 +606,7 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 
   int MsgCode=0;
 
-  while (1)
+	for(;;)
   {
     if (Wipe)
     {
@@ -691,7 +691,7 @@ int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 
   ConvertNameToFull(Name,strFullName);
 
-  while (1)
+	for(;;)
   {
     if (Wipe)
     {

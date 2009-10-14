@@ -214,7 +214,7 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
       {
         string strTestPathTemp = *pTestPath;
 
-        while ( true )
+				for(;;)
         {
           if (!CutToSlash(strTestPathTemp,true))
             break;
@@ -253,7 +253,7 @@ void CreatePath(string &strPath)
 
   BOOL bEnd = FALSE;
 
-  while ( TRUE )
+	for(;;)
   {
 		if ( (*ChPtr == 0) || IsSlash(*ChPtr) )
     {

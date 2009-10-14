@@ -96,11 +96,11 @@ class FileFilterParams
 
     struct
     {
-      bool Used;
-      wchar_t SizeAbove[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
-      wchar_t SizeBelow[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
       unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
       unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
+      wchar_t SizeAbove[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
+      wchar_t SizeBelow[FILEFILTER_SIZE_SIZE]; // Здесь всегда будет размер как его ввёл юзер
+      bool Used;
     } FSize;
 
     struct

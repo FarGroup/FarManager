@@ -355,7 +355,7 @@ int Help::ReadHelp(const wchar_t *Mask)
   int MI=0;
   wchar_t MacroArea[64];
 
-  while (TRUE)
+	for(;;)
   {
     if ( StartPos != (DWORD)-1 )
       RealMaxLength = MaxLength-StartPos;

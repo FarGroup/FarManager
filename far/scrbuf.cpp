@@ -236,7 +236,7 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color)
 {
   CriticalSectionLock Lock(CS);
 
@@ -262,7 +262,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 
 /* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,int ExceptColor)
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -284,7 +284,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color,int ExceptColor
 
 /* Закрасить прямоугольник символом Ch и цветом Color
 */
-void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
+void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color)
 {
   CriticalSectionLock Lock(CS);
 
@@ -375,8 +375,8 @@ void ScreenBuf::Flush()
 									// кстати, и при выключенном тоже (но реже).
 									// баг, конечно, не наш, но что делать.
 									// расширяем область прорисовки влево-вправо на 1 символ:
-									WriteRegion.Left=Max(0,WriteRegion.Left-1);
-									WriteRegion.Right=Min(WriteRegion.Right+1,ScrX);
+									WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
+									WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),ScrX);
 
 									bool Merge=false;
 									PSMALL_RECT Last=WriteList.Last();
@@ -505,7 +505,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 }
 
 
-void ScreenBuf::GetCursorPos(int& X,int& Y)
+void ScreenBuf::GetCursorPos(SHORT& X,SHORT& Y)
 {
   X=CurX;
   Y=CurY;

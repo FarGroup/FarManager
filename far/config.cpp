@@ -168,9 +168,9 @@ void SystemSettings()
     Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"SystemSettings");
     Dlg.SetPosition(-1,-1,56,23);
-    Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(8,9,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(8,10,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(2,3,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+    Dlg.SetAutomation(8,9,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+    Dlg.SetAutomation(8,10,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode()!=20)
       return;
@@ -280,7 +280,7 @@ void PanelSettings()
     Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"PanelSettings");
     Dlg.SetPosition(-1,-1,56,23);
-    Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,0,0,DIF_DISABLE);
+		Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_PANEL_OK)
       return;
@@ -391,9 +391,9 @@ void InterfaceSettings()
     Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"InterfSettings");
     Dlg.SetPosition(-1,-1,58,18);
-    Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,0,0,DIF_DISABLE);
+		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+		Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_INTERF_OK)
       return;
@@ -592,8 +592,8 @@ void SetPluginConfirmations()
 	Dlg.SetHelp(L"ChoosePluginDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 
-	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_STDASSOC,DIF_DISABLE,0,0,DIF_DISABLE);
-	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_EVENONE,DIF_DISABLE,0,0,DIF_DISABLE);
+	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_STDASSOC,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+	Dlg.SetAutomation(PC_CHECKBOX_OFP,PC_CHECKBOX_EVENONE,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 
 	Dlg.Process();
 
@@ -746,7 +746,7 @@ void ViewerConfig(ViewerOptions &ViOpt,int Local)
 
   {
     Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-    Dlg.SetAutomation(ID_VC_SAVEPOSITION,ID_VC_SAVEBOOKMARKS,DIF_DISABLE,0,0,DIF_DISABLE);
+		Dlg.SetAutomation(ID_VC_SAVEPOSITION,ID_VC_SAVEBOOKMARKS,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.SetHelp(L"ViewerSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
@@ -899,7 +899,7 @@ void EditorConfig(EditorOptions &EdOpt,int Local)
 
   {
     Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
-    Dlg.SetAutomation(ID_EC_SAVEPOSITION,ID_EC_SAVEBOOKMARKS,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(ID_EC_SAVEPOSITION,ID_EC_SAVEBOOKMARKS,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.SetHelp(L"EditorSettings");
     Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();

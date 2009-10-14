@@ -100,7 +100,7 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
 	//recursive symlinks guard
 	IdArray.Free();
 	string strPathItem(strFindPath);
-	while(true)
+	for(;;)
 	{
 		FileId id;
 		if(GetFileId(strPathItem,id))
@@ -122,7 +122,7 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
   int Done;
   Flags.Clear(FSCANTREE_SECONDDIRNAME);
-  while (1)
+	for(;;)
   {
     if (Data[FindHandleCount].FindHandle==0)
       Done=((Data[FindHandleCount].FindHandle=apiFindFirstFile(strFindPath,fdata))==INVALID_HANDLE_VALUE);

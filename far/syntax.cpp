@@ -677,7 +677,7 @@ static TToken getToken()
 			bool isPoint = false;
 			int ch2;
 
-			while(1)
+			for(;;)
 			{
 				*ptrbuffer++=(wchar_t)ch;
 				switch ( ch )

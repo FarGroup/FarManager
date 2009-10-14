@@ -368,7 +368,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 
     string Path = FullPath;
     HANDLE hFile;
-    while (true)
+		for(;;)
     {
       hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
       if (hFile != INVALID_HANDLE_VALUE)

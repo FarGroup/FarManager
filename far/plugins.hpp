@@ -204,7 +204,7 @@ public:
 	void ConfigureCurrent(Plugin *pPlugin,int INum);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=NULL);
 	// $ 21.08.2002 IS - Параметр PluginTextSize, чтобы знать, сколько брать
-	int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,int &ItemPresent, int &PluginTextNumber, string &strPluginText);
+	int GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, int &PluginTextNumber, string &strPluginText);
 
 	int UseFarCommand(HANDLE hPlugin,int CommandType);
 	void ReloadLanguage();

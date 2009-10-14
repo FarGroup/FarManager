@@ -896,7 +896,7 @@ void Viewer::SetStatusMode(int Mode)
 
 void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 {
-  int Ch, Ch2;
+	WCHAR Ch, Ch2;
   __int64 OutPtr;
 
   bool bSelStartFound = false, bSelEndFound = false;
@@ -922,7 +922,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
       bSelStartFound = true;
     }
 
-    while (1)
+		for(;;)
     {
       if (OutPtr>=StrSize-16)
         break;

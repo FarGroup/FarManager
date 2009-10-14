@@ -170,6 +170,7 @@ wchar_t * __cdecl xf_wcsdup (const wchar_t * string)
 #define FL_OVERFLOW   4       /* overflow occured */
 #define FL_READDIGIT  8       /* we've read at least one correct digit */
 
+#if 0
 static unsigned __int64 strtoxq (
     const char *nptr,
     const char **endptr,
@@ -299,6 +300,7 @@ __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
     return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
 }
 #endif
+#endif
 
 #endif
 
@@ -321,7 +323,7 @@ __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
 #define __ascii_iswalpha(c)     ( (L'A' <= (c) && (c) <= L'Z') || ( L'a' <= (c) && (c) <= L'z'))
 
 
-
+#if 0
 static unsigned __int64 __cdecl wcstoxq (
         const wchar_t *nptr,
         const wchar_t **endptr,
@@ -460,6 +462,8 @@ unsigned __int64 __cdecl _wcstoui64 (const wchar_t *nptr,wchar_t **endptr,int ib
 
 #endif
 
+#endif
+
 // dest и src НЕ ДОЛЖНЫ пересекаться
 // maxlen - максимальное число символов, которое можно скопировать
 //          в dest БЕЗ учета заключительного нуля, т.е. в общем
@@ -586,7 +590,7 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
   thresh = _maxspan * width;             /* init threshold                 */
   sp = stack;                            /* init stack pointer             */
   limit = base + nel * width;            /* pointer past end of array      */
-  while (1)                              /* repeat until done then return  */
+	for(;;)                                /* repeat until done then return  */
   {
     while ((size_t)(limit - base) > thresh) /* if more than _maxspan elements */
     {
@@ -604,7 +608,7 @@ void __cdecl qsortex(char *base, size_t nel, size_t width,
       if ( COMPEX(i, base,user) > 0 )         /*              *i <= *base <= *j */
         SWAP(i, base);                 /* *base is the pivot element     */
 
-      while (1)
+			for(;;)
       {
         do                            /* move i right until *i >= pivot */
           i += width;

@@ -46,8 +46,8 @@ class FileEditor;
 extern FileEditor *CurrentEditor;
 
 extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
-extern int ScrX,ScrY;
-extern int PrevScrX,PrevScrY;
+extern SHORT ScrX,ScrY;
+extern SHORT PrevScrX,PrevScrY;
 extern HANDLE hConOut,hConInp;
 
 extern int WaitInMainLoop;

@@ -34,4 +34,4 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void SetColors();
-int GetColorDialog(unsigned int &Color,bool bCentered=false,bool bAddTransparent=false);
+int GetColorDialog(WORD& Color,bool bCentered=false,bool bAddTransparent=false);

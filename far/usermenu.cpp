@@ -488,7 +488,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 {
 	MenuItemEx UserMenuItem;
 
-	while (1)
+	for(;;)
 	{
 		UserMenuItem.Clear ();
 		int NumLine=0,ExitCode,FuncPos[24];
@@ -771,7 +771,7 @@ int UserMenu::ProcessSingleMenu(const wchar_t *MenuKey,int MenuPos,const wchar_t
 		CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// Цикл исполнения команд меню (CommandX)
-		while (1)
+		for(;;)
 		{
 			string strLineName, strCommand;
 			strLineName.Format (L"Command%d",CurLine);

@@ -2492,7 +2492,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
         }
 
         // Пытаемся переименовать, пока не отменят
-        while (1)
+				for(;;)
         {
           BOOL SuccessMove=RenameToShortName?apiMoveFileThroughTemp(Src,strDestPath):apiMoveFile(Src,strDestPath);
 
@@ -2574,7 +2574,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
         if(SetAttr&FILE_ATTRIBUTE_COMPRESSED)
         {
-          while(1)
+					for(;;)
           {
             int MsgCode=ESetFileCompression(strDestPath,1,0,SkipMode);
             if(MsgCode)
@@ -2713,7 +2713,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
   int NWFS_Attr=(Opt.Nowell.MoveRO && !StrCmp(strDestFSName,L"NWFS"))?TRUE:FALSE;
   {
-  while (1)
+	for(;;)
   {
     int CopyCode=0;
     unsigned __int64 SaveTotalSize=TotalCopiedSize;
@@ -3456,7 +3456,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
                   if (MsgCode==0)
                   {
                     Split=TRUE;
-                    while (1)
+										for(;;)
                     {
 											if (apiGetDiskSize(strDriveRoot,NULL,NULL,&FreeSize))
 												if (FreeSize<BytesRead)

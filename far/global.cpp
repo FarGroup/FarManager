@@ -69,8 +69,8 @@ int WaitInMainLoop=FALSE;
 
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
-int ScrX=0,ScrY=0;
-int PrevScrX=-1,PrevScrY=-1;
+SHORT ScrX=0,ScrY=0;
+SHORT PrevScrX=-1,PrevScrY=-1;
 HANDLE hConOut=NULL,hConInp=NULL;
 
 clock_t StartIdleTime=0;

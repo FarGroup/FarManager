@@ -1320,7 +1320,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
   string strOldCurDir;
 	apiGetCurrentDirectory(strOldCurDir);
-  while (1)
+	for(;;)
   {
     FarChDir(strStartDir); // ÏÎ×ÅÌÓ? À íóæíî ëè???
     int SaveCode=SAVEFILE_SUCCESS;
@@ -2537,7 +2537,7 @@ int FileEditor::EditorControl(int Command, void *Param)
       {
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         DWORD Key;
-        while(1)
+				for(;;)
         {
           Key=GetInputRecord(rec);
           if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) &&

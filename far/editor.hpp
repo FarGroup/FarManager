@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "config.hpp"
 #include "DList.hpp"
+#include "noncopyable.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -150,10 +151,13 @@ class Editor:public ScreenObject
       на любом выходе если была нажата кнопка выделения,
       и она его "сняла" (сделала 0-й ширины), то его надо убрать.
     */
-    struct EditorBlockGuard{
+    class EditorBlockGuard:public NonCopyable
+		{
       Editor& ed;
       void (Editor::*method)();
       bool needCheckUnmark;
+		public:
+			void SetNeedCheckUnmark(bool State){needCheckUnmark=State;}
       EditorBlockGuard(Editor& ed,void (Editor::*method)()):ed(ed),method(method),needCheckUnmark(false)
       {
       }

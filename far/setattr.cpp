@@ -510,7 +510,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	int DlgX=70,DlgY=23;
+	short DlgX=70,DlgY=23;
 	DialogDataEx AttrDlgData[]=
 	{
 		DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,0,0,0,MSG(MSetAttrTitle),

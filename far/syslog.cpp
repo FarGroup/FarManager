@@ -771,17 +771,18 @@ struct __XXX_Name{
   const wchar_t *Name;
 };
 
-static string _XXX_ToName(int Val,const wchar_t *Pref,__XXX_Name *arrDef,int cntArr)
+static string _XXX_ToName(int Val,const wchar_t *Pref,__XXX_Name *arrDef,size_t cntArr)
 {
-  int I;
   string Name;
-  for(I=0; I < cntArr; ++I)
-    if(arrDef[I].Val == Val)
+	for(size_t i=0; i<cntArr;i++)
+	{
+		if(arrDef[i].Val == Val)
     {
-      Name.Format(L"\"%s_%s\" [%d/0x%04X]",Pref,arrDef[I].Name,Val,Val);
+			Name.Format(L"\"%s_%s\" [%d/0x%04X]",Pref,arrDef[i].Name,Val,Val);
       return Name;
     }
-  Name.Format(L"\"%s_????\" [%d/0x%04X]",Pref,Val,Val);
+	}
+	Name.Format(L"\"%s_????\" [%d/0x%04X]",Pref,Val,Val);
   return Name;
 }
 #endif
@@ -1165,14 +1166,15 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(F_FLOAT),
   };
 
-  int I;
   string Name;
-	for(I=0; I < countof(MCODE); ++I)
-    if(MCODE[I].Val == OpCode)
+	for(size_t i=0;i<countof(MCODE);i++)
+	{
+		if(MCODE[i].Val == OpCode)
     {
-      Name.Format(L"%08X | MCODE_%-20s",OpCode,MCODE[I].Name);
+			Name.Format(L"%08X | MCODE_%-20s",OpCode,MCODE[i].Name);
       return Name;
-    }
+		}
+	}
   Name.Format(L"%08X | MCODE_%-20s",OpCode,L"???");
   return Name;
 #else
@@ -1247,15 +1249,15 @@ string __DLGMSG_ToName(int Msg)
     DEF_MESSAGE(DM_GETSELECTION),       DEF_MESSAGE(DM_SETSELECTION),
     DEF_MESSAGE(DN_DRAWDIALOGDONE),
   };
-  int I;
-
   string Name;
-	for(I=0; I < countof(Message); ++I)
-    if(Message[I].Val == Msg)
+	for(size_t i=0;i<countof(Message);i++)
+	{
+		if(Message[i].Val == Msg)
     {
-      Name.Format(L"\"%s\" [%d/0x%08X]",Message[I].Name,Msg,Msg);
+			Name.Format(L"\"%s\" [%d/0x%08X]",Message[i].Name,Msg,Msg);
       return Name;
-    }
+		}
+	}
   Name.Format(L"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?L"DN_FIRST":(Msg>=DM_USER?L"DM_USER":L"DM_FIRST")),Msg,Msg);
   return Name;
 #else

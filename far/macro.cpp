@@ -3288,7 +3288,7 @@ done:
       LARGE_INTEGER i64;
       i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
       i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-      double dval=*(double*)&i64;
+      double dval=static_cast<double>(i64.QuadPart);
       VMStack.Push(dval);
       goto begin;
     }
@@ -3916,7 +3916,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 	{
 		// Различаем так же REG_MULTI_SZ
 		wchar_t *ptrSData = strSData.GetBuffer ();
-		while(1)
+		for(;;)
 		{
 			ptrSData+=StrLength(ptrSData);
 			if(!ptrSData[0] && !ptrSData[1])
@@ -3952,7 +3952,7 @@ void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar Value)
 /*
    KeyMacros\Function
 */
-int KeyMacro::ReadMacroFunction(int ReadMode, string &strBuffer)
+int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 {
 	/*
 	[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Funcs\math.sin]
@@ -4091,7 +4091,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
       //BUGBUG а каким боком REG_MULTI_SZ засунули в string?
       // Различаем так же REG_MULTI_SZ
       wchar_t *ptrBuffer = strBuffer.GetBuffer ();
-      while(1)
+			for(;;)
       {
         ptrBuffer+=StrLength(ptrBuffer);
         if(!ptrBuffer[0] && !ptrBuffer[1])
@@ -4760,7 +4760,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
   if(Flags&MFLAGS_REG_MULTI_SZ) // Различаем так же REG_MULTI_SZ
   {
     int lenPlainText=0;
-    while(1)
+		for(;;)
     {
       if(!PlainText[lenPlainText] && !PlainText[lenPlainText+1])
       {
@@ -4778,7 +4778,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL 
       wmemmove(Buffer,PlainText,lenPlainText);
       Buffer[lenPlainText]=0; // +1
       wchar_t *ptrBuffer=Buffer;
-      while(1)
+			for(;;)
       {
         ptrBuffer+=StrLength(ptrBuffer);
         if(!ptrBuffer[0] && !ptrBuffer[1])
@@ -4975,7 +4975,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
     for(int I=0; I < 2; ++I)
     {
       int Pos,Len;
-			MacroRecord *MPtr;
+			MacroRecord *MPtr=NULL;
       if(ChechMode == -1)
       {
         Len=MacroLIBCount;
@@ -4998,7 +4998,7 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
         for(Pos=0; Pos < Len; ++Pos, ++MPtr)
         {
           if ( !((MPtr->Key ^ Key) & ~0xFFFF) &&
-                (Upper(MPtr->Key)==Upper(Key)) &&
+                (Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
                 (MPtr->BufferSize > 0) )
           {
     //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))

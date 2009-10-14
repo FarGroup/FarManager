@@ -133,7 +133,7 @@ char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, UINT CodePage=CP_OEMCP)
 {
 	if(!lpwszUnicodeString)
 		return NULL;
-	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1);
+	return UnicodeToAnsiBin(lpwszUnicodeString,StrLength(lpwszUnicodeString)+1,CodePage);
 }
 
 wchar_t **ArrayAnsiToUnicode (char ** lpaszAnsiString, int iCount)
@@ -3158,7 +3158,7 @@ UINT ConvertCharTableToCodePage(int Command)
 			{
 				DWORD selectType,Index=0;
 				int FavIndex=2;
-				while(true)
+				for(;;)
 				{
 					if(!EnumRegValue(FavoriteCodePagesKey,Index++,sTableName,(BYTE*)&selectType,sizeof(selectType))) return CP_AUTODETECT;
 					if(!(selectType&CPST_FAVORITE)) continue;

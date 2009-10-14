@@ -114,9 +114,9 @@ int FindExitCode;
 string strFindMask, strFindStr;
 int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchHex;
 
-int FindFoldersChanged;
-int SearchFromChanged;
-int DlgWidth, DlgHeight;
+bool FindFoldersChanged;
+bool SearchFromChanged;
+short DlgWidth, DlgHeight;
 volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount;
 string strFindMessage;
 string strFindPercentMessage;
@@ -667,8 +667,8 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 			SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, (LONG_PTR)&Item);
 			CodePage = (UINT)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, Position.SelectPos);
 
-			FindFoldersChanged = FALSE;
-			SearchFromChanged = FALSE;
+			FindFoldersChanged = false;
+			SearchFromChanged = false;
 
 			return TRUE;
 		}
@@ -743,7 +743,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				switch(Param1)
 				{
 				case FAD_CHECKBOX_DIRS:
-					FindFoldersChanged = TRUE;
+					FindFoldersChanged = true;
 					break;
 
 				case FAD_CHECKBOX_HEX:
@@ -883,7 +883,7 @@ LONG_PTR WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 				}
 				return TRUE;
 			case FAD_COMBOBOX_WHERE:
-				SearchFromChanged=TRUE;
+				SearchFromChanged=true;
 				return TRUE;
 			}
 
@@ -2335,7 +2335,7 @@ void FindFiles::DoPrepareFileList(HANDLE hDlg)
     }
   }
 
-  for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
+	for (WCHAR CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
   {
     if (SearchMode==FFSEARCH_ALL ||
         SearchMode==FFSEARCH_ALL_BUTNETWORK)

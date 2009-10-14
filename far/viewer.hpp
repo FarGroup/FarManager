@@ -61,9 +61,9 @@ class KeyBar;
 struct ViewerString {
     wchar_t *lpData /*[MAX_VIEWLINEB]*/;
     __int64 nFilePos;
-    bool bSelection;
     __int64 nSelStart;
     __int64 nSelEnd;
+		bool bSelection;
 };
 
 struct InternalViewerBookMark{

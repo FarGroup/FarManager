@@ -417,7 +417,7 @@ int _cdecl SortList(const void *el1,const void *el2)
     }
   }
 
-  int NameCmp;
+  int NameCmp=0;
 
   if(!Opt.SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
   {
@@ -2158,7 +2158,7 @@ BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePlugin)
 	if (ClosePlugin && PanelMode==PLUGIN_PANEL)
 	{
 		CheckFullScreen=IsFullScreen();
-		while (1)
+		for(;;)
 		{
 			if (ProcessPluginEvent(FE_CLOSE,NULL))
 				return FALSE;
@@ -3432,7 +3432,7 @@ void FileList::CompareDir()
 
 void FileList::CopyNames(int FillPathName,int UNC)
 {
-	OpenPluginInfo Info;
+	OpenPluginInfo Info={0};
   wchar_t *CopyData=NULL;
   long DataSize=0;
   string strSelName, strSelShortName, strQuotedName;
@@ -3920,7 +3920,7 @@ bool FileList::ApplyCommand()
 
 	// спорный момент, особено для @set a=b
 	//начинаем вывод с новой строки
-	int X,Y;
+	SHORT X,Y;
 	ScrBuf.GetCursorPos(X,Y);
 	MoveCursor(0,Y);
 	ScrollScreen(1);
@@ -4129,7 +4129,7 @@ int FileList::GetPrevNumericSort()
 HANDLE FileList::OpenFilePlugin(const wchar_t *FileName,int PushPrev)
 {
   if (!PushPrev && PanelMode==PLUGIN_PANEL)
-    while (1)
+		for(;;)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
         return((HANDLE)-2);

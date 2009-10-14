@@ -1938,7 +1938,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
 
   int Pass=0, I=0;
 
-  do
+	for(;;)
   {
     /* $ 21.02.2002 DJ
        в меню без WRAPMODE условие OrigPos == Pos никогда не выполнится =>
@@ -1978,7 +1978,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
       Pass++;
 
     ++I;
-  } while (1);
+	}
 
   /* $ 30.01.2003 KM
      - Иногда фар падал. Как выяснилось если SelectPos был равен -1.
@@ -2290,7 +2290,7 @@ void VMenu::AssignHighlights(int Reverse)
     {
       Used[Upper(Ch)] = true;
       Used[Lower(Ch)] = true;
-      Item[I]->AmpPos = static_cast<int>(ChPtr-Name) + ShowPos;
+			Item[I]->AmpPos = static_cast<short>(ChPtr-Name)+static_cast<short>(ShowPos);
     }
   }
 //_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));

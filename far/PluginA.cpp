@@ -982,10 +982,22 @@ int PluginA::GetVirtualFindData (
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
 		es.bDefaultResult = FALSE;
 
-		//TODO!!! EXECUTE_FUNCTION_EX(pGetVirtualFindData(hPlugin, pPanelItem, pItemsNumber, Path), es);
-		es.nResult = es.nDefaultResult; //REMOVE WHEN TODO REMOVED
+		pVFDPanelItemA = NULL;
+		
+		size_t Size=StrLength(Path)+1;
+		LPSTR PathA=new char[Size];
+		UnicodeToOEM(Path,PathA,Size);
+
+		EXECUTE_FUNCTION_EX(pGetVirtualFindData(hPlugin, &pVFDPanelItemA, pItemsNumber, PathA), es);
 
 		bResult = es.bResult;
+
+		delete[] PathA;
+
+		if (bResult && *pItemsNumber)
+		{
+			ConvertPanelItemA(pVFDPanelItemA, pPanelItem, *pItemsNumber);
+		}
 	}
 
 	return bResult;
@@ -998,12 +1010,16 @@ void PluginA::FreeVirtualFindData (
 		int ItemsNumber
 		)
 {
-	if ( pFreeVirtualFindData && !ProcessException )
+	FreeUnicodePanelItem(PanelItem, ItemsNumber);
+
+	if ( pFreeVirtualFindData && !ProcessException && pVFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
 
-		//TODO!!! EXECUTE_FUNCTION(pFreeVirtualFindData(hPlugin, PanelItem, ItemsNumber), es);
+		EXECUTE_FUNCTION(pFreeVirtualFindData(hPlugin, pVFDPanelItemA, ItemsNumber), es);
+
+		pVFDPanelItemA = NULL;
 	}
 }
 

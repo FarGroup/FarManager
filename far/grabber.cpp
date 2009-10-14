@@ -397,8 +397,8 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
     return(FALSE);
 
-	GArea.CurX=Min(Max(0,MouseX),ScrX);
-	GArea.CurY=Min(Max(0,MouseY),ScrY);
+	GArea.CurX=Min(Max(static_cast<SHORT>(0),MouseX),ScrX);
+	GArea.CurY=Min(Max(static_cast<SHORT>(0),MouseY),ScrY);
 
   if (MouseEvent->dwEventFlags==0)
     ResetArea=TRUE;

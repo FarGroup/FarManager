@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "noncopyable.hpp"
+
 class CriticalSection
 {
   private:
@@ -47,12 +49,10 @@ class CriticalSection
     void Leave() { ::LeaveCriticalSection(&_object); }
 };
 
-class CriticalSectionLock
+class CriticalSectionLock:public NonCopyable
 {
-  private:
     CriticalSection &_object;
 
-  private:
     void Unlock()  { _object.Leave(); }
 
   public:

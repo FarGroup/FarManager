@@ -1172,7 +1172,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 
 		//if(Code != -1)
 		{
-			int CurX,CurY;
+			SHORT CurX,CurY;
 			GetCursorPos(CurX,CurY);
 			if (CurY>=Y1-1)
 				ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
@@ -1238,7 +1238,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
     while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
   }
 
-  while(1)
+	for(;;)
   {
     if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3))
       break;

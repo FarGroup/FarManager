@@ -374,7 +374,7 @@ void SetColors()
     int GroupsCode;
 		VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,countof(Groups),0);
     MenuToRedraw1=&GroupsMenu;
-    while (1)
+		for(;;)
     {
       GroupsMenu.SetPosition(2,1,0,0);
       GroupsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
@@ -450,7 +450,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
   else
     MenuToRedraw2=&ItemsMenu;
 
-  while (1)
+	for(;;)
   {
     ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
     ItemsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
@@ -476,10 +476,10 @@ void GetColor(int PaletteIndex)
 {
   ChangeMacroMode chgMacroMode(MACRO_MENU);
 
-  unsigned int NewColor=Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
+	WORD NewColor=Palette[PaletteIndex-COL_FIRSTPALETTECOLOR];
   if (GetColorDialog(NewColor))
   {
-    Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
+    Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=static_cast<BYTE>(NewColor);
     ScrBuf.Lock(); // отменяем всякую прорисовку
     CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
     CtrlObject->Cp()->LeftPanel->Redraw();
@@ -554,7 +554,7 @@ static LONG_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PT
 }
 
 
-int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
+int GetColorDialog(WORD& Color,bool bCentered,bool bAddTransparent)
 {
 	static DialogDataEx ColorDlgData[]={
     /*   0 */ DI_DOUBLEBOX,   3, 1,35,13, 0,0,0,0,(const wchar_t *)MSetColorTitle,
@@ -605,31 +605,36 @@ int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
 
   };
   MakeDialogItemsEx(ColorDlgData,ColorDlg);
-  int ExitCode,I,CurColor=Color;
+  int ExitCode;
+	WORD CurColor=Color;
 
-  for (I=2;I<18;I++)
-    if (((ColorDlg[I].Flags & B_MASK)>>4)==(Color & F_MASK))
+	for(size_t i=2;i<18;i++)
+	{
+		if (static_cast<WORD>((ColorDlg[i].Flags & B_MASK)>>4)==(Color & F_MASK))
     {
-      ColorDlg[I].Selected=ColorDlg[I].Focus=1;
+			ColorDlg[i].Selected=ColorDlg[i].Focus=1;
       break;
     }
-  for (I=19;I<35;I++)
-    if ((ColorDlg[I].Flags & B_MASK)==(Color & B_MASK))
+	}
+	for(size_t i=19;i<35;i++)
+	{
+		if (static_cast<WORD>(ColorDlg[i].Flags & B_MASK)==(Color & B_MASK))
     {
-      ColorDlg[I].Selected=1;
+      ColorDlg[i].Selected=1;
       break;
     }
-
-  for (I=37;I<40;I++)
-    ColorDlg[I].Flags=(ColorDlg[I].Flags & ~DIF_COLORMASK) | Color;
-
+	}
+	for(size_t i=37;i<40;i++)
+	{
+		ColorDlg[i].Flags=(ColorDlg[i].Flags & ~DIF_COLORMASK) | Color;
+	}
   if (bAddTransparent)
   {
     ColorDlg[0].Y2++;
-    for (I=37;I<=42;I++)
+    for (size_t i=37;i<=42;i++)
     {
-      ColorDlg[I].Y1+=3;
-      ColorDlg[I].Y2+=3;
+			ColorDlg[i].Y1+=3;
+			ColorDlg[i].Y2+=3;
     }
     ColorDlg[0].X2+=4;
     ColorDlg[0].Y2+=2;
@@ -638,20 +643,22 @@ int GetColorDialog(unsigned int &Color,bool bCentered,bool bAddTransparent)
     ColorDlg[18].X1+=2;
     ColorDlg[18].X2+=4;
     ColorDlg[18].Y2+=2;
-    for (I=2; I<=17; I++)
+		for(size_t i=2;i<=17;i++)
     {
-      ColorDlg[I].X1+=1;
-      ColorDlg[I].Y1+=1;
-      ColorDlg[I].Y2+=1;
+			ColorDlg[i].X1+=1;
+			ColorDlg[i].Y1+=1;
+			ColorDlg[i].Y2+=1;
     }
-    for (I=19; I<=34; I++)
+    for (size_t i=19;i<=34;i++)
     {
-      ColorDlg[I].X1+=3;
-      ColorDlg[I].Y1+=1;
-      ColorDlg[I].Y2+=1;
+			ColorDlg[i].X1+=3;
+			ColorDlg[i].Y1+=1;
+			ColorDlg[i].Y2+=1;
     }
-    for (I=37; I<=39; I++)
-      ColorDlg[I].X2+=4;
+		for (size_t i=37;i<=39;i++)
+		{
+			ColorDlg[i].X2+=4;
+		}
     ColorDlg[35].Selected=(Color&0x0F00?1:0);
     ColorDlg[36].Selected=(Color&0xF000?1:0);
   }

@@ -299,7 +299,7 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     Key=9+(X-KeyWidth*9)/(KeyWidth+1);
 
 
-  while (1)
+	for(;;)
   {
     GetInputRecord(&rec);
     if (rec.EventType==MOUSE_EVENT && (rec.Event.MouseEvent.dwButtonState & 3)==0)

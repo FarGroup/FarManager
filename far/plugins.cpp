@@ -1362,7 +1362,7 @@ void PluginManager::Configure(int StartPos)
 				LoadIfCacheAbsent();
 
 				string strHotKey, strRegKey, strValue, strName;
-				PluginInfo Info;
+				PluginInfo Info={0};
 
 				for (int I=0; I<PluginsCount; I++)
 				{
@@ -1532,7 +1532,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				LoadIfCacheAbsent();
 
 				string strHotKey, strRegKey, strValue, strName;
-				PluginInfo Info;
+				PluginInfo Info={0};
 
 				for (int I=0;I<PluginsCount;I++)
 				{
@@ -1841,7 +1841,7 @@ L========================================================-
 int PluginManager::GetDiskMenuItem(
 	Plugin *pPlugin,
 	int PluginItem,
-	int &ItemPresent,
+	bool &ItemPresent,
 	int &PluginTextNumber,
 	string &strPluginText
 	)
@@ -1863,7 +1863,7 @@ int PluginManager::GetDiskMenuItem(
 	PluginInfo Info;
 	if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenuStringsNumber <= PluginItem)
 	{
-		ItemPresent=FALSE;
+		ItemPresent=false;
 	}
 	else
 	{
@@ -1873,7 +1873,7 @@ int PluginManager::GetDiskMenuItem(
 			PluginTextNumber=0;
 		strPluginText = Info.DiskMenuStrings[PluginItem];
 
-		ItemPresent=TRUE;
+		ItemPresent=true;
 	}
 	return(TRUE);
 }
@@ -1954,7 +1954,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	UnquoteExternal(strCommand);
 	RemoveLeadingSpaces(strCommand);
 
-	while (1)
+	for(;;)
 	{
 		wchar_t Ch=strCommand.At(PrefixLength);
 		if (Ch==0 || IsSpace(Ch) || Ch==L'/' || PrefixLength>64)
@@ -2006,7 +2006,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		const wchar_t *PrStart = strPluginPrefix;
 
 		PrefixLength=strPrefix.GetLength ();
-		while(1)
+		for(;;)
 		{
 			const wchar_t *PrEnd = wcschr(PrStart, L':');
 			size_t Len=PrEnd==NULL ? StrLength(PrStart):(PrEnd-PrStart);

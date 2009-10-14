@@ -375,7 +375,7 @@ void DeleteKeyRecord(const wchar_t *KeyMask,int Position)
 
   MkKeyName(KeyMask, strMaskKeyName);
 
-  while (1)
+	for(;;)
   {
     strFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position++);
     strNextFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position);

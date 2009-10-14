@@ -931,7 +931,7 @@ int Edit::ProcessKey(int Key)
       Lock ();
 //      while (CurPos>0 && IsSpace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
-      while (1)
+			for(;;)
       {
         int StopDelete=FALSE;
         if (CurPos>1 && IsSpace(Str[CurPos-1])!=IsSpace(Str[CurPos-2]))
@@ -1025,7 +1025,7 @@ int Edit::ProcessKey(int Key)
       }
       else
       {
-        while (1)
+				for(;;)
         {
           int StopDelete=FALSE;
           if (CurPos<StrSize-1 && IsSpace(Str[CurPos]) && !IsSpace(Str[CurPos+1]))
@@ -1381,7 +1381,7 @@ int Edit::ProcessCtrlQ()
   INPUT_RECORD rec;
   DWORD Key;
 
-  while (1)
+	for(;;)
   {
     Key=GetInputRecord(&rec);
     if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)

@@ -382,7 +382,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 {
   INPUT_RECORD Rec;
   DWORD Writes;
-  CONSOLE_SCREEN_BUFFER_INFO csbi; /* hold current console buffer info */
+	CONSOLE_SCREEN_BUFFER_INFO csbi={0}; /* hold current console buffer info */
   if(Sx==-1 || Sy==-1)
     GetConsoleScreenBufferInfo(hConOut, &csbi);
 
@@ -507,7 +507,7 @@ void MoveCursor(int X,int Y)
 }
 
 
-void GetCursorPos(int& X,int& Y)
+void GetCursorPos(SHORT& X,SHORT& Y)
 {
   ScrBuf.GetCursorPos(X,Y);
 }
@@ -542,7 +542,7 @@ void MoveRealCursor(int X,int Y)
 }
 
 
-void GetRealCursorPos(int& X,int& Y)
+void GetRealCursorPos(SHORT& X,SHORT& Y)
 {
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(hConOut,&csbi);

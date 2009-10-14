@@ -88,7 +88,7 @@ class ChDiskPluginItem
 {
 public:
 	MenuItemEx Item;
-	unsigned int HotKey;
+	WCHAR HotKey;
 	ChDiskPluginItem()
 	{
 		Clear ();
@@ -237,8 +237,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	string strDiskType, strRootDir, strDiskLetter;
 	DWORD Mask,DiskMask;
-	int DiskCount,Focus,I;
-	int ShowSpecial=FALSE, SetSelected=FALSE;
+	int DiskCount,Focus;
+	WCHAR I;
+	bool ShowSpecial=false, SetSelected=false;
 
 	Mask = FarGetLogicalDrives();
 
@@ -390,7 +391,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					strMenuText += strRemoteName;
 				}
 
-				ShowSpecial=TRUE;
+				ShowSpecial=true;
 			}
 
 			ChDiskItem.Clear ();
@@ -416,7 +417,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			ChDiskItem.strName = strMenuText;
 
 			if ( strMenuText.GetLength()>4 )
-				ShowSpecial=TRUE;
+				ShowSpecial=true;
 
 			PanelMenuItem item;
 
@@ -445,8 +446,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			int AHKSize = StrLength(AdditionalHotKey); // для предотвращения выхода за границу массива
 
 			int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
-			int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
-
+			int PluginTextNumber;
+			WCHAR HotKey;
+			bool ItemPresent,Done=false;
 			string strPluginText;
 
 			while ( !Done )
@@ -455,7 +457,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					if ( PluginNumber >= CtrlObject->Plugins.GetPluginsCount() )
 					{
-						Done=TRUE;
+						Done=true;
 						break;
 					}
 
@@ -469,7 +471,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							strPluginText
 							) )
 					{
-						Done=TRUE;
+						Done=true;
 						break;
 					}
 
@@ -477,7 +479,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						break;
 
 					if ( !PluginTextNumber ) // IS: автохоткей, назначим потом
-						HotKey = -1; // "-1" -  признак автохоткея
+						HotKey = WCHAR_MAX; // "-1" -  признак автохоткея
 					else
 					{
 						if ( PluginTextNumber < 10 ) // IS: хотей указан явно
@@ -508,7 +510,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 					strMenuText=L"";
 
-					if ( HotKey < 0 )
+					if ( HotKey==WCHAR_MAX )
 						strMenuText = ShowSpecial?strPluginText:L"";
 					else
 					{
@@ -544,7 +546,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 					}
 
-					if ( !strMenuText.IsEmpty() || (HotKey < 0) )
+					if ( !strMenuText.IsEmpty() || (HotKey==WCHAR_MAX) )
 					{
 						OneItem.Clear();
 
@@ -564,7 +566,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 						OneItem.HotKey=HotKey;
 
-						ChDiskPluginItem *pResult = (HotKey < 0)?MPItemsNoHotkey.addItem(OneItem):MPItems.addItem(OneItem);
+						ChDiskPluginItem *pResult = (HotKey==WCHAR_MAX)?MPItemsNoHotkey.addItem(OneItem):MPItems.addItem(OneItem);
 
 						if ( pResult )
 						{
@@ -608,7 +610,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				wchar_t HotKeyStr[]={L'&',L' ',L':',L' ',L'\0'};
 				if ( PluginTextNumber<10 )
 				{
-					item->HotKey=PluginTextNumber+'0';
+					item->HotKey=static_cast<WCHAR>(PluginTextNumber+'0');
 					HotKeyStr[1]=item->HotKey;
 					strMenuText=HotKeyStr;
 					strMenuText+=item->Item.strName;
@@ -1086,7 +1088,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	if ( !mitem->bIsPlugin )
 	{
-		while ( true )
+		for(;;)
 		{
 			wchar_t NewDir[]={mitem->cDrive,L':',0,0};
 
@@ -1284,7 +1286,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 
 		EndPtr=Ptr+StrLength(Ptr);
 		DWORD Key;
-		while(1)
+		for(;;)
 		{
 			if(EndPtr == Ptr)
 			{
@@ -1417,9 +1419,9 @@ void Panel::FastFind(int FirstKey)
 
       // // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535)
-        Key=Lower (Key-KEY_ALT_BASE);
+        Key=Lower (static_cast<WCHAR>(Key-KEY_ALT_BASE));
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535)
-        Key=Lower (Key-KEY_ALTSHIFT_BASE);
+        Key=Lower (static_cast<WCHAR>(Key-KEY_ALTSHIFT_BASE));
 
       if (Key==KEY_MULTIPLY)
         Key=L'*';

@@ -96,32 +96,32 @@ BaseFormat& BaseFormat::operator<<(string& String)
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(fmt::Width& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::Width& Manipulator)
 {
 	SetWidth(Manipulator.GetValue());
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(fmt::Precision& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::Precision& Manipulator)
 {
 	SetPrecision(Manipulator.GetValue());
 	return *this;
 }
 
 
-BaseFormat& BaseFormat::operator<<(fmt::FillChar& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::FillChar& Manipulator)
 {
 	SetFillChar(Manipulator.GetValue());
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(fmt::LeftAlign& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::LeftAlign& Manipulator)
 {
 	SetAlign(fmt::A_LEFT);
 	return *this;
 }
 
-BaseFormat& BaseFormat::operator<<(fmt::RightAlign& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::RightAlign& Manipulator)
 {
 	SetAlign(fmt::A_RIGHT);
 	return *this;

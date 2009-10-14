@@ -349,9 +349,9 @@ class Dialog: public Frame
 
 
     int SetAutomation(WORD IDParent,WORD id,
-                        DWORD UncheckedSet,DWORD UncheckedSkip,
-                        DWORD CheckedSet,DWORD CheckedSkip,
-                        DWORD Checked3Set=0,DWORD Checked3Skip=0);
+                        FarDialogItemFlags UncheckedSet,FarDialogItemFlags UncheckedSkip,
+                        FarDialogItemFlags CheckedSet,FarDialogItemFlags CheckedSkip,
+                        FarDialogItemFlags Checked3Set=DIF_NONE,FarDialogItemFlags Checked3Skip=DIF_NONE);
 
     LONG_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);
 

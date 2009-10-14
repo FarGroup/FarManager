@@ -213,6 +213,7 @@ static __inline BOOL IsEdit(int Type)
 
 
 enum FarDialogItemFlags {
+  DIF_NONE                  = 0,
   DIF_COLORMASK             = 0x000000ffUL,
   DIF_SETCOLOR              = 0x00000100UL,
   DIF_BOXCOLOR              = 0x00000200UL,

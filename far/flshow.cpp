@@ -542,7 +542,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,i
 
 void FileList::PrepareViewSettings(int ViewMode,OpenPluginInfo *PlugInfo)
 {
-	OpenPluginInfo Info;
+	OpenPluginInfo Info={0};
   if (PanelMode==PLUGIN_PANEL)
   {
     if (PlugInfo==NULL)

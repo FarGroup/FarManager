@@ -970,7 +970,7 @@ static int IsReplaceVariable(const wchar_t *str,
   else
     return -1;
   //
-  while (true)    // analize from !? to ?
+	for(;;)    // analize from !? to ?
   {
     if (!*s)
       return -1;
@@ -1010,7 +1010,7 @@ static int IsReplaceVariable(const wchar_t *str,
   if (count_scob != 0) return -1;
   scrtxt = s - 1; //remember s for return
 
-  while (true)    //analize from ? or !
+	for(;;)    //analize from ? or !
   {
     if (!*s)
       return -1;

@@ -38,5 +38,5 @@ extern unsigned char Palette[];
 extern unsigned char BlackPalette[];
 extern int SizeArrayPalette;
 
-int FarColorToReal(int FarColor);
+BYTE FarColorToReal(int FarColor);
 void ConvertCurrentPalette();

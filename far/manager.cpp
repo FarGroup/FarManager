@@ -246,7 +246,7 @@ void Manager::ExecuteNonModal ()
   }
 
   //Frame* ModalStartLevel=NonModal;
-  while (1)
+	for(;;)
   {
     Commit();
     if (CurrentFrame!=NonModal)
@@ -287,7 +287,7 @@ void Manager::ExecuteModal (Frame *Executed)
   int ModalStartLevel=ModalStackCount;
   int OriginalStartManager=StartManager;
   StartManager=TRUE;
-  while (1)
+	for(;;)
   {
     Commit();
 
@@ -594,7 +594,7 @@ void Manager::EnterMainLoop()
 {
   WaitInFastFind=0;
   StartManager=TRUE;
-  while (1)
+	for(;;)
   {
     Commit();
     if (EndLoop || !HaveAnyFrame())
@@ -728,8 +728,9 @@ int  Manager::ProcessKey(DWORD Key)
 // сей код для проверки исключатор, просьба не трогать :-)
     if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey(L"System\\Exception",L"Used",0))
     {
-      struct __ECODE {
-        DWORD Code;
+      struct __ECODE
+			{
+				NTSTATUS Code;
         const wchar_t *Name;
       } ECode[]={
         {EXCEPTION_ACCESS_VIOLATION,L"Access Violation (Read)"},

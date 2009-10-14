@@ -197,12 +197,12 @@ int WINAPI CopyToClipboard(const wchar_t *Data)
   FAR_EmptyClipboard();
   FAR_CloseClipboard();
   if(Data && *Data)
-    return InternalCopyToClipboard(Data,0);
+    return InternalCopyToClipboard(Data);
   else
     return TRUE;
 }
 
-int InternalCopyToClipboard(const wchar_t *Data,int AnsiMode) //AnsiMode - fake
+int InternalCopyToClipboard(const wchar_t *Data)
 {
   long DataSize;
   if (!FAR_OpenClipboard(NULL))
@@ -265,10 +265,10 @@ int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
 
 wchar_t* WINAPI PasteFromClipboard()
 {
-  return InternalPasteFromClipboard(0);
+  return InternalPasteFromClipboard();
 }
 
-wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
+wchar_t* InternalPasteFromClipboard()
 {
   HANDLE hClipData;
   if (!FAR_OpenClipboard(NULL))
@@ -333,12 +333,12 @@ wchar_t* InternalPasteFromClipboard(int AnsiMode) //AnsiMode - fake!!
 
 wchar_t* WINAPI PasteFromClipboardEx(int max)
 {
-  return InternalPasteFromClipboardEx(max,0);
+  return InternalPasteFromClipboardEx(max);
 }
 
 
 // max - без учета символа конца строки!
-wchar_t* InternalPasteFromClipboardEx(int max,int AnsiMode) //AnsiMode - fake
+wchar_t* InternalPasteFromClipboardEx(int max)
 {
   wchar_t *ClipText=NULL;
   HANDLE hClipData;

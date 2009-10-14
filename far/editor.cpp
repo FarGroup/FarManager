@@ -1315,7 +1315,7 @@ int Editor::ProcessKey(int Key)
       _KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey(KEY_SHIFT*)"));
       _SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
       UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
-      _bg.needCheckUnmark=true;
+			_bg.SetNeedCheckUnmark(true);
       CurLine->GetRealSelection(SelStart,SelEnd);
       if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
       {
@@ -1609,7 +1609,7 @@ int Editor::ProcessKey(int Key)
         Lock ();
 
         int CurPos;
-        while (1)
+				for(;;)
         {
           const wchar_t *Str;
           int Length;
@@ -1668,7 +1668,7 @@ int Editor::ProcessKey(int Key)
 
 
         int CurPos;
-        while (1)
+				for(;;)
         {
           const wchar_t *Str;
           int Length;
@@ -2583,7 +2583,7 @@ int Editor::ProcessKey(int Key)
         Pasting++;
         Lock ();
 
-        while (1)
+				for(;;)
         {
           const wchar_t *Str;
           int Length;
@@ -2624,7 +2624,7 @@ int Editor::ProcessKey(int Key)
         Pasting++;
         Lock ();
 
-        while (1)
+				for(;;)
         {
           const wchar_t *Str;
           int Length;
@@ -3955,7 +3955,7 @@ BOOL Editor::Search(int Next)
           if (!ReplaceAll)
           {
             Show();
-            int CurX,CurY;
+						SHORT CurX,CurY;
             GetCursorPos(CurX,CurY);
             GotoXY(CurX,CurY);
             SetColor(COL_EDITORSELECTEDTEXT);
@@ -4801,7 +4801,7 @@ void Editor::Undo(int redo)
 
   UnmarkBlock();
   EditorUndoData *ud=ustart;
-  while(1)
+	for(;;)
   {
     if (ud->Type!=UNDO_BEGIN && ud->Type!=UNDO_END)
       GoToLine(ud->StrNum);
@@ -5356,7 +5356,7 @@ void Editor::VBlockShift(int Left)
 
     if (Left)
     {
-      int Ch=TmpStr[TBlockX-1];
+			WCHAR Ch=TmpStr[TBlockX-1];
       for (int I=TBlockX;I<TBlockX+TBlockSizeX;I++)
         TmpStr[I-1]=TmpStr[I];
       TmpStr[TBlockX+TBlockSizeX-1]=Ch;

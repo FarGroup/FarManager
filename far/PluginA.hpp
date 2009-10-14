@@ -95,6 +95,7 @@ private:
 	OpenPluginInfo OPI;
 
 	oldfar::PluginPanelItem  *pFDPanelItemA;
+	oldfar::PluginPanelItem  *pVFDPanelItemA;
 
 	PLUGINSETSTARTUPINFO        pSetStartupInfo;
 	PLUGINOPENPLUGIN            pOpenPlugin;

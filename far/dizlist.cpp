@@ -99,7 +99,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
   const wchar_t *NamePtr=Opt.Diz.strListNames;
 
-  while (1)
+	for(;;)
   {
     if (DizName!=NULL)
       strDizFileName = DizName;
@@ -324,12 +324,12 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 
   if (CmpCode==0)
   {
-    int Ch=TableName[NameLength];
+		WCHAR Ch=TableName[NameLength];
     if (Ch==0 || IsSpace(Ch))
       return(0);
     if (Ch==L'.')
     {
-      int Ch1=TableName[NameLength+1];
+			WCHAR Ch1=TableName[NameLength+1];
       if (Ch1==0 || IsSpace(Ch1))
         return(0);
     }
