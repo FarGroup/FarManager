@@ -177,7 +177,6 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         strFullName = strFindPath;
-				AddEndSlash(strFullName);
 				apiGetFindDataEx(strFullName,fdata);
       }
 

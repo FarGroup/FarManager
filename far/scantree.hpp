@@ -40,13 +40,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum{
   // эту фигню может ставить плагин (младшие 8 бит)
-  FSCANTREE_RETUPDIR         = 0x00000001, // = FRS_RETUPDIR
+  FSCANTREE_RETUPDIR         = 0x00000001, // = FRS_RETUPDIR 
+  // FSCANTREE_RETUPDIR causes GetNextName() to return every directory twice:
+  // 1. when scanning its parent directory 2. after directory scan is finished
   FSCANTREE_RECUR            = 0x00000002, // = FRS_RECUR
   FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
 
   // в младшем слове старшие 8 бита служебные!
   FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
-  FSCANTREE_SECONDDIRNAME    = 0x00004000,
+  FSCANTREE_SECONDDIRNAME    = 0x00004000, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
   FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
 
   // здесь те флаги, которые могут выставляться в 3-м параметре SetFindPath()
