@@ -1087,7 +1087,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
 								string strDateStr, strTimeStr;
                 ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
-								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDateStr<<L" "<<strTimeStr;
+								string strOutStr=strDateStr+L" "+strTimeStr;
+								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strOutStr;
               }
               break;
             case ATTR_COLUMN:
