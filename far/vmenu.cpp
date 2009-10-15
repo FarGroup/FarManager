@@ -386,7 +386,7 @@ void VMenu::DrawTitles()
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintf(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strTitle);
+		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strTitle<<L" ";
   }
   if ( !strBottomTitle.IsEmpty() )
   {
@@ -394,7 +394,7 @@ void VMenu::DrawTitles()
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[VMenuColorTitle]);
-    mprintf(L" %*.*s ",WidthTitle,WidthTitle,(const wchar_t*)strBottomTitle);
+		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strBottomTitle<<L" ";
   }
 }
 

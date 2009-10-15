@@ -461,7 +461,9 @@ int FillUserMenu(VMenu& UserMenu,const wchar_t *MenuKey,int MenuPos,int *FuncPos
 			apiExpandEnvironmentStrings (strLabel, strLabel);
 			FuncNum=PrepareHotKey(strHotKey);
 			int Offset=strHotKey.At(0)==L'&'?4:3;
-			UserMenuItem.strName.Format (L"%s%-*.*s ",(!strHotKey.IsEmpty() && !FuncNum)?L"&":L"",Offset,Offset,strHotKey.CPtr());
+			FormatString FString;
+			FString<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::Width(Offset)<<fmt::Precision(Offset)<<strHotKey;
+			UserMenuItem.strName=FString.strValue();
 			UserMenuItem.strName+=strLabel;
 			if(GetRegKey(strItemKey,L"Submenu",0))
 			{

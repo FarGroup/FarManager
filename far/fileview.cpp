@@ -492,9 +492,7 @@ void FileViewer::ShowStatus()
 
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
-
-  mprintf(L"%-*.*s",View.Width+(View.ViOpt.ShowScrollbar?1:0),
-                    View.Width+(View.ViOpt.ShowScrollbar?1:0), (const wchar_t*)strStatus);
+	FS<<fmt::LeftAlign()<<fmt::Width(View.Width+(View.ViOpt.ShowScrollbar?1:0))<<fmt::Precision(View.Width+(View.ViOpt.ShowScrollbar?1:0))<<strStatus;
 
   if (Opt.ViewerEditorClock && IsFullScreen())
     ShowTime(FALSE);

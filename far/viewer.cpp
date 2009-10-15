@@ -612,7 +612,8 @@ void Viewer::ShowHex()
   wchar_t OutStr[MAX_VIEWLINE],TextStr[20];
   int EndFile;
   __int64 SelSize;
-  int Ch,Ch1,X,Y,TextPos;
+	WCHAR Ch;
+	int X,Y,TextPos;
 
   int SelStart, SelEnd;
   bool bSelStartFound = false, bSelEndFound = false;
@@ -685,7 +686,7 @@ void Viewer::ShowHex()
           SelSize=SelectSize;
         }
 
-        if ((Ch=getc(ViewFile))==EOF || (Ch1=getc(ViewFile))==EOF)
+				if (!vgetc(ViewFile,Ch))
         {
           /* $ 28.06.2000 tran
              убираем показ пустой строки, если длина
@@ -702,30 +703,18 @@ void Viewer::ShowHex()
         }
         else
         {
-          swprintf(OutStr+StrLength(OutStr),L"%02X%02X ",Ch1,Ch);
-          char TmpBuf[2];
+					WCHAR OutChar=Ch;
+					if(VM.CodePage == CP_REVERSEBOM)
+					{
+						swab(reinterpret_cast<LPSTR>(&OutChar),reinterpret_cast<LPSTR>(&OutChar),sizeof(WCHAR));
+					}
+					swprintf(OutStr+StrLength(OutStr),L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
 
-          wchar_t NewCh;
-
-          /* $ 01.08.2002 tran
-          обратный порядок байтов */
-          if ( VM.CodePage == CP_REVERSEBOM )
-          {
-              TmpBuf[0]=Ch1;
-              TmpBuf[1]=Ch;
-          }
-          else
-          {
-              TmpBuf[0]=Ch;
-              TmpBuf[1]=Ch1;
-          }
-
-          memcpy (&NewCh, &TmpBuf, 2);
-
-          if (NewCh==0)
-            NewCh=L' ';
-
-          TextStr[TextPos++]=NewCh;
+					if(!Ch)
+					{
+						Ch=L' ';
+					}
+					TextStr[TextPos++]=Ch;
           LastPage=0;
         }
         if (X==3)
@@ -761,7 +750,7 @@ void Viewer::ShowHex()
 
 
 
-        if ((Ch=vgetc(ViewFile))==EOF)
+				if(!vgetc(ViewFile,Ch))
         {
           /* $ 28.06.2000 tran
              убираем показ пустой строки, если длина
@@ -934,7 +923,8 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
         __int64 SavePos=vtell(ViewFile);
-        if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=L'\r' || vgetc(ViewFile)!=CRSym))
+				WCHAR TmpChar=0;
+        if (vgetc(ViewFile,Ch) && Ch!=CRSym && (Ch!=L'\r' || (vgetc(ViewFile,TmpChar) && TmpChar!=CRSym)))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.WordWrap)
@@ -971,7 +961,12 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
                remove space at WWrap */
             __int64 savepos=vtell(ViewFile);
             while (IsSpace(Ch))
-                Ch=vgetc(ViewFile);
+						{
+							if(!vgetc(ViewFile,Ch))
+							{
+								break;
+							}
+						}
             if ( vtell(ViewFile)!=savepos)
                 vseek(ViewFile,-1,SEEK_CUR);
           }// wwrap
@@ -987,7 +982,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
       if (MaxSize-- == 0)
         break;
-      if ((Ch=vgetc(ViewFile))==EOF)
+			if(!vgetc(ViewFile,Ch))
         break;
       if (Ch==CRSym)
         break;
@@ -1016,8 +1011,11 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         if(OutPtr>=XX2-X1)
         {
           __int64 SavePos=vtell(ViewFile);
-          int nextCh=vgetc(ViewFile);
-          if(nextCh!=CRSym && nextCh!=EOF) CRSkipped=false;
+					WCHAR nextCh=0;
+          if(vgetc(ViewFile,nextCh) && nextCh!=CRSym)
+					{
+						CRSkipped=false;
+					}
           vseek(ViewFile,SavePos,SEEK_SET);
         }
         if(CRSkipped)
@@ -1699,8 +1697,8 @@ int Viewer::ProcessKey(int Key)
         else
         {
           vseek(ViewFile,-1,SEEK_END);
-          int LastSym=vgetc(ViewFile);
-          if(LastSym!=EOF && LastSym!=CRSym)
+					WCHAR LastSym=0;
+          if(vgetc(ViewFile,LastSym) && LastSym!=CRSym)
             ++max_counter;
         }
         FilePos=vtell(ViewFile);
@@ -2728,17 +2726,17 @@ __int64 Viewer::vtell(FILE *SrcFile)
 }
 
 
-int Viewer::vgetc(FILE *SrcFile)
+bool Viewer::vgetc(FILE *SrcFile,WCHAR& C)
 {
-  if(!SrcFile)
-    return -1;
-
-  wchar_t Ch;
-
-  if (vread(&Ch, 1,SrcFile)==0)
-    return(EOF);
-
-  return Ch;
+	bool Result=false;
+	if(SrcFile)
+	{
+		if(vread(&C,1,SrcFile))
+		{
+			Result=true;
+		}
+	}
+	return Result;
 }
 
 

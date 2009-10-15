@@ -2101,28 +2101,28 @@ MCopySetFilter
 
 MCopyFile
 l:
-"Копировать \"%.55s\""
-"Copy \"%.55s\""
-"Kopírovat \"%.55s\""
-"Kopiere \"%.55s\""
-" \"%.55s\" másolása"
-"Skopiuj \"%.55s\""
+"Копировать"
+"Copy"
+"Kopírovat"
+"Kopiere"
+upd:"másolása"
+"Skopiuj"
 
 MMoveFile
-"Переименовать или перенести \"%.55s\""
-"Rename or move \"%.55s\""
-"Přejmenovat nebo přesunout \"%.55s\""
-"Verschiebe \"%.55s\""
-" \"%.55s\" átnevezése-mozgatása"
-"Zmień nazwę lub przenieś \"%.55s\""
+"Переименовать или перенести"
+"Rename or move"
+"Přejmenovat nebo přesunout"
+"Verschiebe"
+upd:"átnevezése-mozgatása"
+"Zmień nazwę lub przenieś"
 
 MLinkFile
-"Создать ссылку \"%.55s\""
-"Link \"%.55s\""
-"Linkovat \"%.55s\""
-"Verlinke \"%.55s\""
-" \"%.55s\" linkelése"
-"Dowiąż \"%.55s\""
+"Создать ссылку"
+"Link"
+"Linkovat"
+"Verlinke"
+upd:"linkelése"
+"Dowiąż"
 
 MCopyFiles
 "Копировать %d элемент%s"
@@ -9900,36 +9900,36 @@ l:
 "Szybki podgląd"
 
 MQuickViewFolder
-"Папка \"%s\""
-"Folder \"%s\""
-"Adresář \"%s\""
-"Verzeichnis \"%s\""
-"\"%s\" mappa"
-"Folder \"%s\""
+"Папка"
+"Folder"
+"Adresář"
+"Verzeichnis"
+"Mappa"
+"Folder"
 
 MQuickViewJunction
-"Связь \"%s\""
-"Junction \"%s\""
-"Křížení \"%s\""
-"Knotenpunkt \"%s\""
-"\"%s\" csomópont"
-"Powiązanie \"%s\""
+"Связь"
+"Junction"
+"Křížení"
+"Knotenpunkt"
+"Csomópont"
+"Powiązanie"
 
 MQuickViewSymlink
-"Ссылка \"%s\""
-"Symlink \"%s\""
-"Symbolický link \"%s\""
-"Symlink \"%s\""
-"\"%s\" szimlink"
-"Link   \"%s\""
+"Ссылка"
+"Symlink"
+"Symbolický link"
+"Symlink"
+"Szimlink"
+"Link"
 
 MQuickViewVolMount
-"Том \"%s\""
-"Volume \"%s\""
-"Svazek \"%s\""
-"Datenträger \"%s\""
-"\"%s\" kötet"
-"Napęd \"%s\""
+"Том"
+"Volume"
+"Svazek"
+"Datenträger"
+"Kötet"
+"Napęd"
 
 MQuickViewContains
 "Содержит:"
@@ -11830,12 +11830,12 @@ l:
 "Opisz plik"
 
 MEnterDescription
-"Введите описание %s"
-"Enter %s description"
-"Zadejte popisek %s"
-"Beschreibung für %s:"
-"Írja be %s megjegyzését:"
-"Wprowadź opis %s"
+"Введите описание для"
+"Enter description for"
+"Zadejte popisek"
+"Beschreibung für"
+upd:"Írja be megjegyzését:"
+"Wprowadź opis"
 
 MReadingDiz
 l:

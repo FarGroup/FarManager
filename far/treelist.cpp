@@ -295,7 +295,9 @@ void TreeList::DisplayTree(int Fast)
     }
     SetColor(COL_PANELTEXT);
 		if(WhereX()<X2)
-      mprintf(L"%*s",X2-WhereX(),L"");
+		{
+			FS<<fmt::Width(X2-WhereX())<<L"";
+		}
   }
   if (Opt.ShowPanelScrollbar)
   {
@@ -308,7 +310,7 @@ void TreeList::DisplayTree(int Fast)
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);
-    mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,(const wchar_t*)ListData[CurFile]->strName);
+		FS<<fmt::LeftAlign()<<fmt::Width(X2-X1-1)<<fmt::Precision(X2-X1-1)<<ListData[CurFile]->strName;
   }
 
   UpdateViewPanel();
@@ -328,18 +330,18 @@ void TreeList::DisplayTreeName(const wchar_t *Name,int Pos)
     if (Focus || ModalMode)
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
-      mprintf(L" %.*s ",X2-WhereX()-3,Name);
+			FS<<L" "<<fmt::Precision(X2-WhereX()-3)<<Name<<L" ";
     }
     else
     {
       SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-      mprintf(L"[%.*s]",X2-WhereX()-3,Name);
+			FS<<L"["<<fmt::Precision(X2-WhereX()-3)<<Name<<L"]";
     }
   }
   else
   {
     SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-    mprintf(L"%.*s",X2-WhereX()-1,Name);
+		FS<<fmt::Precision(X2-WhereX()-1)<<Name;
   }
 }
 
@@ -409,9 +411,7 @@ int TreeList::ReadTree()
   FlushCache();
   GetRoot();
 
-  int RootLength=(int)strRoot.GetLength ()-1;
-  if (RootLength<0)
-    RootLength=0;
+	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 
   if(ListData)
   {
@@ -527,38 +527,45 @@ void TreeList::SaveTreeFile()
 
   string strName;
 
-  FILE *TreeFile;
   long I;
-  int RootLength = (int)strRoot.GetLength()-1;
-  if (RootLength<0)
-    RootLength=0;
+	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 
   MkTreeFileName(strRoot, strName);
   // получим и сразу сбросим атрибуты (если получится)
 	DWORD FileAttributes=apiGetFileAttributes(strName);
   if(FileAttributes != INVALID_FILE_ATTRIBUTES)
 		apiSetFileAttributes(strName,FILE_ATTRIBUTE_NORMAL);
-  if ((TreeFile=_wfopen(strName,L"wb"))==NULL)
+	HANDLE hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL);
+	if(hTreeFile==INVALID_HANDLE_VALUE)
   {
     /* $ 16.10.2000 tran
        если диск должен кешироваться, то и пытаться не стоит */
-    if (MustBeCached(strRoot) || (TreeFile=_wfopen(strName,L"wb"))==NULL)
-      if (!GetCacheTreeName(strRoot,strName,TRUE) || (TreeFile=_wfopen(strName,L"wb"))==NULL)
+		if(MustBeCached(strRoot))
+			if(!GetCacheTreeName(strRoot,strName,TRUE) || (hTreeFile=apiCreateFile(strName,GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL))==INVALID_HANDLE_VALUE)
         return;
     /* tran $ */
   }
-  for (I=0;I<TreeCount;I++)
-    if (RootLength>=(int)ListData[I]->strName.GetLength())
-      fwprintf(TreeFile,L"\\\n");
+	bool Success=true;
+	for (I=0;I<TreeCount && Success;I++)
+	{
+		DWORD Written;
+    if (RootLength>=ListData[I]->strName.GetLength())
+		{
+			DWORD Size=2*sizeof(WCHAR);
+			Success=(WriteFile(hTreeFile,L"\\\n",Size,&Written,NULL) && Written==Size);
+		}
     else
-      fwprintf(TreeFile,L"%s\n",(const wchar_t*)ListData[I]->strName+RootLength);
-  if (fclose(TreeFile)==EOF)
+		{
+			DWORD Size=static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR));
+			Success=(WriteFile(hTreeFile,ListData[I]->strName+RootLength,Size,&Written,NULL) && Written==Size);
+			Size=1*sizeof(WCHAR);
+			Success=(WriteFile(hTreeFile,L"\n",Size,&Written,NULL) && Written==Size);
+		}
+	}
+	CloseHandle(hTreeFile);
+	if(!Success)
   {
-    clearerr(TreeFile);
-    fclose(TreeFile);
-
-		apiDeleteFile (strName);
-
+    apiDeleteFile (strName);
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),strName,MSG(MOk));
   }
   else if(FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
@@ -727,9 +734,7 @@ bool TreeList::FillLastData()
 {
 	int Last,PathLength,SubDirPos,I,J;
 	size_t Pos,Depth;
-	int RootLength = (int)strRoot.GetLength()-1;
-	if (RootLength<0)
-		RootLength=0;
+	size_t RootLength = strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 
 	for (I=1;I<TreeCount;I++)
 	{
@@ -1349,9 +1354,7 @@ void TreeList::ProcessEnter()
 int TreeList::ReadTreeFile()
 {
   FILE *TreeFile=NULL;
-  int RootLength=(int)strRoot.GetLength()-1;
-  if (RootLength<0)
-    RootLength=0;
+	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
 
   string strName;
 
@@ -1381,7 +1384,7 @@ int TreeList::ReadTreeFile()
 
 		string strLastDirName;
 
-		while (fgetws(DirName+RootLength,NT_MAX_PATH-RootLength,TreeFile)!=NULL)
+		while (fgetws(DirName+RootLength,static_cast<int>(NT_MAX_PATH-RootLength),TreeFile)!=NULL)
 		{
 			if (!IsSlash(*(DirName+RootLength)) || StrCmpI (DirName,strLastDirName)==0)
 				continue;

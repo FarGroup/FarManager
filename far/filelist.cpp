@@ -3833,17 +3833,16 @@ void FileList::DescribeFiles()
 
   while (GetSelName(&strSelName,FileAttr,&strSelShortName))
   {
-    string strDizText, strMsg, strTruncMsg, strQuotedName;
+    string strDizText, strMsg, strQuotedName;
     const wchar_t *PrevText;
     PrevText=Diz.GetDizTextAddr(strSelName,strSelShortName,GetLastSelectedSize());
     strQuotedName = strSelName;
     QuoteSpaceOnly(strQuotedName);
-    strMsg.Format (MSG(MEnterDescription),(const wchar_t*)strQuotedName);
-    strTruncMsg.Format (L"%.65s",(const wchar_t*)strMsg);
+		strMsg.Append(MSG(MEnterDescription)).Append(L" ").Append(strQuotedName).Append(L":");
     /* $ 09.08.2000 SVS
        Для Ctrl-Z ненужно брать предыдущее значение!
     */
-    if (!GetString(MSG(MDescribeFiles),strTruncMsg,L"DizText",
+    if (!GetString(MSG(MDescribeFiles),strMsg,L"DizText",
                    PrevText!=NULL ? PrevText:L"",strDizText,
                    L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
       break;
@@ -3853,9 +3852,9 @@ void FileList::DescribeFiles()
       Diz.DeleteDiz(strSelName,strSelShortName);
     else
     {
-      string strDizLine;
-      strDizLine.Format (L"%-*s %s",Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0, (const wchar_t*)strQuotedName, (const wchar_t*)strDizText);
-      Diz.AddDiz(strSelName,strSelShortName,strDizLine);
+			FormatString FString;
+			FString<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<strDizText;
+			Diz.AddDiz(strSelName,strSelShortName,FString);
     }
     ClearLastGetSelection();
     // BugZ#442 - Deselection is late when making file descriptions

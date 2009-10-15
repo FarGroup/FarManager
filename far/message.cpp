@@ -423,7 +423,7 @@ int Message(
 			strTempTitle.SetLength (MaxLength);
 
     GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
-    mprintf(L" %s ",(const wchar_t*)strTempTitle);
+		FS<<L" "<<strTempTitle<<L" ";
   }
 
   for (I=0;I<StrCount;I++)

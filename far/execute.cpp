@@ -1128,7 +1128,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			mprintf(L"%*s",X2-X1+1,L"");
+			FS<<fmt::Width(X2-X1+1)<<L"";
 			Show();
 			ScrBuf.Flush();
 		}
@@ -1542,7 +1542,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			mprintf(L"%*s",X2-X1+1,L"");
+			FS<<fmt::Width(X2-X1+1)<<L"";
 			Show();
 			return TRUE;
 		}

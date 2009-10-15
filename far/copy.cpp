@@ -193,7 +193,7 @@ class CopyProgress
 	int Color;
 	int Percents;
 	DWORD LastWriteTime;
-	string strSrc,strDst,strFiles,strScanName,strTime;
+	string strSrc,strDst,strFiles,strTime;
 	bool Timer();
 	void Flush();
 	void DrawNames();
@@ -271,8 +271,8 @@ void CopyProgress::SetScanName(const wchar_t *Name)
 	{
 		CreateScanBackground();
 	}
-	strScanName.Format(L"%-*.*s",Rect.Right-Rect.Left-9,Rect.Right-Rect.Left-9,Name);
-	Text(Rect.Left+5,Rect.Top+3,Color,strScanName);
+	GotoXY(Rect.Left+5,Rect.Top+3);
+	FS<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Name;
 	Flush();
 }
 
@@ -351,9 +351,15 @@ void CopyProgress::DrawNames()
 void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 {
 	if(!BgInit)
+	{
 		CreateBackground();
-	strSrc.Format(L"%-*.*s",Rect.Right-Rect.Left-9,Rect.Right-Rect.Left-9,Src);
-	strDst.Format(L"%-*.*s",Rect.Right-Rect.Left-9,Rect.Right-Rect.Left-9,Dst);
+	}
+	FormatString FString;
+	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Src;
+	strSrc=FString.strValue();
+	FString.Clear();
+	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Dst;
+	strDst=FString.strValue();
 	if(Total)
 	{
 		strFiles.Format(MSG(MCopyProcessedTotal),TotalFiles,TotalFilesToProcess);
@@ -834,11 +840,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     }
 
     strSelNameShort = strSelName;
-    TruncPathStr(strSelNameShort,33);
-    // ”резаем им€ до размеров диалога.
-    strCopyStr.Format (
-            MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile)),
-            (const wchar_t*)strSelNameShort);
+		strCopyStr=MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile));
+		TruncPathStr(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.GetLength()-7));
+		strCopyStr+=L" "+strSelNameShort;
 
     // ≈сли копируем одиночный файл, то запрещаем использовать фильтр
     if (!(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY))
@@ -871,8 +875,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     strCopyStr.Format (MSG(NOper),CDP.SelCount,MSG(NItems));
   }
 
-    CopyDlg[ID_SC_SOURCEFILENAME].strData.Format (L"%.65s", (const wchar_t*)strCopyStr);
-
+    CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
     CopyDlg[ID_SC_TITLE].strData = MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle));
     CopyDlg[ID_SC_BTNCOPY].strData = MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy));
 

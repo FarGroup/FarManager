@@ -93,8 +93,19 @@ public:
 	void SetFillChar(WCHAR Char=L' '){_FillChar=Char;}
 
 	// data
-	BaseFormat& operator<<(WCHAR Value);
 	BaseFormat& operator<<(INT64 Value);
+	BaseFormat& operator<<(UINT64 Value);
+
+	BaseFormat& operator<<(short Value){return operator<<(static_cast<INT64>(Value));}
+	BaseFormat& operator<<(USHORT Value){return operator<<(static_cast<UINT64>(Value));}
+
+	BaseFormat& operator<<(int Value){return operator<<(static_cast<INT64>(Value));}
+	BaseFormat& operator<<(UINT Value){return operator<<(static_cast<UINT64>(Value));}
+
+	BaseFormat& operator<<(long Value){return operator<<(static_cast<INT64>(Value));}
+	BaseFormat& operator<<(ULONG Value){return operator<<(static_cast<UINT64>(Value));}
+
+	BaseFormat& operator<<(WCHAR Value);
 	BaseFormat& operator<<(LPCWSTR Data);
 	BaseFormat& operator<<(string& String);
 
@@ -111,6 +122,7 @@ class FormatString:public BaseFormat
 	string Value;
 	void Commit(const string& Data){Value+=Data;}
 public:
+	operator const wchar_t*()const{return Value;}
 	const string& strValue()const{return Value;}
 	void Clear(){Value.SetLength(0);}
 };

@@ -184,7 +184,7 @@ class Viewer:public ScreenObject
     int vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw=false);
     int vseek(FILE *SrcFile,__int64 Offset,int Whence);
     __int64 vtell(FILE *SrcFile);
-    int vgetc(FILE *SrcFile);
+		bool vgetc(FILE *SrcFile,WCHAR& C);
     void SetFileSize();
 	int GetStrBytesNum(const wchar_t *Str, int Length);
 

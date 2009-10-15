@@ -1865,7 +1865,7 @@ void Dialog::ShowDialog(unsigned ID)
           GotoXY(X1+X,Y1+Y);
           if(X1+X+CntChr-1 > X2)
             CntChr=X2-(X1+X)+1;
-          mprintf(L"%*s",CntChr,L"");
+					FS<<fmt::Width(CntChr)<<L"";
           if (CntChr < LenText)
           	strStr.SetLength(CntChr);
         }

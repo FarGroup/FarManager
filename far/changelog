@@ -1,3 +1,9 @@
+drkns 15.10.2009 19:12:29 +0200 - build 1167
+
+1. Mantis#0001113: Заполнение экрана символами '?'.
+
+2. Продолжаем давить printf в проблемных местах.
+
 drkns 15.10.2009 00:46:56 +0200 - build 1166
 
 1. Из TechInfo #10 убраны читерские опции [Alt]EditorKey, [Alt]CmdLineKey, [Alt]DialogKey, [Alt]FastFindKey.

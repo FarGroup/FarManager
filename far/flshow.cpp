@@ -191,7 +191,7 @@ void FileList::ShowFileList(int Fast)
       CenterStr(strTitle,strTitleMsg,ViewSettings.ColumnWidth[I]);
       SetColor(COL_PANELCOLUMNTITLE);
       GotoXY(ColumnPos,Y1+1);
-      mprintf(L"%.*s",ViewSettings.ColumnWidth[I],(const wchar_t*)strTitleMsg);
+			FS<<fmt::Precision(ViewSettings.ColumnWidth[I])<<strTitleMsg;
     }
     if (I>=ViewSettings.ColumnCount-1)
       break;
@@ -491,11 +491,11 @@ void FileList::ShowTotalSize(OpenPluginInfo &Info)
     Text(strTotalStr);
   else
   {
-    mprintf(L"%.*s",BoxPos,(const wchar_t*)strTotalStr);
+		FS<<fmt::Precision(BoxPos)<<strTotalStr;
     SetColor(COL_PANELBOX);
-    mprintf(L"%.*s",BoxLength,(const wchar_t*)strTotalStr+BoxPos);
+		FS<<fmt::Precision(BoxLength)<<strTotalStr.CPtr()+BoxPos;
     SetColor(COL_PANELTOTALINFO);
-    Text((const wchar_t*)strTotalStr+BoxPos+BoxLength);
+		Text(strTotalStr.CPtr()+BoxPos+BoxLength);
   }
 }
 
@@ -1087,8 +1087,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
 								string strDateStr, strTimeStr;
                 ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
-								string strOutStr=strDateStr+L" "+strTimeStr;
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strOutStr);
+								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDateStr<<L" "<<strTimeStr;
               }
               break;
             case ATTR_COLUMN:
@@ -1108,7 +1107,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_VIRTUAL)?L'V':L' ',
 									L'\0',
 								};
-                mprintf(L"%*.*s",ColumnWidth,ColumnWidth,OutStr);
+								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<OutStr;
               }
               break;
             case DIZ_COLUMN:
@@ -1132,7 +1131,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (strDizText.Pos(pos,L'\4'))
                   strDizText.SetLength(pos);
 
-                mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,(const wchar_t*)strDizText);
+								FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDizText;
+
               }
               break;
             case OWNER_COLUMN:
@@ -1158,19 +1158,17 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       MaxLeftPos=CurLeftPos;
                   }
                 }
-                mprintf(L"%-*.*s",ColumnWidth,ColumnWidth,Owner+CurLeftPos);
+								FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<Owner+CurLeftPos;
               }
               break;
             case NUMLINK_COLUMN:
               {
-                wchar_t OutStr[20];
-								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(ListData[ListPos]->NumberOfLinks,OutStr,10));
+								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfLinks;
               }
               break;
 						case NUMSTREAMS_COLUMN:
 							{
-								wchar_t OutStr[20];
-								mprintf(L"%*.*s",ColumnWidth,ColumnWidth,_itow(ListData[ListPos]->NumberOfStreams,OutStr,10));
+								FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfStreams;
 							}
 							break;
           }

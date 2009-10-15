@@ -2152,7 +2152,7 @@ void FileEditor::ShowStatus()
 
   GotoXY(X1,Y1); //??
 
-  string strStatus, strLineStr;
+  string strLineStr;
 
   string strLocalTitle;
   GetTitle(strLocalTitle);
@@ -2181,30 +2181,23 @@ void FileEditor::ShowStatus()
 
   string strAttr;
   strAttr.SetData (AttrStr);
-
-  strStatus.Format(
-        L"%-*s %c%c%c%5u %7s %*.*s %5s %-4d %3s",
-        NameLength,
-        (const wchar_t*)strLocalTitle,
-        (m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' '),
-        (m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' '),
-        (m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' '),
-        m_codepage,
-        MSG(MEditStatusLine),
-        SizeLineStr,
-        SizeLineStr,
-        (const wchar_t*)strLineStr,
-        MSG(MEditStatusCol),
-        m_editor->CurLine->GetTabCurPos()+1,
-        (const wchar_t*)strAttr
-        );
+	FormatString FString;
+	FString<<fmt::LeftAlign()<<fmt::Width(NameLength)<<strLocalTitle<<L' '<<
+		(m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' ')<<
+		(m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' ')<<
+		(m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
+		fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(7)<<MSG(MEditStatusLine)<<L' '<<
+		fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<MSG(MEditStatusCol)<<L' '<<
+		fmt::Width(5)<<strLineStr<<L' '<<
+		fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
+		fmt::Width(3)<<strAttr;
 
   int StatusWidth=ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
 
   if (StatusWidth<0)
     StatusWidth=0;
 
-  mprintf(L"%-*.*s", StatusWidth, StatusWidth, (const wchar_t*)strStatus);
+	FS<<fmt::LeftAlign()<<fmt::Width(StatusWidth)<<fmt::Precision(StatusWidth)<<FString.strValue();
 
   {
     const wchar_t *Str;
@@ -2227,9 +2220,9 @@ void FileEditor::ShowStatus()
 				if(C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
 				{
 					static const wchar_t *FmtCharCode[]={L"%o",L"%d",L"%Xh"};
-					mprintf(L" (");
+					Text(L" (");
 					mprintf(FmtCharCode[m_editor->EdOpt.CharCodeBase%countof(FmtCharCode)],C);
-					mprintf(L")");
+					Text(L")");
 				}
 			}
     }

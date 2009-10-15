@@ -83,6 +83,14 @@ BaseFormat& BaseFormat::operator<<(INT64 Value)
 	return *this;
 }
 
+BaseFormat& BaseFormat::operator<<(UINT64 Value)
+{
+	WCHAR Buffer[32];
+	_ui64tow(Value,Buffer,10);
+	Put(Buffer,StrLength(Buffer));
+	return *this;
+}
+
 BaseFormat& BaseFormat::operator<<(LPCWSTR Data)
 {
 	Data=NullToEmpty(Data);

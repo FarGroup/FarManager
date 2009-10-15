@@ -108,7 +108,7 @@ void QuickView::DisplayObject()
   DrawSeparator(Y2-2);
   SetColor(COL_PANELTEXT);
   GotoXY(X1+1,Y2-1);
-  mprintf(L"%-*.*s",X2-X1-1,X2-X1-1,PointToName(strCurFileName));
+	FS<<fmt::LeftAlign()<<fmt::Width(X2-X1-1)<<fmt::Precision(X2-X1-1)<<PointToName(strCurFileName);
 
   if ( !strCurFileType.IsEmpty() )
   {
@@ -122,14 +122,11 @@ void QuickView::DisplayObject()
   }
   if (Directory)
   {
-    string strMsg;
-
-    strMsg.Format (MSG(MQuickViewFolder),(const wchar_t*)strCurFileName);
-
-    TruncStr(strMsg,X2-X1-4);
+		FormatString FString;
+		FString<<MSG(MQuickViewFolder)<<L" \""<<strCurFileName<<L"\"";
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+2);
-    PrintText(strMsg);
+		PrintText(FString);
 
 		if((apiGetFileAttributes(strCurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
@@ -164,50 +161,52 @@ void QuickView::DisplayObject()
 				NormalizeSymlinkName(strJuncName);
 
         TruncPathStr(strJuncName,X2-X1-1-StrLength(MSG(ID_Msg)));
-        strMsg.Format (MSG(ID_Msg), (const wchar_t*)strJuncName);
-        //TruncStr(strMsg,X2-X1-1);
+				FString.Clear();
+				FString<<MSG(ID_Msg)<<L" \""<<strJuncName<<L"\"";
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
-        PrintText(strMsg);
+				PrintText(FString);
       }
     }
 
     if (Directory==1 || Directory==4)
     {
-      string strSlackMsg;
-
       GotoXY(X1+2,Y1+4);
       PrintText(MSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
       PrintText(MSG(MQuickViewFolders));
       SetColor(COL_PANELINFOTEXT);
-      strMsg.Format (L"%d",DirCount);
-      PrintText(strMsg);
+			FString.Clear();
+			FString<<DirCount;
+			PrintText(FString);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+7);
       PrintText(MSG(MQuickViewFiles));
       SetColor(COL_PANELINFOTEXT);
-      strMsg.Format (L"%d",FileCount);
-      PrintText(strMsg);
+			FString.Clear();
+			FString<<FileCount;
+      PrintText(FString);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+8);
       PrintText(MSG(MQuickViewBytes));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(FileSize,strMsg);
-      PrintText(strMsg);
+			string strSize;
+			InsertCommas(FileSize,strSize);
+			PrintText(strSize);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
       PrintText(MSG(MQuickViewCompressed));
       SetColor(COL_PANELINFOTEXT);
-      InsertCommas(CompressedFileSize,strMsg);
-      PrintText(strMsg);
+			InsertCommas(CompressedFileSize,strSize);
+			PrintText(strSize);
 
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+10);
       PrintText(MSG(MQuickViewRatio));
       SetColor(COL_PANELINFOTEXT);
-      strSlackMsg.Format (L"%d%%",ToPercent64(CompressedFileSize,FileSize));
-      PrintText(strSlackMsg);
+			FString.Clear();
+			FString<<ToPercent64(CompressedFileSize,FileSize)<<L"%";
+			PrintText(FString);
 
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
       {
@@ -215,19 +214,20 @@ void QuickView::DisplayObject()
         GotoXY(X1+2,Y1+12);
         PrintText(MSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(ClusterSize,strMsg);
-        PrintText(strMsg);
+				string strSize;
+				InsertCommas(ClusterSize,strSize);
+				PrintText(strSize);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
         PrintText(MSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize,strMsg);
-        PrintText(strMsg);
+				InsertCommas(RealFileSize,strSize);
+				PrintText(strSize);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+14);
         PrintText(MSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
-        InsertCommas(RealFileSize-CompressedFileSize,strMsg);
+				InsertCommas(RealFileSize-CompressedFileSize,strSize);
         unsigned __int64 Size1=RealFileSize-CompressedFileSize;
         unsigned __int64 Size2=RealFileSize;
 
@@ -236,8 +236,9 @@ void QuickView::DisplayObject()
           Size1=Size1>>1;
           Size2=Size2>>1;
         }
-        strSlackMsg.Format (L"%s (%d%%)",(const wchar_t*)strMsg,ToPercent((DWORD)Size1, (DWORD)Size2));
-        PrintText(strSlackMsg);
+				FString.Clear();
+				FString<<strSize<<L" ("<<ToPercent((DWORD)Size1, (DWORD)Size2)<<L"%)";
+				PrintText(FString);
       }
     }
   }
@@ -484,7 +485,7 @@ void QuickView::PrintText(const wchar_t *Str)
   if (WhereY()>Y2-3 || WhereX()>X2-2)
     return;
 
-  mprintf(L"%.*s",X2-2-WhereX()+1,Str);
+	FS<<fmt::Precision(X2-2-WhereX()+1)<<Str;
 }
 
 
