@@ -74,10 +74,6 @@ void __cdecl  xf_free(void *__block)
 
 void *__cdecl xf_malloc(size_t __size)
 {
-	if(__size>1024*1024)
-	{
-		MessageBox(0,0,L"BAD!",0);
-	}
   void *Ptr=malloc(__size);
 #if defined(SYSLOG)
   CallMallocFree++;
