@@ -55,9 +55,20 @@ enum{
   FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
 };
 
+struct FileId
+{
+	DWORD FileIndexHigh,FileIndexLow;
+	DWORD VolumeSerialNumber;
+	bool operator==(const FileId& id)
+	{
+		return FileIndexHigh==id.FileIndexHigh && FileIndexLow==id.FileIndexLow && VolumeSerialNumber==id.VolumeSerialNumber;
+	}
+};
+
 struct ScanTreeData{
   BitFlags Flags;
   HANDLE FindHandle;
+  FileId UniqueId;
 };
 
 class ScanTree
@@ -71,15 +82,6 @@ class ScanTree
     string strFindPath;
     string strFindMask;
 
-		struct FileId
-		{
-			DWORD FileIndexHigh,FileIndexLow;
-			DWORD VolumeSerialNumber;
-			bool operator==(const FileId& id)
-			{
-				return FileIndexHigh==id.FileIndexHigh && FileIndexLow==id.FileIndexLow && VolumeSerialNumber==id.VolumeSerialNumber;
-			}
-		};
 		TPointerArray<FileId>IdArray;
 
     void Init();

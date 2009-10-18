@@ -338,9 +338,9 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
         TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
       }
       ifn.pfnNtClose(hSymLink);
+      if (PathStartsWith(NtPath, TargetPath))
+        return static_cast<int>(TargetPath.GetLength());
     }
-    if (PathStartsWith(NtPath, TargetPath))
-      return static_cast<int>(TargetPath.GetLength());
   }
   return 0;
 }
@@ -456,6 +456,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
         }
       }
       CloseHandle(hFile);
+      assert(!FinalFilePath.IsEmpty());
       if (!FinalFilePath.IsEmpty())
       {
         // append non-existent path part (if present)

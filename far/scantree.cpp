@@ -210,22 +210,15 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 				{
 					Recursion=(*IdArray.getItem(i)==id);
 				}
-				if(!Recursion)
+				for(UINT i=0;i+1<FindHandleCount&&!Recursion;i++)
 				{
-					*IdArray.addItem()=id;
+					Recursion=(Data[i].UniqueId==id);
 				}
+				Data[FindHandleCount].UniqueId = id;
 			}
 		}
-		if(Recursion)
-		{
-			return(GetNextName(fdata,strFullName));
-		}
 
-    /*
-       ≈сли каталог €вл€етс€ SymLink (т.н. "Directory Junctions"),
-       то в него не ломимс€.
-    */
-    if (Flags.Check(FSCANTREE_RECUR) &&
+    if (Flags.Check(FSCANTREE_RECUR) && !Recursion &&
       ((fdata->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) == FILE_ATTRIBUTE_DIRECTORY ||
           ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
     {

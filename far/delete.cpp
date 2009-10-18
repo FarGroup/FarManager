@@ -326,7 +326,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
           string strFullName;
-          ScanTree ScTree(TRUE,TRUE);
+          ScanTree ScTree(TRUE,TRUE,FALSE);
 
 					string strSelFullName;
 					if(PathMayBeAbsolute(strSelName))
@@ -927,7 +927,7 @@ void DeleteDirTree(const wchar_t *Dir)
     return;
   string strFullName;
   FAR_FIND_DATA_EX FindData;
-  ScanTree ScTree(TRUE,TRUE);
+  ScanTree ScTree(TRUE,TRUE,FALSE);
 
 	ScTree.SetFindPath(Dir,L"*",0);
   while (ScTree.GetNextName(&FindData, strFullName))
