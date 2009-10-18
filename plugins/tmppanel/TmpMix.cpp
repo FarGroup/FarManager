@@ -92,7 +92,7 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
 
   PanelRedrawInfo PRI;
   PanelInfo PInfo;
-  TCHAR Name[NM], Dir[NM*5];
+  TCHAR Name[NT_MAX_PATH], Dir[NT_MAX_PATH*5];
   int pathlen;
 
   lstrcpy(Name,FSF.PointToName(const_cast<TCHAR*>(Target)));
@@ -188,3 +188,27 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
   ffd.lpwszAlternateFileName = NULL;  // wcsdup(wfd.cAlternateFileName);
 #endif
 }
+
+#ifdef UNICODE
+wchar_t* NtPath(const wchar_t* path, wchar_t* buf) {
+  int l = lstrlen(path);
+  if (l > 4 && path[0] == L'\\' && path[1] == L'\\')
+  {
+    if ((path[2] == L'?' || path[2] == L'.') && path[3] == L'\\')
+    {
+      lstrcpy(buf, path);
+    }
+    else
+    {
+      lstrcpy(buf, L"\\\\?\\UNC\\");
+      lstrcat(buf, path + 2);
+    }
+  }
+  else
+  {
+    lstrcpy(buf, L"\\\\?\\");
+    lstrcat(buf, path);
+  }
+  return buf;
+}
+#endif

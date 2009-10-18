@@ -8,7 +8,7 @@ Temporary panel main plugin code
 #include "TmpPanel.hpp"
 
 TCHAR PluginRootKey[80];
-TCHAR TMPPanelDir[NM*5];
+TCHAR TMPPanelDir[NT_MAX_PATH*5];
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
@@ -32,7 +32,7 @@ BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
   if (DLL_PROCESS_ATTACH == dwReason && hDll)
   {
     TCHAR *pf;
-    TCHAR temp[NM*5];
+    TCHAR temp[NT_MAX_PATH*5];
     *TMPPanelDir = _T('\0');
     GetModuleFileName((HINSTANCE)hDll, temp, ArraySize(temp));
     if (GetFullPathName(temp, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
@@ -119,7 +119,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         k++;
         argv++;
       }
-      TCHAR TMP[MAX_PATH];
+      TCHAR TMP[NT_MAX_PATH];
       lstrcpyn(TMP,argv-k,k+1);
 
       for(int i=0;i<OPT_COUNT;i++)
@@ -142,7 +142,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       else
       {
         FSF.Unquote(argv);
-        TCHAR TmpIn[NM*5],TmpOut[NM*5];
+        TCHAR TmpIn[NT_MAX_PATH*5],TmpOut[NT_MAX_PATH*5];
         ExpandEnvStrs(argv,TmpIn,ArraySize(TmpIn));
         TCHAR *p;
         if(SearchPath(TMPPanelDir,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p))
@@ -175,7 +175,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
   TCHAR *tempDir=ParseParam(argv);
 
   BOOL allOK=FALSE;
-  TCHAR tempfilename[NM*5],cmdparams[NM*5],fullcmd[NM*5];
+  TCHAR tempfilename[NT_MAX_PATH*5],cmdparams[NT_MAX_PATH*5],fullcmd[NT_MAX_PATH*5];
   FSF.MkTemp(tempfilename,
 #ifdef UNICODE
              ArraySize(tempfilename),
@@ -207,7 +207,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     PROCESS_INFORMATION pi;
     memset(&pi,0,sizeof(pi));
 
-    TCHAR SaveDir[NM],workDir[NM];
+    TCHAR SaveDir[NT_MAX_PATH],workDir[NT_MAX_PATH];
 
     if(tempDir)
     {
@@ -267,7 +267,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, TCHAR **argv, TCHAR *
   if (!FileData)
     return;
 
-  TCHAR TMP[MAX_PATH];
+  TCHAR TMP[NT_MAX_PATH];
   DWORD Len,Pos=0,Size=FileSizeLow;
 
 #ifdef UNICODE
@@ -393,8 +393,8 @@ static void ProcessList(HANDLE hPlugin, TCHAR *Name, int Mode WITH_ANSI_PARAM)
   struct PluginPanelItem ppi;
   memset(&ppi,0,sizeof(ppi));
   for(UINT i=0;(int)i<argc;i++)
-    if(Panel->CheckForCorrect(argv[i],&ppi.FindData,Opt.AnyInPanel))
-      Panel->PutOneFile(ppi);
+    if(TmpPanel::GetFileInfoAndValidate(argv[i],&ppi.FindData,Opt.AnyInPanel))
+      Panel->PutOneFile(_T(""), ppi);
 
   Panel->CommitPutFiles (hScreen, TRUE);
   if (argv)
@@ -414,7 +414,7 @@ void ShowMenuFromList(TCHAR *Name)
   FarMenuItem *fmi=(FarMenuItem*)malloc(argc*sizeof(FarMenuItem));
   if(fmi)
   {
-    TCHAR TMP[MAX_PATH];
+    TCHAR TMP[NT_MAX_PATH];
     int i;
     for(i=0;i<argc;++i)
     {
@@ -433,7 +433,7 @@ void ShowMenuFromList(TCHAR *Name)
     }
 //    fmi[0].Selected=TRUE;
 
-    TCHAR Title[MAX_PATH];
+    TCHAR Title[NT_MAX_PATH];
     FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,_T("*.")),
 #ifdef UNICODE
                     ArraySize(Title),
@@ -467,7 +467,7 @@ void ShowMenuFromList(TCHAR *Name)
 
       if(!bShellExecute)
       {
-        if(TmpPanel::CheckForCorrect(p,&FindData,FALSE))
+        if(TmpPanel::GetFileInfoAndValidate(p,&FindData,FALSE))
         {
           if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 #ifndef UNICODE
@@ -509,7 +509,7 @@ HANDLE WINAPI EXP_NAME(OpenFilePlugin)(_CONST TCHAR *Name,const unsigned char *,
 #define PNAME_ARG Name
 #define pName     Name
 #else
-  wchar_t pName[MAX_PATH];
+  wchar_t pName[NT_MAX_PATH];
   lstrcpy(pName, Name);
 #define PNAME_ARG pName,ArraySize(pName)
 #endif
@@ -600,11 +600,16 @@ int WINAPI EXP_NAME(PutFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
 #endif
                               int OpMode)
 {
-#ifndef UNICODE
-	const wchar_t* SrcPath=0;
+  TCHAR PanelPath[NT_MAX_PATH];
+#ifdef UNICODE
+  lstrcpy(PanelPath, SrcPath);
+#else
+  GetCurrentDirectory(ArraySize(PanelPath), PanelPath);
 #endif
+  if (*PanelPath)
+    FSF.AddEndSlash(PanelPath);
   TmpPanel *Panel=(TmpPanel *)hPlugin;
-  return(Panel->PutFiles(PanelItem,ItemsNumber,Move,SrcPath,OpMode));
+  return(Panel->PutFiles(PanelItem,ItemsNumber,Move,PanelPath,OpMode));
 }
 
 

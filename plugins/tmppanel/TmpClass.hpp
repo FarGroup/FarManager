@@ -44,12 +44,12 @@ class TmpPanel
     int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,int OpMode);
     HANDLE BeginPutFiles();
     void CommitPutFiles (HANDLE hRestoreScreen, int Success);
-    int PutOneFile (PluginPanelItem &PanelItem);
+    int PutOneFile (const TCHAR* SrcPath, PluginPanelItem &PanelItem);
 
     int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
     int ProcessEvent(int Event,void *Param);
     int ProcessKey(int Key,unsigned int ControlState);
-    static int CheckForCorrect(const TCHAR *Dir,FAR_FIND_DATA *FindData,int OpenFrom);
+    static bool GetFileInfoAndValidate(const TCHAR *FilePath, FAR_FIND_DATA* FindData, int Any);
     void IfOptCommonPanel(void);
 
 };

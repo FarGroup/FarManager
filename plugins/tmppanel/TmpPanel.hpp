@@ -53,6 +53,11 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 TCHAR *ParseParam(TCHAR *& str);
 void GetOptions(void);
 void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
+#ifdef UNICODE
+wchar_t* NtPath(const wchar_t* path, wchar_t* buf);
+#else
+#define NtPath(path, buf) path
+#endif
 
 #ifndef UNICODE
 #define ExpandEnvStrs   FSF.ExpandEnvironmentStr
@@ -65,5 +70,7 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
 #define BOM_UCS2_BE  0xFFFE
 #define BOM_UTF8     0xBFBBEF
 #endif
+
+#define NT_MAX_PATH 32768
 
 #endif /* __TMPPANEL_HPP__ */
