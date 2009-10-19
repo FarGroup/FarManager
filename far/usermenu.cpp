@@ -358,6 +358,8 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					// если файл FarMenu.ini пуст, то удалим его
 					if (Length==0)
 						apiDeleteFile (strMenuFileFullPath);
+					else
+						apiSetFileAttributes(strMenuFileFullPath,FileAttr);
 				}
 			}
 
