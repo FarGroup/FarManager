@@ -150,8 +150,8 @@ void ProcessUserMenu(int EditMenu)
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      int FileAttr=GetFileAttributes(MenuFileFullPath);
-      if (FileAttr!=-1)
+      DWORD FileAttr=GetFileAttributes(MenuFileFullPath);
+      if (FileAttr!=(DWORD)-1)
       {
         if (FileAttr & FA_RDONLY)
         {
@@ -171,6 +171,8 @@ void ProcessUserMenu(int EditMenu)
         fclose(MenuFile);
         if (Length==0)
           remove(MenuFileFullPath);
+        else
+          SetFileAttributes(MenuFileFullPath,FileAttr);
       }
     }
     if (MenuMode!=MM_MAIN)

@@ -1,3 +1,7 @@
+svs 19.10.2009 11:41:26 +0300 - build 2613
+
+1. Mantis#0001030: Несанкционированная смена атрибутов файла FARMENU.INI 
+
 drkns 15.10.2009 00:46:56 +0200 - build 2612
 
 1. Из TechInfo #10 убраны читерские опции [Alt]EditorKey, [Alt]CmdLineKey, [Alt]DialogKey, [Alt]FastFindKey.
