@@ -1652,7 +1652,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 		если уж нет, то тогда начинаем думать, что это директория плагинная
 	*/
 	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
-	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(strExpandedDir))
+	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
 	{
 		ReplaceSlashToBSlash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,TRUE);

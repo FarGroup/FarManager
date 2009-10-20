@@ -1404,7 +1404,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   // вычислить абсолютный путь, то сделаем это
   if( StackData.strSelTopic.At(0)==HelpBeginLink
       && StackData.strSelTopic.Pos(pos,HelpEndLink,2)
-      && !PathMayBeAbsolute((const wchar_t *)StackData.strSelTopic+1)
+      && !IsAbsolutePath((const wchar_t *)StackData.strSelTopic+1)
       && !StackData.strHelpPath.IsEmpty())
   {
 

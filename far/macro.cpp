@@ -3288,8 +3288,7 @@ done:
       LARGE_INTEGER i64;
       i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
       i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-      double dval=*(double*)&i64;
-      VMStack.Push(dval);
+			VMStack.Push(*(double*)(void*)&i64);
       goto begin;
     }
 

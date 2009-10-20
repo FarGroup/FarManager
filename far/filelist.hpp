@@ -237,8 +237,6 @@ class FileList:public Panel
     int SortGroupsRead;
     int InternalProcessKey;
 
-    BOOL Is_FS_NTFS;
-
     long CacheSelIndex,CacheSelPos;
   private:
     virtual void SetSelectedFirstMode(int Mode);

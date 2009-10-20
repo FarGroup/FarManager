@@ -137,8 +137,9 @@ static const wchar_t *get_sid_cache(PSID sid)
 }
 
 
-int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
+bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 {
+	bool Result=false;
 	/*
 	if(!Owner)
 	{
@@ -146,47 +147,41 @@ int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &str
 		return(TRUE);
 	}
 	*/
-
-	string strName="";
-	if(PointToName(Name) == Name && !TestParentFolderName(Name))
-	{
-		apiGetCurrentDirectory(strName);
-		AddEndSlash(strName);
-	}
-	strName += Name;
-
-	SECURITY_INFORMATION si;
-	SECURITY_DESCRIPTOR *sd;
-	char sddata[500];
-	DWORD Needed=0;
-
 	strOwner=L"";
 
-	si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
-	sd=(SECURITY_DESCRIPTOR *)sddata;
-
-	int GetCode=GetFileSecurity(strName,si,sd,sizeof(sddata),&Needed);
-
-	if (!GetCode || (Needed>sizeof(sddata)))
-		return(FALSE);
-
-	PSID pOwner;
-	BOOL OwnerDefaulted;
-	if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
-		return(FALSE);
-
-	//strOwner=L"";
-	const wchar_t *SID=NULL;
-	if(IsValidSid(pOwner))
+	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
+	DWORD LengthNeeded=0;
+	string strName(NTPath(Name).Str);
+	GetFileSecurity(strName,si,NULL,0,&LengthNeeded);
+	if(LengthNeeded)
 	{
-		SID=get_sid_cache(pOwner);
-		if(!SID)
-			SID=add_sid_cache(Computer,pOwner);
+		PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(xf_malloc(LengthNeeded));
+		if(sd)
+		{
+			if(GetFileSecurity(strName,si,sd,LengthNeeded,&LengthNeeded))
+			{
+				PSID pOwner;
+				BOOL OwnerDefaulted;
+				if(GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
+				{
+					const wchar_t *SID=NULL;
+					if(IsValidSid(pOwner))
+					{
+						SID=get_sid_cache(pOwner);
+						if(!SID)
+						{
+							SID=add_sid_cache(Computer,pOwner);
+						}
+					}
+					if(SID)
+					{
+						strOwner=SID;
+						Result=true;
+					}
+				}
+			}
+			xf_free(sd);
+		}
 	}
-	if(!SID)
-		return(FALSE);
-
-	strOwner = SID;
-
-	return(TRUE);
+	return Result;
 }

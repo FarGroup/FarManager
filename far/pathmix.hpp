@@ -48,13 +48,14 @@ public:
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 bool PathPrefix(const wchar_t *Path);
-BOOL IsNetworkPath(const wchar_t *Path);
-BOOL IsLocalPath(const wchar_t *Path);
-BOOL IsLocalRootPath(const wchar_t *Path);
-BOOL IsLocalPrefixPath(const wchar_t *Path);
-BOOL IsLocalVolumePath(const wchar_t *Path);
-BOOL IsLocalVolumeRootPath(const wchar_t *Path);
-int PathMayBeAbsolute(const wchar_t *Src);
+bool IsNetworkPath(const wchar_t *Path);
+bool IsLocalPath(const wchar_t *Path);
+bool IsLocalRootPath(const wchar_t *Path);
+bool IsLocalPrefixPath(const wchar_t *Path);
+bool IsLocalPrefixRootPath(const wchar_t *Path);
+bool IsLocalVolumePath(const wchar_t *Path);
+bool IsLocalVolumeRootPath(const wchar_t *Path);
+bool IsAbsolutePath(const wchar_t *Src);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
@@ -81,8 +82,8 @@ bool FirstSlash(const wchar_t *String,size_t &pos);
 const wchar_t *LastSlash(const wchar_t *String);
 bool LastSlash(const wchar_t *String,size_t &pos);
 
-BOOL TestParentFolderName(const wchar_t *Name);
-BOOL TestCurrentFolderName(const wchar_t *Name);
+bool TestParentFolderName(const wchar_t *Name);
+bool TestCurrentFolderName(const wchar_t *Name);
 bool TestCurrentDirectory(const wchar_t *TestDir);
 
 string ExtractPathRoot(const string& Path);

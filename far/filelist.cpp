@@ -156,7 +156,6 @@ FileList::FileList()
   DizRead=FALSE;
   InternalProcessKey=FALSE;
   GetSelPosition = 0;
-  Is_FS_NTFS=FALSE;
   CacheSelIndex=-1;
 }
 
@@ -1220,7 +1219,7 @@ int FileList::ProcessKey(int Key)
               Unquote(strFileName);
               ConvertNameToShort(strFileName,strShortFileName);
 
-              if (PathMayBeAbsolute(strFileName))
+							if (IsAbsolutePath(strFileName))
               {
                 PluginMode=FALSE;
               }
@@ -2024,7 +2023,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
     if((PanelMode!=PLUGIN_PANEL || IsRealName) && SeparateWindow)
     {
       string strFullPath;
-      if(!PathMayBeAbsolute(CurPtr->strName))
+			if(!IsAbsolutePath(CurPtr->strName))
       {
         strFullPath = strCurDir;
         AddEndSlash(strFullPath);

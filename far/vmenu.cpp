@@ -778,8 +778,8 @@ void VMenu::ShowMenu(int IsParent)
       else
         GotoXY(X1,Y);
       SetColor(VMenu::Colors[VMenuColorText]);
-                                                     // сделаем добавочку для NO_BOX
-      mprintf(L"%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),L"");
+			// сделаем добавочку для NO_BOX
+			FS<<fmt::Width(((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+((BoxType==NO_BOX)?1:0))<<L"";
     }
   }
   /* $ 28.06.2000 tran

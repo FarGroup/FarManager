@@ -252,7 +252,14 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 				}
 				else
 				{
-					strDest=DriveVar+1;
+					if(Upper(*stPath)==Upper(*stCurrentDir))
+					{
+						strDest=stCurrentDir;
+					}
+					else
+					{
+						strDest=DriveVar+1;
+					}
 				}
 				AddEndSlash(strDest);
 			}

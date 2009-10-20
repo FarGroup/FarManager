@@ -426,7 +426,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 		apiFindClose (hSearch);
 		return TRUE;
 	}
-	else if(GetLastError()==ERROR_ACCESS_DENIED)
+	else if(GetLastError()==ERROR_ACCESS_DENIED && !wcspbrk(lpwszFileName,L"*?"))
 	{
 		DWORD dwAttr=apiGetFileAttributes(lpwszFileName);
 		if(dwAttr!=INVALID_FILE_ATTRIBUTES)

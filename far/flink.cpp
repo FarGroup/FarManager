@@ -160,7 +160,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 					PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
 					rdb->ReparseTag=IO_REPARSE_TAG_SYMLINK;
 					string strPrintName=Target,strSubstituteName=Target;
-					if(PathMayBeAbsolute(Target))
+					if(IsAbsolutePath(Target))
 					{
 						strSubstituteName=L"\\??\\";
 						strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
@@ -542,7 +542,7 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 		case IO_REPARSE_TAG_SYMLINK:
 			{
 				string strPrintName=NewData,strSubstituteName=NewData;
-				if(PathMayBeAbsolute(NewData))
+				if(IsAbsolutePath(NewData))
 				{
 					strSubstituteName=L"\\??\\";
 					strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));

@@ -1782,6 +1782,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			if(!IsSlash(strNewPath.At(strNewPath.GetLength()-1)) && 
 				SrcPanel->GetSelCount()>1 &&
+				!wcspbrk(strNewPath,L"*?") &&
 				apiGetFileAttributes(strNewPath)==INVALID_FILE_ATTRIBUTES)
 			{
 				switch(Message(FMSG_WARNING,3,MSG(MWarning),strNewPath,MSG(MCopyDirectoryOrFile),MSG(MCopyDirectoryOrFileDirectory),MSG(MCopyDirectoryOrFileFile),MSG(MCancel)))

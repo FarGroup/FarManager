@@ -2921,13 +2921,10 @@ void FindFiles::DoWriteDialogData(HANDLE hDlg)
 
         if ( !strFindStr.IsEmpty() )
         {
-          string strTemp, strFStr;
-
-          strFStr = strFindStr;
-
+          string strFStr(strFindStr);
           TruncStrFromEnd(strFStr,10);
-
-          strTemp.Format (L" \"%s\"", (const wchar_t*)strFStr);
+					string strTemp(L" \"");
+					strTemp+=strFStr+="\"";
           strSearchStr.Format (MSG(MFindSearchingIn), (const wchar_t*)strTemp);
         }
         else

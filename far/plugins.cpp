@@ -526,7 +526,7 @@ void PluginManager::LoadPlugins()
 			// расширяем значение пути
 			apiExpandEnvironmentStrings (NamePtr,strFullName);
 			Unquote(strFullName); //??? здесь ХЗ
-			if(!PathMayBeAbsolute(strFullName))
+			if(!IsAbsolutePath(strFullName))
 			{
 				strPluginsDir = g_strFarPath;
 				strPluginsDir += strFullName;

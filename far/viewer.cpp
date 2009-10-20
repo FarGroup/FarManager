@@ -852,7 +852,7 @@ string &Viewer::GetTitle(string &strName,int,int)
   }
   else
   {
-		if(!PathMayBeAbsolute(strFileName))
+		if(!IsAbsolutePath(strFileName))
     {
         string strPath;
 

@@ -33,5 +33,5 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
+bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner);
 void SIDCacheFlush();

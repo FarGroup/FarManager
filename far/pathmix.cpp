@@ -57,22 +57,22 @@ NTPath::NTPath(LPCWSTR Src)
 	}
 }
 
-int PathMayBeAbsolute(const wchar_t *Path)
+bool IsAbsolutePath(const wchar_t *Path)
 {
 	return Path && (PathPrefix(Path) || IsLocalPath(Path) || IsNetworkPath(Path));
 }
 
-BOOL IsNetworkPath(const wchar_t *Path)
+bool IsNetworkPath(const wchar_t *Path)
 {
 	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !PathPrefix(Path))||(PathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
 }
 
-BOOL IsLocalPath(const wchar_t *Path)
+bool IsLocalPath(const wchar_t *Path)
 {
 	return (Path && *Path && Path[1]==L':');
 }
 
-BOOL IsLocalRootPath(const wchar_t *Path)
+bool IsLocalRootPath(const wchar_t *Path)
 {
 	return (Path && *Path && Path[1]==L':' && IsSlash(Path[2]) && !Path[3]);
 }
@@ -87,27 +87,32 @@ bool PathPrefix(const wchar_t *Path)
 	return Path && Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
 }
 
-BOOL IsLocalPrefixPath(const wchar_t *Path)
+bool IsLocalPrefixPath(const wchar_t *Path)
 {
 	return PathPrefix(Path) && Path[4] && Path[5] == L':' && Path[6] == L'\\';
 }
 
-BOOL IsLocalVolumePath(const wchar_t *Path)
+bool IsLocalPrefixRootPath(const wchar_t *Path)
+{
+	return IsLocalPrefixPath(Path) && !Path[7];
+}
+
+bool IsLocalVolumePath(const wchar_t *Path)
 {
 	return PathPrefix(Path) && !wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}';
 }
 
-BOOL IsLocalVolumeRootPath(const wchar_t *Path)
+bool IsLocalVolumeRootPath(const wchar_t *Path)
 {
 	return IsLocalVolumePath(Path) && (!Path[48] || (IsSlash(Path[48]) && !Path[49]));
 }
 
-BOOL TestParentFolderName(const wchar_t *Name)
+bool TestParentFolderName(const wchar_t *Name)
 {
 	return Name[0] == L'.' && Name[1] == L'.' && (!Name[2] || (IsSlash(Name[2]) && !Name[3]));
 }
 
-BOOL TestCurrentFolderName(const wchar_t *Name)
+bool TestCurrentFolderName(const wchar_t *Name)
 {
 	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
 }
