@@ -21,8 +21,8 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-#include "wrapreg.cpp"
-#include "wrapmix.cpp"
+#include "WrapReg.cpp"
+#include "WrapMix.cpp"
 
 #ifndef UNICODE
 #define GetCheck(i) DialogItems[i].Selected

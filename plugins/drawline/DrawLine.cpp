@@ -1,6 +1,6 @@
 #include "plugin.hpp"
-#include "drawlng.hpp"
-#include "drawline.hpp"
+#include "DrawLng.hpp"
+#include "DrawLine.hpp"
 #include "CRT/crt.hpp"
 
 #if defined(__GNUC__)

@@ -2,8 +2,8 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #include "CRT/crt.hpp"
 #include "plugin.hpp"
-#include "filelng.hpp"
-#include "filecase.hpp"
+#include "FileLng.hpp"
+#include "FileCase.hpp"
 
 #if defined(__GNUC__)
 
@@ -24,9 +24,9 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-#include "filemix.cpp"
+#include "FileMix.cpp"
 #include "filecvt.cpp"
-#include "filereg.cpp"
+#include "FileReg.cpp"
 #include "ProcessName.cpp"
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)

@@ -1,7 +1,7 @@
 #include <CRT/crt.hpp>
 #include <plugin.hpp>
-#include "farcmds.hpp"
-#include "lang.hpp"
+#include "FARCmds.hpp"
+#include "Lang.hpp"
 
 #if defined(__GNUC__)
 
@@ -69,8 +69,8 @@ TCHAR selectItem[NM*5];
 //TCHAR tempFileNameOut[NM*5],tempFileNameErr[NM*5],FileNameOut[NM*5],FileNameErr[NM*5],
 TCHAR fullcmd[NM*5],cmd[NM*5];
 
-#include "reg.cpp"
-#include "mix.cpp"
+#include "Reg.cpp"
+#include "Mix.cpp"
 #include "OpenCmd.cpp"
 
 int WINAPI EXP_NAME(GetMinFarVersion)(void)
