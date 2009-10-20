@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fileowner.hpp"
+#include "pathmix.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 
@@ -138,50 +139,54 @@ static const wchar_t *get_sid_cache(PSID sid)
 
 int WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 {
-/*  if(!Owner)
-  {
-    SIDCacheFlush();
-    return(TRUE);
-  }*/
+	/*
+	if(!Owner)
+	{
+		SIDCacheFlush();
+		return(TRUE);
+	}
+	*/
 
-  SECURITY_INFORMATION si;
-  SECURITY_DESCRIPTOR *sd;
-  char sddata[500];
-  DWORD Needed;
+	string strName="";
+	if(PointToName(Name) == Name && !TestParentFolderName(Name))
+	{
+		apiGetCurrentDirectory(strName);
+		AddEndSlash(strName);
+	}
+	strName += Name;
 
-  strOwner=L"";
+	SECURITY_INFORMATION si;
+	SECURITY_DESCRIPTOR *sd;
+	char sddata[500];
+	DWORD Needed=0;
 
-  si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
-  sd=(SECURITY_DESCRIPTOR *)sddata;
+	strOwner=L"";
 
-	int GetCode=GetFileSecurity(Name,si,sd,sizeof(sddata),&Needed);
+	si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
+	sd=(SECURITY_DESCRIPTOR *)sddata;
 
-  if (!GetCode || (Needed>sizeof(sddata)))
-    return(FALSE);
+	int GetCode=GetFileSecurity(strName,si,sd,sizeof(sddata),&Needed);
 
-  PSID pOwner;
-  BOOL OwnerDefaulted;
-  if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
-    return(FALSE);
-#if 1
-  strOwner=L"";
-  const wchar_t *SID=NULL;
-  if(IsValidSid(pOwner))
-  {
-    SID=get_sid_cache(pOwner);
-    if(!SID)
-      SID=add_sid_cache(Computer,pOwner);
-  }
-  if(!SID)
-    return(FALSE);
-  strOwner = SID;
-#else
-  char AccountName[200],DomainName[200];
-  DWORD AccountLength=sizeof(AccountName),DomainLength=sizeof(DomainName);
-  SID_NAME_USE snu;
-  if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
-    return(FALSE);
-  CharToOemA(AccountName,Owner);
-#endif
-  return(TRUE);
+	if (!GetCode || (Needed>sizeof(sddata)))
+		return(FALSE);
+
+	PSID pOwner;
+	BOOL OwnerDefaulted;
+	if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
+		return(FALSE);
+
+	//strOwner=L"";
+	const wchar_t *SID=NULL;
+	if(IsValidSid(pOwner))
+	{
+		SID=get_sid_cache(pOwner);
+		if(!SID)
+			SID=add_sid_cache(Computer,pOwner);
+	}
+	if(!SID)
+		return(FALSE);
+
+	strOwner = SID;
+
+	return(TRUE);
 }
