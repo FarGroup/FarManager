@@ -1,5 +1,5 @@
-#include "proclist.hpp"
-#include "proclng.hpp"
+#include "Proclist.hpp"
+#include "Proclng.hpp"
 
 static HKEY CreateRegKey(LPCTSTR Key);
 static HKEY OpenRegKey(LPCTSTR Key);

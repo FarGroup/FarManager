@@ -1,4 +1,4 @@
-#include "multiarc.hpp"
+#include "MultiArc.hpp"
 #include "marclng.hpp"
 
 #if defined(__GNUC__)

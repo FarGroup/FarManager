@@ -3,8 +3,8 @@
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
 
-#include "macrolng.hpp"
-#include "macroview.hpp"
+#include "MacroLng.hpp"
+#include "MacroView.hpp"
 #include "farcolor.hpp"
 #include "farkeys.hpp"
 
@@ -26,11 +26,11 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-#include "macromix.cpp"
+#include "MacroMix.cpp"
 #include "strclass.cpp"
 #include "regclass.cpp"
-#include "config.cpp"
-#include "macrodiff.cpp"
+#include "Config.cpp"
+#include "MacroDiff.cpp"
 
 #ifndef UNICODE
 #define MIN_FARVERMAJOR   1

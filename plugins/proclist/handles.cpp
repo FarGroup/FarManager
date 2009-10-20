@@ -1,8 +1,8 @@
 // Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
-#include "proclist.hpp"
+#include "Proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData
-#include "proclng.hpp"
+#include "Proclng.hpp"
 #include <stdio.h>
 
 /*

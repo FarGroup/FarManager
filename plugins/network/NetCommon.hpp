@@ -10,7 +10,7 @@
 #include <lm.h>
 #include <CRT/crt.hpp>
 #include <plugin.hpp>
-#include "netlng.hpp"
+#include "NetLng.hpp"
 #include "NetMacros.hpp"
 
 #ifndef UNICODE

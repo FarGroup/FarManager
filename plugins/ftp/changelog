@@ -1,3 +1,7 @@
+t-rex 20.10.2009 21:31:58 +0200
+
+1. Mantis#1128: Несоответствие регистра в названии директории, неправильный слеш.
+
 drkns 11.09.2009 18:25:15 +0200
 
 1. Mantis#0001052: pr_mvs.cpp missing in FTP plugin's DirList.VS2008.vcproj compilation list

@@ -1,4 +1,4 @@
-#include "proclist.hpp"
+#include "Proclist.hpp"
 #include <objbase.h>
 #include <wbemidl.h>
 #include "perfthread.hpp"

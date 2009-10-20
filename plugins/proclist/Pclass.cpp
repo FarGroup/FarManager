@@ -1,7 +1,7 @@
-#include "proclist.hpp"
+#include "Proclist.hpp"
 #include <farkeys.hpp>
 #include "perfthread.hpp"
-#include "proclng.hpp"
+#include "Proclng.hpp"
 
 class StrTok {
     LPCTSTR tok;

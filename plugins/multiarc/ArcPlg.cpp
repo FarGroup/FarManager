@@ -1,4 +1,4 @@
-#include "multiarc.hpp"
+#include "MultiArc.hpp"
 #include "marclng.hpp"
 
 typedef int (__cdecl *FCMP)(const void *, const void *);

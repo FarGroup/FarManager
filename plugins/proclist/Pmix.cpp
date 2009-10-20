@@ -1,5 +1,5 @@
-#include "proclist.hpp"
-#include "proclng.hpp"
+#include "Proclist.hpp"
+#include "Proclng.hpp"
 
 TCHAR *GetMsg(int MsgId)
 {

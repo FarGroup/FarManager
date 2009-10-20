@@ -45,7 +45,7 @@
 
 //------------------------------------------------------------------------
 // MAIN LANGUAGE`s
-#include "../Lib/ftp_Lang.h"
+#include "../lib/ftp_Lang.h"
 
 //------------------------------------------------------------------------
 #define IDLE_CONSOLE          1
@@ -209,9 +209,9 @@ STRUCT( FTPPluginInterface )
 typedef PFTPPluginInterface (WINAPI *FTPQueryInterface_t)( PFTPInterface FTPInfo );
 
 //------------------------------------------------------------------------
-#include "../Lib/fp_Progress.h"
-#include "../Lib/fp_DirList.h"
-#include "../Lib/fp_Notify.h"
+#include "../lib/fp_Progress.h"
+#include "../lib/fp_DirList.h"
+#include "../lib/fp_Notify.h"
 
 #include <FARStdlib/pop.h>
 #endif

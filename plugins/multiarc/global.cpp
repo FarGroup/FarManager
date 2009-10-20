@@ -1,4 +1,4 @@
-#include "multiarc.hpp"
+#include "MultiArc.hpp"
 
 char PluginRootKey[NM];
 struct FarStandardFunctions FSF;

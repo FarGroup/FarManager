@@ -47,10 +47,10 @@
 #include <farcolor.hpp>
 #include <farkeys.hpp>
 
-#include <FARStdlib\pack1.h>
+#include <FARStdlib/pack1.h>
 
 // --------------------------------------------------------------
-#include <FARStdlib\funi.h>
+#include <FARStdlib/funi.h>
 
 // ------------------------------------------------------------------------
 #if defined(__FILELOG__)
@@ -415,8 +415,8 @@ STRUCTBASE( FP_SizeItemList, public FP_ItemList )
 
 // MULTILINE EDITOR
 #if !defined(__FP_NOT_FUNCTIONS__)
-  #include <FARStdlib\fstd_Multiline.h>
-  #include <FARStdlib\fstd_CharDraw.h>
+  #include <FARStdlib/fstd_Multiline.h>
+  #include <FARStdlib/fstd_CharDraw.h>
 #endif
 
 /**@} ExtendedControls*/
@@ -456,6 +456,6 @@ extern int DECLSPEC FP_GetColorDialog( int CurrentColor,PFLngColorDialog LngDesc
 
 /**@} Dialogs*/
 
-#include <FARStdlib\pop.h>
+#include <FARStdlib/pop.h>
 
 #endif

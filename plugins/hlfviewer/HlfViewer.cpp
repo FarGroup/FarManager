@@ -4,7 +4,7 @@
 #include <plugin.hpp>
 #include <farkeys.hpp>
 #include "HlfViewer.hpp"
-#include "lang.hpp"
+#include "Lang.hpp"
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
@@ -32,8 +32,8 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
 #endif
 
-#include "reg.cpp"
-#include "mix.cpp"
+#include "Reg.cpp"
+#include "Mix.cpp"
 #include "FarEditor.cpp"
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
