@@ -1841,6 +1841,11 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
   {
     string strDest = Dest;
 
+		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			SelectedFolderNameLength=(int)strSelName.GetLength();
+		else
+			SelectedFolderNameLength=0;
+
 		if (!(Flags&FCOPY_COPYTONUL))
     {
       if (wcspbrk(Dest,L"*?")!=NULL)
@@ -1866,11 +1871,6 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
       GetPathRoot(strSelName,strSrcDriveRoot);
       SrcDriveType=FAR_GetDriveType(wcschr(strSelName,L'\\')!=NULL ? (const wchar_t*)strSrcDriveRoot:NULL);
     }
-
-    if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-      SelectedFolderNameLength=(int)strSelName.GetLength();
-    else
-      SelectedFolderNameLength=0;
 
     // "замочим" к едрене фени симлинк - копируем полный контент, независимо от опции
 		// (но не для случая переименования линка по сети)

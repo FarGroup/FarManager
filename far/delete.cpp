@@ -286,16 +286,19 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 		ProcessedItems=0;
 		while(SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 		{
-			ShellDeleteMsg(strSelName,Wipe,-1);
-			ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
-			UINT64 FileSize,CompressedFileSize,RealSize;
-			if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+			if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 			{
-				ItemsCount+=CurrentFileCount+CurrentDirCount+1;
-			}
-			else
-			{
-				Cancel=true;
+				ShellDeleteMsg(strSelName,Wipe,-1);
+				ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
+				UINT64 FileSize,CompressedFileSize,RealSize;
+				if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+				{
+					ItemsCount+=CurrentFileCount+CurrentDirCount+1;
+				}
+				else
+				{
+					Cancel=true;
+				}
 			}
 		}
     SrcPanel->GetSelName(NULL,FileAttr);
