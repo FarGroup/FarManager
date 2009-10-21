@@ -114,7 +114,7 @@ int TmpPanel::SetDirectory(const TCHAR *Dir,int OpMode)
 }
 
 
-int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,const wchar_t *SrcPath,int)
+int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,const TCHAR *SrcPath,int)
 {
   UpdateNotNeeded=FALSE;
 
