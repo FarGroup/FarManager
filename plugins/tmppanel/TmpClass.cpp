@@ -917,6 +917,12 @@ bool TmpPanel::GetFileInfoAndValidate(const TCHAR *FilePath, FAR_FIND_DATA* Find
   TCHAR *p=FilePathBuf;
   ParseParam(p);
 
+#ifdef UNICODE
+  wchar_t FullPath[NT_MAX_PATH];
+  FSF.ConvertPath(CPM_FULL, p, FullPath, ArraySize(FullPath));
+  p = FullPath;
+#endif
+
   if (!FSF.LStrnicmp(p, _T("\\\\.\\"), 4) && FSF.LIsAlpha(p[4]) && p[5]==_T(':') && p[6]==0)
   {
 copy_name_set_attr:

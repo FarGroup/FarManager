@@ -8,7 +8,7 @@ Temporary panel main plugin code
 #include "TmpPanel.hpp"
 
 TCHAR PluginRootKey[80];
-TCHAR TMPPanelDir[NT_MAX_PATH*5];
+HINSTANCE hInstance;
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
@@ -27,18 +27,7 @@ extern "C"{
 #endif
 BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-  (void) lpReserved;
-
-  if (DLL_PROCESS_ATTACH == dwReason && hDll)
-  {
-    TCHAR *pf;
-    TCHAR temp[NT_MAX_PATH*5];
-    *TMPPanelDir = _T('\0');
-    GetModuleFileName((HINSTANCE)hDll, temp, ArraySize(temp));
-    if (GetFullPathName(temp, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
-      *pf = _T('\0');
-  }
-
+  hInstance = (HINSTANCE)hDll;
   return TRUE;
 }
 #ifdef __cplusplus
@@ -141,6 +130,12 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       }
       else
       {
+        TCHAR TMPPanelDir[NT_MAX_PATH]=_T("");
+        TCHAR temp[NT_MAX_PATH];
+        GetModuleFileName(hInstance, temp, ArraySize(temp));
+        TCHAR *pf;
+        if (GetFullPathName(temp, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
+          *pf = _T('\0');
         FSF.Unquote(argv);
         TCHAR TmpIn[NT_MAX_PATH*5],TmpOut[NT_MAX_PATH*5];
         ExpandEnvStrs(argv,TmpIn,ArraySize(TmpIn));
