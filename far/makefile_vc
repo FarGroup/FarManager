@@ -295,7 +295,7 @@ CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FARSYSLOG) /EHs-c- $(DEFINES) /G
 CPP_PROJ_RELEASE=/MT /O2
 CPP_PROJ_DEBUG=/MTd /Od /Zi
 
-LINK_COMMON=$(LINK32_LIBS) $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
+LINK_COMMON=$(LINK32_LIBS) $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat /stack:8388608
 
 !if "$(OUTDIR)" == "Release.32.vc"
 
