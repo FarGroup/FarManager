@@ -1,0 +1,8 @@
+#include "farversion.hpp"
+
+#define PLUGIN_BUILD 2
+#define PLUGIN_DESC "Hello World Plugin for FAR Manager"
+#define PLUGIN_NAME "HelloWorld"
+#define PLUGIN_FILENAME "HelloWorld.dll"
+
+genericpluginrc(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
