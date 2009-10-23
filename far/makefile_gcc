@@ -219,7 +219,7 @@ build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun
 
 $(EXEFULLNAME): Far.exe.manifest far.rc copyright.inc farversion.inc $(OBJS) $(UCD_OBJS) $(DEF)
 	@echo linking $@
-	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --stack -Xlinker 8388608
+	@$(CXX) -o $@ $(OBJS) $(UCD_OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 
 $(OBJDIR)/hook_wow64.o: hook_wow64.c
 	@echo compiling $<
