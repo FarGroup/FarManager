@@ -25,7 +25,7 @@ class TmpPanel
     void SwitchToPanel (int NewPanelIndex);
     void FindSearchResultsPanel();
     void SaveListFile (const TCHAR *Path);
-    int IsCurrentFileCorrect (TCHAR *pCurFileName);
+    bool IsCurrentFileCorrect (TCHAR **pCurFileName);
 
     PluginPanelItem *TmpPanelItem;
     int TmpItemsNumber;

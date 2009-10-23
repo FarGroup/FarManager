@@ -73,4 +73,41 @@ wchar_t* NtPath(const wchar_t* path, wchar_t* buf);
 
 #define NT_MAX_PATH 32768
 
+class StrBuf
+{
+  TCHAR *ptr;
+  int len;
+
+private:
+  StrBuf(const StrBuf &);
+  StrBuf & operator=(const StrBuf &);
+
+public:
+  StrBuf() { ptr = NULL; len = 0; }
+  StrBuf(int len) { ptr = NULL; Reset(len); }
+  void Reset(int len) { if (ptr) free(ptr); ptr = (TCHAR *) malloc(len * sizeof(TCHAR)); *ptr = 0; this->len = len; }
+  operator TCHAR*() { return ptr; }
+  TCHAR *Ptr() { return ptr; }
+  int Size() const { return len; }
+  ~StrBuf() { free(ptr); }
+};
+
+class PtrGuard
+{
+  TCHAR *ptr;
+
+private:
+  PtrGuard(const PtrGuard &);
+  PtrGuard & operator=(const PtrGuard &);
+
+public:
+  PtrGuard() { ptr = NULL; }
+  PtrGuard(TCHAR *ptr) { this->ptr = ptr; }
+  PtrGuard & operator=(TCHAR *ptr) { free(this->ptr); this->ptr = ptr; return *this; }
+  operator TCHAR*() { return ptr; }
+  TCHAR *Ptr() { return ptr; }
+  TCHAR **PtrPtr() { return &ptr; }
+  ~PtrGuard() { free(ptr); }
+};
+
 #endif /* __TMPPANEL_HPP__ */

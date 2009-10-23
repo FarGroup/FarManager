@@ -69,14 +69,14 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-  if(IsOldFAR) return(INVALID_HANDLE_VALUE);
+  if (IsOldFAR) return(INVALID_HANDLE_VALUE);
 
   HANDLE hPlugin=INVALID_HANDLE_VALUE;
 
   GetOptions();
 
   StartupOpenFrom=OpenFrom;
-  if(OpenFrom==OPEN_COMMANDLINE)
+  if (OpenFrom==OPEN_COMMANDLINE)
   {
     TCHAR *argv=(TCHAR*)Item;
 #ifndef UNICODE
@@ -86,83 +86,96 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     #define OPT_COUNT 5
 #endif
     static const TCHAR ParamsStr[OPT_COUNT][8]=
-      {
+    {
 #ifndef UNICODE
-        _T("ansi"),
+      _T("ansi"),
 #endif
-                    _T("safe"),_T("any"),_T("replace"),_T("menu"),_T("full")};
+      _T("safe"),_T("any"),_T("replace"),_T("menu"),_T("full")};
     const int *ParamsOpt[OPT_COUNT]=
-      {
+    {
 #ifndef UNICODE
-        &ANSI,
+      &ANSI,
 #endif
-              &Opt.SafeModePanel,&Opt.AnyInPanel,&Opt.Mode,
-       &Opt.MenuForFilelist,&Opt.FullScreenPanel};
+      &Opt.SafeModePanel,&Opt.AnyInPanel,&Opt.Mode,
+      &Opt.MenuForFilelist,&Opt.FullScreenPanel
+    };
 
-    while(argv && *argv==_T(' ')) argv++;
-    while(lstrlen(argv)>1 && (*argv==_T('+') || *argv==_T('-')))
+    while (argv && *argv==_T(' '))
+      argv++;
+
+    while (lstrlen(argv)>1 && (*argv==_T('+') || *argv==_T('-')))
     {
       int k=0;
-      while(argv && *argv!=_T(' '))
+      while (argv && *argv!=_T(' '))
       {
         k++;
         argv++;
       }
-      TCHAR TMP[NT_MAX_PATH];
+
+      StrBuf tmpTMP(k+1);
+      TCHAR *TMP=tmpTMP;
       lstrcpyn(TMP,argv-k,k+1);
 
-      for(int i=0;i<OPT_COUNT;i++)
-        if(lstrcmpi(TMP+1,ParamsStr[i])==0)
+      for (int i=0;i<OPT_COUNT;i++)
+        if (lstrcmpi(TMP+1,ParamsStr[i])==0)
           *(int*)ParamsOpt[i] = *TMP==_T('+');
 
-      if(*(TMP+1)>=_T('0') && *(TMP+1)<=_T('9'))
+      if (*(TMP+1)>=_T('0') && *(TMP+1)<=_T('9'))
         CurrentCommonPanel=*(TMP+1)-_T('0');
-      while(argv && *argv==_T(' ')) argv++;
+
+      while(argv && *argv==_T(' '))
+        argv++;
     }
 
     FSF.Trim(argv);
-    if(lstrlen(argv))
+    if (lstrlen(argv))
     {
-      if(*argv==_T('<'))
+      if (*argv==_T('<'))
       {
         argv++;
         hPlugin = OpenPanelFromOutput (argv WITH_ANSI_ARG);
       }
       else
       {
-        TCHAR TMPPanelDir[NT_MAX_PATH]=_T("");
-        TCHAR temp[NT_MAX_PATH];
-        GetModuleFileName(hInstance, temp, ArraySize(temp));
+        StrBuf TMPPanelDir(NT_MAX_PATH); //BUGBUG
+        StrBuf temp(NT_MAX_PATH); //BUGBUG
+        GetModuleFileName(hInstance, temp, temp.Size());
         TCHAR *pf;
-        if (GetFullPathName(temp, ArraySize(TMPPanelDir), TMPPanelDir, &pf))
+        if (GetFullPathName(temp, TMPPanelDir.Size(), TMPPanelDir, &pf))
           *pf = _T('\0');
         FSF.Unquote(argv);
-        TCHAR TmpIn[NT_MAX_PATH*5],TmpOut[NT_MAX_PATH*5];
-        ExpandEnvStrs(argv,TmpIn,ArraySize(TmpIn));
+        StrBuf TmpIn(NT_MAX_PATH); //BUGBUG
+        StrBuf TmpOut(NT_MAX_PATH); //BUGBUG
+        ExpandEnvStrs(argv,TmpIn,TmpIn.Size());
         TCHAR *p;
-        if(SearchPath(TMPPanelDir,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,ArraySize(TmpOut),TmpOut,&p))
+        if (SearchPath(TMPPanelDir,TmpIn,NULL,TmpOut.Size(),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,TmpOut.Size(),TmpOut,&p))
         {
-          if(Opt.MenuForFilelist)
+          if (Opt.MenuForFilelist)
           {
             ShowMenuFromList(TmpOut);
-            return(INVALID_HANDLE_VALUE);
+            return INVALID_HANDLE_VALUE;
           }
           else
           {
             hPlugin=new TmpPanel();
-            if(hPlugin==NULL) return(INVALID_HANDLE_VALUE);
+            if (hPlugin==NULL)
+              return INVALID_HANDLE_VALUE;
+
             ProcessList(hPlugin, TmpOut, Opt.Mode WITH_ANSI_ARG);
           }
         }
       }
     }
   }
-  if(hPlugin==INVALID_HANDLE_VALUE)
+
+  if (hPlugin==INVALID_HANDLE_VALUE)
   {
     hPlugin=new TmpPanel();
-    if(hPlugin==NULL) return(INVALID_HANDLE_VALUE);
+    if (hPlugin==NULL)
+      return INVALID_HANDLE_VALUE;
   }
-  return(hPlugin);
+
+  return hPlugin;
 }
 
 static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
@@ -170,15 +183,20 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
   TCHAR *tempDir=ParseParam(argv);
 
   BOOL allOK=FALSE;
-  TCHAR tempfilename[NT_MAX_PATH*5],cmdparams[NT_MAX_PATH*5],fullcmd[NT_MAX_PATH*5];
+
+  StrBuf tempfilename(NT_MAX_PATH); //BUGBUG
+  StrBuf cmdparams(NT_MAX_PATH); //BUGBUG
+  StrBuf fullcmd(NT_MAX_PATH); //BUGBUG
+
   FSF.MkTemp(tempfilename,
 #ifdef UNICODE
-             ArraySize(tempfilename),
+             tempfilename.Size(),
 #endif
              _T("FARTMP"));
+
   lstrcpy(cmdparams,_T("%COMSPEC% /c "));
   lstrcat(cmdparams,argv);
-  ExpandEnvStrs(cmdparams,fullcmd,ArraySize(fullcmd));
+  ExpandEnvStrs(cmdparams,fullcmd,fullcmd.Size());
 
   SECURITY_ATTRIBUTES sa;
   memset(&sa, 0, sizeof(sa));
@@ -189,7 +207,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
   FileHandle=CreateFile(tempfilename,GENERIC_WRITE,FILE_SHARE_READ,
     &sa,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
 
-  if(FileHandle!=INVALID_HANDLE_VALUE)
+  if (FileHandle!=INVALID_HANDLE_VALUE)
   {
     STARTUPINFO si;
     memset(&si,0,sizeof(si));
@@ -202,52 +220,58 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     PROCESS_INFORMATION pi;
     memset(&pi,0,sizeof(pi));
 
-    TCHAR SaveDir[NT_MAX_PATH],workDir[NT_MAX_PATH];
+    StrBuf SaveDir(NT_MAX_PATH); //BUGBUG
 
-    if(tempDir)
+    if (tempDir)
     {
-      GetCurrentDirectory(ArraySize(SaveDir),SaveDir);
-      ExpandEnvStrs(tempDir,workDir,ArraySize(workDir));
+      GetCurrentDirectory(SaveDir.Size(),SaveDir);
+      StrBuf workDir(NT_MAX_PATH);  //BUGBUG
+      ExpandEnvStrs(tempDir,workDir,workDir.Size());
       SetCurrentDirectory(workDir);
     }
 
     TCHAR consoleTitle[255];
     DWORD tlen = GetConsoleTitle(consoleTitle, ArraySize(consoleTitle));
     SetConsoleTitle(argv);
-    LPTSTR CurDir=NULL;
+    StrBuf CurDir;
+
 #ifdef UNICODE
     size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
-    if(Size)
+    if (Size)
     {
-      CurDir=new WCHAR[Size];
-      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir));
+      CurDir.Reset((int)Size);
+      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir.Ptr()));
     }
 #endif
+
     BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
-    if(CurDir)
-    {
-      delete[] CurDir;
-    }
-    if(Created)
+
+    if (Created)
     {
       WaitForSingleObject(pi.hProcess,INFINITE);
       CloseHandle(pi.hThread);
       CloseHandle(pi.hProcess);
       allOK=TRUE;
     }
+
     CloseHandle(FileHandle);
 
-    if(tlen) SetConsoleTitle(consoleTitle);
-    if(tempDir) SetCurrentDirectory(SaveDir);
+    if (tlen)
+      SetConsoleTitle(consoleTitle);
+    if (tempDir)
+      SetCurrentDirectory(SaveDir);
   }
+
   HANDLE hPlugin = INVALID_HANDLE_VALUE;
-  if(allOK)
+
+  if (allOK)
   {
     hPlugin=new TmpPanel();
-    if(hPlugin==NULL)
-      return(INVALID_HANDLE_VALUE);
+    if (hPlugin==NULL)
+      return INVALID_HANDLE_VALUE;
     ProcessList(hPlugin, tempfilename, Opt.Mode WITH_ANSI_ARG);
   }
+
   DeleteFile(tempfilename);
   return hPlugin;
 }
@@ -262,7 +286,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, TCHAR **argv, TCHAR *
   if (!FileData)
     return;
 
-  TCHAR TMP[NT_MAX_PATH];
+  StrBuf TMP(NT_MAX_PATH); //BUGBUG
   DWORD Len,Pos=0,Size=FileSizeLow;
 
 #ifdef UNICODE
@@ -282,52 +306,62 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, TCHAR **argv, TCHAR *
   }
 #endif
 
-  while(Pos<Size)
+  while (Pos<Size)
   {
 #ifdef UNICODE
     if (!ucs2) {
 #endif
       char c;
-      while(Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n')) Pos++;
+      while (Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n'))
+        Pos++;
       DWORD Off = Pos;
-      while(Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n') Pos++;
+      while (Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n')
+        Pos++;
       Len = Pos - Off;
 #ifndef UNICODE
-      if(Len >= sizeof(TMP)) Len = sizeof(TMP)-1;
-      memcpy(TMP, &FileData[Off], Len);
+      if (Len >= (DWORD)TMP.Size())
+        Len = TMP.Size()-1;
+      memcpy(TMP.Ptr(), &FileData[Off], Len);
 #else // UNICODE
       Len = MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
-                                &FileData[Off], Len, TMP, ArraySize(TMP)-1);
+                                &FileData[Off], Len, TMP, TMP.Size()-1);
     } else {
       wchar_t c;
       --Size;
-      while(Pos<Size && ((c = *(wchar_t*)&FileData[Pos]) == L'\r' || c == L'\n'))
+      while (Pos<Size && ((c = *(wchar_t*)&FileData[Pos]) == L'\r' || c == L'\n'))
         Pos += sizeof(wchar_t);
       DWORD Off = Pos;
-      while(Pos<Size && (c = *(wchar_t*)&FileData[Pos]) != L'\r' && c != L'\n')
+      while (Pos<Size && (c = *(wchar_t*)&FileData[Pos]) != L'\r' && c != L'\n')
         Pos += sizeof(wchar_t);
-      if(Pos < Size) ++Size;
+      if (Pos < Size)
+        ++Size;
       Len = (Pos-Off)/sizeof(wchar_t);
-      if(Len >= ArraySize(TMP)) Len = ArraySize(TMP)-1;
-      memcpy(TMP, &FileData[Off], Len*sizeof(wchar_t));
+      if (Len >= (DWORD)TMP.Size())
+        Len = TMP.Size()-1;
+      memcpy(TMP.Ptr(), &FileData[Off], Len*sizeof(wchar_t));
     }
 #endif
-    if (!Len) continue;
+    if (!Len)
+      continue;
 
-    TMP[Len]=0;
+    TMP.Ptr()[Len]=0;
 
     FSF.Trim(TMP);
     FSF.Unquote(TMP);
 
 #ifndef UNICODE
-    if(ANSI) CharToOem(TMP,TMP);
+    if(ANSI)
+      CharToOem(TMP,TMP);
 #endif
 
     Len = lstrlen(TMP);
-    if (!Len) continue;
+    if (!Len)
+      continue;
 
-    if(argv) *argv++ = args;
-    if(args)
+    if (argv)
+      *argv++ = args;
+
+    if (args)
     {
       lstrcpy(args,TMP);
       args+=Len+1;
@@ -407,14 +441,13 @@ void ShowMenuFromList(TCHAR *Name)
   ReadFileList (Name, &argc, &argv WITH_ANSI_ARG);
 
   FarMenuItem *fmi=(FarMenuItem*)malloc(argc*sizeof(FarMenuItem));
-  if(fmi)
+  if (fmi)
   {
-    TCHAR TMP[NT_MAX_PATH];
-    int i;
-    for(i=0;i<argc;++i)
+    StrBuf TMP(NT_MAX_PATH); //BUGBUG
+    for (int i=0;i<argc;++i)
     {
       TCHAR *param,*p=TMP;
-      ExpandEnvStrs(argv[i],TMP,ArraySize(TMP));
+      ExpandEnvStrs(argv[i],TMP,TMP.Size());
       param=ParseParam(p);
       FSF.TruncStr(param?param:p,67);
 
@@ -428,7 +461,7 @@ void ShowMenuFromList(TCHAR *Name)
     }
 //    fmi[0].Selected=TRUE;
 
-    TCHAR Title[NT_MAX_PATH];
+    TCHAR Title[128]; //BUGBUG
     FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,_T("*.")),
 #ifdef UNICODE
                     ArraySize(Title),
@@ -444,46 +477,54 @@ void ShowMenuFromList(TCHAR *Name)
       &BreakKeys[0], &BreakCode, fmi, argc);
 
 #ifdef UNICODE
-    for(i=0;i<argc;++i)
-      if(fmi[i].Text)
+    for (int i=0;i<argc;++i)
+      if (fmi[i].Text)
         free((void*)fmi[i].Text);
 #endif
 
     free(fmi);
 
-    if((unsigned)ExitCode<(unsigned)argc)
+    if ((unsigned)ExitCode<(unsigned)argc)
     {
-      ExpandEnvStrs(argv[ExitCode],TMP,ArraySize(TMP));
+      ExpandEnvStrs(argv[ExitCode],TMP,TMP.Size());
       TCHAR *p=TMP;
       ParseParam(p);
 
       FAR_FIND_DATA FindData;
       int bShellExecute=BreakCode!=-1;
 
-      if(!bShellExecute)
+      if (!bShellExecute)
       {
-        if(TmpPanel::GetFileInfoAndValidate(p,&FindData,FALSE))
+        if (TmpPanel::GetFileInfoAndValidate(p,&FindData,FALSE))
         {
-          if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          {
 #ifndef UNICODE
             Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,p);
 #else
             Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,0,(LONG_PTR)p);
 #endif
+          }
           else
+          {
             bShellExecute=TRUE;
+          }
         }
         else
+        {
 #ifndef UNICODE
           Info.Control(INVALID_HANDLE_VALUE,FCTL_SETCMDLINE,p);
 #else
           Info.Control(PANEL_ACTIVE,FCTL_SETCMDLINE,0,(LONG_PTR)p);
 #endif
+        }
       }
-      if(bShellExecute)
+
+      if (bShellExecute)
         ShellExecute(NULL,_T("open"),p,NULL,NULL,SW_SHOW);
     }
   }
+
   if (argv)
     free(argv);
 }
@@ -504,42 +545,43 @@ HANDLE WINAPI EXP_NAME(OpenFilePlugin)(_CONST TCHAR *Name,const unsigned char *,
 #define PNAME_ARG Name
 #define pName     Name
 #else
-  wchar_t pName[NT_MAX_PATH];
+  StrBuf pName(NT_MAX_PATH); //BUGBUG
   lstrcpy(pName, Name);
-#define PNAME_ARG pName,ArraySize(pName)
+#define PNAME_ARG pName, pName.Size()
 #endif
 
-  if(IsOldFAR || !DataSize || !FSF.ProcessName(Opt.Mask,PNAME_ARG,PN_CMPNAMELIST))
-    return(INVALID_HANDLE_VALUE);
+  if (IsOldFAR || !DataSize || !FSF.ProcessName(Opt.Mask,PNAME_ARG,PN_CMPNAMELIST))
+    return INVALID_HANDLE_VALUE;
 #undef PNAME_ARG
 
-  if(!Opt.MenuForFilelist)
+  if (!Opt.MenuForFilelist)
   {
     HANDLE hPlugin=new TmpPanel();
-    if(hPlugin == NULL) return(INVALID_HANDLE_VALUE);
+    if (hPlugin == NULL)
+      return INVALID_HANDLE_VALUE;
 #ifndef UNICODE
     static const int ANSI = FALSE;
 #endif
     ProcessList(hPlugin, pName, Opt.Mode WITH_ANSI_ARG);
-    return(hPlugin);
+    return hPlugin;
   }
   else
   {
     ShowMenuFromList(pName);
-    return(INVALID_HANDLE_VALUE);
+    return INVALID_HANDLE_VALUE;
   }
 #undef pName
 }
 
 void WINAPI EXP_NAME(ClosePlugin)(HANDLE hPlugin)
 {
-  delete(TmpPanel *)hPlugin;
+  delete (TmpPanel *)hPlugin;
 }
 
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
-  for(int i=0;i<COMMONPANELSNUMBER;++i)
+  for (int i=0;i<COMMONPANELSNUMBER;++i)
     FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
 }
 
@@ -547,7 +589,7 @@ void WINAPI EXP_NAME(ExitFAR)()
 int WINAPI EXP_NAME(GetFindData)(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
 {
   TmpPanel *Panel=(TmpPanel *)hPlugin;
-  return(Panel->GetFindData(pPanelItem,pItemsNumber,OpMode));
+  return Panel->GetFindData(pPanelItem,pItemsNumber,OpMode);
 }
 
 
@@ -595,16 +637,18 @@ int WINAPI EXP_NAME(PutFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
 #endif
                               int OpMode)
 {
-  TCHAR PanelPath[NT_MAX_PATH];
+  StrBuf PanelPath(NT_MAX_PATH); //BUGBUG
 #ifdef UNICODE
   lstrcpy(PanelPath, SrcPath);
 #else
-  GetCurrentDirectory(ArraySize(PanelPath), PanelPath);
+  GetCurrentDirectory(PanelPath.Size(), PanelPath);
 #endif
-  if (*PanelPath)
+
+  if (*PanelPath.Ptr())
     FSF.AddEndSlash(PanelPath);
+
   TmpPanel *Panel=(TmpPanel *)hPlugin;
-  return(Panel->PutFiles(PanelItem,ItemsNumber,Move,PanelPath,OpMode));
+  return Panel->PutFiles(PanelItem,ItemsNumber,Move,PanelPath,OpMode);
 }
 
 

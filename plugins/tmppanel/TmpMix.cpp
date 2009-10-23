@@ -92,13 +92,15 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
 
   PanelRedrawInfo PRI;
   PanelInfo PInfo;
-  TCHAR Name[NT_MAX_PATH], Dir[NT_MAX_PATH*5];
   int pathlen;
 
-  lstrcpy(Name,FSF.PointToName(const_cast<TCHAR*>(Target)));
-  pathlen=(int)(FSF.PointToName(const_cast<TCHAR*>(Target))-Target);
-  if(pathlen)
-    memcpy(Dir,Target,pathlen*sizeof(TCHAR));
+  const TCHAR *p = FSF.PointToName(const_cast<TCHAR*>(Target));
+  StrBuf Name(lstrlen(p)+1);
+  lstrcpy(Name,p);
+  pathlen=(int)(p-Target);
+  StrBuf Dir(pathlen+1);
+  if (pathlen)
+    memcpy(Dir.Ptr(),Target,pathlen*sizeof(TCHAR));
   Dir[pathlen]=_T('\0');
 
   FSF.Trim(Name);
@@ -106,12 +108,15 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
   FSF.Unquote(Name);
   FSF.Unquote(Dir);
 
-  if(*Dir)
+  if (*Dir.Ptr())
+  {
 #ifndef UNICODE
-    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,&Dir);
+    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,Dir.Ptr());
 #else
-    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,0,(LONG_PTR)&Dir);
+    Info.Control(_PANEL_HANDLE,FCTL_SetPanelDir,0,(LONG_PTR)Dir.Ptr());
 #endif
+  }
+
 #ifndef UNICODE
   Info.Control(_PANEL_HANDLE,FCTL_GetPanelInfo,&PInfo);
 #else
@@ -146,7 +151,7 @@ void GoToFile(const TCHAR *Target, BOOL AnotherPanel)
       break;
     }
 #ifdef UNICODE
-		free(PPI);
+    free(PPI);
 #endif
   }
 #ifndef UNICODE
