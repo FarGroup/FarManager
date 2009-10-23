@@ -1,0 +1,9 @@
+svs 23.10.2009 12:05:19 +0300 - build 2
+
+1. мэйк для VC.
+   Удаляем compile_vc.bat и compile_vc64.bat
+
+2. rename HelloWorld.c to HelloWorld.cpp
+
+3. HelloWorld.cpp подогнан под Unicode
+
