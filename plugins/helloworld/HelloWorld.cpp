@@ -34,8 +34,8 @@ enum {
 static struct PluginStartupInfo Info;
 
 /*
- Функция GetMsg возвращает строку сообщения из языкового файла.
- А это надстройка над Info.GetMsg для сокращения кода :-)
+ ╘єэъЎш  GetMsg тючтЁр∙рхЄ ёЄЁюъє ёююс∙хэш  шч  ч√ъютюую Їрщыр.
+ └ ¤Єю эрфёЄЁющър эрф Info.GetMsg фы  ёюъЁр∙хэш  ъюфр :-)
 */
 const TCHAR *GetMsg(int MsgId)
 {
@@ -43,9 +43,9 @@ const TCHAR *GetMsg(int MsgId)
 }
 
 /*
-Функция SetStartupInfo вызывается один раз, перед всеми
-другими функциями. Она передается плагину информацию,
-необходимую для дальнейшей работы.
+╘єэъЎш  SetStartupInfo т√ч√трхЄё  юфшэ Ёрч, яхЁхф тёхьш
+фЁєушьш ЇєэъЎш ьш. ╬эр яхЁхфрхЄё  яырушэє шэЇюЁьрЎш■,
+эхюсїюфшьє■ фы  фры№эхщ°хщ ЁрсюЄ√.
 */
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psi)
 {
@@ -53,8 +53,8 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psi)
 }
 
 /*
-Функция GetPluginInfo вызывается для получения основной
-  (general) информации о плагине
+╘єэъЎш  GetPluginInfo т√ч√трхЄё  фы  яюыєўхэш  юёэютэющ
+  (general) шэЇюЁьрЎшш ю яырушэх
 */
 void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
 {
@@ -69,7 +69,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
 }
 
 /*
-  Функция OpenPlugin вызывается при создании новой копии плагина.
+  ╘єэъЎш  OpenPlugin т√ч√трхЄё  яЁш ёючфрэшш эютющ ъюяшш яырушэр.
 */
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR item)
 {
