@@ -457,7 +457,7 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
   static FarStandardFunctions StandardFunctions={0};
 
   // заполняем структуру StandardFunctions один раз!!!
-  if(!StandardFunctions.StructSize)
+  if (!StandardFunctions.StructSize)
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=swprintf;
@@ -508,9 +508,10 @@ void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStanda
     StandardFunctions.MkLink=FarMkLink;
     StandardFunctions.ConvertPath=farConvertPath;
     StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
+    StandardFunctions.GetCurrentDirectory=farGetCurrentDirectory;
   }
 
-  if(!StartupInfo.StructSize)
+  if (!StartupInfo.StructSize)
   {
     StartupInfo.StructSize=sizeof(StartupInfo);
     StartupInfo.Menu=FarMenuFn; //BUGBUG
