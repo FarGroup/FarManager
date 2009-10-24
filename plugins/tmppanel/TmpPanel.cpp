@@ -8,7 +8,6 @@ Temporary panel main plugin code
 #include "TmpPanel.hpp"
 
 TCHAR PluginRootKey[80];
-HINSTANCE hInstance;
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
@@ -17,21 +16,22 @@ BOOL IsOldFAR;
 PluginPanels CommonPanels[COMMONPANELSNUMBER];
 
 #if defined(__GNUC__)
-  #define DLLMAINFUNC DllMainCRTStartup
-#else
-  #define DLLMAINFUNC _DllMainCRTStartup
-#endif
 
 #ifdef __cplusplus
 extern "C"{
 #endif
-BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
-{
-  hInstance = (HINSTANCE)hDll;
-  return TRUE;
-}
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
 #ifdef __cplusplus
 };
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
 #endif
 
 #ifndef UNICODE
@@ -137,12 +137,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       }
       else
       {
-        StrBuf TMPPanelDir(NT_MAX_PATH); //BUGBUG
-        StrBuf temp(NT_MAX_PATH); //BUGBUG
-        GetModuleFileName(hInstance, temp, temp.Size());
-        TCHAR *pf;
-        if (GetFullPathName(temp, TMPPanelDir.Size(), TMPPanelDir, &pf))
-          *pf = _T('\0');
+        const TCHAR *tmp = FSF.PointToName(Info.ModuleName);
+        StrBuf TMPPanelDir((int)(tmp-Info.ModuleName+1));
+        lstrcpyn(TMPPanelDir,Info.ModuleName,TMPPanelDir.Size());
         FSF.Unquote(argv);
         StrBuf TmpIn(NT_MAX_PATH); //BUGBUG
         StrBuf TmpOut(NT_MAX_PATH); //BUGBUG
@@ -220,31 +217,33 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     PROCESS_INFORMATION pi;
     memset(&pi,0,sizeof(pi));
 
-    StrBuf SaveDir(NT_MAX_PATH); //BUGBUG
+    StrBuf workDir(1); //make empty string just in case
 
     if (tempDir)
     {
-      GetCurrentDirectory(SaveDir.Size(),SaveDir);
-      StrBuf workDir(NT_MAX_PATH);  //BUGBUG
+      workDir.Reset(NT_MAX_PATH);  //BUGBUG
       ExpandEnvStrs(tempDir,workDir,workDir.Size());
-      SetCurrentDirectory(workDir);
+    }
+    else
+    {
+#ifdef UNICODE
+      DWORD Size=FSF.GetCurrentDirectory(0,NULL);
+      if (Size)
+      {
+        workDir.Reset(Size);
+        FSF.GetCurrentDirectory(Size,workDir);
+      }
+#else
+      workDir.Reset(MAX_PATH);
+      GetCurrentDirectory(workDir.Size(),workDir);
+#endif
     }
 
     TCHAR consoleTitle[255];
     DWORD tlen = GetConsoleTitle(consoleTitle, ArraySize(consoleTitle));
     SetConsoleTitle(argv);
-    StrBuf CurDir;
 
-#ifdef UNICODE
-    DWORD Size=FSF.GetCurrentDirectory(0,NULL);
-    if (Size)
-    {
-      CurDir.Reset(Size);
-      FSF.GetCurrentDirectory(Size,CurDir.Ptr());
-    }
-#endif
-
-    BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);
+    BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,workDir,&si,&pi);
 
     if (Created)
     {
@@ -258,8 +257,6 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
 
     if (tlen)
       SetConsoleTitle(consoleTitle);
-    if (tempDir)
-      SetCurrentDirectory(SaveDir);
   }
 
   HANDLE hPlugin = INVALID_HANDLE_VALUE;
