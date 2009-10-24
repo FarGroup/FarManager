@@ -54,11 +54,11 @@ static bool validForView(const TCHAR *FileName, int viewEmpty, int editNew)
 #ifdef UNICODE
   if ( *ptrFileName && PointToName(ptrFileName) == ptrFileName )
   {
-     size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+     size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
      if(Size)
      {
        ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
-       Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+       Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
        lstrcat(ptrCurDir,_T("\\"));
        lstrcat(ptrCurDir,ptrFileName);
        ptrFileName=(const TCHAR *)ptrCurDir;
@@ -520,12 +520,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
           else if(WhereIs)
           {
              TCHAR *Path = NULL, *pFile, temp[NM*5], *FARHOMEPath = NULL;
-             #ifdef UNICODE
-             int Length=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
-             Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,ArraySize(cmd),reinterpret_cast<LONG_PTR>(cmd));
-             #else
-             int Length=GetCurrentDirectory(ArraySize(cmd), cmd);
-             #endif
+             int Length=
+#ifndef UNICODE
+                        GetCurrentDirectory
+#else
+                        FSF.GetCurrentDirectory
+#endif
+                                               (ArraySize(cmd),cmd);
              int PathLength=GetEnvironmentVariable(_T("PATH"), Path, 0);
              int FARHOMELength=GetEnvironmentVariable(_T("FARHOME"), FARHOMEPath, 0);
              Unquote(pCmd);
@@ -899,11 +900,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 
                   LPTSTR CurDir=NULL;
 #ifdef UNICODE
-                  size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+                  DWORD Size=FSF.GetCurrentDirectory(0,NULL);
                   if(Size)
                   {
                     CurDir=new WCHAR[Size];
-                    Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir));
+                    FSF.GetCurrentDirectory(Size,CurDir);
                   }
 #endif
                   BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);

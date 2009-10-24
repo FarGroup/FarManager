@@ -25,11 +25,9 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #ifndef UNICODE
 #define GetCheck(i) DialogItems[i].Selected
 #define GetDataPtr(i) DialogItems[i].Data
-#define FreePanelInfo()
 #else
 #define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
 #define GetDataPtr(i) ((const TCHAR *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#define FreePanelInfo() Info.Control(PANEL_ACTIVE,FCTL_FREEPANELINFO,&PInfo)
 #endif
 
 OSVERSIONINFO WinVer;
@@ -63,6 +61,7 @@ struct RegistryStr REGStr={_T("Add2PlugMenu"),_T("Add2DisksMenu"),_T("%s%s%s"),_
                            _T("DisksMenuDigit"), _T("ShowCmdOutput"), _T("CatchMode"), _T("ViewZeroFiles"), _T("EditNewFiles") };
 struct HELPIDS HlfId={_T("Contents"),_T("Config")};
 static struct PluginStartupInfo Info;
+FarStandardFunctions FSF;
 struct PanelInfo PInfo;
 TCHAR PluginRootKey[80];
 TCHAR selectItem[NM*5];
@@ -86,6 +85,8 @@ int WINAPI EXP_NAME(GetMinFarVersion)(void)
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 {
   Info=*psInfo;
+	FSF=*psInfo->FSF;
+	Info.FSF=&FSF;
 
   FarItoa=Info.FSF->itoa;
   FarAtoi=Info.FSF->atoi;
@@ -166,7 +167,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 #ifndef UNICODE
     lstrcpy(selectItem,PInfo.CurDir);
 #else
-    Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,ArraySize(selectItem),(LONG_PTR)selectItem);
+    Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,ArraySize(selectItem),(LONG_PTR)selectItem);
 #endif
 
     if(lstrlen(selectItem))

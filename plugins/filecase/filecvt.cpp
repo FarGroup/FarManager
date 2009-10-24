@@ -120,9 +120,9 @@ void CaseConvertion()
 #ifndef UNICODE
 #define CurDir PInfo.CurDir
 #else
-      int Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+      int Size=Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
       wchar_t* CurDir=new wchar_t[Size];
-      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
+      Info.Control(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
 #endif
 
 #ifndef UNICODE

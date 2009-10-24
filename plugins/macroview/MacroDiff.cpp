@@ -1685,11 +1685,11 @@ void __fastcall TMacroView::InsertMacroToEditor(BOOL AllMacros)
     wsprintf(Str,_T("%s \"%s\" \"%s\\%s\""),regedit,TempFileName,HKCU,S);
     LPTSTR CurDir=NULL;
 #ifdef UNICODE
-    size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+    DWORD Size=FSF.GetCurrentDirectory(0,NULL);
     if(Size)
     {
       CurDir=new WCHAR[Size];
-      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir));
+      FSF.GetCurrentDirectory(Size,CurDir);
     }
 #endif
     int Code=CreateProcess(NULL,Str,NULL,NULL,TRUE,0,NULL,CurDir,&si,&pi);

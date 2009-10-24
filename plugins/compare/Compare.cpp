@@ -1259,9 +1259,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   AInfo.ItemsNumber=AI.ItemsNumber;
   AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
 
-  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY,0,NULL);
+  int Size=Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,0,NULL);
   AInfo.lpwszCurDir=new wchar_t[Size];
-  Info.Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)AInfo.lpwszCurDir);
+  Info.Control(PANEL_ACTIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)AInfo.lpwszCurDir);
 
   if(AInfo.ItemsNumber)
   {
@@ -1286,9 +1286,9 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
   PInfo.ItemsNumber=PI.ItemsNumber;
   PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
 
-  Size=Info.Control(PANEL_PASSIVE, FCTL_GETCURRENTDIRECTORY,0,NULL);
+  Size=Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,0,NULL);
   PInfo.lpwszCurDir=new wchar_t[Size];
-  Info.Control(PANEL_PASSIVE, FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)PInfo.lpwszCurDir);
+  Info.Control(PANEL_PASSIVE, FCTL_GETPANELDIR,Size,(LONG_PTR)PInfo.lpwszCurDir);
 
   if(PInfo.ItemsNumber)
   {

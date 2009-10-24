@@ -795,7 +795,7 @@ void TmpPanel::ProcessSaveListKey()
   Info.Control (this, FCTL_GETANOTHERPANELINFO, &PInfo);
   lstrcpy (ListPath, PInfo.CurDir);
 #else
-  Info.Control (PANEL_PASSIVE,FCTL_GETCURRENTDIRECTORY,NT_MAX_PATH,(LONG_PTR)ListPath.Ptr());
+  Info.Control (PANEL_PASSIVE,FCTL_GETPANELDIR,NT_MAX_PATH,(LONG_PTR)ListPath.Ptr());
 #endif
 
   FSF.AddEndSlash (ListPath);

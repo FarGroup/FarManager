@@ -236,11 +236,11 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     StrBuf CurDir;
 
 #ifdef UNICODE
-    size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+    DWORD Size=FSF.GetCurrentDirectory(0,NULL);
     if (Size)
     {
-      CurDir.Reset((int)Size);
-      Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(CurDir.Ptr()));
+      CurDir.Reset(Size);
+      FSF.GetCurrentDirectory(Size,CurDir.Ptr());
     }
 #endif
 

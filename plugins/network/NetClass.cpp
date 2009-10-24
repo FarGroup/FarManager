@@ -1238,7 +1238,7 @@ BOOL NetBrowser::EditFavorites()
 #ifndef UNICODE
   OemToChar(PInfo.CurDir, szPath);
 #else
-  Info.Control(this, FCTL_GETCURRENTDIRECTORY,ArraySize(szPath),(LONG_PTR)szPath);
+  Info.Control(this, FCTL_GETPANELDIR,ArraySize(szPath),(LONG_PTR)szPath);
 #endif
   TCHAR *p = szPath + lstrlen(szPath);
   *p++ = _T('\\');

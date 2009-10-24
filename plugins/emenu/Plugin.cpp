@@ -737,9 +737,9 @@ bool CPlugin::GetFilesFromParams(LPTSTR szCmdLine
     return false;
   *pstrCurDir=auto_sz(pi.CurDir, lstrlen(pi.CurDir)+1);
 #else
-  int Size=Control(FCTL_GETCURRENTDIRECTORY,0,NULL);
+  int Size=Control(FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
+  Control(FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;
 #endif
@@ -817,9 +817,9 @@ bool CPlugin::GetFilesFromPanel(LPCTSTR** ppFiles, unsigned* pnFiles
   // preserve space for AddEndSlash
   *pstrCurDir = auto_sz(pi.CurDir, lstrlen(pi.CurDir)+1);
 #else
-  int Size=Control(FCTL_GETCURRENTDIRECTORY,0,NULL);
+  int Size=Control(FCTL_GETPANELDIR,0,NULL);
   wchar_t *CurDir=new wchar_t[Size];
-  Control(FCTL_GETCURRENTDIRECTORY,Size,(LONG_PTR)CurDir);
+  Control(FCTL_GETPANELDIR,Size,(LONG_PTR)CurDir);
   // preserve space for AddEndSlash
   *pstrCurDir=auto_sz(CurDir,Size);
   delete[] CurDir;

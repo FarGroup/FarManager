@@ -93,11 +93,11 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       TCHAR *ptrCurDir=NULL;
       if(PointToName(ptrName) == ptrName)
       {
-        size_t Size=Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,0,NULL);
+        DWORD Size=FSF.GetCurrentDirectory(0,NULL);
         if(Size)
         {
           ptrCurDir=new WCHAR[Size+lstrlen(ptrName)+8];
-          Info.Control(PANEL_ACTIVE,FCTL_GETCURRENTDIRECTORY,(int)Size,reinterpret_cast<LONG_PTR>(ptrCurDir));
+          FSF.GetCurrentDirectory(Size,ptrCurDir);
           lstrcat(ptrCurDir,_T("\\"));
           lstrcat(ptrCurDir,ptrName);
           ptrName=(TCHAR *)ptrCurDir;

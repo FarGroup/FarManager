@@ -145,6 +145,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pcre", "multiarc\libpcre\pcre.VS2008.vcproj", "{50FCE411-DA6E-432A-8224-265D52D09058}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "helloworld\HelloWorld.VS2008.vcproj", "{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9387B45-34A6-4CB6-A1B0-563E3480CFF9} = {D9387B45-34A6-4CB6-A1B0-563E3480CFF9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ftp_all", "Ftp_all", "{778DE947-6D4D-40AB-AECB-C670DDCF5B1A}"
 EndProject
@@ -755,17 +758,23 @@ Global
 		{50FCE411-DA6E-432A-8224-265D52D09058}.Release|Win32.Build.0 = Release|Win32
 		{50FCE411-DA6E-432A-8224-265D52D09058}.Release|x64.ActiveCfg = Release|x64
 		{50FCE411-DA6E-432A-8224-265D52D09058}.Release|x64.Build.0 = Release|x64
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Itanium.ActiveCfg = Debug|Itanium
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Win32.ActiveCfg = Debug|Win32
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|x64.ActiveCfg = Debug|x64
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Itanium.ActiveCfg = Debug Unicode|Itanium
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Itanium.Build.0 = Debug Unicode|Itanium
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|x64.ActiveCfg = Debug Unicode|x64
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug Unicode|x64.Build.0 = Debug Unicode|x64
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug|Itanium.ActiveCfg = Debug|Itanium
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug|Win32.Build.0 = Debug|Win32
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug|x64.ActiveCfg = Debug|x64
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Debug|x64.Build.0 = Debug|x64
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Itanium.ActiveCfg = Release|Itanium
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Win32.ActiveCfg = Release|Win32
-		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|x64.ActiveCfg = Release|x64
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Itanium.ActiveCfg = Release Unicode|Itanium
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Itanium.Build.0 = Release Unicode|Itanium
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|x64.ActiveCfg = Release Unicode|x64
+		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release Unicode|x64.Build.0 = Release Unicode|x64
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release|Itanium.ActiveCfg = Release|Itanium
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release|Win32.ActiveCfg = Release|Win32
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}.Release|Win32.Build.0 = Release|Win32

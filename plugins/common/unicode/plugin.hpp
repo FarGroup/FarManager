@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1160
+  Plugin API for FAR Manager 2.0 build 1180
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1160
+#define FARMANAGERVERSION_BUILD 1180
 
 #ifndef RC_INVOKED
 
@@ -194,6 +194,7 @@ static __inline BOOL IsEdit(int Type)
 
 
 enum FarDialogItemFlags {
+  DIF_NONE                  = 0,
   DIF_COLORMASK             = 0x000000ffUL,
   DIF_SETCOLOR              = 0x00000100UL,
   DIF_BOXCOLOR              = 0x00000200UL,
@@ -771,7 +772,7 @@ enum FILE_CONTROL_COMMANDS{
 	FCTL_GETPANELITEM,
 	FCTL_GETSELECTEDPANELITEM,
 	FCTL_GETCURRENTPANELITEM,
-	FCTL_GETCURRENTDIRECTORY,
+	FCTL_GETPANELDIR,
 	FCTL_GETCOLUMNTYPES,
 	FCTL_GETCOLUMNWIDTHS,
 	FCTL_BEGINSELECTION,
@@ -1557,6 +1558,8 @@ enum CONVERTPATHMODES
 
 typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
 
+typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
+
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1616,6 +1619,7 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
+  FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
