@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <string.h>
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
 
@@ -63,7 +62,7 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
   pi->StructSize=sizeof(struct PluginInfo);
   pi->Flags=PF_EDITOR;
 
-  PluginMenuStrings[0]=(TCHAR*)GetMsg(MTitle);
+  PluginMenuStrings[0]=GetMsg(MTitle);
   pi->PluginMenuStrings=PluginMenuStrings;
   pi->PluginMenuStringsNumber=ArraySize(PluginMenuStrings);
 }
@@ -73,22 +72,23 @@ void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *pi)
 */
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR item)
 {
-  const TCHAR *Msg[7];
+  const TCHAR *Msg[]=
+  {
+    GetMsg(MTitle),
+    GetMsg(MMessage1),
+    GetMsg(MMessage2),
+    GetMsg(MMessage3),
+    GetMsg(MMessage4),
+    _T("\x01"),                              /* separator line */
+    GetMsg(MButton),
+  };
 
-  Msg[0]=GetMsg(MTitle);
-  Msg[1]=GetMsg(MMessage1);
-  Msg[2]=GetMsg(MMessage2);
-  Msg[3]=GetMsg(MMessage3);
-  Msg[4]=GetMsg(MMessage4);
-  Msg[5]=_T("\x01");                   /* separator line */
-  Msg[6]=GetMsg(MButton);
-
-  Info.Message(Info.ModuleNumber,  /* PluginNumber */
+  Info.Message(Info.ModuleNumber,            /* PluginNumber */
                FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
-               _T("Contents"),         /* HelpTopic */
-               Msg,                /* Items */
-               7,                  /* ItemsNumber */
-               1);                 /* ButtonsNumber */
+               _T("Contents"),               /* HelpTopic */
+               Msg,                          /* Items */
+               ArraySize(Msg),               /* ItemsNumber */
+               1);                           /* ButtonsNumber */
 
   return  INVALID_HANDLE_VALUE;
 }
