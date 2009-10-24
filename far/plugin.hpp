@@ -817,7 +817,7 @@ enum FILE_CONTROL_COMMANDS{
 	FCTL_GETPANELITEM,
 	FCTL_GETSELECTEDPANELITEM,
 	FCTL_GETCURRENTPANELITEM,
-	FCTL_GETCURRENTDIRECTORY,
+	FCTL_GETPANELDIR,
 	FCTL_GETCOLUMNTYPES,
 	FCTL_GETCOLUMNWIDTHS,
 	FCTL_BEGINSELECTION,
@@ -1733,6 +1733,8 @@ enum CONVERTPATHMODES
 
 typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
 
+typedef DWORD (WINAPI *FARGETCURRENTDIRECTORY)(DWORD Size,wchar_t* Buffer);
+
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1792,6 +1794,7 @@ typedef struct FarStandardFunctions
   FARSTDMKLINK               MkLink;
   FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
+  FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

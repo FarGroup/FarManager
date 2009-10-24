@@ -2134,7 +2134,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 			Result=TRUE;
 			break;
 		}
-		case FCTL_GETCURRENTDIRECTORY:
+		case FCTL_GETPANELDIR:
 			{
 				string strInfoCurDir;
 				GetCurDir(strInfoCurDir);

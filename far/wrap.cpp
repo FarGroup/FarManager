@@ -2434,7 +2434,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 					}
 
 					wchar_t CurDir[sizeof(OldPI->CurDir)];
-					FarControl(hPlugin,FCTL_GETCURRENTDIRECTORY,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
+					FarControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
 					UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
 
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
@@ -2471,7 +2471,7 @@ int WINAPI FarControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
 					wchar_t CurDir[sizeof(OldPI->CurDir)];
-					FarControl(hPlugin,FCTL_GETCURRENTDIRECTORY,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
+					FarControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),(LONG_PTR)CurDir);
 					UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
 
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];

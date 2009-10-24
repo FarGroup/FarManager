@@ -1250,7 +1250,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 		case FCTL_GETPANELITEM:
 		case FCTL_GETSELECTEDPANELITEM:
 		case FCTL_GETCURRENTPANELITEM:
-		case FCTL_GETCURRENTDIRECTORY:
+		case FCTL_GETPANELDIR:
 		case FCTL_GETCOLUMNTYPES:
 		case FCTL_GETCOLUMNWIDTHS:
     case FCTL_UPDATEPANEL:
@@ -2336,4 +2336,15 @@ int WINAPI farRegExpControl(HANDLE hHandle, int Command, LONG_PTR Param)
 			return re->GetBracketsCount();
 	}
 	return FALSE;
+}
+
+DWORD WINAPI farGetCurrentDirectory(DWORD Size,wchar_t* Buffer)
+{
+	string strCurDir;
+	apiGetCurrentDirectory(strCurDir);
+	if(Buffer && Size)
+	{
+		xwcsncpy(Buffer,strCurDir,Size-1);
+	}
+	return static_cast<DWORD>(strCurDir.GetLength()+1);
 }
