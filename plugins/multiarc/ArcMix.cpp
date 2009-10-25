@@ -587,7 +587,7 @@ int PathMayBeAbsolute(const char *Path)
 {
   return (Path &&
            (
-             ((*Path >= 'a' && *Path <= 'z' || *Path >= 'A' && *Path <= 'Z') && Path[1]==':') ||
+             (((*Path >= 'a' && *Path <= 'z') || (*Path >= 'A' && *Path <= 'Z')) && Path[1]==':') ||
              (Path[0]=='\\'  && Path[1]=='\\') ||
              (Path[0]=='/'   && Path[1]=='/')
            )

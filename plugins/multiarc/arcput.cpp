@@ -545,8 +545,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     }
     else
     {
+			PanelInfo pi;
+			Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi);
 #ifdef _ARC_UNDER_CURSOR_
-      if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data, pdd.ArcFormat, pdd.DefExt))
+      if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data, pdd.ArcFormat, pdd.DefExt, &pi))
       {
         //pdd.NoChangeArcName=TRUE;
         RestoreExactState=TRUE;
@@ -558,12 +560,21 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         //pdd.OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
         pdd.OldExactState=OldExactState;
 #ifdef _GROUP_NAME_
-        GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
-#else //_GROUP_NAME_
-        if(ItemsNumber==1)
+        if (ItemsNumber==1 && pi.SelectedItemsNumber==1 && (pi.SelectedItems[0].Flags&PPIF_SELECTED))
         {
-          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, PanelItem->FindData.cFileName);
-          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data.Data,'.');
+          char CurDir[NM];
+          GetCurrentDirectory(sizeof(CurDir),CurDir);
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
+        }
+        else
+        {
+          GetGroupName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
+        }
+#else //_GROUP_NAME_
+        if (ItemsNumber==1 && pi.SelectedItemsNumber==1 && !(pi.SelectedItems[0].Flags&PPIF_SELECTED))
+        {
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, PanelItem->FindData.cFileName);
+          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
           if(Dot!=NULL)
             *Dot=0;
         }
@@ -571,7 +582,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         {
           char CurDir[NM];
           GetCurrentDirectory(sizeof(CurDir),CurDir);
-          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, FSF.PointToName(CurDir));
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
         }
 #endif //else _GROUP_NAME_
         if(pdd.OldExactState && !*ArcName)
@@ -723,17 +734,15 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 }
 
 #ifdef _ARC_UNDER_CURSOR_
-BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
+BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt, PanelInfo *pi)
 {
   //if(!GetRegKey(HKEY_CURRENT_USER,"","ArcUnderCursor",0))
   if(!Opt.AdvFlags.ArcUnderCursor)
     return FALSE;
 
-  PanelInfo pi;
-  Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi);
-  PluginPanelItem *Items=pi.PanelItems;
-  PluginPanelItem *SelItems=pi.SelectedItems;
-  PluginPanelItem *CurItem=Items+pi.CurrentItem;
+  PluginPanelItem *Items=pi->PanelItems;
+  PluginPanelItem *SelItems=pi->SelectedItems;
+  PluginPanelItem *CurItem=Items+pi->CurrentItem;
 
   //под курсором должна быть не папка
   if(CurItem->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
@@ -747,7 +756,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
   int i,j;
 
   //курсор должен быть вне выделения
-  for(i=0; i<pi.SelectedItemsNumber; i++)
+  for(i=0; i<pi->SelectedItemsNumber; i++)
     if(!FSF.LStricmp(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
       return FALSE;
 
@@ -780,16 +789,16 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 #endif //_ARC_UNDER_CURSOR_
 
 #ifdef _GROUP_NAME_
-void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
+void PluginClass::GetGroupName(PluginPanelItem *Items, int Count, char *ArcName)
 {
-  BOOL NoGroop=!/*GetRegKey(HKEY_CURRENT_USER,"","GroopName",0)*/Opt.AdvFlags.GroopName;
+  BOOL NoGroup=!/*GetRegKey(HKEY_CURRENT_USER,"","GroupName",0)*/Opt.AdvFlags.GroupName;
 
   char *Name=Items->FindData.cFileName;
   char *Dot=strrchr(Name, '.');
   int Len=(Dot && !(Items->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
           ?((int)(Dot-Name)):lstrlen(Name);
   for(int i=1; i<Count; i++)
-    if(NoGroop || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
+    if(NoGroup || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
 //    if(FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
     {
       //взять имя папки

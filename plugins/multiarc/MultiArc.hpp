@@ -124,8 +124,8 @@ class PluginClass
     int DizPresent;
 
   private:
-    void GetGroopName(PluginPanelItem *Items, int Count, char *ArcName);//$ AA 29.11.2001
-    BOOL GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt);//$ AA 29.11.2001
+    void GetGroupName(PluginPanelItem *Items, int Count, char *ArcName);//$ AA 29.11.2001
+    BOOL GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt, PanelInfo *pi);//$ AA 29.11.2001
     BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
     void FreeArcData();
@@ -222,7 +222,7 @@ struct MAAdvFlags
 {
   unsigned ExactArcName         :1;
   unsigned AutoResetExactArcName:1;
-  unsigned GroopName            :1;
+  unsigned GroupName            :1;
   unsigned ArcUnderCursor       :1;
   unsigned MenuWrapMode         :2;
   unsigned PutDialogStyle       :1;

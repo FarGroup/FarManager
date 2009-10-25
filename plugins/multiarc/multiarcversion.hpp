@@ -2,7 +2,7 @@
 #define __MULTIARCVERSION_HPP__
 #include "farversion.hpp"
 
-#define MA_BUILD 188
+#define MA_BUILD 189
 #define MAPRODUCTNAME "MultiArc"
 #define FMTDESCRIPTION "Second-level plugin module for MultiArc FAR Manager plugin"
 
