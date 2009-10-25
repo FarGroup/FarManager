@@ -371,12 +371,22 @@ void ScreenBuf::Flush()
 							{
 								if(I>WriteRegion.Bottom && J>=WriteRegion.Left)
 								{
-									//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
-									// кстати, и при выключенном тоже (но реже).
-									// баг, конечно, не наш, но что делать.
-									// расширяем область прорисовки влево-вправо на 1 символ:
-									WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-									WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),ScrX);
+									if (Opt.ClearType)
+									{
+										//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
+										//Чревато тормозами на слабых машинах.
+										WriteRegion.Left=0;
+										WriteRegion.Right=ScrX;
+									}
+									else
+									{
+										//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
+										// кстати, и при выключенном тоже (но реже).
+										// баг, конечно, не наш, но что делать.
+										// расширяем область прорисовки влево-вправо на 1 символ:
+										WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
+										WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),ScrX);
+									}
 
 									bool Merge=false;
 									PSMALL_RECT Last=WriteList.Last();
@@ -391,7 +401,7 @@ void ScreenBuf::Flush()
 											Merge=true;
 										}
 									}
-									
+
 									if(!Merge)
 									{
 										WriteList.Push(&WriteRegion);

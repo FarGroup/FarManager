@@ -585,6 +585,8 @@ struct Options
          консольного окна и обратно.*/
   int AltF9;
 
+  int ClearType;
+
   int PgUpChangeDisk;
   int ShowCheckingFile;
   int CloseConsoleRule;
@@ -754,6 +756,7 @@ struct Options
     SubstNameRule=0;
 
     AltF9=0;
+    ClearType=0;
     PgUpChangeDisk=0;
     ShowCheckingFile=0;
     CloseConsoleRule=0;

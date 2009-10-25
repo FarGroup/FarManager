@@ -1500,6 +1500,14 @@ MConfigPgUpChangeDisk
 "A Ctrl-Pg&Up meghajtót vált"
 "Użyj Ctrl-Pg&Up do zmiany napędu"
 
+MConfigClearType
+upd:"ClearType friendly redraw (can be slow)"
+"ClearType friendly redraw (can be slow)"
+upd:"ClearType friendly redraw (can be slow)"
+upd:"ClearType friendly redraw (can be slow)"
+upd:"ClearType friendly redraw (can be slow)"
+upd:"ClearType friendly redraw (can be slow)"
+
 MConfigDlgSetsTitle
 l:
 "Настройки диалогов"
