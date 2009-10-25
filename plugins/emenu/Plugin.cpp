@@ -1,7 +1,7 @@
 #include "plugin.h"
 #include <comdef.h>
 #include <stddef.h>
-#include "Resource.h"
+#include "resource.h"
 #include "Reg.cpp"
 #include "MenuDlg.h"
 #include "FarMenu.h"
@@ -34,15 +34,14 @@ void __stdcall _com_issue_error(HRESULT) throw(_com_error)
 #pragma warning(default : 4290)
 #endif
 
-CPlugin::CPlugin(void)
+CPlugin::~CPlugin(void)
 {
-  Init();
 }
 
-void CPlugin::Init()
+CPlugin::CPlugin(const PluginStartupInfo *Info)
 {
+  m_hModule=(HINSTANCE)GetModuleHandle(Info->ModuleName);
   m_pMalloc=NULL;
-  m_bOldFARorInitErr=true;
   NULL_HWND=NULL;
   REG_Key=_T("\\RightClick");
   REG_WaitToContinue=_T("WaitToContinue");
@@ -59,32 +58,14 @@ void CPlugin::Init()
   SelectedItems=NULL;
   SelectedItemsCount=0;
 #endif
-}
 
-CPlugin::~CPlugin(void)
-{
-}
-
-int CPlugin::GetMinFarVersion()
-{
-  return MAKEFARVERSION(MIN_FAR_VERMAJOR, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
-}
-
-void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
-{
-  Init();
-  const size_t nMinSize=offsetof(PluginStartupInfo, AdvControl)
-    +sizeof(PluginStartupInfo::AdvControl);
-  if (Info->StructSize<=nMinSize) return;
   *(PluginStartupInfo*)this=*Info;
-  DWORD nFARVer=(DWORD)AdvControl(ACTL_GETFARVERSION, NULL);
-  if (HIBYTE(nFARVer)<MIN_FAR_VERMAJOR) return;
-  if (HIBYTE(nFARVer)==MIN_FAR_VERMAJOR && LOBYTE(nFARVer)<MIN_FAR_VERMINOR) return;
-  if (HIBYTE(nFARVer)==MIN_FAR_VERMAJOR && LOBYTE(nFARVer)==MIN_FAR_VERMINOR && HIWORD(nFARVer)<MIN_FAR_BUILD) return;
   m_fsf=*Info->FSF;
+
   lstrcpy(g_PluginKey, Info->RootKey);
   lstrcat(g_PluginKey, REG_Key);
   ReadRegValues();
+
   OSVERSIONINFO osvi;
   osvi.dwOSVersionInfoSize=sizeof(osvi);
   if (!GetVersionEx(&osvi)) return;
@@ -102,7 +83,6 @@ void CPlugin::SetStartupInfo(const PluginStartupInfo *Info)
   m_bWin2K=(5==osvi.dwMajorVersion
     && 0==osvi.dwMinorVersion
     && VER_PLATFORM_WIN32_NT==osvi.dwPlatformId);
-  m_bOldFARorInitErr=false;
 }
 
 void CPlugin::ReadRegValues()
@@ -119,7 +99,6 @@ void CPlugin::ReadRegValues()
 
 void CPlugin::GetPluginInfo(PluginInfo *Info)
 {
-  if (m_bOldFARorInitErr) return;
   m_PluginMenuString=GetMsg(LNG_TITLE);
   m_PluginConfigString=GetMsg(LNG_TITLE);
   Info->StructSize=sizeof(*Info);

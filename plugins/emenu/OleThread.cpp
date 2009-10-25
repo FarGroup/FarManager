@@ -1,4 +1,4 @@
-#include "olethread.h"
+#include "OleThread.h"
 #include <windows.h>
 #include <comdef.h>
 #include <cassert>

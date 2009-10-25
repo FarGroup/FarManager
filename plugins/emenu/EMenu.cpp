@@ -4,48 +4,48 @@
 
 CPlugin *thePlug=NULL;
 
+#if defined(__GNUC__)
+  #define DLLMAINFUNC DllMainCRTStartup
+#else
+  #define DLLMAINFUNC _DllMainCRTStartup
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  if (dwReason==DLL_PROCESS_ATTACH)
+  {
+    if (!DisableThreadLibraryCalls((HINSTANCE)hDll))
+    {
+      assert(0);
+    }
+  }
+
+  return TRUE;
+}
+#ifdef __cplusplus
+};
+#endif
+
 #ifdef DEBUG
 extern "C" void __cdecl main(void) {}
 #endif
 
-extern "C" BOOL WINAPI _DllMainCRTStartup(
-        HANDLE  hDllHandle,
-        DWORD   dwReason,
-        LPVOID  lpreserved
-        )
-{
-  if (dwReason==DLL_PROCESS_ATTACH)
-  {
-    thePlug = new CPlugin;
-    thePlug->m_hModule=(HINSTANCE)hDllHandle;
-    if (!DisableThreadLibraryCalls((HINSTANCE)hDllHandle))
-    {
-      assert(0);
-    }
-    OleThread::hNeedInvoke = new CHandle;
-    OleThread::hInvokeDone = new CHandle;
-    OleThread::hStop = new CHandle;
-    OleThread::hTerminator = new OleThread::CThreadTerminator;
-  }
-  else if (dwReason==DLL_PROCESS_DETACH)
-  {
-    delete OleThread::hTerminator;
-    delete OleThread::hStop;
-    delete OleThread::hInvokeDone;
-    delete OleThread::hNeedInvoke;
-    delete thePlug;
-  }
-  return TRUE;
-}
-
 int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-  return thePlug->GetMinFarVersion();
+  return FARMANAGERVERSION;
 }
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
-  thePlug->SetStartupInfo(Info);
+  thePlug = new CPlugin(Info);
+
+  OleThread::hNeedInvoke = new CHandle;
+  OleThread::hInvokeDone = new CHandle;
+  OleThread::hStop = new CHandle;
+  OleThread::hTerminator = new OleThread::CThreadTerminator;
 }
 
 void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
@@ -66,4 +66,11 @@ int WINAPI EXP_NAME(Configure)(int)
 void WINAPI EXP_NAME(ExitFAR)()
 {
   thePlug->ExitFAR();
+
+  delete OleThread::hTerminator;
+  delete OleThread::hStop;
+  delete OleThread::hInvokeDone;
+  delete OleThread::hNeedInvoke;
+
+  delete thePlug;
 }

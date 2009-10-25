@@ -1,4 +1,4 @@
-#include "pidl.h"
+#include "Pidl.h"
 #include <cassert>
 
 CPidl::CPidl(LPMALLOC pMalloc)

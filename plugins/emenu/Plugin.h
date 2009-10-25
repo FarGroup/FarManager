@@ -19,10 +19,11 @@ class CPlugin : public PluginStartupInfo
   PluginPanelItem **SelectedItems;
   int SelectedItemsCount;
 #endif
+  CPlugin();
+
 public:
-  CPlugin(void);
+  explicit CPlugin(const struct PluginStartupInfo *Info);
   ~CPlugin(void);
-  void SetStartupInfo(const struct PluginStartupInfo *Info);
   void GetPluginInfo(PluginInfo *Info);
   HANDLE OpenPlugin(int nOpenFrom, INT_PTR nItem);
   enum EDoMenu
@@ -35,7 +36,6 @@ public:
     DOMNU_ERR_INVOKE,
   };
   EDoMenu OpenPluginBkg(int nOpenFrom, INT_PTR nItem);
-  int GetMinFarVersion();
   int Configure();
   void ExitFAR();
   int Menu(int nX, int nY, int nMaxHeight, DWORD nFlags
@@ -134,21 +134,8 @@ protected:
     LNG_ERR_INVOKE,
     LNG_CLOSE
   };
-  enum
-  {
-#ifndef UNICODE
-    MIN_FAR_VERMAJOR=1,
-    MIN_FAR_VERMINOR=70,
-    MIN_FAR_BUILD=1238
-#else
-    MIN_FAR_VERMAJOR=2,
-    MIN_FAR_VERMINOR=0,
-    MIN_FAR_BUILD=677
-#endif
-  };
   HWND NULL_HWND;
   FarStandardFunctions m_fsf;
-  bool m_bOldFARorInitErr;
   LPCTSTR REG_Key;
   LPCTSTR REG_WaitToContinue;
   LPCTSTR REG_UseGUI;
