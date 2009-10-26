@@ -2139,6 +2139,12 @@ $ #Settings dialog: interface#
                             or the drive selection menu (if the
                             Network plugin is not available).
 
+  #ClearType friendly#      Redraw the window in such a way that
+  #redraw#                  ClearType related artifacts do not appear.
+                          #Attention!#: Enabling this option can
+                          considerably slow down the redraw speed.
+
+
 @DialogSettings
 $ #Settings dialog: settings#
   #History in dialog#       Keep history in edit controls of some

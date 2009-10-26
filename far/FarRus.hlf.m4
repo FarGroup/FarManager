@@ -2200,6 +2200,12 @@ $ #Настройка интерфейса#
                             выбора дисков (если плагин Network
                             отсутствует).
 
+  #ClearType friendly#      Redraw the window in such a way that
+  #redraw#                  ClearType related artifacts do not appear.
+                          #Attention!#: Enabling this option can
+                          considerably slow down the redraw speed.
+
+
 @DialogSettings
 $ #Настройка диалогов#
   #История в строках#       Сохранять историю в строках ввода
