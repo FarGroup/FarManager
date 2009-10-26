@@ -195,25 +195,49 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
 }
 
 #ifdef UNICODE
-wchar_t* NtPath(const wchar_t* path, wchar_t* buf) {
+wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf) {
   int l = lstrlen(path);
   if (l > 4 && path[0] == L'\\' && path[1] == L'\\')
   {
     if ((path[2] == L'?' || path[2] == L'.') && path[3] == L'\\')
     {
+      buf.Grow(l + 1);
       lstrcpy(buf, path);
     }
     else
     {
+      buf.Grow(6 + l + 1);
       lstrcpy(buf, L"\\\\?\\UNC\\");
       lstrcat(buf, path + 2);
     }
   }
   else
   {
+    buf.Grow(4 + l + 1);
     lstrcpy(buf, L"\\\\?\\");
     lstrcat(buf, path);
   }
   return buf;
 }
 #endif
+
+TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output) {
+#ifdef UNICODE
+  output.Grow(NT_MAX_PATH);
+  int size = ExpandEnvironmentStrings(input, output, output.Size());
+  if (size > output.Size())
+  {
+    output.Grow(size);
+    size = ExpandEnvironmentStrings(input, output, output.Size());
+  }
+  if ((size == 0) || (size > output.Size()))
+  {
+    output.Grow(lstrlen(input) + 1);
+    lstrcpy(output, input);
+  }
+#else
+  output.Grow(MAX_PATH);
+  FSF.ExpandEnvironmentStr(input, output, output.Size());
+#endif
+  return output;
+}

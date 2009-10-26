@@ -53,17 +53,6 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 TCHAR *ParseParam(TCHAR *& str);
 void GetOptions(void);
 void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd);
-#ifdef UNICODE
-wchar_t* NtPath(const wchar_t* path, wchar_t* buf);
-#else
-#define NtPath(path, buf) path
-#endif
-
-#ifndef UNICODE
-#define ExpandEnvStrs   FSF.ExpandEnvironmentStr
-#else
-#define ExpandEnvStrs   ExpandEnvironmentStrings
-#endif
 
 #ifdef UNICODE
 #define BOM_UCS2     0xFEFF
@@ -86,6 +75,7 @@ public:
   StrBuf() { ptr = NULL; len = 0; }
   StrBuf(int len) { ptr = NULL; Reset(len); }
   void Reset(int len) { if (ptr) free(ptr); ptr = (TCHAR *) malloc(len * sizeof(TCHAR)); *ptr = 0; this->len = len; }
+  void Grow(int len) { if (len > this->len) Reset(len); }
   operator TCHAR*() { return ptr; }
   TCHAR *Ptr() { return ptr; }
   int Size() const { return len; }
@@ -109,5 +99,10 @@ public:
   TCHAR **PtrPtr() { return &ptr; }
   ~PtrGuard() { free(ptr); }
 };
+
+#ifdef UNICODE
+wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf);
+#endif
+TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output);
 
 #endif /* __TMPPANEL_HPP__ */

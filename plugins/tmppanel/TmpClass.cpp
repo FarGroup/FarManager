@@ -955,58 +955,58 @@ inline bool isDevice(const TCHAR* FileName, const TCHAR* dev_begin)
 
 bool TmpPanel::GetFileInfoAndValidate(const TCHAR *FilePath, FAR_FIND_DATA* FindData, int Any)
 {
-  static TCHAR FilePathBuf[NT_MAX_PATH]; //BUGBUG
-#ifdef UNICODE
-  static wchar_t buf[NT_MAX_PATH]; //BUGBUG
-#endif
+  StrBuf ExpFilePath;
+  ExpandEnvStrs(FilePath,ExpFilePath);
 
-  ExpandEnvStrs(FilePath,FilePathBuf,ArraySize(FilePathBuf));
-  WIN32_FIND_DATA wfd;
-
-  TCHAR *p=FilePathBuf;
-  ParseParam(p);
+  TCHAR* FileName = ExpFilePath;
+  ParseParam(FileName);
 
 #ifdef UNICODE
-  StrBuf FullPath(FSF.ConvertPath(CPM_FULL, p, NULL, 0));
-  FSF.ConvertPath(CPM_FULL, p, FullPath, FullPath.Size());
-  p = FullPath;
+  StrBuf FullPath(FSF.ConvertPath(CPM_FULL, FileName, NULL, 0));
+  FSF.ConvertPath(CPM_FULL, FileName, FullPath, FullPath.Size());
+  StrBuf NtPath;
+  FormNtPath(FullPath, NtPath);
+#else
+#define FullPath FileName
+#define NtPath FileName
 #endif
 
-  if (!FSF.LStrnicmp(p, _T("\\\\.\\"), 4) && FSF.LIsAlpha(p[4]) && p[5]==_T(':') && p[6]==0)
+  if (!FSF.LStrnicmp(FileName, _T("\\\\.\\"), 4) && FSF.LIsAlpha(FileName[4]) && FileName[5]==_T(':') && FileName[6]==0)
   {
 copy_name_set_attr:
     FindData->dwFileAttributes = FILE_ATTRIBUTE_ARCHIVE;
 copy_name:
 #ifndef UNICODE
-    lstrcpyn(FindData->cFileName,p,sizeof(FindData->cFileName)-1);
+    lstrcpyn(FindData->cFileName,FileName,sizeof(FindData->cFileName)-1);
 #else
     if (FindData->lpwszFileName)
       free(FindData->lpwszFileName);
-    FindData->lpwszFileName = wcsdup(p);
+    FindData->lpwszFileName = wcsdup(FileName);
 #endif
     return(TRUE);
   }
 
-  if (isDevice(p, _T("\\\\.\\PhysicalDrive")) || isDevice(p, _T("\\\\.\\cdrom")))
+  if (isDevice(FileName, _T("\\\\.\\PhysicalDrive")) || isDevice(FileName, _T("\\\\.\\cdrom")))
     goto copy_name_set_attr;
 
-  if (lstrlen(p) && lstrcmp(p,_T("\\"))!=0 && lstrcmp(p,_T(".."))!=0)
+  if (lstrlen(FileName) && lstrcmp(FileName,_T("\\"))!=0 && lstrcmp(FileName,_T(".."))!=0)
   {
-    HANDLE fff=FindFirstFile(NtPath(p, buf),&wfd);
-
+    WIN32_FIND_DATA wfd;
+    HANDLE fff=FindFirstFile(NtPath, &wfd);
     if (fff != INVALID_HANDLE_VALUE)
     {
       WFD2FFD(wfd,*FindData);
       FindClose(fff);
+      FileName = FullPath;
       goto copy_name;
     }
     else
     {
-      DWORD dwAttr=GetFileAttributes(NtPath(p, buf));
+      DWORD dwAttr=GetFileAttributes(NtPath);
       if (dwAttr!=INVALID_FILE_ATTRIBUTES)
       {
         wfd.dwFileAttributes=dwAttr;
-        HANDLE hFile=CreateFile(NtPath(p, buf),FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS,NULL);
+        HANDLE hFile=CreateFile(NtPath,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS,NULL);
         if (hFile!=INVALID_HANDLE_VALUE)
         {
           GetFileTime(hFile, &wfd.ftCreationTime, &wfd.ftLastAccessTime, &wfd.ftLastWriteTime);
@@ -1016,6 +1016,7 @@ copy_name:
         wfd.dwReserved0=0;
         wfd.dwReserved1=0;
         WFD2FFD(wfd, *FindData);
+        FileName = FullPath;
         goto copy_name;
       }
     }

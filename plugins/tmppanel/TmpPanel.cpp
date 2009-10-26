@@ -143,7 +143,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
         FSF.Unquote(argv);
         StrBuf TmpIn(NT_MAX_PATH); //BUGBUG
         StrBuf TmpOut(NT_MAX_PATH); //BUGBUG
-        ExpandEnvStrs(argv,TmpIn,TmpIn.Size());
+        ExpandEnvStrs(argv,TmpIn);
         TCHAR *p;
         if (SearchPath(TMPPanelDir,TmpIn,NULL,TmpOut.Size(),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,TmpOut.Size(),TmpOut,&p))
         {
@@ -193,7 +193,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
 
   lstrcpy(cmdparams,_T("%COMSPEC% /c "));
   lstrcat(cmdparams,argv);
-  ExpandEnvStrs(cmdparams,fullcmd,fullcmd.Size());
+  ExpandEnvStrs(cmdparams,fullcmd);
 
   SECURITY_ATTRIBUTES sa;
   memset(&sa, 0, sizeof(sa));
@@ -222,7 +222,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
     if (tempDir)
     {
       workDir.Reset(NT_MAX_PATH);  //BUGBUG
-      ExpandEnvStrs(tempDir,workDir,workDir.Size());
+      ExpandEnvStrs(tempDir,workDir);
     }
     else
     {
@@ -444,7 +444,7 @@ void ShowMenuFromList(TCHAR *Name)
     for (int i=0;i<argc;++i)
     {
       TCHAR *param,*p=TMP;
-      ExpandEnvStrs(argv[i],TMP,TMP.Size());
+      ExpandEnvStrs(argv[i],TMP);
       param=ParseParam(p);
       FSF.TruncStr(param?param:p,67);
 
@@ -483,7 +483,7 @@ void ShowMenuFromList(TCHAR *Name)
 
     if ((unsigned)ExitCode<(unsigned)argc)
     {
-      ExpandEnvStrs(argv[ExitCode],TMP,TMP.Size());
+      ExpandEnvStrs(argv[ExitCode],TMP);
       TCHAR *p=TMP;
       ParseParam(p);
 
