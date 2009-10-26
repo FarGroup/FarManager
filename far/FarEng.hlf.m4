@@ -3790,10 +3790,6 @@ zero-size expression.
     #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
     #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
 
-    One can create named parentheses: #(?{name}pattern)#. "name" can be empty
-    (#unnamed parentheses#, which cannot be referred to) or the sequence of
-word characters (\w) and spaces (\s).
-
     #Quantifiers#
 
     Any character, group or class can be followed by a quantifier:
@@ -3870,13 +3866,11 @@ big amounts of data are processed.
          ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
 
     #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is an integer from 0 to 15. 
-Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and 
-(?{name}pattern) have a number (in the order of appearance).
+Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern) and (?<!pattern)
+have a number (in the order of appearance).
 
          Example:
          "(['"])hello\1" matches to "hello" or 'hello'.
-
-    #\p{name}# - ^<wrap>reference to earlier matched parentheses with the specified name.
 
 
     #Examples:#
