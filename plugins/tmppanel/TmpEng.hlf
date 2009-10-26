@@ -218,12 +218,9 @@ in the configuration dialog, and it must be in the OEM codepage.
 attempt to locate it in the following directories and in the following
 sequence:
       1. The current directory
-      2. The Windows system directory ("System" for Windows 9x, "System32"
-         for Windows NT)
-      3. The 16-bit system directory for Windows NT.
-      4. The Windows directory
-      5. The directories that are listed in the PATH environment variable.
-      6. In the plugin directory
+      2. In the plugin directory.
+      3. In #%FARHOME%#.
+      4. The directories that are listed in the #%PATH%# environment variable.
 
    The command line prefix used for file list operations (in the examples
 given above - #tmp:#) can be set in the configuration dialog.

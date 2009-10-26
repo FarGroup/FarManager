@@ -104,5 +104,6 @@ public:
 wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf);
 #endif
 TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output);
+bool FindListFile(const TCHAR *FileName, StrBuf &output);
 
 #endif /* __TMPPANEL_HPP__ */

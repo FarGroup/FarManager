@@ -47,17 +47,17 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM);
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
 
-	FSF.sprintf(PluginRootKey,_T("%s\\TmpPanel"),Info->RootKey);
-	GetOptions();
-	StartupOptFullScreenPanel=Opt.FullScreenPanel;
-	StartupOptCommonPanel=Opt.CommonPanel;
-	CurrentCommonPanel=0;
-	memset(CommonPanels, 0, sizeof(CommonPanels));
-	CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
-	Opt.LastSearchResultsPanel = 0;
+  FSF.sprintf(PluginRootKey,_T("%s\\TmpPanel"),Info->RootKey);
+  GetOptions();
+  StartupOptFullScreenPanel=Opt.FullScreenPanel;
+  StartupOptCommonPanel=Opt.CommonPanel;
+  CurrentCommonPanel=0;
+  memset(CommonPanels, 0, sizeof(CommonPanels));
+  CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
+  Opt.LastSearchResultsPanel = 0;
 }
 
 
@@ -129,15 +129,11 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       }
       else
       {
-        const TCHAR *tmp = FSF.PointToName(Info.ModuleName);
-        StrBuf TMPPanelDir((int)(tmp-Info.ModuleName+1));
-        lstrcpyn(TMPPanelDir,Info.ModuleName,TMPPanelDir.Size());
         FSF.Unquote(argv);
-        StrBuf TmpIn(NT_MAX_PATH); //BUGBUG
-        StrBuf TmpOut(NT_MAX_PATH); //BUGBUG
+        StrBuf TmpIn;
         ExpandEnvStrs(argv,TmpIn);
-        TCHAR *p;
-        if (SearchPath(TMPPanelDir,TmpIn,NULL,TmpOut.Size(),TmpOut,&p) || SearchPath(NULL,TmpIn,NULL,TmpOut.Size(),TmpOut,&p))
+        StrBuf TmpOut;
+        if (FindListFile(TmpIn,TmpOut))
         {
           if (Opt.MenuForFilelist)
           {
@@ -175,7 +171,7 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
 
   StrBuf tempfilename(NT_MAX_PATH); //BUGBUG
   StrBuf cmdparams(NT_MAX_PATH); //BUGBUG
-  StrBuf fullcmd(NT_MAX_PATH); //BUGBUG
+  StrBuf fullcmd;
 
   FSF.MkTemp(tempfilename,
 #ifdef UNICODE

@@ -241,3 +241,80 @@ TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output) {
 #endif
   return output;
 }
+
+bool FindListFile(const TCHAR *FileName, StrBuf &output)
+{
+  StrBuf Path;
+  DWORD dwSize;
+
+#ifdef UNICODE
+  dwSize=FSF.GetCurrentDirectory(0,NULL);
+  if (dwSize)
+  {
+    Path.Reset(dwSize);
+    FSF.GetCurrentDirectory(dwSize,Path);
+  }
+  else
+  {
+    return false;
+  }
+#else
+  Path.Reset(MAX_PATH);
+  GetCurrentDirectory(Path.Size(),Path);
+#endif
+
+  TCHAR *final=NULL;
+
+  dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
+  if (dwSize)
+  {
+    final = Path;
+    goto success;
+  }
+
+  {
+    const TCHAR *tmp = FSF.PointToName(Info.ModuleName);
+    Path.Grow((int)(tmp-Info.ModuleName+1));
+    lstrcpyn(Path,Info.ModuleName,(int)(tmp-Info.ModuleName+1));
+    dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
+    if (dwSize)
+    {
+      final = Path;
+      goto success;
+    }
+  }
+
+  ExpandEnvStrs(_T("%FARHOME%;%PATH%"),Path);
+  for (TCHAR *str=Path, *p=_tcschr(Path,_T(';')); *str; p=_tcschr(str,_T(';')))
+  {
+    if (p)
+      *p = 0;
+
+    FSF.Unquote(str);
+    FSF.Trim(str);
+
+    if (*str)
+    {
+      dwSize=SearchPath(str,FileName,NULL,0,NULL,NULL);
+      if (dwSize)
+      {
+        final = str;
+        goto success;
+      }
+    }
+
+    if (p)
+      str = p+1;
+    else
+      break;
+  }
+
+  return false;
+
+success:
+
+  output.Grow(dwSize);
+  SearchPath(final,FileName,NULL,dwSize,output,NULL);
+
+  return true;
+}
