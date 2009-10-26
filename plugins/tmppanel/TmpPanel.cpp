@@ -149,6 +149,10 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
             ProcessList(hPlugin, TmpOut, Opt.Mode WITH_ANSI_ARG);
           }
         }
+        else
+        {
+          return INVALID_HANDLE_VALUE;
+        }
       }
     }
   }
