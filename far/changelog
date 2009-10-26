@@ -1,3 +1,7 @@
+chupakabra 26.10.2009 06:02:00 +0200 - build 1183
+
+1. Исправлена обработка пустой входной строки в FSF.ConvertPath() и FSF.GetPathRoot().
+
 t-rex 26.10.2009 00:45:52 +0200 - build 1182
 
 1. Новая настройка интерфэса: [ ] ClearType friendly redraw (can be slow)

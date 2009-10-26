@@ -2121,7 +2121,6 @@ int WINAPI farGetFileOwner(const wchar_t *Computer,const wchar_t *Name, wchar_t 
 
 int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Dest, int DestSize)
 {
-	int Size = 0;
 	if (Src && *Src)
 	{
 		string strDest;
@@ -2135,11 +2134,16 @@ int WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src, wchar_t *Des
 			ConvertNameToFull(Src, strDest);
 			break;
 		}
-		Size = static_cast<int>(strDest.GetLength()) + 1;
 		if (Dest && DestSize)
 			xwcsncpy(Dest, strDest.CPtr(), DestSize - 1);
+		return static_cast<int>(strDest.GetLength()) + 1;
 	}
-	return Size;
+	else
+	{
+		if (Dest && DestSize)
+		  *Dest = 0;
+		return 1;
+	}
 }
 
 int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
@@ -2162,19 +2166,23 @@ int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
 
 int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize)
 {
-	int Size=0;
 	if (Path && *Path)
 	{
 		string strPath(Path), strRoot;
 
 		GetPathRoot(strPath,strRoot);
 
-		Size = (int)strRoot.GetLength()+1;
-
 		if (DestSize && Root)
 			xwcsncpy(Root,strRoot,DestSize-1);
+
+		return (int)strRoot.GetLength()+1;
 	}
-	return Size;
+	else
+	{
+		if (DestSize && Root)
+		  *Root = 0;
+		return 1;
+	}
 }
 
 int WINAPI farPluginsControl(HANDLE hHandle, int Command, int Param1, LONG_PTR Param2)
