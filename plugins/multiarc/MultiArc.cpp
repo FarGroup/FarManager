@@ -21,7 +21,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,1812);
+  return FARMANAGERVERSION;
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
@@ -32,8 +32,6 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
   ::Info.FSF->Reserved[0]=(DWORD_PTR)malloc;
   ::Info.FSF->Reserved[1]=(DWORD_PTR)free;
-
-  FarVER=(int)::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
   FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
 

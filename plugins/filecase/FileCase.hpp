@@ -46,4 +46,3 @@ int GetRegKey(HKEY hRoot,const TCHAR *Key,const TCHAR *ValueName,TCHAR *ValueDat
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 TCHAR PluginRootKey[80];
-BOOL IsOldFar;

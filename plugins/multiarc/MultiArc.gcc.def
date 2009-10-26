@@ -1,4 +1,5 @@
 EXPORTS
+   GetMinFarVersion=GetMinFarVersion@0
    ClosePlugin=ClosePlugin@4
    Configure=Configure@4
    ExitFAR=ExitFAR@0

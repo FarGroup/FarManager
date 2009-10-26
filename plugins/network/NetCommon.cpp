@@ -15,8 +15,6 @@ OSVERSIONINFO WinVer;
 TCHAR PluginRootKey[80];
 TCHAR FarRootKey [NM];
 
-BOOL IsOldFAR;
-
 HMODULE hMpr32=NULL;
 HMODULE hNetApi=NULL;
 HMODULE hSvrApi=NULL;
@@ -91,36 +89,31 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   GetVersionEx(&WinVer);
 
   ::Info=*Info;
-  IsOldFAR=TRUE;
 
-  if((size_t)Info->StructSize >= sizeof(struct PluginStartupInfo))
-  {
-    IsOldFAR=FALSE;
-    ::FSF=*Info->FSF;
-    ::Info.FSF=&::FSF;
+	::FSF=*Info->FSF;
+	::Info.FSF=&::FSF;
 
-    lstrcpy (FarRootKey, Info->RootKey);
-    TCHAR *pBkSlash = _tcsrchr (FarRootKey, _T('\\'));
-    if (pBkSlash)
-       *pBkSlash = _T('\0');
+	lstrcpy (FarRootKey, Info->RootKey);
+	TCHAR *pBkSlash = _tcsrchr (FarRootKey, _T('\\'));
+	if (pBkSlash)
+			*pBkSlash = _T('\0');
 
-    FSF.sprintf(PluginRootKey,_T("%s\\Network"),Info->RootKey);
-    Opt.AddToDisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,1);
-    Opt.AddToPluginsMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,1);
-    Opt.DisksMenuDigit=GetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,3);
-    Opt.NTGetHideShare=GetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,0);
-    Opt.ShowPrinters=GetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,0);
-    Opt.LocalNetwork=GetRegKey (HKEY_CURRENT_USER, _T(""), StrLocalNetwork, TRUE);
-    Opt.DisconnectMode=GetRegKey (HKEY_CURRENT_USER, _T(""), StrDisconnectMode, FALSE);
-    Opt.HiddenSharesAsHidden=GetRegKey (HKEY_CURRENT_USER, _T(""), StrHiddenSharesAsHidden, TRUE);
-    Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFullPathShares, TRUE);
-    Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFavoritesFlags, FAVORITES_DEFAULTS);
-    Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNoRootDoublePoint, FALSE);
-    Opt.NavigateToDomains=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNavigateToDomains, FALSE);
+	FSF.sprintf(PluginRootKey,_T("%s\\Network"),Info->RootKey);
+	Opt.AddToDisksMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToDisksMenu,1);
+	Opt.AddToPluginsMenu=GetRegKey(HKEY_CURRENT_USER,_T(""),StrAddToPluginsMenu,1);
+	Opt.DisksMenuDigit=GetRegKey(HKEY_CURRENT_USER,_T(""),StrDisksMenuDigit,3);
+	Opt.NTGetHideShare=GetRegKey(HKEY_CURRENT_USER,_T(""),StrNTHiddenShare,0);
+	Opt.ShowPrinters=GetRegKey(HKEY_CURRENT_USER,_T(""),StrShowPrinters,0);
+	Opt.LocalNetwork=GetRegKey (HKEY_CURRENT_USER, _T(""), StrLocalNetwork, TRUE);
+	Opt.DisconnectMode=GetRegKey (HKEY_CURRENT_USER, _T(""), StrDisconnectMode, FALSE);
+	Opt.HiddenSharesAsHidden=GetRegKey (HKEY_CURRENT_USER, _T(""), StrHiddenSharesAsHidden, TRUE);
+	Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFullPathShares, TRUE);
+	Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, _T(""), StrFavoritesFlags, FAVORITES_DEFAULTS);
+	Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNoRootDoublePoint, FALSE);
+	Opt.NavigateToDomains=GetRegKey (HKEY_CURRENT_USER, _T(""), StrNavigateToDomains, FALSE);
 
-    CommonRootResources = new NetResourceList;
-    NetResourceList::InitNetResource (CommonCurResource);
-  }
+	CommonRootResources = new NetResourceList;
+	NetResourceList::InitNetResource (CommonCurResource);
 }
 
 void DeinitializeNetFunctions(void)
@@ -133,22 +126,12 @@ void DeinitializeNetFunctions(void)
 
 int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
-  if(!IsOldFAR)
-    switch(ItemNumber)
-    {
-      case 0:
-        return(Config());
-    }
+	switch(ItemNumber)
+	{
+		case 0:
+			return(Config());
+	}
   return(FALSE);
-}
-
-int WINAPI EXP_NAME(GetMinFarVersion)(void)
-{
-#ifndef UNICODE
-  return MAKEFARVERSION(1,70,1821);
-#else
-  return MAKEFARVERSION(1,80,563);
-#endif
 }
 
 BOOL DlgCreateFolder(TCHAR* lpBuffer, int nBufferSize)

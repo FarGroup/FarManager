@@ -264,7 +264,6 @@ extern struct FarStandardFunctions FSF;
 extern struct Options Opt;
 extern struct PluginStartupInfo Info;
 extern class ArcPlugins *ArcPlugin;
-extern int FarVER;
 extern const char *CmdNames[];
 
 #ifdef _NEW_ARC_SORT_

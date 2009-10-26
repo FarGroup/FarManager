@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 11
+#define PLUGIN_BUILD 12
 #define PLUGIN_DESC "Draw lines for FAR Manager"
 #define PLUGIN_NAME "DrawLine"
 #define PLUGIN_FILENAME "DrawLine.dll"

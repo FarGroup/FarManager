@@ -72,15 +72,10 @@ TCHAR fullcmd[NM*5],cmd[NM*5];
 #include "Mix.cpp"
 #include "OpenCmd.cpp"
 
-int WINAPI EXP_NAME(GetMinFarVersion)(void)
+int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-#ifndef UNICODE
-  return MAKEFARVERSION(1,70,1719);
-#else
-  return MAKEFARVERSION(2,0,677);
-#endif
+  return FARMANAGERVERSION;
 }
-
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *psInfo)
 {

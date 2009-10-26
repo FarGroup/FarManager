@@ -11,7 +11,6 @@ TCHAR PluginRootKey[80];
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
-BOOL IsOldFAR;
 
 PluginPanels CommonPanels[COMMONPANELSNUMBER];
 
@@ -48,29 +47,22 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM);
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  IsOldFAR=TRUE;
-  if((size_t)Info->StructSize>=sizeof(struct PluginStartupInfo))
-  {
-    ::FSF=*Info->FSF;
-    ::Info.FSF=&::FSF;
-    IsOldFAR=FALSE;
+	::FSF=*Info->FSF;
+	::Info.FSF=&::FSF;
 
-    FSF.sprintf(PluginRootKey,_T("%s\\TmpPanel"),Info->RootKey);
-    GetOptions();
-    StartupOptFullScreenPanel=Opt.FullScreenPanel;
-    StartupOptCommonPanel=Opt.CommonPanel;
-    CurrentCommonPanel=0;
-    memset(CommonPanels, 0, sizeof(CommonPanels));
-    CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
-    Opt.LastSearchResultsPanel = 0;
-  }
+	FSF.sprintf(PluginRootKey,_T("%s\\TmpPanel"),Info->RootKey);
+	GetOptions();
+	StartupOptFullScreenPanel=Opt.FullScreenPanel;
+	StartupOptCommonPanel=Opt.CommonPanel;
+	CurrentCommonPanel=0;
+	memset(CommonPanels, 0, sizeof(CommonPanels));
+	CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
+	Opt.LastSearchResultsPanel = 0;
 }
 
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-  if (IsOldFAR) return(INVALID_HANDLE_VALUE);
-
   HANDLE hPlugin=INVALID_HANDLE_VALUE;
 
   GetOptions();
@@ -547,7 +539,7 @@ HANDLE WINAPI EXP_NAME(OpenFilePlugin)(_CONST TCHAR *Name,const unsigned char *,
 #define PNAME_ARG pName, pName.Size()
 #endif
 
-  if (IsOldFAR || !DataSize || !FSF.ProcessName(Opt.Mask,PNAME_ARG,PN_CMPNAMELIST))
+  if (!DataSize || !FSF.ProcessName(Opt.Mask,PNAME_ARG,PN_CMPNAMELIST))
     return INVALID_HANDLE_VALUE;
 #undef PNAME_ARG
 
@@ -672,14 +664,10 @@ int WINAPI EXP_NAME(ProcessKey)(HANDLE hPlugin,int Key,unsigned int ControlState
 
 int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
-  return(!IsOldFAR && !ItemNumber?Config():FALSE);
+  return (!ItemNumber?Config():FALSE);
 }
 
-int WINAPI EXP_NAME(GetMinFarVersion)(void)
+int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-#ifndef UNICODE
-  return(MAKEFARVERSION(1,70,1024));
-#else
-  return(MAKEFARVERSION(2,0,863));
-#endif
+  return FARMANAGERVERSION;
 }

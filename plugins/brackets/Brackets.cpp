@@ -26,6 +26,11 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "BrackMix.cpp"
 #include "BrackCfg.cpp"
 
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
+
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;

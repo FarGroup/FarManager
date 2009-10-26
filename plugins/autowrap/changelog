@@ -1,3 +1,7 @@
+t-rex 26.10.2009 16:02:34 +0200 - build 9
+
+1. Добавил GetMinFarVersion.
+
 t-rex 20.10.2009 13:20:14 +0200
 
 1. Mantis#1118: plugins/AutoWrap не соответствие регистров в инструкциях include.

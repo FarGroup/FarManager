@@ -76,4 +76,3 @@ struct EditorGetString egs;
 struct EditorSetPosition esp;
 
 static TCHAR KeyNameFromReg[34];
-BOOL IsOldFar;

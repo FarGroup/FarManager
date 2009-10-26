@@ -32,19 +32,9 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "Config.cpp"
 #include "MacroDiff.cpp"
 
-#ifndef UNICODE
-#define MIN_FARVERMAJOR   1
-#define MIN_FAR_VERMINOR  70
-#define MIN_FAR_BUILD     1238
-#else
-#define MIN_FARVERMAJOR   2
-#define MIN_FAR_VERMINOR  0
-#define MIN_FAR_BUILD     677
-#endif
-
 int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-  return MAKEFARVERSION(MIN_FARVERMAJOR, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
+  return FARMANAGERVERSION;
 }
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)

@@ -1516,7 +1516,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             */
         }
 #ifdef UNICODE
-        while(--nItems > NSTATICITEMS)
+        while(--nItems > (int)NSTATICITEMS)
             if(Flags[nItems].a) free((wchar_t*)Items[nItems].Text);
 #endif
         return TRUE;

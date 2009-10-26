@@ -49,8 +49,6 @@ extern struct Options
   BOOL NavigateToDomains;
 } Opt;
 
-extern BOOL IsOldFAR;
-
 extern struct PluginStartupInfo Info;
 extern struct FarStandardFunctions FSF;
 extern NETRESOURCE CommonCurResource;

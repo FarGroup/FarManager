@@ -123,6 +123,4 @@ enum
 
   MMacroDefineTitle,
   MMacroDesiredKey,
-
-  MMacroWrongFar,
 };

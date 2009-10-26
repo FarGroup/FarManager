@@ -39,6 +39,12 @@ static void ReformatBlock(int RightMargin,int SmartMode,int Justify);
 static void JustifyBlock(int RightMargin);
 static int JustifyString(int RightMargin,struct EditorSetString &ess);
 
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
+
+
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;

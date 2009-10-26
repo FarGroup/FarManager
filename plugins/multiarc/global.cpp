@@ -5,8 +5,6 @@ struct FarStandardFunctions FSF;
 struct Options Opt;
 struct PluginStartupInfo Info;
 
-int FarVER;
-
 class ArcPlugins *ArcPlugin=NULL;
 
 const char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",

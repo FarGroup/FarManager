@@ -37,6 +37,11 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
+
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;

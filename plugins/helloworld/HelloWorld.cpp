@@ -32,6 +32,11 @@ enum {
 
 static struct PluginStartupInfo Info;
 
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
+
 /*
  Функция GetMsg возвращает строку сообщения из языкового файла.
  А это надстройка над Info.GetMsg для сокращения кода :-)

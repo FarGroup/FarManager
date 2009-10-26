@@ -5,16 +5,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifndef UNICODE
-#define MIN_FAR_VERMAJOR  1
-#define MIN_FAR_VERMINOR  70
-#define MIN_FAR_BUILD     0
-#else
-#define MIN_FAR_VERMAJOR  2
-#define MIN_FAR_VERMINOR  0
-#define MIN_FAR_BUILD     677
-#endif
-
 _Opt Opt;
 ui64Table *_ui64Table;
 
@@ -23,15 +13,16 @@ FarStandardFunctions FSF;
 int NT, W2K;
 TCHAR PluginRootKey[80];
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved);
-#ifdef __cplusplus
-};
+#if defined(__GNUC__)
+  #define DLLMAINFUNC DllMainCRTStartup
+#else
+  #define DLLMAINFUNC _DllMainCRTStartup
 #endif
 
-BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOL WINAPI DLLMAINFUNC(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
   (void) lpReserved;
 
@@ -39,7 +30,7 @@ BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
   switch(dwReason)
   {
     case DLL_PROCESS_ATTACH:
-      DisableThreadLibraryCalls(hDll);
+      DisableThreadLibraryCalls((HINSTANCE)hDll);
       break;
     case DLL_PROCESS_DETACH:
       DebugToken::CloseToken();
@@ -48,11 +39,11 @@ BOOL WINAPI DllMainCRTStartup(HMODULE hDll,DWORD dwReason,LPVOID lpReserved)
 
   return rc;
 }
+#ifdef __cplusplus
+};
+#endif
 
 #ifndef __GNUC__
-#pragma comment(linker, "/ENTRY:DllMainCRTStartup")
-// for ulink
-#pragma comment(linker, "/alternatename:DllMainCRTStartup=_DllMainCRTStartup@12")
 // for ms-link BUG
 #ifndef _WIN64
 void __cdecl main(void) {}
@@ -170,7 +161,7 @@ static void dynamic_bind(void)
 //-----------------------------------------------------------------------------
 int WINAPI EXP_NAME(GetMinFarVersion)()
 {
-  return MAKEFARVERSION(MIN_FAR_VERMAJOR, MIN_FAR_VERMINOR, MIN_FAR_BUILD);
+  return FARMANAGERVERSION;
 }
 
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)

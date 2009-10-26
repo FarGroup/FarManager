@@ -502,6 +502,7 @@ enum accTypes  {
    #define ECURDIR       EBUSY         /*16    Attempt to remove CurDir         */
    #define ENOTSAM       EEXIST        /*17    Not same device                  */
    #define ENMFILE       EXDEV         /*18    No more files                    */
+   #undef  ETXTBSY
    #define ETXTBSY       26            /*26    UNIX - not MSDOS                 */
   #ifndef EDEADLOCK
    #define EDEADLOCK     EDEADLK       /*36    Locking violation                */

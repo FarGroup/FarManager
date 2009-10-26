@@ -34,9 +34,6 @@
 "Not enough memory"
 "Not enough memory to initialize plugin"
 
-"Wrong FAR version"
-"Advanced Compare plugin requires FAR 1.70 or later"
-
 "Operation was interrupted"
 "Do you really want to cancel it?"
 

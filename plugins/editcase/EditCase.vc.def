@@ -1,4 +1,5 @@
 EXPORTS 
+   GetMinFarVersion
    GetPluginInfo
    OpenPlugin
    SetStartupInfo

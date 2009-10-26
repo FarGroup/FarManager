@@ -2123,11 +2123,8 @@ void NetBrowser::SetCursorToShare (TCHAR *Share)
 
 void WINAPI EXP_NAME(ExitFAR)()
 {
-  if(!IsOldFAR)
-  {
-    delete CommonRootResources;
-    NetResourceList::DeleteNetResource (CommonCurResource);
-  }
+	delete CommonRootResources;
+	NetResourceList::DeleteNetResource (CommonCurResource);
 }
 
 void NetBrowser::RemoveItems()

@@ -1,4 +1,5 @@
 EXPORTS
+   GetMinFarVersionW
    ExitFARW
    GetPluginInfoW
    OpenPluginW

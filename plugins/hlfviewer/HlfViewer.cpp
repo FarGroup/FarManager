@@ -36,33 +36,30 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #include "Mix.cpp"
 #include "FarEditor.cpp"
 
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
+
 void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  IsOldFar=TRUE;
   lstrcpy(PluginRootKey,Info->RootKey);
   lstrcat(PluginRootKey,_T("\\HlfViewer"));
-  if(Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
-  {
-    ::FSF=*Info->FSF;
-    ::Info.FSF=&::FSF;
-    IsOldFar=FALSE;
-    PointToName=::FSF.PointToName;
-    GetPathRoot=::FSF.GetPathRoot;
-    AddEndSlash=::FSF.AddEndSlash;
-    FarSprintf=::FSF.sprintf;
-    GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
-    Opt.Key=::FSF.FarNameToKey(KeyNameFromReg);
-    Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
-    Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
-  }
+	::FSF=*Info->FSF;
+	::Info.FSF=&::FSF;
+	PointToName=::FSF.PointToName;
+	GetPathRoot=::FSF.GetPathRoot;
+	AddEndSlash=::FSF.AddEndSlash;
+	FarSprintf=::FSF.sprintf;
+	GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
+	Opt.Key=::FSF.FarNameToKey(KeyNameFromReg);
+	Opt.ProcessEditorInput=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.ProcessEditorInput,1);
+	Opt.Style=GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.Style,0);
 }
 
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 {
-  if(IsOldFar)
-    return (INVALID_HANDLE_VALUE);
-
   if(OpenFrom==OPEN_COMMANDLINE)
   {
     if(lstrlen((TCHAR *)Item))
@@ -143,9 +140,6 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
 
 void WINAPI EXP_NAME(GetPluginInfo)(struct PluginInfo *Info)
 {
-  if(IsOldFar)
-    return;
-
   Info->StructSize=sizeof(*Info);
   Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
 
@@ -176,7 +170,7 @@ int WINAPI EXP_NAME(ProcessEditorInput)(const INPUT_RECORD *Rec)
   LPWSTR FileName=NULL;
 #endif
   BOOL Result=FALSE;
-  if(!IsOldFar && Opt.ProcessEditorInput)
+  if (Opt.ProcessEditorInput)
   {
     if(Rec->EventType==KEY_EVENT && Rec->Event.KeyEvent.bKeyDown &&
        FSF.FarInputRecordToKey((INPUT_RECORD *)Rec)==Opt.Key)
@@ -319,9 +313,6 @@ int WINAPI EXP_NAME(ProcessEditorEvent)(int Event, void * /*Param*/)
 
 int WINAPI EXP_NAME(Configure)(int ItemNumber)
 {
-  if(IsOldFar)
-    return FALSE;
-
   GetRegKey(HKEY_CURRENT_USER,_T(""),REGStr.EditorKey,KeyNameFromReg,_T("F1"),ArraySize(KeyNameFromReg)-1);
 
   static struct InitDialogItem InitItems[]=

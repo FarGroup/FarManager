@@ -81,9 +81,6 @@ enum CompareLng {
   MNoMemTitle,
   MNoMemBody,
 
-  MOldFARTitle,
-  MOldFARBody,
-
   MEscTitle,
   MEscBody,
 
@@ -1110,7 +1107,10 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
  ***************************** Exported functions ***************************
  ****************************************************************************/
 
-static bool bOldFAR = false;
+int WINAPI EXP_NAME(GetMinFarVersion)()
+{
+  return FARMANAGERVERSION;
+}
 
 /****************************************************************************
  * Эту функцию плагина FAR вызывает в первую очередь
@@ -1120,10 +1120,7 @@ void WINAPI EXP_NAME(SetStartupInfo)(const struct PluginStartupInfo *Info)
   const TCHAR *cpPlugRegKey = _T("\\AdvCompare");
   ::Info = *Info;
 
-  if (Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
-    FSF = *Info->FSF;
-  else
-    bOldFAR = true;
+  FSF = *Info->FSF;
 
   if (PluginRootKey)
   {
@@ -1221,20 +1218,6 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
  ****************************************************************************/
 HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom, INT_PTR Item)
 {
-  // Если версия ФАРа слишком стара...
-  if (bOldFAR)
-  {
-    const TCHAR *MsgItems[] = {
-      GetMsg(MOldFARTitle),
-      GetMsg(MOldFARBody),
-      GetMsg(MOK)
-    };
-    Info.Message(Info.ModuleNumber, FMSG_WARNING, NULL,
-                 MsgItems, ArraySize(MsgItems), 1);
-
-    return INVALID_HANDLE_VALUE;
-  }
-
   OwnPanelInfo AInfo, PInfo;
 
 #ifdef UNICODE
