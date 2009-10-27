@@ -2187,8 +2187,8 @@ void FileEditor::ShowStatus()
 		(m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' ')<<
 		(m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
 		fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(7)<<MSG(MEditStatusLine)<<L' '<<
-		fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<MSG(MEditStatusCol)<<L' '<<
-		fmt::Width(5)<<strLineStr<<L' '<<
+		fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<strLineStr<<L' '<<
+		fmt::Width(5)<<MSG(MEditStatusCol)<<L' '<<
 		fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
 		fmt::Width(3)<<strAttr;
 
