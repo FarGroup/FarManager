@@ -2042,19 +2042,16 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
     }
     else
     {
-			/* $ 09.04.2001 SVS
-				Ќе перерисовываем, если ChangeDir закрыла панель
-			*/
 			BOOL res=FALSE;
 			int CheckFullScreen=IsFullScreen();
 			if (PanelMode==PLUGIN_PANEL || wcschr(CurPtr->strName,L'?')==NULL ||
 					CurPtr->strShortName.IsEmpty() )
 			{
-				res=ChangeDir(CurPtr->strName);
+				ChangeDir(CurPtr->strName);
 			}
 			else
 			{
-				res=ChangeDir(CurPtr->strShortName);
+				ChangeDir(CurPtr->strShortName);
 			}
 			//"this" может быть удалЄн в ChangeDir
 			Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
@@ -2301,16 +2298,16 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
     else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
 
-    return(TRUE);
+    return SetDirectorySuccess;
   }
   else
   {
-		{
-		string strFullNewDir;
-		ConvertNameToFull(strSetDir, strFullNewDir);
-		if ( StrCmpI(strFullNewDir, strCurDir)!=0)
-			CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
-		}
+    {
+      string strFullNewDir;
+      ConvertNameToFull(strSetDir, strFullNewDir);
+      if ( StrCmpI(strFullNewDir, strCurDir)!=0)
+        CtrlObject->FolderHistory->AddToHistory(strCurDir,NULL,0);
+    }
 
     if(dot2Present)
     {
@@ -2371,6 +2368,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
      если не удалось
   */
   int UpdateFlags = 0;
+  BOOL SetDirectorySuccess = TRUE;
 
   if (PanelMode!=PLUGIN_PANEL && !StrCmp(strSetDir,L"\\"))
   {
@@ -2385,6 +2383,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), (dot2Present?L"..":strSetDir), MSG (MOk));
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
+		SetDirectorySuccess=FALSE;
 	}
 
   /* $ 28.04.2001 IS
@@ -2403,8 +2402,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   }*/
 	apiGetCurrentDirectory(strCurDir);
 
-  if(!IsUpdated)
-    return(TRUE);
+  if (!IsUpdated)
+    return SetDirectorySuccess;
 
   Update(UpdateFlags);
 
@@ -2431,8 +2430,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
   }
   if (PanelMode==PLUGIN_PANEL)
     CtrlObject->Cp()->RedrawKeyBar();
-  return(TRUE);
 
+  return SetDirectorySuccess;
 }
 
 

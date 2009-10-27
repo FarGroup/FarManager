@@ -284,7 +284,7 @@ void FileList::ShowFileList(int Fast)
   if (!Fast && GetFocus())
   {
     if ( PanelMode==PLUGIN_PANEL )
-        CtrlObject->CmdLine->SetCurDir(Info.CurDir);
+      CtrlObject->CmdLine->SetCurDir(Info.CurDir);
     else
       CtrlObject->CmdLine->SetCurDir(strCurDir);
 

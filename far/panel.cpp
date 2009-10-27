@@ -797,10 +797,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 									{
 										// восстановим пути - это избавит нас от левых данных в панели.
 										if ( AMode != PLUGIN_PANEL )
-										CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
+											CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir(strTmpADir, FALSE);
 
 										if ( CMode != PLUGIN_PANEL )
-										SetCurDir(strTmpCDir, FALSE);
+											SetCurDir(strTmpCDir, FALSE);
 
 									// ... и выведем месаг о...
 
