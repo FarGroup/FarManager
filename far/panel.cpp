@@ -2260,8 +2260,7 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 		{
 			if (Param2)
 			{
-				SetCurDir((const wchar_t *)Param2,TRUE);
-				Result=TRUE;
+				Result = SetCurDir((const wchar_t *)Param2,TRUE);
 			}
 			break;
 		}

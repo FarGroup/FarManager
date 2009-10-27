@@ -1,7 +1,7 @@
 This directory contains various stuff that was contributed by 3rd party
 developers and is not fully supported.
 
-codeblocks - Submitted by Morten MacFly.
+codeblocks - Submitted by Morten MacFly (last update - 27/10/2009).
              A Code::Blocks (www.codeblocks.org) project file to build
              Far Manager using GCC on Windows. To use it place all files
              in the source code folder.
