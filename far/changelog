@@ -1,3 +1,33 @@
+svs 29.10.2009 16:49:25 +0300 - build 1188
+
+1. Mantis#0001142: Плавная горизонтальная прокрутка в редакторе
+   В макросы добавлена функция "N=Editor.Pos(Op,What[,Where])" - Get/Set позиции в редакторе.
+
+     Op: 0 - get, 1 - set
+     What:
+        1 - CurLine
+        2 - CurPos
+        3 - CurTabPos
+        4 - TopScreenLine
+        5 - LeftPos
+        6 - Overtype
+
+     Return: -1 - "не в теме", для "get" - текущее значение, для "set" - "угу" (1) или "не угу" (0)
+
+     Пример (при включенном ScrollLock клавиши Left/Right занимаются скроллллингом)
+
+     REGEDIT4
+
+     [HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Right]
+     "Sequence"="$if(FLock(2,-1) == 1) Editor.Pos(1,5,Editor.Pos(0,5)+1); $else Right $end"
+     "DisableOutput"=dword:00000001
+
+     [HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Left]
+     "Sequence"="$if(FLock(2,-1) == 1) Editor.Pos(1,5,Editor.Pos(0,5)-1); $else Left $end"
+     "DisableOutput"=dword:00000001
+
+2. немного замены space на tab
+
 t-rex 27.10.2009 18:04:07 +0200 - build 1187
 
 1. Доделал Mantis#1087.

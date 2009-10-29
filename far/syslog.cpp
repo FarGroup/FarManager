@@ -1164,6 +1164,7 @@ string __MCODE_ToName(int OpCode)
      DEF_MCODE_(V_VIEWERSTATE),
      DEF_MCODE_(V_WIDTH),
      DEF_MCODE_(F_FLOAT),
+     DEF_MCODE_(F_EDITOR_POS),
   };
 
   string Name;

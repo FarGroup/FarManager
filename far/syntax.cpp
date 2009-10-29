@@ -279,6 +279,7 @@ static TMacroFunction macroFunction[]={
 	{L"CLIP",             2, 1,   MCODE_F_CLIP,             NULL, L"V=Clip(N[,S])"},
 	{L"DATE",             1, 0,   MCODE_F_DATE,             NULL, L"S=Date(S)"},
 	{L"DLG.GETVALUE",     2, 0,   MCODE_F_DLG_GETVALUE,     NULL, L"V=Dlg.GetValue(ID,N)"},
+	{L"EDITOR.POS",       3, 1,   MCODE_F_EDITOR_POS,       NULL, L"N=Editor.Pos(Op,What[,Where])"},
 	{L"EDITOR.SEL",       2, 1,   MCODE_F_EDITOR_SEL,       NULL, L"V=Editor.Sel(Action[,Opt])"},
 	{L"EDITOR.SET",       2, 0,   MCODE_F_EDITOR_SET,       NULL, L"N=Editor.Set(N,Var)"},
 	{L"EDITOR.UNDO",      1, 0,   MCODE_F_EDITOR_UNDO,      NULL, L"V=Editor.Undo(N)"},

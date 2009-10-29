@@ -434,51 +434,51 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 // (динамически - значит в PlayMacros передали строку.
 void KeyMacro::ReleaseWORKBuffer(BOOL All)
 {
-  if(Work.MacroWORK)
-  {
-    if(All || Work.MacroWORKCount <= 1)
-    {
-      for (int I=0;I<Work.MacroWORKCount;I++)
-      {
-        if(Work.MacroWORK[I].BufferSize > 1 && Work.MacroWORK[I].Buffer)
-          xf_free(Work.MacroWORK[I].Buffer);
-        if(Work.MacroWORK[I].Src)
-          xf_free(Work.MacroWORK[I].Src);
-        if(Work.MacroWORK[I].Description)
-          xf_free(Work.MacroWORK[I].Description);
-      }
-      xf_free(Work.MacroWORK);
-      if(Work.AllocVarTable)
-      {
-        deleteVTable(*Work.locVarTable);
-        //xf_free(Work.locVarTable);
-        //Work.locVarTable=NULL;
-        //Work.AllocVarTable=false;
-      }
-      Work.MacroWORK=NULL;
-      Work.MacroWORKCount=0;
-    }
-    else
-    {
-      if(Work.MacroWORK->BufferSize > 1 && Work.MacroWORK->Buffer)
-        xf_free(Work.MacroWORK->Buffer);
-      if(Work.MacroWORK->Src)
-        xf_free(Work.MacroWORK->Src);
-      if(Work.MacroWORK->Description)
-        xf_free(Work.MacroWORK->Description);
-      if(Work.AllocVarTable)
-      {
-        deleteVTable(*Work.locVarTable);
-        //xf_free(Work.locVarTable);
-        //Work.locVarTable=NULL;
-        //Work.AllocVarTable=false;
-      }
-      Work.MacroWORKCount--;
+	if(Work.MacroWORK)
+	{
+		if(All || Work.MacroWORKCount <= 1)
+		{
+			for (int I=0;I<Work.MacroWORKCount;I++)
+			{
+				if(Work.MacroWORK[I].BufferSize > 1 && Work.MacroWORK[I].Buffer)
+					xf_free(Work.MacroWORK[I].Buffer);
+				if(Work.MacroWORK[I].Src)
+					xf_free(Work.MacroWORK[I].Src);
+				if(Work.MacroWORK[I].Description)
+					xf_free(Work.MacroWORK[I].Description);
+			}
+			xf_free(Work.MacroWORK);
+			if(Work.AllocVarTable)
+			{
+				deleteVTable(*Work.locVarTable);
+				//xf_free(Work.locVarTable);
+				//Work.locVarTable=NULL;
+				//Work.AllocVarTable=false;
+			}
+			Work.MacroWORK=NULL;
+			Work.MacroWORKCount=0;
+		}
+		else
+		{
+			if(Work.MacroWORK->BufferSize > 1 && Work.MacroWORK->Buffer)
+				xf_free(Work.MacroWORK->Buffer);
+			if(Work.MacroWORK->Src)
+				xf_free(Work.MacroWORK->Src);
+			if(Work.MacroWORK->Description)
+				xf_free(Work.MacroWORK->Description);
+			if(Work.AllocVarTable)
+			{
+				deleteVTable(*Work.locVarTable);
+				//xf_free(Work.locVarTable);
+				//Work.locVarTable=NULL;
+				//Work.AllocVarTable=false;
+			}
+			Work.MacroWORKCount--;
 
 			memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(MacroRecord),sizeof(MacroRecord)*Work.MacroWORKCount);
 			Work.MacroWORK=(MacroRecord *)xf_realloc(Work.MacroWORK,sizeof(MacroRecord)*Work.MacroWORKCount);
-    }
-  }
+		}
+	}
 }
 
 // загрузка ВСЕХ макросов из реестра
@@ -1391,201 +1391,200 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 // S=trim(S[,N])
 static bool trimFunc()
 {
-  int  mode = (int) VMStack.Pop().getInteger();
-  TVar Val;
-  VMStack.Pop(Val);
+	int  mode = (int) VMStack.Pop().getInteger();
+	TVar Val;
+	VMStack.Pop(Val);
 
-  wchar_t *p = (wchar_t *)Val.toString();
-  bool Ret=true;
+	wchar_t *p = (wchar_t *)Val.toString();
+	bool Ret=true;
 
-  switch(mode)
-  {
-    case 0: p=RemoveExternalSpaces(p); break;  // alltrim
-    case 1: p=RemoveLeadingSpaces(p); break;   // ltrim
-    case 2: p=RemoveTrailingSpaces(p); break;  // rtrim
-    default: Ret=false;
-  }
+	switch(mode)
+	{
+		case 0: p=RemoveExternalSpaces(p); break;  // alltrim
+		case 1: p=RemoveLeadingSpaces(p); break;   // ltrim
+		case 2: p=RemoveTrailingSpaces(p); break;  // rtrim
+		default: Ret=false;
+	}
 
-  VMStack.Push((const wchar_t*)p);
-  return Ret;
+	VMStack.Push((const wchar_t*)p);
+	return Ret;
 }
 
 // S=substr(S,N1[,N2])
 static bool substrFunc()
 {
-  int  p2 = (int)VMStack.Pop().getInteger();
-  int  p1 = (int)VMStack.Pop().getInteger();
-  TVar Val;
-  VMStack.Pop(Val);
+	int  p2 = (int)VMStack.Pop().getInteger();
+	int  p1 = (int)VMStack.Pop().getInteger();
+	TVar Val;
+	VMStack.Pop(Val);
 
-  wchar_t *p = (wchar_t *)Val.toString();
-  bool Ret=false;
+	wchar_t *p = (wchar_t *)Val.toString();
+	bool Ret=false;
 
-  int len = StrLength(p);
-  if ( p2 != 0 && p1 >= 0 &&  p1 < len )
-  {
-    if(p1 > 0)
-      p += p1;
-    len = StrLength(p);
-    if ( ( p2 > 0 ) && ( p2 < len ) )
-      p[p2] = 0;
-    Ret=true;
-    VMStack.Push((const wchar_t*)p);
-  }
-  else
-    VMStack.Push(L"");
+	int len = StrLength(p);
+	if ( p2 != 0 && p1 >= 0 &&  p1 < len )
+	{
+		if(p1 > 0)
+			p += p1;
+		len = StrLength(p);
+		if ( ( p2 > 0 ) && ( p2 < len ) )
+			p[p2] = 0;
+		Ret=true;
+		VMStack.Push((const wchar_t*)p);
+	}
+	else
+		VMStack.Push(L"");
 
-  return Ret;
+	return Ret;
 }
 
+static BOOL SplitFileName (const wchar_t *lpFullName,string &strDest,int nFlags)
+{
 #define FLAG_DISK   1
 #define FLAG_PATH   2
 #define FLAG_NAME   4
 #define FLAG_EXT    8
+	wchar_t *s = (wchar_t*)lpFullName; //start of sub-string
+	wchar_t *p = s; //current string pointer
 
-static BOOL SplitFileName (const wchar_t *lpFullName,string &strDest,int nFlags)
-{
-  wchar_t *s = (wchar_t*)lpFullName; //start of sub-string
-  wchar_t *p = s; //current string pointer
+	wchar_t *es = s+StrLength(s); //end of string
+	wchar_t *e; //end of sub-string
 
-  wchar_t *es = s+StrLength(s); //end of string
-  wchar_t *e; //end of sub-string
+	if ( !*p )
+		return FALSE;
 
-  if ( !*p )
-      return FALSE;
+	if ( (*p == L'\\') && (*(p+1) == L'\\') ) //share
+	{
+		p += 2;
 
-  if ( (*p == L'\\') && (*(p+1) == L'\\') ) //share
-  {
-    p += 2;
+		p = wcschr(p, L'\\');
 
-    p = wcschr(p, L'\\');
+		if ( !p )
+			return FALSE; //invalid share (\\server\)
 
-    if ( !p )
-      return FALSE; //invalid share (\\server\)
+		p = wcschr (p+1, L'\\');
 
-    p = wcschr (p+1, L'\\');
+		if ( !p )
+			p = es;
 
-    if ( !p )
-      p = es;
-
-    if ( (nFlags & FLAG_DISK) == FLAG_DISK )
+		if ( (nFlags & FLAG_DISK) == FLAG_DISK )
 		{
 			strDest=s;
 			strDest.SetLength(p-s);
 		}
-  }
-  else
-  {
-    if ( *(p+1) == L':' )
-    {
-      p += 2;
+	}
+	else
+	{
+		if ( *(p+1) == L':' )
+		{
+			p += 2;
 
-      if ( (nFlags & FLAG_DISK) == FLAG_DISK )
+			if ( (nFlags & FLAG_DISK) == FLAG_DISK )
 			{
 				size_t Length=strDest.GetLength()+p-s;
 				strDest+=s;
 				strDest.SetLength(Length);
 			}
-    }
-  }
+		}
+	}
 
-  e = NULL;
-  s = p;
+	e = NULL;
+	s = p;
 
-  while ( p )
-  {
-    p = wcschr (p, L'\\');
+	while ( p )
+	{
+		p = wcschr (p, L'\\');
 
-    if ( p )
-    {
-      e = p;
-      p++;
-    }
-  };
+		if ( p )
+		{
+			e = p;
+			p++;
+		}
+	}
 
-  if ( e )
-  {
-    if ( (nFlags & FLAG_PATH) )
+	if ( e )
+	{
+		if ( (nFlags & FLAG_PATH) )
 		{
 			size_t Length=strDest.GetLength()+e-s;
 			strDest+=s;
 			strDest.SetLength(Length);
 		}
 
-    s = e+1;
-    p = s;
-  }
+		s = e+1;
+		p = s;
+	}
 
-  if ( !p )
-    p = s;
+	if ( !p )
+		p = s;
 
-  e = NULL;
+	e = NULL;
 
-  while ( p )
-  {
-    p = wcschr (p+1, L'.');
+	while ( p )
+	{
+		p = wcschr (p+1, L'.');
 
-    if ( p )
-       e = p;
-  }
+		if ( p )
+			e = p;
+	}
 
-  if ( !e )
-      e = es;
+	if ( !e )
+		e = es;
 
 	if(!strDest.IsEmpty())
 		AddEndSlash(strDest);
 
-  if ( nFlags & FLAG_NAME )
-  {
-    wchar_t *ptr=wcspbrk(s,L":");
-    if(ptr)
-      s=ptr+1;
+	if ( nFlags & FLAG_NAME )
+	{
+		wchar_t *ptr=wcspbrk(s,L":");
+		if(ptr)
+			s=ptr+1;
 		size_t Length=strDest.GetLength()+e-s;
 		strDest+=s;
 		strDest.SetLength(Length);
-  }
+	}
 
-  if ( nFlags & FLAG_EXT )
+	if ( nFlags & FLAG_EXT )
 		strDest+=e;
 
-  return TRUE;
+	return TRUE;
 }
 
 
 // S=fsplit(S,N)
 static bool fsplitFunc()
 {
-  int m = (int)VMStack.Pop().getInteger();
-  TVar Val;
-  VMStack.Pop(Val);
-  const wchar_t *s = Val.toString();
-  bool Ret=false;
+	int m = (int)VMStack.Pop().getInteger();
+	TVar Val;
+	VMStack.Pop(Val);
+	const wchar_t *s = Val.toString();
+	bool Ret=false;
 	string strPath;
 	if(!SplitFileName(s,strPath,m))
 		strPath=L"";
-  else
-    Ret=true;
+	else
+		Ret=true;
 	VMStack.Push(strPath.CPtr());
-  return Ret;
+	return Ret;
 }
 
 #if 0
 // S=Meta("!.!") - в макросах юзаем ФАРовы метасимволы
 static bool metaFunc()
 {
-  TVar Val;
-  VMStack.Pop(Val);
-  const wchar_t *s = Val.toString();
+	TVar Val;
+	VMStack.Pop(Val);
+	const wchar_t *s = Val.toString();
 
-  if(s && *s)
-  {
-    char SubstText[512];
-    char Name[NM],ShortName[NM];
-    xstrncpy(SubstText,s,sizeof(SubstText)-1);
-    SubstFileName(SubstText,sizeof (SubstText),Name,ShortName,NULL,NULL,TRUE);
-    return TVar(SubstText);
-  }
-  return TVar(L"");
+	if(s && *s)
+	{
+		char SubstText[512];
+		char Name[NM],ShortName[NM];
+		xstrncpy(SubstText,s,sizeof(SubstText)-1);
+		SubstFileName(SubstText,sizeof (SubstText),Name,ShortName,NULL,NULL,TRUE);
+		return TVar(SubstText);
+	}
+	return TVar(L"");
 }
 #endif
 
@@ -1683,66 +1682,68 @@ static bool evalFunc()
 // S=key(V)
 static bool keyFunc()
 {
-  TVar VarKey;
-  VMStack.Pop(VarKey);
-  string strKeyText;
+	TVar VarKey;
+	VMStack.Pop(VarKey);
+	string strKeyText;
 
-  if(VarKey.isInteger())
-  {
-    if(VarKey.i())
-      KeyToText((int)VarKey.i(),strKeyText);
-  }
-  else
-  {
-    // Проверим...
-    DWORD Key=(DWORD)KeyNameToKey(VarKey.s());
-    if(Key != (DWORD)-1 && Key==(DWORD)VarKey.i())
-      strKeyText=VarKey.s();
-  }
+	if(VarKey.isInteger())
+	{
+		if(VarKey.i())
+			KeyToText((int)VarKey.i(),strKeyText);
+	}
+	else
+	{
+		// Проверим...
+		DWORD Key=(DWORD)KeyNameToKey(VarKey.s());
+		if(Key != (DWORD)-1 && Key==(DWORD)VarKey.i())
+			strKeyText=VarKey.s();
+	}
 
-  VMStack.Push((const wchar_t *)strKeyText);
-  return !strKeyText.IsEmpty()?true:false;
+	VMStack.Push((const wchar_t *)strKeyText);
+	return !strKeyText.IsEmpty()?true:false;
 }
 
 // V=waitkey([N,[T]])
 static bool waitkeyFunc()
 {
-  long Type=(long)VMStack.Pop().getInteger();
-  long Period=(long)VMStack.Pop().getInteger();
-  DWORD Key=WaitKey((DWORD)-1,Period);
-  if(!Type)
-  {
-    string strKeyText;
-    if(Key != KEY_NONE)
-     if(!KeyToText(Key,strKeyText))
-       strKeyText = L"";
-    VMStack.Push((const wchar_t *)strKeyText);
-    return !strKeyText.IsEmpty()?true:false;
-  }
-  if(Key == KEY_NONE)
-    Key=-1;
-  VMStack.Push((__int64)Key);
-  return Key != (DWORD)-1;
+	long Type=(long)VMStack.Pop().getInteger();
+	long Period=(long)VMStack.Pop().getInteger();
+	DWORD Key=WaitKey((DWORD)-1,Period);
+
+	if(!Type)
+	{
+		string strKeyText;
+		if(Key != KEY_NONE)
+			if(!KeyToText(Key,strKeyText))
+				strKeyText = L"";
+		VMStack.Push((const wchar_t *)strKeyText);
+		return !strKeyText.IsEmpty()?true:false;
+	}
+
+	if(Key == KEY_NONE)
+		Key=-1;
+	VMStack.Push((__int64)Key);
+	return Key != (DWORD)-1;
 }
 
 // n=min(n1,n2)
 static bool minFunc()
 {
-  TVar V2, V1;
-  VMStack.Pop(V2);
-  VMStack.Pop(V1);
-  VMStack.Push( V2 < V1 ? V2 : V1);
-  return true;
+	TVar V2, V1;
+	VMStack.Pop(V2);
+	VMStack.Pop(V1);
+	VMStack.Push( V2 < V1 ? V2 : V1);
+	return true;
 }
 
 // n=max(n1.n2)
 static bool maxFunc()
 {
-  TVar V2, V1;
-  VMStack.Pop(V2);
-  VMStack.Pop(V1);
-  VMStack.Push( V2 > V1  ? V2 : V1);
-  return true;
+	TVar V2, V1;
+	VMStack.Pop(V2);
+	VMStack.Pop(V1);
+	VMStack.Push( V2 > V1  ? V2 : V1);
+	return true;
 }
 
 // n=modFunc(n1,n2)
@@ -1764,110 +1765,110 @@ static bool modFunc()
 // n=iif(expression,n1,n2)
 static bool iifFunc()
 {
-  TVar V2, V1;
-  VMStack.Pop(V2);
-  VMStack.Pop(V1);
-  VMStack.Push( VMStack.Pop().getInteger() ? V1 : V2 );
-  return true;
+	TVar V2, V1;
+	VMStack.Pop(V2);
+	VMStack.Pop(V1);
+	VMStack.Push( VMStack.Pop().getInteger() ? V1 : V2 );
+	return true;
 }
 
 // N=index(S1,S2)
 static bool indexFunc()
 {
-  TVar S2, S1;
-  VMStack.Pop(S2);
-  VMStack.Pop(S1);
-  const wchar_t *s = S1.toString();
-  const wchar_t *p = S2.toString();
-  const wchar_t *i = StrStrI(s,p);
-  bool Ret= i ? true : false;
-  VMStack.Push(TVar((__int64)(i ? i-s : -1)));
-  return Ret;
+	TVar S2, S1;
+	VMStack.Pop(S2);
+	VMStack.Pop(S1);
+	const wchar_t *s = S1.toString();
+	const wchar_t *p = S2.toString();
+	const wchar_t *i = StrStrI(s,p);
+	bool Ret= i ? true : false;
+	VMStack.Push(TVar((__int64)(i ? i-s : -1)));
+	return Ret;
 }
 
 // S=rindex(S1,S2)
 static bool rindexFunc()
 {
-  TVar S2, S1;
-  VMStack.Pop(S2);
-  VMStack.Pop(S1);
-  const wchar_t *s = S1.toString();
-  const wchar_t *p = S2.toString();
-  const wchar_t *i = RevStrStrI(s,p);
-  bool Ret= i ? true : false;
-  VMStack.Push(TVar((__int64)(i ? i-s : -1)));
-  return Ret;
+	TVar S2, S1;
+	VMStack.Pop(S2);
+	VMStack.Pop(S1);
+	const wchar_t *s = S1.toString();
+	const wchar_t *p = S2.toString();
+	const wchar_t *i = RevStrStrI(s,p);
+	bool Ret= i ? true : false;
+	VMStack.Push(TVar((__int64)(i ? i-s : -1)));
+	return Ret;
 }
 
 // S=date(S)
 static bool dateFunc()
 {
-  TVar Val;
-  VMStack.Pop(Val);
-  const wchar_t *s = Val.toString();
-  bool Ret=false;
-  string strTStr;
-  if(MkStrFTime(strTStr,s))
-    Ret=true;
-  else
-    strTStr=L"";
-  VMStack.Push(TVar((const wchar_t*)strTStr));
-  return Ret;
+	TVar Val;
+	VMStack.Pop(Val);
+	const wchar_t *s = Val.toString();
+	bool Ret=false;
+	string strTStr;
+	if(MkStrFTime(strTStr,s))
+		Ret=true;
+	else
+		strTStr=L"";
+	VMStack.Push(TVar((const wchar_t*)strTStr));
+	return Ret;
 }
 
 // S=xlat(S)
 static bool xlatFunc()
 {
-  TVar Val;
-  VMStack.Pop(Val);
-  wchar_t *Str = (wchar_t *)Val.toString();
-  bool Ret=::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags) == NULL?false:true;
-  VMStack.Push(TVar((const wchar_t*)Str));
-  return Ret;
+	TVar Val;
+	VMStack.Pop(Val);
+	wchar_t *Str = (wchar_t *)Val.toString();
+	bool Ret=::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags) == NULL?false:true;
+	VMStack.Push(TVar((const wchar_t*)Str));
+	return Ret;
 }
 
 // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
 static bool promptFunc()
 {
-  TVar ValHistory;
-  VMStack.Pop(ValHistory);
-  TVar ValSrc;
-  VMStack.Pop(ValSrc);
-  DWORD Flags = (DWORD)VMStack.Pop().getInteger();
-  TVar ValPrompt;
-  VMStack.Pop(ValPrompt);
-  TVar ValTitle;
-  VMStack.Pop(ValTitle);
-  TVar Result(L"");
-  bool Ret=false;
+	TVar ValHistory;
+	VMStack.Pop(ValHistory);
+	TVar ValSrc;
+	VMStack.Pop(ValSrc);
+	DWORD Flags = (DWORD)VMStack.Pop().getInteger();
+	TVar ValPrompt;
+	VMStack.Pop(ValPrompt);
+	TVar ValTitle;
+	VMStack.Pop(ValTitle);
+	TVar Result(L"");
+	bool Ret=false;
 
-  if(!(ValTitle.isInteger() && !ValTitle.i()))
-  {
-    const wchar_t *history=NULL;
-    if(!(ValHistory.isInteger() && !ValHistory.i()))
-      history=ValHistory.s();
+	if(!(ValTitle.isInteger() && !ValTitle.i()))
+	{
+		const wchar_t *history=NULL;
+		if(!(ValHistory.isInteger() && !ValHistory.i()))
+			history=ValHistory.s();
 
-    const wchar_t *src=L"";
-    if(!(ValSrc.isInteger() && !ValSrc.i()))
-       src=ValSrc.s();
+		const wchar_t *src=L"";
+		if(!(ValSrc.isInteger() && !ValSrc.i()))
+			src=ValSrc.s();
 
-    const wchar_t *prompt=L"";
-    if(!(ValPrompt.isInteger() && !ValPrompt.i()))
-       prompt=ValPrompt.s();
+		const wchar_t *prompt=L"";
+		if(!(ValPrompt.isInteger() && !ValPrompt.i()))
+			prompt=ValPrompt.s();
 
-    const wchar_t *title=NullToEmpty(ValTitle.toString());
+		const wchar_t *title=NullToEmpty(ValTitle.toString());
 
-    string strDest;
+		string strDest;
 
-    if(GetString(title,prompt,history,src,strDest,NULL,Flags&~FIB_CHECKBOX,NULL,NULL))
-    {
-      Result=(const wchar_t *)strDest;
-      Result.toString();
-      Ret=true;
-    }
-  }
-  VMStack.Push(Result);
-  return Ret;
+		if(GetString(title,prompt,history,src,strDest,NULL,Flags&~FIB_CHECKBOX,NULL,NULL))
+		{
+			Result=(const wchar_t *)strDest;
+			Result.toString();
+			Ret=true;
+		}
+	}
+	VMStack.Push(Result);
+	return Ret;
 }
 
 // N=msgbox(["Title"[,"Text"[,flags]]])
@@ -2159,6 +2160,94 @@ static bool dlggetvalueFunc()
 	VMStack.Push(Ret);
 
 	return Ret.i()!=-1;
+}
+
+// N=Editor.Pos(Op,What[,Where])
+// Op: 0 - get, 1 - set
+static bool editorposFunc()
+{
+	TVar Ret(-1);
+	int Where = (int)VMStack.Pop().getInteger();
+	int What  = (int)VMStack.Pop().getInteger();
+	int Op    = (int)VMStack.Pop().getInteger();
+
+	if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	{
+		EditorInfo ei;
+		CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETINFO,&ei);
+		switch(Op)
+		{
+			case 0: // get
+			{
+				switch(What)
+				{
+					case 1: // CurLine
+						Ret=ei.CurLine+1;
+						break;
+					case 2: // CurPos
+						Ret=ei.CurPos+1;
+						break;
+					case 3: // CurTabPos
+						Ret=ei.CurTabPos+1;
+						break;
+					case 4: // TopScreenLine
+						Ret=ei.TopScreenLine+1;
+						break;
+					case 5: // LeftPos
+						Ret=ei.LeftPos+1;
+						break;
+					case 6: // Overtype
+						Ret=ei.Overtype;
+						break;
+				}
+				break;
+			}
+
+			case 1: // set
+			{
+				EditorSetPosition esp;
+				esp.CurLine=-1;
+				esp.CurPos=-1;
+				esp.CurTabPos=-1;
+				esp.TopScreenLine=-1;
+				esp.LeftPos=-1;
+				esp.Overtype=-1;
+				switch(What)
+				{
+					case 1: // CurLine
+						esp.CurLine=Where-1;
+						break;
+					case 2: // CurPos
+						esp.CurPos=Where-1;
+						break;
+					case 3: // CurTabPos
+						esp.CurTabPos=Where-1;
+						break;
+					case 4: // TopScreenLine
+						esp.TopScreenLine=Where-1;
+						break;
+					case 5: // LeftPos
+					{
+						int Delta=Where-1-ei.LeftPos;
+						esp.LeftPos=Where-1;
+						esp.CurPos=ei.CurPos+Delta;
+						break;
+					}
+					case 6: // Overtype
+						esp.Overtype=Where;
+						break;
+				}
+				int Result=CtrlObject->Plugins.CurEditor->EditorControl(ECTL_SETPOSITION,&esp);
+				if(Result)
+					CtrlObject->Plugins.CurEditor->EditorControl(ECTL_REDRAW,NULL);
+				Ret=Result;
+				break;
+			}
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i() != -1;
 }
 
 // OldVar=Editor.Set(Idx,Var)
@@ -2835,23 +2924,23 @@ static bool editorselFunc()
                 return 1
   */
 	TVar Ret(0ll);
-  TVar Opt; VMStack.Pop(Opt);
-  TVar Action; VMStack.Pop(Action);
+	TVar Opt; VMStack.Pop(Opt);
+	TVar Action; VMStack.Pop(Action);
 
-  int Mode=CtrlObject->Macro.GetMode();
+	int Mode=CtrlObject->Macro.GetMode();
 
-  Frame* CurFrame=FrameManager->GetCurrentFrame();
+	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
-  int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
-  if (CurFrame && CurFrame->GetType()==NeedType)
-  {
-    if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-      Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
-    else
-      Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
-  }
+	int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
+	if (CurFrame && CurFrame->GetType()==NeedType)
+	{
+		if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+		else
+			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,(void*)Action.toInteger(),Opt.i());
+	}
 
-  VMStack.Push(Ret);
+	VMStack.Push(Ret);
 
 	return Ret.i() == 1;
 }
@@ -3568,84 +3657,84 @@ done:
         goto begin;
     }
 
-    default:
-    {
-      static struct TMCode2Func{
-        DWORD Op;
-        bool (*Func)();
-      } MCode2Func[]={
-        {MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
-        {MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
-        {MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
-        {MCODE_F_MIN,minFunc},  // N=min(N1,N2)
-        {MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
-        {MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
-        {MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
-        {MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
-        {MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
-        {MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2)
-        {MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
-        {MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
-        {MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
-        {MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
-        {MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx)
-        {MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
-        {MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
-        {MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
-        {MCODE_F_ENVIRON,environFunc}, // S=env(S)
-        {MCODE_F_LEN,lenFunc},  // N=len(S)
-        {MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
-        {MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
-        {MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
-        {MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
-        {MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
-        {MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
-        {MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
-        {MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
-        {MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
-        {MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
-        {MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
-        {MCODE_F_STRING,stringFunc},  // S=string(V)
-        {MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
-        {MCODE_F_FLOAT,floatFunc}, // N=float(V)
-        {MCODE_F_INT,intFunc}, // N=int(V)
-        {MCODE_F_DATE,dateFunc},  // // S=date(S)
-        {MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
-        {MCODE_F_ABS,absFunc}, // N=abs(N)
-        {MCODE_F_ASC,ascFunc}, // N=asc(S)
-        {MCODE_F_CHR,chrFunc}, // S=chr(N)
-        {MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
-        {MCODE_F_KEY,keyFunc}, // S=key(V)
-        {MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
+		default:
+		{
+			static struct TMCode2Func{
+				DWORD Op;
+				bool (*Func)();
+			} MCode2Func[]={
+				{MCODE_F_WAITKEY,waitkeyFunc},  // V=waitkey([N,[T]])
+				{MCODE_F_ITOA,itowFunc}, // S=itoa(N[,radix])
+				{MCODE_F_ATOI,atoiFunc}, // N=atoi(S[,radix])
+				{MCODE_F_MIN,minFunc},  // N=min(N1,N2)
+				{MCODE_F_MOD,modFunc},  // N=mod(N1,N2)
+				{MCODE_F_MAX,maxFunc},  // N=max(N1,N2)
+				{MCODE_F_IIF,iifFunc},  // V=iif(Condition,V1,V2)
+				{MCODE_F_SUBSTR,substrFunc}, // S=substr(S,N1,N2)
+				{MCODE_F_TRIM,trimFunc}, // S=trim(S[,N])
+				{MCODE_F_RINDEX,rindexFunc}, // S=rindex(S1,S2)
+				{MCODE_F_INDEX,indexFunc}, // S=index(S1,S2)
+				{MCODE_F_PANELITEM,panelitemFunc},  // V=panelitem(Panel,Index,TypeInfo)
+				{MCODE_F_PANEL_SETPOS,panelsetposFunc}, // N=Panel.SetPos(panelType,fileName)
+				{MCODE_F_PANEL_SETPATH,panelsetpathFunc}, // N=panel.SetPath(panelType,pathName,fileName)
+				{MCODE_F_PANEL_SETPOSIDX,panelsetposidxFunc}, // N=Panel.SetPosIdx(panelType,Idx)
+				{MCODE_F_PANEL_FATTR,panelfattrFunc},         // N=Panel.FAttr(panelType,fileMask)
+				{MCODE_F_PANEL_FEXIST,panelfexistFunc},        // N=Panel.FExist(panelType,fileMask)
+				{MCODE_F_SLEEP,sleepFunc}, // N=Sleep(N)
+				{MCODE_F_ENVIRON,environFunc}, // S=env(S)
+				{MCODE_F_LEN,lenFunc},  // N=len(S)
+				{MCODE_F_UCASE,ucaseFunc}, // S=ucase(S1)
+				{MCODE_F_LCASE,lcaseFunc}, // S=lcase(S1)
+				{MCODE_F_FEXIST,fexistFunc},  // S=fexist(S)
+				{MCODE_F_FLOCK,flockFunc},  // N=FLock(N,N)
+				{MCODE_F_FSPLIT,fsplitFunc},  // S=fsplit(S,N)
+				{MCODE_F_FATTR,fattrFunc},   // N=fattr(S)
+				{MCODE_F_MSAVE,msaveFunc},   // N=msave(S)
+				{MCODE_F_DLG_GETVALUE,dlggetvalueFunc},        // V=Dlg.GetValue(ID,N)
+				{MCODE_F_EDITOR_POS,editorposFunc},// N=Editor.Pos(Op,What[,Where])
+				{MCODE_F_EDITOR_SEL,editorselFunc}, // V=Editor.Sel(Action[,Opt])
+				{MCODE_F_EDITOR_SET,editorsetFunc}, // N=Editor.Set(N,Var)
+				{MCODE_F_EDITOR_UNDO,editorundoFunc}, // V=Editor.Undo(N)
+				{MCODE_F_STRING,stringFunc},  // S=string(V)
+				{MCODE_F_CLIP,clipFunc}, // V=Clip(N[,S])
+				{MCODE_F_FLOAT,floatFunc}, // N=float(V)
+				{MCODE_F_INT,intFunc}, // N=int(V)
+				{MCODE_F_DATE,dateFunc},  // // S=date(S)
+				{MCODE_F_XLAT,xlatFunc}, // S=xlat(S)
+				{MCODE_F_ABS,absFunc}, // N=abs(N)
+				{MCODE_F_ASC,ascFunc}, // N=asc(S)
+				{MCODE_F_CHR,chrFunc}, // S=chr(N)
+				{MCODE_F_REPLACE,replaceFunc}, // S=replace(sS,sF,sR)
+				{MCODE_F_KEY,keyFunc}, // S=key(V)
+				{MCODE_F_CALLPLUGIN,callpluginFunc}, // V=callplugin(SysID[,param])
+			};
+			int J;
 
-      };
-      int J;
 			for(J=0; J < int(countof(MCode2Func)); ++J)
-        if(MCode2Func[J].Op == Key)
-        {
-          InternalInput++; // в процессе работы функций макросы отключаются
-          MCode2Func[J].Func();
-          InternalInput--;
-          break;
-        }
+				if(MCode2Func[J].Op == Key)
+				{
+					InternalInput++; // в процессе работы функций макросы отключаются
+					MCode2Func[J].Func();
+					InternalInput--;
+					break;
+				}
 
 			if(J >= int(countof(MCode2Func)))
-      {
-        DWORD Err=0;
-        tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
-        if(!Err)
-          VMStack.Push(tmpVar);
-        else
-        {
-          break; // клавиши будем возвращать
-        }
-      }
-      goto begin;
+			{
+				DWORD Err=0;
+				tmpVar=FARPseudoVariable(MR->Flags, Key, Err);
+				if(!Err)
+					VMStack.Push(tmpVar);
+				else
+				{
+					break; // клавиши будем возвращать
+				}
+			}
+			goto begin;
 
-    } // END default
+		} // END default
 
-
-  } // END: switch(Key)
+	} // END: switch(Key)
 
 return_func:
   if(Work.KeyProcess && (Key&KEY_ALTDIGIT)) // "подтасовка" фактов ;-)
@@ -5313,12 +5402,11 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
 */
 BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
-  if(Work.Executing && Work.MacroWORK)
-  {
-    return (Work.MacroWORK->Flags&Flags)?TRUE:FALSE;
-  }
-  return(FALSE);
-
+	if(Work.Executing && Work.MacroWORK)
+	{
+		return (Work.MacroWORK->Flags&Flags)?TRUE:FALSE;
+	}
+	return(FALSE);
 }
 
 /*
@@ -5327,161 +5415,160 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 */
 int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 {
-  if(KeyPos && RBuf)
-  {
-    *KeyPos=Work.Executing?Work.ExecLIBPos:0;
+	if(KeyPos && RBuf)
+	{
+		*KeyPos=Work.Executing?Work.ExecLIBPos:0;
 		memset(RBuf,0,sizeof(MacroRecord));
-    if(Recording == MACROMODE_NOMACRO)
-    {
-      if(Work.Executing)
-      {
+		if(Recording == MACROMODE_NOMACRO)
+		{
+			if(Work.Executing)
+			{
 				memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(MacroRecord)); //????
-        return Work.Executing;
-      }
+				return Work.Executing;
+			}
 			memset(RBuf,0,sizeof(MacroRecord));
-      return MACROMODE_NOMACRO;
-    }
+			return MACROMODE_NOMACRO;
+		}
 		RBuf->BufferSize=RecBufferSize;
 		RBuf->Buffer=RecBuffer;
-    return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
-  }
-  return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
+		return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
+	}
+	return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
 }
 
-static int __cdecl SortMacros(const MacroRecord *el1,
-                           const MacroRecord *el2)
+static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)
 {
-  int Mode1, Mode2;
-  if((Mode1=(el1->Flags&MFLAGS_MODEMASK)) == (Mode2=(el2->Flags&MFLAGS_MODEMASK)))
-    return 0;
-  if(Mode1 < Mode2)
-    return -1;
-  return 1;
+	int Mode1, Mode2;
+	if((Mode1=(el1->Flags&MFLAGS_MODEMASK)) == (Mode2=(el2->Flags&MFLAGS_MODEMASK)))
+		return 0;
+	if(Mode1 < Mode2)
+		return -1;
+	return 1;
 }
 
 // Сортировка элементов списка
 void KeyMacro::Sort()
 {
-  typedef int (__cdecl *qsort_fn)(const void*,const void*);
-  // сортируем
+	typedef int (__cdecl *qsort_fn)(const void*,const void*);
+	// сортируем
 	far_qsort(MacroLIB,MacroLIBCount,sizeof(MacroRecord),(qsort_fn)SortMacros);
-  // перестраиваем индекс начал
-  int CurMode=MACRO_OTHER;
-  memset(IndexMode,0,sizeof(IndexMode));
+	// перестраиваем индекс начал
+	int CurMode=MACRO_OTHER;
+	memset(IndexMode,0,sizeof(IndexMode));
 	for(int I=0;I<MacroLIBCount;I++)
-  {
+	{
 		int J=MacroLIB[I].Flags&MFLAGS_MODEMASK;
-    if(CurMode != J)
-    {
-      IndexMode[J][0]=I;
-      CurMode=J;
-    }
-    IndexMode[J][1]++;
-  }
+		if(CurMode != J)
+		{
+			IndexMode[J][0]=I;
+			CurMode=J;
+		}
+		IndexMode[J][1]++;
+	}
 
-//_SVS(for(I=0; I < countof(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
+	//_SVS(for(I=0; I < countof(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
 
 DWORD KeyMacro::GetOpCode(MacroRecord *MR,int PC)
 {
-  DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)(DWORD_PTR)MR->Buffer;
-  return OpCode;
+	DWORD OpCode=(MR->BufferSize > 1)?MR->Buffer[PC]:(DWORD)(DWORD_PTR)MR->Buffer;
+	return OpCode;
 }
 
 // кинуть OpCode в буфер. Возвращает предыдущее значение
 DWORD KeyMacro::SetOpCode(MacroRecord *MR,int PC,DWORD OpCode)
 {
-  DWORD OldOpCode;
-  if(MR->BufferSize > 1)
-  {
-    OldOpCode=MR->Buffer[PC];
-    MR->Buffer[PC]=OpCode;
-  }
-  else
-  {
-    OldOpCode=(DWORD)(DWORD_PTR)MR->Buffer;
-    MR->Buffer=(DWORD*)(DWORD_PTR)OpCode;
-  }
-  return OldOpCode;
+	DWORD OldOpCode;
+	if(MR->BufferSize > 1)
+	{
+		OldOpCode=MR->Buffer[PC];
+		MR->Buffer[PC]=OpCode;
+	}
+	else
+	{
+		OldOpCode=(DWORD)(DWORD_PTR)MR->Buffer;
+		MR->Buffer=(DWORD*)(DWORD_PTR)OpCode;
+	}
+	return OldOpCode;
 }
 
 // Вот это лечит вот ЭТО:
 // BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
 int KeyMacro::IsExecutingLastKey()
 {
-  if(Work.Executing && Work.MacroWORK)
-  {
-    return (Work.ExecLIBPos == Work.MacroWORK->BufferSize-1);
-  }
-  return FALSE;
+	if(Work.Executing && Work.MacroWORK)
+	{
+		return (Work.ExecLIBPos == Work.MacroWORK->BufferSize-1);
+	}
+	return FALSE;
 }
 
 void KeyMacro::DropProcess()
 {
-  if(Work.Executing)
-  {
-    if(LockScr) delete LockScr;
-    LockScr=NULL;
-    UsedInternalClipboard=0; //??
-    Work.Executing=MACROMODE_NOMACRO;
-    ReleaseWORKBuffer();
-  }
+	if(Work.Executing)
+	{
+		if(LockScr) delete LockScr;
+		LockScr=NULL;
+		UsedInternalClipboard=0; //??
+		Work.Executing=MACROMODE_NOMACRO;
+		ReleaseWORKBuffer();
+	}
 }
 
 bool checkMacroConst(const wchar_t *name)
 {
-   return !varLook(glbConstTable, name)?false:true;
+	return !varLook(glbConstTable, name)?false:true;
 }
 
 void initMacroVarTable(int global)
 {
-  if(global)
-  {
-    initVTable(glbVarTable);
-    initVTable(glbConstTable); //???
-  }
+	if(global)
+	{
+		initVTable(glbVarTable);
+		initVTable(glbConstTable); //???
+	}
 }
 
 void doneMacroVarTable(int global)
 {
-  if(global)
-  {
-    deleteVTable(glbVarTable);
-    deleteVTable(glbConstTable); //???
-  }
+	if(global)
+	{
+		deleteVTable(glbVarTable);
+		deleteVTable(glbConstTable); //???
+	}
 }
 
 BOOL KeyMacro::GetMacroParseError(string *ErrMsg1,string *ErrMsg2,string *ErrMsg3)
 {
-  return __getMacroParseError(ErrMsg1,ErrMsg2,ErrMsg3);
+	return __getMacroParseError(ErrMsg1,ErrMsg2,ErrMsg3);
 }
 
 // это OpCode (за исключением MCODE_OP_ENDKEYS)?
 bool KeyMacro::IsOpCode(DWORD p)
 {
-  return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
+	return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
 }
 
 static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data)
 {
-  LONG Ret=-1;
-  if(wcschr(Data,L'\n'))
-  {
-    int Len=StrLength(Data)+2;
-    wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
-    if(ptrSrc)
-    {
-      wcscpy(ptrSrc,Data);
-      for(int J=0; ptrSrc[J]; ++J)
-        if(ptrSrc[J] == L'\n')
-          ptrSrc[J]=0;
-      ptrSrc[Len-1]=0;
-      Ret=SetRegKey(Key,ValueName,ptrSrc,(DWORD)Len*sizeof(wchar_t),REG_MULTI_SZ);
-      xf_free(ptrSrc);
-    }
-  }
-  else
-    Ret=SetRegKey(Key,ValueName,Data);
+	LONG Ret=-1;
+	if(wcschr(Data,L'\n'))
+	{
+		int Len=StrLength(Data)+2;
+		wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
+		if(ptrSrc)
+		{
+			wcscpy(ptrSrc,Data);
+			for(int J=0; ptrSrc[J]; ++J)
+				if(ptrSrc[J] == L'\n')
+					ptrSrc[J]=0;
+			ptrSrc[Len-1]=0;
+			Ret=SetRegKey(Key,ValueName,ptrSrc,(DWORD)Len*sizeof(wchar_t),REG_MULTI_SZ);
+			xf_free(ptrSrc);
+		}
+	}
+	else
+		Ret=SetRegKey(Key,ValueName,Data);
 
-  return Ret;
+	return Ret;
 }
