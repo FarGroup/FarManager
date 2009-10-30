@@ -2802,6 +2802,10 @@ MListJunction
 "Связь"
 "Junction"
 
+MListVolMount
+"Том"
+"Volume"
+
 MListBytes
 "Б"
 "B"

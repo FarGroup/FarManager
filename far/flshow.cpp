@@ -18,6 +18,7 @@ flshow.cpp
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
+#include "flink.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
@@ -969,6 +970,19 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         break;
                       case IO_REPARSE_TAG_MOUNT_POINT:
                         PtrName=MSG(MListJunction);
+                        {
+                            char JuncName[NM*2];
+                            DWORD ReparseTag=0;
+                            DWORD LenJunction=GetReparsePointInfo(CurPtr->Name,
+                                                  JuncName, sizeof(JuncName),
+                                                  &ReparseTag);
+                            //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+                            int offset = 0;
+                            if(!strncmp(JuncName,"\\??\\", sizeof("\\??\\")-1))
+                                offset += 4;
+                            if(IsLocalVolumePath(JuncName) && !JuncName[49])
+                              PtrName=MSG(MListVolMount);
+                        }
                         break;
                       }
                     }
