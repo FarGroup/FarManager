@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "flink.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
@@ -1023,6 +1024,16 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         break;
                       case IO_REPARSE_TAG_MOUNT_POINT:
                         PtrName=MSG(MListJunction);
+                        {
+                            string strJuncName;
+                            if(GetReparsePointInfo(ListData[ListPos]->strName,
+                                                   strJuncName))
+                            {
+                              NormalizeSymlinkName(strJuncName);
+                              if(IsLocalVolumeRootPath(strJuncName))
+                                PtrName=MSG(MListVolMount);
+                            }
+                        }
                         break;
                       }
                     }
