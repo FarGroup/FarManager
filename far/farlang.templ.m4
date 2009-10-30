@@ -8,7 +8,7 @@ FarRus.lng Russian "Russian (Русский)"
 #id:1 language file name, language name, language description
 FarEng.lng English "English"
 #id:2 language file name, language name, language description
-FarCze.lng Czech "Czech (Cestina)"
+FarCze.lng Czech "Czech (Čeština)"
 #id:3 language file name, language name, language description
 FarGer.lng German "German (Deutsch)"
 #id:4 language file name, language name, language description
@@ -107,7 +107,7 @@ l:
 "Cancel"
 "Storno"
 "Abbrechen"
-"Megsem"
+"Mégsem"
 "Anuluj"
 
 MRetry
@@ -115,23 +115,23 @@ MRetry
 "Retry"
 "Znovu"
 "Wiederholen"
-"Ujra"
-"Ponow"
+"Újra"
+"Ponów"
 
 MSkip
 "Пропустить"
 "Skip"
-"Preskocit"
-"Uberspringen"
+"Přeskočit"
+"Überspringen"
 "Kihagy"
-"Omin"
+"Omiń"
 
 MAbort
 "Прервать"
 "Abort"
-"Zrusit"
+"Zrušit"
 "Abbrechen"
-"Megszakit"
+"Megszakít"
 "Zaniechaj"
 
 MIgnore
@@ -139,21 +139,21 @@ MIgnore
 "Ignore"
 "Ignorovat"
 "Ignorieren"
-"Megis"
+"Mégis"
 "Zignoruj"
 
 MDelete
 "Удалить"
 "Delete"
 "Smazat"
-"Loschen"
-"Torol"
-"Usun"
+"Löschen"
+"Töröl"
+"Usuń"
 
 MSplit
 "Разделить"
 "Split"
-"Rozdelit"
+"Rozdělit"
 "Zerteilen"
 "Feloszt"
 "Podziel"
@@ -163,8 +163,8 @@ MRemove
 "Remove"
 "Odstranit"
 "Entfernen"
-"Eltavolit"
-"Usun"
+"Eltávolít"
+"Usuń"
 
 MHCancel
 l:
@@ -172,7 +172,7 @@ l:
 "&Cancel"
 "&Storno"
 "&Abbrechen"
-"Meg&sem"
+"Még&sem"
 "&Anuluj"
 
 MHRetry
@@ -180,31 +180,31 @@ MHRetry
 "&Retry"
 "&Znovu"
 "&Wiederholen"
-"U&jra"
-"&Ponow"
+"Ú&jra"
+"&Ponów"
 
 MHSkip
 "П&ропустить"
 "&Skip"
-"&Preskocit"
-"Uber&springen"
+"&Přeskočit"
+"Über&springen"
 "Ki&hagy"
-"&Omin"
+"&Omiń"
 
 MHSkipAll
 "Пропустить &все"
 "S&kip all"
-"Preskocit &vse"
-"Alle ubersprin&gen"
+"Přeskočit &vše"
+"Alle übersprin&gen"
 "Kihagy &mind"
-"Omin &wszystkie"
+"Omiń &wszystkie"
 
 MHAbort
 "Прер&вать"
 "&Abort"
-"Zr&usit"
+"Zr&ušit"
 "&Abbrechen"
-"Megsza&kit"
+"Megsza&kít"
 "&Zaniechaj"
 
 MHIgnore
@@ -212,29 +212,29 @@ MHIgnore
 "&Ignore"
 "&Ignorovat"
 "&Ignorieren"
-"Me&gis"
+"Mé&gis"
 "Z&ignoruj"
 
 MHDelete
 "&Удалить"
 "&Delete"
 "S&mazat"
-"&Loschen"
-"&Torol"
-"&Usun"
+"&Löschen"
+"&Töröl"
+"&Usuń"
 
 MHRemove
 "&Удалить"
 "R&emove"
 "&Odstranit"
 "Ent&fernen"
-"Elta&volit"
-"U&sun"
+"Eltá&volít"
+"U&suń"
 
 MHSplit
 "Раз&делить"
 "Sp&lit"
-"&Rozdelit"
+"&Rozdělit"
 "&Zerteilen"
 "Fel&oszt"
 "Po&dziel"
@@ -243,10 +243,10 @@ MWarning
 l:
 "Предупреждение"
 "Warning"
-"Varovani"
+"Varování"
 "Warnung"
 "Figyelem"
-"Ostrzezenie"
+"Ostrzeżenie"
 
 MError
 "Ошибка"
@@ -254,7 +254,7 @@ MError
 "Chyba"
 "Fehler"
 "Hiba"
-"Blad"
+"Błąd"
 
 MQuit
 l:
@@ -262,16 +262,16 @@ l:
 "Quit"
 "Konec"
 "Beenden"
-"Kilepes"
-"Zakoncz"
+"Kilépés"
+"Zakończ"
 
 MAskQuit
 "Вы хотите завершить работу в FAR?"
 "Do you want to quit FAR?"
-"Opravdu chcete ukoncit FAR?"
+"Opravdu chcete ukončit FAR?"
 "Wollen Sie FAR beenden?"
-"Biztosan kilep a FAR-bol?"
-"Czy chcesz zakonczyc prace z FARem?"
+"Biztosan kilép a FAR-ból?"
+"Czy chcesz zakończyć pracę z FARem?"
 
 MF1
 l:
@@ -280,15 +280,15 @@ l://functional keys - 6 characters max
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MF2
 "ПользМ"
 "UserMn"
-"UzivMn"
+"UživMn"
 "BenuMn"
-"FhMenu"
+"FhMenü"
 "Menu"
 
 MF3
@@ -296,7 +296,7 @@ MF3
 "View"
 "Zobraz"
 "Betr."
-"Megnez"
+"Megnéz"
 "Zobacz"
 
 MF4
@@ -310,15 +310,15 @@ MF4
 MF5
 "Копир"
 "Copy"
-"Kopir."
+"Kopír."
 "Kopier"
-"Masol"
+"Másol"
 "Kopiuj"
 
 MF6
 "Перен"
 "RenMov"
-"PrjPrs"
+"PřjPřs"
 "Versch"
 "AtnMoz"
 "ZmNazw"
@@ -328,16 +328,16 @@ MF7
 "MkFold"
 "VytAdr"
 "VerzEr"
-"UjMapp"
+"ÚjMapp"
 "UtwKat"
 
 MF8
 "Удален"
 "Delete"
 "Smazat"
-"Losch."
-"Torol"
-"Usun"
+"Lösch."
+"Töröl"
+"Usuń"
 
 MF9
 "КонфМн"
@@ -352,7 +352,7 @@ MF10
 "Quit"
 "Konec"
 "Beend."
-"Kilep"
+"Kilép"
 "Koniec"
 
 MF11
@@ -368,14 +368,14 @@ MF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MAltF1
 l:
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -383,7 +383,7 @@ l:
 MAltF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -393,7 +393,7 @@ MAltF3
 "View.."
 "Zobr.."
 "Betr.."
-"Nezo.."
+"Néző.."
 "Zobacz"
 
 MAltF4
@@ -417,8 +417,8 @@ MAltF6
 "MkLink"
 "VytLnk"
 "LinkEr"
-"UjLink"
-"Dowiaz"
+"ÚjLink"
+"Dowiąż"
 
 MAltF7
 "Искать"
@@ -426,14 +426,14 @@ MAltF7
 "Hledat"
 "Suchen"
 "Keres"
-"Znajdz"
+"Znajdź"
 
 MAltF8
 "Истор"
 "Histry"
 "Histor"
 "Histor"
-"ParElo"
+"ParElő"
 "Histor"
 
 MAltF9
@@ -457,7 +457,7 @@ MAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "HsPodg"
 
 MAltF12
@@ -465,14 +465,14 @@ MAltF12
 "FoldHs"
 "AdrsHs"
 "BearHs"
-"MapElo"
+"MapElő"
 "HsKat"
 
 MCtrlF1
 l:
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -480,7 +480,7 @@ l:
 MCtrlF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -488,15 +488,15 @@ MCtrlF2
 MCtrlF3
 "Имя   "
 "Name  "
-"Nazev "
+"Název "
 "Name  "
-"Nev"
+"Név"
 "Nazwa"
 
 MCtrlF4
 "Расшир"
 "Extens"
-"Pripon"
+"Přípon"
 "Erweit"
 "Kiterj"
 "Rozsz"
@@ -505,22 +505,22 @@ MCtrlF5
 "Модиф"
 "Modifn"
 "Modifk"
-"Verand"
-"ModIdo"
+"Veränd"
+"MódIdő"
 "Modyf"
 
 MCtrlF6
 "Размер"
 "Size"
 "Veliko"
-"Gro?e"
-"Meret"
+"Größe"
+"Méret"
 "Rozm"
 
 MCtrlF7
 "Несорт"
 "Unsort"
-"Neradi"
+"Neřadi"
 "Unsort"
 "NincsR"
 "BezSor"
@@ -528,7 +528,7 @@ MCtrlF7
 MCtrlF8
 "Создан"
 "Creatn"
-"Vytvor"
+"Vytvoř"
 "Erstel"
 "Keletk"
 "Utworz"
@@ -536,10 +536,10 @@ MCtrlF8
 MCtrlF9
 "Доступ"
 "Access"
-"Pristu"
+"Přístu"
 "Zugrif"
-"Hozzaf"
-"Uzycie"
+"Hozzáf"
+"Użycie"
 
 MCtrlF10
 "Описан"
@@ -555,12 +555,12 @@ MCtrlF11
 "Vlastn"
 "Besitz"
 "Tulajd"
-"Wlasc"
+"Właśc"
 
 MCtrlF12
 "Сорт"
 "Sort"
-"Tridit"
+"Třídit"
 "Sort."
 "RendMd"
 "Sortuj"
@@ -569,9 +569,9 @@ MShiftF1
 l:
 "Добавл"
 "Add"
-"Pridat"
+"Přidat"
 "Hinzu"
-"Tomort"
+"Tömört"
 "Dodaj"
 
 MShiftF2
@@ -585,9 +585,9 @@ MShiftF2
 MShiftF3
 "АрхКом"
 "ArcCmd"
-"ArcPri"
+"ArcPří"
 "ArcBef"
-"TomPar"
+"TömPar"
 "Polec"
 
 MShiftF4
@@ -595,23 +595,23 @@ MShiftF4
 "Edit.."
 "Edit.."
 "Erst.."
-"UjFajl"
+"ÚjFájl"
 "Edytuj"
 
 MShiftF5
 "Копир"
 "Copy"
-"Kopir."
+"Kopír."
 "Kopier"
-"Masol"
+"Másol"
 "Kopiuj"
 
 MShiftF6
 "Переим"
 "Rename"
-"Prejme"
+"Přejme"
 "Umbene"
-"AtnMoz"
+"ÁtnMoz"
 "ZmNazw"
 
 MShiftF7
@@ -626,16 +626,16 @@ MShiftF8
 "Удален"
 "Delete"
 "Smazat"
-"Losch."
-"Torol"
-"Usun"
+"Lösch."
+"Töröl"
+"Usuń"
 
 MShiftF9
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MShiftF10
@@ -643,7 +643,7 @@ MShiftF10
 "Last"
 "Posled"
 "Letzte"
-"UtsMnu"
+"UtsMnü"
 "Ostatn"
 
 MShiftF11
@@ -783,8 +783,8 @@ MCtrlShiftF3
 "View"
 "Zobraz"
 "Betr"
-"Megnez"
-"Podglad"
+"Megnéz"
+"Podgląd"
 
 MCtrlShiftF4
 "Редакт"
@@ -1061,39 +1061,39 @@ l:
 "History"
 "Historie"
 "Historie der letzten Befehle"
-"Parancs elozmenyek"
+"Parancs előzmények"
 "Historia"
 
 MFolderHistoryTitle
 "История папок"
 "Folders history"
-"Historie adresaru"
+"Historie adresářů"
 "Zuletzt besuchte Ordner"
-"Mappa elozmenyek"
-"Historia katalogow"
+"Mappa előzmények"
+"Historia katalogów"
 
 MViewHistoryTitle
 "История просмотра"
 "File view history"
-"Historie prohlizeni souboru"
+"Historie prohlížení souborů"
 "Zuletzt betrachtete Dateien"
-"Fajl elozmenyek"
-"Historia podgladu plikow"
+"Fájl előzmények"
+"Historia podglądu plików"
 
 MViewHistoryIsCreate
 "Создать файл?"
 "Create file?"
-"Vytvorit soubor?"
+"Vytvořit soubor?"
 "Datei erstellen?"
-"Fajl letrehozasa?"
-"Utworzyc plik?"
+"Fájl létrehozása?"
+"Utworzyć plik?"
 
 MHistoryView
 "Просмотр"
 "View"
 "Zobrazit"
 "Betr"
-"Nezett"
+"Nézett"
 "Zobacz"
 
 MHistoryEdit
@@ -1107,7 +1107,7 @@ MHistoryEdit
 MHistoryExt
 "Внешний "
 "Ext."
-"Rozsireni"
+"Rozšíření"
 "Ext."
 "Kit."
 "Ext."
@@ -1116,300 +1116,300 @@ MHistoryClear
 l:
 "История будет полностью очищена. Продолжить?"
 "All records in the history will be deleted. Continue?"
-"Vsechny zaznamy v historii budou smazany. Pokracovat?"
-"Die gesamte Historie wird geloscht. Fortfahren?"
-"Az elozmenyek minden eleme torlodik. Folytatja?"
-"Wszystkie wpisy historii beda usuniete. Kontynuowac?"
+"Všechny záznamy v historii budou smazány. Pokračovat?"
+"Die gesamte Historie wird gelöscht. Fortfahren?"
+"Az előzmények minden eleme törlődik. Folytatja?"
+"Wszystkie wpisy historii będą usunięte. Kontynuować?"
 
 MClear
 "&Очистить"
 "&Clear history"
 "&Vymazat historii"
-"Historie &loschen"
-"Elo&zmenyek torlese"
-"&Czysc historie"
+"Historie &löschen"
+"Elő&zmények törlése"
+"&Czyść historię"
 
 MConfigSystemTitle
 l:
 "Системные параметры"
 "System settings"
-"Nastaveni systemu"
+"Nastavení systému"
 "Grundeinstellungen"
-"Rendszer beallitasok"
+"Rendszer beállítások"
 "Ustawienia systemowe"
 
 MConfigRO
 "&Снимать атрибут R/O c CD файлов"
 "&Clear R/O attribute from CD files"
-"Z&rusit atribut R/O u souboru na CD"
+"Z&rušit atribut R/O u souborů na CD"
 "Schreibschutz von CD-Dateien ent&fernen"
-"&Csak olvashato attr. torlese CD fajlokrol"
-"Wyczysc atrybut &R/O przy kopiowaniu z CD"
+"&Csak olvasható attr. törlése CD fájlokról"
+"Wyczyść atrybut &R/O przy kopiowaniu z CD"
 
 MConfigRecycleBin
 "Удалять в &Корзину"
 "&Delete to Recycle Bin"
-"&Mazat do Kose"
-"In Papierkorb &loschen"
-"&Torles a Lomtarba"
+"&Mazat do Koše"
+"In Papierkorb &löschen"
+"&Törlés a Lomtárba"
 "&Usuwaj do Kosza"
 
 MConfigRecycleBinLink
 "У&далять символические ссылки"
 "Delete symbolic &links"
-"Mazat symbolicke &linky"
-"Symbolische L&inks loschen"
-"Szimbolikus l&inkek torlese"
-"Usun &linki symboliczne"
+"Mazat symbolické &linky"
+"Symbolische L&inks löschen"
+"Szimbolikus l&inkek törlése"
+"Usuń &linki symboliczne"
 
 MConfigSystemCopy
 "Использовать систе&мную функцию копирования"
 "Use sys&tem copy routine"
-"Pouzivat kopirovaci rutiny sys&temu"
+"Používat kopírovací rutiny sys&tému"
 "Sys&temeigene Kopierroutine verwenden"
-"&Masolashoz a rendszerrutin hasznalata"
-"Uzywaj &systemowej procedury kopiowania"
+"&Másoláshoz a rendszerrutin használata"
+"Używaj &systemowej procedury kopiowania"
 
 MConfigCopySharing
 "Копировать открытые для &записи файлы"
 "Copy files opened for &writing"
-"Kopirovat soubory otevrene pro &zapis"
-"Zum Schreiben geoffnete Dateien &kopieren"
-"Irasra megnyitott &fajlok masolhatok"
+"Kopírovat soubory otevřené pro &zápis"
+"Zum Schreiben geöffnete Dateien &kopieren"
+"Írásra megnyitott &fájlok másolhatók"
 "Kopiuj pliki otwarte do zap&isu"
 
 MConfigScanJunction
 "Ск&анировать символические ссылки"
 "Scan s&ymbolic links"
-"Prohledavat s&ymbolicke linky"
+"Prohledávat s&ymbolické linky"
 "S&ymbolische Links scannen"
-"Szimbolikus linkek &vizsgalata"
+"Szimbolikus linkek &vizsgálata"
 "Skanuj linki s&ymboliczne"
 
 MConfigCreateUppercaseFolders
 "Создавать &папки заглавными буквами"
 "Create folders in &uppercase"
-"Vytvaret adresare &velkymi pismeny"
-"Ordner in Gro?schreib&ung erstellen"
-"Mappak letrehozasa &NAGYBETUKKEL"
-"Nazwy katalogow &WIELKIMI LITERAMI"
+"Vytvářet adresáře &velkými písmeny"
+"Ordner in Großschreib&ung erstellen"
+"Mappák létrehozása &NAGYBETŰKKEL"
+"Nazwy katalogów &WIELKIMI LITERAMI"
 
 MConfigInactivity
 "&Время бездействия"
 "&Inactivity time"
-"&Doba necinnosti"
-"Inaktivitats&zeit"
-"A FAR kile&p"
-"Czas &bezczynnosci"
+"&Doba nečinnosti"
+"Inaktivitäts&zeit"
+"A FAR kilé&p"
+"Czas &bezczynności"
 
 MConfigInactivityMinutes
 "минут"
 "minutes"
 "minut"
 "Minuten"
-"perc tetlenseg utan"
+"perc tétlenség után"
 "&minut"
 
 MConfigSaveHistory
 "Сохранять &историю команд"
 "Save commands &history"
-"Ukladat historii &prikazu"
+"Ukládat historii &příkazů"
 "&Befehlshistorie speichern"
-"Parancs elo&zmenyek mentese"
-"Zapisz historie &polecen"
+"Parancs elő&zmények mentése"
+"Zapisz historię &poleceń"
 
 MConfigSaveFoldersHistory
 "Сохранять историю п&апок"
 "Save &folders history"
-"Ukladat historii &adresaru"
+"Ukládat historii &adresářů"
 "&Ordnerhistorie speichern"
-"M&appa elozmenyek mentese"
-"Zapisz historie &katalogow"
+"M&appa előzmények mentése"
+"Zapisz historię &katalogów"
 
 MConfigSaveViewHistory
 "Сохранять историю п&росмотра и редактора"
 "Save &view and edit history"
-"Ukladat historii Zobraz a Editu&j"
+"Ukládat historii Zobraz a Editu&j"
 "Betrachter/&Editor-Historie speichern"
-"Nezoke es &szerkeszto elozmenyek mentese"
-"Zapisz historie podgladu i &edycji"
+"Nézőke és &szerkesztő előzmények mentése"
+"Zapisz historię podglądu i &edycji"
 
 MConfigRegisteredTypes
 "Использовать стандартные &типы файлов"
 "Use Windows &registered types"
-"Pouzivat regi&strovane typy Windows"
+"Používat regi&strované typy Windows"
 "&Registrierte Windows-Dateitypen verwenden"
-"&Windows reg. fajltipusok hasznalata"
-"Uzyj zare&jestrowanych typow Windows"
+"&Windows reg. fájltípusok használata"
+"Użyj zare&jestrowanych typów Windows"
 
 MConfigCloseCDGate
 "Автоматически монтироват&ь CDROM"
 "CD drive auto &mount"
-"Automaticke pr&ipojeni CD disku"
-"CD-Laufwerk auto&matisch schlie?en"
-"CD talca a&utomatikus behuzasa"
+"Automatické př&ipojení CD disků"
+"CD-Laufwerk auto&matisch schließen"
+"CD tálca a&utomatikus behúzása"
 "&Montuj CD automatycznie"
 
 MConfigPersonalPath
 "Путь к персональным п&лагинам:"
 "&Path for personal plugins:"
-"&Cesta k vlastnim pluginum:"
-"&Pfad fur eigene Plugins:"
-"Sajat plu&ginek utvonala:"
-"S&ciezka do wlasnych pluginow:"
+"&Cesta k vlastním pluginům:"
+"&Pfad für eigene Plugins:"
+"Saját plu&ginek útvonala:"
+"Ś&cieżka do własnych pluginów:"
 
 MConfigAutoSave
 "Автозапись кон&фигурации"
 "Auto &save setup"
-"Automaticke ukladani &nastaveni"
+"Automatické ukládaní &nastavení"
 "Setup automatisch &"speichern"
-"B&eallitasok automatikus mentese"
+"B&eállítások automatikus mentése"
 "Automatycznie &zapisuj ustawienia"
 
 MConfigPanelTitle
 l:
 "Настройки панели"
 "Panel settings"
-"Nastaveni panelu"
+"Nastavení panelů"
 "Panels einrichten"
-"Panel beallitasok"
+"Panel beállítások"
 "Ustawienia panelu"
 
 MConfigHidden
 "Показывать скр&ытые и системные файлы"
 "Show &hidden and system files"
-"Ukazat &skryte a systemove soubory"
+"Ukázat &skryté a systémové soubory"
 "&Versteckte und Systemdateien anzeigen"
-"&Rejtett es rendszerfajlok mutatva"
+"&Rejtett és rendszerfájlok mutatva"
 "Pokazuj pliki &ukryte i systemowe"
 
 MConfigHighlight
 "&Раскраска файлов"
 "Hi&ghlight files"
-"Zvy&raznovat soubory"
+"Zvý&razňovat soubory"
 "Dateien mark&ieren"
-"Fa&jlok kiemelese"
-"W&yrozniaj pliki"
+"Fá&jlok kiemelése"
+"W&yróżniaj pliki"
 
 MConfigAutoChange
 "&Автосмена папки"
 "&Auto change folder"
-"&Automaticky menit adresar"
+"&Automaticky měnit adresář"
 "Ordner &automatisch wechseln (Baumansicht)"
-"&Automatikus mappavaltas"
+"&Automatikus mappaváltás"
 "&Automatycznie zmieniaj katalog"
 
 MConfigSelectFolders
 "Пометка &папок"
 "Select &folders"
-"Vybirat a&dresare"
-"&Ordner auswahlen"
-"A ma&ppak is kijelolhetok"
+"Vybírat a&dresáře"
+"&Ordner auswählen"
+"A ma&ppák is kijelölhetők"
 "Zaznaczaj katalo&gi"
 
 MConfigSortFolderExt
 "Сортировать имена папок по рас&ширению"
 "Sort folder names by e&xtension"
-"Radit adresare podle pripony"
+"Řadit adresáře podle přípony"
 "Ordner nach Er&weiterung sortieren"
-"Mappak is rendezhetok &kiterjesztes szerint"
-"Sortuj nazwy katalogow wg r&ozszerzen"
+"Mappák is rendezhetők &kiterjesztés szerint"
+"Sortuj nazwy katalogów wg r&ozszerzeń"
 
 MConfigReverseSort
 "Разрешить &обратную сортировку"
 "Allow re&verse sort modes"
-"Do&volit zmenu smeru razeni"
+"Do&volit změnu směru řazení"
 "&Umgekehrte Sortiermodi zulassen"
-"Fordi&tott rendezes engedelyezese"
-"Wlacz &mozliwosc odwrotnego sortowania"
+"Fordí&tott rendezés engedélyezése"
+"Włącz &możliwość odwrotnego sortowania"
 
 MConfigAutoUpdateLimit
 "Отключать автооб&новление панелей,"
 "&Disable automatic update of panels"
-"Vypnout a&utomatickou aktualizaci panelu"
+"Vypnout a&utomatickou aktualizaci panelů"
 "Automatisches Panelupdate &deaktivieren"
-"Pan&el automatikus frissitese kikapcsolva,"
-"&Wylacz automatyczna aktualizacje paneli"
+"Pan&el automatikus frissítése kikapcsolva,"
+"&Wyłącz automatyczną aktualizację paneli"
 
 MConfigAutoUpdateLimit2
 "если объектов больше"
 "if object count exceeds"
-"jestlize pocet objektu prekroci"
+"jestliže počet objektů překročí"
 "wenn mehr Objekte als"
-"ha tobb elem van, mint:"
-"jesli zawieraja wiecej obiektow niz"
+"ha több elem van, mint:"
+"jeśli zawierają więcej obiektów niż"
 
 MConfigAutoUpdateRemoteDrive
 "Автообновление с&етевых дисков"
 "Network drives autor&efresh"
-"Automaticka obnova sitovych disku"
+"Automatická obnova síťových disků"
 "Netzw&erklauferke autom. aktualisieren"
-"Halozati meghajtok autom. &frissitese"
-"Auto&odswiezanie dyskow sieciowych"
+"Hálózati meghajtók autom. &frissítése"
+"Auto&odświeżanie dysków sieciowych"
 
 MConfigShowColumns
 "Показывать &заголовки колонок"
 "Show &column titles"
-"Zobrazovat &nadpisy sloupcu"
+"Zobrazovat &nadpisy sloupců"
 "S&paltentitel anzeigen"
 "Oszlop&nevek mutatva"
-"Wyswietl tytuly &kolumn"
+"Wyświetl tytuły &kolumn"
 
 MConfigShowStatus
 "Показывать &строку статуса"
 "Show &status line"
-"Zobrazovat sta&vovy radek"
+"Zobrazovat sta&vový řádek"
 "&Statuszeile anzeigen"
-"A&llapotsor mutatva"
-"Wyswietl &linie statusu"
+"Á&llapotsor mutatva"
+"Wyświetl &linię statusu"
 
 MConfigShowTotal
 "Показывать су&ммарную информацию"
 "Show files &total information"
-"Zobrazovat &informace o velikosti souboru"
-"&Gesamtzahl fur Dateien anzeigen"
-"Fajl ossze&s informacioja mutatva"
-"Wyswietl &calkowita informacje o plikach"
+"Zobrazovat &informace o velikosti souborů"
+"&Gesamtzahl für Dateien anzeigen"
+"Fájl össze&s információja mutatva"
+"Wyświetl &całkowitą informację o plikach"
 
 MConfigShowFree
 "Показывать с&вободное место"
 "Show f&ree size"
-"Zobrazovat vo&lne misto"
+"Zobrazovat vo&lné místo"
 "&Freien Speicher anzeigen"
-"Sza&bad lemezterulet mutatva"
-"Wyswietl ilosc &wolnego miejsca"
+"Sza&bad lemezterület mutatva"
+"Wyświetl ilość &wolnego miejsca"
 
 MConfigShowScrollbar
 "Показывать по&лосу прокрутки"
 "Show scroll&bar"
-"Zobrazovat &posuvnik"
+"Zobrazovat &posuvník"
 "Scroll&balken anzeigen"
-"Gorditosa&v mutatva"
-"Wyswietl &suwak"
+"Gördítősá&v mutatva"
+"Wyświetl &suwak"
 
 MConfigShowScreensNumber
 "Показывать количество &фоновых экранов"
 "Show background screens &number"
-"Zobrazovat pocet &obrazovek na pozadi"
+"Zobrazovat počet &obrazovek na pozadí"
 "&Nummer von Hintergrundseiten anzeigen"
-"&Hatterkepernyok szama mutatva"
-"Wyswietl ilosc &ekranow w tle"
+"&Háttérképernyők száma mutatva"
+"Wyświetl ilość &ekranów w tle"
 
 MConfigShowSortMode
 "Показывать букву режима сор&тировки"
 "Show sort &mode letter"
-"Zobrazovat pismeno &modu razeni"
+"Zobrazovat písmeno &módu řazení"
 "Buchstaben der Sortier&modi anzeigen"
-"Rendezesi mo&d betujele mutatva"
-"Wyswietl l&itere trybu sortowania"
+"Rendezési mó&d betűjele mutatva"
+"Wyświetl l&iterę trybu sortowania"
 
 MConfigInterfaceTitle
 l:
 "Настройки интерфейса"
 "Interface settings"
-"Nastaveni rozhrani"
-"Oberflache einrichten"
-"Kezelofelulet beallitasok"
+"Nastavení rozhraní"
+"Oberfläche einrichten"
+"Kezelőfelület beállítások"
 "Ustawienia interfejsu"
 
 MConfigClock
@@ -1417,47 +1417,47 @@ MConfigClock
 "&Clock in panels"
 "&Hodiny v panelech"
 "&Uhr in Panels anzeigen"
-"Or&a a paneleken"
+"Ór&a a paneleken"
 "&Zegar"
 
 MConfigViewerEditorClock
 "Ч&асы при редактировании и просмотре"
 "C&lock in viewer and editor"
-"H&odiny v prohlizeci a editoru"
+"H&odiny v prohlížeči a editoru"
 "U&hr in Betrachter und Editor anzeigen"
-"O&ra a nezokeben es szerkesztoben"
-"Zegar w &podgladzie i edytorze"
+"Ó&ra a nézőkében és szerkesztőben"
+"Zegar w &podglądzie i edytorze"
 
 MConfigMouse
 "Мы&шь"
 "M&ouse"
-"M&ys"
+"M&yš"
 "M&aus aktivieren"
-"&Eger kezelese"
+"&Egér kezelése"
 "M&ysz"
 
 MConfigKeyBar
 "Показывать &линейку клавиш"
 "Show &key bar"
-"Zobrazovat &zkratkove klavesy"
+"Zobrazovat &zkratkové klávesy"
 "Tast&enleiste anzeigen"
-"&Funkciobillentyuk sora mutatva"
-"Wyswietl pasek &klawiszy"
+"&Funkcióbillentyűk sora mutatva"
+"Wyświetl pasek &klawiszy"
 
 MConfigMenuBar
 "Всегда показывать &меню"
 "Always show &menu bar"
-"Vzdy zobrazovat hlavni &menu"
-"&Menuleiste immer anzeigen"
-"A &menusor mindig latszik"
+"Vždy zobrazovat hlavní &menu"
+"&Menüleiste immer anzeigen"
+"A &menüsor mindig látszik"
 "Zawsze pokazuj pasek &menu"
 
 MConfigSaver
 "&Сохранение экрана"
 "&Screen saver"
-"Sp&oric obrazovky"
+"Sp&ořič obrazovky"
 "Bildschirm&schoner"
-"&Kepernyopihenteto"
+"&Képernyőpihentető"
 "&Wygaszacz ekranu"
 
 MConfigSaverMinutes
@@ -1465,40 +1465,40 @@ MConfigSaverMinutes
 "minutes"
 "minut"
 "Minuten"
-"perc tetlenseg utan"
+"perc tétlenség után"
 "m&inut"
 
 MConfigUsePromptFormat
 "Установить &формат командной строки"
 "Set command line &prompt format"
-"Nastavit format &prikazoveho radku"
+"Nastavit formát &příkazového řádku"
 "&Promptformat der Kommandozeile"
-"Parancssori &prompt formatuma"
-"Wy&glad znaku zachety linii polecen"
+"Parancssori &prompt formátuma"
+"Wy&gląd znaku zachęty linii poleceń"
 
 MConfigCopyTotal
 "Показывать &общий индикатор копирования"
 "Show &total copy progress indicator"
-"Zobraz. ukazatel celkoveho stavu &kopirovani"
+"Zobraz. ukazatel celkového stavu &kopírování"
 "Zeige Gesamtfor&tschritt beim Kopieren"
-"Masolas osszesen folyamat&jelzo"
-"Pokaz &calkowity postep kopiowania"
+"Másolás összesen folyamat&jelző"
+"Pokaż &całkowity postęp kopiowania"
 
 MConfigCopyTimeRule
 "Показывать информацию о времени &копирования"
 "Show cop&ying time information"
-"Zobrazovat informace o case kopirovani"
+"Zobrazovat informace o čase kopírování"
 "Zeige Rest&zeit beim Kopieren"
-"Ma&solasi ido mutatva"
-"Pokaz informacje o c&zasie kopiowania"
+"Má&solási idő mutatva"
+"Pokaż informację o c&zasie kopiowania"
 
 MConfigPgUpChangeDisk
 "Использовать Ctrl-PgUp для в&ыбора диска"
 "Use Ctrl-Pg&Up to change drive"
-"Pouzit Ctrl-Pg&Up pro zmenu disku"
+"Použít Ctrl-Pg&Up pro změnu disku"
 "Strg-Pg&Up wechselt das Laufwerk"
-"A Ctrl-Pg&Up meghajtot valt"
-"Uzyj Ctrl-Pg&Up do zmiany napedu"
+"A Ctrl-Pg&Up meghajtót vált"
+"Użyj Ctrl-Pg&Up do zmiany napędu"
 
 MConfigClearType
 upd:"ClearType friendly redraw (can be slow)"
@@ -1512,154 +1512,154 @@ MConfigDlgSetsTitle
 l:
 "Настройки диалогов"
 "Dialog settings"
-"Nastaveni dialogu"
+"Nastavení dialogů"
 "Dialoge einrichten"
-"Parbeszedablak beallitasok"
+"Párbeszédablak beállítások"
 "Ustawienia okien dialogowych"
 
 MConfigDialogsEditHistory
 "&История в строках ввода диалогов"
 "&History in dialog edit controls"
-"H&istorie v dialozich"
+"H&istorie v dialozích"
 "&Historie in Eingabefelder von Dialogen"
-"&Beviteli sor elozmenyek mentese"
+"&Beviteli sor előzmények mentése"
 "&Historia w polach edycyjnych"
 
 MConfigDialogsEditBlock
 "&Постоянные блоки в строках ввода"
 "&Persistent blocks in edit controls"
-"&Trvale bloky v editacnich polich"
+"&Trvalé bloky v editačních polích"
 "Dauer&hafte Markierungen in Eingabefelder"
-"Marado b&lokkok a beviteli sorokban"
-"&Trwale bloki podczas edycji"
+"Maradó b&lokkok a beviteli sorokban"
+"&Trwałe bloki podczas edycji"
 
 MConfigDialogsDelRemovesBlocks
 "Del удаляет б&локи в строках ввода"
 "&Del removes blocks in edit controls"
-"&Del maze polozky v editacnich polich"
-"&Entf loscht Markierungen"
-"A &Del torli a beviteli sorok blokkjait"
+"&Del maže položky v editačních polích"
+"&Entf löscht Markierungen"
+"A &Del törli a beviteli sorok blokkjait"
 "&Del usuwa blok podczas edycji"
 
 MConfigDialogsAutoComplete
 "&Автозавершение в строках ввода"
 "&AutoComplete in edit controls"
-"Automaticke dokoncovani v editac&nich polich"
-"&Automatisches Vervollstandigen"
-"Beviteli sor a&utomatikus kiegeszitese"
-"&Autouzupelnianie podczas edycji"
+"Automatické dokončování v editač&ních polích"
+"&Automatisches Vervollständigen"
+"Beviteli sor a&utomatikus kiegészítése"
+"&Autouzupełnianie podczas edycji"
 
 MConfigDialogsEULBsClear
 "Backspace &удаляет неизмененный текст"
 "&Backspace deletes unchanged text"
-"&Backspace maze nezmeneny text"
-"&Rucktaste (BS) loscht unveranderten Text"
-"A Ba&ckspace torli a valtozatlan szoveget"
+"&Backspace maže nezměněný text"
+"&Rücktaste (BS) löscht unveränderten Text"
+"A Ba&ckspace törli a változatlan szöveget"
 "&Backspace usuwa nie zmieniony tekst"
 
 MConfigDialogsMouseButton
 "Клик мыши &вне диалога закрывает диалог"
 "Mouse click &outside a dialog closes it"
-"Kl&iknuti mysi mimo dialog ho zavre"
-"Dial&og schlie?en wenn Mausklick ausserhalb"
-"&Egerkattintas a parb.ablakon kivul: bezarja"
-"&Klikniecie myszy poza oknem zamyka je"
+"Kl&iknutí myší mimo dialog ho zavře"
+"Dial&og schließen wenn Mausklick ausserhalb"
+"&Egérkattintás a párb.ablakon kívül: bezárja"
+"&Kliknięcie myszy poza oknem zamyka je"
 
 MViewConfigTitle
 l:
 "Программа просмотра"
 "Viewer"
-"Prohlizec"
+"Prohlížeč"
 "Betrachter"
-"Nezoke"
-"Podglad"
+"Nézőke"
+"Podgląd"
 
 MViewConfigExternalF3
 "Запускать внешнюю программу просмотра по F3 вместо Alt-F3"
 "Use external viewer for F3 instead of Alt-F3"
 upd:"Use external viewer for F3 instead of Alt-F3"
 upd:"Use external viewer for F3 instead of Alt-F3"
-"Alt-F3 helyett F3 inditja a kulso nezoket"
+"Alt-F3 helyett F3 indítja a külső nézőkét"
 upd:"Use external viewer for F3 instead of Alt-F3"
 
 MViewConfigExternalCommand
 "&Команда просмотра:"
 "&Viewer command:"
-"&Prikaz prohlizece:"
-"Befehl fur e&xternen Betracher:"
-"Nezoke &parancs:"
+"&Příkaz prohlížeče:"
+"Befehl für e&xternen Betracher:"
+"Nézőke &parancs:"
 "&Polecenie:"
 
 MViewConfigInternal
 " Встроенная программа просмотра "
 " Internal viewer "
-" Interni prohlizec "
+" Interní prohlížeč "
 " Interner Betracher "
-" Belso nezoke "
-" Podglad wbudowany "
+" Belső nézőke "
+" Podgląd wbudowany "
 
 MViewConfigSavePos
 "&Сохранять позицию файла"
 "&Save file position"
-"&Ukladat pozici v souboru"
+"&Ukládat pozici v souboru"
 "Dateipositionen &speichern"
-"&Fajlpozicio mentese"
-"&Zapamietaj pozycje w pliku"
+"&Fájlpozíció mentése"
+"&Zapamiętaj pozycję w pliku"
 
 MViewConfigSaveShortPos
 "Сохранять &закладки"
 "Save &bookmarks"
-"Ukladat &zalozky"
+"Ukládat &záložky"
 "&Lesezeichen speichern"
-"Konyv&jelzok mentese"
-"Zapisz z&akladki"
+"Könyv&jelzők mentése"
+"Zapisz z&akładki"
 
 MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
 "&Autodetect code page"
 upd:"&Autodetekovat znakovou sadu"
 upd:"Zeichentabelle &automatisch erkennen"
-"&Kodlap automatikus felismerese"
-"Rozpozn&aj tablice znakow"
+"&Kódlap automatikus felismerése"
+"Rozpozn&aj tablicę znaków"
 
 MViewConfigTabSize
 "Раз&мер табуляции"
 "Tab si&ze"
-"Velikost &Tabulatoru"
-"Ta&bulatorgro?e"
-"Ta&bulator merete"
+"Velikost &Tabulátoru"
+"Ta&bulatorgröße"
+"Ta&bulátor mérete"
 "Rozmiar &tabulatora"
 
 MViewConfigScrollbar
 "Показывать &полосу прокрутки"
 "Show scro&llbar"
-"Zobrazovat posu&vnik"
+"Zobrazovat posu&vník"
 "Scro&llbalken anzeigen"
-"Gor&ditosav mutatva"
-"Pokaz &pasek przewijania"
+"Gör&dítősáv mutatva"
+"Pokaż &pasek przewijania"
 
 MViewConfigArrows
 "Показывать стрелки с&двига"
 "Show scrolling arro&ws"
-"Zobrazovat &skrolovaci sipky"
+"Zobrazovat &skrolovací šipky"
 "P&feile bei Scrollbalken zeigen"
-"Gorditon&yilak mutatva"
-"Pokaz strzal&ki przewijania"
+"Gördítőn&yilak mutatva"
+"Pokaż strzał&ki przewijania"
 
 MViewConfigPersistentSelection
 "Постоянное &выделение"
 "&Persistent selection"
-"Trvale &vybery"
+"Trvalé &výběry"
 "Dauerhafte Text&markierungen"
-"&Marado blokkok"
-"T&rwale zaznaczenie"
+"&Maradó blokkok"
+"T&rwałe zaznaczenie"
 
 MViewConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
 "Use ANS&I code page by default"
-upd:"Automaticky otevirat soubory ve &WIN kodovani"
-upd:"Dateien standardma?ig mit Windows-Kod&ierung offnen"
-"Fajlok eredeti megnyitasa ANS&I kodlappal"
+upd:"Automaticky otevírat soubory ve &WIN kódování"
+upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
+"Fájlok eredeti megnyitása ANS&I kódlappal"
 "&Otwieraj pliki w kodowaniu Windows"
 
 MEditConfigTitle
@@ -1668,7 +1668,7 @@ l:
 "Editor"
 "Editor"
 "Editor"
-"Szerkeszto"
+"Szerkesztő"
 "Edytor"
 
 MEditConfigEditorF4
@@ -1676,154 +1676,154 @@ MEditConfigEditorF4
 "Use external editor for F4 instead of Alt-F4"
 upd:"Use external editor for F4 instead of Alt-F4"
 upd:"Use external editor for F4 instead of Alt-F4"
-"Alt-F4 helyett F4 inditja a kulso szerkesztot"
+"Alt-F4 helyett F4 indítja a külső szerkesztőt"
 upd:"Use external editor for F4 instead of Alt-F4"
 
 MEditConfigEditorCommand
 "&Команда редактирования:"
 "&Editor command:"
-"&Prikaz editoru:"
-"Befehl fur e&xternen Editor:"
-"&Szerkeszto parancs:"
+"&Příkaz editoru:"
+"Befehl für e&xternen Editor:"
+"&Szerkesztő parancs:"
 "&Polecenie:"
 
 MEditConfigInternal
 " Встроенный редактор "
 " Internal editor "
-" Interni editor "
+" Interní editor "
 " Interner Editor "
-" Belso szerkeszto "
+" Belső szerkesztő "
 " Edytor wbudowany "
 
 MEditConfigExpandTabsTitle
 "Преобразовывать &табуляцию:"
 "Expand &tabs:"
-"Rozsirit Ta&bulatory mezerami"
+"Rozšířit Ta&bulátory mezerami"
 "&Tabs expandieren:"
-"&Tabulatorbol szokozok:"
-"Zamiana znakow &tabulacji:"
+"&Tabulátorból szóközök:"
+"Zamiana znaków &tabulacji:"
 
 MEditConfigDoNotExpandTabs
 l:
 "Не преобразовывать табуляцию"
 "Do not expand tabs"
-"Nerozsirovat tabulatory mezerami"
+"Nerozšiřovat tabulátory mezerami"
 "Tabs nicht expandieren"
-"Ne helyettesitse a tabulatorokat"
-"Nie zamieniaj znakow tabulacji"
+"Ne helyettesítse a tabulátorokat"
+"Nie zamieniaj znaków tabulacji"
 
 MEditConfigExpandTabs
 "Преобразовывать новые символы табуляции в пробелы"
 "Expand newly entered tabs to spaces"
-"Rozsirit nove zadane tabulatory mezerami"
+"Rozšířit nově zadané tabulátory mezerami"
 "Neue Tabs zu Leerzeichen expandieren"
-"Ujonnan beirt tabulatorbol szokozok"
-"Zamien nowo dodane znaki tabulacji na spacje"
+"Újonnan beírt tabulátorból szóközök"
+"Zamień nowo dodane znaki tabulacji na spacje"
 
 MEditConfigConvertAllTabsToSpaces
 "Преобразовывать все символы табуляции в пробелы"
 "Expand all tabs to spaces"
-"Rozsirit vsechny tabulatory mezerami"
+"Rozšířit všechny tabulátory mezerami"
 "Alle Tabs zu Leerzeichen expandieren"
-"Minden tabulatorbol szokozok"
-"Zastap wszystkie tabulatory spacjami"
+"Minden tabulátorból szóközök"
+"Zastąp wszystkie tabulatory spacjami"
 
 MEditConfigPersistentBlocks
 "&Постоянные блоки"
 "&Persistent blocks"
-"&Trvale bloky"
+"&Trvalé bloky"
 "Dauerhafte Text&markierungen"
-"&Marado blokkok"
-"T&rwale bloki"
+"&Maradó blokkok"
+"T&rwałe bloki"
 
 MEditConfigDelRemovesBlocks
 l:
 "Del удаляет б&локи"
 "&Del removes blocks"
-"&Del maze bloky"
-"&Entf loscht Textmark."
-"A &Del torli a blokkokat"
+"&Del maže bloky"
+"&Entf löscht Textmark."
+"A &Del törli a blokkokat"
 "&Del usuwa bloki"
 
 MEditConfigAutoIndent
 "Авто&отступ"
 "Auto &indent"
-"Auto &Odsazovani"
+"Auto &Odsazování"
 "Automatischer E&inzug"
-"Automatikus &behuzas"
-"Automatyczne &wciecia"
+"Automatikus &behúzás"
+"Automatyczne &wcięcia"
 
 MEditConfigSavePos
 "&Сохранять позицию файла"
 "&Save file position"
-"&Ukladat pozici v souboru"
+"&Ukládat pozici v souboru"
 "Dateipositionen &speichern"
-"Fajl&pozicio mentese"
-"&Zapamietaj pozycje kursora w pliku"
+"Fájl&pozíció mentése"
+"&Zapamiętaj pozycję kursora w pliku"
 
 MEditConfigSaveShortPos
 "Сохранять &закладки"
 "Save &bookmarks"
-"Ukladat za&lozky"
+"Ukládat zá&ložky"
 "&Lesezeichen speichern"
-"Konyv&jelzok mentese"
-"Zapisz &zakladki"
+"Könyv&jelzők mentése"
+"Zapisz &zakładki"
 
 MEditCursorBeyondEnd
 "Ку&рсор за пределами строки"
 "&Cursor beyond end of line"
-"&Kurzor za koncem radku"
+"&Kurzor za koncem řádku"
 upd:"&Cursor hinter dem Ende"
-"Kurzor a sor&vegjel utan is"
-"&Kursor za koncem linii"
+"Kurzor a sor&végjel után is"
+"&Kursor za końcem linii"
 
 MEditAutoDetectCodePage
 "&Автоопределение кодовой страницы"
 "&Autodetect code page"
 upd:"&Autodetekovat znakovou sadu"
 upd:"Zeichentabelle &automatisch erkennen"
-"&Kodlap automatikus felismerese"
-"Rozpozn&aj tablice znakow"
+"&Kódlap automatikus felismerése"
+"Rozpozn&aj tablicę znaków"
 
 MEditShareWrite
 "Разрешить редактирование открытых для записи &файлов"
 "Allow editing files ope&ned for writing"
 upd:"Allow editing files opened for &writing"
 upd:"Allow editing files opened for &writing"
-"Irasra m&egnyitott fajlok szerkeszthetok"
+"Írásra m&egnyitott fájlok szerkeszthetők"
 upd:"Allow editing files opened for &writing"
 
 MEditLockROFileModification
 "Блокировать р&едактирование файлов с атрибутом R/O"
 "Lock editing of read-only &files"
-"&Zamknout editaci souboru urcenych jen pro cteni"
+"&Zamknout editaci souborů určených jen pro čtení"
 "Bearbeiten von &Dateien mit Schreibschutz verhindern"
-"Csak olvashato fajlok s&zerkesztese tiltva"
-"Nie edytuj plikow tylko do odczytu"
+"Csak olvasható fájlok s&zerkesztése tiltva"
+"Nie edytuj plików tylko do odczytu"
 
 MEditWarningBeforeOpenROFile
 "Пре&дупреждать при открытии файла с атрибутом R/O"
 "&Warn when opening read-only files"
-"&Varovat pri otevreni souboru urcenych jen pro cteni"
-"Beim Offnen von Dateien mit Schreibschutz &warnen"
-"Figyelmeztet &csak olvashato fajl megnyitasakor"
-"&Ostrzez przed otwieraniem plikow tylko do odczytu"
+"&Varovat při otevření souborů určených jen pro čtení"
+"Beim Öffnen von Dateien mit Schreibschutz &warnen"
+"Figyelmeztet &csak olvasható fájl megnyitásakor"
+"&Ostrzeż przed otwieraniem plików tylko do odczytu"
 
 MEditConfigTabSize
 "Раз&мер табуляции"
 "Tab si&ze"
-"Velikost &Tabulatoru"
-"Ta&bulatorgro?e"
-"Tab&ulator merete"
+"Velikost &Tabulátoru"
+"Ta&bulatorgröße"
+"Tab&ulátor mérete"
 "Rozmiar ta&bulatora"
 
 MEditConfigScrollbar
 "Показывать &полосу прокрутки"
 "Show scro&llbar"
-"Zobr&azovat posuvnik"
+"Zobr&azovat posuvník"
 "Scro&llbalken anzeigen"
-"&Gorditosav mutatva"
-"Pokaz %pasek przewijania"
+"&Gördítősáv mutatva"
+"Pokaż %pasek przewijania"
 
 MEditConfigPickUpWord
 "Cлово под к&урсором"
@@ -1836,139 +1836,139 @@ upd:"Pick &up the word"
 MEditConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
 "Use ANS&I code page by default"
-upd:"Automaticky otevirat soubory ve &WIN kodovani"
-upd:"Dateien standardma?ig mit Windows-Kod&ierung offnen"
-"Fajlok eredeti megnyitasa ANS&I kodlappal"
-"&Probuj otwierac pliki w kodowaniu Windows"
+upd:"Automaticky otevírat soubory ve &WIN kódování"
+upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
+"Fájlok eredeti megnyitása ANS&I kódlappal"
+"&Próbuj otwierać pliki w kodowaniu Windows"
 
 MEditConfigAnsiCodePageForNewFile
 "Использо&вать кодовую страницу ANSI при создании файлов"
 "Use ANSI code page when c&reating new files"
-upd:"V&ytvaret nove soubory ve WIN kodovani"
+upd:"V&ytvářet nové soubory ve WIN kódování"
 upd:"Neue Dateien mit Windows-Ko&dierung erstellen"
-"Uj &fajl letrehozasa ANSI kodlappal"
-"&Tworz nowe pliki w kodowaniu Windows"
+"Új &fájl létrehozása ANSI kódlappal"
+"&Twórz nowe pliki w kodowaniu Windows"
 
 MSaveSetupTitle
 l:
 "Конфигурация"
 "Save setup"
-"Ulozit nastaveni"
+"Uložit nastavení"
 "Einstellungen speichern"
-"Beallitasok mentese"
+"Beállítások mentése"
 "Zapisz ustawienia"
 
 MSaveSetupAsk1
 "Вы хотите сохранить"
 "Do you wish to save"
-"Prejete si ulozit"
+"Přejete si uložit"
 "Wollen Sie die aktuellen Einstellungen"
 "Elmenti a jelenlegi"
-"Czy chcesz zapisac"
+"Czy chcesz zapisać"
 
 MSaveSetupAsk2
 "текущую конфигурацию?"
 "current setup?"
-"aktualni nastaveni?"
+"aktuální nastavení?"
 "speichern?"
-"beallitasokat?"
-"biezace ustawienia?"
+"beállításokat?"
+"bieżące ustawienia?"
 
 MSaveSetup
 "Сохранить"
 "Save"
-"Ulozit"
+"Uložit"
 "Speichern"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MCopyDlgTitle
 l:
 "Копирование"
 "Copy"
-"Kopirovat"
+"Kopírovat"
 "Kopieren"
-"Masolas"
+"Másolás"
 "Kopiuj"
 
 MMoveDlgTitle
 "Переименование/Перенос"
 "Rename/Move"
-"Prejmenovat/Presunout"
+"Přejmenovat/Přesunout"
 "Verschieben/Umbenennen"
-"Atnevezes-Mozgatas"
-"Zmien nazwe/przenies"
+"Átnevezés-Mozgatás"
+"Zmień nazwę/przenieś"
 
 MLinkDlgTitle
 "Ссылка"
 "Link"
 "Link"
 "Link erstellen"
-"Link letrehozasa"
-"Dowiaz"
+"Link létrehozása"
+"Dowiąż"
 
 MCopySecurity
 "П&рава доступа:"
 "&Access rights:"
-"&Pristupova prava:"
+"&Přístupová práva:"
 "Zugriffsrecht&e:"
-"Hozzaferesi &jogok:"
-"&Prawa dostepu:"
+"Hozzáférési &jogok:"
+"&Prawa dostępu:"
 
 MCopySecurityCopy
 "Копироват&ь"
 "Co&py"
-"&Kopirovat"
+"&Kopírovat"
 "Ko&pieren"
-"Mas&ol"
+"Más&ol"
 "Kopiu&j"
 
 MCopySecurityInherit
 "Нас&ледовать"
 "&Inherit"
-"&Zdedit"
+"&Zdědit"
 "Ve&rerben"
-"O&rokol"
+"Ö&rököl"
 "&Dziedzicz"
 
 MCopySecurityLeave
 "По умол&чанию"
 "Defau&lt"
-"Vych&ozi"
+"Vých&ozí"
 "A&utomat."
-"Ala&pert."
-"Do&myslne"
+"Ala&pért."
+"Do&myślne"
 
 MCopyIfFileExist
 "Уже су&ществующие файлы:"
 "Already e&xisting files:"
-"Jiz e&xistujici soubory:"
-"&Dateien uberschreiben:"
-"Mar &letezo fajloknal:"
-"Dla juz &istniejacych:"
+"Již e&xistující soubory:"
+"&Dateien überschreiben:"
+"Már &létező fájloknál:"
+"Dla już &istniejących:"
 
 MCopyAsk
 "&Запрос действия"
 "&Ask"
-"Ptat s&e"
+"Ptát s&e"
 "Fr&agen"
-"Ker&dez"
+"Kér&dez"
 "&Zapytaj"
 
 MCopyAskRO
 "Запрос подтверждения для &R/O файлов"
 "Also ask on &R/O files"
-"Ptat se take na &R/O soubory"
+"Ptát se také na &R/O soubory"
 "Bei Dateien mit Sch&reibschutz fragen"
-"&Csak olvashato fajloknal is kerdez"
-"&Pytaj takze o pliki tylko do odczytu"
+"&Csak olvasható fájloknál is kérdez"
+"&Pytaj także o pliki tylko do odczytu"
 
 MCopyOnlyNewerFiles
 "Только &новые/обновленные файлы"
 "Only ne&wer file(s)"
-"Pouze &novejsi soubory"
+"Pouze &novější soubory"
 "Nur &neuere Dateien"
-"Cs&ak az ujabb fajlokat"
+"Cs&ak az újabb fájlokat"
 "Tylko &nowsze pliki"
 
 MLinkType
@@ -1976,37 +1976,37 @@ MLinkType
 "Link t&ype:"
 "&Typ linku:"
 "Linkt&yp:"
-"Link &tipusa:"
+"Link &típusa:"
 "&Typ linku:"
 
 MLinkTypeJunction
 "&связь каталогов"
 "directory &junction"
-"krizeni a&dresaru"
+"křížení a&dresářů"
 "Ordner&knotenpunkt"
-"Mappa &csomopont"
+"Mappa &csomópont"
 "directory &junction"
 
 MLinkTypeHardlink
 "&жёсткая ссылка"
 "&hard link"
-"&pevny link"
+"&pevný link"
 "&Hardlink"
 "&Hardlink"
-"link &trwaly"
+"link &trwały"
 
 MLinkTypeSymlinkFile
 "символическая ссылка (&файл)"
 "symbolic link (&file)"
-"symbolicky link (&soubor)"
+"symbolický link (&soubor)"
 "Symbolischer Link (&Datei)"
-"Szimbolikus link (&fajl)"
+"Szimbolikus link (&fájl)"
 "link symboliczny (do &pliku)"
 
 MLinkTypeSymlinkDirectory
 "символическая ссылка (&папка)"
 "symbolic link (fol&der)"
-"symbolicky link (&adresar)"
+"symbolický link (&adresář)"
 "Symbolischer Link (Or&dner)"
 "Szimbolikus link (&mappa)"
 "link symboliczny (do &folderu)"
@@ -2014,25 +2014,25 @@ MLinkTypeSymlinkDirectory
 MCopySymLinkContents
 "Копировать содерж&имое символических ссылок"
 "Cop&y contents of symbolic links"
-"Kopirovat obsah sym&bolickych linku"
+"Kopírovat obsah sym&bolických linků"
 "Inhalte von s&ymbolischen Links kopieren"
-"Sz&imbolikus linkek masolasa"
-"&Kopiuj zawartosc linkow symbolicznych"
+"Sz&imbolikus linkek másolása"
+"&Kopiuj zawartość linków symbolicznych"
 
 MCopyMultiActions
 "Обр&абатывать несколько имен файлов"
 "Process &multiple destinations"
-"&Zpracovat vice mist urceni"
+"&Zpracovat více míst určení"
 "&Mehrere Ziele verarbeiten"
-"To&bbszoros cel letrehozasa"
+"Tö&bbszörös cél létrehozása"
 "Przetwarzaj &wszystkie cele"
 
 MCopyDlgCopy
 "&Копировать"
 "&Copy"
-"&Kopirovat"
+"&Kopírovat"
 "&Kopieren"
-"&Masolas"
+"&Másolás"
 "&Kopiuj"
 
 MCopyDlgTree
@@ -2048,16 +2048,16 @@ MCopyDlgCancel
 "Ca&ncel"
 "&Storno"
 "Ab&bruch"
-"Meg&sem"
+"Még&sem"
 "&Anuluj"
 
 MCopyDlgRename
 "&Переименовать"
 "&Rename"
-"Prej&menovat"
+"Přej&menovat"
 "&Umbenennen"
-"At&nevez-Mozgat"
-"&Zmien nazwe"
+"Át&nevez-Mozgat"
+"&Zmień nazwę"
 
 MCopyDlgLink
 "&Создать ссылку"
@@ -2065,96 +2065,96 @@ MCopyDlgLink
 "&Linkovat"
 "Ver&linken"
 "&Linkel"
-"D&owiaz"
+"D&owiąż"
 
 MCopyDlgTotal
 "Всего"
 "Total"
 "Celkem"
 "Gesamt"
-"Osszesen"
+"Összesen"
 "Razem"
 
 MCopyScanning
 "Сканирование папок..."
 "Scanning folders..."
-"Nacitani adresaru..."
+"Načítání adresářů..."
 "Scanne Ordner..."
-"Mappak olvasasa..."
-"Przeszukuje katalogi..."
+"Mappák olvasása..."
+"Przeszukuję katalogi..."
 
 MCopyPrepareSecury
 "Применение прав доступа..."
 "Applying access rights..."
-"Nastavuji pristupova prava..."
+"Nastavuji přístupová práva..."
 "Anwenden der Zugriffsrechte..."
-"Hozzaferesi jogok alkalmazasa..."
-"Ustawianie praw dostepu..."
+"Hozzáférési jogok alkalmazása..."
+"Ustawianie praw dostępu..."
 
 MCopyUseFilter
 "Исполь&зовать фильтр"
 "&Use filter"
-"P&ouzit filtr"
+"P&oužít filtr"
 "Ben&utze Filter"
-"Szuro&vel"
-"&Uzyj filtra"
+"Szűrő&vel"
+"&Użyj filtra"
 
 MCopySetFilter
 "&Фильтр"
 "Filt&er"
 "Filt&r"
 "Filt&er"
-"S&zuro"
+"S&zűrő"
 "Filt&r"
 
 MCopyFile
 l:
 "Копировать"
 "Copy"
-"Kopirovat"
+"Kopírovat"
 "Kopiere"
-upd:"masolasa"
+upd:"másolása"
 "Skopiuj"
 
 MMoveFile
 "Переименовать или перенести"
 "Rename or move"
-"Prejmenovat nebo presunout"
+"Přejmenovat nebo přesunout"
 "Verschiebe"
-upd:"atnevezese-mozgatasa"
-"Zmien nazwe lub przenies"
+upd:"átnevezése-mozgatása"
+"Zmień nazwę lub przenieś"
 
 MLinkFile
 "Создать ссылку"
 "Link"
 "Linkovat"
 "Verlinke"
-upd:"linkelese"
-"Dowiaz"
+upd:"linkelése"
+"Dowiąż"
 
 MCopyFiles
 "Копировать %d элемент%s"
 "Copy %d item%s"
-"Kopirovat %d poloz%s"
+"Kopírovat %d polož%s"
 "Kopiere %d Objekt%s"
-" %d elem masolasa"
-"Skopiuj %d plikow"
+" %d elem másolása"
+"Skopiuj %d plików"
 
 MMoveFiles
 "Переименовать или перенести %d элемент%s"
 "Rename or move %d item%s"
-"Prejmenovat nebo presunout %d poloz%s"
+"Přejmenovat nebo přesunout %d polož%s"
 "Verschiebe %d Objekt%s"
-" %d elem atnevezese-mozgatasa"
-"Zmien nazwe lub przenies %d plikow"
+" %d elem átnevezése-mozgatása"
+"Zmień nazwę lub przenieś %d plików"
 
 MLinkFiles
 "Создать ссылки %d элемент%s"
 "Link %d item%s"
-"Linkovat %d poloz%s"
+"Linkovat %d polož%s"
 "Verlinke %d Objekt%s"
-" %d elem linkelese"
-"Dowiaz %d plikow"
+" %d elem linkelése"
+"Dowiąż %d plików"
 
 MCMLTargetTO
 " &в:"
@@ -2192,116 +2192,116 @@ MCopyIncorrectTargetList
 l:
 "Указан некорректный список целей!"
 "Incorrect target list!"
-"Nespravny seznam cilu!"
-"Ungultige Liste von Zielen!"
-"Ervenytelen cellista!"
-"Bledna lista wynikowa!"
+"Nesprávný seznam cílů!"
+"Ungültige Liste von Zielen!"
+"Érvénytelen céllista!"
+"Błędna lista wynikowa!"
 
 MCopyCopyingTitle
 l:
 "Копирование"
 "Copying"
-"Kopiruji"
+"Kopíruji"
 "Kopieren"
-"Masolas"
+"Másolás"
 "Kopiowanie"
 
 MCopyMovingTitle
 "Перенос"
 "Moving"
-"Presouvam"
+"Přesouvám"
 "Verschieben"
-"Mozgatas"
+"Mozgatás"
 "Przenoszenie"
 
 MCopyCannotFind
 l:
 "Файл не найден"
 "Cannot find the file"
-"Nelze nalezt soubor"
+"Nelze nalézt soubor"
 "Folgende Datei kann nicht gefunden werden:"
-"A fajl nem talalhato:"
-"Nie moge odnalezc pliku"
+"A fájl nem található:"
+"Nie mogę odnaleźć pliku"
 
 MCannotCopyFolderToItself1
 l:
 "Нельзя копировать папку"
 "Cannot copy the folder"
-"Nelze kopirovat adresar"
+"Nelze kopírovat adresář"
 "Folgender Ordner kann nicht kopiert werden:"
 "A mappa:"
-"Nie mozna skopiowac katalogu"
+"Nie można skopiować katalogu"
 
 MCannotCopyFolderToItself2
 "в саму себя"
 "onto itself"
-"sam na sebe"
+"sám na sebe"
 "Ziel und Quelle identisch."
-"nem masolhato onmagaba/onmagara"
+"nem másolható önmagába/önmagára"
 "do niego samego"
 
 MCannotCopyToTwoDot
 l:
 "Нельзя копировать файл или папку"
 "You may not copy files or folders"
-"Nelze kopirovat soubory nebo adresare"
+"Nelze kopírovat soubory nebo adresáře"
 "Kopieren von Dateien oder Ordnern ist maximal"
-"Nem masolhatja a fajlt vagy mappat"
-"Nie mozna skopiowac plikow"
+"Nem másolhatja a fájlt vagy mappát"
+"Nie można skopiować plików"
 
 MCannotMoveToTwoDot
 "Нельзя перемещать файл или папку"
 "You may not move files or folders"
-"Nelze presunout soubory nebo adresare"
+"Nelze přesunout soubory nebo adresáře"
 "Verschieben von Dateien oder Ordnern ist maximal"
-"Nem mozgathatja a fajlt vagy mappat"
-"Nie mozna przeniesc plikow"
+"Nem mozgathatja a fájlt vagy mappát"
+"Nie można przenieść plików"
 
 MCannotCopyMoveToTwoDot
 "выше корневого каталога"
 "higher than the root folder"
-"na vyssi uroven nez korenovy adresar"
-"bis zum Wurzelverzeichnis moglich."
-"a gyoker fole"
-"na poziom wyzszy niz do korzenia"
+"na vyšší úroveň než kořenový adresář"
+"bis zum Wurzelverzeichnis möglich."
+"a gyökér fölé"
+"na poziom wyższy niż do korzenia"
 
 MCopyCannotCreateFolder
 l:
 "Ошибка создания папки"
 "Cannot create the folder"
-"Nelze vytvorit adresar"
+"Nelze vytvořit adresář"
 "Folgender Ordner kann nicht erstellt werden:"
-"A mappa nem hozhato letre:"
-"Nie udalo sie utworzyc katalogu"
+"A mappa nem hozható létre:"
+"Nie udało się utworzyć katalogu"
 
 MCopyCannotChangeFolderAttr
 "Невозможно установить атрибуты для папки"
 "Failed to set folder attributes"
-"Nastaveni atributu adresare selhalo"
+"Nastavení atributů adresáře selhalo"
 "Fehler beim Setzen der Ordnerattribute"
-"A mappa attributumok beallitasa sikertelen"
-"Nie udalo sie ustawic atrybutow folderu"
+"A mappa attribútumok beállítása sikertelen"
+"Nie udało się ustawić atrybutów folderu"
 
 MCopyCannotRenameFolder
 "Невозможно переименовать папку"
 "Cannot rename the folder"
-"Nelze prejmenovat adresar"
+"Nelze přejmenovat adresář"
 "Folgender Ordner kann nicht umbenannt werden:"
-"A mappa nem nevezheto at:"
-"Nie udalo sie zmienic nazwy katalogu"
+"A mappa nem nevezhető át:"
+"Nie udało się zmienić nazwy katalogu"
 
 MCopyIgnore
 "&Игнорировать"
 "&Ignore"
 "&Ignorovat"
 "&Ignorieren"
-"Me&gis"
+"Mé&gis"
 "&Ignoruj"
 
 MCopyIgnoreAll
 "Игнорировать &все"
 "Ignore &All"
-"Ignorovat &vse"
+"Ignorovat &vše"
 "&Alle ignorieren"
 "Min&d"
 "Ignoruj &wszystko"
@@ -2311,46 +2311,46 @@ MCopyRetry
 "&Retry"
 "&Opakovat"
 "Wiede&rholen"
-"U&jra"
-"&Ponow"
+"Ú&jra"
+"&Ponów"
 
 MCopySkip
 "П&ропустить"
 "&Skip"
-"&Preskocit"
+"&Přeskočit"
 "Ausla&ssen"
 "&Kihagy"
-"&Omin"
+"&Omiń"
 
 MCopySkipAll
 "&Пропустить все"
 "S&kip all"
-"Pr&eskocit vse"
+"Př&eskočit vše"
 "Alle aus&lassen"
 "Mi&nd"
-"Omin w&szystkie"
+"Omiń w&szystkie"
 
 MCopyCancel
 "&Отменить"
 "&Cancel"
 "&Storno"
 "Abb&rechen"
-"Meg&sem"
+"Még&sem"
 "&Anuluj"
 
 MCopyDecrypt
 "Рас&шифровать"
 "&Decrypt"
-"&Desifrovat"
-"Ent&schlusseln"
+"&Dešifrovat"
+"Ent&schlüsseln"
 "&Titk. felold"
 "&Deszyfruj"
 
 MCopyDecryptAll
 "&Все"
 "Decrypt &all"
-"Des&ifrovat vse"
-"Alle e&ntschlusseln"
+"Deš&ifrovat vše"
+"Alle e&ntschlüsseln"
 "&Mind"
 "Deszyfruj ws&zystkie"
 
@@ -2358,51 +2358,51 @@ MCopyCannotCreateLink
 l:
 "Ошибка создания ссылки"
 "Cannot create the link"
-"Nelze vytvorit symbolicky link"
+"Nelze vytvořit symbolický link"
 "Folgender Link kann nicht erstellt werden:"
-"A link nem hozhato letre:"
-"Nie udalo sie utworzyc linku"
+"A link nem hozható létre:"
+"Nie udało się utworzyć linku"
 
 MCopyFolderNotEmpty
 "Папка назначения должна быть пустой"
 "Target folder must be empty"
-"Cilovy adresar musi byt prazdny"
+"Cílový adresář musí být prázdný"
 "Zielordner muss leer sein."
-"A celmappanak uresnek kell lennie"
-"Folder wynikowy musi byc pusty"
+"A célmappának üresnek kell lennie"
+"Folder wynikowy musi być pusty"
 
 MCopyCannotCreateJunctionToFile
 "Невозможно создать связь. Файл уже существует:"
 "Cannot create junction. The file already exists:"
-"Nelze vytvorit krizovy odkaz. Soubor jiz existuje:"
+"Nelze vytvořit křížový odkaz. Soubor již existuje:"
 "Knotenpunkt wurde nicht erstellt. Datei existiert bereits:"
-"A csomopont nem hozhato letre. A fajl mar letezik:"
-"Nie mozna utworzyc polaczenia - plik juz istnieje:"
+"A csomópont nem hozható létre. A fájl már létezik:"
+"Nie można utworzyć połączenia - plik już istnieje:"
 
 MCopyCannotCreateVolMount
 l:
 "Ошибка монтирования диска"
 "Volume mount points error"
-"Chyba pripojovacich svazku"
-"Fehler im Mountpoint des Datentragers"
-"Kotet mountpont hiba"
-"Blad montowania napedu"
+"Chyba připojovacích svazků"
+"Fehler im Mountpoint des Datenträgers"
+"Kötet mountpont hiba"
+"Błąd montowania napędu"
 
 MCopyMountVolFailed
 "Ошибка при монтировании диска '%s'"
 "Attempt to volume mount '%s'"
-"Pokus o pripojeni svazku '%s'"
-"Versuch Datentrager '%s' zu aktivieren"
-""%s" kotet mountolasa"
-"Nie udalo sie zamontowac woluminu '%s'"
+"Pokus o připojení svazku '%s'"
+"Versuch Datenträger '%s' zu aktivieren"
+""%s" kötet mountolása"
+"Nie udało się zamontować woluminu '%s'"
 
 MCopyMountVolFailed2
 "на '%s'"
 "at '%s' failed"
 "na '%s' selhal"
 "fehlgeschlagen bei '%s'"
-"nem sikerult: "%s""
-"w '%s' nie udalo sie"
+"nem sikerült: "%s""
+"w '%s' nie udało się"
 
 MCopyMountName
 "disk_%c"
@@ -2416,51 +2416,51 @@ MCannotCopyFileToItself1
 l:
 "Нельзя копировать файл"
 "Cannot copy the file"
-"Nelze kopirovat soubor"
+"Nelze kopírovat soubor"
 "Folgende Datei kann nicht kopiert werden:"
-"A fajl"
-"Nie mozna skopiowac pliku"
+"A fájl"
+"Nie można skopiować pliku"
 
 MCannotCopyFileToItself2
 "в самого себя"
 "onto itself"
-"sam na sebe"
+"sám na sebe"
 "Ziel und Quelle identisch."
-"nem masolhato onmagara"
+"nem másolható önmagára"
 "do niego samego"
 
 MCopyStream1
 l:
 "Исходный файл содержит более одного потока данных,"
 "The source file contains more than one data stream."
-"Zdrojovy soubor obsahuje vice nez jeden datovy proud."
-"Die Quelldatei enthalt mehr als einen Datenstream"
-"A forrasfajl tobb stream-et tartalmaz,"
-"Plik zrodlowy zawiera wiecej niz jeden strumien danych."
+"Zdrojový soubor obsahuje více než jeden datový proud."
+"Die Quelldatei enthält mehr als einen Datenstream"
+"A forrásfájl több stream-et tartalmaz,"
+"Plik źródłowy zawiera więcej niż jeden strumień danych."
 
 MCopyStream2
 "но вы не используете системную функцию копирования."
 "but since you do not use a system copy routine."
-"protoze nepouzivate systemovou kopirovaci rutinu."
+"protože nepoužíváte systémovou kopírovací rutinu."
 "aber Sie verwenden derzeit nicht die systemeigene Kopierroutine."
-"de nem a rendszer masolorutinjat hasznalja."
-"ale ze wzgledu na rezygnacje z systemowej procedury kopiowania."
+"de nem a rendszer másolórutinját használja."
+"ale ze względu na rezygnację z systemowej procedury kopiowania."
 
 MCopyStream3
 "но том назначения не поддерживает этой возможности."
 "but the destination volume does not support this feature."
-"protoze cilovy svazek nepodporuje tuto vlastnost."
-"aber der Zieldatentrager unterstutzt diese Fahigkeit nicht."
-"de a celkotet nem tamogatja ezt a lehetoseget."
-"ale naped docelowy nie obsluguje tej funkcji."
+"protože cílový svazek nepodporuje tuto vlastnost."
+"aber der Zieldatenträger unterstützt diese Fähigkeit nicht."
+"de a célkötet nem támogatja ezt a lehetőséget."
+"ale napęd docelowy nie obsługuje tej funkcji."
 
 MCopyStream4
 "Часть сведений не будет сохранена."
 "Some data will not be preserved as a result."
-"To bude mit za nasledek, ze nektera data nebudou uchovana."
+"To bude mít za následek, že některá data nebudou uchována."
 "Ein Teil der Daten bleiben daher nicht erhalten."
-"Az adatok egy resze el fog veszni."
-"Nie wszystkie dane zostana zachowane."
+"Az adatok egy része el fog veszni."
+"Nie wszystkie dane zostaną zachowane."
 
 MCopyDirectoryOrFile
 l:
@@ -2491,65 +2491,65 @@ MCopyFileExist
 l:
 "Файл уже существует"
 "File already exists"
-"Soubor jiz existuje"
+"Soubor již existuje"
 "Datei existiert bereits"
-"A fajl mar letezik:"
-"Plik juz istnieje"
+"A fájl már létezik:"
+"Plik już istnieje"
 
 MCopySource
 "&Новый"
 "&New"
-"&Novy"
+"&Nový"
 "&Neue Datei"
-"U&j verzio:"
+"Ú&j verzió:"
 "&Nowy"
 
 MCopyDest
 "Су&ществующий"
 "E&xisting"
-"E&xistujici"
+"E&xistující"
 "Be&stehende Datei"
-"Letezo &verzio:"
-"&Istniejacy"
+"Létező &verzió:"
+"&Istniejący"
 
 MCopyOverwrite
 "В&место"
 "&Overwrite"
-"&Prepsat"
-"Uber&schr."
-"&Felulir"
+"&Přepsat"
+"Über&schr."
+"&Felülír"
 "N&adpisz"
 
 MCopySkipOvr
 "&Пропустить"
 "&Skip"
-"Pres&kocit"
-"Uber&spr."
+"Přes&kočit"
+"Über&spr."
 "&Kihagy"
-"&Omin"
+"&Omiń"
 
 MCopyAppend
 "&Дописать"
 "A&ppend"
-"Pr&ipojit"
-"&Anhangen"
-"Hoz&zafuz"
-"&Dolacz"
+"Př&ipojit"
+"&Anhängen"
+"Hoz&záfűz"
+"&Dołącz"
 
 MCopyResume
 "Возоб&новить"
 "&Resume"
-"Po&kracovat"
+"Po&kračovat"
 "&Weiter"
 "Fol&ytat"
-"Pono&w"
+"Ponó&w"
 
 MCopyRename
 "&Имя"
 "R&ename"
 upd:"R&ename"
 upd:"R&ename"
-"A&tnevez"
+"Á&tnevez"
 upd:"R&ename"
 
 MCopyCancelOvr
@@ -2557,7 +2557,7 @@ MCopyCancelOvr
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MCopyRememberChoice
@@ -2565,15 +2565,15 @@ MCopyRememberChoice
 "&Remember choice"
 "Zapama&tovat volbu"
 "Auswahl me&rken"
-"Mind&ent a kivalasztott modon"
-"&Zapamietaj ustawienia"
+"Mind&ent a kiválasztott módon"
+"&Zapamiętaj ustawienia"
 
 MCopyRenameTitle
 "Переименование"
 "Rename"
 upd:"Rename"
 upd:"Rename"
-"Atnevezes"
+"Átnevezés"
 upd:"Rename"
 
 MCopyRenameText
@@ -2581,90 +2581,90 @@ MCopyRenameText
 "&New name:"
 upd:"&New name:"
 upd:"&New name:"
-"U&j nev:"
+"Ú&j név:"
 upd:"&New name:"
 
 MCopyFileRO
 l:
 "Файл имеет атрибут \"Только для чтения\""
 "The file is read only"
-"Soubor je urcen pouze pro cteni"
-"Folgende Datei ist schreibgeschutzt:"
-"A fajl csak olvashato:"
+"Soubor je určen pouze pro čtení"
+"Folgende Datei ist schreibgeschützt:"
+"A fájl csak olvasható:"
 "Ten plik jest tylko-do-odczytu"
 
 MCopyAskDelete
 "Вы хотите удалить его?"
 "Do you wish to delete it?"
-"Opravdu si ho prejete smazat?"
-"Wollen Sie sie dennoch loschen?"
-"Biztosan torolni akarja?"
-"Czy chcesz go usunac?"
+"Opravdu si ho přejete smazat?"
+"Wollen Sie sie dennoch löschen?"
+"Biztosan törölni akarja?"
+"Czy chcesz go usunąć?"
 
 MCopyDeleteRO
 "&Удалить"
 "&Delete"
 "S&mazat"
-"&Loschen"
-"&Torli"
-"&Usun"
+"&Löschen"
+"&Törli"
+"&Usuń"
 
 MCopyDeleteAllRO
 "&Все"
 "&All"
-"&Vse"
-"&Alle Loschen"
+"&Vše"
+"&Alle Löschen"
 "Min&det"
 "&Wszystkie"
 
 MCopySkipRO
 "&Пропустить"
 "&Skip"
-"Pres&kocit"
-"Uber&springen"
+"Přes&kočit"
+"Über&springen"
 "&Kihagyja"
-"&Omin"
+"&Omiń"
 
 MCopySkipAllRO
 "П&ропустить все"
 "S&kip all"
-"Pr&eskocit vse"
-"A&lle uberspringen"
+"Př&eskočit vše"
+"A&lle überspringen"
 "Mind&et"
-"O&min wszystkie"
+"O&miń wszystkie"
 
 MCopyCancelRO
 "&Отменить"
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MCannotCopy
 l:
 "Ошибка копирования"
 "Cannot copy"
-"Nelze kopirovat"
+"Nelze kopírovat"
 "Konnte nicht kopieren"
-"Nem masolhato"
-"Nie moge skopiowac"
+"Nem másolható"
+"Nie mogę skopiować"
 
 MCannotMove
 "Ошибка переноса"
 "Cannot move"
-"Nelze presunout"
+"Nelze přesunout"
 "Konnte nicht verschieben"
-"Nem mozgathato"
-"Nie moge przeniesc"
+"Nem mozgatható"
+"Nie mogę przenieść"
 
 MCannotLink
 "Ошибка создания ссылки"
 "Cannot link"
 "Nelze linkovat"
 "Konnte nicht verlinken"
-"Nem linkelheto"
-"Nie moge dowiazac"
+"Nem linkelhető"
+"Nie mogę dowiązać"
 
 MCannotCopyTo
 "в"
@@ -2679,74 +2679,74 @@ MCopyEncryptWarn1
 "The file"
 "Soubor"
 "Die Datei"
-"A fajl"
+"A fájl"
 "Plik"
 
 MCopyEncryptWarn2
 "нельзя скопировать или переместить, не потеряв его шифрование."
 "cannot be copied or moved without losing its encryption."
-"nemuze byt zkopirovan nebo presunut bez ztraty jeho sifrovani."
-"kann nicht bewegt werden ohne ihre Verschlusselung zu verlieren."
-"csak titkositasa elvesztesevel masolhato vagy mozgathato."
-"nie moze zostac skopiowany/przeniesiony bez utraty szyfrowania"
+"nemůže být zkopírován nebo přesunut bez ztráty jeho šifrování."
+"kann nicht bewegt werden ohne ihre Verschlüsselung zu verlieren."
+"csak titkosítása elvesztésével másolható vagy mozgatható."
+"nie może zostać skopiowany/przeniesiony bez utraty szyfrowania"
 
 MCopyEncryptWarn3
 "Можно пропустить эту ошибку или отменить операцию."
 "You can choose to ignore this error and continue, or cancel."
-"Muzete tuto chybu ignorovat a pokracovat, nebo operaci ukoncit."
-"Sie konnen dies ignorieren und fortfahren oder abbrechen."
-"Ennek ellenere folytathatja vagy felfuggesztheti."
-"Mozesz zignorowac blad i kontynuowac lub anulowac operacje."
+"Můžete tuto chybu ignorovat a pokračovat, nebo operaci ukončit."
+"Sie können dies ignorieren und fortfahren oder abbrechen."
+"Ennek ellenére folytathatja vagy felfüggesztheti."
+"Możesz zignorować błąd i kontynuować lub anulować operację."
 
 MCopyReadError
 l:
 "Ошибка чтения данных из"
 "Cannot read data from"
-"Nelze cist data z"
+"Nelze číst data z"
 "Kann Daten nicht lesen von"
-"Nem olvashato adat innen:"
-"Nie moge odczytac danych z"
+"Nem olvasható adat innen:"
+"Nie mogę odczytać danych z"
 
 MCopyWriteError
 "Ошибка записи данных в"
 "Cannot write data to"
 "Nelze zapsat data do"
 "Dann Daten nicht schreiben in"
-"Nem irhato adat ide:"
-"Nie moge zapisac danych do"
+"Nem írható adat ide:"
+"Nie mogę zapisać danych do"
 
 MCopyProcessed
 l:
 "Обработано файлов: %d"
 "Files processed: %d"
-"Zpracovano souboru: %d"
+"Zpracováno souborů: %d"
 "Dateien verarbeitet: %d"
-" %d fajl kesz"
-"Przetworzonych plikow: %d"
+" %d fájl kész"
+"Przetworzonych plików: %d"
 
 MCopyProcessedTotal
 "Обработано файлов: %d из %d"
 "Files processed: %d of %d"
-"Zpracovano souboru: %d z %d"
+"Zpracováno souborů: %d z %d"
 "Dateien verarbeitet: %d von %d"
-" %d fajl kesz %d fajlbol"
-"Przetworzonych plikow: %d z %d"
+" %d fájl kész %d fájlból"
+"Przetworzonych plików: %d z %d"
 
 MCopyMoving
 "Перенос файла"
 "Moving the file"
-"Presunuji soubor"
+"Přesunuji soubor"
 "Verschiebe die Datei"
-"Fajl mozgatasa"
-"Przenosze plik"
+"Fájl mozgatása"
+"Przenoszę plik"
 
 MCopyCopying
 "Копирование файла"
 "Copying the file"
-"Kopiruji soubor"
+"Kopíruji soubor"
 "Kopiere die Datei"
-"Fajl masolasa"
-"Kopiuje plik"
+"Fájl másolása"
+"Kopiuję plik"
 
 MCopyTo
 "в"
@@ -2760,107 +2760,107 @@ MCopyErrorDiskFull
 l:
 "Диск заполнен. Вставьте следующий"
 "Disk full. Insert next"
-"Disk je plny. Vlozte dalsii"
-"Datentrager voll. Bitte nachsten einlegen"
-"A lemez megtelt, kerem a kovetkezot!"
-"Dysk pelny. Wloz nastepny"
+"Disk je plný. Vložte dalšíí"
+"Datenträger voll. Bitte nächsten einlegen"
+"A lemez megtelt, kérem a következőt!"
+"Dysk pełny. Włóż następny"
 
 MDeleteTitle
 l:
 "Удаление"
 "Delete"
 "Smazat"
-"Loschen"
-"Torles"
-"Usun"
+"Löschen"
+"Törlés"
+"Usuń"
 
 MAskDeleteFolder
 "Вы хотите удалить папку"
 "Do you wish to delete the folder"
-"Prejete si smazat adresar"
-"Wollen Sie den Ordner loschen"
-"Torolni akarja a mappat?"
-"Czy chcesz wymazac katalog"
+"Přejete si smazat adresář"
+"Wollen Sie den Ordner löschen"
+"Törölni akarja a mappát?"
+"Czy chcesz wymazać katalog"
 
 MAskDeleteFile
 "Вы хотите удалить файл"
 "Do you wish to delete the file"
-"Prejete si smazat soubor"
-"Wollen Sie die Datei loschen"
-"Torolni akarja a fajlt?"
-"Czy chcesz usunac plik"
+"Přejete si smazat soubor"
+"Wollen Sie die Datei löschen"
+"Törölni akarja a fájlt?"
+"Czy chcesz usunąć plik"
 
 MAskDelete
 "Вы хотите удалить"
 "Do you wish to delete"
-"Prejete si smazat"
-"Wollen Sie folgendes Objekt loschen"
-"Torolni akar"
-"Czy chcesz usunac"
+"Přejete si smazat"
+"Wollen Sie folgendes Objekt löschen"
+"Törölni akar"
+"Czy chcesz usunąć"
 
 MAskDeleteRecycleFolder
 "Вы хотите поместить в Корзину папку"
 "Do you wish to move to the Recycle Bin the folder"
-"Prejete si presunout do Kose adresar"
+"Přejete si přesunout do Koše adresář"
 "Wollen Sie den Ordner in den Papierkorb verschieben"
-"A Lomtarba akarja dobni a mappat?"
-"Czy chcesz przeniesc katalog do Kosza"
+"A Lomtárba akarja dobni a mappát?"
+"Czy chcesz przenieść katalog do Kosza"
 
 MAskDeleteRecycleFile
 "Вы хотите поместить в Корзину файл"
 "Do you wish to move to the Recycle Bin the file"
-"Prejete si presunout do Kose soubor"
+"Přejete si přesunout do Koše soubor"
 "Wollen Sie die Datei in den Papierkorb verschieben"
-"A Lomtarba akarja dobni a fajlt?"
-"Czy chcesz przeniesc plik do Kosza"
+"A Lomtárba akarja dobni a fájlt?"
+"Czy chcesz przenieść plik do Kosza"
 
 MAskDeleteRecycle
 "Вы хотите поместить в Корзину"
 "Do you wish to move to the Recycle Bin"
-"Prejete si presunout do Kose"
+"Přejete si přesunout do Koše"
 "Wollen Sie das Objekt in den Papierkorb verschieben"
-"A Lomtarba akar dobni"
-"Czy chcesz przeniesc do Kosza"
+"A Lomtárba akar dobni"
+"Czy chcesz przenieść do Kosza"
 
 MDeleteWipeTitle
 "Уничтожение"
 "Wipe"
 "Vymazat"
-"Sicheres Loschen"
-"Kisopres"
-"Wymaz"
+"Sicheres Löschen"
+"Kisöprés"
+"Wymaż"
 
 MAskWipeFolder
 "Вы хотите уничтожить папку"
 "Do you wish to wipe the folder"
-"Prejete si vymazat adresar"
-"Wollen Sie den Ordner sicher loschen"
-"Ki akarja soporni a mappat?"
-"Czy chcesz wymazac katalog"
+"Přejete si vymazat adresář"
+"Wollen Sie den Ordner sicher löschen"
+"Ki akarja söpörni a mappát?"
+"Czy chcesz wymazać katalog"
 
 MAskWipeFile
 "Вы хотите уничтожить файл"
 "Do you wish to wipe the file"
-"Prejete si vymazat soubor"
-"Wollen Sie die Datei sicher loschen"
-"Ki akarja soporni a fajlt?"
-"Czy chcesz wymazac plik"
+"Přejete si vymazat soubor"
+"Wollen Sie die Datei sicher löschen"
+"Ki akarja söpörni a fájlt?"
+"Czy chcesz wymazać plik"
 
 MAskWipe
 "Вы хотите уничтожить"
 "Do you wish to wipe"
-"Prejete si vymazat"
-"Wollen Sie das Objekt sicher loschen"
-"Ki akar soporni"
-"Czy chcesz wymazac"
+"Přejete si vymazat"
+"Wollen Sie das Objekt sicher löschen"
+"Ki akar söpörni"
+"Czy chcesz wymazać"
 
 MDeleteLinkTitle
 "Удаление ссылки"
 "Delete link"
 "Smazat link"
-"Link loschen"
-"Link torlese"
-"Usun link"
+"Link löschen"
+"Link törlése"
+"Usuń link"
 
 MAskDeleteLink
 "является ссылкой на"
@@ -2873,7 +2873,7 @@ MAskDeleteLink
 MAskDeleteLinkFolder
 "папку"
 "folder"
-"adresar"
+"adresář"
 "Ordner"
 "mappa"
 "folder"
@@ -2883,13 +2883,13 @@ MAskDeleteLinkFile
 "file"
 "soubor"
 "Date"
-"fajl"
+"fájl"
 "plik"
 
 MAskDeleteItems
 "%d элемент%s"
 "%d item%s"
-"%d poloz%s"
+"%d polož%s"
 "%d Objekt%s"
 "%d elemet%s"
 "%d plik%s"
@@ -2916,85 +2916,85 @@ MAskDeleteItemsS
 "ek"
 "e"
 ""
-"ow"
+"ów"
 
 MDeleteFolderTitle
 l:
 "Удаление папки "
 "Delete folder"
-"Smazat adresar"
-"Ordner loschen"
-"Mappa torlese"
-"Usun folder"
+"Smazat adresář"
+"Ordner löschen"
+"Mappa törlése"
+"Usuń folder"
 
 MWipeFolderTitle
 "Уничтожение папки "
 "Wipe folder"
-"Vymazat adresar"
-"Ordner sicher loschen"
-"Mappa kisoprese"
-"Wymaz folder"
+"Vymazat adresář"
+"Ordner sicher löschen"
+"Mappa kisöprése"
+"Wymaż folder"
 
 MDeleteFilesTitle
 "Удаление файлов"
 "Delete files"
 "Smazat soubory"
-"Dateien loschen"
-"Fajlok torlese"
-"Usun pliki"
+"Dateien löschen"
+"Fájlok törlése"
+"Usuń pliki"
 
 MWipeFilesTitle
 "Уничтожение файлов"
 "Wipe files"
 "Vymazat soubory"
-"Dateien sicher loschen"
-"Fajlok kisoprese"
-"Wymaz pliki"
+"Dateien sicher löschen"
+"Fájlok kisöprése"
+"Wymaż pliki"
 
 MDeleteFolderConfirm
 "Данная папка будет удалена:"
 "The following folder will be deleted:"
-"Nasledujici adresar bude smazan:"
-"Folgender Ordner wird geloscht:"
-"A mappa torlodik:"
-"Nastepujacy folder zostanie usuniety:"
+"Následující adresář bude smazán:"
+"Folgender Ordner wird gelöscht:"
+"A mappa törlődik:"
+"Następujący folder zostanie usunięty:"
 
 MWipeFolderConfirm
 "Данная папка будет уничтожена:"
 "The following folder will be wiped:"
-"Nasledujici adresar bude vymazan:"
-"Folgender Ordner wird sicher geloscht:"
-"A mappa kisoprodik:"
-"Nastepujacy folder zostanie wymazany:"
+"Následující adresář bude vymazán:"
+"Folgender Ordner wird sicher gelöscht:"
+"A mappa kisöprődik:"
+"Następujący folder zostanie wymazany:"
 
 MDeleteWipe
 "Уничтожить"
 "Wipe"
 "Vymazat"
-"Sicheres Loschen"
-"Kisopor"
-"Wymaz"
+"Sicheres Löschen"
+"Kisöpör"
+"Wymaż"
 
 MDeleteFileDelete
 "&Удалить"
 "&Delete"
 "S&mazat"
-"&Loschen"
-"&Torol"
-"&Usun"
+"&Löschen"
+"&Töröl"
+"&Usuń"
 
 MDeleteFileWipe
 "&Уничтожить"
 "&Wipe"
 "V&ymazat"
-"&Sicher loschen"
-"Kiso&por"
-"&Wymaz"
+"&Sicher löschen"
+"Kisö&pör"
+"&Wymaż"
 
 MDeleteFileAll
 "&Все"
 "&All"
-"&Vse"
+"&Vše"
 "&Alle"
 "Min&det"
 "&wszystkie"
@@ -3002,25 +3002,25 @@ MDeleteFileAll
 MDeleteFileSkip
 "&Пропустить"
 "&Skip"
-"Pres&kocit"
-"Uber&springen"
+"Přes&kočit"
+"Über&springen"
 "&Kihagy"
-"&Omin"
+"&Omiń"
 
 MDeleteFileSkipAll
 "П&ропустить все"
 "S&kip all"
-"Pr&eskocit vse"
-"A&lle uberspr."
+"Př&eskočit vše"
+"A&lle überspr."
 "Mind&et"
-"O&min wszystkie"
+"O&miń wszystkie"
 
 MDeleteFileCancel
 "&Отменить"
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MDeleteLinkDelete
@@ -3028,159 +3028,159 @@ l:
 "Удалить ссылку"
 "Delete link"
 "Smazat link"
-"Link loschen"
-"Link torlese"
-"Usun link"
+"Link löschen"
+"Link törlése"
+"Usuń link"
 
 MDeleteLinkUnlink
 "Разорвать ссылку"
 "Break link"
-"Poskozeny link"
-"Link auflosen"
-"Link megszakitasa"
+"Poškozený link"
+"Link auflösen"
+"Link megszakítása"
 "Przerwij link"
 
 MDeletingTitle
 l:
 "Удаление"
 "Deleting"
-"Mazani"
-"Losche"
-"Torles"
+"Mazání"
+"Lösche"
+"Törlés"
 "Usuwam"
 
 MDeleting
 l:
 "Удаление файла или папки"
 "Deleting the file or folder"
-"Mazani souboru nebo adresare"
-"Loschen von Datei oder Ordner"
-"Fajl vagy mappa torlese"
+"Mazání souboru nebo adresáře"
+"Löschen von Datei oder Ordner"
+"Fájl vagy mappa törlése"
 "Usuwam plik/katalog"
 
 MDeletingWiping
 "Уничтожение файла или папки"
 "Wiping the file or folder"
-"Vymazavani souboru nebo adresare"
-"Sicheres loschen von Datei oder Ordner"
-"Fajl vagy mappa kisoprese"
-"Wymazuje plik/katalog"
+"Vymazávání souboru nebo adresáře"
+"Sicheres löschen von Datei oder Ordner"
+"Fájl vagy mappa kisöprése"
+"Wymazuję plik/katalog"
 
 MDeleteRO
 l:
 "Файл имеет атрибут \"Только для чтения\""
 "The file is read only"
-"Soubor je urcen pouze pro cteni"
-"Folgende Datei ist schreibgeschutzt:"
-"A fajl csak olvashato:"
+"Soubor je určen pouze pro čtení"
+"Folgende Datei ist schreibgeschützt:"
+"A fájl csak olvasható:"
 "Ten plik jest tylko do odczytu"
 
 MAskDeleteRO
 "Вы хотите удалить его?"
 "Do you wish to delete it?"
-"Opravdu si ho prejete smazat?"
-"Wollen Sie sie dennoch loschen?"
-"Megis torolni akarja?"
-"Czy chcesz go usunac?"
+"Opravdu si ho přejete smazat?"
+"Wollen Sie sie dennoch löschen?"
+"Mégis törölni akarja?"
+"Czy chcesz go usunąć?"
 
 MAskWipeRO
 "Вы хотите уничтожить его?"
 "Do you wish to wipe it?"
-"Opravdu si ho prejete vymazat?"
-"Wollen Sie sie dennoch sicher loschen?"
-"Megis ki akarja soporni?"
-"Czy chcesz go wymazac?"
+"Opravdu si ho přejete vymazat?"
+"Wollen Sie sie dennoch sicher löschen?"
+"Mégis ki akarja söpörni?"
+"Czy chcesz go wymazać?"
 
 MDeleteHardLink1
 l:
 "Файл имеет несколько жестких ссылок"
 "Several hard links link to this file."
-"Vice pevnych linku ukazuje na tento soubor."
+"Více pevných linků ukazuje na tento soubor."
 "Mehrere Hardlinks zeigen auf diese Datei."
-"Tobb hardlink kapcsolodik a fajlhoz, a fajl"
-"Do tego pliku prowadzi wiele linkow trwalych."
+"Több hardlink kapcsolódik a fájlhoz, a fájl"
+"Do tego pliku prowadzi wiele linków trwałych."
 
 MDeleteHardLink2
 "Уничтожение файла приведет к обнулению всех ссылающихся на него файлов."
 "Wiping this file will void all files linking to it."
-"Vymazani tohoto souboru zneplatni vsechny soubory, ktere na nej linkuji."
-"Sicheres Loschen dieser Datei entfernt ebenfalls alle Links."
-"kisoprese a linkelt fajlokat is megsemmisiti."
-"Wymazanie tego pliku wymaze wszystkie pliki dolinkowane."
+"Vymazání tohoto souboru zneplatní všechny soubory, které na něj linkují."
+"Sicheres Löschen dieser Datei entfernt ebenfalls alle Links."
+"kisöprése a linkelt fájlokat is megsemmisíti."
+"Wymazanie tego pliku wymaże wszystkie pliki dolinkowane."
 
 MDeleteHardLink3
 "Уничтожать файл?"
 "Do you wish to wipe this file?"
 "Opravdu chcete vymazat tento soubor?"
-"Wollen Sie diese Datei sicher loschen?"
-"Biztosan kisopri a fajlt?"
-"Czy wymazac plik?"
+"Wollen Sie diese Datei sicher löschen?"
+"Biztosan kisöpri a fájlt?"
+"Czy wymazać plik?"
 
 MCannotDeleteFile
 l:
 "Ошибка удаления файла"
 "Cannot delete the file"
 "Nelze smazat soubor"
-"Datei konnte nicht geloscht werden"
-"A fajl nem torolheto"
-"Nie moge usunac pliku"
+"Datei konnte nicht gelöscht werden"
+"A fájl nem törölhető"
+"Nie mogę usunąć pliku"
 
 MCannotDeleteFolder
 "Ошибка удаления папки"
 "Cannot delete the folder"
-"Nelze smazat adresar"
-"Ordner konnte nicht geloscht werden"
-"A mappa nem torolheto"
-"Nie moge usunac katalogu"
+"Nelze smazat adresář"
+"Ordner konnte nicht gelöscht werden"
+"A mappa nem törölhető"
+"Nie mogę usunąć katalogu"
 
 MDeleteRetry
 "&Повторить"
 "&Retry"
 "&Znovu"
 "Wiede&rholen"
-"U&jra"
-"&Ponow"
+"Ú&jra"
+"&Ponów"
 
 MDeleteSkip
 "П&ропустить"
 "&Skip"
-"Pres&kocit"
-"Uber&springen"
+"Přes&kočit"
+"Über&springen"
 "&Kihagy"
-"Po&min"
+"Po&miń"
 
 MDeleteSkipAll
 "Пропустить &все"
 "S&kip all"
-"Preskocit &vse"
-"A&lle uberspr."
+"Přeskočit &vše"
+"A&lle überspr."
 "Min&d"
-"Pomin &wszystkie"
+"Pomiń &wszystkie"
 
 MDeleteCancel
 "&Отменить"
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MCannotGetSecurity
 l:
 "Ошибка получения прав доступа к файлу"
 "Cannot get file access rights for"
-"Nemohu ziskat pristupova prava pro"
-"Kann Zugriffsrechte nicht lesen fur"
-"A fajlhoz nincs hozzaferesi joga:"
-"Nie moge pobrac praw dostepu dla"
+"Nemohu získat přístupová práva pro"
+"Kann Zugriffsrechte nicht lesen für"
+"A fájlhoz nincs hozzáférési joga:"
+"Nie mogę pobrać praw dostępu dla"
 
 MCannotSetSecurity
 "Ошибка установки прав доступа к файлу"
 "Cannot set file access rights for"
-"Nemohu nastavit pristupova prava pro"
-"Kann Zugriffsrechte nicht setzen fur"
-"A fajl hozzaferesi jogat nem allithatja:"
-"Nie moge ustawic praw dostepu dla"
+"Nemohu nastavit přístupová práva pro"
+"Kann Zugriffsrechte nicht setzen für"
+"A fájl hozzáférési jogát nem állíthatja:"
+"Nie mogę ustawić praw dostępu dla"
 
 MEditTitle
 l:
@@ -3188,78 +3188,78 @@ l:
 "Editor"
 "Editor"
 "Editor"
-"Szerkeszto"
+"Szerkesztő"
 "Edytor"
 
 MAskReload
 "уже загружен. Как открыть этот файл?"
 "already loaded. How to open this file?"
-"jiz otevren. Jak otevrit tento soubor?"
-"bereits geladen. Wie wollen Sie die Datei offnen?"
-"fajl mar be van toltve. Hogyan szerkeszti?"
-"zostal juz zaladowany. Zaladowac ponownie?"
+"již otevřen. Jak otevřít tento soubor?"
+"bereits geladen. Wie wollen Sie die Datei öffnen?"
+"fájl már be van töltve. Hogyan szerkeszti?"
+"został już załadowany. Załadować ponownie?"
 
 MCurrent
 "&Текущий"
 "&Current"
-"&Stavajici"
+"&Stávající"
 "A&ktuell"
 "A mostanit &folytatja"
-"&Biezacy"
+"&Bieżący"
 
 MReload
 "Пере&грузить"
 "R&eload"
-"&Znovu nacist"
+"&Znovu načíst"
 "Aktualisie&ren"
-"Ujra&tolti"
-"&Zaladuj"
+"Újra&tölti"
+"&Załaduj"
 
 MNewOpen
 "&Новая копия"
 "&New instance"
-"&Nova instance"
+"&Nová instance"
 "&Neue Instanz"
-"U&j peldanyban"
+"Ú&j példányban"
 "&Nowa instancja"
 
 MEditCannotOpen
 "Ошибка открытия файла"
 "Cannot open the file"
-"Nelze otevrit soubor"
-"Kann Datei nicht offnen"
-"A fajl nem nyithato meg"
-"Nie moge otworzyc pliku"
+"Nelze otevřít soubor"
+"Kann Datei nicht öffnen"
+"A fájl nem nyitható meg"
+"Nie mogę otworzyć pliku"
 
 MEditReading
 "Чтение файла"
 "Reading the file"
-"Nacitam soubor"
+"Načítám soubor"
 "Lesen der Datei"
-"Fajl olvasasa"
+"Fájl olvasása"
 "Czytam plik"
 
 MEditAskSave
 "Файл был изменен"
 "File has been modified"
-"Soubor byl modifikovan"
-"Datei wurde verandert"
-"A fajl megvaltozott"
-"Plik zostal zmodyfikowany"
+"Soubor byl modifikován"
+"Datei wurde verändert"
+"A fájl megváltozott"
+"Plik został zmodyfikowany"
 
 MEditAskSaveExt
 "Файл был изменен внешней программой"
 "The file was changed by an external program"
-"Soubor byl zmeneny externim programem"
-"Die Datei wurde durch ein externes Programm verandert"
-"A fajlt egy kulso program megvaltoztatta"
-"Plik zostal zmieniony przez inny program"
+"Soubor byl změněný externím programem"
+"Die Datei wurde durch ein externes Programm verändert"
+"A fájlt egy külső program megváltoztatta"
+"Plik został zmieniony przez inny program"
 
 MEditSave
 l:
 "&Сохранить"
 "&Save"
-"&Ulozit"
+"&Uložit"
 "&Speichern"
 "&Ment"
 "&Zapisz"
@@ -3267,7 +3267,7 @@ l:
 MEditNotSave
 "&Не сохранять"
 "Do &not save"
-"&Neukladat"
+"&Neukládat"
 "&Nicht speichern"
 "&Nem ment"
 "&Nie zapisuj"
@@ -3275,56 +3275,56 @@ MEditNotSave
 MEditContinue
 "&Продолжить редактирование"
 "&Continue editing"
-"&Pokracovat"
+"&Pokračovat"
 "Bearbeiten f&ortsetzen"
-"&Szerkesztest folytat"
-"&Kontynuuj edycje"
+"&Szerkesztést folytat"
+"&Kontynuuj edycję"
 
 MEditBtnSaveAs
 "Сохр&анить как"
 "Save &as..."
-"Uloz&it jako..."
+"Ulož&it jako..."
 "Speichern &als..."
-"Mentes mas&kent..."
+"Mentés más&ként..."
 "Zapisz &jako..."
 
 MEditRO
 l:
 "имеет атрибут \"Только для чтения\""
 "is a read-only file"
-"je urcen pouze pro cteni"
-"ist eine schreibgeschutzte Datei"
-"csak olvashato fajl"
+"je určen pouze pro čtení"
+"ist eine schreibgeschützte Datei"
+"csak olvasható fájl"
 "jest plikiem tylko do odczytu"
 
 MEditExists
 "уже существует"
 "already exists"
-"jiz existuje"
+"již existuje"
 "ist bereits vorhanden"
-"mar letezik"
-"juz istnieje"
+"már létezik"
+"już istnieje"
 
 MEditOvr
 "Вы хотите перезаписать его?"
 "Do you wish to overwrite it?"
-"Prejete si ho prepsat?"
-"Wollen Sie die Datei uberschreiben?"
-"Felul akarja irni?"
-"Czy chcesz go nadpisac?"
+"Přejete si ho přepsat?"
+"Wollen Sie die Datei überschreiben?"
+"Felül akarja írni?"
+"Czy chcesz go nadpisać?"
 
 MEditSaving
 "Сохранение файла"
 "Saving the file"
-"Ukladam soubor"
+"Ukládám soubor"
 "Speichere die Datei"
-"Fajl mentese"
-"Zapisuje plik"
+"Fájl mentése"
+"Zapisuję plik"
 
 MEditStatusLine
 "Строка"
 "Line"
-"Radek"
+"Řádek"
 "Zeile"
 "Sor"
 "linia"
@@ -3341,9 +3341,9 @@ MEditRSH
 l:
 "предназначен только для чтения"
 "is a read-only file"
-"je urcen pouze pro cteni"
-"ist eine schreibgeschutzte Datei"
-"csak olvashato fajl"
+"je určen pouze pro čtení"
+"ist eine schreibgeschützte Datei"
+"csak olvasható fájl"
 "jest plikiem tylko do odczytu"
 
 MEditFileGetSizeError
@@ -3351,41 +3351,41 @@ MEditFileGetSizeError
 "File size could not be determined."
 upd:"File size could not be determined."
 upd:"File size could not be determined."
-"A fajlmeret megallapithatatlan."
+"A fájlméret megállapíthatatlan."
 upd:"File size could not be determined."
 
 MEditFileLong
 "имеет размер %s,"
 "has the size of %s,"
-"ma velikost %s,"
-"hat eine Gro?e von %s,"
-"merete %s,"
-"ma wielkosc %s,"
+"má velikost %s,"
+"hat eine Größe von %s,"
+"mérete %s,"
+"ma wielkość %s,"
 
 MEditFileLong2
 "что превышает заданное ограничение в %s."
 "which exceeds the configured maximum size of %s."
-"ktera prekracuje nastavenou maximalni velikost %s."
-"die die konfiguierte Maximalgro?e von %s uberschreitet."
-"meghaladja %s beallitott maximumat."
-"przekraczajaca ustalone maksimum %s."
+"která překračuje nastavenou maximální velikost %s."
+"die die konfiguierte Maximalgröße von %s überschreitet."
+"meghaladja %s beállított maximumát."
+"przekraczającą ustalone maksimum %s."
 
 MEditROOpen
 "Вы хотите редактировать его?"
 "Do you wish to edit it?"
-"Opravdu si ho prejete upravit?"
+"Opravdu si ho přejete upravit?"
 "Wollen Sie sie dennoch bearbeiten?"
-"Megis szerkeszti?"
-"Czy chcesz go edytowac?"
+"Mégis szerkeszti?"
+"Czy chcesz go edytować?"
 
 MEditCanNotEditDirectory
 l:
 "Невозможно редактировать папку"
 "It is impossible to edit the folder"
-"Nelze editovat adresar"
-"Es ist nicht moglich den Ordner zu bearbeiten"
-"A mappa nem szerkesztheto"
-"Nie mozna edytowac folderu"
+"Nelze editovat adresář"
+"Es ist nicht möglich den Ordner zu bearbeiten"
+"A mappa nem szerkeszthető"
+"Nie można edytować folderu"
 
 MEditSearchTitle
 l:
@@ -3393,7 +3393,7 @@ l:
 "Search"
 "Hledat"
 "Suchen"
-"Kereses"
+"Keresés"
 "Szukaj"
 
 MEditSearchFor
@@ -3401,39 +3401,39 @@ MEditSearchFor
 "&Search for"
 "&Hledat"
 "&Suchen nach"
-"&Kereses:"
-"&Znajdz"
+"&Keresés:"
+"&Znajdź"
 
 MEditSearchCase
 "&Учитывать регистр"
 "&Case sensitive"
-"&Rozlisovat velikost pismen"
-"G&ro?-/Kleinschrb."
-"&Nagy/kisbetu erz."
-"&Uwzglednij wielkosc liter"
+"&Rozlišovat velikost písmen"
+"G&roß-/Kleinschrb."
+"&Nagy/kisbetű érz."
+"&Uwzględnij wielkość liter"
 
 MEditSearchWholeWords
 "Только &целые слова"
 "&Whole words"
-"&Cela slova"
-"&Ganze Worter"
-"Csak e&gesz szavak"
-"Tylko cale slowa"
+"&Celá slova"
+"&Ganze Wörter"
+"Csak e&gész szavak"
+"Tylko całe słowa"
 
 MEditSearchReverse
 "Обратн&ый поиск"
 "Re&verse search"
-"&Zpetne hledani"
+"&Zpětné hledání"
 "Richtung um&kehren"
-"&Visszafele keres"
+"&Visszafelé keres"
 "Szukaj w &odwrotnym kierunku"
 
 MEditSearchSelFound
 "&Выделять найденное"
 "Se&lect found"
-"Vy&ber nalezene"
+"Vy&ber nalezené"
 "Treffer &markieren"
-"&Talalat kijelolese"
+"&Találat kijelölése"
 "W&ybierz znalezione"
 
 MEditSearchRegexp
@@ -3449,7 +3449,7 @@ MEditSearchSearch
 "Search"
 "Hledat"
 "Suchen"
-"Kere&ses"
+"Kere&sés"
 "&Szukaj"
 
 MEditSearchCancel
@@ -3457,7 +3457,7 @@ MEditSearchCancel
 "Cancel"
 "Storno"
 "Abbruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MEditReplaceTitle
@@ -3466,16 +3466,16 @@ l:
 "Replace"
 "Nahradit"
 "Ersetzen"
-"Kereses es csere"
-"Zamien"
+"Keresés és csere"
+"Zamień"
 
 MEditReplaceWith
 "Заменить &на"
 "R&eplace with"
 "Nahradit &s"
 "&Ersetzen mit"
-"&Erre csereli:"
-"Zamien &na"
+"&Erre cseréli:"
+"Zamień &na"
 
 MEditReplaceReplace
 "&Замена"
@@ -3483,24 +3483,24 @@ MEditReplaceReplace
 "&Nahradit"
 "E&rsetzen"
 "&Csere"
-"Za&mien"
+"Za&mień"
 
 MEditSearchingFor
 l:
 "Искать"
 "Searching for"
-"Vyhledavam"
+"Vyhledávám"
 "Suche nach"
-"Keresett szoveg:"
+"Keresett szöveg:"
 "Szukam"
 
 MEditNotFound
 "Строка не найдена"
 "Could not find the string"
-"Nemuzu najit retezec"
+"Nemůžu najít řetězec"
 "Konnte Zeichenkette nicht finden"
-"A szoveg nem talalhato:"
-"Nie moge odnalezc ciagu"
+"A szöveg nem található:"
+"Nie mogę odnaleźć ciągu"
 
 MEditAskReplace
 l:
@@ -3508,15 +3508,15 @@ l:
 "Replace"
 "Nahradit"
 "Ersetze"
-"Ezt csereli:"
-"Zamienic"
+"Ezt cseréli:"
+"Zamienić"
 
 MEditAskReplaceWith
 "на"
 "with"
 "s"
 "mit"
-"erre a szovegre:"
+"erre a szövegre:"
 "na"
 
 MEditReplace
@@ -3525,12 +3525,12 @@ MEditReplace
 "&Nahradit"
 "E&rsetzen"
 "&Csere"
-"&Zamien"
+"&Zamień"
 
 MEditReplaceAll
 "&Все"
 "&All"
-"&Vse"
+"&Vše"
 "&Alle"
 "&Mindet"
 "&Wszystkie"
@@ -3538,52 +3538,52 @@ MEditReplaceAll
 MEditSkip
 "&Пропустить"
 "&Skip"
-"Pres&kocit"
-"Uber&springen"
+"Přes&kočit"
+"Über&springen"
 "&Kihagy"
-"&Omin"
+"&Omiń"
 
 MEditCancel
 "&Отменить"
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"Me&gsem"
+"Mé&gsem"
 "&Anuluj"
 
 MEditOpenCreateLabel
 "&Открыть/создать файл:"
 "&Open/create file:"
-"Otevrit/vytvorit soubor:"
-"Offnen/datei erstellen:"
-"Fajl megnyitasa/&letrehozasa:"
-"&Otworz/utworz plik:"
+"Otevřít/vytvořit soubor:"
+"Öffnen/datei erstellen:"
+"Fájl megnyitása/&létrehozása:"
+"&Otwórz/utwórz plik:"
 
 MEditOpenAutoDetect
 "&Автоматическое определение"
 "&Automatic detection"
 upd:"Automatic detection"
 upd:"Automatic detection"
-"&Automatikus felismeres"
+"&Automatikus felismerés"
 "&Wykryj automatycznie"
 
 MEditGoToLine
 l:
 "Перейти"
 "Go to position"
-"Jit na pozici"
+"Jít na pozici"
 "Gehe zu Zeile"
-"Sorra ugras"
-"Idz do linii"
+"Sorra ugrás"
+"Idź do linii"
 
 MFolderShortcutsTitle
 l:
 "Ссылки на папки"
 "Folder shortcuts"
-"Adresarove zkratky"
+"Adresářové zkratky"
 "Ordnerschnellzugriff"
-"Mappa gyorsbillentyuk"
-"Skroty katalogow"
+"Mappa gyorsbillentyűk"
+"Skróty katalogów"
 
 MFolderShortcutBottom
 "Редактирование: Del,Ins,F4"
@@ -3596,7 +3596,7 @@ MFolderShortcutBottom
 MShortcutNone
 "<отсутствует>"
 "<none>"
-"<neni>"
+"<není>"
 "<keiner>"
 "<nincs>"
 "<brak>"
@@ -3613,25 +3613,25 @@ MEnterShortcut
 "Введите новую ссылку:"
 "Enter new shortcut:"
 "Zadejte novou zkratku:"
-"Neue Verknupfung:"
-"A gyorsbillentyuhoz rendelt mappa:"
-"Wprowadz nowy skrot:"
+"Neue Verknüpfung:"
+"A gyorsbillentyűhöz rendelt mappa:"
+"Wprowadź nowy skrót:"
 
 MNeedNearPath
 "Перейти в ближайшую доступную папку?"
 "Jump to the nearest existing folder?"
-"Skocit na nejblizsi existujici adresar?"
+"Skočit na nejbližší existující adresář?"
 "Zum nahesten existierenden Ordner springen?"
-"Ugras a legkozelebbi letezo mappara?"
-"Przejsc do najblizszego istniejacego folderu?"
+"Ugrás a legközelebbi létező mappára?"
+"Przejść do najbliższego istniejącego folderu?"
 
 MSaveThisShortcut
 "Запомнить эту ссылку?"
 "Save this shortcuts?"
-"Ulozit tyto zkratky?"
-"Verknupfung speichern?"
-"Mentsem a gyorsbillentyuket?"
-"Zapisac skroty?"
+"Uložit tyto zkratky?"
+"Verknüpfung speichern?"
+"Mentsem a gyorsbillentyűket?"
+"Zapisać skróty?"
 
 MEditF1
 l:
@@ -3640,15 +3640,15 @@ l://functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe!
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MEditF2
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MEditF3
@@ -3680,7 +3680,7 @@ MEditF6
 "View"
 "Zobraz"
 "Betr."
-"Megnez"
+"Megnéz"
 "Zobacz"
 
 MEditF7
@@ -3712,7 +3712,7 @@ MEditF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MEditF11
@@ -3728,7 +3728,7 @@ MEditF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MEditF8DOS
@@ -3793,17 +3793,17 @@ MEditShiftF6
 MEditShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
-"Nastep"
+"Następ"
 
 MEditShiftF8
 "КодСтр"
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "Tabela"
 
 MEditShiftF9
@@ -3891,7 +3891,7 @@ MEditAltF6
 MEditAltF7
 "Назад"
 "Prev"
-"Predch"
+"Předch"
 "Letzt"
 "VisKer"
 "Poprz"
@@ -3899,10 +3899,10 @@ MEditAltF7
 MEditAltF8
 "Строка"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MEditAltF9
 "Видео"
@@ -3925,7 +3925,7 @@ MEditAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MEditAltF12
@@ -3989,10 +3989,10 @@ MEditCtrlF6
 MEditCtrlF7
 "Замена"
 "Replac"
-"Nahrad"
+"Nahraď"
 "Ersetz"
 "Csere"
-"Zamien"
+"Zamień"
 
 MEditCtrlF8
 ""
@@ -4015,7 +4015,7 @@ MEditCtrlF10
 "GoFile"
 "JdiSou"
 "GehDat"
-"FajlPz"
+"FájlPz"
 "GoFile"
 
 MEditCtrlF11
@@ -4105,7 +4105,7 @@ MEditAltShiftF9
 "Config"
 "Nastav"
 "Konfig"
-"Beall."
+"Beáll."
 "Konfig"
 
 MEditAltShiftF10
@@ -4434,15 +4434,15 @@ l://Single Editor: functional keys - 6 characters max, 12 keys, "OEM" is F8 dupe
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MSingleEditF2
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MSingleEditF3
@@ -4474,7 +4474,7 @@ MSingleEditF6
 "View"
 "Zobraz"
 "Betr."
-"Megnez"
+"Megnéz"
 "Zobacz"
 
 MSingleEditF7
@@ -4506,7 +4506,7 @@ MSingleEditF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MSingleEditF11
@@ -4522,7 +4522,7 @@ MSingleEditF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MSingleEditF8DOS
@@ -4587,17 +4587,17 @@ MSingleEditShiftF6
 MSingleEditShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
-"Nastep"
+"Następ"
 
 MSingleEditShiftF8
 "КодСтр"
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "Tabela"
 
 MSingleEditShiftF9
@@ -4693,10 +4693,10 @@ MSingleEditAltF7
 MSingleEditAltF8
 "Строка"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MSingleEditAltF9
 "Видео"
@@ -4719,7 +4719,7 @@ MSingleEditAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "ZobHs"
 
 MSingleEditAltF12
@@ -4783,10 +4783,10 @@ MSingleEditCtrlF6
 MSingleEditCtrlF7
 "Замена"
 "Replac"
-"Nahrad"
+"Nahraď"
 "Ersetz"
 "Csere"
-"Zastap"
+"Zastąp"
 
 MSingleEditCtrlF8
 ""
@@ -4899,7 +4899,7 @@ MSingleEditAltShiftF9
 "Config"
 "Nastav"
 "Konfig"
-"Beall."
+"Beáll."
 "Konfig"
 
 MSingleEditAltShiftF10
@@ -5225,186 +5225,186 @@ MEditSaveAs
 l:
 "Сохранить &файл как"
 "Save file &as"
-"Ulozit soubor jako"
+"Uložit soubor jako"
 "Speichern &als"
-"Fa&jl mentese, mint:"
+"Fá&jl mentése, mint:"
 "Zapisz plik &jako"
 
 MEditCodePage
 "&Кодовая страница:"
 "&Code page:"
-"Kodova stranka:"
+"Kódová stránka:"
 "Codepage:"
-"Kodlap:"
+"Kódlap:"
 "&Strona kodowa:"
 
 MEditAddSignature
 "Добавить &сигнатуру (BOM)"
 "Add &signature (BOM)"
-"Pridat signaturu (BOM)"
+"Přidat signaturu (BOM)"
 "Sinatur hinzu (BOM)"
-"Uni&code bajtsorrend jelzovel (BOM)"
+"Uni&code bájtsorrend jelzővel (BOM)"
 "Dodaj &znacznik BOM"
 
 MEditSaveAsFormatTitle
 "Изменить перевод строки:"
 "Change line breaks to:"
-"Zmenit zakonceni radku na:"
-"Zeilenumbruche setzen:"
-"Sortores konverzio:"
-"Zamien znaki konca linii na:"
+"Změnit zakončení řádků na:"
+"Zeilenumbrüche setzen:"
+"Sortörés konverzió:"
+"Zamień znaki końca linii na:"
 
 MEditSaveOriginal
 "&исходный формат"
 "Do n&ot change"
-"&Beze zmeny"
-"Nicht vera&ndern"
-"Nincs &konverzio"
+"&Beze změny"
+"Nicht verä&ndern"
+"Nincs &konverzió"
 "&Nie zmieniaj"
 
 MEditSaveDOS
 "в форма&те DOS/Windows (CR LF)"
 "&Dos/Windows format (CR LF)"
-"&Dos/Windows format (CR LF)"
+"&Dos/Windows formát (CR LF)"
 "&Dos/Windows Format (CR LF)"
-"&DOS/Windows formatum (CR LF)"
+"&DOS/Windows formátum (CR LF)"
 "Format &Dos/Windows (CR LF)"
 
 MEditSaveUnix
 "в формат&е UNIX (LF)"
 "&Unix format (LF)"
-"&Unix format (LF)"
+"&Unix formát (LF)"
 "&Unix Format (LF)"
-"&UNIX formatum (LF)"
+"&UNIX formátum (LF)"
 "Format &Unix (LF)"
 
 MEditSaveMac
 "в фор&мате MAC (CR)"
 "&Mac format (CR)"
-"&Mac format (CR)"
+"&Mac formát (CR)"
 "&Mac Format (CR)"
-"&Mac formatum (CR)"
+"&Mac formátum (CR)"
 "Format &Mac (CR)"
 
 MEditCannotSave
 "Ошибка сохранения файла"
 "Cannot save the file"
-"Nelze ulozit soubor"
+"Nelze uložit soubor"
 "Kann die Datei nicht speichern"
-"A fajl nem mentheto"
-"Nie moge zapisac pliku"
+"A fájl nem menthető"
+"Nie mogę zapisać pliku"
 
 MEditSavedChangedNonFile
 "Файл изменен, но файл или папка, в которой он находился,"
 "The file is changed but the file or the folder containing"
-"Soubor je zmenen, ale soubor, nebo adresar obsahujici"
-"Inhalt dieser Datei wurde verandert aber die Datei oder der Ordner, welche"
-"A fajl megvaltozott, de a fajlt vagy a mappajat"
-"Plik zostal zmieniony, ale plik lub folder zawierajacy"
+"Soubor je změněn, ale soubor, nebo adresář obsahující"
+"Inhalt dieser Datei wurde verändert aber die Datei oder der Ordner, welche"
+"A fájl megváltozott, de a fájlt vagy a mappáját"
+"Plik został zmieniony, ale plik lub folder zawierający"
 
 MEditSavedChangedNonFile1
 "Файл или папка, в которой он находился,"
 "The file or the folder containing"
-"Soubor nebo adresar obsahujici"
+"Soubor nebo adresář obsahující"
 "Die Datei oder der Ordner, welche"
-"A fajlt vagy a mappajat"
-"Plik lub folder zawierajacy"
+"A fájlt vagy a mappáját"
+"Plik lub folder zawierający"
 
 MEditSavedChangedNonFile2
 "был перемещен или удален."
 "this file was moved or deleted."
-"tento soubor byl presunut, nebo smazan."
-"diesen Inhalt enthalt wurde verschoben oder geloscht."
-"idokozben athelyezte/atnevezte vagy torolte."
-"ten plik zostal przeniesiony lub usuniety."
+"tento soubor byl přesunut, nebo smazán."
+"diesen Inhalt enthält wurde verschoben oder gelöscht."
+"időközben áthelyezte/átnevezte vagy törölte."
+"ten plik został przeniesiony lub usunięty."
 
 MEditNewPath1
 "Путь к редактируемому файлу не существует,"
 "The path to the edited file does not exist,"
-"Cesta k editovanemu souboru neexistuje,"
+"Cesta k editovanému souboru neexistuje,"
 "Der Pfad zur bearbeiteten Datei existiert nicht,"
-"A szerkesztendo fajl celmappaja meg"
-"Sciezka do edytowanego pliku nie istnieje,"
+"A szerkesztendő fájl célmappája még"
+"Ścieżka do edytowanego pliku nie istnieje,"
 
 MEditNewPath2
 "но будет создан при сохранении файла."
 "but will be created when the file is saved."
-"ale bude vytvorena pri ulozeni souboru."
+"ale bude vytvořena při uložení souboru."
 "aber wird erstellt sobald die Datei gespeichert wird."
-"nem letezik, de menteskor letrejon."
+"nem létezik, de mentéskor létrejön."
 "ale zostanie utworzona po zapisaniu pliku."
 
 MEditNewPath3
 "Продолжать?"
 "Continue?"
-"Pokracovat?"
+"Pokračovat?"
 "Fortsetzen?"
 "Folytatja?"
-"Kontynuowac?"
+"Kontynuować?"
 
 MEditNewPlugin1
 "Имя редактируемого файла не может быть пустым"
 "The name of the file to edit cannot be empty"
-"Nazev souboru k editaci nesmi byt prazdne"
+"Název souboru k editaci nesmí být prázdné"
 "Der Name der zu editierenden Datei kann nicht leer sein"
-"A szerkesztendo fajlnak nevet kell adni"
-"Nazwa pliku do edycji nie moze byc pusta"
+"A szerkesztendő fájlnak nevet kell adni"
+"Nazwa pliku do edycji nie może być pusta"
 
 MEditDataLostWarn1
 "Файл содержит символы, которые невозможно"
 "This file contains characters, which cannot be"
-"Tento soubor obsahuje znaky, ktere nemohou byt"
-"Die Datei enthalt Zeichen, welche mit der aktuellen Codepage"
-"A fajl olyan karaktereket tartalmaz, amelyek a"
-"Plik zawiera znaki, ktore nie moga byc"
+"Tento soubor obsahuje znaky, které nemohou být"
+"Die Datei enthält Zeichen, welche mit der aktuellen Codepage"
+"A fájl olyan karaktereket tartalmaz, amelyek a"
+"Plik zawiera znaki, które nie mogą być"
 
 MEditDataLostWarn2
 "корректно преобразовать в выбранную кодировку."
 "correctly translated using the selected codepage."
-"korektne prelozeny do zvoleneho kodovani."
-"nicht korrekt angezeigt werden konnen."
-"kivalasztott kodlappal nem ertelmezhetok helyesen."
+"korektně přeloženy do zvoleného kódování."
+"nicht korrekt angezeigt werden können."
+"kiválasztott kódlappal nem értelmezhetők helyesen."
 "poprawnie zapisane w wybranej stronie kodowej."
 
 MEditDataLostWarn3
 "Продолжить?"
 "Continue?"
-"Pokracovat?"
+"Pokračovat?"
 "Fortsetzen?"
 "Folytatja?"
-"Kontynuowac?"
+"Kontynuować?"
 
 MEditDataLostWarn4
 "Сохранять файл не рекомендуется."
 "It is not recommended to save this file."
-"Neni doporuceno ulozit tento soubor."
+"Není doporučeno uložit tento soubor."
 "Es wird empfohlen, die Datei nicht zu speichern."
-"A fajl mentese nem ajanlott."
+"A fájl mentése nem ajánlott."
 "Odradzamy zapis pliku."
 
 MColumnName
 l:
 "Имя"
 "Name"
-"Nazev"
+"Název"
 "Name"
-"Nev"
+"Név"
 "Nazwa"
 
 MColumnSize
 "Размер"
 "Size"
 "Velikost"
-"Gro?e"
-"Meret"
+"Größe"
+"Méret"
 "Rozmiar"
 
 MColumnPacked
 "Упаков"
 "Packed"
-"Komprimovany"
+"Komprimovaný"
 "Kompr."
-"TMeret"
+"TMéret"
 "Spakowany"
 
 MColumnDate
@@ -5412,40 +5412,40 @@ MColumnDate
 "Date"
 "Datum"
 "Datum"
-"Datum"
+"Dátum"
 "Data"
 
 MColumnTime
 "Время"
 "Time"
-"Cas"
+"Čas"
 "Zeit"
-"Ido"
+"Idő"
 "Czas"
 
 MColumnModified
 "Модификация"
 "Modified"
-"Modifikovan"
-"Verandert"
-"Modositva"
+"Modifikován"
+"Verändert"
+"Módosítva"
 "Modyfikacja"
 
 MColumnCreated
 "Создание"
 "Created"
-"Vytvoren"
+"Vytvořen"
 "Erstellt"
-"Letrejott"
+"Létrejött"
 "Utworzenie"
 
 MColumnAccessed
 "Доступ"
 "Accessed"
-"Pristup"
+"Přístup"
 "Zugriff"
-"Hozzaferes"
-"Uzycie"
+"Hozzáférés"
+"Użycie"
 
 MColumnAttr
 "Атриб"
@@ -5460,21 +5460,21 @@ MColumnDescription
 "Description"
 "Popis"
 "Beschreibung"
-"Megjegyzes"
+"Megjegyzés"
 "Opis"
 
 MColumnOwner
 "Владелец"
 "Owner"
-"Vlastnik"
+"Vlastník"
 "Besitzer"
 "Tulajdonos"
-"Wlasciciel"
+"Właściciel"
 
 MColumnMumLinks
 "КлС"
 "NmL"
-"PocLn"
+"PočLn"
 "AnL"
 "Lnk"
 "NmL"
@@ -5492,7 +5492,7 @@ MColumnStreamsSize
 "StrmSz"
 upd:"StrmSz"
 upd:"StrmSz"
-"StmMer"
+"StmMér"
 upd:"StrmSz"
 
 MListUp
@@ -5502,12 +5502,12 @@ l:
 "Nahoru"
 " Hoch "
 "  Fel  "
-"W gore"
+"W górę"
 
 MListFolder
 "Папка"
 "Folder"
-"Adresar"
+"Adresář"
 "Ordner"
 " Mappa "
 "Folder"
@@ -5523,18 +5523,18 @@ MListSymLink
 MListJunction
 "Связь"
 "Junction"
-"Krizeni"
+"Křížení"
 "Knoten"
-"Csomopt"
-"Dowiazania"
+"Csomópt"
+"Dowiązania"
 
 MListVolMount
 "Том"
 "Volume"
 "Svazek"
-"Datentrager"
-"Kotet"
-"Naped"
+"Datenträger"
+"Kötet"
+"Napęd"
 
 MListBytes
 "Б"
@@ -5595,34 +5595,34 @@ MListEb
 MListFileSize
 " %s байт в 1 файле "
 " %s bytes in 1 file "
-" %s bytu v 1 souboru "
+" %s bytů v 1 souboru "
 " %s Bytes in 1 Datei "
-" %s bajt 1 fajlban "
-" %s bajtow w 1 pliku "
+" %s bájt 1 fájlban "
+" %s bajtów w 1 pliku "
 
 MListFilesSize1
 " %s байт в %d файле "
 " %s bytes in %d files "
-" %s bytu v %d souborech "
+" %s bytů v %d souborech "
 " %s Bytes in %d Dateien "
-" %s bajt %d fajlban "
-" %s bajtow w %d plikach "
+" %s bájt %d fájlban "
+" %s bajtów w %d plikach "
 
 MListFilesSize2
 " %s байт в %d файлах "
 " %s bytes in %d files "
-" %s bytu v %d souborech "
+" %s bytů v %d souborech "
 " %s Bytes in %d Dateien "
-" %s bajt %d fajlban "
-" %s bajtow w %d plikach "
+" %s bájt %d fájlban "
+" %s bajtów w %d plikach "
 
 MListFreeSize
 " %s байт свободно "
 " %s free bytes "
-" %s volnych bytu "
+" %s volných bytů "
 " %s freie Bytes "
-" %s szabad bajt "
-" %s wolnych bajtow "
+" %s szabad bájt "
+" %s wolnych bajtów "
 
 MDirInfoViewTitle
 l:
@@ -5630,32 +5630,32 @@ l:
 "View"
 "Zobraz"
 "Betrachten"
-"Vizsgalat"
-"Podglad"
+"Vizsgálat"
+"Podgląd"
 
 MFileToEdit
 "Редактировать файл:"
 "File to edit:"
 "Soubor k editaci:"
 "Datei bearbeiten:"
-"Szerkesztendo fajl:"
+"Szerkesztendő fájl:"
 "Plik do edycji:"
 
 MUnselectTitle
 l:
 "Снять"
 "Deselect"
-"Odznacit"
-"Abwahlen"
-"Kijelolest levesz"
+"Odznačit"
+"Abwählen"
+"Kijelölést levesz"
 "Odznacz"
 
 MSelectTitle
 "Пометить"
 "Select"
-"Oznacit"
-"Auswahlen"
-"Kijeloles"
+"Označit"
+"Auswählen"
+"Kijelölés"
 "Zaznacz"
 
 MSelectFilter
@@ -5663,7 +5663,7 @@ MSelectFilter
 "&Filter"
 "&Filtr"
 "&Filter"
-"&Szuro"
+"&Szűrő"
 "&Filtruj"
 
 MCompareTitle
@@ -5672,58 +5672,58 @@ l:
 "Compare"
 "Porovnat"
 "Vergleichen"
-"Osszehasonlitas"
-"Porownaj"
+"Összehasonlítás"
+"Porównaj"
 
 MCompareFilePanelsRequired1
 "Для сравнения папок требуются"
 "Two file panels are required to perform"
-"Pro provedeni prikazu Porovnat adresare"
-"Zwei Dateipanels werden benotigt um"
-"Mappak osszehasonlitasahoz"
-"Aby porownac katalogi konieczne sa"
+"Pro provedení příkazu Porovnat adresáře"
+"Zwei Dateipanels werden benötigt um"
+"Mappák összehasonlításához"
+"Aby porównać katalogi konieczne są"
 
 MCompareFilePanelsRequired2
 "две файловые панели"
 "the Compare folders command"
-"jsou nutne dva souborove panely"
-"den Vergleich auszufuhren."
-"ket fajlpanel szukseges"
-"dwa zwykle panele plikow"
+"jsou nutné dva souborové panely"
+"den Vergleich auszuführen."
+"két fájlpanel szükséges"
+"dwa zwykłe panele plików"
 
 MCompareSameFolders1
 "Содержимое папок,"
 "The folders contents seems"
-"Obsahy adresaru jsou"
+"Obsahy adresářů jsou"
 "Der Inhalt der beiden Ordner scheint"
-"A mappak tartalma"
-"Zawartosc katalogow"
+"A mappák tartalma"
+"Zawartość katalogów"
 
 MCompareSameFolders2
 "скорее всего, одинаково"
 "to be identical"
-"identicke"
+"identické"
 "identisch zu sein."
-"azonosnak tunik"
-"wydaje sie byc identyczna"
+"azonosnak tűnik"
+"wydaje się być identyczna"
 
 MSelectAssocTitle
 l:
 "Выберите ассоциацию"
 "Select association"
-"Vyber zavislosti"
-"Dateiverknupfung auswahlen"
-"Valasszon tarsitast"
+"Vyber závislosti"
+"Dateiverknüpfung auswählen"
+"Válasszon társítást"
 "Wybierz przypisanie"
 
 MAssocTitle
 l:
 "Ассоциации для файлов"
 "File associations"
-"Zavislosti souboru"
-"Dateiverknupfungen"
-"Fajltarsitasok"
-"Przypisania plikow"
+"Závislosti souborů"
+"Dateiverknüpfungen"
+"Fájltársítások"
+"Przypisania plików"
 
 MAssocBottom
 "Редактирование: Del,Ins,F4"
@@ -5736,83 +5736,83 @@ MAssocBottom
 MAskDelAssoc
 "Вы хотите удалить ассоциацию для"
 "Do you wish to delete association for"
-"Prejete si smazat zavislost pro"
-"Wollen Sie die Verknupfung loschen fur"
-"Torolni szeretne a tarsitast?"
-"Czy chcesz usunac przypisanie dla"
+"Přejete si smazat závislost pro"
+"Wollen Sie die Verknüpfung löschen für"
+"Törölni szeretné a társítást?"
+"Czy chcesz usunąć przypisanie dla"
 
 MFileAssocTitle
 l:
 "Редактирование ассоциаций файлов"
 "Edit file associations"
-"Upravit zavislosti souboru"
-"Dateiverknupfungen bearbeiten"
-"Fajltarsitasok szerkesztese"
+"Upravit závislosti souborů"
+"Dateiverknüpfungen bearbeiten"
+"Fájltársítások szerkesztése"
 "Edytuj przypisania pliku"
 
 MFileAssocMasks
 "Одна или несколько &масок файлов:"
 "A file &mask or several file masks:"
-"&Maska nebo masky souboru:"
+"&Maska nebo masky souborů:"
 "Datei&maske (mehrere getrennt mit Komma):"
-"F&ajlmaszk(ok, vesszovel elvalasztva):"
+"F&ájlmaszk(ok, vesszővel elválasztva):"
 "&Maska pliku lub kilka masek oddzielonych przecinkami:"
 
 MFileAssocDescr
 "&Описание ассоциации:"
 "&Description of the association:"
-"&Popis asociaci:"
-"&Beschreibung der Verknupfung:"
-"A &tarsitas leirasa:"
+"&Popis asociací:"
+"&Beschreibung der Verknüpfung:"
+"A &társítás leírása:"
 "&Opis przypisania:"
 
 MFileAssocExec
 "Команда, &выполняемая по Enter:"
 "E&xecute command (used for Enter):"
-"&Vykonat prikaz (pouzito pro Enter):"
-"Befehl &ausfuhren (mit Enter):"
-"&Vegrehajtando parancs (Enterre):"
-"Polecenie (po nacisnieciu &Enter):"
+"&Vykonat příkaz (použito pro Enter):"
+"Befehl &ausführen (mit Enter):"
+"&Végrehajtandó parancs (Enterre):"
+"Polecenie (po naciśnięciu &Enter):"
 
 MFileAssocAltExec
 "Коман&да, выполняемая по Ctrl-PgDn:"
 "Exec&ute command (used for Ctrl-PgDn):"
-"V&ykonat prikaz (pouzito pro Ctrl-PgDn):"
-"Befehl a&usfuhren (mit Strg-PgDn):"
-"Ve&grehajtando parancs (Ctrl-PgDown-ra):"
-"Polecenie (po nacisnieciu &Ctrl-PgDn):"
+"V&ykonat příkaz (použito pro Ctrl-PgDn):"
+"Befehl a&usführen (mit Strg-PgDn):"
+"Vé&grehajtandó parancs (Ctrl-PgDown-ra):"
+"Polecenie (po naciśnięciu &Ctrl-PgDn):"
 
 MFileAssocView
 "Команда &просмотра, выполняемая по F3:"
 "&View command (used for F3):"
-"Prikaz &Zobraz (pouzito pro F3):"
+"Příkaz &Zobraz (použito pro F3):"
 "Be&trachten (mit F3):"
-"&Nezoke parancs (F3-ra):"
-"&Podglad (po nacisnieciu F3):"
+"&Nézőke parancs (F3-ra):"
+"&Podgląd (po naciśnięciu F3):"
 
 MFileAssocAltView
 "Команда просмотра, в&ыполняемая по Alt-F3:"
 "V&iew command (used for Alt-F3):"
-"Prikaz Z&obraz (pouzito pro Alt-F3):"
+"Příkaz Z&obraz (použito pro Alt-F3):"
 "Bet&rachten (mit Alt-F3):"
-"N&ezoke parancs (Alt-F3-ra):"
-"Podg&lad (po nacisnieciu Alt-F3):"
+"N&ézőke parancs (Alt-F3-ra):"
+"Podg&ląd (po naciśnięciu Alt-F3):"
 
 MFileAssocEdit
 "Команда &редактирования, выполняемая по F4:"
 "&Edit command (used for F4):"
-"Prikaz &Edituj (pouzito pro F4):"
+"Příkaz &Edituj (použito pro F4):"
 "Bearb&eiten (mit F4):"
-"S&zerkesztes parancs (F4-re):"
-"&Edycja  (po nacisnieciu F4):"
+"S&zerkesztés parancs (F4-re):"
+"&Edycja  (po naciśnięciu F4):"
 
 MFileAssocAltEdit
 "Команда редактировани&я, выполняемая по Alt-F4:"
 "Edit comm&and (used for Alt-F4):"
-"Prikaz Editu&j (pouzito pro Alt-F4):"
+"Příkaz Editu&j (použito pro Alt-F4):"
 "Bearbe&iten (mit Alt-F4):"
-"Sze&rkesztes parancs (Alt-F4-re):"
-"E&dycja  (po nacisnieciu Alt-F4):"
+"Sze&rkesztés parancs (Alt-F4-re):"
+"E&dycja  (po naciśnięciu Alt-F4):"
 
 MViewF1
 l:
@@ -5821,7 +5821,7 @@ l://Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MViewF2
@@ -5830,15 +5830,15 @@ le:// this is another text for F2
 "Wrap"
 "Zalom"
 "Umbr."
-"SorTor"
-"Zawin"
+"SorTör"
+"Zawiń"
 
 MViewF3
 "Выход"
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MViewF4
@@ -5894,7 +5894,7 @@ MViewF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MViewF11
@@ -5910,7 +5910,7 @@ MViewF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MViewF2Unwrap
@@ -5918,7 +5918,7 @@ MViewF2Unwrap
 "Unwrap"
 "Nezal"
 "KeinUm"
-"NemTor"
+"NemTör"
 "Unwrap"
 
 MViewF4Text
@@ -5927,7 +5927,7 @@ l:// this is another text for F4
 "Text"
 "Text"
 "Text"
-"Szoveg"
+"Szöveg"
 "Tekst"
 
 MViewF8DOS
@@ -5953,8 +5953,8 @@ MViewShiftF2
 "WWrap"
 "ZalSlo"
 "WUmbr"
-"SzoTor"
-"ZawinS"
+"SzóTör"
+"ZawińS"
 
 MViewShiftF3
 ""
@@ -5991,17 +5991,17 @@ MViewShiftF6
 MViewShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
-"Nastep"
+"Następ"
 
 MViewShiftF8
 "КодСтр"
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "Tabela"
 
 MViewShiftF9
@@ -6089,7 +6089,7 @@ MViewAltF6
 MViewAltF7
 "Назад"
 "Prev"
-"Predch"
+"Předch"
 "Letzt"
 "VisKer"
 "Poprz"
@@ -6097,10 +6097,10 @@ MViewAltF7
 MViewAltF8
 "Перейт"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MViewAltF9
 "Видео"
@@ -6123,7 +6123,7 @@ MViewAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MViewAltF12
@@ -6211,9 +6211,9 @@ MViewCtrlF9
 MViewCtrlF10
 "Позиц"
 "GoFile"
-"JitSou"
+"JítSou"
 "GehDat"
-"FajlPz"
+"FájlPz"
 "DoPlik"
 
 MViewCtrlF11
@@ -6303,7 +6303,7 @@ MViewAltShiftF9
 "Config"
 "Nastav"
 "Konfig"
-"Beall."
+"Beáll."
 "Konfig"
 
 MViewAltShiftF10
@@ -6632,7 +6632,7 @@ l://Single Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MSingleViewF2
@@ -6640,15 +6640,15 @@ MSingleViewF2
 "Wrap"
 "Zalom"
 "Umbr."
-"SorTor"
-"Zawin"
+"SorTör"
+"Zawiń"
 
 MSingleViewF3
 "Выход"
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MSingleViewF4
@@ -6704,7 +6704,7 @@ MSingleViewF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MSingleViewF11
@@ -6720,7 +6720,7 @@ MSingleViewF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MSingleViewF2Unwrap
@@ -6729,7 +6729,7 @@ l:// this is another text for F2
 "Unwrap"
 "Nezal"
 "KeinUm"
-"NemTor"
+"NemTör"
 "Rozwij"
 
 MSingleViewF4Text
@@ -6738,7 +6738,7 @@ l:// this is another text for F4
 "Text"
 "Text"
 "Text"
-"Szoveg"
+"Szöveg"
 "Tekst"
 
 MSingleViewF8DOS
@@ -6764,8 +6764,8 @@ MSingleViewShiftF2
 "WWrap"
 "ZalSlo"
 "WUmbr"
-"SzoTor"
-"ZawinS"
+"SzóTör"
+"ZawińS"
 
 MSingleViewShiftF3
 ""
@@ -6802,8 +6802,8 @@ MSingleViewShiftF6
 MSingleViewShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
 "Nast."
 
@@ -6812,7 +6812,7 @@ MSingleViewShiftF8
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "Tabela"
 
 MSingleViewShiftF9
@@ -6900,7 +6900,7 @@ MSingleViewAltF6
 MSingleViewAltF7
 "Назад"
 "Prev"
-"Predch"
+"Předch"
 "Letzt"
 "VisKer"
 "Poprz"
@@ -6908,10 +6908,10 @@ MSingleViewAltF7
 MSingleViewAltF8
 "Перейт"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MSingleViewAltF9
 "Видео"
@@ -6934,7 +6934,7 @@ MSingleViewAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MSingleViewAltF12
@@ -7114,7 +7114,7 @@ MSingleViewAltShiftF9
 "Config"
 "Nastav"
 "Konfig"
-"Beall."
+"Beáll."
 "Konfig"
 
 MSingleViewAltShiftF10
@@ -7439,26 +7439,26 @@ le://end of functional keys (Single Viewer)
 MInViewer
 "просмотр %s"
 "view %s"
-"prohlizeni %s"
+"prohlížení %s"
 "Betrachte %s"
-"%s megnezese"
-"podglad %s"
+"%s megnézése"
+"podgląd %s"
 
 MInEditor
 "редактирование %s"
 "edit %s"
 "editace %s"
 "Bearbeite %s"
-"%s szerkesztese"
+"%s szerkesztése"
 "edycja %s"
 
 MFilterTitle
 l:
 "Меню фильтров"
 "Filters menu"
-"Menu filtru"
-"Filtermenu"
-"Szurok menu"
+"Menu filtrů"
+"Filtermenü"
+"Szűrők menü"
 "Filtry"
 
 MFilterBottom
@@ -7466,48 +7466,48 @@ MFilterBottom
 "+,-,Space,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 "+,-,Mezera,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 "+,-,Leer,I,X,BS,UmschBS,Einf,Entf,F4,F5,StrgUp,StrgDn"
-"+,-,Szokoz,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
+"+,-,Szóköz,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
 "+,-,Spacja,I,X,BS,Shift-BS,Ins,Del,F4,F5,Ctrl-Up,Ctrl-Dn"
 
 MPanelFileType
 "Файлы панели"
 "Panel file type"
-"Typ panelu souboru"
+"Typ panelu souborů"
 "Dateityp in Panel"
-"A panel fajltipusa"
-"Typ plikow w panelu"
+"A panel fájltípusa"
+"Typ plików w panelu"
 
 MFolderFileType
 "Папки"
 "Folders"
-"Adresare"
+"Adresáře"
 "Ordner"
-"Mappak"
+"Mappák"
 "Foldery"
 
 MCanEditCustomFilterOnly
 "Только пользовательский фильтр можно редактировать"
 "Only custom filter can be edited"
-"Jedine vlastni filtr muze byt upraven"
-"Nur eigene Filter konnen editiert werden."
-"Csak sajat szuro szerkesztheto"
-"Tylko filtr uzytkownika moze byc edytowany"
+"Jedině vlastní filtr může být upraven"
+"Nur eigene Filter können editiert werden."
+"Csak saját szűrő szerkeszthető"
+"Tylko filtr użytkownika może być edytowany"
 
 MAskDeleteFilter
 "Вы хотите удалить фильтр"
 "Do you wish to delete the filter"
-"Prejete si smazat filtr"
-"Wollen Sie den eigenen Filter loschen"
-"Torolni szeretne a szurot?"
-"Czy chcesz usunac filtr"
+"Přejete si smazat filtr"
+"Wollen Sie den eigenen Filter löschen"
+"Törölni szeretné a szűrőt?"
+"Czy chcesz usunąć filtr"
 
 MCanDeleteCustomFilterOnly
 "Только пользовательский фильтр может быть удален"
 "Only custom filter can be deleted"
-"Jedine vlastni filtr muze byt smazan"
-"Nur eigene Filter konnen geloscht werden."
-"Csak sajat szuro torolheto"
-"Tylko filtr uzytkownika moze byc usuniety"
+"Jedině vlastní filtr může být smazán"
+"Nur eigene Filter können gelöscht werden."
+"Csak saját szűrő törölhető"
+"Tylko filtr użytkownika może być usunięty"
 
 MFindFileTitle
 l:
@@ -7515,48 +7515,48 @@ l:
 "Find file"
 "Hledat soubor"
 "Nach Dateien suchen"
-"Fajlkereses"
-"Znajdz plik"
+"Fájlkeresés"
+"Znajdź plik"
 
 MFindFileResultTitle
 "Поиск файла - результат"
 "Find file - result"
-"Hledat soubor - vysledek"
+"Hledat soubor - výsledek"
 "Suchergebnisse"
-"Fajlkereses eredmenye"
+"Fájlkeresés eredménye"
 "Wynik poszukiwania"
 
 MFindFileMasks
 "Одна или несколько &масок файлов:"
 "A file &mask or several file masks:"
-"Maska nebo masky souboru:"
+"Maska nebo masky souborů:"
 "Datei&maske (mehrere getrennt mit Komma):"
-"Fajlm&aszk(ok, vesszovel elvalasztva):"
+"Fájlm&aszk(ok, vesszővel elválasztva):"
 "&Maska pliku lub kilka masek oddzielonych przecinkami:"
 
 MFindFileText
 "&Содержащих текст:"
 "Con&taining text:"
-"Obsahujici te&xt:"
-"Enthalt &Text:"
-"&Tartalmazza a szoveget:"
-"Zawierajacy &tekst:"
+"Obsahující te&xt:"
+"Enthält &Text:"
+"&Tartalmazza a szöveget:"
+"Zawierający &tekst:"
 
 MFindFileHex
 "&Содержащих 16-ричный код:"
 "Con&taining hex:"
-"Obsahujici &hex:"
-"En&thalt Hex (xx xx ...):"
-"Tartalmazza a he&xat:"
-"Zawierajacy wartosc &szesnastkowa:"
+"Obsahující &hex:"
+"En&thält Hex (xx xx ...):"
+"Tartalmazza a he&xát:"
+"Zawierający wartość &szesnastkową:"
 
 MFindFileCodePage
 "Используя кодо&вую страницу:"
 "Using code pa&ge:"
-upd:"Pouzit &znakovou sadu:"
+upd:"Použít &znakovou sadu:"
 upd:"Zeichenta&belle verwenden:"
-"Ko&dlap:"
-"Uzyj tablicy znakow:"
+"Kó&dlap:"
+"Użyj tablicy znaków:"
 
 MFindFileCodePageBottom
 "Space, Ins"
@@ -7569,49 +7569,49 @@ MFindFileCodePageBottom
 MFindFileCase
 "&Учитывать регистр"
 "&Case sensitive"
-"Roz&lisovat velikost pismen"
-"Gr&o?-/Kleinschreibung"
-"&Nagy/kisbetu erzekeny"
-"&Uwzglednij wielkosc liter"
+"Roz&lišovat velikost písmen"
+"Gr&oß-/Kleinschreibung"
+"&Nagy/kisbetű érzékeny"
+"&Uwzględnij wielkość liter"
 
 MFindFileWholeWords
 "Только &целые слова"
 "&Whole words"
-"&Cela slova"
-"Nur &ganze Worter"
-"Csak eges&z szavak"
-"Tylko &cale slowa"
+"&Celá slova"
+"Nur &ganze Wörter"
+"Csak egés&z szavak"
+"Tylko &całe słowa"
 
 MFindFileAllCodePages
 "Все кодовые страницы"
 "All code pages"
-upd:"Vsechny znakove sady"
+upd:"Všechny znakové sady"
 upd:"Alle Zeichentabellen"
-"Minden kodlappal"
+"Minden kódlappal"
 "Wszystkie zainstalowane"
 
 MFindArchives
 "Искать в а&рхивах"
 "Search in arch&ives"
-"Hledat v a&rchivech"
+"Hledat v a&rchívech"
 "In Arch&iven suchen"
-"Kereses t&omoritettekben"
+"Keresés t&ömörítettekben"
 "Szukaj w arc&hiwach"
 
 MFindFolders
 "Искать п&апки"
 "Search for f&olders"
-"Hledat a&dresare"
+"Hledat a&dresáře"
 "Nach &Ordnern suchen"
-"Kereses mapp&akra"
-"Szukaj &folderow"
+"Keresés mapp&ákra"
+"Szukaj &folderów"
 
 MFindSymLinks
 "Искать в символи&ческих ссылках"
 "Search in symbolic lin&ks"
-"Hledat v s&ymbolickych lincich"
+"Hledat v s&ymbolických lincích"
 "In symbolischen Lin&ks suchen"
-"Kereses sz&imbolikus linkekben"
+"Keresés sz&imbolikus linkekben"
 "Szukaj w &linkach"
 
 MSearchForHex
@@ -7619,96 +7619,96 @@ MSearchForHex
 "Search for &hex"
 "Hledat &hex"
 "Nach &Hex suchen"
-"Kereses &hexakra"
-"Szukaj wartosci &szesnastkowej"
+"Keresés &hexákra"
+"Szukaj wartości &szesnastkowej"
 
 MSearchWhere
 "Выберите &область поиска:"
 "Select search &area:"
-upd:"Zvolte oblast hledani:"
+upd:"Zvolte oblast hledání:"
 upd:"Suchbereich:"
-"Kereses hatos&ugara:"
+"Keresés hatós&ugara:"
 "Obszar wyszukiwania:"
 
 MSearchAllDisks
 "На всех несъемных &дисках"
 "In &all non-removable drives"
-"Ve vsech p&evnych discich"
-"Auf &allen festen Datentrager"
-"Minden &fix meghajton"
-"Na dyskach &stalych"
+"Ve všech p&evných discích"
+"Auf &allen festen Datenträger"
+"Minden &fix meghajtón"
+"Na dyskach &stałych"
 
 MSearchAllButNetwork
 "На всех &локальных дисках"
 "In all &local drives"
-"Ve vsech &lokalnich discich"
-"Auf allen &lokalen Datentragern"
-"Minden hel&yi meghajton"
+"Ve všech &lokálních discích"
+"Auf allen &lokalen Datenträgern"
+"Minden hel&yi meghajtón"
 "Na dyskach &lokalnych"
 
 MSearchInPATH
 "В PATH-катало&гах"
 "In &PATH folders"
-"V adresarich z &PATH"
+"V adresářích z &PATH"
 "In &PATH-Ordnern"
-"A &PATH mappaiban"
+"A &PATH mappáiban"
 "W folderach zmiennej &PATH"
 
 MSearchFromRootOfDrive
 "С кор&ня диска"
 "From the &root of"
-"V &koreni"
+"V &kořeni"
 "Ab Wu&rzelverz. von"
-"Meghajto &gyokeretol:"
+"Meghajtó &gyökerétől:"
 "Od &korzenia"
 
 MSearchFromRootFolder
 "С кор&невой папки"
 "From the &root folder"
-"V koreno&vem adresari"
+"V kořeno&vém adresáři"
 "Ab Wu&rzelverzeichnis"
-"A &gyokermappatol"
-"Od katalogu &glownego"
+"A &gyökérmappától"
+"Od katalogu &głównego"
 
 MSearchFromCurrent
 "С &текущей папки"
 "From the curre&nt folder"
-"V tomto adresar&i"
+"V tomto adresář&i"
 "Ab dem aktuelle&n Ordner"
-"Az akt&ualis mappatol"
-"Od &biezacego katalogu"
+"Az akt&uális mappától"
+"Od &bieżącego katalogu"
 
 MSearchInCurrent
 "Только в теку&щей папке"
 "The current folder onl&y"
-"P&ouze v tomto adresari"
+"P&ouze v tomto adresáři"
 "Nur im aktue&llen Ordner"
-"&Csak az aktualis mappaban"
-"&Tylko w biezacym katalogu"
+"&Csak az aktuális mappában"
+"&Tylko w bieżącym katalogu"
 
 MSearchInSelected
 "В &отмеченных папках"
 "&Selected folders"
-"Ve vy&branych adresarich"
-"In au&sgewahlten Ordner"
-"A ki&jelolt mappakban"
+"Ve vy&braných adresářích"
+"In au&sgewählten Ordner"
+"A ki&jelölt mappákban"
 "W &zaznaczonych katalogach"
 
 MFindUseFilter
 "Исполь&зовать фильтр"
 "&Use filter"
-"Pouzit f&iltr"
+"Použít f&iltr"
 "Ben&utze Filter"
-"Sz&urovel"
+"Sz&űrővel"
 "&Filtruj"
 
 MFindUsingFilter
 "используя фильтр"
 "using filter"
-"pouzivam filtr"
+"používám filtr"
 "mit Filter"
-"szurovel"
-"uzywajac filtra"
+"szűrővel"
+"używając filtra"
 
 MFindFileFind
 "&Искать"
@@ -7723,7 +7723,7 @@ MFindFileDrive
 "Dri&ve"
 "D&isk"
 "Lauf&werk"
-"Meghajt&o"
+"Meghajt&ó"
 "&Dysk"
 
 MFindFileSetFilter
@@ -7731,31 +7731,31 @@ MFindFileSetFilter
 "Filt&er"
 "&Filtr"
 "Filt&er"
-"Szu&ro"
+"Szű&rő"
 "&Filtr"
 
 MFindFileAdvanced
 "До&полнительно"
 "Advance&d"
-"Pokr&ocile"
+"Pokr&očilé"
 "Er&weitert"
-"Ha&lado"
+"Ha&ladó"
 "&Zaawansowane"
 
 MFindSearchingIn
 "Поиск%s в:"
 "Searching%s in:"
-"Hledam%s v:"
+"Hledám%s v:"
 "Suche%s in:"
-"%s keresese:"
+"%s keresése:"
 "Szukam w:"
 
 MFindNewSearch
 "&Новый поиск"
 "&New search"
-"&Nove hledani"
+"&Nové hledání"
 "&Neue Suche"
-"&Uj kereses"
+"&Új keresés"
 "&Od nowa..."
 
 MFindGoTo
@@ -7763,16 +7763,16 @@ MFindGoTo
 "&Go to"
 "&Jdi na"
 "&Gehe zu"
-"U&gras"
-"&Idz do"
+"U&grás"
+"&Idź do"
 
 MFindView
 "&Смотреть"
 "&View"
 "Zo&braz"
 "&Betrachten"
-"Meg&nez"
-"&Podglad"
+"Meg&néz"
+"&Podgląd"
 
 MFindPanel
 "Пане&ль"
@@ -7787,40 +7787,40 @@ MFindStop
 "&Stop"
 "&Stop"
 "&Stoppen"
-"&Allj"
+"&Állj"
 "&Stop"
 
 MFindDone
 l:
 "Поиск закончен. Найдено %d файл(ов) и %d папка(ок)"
 "Search done. Found %d file(s) and %d folder(s)"
-"Hledani ukonceno. Nalezeno %d soubor(u) a %d adresar(u)"
+"Hledání ukončeno. Nalezeno %d soubor(ů) a %d adresář(ů)"
 "Suche beendet. %d Datei(en) und %d Ordner gefunden."
-"A kereses kesz. %d fajlt es %d mappat talaltam."
-"Wyszukiwanie zakonczone (znalazlem %d plikow i %d folderow)"
+"A keresés kész. %d fájlt és %d mappát találtam."
+"Wyszukiwanie zakończone (znalazłem %d plików i %d folderów)"
 
 MFindCancel
 "Отм&ена"
 "&Cancel"
 "&Storno"
 "Ab&bruch"
-"&Megsem"
+"&Mégsem"
 "&Anuluj"
 
 MFindFound
 l:
 " Файлов: %d, папок: %d "
 " Files: %d, folders: %d "
-" Souboru: %d, adresaru: %d "
+" Souborů: %d, adresářů: %d "
 " Dateien: %d, Ordner: %d "
-" Fajlt: %d, mappat: %d "
-" Plikow: %d, folderow: %d "
+" Fájlt: %d, mappát: %d "
+" Plików: %d, folderów: %d "
 
 MFindFileFolder
 l:
 "Папка"
 "Folder"
-"Adresar"
+"Adresář"
 "Ordner"
 "Mappa"
 "Katalog"
@@ -7829,25 +7829,25 @@ MFindFileAdvancedTitle
 l:
 "Дополнительные параметры поиска"
 "Find file advanced options"
-"Pokrocile nastaveni vyhledavani souboru"
+"Pokročilé nastavení vyhledávání souborů"
 "Erweiterte Optionen"
-"Fajlkereses halado beallitasai"
+"Fájlkeresés haladó beállításai"
 "Zaawansowane opcje wyszukiwania"
 
 MFindFileSearchFirst
 "Проводить поиск в &первых:"
 "Search only in the &first:"
-"Hledat po&uze v prvnich:"
+"Hledat po&uze v prvních:"
 "Nur &in den ersten x Bytes:"
-"Kereses csak az elso &x bajtban:"
-"Szukaj wylacznie w &pierwszych:"
+"Keresés csak az első &x bájtban:"
+"Szukaj wyłącznie w &pierwszych:"
 
 MFindAlternateStreams
 "Обрабатывать &альтернативные потоки данных"
 "Process &alternate data streams"
 upd:"Process &alternate data streams"
 upd:"Process &alternate data streams"
-"&Alternativ adatsavok (stream) feldolgozasa"
+"&Alternatív adatsávok (stream) feldolgozása"
 upd:"Process &alternate data streams"
 
 MFoldTreeSearch
@@ -7856,16 +7856,16 @@ l:
 "Search:"
 "Hledat:"
 "Suchen:"
-"Kereses:"
+"Keresés:"
 "Wyszukiwanie:"
 
 MGetCodePageTitle
 l:
 "Кодовые страницы"
 "Code pages"
-upd:"Znakove sady:"
+upd:"Znakové sady:"
 upd:"Tabellen"
-"Kodlapok"
+"Kódlapok"
 "Strony kodowe"
 
 MGetCodePageSystem
@@ -7897,7 +7897,7 @@ MGetCodePageOther
 "Other"
 upd:"Other"
 upd:"Other"
-"Egyeb"
+"Egyéb"
 upd:"Other"
 
 MGetCodePageBottomTitle
@@ -7920,15 +7920,15 @@ MHighlightTitle
 l:
 "Раскраска файлов"
 "Files highlighting"
-"Zvyraznovani souboru"
+"Zvýrazňování souborů"
 "Farbmarkierungen"
-"Fajlkiemelesek, rendezesi csoportok"
-"Wyroznianie plikow"
+"Fájlkiemelések, rendezési csoportok"
+"Wyróżnianie plików"
 
 MHighlightBottom
 "Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
 "Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
-"Ins,Del,F4,F5,Ctrl-Nahoru,Ctrl-Dolu"
+"Ins,Del,F4,F5,Ctrl-Nahoru,Ctrl-Dolů"
 "Einf,Entf,F4,F5,StrgUp,StrgDown"
 "Ins,Del,F4,F5,Ctrl-Fel,Ctrl-Le"
 "Ins,Del,F4,F5,Ctrl-Up,Ctrl-Down"
@@ -7936,98 +7936,98 @@ MHighlightBottom
 MHighlightUpperSortGroup
 "Верхняя группа сортировки"
 "Upper sort group"
-"Vzesupne razeni"
+"Vzesupné řazení"
 "Obere Sortiergruppen"
-"Felsobbrendu csoport"
-"Gorna grupa sortowania"
+"Felsőbbrendű csoport"
+"Górna grupa sortowania"
 
 MHighlightLowerSortGroup
 "Нижняя группа сортировки"
 "Lower sort group"
-"Sestupne razeni"
+"Sestupné řazení"
 "Untere Sortiergruppen"
-"Alsobbrendu csoport"
+"Alsóbbrendű csoport"
 "Dolna grupa sortowania"
 
 MHighlightLastGroup
 "Наименее приоритетная группа раскраски"
 "Lowest priority highlighting group"
-"Zvyrazneni nejnizsi prority"
-"Farbmarkierungen mit niedrigster Prioritat"
-"Legalacsonyabb rendu csoport"
-"Grupa wyrozniania o najnizszym priorytecie"
+"Zvýraznění nejnižší prority"
+"Farbmarkierungen mit niedrigster Priorität"
+"Legalacsonyabb rendű csoport"
+"Grupa wyróżniania o najniższym priorytecie"
 
 MHighlightAskDel
 "Вы хотите удалить раскраску для"
 "Do you wish to delete highlighting for"
-"Prejete si smazat zvyrazneni pro"
-"Wollen Sie Farbmarkierungen loschen fur"
-"Biztosan torli a kiemelest?"
-"Czy chcesz usunac wyroznianie dla"
+"Přejete si smazat zvýraznění pro"
+"Wollen Sie Farbmarkierungen löschen für"
+"Biztosan törli a kiemelést?"
+"Czy chcesz usunąć wyróżnianie dla"
 
 MHighlightWarning
 "Будут потеряны все Ваши настройки!"
 "You will lose all changes!"
-"Vsechny zmeny budou ztraceny!"
-"Sie verlieren jegliche Anderungen!"
-"Minden valtoztatas elvesz!"
-"Wszystkie zmiany zostana utracone!"
+"Všechny změny budou ztraceny!"
+"Sie verlieren jegliche Änderungen!"
+"Minden változtatás elvész!"
+"Wszystkie zmiany zostaną utracone!"
 
 MHighlightAskRestore
 "Вы хотите восстановить раскраску файлов по умолчанию?"
 "Do you wish to restore default highlighting?"
-"Prejete si obnovit vychozi nastaveni?"
+"Přejete si obnovit výchozí nastavení?"
 "Wollen Sie Standard-Farbmarkierungen wiederherstellen?"
-"Visszaallitja az alapertelmezett kiemeleseket?"
-"Czy przywrocic wyroznianie domyslne?"
+"Visszaállítja az alapértelmezett kiemeléseket?"
+"Czy przywrócić wyróżnianie domyślne?"
 
 MHighlightEditTitle
 l:
 "Редактирование раскраски файлов"
 "Edit files highlighting"
-"Upravit zvyraznovani souboru"
+"Upravit zvýrazňování souborů"
 "Farbmarkierungen bearbeiten"
-"Fajlkiemeles szerkesztese"
-"Edytuj wyroznianie plikow"
+"Fájlkiemelés szerkesztése"
+"Edytuj wyróżnianie plików"
 
 MHighlightMarkChar
 "Оп&циональный символ пометки,"
 "Optional markin&g character,"
-"Volitelny &znak pro oznaceni urcenych souboru,"
+"Volitelný &znak pro označení určených souborů,"
 "Optionale Markierun&g mit Zeichen,"
-"Megadhato &jelolo karakter"
-"Opcjonalny znak &wyrozniajacy zaznaczone pliki,"
+"Megadható &jelölő karakter"
+"Opcjonalny znak &wyróżniający zaznaczone pliki,"
 
 MHighlightTransparentMarkChar
 "прозра&чный"
 "tra&nsparent"
-"pruh&ledny"
+"průh&ledný"
 "tra&nsparent"
-"at&latszo"
+"át&látszó"
 "prze&zroczyste"
 
 MHighlightColors
 " Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
 " File name colors (\"black on black\" - default color) "
-" Barva nazvu souboru (\"cerna na cerne\" - vychozi barva) "
+" Barva názvu souborů (\"černá na černé\" - výchozí barva) "
 " Dateinamenfarben (\"Schwarz auf Schwarz\"=Standard) "
-" Fajlnev szinek (feketen fekete = alapertelmezett szin) "
-" Kolory nazw plikow (domyslny - \"czarny na czarnym\") "
+" Fájlnév színek (feketén fekete = alapértelmezett szín) "
+" Kolory nazw plików (domyślny - \"czarny na czarnym\") "
 
 MHighlightFileName1
 "&1. Обычное имя файла                "
 "&1. Normal file name               "
-"&1. Normalni soubor            "
+"&1. Normální soubor            "
 "&1. Normaler Dateiname             "
-"&1. Normal fajlnev                  "
+"&1. Normál fájlnév                  "
 "&1. Nazwa pliku bez zaznaczenia    "
 
 MHighlightFileName2
 "&3. Помеченное имя файла             "
 "&3. Selected file name             "
-"&3. Vybrany soubor             "
+"&3. Vybraný soubor             "
 "&3. Markierter Dateiame            "
-"&3. Kijelolt fajlnev                "
+"&3. Kijelölt fájlnév                "
 "&3. Zaznaczenie                    "
 
 MHighlightFileName3
@@ -8035,47 +8035,47 @@ MHighlightFileName3
 "&5. File name under cursor         "
 "&5. Soubor pod kurzorem        "
 "&5. Dateiname unter Cursor         "
-"&5. Kurzor alatti fajlnev           "
+"&5. Kurzor alatti fájlnév           "
 "&5. Nazwa pliku pod kursorem       "
 
 MHighlightFileName4
 "&7. Помеченное под курсором имя файла"
 "&7. File name selected under cursor"
-"&7. Vybrany soubor pod kurzorem"
+"&7. Vybraný soubor pod kurzorem"
 "&7. Dateiname markiert unter Cursor"
-"&7. Kurzor alatti kijelolt fajlnev  "
+"&7. Kurzor alatti kijelölt fájlnév  "
 "&7. Zaznaczony plik pod kursorem   "
 
 MHighlightMarking1
 "&2. Пометка"
 "&2. Marking"
-"&2. Oznaceni"
+"&2. Označení"
 "&2. Markierung"
-"&2. Jelolo kar.:"
+"&2. Jelölő kar.:"
 "&2. Zaznaczenie"
 
 MHighlightMarking2
 "&4. Пометка"
 "&4. Marking"
-"&4. Oznaceni"
+"&4. Označení"
 "&4. Markierung"
-"&4. Jelolo kar.:"
+"&4. Jelölő kar.:"
 "&4. Zaznaczenie"
 
 MHighlightMarking3
 "&6. Пометка"
 "&6. Marking"
-"&6. Oznaceni"
+"&6. Označení"
 "&6. Markierung"
-"&6. Jelolo kar.:"
+"&6. Jelölő kar.:"
 "&6. Zaznaczenie"
 
 MHighlightMarking4
 "&8. Пометка"
 "&8. Marking"
-"&8. Oznaceni"
+"&8. Označení"
 "&8. Markierung"
-"&8. Jelolo kar.:"
+"&8. Jelölő kar.:"
 "&8. Zaznaczenie"
 
 MHighlightExample1
@@ -8083,7 +8083,7 @@ MHighlightExample1
 "║filename.ext │"
 "║filename.ext │"
 "║dateinam.erw │"
-"║fajlneve.kit │"
+"║fájlneve.kit │"
 "║nazwa.roz │"
 
 MHighlightExample2
@@ -8091,15 +8091,15 @@ MHighlightExample2
 "║ filename.ext│"
 "║ filename.ext│"
 "║ dateinam.erw│"
-"║ fajlneve.kit│"
+"║ fájlneve.kit│"
 "║ nazwa.roz│"
 
 MHighlightContinueProcessing
 "Продолжать &обработку"
 "C&ontinue processing"
-"Pokracovat ve zpracova&ni"
+"Pokračovat ve zpracová&ní"
 "Verarbeitung f&ortsetzen"
-"Folyamatos f&eldolgozas"
+"Folyamatos f&eldolgozás"
 "K&ontynuuj przetwarzanie"
 
 MInfoTitle
@@ -8108,47 +8108,47 @@ l:
 "Information"
 "Informace"
 "Informationen"
-"Informaciok"
+"Információk"
 "Informacja"
 
 MInfoCompName
 "Имя компьютера"
 "Computer name"
-"Nazev pocitace"
+"Název počítače"
 "Computername"
-"Szamitogep neve"
+"Számítógép neve"
 "Nazwa komputera"
 
 MInfoUserName
 "Имя пользователя"
 "User name"
-"Jmeno uzivatele"
+"Jméno uživatele"
 "Benutzername"
-"Felhasznaloi nev"
-"Nazwa uzytkownika"
+"Felhasználói név"
+"Nazwa użytkownika"
 
 MInfoRemovable
 "Сменный"
 "Removable"
-"Vymenitelny"
+"Vyměnitelný"
 "Austauschbares"
-"Kiveheto"
+"Kivehető"
 "Wyjmowalny"
 
 MInfoFixed
 "Жесткий"
 "Fixed"
-"Pevny"
+"Pevný"
 "Lokales"
 "Fix"
-"Staly"
+"Stały"
 
 MInfoNetwork
 "Сетевой"
 "Network"
-"Sitovy"
+"Síťový"
 "Netzwerk"
-"Halozati"
+"Hálózati"
 "Sieciowy"
 
 MInfoCDROM
@@ -8212,7 +8212,7 @@ MInfoSUBST
 "Subst"
 "SUBST"
 "Subst"
-"Virtualis"
+"Virtuális"
 "Subst"
 
 MInfoDisk
@@ -8226,104 +8226,104 @@ MInfoDisk
 MInfoDiskTotal
 "Всего байтов"
 "Total bytes"
-"Celkem bytu"
+"Celkem bytů"
 "Bytes gesamt"
-"Osszes bajt"
-"Razem bajtow"
+"Összes bájt"
+"Razem bajtów"
 
 MInfoDiskFree
 "Свободных байтов"
 "Free bytes"
-"Volnych bytu"
+"Volných bytů"
 "Bytes frei"
-"Szabad bajt"
-"Wolnych bajtow"
+"Szabad bájt"
+"Wolnych bajtów"
 
 MInfoDiskLabel
 "Метка тома"
 "Volume label"
 "Popisek disku"
 "Laufwerksbezeichnung"
-"Kotet cimke"
+"Kötet címke"
 "Etykieta woluminu"
 
 MInfoDiskNumber
 "Серийный номер"
 "Serial number"
-"Seriove cislo"
+"Sériové číslo"
 "Seriennummer"
-"Sorozatszam"
+"Sorozatszám"
 "Numer seryjny"
 
 MInfoMemory
 " Память "
 " Memory "
-" Pamet "
+" Paměť "
 " Speicher "
-" Memoria "
-" Pamiec "
+" Memória "
+" Pamięć "
 
 MInfoMemoryLoad
 "Загрузка памяти"
 "Memory load"
-"Zatizeni pameti"
+"Zatížení paměti"
 "Speicherverbrauch"
-"Hasznalt memoria"
-"Uzycie pamieci"
+"Használt memória"
+"Użycie pamięci"
 
 MInfoMemoryTotal
 "Всего памяти"
 "Total memory"
-"Celkova pamet"
+"Celková paměť"
 "Speicher gesamt"
-"Osszes memoria"
-"Calkowita pamiec"
+"Összes memória"
+"Całkowita pamięć"
 
 MInfoMemoryFree
 "Свободно памяти"
 "Free memory"
-"Volna pamet"
+"Volná paměť"
 "Speicher frei"
-"Szabad memoria"
-"Wolna pamiec"
+"Szabad memória"
+"Wolna pamięć"
 
 MInfoVirtualTotal
 "Всего вирт. памяти"
 "Total virtual"
-"Celkem virtualni"
+"Celkem virtuální"
 "Virtueller Speicher gesamt"
-"Osszes virtualis"
-"Calkowita wirtualna"
+"Összes virtuális"
+"Całkowita wirtualna"
 
 MInfoVirtualFree
 "Свободно вирт. памяти"
 "Free virtual"
-"Volna virtualni"
+"Volná virtuální"
 "Virtueller Speicher frei"
-"Szabad virtualis"
+"Szabad virtuális"
 "Wolna wirtualna"
 
 MInfoDizAbsent
 "Файл описания папки отсутствует"
 "Folder description file is absent"
-"Soubor s popisem adresare chybi"
+"Soubor s popisem adresáře chybí"
 "Keine Datei mit Ordnerbeschreibungen vorhanden."
-"Mappa megjegyzesfajl nincs"
+"Mappa megjegyzésfájl nincs"
 "Plik opisu katalogu nie istnieje"
 
 MErrorInvalidFunction
 l:
 "Некорректная функция"
 "Incorrect function"
-"Nespravna funkce"
-"Ungultige Funktion"
-"Helytelen funkcio"
-"Niewlasciwa funkcja"
+"Nesprávná funkce"
+"Ungültige Funktion"
+"Helytelen funkció"
+"Niewłaściwa funkcja"
 
 MErrorBadCommand
 "Команда не распознана"
 "Command not recognized"
-"Prikaz nebyl rozpoznan"
+"Příkaz nebyl rozpoznán"
 "Unbekannter Befehl"
 "Ismeretlen parancs"
 "Nieznane polecenie"
@@ -8333,7 +8333,7 @@ MErrorFileNotFound
 "File not found"
 "Soubor nenalezen"
 "Datei nicht gefunden"
-"A fajl vagy mappa nem talalhato"
+"A fájl vagy mappa nem található"
 "Nie odnaleziono pliku"
 
 MErrorPathNotFound
@@ -8341,352 +8341,352 @@ MErrorPathNotFound
 "Path not found"
 "Cesta nenalezena"
 "Pfad nicht gefunden"
-"Az eleresi ut nem talalhato"
-"Nie odnaleziono sciezki"
+"Az elérési út nem található"
+"Nie odnaleziono ścieżki"
 
 MErrorTooManyOpenFiles
 "Слишком много открытых файлов"
 "Too many open files"
-"Prilis mnoho otevrenych souboru"
-"Zu viele geoffnete Dateien"
-"Tul sok nyitott fajl"
-"Zbyt wiele otwartych plikow"
+"Příliš mnoho otevřených souborů"
+"Zu viele geöffnete Dateien"
+"Túl sok nyitott fájl"
+"Zbyt wiele otwartych plików"
 
 MErrorAccessDenied
 "Доступ запрещен"
 "Access denied"
-"Pristup odepren"
+"Přístup odepřen"
 "Zugriff verweigert"
-"Hozzaferes megtagadva"
-"Dostep zabroniony"
+"Hozzáférés megtagadva"
+"Dostęp zabroniony"
 
 MErrorNotEnoughMemory
 "Недостаточно памяти"
 "Not enough memory"
-"Nedostatek pameti"
-"Nicht genugend Speicher"
-"Nincs eleg memoria"
-"Za malo pamieci"
+"Nedostatek paměti"
+"Nicht genügend Speicher"
+"Nincs elég memória"
+"Za mało pamięci"
 
 MErrorDiskRO
 "Попытка записи на защищенный от записи диск"
 "Cannot write to write protected disk"
-"Nelze zapisovat na disk chraneny proti zapisu"
-"Der Datentrager ist schreibgeschutzt"
-"Irasvedett lemezre nem lehet irni"
-"Nie moge zapisac na zabezpieczony dysk"
+"Nelze zapisovat na disk chráněný proti zápisu"
+"Der Datenträger ist schreibgeschützt"
+"Írásvédett lemezre nem lehet írni"
+"Nie mogę zapisać na zabezpieczony dysk"
 
 MErrorDeviceNotReady
 "Устройство не готово"
 "The device is not ready"
-"Zarizeni neni pripraveno"
-"Das Gerat ist nicht bereit"
-"Az eszkoz nem kesz"
-"Urzadzenie nie jest gotowe"
+"Zařízení není připraveno"
+"Das Gerät ist nicht bereit"
+"Az eszköz nem kész"
+"Urządzenie nie jest gotowe"
 
 MErrorCannotAccessDisk
 "Доступ к диску невозможен"
 "Disk cannot be accessed"
-"Na disk nelze pristoupit"
-"Auf Datentrager kann nicht zugegriffen werden"
-"A lemez nem erheto el"
-"Brak dostepu do dysku"
+"Na disk nelze přistoupit"
+"Auf Datenträger kann nicht zugegriffen werden"
+"A lemez nem érhető el"
+"Brak dostępu do dysku"
 
 MErrorSectorNotFound
 "Сектор не найден"
 "Sector not found"
 "Sektor nenalezen"
 "Sektor nicht gefunden"
-"Szektor nem talalhato"
+"Szektor nem található"
 "Nie odnaleziono sektora"
 
 MErrorOutOfPaper
 "В принтере нет бумаги"
 "The printer is out of paper"
-"V tiskarne dosel papir"
+"V tiskárně došel papír"
 "Der Drucker hat kein Papier mehr"
-"A nyomtatoban nincs papir"
+"A nyomtatóban nincs papír"
 "Brak papieru w drukarce"
 
 MErrorWrite
 "Ошибка записи"
 "Write fault error"
-"Chyba zapisu"
+"Chyba zápisu"
 "Fehler beim Schreibzugriff"
-"Irasi hiba"
-"Blad zapisu"
+"Írási hiba"
+"Błąd zapisu"
 
 MErrorRead
 "Ошибка чтения"
 "Read fault error"
-"Chyba cteni"
+"Chyba čtení"
 "Fehler beim Lesezugriff"
-"Olvasasi hiba"
-"Blad odczytu"
+"Olvasási hiba"
+"Błąd odczytu"
 
 MErrorDeviceGeneral
 "Общая ошибка устройства"
 "Device general failure"
-"Obecna chyba zarizeni"
-"Ein Geratefehler ist aufgetreten"
-"Eszkoz altalanos hiba"
-"Ogolny blad urzadzenia"
+"Obecná chyba zařízení"
+"Ein Gerätefehler ist aufgetreten"
+"Eszköz általános hiba"
+"Ogólny błąd urządzenia"
 
 MErrorFileSharing
 "Нарушение совместного доступа к файлу"
 "File sharing violation"
-"Naruseno sdileni souboru"
+"Narušeno sdílení souborů"
 "Zugriffsverletzung"
-"Fajlmegosztasi hiba"
-"Naruszenie zasad wspoluzytkowania pliku"
+"Fájlmegosztási hiba"
+"Naruszenie zasad współużytkowania pliku"
 
 MErrorNetworkPathNotFound
 "Сетевой путь не найден"
 "The network path was not found"
-"Sitova cesta nebyla nalezena"
+"Síťová cesta nebyla nalezena"
 "Der Netzwerkpfad wurde nicht gefunden"
-"Halozati utvonal nem talalhato"
-"Nie odnaleziono sciezki sieciowej"
+"Hálózati útvonal nem található"
+"Nie odnaleziono ścieżki sieciowej"
 
 MErrorNetworkBusy
 "Сеть занята"
 "The network is busy"
-"Sit je zaneprazdnena"
-"Das Netzwerk ist beschaftigt"
-"A halozat zsufolt"
-"Siec jest zajeta"
+"Síť je zaneprázdněna"
+"Das Netzwerk ist beschäftigt"
+"A hálózat zsúfolt"
+"Sieć jest zajęta"
 
 MErrorNetworkAccessDenied
 "Сетевой доступ запрещен"
 "Network access is denied"
-"Pristup na sit zakazan"
+"Přístup na síť zakázán"
 "Netzwerkzugriff wurde verweigert"
-"Halozati hozzaferes megtagadva"
-"Dostep do sieci zabroniony"
+"Hálózati hozzáférés megtagadva"
+"Dostęp do sieci zabroniony"
 
 MErrorNetworkWrite
 "Ошибка записи в сети"
 "A write fault occurred on the network"
-"Na siti doslo k chybe v zapisu"
+"Na síti došlo k chybě v zápisu"
 "Fehler beim Schreibzugriff auf das Netzwerk"
-"Irasi hiba a halozaton"
-"Wystapil blad zapisu w sieci"
+"Írási hiba a hálózaton"
+"Wystąpił błąd zapisu w sieci"
 
 MErrorDiskLocked
 "Диск используется или заблокирован другим процессом"
 "The disk is in use or locked by another process"
-"Disk je pouzivan nebo uzamcen jinym procesem"
-"Datentrager wird verwendet oder ist durch einen anderen Prozess gesperrt"
-"A lemezt hasznalja vagy zarolja egy folyamat"
-"Dysk jest w uzyciu lub zablokowany przez inny proces"
+"Disk je používán nebo uzamčen jiným procesem"
+"Datenträger wird verwendet oder ist durch einen anderen Prozess gesperrt"
+"A lemezt használja vagy zárolja egy folyamat"
+"Dysk jest w użyciu lub zablokowany przez inny proces"
 
 MErrorFileExists
 "Файл или папка уже существует"
 "File or folder already exists"
-"Soubor nebo adresar jiz existuje"
+"Soubor nebo adresář již existuje"
 "Die Datei oder der Ordner existiert bereits."
-"A fajl vagy mappa mar letezik"
-"Plik lub katalog juz istnieje"
+"A fájl vagy mappa már létezik"
+"Plik lub katalog już istnieje"
 
 MErrorInvalidName
 "Указанное имя неверно"
 "The specified name is invalid"
-"Zadany nazev je neplatny"
-"Der angegebene Name ist ungultig"
-"A megadott nev ervenytelen"
-"Podana nazwa jest niewlasciwa"
+"Zadaný název je neplatný"
+"Der angegebene Name ist ungültig"
+"A megadott név érvénytelen"
+"Podana nazwa jest niewłaściwa"
 
 MErrorInsufficientDiskSpace
 "Нет места на диске"
 "Insufficient disk space"
-"Nedostatek mista na disku"
-"Unzureichend Speicherplatz am Datentrager"
-"Nincs eleg hely a lemezen"
-"Za malo miejsca na dysku"
+"Nedostatek místa na disku"
+"Unzureichend Speicherplatz am Datenträger"
+"Nincs elég hely a lemezen"
+"Za mało miejsca na dysku"
 
 MErrorFolderNotEmpty
 "Папка не пустая"
 "The folder is not empty"
-"Adresar neni prazdny"
+"Adresář není prázdný"
 "Der Ordner ist nicht leer"
-"A mappa nem ures"
+"A mappa nem üres"
 "Katalog nie jest pusty"
 
 MErrorIncorrectUserName
 "Неверное имя пользователя"
 "Incorrect user name"
-"Neplatne jmeno uzivatele"
-"Ungultiger Benutzername"
-"Ervenytelen felhasznaloi nev"
-"Niewlasciwa nazwa uzytkownika"
+"Neplatné jméno uživatele"
+"Ungültiger Benutzername"
+"Érvénytelen felhasználói név"
+"Niewłaściwa nazwa użytkownika"
 
 MErrorIncorrectPassword
 "Неверный пароль"
 "Incorrect password"
-"Neplatne heslo"
-"Ungultiges Passwort"
-"Ervenytelen jelszo"
-"Niewlasciwe haslo"
+"Neplatné heslo"
+"Ungültiges Passwort"
+"Érvénytelen jelszó"
+"Niewłaściwe hasło"
 
 MErrorLoginFailure
 "Ошибка регистрации"
 "Login failure"
-"Prihlaseni selhalo"
+"Přihlášení selhalo"
 "Login fehlgeschlagen"
-"Sikertelen bejelentkezes"
-"Logowanie nie powiodlo sie"
+"Sikertelen bejelentkezés"
+"Logowanie nie powiodło się"
 
 MErrorConnectionAborted
 "Соединение разорвано"
 "Connection aborted"
-"Spojeni preruseno"
+"Spojení přerušeno"
 "Verbindung abgebrochen"
 "Kapcsolat bontva"
-"Polaczenie zerwane"
+"Połączenie zerwane"
 
 MErrorCancelled
 "Операция отменена"
 "Operation cancelled"
-"Operace stornovana"
+"Operace stornována"
 "Vorgang abgebrochen"
-"A muvelet megszakitva"
+"A művelet megszakítva"
 "Operacja przerwana"
 
 MErrorNetAbsent
 "Сеть отсутствует"
 "No network present"
-"Sit neni k dispozici"
-"Kein Netzwerk verfugbar"
-"Nincs halozat"
+"Síť není k dispozici"
+"Kein Netzwerk verfügbar"
+"Nincs hálózat"
 "Brak sieci"
 
 MErrorNetDeviceInUse
 "Устройство используется и не может быть отсоединено"
 "Device is in use and cannot be disconnected"
-"Zarizeni se pouziva a nemuze byt odpojeno"
-"Gerat wird gerade verwendet oder kann nicht getrennt werden"
-"Az eszkoz hasznalatban van, nem valaszthato le"
-"Urzadzenie jest w uzyciu i nie mozna go odlaczyc"
+"Zařízení se používá a nemůže být odpojeno"
+"Gerät wird gerade verwendet oder kann nicht getrennt werden"
+"Az eszköz használatban van, nem választható le"
+"Urządzenie jest w użyciu i nie można go odłączyć"
 
 MErrorNetOpenFiles
 "На сетевом диске есть открытые файлы"
 "This network connection has open files"
-"Pres toto sitove spojeni jsou otevreny soubory"
-"Diese Netzwerkverbindung hat geoffnete Dateien"
-"A halozaton nyitott fajlok vannak"
-"To polaczenie sieciowe posiada otwarte pliki"
+"Přes toto síťové spojení jsou otevřeny soubory"
+"Diese Netzwerkverbindung hat geöffnete Dateien"
+"A hálózaton nyitott fájlok vannak"
+"To połączenie sieciowe posiada otwarte pliki"
 
 MErrorAlreadyAssigned
 "Имя локального устройства уже использовано"
 "The local device name is already in use"
-"Nazev lokalniho zarizeni je jiz pouzivan"
-"Der lokale Geratename wird bereits verwendet"
-"A helyi eszkoznev mar foglalt"
-"Nazwa urzadzenia lokalnego jest juz uzywana"
+"Název lokálního zařízení je již používán"
+"Der lokale Gerätename wird bereits verwendet"
+"A helyi eszköznév már foglalt"
+"Nazwa urządzenia lokalnego jest już używana"
 
 MErrorAlreadyRemebered
 "Имя локального устройства уже находится в профиле пользователя"
 "The local device is already in the user profile"
-"Lokalni zarizeni je jiz v uzivatelove profilu"
-"Der lokale Datentrager ist bereits Teil des Benutzerprofils"
-"A helyi eszkoz mar a felhasznaloi profilban van"
-"Lokalne urzadzenie znajduje sie juz w profilu uzytkownika"
+"Lokální zařízení je již v uživatelově profilu"
+"Der lokale Datenträger ist bereits Teil des Benutzerprofils"
+"A helyi eszköz már a felhasználói profilban van"
+"Lokalne urządzenie znajduje się już w profilu użytkownika"
 
 MErrorNotLoggedOn
 "Пользователь не зарегистрирован в сети"
 "User has not logged on to the network"
-"Uzivatel nebyl do site prihlasen"
+"Uživatel nebyl do sítě přihlášen"
 "Benutzer hat sich nicht am Netzwerk angemeldet"
-"A felhasznalo nincs a halozaton"
-"Uzytkownik nie jest zalogowany do sieci"
+"A felhasználó nincs a hálózaton"
+"Użytkownik nie jest zalogowany do sieci"
 
 MErrorInvalidPassword
 "Неверный пароль пользователя"
 "The user password is invalid"
-"Uzivatelovo heslo neni spravne"
-"Das Benutzerpasswort ist ungultig"
-"Ervenytelen felhasznaloi jelszo"
-"Haslo uzytkownika jest niewlasciwe"
+"Uživatelovo heslo není správné"
+"Das Benutzerpasswort ist ungültig"
+"Érvénytelen felhasználói jelszó"
+"Hasło użytkownika jest niewłaściwe"
 
 MErrorNoRecoveryPolicy
 "Для этой системы отсутствует политика надежного восстановления шифрования"
 "There is no valid encryption recovery policy configured for this system"
-"V tomto systemu neni nastaveno zadne platne pravidlo pro desifrovani"
-"Auf diesem System ist keine gultige Richtlinie zum Wiederherstellen der Verschlusselung konfiguriert."
-"Nincs ervenyes titkositast feloldo szabaly a hazirendben"
+"V tomto systému není nastaveno žádné platné pravidlo pro dešifrování"
+"Auf diesem System ist keine gültige Richtlinie zum Wiederherstellen der Verschlüsselung konfiguriert."
+"Nincs érvényes titkosítást feloldó szabály a házirendben"
 "Polityka odzyskiwania szyfrowania nie jest skonfigurowana"
 
 MErrorEncryptionFailed
 "Ошибка при попытке шифрования файла"
 "The specified file could not be encrypted"
-"Zadany soubor nemohl byt zasifrovan"
-"Die angegebene Datei konnte nicht verschlusselt werden"
-"A megadott fajl nem titkosithato"
-"Nie udalo sie zaszyfrowac pliku"
+"Zadaný soubor nemohl být zašifrován"
+"Die angegebene Datei konnte nicht verschlüsselt werden"
+"A megadott fájl nem titkosítható"
+"Nie udało się zaszyfrować pliku"
 
 MErrorDecryptionFailed
 "Ошибка при попытке расшифровки файла"
 "The specified file could not be decrypted"
-"Zadany soubor nemohl byt desifrovan"
-"Die angegebene Datei konnte nicht entschlusselt werden"
-"A megadott fajl titkositasa nem oldhato fel"
-"Nie udalo sie odszyfrowac pliku"
+"Zadaný soubor nemohl být dešifrován"
+"Die angegebene Datei konnte nicht entschlüsselt werden"
+"A megadott fájl titkosítása nem oldható fel"
+"Nie udało się odszyfrować pliku"
 
 MErrorFileNotEncrypted
 "Указанный файл не зашифрован"
 "The specified file is not encrypted"
-"Zadany soubor neni zasifrovan"
-"Die angegebene Datei ist nicht verschlusselt"
-"A megadott fajl nem titkositott"
+"Zadaný soubor není zašifrován"
+"Die angegebene Datei ist nicht verschlüsselt"
+"A megadott fájl nem titkosított"
 "Plik nie jest zaszyfrowany"
 
 MErrorNoAssociation
 "Указанному файлу не сопоставлено ни одно приложение для выполнения данной операции"
 "No application is associated with the specified file for this operation"
-"K zadanemu souboru neni asociovana zadna aplikace pro tuto operaci"
+"K zadanému souboru není asociována žádná aplikace pro tuto operaci"
 "Diesem Dateityp und dieser Aktion ist kein Programm zugewiesen."
-"A fajlhoz nincs tarsitva program"
-"Z ta operacja dla pliku nie jest skojarzona zadna aplikacja"
+"A fájlhoz nincs társítva program"
+"Z tą operacją dla pliku nie jest skojarzona żadna aplikacja"
 
 MErrorFullPathNameLong
 l:
 "Полный путь к файлу имеет слишком большую длину"
 "The full pathname is too long"
-"Plna cesta k souboru je prilis dlouha"
+"Plná cesta k souboru je příliš dlouhá"
 "Der volle Name des Pfades ist zu lang"
-"A teljes eleresi ut tul hosszu"
-"Pelna sciezka jest zbyt dluga"
+"A teljes elérési út túl hosszú"
+"Pełna ścieżka jest zbyt długa"
 
 MCannotExecute
 l:
 "Ошибка выполнения"
 "Cannot execute"
-"Nelze provest"
-"Fehler beim Ausfuhren von"
-"Nem vegrehajthato:"
-"Nie moge wykonac"
+"Nelze provést"
+"Fehler beim Ausführen von"
+"Nem végrehajtható:"
+"Nie mogę wykonać"
 
 MScanningFolder
 "Просмотр папки"
 "Scanning the folder"
-"Prohledavam adresar"
+"Prohledávám adresář"
 "Scanne den Ordner"
-"Mappak olvasasa..."
-"Przeszukuje katalog"
+"Mappák olvasása..."
+"Przeszukuję katalog"
 
 MMakeFolderTitle
 l:
 "Создание папки"
 "Make folder"
-"Vytvoreni adresare"
+"Vytvoření adresáře"
 "Ordner erstellen"
-"Uj mappa letrehozasa"
-"Utworz katalog"
+"Új mappa létrehozása"
+"Utwórz katalog"
 
 MCreateFolder
 "Создать п&апку"
 "Create the &folder"
-"Vytvorit &adresar"
+"Vytvořit &adresář"
 "Diesen &Ordner erstellen:"
 "Mappa &neve:"
 "Nazwa katalogu"
@@ -8694,106 +8694,106 @@ MCreateFolder
 MMultiMakeDir
 "Обрабатыват&ь несколько имен папок"
 "Process &multiple names"
-"Zpracovat &vice nazvu"
+"Zpracovat &více názvů"
 "&Mehrere Namen verarbeiten (getrennt durch Semikolon)"
-"Tob&b nev feldolgozasa"
+"Töb&b név feldolgozása"
 "Przetwarzaj &wiele nazw"
 
 MIncorrectDirList
 "Неправильный список папок"
 "Incorrect folders list"
-"Neplatny seznam adresaru"
+"Neplatný seznam adresářů"
 "Fehlerhafte Ordnerliste"
-"Hibas mappalista"
-"Bledna lista folderow"
+"Hibás mappalista"
+"Błędna lista folderów"
 
 MCannotCreateFolder
 "Ошибка создания папки"
 "Cannot create the folder"
-"Adresar nelze vytvorit"
+"Adresář nelze vytvořit"
 "Konnte den Ordner nicht erstellen"
-"A mappa nem hozhato letre"
-"Nie moge utworzyc katalogu"
+"A mappa nem hozható létre"
+"Nie mogę utworzyć katalogu"
 
 MMenuBriefView
 l:
 "&Краткий                  LCtrl-1"
 "&Brief              LCtrl-1"
-"&Strucny                  LCtrl-1"
+"&Stručný                  LCtrl-1"
 "&Kurz                 LStrg-1"
-"&Rovid              BalCtrl-1"
-"&Skrotowy             LCtrl-1"
+"&Rövid              BalCtrl-1"
+"&Skrótowy             LCtrl-1"
 
 MMenuMediumView
 "&Средний                  LCtrl-2"
 "&Medium             LCtrl-2"
-"S&tredni                  LCtrl-2"
+"S&třední                  LCtrl-2"
 "&Mittel               LStrg-2"
-"&Kozepes            BalCtrl-2"
-"S&redni               LCtrl-2"
+"&Közepes            BalCtrl-2"
+"Ś&redni               LCtrl-2"
 
 MMenuFullView
 "&Полный                   LCtrl-3"
 "&Full               LCtrl-3"
-"&Plny                     LCtrl-3"
+"&Plný                     LCtrl-3"
 "&Voll                 LStrg-3"
 "&Teljes             BalCtrl-3"
-"&Pelny                LCtrl-3"
+"&Pełny                LCtrl-3"
 
 MMenuWideView
 "&Широкий                  LCtrl-4"
 "&Wide               LCtrl-4"
-"S&iroky                   LCtrl-4"
+"Š&iroký                   LCtrl-4"
 "B&reitformat          LStrg-4"
-"&Szeles             BalCtrl-4"
+"&Széles             BalCtrl-4"
 "S&zeroki              LCtrl-4"
 
 MMenuDetailedView
 "&Детальный                LCtrl-5"
 "Detai&led           LCtrl-5"
-"Detai&lni                 LCtrl-5"
+"Detai&lní                 LCtrl-5"
 "Detai&lliert          LStrg-5"
-"Resz&letes          BalCtrl-5"
-"Ze sz&czegolami       LCtrl-5"
+"Rész&letes          BalCtrl-5"
+"Ze sz&czegółami       LCtrl-5"
 
 MMenuDizView
 "&Описания                 LCtrl-6"
 "&Descriptions       LCtrl-6"
 "P&opisky                  LCtrl-6"
 "&Beschreibungen       LStrg-6"
-"Fajl&megjegyzesek   BalCtrl-6"
+"Fájl&megjegyzések   BalCtrl-6"
 "&Opisy                LCtrl-6"
 
 MMenuLongDizView
 "Д&линные описания         LCtrl-7"
 "Lon&g descriptions  LCtrl-7"
-"&Dlouhe popisky           LCtrl-7"
+"&Dlouhé popisky           LCtrl-7"
 "Lan&ge Beschreibungen LStrg-7"
-"&Hosszu megjegyzes  BalCtrl-7"
-"&Dlugie opisy         LCtrl-7"
+"&Hosszú megjegyzés  BalCtrl-7"
+"&Długie opisy         LCtrl-7"
 
 MMenuOwnersView
 "Вл&адельцы файлов         LCtrl-8"
 "File own&ers        LCtrl-8"
-"Vlastnik so&uboru         LCtrl-8"
+"Vlastník so&uboru         LCtrl-8"
 "B&esitzer             LStrg-8"
-"Fajl tula&jdonos    BalCtrl-8"
-"&Wlasciciele          LCtrl-8"
+"Fájl tula&jdonos    BalCtrl-8"
+"&Właściciele          LCtrl-8"
 
 MMenuLinksView
 "Свя&зи файлов             LCtrl-9"
 "File lin&ks         LCtrl-9"
-"Souborove lin&ky          LCtrl-9"
+"Souborové lin&ky          LCtrl-9"
 "Dateilin&ks           LStrg-9"
-"Fajl li&nkek        BalCtrl-9"
-"Dowiaza&nia           LCtrl-9"
+"Fájl li&nkek        BalCtrl-9"
+"Dowiąza&nia           LCtrl-9"
 
 MMenuAlternativeView
 "Аль&тернативный полный    LCtrl-0"
 "&Alternative full   LCtrl-0"
-"&Alternativni plny        LCtrl-0"
+"&Alternativní plný        LCtrl-0"
 "&Alternativ voll      LStrg-0"
-"&Alternativ teljes  BalCtrl-0"
+"&Alternatív teljes  BalCtrl-0"
 "&Alternatywny         LCtrl-0"
 
 MMenuInfoPanel
@@ -8810,32 +8810,32 @@ MMenuTreePanel
 "&Tree panel         Ctrl-T"
 "Panel St&rom              Ctrl-T"
 "Baumansich&t          Strg-T"
-"&Fastruktura        Ctrl-T"
+"&Fastruktúra        Ctrl-T"
 "Drz&ewo               Ctrl-T"
 
 MMenuQuickView
 "Быстры&й просмотр         Ctrl-Q"
 "Quick &view         Ctrl-Q"
-"Z&bezne zobrazeni         Ctrl-Q"
+"Z&běžné zobrazení         Ctrl-Q"
 "Sc&hnellansicht       Strg-Q"
-"&Gyorsnezet         Ctrl-Q"
-"Sz&ybki podglad       Ctrl-Q"
+"&Gyorsnézet         Ctrl-Q"
+"Sz&ybki podgląd       Ctrl-Q"
 
 MMenuSortModes
 "Режим&ы сортировки        Ctrl-F12"
 "&Sort modes         Ctrl-F12"
-"Mody raze&ni              Ctrl-F12"
+"Módy řaze&ní              Ctrl-F12"
 "&Sortiermodi          Strg-F12"
-"R&endezesi elv      Ctrl-F12"
+"R&endezési elv      Ctrl-F12"
 "Try&by sortowania     Ctrl-F12"
 
 MMenuLongNames
 "Показывать длинные &имена Ctrl-N"
 "Show long &names    Ctrl-N"
-"Zobrazit dlouhe nazv&y    Ctrl-N"
+"Zobrazit dlouhé názv&y    Ctrl-N"
 "Lange Datei&namen     Strg-N"
-"H&osszu fajlnevek   Ctrl-N"
-"Po&kaz dlugie nazwy   Ctrl-N"
+"H&osszú fájlnevek   Ctrl-N"
+"Po&każ długie nazwy   Ctrl-N"
 
 MMenuTogglePanel
 "Панель &Вкл/Выкл          Ctrl-F1"
@@ -8843,23 +8843,23 @@ MMenuTogglePanel
 "Panel &Zap/Vyp            Ctrl-F1"
 "&Panel ein/aus        Strg-F1"
 "&Panel be/ki        Ctrl-F1"
-"Wlacz/Wylacz pane&l   Ctrl-F1"
+"Włącz/Wyłącz pane&l   Ctrl-F1"
 
 MMenuReread
 "П&еречитать               Ctrl-R"
 "&Re-read            Ctrl-R"
 "Obno&vit                  Ctrl-R"
 "Aktualisie&ren        Strg-R"
-"Friss&ites          Ctrl-R"
-"Odsw&iez              Ctrl-R"
+"Friss&ítés          Ctrl-R"
+"Odśw&ież              Ctrl-R"
 
 MMenuChangeDrive
 "С&менить диск             Alt-F1"
 "&Change drive       Alt-F1"
-"Z&menit jednotku          Alt-F1"
+"Z&měnit jednotku          Alt-F1"
 "Laufwerk we&chseln    Alt-F1"
-"Meghajto&valtas     Alt-F1"
-"Z&mien naped          Alt-F1"
+"Meghajtó&váltás     Alt-F1"
+"Z&mień napęd          Alt-F1"
 
 MMenuView
 l:
@@ -8867,8 +8867,8 @@ l:
 "&View               F3"
 "&Zobrazit                   F3"
 "&Betrachten           F3"
-"&Megnez               F3"
-"&Podglad                   F3"
+"&Megnéz               F3"
+"&Podgląd                   F3"
 
 MMenuEdit
 "&Редактирование        F4"
@@ -8881,49 +8881,49 @@ MMenuEdit
 MMenuCopy
 "&Копирование           F5"
 "&Copy               F5"
-"&Kopirovat                  F5"
+"&Kopírovat                  F5"
 "&Kopieren             F5"
-"Mas&ol                F5"
+"Más&ol                F5"
 "&Kopiuj                    F5"
 
 MMenuMove
 "П&еренос               F6"
 "&Rename or move     F6"
-"&Prejmenovat/Presunout      F6"
+"&Přejmenovat/Přesunout      F6"
 "Ve&rschieben/Umben.   F6"
-"At&nevez-Mozgat       F6"
-"&Zmien nazwe lub przenies  F6"
+"Át&nevez-Mozgat       F6"
+"&Zmień nazwę lub przenieś  F6"
 
 MMenuCreateFolder
 "&Создание папки        F7"
 "&Make folder        F7"
-"&Vytvorit adresar           F7"
+"&Vytvořit adresář           F7"
 "&Ordner erstellen     F7"
-"U&j mappa             F7"
-"U&tworz katalog            F7"
+"Ú&j mappa             F7"
+"U&twórz katalog            F7"
 
 MMenuDelete
 "&Удаление              F8"
 "&Delete             F8"
 "&Smazat                     F8"
-"&Loschen              F8"
-"&Torol                F8"
-"&Usun                      F8"
+"&Löschen              F8"
+"&Töröl                F8"
+"&Usuń                      F8"
 
 MMenuWipe
 "Уни&чтожение           Alt-Del"
 "&Wipe               Alt-Del"
 "&Vymazat                    Alt-Del"
-"&Sicher loschen       Alt-Entf"
-"&Kisopor              Alt-Del"
-"&Wymaz                     Alt-Del"
+"&Sicher löschen       Alt-Entf"
+"&Kisöpör              Alt-Del"
+"&Wymaż                     Alt-Del"
 
 MMenuAdd
 "&Архивировать          Shift-F1"
 "Add &to archive     Shift-F1"
-"Pridat do &archivu          Shift-F1"
+"Přidat do &archívu          Shift-F1"
 "Zu Archiv &hinzuf.    Umsch-F1"
-"Tomorhoz ho&zzaad     Shift-F1"
+"Tömörhöz ho&zzáad     Shift-F1"
 "&Dodaj do archiwum         Shift-F1"
 
 MMenuExtract
@@ -8931,15 +8931,15 @@ MMenuExtract
 "E&xtract files      Shift-F2"
 "&Rozbalit soubory           Shift-F2"
 "Archiv e&xtrahieren   Umsch-F2"
-"Tomorbol ki&bont      Shift-F2"
+"Tömörből ki&bont      Shift-F2"
 "&Rozpakuj archiwum         Shift-F2"
 
 MMenuArchiveCommands
 "Архивн&ые команды      Shift-F3"
 "Arc&hive commands   Shift-F3"
-"Prikazy arc&hivu            Shift-F3"
+"Příkazy arc&hívu            Shift-F3"
 "Arc&hivbefehle        Umsch-F3"
-"Tomorito &parancsok   Shift-F3"
+"Tömörítő &parancsok   Shift-F3"
 "Po&lecenie archiwizera     Shift-F3"
 
 MMenuAttributes
@@ -8947,56 +8947,56 @@ MMenuAttributes
 "File &attributes    Ctrl-A"
 "A&tributy souboru           Ctrl-A"
 "Datei&attribute       Strg-A"
-"Fajl &attributumok    Ctrl-A"
+"Fájl &attribútumok    Ctrl-A"
 "&Atrybuty pliku            Ctrl-A"
 
 MMenuApplyCommand
 "Применить коман&ду     Ctrl-G"
 "A&pply command      Ctrl-G"
-"Ap&likovat prikaz           Ctrl-G"
+"Ap&likovat příkaz           Ctrl-G"
 "Befehl an&wenden      Strg-G"
-"Parancs &vegrehajtasa Ctrl-G"
+"Parancs &végrehajtása Ctrl-G"
 "Zastosuj pole&cenie        Ctrl-G"
 
 MMenuDescribe
 "&Описание файлов       Ctrl-Z"
 "Descri&be files     Ctrl-Z"
-"Pridat popisek sou&borum    Ctrl-Z"
-"Beschrei&bung andern  Strg-Z"
-"Fajlmegje&gyzes       Ctrl-Z"
+"Přidat popisek sou&borům    Ctrl-Z"
+"Beschrei&bung ändern  Strg-Z"
+"Fájlmegje&gyzés       Ctrl-Z"
 "&Opisz pliki               Ctrl-Z"
 
 MMenuSelectGroup
 "Пометить &группу       Gray +"
 "Select &group       Gray +"
-"Oz&nacit skupinu            Num +"
-"&Gruppe auswahlen     Num +"
-"Csoport k&ijelolese   Szurke +"
-"Zaznacz &grupe             Szary +"
+"Oz&načit skupinu            Num +"
+"&Gruppe auswählen     Num +"
+"Csoport k&ijelölése   Szürke +"
+"Zaznacz &grupę             Szary +"
 
 MMenuUnselectGroup
 "С&нять пометку         Gray -"
 "U&nselect group     Gray -"
-"O&dznacit skupinu           Num -"
-"G&ruppe abwahlen      Num -"
-"Jelolest l&evesz      Szurke -"
-"Odz&nacz grupe             Szary -"
+"O&dznačit skupinu           Num -"
+"G&ruppe abwählen      Num -"
+"Jelölést l&evesz      Szürke -"
+"Odz&nacz grupę             Szary -"
 
 MMenuInvertSelection
 "&Инверсия пометки      Gray *"
 "&Invert selection   Gray *"
-"&Invertovat vyber           Num *"
+"&Invertovat výběr           Num *"
 "Auswah&l umkehren     Num *"
-"Jelolest meg&fordit   Szurke *"
-"Od&wroc zaznaczenie        Szary *"
+"Jelölést meg&fordít   Szürke *"
+"Od&wróć zaznaczenie        Szary *"
 
 MMenuRestoreSelection
 "Восстановить по&метку  Ctrl-M"
 "Re&store selection  Ctrl-M"
-"&Obnovit vyber              Ctrl-M"
+"&Obnovit výběr              Ctrl-M"
 "Auswahl wiederher&st. Strg-M"
-"Jel&olest visszatesz  Ctrl-M"
-"Odtworz zaznaczen&ie       Ctrl-M"
+"Jel&ölést visszatesz  Ctrl-M"
+"Odtwórz zaznaczen&ie       Ctrl-M"
 
 MMenuFindFile
 l:
@@ -9004,48 +9004,48 @@ l:
 "&Find file           Alt-F7"
 "H&ledat soubor                  Alt-F7"
 "Dateien &finden       Alt-F7"
-"Fajl&kereses         Alt-F7"
-"&Znajdz plik               Alt-F7"
+"Fájl&keresés         Alt-F7"
+"&Znajdź plik               Alt-F7"
 
 MMenuHistory
 "&История команд           Alt-F8"
 "&History             Alt-F8"
 "&Historie                       Alt-F8"
 "&Historie             Alt-F8"
-"Parancs &elozmenyek  Alt-F8"
+"Parancs &előzmények  Alt-F8"
 "&Historia                  Alt-F8"
 
 MMenuVideoMode
 "Видео&режим               Alt-F9"
 "&Video mode          Alt-F9"
-"&Video mod                      Alt-F9"
+"&Video mód                      Alt-F9"
 "Ansicht<->&Vollbild   Alt-F9"
-"&Video mod           Alt-F9"
-"&Tryb wyswietlania         Alt-F9"
+"&Video mód           Alt-F9"
+"&Tryb wyświetlania         Alt-F9"
 
 MMenuFindFolder
 "Поис&к папки              Alt-F10"
 "Fi&nd folder         Alt-F10"
-"Hl&edat adresar                 Alt-F10"
+"Hl&edat adresář                 Alt-F10"
 "Ordner fi&nden        Alt-F10"
-"&Mappakereses        Alt-F10"
-"Znajdz kata&log            Alt-F10"
+"&Mappakeresés        Alt-F10"
+"Znajdź kata&log            Alt-F10"
 
 MMenuViewHistory
 "Ис&тория просмотра        Alt-F11"
 "File vie&w history   Alt-F11"
-"Historie &zobrazeni souboru     Alt-F11"
+"Historie &zobrazení souborů     Alt-F11"
 "Be&trachterhistorie   Alt-F11"
-"Faj&l elozmenyek     Alt-F11"
-"Historia &podgladu plikow  Alt-F11"
+"Fáj&l előzmények     Alt-F11"
+"Historia &podglądu plików  Alt-F11"
 
 MMenuFoldersHistory
 "Ист&ория папок            Alt-F12"
 "F&olders history     Alt-F12"
-"Historie &adresaru              Alt-F12"
+"Historie &adresářů              Alt-F12"
 "&Ordnerhistorie       Alt-F12"
-"Ma&ppa elozmenyek    Alt-F12"
-"Historia &katalogow        Alt-F12"
+"Ma&ppa előzmények    Alt-F12"
+"Historia &katalogów        Alt-F12"
 
 MMenuSwapPanels
 "По&менять панели          Ctrl-U"
@@ -9053,7 +9053,7 @@ MMenuSwapPanels
 "Prohodit panel&y                Ctrl-U"
 "Panels tau&schen      Strg-U"
 "Panel&csere          Ctrl-U"
-"Z&amien panele             Ctrl-U"
+"Z&amień panele             Ctrl-U"
 
 MMenuTogglePanels
 "Панели &Вкл/Выкл          Ctrl-O"
@@ -9061,52 +9061,52 @@ MMenuTogglePanels
 "&Panely Zap/Vyp                 Ctrl-O"
 "&Panels ein/aus       Strg-O"
 "Panelek &be/ki       Ctrl-O"
-"&Wlacz/Wylacz panele       Ctrl-O"
+"&Włącz/Wyłącz panele       Ctrl-O"
 
 MMenuCompareFolders
 "&Сравнение папок"
 "&Compare folders"
-"Po&rovnat adresare"
+"Po&rovnat adresáře"
 "Ordner verglei&chen"
-"Mappak ossze&hasonlitasa"
-"Porowna&j katalogi"
+"Mappák össze&hasonlítása"
+"Porówna&j katalogi"
 
 MMenuUserMenu
 "Меню пользовател&я"
 "Edit user &menu"
-"Upravit uzivatelske &menu"
+"Upravit uživatelské &menu"
 "Benutzer&menu editieren"
-"Felhasznaloi m&enu szerk."
-"Edytuj &menu uzytkownika"
+"Felhasználói m&enü szerk."
+"Edytuj &menu użytkownika"
 
 MMenuFileAssociations
 "&Ассоциации файлов"
 "File &associations"
-"Asocia&ce souboru"
-"Dat&eiverknupfungen"
-"Fajl&tarsitasok"
-"Prz&ypisania plikow"
+"Asocia&ce souborů"
+"Dat&eiverknüpfungen"
+"Fájl&társítások"
+"Prz&ypisania plików"
 
 MMenuFolderShortcuts
 "Ссы&лки на папки"
 "Fol&der shortcuts"
-"A&dresarove zkratky"
+"A&dresářové zkratky"
 "Or&dnerschnellzugriff"
-"Mappa gyorsbillent&yuk"
-"&Skroty katalogow"
+"Mappa gyorsbillent&yűk"
+"&Skróty katalogów"
 
 MMenuFilter
 "&Фильтр панели файлов     Ctrl-I"
 "File panel f&ilter   Ctrl-I"
-"F&iltr panelu souboru           Ctrl-I"
+"F&iltr panelu souborů           Ctrl-I"
 "Panelf&ilter          Strg-I"
-"Fajlpanel &szurok    Ctrl-I"
-"&Filtr panelu plikow       Ctrl-I"
+"Fájlpanel &szűrők    Ctrl-I"
+"&Filtr panelu plików       Ctrl-I"
 
 MMenuPluginCommands
 "Команды внешних мо&дулей  F11"
 "Pl&ugin commands     F11"
-"Prikazy plu&ginu                F11"
+"Příkazy plu&ginů                F11"
 "Pl&uginbefehle        F11"
 "Pl&ugin parancsok    F11"
 "Pl&uginy                   F11"
@@ -9116,80 +9116,80 @@ MMenuWindowsList
 "Sc&reens list        F12"
 "Seznam obrazove&k               F12"
 "Seite&nliste          F12"
-"Keper&nyok           F12"
-"L&ista ekranow             F12"
+"Képer&nyők           F12"
+"L&ista ekranów             F12"
 
 MMenuProcessList
 "Список &задач             Ctrl-W"
 "Task &list           Ctrl-W"
-"Seznam ul&oh                    Ctrl-W"
+"Seznam úl&oh                    Ctrl-W"
 "Task&liste            Strg-W"
-"Futo p&rogramok      Ctrl-W"
-"Lista za&dan               Ctrl-W"
+"Futó p&rogramok      Ctrl-W"
+"Lista za&dań               Ctrl-W"
 
 MMenuHotPlugList
 "Список Hotplug-&устройств"
 "Ho&tplug devices list"
-"Seznam v&yjimatelnych zarizeni"
+"Seznam v&yjímatelných zařízení"
 "Sicheres En&tfernen"
-"H&otplug eszkozok"
-"Lista urzadzen Ho&tplug"
+"H&otplug eszközök"
+"Lista urządzeń Ho&tplug"
 
 MMenuSystemSettings
 l:
 "Систе&мные параметры"
 "S&ystem settings"
-"Nastaveni S&ystemu"
+"Nastavení S&ystému"
 "&Grundeinstellungen"
-"&Rendszer beallitasok"
+"&Rendszer beállítások"
 "Ustawienia &systemowe"
 
 MMenuPanelSettings
 "Настройки па&нели"
 "&Panel settings"
-"Nastaveni &Panelu"
+"Nastavení &Panelů"
 "&Panels einrichten"
-"&Panel beallitasok"
+"&Panel beállítások"
 "Ustawienia &panelu"
 
 MMenuInterface
 "Настройки &интерфейса"
 "&Interface settings"
-"Nastaveni Ro&zhrani"
-"Oberflache einr&ichten"
-"Kezelo&felulet beallitasok"
+"Nastavení Ro&zhraní"
+"Oberfläche einr&ichten"
+"Kezelő&felület beállítások"
 "Ustawienia &interfejsu"
 
 MMenuDialogSettings
 "Настройки &диалогов"
 "Di&alog settings"
-"Nastaveni Dialo&gu"
+"Nastavení Dialo&gů"
 "Di&aloge einrichten"
-"Par&beszedablak beallitasok"
+"Pár&beszédablak beállítások"
 "Ustawienia okna &dialogowego"
 
 MMenuLanguages
 "&Языки"
 "Lan&guages"
-"Nastaveni &Jazyka"
+"Nastavení &Jazyka"
 "Sprac&hen"
 "N&yelvek (Languages)"
-"&Jezyk"
+"&Język"
 
 MMenuPluginsConfig
 "Параметры &внешних модулей"
 "Pl&ugins configuration"
-"Nastaveni Plu&ginu"
+"Nastavení Plu&ginů"
 "Konfiguration von Pl&ugins"
-"Pl&ugin beallitasok"
-"Konfiguracja p&luginow"
+"Pl&ugin beállítások"
+"Konfiguracja p&luginów"
 
 MMenuConfirmation
 "&Подтверждения"
 "Co&nfirmations"
-"P&otvrzeni"
-"Bestatigu&ngen"
-"Meg&erositesek"
+"P&otvrzení"
+"Bestätigu&ngen"
+"Meg&erősítések"
 "P&otwierdzenia"
 
 MMenuPluginConfirmation
@@ -9197,7 +9197,7 @@ MMenuPluginConfirmation
 "Plugin selection"
 upd:"Plugin selection"
 upd:"Plugin selection"
-"Plugin valasztas"
+"Plugin választás"
 upd:"Plugin selection"
 
 MMenuPluginStdAssociation
@@ -9205,47 +9205,47 @@ MMenuPluginStdAssociation
 "Standard association"
 upd:"Standard association"
 upd:"Standard association"
-"Szabvany tarsitas"
+"Szabvány társítás"
 upd:"Standard association"
 
 MMenuFilePanelModes
 "Режим&ы панели файлов"
 "File panel &modes"
-"&Mody souborovych panelu"
+"&Módy souborových panelů"
 "Anzeige&modi von Dateipanels"
-"Fajlpanel mod&ok"
-"&Tryby wyswietlania panelu plikow"
+"Fájlpanel mód&ok"
+"&Tryby wyświetlania panelu plików"
 
 MMenuFileDescriptions
 "&Описания файлов"
 "File &descriptions"
-"Popi&sy souboru"
+"Popi&sy souborů"
 "&Dateibeschreibungen"
-"Fajl &megjegyzesfajlok"
-"Opis&y plikow"
+"Fájl &megjegyzésfájlok"
+"Opis&y plików"
 
 MMenuFolderInfoFiles
 "Файлы описания п&апок"
 "&Folder description files"
-"Soubory popisu &adresaru"
+"Soubory popisů &adresářů"
 "O&rdnerbeschreibungen"
-"M&appa megjegyzesfajlok"
+"M&appa megjegyzésfájlok"
 "Pliki opisu &katalogu"
 
 MMenuViewer
 "Настройки про&граммы просмотра"
 "&Viewer settings"
-"Nastaveni P&rohlizece"
+"Nastavení P&rohlížeče"
 "Be&trachter einrichten"
-"&Nezoke beallitasok"
-"Ustawienia pod&gladu"
+"&Nézőke beállítások"
+"Ustawienia pod&glądu"
 
 MMenuEditor
 "Настройки &редактора"
 "&Editor settings"
-"Nastaveni &Editoru"
+"Nastavení &Editoru"
 "&Editor einrichten"
-"&Szerkeszto beallitasok"
+"&Szerkesztő beállítások"
 "Ustawienia &edytora"
 
 MMenuColors
@@ -9253,23 +9253,23 @@ MMenuColors
 "Co&lors"
 "&Barvy"
 "&Farben"
-"S&zinek"
+"S&zínek"
 "Kolo&ry"
 
 MMenuFilesHighlighting
 "Раскраска &файлов и группы сортировки"
 "Files &highlighting and sort groups"
-"Z&vyraznovani souboru a skupiny razeni"
+"Z&výrazňování souborů a skupiny řazení"
 "Farbmar&kierungen und Sortiergruppen"
-"Fajlkiemelesek, rendezesi &csoportok"
-"&Wyroznianie plikow"
+"Fájlkiemelések, rendezési &csoportok"
+"&Wyróżnianie plików"
 
 MMenuSaveSetup
 "&Сохранить параметры                  Shift-F9"
 "&Save setup                         Shift-F9"
-"&Ulozit nastaveni                      Shift-F9"
+"&Uložit nastavení                      Shift-F9"
 "Setup &speichern                     Umsch-F9"
-"Beallitasok men&tese                 Shift-F9"
+"Beállítások men&tése                 Shift-F9"
 "&Zapisz ustawienia       Shift-F9"
 
 MMenuTogglePanelRight
@@ -9278,21 +9278,21 @@ MMenuTogglePanelRight
 "Panel &Zap/Vyp            Ctrl-F2"
 "Panel &ein/aus        Strg-F2"
 "Panel be/&ki        Ctrl-F2"
-"Wlacz/wylacz pane&l   Ctrl-F2"
+"Włącz/wyłącz pane&l   Ctrl-F2"
 
 MMenuChangeDriveRight
 "С&менить диск             Alt-F2"
 "&Change drive       Alt-F2"
-"Z&menit jednotku          Alt-F2"
+"Z&měnit jednotku          Alt-F2"
 "Laufwerk &wechseln    Alt-F2"
-"Meghajto&valtas     Alt-F2"
-"Z&mien naped          Alt-F2"
+"Meghajtó&váltás     Alt-F2"
+"Z&mień napęd          Alt-F2"
 
 MMenuLeftTitle
 l:
 "&Левая"
 "&Left"
-"&Levy"
+"&Levý"
 "&Links"
 "&Bal"
 "&Lewy"
@@ -9302,13 +9302,13 @@ MMenuFilesTitle
 "&Files"
 "&Soubory"
 "&Dateien"
-"&Fajlok"
+"&Fájlok"
 "Pl&iki"
 
 MMenuCommandsTitle
 "&Команды"
 "&Commands"
-"Pri&kazy"
+"Pří&kazy"
 "&Befehle"
 "&Parancsok"
 "Pol&ecenia"
@@ -9316,15 +9316,15 @@ MMenuCommandsTitle
 MMenuOptionsTitle
 "Па&раметры"
 "&Options"
-"&Nastaveni"
+"&Nastavení"
 "&Optionen"
-"B&eallitasok"
+"B&eállítások"
 "&Opcje"
 
 MMenuRightTitle
 "&Правая"
 "&Right"
-"&Pravy"
+"&Pravý"
 "&Rechts"
 "&Jobb"
 "&Prawy"
@@ -9333,47 +9333,47 @@ MMenuSortTitle
 l:
 "Критерий сортировки"
 "Sort by"
-"Seradit podle"
+"Seřadit podle"
 "Sortieren nach"
-"Rendezesi elv"
-"Sortuj wedlug..."
+"Rendezési elv"
+"Sortuj według..."
 
 MMenuSortByName
 "&Имя                              Ctrl-F3"
 "&Name                 Ctrl-F3"
-"&Nazvu                     Ctrl-F3"
+"&Názvu                     Ctrl-F3"
 "&Name                   Strg-F3"
-"&Nev                  Ctrl-F3"
+"&Név                  Ctrl-F3"
 "&nazwy                       Ctrl-F3"
 
 MMenuSortByExt
 "&Расширение                       Ctrl-F4"
 "E&xtension            Ctrl-F4"
-"&Pripony                   Ctrl-F4"
+"&Přípony                   Ctrl-F4"
 "&Erweiterung            Strg-F4"
-"Ki&terjesztes         Ctrl-F4"
+"Ki&terjesztés         Ctrl-F4"
 "ro&zszerzenia                Ctrl-F4"
 
 MMenuSortByModification
 "Время &модификации                Ctrl-F5"
 "&Modification time    Ctrl-F5"
-"C&asu modifikace           Ctrl-F5"
-"&Veranderungsdatum      Strg-F5"
-"Modositas &ideje      Ctrl-F5"
+"Č&asu modifikace           Ctrl-F5"
+"&Veränderungsdatum      Strg-F5"
+"Módosítás &ideje      Ctrl-F5"
 "czasu &modyfikacji           Ctrl-F5"
 
 MMenuSortBySize
 "Р&азмер                           Ctrl-F6"
 "&Size                 Ctrl-F6"
 "&Velikosti                 Ctrl-F6"
-"&Gro?e                  Strg-F6"
-"&Meret                Ctrl-F6"
+"&Größe                  Strg-F6"
+"&Méret                Ctrl-F6"
 "&rozmiaru                    Ctrl-F6"
 
 MMenuUnsorted
 "&Не сортировать                   Ctrl-F7"
 "&Unsorted             Ctrl-F7"
-"N&eradit                   Ctrl-F7"
+"N&eřadit                   Ctrl-F7"
 "&Unsortiert             Strg-F7"
 "&Rendezetlen          Ctrl-F7"
 "&bez sortowania              Ctrl-F7"
@@ -9381,57 +9381,57 @@ MMenuUnsorted
 MMenuSortByCreation
 "Время &создания                   Ctrl-F8"
 "&Creation time        Ctrl-F8"
-"&Data vytvoreni            Ctrl-F8"
+"&Data vytvoření            Ctrl-F8"
 "E&rstelldatum           Strg-F8"
-"Ke&letkezes ideje     Ctrl-F8"
+"Ke&letkezés ideje     Ctrl-F8"
 "czasu u&tworzenia            Ctrl-F8"
 
 MMenuSortByAccess
 "Время &доступа                    Ctrl-F9"
 "&Access time          Ctrl-F9"
-"Ca&su pristupu             Ctrl-F9"
+"Ča&su přístupu             Ctrl-F9"
 "&Zugriffsdatum          Strg-F9"
-"&Hozzaferes ideje     Ctrl-F9"
-"czasu &uzycia                Ctrl-F9"
+"&Hozzáférés ideje     Ctrl-F9"
+"czasu &użycia                Ctrl-F9"
 
 MMenuSortByDiz
 "&Описания                         Ctrl-F10"
 "&Descriptions         Ctrl-F10"
-"P&opisku                   Ctrl-F10"
+"P&opisků                   Ctrl-F10"
 "&Beschreibungen         Strg-F10"
-"Megjegyze&sek         Ctrl-F10"
+"Megjegyzé&sek         Ctrl-F10"
 "&opisu                       Ctrl-F10"
 
 MMenuSortByOwner
 "&Владельцы файлов                 Ctrl-F11"
 "&Owner                Ctrl-F11"
-"V&lastnika                 Ctrl-F11"
+"V&lastníka                 Ctrl-F11"
 "Bes&itzer               Strg-F11"
 "Tula&jdonos           Ctrl-F11"
-"&wlasciciela                 Ctrl-F11"
+"&właściciela                 Ctrl-F11"
 
 MMenuSortByCompressedSize
 "&Упакованный размер"
 "Com&pressed size"
-"&Komprimovane velikosti"
-"Kom&primierte Gro?e"
-"Tomoritett mer&et"
+"&Komprimované velikosti"
+"Kom&primierte Größe"
+"Tömörített mér&et"
 "rozmiaru po &kompresji"
 
 MMenuSortByNumLinks
 "Ко&личество ссылок"
 "Number of &hard links"
-"Poc&tu pevnych linku"
+"Poč&tu pevných linků"
 "Anzahl an &Links"
-"Hardlinkek s&zama"
-"&liczby dowiazan"
+"Hardlinkek s&záma"
+"&liczby dowiązań"
 
 MMenuSortByNumStreams
 "Количество &потоков"
 "Number of s&treams"
 upd:"Number of s&treams"
 upd:"Number of s&treams"
-"Stream-e&k szama"
+"Stream-e&k száma"
 upd:"Number of s&treams"
 
 MMenuSortByStreamsSize
@@ -9439,31 +9439,31 @@ MMenuSortByStreamsSize
 "Size of st&reams"
 upd:"Size of st&reams"
 upd:"Size of st&reams"
-"Stream-ek m&erete"
+"Stream-ek m&érete"
 upd:"Size of st&reams"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки   Shift-F11"
 "Use sort &groups      Shift-F11"
-"Razeni podle skup&in       Shift-F11"
+"Řazení podle skup&in       Shift-F11"
 "Sortier&gruppen verw.   Umsch-F11"
 "Rend. cs&oport haszn. Shift-F11"
-"uzyj &grup sortowania        Shift-F11"
+"użyj &grup sortowania        Shift-F11"
 
 MMenuSortSelectedFirst
 "&Помеченные файлы вперед          Shift-F12"
 "Show selected &first  Shift-F12"
-"Nejdriv zobrazit vy&brane  Shift-F12"
-"&Ausgewahlte zuerst     Umsch-F12"
-"Kijel&olteket elore   Shift-F12"
+"Nejdřív zobrazit vy&brané  Shift-F12"
+"&Ausgewählte zuerst     Umsch-F12"
+"Kijel&ölteket előre   Shift-F12"
 "zazna&czone najpierw         Shift-F12"
 
 MMenuSortUseNumeric
 "Использовать &числовую сортировку"
 "Use num&eric sort"
-"Pouzit ci&selne razeni"
+"Použít čí&selné řazení"
 "Nu&merische Sortierung"
-"N&umerikus rendezes"
+"N&umerikus rendezés"
 "Sortuj num&erycznie"
 
 MChangeDriveTitle
@@ -9472,31 +9472,31 @@ l:
 "Drive"
 "Jednotka"
 "Laufwerke"
-"Meghajtok"
-"Naped"
+"Meghajtók"
+"Napęd"
 
 MChangeDriveRemovable
 "сменный"
 "removable"
-"vymenitelna"
+"vyměnitelná"
 "wechsel."
-"kiveheto"
+"kivehető"
 "wyjmowalny"
 
 MChangeDriveFixed
 "жесткий"
 "fixed"
-"pevna"
+"pevná"
 "fest"
 "fix"
-"staly"
+"stały"
 
 MChangeDriveNetwork
 "сетевой"
 "network"
-"sitova"
+"síťová"
 "Netzwerk"
-"halozati"
+"hálózati"
 "sieciowy"
 
 MChangeDriveDisconnectedNetwork
@@ -9504,7 +9504,7 @@ MChangeDriveDisconnectedNetwork
 "disconnected"
 upd:"disconnected"
 upd:"disconnected"
-"levalasztva"
+"leválasztva"
 upd:"disconnected"
 
 MChangeDriveCDROM
@@ -9568,212 +9568,212 @@ MChangeDriveSUBST
 "subst"
 "SUBST"
 "Subst"
-"virtualis"
+"virtuális"
 "subst"
 
 MChangeDriveLabelAbsent
 "недоступен"
 "not available"
-"neni k dispozici"
+"není k dispozici"
 "nicht vorh."
-"nem elerheto"
-"niedostepny"
+"nem elérhető"
+"niedostępny"
 
 MChangeDriveCannotReadDisk
 "Ошибка чтения диска в дисководе %c:"
 "Cannot read the disk in drive %c:"
-"Nelze precist disk v jednotce %c:"
-"Datentrage in Laufwerk %c: kann nicht gelesen werden."
-"%c: meghajto lemeze nem olvashato"
-"Nie moge odczytac dysku w napedzie %c:"
+"Nelze přečíst disk v jednotce %c:"
+"Datenträge in Laufwerk %c: kann nicht gelesen werden."
+"%c: meghajtó lemeze nem olvasható"
+"Nie mogę odczytać dysku w napędzie %c:"
 
 MChangeDriveCannotDisconnect
 "Не удается отсоединиться от %s"
 "Cannot disconnect from %s"
 "Nelze se odpojit od %s"
 "Verbindung zu %s konnte nicht getrennt werden."
-"Nem lehet levalni innen: %s"
-"Nie moge odlaczyc sie od %s"
+"Nem lehet leválni innen: %s"
+"Nie mogę odłączyć się od %s"
 
 MChangeDriveCannotDelSubst
 "Не удается удалить виртуальный драйвер %s"
 "Cannot delete a substituted drive %s"
-"Nelze smazat substnuta jednotka %s"
-"Substlaufwerk %s konnte nicht geloscht werden."
-"%s virtualis meghajto nem torolheto"
-"Nie mozna usunac dysku SUBST %s"
+"Nelze smazat substnutá jednotka %s"
+"Substlaufwerk %s konnte nicht gelöscht werden."
+"%s virtuális meghajtó nem törölhető"
+"Nie można usunąć dysku SUBST %s"
 
 MChangeDriveOpenFiles
 "Если вы не закроете открытые файлы, данные могут быть утеряны"
 "If you do not close the open files, data may be lost."
-"Pokud neuzavrete otevrene soubory, mohou byt tato data ztracena."
-"Wenn Sie offene Dateien nicht schlie?en konnten Daten verloren gehen."
-"Ha a nyitott fajlokat nem zarja be, az adatok elveszhetnek!"
-"Jesli nie zamkniesz otwartych plikow, mozesz utracic dane."
+"Pokud neuzavřete otevřené soubory, mohou být tato data ztracena."
+"Wenn Sie offene Dateien nicht schließen könnten Daten verloren gehen."
+"Ha a nyitott fájlokat nem zárja be, az adatok elveszhetnek!"
+"Jeśli nie zamkniesz otwartych plików, możesz utracić dane."
 
 MChangeSUBSTDisconnectDriveTitle
 l:
 "Отключение виртуального устройства"
 "Virtual device disconnection"
-"Odpojovani virtualniho zarizeni"
-"Virtuelles Gerat trennen"
-"Virtualis meghajto torlese"
-"Odlaczanie napedu wirtualnego"
+"Odpojování virtuálního zařízení"
+"Virtuelles Gerät trennen"
+"Virtuális meghajtó törlése"
+"Odłączanie napędu wirtualnego"
 
 MChangeSUBSTDisconnectDriveQuestion
 "Отключить SUBST-диск %c:?"
 "Disconnect SUBST-disk %c:?"
 "Odpojit SUBST-disk %c:?"
 "Substlaufwerk %c: trennen?"
-"Torli %c: virtualis meghajtot?"
-"Odlaczyc dysk SUBST %c:?"
+"Törli %c: virtuális meghajtót?"
+"Odłączyć dysk SUBST %c:?"
 
 MChangeHotPlugDisconnectDriveTitle
 l:
 "Удаление устройства"
 "Device Removal"
-"Odpojovani zarizeni"
+"Odpojování zařízení"
 "Sicheres Entfernen"
-"Eszkoz biztonsagos eltavolitasa"
-"Odlaczanie urzadzenia"
+"Eszköz biztonságos eltávolítása"
+"Odłączanie urządzenia"
 
 MChangeHotPlugDisconnectDriveQuestion
 "Вы хотите удалить устройство"
 "Do you want to remove the device"
-"Opravdu si prejete odpojit zarizeni"
-"Wollen Sie folgendes Gerat sicher entfernen? "
-"Eltavolitja az eszkozt?"
-"Czy odlaczyc urzadzenie"
+"Opravdu si přejete odpojit zařízení"
+"Wollen Sie folgendes Gerät sicher entfernen? "
+"Eltávolítja az eszközt?"
+"Czy odłączyć urządzenie"
 
 MHotPlugDisks
 "(диск(и): %s)"
 "(disk(s): %s)"
 "(disk(y): %s)"
 "(Laufwerk(e): %s)"
-"(%s meghajto)"
+"(%s meghajtó)"
 "(dysk(i): %s)"
 
 MChangeCouldNotEjectHotPlugMedia
 "Невозможно удалить устройство для диска %c:"
 "Cannot remove a device for drive %c:"
-"Zarizeni %c: nemuze byt odpojeno."
-"Ein Gerat fur Laufwerk %c: konnte nicht entfernt werden"
-"%c: eszkoz nem tavolithato el"
-"Nie udalo sie odlaczyc dysku %c:"
+"Zařízení %c: nemůže být odpojeno."
+"Ein Gerät für Laufwerk %c: konnte nicht entfernt werden"
+"%c: eszköz nem távolítható el"
+"Nie udało się odłączyć dysku %c:"
 
 MChangeCouldNotEjectHotPlugMedia2
 "Невозможно удалить устройство:"
 "Cannot remove a device:"
-"Zarizeni nemuze byt odpojeno."
-"Kann folgendes Gerate nicht entfernen:"
-"Az eszkoz nem tavolithato el:"
-"Nie udalo sie odlaczyc urzadzenia:"
+"Zařízení nemůže být odpojeno."
+"Kann folgendes Geräte nicht entfernen:"
+"Az eszköz nem távolítható el:"
+"Nie udało się odłączyć urządzenia:"
 
 MChangeHotPlugNotify1
 "Теперь устройство" 
 "The device" 
-"Zarizeni"
-"Das Gerat"
-"Az eszkoz:"
-"Urzadzenie"
+"Zařízení"
+"Das Gerät"
+"Az eszköz:"
+"Urządzenie"
 
 MChangeHotPlugNotify2
 "может быть безопасно извлечено из компьютера"
 "can now be safely removed"
-"muze byt nyni bezpecne odebrano"
+"může být nyní bezpečně odebráno"
 "kann nun vom Computer getrennt werden."
-"mar biztonsagosan eltavolithato!"
-"mozna teraz bezpiecznie odlaczyc"
+"már biztonságosan eltávolítható!"
+"można teraz bezpiecznie odłączyć"
 
 MHotPlugListTitle
 "Hotplug-устройства"
 "Hotplug devices list"
-"Seznam vyjimatelnych zarizeni"
+"Seznam vyjímatelných zařízení"
 "Hardware sicher entfernen"
-"Hotplug eszkozok"
-"Lista urzadzen Hotplug"
+"Hotplug eszközök"
+"Lista urządzeń Hotplug"
 
 MHotPlugListBottom
 "Редактирование: Del,Ctrl-R"
 "Edit: Del,Ctrl-R"
 "Edit: Del,Ctrl-R"
 "Tasten: Entf,StrgR,F1"
-"Szerkesztes: Del,Ctrl-R"
+"Szerkesztés: Del,Ctrl-R"
 "Edycja: Del,Ctrl-R"
 
 MChangeDriveDisconnectTitle
 l:
 "Отключение сетевого устройства"
 "Disconnect network drive"
-"Odpojit sitovou jednotku"
+"Odpojit síťovou jednotku"
 "Netzwerklaufwerk trennen"
-"Halozati meghajto levalasztasa"
-"Odlaczanie dysku sieciowego"
+"Hálózati meghajtó leválasztása"
+"Odłączanie dysku sieciowego"
 
 MChangeDriveDisconnectQuestion
 "Вы хотите удалить соединение с устройством %c:?"
 "Do you want to disconnect from the drive %c:?"
-"Opravdu si prejete odpojit od jednotky %c:?"
+"Opravdu si přejete odpojit od jednotky %c:?"
 "Wollen Sie die Verbindung zu Laufwerk %c: trennen?"
-"Le akar valni %c: meghajtorol?"
-"Czy odlaczyc dysk %c:?"
+"Le akar válni %c: meghajtóról?"
+"Czy odłączyć dysk %c:?"
 
 MChangeDriveDisconnectMapped
 "На устройство %c: отображена папка"
 "The drive %c: is mapped to..."
-"Jednotka %c: je namapovana na..."
-"Laufwerk %c: ist verknupft zu..."
-"%c: meghajto hozzarendelve:"
+"Jednotka %c: je namapována na..."
+"Laufwerk %c: ist verknüpft zu..."
+"%c: meghajtó hozzárendelve:"
 "Dysk %c: jest skojarzony z..."
 
 MChangeDriveDisconnectReconnect
 "&Восстанавливать при входе в систему"
 "&Reconnect at Logon"
-"&Znovu pripojit pri prihlaseni"
+"&Znovu připojit při přihlášení"
 "Bei Anmeldung &verbinden"
-"&Bejelentkezesnel ujracsatlakoztat"
-"&Podlacz ponownie przy logowaniu"
+"&Bejelentkezésnél újracsatlakoztat"
+"&Podłącz ponownie przy logowaniu"
 
 MChangeDriveAskDisconnect
 l:
 "Вы хотите в любом случае отключиться от устройства?"
 "Do you want to disconnect the device anyway?"
-"Prejete si presto zarizeni odpojit?"
+"Přejete si přesto zařízení odpojit?"
 "Wollen Sie die Verbindung trotzdem trennen?"
-"Mindenkeppen levalasztja az eszkozt?"
-"Czy chcesz mimo to odlaczyc urzadzenie?"
+"Mindenképpen leválasztja az eszközt?"
+"Czy chcesz mimo to odłączyć urządzenie?"
 
 MChangeVolumeInUse
 "Не удается извлечь диск из привода %c:"
 "Volume %c: cannot be ejected."
-"Jednotka %c: nemuze byt vysunuta."
-"Datentrager %c: kann nicht ausgeworfen werden."
-"%c: kotet nem oldhato ki"
-"Nie mozna wysunac dysku %c."
+"Jednotka %c: nemůže být vysunuta."
+"Datenträger %c: kann nicht ausgeworfen werden."
+"%c: kötet nem oldható ki"
+"Nie można wysunąć dysku %c."
 
 MChangeVolumeInUse2
 "Используется другим приложением"
 "It is used by another application"
-"Je pouzivana jinou aplikaci"
+"Je používaná jinou aplikací"
 "Andere Programme greifen momentan darauf zu"
-"Masik program hasznalja"
-"Jest uzywany przez inna aplikacje"
+"Másik program használja"
+"Jest używany przez inną aplikację"
 
 MChangeWaitingLoadDisk
 "Ожидание чтения диска..."
 "Waiting for disk to mount..."
-"Cekam na disk k pripojeni..."
-"Warte auf Datentrager..."
-"Lemez betoltese..."
+"Čekám na disk k připojení..."
+"Warte auf Datenträger..."
+"Lemez betöltése..."
 "Trwa montowanie dysku..."
 
 MChangeCouldNotEjectMedia
 "Невозможно извлечь диск из привода %c:"
 "Could not eject media from drive %c:"
-"Nelze vysunout medium v jednotce %c:"
+"Nelze vysunout médium v jednotce %c:"
 "Konnte Medium in Laufwerk %c: nicht auswerfen"
-"%c: meghajto lemeze nem oldhato ki"
-"Nie mozna wysunac dysku z napedu %c:"
+"%c: meghajtó lemeze nem oldható ki"
+"Nie można wysunąć dysku z napędu %c:"
 
 MAdditionalHotKey
 "#!$%*+-/(),."
@@ -9789,66 +9789,66 @@ l:
 " Search "
 " Hledat "
 " Suchen "
-" Kereses "
+" Keresés "
 " Szukaj "
 
 MCannotCreateListFile
 "Ошибка создания списка файлов"
 "Cannot create list file"
-"Nelze vytvorit soubor se seznamem"
+"Nelze vytvořit soubor se seznamem"
 "Dateiliste konnte nicht erstellt werden"
-"A listafajl nem hozhato letre"
-"Nie moge utworzyc listy plikow"
+"A listafájl nem hozható létre"
+"Nie mogę utworzyć listy plików"
 
 MCannotCreateListTemp
 "(невозможно создать временный файл для списка)"
 "(cannot create temporary file for list)"
-"(nemohu vytvorit docasny soubor pro seznam)"
-"(Fehler beim Anlegen einer temporaren Datei fur Liste)"
-"(a lista atmeneti fajl nem hozhato letre)"
-"(nie mozna utworzyc pliku tymczasowego dla listy)"
+"(nemohu vytvořit dočasný soubor pro seznam)"
+"(Fehler beim Anlegen einer temporären Datei für Liste)"
+"(a lista átmeneti fájl nem hozható létre)"
+"(nie można utworzyć pliku tymczasowego dla listy)"
 
 MCannotCreateListWrite
 "(невозможно записать данные в файл)"
 "(cannot write data in file)"
 "(nemohu zapsat data do souboru)"
 "(Fehler beim Schreiben der Daten)"
-"(a fajlba nem irhato adat)"
-"(nie mozna zapisac danych do pliku)"
+"(a fájlba nem írható adat)"
+"(nie można zapisać danych do pliku)"
 
 MDragFiles
 l:
 "%d файлов"
 "%d files"
-"%d souboru"
+"%d souborů"
 "%d Dateien"
-"%d fajl"
-"%d plikow"
+"%d fájl"
+"%d plików"
 
 MDragMove
 "Перенос %s"
 "Move %s"
-"Presunout %s"
+"Přesunout %s"
 "Verschiebe %s"
-"%s mozgatasa"
-"Przenies %s"
+"%s mozgatása"
+"Przenieś %s"
 
 MDragCopy
 "Копирование %s"
 "Copy %s"
-"Kopirovat %s"
+"Kopírovat %s"
 "Kopiere %s"
-"%s masolasa"
+"%s másolása"
 "Kopiuj %s"
 
 MProcessListTitle
 l:
 "Список задач"
 "Task list"
-"Seznam uloh"
+"Seznam úloh"
 "Taskliste"
-"Futo programok"
-"Lista zadan"
+"Futó programok"
+"Lista zadań"
 
 MProcessListBottom
 "Редактирование: Del,Ctrl-R"
@@ -9861,64 +9861,64 @@ MProcessListBottom
 MKillProcessTitle
 "Удаление задачи"
 "Kill task"
-"Zabit ulohu"
+"Zabít úlohu"
 "Task beenden"
-"Programkiloves"
-"Zakoncz zadanie"
+"Programkilövés"
+"Zakończ zadanie"
 
 MAskKillProcess
 "Вы хотите удалить выбранную задачу?"
 "Do you wish to kill selected task?"
-"Prejete si zabit vybranou ulohu?"
-"Wollen Sie den ausgewahlten Task beenden?"
-"Ki akarja loni a kijelolt programot?"
-"Czy chcesz zakonczyc wybrane zadanie?"
+"Přejete si zabít vybranou úlohu?"
+"Wollen Sie den ausgewählten Task beenden?"
+"Ki akarja lőni a kijelölt programot?"
+"Czy chcesz zakończyć wybrane zadanie?"
 
 MKillProcessWarning
 "Вы потеряете всю несохраненную информацию этой программы"
 "You will lose any unsaved information in this program"
-"V tomto programu budou ztraceny neulozene informace"
+"V tomto programu budou ztraceny neuložené informace"
 "Alle ungespeicherten Daten dieses Programmes gehen verloren."
-"A program minden mentetlen adata elvesz!"
+"A program minden mentetlen adata elvész!"
 "Utracisz wszystkie niezapisane dane w tym programie"
 
 MKillProcessKill
 "Удалить"
 "Kill"
-"Zabit"
+"Zabít"
 "Beenden"
-"Kilo"
-"Zakoncz"
+"Kilő"
+"Zakończ"
 
 MCannotKillProcess
 "Указанную задачу удалить не удалось"
 "Cannot kill the specified task"
-"Nemohu ukoncit zvolenou ulohu"
+"Nemohu ukončit zvolenou úlohu"
 "Task konnte nicht beendet werden"
-"A programot nem lehet kiloni"
-"Nie moge zakonczyc wybranego zadania"
+"A programot nem lehet kilőni"
+"Nie mogę zakończyć wybranego zadania"
 
 MCannotKillProcessPerm
 "Вы не имеет права удалить этот процесс."
 "You have no permission to kill this process."
-"Nemate opravneni zabit tento proces."
+"Nemáte oprávnění zabít tento proces."
 "Sie haben keine Rechte um diesen Prozess zu beenden."
-"Nincs joga a program kilovesere"
-"Nie masz wystarczajacych uprawnien do zakonczenia procesu."
+"Nincs joga a program kilövésére"
+"Nie masz wystarczających uprawnień do zakończenia procesu."
 
 MQuickViewTitle
 l:
 "Быстрый просмотр"
 "Quick view"
-"Zbezne zobrazeni"
+"Zběžné zobrazení"
 "Schnellansicht"
-"Gyorsnezet"
-"Szybki podglad"
+"Gyorsnézet"
+"Szybki podgląd"
 
 MQuickViewFolder
 "Папка"
 "Folder"
-"Adresar"
+"Adresář"
 "Verzeichnis"
 "Mappa"
 "Folder"
@@ -9926,15 +9926,15 @@ MQuickViewFolder
 MQuickViewJunction
 "Связь"
 "Junction"
-"Krizeni"
+"Křížení"
 "Knotenpunkt"
-"Csomopont"
-"Powiazanie"
+"Csomópont"
+"Powiązanie"
 
 MQuickViewSymlink
 "Ссылка"
 "Symlink"
-"Symbolicky link"
+"Symbolický link"
 "Symlink"
 "Szimlink"
 "Link"
@@ -9943,24 +9943,24 @@ MQuickViewVolMount
 "Том"
 "Volume"
 "Svazek"
-"Datentrager"
-"Kotet"
-"Naped"
+"Datenträger"
+"Kötet"
+"Napęd"
 
 MQuickViewContains
 "Содержит:"
 "Contains:"
 "Obsah:"
-"Enthalt:"
+"Enthält:"
 "Tartalma:"
 "Zawiera:"
 
 MQuickViewFolders
 "Папок               "
 "Folders          "
-"Adresare           "
+"Adresáře           "
 "Ordner           "
-"Mappak szama     "
+"Mappák száma     "
 "Katalogi            "
 
 MQuickViewFiles
@@ -9968,56 +9968,56 @@ MQuickViewFiles
 "Files            "
 "Soubory            "
 "Dateien          "
-"Fajlok szama     "
+"Fájlok száma     "
 "Pliki               "
 
 MQuickViewBytes
 "Размер файлов       "
 "Files size       "
-"Velikost souboru   "
-"Gesamtgro?e      "
-"Fajlok merete    "
-"Rozmiar plikow      "
+"Velikost souborů   "
+"Gesamtgröße      "
+"Fájlok mérete    "
+"Rozmiar plików      "
 
 MQuickViewCompressed
 "Упакованный размер  "
 "Compressed size  "
 "Komprim. velikost  "
 "Komprimiert      "
-"Tomoritett meret "
+"Tömörített méret "
 "Po kompresji        "
 
 MQuickViewRatio
 "Степень сжатия      "
 "Ratio            "
-"Pomer              "
+"Poměr              "
 "Rate             "
-"Tomorites aranya "
+"Tömörítés aránya "
 "Procent             "
 
 MQuickViewCluster
 "Размер кластера     "
 "Cluster size     "
 "Velikost clusteru  "
-"Clustergro?e     "
-"Klasztermeret    "
+"Clustergröße     "
+"Klaszterméret    "
 "Rozmiar klastra     "
 
 MQuickViewRealSize
 "Реальный размер     "
 "Real files size  "
-"Opravdova velikost "
-"Tatsachlich      "
-"Valodi fajlmeret "
-"Wlasciwy rozmiar    "
+"Opravdová velikost "
+"Tatsächlich      "
+"Valódi fájlméret "
+"Właściwy rozmiar    "
 
 MQuickViewSlack
 "Остатки кластеров   "
 "Files slack      "
-"Mrtve misto        "
+"Mrtvé místo        "
 "Verlust          "
-"Meddo terulet    "
-"Przestrzen stracona "
+"Meddő terület    "
+"Przestrzeń stracona "
 
 MSetAttrTitle
 l:
@@ -10025,40 +10025,40 @@ l:
 "Attributes"
 "Atributy"
 "Attribute"
-"Attributumok"
+"Attribútumok"
 "Atrybuty"
 
 MSetAttrFor
 "Изменить файловые атрибуты"
 "Change file attributes for"
-"Zmena atributu souboru pro"
-"Andere Dateiattribute fur"
-"Attributumok megvaltoztatasa"
-"Zmien atrybuty dla"
+"Změna atributů souboru pro"
+"Ändere Dateiattribute für"
+"Attribútumok megváltoztatása"
+"Zmień atrybuty dla"
 
 MSetAttrSelectedObjects
 "выбранных объектов"
 "selected objects"
-"vybrane objekty"
+"vybrané objekty"
 "markierte Objekte"
-"a kijelolt objektumokon"
-"wybranych obiektow"
+"a kijelölt objektumokon"
+"wybranych obiektów"
 
 MSetAttrHardLinks
 "жестких ссылок (%d)"
 "hard links (%d)"
-"pevne linky (%d)"
+"pevné linky (%d)"
 "Hardlinks (%d)"
 "hardlink (%d)"
-"linkow trwalych (%d)"
+"linków trwałych (%d)"
 
 MSetAttrJunction
 "Связь:"
 "Junction:"
-"Krizeni:"
+"Křížení:"
 "Knotenpunkte:"
-"Сsomopont:"
-"Powiazanie:"
+"Сsomópont:"
+"Powiązanie:"
 
 MSetAttrSymlink
 "Ссылка:"
@@ -10072,24 +10072,24 @@ MSetAttrVolMount
 "Том:"
 "Volume:"
 "Svazek:"
-"Datentrager:"
-"Kotet:"
+"Datenträger:"
+"Kötet:"
 "Punkt zamontowania:"
 
 MSetAttrUnknownJunction
 "(нет данных)"
 "(data not available)"
 "(data nejsou k dispozici)"
-"(nicht verfugbar)"
-"(adat nem elerheto)"
-"(dane niedostepne)"
+"(nicht verfügbar)"
+"(adat nem elérhető)"
+"(dane niedostępne)"
 
 MSetAttrRO
 "&Только для чтения"
 "&Read only"
-"&Pouze pro cteni"
+"&Pouze pro čtení"
 "Sch&reibschutz"
-"&Csak olvashato"
+"&Csak olvasható"
 "&Tylko do odczytu"
 
 MSetAttrArchive
@@ -10097,13 +10097,13 @@ MSetAttrArchive
 "&Archive"
 "&Archivovat"
 "&Archiv"
-"&Archiv"
+"&Archív"
 "&Archiwalny"
 
 MSetAttrHidden
 "&Скрытый"
 "&Hidden"
-"&Skryty"
+"&Skrytý"
 "&Versteckt"
 "&Rejtett"
 "&Ukryty"
@@ -10111,7 +10111,7 @@ MSetAttrHidden
 MSetAttrSystem
 "С&истемный"
 "&System"
-"S&ystemovy"
+"S&ystémový"
 "&System"
 "Ren&dszer"
 "&Systemowy"
@@ -10119,23 +10119,23 @@ MSetAttrSystem
 MSetAttrCompressed
 "Сжаты&й"
 "&Compressed"
-"&Komprimovany"
+"&Komprimovaný"
 "&Komprimiert"
-"&Tomoritett"
+"&Tömörített"
 "S&kompresowany"
 
 MSetAttrEncrypted
 "За&шифрованный"
 "&Encrypted"
-"&Sifrovany"
-"V&erschlusselt"
-"Tit&kositott"
+"&Šifrovaný"
+"V&erschlüsselt"
+"Tit&kosított"
 "Zaszy&frowany"
 
 MSetAttrNotIndexed
 "Н&еиндексируемый"
 "Not &Indexed"
-"Neinde&xovany"
+"Neinde&xovaný"
 "Nicht &indiziert"
 "Nem inde&xelt"
 "Nie z&indeksowany"
@@ -10143,17 +10143,17 @@ MSetAttrNotIndexed
 MSetAttrSparse
 "Разре&женный"
 "S&parse"
-upd:"Rozptyleny"
+upd:"Rozptýlený"
 upd:"Reserve"
-"Ritk&itott"
+"Ritk&ított"
 upd:"Sparse"
 
 MSetAttrTemp
 "Временный"
 "Temporary"
-"Docasny"
-"Temporar"
-"&Atmeneti"
+"Dočasný"
+"Temporär"
+"&Átmeneti"
 "&Tymczasowy"
 
 MSetAttrOffline
@@ -10167,47 +10167,47 @@ MSetAttrOffline
 MSetAttrVirtual
 "Виртуальный"
 "Virtual"
-"Virtualni"
+"Virtuální"
 "Virtuell"
-"&Virtualis"
+"&Virtuális"
 "Wirtualny"
 
 MSetAttrSubfolders
 "Обрабатывать &вложенные папки"
 "Process sub&folders"
-"Zpracovat i po&dadresare"
+"Zpracovat i po&dadresáře"
 "Unterordner miteinbe&ziehen"
-"Az almappakon is"
+"Az almappákon is"
 "Przetwarzaj &podkatalogi"
 
 MSetAttrModification
 "Время &модификации файла:"
 "File &modification time:"
-"Cas &modifikace souboru:"
+"Čas &modifikace souboru:"
 "Datei &modifiziert:"
-"&Modositas datuma/ideje:"
+"&Módosítás dátuma/ideje:"
 "Czas ostatniej &modyfikacji:"
 
 MSetAttrCreation
 "Время со&здания файла:"
 "File crea&tion time:"
-"Cas v&ytvoreni souboru:"
+"Čas v&ytvoření souboru:"
 "Datei erstell&t:"
-"&Letrehozas datuma/ideje:"
+"&Létrehozás dátuma/ideje:"
 "Czas u&tworzenia:"
 
 MSetAttrLastAccess
 "Время последнего &доступа к файлу:"
 "&Last file access time:"
-"Cas posledniho pri&stupu:"
+"Čas posledního pří&stupu:"
 "&Letzter Zugriff:"
-"&Utolso hozzaferes datuma/ideje:"
-"Czas ostatniego &dostepu:"
+"&Utolsó hozzáférés dátuma/ideje:"
+"Czas ostatniego &dostępu:"
 
 MSetAttrOriginal
 "Исход&ное"
 "&Original"
-"&Original"
+"&Originál"
 "&Original"
 "&Eredeti"
 "Wstaw &oryginalny"
@@ -10215,18 +10215,18 @@ MSetAttrOriginal
 MSetAttrCurrent
 "Те&кущее"
 "Curre&nt"
-"So&ucasny"
+"So&učasný"
 "Akt&uell"
-"Aktual&is"
-"Wstaw &biezacy"
+"Aktuál&is"
+"Wstaw &bieżący"
 
 MSetAttrBlank
 "Сбр&ос"
 "&Blank"
-"P&razdny"
+"P&rázdný"
 "L&eer"
-"&Ures"
-"&Wyczysc"
+"&Üres"
+"&Wyczyść"
 
 MSetAttrSet
 "Установить"
@@ -10242,7 +10242,7 @@ l:
 "MM%cDD%cYYYY hh%cmm%css%cms"
 upd:"MM%cDD%cRRRR hh%cmm%css%cms"
 upd:"MM%cTT%cJJJJ hh%cmm%css%cms"
-upd:"HH%cNN%cEEEE oo%cpp%cmm%cms"
+upd:"HH%cNN%cÉÉÉÉ óó%cpp%cmm%cms"
 upd:"MM%cDD%cRRRR gg%cmm%css%cms"
 
 MSetAttrTimeTitle2
@@ -10250,7 +10250,7 @@ MSetAttrTimeTitle2
 "DD%cMM%cYYYY hh%cmm%css%cms"
 upd:"DD%cMM%cRRRR hh%cmm%css%cms"
 upd:"TT%cMM%cJJJJ hh%cmm%css%cms"
-upd:"NN%cHH%cEEEE oo%cpp%cmm%cms"
+upd:"NN%cHH%cÉÉÉÉ óó%cpp%cmm%cms"
 upd:"DD%cMM%cRRRR gg%cmm%css%cms"
 
 MSetAttrTimeTitle3
@@ -10258,57 +10258,57 @@ MSetAttrTimeTitle3
 "YYYY%cMM%cDD hh%cmm%css%cms"
 upd:"RRRR%cMM%cDD hh%cmm%css%cms"
 upd:"JJJJ%cMM%cTT hh%cmm%css%cms"
-upd:"EEEE%cHH%cNN oo%cpp%cmm%cms"
+upd:"ÉÉÉÉ%cHH%cNN óó%cpp%cmm%cms"
 upd:"RRRR%cMM%cDD gg%cmm%css%cms"
 
 MSetAttrSetting
 l:
 "Установка файловых атрибутов для"
 "Setting file attributes for"
-"Nastaveni atributu souboru pro"
-"Setze Dateiattribute fur"
-"Attributumok beallitasa"
+"Nastavení atributů souboru pro"
+"Setze Dateiattribute für"
+"Attribútumok beállítása"
 "Ustawiam atrybuty"
 
 MSetAttrCannotFor
 "Ошибка установки атрибутов для"
 "Cannot set attributes for"
 "Nelze nastavit atributy pro"
-"Konnte Dateiattribute nicht setzen fur"
-"Az attributumok nem allithatok be:"
-"Nie moge ustawic atrybutow dla"
+"Konnte Dateiattribute nicht setzen für"
+"Az attribútumok nem állíthatók be:"
+"Nie mogę ustawić atrybutów dla"
 
 MSetAttrCompressedCannotFor
 "Не удалось установить атрибут СЖАТЫЙ для"
 "Cannot set attribute COMPRESSED for"
-"Nelze nastavit atribut KOMPRIMOVANY pro"
-"Konnte Komprimierung nicht setzen fur"
-"A TOMORITETT attributum nem allithato be:"
-"Nie moge ustawic atrybutu SKOMPRESOWANY dla"
+"Nelze nastavit atribut KOMPRIMOVANÝ pro"
+"Konnte Komprimierung nicht setzen für"
+"A TÖMÖRÍTETT attribútum nem állítható be:"
+"Nie mogę ustawić atrybutu SKOMPRESOWANY dla"
 
 MSetAttrEncryptedCannotFor
 "Не удалось установить атрибут ЗАШИФРОВАННЫЙ для"
 "Cannot set attribute ENCRYPTED for"
-"Nelze nastavit atribut SIFROVANY pro"
-"Konnte Verschlusselung nicht setzen fur"
-"A TITKOSITOTT attributum nem allithato be:"
-"Nie moge ustawic atrybutu ZASZYFROWANY dla"
+"Nelze nastavit atribut ŠIFROVANÝ pro"
+"Konnte Verschlüsselung nicht setzen für"
+"A TITKOSÍTOTT attribútum nem állítható be:"
+"Nie mogę ustawić atrybutu ZASZYFROWANY dla"
 
 MSetAttrSparseCannotFor
 "Не удалось установить атрибут РАЗРЕЖЕННЫЙ для"
 "Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
 upd:"Cannot set attribute SPARSE for"
-"A RITKITOTT attributum nem allithato be:"
+"A RITKÍTOTT attribútum nem állítható be:"
 upd:"Cannot set attribute SPARSE for"
 
 MSetAttrTimeCannotFor
 "Не удалось установить время файла для"
 "Cannot set file time for"
-"Nelze nastavit cas souboru pro"
-"Konnte Dateidatum nicht setzen fur"
-"A datum nem allithato be:"
-"Nie moge ustawic czasu pliku dla"
+"Nelze nastavit čas souboru pro"
+"Konnte Dateidatum nicht setzen für"
+"A dátum nem állítható be:"
+"Nie mogę ustawić czasu pliku dla"
 
 MSetColorPanel
 l:
@@ -10324,129 +10324,129 @@ MSetColorDialog
 "&Dialog"
 "&Dialog"
 "&Dialog"
-"Par&beszedablak"
+"Pár&beszédablak"
 "Okno &dialogowe"
 
 MSetColorWarning
 "Пр&едупреждение"
 "&Warning message"
-"&Varovna zprava"
+"&Varovná zpráva"
 "&Warnmeldung"
-"&Figyelmeztetes"
-"&Ostrzezenie"
+"&Figyelmeztetés"
+"&Ostrzeżenie"
 
 MSetColorMenu
 "&Меню"
 "&Menu"
 "&Menu"
-"&Menu"
-"&Menu"
+"&Menü"
+"&Menü"
 "&Menu"
 
 MSetColorHMenu
 "&Горизонтальное меню"
 "Hori&zontal menu"
-"Hori&zontalni menu"
-"Hori&zontales Menu"
-"&Vizszintes menu"
+"Hori&zontální menu"
+"Hori&zontales Menü"
+"&Vízszintes menü"
 "Pa&sek menu"
 
 MSetColorKeyBar
 "&Линейка клавиш"
 "&Key bar"
-"&Radek klaves"
+"&Řádek kláves"
 upd:"&Key bar"
-"F&unkciobill.sor"
+"F&unkcióbill.sor"
 "Pasek &klawiszy"
 
 MSetColorCommandLine
 "&Командная строка"
 "&Command line"
-"Pri&kazovy radek"
+"Pří&kazový řádek"
 "&Kommandozeile"
 "P&arancssor"
-"&Linia polecen"
+"&Linia poleceń"
 
 MSetColorClock
 "&Часы"
 "C&lock"
 "&Hodiny"
 "U&hr"
-"O&ra"
+"Ó&ra"
 "&Zegar"
 
 MSetColorViewer
 "Про&смотрщик"
 "&Viewer"
-"P&rohlizec"
+"P&rohlížeč"
 "&Betrachter"
-"&Nezoke"
-"Pod&glad"
+"&Nézőke"
+"Pod&gląd"
 
 MSetColorEditor
 "&Редактор"
 "&Editor"
 "&Editor"
 "&Editor"
-"&Szerkeszto"
+"&Szerkesztő"
 "&Edytor"
 
 MSetColorHelp
 "П&омощь"
 "&Help"
-"&Napoveda"
+"&Nápověda"
 "&Hilfe"
-"Su&go"
+"Sú&gó"
 "P&omoc"
 
 MSetDefaultColors
 "&Установить стандартные цвета"
 "Set de&fault colors"
-"N&astavit vychozi barvy"
+"N&astavit výchozí barvy"
 "Setze Standard&farben"
-"Alapert. s&zinek"
-"&Ustaw kolory domyslne"
+"Alapért. s&zínek"
+"&Ustaw kolory domyślne"
 
 MSetBW
 "Черно-бел&ый режим"
 "&Black and white mode"
-"Cerno&bily mod"
-"Schwarz && &Wei?"
-"Fekete-fe&her mod"
-"&Tryb czarno-bialy"
+"Černo&bílý mód"
+"Schwarz && &Weiß"
+"Fekete-fe&hér mód"
+"&Tryb czarno-biały"
 
 MSetColorPanelNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorPanelSelected
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Wybrany tekst"
 
 MSetColorPanelHighlightedInfo
 "Выделенная информация"
 "Highlighted info"
-"Info zvyraznene"
+"Info zvýrazněné"
 "Markierung"
 "Kiemelt info"
-"Podswietlone info"
+"Podświetlone info"
 
 MSetColorPanelDragging
 "Перетаскиваемый текст"
 "Dragging text"
-"Tazeny text"
+"Tažený text"
 "Drag && Drop Text"
-"Vonszolt szoveg"
-"Przeciagany tekst"
+"Vonszolt szöveg"
+"Przeciągany tekst"
 
 MSetColorPanelBox
 "Рамка"
@@ -10459,98 +10459,98 @@ MSetColorPanelBox
 MSetColorPanelNormalCursor
 "Обычный курсор"
 "Normal cursor"
-"Normalni kurzor"
+"Normální kurzor"
 "Normale Auswahl"
-"Normal kurzor"
+"Normál kurzor"
 "Normalny kursor"
 
 MSetColorPanelSelectedCursor
 "Выделенный курсор"
 "Selected cursor"
-"Vybrany kurzor"
+"Vybraný kurzor"
 "Markierte Auswahl"
-"Kijelolt kurzor"
+"Kijelölt kurzor"
 "Wybrany kursor"
 
 MSetColorPanelNormalTitle
 "Обычный заголовок"
 "Normal title"
-"Normalni nadpis"
+"Normální nadpis"
 "Normaler Titel"
-"Normal nev"
-"Normalny tytul"
+"Normál név"
+"Normalny tytuł"
 
 MSetColorPanelSelectedTitle
 "Выделенный заголовок"
 "Selected title"
-"Vybrany nadpis"
+"Vybraný nadpis"
 "Markierter Titel"
-"Kijelolt nev"
-"Wybrany tytul"
+"Kijelölt név"
+"Wybrany tytuł"
 
 MSetColorPanelColumnTitle
 "Заголовок колонки"
 "Column title"
 "Nadpis sloupce"
 "Spaltentitel"
-"Oszlopnev"
-"Tytul kolumny"
+"Oszlopnév"
+"Tytuł kolumny"
 
 MSetColorPanelTotalInfo
 "Количество файлов"
 "Total info"
-"Info celkove"
+"Info celkové"
 "Gesamtinfo"
-"Osszes info"
-"Calkowite info"
+"Összes info"
+"Całkowite info"
 
 MSetColorPanelSelectedInfo
 "Количество выбранных файлов"
 "Selected info"
-"Info vyber"
+"Info výběr"
 "Markierungsinfo"
-"Kijelolt info"
+"Kijelölt info"
 "Wybrane info"
 
 MSetColorPanelScrollbar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorPanelScreensNumber
 "Количество фоновых экранов"
 "Number of background screens"
-"Pocet obrazovek na pozadi"
+"Počet obrazovek na pozadí"
 "Anzahl an Hintergrundseiten"
-"Hatterkepernyok szama"
-"Ilosc ekranow w tle "
+"Háttérképernyők száma"
+"Ilość ekranów w tle "
 
 MSetColorDialogNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
-"Tekst zwykly"
+"Normál szöveg"
+"Tekst zwykły"
 
 MSetColorDialogHighlighted
 "Выделенный текст"
 "Highlighted text"
-"Zvyrazneny text"
+"Zvýrazněný text"
 "Markierter Text"
-"Kiemelt szoveg"
-"Tekst podswietlony"
+"Kiemelt szöveg"
+"Tekst podświetlony"
 
 MSetColorDialogDisabled
 "Блокированный текст"
 "Disabled text"
-"Zakazany text"
+"Zakázaný text"
 "Deaktivierter Text"
-"Inaktiv szoveg"
+"Inaktív szöveg"
 "Tekst nieaktywny"
 
 MSetColorDialogBox
@@ -10567,84 +10567,84 @@ MSetColorDialogBoxTitle
 "Nadpis"
 "Titel"
 "Keret neve"
-"Tytul"
+"Tytuł"
 
 MSetColorDialogHighlightedBoxTitle
 "Выделенный заголовок рамки"
 "Highlighted title"
-"Zvyrazneny nadpis"
+"Zvýrazněný nadpis"
 "Markierter Titel"
-"Kiemelt keretnev"
-"Podswietlony tytul"
+"Kiemelt keretnév"
+"Podświetlony tytuł"
 
 MSetColorDialogTextInput
 "Ввод текста"
 "Text input"
-"Textovy vstup"
+"Textový vstup"
 "Texteingabe"
-"Beirt szoveg"
+"Beírt szöveg"
 "Wpisywany tekst"
 
 MSetColorDialogUnchangedTextInput
 "Неизмененный текст"
 "Unchanged text input"
-"Nezmeneny textovy vstup"
-"Unveranderte Texteingabe"
-"Valtozatlan beirt szoveg"
+"Nezměněný textový vstup"
+"Unveränderte Texteingabe"
+"Változatlan beírt szöveg"
 "Niezmieniony wpisywany tekst "
 
 MSetColorDialogSelectedTextInput
 "Ввод выделенного текста"
 "Selected text input"
-"Vybrany textovy vstup"
+"Vybraný textový vstup"
 "Markierte Texteingabe"
-"Beirt szoveg kijelolve"
+"Beírt szöveg kijelölve"
 "Zaznaczony wpisywany tekst"
 
 MSetColorDialogEditDisabled
 "Блокированное поле ввода"
 "Disabled input line"
-"Zakazany vstupni radek"
+"Zakázaný vstupní řádek"
 "Deaktivierte Eingabezeile"
-"Inaktiv beviteli sor"
+"Inaktív beviteli sor"
 "Nieaktywna linia wprowadzania danych"
 
 MSetColorDialogButtons
 "Кнопки"
 "Buttons"
-"Tlacitka"
-"Schaltflachen"
+"Tlačítka"
+"Schaltflächen"
 "Gombok"
 "Przyciski"
 
 MSetColorDialogSelectedButtons
 "Выбранные кнопки"
 "Selected buttons"
-"Vybrana tlacitka"
-"Aktive Schaltflachen"
-"Kijelolt gombok"
+"Vybraná tlačítka"
+"Aktive Schaltflächen"
+"Kijelölt gombok"
 "Wybrane przyciski"
 
 MSetColorDialogHighlightedButtons
 "Выделенные кнопки"
 "Highlighted buttons"
-"Zvyraznena tlacitka"
-"Markierte Schaltflachen"
+"Zvýrazněná tlačítka"
+"Markierte Schaltflächen"
 "Kiemelt gombok"
-"Podswietlone przyciski"
+"Podświetlone przyciski"
 
 MSetColorDialogSelectedHighlightedButtons
 "Выбранные выделенные кнопки"
 "Selected highlighted buttons"
-"Vybrana zvyraznena tlacitka"
-"Aktive markierte Schaltflachen"
-"Kijelolt kiemelt gombok"
-"Wybrane podswietlone przyciski "
+"Vybraná zvýrazněná tlačítka"
+"Aktive markierte Schaltflächen"
+"Kijelölt kiemelt gombok"
+"Wybrane podświetlone przyciski "
 
 MSetColorDialogListBoxControl
 "Список"
 "List box"
-"Seznam polozek"
+"Seznam položek"
 "Listenfelder"
 "Listaablak"
 "Lista"
@@ -10652,50 +10652,50 @@ MSetColorDialogListBoxControl
 MSetColorDialogComboBoxControl
 "Комбинированный список"
 "Combobox"
-"Vyber polozek"
+"Výběr položek"
 "Kombinatiosfelder"
-"Lenyilo szovegablak"
+"Lenyíló szövegablak"
 "Pole combo"
 
 MSetColorDialogListText
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
-"Tekst zwykly"
+"Normál szöveg"
+"Tekst zwykły"
 
 MSetColorDialogListSelectedText
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Tekst wybrany"
 
 MSetColorDialogListHighLight
 "Выделенный текст"
 "Highlighted text"
-"Zvyrazneny text"
+"Zvýrazněný text"
 "Markierung"
-"Kiemelt szoveg"
-"Tekst podswietlony"
+"Kiemelt szöveg"
+"Tekst podświetlony"
 
 MSetColorDialogListSelectedHighLight
 "Выбранный выделенный текст"
 "Selected highlighted text"
-"Vybrany zvyrazneny text"
+"Vybraný zvýrazněný text"
 "Aktive Markierung"
-"Kijelolt kiemelt szoveg"
-"Tekst wybrany i podswietlony"
+"Kijelölt kiemelt szöveg"
+"Tekst wybrany i podświetlony"
 
 MSetColorDialogListDisabled
 "Блокированный пункт"
 "Disabled item"
-"Naktivni polozka"
+"Naktivní položka"
 "Deaktiviertes Element"
-"Inaktiv elem"
+"Inaktív elem"
 "Pole nieaktywne"
 
 MSetColorDialogListBox
@@ -10712,14 +10712,14 @@ MSetColorDialogListTitle
 "Nadpis"
 "Titel"
 "Keret neve"
-"Tytul"
+"Tytuł"
 
 MSetColorDialogListGrayed
 "Серый текст списка"
 "Grayed list text"
 upd:"Grayed list text"
 upd:"Grayed list text"
-"Szurke listaszoveg"
+"Szürke listaszöveg"
 upd:"Grayed list text"
 
 MSetColorDialogSelectedListGrayed
@@ -10727,80 +10727,80 @@ MSetColorDialogSelectedListGrayed
 "Selected grayed list text"
 upd:"Selected grayed list text"
 upd:"Selected grayed list text"
-"Kijelolt szurke listaszoveg"
+"Kijelölt szürke listaszöveg"
 upd:"Selected grayed list text"
 
 MSetColorDialogListScrollBar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorDialogListArrows
 "Индикаторы длинных строк"
 "Long string indicators"
-"Znacka dlouheho retezce"
-"Indikator fur lange Zeichenketten"
-"Hosszu sztring jelzok"
-"Znacznik dlugiego napisu"
+"Značka dlouhého řetězce"
+"Indikator für lange Zeichenketten"
+"Hosszú sztring jelzők"
+"Znacznik długiego napisu"
 
 MSetColorDialogListArrowsSelected
 "Выбранные индикаторы длинных строк"
 "Selected long string indicators"
-"Vybrana znacka dlouheho retezce"
+"Vybraná značka dlouhého řetězce"
 "Aktiver Indikator"
-"Kijelolt hosszu sztring jelzok"
-"Zaznaczone znacznik dlugiego napisu"
+"Kijelölt hosszú sztring jelzők"
+"Zaznaczone znacznik długiego napisu"
 
 MSetColorDialogListArrowsDisabled
 "Блокированные индикаторы длинных строк"
 "Disabled long string indicators"
-"Zakazana znacka dlouheho retezce"
+"Zakázaná značka dlouhého řetězce"
 "Deaktivierter Indikator"
-"Inaktiv hosszu sztring jelzok"
-"Nieaktywny znacznik dlugiego napisu"
+"Inaktív hosszú sztring jelzők"
+"Nieaktywny znacznik długiego napisu"
 
 MSetColorMenuNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorMenuSelected
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Wybrany tekst"
 
 MSetColorMenuHighlighted
 "Выделенный текст"
 "Highlighted text"
-"Zvyrazneny text"
+"Zvýrazněný text"
 "Markierung"
-"Kiemelt szoveg"
-"Podswietlony tekst"
+"Kiemelt szöveg"
+"Podświetlony tekst"
 
 MSetColorMenuSelectedHighlighted
 "Выбранный выделенный текст"
 "Selected highlighted text"
-"Vybrany zvyrazneny text"
+"Vybraný zvýrazněný text"
 "Aktive Markierung"
-"Kijelolt kiemelt szoveg"
-"Wybrany podswietlony tekst "
+"Kijelölt kiemelt szöveg"
+"Wybrany podświetlony tekst "
 
 MSetColorMenuDisabled
 "Недоступный пункт"
 "Disabled text"
-"Neaktivni text"
+"Neaktivní text"
 "Disabled text"
-"Inaktiv szoveg"
+"Inaktív szöveg"
 "Tekst nieaktywny"
 
 MSetColorMenuGrayed
@@ -10808,7 +10808,7 @@ MSetColorMenuGrayed
 "Grayed text"
 upd:"Grayed text"
 upd:"Grayed text"
-"Szurke szoveg"
+"Szürke szöveg"
 upd:"Grayed text"
 
 MSetColorMenuSelectedGrayed
@@ -10816,7 +10816,7 @@ MSetColorMenuSelectedGrayed
 "Selected grayed text"
 upd:"Selected grayed text"
 upd:"Selected grayed text"
-"Kijelolt szurke szoveg"
+"Kijelölt szürke szöveg"
 upd:"Selected grayed text"
 
 MSetColorMenuBox
@@ -10833,261 +10833,261 @@ MSetColorMenuTitle
 "Nadpis"
 "Titel"
 "Keret neve"
-"Tytul"
+"Tytuł"
 
 MSetColorMenuScrollBar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorMenuArrows
 "Индикаторы длинных строк"
 "Long string indicators"
-"Znacka dlouheho retezce"
+"Značka dlouhého řetězce"
 "Long string indicators"
-"Hosszu sztring jelzok"
-"Znacznik dlugiego napisu"
+"Hosszú sztring jelzők"
+"Znacznik długiego napisu"
 
 MSetColorMenuArrowsSelected
 "Выбранные индикаторы длинных строк"
 "Selected long string indicators"
-"Vybrana znacka dlouheho retezce"
+"Vybraná značka dlouhého řetězce"
 "Selected long string indicators"
-"Kijelolt hosszu sztring jelzok"
-"Zaznaczone znacznik dlugiego napisu"
+"Kijelölt hosszú sztring jelzők"
+"Zaznaczone znacznik długiego napisu"
 
 MSetColorMenuArrowsDisabled
 "Блокированные индикаторы длинных строк"
 "Disabled long string indicators"
-"Zakazana znacka dlouheho retezce"
+"Zakázaná značka dlouhého řetězce"
 "Disabled long string indicators"
-"Inaktiv hosszu sztring jelzok"
-"Nieaktywny znacznik dlugiego napisu"
+"Inaktív hosszú sztring jelzők"
+"Nieaktywny znacznik długiego napisu"
 
 MSetColorHMenuNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorHMenuSelected
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Wybrany tekst"
 
 MSetColorHMenuHighlighted
 "Выделенный текст"
 "Highlighted text"
-"Zvyrazneny text"
+"Zvýrazněný text"
 "Markierung"
-"Kiemelt szoveg"
-"Podswietlony tekst"
+"Kiemelt szöveg"
+"Podświetlony tekst"
 
 MSetColorHMenuSelectedHighlighted
 "Выбранный выделенный текст"
 "Selected highlighted text"
-"Vybrany zvyrazneny text"
+"Vybraný zvýrazněný text"
 "Aktive Markierung"
-"Kijelolt kiemelt szoveg"
-"Wybrany podswietlony tekst "
+"Kijelölt kiemelt szöveg"
+"Wybrany podświetlony tekst "
 
 MSetColorKeyBarNumbers
 l:
 "Номера клавиш"
 "Key numbers"
-"Cisla klaves"
+"Čísla kláves"
 "Tastenziffern"
-"Funkcio szama"
+"Funkció száma"
 "Numery klawiszy"
 
 MSetColorKeyBarNames
 "Названия клавиш"
 "Key names"
-"Nazvy klaves"
+"Názvy kláves"
 "Tastennamen"
-"Funkcio neve"
+"Funkció neve"
 "Nazwy klawiszy"
 
 MSetColorKeyBarBackground
 "Фон"
 "Background"
-"Pozadi"
+"Pozadí"
 "Hintergrund"
-"Hattere"
-"Tlo"
+"Háttere"
+"Tło"
 
 MSetColorCommandLineNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorCommandLineSelected
 "Выделенный текст"
 "Selected text input"
-"Vybrany textovy vstup"
+"Vybraný textový vstup"
 "Markierte Texteingabe"
-"Beirt szoveg kijelolve"
+"Beírt szöveg kijelölve"
 "Zaznaczony wpisany tekst"
 
 MSetColorCommandLinePrefix
 "Текст префикса"
 "Prefix text"
-"Text predpony"
+"Text předpony"
 "Prefix Text"
-"Elotag szovege"
+"Előtag szövege"
 "Tekst prefiksu"
 
 MSetColorCommandLineUserScreen
 "Пользовательский экран"
 "User screen"
-"Obrazovka uzivatele"
+"Obrazovka uživatele"
 "Benutzerseite"
-"Konzol hattere"
-"Ekran uzytkownika"
+"Konzol háttere"
+"Ekran użytkownika"
 
 MSetColorClockNormal
 l:
 "Обычный текст (панели)"
 "Normal text (Panel)"
-"Normalni text (Panel)"
+"Normální text (Panel)"
 "Normaler Text (Panel)"
-"Normal szoveg (panelek)"
+"Normál szöveg (panelek)"
 "Normalny tekst (Panel)"
 
 MSetColorClockNormalEditor
 "Обычный текст (редактор)"
 "Normal text (Editor)"
-"Normalni text (Editor)"
+"Normální text (Editor)"
 "Normaler Text (Editor)"
-"Normal szoveg (szerkeszto)"
+"Normál szöveg (szerkesztő)"
 "Normalny tekst (Edytor)"
 
 MSetColorClockNormalViewer
 "Обычный текст (вьювер)"
 "Normal text (Viewer)"
-"Normalni text (Prohlizec)"
+"Normální text (Prohlížeč)"
 "Normaler Text (Betrachter)"
-"Normal szoveg (nezoke)"
-"Normalny tekst (Podglad)"
+"Normál szöveg (nézőke)"
+"Normalny tekst (Podgląd)"
 
 MSetColorViewerNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorViewerSelected
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Zaznaczony tekst"
 
 MSetColorViewerStatus
 "Статус"
 "Status line"
-"Stavovy radek"
+"Stavový řádek"
 "Statuszeile"
-"Allapotsor"
+"Állapotsor"
 "Linia statusu"
 
 MSetColorViewerArrows
 "Стрелки сдвига экрана"
 "Screen scrolling arrows"
-"Skrolovaci sipky"
+"Skrolovací šipky"
 "Pfeile auf Scrollbalken"
-"Kepernyogordito nyilak"
-"Strzalki przesuwajace ekran"
+"Képernyőgördítő nyilak"
+"Strzałki przesuwające ekran"
 
 MSetColorViewerScrollbar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorEditorNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorEditorSelected
 "Выбранный текст"
 "Selected text"
-"Vybrany text"
+"Vybraný text"
 "Markierter Text"
-"Kijelolt szoveg"
+"Kijelölt szöveg"
 "Zaznaczony tekst"
 
 MSetColorEditorStatus
 "Статус"
 "Status line"
-"Stavovy radek"
+"Stavový řádek"
 "Statuszeile"
-"Allapotsor"
+"Állapotsor"
 "Linia statusu"
 
 MSetColorEditorScrollbar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorHelpNormal
 l:
 "Обычный текст"
 "Normal text"
-"Normalni text"
+"Normální text"
 "Normaler Text"
-"Normal szoveg"
+"Normál szöveg"
 "Normalny tekst"
 
 MSetColorHelpHighlighted
 "Выделенный текст"
 "Highlighted text"
-"Zvyrazneny text"
+"Zvýrazněný text"
 "Markierung"
-"Kiemelt szoveg"
-"Podswietlony tekst"
+"Kiemelt szöveg"
+"Podświetlony tekst"
 
 MSetColorHelpReference
 "Ссылка"
 "Reference"
 "Odkaz"
 "Referenz"
-"Hivatkozas"
+"Hivatkozás"
 "Odniesienie"
 
 MSetColorHelpSelectedReference
 "Выбранная ссылка"
 "Selected reference"
-"Vybrany odkaz"
-"Ausgewahlte Referenz"
-"Kijelolt hivatkozas"
+"Vybraný odkaz"
+"Ausgewählte Referenz"
+"Kijelölt hivatkozás"
 "Wybrane odniesienie "
 
 MSetColorHelpBox
@@ -11104,14 +11104,14 @@ MSetColorHelpBoxTitle
 "Nadpis"
 "Titel"
 "Keret neve"
-"Tytul"
+"Tytuł"
 
 MSetColorHelpScrollbar
 "Полоса прокрутки"
 "Scrollbar"
-"Posuvnik"
+"Posuvník"
 "Scrollbalken"
-"Gorditosav"
+"Gördítősáv"
 "Suwak"
 
 MSetColorGroupsTitle
@@ -11120,15 +11120,15 @@ l:
 "Color groups"
 "Skupiny barev"
 "Farbgruppen"
-"Szincsoportok"
-"Grupy kolorow"
+"Színcsoportok"
+"Grupy kolorów"
 
 MSetColorItemsTitle
 "Элементы группы"
 "Group items"
-"Polozky skupin"
-"Gruppeneintrage"
-"A szincsoport elemei"
+"Položky skupin"
+"Gruppeneinträge"
+"A színcsoport elemei"
 "Elementy grupy"
 
 MSetColorTitle
@@ -11137,39 +11137,39 @@ l:
 "Color"
 "Barva"
 "Farbe"
-"Szinek"
+"Színek"
 "Kolor"
 
 MSetColorForeground
 "&Текст"
 "&Foreground"
-"&Popredi"
+"&Popředí"
 "&Vordergrund"
-"&Eloter"
+"&Előtér"
 "&Pierwszy plan"
 
 MSetColorBackground
 "&Фон"
 "&Background"
-"Po&zadi"
+"Po&zadí"
 "&Hintergrund"
-"&Hatter"
-"&Tlo"
+"&Háttér"
+"&Tło"
 
 MSetColorForeTransparent
 "&Прозрачный"
 "&Transparent"
-"Pruhlednos&t"
+"Průhlednos&t"
 "&Transparent"
-"Atla&tszo"
+"Átlá&tszó"
 "P&rzezroczyste"
 
 MSetColorBackTransparent
 "П&розрачный"
 "T&ransparent"
-"Pruhledno&st"
+"Průhledno&st"
 "T&ransparent"
-"Atlat&szo"
+"Átlát&szó"
 "Pr&zezroczyste"
 
 MSetColorSample
@@ -11193,32 +11193,32 @@ MSetColorCancel
 "Cancel"
 "Storno"
 "Abbruch"
-"&Megsem"
+"&Mégsem"
 "Anuluj"
 
 MSetConfirmTitle
 l:
 "Подтверждения"
 "Confirmations"
-"Potvrzeni"
-"Bestatigungen"
-"Megerositesek"
+"Potvrzení"
+"Bestätigungen"
+"Megerősítések"
 "Potwierdzenia"
 
 MSetConfirmCopy
 "Перезапись файлов при &копировании"
 "&Copy"
-"&Kopirovani"
+"&Kopírování"
 "&Kopieren"
-"&Masolas"
+"&Másolás"
 "&Kopiowanie"
 
 MSetConfirmMove
 "Перезапись файлов при &переносе"
 "&Move"
-"&Presouvani"
+"&Přesouvání"
 "&Verschieben"
-"Moz&gatas"
+"Moz&gatás"
 "&Przenoszenie"
 
 MSetConfirmRO
@@ -11226,7 +11226,7 @@ MSetConfirmRO
 "&Overwrite and delete R/O files"
 upd:"&Overwrite and delete R/O files"
 upd:"&Overwrite and delete R/O files"
-"&Csak olv. fajlok felulirasa/torlese"
+"&Csak olv. fájlok felülírása/törlése"
 upd:"&Overwrite and delete R/O files"
 
 
@@ -11235,80 +11235,80 @@ MSetConfirmDrag
 "&Drag and drop"
 "&Drag and drop"
 "&Ziehen und Ablegen"
-"&Huzd es ejtsd"
-"P&rzeciaganie i upuszczanie"
+"&Húzd és ejtsd"
+"P&rzeciąganie i upuszczanie"
 
 MSetConfirmDelete
 "&Удаление"
 "De&lete"
-"&Mazani"
-"&Loschen"
-"&Torles"
+"&Mazání"
+"&Löschen"
+"&Törlés"
 "&Usuwanie"
 
 MSetConfirmDeleteFolders
 "У&даление непустых папок"
 "Delete non-empty &folders"
-"Mazat &neprazdne adresare"
-"Loschen von Ordnern mit &Inhalt"
-"Nem &ures mappak torlese"
-"Usuwanie &niepustych katalogow"
+"Mazat &neprázdné adresáře"
+"Löschen von Ordnern mit &Inhalt"
+"Nem &üres mappák törlése"
+"Usuwanie &niepustych katalogów"
 
 MSetConfirmEsc
 "Прерыва&ние операций"
 "&Interrupt operation"
-"Pre&rusit operaci"
-"&Unterbrechen von Vorgangen"
-"Mu&velet megszakitasa"
+"Pře&rušit operaci"
+"&Unterbrechen von Vorgängen"
+"Mű&velet megszakítása"
 "&Przerwanie operacji"
 
 MSetConfirmRemoveConnection
 "&Отключение сетевого устройства"
 "Disconnect &network drive"
-"Odpojeni &sitove jednotky"
+"Odpojení &síťové jednotky"
 "Trennen von &Netzwerklaufwerken"
-"Halo&zati meghajto levalasztasa"
-"Odlaczenie dysku &sieciowego"
+"Háló&zati meghajtó leválasztása"
+"Odłączenie dysku &sieciowego"
 
 MSetConfirmRemoveSUBST
 "Отключение SUBST-диска"
 "Disconnect &SUBST-disk"
-"Odpojeni SUBST-d&isku"
+"Odpojení SUBST-d&isku"
 "Trennen von &Substlaufwerken"
-"Virt&ualis meghajto torlese"
-"Odlaczenie dysku &SUBST"
+"Virt&uális meghajtó törlése"
+"Odłączenie dysku &SUBST"
 
 MSetConfirmRemoveHotPlug
 "Отключение HotPlug-у&стройства"
 "Hot&Plug-device removal"
-"Odpojeni vyjimatelneho zarizeni"
+"Odpojení vyjímatelného zařízení"
 "Sicheres Entfernen von Hardware"
-"H&otPlug eszkoz eltavolitasa"
-"Odlaczanie urzadzenia HotPlug"
+"H&otPlug eszköz eltávolítása"
+"Odłączanie urządzenia HotPlug"
 
 MSetConfirmAllowReedit
 "Повто&рное открытие файла в редакторе"
 "&Reload edited file"
-"&Obnovit upravovany soubor"
+"&Obnovit upravovaný soubor"
 "Bea&rbeitete Datei neu laden"
-"&Szerkesztett fajl ujratoltese"
-"&Zaladuj edytowany plik"
+"&Szerkesztett fájl újratöltése"
+"&Załaduj edytowany plik"
 
 MSetConfirmHistoryClear
 "Очистка списка &истории"
 "Clear &history list"
 "Vymazat seznam &historie"
-"&Historielisten loschen"
-"&Elozmenylista torlese"
+"&Historielisten löschen"
+"&Előzménylista törlése"
 "Czyszczenie &historii"
 
 MSetConfirmExit
 "&Выход"
 "E&xit"
-"U&konceni"
+"U&končení"
 "Be&enden"
-"K&ilepes a FAR-bol"
-"&Wyjscie"
+"K&ilépés a FAR-ból"
+"&Wyjście"
 
 MSetPluginConfirmationTitle
 l:
@@ -11316,7 +11316,7 @@ l:
 "Plugin selection"
 upd:"Plugin selection"
 upd:"Plugin selection"
-"Plugin valasztas"
+"Plugin választás"
 upd:"Plugin selection"
 
 MSetPluginConfirmationOFP
@@ -11324,7 +11324,7 @@ MSetPluginConfirmationOFP
 "File processing (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
-"Fajl feldolgozasa (OpenFilePlugin)"
+"Fájl feldolgozása (OpenFilePlugin)"
 upd:"File processing (OpenFilePlugin)"
 
 MSetPluginConfirmationStdAssoc
@@ -11332,7 +11332,7 @@ MSetPluginConfirmationStdAssoc
 "Show standard association item"
 upd:"Show standard association item"
 upd:"Show standard association item"
-"Szabvany tarsitas megjelenitese"
+"Szabvány társítás megjelenítése"
 upd:"Show standard association item"
 
 MSetPluginConfirmationEvenOne
@@ -11348,7 +11348,7 @@ MSetPluginConfirmationSFL
 "Search results (SetFindList)"
 upd:"Search results (SetFindList)"
 upd:"Search results (SetFindList)"
-"Kereses eredmenye (SetFindList)"
+"Keresés eredménye (SetFindList)"
 upd:"Search results (SetFindList)"
 
 MSetPluginConfirmationPF
@@ -11356,26 +11356,26 @@ MSetPluginConfirmationPF
 "Prefix processing"
 upd:"Prefix processing"
 upd:"Prefix processing"
-"Elotag feldolgozasa"
+"Előtag feldolgozása"
 upd:"Prefix processing"
 
 MFindFolderTitle
 l:
 "Поиск папки"
 "Find folder"
-"Najit adresar"
+"Najít adresář"
 "Ordner finden"
-"Mappakereses"
-"Znajdz folder"
+"Mappakeresés"
+"Znajdź folder"
 
 MKBFolderTreeF1
 l:
 l:// Find folder Tree KeyBar
 "Помощь"
 "Help"
-"Napoveda"
+"Nápověda"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MKBFolderTreeF2
@@ -11391,15 +11391,15 @@ MKBFolderTreeF5
 "Zoom"
 "Zoom"
 "Vergr."
-"Nagyit"
-"Powieksz"
+"Nagyít"
+"Powiększ"
 
 MKBFolderTreeF10
 "Выход"
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MKBFolderTreeAltF9
@@ -11413,7 +11413,7 @@ MKBFolderTreeAltF9
 MTreeTitle
 "Дерево"
 "Tree"
-"Stromove zobrazeni"
+"Stromové zobrazení"
 "Baum"
 "Fa"
 "Drzewo"
@@ -11421,64 +11421,64 @@ MTreeTitle
 MCannotSaveTree
 "Ошибка записи дерева папок в файл"
 "Cannot save folders tree to file"
-"Adresarovy strom nelze ulozit do souboru"
+"Adresářový strom nelze uložit do souboru"
 "Konnte Ordnerliste nicht in Datei speichern."
-"A mappak fastrukturaja nem mentheto fajlba"
-"Nie moge zapisac drzewa katalogow do pliku"
+"A mappák fastruktúrája nem menthető fájlba"
+"Nie mogę zapisać drzewa katalogów do pliku"
 
 MReadingTree
 "Чтение дерева папок"
 "Reading the folders tree"
-"Nacitam adresarovy strom"
+"Načítám adresářový strom"
 "Lese Ordnerliste"
-"Mappaszerkezet ujraolvasasa..."
-"Odczytuje drzewo katalogow"
+"Mappaszerkezet újraolvasása..."
+"Odczytuję drzewo katalogów"
 
 MUserMenuTitle
 l:
 "Пользовательское меню"
 "User menu"
-"Menu uzivatele"
-"Benutzermenu"
-"Felhasznaloi menu szerkesztese"
-"Menu uzytkownika"
+"Menu uživatele"
+"Benutzermenü"
+"Felhasználói menü szerkesztése"
+"Menu użytkownika"
 
 MChooseMenuType
 "Выберите тип пользовательского меню для редактирования"
 "Choose user menu type to edit"
-"Zvol typ menu uzivatele pro upravu"
-"Wahlen Sie den Typ des zu editierenden Benutzermenus"
-"Felhasznaloi menu tipusa:"
+"Zvol typ menu uživatele pro úpravu"
+"Wählen Sie den Typ des zu editierenden Benutzermenüs"
+"Felhasználói menü típusa:"
 "Wybierz typ menu do edycji"
 
 MChooseMenuMain
 "&Главное"
 "&Main"
-"&Hlavni"
-"&Hauptmenu"
-"&Fomenu"
-"Glowne"
+"&Hlavní"
+"&Hauptmenü"
+"&Főmenü"
+"Główne"
 
 MChooseMenuLocal
 "&Местное"
 "&Local"
-"&Lokalni"
-"&Lokales Menu"
-"&Helyi menu"
+"&Lokální"
+"&Lokales Menü"
+"&Helyi menü"
 "Lokalne"
 
 MMainMenuTitle
 "Главное меню"
 "Main menu"
-"Hlavni menu"
-"Hauptmenu"
-"Fomenu"
-"Menu glowne"
+"Hlavní menu"
+"Hauptmenü"
+"Főmenü"
+"Menu główne"
 
 MMainMenuFAR
 "Папка FAR"
 "FAR folder"
-"Slozka FARu"
+"Složka FARu"
 "FAR Ordner"
 "FAR mappa"
 "Folder FAR-a"
@@ -11496,9 +11496,9 @@ l:// <...menu (Registry)>
 MLocalMenuTitle
 "Местное меню"
 "Local menu"
-"Lokalni menu"
-"Lokales Menu"
-"Helyi menu"
+"Lokalní menu"
+"Lokales Menü"
+"Helyi menü"
 "Menu lokalne"
 
 MMainMenuBottomTitle
@@ -11512,64 +11512,64 @@ MMainMenuBottomTitle
 MAskDeleteMenuItem
 "Вы хотите удалить пункт меню"
 "Do you wish to delete the menu item"
-"Prejete si smazat polozku v menu"
+"Přejete si smazat položku v menu"
 "Do you wish to delete the menu item"
-"Biztosan torli a menuelemet?"
-"Czy usunac pozycje menu"
+"Biztosan törli a menüelemet?"
+"Czy usunąć pozycję menu"
 
 MAskDeleteSubMenuItem
 "Вы хотите удалить вложенное меню"
 "Do you wish to delete the submenu"
-"Prejete si smazat podmenu"
+"Přejete si smazat podmenu"
 "Do you wish to delete the submenu"
-"Biztosan torli az almenut?"
-"Czy usunac podmenu"
+"Biztosan törli az almenüt?"
+"Czy usunąć podmenu"
 
 MUserMenuInvalidInputLabel
 "Неправильный формат метки меню!"
 "Invalid format for UserMenu Label!"
-"Neplatny format pro nazev Uzivatelskeho menu!"
+"Neplatný formát pro název Uživatelského menu!"
 "Invalid format for UserMenu Label!"
-"A felhasznaloi menu nevformatuma ervenytelen!"
-"Bledny format etykiety menu uzytkownika!"
+"A felhasználói menü névformátuma érvénytelen!"
+"Błędny format etykiety menu użytkownika!"
 
 MUserMenuInvalidInputHotKey
 "Неправильный формат горячей клавиши!"
 "Invalid format for Hot Key!"
-"Neplatny format pro klavesovou zkratku!"
+"Neplatný formát pro klávesovou zkratku!"
 "Invalid format for Hot Key!"
-"A gyorsbillentyu formatuma ervenytelen!"
-"Bledny format klawisza skrotu!"
+"A gyorsbillentyű formátuma érvénytelen!"
+"Błędny format klawisza skrótu!"
 
 MEditMenuTitle
 l:
 "Редактирование пользовательского меню"
 "Edit user menu"
-"Editace uzivatelskeho menu"
-"Menubefehl bearbeiten"
-"Parancs szerkesztese"
-"Edytuj menu uzytkownika"
+"Editace uživatelského menu"
+"Menübefehl bearbeiten"
+"Parancs szerkesztése"
+"Edytuj menu użytkownika"
 
 MEditMenuHotKey
 "&Горячая клавиша:"
 "&Hot key:"
-"K&lavesova zkratka:"
+"K&lávesová zkratka:"
 "&Kurztaste:"
-"&Gyorsbillentyu:"
-"&Klawisz skrotu:"
+"&Gyorsbillentyű:"
+"&Klawisz skrótu:"
 
 MEditMenuLabel
 "&Метка:"
 "&Label:"
 "&Popisek:"
 "&Bezeichnung:"
-"&Nev:"
+"&Név:"
 "&Etykieta:"
 
 MEditMenuCommands
 "&Команды:"
 "&Commands:"
-"Pri&kazy:"
+"Pří&kazy:"
 "&Befehle:"
 "&Parancsok:"
 "&Polecenia:"
@@ -11578,15 +11578,15 @@ MAskInsertMenuOrCommand
 l:
 "Вы хотите вставить новую команду или новое меню?"
 "Do you wish to insert a new command or a new menu?"
-"Prejete si vlozit novy prikaz nebo nove menu?"
-"Wollen Sie einen neuen Menubefehl oder ein neues Menu erstellen?"
-"Uj parancs vagy uj menu?"
-"Czy chcesz wstawic nowe polecenie lub nowe menu?"
+"Přejete si vložit nový příkaz nebo nové menu?"
+"Wollen Sie einen neuen Menübefehl oder ein neues Menu erstellen?"
+"Új parancs vagy új menü?"
+"Czy chcesz wstawić nowe polecenie lub nowe menu?"
 
 MMenuInsertCommand
 "Вставить команду"
 "Insert command"
-"Vlozit prikaz"
+"Vložit příkaz"
 "Neuer Befehl"
 "Parancs"
 "Wstaw polecenie"
@@ -11594,52 +11594,52 @@ MMenuInsertCommand
 MMenuInsertMenu
 "Вставить меню"
 "Insert menu"
-"Vlozit menu"
-"Neues Menu"
-"Menu"
+"Vložit menu"
+"Neues Menü"
+"Menü"
 "Wstaw menu"
 
 MEditSubmenuTitle
 l:
 "Редактирование метки вложенного меню"
 "Edit submenu label"
-"Uprava popisku podmenu"
-"Untermenu bearbeiten"
-"Almenu szerkesztese"
-"Edytuj etykiete podmenu"
+"Úprava popisku podmenu"
+"Untermenü bearbeiten"
+"Almenü szerkesztése"
+"Edytuj etykietę podmenu"
 
 MEditSubmenuHotKey
 "&Горячая клавиша:"
 "&Hot key:"
-"Klavesova &zkratka:"
+"Klávesová &zkratka:"
 "&Kurztaste:"
-"&Gyorsbillentyu:"
-"&Klawisz skrotu:"
+"&Gyorsbillentyű:"
+"&Klawisz skrótu:"
 
 MEditSubmenuLabel
 "&Метка:"
 "&Label:"
 "&Popisek:"
 "&Bezeichnung:"
-"&Nev:"
+"&Név:"
 "&Etykieta:"
 
 MViewerTitle
 l:
 "Просмотр"
 "Viewer"
-"Prohlizec"
+"Prohlížeč"
 "Betrachter"
-"Nezoke"
-"Podglad"
+"Nézőke"
+"Podgląd"
 
 MViewerCannotOpenFile
 "Ошибка открытия файла"
 "Cannot open the file"
-"Nelze otevrit soubor"
-"Kann Datei nicht offnen"
-"A fajl nem nyithato meg"
-"Nie moge otworzyc pliku"
+"Nelze otevřít soubor"
+"Kann Datei nicht öffnen"
+"A fájl nem nyitható meg"
+"Nie mogę otworzyć pliku"
 
 MViewerStatusCol
 "Кол"
@@ -11655,7 +11655,7 @@ l:
 "Search"
 "Hledat"
 "Durchsuchen"
-"Kereses"
+"Keresés"
 "Szukaj"
 
 MViewSearchFor
@@ -11663,15 +11663,15 @@ MViewSearchFor
 "&Search for"
 "H&ledat"
 "&Suchen nach"
-"&Kereses:"
-"&Znajdz"
+"&Keresés:"
+"&Znajdź"
 
 MViewSearchForText
 "Искать &текст"
 "Search for &text"
 "Hledat &text"
 "Suchen nach &Text"
-"&Szoveg keresese"
+"&Szöveg keresése"
 "Szukaj &tekstu"
 
 MViewSearchForHex
@@ -11679,31 +11679,31 @@ MViewSearchForHex
 "Search for &hex"
 "Hledat he&x"
 "Suchen nach &Hex (xx xx ...)"
-"&Hexa keresese"
-"Szukaj &wartosci szesnastkowych"
+"&Hexa keresése"
+"Szukaj &wartości szesnastkowych"
 
 MViewSearchCase
 "&Учитывать регистр"
 "&Case sensitive"
-"&Rozlisovat velikost pismen"
-"Gr&o?-/Kleinschreibung"
-"&Nagy/kisbetu erzekeny"
-"&Uwzglednij wielkosc liter"
+"&Rozlišovat velikost písmen"
+"Gr&oß-/Kleinschreibung"
+"&Nagy/kisbetű érzékeny"
+"&Uwzględnij wielkość liter"
 
 MViewSearchWholeWords
 "Только &целые слова"
 "&Whole words"
-"Cela &slova"
-"Ganze &Worter"
-"Csak e&gesz szavak"
-"Tylko cale slowa"
+"Celá &slova"
+"Ganze &Wörter"
+"Csak e&gész szavak"
+"Tylko całe słowa"
 
 MViewSearchReverse
 "Обратн&ый поиск"
 "Re&verse search"
-"&Zpetne hledani"
+"&Zpětné hledání"
 "Richtung um&kehren"
-"&Visszafele keres"
+"&Visszafelé keres"
 "Szukaj w &odwrotnym kierunku"
 
 MViewSearchRegexp
@@ -11727,57 +11727,57 @@ MViewSearchCancel
 "Cancel"
 "Storno"
 "Abbrechen"
-"Megsem"
+"Mégsem"
 "&Anuluj"
 
 MViewSearchingFor
 l:
 "Поиск"
 "Searching for"
-"Vyhledavam"
+"Vyhledávám"
 "Suche nach"
-"Kereses:"
+"Keresés:"
 "Szukam"
 
 MViewSearchingHex
 "Поиск байтов"
 "Searching for bytes"
-"Vyhledavam sekvenci bytu"
+"Vyhledávám sekvenci bytů"
 "Suche nach Bytes"
-"Bajtok keresese:"
-"Szukam bajtow"
+"Bájtok keresése:"
+"Szukam bajtów"
 
 MViewSearchCannotFind
 "Строка не найдена"
 "Could not find the string"
-"Nelze najit retezec"
+"Nelze najít řetězec"
 "Konnte Zeichenkette nicht finden"
-"Nem talaltam a szoveget:"
-"Nie moge odnalezc ciagu znakow"
+"Nem találtam a szöveget:"
+"Nie mogę odnaleźć ciągu znaków"
 
 MViewSearchCannotFindHex
 "Байты не найдены"
 "Could not find the bytes"
-"Nelze najit sekvenci bytu"
+"Nelze najít sekvenci bytů"
 "Konnte Bytefolge nicht finden"
-"Nem talaltam a bajtokat:"
-"Nie moge odnalezc bajtow"
+"Nem találtam a bájtokat:"
+"Nie mogę odnaleźć bajtów"
 
 MViewSearchFromBegin
 "Продолжить поиск с начала документа?"
 "Continue the search from the beginning of the document?"
-"Pokracovat s hledanim od zacatku dokumentu?"
+"Pokračovat s hledáním od začátku dokumentu?"
 "Mit Suche am Anfang des Dokuments fortfahren?"
-"Folytassam a keresest a dokumentum elejetol?"
-"Kontynuowac wyszukiwanie od poczatku dokumentu?"
+"Folytassam a keresést a dokumentum elejétől?"
+"Kontynuować wyszukiwanie od początku dokumentu?"
 
 MViewSearchFromEnd
 "Продолжить поиск с конца документа?"
 "Continue the search from the end of the document?"
-"Pokracovat s hledanim od konce dokumentu?"
+"Pokračovat s hledáním od konce dokumentu?"
 "Mit Suche am Ende des Dokuments fortfahren?"
-"Folytassam a keresest a dokumentum vegetol?"
-"Kontynuowac wyszukiwanie od konca dokumentu?"
+"Folytassam a keresést a dokumentum végétől?"
+"Kontynuować wyszukiwanie od końca dokumentu?"
 
 MPrintTitle
 l:
@@ -11785,7 +11785,7 @@ l:
 "Print"
 "Tisk"
 "Drucken"
-"Nyomtatas"
+"Nyomtatás"
 "Drukuj"
 
 MPrintTo
@@ -11793,89 +11793,89 @@ MPrintTo
 "Print %s to"
 "Vytisknout %s na"
 "Drucke %s nach"
-"%s nyomtatasa:"
+"%s nyomtatása:"
 "Drukuj %s do"
 
 MPrintFilesTo
 "Печатать %d файлов на"
 "Print %d files to"
-"Vytisknout %d souboru na"
+"Vytisknout %d souborů na"
 "Drucke %d Dateien mit"
-"%d fajl nyomtatasa:"
-"Drukuj %d pliki(ow) do"
+"%d fájl nyomtatása:"
+"Drukuj %d pliki(ów) do"
 
 MPreparingForPrinting
 "Подготовка файлов к печати"
 "Preparing files for printing"
-"Pripravuji soubory pro tisk"
-"Vorbereiten der Druckauftrage"
-"Fajlok elokeszitese nyomtatashoz"
-"Przygotowuje plik(i) do drukowania"
+"Připravuji soubory pro tisk"
+"Vorbereiten der Druckaufträge"
+"Fájlok előkészítése nyomtatáshoz"
+"Przygotowuję plik(i) do drukowania"
 
 MCannotEnumeratePrinters
 "Не удалось получить список доступных принтеров"
 "Cannot enumerate available printers list"
 upd:"Cannot enumerate available printers list"
 upd:"Cannot enumerate available printers list"
-"Az elerheto nyomtatok listaja nem allithato ossze"
+"Az elérhető nyomtatók listája nem állítható össze"
 upd:"Cannot enumerate available printers list"
 
 MCannotOpenPrinter
 "Не удалось открыть принтер"
 "Cannot open printer"
-"Nelze otevrit tiskarnu"
-"Fehler beim offnen des Druckers"
-"Nyomtato nem elerheto"
-"Nie moge polaczyc sie z drukarka"
+"Nelze otevřít tiskárnu"
+"Fehler beim öffnen des Druckers"
+"Nyomtató nem elérhető"
+"Nie mogę połączyć się z drukarką"
 
 MCannotPrint
 "Не удалось распечатать"
 "Cannot print"
 "Nelze tisknout"
 "Fehler beim Drucken"
-"Nem nyomtathato"
-"Nie moge drukowac"
+"Nem nyomtatható"
+"Nie mogę drukować"
 
 MDescribeFiles
 l:
 "Описание файла"
 "Describe file"
-"Popiskovy soubor"
-"Beschreibung andern"
-"Fajlmegjegyzes"
+"Popiskový soubor"
+"Beschreibung ändern"
+"Fájlmegjegyzés"
 "Opisz plik"
 
 MEnterDescription
 "Введите описание для"
 "Enter description for"
 "Zadejte popisek"
-"Beschreibung fur"
-upd:"Irja be megjegyzeset:"
-"Wprowadz opis"
+"Beschreibung für"
+upd:"Írja be megjegyzését:"
+"Wprowadź opis"
 
 MReadingDiz
 l:
 "Чтение описаний файлов"
 "Reading file descriptions"
-"Nacitam popisky souboru"
+"Načítám popisky souboru"
 "Lese Dateibeschreibungen"
-"Fajlmegjegyzesek olvasasa"
-"Odczytuje opisy plikow"
+"Fájlmegjegyzések olvasása"
+"Odczytuję opisy plików"
 
 MCannotUpdateDiz
 "Не удалось обновить описания файлов"
 "Cannot update file descriptions"
 "Nelze aktualizovat popisky souboru"
 "Dateibeschreibungen konnten nicht aktualisiert werden."
-"A fajlmegjegyzesek nem frissithetok"
-"Nie moge aktualizowac opisow plikow"
+"A fájlmegjegyzések nem frissíthetők"
+"Nie moge aktualizować opisów plików"
 
 MCannotUpdateRODiz
 "Файл описаний защищен от записи"
 "The description file is read only"
-"Popiskovy soubor ma atribut Jen pro cteni"
-"Die Beschreibungsdatei ist schreibgeschutzt."
-"A megjegyzesfajl csak olvashato"
+"Popiskový soubor má atribut Jen pro čtení"
+"Die Beschreibungsdatei ist schreibgeschützt."
+"A megjegyzésfájl csak olvasható"
 "Opis jest plikiem tylko do odczytu"
 
 MCfgDizTitle
@@ -11884,302 +11884,302 @@ l:
 "File descriptions"
 "Popisky souboru"
 "Dateibeschreibungen"
-"Fajl megjegyzesfajlok"
-"Opisy plikow"
+"Fájl megjegyzésfájlok"
+"Opisy plików"
 
 MCfgDizListNames
 "Имена &списков описаний, разделенные запятыми:"
 "Description &list names delimited with commas:"
-"Seznam pop&isovych souboru oddelenych carkami:"
+"Seznam pop&isových souborů oddělených čárkami:"
 "Beschreibungs&dateien, getrennt durch Komma:"
-"Megjegyzes&fajlok nevei, vesszovel elvalasztva:"
-"Nazwy &plikow z opisami oddzielone przecinkami:"
+"Megjegyzés&fájlok nevei, vesszővel elválasztva:"
+"Nazwy &plików z opisami oddzielone przecinkami:"
 
 MCfgDizSetHidden
 "Устанавливать &атрибут ""Hidden"" на новые списки описаний"
 "Set ""&Hidden"" attribute to new description lists"
-"Novym souborum s popisy nastavit atribut ""&Skryty"""
-"Setze das '&Versteckt'-Attribut fur neu angelegte Dateien"
-"Az uj megjegyzesfajl ""&rejtett"" attributumu legyen"
-"Ustaw atrybut ""&Ukryty"" dla nowych plikow z opisami"
+"Novým souborům s popisy nastavit atribut ""&Skrytý"""
+"Setze das '&Versteckt'-Attribut für neu angelegte Dateien"
+"Az új megjegyzésfájl ""&rejtett"" attribútumú legyen"
+"Ustaw atrybut ""&Ukryty"" dla nowych plików z opisami"
 
 MCfgDizROUpdate
 "Обновлять файл описаний с атрибутом ""Толь&ко для чтения"""
 "Update &read only description file"
-"Aktualizovat popisove soubory s atributem Jen pro cteni"
-"Schreibgeschutzte Dateien aktualisie&ren"
-"&Csak olvashato megjegyzesfajlok frissitese"
+"Aktualizovat popisové soubory s atributem Jen pro čtení"
+"Schreibgeschützte Dateien aktualisie&ren"
+"&Csak olvasható megjegyzésfájlok frissítése"
 "Aktualizuj plik opisu tylko do odczytu"
 
 MCfgDizStartPos
 "&Позиция новых описаний в строке"
 "&Position of new descriptions in the string"
-"&Pozice novych popisu v retezci"
+"&Pozice nových popisů v řetězci"
 "&Position neuer Beschreibungen in der Zeichenkette"
-"Uj megjegyzeseknel a szoveg &kezdete"
-"Pozy&cja nowych opisow w linii"
+"Új megjegyzéseknél a szöveg &kezdete"
+"Pozy&cja nowych opisów w linii"
 
 MCfgDizNotUpdate
 "&Не обновлять описания"
 "Do &not update descriptions"
 "&Neaktualizovat popisy"
 "Beschreibungen &nie aktualisieren"
-"N&e frissitse a megjegyzeseket"
-"&Nie aktualizuj opisow"
+"N&e frissítse a megjegyzéseket"
+"&Nie aktualizuj opisów"
 
 MCfgDizUpdateIfDisplayed
 "&Обновлять, если они выводятся на экран"
 "Update if &displayed"
-"Aktualizovat, jestlize je &zobrazen"
+"Aktualizovat, jestliže je &zobrazen"
 "Aktualisieren &wenn angezeigt"
-"Frissitsen, ha meg&jelenik"
-"Aktualizuj jesli &widoczne"
+"Frissítsen, ha meg&jelenik"
+"Aktualizuj jeśli &widoczne"
 
 MCfgDizAlwaysUpdate
 "&Всегда обновлять"
 "&Always update"
-"&Vzdy aktualizovat"
+"&Vždy aktualizovat"
 "Im&mer aktualisieren"
-"&Mindig frissitsen"
+"&Mindig frissítsen"
 "&Zawsze aktualizuj"
 
 MReadingTitleFiles
 l:
 "Обновление панелей"
 "Update of panels"
-"Aktualizace panelu"
+"Aktualizace panelů"
 "Aktualisiere Panels"
-"Panelek frissitese"
+"Panelek frissítése"
 "Aktualizacja panelu"
 
 MReadingFiles
 "Чтение: %d файлов"
 "Reading: %d files"
-"Nacitam: %d souboru"
+"Načítám: %d souborů"
 "Lese: %d Dateien"
-" %d fajl olvasasa"
-"Czytam: %d plikow"
+" %d fájl olvasása"
+"Czytam: %d plików"
 
 MUserBreakTitle
 l:
 "Прекращено пользователем"
 "User break"
-"Preruseno uzivatelem"
+"Přerušeno uživatelem"
 "Unterbochen durch Benutzer"
-"A felhasznalo megszakitotta"
-"Przerwane przez uzytkownika"
+"A felhasználó megszakította"
+"Przerwane przez użytkownika"
 
 MOperationNotCompleted
 "Операция не завершена"
 "Operation not completed"
-"Operace neni dokoncena"
+"Operace není dokončena"
 "Vorgang nicht abgeschlossen"
-"A muvelet felbeszakadt"
-"Operacja nie doprowadzona do konca"
+"A művelet félbeszakadt"
+"Operacja nie doprowadzona do końca"
 
 MEditPanelModes
 l:
 "Режимы панели"
 "Edit panel modes"
-"Editovat mody panelu"
+"Editovat módy panelu"
 "Anzeigemodi von Panels bearbeiten"
-"Panel modok szerkesztese"
-"Edytuj tryby wyswietlania paneli"
+"Panel módok szerkesztése"
+"Edytuj tryby wyświetlania paneli"
 
 MEditPanelModesBrief
 l:
 "&Краткий режим"
 "&Brief mode"
-"&Strucny mod"
+"&Stručný mód"
 "&Kurz"
-"&Rovid mod"
-"&Skrotowy"
+"&Rövid mód"
+"&Skrótowy"
 
 MEditPanelModesMedium
 "&Средний режим"
 "&Medium mode"
-"S&tredni mod"
+"S&třední mód"
 "&Mittel"
-"&Kozepes mod"
-"S&redni"
+"&Közepes mód"
+"Ś&redni"
 
 MEditPanelModesFull
 "&Полный режим"
 "&Full mode"
-"&Plny mod"
+"&Plný mód"
 "&Voll"
-"&Teljes mod"
-"&Pelny"
+"&Teljes mód"
+"&Pełny"
 
 MEditPanelModesWide
 "&Широкий режим"
 "&Wide mode"
-"S&iroky mod"
+"Š&iroký mód"
 "B&reitformat"
-"&Szeles mod"
+"&Széles mód"
 "S&zeroki"
 
 MEditPanelModesDetailed
 "&Детальный режим"
 "Detai&led mode"
-"Detai&lni mod"
+"Detai&lní mód"
 "Detai&lliert"
-"Res&zletes mod"
-"Ze sz&czegolami"
+"Rés&zletes mód"
+"Ze sz&czegółami"
 
 MEditPanelModesDiz
 "&Описания"
 "&Descriptions mode"
-"P&opiskovy mod"
+"P&opiskový mód"
 "&Beschreibungen"
-"&Fajlmegjegyzes mod"
+"&Fájlmegjegyzés mód"
 "&Opisy"
 
 MEditPanelModesLongDiz
 "Д&линные описания"
 "Lon&g descriptions mode"
-"&Mod dlouhych popisku"
+"&Mód dlouhých popisků"
 "Lan&ge Beschreibungen"
-"&Hosszu megjegyzes mod"
-"&Dlugie opisy"
+"&Hosszú megjegyzés mód"
+"&Długie opisy"
 
 MEditPanelModesOwners
 "Вл&адельцы файлов"
 "File own&ers mode"
-"Mod vlastnika so&uboru"
+"Mód vlastníka so&uborů"
 "B&esitzer"
-"T&ulajdonos mod"
-"&Wlasciciele"
+"T&ulajdonos mód"
+"&Właściciele"
 
 MEditPanelModesLinks
 "Свя&зи файлов"
 "Lin&ks mode"
-"Lin&kovy mod"
+"Lin&kový mód"
 "Dateilin&ks"
-"Li&nkek mod"
-"Dowiaza&nia"
+"Li&nkek mód"
+"Dowiąza&nia"
 
 MEditPanelModesAlternative
 "Аль&тернативный полный режим"
 "&Alternative full mode"
-"&Alternativni plny mod"
+"&Alternativní plný mód"
 "&Alternative Vollansicht"
-"&Alternativ teljes mod"
+"&Alternatív teljes mód"
 "&Alternatywny"
 
 MEditPanelModeTypes
 l:
 "&Типы колонок"
 "Column &types"
-"&Typ sloupcu"
+"&Typ sloupců"
 "Spalten&typen"
-"Oszlop&tipusok"
+"Oszlop&típusok"
 "&Typy kolumn"
 
 MEditPanelModeWidths
 "&Ширина колонок"
 "Column &widths"
-"Sir&ka sloupcu"
+"Šíř&ka sloupců"
 "Spalten&breiten"
-"Oszlop&szelessegek"
-"&Szerokosci kolumn"
+"Oszlop&szélességek"
+"&Szerokości kolumn"
 
 MEditPanelModeStatusTypes
 "Типы колонок строки ст&атуса"
 "St&atus line column types"
-"T&yp sloupcu stavoveho radku"
+"T&yp sloupců stavového řádku"
 "St&atuszeile Spaltentypen"
-"Allapotsor oszloptip&usok"
+"Állapotsor oszloptíp&usok"
 "Typy kolumn &linii statusu"
 
 MEditPanelModeStatusWidths
 "Ширина колонок строки стат&уса"
 "Status l&ine column widths"
-"Sirka slo&upcu stavoveho radku"
+"Šířka slo&upců stavového řádku"
 "Statusze&ile Spaltenbreiten"
-"Allapotsor &oszlopszelessegek"
-"Szerokosci kolumn l&inii statusu"
+"Állapotsor &oszlopszélességek"
+"Szerokości kolumn l&inii statusu"
 
 MEditPanelModeFullscreen
 "&Полноэкранный режим"
 "&Fullscreen view"
-"&Celoobrazovkovy rezim"
+"&Celoobrazovkový režim"
 "&Vollbild"
-"Tel&jes kepernyos nezet"
-"Widok &pelnoekranowy"
+"Tel&jes képernyős nézet"
+"Widok &pełnoekranowy"
 
 MEditPanelModeAlignExtensions
 "&Выравнивать расширения файлов"
 "Align file &extensions"
-"Zarovnat prip&ony souboru"
+"Zarovnat příp&ony souborů"
 "Datei&erweiterungen ausrichten"
-"Fajlkiterjesztesek &igazitasa"
-"W&yrownaj rozszerzenia plikow"
+"Fájlkiterjesztések &igazítása"
+"W&yrównaj rozszerzenia plików"
 
 MEditPanelModeAlignFolderExtensions
 "Выравнивать расширения пап&ок"
 "Align folder e&xtensions"
-"Zarovnat pripony adre&saru"
+"Zarovnat přípony adre&sářů"
 "Ordnerer&weiterungen ausrichten"
-"Mappakiterjesztesek i&gazitasa"
-"Wyrownaj rozszerzenia &folderow"
+"Mappakiterjesztések i&gazítása"
+"Wyrównaj rozszerzenia &folderów"
 
 MEditPanelModeFoldersUpperCase
 "Показывать папки &заглавными буквами"
 "Show folders in &uppercase"
-"Zobrazit adresare &velkymi pismeny"
-"Ordner in Gro?b&uchstaben zeigen"
-"Mappak NAG&YBETUVEL mutatva"
-"Nazwy katalogow &WIELKIMI LITERAMI"
+"Zobrazit adresáře &velkými písmeny"
+"Ordner in Großb&uchstaben zeigen"
+"Mappák NAG&YBETŰVEL mutatva"
+"Nazwy katalogów &WIELKIMI LITERAMI"
 
 MEditPanelModeFilesLowerCase
 "Показывать файлы ст&рочными буквами"
 "Show files in &lowercase"
-"Zobrazit soubory ma&lymi pismeny"
+"Zobrazit soubory ma&lými písmeny"
 "Dateien in K&leinbuchstaben zeigen"
-"Fajlok kis&betuvel mutatva"
-"&Nazwy plikow malymi literami"
+"Fájlok kis&betűvel mutatva"
+"&Nazwy plików małymi literami"
 
 MEditPanelModeUpperToLowerCase
 "Показывать имена файлов из заглавных букв &строчными буквами"
 "Show uppercase file names in lower&case"
-"Zobrazit velke znaky ve jmenech souboru jako &mala pismena"
-"G&ro?geschriebene Dateinamen in Kleinbuchstaben zeigen"
-"NAGYBETUS fajl&nevek kisbetuvel"
-"Wyswietl NAZWY_PLIKOW &jako nazwy_plikow"
+"Zobrazit velké znaky ve jménech souborů jako &malá písmena"
+"G&roßgeschriebene Dateinamen in Kleinbuchstaben zeigen"
+"NAGYBETŰS fájl&nevek kisbetűvel"
+"Wyświetl NAZWY_PLIKÓW &jako nazwy_plików"
 
 MEditPanelModeCaseSensitiveSort
 "Использовать р&егистрозависимую сортировку"
 "Use case &sensitive sort"
-"Pouzit razeni citlive na velikost pi&smen"
-"&Sortierung abhangig von Gro?-/Kleinschreibung"
-"N&agy/kisbetu erzekeny rendezes"
-"S&ortuj uwzgledniajac wielkosc liter"
+"Použít řazení citlivé na velikost pí&smen"
+"&Sortierung abhängig von Groß-/Kleinschreibung"
+"N&agy/kisbetű érzékeny rendezés"
+"S&ortuj uwzględniając wielkość liter"
 
 MEditPanelReadHelp
 " Нажмите F1, чтобы получить информацию по настройке "
 " Read online help for instructions "
-" Pro instrukce si prectete online napovedu "
-" Siehe Hilfe fur Anweisungen "
-" Tanacsokat a sugoban talal (F1) "
-" Instrukcje zawarte sa w pomocy podrecznej "
+" Pro instrukce si přečtěte online nápovědu "
+" Siehe Hilfe für Anweisungen "
+" Tanácsokat a súgóban talál (F1) "
+" Instrukcje zawarte są w pomocy podręcznej "
 
 MSetFolderInfoTitle
 l:
 "Файлы информации о папках"
 "Folder description files"
-"Soubory s popiskem adresare"
+"Soubory s popiskem adresáře"
 "Ordnerbeschreibungen"
-"Mappa megjegyzesfajlok"
+"Mappa megjegyzésfájlok"
 "Pliki opisu katalogu"
 
 MSetFolderInfoNames
 "Введите имена файлов, разделенные запятыми (допускаются маски)"
 "Enter file names delimited with commas (wildcards are allowed)"
-"Zadejte jmena souboru oddelenych carkami (znacky jsou povoleny)"
-"Dateiliste, getrennt mit Komma (Jokerzeichen moglich):"
-"Fajlnevek, vesszovel elvalasztva (joker is hasznalhato)"
-"Nazwy plikow oddzielone przecinkami (znaki ? i * dopuszczalne)"
+"Zadejte jména souborů oddělených čárkami (značky jsou povoleny)"
+"Dateiliste, getrennt mit Komma (Jokerzeichen möglich):"
+"Fájlnevek, vesszővel elválasztva (joker is használható)"
+"Nazwy plików oddzielone przecinkami (znaki ? i * dopuszczalne)"
 
 MScreensTitle
 l:
@@ -12187,7 +12187,7 @@ l:
 "Screens"
 "Obrazovky"
 "Seiten"
-"Kepernyok"
+"Képernyők"
 "Ekrany"
 
 MScreensPanels
@@ -12203,76 +12203,76 @@ MScreensView
 "View"
 "Zobrazit"
 "Betr."
-"Nezoke"
-"Podglad"
+"Nézőke"
+"Podgląd"
 
 MScreensEdit
 "Редактор"
 "Edit"
 "Editovat"
 "Bearb"
-"Szerkeszto"
+"Szerkesztő"
 "Edycja"
 
 MAskApplyCommandTitle
 l:
 "Применить команду"
 "Apply command"
-"Aplikovat prikaz"
+"Aplikovat příkaz"
 "Befehl anwenden"
-"Parancs vegrehajtasa"
+"Parancs végrehajtása"
 "Zastosuj polecenie"
 
 MAskApplyCommand
 "Введите команду для обработки выбранных файлов"
 "Enter command to process selected files"
-"Zadejte prikaz pro zpracovani vybranych souboru"
-"Befehlszeile auf ausgewahlte Dateien anwenden:"
-"Irja be a kijelolt fajlok parancsat:"
-"Wprowadz polecenie do przetworzenia wybranych plikow"
+"Zadejte příkaz pro zpracování vybraných souborů"
+"Befehlszeile auf ausgewählte Dateien anwenden:"
+"Írja be a kijelölt fájlok parancsát:"
+"Wprowadź polecenie do przetworzenia wybranych plików"
 
 MPluginConfigTitle
 l:
 "Конфигурация модулей"
 "Plugins configuration"
-"Nastaveni Pluginu"
+"Nastavení Pluginů"
 "Konfiguration von Plugins"
-"Plugin beallitasok"
-"Konfiguracja pluginow"
+"Plugin beállítások"
+"Konfiguracja pluginów"
 
 MPluginCommandsMenuTitle
 "Команды внешних модулей"
 "Plugin commands"
-"Prikazy pluginu"
+"Příkazy pluginů"
 "Pluginbefehle"
 "Plugin parancsok"
-"Dostepne pluginy"
+"Dostępne pluginy"
 
 MPreparingList
 l:
 "Создание списка файлов"
 "Preparing files list"
-"Pripravuji seznam souboru"
+"Připravuji seznam souborů"
 "Dateiliste wird vorbereitet"
-"Fajllista elkeszitese"
-"Przygotowuje liste plikow"
+"Fájllista elkészítése"
+"Przygotowuję listę plików"
 
 MLangTitle
 l:
 "Основной язык"
 "Main language"
-"Hlavni jazyk"
+"Hlavní jazyk"
 "Hauptsprache"
 "A program nyelve"
-"Jezyk programu"
+"Język programu"
 
 MHelpLangTitle
 "Язык помощи"
 "Help language"
-"Jazyk napovedy"
+"Jazyk nápovědy"
 "Sprache der Hilfedatei"
-"A sugo nyelve"
-"Jezyk pomocy"
+"A súgó nyelve"
+"Język pomocy"
 
 MDefineMacroTitle
 l:
@@ -12280,64 +12280,64 @@ l:
 "Define macro"
 "Definovat makro"
 "Definiere Makro"
-"Makro gyorsbillentyu"
+"Makró gyorsbillentyű"
 "Zdefiniuj makro"
 
 MDefineMacro
 "Нажмите желаемую клавишу"
 "Press the desired key"
-"Stisknete pozadovanou klavesu"
+"Stiskněte požadovanou klávesu"
 "Tastenkombination:"
-"Nyomja le a billentyut!"
-"Nacisnij zadany klawisz"
+"Nyomja le a billentyűt!"
+"Naciśnij żądany klawisz"
 
 MMacroReDefinedKey
 "Макроклавиша '%s' уже определена."
 "Macro key '%s' already defined."
-"Klavesa makra '%s' jiz je definovana."
+"Klávesa makra '%s' již je definována."
 "Makro '%s' bereits definiert."
-""%s" makrobillentyu foglalt"
-"Skrot '%s' jest juz zdefiniowany."
+""%s" makróbillentyű foglalt"
+"Skrót '%s' jest już zdefiniowany."
 
 MMacroDeleteAssign
 "Макроклавиша '%s' не активна."
 "Macro key '%s' is not active."
-"Klavesa makra '%s' neni aktivni."
+"Klávesa makra '%s' není aktivní."
 "Makro '%s' nicht aktiv."
-""%s" makrobillentyu nem el"
-"Skrot '%s' jest nieaktywny."
+""%s" makróbillentyű nem él"
+"Skrót '%s' jest nieaktywny."
 
 MMacroDeleteKey
 "Макроклавиша '%s' будет удалена."
 "Macro key '%s' will be removed."
-"Klavesa makra '%s' bude odstranena."
+"Klávesa makra '%s' bude odstraněna."
 "Makro '%s' wird entfernt und ersetzt:"
-""%s" makrobillentyu torlodik"
-"Skrot '%s' zostanie usuniety."
+""%s" makróbillentyű törlődik"
+"Skrót '%s' zostanie usunięty."
 
 MMacroCommonReDefinedKey
 "Общая макроклавиша '%s' уже определена."
 "Common macro key '%s' already defined."
-"Klavesa pro bezne makro '%s' jiz je definovana."
+"Klávesa pro běžné makro '%s' již je definována."
 "Gemeinsames Makro '%s' bereits definiert."
-""%s" kozos makrobill. foglalt"
-"Skrot '%s' jest juz zdefiniowany."
+""%s" közös makróbill. foglalt"
+"Skrót '%s' jest już zdefiniowany."
 
 MMacroCommonDeleteAssign
 "Общая макроклавиша '%s' не активна."
 "Common macro key '%s' is not active."
-"Klavesa pro bezne makro '%s' neni aktivni."
+"Klávesa pro běžné makro '%s' není aktivní."
 "Gemeinsames Makro '%s' nicht aktiv."
-""%s" kozos makrobill. nem el"
-"Skrot '%s' jest nieaktywny."
+""%s" közös makróbill. nem él"
+"Skrót '%s' jest nieaktywny."
 
 MMacroCommonDeleteKey
 "Общая макроклавиша '%s' будет удалена."
 "Common macro key '%s' will be removed."
-"Klavesa pro bezne makro '%s' bude odstranena."
+"Klávesa pro běžné makro '%s' bude odstraněna."
 "Gemeinsames Makro '%s' wird entfernt und ersetzt:"
-""%s" kozos makrobill. torlodik"
-"Skrot '%s' zostanie usuniety."
+""%s" közös makróbill. törlődik"
+"Skrót '%s' zostanie usunięty."
 
 MMacroSequence
 "Последовательность:"
@@ -12350,133 +12350,133 @@ MMacroSequence
 MMacroReDefinedKey2
 "Переопределить?"
 "Redefine?"
-"Predefinovat?"
+"Předefinovat?"
 "Neu definieren?"
-"Ujradefinialja?"
-"Zdefiniowac powtornie?"
+"Újradefiniálja?"
+"Zdefiniować powtórnie?"
 
 MMacroDeleteKey2
 "Удалить?"
 "Delete?"
 "Odstranit?"
-"Loschen?"
-"Torli?"
-"Usunac?"
+"Löschen?"
+"Törli?"
+"Usunąć?"
 
 MMacroDisDisabledKey
 "(макроклавиша не активна)"
 "(macro key is not active)"
-"(klavesa makra neni aktivni)"
+"(klávesa makra není aktivní)"
 "(Makro inaktiv)"
-"(makrobill. nem el)"
-"(skrot jest nieaktywny)"
+"(makróbill. nem él)"
+"(skrót jest nieaktywny)"
 
 MMacroDisOverwrite
 "Переопределить"
 "Overwrite"
-"Prepsat"
-"Uberschreiben"
-"Feluliras"
-"Zastapic"
+"Přepsat"
+"Überschreiben"
+"Felülírás"
+"Zastąpić"
 
 MMacroDisAnotherKey
 "Изменить клавишу"
 "Try another key"
-"Zkusit jinou klavesu"
+"Zkusit jinou klávesu"
 "Neue Kombination"
-"Adjon meg masik billentyut!"
-"Sprobuj inny klawisz"
+"Adjon meg másik billentyűt!"
+"Spróbuj inny klawisz"
 
 MMacroSettingsTitle
 l:
 "Параметры макрокоманды для '%s'"
 "Macro settings for '%s'"
-"Nastaveni makra pro '%s'"
-"Einstellungen fur Makro '%s'"
-""%s" makro beallitasai"
+"Nastavení makra pro '%s'"
+"Einstellungen für Makro '%s'"
+""%s" makró beállításai"
 "Ustawienia makra dla '%s'"
 
 MMacroSettingsEnableOutput
 "Разрешить во время &выполнения вывод на экран"
 "Allo&w screen output while executing macro"
-"Povolit &vystup na obrazovku dokud se provadi makro"
-"Bildschirmausgabe &wahrend Makro ablauft"
-"Kepernyo&kimenet a makro futasa kozben"
-"&Wylacz zapis na ekran podczas wykonywania makra"
+"Povolit &výstup na obrazovku dokud se provádí makro"
+"Bildschirmausgabe &während Makro abläuft"
+"Képernyő&kimenet a makró futása közben"
+"&Wyłącz zapis na ekran podczas wykonywania makra"
 
 MMacroSettingsRunAfterStart
 "В&ыполнять после запуска FAR"
 "Execute after FAR &start"
-"&Spustit po spusteni FARu"
-"Ausfuhren beim &Starten von FAR"
-"Vegrehajtas a FAR &inditasa utan"
+"&Spustit po spuštění FARu"
+"Ausführen beim &Starten von FAR"
+"Végrehajtás a FAR &indítása után"
 "Wykonaj po &starcie FAR-a"
 
 MMacroSettingsActivePanel
 "&Активная панель"
 "&Active panel"
-"&Aktivni panel"
+"&Aktivní panel"
 "&Aktives Panel"
-"&Aktiv panel"
+"&Aktív panel"
 "Panel &aktywny"
 
 MMacroSettingsPassivePanel
 "&Пассивная панель"
 "&Passive panel"
-"Pa&sivni panel"
+"Pa&sivní panel"
 "&Passives Panel"
-"Passzi&v panel"
+"Passzí&v panel"
 "Panel &pasywny"
 
 MMacroSettingsPluginPanel
 "На панели пла&гина"
 "P&lugin panel"
-"Panel p&luginu"
+"Panel p&luginů"
 "P&lugin Panel"
 "Ha &plugin panel"
-"Panel p&luginow"
+"Panel p&luginów"
 
 MMacroSettingsFolders
 "Выполнять для папо&к"
 "Execute for &folders"
-"Spustit pro ad&resare"
-"Auf Ordnern aus&fuhren"
+"Spustit pro ad&resáře"
+"Auf Ordnern aus&führen"
 "Ha &mappa"
-"Wykonaj dla &folderow"
+"Wykonaj dla &folderów"
 
 MMacroSettingsSelectionPresent
 "&Отмечены файлы"
 "Se&lection present"
-"E&xistujici vyber"
+"E&xistující výběr"
 "Auswah&l vorhanden"
-"Ha van ki&jeloles"
+"Ha van ki&jelölés"
 "Zaznaczenie &obecne"
 
 MMacroSettingsCommandLine
 "Пустая командная &строка"
 "Empty &command line"
-"Prazdny pri&kazovy radek"
+"Prázdný pří&kazový řádek"
 "Leere Befehls&zeile"
-"Ha &ures a parancssor"
-"Pusta &linia polecen"
+"Ha &üres a parancssor"
+"Pusta &linia poleceń"
 
 MMacroSettingsSelectionBlockPresent
 "Отмечен б&лок"
 "Selection &block present"
-"Existujici blok vyber&u"
+"Existující blok výběr&u"
 "Mar&kierter Text vorhanden"
-"Ha van kijelolt &blokk"
+"Ha van kijelölt &blokk"
 "Obecny &blok zaznaczenia"
 
 MMacroOutputFormatForHelpSz
 l:
 l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 1
-""%s""
-""%s""
-""%s""
-""%s""
-""%s""
-""%s""
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
+"„%s”"
 
 MMacroOutputFormatForHelpDWord
 l:// for <!Macro:Vars!> and <!Macro:Consts!>, count formats = 2
@@ -12509,17 +12509,17 @@ MMacroPErrUnrecognized_keyword
 l:
 "Неизвестное ключевое слово '%s'"
 "Unrecognized keyword '%s'"
-"Nezname klicove slovo '%s'"
-"Unbekanntes Schlusselwort '%s'"
-"Ismeretlen kulcsszo "%s""
-"Nie rozpoznano slowa kluczowego '%s'"
+"Neznámé klíčové slovo '%s'"
+"Unbekanntes Schlüsselwort '%s'"
+"Ismeretlen kulcsszó "%s""
+"Nie rozpoznano słowa kluczowego '%s'"
 
 MMacroPErrUnrecognized_function
 "Неизвестная функция '%s'"
 "Unrecognized function '%s'"
-"Neznama funkce '%s'"
+"Neznámá funkce '%s'"
 "Unbekannte Funktion '%s'"
-"Ismeretlen funkcio "%s""
+"Ismeretlen funkció "%s""
 "Nie rozpoznano funkcji'%s'"
 
 MMacroPErrFuncParam
@@ -12527,79 +12527,79 @@ MMacroPErrFuncParam
 "Incorrect number of arguments for function '%s'"
 upd:"Incorrect number of arguments for function '%s'"
 upd:"Incorrect number of arguments for function '%s'"
-"'%s' funkcio parametereinek szama helytelen"
+"'%s' funkció paramétereinek száma helytelen"
 upd:"Incorrect number of arguments for function '%s'"
 
 MMacroPErrNot_expected_ELSE
 "Неожиданное появление $Else"
 "Unexpected $Else"
-"Neocekavane $Else"
+"Neočekávané $Else"
 "Unerwartetes $Else"
-"Varatlan $Else"
-"$Else w niewlasciwym miejscu"
+"Váratlan $Else"
+"$Else w niewłaściwym miejscu"
 
 MMacroPErrNot_expected_END
 "Неожиданное появление $End"
 "Unexpected $End"
-"Neocekavane $End"
+"Neočekávané $End"
 "Unerwartetes $End"
-"Varatlan $End"
-"$End w niewlasciwym miejscu"
+"Váratlan $End"
+"$End w niewłaściwym miejscu"
 
 MMacroPErrUnexpected_EOS
 "Неожиданный конец строки"
 "Unexpected end of source string"
-"Neocekavany konec zdrojoveho retezce"
+"Neočekávaný konec zdrojového řetězce"
 "Unerwartetes Ende der Zeichenkette"
-"Varatlanul vege a forrassztringnek"
-"Nie spodziewano sie konca ciagu"
+"Váratlanul vége a forrássztringnek"
+"Nie spodziewano się końca ciągu"
 
 MMacroPErrExpected
 "Ожидается '%s'"
 "Expected '%s'"
-"Ocekavane '%s'"
+"Očekávané '%s'"
 "Erwartet '%s'"
-"Varhato "%s""
+"Várható "%s""
 "Oczekiwano '%s'"
 
 MMacroPErrBad_Hex_Control_Char
 "Неизвестный шестнадцатеричный управляющий символ"
 "Bad Hex Control Char"
-"Chybny kontrolni znak Hex"
+"Chybný kontrolní znak Hex"
 "Fehlerhaftes Hexzeichen"
-"Rossz hexa vezerlokarakter"
-"Bledny szesnastkowy znak sterujacy"
+"Rossz hexa vezérlőkarakter"
+"Błędny szesnastkowy znak sterujący"
 
 MMacroPErrBad_Control_Char
 "Неправильный управляющий символ"
 "Bad Control Char"
-"Spatny kontrolni znak"
+"Špatný kontrolní znak"
 "Fehlerhaftes Kontrollzeichen"
-"Rossz vezerlokarakter"
-"Bledny znak sterujacy"
+"Rossz vezérlőkarakter"
+"Błędny znak sterujący"
 
 MMacroPErrVar_Expected
 "Переменная '%s' не найдена"
 "Variable Expected '%s'"
-"Ocekavana promenna '%s'"
+"Očekávaná proměnná '%s'"
 "Variable erwartet '%s'"
-""%s" varhato valtozo"
+""%s" várható változó"
 "Oczekiwano zmiennej '%s'"
 
 MMacroPErrExpr_Expected
 "Ошибка синтаксиса"
 "Expression Expected"
-"Ocekavany vyraz"
+"Očekávaný výraz"
 "Ausdruck erwartet"
 "Szintaktikai hiba"
-"Oczekiwano wyrazenia"
+"Oczekiwano wyrażenia"
 
 MMacroPErr_ZeroLengthMacro
 "Пустая макропоследовательность"
 "Zero-length macro"
 upd:"Zero-length macro"
 upd:"Zero-length macro"
-"Nulla hosszusagu makro"
+"Nulla hosszúságú makró"
 upd:"Zero-length macro"
 
 MMacroPErrorTitle
@@ -12607,25 +12607,25 @@ MMacroPErrorTitle
 "Macro parsing error"
 "Macro parsing error"
 "Macro parsing error"
-"Makroelemzesi hiba"
+"Makróelemzési hiba"
 "Macro parsing error"
 
 MCannotSaveFile
 l:
 "Ошибка сохранения файла"
 "Cannot save file"
-"Nelze ulozit soubor"
+"Nelze uložit soubor"
 "Kann Datei nicht speichern"
-"A fajl nem mentheto"
-"Nie moge zapisac pliku"
+"A fájl nem menthető"
+"Nie mogę zapisać pliku"
 
 MTextSavedToTemp
 "Отредактированный текст записан в"
 "Edited text is stored in"
-"Editovany text je ulozen v"
+"Editovaný text je uložen v"
 "Editierter Text ist gespeichert in"
-"A szerkesztett szoveg elmentve:"
-"Edytowany tekst zostal zachowany w"
+"A szerkesztett szöveg elmentve:"
+"Edytowany tekst został zachowany w"
 
 MMonthJan
 l:
@@ -12639,7 +12639,7 @@ l:
 MMonthFeb
 "Фев"
 "Feb"
-"Uno"
+"Úno"
 "Feb"
 "Feb"
 "Lut"
@@ -12647,9 +12647,9 @@ MMonthFeb
 MMonthMar
 "Мар"
 "Mar"
-"Bre"
-"Mar"
-"Mar"
+"Bře"
+"Mär"
+"Már"
 "Mar"
 
 MMonthApr
@@ -12657,31 +12657,31 @@ MMonthApr
 "Apr"
 "Dub"
 "Apr"
-"Apr"
+"Ápr"
 "Kwi"
 
 MMonthMay
 "Май"
 "May"
-"Kve"
+"Kvě"
 "Mai"
-"Maj"
+"Máj"
 "Maj"
 
 MMonthJun
 "Июн"
 "Jun"
-"Cer"
+"Čer"
 "Jun"
-"Jun"
+"Jún"
 "Cze"
 
 MMonthJul
 "Июл"
 "Jul"
-"Cec"
+"Čec"
 "Jul"
-"Jul"
+"Júl"
 "Lip"
 
 MMonthAug
@@ -12695,7 +12695,7 @@ MMonthAug
 MMonthSep
 "Сен"
 "Sep"
-"Zar"
+"Zář"
 "Sep"
 "Sze"
 "Wrz"
@@ -12703,10 +12703,10 @@ MMonthSep
 MMonthOct
 "Окт"
 "Oct"
-"Rij"
+"Říj"
 "Okt"
 "Okt"
-"Paz"
+"Paź"
 
 MMonthNov
 "Ноя"
@@ -12728,32 +12728,32 @@ MPluginHotKeyTitle
 l:
 "Назначение горячей клавиши"
 "Assign plugin hot key"
-"Pridelit horkou klavesu pluginu"
+"Přidělit horkou klávesu pluginu"
 "Dem Plugin eine Kurztaste zuweisen"
-"Plugin gyorsbillentyu hozzarendeles"
-"Przypisz klawisz skrotu do pluginu"
+"Plugin gyorsbillentyű hozzárendelés"
+"Przypisz klawisz skrótu do pluginu"
 
 MPluginHotKey
 "Введите горячую клавишу (букву или цифру)"
 "Enter hot key (letter or digit)"
-"Zadejte horkou klavesu (pismeno nebo cislici)"
+"Zadejte horkou klávesu (písmeno nebo číslici)"
 "Buchstabe oder Ziffer:"
-"Nyomja le a billentyut (betu vagy szam)!"
-"Podaj klawisz skrotu (litera lub cyfra)"
+"Nyomja le a billentyűt (betű vagy szám)!"
+"Podaj klawisz skrótu (litera lub cyfra)"
 
 MPluginHotKeyBottom
 "F4 - задать горячую клавишу"
 "F4 - set hot key"
-"F4 - nastaveni horke klavesy"
+"F4 - nastavení horké klávesy"
 "Kurztaste setzen: F4"
-"F4 - gyorsbillentyu hozzarendeles"
-"F4 - ustaw klawisz skrotu"
+"F4 - gyorsbillentyű hozzárendelés"
+"F4 - ustaw klawisz skrótu"
 
 MRightCtrl
 l:
 "ПравыйCtrl"
 "RightCtrl"
-"PravyCtrl"
+"PravýCtrl"
 "StrgRechts"
 "JobbCtrl"
 "PrawyCtrl"
@@ -12764,15 +12764,15 @@ l:
 "Go to"
 "Jdi na"
 "Gehe zu"
-"Ugras"
-"Idz do"
+"Ugrás"
+"Idź do"
 
 MGoToPercent
 "&Процент"
 "&Percent"
 "&Procent"
 "&Prozent"
-"&Szazalekban"
+"&Százalékban"
 "&Procent"
 
 MGoToHex
@@ -12780,217 +12780,217 @@ MGoToHex
 "&Hex offset"
 "&Hex offset"
 "Position (&Hex)"
-"&Hexaban"
+"&Hexában"
 "Pozycja (&szesnastkowo)"
 
 MGoToDecimal
 "10-ичное с&мещение"
 "&Decimal offset"
-"&Desitkovy offset"
+"&Desítkový offset"
 "Position (&dezimal)"
-"&Decimalisan"
-"Pozycja (&dziesietnie)"
+"&Decimálisan"
+"Pozycja (&dziesiętnie)"
 
 MExceptTitleFAR
 l:
 "Внутренняя ошибка"
 "Internal error"
-"Vnitrni chyba"
+"Vnitřní chyba"
 "Interner Fehler"
-"Belso hiba"
-"Blad wewnetrzny"
+"Belső hiba"
+"Błąd wewnętrzny"
 
 MExceptTitleLoad
 "Ошибка загрузки плагина"
 "Plugin load error"
-"Chyba pri nacitani pluginu"
+"Chyba při načítání pluginu"
 "Fehler beim Laden des Plugins"
-"Plugin betoltesi hiba"
-"Blad ladowania pluginu"
+"Plugin betöltési hiba"
+"Błąd ładowania pluginu"
 
 MExceptTitle
 "Ошибка вызова плагина"
 "Plugin call error"
-"Chyba pri volani pluginu"
+"Chyba při volání pluginu"
 "Fehler beim Starten des Plugins"
-"Plugin meghivasi hiba"
-"Blad wywolania pluginu"
+"Plugin meghívási hiba"
+"Błąd wywołania pluginu"
 
 MExcTrappedException
 "Исключительная ситуация:"
 "Exception occurred:"
-"Vyskytla se vyjimka:"
+"Vyskytla se výjimka:"
 "Ausnahmefehler aufgetreten:"
-"Kivetel tortent:"
-"Wystapil wyjatek:"
+"Kivétel történt:"
+"Wystąpił wyjątek:"
 
 MExcCheckOnLousys
 "Передана некорректная информация из модуля:"
 "Incorrect information is passed from module:"
-"Z modulu byla obdrzena nekorektni informace:"
-"Ungultige Informationen ubergeben durch Modul:"
-"Hibas informacio jott a plugintol:"
-"Blad przekazywania informacji z modulu:"
+"Z modulu byla obdržena nekorektní informace:"
+"Ungültige Informationen übergeben durch Modul:"
+"Hibás információ jött a plugintől:"
+"Błąd przekazywania informacji z modułu:"
 
 MExcStructWrongFilled
 "(некорректно заполнены поля структуры <%s>)"
 "(the fields of structure <%s> are wrong filled)"
-"(pole struktur <%s> jsou spatne vyplnena)"
-"(Felder der Struktur <%s> wurden fehlerhaft gefullt)"
-"(<%s> struktura mezoi rosszul vannak kitoltve)"
-"(pola struktury <%s> sa nieprawidlowo wypelnione)"
+"(pole struktur <%s> jsou špatně vyplněna)"
+"(Felder der Struktur <%s> wurden fehlerhaft gefüllt)"
+"(<%s> struktúra mezői rosszul vannak kitöltve)"
+"(pola struktury <%s> są nieprawidłowo wypełnione)"
 
 MExcStructField
 "(структура <%s>, поле <%s>)"
 "(structure <%s>, field <%s>)"
-"(struktura <%s>, polozka <%s>)"
+"(struktura <%s>, položka <%s>)"
 "(Struktur <%s>, Feld <%s>)"
-"(<%s> struktura, <%s> mezo)"
+"(<%s> struktúra, <%s> mező)"
 "(struktura <%s>, pole <%s>)"
 
 MExcInvalidFuncResult
 "Функция <%s> вернула недопустимое значение"
 "Function <%s> has returned illegal value"
-"Funkce <%s> vratila nepovolenou hodnotu"
-"Funktion <%s> lieferte ungultigen Ruckgabewert"
-"<%s> funkcio ervenytelen erteket adott vissza"
-"Funkcja <%s> zwrocila nieprawidlowa wartosc"
+"Funkce <%s> vrátila nepovolenou hodnotu"
+"Funktion <%s> lieferte ungültigen Rückgabewert"
+"<%s> funkció érvénytelen értéket adott vissza"
+"Funkcja <%s> zwróciła nieprawidłową wartość"
 
 MExcAddress
 "Адрес исключения - 0x%p, модуль:"
 "Exception address: 0x%p in module:"
-"Vyjimka na adrese: 0x%X v modulu:"
+"Výjimka na adrese: 0x%X v modulu:"
 "Adresse des Fehlers: 0x%p in Modul:"
-"Kivetel cime 0x%p, modul:"
-"Adres wyjatku: 0x%p w module:"
+"Kivétel címe 0x%p, modul:"
+"Adres wyjątku: 0x%p w module:"
 
 MExcFARTerminateYes
 "FAR Manager завершит работу!"
 "FAR Manager will be terminated!"
-"FAR Manager bude ukoncen!"
+"FAR Manager bude ukončen!"
 "FAR Manager wird jetzt beendet!"
-"A FAR Manager kilep!"
-"FAR zostanie wylaczony!"
+"A FAR Manager kilép!"
+"FAR zostanie wyłączony!"
 
 MExcUnloadYes
 "Плагин будет выгружен!"
 "The plugin will be Unloaded!"
-"Plugin bude vyrazen!"
+"Plugin bude vyřazen!"
 "Das Plugin wird jetzt entladen!"
-"A plugin torlodik a memoriabol!"
-"Plugin zostanie usuniety z pamieci!"
+"A plugin törlődik a memóriából!"
+"Plugin zostanie usunięty z pamięci!"
 
 MExcRAccess
 "\"Нарушение доступа (чтение из 0x%p)\""
 "\"Access violation (read from 0x%p)\""
-"\"Neplatna adresa (cteni z 0x%p)\""
+"\"Neplatná adresa (čtení z 0x%p)\""
 "\"Zugriffsverletzung (Lesen von 0x%p)\""
-"\"Hozzaferesi jogsertes (olvasas 0x%p cimrol)\""
-"\"Blad dostepu (odczyt z 0x%p)\""
+"\"Hozzáférési jogsértés (olvasás 0x%p címről)\""
+"\"Błąd dostępu (odczyt z 0x%p)\""
 
 MExcWAccess
 "\"Нарушение доступа (запись в 0x%p)\""
 "\"Access violation (write to 0x%p)\""
-"\"Neplatna adresa (zapis na 0x%p)\""
+"\"Neplatná adresa (zápis na 0x%p)\""
 "\"Zugriffsverletzung (Schreiben nach 0x%p)\""
-"\"Hozzaferesi jogsertes (iras 0x%p cimre)\""
-"\"Blad dostepu (zapis do 0x%p)\""
+"\"Hozzáférési jogsértés (írás 0x%p címre)\""
+"\"Błąd dostępu (zapis do 0x%p)\""
 
 MExcEAccess
 "\"Нарушение доступа (исполнение кода из 0x%p)\""
 "\"Access violation (execute at 0x%p)\""
-"\"Neplatna adresa (spusteni na 0x%p)\""
-"\"Zugriffsverletzung (Ausfuhren bei 0x%p)\""
-"\"Hozzaferesi jogsertes (vegrehajtas 0x%p cimen)\""
-"\"Blad dostepu (wykonanie w 0x%p)\""
+"\"Neplatná adresa (spuštění na 0x%p)\""
+"\"Zugriffsverletzung (Ausführen bei 0x%p)\""
+"\"Hozzáférési jogsértés (végrehajtás 0x%p címen)\""
+"\"Błąd dostępu (wykonanie w 0x%p)\""
 
 MExcOutOfBounds
 "\"Попытка доступа к элементу за границами массива\""
 "\"Array out of bounds\""
 "\"Pole mimo hranice\""
-"\"Arrayuberlauf\""
-"\"A tomb hatarait meghaladta\""
+"\"Arrayüberlauf\""
+"\"A tömb határait meghaladta\""
 "\"Przekroczenie granic tabeli\""
 
 MExcDivideByZero
 "\"Деление на нуль\""
 "\"Divide by zero\""
-"\"Deleni nulou\""
+"\"Dělení nulou\""
 "\"Division durch Null\""
-"\"Nullaval osztas\""
+"\"Nullával osztás\""
 "\"Dzielenie przez zero\""
 
 MExcStackOverflow
 "\"Переполнение стека\""
 "\"Stack Overflow\""
-"\"Preteceni zasobniku\""
-"\"Stackuberlauf\""
-"\"Verem tulcsordulas\""
-"\"Przepelnienie stosu\""
+"\"Přetečení zásobníku\""
+"\"Stacküberlauf\""
+"\"Verem túlcsordulás\""
+"\"Przepełnienie stosu\""
 
 MExcBreakPoint
 "\"Точка останова\""
 "\"Breakpoint exception\""
-"\"Vyjimka preruseni\""
+"\"Výjimka přerušení\""
 "\"Breakpoint exception\""
-"\"Toresponti kivetel\""
-"\"Wyjatek punktu przerwania\""
+"\"Törésponti kivétel\""
+"\"Wyjątek punktu przerwania\""
 
 MExcFloatDivideByZero
 "\"Деление на нуль при операции с плавающей точкой\""
 "\"Floating-point divide by zero\""
-"\"Deleni nulou v pohyblive carce\""
-"\"Flie?komma-Division durch Null\""
-"\"Lebegopontos szam osztasa nullaval\""
-"\"Blad zmiennoprzecinkowego dzielenia przez zero\""
+"\"Dělení nulou v pohyblivé čárce\""
+"\"Fließkomma-Division durch Null\""
+"\"Lebegőpontos szám osztása nullával\""
+"\"Błąd zmiennoprzecinkowego dzielenia przez zero\""
 
 MExcFloatOverflow
 "\"Переполнение при операции с плавающей точкой\""
 "\"Floating point operation overflow\""
-"\"Preteceni pri operaci v pohyblive carce\""
-"\"Flie?komma-Operation verursachte Uberlauf\""
-"\"Lebegopontos muvelet tulcsordulas\""
-"\"Przepelnienie przy operacji zmiennnoprzecinkowej\""
+"\"Přetečení při operaci v pohyblivé čárce\""
+"\"Fließkomma-Operation verursachte Überlauf\""
+"\"Lebegőpontos művelet túlcsordulás\""
+"\"Przepełnienie przy operacji zmiennnoprzecinkowej\""
 
 MExcFloatStackOverflow
 "\"Стек регистров сопроцессора полон или пуст\""
 "\"Floating point stack empty or full\""
-"\"Prazdny nebo plny zasobnik v pohyblive carce\""
-"\"Flie?komma-Stack leer bzw. voll\""
-"\"Lebegopont verem ures vagy megtelt\""
-"\"Stos operacji zmiennoprzecinkowych pusty lub pelny\""
+"\"Prázdný nebo plný zásobník v pohyblivé čárce\""
+"\"Fließkomma-Stack leer bzw. voll\""
+"\"Lebegőpont verem üres vagy megtelt\""
+"\"Stos operacji zmiennoprzecinkowych pusty lub pełny\""
 
 MExcFloatUnderflow
 "\"Потеря точности при операции с плавающей точкой\""
 "\"Floating point operation underflow\""
-"\"Podteceni pri operaci v pohyblive carce\""
-"\"Flie?komma-Operation verursachte Underflow\""
-"\"Lebegopontos muvelet alulcsordulas\""
-"\"Blad niedomiaru przy operacji zmiennoprzecinkowej\""
+"\"Podtečení při operaci v pohyblivé čárce\""
+"\"Fließkomma-Operation verursachte Underflow\""
+"\"Lebegőpontos művelet alulcsordulás\""
+"\"Błąd niedomiaru przy operacji zmiennoprzecinkowej\""
 
 MExcBadInstruction
 "\"Недопустимая инструкция\""
 "\"Illegal instruction\""
-"\"Neplatna instrukce\""
-"\"Ungultige Anweisung\""
-"\"Ervenytelen utasitas\""
-"\"Bledna instrukcja\""
+"\"Neplatná instrukce\""
+"\"Ungültige Anweisung\""
+"\"Érvénytelen utasítás\""
+"\"Błędna instrukcja\""
 
 MExcDatatypeMisalignment
 "\"Попытка доступа к невыравненным данным\""
 "\"Alignment fault\""
-"\"Chyba zarovnani\""
+"\"Chyba zarovnání\""
 "\"Fehler bei Datenausrichtung\""
-"\"Adattipus illesztesi hiba\""
-"\"Blad ustawienia\""
+"\"Adattípus illesztési hiba\""
+"\"Błąd ustawienia\""
 
 MExcUnknown
 "\"Неизвестное исключение\""
 "\"Unknown exception\""
-"\"Neznama vyjimka\""
+"\"Neznámá výjimka\""
 "\"Unbekannte Ausnahme\""
-"\"Ismeretlen kivetel\""
-"\"Nieznany wyjatek\""
+"\"Ismeretlen kivétel\""
+"\"Nieznany wyjątek\""
 
 MExcDebugger
 "Отладчик"
@@ -13004,77 +13004,77 @@ MNetUserName
 l:
 "Имя пользователя"
 "User name"
-"Jmeno uzivatele"
+"Jméno uživatele"
 "Benutzername"
-"Felhasznaloi nev"
-"Nazwa uzytkownika"
+"Felhasználói név"
+"Nazwa użytkownika"
 
 MNetUserPassword
 "Пароль пользователя"
 "User password"
-"Heslo uzivatele"
+"Heslo uživatele"
 "Benutzerpasswort"
-"Felhasznaloi jelszo"
-"Haslo uzytkownika"
+"Felhasználói jelszó"
+"Hasło użytkownika"
 
 MReadFolderError
 l:
 "Не удается прочесть содержимое папки"
 "Cannot read folder contents"
-"Nelze nacist obsah adresare"
+"Nelze načíst obsah adresáře"
 "Kann Ordnerinhalt nicht lesen"
-"A mappa tartalma nem olvashato"
-"Nie udalo sie odczytac zawartosci folderu"
+"A mappa tartalma nem olvasható"
+"Nie udało się odczytać zawartości folderu"
 
 MPlgBadVers
 l:
 "Этот модуль требует FAR более высокой версии"
 "This plugin requires higher FAR version"
-"Tento plugin vyzaduje vyssi verzi FARu"
-"Das Plugin benotigt eine aktuellere Version von FAR"
-"A pluginhez ujabb FAR verzio kell"
-"Do uruchomienia pluginu wymagana jest wyzsza wersja FAR-a"
+"Tento plugin vyžaduje vyšší verzi FARu"
+"Das Plugin benötigt eine aktuellere Version von FAR"
+"A pluginhez újabb FAR verzió kell"
+"Do uruchomienia pluginu wymagana jest wyższa wersja FAR-a"
 
 MPlgRequired
 "Требуется версия FAR - %d.%d.%d."
 "Required FAR version is %d.%d.%d."
-"Pozadovana verze FARu je %d.%d.%d."
-"Benotigte FAR-Version ist %d.%d.%d."
-"A szukseges FAR verzio: %d.%d.%d."
+"Požadovaná verze FARu je %d.%d.%d."
+"Benötigte FAR-Version ist %d.%d.%d."
+"A szükséges FAR verzió: %d.%d.%d."
 "Wymagana wersja FAR-a to %d.%d.%d."
 
 MPlgRequired2
 "Текущая версия FAR - %d.%d.%d."
 "Current FAR version is %d.%d.%d"
-"Nynejsi verze FARu je %d.%d.%d"
+"Nynější verze FARu je %d.%d.%d"
 "Aktuelle FAR-Version ist %d.%d.%d"
-"A jelenlegi FAR verzio: %d.%d.%d."
-"Biezaca wersja FAR-a: %d.%d.%d"
+"A jelenlegi FAR verzió: %d.%d.%d."
+"Bieżąca wersja FAR-a: %d.%d.%d"
 
 MPlgLoadPluginError
 "Ошибка при загрузке плагина"
 "Error loading plugin module"
-"Chyba pri nahravani zasuvneho modulu"
+"Chyba při nahrávání zásuvného modulu"
 "Fehler beim Laden des Pluginmoduls"
-"Plugin betoltesi hiba"
-"Blad ladowania modulu plugina"
+"Plugin betöltési hiba"
+"Błąd ładowania modułu plugina"
 
 MBuffSizeTooSmall_1
 l:
 "Буфер, размещенный под имя файла слишком мал."
 "Buffer allocated for file name is too small."
-"Buffer alokovany pro jmeno souboru je prilis maly."
-"Reservierter Puffer fur Dateiname ist zu klein."
-"A fajlnev puffere tul kicsi."
-"Bufor zaalokowany dla nazwy pliku jest zbyt maly."
+"Buffer alokovaný pro jméno souboru je příliš malý."
+"Reservierter Puffer für Dateiname ist zu klein."
+"A fájlnév puffere túl kicsi."
+"Bufor zaalokowany dla nazwy pliku jest zbyt mały."
 
 MBuffSizeTooSmall_2
 "Требуется %d байт, а имеется только %d"
 "%d bytes are required, but only %d bytes were allocated."
-"Pozadovano %d bytu, ale alokovano pouze %d."
-"%d Bytes werden benotigt aber nur %d Bytes wurden reserviert."
-"%d bajt kell, de csak %d van lefoglalva."
-"Wymagano %d bajtow, a zaalokowano tylko %d."
+"Požadováno %d bytů, ale alokováno pouze %d."
+"%d Bytes werden benötigt aber nur %d Bytes wurden reserviert."
+"%d bájt kell, de csak %d van lefoglalva."
+"Wymagano %d bajtów, a zaalokowano tylko %d."
 
 MCheckBox2State
 l:
@@ -13090,107 +13090,107 @@ MEditInputSize1
 "Field"
 "Pole"
 "Feld"
-"A mezo"
+"A mező"
 "Pole"
 
 MEditInputSize2
 "будет уменьшена до %d байт."
 "will be truncated to %d bytes."
-"bude oseknuto na %d bytu."
-"wird gekurzt auf %d Bytes."
-" %d bajtra rovidul."
-"bedzie obciete do %d bajtow."
+"bude oseknuto na %d bytů."
+"wird gekürzt auf %d Bytes."
+" %d bájtra rövidül."
+"będzie obcięte do %d bajtów."
 
 MHelpTitle
 l:
 "Помощь"
 "Help"
-"Napoveda"
+"Nápověda"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MHelpActivatorURL
 "Эта ссылка запускает внешнее приложение:"
 "This reference starts the external application:"
-"Tento odkaz spousti externi aplikaci:"
+"Tento odkaz spouští externí aplikaci:"
 "Diese Referenz startet folgendes externes Programm:"
-"A hivatkozas altal inditott program:"
-"To wywolanie uruchomi aplikacje zewnetrzna:"
+"A hivatkozás által indított program:"
+"To wywołanie uruchomi aplikację zewnętrzną:"
 
 MHelpActivatorFormat
 "с параметром:"
 "with parameter:"
 "s parametrem:"
 "mit Parameter:"
-"Parameterei:"
+"Paraméterei:"
 "z parametrem:"
 
 MHelpActivatorQ
 "Желаете запустить?"
 "Do you wish to start it?"
-"Prejete si ji spustit?"
+"Přejete si ji spustit?"
 "Wollen Sie jetzt starten?"
-"El akarja inditani?"
-"Czy chcesz ja uruchomic?"
+"El akarja indítani?"
+"Czy chcesz ją uruchomić?"
 
 MCannotOpenHelp
 "Ошибка открытия файла"
 "Cannot open the file"
-"Nelze otevrit soubor"
-"Kann Datei nicht offnen"
-"A fajl nem nyithato meg"
-"Nie mozna otworzyc pliku"
+"Nelze otevřít soubor"
+"Kann Datei nicht öffnen"
+"A fájl nem nyitható meg"
+"Nie można otworzyć pliku"
 
 MHelpTopicNotFound
 "Не найден запрошенный раздел помощи:"
 "Requested help topic not found:"
-"pozadovane tema napovedy nebylo nalezeno"
+"požadované téma nápovědy nebylo nalezeno"
 "Angefordertes Hilfethema wurde nicht gefunden:"
-"A kivant sugo temakor nem talalhato:"
+"A kívánt súgó témakör nem található:"
 "Nie znaleziono tematu pomocy:"
 
 MPluginsHelpTitle
 l:
 "Внешние модули"
 "Plugins help"
-"Napoveda Pluginu"
+"Nápověda Pluginů"
 "Pluginhilfe"
-"Pluginek sugoi"
-"Pomoc dla pluginow"
+"Pluginek súgói"
+"Pomoc dla pluginów"
 
 MDocumentsHelpTitle
 "Документы"
 "Documents help"
-"Napoveda Dokumentu"
+"Nápověda Dokumentů"
 "Dokumentenhilfe"
-"Dokumentumok sugoi"
-"Pomoc dla dokumentow"
+"Dokumentumok súgói"
+"Pomoc dla dokumentów"
 
 MHelpSearchTitle
 l:
 "Поиск"
 "Search"
-"Hledani"
+"Hledání"
 "Suchen"
-"Kereses"
+"Keresés"
 "Szukaj"
 
 MHelpSearchingFor
 "Поиск для"
 "Searching for"
-"Hledani"
+"Hledání"
 "Suche nach"
-"Kereses:"
-"Znajdz"
+"Keresés:"
+"Znajdź"
 
 MHelpSearchCannotFind
 "Строка не найдена"
 "Could not find the string"
-"Nelze najit retezec"
+"Nelze najít řetězec"
 "Konnte Zeichenkette nicht finden"
-"A szoveg nem talalhato:"
-"Nie moge odnalezc ciagu znakow"
+"A szöveg nem található:"
+"Nie mogę odnaleźć ciągu znaków"
 
 MHelpF1
 l:
@@ -13199,7 +13199,7 @@ l:// Help KeyBar F1-12
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MHelpF2
@@ -13231,8 +13231,8 @@ MHelpF5
 "Zoom"
 "Zoom"
 "Vergr."
-"Nagyit"
-"Powieksz"
+"Nagyít"
+"Powiększ"
 
 MHelpF6
 ""
@@ -13271,7 +13271,7 @@ MHelpF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MHelpF11
@@ -13305,7 +13305,7 @@ MHelpShiftF2
 "Plugin"
 "Plugin"
 "Plugin"
-"PlgSug"
+"PlgSúg"
 "Plugin"
 
 MHelpShiftF3
@@ -13313,7 +13313,7 @@ MHelpShiftF3
 "Docums"
 "Dokume"
 "Dokume"
-"DokSug"
+"DokSúg"
 "Dokumenty"
 
 MHelpShiftF4
@@ -13343,9 +13343,9 @@ MHelpShiftF6
 MHelpShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
-"Tovabb"
+"Další"
+"Nächst"
+"Tovább"
 "Nast."
 
 MHelpShiftF8
@@ -13393,7 +13393,7 @@ l:
 l:// Help KeyBar Alt-F1-12
 "Пред."
 "Prev"
-"Predch"
+"Předch"
 "Letzt"
 "Vissza"
 "Poprz."
@@ -13983,7 +13983,7 @@ l:// InfoPanel KeyBar F1-F12
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MInfoF2
@@ -13991,15 +13991,15 @@ MInfoF2
 "Wrap"
 "Zalam"
 "Umbr."
-"SorTor"
-"Zawin"
+"SorTör"
+"Zawiń"
 
 MInfoF3
 "СмОпис"
 "VieDiz"
 "Zobraz"
 "BetDiz"
-"MjMnez"
+"MjMnéz"
 "VieDiz"
 
 MInfoF4
@@ -14055,7 +14055,7 @@ MInfoF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MInfoF11
@@ -14071,7 +14071,7 @@ MInfoF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MInfoShiftF1
@@ -14089,7 +14089,7 @@ MInfoShiftF2
 "WWrap"
 "ZalSlo"
 "WUmbr"
-"SzoTor"
+"SzóTör"
 "ZawijS"
 
 MInfoShiftF3
@@ -14127,8 +14127,8 @@ MInfoShiftF6
 MInfoShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
 "Nast."
 
@@ -14137,15 +14137,15 @@ MInfoShiftF8
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "StrKod"
 
 MInfoShiftF9
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MInfoShiftF10
@@ -14153,7 +14153,7 @@ MInfoShiftF10
 "Last"
 "Posled"
 "Letzt"
-"UtsMnu"
+"UtsMnü"
 "Ostat."
 
 MInfoShiftF11
@@ -14177,7 +14177,7 @@ l:
 l:// InfoPanel KeyBar Alt-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -14185,7 +14185,7 @@ l:// InfoPanel KeyBar Alt-F1-F12
 MInfoAltF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -14228,15 +14228,15 @@ MInfoAltF7
 "Hledat"
 "Suchen"
 "Keres"
-"Znajdz"
+"Znajdź"
 
 MInfoAltF8
 "Строка"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MInfoAltF9
 "Видео"
@@ -14259,7 +14259,7 @@ MInfoAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MInfoAltF12
@@ -14267,7 +14267,7 @@ MInfoAltF12
 "FoldHs"
 "AdrsHs"
 "OrdnHs"
-"MapElo"
+"MapElő"
 "FoldHs"
 
 MInfoCtrlF1
@@ -14275,7 +14275,7 @@ l:
 l:// InfoPanel KeyBar Ctrl-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -14283,7 +14283,7 @@ l:// InfoPanel KeyBar Ctrl-F1-F12
 MInfoCtrlF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -14767,7 +14767,7 @@ l:// QView KeyBar F1-F12
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MQViewF2
@@ -14775,15 +14775,15 @@ MQViewF2
 "Wrap"
 "Zalam"
 "Umbr."
-"SorTor"
-"Zawin"
+"SorTör"
+"Zawiń"
 
 MQViewF3
 "Просм"
 "View"
 "Zobraz"
 "Betr."
-"Megnez"
+"Megnéz"
 "Zobacz"
 
 MQViewF4
@@ -14839,7 +14839,7 @@ MQViewF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MQViewF11
@@ -14855,7 +14855,7 @@ MQViewF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MQViewShiftF1
@@ -14873,7 +14873,7 @@ MQViewShiftF2
 "WWrap"
 "ZalSlo"
 "WUmbr"
-"SzoTor"
+"SzóTör"
 "WWrap"
 
 MQViewShiftF3
@@ -14911,8 +14911,8 @@ MQViewShiftF6
 MQViewShiftF7
 "Дальше"
 "Next"
-"Dalsi"
-"Nachst"
+"Další"
+"Nächst"
 "TovKer"
 "Nast."
 
@@ -14921,15 +14921,15 @@ MQViewShiftF8
 "CodePg"
 upd:"ZnSady"
 upd:"Tabell"
-"Kodlap"
+"Kódlap"
 "StrKod"
 
 MQViewShiftF9
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MQViewShiftF10
@@ -14937,7 +14937,7 @@ MQViewShiftF10
 "Last"
 "Posled"
 "Letzt"
-"UtsMnu"
+"UtsMnü"
 "Ostat."
 
 MQViewShiftF11
@@ -14961,7 +14961,7 @@ l:
 l:// QView KeyBar Alt-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -14969,7 +14969,7 @@ l:// QView KeyBar Alt-F1-F12
 MQViewAltF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -15012,15 +15012,15 @@ MQViewAltF7
 "Hledat"
 "Suchen"
 "Keres"
-"Znajdz"
+"Znajdź"
 
 MQViewAltF8
 "Строка"
 "Goto"
-"Jit na"
+"Jít na"
 "GeheZu"
-"Ugras"
-"IdzDo"
+"Ugrás"
+"IdźDo"
 
 MQViewAltF9
 "Видео"
@@ -15043,7 +15043,7 @@ MQViewAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MQViewAltF12
@@ -15051,7 +15051,7 @@ MQViewAltF12
 "FoldHs"
 "AdrsHs"
 "OrdnHs"
-"MapElo"
+"MapElő"
 "FoldHs"
 
 MQViewCtrlF1
@@ -15059,7 +15059,7 @@ l:
 l:// QView KeyBar Ctrl-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -15067,7 +15067,7 @@ l:// QView KeyBar Ctrl-F1-F12
 MQViewCtrlF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -15551,13 +15551,13 @@ l:// Tree KeyBar F1-F12
 "Help"
 "Pomoc"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MKBTreeF2
 "ПользМ"
 "UserMn"
-"UzivMn"
+"UživMn"
 "BenuMn"
 "FelhMn"
 "UserMn"
@@ -15581,34 +15581,34 @@ MKBTreeF4
 MKBTreeF5
 "Копир"
 "Copy"
-"Kopir."
+"Kopír."
 "Kopier"
-"Masol"
+"Másol"
 "Kopiuj"
 
 MKBTreeF6
 "Перен"
 "RenMov"
-"PrjPrs"
+"PřjPřs"
 "RenMov"
-"AtnMoz"
-"Zamien"
+"ÁtnMoz"
+"Zamień"
 
 MKBTreeF7
 "Папка"
 "MkFold"
 "VytAdr"
 "VerzEr"
-"UjMapp"
+"ÚjMapp"
 "NowyFldr"
 
 MKBTreeF8
 "Удален"
 "Delete"
 "Smazat"
-"Losch"
-"Torles"
-"Usun"
+"Lösch"
+"Törlés"
+"Usuń"
 
 MKBTreeF9
 "КонфМн"
@@ -15623,7 +15623,7 @@ MKBTreeF10
 "Quit"
 "Konec"
 "Ende"
-"Kilep"
+"Kilép"
 "Koniec"
 
 MKBTreeF11
@@ -15639,7 +15639,7 @@ MKBTreeF12
 "Screen"
 "Obraz."
 "Seiten"
-"Keprny"
+"Képrny"
 "Ekran"
 
 MKBTreeShiftF1
@@ -15679,18 +15679,18 @@ MKBTreeShiftF4
 MKBTreeShiftF5
 "Копир"
 "Copy"
-"Kopir."
+"Kopír."
 "Kopier"
-"Masol"
+"Másol"
 "Kopiuj"
 
 MKBTreeShiftF6
 "Перен"
 "Rename"
-"Prejm."
+"Přejm."
 "Umben"
-"AtnMoz"
-"Zamien"
+"ÁtnMoz"
+"Zamień"
 
 MKBTreeShiftF7
 ""
@@ -15711,9 +15711,9 @@ MKBTreeShiftF8
 MKBTreeShiftF9
 "Сохран"
 "Save"
-"Ulozit"
+"Uložit"
 "Speich"
-"Mentes"
+"Mentés"
 "Zapisz"
 
 MKBTreeShiftF10
@@ -15721,7 +15721,7 @@ MKBTreeShiftF10
 "Last"
 "Posled"
 "Letzt"
-"UtsMnu"
+"UtsMnü"
 "Ostat."
 
 MKBTreeShiftF11
@@ -15745,7 +15745,7 @@ l:
 l:// Tree KeyBar Alt-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -15753,7 +15753,7 @@ l:// Tree KeyBar Alt-F1-F12
 MKBTreeAltF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -15796,14 +15796,14 @@ MKBTreeAltF7
 "Hledat"
 "Suchen"
 "Keres"
-"Znajdz"
+"Znajdź"
 
 MKBTreeAltF8
 "Истор"
 "Histry"
 "Histor"
 "Histor"
-"ParElo"
+"ParElő"
 "Historia"
 
 MKBTreeAltF9
@@ -15827,7 +15827,7 @@ MKBTreeAltF11
 "ViewHs"
 "ProhHs"
 "BetrHs"
-"NezElo"
+"NézElő"
 "Historia"
 
 MKBTreeAltF12
@@ -15835,7 +15835,7 @@ MKBTreeAltF12
 "FoldHs"
 "AdrsHs"
 "OrdnHs"
-"MapElo"
+"MapElő"
 "FoldHs"
 
 MKBTreeCtrlF1
@@ -15843,7 +15843,7 @@ l:
 l:// Tree KeyBar Ctrl-F1-F12
 "Левая"
 "Left"
-"Levy"
+"Levý"
 "Links"
 "Bal"
 "Lewy"
@@ -15851,7 +15851,7 @@ l:// Tree KeyBar Ctrl-F1-F12
 MKBTreeCtrlF2
 "Правая"
 "Right"
-"Pravy"
+"Pravý"
 "Rechts"
 "Jobb"
 "Prawy"
@@ -16332,43 +16332,43 @@ MCopyTimeInfo
 l:
 "Время: %8.8s    Осталось: %8.8s    %8.8sб/с"
 "Time: %8.8s    Remaining: %8.8s    %8.8sb/s"
-"Cas: %8.8s      Zbyva: %8.8s      %8.8sb/s"
+"Čas: %8.8s      Zbývá: %8.8s      %8.8sb/s"
 "Zeit: %8.8s   Verbleibend: %8.8s   %8.8sb/s"
 "Eltelt: %8.8s    Maradt: %8.8s    %8.8sb/s"
-"Czas: %8.8s    Pozostalo: %8.8s    %8.8sb/s"
+"Czas: %8.8s    Pozostało: %8.8s    %8.8sb/s"
 
 MKeyESCWasPressed
 l:
 "Действие было прервано"
 "Operation has been interrupted"
-"Operace byla prerusena"
+"Operace byla přerušena"
 "Vorgang wurde unterbrochen"
-"A muveletet megszakitotta"
-"Operacja zostala przerwana"
+"A műveletet megszakította"
+"Operacja została przerwana"
 
 MDoYouWantToStopWork
 "Вы действительно хотите отменить действие?"
 "Do you really want to cancel it?"
 "Opravdu chcete operaci stornovat?"
 "Wollen Sie den Vorgang wirklich abbrechen?"
-"Valoban le akarja allitani?"
-"Czy naprawde chcesz ja anulowac?"
+"Valóban le akarja állítani?"
+"Czy naprawdę chcesz ją anulować?"
 
 MDoYouWantToStopWork2
 "Продолжить выполнение?"
 "Continue work? "
-"Pokracovat v praci?"
+"Pokračovat v práci?"
 "Vorgang fortsetzen? "
 "Folytatja?"
-"Kontynuowac? "
+"Kontynuować? "
 
 MCheckingFileInPlugin
 l:
 "Файл проверяется в плагине"
 "The file is being checked by the plugin"
-"Soubor je prave kontrolovan pluginem"
-"Datei wird von Plugin uberpruft"
-"A fajlt ez a plugin hasznalja:"
+"Soubor je právě kontrolován pluginem"
+"Datei wird von Plugin überprüft"
+"A fájlt ez a plugin használja:"
 "Plugin sprawdza plik"
 
 MDialogType
@@ -16377,41 +16377,41 @@ l:
 "Dialog"
 "Dialog"
 "Dialog"
-"Parbeszed"
+"Párbeszéd"
 "Dialog"
 
 MHelpType
 "Помощь"
 "Help"
-"Napoveda"
+"Nápověda"
 "Hilfe"
-"Sugo"
+"Súgó"
 "Pomoc"
 
 MFolderTreeType
 "ПоискКаталогов"
 "FolderTree"
-"StromAdresare"
+"StromAdresáře"
 "Ordnerbaum"
 "MappaFa"
-"Drzewo folderow"
+"Drzewo folderów"
 
 MVMenuType
 "Меню"
 "Menu"
 "Menu"
-"Menu"
-"Menu"
+"Menü"
+"Menü"
 "Menu"
 
 MIncorrectMask
 l:
 "Некорректная маска файлов!"
 "File-mask string contains errors!"
-"Retezec masky souboru obsahuje chyby!"
-"Zeichenkette mit Dateimaske enthalt Fehler!"
-"A fajlmaszk hibas!"
-"Maska pliku zawiera bledy!"
+"Řetězec masky souboru obsahuje chyby!"
+"Zeichenkette mit Dateimaske enthält Fehler!"
+"A fájlmaszk hibás!"
+"Maska pliku zawiera błędy!"
 
 MPanelBracketsForLongName
 l:
@@ -16426,27 +16426,27 @@ MComspecNotFound
 l:
 "Переменная окружения %COMSPEC% не определена!"
 "Environment variable %COMSPEC% not defined!"
-"Promenna prostredi %COMSPEC% neni definovana!"
+"Proměnná prostředí %COMSPEC% není definována!"
 "Umgebungsvariable %COMSPEC% nicht definiert!"
-"A %COMSPEC% kornyezeti valtozo nincs definialva!"
-"Nie zdefiniowano zmiennej srodowiskowej %COMSPEC%!"
+"A %COMSPEC% környezeti változó nincs definiálva!"
+"Nie zdefiniowano zmiennej środowiskowej %COMSPEC%!"
 
 MExecuteErrorMessage
 "'%s' не является внутренней или внешней командой, исполняемой программой или пакетным файлом.\n"
 "'%s' is not recognized as an internal or external command, operable program or batch file.\n"
-"'%s' nebylo nalezeno jako vnirni nebo externi prikaz, spustitelna aplikace nebo davkovy soubor.\n"
+"'%s' nebylo nalezeno jako vniřní nebo externí příkaz, spustitelná aplikace nebo dávkový soubor.\n"
 "'%s' nicht erkannt als interner oder externer Befehl, Programm oder Stapeldatei.\n"
-""%s" nem azonithato kulso vagy belso parancskent, futtathato programkent vagy batch fajlkent.\n"
+""%s" nem azonítható külső vagy belső parancsként, futtatható programként vagy batch fájlként.\n"
 "Nie rozpoznano '%s' jako polecenia, programu ani skryptu.\n"
 
 MOpenPluginCannotOpenFile
 l:
 "Ошибка открытия файла"
 "Cannot open the file"
-"Nelze otevrit soubor"
-"Kann Datei nicht offnen"
-"A fajl nem nyithato meg"
-"Nie mozna otworzyc pliku"
+"Nelze otevřít soubor"
+"Kann Datei nicht öffnen"
+"A fájl nem nyitható meg"
+"Nie można otworzyć pliku"
 
 MFileFilterTitle
 l:
@@ -16454,23 +16454,23 @@ l:
 "Filter"
 "Filtr"
 "Filter"
-"Felhasznaloi szuro"
+"Felhasználói szűrő"
 "Filtr wyszukiwania"
 
 MFileHilightTitle
 "Раскраска файлов"
 "Files highlighting"
-"Zvyraznovani souboru"
+"Zvýrazňování souborů"
 "Farbmarkierungen"
-"Fajlkiemeles"
-"Zaznaczanie plikow"
+"Fájlkiemelés"
+"Zaznaczanie plików"
 
 MFileFilterName
 "Имя &фильтра:"
 "Filter &name:"
-"Jme&no filtru:"
+"Jmé&no filtru:"
 "Filter&name:"
-"Szuro &neve:"
+"Szűrő &neve:"
 "Nazwa &filtra:"
 
 MFileFilterMatchMask
@@ -16485,8 +16485,8 @@ MFileFilterSize
 "Разм&ер:"
 "Si&ze:"
 "Vel&ikost"
-"G&ro?e:"
-"M&eret:"
+"G&röße:"
+"M&éret:"
 "Ro&zmiar:"
 
 MFileFilterSizeFromSign
@@ -16508,9 +16508,9 @@ MFileFilterSizeToSign
 MFileFilterDate
 "&Дата/Время:"
 "Da&te/Time:"
-"Dat&um/Cas:"
+"Dat&um/Čas:"
 "Da&tum/Zeit:"
-"&Datum/Ido:"
+"&Dátum/Idő:"
 "Da&ta/Czas:"
 
 MFileFilterModified
@@ -16518,31 +16518,31 @@ MFileFilterModified
 "&modification"
 "&modifikace"
 "&Modifikation"
-"&Modositas"
+"&Módosítás"
 "&modyfikacji"
 
 MFileFilterCreated
 "&создания"
 "&creation"
-"&vytvoreni"
+"&vytvoření"
 "E&rstellung"
-"&Letrehozas"
+"&Létrehozás"
 "&utworzenia"
 
 MFileFilterOpened
 "&доступа"
 "&access"
-"&pristupu"
+"&přístupu"
 "Z&ugriff"
-"&Hozzaferes"
-"&dostepu"
+"&Hozzáférés"
+"&dostępu"
 
 MFileFilterDateRelative
 "Относительна&я"
 "Relat&ive"
-"Relati&vni"
+"Relati&vní"
 "Relat&iv"
-"Relat&iv"
+"Relat&ív"
 "Relat&ive"
 
 MFileFilterDateAfterSign
@@ -16564,33 +16564,33 @@ MFileFilterDateBeforeSign
 MFileFilterCurrent
 "Теку&щая"
 "C&urrent"
-"Aktua&lni"
+"Aktuá&lní"
 "Akt&uell"
 "&Jelenlegi"
-"&Biezacy"
+"&Bieżący"
 
 MFileFilterBlank
 "С&брос"
 "B&lank"
-"Praz&dny"
+"Práz&dný"
 "&Leer"
-"&Ures"
-"&Wyczysc"
+"&Üres"
+"&Wyczyść"
 
 MFileFilterAttr
 "Атрибут&ы"
 "Attri&butes"
 "Attri&buty"
 "Attri&bute"
-"Attri&butumok"
+"Attri&bútumok"
 "&Atrybuty"
 
 MFileFilterAttrR
 "&Только для чтения"
 "&Read only"
-"Jen pro ct&eni"
+"Jen pro čt&ení"
 "Sch&reibschutz"
-"&Csak olvashato"
+"&Csak olvasható"
 "&Do odczytu"
 
 MFileFilterAttrA
@@ -16598,13 +16598,13 @@ MFileFilterAttrA
 "&Archive"
 "Arc&hivovat"
 "&Archiv"
-"&Archiv"
+"&Archív"
 "&Archiwalny"
 
 MFileFilterAttrH
 "&Скрытый"
 "&Hidden"
-"Skry&ty"
+"Skry&tý"
 "&Versteckt"
 "&Rejtett"
 "&Ukryty"
@@ -16612,7 +16612,7 @@ MFileFilterAttrH
 MFileFilterAttrS
 "С&истемный"
 "&System"
-"Systemo&vy"
+"Systémo&vý"
 "&System"
 "Re&ndszer"
 "&Systemowy"
@@ -16620,23 +16620,23 @@ MFileFilterAttrS
 MFileFilterAttrC
 "С&жатый"
 "&Compressed"
-"Kompri&movany"
+"Kompri&movaný"
 "&Komprimiert"
-"&Tomoritett"
+"&Tömörített"
 "S&kompresowany"
 
 MFileFilterAttrE
 "&Зашифрованный"
 "&Encrypted"
-"Si&frovany"
-"V&erschlusselt"
-"T&itkositott"
+"Ši&frovaný"
+"V&erschlüsselt"
+"T&itkosított"
 "&Zaszyfrowany"
 
 MFileFilterAttrD
 "&Каталог"
 "&Directory"
-"Adr&esar"
+"Adr&esář"
 "Ver&zeichnis"
 "Map&pa"
 "&Katalog"
@@ -16644,7 +16644,7 @@ MFileFilterAttrD
 MFileFilterAttrNI
 "&Неиндексируемый"
 "Not inde&xed"
-"Neinde&xovany"
+"Neinde&xovaný"
 "Nicht in&diziert"
 "Nem inde&xelt"
 "Nie z&indeksowany"
@@ -16652,23 +16652,23 @@ MFileFilterAttrNI
 MFileFilterAttrSparse
 "&Разреженный"
 "S&parse"
-"Rid&ky"
+"Říd&ký"
 "Reserve"
-"Ritk&itott"
+"Ritk&ított"
 "S&parse"
 
 MFileFilterAttrT
 "&Временный"
 "Temporar&y"
-"Doca&sny"
-"Temporar"
-"Atm&eneti"
+"Doča&sný"
+"Temporär"
+"Átm&eneti"
 "&Tymczasowy"
 
 MFileFilterAttrReparse
 "Симво&л. ссылка"
 "Symbolic lin&k"
-"Sybolicky li&nk"
+"Sybolický li&nk"
 "Symbolischer Lin&k"
 "S&zimbolikus link"
 "Link &symboliczny"
@@ -16684,41 +16684,41 @@ MFileFilterAttrOffline
 MFileFilterAttrVirtual
 "Вирт&уальный"
 "&Virtual"
-"Virtualni"
+"Virtuální"
 "&Virtuell"
-"&Virtualis"
+"&Virtuális"
 "&Wirtualny"
 
 MFileFilterReset
 "Очистит&ь"
 "Reset"
 "Reset"
-"Rucksetzen"
+"Rücksetzen"
 "Reset"
-"Wy&czysc"
+"Wy&czyść"
 
 MFileFilterCancel
 "Отмена"
 "Cancel"
 "Storno"
 "Abbruch"
-"Megsem"
+"Mégsem"
 "&Anuluj"
 
 MFileFilterMakeTransparent
 "Выставить прозрачность"
 "Make transparent"
-"Zpruhlednit"
+"Zprůhlednit"
 "Transparent"
-"Legyen atlatszo"
+"Legyen átlátszó"
 "Ustaw jako przezroczysty"
 
 MBadFileSizeFormat
 "Неправильно заполнено поле размера!"
 "File size field is incorrectly filled!"
-"Velikost souboru neobsahuje spravnou hodnotu!"
-"Angabe der Dateigro?e ist fehlerhaft!"
-"A fajlmeret mezo rosszul van kitoltve!"
+"Velikost souboru neobsahuje správnou hodnotu!"
+"Angabe der Dateigröße ist fehlerhaft!"
+"A fájlméret mező rosszul van kitöltve!"
 "Rozmiar pliku jest niepoprawny!"
 
 #Must be the last
@@ -16726,7 +16726,7 @@ MNewFileName
 l:
 "?Новый файл?"
 "?New File?"
-"?Novy soubor?"
+"?Nový soubor?"
 "?Neue Datei?"
-"?Uj fajl?"
+"?Új fájl?"
 "?Nowy plik?"
