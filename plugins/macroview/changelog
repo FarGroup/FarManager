@@ -1,3 +1,7 @@
+t-rex 31.10.2009 14:38:14 +0200 - build 17
+
+1. From Max Moysyuk: Mantis#1146: Макрос исчезает из списка, если вкючить флажок "Deactivate macro".
+
 t-rex 26.10.2009 16:47:29 +0200 - build 16
 
 1. Переделка GetMinFarVersion.

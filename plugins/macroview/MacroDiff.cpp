@@ -2500,7 +2500,7 @@ void TMacroView::MoveTildeInKey(TStrList *&List,BOOL doit)
     {
       if ((*Str==_T('~')) && (len>1))
       {
-        MoveMemory(Str,&Str[1],len-1);
+        _tmemmove(Str,&Str[1],len-1);
         Str[len-1]=_T('\x1');
         List->SetText(Str,i);
       }
@@ -2509,7 +2509,7 @@ void TMacroView::MoveTildeInKey(TStrList *&List,BOOL doit)
     {
       if ((len>1) && (Str[len-1]==_T('\x1')))
       {
-        MoveMemory(&Str[1],Str,len-1);
+        _tmemmove(&Str[1],Str,len-1);
         *Str=_T('~');
         List->SetText(Str,i);
       }
