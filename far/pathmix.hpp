@@ -45,6 +45,42 @@ public:
 	}
 };
 
+class CurrentDirectoryGuard
+{
+	string strSaveDir;
+	bool bSaved;
+
+public:
+
+	explicit CurrentDirectoryGuard(const bool bAuto=true)
+	{
+		bSaved = false;
+		if (bAuto)
+			On();
+	}
+
+	void On()
+	{
+		if (!bSaved)
+		{
+			bSaved = true;
+			DWORD dwSize = GetCurrentDirectory(0,NULL);
+			wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
+			GetCurrentDirectory(dwSize,CurrentDirectory);
+			strSaveDir.ReleaseBuffer();
+			string strNewDir;
+			apiGetCurrentDirectory(strNewDir);
+			SetCurrentDirectory(strNewDir);
+		}
+	}
+
+	~CurrentDirectoryGuard()
+	{
+		if (bSaved)
+			SetCurrentDirectory(strSaveDir);
+	}
+};
+
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 bool PathPrefix(const wchar_t *Path);

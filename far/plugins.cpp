@@ -610,7 +610,7 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 	Plugin *pPlugin = NULL;
 
 	string strFullName;
-	
+
 	if (Name)
 	{
 		ConvertNameToFull(Name,strFullName);
@@ -666,9 +666,9 @@ HANDLE PluginManager::OpenFilePlugin(const wchar_t *Name, const unsigned char *D
 
 
 HANDLE PluginManager::OpenFilePlugin(
-		const wchar_t *Name, 
-		const unsigned char *Data, 
-		int DataSize, 
+		const wchar_t *Name,
+		const unsigned char *Data,
+		int DataSize,
 		int OpMode
 		)
 {
@@ -681,7 +681,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	TPointerArray<PluginHandle> items;
 
 	string strFullName;
-	
+
 	if ( Name )
 	{
 		ConvertNameToFull(Name,strFullName);
@@ -754,7 +754,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 			MenuItemEx mitem;
-		
+
 			for (UINT i = 0; i < items.getCount(); i++)
 			{
 				PluginHandle *handle = items.getItem(i);
@@ -776,7 +776,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				mitem.strName = MSG(MMenuPluginStdAssociation);
 
 				menu.AddItem(&mitem);
-			}					
+			}
 
 			menu.Show();
 
@@ -929,6 +929,8 @@ void PluginManager::ClosePlugin(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 {
+	CurrentDirectoryGuard cdg(false);
+
 	Plugin *pPlugin = NULL;
 
 	for (int i = 0; i < PluginsCount; i++)
@@ -937,6 +939,9 @@ int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 
 		if ( !pPlugin->HasProcessEditorInput() )
 			continue;
+
+		if (pPlugin->IsOemPlugin())
+			cdg.On();
 
 		if ( pPlugin->ProcessEditorInput(Rec) )
 			return TRUE;
@@ -948,6 +953,8 @@ int PluginManager::ProcessEditorInput (INPUT_RECORD *Rec)
 
 int PluginManager::ProcessEditorEvent(int Event,void *Param)
 {
+	CurrentDirectoryGuard cdg(false);
+
 	int nResult = 0;
 
 	if ( CtrlObject->Plugins.CurEditor )
@@ -961,6 +968,9 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 			if ( !pPlugin->HasProcessEditorEvent() )
 				continue;
 
+			if (pPlugin->IsOemPlugin())
+				cdg.On();
+
 			nResult = pPlugin->ProcessEditorEvent(Event, Param);
 		}
 	}
@@ -971,6 +981,8 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 
 int PluginManager::ProcessViewerEvent(int Event, void *Param)
 {
+	CurrentDirectoryGuard cdg(false);
+
 	int nResult = 0;
 
 	Plugin *pPlugin = NULL;
@@ -982,6 +994,9 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 		if ( !pPlugin->HasProcessViewerEvent() )
 			continue;
 
+		if (pPlugin->IsOemPlugin())
+			cdg.On();
+
 		nResult = pPlugin->ProcessViewerEvent (Event, Param);
 	}
 
@@ -990,6 +1005,8 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 
 int PluginManager::ProcessDialogEvent(int Event, void *Param)
 {
+	CurrentDirectoryGuard cdg(false);
+
 	Plugin *pPlugin=NULL;
 	for (int i=0;i<PluginsCount;i++)
 	{
@@ -998,7 +1015,10 @@ int PluginManager::ProcessDialogEvent(int Event, void *Param)
 		if ( !pPlugin->HasProcessDialogEvent() )
 			continue;
 
-		if(pPlugin->ProcessDialogEvent(Event,Param))
+		if (pPlugin->IsOemPlugin())
+			cdg.On();
+
+		if (pPlugin->ProcessDialogEvent(Event,Param))
 			return TRUE;
 	}
 	return FALSE;

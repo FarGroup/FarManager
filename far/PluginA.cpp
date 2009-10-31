@@ -550,26 +550,6 @@ struct ExecuteStruct {
 	bool bUnloaded;
 };
 
-class CurrentDirectoryGuard
-{
-	string strSaveDir;
-public:
-	CurrentDirectoryGuard()
-	{
-		DWORD dwSize = GetCurrentDirectory(0,NULL);
-		wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
-		GetCurrentDirectory(dwSize,CurrentDirectory);
-		strSaveDir.ReleaseBuffer();
-		string strNewDir;
-		apiGetCurrentDirectory(strNewDir);
-		SetCurrentDirectory(strNewDir);
-	}
-	~CurrentDirectoryGuard()
-	{
-		SetCurrentDirectory(strSaveDir);
-	}
-};
-
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
 		CurrentDirectoryGuard *cdg=new CurrentDirectoryGuard; \
@@ -623,6 +603,31 @@ public:
 			es.nResult = (INT_PTR)function; \
 		} \
 		delete cdg; \
+	}
+
+#define EXECUTE_FUNCTION_EX_NOCURDIRGUARD(function, es) \
+	{ \
+		SetFileApisToOEM(); \
+		es.bUnloaded = false; \
+		es.nResult = 0; \
+		if ( Opt.ExceptRules ) \
+		{ \
+			__try \
+			{ \
+				es.nResult = (INT_PTR)function; \
+			} \
+			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
+			{ \
+				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
+				es.bUnloaded = true; \
+				es.nResult = es.nDefaultResult; \
+				ProcessException=FALSE; \
+			} \
+		} \
+		else \
+		{ \
+			es.nResult = (INT_PTR)function; \
+		} \
 	}
 
 
@@ -901,7 +906,8 @@ int PluginA::ProcessEditorInput (
 			CharToOemBuff(&D->Event.KeyEvent.uChar.UnicodeChar,&OemRecord.Event.KeyEvent.uChar.AsciiChar,1);
 			Ptr=&OemRecord;
 		}
-		EXECUTE_FUNCTION_EX(pProcessEditorInput(Ptr), es);
+
+		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessEditorInput(Ptr), es);
 
 		bResult = es.bResult;
 	}
@@ -921,7 +927,7 @@ int PluginA::ProcessEditorEvent (
 		es.id = EXCEPT_PROCESSEDITOREVENT;
 		es.nDefaultResult = 0;
 
-		EXECUTE_FUNCTION_EX(pProcessEditorEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessEditorEvent(Event, Param), es);
 	}
 
 	return 0; //oops!
@@ -939,7 +945,7 @@ int PluginA::ProcessViewerEvent (
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
 		es.nDefaultResult = 0;
 
-		EXECUTE_FUNCTION_EX(pProcessViewerEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessViewerEvent(Event, Param), es);
 	}
 
 	return 0; //oops, again!
@@ -959,7 +965,7 @@ int PluginA::ProcessDialogEvent (
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
 		es.bDefaultResult = FALSE;
 
-		EXECUTE_FUNCTION_EX(pProcessDialogEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessDialogEvent(Event, Param), es);
 		bResult = es.bResult;
 	}
 
@@ -983,7 +989,7 @@ int PluginA::GetVirtualFindData (
 		es.bDefaultResult = FALSE;
 
 		pVFDPanelItemA = NULL;
-		
+
 		size_t Size=StrLength(Path)+1;
 		LPSTR PathA=new char[Size];
 		UnicodeToOEM(Path,PathA,Size);
