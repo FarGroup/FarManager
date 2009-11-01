@@ -989,21 +989,21 @@ copy_name:
   if (isDevice(FileName, _T("\\\\.\\PhysicalDrive")) || isDevice(FileName, _T("\\\\.\\cdrom")))
     goto copy_name_set_attr;
 
-  if (lstrlen(FileName) && lstrcmp(FileName,_T("\\"))!=0 && lstrcmp(FileName,_T(".."))!=0)
+  if (lstrlen(FileName))
   {
-    WIN32_FIND_DATA wfd;
-    HANDLE fff=FindFirstFile(NtPath, &wfd);
-    if (fff != INVALID_HANDLE_VALUE)
+    DWORD dwAttr=GetFileAttributes(NtPath);
+    if (dwAttr!=INVALID_FILE_ATTRIBUTES)
     {
-      WFD2FFD(wfd,*FindData);
-      FindClose(fff);
-      FileName = FullPath;
-      goto copy_name;
-    }
-    else
-    {
-      DWORD dwAttr=GetFileAttributes(NtPath);
-      if (dwAttr!=INVALID_FILE_ATTRIBUTES)
+      WIN32_FIND_DATA wfd;
+      HANDLE fff=FindFirstFile(NtPath, &wfd);
+      if (fff != INVALID_HANDLE_VALUE)
+      {
+        WFD2FFD(wfd,*FindData);
+        FindClose(fff);
+        FileName = FullPath;
+        goto copy_name;
+      }
+      else
       {
         wfd.dwFileAttributes=dwAttr;
         HANDLE hFile=CreateFile(NtPath,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS,NULL);

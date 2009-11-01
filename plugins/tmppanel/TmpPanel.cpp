@@ -411,8 +411,7 @@ static void ProcessList(HANDLE hPlugin, TCHAR *Name, int Mode WITH_ANSI_PARAM)
   struct PluginPanelItem ppi;
   memset(&ppi,0,sizeof(ppi));
   for(UINT i=0;(int)i<argc;i++)
-    if(TmpPanel::GetFileInfoAndValidate(argv[i],&ppi.FindData,Opt.AnyInPanel))
-      Panel->PutOneFile(_T(""), ppi);
+    Panel->PutOneFile(argv[i], ppi);
 
   Panel->CommitPutFiles (hScreen, TRUE);
   if (argv)
