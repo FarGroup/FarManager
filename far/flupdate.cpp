@@ -99,7 +99,7 @@ void FileList::Update(int Mode)
 
 void FileList::UpdateIfRequired()
 {
-  if (UpdateRequired)
+  if (UpdateRequired && !UpdateDisabled)
   {
     UpdateRequired = FALSE;
     Update (UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);

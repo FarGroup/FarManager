@@ -157,6 +157,7 @@ FileList::FileList()
   InternalProcessKey=FALSE;
   GetSelPosition = 0;
   CacheSelIndex=-1;
+  UpdateDisabled=0;
 }
 
 
@@ -2042,7 +2043,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
     }
     else
     {
-			BOOL res=FALSE;
 			int CheckFullScreen=IsFullScreen();
 			if (PanelMode==PLUGIN_PANEL || wcschr(CurPtr->strName,L'?')==NULL ||
 					CurPtr->strShortName.IsEmpty() )
@@ -3922,6 +3922,8 @@ bool FileList::ApplyCommand()
 	MoveCursor(0,Y);
 	ScrollScreen(1);
 
+	++UpdateDisabled;
+
 	GetSelName(NULL,FileAttr);
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
 	{
@@ -3978,6 +3980,8 @@ bool FileList::ApplyCommand()
 		ScrBuf.Scroll(NeedCountScroll);
 		ScrBuf.Flush();
 	}
+
+	--UpdateDisabled;
 
 	return true;
 }

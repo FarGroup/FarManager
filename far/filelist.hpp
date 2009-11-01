@@ -233,7 +233,7 @@ class FileList:public Panel
     int IsEmpty; // указывает на полностью пустую колонку
     int AccessTimeUpdateRequired;
 
-    int UpdateRequired,UpdateRequiredMode;
+    int UpdateRequired,UpdateRequiredMode,UpdateDisabled;
     int SortGroupsRead;
     int InternalProcessKey;
 
