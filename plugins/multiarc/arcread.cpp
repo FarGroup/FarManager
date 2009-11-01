@@ -10,6 +10,8 @@ PluginClass::PluginClass(int ArcPluginNumber)
   PluginClass::ArcPluginNumber=ArcPluginNumber;
   memset(&CurArcInfo,0,sizeof(struct ArcInfo));
   DizPresent=FALSE;
+  bGOPIFirstCall=true;
+  *farlang=0;
 }
 
 
@@ -62,6 +64,7 @@ int PluginClass::PreReadArchive(char *Name)
 
 int PluginClass::ReadArchive(char *Name)
 {
+  bGOPIFirstCall=true;
   FreeArcData();
   DizPresent=FALSE;
 
@@ -428,6 +431,23 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
   return TRUE;
 }
 
+bool PluginClass::FarLangChanged()
+{
+  char tmplang[100];
+
+  *tmplang=0;
+  DWORD res=GetEnvironmentVariable("FARLANG",tmplang,ArraySize(tmplang));
+
+  if (!(res && res<ArraySize(tmplang)))
+    lstrcpy(tmplang,"English");
+
+  if (!lstrcmp(tmplang,farlang))
+    return false;
+
+  lstrcpy(farlang, tmplang);
+
+  return true;
+}
 
 void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 {
@@ -437,14 +457,10 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   Info->HostFile=ArcName;
   Info->CurDir=CurDir;
 
-  char FormatName[100];
-  static char Format[100],DefExt[NM],Title[NM];
+  if (bGOPIFirstCall)
+    ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt);
 
-  ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt);
-  FSF.sprintf(Format,GetMsg(MArcFormat),FormatName);
-  Info->Format=Format;
-
-  char NameTitle[NM*2];
+  char NameTitle[NM];
   lstrcpyn(NameTitle,FSF.PointToName(ArcName),sizeof(NameTitle));
 
   {
@@ -455,99 +471,102 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
     }
   }
 
-  FSF.sprintf(Title," %s:%s",FormatName,NameTitle);
-  if (*CurDir)
-  {
-    lstrcat(Title,"\\");
-    lstrcat(Title,CurDir);
-  }
-  lstrcat(Title," ");
+  FSF.sprintf(Title," %s:%s%s%s ",FormatName,NameTitle, *CurDir ? "\\" : "", *CurDir ? CurDir : "");
 
   Info->PanelTitle=Title;
 
-  static struct InfoPanelLine InfoLines[15];
-
-  memset(InfoLines,0,sizeof(InfoLines));
-  FSF.sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),FSF.PointToName(ArcName));
-  InfoLines[0].Separator=TRUE;
-  FSF.sprintf(InfoLines[1].Text,GetMsg(MInfoArchive));
-  lstrcpy(InfoLines[1].Data,FormatName);
-
-  if (ItemsInfo.UnpVer!=0)
-    FSF.sprintf(InfoLines[1].Data+lstrlen(InfoLines[1].Data)," %d.%d",
-            ItemsInfo.UnpVer/256,ItemsInfo.UnpVer%256);
-
-  if (*ItemsInfo.HostOS)
-    FSF.sprintf(InfoLines[1].Data+lstrlen(InfoLines[1].Data),"/%s",ItemsInfo.HostOS);
-
-  lstrcpy(InfoLines[2].Text,GetMsg(MInfoArcType));
-
-  if (ItemsInfo.Solid)
-    lstrcpy(InfoLines[2].Data,GetMsg(MInfoSolid));
-
-  if (CurArcInfo.SFXSize)
+  if (bGOPIFirstCall || FarLangChanged())
   {
-    if (*InfoLines[2].Data)
-      lstrcat(InfoLines[2].Data," ");
-    lstrcat(InfoLines[2].Data,GetMsg(MInfoSFX));
+    FSF.sprintf(Format,GetMsg(MArcFormat),FormatName);
+
+    memset(InfoLines,0,sizeof(InfoLines));
+    FSF.sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),FSF.PointToName(ArcName));
+    InfoLines[0].Separator=TRUE;
+    FSF.sprintf(InfoLines[1].Text,GetMsg(MInfoArchive));
+    lstrcpy(InfoLines[1].Data,FormatName);
+
+    if (ItemsInfo.UnpVer!=0)
+      FSF.sprintf(InfoLines[1].Data+lstrlen(InfoLines[1].Data)," %d.%d",
+              ItemsInfo.UnpVer/256,ItemsInfo.UnpVer%256);
+
+    if (*ItemsInfo.HostOS)
+      FSF.sprintf(InfoLines[1].Data+lstrlen(InfoLines[1].Data),"/%s",ItemsInfo.HostOS);
+
+    lstrcpy(InfoLines[2].Text,GetMsg(MInfoArcType));
+
+    if (ItemsInfo.Solid)
+      lstrcpy(InfoLines[2].Data,GetMsg(MInfoSolid));
+
+    if (CurArcInfo.SFXSize)
+    {
+      if (*InfoLines[2].Data)
+        lstrcat(InfoLines[2].Data," ");
+      lstrcat(InfoLines[2].Data,GetMsg(MInfoSFX));
+    }
+
+    if (CurArcInfo.Flags & AF_HDRENCRYPTED)
+    {
+      if (*InfoLines[2].Data)
+        lstrcat(InfoLines[2].Data," ");
+      lstrcat(InfoLines[2].Data,GetMsg(MInfoHdrEncrypted));
+    }
+
+    if (CurArcInfo.Volume)
+    {
+      if (*InfoLines[2].Data)
+        lstrcat(InfoLines[2].Data," ");
+      lstrcat(InfoLines[2].Data,GetMsg(MInfoVolume));
+    }
+
+    if (*InfoLines[2].Data==0)
+      lstrcpy(InfoLines[2].Data,GetMsg(MInfoNormal));
+
+    lstrcpy(InfoLines[3].Text,GetMsg(MInfoArcComment));
+    lstrcpy(InfoLines[3].Data,CurArcInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[4].Text,GetMsg(MInfoFileComments));
+    lstrcpy(InfoLines[4].Data,ItemsInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[5].Text,GetMsg(MInfoPasswords));
+    lstrcpy(InfoLines[5].Data,ItemsInfo.Encrypted ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[6].Text,GetMsg(MInfoRecovery));
+    lstrcpy(InfoLines[6].Data,CurArcInfo.Recovery ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[7].Text,GetMsg(MInfoLock));
+    lstrcpy(InfoLines[7].Data,CurArcInfo.Lock ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[8].Text,GetMsg(MInfoAuthVer));
+    lstrcpy(InfoLines[8].Data,(CurArcInfo.Flags & AF_AVPRESENT) ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+    lstrcpy(InfoLines[9].Text,GetMsg(MInfoDict));
+
+    if (ItemsInfo.DictSize==0)
+      lstrcpy(InfoLines[9].Data,"???");
+    else
+      FSF.sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
+
+    lstrcpy(InfoLines[10].Text,GetMsg(MInfoChapters));
+    if(CurArcInfo.Chapters)
+      //FSF.sprintf(InfoLines[10].Data,"%d/%d",ItemsInfo.Chapter,CurArcInfo.Chapters);
+      FSF.sprintf(InfoLines[10].Data,"%d",CurArcInfo.Chapters);
+    else
+      lstrcpy(InfoLines[10].Data,GetMsg(MInfoAbsent));
+
+    lstrcpy(InfoLines[11].Text,GetMsg(MInfoTotalFiles));
+    FSF.sprintf(InfoLines[11].Data,"%d",ArcDataCount);
+    lstrcpy(InfoLines[12].Text,GetMsg(MInfoTotalSize));
+    InsertCommas(TotalSize,InfoLines[12].Data);
+    lstrcpy(InfoLines[13].Text,GetMsg(MInfoPackedSize));
+    InsertCommas(PackedSize,InfoLines[13].Data);
+    lstrcpy(InfoLines[14].Text,GetMsg(MInfoRatio));
+    FSF.sprintf(InfoLines[14].Data,"%d%%",ToPercent(PackedSize,TotalSize));
+
+    memset(&KeyBar,0,sizeof(KeyBar));
+    KeyBar.ShiftTitles[1-1]=(char*)"";
+    KeyBar.AltTitles[6-1]=(char*)GetMsg(MAltF6);
+    KeyBar.AltShiftTitles[9-1]=(char*)GetMsg(MAltShiftF9);
   }
 
-  if (CurArcInfo.Flags & AF_HDRENCRYPTED)
-  {
-    if (*InfoLines[2].Data)
-      lstrcat(InfoLines[2].Data," ");
-    lstrcat(InfoLines[2].Data,GetMsg(MInfoHdrEncrypted));
-  }
-
-  if (CurArcInfo.Volume)
-  {
-    if (*InfoLines[2].Data)
-      lstrcat(InfoLines[2].Data," ");
-    lstrcat(InfoLines[2].Data,GetMsg(MInfoVolume));
-  }
-
-  if (*InfoLines[2].Data==0)
-    lstrcpy(InfoLines[2].Data,GetMsg(MInfoNormal));
-
-  lstrcpy(InfoLines[3].Text,GetMsg(MInfoArcComment));
-  lstrcpy(InfoLines[3].Data,CurArcInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[4].Text,GetMsg(MInfoFileComments));
-  lstrcpy(InfoLines[4].Data,ItemsInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[5].Text,GetMsg(MInfoPasswords));
-  lstrcpy(InfoLines[5].Data,ItemsInfo.Encrypted ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[6].Text,GetMsg(MInfoRecovery));
-  lstrcpy(InfoLines[6].Data,CurArcInfo.Recovery ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[7].Text,GetMsg(MInfoLock));
-  lstrcpy(InfoLines[7].Data,CurArcInfo.Lock ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[8].Text,GetMsg(MInfoAuthVer));
-  lstrcpy(InfoLines[8].Data,(CurArcInfo.Flags & AF_AVPRESENT) ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
-  lstrcpy(InfoLines[9].Text,GetMsg(MInfoDict));
-
-  if (ItemsInfo.DictSize==0)
-    lstrcpy(InfoLines[9].Data,"???");
-  else
-    FSF.sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
-
-  lstrcpy(InfoLines[10].Text,GetMsg(MInfoChapters));
-  if(CurArcInfo.Chapters)
-    //FSF.sprintf(InfoLines[10].Data,"%d/%d",ItemsInfo.Chapter,CurArcInfo.Chapters);
-    FSF.sprintf(InfoLines[10].Data,"%d",CurArcInfo.Chapters);
-  else
-    lstrcpy(InfoLines[10].Data,GetMsg(MInfoAbsent));
-
-  lstrcpy(InfoLines[11].Text,GetMsg(MInfoTotalFiles));
-  FSF.sprintf(InfoLines[11].Data,"%d",ArcDataCount);
-  lstrcpy(InfoLines[12].Text,GetMsg(MInfoTotalSize));
-  InsertCommas(TotalSize,InfoLines[12].Data);
-  lstrcpy(InfoLines[13].Text,GetMsg(MInfoPackedSize));
-  InsertCommas(PackedSize,InfoLines[13].Data);
-  lstrcpy(InfoLines[14].Text,GetMsg(MInfoRatio));
-  FSF.sprintf(InfoLines[14].Data,"%d%%",ToPercent(PackedSize,TotalSize));
-
+  Info->Format=Format;
+  Info->KeyBar=&KeyBar;
   Info->InfoLines=InfoLines;
   Info->InfoLinesNumber=ArraySize(InfoLines);
 
-  static char *DescrFiles[32],DescrFilesString[256];
   lstrcpy(DescrFilesString,Opt.DescriptionNames);
   size_t DescrFilesNumber=0;
   char *NamePtr=DescrFilesString;
@@ -571,10 +590,5 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   else
     Info->DescrFilesNumber=(int)DescrFilesNumber;
 
-  static struct KeyBarTitles KeyBar;
-  memset(&KeyBar,0,sizeof(KeyBar));
-  KeyBar.ShiftTitles[1-1]=(char*)"";
-  KeyBar.AltTitles[6-1]=(char*)GetMsg(MAltF6);
-  KeyBar.AltShiftTitles[9-1]=(char*)GetMsg(MAltShiftF9);
-  Info->KeyBar=&KeyBar;
+  bGOPIFirstCall = false;
 }

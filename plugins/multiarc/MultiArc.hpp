@@ -123,12 +123,25 @@ class PluginClass
     __int64 PackedSize;
     int DizPresent;
 
+    char farlang[100];
+
+    bool bGOPIFirstCall;
+    char Title[NM];
+    char FormatName[100];
+    char DefExt[NM];
+    struct InfoPanelLine InfoLines[15];
+    struct KeyBarTitles KeyBar;
+    char Format[100];
+    char *DescrFiles[32];
+    char DescrFilesString[256];
+
   private:
     void GetGroupName(PluginPanelItem *Items, int Count, char *ArcName);//$ AA 29.11.2001
     BOOL GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt, PanelInfo *pi);//$ AA 29.11.2001
     BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
     void FreeArcData();
+    bool FarLangChanged();
 
   public:
     PluginClass(int ArcPluginNumber);
