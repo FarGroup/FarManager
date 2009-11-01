@@ -13,7 +13,6 @@ Temporary panel plugin class header file
 class TmpPanel
 {
   private:
-    void SortList();
     void RemoveDups();
     void RemoveEmptyItems();
     void UpdateItems(int ShowOwners,int ShowLinks);

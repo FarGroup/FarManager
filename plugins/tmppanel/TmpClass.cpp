@@ -7,8 +7,6 @@ Temporary panel plugin class implementation
 
 #include "TmpPanel.hpp"
 
-static int _cdecl SortListCmp(const void *el1,const void *el2);
-
 TmpPanel::TmpPanel()
 {
   LastOwnersRead=FALSE;
@@ -162,6 +160,7 @@ int TmpPanel::PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem)
   TmpPanelItem=NewPanelItem;
   struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
   memset(CurPanelItem,0,sizeof(*CurPanelItem));
+  CurPanelItem->UserData = TmpItemsNumber;
   CurPanelItem->FindData=PanelItem.FindData;
 #ifdef UNICODE
   CurPanelItem->FindData.lpwszFileName = NULL;
@@ -210,7 +209,9 @@ int TmpPanel::PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem)
 #endif
         for(int i=0;i<DirItemsNumber;i++)
         {
-          struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber++];
+          struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
+          CurPanelItem->UserData = TmpItemsNumber;
+          TmpItemsNumber++;
 #ifndef UNICODE
           CurPanelItem->FindData=DirItems[i].FindData;
           lstrcpy(CurPanelItem->FindData.cFileName,SrcPath);
@@ -237,10 +238,7 @@ int TmpPanel::PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem)
 void TmpPanel::CommitPutFiles (HANDLE hRestoreScreen, int Success)
 {
   if (Success)
-  {
-    SortList();
     RemoveDups();
-  }
   Info.RestoreScreen (hRestoreScreen);
 }
 
@@ -257,6 +255,7 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
     TmpItemsNumber=ItemsNumber;
     memcpy(TmpPanelItem,PanelItem,ItemsNumber*sizeof(*TmpPanelItem));
     for(int i=0;i<ItemsNumber;++i) {
+      TmpPanelItem[i].UserData = i;
       TmpPanelItem[i].Flags&=~PPIF_SELECTED;
       if(TmpPanelItem[i].Owner)
         TmpPanelItem[i].Owner = _tcsdup(TmpPanelItem[i].Owner);
@@ -311,21 +310,6 @@ void TmpPanel::FindSearchResultsPanel()
 }
 
 
-void TmpPanel::SortList()
-{
-  FSF.qsort(TmpPanelItem,TmpItemsNumber,sizeof(*TmpPanelItem),SortListCmp);
-}
-
-
-int _cdecl SortListCmp(const void *el1,const void *el2)
-{
-  struct PluginPanelItem *Item1,*Item2;
-  Item1=(struct PluginPanelItem *)el1;
-  Item2=(struct PluginPanelItem *)el2;
-  return(lstrcmp(Item1->FindData.cFileName,Item2->FindData.cFileName));
-}
-
-
 void TmpPanel::RemoveDups()
 {
   struct PluginPanelItem *CurItem=TmpPanelItem;
@@ -356,6 +340,7 @@ void TmpPanel::RemoveEmptyItems()
       EmptyCount++;
     }
     else if(EmptyCount) {
+      CurItem->UserData -= EmptyCount;
       *(CurItem-EmptyCount)=*CurItem;
       memset(CurItem, 0, sizeof(*CurItem));
     }
@@ -737,16 +722,14 @@ void TmpPanel::ProcessRemoveKey()
   for(int i=0;i<PInfo.SelectedItemsNumber;i++)
   {
 #ifndef UNICODE
-    struct PluginPanelItem *RemovedItem=(struct PluginPanelItem *)
-      FSF.bsearch(&PInfo.SelectedItems[i],TmpPanelItem,TmpItemsNumber,
-        sizeof(struct PluginPanelItem),SortListCmp);
+    struct PluginPanelItem *RemovedItem = TmpPanelItem + PInfo.SelectedItems[i].UserData;
 #else
     struct PluginPanelItem *RemovedItem=NULL;
     PluginPanelItem* PPI=(PluginPanelItem*)malloc(Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,0));
     if(PPI)
     {
       Info.Control(this,FCTL_GETSELECTEDPANELITEM,i,(LONG_PTR)PPI);
-      RemovedItem=(struct PluginPanelItem *)FSF.bsearch(PPI,TmpPanelItem,TmpItemsNumber,sizeof(struct PluginPanelItem),SortListCmp);
+      RemovedItem = TmpPanelItem + PPI->UserData;
     }
 #endif
     if(RemovedItem!=NULL)
