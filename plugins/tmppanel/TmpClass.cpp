@@ -839,7 +839,16 @@ void TmpPanel::SaveListFile (const TCHAR *Path)
   if (!TmpItemsNumber)
     return;
 
-  HANDLE hFile = CreateFile (Path, GENERIC_WRITE, 0, NULL,
+#ifdef UNICODE
+  StrBuf FullPath;
+  GetFullPath(Path, FullPath);
+  StrBuf NtPath;
+  FormNtPath(FullPath, NtPath);
+#else
+  const char* NtPath = Path;
+#endif
+
+  HANDLE hFile = CreateFile (NtPath, GENERIC_WRITE, 0, NULL,
     CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   if (hFile == INVALID_HANDLE_VALUE)
   {
@@ -962,13 +971,13 @@ bool TmpPanel::GetFileInfoAndValidate(const TCHAR *FilePath, FAR_FIND_DATA* Find
   ParseParam(FileName);
 
 #ifdef UNICODE
-  StrBuf FullPath(FSF.ConvertPath(CPM_FULL, FileName, NULL, 0));
-  FSF.ConvertPath(CPM_FULL, FileName, FullPath, FullPath.Size());
+  StrBuf FullPath;
+  GetFullPath(FileName, FullPath);
   StrBuf NtPath;
   FormNtPath(FullPath, NtPath);
 #else
-#define FullPath FileName
-#define NtPath FileName
+  char* FullPath = FileName;
+  const char* NtPath = FileName;
 #endif
 
   if (!FSF.LStrnicmp(FileName, _T("\\\\.\\"), 4) && FSF.LIsAlpha(FileName[4]) && FileName[5]==_T(':') && FileName[6]==0)

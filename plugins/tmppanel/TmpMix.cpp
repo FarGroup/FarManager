@@ -248,28 +248,25 @@ bool FindListFile(const TCHAR *FileName, StrBuf &output)
   DWORD dwSize;
 
 #ifdef UNICODE
-  dwSize=FSF.GetCurrentDirectory(0,NULL);
-  if (dwSize)
-  {
-    Path.Reset(dwSize);
-    FSF.GetCurrentDirectory(dwSize,Path);
-  }
-  else
-  {
-    return false;
-  }
+  StrBuf FullPath;
+  GetFullPath(FileName, FullPath);
+  StrBuf NtPath;
+  FormNtPath(FullPath, NtPath);
 #else
-  Path.Reset(MAX_PATH);
-  GetCurrentDirectory(Path.Size(),Path);
+  const char* FullPath = FileName;
+  const char* NtPath = FileName;
 #endif
 
-  TCHAR *final=NULL;
-
-  dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
-  if (dwSize)
+  const TCHAR *final=NULL;
+  if (GetFileAttributes(NtPath) != INVALID_FILE_ATTRIBUTES)
   {
-    final = Path;
-    goto success;
+#ifdef UNICODE
+    output.Grow(FullPath.Size());
+#else
+    output.Grow(lstrlen(FullPath)+1);
+#endif
+    lstrcpy(output, FullPath);
+    return true;
   }
 
   {
@@ -318,3 +315,17 @@ success:
 
   return true;
 }
+
+#ifdef UNICODE
+wchar_t* GetFullPath(const wchar_t* input, StrBuf& output)
+{
+  output.Grow(MAX_PATH);
+  int size = FSF.ConvertPath(CPM_FULL, input, output, output.Size());
+  if (size > output.Size())
+  {
+    output.Grow(size);
+    FSF.ConvertPath(CPM_FULL, input, output, output.Size());
+  }
+  return output;
+}
+#endif

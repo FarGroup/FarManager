@@ -102,6 +102,7 @@ public:
 
 #ifdef UNICODE
 wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf);
+wchar_t* GetFullPath(const wchar_t* input, StrBuf& output);
 #endif
 TCHAR* ExpandEnvStrs(const TCHAR* input, StrBuf& output);
 bool FindListFile(const TCHAR *FileName, StrBuf &output);

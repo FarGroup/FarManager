@@ -370,7 +370,16 @@ static void ReadFileList (TCHAR *filename, int *argc, TCHAR ***argv WITH_ANSI_PA
   *argc = 0;
   *argv = NULL;
 
-  HANDLE hFile=CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,
+#ifdef UNICODE
+  StrBuf FullPath;
+  GetFullPath(filename, FullPath);
+  StrBuf NtPath;
+  FormNtPath(FullPath, NtPath);
+#else
+  const char* NtPath = filename;
+#endif
+
+  HANDLE hFile=CreateFile(NtPath,GENERIC_READ,FILE_SHARE_READ,NULL,
     OPEN_EXISTING,0,NULL);
 
   if(hFile != INVALID_HANDLE_VALUE)
