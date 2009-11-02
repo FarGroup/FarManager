@@ -407,8 +407,9 @@ int OpenFromCommandLine(TCHAR *_farcmd)
         //      ^---farcmd
         TCHAR *oBracket;
         BracketsOk=FALSE;
+        FarLTrim(farcmd);
         oBracket=_tcschr(farcmd,_T('['));
-        if(oBracket && oBracket<_tcsstr(farcmd,Opt.Separator))
+        if(*farcmd != _T('"') && oBracket && oBracket<_tcsstr(farcmd,Opt.Separator))
         {
           if((cBracket=_tcschr(oBracket,_T(']'))) != 0 && oBracket < cBracket)
           {
