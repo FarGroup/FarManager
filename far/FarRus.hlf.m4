@@ -2245,6 +2245,37 @@ $ #Настройка диалогов#
 
    См. так же список ~макроклавиш~@KeyMacroDialogList@, доступных в диалогах.
 
+@InfoPanelSettings
+$ #Настройка информационной панели#
+  #Формат вывода имени пользователя#
+
+  Задает формат вывода имени пользователя. Может быть одним из:
+
+    #По умолчанию#
+      Логин пользователя, например, JohnDoe
+    #Полностью определенное имя домена#
+      ^<wrap>FQDN (Fully Qualified Domain Name) - включает наименования всех уровней иерархии, начиная от имени конечного узла и заканчивая корневой точкой (логином), например, 
+      CN=JohnDoe, OU=Software, OU=Engineering, O=Widget, C=US
+    #Sam Compatible#
+      Engineering\JohnDoe
+    #Display#
+      Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
+    #Уникальный идентификатор#
+      ^<wrap>Уникальный идентификатор имени пользователя (GUID), например, 
+      {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
+    #Канонический вид#
+      ^<wrap>ADCN (Active Directory Canonical Name) - данный формат является путем в иерархической структуре к объекту (логину), например, 
+      engineering.widget.com/software/JohnDoe
+    #Основное имя пользователя#
+      ^<wrap>UPN (User Principial Name) - известен так же как адрес электронной почты, например,
+      someone@example.com
+    #Service Principal#
+      www/srv.engineering.com/engineering.com
+    #Dns Domain#
+      engineering.widget.com\JohnDoe
+
+    Формат вывода зависит от наличия доменной структуры.
+
 @CommandPrompt
 $ #Формат командной строки#
    FAR позволяет изменить формат приглашения командной строки.

@@ -378,6 +378,11 @@ struct FindFileOptions
   */
 };
 
+struct InfoPanelOptions{
+  EXTENDED_NAME_FORMAT UserNameFormat;
+  string strFolderInfoFiles;
+};
+
 struct TreeOptions{
   int LocalDisk;         // Хранить файл структуры папок для локальных дисков
   int NetDisk;           // Хранить файл структуры папок для сетевых дисков
@@ -479,7 +484,6 @@ struct Options
   int FormatNumberSeparators;
   int CleanAscii;
   int NoGraphics;
-  string strFolderInfoFiles;
 
 	Confirmation Confirm;
 	PluginConfirmation PluginConfirm;
@@ -621,6 +625,7 @@ struct Options
 	int FindCodePage;
 
 	TreeOptions Tree;
+	InfoPanelOptions InfoPanel;
 
   DWORD CPMenuMode;
 
@@ -804,3 +809,4 @@ void EditorConfig(EditorOptions &EdOpt,int Local=0);
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetFolderInfoFiles();
+void InfoPanelSettings();

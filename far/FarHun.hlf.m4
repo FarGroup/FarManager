@@ -2197,6 +2197,9 @@ végrehajtása átmenetileg letiltja az automatikus kiegészítést.
                           ^<wrap>ablak (lásd ~egyebek~@MiscCmd@). Az
 opcióval letilthatjuk ezt a működést.
 
+@InfoPanelSettings
+$ #Настройка информационной панели#
+
 
 @CommandPrompt
 $ #A parancssori prompt formátuma#

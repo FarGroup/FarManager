@@ -1565,6 +1565,95 @@ MConfigDialogsMouseButton
 "&Egérkattintás a párb.ablakon kívül: bezárja"
 "&Kliknięcie myszy poza oknem zamyka je"
 
+MConfigInfoPanelTitle
+l:
+"Настройка информационной панели"
+"InfoPanel settings"
+upd:"InfoPanel settings"
+upd:"InfoPanel settings"
+upd:"InfoPanel settings"
+upd:"InfoPanel settings"
+
+MConfigInfoPanelUNTitle
+"Форм&ат вывода имени пользователя"
+upd:"UserName &format"
+upd:"UserName &format"
+upd:"UserName &format"
+upd:"UserName &format"
+upd:"UserName &format"
+
+MConfigInfoPanelUNUnknown
+"По умолчанию"
+"Default"
+upd:"Default"
+upd:"Default"
+upd:"Default"
+upd:"Default"
+
+MConfigInfoPanelUNFullyQualifiedDN
+"Полностью определенное имя домена"
+"Fully Qualified Domain Name"
+upd:"Fully Qualified Domain Name"
+upd:"Fully Qualified Domain Name"
+upd:"Fully Qualified Domain Name"
+upd:"Fully Qualified Domain Name"
+
+MConfigInfoPanelUNSamCompatible
+upd:"Sam Compatible"
+upd:"Sam Compatible"
+upd:"Sam Compatible"
+upd:"Sam Compatible"
+upd:"Sam Compatible"
+upd:"Sam Compatible"
+
+MConfigInfoPanelUNDisplay
+upd:"Display Name"
+upd:"Display Name"
+upd:"Display Name"
+upd:"Display Name"
+upd:"Display Name"
+upd:"Display Name"
+
+MConfigInfoPanelUNUniqueId
+"Уникальный идентификатор"
+upd:"Unique Id"
+upd:"Unique Id"
+upd:"Unique Id"
+upd:"Unique Id"
+upd:"Unique Id"
+
+MConfigInfoPanelUNCanonical
+"Канонический вид"
+"Canonical Name"
+upd:"Canonical Name"
+upd:"Canonical Name"
+upd:"Canonical Name"
+upd:"Canonical Name"
+
+MConfigInfoPanelUNUserPrincipal
+"Основное имя пользователя"
+upd:"User Principial Name"
+upd:"User Principial Name"
+upd:"User Principial Name"
+upd:"User Principial Name"
+upd:"User Principial Name"
+
+MConfigInfoPanelUNServicePrincipal
+upd:"Service Principal"
+upd:"Service Principal"
+upd:"Service Principal"
+upd:"Service Principal"
+upd:"Service Principal"
+upd:"Service Principal"
+
+MConfigInfoPanelUNDnsDomain
+upd:"Dns Domain"
+upd:"Dns Domain"
+upd:"Dns Domain"
+upd:"Dns Domain"
+upd:"Dns Domain"
+upd:"Dns Domain"
+
 MViewConfigTitle
 l:
 "Программа просмотра"
@@ -9194,11 +9283,19 @@ MMenuConfirmation
 
 MMenuPluginConfirmation
 "Выбор плагина"
-"Plugin selection"
+"Plugin sele&ction"
 upd:"Plugin selection"
 upd:"Plugin selection"
 "Plugin választás"
 upd:"Plugin selection"
+
+MMenuInfoPanelSettings
+"Нас&тройки информационной панели"
+"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
 
 MMenuPluginStdAssociation
 "Стандартная ассоциация"

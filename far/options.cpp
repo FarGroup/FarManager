@@ -138,6 +138,7 @@ enum enumOptionsMenu {
 	MENU_OPTIONS_LANGUAGES,
 	MENU_OPTIONS_PLUGINSCONFIG,
 	MENU_OPTIONS_DIALOGSETTINGS,
+	MENU_OPTIONS_INFOPANELSETTINGS,
 	MENU_OPTIONS_CONFIRMATIONS = MENU_OPTIONS_DIALOGSETTINGS+2,
 	MENU_OPTIONS_PLUGINCONFIRMATIONS,
 	MENU_OPTIONS_FILEPANELMODES,
@@ -212,7 +213,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     (const wchar_t *)MMenuReread,0,KEY_CTRLR,
     (const wchar_t *)MMenuChangeDrive,0,KEY_ALTF1,
   };
- 
+
 	MenuDataEx FilesMenu[]=
   {
     (const wchar_t *)MMenuView,LIF_SELECTED,KEY_F3,
@@ -271,6 +272,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		(const wchar_t *)MMenuLanguages,0,0,
 		(const wchar_t *)MMenuPluginsConfig,0,0,
 		(const wchar_t *)MMenuDialogSettings,0,0,
+		(const wchar_t *)MMenuInfoPanelSettings,0,0,
 		L"",LIF_SEPARATOR,0,
 		(const wchar_t *)MMenuConfirmation,0,0,
 		(const wchar_t *)MMenuPluginConfirmation,0, 0,
@@ -346,7 +348,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 	{
 		HMenu HOptMenu(MainMenu,countof(MainMenu));
-		
+
 		HOptMenu.SetHelp(L"Menus");
 		HOptMenu.SetPosition(0,0,ScrX,0);
 
@@ -356,7 +358,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 			MenuDataEx *VMenuTable[] = {LeftMenu, FilesMenu, CmdMenu, OptionsMenu, RightMenu};
 
 			int HItemToShow = LastHItem;
-			
+
 			if ( HItemToShow == -1 )
 			{
 				if ( CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->RightPanel &&
@@ -393,7 +395,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent!=NULL)
 		{
 			ChangeMacroMode MacroMode(MACRO_MAINMENU);
-      
+
 			HOptMenu.Show();
 			HOptMenu.ProcessMouse(MouseEvent);
 		}
@@ -650,7 +652,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 						CtrlObject->Plugins.ReloadLanguage();
 						SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
-						
+
 						PrepareStrFTime();
 						PrepareUnitStr();
 
@@ -671,7 +673,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
 					DialogSettings();
 					break;
-				
+
+				case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings
+					InfoPanelSettings();
+					break;
+
 				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
 					SetConfirmations();
 					break;
@@ -721,7 +727,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 	// TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
 	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
-	
+
 	if ( !(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR) )
 		CtrlObject->CmdLine->Show();
 

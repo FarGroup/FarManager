@@ -535,82 +535,82 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 
 int KeyMacro::ProcessKey(int Key)
 {
-  if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE || !FrameManager->GetCurrentFrame())
-    return(FALSE);
+	if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE || !FrameManager->GetCurrentFrame())
+		return(FALSE);
 
-  if (Recording) // Идет запись?
-  {
-    if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
-    {
-      _KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
-      DWORD MacroKey;
-      int WaitInMainLoop0=WaitInMainLoop;
-      InternalInput=TRUE;
-      WaitInMainLoop=FALSE;
+	if (Recording) // Идет запись?
+	{
+		if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
+		{
+			_KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
+			DWORD MacroKey;
+			int WaitInMainLoop0=WaitInMainLoop;
+			InternalInput=TRUE;
+			WaitInMainLoop=FALSE;
 
-      // Залочить _текущий_ фрейм, а не _последний немодальный_
-      FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
-      MacroKey=AssignMacroKey();
-      FrameManager->ResetLastInputRecord();
-      FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
+			// Залочить _текущий_ фрейм, а не _последний немодальный_
+			FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
+			MacroKey=AssignMacroKey();
+			FrameManager->ResetLastInputRecord();
+			FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 
-      // выставляем флаги по умолчанию.
-      DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
+			// выставляем флаги по умолчанию.
+			DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
 
-      // добавим проверку на удаление
-      // если удаляем, то не нужно выдавать диалог настройки.
+			// добавим проверку на удаление
+			// если удаляем, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
 			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
-      {
-        if (!GetMacroSettings(MacroKey,Flags))
-          MacroKey=(DWORD)-1;
-      }
-      WaitInMainLoop=WaitInMainLoop0;
-      InternalInput=FALSE;
+			{
+				if (!GetMacroSettings(MacroKey,Flags))
+					MacroKey=(DWORD)-1;
+			}
+			WaitInMainLoop=WaitInMainLoop0;
+			InternalInput=FALSE;
 
-      if (MacroKey==(DWORD)-1)
-      {
+			if (MacroKey==(DWORD)-1)
+			{
 				if(RecBuffer)
 				{
 					xf_free(RecBuffer);
 					RecBuffer=NULL;
 				}
-      }
-      else
-      {
-        // в области common будем искать только при удалении
+			}
+			else
+			{
+				// в области common будем искать только при удалении
 				int Pos=GetIndex(MacroKey,StartMode,!(RecBuffer && RecBufferSize));
-        if (Pos == -1)
-        {
-          Pos=MacroLIBCount;
+				if (Pos == -1)
+				{
+					Pos=MacroLIBCount;
 					if(RecBufferSize > 0)
-          {
+					{
 						MacroRecord *NewMacroLIB=(MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
-            if (NewMacroLIB==NULL)
-            {
-              WaitInFastFind++;
-              return(FALSE);
-            }
-            MacroLIB=NewMacroLIB;
-            MacroLIBCount++;
-          }
-        }
-        else
-        {
-          if(MacroLIB[Pos].BufferSize > 1 && MacroLIB[Pos].Buffer)
-            xf_free(MacroLIB[Pos].Buffer);
-          if(MacroLIB[Pos].Src)
-            xf_free(MacroLIB[Pos].Src);
-          if(MacroLIB[Pos].Description)
-            xf_free(MacroLIB[Pos].Description);
-          MacroLIB[Pos].Buffer=NULL;
-          MacroLIB[Pos].Src=NULL;
-          MacroLIB[Pos].Description=NULL;
-        }
+						if (NewMacroLIB==NULL)
+						{
+							WaitInFastFind++;
+							return(FALSE);
+						}
+						MacroLIB=NewMacroLIB;
+						MacroLIBCount++;
+					}
+				}
+				else
+				{
+					if(MacroLIB[Pos].BufferSize > 1 && MacroLIB[Pos].Buffer)
+						xf_free(MacroLIB[Pos].Buffer);
+					if(MacroLIB[Pos].Src)
+						xf_free(MacroLIB[Pos].Src);
+					if(MacroLIB[Pos].Description)
+						xf_free(MacroLIB[Pos].Description);
+					MacroLIB[Pos].Buffer=NULL;
+					MacroLIB[Pos].Src=NULL;
+					MacroLIB[Pos].Description=NULL;
+				}
 
-        if(Pos < MacroLIBCount)
-        {
-          MacroLIB[Pos].Key=MacroKey;
+				if(Pos < MacroLIBCount)
+				{
+					MacroLIB[Pos].Key=MacroKey;
 
 					if(RecBufferSize > 0 && !RecSrc)
 						RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
@@ -620,71 +620,72 @@ int KeyMacro::ProcessKey(int Key)
 					else if(RecBuffer && RecBufferSize > 0)
 						MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
 					else if(!RecBufferSize)
-            MacroLIB[Pos].Buffer=NULL;
+						MacroLIB[Pos].Buffer=NULL;
 
 					MacroLIB[Pos].BufferSize=RecBufferSize;
 					MacroLIB[Pos].Src=RecSrc?RecSrc:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
 					MacroLIB[Pos].Description=NULL;
 
-          // если удаляем макрос - скорректируем StartMode,
-          // иначе макрос из common получит ту область, в которой его решили удалить.
-          if(!MacroLIB[Pos].BufferSize||!MacroLIB[Pos].Src)
-            StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
+					// если удаляем макрос - скорректируем StartMode,
+					// иначе макрос из common получит ту область, в которой его решили удалить.
+					if(!MacroLIB[Pos].BufferSize||!MacroLIB[Pos].Src)
+						StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
 
-          MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
-        }
-      }
+					MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+				}
+			}
 
-      Recording=MACROMODE_NOMACRO;
+			Recording=MACROMODE_NOMACRO;
 			RecBuffer=NULL;
 			RecBufferSize=0;
 			RecSrc=NULL;
-      ScrBuf.RestoreMacroChar();
-      WaitInFastFind++;
-      KeyMacro::Sort();
+			ScrBuf.RestoreMacroChar();
+			WaitInFastFind++;
+			KeyMacro::Sort();
 
-      if (Opt.AutoSaveSetup)
-        SaveMacros(FALSE); // записать только изменения!
+			if (Opt.AutoSaveSetup)
+				SaveMacros(FALSE); // записать только изменения!
 
-      return(TRUE);
-    }
-    else // процесс записи продолжается.
-    {
-      if ((unsigned int)Key>=KEY_NONE && (unsigned int)Key<=KEY_END_SKEY) // специальные клавиши прокинем
-        return(FALSE);
+			return(TRUE);
+		}
+		else // процесс записи продолжается.
+		{
+			if ((unsigned int)Key>=KEY_NONE && (unsigned int)Key<=KEY_END_SKEY) // специальные клавиши прокинем
+				return(FALSE);
 
 			RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+3));
 			if (RecBuffer==NULL)
-        return(FALSE);
+				return(FALSE);
 
-      if(ReturnAltValue) // "подтасовка" фактов ;-)
-        Key|=KEY_ALTDIGIT;
+			if(ReturnAltValue) // "подтасовка" фактов ;-)
+				Key|=KEY_ALTDIGIT;
 
 			if(!RecBufferSize)
 				RecBuffer[RecBufferSize++]=MCODE_OP_KEYS;
 
 			RecBuffer[RecBufferSize++]=Key;
-      return(FALSE);
-    }
-  }
-  else if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
-  {
-    _KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
-    // Полиция 18
-    if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
-      return FALSE;
-//    if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
-//      return FALSE;
+			return(FALSE);
+		}
+	}
+	else if ((unsigned int)Key==Opt.KeyMacroCtrlDot || (unsigned int)Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
+	{
+		_KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
+		// Полиция 18
+		if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
+			return FALSE;
+		//if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
+		//	return FALSE;
 
-    if(LockScr) delete LockScr;
-    LockScr=NULL;
+		if(LockScr)
+			delete LockScr;
+		LockScr=NULL;
 
-    // Где мы?
-    StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
-    // тип записи - с вызовом диалога настроек или...
-    // В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
-    // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-    Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+		// Где мы?
+		StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
+		// тип записи - с вызовом диалога настроек или...
+		// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
+		// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
+		Recording=((unsigned int)Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
 		if(RecBuffer)
 			xf_free(RecBuffer);
@@ -692,92 +693,93 @@ int KeyMacro::ProcessKey(int Key)
 		RecBuffer=NULL;
 		RecBufferSize=0;
 		RecSrc=NULL;
-    ScrBuf.ResetShadow();
-    ScrBuf.Flush();
-    WaitInFastFind--;
-    return(TRUE);
-  }
-  else
-  {
-    if (Work.Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
-    {
-      //_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
-      //_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
-      DWORD CurFlags;
-      if((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
-      {
-//        Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-        Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-        //_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
+		ScrBuf.ResetShadow();
+		ScrBuf.Flush();
+		WaitInFastFind--;
+		return(TRUE);
+	}
+	else
+	{
+		if (Work.Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
+		{
+			//_KEYMACRO(CleverSysLog Clev(L"MACRO find..."));
+			//_KEYMACRO(SysLog(L"Param Key=%s",_FARKEY_ToName(Key)));
+			DWORD CurFlags;
+			if((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
+			{
+				//Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+				Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+				//_KEYMACRO(SysLog(L"Upper(Key)=%s",_FARKEY_ToName(Key)));
 
-        if((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
-          Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
-      }
+				if((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
+					Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+			}
 
-      int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
-      if(I != -1 && !((CurFlags=MacroLIB[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
-      {
-        _KEYMACRO(SysLog(L"[%d] Found KeyMacro (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
-        if(!CheckAll(Mode,CurFlags))
-          return FALSE;
+			int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
+			if(I != -1 && !((CurFlags=MacroLIB[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
+			{
+				_KEYMACRO(SysLog(L"[%d] Found KeyMacro (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
+				if(!CheckAll(Mode,CurFlags))
+					return FALSE;
 
-        // Скопируем текущее исполнение в MacroWORK
-        //PostNewMacro(MacroLIB+I);
-        // Подавлять вывод?
-        if (CurFlags&MFLAGS_DISABLEOUTPUT)
-        {
-          if(LockScr) delete LockScr;
-          LockScr=new LockScreen;
-        }
+				// Скопируем текущее исполнение в MacroWORK
+				//PostNewMacro(MacroLIB+I);
+				// Подавлять вывод?
+				if (CurFlags&MFLAGS_DISABLEOUTPUT)
+				{
+					if(LockScr)
+						delete LockScr;
+					LockScr=new LockScreen;
+				}
 
-        // различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
-        Work.ExecLIBPos=0;
-        PostNewMacro(MacroLIB+I);
-        Work.MacroPC=I;
+				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
+				Work.ExecLIBPos=0;
+				PostNewMacro(MacroLIB+I);
+				Work.MacroPC=I;
 
-        IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
+				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 
-        _KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
-        _KEYMACRO(SysLog(1));
-        return(TRUE);
-      }
-    }
-    return(FALSE);
-  }
+				_KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
+				_KEYMACRO(SysLog(1));
+				return(TRUE);
+			}
+		}
+		return(FALSE);
+	}
 }
 
 bool KeyMacro::GetPlainText(string& strDest)
 {
-  if(!Work.MacroWORK)
-    return false;
+	if(!Work.MacroWORK)
+		return false;
 
 	MacroRecord *MR=Work.MacroWORK;
 
-  int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
-  if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
-  {
-    strDest=L"";
-    strDest=(const wchar_t *)&MR->Buffer[Work.ExecLIBPos];
-    _SVS(SysLog(L"strDest='%s'",strDest.CPtr()));
-    _SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-    Work.ExecLIBPos+=(LenTextBuf+sizeof(wchar_t))/sizeof(DWORD);
-    _SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-    if(((LenTextBuf+sizeof(wchar_t))%sizeof(DWORD)) != 0)
-      ++Work.ExecLIBPos;
-    _SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-    return true;
-  }
-  else
-    Work.ExecLIBPos++;
-  return false;
+	int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
+	if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
+	{
+		strDest=L"";
+		strDest=(const wchar_t *)&MR->Buffer[Work.ExecLIBPos];
+		_SVS(SysLog(L"strDest='%s'",strDest.CPtr()));
+		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
+		Work.ExecLIBPos+=(LenTextBuf+sizeof(wchar_t))/sizeof(DWORD);
+		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
+		if(((LenTextBuf+sizeof(wchar_t))%sizeof(DWORD)) != 0)
+			++Work.ExecLIBPos;
+		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
+		return true;
+	}
+	else
+		Work.ExecLIBPos++;
+	return false;
 }
 
 int KeyMacro::GetPlainTextSize()
 {
-  if(!Work.MacroWORK)
-    return 0;
+	if(!Work.MacroWORK)
+		return 0;
 	MacroRecord *MR=Work.MacroWORK;
-  return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
+	return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
@@ -1874,51 +1876,51 @@ static bool promptFunc()
 // N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc()
 {
-  DWORD Flags = (DWORD)VMStack.Pop().getInteger();
-  TVar ValB, ValT;
-  VMStack.Pop(ValB);
-  VMStack.Pop(ValT);
+	DWORD Flags = (DWORD)VMStack.Pop().getInteger();
+	TVar ValB, ValT;
+	VMStack.Pop(ValB);
+	VMStack.Pop(ValT);
 
-  const wchar_t *title = L"";
-  if(!(ValT.isInteger() && !ValT.i()))
-    title=NullToEmpty(ValT.toString());
+	const wchar_t *title = L"";
+	if(!(ValT.isInteger() && !ValT.i()))
+		title=NullToEmpty(ValT.toString());
 
-  const wchar_t *text  = L"";
-  if(!(ValB.isInteger() && !ValB.i()))
-    text =NullToEmpty(ValB.toString());
+	const wchar_t *text  = L"";
+	if(!(ValB.isInteger() && !ValB.i()))
+		text =NullToEmpty(ValB.toString());
 
-  Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
-  Flags|=FMSG_ALLINONE;
-  if(HIWORD(Flags) == 0 || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
-    Flags|=FMSG_MB_OK;
+	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
+	Flags|=FMSG_ALLINONE;
+	if(HIWORD(Flags) == 0 || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
+		Flags|=FMSG_MB_OK;
 
-  //_KEYMACRO(SysLog(L"title='%s'",title));
-  //_KEYMACRO(SysLog(L"text='%s'",text));
-  string TempBuf = title;
-  TempBuf += L"\n";
-  TempBuf += text;
-  int Result=FarMessageFn(-1,Flags,NULL,(const wchar_t * const *)((const wchar_t *)TempBuf),0,0)+1;
-  VMStack.Push((__int64)Result);
-  return true;
+	//_KEYMACRO(SysLog(L"title='%s'",title));
+	//_KEYMACRO(SysLog(L"text='%s'",text));
+	string TempBuf = title;
+	TempBuf += L"\n";
+	TempBuf += text;
+	int Result=FarMessageFn(-1,Flags,NULL,(const wchar_t * const *)((const wchar_t *)TempBuf),0,0)+1;
+	VMStack.Push((__int64)Result);
+	return true;
 }
 
 
 // S=env(S)
 static bool environFunc()
 {
-  TVar S;
-  VMStack.Pop(S);
-  bool Ret=false;
-  string strEnv;
+	TVar S;
+	VMStack.Pop(S);
+	bool Ret=false;
+	string strEnv;
 
-  if ( apiGetEnvironmentVariable(S.toString(), strEnv) )
-    Ret=true;
-  else
-    strEnv=L"";
+	if ( apiGetEnvironmentVariable(S.toString(), strEnv) )
+		Ret=true;
+	else
+		strEnv=L"";
 
-  VMStack.Push((const wchar_t*)strEnv);
+	VMStack.Push((const wchar_t*)strEnv);
 
-  return Ret;
+	return Ret;
 }
 
 static bool _fattrFunc(int Type)
@@ -5111,9 +5113,9 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
 int KeyMacro::GetRecordSize(int Key, int CheckMode)
 {
-  int Pos=GetIndex(Key,CheckMode);
-  if(Pos == -1)
-    return 0;
+	int Pos=GetIndex(Key,CheckMode);
+	if(Pos == -1)
+		return 0;
 	return sizeof(MacroRecord)+MacroLIB[Pos].BufferSize;
 }
 
@@ -5260,139 +5262,132 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 
 BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
-  if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
-  {
-    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
-    Frame* CurFrame=FrameManager->GetCurrentFrame();
-    if (CurFrame && CurFrame->GetType()==NeedType)
-    {
-      int CurSelected;
-      if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-        CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
-      else
-        CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
+	if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
+	{
+		int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
+		Frame* CurFrame=FrameManager->GetCurrentFrame();
+		if (CurFrame && CurFrame->GetType()==NeedType)
+		{
+			int CurSelected;
+			if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+				CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+			else
+				CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
 
-      if(((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected) ||
-         ((CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected))
-          return FALSE;
-    }
-  }
-  return TRUE;
+			if(((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected) ||	((CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected))
+				return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 {
-  if(CtrlObject && CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
-  //if(CtrlObject && CtrlObject->Plugins.CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
-    return FALSE;
-  return TRUE;
+	if(CtrlObject && CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
+	//if(CtrlObject && CtrlObject->Plugins.CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
+		return FALSE;
+	return TRUE;
 }
 
 BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
 {
- if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0) ||
-     ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
-      return FALSE;
-  return TRUE;
+	if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0) || ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
+		return FALSE;
+	return TRUE;
 }
 
 BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags,BOOL IsPassivePanel)
 {
-  if(IsPassivePanel)
-  {
-    if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) ||
-       (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
-      return FALSE;
-  }
-  else
-  {
-    if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) ||
-       (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
-      return FALSE;
-  }
-  return TRUE;
+	if(IsPassivePanel)
+	{
+		if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) || (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
+			return FALSE;
+	}
+	else
+	{
+		if((PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) || (PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
+			return FALSE;
+	}
+	return TRUE;
 }
 
 BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassivePanel)
 {
-  string strFileName;
-  DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-  CheckPanel->GetFileName(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
-  if(FileAttr != INVALID_FILE_ATTRIBUTES)
-  {
-    if(IsPassivePanel)
-    {
-      if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFILES)))
-        return FALSE;
-    }
-    else
-    {
-      if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFILES)))
-        return FALSE;
-    }
-  }
-  return TRUE;
+	string strFileName;
+	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+	CheckPanel->GetFileName(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
+	if(FileAttr != INVALID_FILE_ATTRIBUTES)
+	{
+		if(IsPassivePanel)
+		{
+			if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFILES)))
+				return FALSE;
+		}
+		else
+		{
+			if(((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFILES)))
+				return FALSE;
+		}
+	}
+	return TRUE;
 }
 
 BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
 {
-/* $TODO:
-     Здесь вместо Check*() попробовать заюзать IfCondition()
-     для исключения повторяющегося кода.
-*/
-  if(!CheckInsidePlugin(CurFlags))
-    return FALSE;
+	/* $TODO:
+		Здесь вместо Check*() попробовать заюзать IfCondition()
+		для исключения повторяющегося кода.
+	*/
+	if(!CheckInsidePlugin(CurFlags))
+		return FALSE;
 
-  // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
-  if(CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
-    if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
-      return FALSE;
+	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
+	if(CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
+		if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
+			return FALSE;
 
-  FilePanels *Cp=CtrlObject->Cp();
-  if(!Cp)
-    return FALSE;
+	FilePanels *Cp=CtrlObject->Cp();
+	if(!Cp)
+		return FALSE;
 
-  // проверки панели и типа файла
-  Panel *ActivePanel=Cp->ActivePanel;
-  Panel *PassivePanel=Cp->GetAnotherPanel(Cp->ActivePanel);
-  if(ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
-  {
+	// проверки панели и типа файла
+	Panel *ActivePanel=Cp->ActivePanel;
+	Panel *PassivePanel=Cp->GetAnotherPanel(Cp->ActivePanel);
+	if(ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
+	{
+		if(CurFlags&(MFLAGS_NOPLUGINPANELS|MFLAGS_NOFILEPANELS))
+			if(!CheckPanel(ActivePanel->GetMode(),CurFlags,FALSE))
+				return FALSE;
 
-    if(CurFlags&(MFLAGS_NOPLUGINPANELS|MFLAGS_NOFILEPANELS))
-      if(!CheckPanel(ActivePanel->GetMode(),CurFlags,FALSE))
-        return FALSE;
+		if(CurFlags&(MFLAGS_PNOPLUGINPANELS|MFLAGS_PNOFILEPANELS))
+			if(!CheckPanel(PassivePanel->GetMode(),CurFlags,TRUE))
+				return FALSE;
 
-    if(CurFlags&(MFLAGS_PNOPLUGINPANELS|MFLAGS_PNOFILEPANELS))
-      if(!CheckPanel(PassivePanel->GetMode(),CurFlags,TRUE))
-        return FALSE;
+		if(CurFlags&(MFLAGS_NOFOLDERS|MFLAGS_NOFILES))
+			if(!CheckFileFolder(ActivePanel,CurFlags,FALSE))
+				return FALSE;
 
-    if(CurFlags&(MFLAGS_NOFOLDERS|MFLAGS_NOFILES))
-      if(!CheckFileFolder(ActivePanel,CurFlags,FALSE))
-        return FALSE;
+		if(CurFlags&(MFLAGS_PNOFOLDERS|MFLAGS_PNOFILES))
+			if(!CheckFileFolder(PassivePanel,CurFlags,TRUE))
+				return FALSE;
 
-    if(CurFlags&(MFLAGS_PNOFOLDERS|MFLAGS_PNOFILES))
-      if(!CheckFileFolder(PassivePanel,CurFlags,TRUE))
-        return FALSE;
+		if(CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
+			if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
+			{
+				int SelCount=ActivePanel->GetRealSelCount();
+				if(((CurFlags&MFLAGS_SELECTION) && SelCount < 1) || ((CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1))
+					return FALSE;
 
-    if(CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
-      if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
-      {
-        int SelCount=ActivePanel->GetRealSelCount();
-        if(((CurFlags&MFLAGS_SELECTION) && SelCount < 1) ||
-           ((CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1))
-          return FALSE;
+				SelCount=PassivePanel->GetRealSelCount();
+				if(((CurFlags&MFLAGS_PSELECTION) && SelCount < 1) || ((CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1))
+					return FALSE;
+			}
+	}
 
-        SelCount=PassivePanel->GetRealSelCount();
-        if(((CurFlags&MFLAGS_PSELECTION) && SelCount < 1) ||
-           ((CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1))
-          return FALSE;
-      }
-  }
+	if(!CheckEditSelected(CurFlags))
+		return FALSE;
 
-  if(!CheckEditSelected(CurFlags))
-    return FALSE;
-
-  return TRUE;
+	return TRUE;
 }
 
 /*

@@ -92,6 +92,7 @@ const wchar_t NKeyPanelLeft[]=L"Panel\\Left";
 const wchar_t NKeyPanelRight[]=L"Panel\\Right";
 const wchar_t NKeyPanelLayout[]=L"Panel\\Layout";
 const wchar_t NKeyPanelTree[]=L"Panel\\Tree";
+const wchar_t NKeyPanelInfo[]=L"Panel\\Info";
 const wchar_t NKeyLayout[]=L"Layout";
 const wchar_t NKeyDescriptions[]=L"Descriptions";
 const wchar_t NKeyKeyMacros[]=L"KeyMacros";
@@ -431,6 +432,87 @@ void InterfaceSettings()
 
   // $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
   CtrlObject->Cp()->Redraw();
+}
+
+void InfoPanelSettings()
+{
+	enum enumInfoPanelSettings
+	{
+		DLG_INFOPANEL_TITLE,
+		DLG_INFOPANEL_USERNAMETITLE,
+		DLG_INFOPANEL_USERNAMELIST,
+		DLG_INFOPANEL_SEPARATOR,
+		DLG_INFOPANEL_OK,
+		DLG_INFOPANEL_CANCEL
+	};
+	static DialogDataEx CfgDlgData[]={
+	/* 00 */DI_DOUBLEBOX,3, 1,58, 6,0,0,0,0,(const wchar_t *)MConfigInfoPanelTitle,
+	/* 01 */DI_TEXT,     5, 2, 0, 2,0,0,0,0,(const wchar_t *)MConfigInfoPanelUNTitle,
+	/* 02 */DI_COMBOBOX, 5, 3,56, 3,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,L"",
+	/* 03 */DI_TEXT,     3, 4, 0, 4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+	/* 04 */DI_BUTTON,   0, 5, 0, 5,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+	/* 05 */DI_BUTTON,   0, 5, 0, 5,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	};
+
+	MakeDialogItemsEx(CfgDlgData,CfgDlg);
+
+	struct {
+		int MsgFormat;
+		EXTENDED_NAME_FORMAT TypeFormat;
+	} ExtendedNameFormat[]= {
+		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
+		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
+		{ MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
+		{ MConfigInfoPanelUNDisplay, NameDisplay },                            // 3  - Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
+		{ MConfigInfoPanelUNUniqueId, NameUniqueId },                          // 6  - String-ized GUID as returned by IIDFromString(). eg: {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
+		{ MConfigInfoPanelUNCanonical, NameCanonical },                        // 7  - engineering.widget.com/software/John Doe
+		{ MConfigInfoPanelUNUserPrincipal, NameUserPrincipal },                // 8  - someone@example.com
+		{ MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
+		{ MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
+	};
+
+	/* TODO:
+		COMPUTER_NAME_FORMAT:
+			ComputerNameNetBIOS
+				The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
+			ComputerNameDnsHostname
+				The DNS name of the local computer or the cluster associated with the local computer.
+			ComputerNameDnsDomain
+				The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
+			ComputerNameDnsFullyQualified
+				The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer.
+				This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
+			ComputerNamePhysicalNetBIOS
+				The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
+			ComputerNamePhysicalDnsHostname
+				The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
+			ComputerNamePhysicalDnsDomain
+				The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
+			ComputerNamePhysicalDnsFullyQualified
+				The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+	*/
+
+	FarListItem UserNameListItems[countof(ExtendedNameFormat)]={0};
+	FarList UserNameList = {countof(UserNameListItems),UserNameListItems};
+	CfgDlg[DLG_INFOPANEL_USERNAMELIST].ListItems = &UserNameList;
+
+	for( int I=0; I < countof(ExtendedNameFormat); ++I)
+	{
+		UserNameListItems[I].Text=MSG(ExtendedNameFormat[I].MsgFormat);
+		if(Opt.InfoPanel.UserNameFormat == ExtendedNameFormat[I].TypeFormat)
+			UserNameListItems[I].Flags|=LIF_SELECTED;
+	}
+
+	{
+		Dialog Dlg((DialogItemEx*)CfgDlg,countof(CfgDlg));
+		Dlg.SetHelp(L"InfoPanelSettings");
+		Dlg.SetPosition(-1,-1,62,8);
+		Dlg.Process();
+		if (Dlg.GetExitCode() != DLG_INFOPANEL_OK)
+			return;
+	}
+
+	Opt.InfoPanel.UserNameFormat=ExtendedNameFormat[CfgDlg[DLG_INFOPANEL_USERNAMELIST].ListPos].TypeFormat;
 }
 
 void DialogSettings()
@@ -968,9 +1050,9 @@ void SetFolderInfoFiles()
 {
   string strFolderInfoFiles;
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-      Opt.strFolderInfoFiles,strFolderInfoFiles,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
+      Opt.InfoPanel.strFolderInfoFiles,strFolderInfoFiles,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
   {
-    Opt.strFolderInfoFiles = strFolderInfoFiles;
+    Opt.InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
     if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
       CtrlObject->Cp()->LeftPanel->Update(0);
     if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
@@ -1118,7 +1200,6 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,L"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
   {1, REG_DWORD,  NKeySystem,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
 	{1, REG_DWORD,  NKeySystem,L"FindCodePage",&Opt.FindCodePage, CP_AUTODETECT, 0},
-  {1, REG_SZ,     NKeySystem,L"FolderInfo",&Opt.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
   {0, REG_DWORD,  NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
   {0, REG_DWORD,  NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
@@ -1258,6 +1339,9 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 
 	{1, REG_DWORD,  NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
+
+	{1, REG_SZ,     NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
+	{1, REG_DWORD,  NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
 };
 
 

@@ -348,7 +348,7 @@ wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
   if ((ChPtr=Str) == 0)
     return NULL;
 
-  for (; IsSpace(*ChPtr); ChPtr++)
+  for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
     wmemmove(Str,ChPtr,StrLength(ChPtr)+1);
@@ -361,7 +361,7 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
   wchar_t *ChPtr = strStr.GetBuffer ();
   wchar_t *Str = ChPtr;
 
-  for (; IsSpace(*ChPtr); ChPtr++)
+  for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
     ;
 
   if (ChPtr!=Str)

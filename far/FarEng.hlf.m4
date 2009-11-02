@@ -2182,6 +2182,9 @@ $ #Settings dialog: settings#
 
    См. так же список ~макроклавиш~@KeyMacroDialogList@, доступных в диалогах.
 
+@InfoPanelSettings
+$ #Настройка информационной панели#
+
 @CommandPrompt
 $ #Command line prompt format#
    FAR allows to change the command line prompt format.
