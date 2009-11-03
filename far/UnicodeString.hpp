@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "local.hpp"
+
 #define string UnicodeString
 
 #define __US_DELTA 20
@@ -56,11 +58,7 @@ private:
 		return new wchar_t[*nNewSize];
 	}
 
-	void FreeData(wchar_t *pData)
-	{
-		if (pData)
-			delete [] pData;
-	}
+	void FreeData(wchar_t *pData) { delete [] pData; }
 
 public:
 	UnicodeStringData(size_t nSize=0, size_t nDelta=0)
@@ -110,31 +108,12 @@ public:
 		}
 	}
 
-	wchar_t *GetData()
-	{
-		return m_pData;
-	}
+	wchar_t *GetData() { return m_pData; }
+	size_t GetLength() const { return m_nLength; }
+	size_t GetSize() const { return m_nSize; }
 
-	size_t GetLength() const
-	{
-		return m_nLength;
-	}
-
-	size_t GetSize() const
-	{
-		return m_nSize;
-	}
-
-	int GetRef()
-	{
-		return m_nRefCount;
-	}
-
-	void AddRef()
-	{
-		m_nRefCount++;
-	}
-
+	int GetRef() const { return m_nRefCount; }
+	void AddRef() { m_nRefCount++; }
 	void DecRef()
 	{
 		m_nRefCount--;
@@ -142,242 +121,102 @@ public:
 			delete this;
 	}
 
-	~UnicodeStringData()
-	{
-		FreeData(m_pData);
-	}
+	~UnicodeStringData() { FreeData(m_pData); }
 };
 
 class UnicodeString {
 private:
 	UnicodeStringData *m_pData;
 
-	void DeleteData()
-	{
-		if (m_pData)
-			m_pData->DecRef();
-	}
+	void SetEUS();
 
 public:
-	UnicodeString();
 
-	explicit UnicodeString(size_t nSize, size_t nDelta=0)
-	{
-		m_pData = new UnicodeStringData(nSize, nDelta);
-	}
+	UnicodeString() { SetEUS(); }
+	UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
+	UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
+	UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
+	UnicodeString(const char *lpszData, UINT CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
+	explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
 
-	const UnicodeString& SetData(const UnicodeString &strCopy);
-	const UnicodeString& SetData(const wchar_t *lpwszData);
-	const UnicodeString& SetData(const wchar_t *lpwszData, size_t nLength);
-	const UnicodeString& SetData(const char *lpszData, UINT CodePage=CP_OEMCP);
-
-	UnicodeString(const UnicodeString &strCopy)
-	{
-		m_pData = NULL;
-		SetData(strCopy);
-	}
-
-	UnicodeString(const wchar_t *lpwszData)
-	{
-		m_pData = NULL;
-		SetData(lpwszData);
-	}
-
-	UnicodeString(const wchar_t *lpwszData, size_t nLength)
-	{
-		m_pData = NULL;
-		SetData(lpwszData,nLength);
-	}
-
-	UnicodeString(const char *lpszData, UINT CodePage=CP_OEMCP)
-	{
-		m_pData = NULL;
-		SetData(lpszData,CodePage);
-	}
-
-	~UnicodeString()
-	{
-		DeleteData();
-	}
+	~UnicodeString() { /*if (m_pData) он не должен быть NULL*/ m_pData->DecRef(); }
 
 	void Inflate(size_t nSize);
+	wchar_t *GetBuffer (size_t nSize = (size_t)-1);
+	void ReleaseBuffer (size_t nLength = (size_t)-1);
 
-	size_t GetLength() const
-	{
-		return m_pData->GetLength();
-	}
+	size_t GetLength() const { return m_pData->GetLength(); }
+	size_t SetLength(size_t nLength);
+
+	wchar_t At (size_t nIndex) const { return m_pData->GetData()[nIndex]; }
+
+	bool IsEmpty () const { return !(m_pData->GetLength () && *m_pData->GetData ()); }
 
 	size_t GetCharString(char *lpszStr, size_t nSize, UINT CodePage=CP_OEMCP) const;
 
+	int __cdecl Format (const wchar_t * format, ...);
+
 	UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
-	UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str);
-	UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Str);
-	UnicodeString& Replace(size_t Pos, size_t Len, wchar_t Ch);
-	UnicodeString& Append(const wchar_t* Str, size_t StrLen);
-	UnicodeString& Append(const UnicodeString& Str);
-	UnicodeString& Append(const wchar_t* Str);
-	UnicodeString& Append(wchar_t Ch);
+	UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str) { return Replace(Pos, Len, Str.CPtr(), Str.GetLength()); }
+	UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Str) { return Replace(Pos, Len, Str, StrLength(NullToEmpty(Str))); }
+	UnicodeString& Replace(size_t Pos, size_t Len, wchar_t Ch) { return Replace(Pos, Len, &Ch, 1); }
+
+	UnicodeString& Append(const wchar_t* Str, size_t StrLen) { return Replace(GetLength(), 0, Str, StrLen); }
+	UnicodeString& Append(const UnicodeString& Str) { return Append(Str.CPtr(), Str.GetLength()); }
+	UnicodeString& Append(const wchar_t* Str) { return Append(Str, StrLength(NullToEmpty(Str))); }
+	UnicodeString& Append(wchar_t Ch) { return Append(&Ch, 1); }
 	UnicodeString& Append(const char *lpszAdd, UINT CodePage=CP_OEMCP);
-	UnicodeString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen);
-	UnicodeString& Insert(size_t Pos, const UnicodeString& Str);
-	UnicodeString& Insert(size_t Pos, const wchar_t* Str);
-	UnicodeString& Insert(size_t Pos, wchar_t Ch);
-	UnicodeString& Copy(const wchar_t *Str, size_t StrLen);
+
+	UnicodeString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return Replace(Pos, 0, Str, StrLen); }
+	UnicodeString& Insert(size_t Pos, const UnicodeString& Str) { return Insert(Pos, Str.CPtr(), Str.GetLength()); }
+	UnicodeString& Insert(size_t Pos, const wchar_t* Str) { return Insert(Pos, Str, StrLength(NullToEmpty(Str))); }
+	UnicodeString& Insert(size_t Pos, wchar_t Ch) { return Insert(Pos, &Ch, 1); }
+
+	UnicodeString& Copy(const wchar_t *Str, size_t StrLen) { return Replace(0, GetLength(), Str, StrLen); }
+	UnicodeString& Copy(const wchar_t *Str) { return Copy(Str, StrLength(NullToEmpty(Str))); }
+	UnicodeString& Copy(wchar_t Ch) { return Copy(&Ch, 1); }
 	UnicodeString& Copy(const UnicodeString &Str);
-	UnicodeString& Copy(const wchar_t *Str);
-	UnicodeString& Copy(wchar_t Ch);
-	UnicodeString& Remove(size_t Pos, size_t Len = 1);
-	UnicodeString& Clear();
+  UnicodeString& Copy(const char *lpszData, UINT CodePage=CP_OEMCP);
 
-	operator const wchar_t *() const
-	{
-		return m_pData->GetData();
-	}
+	UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, NULL, 0); }
+	UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 
-	const wchar_t *CPtr() const
-	{
-		return m_pData->GetData();
-	}
+	UnicodeString& Clear() { SetLength(0); return *this; }
 
-	const UnicodeString& operator=(const UnicodeString &strCopy)
-	{
-		return Copy(strCopy);
-	}
+	const wchar_t *CPtr() const { return m_pData->GetData(); }
+	operator const wchar_t *() const { return m_pData->GetData(); }
 
-	const UnicodeString& operator=(const char *lpszData)
-	{
-		return Copy(lpszData);
-	}
+	const UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
+	const UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
+	const UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
+	const UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
 
-	const UnicodeString& operator=(const wchar_t *lpwszData)
-	{
-		return Copy(lpwszData);
-	}
-
-	const UnicodeString& operator=(wchar_t chData)
-	{
-		return Copy(chData);
-	}
-
-	const UnicodeString& operator+=(const UnicodeString &strAdd)
-	{
-		return Append(strAdd);
-	}
-
-	const UnicodeString& operator+=(const char *lpszAdd)
-	{
-		return Append(lpszAdd);
-	}
-
-	const UnicodeString& operator+=(const wchar_t *lpwszAdd)
-	{
-		return Append(lpwszAdd);
-	}
-
-	const UnicodeString& operator+=(wchar_t chAdd)
-	{
-		return Append(chAdd);
-	}
+	const UnicodeString& operator+=(const UnicodeString &strAdd) { return Append(strAdd); }
+	const UnicodeString& operator+=(const char *lpszAdd) { return Append(lpszAdd); }
+	const UnicodeString& operator+=(const wchar_t *lpwszAdd) { return Append(lpwszAdd); }
+	const UnicodeString& operator+=(wchar_t chAdd) { return Append(chAdd); }
 
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);
 	friend const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwszSrc2);
 
 	bool Equal(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen) const;
-	bool Equal(size_t Pos, const wchar_t* Str, size_t StrLen) const;
-	bool Equal(size_t Pos, const wchar_t* Str) const;
-	bool Equal(size_t Pos, const UnicodeString& Str) const;
-	bool Equal(size_t Pos, wchar_t Ch) const;
-	bool operator==(const UnicodeString& Str) const;
-	bool operator==(const wchar_t* Str) const;
-	bool operator==(wchar_t Ch) const;
+	bool Equal(size_t Pos, const wchar_t* Str, size_t StrLen) const { return Equal(Pos, StrLen, Str, StrLen); }
+	bool Equal(size_t Pos, const wchar_t* Str) const { return Equal(Pos, StrLength(Str), Str, StrLength(Str)); }
+	bool Equal(size_t Pos, const UnicodeString& Str) const { return Equal(Pos, Str.GetLength(), Str.CPtr(), Str.GetLength()); }
+	bool Equal(size_t Pos, wchar_t Ch) const { return Equal(Pos, 1, &Ch, 1); }
+	bool operator==(const UnicodeString& Str) const { return Equal(0, GetLength(), Str.CPtr(), Str.GetLength()); }
+	bool operator==(const wchar_t* Str) const { return Equal(0, GetLength(), Str, StrLength(Str)); }
+	bool operator==(wchar_t Ch) const { return Equal(0, GetLength(), &Ch, 1); }
 
-	wchar_t *GetBuffer (size_t nSize = (size_t)-1);
-	void ReleaseBuffer (size_t nLength = (size_t)-1);
+	UnicodeString& Lower(size_t nStartPos=0, size_t nLength=(size_t)-1);
+	UnicodeString& Upper(size_t nStartPos=0, size_t nLength=(size_t)-1);
 
-	size_t SetLength(size_t nLength);
-
-	wchar_t At (size_t nIndex) const
-	{
-		return m_pData->GetData()[nIndex];
-	}
-
-	bool IsEmpty () const
-	{
-		return !(m_pData->GetLength () && *m_pData->GetData ());
-	}
-
-	void Lower (size_t nStartPos=0, size_t nLength=(size_t)-1)
-	{
-		Inflate (m_pData->GetSize());
-		CharLowerBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
-	}
-
-	void Upper (size_t nStartPos=0, size_t nLength=(size_t)-1)
-	{
-		Inflate (m_pData->GetSize());
-		CharUpperBuffW (m_pData->GetData()+nStartPos, nLength==(size_t)-1?(DWORD)(m_pData->GetLength()-nStartPos):(DWORD)nLength);
-	}
-
-	void LShift (size_t nShiftCount, size_t nStartPos=0)
-	{
-		/*if ( nShiftCount > m_pData->GetLength () )
-			nShiftCount = m_pData->GetLength ();*/
-
-		Inflate (m_pData->GetSize());
-		wmemmove (m_pData->GetData()+nStartPos, m_pData->GetData()+nStartPos+nShiftCount, (m_pData->GetLength()-nStartPos-nShiftCount+1));
-		m_pData->SetLength(m_pData->GetLength()-nShiftCount);
-	}
-
-	bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
-	{
-		const wchar_t *lpwszStr = wcschr(m_pData->GetData()+nStartPos,Ch);
-		if (lpwszStr)
-		{
-			nPos = lpwszStr - m_pData->GetData();
-			return true;
-		}
-		return false;
-	}
-
-	bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const
-	{
-		const wchar_t *lpwszStr = wcsstr(m_pData->GetData()+nStartPos,lpwszFind);
-		if (lpwszStr)
-		{
-			nPos = lpwszStr - m_pData->GetData();
-			return true;
-		}
-		return false;
-	}
-
+	bool Pos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
+	bool Pos(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
 	bool PosI(size_t &nPos, const wchar_t *lpwszFind, size_t nStartPos=0) const;
+	bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const;
 
-	bool RPos(size_t &nPos, wchar_t Ch, size_t nStartPos=0) const
-	{
-		const wchar_t *lpwszStrStart = m_pData->GetData()+nStartPos;
-		const wchar_t *lpwszStrEnd = m_pData->GetData()+m_pData->GetLength();
-		do
-		{
-			if (*lpwszStrEnd == Ch)
-			{
-				nPos = lpwszStrEnd - m_pData->GetData();
-				return true;
-			}
-			lpwszStrEnd--;
-		} while (lpwszStrEnd >= lpwszStrStart);
-		return false;
-	}
-
-	bool Contains(wchar_t Ch, size_t nStartPos=0) const
-	{
-		return wcschr(m_pData->GetData()+nStartPos,Ch)==NULL ? false : true;
-	}
-
-	bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const
-	{
-		return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==NULL ? false : true;
-	}
-
-	int __cdecl Format (const wchar_t * format, ...);
+	bool Contains(wchar_t Ch, size_t nStartPos=0) const { return wcschr(m_pData->GetData()+nStartPos,Ch)==NULL ? false : true; }
+	bool Contains(const wchar_t *lpwszFind, size_t nStartPos=0) const { return wcsstr(m_pData->GetData()+nStartPos,lpwszFind)==NULL ? false : true; }
 };

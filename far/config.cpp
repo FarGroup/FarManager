@@ -496,7 +496,7 @@ void InfoPanelSettings()
 	FarList UserNameList = {countof(UserNameListItems),UserNameListItems};
 	CfgDlg[DLG_INFOPANEL_USERNAMELIST].ListItems = &UserNameList;
 
-	for( int I=0; I < countof(ExtendedNameFormat); ++I)
+	for (size_t I=0; I < countof(ExtendedNameFormat); ++I)
 	{
 		UserNameListItems[I].Text=MSG(ExtendedNameFormat[I].MsgFormat);
 		if(Opt.InfoPanel.UserNameFormat == ExtendedNameFormat[I].TypeFormat)

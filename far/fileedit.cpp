@@ -2179,8 +2179,7 @@ void FileEditor::ShowStatus()
 
   strLineStr.Format (L"%d/%d", m_editor->NumLine+1, m_editor->NumLastLine);
 
-  string strAttr;
-  strAttr.SetData (AttrStr);
+  string strAttr(AttrStr);
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::Width(NameLength)<<strLocalTitle<<L' '<<
 		(m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' ')<<
