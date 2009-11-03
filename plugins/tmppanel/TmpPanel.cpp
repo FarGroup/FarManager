@@ -98,7 +98,7 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
     while (lstrlen(argv)>1 && (*argv==_T('+') || *argv==_T('-')))
     {
       int k=0;
-      while (argv && *argv!=_T(' '))
+      while (argv && *argv!=_T(' ') && *argv!=_T('<'))
       {
         k++;
         argv++;
@@ -126,6 +126,8 @@ HANDLE WINAPI EXP_NAME(OpenPlugin)(int OpenFrom,INT_PTR Item)
       {
         argv++;
         hPlugin = OpenPanelFromOutput (argv WITH_ANSI_ARG);
+        if (Opt.MenuForFilelist)
+          return INVALID_HANDLE_VALUE;
       }
       else
       {
@@ -255,10 +257,17 @@ static HANDLE OpenPanelFromOutput (TCHAR *argv WITH_ANSI_PARAM)
 
   if (allOK)
   {
-    hPlugin=new TmpPanel();
-    if (hPlugin==NULL)
-      return INVALID_HANDLE_VALUE;
-    ProcessList(hPlugin, tempfilename, Opt.Mode WITH_ANSI_ARG);
+    if (Opt.MenuForFilelist)
+    {
+      ShowMenuFromList(tempfilename);
+    }
+    else
+    {
+      hPlugin=new TmpPanel();
+      if (hPlugin==NULL)
+        return INVALID_HANDLE_VALUE;
+      ProcessList(hPlugin, tempfilename, Opt.Mode WITH_ANSI_ARG);
+    }
   }
 
   DeleteFile(tempfilename);
