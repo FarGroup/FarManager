@@ -1533,7 +1533,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	{
 		VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
-		PluginList.SetHelp(L"Plugins");
+		PluginList.SetHelp(L"PluginCommands");
 		BOOL NeedUpdateItems=TRUE;
 		BOOL Done=FALSE;
 

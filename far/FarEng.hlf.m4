@@ -771,9 +771,9 @@ are useless for you, you may remove them to save disk space.
 #Plugin commands# menu, activated by #F11# or by corresponding item of
 ~Commands menu~@CmdMenu@. #F4# in ~"Plugin commands"~@PluginCommands@ menu allows to assign hot
 keys to menu items (this makes easier to call them from ~keyboard macros~@KeyMacro@).
-This menu is accessible from file panels and (only by #F11#) from the
+This menu is accessible from file panels, dialogs and (only by #F11#) from the
 internal viewer and editor. Only specially designed plugins will be shown when
-calling the menu from the viewer and editor.
+calling the menu from dialogs, the viewer or the editor.
 
     You may set plugin parameters using ~Plugin configuration~@PluginsConfig@
 command from ~Options menu~@OptMenu@.
@@ -849,9 +849,12 @@ help file, the context-sensitive help will not be shown.
 #Config#. If such a topic does not exist in the plugin help file, the main help
 topic for the selected plugin will be shown.
 
-    Pressing #F4# in the #"Plugins configuration"# menu allows to assign
-hotkeys for the items of that menu, allowing to invoke them later through
-~keyboard macro commands~@KeyMacro@.
+    Each item of plugins configuration menu can be assigned a hotkey with #F4#,
+this possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is 
+displayed left to the item. The #A# symbol in leftmost menu column means that
+the corresponding plugin is written for Far 1.7x and it does not support all 
+possibilities available in Far 2 (these are, in particular, Unicode characters 
+in filenames and in editor).
 
 
 @PluginsReviews
@@ -2700,6 +2703,10 @@ currently selected plugin.
 
     #Shift-F1# in the plugins list displays the context-sensitive help of the
 currently selected plugin, if the plugin has a help file.
+
+    The #A# symbol in leftmost menu column means that the corresponding plugin is
+written for Far 1.7x and it does not support all possibilities available in
+Far 2 (these are, in particular, Unicode characters in filenames and in editor).
 
    См. так же список ~макроклавиш~@KeyMacroDisksList@, доступных в меню выбора диска.
 
