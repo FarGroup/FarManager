@@ -497,6 +497,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
       Str++;
 
 	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
+  string HistoryName[MaxSize];
   int DlgSize=0;
   int StrPos[128],StrEndPos[128],StrPosSize=0;
 
@@ -538,7 +539,6 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
     DlgData[DlgSize+1].Y1=DlgSize+3;
     DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
 
-    string HistoryName[MaxSize];
     int HistoryNumber=DlgSize/2;
     HistoryName[HistoryNumber].Format(L"UserVar%d",HistoryNumber);
     DlgData[DlgSize+1].History=HistoryName[HistoryNumber];

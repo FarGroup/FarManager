@@ -1,3 +1,7 @@
+t-rex 04.11.2009 17:16:24 +0200 - build 1200 (UTF-16 LE :)
+
+1. !?$<history>$<title>?<init>! - вместо history имя истории было мусором.
+
 t-rex 04.11.2009 13:17:09 +0200 - build 1199
 
 1. Изменения в ESPT_GETWORDDIV и EditorSetParameter.
