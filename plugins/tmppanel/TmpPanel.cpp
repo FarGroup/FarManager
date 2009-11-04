@@ -426,10 +426,8 @@ static void ProcessList(HANDLE hPlugin, TCHAR *Name, int Mode WITH_ANSI_PARAM)
 
   HANDLE hScreen = Panel->BeginPutFiles();
 
-  struct PluginPanelItem ppi;
-  memset(&ppi,0,sizeof(ppi));
   for(UINT i=0;(int)i<argc;i++)
-    Panel->PutOneFile(argv[i], ppi);
+    Panel->PutOneFile(argv[i]);
 
   Panel->CommitPutFiles (hScreen, TRUE);
   if (argv)
@@ -643,18 +641,12 @@ int WINAPI EXP_NAME(PutFiles)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
 #endif
                               int OpMode)
 {
-  StrBuf PanelPath(NT_MAX_PATH); //BUGBUG
-#ifdef UNICODE
-  lstrcpy(PanelPath, SrcPath);
-#else
-  GetCurrentDirectory(PanelPath.Size(), PanelPath);
+#ifndef UNICODE
+  StrBuf SrcPath(MAX_PATH);
+  GetCurrentDirectory(SrcPath.Size(), SrcPath);
 #endif
-
-  if (*PanelPath.Ptr())
-    FSF.AddEndSlash(PanelPath);
-
   TmpPanel *Panel=(TmpPanel *)hPlugin;
-  return Panel->PutFiles(PanelItem,ItemsNumber,Move,PanelPath,OpMode);
+  return Panel->PutFiles(PanelItem,ItemsNumber,Move,SrcPath,OpMode);
 }
 
 

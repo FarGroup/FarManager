@@ -217,6 +217,10 @@ wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf) {
     lstrcpy(buf, L"\\\\?\\");
     lstrcat(buf, path);
   }
+  // slash -> backslash
+  for (wchar_t* ch = buf; *ch; ch++)
+    if (*ch == L'/')
+      *ch = L'\\';
   return buf;
 }
 #endif
