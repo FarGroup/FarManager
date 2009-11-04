@@ -237,15 +237,25 @@ void VMenu::Show()
 		{
 			if (X1==-1)
 			{
-				X1=(ScrX-MaxLength-4-2)/2;
+				X1=(ScrX-MaxLength-4)/2;
 				AutoCenter=TRUE;
 			}
 
 			if(X1<2)
 				X1=2;
 			if (X2<=0)
-				X2=X1+MaxLength+4+2;
+				X2=X1+MaxLength+4;
 
+			if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+			{
+				X1+=ScrX-4-X2;
+				X2=ScrX-4;
+				if (X1<2)
+				{
+					X1=2;
+					X2=ScrX-2;
+				}
+			}
 			if (X2>ScrX-2)
 				X2=ScrX-2;
 
