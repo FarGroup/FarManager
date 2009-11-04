@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1184
+  Plugin API for FAR Manager 2.0 build 1199
 */
 
 /*
@@ -42,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1184
+#define FARMANAGERVERSION_BUILD 1199
 
 #ifndef RC_INVOKED
 
@@ -1118,7 +1118,7 @@ struct ViewerSetMode {
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
   } Param;
   DWORD Flags;
   DWORD Reserved;
@@ -1262,11 +1262,11 @@ struct EditorSetParameter
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
     DWORD Reserved1;
   } Param;
   DWORD Flags;
-  DWORD Reserved2;
+  DWORD Size;
 };
 
 
