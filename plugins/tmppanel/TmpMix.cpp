@@ -48,11 +48,7 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
         free (Items[I].Owner);
 #ifdef UNICODE
       if (Items[I].FindData.lpwszFileName)
-        free ((wchar_t*)Items[I].FindData.lpwszFileName);
-
-      if (Items[I].FindData.lpwszAlternateFileName)
-        free ((wchar_t*)Items[I].FindData.lpwszAlternateFileName);
-
+        free(Items[I].FindData.lpwszFileName);
 #endif
     }
     free (Items);
@@ -187,10 +183,10 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
 #endif
 #ifndef UNICODE
   lstrcpy(ffd.cFileName,wfd.cFileName);
-  lstrcpy(ffd.cAlternateFileName,wfd.cAlternateFileName);
+  *ffd.cAlternateFileName = 0;
 #else
   ffd.lpwszFileName = wcsdup(wfd.cFileName);
-  ffd.lpwszAlternateFileName = NULL;  // wcsdup(wfd.cAlternateFileName);
+  ffd.lpwszAlternateFileName = NULL;
 #endif
 }
 

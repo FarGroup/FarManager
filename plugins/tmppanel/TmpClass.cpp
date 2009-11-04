@@ -278,17 +278,16 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
   if(TmpPanelItem)
   {
     TmpItemsNumber=ItemsNumber;
-    memcpy(TmpPanelItem,PanelItem,ItemsNumber*sizeof(*TmpPanelItem));
+    memset(TmpPanelItem,0,TmpItemsNumber*sizeof(*TmpPanelItem));
     for(int i=0;i<ItemsNumber;++i) {
       TmpPanelItem[i].UserData = i;
-      TmpPanelItem[i].Flags&=~PPIF_SELECTED;
-      if(TmpPanelItem[i].Owner)
-        TmpPanelItem[i].Owner = _tcsdup(TmpPanelItem[i].Owner);
+      TmpPanelItem[i].FindData = PanelItem[i].FindData;
 #ifdef UNICODE
       if(TmpPanelItem[i].FindData.lpwszFileName)
         TmpPanelItem[i].FindData.lpwszFileName = wcsdup(TmpPanelItem[i].FindData.lpwszFileName);
-      if(TmpPanelItem[i].FindData.lpwszAlternateFileName)
-        TmpPanelItem[i].FindData.lpwszAlternateFileName = wcsdup(TmpPanelItem[i].FindData.lpwszAlternateFileName);
+      TmpPanelItem[i].FindData.lpwszAlternateFileName = NULL;
+#else
+      *TmpPanelItem[i].FindData.cAlternateFileName = 0;
 #endif
     }
   }
@@ -334,16 +333,36 @@ void TmpPanel::FindSearchResultsPanel()
   }
 }
 
+int _cdecl SortListCmp(const void *el1, const void *el2, void *userparam)
+{
+  PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
+  int idx1 = *reinterpret_cast<const int*>(el1);
+  int idx2 = *reinterpret_cast<const int*>(el2);
+  int res = lstrcmp(TmpPanelItem[idx1].FindData.FILE_NAME, TmpPanelItem[idx2].FindData.FILE_NAME);
+  if (res == 0)
+  {
+    if (idx1 < idx2) return -1;
+    else if (idx1 == idx2) return 0;
+    else return 1;
+  }
+  else
+    return res;
+}
 
 void TmpPanel::RemoveDups()
 {
-  struct PluginPanelItem *CurItem=TmpPanelItem;
-  for(int i=0;i<TmpItemsNumber-1;i++,CurItem++)
-    if(lstrcmp(CurItem->FindData.FILE_NAME,CurItem[1].FindData.FILE_NAME)==0)
-      CurItem->Flags|=REMOVE_FLAG;
-    RemoveEmptyItems();
+  int* indices = reinterpret_cast<int*>(malloc(TmpItemsNumber*sizeof(int)));
+  if (indices == NULL)
+    return;
+  for (int i = 0; i < TmpItemsNumber; i++)
+    indices[i] = i;
+  FSF.qsortex(indices, TmpItemsNumber, sizeof(int), SortListCmp, TmpPanelItem);
+  for (int i = 0; i + 1 < TmpItemsNumber; i++)
+    if (lstrcmp(TmpPanelItem[indices[i]].FindData.FILE_NAME, TmpPanelItem[indices[i + 1]].FindData.FILE_NAME) == 0)
+      TmpPanelItem[indices[i + 1]].Flags |= REMOVE_FLAG;
+  free(indices);
+  RemoveEmptyItems();
 }
-
 
 void TmpPanel::RemoveEmptyItems()
 {
@@ -434,14 +453,20 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
     {
       WIN32_FIND_DATA FindData;
 
-      StrBuf FindFile((int)(lpSlash-lpFullName)+1+3+1);
+      StrBuf FindFile((int)(lpSlash-lpFullName)+1+1+1);
       lstrcpyn(FindFile, lpFullName, (int)(lpSlash-lpFullName)+1);
-      lstrcpy(FindFile+(lpSlash+1-lpFullName),_T("*.*"));
+      lstrcpy(FindFile+(lpSlash+1-lpFullName),_T("*"));
+#ifdef UNICODE
+      StrBuf NtPath;
+      FormNtPath(FindFile, NtPath);
+#else
+      const char* NtPath = FindFile;
+#endif
 
       for(int J=0;J<SameFolderItems;J++)
         CurItem[J].Flags|=REMOVE_FLAG;
 
-      int Done=(FindHandle=FindFirstFile(FindFile,&FindData))==INVALID_HANDLE_VALUE;
+      int Done=(FindHandle=FindFirstFile(NtPath,&FindData))==INVALID_HANDLE_VALUE;
       while(!Done)
       {
         for(int J=0;J<SameFolderItems;J++)

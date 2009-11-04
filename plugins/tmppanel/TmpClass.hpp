@@ -43,7 +43,7 @@ class TmpPanel
     int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const TCHAR *SrcPath,int OpMode);
     HANDLE BeginPutFiles();
     void CommitPutFiles(HANDLE hRestoreScreen, int Success);
-    int TmpPanel::PutDirectoryContents(const TCHAR* Path);
+    int PutDirectoryContents(const TCHAR* Path);
     int PutOneFile(const TCHAR* SrcPath, PluginPanelItem &PanelItem);
     int PutOneFile(const TCHAR* FilePath);
 
