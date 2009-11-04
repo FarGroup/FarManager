@@ -1270,7 +1270,7 @@ struct ViewerSetMode {
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
   } Param;
   DWORD Flags;
   DWORD Reserved;
@@ -1424,11 +1424,11 @@ struct EditorSetParameter
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
     DWORD Reserved1;
   } Param;
   DWORD Flags;
-  DWORD Reserved2;
+  DWORD Size;
 };
 
 

@@ -1633,7 +1633,7 @@ struct ViewerSetMode {
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
   } Param;
   DWORD Flags;
   DWORD Reserved;
@@ -1646,8 +1646,8 @@ type
     ParamType : Integer;
 
     Param : record case Integer of
-      0 : (iParam : Integer);
-      1 : (cParam : PFarChar);
+      0 : (iParam   : Integer);
+      1 : (wszParam : PFarChar);
     end;
 
     Flags : DWORD;
@@ -1866,11 +1866,11 @@ struct EditorSetParameter
   int Type;
   union {
     int iParam;
-    wchar_t *cParam;
+    wchar_t *wszParam;
     DWORD Reserved1;
   } Param;
   DWORD Flags;
-  DWORD Reserved2;
+  DWORD Size;
 };
 *)
 type
@@ -1878,12 +1878,12 @@ type
   TEditorSetParameter = record
     ParamType : Integer;
     Param : record case Integer of
-       0 : (iParam : Integer);
-       1 : (cParam : PFarChar);
+       0 : (iParam   : Integer);
+       1 : (wszParam : PFarChar);
        2 : (Reserved : DWORD);
     end;
     Flags : DWORD;
-    Reserved2 : DWORD;
+    Size  : DWORD;
   end;
 
 

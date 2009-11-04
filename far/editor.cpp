@@ -5929,15 +5929,14 @@ int Editor::EditorControl(int Command,void *Param)
         switch(espar->Type)
         {
           case ESPT_GETWORDDIV:
-            _ECTLLOG(SysLog(L"  cParam      =(%p)",espar->Param.cParam));
-						if(espar->Param.cParam)
-              xwcsncpy(espar->Param.cParam,EdOpt.strWordDiv,EdOpt.strWordDiv.GetLength()); //BUGBUG
-            else
-              rc=FALSE;
+            _ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->Param.wszParam));
+						if (espar->Param.wszParam && espar->Size)
+              xwcsncpy(espar->Param.wszParam,EdOpt.strWordDiv,espar->Size-1);
+            rc=(int)EdOpt.strWordDiv.GetLength()+1;
             break;
           case ESPT_SETWORDDIV:
-            _ECTLLOG(SysLog(L"  cParam      =[%s]",espar->Param.cParam));
-            SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.strWordDiv:espar->Param.cParam);
+            _ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->Param.wszParam));
+            SetWordDiv((!espar->Param.wszParam || !*espar->Param.wszParam)?Opt.strWordDiv.CPtr():espar->Param.wszParam);
             break;
           case ESPT_TABSIZE:
             _ECTLLOG(SysLog(L"  iParam      =%d",espar->Param.iParam));

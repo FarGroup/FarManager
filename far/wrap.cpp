@@ -3448,33 +3448,35 @@ int WINAPI FarEditorControlA(int Command,void* Param)
 					case oldfar::ESPT_SETWORDDIV:
 					{
 						newsp.Type = ESPT_SETWORDDIV;
-						newsp.Param.cParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):NULL;
+						newsp.Param.wszParam = (oldsp->Param.cParam)?AnsiToUnicode(oldsp->Param.cParam):NULL;
 						int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
-						if (newsp.Param.cParam) xf_free(newsp.Param.cParam);
+						if (newsp.Param.wszParam) xf_free(newsp.Param.wszParam);
 						return ret;
 					}
 
 					case oldfar::ESPT_GETWORDDIV:
 					{
-						if(!oldsp->Param.cParam) return FALSE;
+						if (!oldsp->Param.cParam) return FALSE;
 
 						*oldsp->Param.cParam=0;
 
 						newsp.Type = ESPT_GETWORDDIV;
-						newsp.Param.cParam = (wchar_t*)xf_malloc(8192*sizeof(wchar_t)); //BUGBUG, неизвестна длина необх. буфера
+						newsp.Param.wszParam = NULL;
+						newsp.Size = 0;
 
-						if (newsp.Param.cParam)
+						newsp.Size = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
+						newsp.Param.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
+
+						if (newsp.Param.wszParam)
 						{
 							int ret = FarEditorControl(ECTL_SETPARAM, (void *)&newsp);
-							char *olddiv = UnicodeToAnsi(newsp.Param.cParam);
+							char *olddiv = UnicodeToAnsi(newsp.Param.wszParam);
 							if (olddiv)
 							{
-								int l = Min((int)strlen (olddiv),255);
-								memcpy(oldsp->Param.cParam,olddiv,l);
-								oldsp->Param.cParam[l+1]=0;
+								xstrncpy(oldsp->Param.cParam, olddiv, countof(oldsp->Param.cParam)-1);
 								xf_free(olddiv);
 							}
-							xf_free(newsp.Param.cParam);
+							xf_free(newsp.Param.wszParam);
 							return ret;
 						}
 						return FALSE;
