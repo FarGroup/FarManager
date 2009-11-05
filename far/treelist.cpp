@@ -411,8 +411,6 @@ int TreeList::ReadTree()
   FlushCache();
   GetRoot();
 
-	size_t RootLength=strRoot.IsEmpty()?0:strRoot.GetLength()-1;
-
   if(ListData)
   {
   	for (long i=0; i<TreeCount; i++)
@@ -437,9 +435,6 @@ int TreeList::ReadTree()
   /* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
   //Redraw();
-
-	if (RootLength>0 && strRoot.At (RootLength-1) != L':' && IsSlash(strRoot.At (RootLength)))
-    ListData[0]->strName.SetLength (RootLength);
 
   TreeCount=1;
 
@@ -1534,35 +1529,28 @@ int TreeList::GetCurName(string &strName, string &strShortName)
 
 void TreeList::AddTreeName(const wchar_t *Name)
 {
-  string strRoot;
-
-  long CachePos;
-
-  if (*Name==0)
+  if (*Name == 0)
     return;
 
-  string strFullName;
+  string strRealName;
+  ConvertNameToReal(Name, strRealName);
+  string strRoot = ExtractPathRoot(strRealName);
 
-  ConvertNameToFull(Name, strFullName);
-
-  Name = strFullName;
-
-  GetPathRoot(Name, strRoot);
-
-  Name += strRoot.GetLength ()-1;
+  Name = strRealName;
+  Name += strRoot.GetLength() - 1;
 
 	if (!LastSlash(Name))
     return;
 
   ReadCache(strRoot);
-  for(CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
+  for(long CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
   {
-    int Result=StrCmpI(TreeCache.ListName[CachePos],Name);
-    if(!Result)
+    int Result = StrCmpI(TreeCache.ListName[CachePos], Name);
+    if (Result == 0)
       break;
-    if(Result > 0)
+    if (Result > 0)
     {
-      TreeCache.Insert(CachePos,Name);
+      TreeCache.Insert(CachePos, Name);
       break;
     }
   }
@@ -1571,29 +1559,24 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 void TreeList::DelTreeName(const wchar_t *Name)
 {
-  string strFullName;
-  string strRoot;
-
-  const wchar_t *wszDirName;
-
-  long CachePos;
-  int Length,DirLength;
   if (*Name==0)
     return;
-  ConvertNameToFull(Name,strFullName);
-  Name=strFullName;
 
-  GetPathRoot(Name, strRoot);
+  string strRealName;
+  ConvertNameToReal(Name, strRealName);
+  string strRoot = ExtractPathRoot(strRealName);
 
-  Name += strRoot.GetLength()-1;
+  Name = strRealName;
+  Name += strRoot.GetLength() - 1;
+
   ReadCache(strRoot);
-  for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
+  for (long CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
   {
-    wszDirName=TreeCache.ListName[CachePos];
-    Length=StrLength(Name);
-    DirLength=StrLength(wszDirName);
-    if(DirLength<Length) continue;
-		if (StrCmpNI(Name,wszDirName,Length)==0 && (wszDirName[Length]==0 || IsSlash(wszDirName[Length])))
+    const wchar_t* wszDirName = TreeCache.ListName[CachePos];
+    int Length = StrLength(Name);
+    int DirLength = StrLength(wszDirName);
+    if (DirLength < Length) continue;
+		if (StrCmpNI(Name, wszDirName, Length) == 0 && (wszDirName[Length] == 0 || IsSlash(wszDirName[Length])))
     {
       TreeCache.Delete(CachePos);
       CachePos--;
@@ -1607,35 +1590,39 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
   if (*SrcName==0 || *DestName==0)
     return;
 
-  string strSrcRoot, strDestRoot;
-  GetPathRoot(SrcName,strSrcRoot);
-  GetPathRoot(DestName,strDestRoot);
+  string SrcNameReal, DestNameReal;
+  ConvertNameToReal(SrcName, SrcNameReal);
+  ConvertNameToReal(DestName, DestNameReal);
 
-  if ( StrCmpI (strSrcRoot,strDestRoot)!=0)
+  string strSrcRoot = ExtractPathRoot(SrcNameReal);
+  string strDestRoot = ExtractPathRoot(DestNameReal);
+
+  if (StrCmpI(strSrcRoot, strDestRoot) != 0)
   {
     DelTreeName(SrcName);
     ReadSubTree(SrcName);
   }
 
-  SrcName+=strSrcRoot.GetLength()-1;
-  DestName+=strDestRoot.GetLength()-1;
+  SrcName += strSrcRoot.GetLength() - 1;
+  DestName += strDestRoot.GetLength() - 1;
 
   ReadCache(strSrcRoot);
 
-  int SrcLength=StrLength(SrcName);
+  int SrcLength = StrLength(SrcName);
 
-  for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
+  for (int CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
   {
-    const wchar_t *DirName=TreeCache.ListName[CachePos];
-		if (StrCmpNI(SrcName,DirName,SrcLength)==0 && (DirName[SrcLength]==0 || IsSlash(DirName[SrcLength])))
+    const wchar_t* DirName = TreeCache.ListName[CachePos];
+		if (StrCmpNI(SrcName,DirName,SrcLength) == 0 && (DirName[SrcLength] == 0 || IsSlash(DirName[SrcLength])))
     {
       string strNewName = DestName;
 
-      strNewName += (const wchar_t*)(DirName+SrcLength);
+      strNewName += (const wchar_t*) (DirName + SrcLength);
 
-      if(TreeCache.ListName[CachePos]) xf_free(TreeCache.ListName[CachePos]);
+      if (TreeCache.ListName[CachePos])
+        xf_free(TreeCache.ListName[CachePos]);
 
-      TreeCache.ListName[CachePos]=xf_wcsdup(strNewName);
+      TreeCache.ListName[CachePos] = xf_wcsdup(strNewName);
     }
   }
 }
