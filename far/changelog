@@ -1,3 +1,8 @@
+garry 06.11.2009 11:18:34 +0300 - build 1202
+
+1. Проблемы с копирование через WebDav: http://forum.farmanager.com/viewtopic.php?f=9&t=4626
+   (исправленный патч от Yegor).
+
 chupakabra 05.11.2009 06:32:00 +0200 - build 1201
 
 1. Mantis#0001104: Падение при попытке открыть панель дерева для mount point.

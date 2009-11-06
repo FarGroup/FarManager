@@ -76,7 +76,9 @@ bool ScanTree::GetFileId(LPCWSTR Directory,FileId& id)
 	if(hDirectory!=INVALID_HANDLE_VALUE)
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
-		if(GetFileInformationByHandle(hDirectory,&bhfi))
+		// Дополнительное условие (проверки BY_HANDLE_FILE_INFORMATION) сделано для обхода проблем с файловыми системами,
+		// которые для всех файлов отдают нулевые уникальные идетификаторы. Например, этим страдает WebDAV на SharePoint
+		if(GetFileInformationByHandle(hDirectory,&bhfi) && (bhfi.dwVolumeSerialNumber != 0 || bhfi.nFileIndexLow != 0 || bhfi.nFileIndexHigh != 0))
 		{
 			id.FileIndexHigh=bhfi.nFileIndexHigh;
 			id.FileIndexLow=bhfi.nFileIndexLow;
