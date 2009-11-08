@@ -239,7 +239,10 @@ void VMenu::Show()
 			for (int i = 0; i < ItemCount; i++)
 			{
 				if (Item[i]->Flags & MIF_SUBMENU)
+				{
 					HasSubMenus = true;
+					break;
+				}
 			}
 
 			if (X1==-1)

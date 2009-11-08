@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct DizRecord
 {
   wchar_t *DizText;
+  int DizLength;
   int Deleted;
 };
 
