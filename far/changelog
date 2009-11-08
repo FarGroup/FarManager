@@ -1,3 +1,7 @@
+chupakabra 08.11.2009 08:08:00 +0200 - build 1203
+
+1. VMenu::Show() не учитывал наличие субменю.
+
 garry 06.11.2009 11:18:34 +0300 - build 1202
 
 1. Проблемы с копирование через WebDav: http://forum.farmanager.com/viewtopic.php?f=9&t=4626

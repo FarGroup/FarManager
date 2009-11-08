@@ -235,16 +235,23 @@ void VMenu::Show()
 
 		if(!VMFlags.Check(VMENU_COMBOBOX))
 		{
+			bool HasSubMenus = false;
+			for (int i = 0; i < ItemCount; i++)
+			{
+				if (Item[i]->Flags & MIF_SUBMENU)
+					HasSubMenus = true;
+			}
+
 			if (X1==-1)
 			{
-				X1=(ScrX-MaxLength-4)/2;
+				X1=(ScrX-MaxLength-4-(HasSubMenus?2:0))/2;
 				AutoCenter=TRUE;
 			}
 
 			if(X1<2)
 				X1=2;
 			if (X2<=0)
-				X2=X1+MaxLength+4;
+				X2=X1+MaxLength+4+(HasSubMenus?2:0);
 
 			if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
 			{
