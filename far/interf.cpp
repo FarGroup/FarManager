@@ -59,6 +59,8 @@ static int OutputCP;
 static BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 
+static CONSOLE_SCREEN_BUFFER_INFO windowholder_csbi;
+
 WCHAR Oem2Unicode[256];
 
 static void __Create_CONOUT()
@@ -165,6 +167,15 @@ void ChangeConsoleMode(int Mode)
     SetConsoleMode(hConInp,Mode);
 }
 
+void SaveConsoleWindowInfo()
+{
+	GetConsoleScreenBufferInfo(hConOut,&windowholder_csbi);
+}
+
+void RestoreConsoleWindowInfo()
+{
+	SetConsoleWindowInfo(hConOut,TRUE,&windowholder_csbi.srWindow);
+}
 
 void SetFarTitle(const wchar_t *Title)
 {
@@ -395,6 +406,9 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 {
+  //чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
+  SaveConsoleWindowInfo();
+
   memset(&csbi,0,sizeof(csbi));
   GetConsoleScreenBufferInfo(hConOut,&csbi);
   ScrX=csbi.dwSize.X-1;

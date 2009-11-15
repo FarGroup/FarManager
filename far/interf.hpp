@@ -117,6 +117,8 @@ void ChangeVideoMode(int Maximized);
 void ChangeVideoMode(int NumLines,int NumColumns);
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi);
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
+void SaveConsoleWindowInfo();
+void RestoreConsoleWindowInfo();
 
 void GotoXY(int X,int Y);
 int WhereX();

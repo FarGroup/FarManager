@@ -920,6 +920,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
     CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
     memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
     rec->EventType=KEY_EVENT;
+
+    //чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
+    if (CalcKey == KEY_GOTFOCUS)
+      RestoreConsoleWindowInfo();
+    else
+      SaveConsoleWindowInfo();
+
     return CalcKey;
   }
 
