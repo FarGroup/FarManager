@@ -124,8 +124,13 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
       int DizLength;
       //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
+      UINT CodePage=CP_AUTODETECT;
+      bool bSigFound=false;
 
-      while (GetStr.GetString(&DizText, CP_OEMCP, DizLength) > 0) //BUGBUG CP_OEMCP
+      if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
+        CodePage = Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
+
+      while (GetStr.GetString(&DizText, CodePage, DizLength) > 0)
       {
         if ((DizCount & 127)==0 && clock()-StartTime>1000)
         {
@@ -413,15 +418,24 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
   }
 
   int AddedDizCount=0;
+  UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
+
+  if (CodePage == CP_UTF8)
+  {	
+  	DWORD dwSignature = SIGN_UTF8;
+  	fwrite(&dwSignature, 1, 3, DizFile);
+  }
+
   for (int I=0;I<DizCount;I++)
+  {
     if (!DizData[I].Deleted)
     {
       int len = StrLength(DizData[I].DizText);
-      char *lpDizText = (char *) xf_malloc(len+1);
+      char *lpDizText = (char *) xf_malloc((len+1)*3); //UTF-8, up to 3 bytes per char support
 
       if (lpDizText)
       {
-				WideCharToMultiByte (CP_OEMCP, 0, DizData[I].DizText, len+1, lpDizText, len+1, NULL, NULL);
+				WideCharToMultiByte (CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, NULL, NULL);
 
 				fprintf(DizFile,"%s\r\n", lpDizText);
 
@@ -430,6 +444,7 @@ int DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
       	AddedDizCount++;
       }
     }
+  }
 
   int CloseCode=fclose(DizFile);
   if (AddedDizCount==0)

@@ -129,6 +129,8 @@ struct DizOptions
   int UpdateMode;
   int SetHidden;
   int StartPos;
+  int AnsiByDefault;
+  int SaveInUTF;
 
   /*
   void Clear()
@@ -138,6 +140,8 @@ struct DizOptions
     UpdateMode=0;
     SetHidden=0;
     StartPos=0;
+    AnsiByDefault=0;
+    SaveInUTF=0;
   }
   */
 };

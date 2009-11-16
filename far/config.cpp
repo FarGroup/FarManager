@@ -700,7 +700,7 @@ void SetDizConfig()
 {
 	static DialogDataEx DizDlgData[]=
   {
-  /* 00 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(const wchar_t *)MCfgDizTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,72,17,0,0,0,0,(const wchar_t *)MCfgDizTitle,
   /* 01 */DI_TEXT,5,2,0,2,0,0,0,0,(const wchar_t *)MCfgDizListNames,
   /* 02 */DI_EDIT,5,3,70,3,1,0,0,0,L"",
   /* 03 */DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
@@ -713,8 +713,11 @@ void SetDizConfig()
   /* 10 */DI_RADIOBUTTON,5,10,0,10,0,0,0,0,(const wchar_t *)MCfgDizUpdateIfDisplayed,
   /* 11 */DI_RADIOBUTTON,5,11,0,11,0,0,0,0,(const wchar_t *)MCfgDizAlwaysUpdate,
   /* 12 */DI_TEXT,3,12,0,12,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 13 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 14 */DI_BUTTON,0,13,0,13,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+  /* 13 */DI_CHECKBOX,5,13,0,13,0,0,0,0,(const wchar_t *)MCfgDizAnsiByDefault,
+  /* 14 */DI_CHECKBOX,5,14,0,14,0,0,0,0,(const wchar_t *)MCfgDizSaveInUTF,
+  /* 15 */DI_TEXT,3,15,0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+  /* 16 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
+  /* 17 */DI_BUTTON,0,16,0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
   };
   MakeDialogItemsEx(DizDlgData,DizDlg);
 
@@ -724,18 +727,25 @@ void SetDizConfig()
   DizDlg[6].strData.Format(L"%d", Opt.Diz.StartPos);
 
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
+  {
     DizDlg[9].Selected=TRUE;
+  }
   else
+  {
     if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED)
       DizDlg[10].Selected=TRUE;
     else
       DizDlg[11].Selected=TRUE;
+  }
+
+  DizDlg[13].Selected=Opt.Diz.AnsiByDefault;
+  DizDlg[14].Selected=Opt.Diz.SaveInUTF;
 
   Dialog Dlg((DialogItemEx*)DizDlg,countof(DizDlg));
-  Dlg.SetPosition(-1,-1,76,16);
+  Dlg.SetPosition(-1,-1,76,19);
   Dlg.SetHelp(L"FileDiz");
   Dlg.Process();
-  if (Dlg.GetExitCode()!=13)
+  if (Dlg.GetExitCode()!=16)
     return;
 
   Opt.Diz.strListNames=DizDlg[2].strData;
@@ -744,12 +754,19 @@ void SetDizConfig()
   Opt.Diz.StartPos=_wtoi(DizDlg[6].strData);
 
   if (DizDlg[9].Selected)
+  {
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
+  }
   else
+  {
     if (DizDlg[10].Selected)
       Opt.Diz.UpdateMode=DIZ_UPDATE_IF_DISPLAYED;
     else
       Opt.Diz.UpdateMode=DIZ_UPDATE_ALWAYS;
+  }
+
+  Opt.Diz.AnsiByDefault=DizDlg[13].Selected;
+  Opt.Diz.SaveInUTF=DizDlg[14].Selected;
 }
 
 void ViewerConfig(ViewerOptions &ViOpt,int Local)
@@ -1327,6 +1344,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyDescriptions,L"ROUpdate",&Opt.Diz.ROUpdate,0, 0},
   {1, REG_DWORD,  NKeyDescriptions,L"SetHidden",&Opt.Diz.SetHidden,1, 0},
   {1, REG_DWORD,  NKeyDescriptions,L"StartPos",&Opt.Diz.StartPos,0, 0},
+  {1, REG_DWORD,  NKeyDescriptions,L"AnsiByDefault",&Opt.Diz.AnsiByDefault,0, 0},
+  {1, REG_DWORD,  NKeyDescriptions,L"SaveInUTF",&Opt.Diz.SaveInUTF,0, 0},
 
 	{0, REG_DWORD,  NKeyKeyMacros,L"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
 	{0, REG_SZ,     NKeyKeyMacros,L"DateFormat",&Opt.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},

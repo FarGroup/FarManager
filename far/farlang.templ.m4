@@ -12040,6 +12040,22 @@ MCfgDizAlwaysUpdate
 "&Mindig frissítsen"
 "&Zawsze aktualizuj"
 
+MCfgDizAnsiByDefault
+"ANSI by default"
+"ANSI by default"
+"ANSI by default"
+"ANSI by default"
+"ANSI by default"
+"ANSI by default"
+
+MCfgDizSaveInUTF
+"Save in UTF8"
+"Save in UTF8"
+"Save in UTF8"
+"Save in UTF8"
+"Save in UTF8"
+"Save in UTF8"
+
 MReadingTitleFiles
 l:
 "Обновление панелей"
