@@ -1760,6 +1760,11 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 						}
 						FindExitCode=FIND_EXIT_PANEL;
 						FindExitIndex=(DWORD)(DWORD_PTR)ListBox->GetUserData(NULL, 0);
+						if(TB)
+						{
+							delete TB;
+							TB=NULL;
+						}
 					}
 					return FALSE;
 				}
