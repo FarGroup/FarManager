@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
 
+class History;
+
 // Флаги текущего режима диалога
 enum DIALOG_MODES
 {
@@ -362,6 +364,8 @@ class Dialog: public Frame
 		bool ProcessEvents();
 
 		void SetId(const GUID& Id);
+
+		friend class History;
 };
 
 typedef LONG_PTR (WINAPI *SENDDLGMESSAGE) (HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2);

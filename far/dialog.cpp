@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "message.hpp"
 #include "strmix.hpp"
+#include "history.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 
@@ -1101,22 +1102,20 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 	if (strData.IsEmpty())
 	{
-		DWORD UseFlags;
 		string strRegKey=fmtSavedDialogHistory;
 		strRegKey+=CurItem->History;
-		UseFlags=GetRegKey(strRegKey,L"Flags",1);
-		if (UseFlags)
+		History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+		DlgHist.ReadHistory();
+		DlgHist.ResetPosition();
+		DlgHist.GetPrev(strData);
+		if (MsgIndex != -1)
 		{
-			GetRegKey(strRegKey, L"Line0", strData, L"");
-			if (MsgIndex != -1)
-			{
-				// обработка DM_SETHISTORY => надо пропустить изменение текста через
-				// диалоговую функцию
-				FarDialogItemData IData;
-				IData.PtrData=(wchar_t *)(const wchar_t *)strData;
-				IData.PtrLength=(int)strData.GetLength();
-				SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
-			}
+			// обработка DM_SETHISTORY => надо пропустить изменение текста через
+			// диалоговую функцию
+			FarDialogItemData IData;
+			IData.PtrData=(wchar_t *)(const wchar_t *)strData;
+			IData.PtrLength=(int)strData.GetLength();
+			SendDlgMessage(this,DM_SETTEXT,MsgIndex,(LONG_PTR)&IData);
 		}
 	}
 }
@@ -3955,6 +3954,8 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 {
   CriticalSectionLock Lock(CS);
 
+  return TRUE; //BUGBUG
+/*
   string strStr;
   int I, LenFindStr=(int)strFindStr.GetLength ();
 
@@ -3999,6 +4000,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 		strFindStr += &ListItems[I].Text[LenFindStr];
   }
   return TRUE;
+*/
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -4149,259 +4151,27 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
     return FALSE;
 
 	string strStr;
-  int I,Dest,Ret=FALSE;
-  int Locked;
-  int IsOk=FALSE, Done, IsUpdate;
-  MenuItemEx HistoryItem;
-  int ItemsCount;
-  int LastSelected = 0;
-  int IsDeleted=FALSE;
-  int EditX1,EditY1,EditX2,EditY2;
+	int ret=0;
 
 	string strRegKey=fmtSavedDialogHistory;
 	strRegKey+=HistoryName;
 
+	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+	DlgHist.ReadHistory();
+	DlgHist.ResetPosition();
+
   {
     // создание пустого вертикального меню
     VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
-
-    EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-    if (EditX2-EditX1<20)
-      EditX2=EditX1+20;
-
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
-    Done=FALSE;
 
     // запомним (для прорисовки)
     CurItem->ListPtr=&HistoryMenu;
 
-    while(!Done)
-    {
-      IsUpdate=FALSE;
-
-      HistoryMenu.DeleteItems();
-
-      // заполнение пунктов меню
-
-      string strLine;
-
-      for (ItemsCount=Dest=I=0; I < Opt.DialogsHistoryCount; I++)
-      {
-        HistoryItem.Clear();
-
-        strLine.Format (L"Line%d", I);
-        GetRegKey(strRegKey,strLine,strStr,L"");
-
-        if ( strStr.IsEmpty() )
-          continue;
-
-        strLine.Format (L"Locked%d", I);
-        GetRegKey(strRegKey,strLine,Locked,0);
-        HistoryItem.SetCheck(Locked);
-        HistoryItem.strName = strStr;
-				HistoryMenu.SetUserData(strStr.CPtr(),0,HistoryMenu.AddItem(&HistoryItem));
-        ItemsCount++;
-      }
-      if (ItemsCount==0)
-        break;
-
-			SetComboBoxPos();
-
-      // выставим селекшин
-      if(!IsDeleted)
-      {
-        Dest=Opt.Dialogs.SelectFromHistory?HistoryMenu.FindItem(0,strIStr,LIFIND_EXACTMATCH):-1;
-        HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
-      }
-      else
-      {
-        int D=1;
-        IsDeleted=FALSE;
-        if(LastSelected >= HistoryMenu.GetItemCount())
-        {
-          LastSelected=HistoryMenu.GetItemCount()-1;
-          D=-1;
-        }
-        HistoryMenu.SetSelectPos(LastSelected,D);
-      }
-
-      //  Перед отрисовкой спросим об изменении цветовых атрибутов
-      BYTE RealColors[VMENU_COLOR_COUNT];
-			FarListColors ListColors={0};
-      ListColors.ColorCount=VMENU_COLOR_COUNT;
-      ListColors.Colors=RealColors;
-      HistoryMenu.GetColors(&ListColors);
-      if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
-        HistoryMenu.SetColors(&ListColors);
-      HistoryMenu.Show();
-
-      // основной цикл обработки
-      while (!HistoryMenu.Done())
-      {
-        if (!GetDropDownOpened())
-        {
-          Ret=FALSE;
-          HistoryMenu.ProcessKey(KEY_ESC);
-          Done=TRUE;
-          continue;
-        }
-
-        int Key=HistoryMenu.ReadInput();
-
-        if (Key==KEY_TAB) // Tab в списке хистори - аналог Enter
-        {
-          HistoryMenu.ProcessKey(KEY_ENTER);
-          Ret=TRUE;
-          Done=TRUE;
-          continue; //??
-        }
-        else if (Key==KEY_INS || Key==KEY_NUMPAD0) // Ins защищает пункт истории от удаления.
-        {
-          string strLine;
-
-          strLine.Format (L"Locked%d", HistoryMenu.GetSelectPos());
-          if (!HistoryMenu.GetSelection())
-          {
-            HistoryMenu.SetSelection(TRUE);
-            SetRegKey(strRegKey,strLine,1);
-          }
-          else
-          {
-            HistoryMenu.SetSelection(FALSE);
-            DeleteRegValue(strRegKey,strLine);
-          }
-          HistoryMenu.SetUpdateRequired(TRUE);
-          HistoryMenu.Redraw();
-          continue;
-        }
-        else if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) // Shift-Del очищает текущий пункт истории команд.
-        {
-          LastSelected=HistoryMenu.GetSelectPos();
-          if (!HistoryMenu.GetSelection(LastSelected))
-          {
-            HistoryMenu.Hide();
-            // удаляем из реестра все.
-
-            string strLine;
-
-            for (I=0; I < Opt.DialogsHistoryCount;I++)
-            {
-              strLine.Format (L"Locked%d", I);
-              DeleteRegValue(strRegKey,strLine);
-              strLine.Format (L"Line%d", I);
-              DeleteRegValue(strRegKey,strLine);
-            }
-            // удаляем из списка только то, что требовали
-            HistoryMenu.DeleteItem(LastSelected);
-            // перестроим список в реестре
-
-            for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
-            {
-               int nSize = HistoryMenu.GetUserDataSize (I);
-
-               wchar_t *Str = strStr.GetBuffer (nSize);
-
-               HistoryMenu.GetUserData(Str, nSize*sizeof (wchar_t),I); //BUGBUG
-
-               strStr.ReleaseBuffer ();
-
-               strLine.Format (L"Line%d", Dest);
-
-               SetRegKey(strRegKey, strLine, strStr);
-               if(HistoryMenu.GetSelection(I))
-               {
-                 strLine.Format (L"Locked%d", Dest);
-                 SetRegKey(strRegKey,strLine,TRUE);
-               }
-               Dest++;
-            }
-            HistoryMenu.SetUpdateRequired(TRUE);
-            IsDeleted=TRUE;
-            IsUpdate=TRUE;
-            break;
-          }
-          continue;
-        }
-        else if (Key==KEY_DEL||Key==KEY_NUMDEL) // Del очищает историю команд.
-        {
-          LastSelected=HistoryMenu.GetSelectPos();
-
-          if (!Opt.Confirm.HistoryClear ||
-              (Opt.Confirm.HistoryClear &&
-               Message(MSG_WARNING,2,MSG(MHistoryTitle),
-                       MSG(MHistoryClear),
-                       MSG(MClear),MSG(MCancel))==0))
-          {
-            HistoryMenu.Hide();
-
-            string strLine;
-            // удаляем из реестра
-            for (I=0; I < Opt.DialogsHistoryCount;I++)
-            {
-              strLine.Format (L"Locked%d", I);
-              DeleteRegValue(strRegKey, strLine);
-              strLine.Format (L"Line%d", I);
-              DeleteRegValue(strRegKey, strLine);
-            } /* for */
-
-            // заносим в реестр
-            for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
-            {
-              if (HistoryMenu.GetSelection(I))
-              {
-                int nSize = HistoryMenu.GetUserDataSize (I);
-
-                wchar_t *Str = strStr.GetBuffer (nSize);
-                HistoryMenu.GetUserData(Str, nSize*sizeof (wchar_t),I);
-
-                strStr.ReleaseBuffer ();
-
-                strLine.Format (L"Line%d", I);
-                SetRegKey(strRegKey, strLine, strStr);
-                strLine.Format (L"Locked%d", I);
-                SetRegKey(strRegKey, strLine, TRUE);
-                Dest++;
-              } /* if */
-            } /* for */
-          } /* if */
-          HistoryMenu.SetUpdateRequired(TRUE);
-          IsUpdate=TRUE;
-          break;
-        }
-
-        // Сюды надо добавить DN_LISTCHANGE
-
-        HistoryMenu.ProcessInput();
-      }
-
-      if(IsUpdate)
-        continue;
-
-      int ExitCode=HistoryMenu.Modal::GetExitCode();
-      if (ExitCode<0)
-      {
-        Ret=FALSE;
-        Done=TRUE;
-//        break;
-      }
-      else
-      {
-        int nSize = HistoryMenu.GetUserDataSize (ExitCode);
-
-        wchar_t *Str = strStr.GetBuffer (nSize);
-
-        HistoryMenu.GetUserData(Str, nSize*sizeof (wchar_t),ExitCode);
-
-        strStr.ReleaseBuffer ();
-
-        Ret=TRUE;
-        Done=TRUE;
-        IsOk=TRUE;
-      }
-    }
+    ret = DlgHist.Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
 
     // забудим (не нужен)
     CurItem->ListPtr=NULL;
@@ -4409,14 +4179,16 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
   }
 
-  if(IsOk)
+  if (ret > 0)
   {
     EditLine->SetString(strStr);
     EditLine->SetLeftPos(0);
     EditLine->SetClearFlag(0);
     Redraw();
+    return TRUE;
   }
-  return Ret;
+
+  return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -4427,156 +4199,18 @@ int Dialog::AddToEditHistory(const wchar_t *AddStr,const wchar_t *HistoryName)
 {
   CriticalSectionLock Lock(CS);
 
-  int AddLine=-1, I, J, Locked, HistCount, LockedCount=0;
-  string strStr;
+  if (*AddStr==0)
+  {
+    return FALSE;
+  }
+
 	string strRegKey=fmtSavedDialogHistory;
 	strRegKey+=HistoryName;
 
-  if (*AddStr==0)
-  {
-    SetRegKey(strRegKey, L"Flags",(DWORD)0);
-    return FALSE;
-  }
+	History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+	DlgHist.ReadHistory();
+	DlgHist.AddToHistory(AddStr);
 
-  struct HistArray{
-    wchar_t *Str;
-    int  Locked;
-  } *His,*HisTemp;
-
-	His=(HistArray*)xf_malloc(Opt.DialogsHistoryCount*sizeof(HistArray));
-  if (!His)
-    return FALSE;
-	HisTemp=(HistArray*)xf_malloc((Opt.DialogsHistoryCount+1)*sizeof(HistArray));
-  if (!HisTemp)
-  {
-    xf_free(His);
-    return FALSE;
-  }
-
-	memset(His,0,Opt.DialogsHistoryCount*sizeof(HistArray));
-	memset(HisTemp,0,(Opt.DialogsHistoryCount+1)*sizeof(HistArray));
-
-  string strLine, strLocked;
-  // Read content & delete
-  for (HistCount=I=0; I < Opt.DialogsHistoryCount; I++)
-  {
-    strLocked.Format (L"Locked%d", I);
-    GetRegKey(strRegKey, strLocked, Locked, 0);
-    strLine.Format (L"Line%d", I);
-    GetRegKey(strRegKey, strLine, strStr, L"");
-
-    if( !strStr.IsEmpty() )
-    {
-      if((His[HistCount].Str=xf_wcsdup(strStr)) != NULL)
-      {
-        His[HistCount].Locked=Locked;
-        LockedCount+=Locked;
-        DeleteRegValue(strRegKey,strLocked);
-        DeleteRegValue(strRegKey,strLine);
-        ++HistCount;
-      }
-    }
-  }
-
-  // ищем строку добавления
-  for (I=0; I < HistCount; I++)
-    if (!StrCmpI (AddStr,His[I].Str))
-    {
-      // берем только! либо которой нету либо залоченную
-      if(AddLine == -1 || (AddLine != -1 && His[I].Locked))
-        AddLine=I;
-    }
-  /*
-    Здесь у нас:
-      если AddLine == -1, то такой строки нету в истории
-      если LockedCount == Opt.DialogsHistoryCount, все залочено!
-  */
-
-  // А можно ли добавлять то?...
-  if(LockedCount == Opt.DialogsHistoryCount && AddLine == -1)
-  {
-    J=0;
-  }
-  else // ...не только можно, но и нужно!
-  {
-    // добавляем в начало с учетом добавляемого
-    HisTemp[0].Str=xf_wcsdup(AddStr);
-    HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
-    J=1;
-  }
-
-  // Locked вперед
-  for (I=0; I < HistCount; I++)
-  {
-    if(His[I].Locked && His[I].Str)
-    {
-      if(AddLine == I)
-        continue;
-      HisTemp[J].Str=His[I].Str;
-      His[I].Str = NULL; // это потом освобождать не надо
-      HisTemp[J].Locked=1;
-      ++J;
-    }
-  }
-
-  // UnLocked
-  for (I=0; I < HistCount; I++)
-  {
-    if(!His[I].Locked && His[I].Str)
-    {
-      if(AddLine == I)
-        continue;
-      HisTemp[J].Str=His[I].Str;
-      His[I].Str=NULL;  // это потом освобождать не надо
-      HisTemp[J].Locked=0;
-      ++J;
-    }
-  }
-
-  // исключаем дубликаты
-  for (I=0; I < Opt.DialogsHistoryCount; I++)
-  {
-    if(HisTemp[I].Str)
-    {
-      // поиск среди незалоченных
-      for(J=I+1; J < Opt.DialogsHistoryCount; ++J)
-      {
-        if(HisTemp[J].Str)
-        {
-          if(!StrCmpI(HisTemp[I].Str,HisTemp[J].Str))
-          {
-            xf_free(HisTemp[J].Str);
-            HisTemp[J].Str=NULL;
-          }
-        }
-      }
-    }
-  }
-  // здесь в HisTemp сидит отсортированный список
-
-  // Save History
-  for (J=I=0; I < Opt.DialogsHistoryCount; I++)
-  {
-    if(HisTemp[I].Str)
-    {
-      strLocked.Format (L"Locked%d", J);
-      strLine.Format (L"Line%d", J);
-      SetRegKey(strRegKey,strLine, HisTemp[I].Str);
-      if(HisTemp[I].Locked)
-        SetRegKey(strRegKey, strLocked, HisTemp[I].Locked);
-      xf_free(HisTemp[I].Str);
-      ++J;
-    }
-  }
-
-  for (I=0; I<Opt.DialogsHistoryCount; I++)
-    if (His[I].Str)
-      xf_free(His[I].Str);
-
-  xf_free(HisTemp);
-  xf_free(His);
-
-  SetRegKey(strRegKey,L"Flags",1);
   return TRUE;
 }
 

@@ -44,8 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
+#include "dialog.hpp"
 
-History::History(int TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
+History::History(enumHISTORYTYPE TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
 {
 	strRegKey = RegKey;
 
@@ -404,8 +405,30 @@ const wchar_t *History::GetTitle(int Type)
 	return L"";
 }
 
+int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type)
+{
+	int Height=ScrY-8;
+
+	VMenu HistoryMenu(Title,NULL,0,Height);
+	HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+	if (HelpTopic!=NULL)
+		HistoryMenu.SetHelp(HelpTopic);
+	HistoryMenu.SetPosition(-1,-1,0,0);
+	HistoryMenu.AssignHighlights(TRUE);
+
+	return ProcessMenu(strStr, Title, HistoryMenu, Height, Type, NULL);
+}
+
+int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
+{
+	int Type=0;
+
+	return ProcessMenu(strStr, NULL, HistoryMenu, Height, Type, Dlg);
+}
+
 /*
  Return:
+  -1 - Error???
    0 - Esc
    1 - Enter
    2 - Shift-Enter
@@ -414,163 +437,212 @@ const wchar_t *History::GetTitle(int Type)
    5 - F4
    6 - Ctrl-Shift-Enter
 */
-int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strStr,int &Type)
+int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
-
 	HistoryRecord *SelectedRecord=NULL;
-	int Code=-1,Height=ScrY-8;
 	FarListPos Pos={0,0};
+    int Code=-1;
 	int RetCode=1;
 
+	bool Done=false;
+	bool SetUpMenuPos=false;
+
+	if (TypeHistory == HISTORYTYPE_DIALOG && HistoryList.Length==0)
+		return 0;
+
+	while (!Done)
 	{
-		VMenu HistoryMenu(Title,NULL,0,Height);
-		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
-		if (HelpTopic!=NULL)
-			HistoryMenu.SetHelp(HelpTopic);
-		HistoryMenu.SetPosition(-1,-1,0,0);
-		HistoryMenu.AssignHighlights(TRUE);
-		bool Done=false;
-		bool SetUpMenuPos=false;
+		bool IsUpdate=false;
 
-		while (!Done)
+		HistoryMenu.DeleteItems();
+		HistoryMenu.Modal::ClearDone();
+
+		// заполнение пунктов меню
+		for (const HistoryRecord *HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Last():HistoryList.First(); HistoryItem != NULL; HistoryItem=TypeHistory==HISTORYTYPE_DIALOG?HistoryList.Prev(HistoryItem):HistoryList.Next(HistoryItem))
 		{
-			bool IsUpdate=false;
+			string strRecord = HistoryItem->strName;
 
-			HistoryMenu.DeleteItems();
-			HistoryMenu.Modal::ClearDone();
-			HistoryMenu.SetPosition(-1,-1,0,0);
-
-			// заполнение пунктов меню
-			for (const HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
+			strRecord = L"";
+			if (TypeHistory == HISTORYTYPE_VIEW)
 			{
-				string strRecord = HistoryItem->strName;
+				strRecord += GetTitle(HistoryItem->Type);
+				strRecord += L":";
+				strRecord += (HistoryItem->Type==4?L"-":L" ");
+			}
+			/*
+				TODO: возможно здесь! или выше....
+				char Date[16],Time[16], OutStr[32];
+				ConvertDate(HistoryItem->Timestamp,Date,Time,5,TRUE,FALSE,TRUE,TRUE);
+				а дальше
+				strRecord += дату и время
+			*/
 
-				strRecord = L"";
-				if (TypeHistory == HISTORYTYPE_VIEW)
-				{
-					strRecord += GetTitle(HistoryItem->Type);
-					strRecord += L":";
-					strRecord += (HistoryItem->Type==4?L"-":L" ");
-				}
-                /*
-                 TODO: ў®§¬®¦­® §¤Ґбм! Ё«Ё ўлиҐ....
-					char Date[16],Time[16], OutStr[32];
-					ConvertDate(HistoryItem->Timestamp,Date,Time,5,TRUE,FALSE,TRUE,TRUE);
-					  ¤ «миҐ
-					strRecord += ¤ вг Ё ўаҐ¬п
-                */
+			strRecord += HistoryItem->strName;;
 
-				strRecord += HistoryItem->strName;;
-
+			if (TypeHistory != HISTORYTYPE_DIALOG)
 				ReplaceStrings(strRecord, L"&",L"&&", -1);
 
-				MenuItem.Clear ();
-				MenuItem.strName = strRecord;
-				MenuItem.SetCheck(HistoryItem->Lock?1:0);
+			MenuItem.Clear ();
+			MenuItem.strName = strRecord;
+			MenuItem.SetCheck(HistoryItem->Lock?1:0);
 
-				if (!SetUpMenuPos)
-					MenuItem.SetSelect(CurrentItem==HistoryItem || (!CurrentItem && HistoryItem==HistoryList.Last()));
+			if (!SetUpMenuPos)
+				MenuItem.SetSelect(CurrentItem==HistoryItem || (!CurrentItem && HistoryItem==HistoryList.Last()));
 
-				HistoryMenu.SetUserData(HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&MenuItem));
+			HistoryMenu.SetUserData(HistoryItem,sizeof(HistoryItem),HistoryMenu.AddItem(&MenuItem));
+		}
+
+		//MenuItem.Clear ();
+		//MenuItem.strName = L"                    ";
+
+		//if (!SetUpMenuPos)
+			//MenuItem.SetSelect(CurLastPtr==-1 || CurLastPtr>=HistoryList.Length);
+		//HistoryMenu.SetUserData(NULL,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
+
+		if (TypeHistory == HISTORYTYPE_DIALOG)
+			Dlg->SetComboBoxPos();
+		else
+			HistoryMenu.SetPosition(-1,-1,0,0);
+
+		if (SetUpMenuPos)
+		{
+			Pos.SelectPos=Pos.SelectPos < (int)HistoryList.Length ? Pos.SelectPos : (int)HistoryList.Length-1;
+			Pos.TopPos=Min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
+			HistoryMenu.SetSelectPos(&Pos);
+			SetUpMenuPos=false;
+		}
+
+    /*BUGBUG???
+    	if (TypeHistory == HISTORYTYPE_DIALOG)
+    	{
+				//  Перед отрисовкой спросим об изменении цветовых атрибутов
+				BYTE RealColors[VMENU_COLOR_COUNT];
+				FarListColors ListColors={0};
+				ListColors.ColorCount=VMENU_COLOR_COUNT;
+				ListColors.Colors=RealColors;
+				HistoryMenu.GetColors(&ListColors);
+				if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(LONG_PTR)&ListColors))
+					HistoryMenu.SetColors(&ListColors);
+			}
+    */
+
+		HistoryMenu.Show();
+		while (!HistoryMenu.Done())
+		{
+			if (TypeHistory == HISTORYTYPE_DIALOG && (!Dlg->GetDropDownOpened() || HistoryList.Length==0))
+			{
+				HistoryMenu.ProcessKey(KEY_ESC);
+				continue;
 			}
 
-			//MenuItem.Clear ();
-			//MenuItem.strName = L"                    ";
+			int Key=HistoryMenu.ReadInput();
 
-			//if (!SetUpMenuPos)
-				//MenuItem.SetSelect(CurLastPtr==-1 || CurLastPtr>=HistoryList.Length);
-			//HistoryMenu.SetUserData(NULL,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
-
-			if (SetUpMenuPos)
+			if (TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
 			{
-				Pos.SelectPos=Pos.SelectPos < (int)HistoryList.Length ? Pos.SelectPos : (int)HistoryList.Length-1;
-				Pos.TopPos=Min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
-				HistoryMenu.SetSelectPos(&Pos);
-				SetUpMenuPos=false;
+				HistoryMenu.ProcessKey(KEY_ENTER);
+				continue;
 			}
 
+			HistoryMenu.GetSelectPos(&Pos);
+			HistoryRecord *CurrentRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Pos.SelectPos);
 
-			HistoryMenu.Show();
-			while (!HistoryMenu.Done())
+			switch(Key)
 			{
-				int Key=HistoryMenu.ReadInput();
-				HistoryMenu.GetSelectPos(&Pos);
-				HistoryRecord *CurrentRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Pos.SelectPos);
-
-				switch(Key)
+				case KEY_CTRLR: // обновить с удалением недоступных
 				{
-					case KEY_CTRLR: // обновить с удалением недоступных
+					if (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
 					{
-						if (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
+						bool ModifiedHistory=false;
+						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
 						{
-							bool ModifiedHistory=false;
-							for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
-							{
-								if(HistoryItem->Lock) // залоченные не трогаем
-									continue;
+							if(HistoryItem->Lock) // залоченные не трогаем
+								continue;
 
-								// убить запись из истории
-								if (apiGetFileAttributes(HistoryItem->strName) == INVALID_FILE_ATTRIBUTES)
-								{
-									HistoryItem=HistoryList.Delete(HistoryItem);
-									ModifiedHistory=true;
-								}
-							}
-							if (ModifiedHistory) // избавляемся от лишних телодвижений
+							// убить запись из истории
+							if (apiGetFileAttributes(HistoryItem->strName) == INVALID_FILE_ATTRIBUTES)
 							{
-								SaveHistory(); // сохранить
-								HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-								HistoryMenu.SetUpdateRequired(TRUE);
-								IsUpdate=true;
+								HistoryItem=HistoryList.Delete(HistoryItem);
+								ModifiedHistory=true;
 							}
-							ResetPosition();
 						}
-						break;
-					}
-
-					case KEY_CTRLSHIFTNUMENTER:
-					case KEY_CTRLNUMENTER:
-					case KEY_SHIFTNUMENTER:
-					case KEY_CTRLSHIFTENTER:
-					case KEY_CTRLENTER:
-					case KEY_SHIFTENTER:
-					{
-						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-						Done=true;
-						RetCode=Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3);
-						break;
-					}
-
-					case KEY_F3:
-					case KEY_F4:
-					case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-					{
-						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-						Done=true;
-						RetCode=(Key==KEY_F4? 5 : 4);
-						break;
-					}
-
-					// $ 09.04.2001 SVS - Фича - копирование из истории строки в Clipboard
-					case KEY_CTRLC:
-					case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
-					{
-						if (CurrentRecord)
-							CopyToClipboard(CurrentRecord->strName);
-
-						break;
-					}
-
-					// Lock/Unlock
-					case KEY_INS:
-					case KEY_NUMPAD0:
-					{
-						if (HistoryMenu.GetItemCount()/* > 1*/)
+						if (ModifiedHistory) // избавляемся от лишних телодвижений
 						{
-							CurrentItem=CurrentRecord;
-							CurrentItem->Lock=CurrentItem->Lock?false:true;
+							SaveHistory(); // сохранить
+							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+							HistoryMenu.SetUpdateRequired(TRUE);
+							IsUpdate=true;
+						}
+						ResetPosition();
+					}
+					break;
+				}
+
+				case KEY_CTRLSHIFTNUMENTER:
+				case KEY_CTRLNUMENTER:
+				case KEY_SHIFTNUMENTER:
+				case KEY_CTRLSHIFTENTER:
+				case KEY_CTRLENTER:
+				case KEY_SHIFTENTER:
+				{
+					if (TypeHistory == HISTORYTYPE_DIALOG)
+						break;
+					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+					Done=true;
+					RetCode=Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3);
+					break;
+				}
+
+				case KEY_F3:
+				case KEY_F4:
+				case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
+				{
+					if (TypeHistory == HISTORYTYPE_DIALOG)
+						break;
+					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+					Done=true;
+					RetCode=(Key==KEY_F4? 5 : 4);
+					break;
+				}
+
+				// $ 09.04.2001 SVS - Фича - копирование из истории строки в Clipboard
+				case KEY_CTRLC:
+				case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
+				{
+					if (CurrentRecord)
+						CopyToClipboard(CurrentRecord->strName);
+
+					break;
+				}
+
+				// Lock/Unlock
+				case KEY_INS:
+				case KEY_NUMPAD0:
+				{
+					if (HistoryMenu.GetItemCount()/* > 1*/)
+					{
+						CurrentItem=CurrentRecord;
+						CurrentItem->Lock=CurrentItem->Lock?false:true;
+						HistoryMenu.Hide();
+						ResetPosition();
+						SaveHistory();
+						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+						HistoryMenu.SetUpdateRequired(TRUE);
+						IsUpdate=true;
+						SetUpMenuPos=true;
+					}
+					break;
+				}
+
+				case KEY_SHIFTNUMDEL:
+				case KEY_SHIFTDEL:
+				{
+					if (HistoryMenu.GetItemCount()/* > 1*/)
+					{
+						if(!CurrentRecord->Lock)
+						{
 							HistoryMenu.Hide();
+							HistoryList.Delete(CurrentRecord);
 							ResetPosition();
 							SaveHistory();
 							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
@@ -578,95 +650,74 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 							IsUpdate=true;
 							SetUpMenuPos=true;
 						}
-						break;
 					}
+					break;
+				}
 
-					case KEY_SHIFTNUMDEL:
-					case KEY_SHIFTDEL:
-					{
-						if (HistoryMenu.GetItemCount()/* > 1*/)
-						{
-							if(!CurrentRecord->Lock)
-							{
-								HistoryMenu.Hide();
-								HistoryList.Delete(CurrentRecord);
-								ResetPosition();
-								SaveHistory();
-								HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-								HistoryMenu.SetUpdateRequired(TRUE);
-								IsUpdate=true;
-								SetUpMenuPos=true;
-							}
-						}
-						break;
-					}
-
-					case KEY_NUMDEL:
-					case KEY_DEL:
-					{
-						if (HistoryMenu.GetItemCount()/* > 1*/ &&
-								(!Opt.Confirm.HistoryClear ||
+				case KEY_NUMDEL:
+				case KEY_DEL:
+				{
+					if (HistoryMenu.GetItemCount()/* > 1*/ &&
+							(!Opt.Confirm.HistoryClear ||
 								(Opt.Confirm.HistoryClear &&
 								Message(MSG_WARNING,2,
-										MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
-													(History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
-													MViewHistoryTitle))),
-										MSG(MHistoryClear),
-										MSG(MClear),MSG(MCancel))==0)))
+									MSG((TypeHistory==HISTORYTYPE_CMD || TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
+										(TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),
+									MSG(MHistoryClear),
+									MSG(MClear),MSG(MCancel))==0)))
+					{
+						for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
 						{
-							for (HistoryRecord *HistoryItem=HistoryList.First(); HistoryItem != NULL; HistoryItem=HistoryList.Next(HistoryItem))
-							{
-								if(HistoryItem->Lock) // залоченные не трогаем
-								  continue;
-								HistoryItem=HistoryList.Delete(HistoryItem);
-							}
-							ResetPosition();
-							HistoryMenu.Hide();
-							SaveHistory();
-							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-							HistoryMenu.SetUpdateRequired(TRUE);
-							IsUpdate=true;
+							if(HistoryItem->Lock) // залоченные не трогаем
+								continue;
+							HistoryItem=HistoryList.Delete(HistoryItem);
 						}
-						break;
+						ResetPosition();
+						HistoryMenu.Hide();
+						SaveHistory();
+						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+						HistoryMenu.SetUpdateRequired(TRUE);
+						IsUpdate=true;
 					}
-
-					default:
-						HistoryMenu.ProcessInput();
-						break;
+					break;
 				}
+
+				default:
+					HistoryMenu.ProcessInput();
+					break;
 			}
+		}
 
-			if (IsUpdate)
-				continue;
+		if (IsUpdate)
+			continue;
 
-			Done=true;
-			Code=HistoryMenu.Modal::GetExitCode();
-			if (Code >= 0)
+		Done=true;
+		Code=HistoryMenu.Modal::GetExitCode();
+		if (Code >= 0)
+		{
+			SelectedRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Code);
+
+			if (!SelectedRecord)
+				return -1;
+
+			if (RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !SelectedRecord->Type) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(SelectedRecord->strName) == INVALID_FILE_ATTRIBUTES)
 			{
-				SelectedRecord=(HistoryRecord *)HistoryMenu.GetUserData(NULL,sizeof(HistoryRecord *),Code);
+				SetLastError(ERROR_FILE_NOT_FOUND);
 
-				if (!SelectedRecord)
-					return -1;
-
-				if (RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !SelectedRecord->Type) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(SelectedRecord->strName) == INVALID_FILE_ATTRIBUTES)
+				if (SelectedRecord->Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					SetLastError(ERROR_FILE_NOT_FOUND);
-
-					if (SelectedRecord->Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
-					{
-						if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,SelectedRecord->strName,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
-							break;
-					}
-					else
-					{
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,SelectedRecord->strName,MSG(MOk));
-					}
-
-					Done=false;
-					SetUpMenuPos=true;
-					HistoryMenu.Modal::SetExitCode(Pos.SelectPos=Code);
-					continue;
+					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,SelectedRecord->strName,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
+						break;
 				}
+				else
+				{
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,SelectedRecord->strName,MSG(MOk));
+				}
+
+				Done=false;
+				SetUpMenuPos=true;
+				HistoryMenu.Modal::SetExitCode(Pos.SelectPos=Code);
+				continue;
 			}
 		}
 	}
@@ -696,11 +747,11 @@ int History::Select(const wchar_t *Title,const wchar_t *HelpTopic, string &strSt
 	return RetCode;
 }
 
-
 void History::GetPrev(string &strStr)
 {
 	CurrentItem=HistoryList.Prev(CurrentItem);
-	if(!CurrentItem)
+
+	if (!CurrentItem)
 	  CurrentItem=HistoryList.First();
 
 	if (CurrentItem)
@@ -712,7 +763,7 @@ void History::GetPrev(string &strStr)
 
 void History::GetNext(string &strStr)
 {
-	if(CurrentItem)
+	if (CurrentItem)
     CurrentItem=HistoryList.Next(CurrentItem);
 
 	if (CurrentItem)

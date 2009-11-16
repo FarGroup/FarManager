@@ -35,10 +35,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DList.hpp"
 
-enum{
+class Dialog;
+class VMenu;
+
+enum enumHISTORYTYPE
+{
 	HISTORYTYPE_CMD,
 	HISTORYTYPE_FOLDER,
 	HISTORYTYPE_VIEW,
+	HISTORYTYPE_DIALOG
 };
 
 struct HistoryRecord
@@ -77,7 +82,7 @@ class History
 		string strRegKey;
 		bool EnableAdd, KeepSelectedPos, SaveType;
 		int RemoveDups;
-		int TypeHistory;
+		enumHISTORYTYPE TypeHistory;
 		int HistoryCount;
 		const int *EnableSave;
 
@@ -88,9 +93,10 @@ class History
 		void AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int Type);
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
+		int ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 
 	public:
-		History(int TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
 		~History();
 
 	public:
@@ -98,6 +104,7 @@ class History
 		bool ReadHistory();
 		bool SaveHistory();
 		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type);
+		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);
 		void GetSimilar(string &strStr, int LastCmdPartLength);
