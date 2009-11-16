@@ -1026,8 +1026,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                         PtrName=MSG(MListJunction);
                         {
                             string strJuncName;
-                            if(GetReparsePointInfo(ListData[ListPos]->strName,
-                                                   strJuncName))
+														string strName(strCurDir);
+														AddEndSlash(strName);
+														strName+=ListData[ListPos]->strName;
+														if(GetReparsePointInfo(strName,strJuncName))
                             {
                               NormalizeSymlinkName(strJuncName);
                               if(IsLocalVolumeRootPath(strJuncName))

@@ -1549,6 +1549,7 @@ void Panel::SetFocus()
     CtrlObject->Cp()->RedrawKeyBar();
     Focus=TRUE;
     Redraw();
+    FarChDir(strCurDir);
   }
 }
 
@@ -1875,8 +1876,6 @@ void Panel::Show()
 {
   if ( Locked () )
     return;
-
-	FarChDir(strCurDir);
 
   /* $ 03.10.2001 IS перерисуем строчку меню */
   if (Opt.ShowMenuBar)
