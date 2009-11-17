@@ -223,7 +223,7 @@ bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 
 		RegCloseKey(hExtIDListSubKey);
 	}
-	
+
 	return false;
 }
 
@@ -254,7 +254,7 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 	{
 		HKEY hCRKey = 0, hUserKey = 0;
 		string strFoundValue;
-		
+
 		if (aType == AT_FILEEXTENSION)
 		{
 			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
@@ -927,7 +927,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       if ( AlwaysWaitFinish || !SeparateWindow )
       {
         if ( Opt.ConsoleDetachKey == 0 )
+        {
           WaitForSingleObject(hProcess,INFINITE);
+        }
         else
         {
           /*$ 12.02.2001 SKV
@@ -935,7 +937,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             Отделение фаровской консоли от неинтерактивного процесса.
             Задаётся кнопкой в System/ConsoleDetachKey
           */
-          HANDLE hHandles[2];
           HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
           HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -948,21 +949,13 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
           int shift=ctrl&PKF_SHIFT;
           ctrl=ctrl&PKF_CONTROL;
 
-          hHandles[0] = hProcess;
-          hHandles[1] = hInput;
-
           bool bAlt, bShift, bCtrl;
           DWORD dwControlKeyState;
 
-          while( WaitForMultipleObjects (
-              2,
-              hHandles,
-              FALSE,
-              INFINITE
-              ) != WAIT_OBJECT_0
-              )
+          //Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
+          while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
           {
-						if ( PeekConsoleInput(hHandles[1],ir,256,&rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && PeekConsoleInput(hInput,ir,256,&rd) && rd)
             {
               int stop=0;
 
@@ -1045,13 +1038,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
               if ( stop )
                 break;
             }
-
-            Sleep(100);
           }
         }
       }
-
-//      MessageBox (0, "close", "asd", MB_OK);
 
       ScrBuf.FillBuf();
 
