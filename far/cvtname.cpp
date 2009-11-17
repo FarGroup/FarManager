@@ -374,9 +374,18 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
       }
       if (Res)
       {
-        PathNames.ReleaseBuffer();
-        DeleteEndSlash(PathNames);
-        Result.Replace(0, cVolumeGuidLen, PathNames);
+        const wchar_t* PathName = PathNames.GetBuffer();
+        while (*PathName)
+        {
+          string Path(PathName);
+          if (IsRootPath(Path))
+          {
+            DeleteEndSlash(Path);
+            Result.Replace(0, cVolumeGuidLen, Path);
+            break;
+          }
+          PathName += Path.GetLength() + 1;
+        }
       }
     }
     else

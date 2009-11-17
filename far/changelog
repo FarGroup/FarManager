@@ -1,3 +1,7 @@
+chupakabra 18.11.2009 00:20:00 +0200 - build 1212
+
+1. Дополнение к build 1211.
+
 chupakabra 17.11.2009 23:17:00 +0200 - build 1211
 
 1. Использование GetVolumeNameForVolumeMountPointW() в ConvertNameToReal() вызывало нежелательную сетевую активность
