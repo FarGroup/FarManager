@@ -110,8 +110,8 @@ FileList::FileList()
   DizRead=FALSE;
   InternalProcessKey=FALSE;
   GetSelPosition = 0;
-
   Is_FS_NTFS=FALSE;
+  UpdateDisabled=0;
 }
 
 
@@ -2670,8 +2670,8 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void FileList::SetViewMode(int ViewMode)
 {
-	if ( (DWORD)ViewMode > (DWORD)SizeViewSettingsArray )
-		ViewMode=VIEW_0;
+  if ( (DWORD)ViewMode > (DWORD)SizeViewSettingsArray )
+    ViewMode=VIEW_0;
   int CurFullScreen=IsFullScreen();
   int OldOwner=IsColumnDisplayed(OWNER_COLUMN);
   int OldPacked=IsColumnDisplayed(PACKED_COLUMN);
@@ -3896,22 +3896,22 @@ bool FileList::ApplyCommand()
 
   char SelName[NM],SelShortName[NM];
   int FileAttr;
-	int NeedCountScroll=0;
-	if(CtrlObject->MainKeyBar->IsVisible())
-		NeedCountScroll++;
-	if(CtrlObject->CmdLine->IsVisible())
-		NeedCountScroll++;
+  int NeedCountScroll=0;
+  if(CtrlObject->MainKeyBar->IsVisible())
+    NeedCountScroll++;
+  if(CtrlObject->CmdLine->IsVisible())
+    NeedCountScroll++;
 
 #if 1
-	RedrawDesktop *Redraw=NULL;
-	if(isSilent)
-		Redraw=new RedrawDesktop(TRUE);
+  RedrawDesktop *Redraw=NULL;
+  if(isSilent)
+    Redraw=new RedrawDesktop(TRUE);
 #else
-	//SaveScreen *SaveScr=NULL;
-	LockScreen *LckScreen=NULL;
-	if(isSilent)
-		//SaveScr=new SaveScreen;
-		LckScreen=new LockScreen;
+  //SaveScreen *SaveScr=NULL;
+  LockScreen *LckScreen=NULL;
+  if(isSilent)
+    //SaveScr=new SaveScreen;
+    LckScreen=new LockScreen;
 #endif
   SaveSelection();
 
@@ -3920,6 +3920,8 @@ bool FileList::ApplyCommand()
   ScrBuf.GetCursorPos(X,Y);
   MoveCursor(0,Y);
   ScrollScreen(1);
+
+  ++UpdateDisabled;
 
   GetSelName(NULL,FileAttr);
   while (GetSelName(SelName,FileAttr,SelShortName) && !CheckForEsc())
@@ -3975,12 +3977,14 @@ bool FileList::ApplyCommand()
   }
 
 #if 1
-	if(Redraw)
-		delete Redraw;
+  if(Redraw)
+    delete Redraw;
 #else
-	if(LckScreen)
-		delete LckScreen;
+  if(LckScreen)
+    delete LckScreen;
 #endif
+
+  --UpdateDisabled;
 
   return true;
 }

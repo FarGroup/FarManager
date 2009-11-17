@@ -127,7 +127,7 @@ class FileList:public Panel
     };
     TList<DataToDeleteItem> DataToDelete;
 
-    int UpdateRequired,UpdateRequiredMode;
+    int UpdateRequired,UpdateRequiredMode,UpdateDisabled;
     int SortGroupsRead;
     int InternalProcessKey;
 
