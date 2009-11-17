@@ -220,7 +220,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\xlat.obj"
 
 !if defined(_NMAKE_VER) && !defined(USE_VC9) && !defined(USE_VC8_32)
-!if "$(_NMAKE_VER)">"9"
+!if "$(_NMAKE_VER)">"9" || "$(_NMAKE_VER)">"10"
 USE_VC9=1
 !elseif "$(_NMAKE_VER)">"8"
 USE_VC8_32=1

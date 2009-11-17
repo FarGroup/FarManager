@@ -1039,7 +1039,6 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
             Отделение фаровской консоли от неинтерактивного процесса.
             Задаётся кнопкой в System/ConsoleDetachKey
           */
-          HANDLE hHandles[2];
           HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
           HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -1052,21 +1051,13 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
           int shift=ctrl&PKF_SHIFT;
           ctrl=ctrl&PKF_CONTROL;
 
-          hHandles[0] = hProcess;
-          hHandles[1] = hInput;
-
           bool bAlt, bShift, bCtrl;
           DWORD dwControlKeyState;
 
-          while( WaitForMultipleObjects (
-              2,
-              hHandles,
-              FALSE,
-              INFINITE
-              ) != WAIT_OBJECT_0
-              )
+          //Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
+          while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
           {
-            if ( PeekConsoleInput(hHandles[1],ir,256,&rd) && rd)
+            if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && PeekConsoleInput(hInput,ir,256,&rd) && rd)
             {
               int stop=0;
 
@@ -1149,13 +1140,9 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
               if ( stop )
                 break;
             }
-
-            Sleep(100);
           }
         }
       }
-
-//      MessageBox (0, "close", "asd", MB_OK);
 
       ScrBuf.FillBuf();
 
