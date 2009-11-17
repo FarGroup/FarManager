@@ -194,6 +194,13 @@ typedef NTSTATUS (NTAPI *NTCLOSE)(
 	HANDLE Handle
 );
 
+typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
+	LPCTSTR lpszVolumeName,
+	LPTSTR lpszVolumePathNames,
+	DWORD cchBufferLength,
+	PDWORD lpcchReturnLength
+);
+
 struct ImportedFunctions {
 
 	//
@@ -231,6 +238,7 @@ struct ImportedFunctions {
 	NTOPENSYMBOLICLINKOBJECT pfnNtOpenSymbolicLinkObject;
 	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;
 	NTCLOSE pfnNtClose;
+	GETVOLUMEPATHNAMESFORVOLUMENAME pfnGetVolumePathNamesForVolumeName;
 
 	void Load();
 };

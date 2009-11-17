@@ -351,6 +351,60 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
   }
   return 0;
 }
+
+const int cVolumeGuidLen = 48;
+
+// try to replace volume GUID (if present) with drive letter
+// used by ConvertNameToReal() only
+string TryConvertVolumeGuidToDrivePath(const string& Path)
+{
+  string Result = Path;
+  if (Path.GetLength() >= cVolumeGuidLen && Path.Equal(0, L"\\\\?\\Volume"))
+  {
+    if (ifn.pfnGetVolumePathNamesForVolumeName)
+    {
+      DWORD BufSize = NT_MAX_PATH;
+      string PathNames;
+      DWORD RetSize;
+      BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+      if (!Res && RetSize > BufSize)
+      {
+        BufSize = RetSize;
+        Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+      }
+      if (Res)
+      {
+        PathNames.ReleaseBuffer();
+        DeleteEndSlash(PathNames);
+        Result.Replace(0, cVolumeGuidLen, PathNames);
+      }
+    }
+    else
+    {
+      string DriveStrings;
+      if (apiGetLogicalDriveStrings(DriveStrings))
+      {
+        wchar_t* Drive = DriveStrings.GetBuffer();
+        wchar_t VolumeGuid[cVolumeGuidLen + 1 + 1];
+        while (*Drive)
+        {
+          if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
+          {
+            if (Path.Equal(0, VolumeGuid, cVolumeGuidLen))
+            {
+              DeleteEndSlash(Drive);
+              Result.Replace(0, cVolumeGuidLen, Drive);
+              break;
+            }
+          }
+          Drive += StrLength(Drive) + 1;
+        }
+      }
+    }
+  }
+  return Result;
+}
+
 /*
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
@@ -371,8 +425,6 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
   // "разыменовать симлинк")
   if (IsLocalDrive(FullPath))
   {
-    const int cVolumeGuidLen = 49;
-
     string Path = FullPath;
     HANDLE hFile;
 		for(;;)
@@ -389,7 +441,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
       string FinalFilePath;
       if (ifn.pfnGetFinalPathNameByHandle)
       {
-        DWORD BufSize = 0x10000;
+        DWORD BufSize = NT_MAX_PATH;
         DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
         if (Len > BufSize + 1)
         {
@@ -401,7 +453,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
       else if (ifn.pfnNtQueryObject)
       {
         ULONG RetLen;
-        ULONG BufSize = 0x10000;
+        ULONG BufSize = NT_MAX_PATH;
         OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
         NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
         if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
@@ -440,14 +492,14 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
           if (FinalFilePath.IsEmpty())
           {
             // try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-            wchar_t VolumeName[MAX_PATH];
+            wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
             HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
             BOOL Res = hEnum != INVALID_HANDLE_VALUE;
             while (Res)
             {
               if (StrLength(VolumeName) >= cVolumeGuidLen)
               {
-                VolumeName[cVolumeGuidLen - 1] = 0; // drop trailing slash
+                DeleteEndSlash(VolumeName);
                 int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
                 if (Len)
                 {
@@ -473,29 +525,8 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
           AddEndSlash(FinalFilePath);
           FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
         }
-        if (FinalFilePath.Equal(0, L"\\\\?\\Volume"))
-        {
-          // try to replace volume GUID with drive letter
-          string DriveStrings;
-          if (apiGetLogicalDriveStrings(DriveStrings))
-          {
-            const wchar_t* Drive = DriveStrings.CPtr();
-            wchar_t VolumeGuid[cVolumeGuidLen + 1];
-            while (*Drive)
-            {
-              if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
-              {
-                if (FinalFilePath.Equal(0, VolumeGuid, cVolumeGuidLen))
-                {
-                  FinalFilePath.Replace(0, cVolumeGuidLen, Drive);
-                  break;
-                }
-              }
-              Drive += StrLength(Drive) + 1;
-            }
-          }
-        }
 
+        FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
         strDest = FinalFilePath;
       }
     }
