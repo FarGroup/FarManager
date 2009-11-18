@@ -257,8 +257,8 @@ static TCHAR *loadFile(const TCHAR *fn, TCHAR *buff, DWORD maxSize)
 #ifdef UNICODE
           if(read&1)
           {
-          	buff[read/sizeof(TCHAR)]=buff[read/sizeof(TCHAR)]&0xff;
-          	read++;
+            buff[read/sizeof(TCHAR)]=buff[read/sizeof(TCHAR)]&0xff;
+            read++;
           }
 #endif
           buff[read/sizeof(TCHAR)] = 0;
@@ -306,13 +306,13 @@ static void ParseCmdSyntax(TCHAR*& pCmd, int& ShowCmdOutput, int& stream)
 // возвращает длину.
 static int TestPrefix(TCHAR*& Src,const TCHAR *Pref)
 {
-	int lenPref=lstrlen(Pref);
-	if(!_memicmp(Src,Pref,lenPref))
-	{
-		Src+=lenPref;
-		return lenPref;
-	}
-	return 0;
+  int lenPref=lstrlen(Pref);
+  if(!_memicmp(Src,Pref,lenPref))
+  {
+    Src+=lenPref;
+    return lenPref;
+  }
+  return 0;
 }
 
 int OpenFromCommandLine(TCHAR *_farcmd)
@@ -381,15 +381,15 @@ int OpenFromCommandLine(TCHAR *_farcmd)
       Pref[I].Pref=TestPrefix(farcmd,Pref[I].Name);
       if(Pref[I].Pref)
       {
-    	if(*farcmd == _T(':'))
-    		farcmd++;
-    	if(!I)
-    	{
+      if(*farcmd == _T(':'))
+        farcmd++;
+      if(!I)
+      {
           //  farcmd = <command>[<options>]<separator><object>
           //  farcmd = <command><separator><object>
-    	  continue;  // для "FAR:" продолжаем
-    	}
-    	break;
+        continue;  // для "FAR:" продолжаем
+      }
+      break;
       }
     }
     // farcmd = [[<options>]<separator>]<object>
@@ -743,18 +743,11 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               {
                 allOK = FALSE;
 
-                #if 0
-                lstrcat(lstrcpy(cmd,_T("%COMSPEC% /c ")), temp);
-                #else
-#ifdef UNICODE
-                lstrcpy(cmd,_T("%COMSPEC% /U /c "));
-#else
                 lstrcpy(cmd,_T("%COMSPEC% /c "));
-#endif
+
                 if(*temp == _T('"'))
                   lstrcat(cmd, _T("\""));
                 lstrcat(cmd, temp);
-                #endif
 
                 ExpandEnvironmentStr(cmd, fullcmd, ArraySize(fullcmd));
                 lstrcpy(cmd, temp);
@@ -1090,23 +1083,24 @@ int OpenFromCommandLine(TCHAR *_farcmd)
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8_LO    0xBBEF
 #define SIGN_UTF8_HI    0xBF
-                  if(outputtofile)
-                  {
-                  	;
-                  }
-                  else if(Ptr[0]==SIGN_UNICODE)
+                  //if(outputtofile)
+                  //{
+                    //;
+                  //}
+                  //else
+                  if(Ptr[0]==SIGN_UNICODE)
                   {
                     shift=1;
                   }
                   else if(Ptr[0]==SIGN_REVERSEBOM)
                   {
                     shift=1;
-                  	size_t PtrLength=lstrlen(Ptr);
+                    size_t PtrLength=lstrlen(Ptr);
                     swab((char*)Ptr,(char*)Ptr,int(PtrLength*sizeof(TCHAR)));
                   }
                   else
                   {
-                    UINT cp=GetACP();
+                    UINT cp=outputtofile?GetConsoleOutputCP():GetACP();
                     if(Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
                     {
                       shift=1;
