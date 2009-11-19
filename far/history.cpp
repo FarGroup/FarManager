@@ -233,6 +233,36 @@ end:
 	return ret;
 }
 
+bool History::ReadLastItem(const wchar_t *RegKey, string &strStr)
+{
+  strStr.Clear();
+
+	HKEY hKey=OpenRegKey(RegKey);
+	if (!hKey)
+		return false;
+	
+	DWORD Size=GetRegKeySize(hKey, L"Lines");
+	if (Size < sizeof(wchar_t)) // Нету ничерта
+		return false;
+	
+	wchar_t *Buffer=(wchar_t*)xf_malloc(Size);
+	if (!Buffer)
+		return false;
+
+	DWORD Type;
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,(unsigned char *)Buffer,&Size)!=ERROR_SUCCESS)
+	{
+		free(Buffer);
+		return false;
+	}
+
+	Buffer[Size/sizeof(wchar_t)-1]=0; //safety
+	strStr = Buffer; //last item is first in registry, null terminated
+
+	free(Buffer);
+
+	return true;
+}
 
 bool History::ReadHistory()
 {
@@ -321,6 +351,7 @@ bool History::ReadHistory()
 		int StrPos=0;
 		wchar_t *Buf=Buffer;
 		Size/=sizeof(wchar_t);
+		Buf[Size-1]=0; //safety
 		while (Size > 1 && StrPos < HistoryCount)
 		{
 			int Length=StrLength(Buf)+1;

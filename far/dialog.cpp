@@ -1104,10 +1104,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 	{
 		string strRegKey=fmtSavedDialogHistory;
 		strRegKey+=CurItem->History;
-		History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-		DlgHist.ReadHistory();
-		DlgHist.ResetPosition();
-		DlgHist.GetPrev(strData);
+		History::ReadLastItem(strRegKey, strData);
 		if (MsgIndex != -1)
 		{
 			// обработка DM_SETHISTORY => надо пропустить изменение текста через

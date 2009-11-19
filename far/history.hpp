@@ -103,6 +103,7 @@ class History
 		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=NULL, bool SaveForbid=false);
 		bool ReadHistory();
 		bool SaveHistory();
+		static bool ReadLastItem(const wchar_t *RegKey, string &strStr);
 		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type);
 		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
