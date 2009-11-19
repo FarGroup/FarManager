@@ -1936,7 +1936,6 @@ void Edit::RefreshStrByMask(int InitMode)
       if (!CheckCharMask(Mask[i]))
         Str[i]=Mask[i];
     }
-    Changed();
   }
 }
 

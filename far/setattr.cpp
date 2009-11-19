@@ -222,13 +222,14 @@ LONG_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 									if(apiGetFindDataEx(DlgParam->strSelName,&FindData))
 									{
 										const SETATTRDLG Items[]={SA_TEXT_MODIFICATION,SA_TEXT_CREATION,SA_TEXT_LASTACCESS};
-										const bool* ParamTimes[]={&DlgParam->OLastWriteTime,&DlgParam->OCreationTime,&DlgParam->OLastAccessTime};
+										bool* ParamTimes[]={&DlgParam->OLastWriteTime,&DlgParam->OCreationTime,&DlgParam->OLastAccessTime};
 										const PFILETIME FDTimes[]={&FindData.ftLastWriteTime,&FindData.ftCreationTime,&FindData.ftLastAccessTime};
 										for(size_t i=0;i<countof(Items);i++)
 										{
-											if(*ParamTimes[i])
+											if(!*ParamTimes[i])
 											{
 												SendDlgMessage(hDlg,DM_SETATTR,Items[i],SubfoldersState?0:(LONG_PTR)FDTimes[i]);
+												*ParamTimes[i]=false;
 											}
 										}
 									}
