@@ -361,6 +361,8 @@ class TPointerArray
 
     Object *getItem(unsigned int index) { return (index<Count)?items[index]:NULL; }
 
+    Object *lastItem() { return Count?items[Count-1]:NULL; }
+
     Object *addItem() { return insertItem(Count); }
 
     Object *insertItem(unsigned int index)

@@ -45,95 +45,42 @@ ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
   Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
   Flags.Change(FSCANTREE_RECUR,Recurse);
   Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?Opt.ScanJunction:ScanJunction));
-	DataCount=MAX_PATH/2;
-	Data=static_cast<ScanTreeData*>(xf_malloc(sizeof(ScanTreeData)*DataCount));
-  Init();
-}
-
-
-ScanTree::~ScanTree()
-{
-	for(size_t i=0;i<=FindHandleCount;i++)
-		if(Data[i].FindHandle && Data[i].FindHandle!=INVALID_HANDLE_VALUE)
-			apiFindClose(Data[i].FindHandle);
-	xf_free(Data);
-	IdArray.Free();
-}
-
-
-
-void ScanTree::Init()
-{
-	memset(Data,0,sizeof(ScanTreeData)*DataCount);
-  FindHandleCount=0;
-  Flags.Clear(FSCANTREE_FILESFIRST);
-}
-
-bool ScanTree::GetFileId(LPCWSTR Directory,FileId& id)
-{
-	bool Result=false;
-	HANDLE hDirectory=apiCreateFile(Directory,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
-	if(hDirectory!=INVALID_HANDLE_VALUE)
-	{
-		BY_HANDLE_FILE_INFORMATION bhfi;
-		// Дополнительное условие (проверки BY_HANDLE_FILE_INFORMATION) сделано для обхода проблем с файловыми системами,
-		// которые для всех файлов отдают нулевые уникальные идетификаторы. Например, этим страдает WebDAV на SharePoint
-		if(GetFileInformationByHandle(hDirectory,&bhfi) && (bhfi.dwVolumeSerialNumber != 0 || bhfi.nFileIndexLow != 0 || bhfi.nFileIndexHigh != 0))
-		{
-			id.FileIndexHigh=bhfi.nFileIndexHigh;
-			id.FileIndexLow=bhfi.nFileIndexLow;
-			id.VolumeSerialNumber=bhfi.dwVolumeSerialNumber;
-			Result=true;
-		}
-		CloseHandle(hDirectory);
-	}
-	return Result;
+  ScanItems.setDelta(10);
 }
 
 void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags)
 {
-  Init();
+  ScanItems.Free();
+  ScanItems.addItem();
+  Flags.Clear(FSCANTREE_FILESFIRST);
 
   strFindMask = Mask;
   strFindPath = Path;
 
+  ConvertNameToReal(strFindPath, ScanItems.lastItem()->RealPath);
+
   AddEndSlash(strFindPath);
-
-	//recursive symlinks guard
-	IdArray.Free();
-	string strPathItem(strFindPath);
-	for(;;)
-	{
-		FileId id;
-		if(GetFileId(strPathItem,id))
-		{
-			FileId *pid=IdArray.addItem();
-			*pid=id;
-		}
-		if(IsRootPath(strPathItem))
-			break;
-		strPathItem=ExtractFilePath(strPathItem);
-	}
-
   strFindPath += strFindMask;
 
   Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);
 }
 
-int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
+bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 {
+  if (ScanItems.getCount()==0)
+    return false;
   int Done;
   Flags.Clear(FSCANTREE_SECONDDIRNAME);
 	for(;;)
   {
-    if (Data[FindHandleCount].FindHandle==0)
-      Done=((Data[FindHandleCount].FindHandle=apiFindFirstFile(strFindPath,fdata))==INVALID_HANDLE_VALUE);
+    if (ScanItems.lastItem()->FindHandle==0)
+      Done=((ScanItems.lastItem()->FindHandle=apiFindFirstFile(strFindPath,fdata))==INVALID_HANDLE_VALUE);
     else
-      Done=!apiFindNextFile(Data[FindHandleCount].FindHandle,fdata);
+      Done=!apiFindNextFile(ScanItems.lastItem()->FindHandle,fdata);
 
     if (Flags.Check(FSCANTREE_FILESFIRST))
     {
-      if (Data[FindHandleCount].Flags.Check(FSCANTREE_SECONDPASS))
+      if (ScanItems.lastItem()->Flags.Check(FSCANTREE_SECONDPASS))
       {
         if (!Done && (fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
           continue;
@@ -144,10 +91,10 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
           continue;
         if (Done)
         {
-          if(!(Data[FindHandleCount].FindHandle == INVALID_HANDLE_VALUE || !Data[FindHandleCount].FindHandle))
-            apiFindClose(Data[FindHandleCount].FindHandle);
-          Data[FindHandleCount].FindHandle=0;
-          Data[FindHandleCount].Flags.Set(FSCANTREE_SECONDPASS);
+          if(!(ScanItems.lastItem()->FindHandle == INVALID_HANDLE_VALUE || !ScanItems.lastItem()->FindHandle))
+            apiFindClose(ScanItems.lastItem()->FindHandle);
+          ScanItems.lastItem()->FindHandle=0;
+          ScanItems.lastItem()->Flags.Set(FSCANTREE_SECONDPASS);
           continue;
         }
       }
@@ -160,18 +107,13 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
   if (Done)
   {
-    if (Data[FindHandleCount].FindHandle!=INVALID_HANDLE_VALUE)
-    {
-      apiFindClose(Data[FindHandleCount].FindHandle);
-      Data[FindHandleCount].FindHandle=0;
-    }
+    ScanItems.deleteItem(ScanItems.getCount()-1);
 
-    if (FindHandleCount==0)
-      return(FALSE);
+    if (ScanItems.getCount()==0)
+      return false;
     else
     {
-      Data[FindHandleCount--].FindHandle=0;
-      if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
+      if (!ScanItems.lastItem()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
         Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
       CutToSlash(strFindPath,true);
@@ -190,66 +132,49 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
       if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         Flags.Set(FSCANTREE_SECONDDIRNAME);
-        return(TRUE);
+        return true;
       }
-      return(GetNextName(fdata,strFullName));
+      return GetNextName(fdata,strFullName);
     }
   }
   else
   {
-
-		//recursive symlinks guard
-		bool Recursion=false;
-		if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-		{
-			string strDir(strFindPath);
-			CutToSlash(strDir);
-			strDir+=fdata->strFileName;
-			FileId id;
-			if(GetFileId(strDir,id))
-			{
-				for(UINT i=0;i<IdArray.getCount()&&!Recursion;i++)
-				{
-					Recursion=(*IdArray.getItem(i)==id);
-				}
-				for(UINT i=0;i+1<FindHandleCount&&!Recursion;i++)
-				{
-					Recursion=(Data[i].UniqueId==id);
-				}
-				Data[FindHandleCount].UniqueId = id;
-			}
-		}
-
-    if (Flags.Check(FSCANTREE_RECUR) && !Recursion &&
-      ((fdata->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) == FILE_ATTRIBUTE_DIRECTORY ||
-          ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANSYMLINK))))
+    if ((fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) &&
+      ((fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)==0 || Flags.Check(FSCANTREE_SCANSYMLINK)))
     {
-      CutToSlash(strFindPath);
+      string RealPath(ScanItems.lastItem()->RealPath);
+      AddEndSlash(RealPath);
+      RealPath += fdata->strFileName;
+      if (fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+        ConvertNameToReal(RealPath, RealPath);
 
-      strFindPath += fdata->strFileName;
+      //recursive symlinks guard
+      bool Recursion = false;
+      for (unsigned i = 0; i < ScanItems.getCount() && !Recursion; i++)
+        Recursion = ScanItems.getItem(i)->RealPath == RealPath;
 
-      strFullName = strFindPath;
-
-      strFindPath += L"\\";
-      strFindPath += strFindMask;
-
-			FindHandleCount++;
-
-			if(FindHandleCount>=DataCount)
-			{
-				DataCount<<=1;
-				Data=static_cast<ScanTreeData*>(xf_realloc(Data,sizeof(ScanTreeData)*DataCount));
-			}
-
-			Data[FindHandleCount].FindHandle=0;
-      Data[FindHandleCount].Flags=Data[FindHandleCount-1].Flags; // наследуем флаг
-      Data[FindHandleCount].Flags.Clear(FSCANTREE_SECONDPASS);
-      if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+      if (!Recursion)
       {
-        Data[FindHandleCount].Flags.Set(FSCANTREE_INSIDEJUNCTION);
-        Flags.Set(FSCANTREE_INSIDEJUNCTION);
+        CutToSlash(strFindPath);
+
+        strFindPath += fdata->strFileName;
+
+        strFullName = strFindPath;
+
+        strFindPath += L"\\";
+        strFindPath += strFindMask;
+
+        ScanItems.addItem();
+        ScanItems.lastItem()->Flags = ScanItems.getItem(ScanItems.getCount()-2)->Flags; // наследуем флаг
+        ScanItems.lastItem()->Flags.Clear(FSCANTREE_SECONDPASS);
+        ScanItems.lastItem()->RealPath = RealPath;
+        if (fdata->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+        {
+          ScanItems.lastItem()->Flags.Set(FSCANTREE_INSIDEJUNCTION);
+          Flags.Set(FSCANTREE_INSIDEJUNCTION);
+        }
+        return true;
       }
-      return(TRUE);
     }
   }
 
@@ -258,20 +183,19 @@ int ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
   CutToSlash(strFullName);
 
   strFullName += fdata->strFileName;
-  return TRUE;
+  return true;
 }
 
 void ScanTree::SkipDir()
 {
-  if (FindHandleCount==0)
+  if (ScanItems.getCount()==0)
     return;
 
-  HANDLE Handle=Data[FindHandleCount].FindHandle;
-  if (Handle!=INVALID_HANDLE_VALUE && Handle!=0)
-    apiFindClose(Handle);
+  ScanItems.deleteItem(ScanItems.getCount()-1);
+  if (ScanItems.getCount()==0)
+    return;
 
-  Data[FindHandleCount--].FindHandle=0;
-  if(!Data[FindHandleCount].Flags.Check(FSCANTREE_INSIDEJUNCTION))
+  if(!ScanItems.lastItem()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
     Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
   CutToSlash(strFindPath,true);

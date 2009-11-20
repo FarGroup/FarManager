@@ -299,7 +299,21 @@ BOOL AddEndSlash(
 	return Result;
 }
 
-BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
+bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash)
+{
+  bool Ret = false;
+  size_t len = StrLength(Path);
+  while (len && IsSlash(Path[--len]))
+  {
+    Ret = true;
+    Path[len] = L'\0';
+    if (!AllEndSlash)
+      break;
+  }
+  return Ret;
+}
+
+BOOL WINAPI DeleteEndSlash(string &strPath, bool AllEndSlash)
 {
   BOOL Ret=FALSE;
   if ( !strPath.IsEmpty() )
@@ -310,23 +324,12 @@ BOOL WINAPI DeleteEndSlash (string &strPath,bool allendslash)
     {
       Ret=TRUE;
       lpwszPath[len] = L'\0';
-      if (!allendslash)
+      if (!AllEndSlash)
         break;
     }
     strPath.ReleaseBuffer();
   }
   return Ret;
-}
-
-string DeleteEndSlash(const string& strPath, bool allendslash)
-{
-  if (strPath.IsEmpty())
-    return strPath;
-  if (!IsSlash(strPath[strPath.GetLength() - 1]))
-    return strPath;
-  string strTmp = strPath;
-  DeleteEndSlash(strTmp, allendslash);
-  return strTmp;
 }
 
 bool CutToSlash(string &strStr, bool bInclude)
@@ -611,7 +614,8 @@ bool IsRootPath(const string& Path)
 
 bool PathStartsWith(const string& Path, const string& Start)
 {
-  string PathPart(DeleteEndSlash(Start, true));
+  string PathPart(Start);
+  DeleteEndSlash(PathPart, true);
   return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
 

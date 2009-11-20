@@ -55,46 +55,34 @@ enum{
   FSCANTREE_FILESFIRST       = 0x00010000, // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
 };
 
-struct FileId
-{
-	DWORD FileIndexHigh,FileIndexLow;
-	DWORD VolumeSerialNumber;
-	bool operator==(const FileId& id)
-	{
-		return FileIndexHigh==id.FileIndexHigh && FileIndexLow==id.FileIndexLow && VolumeSerialNumber==id.VolumeSerialNumber;
-	}
-};
-
-struct ScanTreeData{
+struct ScanTreeData {
   BitFlags Flags;
   HANDLE FindHandle;
-  FileId UniqueId;
+  string RealPath;
+  ScanTreeData(): FindHandle(0) { }
+  ~ScanTreeData()
+  {
+ 		if (FindHandle && FindHandle!=INVALID_HANDLE_VALUE)
+			apiFindClose(FindHandle);
+	}
 };
 
 class ScanTree
 {
   private:
     BitFlags Flags;
-		ScanTreeData *Data;
-		size_t DataCount;
-		size_t FindHandleCount;
+		TPointerArray<ScanTreeData> ScanItems;
 
     string strFindPath;
     string strFindMask;
 
-		TPointerArray<FileId>IdArray;
-
-    void Init();
-		bool GetFileId(LPCWSTR Directory,FileId& id);
-
   public:
     ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);
-    ~ScanTree();
 
   public:
     // 3-й параметр - флаги из старшего слова
     void SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
-    int GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName);
+    bool GetNextName(FAR_FIND_DATA_EX *fdata, string &strFullName);
 
     void SkipDir();
     int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
