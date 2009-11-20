@@ -1000,7 +1000,13 @@ int OpenFromCommandLine(TCHAR *_farcmd)
               }
             }
             else
+            {
+#ifdef UNICODE
+              FSF.ConvertPath(CPM_FULL, temp, TempFileNameOut, ArraySize(TempFileNameOut));
+#else
               lstrcpy(TempFileNameOut, temp);
+#endif
+            }
 
             if ( allOK )
             {
