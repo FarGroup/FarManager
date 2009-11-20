@@ -2388,10 +2388,15 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD5)
         return '5';
       return Modif|KEY_NUMPAD5;
-    case VK_DELETE:
-      if (CtrlState&ENHANCED_KEY) return (Modif|KEY_DEL);
-    case VK_DECIMAL:
-       return Modif|(CtrlState&NUMLOCK_ON?(KEY_DECIMAL):(Opt.UseNumPad?KEY_NUMDEL:KEY_DEL));
+		case VK_DELETE:
+		case VK_DECIMAL:
+			if(CtrlState&ENHANCED_KEY)
+			{
+				return (Modif|KEY_DEL);
+			}
+			else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
+				return KEY_DECIMAL;
+			return Modif|KEY_NUMDEL;
   }
 
   switch(KeyCode)
