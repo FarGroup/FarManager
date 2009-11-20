@@ -69,7 +69,7 @@ static int WipeFile(const wchar_t *Name);
 static int WipeDirectory(const wchar_t *Name);
 static void PR_ShellDeleteMsg();
 
-static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
+static int ReadOnlyDeleteMode,SkipMode,SkipWipeMode,SkipFoldersMode,DeleteAllFolders;
 ULONG ProcessedItems;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
@@ -278,6 +278,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
     ReadOnlyDeleteMode=-1;
     SkipMode=-1;
+		SkipWipeMode=-1;
     SkipFoldersMode=-1;
 
 
@@ -640,40 +641,41 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
   {
     if (Wipe)
     {
-      if (SkipMode!=-1)
-        MsgCode=SkipMode;
-      else
-      {
-        if(GetNumberOfLinks(strFullName) > 1)
-        {
-          /*
+			if(SkipWipeMode!=-1)
+			{
+				MsgCode=SkipWipeMode;
+			}
+			else if(GetNumberOfLinks(strFullName)>1)
+			{
+/*
                             Файл
                          "имя файла"
-                Файл имеет несколько жестких связей.
+                Файл имеет несколько жестких ссылок.
   Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
                         Уничтожать файл?
-          */
-          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),strFullName,
-                          MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
-                          MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-        }
+*/
+				MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),strFullName,
+					MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
+					MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+			}
+			switch(MsgCode)
+			{
+			case -1:
+			case -2:
+			case 4:
+				return DELETE_CANCEL;
 
-        switch(MsgCode)
-        {
-          case -1:
-          case -2:
-          case 4:
-            return DELETE_CANCEL;
-          case 2:
-            return DELETE_SKIP;
-          case 3:
-            SkipMode=3;
-            return DELETE_SKIP;
-          default:
-            if (WipeFile(Name) || WipeFile(ShortName))
-              return DELETE_SUCCESS;
-        }
-      }
+			case 3:
+				SkipWipeMode=2;
+			case 2:
+				return DELETE_SKIP;
+
+			case 1:
+				SkipWipeMode=0;
+			case 0:
+				if(WipeFile(Name)||WipeFile(ShortName))
+					return DELETE_SUCCESS;
+			}
     }
     else
       if (!Opt.DeleteToRecycleBin)
@@ -704,10 +706,10 @@ int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
       case -2:
       case 3:
         return DELETE_CANCEL;
-      case 1:
-        return DELETE_SKIP;
+
       case 2:
-        SkipMode=2;
+        SkipMode=1;
+      case 1:
         return DELETE_SKIP;
     }
   }
