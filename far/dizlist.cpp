@@ -156,7 +156,8 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 				}
 
 				RemoveTrailingSpaces(DizText);
-				AddRecord(DizText);
+				if (*DizText)
+					AddRecord(DizText);
 			}
 
 			OrigCodePage=CodePage;
@@ -304,16 +305,15 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 
 int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 {
-	if (DizData==NULL)
+	if (DizData==NULL || !*Name)
 		return -1;
 
 	if (NeedRebuild)
 		BuildIndex();
 
-	int *DestIndex;
 	SearchDizData=DizData;
 	DizSearchKey Key={Name, StrLength(Name)};
-	DestIndex=(int *)bsearch(&Key,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
+	int *DestIndex=(int *)bsearch(&Key,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
 
 	if (DestIndex!=NULL)
 	{
@@ -403,10 +403,11 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 		if (NameLength>DizNameLength)
 			return 1;
 
-		if (NameLength+1==DizNameLength && DizName[NameLength]!=L'.')
+		if (NameLength+1<DizNameLength)
 			return -1;
 
-		if (NameLength<DizNameLength)
+		//filename == filename.
+		if (NameLength+1==DizNameLength && DizName[NameLength]!=L'.')
 			return -1;
 
 		//for equal names, deleted is bigger so deleted items are never matched
@@ -546,10 +547,17 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 }
 
 
-bool DizList::AddDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText)
+bool DizList::AddDizText(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText)
 {
 	DeleteDiz(Name,ShortName);
-	return AddRecord(DizText);
+
+	string strQuotedName = Name;
+	QuoteSpaceOnly(strQuotedName);
+
+	FormatString FString;
+	FString<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText;
+
+	return AddRecord(FString);
 }
 
 
@@ -564,27 +572,14 @@ bool DizList::CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar
 	while (IsSpace(DizData[DizPos].DizText[TextPos]))
 		TextPos++;
 
-	string strDizText, strQuotedName;
-
-	strQuotedName = DestName;
-	QuoteSpaceOnly(strQuotedName);
-	int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
-	int LenQuotedName=(int)strQuotedName.GetLength ();
-
-	if (!OptDizStartPos || OptDizStartPos < LenQuotedName)
-		OptDizStartPos=(int)strQuotedName.GetLength();
-
-	strDizText.Format (L"%-*.*s %s",
-			OptDizStartPos,OptDizStartPos,(const wchar_t*)strQuotedName,
-			&DizData[DizPos].DizText[TextPos]);
-
-	DestDiz->AddDiz(DestName,DestShortName,strDizText);
+	DestDiz->AddDizText(DestName,DestShortName,&DizData[DizPos].DizText[TextPos]);
 
 	while (++DizPos<DizCount)
 	{
 		if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
 			break;
-		DestDiz->AddDiz(DestName,DestShortName,DizData[DizPos].DizText);
+
+		DestDiz->AddRecord(DizData[DizPos].DizText);
 	}
 
 	return true;

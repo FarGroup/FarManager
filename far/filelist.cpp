@@ -3852,9 +3852,7 @@ void FileList::DescribeFiles()
     }
     else
     {
-			FormatString FString;
-			FString<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<strDizText;
-			Diz.AddDiz(strSelName,strSelShortName,FString);
+			Diz.AddDizText(strSelName,strSelShortName,strDizText);
     }
     ClearLastGetSelection();
     // BugZ#442 - Deselection is late when making file descriptions
