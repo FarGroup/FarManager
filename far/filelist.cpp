@@ -3847,7 +3847,9 @@ void FileList::DescribeFiles()
 
     DizCount++;
     if ( strDizText.IsEmpty() )
+    {
       Diz.DeleteDiz(strSelName,strSelShortName);
+    }
     else
     {
 			FormatString FString;

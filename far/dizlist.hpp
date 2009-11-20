@@ -35,40 +35,44 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct DizRecord
 {
-  wchar_t *DizText;
-  int DizLength;
-  int Deleted;
+	wchar_t *DizText;
+	int DizLength;
+	int NameStart;
+	int NameLength;
+	bool Deleted;
 };
 
 class DizList
 {
-  private:
-    string strDizFileName;
-    DizRecord *DizData;
-    int DizCount;
-    int *IndexData;
-    int IndexCount;
-    int Modified;
+	private:
+		string strDizFileName;
+		DizRecord *DizData;
+		int DizCount;
+		int *IndexData;
+		int IndexCount;
+		bool Modified;
+		bool NeedRebuild;
+		UINT OrigCodePage;
+		char *AnsiBuf;
 
-  private:
-    int GetDizPos(const wchar_t *Name,const wchar_t *ShortName,int *TextPos);
-    int GetDizPosEx(const wchar_t *Name,const wchar_t *ShortName,int *TextPos);
-    void AddRecord(const wchar_t *DizText);
-    void BuildIndex();
+	private:
+		int GetDizPos(const wchar_t *Name, int *TextPos);
+		int GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *TextPos);
+		bool AddRecord(const wchar_t *DizText);
+		void BuildIndex();
 
-  public:
-    DizList();
-    ~DizList();
+	public:
+		DizList();
+		~DizList();
 
-  public:
-    void Read(const wchar_t *Path,const wchar_t *DizName=NULL);
-    void Reset();
-    const wchar_t* GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName, const __int64 &FileSize);
-    int DeleteDiz(const wchar_t *Name,const wchar_t *ShortName);
-    int Flush(const wchar_t *Path,const wchar_t *DizName=NULL);
-    void AddDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText);
-    int CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName,
-                 const wchar_t *DestShortName,DizList *DestDiz);
-    void GetDizName(string &strDizName);
+	public:
+		void Read(const wchar_t *Path, const wchar_t *DizName=NULL);
+		void Reset();
+		const wchar_t *GetDizTextAddr(const wchar_t *Name, const wchar_t *ShortName, const __int64 FileSize);
+		bool DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
+		bool Flush(const wchar_t *Path, const wchar_t *DizName=NULL);
+		bool AddDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DizText);
+		bool CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName, const wchar_t *DestShortName,DizList *DestDiz);
+		void GetDizName(string &strDizName);
 		static void PR_ReadingMsg();
 };
