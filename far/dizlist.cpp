@@ -407,7 +407,7 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 			return -1;
 
 		//filename == filename.
-		if (NameLength+1==DizNameLength && DizName[NameLength]!=L'.')
+		if (NameLength+1==DizNameLength && !(DizName[NameLength]==L'.' && wcschr(DizName,L'.')==&DizName[NameLength]))
 			return -1;
 
 		//for equal names, deleted is bigger so deleted items are never matched
