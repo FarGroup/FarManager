@@ -337,6 +337,7 @@ void InterfaceSettings()
 		DLG_INTERF_PROMPTFORMAT,
 		DLG_INTERF_COPYSHOWTOTAL,
 		DLG_INTERF_COPYTIMERULE,
+		DLG_INTERF_DELSHOWTOTAL,
 		DLG_INTERF_PGUPCHANGEDISK,
 		DLG_INTERF_CLEARTYPE,
 		DLG_INTERF_SEPARATOR,
@@ -344,58 +345,36 @@ void InterfaceSettings()
 		DLG_INTERF_CANCEL
 	};
 
-	static DialogDataEx CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX, 3, 1,54,17,0,0,0,0,(const wchar_t *)MConfigInterfaceTitle,
-  /* 01 */DI_CHECKBOX,  5, 2, 0, 2,1,0,0,0,(const wchar_t *)MConfigClock,
-  /* 02 */DI_CHECKBOX,  5, 3, 0, 3,0,0,0,0,(const wchar_t *)MConfigViewerEditorClock,
-  /* 03 */DI_CHECKBOX,  5, 4, 0, 4,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigMouse,
-  /* 04 */DI_CHECKBOX,  5, 5, 0, 5,0,0,0,0,(const wchar_t *)MConfigKeyBar,
-  /* 05 */DI_CHECKBOX,  5, 6, 0, 6,0,0,0,0,(const wchar_t *)MConfigMenuBar,
-  /* 06 */DI_CHECKBOX,  5, 7, 0, 7,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigSaver,
-  /* 07 */DI_FIXEDIT,   9, 8,11, 8,0,0,0,0,L"",
-  /* 08 */DI_TEXT,     13, 8, 0, 8,0,0,0,0,(const wchar_t *)MConfigSaverMinutes,
-  /* 10 */DI_CHECKBOX,  5,9, 0,9,0,0,DIF_AUTOMATION,0,(const wchar_t *)MConfigUsePromptFormat,
-  /* 11 */DI_EDIT,      9,10,24,10,0,0,0,0,L"",
-  /* 12 */DI_CHECKBOX,  5,11, 0,11,0,0,0,0,(const wchar_t *)MConfigCopyTotal,
-  /* 13 */DI_CHECKBOX,  5,12, 0,12,0,0,0,0,(const wchar_t *)MConfigCopyTimeRule,
-  /* 14 */DI_CHECKBOX,  5,13, 0,13,0,0,0,0,(const wchar_t *)MConfigPgUpChangeDisk,
-  /* 15 */DI_CHECKBOX,  5,14, 0,14,0,0,0,0,(const wchar_t *)MConfigClearType,
-  /* 16 */DI_TEXT,      3,15, 0,15,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-  /* 17 */DI_BUTTON,    0,16, 0,16,0,0,DIF_CENTERGROUP,1,(const wchar_t *)MOk,
-  /* 18 */DI_BUTTON,    0,16, 0,16,0,0,DIF_CENTERGROUP,0,(const wchar_t *)MCancel
+	DialogDataEx CfgDlgData[]=
+	{
+		DI_DOUBLEBOX,3, 1,54,18,0,0,0,0,MSG(MConfigInterfaceTitle),
+		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Clock,0,0,MSG(MConfigClock),
+		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.ViewerEditorClock,0,0,MSG(MConfigViewerEditorClock),
+		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Mouse,DIF_AUTOMATION,0,MSG(MConfigMouse),
+		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.ShowKeyBar,0,0,MSG(MConfigKeyBar),
+		DI_CHECKBOX, 5, 6, 0, 6,0,Opt.ShowMenuBar,0,0,MSG(MConfigMenuBar),
+		DI_CHECKBOX, 5, 7, 0, 7,0,Opt.ScreenSaver,DIF_AUTOMATION,0,MSG(MConfigSaver),
+		DI_FIXEDIT,  9, 8,11, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,L"",
+		DI_TEXT,    13, 8, 0, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,MSG(MConfigSaverMinutes),
+		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.UsePromptFormat,DIF_AUTOMATION,0,MSG(MConfigUsePromptFormat),
+		DI_EDIT,     9,10,24,10,0,0,!Opt.UsePromptFormat?DIF_DISABLE:0,0,Opt.strPromptFormat,
+		DI_CHECKBOX, 5,11, 0,11,0,Opt.CMOpt.CopyShowTotal,0,0,MSG(MConfigCopyTotal),
+		DI_CHECKBOX, 5,12, 0,12,0,Opt.CMOpt.CopyTimeRule,0,0,MSG(MConfigCopyTimeRule),
+		DI_CHECKBOX, 5,13, 0,13,0,Opt.DelOpt.DelShowTotal,0,0,MSG(MConfigDeleteTotal),
+		DI_CHECKBOX, 5,14, 0,14,0,Opt.PgUpChangeDisk,0,0,MSG(MConfigPgUpChangeDisk),
+		DI_CHECKBOX, 5,15, 0,15,0,Opt.ClearType,0,0,MSG(MConfigClearType),
+		DI_TEXT,     3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
-  CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
-  CfgDlg[DLG_INTERF_CLOCK].Selected=Opt.Clock;
-  CfgDlg[DLG_INTERF_MOUSE].Selected=Opt.Mouse;
-  CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected=Opt.ShowKeyBar;
-  CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected=Opt.ShowMenuBar;
-  CfgDlg[DLG_INTERF_SCREENSAVER].Selected=Opt.ScreenSaver;
-
   CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData.Format (L"%u", Opt.ScreenSaverTime);
-
-  if(!Opt.ScreenSaver)
-  {
-    CfgDlg[DLG_INTERF_SCREENSAVERTIME].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_INTERF_SAVERMINUTES].Flags|=DIF_DISABLE;
-  }
-  CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected=Opt.UsePromptFormat;
-  CfgDlg[DLG_INTERF_PROMPTFORMAT].strData = Opt.strPromptFormat;
-  if(!Opt.UsePromptFormat)
-    CfgDlg[DLG_INTERF_PROMPTFORMAT].Flags|=DIF_DISABLE;
-  CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected=Opt.CMOpt.CopyShowTotal;
-
-  CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CMOpt.CopyTimeRule!=0;
-
-  CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
-
-  CfgDlg[DLG_INTERF_CLEARTYPE].Selected=Opt.ClearType;
 
   {
     Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"InterfSettings");
-    Dlg.SetPosition(-1,-1,58,19);
+    Dlg.SetPosition(-1,-1,58,20);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
@@ -418,6 +397,7 @@ void InterfaceSettings()
   Opt.strPromptFormat = CfgDlg[DLG_INTERF_PROMPTFORMAT].strData;
 
   Opt.CMOpt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
+	Opt.DelOpt.DelShowTotal=CfgDlg[DLG_INTERF_DELSHOWTOTAL].Selected==BSTATE_CHECKED;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
   Opt.CMOpt.CopyTimeRule=0;
   if(CfgDlg[DLG_INTERF_COPYTIMERULE].Selected)
@@ -1202,6 +1182,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
   {1, REG_DWORD,  NKeySystem, L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
   {1, REG_DWORD,  NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
+
+  {1, REG_DWORD,  NKeyInterface, L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
 
   {1, REG_DWORD,  NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
   {1, REG_DWORD,  NKeySystem,L"InactivityExit",&Opt.InactivityExit,0, 0},

@@ -1492,6 +1492,14 @@ MConfigCopyTimeRule
 "Má&solási idő mutatva"
 "Pokaż informację o c&zasie kopiowania"
 
+MConfigDeleteTotal
+"Показывать общий индикатор удаления"
+"Show total delete progress indicator"
+upd:"Show total delete progress indicator"
+upd:"Show total delete progress indicator"
+upd:"Show total delete progress indicator"
+upd:"Show total delete progress indicator"
+
 MConfigPgUpChangeDisk
 "Использовать Ctrl-PgUp для в&ыбора диска"
 "Use Ctrl-Pg&Up to change drive"

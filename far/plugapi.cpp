@@ -681,6 +681,7 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param)
         {&Opt.CMOpt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
         {&Opt.CMOpt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
+        {&Opt.DelOpt.DelShowTotal,FIS_SHOWTOTALDELPROGRESSINDICATOR},
       };
       for(size_t I=0; I < countof(OSys); ++I)
         if(*OSys[I].Opt)

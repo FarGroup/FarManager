@@ -281,23 +281,26 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SkipFoldersMode=-1;
 
 
-		SrcPanel->GetSelName(NULL,FileAttr);
 		ULONG ItemsCount=0;
 		ProcessedItems=0;
-		while(SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+		if(Opt.DelOpt.DelShowTotal)
 		{
-			if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+			SrcPanel->GetSelName(NULL,FileAttr);
+			while(SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 			{
-				ShellDeleteMsg(strSelName,Wipe,-1);
-				ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
-				UINT64 FileSize,CompressedFileSize,RealSize;
-				if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+				if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 				{
-					ItemsCount+=CurrentFileCount+CurrentDirCount+1;
-				}
-				else
-				{
-					Cancel=true;
+					ShellDeleteMsg(strSelName,Wipe,-1);
+					ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
+					UINT64 FileSize,CompressedFileSize,RealSize;
+					if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+					{
+						ItemsCount+=CurrentFileCount+CurrentDirCount+1;
+					}
+					else
+					{
+						Cancel=true;
+					}
 				}
 			}
 		}
@@ -322,7 +325,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 						break;
 					}
 				}
-				ShellDeleteMsg(strFullName,Wipe,ItemsCount?(ProcessedItems*100/ItemsCount):0);
+				ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 			}
       if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
       {
@@ -385,7 +388,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 									break;
 								}
 							}
-							ShellDeleteMsg(strFullName,Wipe,ItemsCount?(ProcessedItems*100/ItemsCount):0);
+							ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 						}
             string strShortName;
             strShortName = strFullName;
@@ -577,7 +580,7 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
 	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
-	Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),Percent>=0?MSG(Wipe?MDeletingWiping:MDeleting):MSG(MScanningFolder),strOutFileName,strProgress.IsEmpty()?NULL:strProgress.CPtr());
+	Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),(Percent>=0||!Opt.DelOpt.DelShowTotal)?MSG(Wipe?MDeletingWiping:MDeleting):MSG(MScanningFolder),strOutFileName,strProgress.IsEmpty()?NULL:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
 	preRedrawItem.Param.Param4=(void *)(INT_PTR)Wipe;

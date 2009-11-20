@@ -406,6 +406,11 @@ struct CopyMoveOptions{
   int CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
 };
 
+struct DeleteOptions
+{
+	int DelShowTotal;         // показать общий индикатор удаления
+};
+
 struct Options
 {
   int Clock;
@@ -438,6 +443,8 @@ struct Options
   int WipeSymbol; // символ заполнитель для "ZAP-операции"
 
 	CopyMoveOptions CMOpt;
+
+	DeleteOptions DelOpt;
 
   int MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
 
