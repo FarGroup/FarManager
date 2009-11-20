@@ -1803,8 +1803,8 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 
 			if ((IncX > 0) || (IncY > 0))
 			{
-				pCoord->X = DlgWidth + (IncX > 0) ? IncX : 0;
-				pCoord->Y = DlgHeight + (IncY > 0) ? IncY : 0;
+				pCoord->X = DlgWidth + (IncX > 0 ? IncX : 0);
+				pCoord->Y = DlgHeight + (IncY > 0 ? IncY : 0);
 				SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, reinterpret_cast<LONG_PTR>(pCoord));
 			}
 			DlgWidth += IncX;
