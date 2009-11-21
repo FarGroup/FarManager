@@ -167,6 +167,8 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
     FrameManager->ModalizeFrame(this);
 
 	Used=new bool[WCHAR_MAX];
+
+	bFilterEnabled = false;
 }
 
 VMenu::~VMenu()
@@ -385,27 +387,34 @@ void VMenu::DisplayObject()
 
 void VMenu::DrawTitles()
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  int MaxTitleLength = X2-X1-2;
-  int WidthTitle;
+	int MaxTitleLength = X2-X1-2;
+	int WidthTitle;
 
-  if ( !strTitle.IsEmpty() )
-  {
-    if((WidthTitle=(int)strTitle.GetLength()) > MaxTitleLength)
-      WidthTitle=MaxTitleLength-1;
-    GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
-    SetColor(VMenu::Colors[VMenuColorTitle]);
-		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strTitle<<L" ";
-  }
-  if ( !strBottomTitle.IsEmpty() )
-  {
-    if((WidthTitle=(int)strBottomTitle.GetLength()) > MaxTitleLength)
-      WidthTitle=MaxTitleLength-1;
-    GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
-    SetColor(VMenu::Colors[VMenuColorTitle]);
+	if ( !strTitle.IsEmpty() || bFilterEnabled)
+	{
+		string strDisplayTitle = strTitle;
+		if (bFilterEnabled)
+		{
+			strDisplayTitle = L"[";
+			strDisplayTitle += strFilter;
+			strDisplayTitle += L"]";
+		}
+		if((WidthTitle=(int)strDisplayTitle.GetLength()) > MaxTitleLength)
+			WidthTitle=MaxTitleLength-1;
+		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
+		SetColor(VMenu::Colors[VMenuColorTitle]);
+		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strDisplayTitle<<L" ";
+	}
+	if ( !strBottomTitle.IsEmpty() )
+	{
+		if((WidthTitle=(int)strBottomTitle.GetLength()) > MaxTitleLength)
+			WidthTitle=MaxTitleLength-1;
+		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
+		SetColor(VMenu::Colors[VMenuColorTitle]);
 		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strBottomTitle<<L" ";
-  }
+	}
 }
 
 int VMenu::GetVisualPos(int Pos)
@@ -1077,11 +1086,16 @@ int VMenu::ProcessKey(int Key)
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   if (GetShowItemCount()==0)
-    if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9)
+  {
+    if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9))
     {
-      Modal::ExitCode=-1;
-      return(FALSE);
+      if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF))
+      {
+        Modal::ExitCode=-1;
+        return(FALSE);
+      }
     }
+  }
 
   if(!(((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE) || ((unsigned int)Key >= KEY_OP_BASE && (unsigned int)Key <= KEY_OP_ENDBASE)))
   {
@@ -1268,11 +1282,72 @@ int VMenu::ProcessKey(int Key)
       break;
     }
 
+		case KEY_CTRLALTF:
+		{
+			bFilterEnabled=!bFilterEnabled;
+			strFilter.Clear();
+			if (!bFilterEnabled)
+			{
+				for (int i=0; i < ItemCount; i++)
+				{
+					Item[i]->Flags&=~LIF_HIDDEN;
+				}
+				ItemHiddenCount=0;
+			}
+			DisplayObject();
+			break;
+		}
+
     case KEY_TAB:
     case KEY_SHIFTTAB:
     default:
     {
       int OldSelectPos=SelectPos;
+
+			if (bFilterEnabled && Key<0xffff && (Key >= KEY_SPACE || Key==KEY_BS))
+			{
+				if (Key==KEY_BS)
+				{
+					if (!strFilter.IsEmpty())
+					{
+						strFilter.SetLength(strFilter.GetLength()-1);
+						if (strFilter.IsEmpty())
+						{
+							for (int i=0; i < ItemCount; i++)
+							{
+								Item[i]->Flags&=~LIF_HIDDEN;
+							}
+							ItemHiddenCount=0;
+							DisplayObject();
+							return TRUE;
+						}
+					}
+					else
+					{
+						return TRUE;
+					}
+				}
+				else
+				{
+					if (GetShowItemCount()==0)
+						return TRUE;
+					strFilter += (wchar_t)Key;
+				}
+
+				ItemHiddenCount=0;
+				for (int i=0; i < ItemCount; i++)
+				{
+					Item[i]->Flags&=~LIF_HIDDEN;
+					if (!StrStrI(Item[i]->strName, strFilter))
+					{
+						Item[i]->Flags|=LIF_HIDDEN;
+						ItemHiddenCount++;
+					}
+				}
+
+				DisplayObject();
+				return TRUE;
+			}
 
       if(!CheckKeyHiOrAcc(Key,0,0))
       {

@@ -218,6 +218,9 @@ class VMenu: public Modal
     CriticalSection CS;
 		bool *Used;
 
+		bool bFilterEnabled;
+		string strFilter;
+
   protected:
 
     MenuItemEx **Item;
