@@ -1092,6 +1092,7 @@ int Edit::ProcessKey(int Key)
 
     case KEY_END:         case KEY_NUMPAD1:
     case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+		case KEY_CTRLSHIFTEND:     case KEY_CTRLSHIFTNUMPAD1:
     {
       PrevCurPos=CurPos;
 

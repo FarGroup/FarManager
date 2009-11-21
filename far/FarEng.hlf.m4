@@ -51,6 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Panel settings~@PanelSettings@
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
+	 ~Command line settings~@CmdlineSettings@
 
    ~Files highlighting and sort groups~@Highlight@
    ~File descriptions~@FileDiz@
@@ -1248,45 +1249,47 @@ $ #Menus: commands menu#
 
 @OptMenu
 $ #Menus: options menu#
-   #System settings#      Shows ~system settings~@SystemSettings@ dialog.
+   #System settings#       Shows ~system settings~@SystemSettings@ dialog.
 
-   #Panel settings#       Shows ~panel settings~@PanelSettings@ dialog.
+   #Panel settings#        Shows ~panel settings~@PanelSettings@ dialog.
 
-   #Interface settings#   Shows ~interface settings~@InterfSettings@ dialog.
+   #Interface settings#    Shows ~interface settings~@InterfSettings@ dialog.
 
-   #Dialog settings#      Shows ~dialog settings~@DialogSettings@ dialog.
+   #Dialog settings#       Shows ~dialog settings~@DialogSettings@ dialog.
 
-   #Languages#            Select main and help language.
-                        Use "Save setup" to save selected languages.
+   #Command line settings# Shows ~command line settings~@CmdlineSettings@ dialog.
 
-   #Plugins#              Configure ~plugin~@Plugins@ modules.
+   #Languages#             Select main and help language.
+                         Use "Save setup" to save selected languages.
+
+   #Plugins#               Configure ~plugin~@Plugins@ modules.
    #configuration#
 
-   #Confirmation#         Switch on or off ~confirmations~@ConfirmDlg@ for
-                        some operations.
+   #Confirmation#          Switch on or off ~confirmations~@ConfirmDlg@ for
+                         some operations.
 
-   #File panel modes#     ~Customize file panel view modes~@PanelViewModes@ settings.
+   #File panel modes#      ~Customize file panel view modes~@PanelViewModes@ settings.
 
-   #File descriptions#    ~File descriptions~@FileDiz@ list names and update mode.
+   #File descriptions#     ~File descriptions~@FileDiz@ list names and update mode.
 
-   #Folder description#   Specify names (~wildcards~@FileMasks@ are allowed) of
-   #files#                files displayed in the ~Info panel~@InfoPanel@ as folder
-                        descriptions.
+   #Folder description#    Specify names (~wildcards~@FileMasks@ are allowed) of
+   #files#                 files displayed in the ~Info panel~@InfoPanel@ as folder
+                         descriptions.
 
-   #Viewer settings#      External and internal ~viewer settings~@ViewerSettings@.
+   #Viewer settings#       External and internal ~viewer settings~@ViewerSettings@.
 
-   #Editor settings#      External and internal ~editor settings~@EditorSettings@.
+   #Editor settings#       External and internal ~editor settings~@EditorSettings@.
 
-   #Colors#               Allows to select colors for different
-                        interface items, to change the entire FAR
-                        colors palette to black and white or to set
-                        the colors to default.
+   #Colors#                Allows to select colors for different
+                         interface items, to change the entire FAR
+                         colors palette to black and white or to set
+                         the colors to default.
 
-   #Files highlighting#   Change ~files highlighting and sort groups~@Highlight@
-   #and sort groups#      settings.
+   #Files highlighting#    Change ~files highlighting and sort groups~@Highlight@
+   #and sort groups#       settings.
 
-   #Save setup#           Save current configuration, colors and
-                        screen layout.
+   #Save setup#            Save current configuration, colors and
+                         screen layout.
 
 
 @ConfirmDlg
@@ -2117,9 +2120,6 @@ $ #Settings dialog: interface#
                           activate when mouse pointer is brought
                           to the upper right corner of FAR window.
 
-  #Set command line#        This option allows to set the default
-  #prompt format#           FAR command ~line prompt~@CommandPrompt@.
-
   #Show total copy#         Show total progress bar, when performing
   #indicator#               a file copy operation. This may require
                           some additional time before starting
@@ -2149,7 +2149,7 @@ $ #Settings dialog: interface#
 
 
 @DialogSettings
-$ #Settings dialog: settings#
+$ #Settings dialog: dialogs#
   #History in dialog#       Keep history in edit controls of some
   #edit controls#           FAR dialogs. The previous strings history
                           list may be activated by mouse or using
@@ -2184,6 +2184,23 @@ $ #Settings dialog: settings#
                           functionality.
 
    См. так же список ~макроклавиш~@KeyMacroDialogList@, доступных в диалогах.
+
+@CmdlineSettings
+$ #Settings dialog: command line#
+  #Persistent blocks#
+  Do not remove block selection after moving the cursor in command line.
+
+  #Del removes blocks#
+  If a block is selected, pressing Del will not remove the character under cursor,
+but this block.
+
+  #AutoComplete#
+  Allows to use the AutoComplete function in command line. When the option is
+disabled, you may use the #Ctrl-Shift-End# key to autocomplete a line. The autocomplete
+feature is disabled while a macro is being recorded or executed.
+
+  #Set command line prompt format#
+  This option allows to set the default FAR command ~line prompt~@CommandPrompt@.
 
 @InfoPanelSettings
 $ #Настройка информационной панели#

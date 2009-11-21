@@ -138,6 +138,7 @@ enum enumOptionsMenu {
 	MENU_OPTIONS_LANGUAGES,
 	MENU_OPTIONS_PLUGINSCONFIG,
 	MENU_OPTIONS_DIALOGSETTINGS,
+	MENU_OPTIONS_CMDLINESETTINGS,
 	MENU_OPTIONS_INFOPANELSETTINGS,
 	MENU_OPTIONS_CONFIRMATIONS = MENU_OPTIONS_INFOPANELSETTINGS+2,
 	MENU_OPTIONS_PLUGINCONFIRMATIONS,
@@ -272,6 +273,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		(const wchar_t *)MMenuLanguages,0,0,
 		(const wchar_t *)MMenuPluginsConfig,0,0,
 		(const wchar_t *)MMenuDialogSettings,0,0,
+		(const wchar_t *)MMenuCmdlineSettings,0,0,
 		(const wchar_t *)MMenuInfoPanelSettings,0,0,
 		L"",LIF_SEPARATOR,0,
 		(const wchar_t *)MMenuConfirmation,0,0,
@@ -672,6 +674,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
 					DialogSettings();
+					break;
+
+				case MENU_OPTIONS_CMDLINESETTINGS:   // Command line settings
+					CmdlineSettings();
 					break;
 
 				case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings

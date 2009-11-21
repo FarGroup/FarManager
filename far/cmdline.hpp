@@ -98,6 +98,7 @@ class CommandLine:public ScreenObject
     int GetLeftPos() { return CmdStr.GetLeftPos(); };
 
     void SetPersistentBlocks(int Mode);
+		void SetDelRemovesBlocks(int Mode);
 
     void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
     void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };

@@ -1573,6 +1573,39 @@ MConfigDialogsMouseButton
 "&Egérkattintás a párb.ablakon kívül: bezárja"
 "&Kliknięcie myszy poza oknem zamyka je"
 
+MConfigCmdlineTitle
+l:
+"Настройки командной строки"
+"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+
+MConfigCmdlineEditBlock
+"&Постоянные блоки"
+"&Persistent blocks"
+upd:"Persistent blocks"
+upd:"Persistent blocks"
+upd:"Persistent blocks"
+upd:"Persistent blocks"
+
+MConfigCmdlineDelRemovesBlocks
+"Del удаляет б&локи"
+"&Del removes blocks"
+upd:"Del removes blocks"
+upd:"Del removes blocks"
+upd:"Del removes blocks"
+upd:"Del removes blocks"
+
+MConfigCmdlineAutoComplete
+"&Автозавершение"
+"&AutoComplete"
+upd:"AutoComplete"
+upd:"AutoComplete"
+upd:"AutoComplete"
+upd:"AutoComplete"
+
 MConfigInfoPanelTitle
 l:
 "Настройка информационной панели"
@@ -9257,14 +9290,6 @@ MMenuInterface
 "Kezelő&felület beállítások"
 "Ustawienia &interfejsu"
 
-MMenuDialogSettings
-"Настройки &диалогов"
-"Di&alog settings"
-"Nastavení Dialo&gů"
-"Di&aloge einrichten"
-"Pár&beszédablak beállítások"
-"Ustawienia okna &dialogowego"
-
 MMenuLanguages
 "&Языки"
 "Lan&guages"
@@ -9281,6 +9306,30 @@ MMenuPluginsConfig
 "Pl&ugin beállítások"
 "Konfiguracja p&luginów"
 
+MMenuDialogSettings
+"Настройки &диалогов"
+"Di&alog settings"
+"Nastavení Dialo&gů"
+"Di&aloge einrichten"
+"Pár&beszédablak beállítások"
+"Ustawienia okna &dialogowego"
+
+MMenuCmdlineSettings
+"Настройки командной строки"
+"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+upd:"Command line settings"
+
+MMenuInfoPanelSettings
+"Нас&тройки информационной панели"
+"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+upd:"Inf&oPanel settings"
+
 MMenuConfirmation
 "&Подтверждения"
 "Co&nfirmations"
@@ -9296,14 +9345,6 @@ upd:"Plugin selection"
 upd:"Plugin selection"
 "Plugin választás"
 upd:"Plugin selection"
-
-MMenuInfoPanelSettings
-"Нас&тройки информационной панели"
-"Inf&oPanel settings"
-upd:"Inf&oPanel settings"
-upd:"Inf&oPanel settings"
-upd:"Inf&oPanel settings"
-upd:"Inf&oPanel settings"
 
 MMenuPluginStdAssociation
 "Стандартная ассоциация"

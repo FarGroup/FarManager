@@ -312,6 +312,14 @@ struct DialogsOptions{
   int   CBoxMaxHeight;      // максимальный размер открываемого списка (по умолчанию=8)
 };
 
+struct CommandLineOptions{
+	int EditBlock;
+	int DelRemovesBlocks;
+	int AutoComplete;
+	int UsePromptFormat;
+	string strPromptFormat;
+};
+
 struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
 };
@@ -418,8 +426,6 @@ struct Options
   int ShowKeyBar;
   int ScreenSaver;
   int ScreenSaverTime;
-  int UsePromptFormat;
-  string strPromptFormat;
   int UseVk_oem_x;
   int InactivityExit;
   int InactivityExitTime;
@@ -629,6 +635,7 @@ struct Options
 	LoadPluginsOptions LoadPlug;
 
 	DialogsOptions Dialogs;
+	CommandLineOptions CmdLine;
 	PoliciesOptions Policies;
 	NowellOptions Nowell;
 	ScreenSizes ScrSize;
@@ -812,6 +819,7 @@ void SystemSettings();
 void PanelSettings();
 void InterfaceSettings();
 void DialogSettings();
+void CmdlineSettings();
 void SetConfirmations();
 void SetPluginConfirmations();
 void SetDizConfig();

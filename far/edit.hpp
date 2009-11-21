@@ -116,6 +116,7 @@ class Edit:public ScreenObject
 {
   friend class DlgEdit;
   friend class Editor;
+	friend class CommandLine;
 
 public:
     typedef void (*EDITCHANGEFUNC)(void* aParam);

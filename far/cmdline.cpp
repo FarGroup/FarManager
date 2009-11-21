@@ -63,7 +63,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 CommandLine::CommandLine()
 {
   CmdStr.SetEditBeyondEnd(FALSE);
-  SetPersistentBlocks(Opt.Dialogs.EditBlock);
+	SetPersistentBlocks(Opt.CmdLine.EditBlock);
+	SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
   LastCmdPartLength=-1;
   BackgroundScreen=NULL;
 }
@@ -77,6 +78,11 @@ CommandLine::~CommandLine()
 void CommandLine::SetPersistentBlocks(int Mode)
 {
   CmdStr.SetPersistentBlocks(Mode);
+}
+
+void CommandLine::SetDelRemovesBlocks(int Mode)
+{
+	CmdStr.SetDelRemovesBlocks(Mode);
 }
 
 void CommandLine::DisplayObject()
@@ -348,7 +354,7 @@ int CommandLine::ProcessKey(int Key)
 
     default:
       //   —брасываем выделение на некоторых клавишах
-      if (!Opt.Dialogs.EditBlock)
+			if(!Opt.CmdLine.EditBlock)
       {
         static int UnmarkKeys[]={
                KEY_LEFT,       KEY_NUMPAD4,
@@ -378,6 +384,48 @@ int CommandLine::ProcessKey(int Key)
         break;
 
       LastCmdPartLength=-1;
+
+			// history autocomplete
+			if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
+			{
+				if((Opt.CmdLine.AutoComplete && Key && Key < 0x10000 && Key != KEY_BS && !(Key == KEY_DEL||Key == KEY_NUMDEL)) ||
+					(!Opt.CmdLine.AutoComplete && (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)))
+				{
+					string strStr;
+					CmdStr.GetString(strStr);
+					int SelStart,SelEnd;
+					CmdStr.GetSelection(SelStart,SelEnd);
+					if(SelStart<0||SelStart==SelEnd)
+						SelStart=(int)strStr.GetLength();
+					else
+						SelStart++;
+					int CurPos=CmdStr.GetCurPos();
+					bool DoAutoComplete=(CurPos>=SelStart && (SelStart>=SelEnd || SelEnd>=(int)strStr.GetLength()));
+					if(Opt.CmdLine.EditBlock)
+					{
+						if(DoAutoComplete && CurPos <= SelEnd)
+						{
+							strStr.SetLength(CurPos);
+							CmdStr.Select(CurPos,CmdStr.GetLength()); //select the appropriate text
+							CmdStr.DeleteBlock();
+							CmdStr.FastShow();
+						}
+					}
+					SelEnd=(int)strStr.GetLength();
+					if(DoAutoComplete)
+					{
+						History CmdHist(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory", &Opt.SaveHistory, false);
+						CmdHist.ReadHistory();
+						if(CmdHist.GetSimilar(strStr,-1))
+						{
+							CmdStr.SetString(strStr);
+							CmdStr.Select(SelEnd,CmdStr.GetLength()); //select the appropriate text
+							CmdStr.SetCurPos(CurPos); // SelEnd
+						}
+					}
+				}
+				Redraw();
+			}
       return(TRUE);
   }
   return(FALSE);
@@ -446,10 +494,10 @@ void add_char (string &str, wchar_t c) //BUGBUG
 
 void CommandLine::GetPrompt(string &strDestStr)
 {
-  if (Opt.UsePromptFormat)
+	if (Opt.CmdLine.UsePromptFormat)
   {
     string strFormatStr, strExpandedFormatStr;
-    strFormatStr = Opt.strPromptFormat;
+		strFormatStr = Opt.CmdLine.strPromptFormat;
     apiExpandEnvironmentStrings (strFormatStr, strExpandedFormatStr);
     const wchar_t *Format=strExpandedFormatStr;
     wchar_t ChrFmt[][2]={

@@ -75,6 +75,7 @@ static const wchar_t szCtrlShiftDot[]=L"CtrlShift.";
 // KeyName
 const wchar_t NKeyColors[]=L"Colors";
 const wchar_t NKeyScreen[]=L"Screen";
+const wchar_t NKeyCmdline[]=L"Cmdline";
 const wchar_t NKeyInterface[]=L"Interface";
 const wchar_t NKeyViewer[]=L"Viewer";
 const wchar_t NKeyDialog[]=L"Dialog";
@@ -333,8 +334,6 @@ void InterfaceSettings()
 		DLG_INTERF_SCREENSAVER,
 		DLG_INTERF_SCREENSAVERTIME,
 		DLG_INTERF_SAVERMINUTES,
-		DLG_INTERF_USEPROMPTFORMAT,
-		DLG_INTERF_PROMPTFORMAT,
 		DLG_INTERF_COPYSHOWTOTAL,
 		DLG_INTERF_COPYTIMERULE,
 		DLG_INTERF_DELSHOWTOTAL,
@@ -347,7 +346,7 @@ void InterfaceSettings()
 
 	DialogDataEx CfgDlgData[]=
 	{
-		DI_DOUBLEBOX,3, 1,54,18,0,0,0,0,MSG(MConfigInterfaceTitle),
+		DI_DOUBLEBOX,3, 1,54,16,0,0,0,0,MSG(MConfigInterfaceTitle),
 		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Clock,0,0,MSG(MConfigClock),
 		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.ViewerEditorClock,0,0,MSG(MConfigViewerEditorClock),
 		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Mouse,DIF_AUTOMATION,0,MSG(MConfigMouse),
@@ -356,16 +355,14 @@ void InterfaceSettings()
 		DI_CHECKBOX, 5, 7, 0, 7,0,Opt.ScreenSaver,DIF_AUTOMATION,0,MSG(MConfigSaver),
 		DI_FIXEDIT,  9, 8,11, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,L"",
 		DI_TEXT,    13, 8, 0, 8,0,0,!Opt.ScreenSaver?DIF_DISABLE:0,0,MSG(MConfigSaverMinutes),
-		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.UsePromptFormat,DIF_AUTOMATION,0,MSG(MConfigUsePromptFormat),
-		DI_EDIT,     9,10,24,10,0,0,!Opt.UsePromptFormat?DIF_DISABLE:0,0,Opt.strPromptFormat,
-		DI_CHECKBOX, 5,11, 0,11,0,Opt.CMOpt.CopyShowTotal,0,0,MSG(MConfigCopyTotal),
-		DI_CHECKBOX, 5,12, 0,12,0,Opt.CMOpt.CopyTimeRule,0,0,MSG(MConfigCopyTimeRule),
-		DI_CHECKBOX, 5,13, 0,13,0,Opt.DelOpt.DelShowTotal,0,0,MSG(MConfigDeleteTotal),
-		DI_CHECKBOX, 5,14, 0,14,0,Opt.PgUpChangeDisk,0,0,MSG(MConfigPgUpChangeDisk),
-		DI_CHECKBOX, 5,15, 0,15,0,Opt.ClearType,0,0,MSG(MConfigClearType),
-		DI_TEXT,     3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+		DI_CHECKBOX, 5, 9, 0, 9,0,Opt.CMOpt.CopyShowTotal,0,0,MSG(MConfigCopyTotal),
+		DI_CHECKBOX, 5,10, 0,10,0,Opt.CMOpt.CopyTimeRule,0,0,MSG(MConfigCopyTimeRule),
+		DI_CHECKBOX, 5,11, 0,11,0,Opt.DelOpt.DelShowTotal,0,0,MSG(MConfigDeleteTotal),
+		DI_CHECKBOX, 5,12, 0,12,0,Opt.PgUpChangeDisk,0,0,MSG(MConfigPgUpChangeDisk),
+		DI_CHECKBOX, 5,13, 0,13,0,Opt.ClearType,0,0,MSG(MConfigClearType),
+		DI_TEXT,     3,14, 0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,15, 0,15,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,15, 0,15,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
   };
   MakeDialogItemsEx(CfgDlgData,CfgDlg);
 
@@ -374,10 +371,9 @@ void InterfaceSettings()
   {
     Dialog Dlg(CfgDlg,countof(CfgDlg));
     Dlg.SetHelp(L"InterfSettings");
-    Dlg.SetPosition(-1,-1,58,20);
+    Dlg.SetPosition(-1,-1,58,18);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_INTERF_OK)
       return;
@@ -392,9 +388,6 @@ void InterfaceSettings()
 
   wchar_t *endptr;
   Opt.ScreenSaverTime=wcstoul(CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData, &endptr, 10);
-  Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
-
-  Opt.strPromptFormat = CfgDlg[DLG_INTERF_PROMPTFORMAT].strData;
 
   Opt.CMOpt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
 	Opt.DelOpt.DelShowTotal=CfgDlg[DLG_INTERF_DELSHOWTOTAL].Selected==BSTATE_CHECKED;
@@ -547,8 +540,54 @@ void DialogSettings()
   Opt.Dialogs.EULBsClear=CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected;
   if((Opt.Dialogs.MouseButton=CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected) != 0)
     Opt.Dialogs.MouseButton=0xFFFF;
+}
 
-  CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
+void CmdlineSettings()
+{
+	enum enumCmdlineSettings
+	{
+		DLG_CMDLINE_TITLE,
+		DLG_CMDLINE_DIALOGSEDITBLOCK,
+		DLG_CMDLINE_DIALOGDELREMOVESBLOCKS,
+		DLG_CMDLINE_AUTOCOMPLETE,
+		DLG_CMDLINE_USEPROMPTFORMAT,
+		DLG_CMDLINE_PROMPTFORMAT,
+		DLG_CMDLINE_SEPARATOR,
+		DLG_CMDLINE_OK,
+		DLG_CMDLINE_CANCEL
+	};
+	DialogDataEx CfgDlgData[]=
+	{
+		DI_DOUBLEBOX,3, 1,54, 9,0,0,0,0,MSG(MConfigCmdlineTitle),
+		DI_CHECKBOX, 5, 2, 0, 2,0,Opt.CmdLine.EditBlock,0,0,MSG(MConfigCmdlineEditBlock),
+		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.CmdLine.DelRemovesBlocks,0,0,MSG(MConfigCmdlineDelRemovesBlocks),
+		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.CmdLine.AutoComplete,0,0,MSG(MConfigCmdlineAutoComplete),
+		DI_CHECKBOX, 5, 5, 0, 5,0,Opt.CmdLine.UsePromptFormat,DIF_AUTOMATION,0,MSG(MConfigUsePromptFormat),
+		DI_EDIT,     9, 6,24, 6,0,0,!Opt.CmdLine.UsePromptFormat?DIF_DISABLE:0,0,Opt.CmdLine.strPromptFormat,
+		DI_TEXT,     3, 7, 0, 7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0, 8, 0, 8,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0, 8, 0, 8,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+	};
+	MakeDialogItemsEx(CfgDlgData,CfgDlg);
+
+	Dialog Dlg(CfgDlg,countof(CfgDlg));
+	Dlg.SetHelp(L"CmdlineSettings");
+	Dlg.SetPosition(-1,-1,58,11);
+	Dlg.SetAutomation(DLG_CMDLINE_USEPROMPTFORMAT,DLG_CMDLINE_PROMPTFORMAT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
+
+	Dlg.Process();
+	if(Dlg.GetExitCode()==DLG_CMDLINE_OK)
+	{
+		Opt.CmdLine.EditBlock=(CfgDlg[DLG_CMDLINE_DIALOGSEDITBLOCK].Selected==BSTATE_CHECKED);
+		Opt.CmdLine.DelRemovesBlocks=(CfgDlg[DLG_CMDLINE_DIALOGDELREMOVESBLOCKS].Selected==BSTATE_CHECKED);
+		Opt.CmdLine.AutoComplete=(CfgDlg[DLG_CMDLINE_AUTOCOMPLETE].Selected==BST_CHECKED);
+
+		Opt.CmdLine.UsePromptFormat=(CfgDlg[DLG_CMDLINE_USEPROMPTFORMAT].Selected==BSTATE_CHECKED);
+		Opt.CmdLine.strPromptFormat=CfgDlg[DLG_CMDLINE_PROMPTFORMAT].strData;
+
+		CtrlObject->CmdLine->SetPersistentBlocks(Opt.CmdLine.EditBlock);
+		CtrlObject->CmdLine->SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
+	}
 }
 
 void SetConfirmations()
@@ -1075,9 +1114,13 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
   {1, REG_DWORD,  NKeyScreen, L"ScreenSaver",&Opt.ScreenSaver, 0, 0},
   {1, REG_DWORD,  NKeyScreen, L"ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
-  {1, REG_DWORD,  NKeyScreen, L"UsePromptFormat", &Opt.UsePromptFormat,0, 0},
-  {1, REG_SZ,     NKeyScreen, L"PromptFormat",&Opt.strPromptFormat, 0, L"$p>"},
   {0, REG_DWORD,  NKeyScreen, L"DeltaXY", &Opt.ScrSize.DeltaXY, 0, 0},
+
+	{1, REG_DWORD,  NKeyCmdline, L"UsePromptFormat", &Opt.CmdLine.UsePromptFormat,0, 0},
+	{1, REG_SZ,     NKeyCmdline, L"PromptFormat",&Opt.CmdLine.strPromptFormat, 0, L"$p>"},
+	{1, REG_DWORD,  NKeyCmdline, L"DelRemovesBlocks", &Opt.CmdLine.DelRemovesBlocks,1, 0},
+	{1, REG_DWORD,  NKeyCmdline, L"EditBlock", &Opt.CmdLine.EditBlock,0, 0},
+	{1, REG_DWORD,  NKeyCmdline, L"AutoComplete",&Opt.CmdLine.AutoComplete,1, 0},
 
 
   {1, REG_DWORD,  NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
@@ -1112,9 +1155,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
 	{1, REG_DWORD,  NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
 
-  {1, REG_DWORD,  NKeyInterface, L"DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
-  {1, REG_DWORD,  NKeyInterface, L"DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
-  {1, REG_DWORD,  NKeyInterface, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
+	{1, REG_DWORD,  NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
+	{1, REG_DWORD,  NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
+	{1, REG_DWORD,  NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
   {1, REG_DWORD,  NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
   {0, REG_DWORD,  NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
   {0, REG_DWORD,  NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},
