@@ -3962,7 +3962,7 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 		strRegKey+=HistoryName;
 
 		History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
-		DlgHist.ReadHistory();
+		DlgHist.ReadHistory(true);
 
 		if (!DlgHist.GetSimilar(strFindStr,-1))
 			return FALSE;
@@ -3974,14 +3974,15 @@ int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &str
 
 		for (I=0; I < Count ;I++)
 		{
-			if (!StrCmpNI (ListItems[I].Text, strFindStr, LenFindStr))
+			if (!StrCmpNI (ListItems[I].Text, strFindStr, LenFindStr) && StrCmp(ListItems[I].Text, strFindStr)!=0)
 				break;
 		}
 
 		if (I  == Count)
 			return FALSE;
 
-		strFindStr += &ListItems[I].Text[LenFindStr];
+		//strFindStr += &ListItems[I].Text[LenFindStr];
+		strFindStr = ListItems[I].Text;
 	}
 
 	return TRUE;

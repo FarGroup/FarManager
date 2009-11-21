@@ -242,36 +242,31 @@ bool History::ReadLastItem(const wchar_t *RegKey, string &strStr)
 	if (!hKey)
 		return false;
 
-	DWORD Size=GetRegKeySize(hKey, L"Lines");
-	if (Size < sizeof(wchar_t)) // Нету ничерта
+	DWORD Type;
+	DWORD Size=0;
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,NULL,&Size)!=ERROR_SUCCESS || Size<sizeof(wchar_t)) // Нету ничерта
 		return false;
 
 	wchar_t *Buffer=(wchar_t*)xf_malloc(Size);
 	if (!Buffer)
 		return false;
 
-	DWORD Type;
 	if (RegQueryValueEx(hKey,L"Lines",0,&Type,(unsigned char *)Buffer,&Size)!=ERROR_SUCCESS)
 	{
-		free(Buffer);
+		xf_free(Buffer);
 		return false;
 	}
 
 	Buffer[Size/sizeof(wchar_t)-1]=0; //safety
 	strStr = Buffer; //last item is first in registry, null terminated
 
-	free(Buffer);
+	xf_free(Buffer);
 
 	return true;
 }
 
-bool History::ReadHistory()
+bool History::ReadHistory(bool bOnlyLines)
 {
-	bool NeedReadType = SaveType && CheckRegValue(strRegKey, L"Types");
-	bool NeedReadLock = CheckRegValue(strRegKey, L"Locks")?true:false;
-	bool NeedReadTime = CheckRegValue(strRegKey, L"Times")?true:false;
-
-	DWORD Type;
 	HKEY hKey=OpenRegKey(strRegKey);
 	if (!hKey)
 		return false;
@@ -282,15 +277,21 @@ bool History::ReadHistory()
 	wchar_t *LocksBuffer=NULL;
 	FILETIME *TimesBuffer=NULL;
 	wchar_t *Buffer=NULL;
-	DWORD Size;
 
 	int Position=-1;
-	Size=sizeof(Position);
-	RegQueryValueEx(hKey,L"Position",0,&Type,(BYTE *)&Position,&Size);
+	DWORD Size=sizeof(Position);
+	DWORD Type;
+	if (!bOnlyLines)
+		RegQueryValueEx(hKey,L"Position",0,&Type,(BYTE *)&Position,&Size);
 
-	if (NeedReadType)
+	bool NeedReadType=false;
+	bool NeedReadLock=false;
+	bool NeedReadTime=false;
+
+	Size=0;
+	if (!bOnlyLines && SaveType && RegQueryValueEx(hKey,L"Types",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
 	{
-		Size=GetRegKeySize(hKey, L"Types");
+		NeedReadType=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(wchar_t)));
 		TypesBuffer=(wchar_t *)xf_malloc(Size);
 		if (TypesBuffer)
@@ -303,9 +304,10 @@ bool History::ReadHistory()
 			goto end;
 	}
 
-	if (NeedReadLock)
+	Size=0;
+	if (!bOnlyLines && RegQueryValueEx(hKey,L"Locks",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
 	{
-		Size=GetRegKeySize(hKey, L"Locks");
+		NeedReadLock=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(wchar_t)));
 		LocksBuffer=(wchar_t *)xf_malloc(Size);
 		if (LocksBuffer)
@@ -318,9 +320,10 @@ bool History::ReadHistory()
 			goto end;
 	}
 
-	if (NeedReadTime)
+	Size=0;
+	if (!bOnlyLines && RegQueryValueEx(hKey,L"Times",0,&Type,NULL,&Size)==ERROR_SUCCESS && Size>0)
 	{
-		Size=GetRegKeySize(hKey, L"Times");
+		NeedReadTime=true;
 		Size=Max(Size,(DWORD)((HistoryCount+2)*sizeof(FILETIME)));
 		TimesBuffer=(FILETIME *)xf_malloc(Size);
 		if (TimesBuffer)
@@ -333,8 +336,8 @@ bool History::ReadHistory()
 			goto end;
 	}
 
-	Size=GetRegKeySize(hKey, L"Lines");
-	if (!Size) // Нету ничерта
+	Size=0;
+	if (RegQueryValueEx(hKey,L"Lines",0,&Type,NULL,&Size)!=ERROR_SUCCESS || !Size) // Нету ничерта
 	{
 		ret = true;
 		goto end;
