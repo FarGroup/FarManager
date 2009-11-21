@@ -1066,6 +1066,25 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	return 0;
 }
 
+int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
+{
+	int ReadKey;
+	for(;;)
+	{
+		ReadKey=Modal::ReadInput(GetReadRec);
+
+		if (ReadKey==KEY_CTRLALTF || (bFilterEnabled && ((ReadKey >= KEY_SPACE && ReadKey < 0xffff) || ReadKey==KEY_BS)))
+		{
+			ProcessInput();
+			continue;
+		}
+
+		break;
+	}
+
+	return ReadKey;
+}
+
 int VMenu::ProcessKey(int Key)
 {
   CriticalSectionLock Lock(CS);
