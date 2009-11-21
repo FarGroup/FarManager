@@ -219,6 +219,7 @@ class VMenu: public Modal
 		bool *Used;
 
 		bool bFilterEnabled;
+		bool bFilterLocked;
 		string strFilter;
 
   protected:

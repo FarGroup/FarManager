@@ -169,6 +169,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	Used=new bool[WCHAR_MAX];
 
 	bFilterEnabled = false;
+	bFilterLocked = false;
 }
 
 VMenu::~VMenu()
@@ -395,18 +396,26 @@ void VMenu::DrawTitles()
 	if ( !strTitle.IsEmpty() || bFilterEnabled)
 	{
 		string strDisplayTitle = strTitle;
+
 		if (bFilterEnabled)
 		{
-			strDisplayTitle = L"[";
+			if (bFilterLocked)
+				strDisplayTitle += L" ";
+			else
+				strDisplayTitle.Clear();
+
+			strDisplayTitle += bFilterLocked?L"<":L"[";
 			strDisplayTitle += strFilter;
-			strDisplayTitle += L"]";
+			strDisplayTitle += bFilterLocked?L">":L"]";
 		}
+
 		if((WidthTitle=(int)strDisplayTitle.GetLength()) > MaxTitleLength)
 			WidthTitle=MaxTitleLength-1;
 		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
 		SetColor(VMenu::Colors[VMenuColorTitle]);
 		FS<<L" "<<fmt::Width(WidthTitle)<<fmt::Precision(WidthTitle)<<strDisplayTitle<<L" ";
 	}
+
 	if ( !strBottomTitle.IsEmpty() )
 	{
 		if((WidthTitle=(int)strBottomTitle.GetLength()) > MaxTitleLength)
@@ -1073,7 +1082,10 @@ int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
 	{
 		ReadKey=Modal::ReadInput(GetReadRec);
 
-		if (ReadKey==KEY_CTRLALTF || (bFilterEnabled && ((ReadKey >= KEY_SPACE && ReadKey < 0xffff) || ReadKey==KEY_BS)))
+		if (ReadKey==KEY_CTRLALTF ||
+			(bFilterEnabled &&
+				((!bFilterLocked && ((ReadKey >= KEY_SPACE && ReadKey < 0xffff) || ReadKey==KEY_BS || ReadKey==KEY_CTRLALTL))
+				|| (bFilterLocked && ReadKey==KEY_CTRLALTL))))
 		{
 			ProcessInput();
 			continue;
@@ -1304,6 +1316,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_CTRLALTF:
 		{
 			bFilterEnabled=!bFilterEnabled;
+			bFilterLocked=false;
 			strFilter.Clear();
 			if (!bFilterEnabled)
 			{
@@ -1317,13 +1330,23 @@ int VMenu::ProcessKey(int Key)
 			break;
 		}
 
+		case KEY_CTRLALTL:
+		{
+			if (bFilterEnabled)
+			{
+				bFilterLocked=!bFilterLocked;
+				DisplayObject();
+				break;
+			}
+		}
+
     case KEY_TAB:
     case KEY_SHIFTTAB:
     default:
     {
       int OldSelectPos=SelectPos;
 
-			if (bFilterEnabled && Key<0xffff && (Key >= KEY_SPACE || Key==KEY_BS))
+			if (bFilterEnabled && !bFilterLocked && Key<0xffff && (Key >= KEY_SPACE || Key==KEY_BS))
 			{
 				if (Key==KEY_BS)
 				{
@@ -1363,6 +1386,9 @@ int VMenu::ProcessKey(int Key)
 						ItemHiddenCount++;
 					}
 				}
+
+				if (SelectPos>=0 && (Item[SelectPos]->Flags&LIF_HIDDEN))
+					SelectPos=SetSelectPos(0,1);
 
 				DisplayObject();
 				return TRUE;
