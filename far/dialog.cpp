@@ -3949,55 +3949,42 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 */
 int Dialog::FindInEditForAC(int TypeFind,const wchar_t *HistoryName, string &strFindStr)
 {
-  CriticalSectionLock Lock(CS);
+	CriticalSectionLock Lock(CS);
 
-  return TRUE; //BUGBUG
-/*
-  string strStr;
-  int I, LenFindStr=(int)strFindStr.GetLength ();
+	if (HistoryName==NULL)
+		return FALSE;
 
-  if (HistoryName==NULL)
-    return FALSE;
+	int I, LenFindStr=(int)strFindStr.GetLength ();
 
-  if(!TypeFind)
-  {
+	if (!TypeFind)
+	{
 		string strRegKey=fmtSavedDialogHistory;
 		strRegKey+=HistoryName;
-    // просмотр пунктов истории
-    for (I=0; I < Opt.DialogsHistoryCount; I++)
-    {
-        string strLine;
 
-        strLine.Format (L"Line%d", I);
+		History DlgHist(HISTORYTYPE_DIALOG, Opt.DialogsHistoryCount, strRegKey, &Opt.Dialogs.EditHistory, false);
+		DlgHist.ReadHistory();
 
-        GetRegKey(strRegKey,strLine,strStr,L"");
-
-        if (!StrCmpNI (strStr, strFindStr, LenFindStr))
-          break;
-    }
-
-    if (I == Opt.DialogsHistoryCount)
-      return FALSE;
-
-    strFindStr += (const wchar_t*)strStr+LenFindStr;
-  }
-  else
-  {
+		if (!DlgHist.GetSimilar(strFindStr,-1))
+			return FALSE;
+	}
+	else
+	{
 		FarListItem *ListItems=((FarList *)HistoryName)->Items;
 		int Count=((FarList *)HistoryName)->ItemsNumber;
 
-    for (I=0; I < Count ;I++)
-    {
-      if (!StrCmpNI (ListItems[I].Text, strFindStr, LenFindStr))
-        break;
-    }
-    if (I  == Count)
-      return FALSE;
+		for (I=0; I < Count ;I++)
+		{
+			if (!StrCmpNI (ListItems[I].Text, strFindStr, LenFindStr))
+				break;
+		}
+
+		if (I  == Count)
+			return FALSE;
 
 		strFindStr += &ListItems[I].Text[LenFindStr];
-  }
-  return TRUE;
-*/
+	}
+
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////

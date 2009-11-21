@@ -228,8 +228,9 @@ end:
 		xf_free(TypesBuffer);
 	if (LocksBuffer)
 		xf_free(LocksBuffer);
-	if(TimesBuffer)
+	if (TimesBuffer)
 		xf_free(TimesBuffer);
+
 	return ret;
 }
 
@@ -240,11 +241,11 @@ bool History::ReadLastItem(const wchar_t *RegKey, string &strStr)
 	HKEY hKey=OpenRegKey(RegKey);
 	if (!hKey)
 		return false;
-	
+
 	DWORD Size=GetRegKeySize(hKey, L"Lines");
 	if (Size < sizeof(wchar_t)) // Нету ничерта
 		return false;
-	
+
 	wchar_t *Buffer=(wchar_t*)xf_malloc(Size);
 	if (!Buffer)
 		return false;
@@ -804,9 +805,9 @@ void History::GetNext(string &strStr)
 }
 
 
-void History::GetSimilar(string &strStr,int LastCmdPartLength)
+bool History::GetSimilar(string &strStr,int LastCmdPartLength)
 {
-	int Length=(int)strStr.GetLength ();
+	int Length=(int)strStr.GetLength();
 
 	if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
 		Length=LastCmdPartLength;
@@ -820,13 +821,16 @@ void History::GetSimilar(string &strStr,int LastCmdPartLength)
 	{
 	  if (!HistoryItem)
 	    continue;
+
 		if (StrCmpNI(strStr,HistoryItem->strName,Length)==0 && StrCmp(strStr,HistoryItem->strName)!=0)
 		{
 			strStr = HistoryItem->strName;
 			CurrentItem = HistoryItem;
-			return;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 
