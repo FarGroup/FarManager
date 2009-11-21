@@ -411,15 +411,12 @@ int CommandLine::ProcessKey(int Key)
 							CmdStr.FastShow();
 						}
 					}
-					SelEnd=(int)strStr.GetLength();
 					if(DoAutoComplete)
 					{
-						History CmdHist(HISTORYTYPE_CMD,Opt.HistoryCount,L"SavedHistory", &Opt.SaveHistory, false);
-						CmdHist.ReadHistory();
-						if(CmdHist.GetSimilar(strStr,-1))
+						if(CtrlObject->CmdHistory->GetSimilar(strStr,-1))
 						{
 							CmdStr.SetString(strStr);
-							CmdStr.Select(SelEnd,CmdStr.GetLength()); //select the appropriate text
+							CmdStr.Select(static_cast<int>(strStr.GetLength()),static_cast<int>(CmdStr.GetLength())); //select the appropriate text
 							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
 					}
