@@ -411,12 +411,13 @@ int CommandLine::ProcessKey(int Key)
 							CmdStr.FastShow();
 						}
 					}
+					SelEnd=static_cast<int>(strStr.GetLength());
 					if(DoAutoComplete)
 					{
 						if(CtrlObject->CmdHistory->GetSimilar(strStr,-1))
 						{
 							CmdStr.SetString(strStr);
-							CmdStr.Select(static_cast<int>(strStr.GetLength()),static_cast<int>(CmdStr.GetLength())); //select the appropriate text
+							CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength())); //select the appropriate text
 							CmdStr.SetCurPos(CurPos); // SelEnd
 						}
 					}
