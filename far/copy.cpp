@@ -4025,13 +4025,12 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
-	BOOL RetSec=GetFileSecurity(FileName,si,sd,SDDATA_SIZE,&Needed);
+	BOOL RetSec=GetFileSecurity(NTPath(FileName),si,sd,SDDATA_SIZE,&Needed);
   int LastError=GetLastError();
   if (!RetSec)
   {
     sd=NULL;
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-        LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
         Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                 MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
@@ -4047,14 +4046,13 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
 int ShellCopy::SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa)
 {
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
-	BOOL RetSec=SetFileSecurity(FileName,si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
+	BOOL RetSec=SetFileSecurity(NTPath(FileName),si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
 
   int LastError=GetLastError();
 
   if (!RetSec)
   {
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
-        LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
         Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                 MSG(MCannotSetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
