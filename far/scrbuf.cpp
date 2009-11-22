@@ -318,11 +318,11 @@ void ScreenBuf::Flush()
 {
 	CriticalSectionLock Lock(CS);
 
-	if(!LockCount)
+	if (!LockCount)
 	{
-		if(CtrlObject && CtrlObject->Macro.IsRecording())
+		if (CtrlObject && CtrlObject->Macro.IsRecording())
 		{
-			if(Buf[0].Char.UnicodeChar!=L'R')
+			if (Buf[0].Char.UnicodeChar!=L'R')
 			{
 				MacroChar=Buf[0];
 			}
@@ -330,120 +330,136 @@ void ScreenBuf::Flush()
 			Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
 		}
 
-		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
 			SetConsoleCursorInfo(hScreen,&cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
-		if(!SBFlags.Check(SBFLAGS_FLUSHED))
+		if (!SBFlags.Check(SBFLAGS_FLUSHED))
 		{
 			SBFlags.Set(SBFLAGS_FLUSHED);
-			if(WaitInMainLoop && Opt.Clock && !ProcessShowClock)
+			if (WaitInMainLoop && Opt.Clock && !ProcessShowClock)
 			{
 				ShowTime(FALSE);
 			}
 
 			DList<SMALL_RECT>WriteList;
-			SMALL_RECT WriteRegion={BufX-1,BufY-1,0,0};
 			bool Changes=false;
-			if(SBFlags.Check(SBFLAGS_USESHADOW))
+			if (SBFlags.Check(SBFLAGS_USESHADOW))
 			{
 				PCHAR_INFO PtrBuf=Buf,PtrShadow=Shadow;
-				bool Started=false;
-				for(SHORT I=0;I<BufY;I++)
+
+				if (Opt.ClearType)
 				{
-					for(SHORT J=0;J<BufX;J++,++PtrBuf,++PtrShadow)
+					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
+					//Чревато тормозами/миганием в зависимости от конфигурации системы.
+					SMALL_RECT WriteRegion={0,0,BufX-1,0};
+					for (SHORT I=0; I<BufY; I++, PtrBuf+=BufX, PtrShadow+=BufX)
 					{
-						if(memcmp(PtrBuf,PtrShadow,sizeof(CHAR_INFO)))
+						WriteRegion.Top=I;
+						WriteRegion.Bottom=I-1;
+						while (I<BufY && memcmp(PtrBuf,PtrShadow,BufX*sizeof(CHAR_INFO)))
 						{
-							WriteRegion.Left=Min(WriteRegion.Left,J);
-							WriteRegion.Top=Min(WriteRegion.Top,I);
-							WriteRegion.Right=Max(WriteRegion.Right,J);
-							WriteRegion.Bottom=Max(WriteRegion.Bottom,I);
-							Changes=true;
-							Started=true;
+						  I++;
+							PtrBuf+=BufX;
+							PtrShadow+=BufX;
+							WriteRegion.Bottom++;
 						}
-						else
+						if (WriteRegion.Bottom >= WriteRegion.Top)
 						{
-							if(Started && WriteRegion.Bottom!=I)
+							WriteList.Push(&WriteRegion);
+							Changes=true;
+						}
+					}
+				}
+				else
+				{
+					bool Started=false;
+					SMALL_RECT WriteRegion={BufX-1,BufY-1,0,0};
+					for (SHORT I=0; I<BufY; I++)
+					{
+						for (SHORT J=0; J<BufX; J++,++PtrBuf,++PtrShadow)
+						{
+							if (memcmp(PtrBuf,PtrShadow,sizeof(CHAR_INFO)))
 							{
-								if(I>WriteRegion.Bottom && J>=WriteRegion.Left)
+								WriteRegion.Left=Min(WriteRegion.Left,J);
+								WriteRegion.Top=Min(WriteRegion.Top,I);
+								WriteRegion.Right=Max(WriteRegion.Right,J);
+								WriteRegion.Bottom=Max(WriteRegion.Bottom,I);
+								Changes=true;
+								Started=true;
+							}
+							else
+							{
+								if (Started && WriteRegion.Bottom!=I)
 								{
-									if (Opt.ClearType)
-									{
-										//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
-										//Чревато тормозами на слабых машинах.
-										WriteRegion.Left=0;
-										WriteRegion.Right=ScrX;
-									}
-									else
+									if (I>WriteRegion.Bottom && J>=WriteRegion.Left)
 									{
 										//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
 										// кстати, и при выключенном тоже (но реже).
 										// баг, конечно, не наш, но что делать.
 										// расширяем область прорисовки влево-вправо на 1 символ:
 										WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-										WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),ScrX);
-									}
+										WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
 
-									bool Merge=false;
-									PSMALL_RECT Last=WriteList.Last();
-									if(Last)
-									{
-										#define MAX_DELTA 5
-										if(WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
+										bool Merge=false;
+										PSMALL_RECT Last=WriteList.Last();
+										if (Last)
 										{
-											Last->Bottom=WriteRegion.Bottom;
-											Last->Left=Min(Last->Left,WriteRegion.Left);
-											Last->Right=Max(Last->Right,WriteRegion.Right);
-											Merge=true;
+											#define MAX_DELTA 5
+											if (WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
+											{
+												Last->Bottom=WriteRegion.Bottom;
+												Last->Left=Min(Last->Left,WriteRegion.Left);
+												Last->Right=Max(Last->Right,WriteRegion.Right);
+												Merge=true;
+											}
 										}
-									}
 
-									if(!Merge)
-									{
-										WriteList.Push(&WriteRegion);
+										if (!Merge)
+										{
+											WriteList.Push(&WriteRegion);
+										}
+
+										WriteRegion.Left=BufX-1;
+										WriteRegion.Top=BufY-1;
+										WriteRegion.Right=0;
+										WriteRegion.Bottom=0;
+										Started=false;
 									}
-									WriteRegion.Left=BufX-1;
-									WriteRegion.Top=BufY-1;
-									WriteRegion.Right=0;
-									WriteRegion.Bottom=0;
-									Started=false;
 								}
 							}
 						}
 					}
-				}
-				if(Started)
-				{
-					WriteList.Push(&WriteRegion);
+					if (Started)
+					{
+						WriteList.Push(&WriteRegion);
+					}
 				}
 			}
 			else
 			{
 				Changes=true;
-				WriteRegion.Left=0;
-				WriteRegion.Top=0;
-				WriteRegion.Right=BufX-1;
-				WriteRegion.Bottom=BufY-1;
+				SMALL_RECT WriteRegion={0,0,BufX-1,BufY-1};
 				WriteList.Push(&WriteRegion);
 			}
-			if(Changes)
+
+			if (Changes)
 			{
-				for(PSMALL_RECT PtrRect=WriteList.First();PtrRect;PtrRect=WriteList.Next(PtrRect))
+				for (PSMALL_RECT PtrRect=WriteList.First(); PtrRect; PtrRect=WriteList.Next(PtrRect))
 				{
 					COORD Size={BufX,BufY},Corner={PtrRect->Left,PtrRect->Top};
 					SMALL_RECT Coord=*PtrRect;
 					// BUGBUG: в Windows 7 при 0xFFFF в консоли имеем мусор и падает conhost.
 					// посему пишем по 32 K.
 					#define MAXSIZE 0x7FFF
-					if(BufX*BufY*sizeof(CHAR_INFO)>MAXSIZE) // See REMINDER file section scrbuf.cpp
+					if (BufX*BufY*sizeof(CHAR_INFO)>MAXSIZE) // See REMINDER file section scrbuf.cpp
 					{
 						Corner.Y=0;
 						int WriteY2=Coord.Bottom;
-						for(int yy=Coord.Top;yy<=WriteY2;)
+						for (int yy=Coord.Top; yy<=WriteY2; )
 						{
 							Coord.Top=yy;
 							PCHAR_INFO BufPtr=Buf+yy*BufX;
@@ -461,18 +477,21 @@ void ScreenBuf::Flush()
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
 			}
 		}
-		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
+
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			COORD C={CurX,CurY};
 			SetConsoleCursorPosition(hScreen,C);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
-		if(!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
+
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
 			SetConsoleCursorInfo(hScreen,&cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
+
 		SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
 	}
 }
