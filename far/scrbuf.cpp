@@ -391,45 +391,37 @@ void ScreenBuf::Flush()
 								Changes=true;
 								Started=true;
 							}
-							else
+							else if (Started && I>WriteRegion.Bottom && J>=WriteRegion.Left)
 							{
-								if (Started && WriteRegion.Bottom!=I)
+								//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
+								// кстати, и при выключенном тоже (но реже).
+								// баг, конечно, не наш, но что делать.
+								// расширяем область прорисовки влево-вправо на 1 символ:
+								WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
+								WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
+
+								bool Merge=false;
+								PSMALL_RECT Last=WriteList.Last();
+								if (Last)
 								{
-									if (I>WriteRegion.Bottom && J>=WriteRegion.Left)
+									#define MAX_DELTA 5
+									if (WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
 									{
-										//BUGBUG: при включенном СlearType-сглаживании на экране остаётся "мусор" - тонкие вертикальные полосы
-										// кстати, и при выключенном тоже (но реже).
-										// баг, конечно, не наш, но что делать.
-										// расширяем область прорисовки влево-вправо на 1 символ:
-										WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-										WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
-
-										bool Merge=false;
-										PSMALL_RECT Last=WriteList.Last();
-										if (Last)
-										{
-											#define MAX_DELTA 5
-											if (WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
-											{
-												Last->Bottom=WriteRegion.Bottom;
-												Last->Left=Min(Last->Left,WriteRegion.Left);
-												Last->Right=Max(Last->Right,WriteRegion.Right);
-												Merge=true;
-											}
-										}
-
-										if (!Merge)
-										{
-											WriteList.Push(&WriteRegion);
-										}
-
-										WriteRegion.Left=BufX-1;
-										WriteRegion.Top=BufY-1;
-										WriteRegion.Right=0;
-										WriteRegion.Bottom=0;
-										Started=false;
+										Last->Bottom=WriteRegion.Bottom;
+										Last->Left=Min(Last->Left,WriteRegion.Left);
+										Last->Right=Max(Last->Right,WriteRegion.Right);
+										Merge=true;
 									}
 								}
+
+								if (!Merge)
+									WriteList.Push(&WriteRegion);
+
+								WriteRegion.Left=BufX-1;
+								WriteRegion.Top=BufY-1;
+								WriteRegion.Right=0;
+								WriteRegion.Bottom=0;
+								Started=false;
 							}
 						}
 					}

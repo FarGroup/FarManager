@@ -108,7 +108,7 @@ class History
 		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);
-		bool GetSimilar(string &strStr, int LastCmdPartLength);
+		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
-		void ResetPosition();
+		void ResetPosition() { CurrentItem = NULL; }
 };

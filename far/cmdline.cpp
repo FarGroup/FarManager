@@ -414,7 +414,7 @@ int CommandLine::ProcessKey(int Key)
 					SelEnd=static_cast<int>(strStr.GetLength());
 					if(DoAutoComplete)
 					{
-						if(CtrlObject->CmdHistory->GetSimilar(strStr,-1))
+						if(CtrlObject->CmdHistory->GetSimilar(strStr,-1,true))
 						{
 							CmdStr.SetString(strStr);
 							CmdStr.Select(SelEnd,static_cast<int>(CmdStr.GetLength())); //select the appropriate text

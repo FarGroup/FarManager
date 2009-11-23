@@ -808,7 +808,7 @@ void History::GetNext(string &strStr)
 }
 
 
-bool History::GetSimilar(string &strStr,int LastCmdPartLength)
+bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 {
 	int Length=(int)strStr.GetLength();
 
@@ -827,7 +827,10 @@ bool History::GetSimilar(string &strStr,int LastCmdPartLength)
 
 		if (StrCmpNI(strStr,HistoryItem->strName,Length)==0 && StrCmp(strStr,HistoryItem->strName)!=0)
 		{
-			strStr = HistoryItem->strName;
+			if (bAppend)
+				strStr += &HistoryItem->strName[Length];
+			else
+				strStr = HistoryItem->strName;
 			CurrentItem = HistoryItem;
 			return true;
 		}
@@ -847,9 +850,4 @@ void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
 bool History::EqualType(int Type1, int Type2)
 {
 	return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == 4 && Type2 == 1) || (Type1 == 1 && Type2 == 4)))?true:false;
-}
-
-void History::ResetPosition()
-{
-	CurrentItem = NULL;
 }
