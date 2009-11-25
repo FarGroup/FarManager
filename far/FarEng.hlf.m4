@@ -831,7 +831,8 @@ in filenames and in editor).
                   that owns the menu item.
     #F4#          - assign a hotkey for selected menu item. If #Space# is
                   entered, then Far sets the hotkey automatically.
-    #Ctrl-Alt-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
+    #Shift-F9#    - параметры выбранного модуля.
+    #Alt-Shift-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
 
     See also ~Plugins support~@Plugins@.
 

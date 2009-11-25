@@ -287,26 +287,47 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 		if(Opt.DelOpt.DelShowTotal)
 		{
 			SrcPanel->GetSelName(NULL,FileAttr);
+			DWORD StartTime=GetTickCount();
+			bool FirstTime=true;
 			while(SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 			{
 				if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 				{
-					ShellDeleteMsg(strSelName,Wipe,-1);
-					ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
-					UINT64 FileSize,CompressedFileSize,RealSize;
-					if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+					if(FileAttr&FILE_ATTRIBUTE_DIRECTORY)
 					{
-						ItemsCount+=CurrentFileCount+CurrentDirCount+1;
+						DWORD CurTime=GetTickCount();
+						if(CurTime-StartTime>RedrawTimeout || FirstTime)
+						{
+							StartTime=CurTime;
+							FirstTime=false;
+							if(CheckForEscSilent() && ConfirmAbortOp())
+							{
+								Cancel=true;
+								break;
+							}
+							ShellDeleteMsg(strSelName,Wipe,-1);
+						}
+						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
+						UINT64 FileSize,CompressedFileSize,RealSize;
+						if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+						{
+							ItemsCount+=CurrentFileCount+CurrentDirCount+1;
+						}
+						else
+						{
+							Cancel=true;
+						}
 					}
 					else
 					{
-						Cancel=true;
+						ItemsCount++;
 					}
 				}
 			}
 		}
     SrcPanel->GetSelName(NULL,FileAttr);
 		DWORD StartTime=GetTickCount();
+		bool FirstTime=true;
     while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
     {
       int Length=(int)strSelName.GetLength();
@@ -314,19 +335,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           (strSelName.At(1)==L':' && Length<4))
         continue;
 			DWORD CurTime=GetTickCount();
-			if(CurTime-StartTime>RedrawTimeout)
+			if(CurTime-StartTime>RedrawTimeout || FirstTime)
 			{
 				StartTime=CurTime;
-				if(CheckForEscSilent())
+				FirstTime=false;
+				if(CheckForEscSilent() && ConfirmAbortOp())
 				{
-					int AbortOp = ConfirmAbortOp();
-					if (AbortOp)
-					{
-						Cancel=true;
-						break;
-					}
+					Cancel=true;
+					break;
 				}
-				ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
+				ShellDeleteMsg(strSelName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 			}
       if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
       {
