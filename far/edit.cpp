@@ -1793,7 +1793,9 @@ void Edit::InsertString(const wchar_t *Str)
   if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
 
-  Select(-1,0);
+	if(!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
+		DeleteBlock();
+
   InsertBinaryString(Str,StrLength(Str));
 }
 

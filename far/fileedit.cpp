@@ -1028,6 +1028,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
 						Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
           }
+					else
+					{
+						Flags.Set(FFILEEDIT_SAVETOSAVEAS);
+					}
 
           static int TextFormat=0;
 

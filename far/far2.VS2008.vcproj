@@ -64,7 +64,7 @@
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
-				ProgramDataBaseFileName="$(IntDir)\far.pdb"
+				ProgramDataBaseFileName="$(OutDir)\far.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -354,7 +354,7 @@
 				PrecompiledHeaderFile="$(IntDir)\headers.pch"
 				AssemblerOutput="2"
 				AssemblerListingLocation="$(OutDir)\cod\"
-				ProgramDataBaseFileName="$(IntDir)\far.pdb"
+				ProgramDataBaseFileName="$(OutDir)\far.pdb"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
