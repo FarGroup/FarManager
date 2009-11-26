@@ -114,6 +114,7 @@ Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData)
 
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
+	Flags.Change(FEDITLINE_SHOWWHITESPACE,Opt.EdOpt.ShowWhiteSpace);
 
 	m_codepage = 0; //BUGBUG
 }
@@ -374,11 +375,20 @@ void Edit::FastShow()
     wchar_t *e=OutStrTmp+OutStrLength;
     for (OutStrLength=0; OutStrLength<EditLength && p<e; p++)
     {
+			if(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE))
+			{
+				if(*p==L' ')
+				{
+					*p=L'\x2219';
+				}
+			}
       if (*p == L'\t')
       {
         int S=TabSize-((LeftPos+OutStrLength) % TabSize);
         for (int i=0; i<S && OutStrLength<EditLength; i++,OutStrLength++)
-          OutStr[OutStrLength]=L' ';
+				{
+					OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && !i)?L'\x2192':L' ';
+				}
       }
       else
       {

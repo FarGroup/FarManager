@@ -203,6 +203,7 @@ struct EditorOptions
 	int SearchSelFound;
 	int SearchRegexp;
 	int SearchPickUpWord;
+	int ShowWhiteSpace;
 
 	string strWordDiv;
 
@@ -233,6 +234,7 @@ struct EditorOptions
 		SearchSelFound=0;
 		SearchRegexp=0;
 		SearchPickUpWord=0;
+		ShowWhiteSpace=0;
 
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
@@ -266,6 +268,7 @@ struct EditorOptions
 		dest.ShowScrollBar=ShowScrollBar;
 		dest.SearchSelFound=SearchSelFound;
 		dest.SearchRegexp=SearchRegexp;
+		dest.ShowWhiteSpace=ShowWhiteSpace;
 		dest.SearchPickUpWord=SearchPickUpWord;
 
 		dest.FileSizeLimitLo = FileSizeLimitLo;

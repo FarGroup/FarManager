@@ -574,6 +574,7 @@ int Editor::ReadData(LPCWSTR SrcBuf,int SizeSrcBuf)
       EndList->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->SetEditorMode(TRUE);
       EndList->SetWordDiv(EdOpt.WordDiv);
+			EndList->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
 
       NumLastLine++;
     }
@@ -592,6 +593,7 @@ int Editor::ReadData(LPCWSTR SrcBuf,int SizeSrcBuf)
       EndList->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->SetEditorMode(TRUE);
       EndList->SetWordDiv(EdOpt.WordDiv);
+			EndList->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
       NumLastLine++;
     }
   }
@@ -5605,6 +5607,8 @@ int Editor::EditorControl(int Command,void *Param)
 					Info->Options|=EOPT_AUTODETECTCODEPAGE;
         if (EdOpt.CursorBeyondEOL)
           Info->Options|=EOPT_CURSORBEYONDEOL;
+				if(EdOpt.ShowWhiteSpace)
+					Info->Options|=EOPT_SHOWWHITESPACE;
         Info->TabSize=EdOpt.TabSize;
         Info->BookMarkCount=BOOKMARK_COUNT;
         Info->CurState=Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
@@ -5991,6 +5995,9 @@ int Editor::EditorControl(int Command,void *Param)
             _ECTLLOG(SysLog(L"  iParam      =%s",espar->Param.iParam?L"On":L"Off"));
             Flags.Change(FEDITOR_LOCKMODE, espar->Param.iParam);
             break;
+					case ESPT_SHOWWHITESPACE:
+						SetShowWhiteSpace(espar->Param.iParam);
+						break;
           default:
             _ECTLLOG(SysLog(L"}"));
             return FALSE;
@@ -6529,6 +6536,18 @@ void Editor::SetDelRemovesBlocks(int NewMode)
   }
 }
 
+void Editor::SetShowWhiteSpace(int NewMode)
+{
+	if(NewMode!=EdOpt.ShowWhiteSpace)
+	{
+		EdOpt.ShowWhiteSpace=NewMode;
+		for(Edit *CurPtr=TopList;CurPtr;CurPtr=CurPtr->m_next)
+		{
+			CurPtr->SetShowWhiteSpace(NewMode);
+		}
+	}
+}
+
 void Editor::SetPersistentBlocks(int NewMode)
 {
   if(NewMode!=EdOpt.PersistentBlocks)
@@ -6636,6 +6655,7 @@ Edit *Editor::CreateString (const wchar_t *lpwszStr, int nLength)
     pEdit->SetObjectColor (COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
     pEdit->SetEditorMode (TRUE);
     pEdit->SetWordDiv (EdOpt.strWordDiv);
+		pEdit->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
   }
 
   return pEdit;

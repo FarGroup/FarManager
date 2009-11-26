@@ -2315,6 +2315,8 @@ static bool editorsetFunc()
 				Ret=(__int64)EdOpt.SearchRegexp; break;
 			case 19: // SearchPickUpWord;
 				Ret=(__int64)EdOpt.SearchPickUpWord; break;
+			case 20: // ShowWhiteSpace;
+				Ret=static_cast<INT64>(EdOpt.ShowWhiteSpace); break;
 			default:
 				Ret=(__int64)-1L;
 		}
@@ -2363,6 +2365,8 @@ static bool editorsetFunc()
 					EdOpt.SearchRegexp=longState; break;
 				case 19: // SearchPickUpWord;
 					EdOpt.SearchPickUpWord=longState; break;
+				case 20: // ShowWhiteSpace;
+					EdOpt.ShowWhiteSpace=longState; break;
 				default:
 					Ret=-1;
 				break;

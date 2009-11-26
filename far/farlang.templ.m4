@@ -1955,6 +1955,14 @@ MEditConfigScrollbar
 "&Gördítősáv mutatva"
 "Pokaż %pasek przewijania"
 
+MEditShowWhiteSpace
+"Пробельные символы"
+"Show white space"
+upd:"Show white space"
+upd:"Show white space"
+upd:"Show white space"
+upd:"Show white space"
+
 MEditConfigPickUpWord
 "Cлово под к&урсором"
 "Pick &up the word"

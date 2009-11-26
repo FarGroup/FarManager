@@ -2310,6 +2310,7 @@ void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
   m_editor->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
   m_editor->SetReadOnlyLock(EdOpt.ReadOnlyLock);
   m_editor->SetShowScrollBar(EdOpt.ShowScrollBar);
+  m_editor->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
   m_editor->SetSearchPickUpWord(EdOpt.SearchPickUpWord);
   //m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
 }

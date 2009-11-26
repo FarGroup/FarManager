@@ -350,6 +350,8 @@ class Editor:public ScreenObject
     void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
     const wchar_t *GetWordDiv() { return (const wchar_t*)EdOpt.strWordDiv; }
 
+		void SetShowWhiteSpace(int NewMode);
+
     void GetSavePosMode(int &SavePos, int &SaveShortPos);
 
     // передавайте в качестве значения параметра "-1" для параметра,

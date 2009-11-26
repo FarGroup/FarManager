@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "bitflags.hpp"
 
-//изменить флаги (подвинуть убрав FEDITLINE_CONVERTTABS)
-
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE{
   FEDITLINE_MARKINGBLOCK         = 0x00000100,
@@ -50,7 +48,7 @@ enum FLAGS_CLASS_EDITLINE{
   FEDITLINE_OVERTYPE             = 0x00004000,
   FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
   FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Opt.EditorPersistentBlocks)
-//  FEDITLINE_CONVERTTABS          = 0x00020000,
+  FEDITLINE_SHOWWHITESPACE       = 0x00020000,
   FEDITLINE_READONLY             = 0x00040000,
   FEDITLINE_CURSORVISIBLE        = 0x00080000,
   // Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
@@ -215,6 +213,8 @@ private:
 
     void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
 		int  GetPersistentBlocks() {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
+
+		void SetShowWhiteSpace(int Mode) {Flags.Change(FEDITLINE_SHOWWHITESPACE,Mode);}
 
     void  GetString(wchar_t *Str, int MaxSize);
     void  GetString(string &strStr);
