@@ -315,33 +315,42 @@ bool IsDriveTypeCDROM(UINT DriveType)
 }
 
 
-UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
+UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCaps *Caps, DWORD Detect)
 {
-  if(RootDir && !*RootDir)
-    RootDir=NULL;
+  string strRootDir;
+  if(!RootDir || !*RootDir)
+  {
+    string strCurDir;
+    apiGetCurrentDirectory(strCurDir);
+    GetPathRoot(strCurDir, strRootDir);
+  }
+  else
+    strRootDir = RootDir;
+  AddEndSlash(strRootDir);
 
-  wchar_t LocalName[4]=L" :";
-  LocalName[0]=RootDir?*RootDir:0;
-
-  CDROM_DeviceCaps caps=CDDEV_CAPS_NONE;
-	UINT DrvType = GetDriveType(RootDir);
+  CDROM_DeviceCaps caps = CDDEV_CAPS_NONE;
+	UINT DrvType = GetDriveType(strRootDir);
 
   // анализ CD-привода
-  if ((Detect&1) && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)
+  if ((Detect&1) && DrvType == DRIVE_CDROM)
   {
-    wchar_t szVolumeName[20]=L"\\\\.\\ :";
-    szVolumeName[4]=*RootDir;
+    string VolumePath = strRootDir;
+    DeleteEndSlash(VolumePath);
+    if (VolumePath.Equal(0, L"\\\\?\\"))
+      VolumePath.Replace(0, 4, L"\\\\.\\");
+    else
+      VolumePath.Insert(0, L"\\\\.\\");
 
-    HANDLE hDevice = apiCreateFile (szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0);
+    HANDLE hDevice = apiCreateFile(VolumePath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0);
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {
-      CDROM_DeviceCaps caps=GetCDDeviceCaps(hDevice);
-      DrvType=GetCDDeviceTypeByCaps(caps);
+      caps = GetCDDeviceCaps(hDevice);
       CloseHandle(hDevice);
+      DrvType = GetCDDeviceTypeByCaps(caps);
     }
 
-    if(DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
+    if (DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
       DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
   }
 
@@ -351,7 +360,7 @@ UINT FAR_GetDriveType(const wchar_t *RootDir,CDROM_DeviceCaps *Caps,DWORD Detect
 //  if((Detect&4) && GetSubstName(DrvType,LocalName,NULL,0))
 //    DrvType=DRIVE_SUBSTITUTE;
 
-  if(Caps)
+  if (Caps)
     *Caps=caps;
 
   return DrvType;
