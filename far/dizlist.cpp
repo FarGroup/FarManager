@@ -132,7 +132,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 		}
 
 		FILE *DizFile;
-		if ((DizFile=_wfopen(strDizFileName,L"rb"))!=NULL)
+		if ((DizFile=_wfopen(NTPath(strDizFileName),L"rb"))!=NULL)
 		{
 			GetFileString GetStr(DizFile);
 			wchar_t *DizText;
@@ -479,7 +479,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 			apiSetFileAttributes(strDizFileName,FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	if ((DizFile=_wfopen(strDizFileName,L"wb"))==NULL)
+	if ((DizFile=_wfopen(NTPath(strDizFileName),L"wb"))==NULL)
 	{
 		if (!Opt.Diz.ROUpdate && (FileAttr&FILE_ATTRIBUTE_READONLY))
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
