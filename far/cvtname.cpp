@@ -153,7 +153,7 @@ void MixToFullPath (string& strPath)
 	//Skip all path to root (with slash if exists)
 	LPWSTR pstPath=strPath.GetBuffer();
 	size_t PathOffset=0;
-	Point2Root (strPath,PathOffset);
+	Point2Root (pstPath,PathOffset);
 	pstPath+=PathOffset;
 
 	//Process "." and ".." if exists
