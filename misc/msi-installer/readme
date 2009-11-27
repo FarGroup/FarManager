@@ -1,0 +1,13 @@
+Как собирать:
+
+1. Собираем вспомогательную тулзу:
+cl -EHsc genscript.cpp
+
+2. Указываем ей где лежат файлы из дистрибутива и платформу:
+genscript с:\path\far x86
+или
+genscript с:\path\far x64
+Тулза создает makefile.
+
+3. Запускаем сборку MSI:
+nmake -nologo
