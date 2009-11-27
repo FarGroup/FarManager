@@ -60,6 +60,10 @@ int main(int argc, char* argv[]) {
     fmt << "Far" << ver_major << ver_minor << "b" << ver_build << "." << platform_str << ".msi";
     string msi_name = fmt.str();
 
+#ifdef SPECIAL
+    msi_name = source_dir + "\\final.msi";
+#endif
+
     ofstream makefile;
     makefile.exceptions(ios_base::badbit | ios_base::failbit | ios_base::eofbit);
     makefile.open("makefile");
