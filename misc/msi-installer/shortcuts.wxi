@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?if $(var.Branch) = 1 ?>
+  <?define ScriptExt = "bat" ?>
+<?endif?>
+<?if $(var.Branch) = 2 ?>
+  <?define ScriptExt = "cmd" ?>
+<?endif?>
+<Include>
+  <Directory Id="ProgramMenuFolder">
+    <Directory Id="ApplicationProgramsFolder" Name="$(var.Product)">
+      <Component Id="FarProgramsShortcut" Guid="5FBE7A8E-03E6-4FF4-84CF-CE9A3DD8284D">
+        <Shortcut Id="FarProgramsShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" />
+      </Component>
+      <Component Id="UninstallProduct" Guid="4DF8913F-667F-4D86-892F-ACD0FFF95878">
+        <Shortcut Id="UninstallProduct" Name="Uninstall" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+      </Component>
+      <Directory Id="Scripts" Name="Scripts">
+        <Component Id="Scripts" Guid="C42AC04D-9251-4525-8CAA-FFAF04D01453">
+          <Shortcut Id="SaveSettings" Name="Save settings" Target="[INSTALLDIR]\SaveSettings.$(var.ScriptExt)" WorkingDirectory="INSTALLDIR" />
+          <Shortcut Id="RestoreSettings" Name="Restore settings" Target="[INSTALLDIR]\RestoreSettings.$(var.ScriptExt)" WorkingDirectory="INSTALLDIR" />
+          <Shortcut Id="ClearPluginsCache" Name="Clear plugins cache" Target="[INSTALLDIR]\ClearPluginsCache.$(var.ScriptExt)" WorkingDirectory="INSTALLDIR" />
+        </Component>
+      </Directory>
+    </Directory>
+  </Directory>
+  <Directory Id="DesktopFolder">
+    <Component Id="FarDesktopShortcut" Guid="19023B79-9C12-40F8-9A73-7F1493FCAAE1">
+      <Shortcut Id="FarDesktopShortcut" Name="$(var.Product)" Target="[INSTALLDIR]\Far.exe" WorkingDirectory="INSTALLDIR" />
+    </Component>
+  </Directory>
+  <Directory Id="StartMenuFolder">
+    <Component Id="FarStartMenuShortcut" Guid="454203B5-A20D-4AFD-8D2D-7E8C55945D3B">
+      <Shortcut Id="FarStartMenuShortcut" Name="$(var.Product)" Target="[INSTALLDIR]\Far.exe" WorkingDirectory="INSTALLDIR" />
+    </Component>
+  </Directory>
+  <Directory Id="AppDataFolder">
+    <Directory Id="Microsoft" Name="Microsoft">
+      <Directory Id="InternetExplorer" Name="Internet Explorer">
+        <Directory Id="QuickLaunchFolder" Name="Quick Launch">
+          <Component Id="FarQuickLaunchShortcut" Guid="4A533615-1E6C-41D9-AF3A-982928C533B6">
+            <Shortcut Id="FarQuickLaunchShortcut" Name="$(var.Product)" Target="[INSTALLDIR]\Far.exe" WorkingDirectory="INSTALLDIR" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Directory>
+</Include>
