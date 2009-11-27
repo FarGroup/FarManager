@@ -1,3 +1,7 @@
+t-rex 28.11.2009 01:08:27 +0200 - build 1242
+
+1. Убрал ограничение на длину строки в MenuFileToReg().
+
 t-rex 28.11.2009 00:35:30 +0200 - build 1241
 
 1. Mantis#1180: Cannot update file description.

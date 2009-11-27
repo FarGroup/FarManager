@@ -44,8 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 
-extern wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType);
-
 #define LangFileMask L"*.lng"
 
 #ifndef pack
