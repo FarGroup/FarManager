@@ -116,14 +116,15 @@ PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
 		//Skip path to next slash (or path end) if was "special" prefix
 		if (nPrefix == PPT_PREFIX || nPrefix == PPT_NT)
 		{
-			do
+			while (*pstPath)
 			{
-				if (IsSlash (*pstPath))
+				if (IsSlash(*pstPath))
 				{
 					pstPath++;
 					break;
 				}
-			} while (*pstPath++);
+				pstPath++;
+			}
 		}
 		else
 		{
