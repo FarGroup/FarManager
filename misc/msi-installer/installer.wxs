@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?if $(var.Branch) = 1 ?>
   <?if $(var.Platform) = x86 ?>
-    <?define Product = "FAR Manager" ?>
+    <?define Product = "Far Manager" ?>
     <?define UpgradeCode = "DFEA4262-38EB-49E4-A390-A050C1D649B8" ?>
   <?endif?>
   <?if $(var.Platform) = x64 ?>
-    <?define Product = "FAR Manager x64" ?>
+    <?define Product = "Far Manager x64" ?>
     <?define UpgradeCode = "04785A0B-A646-4198-8520-A9040E9CFF73" ?>
   <?endif?>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
   <?if $(var.Platform) = x86 ?>
-    <?define Product = "FAR Manager 2" ?>
+    <?define Product = "Far Manager 2" ?>
     <?define UpgradeCode = "67A59013-488F-4388-81F3-828A1DCEDA32" ?>
   <?endif?>
   <?if $(var.Platform) = x64 ?>
-    <?define Product = "FAR Manager 2 x64" ?>
+    <?define Product = "Far Manager 2 x64" ?>
     <?define UpgradeCode = "0DB859AA-6F98-45A2-8B6D-C33C2D2B522B" ?>
   <?endif?>
 <?endif?>
