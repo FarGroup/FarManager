@@ -1,554 +1,554 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <Component Id="changelog" Guid="5B1914E3-9E7D-468C-90CD-AD9966EE7EBE">
+  <Component Id="changelog" Guid="5B1914E3-9E7D-468C-90CD-AD9966EE7EBE" Win64="$(var.Win64)">
     <File Id="changelog" KeyPath="yes" Source="$(var.SourceDir)\changelog" />
   </Component>
-  <Component Id="Far.exe" Guid="400D4E9A-1B0F-4E65-A95F-A1606160F24A">
+  <Component Id="Far.exe" Guid="400D4E9A-1B0F-4E65-A95F-A1606160F24A" Win64="$(var.Win64)">
     <File Id="Far.exe" KeyPath="yes" Source="$(var.SourceDir)\Far.exe" />
   </Component>
 <?if $(var.Platform) = x86 ?>
-  <Component Id="far.map" Guid="A83A0389-605B-495B-B3CB-78A9983B07C1">
+  <Component Id="far.map" Guid="A83A0389-605B-495B-B3CB-78A9983B07C1" Win64="$(var.Win64)">
     <File Id="far.map" KeyPath="yes" Source="$(var.SourceDir)\far.map" />
   </Component>
 <?endif?>
-  <Component Id="FarEng.hlf" Guid="45499D92-1451-4822-81BB-A1B07237E2BA">
+  <Component Id="FarEng.hlf" Guid="45499D92-1451-4822-81BB-A1B07237E2BA" Win64="$(var.Win64)">
     <File Id="FarEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarEng.hlf" />
   </Component>
-  <Component Id="FarEng.lng" Guid="85F14AF2-618B-4CA1-A614-98766FD550F6">
+  <Component Id="FarEng.lng" Guid="85F14AF2-618B-4CA1-A614-98766FD550F6" Win64="$(var.Win64)">
     <File Id="FarEng.lng" KeyPath="yes" Source="$(var.SourceDir)\FarEng.lng" />
   </Component>
-  <Component Id="FarRus.hlf" Guid="DCCD76F5-B891-4CEE-9B0E-3453CD452061">
+  <Component Id="FarRus.hlf" Guid="DCCD76F5-B891-4CEE-9B0E-3453CD452061" Win64="$(var.Win64)">
     <File Id="FarRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarRus.hlf" />
   </Component>
-  <Component Id="FarRus.lng" Guid="C4C0B9EE-9E63-4C65-9A1E-F328341C2A7A">
+  <Component Id="FarRus.lng" Guid="C4C0B9EE-9E63-4C65-9A1E-F328341C2A7A" Win64="$(var.Win64)">
     <File Id="FarRus.lng" KeyPath="yes" Source="$(var.SourceDir)\FarRus.lng" />
   </Component>
-  <Component Id="File_id.diz" Guid="10E4704A-1E1F-462B-9BB8-F43AF5E3C1D0">
+  <Component Id="File_id.diz" Guid="10E4704A-1E1F-462B-9BB8-F43AF5E3C1D0" Win64="$(var.Win64)">
     <File Id="File_id.diz" KeyPath="yes" Source="$(var.SourceDir)\File_id.diz" />
   </Component>
 <?if $(var.Branch) = 1 ?>
-  <Component Id="Descript.ion" Guid="F5ECDC84-1D93-430B-902D-48E70B48E760">
+  <Component Id="Descript.ion" Guid="F5ECDC84-1D93-430B-902D-48E70B48E760" Win64="$(var.Win64)">
     <File Id="Descript.ion" KeyPath="yes" Source="$(var.SourceDir)\Descript.ion" />
   </Component>
-  <Component Id="Far.Site.txt" Guid="8B1710CB-D524-4082-A392-C5501A65127F">
+  <Component Id="Far.Site.txt" Guid="8B1710CB-D524-4082-A392-C5501A65127F" Win64="$(var.Win64)">
     <File Id="Far.Site.txt" KeyPath="yes" Source="$(var.SourceDir)\Far.Site.txt" />
   </Component>
-  <Component Id="License.txt" Guid="F07969D7-DFA7-411D-8454-A4A975174E31">
+  <Component Id="License.txt" Guid="F07969D7-DFA7-411D-8454-A4A975174E31" Win64="$(var.Win64)">
     <File Id="License.txt" KeyPath="yes" Source="$(var.SourceDir)\License.txt" />
   </Component>
-  <Component Id="License.xUSSR.txt" Guid="B1904B2E-0017-46E8-8A06-45EF39B86838">
+  <Component Id="License.xUSSR.txt" Guid="B1904B2E-0017-46E8-8A06-45EF39B86838" Win64="$(var.Win64)">
     <File Id="License.xUSSR.txt" KeyPath="yes" Source="$(var.SourceDir)\License.xUSSR.txt" />
   </Component>
-  <Component Id="README.TXT" Guid="DB4E4692-63BE-4341-88A4-91DE19A868FA">
+  <Component Id="README.TXT" Guid="DB4E4692-63BE-4341-88A4-91DE19A868FA" Win64="$(var.Win64)">
     <File Id="README.TXT" KeyPath="yes" Source="$(var.SourceDir)\README.TXT" />
   </Component>
-  <Component Id="REGISTER.FRM" Guid="D550E352-F316-43AF-B1A8-8683CFF5E3F5">
+  <Component Id="REGISTER.FRM" Guid="D550E352-F316-43AF-B1A8-8683CFF5E3F5" Win64="$(var.Win64)">
     <File Id="REGISTER.FRM" KeyPath="yes" Source="$(var.SourceDir)\REGISTER.FRM" />
   </Component>
-  <Component Id="REGISTER.TXT" Guid="D7131A8A-25BF-490D-B496-C2CE40ABAAAC">
+  <Component Id="REGISTER.TXT" Guid="D7131A8A-25BF-490D-B496-C2CE40ABAAAC" Win64="$(var.Win64)">
     <File Id="REGISTER.TXT" KeyPath="yes" Source="$(var.SourceDir)\REGISTER.TXT" />
   </Component>
-  <Component Id="ClearPluginsCache.bat" Guid="4ECF03CE-00B4-4E59-AC8A-B4A078A04FD3">
+  <Component Id="ClearPluginsCache.bat" Guid="4ECF03CE-00B4-4E59-AC8A-B4A078A04FD3" Win64="$(var.Win64)">
     <File Id="ClearPluginsCache.bat" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.bat" />
   </Component>
-  <Component Id="RestoreSettings.bat" Guid="3AC1E1CB-471E-48C9-A312-FEE620CF2A43">
+  <Component Id="RestoreSettings.bat" Guid="3AC1E1CB-471E-48C9-A312-FEE620CF2A43" Win64="$(var.Win64)">
     <File Id="RestoreSettings.bat" KeyPath="yes" Source="$(var.SourceDir)\RestoreSettings.bat" />
   </Component>
-  <Component Id="SaveSettings.bat" Guid="21213AC0-3C80-4F99-819A-A1372217EB97">
+  <Component Id="SaveSettings.bat" Guid="21213AC0-3C80-4F99-819A-A1372217EB97" Win64="$(var.Win64)">
     <File Id="SaveSettings.bat" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.bat" />
   </Component>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
-  <Component Id="FarCze.lng" Guid="7A3FA509-8027-4E6A-825B-932971B0A0D0">
+  <Component Id="FarCze.lng" Guid="7A3FA509-8027-4E6A-825B-932971B0A0D0" Win64="$(var.Win64)">
     <File Id="FarCze.lng" KeyPath="yes" Source="$(var.SourceDir)\FarCze.lng" />
   </Component>
-  <Component Id="FarGer.lng" Guid="0CC8B9EF-D4B5-444B-92EF-CA0B9D3DF650">
+  <Component Id="FarGer.lng" Guid="0CC8B9EF-D4B5-444B-92EF-CA0B9D3DF650" Win64="$(var.Win64)">
     <File Id="FarGer.lng" KeyPath="yes" Source="$(var.SourceDir)\FarGer.lng" />
   </Component>
-  <Component Id="FarHun.hlf" Guid="28F1CC7F-A4C0-4C71-9A26-C905F00EE563">
+  <Component Id="FarHun.hlf" Guid="28F1CC7F-A4C0-4C71-9A26-C905F00EE563" Win64="$(var.Win64)">
     <File Id="FarHun.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarHun.hlf" />
   </Component>
-  <Component Id="FarHun.lng" Guid="D32A092A-3180-40EB-AB71-E3A62A07FC3C">
+  <Component Id="FarHun.lng" Guid="D32A092A-3180-40EB-AB71-E3A62A07FC3C" Win64="$(var.Win64)">
     <File Id="FarHun.lng" KeyPath="yes" Source="$(var.SourceDir)\FarHun.lng" />
   </Component>
-  <Component Id="FarPol.lng" Guid="619958A9-FA5B-41B2-AA29-D6E9AFC911B1">
+  <Component Id="FarPol.lng" Guid="619958A9-FA5B-41B2-AA29-D6E9AFC911B1" Win64="$(var.Win64)">
     <File Id="FarPol.lng" KeyPath="yes" Source="$(var.SourceDir)\FarPol.lng" />
   </Component>
-  <Component Id="ClearPluginsCache.cmd" Guid="DC8F0BD0-AAA0-41A2-83A0-024A8DBA387A">
+  <Component Id="ClearPluginsCache.cmd" Guid="DC8F0BD0-AAA0-41A2-83A0-024A8DBA387A" Win64="$(var.Win64)">
     <File Id="ClearPluginsCache.cmd" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.cmd" />
   </Component>
-  <Component Id="RestoreSettings.cmd" Guid="59CF875A-E885-4DC2-A06D-4A528613B95F">
+  <Component Id="RestoreSettings.cmd" Guid="59CF875A-E885-4DC2-A06D-4A528613B95F" Win64="$(var.Win64)">
     <File Id="RestoreSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreSettings.cmd" />
   </Component>
-  <Component Id="SaveSettings.cmd" Guid="2F15DDDE-CE2A-4383-B3F4-B3E3307F6C7A">
+  <Component Id="SaveSettings.cmd" Guid="2F15DDDE-CE2A-4383-B3F4-B3E3307F6C7A" Win64="$(var.Win64)">
     <File Id="SaveSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.cmd" />
   </Component>
 <?endif?>
   <Directory Id="Addons" Name="Addons">
-    <Component Id="Descript.ion_1" Guid="7E916A48-000F-4922-AF46-8BE5976CFDF6">
+    <Component Id="Descript.ion_1" Guid="7E916A48-000F-4922-AF46-8BE5976CFDF6" Win64="$(var.Win64)">
       <File Id="Descript.ion_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Descript.ion" />
     </Component>
-    <Component Id="README.TXT_1" Guid="76D41670-6177-41E8-A6A4-99B444042A25">
+    <Component Id="README.TXT_1" Guid="76D41670-6177-41E8-A6A4-99B444042A25" Win64="$(var.Win64)">
       <File Id="README.TXT_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\README.TXT" />
     </Component>
     <Directory Id="Archivers" Name="Archivers">
-      <Component Id="Arj.reg" Guid="8BCA87FE-D744-4F65-95A5-9AB20F02139D">
+      <Component Id="Arj.reg" Guid="8BCA87FE-D744-4F65-95A5-9AB20F02139D" Win64="$(var.Win64)">
         <File Id="Arj.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Arj.reg" />
       </Component>
-      <Component Id="Descript.ion_2" Guid="81B6C1BA-E6A0-4020-857B-5E1D9135B1B3">
+      <Component Id="Descript.ion_2" Guid="81B6C1BA-E6A0-4020-857B-5E1D9135B1B3" Win64="$(var.Win64)">
         <File Id="Descript.ion_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Descript.ion" />
       </Component>
-      <Component Id="FarUC2.reg" Guid="AE719890-41C1-43B3-B37E-11B2060C2D60">
+      <Component Id="FarUC2.reg" Guid="AE719890-41C1-43B3-B37E-11B2060C2D60" Win64="$(var.Win64)">
         <File Id="FarUC2.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\FarUC2.reg" />
       </Component>
-      <Component Id="InfoZIP.reg" Guid="EF457154-D203-4976-9614-5FB516A06B92">
+      <Component Id="InfoZIP.reg" Guid="EF457154-D203-4976-9614-5FB516A06B92" Win64="$(var.Win64)">
         <File Id="InfoZIP.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\InfoZIP.reg" />
       </Component>
-      <Component Id="LGHA.reg" Guid="21E3B1CE-2007-4373-A859-9CB608D3FF46">
+      <Component Id="LGHA.reg" Guid="21E3B1CE-2007-4373-A859-9CB608D3FF46" Win64="$(var.Win64)">
         <File Id="LGHA.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\LGHA.reg" />
       </Component>
-      <Component Id="Lha32.reg" Guid="5DBC8FCE-D4C4-4D2A-B8AD-1F54C070F16E">
+      <Component Id="Lha32.reg" Guid="5DBC8FCE-D4C4-4D2A-B8AD-1F54C070F16E" Win64="$(var.Win64)">
         <File Id="Lha32.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Lha32.reg" />
       </Component>
-      <Component Id="Lha32a.reg" Guid="3C520BAF-3948-4E4F-8370-E482DB876640">
+      <Component Id="Lha32a.reg" Guid="3C520BAF-3948-4E4F-8370-E482DB876640" Win64="$(var.Win64)">
         <File Id="Lha32a.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Lha32a.reg" />
       </Component>
-      <Component Id="Lha32b.reg" Guid="98DF5DE8-9EF0-46C3-BC63-C1F1D17D0E9A">
+      <Component Id="Lha32b.reg" Guid="98DF5DE8-9EF0-46C3-BC63-C1F1D17D0E9A" Win64="$(var.Win64)">
         <File Id="Lha32b.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Lha32b.reg" />
       </Component>
-      <Component Id="LhArk.reg" Guid="8ADA1B6A-E207-4655-9500-D521DA1475D7">
+      <Component Id="LhArk.reg" Guid="8ADA1B6A-E207-4655-9500-D521DA1475D7" Win64="$(var.Win64)">
         <File Id="LhArk.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\LhArk.reg" />
       </Component>
-      <Component Id="PkZip25.reg" Guid="5EEAC024-4928-4B14-89C1-9A605EE7FC3A">
+      <Component Id="PkZip25.reg" Guid="5EEAC024-4928-4B14-89C1-9A605EE7FC3A" Win64="$(var.Win64)">
         <File Id="PkZip25.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\PkZip25.reg" />
       </Component>
-      <Component Id="PkZip25Dos.reg" Guid="6A318FD0-65B0-46E2-9F79-5D8A0F88F2ED">
+      <Component Id="PkZip25Dos.reg" Guid="6A318FD0-65B0-46E2-9F79-5D8A0F88F2ED" Win64="$(var.Win64)">
         <File Id="PkZip25Dos.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\PkZip25Dos.reg" />
       </Component>
-      <Component Id="Rar20.reg" Guid="A0234883-7255-4B18-95E7-A0E4E33056B2">
+      <Component Id="Rar20.reg" Guid="A0234883-7255-4B18-95E7-A0E4E33056B2" Win64="$(var.Win64)">
         <File Id="Rar20.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\Rar20.reg" />
       </Component>
-      <Component Id="WinZipCL.reg" Guid="EBBE15DF-85F7-4CE2-8217-C6FE7828F196">
+      <Component Id="WinZipCL.reg" Guid="EBBE15DF-85F7-4CE2-8217-C6FE7828F196" Win64="$(var.Win64)">
         <File Id="WinZipCL.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Archivers\WinZipCL.reg" />
       </Component>
     </Directory>
     <Directory Id="Colors" Name="Colors">
-      <Component Id="Descript.ion_3" Guid="5E0F168E-15F7-4D97-A3EA-A353BE536F12">
+      <Component Id="Descript.ion_3" Guid="5E0F168E-15F7-4D97-A3EA-A353BE536F12" Win64="$(var.Win64)">
         <File Id="Descript.ion_3" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Descript.ion" />
       </Component>
-      <Component Id="export_colors.bat" Guid="4A82AB93-6B7C-440D-AEA4-9C843B76A9A5">
+      <Component Id="export_colors.bat" Guid="4A82AB93-6B7C-440D-AEA4-9C843B76A9A5" Win64="$(var.Win64)">
         <File Id="export_colors.bat" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\export_colors.bat" />
       </Component>
-      <Component Id="import_colors.bat" Guid="02CB57D3-08FD-412A-AE14-986B4DDF21A1">
+      <Component Id="import_colors.bat" Guid="02CB57D3-08FD-412A-AE14-986B4DDF21A1" Win64="$(var.Win64)">
         <File Id="import_colors.bat" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\import_colors.bat" />
       </Component>
       <Directory Id="Custom_Highlighting" Name="Custom Highlighting">
 <?if $(var.Branch) = 1 ?>
-        <Component Id="black_from_Fonarev.reg" Guid="609C1889-0687-4567-A112-D7F6ECF3A4E7">
+        <Component Id="black_from_Fonarev.reg" Guid="609C1889-0687-4567-A112-D7F6ECF3A4E7" Win64="$(var.Win64)">
           <File Id="black_from_Fonarev.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.reg" />
         </Component>
-        <Component Id="black_from_july.reg" Guid="CDCE02DA-869B-4634-B136-99C97C0BD9A7">
+        <Component Id="black_from_july.reg" Guid="CDCE02DA-869B-4634-B136-99C97C0BD9A7" Win64="$(var.Win64)">
           <File Id="black_from_july.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_july.reg" />
         </Component>
-        <Component Id="black_from_Myodov.reg" Guid="34E24290-0A8B-4651-AD4A-C8E44A6810BF">
+        <Component Id="black_from_Myodov.reg" Guid="34E24290-0A8B-4651-AD4A-C8E44A6810BF" Win64="$(var.Win64)">
           <File Id="black_from_Myodov.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Myodov.reg" />
         </Component>
-        <Component Id="Colors_from_admin_essp_ru.reg" Guid="67079D80-2FBC-46B9-BD51-19BE4F38101D">
+        <Component Id="Colors_from_admin_essp_ru.reg" Guid="67079D80-2FBC-46B9-BD51-19BE4F38101D" Win64="$(var.Win64)">
           <File Id="Colors_from_admin_essp_ru.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.reg" />
         </Component>
-        <Component Id="Colors_from_Gernichenko.reg" Guid="8C34AC50-3F58-4FA5-850A-423A138F86DF">
+        <Component Id="Colors_from_Gernichenko.reg" Guid="8C34AC50-3F58-4FA5-850A-423A138F86DF" Win64="$(var.Win64)">
           <File Id="Colors_from_Gernichenko.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Gernichenko.reg" />
         </Component>
-        <Component Id="Colors_from_Sadovoj.reg" Guid="699F9534-A264-4ECD-91AB-634CD047C985">
+        <Component Id="Colors_from_Sadovoj.reg" Guid="699F9534-A264-4ECD-91AB-634CD047C985" Win64="$(var.Win64)">
           <File Id="Colors_from_Sadovoj.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Sadovoj.reg" />
         </Component>
-        <Component Id="Descript.ion_4" Guid="7499EA1F-543F-4104-99C2-2DD0CF3176B2">
+        <Component Id="Descript.ion_4" Guid="7499EA1F-543F-4104-99C2-2DD0CF3176B2" Win64="$(var.Win64)">
           <File Id="Descript.ion_4" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Descript.ion" />
         </Component>
-        <Component Id="dn_like.reg" Guid="077A7420-CE21-4DE1-9A6D-FF6F28CEA703">
+        <Component Id="dn_like.reg" Guid="077A7420-CE21-4DE1-9A6D-FF6F28CEA703" Win64="$(var.Win64)">
           <File Id="dn_like.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\dn_like.reg" />
         </Component>
-        <Component Id="FARColors242.reg" Guid="C74E0B0F-6B44-43C8-8675-6EB41F8A07D6">
+        <Component Id="FARColors242.reg" Guid="C74E0B0F-6B44-43C8-8675-6EB41F8A07D6" Win64="$(var.Win64)">
           <File Id="FARColors242.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\FARColors242.reg" />
         </Component>
-        <Component Id="GreenMile.reg" Guid="057D74EB-7DD9-43C3-B1A8-4AD1252D2376">
+        <Component Id="GreenMile.reg" Guid="057D74EB-7DD9-43C3-B1A8-4AD1252D2376" Win64="$(var.Win64)">
           <File Id="GreenMile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\GreenMile.reg" />
         </Component>
-        <Component Id="hell.reg" Guid="9A1CA35D-8BCD-456A-B28E-2F98BF2CFA7D">
+        <Component Id="hell.reg" Guid="9A1CA35D-8BCD-456A-B28E-2F98BF2CFA7D" Win64="$(var.Win64)">
           <File Id="hell.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\hell.reg" />
         </Component>
-        <Component Id="import_colors.bat_1" Guid="A65C4426-BCD3-466E-A954-9E9FADF24E64">
+        <Component Id="import_colors.bat_1" Guid="A65C4426-BCD3-466E-A954-9E9FADF24E64" Win64="$(var.Win64)">
           <File Id="import_colors.bat_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\import_colors.bat" />
         </Component>
-        <Component Id="nc5pal2.reg" Guid="AB4B1222-58C8-4558-AA69-D13FAC1BFBF9">
+        <Component Id="nc5pal2.reg" Guid="AB4B1222-58C8-4558-AA69-D13FAC1BFBF9" Win64="$(var.Win64)">
           <File Id="nc5pal2.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\nc5pal2.reg" />
         </Component>
-        <Component Id="Rodion_Doroshkevich.reg" Guid="8C55FE96-B851-4F26-AF95-FDC4B6E2E124">
+        <Component Id="Rodion_Doroshkevich.reg" Guid="8C55FE96-B851-4F26-AF95-FDC4B6E2E124" Win64="$(var.Win64)">
           <File Id="Rodion_Doroshkevich.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Rodion_Doroshkevich.reg" />
         </Component>
-        <Component Id="VaxColors.reg" Guid="137605F6-8AFE-4B97-881E-D5F69A06B6DD">
+        <Component Id="VaxColors.reg" Guid="137605F6-8AFE-4B97-881E-D5F69A06B6DD" Win64="$(var.Win64)">
           <File Id="VaxColors.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.reg" />
         </Component>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
-        <Component Id="Custom_Highlighting" Guid="89E419DC-C9A2-42F4-A836-E0E962E723BF" KeyPath="yes">
+        <Component Id="Custom_Highlighting" Guid="89E419DC-C9A2-42F4-A836-E0E962E723BF" KeyPath="yes" Win64="$(var.Win64)">
           <CreateFolder />
         </Component>
 <?endif?>
       </Directory>
       <Directory Id="Default_Highlighting" Name="Default Highlighting">
 <?if $(var.Branch) = 1 ?>
-        <Component Id="black_from_Fonarev.reg_1" Guid="3ACF1DC5-82DA-42CB-BB2C-D126CB5C0FA7">
+        <Component Id="black_from_Fonarev.reg_1" Guid="3ACF1DC5-82DA-42CB-BB2C-D126CB5C0FA7" Win64="$(var.Win64)">
           <File Id="black_from_Fonarev.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.reg" />
         </Component>
-        <Component Id="black_from_july.reg_1" Guid="5B6F96D0-633B-4237-A366-31031D3596D9">
+        <Component Id="black_from_july.reg_1" Guid="5B6F96D0-633B-4237-A366-31031D3596D9" Win64="$(var.Win64)">
           <File Id="black_from_july.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_july.reg" />
         </Component>
-        <Component Id="black_from_Myodov.reg_1" Guid="AD8E8785-27C6-4DC5-87A2-BFEF097A7099">
+        <Component Id="black_from_Myodov.reg_1" Guid="AD8E8785-27C6-4DC5-87A2-BFEF097A7099" Win64="$(var.Win64)">
           <File Id="black_from_Myodov.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Myodov.reg" />
         </Component>
-        <Component Id="Colors_from_admin_essp_ru.reg_1" Guid="425A7110-BFB6-4115-84C1-84217B12437D">
+        <Component Id="Colors_from_admin_essp_ru.reg_1" Guid="425A7110-BFB6-4115-84C1-84217B12437D" Win64="$(var.Win64)">
           <File Id="Colors_from_admin_essp_ru.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.reg" />
         </Component>
-        <Component Id="Colors_from_Gernichenko.reg_1" Guid="D5C2917E-8AEF-4B96-9F7D-33392ECC3D61">
+        <Component Id="Colors_from_Gernichenko.reg_1" Guid="D5C2917E-8AEF-4B96-9F7D-33392ECC3D61" Win64="$(var.Win64)">
           <File Id="Colors_from_Gernichenko.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Gernichenko.reg" />
         </Component>
-        <Component Id="Colors_from_Sadovoj.reg_1" Guid="F80EA42C-DCD7-4D48-8815-BB263C7F7110">
+        <Component Id="Colors_from_Sadovoj.reg_1" Guid="F80EA42C-DCD7-4D48-8815-BB263C7F7110" Win64="$(var.Win64)">
           <File Id="Colors_from_Sadovoj.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Sadovoj.reg" />
         </Component>
-        <Component Id="Descript.ion_5" Guid="98306253-4AA1-45AC-A7B0-F69C48EB3FD2">
+        <Component Id="Descript.ion_5" Guid="98306253-4AA1-45AC-A7B0-F69C48EB3FD2" Win64="$(var.Win64)">
           <File Id="Descript.ion_5" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Descript.ion" />
         </Component>
-        <Component Id="dn_like.reg_1" Guid="478CBD3A-FA3E-4E32-B806-754454A20DCB">
+        <Component Id="dn_like.reg_1" Guid="478CBD3A-FA3E-4E32-B806-754454A20DCB" Win64="$(var.Win64)">
           <File Id="dn_like.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\dn_like.reg" />
         </Component>
-        <Component Id="FARColors242.reg_1" Guid="DED04C14-13F7-4B71-9659-E5BEA2EA9301">
+        <Component Id="FARColors242.reg_1" Guid="DED04C14-13F7-4B71-9659-E5BEA2EA9301" Win64="$(var.Win64)">
           <File Id="FARColors242.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\FARColors242.reg" />
         </Component>
-        <Component Id="GreenMile.reg_1" Guid="603B8FBD-337E-4F6C-A1C3-505B3C42CB30">
+        <Component Id="GreenMile.reg_1" Guid="603B8FBD-337E-4F6C-A1C3-505B3C42CB30" Win64="$(var.Win64)">
           <File Id="GreenMile.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\GreenMile.reg" />
         </Component>
-        <Component Id="hell.reg_1" Guid="635EC202-3AF9-4D45-BBF6-428FF07BFA10">
+        <Component Id="hell.reg_1" Guid="635EC202-3AF9-4D45-BBF6-428FF07BFA10" Win64="$(var.Win64)">
           <File Id="hell.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\hell.reg" />
         </Component>
-        <Component Id="import_colors.bat_2" Guid="90482C73-1C2C-457A-B9E7-AE13B41604D7">
+        <Component Id="import_colors.bat_2" Guid="90482C73-1C2C-457A-B9E7-AE13B41604D7" Win64="$(var.Win64)">
           <File Id="import_colors.bat_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\import_colors.bat" />
         </Component>
-        <Component Id="nc5pal2.reg_1" Guid="E72FBCA0-4741-419B-BE63-E789BF58C65F">
+        <Component Id="nc5pal2.reg_1" Guid="E72FBCA0-4741-419B-BE63-E789BF58C65F" Win64="$(var.Win64)">
           <File Id="nc5pal2.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\nc5pal2.reg" />
         </Component>
-        <Component Id="Rodion_Doroshkevich.reg_1" Guid="D56D4418-8BF7-4B4A-8658-716BCC0D3BA3">
+        <Component Id="Rodion_Doroshkevich.reg_1" Guid="D56D4418-8BF7-4B4A-8658-716BCC0D3BA3" Win64="$(var.Win64)">
           <File Id="Rodion_Doroshkevich.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Rodion_Doroshkevich.reg" />
         </Component>
-        <Component Id="VaxColors.reg_1" Guid="F97C08C2-33D0-4879-B1DD-ACB8B472A463">
+        <Component Id="VaxColors.reg_1" Guid="F97C08C2-33D0-4879-B1DD-ACB8B472A463" Win64="$(var.Win64)">
           <File Id="VaxColors.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.reg" />
         </Component>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
-        <Component Id="Default_Highlighting" Guid="186825D4-12C5-40FA-BB3B-F76C7E4B96DA" KeyPath="yes">
+        <Component Id="Default_Highlighting" Guid="186825D4-12C5-40FA-BB3B-F76C7E4B96DA" KeyPath="yes" Win64="$(var.Win64)">
           <CreateFolder />
         </Component>
 <?endif?>
       </Directory>
     </Directory>
     <Directory Id="Macros" Name="Macros">
-      <Component Id="AltBS.reg" Guid="E000578B-55DE-4F91-B1BB-570C266EBB69">
+      <Component Id="AltBS.reg" Guid="E000578B-55DE-4F91-B1BB-570C266EBB69" Win64="$(var.Win64)">
         <File Id="AltBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltBS.reg" />
       </Component>
-      <Component Id="AltDown.reg" Guid="C582F414-FA46-4F84-911E-CA773106850F">
+      <Component Id="AltDown.reg" Guid="C582F414-FA46-4F84-911E-CA773106850F" Win64="$(var.Win64)">
         <File Id="AltDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltDown.reg" />
       </Component>
-      <Component Id="AltMenu.reg" Guid="7B2CA6ED-248B-43BF-9362-99CDE784400E">
+      <Component Id="AltMenu.reg" Guid="7B2CA6ED-248B-43BF-9362-99CDE784400E" Win64="$(var.Win64)">
         <File Id="AltMenu.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.reg" />
       </Component>
-      <Component Id="AltScreens.reg" Guid="576936D0-1995-405F-ABD3-7A46D26D2D61">
+      <Component Id="AltScreens.reg" Guid="576936D0-1995-405F-ABD3-7A46D26D2D61" Win64="$(var.Win64)">
         <File Id="AltScreens.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.reg" />
       </Component>
-      <Component Id="AltSearch.reg" Guid="73437A02-7140-46EE-9D33-54B5D8402ED1">
+      <Component Id="AltSearch.reg" Guid="73437A02-7140-46EE-9D33-54B5D8402ED1" Win64="$(var.Win64)">
         <File Id="AltSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.reg" />
       </Component>
-      <Component Id="AltX.reg" Guid="1C9508F7-82C2-4BB5-949E-D4752D4E9472">
+      <Component Id="AltX.reg" Guid="1C9508F7-82C2-4BB5-949E-D4752D4E9472" Win64="$(var.Win64)">
         <File Id="AltX.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.reg" />
       </Component>
-      <Component Id="Apps.reg" Guid="682490A7-AAEA-4AEE-B33B-E2F1693D98F1">
+      <Component Id="Apps.reg" Guid="682490A7-AAEA-4AEE-B33B-E2F1693D98F1" Win64="$(var.Win64)">
         <File Id="Apps.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Apps.reg" />
       </Component>
-      <Component Id="BS.reg" Guid="FA7FEF06-D69B-4D64-9A48-851ECF4524D7">
+      <Component Id="BS.reg" Guid="FA7FEF06-D69B-4D64-9A48-851ECF4524D7" Win64="$(var.Win64)">
         <File Id="BS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\BS.reg" />
       </Component>
-      <Component Id="CtrlDel.reg" Guid="8E752C6E-E083-4E65-8661-7F8A10036CEA">
+      <Component Id="CtrlDel.reg" Guid="8E752C6E-E083-4E65-8661-7F8A10036CEA" Win64="$(var.Win64)">
         <File Id="CtrlDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.reg" />
       </Component>
-      <Component Id="CtrlF10.reg" Guid="2B08E9A2-69B5-47A3-9DB8-3AAC71EC1FE3">
+      <Component Id="CtrlF10.reg" Guid="2B08E9A2-69B5-47A3-9DB8-3AAC71EC1FE3" Win64="$(var.Win64)">
         <File Id="CtrlF10.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.reg" />
       </Component>
-      <Component Id="CtrlIns_reg" Guid="943BF449-9B8C-4270-AB63-E91C7C631948">
+      <Component Id="CtrlIns_reg" Guid="943BF449-9B8C-4270-AB63-E91C7C631948" Win64="$(var.Win64)">
         <File Id="CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlIns...reg" />
       </Component>
-      <Component Id="CtrlLeft.reg" Guid="2168674D-B78F-4ECF-A781-C6D08FA8BA02">
+      <Component Id="CtrlLeft.reg" Guid="2168674D-B78F-4ECF-A781-C6D08FA8BA02" Win64="$(var.Win64)">
         <File Id="CtrlLeft.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlLeft.reg" />
       </Component>
-      <Component Id="CtrlQ.reg" Guid="72697BCB-3878-4B44-BC55-A3E284F94461">
+      <Component Id="CtrlQ.reg" Guid="72697BCB-3878-4B44-BC55-A3E284F94461" Win64="$(var.Win64)">
         <File Id="CtrlQ.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlQ.reg" />
       </Component>
-      <Component Id="CtrlRight.reg" Guid="C12D042A-4B9F-48CC-AEF2-C8C8B1E7A413">
+      <Component Id="CtrlRight.reg" Guid="C12D042A-4B9F-48CC-AEF2-C8C8B1E7A413" Win64="$(var.Win64)">
         <File Id="CtrlRight.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlRight.reg" />
       </Component>
-      <Component Id="CtrlS.reg" Guid="B8B46117-4246-473E-A01E-99A20C0679F5">
+      <Component Id="CtrlS.reg" Guid="B8B46117-4246-473E-A01E-99A20C0679F5" Win64="$(var.Win64)">
         <File Id="CtrlS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlS.reg" />
       </Component>
-      <Component Id="CtrlShiftBackSlash.reg" Guid="7EC16289-3512-4AB4-A958-5DE671758DE4">
+      <Component Id="CtrlShiftBackSlash.reg" Guid="7EC16289-3512-4AB4-A958-5DE671758DE4" Win64="$(var.Win64)">
         <File Id="CtrlShiftBackSlash.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlShiftBackSlash.reg" />
       </Component>
-      <Component Id="CtrlShiftPgUpDn.reg" Guid="0AE3850E-DB6D-42F2-A4E6-C4E1D0E592B8">
+      <Component Id="CtrlShiftPgUpDn.reg" Guid="0AE3850E-DB6D-42F2-A4E6-C4E1D0E592B8" Win64="$(var.Win64)">
         <File Id="CtrlShiftPgUpDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlShiftPgUpDn.reg" />
       </Component>
-      <Component Id="CtrlUpDown.reg" Guid="77A1F00B-2B5D-4B0E-8A33-80392A7470E8">
+      <Component Id="CtrlUpDown.reg" Guid="77A1F00B-2B5D-4B0E-8A33-80392A7470E8" Win64="$(var.Win64)">
         <File Id="CtrlUpDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlUpDown.reg" />
       </Component>
-      <Component Id="CtrlW.reg" Guid="473B7B65-994F-4338-97F1-CA8DF91646B6">
+      <Component Id="CtrlW.reg" Guid="473B7B65-994F-4338-97F1-CA8DF91646B6" Win64="$(var.Win64)">
         <File Id="CtrlW.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlW.reg" />
       </Component>
-      <Component Id="Del.reg" Guid="531327CD-964C-495B-B3C6-6CCA5B81573A">
+      <Component Id="Del.reg" Guid="531327CD-964C-495B-B3C6-6CCA5B81573A" Win64="$(var.Win64)">
         <File Id="Del.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Del.reg" />
       </Component>
-      <Component Id="Descript.ion_6" Guid="F5D649FA-3A1E-405C-AF69-EFFB57BB5152">
+      <Component Id="Descript.ion_6" Guid="F5D649FA-3A1E-405C-AF69-EFFB57BB5152" Win64="$(var.Win64)">
         <File Id="Descript.ion_6" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Descript.ion" />
       </Component>
-      <Component Id="Esc.reg" Guid="694AF305-5A34-4F30-9607-755CBDA2BDDB">
+      <Component Id="Esc.reg" Guid="694AF305-5A34-4F30-9607-755CBDA2BDDB" Win64="$(var.Win64)">
         <File Id="Esc.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Esc.reg" />
       </Component>
-      <Component Id="F3.reg" Guid="4DC036B0-93AC-4D31-829B-B4D4F8BE22CA">
+      <Component Id="F3.reg" Guid="4DC036B0-93AC-4D31-829B-B4D4F8BE22CA" Win64="$(var.Win64)">
         <File Id="F3.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.reg" />
       </Component>
-      <Component Id="F9DeactivateMenu.reg" Guid="2C2E96C1-5573-4ABB-BA55-CF2CFC51EC76">
+      <Component Id="F9DeactivateMenu.reg" Guid="2C2E96C1-5573-4ABB-BA55-CF2CFC51EC76" Win64="$(var.Win64)">
         <File Id="F9DeactivateMenu.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.reg" />
       </Component>
-      <Component Id="F9Table.reg" Guid="03AB8273-BA96-4215-BCB7-91B42DD30B7B">
+      <Component Id="F9Table.reg" Guid="03AB8273-BA96-4215-BCB7-91B42DD30B7B" Win64="$(var.Win64)">
         <File Id="F9Table.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.reg" />
       </Component>
-      <Component Id="JumpToSelectedFile.reg" Guid="DB1AAC16-23C2-474C-8FF9-26AED7EE368D">
+      <Component Id="JumpToSelectedFile.reg" Guid="DB1AAC16-23C2-474C-8FF9-26AED7EE368D" Win64="$(var.Win64)">
         <File Id="JumpToSelectedFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\JumpToSelectedFile.reg" />
       </Component>
-      <Component Id="Lynx_mot.reg" Guid="4C59AC7F-D9B2-4997-B17B-54AC4B8B96E9">
+      <Component Id="Lynx_mot.reg" Guid="4C59AC7F-D9B2-4997-B17B-54AC4B8B96E9" Win64="$(var.Win64)">
         <File Id="Lynx_mot.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Lynx-mot.reg" />
       </Component>
-      <Component Id="MacroConsts.reg" Guid="4359DB73-EF43-433A-89C3-D519B1A6905C">
+      <Component Id="MacroConsts.reg" Guid="4359DB73-EF43-433A-89C3-D519B1A6905C" Win64="$(var.Win64)">
         <File Id="MacroConsts.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MacroConsts.reg" />
       </Component>
-      <Component Id="MiddleClickAsEnter.reg" Guid="2BC60F25-77B6-421E-9562-874780C106C6">
+      <Component Id="MiddleClickAsEnter.reg" Guid="2BC60F25-77B6-421E-9562-874780C106C6" Win64="$(var.Win64)">
         <File Id="MiddleClickAsEnter.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MiddleClickAsEnter.reg" />
       </Component>
-      <Component Id="MouseWheelTilt.reg" Guid="3E4C5B89-81F5-4B7E-B68B-D16014221FEB">
+      <Component Id="MouseWheelTilt.reg" Guid="3E4C5B89-81F5-4B7E-B68B-D16014221FEB" Win64="$(var.Win64)">
         <File Id="MouseWheelTilt.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MouseWheelTilt.reg" />
       </Component>
-      <Component Id="Notepad.reg" Guid="63EA6074-D82D-4AD1-A086-45B89FF7CB3C">
+      <Component Id="Notepad.reg" Guid="63EA6074-D82D-4AD1-A086-45B89FF7CB3C" Win64="$(var.Win64)">
         <File Id="Notepad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Notepad.reg" />
       </Component>
-      <Component Id="Numpad.reg" Guid="DFAB7F01-C39F-4B11-9DBC-E1CC542CA8ED">
+      <Component Id="Numpad.reg" Guid="DFAB7F01-C39F-4B11-9DBC-E1CC542CA8ED" Win64="$(var.Win64)">
         <File Id="Numpad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Numpad.reg" />
       </Component>
-      <Component Id="OpeningLastFile.reg" Guid="2E71BEDE-1DAA-4C70-A324-86FA7B590871">
+      <Component Id="OpeningLastFile.reg" Guid="2E71BEDE-1DAA-4C70-A324-86FA7B590871" Win64="$(var.Win64)">
         <File Id="OpeningLastFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.reg" />
       </Component>
-      <Component Id="ShiftBS.reg" Guid="19800F6A-9153-4985-9E4F-F8D6CED18885">
+      <Component Id="ShiftBS.reg" Guid="19800F6A-9153-4985-9E4F-F8D6CED18885" Win64="$(var.Win64)">
         <File Id="ShiftBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.reg" />
       </Component>
-      <Component Id="ShiftF1.reg" Guid="9F2F366D-7054-487D-B2FE-5FFB638E3289">
+      <Component Id="ShiftF1.reg" Guid="9F2F366D-7054-487D-B2FE-5FFB638E3289" Win64="$(var.Win64)">
         <File Id="ShiftF1.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.reg" />
       </Component>
-      <Component Id="ShiftInsSearch.reg" Guid="715F14C3-039A-4B98-A672-F5CB1860FC6C">
+      <Component Id="ShiftInsSearch.reg" Guid="715F14C3-039A-4B98-A672-F5CB1860FC6C" Win64="$(var.Win64)">
         <File Id="ShiftInsSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftInsSearch.reg" />
       </Component>
-      <Component Id="ShiftTab.reg" Guid="00902B67-B402-4581-9917-A6E1932F97E4">
+      <Component Id="ShiftTab.reg" Guid="00902B67-B402-4581-9917-A6E1932F97E4" Win64="$(var.Win64)">
         <File Id="ShiftTab.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.reg" />
       </Component>
-      <Component Id="Space.reg" Guid="DDD9DC1C-0983-4BDA-8F3D-D5E461FD1946">
+      <Component Id="Space.reg" Guid="DDD9DC1C-0983-4BDA-8F3D-D5E461FD1946" Win64="$(var.Win64)">
         <File Id="Space.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Space.reg" />
       </Component>
-      <Component Id="SwitchMainLanguage.reg" Guid="B807B85A-5101-4D35-8F2A-06CFD6F518F1">
+      <Component Id="SwitchMainLanguage.reg" Guid="B807B85A-5101-4D35-8F2A-06CFD6F518F1" Win64="$(var.Win64)">
         <File Id="SwitchMainLanguage.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\SwitchMainLanguage.reg" />
       </Component>
-      <Component Id="View.PgDn.reg" Guid="BC7AA4A0-66D3-4EA6-9701-002CEEEA9AE2">
+      <Component Id="View.PgDn.reg" Guid="BC7AA4A0-66D3-4EA6-9701-002CEEEA9AE2" Win64="$(var.Win64)">
         <File Id="View.PgDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.reg" />
       </Component>
-      <Component Id="View.Space.reg" Guid="454C5AA1-5289-41D5-83E2-AB2258D6A7A9">
+      <Component Id="View.Space.reg" Guid="454C5AA1-5289-41D5-83E2-AB2258D6A7A9" Win64="$(var.Win64)">
         <File Id="View.Space.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.reg" />
       </Component>
-      <Component Id="ViewerAddSubstract.reg" Guid="161C1320-F5E6-45C4-B7A0-A594C086CC9E">
+      <Component Id="ViewerAddSubstract.reg" Guid="161C1320-F5E6-45C4-B7A0-A594C086CC9E" Win64="$(var.Win64)">
         <File Id="ViewerAddSubstract.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ViewerAddSubstract.reg" />
       </Component>
-      <Component Id="WheelScreenSwitch.reg" Guid="4AB2CADF-61CC-4FA6-8E6E-19CB775E2769">
+      <Component Id="WheelScreenSwitch.reg" Guid="4AB2CADF-61CC-4FA6-8E6E-19CB775E2769" Win64="$(var.Win64)">
         <File Id="WheelScreenSwitch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.reg" />
       </Component>
     </Directory>
     <Directory Id="SetUp" Name="SetUp">
-      <Component Id="Default165.reg" Guid="87E6DCA0-51CF-42F5-BB22-7909604A3A86">
+      <Component Id="Default165.reg" Guid="87E6DCA0-51CF-42F5-BB22-7909604A3A86" Win64="$(var.Win64)">
         <File Id="Default165.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Default165.reg" />
       </Component>
-      <Component Id="Descript.ion_7" Guid="E1F1A004-7B42-4D8F-939A-534A2EE5CC1D">
+      <Component Id="Descript.ion_7" Guid="E1F1A004-7B42-4D8F-939A-534A2EE5CC1D" Win64="$(var.Win64)">
         <File Id="Descript.ion_7" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Descript.ion" />
       </Component>
-      <Component Id="Executor.4NT.reg" Guid="22C3A464-BCBE-4FDC-8D88-86498C42B362">
+      <Component Id="Executor.4NT.reg" Guid="22C3A464-BCBE-4FDC-8D88-86498C42B362" Win64="$(var.Win64)">
         <File Id="Executor.4NT.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.4NT.reg" />
       </Component>
-      <Component Id="Executor.CMD.reg" Guid="76FB9A14-68DB-4ABA-94C8-903765323F44">
+      <Component Id="Executor.CMD.reg" Guid="76FB9A14-68DB-4ABA-94C8-903765323F44" Win64="$(var.Win64)">
         <File Id="Executor.CMD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.reg" />
       </Component>
 <?if $(var.Branch) = 1 ?>
-      <Component Id="Executor.COMMAND.reg" Guid="14ED2FC3-8358-4540-9CD1-B685A12A0A5F">
+      <Component Id="Executor.COMMAND.reg" Guid="14ED2FC3-8358-4540-9CD1-B685A12A0A5F" Win64="$(var.Win64)">
         <File Id="Executor.COMMAND.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.reg" />
       </Component>
 <?endif?>
-      <Component Id="WindowsGUI.reg" Guid="F2D83C3C-0616-4788-97ED-EE24F5848A44">
+      <Component Id="WindowsGUI.reg" Guid="F2D83C3C-0616-4788-97ED-EE24F5848A44" Win64="$(var.Win64)">
         <File Id="WindowsGUI.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.reg" />
       </Component>
     </Directory>
     <Directory Id="Shell" Name="Shell">
-      <Component Id="Descript.ion_8" Guid="FEFDF998-397A-4677-8AF3-3DF41E222750">
+      <Component Id="Descript.ion_8" Guid="FEFDF998-397A-4677-8AF3-3DF41E222750" Win64="$(var.Win64)">
         <File Id="Descript.ion_8" KeyPath="yes" Source="$(var.SourceDir)\Addons\Shell\Descript.ion" />
       </Component>
-      <Component Id="FARHere.inf" Guid="D992822B-35C7-41B5-9178-973EDFA90D2E">
+      <Component Id="FARHere.inf" Guid="D992822B-35C7-41B5-9178-973EDFA90D2E" Win64="$(var.Win64)">
         <File Id="FARHere.inf" KeyPath="yes" Source="$(var.SourceDir)\Addons\Shell\FARHere.inf" />
       </Component>
     </Directory>
 <?if $(var.Branch) = 1 ?>
     <Directory Id="Tables" Name="Tables">
-      <Component Id="Descript.ion_9" Guid="983534F6-AA02-489A-BA59-76966E7E2F12">
+      <Component Id="Descript.ion_9" Guid="983534F6-AA02-489A-BA59-76966E7E2F12" Win64="$(var.Win64)">
         <File Id="Descript.ion_9" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Descript.ion" />
       </Component>
-      <Component Id="README.TXT_2" Guid="ED1877D0-1E67-4EA2-8582-50B3213CEE90">
+      <Component Id="README.TXT_2" Guid="ED1877D0-1E67-4EA2-8582-50B3213CEE90" Win64="$(var.Win64)">
         <File Id="README.TXT_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\README.TXT" />
       </Component>
       <Directory Id="Central_European" Name="Central European">
-        <Component Id="Czech___CP_895__Kamenicti_.reg" Guid="4BEA7DC8-8B1B-422C-B99B-7BD54D2B394A">
+        <Component Id="Czech___CP_895__Kamenicti_.reg" Guid="4BEA7DC8-8B1B-422C-B99B-7BD54D2B394A" Win64="$(var.Win64)">
           <File Id="Czech___CP_895__Kamenicti_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\Czech - CP-895 (Kamenicti).reg" />
         </Component>
-        <Component Id="Descript.ion_10" Guid="065ED148-5C02-4900-86C8-7F4DFB76CA04">
+        <Component Id="Descript.ion_10" Guid="065ED148-5C02-4900-86C8-7F4DFB76CA04" Win64="$(var.Win64)">
           <File Id="Descript.ion_10" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\Descript.ion" />
         </Component>
-        <Component Id="Hungarian___CWI.reg" Guid="38D5D970-5C5E-4F2C-ACE2-A062FBAAC1CF">
+        <Component Id="Hungarian___CWI.reg" Guid="38D5D970-5C5E-4F2C-ACE2-A062FBAAC1CF" Win64="$(var.Win64)">
           <File Id="Hungarian___CWI.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\Hungarian - CWI.reg" />
         </Component>
-        <Component Id="ISO_8859_2__Latin_II_.reg" Guid="9C249A63-1946-474D-B5E2-32C6FCB75C40">
+        <Component Id="ISO_8859_2__Latin_II_.reg" Guid="9C249A63-1946-474D-B5E2-32C6FCB75C40" Win64="$(var.Win64)">
           <File Id="ISO_8859_2__Latin_II_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\ISO-8859-2 (Latin II).reg" />
         </Component>
-        <Component Id="Polish___CP_896__Mazovia_.reg" Guid="5722EFDB-2C07-4B2E-A4D7-754587E3DDF3">
+        <Component Id="Polish___CP_896__Mazovia_.reg" Guid="5722EFDB-2C07-4B2E-A4D7-754587E3DDF3" Win64="$(var.Win64)">
           <File Id="Polish___CP_896__Mazovia_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\Polish - CP-896 (Mazovia).reg" />
         </Component>
-        <Component Id="Windows_1250.reg" Guid="FB39BCEF-5098-4896-9153-D9F1EF07ECAE">
+        <Component Id="Windows_1250.reg" Guid="FB39BCEF-5098-4896-9153-D9F1EF07ECAE" Win64="$(var.Win64)">
           <File Id="Windows_1250.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Central European\Windows-1250.reg" />
         </Component>
       </Directory>
       <Directory Id="Cyrillic" Name="Cyrillic">
-        <Component Id="Bulgarian_MIC.reg" Guid="E0E3BC51-51AF-43C2-9308-0E3D6B2A0BDC">
+        <Component Id="Bulgarian_MIC.reg" Guid="E0E3BC51-51AF-43C2-9308-0E3D6B2A0BDC" Win64="$(var.Win64)">
           <File Id="Bulgarian_MIC.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Bulgarian-MIC.reg" />
         </Component>
-        <Component Id="Descript.ion_11" Guid="186AC847-C7C1-490F-9469-4C67A669838F">
+        <Component Id="Descript.ion_11" Guid="186AC847-C7C1-490F-9469-4C67A669838F" Win64="$(var.Win64)">
           <File Id="Descript.ion_11" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Descript.ion" />
         </Component>
-        <Component Id="Dist.Rus.reg" Guid="AD1B964F-87C3-4258-9E18-EBC67147E12B">
+        <Component Id="Dist.Rus.reg" Guid="AD1B964F-87C3-4258-9E18-EBC67147E12B" Win64="$(var.Win64)">
           <File Id="Dist.Rus.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Dist.Rus.reg" />
         </Component>
-        <Component Id="Dist.Ukr.reg" Guid="6704694F-227E-402E-82AE-8753D680F4E5">
+        <Component Id="Dist.Ukr.reg" Guid="6704694F-227E-402E-82AE-8753D680F4E5" Win64="$(var.Win64)">
           <File Id="Dist.Ukr.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Dist.Ukr.reg" />
         </Component>
-        <Component Id="DKOI8__Mainframe_.reg" Guid="BC5F9A86-9869-43F8-B08A-4F96EA106BA1">
+        <Component Id="DKOI8__Mainframe_.reg" Guid="BC5F9A86-9869-43F8-B08A-4F96EA106BA1" Win64="$(var.Win64)">
           <File Id="DKOI8__Mainframe_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\DKOI8 (Mainframe).reg" />
         </Component>
-        <Component Id="DM__Amiga_.reg" Guid="120DA114-0356-460B-B1F8-59832237EDEF">
+        <Component Id="DM__Amiga_.reg" Guid="120DA114-0356-460B-B1F8-59832237EDEF" Win64="$(var.Win64)">
           <File Id="DM__Amiga_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\DM (Amiga).reg" />
         </Component>
-        <Component Id="ISO_8859_5.reg" Guid="9CC4AB67-5766-4691-B0D0-4974CD9C32B0">
+        <Component Id="ISO_8859_5.reg" Guid="9CC4AB67-5766-4691-B0D0-4974CD9C32B0" Win64="$(var.Win64)">
           <File Id="ISO_8859_5.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\ISO-8859-5.reg" />
         </Component>
-        <Component Id="KOI8_R.reg" Guid="C056365B-1B91-4E07-B2BF-F2E86744F4DC">
+        <Component Id="KOI8_R.reg" Guid="C056365B-1B91-4E07-B2BF-F2E86744F4DC" Win64="$(var.Win64)">
           <File Id="KOI8_R.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\KOI8-R.reg" />
         </Component>
-        <Component Id="KOI8_U.reg" Guid="11A46B4A-2164-49A5-A69D-DA6488410FB5">
+        <Component Id="KOI8_U.reg" Guid="11A46B4A-2164-49A5-A69D-DA6488410FB5" Win64="$(var.Win64)">
           <File Id="KOI8_U.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\KOI8-U.reg" />
         </Component>
-        <Component Id="Macintosh_Standard.reg" Guid="C105B7AF-1004-4D77-AE37-D57C720575F2">
+        <Component Id="Macintosh_Standard.reg" Guid="C105B7AF-1004-4D77-AE37-D57C720575F2" Win64="$(var.Win64)">
           <File Id="Macintosh_Standard.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Macintosh Standard.reg" />
         </Component>
-        <Component Id="RUSCII__GOST_Ukrainian_.reg" Guid="BEFE728F-EC81-4720-9F5A-375951E4ADF8">
+        <Component Id="RUSCII__GOST_Ukrainian_.reg" Guid="BEFE728F-EC81-4720-9F5A-375951E4ADF8" Win64="$(var.Win64)">
           <File Id="RUSCII__GOST_Ukrainian_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\RUSCII (GOST Ukrainian).reg" />
         </Component>
-        <Component Id="Windows_1251.reg" Guid="8CFE7AAD-F1A7-4F31-84DD-C35C38E723B9">
+        <Component Id="Windows_1251.reg" Guid="8CFE7AAD-F1A7-4F31-84DD-C35C38E723B9" Win64="$(var.Win64)">
           <File Id="Windows_1251.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\Windows-1251.reg" />
         </Component>
         <Directory Id="E_Mail_Double_Conversion" Name="E-Mail Double Conversion">
-          <Component Id="Descript.ion_12" Guid="36B70EED-CA54-4E4B-982A-125FC35C5FE4">
+          <Component Id="Descript.ion_12" Guid="36B70EED-CA54-4E4B-982A-125FC35C5FE4" Win64="$(var.Win64)">
             <File Id="Descript.ion_12" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Descript.ion" />
           </Component>
-          <Component Id="Email_DKWD.reg" Guid="369DC921-0F7F-41FB-A414-228FE9D4F844">
+          <Component Id="Email_DKWD.reg" Guid="369DC921-0F7F-41FB-A414-228FE9D4F844" Win64="$(var.Win64)">
             <File Id="Email_DKWD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Email DKWD.reg" />
           </Component>
-          <Component Id="Email_DWKD.reg" Guid="3B3CC97D-ADBF-4D26-AAA2-2422D683F6FC">
+          <Component Id="Email_DWKD.reg" Guid="3B3CC97D-ADBF-4D26-AAA2-2422D683F6FC" Win64="$(var.Win64)">
             <File Id="Email_DWKD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Email DWKD.reg" />
           </Component>
-          <Component Id="Email_KWKD.reg" Guid="1EC6519E-52A2-413D-9E63-BB5EEF052826">
+          <Component Id="Email_KWKD.reg" Guid="1EC6519E-52A2-413D-9E63-BB5EEF052826" Win64="$(var.Win64)">
             <File Id="Email_KWKD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Email KWKD.reg" />
           </Component>
-          <Component Id="Email_WK.reg" Guid="D4F236F1-3DC0-431B-818B-BF4733C3706B">
+          <Component Id="Email_WK.reg" Guid="D4F236F1-3DC0-431B-818B-BF4733C3706B" Win64="$(var.Win64)">
             <File Id="Email_WK.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Email WK.reg" />
           </Component>
-          <Component Id="Email_WKWD.reg" Guid="E19A5E62-51A5-4B43-B539-E09F10263E57">
+          <Component Id="Email_WKWD.reg" Guid="E19A5E62-51A5-4B43-B539-E09F10263E57" Win64="$(var.Win64)">
             <File Id="Email_WKWD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\Email WKWD.reg" />
           </Component>
-          <Component Id="readme.txt_3" Guid="B537D761-2F24-415F-9D00-5E0CC6D5CC92">
+          <Component Id="readme.txt_3" Guid="B537D761-2F24-415F-9D00-5E0CC6D5CC92" Win64="$(var.Win64)">
             <File Id="readme.txt_3" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Cyrillic\E-Mail Double Conversion\readme.txt" />
           </Component>
         </Directory>
       </Directory>
       <Directory Id="Hebrew" Name="Hebrew">
-        <Component Id="Descript.ion_13" Guid="F4A3C770-5420-427C-BDDD-1BA3C1A2A5F3">
+        <Component Id="Descript.ion_13" Guid="F4A3C770-5420-427C-BDDD-1BA3C1A2A5F3" Win64="$(var.Win64)">
           <File Id="Descript.ion_13" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Hebrew\Descript.ion" />
         </Component>
-        <Component Id="Windows_1255.reg" Guid="4BCCD707-A1D4-4922-A8B8-3887BD599D0B">
+        <Component Id="Windows_1255.reg" Guid="4BCCD707-A1D4-4922-A8B8-3887BD599D0B" Win64="$(var.Win64)">
           <File Id="Windows_1255.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Hebrew\Windows-1255.reg" />
         </Component>
       </Directory>
       <Directory Id="Western_European" Name="Western European">
-        <Component Id="Descript.ion_14" Guid="7D221333-A7C0-4EBE-B768-D0C101F4BF33">
+        <Component Id="Descript.ion_14" Guid="7D221333-A7C0-4EBE-B768-D0C101F4BF33" Win64="$(var.Win64)">
           <File Id="Descript.ion_14" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Western European\Descript.ion" />
         </Component>
-        <Component Id="Dist.Ger.reg" Guid="4D2891E1-787D-49FF-9939-E151278B12F3">
+        <Component Id="Dist.Ger.reg" Guid="4D2891E1-787D-49FF-9939-E151278B12F3" Win64="$(var.Win64)">
           <File Id="Dist.Ger.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Western European\Dist.Ger.reg" />
         </Component>
-        <Component Id="ISO_8859_1__Latin_I_.reg" Guid="E19775DD-9EE4-4876-8E7A-46A2E0CD2383">
+        <Component Id="ISO_8859_1__Latin_I_.reg" Guid="E19775DD-9EE4-4876-8E7A-46A2E0CD2383" Win64="$(var.Win64)">
           <File Id="ISO_8859_1__Latin_I_.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Western European\ISO-8859-1 (Latin I).reg" />
         </Component>
-        <Component Id="Macintosh_Standard.reg_1" Guid="B9C23A0E-098A-4FD0-908C-0F705478E27E">
+        <Component Id="Macintosh_Standard.reg_1" Guid="B9C23A0E-098A-4FD0-908C-0F705478E27E" Win64="$(var.Win64)">
           <File Id="Macintosh_Standard.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Western European\Macintosh Standard.reg" />
         </Component>
-        <Component Id="Windows_1252.reg" Guid="D0271181-00E0-4ED1-AF44-5F0259EB4754">
+        <Component Id="Windows_1252.reg" Guid="D0271181-00E0-4ED1-AF44-5F0259EB4754" Win64="$(var.Win64)">
           <File Id="Windows_1252.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Tables\Western European\Windows-1252.reg" />
         </Component>
       </Directory>
     </Directory>
 <?endif?>
     <Directory Id="XLat" Name="XLat">
-      <Component Id="Descript.ion_15" Guid="7D0E7DC7-4758-47C0-BB9F-AA1F93D8A693">
+      <Component Id="Descript.ion_15" Guid="7D0E7DC7-4758-47C0-BB9F-AA1F93D8A693" Win64="$(var.Win64)">
         <File Id="Descript.ion_15" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Descript.ion" />
       </Component>
       <Directory Id="Russian" Name="Russian">
-        <Component Id="AltR.reg" Guid="4905CE6F-0220-4161-A8FB-B80F3E210BB6">
+        <Component Id="AltR.reg" Guid="4905CE6F-0220-4161-A8FB-B80F3E210BB6" Win64="$(var.Win64)">
           <File Id="AltR.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.reg" />
         </Component>
-        <Component Id="Apps.reg_1" Guid="FB4C0AD2-5817-46EE-9C42-7684CB2A5403">
+        <Component Id="Apps.reg_1" Guid="FB4C0AD2-5817-46EE-9C42-7684CB2A5403" Win64="$(var.Win64)">
           <File Id="Apps.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.reg" />
         </Component>
-        <Component Id="CtrlR.reg" Guid="39FD0907-7CC5-47B5-AEB0-A2052290B84D">
+        <Component Id="CtrlR.reg" Guid="39FD0907-7CC5-47B5-AEB0-A2052290B84D" Win64="$(var.Win64)">
           <File Id="CtrlR.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.reg" />
         </Component>
-        <Component Id="CtrlShiftX.reg" Guid="850416A8-27EE-40AC-9C8F-5A95E120B470">
+        <Component Id="CtrlShiftX.reg" Guid="850416A8-27EE-40AC-9C8F-5A95E120B470" Win64="$(var.Win64)">
           <File Id="CtrlShiftX.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.reg" />
         </Component>
-        <Component Id="Descript.ion_16" Guid="57B52D10-4B22-4622-BA45-8EBD81508E42">
+        <Component Id="Descript.ion_16" Guid="57B52D10-4B22-4622-BA45-8EBD81508E42" Win64="$(var.Win64)">
           <File Id="Descript.ion_16" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Descript.ion" />
         </Component>
-        <Component Id="Qwerty.reg" Guid="FA7CE3EC-3D97-42AE-A34B-6DFE8BB0C0A7">
+        <Component Id="Qwerty.reg" Guid="FA7CE3EC-3D97-42AE-A34B-6DFE8BB0C0A7" Win64="$(var.Win64)">
           <File Id="Qwerty.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Qwerty.reg" />
         </Component>
       </Directory>
@@ -556,671 +556,671 @@
   </Directory>
   <Directory Id="Documentation" Name="Documentation">
     <Directory Id="eng" Name="eng">
-      <Component Id="Arc.Support.txt" Guid="AF5E77BA-39E4-473E-8489-1A8CD5C44E9D">
+      <Component Id="Arc.Support.txt" Guid="AF5E77BA-39E4-473E-8489-1A8CD5C44E9D" Win64="$(var.Win64)">
         <File Id="Arc.Support.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Arc.Support.txt" />
       </Component>
-      <Component Id="Bug.Report.txt" Guid="C0130553-F016-47C1-912F-95EF46C9AC2E">
+      <Component Id="Bug.Report.txt" Guid="C0130553-F016-47C1-912F-95EF46C9AC2E" Win64="$(var.Win64)">
         <File Id="Bug.Report.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Bug.Report.txt" />
       </Component>
 <?if $(var.Branch) = 1 ?>
-      <Component Id="Descript.ion_17" Guid="B690F0FA-8B26-4314-8867-DE24A1880C56">
+      <Component Id="Descript.ion_17" Guid="B690F0FA-8B26-4314-8867-DE24A1880C56" Win64="$(var.Win64)">
         <File Id="Descript.ion_17" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Descript.ion" />
       </Component>
 <?endif?>
-      <Component Id="Far.FAQ.txt" Guid="FD85399B-248C-477C-A99D-A2D987B613D4">
+      <Component Id="Far.FAQ.txt" Guid="FD85399B-248C-477C-A99D-A2D987B613D4" Win64="$(var.Win64)">
         <File Id="Far.FAQ.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Far.FAQ.txt" />
       </Component>
-      <Component Id="Plugins.Install.txt" Guid="808EF198-444F-46FB-93E3-11AB5550F579">
+      <Component Id="Plugins.Install.txt" Guid="808EF198-444F-46FB-93E3-11AB5550F579" Win64="$(var.Win64)">
         <File Id="Plugins.Install.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Plugins.Install.txt" />
       </Component>
-      <Component Id="Plugins.Review.txt" Guid="14049486-4B14-48FF-B407-E6B362213CFD">
+      <Component Id="Plugins.Review.txt" Guid="14049486-4B14-48FF-B407-E6B362213CFD" Win64="$(var.Win64)">
         <File Id="Plugins.Review.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\Plugins.Review.txt" />
       </Component>
-      <Component Id="TechInfo.txt" Guid="00C616A9-9970-4538-8190-8E21FCDFF1F7">
+      <Component Id="TechInfo.txt" Guid="00C616A9-9970-4538-8190-8E21FCDFF1F7" Win64="$(var.Win64)">
         <File Id="TechInfo.txt" KeyPath="yes" Source="$(var.SourceDir)\Documentation\eng\TechInfo.txt" />
       </Component>
     </Directory>
     <Directory Id="rus" Name="rus">
-      <Component Id="Arc.Support.txt_1" Guid="C9F09F09-3F6E-485D-B4AA-856BA42882FE">
+      <Component Id="Arc.Support.txt_1" Guid="C9F09F09-3F6E-485D-B4AA-856BA42882FE" Win64="$(var.Win64)">
         <File Id="Arc.Support.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Arc.Support.txt" />
       </Component>
-      <Component Id="Bug.Report.txt_1" Guid="31C06A7A-8C5A-4E50-BFEB-9472A81EF4E4">
+      <Component Id="Bug.Report.txt_1" Guid="31C06A7A-8C5A-4E50-BFEB-9472A81EF4E4" Win64="$(var.Win64)">
         <File Id="Bug.Report.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Bug.Report.txt" />
       </Component>
 <?if $(var.Branch) = 1 ?>
-      <Component Id="Descript.ion_18" Guid="4D5B7845-8CBC-4A3A-83CB-BB8D376508FF">
+      <Component Id="Descript.ion_18" Guid="4D5B7845-8CBC-4A3A-83CB-BB8D376508FF" Win64="$(var.Win64)">
         <File Id="Descript.ion_18" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Descript.ion" />
       </Component>
 <?endif?>
-      <Component Id="Far.FAQ.txt_1" Guid="9C988BAA-E3D3-4717-B4AB-3E63DD66DDB5">
+      <Component Id="Far.FAQ.txt_1" Guid="9C988BAA-E3D3-4717-B4AB-3E63DD66DDB5" Win64="$(var.Win64)">
         <File Id="Far.FAQ.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Far.FAQ.txt" />
       </Component>
-      <Component Id="Plugins.Install.txt_1" Guid="32C2815C-8CEA-4D5E-AFDD-9AB07E4F812E">
+      <Component Id="Plugins.Install.txt_1" Guid="32C2815C-8CEA-4D5E-AFDD-9AB07E4F812E" Win64="$(var.Win64)">
         <File Id="Plugins.Install.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Plugins.Install.txt" />
       </Component>
-      <Component Id="Plugins.Review.txt_1" Guid="1C195075-D424-48D2-B5F5-DE6C06C61B96">
+      <Component Id="Plugins.Review.txt_1" Guid="1C195075-D424-48D2-B5F5-DE6C06C61B96" Win64="$(var.Win64)">
         <File Id="Plugins.Review.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\Plugins.Review.txt" />
       </Component>
-      <Component Id="TechInfo.txt_1" Guid="BE30C502-DF7C-4CEA-B5BB-43A6AE7D17B7">
+      <Component Id="TechInfo.txt_1" Guid="BE30C502-DF7C-4CEA-B5BB-43A6AE7D17B7" Win64="$(var.Win64)">
         <File Id="TechInfo.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\TechInfo.txt" />
       </Component>
     </Directory>
   </Directory>
   <Directory Id="Encyclopedia" Name="Encyclopedia">
-    <Component Id="FarEncyclopedia.en.chm" Guid="AA9CEED0-5E92-4C3F-BE5C-741D49C39C16">
+    <Component Id="FarEncyclopedia.en.chm" Guid="AA9CEED0-5E92-4C3F-BE5C-741D49C39C16" Win64="$(var.Win64)">
       <File Id="FarEncyclopedia.en.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.en.chm" />
     </Component>
-    <Component Id="FarEncyclopedia.ru.chm" Guid="098D9598-0AF8-424E-A431-CEBCFD38BB7D">
+    <Component Id="FarEncyclopedia.ru.chm" Guid="098D9598-0AF8-424E-A431-CEBCFD38BB7D" Win64="$(var.Win64)">
       <File Id="FarEncyclopedia.ru.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.ru.chm" />
     </Component>
   </Directory>
 <?if $(var.Platform) = x86 ?>
   <Directory Id="FExcept" Name="FExcept">
-    <Component Id="changelog_1" Guid="8C603441-2303-4AC0-8C1D-7D07F3246364">
+    <Component Id="changelog_1" Guid="8C603441-2303-4AC0-8C1D-7D07F3246364" Win64="$(var.Win64)">
       <File Id="changelog_1" KeyPath="yes" Source="$(var.SourceDir)\FExcept\changelog" />
     </Component>
-    <Component Id="demangle32.dll" Guid="EE5C033A-FD5F-4767-9F52-2DACA09658FB">
+    <Component Id="demangle32.dll" Guid="EE5C033A-FD5F-4767-9F52-2DACA09658FB" Win64="$(var.Win64)">
       <File Id="demangle32.dll" KeyPath="yes" Source="$(var.SourceDir)\FExcept\demangle32.dll" />
     </Component>
-    <Component Id="ExcDump.dll" Guid="18193CCE-EEEB-4776-88FD-03E9C720825B">
+    <Component Id="ExcDump.dll" Guid="18193CCE-EEEB-4776-88FD-03E9C720825B" Win64="$(var.Win64)">
       <File Id="ExcDump.dll" KeyPath="yes" Source="$(var.SourceDir)\FExcept\ExcDump.dll" />
     </Component>
-    <Component Id="FExcept.dll" Guid="2665788F-BFDC-456A-9160-80209A8739AB">
+    <Component Id="FExcept.dll" Guid="2665788F-BFDC-456A-9160-80209A8739AB" Win64="$(var.Win64)">
       <File Id="FExcept.dll" KeyPath="yes" Source="$(var.SourceDir)\FExcept\FExcept.dll" />
     </Component>
-    <Component Id="SetFarExceptionHandler.reg" Guid="4796BB49-4C3A-4F1F-9971-BD48E43F35A0">
+    <Component Id="SetFarExceptionHandler.reg" Guid="4796BB49-4C3A-4F1F-9971-BD48E43F35A0" Win64="$(var.Win64)">
       <File Id="SetFarExceptionHandler.reg" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.reg" />
     </Component>
   </Directory>
 <?endif?>
   <Directory Id="Plugins" Name="Plugins">
     <Directory Id="Align" Name="Align">
-      <Component Id="Align.dll" Guid="0173EDB2-1E38-456B-A1CF-20ECC29E7ED3">
+      <Component Id="Align.dll" Guid="0173EDB2-1E38-456B-A1CF-20ECC29E7ED3" Win64="$(var.Win64)">
         <File Id="Align.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\Align.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="Align.map" Guid="E4EF80A6-0905-4EB4-A335-50A56A500AD1">
+      <Component Id="Align.map" Guid="E4EF80A6-0905-4EB4-A335-50A56A500AD1" Win64="$(var.Win64)">
         <File Id="Align.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\Align.map" />
       </Component>
 <?endif?>
-      <Component Id="AlignEng.lng" Guid="570B2B41-DEF8-471E-8700-625AB934676A">
+      <Component Id="AlignEng.lng" Guid="570B2B41-DEF8-471E-8700-625AB934676A" Win64="$(var.Win64)">
         <File Id="AlignEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignEng.lng" />
       </Component>
-      <Component Id="AlignRus.lng" Guid="2CA9F0A0-F5DE-4B49-B652-5C8711A3A94F">
+      <Component Id="AlignRus.lng" Guid="2CA9F0A0-F5DE-4B49-B652-5C8711A3A94F" Win64="$(var.Win64)">
         <File Id="AlignRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignRus.lng" />
       </Component>
-      <Component Id="changelog_2" Guid="070D9E18-9F88-4027-9E5F-8E3144F94215">
+      <Component Id="changelog_2" Guid="070D9E18-9F88-4027-9E5F-8E3144F94215" Win64="$(var.Win64)">
         <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
       </Component>
     </Directory>
     <Directory Id="AutoWrap" Name="AutoWrap">
-      <Component Id="AutoWrap.dll" Guid="DD9AB6CC-C387-44F2-BF38-BB72B99AD547">
+      <Component Id="AutoWrap.dll" Guid="DD9AB6CC-C387-44F2-BF38-BB72B99AD547" Win64="$(var.Win64)">
         <File Id="AutoWrap.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\AutoWrap.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="AutoWrap.map" Guid="32374155-8408-42CF-AF4A-4EFFE8CF22BC">
+      <Component Id="AutoWrap.map" Guid="32374155-8408-42CF-AF4A-4EFFE8CF22BC" Win64="$(var.Win64)">
         <File Id="AutoWrap.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\AutoWrap.map" />
       </Component>
 <?endif?>
-      <Component Id="changelog_3" Guid="7BC97B4A-F5D2-475D-A7E7-A16A38D73A4A">
+      <Component Id="changelog_3" Guid="7BC97B4A-F5D2-475D-A7E7-A16A38D73A4A" Win64="$(var.Win64)">
         <File Id="changelog_3" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\changelog" />
       </Component>
-      <Component Id="WrapEng.lng" Guid="E0B2F0E0-5186-4C46-82A1-46B3D561F513">
+      <Component Id="WrapEng.lng" Guid="E0B2F0E0-5186-4C46-82A1-46B3D561F513" Win64="$(var.Win64)">
         <File Id="WrapEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapEng.lng" />
       </Component>
-      <Component Id="WrapRus.lng" Guid="33601474-C5D0-4EA6-9494-984622010600">
+      <Component Id="WrapRus.lng" Guid="33601474-C5D0-4EA6-9494-984622010600" Win64="$(var.Win64)">
         <File Id="WrapRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapRus.lng" />
       </Component>
     </Directory>
     <Directory Id="Brackets" Name="Brackets">
-      <Component Id="BrackDel.reg" Guid="1AB0E3C1-36C4-4926-ADAC-7B5FD4F6C18D">
+      <Component Id="BrackDel.reg" Guid="1AB0E3C1-36C4-4926-ADAC-7B5FD4F6C18D" Win64="$(var.Win64)">
         <File Id="BrackDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackDel.reg" />
       </Component>
-      <Component Id="BrackEng.hlf" Guid="D1374507-87F6-4AB0-BBC8-1425FC819565">
+      <Component Id="BrackEng.hlf" Guid="D1374507-87F6-4AB0-BBC8-1425FC819565" Win64="$(var.Win64)">
         <File Id="BrackEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.hlf" />
       </Component>
-      <Component Id="BrackEng.lng" Guid="76EA4675-FDB3-4461-A790-C5401DF81F5B">
+      <Component Id="BrackEng.lng" Guid="76EA4675-FDB3-4461-A790-C5401DF81F5B" Win64="$(var.Win64)">
         <File Id="BrackEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lng" />
       </Component>
-      <Component Id="BrackEng.reg" Guid="9FAB019A-FA7A-429F-868F-EA5F9A0C2490">
+      <Component Id="BrackEng.reg" Guid="9FAB019A-FA7A-429F-868F-EA5F9A0C2490" Win64="$(var.Win64)">
         <File Id="BrackEng.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.reg" />
       </Component>
-      <Component Id="Brackets.dll" Guid="00212787-5425-4CBF-9B1C-74A714F75F4C">
+      <Component Id="Brackets.dll" Guid="00212787-5425-4CBF-9B1C-74A714F75F4C" Win64="$(var.Win64)">
         <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="Brackets.map" Guid="88BFE852-BF5C-4614-97D2-21CE952C2122">
+      <Component Id="Brackets.map" Guid="88BFE852-BF5C-4614-97D2-21CE952C2122" Win64="$(var.Win64)">
         <File Id="Brackets.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.map" />
       </Component>
 <?endif?>
-      <Component Id="BrackRus.hlf" Guid="6759872D-97F9-48B8-A12C-5F322BC58274">
+      <Component Id="BrackRus.hlf" Guid="6759872D-97F9-48B8-A12C-5F322BC58274" Win64="$(var.Win64)">
         <File Id="BrackRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.hlf" />
       </Component>
-      <Component Id="BrackRus.lng" Guid="84DE37AB-9E43-4EAC-B9D5-B8BE21B5165D">
+      <Component Id="BrackRus.lng" Guid="84DE37AB-9E43-4EAC-B9D5-B8BE21B5165D" Win64="$(var.Win64)">
         <File Id="BrackRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lng" />
       </Component>
-      <Component Id="BrackRus.reg" Guid="B715E1D0-7685-4FCD-953E-CEF011C7BD1D">
+      <Component Id="BrackRus.reg" Guid="B715E1D0-7685-4FCD-953E-CEF011C7BD1D" Win64="$(var.Win64)">
         <File Id="BrackRus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.reg" />
       </Component>
-      <Component Id="changelog_4" Guid="4F7BA512-C64E-4882-B976-D362C28D9C26">
+      <Component Id="changelog_4" Guid="4F7BA512-C64E-4882-B976-D362C28D9C26" Win64="$(var.Win64)">
         <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
       </Component>
     </Directory>
     <Directory Id="Compare" Name="Compare">
-      <Component Id="changelog_5" Guid="2C30EE78-31F7-4FA5-8F75-CDC2DD9AAEB9">
+      <Component Id="changelog_5" Guid="2C30EE78-31F7-4FA5-8F75-CDC2DD9AAEB9" Win64="$(var.Win64)">
         <File Id="changelog_5" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\changelog" />
       </Component>
-      <Component Id="CmpEng.hlf" Guid="075B358E-9B0B-45DD-9089-A6A4772CA927">
+      <Component Id="CmpEng.hlf" Guid="075B358E-9B0B-45DD-9089-A6A4772CA927" Win64="$(var.Win64)">
         <File Id="CmpEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpEng.hlf" />
       </Component>
-      <Component Id="CmpRus.hlf" Guid="1CD27AED-489F-4B52-997E-720761389C73">
+      <Component Id="CmpRus.hlf" Guid="1CD27AED-489F-4B52-997E-720761389C73" Win64="$(var.Win64)">
         <File Id="CmpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpRus.hlf" />
       </Component>
-      <Component Id="Compare.dll" Guid="AA65174B-3307-4017-B1FD-60C2CD36F4C2">
+      <Component Id="Compare.dll" Guid="AA65174B-3307-4017-B1FD-60C2CD36F4C2" Win64="$(var.Win64)">
         <File Id="Compare.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\Compare.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="Compare.map" Guid="99204848-C893-4713-96F4-169907168E31">
+      <Component Id="Compare.map" Guid="99204848-C893-4713-96F4-169907168E31" Win64="$(var.Win64)">
         <File Id="Compare.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\Compare.map" />
       </Component>
 <?endif?>
-      <Component Id="CompEng.lng" Guid="4AB8B5E2-3F1F-4DA2-AA84-A6463086048F">
+      <Component Id="CompEng.lng" Guid="4AB8B5E2-3F1F-4DA2-AA84-A6463086048F" Win64="$(var.Win64)">
         <File Id="CompEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompEng.lng" />
       </Component>
-      <Component Id="CompRus.lng" Guid="173D22E4-E0A8-4D78-A224-F0F3C3B81120">
+      <Component Id="CompRus.lng" Guid="173D22E4-E0A8-4D78-A224-F0F3C3B81120" Win64="$(var.Win64)">
         <File Id="CompRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompRus.lng" />
       </Component>
     </Directory>
     <Directory Id="DrawLine" Name="DrawLine">
-      <Component Id="changelog_6" Guid="6F662524-2E40-4C00-AEF0-CF3101DF1989">
+      <Component Id="changelog_6" Guid="6F662524-2E40-4C00-AEF0-CF3101DF1989" Win64="$(var.Win64)">
         <File Id="changelog_6" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\changelog" />
       </Component>
-      <Component Id="DrawEng.hlf" Guid="3353404B-97E5-43F8-B1D0-C94BDE0BC761">
+      <Component Id="DrawEng.hlf" Guid="3353404B-97E5-43F8-B1D0-C94BDE0BC761" Win64="$(var.Win64)">
         <File Id="DrawEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawEng.hlf" />
       </Component>
-      <Component Id="DrawEng.lng" Guid="8278FC9C-A8FA-4EBD-B495-DB0BD9BD17B2">
+      <Component Id="DrawEng.lng" Guid="8278FC9C-A8FA-4EBD-B495-DB0BD9BD17B2" Win64="$(var.Win64)">
         <File Id="DrawEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawEng.lng" />
       </Component>
-      <Component Id="DrawLine.dll" Guid="461E574B-FBF4-4D2F-8285-A75C976F94F2">
+      <Component Id="DrawLine.dll" Guid="461E574B-FBF4-4D2F-8285-A75C976F94F2" Win64="$(var.Win64)">
         <File Id="DrawLine.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawLine.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="DrawLine.map" Guid="6412153D-5FC1-4903-A14B-F5F3AE83BB3E">
+      <Component Id="DrawLine.map" Guid="6412153D-5FC1-4903-A14B-F5F3AE83BB3E" Win64="$(var.Win64)">
         <File Id="DrawLine.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawLine.map" />
       </Component>
 <?endif?>
-      <Component Id="DrawRus.hlf" Guid="0149E3BB-CAAC-48A3-B3F0-EDFB5FC2AC1C">
+      <Component Id="DrawRus.hlf" Guid="0149E3BB-CAAC-48A3-B3F0-EDFB5FC2AC1C" Win64="$(var.Win64)">
         <File Id="DrawRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawRus.hlf" />
       </Component>
-      <Component Id="DrawRus.lng" Guid="2CF81CB1-57CB-4894-881A-CBB8CDF40B0C">
+      <Component Id="DrawRus.lng" Guid="2CF81CB1-57CB-4894-881A-CBB8CDF40B0C" Win64="$(var.Win64)">
         <File Id="DrawRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawRus.lng" />
       </Component>
     </Directory>
     <Directory Id="EditCase" Name="EditCase">
-      <Component Id="changelog_7" Guid="C48DBC26-98A5-4002-AD4D-6A687DEC2946">
+      <Component Id="changelog_7" Guid="C48DBC26-98A5-4002-AD4D-6A687DEC2946" Win64="$(var.Win64)">
         <File Id="changelog_7" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\changelog" />
       </Component>
-      <Component Id="ECaseEng.hlf" Guid="742FC039-C0F3-464E-9975-B23F3FC18BA5">
+      <Component Id="ECaseEng.hlf" Guid="742FC039-C0F3-464E-9975-B23F3FC18BA5" Win64="$(var.Win64)">
         <File Id="ECaseEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseEng.hlf" />
       </Component>
-      <Component Id="ECaseEng.lng" Guid="B9B98B90-3A6D-4891-95DF-C4FE4C548410">
+      <Component Id="ECaseEng.lng" Guid="B9B98B90-3A6D-4891-95DF-C4FE4C548410" Win64="$(var.Win64)">
         <File Id="ECaseEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseEng.lng" />
       </Component>
-      <Component Id="ECaseRus.hlf" Guid="B876645A-E662-4C74-8722-3BBBC44F94D8">
+      <Component Id="ECaseRus.hlf" Guid="B876645A-E662-4C74-8722-3BBBC44F94D8" Win64="$(var.Win64)">
         <File Id="ECaseRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseRus.hlf" />
       </Component>
-      <Component Id="ECaseRus.lng" Guid="3372D404-083C-4915-A0D6-40E5DF700527">
+      <Component Id="ECaseRus.lng" Guid="3372D404-083C-4915-A0D6-40E5DF700527" Win64="$(var.Win64)">
         <File Id="ECaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseRus.lng" />
       </Component>
-      <Component Id="EditCase.dll" Guid="0BCA85E3-199F-4592-B979-2BC42E3E1609">
+      <Component Id="EditCase.dll" Guid="0BCA85E3-199F-4592-B979-2BC42E3E1609" Win64="$(var.Win64)">
         <File Id="EditCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="EditCase.map" Guid="203AF628-7AD9-48A2-96DD-875005A1066E">
+      <Component Id="EditCase.map" Guid="203AF628-7AD9-48A2-96DD-875005A1066E" Win64="$(var.Win64)">
         <File Id="EditCase.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.map" />
       </Component>
 <?endif?>
     </Directory>
     <Directory Id="EMenu" Name="EMenu">
-      <Component Id="changelog_8" Guid="011F6439-0914-45A5-872F-0EA0409A97DD">
+      <Component Id="changelog_8" Guid="011F6439-0914-45A5-872F-0EA0409A97DD" Win64="$(var.Win64)">
         <File Id="changelog_8" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\changelog" />
       </Component>
-      <Component Id="EMenu.dll" Guid="2368838E-EE10-4A9C-9525-3485C4B209E0">
+      <Component Id="EMenu.dll" Guid="2368838E-EE10-4A9C-9525-3485C4B209E0" Win64="$(var.Win64)">
         <File Id="EMenu.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenu.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="EMenu.map" Guid="C7A0F2CC-F495-4BE5-B186-9389DE40F32C">
+      <Component Id="EMenu.map" Guid="C7A0F2CC-F495-4BE5-B186-9389DE40F32C" Win64="$(var.Win64)">
         <File Id="EMenu.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenu.map" />
       </Component>
 <?endif?>
-      <Component Id="EMenuDel.reg" Guid="4D2DF952-9811-415F-AC55-AFDCDC0520FC">
+      <Component Id="EMenuDel.reg" Guid="4D2DF952-9811-415F-AC55-AFDCDC0520FC" Win64="$(var.Win64)">
         <File Id="EMenuDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuDel.reg" />
       </Component>
-      <Component Id="EMenuEng.hlf" Guid="6A6BE8E9-8627-4724-9D72-2F8EC7A19800">
+      <Component Id="EMenuEng.hlf" Guid="6A6BE8E9-8627-4724-9D72-2F8EC7A19800" Win64="$(var.Win64)">
         <File Id="EMenuEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuEng.hlf" />
       </Component>
-      <Component Id="EMenuEng.lng" Guid="18C559B9-3F09-4F55-BDBE-4A78A3A19756">
+      <Component Id="EMenuEng.lng" Guid="18C559B9-3F09-4F55-BDBE-4A78A3A19756" Win64="$(var.Win64)">
         <File Id="EMenuEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuEng.lng" />
       </Component>
-      <Component Id="EMenuRus.hlf" Guid="185F66B1-F3DB-4A42-A55E-4ADF2B5572CE">
+      <Component Id="EMenuRus.hlf" Guid="185F66B1-F3DB-4A42-A55E-4ADF2B5572CE" Win64="$(var.Win64)">
         <File Id="EMenuRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuRus.hlf" />
       </Component>
-      <Component Id="EMenuRus.lng" Guid="516179C9-8654-4EB9-94B0-A54BE8925168">
+      <Component Id="EMenuRus.lng" Guid="516179C9-8654-4EB9-94B0-A54BE8925168" Win64="$(var.Win64)">
         <File Id="EMenuRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuRus.lng" />
       </Component>
-      <Component Id="Hotkey.reg" Guid="A306E4BF-2420-4045-B99C-DA1B70155682">
+      <Component Id="Hotkey.reg" Guid="A306E4BF-2420-4045-B99C-DA1B70155682" Win64="$(var.Win64)">
         <File Id="Hotkey.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.reg" />
       </Component>
-      <Component Id="HotkeyClipboard.reg" Guid="8552E99F-0A8D-4609-B099-18B99E75667E">
+      <Component Id="HotkeyClipboard.reg" Guid="8552E99F-0A8D-4609-B099-18B99E75667E" Win64="$(var.Win64)">
         <File Id="HotkeyClipboard.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.reg" />
       </Component>
-      <Component Id="HotkeyProperties.reg" Guid="8C57D754-D6BC-437E-85DA-3E279FDA55B0">
+      <Component Id="HotkeyProperties.reg" Guid="8C57D754-D6BC-437E-85DA-3E279FDA55B0" Win64="$(var.Win64)">
         <File Id="HotkeyProperties.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.reg" />
       </Component>
     </Directory>
     <Directory Id="FarCmds" Name="FarCmds">
-      <Component Id="changelog_9" Guid="3CE81771-4D05-4492-B2BD-9B6612074CF9">
+      <Component Id="changelog_9" Guid="3CE81771-4D05-4492-B2BD-9B6612074CF9" Win64="$(var.Win64)">
         <File Id="changelog_9" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\changelog" />
       </Component>
-      <Component Id="FARCmds.dll" Guid="6F7DCF96-782E-4FC2-B21F-6DF656BC4243">
+      <Component Id="FARCmds.dll" Guid="6F7DCF96-782E-4FC2-B21F-6DF656BC4243" Win64="$(var.Win64)">
         <File Id="FARCmds.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="FARCmds.map" Guid="AB389D76-E590-44F5-BF27-DAD7CECBA787">
+      <Component Id="FARCmds.map" Guid="AB389D76-E590-44F5-BF27-DAD7CECBA787" Win64="$(var.Win64)">
         <File Id="FARCmds.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmds.map" />
       </Component>
 <?endif?>
-      <Component Id="FARCmdsEng.hlf" Guid="D796A2A4-B48A-43E3-8245-752B4E2F0534">
+      <Component Id="FARCmdsEng.hlf" Guid="D796A2A4-B48A-43E3-8245-752B4E2F0534" Win64="$(var.Win64)">
         <File Id="FARCmdsEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsEng.hlf" />
       </Component>
-      <Component Id="FARCmdsEng.lng" Guid="E18624EB-72D7-4126-8910-80C657910587">
+      <Component Id="FARCmdsEng.lng" Guid="E18624EB-72D7-4126-8910-80C657910587" Win64="$(var.Win64)">
         <File Id="FARCmdsEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsEng.lng" />
       </Component>
-      <Component Id="FARCmdsRus.hlf" Guid="2579F4C2-C84E-48FC-97F7-B6F9AE86856B">
+      <Component Id="FARCmdsRus.hlf" Guid="2579F4C2-C84E-48FC-97F7-B6F9AE86856B" Win64="$(var.Win64)">
         <File Id="FARCmdsRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsRus.hlf" />
       </Component>
-      <Component Id="FARCmdsRus.lng" Guid="13AA3733-43E8-4382-B0EF-B322857B199A">
+      <Component Id="FARCmdsRus.lng" Guid="13AA3733-43E8-4382-B0EF-B322857B199A" Win64="$(var.Win64)">
         <File Id="FARCmdsRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsRus.lng" />
       </Component>
     </Directory>
     <Directory Id="FileCase" Name="FileCase">
-      <Component Id="CaseEng.hlf" Guid="523B5A17-C8CE-4A70-9A38-5A88B55BBFC6">
+      <Component Id="CaseEng.hlf" Guid="523B5A17-C8CE-4A70-9A38-5A88B55BBFC6" Win64="$(var.Win64)">
         <File Id="CaseEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseEng.hlf" />
       </Component>
-      <Component Id="CaseEng.lng" Guid="D0E1AB3C-13FB-45ED-92BF-8C811441E5A5">
+      <Component Id="CaseEng.lng" Guid="D0E1AB3C-13FB-45ED-92BF-8C811441E5A5" Win64="$(var.Win64)">
         <File Id="CaseEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseEng.lng" />
       </Component>
-      <Component Id="CaseRus.hlf" Guid="769C2232-D6E9-47B2-9A2E-399812CAAC2B">
+      <Component Id="CaseRus.hlf" Guid="769C2232-D6E9-47B2-9A2E-399812CAAC2B" Win64="$(var.Win64)">
         <File Id="CaseRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseRus.hlf" />
       </Component>
-      <Component Id="CaseRus.lng" Guid="DEA8155D-9A4F-4184-B2C0-2D1C04D94CCE">
+      <Component Id="CaseRus.lng" Guid="DEA8155D-9A4F-4184-B2C0-2D1C04D94CCE" Win64="$(var.Win64)">
         <File Id="CaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseRus.lng" />
       </Component>
-      <Component Id="changelog_10" Guid="68F5B02E-9223-493E-8B37-1948E11A833B">
+      <Component Id="changelog_10" Guid="68F5B02E-9223-493E-8B37-1948E11A833B" Win64="$(var.Win64)">
         <File Id="changelog_10" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\changelog" />
       </Component>
-      <Component Id="FileCase.dll" Guid="2017C1CB-A526-4ED5-BBBC-0904EB1BB8CC">
+      <Component Id="FileCase.dll" Guid="2017C1CB-A526-4ED5-BBBC-0904EB1BB8CC" Win64="$(var.Win64)">
         <File Id="FileCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\FileCase.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="FileCase.map" Guid="884DD1D4-E956-4120-B6F3-0B14A591C1EB">
+      <Component Id="FileCase.map" Guid="884DD1D4-E956-4120-B6F3-0B14A591C1EB" Win64="$(var.Win64)">
         <File Id="FileCase.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\FileCase.map" />
       </Component>
 <?endif?>
     </Directory>
     <Directory Id="FTP" Name="FTP">
-      <Component Id="changelog_11" Guid="0342956F-A10D-459D-8BD5-5E642E25E918">
+      <Component Id="changelog_11" Guid="0342956F-A10D-459D-8BD5-5E642E25E918" Win64="$(var.Win64)">
         <File Id="changelog_11" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\changelog" />
       </Component>
-      <Component Id="FarFtp.dll" Guid="E8DA5B2D-C39B-481C-A14E-B4AA411E4A36">
+      <Component Id="FarFtp.dll" Guid="E8DA5B2D-C39B-481C-A14E-B4AA411E4A36" Win64="$(var.Win64)">
         <File Id="FarFtp.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="FarFtp.map" Guid="8018F415-B0F8-40C5-B9D3-525699204EE0">
+      <Component Id="FarFtp.map" Guid="8018F415-B0F8-40C5-B9D3-525699204EE0" Win64="$(var.Win64)">
         <File Id="FarFtp.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FarFtp.map" />
       </Component>
 <?endif?>
-      <Component Id="FtpCmds.txt" Guid="C7C441D2-D307-4B7F-8B67-9239CE5FD5DD">
+      <Component Id="FtpCmds.txt" Guid="C7C441D2-D307-4B7F-8B67-9239CE5FD5DD" Win64="$(var.Win64)">
         <File Id="FtpCmds.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpCmds.txt" />
       </Component>
-      <Component Id="FtpCmds_rus.txt" Guid="C58D54B6-6EC0-47B1-8608-9287E0625FD0">
+      <Component Id="FtpCmds_rus.txt" Guid="C58D54B6-6EC0-47B1-8608-9287E0625FD0" Win64="$(var.Win64)">
         <File Id="FtpCmds_rus.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpCmds_rus.txt" />
       </Component>
-      <Component Id="FtpEng.hlf" Guid="15EEE52C-232E-4831-8AF2-5B8F0B078F0F">
+      <Component Id="FtpEng.hlf" Guid="15EEE52C-232E-4831-8AF2-5B8F0B078F0F" Win64="$(var.Win64)">
         <File Id="FtpEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpEng.hlf" />
       </Component>
-      <Component Id="FtpEng.lng" Guid="7550D02C-1E44-4F16-BF7D-0B7E3FF91AA8">
+      <Component Id="FtpEng.lng" Guid="7550D02C-1E44-4F16-BF7D-0B7E3FF91AA8" Win64="$(var.Win64)">
         <File Id="FtpEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpEng.lng" />
       </Component>
-      <Component Id="FtpRus.hlf" Guid="C738189C-B548-4DFE-B1A6-985B9AE58129">
+      <Component Id="FtpRus.hlf" Guid="C738189C-B548-4DFE-B1A6-985B9AE58129" Win64="$(var.Win64)">
         <File Id="FtpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpRus.hlf" />
       </Component>
-      <Component Id="FtpRus.lng" Guid="7F2C8C73-75CD-4CE5-AEBC-EB50E491773D">
+      <Component Id="FtpRus.lng" Guid="7F2C8C73-75CD-4CE5-AEBC-EB50E491773D" Win64="$(var.Win64)">
         <File Id="FtpRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\FtpRus.lng" />
       </Component>
-      <Component Id="Notes.txt" Guid="396B5AAF-70BD-4FA9-95AE-60C352296A57">
+      <Component Id="Notes.txt" Guid="396B5AAF-70BD-4FA9-95AE-60C352296A57" Win64="$(var.Win64)">
         <File Id="Notes.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\Notes.txt" />
       </Component>
-      <Component Id="Notes_rus.txt" Guid="4E0ACAF5-FB14-4200-81DA-1B864B2E5014">
+      <Component Id="Notes_rus.txt" Guid="4E0ACAF5-FB14-4200-81DA-1B864B2E5014" Win64="$(var.Win64)">
         <File Id="Notes_rus.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\Notes_rus.txt" />
       </Component>
-      <Component Id="TechInfo.reg" Guid="D7C9B585-7AFD-4171-A0CC-72099F770078">
+      <Component Id="TechInfo.reg" Guid="D7C9B585-7AFD-4171-A0CC-72099F770078" Win64="$(var.Win64)">
         <File Id="TechInfo.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\TechInfo.reg" />
       </Component>
-      <Component Id="TechInfo_rus.reg" Guid="BD287BA8-9298-4140-8447-DB5F9BBAFCA7">
+      <Component Id="TechInfo_rus.reg" Guid="BD287BA8-9298-4140-8447-DB5F9BBAFCA7" Win64="$(var.Win64)">
         <File Id="TechInfo_rus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\TechInfo_rus.reg" />
       </Component>
       <Directory Id="lib" Name="lib">
-        <Component Id="ftpDirList.fll" Guid="2CFBA1C9-A7FF-4F34-9623-A9C397C88771">
+        <Component Id="ftpDirList.fll" Guid="2CFBA1C9-A7FF-4F34-9623-A9C397C88771" Win64="$(var.Win64)">
           <File Id="ftpDirList.fll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpDirList.fll" />
         </Component>
-        <Component Id="ftpProgress.fll" Guid="D1E2F9E8-F012-4076-932A-84CA8E4A4F22">
+        <Component Id="ftpProgress.fll" Guid="D1E2F9E8-F012-4076-932A-84CA8E4A4F22" Win64="$(var.Win64)">
           <File Id="ftpProgress.fll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.fll" />
         </Component>
 <?if $(var.Platform) = x86 ?>
-        <Component Id="ftpDirList.map" Guid="CDD14DEB-E40C-4184-BEE4-9060E6D2CAD9">
+        <Component Id="ftpDirList.map" Guid="CDD14DEB-E40C-4184-BEE4-9060E6D2CAD9" Win64="$(var.Win64)">
           <File Id="ftpDirList.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpDirList.map" />
         </Component>
-        <Component Id="ftpProgress.map" Guid="3693409A-EE49-4C82-B2F2-6FB1E24B7122">
+        <Component Id="ftpProgress.map" Guid="3693409A-EE49-4C82-B2F2-6FB1E24B7122" Win64="$(var.Win64)">
           <File Id="ftpProgress.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\ftpProgress.map" />
         </Component>
 <?endif?>
-        <Component Id="Progress_FarCopy.reg" Guid="B8736AF8-3534-41EE-85F9-8F69369692DA">
+        <Component Id="Progress_FarCopy.reg" Guid="B8736AF8-3534-41EE-85F9-8F69369692DA" Win64="$(var.Win64)">
           <File Id="Progress_FarCopy.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_FarCopy.reg" />
         </Component>
-        <Component Id="Progress_JM.reg" Guid="4657194F-86EA-4076-BE66-6E8A65302FED">
+        <Component Id="Progress_JM.reg" Guid="4657194F-86EA-4076-BE66-6E8A65302FED" Win64="$(var.Win64)">
           <File Id="Progress_JM.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_JM.reg" />
         </Component>
-        <Component Id="Progress_Wesha.reg" Guid="A4AD6A39-2C5D-4041-8D2E-D36A12AAE833">
+        <Component Id="Progress_Wesha.reg" Guid="A4AD6A39-2C5D-4041-8D2E-D36A12AAE833" Win64="$(var.Win64)">
           <File Id="Progress_Wesha.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_Wesha.reg" />
         </Component>
-        <Component Id="Progress_ZeMA.reg" Guid="AA89676B-4937-4BFC-A288-313630762B8F">
+        <Component Id="Progress_ZeMA.reg" Guid="AA89676B-4937-4BFC-A288-313630762B8F" Win64="$(var.Win64)">
           <File Id="Progress_ZeMA.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FTP\lib\Progress_ZeMA.reg" />
         </Component>
       </Directory>
     </Directory>
     <Directory Id="HlfViewer" Name="HlfViewer">
-      <Component Id="changelog_12" Guid="99970A4C-EE7D-427D-B7DE-9D36C4E86978">
+      <Component Id="changelog_12" Guid="99970A4C-EE7D-427D-B7DE-9D36C4E86978" Win64="$(var.Win64)">
         <File Id="changelog_12" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\changelog" />
       </Component>
-      <Component Id="HlfViewer.dll" Guid="8488F41F-396F-4C31-A8AA-724E66296190">
+      <Component Id="HlfViewer.dll" Guid="8488F41F-396F-4C31-A8AA-724E66296190" Win64="$(var.Win64)">
         <File Id="HlfViewer.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewer.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="HlfViewer.map" Guid="7E16B0C7-8E1D-4E6E-BFE4-90D13CFE4CAE">
+      <Component Id="HlfViewer.map" Guid="7E16B0C7-8E1D-4E6E-BFE4-90D13CFE4CAE" Win64="$(var.Win64)">
         <File Id="HlfViewer.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewer.map" />
       </Component>
 <?endif?>
-      <Component Id="HlfViewerEng.hlf" Guid="803AF232-FC26-4C2A-949B-90C3D44C85E0">
+      <Component Id="HlfViewerEng.hlf" Guid="803AF232-FC26-4C2A-949B-90C3D44C85E0" Win64="$(var.Win64)">
         <File Id="HlfViewerEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerEng.hlf" />
       </Component>
-      <Component Id="HlfViewerEng.lng" Guid="7310466F-0EC6-4ABC-94E8-839878F392A2">
+      <Component Id="HlfViewerEng.lng" Guid="7310466F-0EC6-4ABC-94E8-839878F392A2" Win64="$(var.Win64)">
         <File Id="HlfViewerEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerEng.lng" />
       </Component>
-      <Component Id="HlfViewerRus.hlf" Guid="4D119878-D28B-45D7-860D-92EFB16BF209">
+      <Component Id="HlfViewerRus.hlf" Guid="4D119878-D28B-45D7-860D-92EFB16BF209" Win64="$(var.Win64)">
         <File Id="HlfViewerRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerRus.hlf" />
       </Component>
-      <Component Id="HlfViewerRus.lng" Guid="CB237BF6-D055-4ADE-B1B7-B9AE49D1D51B">
+      <Component Id="HlfViewerRus.lng" Guid="CB237BF6-D055-4ADE-B1B7-B9AE49D1D51B" Win64="$(var.Win64)">
         <File Id="HlfViewerRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerRus.lng" />
       </Component>
     </Directory>
     <Directory Id="MacroView" Name="MacroView">
-      <Component Id="changelog_13" Guid="157AF3D5-DA10-44BE-8DCF-18F9734147FE">
+      <Component Id="changelog_13" Guid="157AF3D5-DA10-44BE-8DCF-18F9734147FE" Win64="$(var.Win64)">
         <File Id="changelog_13" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\changelog" />
       </Component>
-      <Component Id="MacroEng.hlf" Guid="39F0FB50-D1F7-457E-A89F-406E540B810B">
+      <Component Id="MacroEng.hlf" Guid="39F0FB50-D1F7-457E-A89F-406E540B810B" Win64="$(var.Win64)">
         <File Id="MacroEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroEng.hlf" />
       </Component>
-      <Component Id="MacroEng.lng" Guid="D4892E4A-7084-4046-9E0F-E3C9A28BDF5E">
+      <Component Id="MacroEng.lng" Guid="D4892E4A-7084-4046-9E0F-E3C9A28BDF5E" Win64="$(var.Win64)">
         <File Id="MacroEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroEng.lng" />
       </Component>
-      <Component Id="MacroRus.hlf" Guid="44B44969-39D8-41B9-A612-C863C56E13C7">
+      <Component Id="MacroRus.hlf" Guid="44B44969-39D8-41B9-A612-C863C56E13C7" Win64="$(var.Win64)">
         <File Id="MacroRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroRus.hlf" />
       </Component>
-      <Component Id="MacroRus.lng" Guid="3393DDC1-639E-43B9-AC7E-4E510074E2D2">
+      <Component Id="MacroRus.lng" Guid="3393DDC1-639E-43B9-AC7E-4E510074E2D2" Win64="$(var.Win64)">
         <File Id="MacroRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroRus.lng" />
       </Component>
-      <Component Id="MacroView.dll" Guid="2E6F4580-6FB5-4152-B878-7AB1A6CE36DD">
+      <Component Id="MacroView.dll" Guid="2E6F4580-6FB5-4152-B878-7AB1A6CE36DD" Win64="$(var.Win64)">
         <File Id="MacroView.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="MacroView.map" Guid="FEB9E01A-0A56-48AA-B5D7-2C566B5183D6">
+      <Component Id="MacroView.map" Guid="FEB9E01A-0A56-48AA-B5D7-2C566B5183D6" Win64="$(var.Win64)">
         <File Id="MacroView.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.map" />
       </Component>
 <?endif?>
     </Directory>
     <Directory Id="MultiArc" Name="MultiArc">
-      <Component Id="arceng.hlf" Guid="B1DC0810-096B-448B-8AAF-446CC2A0A9D6">
+      <Component Id="arceng.hlf" Guid="B1DC0810-096B-448B-8AAF-446CC2A0A9D6" Win64="$(var.Win64)">
         <File Id="arceng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\arceng.hlf" />
       </Component>
-      <Component Id="arceng.lng" Guid="6880B6C6-1303-44C8-87C4-ECB1DB1A93FB">
+      <Component Id="arceng.lng" Guid="6880B6C6-1303-44C8-87C4-ECB1DB1A93FB" Win64="$(var.Win64)">
         <File Id="arceng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\arceng.lng" />
       </Component>
-      <Component Id="arcrus.hlf" Guid="69523772-495D-4444-88EA-B8F86FBD3893">
+      <Component Id="arcrus.hlf" Guid="69523772-495D-4444-88EA-B8F86FBD3893" Win64="$(var.Win64)">
         <File Id="arcrus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\arcrus.hlf" />
       </Component>
-      <Component Id="arcrus.lng" Guid="239DBE40-4E81-4658-BF71-8736A904DDE9">
+      <Component Id="arcrus.lng" Guid="239DBE40-4E81-4658-BF71-8736A904DDE9" Win64="$(var.Win64)">
         <File Id="arcrus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\arcrus.lng" />
       </Component>
-      <Component Id="changelog_14" Guid="4D61365B-0BB6-489B-8206-655AF72461E9">
+      <Component Id="changelog_14" Guid="4D61365B-0BB6-489B-8206-655AF72461E9" Win64="$(var.Win64)">
         <File Id="changelog_14" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\changelog" />
       </Component>
-      <Component Id="MultiArc.dll" Guid="1D190674-EEB2-408E-8AB3-CEB4BE62AD98">
+      <Component Id="MultiArc.dll" Guid="1D190674-EEB2-408E-8AB3-CEB4BE62AD98" Win64="$(var.Win64)">
         <File Id="MultiArc.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\MultiArc.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="MultiArc.map" Guid="BF442893-C4E4-4008-B150-345B9DBAC1FB">
+      <Component Id="MultiArc.map" Guid="BF442893-C4E4-4008-B150-345B9DBAC1FB" Win64="$(var.Win64)">
         <File Id="MultiArc.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\MultiArc.map" />
       </Component>
 <?endif?>
       <Directory Id="Formats" Name="Formats">
-        <Component Id="Ace.fmt" Guid="84469C38-A63D-4614-BC07-2585FCD14A0E">
+        <Component Id="Ace.fmt" Guid="84469C38-A63D-4614-BC07-2585FCD14A0E" Win64="$(var.Win64)">
           <File Id="Ace.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ace.fmt" />
         </Component>
-        <Component Id="Arc.fmt" Guid="551011B8-3322-4D7F-A3E1-3B2F381FF691">
+        <Component Id="Arc.fmt" Guid="551011B8-3322-4D7F-A3E1-3B2F381FF691" Win64="$(var.Win64)">
           <File Id="Arc.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Arc.fmt" />
         </Component>
-        <Component Id="Arj.fmt" Guid="123D0C73-CE98-4D7D-8175-75BE5DB458B4">
+        <Component Id="Arj.fmt" Guid="123D0C73-CE98-4D7D-8175-75BE5DB458B4" Win64="$(var.Win64)">
           <File Id="Arj.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Arj.fmt" />
         </Component>
-        <Component Id="Cab.fmt" Guid="69D516C7-60FC-4A05-9C55-DC1C7F02BF96">
+        <Component Id="Cab.fmt" Guid="69D516C7-60FC-4A05-9C55-DC1C7F02BF96" Win64="$(var.Win64)">
           <File Id="Cab.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Cab.fmt" />
         </Component>
-        <Component Id="Custom.fmt" Guid="B41AB3B6-30CC-4624-87AC-23C58D169230">
+        <Component Id="Custom.fmt" Guid="B41AB3B6-30CC-4624-87AC-23C58D169230" Win64="$(var.Win64)">
           <File Id="Custom.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Custom.fmt" />
         </Component>
-        <Component Id="custom.ini" Guid="3B90EECE-7BD4-412E-853D-996D6866B460">
+        <Component Id="custom.ini" Guid="3B90EECE-7BD4-412E-853D-996D6866B460" Win64="$(var.Win64)">
           <File Id="custom.ini" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\custom.ini" />
         </Component>
-        <Component Id="Ha.fmt" Guid="FF512289-442D-41CB-93FB-E95D556932EF">
+        <Component Id="Ha.fmt" Guid="FF512289-442D-41CB-93FB-E95D556932EF" Win64="$(var.Win64)">
           <File Id="Ha.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ha.fmt" />
         </Component>
-        <Component Id="Lzh.fmt" Guid="A9401792-2A3A-46C6-9E99-8C7516C05A13">
+        <Component Id="Lzh.fmt" Guid="A9401792-2A3A-46C6-9E99-8C7516C05A13" Win64="$(var.Win64)">
           <File Id="Lzh.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Lzh.fmt" />
         </Component>
-        <Component Id="Rar.fmt" Guid="CCE99381-A331-485E-820E-4654EB52A00E">
+        <Component Id="Rar.fmt" Guid="CCE99381-A331-485E-820E-4654EB52A00E" Win64="$(var.Win64)">
           <File Id="Rar.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Rar.fmt" />
         </Component>
-        <Component Id="TarGz.fmt" Guid="B5DE99F8-74C6-4E6F-A6ED-D08E7B282644">
+        <Component Id="TarGz.fmt" Guid="B5DE99F8-74C6-4E6F-A6ED-D08E7B282644" Win64="$(var.Win64)">
           <File Id="TarGz.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\TarGz.fmt" />
         </Component>
-        <Component Id="Zip.fmt" Guid="8E8E027D-BCDF-43BA-AC6A-508D213A944C">
+        <Component Id="Zip.fmt" Guid="8E8E027D-BCDF-43BA-AC6A-508D213A944C" Win64="$(var.Win64)">
           <File Id="Zip.fmt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Zip.fmt" />
         </Component>
 <?if $(var.Platform) = x86 ?>
-        <Component Id="Ace.map" Guid="A9FBC24C-C21F-494B-B2D4-C6FADED4CC65">
+        <Component Id="Ace.map" Guid="A9FBC24C-C21F-494B-B2D4-C6FADED4CC65" Win64="$(var.Win64)">
           <File Id="Ace.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ace.map" />
         </Component>
-        <Component Id="Arc.map" Guid="9C684082-8174-49DE-A0E7-CA3C09463F40">
+        <Component Id="Arc.map" Guid="9C684082-8174-49DE-A0E7-CA3C09463F40" Win64="$(var.Win64)">
           <File Id="Arc.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Arc.map" />
         </Component>
-        <Component Id="Arj.map" Guid="67F79B43-E263-4EA4-B53B-80E131ADEF39">
+        <Component Id="Arj.map" Guid="67F79B43-E263-4EA4-B53B-80E131ADEF39" Win64="$(var.Win64)">
           <File Id="Arj.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Arj.map" />
         </Component>
-        <Component Id="Cab.map" Guid="B8E3F8FD-613E-4F2E-B8FE-D53DF1AD6DE7">
+        <Component Id="Cab.map" Guid="B8E3F8FD-613E-4F2E-B8FE-D53DF1AD6DE7" Win64="$(var.Win64)">
           <File Id="Cab.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Cab.map" />
         </Component>
-        <Component Id="Custom.map" Guid="1C358B31-11FF-4C22-80C8-2491FA45FD42">
+        <Component Id="Custom.map" Guid="1C358B31-11FF-4C22-80C8-2491FA45FD42" Win64="$(var.Win64)">
           <File Id="Custom.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Custom.map" />
         </Component>
-        <Component Id="Ha.map" Guid="CA17739D-2766-4276-B0B5-FCFEAD99E518">
+        <Component Id="Ha.map" Guid="CA17739D-2766-4276-B0B5-FCFEAD99E518" Win64="$(var.Win64)">
           <File Id="Ha.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Ha.map" />
         </Component>
-        <Component Id="Lzh.map" Guid="664FD00A-74E7-4544-9398-75BF8A234597">
+        <Component Id="Lzh.map" Guid="664FD00A-74E7-4544-9398-75BF8A234597" Win64="$(var.Win64)">
           <File Id="Lzh.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Lzh.map" />
         </Component>
-        <Component Id="Rar.map" Guid="0F5FB363-5670-4938-88E8-19E1F071A3E1">
+        <Component Id="Rar.map" Guid="0F5FB363-5670-4938-88E8-19E1F071A3E1" Win64="$(var.Win64)">
           <File Id="Rar.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Rar.map" />
         </Component>
-        <Component Id="TarGz.map" Guid="C460231D-25B1-45C2-A05A-3168FE9E5015">
+        <Component Id="TarGz.map" Guid="C460231D-25B1-45C2-A05A-3168FE9E5015" Win64="$(var.Win64)">
           <File Id="TarGz.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\TarGz.map" />
         </Component>
-        <Component Id="Zip.map" Guid="DB54B837-CC1F-4862-9D8F-FED0286A5027">
+        <Component Id="Zip.map" Guid="DB54B837-CC1F-4862-9D8F-FED0286A5027" Win64="$(var.Win64)">
           <File Id="Zip.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MultiArc\Formats\Zip.map" />
         </Component>
 <?endif?>
       </Directory>
     </Directory>
     <Directory Id="Network" Name="Network">
-      <Component Id="changelog_15" Guid="18E07A53-A9CB-4A2C-B3C8-45538281662B">
+      <Component Id="changelog_15" Guid="18E07A53-A9CB-4A2C-B3C8-45538281662B" Win64="$(var.Win64)">
         <File Id="changelog_15" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\changelog" />
       </Component>
-      <Component Id="NetEng.hlf" Guid="4C197DE1-F0F0-459E-9F8E-7EB0108412A9">
+      <Component Id="NetEng.hlf" Guid="4C197DE1-F0F0-459E-9F8E-7EB0108412A9" Win64="$(var.Win64)">
         <File Id="NetEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetEng.hlf" />
       </Component>
-      <Component Id="NetEng.lng" Guid="065CE2FB-5A41-4CC7-9CDD-6FC39E5A52C5">
+      <Component Id="NetEng.lng" Guid="065CE2FB-5A41-4CC7-9CDD-6FC39E5A52C5" Win64="$(var.Win64)">
         <File Id="NetEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetEng.lng" />
       </Component>
-      <Component Id="NetRus.hlf" Guid="0AD16588-2E96-4381-9304-E054420C21E6">
+      <Component Id="NetRus.hlf" Guid="0AD16588-2E96-4381-9304-E054420C21E6" Win64="$(var.Win64)">
         <File Id="NetRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetRus.hlf" />
       </Component>
-      <Component Id="NetRus.lng" Guid="9AC6710C-8B3A-4A53-A4DF-692F9789A685">
+      <Component Id="NetRus.lng" Guid="9AC6710C-8B3A-4A53-A4DF-692F9789A685" Win64="$(var.Win64)">
         <File Id="NetRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetRus.lng" />
       </Component>
-      <Component Id="Network.dll" Guid="0095058D-7809-4F9E-867C-78FBB8F53E87">
+      <Component Id="Network.dll" Guid="0095058D-7809-4F9E-867C-78FBB8F53E87" Win64="$(var.Win64)">
         <File Id="Network.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="Network.map" Guid="C1CDD2B3-C0AC-4F34-824F-E64381B95E84">
+      <Component Id="Network.map" Guid="C1CDD2B3-C0AC-4F34-824F-E64381B95E84" Win64="$(var.Win64)">
         <File Id="Network.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.map" />
       </Component>
 <?endif?>
     </Directory>
     <Directory Id="ProcList" Name="ProcList">
-      <Component Id="changelog_16" Guid="071DC7BD-B99E-4B91-AA39-15935980D95A">
+      <Component Id="changelog_16" Guid="071DC7BD-B99E-4B91-AA39-15935980D95A" Win64="$(var.Win64)">
         <File Id="changelog_16" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\changelog" />
       </Component>
-      <Component Id="ProcEng.hlf" Guid="14985C14-82DD-47A3-B926-44033C09EB46">
+      <Component Id="ProcEng.hlf" Guid="14985C14-82DD-47A3-B926-44033C09EB46" Win64="$(var.Win64)">
         <File Id="ProcEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcEng.hlf" />
       </Component>
-      <Component Id="ProcEng.lng" Guid="0E180E3A-A704-4C0C-851E-7E9D4688306A">
+      <Component Id="ProcEng.lng" Guid="0E180E3A-A704-4C0C-851E-7E9D4688306A" Win64="$(var.Win64)">
         <File Id="ProcEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcEng.lng" />
       </Component>
-      <Component Id="Proclist.dll" Guid="B83B3681-E66A-4A07-8C9C-D56A9C3B8A45">
+      <Component Id="Proclist.dll" Guid="B83B3681-E66A-4A07-8C9C-D56A9C3B8A45" Win64="$(var.Win64)">
         <File Id="Proclist.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="Proclist.map" Guid="76CBA65E-8EA5-456F-86FA-3D3D95FB984B">
+      <Component Id="Proclist.map" Guid="76CBA65E-8EA5-456F-86FA-3D3D95FB984B" Win64="$(var.Win64)">
         <File Id="Proclist.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\Proclist.map" />
       </Component>
 <?endif?>
-      <Component Id="ProcRus.hlf" Guid="B7B1EFEE-65B0-4BB8-A92B-F8EC41C0E7F9">
+      <Component Id="ProcRus.hlf" Guid="B7B1EFEE-65B0-4BB8-A92B-F8EC41C0E7F9" Win64="$(var.Win64)">
         <File Id="ProcRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcRus.hlf" />
       </Component>
-      <Component Id="ProcRus.lng" Guid="8FFC71AD-7D3B-4B00-88FE-22E29184D15A">
+      <Component Id="ProcRus.lng" Guid="8FFC71AD-7D3B-4B00-88FE-22E29184D15A" Win64="$(var.Win64)">
         <File Id="ProcRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcRus.lng" />
       </Component>
     </Directory>
     <Directory Id="TmpPanel" Name="TmpPanel">
-      <Component Id="changelog_17" Guid="4AD7989A-CE70-48DC-84C4-17AD431125E9">
+      <Component Id="changelog_17" Guid="4AD7989A-CE70-48DC-84C4-17AD431125E9" Win64="$(var.Win64)">
         <File Id="changelog_17" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\changelog" />
       </Component>
-      <Component Id="disks.eng.temp" Guid="95D696D8-0A0F-4920-8F1B-F87F77C14423">
+      <Component Id="disks.eng.temp" Guid="95D696D8-0A0F-4920-8F1B-F87F77C14423" Win64="$(var.Win64)">
         <File Id="disks.eng.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.eng.temp" />
       </Component>
-      <Component Id="disks.rus.temp" Guid="B3045FA8-0C29-4241-89AA-5543535EFEFB">
+      <Component Id="disks.rus.temp" Guid="B3045FA8-0C29-4241-89AA-5543535EFEFB" Win64="$(var.Win64)">
         <File Id="disks.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.rus.temp" />
       </Component>
-      <Component Id="shortcuts.eng.reg" Guid="CA50E43C-7AA5-43F8-A449-3FCF0F754ADD">
+      <Component Id="shortcuts.eng.reg" Guid="CA50E43C-7AA5-43F8-A449-3FCF0F754ADD" Win64="$(var.Win64)">
         <File Id="shortcuts.eng.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.reg" />
       </Component>
-      <Component Id="shortcuts.eng.temp" Guid="811D54D2-1D52-4D28-BBB9-DB55B2336A2F">
+      <Component Id="shortcuts.eng.temp" Guid="811D54D2-1D52-4D28-BBB9-DB55B2336A2F" Win64="$(var.Win64)">
         <File Id="shortcuts.eng.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.temp" />
       </Component>
-      <Component Id="shortcuts.rus.reg" Guid="4E6D53F9-27B9-4909-B236-260D781303D3">
+      <Component Id="shortcuts.rus.reg" Guid="4E6D53F9-27B9-4909-B236-260D781303D3" Win64="$(var.Win64)">
         <File Id="shortcuts.rus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.reg" />
       </Component>
-      <Component Id="shortcuts.rus.temp" Guid="DFCCD6AC-0351-468C-A0AA-D5E32732E3B5">
+      <Component Id="shortcuts.rus.temp" Guid="DFCCD6AC-0351-468C-A0AA-D5E32732E3B5" Win64="$(var.Win64)">
         <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
       </Component>
-      <Component Id="TmpEng.hlf" Guid="CF0EC2D7-C1F0-4A63-841B-3648674816CA">
+      <Component Id="TmpEng.hlf" Guid="CF0EC2D7-C1F0-4A63-841B-3648674816CA" Win64="$(var.Win64)">
         <File Id="TmpEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpEng.hlf" />
       </Component>
-      <Component Id="TmpEng.lng" Guid="D374E75B-E8C4-481B-B9F2-2F2733C044AC">
+      <Component Id="TmpEng.lng" Guid="D374E75B-E8C4-481B-B9F2-2F2733C044AC" Win64="$(var.Win64)">
         <File Id="TmpEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpEng.lng" />
       </Component>
-      <Component Id="TmpPanel.dll" Guid="A79EDAB7-5A15-447D-967E-1505C43137C4">
+      <Component Id="TmpPanel.dll" Guid="A79EDAB7-5A15-447D-967E-1505C43137C4" Win64="$(var.Win64)">
         <File Id="TmpPanel.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="TmpPanel.map" Guid="A263C871-BB98-4971-925A-1F62AFF74BA3">
+      <Component Id="TmpPanel.map" Guid="A263C871-BB98-4971-925A-1F62AFF74BA3" Win64="$(var.Win64)">
         <File Id="TmpPanel.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpPanel.map" />
       </Component>
 <?endif?>
-      <Component Id="TmpRus.hlf" Guid="CD5EBD72-3BA7-4056-88D8-99A251631460">
+      <Component Id="TmpRus.hlf" Guid="CD5EBD72-3BA7-4056-88D8-99A251631460" Win64="$(var.Win64)">
         <File Id="TmpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpRus.hlf" />
       </Component>
-      <Component Id="TmpRus.lng" Guid="4639BB81-AD01-4672-8044-292154E3CFAC">
+      <Component Id="TmpRus.lng" Guid="4639BB81-AD01-4672-8044-292154E3CFAC" Win64="$(var.Win64)">
         <File Id="TmpRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpRus.lng" />
       </Component>
     </Directory>
   </Directory>
   <Directory Id="PluginSDK" Name="PluginSDK">
 <?if $(var.Branch) = 1 ?>
-    <Component Id="Descript.ion_19" Guid="93335330-CA07-4113-BB36-3E17A8A52A81">
+    <Component Id="Descript.ion_19" Guid="93335330-CA07-4113-BB36-3E17A8A52A81" Win64="$(var.Win64)">
       <File Id="Descript.ion_19" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Descript.ion" />
     </Component>
-    <Component Id="GCCReadme.txt" Guid="D0007BD4-86BE-455B-9043-6021D87BE64E">
+    <Component Id="GCCReadme.txt" Guid="D0007BD4-86BE-455B-9043-6021D87BE64E" Win64="$(var.Win64)">
       <File Id="GCCReadme.txt" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\GCCReadme.txt" />
     </Component>
-    <Component Id="README.TXT_4" Guid="5D2F2124-4AC5-47A9-ABBE-A9407AEB22E5">
+    <Component Id="README.TXT_4" Guid="5D2F2124-4AC5-47A9-ABBE-A9407AEB22E5" Win64="$(var.Win64)">
       <File Id="README.TXT_4" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\README.TXT" />
     </Component>
-    <Component Id="VCReadme.txt" Guid="7FC197B2-0713-4F9D-8F21-0042AABCAFFD">
+    <Component Id="VCReadme.txt" Guid="7FC197B2-0713-4F9D-8F21-0042AABCAFFD" Win64="$(var.Win64)">
       <File Id="VCReadme.txt" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\VCReadme.txt" />
     </Component>
 <?endif?>
     <Directory Id="Headers.c" Name="Headers.c">
-      <Component Id="farcolor.hpp" Guid="E72A3D67-0EAC-4C29-A4DE-CEADAB83DC9D">
+      <Component Id="farcolor.hpp" Guid="E72A3D67-0EAC-4C29-A4DE-CEADAB83DC9D" Win64="$(var.Win64)">
         <File Id="farcolor.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\farcolor.hpp" />
       </Component>
-      <Component Id="farkeys.hpp" Guid="562C4B4F-6C6B-4441-BB28-456E3DDEFE83">
+      <Component Id="farkeys.hpp" Guid="562C4B4F-6C6B-4441-BB28-456E3DDEFE83" Win64="$(var.Win64)">
         <File Id="farkeys.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\farkeys.hpp" />
       </Component>
-      <Component Id="plugin.hpp" Guid="69003C10-1A83-4B12-9764-3B7A06C6DD65">
+      <Component Id="plugin.hpp" Guid="69003C10-1A83-4B12-9764-3B7A06C6DD65" Win64="$(var.Win64)">
         <File Id="plugin.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\plugin.hpp" />
       </Component>
     </Directory>
     <Directory Id="Headers.pas" Name="Headers.pas">
 <?if $(var.Branch) = 1 ?>
-      <Component Id="farcolor.pas" Guid="D566EC62-D625-439E-B467-918A60E2EB9C">
+      <Component Id="farcolor.pas" Guid="D566EC62-D625-439E-B467-918A60E2EB9C" Win64="$(var.Win64)">
         <File Id="farcolor.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\farcolor.pas" />
       </Component>
-      <Component Id="farkeys.pas" Guid="42C3AC0F-3922-415B-842E-E1F349EBAD2E">
+      <Component Id="farkeys.pas" Guid="42C3AC0F-3922-415B-842E-E1F349EBAD2E" Win64="$(var.Win64)">
         <File Id="farkeys.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\farkeys.pas" />
       </Component>
-      <Component Id="plugin.pas" Guid="0BA82384-71A1-40E4-B791-32C83AD15875">
+      <Component Id="plugin.pas" Guid="0BA82384-71A1-40E4-B791-32C83AD15875" Win64="$(var.Win64)">
         <File Id="plugin.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\plugin.pas" />
       </Component>
 <?endif?>
 <?if $(var.Branch) = 2 ?>
-      <Component Id="FarColorW.pas" Guid="29F42E55-CD88-4C35-B431-40CBEE235698">
+      <Component Id="FarColorW.pas" Guid="29F42E55-CD88-4C35-B431-40CBEE235698" Win64="$(var.Win64)">
         <File Id="FarColorW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\FarColorW.pas" />
       </Component>
-      <Component Id="FarKeysW.pas" Guid="A0C8D58C-F4DE-4CD5-A391-EFEE93EA29FE">
+      <Component Id="FarKeysW.pas" Guid="A0C8D58C-F4DE-4CD5-A391-EFEE93EA29FE" Win64="$(var.Win64)">
         <File Id="FarKeysW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\FarKeysW.pas" />
       </Component>
-      <Component Id="PluginW.pas" Guid="902E034D-2DE9-4DD5-B255-5620B8EAA4E9">
+      <Component Id="PluginW.pas" Guid="902E034D-2DE9-4DD5-B255-5620B8EAA4E9" Win64="$(var.Win64)">
         <File Id="PluginW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\PluginW.pas" />
       </Component>
 <?endif?>
