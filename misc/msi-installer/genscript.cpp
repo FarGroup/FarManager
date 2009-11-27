@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform_str << " -dVersion=" << version << " installer.wxs" << endl;
     makefile << "  light -nologo -ext"
 #ifdef SPECIAL
-    << " c:\\src\\misc\\msi-installer\\WixUIExtension.dll"
+    << " c:\\src\\WixUIExtension.dll"
 #else
     << " WixUIExtension"
 #endif
