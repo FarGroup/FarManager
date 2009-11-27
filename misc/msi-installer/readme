@@ -1,3 +1,8 @@
+Что требуется для сборки:
+1. Windows Installer XML (WiX) toolset (http://wix.sourceforge.net/)
+2. С++ компилятор Microsoft (cl.exe)
+3. Windows SDK (для msi.lib)
+
 Как собирать:
 
 1. Собираем вспомогательную тулзу:
