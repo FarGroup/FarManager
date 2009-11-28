@@ -22,7 +22,7 @@
 #
 #DEFFILE - name of user file to include
 #
-#EXCEPTION_TEST - set for generate Ctrl-Alt-Apps dialog in release
+#EXCEPTION_TEST - set to generate Ctrl-Alt-Apps dialog in release
 #
 
 #include for user defines if needed
@@ -266,7 +266,7 @@ DEFINES=\
 	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
 CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FARSYSLOG) /EHs-c- $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c /FAcs /Fa"$(CODDIR)\\"
-CPP_PROJ_RELEASE=/MT /O2
+CPP_PROJ_RELEASE=/MT /O2 /Oy-
 CPP_PROJ_DEBUG=/MTd /Od /Zi
 
 LINK_COMMON=$(LINK32_LIBS) /OPT:REF /OPT:ICF $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
