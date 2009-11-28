@@ -94,6 +94,6 @@ svn export http://localhost/svn/trunk/unicode_far far
 buildfar far new 1
 
 rm -fR farold
-svn export file:///svnroot/far/trunk farold
+svn export file:///svnroot/far/branches/171 farold
 
 buildfar farold old 0
