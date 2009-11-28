@@ -99,7 +99,7 @@ bool IsLocalPrefixRootPath(const wchar_t *Path)
 
 bool IsLocalVolumePath(const wchar_t *Path)
 {
-	return PathPrefix(Path) && !wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}';
+	return PathPrefix(Path) && !_wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}';
 }
 
 bool IsLocalVolumeRootPath(const wchar_t *Path)

@@ -76,7 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static FILE *LogStream=0;
 static int   Indent=0;
-static wchar_t *PrintTime(wchar_t *timebuf);
+static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
 
 
 static BOOL IsLogON()
@@ -94,13 +94,13 @@ static const wchar_t *MakeSpace()
   return Buf;
 }
 
-static wchar_t *PrintTime(wchar_t *timebuf)
+static wchar_t *PrintTime(wchar_t *timebuf,size_t size)
 {
   SYSTEMTIME st;
   GetLocalTime(&st);
 //  sprintf(timebuf,"%02d.%02d.%04d %2d:%02d:%02d.%03d",
 //      st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
-  swprintf(timebuf,L"%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	_snwprintf(timebuf,size,L"%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
   return timebuf;
 }
 
@@ -110,7 +110,7 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
   if(fp)
   {
     static wchar_t timebuf[64];
-    fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
+		fwprintf(fp,L"%s %s(%s) %s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
   }
   return fp;
 }
@@ -171,7 +171,7 @@ void ShowHeap()
   if ( LogStream)
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),L"Heap Status");
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),L"Heap Status");
 
     fwprintf(LogStream,L"   Size   Status\n");
     fwprintf(LogStream,L"   ----   ------\n");
@@ -243,7 +243,7 @@ void SysLog(const wchar_t *fmt,...)
   if ( LogStream )
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),msg);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -275,7 +275,7 @@ void SysLogLastError()
   {
     wchar_t timebuf[64];
 		// RemoveUnprintableCharacters(lpMsgBuf);
-    fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
+		fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -310,7 +310,7 @@ void SysLog(int l,const wchar_t *fmt,...)
   {
     if(l < 0) SysLog(l);
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),msg);
     fflush(LogStream);
     if(l > 0) SysLog(l);
   }
@@ -343,7 +343,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
   {
     OpenSysLog();
     fp=LogStream;
-    fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title),SizeBuf);
+		fwprintf(fp,L"%s %s<%s> [%u bytes]{\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title),SizeBuf);
   }
 
   if (fp)
@@ -358,7 +358,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
     for(Y=0; Y < CY; ++Y)
     {
       //memset(TmpBuf,' ',16);
-      fwprintf(fp,L"%s %s ",PrintTime(timebuf),MakeSpace());
+			fwprintf(fp,L"%s %s ",PrintTime(timebuf,countof(timebuf)),MakeSpace());
       fwprintf(fp, L" %08X: ",StartAddress+Y*16);
       for(X=0; X < 16; ++X)
       {
@@ -374,7 +374,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 
       fwprintf(fp,L"| %s\n",TmpBuf);
     }
-    fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+		fwprintf(fp,L"%s %s}</%s>\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title));
     fflush(fp);
   }
 
@@ -399,7 +399,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
     if(fp)
     {
       wchar_t timebuf[64];
-      fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+			fwprintf(fp,L"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),NullToEmpty(Title));
     }
   }
 
@@ -715,7 +715,7 @@ void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fm
   if ( LogStream )
   {
     wchar_t timebuf[64];
-    fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf),MakeSpace(),PointToName(ModuleName),msg);
+		fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),PointToName(ModuleName),msg);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -1500,7 +1500,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
     if(fp)
     {
       wchar_t timebuf[64];
-      fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf),MakeSpace(),ReadCount2);
+			fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf,countof(timebuf)),MakeSpace(),ReadCount2);
     }
   }
 

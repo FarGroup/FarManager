@@ -529,7 +529,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 {
 	tm *time_now;
 	time_t secs_now;
-	tzset();
+	_tzset();
 	time(&secs_now);
 	time_now=localtime(&secs_now);
 	if(!Fmt||!*Fmt)

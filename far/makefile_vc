@@ -25,28 +25,24 @@
 #EXCEPTION_TEST - set for generate Ctrl-Alt-Apps dialog in release
 #
 
+.SILENT:
+
 #include for user defines if needed
-!if defined(DEFFILE)
+!ifdef DEFFILE
 !include $(DEFFILE)
 !endif
 
 !if defined(AMD64) || "$(CPU)" == "AMD64"
-!undef AMD64
 !undef CPU
 AMD64=1
-CPU=AMD64
-DIRBIT = 64
-_BUILD64=1
+DIRBIT=64
 !elseif defined(IA64) || "$(CPU)" == "IA64"
-!undef IA64
 !undef CPU
 IA64=1
-CPU=IA64
-DIRBIT = IA64
-_BUILD64=1
+DIRBIT=IA64
 !else
+X86=1
 DIRBIT=32
-_BUILD64=0
 !endif
 
 !ifndef DEBUG
@@ -55,7 +51,7 @@ USEDEBUG=NDEBUG
 !else
 DIRNAME=Debug
 USEDEBUG=_DEBUG
-!endif                   
+!endif
 
 DEPFILE=far.vc.dep
 
@@ -63,18 +59,10 @@ OUTDIR=$(DIRNAME).$(DIRBIT).vc
 
 FARINCLUDE=Include
 
-CPP=cl.exe
-RSC=rc.exe /D__FARBIT__=$(DIRBIT)
-LINK32=link.exe
+LINK=link.exe
 ULINK=ulink.exe
 M4=tools\m4 -P -DFARBIT=$(DIRBIT)
 GAWK=tools\gawk
-
-!if $(_BUILD64)
-ML=ml64.exe
-!else
-ML=ml.exe
-!endif
 
 !ifdef FARSYSLOG
 INTDIR=$(OUTDIR)\objlog
@@ -89,7 +77,7 @@ RES_FILE = "$(INTDIR)\far.res"
 
 PCH_FILE = "$(INTDIR)\headers.pch"
 
-LINK32_OBJS = \
+LINK_OBJS = \
 	"$(INTDIR)\CachedWrite.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
@@ -214,7 +202,7 @@ LINK32_OBJS = \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
 	"$(INTDIR)\xlat.obj" \
-!if !$(_BUILD64) && !defined(DISABLE_WOW64_HOOK)
+!if defined(X86) && !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj"
 !endif
 
@@ -254,250 +242,194 @@ USE_VC8_32=1
 !endif
 !endif
 
-!ifndef USE_VC9
+!ifdef USE_VC9
+USE_VC8_32=1
+!else
 COMPAT64=/Wp64
 NOWIN98=/OPT:NOWIN98
-!else
-!undef USE_VC8_32
-USE_VC8_32=1
 !endif
 
-!ifndef USE_VC8_32
-CPP_ADD_32=/Gi
-!else
+!ifdef USE_VC8_32
 CPP_ADD_32=/GS- /GR-
+!else
+CPP_ADD_32=/Gi
 !endif
 
-LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib secur32.lib
+LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib secur32.lib
 
-RSC_PROJ=/l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
-
-ULINK_MODES=-q -m- -ap -Gz -O- -o- -Gh -Gh-
 
 DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
-	/D $(USEDEBUG)\
+	/D "$(USEDEBUG)"\
 !if defined(DEBUG) || defined(EXCEPTION_TEST)
 	/D "FAR_ALPHA_VERSION"\
 !endif
 !ifdef DEBUG
-	/D "SYSLOG_FARSYSLOG"\
 	/D "SYSLOG"\
+	/D "SYSLOG_FARSYSLOG"\
 !endif
-	/D "WIN32"\
-	/D "_CONSOLE"\
-	/D "_CRT_SECURE_NO_DEPRECATE"\
-	/D "_CRT_NONSTDC_NO_DEPRECATE"\
-	/D "_CRT_NON_CONFORMING_SWPRINTFS"
+	/D "_CRT_SECURE_NO_WARNINGS"\
 
-CPP_PROJ_COMMON=$(MP) $(COMPAT64) /W3 /nologo $(FARSYSLOG) /EHs-c- $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c /FAcs /Fa"$(CODDIR)\\"
-CPP_PROJ_RELEASE=/MT /O2
-CPP_PROJ_DEBUG=/MTd /Od /Zi
+CPPFLAGS=/nologo $(MP) $(COMPAT64) /W3 $(FARSYSLOG) /EHs-c- $(DEFINES) /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c /FAcs /Fa"$(CODDIR)\\"
+LINKFLAGS=/nologo $(LINK_LIBS) $(NOWIN98) /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
+ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh-
+RFLAGS=/nologo /D__FARBIT__=$(DIRBIT) /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
-LINK_COMMON=$(LINK32_LIBS) $(NOWIN98) /nologo /subsystem:console /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /release /nxcompat
-
-!if "$(OUTDIR)" == "Release.32.vc"
-
-USEDEBUG=NDEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) $(CPP_ADD_32) /Zp4
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:i386 /OPT:REF /OPT:ICF
-
-!elseif "$(OUTDIR)" == "Release.64.vc"
-
-USEDEBUG=NDEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:amd64 /OPT:REF /OPT:ICF
-ULINK_FLAGS=-Tpe+
-
-!elseif "$(OUTDIR)" == "Release.IA64.vc"
-
-USEDEBUG=NDEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_RELEASE) /GS- /GR- /Zp8
-LINK32_FLAGS=$(LINK_COMMON) /incremental:no /machine:IA64 /OPT:REF /OPT:ICF
-
-!elseif "$(OUTDIR)" == "Debug.64.vc"
-
-USEDEBUG=_DEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
-LINK32_FLAGS=$(LINK_COMMON) /debug /machine:amd64
-ULINK_FLAGS=-Tpe+ -v
-
-!elseif "$(OUTDIR)" == "Debug.IA64.vc"
-
-USEDEBUG=_DEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) /GS- /GR-
-LINK32_FLAGS=$(LINK_COMMON) /debug /machine:IA64
-
+!ifdef DEBUG
+CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
+LINKFLAGS=$(LINKFLAGS) /debug
+ULINKFLAGS=$(ULINKFLAGS) -v
 !else
+CPPFLAGS=$(CPPFLAGS) /MT /O2
+LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
+!endif
 
-USEDEBUG=_DEBUG
-
-CPP_PROJ=$(CPP_PROJ_COMMON) $(CPP_PROJ_DEBUG) $(CPP_ADD_32)
-LINK32_FLAGS=$(LINK_COMMON) /debug /machine:I386
-ULINK_FLAGS=-v
-
+!ifdef X86
+CPPFLAGS=$(CPPFLAGS) /Zp4 $(CPP_ADD_32)
+LINKFLAGS=$(LINKFLAGS) /machine:i386
+!elseifdef AMD64
+CPPFLAGS=$(CPPFLAGS) /Zp8 /GS- /GR-
+LINKFLAGS=$(LINKFLAGS) /machine:amd64
+ULINKFLAGS=$(ULINKFLAGS) -Tpe+
+!elseifdef IA64
+CPPFLAGS=$(CPPFLAGS) /Zp8 /GS- /GR-
+LINKFLAGS=$(LINKFLAGS) /machine:IA64
 !endif
 
 ALL: AllDirs lng depfile
-	@$(MAKE) /f makefile_vc build USEDEPS=1
+	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
 
 .PHONY: lng
 lng: farlang.templ
-	@echo generating language files
-	@tools\lng.generator.exe -nc -i lang.ini -ol "$(OUTDIR)" farlang.templ
+	echo generating language files
+	tools\lng.generator.exe -nc -i lang.ini -ol "$(OUTDIR)" farlang.templ
 
 .PHONY: depfile
 depfile:
-	@$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
+	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
 build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\FarKeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
-	@if not exist "$(OUTDIR)\" mkdir "$(OUTDIR)"
-	@if not exist "$(FARINCLUDE)\" mkdir "$(FARINCLUDE)"
-	@if not exist "$(INTDIR)\" mkdir "$(INTDIR)"
-	@if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
+	if not exist "$(OUTDIR)\" mkdir "$(OUTDIR)"
+	if not exist "$(FARINCLUDE)\" mkdir "$(FARINCLUDE)"
+	if not exist "$(INTDIR)\" mkdir "$(INTDIR)"
+	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 
-"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK32_OBJS) $(UCD_OBJS) $(RES_FILE) Far.exe.manifest far.rc copyright.inc farversion.inc
-	@echo linking $@
+"$(OUTDIR)\Far.exe": $(DEF_FILE) $(PCH_FILE) $(LINK_OBJS) $(UCD_OBJS) $(RES_FILE) Far.exe.manifest far.rc copyright.inc farversion.inc
+	echo linking $@
 !ifndef LINK_ULINK
-	@$(LINK32) @<<
-	$(LINK32_FLAGS) $(LINK32_OBJS) $(UCD_OBJS) $(RES_FILE)
+	$(LINK) @<<
+	$(LINKFLAGS) $(LINK_OBJS) $(UCD_OBJS) $(RES_FILE)
 <<
 !else
-        @$(ULINK) +- @+<<
-        $(ULINK_MODES) $(ULINK_FLAGS) $(LINK32_OBJS) $(UCD_OBJS)
+        $(ULINK) +- @+<<
+        $(ULINKFLAGS) $(LINK_OBJS) $(UCD_OBJS)
         ,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
-        ,$(LINK32_LIBS)
+        ,$(LINK_LIBS)
         ,"$(DEF_FILE)","$(RES_FILE)"
 <<
 !endif
 
 $(PCH_FILE): headers.cpp headers.hpp
-	@echo making precompiled headers
-	@$(CPP) $(CPP_PROJ) headers.cpp /Yc /Fp"$(PCH_FILE)"
+	echo making precompiled headers
+	$(CPP) $(CPPFLAGS) headers.cpp /Yc /Fp"$(PCH_FILE)"
 
 .c{$(INTDIR)}.obj::
-	@$(CPP) @<<
-	$(CPP_PROJ) $<
+	$(CPP) @<<
+	$(CPPFLAGS) $<
 <<
 
 .cpp{$(INTDIR)}.obj::
-	@$(CPP) @<<
-	$(CPP_PROJ) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
+	$(CPP) @<<
+	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
 <<
 
-.asm{$(INTDIR)}.obj:
-!if $(_BUILD64)
-	@$(ML) /c /Fo$@ $<
-!else
-	@$(ML) /c /coff /Fo$@ $<
-!endif
-
 {UCD}.c{$(INTDIR)}.obj::
-	@$(CPP) @<<
-	$(CPP_PROJ) $<
+	$(CPP) @<<
+	$(CPPFLAGS) $<
 <<
 
 {UCD}.cpp{$(INTDIR)}.obj::
-	@$(CPP) @<<
-	$(CPP_PROJ) $<
+	$(CPP) @<<
+	$(CPPFLAGS) $<
 <<
 
 $(RES_FILE): far.rc res.hpp Far.ico
-	@echo compiling resource file
-	@$(RSC) $(RSC_PROJ) far.rc
+	echo compiling resource file
+	$(RC) $(RFLAGS) far.rc
 
 !ifdef USEDEPS
 !include "$(DEPFILE)"
 !endif
 
-copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) copyright.inc.m4 | $(GAWK) -f .\scripts\enc.awk > $@
+MSG="echo generating $@"
 
-farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) farversion.inc.m4 > $@
+copyright.inc: $@.m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) $@.m4 | $(GAWK) -f .\scripts\enc.awk > $@
 
-Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) Far.exe.manifest.m4 > $@
+farversion.inc: $@.m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) $@.m4 > $@
 
-far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 Far.exe.manifest res.hpp
-	@echo generating $@
-	@$(M4) far.rc.m4 > $@
+Far.exe.manifest: $@.m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) $@.m4 > $@
 
-farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) farlang.templ.m4 > $@
+far.rc: $@.m4 farversion.m4 tools.m4 vbuild.m4 Far.exe.manifest res.hpp
+	$(MSG)
+	$(M4) $@.m4 > $@
 
-$(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=colors.hpp headers.m4 > $@
+farlang.templ: $@.m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) $@.m4 > $@
 
-$(FARINCLUDE)/farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=keys.hpp headers.m4 > $@
+$(FARINCLUDE)\farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=colors.hpp headers.m4 > $@
 
-$(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=plugin.hpp headers.m4 > $@
+$(FARINCLUDE)\farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=keys.hpp headers.m4 > $@
 
-$(OUTDIR)\FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(GAWK) -f .\scripts\mkhlf.awk FarEng.hlf.m4 | $(M4) > $@
+$(FARINCLUDE)\plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=plugin.hpp headers.m4 > $@
 
-$(OUTDIR)\FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(GAWK) -f .\scripts\mkhlf.awk FarRus.hlf.m4 | $(M4) > $@
+$(OUTDIR)\FarEng.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
-$(OUTDIR)\FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(GAWK) -f .\scripts\mkhlf.awk FarHun.hlf.m4 | $(M4) > $@
+$(OUTDIR)\FarRus.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
-$(OUTDIR)\File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) File_id.diz.m4 > $@
+$(OUTDIR)\FarHun.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
-$(FARINCLUDE)/PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=PluginW.pas headers.m4 > $@
+$(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) $(@F).m4 > $@
 
-$(FARINCLUDE)/FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
+$(FARINCLUDE)\PluginW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
-$(FARINCLUDE)/FarKeysW.pas: FarKeysW.pas farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
-	@$(M4) -DINPUT=FarKeysW.pas headers.m4 > $@
+$(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=$(@F) headers.m4 > $@
+
+$(FARINCLUDE)\FarKeysW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(M4) -DINPUT=$(@F) headers.m4 > $@
 
 
 .PHONY: CLEAN
 CLEAN:
-	@echo cleaning
-	-@del /q /f "$(INTDIR)\*.*"          > nul 2> nul
-	-@del /q /f "$(CODDIR)\*.*"          > nul 2> nul
-	-@del /q /f "lang.ini"               > nul 2> nul
-	-@del /q /f "lang.hpp"               > nul 2> nul
-	-@del /q /f "farlang.templ"          > nul 2> nul
-	-@del /q /f "copyright.inc"          > nul 2> nul
-	-@del /q /f "farversion.inc"         > nul 2> nul
-	-@del /q /f "far.rc"                 > nul 2> nul
-	-@del /q /f "Far.exe.manifest"       > nul 2> nul
-	-@del /q /f "$(DEPFILE)"             > nul 2> nul
-	-@del /q /f "$(OUTDIR)\Far.exe"      > nul 2> nul
-	-@del /q /f "$(OUTDIR)\Far.exp"      > nul 2> nul
-	-@del /q /f "$(OUTDIR)\Far.lib"      > nul 2> nul
-	-@del /q /f "$(OUTDIR)\Far.map"      > nul 2> nul
-	-@del /q /f "$(OUTDIR)\*.hlf"        > nul 2> nul
-	-@del /q /f "$(OUTDIR)\*.lng"        > nul 2> nul
-	-@del /q /f "$(OUTDIR)\File_id.diz"  > nul 2> nul
+	echo cleaning
+	for %%i in ("$(INTDIR)\*.*" "$(CODDIR)\*.*" "lang.ini" "lang.hpp" "farlang.templ" "copyright.inc" "farversion.inc" "far.rc" "Far.exe.manifest" "$(DEPFILE)" "$(OUTDIR)\Far.exe" "$(OUTDIR)\Far.exp" "$(OUTDIR)\Far.lib" "$(OUTDIR)\Far.map" "$(OUTDIR)\Far.pdb" "$(OUTDIR)\*.hlf" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz") do @if exist %%i del /q /f %%i

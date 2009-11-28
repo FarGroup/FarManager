@@ -1415,7 +1415,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 		return FALSE;
 	}
 
-	if ( (EditFile=fdopen(EditHandle,"rb")) == NULL )
+	if ( (EditFile=_fdopen(EditHandle,"rb")) == NULL )
 	{
 		_close(EditHandle);
 		return FALSE;
@@ -1886,7 +1886,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 					if(SaveStrCopy)
 					{
 						if(codepage == CP_REVERSEBOM)
-							swab((char*)SaveStr,SaveStrCopy,length);
+							_swab((char*)SaveStr,SaveStrCopy,length);
 						else
 							WideCharToMultiByte (codepage, 0, SaveStr, Length, SaveStrCopy, length, NULL, NULL);
 						if(!Cache.Write(SaveStrCopy,length))
@@ -1906,7 +1906,7 @@ int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextForm
 						if(EndSeqCopy)
 						{
 							if(codepage == CP_REVERSEBOM)
-								swab((char*)EndSeq,EndSeqCopy,endlength);
+								_swab((char*)EndSeq,EndSeqCopy,endlength);
 							else
 								WideCharToMultiByte (codepage, 0, EndSeq, EndLength, EndSeqCopy, endlength, NULL, NULL);
 							if(!Cache.Write(EndSeqCopy,endlength))

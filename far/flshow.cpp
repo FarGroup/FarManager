@@ -60,7 +60,7 @@ static int __FormatEndSelectedPhrase(int Count)
   if(Count != 1)
   {
     char StrItems[32];
-    itoa(Count,StrItems,10);
+		_itoa(Count,StrItems,10);
     int LenItems=(int)strlen(StrItems);
     if(StrItems[LenItems-1] == '1' && Count != 11)
       M_Fmt=MListFilesSize1;

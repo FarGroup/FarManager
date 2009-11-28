@@ -271,7 +271,7 @@ int GetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBigEnd
 				}
 
 				if (bBigEndian)
-					swab((char*)&wReadBuf, (char*)&wReadBuf, ReadSize);
+					_swab((char*)&wReadBuf, (char*)&wReadBuf, ReadSize);
 
 				ReadPos = 0;
 				ReadBufPtr = wReadBuf;
@@ -506,7 +506,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodeP
 
         if ( nCodePage == CP_REVERSEBOM )
         {
-            swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
+						_swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
 
             wchar_t *Ch = lpwszDest;
             int nLength = Min (static_cast<int>(wcslen (lpwszDest)), nDestLength);

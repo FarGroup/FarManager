@@ -1512,7 +1512,7 @@ int Edit::InsertKey(int Key)
         if ((NewStr=(wchar_t *)xf_realloc(Str,(CurPos+2)*sizeof (wchar_t)))==NULL)
           return(FALSE);
         Str=NewStr;
-        swprintf(&Str[StrSize],L"%*s",CurPos-StrSize,L"");
+				_snwprintf(&Str[StrSize],CurPos+2,L"%*s",CurPos-StrSize,L"");
         //memset(Str+StrSize,' ',CurPos-StrSize);Str[CurPos+1]=0;
         StrSize=CurPos+1;
       }
@@ -1865,7 +1865,7 @@ void Edit::InsertBinaryString(const wchar_t *Str,int Length)
         if ((NewStr=(wchar_t *)xf_realloc(Edit::Str,(CurPos+1)*sizeof (wchar_t)))==NULL)
           return;
         Edit::Str=NewStr;
-        swprintf(&Edit::Str[StrSize],L"%*s",CurPos-StrSize,L"");
+				_snwprintf(&Edit::Str[StrSize],CurPos+1,L"%*s",CurPos-StrSize,L"");
         //memset(Edit::Str+StrSize,' ',CurPos-StrSize);Edit::Str[CurPos+1]=0;
         StrSize=CurPos;
       }

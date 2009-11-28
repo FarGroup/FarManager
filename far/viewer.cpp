@@ -248,7 +248,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
       WriteFile(OutHandle,ReadBuf,ReadSize,&WrittenSize,NULL);
     int InpHandle=_open_osfhandle((intptr_t)OutHandle,O_BINARY);
     if (InpHandle!=-1)
-      NewViewFile=fdopen(InpHandle,"rb");
+			NewViewFile=_fdopen(InpHandle,"rb");
     vseek(NewViewFile,0,SEEK_SET);
     ReadStdin=TRUE;
   }
@@ -269,7 +269,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
         CloseHandle(hView);
       else
       {
-        NewViewFile=fdopen(ViewHandle,"rb");
+				NewViewFile=_fdopen(ViewHandle,"rb");
         if (NewViewFile==NULL)
           _close(ViewHandle);
       }
@@ -637,7 +637,7 @@ void Viewer::ShowHex()
 
     if (Y==Y1+1 && !feof(ViewFile))
       SecondPos=vtell(ViewFile);
-    swprintf(OutStr,L"%010I64X: ",(__int64)ftell64(ViewFile));
+		_snwprintf(OutStr,countof(OutStr),L"%010I64X: ",(__int64)ftell64(ViewFile));
 
     TextPos=0;
 
@@ -706,9 +706,10 @@ void Viewer::ShowHex()
 					WCHAR OutChar=Ch;
 					if(VM.CodePage == CP_REVERSEBOM)
 					{
-						swab(reinterpret_cast<LPSTR>(&OutChar),reinterpret_cast<LPSTR>(&OutChar),sizeof(WCHAR));
+						_swab(reinterpret_cast<LPSTR>(&OutChar),reinterpret_cast<LPSTR>(&OutChar),sizeof(WCHAR));
 					}
-					swprintf(OutStr+StrLength(OutStr),L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
+					int OutStrLen=StrLength(OutStr);
+					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X%02X ",HIBYTE(OutChar),LOBYTE(OutChar));
 
 					if(!Ch)
 					{
@@ -773,7 +774,8 @@ void Viewer::ShowHex()
 
           WideCharToMultiByte(VM.CodePage, 0, (const wchar_t*)&Ch,1, &NewCh,1," ",NULL);
 
-          swprintf(OutStr+StrLength(OutStr),L"%02X ", NewCh);
+					int OutStrLen=StrLength(OutStr);
+					_snwprintf(OutStr+OutStrLen,countof(OutStr)-OutStrLen,L"%02X ", NewCh);
           if (Ch==0)
             Ch=L' ';
           TextStr[TextPos++]=Ch;

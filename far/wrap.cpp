@@ -518,7 +518,7 @@ char* WINAPI RemoveTrailingSpacesA(char *Str)
 char *WINAPI FarItoaA(int value, char *string, int radix)
 {
   if(string)
-    return itoa(value,string,radix);
+		return _itoa(value,string,radix);
   return NULL;
 }
 

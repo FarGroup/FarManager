@@ -460,7 +460,7 @@ int Message(
     {
       lpwszTemp = (wchar_t*)xf_malloc ((Width-10+1)*sizeof (wchar_t));
 
-      swprintf(lpwszTemp,L"%.*s",Width-10,CPtrStr);
+			_snwprintf(lpwszTemp,Width-10+1,L"%.*s",Width-10,CPtrStr);
       GotoXY(X1+5,Y1+I+2);
     }
     else
@@ -468,7 +468,7 @@ int Message(
       PosX=X1+(Width-Length)/2;
 
       lpwszTemp = (wchar_t*)xf_malloc ((PosX-X1-4+Length+X2-PosX-Length-3+1)*sizeof (wchar_t));
-      swprintf(lpwszTemp,L"%*s%.*s%*s",PosX-X1-4,L"",Length,CPtrStr,X2-PosX-Length-3,L"");
+			_snwprintf(lpwszTemp,PosX-X1-4+Length+X2-PosX-Length-3+1,L"%*s%.*s%*s",PosX-X1-4,L"",Length,CPtrStr,X2-PosX-Length-3,L"");
       GotoXY(X1+4,Y1+I+2);
     }
     Text(lpwszTemp);

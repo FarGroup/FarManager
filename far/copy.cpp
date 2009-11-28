@@ -859,7 +859,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
     // коррекция языка - про окончания
     char StrItems[32];
-    itoa(CDP.SelCount,StrItems,10);
+		_itoa(CDP.SelCount,StrItems,10);
     int LenItems=(int)strlen(StrItems);
     int NItems=MCMLItemsA;
     if (LenItems > 0)
