@@ -1084,7 +1084,7 @@ int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
 
 		if (ReadKey==KEY_CTRLALTF ||
 			(bFilterEnabled &&
-				((!bFilterLocked && ((ReadKey >= KEY_SPACE && ReadKey < 0xffff) || ReadKey==KEY_BS || ReadKey==KEY_CTRLALTL))
+				((!bFilterLocked && ((((DWORD)ReadKey) >= KEY_SPACE && ((DWORD)ReadKey) < 0xffff) || ReadKey==KEY_BS || ReadKey==KEY_CTRLALTL))
 				|| (bFilterLocked && ReadKey==KEY_CTRLALTL))))
 		{
 			ProcessInput();
@@ -1346,7 +1346,7 @@ int VMenu::ProcessKey(int Key)
     {
       int OldSelectPos=SelectPos;
 
-			if (bFilterEnabled && !bFilterLocked && Key<0xffff && (Key >= KEY_SPACE || Key==KEY_BS))
+			if (bFilterEnabled && !bFilterLocked && ((DWORD)Key)<0xffff && (((DWORD)Key) >= KEY_SPACE || Key==KEY_BS))
 			{
 				if (Key==KEY_BS)
 				{

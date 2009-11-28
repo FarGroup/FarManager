@@ -23,7 +23,7 @@
 #
 #DEFFILE - name of user file to include
 #
-#EXCEPTION_TEST - set for generate Ctrl-Alt-Apps dialog in release
+#EXCEPTION_TEST - set to generate Ctrl-Alt-Apps dialog in release
 #
 
 .SILENT:

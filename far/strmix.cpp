@@ -99,35 +99,36 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 static wchar_t * WINAPI InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 {
   size_t l = StrLength(Str);
+
   if (*Str != QuoteChar)
   {
     wmemmove(Str+1,Str,++l);
     *Str=QuoteChar;
   }
+
   if ((l-1) == 0 || Str[l-1] != QuoteChar)
   {
     Str[l++] = QuoteChar;
     Str[l] = 0;
   }
+
   return Str;
 }
 
 static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 {
   size_t l = strStr.GetLength();
-  wchar_t *Str = strStr.GetBuffer (strStr.GetLength()+3);
 
-  if (*Str != QuoteChar)
+  if (strStr.At(0) != QuoteChar)
   {
-    wmemmove(Str+1,Str,++l);
-    *Str=QuoteChar;
-  }
-  if((l-1) == 0 || Str[l-1] != QuoteChar)
-  {
-    Str[l++] = QuoteChar;
+    strStr.Insert(0,QuoteChar);
+    l++;
   }
 
-  strStr.ReleaseBuffer (l);
+  if ((l-1) == 0 || strStr.At(l-1) != QuoteChar)
+  {
+    strStr += QuoteChar;
+  }
 
   return strStr;
 }
@@ -161,7 +162,7 @@ string& InsertQuote(string &strStr)
 
 string& InsertRegexpQuote(string &strStr)
 {
-  if (strStr.GetLength()==0 || strStr[0] != L'/')
+  if (strStr.IsEmpty() || strStr[0] != L'/')
     return InsertCustomQuote(strStr,L'/');
   else          //выражение вида /regexp/i не дополняем слэшем
     return strStr;
@@ -336,11 +337,11 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 
 string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 {
-	wchar_t *lpwszStr= strStr.GetBuffer ();
+	wchar_t *lpwszStr = strStr.GetBuffer();
 
 	TruncPathStr(lpwszStr, MaxLength);
 
-	strStr.ReleaseBuffer ();
+	strStr.ReleaseBuffer();
 
 	return strStr;
 }
@@ -348,30 +349,29 @@ string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 
 wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
 {
-  wchar_t *ChPtr;
-  if ((ChPtr=Str) == 0)
+  wchar_t *ChPtr = Str;
+
+  if (!ChPtr)
     return NULL;
 
   for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
-         ;
+    ;
+
   if (ChPtr!=Str)
     wmemmove(Str,ChPtr,StrLength(ChPtr)+1);
+
   return Str;
 }
 
 
 string& WINAPI RemoveLeadingSpaces(string &strStr)
 {
-  wchar_t *ChPtr = strStr.GetBuffer ();
-  wchar_t *Str = ChPtr;
+  const wchar_t *ChPtr = strStr;
 
   for (; IsSpace(*ChPtr) || IsEol(*ChPtr); ChPtr++)
     ;
 
-  if (ChPtr!=Str)
-    wmemmove(Str,ChPtr,(StrLength(ChPtr)+1));
-
-  strStr.ReleaseBuffer ();
+  strStr.Remove(0,ChPtr-strStr.CPtr());
 
   return strStr;
 }
@@ -382,13 +382,11 @@ wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 {
   if (!Str)
     return NULL;
-  if (*Str == L'\0')
+
+  if (!*Str)
     return Str;
 
-  wchar_t *ChPtr;
-  size_t I;
-
-  for (ChPtr=Str+(I=StrLength(Str))-1; I > 0; I--, ChPtr--)
+  for (wchar_t *ChPtr=Str+StrLength(Str)-1; ChPtr >= Str; ChPtr--)
   {
     if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
@@ -402,12 +400,16 @@ wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 
 string& WINAPI RemoveTrailingSpaces(string &strStr)
 {
-  if ( strStr.IsEmpty () )
+  if (strStr.IsEmpty())
     return strStr;
 
-  RemoveTrailingSpaces(strStr.GetBuffer());
+  const wchar_t *Str = strStr;
+  const wchar_t *ChPtr = Str + strStr.GetLength() - 1;
 
-  strStr.ReleaseBuffer ();
+  for (; ChPtr >= Str && (IsSpace(*ChPtr) || IsEol(*ChPtr)); ChPtr--)
+    ;
+
+  strStr.SetLength(ChPtr < Str ? 0 : ChPtr-Str+1);
 
   return strStr;
 }
@@ -430,8 +432,7 @@ string&  WINAPI RemoveExternalSpaces(string &strStr)
 */
 string& WINAPI RemoveUnprintableCharacters(string &strStr)
 {
-  wchar_t *Str = strStr.GetBuffer ();
-  wchar_t *p = Str;
+  wchar_t *p = strStr.GetBuffer();
 
   while (*p)
   {
@@ -440,7 +441,7 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
      p++;
   }
 
-  strStr.ReleaseBuffer();
+  strStr.ReleaseBuffer(strStr.GetLength());
 
   return RemoveExternalSpaces(strStr);
 }
@@ -499,45 +500,42 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
-  int WordPos,SkipBrackets;
   if (*Src==0)
-    return(NULL);
-  SkipBrackets=FALSE;
+    return NULL;
 
-  wchar_t *lpwszWord = strWord.GetBuffer (StrLength(Src)+1); //BUGBUG
+  const wchar_t *StartPtr = Src;
+  size_t WordLen;
+  bool SkipBrackets=false;
 
-  for (WordPos=0;*Src!=0;Src++,WordPos++)
+  for (WordLen=0; *Src!=0; Src++,WordLen++)
   {
     if (*Src==L'[' && wcschr(Src+1,L']')!=NULL)
-      SkipBrackets=TRUE;
+      SkipBrackets=true;
+
     if (*Src==L']')
-      SkipBrackets=FALSE;
+      SkipBrackets=false;
+
     if (*Src==Separator && !SkipBrackets)
     {
-      lpwszWord[WordPos]=0;
       Src++;
       while (IsSpace(*Src))
         Src++;
 
-      strWord.ReleaseBuffer ();
-      return(Src);
+      strWord.Copy(StartPtr,WordLen);
+
+      return Src;
     }
-    else
-      lpwszWord[WordPos]=*Src;
   }
-  lpwszWord[WordPos]=0;
 
-  strWord.ReleaseBuffer ();
+  strWord.Copy(StartPtr,WordLen);
 
-  return(Src);
+  return Src;
 }
 
 
-BOOL IsCaseMixed (
-	const string &strSrc
-	)
+BOOL IsCaseMixed(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
+	const wchar_t *lpwszSrc = strSrc;
 
 	while ( *lpwszSrc && !IsAlpha (*lpwszSrc) )
 		lpwszSrc++;
@@ -551,11 +549,9 @@ BOOL IsCaseMixed (
 	return FALSE;
 }
 
-BOOL IsCaseLower (
-	const string &strSrc
-	)
+BOOL IsCaseLower(const string &strSrc)
 {
-	const wchar_t *lpwszSrc = (const wchar_t*)strSrc;
+	const wchar_t *lpwszSrc = strSrc;
 
 	while ( *lpwszSrc )
 	{
@@ -574,7 +570,9 @@ void WINAPI Unquote(wchar_t *Str)
 {
   if (!Str)
     return;
+
   wchar_t *Dst=Str;
+
   while (*Str)
   {
     if (*Str!=L'\"')
@@ -587,8 +585,9 @@ void WINAPI Unquote(wchar_t *Str)
 
 void WINAPI Unquote(string &strStr)
 {
-  wchar_t *Dst = strStr.GetBuffer ();
+  wchar_t *Dst = strStr.GetBuffer();
   const wchar_t *Str = Dst;
+  const wchar_t *StartPtr = Dst;
 
   while (*Str)
   {
@@ -596,17 +595,17 @@ void WINAPI Unquote(string &strStr)
       *Dst++=*Str;
     Str++;
   }
-  *Dst=0;
 
-  strStr.ReleaseBuffer ();
+  strStr.ReleaseBuffer(Dst-StartPtr);
 }
 
 
 void UnquoteExternal(string &strStr)
 {
-  if (strStr.At(0) == L'\"' && strStr.At(strStr.GetLength()-1) == L'\"')
+  size_t len = strStr.GetLength();
+  if (len > 1 && strStr.At(0) == L'\"' && strStr.At(len-1) == L'\"')
   {
-    strStr.SetLength(strStr.GetLength()-1);
+    strStr.SetLength(len-1);
     strStr.LShift(1);
   }
 }

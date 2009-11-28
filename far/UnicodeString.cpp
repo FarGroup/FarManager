@@ -212,16 +212,20 @@ void UnicodeString::ReleaseBuffer (size_t nLength)
 
 size_t UnicodeString::SetLength(size_t nLength)
 {
-	if (!nLength && m_pData->GetRef() > 1)
+	if (nLength < m_pData->GetLength())
 	{
-		m_pData->DecRef();
-		SetEUS();
+		if (!nLength && m_pData->GetRef() > 1)
+		{
+			m_pData->DecRef();
+			SetEUS();
+		}
+		else
+		{
+			Inflate(nLength+1);
+			return m_pData->SetLength(nLength);
+		}
 	}
-	else if (nLength < m_pData->GetLength())
-	{
-		Inflate(nLength+1);
-		return m_pData->SetLength(nLength);
-	}
+
 	return m_pData->GetLength();
 }
 

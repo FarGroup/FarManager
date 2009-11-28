@@ -353,7 +353,7 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
   return 0;
 }
 
-const int cVolumeGuidLen = 48;
+const size_t cVolumeGuidLen = 48;
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
@@ -507,7 +507,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
             BOOL Res = hEnum != INVALID_HANDLE_VALUE;
             while (Res)
             {
-              if (StrLength(VolumeName) >= cVolumeGuidLen)
+              if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
               {
                 DeleteEndSlash(VolumeName);
                 int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
