@@ -33,27 +33,21 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -91,7 +85,6 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug.32.vc\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)obj\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug.64.vc\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)obj\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
@@ -116,8 +109,6 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">far</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">far</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">far</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">far</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">far</TargetName>
@@ -128,6 +119,9 @@
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">false</EmbedManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">false</EmbedManifest>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">far</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">far</TargetName>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
@@ -139,7 +133,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -156,7 +150,7 @@ if not exist Include mkdir Include
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -165,7 +159,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>
@@ -176,8 +169,7 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,7 +182,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>NDEBUG;_WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -207,7 +199,7 @@ if not exist Include mkdir Include
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -216,7 +208,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -226,8 +217,7 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
@@ -240,7 +230,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -257,7 +247,7 @@ if not exist Include mkdir Include
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -266,7 +256,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -276,8 +265,7 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineIA64</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -290,7 +278,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -308,7 +296,6 @@ if not exist Include mkdir Include
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
@@ -318,7 +305,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -329,8 +315,6 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -343,7 +327,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -360,9 +344,8 @@ if not exist Include mkdir Include
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -371,7 +354,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -382,8 +364,6 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
@@ -396,7 +376,7 @@ if not exist Include mkdir Include
     <ClCompile>
       <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>
@@ -414,7 +394,6 @@ if not exist Include mkdir Include
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
@@ -424,7 +403,6 @@ if not exist Include mkdir Include
     <Link>
       <AdditionalDependencies>mpr.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)far.exe</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
@@ -435,8 +413,6 @@ if not exist Include mkdir Include
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>
       </RandomizedBaseAddress>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
-      <TargetMachine>MachineIA64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
