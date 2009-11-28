@@ -276,8 +276,8 @@ CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else
-CPPFLAGS=$(CPPFLAGS) /MT /O2
-LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
+CPPFLAGS=$(CPPFLAGS) /MT /O2 /Zi
+LINKFLAGS=$(LINKFLAGS) /debug /incremental:no /OPT:REF /OPT:ICF
 !endif
 
 # platform-cpecific

@@ -1381,11 +1381,12 @@ void Dialog::GetDialogObjectsData()
              (DI_FIXEDIT допускается для случая если нету маски)
           */
 
+          if((IFlags&DIF_EDITEXPAND) && Type != DI_PSWEDIT && Type != DI_FIXEDIT)
+             apiExpandEnvironmentStrings(strData, strData);
+
           CurItem->strData = strData;
 
-
-          if((IFlags&DIF_EDITEXPAND) && Type != DI_PSWEDIT && Type != DI_FIXEDIT)
-             apiExpandEnvironmentStrings(CurItem->strData, CurItem->strData);
+          EditPtr->SetString(strData);
         }
         break;
       }

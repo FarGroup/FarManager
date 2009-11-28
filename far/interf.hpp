@@ -107,7 +107,6 @@ void ShowTime(int ShowAlways);
   С 0 используется для ConsoleDetach.
 */
 void InitConsole(int FirstInit=TRUE);
-void ReopenConsole();
 void CloseConsole();
 void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
 void ChangeConsoleMode(int Mode);

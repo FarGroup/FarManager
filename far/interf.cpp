@@ -65,16 +65,15 @@ WCHAR Oem2Unicode[256];
 
 static void __Create_CONOUT()
 {
-	hConOut=CreateFile(L"CONOUT$",GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-
-  ScrBuf.SetHandle(hConOut);
+	//hConOut=CreateFile(L"CONOUT$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+	hConOut=GetStdHandle(STD_OUTPUT_HANDLE);
+	ScrBuf.SetHandle(hConOut);
 }
 
 static void __Create_CONIN()
 {
-		hConInp=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,
-          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+	//hConInp=CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+	hConInp=GetStdHandle(STD_INPUT_HANDLE);
 }
 
 void InitConsole(int FirstInit)
@@ -126,16 +125,6 @@ void InitConsole(int FirstInit)
   PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
 #endif
 }
-
-
-void ReopenConsole()
-{
-  HANDLE hOldOut=hConOut;
-  __Create_CONOUT();
-  SetStdHandle(STD_OUTPUT_HANDLE,hConOut);
-  CloseHandle(hOldOut);
-}
-
 
 void CloseConsole()
 {
@@ -413,6 +402,8 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
   GetConsoleScreenBufferInfo(hConOut,&csbi);
   ScrX=csbi.dwSize.X-1;
   ScrY=csbi.dwSize.Y-1;
+  assert(ScrX>0);
+  assert(ScrY>0);
   WidthNameForMessage=(ScrX*38)/100+1;
   if(PrevScrX == -1) PrevScrX=ScrX;
   if(PrevScrY == -1) PrevScrY=ScrY;

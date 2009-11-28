@@ -275,7 +275,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (MenuMode != MM_MAIN)
 		{
 			// ѕытаемс€ открыть файл на локальном диске
-			FILE *MenuFile=_wfopen(strMenuFileFullPath,L"rb");
+			FILE *MenuFile=_wfopen(NTPath(strMenuFileFullPath),L"rb");
 			if(MenuFile)
 			{
 				// сливаем содержимое в реестр "на запасной путь" и оттуда будем пользовать
@@ -350,7 +350,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 						apiSetFileAttributes(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
 				}
 
-				FILE *MenuFile=_wfopen(strMenuFileFullPath,L"wb");
+				FILE *MenuFile=_wfopen(NTPath(strMenuFileFullPath),L"wb");
 				if(MenuFile)
 				{
 					MenuRegToFile(strLocalMenuKey,MenuFile);
