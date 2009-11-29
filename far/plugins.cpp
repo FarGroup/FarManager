@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "processname.hpp"
+#include "interf.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)

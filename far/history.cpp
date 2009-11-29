@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "strmix.hpp"
 #include "dialog.hpp"
+#include "interf.hpp"
 
 History::History(enumHISTORYTYPE TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
 {

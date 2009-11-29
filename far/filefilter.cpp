@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "interf.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
 

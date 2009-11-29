@@ -62,6 +62,14 @@ static int InitCurVisible,InitCurSize;
 static CONSOLE_SCREEN_BUFFER_INFO windowholder_csbi;
 
 WCHAR Oem2Unicode[256];
+WCHAR BoxSymbols[64];
+
+CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
+CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
+SHORT ScrX=0,ScrY=0;
+SHORT PrevScrX=-1,PrevScrY=-1;
+HANDLE hConOut=NULL,hConInp=NULL;
+DWORD InitialConsoleMode=0;
 
 static void __Create_CONOUT()
 {
@@ -442,7 +450,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   */
   if(!Opt.CloseConsoleRule)
   {
-    if ((CurrentEditor!=NULL && CurrentEditor->IsFileModified()) ||
+    if ((FileEditor::CurrentEditor!=NULL && FileEditor::CurrentEditor->IsFileModified()) ||
         (FrameManager && FrameManager->IsAnyFrameModified (FALSE)))
       return(TRUE);
     return(FALSE);

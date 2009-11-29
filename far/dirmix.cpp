@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "interf.hpp"
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {

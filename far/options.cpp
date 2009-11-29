@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filetype.hpp"
 #include "ffolders.hpp"
 #include "strmix.hpp"
+#include "interf.hpp"
 
 enum enumMenus {
 	MENU_LEFT,

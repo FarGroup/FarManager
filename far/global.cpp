@@ -66,16 +66,7 @@ int WaitInFastFind=FALSE;
 // мы крутимся в основном цикле?
 int WaitInMainLoop=FALSE;
 
-
-CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
-CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
-SHORT ScrX=0,ScrY=0;
-SHORT PrevScrX=-1,PrevScrY=-1;
-HANDLE hConOut=NULL,hConInp=NULL;
-
 clock_t StartIdleTime=0;
-
-DWORD InitialConsoleMode=0;
 
 clock_t StartExecTime=0;
 
@@ -94,7 +85,6 @@ int GlobalSearchReverse=FALSE;
 
 int ScreenSaverActive=FALSE;
 
-FileEditor *CurrentEditor=NULL;
 int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
 int CmpNameSearchMode=FALSE;
@@ -108,19 +98,10 @@ const wchar_t UNIX_EOL_fmt[] = L"\n";
 const wchar_t MAC_EOL_fmt[]  = L"\r";
 const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 
-const char DOS_EOL_fmtA[]  = "\r\n";
-const char UNIX_EOL_fmtA[] = "\n";
-const char MAC_EOL_fmtA[]  = "\r";
-const char WIN_EOL_fmtA[]  = "\r\r\n";
-
-
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;
 
 const wchar_t *FarTitleAddons=L" - Far";
-
-const wchar_t FAR_VerticalBlock[]= L"FAR_VerticalBlock";
-const wchar_t FAR_VerticalBlock_Unicode[]= L"FAR_VerticalBlock_Unicode";
 
 const wchar_t *HelpFileMask=L"*.hlf";
 const wchar_t *HelpFormatLinkModule=L"<%s>%s";
@@ -136,13 +117,9 @@ SaveScreen *GlobalSaveScrPtr=NULL;
 
 int CriticalInternalError=FALSE;
 
-int UsedInternalClipboard=0;
-
 #if defined(DETECT_ALT_ENTER)
 int PrevFarAltEnterMode=-1;
 #endif
-
-WCHAR BoxSymbols[64];
 
 int _localLastError=0;
 

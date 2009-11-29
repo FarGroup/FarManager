@@ -76,6 +76,10 @@ enum FFILEEDIT_FLAGS{
 
 class FileEditor : public Frame
 {
+public:
+
+	static const FileEditor *CurrentEditor;
+
 private:
 
     Editor *m_editor;
@@ -146,8 +150,8 @@ public:
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
     virtual void ShowConsoleTitle();
-    int IsFileChanged() {return(m_editor->IsFileChanged());};
-    virtual int IsFileModified() {return(m_editor->IsFileModified());};
+    BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
+    virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };
     virtual void OnChangeFocus(int focus);
 
     virtual void SetScreenPosition();

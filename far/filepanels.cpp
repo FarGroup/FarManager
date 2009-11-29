@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "options.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
+#include "interf.hpp"
 
 FilePanels::FilePanels()
 {

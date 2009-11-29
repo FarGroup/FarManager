@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "RefreshFrameManager.hpp"
+#include "interf.hpp"
 
 UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
 {

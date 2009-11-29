@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "savescr.hpp"
 #include "syslog.hpp"
+#include "interf.hpp"
 
 #if defined(PROJECT_DI_MEMOEDIT)
 /*

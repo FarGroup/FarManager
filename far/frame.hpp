@@ -84,7 +84,7 @@ class Frame: public ScreenObject
     int  GetExitCode() { return ExitCode; };
     virtual void SetExitCode(int Code) { ExitCode=Code; };
 
-    virtual BOOL IsFileModified() {return(FALSE);};
+    virtual BOOL IsFileModified() const { return FALSE; };
 
     virtual const wchar_t *GetTypeName() {return L"[FarModal]";};
     virtual int GetTypeAndName(string &strType, string &strName) {return(MODALTYPE_VIRTUAL);};

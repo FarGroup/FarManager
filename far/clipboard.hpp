@@ -33,6 +33,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+extern int UseInternalClipboard;
+extern const wchar_t FAR_VerticalBlock[];
+extern const wchar_t FAR_VerticalBlock_Unicode[];
+
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);

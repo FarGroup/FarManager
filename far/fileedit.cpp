@@ -316,6 +316,8 @@ bool dlgSaveFileAs (string &strFileName, int &TextFormat, UINT &codepage,bool &A
 }
 
 
+const FileEditor *FileEditor::CurrentEditor = NULL;
+
 FileEditor::FileEditor(
 		const wchar_t *Name,
 		UINT codepage,

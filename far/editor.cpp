@@ -1891,8 +1891,8 @@ int Editor::ProcessKey(int Key)
         CurLine->GetSelection(SelStart,SelEnd);
 
         Pasting++;
-        int OldUsedInternalClipboard=UsedInternalClipboard;
-        UsedInternalClipboard=1;
+        int OldUseInternalClipboard=UseInternalClipboard;
+        UseInternalClipboard=1;
         ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
         /* $ 10.04.2001 SVS
@@ -1910,7 +1910,7 @@ int Editor::ProcessKey(int Key)
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
         EmptyInternalClipboard();
-        UsedInternalClipboard=OldUsedInternalClipboard;
+        UseInternalClipboard=OldUseInternalClipboard;
 
         /*$ 08.02.2001 SKV
           всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
@@ -4880,15 +4880,15 @@ void Editor::SetStartPos(int LineNum,int CharNum)
 }
 
 
-int Editor::IsFileChanged()
+BOOL Editor::IsFileChanged() const
 {
-  return(Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED));
+  return Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED);
 }
 
 
-int Editor::IsFileModified()
+BOOL Editor::IsFileModified() const
 {
-  return(Flags.Check(FEDITOR_MODIFIED));
+  return Flags.Check(FEDITOR_MODIFIED);
 }
 
 // используется в FileEditor

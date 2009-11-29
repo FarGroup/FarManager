@@ -38,17 +38,8 @@ extern clock_t StartIdleTime;
 extern clock_t StartExecTime;
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H)
-extern DWORD InitialConsoleMode;
 extern OSVERSIONINFOW WinVer;
 #endif
-
-class FileEditor;
-extern FileEditor *CurrentEditor;
-
-extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
-extern SHORT ScrX,ScrY;
-extern SHORT PrevScrX,PrevScrY;
-extern HANDLE hConOut,hConInp;
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;
@@ -92,19 +83,11 @@ extern const wchar_t UNIX_EOL_fmt[];
 extern const wchar_t MAC_EOL_fmt[];
 extern const wchar_t WIN_EOL_fmt[];
 
-extern const char DOS_EOL_fmtA[];
-extern const char UNIX_EOL_fmtA[];
-extern const char MAC_EOL_fmtA[];
-extern const char WIN_EOL_fmtA[];
-
 extern BOOL ProcessException;
 
 extern BOOL ProcessShowClock;
 
 extern const wchar_t *FarTitleAddons;
-
-extern const wchar_t FAR_VerticalBlock[];
-extern const wchar_t FAR_VerticalBlock_Unicode[];
 
 extern const wchar_t *HelpFileMask;
 extern const wchar_t *HelpFormatLinkModule;
@@ -120,13 +103,9 @@ extern SaveScreen *GlobalSaveScrPtr;
 
 extern int CriticalInternalError;
 
-extern int UsedInternalClipboard;
-
 #if defined(DETECT_ALT_ENTER)
 extern int PrevFarAltEnterMode;
 #endif
-
-extern WCHAR BoxSymbols[];
 
 extern int _localLastError;
 

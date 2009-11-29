@@ -853,7 +853,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					break;
 
 				case MCODE_C_ICLIP:
-					Cond=(__int64)UsedInternalClipboard;
+					Cond=(__int64)UseInternalClipboard;
 					break;
 
 				case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
@@ -2486,22 +2486,22 @@ static bool clipFunc()
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			int _UsedInternalClipboard=UsedInternalClipboard;
+			int OldUseInternalClipboard=UseInternalClipboard;
 
 			{
 				TVar varClip(L"");
-				UsedInternalClipboard=cmdType-3;
+				UseInternalClipboard=cmdType-3;
 				wchar_t *ClipText=PasteFromClipboard();
 				if(ClipText)
 				{
 					varClip=ClipText;
 					xf_free(ClipText);
 				}
-				UsedInternalClipboard=UsedInternalClipboard==0?1:0;
+				UseInternalClipboard=UseInternalClipboard==0?1:0;
 				Ret=CopyToClipboard(varClip.s());
 			}
 
-			UsedInternalClipboard=_UsedInternalClipboard;
+			UseInternalClipboard=OldUseInternalClipboard;
 			VMStack.Push(TVar((__int64)Ret)); // 0!  ???
 			return Ret?true:false;
 		}
@@ -3065,7 +3065,7 @@ int KeyMacro::GetKey()
 			}
 			if(TitleModified)
 				SetFarTitle(NULL);
-			UsedInternalClipboard=0; //??
+			UseInternalClipboard=0; //??
 			//_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
 			return RetKey;
 		}
@@ -3129,7 +3129,7 @@ done:
 			if(LockScr) delete LockScr;
 			LockScr=NULL;
 		}
-		UsedInternalClipboard=0; //??
+		UseInternalClipboard=0; //??
 		Work.Executing=MACROMODE_NOMACRO;
 		ReleaseWORKBuffer();
 		// проверим - "а есть ли в временном стеке еще макрџсы"?
@@ -3238,7 +3238,7 @@ done:
 		*/
 		case MCODE_OP_ICLIP:              // $IClip
 		{
-			UsedInternalClipboard=UsedInternalClipboard==0?1:0;
+			UseInternalClipboard=UseInternalClipboard==0?1:0;
 			goto begin;
 		}
 
@@ -5044,7 +5044,7 @@ int KeyMacro::PushState(bool CopyLocalVars)
 	if(CurPCStack+1 >= STACKLEVEL)
 		return FALSE;
 	++CurPCStack;
-	Work.UsedInternalClipboard=::UsedInternalClipboard;
+	Work.UseInternalClipboard=::UseInternalClipboard;
 	memcpy(PCStack+CurPCStack,&Work,sizeof(MacroState));
 	Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
 	return TRUE;
@@ -5055,7 +5055,7 @@ int KeyMacro::PopState()
 	if(CurPCStack < 0)
 		return FALSE;
 	memcpy(&Work,PCStack+CurPCStack,sizeof(MacroState));
-	::UsedInternalClipboard=Work.UsedInternalClipboard;
+	::UseInternalClipboard=Work.UseInternalClipboard;
 	CurPCStack--;
 	return TRUE;
 }
@@ -5509,7 +5509,7 @@ void KeyMacro::DropProcess()
 	{
 		if(LockScr) delete LockScr;
 		LockScr=NULL;
-		UsedInternalClipboard=0; //??
+		UseInternalClipboard=0; //??
 		Work.Executing=MACROMODE_NOMACRO;
 		ReleaseWORKBuffer();
 	}

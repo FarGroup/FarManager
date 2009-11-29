@@ -37,6 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "iswind.hpp"
 
+int UseInternalClipboard = 0;
+const wchar_t FAR_VerticalBlock[] = L"FAR_VerticalBlock";
+const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
+
 /* ------------------------------------------------------------ */
 // CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
 static HGLOBAL hInternalClipboard[5]={0};
@@ -46,7 +50,7 @@ static BOOL    OppenedClipboard=FALSE;
 
 static UINT FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(!StrCmp(lpszFormat,FAR_VerticalBlock))
     {
@@ -64,7 +68,7 @@ static UINT FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 
 static BOOL FAR_OpenClipboard()
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(!OppenedClipboard)
     {
@@ -78,7 +82,7 @@ static BOOL FAR_OpenClipboard()
 
 static BOOL FAR_CloseClipboard()
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(OppenedClipboard)
     {
@@ -92,7 +96,7 @@ static BOOL FAR_CloseClipboard()
 
 static BOOL FAR_EmptyClipboard()
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(OppenedClipboard)
     {
@@ -112,7 +116,7 @@ static BOOL FAR_EmptyClipboard()
 
 static HANDLE FAR_GetClipboardData(UINT uFormat)
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(OppenedClipboard)
     {
@@ -132,7 +136,7 @@ static HANDLE FAR_GetClipboardData(UINT uFormat)
 /*
 static UINT FAR_EnumClipboardFormats(UINT uFormat)
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(OppenedClipboard)
     {
@@ -152,7 +156,7 @@ static UINT FAR_EnumClipboardFormats(UINT uFormat)
 
 static HANDLE FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 {
-  if(UsedInternalClipboard)
+  if(UseInternalClipboard)
   {
     if(OppenedClipboard)
     {
@@ -192,7 +196,7 @@ static HANDLE FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 
 static BOOL FAR_IsClipboardFormatAvailable(UINT Format)
 {
-	if(UsedInternalClipboard)
+	if(UseInternalClipboard)
 	{
 		for(size_t I=0; I < countof(hInternalClipboard); ++I)
 		{
@@ -482,7 +486,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 
 BOOL EmptyInternalClipboard()
 {
-	if (UsedInternalClipboard)
+	if (UseInternalClipboard)
 		return FAR_EmptyClipboard();
 
 	return FALSE;

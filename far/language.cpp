@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "strmix.hpp"
 #include "filestr.hpp"
+#include "interf.hpp"
 
 #define LangFileMask L"*.lng"
 

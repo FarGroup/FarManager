@@ -735,7 +735,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 		if(hListFile!=INVALID_HANDLE_VALUE)
 		{
 			UINT CodePage=CP_OEMCP;
-			LPCVOID Eol=DOS_EOL_fmtA;
+			LPCVOID Eol="\r\n";
 			DWORD EolSize=2;
 			if(Modifers && *Modifers)
 			{

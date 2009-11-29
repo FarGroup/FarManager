@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "message.hpp"
 #include "config.hpp"
+#include "interf.hpp"
 
 struct HighlightStrings
 {

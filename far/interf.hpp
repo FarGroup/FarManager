@@ -36,6 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 
 extern WCHAR Oem2Unicode[];
+extern WCHAR BoxSymbols[];
+extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
+extern SHORT ScrX,ScrY;
+extern SHORT PrevScrX,PrevScrY;
+extern HANDLE hConOut,hConInp;
+extern DWORD InitialConsoleMode;
 
 // типы рамок
 enum {
