@@ -275,8 +275,10 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (MenuMode != MM_MAIN)
 		{
 			// ѕытаемс€ открыть файл на локальном диске
-			FILE *MenuFile=_wfopen(NTPath(strMenuFileFullPath),L"rb");
-			if(MenuFile)
+			FILE *MenuFile = NULL;
+			if (PathCanHoldRegularFile(strMenuFilePath))
+				_wfopen(NTPath(strMenuFileFullPath),L"rb");
+			if (MenuFile)
 			{
 				// сливаем содержимое в реестр "на запасной путь" и оттуда будем пользовать
 				MenuFileToReg(strLocalMenuKey,MenuFile);
@@ -351,7 +353,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				}
 
 				FILE *MenuFile=_wfopen(NTPath(strMenuFileFullPath),L"wb");
-				if(MenuFile)
+				if (MenuFile)
 				{
 					MenuRegToFile(strLocalMenuKey,MenuFile);
 

@@ -115,7 +115,7 @@ int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
 {
   if (HotKey==rhs.HotKey)
     return StrCmpI(Item.strName,rhs.Item.strName)<0;
-  
+
   if (HotKey && rhs.HotKey)
     return HotKey < rhs.HotKey;
 
@@ -1770,7 +1770,7 @@ void Panel::InitCurDir(const wchar_t *CurDir)
      в FarChDir, которая теперь используется у нас для установления
      текущего каталога.
 */
-int  Panel::SetCurPath()
+int Panel::SetCurPath()
 {
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
@@ -1788,7 +1788,7 @@ int  Panel::SetCurPath()
     }
   }
 
-	if(!FarChDir(strCurDir)||(!(PathPrefix(strCurDir)&&(!StrCmpNI(&strCurDir[4],L"pipe",4)||!StrCmpNI(&strCurDir[4],L"nul",3)))&&apiGetFileAttributes(strCurDir)==INVALID_FILE_ATTRIBUTES))
+	if (!FarChDir(strCurDir)||(!(HasPathPrefix(strCurDir)&&(!StrCmpNI(&strCurDir[4],L"pipe",4)||!StrCmpNI(&strCurDir[4],L"nul",3)))&&apiGetFileAttributes(strCurDir)==INVALID_FILE_ATTRIBUTES))
   {
    // здесь на выбор :-)
 #if 1

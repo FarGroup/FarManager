@@ -505,22 +505,17 @@ int CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 
 bool CheckNulOrCon(const wchar_t *Src)
 {
-	if(PathPrefix(Src))
-	{
+	if (HasPathPrefix(Src))
 		Src+=4;
-	}
+
 	return (!StrCmpNI(Src,L"nul",3) || !StrCmpNI(Src,L"con",3)) && (IsSlash(Src[3])||!Src[3]);
 }
 
 string& GetParentFolder(const wchar_t *Src, string &strDest)
 {
-  string strDestFullName;
+  ConvertNameToReal (Src,strDest);
 
-  ConvertNameToReal (Src,strDestFullName);
-
-  CutToSlash(strDestFullName,true);
-
-  strDest = strDestFullName; //??? а почему бы сразу не работать с strDest???
+  CutToSlash(strDest,true);
 
   return strDest;
 }
@@ -610,13 +605,13 @@ BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
     }
     FrameManager->ResizeAllFrame();
     FrameManager->PluginCommit();
-    
+
     while(LockCount > 0)
     {
       frame->Lock();
       LockCount--;
     }
-    
+
     IsChangeConsole=TRUE;
   }
   return IsChangeConsole;
@@ -1780,7 +1775,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
     {
       string strNewPath = Dest;
 
-			if(!IsSlash(strNewPath.At(strNewPath.GetLength()-1)) && 
+			if(!IsSlash(strNewPath.At(strNewPath.GetLength()-1)) &&
 				SrcPanel->GetSelCount()>1 &&
 				!wcspbrk(strNewPath,L"*?") &&
 				apiGetFileAttributes(strNewPath)==INVALID_FILE_ATTRIBUTES)

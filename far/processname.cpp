@@ -37,30 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "strmix.hpp"
 #include "pathmix.hpp"
-/*
-#include "execute.hpp"
-#include "macroopcode.hpp"
-#include "keys.hpp"
-#include "lang.hpp"
-#include "ctrlobj.hpp"
-#include "manager.hpp"
-#include "history.hpp"
-#include "filepanels.hpp"
-#include "panel.hpp"
-#include "foldtree.hpp"
-#include "treelist.hpp"
-#include "fileview.hpp"
-#include "fileedit.hpp"
-#include "rdrwdsk.hpp"
-#include "savescr.hpp"
-#include "scrbuf.hpp"
-#include "interf.hpp"
-#include "syslog.hpp"
-#include "config.hpp"
-#include "usermenu.hpp"
-#include "datetime.hpp"
-#include "dirmix.hpp"
-*/
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)

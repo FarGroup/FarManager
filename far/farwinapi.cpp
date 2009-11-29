@@ -173,11 +173,13 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 {
 	DeleteEndSlash(strCurrentDirectory());
 	LPCWSTR CD=strCurrentDirectory();
-	int Offset=PathPrefix(CD)?4:0;
-	if((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
+	int Offset=HasPathPrefix(CD)?4:0;
+
+	if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
 		AddEndSlash(strCurrentDirectory());
 
 	strCurDir=strCurrentDirectory();
+
 	return static_cast<DWORD>(strCurDir.GetLength());
 }
 
@@ -187,8 +189,7 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	AddEndSlash(strDir);
 	strDir+=L"*";
 	FAR_FIND_DATA_EX fd;
-	if(apiGetFindDataEx(strDir,&fd) ||
-		GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
+	if (apiGetFindDataEx(strDir,&fd) || GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
 	{
 		strCurrentDirectory()=lpPathName;
 		ReplaceSlashToBSlash(strCurrentDirectory());

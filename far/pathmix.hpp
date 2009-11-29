@@ -83,7 +83,6 @@ public:
 
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
-bool PathPrefix(const wchar_t *Path);
 bool IsNetworkPath(const wchar_t *Path);
 bool IsLocalPath(const wchar_t *Path);
 bool IsLocalRootPath(const wchar_t *Path);
@@ -91,7 +90,11 @@ bool IsLocalPrefixPath(const wchar_t *Path);
 bool IsLocalPrefixRootPath(const wchar_t *Path);
 bool IsLocalVolumePath(const wchar_t *Path);
 bool IsLocalVolumeRootPath(const wchar_t *Path);
-bool IsAbsolutePath(const wchar_t *Src);
+bool IsAbsolutePath(const wchar_t *Path);
+bool IsRootPath(const string& Path);
+bool HasPathPrefix(const wchar_t *Path);
+bool PathStartsWith(const string& Path, const string& Start);
+bool PathCanHoldRegularFile(const string &Path);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
@@ -125,5 +128,3 @@ bool TestCurrentDirectory(const wchar_t *TestDir);
 string ExtractPathRoot(const string& Path);
 string ExtractFileName(const string& Path);
 string ExtractFilePath(const string& Path);
-bool IsRootPath(const string& Path);
-bool PathStartsWith(const string& Path, const string& Start);

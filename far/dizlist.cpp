@@ -120,11 +120,14 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 		}
 		else
 		{
+			strDizFileName = Path;
+
+			if (!PathCanHoldRegularFile(strDizFileName))
+				break;
+
 			string strArgName;
 			if ((NamePtr=GetCommaWord(NamePtr,strArgName))==NULL)
 				break;
-
-			strDizFileName = Path;
 
 			AddEndSlash(strDizFileName);
 

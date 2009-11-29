@@ -1280,7 +1280,7 @@ const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
           }
           strFullPath += strExpandedStr;
           DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-          if (wcspbrk((const wchar_t *)strExpandedStr+(PathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
+          if (wcspbrk((const wchar_t *)strExpandedStr+(HasPathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
           {
             FAR_FIND_DATA_EX wfd;
 
@@ -1622,7 +1622,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 		strExpandedDir=strTemp;
 	}
 
-	if (wcspbrk(&strExpandedDir[PathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
+	if (wcspbrk(&strExpandedDir[HasPathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
 	{
 		FAR_FIND_DATA_EX wfd;
 		if (apiGetFindDataEx(strExpandedDir, &wfd))

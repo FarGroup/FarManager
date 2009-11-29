@@ -163,7 +163,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 					if(IsAbsolutePath(Target))
 					{
 						strSubstituteName=L"\\??\\";
-						strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+						strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
 						rdb->SymbolicLinkReparseBuffer.Flags=0;
 					}
 					else
@@ -187,7 +187,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,DWOR
 				string strPrintName,strSubstituteName;
 				ConvertNameToFull(Target,strPrintName);
 				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+				strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
 
 				BYTE szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
 				PREPARSE_DATA_BUFFER rdb=reinterpret_cast<PREPARSE_DATA_BUFFER>(szBuff);
@@ -535,7 +535,7 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 				string strPrintName,strSubstituteName;
 				ConvertNameToFull(NewData,strPrintName);
 				strSubstituteName=L"\\??\\";
-				strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+				strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
 				FillResult=FillREPARSE_DATA_BUFFER(rdb,strPrintName,strPrintName.GetLength(),strSubstituteName,strSubstituteName.GetLength());
 			}
 			break;
@@ -545,7 +545,7 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 				if(IsAbsolutePath(NewData))
 				{
 					strSubstituteName=L"\\??\\";
-					strSubstituteName+=(strPrintName.CPtr()+(PathPrefix(strPrintName)?4:0));
+					strSubstituteName+=(strPrintName.CPtr()+(HasPathPrefix(strPrintName)?4:0));
 					rdb->SymbolicLinkReparseBuffer.Flags=0;
 				}
 				else
@@ -858,4 +858,3 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
   }
   return 2;
 }
-

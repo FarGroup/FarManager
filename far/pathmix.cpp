@@ -39,16 +39,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NTPath::NTPath(LPCWSTR Src)
 {
-	if(Src&&*Src)
+	if( Src&&*Src)
 	{
 		Str=Src;
 		ReplaceSlashToBSlash(Str);
-		if(!PathPrefix(Src))
+		if (!HasPathPrefix(Src))
 		{
 			ConvertNameToFull(Str,Str);
-			if(!PathPrefix(Str))
+			if (!HasPathPrefix(Str))
 			{
-				if(IsLocalPath(Str))
+				if (IsLocalPath(Str))
 					Str=string(L"\\\\?\\")+Str;
 				else
 					Str=string(L"\\\\?\\UNC\\")+&Str[2];
@@ -59,12 +59,12 @@ NTPath::NTPath(LPCWSTR Src)
 
 bool IsAbsolutePath(const wchar_t *Path)
 {
-	return Path && (PathPrefix(Path) || IsLocalPath(Path) || IsNetworkPath(Path));
+	return Path && (HasPathPrefix(Path) || IsLocalPath(Path) || IsNetworkPath(Path));
 }
 
 bool IsNetworkPath(const wchar_t *Path)
 {
-	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !PathPrefix(Path))||(PathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
+	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !HasPathPrefix(Path))||(HasPathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
 }
 
 bool IsLocalPath(const wchar_t *Path)
@@ -77,7 +77,7 @@ bool IsLocalRootPath(const wchar_t *Path)
 	return (Path && *Path && Path[1]==L':' && IsSlash(Path[2]) && !Path[3]);
 }
 
-bool PathPrefix(const wchar_t *Path)
+bool HasPathPrefix(const wchar_t *Path)
 {
 /*
 	\\?\
@@ -89,7 +89,7 @@ bool PathPrefix(const wchar_t *Path)
 
 bool IsLocalPrefixPath(const wchar_t *Path)
 {
-	return PathPrefix(Path) && Path[4] && Path[5] == L':' && Path[6] == L'\\';
+	return HasPathPrefix(Path) && Path[4] && Path[5] == L':' && Path[6] == L'\\';
 }
 
 bool IsLocalPrefixRootPath(const wchar_t *Path)
@@ -99,12 +99,17 @@ bool IsLocalPrefixRootPath(const wchar_t *Path)
 
 bool IsLocalVolumePath(const wchar_t *Path)
 {
-	return PathPrefix(Path) && !_wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}';
+	return HasPathPrefix(Path) && !_wcsnicmp(&Path[4],L"Volume{",7) && Path[47] == L'}';
 }
 
 bool IsLocalVolumeRootPath(const wchar_t *Path)
 {
 	return IsLocalVolumePath(Path) && (!Path[48] || (IsSlash(Path[48]) && !Path[49]));
+}
+
+bool PathCanHoldRegularFile(const string &Path)
+{
+	return !(IsNetworkPath(Path) && IsRootPath(Path));
 }
 
 bool TestParentFolderName(const wchar_t *Name)
@@ -337,7 +342,7 @@ bool CutToSlash(string &strStr, bool bInclude)
   size_t pos;
 	bool bFound=LastSlash(strStr,pos);
 
-	if(pos==3 && PathPrefix(strStr))
+	if(pos==3 && HasPathPrefix(strStr))
 	{
 		bFound=false;
 	}
@@ -544,16 +549,16 @@ size_t GetPathRootLength(const string& Path)
 {
 	unsigned PrefixLen = 0;
 	bool IsUNC = false;
-	if (Path.Equal(0, L"\\\\?\\UNC\\"))
+	if (Path.Equal(0,8,L"\\\\?\\UNC\\",8))
 	{
 		PrefixLen = 8;
 		IsUNC = true;
 	}
-	else if (Path.Equal(0, L"\\\\?\\") || Path.Equal(0, L"\\??\\") || Path.Equal(0, L"\\\\.\\"))
+	else if (Path.Equal(0,4,L"\\\\?\\",4) || Path.Equal(0,4,L"\\??\\",4) || Path.Equal(0,4,L"\\\\.\\",4))
 	{
 		PrefixLen = 4;
 	}
-	else if (Path.Equal(0, L"\\\\"))
+	else if (Path.Equal(0,2,L"\\\\",2))
 	{
 		PrefixLen = 2;
 		IsUNC = true;

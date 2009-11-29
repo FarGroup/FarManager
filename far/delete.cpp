@@ -861,25 +861,23 @@ int RemoveToRecycleBin(const wchar_t *Name)
 	// TODO: делать или обычное удаление, или через IFileOperation.
 
   #if 1
-	if(RetCode && !fop.fAnyOperationsAborted && !PathPrefix(strFullName))
+	if (RetCode && !fop.fAnyOperationsAborted && !HasPathPrefix(strFullName))
   {
-		string strFullNameAlt=L"\\\\?\\";
-		strFullNameAlt+=strFullName;
+		string strFullNameAlt=NTPath(strFullName).Str;
 		lpwszName = strFullNameAlt.GetBuffer (strFullNameAlt.GetLength()+2);
 		lpwszName[strFullNameAlt.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 		fop.pFrom=lpwszName;
 		RetCode=SHFileOperation(&fop);
-		strFullNameAlt.ReleaseBuffer();
   }
   #endif
 
-  if(RetCode)
+  if (RetCode)
   {
 		SetLastError(SHErrorToWinError(RetCode2));
 		return FALSE;
   }
-	return !fop.fAnyOperationsAborted;
 
+	return !fop.fAnyOperationsAborted;
 }
 
 int WipeFile(const wchar_t *Name)

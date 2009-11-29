@@ -1230,7 +1230,7 @@ int FileList::ProcessKey(int Key)
                 // проверим путь к файлу
 								if (LastSlash(strFileName,pos) && pos!=0)
                 {
-									if(!(PathPrefix(strFileName) && pos==3))
+									if (!(HasPathPrefix(strFileName) && pos==3))
 									{
 										wchar_t *lpwszFileName = strFileName.GetBuffer();
 										wchar_t wChr = lpwszFileName[pos+1];

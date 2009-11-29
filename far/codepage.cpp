@@ -83,14 +83,14 @@ static int favoriteCodePages, normalCodePages;
 // Признак необходимости отображать таблицы символов для поиска
 static bool selectedCodePages;
 // Источник вызова каллбака для функции EnumSystemCodePages
-static CodePagesCallbackCallSource CallcackCallSource;
+static CodePagesCallbackCallSource CallbackCallSource;
 // Признак того, что кодовая страница поддерживается
 static bool CodePageSupported;
 
 // Добавляем таблицу символов
 void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, bool enabled = true, bool checked = false)
 {
-	if (CallcackCallSource == CodePagesFill)
+	if (CallbackCallSource == CodePagesFill)
 	{
 		// Вычисляем позицию вставляемого элемента
 		if (position==-1)
@@ -169,7 +169,7 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 // Добавляем разделитель
 void AddSeparator(LPCWSTR Label=NULL,int position = -1)
 {
-	if (CallcackCallSource == CodePagesFill)
+	if (CallbackCallSource == CodePagesFill)
 	{
 		if (position==-1)
 		{
@@ -201,7 +201,7 @@ void AddSeparator(LPCWSTR Label=NULL,int position = -1)
 // Получаем количество элементов в списке
 int GetItemsCount()
 {
-	if (CallcackCallSource == CodePageSelect)
+	if (CallbackCallSource == CodePageSelect)
 		return CodePages->GetItemCount();
 	else
 	{
@@ -221,7 +221,7 @@ int GetCodePageInsertPosition(UINT codePage, int start, int length)
 	do
 	{
 		UINT itemCodePage;
-		if (CallcackCallSource == CodePageSelect)
+		if (CallbackCallSource == CodePageSelect)
 			itemCodePage = (UINT)(UINT_PTR)CodePages->GetItemPtr(position)->UserData;
 		else
 			itemCodePage = (UINT)(UINT_PTR)SendDlgMessage(dialog, DM_LISTGETDATA, control, position);
@@ -237,26 +237,26 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
 	// Для функции проверки нас не интеерсует информация о кодовых страницах отличных от проверяемой
-	if (CallcackCallSource == CodePageCheck && codePage != currentCodePage)
+	if (CallbackCallSource == CodePageCheck && codePage != currentCodePage)
 		return TRUE;
 	// BUBBUG: Существует много кодировок с cpiex.MaxCharSize > 1, пока их не поддерживаем
 	CPINFOEX cpiex;
 	if (!GetCPInfoEx(codePage, 0, &cpiex))
 	{
-		// GetCPInfoEx возвращает ошибку для кодовых страниц без имени (например 1125), которые 
+		// GetCPInfoEx возвращает ошибку для кодовых страниц без имени (например 1125), которые
 		// сами по себе работают. Так что, прежде чем пропускать кодовую страницу из-за ошибки,
 		// пробуем получить для неё информауию через GetCPInfo
 		CPINFO cpi;
 		if (!GetCPInfo(codePage, &cpi))
-			return CallcackCallSource == CodePageCheck ? FALSE : TRUE;
+			return CallbackCallSource == CodePageCheck ? FALSE : TRUE;
 		cpiex.MaxCharSize = cpi.MaxCharSize;
 		cpiex.CodePageName[0] = L'\0';
 	}
 	// BUBUG: Пока не поддерживаем многобайтовые кодовые страницы
 	if (cpiex.MaxCharSize != 1)
-		return CallcackCallSource == CodePageCheck ? FALSE : TRUE;
+		return CallbackCallSource == CodePageCheck ? FALSE : TRUE;
 	// Для функции провепки поддерживаемости кодовый страницы мы прошли все проверки и можем выходить
-	if (CallcackCallSource == CodePageCheck)
+	if (CallbackCallSource == CodePageCheck)
 	{
 		CodePageSupported = true;
 		return FALSE;
@@ -287,7 +287,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		// Увеличиваем счётчик выбранных таблиц символов
 		favoriteCodePages++;
 	}
-	else if (CallcackCallSource == CodePagesFill || !Opt.CPMenuMode)
+	else if (CallbackCallSource == CodePagesFill || !Opt.CPMenuMode)
 	{
 		// добавляем разделитель между стандартными и системными таблицами символов
 		if (!favoriteCodePages && !normalCodePages)
@@ -482,7 +482,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length)
 
 UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 {
-	CallcackCallSource = CodePageSelect;
+	CallbackCallSource = CodePageSelect;
 	currentCodePage = nCurrent;
 	// Создаём меню
 	CodePages = new VMenu(L"", NULL, 0, ScrY-4);
@@ -532,7 +532,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF)
 // Заполняем список таблицами символов
 UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll)
 {
-	CallcackCallSource = CodePagesFill;
+	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака
 	dialog = dialogHandle;
 	control = controlId;
@@ -541,7 +541,7 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 	selectedCodePages = !allowAuto && allowAll;
 	// Добавляем стндартные элементы в список
 	AddCodePages((allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
-	if (CallcackCallSource == CodePagesFill)
+	if (CallbackCallSource == CodePagesFill)
 	{
 		// Если надо выбираем элемент
 		FarListInfo info;
@@ -570,7 +570,7 @@ bool IsCodePageSupported(UINT CodePage)
 	if (CodePage == CP_AUTODETECT || IsStandardCodePage(CodePage))
 		return true;
 	// Проходим по всем кодовым страницам системы и проверяем поддерживаем мы или нет её
-	CallcackCallSource = CodePageCheck;
+	CallbackCallSource = CodePageCheck;
 	currentCodePage = CodePage;
 	CodePageSupported = false;
 	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
