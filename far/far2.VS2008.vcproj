@@ -583,7 +583,6 @@
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				ModuleDefinitionFile=""
-				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\far.pdb"
 				GenerateMapFile="true"
 				MapFileName="$(OutDir)\far.map"
