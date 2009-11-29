@@ -1909,7 +1909,7 @@ int Editor::ProcessKey(int Key)
 
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
-        FAR_EmptyClipboard();
+        EmptyInternalClipboard();
         UsedInternalClipboard=OldUsedInternalClipboard;
 
         /*$ 08.02.2001 SKV

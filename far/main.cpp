@@ -604,8 +604,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   else
 		Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 
-  UsedInternalClipboard=TRUE;
-  FAR_EmptyClipboard();
+  UsedInternalClipboard=1;
+  EmptyInternalClipboard();
 
 
   doneMacroVarTable(1);

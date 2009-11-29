@@ -36,10 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
-wchar_t* WINAPI PasteFromClipboardEx(int max);
-BOOL WINAPI FAR_EmptyClipboard();
+BOOL EmptyInternalClipboard();
 int WINAPI CopyToClipboard(const wchar_t *Data);
 wchar_t* WINAPI PasteFromClipboard();
-wchar_t* InternalPasteFromClipboard();
-wchar_t* InternalPasteFromClipboardEx(int max);
-int InternalCopyToClipboard(const wchar_t *Data);
+wchar_t* WINAPI PasteFromClipboardEx(int max);

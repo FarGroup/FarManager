@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "clipboard.hpp"
+#include "iswind.hpp"
 
 /* ------------------------------------------------------------ */
 // CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
@@ -43,7 +44,7 @@ static UINT    uInternalClipboardFormat[5]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 static BOOL    OppenedClipboard=FALSE;
 
 
-static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
+static UINT FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 {
   if(UsedInternalClipboard)
   {
@@ -61,7 +62,7 @@ static UINT WINAPI FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 }
 
 
-static BOOL WINAPI FAR_OpenClipboard(HWND hWndNewOwner)
+static BOOL FAR_OpenClipboard()
 {
   if(UsedInternalClipboard)
   {
@@ -72,10 +73,10 @@ static BOOL WINAPI FAR_OpenClipboard(HWND hWndNewOwner)
     }
     return FALSE;
   }
-  return OpenClipboard(hWndNewOwner);
+  return OpenClipboard(hFarWnd);
 }
 
-static BOOL WINAPI FAR_CloseClipboard()
+static BOOL FAR_CloseClipboard()
 {
   if(UsedInternalClipboard)
   {
@@ -89,7 +90,7 @@ static BOOL WINAPI FAR_CloseClipboard()
   return CloseClipboard();
 }
 
-BOOL WINAPI FAR_EmptyClipboard()
+static BOOL FAR_EmptyClipboard()
 {
   if(UsedInternalClipboard)
   {
@@ -109,7 +110,7 @@ BOOL WINAPI FAR_EmptyClipboard()
   return EmptyClipboard();
 }
 
-static HANDLE WINAPI FAR_GetClipboardData(UINT uFormat)
+static HANDLE FAR_GetClipboardData(UINT uFormat)
 {
   if(UsedInternalClipboard)
   {
@@ -128,7 +129,8 @@ static HANDLE WINAPI FAR_GetClipboardData(UINT uFormat)
   return GetClipboardData(uFormat);
 }
 
-static UINT WINAPI FAR_EnumClipboardFormats(UINT uFormat)
+/*
+static UINT FAR_EnumClipboardFormats(UINT uFormat)
 {
   if(UsedInternalClipboard)
   {
@@ -146,8 +148,9 @@ static UINT WINAPI FAR_EnumClipboardFormats(UINT uFormat)
   }
   return EnumClipboardFormats(uFormat);
 }
+*/
 
-static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
+static HANDLE FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 {
   if(UsedInternalClipboard)
   {
@@ -187,100 +190,110 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 	return hData;
 }
 
+static BOOL FAR_IsClipboardFormatAvailable(UINT Format)
+{
+	if(UsedInternalClipboard)
+	{
+		for(size_t I=0; I < countof(hInternalClipboard); ++I)
+		{
+			if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	return IsClipboardFormatAvailable(Format);
+}
 
 /* ------------------------------------------------------------ */
 // Перед вставкой производится очистка буфера
 int WINAPI CopyToClipboard(const wchar_t *Data)
 {
-  if (!FAR_OpenClipboard(NULL))
-    return(FALSE);
-  FAR_EmptyClipboard();
-  FAR_CloseClipboard();
-  if(Data && *Data)
-    return InternalCopyToClipboard(Data);
-  else
-    return TRUE;
-}
+	if (!FAR_OpenClipboard())
+		return FALSE;
 
-int InternalCopyToClipboard(const wchar_t *Data)
-{
-  long DataSize;
-  if (!FAR_OpenClipboard(NULL))
-    return(FALSE);
-  if (Data!=NULL && (DataSize=(long)StrLength(Data))!=0)
-  {
-    HGLOBAL hData;
-    void *GData;
-    int BufferSize=(DataSize+1)*sizeof (wchar_t);
-    if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
+	FAR_EmptyClipboard();
+
+	if (Data && *Data)
+	{
+		HGLOBAL hData;
+		void *GData;
+		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
 		{
 			if ((GData=GlobalLock(hData))!=NULL)
-      {
-        memcpy(GData,Data,BufferSize);
-        GlobalUnlock(hData);
+			{
+				memcpy(GData,Data,BufferSize);
+				GlobalUnlock(hData);
 				if(!FAR_SetClipboardData(CF_UNICODETEXT,(HANDLE)hData))
 					GlobalFree(hData);
-      }
+			}
 			else
-					GlobalFree(hData);
+			{
+				GlobalFree(hData);
+			}
 		}
-  }
-  FAR_CloseClipboard();
-  return(TRUE);
+	}
+
+	FAR_CloseClipboard();
+
+	return TRUE;
 }
 
 
 // вставка без очистки буфера - на добавление
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data)
 {
-  int FormatType=FAR_RegisterClipboardFormat(Format);
-  if (FormatType==0)
-    return(FALSE);
+	int FormatType=FAR_RegisterClipboardFormat(Format);
+	if (FormatType==0)
+		return FALSE;
 
-  long DataSize;
-  if (Data!=NULL && (DataSize=(long)StrLength(Data))!=0)
-  {
-    HGLOBAL hData;
-    void *GData;
-    if (!FAR_OpenClipboard(NULL))
-      return(FALSE);
-    int BufferSize=(DataSize+1)*sizeof (wchar_t);
-    if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
+	if (Data && *Data)
+	{
+		HGLOBAL hData;
+		void *GData;
+
+		if (!FAR_OpenClipboard())
+			return FALSE;
+
+		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize))!=NULL)
 		{
 			if ((GData=GlobalLock(hData))!=NULL)
-      {
-        memcpy(GData,Data,BufferSize);
-        GlobalUnlock(hData);
-				if(!FAR_SetClipboardData(FormatType,(HANDLE)hData))
+			{
+				memcpy(GData,Data,BufferSize);
+				GlobalUnlock(hData);
+				if (!FAR_SetClipboardData(FormatType,(HANDLE)hData))
 					GlobalFree(hData);
-      }
+			}
 			else
+			{
 				GlobalFree(hData);
+			}
 		}
-    FAR_CloseClipboard();
-  }
-  return(TRUE);
+		FAR_CloseClipboard();
+	}
+
+	return TRUE;
 }
 
 
 wchar_t* WINAPI PasteFromClipboard()
 {
-  return InternalPasteFromClipboard();
-}
+  if (!FAR_OpenClipboard())
+    return NULL;
 
-wchar_t* InternalPasteFromClipboard()
-{
-  HANDLE hClipData;
-  if (!FAR_OpenClipboard(NULL))
-    return(NULL);
-  int Unicode=FALSE;
+  /*
+  bool Unicode=false;
   int Format=0;
   int ReadType=CF_OEMTEXT;
+
   while ((Format=FAR_EnumClipboardFormats(Format))!=0)
   {
     if (Format==CF_UNICODETEXT)
     {
-      Unicode=TRUE;
+      Unicode=true;
       break;
     }
     if (Format==CF_TEXT)
@@ -291,13 +304,16 @@ wchar_t* InternalPasteFromClipboard()
     if (Format==CF_OEMTEXT)
       break;
   }
+  */
+
   wchar_t *ClipText=NULL;
-  if ((hClipData=FAR_GetClipboardData(/*Unicode ?*/ CF_UNICODETEXT/*:ReadType*/))!=NULL)
+  HANDLE hClipData=FAR_GetClipboardData(/*Unicode ?*/ CF_UNICODETEXT/*:ReadType*/);
+  if (hClipData)
   {
-    int BufferSize;
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
     if (ClipAddr)
     {
+      int BufferSize;
       //if (Unicode)
         BufferSize=StrLength(ClipAddr)+1;
       //else
@@ -326,34 +342,29 @@ wchar_t* InternalPasteFromClipboard()
       GlobalUnlock(hClipData);
     }
   }
+
   FAR_CloseClipboard();
-  return(ClipText);
-}
 
-
-wchar_t* WINAPI PasteFromClipboardEx(int max)
-{
-  return InternalPasteFromClipboardEx(max);
+  return ClipText;
 }
 
 
 // max - без учета символа конца строки!
-wchar_t* InternalPasteFromClipboardEx(int max)
+wchar_t* WINAPI PasteFromClipboardEx(int max)
 {
-  wchar_t *ClipText=NULL;
-  HANDLE hClipData;
-  int Unicode=FALSE;
+  if (!FAR_OpenClipboard())
+    return NULL;
+
+  /*
+  bool Unicode=false;
   int Format=0;
   int ReadType=CF_OEMTEXT;
-
-  if (!FAR_OpenClipboard(NULL))
-    return(NULL);
 
   while ((Format=FAR_EnumClipboardFormats(Format))!=0)
   {
     if (Format==CF_UNICODETEXT)
     {
-      Unicode=TRUE;
+      Unicode=true;
       break;
     }
     if (Format==CF_TEXT)
@@ -364,13 +375,16 @@ wchar_t* InternalPasteFromClipboardEx(int max)
     if (Format==CF_OEMTEXT)
       break;
   }
+  */
 
-  if ((hClipData=FAR_GetClipboardData(/*Unicode ? */CF_UNICODETEXT/*:ReadType*/))!=NULL)
+  wchar_t *ClipText=NULL;
+  HANDLE hClipData=FAR_GetClipboardData(/*Unicode ? */CF_UNICODETEXT/*:ReadType*/);
+  if (hClipData)
   {
-    int BufferSize;
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
     if (ClipAddr)
     {
+      int BufferSize;
       //if (Unicode)
         BufferSize=StrLength(ClipAddr)+1;
       //else
@@ -378,10 +392,10 @@ wchar_t* InternalPasteFromClipboardEx(int max)
       if ( BufferSize>max )
         BufferSize=max;
 
-      ClipText=(wchar_t *)xf_malloc((BufferSize+2)*sizeof(wchar_t));
+      ClipText=(wchar_t *)xf_malloc((BufferSize+1)*sizeof(wchar_t));
       if (ClipText!=NULL)
       {
-        wmemset(ClipText,0,BufferSize+2);
+        wmemset(ClipText,0,BufferSize+1);
 
         xwcsncpy(ClipText,ClipAddr,BufferSize);
 
@@ -411,24 +425,10 @@ wchar_t* InternalPasteFromClipboardEx(int max)
       GlobalUnlock(hClipData);
     }
   }
-  FAR_CloseClipboard();
-  return(ClipText);
-}
 
-static BOOL FAR_IsClipboardFormatAvailable(UINT Format)
-{
-	if(UsedInternalClipboard)
-	{
-		for(size_t I=0; I < countof(hInternalClipboard); ++I)
-		{
-			if(uInternalClipboardFormat[I] != 0xFFFF && uInternalClipboardFormat[I]==Format)
-			{
-				return TRUE;
-			}
-		}
-		return FALSE;
-	}
-	return IsClipboardFormatAvailable(Format);
+  FAR_CloseClipboard();
+
+  return ClipText;
 }
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
@@ -436,9 +436,9 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
   bool isOEMVBlock=false;
   UINT FormatType=FAR_RegisterClipboardFormat(Format);
   if (FormatType==0)
-    return(NULL);
+    return NULL;
 
-  if(!StrCmp(Format,FAR_VerticalBlock_Unicode) && !FAR_IsClipboardFormatAvailable(FormatType))
+  if (!StrCmp(Format,FAR_VerticalBlock_Unicode) && !FAR_IsClipboardFormatAvailable(FormatType))
 	{
 		FormatType=FAR_RegisterClipboardFormat(FAR_VerticalBlock);
 		isOEMVBlock=true;
@@ -447,19 +447,18 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 	if (FormatType==0 || !FAR_IsClipboardFormatAvailable(FormatType))
 		return NULL;
 
-  if (!FAR_OpenClipboard(NULL))
-    return(NULL);
+  if (!FAR_OpenClipboard())
+    return NULL;
 
-  HANDLE hClipData;
   wchar_t *ClipText=NULL;
-
-  if ((hClipData=FAR_GetClipboardData(FormatType))!=NULL)
+  HANDLE hClipData=FAR_GetClipboardData(FormatType);
+  if (hClipData)
   {
     wchar_t *ClipAddr=(wchar_t *)GlobalLock(hClipData);
     if (ClipAddr)
     {
       size_t BufferSize;
-      if(isOEMVBlock)
+      if (isOEMVBlock)
 				BufferSize=strlen((LPCSTR)ClipAddr)+1;
 			else
 				BufferSize=wcslen(ClipAddr)+1;
@@ -467,7 +466,7 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
       ClipText=(wchar_t *)xf_malloc(BufferSize*sizeof(wchar_t));
       if (ClipText!=NULL)
 			{
-				if(isOEMVBlock)
+				if (isOEMVBlock)
 					MultiByteToWideChar(CP_OEMCP,0,(LPCSTR)ClipAddr,-1,ClipText,(int)BufferSize);
 				else
 					wcscpy(ClipText,ClipAddr);
@@ -478,5 +477,13 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 
   FAR_CloseClipboard();
 
-  return(ClipText);
+  return ClipText;
+}
+
+BOOL EmptyInternalClipboard()
+{
+	if (UsedInternalClipboard)
+		return FAR_EmptyClipboard();
+
+	return FALSE;
 }
