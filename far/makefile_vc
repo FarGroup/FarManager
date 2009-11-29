@@ -25,6 +25,8 @@
 #
 #EXCEPTION_TEST - set to generate Ctrl-Alt-Apps dialog in release
 #
+#NO_RELEASE_PDB - set to disable pdb generation for release
+#
 
 .SILENT:
 
@@ -276,8 +278,12 @@ CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else
-CPPFLAGS=$(CPPFLAGS) /MT /O2 /Oy- /Zi
-LINKFLAGS=$(LINKFLAGS) /debug /incremental:no /OPT:REF /OPT:ICF
+CPPFLAGS=$(CPPFLAGS) /MT /O2 /Oy-
+!ifndef NO_RELEASE_PDB
+CPPFLAGS=$(CPPFLAGS) /Zi
+LINKFLAGS=$(LINKFLAGS) /debug
+!endif
+LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
 !endif
 
 # platform-cpecific
