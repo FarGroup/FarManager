@@ -122,14 +122,6 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, 
 		data.Data = (void*)(DWORD_PTR)codePage;
 		data.DataSize = sizeof(UINT);
 		SendDlgMessage(dialog, DM_LISTSETDATA, control, (LONG_PTR)&data);
-		// Если надо выбираем элемент
-		FarListInfo info;
-		SendDlgMessage(dialog, DM_LISTINFO, control, (LONG_PTR)&info);
-		if (info.ItemsNumber==1 || (codePage==currentCodePage && (UINT)SendDlgMessage(dialog, DM_LISTGETDATA, control, info.SelectPos)!=codePage))
-		{
-			SendDlgMessage(dialog, DM_LISTSETCURPOS, control, (LONG_PTR)&position);
-			SendDlgMessage(dialog, DM_SETTEXTPTR, control, (LONG_PTR)item.Item.Text);
-		}
 	}
 	else
 	{
@@ -549,6 +541,24 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 	selectedCodePages = !allowAuto && allowAll;
 	// Добавляем стндартные элементы в список
 	AddCodePages((allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
+	if (CallcackCallSource == CodePagesFill)
+	{
+		// Если надо выбираем элемент
+		FarListInfo info;
+		SendDlgMessage(dialogHandle, DM_LISTINFO, control, (LONG_PTR)&info);
+		for(int i=0;i<info.ItemsNumber;i++)
+		{
+			if(static_cast<UINT>(SendDlgMessage(dialogHandle,DM_LISTGETDATA,controlId,i))==codePage)
+			{
+				FarListGetItem Item={i};
+				SendDlgMessage(dialog, DM_LISTGETITEM,controlId,reinterpret_cast<LONG_PTR>(&Item));
+				SendDlgMessage(dialog, DM_SETTEXTPTR,controlId,reinterpret_cast<LONG_PTR>(Item.Item.Text));
+				FarListPos Pos={i,-1};
+				SendDlgMessage(dialogHandle,DM_LISTSETCURPOS,controlId,reinterpret_cast<LONG_PTR>(&Pos));
+				break;
+			}
+		}
+	}
 	// Возвращаем число любимых таблиц символов
 	return favoriteCodePages;
 }

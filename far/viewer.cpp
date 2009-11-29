@@ -363,6 +363,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		{
 			CodePageChangedByUser=TRUE;
 		}
+
+		// BUGBUG
+		// пока что запретим переключать hex в UTF8, ибо не работает.
+		if(VM.Hex && VM.CodePage==CP_UTF8)
+		{
+			VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
+		}
+
 		if(!IsUnicodeOrUtfCodePage(VM.CodePage))
 			fseek(ViewFile,0,SEEK_SET);
 	}
@@ -3220,7 +3228,7 @@ int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 	// Ибо сейчас это не просмотр, а генератор однотипных унылых багрепортов.
 	if(VM.CodePage==CP_UTF8 && newMode)
 	{
-		VM.CodePage=GetOEMCP();
+		VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 	}
 
   int oldHex=VM.Hex;

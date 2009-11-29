@@ -181,15 +181,16 @@ LONG_PTR __stdcall hndSaveFileAs (
 		LONG_PTR param2
 		)
 {
+	static UINT codepage=0;
+
 	switch(msg)
 	{
 		case DN_INITDIALOG:
 		{
-			UINT codepage = *(UINT*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+			codepage=*(UINT*)SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
 			FillCodePagesList (hDlg, ID_SF_CODEPAGE, codepage, false, false);
 			if(IsUnicodeOrUtfCodePage(codepage))
 			{
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
 				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
 			}
 			else
@@ -219,17 +220,22 @@ LONG_PTR __stdcall hndSaveFileAs (
 			{
 				FarListPos pos;
 				SendDlgMessage (hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,(LONG_PTR)&pos);
-				if(IsUnicodeOrUtfCodePage(static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos))))
+				UINT Cp=static_cast<UINT>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,pos.SelectPos));
+				if(Cp!=codepage)
 				{
-					SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
-					SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+					codepage=Cp;
+					if(IsUnicodeOrUtfCodePage(codepage))
+					{
+						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_CHECKED);
+						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,TRUE);
+					}
+					else
+					{
+						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
+						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+					}
+					return TRUE;
 				}
-				else
-				{
-					SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,BSTATE_UNCHECKED);
-					SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
-				}
-				return TRUE;
 			}
 			break;
 		}
@@ -1028,10 +1034,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           {
 						Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
           }
-					else
-					{
-						Flags.Set(FFILEEDIT_SAVETOSAVEAS);
-					}
 
           static int TextFormat=0;
 
@@ -1051,6 +1053,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
             if ( !dlgSaveFileAs (strSaveAsName, TextFormat, codepage, AddSignature) )
             	return FALSE;
+
+						if(m_bSignatureFound && !AddSignature)
+						{
+							m_bSignatureFound=false;
+						}
 
             apiExpandEnvironmentStrings (strSaveAsName, strSaveAsName);
 
