@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 #else
     << " WixUIExtension"
 #endif
-    << " -cultures:en-us -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj" << endl;
+    << " -cultures:en-us -loc en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj" << endl;
 
 
     return 0;

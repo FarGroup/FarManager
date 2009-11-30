@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Include>
-  <Feature Id="Far" Level="1" Title="Far Manager" Display="expand" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR">
+  <Feature Id="Far" Level="1" Title="!(loc.Feature.Title.Far)" Display="expand" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR">
     <ComponentRef Id="InstallDir" />
     <ComponentRef Id="ClearPluginsCache" />
     <ComponentRef Id="Far.exe" />
@@ -24,10 +24,10 @@
     <ComponentRef Id="RestoreSettings.cmd" />
     <ComponentRef Id="SaveSettings.cmd" />
 <?endif?>
-    <Feature Id="Addons" Level="2" Title="Addons" AllowAdvertise="no" Description="Useful registry settings.">
+    <Feature Id="Addons" Level="2" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
       <ComponentRef Id="Descript.ion_1" />
       <ComponentRef Id="README.TXT_1" />
-      <Feature Id="Archivers" Level="2" Title="Archivers" AllowAdvertise="no" Description="Support for external archivers.">
+      <Feature Id="Archivers" Level="2" Title="!(loc.Feature.Title.Archivers)" AllowAdvertise="no" Description="!(loc.Feature.Description.Archivers)">
         <ComponentRef Id="Arj.reg" />
         <ComponentRef Id="Descript.ion_2" />
         <ComponentRef Id="FarUC2.reg" />
@@ -42,7 +42,7 @@
         <ComponentRef Id="Rar20.reg" />
         <ComponentRef Id="WinZipCL.reg" />
       </Feature>
-      <Feature Id="Colors" Level="2" Title="Colors" AllowAdvertise="no" Description="File highlighting presets.">
+      <Feature Id="Colors" Level="2" Title="!(loc.Feature.Title.Colors)" AllowAdvertise="no" Description="!(loc.Feature.Description.Colors)">
         <ComponentRef Id="Descript.ion_3" />
         <ComponentRef Id="export_colors.bat" />
         <ComponentRef Id="import_colors.bat" />
@@ -83,7 +83,7 @@
         <ComponentRef Id="Default_Highlighting" />
 <?endif?>
       </Feature>
-      <Feature Id="Macros" Level="2" Title="Macros" AllowAdvertise="no" Description="Useful macros.">
+      <Feature Id="Macros" Level="2" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
         <ComponentRef Id="AltBS.reg" />
         <ComponentRef Id="AltDown.reg" />
         <ComponentRef Id="AltMenu.reg" />
@@ -128,7 +128,7 @@
         <ComponentRef Id="ViewerAddSubstract.reg" />
         <ComponentRef Id="WheelScreenSwitch.reg" />
       </Feature>
-      <Feature Id="SetUp" Level="2" Title="SetUp" AllowAdvertise="no" Description="Various settings.">
+      <Feature Id="SetUp" Level="2" Title="!(loc.Feature.Title.SetUp)" AllowAdvertise="no" Description="!(loc.Feature.Description.SetUp)">
         <ComponentRef Id="Default165.reg" />
         <ComponentRef Id="Descript.ion_7" />
         <ComponentRef Id="Executor.4NT.reg" />
@@ -138,12 +138,12 @@
 <?endif?>
         <ComponentRef Id="WindowsGUI.reg" />
       </Feature>
-      <Feature Id="Shell" Level="2" Title="Shell" AllowAdvertise="no" Description="Shell integration.">
+      <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
         <ComponentRef Id="Descript.ion_8" />
         <ComponentRef Id="FARHere.inf" />
       </Feature>
 <?if $(var.Branch) = 1 ?>
-      <Feature Id="Tables" Level="2" Title="Tables" AllowAdvertise="no" Description="Character tables.">
+      <Feature Id="Tables" Level="2" Title="!(loc.Feature.Title.Tables)" AllowAdvertise="no" Description="!(loc.Feature.Description.Tables)">
         <ComponentRef Id="Descript.ion_9" />
         <ComponentRef Id="README.TXT_2" />
         <ComponentRef Id="Czech___CP_895__Kamenicti_.reg" />
@@ -180,7 +180,7 @@
         <ComponentRef Id="Windows_1252.reg" />
       </Feature>
 <?endif?>
-      <Feature Id="XLat" Level="2" Title="XLat" AllowAdvertise="no" Description="Russian Xlat table and related macros.">
+      <Feature Id="XLat" Level="2" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
         <ComponentRef Id="Descript.ion_15" />
         <ComponentRef Id="AltR.reg" />
         <ComponentRef Id="Apps.reg_1" />
@@ -190,10 +190,10 @@
         <ComponentRef Id="Qwerty.reg" />
       </Feature>
     </Feature>
-    <Feature Id="Changelogs" Level="2" Title="Changelogs" AllowAdvertise="no" Description="Development changelogs.">
+    <Feature Id="Changelogs" Level="2" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
       <ComponentRef Id="changelog" />
     </Feature>
-    <Feature Id="Docs" Level="1" Title="Documentation" AllowAdvertise="no" Description="Tech info, FAQ, What's new, etc.">
+    <Feature Id="Docs" Level="1" Title="!(loc.Feature.Title.Docs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Docs)">
       <ComponentRef Id="Arc.Support.txt" />
       <ComponentRef Id="Bug.Report.txt" />
 <?if $(var.Branch) = 1 ?>
@@ -216,7 +216,7 @@
       <ComponentRef Id="TechInfo.txt_1" />
     </Feature>
 <?if $(var.Platform) = x86 ?>
-    <Feature Id="FExcept" Level="1" Title="FExcept" AllowAdvertise="no" Description="Exception handler saves detailed exception information on crash (FStd_trap.log).">
+    <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">
       <ComponentRef Id="FExceptReg" />
       <ComponentRef Id="demangle32.dll" />
       <ComponentRef Id="ExcDump.dll" />
@@ -229,44 +229,44 @@
       <ComponentRef Id="changelog_1" />
     </Feature>
 <?endif?>
-    <Feature Id="Languages" Level="2" Title="Languages" AllowAdvertise="no" Description="Support for additional interface languages.">
-      <Feature Id="Russian" Level="2" Title="Russian" AllowAdvertise="no">
+    <Feature Id="Languages" Level="2" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
+      <Feature Id="Russian" Level="2" Title="!(loc.Feature.Title.Russian)" AllowAdvertise="no">
         <ComponentRef Id="FarRus.hlf" />
         <ComponentRef Id="FarRus.lng" />
       </Feature>
 <?if $(var.Branch) = 2 ?>
-      <Feature Id="Czech" Level="2" Title="Czech" AllowAdvertise="no">
+      <Feature Id="Czech" Level="2" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
         <ComponentRef Id="FarCze.lng" />
       </Feature>
-      <Feature Id="German" Level="2" Title="German" AllowAdvertise="no">
+      <Feature Id="German" Level="2" Title="!(loc.Feature.Title.German)" AllowAdvertise="no">
         <ComponentRef Id="FarGer.lng" />
       </Feature>
-      <Feature Id="Hungarian" Level="2" Title="Hungarian" AllowAdvertise="no">
+      <Feature Id="Hungarian" Level="2" Title="!(loc.Feature.Title.Hungarian)" AllowAdvertise="no">
         <ComponentRef Id="FarHun.hlf" />
         <ComponentRef Id="FarHun.lng" />
       </Feature>
-      <Feature Id="Polish" Level="2" Title="Polish" AllowAdvertise="no">
+      <Feature Id="Polish" Level="2" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
         <ComponentRef Id="FarPol.lng" />
       </Feature>
 <?endif?>
     </Feature>
-    <Feature Id="FarShortcuts" Level="2" Title="Shortcuts" AllowAdvertise="no">
-      <Feature Id="FarProgramsShortcut" Level="2" Title="Programs" AllowAdvertise="no">
+    <Feature Id="FarShortcuts" Level="2" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
+      <Feature Id="FarProgramsShortcut" Level="2" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarProgramsShortcut" />
         <ComponentRef Id="UninstallProduct" />
         <ComponentRef Id="Scripts" />
       </Feature>
-      <Feature Id="FarDesktopShortcut" Level="2" Title="Desktop" AllowAdvertise="no">
+      <Feature Id="FarDesktopShortcut" Level="2" Title="!(loc.Feature.Title.FarDesktopShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarDesktopShortcut" />
       </Feature>
-      <Feature Id="FarStartMenuShortcut" Level="2" Title="Start menu" AllowAdvertise="no">
+      <Feature Id="FarStartMenuShortcut" Level="2" Title="!(loc.Feature.Title.FarStartMenuShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarStartMenuShortcut" />
       </Feature>
-      <Feature Id="FarQuickLaunchShortcut" Level="2" Title="Quick launch" AllowAdvertise="no">
+      <Feature Id="FarQuickLaunchShortcut" Level="2" Title="!(loc.Feature.Title.FarQuickLaunchShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarQuickLaunchShortcut" />
       </Feature>
     </Feature>
-    <Feature Id="SDK" Level="2" Title="Plugin SDK" AllowAdvertise="no" Description="SDK for plugin developers.">
+    <Feature Id="SDK" Level="2" Title="!(loc.Feature.Title.SDK)" AllowAdvertise="no" Description="!(loc.Feature.Description.SDK)">
 <?if $(var.Branch) = 1 ?>
       <ComponentRef Id="Descript.ion_19" />
       <ComponentRef Id="GCCReadme.txt" />
@@ -276,13 +276,13 @@
       <ComponentRef Id="farcolor.hpp" />
       <ComponentRef Id="farkeys.hpp" />
       <ComponentRef Id="plugin.hpp" />
-      <Feature Id="Enc" Level="2" Title="Encyclopedia" AllowAdvertise="no" Description="Encyclopedia for developers.">
+      <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
         <ComponentRef Id="FarEncyclopedia.en.chm" />
       </Feature>
       <Feature Id="EncRussian" Level="2" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
       </Feature>
-      <Feature Id="Pascal" Level="2" Title="Pascal headers" AllowAdvertise="no">
+      <Feature Id="Pascal" Level="2" Title="!(loc.Feature.Title.Pascal)" AllowAdvertise="no">
 <?if $(var.Branch) = 1 ?>
         <ComponentRef Id="farcolor.pas" />
         <ComponentRef Id="farkeys.pas" />
@@ -295,9 +295,9 @@
 <?endif?>
       </Feature>
     </Feature>
-    <Feature Id="Plugins" Level="1" Display="expand" Title="Plugins" AllowAdvertise="no" Description="Standard plugins.">
-      <Feature Id="Editor" Level="1" Title="Editor" AllowAdvertise="no" Description="Editor plugins.">
-        <Feature Id="Align" Level="1" Title="Align" AllowAdvertise="no" Description="Text block formatter.">
+    <Feature Id="Plugins" Level="1" Display="expand" Title="!(loc.Feature.Title.Plugins)" AllowAdvertise="no" Description="!(loc.Feature.Description.Plugins)">
+      <Feature Id="Editor" Level="1" Title="!(loc.Feature.Title.Editor)" AllowAdvertise="no" Description="!(loc.Feature.Description.Editor)">
+        <Feature Id="Align" Level="1" Title="!(loc.Feature.Title.Align)" AllowAdvertise="no" Description="!(loc.Feature.Description.Align)">
           <ComponentRef Id="Align.dll" />
           <ComponentRef Id="AlignEng.lng" />
           <Feature Id="AlignRussian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -312,7 +312,7 @@
             <ComponentRef Id="changelog_2" />
           </Feature>
         </Feature>
-        <Feature Id="AutoWrap" Level="1" Title="AutoWrap" AllowAdvertise="no" Description="Automatic line wrap.">
+        <Feature Id="AutoWrap" Level="1" Title="!(loc.Feature.Title.AutoWrap)" AllowAdvertise="no" Description="!(loc.Feature.Description.AutoWrap)">
           <ComponentRef Id="AutoWrap.dll" />
           <ComponentRef Id="WrapEng.lng" />
           <Feature Id="AutoWrapRussian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -327,7 +327,7 @@
             <ComponentRef Id="changelog_3" />
           </Feature>
         </Feature>
-        <Feature Id="Brackets" Level="1" Title="Brackets" AllowAdvertise="no" Description="Brackets matching.">
+        <Feature Id="Brackets" Level="1" Title="!(loc.Feature.Title.Brackets)" AllowAdvertise="no" Description="!(loc.Feature.Description.Brackets)">
           <ComponentRef Id="BrackDel.reg" />
           <ComponentRef Id="BrackEng.hlf" />
           <ComponentRef Id="BrackEng.lng" />
@@ -347,7 +347,7 @@
             <ComponentRef Id="changelog_4" />
           </Feature>
         </Feature>
-        <Feature Id="DrawLine" Level="1" Title="DrawLine" AllowAdvertise="no" Description="Pseudo-graphic lines drawing.">
+        <Feature Id="DrawLine" Level="1" Title="!(loc.Feature.Title.DrawLine)" AllowAdvertise="no" Description="!(loc.Feature.Description.DrawLine)">
           <ComponentRef Id="DrawEng.hlf" />
           <ComponentRef Id="DrawEng.lng" />
           <ComponentRef Id="DrawLine.dll" />
@@ -364,7 +364,7 @@
             <ComponentRef Id="changelog_6" />
           </Feature>
         </Feature>
-        <Feature Id="EditCase" Level="1" Title="EditCase" AllowAdvertise="no" Description="Text case conversion.">
+        <Feature Id="EditCase" Level="1" Title="!(loc.Feature.Title.EditCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.EditCase)">
           <ComponentRef Id="ECaseEng.hlf" />
           <ComponentRef Id="ECaseEng.lng" />
           <ComponentRef Id="EditCase.dll" />
@@ -382,7 +382,7 @@
           </Feature>
         </Feature>
       </Feature>
-      <Feature Id="Compare" Level="1" Title="Compare" AllowAdvertise="no" Description="Advanced compare.">
+      <Feature Id="Compare" Level="1" Title="!(loc.Feature.Title.Compare)" AllowAdvertise="no" Description="!(loc.Feature.Description.Compare)">
         <ComponentRef Id="CmpEng.hlf" />
         <ComponentRef Id="Compare.dll" />
         <ComponentRef Id="CompEng.lng" />
@@ -399,7 +399,7 @@
           <ComponentRef Id="changelog_5" />
         </Feature>
       </Feature>
-      <Feature Id="EMenu" Level="1" Title="EMenu" AllowAdvertise="no" Description="Explorer context menu.">
+      <Feature Id="EMenu" Level="1" Title="!(loc.Feature.Title.EMenu)" AllowAdvertise="no" Description="!(loc.Feature.Description.EMenu)">
         <ComponentRef Id="EMenu.dll" />
         <ComponentRef Id="EMenuDel.reg" />
         <ComponentRef Id="EMenuEng.hlf" />
@@ -420,7 +420,7 @@
           <ComponentRef Id="changelog_8" />
         </Feature>
       </Feature>
-      <Feature Id="FARCmds" Level="1" Title="FARCmds" AllowAdvertise="no" Description="Advanced commands.">
+      <Feature Id="FARCmds" Level="1" Title="!(loc.Feature.Title.FARCmds)" AllowAdvertise="no" Description="!(loc.Feature.Description.FARCmds)">
         <ComponentRef Id="FARCmds.dll" />
         <ComponentRef Id="FARCmdsEng.hlf" />
         <ComponentRef Id="FARCmdsEng.lng" />
@@ -437,7 +437,7 @@
           <ComponentRef Id="changelog_9" />
         </Feature>
       </Feature>
-      <Feature Id="FileCase" Level="1" Title="FileCase" AllowAdvertise="no" Description="File name case conversion.">
+      <Feature Id="FileCase" Level="1" Title="!(loc.Feature.Title.FileCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.FileCase)">
         <ComponentRef Id="CaseEng.hlf" />
         <ComponentRef Id="CaseEng.lng" />
         <ComponentRef Id="FileCase.dll" />
@@ -454,14 +454,14 @@
           <ComponentRef Id="changelog_10" />
         </Feature>
       </Feature>
-      <Feature Id="FarFtp" Level="1" Title="FarFtp" AllowAdvertise="no" Description="FTP client.">
+      <Feature Id="FarFtp" Level="1" Title="!(loc.Feature.Title.FarFtp)" AllowAdvertise="no" Description="!(loc.Feature.Description.FarFtp)">
         <ComponentRef Id="FarFtp.dll" />
         <ComponentRef Id="FtpCmds.txt" />
         <ComponentRef Id="FtpEng.hlf" />
         <ComponentRef Id="FtpEng.lng" />
         <ComponentRef Id="Notes.txt" />
         <ComponentRef Id="TechInfo.reg" />
-        <Feature Id="ftpDirList" Level="1" Title="DirList" AllowAdvertise="no" Description="Directory listing parser.">
+        <Feature Id="ftpDirList" Level="1" Title="!(loc.Feature.Title.ftpDirList)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpDirList)">
           <ComponentRef Id="ftpDirList.fll" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="ftpDirListFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -469,7 +469,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="ftpProgress" Level="1" Title="Progress" AllowAdvertise="no" Description="Copy progress dialog.">
+        <Feature Id="ftpProgress" Level="1" Title="!(loc.Feature.Title.ftpProgress)" AllowAdvertise="no" Description="!(loc.Feature.Description.ftpProgress)">
           <ComponentRef Id="ftpProgress.fll" />
           <ComponentRef Id="Progress_FarCopy.reg" />
           <ComponentRef Id="Progress_JM.reg" />
@@ -497,7 +497,7 @@
           <ComponentRef Id="changelog_11" />
         </Feature>
       </Feature>
-      <Feature Id="HlfViewer" Level="1" Title="HlfViewer" AllowAdvertise="no" Description="Help files (*.hlf) viewer.">
+      <Feature Id="HlfViewer" Level="1" Title="!(loc.Feature.Title.HlfViewer)" AllowAdvertise="no" Description="!(loc.Feature.Description.HlfViewer)">
         <ComponentRef Id="HlfViewer.dll" />
         <ComponentRef Id="HlfViewerEng.hlf" />
         <ComponentRef Id="HlfViewerEng.lng" />
@@ -514,7 +514,7 @@
           <ComponentRef Id="changelog_12" />
         </Feature>
       </Feature>
-      <Feature Id="MacroView" Level="1" Title="MacroView" AllowAdvertise="no" Description="Macro browser and editor.">
+      <Feature Id="MacroView" Level="1" Title="!(loc.Feature.Title.MacroView)" AllowAdvertise="no" Description="!(loc.Feature.Description.MacroView)">
         <ComponentRef Id="MacroEng.hlf" />
         <ComponentRef Id="MacroEng.lng" />
         <ComponentRef Id="MacroView.dll" />
@@ -531,11 +531,11 @@
           <ComponentRef Id="changelog_13" />
         </Feature>
       </Feature>
-      <Feature Id="MultiArc" Level="1" Title="MultiArc" AllowAdvertise="no" Description="Multiformat archive support.">
+      <Feature Id="MultiArc" Level="1" Title="!(loc.Feature.Title.MultiArc)" AllowAdvertise="no" Description="!(loc.Feature.Description.MultiArc)">
         <ComponentRef Id="arceng.hlf" />
         <ComponentRef Id="arceng.lng" />
         <ComponentRef Id="MultiArc.dll" />
-        <Feature Id="Ace" Level="1" Title="Ace" AllowAdvertise="no">
+        <Feature Id="Ace" Level="1" Title="!(loc.Feature.Title.Ace)" AllowAdvertise="no">
           <ComponentRef Id="Ace.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="AceFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -543,7 +543,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Arc" Level="1" Title="Arc" AllowAdvertise="no">
+        <Feature Id="Arc" Level="1" Title="!(loc.Feature.Title.Arc)" AllowAdvertise="no">
           <ComponentRef Id="Arc.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="ArcFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -551,7 +551,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Arj" Level="1" Title="Arj" AllowAdvertise="no">
+        <Feature Id="Arj" Level="1" Title="!(loc.Feature.Title.Arj)" AllowAdvertise="no">
           <ComponentRef Id="Arj.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="ArjFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -559,7 +559,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Cab" Level="1" Title="Cab" AllowAdvertise="no">
+        <Feature Id="Cab" Level="1" Title="!(loc.Feature.Title.Cab)" AllowAdvertise="no">
           <ComponentRef Id="Cab.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="CabFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -567,7 +567,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Custom" Level="1" Title="Custom" AllowAdvertise="no">
+        <Feature Id="Custom" Level="1" Title="!(loc.Feature.Title.Custom)" AllowAdvertise="no">
           <ComponentRef Id="Custom.fmt" />
           <ComponentRef Id="custom.ini" />
 <?if $(var.Platform) = x86 ?>
@@ -576,7 +576,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Ha" Level="1" Title="Ha" AllowAdvertise="no">
+        <Feature Id="Ha" Level="1" Title="!(loc.Feature.Title.Ha)" AllowAdvertise="no">
           <ComponentRef Id="Ha.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="HaFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -584,7 +584,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Lzh" Level="1" Title="Lzh" AllowAdvertise="no">
+        <Feature Id="Lzh" Level="1" Title="!(loc.Feature.Title.Lzh)" AllowAdvertise="no">
           <ComponentRef Id="Lzh.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="LzhFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -592,7 +592,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Rar" Level="1" Title="Rar" AllowAdvertise="no">
+        <Feature Id="Rar" Level="1" Title="!(loc.Feature.Title.Rar)" AllowAdvertise="no">
           <ComponentRef Id="Rar.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="RarFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -600,7 +600,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="TarGz" Level="1" Title="TarGz" AllowAdvertise="no">
+        <Feature Id="TarGz" Level="1" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
           <ComponentRef Id="TarGz.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="TarGzFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -608,7 +608,7 @@
           </Feature>
 <?endif?>
         </Feature>
-        <Feature Id="Zip" Level="1" Title="Zip" AllowAdvertise="no">
+        <Feature Id="Zip" Level="1" Title="!(loc.Feature.Title.Zip)" AllowAdvertise="no">
           <ComponentRef Id="Zip.fmt" />
 <?if $(var.Platform) = x86 ?>
           <Feature Id="ZipFExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -629,7 +629,7 @@
           <ComponentRef Id="changelog_14" />
         </Feature>
       </Feature>
-      <Feature Id="Network" Level="1" Title="Network" AllowAdvertise="no" Description="Network browser.">
+      <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
         <ComponentRef Id="NetEng.hlf" />
         <ComponentRef Id="NetEng.lng" />
         <ComponentRef Id="Network.dll" />
@@ -646,7 +646,7 @@
           <ComponentRef Id="changelog_15" />
         </Feature>
       </Feature>
-      <Feature Id="Proclist" Level="1" Title="Proclist" AllowAdvertise="no" Description="Windows process management.">
+      <Feature Id="Proclist" Level="1" Title="!(loc.Feature.Title.Proclist)" AllowAdvertise="no" Description="!(loc.Feature.Description.Proclist)">
         <ComponentRef Id="ProcEng.hlf" />
         <ComponentRef Id="ProcEng.lng" />
         <ComponentRef Id="Proclist.dll" />
@@ -663,7 +663,7 @@
           <ComponentRef Id="changelog_16" />
         </Feature>
       </Feature>
-      <Feature Id="TmpPanel" Level="1" Title="TmpPanel" AllowAdvertise="no" Description="Temporary panel.">
+      <Feature Id="TmpPanel" Level="1" Title="!(loc.Feature.Title.TmpPanel)" AllowAdvertise="no" Description="!(loc.Feature.Description.TmpPanel)">
         <ComponentRef Id="disks.eng.temp" />
         <ComponentRef Id="shortcuts.eng.reg" />
         <ComponentRef Id="shortcuts.eng.temp" />

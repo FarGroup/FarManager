@@ -34,8 +34,8 @@
 <?endif?>
 <?include guids_$(var.Branch)_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Language="1033" Codepage="1251" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
-    <Package Id="*" Platform="$(var.Platform)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" />
+  <Product Id="*" Language="!(loc.Language)" Codepage="1252" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
+    <Package Id="*" Platform="$(var.Platform)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
     <Property Id="INSTALLDIR">
       <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="InstallDir" Type="raw" Win64="$(var.Win64)" />
     </Property>
