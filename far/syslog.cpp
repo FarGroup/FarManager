@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "interf.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT)             || \
