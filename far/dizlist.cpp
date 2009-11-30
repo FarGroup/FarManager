@@ -114,7 +114,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 
 	for(;;)
 	{
-		if (DizName!=NULL)
+		if (DizName)
 		{
 			strDizFileName = DizName;
 		}
@@ -134,8 +134,8 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 			strDizFileName += strArgName;
 		}
 
-		FILE *DizFile;
-		if ((DizFile=_wfopen(NTPath(strDizFileName),L"rb"))!=NULL)
+		FILE *DizFile=_wfopen(NTPath(strDizFileName),L"rb");
+		if (DizFile)
 		{
 			GetFileString GetStr(DizFile);
 			wchar_t *DizText;

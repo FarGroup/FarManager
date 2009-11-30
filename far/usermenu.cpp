@@ -278,7 +278,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 			// ѕытаемс€ открыть файл на локальном диске
 			FILE *MenuFile = NULL;
 			if (PathCanHoldRegularFile(strMenuFilePath))
-				_wfopen(NTPath(strMenuFileFullPath),L"rb");
+				MenuFile = _wfopen(NTPath(strMenuFileFullPath),L"rb");
 			if (MenuFile)
 			{
 				// сливаем содержимое в реестр "на запасной путь" и оттуда будем пользовать
