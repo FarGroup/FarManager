@@ -386,12 +386,18 @@ int WINAPI GetSearchReplaceString (
     }
 
     *pSearchStr = SearchDlg[2].strData;
-    if( pReplaceStr) *pReplaceStr=L"";
-    if(Case)       *Case=SearchDlg[4].Selected;
-    if(WholeWords) *WholeWords=SearchDlg[5].Selected;
-    if(Reverse)    *Reverse=SearchDlg[6].Selected;
-    if(Regexp)     *Regexp=SearchDlg[7].Selected;
-    if(SelectFound) *SelectFound=SearchDlg[8].Selected;
+    if (pReplaceStr)
+      pReplaceStr->Clear();
+    if (Case)
+      *Case=SearchDlg[4].Selected;
+    if (WholeWords)
+      *WholeWords=SearchDlg[5].Selected;
+    if (Reverse)
+      *Reverse=SearchDlg[6].Selected;
+    if (Regexp)
+      *Regexp=SearchDlg[7].Selected;
+    if (SelectFound)
+      *SelectFound=SearchDlg[8].Selected;
   }
   return TRUE;
 }

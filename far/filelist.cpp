@@ -634,9 +634,12 @@ int FileList::ProcessKey(int Key)
     }
     else
     {
-      strPluginModule=strPluginFile=strPluginData=L"";
+      strPluginModule.Clear();
+      strPluginFile.Clear();
+      strPluginData.Clear();
       strShortcutFolder = strCurDir;
     }
+
     if (SaveFolderShortcut(Key,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
     {
       return(TRUE);
@@ -891,7 +894,9 @@ int FileList::ProcessKey(int Key)
       {
         string strFileName;
         if(Key==KEY_CTRLSHIFTENTER || Key==KEY_CTRLSHIFTNUMENTER)
+        {
           _MakePath1(Key,strFileName, L" ");
+        }
         else
         {
           int CurrentPath=FALSE;
@@ -905,7 +910,7 @@ int FileList::ProcessKey(int Key)
           if (TestParentFolderName(strFileName))
           {
             if (PanelMode==PLUGIN_PANEL)
-              strFileName=L"";
+              strFileName.Clear();
             else
               strFileName.SetLength(1); // "."
 
@@ -1189,13 +1194,13 @@ int FileList::ProcessKey(int Key)
         }
 
         if(!PluginMode)
-          strPluginData=L"";
+          strPluginData.Clear();
 
         UINT codepage = CP_AUTODETECT;
 
         if (Key==KEY_SHIFTF4)
         {
-          static string strLastFileName=L"";
+          static string strLastFileName;
 
           do{
 
@@ -2988,8 +2993,8 @@ int FileList::GetCurName(string &strName, string &strShortName)
 {
   if (FileCount==0)
   {
-    strName = L"";
-    strShortName = L"";
+    strName.Clear();
+    strShortName.Clear();
     return(FALSE);
   }
 
@@ -3027,8 +3032,8 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 {
   if (FileCount==0)
   {
-    strName = L"";
-    strShortName = L"";
+    strName.Clear();
+    strShortName.Clear();
     return(FALSE);
   }
 
@@ -4333,7 +4338,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 */
 string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 {
-	strPrefix = L"";
+	strPrefix.Clear();
 	if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPluginInfo Info;

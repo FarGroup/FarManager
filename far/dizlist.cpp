@@ -64,7 +64,7 @@ DizList::DizList()
 	DizCount=0;
 	IndexData=NULL;
 	IndexCount=0;
-	strDizFileName=L"";
+	strDizFileName.Clear();
 	Modified=false;
 	NeedRebuild=true;
 	OrigCodePage=CP_AUTODETECT;
@@ -174,7 +174,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 	}
 
 	Modified=false;
-	strDizFileName=L"";
+	strDizFileName.Clear();
 }
 
 

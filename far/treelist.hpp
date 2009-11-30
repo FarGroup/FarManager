@@ -61,7 +61,7 @@ struct TreeItem
 
   void Clear()
   {
-    strName=L"";
+    strName.Clear();
     memset(Last,0,sizeof(Last));
     Depth=0;
   }

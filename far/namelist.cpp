@@ -126,6 +126,6 @@ void NamesList::Init()
 {
   Names.Clear();
 
-  strCurrentDir = L"";
+  strCurrentDir.Clear();
   CurrentName=NULL;
 }

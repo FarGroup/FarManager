@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileFilterParams::FileFilterParams()
 {
-  m_strTitle = L"";
+  m_strTitle.Clear();
   SetMask(1,L"*");
   SetSize(0,L"",L"");
   memset(&FDate,0,sizeof(FDate));
@@ -669,7 +669,10 @@ LONG_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
           ConvertDate(ft,strDate,strTime,8,FALSE,FALSE,TRUE);
         }
         else
-          strDate=strTime=L"";
+        {
+          strDate.Clear();
+          strTime.Clear();
+        }
 
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 

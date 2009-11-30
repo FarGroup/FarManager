@@ -67,10 +67,9 @@ public:
 		m_nLength = 0;
 		m_nRefCount = 1;
 		m_pData = AllocData(nSize,&m_nSize);
-		if (m_pData)
-			*m_pData = 0;
-		else
-			m_nSize=0;
+		//Так как ни где выше в коде мы не готовы на случай что памяти не хватит
+		//то уж лучше и здесь не проверять а сразу падать
+		*m_pData = 0;
 	}
 
 	size_t SetLength(size_t nLength)
@@ -87,25 +86,17 @@ public:
 	{
 		if (nSize <= m_nSize)
 			return;
-		wchar_t *pOldData = m_pData;
-		size_t nOldSize = m_nSize;
 		if (nSize >= m_nDelta << 3)
 			nSize = nSize << 1;
 		else
 			nSize = (nSize/m_nDelta + 1) * m_nDelta;
+		wchar_t *pOldData = m_pData;
 		m_pData = AllocData(nSize,&m_nSize);
-		if (!m_pData)
-		{
-			m_pData = pOldData;
-			m_nSize = nOldSize;
-		}
-		else
-		{
-			if (pOldData)
-				wmemcpy(m_pData,pOldData,m_nLength);
-			m_pData[m_nLength] = 0;
-			FreeData(pOldData);
-		}
+		//Так как ни где выше в коде мы не готовы на случай что памяти не хватит
+		//то уж лучше и здесь не проверять а сразу падать
+		wmemcpy(m_pData,pOldData,m_nLength);
+		m_pData[m_nLength] = 0;
+		FreeData(pOldData);
 	}
 
 	wchar_t *GetData() { return m_pData; }
@@ -181,7 +172,7 @@ public:
 	UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, NULL, 0); }
 	UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 
-	UnicodeString& Clear() { SetLength(0); return *this; }
+	UnicodeString& Clear();
 
 	const wchar_t *CPtr() const { return m_pData->GetData(); }
 	operator const wchar_t *() const { return m_pData->GetData(); }

@@ -407,8 +407,8 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,int *ViewColumnW
      int *ViewColumnWidthsTypes,int ColumnCount,string &strColumnTitles,
      string &strColumnWidths)
 {
-  strColumnTitles=L"";
-  strColumnWidths=L"";
+  strColumnTitles.Clear();
+  strColumnWidths.Clear();
 
   for (int I=0;I<ColumnCount;I++)
   {

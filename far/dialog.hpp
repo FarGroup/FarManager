@@ -146,7 +146,7 @@ struct DialogItemEx
     Flags=0;
     DefaultButton=0;
 
-    strData=L"";
+    strData.Clear();
     nMaxLength=0;
 
     ID=0;

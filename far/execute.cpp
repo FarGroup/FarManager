@@ -231,7 +231,7 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
 
-	strType.SetLength(0);
+	strType.Clear();
 
 	if (WinVer.dwMajorVersion >= 6 && ifn.pfnSHCreateAssociationRegistration)
 	{
@@ -1631,7 +1631,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 			if(LastSlash(strExpandedDir,pos))
 				strExpandedDir.SetLength(pos+1);
 			else
-				strExpandedDir.SetLength(0);
+				strExpandedDir.Clear();
 
 			strExpandedDir += wfd.strFileName;
 		}

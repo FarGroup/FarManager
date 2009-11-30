@@ -96,9 +96,9 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
   if (Title!=NULL)
     strTitle = Title;
   else
-    strTitle = L"";
+    strTitle.Clear();
 
-  strBottomTitle = L"";
+  strBottomTitle.Clear();
 
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
@@ -2196,7 +2196,7 @@ void VMenu::SetTitle(const wchar_t *Title)
   if ( Title )
     strTitle = Title;
   else
-    strTitle = L"";
+    strTitle.Clear();
 
   Length=(int)strTitle.GetLength()+2;
 
@@ -2247,9 +2247,9 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
   VMFlags.Set(VMENU_UPDATEREQUIRED);
 
   if ( BottomTitle )
-    strBottomTitle  = BottomTitle;
+    strBottomTitle = BottomTitle;
   else
-    strBottomTitle = L"";
+    strBottomTitle.Clear();
   Length=(int)strBottomTitle.GetLength()+2;
   if (Length > MaxLength)
     MaxLength=Length;

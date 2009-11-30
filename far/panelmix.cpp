@@ -118,7 +118,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
   int RetCode=FALSE;
   int NeedRealName=FALSE;
 
-  strPathName = L"";
+  strPathName.Clear();
   switch(Key)
   {
     case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели

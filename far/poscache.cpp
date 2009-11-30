@@ -234,7 +234,7 @@ BOOL FilePositionCache::Read(const wchar_t *Key)
 
     if (!StrCmp(strDataStr,EmptyPos))
     {
-      Names[I].SetLength(0);
+      Names[I].Clear();
       memset(Param+PARAM_POS(I),0,SizeValue*5);
     }
     else

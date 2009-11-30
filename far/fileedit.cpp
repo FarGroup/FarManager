@@ -1971,7 +1971,7 @@ end:
     m_editor->TextChanged(0);
 
   if(GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
-    strTitle = L"";
+    strTitle.Clear();
 
   Show();
 
@@ -2085,7 +2085,7 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 void FileEditor::SetPluginTitle(const wchar_t *PluginTitle)
 {
 	if ( !PluginTitle )
-		strPluginTitle = L"";
+		strPluginTitle.Clear();
 	else
 		strPluginTitle = PluginTitle;
 }

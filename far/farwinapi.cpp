@@ -559,7 +559,7 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 BOOL apiGetConsoleKeyboardLayoutName (string &strDest)
 {
 	BOOL ret=FALSE;
-	strDest.SetLength(0);
+	strDest.Clear();
 	if ( ifn.pfnGetConsoleKeyboardLayoutName )
 	{
 		wchar_t *p = strDest.GetBuffer(KL_NAMELENGTH+1);

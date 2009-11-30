@@ -338,7 +338,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
     if (*CurStr==L'!')
     {
       if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=NULL)
-        strCurDir.SetLength(0);
+        strCurDir.Clear();
     }
 
     strOut +=  strCurDir;
@@ -392,16 +392,16 @@ int SubstFileName(string &strStr,            // результирующая строка
                   const wchar_t *CmdLineDir)     // Каталог исполнения
 {
     if ( pListName )
-        *pListName = L"";
+        pListName->Clear();
 
     if ( pAnotherListName )
-        *pAnotherListName = L"";
+        pAnotherListName->Clear();
 
     if ( pShortListName )
-        *pShortListName = L"";
+        pShortListName->Clear();
 
     if ( pAnotherShortListName )
-        *pAnotherShortListName = L"";
+        pAnotherShortListName->Clear();
 
   /* $ 19.06.2001 SVS
     ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
@@ -521,7 +521,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
     if (ii == -1)
     {
       delete [] DlgData;
-      strStr.SetLength(0);
+      strStr.Clear();
       return 0;
     }
 
@@ -686,7 +686,7 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
   if (ExitCode==-1)
   {
     delete [] DlgData;
-    strStr.SetLength(0);
+    strStr.Clear();
     return 0;
   }
 

@@ -625,49 +625,49 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
     fwprintf(fp,L"**** Detail... ***\n");
 
     if(!Man->InsertedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->InsertedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tInsertedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который будет добавлен в конец немодальной очереди
       Man->InsertedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeletedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->DeletedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tDeletedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, предназначен для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
        Man->DeletedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ActivatedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->ActivatedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tActivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который необходимо активировать после каких ни будь изменений
       Man->ActivatedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->RefreshedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->RefreshedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tRefreshedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который нужно просто освежить, т.е. перерисовать
       Man->RefreshedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->ModalizedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->ModalizedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tModalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который становится в 'очередь' к текущему немодальному фрейму
       Man->ModalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->UnmodalizedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tUnmodalizedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, убирающийся из 'очереди' немодального фрейма
       Man->UnmodalizedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->DeactivatedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->DeactivatedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tDeactivatedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, который указывает на предыдущий активный фрейм
@@ -675,14 +675,14 @@ void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp)
 
 
     if(!Man->ExecutedFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->ExecutedFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tExecutedFrame=%p (Type='%s' Name='%s')\n", //  - Фрейм, которого вскорости нужно будет поставить на вершину модального стека
       Man->ExecutedFrame,(const wchar_t*)Type,(const wchar_t*)Name);
 
     if(!Man->CurrentFrame)
-      Type=L"", Name=L"";
+      Type.Clear(), Name.Clear();
     else
       Man->CurrentFrame->GetTypeAndName(Type,Name);
     fwprintf(fp,L"\tCurrentFrame=%p (Type='%s' Name='%s')\n", //  - текущий фрейм. Он может находиться как в немодальной очереди, так и в модальном стеке

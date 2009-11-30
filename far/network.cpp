@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void GetStoredUserName(wchar_t cDrive, string &strUserName)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	strUserName = L"";
+	strUserName.Clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 	HKEY hKey;
 	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
@@ -139,7 +139,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 {
   string strNetDir;
 
-  strComputerName=L"";
+  strComputerName.Clear();
 
   if ( CurDir[0]==L'\\' && CurDir[1]==L'\\')
   {
@@ -167,7 +167,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
     size_t pos;
 		if (!FirstSlash(strComputerName,pos))
     {
-      strComputerName.SetLength(0);
+      strComputerName.Clear();
     }
     else
     {
@@ -185,7 +185,7 @@ string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
   string strRemoteName;
 
   *LocalName=Letter;
-  strDest=L"";
+  strDest.Clear();
 
   if(DriveType == DRIVE_UNKNOWN)
   {

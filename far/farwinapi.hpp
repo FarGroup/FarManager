@@ -65,8 +65,8 @@ struct FAR_FIND_DATA_EX
 		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
 		nFileSize=0;
 		nPackSize=0;
-		strFileName=L"";
-		strAlternateFileName=L"";
+		strFileName.Clear();
+		strAlternateFileName.Clear();
 	}
 
 	FAR_FIND_DATA_EX& operator=(const FAR_FIND_DATA_EX &ffdexCopy)

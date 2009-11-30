@@ -2203,7 +2203,7 @@ void Viewer::Search(int Next,int FirstChar)
   if ( !strLastSearchStr.IsEmpty() )
     strSearchStr = strLastSearchStr;
   else
-    strSearchStr=L"";
+    strSearchStr.Clear();
 
 	SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
 	SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
@@ -2580,7 +2580,7 @@ void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
     ConvertNameToFull(Name,strTempViewName);
   else
   {
-    strTempViewName = L"";
+    strTempViewName.Clear();
     DeleteFolder=FALSE;
   }
   Viewer::DeleteFolder=DeleteFolder;
@@ -2590,7 +2590,7 @@ void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 void Viewer::SetTitle(const wchar_t *Title)
 {
   if ( Title==NULL )
-      strTitle = L"";
+      strTitle.Clear();
   else
       strTitle = Title;
 }

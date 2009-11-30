@@ -96,7 +96,7 @@ struct FileListItem
 		DizText = NULL;
 		DeleteDiz = 0;
 
-		strOwner = L"";
+		strOwner.Clear();
 
 		CustomColumnData = NULL;
 		CustomColumnNumber = 0;
@@ -112,8 +112,8 @@ struct FileListItem
 		UnpSize = 0;
 		PackSize = 0;
 
-		strName = L"";
-		strShortName = L"";
+		strName.Clear();
+		strShortName.Clear();
 
 		ReparseTag=0;
 	}

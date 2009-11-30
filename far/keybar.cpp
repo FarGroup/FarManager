@@ -174,8 +174,8 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 
     for (I=0;;I++)
     {
-      strValueName=L"";
-      strValue=L"";
+      strValueName.Clear();
+      strValue.Clear();
 
       int Type=EnumRegValueEx(strRegName,I,strValueName,strValue);
 

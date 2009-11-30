@@ -91,17 +91,20 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 
 	if (m_pData->GetRef() == 1 && NewLength + 1 <= m_pData->GetSize())
 	{
-		if (Data >= m_pData->GetData() && Data + DataLen <= m_pData->GetData() + m_pData->GetLength())
+		if (NewLength)
 		{
-			// copy data from self
-			UnicodeString TmpStr(Data, DataLen);
-			wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
-			wmemcpy(m_pData->GetData() + Pos, TmpStr.CPtr(), TmpStr.GetLength());
-		}
-		else
-		{
-			wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
-			wmemcpy(m_pData->GetData() + Pos, Data, DataLen);
+			if (Data >= m_pData->GetData() && Data + DataLen <= m_pData->GetData() + m_pData->GetLength())
+			{
+				// copy data from self
+				UnicodeString TmpStr(Data, DataLen);
+				wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+				wmemcpy(m_pData->GetData() + Pos, TmpStr.CPtr(), TmpStr.GetLength());
+			}
+			else
+			{
+				wmemmove(m_pData->GetData() + Pos + DataLen, m_pData->GetData() + Pos + Len, m_pData->GetLength() - Pos - Len);
+				wmemcpy(m_pData->GetData() + Pos, Data, DataLen);
+			}
 		}
 		m_pData->SetLength(NewLength);
 	}
@@ -196,9 +199,9 @@ const UnicodeString operator+(const UnicodeString &strSrc1, const wchar_t *lpwsz
 
 wchar_t *UnicodeString::GetBuffer (size_t nSize)
 {
-	Inflate (nSize == (size_t)-1?m_pData->GetSize():nSize);
+	Inflate(nSize == (size_t)-1?m_pData->GetSize():nSize);
 
-	return m_pData->GetData ();
+	return m_pData->GetData();
 }
 
 void UnicodeString::ReleaseBuffer (size_t nLength)
@@ -227,6 +230,21 @@ size_t UnicodeString::SetLength(size_t nLength)
 	}
 
 	return m_pData->GetLength();
+}
+
+UnicodeString& UnicodeString::Clear()
+{
+	if (m_pData->GetRef() > 1)
+	{
+		m_pData->DecRef();
+		SetEUS();
+	}
+	else
+	{
+		m_pData->SetLength(0);
+	}
+
+	return *this;
 }
 
 int __cdecl UnicodeString::Format (const wchar_t * format, ...)

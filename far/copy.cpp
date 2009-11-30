@@ -680,7 +680,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
   ShowTotalCopySize=Opt.CMOpt.CopyShowTotal != 0;
 
-  strTotalCopySizeText=L"";
+  strTotalCopySizeText.Clear();
 
   SelectedFolderNameLength=0;
   DestPlugin=ToPlugin;
@@ -1208,7 +1208,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   CopyBuffer=new char[CopyBufferSize];
   DestPanel->CloseFile();
-  strDestDizPath=L"";
+  strDestDizPath.Clear();
   SrcPanel->SaveSelection();
 
   // TODO: Posix - bugbug
@@ -1313,13 +1313,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           }
 					CP=new CopyProgress(Move!=0,ShowTotalCopySize,ShowCopyTime!=0);
           // Обнулим инфу про дизы
-          strDestDizPath=L"";
+          strDestDizPath.Clear();
 					Flags&=~FCOPY_DIZREAD;
 
           // сохраним выделение
           SrcPanel->SaveSelection();
 
-          strDestFSName=L"";
+          strDestFSName.Clear();
 
           int OldCopySymlinkContents=Flags&FCOPY_COPYSYMLINKCONTENTS;
 
@@ -1759,14 +1759,16 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
   if(TotalCopySize == 0)
   {
-    strTotalCopySizeText=L"";
+    strTotalCopySizeText.Clear();
 
     //  ! Не сканируем каталоги при создании линков
 		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
       return COPY_FAILURE;
   }
   else
+  {
     CurCopiedSize=0;
+  }
 
   // Создание структуры каталогов в месте назначения
 	if(!(Flags&FCOPY_COPYTONUL))
@@ -3631,7 +3633,7 @@ void ShellCopy::SetDestDizPath(const wchar_t *DestPath)
 
     if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && !SrcPanel->IsDizDisplayed()) ||
         Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
-      strDestDizPath=L"";
+      strDestDizPath.Clear();
     if ( !strDestDizPath.IsEmpty() )
       DestDiz.Read(strDestDizPath);
 		Flags|=FCOPY_DIZREAD;

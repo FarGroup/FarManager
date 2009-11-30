@@ -338,7 +338,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 
 	if( strKeyText.IsEmpty ())
 	{
-		strKeyText0=L"";
+		strKeyText0.Clear();
 		return FALSE;
 	}
 
@@ -750,33 +750,37 @@ int KeyMacro::ProcessKey(int Key)
 
 bool KeyMacro::GetPlainText(string& strDest)
 {
-	if(!Work.MacroWORK)
+	strDest.Clear();
+
+	if (!Work.MacroWORK)
 		return false;
 
 	MacroRecord *MR=Work.MacroWORK;
 
 	int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
-	if(LenTextBuf && MR->Buffer[Work.ExecLIBPos])
+	if (LenTextBuf && MR->Buffer[Work.ExecLIBPos])
 	{
-		strDest=L"";
 		strDest=(const wchar_t *)&MR->Buffer[Work.ExecLIBPos];
 		_SVS(SysLog(L"strDest='%s'",strDest.CPtr()));
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
 		Work.ExecLIBPos+=(LenTextBuf+sizeof(wchar_t))/sizeof(DWORD);
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-		if(((LenTextBuf+sizeof(wchar_t))%sizeof(DWORD)) != 0)
+		if (((LenTextBuf+sizeof(wchar_t))%sizeof(DWORD)) != 0)
 			++Work.ExecLIBPos;
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
 		return true;
 	}
 	else
+	{
 		Work.ExecLIBPos++;
+	}
+
 	return false;
 }
 
 int KeyMacro::GetPlainTextSize()
 {
-	if(!Work.MacroWORK)
+	if (!Work.MacroWORK)
 		return 0;
 	MacroRecord *MR=Work.MacroWORK;
 	return StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]);
@@ -1555,7 +1559,7 @@ static bool fsplitFunc()
 	bool Ret=false;
 	string strPath;
 	if(!SplitFileName(s,strPath,m))
-		strPath=L"";
+		strPath.Clear();
 	else
 		Ret=true;
 	VMStack.Push(strPath.CPtr());
@@ -1709,7 +1713,7 @@ static bool waitkeyFunc()
 		string strKeyText;
 		if(Key != KEY_NONE)
 			if(!KeyToText(Key,strKeyText))
-				strKeyText = L"";
+				strKeyText.Clear();
 		VMStack.Push((const wchar_t *)strKeyText);
 		return !strKeyText.IsEmpty()?true:false;
 	}
@@ -1805,7 +1809,7 @@ static bool dateFunc()
 	if(MkStrFTime(strTStr,s))
 		Ret=true;
 	else
-		strTStr=L"";
+		strTStr.Clear();
 	VMStack.Push(TVar((const wchar_t*)strTStr));
 	return Ret;
 }
@@ -1908,7 +1912,7 @@ static bool environFunc()
 	if ( apiGetEnvironmentVariable(S.toString(), strEnv) )
 		Ret=true;
 	else
-		strEnv=L"";
+		strEnv.Clear();
 
 	VMStack.Push((const wchar_t*)strEnv);
 
@@ -3844,7 +3848,7 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
 	}
 	#endif
 
-	strTextBuffer=L"";
+	strTextBuffer.Clear();
 	if(Buffer[0] == MCODE_OP_KEYS)
 		for (J=1; J < BufferSize; J++)
 		{
@@ -3993,8 +3997,8 @@ int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
 	for (I=0;;I++)
 	{
 		IData=0;
-		strValueName=L"";
-		strSData=L"";
+		strValueName.Clear();
+		strSData.Clear();
 
 		int Type=EnumRegValueEx(strUpKeyName,I,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
 
@@ -4175,7 +4179,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 			}
 		}
 		else
-			strKeyText= L"";
+			strKeyText.Clear();
 
 		int KeyCode=KeyNameToKey(strKeyText);
 		if (KeyCode==-1)
@@ -4500,7 +4504,7 @@ M1:
 					InsertQuote(strBufKey);
 				}
 				else
-					strBufKey=L"";
+					strBufKey.Clear();
 
 				if((Mac->Flags&0xFF)==MACRO_COMMON)
 					strBuf.Format (MSG(!MacroDlg->RecBufferSize?
@@ -4549,7 +4553,7 @@ M1:
 				}
 				// здесь - здесь мы нажимали "Ќет", ну а на нет и суда нет
 				//  и значит очистим поле ввода.
-				strKeyText = L"";
+				strKeyText.Clear();
 			}
 		}
 		KMParam->Recurse++;
@@ -5178,7 +5182,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 					strKeyName.LShift(pos+1);
 				}
 				else
-					strKeyName= L"";
+					strKeyName.Clear();
 
 				return Pos+1;
 			}

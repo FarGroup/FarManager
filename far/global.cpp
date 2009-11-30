@@ -45,9 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OSVERSIONINFO WinVer={0};
 
-// языковой файл загружен?
-bool LanguageLoaded=false;
-
 // флаг на запрет юзание Ctrl-Alt-Shift
 BOOL NotUseCAS=FALSE;
 
@@ -74,8 +71,6 @@ string g_strFarPath;
 
 string strLastFarTitle;
 int  TitleModified=FALSE;
-wchar_t RegColorsHighlight[]=L"Colors\\Highlight";
-
 
 string strGlobalSearchString;
 int GlobalSearchCase=FALSE;

@@ -513,7 +513,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
           {
             // если указан -P без <путь>, то, считаем, что основные
             //  плагины не загружать вооообще!!!
-            Opt.LoadPlug.strCustomPluginsPath=L"";
+            Opt.LoadPlug.strCustomPluginsPath.Clear();
           }
           break;
         }
@@ -567,7 +567,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
   if(Opt.LoadPlug.PluginsCacheOnly)
   {
-    Opt.LoadPlug.strCustomPluginsPath=L"";
+    Opt.LoadPlug.strCustomPluginsPath.Clear();
     Opt.LoadPlug.MainPluginDir=FALSE;
     Opt.LoadPlug.PluginsPersonal=FALSE;
   }

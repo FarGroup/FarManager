@@ -57,7 +57,7 @@ struct HistoryRecord
 	{
 		Lock = false;
 		Type = 0;
-		strName = L"";
+		strName.Clear();
 		Timestamp.dwLowDateTime=0;
 		Timestamp.dwHighDateTime=0;
 	}

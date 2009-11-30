@@ -65,10 +65,6 @@ extern int CmdMode;
 
 extern const DWORD FAR_VERSION;
 
-extern wchar_t RegColorsHighlight[];
-
-extern bool LanguageLoaded;
-
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;

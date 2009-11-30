@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 
-#define LangFileMask L"*.lng"
+static const wchar_t LangFileMask[] = L"*.lng";
 
 #ifndef pack
  #define _PACK_BITS 2
@@ -56,6 +56,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Language Lang;
 static Language OldLang;
+
+// языковой файл загружен?
+bool Language::LanguageLoaded = false;
 
 Language::Language()
 {
@@ -346,7 +349,7 @@ const char* Language::GetMsgA (int nID)
 
 FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, UINT &nCodePage, BOOL StrongLang,string *pstrLangName)
 {
-  strFileName=L"";
+  strFileName.Clear();
 
   FILE *LangFile=NULL;
   string strFullName, strEngFileName;
@@ -361,20 +364,22 @@ FILE* Language::OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar
     if (Language==NULL)
       break;
     if ((LangFile=_wfopen(strFileName,L"rb"))==NULL)
-      strFileName=L"";
+    {
+      strFileName.Clear();
+    }
     else
     {
       GetFileFormat (LangFile, nCodePage, NULL, false);
 
-      string strNULL;
-
       if (GetLangParam(LangFile,L"Language",&strLangName,NULL, nCodePage) && StrCmpI(strLangName,Language)==0)
         break;
+
       fclose(LangFile);
       LangFile=NULL;
       if(StrongLang)
       {
-        strFileName=strEngFileName=L"";
+        strFileName.Clear();
+        strEngFileName.Clear();
         break;
       }
       if (StrCmpI(strLangName,L"English")==0)
@@ -423,7 +428,7 @@ int Language::GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strPar
 				*strParam1 = Ptr+1;
 
         if ( strParam2 )
-          *strParam2=L"";
+          strParam2->Clear();
 
 				size_t pos;
         if (strParam1->Pos(pos,L','))

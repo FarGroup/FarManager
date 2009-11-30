@@ -131,19 +131,6 @@ struct DizOptions
   int StartPos;
   int AnsiByDefault;
   int SaveInUTF;
-
-  /*
-  void Clear()
-  {
-    strListNames=L"";
-    ROUpdate=0;
-    UpdateMode=0;
-    SetHidden=0;
-    StartPos=0;
-    AnsiByDefault=0;
-    SaveInUTF=0;
-  }
-  */
 };
 
 struct CodeXLAT
@@ -162,16 +149,6 @@ struct CodeXLAT
                         // [0] "если предыдущий символ латинский"
                         // [1] "если предыдущий символ нелатинский символ"
                         // [2] "если предыдущий символ не рус/lat"
-
-  /*
-  void Clear()
-  {
-    Flags=0;
-    strWordDivForXlat=L"";
-    memset(Table,0,sizeof(Table));
-    memset(Rules,0,sizeof(Rules));
-  }
-  */
 };
 
 struct EditorOptions
@@ -239,7 +216,7 @@ struct EditorOptions
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
 
-		strWordDiv = L"";
+		strWordDiv.Clear();
 	}
 
 	void CopyTo (EditorOptions &dest)
@@ -357,19 +334,6 @@ struct LoadPluginsOptions
   string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
   string strPersonalPluginsPath;
   int SilentLoadPlugin; // при загрузке плагина с кривым...
-
-  /*
-  void Clear()
-  {
-    MainPluginDir=0;
-    PluginsCacheOnly=0;
-    PluginsPersonal=0;
-
-    strCustomPluginsPath=L"";
-    strPersonalPluginsPath=L"";
-    SilentLoadPlugin=0;
-  }
-  */
 };
 
 struct FindFileOptions
@@ -381,16 +345,6 @@ struct FindFileOptions
 	bool UseFilter;
 	bool FindAlternateStreams;
   string strSearchInFirstSize;
-
-  /*
-  void Clear()
-  {
-    FindFolders=0;
-    CollectFiles=0;
-    FileSearchMode=0;
-    strSearchInFirstSize=L"";
-  }
-  */
 };
 
 struct InfoPanelOptions{
@@ -649,171 +603,6 @@ struct Options
 	InfoPanelOptions InfoPanel;
 
   DWORD CPMenuMode;
-
-  /*
-  void Clear()
-  {
-    Clock=0;
-    Mouse=0;
-    ShowKeyBar=0;
-    ScreenSaver=0;
-    ScreenSaverTime=0;
-    UsePromptFormat=0;
-    strPromptFormat=L"";
-    UseVk_oem_x=0;
-    InactivityExit=0;
-    InactivityExitTime=0;
-    ShowHidden=0;
-    Highlight=0;
-
-    strLeftFolder=L"";
-    strRightFolder=L"";
-
-    strLeftCurFile=L"";
-    strRightCurFile=L"";
-
-    RightSelectedFirst=0;
-    LeftSelectedFirst=0;
-    SelectFolders=0;
-    ReverseSort=0;
-    ClearReadOnly=0;
-    SortFolderExt=0;
-    DeleteToRecycleBin=0;
-    WipeSymbol=0;
-
-    memset(&CMOpt,0,sizeof(CMOpt));
-
-    MultiMakeDir=0;
-    CreateUppercaseFolders=0;
-    UseRegisteredTypes=0;
-
-    ViewerEditorClock=0;
-    OnlyEditorViewerUsed=0;
-    SaveViewHistory=0;
-    ViewHistoryCount=0;
-
-    strExternalEditor=L"";
-    EdOpt.Clear();
-    strExternalViewer=L"";
-    memset(&ViOpt,0,sizeof(ViOpt));
-
-
-    strWordDiv=L"";
-    strQuotedSymbols=L"";
-    QuotedName=0;
-    AutoSaveSetup=0;
-    SetupArgv=0;
-    ChangeDriveMode=0;
-    ChangeDriveDisconnetMode=0;
-
-    SaveHistory=0;
-    HistoryCount=0;
-    SaveFoldersHistory=0;
-    SavePluginFoldersHistory=0;
-    FoldersHistoryCount=0;
-    DialogsHistoryCount=0;
-
-    FindOpt.Clear();
-
-    strTempPath=L"";
-    HeightDecrement=0;
-    WidthDecrement=0;
-
-    ShowColumnTitles=0;
-    ShowPanelStatus=0;
-    ShowPanelTotals=0;
-    ShowPanelFree=0;
-    ShowPanelScrollbar=0;
-    ShowMenuScrollbar=0;
-    ShowScreensNumber=0;
-    ShowSortMode=0;
-    ShowMenuBar=0;
-
-    CleanAscii=0;
-    NoGraphics=0;
-    strFolderInfoFiles=L"";
-
-    memset(&Confirm,0,sizeof(Confirm));
-    Diz.Clear();
-    memset(&LeftPanel,0,sizeof(LeftPanel));
-    memset(&RightPanel,0,sizeof(RightPanel));
-
-    AutoUpdateLimit=0;
-    AutoUpdateRemoteDrive=0;
-
-    strLanguage=L"";
-    SmallIcon=0;
-    strRegRoot=L"";
-    PanelRightClickRule=0;
-    PanelMiddleClickRule=0;
-    PanelCtrlAltShiftRule=0;
-    PanelCtrlFRule=0;
-    AllCtrlAltShiftRule=0;
-    CASRule=0;
-    CmdHistoryRule=0;
-    ExcludeCmdHistory=0;
-    SubstPluginPrefix=0;
-    MaxPositionCache=0;
-    SetAttrFolderRules=0;
-    ExceptRules=0;
-    ExceptCallDebugger=0;
-    ShiftsKeyRules=0;
-    MacroReuseRules=0;
-
-    KeyMacroCtrlDot=0;
-    KeyMacroCtrlShiftDot=0;
-    memset(CursorSize,0,sizeof(CursorSize));
-    XLat.Clear();
-    ConsoleDetachKey=0;
-
-    UsePrintManager=0;
-
-    strHelpLanguage=L"";
-    FullScreenHelp=0;
-    HelpTabSize=0;
-    HelpURLRules=0;
-
-    RememberLogicalDrives=0;
-    FlagPosixSemantics=0;
-    MsWheelDelta=0;
-    MsWheelDeltaView=0;
-    MsWheelDeltaEdit=0;
-    MsWheelDeltaHelp=0;
-    SubstNameRule=0;
-
-    AltF9=0;
-    ClearType=0;
-    PgUpChangeDisk=0;
-    ShowCheckingFile=0;
-    CloseConsoleRule=0;
-    CloseCDGate=0;
-
-    LCIDSort=0;
-    RestoreCPAfterExecute=0;
-    ExecuteShowErrorMessage=0;
-    ExecuteUseAppPath=0;
-    ExecuteFullTitle=0;
-    strExecuteBatchType=L"";
-
-    PluginMaxReadData=0;
-    UseNumPad=0;
-    ScanJunction=0;
-
-    ShowTimeoutDelFiles=0;
-    ShowTimeoutDACLFiles=0;
-    DelThreadPriority=0;
-
-    strDateFormat=L"";
-    LoadPlug.Clear();
-
-    memset(&Dialogs,0,sizeof(Dialogs));
-    memset(&Policies,0,sizeof(Policies));
-    memset(&Nowell,0,sizeof(Nowell));
-    memset(&ScrSize,0,sizeof(ScrSize));
-    memset(&CharTable,0,sizeof(CharTable));
-    memset(&Tree,0,sizeof(Tree));
-  }
-  */
 };
 
 extern Options Opt;

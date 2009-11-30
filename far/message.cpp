@@ -295,10 +295,9 @@ int Message(
   }
   MessageY2=Y2=Y1+StrCount+3;
 
-  string strHelpTopic;
+  string strHelpTopic(strMsgHelpTopic);
 
-  strHelpTopic = strMsgHelpTopic;
-  strMsgHelpTopic=L"";
+  strMsgHelpTopic.Clear();
 
   // *** Вариант с Диалогом ***
 
@@ -352,7 +351,9 @@ int Message(
       if(IsButton)
       {
         PtrMsgDlg->Y1=Y2-Y1-2;
-        PtrMsgDlg->strData = string(L" ")+string(CPtrStr)+string(L" "); //BUGBUG!!!
+        PtrMsgDlg->strData=L" ";
+        PtrMsgDlg->strData+=CPtrStr;
+        PtrMsgDlg->strData+=L" ";
         LastButtonIndex++;
       }
       else
@@ -563,11 +564,13 @@ int GetErrorString (string &strErrStr)
   DWORD LastError = GetLastError();
 
   for(I=0; I < (int)countof(ErrMsgs); ++I)
+  {
     if(ErrMsgs[I].WinMsg == LastError)
     {
       strErrStr = MSG(ErrMsgs[I].FarMsg);
       break;
     }
+  }
 
   if(I >= (int)countof(ErrMsgs))
   {
@@ -588,7 +591,7 @@ int GetErrorString (string &strErrStr)
       return TRUE;
     }
 
-    strErrStr = L""; //???
+    strErrStr.Clear(); //???
     return FALSE;
   }
 

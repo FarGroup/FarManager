@@ -147,7 +147,7 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 		return(TRUE);
 	}
 	*/
-	strOwner=L"";
+	strOwner.Clear();
 
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;

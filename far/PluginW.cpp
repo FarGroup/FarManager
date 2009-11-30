@@ -768,7 +768,7 @@ HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
-		g_strDirToSet=L"";
+		g_strDirToSet.Clear();
   }
 
 

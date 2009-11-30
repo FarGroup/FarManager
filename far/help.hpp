@@ -60,10 +60,10 @@ struct StackHelpData
   	Flags=0;
   	TopStr=0;
   	CurX=CurY=0;
-  	strHelpMask = L"";
-  	strHelpPath = L"";
-  	strHelpTopic = L"";
-  	strSelTopic = L"";
+  	strHelpMask.Clear();
+  	strHelpPath.Clear();
+  	strHelpTopic.Clear();
+  	strSelTopic.Clear();
   }
 };
 

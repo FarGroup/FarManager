@@ -115,7 +115,7 @@ int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
 	{
 		string strRegKey;
 		strRegKey.Format (FTS.TypeFmt, NumLine);
-		
+
 		string strMask;
 		if (!GetRegKey(strRegKey,FTS.Mask, strMask, L""))
       break;
@@ -179,7 +179,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 	int CommandCount=0;
 	for (int I=0;;I++)
 	{
-		strCommand.SetLength(0);
+		strCommand.Clear();
 		string strRegKey, strMask;
 		strRegKey.Format(FTS.TypeFmt,I);
 		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
@@ -460,7 +460,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 		TypesMenuItem.SetSelect(NumLine==MenuPos);
 		TypesMenu->AddItem(&TypesMenuItem);
 	}
-	TypesMenuItem.strName=L"";
+	TypesMenuItem.strName.Clear();
 	TypesMenuItem.SetSelect(NumLine==MenuPos);
 	TypesMenu->AddItem(&TypesMenuItem);
 	return NumLine;

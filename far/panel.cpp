@@ -89,27 +89,15 @@ class ChDiskPluginItem
 public:
 	MenuItemEx Item;
 	WCHAR HotKey;
-	ChDiskPluginItem()
-	{
-		Clear ();
-	}
-	void Clear ()
-	{
-		HotKey = 0;
-		Item.Clear ();
-	}
-	bool operator==(const ChDiskPluginItem &rhs) const;
+
+	ChDiskPluginItem() { Clear(); }
+	~ChDiskPluginItem() {}
+
+	void Clear () { HotKey = 0; Item.Clear(); }
+	bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName,rhs.Item.strName) && Item.UserData==rhs.Item.UserData; }
 	int operator<(const ChDiskPluginItem &rhs) const;
 	const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
-	~ChDiskPluginItem()	{}
 };
-
-bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
-{
-  return HotKey==rhs.HotKey &&
-    !StrCmpI(Item.strName,rhs.Item.strName) &&
-    Item.UserData==rhs.Item.UserData;
-}
 
 int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
 {
@@ -508,7 +496,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						}
 					}
 
-					strMenuText=L"";
+					strMenuText.Clear();
 
 					if ( HotKey==WCHAR_MAX )
 						strMenuText = ShowSpecial?strPluginText:L"";
@@ -605,7 +593,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 				UsedNumbers[PluginTextNumber%10]=1;
 
-				strMenuText=L"";
+				strMenuText.Clear();
 
 				wchar_t HotKeyStr[]={L'&',L' ',L':',L' ',L'\0'};
 				if ( PluginTextNumber<10 )
@@ -2273,16 +2261,16 @@ int Panel::SetPluginCommand(int Command,int Param1,LONG_PTR Param2)
 
 int Panel::GetCurName(string &strName, string &strShortName)
 {
-  strName = L"";
-  strShortName = L"";
+  strName.Clear();
+  strShortName.Clear();
   return(FALSE);
 }
 
 
 int Panel::GetCurBaseName(string &strName, string &strShortName)
 {
-  strName = L"";
-  strShortName = L"";
+  strName.Clear();
+  strShortName.Clear();
   return(FALSE);
 }
 

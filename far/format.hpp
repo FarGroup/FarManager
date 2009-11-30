@@ -124,7 +124,7 @@ class FormatString:public BaseFormat
 public:
 	operator const wchar_t*()const{return Value;}
 	const string& strValue()const{return Value;}
-	void Clear(){Value.SetLength(0);}
+	void Clear(){Value.Clear();}
 };
 
 class FormatScreen:public BaseFormat

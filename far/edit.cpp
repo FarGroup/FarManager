@@ -1769,7 +1769,7 @@ int Edit::GetSelString (string &strStr)
   if (SelStart==-1 || (SelEnd!=-1 && SelEnd<=SelStart) ||
       SelStart>=StrSize)
   {
-    strStr = L"";
+    strStr.Clear();
     return(FALSE);
   }
 

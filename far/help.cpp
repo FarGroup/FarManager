@@ -127,7 +127,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_HELP);
 
-  strFullHelpPathName = L"";
+  strFullHelpPathName.Clear();
 
   ErrorHelp=TRUE;
   IsNewTopic=TRUE;
@@ -167,7 +167,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,DWORD Flags)
 
       StackData.strHelpTopic += HelpContents;
     }
-    StackData.strHelpPath=L"";
+    StackData.strHelpPath.Clear();
     ReadHelp(StackData.strHelpMask);
   }
 
@@ -271,7 +271,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 
   if (!StrCmp(StackData.strHelpTopic,PluginContents))
   {
-    strFullHelpPathName = L"";
+    strFullHelpPathName.Clear();
     ReadDocumentsHelp(HIDX_PLUGINS);
     return TRUE;
   }
@@ -279,7 +279,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 #if defined(WORK_HELP_DOCUMS)
   if (!strcmp(StackData.HelpTopic,DocumentContents))
   {
-    strFullHelpPathName = L"";
+    strFullHelpPathName.Clear();
     ReadDocumentsHelp(HIDX_DOCUMS);
     return TRUE;
   }
@@ -316,19 +316,19 @@ int Help::ReadHelp(const wchar_t *Mask)
   if (Language::GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
     strCtrlColorChar = strReadStr;
   else
-    strCtrlColorChar=L"";
+    strCtrlColorChar.Clear();
 
   if (Language::GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nCodePage))
     strCtrlStartPosChar = strReadStr;
   else
-    strCtrlStartPosChar = L"";
+    strCtrlStartPosChar.Clear();
 
 
   /* $ 29.11.2001 DJ
      запомним, чего там написано в PluginContents
   */
   if (!Language::GetLangParam (HelpFile,L"PluginContents",&strCurPluginContents, NULL, nCodePage))
-    strCurPluginContents = L"";
+    strCurPluginContents.Clear();
 
   *SplitLine=0;
   if (HelpData)
@@ -739,7 +739,7 @@ void Help::FastShow()
     DrawWindowFrame();
 
   CorrectPosition();
-  StackData.strSelTopic=L"";
+  StackData.strSelTopic.Clear();
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
      чтобы новая тема начиналась с нормальными атрибутами
@@ -1065,7 +1065,9 @@ int Help::Search(int Next)
   LastSearchReverse=ReverseSearch;
 
   if ((SearchLength=strlen((char *)SearchStr))==0)
+  {
     return TRUE;
+  }
   else
   {
     SaveScreen SaveScr;
@@ -1506,7 +1508,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
           wmemmove(p,p2,StrLength(p2)+1);
           const wchar_t *p3=wcsrchr(StackData.strHelpMask,L'.');
           if(p3 && StrCmpI(p3,L".hlf"))
-            StackData.strHelpMask=L"";
+            StackData.strHelpMask.Clear();
           break;
         }
         --p;
@@ -1531,16 +1533,16 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
   {
     if(!(StackData.Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic,HelpEndLink))
     {
-       StackData.strHelpMask=L"";
+       StackData.strHelpMask.Clear();
     }
   }
   else
   {
-      StackData.strHelpMask=L"";
+      StackData.strHelpMask.Clear();
   }
   StackData.strHelpTopic = strNewTopic;
   if(!(StackData.Flags&FHELP_CUSTOMFILE))
-    StackData.strHelpPath=L"";
+    StackData.strHelpPath.Clear();
   if(!ReadHelp(StackData.strHelpMask))
   {
     StackData.strHelpTopic = strNewTopic;
@@ -1552,7 +1554,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 				StackData.strHelpTopic += HelpContents;
 			}
     }
-    StackData.strHelpPath=L"";
+    StackData.strHelpPath.Clear();
     ReadHelp(StackData.strHelpMask);
   }
   ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
@@ -1711,7 +1713,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
   int SaveTopStr=StackData.TopStr;
   BOOL ReferencePresent;
 
-  StackData.strSelTopic=L"";
+  StackData.strSelTopic.Clear();
   Lock ();
 
   if(!ErrorHelp) while ( StackData.strSelTopic.IsEmpty() )
@@ -1757,7 +1759,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
         StartSelection=0;
 
       if (StartSelection)
-        StackData.strSelTopic=L"";
+        StackData.strSelTopic.Clear();
     }
   }
   Unlock ();
@@ -1778,7 +1780,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   /* $ 29.11.2001 DJ
      это не плагин -> чистим CurPluginContents
   */
-  strCurPluginContents = L"";
+  strCurPluginContents.Clear();
 
   StrCount=0;
   FixCount=1;
@@ -1786,7 +1788,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   StackData.TopStr=0;
   TopicFound=TRUE;
   StackData.CurX=StackData.CurY=0;
-  strCtrlColorChar=L"";
+  strCtrlColorChar.Clear();
 
   const wchar_t *PtrTitle=0, *ContentsName=0;
   string strPath, strFullFileName;
@@ -1921,7 +1923,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 // Формирование топика с учетом разных факторов
 string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic)
 {
-  strTopic=L"";
+  strTopic.Clear();
 
   if (HelpTopic && *HelpTopic)
   {

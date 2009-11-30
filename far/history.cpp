@@ -499,7 +499,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 		{
 			string strRecord = HistoryItem->strName;
 
-			strRecord = L"";
+			strRecord.Clear();
 			if (TypeHistory == HISTORYTYPE_VIEW)
 			{
 				strRecord += GetTitle(HistoryItem->Type);
@@ -793,7 +793,7 @@ void History::GetPrev(string &strStr)
 	if (CurrentItem)
 		strStr = CurrentItem->strName;
 	else
-		strStr = L"";
+		strStr.Clear();
 }
 
 
@@ -805,7 +805,7 @@ void History::GetNext(string &strStr)
 	if (CurrentItem)
 		strStr = CurrentItem->strName;
 	else
-		strStr = L"";
+		strStr.Clear();
 }
 
 

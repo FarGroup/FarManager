@@ -193,7 +193,7 @@ BOOL WINAPI FarShowHelp (
           if(Flags&FHELP_CUSTOMFILE)
             strMask=PointToName(strPath);
           else
-            strMask = L"";
+            strMask.Clear();
           CutToSlash(strPath);
         }
       }
@@ -803,7 +803,7 @@ int WINAPI FarMenuFn (
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
-        CurItem.strName=L"";
+        CurItem.strName.Clear();
 
         // исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
@@ -828,7 +828,7 @@ int WINAPI FarMenuFn (
         CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
         CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
         if(Item[I].Separator)
-          CurItem.strName=L"";
+          CurItem.strName.Clear();
         else
           CurItem.strName = Item[I].Text;
 
@@ -1767,7 +1767,7 @@ void ScanPluginDir()
 				if (strPluginSearchPath.RPos(pos,L'\x1'))
 					strPluginSearchPath.SetLength(pos+1);
 				else
-					strPluginSearchPath.SetLength(0);
+					strPluginSearchPath.Clear();
 
 				if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND))
 				{

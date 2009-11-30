@@ -137,7 +137,7 @@ static struct TreeListCache
     ListName=NULL;
     TreeCount=0;
     TreeSize=0;
-    strTreeName = L"";
+    strTreeName.Clear();
   }
 
   //TODO: необходимо оптимизировать!
@@ -807,7 +807,7 @@ int TreeList::ProcessKey(int Key)
   if (TreeCount==0 && Key!=KEY_CTRLR)
     return(FALSE);
 
-  string strTemp = L"";
+  string strTemp;
   if (SaveFolderShortcut(Key,&strCurDir,&strTemp,&strTemp,&strTemp))
     return(TRUE);
   if(ProcessShortcutFolder(Key,TRUE))
@@ -1218,7 +1218,7 @@ int TreeList::GetCurDir(string &strCurDir)
     if (ModalMode==MODALTREE_FREE)
       strCurDir = strRoot;
     else
-      strCurDir = L"";
+      strCurDir.Clear();
   }
   else
     strCurDir = ListData[CurFile]->strName; //BUGBUG
@@ -1516,8 +1516,8 @@ int TreeList::GetCurName(string &strName, string &strShortName)
 {
   if (TreeCount==0)
   {
-    strName = L"";
-    strShortName = L"";
+    strName.Clear();
+    strShortName.Clear();
     return(FALSE);
   }
 

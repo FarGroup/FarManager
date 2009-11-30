@@ -1780,7 +1780,7 @@ C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 */
 	string strPluginName(pPlugin->GetCacheName());
 	size_t FarPathLength=g_strFarPath.GetLength();
-	strRegKey.SetLength(0);;
+	strRegKey.Clear();;
 
 	if (FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
 		strPluginName.LShift(FarPathLength);
@@ -1800,7 +1800,7 @@ C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 void PluginManager::GetPluginHotKey(Plugin *pPlugin, int ItemNumber, const wchar_t *HotKeyType, string &strHotKey)
 {
 	string strRegKey;
-	strHotKey.SetLength(0);
+	strHotKey.Clear();
 	GetHotKeyRegKey(pPlugin, ItemNumber, strRegKey);
 	GetRegKey(strRegKey, HotKeyType, strHotKey, L"");
 }

@@ -301,7 +301,7 @@ static int iso8601wknum(const tm *timeptr)
 
 size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 {
-	if(CurLang==-1&&LanguageLoaded)
+	if (CurLang==-1 && Language::IsLanguageLoaded())
 		PrepareStrFTime();
 
 	// меняем язык.
@@ -687,8 +687,8 @@ void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,in
 
   if (ft.dwHighDateTime==0)
   {
-    strDateText=L"";
-    strTimeText=L"";
+    strDateText.Clear();
+    strTimeText.Clear();
     return;
   }
 

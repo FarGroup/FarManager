@@ -46,7 +46,7 @@ Modal::Modal()
   ExitCode=-1;
   WriteKey=-1;
   EndLoop=0;
-  strHelpTopic=L"";
+  strHelpTopic.Clear();
 }
 
 

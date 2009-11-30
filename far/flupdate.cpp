@@ -711,7 +711,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   TotalFileSize=0;
   CacheSelIndex=-1;
 
-  strPluginDizName = L"";
+  strPluginDizName.Clear();
 
   if (FileCount>0)
   {
@@ -730,16 +730,20 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       }
     }
   }
-  else
-    if (Info.Flags & OPIF_ADDDOTS)
-      strCurName = L"..";
+  else if (Info.Flags & OPIF_ADDDOTS)
+  {
+    strCurName = L"..";
+  }
+
   if (KeepSelection || PrevSelFileCount>0)
   {
     OldData=ListData;
     OldFileCount=FileCount;
   }
   else
+  {
     DeleteListData(ListData,FileCount);
+  }
 
   FileCount=PluginFileCount;
 	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
@@ -768,7 +772,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		FileListItem *CurListData=ListData[FileListCount];
 
-	CurListData->Clear ();
+		CurListData->Clear();
 
     if (Info.Flags & OPIF_USEFILTER)
       //if ((CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -797,12 +801,15 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       DotsPresent=TRUE;
       CurListData->FileAttr|=FILE_ATTRIBUTE_DIRECTORY;
     }
-    else
-      if ((CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
-        TotalFileCount++;
+    else if ((CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+    {
+      TotalFileCount++;
+    }
+
     TotalFileSize += CurListData->UnpSize;
     FileListCount++;
   }
+
   if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
     CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
@@ -814,7 +821,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 		FileListItem *CurPtr = ListData[FileCount];
 
-	CurPtr->Clear ();
+		CurPtr->Clear ();
 
     AddParentPoint(CurPtr,FileCount);
 

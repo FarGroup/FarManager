@@ -1226,7 +1226,7 @@ static void printKeyValue(DWORD* k, int& i)
 {
   DWORD Code=k[i];
   string _mcodename=_MCODE_ToName(Code);
-  string cmt=L"";
+  string cmt;
 
   if(Code >= MCODE_F_NOFUNC && Code <= KEY_MACRO_C_BASE-1)
   {

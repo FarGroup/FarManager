@@ -129,7 +129,7 @@ struct MenuItemEx
   void Clear ()
   {
     Flags = 0;
-    strName = L"";
+    strName.Clear();
     AccelKey = 0;
     UserDataSize = 0;
     UserData = NULL;

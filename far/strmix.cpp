@@ -862,7 +862,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
 
   if(!SrcText || !*SrcText)
   {
-        strDestText = L"";
+        strDestText.Clear();
         return strDestText;
   }
 
@@ -890,7 +890,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
     newtext = xf_wcsdup (text);
     if(!newtext)
     {
-        strDestText = L"";
+        strDestText.Clear();
         return strDestText;
     }
 
@@ -945,7 +945,7 @@ string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
     newtext = (wchar_t*)xf_malloc((strSrc.GetLength() * (breakcharlen+1)+1)*sizeof(wchar_t));
     if(!newtext)
     {
-        strDestText = L"";
+        strDestText.Clear();
         return strDestText;
     }
 

@@ -1866,7 +1866,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
     }
     if( strKeyText.IsEmpty () )
     {
-      strKeyText0 = L"";
+      strKeyText0.Clear();
       return FALSE;
     }
   }

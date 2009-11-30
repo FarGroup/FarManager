@@ -121,8 +121,8 @@ int GetDirInfo(const wchar_t *Title,
     ClusterSize=SectorsPerCluster*BytesPerSector;
 
   // Временные хранилища имён каталогов
-  strLastDirName=L"";
-  strCurDirName=L"";
+  strLastDirName.Clear();
+  strCurDirName.Clear();
 
   DirCount=FileCount=0;
 	FileSize=CompressedFileSize=RealSize=0;

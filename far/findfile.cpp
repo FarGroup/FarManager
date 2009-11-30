@@ -1931,7 +1931,7 @@ bool FindFiles::FindFilesProcess()
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
 			FindDlg[FD_BUTTON_PANEL].Type=DI_TEXT;
-			FindDlg[FD_BUTTON_PANEL].strData=L"";
+			FindDlg[FD_BUTTON_PANEL].strData.Clear();
     }
   }
 
@@ -1966,9 +1966,9 @@ bool FindFiles::FindFilesProcess()
   FindExitIndex = LIST_INDEX_NONE;
   FindExitCode = FIND_EXIT_NONE;
   FindMessageReady=FindCountReady=FindPositionChanged=0;
-  strLastDirName = L"";
-  strFindMessage = L"";
-	strFindPercentMessage=L"";
+  strLastDirName.Clear();
+  strFindMessage.Clear();
+	strFindPercentMessage.Clear();
 	FindMessagePercentReady=false;
 
 	HANDLE Threads[]={NULL,NULL};
@@ -2329,7 +2329,7 @@ void FindFiles::DoPrepareFileList(HANDLE hDlg)
   {
     string strPathEnv;
     apiGetEnvironmentVariable(L"PATH",strPathEnv);
-    strPathEnv.Append(L'\0'); 
+    strPathEnv.Append(L'\0');
     wchar_t* PathEnv = strPathEnv.GetBuffer();
     Ptr = PathEnv;
     while (*PathEnv)
@@ -2387,7 +2387,7 @@ void FindFiles::DoPrepareFileList(HANDLE hDlg)
 	}
   statusCS.Enter ();
 
-	strFindPercentMessage=L"";
+	strFindPercentMessage.Clear();
 	FindMessagePercentReady=true;
 
   strFindMessage.Format (MSG(MFindDone),FindFileCount,FindDirCount);
@@ -2477,7 +2477,7 @@ void FindFiles::ArchiveSearch(HANDLE hDlg,const wchar_t *ArcName)
       strSaveSearchPath = strPluginSearchPath;
 
       strSaveDirName = strLastDirName;
-      strLastDirName = L"";
+      strLastDirName.Clear();
 			DoPreparePluginList(hDlg,true);
       strPluginSearchPath = strSaveSearchPath;
       WaitForSingleObject(hPluginMutex,INFINITE);
@@ -2601,7 +2601,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 		if(LastSlash(strPathName,pos))
 			strPathName.SetLength(pos);
 		else
-			strPathName.SetLength(0);
+			strPathName.Clear();
 	}
 	AddEndSlash(strPathName);
 
@@ -2735,7 +2735,7 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg,bool Internal)
   {
     statusCS.Enter();
 
-		strFindPercentMessage=L"";
+		strFindPercentMessage.Clear();
 		FindMessagePercentReady=true;
 
     strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
@@ -2864,7 +2864,7 @@ void FindFiles::ScanPluginTree(HANDLE hDlg,HANDLE hPlugin, DWORD Flags)
           if (strPluginSearchPath.RPos(pos,L'\\'))
             strPluginSearchPath.SetLength(pos+1);
           else
-            strPluginSearchPath.SetLength(0);
+            strPluginSearchPath.Clear();
 
           WaitForSingleObject(hPluginMutex,INFINITE);
           if (!CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND))
@@ -2950,7 +2950,7 @@ void FindFiles::DoWriteDialogData(HANDLE hDlg)
 
           SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_TEXT_STATUS, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 
-          strDataStr = L"";
+          strDataStr.Clear();
           SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_SEPARATOR1, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 
           SendDlgMessage(hDlg, DM_ENABLEREDRAW, TRUE, 0);

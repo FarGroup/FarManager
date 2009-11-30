@@ -828,8 +828,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 				AttrDlg[AP[i].Item].Selected=BSTATE_3STATE;
 			}
 
-			AttrDlg[SA_EDIT_MDATE].strData=AttrDlg[SA_EDIT_MTIME].strData=AttrDlg[SA_EDIT_CDATE].strData=
-			AttrDlg[SA_EDIT_CTIME].strData=AttrDlg[SA_EDIT_ADATE].strData=AttrDlg[SA_EDIT_ATIME].strData=L"";
+			AttrDlg[SA_EDIT_MDATE].strData.Clear();
+			AttrDlg[SA_EDIT_MTIME].strData.Clear();
+			AttrDlg[SA_EDIT_CDATE].strData.Clear();
+			AttrDlg[SA_EDIT_CTIME].strData.Clear();
+			AttrDlg[SA_EDIT_ADATE].strData.Clear();
+			AttrDlg[SA_EDIT_ATIME].strData.Clear();
 
 			AttrDlg[SA_BUTTON_ORIGINAL].Flags|=DIF_DISABLE;
 
@@ -878,8 +882,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel)
 		if(FolderPresent && !Opt.SetAttrFolderRules)
 		{
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=BSTATE_CHECKED;
-			AttrDlg[SA_EDIT_MDATE].strData=AttrDlg[SA_EDIT_MTIME].strData=AttrDlg[SA_EDIT_CDATE].strData=
-			AttrDlg[SA_EDIT_CTIME].strData=AttrDlg[SA_EDIT_ADATE].strData=AttrDlg[SA_EDIT_ATIME].strData=L"";
+			AttrDlg[SA_EDIT_MDATE].strData.Clear();
+			AttrDlg[SA_EDIT_MTIME].strData.Clear();
+			AttrDlg[SA_EDIT_CDATE].strData.Clear();
+			AttrDlg[SA_EDIT_CTIME].strData.Clear();
+			AttrDlg[SA_EDIT_ADATE].strData.Clear();
+			AttrDlg[SA_EDIT_ATIME].strData.Clear();
+
 			for(size_t i=SA_ATTR_FIRST;i<= SA_ATTR_LAST;i++)
 			{
 				AttrDlg[i].Selected=BSTATE_3STATE;

@@ -376,7 +376,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 	if (hDirPlugin || ((FileAttr=apiGetFileAttributes(strCurFileName))!=INVALID_FILE_ATTRIBUTES && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
   {
     // Не показывать тип файла для каталогов в "Быстром просмотре"
-    strCurFileType=L"";
+    strCurFileType.Clear();
 		if(SameFile)
 		{
 			Directory=1;
@@ -448,7 +448,7 @@ void QuickView::CloseFile()
     QView=NULL;
   }
 
-  strCurFileType = L"";
+  strCurFileType.Clear();
 
   QViewDelTempName();
   Directory=0;
@@ -475,7 +475,7 @@ void QuickView::QViewDelTempName()
     CutToSlash(strTempName);
     apiRemoveDirectory(strTempName);
 
-    strTempName=L"";
+    strTempName.Clear();
   }
 }
 

@@ -58,9 +58,9 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
   SetRestoreScreenMode(TRUE);
 
   if(ModalMode != MODALTREE_FREE)
-    strResultFolder=L"";
+    strResultFolder.Clear();
 
-  strNewFolder=L"";
+  strNewFolder.Clear();
 
   FolderTree::IsFullScreen=IsFullScreen;
   FolderTree::IsStandalone=IsStandalone;
@@ -78,7 +78,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,i
     CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
     MacroMode = MACRO_FINDFOLDER;
 
-    strLastName=L"";
+    strLastName.Clear();
     Tree->SetModalMode(ModalMode);
     Tree->SetPosition(X1,Y1,X2,Y2);
     if(ModalMode == MODALTREE_FREE)
@@ -192,7 +192,7 @@ int FolderTree::FastHide()
 int FolderTree::GetTypeAndName(string &strType, string &strName)
 {
   strType = MSG(MFolderTreeType);
-  strName = L"";
+  strName.Clear();
 
   return MODALTYPE_FINDFOLDER;
 }

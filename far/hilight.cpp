@@ -64,6 +64,7 @@ struct HighlightStrings
                 *UseSize,*SizeAbove,*SizeBelow,
                 *HighlightEdit,*HighlightList;
 };
+
 static const HighlightStrings HLS=
 {
   L"UseAttr",L"IncludeAttributes",L"ExcludeAttributes",L"AttrSet",L"AttrClear",
@@ -82,6 +83,7 @@ static const wchar_t fmtUpperGroup[]=L"UpperGroup%d";
 static const wchar_t fmtLowerGroup[]=L"LowerGroup%d";
 static const wchar_t fmtLastGroup[]=L"LastGroup%d";
 static const wchar_t SortGroupsKeyName[]=L"SortGroups";
+static const wchar_t RegColorsHighlight[]=L"Colors\\Highlight";
 
 HighlightFiles::HighlightFiles()
 {
@@ -382,7 +384,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
       HiMenu->AddItem(&HiMenuItem);
     }
 
-    HiMenuItem.strName=L"";
+    HiMenuItem.strName.Clear();
     HiMenu->AddItem(&HiMenuItem);
     if (j<3)
     {

@@ -230,7 +230,7 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 
 	if(lFullPath > 0)
 	{
-		strDest.SetLength(0);
+		strDest.Clear();
 		LPCWSTR pstPath = NULL, pstCurrentDir = NULL;
 		bool blIgnore = false;
 		size_t PathOffset=0;
@@ -590,7 +590,7 @@ void ConvertNameToUNC(string &strFileName)
 	GetPathRoot(strFileName,strTemp);
 
 	if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
-		strFileSystemName=L"";
+		strFileSystemName.Clear();
 
 	DWORD uniSize = 1024;
 	UNIVERSAL_NAME_INFO *uni=(UNIVERSAL_NAME_INFO*)xf_malloc(uniSize);

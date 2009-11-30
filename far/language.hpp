@@ -39,6 +39,8 @@ class VMenu;
 class Language
 {
   private:
+    static bool LanguageLoaded;
+
     wchar_t **MsgAddr;
     wchar_t *MsgList;
 
@@ -77,6 +79,8 @@ class Language
     */
     static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
     static int Select(int HelpLanguage,VMenu **MenuPtr);
+
+    static bool IsLanguageLoaded() { return LanguageLoaded; }
 };
 
 extern Language Lang;

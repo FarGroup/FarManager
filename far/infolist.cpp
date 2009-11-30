@@ -545,7 +545,7 @@ void InfoList::ShowPluginDescription()
 			if (InfoLine->Text!=NULL && *InfoLine->Text)
 				strTitle.Format (L" %s ",InfoLine->Text);
 			else
-				strTitle=L"";
+				strTitle.Clear();
 			DrawSeparator(Y);
 			TruncStr(strTitle,X2-X1-3);
 			GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
@@ -573,7 +573,7 @@ void InfoList::CloseFile()
 		delete DizView;
 		DizView=NULL;
 	}
-	strDizFileName=L"";
+	strDizFileName.Clear();
 }
 
 int InfoList::OpenDizFile(const wchar_t *DizFile)

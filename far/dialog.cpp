@@ -4503,7 +4503,7 @@ int Dialog::GetTypeAndName (string &strType, string &strName)
 
   strType = MSG(MDialogType);
 
-  strName = L"";
+  strName.Clear();
 
   const wchar_t *lpwszTitle = GetDialogTitle();
 
