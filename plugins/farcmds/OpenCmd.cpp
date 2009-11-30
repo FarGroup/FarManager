@@ -546,6 +546,8 @@ int OpenFromCommandLine(TCHAR *_farcmd)
                  #endif
                  free(Path);
                }
+               if(*selectItem==0)
+                 SearchPath(NULL, temp, NULL, ArraySize(selectItem), selectItem, &pFile);
              }
 
              if(*selectItem==0)
