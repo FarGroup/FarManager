@@ -444,7 +444,6 @@ Dialog::~Dialog()
 {
 	_tran(SysLog(L"[%p] Dialog::~Dialog()",this));
 
-	GetDialogObjectsData();
 	DeleteDialogObjects();
 
 	if (CtrlObject!=NULL)
@@ -1382,11 +1381,19 @@ void Dialog::GetDialogObjectsData()
           */
 
           if((IFlags&DIF_EDITEXPAND) && Type != DI_PSWEDIT && Type != DI_FIXEDIT)
-             apiExpandEnvironmentStrings(strData, strData);
+          {
+            apiExpandEnvironmentStrings(strData, strData);
+
+            //как бы грязный хак, нам нужно обновить строку чтоб отдавалась правильная строка
+            //для различных DM_* после закрытия диалога, но ни в коем случае нельзя чтоб
+            //высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.
+            CurItem->IFlags.Set(DLGIIF_EDITCHANGEPROCESSED);
+            EditPtr->SetString(strData);
+            CurItem->IFlags.Clear(DLGIIF_EDITCHANGEPROCESSED);
+          }
 
           CurItem->strData = strData;
 
-          EditPtr->SetString(strData);
         }
         break;
       }
