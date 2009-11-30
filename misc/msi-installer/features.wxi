@@ -266,6 +266,14 @@
         <ComponentRef Id="FarQuickLaunchShortcut" />
       </Feature>
     </Feature>
+    <Feature Id="System" Level="2" Title="!(loc.Feature.Title.System)" AllowAdvertise="no" Description="!(loc.Feature.Description.System)">
+      <Feature Id="AppPaths" Level="2" Title="!(loc.Feature.Title.AppPaths)" AllowAdvertise="no" Description="!(loc.Feature.Description.AppPaths)">
+        <ComponentRef Id="AppPaths" />
+      </Feature>
+      <Feature Id="FarHere" Level="2" Title="!(loc.Feature.Title.FarHere)" AllowAdvertise="no" Description="!(loc.Feature.Description.FarHere)">
+        <ComponentRef Id="FarHere" />
+      </Feature>
+    </Feature>
     <Feature Id="SDK" Level="2" Title="!(loc.Feature.Title.SDK)" AllowAdvertise="no" Description="!(loc.Feature.Description.SDK)">
 <?if $(var.Branch) = 1 ?>
       <ComponentRef Id="Descript.ion_19" />

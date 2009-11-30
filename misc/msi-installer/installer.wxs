@@ -54,6 +54,18 @@
           <Component Id="InstallDir" Guid="$(var.Guid.InstallDir)" Win64="$(var.Win64)">
             <RegistryValue Root="HKLM" Key="Software\$(var.RegKey)" Name="InstallDir" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
           </Component>
+          <Component Id="AppPaths" Guid="$(var.Guid.AppPaths)" Win64="$(var.Win64)">
+            <RegistryKey Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\Far.exe">
+              <RegistryValue Value="[INSTALLDIR]Far.exe" Type="string" KeyPath="yes" />
+              <RegistryValue Name="Path" Value="[INSTALLDIR]" Type="string" />
+            </RegistryKey>
+          </Component>
+          <Component Id="FarHere" Guid="$(var.Guid.FarHere)" Win64="$(var.Win64)">
+            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere" Value="Far Here" Type="string" KeyPath="yes" />
+            <RegistryValue Root="HKCR" Key="Directory\shell\FarHere\command" Value="&quot;[INSTALLDIR]Far.exe&quot; &quot;%1&quot;" Type="string" />
+            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere" Value="Far Here" Type="string" />
+            <RegistryValue Root="HKCR" Key="Drive\shell\FarHere\command" Value="&quot;[INSTALLDIR]Far.exe&quot; &quot;%1&quot;" Type="string" />
+          </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
             <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="Used" Value="1" Type="integer" KeyPath="yes" />

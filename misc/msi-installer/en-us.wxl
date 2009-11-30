@@ -25,6 +25,9 @@
 <String Id="Feature.Title.FarDesktopShortcut">Desktop</String>
 <String Id="Feature.Title.FarStartMenuShortcut">Start menu</String>
 <String Id="Feature.Title.FarQuickLaunchShortcut">Quick launch</String>
+<String Id="Feature.Title.System">Integration</String>
+<String Id="Feature.Title.AppPaths">App Paths entry</String>
+<String Id="Feature.Title.FarHere">Shell menu</String>
 <String Id="Feature.Title.SDK">Plugin SDK</String>
 <String Id="Feature.Title.Enc">Encyclopedia</String>
 <String Id="Feature.Title.Pascal">Pascal headers</String>
@@ -70,6 +73,9 @@
 <String Id="Feature.Description.Docs">Tech info, FAQ, What's new, etc.</String>
 <String Id="Feature.Description.FExcept">Exception handler saves detailed exception information on crash (FStd_trap.log).</String>
 <String Id="Feature.Description.Languages">Support for additional interface languages.</String>
+<String Id="Feature.Description.System">System integration settings.</String>
+<String Id="Feature.Description.AppPaths">Registers Far.exe under "App Paths" registry key.</String>
+<String Id="Feature.Description.FarHere">Adds "Far Here" shell menu item to drives and directories.</String>
 <String Id="Feature.Description.SDK">SDK for plugin developers.</String>
 <String Id="Feature.Description.Enc">Encyclopedia for developers.</String>
 <String Id="Feature.Description.Plugins">Standard plugins.</String>
