@@ -46,14 +46,11 @@ struct FAR_FIND_DATA_EX
 	FILETIME ftLastWriteTime;
 	unsigned __int64 nFileSize;
 
-	union
+	unsigned __int64 nPackSize;
+	struct
 	{
-		unsigned __int64 nPackSize; //same as reserved
-		struct
-		{
-			DWORD dwReserved0;
-			DWORD dwReserved1;
-		};
+		DWORD dwReserved0;
+		DWORD dwReserved1;
 	};
 
 	string   strFileName;
@@ -67,6 +64,8 @@ struct FAR_FIND_DATA_EX
 		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
 		nFileSize=0;
 		nPackSize=0;
+		dwReserved0=0;
+		dwReserved1=0;
 		strFileName.Clear();
 		strAlternateFileName.Clear();
 	}
@@ -81,6 +80,8 @@ struct FAR_FIND_DATA_EX
 			memcpy(&ftLastWriteTime,&ffdexCopy.ftLastWriteTime,sizeof(ftLastWriteTime));
 			nFileSize=ffdexCopy.nFileSize;
 			nPackSize=ffdexCopy.nPackSize;
+			dwReserved0=ffdexCopy.dwReserved0;
+			dwReserved1=ffdexCopy.dwReserved1;
 			strFileName=ffdexCopy.strFileName;
 			strAlternateFileName=ffdexCopy.strAlternateFileName;
 		}

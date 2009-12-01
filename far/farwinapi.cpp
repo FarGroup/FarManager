@@ -338,6 +338,7 @@ HANDLE apiFindFirstFile(
 		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
 		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
 		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
+		pFindFileData->nPackSize = 0;
 		pFindFileData->dwReserved0 = fdata.dwReserved0;
 		pFindFileData->dwReserved1 = fdata.dwReserved1;
 		pFindFileData->strFileName = fdata.cFileName;
@@ -359,6 +360,7 @@ BOOL apiFindNextFile(HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 		pFindFileData->ftLastAccessTime = fdata.ftLastAccessTime;
 		pFindFileData->ftLastWriteTime = fdata.ftLastWriteTime;
 		pFindFileData->nFileSize = fdata.nFileSizeHigh*0x100000000ull+fdata.nFileSizeLow;
+		pFindFileData->nPackSize = 0;
 		pFindFileData->dwReserved0 = fdata.dwReserved0;
 		pFindFileData->dwReserved1 = fdata.dwReserved1;
 		pFindFileData->strFileName = fdata.cFileName;
