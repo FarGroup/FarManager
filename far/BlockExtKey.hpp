@@ -42,7 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class BlockExtKey
 {
+	private:
 		int OldIsProcessAssignMacroKey, OldIsProcessVE_FindFile;
+
 	public:
 		BlockExtKey()
 		{

@@ -43,5 +43,5 @@ class GuardLastError
 		~GuardLastError() {SetLastError(LastError);}
 
 	public:
-		DWORD Get() {return LastError;}
+		DWORD Get() const {return LastError;}
 };

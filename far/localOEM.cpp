@@ -41,9 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 
-unsigned char LowerToUpper[256];
-unsigned char UpperToLower[256];
-unsigned char IsUpperOrLower[256];
+static unsigned char LowerToUpper[256];
+static unsigned char UpperToLower[256];
+static unsigned char IsUpperOrLower[256];
 static unsigned char LCOrder[256];
 
 void LocalUpperInit()

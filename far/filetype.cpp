@@ -695,81 +695,79 @@ void EditFileTypes()
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);
 	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
+	while (1)
 	{
-		while (1)
+		bool MenuModified=true;
+
+		while (!TypesMenu.Done())
 		{
-			bool MenuModified=true;
-
-			while (!TypesMenu.Done())
+			if (MenuModified)
 			{
-				if (MenuModified)
+				TypesMenu.Hide();
+				NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+				TypesMenu.SetPosition(-1,-1,-1,-1);
+				TypesMenu.Show();
+				MenuModified=false;
+			}
+
+			DWORD Key=TypesMenu.ReadInput();
+			MenuPos=TypesMenu.GetSelectPos();
+
+			switch (Key)
+			{
+				case KEY_NUMDEL:
+				case KEY_DEL:
+
+					if (MenuPos<NumLine)
+						DeleteTypeRecord(MenuPos);
+
+					MenuModified=true;
+					break;
+				case KEY_NUMPAD0:
+				case KEY_INS:
+					EditTypeRecord(MenuPos,NumLine,true);
+					MenuModified=true;
+					break;
+				case KEY_NUMENTER:
+				case KEY_ENTER:
+				case KEY_F4:
+
+					if (MenuPos<NumLine)
+						EditTypeRecord(MenuPos,NumLine,false);
+
+					MenuModified=true;
+					break;
+				case KEY_CTRLUP:
+				case KEY_CTRLDOWN:
 				{
-					TypesMenu.Hide();
-					NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
-					TypesMenu.SetPosition(-1,-1,-1,-1);
-					TypesMenu.Show();
-					MenuModified=false;
-				}
-
-				DWORD Key=TypesMenu.ReadInput();
-				MenuPos=TypesMenu.GetSelectPos();
-
-				switch (Key)
-				{
-					case KEY_NUMDEL:
-					case KEY_DEL:
-
-						if (MenuPos<NumLine)
-							DeleteTypeRecord(MenuPos);
-
-						MenuModified=true;
-						break;
-					case KEY_NUMPAD0:
-					case KEY_INS:
-						EditTypeRecord(MenuPos,NumLine,true);
-						MenuModified=true;
-						break;
-					case KEY_NUMENTER:
-					case KEY_ENTER:
-					case KEY_F4:
-
-						if (MenuPos<NumLine)
-							EditTypeRecord(MenuPos,NumLine,false);
-
-						MenuModified=true;
-						break;
-					case KEY_CTRLUP:
-					case KEY_CTRLDOWN:
+					if (MenuPos!=TypesMenu.GetItemCount()-1)
 					{
-						if (MenuPos!=TypesMenu.GetItemCount()-1)
+						if (!(Key==KEY_CTRLUP && !MenuPos) && !(Key==KEY_CTRLDOWN && MenuPos==TypesMenu.GetItemCount()-2))
 						{
-							if (!(Key==KEY_CTRLUP && !MenuPos) && !(Key==KEY_CTRLDOWN && MenuPos==TypesMenu.GetItemCount()-2))
-							{
-								int NewMenuPos=MenuPos+(Key==KEY_CTRLUP?-1:+1);
-								MoveMenuItem(MenuPos,NewMenuPos);
-								MenuPos=NewMenuPos;
-								MenuModified=true;
-							}
+							int NewMenuPos=MenuPos+(Key==KEY_CTRLUP?-1:+1);
+							MoveMenuItem(MenuPos,NewMenuPos);
+							MenuPos=NewMenuPos;
+							MenuModified=true;
 						}
 					}
-					break;
-					default:
-						TypesMenu.ProcessInput();
-						break;
 				}
+				break;
+				default:
+					TypesMenu.ProcessInput();
+					break;
 			}
-
-			int ExitCode=TypesMenu.Modal::GetExitCode();
-
-			if (ExitCode!=-1)
-			{
-				MenuPos=ExitCode;
-				TypesMenu.ClearDone();
-				TypesMenu.WriteInput(KEY_F4);
-				continue;
-			}
-
-			break;
 		}
+
+		int ExitCode=TypesMenu.Modal::GetExitCode();
+
+		if (ExitCode!=-1)
+		{
+			MenuPos=ExitCode;
+			TypesMenu.ClearDone();
+			TypesMenu.WriteInput(KEY_F4);
+			continue;
+		}
+
+		break;
 	}
 }

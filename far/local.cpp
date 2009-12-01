@@ -64,7 +64,6 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 	return NULL;
 }
 
-
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	int len1 = StrLength(str1);
@@ -99,71 +98,7 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	return NULL;
 }
 
-
-wchar_t __cdecl Upper(wchar_t Ch)
-{
-	wchar_t Buf = Ch;
-	CharUpperBuff(&Buf, 1);
-	return Buf;
-}
-
-
-wchar_t __cdecl Lower(wchar_t Ch)
-{
-	wchar_t Buf = Ch;
-	CharLowerBuff(&Buf, 1);
-	return Buf;
-}
-
-int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
-{
-	return CompareString(
-	           0,
-	           NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,
-	           s1,
-	           n,
-	           s2,
-	           n
-	       )-2;
-}
-
-int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
-{
-	return CompareString(
-	           0,
-	           NORM_IGNORECASE|SORT_STRINGSORT,
-	           s1,
-	           -1,
-	           s2,
-	           -1
-	       )-2;
-}
-
-int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
-{
-	return CompareString(
-	           0,
-	           NORM_STOP_ON_NULL|SORT_STRINGSORT,
-	           s1,
-	           n,
-	           s2,
-	           n
-	       )-2;
-}
-
-int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
-{
-	return CompareString(
-	           0,
-	           SORT_STRINGSORT,
-	           s1,
-	           -1,
-	           s2,
-	           -1
-	       )-2;
-}
-
-int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
+static int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 {
 	int n = 0;
 
@@ -258,48 +193,4 @@ int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2)
 	}
 
 	return StrCmp(s1,s2);
-}
-
-
-int __cdecl IsUpper(wchar_t Ch)
-{
-	return IsCharUpper(Ch);
-}
-
-int __cdecl IsLower(wchar_t Ch)
-{
-	return IsCharLower(Ch);
-}
-
-int __cdecl IsAlpha(wchar_t Ch)
-{
-	return IsCharAlpha(Ch);
-}
-
-int __cdecl IsAlphaNum(wchar_t Ch)
-{
-	return IsCharAlphaNumeric(Ch);
-}
-
-
-void __cdecl UpperBuf(wchar_t *Buf, int Length)
-{
-	CharUpperBuff(Buf, Length);
-}
-
-
-void __cdecl LowerBuf(wchar_t *Buf,int Length)
-{
-	CharLowerBuff(Buf, Length);
-}
-
-void __cdecl StrUpper(wchar_t *s1)
-{
-	UpperBuf(s1, StrLength(s1));
-}
-
-
-void __cdecl StrLower(wchar_t *s1)
-{
-	LowerBuf(s1, StrLength(s1));
 }

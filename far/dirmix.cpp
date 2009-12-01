@@ -86,7 +86,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 
 			ReplaceSlashToBSlash(strCurDir);
 			ConvertNameToFull(NewDir,strCurDir);
-			PrepareDiskPath(strCurDir,FALSE); // TRUE ???
+			PrepareDiskPath(strCurDir,false); // TRUE ???
 			rc=apiSetCurrentDirectory(strCurDir);
 		}
 	}

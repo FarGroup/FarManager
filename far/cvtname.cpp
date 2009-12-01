@@ -325,10 +325,7 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 	return false;
 }
 
-void ConvertNameToFull(
-    const wchar_t *lpwszSrc,
-    string &strDest
-)
+void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest)
 {
 	string strCurDir;
 	apiGetCurrentDirectory(strCurDir);
@@ -381,7 +378,7 @@ int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
 	return 0;
 }
 
-const size_t cVolumeGuidLen = 48;
+static const size_t cVolumeGuidLen = 48;
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
@@ -617,7 +614,9 @@ void ConvertNameToShort(const wchar_t *Src, string &strDest)
 		strDest.ReleaseBuffer();
 	}
 	else
+	{
 		strDest = strCopy;
+	}
 
 	strDest.Upper();
 }
@@ -634,7 +633,9 @@ void ConvertNameToLong(const wchar_t *Src, string &strDest)
 		strDest.ReleaseBuffer();
 	}
 	else
+	{
 		strDest = strCopy;
+	}
 }
 
 void ConvertNameToUNC(string &strFileName)
@@ -695,7 +696,7 @@ void ConvertNameToUNC(string &strFileName)
 
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
-string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
+string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	if (!strPath.IsEmpty())
 	{

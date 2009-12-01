@@ -667,7 +667,7 @@ void CommandLine::ShowViewEditHistory()
 					SaveScreen SaveScr;
 					CtrlObject->Cp()->LeftPanel->CloseFile();
 					CtrlObject->Cp()->RightPanel->CloseFile();
-					Execute((const wchar_t*)strStr+1,Type-2);
+					Execute(strStr.CPtr()+1,Type-2);
 				}
 
 				break;
@@ -694,7 +694,7 @@ void CommandLine::SaveBackground()
 {
 	if (BackgroundScreen)
 	{
-//    BackgroundScreen->Discard();
+//		BackgroundScreen->Discard();
 		BackgroundScreen->SaveArea();
 	}
 }

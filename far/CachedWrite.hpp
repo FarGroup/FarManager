@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class CachedWrite
 {
+	private:
 		LPBYTE Buffer;
 		HANDLE hFile;
 		enum {BufferSize=0x10000};

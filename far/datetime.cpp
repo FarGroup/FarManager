@@ -324,7 +324,6 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 			const wchar_t Text[]={*Format,0};
 			strDest+=Text;
 		}
-
 #if 1
 		else
 		{
@@ -510,7 +509,6 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 			strDest+=strBuf;
 			Len+=strBuf.GetLength();
 		}
-
 #endif
 	}
 

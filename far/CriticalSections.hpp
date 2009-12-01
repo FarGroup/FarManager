@@ -51,12 +51,12 @@ class CriticalSection
 
 class CriticalSectionLock:public NonCopyable
 {
+	private:
 		CriticalSection &_object;
 
-		void Unlock()  { _object.Leave(); }
+		void Unlock() { _object.Leave(); }
 
 	public:
-		CriticalSectionLock(CriticalSection &object): _object(object)
-		{_object.Enter(); }
+		CriticalSectionLock(CriticalSection &object): _object(object) { _object.Enter(); }
 		~CriticalSectionLock() { Unlock(); }
 };

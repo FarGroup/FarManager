@@ -1215,7 +1215,7 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
    Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
                                                     IS 20.03.2002 :-)
 */
-const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine)
+const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 {
 	if (!CmdLine || !*CmdLine)
 		return NULL;
@@ -1736,7 +1736,7 @@ bool IsBatchExtType(const wchar_t *ExtPtr)
 	return Result;
 }
 
-BOOL ProcessOSAliases(string &strStr)
+bool ProcessOSAliases(string &strStr)
 {
 	string strNewCmdStr;
 	string strNewCmdPar;
@@ -1760,11 +1760,12 @@ BOOL ProcessOSAliases(string &strStr)
 	strNewCmdStr.ReleaseBuffer();
 
 	if (!ret)
-		return FALSE;
+		return false;
 
 	if (!ReplaceStrings(strNewCmdStr,L"$*",strNewCmdPar))
 		strNewCmdStr+=L" "+strNewCmdPar;
 
 	strStr=strNewCmdStr;
-	return TRUE;
+
+	return true;
 }
