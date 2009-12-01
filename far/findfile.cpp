@@ -2642,6 +2642,12 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	if (!ListBox)
 		return;
 
+	if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+	{
+		if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData->dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)) apiGetCompressedFileSize(FullName,FindData->nPackSize);
+		else FindData->nPackSize=FindData->nFileSize;
+	}
+
 	MenuItemEx ListItem;
 	ListItem.Clear();
 	string strSizeText;
