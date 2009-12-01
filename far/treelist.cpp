@@ -672,7 +672,7 @@ void TreeList::GetRoot()
 	string strPanelDir;
 	Panel *RootPanel=GetRootPanel();
 	RootPanel->GetCurDir(strPanelDir);
-	GetPathRoot(strPanelDir, strRoot);
+	strRoot = ExtractPathRoot(strPanelDir);
 }
 
 
@@ -1646,10 +1646,10 @@ void TreeList::AddTreeName(const wchar_t *Name)
 	if (*Name == 0)
 		return;
 
-	string strRealName;
-	ConvertNameToReal(Name, strRealName);
-	string strRoot = ExtractPathRoot(strRealName);
-	Name = strRealName;
+	string strFullName;
+	ConvertNameToFull(Name, strFullName);
+	string strRoot = ExtractPathRoot(strFullName);
+	Name = strFullName;
 	Name += strRoot.GetLength() - 1;
 
 	if (!LastSlash(Name))
@@ -1678,10 +1678,10 @@ void TreeList::DelTreeName(const wchar_t *Name)
 	if (*Name==0)
 		return;
 
-	string strRealName;
-	ConvertNameToReal(Name, strRealName);
-	string strRoot = ExtractPathRoot(strRealName);
-	Name = strRealName;
+	string strFullName;
+	ConvertNameToFull(Name, strFullName);
+	string strRoot = ExtractPathRoot(strFullName);
+	Name = strFullName;
 	Name += strRoot.GetLength() - 1;
 	ReadCache(strRoot);
 
@@ -1707,11 +1707,11 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 	if (*SrcName==0 || *DestName==0)
 		return;
 
-	string SrcNameReal, DestNameReal;
-	ConvertNameToReal(SrcName, SrcNameReal);
-	ConvertNameToReal(DestName, DestNameReal);
-	string strSrcRoot = ExtractPathRoot(SrcNameReal);
-	string strDestRoot = ExtractPathRoot(DestNameReal);
+	string SrcNameFull, DestNameFull;
+	ConvertNameToFull(SrcName, SrcNameFull);
+	ConvertNameToFull(DestName, DestNameFull);
+	string strSrcRoot = ExtractPathRoot(SrcNameFull);
+	string strDestRoot = ExtractPathRoot(DestNameFull);
 
 	if (StrCmpI(strSrcRoot, strDestRoot) != 0)
 	{
@@ -2161,7 +2161,7 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {
 #if 0
 	char RootPath[NM];
-	GetPathRoot(Path,RootPath);
+	RootPath = ExtractPathRoot(Path);
 	UINT DriveType = FAR_GetDriveType(RootPath,NULL,FALSE);
 	// получение инфы о томе
 	char VolumeName[NM],FileSystemName[NM];
