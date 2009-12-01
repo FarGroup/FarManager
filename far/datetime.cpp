@@ -77,11 +77,11 @@ void PrepareStrFTime()
 	strTemp.ReleaseBuffer();
 	WeekFirst=_wtoi(strTemp);
 
-	for(int i=0;i<2;i++)
+	for (int i=0; i<2; i++)
 	{
 		LCID CurLCID=MAKELCID(MAKELANGID(Loc[i],SUBLANG_DEFAULT),SORT_DEFAULT);
 
-		for(ID=LOCALE_SMONTHNAME1;ID<=LOCALE_SMONTHNAME12;ID++)
+		for (ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
 		{
 			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
@@ -90,7 +90,7 @@ void PrepareStrFTime()
 			Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
 		}
 
-		for(ID=LOCALE_SABBREVMONTHNAME1;ID<=LOCALE_SABBREVMONTHNAME12;ID++)
+		for (ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
 		{
 			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
@@ -99,7 +99,7 @@ void PrepareStrFTime()
 			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
 		}
 
-		for(ID=LOCALE_SDAYNAME1;ID<=LOCALE_SDAYNAME7;ID++)
+		for (ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
 		{
 			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
@@ -108,7 +108,7 @@ void PrepareStrFTime()
 			Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
 		}
 
-		for(ID=LOCALE_SABBREVDAYNAME1;ID<=LOCALE_SABBREVDAYNAME7;ID++)
+		for (ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
 		{
 			size=GetLocaleInfo(CurLCID,ID,NULL,0);
 			lpwszTemp=AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
@@ -117,6 +117,7 @@ void PrepareStrFTime()
 			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
 		}
 	}
+
 	CurLang=0;
 }
 
@@ -137,13 +138,14 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 {
 	int res;
 	int DateSeparator=GetDateSeparator();
-	if(chr==L'v')
+
+	if (chr==L'v')
 	{
 		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),(const wchar_t*)AMonth[CurLang][range(0, tmPtr->tm_mon,11)],tmPtr->tm_year+1900);
 		strDest.Upper(3,3);
 	}
 	else
-		switch(GetDateFormat())
+		switch (GetDateFormat())
 		{
 			case 0:
 				res=strDest.Format(L"%02d%c%02d%c%4d",
@@ -170,6 +172,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 				                   tmPtr->tm_mday);
 				break;
 		}
+
 	return res;
 }
 
@@ -177,16 +180,20 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 static int weeknumber(const tm *timeptr,const int firstweekday)
 {
 	int wday=timeptr->tm_wday;
-	if(firstweekday==1)
+
+	if (firstweekday==1)
 	{
-		if(!wday) // sunday
+		if (!wday) // sunday
 			wday=6;
 		else
 			wday--;
 	}
+
 	int ret=((timeptr->tm_yday+7-wday)/7);
-	if(ret<0)
+
+	if (ret<0)
 		ret=0;
+
 	return ret;
 }
 
@@ -211,10 +218,8 @@ static int iso8601wknum(const tm *timeptr)
 	 * XPG4 erroneously included POSIX.2 rationale text in the
 	 * main body of the standard. Thus it requires week 53.
 	 */
-
 	// get week number, Monday as first day of the week
 	int weeknum=weeknumber(timeptr,1);
-
 	/*
 	 * With thanks and tip of the hatlo to tml@tik.vtt.fi
 	 *
@@ -228,9 +233,9 @@ static int iso8601wknum(const tm *timeptr)
 	 *  timeptr->tm_wday MOD 7 == timeptr->tm_wday
 	 * from which it follows that. . .
 	 */
-
 	int jan1day=timeptr->tm_wday-(timeptr->tm_yday%7);
-	if(jan1day<0)
+
+	if (jan1day<0)
 		jan1day+=7;
 
 	/*
@@ -246,7 +251,7 @@ static int iso8601wknum(const tm *timeptr)
 	 * Otherwise, Friday, Saturday or Sunday, the week number is
 	 * OK, but if it is 0, it needs to be 52 or 53.
 	 */
-	switch(jan1day)
+	switch (jan1day)
 	{
 		case 1: // Monday
 			break;
@@ -258,7 +263,8 @@ static int iso8601wknum(const tm *timeptr)
 		case 5: // Friday
 		case 6: // Saturday
 		case 0: // Sunday
-			if(!weeknum)
+
+			if (!weeknum)
 			{
 #ifdef USE_BROKEN_XPG4
 				/* XPG4 (as of March 1994) says 53 unconditionally */
@@ -275,10 +281,11 @@ static int iso8601wknum(const tm *timeptr)
 				weeknum=iso8601wknum(&dec31ly);
 #endif
 			}
+
 			break;
 	}
 
-	if(timeptr->tm_mon==11)
+	if (timeptr->tm_mon==11)
 	{
 		/*
 		 * The last week of the year
@@ -291,11 +298,12 @@ static int iso8601wknum(const tm *timeptr)
 		 *  30  31
 		 *  31
 		 */
-		if((timeptr->tm_wday==1&&(timeptr->tm_mday>=29&&timeptr->tm_mday<=31))||
-			 (timeptr->tm_wday==2&&(timeptr->tm_mday==30||timeptr->tm_mday==31))||
-			 (timeptr->tm_wday==3&&timeptr->tm_mday==31))
+		if ((timeptr->tm_wday==1&&(timeptr->tm_mday>=29&&timeptr->tm_mday<=31))||
+		        (timeptr->tm_wday==2&&(timeptr->tm_mday==30||timeptr->tm_mday==31))||
+		        (timeptr->tm_wday==3&&timeptr->tm_mday==31))
 			weeknum=1;
 	}
+
 	return weeknum;
 }
 
@@ -306,160 +314,152 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 
 	// меняем язык.
 	CurLang=0;
-
 	size_t Len;
-	for(Len=1;*Format;Format++)
+
+	for (Len=1; *Format; Format++)
 	{
-		if(*Format!=L'%')
+		if (*Format!=L'%')
 		{
 			Len++;
 			const wchar_t Text[]={*Format,0};
 			strDest+=Text;
 		}
+
 #if 1
 		else
 		{
 			string strBuf;
-			switch(*++Format)
+
+			switch (*++Format)
 			{
 				case L'L':
 					CurLang=!CurLang;
 					continue;
-
-				// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
-				// abbreviated weekday name
+					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
+					// abbreviated weekday name
 				case L'a':
 					strBuf=AWeekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
-
-				// Полное имя дня недели
-				// full weekday name
+					// Полное имя дня недели
+					// full weekday name
 				case L'A':
 					strBuf=Weekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
-
-				// Краткое имя месяца (Jan,Feb,...)
-				// abbreviated month name
+					// Краткое имя месяца (Jan,Feb,...)
+					// abbreviated month name
 				case L'h':
 				case L'b':
 					strBuf=AMonth[CurLang][t->tm_mon];
 					break;
-
-				// Полное имя месяца
-				// full month name
+					// Полное имя месяца
+					// full month name
 				case L'B':
 					strBuf=Month[CurLang][t->tm_mon];
 					break;
-
-				//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
-				//appropriate date and time representation
+					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
+					//appropriate date and time representation
 				case L'c':
 					atime(strBuf,t);
 					break;
-
-				// Столетие как десятичное число (00 - 99). Например, 1992 => 19
+					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 				case L'C':
 					strBuf.Format(L"%02d",(t->tm_year+1900)/100);
 					break;
-
-				// day of month, blank padded
+					// day of month, blank padded
 				case L'e':
-				// Две цифры дня месяца (01 - 31)
-				// day of the month, 01 - 31
+					// Две цифры дня месяца (01 - 31)
+					// day of the month, 01 - 31
 				case L'd':
 					strBuf.Format(*Format==L'e'?L"%2d":L"%02d",t->tm_mday);
 					break;
-
-				// hour, 24-hour clock, blank pad
+					// hour, 24-hour clock, blank pad
 				case L'k':
-				// Две цифры часа (00 - 23)
-				// hour, 24-hour clock, 00 - 23
+					// Две цифры часа (00 - 23)
+					// hour, 24-hour clock, 00 - 23
 				case L'H':
 					strBuf.Format(*Format==L'k'?L"%2d":L"%02d",t->tm_hour);
 					break;
-
-				// hour, 12-hour clock, 1 - 12, blank pad
+					// hour, 12-hour clock, 1 - 12, blank pad
 				case L'l':
-				// Две цифры часа (01 - 12)
-				// hour, 12-hour clock, 01 - 12
+					// Две цифры часа (01 - 12)
+					// hour, 12-hour clock, 01 - 12
 				case L'I':
 				{
 					int I=t->tm_hour%12;
-					if(!I)
+
+					if (!I)
 						I=12;
+
 					strBuf.Format(*Format==L'l'?L"%2d":L"%02d",I);
 					break;
 				}
-
 				// Три цифры дня в году (001 - 366)
 				// day of the year, 001 - 366
 				case L'j':
 					strBuf.Format(L"%03d",t->tm_yday+1);
 					break;
-
-				// Две цифры месяца, как десятичное число (1 - 12)
-				// month, 01 - 12
+					// Две цифры месяца, как десятичное число (1 - 12)
+					// month, 01 - 12
 				case L'm':
 				{
 					// %mh - Hex month digit
 					// %m0 - ведущий 0
 					const wchar_t *fmt=Format[1]==L'h'?L"%X":Format[1]==L'0'?L"%02d":L"%d";
-					if(fmt[1]!=L'd')
+
+					if (fmt[1]!=L'd')
 						Format++;
+
 					strBuf.Format(fmt,t->tm_mon+1);
 					break;
 				}
-
 				// Две цифры минут (00 - 59)
 				// minute, 00 - 59
 				case L'M':
 					strBuf.Format(L"%02d",t->tm_min);
 					break;
-
-				// AM или PM
-				// am or pm based on 12-hour clock
+					// AM или PM
+					// am or pm based on 12-hour clock
 				case L'p':
 					strBuf=(t->tm_hour/12)?L"PM":L"AM";
 					break;
-
-				// Две цифры секунд (00 - 59)
-				// second, 00 - 59
+					// Две цифры секунд (00 - 59)
+					// second, 00 - 59
 				case L'S':
 					strBuf.Format(L"%02d",t->tm_sec);
 					break;
-
-				// День недели где 0 - Воскресенье (Sunday) (0 - 6)
-				// weekday, Sunday == 0, 0 - 6
+					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
+					// weekday, Sunday == 0, 0 - 6
 				case L'w':
 					strBuf.Format(L"%d",t->tm_wday);
 					break;
-
-				// Две цифры номера недели, где Воскресенье (Sunday)
-				//   является первым днем недели (00 - 53)
-				// week of year, Sunday is first day of week
+					// Две цифры номера недели, где Воскресенье (Sunday)
+					//   является первым днем недели (00 - 53)
+					// week of year, Sunday is first day of week
 				case L'U':
-				// Две цифры номера недели, где Понедельник (Monday)
-				//    является первым днем недели (00 - 53)
-				// week of year, Monday is first day of week
+					// Две цифры номера недели, где Понедельник (Monday)
+					//    является первым днем недели (00 - 53)
+					// week of year, Monday is first day of week
 				case L'W':
 				{
 					int I=t->tm_wday-(t->tm_yday%7);
+
 					//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday == 0?6:t->tm_wday-1)):(t->tm_wday)) - (t->tm_yday % 7);
-					if(I<0)
+					if (I<0)
 						I+=7;
+
 					strBuf.Format(L"%02d",(t->tm_yday+I-(*Format==L'W'))/7);
 					break;
 				}
 				// date as dd-bbb-YYYY
 				case L'v':
-				// Дата в формате mm.dd.yyyy
-				// appropriate date representation
+					// Дата в формате mm.dd.yyyy
+					// appropriate date representation
 				case L'D':
 				case L'x':
 					st_time(strBuf,t,*Format);
 					break;
-				// Время в формате HH:MM:SS
-				// appropriate time representation
+					// Время в формате HH:MM:SS
+					// appropriate time representation
 				case L'T':
 				case L'X':
 				{
@@ -467,61 +467,56 @@ size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 					strBuf.Format(L"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
 					break;
 				}
-
 				// Две цифры года без столетия (00 to 99)
 				// year without a century, 00 - 99
 				case L'y':
 					strBuf.Format(L"%02d",t->tm_year%100);
 					break;
-
-				// Год со столетием (19yy-20yy)
-				// year with century
+					// Год со столетием (19yy-20yy)
+					// year with century
 				case L'Y':
 					strBuf.Format(L"%d",1900+t->tm_year);
 					break;
-
-				// Имя часового пояса или пусто, если часовой пояс не задан
+					// Имя часового пояса или пусто, если часовой пояс не задан
 				case L'Z':
 					strBuf.Format(L"%+03d%02d",-(_timezone/3600),-(_timezone/60)%60);
 					//Ptr = _tzname[ t->tm_isdst ];
 					break;
-
-				// same as \n
+					// same as \n
 				case L'n':
 					strBuf=L"\n";
 					break;
-
-				// same as \t
+					// same as \t
 				case L't':
 					strBuf=L"\t";
 					break;
-
 				case L'%':
 					strBuf=L"%";
 					break;
-
-				// time as %I:%M:%S %p
+					// time as %I:%M:%S %p
 				case L'r':
 					StrFTime(strBuf,L"%I:%M:%S %p",t);
 					break;
-
-				// time as %H:%M
+					// time as %H:%M
 				case L'R':
 					StrFTime(strBuf,L"%H:%M",t);
 					break;
-
-				// week of year according ISO 8601
+					// week of year according ISO 8601
 				case L'V':
 					strBuf.Format(L"%02d",iso8601wknum(t));
 					break;
 			}
+
 			strDest+=strBuf;
 			Len+=strBuf.GetLength();
 		}
+
 #endif
 	}
-	if(*Format)
+
+	if (*Format)
 		return 0;
+
 	return Len-1;
 }
 
@@ -532,8 +527,10 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	_tzset();
 	time(&secs_now);
 	time_now=localtime(&secs_now);
-	if(!Fmt||!*Fmt)
+
+	if (!Fmt||!*Fmt)
 		Fmt=Opt.strDateFormat;
+
 	return StrFTime(strDest,Fmt,time_now);
 }
 
@@ -551,23 +548,28 @@ unsigned __int64 FileTimeToUI64(const FILETIME *ft)
 
 void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator)
 {
-	for(size_t i=0;i<Count;i++)
+	for (size_t i=0; i<Count; i++)
 	{
 		Dst[i]=(WORD)-1;
 	}
+
 	string strDigit;
 	const wchar_t *Ptr=Src;
-	for(size_t i=0;i<Count;i++)
+
+	for (size_t i=0; i<Count; i++)
 	{
 		Ptr=GetCommaWord(Ptr,strDigit,Separator);
-		if(Ptr)
+
+		if (Ptr)
 		{
 			const wchar_t *PtrDigit=strDigit;
-			while(*PtrDigit&&!iswdigit(*PtrDigit))
+
+			while (*PtrDigit&&!iswdigit(*PtrDigit))
 			{
 				PtrDigit++;
 			}
-			if(*PtrDigit)
+
+			if (*PtrDigit)
 			{
 				Dst[i]=static_cast<WORD>(_wtoi(PtrDigit));
 			}
@@ -583,191 +585,200 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 {
 	WORD DateN[3]={0},TimeN[3]={0};
 	SYSTEMTIME st={0};
+	// Преобразуем введённые пользователем дату и время
+	GetFileDateAndTime(CDate,DateN,countof(DateN),DateSeparator);
+	GetFileDateAndTime(CTime,TimeN,countof(TimeN),TimeSeparator);
 
-  // Преобразуем введённые пользователем дату и время
-  GetFileDateAndTime(CDate,DateN,countof(DateN),DateSeparator);
-  GetFileDateAndTime(CTime,TimeN,countof(TimeN),TimeSeparator);
+	if (!bRelative)
+	{
+		if (DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
+		{
+			// Пользователь оставил дату пустой, значит обнулим дату и время.
+			memset(&ft,0,sizeof(ft));
+			return;
+		}
 
-  if (!bRelative)
-  {
-		if(DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
-    {
-      // Пользователь оставил дату пустой, значит обнулим дату и время.
-      memset(&ft,0,sizeof(ft));
-      return;
-    }
-    // "Оформим"
-    switch(DateFormat)
-    {
-      case 0:
+		// "Оформим"
+		switch (DateFormat)
+		{
+			case 0:
 				st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:0;
 				st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:0;
 				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
-        break;
-      case 1:
+				break;
+			case 1:
 				st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:0;
 				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
 				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
-        break;
-      default:
+				break;
+			default:
 				st.wYear =DateN[0]!=(WORD)-1?DateN[0]:0;
 				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
 				st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:0;
-        break;
-    }
+				break;
+		}
 
-    if (st.wYear<100)
-    {
-      if (st.wYear<80)
-        st.wYear+=2000;
-      else
-        st.wYear+=1900;
-    }
-  }
-  else
-  {
+		if (st.wYear<100)
+		{
+			if (st.wYear<80)
+				st.wYear+=2000;
+			else
+				st.wYear+=1900;
+		}
+	}
+	else
+	{
 		st.wDay = DateN[0]!=(WORD)-1?DateN[0]:0;
-  }
+	}
 
 	st.wHour   = TimeN[0]!=(WORD)-1?(TimeN[0]):0;
 	st.wMinute = TimeN[1]!=(WORD)-1?(TimeN[1]):0;
 	st.wSecond = TimeN[2]!=(WORD)-1?(TimeN[2]):0;
 
-  // преобразование в "удобоваримый" формат
-  if (bRelative)
-  {
-    ULARGE_INTEGER time;
-
+	// преобразование в "удобоваримый" формат
+	if (bRelative)
+	{
+		ULARGE_INTEGER time;
 		time.QuadPart  = st.wSecond * 10000000;
 		time.QuadPart += st.wMinute * 10000000 * 60;
 		time.QuadPart += st.wHour   * 10000000 * 60 * 60;
 		time.QuadPart += st.wDay    * 10000000 * 60 * 60 * 24;
-    ft.dwLowDateTime  = time.u.LowPart;
-    ft.dwHighDateTime = time.u.HighPart;
-  }
-  else
-  {
+		ft.dwLowDateTime  = time.u.LowPart;
+		ft.dwHighDateTime = time.u.HighPart;
+	}
+	else
+	{
 		FILETIME lft={0};
-		if(SystemTimeToFileTime(&st,&lft))
+
+		if (SystemTimeToFileTime(&st,&lft))
 		{
 			LocalFileTimeToFileTime(&lft,&ft);
 		}
 	}
 }
 
-void ConvertDate (const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
+void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {
-  static int WDateFormat;
+	static int WDateFormat;
 	static wchar_t WDateSeparator,WTimeSeparator,WDecimalSeparator;
 	static bool Init=false;
-  static SYSTEMTIME lt;
-  int DateFormat;
+	static SYSTEMTIME lt;
+	int DateFormat;
 	wchar_t DateSeparator,TimeSeparator,DecimalSeparator;
-  if (!Init)
-  {
-    WDateFormat=GetDateFormat();
-    WDateSeparator=GetDateSeparator();
-    WTimeSeparator=GetTimeSeparator();
+
+	if (!Init)
+	{
+		WDateFormat=GetDateFormat();
+		WDateSeparator=GetDateSeparator();
+		WTimeSeparator=GetTimeSeparator();
 		WDecimalSeparator=GetDecimalSeparator();
-    GetLocalTime(&lt);
+		GetLocalTime(&lt);
 		Init=true;
-  }
-  DateFormat=DynInit?GetDateFormat():WDateFormat;
-  DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
-  TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
+	}
+
+	DateFormat=DynInit?GetDateFormat():WDateFormat;
+	DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
+	TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
 	DecimalSeparator=DynInit?GetDecimalSeparator():WDecimalSeparator;
+	int CurDateFormat=DateFormat;
 
-  int CurDateFormat=DateFormat;
-  if (Brief && CurDateFormat==2)
-    CurDateFormat=0;
+	if (Brief && CurDateFormat==2)
+		CurDateFormat=0;
 
-  SYSTEMTIME st;
-  FILETIME ct;
+	SYSTEMTIME st;
+	FILETIME ct;
 
-  if (ft.dwHighDateTime==0)
-  {
-    strDateText.Clear();
-    strTimeText.Clear();
-    return;
-  }
+	if (ft.dwHighDateTime==0)
+	{
+		strDateText.Clear();
+		strTimeText.Clear();
+		return;
+	}
 
-  FileTimeToLocalFileTime(&ft,&ct);
-  FileTimeToSystemTime(&ct,&st);
+	FileTimeToLocalFileTime(&ft,&ct);
+	FileTimeToSystemTime(&ct,&st);
+	//if ( !strTimeText.IsEmpty() )
+	{
+		const wchar_t *Letter=L"";
 
-  //if ( !strTimeText.IsEmpty() )
-  {
-    const wchar_t *Letter=L"";
-    if (TimeLength==6)
-    {
-      Letter=(st.wHour<12) ? L"a":L"p";
-      if (st.wHour>12)
-        st.wHour-=12;
-      if (st.wHour==0)
-        st.wHour=12;
-    }
-    if (TimeLength<7)
-      strTimeText.Format (L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
-    else
-    {
-      string strFullTime;
-      strFullTime.Format (L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
-              st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
-      strTimeText.Format (L"%.*s",TimeLength, (const wchar_t*)strFullTime);
-    }
-  }
+		if (TimeLength==6)
+		{
+			Letter=(st.wHour<12) ? L"a":L"p";
 
-  //if ( !strDateText.IsEmpty() )
-  {
-    int Year=st.wYear;
-    if (!FullYear)
-      Year%=100;
-    if (TextMonth)
-    {
-      const wchar_t *Month=MSG(MMonthJan+st.wMonth-1);
-      switch(CurDateFormat)
-      {
-        case 0:
-          strDateText.Format (L"%3.3s %2d %02d",Month,st.wDay,Year);
-          break;
-        case 1:
-          strDateText.Format (L"%2d %3.3s %02d",st.wDay,Month,Year);
-          break;
-        default:
-          strDateText.Format (L"%02d %3.3s %2d",Year,Month,st.wDay);
-          break;
-      }
-    }
-    else
-    {
-      int p1,p2,p3=Year;
-      switch(CurDateFormat)
-      {
-        case 0:
-          p1=st.wMonth;
-          p2=st.wDay;
-          break;
-        case 1:
-          p1=st.wDay;
-          p2=st.wMonth;
-          break;
-        default:
-          p1=Year;
-          p2=st.wMonth;
-          p3=st.wDay;
-          break;
-      }
-      strDateText.Format (L"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
-    }
-  }
+			if (st.wHour>12)
+				st.wHour-=12;
 
-  if (Brief)
-  {
-    strDateText.SetLength(TextMonth ? 6 : 5);
+			if (st.wHour==0)
+				st.wHour=12;
+		}
 
-    if (lt.wYear!=st.wYear)
-      strTimeText.Format (L"%5d",st.wYear);
-  }
+		if (TimeLength<7)
+			strTimeText.Format(L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
+		else
+		{
+			string strFullTime;
+			strFullTime.Format(L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
+			                   st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
+			strTimeText.Format(L"%.*s",TimeLength, (const wchar_t*)strFullTime);
+		}
+	}
+	//if ( !strDateText.IsEmpty() )
+	{
+		int Year=st.wYear;
+
+		if (!FullYear)
+			Year%=100;
+
+		if (TextMonth)
+		{
+			const wchar_t *Month=MSG(MMonthJan+st.wMonth-1);
+
+			switch (CurDateFormat)
+			{
+				case 0:
+					strDateText.Format(L"%3.3s %2d %02d",Month,st.wDay,Year);
+					break;
+				case 1:
+					strDateText.Format(L"%2d %3.3s %02d",st.wDay,Month,Year);
+					break;
+				default:
+					strDateText.Format(L"%02d %3.3s %2d",Year,Month,st.wDay);
+					break;
+			}
+		}
+		else
+		{
+			int p1,p2,p3=Year;
+
+			switch (CurDateFormat)
+			{
+				case 0:
+					p1=st.wMonth;
+					p2=st.wDay;
+					break;
+				case 1:
+					p1=st.wDay;
+					p2=st.wMonth;
+					break;
+				default:
+					p1=Year;
+					p2=st.wMonth;
+					p3=st.wDay;
+					break;
+			}
+
+			strDateText.Format(L"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
+		}
+	}
+
+	if (Brief)
+	{
+		strDateText.SetLength(TextMonth ? 6 : 5);
+
+		if (lt.wYear!=st.wYear)
+			strTimeText.Format(L"%5d",st.wYear);
+	}
 }
 
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)

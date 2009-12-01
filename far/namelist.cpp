@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NamesList::NamesList()
 {
-  Init();
+	Init();
 }
 
 NamesList::~NamesList()
@@ -48,74 +48,72 @@ NamesList::~NamesList()
 
 void NamesList::AddName(const wchar_t *Name,const wchar_t *ShortName)
 {
-  OneName *pName=Names.Push();
-  pName->Value.strName = Name?Name:L"";
-  pName->Value.strShortName = ShortName?ShortName:L"";
-  CurrentName=pName;
+	OneName *pName=Names.Push();
+	pName->Value.strName = Name?Name:L"";
+	pName->Value.strShortName = ShortName?ShortName:L"";
+	CurrentName=pName;
 }
 
 
 bool NamesList::GetNextName(string &strName, string &strShortName)
 {
-  const OneName *pName=Names.Next(CurrentName);
-  if (!pName)
-    return(false);
+	const OneName *pName=Names.Next(CurrentName);
 
-  strName = pName->Value.strName;
-  strShortName = pName->Value.strShortName;
-  CurrentName=pName;
+	if (!pName)
+		return(false);
 
-  return(true);
+	strName = pName->Value.strName;
+	strShortName = pName->Value.strShortName;
+	CurrentName=pName;
+	return(true);
 }
 
 
-bool NamesList::GetPrevName (string &strName, string &strShortName)
+bool NamesList::GetPrevName(string &strName, string &strShortName)
 {
-  const OneName *pName=Names.Prev(CurrentName);
-  if (!pName)
-    return(false);
+	const OneName *pName=Names.Prev(CurrentName);
 
-  strName = pName->Value.strName;
-  strShortName = pName->Value.strShortName;
-  CurrentName=pName;
+	if (!pName)
+		return(false);
 
-  return(true);
+	strName = pName->Value.strName;
+	strShortName = pName->Value.strShortName;
+	CurrentName=pName;
+	return(true);
 }
 
 
 void NamesList::SetCurName(const wchar_t *Name)
 {
-  for (const OneName *pCurName=Names.First(); pCurName; pCurName=Names.Next(pCurName))
-  {
-    if (!StrCmp(Name, pCurName->Value.strName))
-    {
-      CurrentName=pCurName;
-      return;
-    }
-  }
+	for (const OneName *pCurName=Names.First(); pCurName; pCurName=Names.Next(pCurName))
+	{
+		if (!StrCmp(Name, pCurName->Value.strName))
+		{
+			CurrentName=pCurName;
+			return;
+		}
+	}
 }
 
 
 void NamesList::MoveData(NamesList &Dest)
 {
-  Dest.Names.Swap(Names);
-
-  Dest.strCurrentDir = strCurrentDir;
-  Dest.CurrentName = CurrentName;
-
-  Init();
+	Dest.Names.Swap(Names);
+	Dest.strCurrentDir = strCurrentDir;
+	Dest.CurrentName = CurrentName;
+	Init();
 }
 
 
-void NamesList::GetCurDir (string &strDir)
+void NamesList::GetCurDir(string &strDir)
 {
-  strDir = strCurrentDir;
+	strDir = strCurrentDir;
 }
 
 
-void NamesList::SetCurDir (const wchar_t *Dir)
+void NamesList::SetCurDir(const wchar_t *Dir)
 {
-	if(StrCmpI(strCurrentDir,Dir) || !TestCurrentDirectory(Dir))
+	if (StrCmpI(strCurrentDir,Dir) || !TestCurrentDirectory(Dir))
 	{
 		strCurrentDir = Dir;
 		PrepareDiskPath(strCurrentDir);
@@ -124,8 +122,7 @@ void NamesList::SetCurDir (const wchar_t *Dir)
 
 void NamesList::Init()
 {
-  Names.Clear();
-
-  strCurrentDir.Clear();
-  CurrentName=NULL;
+	Names.Clear();
+	strCurrentDir.Clear();
+	CurrentName=NULL;
 }

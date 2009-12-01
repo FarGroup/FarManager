@@ -38,75 +38,76 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TStack.hpp"
 
 
-enum {
-  FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
+enum
+{
+	FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
 };
 
 struct PushPopRecord
 {
-  string strName;
+	string strName;
 
-  const PushPopRecord& operator=(const PushPopRecord &rhs){strName=rhs.strName;return *this;}
+	const PushPopRecord& operator=(const PushPopRecord &rhs) {strName=rhs.strName; return *this;}
 };
 
 
 class CommandLine:public ScreenObject
 {
-  private:
-    Edit CmdStr;
-    SaveScreen *BackgroundScreen;
-    string strCurDir;
-    string strLastCmdStr;
-    int LastCmdPartLength;
-    TStack<PushPopRecord> ppstack;
+	private:
+		Edit CmdStr;
+		SaveScreen *BackgroundScreen;
+		string strCurDir;
+		string strLastCmdStr;
+		int LastCmdPartLength;
+		TStack<PushPopRecord> ppstack;
 
-  private:
-    virtual void DisplayObject();
-    int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
-    int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
-    void GetPrompt(string &strDestStr);
-    BOOL SetLastCmdStr(const wchar_t *Ptr);
-    BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
-    bool CheckCmdLineForHelp(const wchar_t *CmdLine);
-    bool CheckCmdLineForSet(const string& CmdLine);
+	private:
+		virtual void DisplayObject();
+		int CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
+		int ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow);
+		void GetPrompt(string &strDestStr);
+		BOOL SetLastCmdStr(const wchar_t *Ptr);
+		BOOL IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent=false);
+		bool CheckCmdLineForHelp(const wchar_t *CmdLine);
+		bool CheckCmdLineForSet(const string& CmdLine);
 
-  public:
-    CommandLine();
-    virtual ~CommandLine();
+	public:
+		CommandLine();
+		virtual ~CommandLine();
 
-  public:
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+	public:
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    virtual void ResizeConsole();
+		virtual void ResizeConsole();
 
-    int GetCurDir(string &strCurDir);
-    BOOL SetCurDir(const wchar_t *CurDir);
+		int GetCurDir(string &strCurDir);
+		BOOL SetCurDir(const wchar_t *CurDir);
 
-    void GetString (string &strStr) { CmdStr.GetString(strStr); };
-    int GetLength() { return CmdStr.GetLength(); };
-    void SetString(const wchar_t *Str,BOOL Redraw=TRUE);
-    void InsertString(const wchar_t *Str);
+		void GetString(string &strStr) { CmdStr.GetString(strStr); };
+		int GetLength() { return CmdStr.GetLength(); };
+		void SetString(const wchar_t *Str,BOOL Redraw=TRUE);
+		void InsertString(const wchar_t *Str);
 
-    void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
+		void ExecString(const wchar_t *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
 
-    void ShowViewEditHistory();
+		void ShowViewEditHistory();
 
-    void SetCurPos(int Pos, int LeftPos=0);
-    int GetCurPos() { return CmdStr.GetCurPos(); };
-    int GetLeftPos() { return CmdStr.GetLeftPos(); };
+		void SetCurPos(int Pos, int LeftPos=0);
+		int GetCurPos() { return CmdStr.GetCurPos(); };
+		int GetLeftPos() { return CmdStr.GetLeftPos(); };
 
-    void SetPersistentBlocks(int Mode);
+		void SetPersistentBlocks(int Mode);
 		void SetDelRemovesBlocks(int Mode);
 
-    void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
-    void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };
-    void Select(int Start, int End) { CmdStr.Select(Start,End); };
+		void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
+		void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };
+		void Select(int Start, int End) { CmdStr.Select(Start,End); };
 
-    void SaveBackground(int X1,int Y1,int X2,int Y2);
-    void SaveBackground();
-    void ShowBackground();
-    void CorrectRealScreenCoord();
-    void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
+		void SaveBackground(int X1,int Y1,int X2,int Y2);
+		void SaveBackground();
+		void ShowBackground();
+		void CorrectRealScreenCoord();
+		void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };

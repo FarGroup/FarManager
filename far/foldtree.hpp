@@ -42,41 +42,41 @@ class SaveScreen;
 
 class FolderTree:public Frame
 {
-  private:
-    TreeList *Tree;
-    Edit *FindEdit;
+	private:
+		TreeList *Tree;
+		Edit *FindEdit;
 
-    KeyBar TreeKeyBar;     // кейбар
-    int ModalMode;
-    int IsFullScreen;
-    int IsStandalone;
-    int  PrevMacroMode;        // предыдущий режим макроса
+		KeyBar TreeKeyBar;     // кейбар
+		int ModalMode;
+		int IsFullScreen;
+		int IsStandalone;
+		int  PrevMacroMode;        // предыдущий режим макроса
 
-    string strNewFolder;
-    string strLastName;
+		string strNewFolder;
+		string strLastName;
 
-  private:
-    void DrawEdit();
-    virtual void DisplayObject();
-    void SetCoords();
+	private:
+		void DrawEdit();
+		virtual void DisplayObject();
+		void SetCoords();
 
-  public:
-    FolderTree(string &strResultFolder,int ModalMode,int IsStandalone=TRUE,int IsFullScreen=TRUE);
-    virtual ~FolderTree();
+	public:
+		FolderTree(string &strResultFolder,int ModalMode,int IsStandalone=TRUE,int IsFullScreen=TRUE);
+		virtual ~FolderTree();
 
-  public:
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	public:
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
 		virtual void InitKeyBar();
-    virtual void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
-    virtual void SetScreenPosition();
-    virtual void ResizeConsole();
-    /* $ ¬ведена дл€ нужд CtrlAltShift OT */
-    virtual int  FastHide();
+		virtual void OnChangeFocus(int focus); // вызываетс€ при смене фокуса
+		virtual void SetScreenPosition();
+		virtual void ResizeConsole();
+		/* $ ¬ведена дл€ нужд CtrlAltShift OT */
+		virtual int  FastHide();
 
-    virtual const wchar_t *GetTypeName() {return L"[FolderTree]";}
-    virtual int GetTypeAndName(string &strType, string &strName);
-    virtual int GetType() { return MODALTYPE_FINDFOLDER; }
+		virtual const wchar_t *GetTypeName() {return L"[FolderTree]";}
+		virtual int GetTypeAndName(string &strType, string &strName);
+		virtual int GetType() { return MODALTYPE_FINDFOLDER; }
 
 };

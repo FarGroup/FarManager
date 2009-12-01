@@ -43,24 +43,24 @@ struct GrabberArea
 
 class Grabber:Modal
 {
-  private:
-    SaveScreen *SaveScr;
+	private:
+		SaveScreen *SaveScr;
 		GrabberArea PrevArea;
 		GrabberArea GArea;
-    int ResetArea;
-    int PrevMacroMode;
-    int VerticalBlock;
+		int ResetArea;
+		int PrevMacroMode;
+		int VerticalBlock;
 
-  private:
-    virtual void DisplayObject();
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void CopyGrabbedArea(int Append, int VerticalBlock);
-    void Reset();
+	private:
+		virtual void DisplayObject();
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		void CopyGrabbedArea(int Append, int VerticalBlock);
+		void Reset();
 
-  public:
-    Grabber();
-    virtual ~Grabber();
+	public:
+		Grabber();
+		virtual ~Grabber();
 };
 
 bool RunGraber();

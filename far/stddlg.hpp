@@ -91,34 +91,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     TRUE  - пользователь подтвердил свои намериния
     FALSE - пользователь отказался от диалога (Esc)
 */
-int WINAPI GetSearchReplaceString (
-         int IsReplaceMode,
-         string *pSearchStr,
-         string *pReplaceStr,
-         const wchar_t *TextHistoryName,
-         const wchar_t *ReplaceHistoryName,
-         int *Case,
-         int *WholeWords,
-         int *Reverse,
-         int *SelectFound,
-         int *Regexp,
-         const wchar_t *HelpTopic=NULL);
+int WINAPI GetSearchReplaceString(
+    int IsReplaceMode,
+    string *pSearchStr,
+    string *pReplaceStr,
+    const wchar_t *TextHistoryName,
+    const wchar_t *ReplaceHistoryName,
+    int *Case,
+    int *WholeWords,
+    int *Reverse,
+    int *SelectFound,
+    int *Regexp,
+    const wchar_t *HelpTopic=NULL);
 
 int __stdcall GetString(
-		const wchar_t *Title,
-		const wchar_t *SubTitle,
-		const wchar_t *HistoryName,
-		const wchar_t *SrcText,
-		string &strDestText,
-		const wchar_t *HelpTopic = NULL,
-		DWORD Flags = 0,
-		int *CheckBoxValue = NULL,
-		const wchar_t *CheckBoxText = NULL
-		);
+    const wchar_t *Title,
+    const wchar_t *SubTitle,
+    const wchar_t *HistoryName,
+    const wchar_t *SrcText,
+    string &strDestText,
+    const wchar_t *HelpTopic = NULL,
+    DWORD Flags = 0,
+    int *CheckBoxValue = NULL,
+    const wchar_t *CheckBoxText = NULL
+);
 
 // для диалога GetNameAndPassword()
-enum FlagsNameAndPassword{
-  GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
+enum FlagsNameAndPassword
+{
+	GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
 };
 
 int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);

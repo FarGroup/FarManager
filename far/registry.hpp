@@ -99,6 +99,6 @@ void UseSameRegKey();
 
 void CloseSameRegKey();
 
-int RegQueryStringValueEx (HKEY hKey, const wchar_t *lpwszValueName, string &strData, const wchar_t *lpwszDefault = L"");
+int RegQueryStringValueEx(HKEY hKey, const wchar_t *lpwszValueName, string &strData, const wchar_t *lpwszDefault = L"");
 
-int RegQueryStringValue (HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
+int RegQueryStringValue(HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");

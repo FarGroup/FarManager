@@ -47,175 +47,182 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
-  if(!SrcPanel)
-    SrcPanel=CtrlObject->Cp()->ActivePanel;
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  switch ( SrcPanel->GetType() ) {
-    case QVIEW_PANEL:
-    case INFO_PANEL:
-      SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
-  }
+	if (!SrcPanel)
+		SrcPanel=CtrlObject->Cp()->ActivePanel;
 
-  int AnotherType=AnotherPanel->GetType();
+	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 
-  if (AnotherType!=QVIEW_PANEL && AnotherType!=INFO_PANEL)
-  {
-    if(NeedSetUpADir)
-    {
-      string strCurDir;
-      SrcPanel->GetCurDir(strCurDir);
-      AnotherPanel->SetCurDir(strCurDir,TRUE);
-      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    }
-    else
-    {
-      // TODO: ???
-      //if(AnotherPanel->NeedUpdatePanel(SrcPanel))
-      //  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-      //else
-      {
-        // Сбросим время обновления панели. Если там есть нотификация - обновится сама.
-        if (AnotherType==FILE_PANEL)
-          ((FileList *)AnotherPanel)->ResetLastUpdateTime();
-        AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-      }
-    }
-  }
-  SrcPanel->Update(UPDATE_KEEP_SELECTION);
-  if (AnotherType==QVIEW_PANEL)
-    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-  CtrlObject->Cp()->Redraw();
+	switch (SrcPanel->GetType())
+	{
+		case QVIEW_PANEL:
+		case INFO_PANEL:
+			SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+	}
+
+	int AnotherType=AnotherPanel->GetType();
+
+	if (AnotherType!=QVIEW_PANEL && AnotherType!=INFO_PANEL)
+	{
+		if (NeedSetUpADir)
+		{
+			string strCurDir;
+			SrcPanel->GetCurDir(strCurDir);
+			AnotherPanel->SetCurDir(strCurDir,TRUE);
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		}
+		else
+		{
+			// TODO: ???
+			//if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+			//  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+			//else
+			{
+				// Сбросим время обновления панели. Если там есть нотификация - обновится сама.
+				if (AnotherType==FILE_PANEL)
+					((FileList *)AnotherPanel)->ResetLastUpdateTime();
+
+				AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+			}
+		}
+	}
+
+	SrcPanel->Update(UPDATE_KEEP_SELECTION);
+
+	if (AnotherType==QVIEW_PANEL)
+		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+
+	CtrlObject->Cp()->Redraw();
 }
 
 int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 {
-  if(!SrcPanel)
-    SrcPanel=CtrlObject->Cp()->ActivePanel;
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  AnotherPanel->CloseFile();
-  if(AnotherPanel->GetMode() == NORMAL_PANEL)
-  {
-    string strAnotherCurDir;
-    string strFullName;
+	if (!SrcPanel)
+		SrcPanel=CtrlObject->Cp()->ActivePanel;
 
-    AnotherPanel->GetCurDir(strAnotherCurDir);
-    AddEndSlash(strAnotherCurDir);
+	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	AnotherPanel->CloseFile();
 
-    ConvertNameToFull(SelName, strFullName);
-    AddEndSlash(strFullName);
+	if (AnotherPanel->GetMode() == NORMAL_PANEL)
+	{
+		string strAnotherCurDir;
+		string strFullName;
+		AnotherPanel->GetCurDir(strAnotherCurDir);
+		AddEndSlash(strAnotherCurDir);
+		ConvertNameToFull(SelName, strFullName);
+		AddEndSlash(strFullName);
 
-    if(wcsstr(strAnotherCurDir,strFullName))
-    {
-      ((FileList*)AnotherPanel)->CloseChangeNotification();
-      return TRUE;
-    }
-  }
-  return FALSE;
+		if (wcsstr(strAnotherCurDir,strFullName))
+		{
+			((FileList*)AnotherPanel)->CloseChangeNotification();
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
 {
-  int RetCode=FALSE;
-  int NeedRealName=FALSE;
+	int RetCode=FALSE;
+	int NeedRealName=FALSE;
+	strPathName.Clear();
 
-  strPathName.Clear();
-  switch(Key)
-  {
-    case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
-    case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
-    case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
-    case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-      NeedRealName=TRUE;
-    case KEY_CTRLBRACKET:          // Вставить путь из левой панели
-    case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
-    case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
-    case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+	switch (Key)
+	{
+		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+			NeedRealName=TRUE;
+		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+		case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+		case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+		case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
+		case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
+		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+		{
+			Panel *SrcPanel=NULL;
+			FilePanels *Cp=CtrlObject->Cp();
 
-    case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
-    case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
-    case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
-    case KEY_SHIFTENTER:           // Текущий файл с актив.панели
-    {
-      Panel *SrcPanel=NULL;
-      FilePanels *Cp=CtrlObject->Cp();
-      switch(Key)
-      {
-        case KEY_CTRLALTBRACKET:
-        case KEY_CTRLBRACKET:
-          SrcPanel=Cp->LeftPanel;
-          break;
-        case KEY_CTRLALTBACKBRACKET:
-        case KEY_CTRLBACKBRACKET:
-          SrcPanel=Cp->RightPanel;
-          break;
-        case KEY_SHIFTNUMENTER:
-        case KEY_SHIFTENTER:
-        case KEY_ALTSHIFTBRACKET:
-        case KEY_CTRLSHIFTBRACKET:
-          SrcPanel=Cp->ActivePanel;
-          break;
-        case KEY_CTRLSHIFTNUMENTER:
-        case KEY_CTRLSHIFTENTER:
-        case KEY_ALTSHIFTBACKBRACKET:
-        case KEY_CTRLSHIFTBACKBRACKET:
-          SrcPanel=Cp->GetAnotherPanel(Cp->ActivePanel);
-          break;
-      }
+			switch (Key)
+			{
+				case KEY_CTRLALTBRACKET:
+				case KEY_CTRLBRACKET:
+					SrcPanel=Cp->LeftPanel;
+					break;
+				case KEY_CTRLALTBACKBRACKET:
+				case KEY_CTRLBACKBRACKET:
+					SrcPanel=Cp->RightPanel;
+					break;
+				case KEY_SHIFTNUMENTER:
+				case KEY_SHIFTENTER:
+				case KEY_ALTSHIFTBRACKET:
+				case KEY_CTRLSHIFTBRACKET:
+					SrcPanel=Cp->ActivePanel;
+					break;
+				case KEY_CTRLSHIFTNUMENTER:
+				case KEY_CTRLSHIFTENTER:
+				case KEY_ALTSHIFTBACKBRACKET:
+				case KEY_CTRLSHIFTBACKBRACKET:
+					SrcPanel=Cp->GetAnotherPanel(Cp->ActivePanel);
+					break;
+			}
 
-      if (SrcPanel!=NULL)
-      {
-        if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
-        {
-          string strShortFileName;
-          SrcPanel->GetCurName(strPathName,strShortFileName);
-          if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
-            strPathName = strShortFileName;
-        }
-        else
-        {
-          /* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
-          if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
-            return(FALSE);
+			if (SrcPanel!=NULL)
+			{
+				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
+				{
+					string strShortFileName;
+					SrcPanel->GetCurName(strPathName,strShortFileName);
 
-          SrcPanel->GetCurDir(strPathName);
-          if (SrcPanel->GetMode()!=PLUGIN_PANEL)
-          {
-            FileList *SrcFilePanel=(FileList *)SrcPanel;
-            SrcFilePanel->GetCurDir(strPathName);
+					if (SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+						strPathName = strShortFileName;
+				}
+				else
+				{
+					/* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
+					if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
+						return(FALSE);
 
-            {
-                if(NeedRealName)
-                    SrcFilePanel->CreateFullPathName(strPathName, strPathName,FILE_ATTRIBUTE_DIRECTORY, strPathName,TRUE,ShortNameAsIs);
-            }
+					SrcPanel->GetCurDir(strPathName);
 
+					if (SrcPanel->GetMode()!=PLUGIN_PANEL)
+					{
+						FileList *SrcFilePanel=(FileList *)SrcPanel;
+						SrcFilePanel->GetCurDir(strPathName);
+						{
+							if (NeedRealName)
+								SrcFilePanel->CreateFullPathName(strPathName, strPathName,FILE_ATTRIBUTE_DIRECTORY, strPathName,TRUE,ShortNameAsIs);
+						}
 
-            if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
-              ConvertNameToShort(strPathName,strPathName);
-          }
-          else
-          {
-            FileList *SrcFilePanel=(FileList *)SrcPanel;
+						if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
+							ConvertNameToShort(strPathName,strPathName);
+					}
+					else
+					{
+						FileList *SrcFilePanel=(FileList *)SrcPanel;
 						OpenPluginInfo Info;
+						CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
+						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
+						strPathName += Info.CurDir;
+					}
 
-            CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
-            FileList::AddPluginPrefix(SrcFilePanel,strPathName);
+					AddEndSlash(strPathName);
+				}
 
-            strPathName += Info.CurDir;
+				if (Opt.QuotedName&QUOTEDNAME_INSERT)
+					QuoteSpace(strPathName);
 
-          }
-          AddEndSlash(strPathName);
-        }
+				if (Param2)
+					strPathName += Param2;
 
-        if(Opt.QuotedName&QUOTEDNAME_INSERT)
-          QuoteSpace(strPathName);
+				RetCode=TRUE;
+			}
+		}
+		break;
+	}
 
-        if ( Param2 )
-            strPathName += Param2;
-
-        RetCode=TRUE;
-      }
-    }
-    break;
-  }
-  return RetCode;
+	return RetCode;
 }

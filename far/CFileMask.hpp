@@ -38,25 +38,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum FM_FLAGS
 {
-  FMF_SILENT        = 0x00000001,
-  FMF_FORBIDEXCLUDE = 0x00000002,
-  FMF_ADDASTERISK   = 0x00000004
+	FMF_SILENT        = 0x00000001,
+	FMF_FORBIDEXCLUDE = 0x00000002,
+	FMF_ADDASTERISK   = 0x00000004
 };
 
 
 class CFileMask : private NonCopyable
 {
-  private:
-    BaseFileMask *FileMask;
+	private:
+		BaseFileMask *FileMask;
 
-  public:
-    CFileMask();
-    ~CFileMask() { Free(); }
+	public:
+		CFileMask();
+		~CFileMask() { Free(); }
 
-  public:
+	public:
 		bool Set(const wchar_t *Masks, DWORD Flags);
 		bool Compare(const wchar_t *Name);
 		bool IsEmpty();
-    void Free();
+		void Free();
 
 };

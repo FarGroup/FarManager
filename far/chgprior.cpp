@@ -41,12 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ChangePriority::ChangePriority(int NewPriority)
 {
-  SavePriority=GetThreadPriority(GetCurrentThread());
-  SetThreadPriority(GetCurrentThread(),NewPriority);
+	SavePriority=GetThreadPriority(GetCurrentThread());
+	SetThreadPriority(GetCurrentThread(),NewPriority);
 }
 
 
 ChangePriority::~ChangePriority()
 {
-  SetThreadPriority(GetCurrentThread(),SavePriority);
+	SetThreadPriority(GetCurrentThread(),SavePriority);
 }

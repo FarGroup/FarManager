@@ -53,7 +53,8 @@ enum TToken
 };
 
 
-struct TMacroKeywords {
+struct TMacroKeywords
+{
 	int Type;              // Тип: 0=Area, 1=Flags, 2=Condition
 	const wchar_t *Name;   // Наименование
 	DWORD Value;           // Значение

@@ -39,95 +39,96 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 
-BOOL apiDeleteFile (const wchar_t *lpwszFileName)
+BOOL apiDeleteFile(const wchar_t *lpwszFileName)
 {
 	return DeleteFile(NTPath(lpwszFileName));
 }
 
-BOOL apiRemoveDirectory (const wchar_t *DirName)
+BOOL apiRemoveDirectory(const wchar_t *DirName)
 {
 	string strDirName=DirName;
 	AddEndSlash(strDirName);
 	return RemoveDirectory(NTPath(strDirName));
 }
 
-HANDLE apiCreateFile (
-		const wchar_t *lpwszFileName,     // pointer to name of the file
-		DWORD dwDesiredAccess,  // access (read-write) mode
-		DWORD dwShareMode,      // share mode
-		LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-		DWORD dwCreationDistribution, // how to create
-		DWORD dwFlagsAndAttributes,   // file attributes
-		HANDLE hTemplateFile          // handle to file with attributes to copy
-		)
+HANDLE apiCreateFile(
+    const wchar_t *lpwszFileName,     // pointer to name of the file
+    DWORD dwDesiredAccess,  // access (read-write) mode
+    DWORD dwShareMode,      // share mode
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
+    DWORD dwCreationDistribution, // how to create
+    DWORD dwFlagsAndAttributes,   // file attributes
+    HANDLE hTemplateFile          // handle to file with attributes to copy
+)
 {
-	if(dwCreationDistribution==OPEN_EXISTING)
+	if (dwCreationDistribution==OPEN_EXISTING)
 	{
 		dwFlagsAndAttributes|=FILE_FLAG_POSIX_SEMANTICS;
 	}
+
 	dwFlagsAndAttributes|=FILE_FLAG_BACKUP_SEMANTICS;
-
 	string strName(NTPath(lpwszFileName).Str);
-
-	HANDLE hFile=CreateFile (
-			strName,
-			dwDesiredAccess,
-			dwShareMode,
-			lpSecurityAttributes,
-			dwCreationDistribution,
-			dwFlagsAndAttributes,
-			hTemplateFile
-			);
+	HANDLE hFile=CreateFile(
+	                 strName,
+	                 dwDesiredAccess,
+	                 dwShareMode,
+	                 lpSecurityAttributes,
+	                 dwCreationDistribution,
+	                 dwFlagsAndAttributes,
+	                 hTemplateFile
+	             );
 	DWORD Error=GetLastError();
-	if(hFile==INVALID_HANDLE_VALUE && (Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND))
+
+	if (hFile==INVALID_HANDLE_VALUE && (Error==ERROR_FILE_NOT_FOUND||Error==ERROR_PATH_NOT_FOUND))
 	{
 		dwFlagsAndAttributes&=~FILE_FLAG_POSIX_SEMANTICS;
-		hFile=CreateFile (
-				strName,
-				dwDesiredAccess,
-				dwShareMode,
-				lpSecurityAttributes,
-				dwCreationDistribution,
-				dwFlagsAndAttributes,
-				hTemplateFile
-				);
+		hFile=CreateFile(
+		          strName,
+		          dwDesiredAccess,
+		          dwShareMode,
+		          lpSecurityAttributes,
+		          dwCreationDistribution,
+		          dwFlagsAndAttributes,
+		          hTemplateFile
+		      );
 	}
+
 	return hFile;
 }
 
-BOOL apiCopyFileEx (
-		const wchar_t *lpwszExistingFileName,
-		const wchar_t *lpwszNewFileName,
-		LPPROGRESS_ROUTINE lpProgressRoutine,
-		LPVOID lpData,
-		LPBOOL pbCancel,
-		DWORD dwCopyFlags
-		)
+BOOL apiCopyFileEx(
+    const wchar_t *lpwszExistingFileName,
+    const wchar_t *lpwszNewFileName,
+    LPPROGRESS_ROUTINE lpProgressRoutine,
+    LPVOID lpData,
+    LPBOOL pbCancel,
+    DWORD dwCopyFlags
+)
 {
-		return CopyFileEx(
-				NTPath(lpwszExistingFileName),
-				NTPath(lpwszNewFileName),
-				lpProgressRoutine,
-				lpData,
-				pbCancel,
-				dwCopyFlags
-				);
+	return CopyFileEx(
+	           NTPath(lpwszExistingFileName),
+	           NTPath(lpwszNewFileName),
+	           lpProgressRoutine,
+	           lpData,
+	           pbCancel,
+	           dwCopyFlags
+	       );
 }
 
 
-BOOL apiMoveFile (
-		const wchar_t *lpwszExistingFileName, // address of name of the existing file
-		const wchar_t *lpwszNewFileName   // address of new name for the file
-		)
+BOOL apiMoveFile(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName   // address of new name for the file
+)
 {
 	return MoveFile(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName));
 }
 
-BOOL apiMoveFileEx (
-		const wchar_t *lpwszExistingFileName, // address of name of the existing file
-		const wchar_t *lpwszNewFileName,   // address of new name for the file
-		DWORD dwFlags   // flag to determine how to move file
-		)
+BOOL apiMoveFileEx(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName,   // address of new name for the file
+    DWORD dwFlags   // flag to determine how to move file
+)
 {
 	return MoveFileEx(NTPath(lpwszExistingFileName),NTPath(lpwszNewFileName),dwFlags);
 }
@@ -138,26 +139,24 @@ BOOL apiMoveFileThroughTemp(const wchar_t *Src, const wchar_t *Dest)
 	string strTemp;
 	BOOL rc = FALSE;
 
-	if ( FarMkTempEx(strTemp, NULL, FALSE) )
+	if (FarMkTempEx(strTemp, NULL, FALSE))
 	{
-		if ( apiMoveFile (Src, strTemp) )
-			rc = apiMoveFile (strTemp, Dest);
+		if (apiMoveFile(Src, strTemp))
+			rc = apiMoveFile(strTemp, Dest);
 	}
 
 	return rc;
 }
 
-DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer)
+DWORD apiGetEnvironmentVariable(const wchar_t *lpwszName, string &strBuffer)
 {
 	int nSize = GetEnvironmentVariable(lpwszName, NULL, 0);
 
-	if ( nSize )
+	if (nSize)
 	{
-		wchar_t *lpwszBuffer = strBuffer.GetBuffer (nSize);
-
+		wchar_t *lpwszBuffer = strBuffer.GetBuffer(nSize);
 		nSize = GetEnvironmentVariable(lpwszName, lpwszBuffer, nSize);
-
-		strBuffer.ReleaseBuffer ();
+		strBuffer.ReleaseBuffer();
 	}
 
 	return nSize;
@@ -169,7 +168,7 @@ string& strCurrentDirectory()
 	return strCurrentDirectory;
 }
 
-DWORD apiGetCurrentDirectory (string &strCurDir)
+DWORD apiGetCurrentDirectory(string &strCurDir)
 {
 	DeleteEndSlash(strCurrentDirectory());
 	LPCWSTR CD=strCurrentDirectory();
@@ -179,7 +178,6 @@ DWORD apiGetCurrentDirectory (string &strCurDir)
 		AddEndSlash(strCurrentDirectory());
 
 	strCurDir=strCurrentDirectory();
-
 	return static_cast<DWORD>(strCurDir.GetLength());
 }
 
@@ -189,163 +187,151 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	AddEndSlash(strDir);
 	strDir+=L"*";
 	FAR_FIND_DATA_EX fd;
+
 	if (apiGetFindDataEx(strDir,&fd) || GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
 	{
 		strCurrentDirectory()=lpPathName;
 		ReplaceSlashToBSlash(strCurrentDirectory());
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
-DWORD apiGetTempPath (string &strBuffer)
+DWORD apiGetTempPath(string &strBuffer)
 {
 	DWORD dwSize = GetTempPath(0, NULL);
-
-	wchar_t *lpwszBuffer = strBuffer.GetBuffer (dwSize);
-
+	wchar_t *lpwszBuffer = strBuffer.GetBuffer(dwSize);
 	dwSize = GetTempPath(dwSize, lpwszBuffer);
-
-	strBuffer.ReleaseBuffer ();
-
+	strBuffer.ReleaseBuffer();
 	return dwSize;
 };
 
 
-DWORD apiGetModuleFileName (HMODULE hModule, string &strFileName)
+DWORD apiGetModuleFileName(HMODULE hModule, string &strFileName)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
 	wchar_t *lpwszFileName = NULL;
 
-	do {
+	do
+	{
 		dwBufferSize <<= 1;
-
-		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof (wchar_t));
-
+		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof(wchar_t));
 		dwSize = GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
-	} while ( dwSize && (dwSize >= dwBufferSize) );
+	}
+	while (dwSize && (dwSize >= dwBufferSize));
 
-	if ( dwSize )
+	if (dwSize)
 		strFileName = lpwszFileName;
 
-	xf_free (lpwszFileName);
-
+	xf_free(lpwszFileName);
 	return dwSize;
 }
 
-DWORD apiExpandEnvironmentStrings (const wchar_t *src, string &strDest)
+DWORD apiExpandEnvironmentStrings(const wchar_t *src, string &strDest)
 {
 	string strSrc = src;
-
 	DWORD length = ExpandEnvironmentStrings(strSrc, NULL, 0);
 
-	if ( length )
+	if (length)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer (length);
-
+		wchar_t *lpwszDest = strDest.GetBuffer(length);
 		ExpandEnvironmentStrings(strSrc, lpwszDest, length);
-
-		strDest.ReleaseBuffer ();
-
-		length = (DWORD)strDest.GetLength ();
+		strDest.ReleaseBuffer();
+		length = (DWORD)strDest.GetLength();
 	}
 
 	return length;
 }
 
 
-DWORD apiGetConsoleTitle (string &strConsoleTitle)
+DWORD apiGetConsoleTitle(string &strConsoleTitle)
 {
 	DWORD dwSize = 0;
 	DWORD dwBufferSize = MAX_PATH;
 	wchar_t *lpwszTitle = NULL;
 
-	do {
+	do
+	{
 		dwBufferSize <<= 1;
-
-		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof (wchar_t));
-
+		lpwszTitle = (wchar_t*)xf_realloc_nomove(lpwszTitle, dwBufferSize*sizeof(wchar_t));
 		dwSize = GetConsoleTitle(lpwszTitle, dwBufferSize);
+	}
+	while (!dwSize && GetLastError() == ERROR_SUCCESS);
 
-	} while ( !dwSize && GetLastError() == ERROR_SUCCESS );
-
-	if ( dwSize )
+	if (dwSize)
 		strConsoleTitle = lpwszTitle;
 
-	xf_free (lpwszTitle);
-
+	xf_free(lpwszTitle);
 	return dwSize;
 }
 
 
-DWORD apiWNetGetConnection (const wchar_t *lpwszLocalName, string &strRemoteName)
+DWORD apiWNetGetConnection(const wchar_t *lpwszLocalName, string &strRemoteName)
 {
 	DWORD dwRemoteNameSize = 0;
 	DWORD dwResult = WNetGetConnection(lpwszLocalName, NULL, &dwRemoteNameSize);
 
-	if ( dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
+	if (dwResult == ERROR_SUCCESS || dwResult == ERROR_MORE_DATA)
 	{
-		wchar_t *lpwszRemoteName = strRemoteName.GetBuffer (dwRemoteNameSize);
-
+		wchar_t *lpwszRemoteName = strRemoteName.GetBuffer(dwRemoteNameSize);
 		dwResult = WNetGetConnection(lpwszLocalName, lpwszRemoteName, &dwRemoteNameSize);
-
-		strRemoteName.ReleaseBuffer ();
+		strRemoteName.ReleaseBuffer();
 	}
 
 	return dwResult;
 }
 
-BOOL apiGetVolumeInformation (
-        const wchar_t *lpwszRootPathName,
-        string *pVolumeName,
-        LPDWORD lpVolumeSerialNumber,
-        LPDWORD lpMaximumComponentLength,
-        LPDWORD lpFileSystemFlags,
-        string *pFileSystemName
-        )
+BOOL apiGetVolumeInformation(
+    const wchar_t *lpwszRootPathName,
+    string *pVolumeName,
+    LPDWORD lpVolumeSerialNumber,
+    LPDWORD lpMaximumComponentLength,
+    LPDWORD lpFileSystemFlags,
+    string *pFileSystemName
+)
 {
-	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer (MAX_PATH+1):NULL; //MSDN!
-	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer (MAX_PATH+1):NULL;
-
+	wchar_t *lpwszVolumeName = pVolumeName?pVolumeName->GetBuffer(MAX_PATH+1):NULL;  //MSDN!
+	wchar_t *lpwszFileSystemName = pFileSystemName?pFileSystemName->GetBuffer(MAX_PATH+1):NULL;
 	BOOL bResult = GetVolumeInformation(
-					lpwszRootPathName,
-					lpwszVolumeName,
-					lpwszVolumeName?MAX_PATH:0,
-					lpVolumeSerialNumber,
-					lpMaximumComponentLength,
-					lpFileSystemFlags,
-					lpwszFileSystemName,
-					lpwszFileSystemName?MAX_PATH:0
-					);
+	                   lpwszRootPathName,
+	                   lpwszVolumeName,
+	                   lpwszVolumeName?MAX_PATH:0,
+	                   lpVolumeSerialNumber,
+	                   lpMaximumComponentLength,
+	                   lpFileSystemFlags,
+	                   lpwszFileSystemName,
+	                   lpwszFileSystemName?MAX_PATH:0
+	               );
 
-	if ( lpwszVolumeName )
-		pVolumeName->ReleaseBuffer ();
+	if (lpwszVolumeName)
+		pVolumeName->ReleaseBuffer();
 
-	if ( lpwszFileSystemName )
-		pFileSystemName->ReleaseBuffer ();
+	if (lpwszFileSystemName)
+		pFileSystemName->ReleaseBuffer();
 
 	return bResult;
 }
 
-HANDLE apiFindFirstFile (
-        const wchar_t *lpwszFileName,
-        FAR_FIND_DATA_EX *pFindFileData,
-        bool ScanSymLink
-        )
+HANDLE apiFindFirstFile(
+    const wchar_t *lpwszFileName,
+    FAR_FIND_DATA_EX *pFindFileData,
+    bool ScanSymLink
+)
 {
 	WIN32_FIND_DATA fdata;
 	string strName(NTPath(lpwszFileName).Str);
 	HANDLE hResult = FindFirstFile(strName, &fdata);
 
-	if(hResult==INVALID_HANDLE_VALUE && ScanSymLink)
+	if (hResult==INVALID_HANDLE_VALUE && ScanSymLink)
 	{
 		ConvertNameToReal(strName,strName);
 		strName=NTPath(strName);
 		hResult=FindFirstFile(strName,&fdata);
 	}
 
-	if ( hResult != INVALID_HANDLE_VALUE )
+	if (hResult != INVALID_HANDLE_VALUE)
 	{
 		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
 		pFindFileData->ftCreationTime = fdata.ftCreationTime;
@@ -361,13 +347,12 @@ HANDLE apiFindFirstFile (
 	return hResult;
 }
 
-BOOL apiFindNextFile (HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
+BOOL apiFindNextFile(HANDLE hFindFile, FAR_FIND_DATA_EX *pFindFileData)
 {
 	WIN32_FIND_DATA fdata;
-
 	BOOL bResult = FindNextFile(hFindFile, &fdata);
 
-	if ( bResult )
+	if (bResult)
 	{
 		pFindFileData->dwFileAttributes = fdata.dwFileAttributes;
 		pFindFileData->ftCreationTime = fdata.ftCreationTime;
@@ -388,7 +373,7 @@ BOOL apiFindClose(HANDLE hFindFile)
 	return FindClose(hFindFile);
 }
 
-void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
+void apiFindDataToDataEx(const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 {
 	pDest->dwFileAttributes = pSrc->dwFileAttributes;
 	pDest->ftCreationTime = pSrc->ftCreationTime;
@@ -400,7 +385,7 @@ void apiFindDataToDataEx (const FAR_FIND_DATA *pSrc, FAR_FIND_DATA_EX *pDest)
 	pDest->strAlternateFileName = pSrc->lpwszAlternateFileName;
 }
 
-void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
+void apiFindDataExToData(const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
 {
 	pDest->dwFileAttributes = pSrc->dwFileAttributes;
 	pDest->ftCreationTime = pSrc->ftCreationTime;
@@ -408,43 +393,46 @@ void apiFindDataExToData (const FAR_FIND_DATA_EX *pSrc, FAR_FIND_DATA *pDest)
 	pDest->ftLastWriteTime = pSrc->ftLastWriteTime;
 	pDest->nFileSize = pSrc->nFileSize;
 	pDest->nPackSize = pSrc->nPackSize;
-	pDest->lpwszFileName = xf_wcsdup (pSrc->strFileName);
-	pDest->lpwszAlternateFileName = xf_wcsdup (pSrc->strAlternateFileName);
+	pDest->lpwszFileName = xf_wcsdup(pSrc->strFileName);
+	pDest->lpwszAlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
 }
 
-void apiFreeFindData (FAR_FIND_DATA *pData)
+void apiFreeFindData(FAR_FIND_DATA *pData)
 {
-	xf_free (pData->lpwszFileName);
-	xf_free (pData->lpwszAlternateFileName);
+	xf_free(pData->lpwszFileName);
+	xf_free(pData->lpwszAlternateFileName);
 }
 
-BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink)
+BOOL apiGetFindDataEx(const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData,bool ScanSymLink)
 {
-	HANDLE hSearch = apiFindFirstFile (lpwszFileName, pFindData,ScanSymLink);
+	HANDLE hSearch = apiFindFirstFile(lpwszFileName, pFindData,ScanSymLink);
 
-	if ( hSearch != INVALID_HANDLE_VALUE )
+	if (hSearch != INVALID_HANDLE_VALUE)
 	{
-		apiFindClose (hSearch);
+		apiFindClose(hSearch);
 		return TRUE;
 	}
-	else if(GetLastError()==ERROR_ACCESS_DENIED && !wcspbrk(lpwszFileName,L"*?"))
+	else if (GetLastError()==ERROR_ACCESS_DENIED && !wcspbrk(lpwszFileName,L"*?"))
 	{
 		DWORD dwAttr=apiGetFileAttributes(lpwszFileName);
-		if(dwAttr!=INVALID_FILE_ATTRIBUTES)
+
+		if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 		{
 			// Ага, значит файл таки есть. Заполним структуру ручками.
-			if(pFindData)
+			if (pFindData)
 			{
 				pFindData->Clear();
 				pFindData->dwFileAttributes=dwAttr;
 				HANDLE hFile=apiCreateFile(lpwszFileName,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
-				if(hFile!=INVALID_HANDLE_VALUE)
+
+				if (hFile!=INVALID_HANDLE_VALUE)
 				{
 					GetFileTime(hFile,&pFindData->ftCreationTime,&pFindData->ftLastAccessTime,&pFindData->ftLastWriteTime);
 					apiGetFileSizeEx(hFile,pFindData->nFileSize);
 					CloseHandle(hFile);
 				}
-				if(pFindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+
+				if (pFindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 				{
 					string strTmp;
 					GetReparsePointInfo(lpwszFileName,strTmp,&pFindData->dwReserved0); //MSDN
@@ -453,6 +441,7 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 				{
 					pFindData->dwReserved0=0;
 				}
+
 				pFindData->dwReserved1=0;
 				pFindData->strFileName=PointToName(lpwszFileName);
 				ConvertNameToShort(lpwszFileName,pFindData->strAlternateFileName);
@@ -460,18 +449,21 @@ BOOL apiGetFindDataEx (const wchar_t *lpwszFileName, FAR_FIND_DATA_EX *pFindData
 			}
 		}
 	}
-	if(pFindData)
+
+	if (pFindData)
 	{
 		pFindData->Clear();
 		pFindData->dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 	}
+
 	return FALSE;
 }
 
 bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 {
 	bool Result=false;
-	if(GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
+
+	if (GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
 	{
 		Result=true;
 	}
@@ -479,25 +471,29 @@ bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)
 	{
 		GET_LENGTH_INFORMATION gli;
 		DWORD BytesReturned;
-		if(DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
+
+		if (DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,NULL,0,&gli,sizeof(gli),&BytesReturned,NULL))
 		{
 			Size=gli.Length.QuadPart;
 			Result=true;
 		}
 	}
+
 	return Result;
 }
 
 int apiRegEnumKeyEx(HKEY hKey,DWORD dwIndex,string &strName,PFILETIME lpftLastWriteTime)
 {
 	int ExitCode=ERROR_MORE_DATA;
-	for(DWORD Size=512;ExitCode==ERROR_MORE_DATA;Size<<=1)
+
+	for (DWORD Size=512; ExitCode==ERROR_MORE_DATA; Size<<=1)
 	{
 		wchar_t *Name=strName.GetBuffer(Size);
 		DWORD Size0=Size;
 		ExitCode=RegEnumKeyEx(hKey,dwIndex,Name,&Size0,NULL,NULL,NULL,lpftLastWriteTime);
 		strName.ReleaseBuffer();
 	}
+
 	return ExitCode;
 }
 
@@ -508,13 +504,11 @@ BOOL apiIsDiskInDrive(const wchar_t *Root)
 	DWORD  MaxComSize;
 	DWORD  Flags;
 	string strFS;
-
 	strDrive = Root;
-
 	AddEndSlash(strDrive);
 	//UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
 	//если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
-	BOOL Res = apiGetVolumeInformation (strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
+	BOOL Res = apiGetVolumeInformation(strDrive, &strVolName, NULL, &MaxComSize, &Flags, &strFS);
 	//SetErrorMode(ErrMode);
 	return Res;
 }
@@ -527,60 +521,64 @@ int apiGetFileTypeByName(const wchar_t *Name)
 		return FILE_TYPE_UNKNOWN;
 
 	int Type=GetFileType(hFile);
-
 	CloseHandle(hFile);
-
 	return Type;
 }
 
 BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
 	int ExitCode=0;
-
 	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
 	uiUserFree=0;
 	uiTotalSize=0;
 	uiTotalFree=0;
-
 	string strPath(NTPath(Path).Str);
 	AddEndSlash(strPath);
 	ExitCode=GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
 
-	if ( TotalSize )
+	if (TotalSize)
 		*TotalSize = uiTotalSize;
-	if ( TotalFree )
+
+	if (TotalFree)
 		*TotalFree = uiTotalFree;
-	if ( UserFree )
+
+	if (UserFree)
 		*UserFree = uiUserFree;
 
 	return ExitCode;
 }
 
-BOOL apiGetConsoleKeyboardLayoutName (string &strDest)
+BOOL apiGetConsoleKeyboardLayoutName(string &strDest)
 {
 	BOOL ret=FALSE;
 	strDest.Clear();
-	if ( ifn.pfnGetConsoleKeyboardLayoutName )
+
+	if (ifn.pfnGetConsoleKeyboardLayoutName)
 	{
 		wchar_t *p = strDest.GetBuffer(KL_NAMELENGTH+1);
-		if ( p && ifn.pfnGetConsoleKeyboardLayoutName(p) )
+
+		if (p && ifn.pfnGetConsoleKeyboardLayoutName(p))
 			ret=TRUE;
+
 		strDest.ReleaseBuffer();
 	}
 	else
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
+
 	return ret;
 }
 
 HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName)
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
-	if(ifn.pfnFindFirstFileNameW)
+
+	if (ifn.pfnFindFirstFileNameW)
 	{
 		DWORD StringLength=0;
-		if(ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+
+		if (ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,NULL)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 		{
 			hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
 			strLinkName.ReleaseBuffer();
@@ -590,16 +588,19 @@ HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
+
 	return hRet;
 }
 
 BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 {
 	BOOL Ret=FALSE;
-	if(ifn.pfnFindNextFileNameW)
+
+	if (ifn.pfnFindNextFileNameW)
 	{
 		DWORD StringLength=0;
-		if(!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
+
+		if (!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,NULL) && GetLastError()==ERROR_MORE_DATA)
 		{
 			Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
 			strLinkName.ReleaseBuffer();
@@ -609,6 +610,7 @@ BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	}
+
 	return Ret;
 }
 
@@ -633,7 +635,8 @@ BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 {
 	BOOL Result=FALSE;
 	string strSymlinkFileName(NTPath(lpSymlinkFileName).Str);
-	if(ifn.pfnCreateSymbolicLink)
+
+	if (ifn.pfnCreateSymbolicLink)
 	{
 		Result=ifn.pfnCreateSymbolicLink(strSymlinkFileName,lpTargetFileName,dwFlags);
 	}
@@ -641,6 +644,7 @@ BOOL apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	{
 		Result=CreateReparsePoint(lpTargetFileName,strSymlinkFileName,dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 	}
+
 	return Result;
 }
 
@@ -648,20 +652,22 @@ bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 {
 	bool Result=false;
 	DWORD High=0,Low=GetCompressedFileSize(NTPath(lpFileName),&High);
-	if((Low!=INVALID_FILE_SIZE)||(GetLastError()!=NO_ERROR))
+
+	if ((Low!=INVALID_FILE_SIZE)||(GetLastError()!=NO_ERROR))
 	{
 		ULARGE_INTEGER i={Low,High};
 		Size=i.QuadPart;
 		Result=true;
 	}
+
 	return Result;
 }
 
 BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
 	return CreateHardLink(NTPath(lpFileName),NTPath(lpExistingFileName),lpSecurityAttributes) ||
-		//bug in win2k: \\?\ fails
-		CreateHardLink(lpFileName,lpExistingFileName,lpSecurityAttributes);
+	       //bug in win2k: \\?\ fails
+	       CreateHardLink(lpFileName,lpExistingFileName,lpSecurityAttributes);
 }
 
 BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer,DWORD dwMoveMethod)
@@ -672,30 +678,35 @@ BOOL apiSetFilePointerEx(HANDLE hFile,INT64 DistanceToMove,PINT64 NewFilePointer
 HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if(ifn.pfnFindFirstStreamW)
+
+	if (ifn.pfnFindFirstStreamW)
 	{
 		Ret=ifn.pfnFindFirstStreamW(NTPath(lpFileName),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{
-		if(InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
+		if (InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
 		{
 			HANDLE hFile = apiCreateFile(lpFileName,0,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING,0);
-			if(hFile!=INVALID_HANDLE_VALUE)
+
+			if (hFile!=INVALID_HANDLE_VALUE)
 			{
 				const size_t Size=sizeof(ULONG)+(64<<10);
 				LPBYTE InfoBlock=static_cast<LPBYTE>(xf_malloc(Size));
-				if(InfoBlock)
+
+				if (InfoBlock)
 				{
 					memset(InfoBlock,0,Size);
 					PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(InfoBlock+sizeof(ULONG));
 					IO_STATUS_BLOCK ioStatus;
 					int res=ifn.pfnNtQueryInformationFile(hFile,&ioStatus,pStreamInfo,Size-sizeof(ULONG),FileStreamInformation);
-					if(!res)
+
+					if (!res)
 					{
 						PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
 						*reinterpret_cast<PLONG>(InfoBlock)=pStreamInfo->NextEntryOffset;
-						if(pStreamInfo->StreamNameLength)
+
+						if (pStreamInfo->StreamNameLength)
 						{
 							memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
 							pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
@@ -703,11 +714,13 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 							Ret=InfoBlock;
 						}
 					}
-					if(Ret==INVALID_HANDLE_VALUE)
+
+					if (Ret==INVALID_HANDLE_VALUE)
 					{
 						xf_free(InfoBlock);
 					}
 				}
+
 				CloseHandle(hFile);
 			}
 		}
@@ -716,27 +729,31 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	}
+
 	return Ret;
 }
 
 BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-	if(ifn.pfnFindNextStreamW)
+
+	if (ifn.pfnFindNextStreamW)
 	{
 		Ret=ifn.pfnFindNextStreamW(hFindStream,lpFindStreamData);
 	}
 	else
 	{
-		if(ifn.pfnNtQueryInformationFile)
+		if (ifn.pfnNtQueryInformationFile)
 		{
 			ULONG NextEntryOffset=*reinterpret_cast<PULONG>(hFindStream);
-			if(NextEntryOffset)
+
+			if (NextEntryOffset)
 			{
 				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(hFindStream)+sizeof(ULONG)+NextEntryOffset);
 				PWIN32_FIND_STREAM_DATA pFsd=reinterpret_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
 				*reinterpret_cast<PLONG>(hFindStream)=pStreamInfo->NextEntryOffset?NextEntryOffset+pStreamInfo->NextEntryOffset:0;
-				if(pStreamInfo->StreamNameLength)
+
+				if (pStreamInfo->StreamNameLength)
 				{
 					memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
 					pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
@@ -750,13 +767,15 @@ BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	}
+
 	return Ret;
 }
 
 BOOL apiFindStreamClose(HANDLE hFindFile)
 {
 	BOOL Ret=FALSE;
-	if(ifn.pfnFindFirstStreamW && ifn.pfnFindNextStreamW)
+
+	if (ifn.pfnFindFirstStreamW && ifn.pfnFindNextStreamW)
 	{
 		Ret=apiFindClose(hFindFile);
 	}
@@ -765,6 +784,7 @@ BOOL apiFindStreamClose(HANDLE hFindFile)
 		xf_free(hFindFile);
 		Ret=TRUE;
 	}
+
 	return Ret;
 }
 
@@ -772,15 +792,18 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 {
 	DWORD BufSize = MAX_PATH;
 	DWORD Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
+
 	if (Size > BufSize)
 	{
 		BufSize = Size;
 		Size = GetLogicalDriveStringsW(BufSize, DriveStrings.GetBuffer(BufSize));
 	}
+
 	if ((Size > 0) && (Size <= BufSize))
 	{
 		DriveStrings.ReleaseBuffer(Size);
 		return true;
 	}
+
 	return false;
 }

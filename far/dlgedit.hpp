@@ -45,108 +45,109 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "edit.hpp"
 #include "editor.hpp"
 
-enum DLGEDITTYPE{
-  DLGEDIT_MULTILINE,
-  DLGEDIT_SINGLELINE,
+enum DLGEDITTYPE
+{
+	DLGEDIT_MULTILINE,
+	DLGEDIT_SINGLELINE,
 };
 
 class Dialog;
 
 class DlgEdit: public ScreenObject
 {
-  private: // приватные данные
-    Dialog* m_Dialog;
-    unsigned m_Index;
-    DLGEDITTYPE Type;
+	private: // приватные данные
+		Dialog* m_Dialog;
+		unsigned m_Index;
+		DLGEDITTYPE Type;
 
-    Edit   *lineEdit;
+		Edit   *lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
-    Editor *multiEdit;
+		Editor *multiEdit;
 #endif
 
-  public:  // публичные данные
-    BitFlags& Flags();
+	public:  // публичные данные
+		BitFlags& Flags();
 
-  private: // приватные методы
-    virtual void DisplayObject();
-    static void EditChange(void* aParam);
+	private: // приватные методы
+		virtual void DisplayObject();
+		static void EditChange(void* aParam);
 		void DoEditChange();
 
-  public:
-    DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
-    virtual ~DlgEdit();
+	public:
+		DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type);
+		virtual ~DlgEdit();
 
-  public: // публичные методы
-    virtual int  ProcessKey(int Key);
-    virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	public: // публичные методы
+		virtual int  ProcessKey(int Key);
+		virtual int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    virtual void Show();
-    virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-    virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
+		virtual void Show();
+		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+		virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
 
-    virtual void Hide();
-    virtual void Hide0();
-    virtual void ShowConsoleTitle();
-    virtual void SetScreenPosition();
-    virtual void ResizeConsole();
-    virtual __int64  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual void Hide();
+		virtual void Hide0();
+		virtual void ShowConsoleTitle();
+		virtual void SetScreenPosition();
+		virtual void ResizeConsole();
+		virtual __int64  VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    void  SetDialogParent(DWORD Sets);
-    void  SetDropDownBox(int NewDropDownBox);
-    void  SetPasswordMode(int Mode);
+		void  SetDialogParent(DWORD Sets);
+		void  SetDropDownBox(int NewDropDownBox);
+		void  SetPasswordMode(int Mode);
 
-    int   GetMaxLength();
-    void  SetMaxLength(int Length);
-    int   GetLength();
-    int   GetStrSize(int Row=-1);
+		int   GetMaxLength();
+		void  SetMaxLength(int Length);
+		int   GetLength();
+		int   GetStrSize(int Row=-1);
 
-    void  SetInputMask(const wchar_t *InputMask);
-    const wchar_t* GetInputMask();
+		void  SetInputMask(const wchar_t *InputMask);
+		const wchar_t* GetInputMask();
 
-    void  SetOvertypeMode(int Mode);
-    int   GetOvertypeMode();
+		void  SetOvertypeMode(int Mode);
+		int   GetOvertypeMode();
 
-    void  SetEditBeyondEnd(int Mode);
+		void  SetEditBeyondEnd(int Mode);
 
-    void  SetClearFlag(int Flag);
+		void  SetClearFlag(int Flag);
 		int   GetClearFlag();
 
-    void  SetString(const wchar_t *Str);
-    void  SetHiString(const wchar_t *Str);
-    void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
-    void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
-    const wchar_t* GetStringAddr();
+		void  SetString(const wchar_t *Str);
+		void  SetHiString(const wchar_t *Str);
+		void  GetString(wchar_t *Str, int MaxSize,int Row=-1); // Row==-1 - current line
+		void  GetString(string &strStr,int Row=-1);            // Row==-1 - current line
+		const wchar_t* GetStringAddr();
 
-    void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line
-    int   GetCurPos();
-    int   GetCurRow();
+		void  SetCurPos(int NewCol, int NewRow=-1); // Row==-1 - current line
+		int   GetCurPos();
+		int   GetCurRow();
 
-    int   GetTabCurPos();
-    void  SetTabCurPos(int NewPos);
+		int   GetTabCurPos();
+		void  SetTabCurPos(int NewPos);
 
-    void  SetPersistentBlocks(int Mode);
+		void  SetPersistentBlocks(int Mode);
 		int   GetPersistentBlocks();
-    void  SetDelRemovesBlocks(int NewMode);
+		void  SetDelRemovesBlocks(int NewMode);
 		int   GetDelRemovesBlocks();
 
-    void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-    long  GetObjectColor();
-    int   GetObjectColorUnChanged();
+		void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+		long  GetObjectColor();
+		int   GetObjectColorUnChanged();
 
-    void  FastShow();
-    int   GetLeftPos();
-    void  SetLeftPos(int NewPos,int Row=-1); // Row==-1 - current line
+		void  FastShow();
+		int   GetLeftPos();
+		void  SetLeftPos(int NewPos,int Row=-1); // Row==-1 - current line
 
-    void  DeleteBlock();
+		void  DeleteBlock();
 
-    void  Select(int Start,int End);           // TODO: не учтено для multiline!
-    void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
+		void  Select(int Start,int End);           // TODO: не учтено для multiline!
+		void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
 
-    void Xlat(BOOL All=FALSE);
+		void Xlat(BOOL All=FALSE);
 
-    void SetCursorType(int Visible,int Size);
-    void GetCursorType(int &Visible,int &Size);
+		void SetCursorType(int Visible,int Size);
+		void GetCursorType(int &Visible,int &Size);
 
-    int  GetReadOnly();
-    void SetReadOnly(int NewReadOnly);
+		int  GetReadOnly();
+		void SetReadOnly(int NewReadOnly);
 };

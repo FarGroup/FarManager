@@ -49,292 +49,303 @@ static wchar_t EmptyPos[]=L"0,0,0,0,0,\"$\"";
 
 FilePositionCache::FilePositionCache(int TypeCache)
 {
-  if (!Opt.MaxPositionCache)
-  {
-    GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
-    if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
-      Opt.MaxPositionCache=MAX_POSITIONS;
-  }
+	if (!Opt.MaxPositionCache)
+	{
+		GetRegKey(L"System",L"MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
 
-  SizeValue=!TypeCache?sizeof(DWORD):sizeof(__int64);
+		if (Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
+			Opt.MaxPositionCache=MAX_POSITIONS;
+	}
 
-  Param=NULL;
-  Position=NULL;
-  IsMemory=0;
-  CurPos=0;
+	SizeValue=!TypeCache?sizeof(DWORD):sizeof(__int64);
+	Param=NULL;
+	Position=NULL;
+	IsMemory=0;
+	CurPos=0;
+	Names=new string[Opt.MaxPositionCache];
 
-  Names=new string[Opt.MaxPositionCache];
-  if (Names != NULL)
-  {
-    Param=(BYTE*)xf_malloc(MSIZE_PARAM);
-    Position=(BYTE*)xf_malloc(MSIZE_POSITION);
-    if (Param && Position)
-    {
-      memset(Param,0,MSIZE_PARAM);
-      memset(Position,0xFF,MSIZE_POSITION);
-      IsMemory=1;
-    }
-    else
-    {
-      if (Param)       { xf_free(Param);       Param=NULL; }
-      if (Position)    { xf_free(Position);    Position=NULL; }
-    }
-  }
+	if (Names != NULL)
+	{
+		Param=(BYTE*)xf_malloc(MSIZE_PARAM);
+		Position=(BYTE*)xf_malloc(MSIZE_POSITION);
+
+		if (Param && Position)
+		{
+			memset(Param,0,MSIZE_PARAM);
+			memset(Position,0xFF,MSIZE_POSITION);
+			IsMemory=1;
+		}
+		else
+		{
+			if (Param)       { xf_free(Param);       Param=NULL; }
+
+			if (Position)    { xf_free(Position);    Position=NULL; }
+		}
+	}
 }
 
 FilePositionCache::~FilePositionCache()
 {
-  if (Names)     delete[] Names;
-  if (Param)     xf_free(Param);
-  if (Position)  xf_free(Position);
+	if (Names)     delete[] Names;
+
+	if (Param)     xf_free(Param);
+
+	if (Position)  xf_free(Position);
 }
 
 void FilePositionCache::AddPosition(const wchar_t *Name,void *PosCache)
 {
-  if (!IsMemory || !PosCache)
-    return;
+	if (!IsMemory || !PosCache)
+		return;
 
-  string strFullName;
+	string strFullName;
 
-  if (*Name==L'<')
-    strFullName = Name;
-  else
-    ConvertNameToFull(Name,strFullName);
+	if (*Name==L'<')
+		strFullName = Name;
+	else
+		ConvertNameToFull(Name,strFullName);
 
-  int FoundPos, Pos;
+	int FoundPos, Pos;
+	Pos = FoundPos = FindPosition(strFullName);
 
-  Pos = FoundPos = FindPosition(strFullName);
-  if (Pos < 0)
-    Pos = CurPos;
+	if (Pos < 0)
+		Pos = CurPos;
 
-  Names[Pos] = strFullName;
+	Names[Pos] = strFullName;
+	memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
+	memcpy(Param+PARAM_POS(Pos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
-  memset(Position+POSITION_POS(Pos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
-  memcpy(Param+PARAM_POS(Pos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
-
-  if (SizeValue == sizeof(DWORD))
-  {
+	if (SizeValue == sizeof(DWORD))
+	{
 		TPosCache32* PosCache32=reinterpret_cast<TPosCache32*>(PosCache);
-		for(size_t i=0;i<4;i++)
+
+		for (size_t i=0; i<4; i++)
 		{
-			if(PosCache32->Position[i])
+			if (PosCache32->Position[i])
 			{
 				memcpy(Position+POSITION_POS(Pos,i),PosCache32->Position[i],BOOKMARK_COUNT*SizeValue);
 			}
 		}
-  }
-  else
-  {
+	}
+	else
+	{
 		TPosCache64* PosCache64=reinterpret_cast<TPosCache64*>(PosCache);
-		for(size_t i=0;i<4;i++)
+
+		for (size_t i=0; i<4; i++)
 		{
-			if(PosCache64->Position[i])
+			if (PosCache64->Position[i])
 			{
 				memcpy(Position+POSITION_POS(Pos,i),PosCache64->Position[i],BOOKMARK_COUNT*SizeValue);
 			}
 		}
-  }
+	}
 
-  if (FoundPos < 0)
-    if (++CurPos>=Opt.MaxPositionCache)
-      CurPos=0;
+	if (FoundPos < 0)
+		if (++CurPos>=Opt.MaxPositionCache)
+			CurPos=0;
 }
 
 
 
 BOOL FilePositionCache::GetPosition(const wchar_t *Name,void *PosCache)
 {
-  if(!IsMemory || !PosCache)
-    return FALSE;
+	if (!IsMemory || !PosCache)
+		return FALSE;
 
-  string strFullName;
+	string strFullName;
 
-  if (*Name==L'<')
-    strFullName = Name;
-  else
-    ConvertNameToFull(Name, strFullName);
+	if (*Name==L'<')
+		strFullName = Name;
+	else
+		ConvertNameToFull(Name, strFullName);
 
-  int Pos = FindPosition(strFullName);
+	int Pos = FindPosition(strFullName);
+	//memset(Position+POSITION_POS(CurPos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
+	//memcpy(Param+PARAM_POS(CurPos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
-  //memset(Position+POSITION_POS(CurPos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
-  //memcpy(Param+PARAM_POS(CurPos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+	if (Pos >= 0)
+	{
+		memcpy(PosCache,Param+PARAM_POS(Pos),SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
 
-  if (Pos >= 0)
-  {
-    memcpy(PosCache,Param+PARAM_POS(Pos),SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
-    if (SizeValue == sizeof(DWORD))
-    {
+		if (SizeValue == sizeof(DWORD))
+		{
 			TPosCache32* PosCache32=reinterpret_cast<TPosCache32*>(PosCache);
-			for(size_t i=0;i<4;i++)
+
+			for (size_t i=0; i<4; i++)
 			{
-				if(PosCache32->Position[i])
+				if (PosCache32->Position[i])
 				{
 					memcpy(PosCache32->Position[i],Position+POSITION_POS(Pos,i),BOOKMARK_COUNT*SizeValue);
 				}
 			}
-    }
-    else
-    {
-			for(size_t i=0;i<4; i++)
+		}
+		else
+		{
+			for (size_t i=0; i<4; i++)
 			{
 				TPosCache64* PosCache64=reinterpret_cast<TPosCache64*>(PosCache);
-				if(PosCache64->Position[i])
+
+				if (PosCache64->Position[i])
 				{
 					memcpy(PosCache64->Position[i],Position+POSITION_POS(Pos,i),BOOKMARK_COUNT*SizeValue);
 				}
 			}
-    }
-    return TRUE;
-  }
-  memset(PosCache,0,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
-  return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	memset(PosCache,0,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+	return FALSE;
 }
 
 int FilePositionCache::FindPosition(const wchar_t *FullName)
 {
-  for (int I=1;I<=Opt.MaxPositionCache;I++)
-  {
-    int Pos=CurPos-I;
-    if (Pos<0)
-      Pos+=Opt.MaxPositionCache;
+	for (int I=1; I<=Opt.MaxPositionCache; I++)
+	{
+		int Pos=CurPos-I;
 
-    int CmpRes;
+		if (Pos<0)
+			Pos+=Opt.MaxPositionCache;
 
-    if (Opt.FlagPosixSemantics)
-      CmpRes = StrCmp(Names[Pos],FullName);
-    else
-      CmpRes = StrCmpI(Names[Pos],FullName);
+		int CmpRes;
 
-    if (CmpRes == 0)
-      return(Pos);
-  }
-  return(-1);
+		if (Opt.FlagPosixSemantics)
+			CmpRes = StrCmp(Names[Pos],FullName);
+		else
+			CmpRes = StrCmpI(Names[Pos],FullName);
+
+		if (CmpRes == 0)
+			return(Pos);
+	}
+
+	return(-1);
 }
 
 BOOL FilePositionCache::Read(const wchar_t *Key)
 {
-  if (!IsMemory)
-    return FALSE;
+	if (!IsMemory)
+		return FALSE;
 
-  string strItem;
-  string strShort;
+	string strItem;
+	string strShort;
+	string strDataStr;
+	BYTE DefPos[8096];
+	memset(DefPos,0xff,(BOOKMARK_COUNT*4)*SizeValue);
 
-  string strDataStr;
-  BYTE DefPos[8096];
+	for (int I=0; I < Opt.MaxPositionCache; I++)
+	{
+		strItem.Format(L"Item%d", I);
+		strShort.Format(L"Short%d", I);
+		GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
+		GetRegKey(Key,strItem,strDataStr,EmptyPos);
 
-  memset(DefPos,0xff,(BOOKMARK_COUNT*4)*SizeValue);
+		if (!StrCmp(strDataStr,EmptyPos))
+		{
+			Names[I].Clear();
+			memset(Param+PARAM_POS(I),0,SizeValue*5);
+		}
+		else
+		{
+			UserDefinedList DataList(0,0,0);
+			int J=0;
+			const wchar_t *DataPtr;
+			string strArgData;
 
-  for (int I=0;I < Opt.MaxPositionCache;I++)
-  {
-    strItem.Format (L"Item%d", I);
-    strShort.Format (L"Short%d", I);
+			if (DataList.Set(strDataStr))
+			{
+				DataList.Reset();
 
-    GetRegKey(Key,strShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
-    GetRegKey(Key,strItem,strDataStr,EmptyPos);
+				while (NULL!=(DataPtr=DataList.GetNext()))
+				{
+					if (*DataPtr==L'$')
+					{
+						Names[I] = (DataPtr+1);
+					}
+					else if (J >= 0 && J <= 4)
+					{
+						if (SizeValue==sizeof(DWORD))
+							*(DWORD*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi(DataPtr);
+						else
+							*(__int64*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi64(DataPtr);
+					}
 
-    if (!StrCmp(strDataStr,EmptyPos))
-    {
-      Names[I].Clear();
-      memset(Param+PARAM_POS(I),0,SizeValue*5);
-    }
-    else
-    {
-      UserDefinedList DataList(0,0,0);
+					++J;
+				}
+			}
+		}
+	}
 
-      int J=0;
-      const wchar_t *DataPtr;
-      string strArgData;
-
-      if (DataList.Set(strDataStr))
-      {
-         DataList.Reset();
-         while (NULL!=(DataPtr=DataList.GetNext()))
-         {
-           if (*DataPtr==L'$')
-           {
-             Names[I] = (DataPtr+1);
-           }
-           else if (J >= 0 && J <= 4)
-           {
-             if (SizeValue==sizeof(DWORD))
-               *(DWORD*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi(DataPtr);
-             else
-               *(__int64*)(Param+PARAM_POS(I)+J*SizeValue)=_wtoi64(DataPtr);
-           }
-           ++J;
-         }
-      }
-    }
-  }
-  return TRUE;
+	return TRUE;
 }
 
 
 BOOL FilePositionCache::Save(const wchar_t *Key)
 {
-  if (!IsMemory)
-    return FALSE;
+	if (!IsMemory)
+		return FALSE;
 
-  string strDataStr;
-  int J, I, Pos;
+	string strDataStr;
+	int J, I, Pos;
+	string strItem;
+	string strShort;
 
-  string strItem;
-  string strShort;
+	for (I=0; I < Opt.MaxPositionCache; I++)
+	{
+		strItem.Format(L"Item%d", I);
+		strShort.Format(L"Short%d", I);
 
-  for (I=0;I < Opt.MaxPositionCache;I++)
-  {
-    strItem.Format (L"Item%d", I);
-    strShort.Format (L"Short%d", I);
+		if ((Pos=CurPos+I)>=Opt.MaxPositionCache)
+			Pos-=Opt.MaxPositionCache;
 
-    if ((Pos=CurPos+I)>=Opt.MaxPositionCache)
-      Pos-=Opt.MaxPositionCache;
+		DWORD   *Ptr32=(DWORD*)(Param+PARAM_POS(Pos));
+		__int64 *Ptr64=(__int64 *)(Param+PARAM_POS(Pos));
 
-    DWORD   *Ptr32=(DWORD*)(Param+PARAM_POS(Pos));
-    __int64 *Ptr64=(__int64 *)(Param+PARAM_POS(Pos));
+		//Имя файла должно быть взято в кавычки, т.к. оно может содержать символы-разделители
+		if (SizeValue==sizeof(DWORD))
+		{
+			strDataStr.Format(L"%d,%d,%d,%d,%d,\"$%s\"",
+			                  Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],(const wchar_t *)Names[Pos]);
+		}
+		else
+		{
+			strDataStr.Format(L"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
+			                  Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],(const wchar_t *)Names[Pos]);
+		}
 
-    //Имя файла должно быть взято в кавычки, т.к. оно может содержать символы-разделители
-    if (SizeValue==sizeof(DWORD))
-    {
-      strDataStr.Format (L"%d,%d,%d,%d,%d,\"$%s\"",
-            Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],(const wchar_t *)Names[Pos]);
-    }
-    else
-    {
-      strDataStr.Format (L"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
-            Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],(const wchar_t *)Names[Pos]);
-    }
+		//Пустая позиция?
+		if (!StrCmp(strDataStr,EmptyPos))
+		{
+			DeleteRegValue(Key,strItem);
+			continue;
+		}
 
-    //Пустая позиция?
-    if (!StrCmp(strDataStr,EmptyPos))
-    {
-      DeleteRegValue(Key,strItem);
-      continue;
-    }
+		SetRegKey(Key,strItem,strDataStr);
 
-    SetRegKey(Key,strItem,strDataStr);
-    if ((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
-        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
-    {
-      // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for (J=0; J < 4; J++)
-      {
-        if (SizeValue==sizeof(DWORD))
-        {
-          if (*(DWORD*)(Position+POSITION_POS(Pos,J)) != (DWORD)-1)
-            break;
-        }
-        else
-        {
-          if (*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
-            break;
-        }
-      }
+		if ((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
+		        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
+		{
+			// Если не запоминались позиции по RCtrl+<N>, то и не записываем их
+			for (J=0; J < 4; J++)
+			{
+				if (SizeValue==sizeof(DWORD))
+				{
+					if (*(DWORD*)(Position+POSITION_POS(Pos,J)) != (DWORD)-1)
+						break;
+				}
+				else
+				{
+					if (*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
+						break;
+				}
+			}
 
-      if (J < 4)
-        SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
-      else
-        DeleteRegValue(Key,strShort);
-    }
-  }
-  return TRUE;
+			if (J < 4)
+				SetRegKey(Key,strShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
+			else
+				DeleteRegValue(Key,strShort);
+		}
+	}
+
+	return TRUE;
 }

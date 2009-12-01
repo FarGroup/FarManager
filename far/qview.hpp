@@ -40,48 +40,48 @@ class Viewer;
 
 class QuickView:public Panel
 {
-  private:
-    Viewer *QView;
+	private:
+		Viewer *QView;
 
-    string strCurFileName;
-    string strCurFileType;
-    string strTempName;
+		string strCurFileName;
+		string strCurFileType;
+		string strTempName;
 
-    CriticalSection CS;
+		CriticalSection CS;
 
-    int Directory;
-    int PrevMacroMode;
-    unsigned long DirCount,FileCount,ClusterSize;
-    unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
-    int OldWrapMode;
-    int OldWrapType;
+		int Directory;
+		int PrevMacroMode;
+		unsigned long DirCount,FileCount,ClusterSize;
+		unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
+		int OldWrapMode;
+		int OldWrapType;
 
-  private:
-    virtual void DisplayObject();
-    void PrintText(const wchar_t *Str);
+	private:
+		virtual void DisplayObject();
+		void PrintText(const wchar_t *Str);
 
-    void SetMacroMode(int Restore = FALSE);
+		void SetMacroMode(int Restore = FALSE);
 
-    void DynamicUpdateKeyBar();
+		void DynamicUpdateKeyBar();
 
-  public:
-    QuickView();
-    virtual ~QuickView();
+	public:
+		QuickView();
+		virtual ~QuickView();
 
-  public:
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
-    virtual void Update(int Mode);
-    void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
-    virtual void CloseFile();
-    virtual void QViewDelTempName();
+	public:
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual void Update(int Mode);
+		void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
+		virtual void CloseFile();
+		virtual void QViewDelTempName();
 
-    virtual int UpdateIfChanged(int UpdateMode);
-    virtual void SetTitle();
-    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-    virtual void SetFocus();
-    virtual void KillFocus();
-    virtual BOOL UpdateKeyBar();
-    virtual int GetCurName(string &strName, string &strShortName);
+		virtual int UpdateIfChanged(int UpdateMode);
+		virtual void SetTitle();
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		virtual void SetFocus();
+		virtual void KillFocus();
+		virtual BOOL UpdateKeyBar();
+		virtual int GetCurName(string &strName, string &strShortName);
 };

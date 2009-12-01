@@ -39,13 +39,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 NTPath::NTPath(LPCWSTR Src)
 {
-	if( Src&&*Src)
+	if (Src&&*Src)
 	{
 		Str=Src;
 		ReplaceSlashToBSlash(Str);
+
 		if (!HasPathPrefix(Src))
 		{
 			ConvertNameToFull(Str,Str);
+
 			if (!HasPathPrefix(Str))
 			{
 				if (IsLocalPath(Str))
@@ -79,11 +81,11 @@ bool IsLocalRootPath(const wchar_t *Path)
 
 bool HasPathPrefix(const wchar_t *Path)
 {
-/*
-	\\?\
-	\\.\
-	\??\
-*/
+	/*
+		\\?\
+		\\.\
+		\??\
+	*/
 	return Path && Path[0] == L'\\' && (Path[1] == L'\\' || Path[1] == L'?') && (Path[2] == L'?' || Path[2] == L'.') && Path[3] == L'\\';
 }
 
@@ -136,28 +138,32 @@ const wchar_t* PointToName(string& strPath)
 
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 {
-  if ( !lpwszPath )
-    return NULL;
+	if (!lpwszPath)
+		return NULL;
 
-  if ( *lpwszPath!=0 && *(lpwszPath+1)==L':' ) lpwszPath+=2;
+	if (*lpwszPath!=0 && *(lpwszPath+1)==L':') lpwszPath+=2;
 
-  const wchar_t *lpwszNamePtr = lpwszEndPtr;
-  if(!lpwszNamePtr)
-  {
-  	lpwszNamePtr=lpwszPath;
-  	while ( *lpwszNamePtr ) lpwszNamePtr++;
-  }
+	const wchar_t *lpwszNamePtr = lpwszEndPtr;
 
-  while (lpwszNamePtr != lpwszPath)
-  {
-    if (IsSlash(*lpwszNamePtr))
-      return lpwszNamePtr+1;
-    lpwszNamePtr--;
-  }
-  if (IsSlash(*lpwszPath))
-    return lpwszPath+1;
-  else
-    return lpwszPath;
+	if (!lpwszNamePtr)
+	{
+		lpwszNamePtr=lpwszPath;
+
+		while (*lpwszNamePtr) lpwszNamePtr++;
+	}
+
+	while (lpwszNamePtr != lpwszPath)
+	{
+		if (IsSlash(*lpwszNamePtr))
+			return lpwszNamePtr+1;
+
+		lpwszNamePtr--;
+	}
+
+	if (IsSlash(*lpwszPath))
+		return lpwszPath+1;
+	else
+		return lpwszPath;
 }
 
 //   јналог PointToName, только дл€ строк типа
@@ -165,31 +171,35 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 //   строку
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
 {
-  if(!Path)
-    return NULL;
+	if (!Path)
+		return NULL;
 
-  const wchar_t *NamePtr=Path, *prevNamePtr=Path;
+	const wchar_t *NamePtr=Path, *prevNamePtr=Path;
 
-  while (*Path)
-  {
-    if (IsSlash(*Path) ||
-        (*Path==L':' && Path==NamePtr+1))
-    {
-      prevNamePtr=NamePtr;
-      NamePtr=Path+1;
-    }
-    ++Path;
-  }
-  return ((*NamePtr)?NamePtr:prevNamePtr);
+	while (*Path)
+	{
+		if (IsSlash(*Path) ||
+		        (*Path==L':' && Path==NamePtr+1))
+		{
+			prevNamePtr=NamePtr;
+			NamePtr=Path+1;
+		}
+
+		++Path;
+	}
+
+	return ((*NamePtr)?NamePtr:prevNamePtr);
 }
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath)
 {
-	if ( !lpwszPath )
+	if (!lpwszPath)
 		return NULL;
 
 	const wchar_t *lpwszEndPtr = lpwszPath;
-	while ( *lpwszEndPtr ) lpwszEndPtr++;
+
+	while (*lpwszEndPtr) lpwszEndPtr++;
+
 	return PointToExt(lpwszPath,lpwszEndPtr);
 }
 
@@ -202,80 +212,91 @@ const wchar_t* PointToExt(string& strPath)
 
 const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 {
-  if ( !lpwszPath || !lpwszEndPtr)
-    return NULL;
+	if (!lpwszPath || !lpwszEndPtr)
+		return NULL;
 
-  const wchar_t *lpwszExtPtr = lpwszEndPtr;
+	const wchar_t *lpwszExtPtr = lpwszEndPtr;
 
-  while (lpwszExtPtr != lpwszPath)
-  {
-    if ( *lpwszExtPtr==L'.' )
-    {
-      if (IsSlash(*(lpwszExtPtr-1)) || *(lpwszExtPtr-1)==L':' )
-        return lpwszEndPtr;
-      else
-        return lpwszExtPtr;
-    }
-    if (IsSlash(*lpwszExtPtr) || *lpwszExtPtr==L':' )
-      return lpwszEndPtr;
-    lpwszExtPtr--;
-  }
-  return lpwszEndPtr;
+	while (lpwszExtPtr != lpwszPath)
+	{
+		if (*lpwszExtPtr==L'.')
+		{
+			if (IsSlash(*(lpwszExtPtr-1)) || *(lpwszExtPtr-1)==L':')
+				return lpwszEndPtr;
+			else
+				return lpwszExtPtr;
+		}
+
+		if (IsSlash(*lpwszExtPtr) || *lpwszExtPtr==L':')
+			return lpwszEndPtr;
+
+		lpwszExtPtr--;
+	}
+
+	return lpwszEndPtr;
 }
 
 BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 {
-  BOOL Result=FALSE;
-  if (Path)
-  {
-    /* $ 06.12.2000 IS
-      ! “еперь функци€ работает с обоими видами слешей, также происходит
-        изменение уже существующего конечного слеша на такой, который
-        встречаетс€ чаще.
-    */
-    wchar_t *end;
-    int Slash=0, BackSlash=0;
-    if (!TypeSlash)
-    {
-      end=Path;
-      while (*end)
-      {
-        Slash+=(*end==L'\\');
-        BackSlash+=(*end==L'/');
-        end++;
-      }
-    }
-    else
-    {
-      end=Path+StrLength(Path);
-      if (TypeSlash == L'\\')
-        Slash=1;
-      else
-        BackSlash=1;
-    }
-    int Length=(int)(end-Path);
-    char c=(Slash<BackSlash)?L'/':L'\\';
-    Result=TRUE;
-    if (Length==0)
-    {
-      *end=c;
-      end[1]=0;
-    }
-    else
-    {
-      end--;
-      if (!IsSlash(*end))
-      {
-        end[1]=c;
-        end[2]=0;
-      }
-      else
-      {
-        *end=c;
-      }
-    }
-  }
-  return Result;
+	BOOL Result=FALSE;
+
+	if (Path)
+	{
+		/* $ 06.12.2000 IS
+		  ! “еперь функци€ работает с обоими видами слешей, также происходит
+		    изменение уже существующего конечного слеша на такой, который
+		    встречаетс€ чаще.
+		*/
+		wchar_t *end;
+		int Slash=0, BackSlash=0;
+
+		if (!TypeSlash)
+		{
+			end=Path;
+
+			while (*end)
+			{
+				Slash+=(*end==L'\\');
+				BackSlash+=(*end==L'/');
+				end++;
+			}
+		}
+		else
+		{
+			end=Path+StrLength(Path);
+
+			if (TypeSlash == L'\\')
+				Slash=1;
+			else
+				BackSlash=1;
+		}
+
+		int Length=(int)(end-Path);
+		char c=(Slash<BackSlash)?L'/':L'\\';
+		Result=TRUE;
+
+		if (Length==0)
+		{
+			*end=c;
+			end[1]=0;
+		}
+		else
+		{
+			end--;
+
+			if (!IsSlash(*end))
+			{
+				end[1]=c;
+				end[2]=0;
+			}
+			else
+			{
+				*end=c;
+			}
+		}
+	}
+
+	return Result;
 }
 
 
@@ -291,175 +312,181 @@ BOOL AddEndSlash(string &strPath)
 }
 
 BOOL AddEndSlash(
-		string &strPath,
-		wchar_t TypeSlash
-		)
+    string &strPath,
+    wchar_t TypeSlash
+)
 {
-	wchar_t *lpwszPath = strPath.GetBuffer (strPath.GetLength()+2);
-
+	wchar_t *lpwszPath = strPath.GetBuffer(strPath.GetLength()+2);
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
-
-	strPath.ReleaseBuffer ();
-
+	strPath.ReleaseBuffer();
 	return Result;
 }
 
 bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash)
 {
-  bool Ret = false;
-  size_t len = StrLength(Path);
-  while (len && IsSlash(Path[--len]))
-  {
-    Ret = true;
-    Path[len] = L'\0';
-    if (!AllEndSlash)
-      break;
-  }
-  return Ret;
+	bool Ret = false;
+	size_t len = StrLength(Path);
+
+	while (len && IsSlash(Path[--len]))
+	{
+		Ret = true;
+		Path[len] = L'\0';
+
+		if (!AllEndSlash)
+			break;
+	}
+
+	return Ret;
 }
 
 BOOL WINAPI DeleteEndSlash(string &strPath, bool AllEndSlash)
 {
-  BOOL Ret=FALSE;
-  if ( !strPath.IsEmpty() )
-  {
-    size_t len=strPath.GetLength();
-    wchar_t *lpwszPath = strPath.GetBuffer ();
-		while ( len && IsSlash(lpwszPath[--len]) )
-    {
-      Ret=TRUE;
-      lpwszPath[len] = L'\0';
-      if (!AllEndSlash)
-        break;
-    }
-    strPath.ReleaseBuffer();
-  }
-  return Ret;
+	BOOL Ret=FALSE;
+
+	if (!strPath.IsEmpty())
+	{
+		size_t len=strPath.GetLength();
+		wchar_t *lpwszPath = strPath.GetBuffer();
+
+		while (len && IsSlash(lpwszPath[--len]))
+		{
+			Ret=TRUE;
+			lpwszPath[len] = L'\0';
+
+			if (!AllEndSlash)
+				break;
+		}
+
+		strPath.ReleaseBuffer();
+	}
+
+	return Ret;
 }
 
 bool CutToSlash(string &strStr, bool bInclude)
 {
-  size_t pos;
+	size_t pos;
 	bool bFound=LastSlash(strStr,pos);
 
-	if(pos==3 && HasPathPrefix(strStr))
+	if (pos==3 && HasPathPrefix(strStr))
 	{
 		bFound=false;
 	}
 
-	if(bFound)
+	if (bFound)
 	{
-		if ( bInclude )
+		if (bInclude)
 			strStr.SetLength(pos);
 		else
 			strStr.SetLength(pos+1);
 	}
 
-  return bFound;
+	return bFound;
 }
 
 string& CutToNameUNC(string &strPath)
 {
-  wchar_t *lpwszPath = strPath.GetBuffer ();
+	wchar_t *lpwszPath = strPath.GetBuffer();
 
-  if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
-  {
-    lpwszPath+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*lpwszPath && !IsSlash(*lpwszPath))
-        lpwszPath++;
-      if (*lpwszPath)
-        lpwszPath++;
-    }
-  }
+	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
+	{
+		lpwszPath+=2;
 
-  wchar_t *lpwszNamePtr = lpwszPath;
+		for (int i=0; i<2; i++)
+		{
+			while (*lpwszPath && !IsSlash(*lpwszPath))
+				lpwszPath++;
 
-  while ( *lpwszPath )
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
-      lpwszNamePtr = lpwszPath+1;
+			if (*lpwszPath)
+				lpwszPath++;
+		}
+	}
 
-    lpwszPath++;
-  }
+	wchar_t *lpwszNamePtr = lpwszPath;
 
-  *lpwszNamePtr = 0;
+	while (*lpwszPath)
+	{
+		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1))
+			lpwszNamePtr = lpwszPath+1;
 
-  strPath.ReleaseBuffer ();
+		lpwszPath++;
+	}
 
-  return strPath;
-
+	*lpwszNamePtr = 0;
+	strPath.ReleaseBuffer();
+	return strPath;
 }
 
 string& CutToFolderNameIfFolder(string &strPath)
 {
-  wchar_t *lpwszPath = strPath.GetBuffer ();
+	wchar_t *lpwszPath = strPath.GetBuffer();
+	wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
 
-  wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
+	while (*lpwszPath)
+	{
+		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath==lpwszNamePtr+1))
+		{
+			lpwszprevNamePtr=lpwszNamePtr;
+			lpwszNamePtr=lpwszPath+1;
+		}
 
-  while (*lpwszPath)
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath==lpwszNamePtr+1))
-    {
-      lpwszprevNamePtr=lpwszNamePtr;
-      lpwszNamePtr=lpwszPath+1;
-    }
-    ++lpwszPath;
-  }
+		++lpwszPath;
+	}
 
-  if (*lpwszNamePtr)
-    *lpwszNamePtr=0;
-  else
-    *lpwszprevNamePtr=0;
+	if (*lpwszNamePtr)
+		*lpwszNamePtr=0;
+	else
+		*lpwszprevNamePtr=0;
 
-  strPath.ReleaseBuffer ();
-
-  return strPath;
+	strPath.ReleaseBuffer();
+	return strPath;
 }
 
 const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
 {
-  if ( !lpwszPath )
-    return NULL;
+	if (!lpwszPath)
+		return NULL;
 
-  if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
-  {
-    lpwszPath+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*lpwszPath && !IsSlash(*lpwszPath))
-        lpwszPath++;
-      if (*lpwszPath)
-        lpwszPath++;
-    }
-  }
+	if (IsSlash(lpwszPath[0]) && IsSlash(lpwszPath[1]))
+	{
+		lpwszPath+=2;
 
-  const wchar_t *lpwszNamePtr = lpwszPath;
+		for (int i=0; i<2; i++)
+		{
+			while (*lpwszPath && !IsSlash(*lpwszPath))
+				lpwszPath++;
 
-  while ( *lpwszPath )
-  {
-    if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1) )
-      lpwszNamePtr = lpwszPath+1;
+			if (*lpwszPath)
+				lpwszPath++;
+		}
+	}
 
-    lpwszPath++;
-  }
-  return lpwszNamePtr;
+	const wchar_t *lpwszNamePtr = lpwszPath;
+
+	while (*lpwszPath)
+	{
+		if (IsSlash(*lpwszPath) || (*lpwszPath==L':' && lpwszPath == lpwszNamePtr+1))
+			lpwszNamePtr = lpwszPath+1;
+
+		lpwszPath++;
+	}
+
+	return lpwszNamePtr;
 }
 
 string& ReplaceSlashToBSlash(string& strStr)
 {
-	wchar_t *lpwszStr = strStr.GetBuffer ();
+	wchar_t *lpwszStr = strStr.GetBuffer();
 
-	while ( *lpwszStr )
+	while (*lpwszStr)
 	{
-		if ( *lpwszStr == L'/' )
+		if (*lpwszStr == L'/')
 			*lpwszStr = L'\\';
+
 		lpwszStr++;
 	}
 
-	strStr.ReleaseBuffer (strStr.GetLength());
-
+	strStr.ReleaseBuffer(strStr.GetLength());
 	return strStr;
 }
 
@@ -467,10 +494,11 @@ const wchar_t *FirstSlash(const wchar_t *String)
 {
 	do
 	{
-		if(IsSlash(*String))
+		if (IsSlash(*String))
 			return String;
 	}
 	while (*String++);
+
 	return NULL;
 }
 
@@ -478,21 +506,26 @@ bool FirstSlash(const wchar_t *String,size_t &pos)
 {
 	bool Ret=false;
 	const wchar_t *Ptr=FirstSlash(String);
-	if(Ptr)
+
+	if (Ptr)
 	{
 		pos=Ptr-String;
 		Ret=true;
 	}
+
 	return Ret;
 }
 
 const wchar_t *LastSlash(const wchar_t *String)
 {
 	const wchar_t *Start = String;
+
 	while (*String++)
 		;
+
 	while (--String!=Start && !IsSlash(*String))
 		;
+
 	return IsSlash(*String)?String:NULL;
 }
 
@@ -500,47 +533,59 @@ bool LastSlash(const wchar_t *String,size_t &pos)
 {
 	bool Ret=false;
 	const wchar_t *Ptr=LastSlash(String);
-	if(Ptr)
+
+	if (Ptr)
 	{
 		pos=Ptr-String;
 		Ret=true;
 	}
+
 	return Ret;
 }
 
 bool TestCurrentDirectory(const wchar_t *TestDir)
 {
 	string strCurDir;
-	if( apiGetCurrentDirectory (strCurDir) && !StrCmpI(strCurDir,TestDir) )
+
+	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir,TestDir))
 		return true;
+
 	return false;
 }
 
 bool FindSlash(size_t& Pos, const string& Str, size_t StartPos = 0)
 {
 	size_t p = StartPos;
-	while (p < Str.GetLength()) {
+
+	while (p < Str.GetLength())
+	{
 		if (IsSlash(Str[p]))
 		{
 			Pos = p;
 			return true;
 		}
+
 		p++;
 	}
+
 	return false;
 }
 
 bool FindLastSlash(size_t& Pos, const string& Str)
 {
 	size_t p = Str.GetLength();
-	while (p > 0) {
+
+	while (p > 0)
+	{
 		if (IsSlash(Str[p - 1]))
 		{
 			Pos = p - 1;
 			return true;
 		}
+
 		p--;
 	}
+
 	return false;
 }
 
@@ -549,6 +594,7 @@ size_t GetPathRootLength(const string& Path)
 {
 	unsigned PrefixLen = 0;
 	bool IsUNC = false;
+
 	if (Path.Equal(0,8,L"\\\\?\\UNC\\",8))
 	{
 		PrefixLen = 8;
@@ -563,20 +609,26 @@ size_t GetPathRootLength(const string& Path)
 		PrefixLen = 2;
 		IsUNC = true;
 	}
+
 	if ((PrefixLen == 0) && !Path.Equal(1, L':'))
 		return 0;
+
 	size_t p;
+
 	if (!FindSlash(p, Path, PrefixLen))
 		p = Path.GetLength();
+
 	if (IsUNC)
 		if (!FindSlash(p, Path, p + 1))
 			p = Path.GetLength();
+
 	return p;
 }
 
 string ExtractPathRoot(const string& Path)
 {
 	size_t PathRootLen = GetPathRootLength(Path);
+
 	if (PathRootLen)
 		return string(Path.CPtr(), PathRootLen).Append(L'\\');
 	else
@@ -586,116 +638,127 @@ string ExtractPathRoot(const string& Path)
 string ExtractFileName(const string& Path)
 {
 	size_t p;
+
 	if (FindLastSlash(p, Path))
 		p++;
 	else
 		p = 0;
+
 	size_t PathRootLen = GetPathRootLength(Path);
+
 	if (p <= PathRootLen && PathRootLen)
 		return string();
+
 	return string(Path.CPtr() + p, Path.GetLength() - p);
 }
 
 string ExtractFilePath(const string& Path)
 {
 	size_t p;
+
 	if (!FindLastSlash(p, Path))
 		p = 0;
+
 	size_t PathRootLen = GetPathRootLength(Path);
+
 	if (p <= PathRootLen && PathRootLen)
 		return string(Path.CPtr(), PathRootLen).Append(L'\\');
+
 	return string(Path.CPtr(), p);
 }
 
 bool IsRootPath(const string& Path)
 {
 	size_t PathRootLen = GetPathRootLength(Path);
+
 	if (Path.GetLength() == PathRootLen)
 		return true;
+
 	if (Path.GetLength() == PathRootLen + 1 && IsSlash(Path[Path.GetLength() - 1]))
 		return true;
+
 	return false;
 }
 
 bool PathStartsWith(const string& Path, const string& Start)
 {
-  string PathPart(Start);
-  DeleteEndSlash(PathPart, true);
-  return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
+	string PathPart(Start);
+	DeleteEndSlash(PathPart, true);
+	return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
 
 SELF_TEST(
-  assert(ExtractPathRoot(L"") == L"");
-  assert(ExtractPathRoot(L"\\") == L"");
-  assert(ExtractPathRoot(L"file") == L"");
-  assert(ExtractPathRoot(L"path\\file") == L"");
-  assert(ExtractPathRoot(L"C:") == L"C:\\");
-  assert(ExtractPathRoot(L"C:\\") == L"C:\\");
-  assert(ExtractPathRoot(L"C:\\path\\file") == L"C:\\");
-  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractPathRoot(L"\\\\server\\share") == L"\\\\server\\share\\");
-  assert(ExtractPathRoot(L"\\\\server\\share\\") == L"\\\\server\\share\\");
-  assert(ExtractPathRoot(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\");
-  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
-  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
-  assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractPathRoot(L"") == L"");
+    assert(ExtractPathRoot(L"\\") == L"");
+    assert(ExtractPathRoot(L"file") == L"");
+    assert(ExtractPathRoot(L"path\\file") == L"");
+    assert(ExtractPathRoot(L"C:") == L"C:\\");
+    assert(ExtractPathRoot(L"C:\\") == L"C:\\");
+    assert(ExtractPathRoot(L"C:\\path\\file") == L"C:\\");
+    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractPathRoot(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractPathRoot(L"\\\\server\\share") == L"\\\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\server\\share\\") == L"\\\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractPathRoot(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\");
 
-  assert(ExtractFilePath(L"") == L"");
-  assert(ExtractFilePath(L"\\") == L"");
-  assert(ExtractFilePath(L"\\file") == L"");
-  assert(ExtractFilePath(L"file") == L"");
-  assert(ExtractFilePath(L"path\\") == L"path");
-  assert(ExtractFilePath(L"path\\file") == L"path");
-  assert(ExtractFilePath(L"C:") == L"C:\\");
-  assert(ExtractFilePath(L"C:\\") == L"C:\\");
-  assert(ExtractFilePath(L"C:\\file") == L"C:\\");
-  assert(ExtractFilePath(L"C:\\path\\file") == L"C:\\path");
-  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
-  assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
-  assert(ExtractFilePath(L"\\\\server\\share") == L"\\\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\server\\share\\") == L"\\\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\server\\share\\file") == L"\\\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\path");
-  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file") == L"\\\\?\\UNC\\server\\share\\");
-  assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\path");
+    assert(ExtractFilePath(L"") == L"");
+    assert(ExtractFilePath(L"\\") == L"");
+    assert(ExtractFilePath(L"\\file") == L"");
+    assert(ExtractFilePath(L"file") == L"");
+    assert(ExtractFilePath(L"path\\") == L"path");
+    assert(ExtractFilePath(L"path\\file") == L"path");
+    assert(ExtractFilePath(L"C:") == L"C:\\");
+    assert(ExtractFilePath(L"C:\\") == L"C:\\");
+    assert(ExtractFilePath(L"C:\\file") == L"C:\\");
+    assert(ExtractFilePath(L"C:\\path\\file") == L"C:\\path");
+    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\");
+    assert(ExtractFilePath(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path");
+    assert(ExtractFilePath(L"\\\\server\\share") == L"\\\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\server\\share\\") == L"\\\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\server\\share\\file") == L"\\\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\server\\share\\path\\file") == L"\\\\server\\share\\path");
+    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\file") == L"\\\\?\\UNC\\server\\share\\");
+    assert(ExtractFilePath(L"\\\\?\\UNC\\server\\share\\path\\file") == L"\\\\?\\UNC\\server\\share\\path");
 
-  assert(ExtractFileName(L"") == L"");
-  assert(ExtractFileName(L"\\") == L"");
-  assert(ExtractFileName(L"\\file") == L"file");
-  assert(ExtractFileName(L"file") == L"file");
-  assert(ExtractFileName(L"path\\") == L"");
-  assert(ExtractFileName(L"path\\file") == L"file");
-  assert(ExtractFileName(L"C:") == L"");
-  assert(ExtractFileName(L"C:\\") == L"");
-  assert(ExtractFileName(L"C:\\file") == L"file");
-  assert(ExtractFileName(L"C:\\path\\file") == L"file");
-  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"");
-  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"");
-  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"file");
-  assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"file");
-  assert(ExtractFileName(L"\\\\server\\share") == L"");
-  assert(ExtractFileName(L"\\\\server\\share\\") == L"");
-  assert(ExtractFileName(L"\\\\server\\share\\file") == L"file");
-  assert(ExtractFileName(L"\\\\server\\share\\path\\file") == L"file");
-  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share") == L"");
-  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\") == L"");
-  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
-  assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
+    assert(ExtractFileName(L"") == L"");
+    assert(ExtractFileName(L"\\") == L"");
+    assert(ExtractFileName(L"\\file") == L"file");
+    assert(ExtractFileName(L"file") == L"file");
+    assert(ExtractFileName(L"path\\") == L"");
+    assert(ExtractFileName(L"path\\file") == L"file");
+    assert(ExtractFileName(L"C:") == L"");
+    assert(ExtractFileName(L"C:\\") == L"");
+    assert(ExtractFileName(L"C:\\file") == L"file");
+    assert(ExtractFileName(L"C:\\path\\file") == L"file");
+    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}") == L"");
+    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\") == L"");
+    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file") == L"file");
+    assert(ExtractFileName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file") == L"file");
+    assert(ExtractFileName(L"\\\\server\\share") == L"");
+    assert(ExtractFileName(L"\\\\server\\share\\") == L"");
+    assert(ExtractFileName(L"\\\\server\\share\\file") == L"file");
+    assert(ExtractFileName(L"\\\\server\\share\\path\\file") == L"file");
+    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share") == L"");
+    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\") == L"");
+    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
+    assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
 
-  assert(IsRootPath(L"C:"));
-  assert(IsRootPath(L"C:\\"));
-  assert(IsRootPath(L"\\"));
-  assert(!IsRootPath(L"C:\\path"));
+    assert(IsRootPath(L"C:"));
+    assert(IsRootPath(L"C:\\"));
+    assert(IsRootPath(L"\\"));
+    assert(!IsRootPath(L"C:\\path"));
 
-  assert(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
-  assert(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
-  assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
-  assert(PathStartsWith(L"\\", L""));
-  assert(!PathStartsWith(L"C:\\path\\file", L""));
+    assert(PathStartsWith(L"C:\\path\\file", L"C:\\path"));
+    assert(PathStartsWith(L"C:\\path\\file", L"C:\\path\\"));
+    assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
+    assert(PathStartsWith(L"\\", L""));
+    assert(!PathStartsWith(L"C:\\path\\file", L""));
 )

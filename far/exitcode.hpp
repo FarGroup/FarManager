@@ -33,11 +33,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum {
-    XC_QUIT                = (unsigned long) -777,
-    XC_OPEN_ERROR          = 0,
-    XC_MODIFIED            = 1,
-    XC_NOT_MODIFIED        = 2,
-    XC_LOADING_INTERRUPTED = 3,
-    XC_EXISTS              = 4,
+enum
+{
+	XC_QUIT                = (unsigned long) -777,
+	XC_OPEN_ERROR          = 0,
+	XC_MODIFIED            = 1,
+	XC_NOT_MODIFIED        = 2,
+	XC_LOADING_INTERRUPTED = 3,
+	XC_EXISTS              = 4,
 };

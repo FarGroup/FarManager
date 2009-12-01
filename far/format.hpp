@@ -35,31 +35,31 @@ namespace fmt
 {
 	class Width
 	{
-		size_t Value;
-	public:
-		Width(size_t Value=0){this->Value=Value;}
-		size_t GetValue()const{return Value;}
+			size_t Value;
+		public:
+			Width(size_t Value=0) {this->Value=Value;}
+			size_t GetValue()const {return Value;}
 	};
 
 	class Precision
 	{
-		size_t Value;
-	public:
-		Precision(size_t Value=static_cast<size_t>(-1)){this->Value=Value;}
-		size_t GetValue()const{return Value;}
+			size_t Value;
+		public:
+			Precision(size_t Value=static_cast<size_t>(-1)) {this->Value=Value;}
+			size_t GetValue()const {return Value;}
 	};
 
 	class FillChar
 	{
-		WCHAR Value;
-	public:
-		FillChar(WCHAR Value=L' '){this->Value=Value;}
-		WCHAR GetValue()const{return Value;}
+			WCHAR Value;
+		public:
+			FillChar(WCHAR Value=L' ') {this->Value=Value;}
+			WCHAR GetValue()const {return Value;}
 	};
 
-	class LeftAlign{};
+	class LeftAlign {};
 
-	class RightAlign{};
+	class RightAlign {};
 
 	enum AlignType
 	{
@@ -71,63 +71,63 @@ namespace fmt
 
 class BaseFormat
 {
-	size_t _Width;
-	size_t _Precision;
-	WCHAR _FillChar;
-	fmt::AlignType _Align;
+		size_t _Width;
+		size_t _Precision;
+		WCHAR _FillChar;
+		fmt::AlignType _Align;
 
-	void Reset();
-	void Put(LPCWSTR Data,size_t Length);
+		void Reset();
+		void Put(LPCWSTR Data,size_t Length);
 
-protected:
-	virtual void Commit(const string& Data)=0;
+	protected:
+		virtual void Commit(const string& Data)=0;
 
-public:
-	BaseFormat(){Reset();}
-	~BaseFormat(){}
+	public:
+		BaseFormat() {Reset();}
+		~BaseFormat() {}
 
-	// attributes
-	void SetPrecision(size_t Precision=static_cast<size_t>(-1)){_Precision=Precision;}
-	void SetWidth(size_t Width=0){_Width=Width;}
-	void SetAlign(fmt::AlignType Align=fmt::A_RIGHT){_Align=Align;}
-	void SetFillChar(WCHAR Char=L' '){_FillChar=Char;}
+		// attributes
+		void SetPrecision(size_t Precision=static_cast<size_t>(-1)) {_Precision=Precision;}
+		void SetWidth(size_t Width=0) {_Width=Width;}
+		void SetAlign(fmt::AlignType Align=fmt::A_RIGHT) {_Align=Align;}
+		void SetFillChar(WCHAR Char=L' ') {_FillChar=Char;}
 
-	// data
-	BaseFormat& operator<<(INT64 Value);
-	BaseFormat& operator<<(UINT64 Value);
+		// data
+		BaseFormat& operator<<(INT64 Value);
+		BaseFormat& operator<<(UINT64 Value);
 
-	BaseFormat& operator<<(short Value){return operator<<(static_cast<INT64>(Value));}
-	BaseFormat& operator<<(USHORT Value){return operator<<(static_cast<UINT64>(Value));}
+		BaseFormat& operator<<(short Value) {return operator<<(static_cast<INT64>(Value));}
+		BaseFormat& operator<<(USHORT Value) {return operator<<(static_cast<UINT64>(Value));}
 
-	BaseFormat& operator<<(int Value){return operator<<(static_cast<INT64>(Value));}
-	BaseFormat& operator<<(UINT Value){return operator<<(static_cast<UINT64>(Value));}
+		BaseFormat& operator<<(int Value) {return operator<<(static_cast<INT64>(Value));}
+		BaseFormat& operator<<(UINT Value) {return operator<<(static_cast<UINT64>(Value));}
 
-	BaseFormat& operator<<(long Value){return operator<<(static_cast<INT64>(Value));}
-	BaseFormat& operator<<(ULONG Value){return operator<<(static_cast<UINT64>(Value));}
+		BaseFormat& operator<<(long Value) {return operator<<(static_cast<INT64>(Value));}
+		BaseFormat& operator<<(ULONG Value) {return operator<<(static_cast<UINT64>(Value));}
 
-	BaseFormat& operator<<(WCHAR Value);
-	BaseFormat& operator<<(LPCWSTR Data);
-	BaseFormat& operator<<(string& String);
+		BaseFormat& operator<<(WCHAR Value);
+		BaseFormat& operator<<(LPCWSTR Data);
+		BaseFormat& operator<<(string& String);
 
-	// manipulators
-	BaseFormat& operator<<(const fmt::Width& Manipulator);
-	BaseFormat& operator<<(const fmt::Precision& Manipulator);
-	BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
-	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
-	BaseFormat& operator<<(const fmt::FillChar& Manipulator);
+		// manipulators
+		BaseFormat& operator<<(const fmt::Width& Manipulator);
+		BaseFormat& operator<<(const fmt::Precision& Manipulator);
+		BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
+		BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
+		BaseFormat& operator<<(const fmt::FillChar& Manipulator);
 };
 
 class FormatString:public BaseFormat
 {
-	string Value;
-	void Commit(const string& Data){Value+=Data;}
-public:
-	operator const wchar_t*()const{return Value;}
-	const string& strValue()const{return Value;}
-	void Clear(){Value.Clear();}
+		string Value;
+		void Commit(const string& Data) {Value+=Data;}
+	public:
+		operator const wchar_t*()const {return Value;}
+		const string& strValue()const {return Value;}
+		void Clear() {Value.Clear();}
 };
 
 class FormatScreen:public BaseFormat
 {
-	void Commit(const string& Data);
+		void Commit(const string& Data);
 };

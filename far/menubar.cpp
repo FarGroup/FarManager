@@ -44,13 +44,11 @@ void MenuBar::DisplayObject()
 {
 	string strSpace=L"    ";
 	string strMsg=strSpace+MSG(MMenuLeftTitle)+strSpace+MSG(MMenuFilesTitle)+strSpace+MSG(MMenuCommandsTitle)+strSpace+MSG(MMenuOptionsTitle)+strSpace+MSG(MMenuRightTitle);
-  RemoveHighlights(strMsg);
-
-  int Length=X2-X1+1;
-
+	RemoveHighlights(strMsg);
+	int Length=X2-X1+1;
 	string strFullMsg;
-  strFullMsg.Format (L"%-*.*s", Length,Length, (const wchar_t*)strMsg);
-  GotoXY(X1,Y1);
-  SetColor(COL_HMENUTEXT);
-  Text(strFullMsg);
+	strFullMsg.Format(L"%-*.*s", Length,Length, (const wchar_t*)strMsg);
+	GotoXY(X1,Y1);
+	SetColor(COL_HMENUTEXT);
+	Text(strFullMsg);
 }

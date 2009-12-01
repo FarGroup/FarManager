@@ -43,63 +43,63 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 class DizViewer: public Viewer
 {
-public:
-  int InRecursion;
-  DizViewer():InRecursion(0){}
-  virtual ~DizViewer() {}
-  virtual int ProcessKey(int Key)
-  {
-    InRecursion++;
-    int res=Viewer::ProcessKey(Key);
-    InRecursion--;
-    return res;
-  }
-  virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
-  {
-    InRecursion++;
-    int res=Viewer::ProcessMouse(MouseEvent);
-    InRecursion--;
-    return res;
-  }
+	public:
+		int InRecursion;
+		DizViewer():InRecursion(0) {}
+		virtual ~DizViewer() {}
+		virtual int ProcessKey(int Key)
+		{
+			InRecursion++;
+			int res=Viewer::ProcessKey(Key);
+			InRecursion--;
+			return res;
+		}
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+		{
+			InRecursion++;
+			int res=Viewer::ProcessMouse(MouseEvent);
+			InRecursion--;
+			return res;
+		}
 };
 
 class InfoList:public Panel
 {
-  private:
-    DizViewer *DizView;
-    int  PrevMacroMode;
-    int  OldWrapMode;
-    int  OldWrapType;
-    string strDizFileName;
+	private:
+		DizViewer *DizView;
+		int  PrevMacroMode;
+		int  OldWrapMode;
+		int  OldWrapType;
+		string strDizFileName;
 
-  private:
-    virtual void DisplayObject();
-    void ShowDirDescription();
-    void ShowPluginDescription();
+	private:
+		virtual void DisplayObject();
+		void ShowDirDescription();
+		void ShowPluginDescription();
 
-    void PrintText(const wchar_t *Str);
-    void PrintText(int MsgID);
-    void PrintInfo(const wchar_t *Str);
-    void PrintInfo(int MsgID);
+		void PrintText(const wchar_t *Str);
+		void PrintText(int MsgID);
+		void PrintInfo(const wchar_t *Str);
+		void PrintInfo(int MsgID);
 
 
-    int  OpenDizFile(const wchar_t *DizFile);
-    void SetMacroMode(int Restore = FALSE);
-    void DynamicUpdateKeyBar();
+		int  OpenDizFile(const wchar_t *DizFile);
+		void SetMacroMode(int Restore = FALSE);
+		void DynamicUpdateKeyBar();
 
-  public:
-    InfoList();
-    virtual ~InfoList();
+	public:
+		InfoList();
+		virtual ~InfoList();
 
-  public:
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
-    virtual void Update(int Mode);
-    virtual void SetFocus();
-    virtual void KillFocus();
-    virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-    virtual BOOL UpdateKeyBar();
-    virtual void CloseFile();
-    virtual int GetCurName(string &strName, string &strShortName);
+	public:
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual void Update(int Mode);
+		virtual void SetFocus();
+		virtual void KillFocus();
+		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		virtual BOOL UpdateKeyBar();
+		virtual void CloseFile();
+		virtual int GetCurName(string &strName, string &strShortName);
 };

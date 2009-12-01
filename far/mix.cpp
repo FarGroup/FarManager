@@ -41,29 +41,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int ToPercent(unsigned long N1,unsigned long N2)
 {
-  if (N1 > 10000)
-  {
-    N1/=100;
-    N2/=100;
-  }
-  if (N2==0)
-    return(0);
-  if (N2<N1)
-    return(100);
-  return((int)(N1*100/N2));
+	if (N1 > 10000)
+	{
+		N1/=100;
+		N2/=100;
+	}
+
+	if (N2==0)
+		return(0);
+
+	if (N2<N1)
+		return(100);
+
+	return((int)(N1*100/N2));
 }
 
 int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 {
-  if (N1 > 10000)
-  {
-    N1/=100;
-    N2/=100;
-  }
-  if (N2==0)
+	if (N1 > 10000)
+	{
+		N1/=100;
+		N2/=100;
+	}
+
+	if (N2==0)
 		return 0;
-  if (N2<N1)
+
+	if (N2<N1)
 		return 100;
+
 	return static_cast<int>(N1*100/N2);
 }
 
@@ -77,36 +83,35 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 */
 void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
-  if(Func && InitDir && *InitDir && Mask && *Mask)
-  {
-    CFileMask FMask;
-    if(!FMask.Set(Mask, FMF_SILENT)) return;
+	if (Func && InitDir && *InitDir && Mask && *Mask)
+	{
+		CFileMask FMask;
 
-    Flags=Flags&0x000000FF; // только младший байт!
-    ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
-    FAR_FIND_DATA_EX FindData;
+		if (!FMask.Set(Mask, FMF_SILENT)) return;
 
-    string strFullName;
+		Flags=Flags&0x000000FF; // только младший байт!
+		ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
+		FAR_FIND_DATA_EX FindData;
+		string strFullName;
+		ScTree.SetFindPath(InitDir,L"*");
 
-    ScTree.SetFindPath(InitDir,L"*");
-    while (ScTree.GetNextName(&FindData,strFullName))
-    {
-      if ( FMask.Compare(FindData.strFileName) || FMask.Compare(FindData.strAlternateFileName) )
-      {
-          FAR_FIND_DATA fdata;
+		while (ScTree.GetNextName(&FindData,strFullName))
+		{
+			if (FMask.Compare(FindData.strFileName) || FMask.Compare(FindData.strAlternateFileName))
+			{
+				FAR_FIND_DATA fdata;
+				apiFindDataExToData(&FindData, &fdata);
 
-          apiFindDataExToData (&FindData, &fdata);
+				if (Func(&fdata,strFullName,Param) == 0)
+				{
+					apiFreeFindData(&fdata);
+					break;
+				}
 
-          if ( Func(&fdata,strFullName,Param) == 0)
-          {
-            apiFreeFindData(&fdata);
-            break;
-          }
-
-          apiFreeFindData(&fdata);
-      }
-    }
-  }
+				apiFreeFindData(&fdata);
+			}
+		}
+	}
 }
 
 /* $ 14.09.2000 SVS
@@ -115,17 +120,17 @@ void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
    Вернет либо NULL, либо указатель на Dest.
 */
-wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
+wchar_t* __stdcall FarMkTemp(wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 {
-    string strDest;
+	string strDest;
 
-    if ( FarMkTempEx(strDest, Prefix, TRUE) )
-    {
-        xwcsncpy (Dest, strDest, size-1);
-        return Dest;
-    }
+	if (FarMkTempEx(strDest, Prefix, TRUE))
+	{
+		xwcsncpy(Dest, strDest, size-1);
+		return Dest;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 /*
@@ -138,27 +143,31 @@ wchar_t* __stdcall FarMkTemp (wchar_t *Dest, DWORD size, const wchar_t *Prefix)
 */
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithPath)
 {
-  if(!(Prefix && *Prefix))
-    Prefix=L"FTMP";
+	if (!(Prefix && *Prefix))
+		Prefix=L"FTMP";
 
-  string strPath = L".";
-  if(WithPath)
-      strPath = Opt.strTempPath;
+	string strPath = L".";
 
-  wchar_t *lpwszDest = strDest.GetBuffer (StrLength(Prefix)+strPath.GetLength()+13);
+	if (WithPath)
+		strPath = Opt.strTempPath;
 
-  UINT uniq = GetCurrentProcessId(), savePid = uniq;
-  for(;;) {
-    if(!uniq) ++uniq;
-		if(GetTempFileName(strPath, Prefix, uniq, lpwszDest)
-      && apiGetFileAttributes (lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
-    if(++uniq == savePid) {
-      *lpwszDest = 0;
-      break;
-    }
-  }
+	wchar_t *lpwszDest = strDest.GetBuffer(StrLength(Prefix)+strPath.GetLength()+13);
+	UINT uniq = GetCurrentProcessId(), savePid = uniq;
 
-  strDest.ReleaseBuffer ();
+	for (;;)
+	{
+		if (!uniq) ++uniq;
 
-  return strDest;
+		if (GetTempFileName(strPath, Prefix, uniq, lpwszDest)
+		        && apiGetFileAttributes(lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
+
+		if (++uniq == savePid)
+		{
+			*lpwszDest = 0;
+			break;
+		}
+	}
+
+	strDest.ReleaseBuffer();
+	return strDest;
 }

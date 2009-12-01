@@ -68,18 +68,18 @@ int WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,int DestSize)
 int WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, int DestSize);
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
-                  const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber);
+                               const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
+                               int *pItemsNumber);
 void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber);
 
 int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
-           const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
-           const struct FarMenuItem *Item, int ItemsNumber);
+                     DWORD Flags,const wchar_t *Title,const wchar_t *Bottom,
+                     const wchar_t *HelpTopic,const int *BreakKeys,int *BreakCode,
+                     const struct FarMenuItem *Item, int ItemsNumber);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
 int WINAPI FarMessageFn(INT_PTR PluginNumber,DWORD Flags,
-           const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
-           int ButtonsNumber);
+                        const wchar_t *HelpTopic,const wchar_t * const *Items,int ItemsNumber,
+                        int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2);
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
 void WINAPI FarRestoreScreen(HANDLE hScreen);
@@ -114,9 +114,9 @@ int WINAPI FarInputBox(const wchar_t *Title,const wchar_t *Prompt,
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, int Command, void *Param);
 //  Функция расширенного диалога
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, int X1, int Y1, int X2, int Y2,
-                       const wchar_t *HelpTopic, struct FarDialogItem *Item,
-                       unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
-                       FARWINDOWPROC Proc, LONG_PTR Param);
+                            const wchar_t *HelpTopic, struct FarDialogItem *Item,
+                            unsigned int ItemsNumber, DWORD Reserved, DWORD Flags,
+                            FARWINDOWPROC Proc, LONG_PTR Param);
 int WINAPI FarDialogRun(HANDLE hDlg);
 void WINAPI FarDialogFree(HANDLE hDlg);
 //  Функция обработки диалога по умолчанию

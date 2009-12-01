@@ -59,6 +59,7 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 	// ѕолучаем принтер по умолчанию
 	string strDefaultPrinter;
 	DWORD pcchBuffer = 0;
+
 	if (!GetDefaultPrinter(NULL, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
 	{
 		if (!GetDefaultPrinter(strDefaultPrinter.GetBuffer(pcchBuffer), &pcchBuffer))
@@ -66,67 +67,75 @@ static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterN
 		else
 			strDefaultPrinter.ReleaseBuffer();
 	}
+
 	// Ёлемент меню
 	MenuItemEx Item;
 	// ѕризнак наличи€ принтера по умолчанию
 	bool bDefaultPrinterFound = false;
+
 	// «аполн€ем список принтеров
 	for (int i=0; i<PrinterNumber; i++)
 	{
 		PRINTER_INFO *printer = &pi[i];
 		Item.Clear();
 		Item.strName = printer->pPrinterName;
+
 		if (!StrCmp(printer->pPrinterName, strDefaultPrinter))
 		{
 			bDefaultPrinterFound = true;
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
+
 		PrinterList->SetUserData(printer->pPrinterName,0,PrinterList->AddItem(&Item));
 	}
+
 	if (!bDefaultPrinterFound)
 		PrinterList->SetSelectPos(0, 1);
 }
 
 static void PR_PrintMsg()
 {
-  Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
+	Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
 }
 
 void PrintFiles(Panel *SrcPanel)
 {
-  _ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
-  string strPrinterName;
-  DWORD Needed,Returned;
-  int PrinterNumber;
-  DWORD FileAttr;
-  string strSelName;
+	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
+	string strPrinterName;
+	DWORD Needed,Returned;
+	int PrinterNumber;
+	DWORD FileAttr;
+	string strSelName;
+	long DirsCount=0;
+	int SelCount=SrcPanel->GetSelCount();
 
-  long DirsCount=0;
-  int SelCount=SrcPanel->GetSelCount();
+	if (SelCount==0)
+	{
+		_ALGO(SysLog(L"Error: SelCount==0"));
+		return;
+	}
 
-  if (SelCount==0)
-  {
-    _ALGO(SysLog(L"Error: SelCount==0"));
-    return;
-  }
+	// проверка каталогов
+	_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
+	SrcPanel->GetSelName(NULL,FileAttr);
 
-  // проверка каталогов
-  _ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
-  SrcPanel->GetSelName(NULL,FileAttr);
-  while (SrcPanel->GetSelName(&strSelName,FileAttr))
-  {
-    if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-      DirsCount++;
-  }
+	while (SrcPanel->GetSelName(&strSelName,FileAttr))
+	{
+		if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+			DirsCount++;
+	}
 
-  if (DirsCount==SelCount)
-    return;
+	if (DirsCount==SelCount)
+		return;
 
 	PRINTER_INFO *pi = NULL;
+
 	if (EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,NULL,0,&Needed,&Returned) || Needed<=0)
 		return;
+
 	pi = (PRINTER_INFO *)xf_malloc(Needed);
+
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,NULL,PRINTER_INFO_LEVEL,(LPBYTE)pi,Needed,&Needed,&Returned))
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
@@ -134,144 +143,146 @@ void PrintFiles(Panel *SrcPanel)
 		return;
 	}
 
-  {
-    _ALGO(CleverSysLog clv2(L"Show Menu"));
-    string strTitle;
-    string strName;
+	{
+		_ALGO(CleverSysLog clv2(L"Show Menu"));
+		string strTitle;
+		string strName;
 
-    if (SelCount==1)
-    {
-      SrcPanel->GetSelName(NULL,FileAttr);
-      SrcPanel->GetSelName(&strName,FileAttr);
-      TruncStr(strName,50);
+		if (SelCount==1)
+		{
+			SrcPanel->GetSelName(NULL,FileAttr);
+			SrcPanel->GetSelName(&strName,FileAttr);
+			TruncStr(strName,50);
 			strSelName=strName;
 			InsertQuote(strSelName);
-      strTitle.Format (MSG(MPrintTo), (const wchar_t*)strSelName);
-    }
-    else
-    {
-      _ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
-      SelCount-=DirsCount;
-      strTitle.Format (MSG(MPrintFilesTo),SelCount);
-    }
+			strTitle.Format(MSG(MPrintTo), (const wchar_t*)strSelName);
+		}
+		else
+		{
+			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
+			SelCount-=DirsCount;
+			strTitle.Format(MSG(MPrintFilesTo),SelCount);
+		}
 
-    VMenu PrinterList(strTitle,NULL,0,ScrY-4);
-    PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-    PrinterList.SetPosition(-1,-1,0,0);
+		VMenu PrinterList(strTitle,NULL,0,ScrY-4);
+		PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+		PrinterList.SetPosition(-1,-1,0,0);
+		AddToPrintersMenu(&PrinterList,pi,Returned);
+		PrinterList.Process();
+		PrinterNumber=PrinterList.Modal::GetExitCode();
 
-    AddToPrintersMenu(&PrinterList,pi,Returned);
+		if (PrinterNumber<0)
+		{
+			xf_free(pi);
+			_ALGO(SysLog(L"ESC"));
+			return;
+		}
 
-    PrinterList.Process();
-    PrinterNumber=PrinterList.Modal::GetExitCode();
-    if (PrinterNumber<0)
-    {
-      xf_free(pi);
-      _ALGO(SysLog(L"ESC"));
-      return;
-    }
+		int nSize = PrinterList.GetUserDataSize();
+		wchar_t *PrinterName = strPrinterName.GetBuffer(nSize);
+		PrinterList.GetUserData(PrinterName, nSize);
+		strPrinterName.ReleaseBuffer();
+	}
 
-    int nSize = PrinterList.GetUserDataSize ();
+	HANDLE hPrinter;
 
-    wchar_t *PrinterName = strPrinterName.GetBuffer (nSize);
+	if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
+	{
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
+		        strPrinterName,MSG(MOk));
+		xf_free(pi);
+		_ALGO(SysLog(L"Error: Cannot Open Printer"));
+		return;
+	}
 
-    PrinterList.GetUserData(PrinterName, nSize);
+	{
+		_ALGO(CleverSysLog clv3(L"Print selected Files"));
+		//SaveScreen SaveScr;
+		TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
+		SetCursorType(FALSE,0);
+		PR_PrintMsg();
+		HANDLE hPlugin=SrcPanel->GetPluginHandle();
+		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
+		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		SrcPanel->GetSelName(NULL,FileAttr);
 
-    strPrinterName.ReleaseBuffer ();
-  }
+		while (SrcPanel->GetSelName(&strSelName,FileAttr))
+		{
+			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				continue;
 
-  HANDLE hPrinter;
-  if (!OpenPrinter((wchar_t*)(const wchar_t*)strPrinterName,&hPrinter,NULL))
-  {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
-            strPrinterName,MSG(MOk));
-    xf_free(pi);
-    _ALGO(SysLog(L"Error: Cannot Open Printer"));
-    return;
-  }
+			int Success=FALSE;
+			FILE *SrcFile=NULL;
+			string strTempDir, strTempName;
 
-  {
-    _ALGO(CleverSysLog clv3(L"Print selected Files"));
-    //SaveScreen SaveScr;
-    TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
-
-    SetCursorType(FALSE,0);
-
-    PR_PrintMsg();
-
-    HANDLE hPlugin=SrcPanel->GetPluginHandle();
-    int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
-        !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
-
-    SrcPanel->GetSelName(NULL,FileAttr);
-    while (SrcPanel->GetSelName(&strSelName,FileAttr))
-    {
-      if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-        continue;
-      int Success=FALSE;
-
-      FILE *SrcFile=NULL;
-      string strTempDir, strTempName;
-
-      if (PluginMode)
-      {
-        if (FarMkTempEx(strTempDir))
-        {
+			if (PluginMode)
+			{
+				if (FarMkTempEx(strTempDir))
+				{
 					apiCreateDirectory(strTempDir,NULL);
 					FileListItem ListItem;
-          if (SrcPanel->GetLastSelectedItem(&ListItem))
-          {
+
+					if (SrcPanel->GetLastSelectedItem(&ListItem))
+					{
 						PluginPanelItem PanelItem;
-            FileList::FileListToPluginItem(&ListItem,&PanelItem);
-            if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
-              SrcFile=_wfopen(strTempName,L"rb");
-            else
-              apiRemoveDirectory(strTempDir);
+						FileList::FileListToPluginItem(&ListItem,&PanelItem);
+
+						if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
+							SrcFile=_wfopen(strTempName,L"rb");
+						else
+							apiRemoveDirectory(strTempDir);
+
 						FileList::FreePluginPanelItem(&PanelItem);
-          }
-        }
-      }
-      else
-        SrcFile=_wfopen(strSelName, L"rb");
+					}
+				}
+			}
+			else
+				SrcFile=_wfopen(strSelName, L"rb");
 
-      if (SrcFile!=NULL)
-      {
+			if (SrcFile!=NULL)
+			{
 				DOC_INFO_1 di1;
-
-        di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
-        di1.pOutputFile=NULL;
-        di1.pDatatype=NULL;
+				di1.pDocName=(wchar_t*)(const wchar_t*)strSelName;
+				di1.pOutputFile=NULL;
+				di1.pDatatype=NULL;
 
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
-        {
-          char Buffer[8192];
-          DWORD Read,Written;
-          Success=TRUE;
-          while ((Read=(DWORD)fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
-            if (!WritePrinter(hPrinter,Buffer,Read,&Written))
-            {
-              Success=FALSE;
-              break;
-            }
-          EndDocPrinter(hPrinter);
-        }
-        fclose(SrcFile);
-      }
-      if ( !strTempName.IsEmpty() )
-      {
-        DeleteFileWithFolder(strTempName);
-      }
+				{
+					char Buffer[8192];
+					DWORD Read,Written;
+					Success=TRUE;
 
-      if (Success)
-        SrcPanel->ClearLastGetSelection();
-      else
-      {
-        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-                    strSelName,MSG(MSkip),MSG(MCancel))!=0)
-          break;
-      }
-    }
-    ClosePrinter(hPrinter);
-  }
-  SrcPanel->Redraw();
-  xf_free(pi);
+					while ((Read=(DWORD)fread(Buffer,1,sizeof(Buffer),SrcFile))>0)
+						if (!WritePrinter(hPrinter,Buffer,Read,&Written))
+						{
+							Success=FALSE;
+							break;
+						}
+
+					EndDocPrinter(hPrinter);
+				}
+
+				fclose(SrcFile);
+			}
+
+			if (!strTempName.IsEmpty())
+			{
+				DeleteFileWithFolder(strTempName);
+			}
+
+			if (Success)
+				SrcPanel->ClearLastGetSelection();
+			else
+			{
+				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
+				            strSelName,MSG(MSkip),MSG(MCancel))!=0)
+					break;
+			}
+		}
+
+		ClosePrinter(hPrinter);
+	}
+
+	SrcPanel->Redraw();
+	xf_free(pi);
 }

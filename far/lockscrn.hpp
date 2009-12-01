@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class LockScreen
 {
-  public:
-    LockScreen();
-    ~LockScreen();
+	public:
+		LockScreen();
+		~LockScreen();
 };

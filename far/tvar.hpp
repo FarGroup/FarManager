@@ -40,7 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-enum TVarType {
+enum TVarType
+{
 	vtInteger,
 	vtString,
 	vtDouble,
@@ -139,7 +140,8 @@ class TAbstractSet
 		{
 			str = NULL;
 			next = NULL;
-			if ( s )
+
+			if (s)
 			{
 				str = new wchar_t[StrLength(s)+1];
 				wcscpy(str, s);
@@ -148,7 +150,7 @@ class TAbstractSet
 
 		~TAbstractSet()
 		{
-			if ( str )
+			if (str)
 				delete [] str;
 		}
 };

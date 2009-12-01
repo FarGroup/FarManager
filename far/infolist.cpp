@@ -82,17 +82,18 @@ InfoList::~InfoList()
 }
 
 // перерисовка, только если мы текущий фрейм
-void InfoList::Update (int Mode)
+void InfoList::Update(int Mode)
 {
 	if (!EnableUpdate)
 		return;
+
 	if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
 		Redraw();
 }
 
 string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-	strTitle.Format (L" %s ", MSG(MInfoTitle));
+	strTitle.Format(L" %s ", MSG(MInfoTitle));
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
 }
@@ -101,22 +102,17 @@ void InfoList::DisplayObject()
 {
 	string strTitle;
 	string strOutStr;
-
 	Panel *AnotherPanel;
 	string strDriveRoot;
-
 	string strVolumeName, strFileSystemName;
-
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-
 	CloseFile();
 	Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',COL_PANELTEXT);
-
 	SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-
 	GetTitle(strTitle);
-	if ( !strTitle.IsEmpty() )
+
+	if (!strTitle.IsEmpty())
 	{
 		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1);
 		Text(strTitle);
@@ -124,26 +120,22 @@ void InfoList::DisplayObject()
 
 	DrawSeparator(Y1+3);
 	DrawSeparator(Y1+8);
-
 	SetColor(COL_PANELTEXT);
-
 	{
 		string strComputerName, strUserName;
-
 		DWORD dwSize = MAX_COMPUTERNAME_LENGTH+1;
-
-		wchar_t *ComputerName = strComputerName.GetBuffer (dwSize);
+		wchar_t *ComputerName = strComputerName.GetBuffer(dwSize);
 		GetComputerName(ComputerName, &dwSize); // retrieves only the NetBIOS name of the local computer
-		strComputerName.ReleaseBuffer ();
-
+		strComputerName.ReleaseBuffer();
 		dwSize = 256; //UNLEN
-		wchar_t *UserName = strUserName.GetBuffer (dwSize);
-		if(Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat,UserName, &dwSize))
+		wchar_t *UserName = strUserName.GetBuffer(dwSize);
+
+		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat,UserName, &dwSize))
 		{
 			GetUserName(UserName, &dwSize);
 		}
-		strUserName.ReleaseBuffer ();
 
+		strUserName.ReleaseBuffer();
 		GotoXY(X1+2,Y1+1);
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
@@ -151,37 +143,37 @@ void InfoList::DisplayObject()
 		PrintText(MInfoUserName);
 		PrintInfo(strUserName);
 	}
-
 	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 	AnotherPanel->GetCurDir(strCurDir);
 
-	if ( strCurDir.IsEmpty() )
+	if (strCurDir.IsEmpty())
 		apiGetCurrentDirectory(strCurDir);
 
 	/*
 		Корректно отображать инфу при заходе в Juction каталог
 		Рут-диск может быть другим
 	*/
-	if((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+	if ((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
 	{
 		string strJuncName;
-		if(GetReparsePointInfo(strCurDir, strJuncName))
+
+		if (GetReparsePointInfo(strCurDir, strJuncName))
 		{
 			NormalizeSymlinkName(strJuncName);
 			GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
 		}
-
 	}
 	else
 		GetPathRoot(strCurDir, strDriveRoot);
 
-	if ( apiGetVolumeInformation (strDriveRoot,&strVolumeName,
-			&VolumeNumber,&MaxNameLength,&FileSystemFlags,
-			&strFileSystemName))
+	if (apiGetVolumeInformation(strDriveRoot,&strVolumeName,
+	                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
+	                            &strFileSystemName))
 	{
 		int IdxMsgID=-1;
 		int DriveType=FAR_GetDriveType(strDriveRoot,NULL,TRUE);
-		switch(DriveType)
+
+		switch (DriveType)
 		{
 			case DRIVE_REMOVABLE:
 				IdxMsgID=MInfoRemovable;
@@ -199,16 +191,18 @@ void InfoList::DisplayObject()
 				IdxMsgID=MInfoRAM;
 				break;
 			default:
-				if(IsDriveTypeCDROM(DriveType))
+
+				if (IsDriveTypeCDROM(DriveType))
 					IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
+
 				break;
 		}
 
 		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
-
 		wchar_t LocalName[]={strDriveRoot.At(0),L':',L'\0'};
 		string strRemoteName;
-		if(GetSubstName(DriveType,LocalName,strRemoteName))
+
+		if (GetSubstName(DriveType,LocalName,strRemoteName))
 		{
 			DiskType = MSG(MInfoSUBST);
 			DriveType=DRIVE_SUBSTITUTE;
@@ -220,7 +214,7 @@ void InfoList::DisplayObject()
 		{
 			apiWNetGetConnection(LocalName, strRemoteName);
 		}
-		else if(DriveType == DRIVE_SUBSTITUTE)
+		else if (DriveType == DRIVE_SUBSTITUTE)
 		{
 			strTitle += strRemoteName;
 			strTitle += L" ";
@@ -229,8 +223,8 @@ void InfoList::DisplayObject()
 		TruncStr(strTitle,X2-X1-3);
 		GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+3);
 		PrintText(strTitle);
-
 		unsigned __int64 TotalSize,TotalFree,UserFree;
+
 		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
 		{
 			GotoXY(X1+2,Y1+4);
@@ -248,7 +242,7 @@ void InfoList::DisplayObject()
 		PrintInfo(strVolumeName);
 		GotoXY(X1+2,Y1+7);
 		PrintText(MInfoDiskNumber);
-		strOutStr.Format (L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
+		strOutStr.Format(L"%04X-%04X",VolumeNumber>>16,VolumeNumber & 0xffff);
 		PrintInfo(strOutStr);
 	}
 
@@ -258,13 +252,14 @@ void InfoList::DisplayObject()
 	PrintText(strTitle);
 	MEMORYSTATUSEX ms={sizeof(ms)};
 
-	if(GlobalMemoryStatusEx(&ms))
+	if (GlobalMemoryStatusEx(&ms))
 	{
 		if (ms.dwMemoryLoad==0)
 			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+
 		GotoXY(X1+2,Y1+9);
 		PrintText(MInfoMemoryLoad);
-		strOutStr.Format (L"%d%%",ms.dwMemoryLoad);
+		strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
 		PrintInfo(strOutStr);
 		GotoXY(X1+2,Y1+10);
 		PrintText(MInfoMemoryTotal);
@@ -294,7 +289,7 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	if (DizView!=NULL)
 		return DizView->VMProcess(OpCode,vParam,iParam);
 
-	switch(OpCode)
+	switch (OpCode)
 	{
 		case MCODE_C_EMPTY:
 			return 1;
@@ -308,26 +303,26 @@ int InfoList::ProcessKey(int Key)
 	if (!IsVisible())
 		return(FALSE);
 
-	if(ProcessShortcutFolder(Key,FALSE))
+	if (ProcessShortcutFolder(Key,FALSE))
 		return(TRUE);
 
-	switch(Key)
+	switch (Key)
 	{
 		case KEY_F1:
 		{
-			Help Hlp (L"InfoPanel");
+			Help Hlp(L"InfoPanel");
 		}
 		return TRUE;
-
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-			if ( !strDizFileName.IsEmpty() )
+
+			if (!strDizFileName.IsEmpty())
 			{
 				CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
 				FarChDir(strCurDir);
-
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
+
 			CtrlObject->Cp()->Redraw();
 			return(TRUE);
 		case KEY_F4:
@@ -336,33 +331,36 @@ int InfoList::ProcessKey(int Key)
 			не редактируем имена описаний со звездочками;
 			убираем лишнюю перерисовку панелей
 			*/
+		{
+			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+			AnotherPanel->GetCurDir(strCurDir);
+			FarChDir(strCurDir);
+
+			if (!strDizFileName.IsEmpty())
 			{
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-				AnotherPanel->GetCurDir(strCurDir);
-				FarChDir(strCurDir);
-				if ( !strDizFileName.IsEmpty() )
+				new FileEditor(strDizFileName,CP_AUTODETECT,FFILEEDIT_ENABLEF6);
+			}
+			else if (!Opt.InfoPanel.strFolderInfoFiles.IsEmpty())
+			{
+				string strArgName;
+				const wchar_t *p = Opt.InfoPanel.strFolderInfoFiles;
+
+				while ((p = GetCommaWord(p,strArgName)) != NULL)
 				{
-					new FileEditor(strDizFileName,CP_AUTODETECT,FFILEEDIT_ENABLEF6);
-				}
-				else if ( !Opt.InfoPanel.strFolderInfoFiles.IsEmpty() )
-				{
-					string strArgName;
-					const wchar_t *p = Opt.InfoPanel.strFolderInfoFiles;
-					while ((p = GetCommaWord(p,strArgName)) != NULL)
+					if (!wcspbrk(strArgName, L"*?"))
 					{
-						if (!wcspbrk (strArgName, L"*?"))
-						{
-							new FileEditor(strArgName,CP_AUTODETECT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
-							break;
-						}
+						new FileEditor(strArgName,CP_AUTODETECT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6);
+						break;
 					}
 				}
-				AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-				//AnotherPanel->Redraw();
-				Update(0);
 			}
-			CtrlObject->Cp()->Redraw();
-			return(TRUE);
+
+			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+			//AnotherPanel->Redraw();
+			Update(0);
+		}
+		CtrlObject->Cp()->Redraw();
+		return(TRUE);
 		case KEY_CTRLR:
 			Redraw();
 			return(TRUE);
@@ -374,11 +372,13 @@ int InfoList::ProcessKey(int Key)
 	if (DizView!=NULL && Key>=256)
 	{
 		int ret = DizView->ProcessKey(Key);
+
 		if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
 		{
 			DynamicUpdateKeyBar();
 			CtrlObject->MainKeyBar->Redraw();
 		}
+
 		if (Key == KEY_F7 || Key == KEY_SHIFTF7)
 		{
 			__int64 Pos, Length;
@@ -391,6 +391,7 @@ int InfoList::ProcessKey(int Key)
 			DizView->SelectText(Pos,Length,Flags|1);
 			DizView->InRecursion--;
 		}
+
 		return(ret);
 	}
 
@@ -401,6 +402,7 @@ int InfoList::ProcessKey(int Key)
 int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int RetCode;
+
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
 		return(RetCode);
 
@@ -409,16 +411,18 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		_tran(SysLog(L"InfoList::ProcessMouse() DizView = %p",DizView));
 		int DVX1,DVX2,DVY1,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
+
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-				MouseEvent->dwMousePosition.X > DVX1+1 &&
-				MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
-				MouseEvent->dwMousePosition.Y > DVY1+1 &&
-				MouseEvent->dwMousePosition.Y < DVY2-1
-			)
+		        MouseEvent->dwMousePosition.X > DVX1+1 &&
+		        MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
+		        MouseEvent->dwMousePosition.Y > DVY1+1 &&
+		        MouseEvent->dwMousePosition.Y < DVY2-1
+		   )
 		{
 			ProcessKey(KEY_F3);
 			return(TRUE);
 		}
+
 		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
 		{
 			ProcessKey(KEY_F4);
@@ -427,6 +431,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	SetFocus();
+
 	if (DizView!=NULL)
 		return(DizView->ProcessMouse(MouseEvent));
 
@@ -438,6 +443,7 @@ void InfoList::PrintText(const wchar_t *Str)
 {
 	if (WhereY()>Y2-1)
 		return;
+
 	mprintf(L"%.*s",X2-WhereX(),Str);
 }
 
@@ -452,7 +458,9 @@ void InfoList::PrintInfo(const wchar_t *str)
 {
 	if (WhereY()>Y2-1)
 		return;
+
 	int SaveColor=GetColor(),MaxLength=X2-WhereX()-2;
+
 	if (MaxLength<0)
 		MaxLength=0;
 
@@ -460,6 +468,7 @@ void InfoList::PrintInfo(const wchar_t *str)
 	TruncStr(strStr,MaxLength);
 	int Length=(int)strStr.GetLength();
 	int NewX=X2-Length-1;
+
 	if (NewX>X1 && NewX>WhereX())
 	{
 		GotoXY(NewX,WhereY());
@@ -480,25 +489,26 @@ void InfoList::ShowDirDescription()
 {
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 	DrawSeparator(Y1+14);
+
 	if (AnotherPanel->GetMode()==FILE_PANEL)
 	{
 		string strDizDir;
 		AnotherPanel->GetCurDir(strDizDir);
-		if(!strDizDir.IsEmpty())
+
+		if (!strDizDir.IsEmpty())
 			AddEndSlash(strDizDir);
 
 		string strArgName;
-
 		const wchar_t *NamePtr = Opt.InfoPanel.strFolderInfoFiles;
+
 		while ((NamePtr=GetCommaWord(NamePtr,strArgName))!=NULL)
 		{
 			string strFullDizName;
 			strFullDizName = strDizDir;
 			strFullDizName += strArgName;
-
 			FAR_FIND_DATA_EX FindData;
 
-			if ( !apiGetFindDataEx (strFullDizName,&FindData) )
+			if (!apiGetFindDataEx(strFullDizName,&FindData))
 				continue;
 
 			CutToSlash(strFullDizName, false);
@@ -508,6 +518,7 @@ void InfoList::ShowDirDescription()
 				return;
 		}
 	}
+
 	CloseFile();
 	SetColor(COL_PANELTEXT);
 	GotoXY(X1+2,Y1+15);
@@ -520,16 +531,21 @@ void InfoList::ShowPluginDescription()
 	Panel *AnotherPanel;
 	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+
 	if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
 		return;
+
 	CloseFile();
 	OpenPluginInfo Info;
 	AnotherPanel->GetOpenPluginInfo(&Info);
-	for (int I=0;I<Info.InfoLinesNumber;I++)
+
+	for (int I=0; I<Info.InfoLinesNumber; I++)
 	{
 		int Y=Y2-Info.InfoLinesNumber+I;
+
 		if (Y<=Y1)
 			continue;
+
 		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
 		GotoXY(X1,Y);
 		SetColor(COL_PANELBOX);
@@ -539,13 +555,16 @@ void InfoList::ShowPluginDescription()
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		GotoXY(X1+2,Y);
+
 		if (InfoLine->Separator)
 		{
 			string strTitle;
+
 			if (InfoLine->Text!=NULL && *InfoLine->Text)
-				strTitle.Format (L" %s ",InfoLine->Text);
+				strTitle.Format(L" %s ",InfoLine->Text);
 			else
 				strTitle.Clear();
+
 			DrawSeparator(Y);
 			TruncStr(strTitle,X2-X1-3);
 			GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
@@ -563,8 +582,9 @@ void InfoList::CloseFile()
 {
 	if (DizView!=NULL)
 	{
-		if(DizView->InRecursion)
+		if (DizView->InRecursion)
 			return;
+
 		LastDizWrapMode=DizView->GetWrapMode();
 		LastDizWrapType=DizView->GetWrapType();
 		LastDizShowScrollbar=DizView->GetShowScrollbar();
@@ -573,19 +593,22 @@ void InfoList::CloseFile()
 		delete DizView;
 		DizView=NULL;
 	}
+
 	strDizFileName.Clear();
 }
 
 int InfoList::OpenDizFile(const wchar_t *DizFile)
 {
 	bool bOK=true;
-
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
+
 	if (DizView == NULL)
 	{
 		DizView=new DizViewer;
+
 		if (!DizView)
 			return FALSE;
+
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(FALSE);
 		DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
@@ -595,7 +618,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
 		OldWrapType = DizView->GetWrapType();
 		DizView->SetWrapMode(LastDizWrapMode);
 		DizView->SetWrapType(LastDizWrapType);
-		DizView->SetShowScrollbar (LastDizShowScrollbar);
+		DizView->SetShowScrollbar(LastDizShowScrollbar);
 	}
 	else
 	{
@@ -611,13 +634,13 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
 			DizView = NULL;
 			return(FALSE);
 		}
+
 		strDizFileName = DizFile;
 	}
 
 	DizView->Show();
-
 	string strTitle;
-	strTitle.Format (L" %s ", (const wchar_t*)PointToName(strDizFileName));
+	strTitle.Format(L" %s ", (const wchar_t*)PointToName(strDizFileName));
 	TruncStr(strTitle,X2-X1-3);
 	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+14);
 	SetColor(COL_PANELTEXT);
@@ -641,8 +664,10 @@ void InfoList::SetMacroMode(int Restore)
 {
 	if (CtrlObject == NULL)
 		return;
+
 	if (PrevMacroMode == -1)
 		PrevMacroMode = CtrlObject->Macro.GetMode();
+
 	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }
 
@@ -650,63 +675,61 @@ void InfoList::SetMacroMode(int Restore)
 int InfoList::GetCurName(string &strName, string &strShortName)
 {
 	strName = strDizFileName;
-
 	ConvertNameToShort(strName, strShortName);
-
 	return (TRUE);
 }
 
 BOOL InfoList::UpdateKeyBar()
 {
 	KeyBar *KB = CtrlObject->MainKeyBar;
-	KB->SetAllGroup (KBL_MAIN, MInfoF1, 12);
-	KB->SetAllGroup (KBL_SHIFT, MInfoShiftF1, 12);
-	KB->SetAllGroup (KBL_ALT, MInfoAltF1, 12);
-	KB->SetAllGroup (KBL_CTRL, MInfoCtrlF1, 12);
-	KB->SetAllGroup (KBL_CTRLSHIFT, MInfoCtrlShiftF1, 12);
-	KB->SetAllGroup (KBL_CTRLALT, MInfoCtrlAltF1, 12);
-	KB->SetAllGroup (KBL_ALTSHIFT, MInfoAltShiftF1, 12);
-	KB->SetAllGroup (KBL_CTRLALTSHIFT, MInfoCtrlAltShiftF1, 12);
+	KB->SetAllGroup(KBL_MAIN, MInfoF1, 12);
+	KB->SetAllGroup(KBL_SHIFT, MInfoShiftF1, 12);
+	KB->SetAllGroup(KBL_ALT, MInfoAltF1, 12);
+	KB->SetAllGroup(KBL_CTRL, MInfoCtrlF1, 12);
+	KB->SetAllGroup(KBL_CTRLSHIFT, MInfoCtrlShiftF1, 12);
+	KB->SetAllGroup(KBL_CTRLALT, MInfoCtrlAltF1, 12);
+	KB->SetAllGroup(KBL_ALTSHIFT, MInfoAltShiftF1, 12);
+	KB->SetAllGroup(KBL_CTRLALTSHIFT, MInfoCtrlAltShiftF1, 12);
 	DynamicUpdateKeyBar();
-
 	return TRUE;
 }
 
 void InfoList::DynamicUpdateKeyBar()
 {
 	KeyBar *KB = CtrlObject->MainKeyBar;
+
 	if (DizView)
 	{
-		KB->Change (MSG(MInfoF3), 3-1);
+		KB->Change(MSG(MInfoF3), 3-1);
 
 		if (DizView->GetCodePage() != GetOEMCP())
-			KB->Change (MSG(MViewF8DOS), 7);
+			KB->Change(MSG(MViewF8DOS), 7);
 		else
-			KB->Change (MSG(MInfoF8), 7);
+			KB->Change(MSG(MInfoF8), 7);
 
 		if (!DizView->GetWrapMode())
 		{
 			if (DizView->GetWrapType())
-				KB->Change (MSG(MViewShiftF2), 2-1);
+				KB->Change(MSG(MViewShiftF2), 2-1);
 			else
-				KB->Change (MSG(MViewF2), 2-1);
+				KB->Change(MSG(MViewF2), 2-1);
 		}
 		else
-			KB->Change (MSG(MViewF2Unwrap), 2-1);
+			KB->Change(MSG(MViewF2Unwrap), 2-1);
 
 		if (DizView->GetWrapType())
-			KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+			KB->Change(KBL_SHIFT, MSG(MViewF2), 2-1);
 		else
-			KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 	else
 	{
-		KB->Change (MSG(MF2), 2-1);
-		KB->Change (KBL_SHIFT, L"", 2-1);
-		KB->Change (L"", 3-1);
-		KB->Change (L"", 8-1);
-		KB->Change (KBL_SHIFT, L"", 8-1);
-		KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
+		KB->Change(MSG(MF2), 2-1);
+		KB->Change(KBL_SHIFT, L"", 2-1);
+		KB->Change(L"", 3-1);
+		KB->Change(L"", 8-1);
+		KB->Change(KBL_SHIFT, L"", 8-1);
+		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 
 	KB->ReadRegGroup(L"Info",Opt.strLanguage);

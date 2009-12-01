@@ -74,26 +74,28 @@ DizList::DizList()
 DizList::~DizList()
 {
 	Reset();
+
 	if (AnsiBuf)
 		xf_free(AnsiBuf);
 }
 
 void DizList::Reset()
 {
-	for (int I=0;I<DizCount;I++)
+	for (int I=0; I<DizCount; I++)
 		if (DizData[I].DizText)
 			xf_free(DizData[I].DizText);
 
 	if (DizData)
 		xf_free(DizData);
+
 	DizData=NULL;
 	DizCount=0;
 
 	if (IndexData)
 		xf_free(IndexData);
+
 	IndexData=NULL;
 	IndexCount=0;
-
 	Modified=false;
 	NeedRebuild=true;
 	OrigCodePage=CP_AUTODETECT;
@@ -109,10 +111,9 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 	Reset();
 	TaskBar TB;
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
-
 	const wchar_t *NamePtr=Opt.Diz.strListNames;
 
-	for(;;)
+	for (;;)
 	{
 		if (DizName)
 		{
@@ -126,15 +127,16 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 				break;
 
 			string strArgName;
+
 			if ((NamePtr=GetCommaWord(NamePtr,strArgName))==NULL)
 				break;
 
 			AddEndSlash(strDizFileName);
-
 			strDizFileName += strArgName;
 		}
 
 		FILE *DizFile=_wfopen(NTPath(strDizFileName),L"rb");
+
 		if (DizFile)
 		{
 			GetFileString GetStr(DizFile);
@@ -159,6 +161,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 				}
 
 				RemoveTrailingSpaces(DizText);
+
 				if (*DizText)
 					AddRecord(DizText);
 			}
@@ -181,6 +184,7 @@ void DizList::Read(const wchar_t *Path, const wchar_t *DizName)
 bool DizList::AddRecord(const wchar_t *DizText)
 {
 	DizRecord *NewDizData=DizData;
+
 	if ((DizCount & 15)==0)
 		NewDizData=(DizRecord *)xf_realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
 
@@ -195,7 +199,6 @@ bool DizList::AddRecord(const wchar_t *DizText)
 		return false;
 
 	wcscpy(DizData[DizCount].DizText,DizText);
-
 	DizData[DizCount].NameStart=0;
 	DizData[DizCount].NameLength=0;
 
@@ -220,11 +223,9 @@ bool DizList::AddRecord(const wchar_t *DizText)
 	}
 
 	DizData[DizCount].Deleted=false;
-
 	NeedRebuild=true;
 	Modified=true;
 	DizCount++;
-
 	return true;
 }
 
@@ -238,6 +239,7 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *Short
 	if (DizPos!=-1)
 	{
 		DizText=DizData[DizPos].DizText+TextPos;
+
 		while (*DizText && IsSpace(*DizText))
 			DizText++;
 
@@ -246,7 +248,6 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *Short
 			wchar_t SizeText[30];
 			const wchar_t *DizPtr=DizText;
 			bool SkipSize=true;
-
 			_snwprintf(SizeText,countof(SizeText),L"%I64u", FileSize);
 
 			for (int I=0; SizeText[I]!=0; DizPtr++)
@@ -264,6 +265,7 @@ const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name, const wchar_t *Short
 			if (SkipSize && IsSpace(*DizPtr))
 			{
 				DizText=DizPtr;
+
 				while (*DizText && IsSpace(*DizText))
 					DizText++;
 			}
@@ -286,11 +288,11 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 	{
 		int len=StrLength(Name);
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
+
 		if (!tmp)
 			return -1;
 
 		AnsiBuf = tmp;
-
 		WideCharToMultiByte(OrigCodePage, 0, Name, len, AnsiBuf, len, NULL, NULL);
 		AnsiBuf[len]=0;
 		string strRecoded(AnsiBuf, OrigCodePage);
@@ -299,7 +301,6 @@ int DizList::GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *Tex
 			return -1;
 
 		return GetDizPos(strRecoded,TextPos);
-
 	}
 
 	return DizPos;
@@ -323,6 +324,7 @@ int DizList::GetDizPos(const wchar_t *Name, int *TextPos)
 		if (TextPos!=NULL)
 		{
 			*TextPos=DizData[*DestIndex].NameStart+DizData[*DestIndex].NameLength;
+
 			if (DizData[*DestIndex].NameStart && DizData[*DestIndex].DizText[*TextPos]==L'\"')
 				(*TextPos)++;
 		}
@@ -355,7 +357,6 @@ void DizList::BuildIndex()
 
 	SearchDizData=DizData;
 	far_qsort((void *)IndexData,IndexCount,sizeof(*IndexData),SortDizIndex);
-
 	NeedRebuild=false;
 }
 
@@ -366,7 +367,6 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 	const wchar_t *Diz2=SearchDizData[*(int *)el2].DizText+SearchDizData[*(int *)el2].NameStart;
 	int Len1=SearchDizData[*(int *)el1].NameLength;
 	int Len2=SearchDizData[*(int *)el2].NameLength;
-
 	int CmpCode = StrCmpNI(Diz1,Diz2,Min(Len1,Len2));
 
 	if (CmpCode==0)
@@ -398,7 +398,6 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
 	wchar_t *DizName=SearchDizData[*(int *)elem].DizText+SearchDizData[*(int *)elem].NameStart;
 	int DizNameLength=SearchDizData[*(int *)elem].NameLength;
 	int NameLength=((DizSearchKey *)key)->Len;
-
 	int CmpCode=StrCmpNI(SearchName,DizName,Min(DizNameLength,NameLength));
 
 	if (CmpCode==0)
@@ -442,7 +441,6 @@ bool DizList::DeleteDiz(const wchar_t *Name,const wchar_t *ShortName)
 
 	Modified=true;
 	NeedRebuild=true;
-
 	return true;
 }
 
@@ -463,10 +461,8 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
 		strDizFileName = Path;
 		AddEndSlash(strDizFileName);
-
 		string strArgName;
 		GetCommaWord(Opt.Diz.strListNames,strArgName);
-
 		strDizFileName += strArgName;
 	}
 
@@ -501,7 +497,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 		fwrite(&dwSignature, 1, 3, DizFile);
 	}
 
-	for (int I=0;I<DizCount;I++)
+	for (int I=0; I<DizCount; I++)
 	{
 		if (!DizData[I].Deleted)
 		{
@@ -510,12 +506,9 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 
 			if (lpDizText)
 			{
-				WideCharToMultiByte (CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, NULL, NULL);
-
+				WideCharToMultiByte(CodePage, 0, DizData[I].DizText, len+1, lpDizText, (len+1)*3, NULL, NULL);
 				fprintf(DizFile,"%s\r\n", lpDizText);
-
-				xf_free (lpDizText);
-
+				xf_free(lpDizText);
 				AddedDizCount++;
 			}
 		}
@@ -529,6 +522,7 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	if (FileAttr==INVALID_FILE_ATTRIBUTES)
 	{
 		FileAttr=FILE_ATTRIBUTE_ARCHIVE;
+
 		if (Opt.Diz.SetHidden)
 			FileAttr|=FILE_ATTRIBUTE_HIDDEN;
 	}
@@ -545,7 +539,6 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 	}
 
 	Modified=false;
-
 	return true;
 }
 
@@ -553,13 +546,10 @@ bool DizList::Flush(const wchar_t *Path,const wchar_t *DizName)
 bool DizList::AddDizText(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText)
 {
 	DeleteDiz(Name,ShortName);
-
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
-
 	FormatString FString;
 	FString<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText;
-
 	return AddRecord(FString);
 }
 

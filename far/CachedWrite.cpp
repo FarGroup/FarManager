@@ -46,7 +46,8 @@ CachedWrite::CachedWrite(HANDLE hFile)
 CachedWrite::~CachedWrite()
 {
 	Flush();
-	if(Buffer)
+
+	if (Buffer)
 	{
 		xf_free(Buffer);
 	}
@@ -55,16 +56,19 @@ CachedWrite::~CachedWrite()
 bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
 {
 	bool Result=false;
-	if(Buffer)
+
+	if (Buffer)
 	{
-		if(DataSize>FreeSize)
+		if (DataSize>FreeSize)
 		{
 			Flush();
 		}
-		if(DataSize>FreeSize)
+
+		if (DataSize>FreeSize)
 		{
 			DWORD WrittenSize=0;
-			if(WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
+
+			if (WriteFile(hFile,Data,static_cast<DWORD>(DataSize),&WrittenSize,NULL) && DataSize==WrittenSize)
 			{
 				Result=true;
 			}
@@ -77,22 +81,25 @@ bool CachedWrite::Write(LPCVOID Data,size_t DataSize)
 			Result=true;
 		}
 	}
+
 	return Result;
 }
 
 bool CachedWrite::Flush()
 {
-	if(Buffer)
+	if (Buffer)
 	{
-		if(!Flushed)
+		if (!Flushed)
 		{
 			DWORD WrittenSize=0;
-			if(WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,NULL) && BufferSize-FreeSize==WrittenSize)
+
+			if (WriteFile(hFile,Buffer,static_cast<DWORD>(BufferSize-FreeSize),&WrittenSize,NULL) && BufferSize-FreeSize==WrittenSize)
 			{
 				Flushed=true;
 				FreeSize=BufferSize;
 			}
 		}
 	}
+
 	return Flushed;
 }

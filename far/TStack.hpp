@@ -65,7 +65,7 @@ class TStack : private NonCopyable
 		// при удаче вернется адрес Destination, иначе - NULL
 		Object *Pop(Object &Destination)
 		{
-			if(Top)
+			if (Top)
 			{
 				--Size;
 				Destination=Top->Item;
@@ -74,6 +74,7 @@ class TStack : private NonCopyable
 				Top=Temp;
 				return &Destination;
 			}
+
 			return NULL;
 		}
 
@@ -81,12 +82,13 @@ class TStack : private NonCopyable
 		// при удаче вернется адрес Destination, иначе - NULL
 		Object *Peek(/*Object &Destination*/)
 		{
-			if(Top)
+			if (Top)
 			{
 				//Destination=Top->Item;
 				//return &Destination;
 				return &Top->Item;
 			}
+
 			return NULL;
 		}
 
@@ -95,7 +97,8 @@ class TStack : private NonCopyable
 		Object *Push(const Object &Source)
 		{
 			struct OneItem *Temp=new OneItem;
-			if(Temp)
+
+			if (Temp)
 			{
 				Temp->Next=Top;
 				Temp->Item=Source;
@@ -103,18 +106,20 @@ class TStack : private NonCopyable
 				++Size;
 				return &Top->Item;
 			}
+
 			return NULL;
 		}
 
 		// очистить стек
 		void Free()
 		{
-			while(Top)
+			while (Top)
 			{
 				struct OneItem *Temp=Top->Next;
 				delete Top;
 				Top=Temp;
 			}
+
 			Size=0;
 		}
 };

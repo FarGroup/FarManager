@@ -39,18 +39,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ChangeMacroMode::ChangeMacroMode(int NewMode)
 {
-  if (CtrlObject!=NULL)
-  {
-    PrevMacroMode=CtrlObject->Macro.GetMode();
-    CtrlObject->Macro.SetMode(NewMode);
-  }
-  else
-    PrevMacroMode=MACRO_SHELL;
+	if (CtrlObject!=NULL)
+	{
+		PrevMacroMode=CtrlObject->Macro.GetMode();
+		CtrlObject->Macro.SetMode(NewMode);
+	}
+	else
+	{
+		PrevMacroMode=MACRO_SHELL;
+    }
 }
 
 
 ChangeMacroMode::~ChangeMacroMode()
 {
-  if (CtrlObject!=NULL)
-    CtrlObject->Macro.SetMode(PrevMacroMode);
+	if (CtrlObject!=NULL)
+		CtrlObject->Macro.SetMode(PrevMacroMode);
 }

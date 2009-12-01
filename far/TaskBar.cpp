@@ -42,31 +42,31 @@ TaskBarCore::TaskBarCore()
 {
 	pTaskbarList=NULL;
 	HRESULT hRes=CoInitializeEx(NULL,COINIT_APARTMENTTHREADED);
-	switch(hRes)
-	{
-	case S_OK:
-	case S_FALSE:
-		CoInited=true;
-	case RPC_E_CHANGED_MODE:
-#ifndef __GNUC__ //BUGBUG
-		CoCreateInstance(CLSID_TaskbarList,NULL,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&pTaskbarList));
-#endif
-		break;
 
-	default:
-		CoInited=false;
-		break;
+	switch (hRes)
+	{
+		case S_OK:
+		case S_FALSE:
+			CoInited=true;
+		case RPC_E_CHANGED_MODE:
+#ifndef __GNUC__ //BUGBUG
+			CoCreateInstance(CLSID_TaskbarList,NULL,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&pTaskbarList));
+#endif
+			break;
+		default:
+			CoInited=false;
+			break;
 	}
 }
 
 TaskBarCore::~TaskBarCore()
 {
-	if(pTaskbarList)
+	if (pTaskbarList)
 	{
 		pTaskbarList->Release();
 	}
 
-	if(CoInited)
+	if (CoInited)
 	{
 		CoUninitialize();
 	}
@@ -74,7 +74,7 @@ TaskBarCore::~TaskBarCore()
 
 void TaskBarCore::SetProgressState(TBPFLAG tbpFlags)
 {
-	if(pTaskbarList)
+	if (pTaskbarList)
 	{
 		State=tbpFlags;
 		pTaskbarList->SetProgressState(hFarWnd,tbpFlags);
@@ -83,7 +83,7 @@ void TaskBarCore::SetProgressState(TBPFLAG tbpFlags)
 
 void TaskBarCore::SetProgressValue(UINT64 Completed, UINT64 Total)
 {
-	if(pTaskbarList)
+	if (pTaskbarList)
 	{
 		State=TBPF_NORMAL;
 		pTaskbarList->SetProgressValue(hFarWnd,Completed,Total);
@@ -98,9 +98,10 @@ TBPFLAG TaskBarCore::GetProgressState()
 void TaskBarCore::Flash()
 {
 	WINDOWINFO WI={sizeof(WI)};
-	if(GetWindowInfo(hFarWnd,&WI))
+
+	if (GetWindowInfo(hFarWnd,&WI))
 	{
-		if(WI.dwWindowStatus!=WS_ACTIVECAPTION)
+		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
 		{
 			FLASHWINFO FWI={sizeof(FWI),hFarWnd,FLASHW_ALL|FLASHW_TIMERNOFG,0,0};
 			FlashWindowEx(&FWI);
@@ -112,13 +113,13 @@ void TaskBarCore::Flash()
 
 TaskBar::TaskBar()
 {
-	if(TBC.GetProgressState()!=TBPF_INDETERMINATE)
+	if (TBC.GetProgressState()!=TBPF_INDETERMINATE)
 		TBC.SetProgressState(TBPF_INDETERMINATE);
 }
 
 TaskBar::~TaskBar()
 {
-	if(TBC.GetProgressState()!=TBPF_NOPROGRESS)
+	if (TBC.GetProgressState()!=TBPF_NOPROGRESS)
 		TBC.SetProgressState(TBPF_NOPROGRESS);
 }
 
@@ -127,12 +128,14 @@ TaskBar::~TaskBar()
 TaskBarPause::TaskBarPause()
 {
 	PrevState=TBC.GetProgressState();
-	if(PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
+
+	if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 	{
-		if(PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
+		if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
 		{
 			TBC.SetProgressValue(1,1);
 		}
+
 		TBC.SetProgressState(TBPF_PAUSED);
 		TBC.Flash();
 	}
@@ -148,12 +151,14 @@ TaskBarPause::~TaskBarPause()
 TaskBarError::TaskBarError()
 {
 	PrevState=TBC.GetProgressState();
-	if(PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
+
+	if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 	{
-		if(PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
+		if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
 		{
 			TBC.SetProgressValue(1,1);
 		}
+
 		TBC.SetProgressState(TBPF_ERROR);
 		TBC.Flash();
 	}

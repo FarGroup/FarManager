@@ -116,8 +116,8 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #include <math.h>
 
 #ifdef __GNUC__
- #include <ctype.h>
- #include <limits.h>
+#include <ctype.h>
+#include <limits.h>
 #endif  //__GNUC__
 
 #define vsnprintf _vsnprintf
@@ -126,14 +126,14 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #define _export
 
 #ifdef __GNUC__
- #define _strtoi64 strtoll
- #define _wcstoi64 wcstoll
- #define _abs64 llabs
+#define _strtoi64 strtoll
+#define _wcstoi64 wcstoll
+#define _abs64 llabs
 #endif // __GNUC__
 
 #ifdef __GNUC__
- #define __try
- #define __except(a) if(0)
+#define __try
+#define __except(a) if(0)
 #endif // __GNUC__
 
 #define countof(a) (sizeof(a)/sizeof(a[0]))
@@ -173,13 +173,13 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
 #ifdef _DEBUG
 #define SELF_TEST(code) \
-namespace { \
-  struct SelfTest { \
-    SelfTest() { \
-      code; \
-    } \
-  } _SelfTest; \
-}
+	namespace { \
+		struct SelfTest { \
+			SelfTest() { \
+				code; \
+			} \
+		} _SelfTest; \
+	}
 #else
 #define SELF_TEST(code)
 #endif

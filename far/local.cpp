@@ -41,21 +41,21 @@ const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 	wchar_t *cp = (wchar_t *) str1;
 	wchar_t *s1, *s2;
 
-	if ( !*str2 )
+	if (!*str2)
 		return str1;
 
-	while ( *cp )
+	while (*cp)
 	{
 		s1 = cp;
 		s2 = (wchar_t *) str2;
 
-		while ( *s1 && *s2 && !(Lower(*s1)-Lower(*s2)) )
+		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
 		{
 			s1++;
 			s2++;
 		}
 
-		if ( !*s2 )
+		if (!*s2)
 			return cp;
 
 		cp++;
@@ -73,24 +73,24 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 	if (len2 > len1)
 		return NULL;
 
-	if ( !*str2 )
+	if (!*str2)
 		return &str1[len1];
 
 	wchar_t *cp = (wchar_t *)&str1[len1-len2];
 	wchar_t *s1, *s2;
 
-	while ( cp >= str1 )
+	while (cp >= str1)
 	{
 		s1 = cp;
 		s2 = (wchar_t *) str2;
 
-		while ( *s1 && *s2 && !(Lower(*s1)-Lower(*s2)) )
+		while (*s1 && *s2 && !(Lower(*s1)-Lower(*s2)))
 		{
 			s1++;
 			s2++;
 		}
 
-		if ( !*s2 )
+		if (!*s2)
 			return cp;
 
 		cp--;
@@ -102,206 +102,204 @@ const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2)
 
 wchar_t __cdecl Upper(wchar_t Ch)
 {
-    wchar_t Buf = Ch;
-
-		CharUpperBuff(&Buf, 1);
-
-    return Buf;
+	wchar_t Buf = Ch;
+	CharUpperBuff(&Buf, 1);
+	return Buf;
 }
 
 
 wchar_t __cdecl Lower(wchar_t Ch)
 {
-    wchar_t Buf = Ch;
-
-		CharLowerBuff(&Buf, 1);
-
-    return Buf;
+	wchar_t Buf = Ch;
+	CharLowerBuff(&Buf, 1);
+	return Buf;
 }
 
 int __cdecl StrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	return CompareString(
-			0,
-			NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,
-			s1,
-			n,
-			s2,
-			n
-			)-2;
+	           0,
+	           NORM_IGNORECASE|NORM_STOP_ON_NULL|SORT_STRINGSORT,
+	           s1,
+	           n,
+	           s2,
+	           n
+	       )-2;
 }
 
 int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
 	return CompareString(
-			0,
-			NORM_IGNORECASE|SORT_STRINGSORT,
-			s1,
-			-1,
-			s2,
-			-1
-			)-2;
-
+	           0,
+	           NORM_IGNORECASE|SORT_STRINGSORT,
+	           s1,
+	           -1,
+	           s2,
+	           -1
+	       )-2;
 }
 
 int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n)
 {
 	return CompareString(
-			0,
-			NORM_STOP_ON_NULL|SORT_STRINGSORT,
-			s1,
-			n,
-			s2,
-			n
-			)-2;
+	           0,
+	           NORM_STOP_ON_NULL|SORT_STRINGSORT,
+	           s1,
+	           n,
+	           s2,
+	           n
+	       )-2;
 }
 
 int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2)
 {
 	return CompareString(
-			0,
-			SORT_STRINGSORT,
-			s1,
-			-1,
-			s2,
-			-1
-			)-2;
-
+	           0,
+	           SORT_STRINGSORT,
+	           s1,
+	           -1,
+	           s2,
+	           -1
+	       )-2;
 }
 
 int __digit_cnt_0(const wchar_t* s, const wchar_t ** beg)
 {
-  int n = 0;
-  while(*s == L'0') s++;
-  *beg = s;
-  while(iswdigit(*s)) { s++; n++; }
-  return n;
+	int n = 0;
+
+	while (*s == L'0') s++;
+
+	*beg = s;
+
+	while (iswdigit(*s)) { s++; n++; }
+
+	return n;
 }
 
 int __cdecl NumStrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
 	int ret;
 
-	while ( *s1 && *s2 )
+	while (*s1 && *s2)
 	{
-		if ( iswdigit(*s1) && iswdigit(*s2) )
+		if (iswdigit(*s1) && iswdigit(*s2))
 		{
 			// берем длину числа без ведущих нулей
 			int dig_len1 = __digit_cnt_0(s1, &s1);
 			int dig_len2 = __digit_cnt_0(s2, &s2);
 			// если одно длиннее другого, значит они и больше! :)
 
-			if(dig_len1 != dig_len2)
+			if (dig_len1 != dig_len2)
 				return dig_len1 - dig_len2;
 
 			// длины одинаковы, сопоставляем...
-			while ( iswdigit(*s1) && iswdigit(*s2) )
+			while (iswdigit(*s1) && iswdigit(*s2))
 			{
 				ret = StrCmpNI(s1,s2,1);
 
-				if ( ret )
+				if (ret)
 					return ret;
 
 				s1++; s2++;
 			}
 
-            if ( *s1 == 0 )
-            	break;
+			if (*s1 == 0)
+				break;
 		}
 
 		ret = StrCmpNI(s1,s2,1);
 
-		if ( ret )
+		if (ret)
 			return ret;
 
 		s1++; s2++;
 	}
 
-    return StrCmpI(s1,s2);
+	return StrCmpI(s1,s2);
 }
 
 int __cdecl NumStrCmp(const wchar_t *s1, const wchar_t *s2)
 {
 	int ret;
 
-	while ( *s1 && *s2 )
+	while (*s1 && *s2)
 	{
-		if ( iswdigit(*s1) && iswdigit(*s2) )
+		if (iswdigit(*s1) && iswdigit(*s2))
 		{
 			// берем длину числа без ведущих нулей
 			int dig_len1 = __digit_cnt_0(s1, &s1);
 			int dig_len2 = __digit_cnt_0(s2, &s2);
 			// если одно длиннее другого, значит они и больше! :)
 
-			if(dig_len1 != dig_len2)
+			if (dig_len1 != dig_len2)
 				return dig_len1 - dig_len2;
 
 			// длины одинаковы, сопоставляем...
-			while ( iswdigit(*s1) && iswdigit(*s2) )
+			while (iswdigit(*s1) && iswdigit(*s2))
 			{
 				ret = StrCmpN(s1,s2,1);
 
-				if ( ret )
+				if (ret)
 					return ret;
 
 				s1++; s2++;
 			}
 
-            if ( *s1 == 0 )
-            	break;
+			if (*s1 == 0)
+				break;
 		}
 
 		ret = StrCmpN(s1,s2,1);
 
-		if ( ret )
+		if (ret)
 			return ret;
 
 		s1++; s2++;
 	}
 
-    return StrCmp(s1,s2);
+	return StrCmp(s1,s2);
 }
 
 
 int __cdecl IsUpper(wchar_t Ch)
 {
-		return IsCharUpper(Ch);
+	return IsCharUpper(Ch);
 }
 
 int __cdecl IsLower(wchar_t Ch)
 {
-		return IsCharLower(Ch);
+	return IsCharLower(Ch);
 }
 
 int __cdecl IsAlpha(wchar_t Ch)
 {
-		return IsCharAlpha(Ch);
+	return IsCharAlpha(Ch);
 }
 
 int __cdecl IsAlphaNum(wchar_t Ch)
 {
-		return IsCharAlphaNumeric(Ch);
+	return IsCharAlphaNumeric(Ch);
 }
 
 
 void __cdecl UpperBuf(wchar_t *Buf, int Length)
 {
-		CharUpperBuff(Buf, Length);
+	CharUpperBuff(Buf, Length);
 }
 
 
 void __cdecl LowerBuf(wchar_t *Buf,int Length)
 {
-		CharLowerBuff(Buf, Length);
+	CharLowerBuff(Buf, Length);
 }
 
 void __cdecl StrUpper(wchar_t *s1)
 {
-    UpperBuf(s1, StrLength(s1));
+	UpperBuf(s1, StrLength(s1));
 }
 
 
 void __cdecl StrLower(wchar_t *s1)
 {
-    LowerBuf(s1, StrLength(s1));
+	LowerBuf(s1, StrLength(s1));
 }

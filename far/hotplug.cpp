@@ -49,78 +49,78 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 
 DEFINE_GUID(GUID_DEVINTERFACE_VOLUME,0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b)=
-                                    {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
+    {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
 
-struct DeviceInfo {
-  DEVINST hDevInst; // device instance
-  DWORD dwDriveMask; // mask of associated drives
+struct DeviceInfo
+{
+	DEVINST hDevInst; // device instance
+	DWORD dwDriveMask; // mask of associated drives
 };
 
-static int  GetHotplugDevicesInfo (DeviceInfo **pInfo);
-static void FreeHotplugDevicesInfo (DeviceInfo *pInfo);
-static bool GetDeviceProperty (DEVINST hDevInst, int nProperty, string &strValue, bool bSearchChild);
-static int __RemoveHotplugDevice (DEVINST hDevInst);
+static int  GetHotplugDevicesInfo(DeviceInfo **pInfo);
+static void FreeHotplugDevicesInfo(DeviceInfo *pInfo);
+static bool GetDeviceProperty(DEVINST hDevInst, int nProperty, string &strValue, bool bSearchChild);
+static int __RemoveHotplugDevice(DEVINST hDevInst);
 static int RemoveHotplugDevice(DEVINST hDevInst,DWORD DevMasks,DWORD Flags);
 static DeviceInfo *EnumHotPlugDevice(LPARAM lParam);
 
 
 DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 {
-  VMenu *HotPlugList=(VMenu *)lParam;
+	VMenu *HotPlugList=(VMenu *)lParam;
+	DeviceInfo *pInfo=NULL;
+	int nCount = GetHotplugDevicesInfo(&pInfo);
 
-  DeviceInfo *pInfo=NULL;
-  int nCount = GetHotplugDevicesInfo (&pInfo);
-  if ( nCount )
-  {
+	if (nCount)
+	{
 		MenuItemEx ListItem;
 
-    for (int I = 0; I < nCount; I++)
-    {
-      string strFriendlyName;
-      string strDescription;
+		for (int I = 0; I < nCount; I++)
+		{
+			string strFriendlyName;
+			string strDescription;
+			DEVINST hDevInst=pInfo[I].hDevInst;
+			ListItem.Clear();
 
-      DEVINST hDevInst=pInfo[I].hDevInst;
+			if (GetDeviceProperty(hDevInst,CM_DRP_DEVICEDESC,strDescription,true))
+			{
+				if (!strDescription.IsEmpty())
+				{
+					RemoveExternalSpaces(strDescription);
+					ListItem.strName = strDescription;
+				}
+			}
 
-      ListItem.Clear ();
+			if (GetDeviceProperty(hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true))
+			{
+				RemoveExternalSpaces(strFriendlyName);
 
-      if (GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true))
-      {
-        if (!strDescription.IsEmpty ())
-        {
-          RemoveExternalSpaces(strDescription);
-          ListItem.strName = strDescription;
-        }
-      }
+				if (!strDescription.IsEmpty())
+				{
+					if (!strFriendlyName.IsEmpty() && StrCmpI(strDescription,strFriendlyName))
+					{
+						ListItem.strName += L" \"" + strFriendlyName + L"\"";
+					}
+				}
+				else if (!strFriendlyName.IsEmpty())
+				{
+					ListItem.strName = strFriendlyName;
+				}
+			}
 
-      if (GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true))
-      {
-        RemoveExternalSpaces(strFriendlyName);
-        if (!strDescription.IsEmpty ())
-        {
-          if (!strFriendlyName.IsEmpty () && StrCmpI(strDescription,strFriendlyName) )
-          {
-            ListItem.strName += L" \"" + strFriendlyName + L"\"";
-          }
-        }
-        else if (!strFriendlyName.IsEmpty ())
-        {
-            ListItem.strName = strFriendlyName;
-        }
-      }
+			if (!ListItem.strName.IsEmpty())
+				HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
+		}
+	}
 
-      if(!ListItem.strName.IsEmpty ())
-        HotPlugList->SetUserData((void*)(INT_PTR)I,sizeof(I),HotPlugList->AddItem(&ListItem));
-    }
-  }
-
-  return pInfo;
+	return pInfo;
 }
 
 static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
 {
-	if(pInfo) FreeHotplugDevicesInfo (pInfo);
-	pInfo=NULL;
+	if (pInfo) FreeHotplugDevicesInfo(pInfo);
 
+	pInfo=NULL;
 	HotPlugList.Hide();
 	HotPlugList.DeleteItems();
 	HotPlugList.SetPosition(-1,-1,0,0);
@@ -128,120 +128,115 @@ static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
 	HotPlugList.Show();
 }
 
-void ShowHotplugDevice ()
+void ShowHotplugDevice()
 {
-  if( !ifn.bSetupAPIFunctions )
-  {
-    SetLastError(ERROR_INVALID_FUNCTION);
-    return;
-  }
+	if (!ifn.bSetupAPIFunctions)
+	{
+		SetLastError(ERROR_INVALID_FUNCTION);
+		return;
+	}
 
-  DeviceInfo *pInfo=NULL;
-  int I;
+	DeviceInfo *pInfo=NULL;
+	int I;
+	VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
+	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
+	HotPlugList.SetPosition(-1,-1,0,0);
+	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
+	HotPlugList.AssignHighlights(TRUE);
+	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
+	HotPlugList.Show();
 
-  VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
-  HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
-  HotPlugList.SetPosition(-1,-1,0,0);
+	while (!HotPlugList.Done())
+	{
+		int Key=HotPlugList.ReadInput();
 
-  pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
+		switch (Key)
+		{
+			case KEY_F1:
+			{
+				BlockExtKey blockExtKey;
+				{
+					Help Hlp(L"HotPlugList");
+				}
+				break;
+			}
+			case KEY_CTRLR:
+			{
+				RefreshHotplugMenu(pInfo,HotPlugList);
+				break;
+			}
+			case KEY_NUMDEL:
+			case KEY_DEL:
+			{
+				if (HotPlugList.GetItemCount() > 0)
+				{
+					BlockExtKey blockExtKey;
+					int bResult;
+					I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
 
-  HotPlugList.AssignHighlights(TRUE);
-  HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
-  HotPlugList.Show();
+					if ((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
+					{
+						HotPlugList.Hide();
 
-  while (!HotPlugList.Done())
-  {
-    int Key=HotPlugList.ReadInput();
-    switch(Key)
-    {
-      case KEY_F1:
-      {
-        BlockExtKey blockExtKey;
-        {
-          Help Hlp (L"HotPlugList");
-        }
-        break;
-      }
+						if (pInfo)
+							FreeHotplugDevicesInfo(pInfo);
 
-      case KEY_CTRLR:
-      {
-        RefreshHotplugMenu(pInfo,HotPlugList);
-        break;
-      }
+						pInfo=NULL;
+						RefreshHotplugMenu(pInfo,HotPlugList);
+					}
+					else if (bResult != -1)
+					{
+						SetLastError(ERROR_DRIVE_LOCKED); // ...ю "The disk is in use or locked by another process."
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName,MSG(MOk));
+					}
+				}
 
-      case KEY_NUMDEL:
-      case KEY_DEL:
-      {
-        if(HotPlugList.GetItemCount() > 0)
-        {
-          BlockExtKey blockExtKey;
-          int bResult;
+				break;
+			}
+			default:
+				HotPlugList.ProcessInput();
+				break;
+		}
+	}
 
-          I=(int)(INT_PTR)HotPlugList.GetUserData(NULL,0);
-          if((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
-          {
-            HotPlugList.Hide();
-            if(pInfo)
-              FreeHotplugDevicesInfo (pInfo);
-            pInfo=NULL;
-            RefreshHotplugMenu(pInfo,HotPlugList);
-          }
-          else if (bResult != -1)
-          {
-             SetLastError(ERROR_DRIVE_LOCKED); // ...ю "The disk is in use or locked by another process."
-             Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-                MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList.GetItemPtr(I)->strName,MSG(MOk));
-          }
-
-        }
-        break;
-      }
-
-      default:
-        HotPlugList.ProcessInput();
-        break;
-    }
-  }
-
-  if(pInfo)
-    FreeHotplugDevicesInfo (pInfo);
+	if (pInfo)
+		FreeHotplugDevicesInfo(pInfo);
 }
 
 
-int ProcessRemoveHotplugDevice (wchar_t Drive, DWORD Flags)
+int ProcessRemoveHotplugDevice(wchar_t Drive, DWORD Flags)
 {
-  int bResult = -1;
-  DeviceInfo *pInfo;
-  DWORD dwDriveMask = (1 << (Upper(Drive)-L'A'));
+	int bResult = -1;
+	DeviceInfo *pInfo;
+	DWORD dwDriveMask = (1 << (Upper(Drive)-L'A'));
+	DWORD SavedLastError=ERROR_SUCCESS;
 
-  DWORD SavedLastError=ERROR_SUCCESS;
+	if (!ifn.bSetupAPIFunctions)
+	{
+		SetLastError(ERROR_INVALID_FUNCTION);
+		return -1; //???
+	}
 
-  if ( !ifn.bSetupAPIFunctions )
-  {
-    SetLastError(ERROR_INVALID_FUNCTION);
-    return -1; //???
-  }
+	int nCount = GetHotplugDevicesInfo(&pInfo);
 
-  int nCount = GetHotplugDevicesInfo (&pInfo);
+	if (nCount)
+	{
+		for (int i = 0; i < nCount; i++)
+		{
+			if (pInfo[i].dwDriveMask & dwDriveMask)
+			{
+				bResult=RemoveHotplugDevice(pInfo[i].hDevInst,pInfo[i].dwDriveMask,Flags);
+				// ??? break; ???
+			}
+		}
 
-  if ( nCount )
-  {
-    for (int i = 0; i < nCount; i++)
-    {
-      if ( pInfo[i].dwDriveMask & dwDriveMask )
-      {
-        bResult=RemoveHotplugDevice (pInfo[i].hDevInst,pInfo[i].dwDriveMask,Flags);
-        // ??? break; ???
-      }
-    }
+		FreeHotplugDevicesInfo(pInfo);
+		pInfo=NULL;
+	}
 
-    FreeHotplugDevicesInfo (pInfo);
-    pInfo=NULL;
-  }
-
-  SetLastError(SavedLastError);
-
-  return bResult;
+	SetLastError(SavedLastError);
+	return bResult;
 }
 
 
@@ -264,450 +259,439 @@ bool CheckChild(DEVINST hDevInst)
 {
 	bool Result=false;
 	DEVINST hDevChild;
-	if(ifn.pfnGetChild(&hDevChild,hDevInst,0)==CR_SUCCESS)
+
+	if (ifn.pfnGetChild(&hDevChild,hDevInst,0)==CR_SUCCESS)
 	{
 		DWORD Capabilities;
 		ULONG Length=sizeof(Capabilities);
-		if(ifn.pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,NULL,&Capabilities,&Length,0)==CR_SUCCESS)
+
+		if (ifn.pfnGetDevNodeRegistryProperty(hDevChild,CM_DRP_CAPABILITIES,NULL,&Capabilities,&Length,0)==CR_SUCCESS)
 		{
 			Result=!(Capabilities&CM_DEVCAP_SURPRISEREMOVALOK)&&(Capabilities&CM_DEVCAP_UNIQUEID);
 		}
 	}
+
 	return Result;
 }
 
-BOOL IsHotPlugDevice (DEVINST hDevInst)
+BOOL IsHotPlugDevice(DEVINST hDevInst)
 {
-  DWORD Capabilities;
-  DWORD Len;
-  DWORD Status,Problem;
+	DWORD Capabilities;
+	DWORD Len;
+	DWORD Status,Problem;
+	Capabilities = 0;
+	Status = 0;
+	Problem = 0;
+	Len = sizeof(Capabilities);
 
-  Capabilities = 0;
-  Status = 0;
-  Problem = 0;
+	if (ifn.pfnGetDevNodeRegistryProperty(
+	            hDevInst,
+	            CM_DRP_CAPABILITIES,
+	            NULL,
+	            (PVOID)&Capabilities,
+	            &Len,
+	            0
+	        ) == CR_SUCCESS)
+	{
+		if (ifn.pfnGetDevNodeStatus(
+		            &Status,
+		            &Problem,
+		            hDevInst,
+		            0
+		        ) == CR_SUCCESS)
+		{
+			if ((Problem != CM_PROB_DEVICE_NOT_THERE) &&
+			        (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
+			        (Problem != CM_PROB_DISABLED) &&
+			        (Capabilities & CM_DEVCAP_REMOVABLE) &&
+			        (!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || CheckChild(hDevInst)) &&
+			        !(Capabilities & CM_DEVCAP_DOCKDEVICE))
+				return TRUE;
+		}
+	}
 
-  Len = sizeof(Capabilities);
-
-  if ( ifn.pfnGetDevNodeRegistryProperty (
-      hDevInst,
-      CM_DRP_CAPABILITIES,
-      NULL,
-      (PVOID)&Capabilities,
-      &Len,
-      0
-      ) == CR_SUCCESS )
-  {
-    if ( ifn.pfnGetDevNodeStatus (
-        &Status,
-        &Problem,
-        hDevInst,
-        0
-        ) == CR_SUCCESS )
-    {
-      if ( (Problem != CM_PROB_DEVICE_NOT_THERE) &&
-           (Problem != CM_PROB_HELD_FOR_EJECT) && //возможно, надо проверять на наличие проблем вообще
-           (Problem != CM_PROB_DISABLED) &&
-         (Capabilities & CM_DEVCAP_REMOVABLE) &&
-					(!(Capabilities & CM_DEVCAP_SURPRISEREMOVALOK) || CheckChild(hDevInst)) &&
-         !(Capabilities & CM_DEVCAP_DOCKDEVICE) )
-         return TRUE;
-    }
-  }
-
-  return FALSE;
+	return FALSE;
 }
 
 
-DWORD DriveMaskFromVolumeName (const wchar_t *lpwszVolumeName)
+DWORD DriveMaskFromVolumeName(const wchar_t *lpwszVolumeName)
 {
-  wchar_t wszCurrentVolumeName[MAX_PATH];
+	wchar_t wszCurrentVolumeName[MAX_PATH];
 	wchar_t wszMountPoint[]={L'A',L':',L'\\',0};
 
-  for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
-  {
-    wszMountPoint[0] = Letter;
-
+	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
+	{
+		wszMountPoint[0] = Letter;
 		GetVolumeNameForVolumeMountPoint(wszMountPoint, wszCurrentVolumeName, MAX_PATH);
 
-    if ( !StrCmpI (wszCurrentVolumeName, lpwszVolumeName) )
-      return (1 << (Letter-L'A'));
-  }
+		if (!StrCmpI(wszCurrentVolumeName, lpwszVolumeName))
+			return (1 << (Letter-L'A'));
+	}
 
-  return 0;
+	return 0;
 }
 
-DWORD GetDriveMaskFromMountPoints (DEVINST hDevInst)
+DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 {
-  DWORD dwMask = 0;
-  wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
+	DWORD dwMask = 0;
+	wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
 
-  if ( ifn.pfnGetDeviceID (
-      hDevInst,
-      szDeviceID,
-      sizeof(szDeviceID)/sizeof (wchar_t),
-      0
-      ) == CR_SUCCESS )
-  {
-    DWORD dwSize = 0;
+	if (ifn.pfnGetDeviceID(
+	            hDevInst,
+	            szDeviceID,
+	            sizeof(szDeviceID)/sizeof(wchar_t),
+	            0
+	        ) == CR_SUCCESS)
+	{
+		DWORD dwSize = 0;
 
-    if ( ifn.pfnGetDeviceInterfaceListSize (
-        &dwSize,
-        (LPGUID)&GUID_DEVINTERFACE_VOLUME,
-        (DEVINSTID_W)&szDeviceID,
-        0
-        ) == CR_SUCCESS )
-    {
-      if ( dwSize > 1 )
-      {
-        wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
+		if (ifn.pfnGetDeviceInterfaceListSize(
+		            &dwSize,
+		            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
+		            (DEVINSTID_W)&szDeviceID,
+		            0
+		        ) == CR_SUCCESS)
+		{
+			if (dwSize > 1)
+			{
+				wchar_t *lpwszDeviceInterfaceList = (wchar_t*)xf_malloc(dwSize*sizeof(wchar_t));
 
-        if ( ifn.pfnGetDeviceInterfaceList (
-            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
-            (DEVINSTID_W)&szDeviceID,
-            lpwszDeviceInterfaceList,
-            dwSize,
-            0
-            ) == CR_SUCCESS )
-        {
-          wchar_t *p = lpwszDeviceInterfaceList;
+				if (ifn.pfnGetDeviceInterfaceList(
+				            (LPGUID)&GUID_DEVINTERFACE_VOLUME,
+				            (DEVINSTID_W)&szDeviceID,
+				            lpwszDeviceInterfaceList,
+				            dwSize,
+				            0
+				        ) == CR_SUCCESS)
+				{
+					wchar_t *p = lpwszDeviceInterfaceList;
 
-          while ( *p )
-          {
-            wchar_t *lpwszMountPoint = (wchar_t*)xf_malloc ((wcslen (p)+1+1)*sizeof (wchar_t)); //for trailing slash
+					while (*p)
+					{
+						wchar_t *lpwszMountPoint = (wchar_t*)xf_malloc((wcslen(p)+1+1)*sizeof(wchar_t));    //for trailing slash
+						wcscpy(lpwszMountPoint, p);
 
-            wcscpy (lpwszMountPoint, p);
+						if (!FirstSlash(p+4))
+							wcscat(lpwszMountPoint, L"\\");
 
-						if(!FirstSlash(p+4))
-              wcscat (lpwszMountPoint, L"\\");
+						wchar_t wszVolumeName[MAX_PATH];
 
-            wchar_t wszVolumeName[MAX_PATH];
+						if (GetVolumeNameForVolumeMountPoint(
+						            lpwszMountPoint,
+						            (wchar_t*)&wszVolumeName,
+						            MAX_PATH
+						        ))
+							dwMask |= DriveMaskFromVolumeName(wszVolumeName);
 
-						if ( GetVolumeNameForVolumeMountPoint(
-                lpwszMountPoint,
-                (wchar_t*)&wszVolumeName,
-                MAX_PATH
-                ) )
-              dwMask |= DriveMaskFromVolumeName (wszVolumeName);
+						xf_free(lpwszMountPoint);
+						p += wcslen(p)+1;
+					}
+				}
 
-            xf_free (lpwszMountPoint);
+				xf_free(lpwszDeviceInterfaceList);
+			}
+		}
+	}
 
-            p += wcslen (p)+1;
-          }
-        }
-
-        xf_free (lpwszDeviceInterfaceList);
-      }
-    }
-  }
-
-  return dwMask;
+	return dwMask;
 }
 
-DWORD GetRelationDrivesMask (DEVINST hDevInst)
+DWORD GetRelationDrivesMask(DEVINST hDevInst)
 {
-  DWORD dwMask = 0;
-  DEVINST hRelationDevInst;
-  wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
+	DWORD dwMask = 0;
+	DEVINST hRelationDevInst;
+	wchar_t szDeviceID [MAX_DEVICE_ID_LEN];
 
-  if ( ifn.pfnGetDeviceID (
-      hDevInst,
-      szDeviceID,
-      sizeof (szDeviceID)/sizeof (wchar_t),
-      0
-      ) == CR_SUCCESS )
-  {
-    DWORD dwSize = 0;
+	if (ifn.pfnGetDeviceID(
+	            hDevInst,
+	            szDeviceID,
+	            sizeof(szDeviceID)/sizeof(wchar_t),
+	            0
+	        ) == CR_SUCCESS)
+	{
+		DWORD dwSize = 0;
 
-    if ( ifn.pfnGetDeviceIDListSize (
-        &dwSize,
-        szDeviceID,
-        CM_GETIDLIST_FILTER_REMOVALRELATIONS
-        ) == CR_SUCCESS )
-    {
-      if ( dwSize )
-      {
-        wchar_t *lpDeviceIdList = (wchar_t*)xf_malloc (dwSize*sizeof (wchar_t));
+		if (ifn.pfnGetDeviceIDListSize(
+		            &dwSize,
+		            szDeviceID,
+		            CM_GETIDLIST_FILTER_REMOVALRELATIONS
+		        ) == CR_SUCCESS)
+		{
+			if (dwSize)
+			{
+				wchar_t *lpDeviceIdList = (wchar_t*)xf_malloc(dwSize*sizeof(wchar_t));
 
-        if ( ifn.pfnGetDeviceIDList (
-            szDeviceID,
-            lpDeviceIdList,
-            dwSize,
-            CM_GETIDLIST_FILTER_REMOVALRELATIONS
-            ) == CR_SUCCESS )
-        {
-          wchar_t *p = lpDeviceIdList;
+				if (ifn.pfnGetDeviceIDList(
+				            szDeviceID,
+				            lpDeviceIdList,
+				            dwSize,
+				            CM_GETIDLIST_FILTER_REMOVALRELATIONS
+				        ) == CR_SUCCESS)
+				{
+					wchar_t *p = lpDeviceIdList;
 
-          while ( *p )
-          {
-            if ( ifn.pfnLocateDevNode (
-                &hRelationDevInst,
-                p,
-                0
-                ) == CR_SUCCESS )
-              dwMask = GetDriveMaskFromMountPoints (hRelationDevInst);
+					while (*p)
+					{
+						if (ifn.pfnLocateDevNode(
+						            &hRelationDevInst,
+						            p,
+						            0
+						        ) == CR_SUCCESS)
+							dwMask = GetDriveMaskFromMountPoints(hRelationDevInst);
 
-            p += wcslen (p)+1;
-          }
-        }
+						p += wcslen(p)+1;
+					}
+				}
 
-        xf_free (lpDeviceIdList);
-      }
-    }
-  }
+				xf_free(lpDeviceIdList);
+			}
+		}
+	}
 
-  return dwMask;
+	return dwMask;
 }
 
-DWORD GetDriveMaskForDeviceInternal (DEVINST hDevInst)
+DWORD GetDriveMaskForDeviceInternal(DEVINST hDevInst)
 {
-  DWORD dwMask = 0;
-  DEVINST hDevChild;
+	DWORD dwMask = 0;
+	DEVINST hDevChild;
 
-  do {
+	do
+	{
+		if (!IsHotPlugDevice(hDevInst))
+		{
+			dwMask |= GetDriveMaskFromMountPoints(hDevInst);
+			dwMask |= GetRelationDrivesMask(hDevInst);
 
-    if ( !IsHotPlugDevice(hDevInst) )
-    {
-      dwMask |= GetDriveMaskFromMountPoints (hDevInst);
-      dwMask |= GetRelationDrivesMask (hDevInst);
+			if (ifn.pfnGetChild(
+			            &hDevChild,
+			            hDevInst,
+			            0
+			        ) == CR_SUCCESS)
+				dwMask |= GetDriveMaskForDeviceInternal(hDevChild);
+		}
+	}
+	while (ifn.pfnGetSibling(&hDevInst, hDevInst, 0) == CR_SUCCESS);
 
-      if ( ifn.pfnGetChild (
-          &hDevChild,
-          hDevInst,
-          0
-          ) == CR_SUCCESS )
-        dwMask |= GetDriveMaskForDeviceInternal (hDevChild);
-    }
-
-  } while ( ifn.pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
-
-  return dwMask;
+	return dwMask;
 }
 
 
-DWORD GetDriveMaskForDevice (DEVINST hDevInst)
+DWORD GetDriveMaskForDevice(DEVINST hDevInst)
 {
-  DWORD dwMask = 0;
-  DEVINST hDevChild;
+	DWORD dwMask = 0;
+	DEVINST hDevChild;
+	dwMask |= GetDriveMaskFromMountPoints(hDevInst);
+	dwMask |= GetRelationDrivesMask(hDevInst);
 
-  dwMask |= GetDriveMaskFromMountPoints (hDevInst);
-  dwMask |= GetRelationDrivesMask (hDevInst);
+	if (ifn.pfnGetChild(
+	            &hDevChild,
+	            hDevInst,
+	            0
+	        ) == CR_SUCCESS)
+		dwMask |= GetDriveMaskForDeviceInternal(hDevChild);
 
-  if ( ifn.pfnGetChild (
-      &hDevChild,
-      hDevInst,
-      0
-      ) == CR_SUCCESS )
-    dwMask |= GetDriveMaskForDeviceInternal (hDevChild);
-
-  return dwMask;
+	return dwMask;
 }
 
-int GetHotplugDriveDeviceInfoInternal (DEVINST hDevInst, DeviceInfo **pInfo, int nCount)
+int GetHotplugDriveDeviceInfoInternal(DEVINST hDevInst, DeviceInfo **pInfo, int nCount)
 {
-  DEVINST hDevChild;
+	DEVINST hDevChild;
 
-  do {
+	do
+	{
+		if (IsHotPlugDevice(hDevInst))
+		{
+			nCount++;
+			*pInfo = (DeviceInfo*)xf_realloc(*pInfo, nCount*sizeof(DeviceInfo));
+			DeviceInfo *pItem = &(*pInfo)[nCount-1];
+			pItem->dwDriveMask = GetDriveMaskForDevice(hDevInst);
+			pItem->hDevInst = hDevInst;
+		}
 
-    if ( IsHotPlugDevice(hDevInst) )
-    {
-        nCount++;
-        *pInfo = (DeviceInfo*)xf_realloc (*pInfo, nCount*sizeof (DeviceInfo));
+		if (ifn.pfnGetChild(
+		            &hDevChild,
+		            hDevInst,
+		            0
+		        ) == CR_SUCCESS)
+			nCount = GetHotplugDriveDeviceInfoInternal(hDevChild, pInfo, nCount);
+	}
+	while (ifn.pfnGetSibling(&hDevInst, hDevInst, 0) == CR_SUCCESS);
 
-        DeviceInfo *pItem = &(*pInfo)[nCount-1];
-
-        pItem->dwDriveMask = GetDriveMaskForDevice (hDevInst);
-        pItem->hDevInst = hDevInst;
-    }
-
-      if ( ifn.pfnGetChild (
-          &hDevChild,
-          hDevInst,
-          0
-          ) == CR_SUCCESS )
-        nCount = GetHotplugDriveDeviceInfoInternal (hDevChild, pInfo, nCount);
-
-  } while ( ifn.pfnGetSibling (&hDevInst, hDevInst, 0) == CR_SUCCESS );
-
-  return nCount;
+	return nCount;
 }
 
-int GetHotplugDevicesInfo (DeviceInfo **pInfo)
+int GetHotplugDevicesInfo(DeviceInfo **pInfo)
 {
-  if ( pInfo )
-  {
-    *pInfo = NULL;
+	if (pInfo)
+	{
+		*pInfo = NULL;
 
-    if ( ifn.bSetupAPIFunctions )
-    {
-      DEVNODE hDevRoot;
+		if (ifn.bSetupAPIFunctions)
+		{
+			DEVNODE hDevRoot;
 
-      if ( ifn.pfnLocateDevNode (
-          &hDevRoot,
-          NULL,
-          CM_LOCATE_DEVNODE_NORMAL
-          ) == CR_SUCCESS )
-      {
-        DEVINST hDevChild;
+			if (ifn.pfnLocateDevNode(
+			            &hDevRoot,
+			            NULL,
+			            CM_LOCATE_DEVNODE_NORMAL
+			        ) == CR_SUCCESS)
+			{
+				DEVINST hDevChild;
 
-        if ( ifn.pfnGetChild (
-            &hDevChild,
-            hDevRoot,
-            0
-            ) == CR_SUCCESS )
-          return GetHotplugDriveDeviceInfoInternal (hDevChild, pInfo, 0);
-      }
-    }
-  }
+				if (ifn.pfnGetChild(
+				            &hDevChild,
+				            hDevRoot,
+				            0
+				        ) == CR_SUCCESS)
+					return GetHotplugDriveDeviceInfoInternal(hDevChild, pInfo, 0);
+			}
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
-void FreeHotplugDevicesInfo (DeviceInfo *pInfo)
+void FreeHotplugDevicesInfo(DeviceInfo *pInfo)
 {
-  xf_free (pInfo);
+	xf_free(pInfo);
 }
 
-bool GetDeviceProperty (
+bool GetDeviceProperty(
     DEVINST hDevInst,
     int nProperty,
     string &strValue,
     bool bSearchChild
-    )
+)
 {
-  bool bResult = false;
+	bool bResult = false;
 
-  if ( ifn.bSetupAPIFunctions )
-  {
-    DWORD dwSize = 0;
-    CONFIGRET crResult;
+	if (ifn.bSetupAPIFunctions)
+	{
+		DWORD dwSize = 0;
+		CONFIGRET crResult;
+		crResult = ifn.pfnGetDevNodeRegistryProperty(
+		               hDevInst,
+		               nProperty,//CM_DRP_FRIENDLYNAME,
+		               NULL,
+		               NULL,
+		               &dwSize,
+		               0
+		           );
 
-    crResult = ifn.pfnGetDevNodeRegistryProperty (
-        hDevInst,
-        nProperty,//CM_DRP_FRIENDLYNAME,
-        NULL,
-        NULL,
-        &dwSize,
-        0
-        );
+		if (dwSize == 0)
+		{
+			if (bSearchChild)
+			{
+				DEVINST hDevChild;
 
-    if ( dwSize == 0 )
-    {
-      if ( bSearchChild )
-      {
-        DEVINST hDevChild;
+				if (ifn.pfnGetChild(&hDevChild, hDevInst, 0) == CR_SUCCESS)
+					bResult = GetDeviceProperty(hDevChild, nProperty, strValue, bSearchChild);
+			}
+		}
+		else
+		{
+			wchar_t *lpwszBuffer = strValue.GetBuffer(dwSize+1);
+			crResult = ifn.pfnGetDevNodeRegistryProperty(
+			               hDevInst,
+			               nProperty,//CM_DRP_FRIENDLYNAME,
+			               NULL,
+			               lpwszBuffer,
+			               &dwSize,
+			               0
+			           );
+			strValue.ReleaseBuffer();
+			bResult = (crResult == ERROR_SUCCESS);
+		}
+	}
 
-        if ( ifn.pfnGetChild (&hDevChild, hDevInst, 0) == CR_SUCCESS )
-          bResult = GetDeviceProperty (hDevChild, nProperty, strValue, bSearchChild);
-      }
-    }
-    else
-    {
-      wchar_t *lpwszBuffer = strValue.GetBuffer (dwSize+1);
-
-      crResult = ifn.pfnGetDevNodeRegistryProperty (
-          hDevInst,
-          nProperty,//CM_DRP_FRIENDLYNAME,
-          NULL,
-          lpwszBuffer,
-          &dwSize,
-          0
-          );
-
-      strValue.ReleaseBuffer ();
-
-      bResult = (crResult == ERROR_SUCCESS);
-    }
-  }
-
-  return bResult;
+	return bResult;
 }
 
 
-int __RemoveHotplugDevice (DEVINST hDevInst)
+int __RemoveHotplugDevice(DEVINST hDevInst)
 {
-  PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
-  CONFIGRET crResult;
-
+	PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
+	CONFIGRET crResult;
 	wchar_t wszDescription[MAX_PATH]={0}; //BUGBUG
+	crResult = ifn.pfnRequestDeviceEject(
+	               hDevInst,
+	               &pvtVeto,
+	               (wchar_t*)&wszDescription,
+	               MAX_PATH,
+	               0
+	           );
 
-  crResult = ifn.pfnRequestDeviceEject (
-      hDevInst,
-      &pvtVeto,
-      (wchar_t*)&wszDescription,
-      MAX_PATH,
-      0
-      );
+	if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ баг, если есть szDecsription, то даже при ошибке возвращается CR_SUCCESS
+	{
+		SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // ...о "The disk is in use or locked by another process."
+		return 0;
+	}
 
-  if ( (crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown) ) //M$ баг, если есть szDecsription, то даже при ошибке возвращается CR_SUCCESS
-  {
-    SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // ...о "The disk is in use or locked by another process."
-    return 0;
-  }
-
-  SetLastError(ERROR_SUCCESS);
-  return 1;
+	SetLastError(ERROR_SUCCESS);
+	return 1;
 }
 
 int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 {
-  int bResult = -1; // сразу выставим -1, иначе, на обычном HDD операция Shift-Del ругается, что мол деайс залочен
+	int bResult = -1; // сразу выставим -1, иначе, на обычном HDD операция Shift-Del ругается, что мол деайс залочен
+	string strFriendlyName;
+	string strDescription;
+	GetDeviceProperty(hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true);
+	RemoveExternalSpaces(strFriendlyName);
+	GetDeviceProperty(hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
+	RemoveExternalSpaces(strDescription);
+	int DoneEject=0;
 
-  string strFriendlyName;
-  string strDescription;
+	if (!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
+	{
+		string strDiskMsg;
+		wchar_t Disks[256], *pDisk=Disks;
+		*pDisk=0;
 
-  GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,strFriendlyName,true);
-  RemoveExternalSpaces(strFriendlyName);
-  GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,strDescription,true);
-  RemoveExternalSpaces(strDescription);
+		for (int Drive='A'; Drive <= 'Z'; ++Drive)
+		{
+			if (dwDriveMask & (1 << (Drive-'A')))
+			{
+				*pDisk++=(wchar_t)Drive;
+				*pDisk++=L':';
+				*pDisk++=L',';
+			}
+		}
 
-  int DoneEject=0;
-  if(!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
-  {
-    string strDiskMsg;
-    wchar_t Disks[256], *pDisk=Disks;
-    *pDisk=0;
+		*pDisk=0;
 
-    for(int Drive='A'; Drive <= 'Z'; ++Drive)
-    {
-      if(dwDriveMask & (1 << (Drive-'A')))
-      {
-        *pDisk++=(wchar_t)Drive;
-        *pDisk++=L':';
-        *pDisk++=L',';
-      }
-    }
+		if (pDisk != Disks)
+			*--pDisk=0;
 
-    *pDisk=0;
-    if(pDisk != Disks)
-      *--pDisk=0;
+		if (*Disks)
+			strDiskMsg.Format(MSG(MHotPlugDisks),Disks);
 
-    if(*Disks)
-      strDiskMsg.Format(MSG(MHotPlugDisks),Disks);
+		if (StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty())
+		{
+			if (!strDiskMsg.IsEmpty())
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
+			else
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,MSG(MHRemove),MSG(MHCancel));
+		}
+		else
+		{
+			if (!strDiskMsg.IsEmpty())
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
+			else
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,MSG(MHRemove),MSG(MHCancel));
+		}
+	}
 
-    if(StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty ())
-    {
-      if(!strDiskMsg.IsEmpty ())
-        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
-      else
-        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,MSG(MHRemove),MSG(MHCancel));
-    }
-    else
-    {
-      if(!strDiskMsg.IsEmpty ())
-        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
-      else
-        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,MSG(MHRemove),MSG(MHCancel));
-    }
-  }
+	if (!DoneEject)
+		bResult = __RemoveHotplugDevice(hDevInst);
+	else
+		bResult = -1;
 
-  if(!DoneEject)
-    bResult = __RemoveHotplugDevice (hDevInst);
-  else
-    bResult = -1;
-  if(bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
-  {
-    Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,MSG(MChangeHotPlugNotify2),MSG(MOk));
-  }
+	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
+	{
+		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription,strFriendlyName,MSG(MChangeHotPlugNotify2),MSG(MOk));
+	}
 
-  return bResult;
+	return bResult;
 }

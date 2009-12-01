@@ -44,12 +44,13 @@ extern HANDLE hConOut,hConInp;
 extern DWORD InitialConsoleMode;
 
 // типы рамок
-enum {
-  NO_BOX,
-  SINGLE_BOX,
-  SHORT_SINGLE_BOX,
-  DOUBLE_BOX,
-  SHORT_DOUBLE_BOX
+enum
+{
+	NO_BOX,
+	SINGLE_BOX,
+	SHORT_SINGLE_BOX,
+	DOUBLE_BOX,
+	SHORT_DOUBLE_BOX
 };
 
 enum BOX_DEF_SYMBOLS

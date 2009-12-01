@@ -58,7 +58,7 @@ enum PATH_PFX_TYPE
 	PPT_NT
 };
 
-PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
+PATH_PFX_TYPE Point2Root(LPCWSTR stPath, size_t& PathOffset)
 {
 	if (stPath)
 	{
@@ -67,35 +67,35 @@ PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
 
 		//Skip root entry, network share, device, nt notation or symlink prefix: "\", "\\", "\\.\", "\\?\", "\??\"
 		//prefix "\" or "/"
-		if (IsSlash (*pstPath))
+		if (IsSlash(*pstPath))
 		{
 			pstPath++;
 			nPrefix = PPT_ROOT;
 
 			//prefix "\"
-			if (IsSlashBackward (pstPath[-1]))
+			if (IsSlashBackward(pstPath[-1]))
 			{
 				//prefix "\\" - network
-				if (IsSlashBackward (pstPath[0]))
+				if (IsSlashBackward(pstPath[0]))
 				{
 					pstPath++;
 					nPrefix = PPT_PREFIX;
 
 					//prefix "\\.\" - device
-					if (IsDot (pstPath[0]) && IsSlashBackward (pstPath[1]))
+					if (IsDot(pstPath[0]) && IsSlashBackward(pstPath[1]))
 					{
 						pstPath += 2;
 					}
 					else
 					{
 						//prefix "\\?\" - nt notation
-						if (IsQuestion (pstPath[0]) && IsSlashBackward (pstPath[1]))
+						if (IsQuestion(pstPath[0]) && IsSlashBackward(pstPath[1]))
 						{
 							pstPath += 2;
 							nPrefix = PPT_NT;
 
 							//prefix "\\?\UNC\" - nt notation (UNC)
-							if (!StrCmpN (pstPath, L"UNC\\", 4))
+							if (!StrCmpN(pstPath, L"UNC\\", 4))
 							{
 								pstPath += 4;
 							}
@@ -104,7 +104,7 @@ PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
 				}
 				else
 				{
-					if (IsQuestion (pstPath[0]) && IsQuestion (pstPath[1]) && IsSlashBackward (pstPath[2])) //prefix "\??\" symlink
+					if (IsQuestion(pstPath[0]) && IsQuestion(pstPath[1]) && IsSlashBackward(pstPath[2]))    //prefix "\??\" symlink
 					{
 						pstPath += 3;
 						nPrefix = PPT_NT;
@@ -123,25 +123,27 @@ PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
 					pstPath++;
 					break;
 				}
+
 				pstPath++;
 			}
 		}
 		else
 		{
 			//Skip logical drive letter name
-			if (pstPath[0] && IsColon (pstPath[1]))
+			if (pstPath[0] && IsColon(pstPath[1]))
 			{
 				pstPath += 2;
 				nPrefix = PPT_DRIVE;
 
 				//Skip root slash
-				if (IsSlash (*pstPath))
+				if (IsSlash(*pstPath))
 				{
 					pstPath++;
 					nPrefix = PPT_PREFIX;
 				}
 			}
 		}
+
 		PathOffset=pstPath-stPath;
 		return (nPrefix);
 	}
@@ -149,53 +151,58 @@ PATH_PFX_TYPE Point2Root (LPCWSTR stPath, size_t& PathOffset)
 	return (PPT_NONE);
 }
 
-void MixToFullPath (string& strPath)
+void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	LPWSTR pstPath=strPath.GetBuffer();
 	size_t PathOffset=0;
-	Point2Root (pstPath,PathOffset);
+	Point2Root(pstPath,PathOffset);
 	pstPath+=PathOffset;
 
 	//Process "." and ".." if exists
 	for (int m = 0; pstPath[m];)
 	{
 		//fragment "."
-		if (IsDot (pstPath[m]) && (m == 0 || IsSlash (pstPath[m - 1])))
+		if (IsDot(pstPath[m]) && (m == 0 || IsSlash(pstPath[m - 1])))
 		{
 			LPCWSTR pstSrc;
 			LPWSTR pstDst;
+
 			switch (pstPath[m + 1])
 			{
-				//fragment ".\"
-			case L'\\':
-				//fragment "./"
-			case L'/':
+					//fragment ".\"
+				case L'\\':
+					//fragment "./"
+				case L'/':
 				{
 					for (pstSrc = pstPath + m + 2, pstDst = pstPath + m; *pstSrc; pstSrc++, pstDst++)
 					{
 						*pstDst = *pstSrc;
 					}
+
 					*pstDst = 0;
 					continue;
 				}
 				break;
 				//fragment "." at the end
-			case 0:
+				case 0:
 				{
 					pstPath[m] = 0;
 					continue;
 				}
 				break;
 				//fragment "..\" or "../" or ".." at the end
-			case L'.':
+				case L'.':
 				{
-					if (IsSlash (pstPath[m + 2]) || !pstPath[m + 2])
+					if (IsSlash(pstPath[m + 2]) || !pstPath[m + 2])
 					{
 						int n;
+
 						//Calculate subdir name offset
-						for (n = m - 2; (n >= 0) && (!IsSlash (pstPath[n])); n--);
+						for (n = m - 2; (n >= 0) && (!IsSlash(pstPath[n])); n--);
+
 						n = (n < 0) ? 0 : n + 1;
+
 						//fragment "..\" or "../"
 						if (pstPath[m + 2])
 						{
@@ -203,6 +210,7 @@ void MixToFullPath (string& strPath)
 							{
 								*pstDst = *pstSrc;
 							}
+
 							*pstDst = 0;
 						}
 						//fragment ".." at the end
@@ -210,6 +218,7 @@ void MixToFullPath (string& strPath)
 						{
 							pstPath[n] = 0;
 						}
+
 						m = n;
 						continue;
 					}
@@ -217,18 +226,20 @@ void MixToFullPath (string& strPath)
 				break;
 			}
 		}
+
 		m++;
 	}
+
 	strPath.ReleaseBuffer();
 }
 
-bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
+bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 {
 	size_t lPath=wcslen(NullToEmpty(stPath)),
-		lCurrentDir=wcslen(NullToEmpty(stCurrentDir)),
-		lFullPath=lPath+lCurrentDir;
+	       lCurrentDir=wcslen(NullToEmpty(stCurrentDir)),
+	       lFullPath=lPath+lCurrentDir;
 
-	if(lFullPath > 0)
+	if (lFullPath > 0)
 	{
 		strDest.Clear();
 		LPCWSTR pstPath = NULL, pstCurrentDir = NULL;
@@ -236,24 +247,26 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 		size_t PathOffset=0;
 		PATH_PFX_TYPE PathType=Point2Root(stPath,PathOffset);
 		pstPath=stPath+PathOffset;
-		switch(PathType)
+
+		switch (PathType)
 		{
-		case PPT_NONE: //"abc"
+			case PPT_NONE: //"abc"
 			{
 				pstCurrentDir=stCurrentDir;
 			}
 			break;
-		case PPT_DRIVE: //"C:" or "C:abc"
+			case PPT_DRIVE: //"C:" or "C:abc"
 			{
 				WCHAR DriveVar[]={L'=',*stPath,L':',L'\0'};
 				string strValue;
-				if(apiGetEnvironmentVariable(DriveVar,strValue))
+
+				if (apiGetEnvironmentVariable(DriveVar,strValue))
 				{
 					strDest=strValue;
 				}
 				else
 				{
-					if(Upper(*stPath)==Upper(*stCurrentDir))
+					if (Upper(*stPath)==Upper(*stCurrentDir))
 					{
 						strDest=stCurrentDir;
 					}
@@ -262,53 +275,60 @@ bool MixToFullPath (LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 						strDest=DriveVar+1;
 					}
 				}
+
 				AddEndSlash(strDest);
 			}
 			break;
-		case PPT_ROOT: //"\" or "\abc"
+			case PPT_ROOT: //"\" or "\abc"
 			{
 				if (stCurrentDir)
 				{
 					size_t PathOffset=0;
-					if(Point2Root(stCurrentDir,PathOffset)!=PPT_NONE)
+
+					if (Point2Root(stCurrentDir,PathOffset)!=PPT_NONE)
 					{
 						strDest=string(stCurrentDir,PathOffset);
 					}
 				}
 			}
 			break;
-		case PPT_PREFIX: //"C:\abc"
+			case PPT_PREFIX: //"C:\abc"
 			{
 				pstPath=stPath;
 			}
 			break;
-		case PPT_NT: //"\\?\abc"
+			case PPT_NT: //"\\?\abc"
 			{
 				blIgnore=true;
 				pstPath=stPath;
 			}
 			break;
 		}
+
 		if (pstCurrentDir)
 		{
 			strDest+=pstCurrentDir;
 			AddEndSlash(strDest);
 		}
+
 		if (pstPath)
 		{
 			strDest+=pstPath;
 		}
+
 		if (!blIgnore)
-			MixToFullPath (strDest);
+			MixToFullPath(strDest);
+
 		return true;
 	}
+
 	return false;
 }
 
-void ConvertNameToFull (
-        const wchar_t *lpwszSrc,
-        string &strDest
-        )
+void ConvertNameToFull(
+    const wchar_t *lpwszSrc,
+    string &strDest
+)
 {
 	string strCurDir;
 	apiGetCurrentDirectory(strCurDir);
@@ -318,39 +338,47 @@ void ConvertNameToFull (
 
 int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
 {
-  string TargetPath;
-  DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
-  if (Res)
-  {
-    TargetPath.ReleaseBuffer();
-    if (PathStartsWith(NtPath, TargetPath))
-      return static_cast<int>(TargetPath.GetLength());
-    // path could be an Object Manager symlink, try to resolve
-    UNICODE_STRING ObjName;
-    ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
-    ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
-    OBJECT_ATTRIBUTES ObjAttrs;
-    InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
-    HANDLE hSymLink;
-    NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
-    if (Res == STATUS_SUCCESS)
-    {
-      ULONG BufSize = 0x7FFF;
-      string Buffer;
-      UNICODE_STRING LinkTarget;
-      LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-      LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-      Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
-      if (Res == STATUS_SUCCESS)
-      {
-        TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
-      }
-      ifn.pfnNtClose(hSymLink);
-      if (PathStartsWith(NtPath, TargetPath))
-        return static_cast<int>(TargetPath.GetLength());
-    }
-  }
-  return 0;
+	string TargetPath;
+	DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+
+	if (Res)
+	{
+		TargetPath.ReleaseBuffer();
+
+		if (PathStartsWith(NtPath, TargetPath))
+			return static_cast<int>(TargetPath.GetLength());
+
+		// path could be an Object Manager symlink, try to resolve
+		UNICODE_STRING ObjName;
+		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
+		ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+		OBJECT_ATTRIBUTES ObjAttrs;
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+		HANDLE hSymLink;
+		NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+
+		if (Res == STATUS_SUCCESS)
+		{
+			ULONG BufSize = 0x7FFF;
+			string Buffer;
+			UNICODE_STRING LinkTarget;
+			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+
+			if (Res == STATUS_SUCCESS)
+			{
+				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+			}
+
+			ifn.pfnNtClose(hSymLink);
+
+			if (PathStartsWith(NtPath, TargetPath))
+				return static_cast<int>(TargetPath.GetLength());
+		}
+	}
+
+	return 0;
 }
 
 const size_t cVolumeGuidLen = 48;
@@ -359,60 +387,70 @@ const size_t cVolumeGuidLen = 48;
 // used by ConvertNameToReal() only
 string TryConvertVolumeGuidToDrivePath(const string& Path)
 {
-  string Result = Path;
-  if (Path.GetLength() >= cVolumeGuidLen && Path.Equal(0, L"\\\\?\\Volume"))
-  {
-    if (ifn.pfnGetVolumePathNamesForVolumeName)
-    {
-      DWORD BufSize = NT_MAX_PATH;
-      string PathNames;
-      DWORD RetSize;
-      BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
-      if (!Res && RetSize > BufSize)
-      {
-        BufSize = RetSize;
-        Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
-      }
-      if (Res)
-      {
-        const wchar_t* PathName = PathNames.GetBuffer();
-        while (*PathName)
-        {
-          string Path(PathName);
-          if (IsRootPath(Path))
-          {
-            DeleteEndSlash(Path);
-            Result.Replace(0, cVolumeGuidLen, Path);
-            break;
-          }
-          PathName += Path.GetLength() + 1;
-        }
-      }
-    }
-    else
-    {
-      string DriveStrings;
-      if (apiGetLogicalDriveStrings(DriveStrings))
-      {
-        wchar_t* Drive = DriveStrings.GetBuffer();
-        wchar_t VolumeGuid[cVolumeGuidLen + 1 + 1];
-        while (*Drive)
-        {
-          if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
-          {
-            if (Path.Equal(0, VolumeGuid, cVolumeGuidLen))
-            {
-              DeleteEndSlash(Drive);
-              Result.Replace(0, cVolumeGuidLen, Drive);
-              break;
-            }
-          }
-          Drive += StrLength(Drive) + 1;
-        }
-      }
-    }
-  }
-  return Result;
+	string Result = Path;
+
+	if (Path.GetLength() >= cVolumeGuidLen && Path.Equal(0, L"\\\\?\\Volume"))
+	{
+		if (ifn.pfnGetVolumePathNamesForVolumeName)
+		{
+			DWORD BufSize = NT_MAX_PATH;
+			string PathNames;
+			DWORD RetSize;
+			BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+
+			if (!Res && RetSize > BufSize)
+			{
+				BufSize = RetSize;
+				Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+			}
+
+			if (Res)
+			{
+				const wchar_t* PathName = PathNames.GetBuffer();
+
+				while (*PathName)
+				{
+					string Path(PathName);
+
+					if (IsRootPath(Path))
+					{
+						DeleteEndSlash(Path);
+						Result.Replace(0, cVolumeGuidLen, Path);
+						break;
+					}
+
+					PathName += Path.GetLength() + 1;
+				}
+			}
+		}
+		else
+		{
+			string DriveStrings;
+
+			if (apiGetLogicalDriveStrings(DriveStrings))
+			{
+				wchar_t* Drive = DriveStrings.GetBuffer();
+				wchar_t VolumeGuid[cVolumeGuidLen + 1 + 1];
+
+				while (*Drive)
+				{
+					if (GetVolumeNameForVolumeMountPointW(Drive, VolumeGuid, countof(VolumeGuid)))
+					{
+						if (Path.Equal(0, VolumeGuid, cVolumeGuidLen))
+						{
+							DeleteEndSlash(Drive);
+							Result.Replace(0, cVolumeGuidLen, Drive);
+							break;
+						}
+					}
+
+					Drive += StrLength(Drive) + 1;
+				}
+			}
+		}
+	}
+
+	return Result;
 }
 
 /*
@@ -421,161 +459,179 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 */
 void ConvertNameToReal(const wchar_t *Src, string &strDest)
 {
-  // Получим сначала полный путь до объекта обычным способом
-  string FullPath;
-  ConvertNameToFull(Src, FullPath);
-  strDest = FullPath;
-  //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
+	// Получим сначала полный путь до объекта обычным способом
+	string FullPath;
+	ConvertNameToFull(Src, FullPath);
+	strDest = FullPath;
+	//RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
 
-  /* $ 14.06.2003 IS
-     Для нелокальных дисков даже и не пытаемся анализировать симлинки
-  */
-  // также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
-  // корректную информацию про объект, на который указывает симлинк (т.е. невозможно
-  // "разыменовать симлинк")
-  if (IsLocalDrive(FullPath))
-  {
-    string Path = FullPath;
-    HANDLE hFile;
-		for(;;)
-    {
-      hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
-      if (hFile != INVALID_HANDLE_VALUE)
-        break;
-      if (IsRootPath(Path))
-        break;
-      Path = ExtractFilePath(Path);
-    }
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-      string FinalFilePath;
-      if (ifn.pfnGetFinalPathNameByHandle)
-      {
-        DWORD BufSize = NT_MAX_PATH;
-        DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
-        if (Len > BufSize + 1)
-        {
-          BufSize = Len - 1;
-          Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
-        }
-        FinalFilePath.ReleaseBuffer(Len);
-      }
-      else if (ifn.pfnNtQueryObject)
-      {
-        ULONG RetLen;
-        ULONG BufSize = NT_MAX_PATH;
-        OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-        NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-        if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
-        {
-          BufSize = RetLen;
-          oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-          Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-        }
-        string NtPath;
-        if (Res == STATUS_SUCCESS)
-        {
-          NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
-        }
-        xf_free(oni);
-        if (Res == STATUS_SUCCESS)
-        {
-          // try to convert NT path (\Device\HarddiskVolume1) to drive letter
-          string DriveStrings;
-          if (apiGetLogicalDriveStrings(DriveStrings))
-          {
-            wchar_t DiskName[3] = L"A:";
-            const wchar_t* Drive = DriveStrings.CPtr();
-            while (*Drive)
-            {
-              DiskName[0] = *Drive;
-              int Len = MatchNtPathRoot(NtPath, DiskName);
-              if (Len)
-              {
-                FinalFilePath = NtPath.Replace(0, Len, DiskName);
-                break;
-              }
-              Drive += StrLength(Drive) + 1;
-            }
-          }
+	/* $ 14.06.2003 IS
+	   Для нелокальных дисков даже и не пытаемся анализировать симлинки
+	*/
+	// также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
+	// корректную информацию про объект, на который указывает симлинк (т.е. невозможно
+	// "разыменовать симлинк")
+	if (IsLocalDrive(FullPath))
+	{
+		string Path = FullPath;
+		HANDLE hFile;
 
-          if (FinalFilePath.IsEmpty())
-          {
-            // try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-            wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
-            HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
-            BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-            while (Res)
-            {
-              if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
-              {
-                DeleteEndSlash(VolumeName);
-                int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
-                if (Len)
-                {
-                  FinalFilePath = NtPath.Replace(0, Len, VolumeName);
-                  break;
-                }
-              }
-              Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
-            }
-            if (hEnum != INVALID_HANDLE_VALUE)
-              FindVolumeClose(hEnum);
-          }
-        }
-      }
-      CloseHandle(hFile);
-      assert(!FinalFilePath.IsEmpty());
-      if (!FinalFilePath.IsEmpty())
-      {
-        // append non-existent path part (if present)
-        DeleteEndSlash(Path);
-        if (FullPath.GetLength() > Path.GetLength() + 1)
-        {
-          AddEndSlash(FinalFilePath);
-          FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
-        }
+		for (;;)
+		{
+			hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0);
 
-        FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
-        strDest = FinalFilePath;
-      }
-    }
-  }
+			if (hFile != INVALID_HANDLE_VALUE)
+				break;
+
+			if (IsRootPath(Path))
+				break;
+
+			Path = ExtractFilePath(Path);
+		}
+
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			string FinalFilePath;
+
+			if (ifn.pfnGetFinalPathNameByHandle)
+			{
+				DWORD BufSize = NT_MAX_PATH;
+				DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+
+				if (Len > BufSize + 1)
+				{
+					BufSize = Len - 1;
+					Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+				}
+
+				FinalFilePath.ReleaseBuffer(Len);
+			}
+			else if (ifn.pfnNtQueryObject)
+			{
+				ULONG RetLen;
+				ULONG BufSize = NT_MAX_PATH;
+				OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
+				NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+
+				if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
+				{
+					BufSize = RetLen;
+					oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+					Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+				}
+
+				string NtPath;
+
+				if (Res == STATUS_SUCCESS)
+				{
+					NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+				}
+
+				xf_free(oni);
+
+				if (Res == STATUS_SUCCESS)
+				{
+					// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+					string DriveStrings;
+
+					if (apiGetLogicalDriveStrings(DriveStrings))
+					{
+						wchar_t DiskName[3] = L"A:";
+						const wchar_t* Drive = DriveStrings.CPtr();
+
+						while (*Drive)
+						{
+							DiskName[0] = *Drive;
+							int Len = MatchNtPathRoot(NtPath, DiskName);
+
+							if (Len)
+							{
+								FinalFilePath = NtPath.Replace(0, Len, DiskName);
+								break;
+							}
+
+							Drive += StrLength(Drive) + 1;
+						}
+					}
+
+					if (FinalFilePath.IsEmpty())
+					{
+						// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+						wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
+						HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
+						BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+
+						while (Res)
+						{
+							if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
+							{
+								DeleteEndSlash(VolumeName);
+								int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+
+								if (Len)
+								{
+									FinalFilePath = NtPath.Replace(0, Len, VolumeName);
+									break;
+								}
+							}
+
+							Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
+						}
+
+						if (hEnum != INVALID_HANDLE_VALUE)
+							FindVolumeClose(hEnum);
+					}
+				}
+			}
+
+			CloseHandle(hFile);
+			assert(!FinalFilePath.IsEmpty());
+
+			if (!FinalFilePath.IsEmpty())
+			{
+				// append non-existent path part (if present)
+				DeleteEndSlash(Path);
+
+				if (FullPath.GetLength() > Path.GetLength() + 1)
+				{
+					AddEndSlash(FinalFilePath);
+					FinalFilePath.Append(FullPath.CPtr() + Path.GetLength() + 1, FullPath.GetLength() - Path.GetLength() - 1);
+				}
+
+				FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
+				strDest = FinalFilePath;
+			}
+		}
+	}
 }
 
 void ConvertNameToShort(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-
 	int nSize = GetShortPathName(strCopy, NULL, 0);
 
-	if ( nSize )
+	if (nSize)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer (nSize);
-
+		wchar_t *lpwszDest = strDest.GetBuffer(nSize);
 		GetShortPathName(strCopy, lpwszDest, nSize);
-
-		strDest.ReleaseBuffer ();
+		strDest.ReleaseBuffer();
 	}
 	else
 		strDest = strCopy;
 
-	strDest.Upper ();
+	strDest.Upper();
 }
 
 void ConvertNameToLong(const wchar_t *Src, string &strDest)
 {
 	string strCopy = Src;
-
 	int nSize = GetLongPathName(strCopy, NULL, 0);
 
-	if ( nSize )
+	if (nSize)
 	{
-		wchar_t *lpwszDest = strDest.GetBuffer (nSize);
-
+		wchar_t *lpwszDest = strDest.GetBuffer(nSize);
 		GetLongPathName(strCopy, lpwszDest, nSize);
-
-		strDest.ReleaseBuffer ();
+		strDest.ReleaseBuffer();
 	}
 	else
 		strDest = strCopy;
@@ -589,7 +645,7 @@ void ConvertNameToUNC(string &strFileName)
 	string strTemp;
 	GetPathRoot(strFileName,strTemp);
 
-	if(!apiGetVolumeInformation (strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
+	if (!apiGetVolumeInformation(strTemp,NULL,NULL,NULL,NULL,&strFileSystemName))
 		strFileSystemName.Clear();
 
 	DWORD uniSize = 1024;
@@ -599,35 +655,40 @@ void ConvertNameToUNC(string &strFileName)
 	if (StrCmpI(strFileSystemName,L"NWFS"))
 	{
 		DWORD dwRet=WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize);
-		switch(dwRet)
+
+		switch (dwRet)
 		{
-		case NO_ERROR:
-			strFileName = uni->lpUniversalName;
-			break;
-		case ERROR_MORE_DATA:
-			uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
-			if(WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+			case NO_ERROR:
 				strFileName = uni->lpUniversalName;
-			break;
+				break;
+			case ERROR_MORE_DATA:
+				uni=(UNIVERSAL_NAME_INFOW*)xf_realloc(uni,uniSize);
+
+				if (WNetGetUniversalName(strFileName,UNIVERSAL_NAME_INFO_LEVEL,uni,&uniSize)==NO_ERROR)
+					strFileName = uni->lpUniversalName;
+
+				break;
 		}
 	}
-	else if(strFileName.At(1) == L':')
+	else if (strFileName.At(1) == L':')
 	{
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
-
-		if(!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
+		if (!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
 		{
 			const wchar_t *NamePtr=FirstSlash(strFileName);
-			if(NamePtr != NULL)
+
+			if (NamePtr != NULL)
 			{
 				AddEndSlash(strTemp);
 				strTemp += &NamePtr[1];
 			}
+
 			strFileName = strTemp;
 		}
 	}
+
 	xf_free(uni);
 	ConvertNameToReal(strFileName,strFileName);
 }
@@ -636,26 +697,31 @@ void ConvertNameToUNC(string &strFileName)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 {
-	if( !strPath.IsEmpty() )
+	if (!strPath.IsEmpty())
 	{
-		if(((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
+		if (((IsAlpha(strPath.At(0)) && strPath.At(1)==L':') || (strPath.At(0)==L'\\' && strPath.At(1)==L'\\')))
 		{
-			if(CheckFullPath)
+			if (CheckFullPath)
 			{
 				ConvertNameToFull(strPath,strPath);
 				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath,*Dst=lpwszPath;
-				if(IsLocalPath(lpwszPath))
+
+				if (IsLocalPath(lpwszPath))
 				{
 					Src+=2;
-					if(IsSlash(*Src))
+
+					if (IsSlash(*Src))
 						Src++;
+
 					Dst+=2;
-					if(IsSlash(*Dst))
+
+					if (IsSlash(*Dst))
 						Dst++;
 				}
-				if(*Src)
+
+				if (*Src)
 				{
-					for(wchar_t c=*Src;;Src++,c=*Src)
+					for (wchar_t c=*Src;; Src++,c=*Src)
 					{
 						if (!c||IsSlash(c))
 						{
@@ -663,11 +729,13 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 							FAR_FIND_DATA_EX fd;
 							BOOL find=apiGetFindDataEx(lpwszPath,&fd,false);
 							*Src=c;
-							if(find)
+
+							if (find)
 							{
 								size_t n=fd.strFileName.GetLength();
 								size_t n1 = n-(Src-Dst);
-								if((int)n1>0)
+
+								if ((int)n1>0)
 								{
 									size_t dSrc=Src-lpwszPath,dDst=Dst-lpwszPath;
 									strPath.ReleaseBuffer();
@@ -677,10 +745,12 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 									wmemmove(Src+n1,Src,StrLength(Src)+1);
 									Src+=n1;
 								}
+
 								wcsncpy(Dst,fd.strFileName,n);
 								Dst+=n;
 								wcscpy(Dst,Src);
-								if(c)
+
+								if (c)
 								{
 									Dst++;
 									Src=Dst;
@@ -688,31 +758,34 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 							}
 							else
 							{
-								if(c)
+								if (c)
 								{
 									Src++;
 									Dst=Src;
 								}
 							}
 						}
-						if(!*Src)
+
+						if (!*Src)
 							break;
 					}
 				}
+
 				strPath.ReleaseBuffer();
 			}
 
-			wchar_t *lpwszPath = strPath.GetBuffer ();
+			wchar_t *lpwszPath = strPath.GetBuffer();
 
 			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
 			{
-				if(IsLocalPrefixPath(lpwszPath))
+				if (IsLocalPrefixPath(lpwszPath))
 				{
 					lpwszPath[4] = Upper(lpwszPath[4]);
 				}
 				else
 				{
 					wchar_t *ptr=&lpwszPath[2];
+
 					while (*ptr && !IsSlash(*ptr))
 					{
 						*ptr=Upper(*ptr);
@@ -725,8 +798,9 @@ string& PrepareDiskPath(string &strPath,BOOL CheckFullPath)
 				lpwszPath[0]=Upper(lpwszPath[0]);
 			}
 
-			strPath.ReleaseBuffer ();
+			strPath.ReleaseBuffer();
 		}
 	}
+
 	return strPath;
 }

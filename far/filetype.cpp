@@ -59,18 +59,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FileTypeStrings
 {
 	const wchar_t *Help,*HelpModify,*State,
-        *Associations,*TypeFmt, *Type0,
-        *Execute, *Desc, *Mask, *View, *Edit,
-        *AltExec, *AltView, *AltEdit;
+	*Associations,*TypeFmt, *Type0,
+	*Execute, *Desc, *Mask, *View, *Edit,
+	*AltExec, *AltView, *AltEdit;
 };
 
 
 const FileTypeStrings FTS=
 {
 	L"FileAssoc",L"FileAssocModify",L"State",
-    L"Associations",L"Associations\\Type%d",L"Associations\\Type",
-    L"Execute",L"Description",L"Mask",L"View",L"Edit",
-    L"AltExec",L"AltView",L"AltEdit"
+	L"Associations",L"Associations\\Type%d",L"Associations\\Type",
+	L"Execute",L"Description",L"Mask",L"View",L"Edit",
+	L"AltExec",L"AltView",L"AltEdit"
 };
 
 
@@ -80,7 +80,7 @@ const FileTypeStrings FTS=
    выполено, и FALSE в противном случае/
 */
 
-bool ExtractIfExistCommand (string &strCommandText)
+bool ExtractIfExistCommand(string &strCommandText)
 {
 	bool Result=true;
 	const wchar_t *wPtrCmd=PrepareOSIfExist(strCommandText);
@@ -88,9 +88,9 @@ bool ExtractIfExistCommand (string &strCommandText)
 	// Во! Условие не выполнено!!!
 	// (например, пока рассматривали менюху, в это время)
 	// какой-то злобный чебурашка стер файл!
-	if(wPtrCmd)
+	if (wPtrCmd)
 	{
-		if(!*wPtrCmd)
+		if (!*wPtrCmd)
 		{
 			Result=false;
 		}
@@ -101,49 +101,56 @@ bool ExtractIfExistCommand (string &strCommandText)
 			wchar_t *PtrCmd = CommandText+offset;
 			// прокинем "if exist"
 			wmemmove(CommandText+(*CommandText==L'@'?1:0),PtrCmd,StrLength(PtrCmd)+1);
-			strCommandText.ReleaseBuffer ();
+			strCommandText.ReleaseBuffer();
 		}
 	}
+
 	return Result;
 }
 
 int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
 {
-  int Width=0;
+	int Width=0;
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
-	for(int NumLine=0;;NumLine++)
+
+	for (int NumLine=0;; NumLine++)
 	{
 		string strRegKey;
-		strRegKey.Format (FTS.TypeFmt, NumLine);
-
+		strRegKey.Format(FTS.TypeFmt, NumLine);
 		string strMask;
+
 		if (!GetRegKey(strRegKey,FTS.Mask, strMask, L""))
-      break;
+			break;
 
 		CFileMask FMask;
-    if(!FMask.Set(strMask, FMF_SILENT))
-      continue;
+
+		if (!FMask.Set(strMask, FMF_SILENT))
+			continue;
 
 		string strDescription;
 		GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
+		int CurWidth;
 
-    int CurWidth;
-    if (Name == NULL)
-      CurWidth = HiStrlen(strDescription);
-    else
-    {
-      if(!FMask.Compare(Name))
-        continue;
+		if (Name == NULL)
+			CurWidth = HiStrlen(strDescription);
+		else
+		{
+			if (!FMask.Compare(Name))
+				continue;
+
 			string strExpandedDesc = strDescription;
-      SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
-      CurWidth = HiStrlen (strExpandedDesc);
-    }
-    if (CurWidth>Width)
-      Width=CurWidth;
-  }
-  if (Width>ScrX/2)
-    Width=ScrX/2;
-  return(Width);
+			SubstFileName(strExpandedDesc,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
+			CurWidth = HiStrlen(strExpandedDesc);
+		}
+
+		if (CurWidth>Width)
+			Width=CurWidth;
+	}
+
+	if (Width>ScrX/2)
+		Width=ScrX/2;
+
+	return(Width);
 }
 
 /* $ 14.01.2001 SVS
@@ -163,59 +170,62 @@ int GetDescriptionWidth(const wchar_t *Name=NULL,const wchar_t *ShortName=NULL)
 bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode,int AlwaysWaitFinish)
 {
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
-
 	MenuItemEx TypesMenuItem;
 	VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
-
 	TypesMenu.SetHelp(FTS.Help);
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);
-
 	int DizWidth=GetDescriptionWidth(Name, ShortName);
 	int ActualCmdCount=0; // отображаемых ассоциаций в меню
-
 	CFileMask FMask; // для работы с масками файлов
 	string strCommand, strDescription;
 	int CommandCount=0;
-	for (int I=0;;I++)
+
+	for (int I=0;; I++)
 	{
 		strCommand.Clear();
 		string strRegKey, strMask;
 		strRegKey.Format(FTS.TypeFmt,I);
+
 		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
 			break;
-		if(FMask.Set(strMask,FMF_SILENT))
+
+		if (FMask.Set(strMask,FMF_SILENT))
 		{
-			if(FMask.Compare(Name))
+			if (FMask.Compare(Name))
 			{
 				LPCWSTR Type=NULL;
-				switch(Mode)
+
+				switch (Mode)
 				{
-				case FILETYPE_EXEC:
-					Type=FTS.Execute;
-					break;
-				case FILETYPE_VIEW:
-					Type=FTS.View;
-					break;
-				case FILETYPE_EDIT:
-					Type=FTS.Edit;
-					break;
-				case FILETYPE_ALTEXEC:
-					Type=FTS.AltExec;
-					break;
-				case FILETYPE_ALTVIEW:
-					Type=FTS.AltView;
-					break;
-				case FILETYPE_ALTEDIT:
-					Type=FTS.AltEdit;
-					break;
+					case FILETYPE_EXEC:
+						Type=FTS.Execute;
+						break;
+					case FILETYPE_VIEW:
+						Type=FTS.View;
+						break;
+					case FILETYPE_EDIT:
+						Type=FTS.Edit;
+						break;
+					case FILETYPE_ALTEXEC:
+						Type=FTS.AltExec;
+						break;
+					case FILETYPE_ALTVIEW:
+						Type=FTS.AltView;
+						break;
+					case FILETYPE_ALTEDIT:
+						Type=FTS.AltEdit;
+						break;
 				}
+
 				DWORD State=GetRegKey(strRegKey,FTS.State,0xffffffff);
-				if(State&(1<<Mode))
+
+				if (State&(1<<Mode))
 				{
 					string strNewCommand;
 					GetRegKey(strRegKey,Type,strNewCommand,L"");
-					if(!strNewCommand.IsEmpty())
+
+					if (!strNewCommand.IsEmpty())
 					{
 						strCommand = strNewCommand;
 						GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
@@ -223,34 +233,41 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 					}
 				}
 			}
-			if(strCommand.IsEmpty())
+
+			if (strCommand.IsEmpty())
 				continue;
 		}
+
 		TypesMenuItem.Clear();
 		string strCommandText = strCommand;
 		SubstFileName(strCommandText,Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 
 		// все "подставлено", теперь проверим условия "if exist"
-		if (!ExtractIfExistCommand (strCommandText))
+		if (!ExtractIfExistCommand(strCommandText))
 			continue;
 
 		ActualCmdCount++;
-
 		string strMenuText;
+
 		if (DizWidth)
 		{
 			string strTitle;
-			if ( !strDescription.IsEmpty() )
+
+			if (!strDescription.IsEmpty())
 			{
 				strTitle = strDescription;
 				SubstFileName(strTitle, Name,ShortName,NULL,NULL,NULL,NULL,TRUE);
 			}
+
 			size_t Pos=0;
 			bool Ampersand=strTitle.Pos(Pos,L'&');
-			if(DizWidth+Ampersand>ScrX/2 && Ampersand && static_cast<int>(Pos)>DizWidth)
+
+			if (DizWidth+Ampersand>ScrX/2 && Ampersand && static_cast<int>(Pos)>DizWidth)
 				Ampersand=false;
-			strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
+
+			strMenuText.Format(L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
 		}
+
 		TruncStr(strCommandText,ScrX-DizWidth-14);
 		strMenuText += strCommandText;
 		TypesMenuItem.strName = strMenuText;
@@ -258,48 +275,52 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 		TypesMenu.SetUserData(strCommand.CPtr(),0,TypesMenu.AddItem(&TypesMenuItem));
 	}
 
-	if(!CommandCount)
+	if (!CommandCount)
 		return false;
 
-	if(!ActualCmdCount)
+	if (!ActualCmdCount)
 		return true;
 
 	int ExitCode=0;
-	if(ActualCmdCount>1)
+
+	if (ActualCmdCount>1)
 	{
 		TypesMenu.Process();
 		ExitCode=TypesMenu.Modal::GetExitCode();
-		if(ExitCode<0)
+
+		if (ExitCode<0)
 			return true;
 	}
+
 	int Size=TypesMenu.GetUserDataSize(ExitCode);
 	LPWSTR Command=strCommand.GetBuffer(Size/sizeof(wchar_t));
 	TypesMenu.GetUserData(Command,Size,ExitCode);
 	strCommand.ReleaseBuffer(Size);
-
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
-
 	int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
 	// Снова все "подставлено", теперь проверим условия "if exist"
-	if (ExtractIfExistCommand (strCommand))
+	if (ExtractIfExistCommand(strCommand))
 	{
 		PreserveLongName PreserveName(ShortName,PreserveLFN);
 		RemoveExternalSpaces(strCommand);
-		if ( !strCommand.IsEmpty() )
+
+		if (!strCommand.IsEmpty())
 		{
 			bool isSilent=(strCommand.At(0)==L'@');
-			if(isSilent)
+
+			if (isSilent)
 			{
 				strCommand.LShift(1);
 			}
 
 			ProcessOSAliases(strCommand);
 
-			if(!isSilent)
+			if (!isSilent)
 			{
 				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish);
+
 				if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 					CtrlObject->CmdHistory->AddToHistory(strCommand);
 			}
@@ -309,7 +330,6 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 				SaveScreen SaveScr;
 				CtrlObject->Cp()->LeftPanel->CloseFile();
 				CtrlObject->Cp()->RightPanel->CloseFile();
-
 				Execute(strCommand,AlwaysWaitFinish);
 #else
 				// здесь была бага с прорисовкой (и... вывод данных
@@ -319,7 +339,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 					RedrawDesktop RdrwDesktop(TRUE);
 					Execute(strCommand,AlwaysWaitFinish);
 					ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
-							// проредравив экран забьет последнюю строку вывода.
+					// проредравив экран забьет последнюю строку вывода.
 				}
 				CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
 				CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
@@ -329,17 +349,17 @@ bool ProcessLocalFileTypes(const wchar_t *Name,const wchar_t *ShortName,int Mode
 		}
 	}
 
-	if ( !strListName.IsEmpty() )
-		apiDeleteFile (strListName);
+	if (!strListName.IsEmpty())
+		apiDeleteFile(strListName);
 
-	if ( !strAnotherListName.IsEmpty() )
-		apiDeleteFile (strAnotherListName);
+	if (!strAnotherListName.IsEmpty())
+		apiDeleteFile(strAnotherListName);
 
-	if ( !strShortListName.IsEmpty() )
-		apiDeleteFile (strShortListName);
+	if (!strShortListName.IsEmpty())
+		apiDeleteFile(strShortListName);
 
-	if ( !strAnotherShortListName.IsEmpty() )
-		apiDeleteFile (strAnotherShortListName);
+	if (!strAnotherShortListName.IsEmpty())
+		apiDeleteFile(strAnotherShortListName);
 
 	return true;
 }
@@ -349,24 +369,29 @@ bool ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 {
 	bool Result=false;
 	const wchar_t *ExtPtr=wcsrchr(Name,L'.');
-	if(ExtPtr)
+
+	if (ExtPtr)
 	{
 		string strType;
-		if(GetShellType(ExtPtr,strType,AT_FILEEXTENSION))
+
+		if (GetShellType(ExtPtr,strType,AT_FILEEXTENSION))
 		{
 			string strFullName;
 			ConvertNameToFull(Name,strFullName);
 			QuoteSpace(strFullName);
 			CtrlObject->CmdLine->ExecString(strFullName,AlwaysWaitFinish,2,FALSE);
-			if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
+
+			if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 			{
 				string strQuotedName = Name;
 				QuoteSpace(strQuotedName);
 				CtrlObject->CmdHistory->AddToHistory(strQuotedName);
 			}
+
 			Result=true;
 		}
 	}
+
 	return Result;
 }
 
@@ -375,55 +400,52 @@ bool ProcessGlobalFileTypes(const wchar_t *Name,int AlwaysWaitFinish)
 */
 void ProcessExternal(const wchar_t *Command,const wchar_t *Name,const wchar_t *ShortName,int AlwaysWaitFinish)
 {
-  string strListName, strAnotherListName;
-  string strShortListName, strAnotherShortListName;
-
-  string strFullName, strFullShortName;
-
+	string strListName, strAnotherListName;
+	string strShortListName, strAnotherShortListName;
+	string strFullName, strFullShortName;
 	string strExecStr = Command;
 	string strFullExecStr = Command;
-  {
-    int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
-    // Снова все "подставлено", теперь проверим условия "if exist"
-    if (!ExtractIfExistCommand (strExecStr))
-      return;
+	{
+		int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
-    PreserveLongName PreserveName(ShortName,PreserveLFN);
+		// Снова все "подставлено", теперь проверим условия "if exist"
+		if (!ExtractIfExistCommand(strExecStr))
+			return;
 
-    ConvertNameToFull(Name,strFullName);
-    ConvertNameToShort(strFullName,strFullShortName);
+		PreserveLongName PreserveName(ShortName,PreserveLFN);
+		ConvertNameToFull(Name,strFullName);
+		ConvertNameToShort(strFullName,strFullShortName);
+		//BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
+		SubstFileName(strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
 
-    //BUGBUGBUGBUGBUGBUG !!! Same ListNames!!!
-    SubstFileName(strFullExecStr,strFullName,strFullShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
-    // Снова все "подставлено", теперь проверим условия "if exist"
-    if (!ExtractIfExistCommand (strFullExecStr))
-      return;
+		// Снова все "подставлено", теперь проверим условия "if exist"
+		if (!ExtractIfExistCommand(strFullExecStr))
+			return;
 
-    CtrlObject->ViewHistory->AddToHistory(strFullExecStr,(AlwaysWaitFinish&1)+2);
+		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,(AlwaysWaitFinish&1)+2);
 
-    if ( strExecStr.At(0) != L'@')
-      CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish);
-    else
-    {
-      SaveScreen SaveScr;
-      CtrlObject->Cp()->LeftPanel->CloseFile();
-      CtrlObject->Cp()->RightPanel->CloseFile();
+		if (strExecStr.At(0) != L'@')
+			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish);
+		else
+		{
+			SaveScreen SaveScr;
+			CtrlObject->Cp()->LeftPanel->CloseFile();
+			CtrlObject->Cp()->RightPanel->CloseFile();
+			Execute(strExecStr,AlwaysWaitFinish);
+		}
+	}
 
-      Execute(strExecStr,AlwaysWaitFinish);
-    }
-  }
+	if (!strListName.IsEmpty())
+		apiDeleteFile(strListName);
 
-  if ( !strListName.IsEmpty() )
-		apiDeleteFile (strListName);
+	if (!strAnotherListName.IsEmpty())
+		apiDeleteFile(strAnotherListName);
 
-  if ( !strAnotherListName.IsEmpty() )
-		apiDeleteFile (strAnotherListName);
+	if (!strShortListName.IsEmpty())
+		apiDeleteFile(strShortListName);
 
-  if ( !strShortListName.IsEmpty() )
-		apiDeleteFile (strShortListName);
-
-  if ( !strAnotherShortListName.IsEmpty() )
-		apiDeleteFile (strAnotherShortListName);
+	if (!strAnotherShortListName.IsEmpty())
+		apiDeleteFile(strAnotherShortListName);
 }
 
 static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
@@ -432,34 +454,42 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 	MenuItemEx TypesMenuItem;
 	TypesMenu->DeleteItems();
 	int NumLine=0;
-	for(;;NumLine++)
+
+	for (;; NumLine++)
 	{
 		string strRegKey;
-		strRegKey.Format (FTS.TypeFmt,NumLine);
+		strRegKey.Format(FTS.TypeFmt,NumLine);
 		TypesMenuItem.Clear();
 		string strMask;
-		if(!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
+
+		if (!GetRegKey(strRegKey,FTS.Mask,strMask,L""))
 		{
 			break;
 		}
+
 		string strMenuText;
-		if(DizWidth)
+
+		if (DizWidth)
 		{
 			string strDescription;
 			GetRegKey(strRegKey,FTS.Desc,strDescription,L"");
 			string strTitle=strDescription;
 			size_t Pos=0;
 			bool Ampersand=strTitle.Pos(Pos,L'&');
-			if(DizWidth+Ampersand > ScrX/2 && Ampersand && static_cast<int>(Pos) > DizWidth)
+
+			if (DizWidth+Ampersand > ScrX/2 && Ampersand && static_cast<int>(Pos) > DizWidth)
 				Ampersand=false;
-			strMenuText.Format (L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
+
+			strMenuText.Format(L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
 		}
+
 		//TruncStr(strMask,ScrX-DizWidth-14);
 		strMenuText += strMask;
 		TypesMenuItem.strName = strMenuText;
 		TypesMenuItem.SetSelect(NumLine==MenuPos);
 		TypesMenu->AddItem(&TypesMenuItem);
 	}
+
 	TypesMenuItem.strName.Clear();
 	TypesMenuItem.SetSelect(NumLine==MenuPos);
 	TypesMenu->AddItem(&TypesMenuItem);
@@ -507,35 +537,42 @@ enum EDITTYPERECORD
 
 LONG_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
-	switch(Msg)
+	switch (Msg)
 	{
-	case DN_BTNCLICK:
-		switch(Param1)
-		{
-		case ETR_COMBO_EXEC:
-		case ETR_COMBO_ALTEXEC:
-		case ETR_COMBO_VIEW:
-		case ETR_COMBO_ALTVIEW:
-		case ETR_COMBO_EDIT:
-		case ETR_COMBO_ALTEDIT:
-			SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
-			break;
-		}
-		break;
-	case DN_CLOSE:
-		if(Param1==ETR_BUTTON_OK)
-		{
-			BOOL Result=TRUE;
-			LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
-			CFileMask FMask;
-			if(!FMask.Set(Masks,0))
+		case DN_BTNCLICK:
+
+			switch (Param1)
 			{
-				Result=FALSE;
+				case ETR_COMBO_EXEC:
+				case ETR_COMBO_ALTEXEC:
+				case ETR_COMBO_VIEW:
+				case ETR_COMBO_ALTVIEW:
+				case ETR_COMBO_EDIT:
+				case ETR_COMBO_ALTEDIT:
+					SendDlgMessage(hDlg,DM_ENABLE,Param1+1,Param2==BSTATE_CHECKED?TRUE:FALSE);
+					break;
 			}
-			return Result;
-		}
-		break;
+
+			break;
+		case DN_CLOSE:
+
+			if (Param1==ETR_BUTTON_OK)
+			{
+				BOOL Result=TRUE;
+				LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,NULL));
+				CFileMask FMask;
+
+				if (!FMask.Set(Masks,0))
+				{
+					Result=FALSE;
+				}
+
+				return Result;
+			}
+
+			break;
 	}
+
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -569,8 +606,9 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 	};
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	string strRegKey;
-	strRegKey.Format (FTS.TypeFmt,EditPos);
-	if(!NewRec)
+	strRegKey.Format(FTS.TypeFmt,EditPos);
+
+	if (!NewRec)
 	{
 		GetRegKey(strRegKey,FTS.Mask,EditDlg[ETR_EDIT_MASKS].strData,L"");
 		GetRegKey(strRegKey,FTS.Desc,EditDlg[ETR_EDIT_DESCR].strData,L"");
@@ -580,24 +618,26 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		GetRegKey(strRegKey,FTS.AltView,EditDlg[ETR_EDIT_ALTVIEW].strData,L"");
 		GetRegKey(strRegKey,FTS.Edit,EditDlg[ETR_EDIT_EDIT].strData,L"");
 		GetRegKey(strRegKey,FTS.AltEdit,EditDlg[ETR_EDIT_ALTEDIT].strData,L"");
-
 		DWORD State=GetRegKey(strRegKey,FTS.State,0xffffffff);
-		for(int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC;i<=FILETYPE_ALTEDIT;i++,Item+=2)
+
+		for (int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
-			if(!(State&(1<<i)))
+			if (!(State&(1<<i)))
 			{
 				EditDlg[Item].Selected=BSTATE_UNCHECKED;
 				EditDlg[Item+1].Flags|=DIF_DISABLE;
 			}
 		}
 	}
+
 	Dialog Dlg(EditDlg,countof(EditDlg),EditTypeRecordDlgProc);
 	Dlg.SetHelp(FTS.HelpModify);
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.Process();
-	if(Dlg.GetExitCode()==ETR_BUTTON_OK)
+
+	if (Dlg.GetExitCode()==ETR_BUTTON_OK)
 	{
-		if(NewRec)
+		if (NewRec)
 		{
 			InsertKeyRecord(FTS.TypeFmt,EditPos,TotalRecords);
 		}
@@ -610,19 +650,20 @@ bool EditTypeRecord(int EditPos,int TotalRecords,bool NewRec)
 		SetRegKey(strRegKey,FTS.AltView,EditDlg[ETR_EDIT_ALTVIEW].strData);
 		SetRegKey(strRegKey,FTS.Edit,EditDlg[ETR_EDIT_EDIT].strData);
 		SetRegKey(strRegKey,FTS.AltEdit,EditDlg[ETR_EDIT_ALTEDIT].strData);
-
 		DWORD State=0;
-		for(int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC;i<=FILETYPE_ALTEDIT;i++,Item+=2)
+
+		for (int i=FILETYPE_EXEC,Item=ETR_COMBO_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
-			if(EditDlg[Item].Selected==BSTATE_CHECKED)
+			if (EditDlg[Item].Selected==BSTATE_CHECKED)
 			{
 				State|=(1<<i);
 			}
 		}
-		SetRegKey(strRegKey,FTS.State,State);
 
+		SetRegKey(strRegKey,FTS.State,State);
 		Result=true;
 	}
+
 	return Result;
 }
 
@@ -630,97 +671,105 @@ bool DeleteTypeRecord(int DeletePos)
 {
 	bool Result=false;
 	string strRecText, strRegKey;
-	strRegKey.Format (FTS.TypeFmt,DeletePos);
+	strRegKey.Format(FTS.TypeFmt,DeletePos);
 	GetRegKey(strRegKey,FTS.Mask,strRecText,L"");
 	string strItemName=strRecText;
 	InsertQuote(strItemName);
-	if(!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel)))
+
+	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strItemName,MSG(MDelete),MSG(MCancel)))
 	{
 		DeleteKeyRecord(FTS.TypeFmt,DeletePos);
 		Result=true;
 	}
+
 	return Result;
 }
 
 void EditFileTypes()
 {
-  int NumLine=0;
-  int MenuPos=0;
-
+	int NumLine=0;
+	int MenuPos=0;
 	RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
-
-  VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
+	VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
 	TypesMenu.SetHelp(FTS.Help);
-  TypesMenu.SetFlags(VMENU_WRAPMODE);
-  TypesMenu.SetPosition(-1,-1,0,0);
-  TypesMenu.SetBottomTitle(MSG(MAssocBottom));
-
-  {
-    while (1)
-    {
+	TypesMenu.SetFlags(VMENU_WRAPMODE);
+	TypesMenu.SetPosition(-1,-1,0,0);
+	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
+	{
+		while (1)
+		{
 			bool MenuModified=true;
-      while (!TypesMenu.Done())
-      {
-				if(MenuModified)
-        {
-          TypesMenu.Hide();
-          NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
-          TypesMenu.SetPosition(-1,-1,-1,-1);
-          TypesMenu.Show();
-          MenuModified=false;
-        }
 
-        DWORD Key=TypesMenu.ReadInput();
-        MenuPos=TypesMenu.GetSelectPos();
-        switch(Key)
-        {
-          case KEY_NUMDEL:
-          case KEY_DEL:
-            if (MenuPos<NumLine)
-              DeleteTypeRecord(MenuPos);
-            MenuModified=true;
-            break;
-          case KEY_NUMPAD0:
-          case KEY_INS:
-            EditTypeRecord(MenuPos,NumLine,true);
-            MenuModified=true;
-            break;
-          case KEY_NUMENTER:
-          case KEY_ENTER:
-          case KEY_F4:
-            if (MenuPos<NumLine)
-              EditTypeRecord(MenuPos,NumLine,false);
-            MenuModified=true;
-            break;
+			while (!TypesMenu.Done())
+			{
+				if (MenuModified)
+				{
+					TypesMenu.Hide();
+					NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+					TypesMenu.SetPosition(-1,-1,-1,-1);
+					TypesMenu.Show();
+					MenuModified=false;
+				}
+
+				DWORD Key=TypesMenu.ReadInput();
+				MenuPos=TypesMenu.GetSelectPos();
+
+				switch (Key)
+				{
+					case KEY_NUMDEL:
+					case KEY_DEL:
+
+						if (MenuPos<NumLine)
+							DeleteTypeRecord(MenuPos);
+
+						MenuModified=true;
+						break;
+					case KEY_NUMPAD0:
+					case KEY_INS:
+						EditTypeRecord(MenuPos,NumLine,true);
+						MenuModified=true;
+						break;
+					case KEY_NUMENTER:
+					case KEY_ENTER:
+					case KEY_F4:
+
+						if (MenuPos<NumLine)
+							EditTypeRecord(MenuPos,NumLine,false);
+
+						MenuModified=true;
+						break;
 					case KEY_CTRLUP:
 					case KEY_CTRLDOWN:
+					{
+						if (MenuPos!=TypesMenu.GetItemCount()-1)
 						{
-							if(MenuPos!=TypesMenu.GetItemCount()-1)
+							if (!(Key==KEY_CTRLUP && !MenuPos) && !(Key==KEY_CTRLDOWN && MenuPos==TypesMenu.GetItemCount()-2))
 							{
-								if(!(Key==KEY_CTRLUP && !MenuPos) && !(Key==KEY_CTRLDOWN && MenuPos==TypesMenu.GetItemCount()-2))
-								{
-									int NewMenuPos=MenuPos+(Key==KEY_CTRLUP?-1:+1);
-									MoveMenuItem(MenuPos,NewMenuPos);
-									MenuPos=NewMenuPos;
-									MenuModified=true;
-								}
+								int NewMenuPos=MenuPos+(Key==KEY_CTRLUP?-1:+1);
+								MoveMenuItem(MenuPos,NewMenuPos);
+								MenuPos=NewMenuPos;
+								MenuModified=true;
 							}
 						}
+					}
+					break;
+					default:
+						TypesMenu.ProcessInput();
 						break;
-          default:
-            TypesMenu.ProcessInput();
-            break;
-        }
-      }
+				}
+			}
+
 			int ExitCode=TypesMenu.Modal::GetExitCode();
-			if(ExitCode!=-1)
-      {
+
+			if (ExitCode!=-1)
+			{
 				MenuPos=ExitCode;
-        TypesMenu.ClearDone();
-        TypesMenu.WriteInput(KEY_F4);
-        continue;
-      }
-      break;
-    }
-  }
+				TypesMenu.ClearDone();
+				TypesMenu.WriteInput(KEY_F4);
+				continue;
+			}
+
+			break;
+		}
+	}
 }

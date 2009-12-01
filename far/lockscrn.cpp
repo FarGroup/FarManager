@@ -39,12 +39,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 LockScreen::LockScreen()
 {
-  ScrBuf.Lock();
+	ScrBuf.Lock();
 }
 
 
 LockScreen::~LockScreen()
 {
-  ScrBuf.Unlock();
-  ScrBuf.Flush();
+	ScrBuf.Unlock();
+	ScrBuf.Flush();
 }

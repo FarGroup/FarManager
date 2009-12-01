@@ -46,9 +46,11 @@ struct FAR_FIND_DATA_EX
 	FILETIME ftLastWriteTime;
 	unsigned __int64 nFileSize;
 
-	union {
+	union
+	{
 		unsigned __int64 nPackSize; //same as reserved
-		struct {
+		struct
+		{
 			DWORD dwReserved0;
 			DWORD dwReserved1;
 		};
@@ -82,229 +84,230 @@ struct FAR_FIND_DATA_EX
 			strFileName=ffdexCopy.strFileName;
 			strAlternateFileName=ffdexCopy.strAlternateFileName;
 		}
+
 		return *this;
 	}
 };
 
-DWORD apiGetEnvironmentVariable (
-		const wchar_t *lpwszName,
-		string &strBuffer
-		);
+DWORD apiGetEnvironmentVariable(
+    const wchar_t *lpwszName,
+    string &strBuffer
+);
 
-DWORD apiGetCurrentDirectory (
-		string &strCurDir
-		);
+DWORD apiGetCurrentDirectory(
+    string &strCurDir
+);
 
-DWORD apiGetTempPath (
-		string &strBuffer
-		);
+DWORD apiGetTempPath(
+    string &strBuffer
+);
 
-DWORD apiGetModuleFileName (
-		HMODULE hModule,
-		string &strFileName
-		);
+DWORD apiGetModuleFileName(
+    HMODULE hModule,
+    string &strFileName
+);
 
-DWORD apiExpandEnvironmentStrings (
-		const wchar_t *src,
-		string &strDest
-		);
+DWORD apiExpandEnvironmentStrings(
+    const wchar_t *src,
+    string &strDest
+);
 
-DWORD apiGetConsoleTitle (
-		string &strConsoleTitle
-		);
+DWORD apiGetConsoleTitle(
+    string &strConsoleTitle
+);
 
-DWORD apiWNetGetConnection (
-		const wchar_t *lpwszLocalName,
-		string &strRemoteName
-		);
+DWORD apiWNetGetConnection(
+    const wchar_t *lpwszLocalName,
+    string &strRemoteName
+);
 
-BOOL apiGetVolumeInformation (
-		const wchar_t *lpwszRootPathName,
-		string *pVolumeName,
-		LPDWORD lpVolumeSerialNumber,
-		LPDWORD lpMaximumComponentLength,
-		LPDWORD lpFileSystemFlags,
-		string *pFileSystemName
-		);
+BOOL apiGetVolumeInformation(
+    const wchar_t *lpwszRootPathName,
+    string *pVolumeName,
+    LPDWORD lpVolumeSerialNumber,
+    LPDWORD lpMaximumComponentLength,
+    LPDWORD lpFileSystemFlags,
+    string *pFileSystemName
+);
 
-HANDLE apiFindFirstFile (
-		const wchar_t *lpwszFileName,
-		FAR_FIND_DATA_EX *pFindFileData,
-		bool ScanSymLink=true);
+HANDLE apiFindFirstFile(
+    const wchar_t *lpwszFileName,
+    FAR_FIND_DATA_EX *pFindFileData,
+    bool ScanSymLink=true);
 
-BOOL apiFindNextFile (
-		HANDLE hFindFile,
-		FAR_FIND_DATA_EX *pFindFileData
-		);
+BOOL apiFindNextFile(
+    HANDLE hFindFile,
+    FAR_FIND_DATA_EX *pFindFileData
+);
 
 BOOL apiFindClose(
-		HANDLE hFindFile
-		);
+    HANDLE hFindFile
+);
 
 BOOL apiFindStreamClose(
-		HANDLE hFindFile
-		);
+    HANDLE hFindFile
+);
 
-void apiFindDataToDataEx (
-		const FAR_FIND_DATA *pSrc,
-		FAR_FIND_DATA_EX *pDest);
+void apiFindDataToDataEx(
+    const FAR_FIND_DATA *pSrc,
+    FAR_FIND_DATA_EX *pDest);
 
-void apiFindDataExToData (
-		const FAR_FIND_DATA_EX *pSrc,
-		FAR_FIND_DATA *pDest
-		);
+void apiFindDataExToData(
+    const FAR_FIND_DATA_EX *pSrc,
+    FAR_FIND_DATA *pDest
+);
 
-void apiFreeFindData (
-		FAR_FIND_DATA *pData
-		);
+void apiFreeFindData(
+    FAR_FIND_DATA *pData
+);
 
-BOOL apiGetFindDataEx (
-		const wchar_t *lpwszFileName,
-		FAR_FIND_DATA_EX *pFindData,
-		bool ScanSymLink=true);
+BOOL apiGetFindDataEx(
+    const wchar_t *lpwszFileName,
+    FAR_FIND_DATA_EX *pFindData,
+    bool ScanSymLink=true);
 
-bool apiGetFileSizeEx (
-		HANDLE hFile,
-		UINT64 &Size);
+bool apiGetFileSizeEx(
+    HANDLE hFile,
+    UINT64 &Size);
 
 //junk
 
-BOOL apiDeleteFile (
-		const wchar_t *lpwszFileName
-		);
+BOOL apiDeleteFile(
+    const wchar_t *lpwszFileName
+);
 
-BOOL apiRemoveDirectory (
-		const wchar_t *DirName
-		);
+BOOL apiRemoveDirectory(
+    const wchar_t *DirName
+);
 
-HANDLE apiCreateFile (
-		const wchar_t *lpwszFileName,     // pointer to name of the file
-		DWORD dwDesiredAccess,  // access (read-write) mode
-		DWORD dwShareMode,      // share mode
-		LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-		DWORD dwCreationDistribution, // how to create
-		DWORD dwFlagsAndAttributes,   // file attributes
-		HANDLE hTemplateFile=NULL          // handle to file with attributes to copy
-		);
+HANDLE apiCreateFile(
+    const wchar_t *lpwszFileName,     // pointer to name of the file
+    DWORD dwDesiredAccess,  // access (read-write) mode
+    DWORD dwShareMode,      // share mode
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
+    DWORD dwCreationDistribution, // how to create
+    DWORD dwFlagsAndAttributes,   // file attributes
+    HANDLE hTemplateFile=NULL          // handle to file with attributes to copy
+);
 
-BOOL apiCopyFileEx (
-		const wchar_t *lpExistingFileName,
-		const wchar_t *lpNewFileName,
-		LPPROGRESS_ROUTINE lpProgressRoutine,
-		LPVOID lpData,
-		LPBOOL pbCancel,
-		DWORD dwCopyFlags
-		);
+BOOL apiCopyFileEx(
+    const wchar_t *lpExistingFileName,
+    const wchar_t *lpNewFileName,
+    LPPROGRESS_ROUTINE lpProgressRoutine,
+    LPVOID lpData,
+    LPBOOL pbCancel,
+    DWORD dwCopyFlags
+);
 
-BOOL apiMoveFile (
-		const wchar_t *lpwszExistingFileName, // address of name of the existing file
-		const wchar_t *lpwszNewFileName   // address of new name for the file
-		);
+BOOL apiMoveFile(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName   // address of new name for the file
+);
 
-BOOL apiMoveFileEx (
-		const wchar_t *lpwszExistingFileName, // address of name of the existing file
-		const wchar_t *lpwszNewFileName,   // address of new name for the file
-		DWORD dwFlags   // flag to determine how to move file
-		);
+BOOL apiMoveFileEx(
+    const wchar_t *lpwszExistingFileName, // address of name of the existing file
+    const wchar_t *lpwszNewFileName,   // address of new name for the file
+    DWORD dwFlags   // flag to determine how to move file
+);
 
-int apiRegEnumKeyEx (
-		HKEY hKey,
-		DWORD dwIndex,
-		string &strName,
-		PFILETIME lpftLastWriteTime=NULL
-		);
+int apiRegEnumKeyEx(
+    HKEY hKey,
+    DWORD dwIndex,
+    string &strName,
+    PFILETIME lpftLastWriteTime=NULL
+);
 
-BOOL apiMoveFileThroughTemp (
-		const wchar_t *Src,
-		const wchar_t *Dest
-		);
+BOOL apiMoveFileThroughTemp(
+    const wchar_t *Src,
+    const wchar_t *Dest
+);
 
 BOOL apiIsDiskInDrive(
-		const wchar_t *Root
-		);
+    const wchar_t *Root
+);
 
 int apiGetFileTypeByName(
-		const wchar_t *Name
-		);
+    const wchar_t *Name
+);
 
 BOOL apiGetDiskSize(
-		const wchar_t *Path,
-		unsigned __int64 *TotalSize,
-		unsigned __int64 *TotalFree,
-		unsigned __int64 *UserFree
-		);
+    const wchar_t *Path,
+    unsigned __int64 *TotalSize,
+    unsigned __int64 *TotalFree,
+    unsigned __int64 *UserFree
+);
 
-BOOL apiGetConsoleKeyboardLayoutName (
-		string &strDest
-		);
+BOOL apiGetConsoleKeyboardLayoutName(
+    string &strDest
+);
 
 HANDLE apiFindFirstFileName(
-		LPCWSTR lpFileName,
-		DWORD dwFlags,
-		string& strLinkName
-		);
+    LPCWSTR lpFileName,
+    DWORD dwFlags,
+    string& strLinkName
+);
 
 BOOL apiFindNextFileName(
-		HANDLE hFindStream,
-		string& strLinkName
-		);
+    HANDLE hFindStream,
+    string& strLinkName
+);
 
 BOOL apiCreateDirectory(
-		LPCWSTR lpPathName,
-		LPSECURITY_ATTRIBUTES lpSecurityAttributes
-		);
+    LPCWSTR lpPathName,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes
+);
 
 DWORD apiGetFileAttributes(
-		LPCWSTR lpFileName
-		);
+    LPCWSTR lpFileName
+);
 
 BOOL apiSetFileAttributes(
-		LPCWSTR lpFileName,
-		DWORD dwFileAttributes
-		);
+    LPCWSTR lpFileName,
+    DWORD dwFileAttributes
+);
 
 string& strCurrentDirectory();
 
 BOOL apiSetCurrentDirectory(
-		LPCWSTR lpPathName
-		);
+    LPCWSTR lpPathName
+);
 
 BOOL apiCreateSymbolicLink(
-		LPCWSTR lpSymlinkFileName,
-		LPCWSTR lpTargetFileName,
-		DWORD dwFlags
-		);
+    LPCWSTR lpSymlinkFileName,
+    LPCWSTR lpTargetFileName,
+    DWORD dwFlags
+);
 
 bool apiGetCompressedFileSize(
-		LPCWSTR lpFileName,
-		UINT64& Size
-		);
+    LPCWSTR lpFileName,
+    UINT64& Size
+);
 
 BOOL apiCreateHardLink(
-		LPCWSTR lpFileName,
-		LPCWSTR lpExistingFileName,
-		LPSECURITY_ATTRIBUTES lpSecurityAttributes
-		);
+    LPCWSTR lpFileName,
+    LPCWSTR lpExistingFileName,
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes
+);
 
 BOOL apiSetFilePointerEx(
-		HANDLE hFile,
-		INT64 DistanceToMove,
-		PINT64 NewFilePointer,
-		DWORD dwMoveMethod
-		);
+    HANDLE hFile,
+    INT64 DistanceToMove,
+    PINT64 NewFilePointer,
+    DWORD dwMoveMethod
+);
 
 HANDLE apiFindFirstStream(
-	LPCWSTR lpFileName,
-	STREAM_INFO_LEVELS InfoLevel,
-	LPVOID lpFindStreamData,
-	DWORD dwFlags=0
-	);
+    LPCWSTR lpFileName,
+    STREAM_INFO_LEVELS InfoLevel,
+    LPVOID lpFindStreamData,
+    DWORD dwFlags=0
+);
 
 BOOL apiFindNextStream(
-	HANDLE hFindStream,
-	LPVOID lpFindStreamData
+    HANDLE hFindStream,
+    LPVOID lpFindStreamData
 );
 
 bool apiGetLogicalDriveStrings(
-	string& DriveStrings
+    string& DriveStrings
 );

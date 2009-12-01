@@ -52,9 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 
 wchar_t* WINAPI Xlat(wchar_t *Line,
-                    int StartPos,
-                    int EndPos,
-                    DWORD Flags)
+                     int StartPos,
+                     int EndPos,
+                     DWORD Flags)
 {
 	wchar_t Chr,ChrOld;
 	int PreLang=2,CurLang=2; // unknown
@@ -65,58 +65,57 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 		return NULL;
 
 	int Length=StrLength(Line);
-
 	EndPos=Min(EndPos,Length);
 	StartPos=Max(StartPos,0);
 
 	if (StartPos > EndPos || StartPos >= Length)
 		return Line;
 
-	if(!Opt.XLat.Table[0].GetLength() || !Opt.XLat.Table[1].GetLength())
+	if (!Opt.XLat.Table[0].GetLength() || !Opt.XLat.Table[1].GetLength())
 		return Line;
 
 	size_t MinLenTable=Min(Opt.XLat.Table[0].GetLength(),Opt.XLat.Table[1].GetLength());
-
 	string strLayoutName;
-
 	int ProcessLayoutName=FALSE;
+
 	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && apiGetConsoleKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			Уточнение по поводу этого куска, чтобы потом не вспоминать ;-)
 			Было сделано в 1.7 build 1585
 
-            Делаем именно то, что заказывали!
+		    Делаем именно то, что заказывали!
 
-            Т.е. если сейчас раскладка стоит английская, а мы шпарим по русски, то
-            если раньше 'б' и 'ю' (в результате малой статистики) конвертировались
-            как бог на душу положит... то теперь так, как должно быть.
+		    Т.е. если сейчас раскладка стоит английская, а мы шпарим по русски, то
+		    если раньше 'б' и 'ю' (в результате малой статистики) конвертировались
+		    как бог на душу положит... то теперь так, как должно быть.
 
-            Для проверки нужно у HKEY_CURRENT_USER\Software\Far2\XLat\Flags выставить
-            второй бит (считаем от нуля; 0x4) и дописать две переменных:
+		    Для проверки нужно у HKEY_CURRENT_USER\Software\Far2\XLat\Flags выставить
+		    второй бит (считаем от нуля; 0x4) и дописать две переменных:
 
-            REGEDIT4
+		    REGEDIT4
 
-            [HKEY_CURRENT_USER\Software\Far\XLat]
-            ;
-            ; ONLY >= NT4
-            ;
-            ; набирали по русски в английской раскладке
-            ; `ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э"Э,б<Б.ю>Ю/.?,
-            "00000409"="`ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э\"Э,б<Б.ю>Ю/.?,"
+		    [HKEY_CURRENT_USER\Software\Far\XLat]
+		    ;
+		    ; ONLY >= NT4
+		    ;
+		    ; набирали по русски в английской раскладке
+		    ; `ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э"Э,б<Б.ю>Ю/.?,
+		    "00000409"="`ё~Ё[х{Х]ъ}Ъ;Ж:Ж'э\"Э,б<Б.ю>Ю/.?,"
 
-            ; набирали по английски в русской раскладке
-            ; ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э"б,Б<ю.Ю>./,?
-            "00000419"="ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э\"б,Б<ю.Ю>./,?"
+		    ; набирали по английски в русской раскладке
+		    ; ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э"б,Б<ю.Ю>./,?
+		    "00000419"="ё`Ё~х[Х{ъ]Ъ}Ж;Ж:э'Э\"б,Б<ю.Ю>./,?"
 
-            Здесь есть бага (хотя, багой и не назовешь...) -
-              конвертнули,
-              переключилась раскладка,
-              руками переключили раскладку,
-              снова конвертим и...
-        */
+		    Здесь есть бага (хотя, багой и не назовешь...) -
+		      конвертнули,
+		      переключилась раскладка,
+		      руками переключили раскладку,
+		      снова конвертим и...
+		*/
 		GetRegKey(L"XLat",strLayoutName,Opt.XLat.Rules[2],L"");
-		if(!Opt.XLat.Rules[2].IsEmpty())
+
+		if (!Opt.XLat.Rules[2].IsEmpty())
 			ProcessLayoutName=TRUE;
 	}
 
@@ -126,6 +125,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 		ChrOld=Chr=Line[j];
 		// ChrOld - пред символ
 		IsChange=0;
+
 		// цикл по просмотру Chr в таблицах
 		// <=MinLenTable так как длина настоящая а начальный индекс 1
 		for (size_t i=0; i <= MinLenTable; i++)
@@ -185,26 +185,33 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 						break;
 					}
 				}
+
 #if 0
+
 				// Если в таблице не найдено и таблица была Unknown...
-				if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+				if (I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
 				{
 					// ...смотрим сначала в первой таблице...
-					for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
-						if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
+					for (I=1; I < Opt.XLat.Rules[0][0]; I+=2)
+						if (ChrOld == (BYTE)Opt.XLat.Rules[0][I])
 							break;
-					for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
-						if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
+
+					for (J=1; J < Opt.XLat.Rules[1][0]; J+=2)
+						if (ChrOld == (BYTE)Opt.XLat.Rules[1][J])
 							break;
-					if(I >= Opt.XLat.Rules[0][0])
+
+					if (I >= Opt.XLat.Rules[0][0])
 						CurLang=1;
-					if(J >= Opt.XLat.Rules[1][0])
+
+					if (J >= Opt.XLat.Rules[1][0])
 						CurLang=0;
-					if()//???
+
+					if ()//???
 					{
 						Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
 					}
 				}
+
 #endif
 			}
 		}
@@ -217,17 +224,22 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 	{
 		if (!hFarWnd)
 			InitDetectWindowedMode();
+
 		if (hFarWnd)
 		{
 			HKL Next=(HKL)0;
-			if ( Opt.XLat.Layouts[0] )
+
+			if (Opt.XLat.Layouts[0])
 			{
-				if( ++Opt.XLat.CurrentLayout >= (int)countof(Opt.XLat.Layouts) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
+				if (++Opt.XLat.CurrentLayout >= (int)countof(Opt.XLat.Layouts) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
 					Opt.XLat.CurrentLayout=0;
-				if(Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
+
+				if (Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
 					Next=Opt.XLat.Layouts[Opt.XLat.CurrentLayout];
 			}
+
 			PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);
+
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);
 		}

@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ChangeMacroMode
 {
-  private:
-    int PrevMacroMode;
+	private:
+		int PrevMacroMode;
 
-  public:
-    ChangeMacroMode(int NewMode);
-    ~ChangeMacroMode();
+	public:
+		ChangeMacroMode(int NewMode);
+		~ChangeMacroMode();
 };

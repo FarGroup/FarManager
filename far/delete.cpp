@@ -76,240 +76,246 @@ enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
-  ChangePriority ChPriority(Opt.DelThreadPriority);
-  TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
+	ChangePriority ChPriority(Opt.DelThreadPriority);
+	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
+	FAR_FIND_DATA_EX FindData;
+	string strDeleteFilesMsg;
+	string strSelName;
+	string strSelShortName;
+	string strDizName;
+	string strFullName;
+	DWORD FileAttr;
+	int SelCount,UpdateDiz;
+	int DizPresent;
+	int Ret;
+	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
+	ConsoleTitle *DeleteTitle;
+	int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
+	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
+	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
+	FrameFromLaunched->Lock();
+	DeleteAllFolders=!Opt.Confirm.DeleteFolder;
+	UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
+	           (SrcPanel->IsDizDisplayed() &&
+	            Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
-  FAR_FIND_DATA_EX FindData;
-  string strDeleteFilesMsg;
-  string strSelName;
-  string strSelShortName;
-  string strDizName;
-  string strFullName;
-  DWORD FileAttr;
-  int SelCount,UpdateDiz;
-  int DizPresent;
-  int Ret;
-  BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
-  ConsoleTitle *DeleteTitle;
+	if ((SelCount=SrcPanel->GetSelCount())==0)
+		goto done;
 
-  int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
-
-/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
-  Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
-  FrameFromLaunched->Lock();
-
-  DeleteAllFolders=!Opt.Confirm.DeleteFolder;
-
-  UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
-             (SrcPanel->IsDizDisplayed() &&
-             Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
-
-  if ((SelCount=SrcPanel->GetSelCount())==0)
-    goto done;
-
-  // Удаление в корзину только для  FIXED-дисков
-  {
-    string strRoot;
+	// Удаление в корзину только для  FIXED-дисков
+	{
+		string strRoot;
 //    char FSysNameSrc[NM];
-    SrcPanel->GetSelName(NULL,FileAttr);
-    SrcPanel->GetSelName(&strSelName,FileAttr);
-    ConvertNameToFull(strSelName, strRoot);
-    GetPathRoot(strRoot,strRoot);
+		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(&strSelName,FileAttr);
+		ConvertNameToFull(strSelName, strRoot);
+		GetPathRoot(strRoot,strRoot);
+
 //_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
-    if(Opt.DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
-      Opt.DeleteToRecycleBin=0;
-  }
+		if (Opt.DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
+			Opt.DeleteToRecycleBin=0;
+	}
 
-  if (SelCount==1)
-  {
-    SrcPanel->GetSelName(NULL,FileAttr);
-    SrcPanel->GetSelName(&strSelName,FileAttr);
-    if (TestParentFolderName(strSelName) || strSelName.IsEmpty() )
-    {
-      NeedUpdate=FALSE;
-      goto done;
-    }
-    strDeleteFilesMsg = strSelName;
-  }
-  else
-  {
-    // в зависимости от числа ставим нужное окончание
-    const wchar_t *Ends;
-    wchar_t StrItems[16];
-    _itow(SelCount,StrItems,10);
-    Ends=MSG(MAskDeleteItemsA);
-    int LenItems=StrLength(StrItems);
-    if (LenItems > 0)
-    {
-      if((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
-             StrItems[LenItems-1] >= L'5' ||
-             StrItems[LenItems-1] == L'0')
-        Ends=MSG(MAskDeleteItemsS);
-      else if(StrItems[LenItems-1] == L'1')
-        Ends=MSG(MAskDeleteItems0);
-    }
+	if (SelCount==1)
+	{
+		SrcPanel->GetSelName(NULL,FileAttr);
+		SrcPanel->GetSelName(&strSelName,FileAttr);
 
-    strDeleteFilesMsg.Format (MSG(MAskDeleteItems),SelCount,Ends);
-  }
+		if (TestParentFolderName(strSelName) || strSelName.IsEmpty())
+		{
+			NeedUpdate=FALSE;
+			goto done;
+		}
 
-  Ret=1;
+		strDeleteFilesMsg = strSelName;
+	}
+	else
+	{
+		// в зависимости от числа ставим нужное окончание
+		const wchar_t *Ends;
+		wchar_t StrItems[16];
+		_itow(SelCount,StrItems,10);
+		Ends=MSG(MAskDeleteItemsA);
+		int LenItems=StrLength(StrItems);
 
-  //   Обработка "удаления" линков
-  if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
-  {
-    string strJuncName;
-    ConvertNameToFull(strSelName,strJuncName);
+		if (LenItems > 0)
+		{
+			if ((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
+			        StrItems[LenItems-1] >= L'5' ||
+			        StrItems[LenItems-1] == L'0')
+				Ends=MSG(MAskDeleteItemsS);
+			else if (StrItems[LenItems-1] == L'1')
+				Ends=MSG(MAskDeleteItems0);
+		}
 
-    if(GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
-    {
+		strDeleteFilesMsg.Format(MSG(MAskDeleteItems),SelCount,Ends);
+	}
+
+	Ret=1;
+
+	//   Обработка "удаления" линков
+	if ((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
+	{
+		string strJuncName;
+		ConvertNameToFull(strSelName,strJuncName);
+
+		if (GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
+		{
 			NormalizeSymlinkName(strJuncName);
-
-      //SetMessageHelp(L"DeleteLink");
-
+			//SetMessageHelp(L"DeleteLink");
 			string strAskDeleteLink=MSG(MAskDeleteLink);
 			DWORD dwAttr=apiGetFileAttributes(strJuncName);
-			if(dwAttr!=INVALID_FILE_ATTRIBUTES)
+
+			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				strAskDeleteLink+=L" ";
 				strAskDeleteLink+=dwAttr&FILE_ATTRIBUTE_DIRECTORY?MSG(MAskDeleteLinkFolder):MSG(MAskDeleteLinkFile);
 			}
 
-      Ret=Message(0,3,MSG(MDeleteLinkTitle),
-                strDeleteFilesMsg,
-                strAskDeleteLink,
-                strJuncName,
-                MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
+			Ret=Message(0,3,MSG(MDeleteLinkTitle),
+			            strDeleteFilesMsg,
+			            strAskDeleteLink,
+			            strJuncName,
+			            MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
 
-      if(Ret == 1)
-      {
-        ConvertNameToFull(strSelName, strJuncName);
-        if(Opt.Confirm.Delete)
-        {
-          ; //  ;-%
-        }
-        if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
-        {
-          DeleteReparsePoint(strJuncName);
-          ShellUpdatePanels(SrcPanel,NeedSetUpADir);
-        }
-        goto done;
-      }
-      if(Ret != 0)
-        goto done;
-    }
-  }
+			if (Ret == 1)
+			{
+				ConvertNameToFull(strSelName, strJuncName);
 
-  if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
-  {
-    const wchar_t *DelMsg;
-    const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
-    /* $ 05.01.2001 IS
-       ! Косметика в сообщениях - разные сообщения в зависимости от того,
-         какие и сколько элементов выделено.
-    */
-    BOOL folder=(FileAttr & FILE_ATTRIBUTE_DIRECTORY);
+				if (Opt.Confirm.Delete)
+				{
+					; //  ;-%
+				}
 
-    if (SelCount==1)
-    {
-      if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-        DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
-      else
-      {
-        if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
-        else
-          DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
-      }
-    }
-    else
-    {
-      if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-      {
-        DelMsg=MSG(MAskWipe);
-        TitleMsg=MSG(MDeleteWipeTitle);
-      }
-      else
-        if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-          DelMsg=MSG(MAskDeleteRecycle);
-        else
-          DelMsg=MSG(MAskDelete);
-    }
+				if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) != -1) //JuncName?
+				{
+					DeleteReparsePoint(strJuncName);
+					ShellUpdatePanels(SrcPanel,NeedSetUpADir);
+				}
 
-    SetMessageHelp(L"DeleteFile");
-    if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
-    {
-      NeedUpdate=FALSE;
-      goto done;
-    }
-  }
+				goto done;
+			}
 
-  if (Opt.Confirm.Delete && SelCount>1)
-  {
-    //SaveScreen SaveScr;
-    SetCursorType(FALSE,0);
-    SetMessageHelp(L"DeleteFile");
-    if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
-                strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
-    {
-      NeedUpdate=FALSE;
-      goto done;
-    }
-  }
+			if (Ret != 0)
+				goto done;
+		}
+	}
 
-  if (UpdateDiz)
-    SrcPanel->ReadDiz();
+	if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	{
+		const wchar_t *DelMsg;
+		const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
+		/* $ 05.01.2001 IS
+		   ! Косметика в сообщениях - разные сообщения в зависимости от того,
+		     какие и сколько элементов выделено.
+		*/
+		BOOL folder=(FileAttr & FILE_ATTRIBUTE_DIRECTORY);
 
-  SrcPanel->GetDizName(strDizName);
-	DizPresent=( !strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
+		if (SelCount==1)
+		{
+			if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+				DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
+			else
+			{
+				if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+					DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
+				else
+					DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
+			}
+		}
+		else
+		{
+			if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+			{
+				DelMsg=MSG(MAskWipe);
+				TitleMsg=MSG(MDeleteWipeTitle);
+			}
+			else if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+				DelMsg=MSG(MAskDeleteRecycle);
+			else
+				DelMsg=MSG(MAskDelete);
+		}
 
-  DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
+		SetMessageHelp(L"DeleteFile");
 
-  if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
-    goto done;
+		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
+		{
+			NeedUpdate=FALSE;
+			goto done;
+		}
+	}
 
-  if (SrcPanel->GetType()==TREE_PANEL)
-    FarChDir(L"\\");
+	if (Opt.Confirm.Delete && SelCount>1)
+	{
+		//SaveScreen SaveScr;
+		SetCursorType(FALSE,0);
+		SetMessageHelp(L"DeleteFile");
 
-  {
+		if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
+		            strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
+		{
+			NeedUpdate=FALSE;
+			goto done;
+		}
+	}
+
+	if (UpdateDiz)
+		SrcPanel->ReadDiz();
+
+	SrcPanel->GetDizName(strDizName);
+	DizPresent=(!strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
+	DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
+
+	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
+		goto done;
+
+	if (SrcPanel->GetType()==TREE_PANEL)
+		FarChDir(L"\\");
+
+	{
 		TaskBar TB;
 		bool Cancel=false;
-    //SaveScreen SaveScr;
-    SetCursorType(FALSE,0);
-
-    ReadOnlyDeleteMode=-1;
-    SkipMode=-1;
+		//SaveScreen SaveScr;
+		SetCursorType(FALSE,0);
+		ReadOnlyDeleteMode=-1;
+		SkipMode=-1;
 		SkipWipeMode=-1;
-    SkipFoldersMode=-1;
-
-
+		SkipFoldersMode=-1;
 		ULONG ItemsCount=0;
 		ProcessedItems=0;
-		if(Opt.DelOpt.DelShowTotal)
+
+		if (Opt.DelOpt.DelShowTotal)
 		{
 			SrcPanel->GetSelName(NULL,FileAttr);
 			DWORD StartTime=GetTickCount();
 			bool FirstTime=true;
-			while(SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+
+			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 			{
-				if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+				if (!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 				{
-					if(FileAttr&FILE_ATTRIBUTE_DIRECTORY)
+					if (FileAttr&FILE_ATTRIBUTE_DIRECTORY)
 					{
 						DWORD CurTime=GetTickCount();
-						if(CurTime-StartTime>RedrawTimeout || FirstTime)
+
+						if (CurTime-StartTime>RedrawTimeout || FirstTime)
 						{
 							StartTime=CurTime;
 							FirstTime=false;
-							if(CheckForEscSilent() && ConfirmAbortOp())
+
+							if (CheckForEscSilent() && ConfirmAbortOp())
 							{
 								Cancel=true;
 								break;
 							}
+
 							ShellDeleteMsg(strSelName,Wipe,-1);
 						}
+
 						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
 						UINT64 FileSize,CompressedFileSize,RealSize;
-						if(GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
+
+						if (GetDirInfo(NULL,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,NULL,0)>0)
 						{
 							ItemsCount+=CurrentFileCount+CurrentDirCount+1;
 						}
@@ -325,62 +331,75 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 				}
 			}
 		}
-    SrcPanel->GetSelName(NULL,FileAttr);
+
+		SrcPanel->GetSelName(NULL,FileAttr);
 		DWORD StartTime=GetTickCount();
 		bool FirstTime=true;
-    while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
-    {
-      int Length=(int)strSelName.GetLength();
-      if (Length==0 || (strSelName.At(0)==L'\\' && Length<2) ||
-          (strSelName.At(1)==L':' && Length<4))
-        continue;
+
+		while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+		{
+			int Length=(int)strSelName.GetLength();
+
+			if (Length==0 || (strSelName.At(0)==L'\\' && Length<2) ||
+			        (strSelName.At(1)==L':' && Length<4))
+				continue;
+
 			DWORD CurTime=GetTickCount();
-			if(CurTime-StartTime>RedrawTimeout || FirstTime)
+
+			if (CurTime-StartTime>RedrawTimeout || FirstTime)
 			{
 				StartTime=CurTime;
 				FirstTime=false;
-				if(CheckForEscSilent() && ConfirmAbortOp())
+
+				if (CheckForEscSilent() && ConfirmAbortOp())
 				{
 					Cancel=true;
 					break;
 				}
+
 				ShellDeleteMsg(strSelName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 			}
-      if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
-      {
-        if (!DeleteAllFolders)
-        {
-          ConvertNameToFull(strSelName, strFullName);
 
-          if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
-          {
-            int MsgCode=0;
-            // для symlink`а не нужно подтверждение
-            if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
-                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
-            if (MsgCode<0 || MsgCode==3)
-            {
-              NeedSetUpADir=FALSE;
-              break;
-            }
-            if (MsgCode==1)
-              DeleteAllFolders=1;
-            if (MsgCode==2)
-              continue;
-          }
-        }
+			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (!DeleteAllFolders)
+				{
+					ConvertNameToFull(strSelName, strFullName);
 
-        bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)!=0;
-        if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
-        {
-          string strFullName;
-          ScanTree ScTree(TRUE,TRUE,FALSE);
+					if (CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
+					{
+						int MsgCode=0;
 
+						// для symlink`а не нужно подтверждение
+						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+							MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+							                MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
+							                MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+							                MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+
+						if (MsgCode<0 || MsgCode==3)
+						{
+							NeedSetUpADir=FALSE;
+							break;
+						}
+
+						if (MsgCode==1)
+							DeleteAllFolders=1;
+
+						if (MsgCode==2)
+							continue;
+					}
+				}
+
+				bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+
+				if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
+				{
+					string strFullName;
+					ScanTree ScTree(TRUE,TRUE,FALSE);
 					string strSelFullName;
-					if(IsAbsolutePath(strSelName))
+
+					if (IsAbsolutePath(strSelName))
 					{
 						strSelFullName=strSelName;
 					}
@@ -390,201 +409,229 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 						AddEndSlash(strSelFullName);
 						strSelFullName+=strSelName;
 					}
+
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
 					DWORD StartTime=GetTickCount();
-          while (ScTree.GetNextName(&FindData,strFullName))
-          {
+
+					while (ScTree.GetNextName(&FindData,strFullName))
+					{
 						DWORD CurTime=GetTickCount();
-						if(CurTime-StartTime>RedrawTimeout)
+
+						if (CurTime-StartTime>RedrawTimeout)
 						{
 							StartTime=CurTime;
-							if(CheckForEscSilent())
+
+							if (CheckForEscSilent())
 							{
 								int AbortOp = ConfirmAbortOp();
+
 								if (AbortOp)
 								{
 									Cancel=true;
 									break;
 								}
 							}
+
 							ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
 						}
-            string strShortName;
-            strShortName = strFullName;
-            if ( !FindData.strAlternateFileName.IsEmpty() )
-            {
-                CutToNameUNC(strShortName);
 
-                strShortName += FindData.strAlternateFileName; //???
-            }
+						string strShortName;
+						strShortName = strFullName;
 
-            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-              if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-              {
-                if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+						if (!FindData.strAlternateFileName.IsEmpty())
+						{
+							CutToNameUNC(strShortName);
+							strShortName += FindData.strAlternateFileName; //???
+						}
+
+						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+						{
+							if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+							{
+								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
-                int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
-                if (MsgCode==DELETE_CANCEL)
-                {
-									Cancel=true;
-                  break;
-                }
-                else if (MsgCode==DELETE_SKIP)
-                {
-                  ScTree.SkipDir();
-                  continue;
-                }
 
-                TreeList::DelTreeName(strFullName);
-                if (UpdateDiz)
-                  SrcPanel->DeleteDiz(strFullName,strSelShortName);
-                continue;
-              }
-              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
-              {
-                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
-                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
-                      MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-                      MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
-                if (MsgCode<0 || MsgCode==3)
-                {
-									Cancel=true;
-                  break;
-                }
-                if (MsgCode==1)
-                  DeleteAllFolders=1;
-                if (MsgCode==2)
-                {
-                  ScTree.SkipDir();
-                  continue;
-                }
-              }
+								int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
 
-              if (ScTree.IsDirSearchDone())
-              {
-                if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+								if (MsgCode==DELETE_CANCEL)
+								{
+									Cancel=true;
+									break;
+								}
+								else if (MsgCode==DELETE_SKIP)
+								{
+									ScTree.SkipDir();
+									continue;
+								}
+
+								TreeList::DelTreeName(strFullName);
+
+								if (UpdateDiz)
+									SrcPanel->DeleteDiz(strFullName,strSelShortName);
+
+								continue;
+							}
+
+							if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(strFullName) == CHKFLD_NOTEMPTY)
+							{
+								int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+								                    MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),strFullName,
+								                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+								                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+
+								if (MsgCode<0 || MsgCode==3)
+								{
+									Cancel=true;
+									break;
+								}
+
+								if (MsgCode==1)
+									DeleteAllFolders=1;
+
+								if (MsgCode==2)
+								{
+									ScTree.SkipDir();
+									continue;
+								}
+							}
+
+							if (ScTree.IsDirSearchDone())
+							{
+								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
-                int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
-                if (MsgCode==DELETE_CANCEL)
-                {
+
+								int MsgCode=ERemoveDirectory(strFullName,strShortName,Wipe);
+
+								if (MsgCode==DELETE_CANCEL)
+								{
 									Cancel=true;;
-                  break;
-                }
-                else if (MsgCode==DELETE_SKIP)
-                {
-                  //ScTree.SkipDir();
-                  continue;
-                }
+									break;
+								}
+								else if (MsgCode==DELETE_SKIP)
+								{
+									//ScTree.SkipDir();
+									continue;
+								}
 
-                TreeList::DelTreeName(strFullName);
-              }
-            }
-            else
-            {
-              int AskCode=AskDeleteReadOnly(strFullName,FindData.dwFileAttributes,Wipe);
-              if (AskCode==DELETE_CANCEL)
-              {
+								TreeList::DelTreeName(strFullName);
+							}
+						}
+						else
+						{
+							int AskCode=AskDeleteReadOnly(strFullName,FindData.dwFileAttributes,Wipe);
+
+							if (AskCode==DELETE_CANCEL)
+							{
 								Cancel=true;
-                break;
-              }
-              if (AskCode==DELETE_YES)
-                if (ShellRemoveFile(strFullName,strShortName,Wipe)==DELETE_CANCEL)
-                {
+								break;
+							}
+
+							if (AskCode==DELETE_YES)
+								if (ShellRemoveFile(strFullName,strShortName,Wipe)==DELETE_CANCEL)
+								{
 									Cancel=true;
-                  break;
-                }
-            }
-          }
-        }
+									break;
+								}
+						}
+					}
+				}
 
-        if (!Cancel)
-        {
-          if (FileAttr & FILE_ATTRIBUTE_READONLY)
+				if (!Cancel)
+				{
+					if (FileAttr & FILE_ATTRIBUTE_READONLY)
 						apiSetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
-          int DeleteCode;
-          // нефига здесь выделываться, а надо учесть, что удаление
-          // симлинка в корзину чревато потерей оригинала.
-          if (DirSymLink || !Opt.DeleteToRecycleBin || Wipe)
-          {
-            DeleteCode=ERemoveDirectory(strSelName,strSelShortName,Wipe);
-            if (DeleteCode==DELETE_CANCEL)
-              break;
-            else if (DeleteCode==DELETE_SUCCESS)
-            {
-              TreeList::DelTreeName(strSelName);
 
-              if (UpdateDiz)
-                SrcPanel->DeleteDiz(strSelName,strSelShortName);
-            }
-          }
-          else
-          {
-            DeleteCode=RemoveToRecycleBin(strSelName);
-            if (!DeleteCode)
-              Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-                      MSG(MCannotDeleteFolder),strSelName,MSG(MOk));
-            else
-            {
-              TreeList::DelTreeName(strSelName);
-              if (UpdateDiz)
-                SrcPanel->DeleteDiz(strSelName,strSelShortName);
-            }
-          }
-        }
-      }
-      else
-      {
-        int AskCode=AskDeleteReadOnly(strSelName,FileAttr,Wipe);
-        if (AskCode==DELETE_CANCEL)
-          break;
-        if (AskCode==DELETE_YES)
-        {
-          int DeleteCode=ShellRemoveFile(strSelName,strSelShortName,Wipe);
-          if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
+					int DeleteCode;
+
+					// нефига здесь выделываться, а надо учесть, что удаление
+					// симлинка в корзину чревато потерей оригинала.
+					if (DirSymLink || !Opt.DeleteToRecycleBin || Wipe)
+					{
+						DeleteCode=ERemoveDirectory(strSelName,strSelShortName,Wipe);
+
+						if (DeleteCode==DELETE_CANCEL)
+							break;
+						else if (DeleteCode==DELETE_SUCCESS)
+						{
+							TreeList::DelTreeName(strSelName);
+
+							if (UpdateDiz)
+								SrcPanel->DeleteDiz(strSelName,strSelShortName);
+						}
+					}
+					else
+					{
+						DeleteCode=RemoveToRecycleBin(strSelName);
+
+						if (!DeleteCode)
+							Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
+							        MSG(MCannotDeleteFolder),strSelName,MSG(MOk));
+						else
+						{
+							TreeList::DelTreeName(strSelName);
+
+							if (UpdateDiz)
+								SrcPanel->DeleteDiz(strSelName,strSelShortName);
+						}
+					}
+				}
+			}
+			else
+			{
+				int AskCode=AskDeleteReadOnly(strSelName,FileAttr,Wipe);
+
+				if (AskCode==DELETE_CANCEL)
+					break;
+
+				if (AskCode==DELETE_YES)
+				{
+					int DeleteCode=ShellRemoveFile(strSelName,strSelShortName,Wipe);
+
+					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
 						SrcPanel->DeleteDiz(strSelName,strSelShortName);
 					}
-          if (DeleteCode==DELETE_CANCEL)
-            break;
-        }
-      }
-    }
-  }
 
-  if (UpdateDiz)
-		if (DizPresent==( !strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
-      SrcPanel->FlushDiz();
+					if (DeleteCode==DELETE_CANCEL)
+						break;
+				}
+			}
+		}
+	}
 
-  delete DeleteTitle;
+	if (UpdateDiz)
+		if (DizPresent==(!strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
+			SrcPanel->FlushDiz();
 
+	delete DeleteTitle;
 done:
-  Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
+	Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
+	// Разрешить перерисовку фрейма
+	FrameFromLaunched->Unlock();
 
-  // Разрешить перерисовку фрейма
-  FrameFromLaunched->Unlock();
-
-  if(NeedUpdate)
-  {
-    ShellUpdatePanels(SrcPanel,NeedSetUpADir);
-  }
+	if (NeedUpdate)
+	{
+		ShellUpdatePanels(SrcPanel,NeedSetUpADir);
+	}
 }
 
 static void PR_ShellDeleteMsg()
 {
-  PreRedrawItem preRedrawItem=PreRedraw.Peek();
-  ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<int>(reinterpret_cast<INT_PTR>(preRedrawItem.Param.Param4)),static_cast<int>(preRedrawItem.Param.Param5));
+	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<int>(reinterpret_cast<INT_PTR>(preRedrawItem.Param.Param4)),static_cast<int>(preRedrawItem.Param.Param5));
 }
 
 void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 {
 	string strProgress;
 	size_t Width=52;
-	if(Percent!=-1)
+
+	if (Percent!=-1)
 	{
 		size_t Length=Width-5; // -5 под проценты
 		wchar_t *Progress=strProgress.GetBuffer(Length);
-		if(Progress)
+
+		if (Progress)
 		{
 			size_t CurPos=Percent*(Length)/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
@@ -594,8 +641,10 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 			strTmp.Format(L" %3d%%",Percent);
 			strProgress+=strTmp;
 		}
+
 		TBC.SetProgressValue(Percent,100);
 	}
+
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
 	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
@@ -609,39 +658,42 @@ void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
 
 int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 {
-  int MsgCode;
-  if ((Attr & FILE_ATTRIBUTE_READONLY)==0)
-    return(DELETE_YES);
+	int MsgCode;
 
-	if(!Opt.Confirm.RO)
+	if ((Attr & FILE_ATTRIBUTE_READONLY)==0)
+		return(DELETE_YES);
+
+	if (!Opt.Confirm.RO)
 		ReadOnlyDeleteMode=1;
 
-  if (ReadOnlyDeleteMode!=-1)
-    MsgCode=ReadOnlyDeleteMode;
-  else
-  {
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name,
-            MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
-            MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
-            MSG(MDeleteFileCancel));
-  }
-  switch(MsgCode)
-  {
-    case 1:
-      ReadOnlyDeleteMode=1;
-      break;
-    case 2:
-      return(DELETE_SKIP);
-    case 3:
-      ReadOnlyDeleteMode=3;
-      return(DELETE_SKIP);
-    case -1:
-    case -2:
-    case 4:
-      return(DELETE_CANCEL);
-  }
+	if (ReadOnlyDeleteMode!=-1)
+		MsgCode=ReadOnlyDeleteMode;
+	else
+	{
+		MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name,
+		                MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
+		                MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
+		                MSG(MDeleteFileCancel));
+	}
+
+	switch (MsgCode)
+	{
+		case 1:
+			ReadOnlyDeleteMode=1;
+			break;
+		case 2:
+			return(DELETE_SKIP);
+		case 3:
+			ReadOnlyDeleteMode=3;
+			return(DELETE_SKIP);
+		case -1:
+		case -2:
+		case 4:
+			return(DELETE_CANCEL);
+	}
+
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-  return(DELETE_YES);
+	return(DELETE_YES);
 }
 
 
@@ -649,138 +701,139 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 int ShellRemoveFile(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
 	ProcessedItems++;
-  string strFullName;
+	string strFullName;
+	ConvertNameToFull(Name, strFullName);
+	int MsgCode=0;
 
-  ConvertNameToFull (Name, strFullName);
-
-  int MsgCode=0;
-
-	for(;;)
-  {
-    if (Wipe)
-    {
-			if(SkipWipeMode!=-1)
+	for (;;)
+	{
+		if (Wipe)
+		{
+			if (SkipWipeMode!=-1)
 			{
 				MsgCode=SkipWipeMode;
 			}
-			else if(GetNumberOfLinks(strFullName)>1)
+			else if (GetNumberOfLinks(strFullName)>1)
 			{
-/*
-                            Файл
-                         "имя файла"
-                Файл имеет несколько жестких ссылок.
-  Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
-                        Уничтожать файл?
-*/
+				/*
+				                            Файл
+				                         "имя файла"
+				                Файл имеет несколько жестких ссылок.
+				  Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
+				                        Уничтожать файл?
+				*/
 				MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),strFullName,
-					MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
-					MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+				                MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
+				                MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
 			}
-			switch(MsgCode)
+
+			switch (MsgCode)
 			{
+				case -1:
+				case -2:
+				case 4:
+					return DELETE_CANCEL;
+				case 3:
+					SkipWipeMode=2;
+				case 2:
+					return DELETE_SKIP;
+				case 1:
+					SkipWipeMode=0;
+				case 0:
+
+					if (WipeFile(Name)||WipeFile(ShortName))
+						return DELETE_SUCCESS;
+			}
+		}
+		else if (!Opt.DeleteToRecycleBin)
+		{
+			/*
+			        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+			               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
+			        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
+			          break;
+			*/
+			if (apiDeleteFile(Name))
+				break;
+		}
+		else if (RemoveToRecycleBin(Name))
+			break;
+
+		if (SkipMode!=-1)
+			MsgCode=SkipMode;
+		else
+		{
+			MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			                MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
+			                MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+		}
+
+		switch (MsgCode)
+		{
 			case -1:
 			case -2:
-			case 4:
-				return DELETE_CANCEL;
-
 			case 3:
-				SkipWipeMode=2;
+				return DELETE_CANCEL;
 			case 2:
-				return DELETE_SKIP;
-
+				SkipMode=1;
 			case 1:
-				SkipWipeMode=0;
-			case 0:
-				if(WipeFile(Name)||WipeFile(ShortName))
-					return DELETE_SUCCESS;
-			}
-    }
-    else
-      if (!Opt.DeleteToRecycleBin)
-      {
-/*
-        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-               FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
-        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
-          break;
-*/
-				if (apiDeleteFile(Name))
-          break;
-      }
-      else
-        if (RemoveToRecycleBin(Name))
-          break;
-    if (SkipMode!=-1)
-        MsgCode=SkipMode;
-    else
-    {
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                      MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
-                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-    }
-    switch(MsgCode)
-    {
-      case -1:
-      case -2:
-      case 3:
-        return DELETE_CANCEL;
+				return DELETE_SKIP;
+		}
+	}
 
-      case 2:
-        SkipMode=1;
-      case 1:
-        return DELETE_SKIP;
-    }
-  }
-  return DELETE_SUCCESS;
+	return DELETE_SUCCESS;
 }
 
 
 int ERemoveDirectory(const wchar_t *Name,const wchar_t *ShortName,int Wipe)
 {
 	ProcessedItems++;
-  string strFullName;
+	string strFullName;
+	ConvertNameToFull(Name,strFullName);
 
-  ConvertNameToFull(Name,strFullName);
+	for (;;)
+	{
+		if (Wipe)
+		{
+			if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
+				break;
+		}
+		else if (apiRemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && apiRemoveDirectory(ShortName)))
+			break;
 
-	for(;;)
-  {
-    if (Wipe)
-    {
-      if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
-        break;
-    }
-    else
-      if (apiRemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && apiRemoveDirectory(ShortName)))
-        break;
-    int MsgCode;
-    if (SkipFoldersMode!=-1)
-        MsgCode=SkipFoldersMode;
-    else
-    {
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                  MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
-                  MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
-    }
-    switch(MsgCode)
-    {
-      case -1:
-      case -2:
-      case 3:
-        return DELETE_CANCEL;
-      case 1:
-        return DELETE_SKIP;
-      case 2:
-        SkipFoldersMode=2;
-        return DELETE_SKIP;
-    }
-  }
-  return DELETE_SUCCESS;
+		int MsgCode;
+
+		if (SkipFoldersMode!=-1)
+			MsgCode=SkipFoldersMode;
+		else
+		{
+			MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+			                MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
+			                MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+		}
+
+		switch (MsgCode)
+		{
+			case -1:
+			case -2:
+			case 3:
+				return DELETE_CANCEL;
+			case 1:
+				return DELETE_SKIP;
+			case 2:
+				SkipFoldersMode=2;
+				return DELETE_SKIP;
+		}
+	}
+
+	return DELETE_SUCCESS;
 }
 
 DWORD SHErrorToWinError(DWORD SHError)
 {
 	DWORD WinError=SHError;
-	switch(SHError)
+
+	switch (SHError)
 	{
 		case 0x71:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_SAMEFILE         The source and destination files are the same file.
 		case 0x72:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYSRC1DEST     Multiple file paths were specified in the source buffer, but only one destination file path.
@@ -807,189 +860,196 @@ DWORD SHErrorToWinError(DWORD SHError)
 		case 0x402:   WinError=ERROR_PATH_NOT_FOUND;    break; //                     An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
 		case 0x10000: WinError=ERROR_GEN_FAILURE;       break; // ERRORONDEST         An unspecified error occurred on the destination.
 	}
+
 	return WinError;
 }
 
 int RemoveToRecycleBin(const wchar_t *Name)
 {
-  string strFullName;
-  ConvertNameToFull(Name, strFullName);
+	string strFullName;
+	ConvertNameToFull(Name, strFullName);
 
-  // При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if(WinVer.dwMajorVersion<6 && Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
-  {
-    string strFullName2;
-    FAR_FIND_DATA_EX FindData;
-    ScanTree ScTree(TRUE,TRUE,FALSE);
+	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
+	if (WinVer.dwMajorVersion<6 && Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	{
+		string strFullName2;
+		FAR_FIND_DATA_EX FindData;
+		ScanTree ScTree(TRUE,TRUE,FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
-    while (ScTree.GetNextName(&FindData,strFullName2))
-    {
-      if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-        ERemoveDirectory(strFullName2,FindData.strAlternateFileName,FALSE);
-    }
-  }
 
+		while (ScTree.GetNextName(&FindData,strFullName2))
+		{
+			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				ERemoveDirectory(strFullName2,FindData.strAlternateFileName,FALSE);
+		}
+	}
 
 	SHFILEOPSTRUCT fop={0};
+	wchar_t *lpwszName = strFullName.GetBuffer(strFullName.GetLength()+2);
+	lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
+	fop.wFunc=FO_DELETE;
+	fop.pFrom=lpwszName;
+	fop.pTo = L"\0\0";
+	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
 
-  wchar_t *lpwszName = strFullName.GetBuffer (strFullName.GetLength()+2);
+	if (Opt.DeleteToRecycleBin)
+		fop.fFlags|=FOF_ALLOWUNDO;
 
-  lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
-
-  fop.wFunc=FO_DELETE;
-  fop.pFrom=lpwszName;
-  fop.pTo = L"\0\0";
-  fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
-  if (Opt.DeleteToRecycleBin)
-    fop.fFlags|=FOF_ALLOWUNDO;
 	DWORD RetCode=SHFileOperation(&fop);
-  DWORD RetCode2=RetCode;
-
-  strFullName.ReleaseBuffer();
-  /* $ 26.01.2003 IS
-       + Если не удалось удалить объект (например, имя имеет пробел на конце)
-         и это не связано с прерыванием удаления пользователем, то попробуем
-         еще разок, но с указанием полного имени вместе с "\\?\"
-  */
-  // IS: Следует заметить, что при подобном удалении объект, имя которого
-  // IS: с пробелом на конце, в корзину не попадает даже, если включено
-  // IS: удаление в нее! Почему - ХЗ, проблема скорее всего где-то в Windows
-  // IS: Если этот момент вы посчитаете это поведение плохим и пусть уж лучше
-  // IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
-
+	DWORD RetCode2=RetCode;
+	strFullName.ReleaseBuffer();
+	/* $ 26.01.2003 IS
+	     + Если не удалось удалить объект (например, имя имеет пробел на конце)
+	       и это не связано с прерыванием удаления пользователем, то попробуем
+	       еще разок, но с указанием полного имени вместе с "\\?\"
+	*/
+	// IS: Следует заметить, что при подобном удалении объект, имя которого
+	// IS: с пробелом на конце, в корзину не попадает даже, если включено
+	// IS: удаление в нее! Почему - ХЗ, проблема скорее всего где-то в Windows
+	// IS: Если этот момент вы посчитаете это поведение плохим и пусть уж лучше
+	// IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
 	// Похоже, в висте этот трюк больше не работает.
 	// TODO: делать или обычное удаление, или через IFileOperation.
+#if 1
 
-  #if 1
 	if (RetCode && !fop.fAnyOperationsAborted && !HasPathPrefix(strFullName))
-  {
+	{
 		string strFullNameAlt=NTPath(strFullName).Str;
-		lpwszName = strFullNameAlt.GetBuffer (strFullNameAlt.GetLength()+2);
+		lpwszName = strFullNameAlt.GetBuffer(strFullNameAlt.GetLength()+2);
 		lpwszName[strFullNameAlt.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 		fop.pFrom=lpwszName;
 		RetCode=SHFileOperation(&fop);
-  }
-  #endif
+	}
 
-  if (RetCode)
-  {
+#endif
+
+	if (RetCode)
+	{
 		SetLastError(SHErrorToWinError(RetCode2));
 		return FALSE;
-  }
+	}
 
 	return !fop.fAnyOperationsAborted;
 }
 
 int WipeFile(const wchar_t *Name)
 {
-  unsigned __int64 FileSize;
-  HANDLE WipeHandle;
+	unsigned __int64 FileSize;
+	HANDLE WipeHandle;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-  WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
-  if (WipeHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
+	WipeHandle=apiCreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN);
 
-	if(!apiGetFileSizeEx(WipeHandle,FileSize))
-  {
-    CloseHandle(WipeHandle);
-    return(FALSE);
-  }
-  const int BufSize=65536;
-  char *Buf=new char[BufSize];
-  memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
-  DWORD Written;
-  while (FileSize>0)
-  {
-    DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-    WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
-    FileSize-=WriteSize;
-  }
-  WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
+	if (WipeHandle==INVALID_HANDLE_VALUE)
+		return(FALSE);
 
-  delete[] Buf;
+	if (!apiGetFileSizeEx(WipeHandle,FileSize))
+	{
+		CloseHandle(WipeHandle);
+		return(FALSE);
+	}
 
+	const int BufSize=65536;
+
+	char *Buf=new char[BufSize];
+
+	memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
+
+	DWORD Written;
+
+	while (FileSize>0)
+	{
+		DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
+		WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
+		FileSize-=WriteSize;
+	}
+
+	WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
+	delete[] Buf;
 	apiSetFilePointerEx(WipeHandle,0,NULL,FILE_BEGIN);
-  SetEndOfFile(WipeHandle);
-  CloseHandle(WipeHandle);
+	SetEndOfFile(WipeHandle);
+	CloseHandle(WipeHandle);
+	string strTempName;
+	FarMkTempEx(strTempName,NULL,FALSE);
 
-  string strTempName;
-
-  FarMkTempEx(strTempName,NULL,FALSE);
-
-	if(apiMoveFile(Name,strTempName))
+	if (apiMoveFile(Name,strTempName))
 		return(apiDeleteFile(strTempName)); //BUGBUG
-  SetLastError((_localLastError = GetLastError()));
-  return FALSE;
+
+	SetLastError((_localLastError = GetLastError()));
+	return FALSE;
 }
 
 
 int WipeDirectory(const wchar_t *Name)
 {
-  string strTempName, strSavePath(Opt.strTempPath);
+	string strTempName, strSavePath(Opt.strTempPath);
+	BOOL usePath = FALSE;
 
-  BOOL usePath = FALSE;
-	if(FirstSlash(Name)) {
-    Opt.strTempPath = Name;
+	if (FirstSlash(Name))
+	{
+		Opt.strTempPath = Name;
 		DeleteEndSlash(Opt.strTempPath);
-    CutToSlash(Opt.strTempPath);
-    usePath = TRUE;
-  }
-  FarMkTempEx(strTempName,NULL,usePath);
-  Opt.strTempPath = strSavePath;
+		CutToSlash(Opt.strTempPath);
+		usePath = TRUE;
+	}
 
-	if(!apiMoveFile(Name, strTempName))
-  {
-    SetLastError((_localLastError = GetLastError()));
-    return FALSE;
-  }
-  return apiRemoveDirectory(strTempName);
+	FarMkTempEx(strTempName,NULL,usePath);
+	Opt.strTempPath = strSavePath;
+
+	if (!apiMoveFile(Name, strTempName))
+	{
+		SetLastError((_localLastError = GetLastError()));
+		return FALSE;
+	}
+
+	return apiRemoveDirectory(strTempName);
 }
 
 int DeleteFileWithFolder(const wchar_t *FileName)
 {
-  string strFileOrFolderName;
-
-  strFileOrFolderName = FileName;
-
-  Unquote(strFileOrFolderName);
-
+	string strFileOrFolderName;
+	strFileOrFolderName = FileName;
+	Unquote(strFileOrFolderName);
 	BOOL Ret=apiSetFileAttributes(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
 
-  if(Ret)
-  {
-		if(apiDeleteFile(strFileOrFolderName)) //BUGBUG
-    {
-      CutToSlash(strFileOrFolderName,true);
-      return apiRemoveDirectory(strFileOrFolderName);
-    }
-  }
-  SetLastError((_localLastError = GetLastError()));
-  return FALSE;
+	if (Ret)
+	{
+		if (apiDeleteFile(strFileOrFolderName)) //BUGBUG
+		{
+			CutToSlash(strFileOrFolderName,true);
+			return apiRemoveDirectory(strFileOrFolderName);
+		}
+	}
+
+	SetLastError((_localLastError = GetLastError()));
+	return FALSE;
 }
 
 
 void DeleteDirTree(const wchar_t *Dir)
 {
-  if (*Dir==0 ||
-      (IsSlash(Dir[0]) && Dir[1]==0) ||
-      (Dir[1]==L':' && IsSlash(Dir[2]) && Dir[3]==0))
-    return;
-  string strFullName;
-  FAR_FIND_DATA_EX FindData;
-  ScanTree ScTree(TRUE,TRUE,FALSE);
+	if (*Dir==0 ||
+	        (IsSlash(Dir[0]) && Dir[1]==0) ||
+	        (Dir[1]==L':' && IsSlash(Dir[2]) && Dir[3]==0))
+		return;
 
+	string strFullName;
+	FAR_FIND_DATA_EX FindData;
+	ScanTree ScTree(TRUE,TRUE,FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
-  while (ScTree.GetNextName(&FindData, strFullName))
-  {
+
+	while (ScTree.GetNextName(&FindData, strFullName))
+	{
 		apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
-    if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    {
-      if (ScTree.IsDirSearchDone())
-        apiRemoveDirectory(strFullName);
-    }
-    else
-      apiDeleteFile(strFullName);
-  }
+
+		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (ScTree.IsDirSearchDone())
+				apiRemoveDirectory(strFullName);
+		}
+		else
+			apiDeleteFile(strFullName);
+	}
+
 	apiSetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
-  apiRemoveDirectory(Dir);
+	apiRemoveDirectory(Dir);
 }

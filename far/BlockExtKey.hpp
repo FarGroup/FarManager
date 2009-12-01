@@ -40,15 +40,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class BlockExtKey{
-   int OldIsProcessAssignMacroKey, OldIsProcessVE_FindFile;
- public:
-   BlockExtKey()
-   {
-     OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
-     IsProcessAssignMacroKey=1;
-     OldIsProcessVE_FindFile=IsProcessVE_FindFile;
-     IsProcessVE_FindFile=0;
-   }
-  ~BlockExtKey(){IsProcessAssignMacroKey=OldIsProcessAssignMacroKey; IsProcessVE_FindFile=OldIsProcessVE_FindFile;}
+class BlockExtKey
+{
+		int OldIsProcessAssignMacroKey, OldIsProcessVE_FindFile;
+	public:
+		BlockExtKey()
+		{
+			OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
+			IsProcessAssignMacroKey=1;
+			OldIsProcessVE_FindFile=IsProcessVE_FindFile;
+			IsProcessVE_FindFile=0;
+		}
+		~BlockExtKey() {IsProcessAssignMacroKey=OldIsProcessAssignMacroKey; IsProcessVE_FindFile=OldIsProcessVE_FindFile;}
 };

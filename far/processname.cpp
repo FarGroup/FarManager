@@ -39,44 +39,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName (const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
+int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
 {
-  int skippath=flags&PN_SKIPPATH;
-  flags &= ~PN_SKIPPATH;
+	int skippath=flags&PN_SKIPPATH;
+	flags &= ~PN_SKIPPATH;
 
-  if (flags == PN_CMPNAME)
-    return CmpName (param1, param2, skippath);
+	if (flags == PN_CMPNAME)
+		return CmpName(param1, param2, skippath);
 
-  if (flags == PN_CMPNAMELIST)
-  {
-    int Found=FALSE;
-    string strFileMask;
-    const wchar_t *MaskPtr;
-    MaskPtr=param1;
+	if (flags == PN_CMPNAMELIST)
+	{
+		int Found=FALSE;
+		string strFileMask;
+		const wchar_t *MaskPtr;
+		MaskPtr=param1;
 
-    while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
-    {
-      if (CmpName(strFileMask,param2,skippath))
-      {
-        Found=TRUE;
-        break;
-      }
-    }
-    return Found;
-  }
+		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask))!=NULL)
+		{
+			if (CmpName(strFileMask,param2,skippath))
+			{
+				Found=TRUE;
+				break;
+			}
+		}
 
-  if (flags&PN_GENERATENAME)
-  {
-    string strResult;
+		return Found;
+	}
 
-    int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
+	if (flags&PN_GENERATENAME)
+	{
+		string strResult;
+		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
+		xwcsncpy(param2, strResult, size); //?? а разве не size-1
+		return nResult;
+	}
 
-    xwcsncpy(param2, strResult, size); //?? а разве не size-1
-
-    return nResult;
-  }
-
-  return FALSE;
+	return FALSE;
 }
 
 /* $ 09.10.2000 IS
@@ -92,10 +90,8 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 {
 	string strPartAfterFolderName;
 	string strSrc = SrcName;
-
-	wchar_t *DestName = strDest.GetBuffer (strDest.GetLength()+strSrc.GetLength()+1); //???
+	wchar_t *DestName = strDest.GetBuffer(strDest.GetLength()+strSrc.GetLength()+1);  //???
 	wchar_t *DestNamePtr = (wchar_t*)PointToName(DestName);
-
 	string strWildName = DestNamePtr;
 
 	if (wcschr(strWildName, L'*')==NULL && wcschr(strWildName, L'?')==NULL)
@@ -111,11 +107,12 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	}
 
 	const wchar_t *Src = strSrc;
+
 	const wchar_t *SrcNamePtr = PointToName(Src);
 
 	int BeforeNameLength = DestNamePtr==DestName ? (int)(SrcNamePtr-Src) : 0;
 
-	wchar_t *PartBeforeName = (wchar_t*)xf_malloc ((BeforeNameLength+1)*sizeof (wchar_t));
+	wchar_t *PartBeforeName = (wchar_t*)xf_malloc((BeforeNameLength+1)*sizeof(wchar_t));
 
 	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
 
@@ -125,15 +122,18 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	while (*CurWildPtr)
 	{
-		switch(*CurWildPtr)
+		switch (*CurWildPtr)
 		{
 			case L'?':
 				CurWildPtr++;
+
 				if (*SrcNamePtr)
 					*(DestNamePtr++)=*(SrcNamePtr++);
+
 				break;
 			case L'*':
 				CurWildPtr++;
+
 				while (*SrcNamePtr)
 				{
 					if (*CurWildPtr==L'.' && SrcNameDot!=NULL && wcschr(CurWildPtr+1,L'.')==NULL)
@@ -141,41 +141,47 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 						if (SrcNamePtr==SrcNameDot)
 							break;
 					}
-					else
-						if (*SrcNamePtr==*CurWildPtr)
-							break;
+					else if (*SrcNamePtr==*CurWildPtr)
+						break;
+
 					*(DestNamePtr++)=*(SrcNamePtr++);
 				}
+
 				break;
 			case L'.':
 				CurWildPtr++;
 				*(DestNamePtr++)=L'.';
+
 				if (wcspbrk(CurWildPtr,L"*?")!=NULL)
 					while (*SrcNamePtr)
 						if (*(SrcNamePtr++)==L'.')
 							break;
+
 				break;
 			default:
 				*(DestNamePtr++)=*(CurWildPtr++);
+
 				if (*SrcNamePtr && *SrcNamePtr!=L'.')
 					SrcNamePtr++;
+
 				break;
 		}
 	}
 
 	*DestNamePtr=0;
+
 	if (DestNamePtr!=DestName && *(DestNamePtr-1)==L'.')
 		*(DestNamePtr-1)=0;
 
-	strDest.ReleaseBuffer ();
+	strDest.ReleaseBuffer();
 
 	if (*PartBeforeName)
 		strDest = PartBeforeName+strDest;
+
 	if (SelectedFolderNameLength!=0)
 		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
 
-	xf_free (PartBeforeName);
-
+	xf_free(PartBeforeName);
 	return(TRUE);
 }
 
@@ -190,112 +196,135 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 {
-  wchar_t stringc,patternc,rangec;
-  int match;
+	wchar_t stringc,patternc,rangec;
+	int match;
 
-  for (;; ++str)
-  {
-    /* $ 01.05.2001 DJ
-       используем инлайновые версии
-    */
-    stringc=Upper(*str);
-    patternc=Upper(*pattern++);
-    switch (patternc)
-    {
-      case 0:
-        return(stringc==0);
-      case L'?':
-        if (stringc == 0)
-          return(FALSE);
+	for (;; ++str)
+	{
+		/* $ 01.05.2001 DJ
+		   используем инлайновые версии
+		*/
+		stringc=Upper(*str);
+		patternc=Upper(*pattern++);
 
-        break;
-      case L'*':
-        if (!*pattern)
-          return(TRUE);
+		switch (patternc)
+		{
+			case 0:
+				return(stringc==0);
+			case L'?':
 
-        /* $ 01.05.2001 DJ
-           оптимизированная ветка работает и для имен с несколькими
-           точками
-        */
-        if (*pattern==L'.')
-        {
-          if (pattern[1]==L'*' && pattern[2]==0)
-            return(TRUE);
-          if (wcspbrk (pattern, L"*?[") == NULL)
-          {
-            const wchar_t *dot = wcsrchr (str, L'.');
-            if (pattern[1] == 0)
-              return (dot==NULL || dot[1]==0);
-            const wchar_t *patdot = wcschr (pattern+1, L'.');
-            if (patdot != NULL && dot == NULL)
-              return(FALSE);
-            if (patdot == NULL && dot != NULL)
-              return(StrCmpI (pattern+1,dot+1) == 0);
-          }
-        }
+				if (stringc == 0)
+					return(FALSE);
 
-        while (*str)
-        {
-          if (CmpName(pattern,str++,FALSE))
-            return(TRUE);
-        }
-        return(FALSE);
-      case L'[':
-        if (wcschr(pattern,L']')==NULL)
-        {
-          if (patternc != stringc)
-            return (FALSE);
-          break;
-        }
-        if (*pattern && *(pattern+1)==L']')
-        {
-          if (*pattern!=*str)
-            return(FALSE);
-          pattern+=2;
-          break;
-        }
-        match = 0;
-        while ((rangec = Upper(*pattern++))!=0)
-        {
-          if (rangec == L']')
-          {
-            if (match)
-              break;
-            else
-              return(FALSE);
-          }
-          if (match)
-            continue;
-          if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
-          {
-            match = (stringc <= Upper(*pattern) &&
-                     Upper(*(pattern - 2)) <= stringc);
-            pattern++;
-          }
-          else
-            match = (stringc == rangec);
-        }
-        if (rangec == 0)
-          return(FALSE);
-        break;
-      default:
-        if (patternc != stringc)
-        {
-          if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
-            return(*pattern!=L'.' && CmpName(pattern,str));
-          else
-            return(FALSE);
-        }
-        break;
-    }
-  }
+				break;
+			case L'*':
+
+				if (!*pattern)
+					return(TRUE);
+
+				/* $ 01.05.2001 DJ
+				   оптимизированная ветка работает и для имен с несколькими
+				   точками
+				*/
+				if (*pattern==L'.')
+				{
+					if (pattern[1]==L'*' && pattern[2]==0)
+						return(TRUE);
+
+					if (wcspbrk(pattern, L"*?[") == NULL)
+					{
+						const wchar_t *dot = wcsrchr(str, L'.');
+
+						if (pattern[1] == 0)
+							return (dot==NULL || dot[1]==0);
+
+						const wchar_t *patdot = wcschr(pattern+1, L'.');
+
+						if (patdot != NULL && dot == NULL)
+							return(FALSE);
+
+						if (patdot == NULL && dot != NULL)
+							return(StrCmpI(pattern+1,dot+1) == 0);
+					}
+				}
+
+				while (*str)
+				{
+					if (CmpName(pattern,str++,FALSE))
+						return(TRUE);
+				}
+
+				return(FALSE);
+			case L'[':
+
+				if (wcschr(pattern,L']')==NULL)
+				{
+					if (patternc != stringc)
+						return (FALSE);
+
+					break;
+				}
+
+				if (*pattern && *(pattern+1)==L']')
+				{
+					if (*pattern!=*str)
+						return(FALSE);
+
+					pattern+=2;
+					break;
+				}
+
+				match = 0;
+
+				while ((rangec = Upper(*pattern++))!=0)
+				{
+					if (rangec == L']')
+					{
+						if (match)
+							break;
+						else
+							return(FALSE);
+					}
+
+					if (match)
+						continue;
+
+					if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
+					{
+						match = (stringc <= Upper(*pattern) &&
+						         Upper(*(pattern - 2)) <= stringc);
+						pattern++;
+					}
+					else
+						match = (stringc == rangec);
+				}
+
+				if (rangec == 0)
+					return(FALSE);
+
+				break;
+			default:
+
+				if (patternc != stringc)
+				{
+					if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
+						return(*pattern!=L'.' && CmpName(pattern,str));
+					else
+						return(FALSE);
+				}
+
+				break;
+		}
+	}
 }
 
 // IS: функция для внешнего мира, использовать ее
 int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
 {
-  if (!pattern||!str) return FALSE;
-  if (skippath)
-    str=PointToName(str);
-  return CmpName_Body(pattern,str);
+	if (!pattern||!str) return FALSE;
+
+	if (skippath)
+		str=PointToName(str);
+
+	return CmpName_Body(pattern,str);
 }

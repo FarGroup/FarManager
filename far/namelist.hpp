@@ -39,48 +39,49 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class NamesList
 {
-  private:
-    struct FileName2{
-        string strName;
-        string strShortName;
-    };
+	private:
+		struct FileName2
+		{
+			string strName;
+			string strShortName;
+		};
 
-    struct OneName
-    {
-      struct FileName2 Value;
+		struct OneName
+		{
+			struct FileName2 Value;
 
-      OneName()
-      {
-      }
-      // для перекрывающихся объектов поведение как у xstrncpy!
-      const OneName& operator=(struct FileName2 &rhs)
-      {
-        Value.strName = rhs.strName;
-        Value.strShortName = rhs.strShortName;
-        return *this;
-      }
-    };
+			OneName()
+			{
+			}
+			// для перекрывающихся объектов поведение как у xstrncpy!
+			const OneName& operator=(struct FileName2 &rhs)
+			{
+				Value.strName = rhs.strName;
+				Value.strShortName = rhs.strShortName;
+				return *this;
+			}
+		};
 
-    typedef DList<OneName> StrList;
+		typedef DList<OneName> StrList;
 
-    StrList Names;
-    const OneName *CurrentName;
+		StrList Names;
+		const OneName *CurrentName;
 
-    string strCurrentDir;
+		string strCurrentDir;
 
-  private:
-    void Init();
+	private:
+		void Init();
 
-  public:
-    NamesList();
-    ~NamesList();
+	public:
+		NamesList();
+		~NamesList();
 
-  public:
-    void AddName(const wchar_t *Name,const wchar_t *ShortName);
-    bool GetNextName(string &strName, string &strShortName);
-    bool GetPrevName(string &strName, string &strShortName);
-    void SetCurName(const wchar_t *Name);
-    void MoveData(NamesList &Dest);
-    void GetCurDir(string &strDir);
-    void SetCurDir(const wchar_t *Dir);
+	public:
+		void AddName(const wchar_t *Name,const wchar_t *ShortName);
+		bool GetNextName(string &strName, string &strShortName);
+		bool GetPrevName(string &strName, string &strShortName);
+		void SetCurName(const wchar_t *Name);
+		void MoveData(NamesList &Dest);
+		void GetCurDir(string &strDir);
+		void SetCurDir(const wchar_t *Dir);
 };

@@ -44,46 +44,47 @@ static HICON hOldLargeIcon,hOldSmallIcon;
 
 void DetectWindowedMode()
 {
-  if (hFarWnd)
-    WindowedMode=!IsIconic(hFarWnd);
+	if (hFarWnd)
+		WindowedMode=!IsIconic(hFarWnd);
 }
 
 void InitDetectWindowedMode()
 {
-  hFarWnd = GetConsoleWindow();
+	hFarWnd = GetConsoleWindow();
 
-  if (hFarWnd && Opt.SmallIcon)
-  {
-    string strFarName;
-    apiGetModuleFileName (NULL, strFarName);
-    HICON hSmallIcon=NULL,hLargeIcon=NULL;
+	if (hFarWnd && Opt.SmallIcon)
+	{
+		string strFarName;
+		apiGetModuleFileName(NULL, strFarName);
+		HICON hSmallIcon=NULL,hLargeIcon=NULL;
 		ExtractIconEx(strFarName,0,&hLargeIcon,&hSmallIcon,1);
 
-    if (hLargeIcon!=NULL)
+		if (hLargeIcon!=NULL)
 			hOldLargeIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
-    if (hSmallIcon!=NULL)
-			hOldSmallIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
-  }
 
-  DetectWindowedMode();
+		if (hSmallIcon!=NULL)
+			hOldSmallIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+	}
+
+	DetectWindowedMode();
 }
 
 
 int IsWindowed()
 {
-  return(WindowedMode);
+	return(WindowedMode);
 }
 
 void RestoreIcons()
 {
-  if (hFarWnd && Opt.SmallIcon)
-  {
-    if (hOldLargeIcon!=NULL)
-    {
+	if (hFarWnd && Opt.SmallIcon)
+	{
+		if (hOldLargeIcon!=NULL)
+		{
 			SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
 			SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon!=NULL ? hOldSmallIcon:hOldLargeIcon));
-    }
-  }
+		}
+	}
 }
 
 /* $ 25.07.2000 SVS
@@ -99,19 +100,18 @@ void RestoreIcons()
 */
 int FarAltEnter(int mode)
 {
-	if ( mode != FAR_CONSOLE_GET_MODE )
+	if (mode != FAR_CONSOLE_GET_MODE)
 	{
 		COORD dwOldMode;
 
-		if ( !ifn.pfnSetConsoleDisplayMode )
-			ifn.pfnSetConsoleDisplayMode (
-				GetStdHandle(STD_OUTPUT_HANDLE),
-				(mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),
-				&dwOldMode
-				);
+		if (!ifn.pfnSetConsoleDisplayMode)
+			ifn.pfnSetConsoleDisplayMode(
+			    GetStdHandle(STD_OUTPUT_HANDLE),
+			    (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),
+					    &dwOldMode
+					);
 	}
 
 	DetectWindowedMode();
-
 	return IsWindowed()?FAR_CONSOLE_WINDOWED:FAR_CONSOLE_FULLSCREEN;
 }

@@ -43,30 +43,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
 {
-  GlobalSaveScrPtr=SaveScr;
+	GlobalSaveScrPtr=SaveScr;
 }
 
 UndoGlobalSaveScrPtr::~UndoGlobalSaveScrPtr()
 {
-  GlobalSaveScrPtr=NULL;
+	GlobalSaveScrPtr=NULL;
 }
 
 
 RefreshFrameManager::RefreshFrameManager(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame)
 {
-  RefreshFrameManager::OScrX=OScrX;
-  RefreshFrameManager::OScrY=OScrY;
-  RefreshFrameManager::MsgWaitTime=MsgWaitTime;
-  RefreshFrameManager::DontRedrawFrame=DontRedrawFrame;
+	RefreshFrameManager::OScrX=OScrX;
+	RefreshFrameManager::OScrY=OScrY;
+	RefreshFrameManager::MsgWaitTime=MsgWaitTime;
+	RefreshFrameManager::DontRedrawFrame=DontRedrawFrame;
 }
 RefreshFrameManager::~RefreshFrameManager()
 {
-  if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
-    return;
-  else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
-  {
-    LockScreen LckScr;
-    FrameManager->ResizeAllFrame();
-    FrameManager->GetCurrentFrame()->Show();
-  }
+	if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
+		return;
+	else if (OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=-1)
+	{
+		LockScreen LckScr;
+		FrameManager->ResizeAllFrame();
+		FrameManager->GetCurrentFrame()->Show();
+	}
 }

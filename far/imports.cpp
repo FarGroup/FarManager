@@ -41,7 +41,6 @@ ImportedFunctions ifn;
 void ImportedFunctions::Load()
 {
 	memset(this,0,sizeof(*this));
-
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
@@ -49,94 +48,80 @@ void ImportedFunctions::Load()
 
 	if (hSetupAPI)
 	{
-		pfnGetDevNodeRegistryProperty = (PCMGETDEVNODEREGISTRYPROPERTY)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_DevNode_Registry_PropertyW"
-				);
-
-		pfnGetDevNodeStatus = (PCMGETDEVNODESTATUS)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_DevNode_Status"
-				);
-
-		pfnGetDeviceID = (PCMGETDEVICEID)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Device_IDW"
-				);
-
-		pfnGetDeviceIDListSize = (PCMGETDEVICEIDLISTSIZE)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Device_ID_List_SizeW"
-				);
-
-		pfnGetDeviceIDList = (PCMGETDEVICEIDLIST)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Device_ID_ListW"
-				);
-
-		pfnGetDeviceInterfaceListSize = (PCMGETDEVICEINTERFACELISTSIZE)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Device_Interface_List_SizeW"
-				);
-
-		pfnGetDeviceInterfaceList = (PCMGETDEVICEINTERFACELIST)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Device_Interface_ListW"
-				);
-
-		pfnLocateDevNode = (PCMLOCATEDEVNODE)GetProcAddress (
-				hSetupAPI,
-				"CM_Locate_DevNodeW"
-				);
-
-		pfnGetChild = (PCMGETCHILD)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Child"
-				);
-
-		pfnGetSibling  = (PCMGETCHILD)GetProcAddress (
-				hSetupAPI,
-				"CM_Get_Sibling"
-				);
-
-		pfnRequestDeviceEject = (PCMREQUESTDEVICEEJECT)GetProcAddress (
-				hSetupAPI,
-				"CM_Request_Device_EjectW"
-				);
+		pfnGetDevNodeRegistryProperty = (PCMGETDEVNODEREGISTRYPROPERTY)GetProcAddress(
+		                                    hSetupAPI,
+		                                    "CM_Get_DevNode_Registry_PropertyW"
+		                                );
+		pfnGetDevNodeStatus = (PCMGETDEVNODESTATUS)GetProcAddress(
+		                          hSetupAPI,
+		                          "CM_Get_DevNode_Status"
+		                      );
+		pfnGetDeviceID = (PCMGETDEVICEID)GetProcAddress(
+		                     hSetupAPI,
+		                     "CM_Get_Device_IDW"
+		                 );
+		pfnGetDeviceIDListSize = (PCMGETDEVICEIDLISTSIZE)GetProcAddress(
+		                             hSetupAPI,
+		                             "CM_Get_Device_ID_List_SizeW"
+		                         );
+		pfnGetDeviceIDList = (PCMGETDEVICEIDLIST)GetProcAddress(
+		                         hSetupAPI,
+		                         "CM_Get_Device_ID_ListW"
+		                     );
+		pfnGetDeviceInterfaceListSize = (PCMGETDEVICEINTERFACELISTSIZE)GetProcAddress(
+		                                    hSetupAPI,
+		                                    "CM_Get_Device_Interface_List_SizeW"
+		                                );
+		pfnGetDeviceInterfaceList = (PCMGETDEVICEINTERFACELIST)GetProcAddress(
+		                                hSetupAPI,
+		                                "CM_Get_Device_Interface_ListW"
+		                            );
+		pfnLocateDevNode = (PCMLOCATEDEVNODE)GetProcAddress(
+		                       hSetupAPI,
+		                       "CM_Locate_DevNodeW"
+		                   );
+		pfnGetChild = (PCMGETCHILD)GetProcAddress(
+		                  hSetupAPI,
+		                  "CM_Get_Child"
+		              );
+		pfnGetSibling  = (PCMGETCHILD)GetProcAddress(
+		                     hSetupAPI,
+		                     "CM_Get_Sibling"
+		                 );
+		pfnRequestDeviceEject = (PCMREQUESTDEVICEEJECT)GetProcAddress(
+		                            hSetupAPI,
+		                            "CM_Request_Device_EjectW"
+		                        );
 	}
 
 	bSetupAPIFunctions = (
-			pfnGetDevNodeRegistryProperty &&
-			pfnGetDevNodeStatus &&
-			pfnGetDeviceID &&
-			pfnGetDeviceIDListSize &&
-			pfnGetDeviceIDList &&
-			pfnGetDeviceInterfaceListSize &&
-			pfnGetDeviceInterfaceList &&
-			pfnLocateDevNode &&
-			pfnGetChild &&
-			pfnGetSibling &&
-			pfnRequestDeviceEject
-			);
+	                         pfnGetDevNodeRegistryProperty &&
+	                         pfnGetDevNodeStatus &&
+	                         pfnGetDeviceID &&
+	                         pfnGetDeviceIDListSize &&
+	                         pfnGetDeviceIDList &&
+	                         pfnGetDeviceInterfaceListSize &&
+	                         pfnGetDeviceInterfaceList &&
+	                         pfnLocateDevNode &&
+	                         pfnGetChild &&
+	                         pfnGetSibling &&
+	                         pfnRequestDeviceEject
+	                     );
 
 	if (hKernel)
 	{
-		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress (hKernel, "GetConsoleKeyboardLayoutNameW");
-		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress (hKernel, "SetConsoleDisplayMode");
-
+		pfnGetConsoleKeyboardLayoutName = (PGETCONSOLEKEYBOARDLAYOUTNAME)GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW");
+		pfnSetConsoleDisplayMode = (PSETCONSOLEDISPLAYMODE)GetProcAddress(hKernel, "SetConsoleDisplayMode");
 		pfnCreateSymbolicLink = (PCREATESYMBOLICLINK)GetProcAddress(hKernel, "CreateSymbolicLinkW");
-
 		pfnFindFirstFileNameW = (FINDFIRSTFILENAMEW)GetProcAddress(hKernel, "FindFirstFileNameW");
 		pfnFindNextFileNameW = (FINDNEXTFILENAMEW)GetProcAddress(hKernel, "FindNextFileNameW");
-
 		pfnFindFirstStreamW = (FINDFIRSTSTREAMW)GetProcAddress(hKernel, "FindFirstStreamW");
 		pfnFindNextStreamW = (FINDNEXTSTREAMW)GetProcAddress(hKernel, "FindNextStreamW");
-
 		pfnGetFinalPathNameByHandle = (GETFINALPATHNAMEBYHANDLE)GetProcAddress(hKernel, "GetFinalPathNameByHandleW");
 		pfnGetVolumePathNamesForVolumeName = (GETVOLUMEPATHNAMESFORVOLUMENAME)GetProcAddress(hKernel, "GetVolumePathNamesForVolumeNameW");
 	}
 
-	if(hNtdll)
+	if (hNtdll)
 	{
 		pfnNtQueryInformationFile = (NTQUERYINFORMATIONFILE)GetProcAddress(hNtdll, "NtQueryInformationFile");
 		pfnNtQueryObject = (NTQUERYOBJECT)GetProcAddress(hNtdll, "NtQueryObject");

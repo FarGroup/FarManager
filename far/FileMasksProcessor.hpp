@@ -40,29 +40,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum FMP_FLAGS
 {
-  FMPF_ADDASTERISK = 0x00000001 // Добавлять '*', если маска не содержит
-                                // ни одного из следующих
-                                // символов: '*', '?', '.'
+	FMPF_ADDASTERISK = 0x00000001 // Добавлять '*', если маска не содержит
+	// ни одного из следующих
+	// символов: '*', '?', '.'
 };
 
 class FileMasksProcessor : public BaseFileMask
 {
-public:
-	FileMasksProcessor();
-	virtual ~FileMasksProcessor() { Free(); }
+	public:
+		FileMasksProcessor();
+		virtual ~FileMasksProcessor() { Free(); }
 
-public:
-	virtual bool Set(const wchar_t *Masks, DWORD Flags);
-	virtual bool Compare(const wchar_t *Name);
-	virtual bool IsEmpty();
-	void Free();
+	public:
+		virtual bool Set(const wchar_t *Masks, DWORD Flags);
+		virtual bool Compare(const wchar_t *Name);
+		virtual bool IsEmpty();
+		void Free();
 
-private:
-	UserDefinedList Masks; // список масок файлов
-	const wchar_t *MaskPtr;   // указатель на текущую маску в списке
-	RegExp *re;
-	SMatch *m;
-	int n;
-	bool bRE;
+	private:
+		UserDefinedList Masks; // список масок файлов
+		const wchar_t *MaskPtr;   // указатель на текущую маску в списке
+		RegExp *re;
+		SMatch *m;
+		int n;
+		bool bRE;
 
 };

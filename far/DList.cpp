@@ -37,67 +37,64 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CDList::CDList()
 {
-  Length=0;
-  root.next=&root;
-  root.prev=&root;
+	Length=0;
+	root.next=&root;
+	root.prev=&root;
 }
 void CDList::Clear()
 {
-  Node *f=root.next;
-  while(f!=&root)
-  {
-    Node *f1=f;
-    f=f->next;
-    DeleteNode(f1);
-  }
-  Length=0;
-  root.next=&root;
-  root.prev=&root;
+	Node *f=root.next;
+
+	while (f!=&root)
+	{
+		Node *f1=f;
+		f=f->next;
+		DeleteNode(f1);
+	}
+
+	Length=0;
+	root.next=&root;
+	root.prev=&root;
 }
 void CDList::CSwap(CDList &l)
 {
-  Node *pr=root.prev;
-  root.next->prev=&l.root;
-  pr->next=&l.root;
-  pr=l.root.prev;
-  l.root.next->prev=&root;
-  pr->next=&root;
-
-  int tLength=Length;
-  Node troot=root;
-  Length=l.Length;
-  root=l.root;
-  l.Length=tLength;
-  l.root=troot;
+	Node *pr=root.prev;
+	root.next->prev=&l.root;
+	pr->next=&l.root;
+	pr=l.root.prev;
+	l.root.next->prev=&root;
+	pr->next=&root;
+	int tLength=Length;
+	Node troot=root;
+	Length=l.Length;
+	root=l.root;
+	l.Length=tLength;
+	l.root=troot;
 }
 void *CDList::CInsertBefore(void *b, void *item)
 {
-  Node *Before=b ? (Node*)((BYTE*)b-sizeof(Node)) : &root;
-
-  Node *node=AllocNode(item);
-  node->prev=Before->prev;
-  node->next=Before;
-  Before->prev->next=node;
-  Before->prev=node;
-
-  ++Length;
-  return ((BYTE*)node)+sizeof(Node);
+	Node *Before=b ? (Node*)((BYTE*)b-sizeof(Node)) : &root;
+	Node *node=AllocNode(item);
+	node->prev=Before->prev;
+	node->next=Before;
+	Before->prev->next=node;
+	Before->prev=node;
+	++Length;
+	return ((BYTE*)node)+sizeof(Node);
 }
 void *CDList::CInsertAfter(void *a, void *item)
 {
-  Node *After=a ? (Node*)((BYTE*)a-sizeof(Node)) : &root;
-  return CInsertBefore((BYTE*)After->next+sizeof(Node), item);
+	Node *After=a ? (Node*)((BYTE*)a-sizeof(Node)) : &root;
+	return CInsertBefore((BYTE*)After->next+sizeof(Node), item);
 }
 void *CDList::CDelete(void *item)
 {
-  Node *node=(Node*)((BYTE*)item-sizeof(Node));
-
-  Node *pr=node->prev;
-  Node *nx=node->next;
-  pr->next=nx;
-  nx->prev=pr;
-
-  --Length;
-  DeleteNode(node);
-  return pr==&root ? NULL : ((BYTE*)pr)+sizeof(Node);
+	Node *node=(Node*)((BYTE*)item-sizeof(Node));
+	Node *pr=node->prev;
+	Node *nx=node->next;
+	pr->next=nx;
+	nx->prev=pr;
+	--Length;
+	DeleteNode(node);
+	return pr==&root ? NULL : ((BYTE*)pr)+sizeof(Node);
 }

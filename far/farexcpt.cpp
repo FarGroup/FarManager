@@ -52,7 +52,7 @@ int WriteEvent(DWORD DumpType, // FLOG_*
                void *RawData,DWORD RawDataSize,
                DWORD RawDataFlags,DWORD RawType)
 {
-  return 0;
+	return 0;
 }
 
 /* ************************************************************************
@@ -61,12 +61,12 @@ int WriteEvent(DWORD DumpType, // FLOG_*
 */
 static const wchar_t* xFromMSGTitle(int From)
 {
-  if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
-    return MSG(MExceptTitleLoad);
-  else if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
-    return MSG(MExceptTitleFAR);
-  else
-    return MSG(MExceptTitle);
+	if (From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
+		return MSG(MExceptTitleLoad);
+	else if (From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
+		return MSG(MExceptTitleFAR);
+	else
+		return MSG(MExceptTitle);
 }
 
 
@@ -77,370 +77,369 @@ static int From=0;                     // откуда: 0 = OpenPlugin, 1 = OpenFilePl
 static EXCEPTION_POINTERS *xp=NULL;    // данные ситуации
 static Plugin *Module=NULL;     // модуль, приведший к исключению.
 static DWORD Flags=0;                  // дополнительные флаги - пока только один
-                                       //        0x1 - спрашивать про выгрузку?
+//        0x1 - спрашивать про выгрузку?
 
-extern void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+extern void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-static DWORD WINAPI _xfilter (LPVOID dummy=NULL)
+static DWORD WINAPI _xfilter(LPVOID dummy=NULL)
 {
-   ProcessException=TRUE;
-   BlockExtKey blockExtKey;
-
-   DWORD Result = EXCEPTION_EXECUTE_HANDLER;
-   BOOL Res=FALSE;
-
+	ProcessException=TRUE;
+	BlockExtKey blockExtKey;
+	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
+	BOOL Res=FALSE;
 //   if(From == (int)INVALID_HANDLE_VALUE)
 //     CriticalInternalError=TRUE;
 
-   if(!Is_STACK_OVERFLOW && GetRegKey(L"System\\Exception",L"Used",0))
-   {
-     static string strFarEventSvc;
-     if(GetRegKey(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
-     {
-				HMODULE m = LoadLibrary(strFarEventSvc);
-       if (m)
-       {
-         typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
-                                                const PLUGINRECORD *Module,
-                                                const PluginStartupInfo *LocalStartupInfo,
-                                                LPDWORD Result);
+	if (!Is_STACK_OVERFLOW && GetRegKey(L"System\\Exception",L"Used",0))
+	{
+		static string strFarEventSvc;
 
-         ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
-
-         if (p)
-         {
-					static PluginStartupInfo LocalStartupInfo;
-           memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
-					static FarStandardFunctions LocalStandardFunctions;
-           memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
-
-           CreatePluginStartupInfo (NULL, &LocalStartupInfo, &LocalStandardFunctions);
-						LocalStartupInfo.ModuleName = strFarEventSvc;
-
-           static string strRootKey;
-           strRootKey = Opt.strRegRoot;
-           LocalStartupInfo.RootKey=strRootKey;
-
-						static PLUGINRECORD PlugRec;
-           if (Module)
-           {
-             memset(&PlugRec,0,sizeof(PlugRec));
-
-             PlugRec.TypeRec=RTYPE_PLUGIN;
-							PlugRec.SizeRec=sizeof(PLUGINRECORD);
-
-             PlugRec.ModuleName=Module->GetModuleName();
-
-             PlugRec.SysID=Module->GetSysID();
-             PlugRec.WorkFlags=Module->GetWorkFlags();
-             PlugRec.CallFlags=Module->GetFuncFlags();
-
-             PlugRec.FuncFlags=0;
-             PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
-             PlugRec.FuncFlags|=Module->HasOpenPlugin()?PICFF_OPENPLUGIN:0;
-             PlugRec.FuncFlags|=Module->HasOpenFilePlugin()?PICFF_OPENFILEPLUGIN:0;
-             PlugRec.FuncFlags|=Module->HasClosePlugin()?PICFF_CLOSEPLUGIN:0;
-             PlugRec.FuncFlags|=Module->HasGetPluginInfo()?PICFF_GETPLUGININFO:0;
-             PlugRec.FuncFlags|=Module->HasGetOpenPluginInfo()?PICFF_GETOPENPLUGININFO:0;
-             PlugRec.FuncFlags|=Module->HasGetFindData()?PICFF_GETFINDDATA:0;
-             PlugRec.FuncFlags|=Module->HasFreeFindData()?PICFF_FREEFINDDATA:0;
-             PlugRec.FuncFlags|=Module->HasGetVirtualFindData()?PICFF_GETVIRTUALFINDDATA:0;
-             PlugRec.FuncFlags|=Module->HasFreeVirtualFindData()?PICFF_FREEVIRTUALFINDDATA:0;
-             PlugRec.FuncFlags|=Module->HasSetDirectory()?PICFF_SETDIRECTORY:0;
-             PlugRec.FuncFlags|=Module->HasGetFiles()?PICFF_GETFILES:0;
-             PlugRec.FuncFlags|=Module->HasPutFiles()?PICFF_PUTFILES:0;
-             PlugRec.FuncFlags|=Module->HasDeleteFiles()?PICFF_DELETEFILES:0;
-             PlugRec.FuncFlags|=Module->HasMakeDirectory()?PICFF_MAKEDIRECTORY:0;
-             PlugRec.FuncFlags|=Module->HasProcessHostFile()?PICFF_PROCESSHOSTFILE:0;
-             PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
-             PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
-             PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
-             PlugRec.FuncFlags|=Module->HasProcessKey()?PICFF_PROCESSKEY:0;
-             PlugRec.FuncFlags|=Module->HasProcessEvent()?PICFF_PROCESSEVENT:0;
-             PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
-             PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
-             PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;
-             PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
-             PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
-             PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
-             PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
-           }
-           Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
-         }
-         FreeLibrary(m);
-       }
-     }
-   }
-
-   if(Res)
-   {
-     if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
-     {
-       CriticalInternalError=TRUE;
-       //TerminateProcess( GetCurrentProcess(), 1);
-     }
-     return (::From=Result);
-   }
-
-		struct __ECODE
+		if (GetRegKey(L"System\\Exception",L"FarEvent.svc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
 		{
-			NTSTATUS Code;     // код исключения
-     DWORD IdMsg;    // ID сообщения из LNG-файла
-     DWORD RetCode;  // Что вернем?
-   } ECode[]={
-     {EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-     {EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
-     {EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
-     {EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
-     {EXCEPTION_ILLEGAL_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_PRIV_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_DATATYPE_MISALIGNMENT, MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
-  // сюды добавляем.
-   };
-   // EXCEPTION_CONTINUE_EXECUTION  ??????
-   const wchar_t *pName;
-   DWORD rc;
-   string strBuf1, strBuf2, strBuf3;
+			HMODULE m = LoadLibrary(strFarEventSvc);
 
-   string strFileName;
-   BOOL ShowMessages=FALSE;
+			if (m)
+			{
+				typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
+				                                       const PLUGINRECORD *Module,
+				                                       const PluginStartupInfo *LocalStartupInfo,
+				                                       LPDWORD Result);
+				ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
 
-   // получим запись исключения
-   EXCEPTION_RECORD *xr = xp->ExceptionRecord;
+				if (p)
+				{
+					static PluginStartupInfo LocalStartupInfo;
+					memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
+					static FarStandardFunctions LocalStandardFunctions;
+					memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
+					CreatePluginStartupInfo(NULL, &LocalStartupInfo, &LocalStandardFunctions);
+					LocalStartupInfo.ModuleName = strFarEventSvc;
+					static string strRootKey;
+					strRootKey = Opt.strRegRoot;
+					LocalStartupInfo.RootKey=strRootKey;
+					static PLUGINRECORD PlugRec;
 
-   // выведим дамп перед выдачей сообщений
-   if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
-     WriteEvent(FLOG_ALL&(~FLOG_PLUGINSINFO),xp,Module,NULL,0);
+					if (Module)
+					{
+						memset(&PlugRec,0,sizeof(PlugRec));
+						PlugRec.TypeRec=RTYPE_PLUGIN;
+						PlugRec.SizeRec=sizeof(PLUGINRECORD);
+						PlugRec.ModuleName=Module->GetModuleName();
+						PlugRec.SysID=Module->GetSysID();
+						PlugRec.WorkFlags=Module->GetWorkFlags();
+						PlugRec.CallFlags=Module->GetFuncFlags();
+						PlugRec.FuncFlags=0;
+						PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
+						PlugRec.FuncFlags|=Module->HasOpenPlugin()?PICFF_OPENPLUGIN:0;
+						PlugRec.FuncFlags|=Module->HasOpenFilePlugin()?PICFF_OPENFILEPLUGIN:0;
+						PlugRec.FuncFlags|=Module->HasClosePlugin()?PICFF_CLOSEPLUGIN:0;
+						PlugRec.FuncFlags|=Module->HasGetPluginInfo()?PICFF_GETPLUGININFO:0;
+						PlugRec.FuncFlags|=Module->HasGetOpenPluginInfo()?PICFF_GETOPENPLUGININFO:0;
+						PlugRec.FuncFlags|=Module->HasGetFindData()?PICFF_GETFINDDATA:0;
+						PlugRec.FuncFlags|=Module->HasFreeFindData()?PICFF_FREEFINDDATA:0;
+						PlugRec.FuncFlags|=Module->HasGetVirtualFindData()?PICFF_GETVIRTUALFINDDATA:0;
+						PlugRec.FuncFlags|=Module->HasFreeVirtualFindData()?PICFF_FREEVIRTUALFINDDATA:0;
+						PlugRec.FuncFlags|=Module->HasSetDirectory()?PICFF_SETDIRECTORY:0;
+						PlugRec.FuncFlags|=Module->HasGetFiles()?PICFF_GETFILES:0;
+						PlugRec.FuncFlags|=Module->HasPutFiles()?PICFF_PUTFILES:0;
+						PlugRec.FuncFlags|=Module->HasDeleteFiles()?PICFF_DELETEFILES:0;
+						PlugRec.FuncFlags|=Module->HasMakeDirectory()?PICFF_MAKEDIRECTORY:0;
+						PlugRec.FuncFlags|=Module->HasProcessHostFile()?PICFF_PROCESSHOSTFILE:0;
+						PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
+						PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
+						PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
+						PlugRec.FuncFlags|=Module->HasProcessKey()?PICFF_PROCESSKEY:0;
+						PlugRec.FuncFlags|=Module->HasProcessEvent()?PICFF_PROCESSEVENT:0;
+						PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
+						PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
+						PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;
+						PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
+						PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
+						PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
+						PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
+					}
 
-   // CONTEXT можно использовать для отображения или записи в лог
-   //         содержимого регистров...
-   // CONTEXT *xc = xp->ContextRecord;
+					Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
+				}
 
-   rc = Result;// EXCEPTION_EXECUTE_HANDLER;
+				FreeLibrary(m);
+			}
+		}
+	}
 
-   /*$ 23.01.2001 skv
-     Неизвестное исключение не стоит игнорировать.
-   */
-   pName=NULL;
-   if(From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
-     apiGetModuleFileName (NULL, strFileName);
-   else
-     strFileName = Module->GetModuleName();
+	if (Res)
+	{
+		if (From == (int)(INT_PTR)INVALID_HANDLE_VALUE)
+		{
+			CriticalInternalError=TRUE;
+			//TerminateProcess( GetCurrentProcess(), 1);
+		}
 
-   /* $ 26.02.2001 VVM
-       ! Обработка STATUS_INVALIDFUNCTIONRESULT */
-   // Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
-   if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
-   {
-     int I = 0;
-     static const wchar_t *NameField[2][3]={
-       {L"DiskMenuStrings",L"PluginMenuStrings",L"PluginConfigStrings"},
-       {L"InfoLines",L"DescrFiles",L"PanelModesArray"},};
-     switch(From)
-     {
-       case EXCEPT_GETPLUGININFO_DATA:
-         pName = L"PluginInfo";
-         I = 0;
-         break;
-       case EXCEPT_GETOPENPLUGININFO_DATA:
-         pName = L"OpenPluginInfo";
-         I = 1;
-         break;
-     }
+		return (::From=Result);
+	}
 
-     if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
-        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
-     {
-       strBuf1.Format (
-           MSG(MExcStructField),
-           pName,
-           NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
-     }
-     else
-       strBuf1.Format (MSG(MExcStructWrongFilled),pName);
+	struct __ECODE
+	{
+		NTSTATUS Code;     // код исключения
+		DWORD IdMsg;    // ID сообщения из LNG-файла
+		DWORD RetCode;  // Что вернем?
+	} ECode[]=
 
-     if(FrameManager && !FrameManager->ManagerIsDown())
-     {
-       Message(MSG_WARNING,1,
-            xFromMSGTitle(From),
-            MSG(MExcTrappedException),
-            MSG(MExcCheckOnLousys),
-            strFileName,
-            strBuf1,
-            L"\1",
-            MSG(MExcUnloadYes),
-            MSG(MOk));
-       ShowMessages=TRUE;
-     }
-   } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
+	{
+		{EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+		{EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},           // BUGBUG:  ^^^
+		{EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},   // BUGBUG:  ^^^
+		{EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},         // BUGBUG:  ^^^
+		{EXCEPTION_ILLEGAL_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_PRIV_INSTRUCTION,MExcBadInstruction,EXCEPTION_EXECUTE_HANDLER},
+		{EXCEPTION_DATATYPE_MISALIGNMENT, MExcDatatypeMisalignment, EXCEPTION_EXECUTE_HANDLER},
+		// сюды добавляем.
+	};
+	// EXCEPTION_CONTINUE_EXECUTION  ??????
+	const wchar_t *pName;
+	DWORD rc;
+	string strBuf1, strBuf2, strBuf3;
+	string strFileName;
+	BOOL ShowMessages=FALSE;
+	// получим запись исключения
+	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
-   // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
-   // из Open*Plugin()
-   else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
-   {
-     switch (From)
-     {
-       case EXCEPT_OPENPLUGIN:
-         pName=L"OpenPlugin";
-         break;
-       case EXCEPT_OPENFILEPLUGIN:
-         pName=L"OpenFilePlugin";
-         break;
-       case EXCEPT_OPENPLUGIN_FINDLIST:
-         pName=L"OpenPlugin(OPEN_FINDLIST)";
-         break;
-       default:
-         pName=L"???";
-         break;
-     }
+	// выведим дамп перед выдачей сообщений
+	if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
+		WriteEvent(FLOG_ALL&(~FLOG_PLUGINSINFO),xp,Module,NULL,0);
 
-     strBuf1.Format (MSG(MExcInvalidFuncResult),pName);
-     if(FrameManager && !FrameManager->ManagerIsDown())
-     {
-       Message(MSG_WARNING, 1,
-                 xFromMSGTitle(From),
-                 MSG(MExcTrappedException),
-                 MSG(MExcCheckOnLousys),
-                 strFileName,
-                 strBuf1,
-                 L"\1",
-                 MSG(MExcUnloadYes),
-                 MSG(MOk));
-       ShowMessages=TRUE;
-     }
-   }
-   else
-   {
-     // просмотрим "знакомые" FAR`у исключения и обработаем...
-     for (size_t I=0; I < countof(ECode); ++I)
-     {
+	// CONTEXT можно использовать для отображения или записи в лог
+	//         содержимого регистров...
+	// CONTEXT *xc = xp->ContextRecord;
+	rc = Result;// EXCEPTION_EXECUTE_HANDLER;
+	/*$ 23.01.2001 skv
+	  Неизвестное исключение не стоит игнорировать.
+	*/
+	pName=NULL;
+
+	if (From == (int)(INT_PTR)INVALID_HANDLE_VALUE || !Module)
+		apiGetModuleFileName(NULL, strFileName);
+	else
+		strFileName = Module->GetModuleName();
+
+	/* $ 26.02.2001 VVM
+	    ! Обработка STATUS_INVALIDFUNCTIONRESULT */
+
+	// Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
+	if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
+	{
+		int I = 0;
+		static const wchar_t *NameField[2][3]=
+		{
+			{L"DiskMenuStrings",L"PluginMenuStrings",L"PluginConfigStrings"},
+			{L"InfoLines",L"DescrFiles",L"PanelModesArray"},
+		};
+
+		switch (From)
+		{
+			case EXCEPT_GETPLUGININFO_DATA:
+				pName = L"PluginInfo";
+				I = 0;
+				break;
+			case EXCEPT_GETOPENPLUGININFO_DATA:
+				pName = L"OpenPluginInfo";
+				I = 1;
+				break;
+		}
+
+		if (xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
+		        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
+		{
+			strBuf1.Format(
+			    MSG(MExcStructField),
+			    pName,
+			    NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
+		}
+		else
+			strBuf1.Format(MSG(MExcStructWrongFilled),pName);
+
+		if (FrameManager && !FrameManager->ManagerIsDown())
+		{
+			Message(MSG_WARNING,1,
+			        xFromMSGTitle(From),
+			        MSG(MExcTrappedException),
+			        MSG(MExcCheckOnLousys),
+			        strFileName,
+			        strBuf1,
+			        L"\1",
+			        MSG(MExcUnloadYes),
+			        MSG(MOk));
+			ShowMessages=TRUE;
+		}
+	} /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
+	// теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
+	// из Open*Plugin()
+	else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
+	{
+		switch (From)
+		{
+			case EXCEPT_OPENPLUGIN:
+				pName=L"OpenPlugin";
+				break;
+			case EXCEPT_OPENFILEPLUGIN:
+				pName=L"OpenFilePlugin";
+				break;
+			case EXCEPT_OPENPLUGIN_FINDLIST:
+				pName=L"OpenPlugin(OPEN_FINDLIST)";
+				break;
+			default:
+				pName=L"???";
+				break;
+		}
+
+		strBuf1.Format(MSG(MExcInvalidFuncResult),pName);
+
+		if (FrameManager && !FrameManager->ManagerIsDown())
+		{
+			Message(MSG_WARNING, 1,
+			        xFromMSGTitle(From),
+			        MSG(MExcTrappedException),
+			        MSG(MExcCheckOnLousys),
+			        strFileName,
+			        strBuf1,
+			        L"\1",
+			        MSG(MExcUnloadYes),
+			        MSG(MOk));
+			ShowMessages=TRUE;
+		}
+	}
+	else
+	{
+		// просмотрим "знакомые" FAR`у исключения и обработаем...
+		for (size_t I=0; I < countof(ECode); ++I)
+		{
 			if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
-       {
-         pName=MSG(ECode[I].IdMsg);
-         rc=ECode[I].RetCode;
+			{
+				pName=MSG(ECode[I].IdMsg);
+				rc=ECode[I].RetCode;
+
 				if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
-         {
-           int Offset = 0;
+				{
+					int Offset = 0;
+					// вот только не надо здесь неочевидных оптимизаций вида
+					// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
+					// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
 
-           // вот только не надо здесь неочевидных оптимизаций вида
-           // if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-           // а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
+					switch (xr->ExceptionInformation[0])
+					{
+						case 0:
+							Offset = 0;
+							break;
+						case 1:
+							Offset = 1;
+							break;
+						case 8:
+							Offset = 2;
+							break;
+					}
 
-           switch ( xr->ExceptionInformation[0] )
-           {
-             case 0:
-               Offset = 0;
-               break;
+					strBuf2.Format(MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
+					pName=strBuf2;
+				}
 
-             case 1:
-               Offset = 1;
-               break;
+				break;
+			}
+		}
 
-             case 8:
-               Offset = 2;
-               break;
-           }
+		if (!pName)
+		{
+			strBuf2.Format(L"%s (0x%X)", MSG(MExcUnknown), xr->ExceptionCode);
+			pName = strBuf2;
+		}
 
-           strBuf2.Format (MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
-           pName=strBuf2;
-         }
-         break;
-       }
-     }
+		strBuf1.Format(MSG(MExcAddress),xr->ExceptionAddress);
 
-     if (!pName)
-     {
-       strBuf2.Format(L"%s (0x%X)", MSG(MExcUnknown), xr->ExceptionCode);
-       pName = strBuf2;
-     }
+		if (FrameManager && !FrameManager->ManagerIsDown())
+		{
+			Message(MSG_WARNING,1,
+			        xFromMSGTitle(From),
+			        MSG(MExcTrappedException),
+			        pName,
+			        strBuf1,
+			        strFileName, L"\1",
+			        MSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
+			        MSG(MOk));
+			ShowMessages=TRUE;
+		}
+	} /* else */
 
-     strBuf1.Format (MSG(MExcAddress),xr->ExceptionAddress);
-     if (FrameManager && !FrameManager->ManagerIsDown())
-     {
-       Message(MSG_WARNING,1,
-               xFromMSGTitle(From),
-               MSG(MExcTrappedException),
-               pName,
-               strBuf1,
-               strFileName, L"\1",
-               MSG((From == (int)(INT_PTR)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
-               MSG(MOk));
-       ShowMessages=TRUE;
-     }
-   } /* else */
+	if (ShowMessages && (Is_STACK_OVERFLOW || From == (int)(INT_PTR)INVALID_HANDLE_VALUE))
+	{
+		CriticalInternalError=TRUE;
+		TerminateProcess(GetCurrentProcess(), 1);
+	}
 
-   if (ShowMessages && (Is_STACK_OVERFLOW || From == (int)(INT_PTR)INVALID_HANDLE_VALUE))
-   {
-     CriticalInternalError=TRUE;
-     TerminateProcess( GetCurrentProcess(), 1);
-   }
+	rc = EXCEPTION_EXECUTE_HANDLER;
 
-   rc = EXCEPTION_EXECUTE_HANDLER;
-
-   if (xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
-     rc=EXCEPTION_CONTINUE_SEARCH; //?
+	if (xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
+		rc=EXCEPTION_CONTINUE_SEARCH; //?
 
 //   return UnhandledExceptionFilter(xp);
-
-   return (::From=rc);
+	return (::From=rc);
 }
 
 
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
-  // dummy parametrs setting
-  ::From=From;
-  ::xp=xp;
-  ::Module=Module;
-  ::Flags=Flags;
+	// dummy parametrs setting
+	::From=From;
+	::xp=xp;
+	::Module=Module;
+	::Flags=Flags;
 
 	if (xp->ExceptionRecord->ExceptionCode == static_cast<DWORD>(STATUS_STACK_OVERFLOW)) // restore stack & call_xfilter ;
-  {
-    Is_STACK_OVERFLOW=TRUE;
-
+	{
+		Is_STACK_OVERFLOW=TRUE;
 #ifdef _M_IA64
-    // TODO: Bad way to restore IA64 stacks (CreateThread)
-    // Can you do smartly? See REMINDER file, section IA64Stacks
-    static HANDLE hThread = NULL;
-    if ( (hThread = CreateThread (NULL, 0, _xfilter, NULL, 0, NULL)) == NULL )
-    {
-      TerminateProcess (GetCurrentProcess(), 1);
-    }
-    WaitForSingleObject (hThread, INFINITE);
-    CloseHandle( hThread );
-#else
-    static struct {
-      BYTE      stack_space[32768];
-      DWORD_PTR ret_addr;
-      DWORD_PTR args[4];
-    }_stack;
+		// TODO: Bad way to restore IA64 stacks (CreateThread)
+		// Can you do smartly? See REMINDER file, section IA64Stacks
+		static HANDLE hThread = NULL;
 
-    _stack.ret_addr = 0;
+		if ((hThread = CreateThread(NULL, 0, _xfilter, NULL, 0, NULL)) == NULL)
+		{
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
+
+		WaitForSingleObject(hThread, INFINITE);
+		CloseHandle(hThread);
+#else
+		static struct
+		{
+			BYTE      stack_space[32768];
+			DWORD_PTR ret_addr;
+			DWORD_PTR args[4];
+		} _stack;
+		_stack.ret_addr = 0;
 #ifndef _WIN64
-    //_stack.args[0] = (DWORD_PTR)From;
-    //_stack.args[1] = (DWORD_PTR)xp;
-    //_stack.args[2] = (DWORD_PTR)Module;
-    //_stack.args[3] = Flags;
-    xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
+		//_stack.args[0] = (DWORD_PTR)From;
+		//_stack.args[1] = (DWORD_PTR)xp;
+		//_stack.args[2] = (DWORD_PTR)Module;
+		//_stack.args[3] = Flags;
+		xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
+		xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
 #else
-    //xp->ContextRecord->Rcx = (DWORD_PTR)From;
-    //xp->ContextRecord->Rdx = (DWORD_PTR)xp;
-    //xp->ContextRecord->R8  = (DWORD_PTR)Module;
-    //xp->ContextRecord->R9  = Flags;
-    xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
-    xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
+		//xp->ContextRecord->Rcx = (DWORD_PTR)From;
+		//xp->ContextRecord->Rdx = (DWORD_PTR)xp;
+		//xp->ContextRecord->R8  = (DWORD_PTR)Module;
+		//xp->ContextRecord->R9  = Flags;
+		xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
+		xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
 #endif
 #endif
-    ::From=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
-  }
-  else
-    _xfilter ();
+		::From=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
+	}
+	else
+		_xfilter();
 
-  return ::From;
+	return ::From;
 }

@@ -81,18 +81,19 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 class Manager;
 void ManagerClass_Dump(const wchar_t *Title,const Manager *m=NULL,FILE *fp=NULL);
 void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
-                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
-                                           LPCWSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
+                               DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
+                               LPCWSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
 
 void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
-void WINAPI  _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
+	void WINAPIV _export FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
+	void WINAPI  _export FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+	void WINAPI _export FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
 #endif
@@ -254,8 +255,8 @@ void CloseSysLog();
 
 struct TUserLog
 {
-    FILE *Stream;
-    int   Level;
+	FILE *Stream;
+	int   Level;
 };
 
 void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
@@ -269,8 +270,9 @@ FILE *OpenLogStream(const wchar_t *file);
 #define L_DEBUG2   5
 #define L_DEBUG3   6
 
-class CleverSysLog{ // ;-)
-  public:
-    CleverSysLog(const wchar_t *Title=NULL);
-    ~CleverSysLog();
+class CleverSysLog  // ;-)
+{
+	public:
+		CleverSysLog(const wchar_t *Title=NULL);
+		~CleverSysLog();
 };

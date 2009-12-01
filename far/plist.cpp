@@ -50,163 +50,187 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-  VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
-  ProcList.SetFlags(VMENU_WRAPMODE);
-  ProcList.SetPosition(-1,-1,0,0);
-  if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
-    return;
-  ProcList.AssignHighlights(FALSE);
-  ProcList.SetBottomTitle(MSG(MProcessListBottom));
-  ProcList.Show();
+	VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
+	ProcList.SetFlags(VMENU_WRAPMODE);
+	ProcList.SetPosition(-1,-1,0,0);
 
-  while (!ProcList.Done())
-  {
-    int Key=ProcList.ReadInput();
-    switch(Key)
-    {
-      case KEY_F1:
-      {
-        BlockExtKey blockExtKey;
-        {
-          Help Hlp (L"TaskList");
-        }
-        break;
-      }
+	if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+		return;
 
-      case KEY_CTRLR:
-      {
-        ProcList.Hide();
-        ProcList.DeleteItems();
-        ProcList.SetPosition(-1,-1,0,0);
-        if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
-        {
-          ProcList.Modal::SetExitCode(-1);
-          break;
-        }
-        ProcList.Show();
-        break;
-      }
+	ProcList.AssignHighlights(FALSE);
+	ProcList.SetBottomTitle(MSG(MProcessListBottom));
+	ProcList.Show();
 
-      case KEY_NUMDEL:
-      case KEY_DEL:
-        {
-          BlockExtKey blockExtKey;
+	while (!ProcList.Done())
+	{
+		int Key=ProcList.ReadInput();
 
-          // Полиция 21
-          if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
-          {
-            Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
-            break;
-          }
+		switch (Key)
+		{
+			case KEY_F1:
+			{
+				BlockExtKey blockExtKey;
+				{
+					Help Hlp(L"TaskList");
+				}
+				break;
+			}
+			case KEY_CTRLR:
+			{
+				ProcList.Hide();
+				ProcList.DeleteItems();
+				ProcList.SetPosition(-1,-1,0,0);
 
-          HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
-          if (ProcWnd!=NULL)
-          {
-            wchar_t *lpwszTitle=0;
-						int LenTitle=GetWindowTextLength(ProcWnd);
-            if (LenTitle)
-            {
-              lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
-							if (lpwszTitle!=NULL && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
-                lpwszTitle[LenTitle]=0;
-            }
-            DWORD ProcID;
-            GetWindowThreadProcessId(ProcWnd,&ProcID);
-            if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-                lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
-            {
-              if (KillProcess(ProcID))
-              {
-                Sleep(500);
-                ProcList.Hide();
-                ShowProcessList();
-                if (lpwszTitle) xf_free(lpwszTitle);
-                return;
-              }
-              else
-                Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
-            }
+				if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+				{
+					ProcList.Modal::SetExitCode(-1);
+					break;
+				}
 
-            if (lpwszTitle) xf_free(lpwszTitle);
-          }
-        }
-        break;
-      default:
-        ProcList.ProcessInput();
-        break;
-    }
-  }
-  if (ProcList.Modal::GetExitCode()>=0)
-  {
-    HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
-    if (ProcWnd!=NULL)
-    {
-      //SetForegroundWindow(ProcWnd);
+				ProcList.Show();
+				break;
+			}
+			case KEY_NUMDEL:
+			case KEY_DEL:
+			{
+				BlockExtKey blockExtKey;
 
-      // Allow SetForegroundWindow on Win98+.
-      DWORD dwMs;
-      // Remember the current value.
+				// Полиция 21
+				if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+				{
+					Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
+					break;
+				}
+
+				HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+
+				if (ProcWnd!=NULL)
+				{
+					wchar_t *lpwszTitle=0;
+					int LenTitle=GetWindowTextLength(ProcWnd);
+
+					if (LenTitle)
+					{
+						lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+
+						if (lpwszTitle!=NULL && (LenTitle=GetWindowText(ProcWnd,lpwszTitle,LenTitle+1)))
+							lpwszTitle[LenTitle]=0;
+					}
+
+					DWORD ProcID;
+					GetWindowThreadProcessId(ProcWnd,&ProcID);
+
+					if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+					            lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
+					{
+						if (KillProcess(ProcID))
+						{
+							Sleep(500);
+							ProcList.Hide();
+							ShowProcessList();
+
+							if (lpwszTitle) xf_free(lpwszTitle);
+
+							return;
+						}
+						else
+							Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
+					}
+
+					if (lpwszTitle) xf_free(lpwszTitle);
+				}
+			}
+			break;
+			default:
+				ProcList.ProcessInput();
+				break;
+		}
+	}
+
+	if (ProcList.Modal::GetExitCode()>=0)
+	{
+		HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+
+		if (ProcWnd!=NULL)
+		{
+			//SetForegroundWindow(ProcWnd);
+			// Allow SetForegroundWindow on Win98+.
+			DWORD dwMs;
+			// Remember the current value.
 			BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
-      if(bSPI) // Reset foreground lock timeout
+
+			if (bSPI) // Reset foreground lock timeout
 				bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
-      SetForegroundWindow(ProcWnd);
-      if(bSPI) // Restore old value
+
+			SetForegroundWindow(ProcWnd);
+
+			if (bSPI) // Restore old value
 				SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)(DWORD_PTR)dwMs, 0);
 
-      WINDOWPLACEMENT wp;
-      wp.length=sizeof(wp);
-      if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
-        ShowWindowAsync(ProcWnd,SW_RESTORE);
-    }
-  }
+			WINDOWPLACEMENT wp;
+			wp.length=sizeof(wp);
+
+			if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
+				ShowWindowAsync(ProcWnd,SW_RESTORE);
+		}
+	}
 }
 
 
 BOOL KillProcess(DWORD dwPID)
 {
-  // Полиция 21
-  if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
-   return(FALSE);
+	// Полиция 21
+	if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+		return(FALSE);
 
-  HANDLE hProcess;
-  BOOL bRet;
-  hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);
-  if (hProcess!=NULL)
-  {
-    bRet=TerminateProcess(hProcess,0xFFFFFFFF);
-    if (bRet)
-      WaitForSingleObject(hProcess,5000);
-    CloseHandle(hProcess);
-  }
-  else
-    bRet=FALSE;
-  return(bRet);
+	HANDLE hProcess;
+	BOOL bRet;
+	hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);
+
+	if (hProcess!=NULL)
+	{
+		bRet=TerminateProcess(hProcess,0xFFFFFFFF);
+
+		if (bRet)
+			WaitForSingleObject(hProcess,5000);
+
+		CloseHandle(hProcess);
+	}
+	else
+		bRet=FALSE;
+
+	return(bRet);
 }
 
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-  VMenu *ProcList=(VMenu *)lParam;
-  if (IsWindowVisible(hwnd) ||
-			(IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0))
-  {
+	VMenu *ProcList=(VMenu *)lParam;
+
+	if (IsWindowVisible(hwnd) ||
+	        (IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0))
+	{
 		int LenTitle=GetWindowTextLength(hwnd);
-    if (LenTitle)
-    {
-      wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
-      if (lpwszTitle!=NULL)
-      {
+
+		if (LenTitle)
+		{
+			wchar_t *lpwszTitle=(wchar_t *)xf_malloc((LenTitle+1)*sizeof(wchar_t));
+
+			if (lpwszTitle!=NULL)
+			{
 				if ((LenTitle=GetWindowText(hwnd,lpwszTitle,LenTitle+1))!=0)
-        {
-          lpwszTitle[LenTitle]=0;
-          MenuItemEx ListItem;
-          ListItem.Clear();
-          ListItem.strName=lpwszTitle;
+				{
+					lpwszTitle[LenTitle]=0;
+					MenuItemEx ListItem;
+					ListItem.Clear();
+					ListItem.strName=lpwszTitle;
 					ProcList->SetUserData(hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
-        }
-        xf_free(lpwszTitle);
-      }
-    }
-  }
-  return(TRUE);
+				}
+
+				xf_free(lpwszTitle);
+			}
+		}
+	}
+
+	return(TRUE);
 }

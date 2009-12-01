@@ -57,13 +57,17 @@ bool FileMasksWithExclude::IsExcludeMask(const wchar_t *masks)
 const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
 {
 	const wchar_t *pExclude = masks;
+
 	if (*pExclude == L'/')
 	{
 		pExclude++;
+
 		while (*pExclude && (*pExclude != L'/' || *(pExclude-1) == L'\\'))
 			pExclude++;
+
 		while (*pExclude && *pExclude != EXCLUDEMASKSEPARATOR)
 			pExclude++;
+
 		if (*pExclude != EXCLUDEMASKSEPARATOR)
 			pExclude = NULL;
 	}
@@ -71,6 +75,7 @@ const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
 	{
 		pExclude = wcschr(masks,EXCLUDEMASKSEPARATOR);
 	}
+
 	return pExclude;
 }
 
@@ -83,28 +88,32 @@ const wchar_t *FileMasksWithExclude::FindExcludeChar(const wchar_t *masks)
 bool FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
+
 	if (NULL==masks || !*masks) return FALSE;
 
 	size_t len=StrLength(masks)+1;
 	bool rc=false;
-	wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof (wchar_t));
+	wchar_t *MasksStr=(wchar_t *) xf_malloc(len*sizeof(wchar_t));
+
 	if (MasksStr)
 	{
 		rc=true;
 		wcscpy(MasksStr, masks);
-
 		wchar_t *pExclude = (wchar_t *) FindExcludeChar(MasksStr);
+
 		if (pExclude)
 		{
 			*pExclude=0;
 			++pExclude;
+
 			if (*pExclude!=L'/' && wcschr(pExclude, EXCLUDEMASKSEPARATOR))
 				rc=FALSE;
 		}
 
-		if(rc)
+		if (rc)
 		{
 			rc = Include.Set(*MasksStr?MasksStr:L"*",(Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
+
 			if (rc)
 				rc=Exclude.Set(pExclude, 0);
 		}
@@ -114,7 +123,7 @@ bool FileMasksWithExclude::Set(const wchar_t *masks, DWORD Flags)
 		Free();
 
 	if (MasksStr)
-		xf_free (MasksStr);
+		xf_free(MasksStr);
 
 	return rc;
 }

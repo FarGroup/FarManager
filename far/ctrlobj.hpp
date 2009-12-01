@@ -46,32 +46,32 @@ class FilePanels;
 
 class ControlObject
 {
-  private:
-    FilePanels *FPanels;
+	private:
+		FilePanels *FPanels;
 
-  public:
-    ControlObject();
-    ~ControlObject();
+	public:
+		ControlObject();
+		~ControlObject();
 
-  public:
-    void Init();
+	public:
+		void Init();
 
-  public:
-    FilePanels *Cp();
+	public:
+		FilePanels *Cp();
 
-    void CreateFilePanels();
+		void CreateFilePanels();
 
-    CommandLine *CmdLine;
-    History *CmdHistory,*FolderHistory,*ViewHistory;
+		CommandLine *CmdLine;
+		History *CmdHistory,*FolderHistory,*ViewHistory;
 
-    KeyBar *MainKeyBar;
-    MenuBar *TopMenuBar;
-    HighlightFiles *HiFiles;
-    FilePositionCache *ViewerPosCache,*EditorPosCache;
-    KeyMacro Macro;
-    PluginManager Plugins;
+		KeyBar *MainKeyBar;
+		MenuBar *TopMenuBar;
+		HighlightFiles *HiFiles;
+		FilePositionCache *ViewerPosCache,*EditorPosCache;
+		KeyMacro Macro;
+		PluginManager Plugins;
 
-    static void ShowCopyright(DWORD Flags=0);
+		static void ShowCopyright(DWORD Flags=0);
 };
 
 extern ControlObject *CtrlObject;

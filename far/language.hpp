@@ -38,49 +38,49 @@ class VMenu;
 
 class Language
 {
-  private:
-    static bool LanguageLoaded;
+	private:
+		static bool LanguageLoaded;
 
-    wchar_t **MsgAddr;
-    wchar_t *MsgList;
+		wchar_t **MsgAddr;
+		wchar_t *MsgList;
 
-    char **MsgAddrA; //фантастика, да
-    char *MsgListA;
+		char **MsgAddrA; //фантастика, да
+		char *MsgListA;
 
-    long MsgSize;
+		long MsgSize;
 
-    int MsgCount;
+		int MsgCount;
 
-    string strMessageFile;
+		string strMessageFile;
 
-    bool m_bUnicode;
+		bool m_bUnicode;
 
-  private:
-    void ConvertString(const wchar_t *Src,string &strDest);
-    bool CheckMsgId(int MsgId);
-    void Free();
+	private:
+		void ConvertString(const wchar_t *Src,string &strDest);
+		bool CheckMsgId(int MsgId);
+		void Free();
 
-  public:
-    Language();
-    ~Language();
+	public:
+		Language();
+		~Language();
 
-  public:
-    bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
-    void Close();
+	public:
+		bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
+		void Close();
 
-    const wchar_t* GetMsg (int nID);
-    const char* GetMsgA (int nID);
+		const wchar_t* GetMsg(int nID);
+		const char* GetMsgA(int nID);
 
-    static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
-    static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-    /*
-       метод, для получения параметров для .Options
-        .Options <KeyName>=<Value>
-    */
-    static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
-    static int Select(int HelpLanguage,VMenu **MenuPtr);
+		static FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language,string &strFileName, UINT &nCodePage, BOOL StrongLang=FALSE, string *pLangName=NULL);
+		static int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
+		/*
+		   метод, для получения параметров для .Options
+		    .Options <KeyName>=<Value>
+		*/
+		static int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
+		static int Select(int HelpLanguage,VMenu **MenuPtr);
 
-    static bool IsLanguageLoaded() { return LanguageLoaded; }
+		static bool IsLanguageLoaded() { return LanguageLoaded; }
 };
 
 extern Language Lang;

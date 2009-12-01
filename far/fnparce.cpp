@@ -51,38 +51,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct TSubstData
 {
-  // параметры функции SubstFileName
-  const wchar_t *Name;           // Длинное имя
-  const wchar_t *ShortName;      // Короткое имя
+	// параметры функции SubstFileName
+	const wchar_t *Name;           // Длинное имя
+	const wchar_t *ShortName;      // Короткое имя
 
-  string *pListName;
-  string *pAnotherListName;
+	string *pListName;
+	string *pAnotherListName;
 
-  string *pShortListName;
-  string *pAnotherShortListName;
+	string *pShortListName;
+	string *pAnotherShortListName;
 
-  // локальные переменные
-  string strAnotherName;
-  string strAnotherShortName;
-  string strNameOnly;
-  string strShortNameOnly;
-  string strAnotherNameOnly;
-  string strAnotherShortNameOnly;
-  string strCmdDir;
-  int  PreserveLFN;
-  int  PassivePanel;
+	// локальные переменные
+	string strAnotherName;
+	string strAnotherShortName;
+	string strNameOnly;
+	string strShortNameOnly;
+	string strAnotherNameOnly;
+	string strAnotherShortNameOnly;
+	string strCmdDir;
+	int  PreserveLFN;
+	int  PassivePanel;
 
-  Panel *AnotherPanel;
-  Panel *ActivePanel;
+	Panel *AnotherPanel;
+	Panel *ActivePanel;
 };
 
 
 static int IsReplaceVariable(const wchar_t *str,int *scr = NULL,
-                                int *end = NULL,
-                                int *beg_scr_break = NULL,
-                                int *end_scr_break = NULL,
-                                int *beg_txt_break = NULL,
-                                int *end_txt_break = NULL);
+                             int *end = NULL,
+                             int *beg_scr_break = NULL,
+                             int *end_scr_break = NULL,
+                             int *beg_txt_break = NULL,
+                             int *end_txt_break = NULL);
 
 
 static int ReplaceVariables(string &strStr,TSubstData *PSubstData);
@@ -91,286 +91,298 @@ static int ReplaceVariables(string &strStr,TSubstData *PSubstData);
 
 static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstData,string &strOut)
 {
-  // рассмотрим переключатели активности/пассивности панели.
-  if (StrCmpN(CurStr,L"!#",2)==0)
-  {
-    CurStr+=2;
-    PSubstData->PassivePanel=TRUE;
-    return CurStr;
-  }
+	// рассмотрим переключатели активности/пассивности панели.
+	if (StrCmpN(CurStr,L"!#",2)==0)
+	{
+		CurStr+=2;
+		PSubstData->PassivePanel=TRUE;
+		return CurStr;
+	}
 
-  if (StrCmpN(CurStr,L"!^",2)==0)
-  {
-    CurStr+=2;
-    PSubstData->PassivePanel=FALSE;
-    return CurStr;
-  }
+	if (StrCmpN(CurStr,L"!^",2)==0)
+	{
+		CurStr+=2;
+		PSubstData->PassivePanel=FALSE;
+		return CurStr;
+	}
 
-  // !! символ '!'
-  if (StrCmpN(CurStr,L"!!",2)==0 && CurStr[2] != L'?')
-  {
-    strOut += L"!";
-    CurStr+=2;
-    return CurStr;
-  }
+	// !! символ '!'
+	if (StrCmpN(CurStr,L"!!",2)==0 && CurStr[2] != L'?')
+	{
+		strOut += L"!";
+		CurStr+=2;
+		return CurStr;
+	}
 
-  // !.!      Длинное имя файла с расширением
-  if (StrCmpN(CurStr,L"!.!",3)==0 && CurStr[3] != L'?')
-  {
-    if (PSubstData->PassivePanel)
-      strOut += PSubstData->strAnotherName;
-    else
-      strOut += PSubstData->Name;
-    CurStr+=3;
-    return CurStr;
-  }
+	// !.!      Длинное имя файла с расширением
+	if (StrCmpN(CurStr,L"!.!",3)==0 && CurStr[3] != L'?')
+	{
+		if (PSubstData->PassivePanel)
+			strOut += PSubstData->strAnotherName;
+		else
+			strOut += PSubstData->Name;
 
-  // !~       Короткое имя файла без расширения
-  if (StrCmpN(CurStr,L"!~",2)==0)
-  {
-    strOut += PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly : PSubstData->strShortNameOnly;
-    CurStr+=2;
-    return CurStr;
-  }
+		CurStr+=3;
+		return CurStr;
+	}
 
-  // !`  Длинное расширение файла без имени
-  if (StrCmpN(CurStr,L"!`",2)==0)
-  {
-    const wchar_t *Ext;
-    if(CurStr[2] == L'~')
-    {
-      Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName),L'.');
-      CurStr+=3;
-    }
-    else
-    {
-      Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherName:PSubstData->Name),L'.');
-      CurStr+=2;
-    }
-    if(Ext && *Ext)
-      strOut += ++Ext;
-    return CurStr;
-  }
+	// !~       Короткое имя файла без расширения
+	if (StrCmpN(CurStr,L"!~",2)==0)
+	{
+		strOut += PSubstData->PassivePanel ? PSubstData->strAnotherShortNameOnly : PSubstData->strShortNameOnly;
+		CurStr+=2;
+		return CurStr;
+	}
 
-  // !& !&~  список файлов разделенных пробелом.
-  if ((!StrCmpN(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
-      (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
-  {
-    string strFileNameL, strShortNameL;
-    Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
-    DWORD FileAttrL;
-    int ShortN0=FALSE;
-    int CntSkip=2;
-    if(CurStr[2] == L'~')
-    {
-      ShortN0=TRUE;
-      CntSkip++;
-    }
-    WPanel->GetSelName(NULL,FileAttrL);
-    int First = TRUE;
-    while (WPanel->GetSelName(&strFileNameL,FileAttrL,&strShortNameL))
-    {
-      if (ShortN0)
-        strFileNameL = strShortNameL;
-      else // в список все же должно попасть имя в кавычках.
-        QuoteSpaceOnly(strFileNameL);
+	// !`  Длинное расширение файла без имени
+	if (StrCmpN(CurStr,L"!`",2)==0)
+	{
+		const wchar_t *Ext;
+
+		if (CurStr[2] == L'~')
+		{
+			Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherShortName:PSubstData->ShortName),L'.');
+			CurStr+=3;
+		}
+		else
+		{
+			Ext=wcsrchr((PSubstData->PassivePanel ? (const wchar_t *)PSubstData->strAnotherName:PSubstData->Name),L'.');
+			CurStr+=2;
+		}
+
+		if (Ext && *Ext)
+			strOut += ++Ext;
+
+		return CurStr;
+	}
+
+	// !& !&~  список файлов разделенных пробелом.
+	if ((!StrCmpN(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
+	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
+	{
+		string strFileNameL, strShortNameL;
+		Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
+		DWORD FileAttrL;
+		int ShortN0=FALSE;
+		int CntSkip=2;
+
+		if (CurStr[2] == L'~')
+		{
+			ShortN0=TRUE;
+			CntSkip++;
+		}
+
+		WPanel->GetSelName(NULL,FileAttrL);
+		int First = TRUE;
+
+		while (WPanel->GetSelName(&strFileNameL,FileAttrL,&strShortNameL))
+		{
+			if (ShortN0)
+				strFileNameL = strShortNameL;
+			else // в список все же должно попасть имя в кавычках.
+				QuoteSpaceOnly(strFileNameL);
+
 // Вот здесь фиг его знает - нужно/ненужно...
 //   если будет нужно - раскомментируем :-)
 //          if(FileAttrL & FILE_ATTRIBUTE_DIRECTORY)
 //            AddEndSlash(FileNameL);
-      // А нужен ли нам пробел в самом начале?
-      if (First)
-        First = FALSE;
-      else
-        strOut += L" ";
-      strOut += strFileNameL;
-    }
-    CurStr+=CntSkip;
-    return CurStr;
-  }
+			// А нужен ли нам пробел в самом начале?
+			if (First)
+				First = FALSE;
+			else
+				strOut += L" ";
 
-  // !@  Имя файла, содержащего имена помеченных файлов
-  // !$!      Имя файла, содержащего короткие имена помеченных файлов
-  // Ниже идет совмещение кода для разбора как !@! так и !$!
-  //Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
-  // Но нафиг нада:)
-  if (StrCmpN(CurStr,L"!@",2)==0 || (StrCmpN(CurStr,L"!$",2)==0))
-  {
-    string *pListName;
-    string *pAnotherListName;
+			strOut += strFileNameL;
+		}
 
-    bool ShortN0 = FALSE;
+		CurStr+=CntSkip;
+		return CurStr;
+	}
 
-    if (CurStr[1] == L'$')
-      ShortN0 = TRUE;
+	// !@  Имя файла, содержащего имена помеченных файлов
+	// !$!      Имя файла, содержащего короткие имена помеченных файлов
+	// Ниже идет совмещение кода для разбора как !@! так и !$!
+	//Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
+	// Но нафиг нада:)
+	if (StrCmpN(CurStr,L"!@",2)==0 || (StrCmpN(CurStr,L"!$",2)==0))
+	{
+		string *pListName;
+		string *pAnotherListName;
+		bool ShortN0 = FALSE;
 
-    if ( ShortN0 )
-    {
-        pListName = PSubstData->pShortListName;
-        pAnotherListName = PSubstData->pAnotherShortListName;
-    }
-    else
-    {
-        pListName = PSubstData->pListName;
-        pAnotherListName = PSubstData->pAnotherListName;
-    }
+		if (CurStr[1] == L'$')
+			ShortN0 = TRUE;
 
+		if (ShortN0)
+		{
+			pListName = PSubstData->pShortListName;
+			pAnotherListName = PSubstData->pAnotherShortListName;
+		}
+		else
+		{
+			pListName = PSubstData->pListName;
+			pAnotherListName = PSubstData->pAnotherListName;
+		}
 
-    wchar_t Modifers[32]=L"";
-    const wchar_t *Ptr;
+		wchar_t Modifers[32]=L"";
+		const wchar_t *Ptr;
 
-    if ((Ptr=wcschr(CurStr+2,L'!')) != NULL)
-    {
-      if (Ptr[1] != L'?')
-      {
-        xwcsncpy(Modifers,CurStr+2,Min((int)(countof(Modifers)-1), (int)(Ptr-(CurStr+2))));
+		if ((Ptr=wcschr(CurStr+2,L'!')) != NULL)
+		{
+			if (Ptr[1] != L'?')
+			{
+				xwcsncpy(Modifers,CurStr+2,Min((int)(countof(Modifers)-1), (int)(Ptr-(CurStr+2))));
 
-        if ( pListName)
-        {
+				if (pListName)
+				{
+					if (PSubstData->PassivePanel && (!pAnotherListName->IsEmpty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName,ShortN0,Modifers)))
+					{
+						if (ShortN0)
+							ConvertNameToShort(*pAnotherListName, *pAnotherListName);
 
-          if ( PSubstData->PassivePanel && ( !pAnotherListName->IsEmpty() || PSubstData->AnotherPanel->MakeListFile(*pAnotherListName,ShortN0,Modifers)))
-          {
-            if (ShortN0)
-              ConvertNameToShort(*pAnotherListName, *pAnotherListName);
+						strOut += *pAnotherListName;
+					}
 
-            strOut += *pAnotherListName;
+					if (!PSubstData->PassivePanel && (!pListName->IsEmpty() || PSubstData->ActivePanel->MakeListFile(*pListName,ShortN0,Modifers)))
+					{
+						if (ShortN0)
+							ConvertNameToShort(*pListName,*pListName);
 
-          }
+						strOut += *pListName;
+					}
+				}
+				else
+				{
+					strOut += CurStr;
+					strOut += Modifers;
+					strOut += L"!";
+				}
 
-          if ( !PSubstData->PassivePanel && ( !pListName->IsEmpty() || PSubstData->ActivePanel->MakeListFile(*pListName,ShortN0,Modifers)))
-          {
-            if (ShortN0)
-              ConvertNameToShort(*pListName,*pListName);
+				CurStr+=Ptr-CurStr+1;
+				return CurStr;
+			}
+		}
+	}
 
-            strOut += *pListName;
-          }
-        }
-        else
-        {
-          strOut += CurStr;
-          strOut += Modifers;
-          strOut += L"!";
-        }
+	// !-!      Короткое имя файла с расширением
+	if (StrCmpN(CurStr,L"!-!",3)==0 && CurStr[3] != L'?')
+	{
+		if (PSubstData->PassivePanel)
+			strOut += PSubstData->strAnotherShortName;
+		else
+			strOut += PSubstData->ShortName;
 
-        CurStr+=Ptr-CurStr+1;
-        return CurStr;
-      }
-    }
-  }
+		CurStr+=3;
+		return CurStr;
+	}
 
-  // !-!      Короткое имя файла с расширением
-  if (StrCmpN(CurStr,L"!-!",3)==0 && CurStr[3] != L'?')
-  {
-    if (PSubstData->PassivePanel)
-      strOut += PSubstData->strAnotherShortName;
-    else
-      strOut += PSubstData->ShortName;
-    CurStr+=3;
-    return CurStr;
-  }
+	// !+!      Аналогично !-!, но если длинное имя файла утеряно
+	//          после выполнения команды, FAR восстановит его
+	if (StrCmpN(CurStr,L"!+!",3)==0 && CurStr[3] != L'?')
+	{
+		if (PSubstData->PassivePanel)
+			strOut += PSubstData->strAnotherShortName;
+		else
+			strOut += PSubstData->ShortName;
 
-  // !+!      Аналогично !-!, но если длинное имя файла утеряно
-  //          после выполнения команды, FAR восстановит его
-  if (StrCmpN(CurStr,L"!+!",3)==0 && CurStr[3] != L'?')
-  {
-    if (PSubstData->PassivePanel)
-      strOut += PSubstData->strAnotherShortName;
-    else
-      strOut += PSubstData->ShortName;
-    CurStr+=3;
-    PSubstData->PreserveLFN=TRUE;
-    return CurStr;
-  }
+		CurStr+=3;
+		PSubstData->PreserveLFN=TRUE;
+		return CurStr;
+	}
 
-  // !:       Текущий диск
-  if (StrCmpN(CurStr,L"!:",2)==0)
-  {
-    string strCurDir;
-    string strRootDir;
-    if (*PSubstData->Name && PSubstData->Name[1]==L':')
-      strCurDir = PSubstData->Name;
-    else
-      if (PSubstData->PassivePanel)
-        PSubstData->AnotherPanel->GetCurDir(strCurDir);
-      else
-        strCurDir = PSubstData->strCmdDir;
+	// !:       Текущий диск
+	if (StrCmpN(CurStr,L"!:",2)==0)
+	{
+		string strCurDir;
+		string strRootDir;
 
-    GetPathRoot(strCurDir,strRootDir);
-    DeleteEndSlash(strRootDir);
-    strOut += strRootDir;
-    CurStr+=2;
-    return CurStr;
-  }
+		if (*PSubstData->Name && PSubstData->Name[1]==L':')
+			strCurDir = PSubstData->Name;
+		else if (PSubstData->PassivePanel)
+			PSubstData->AnotherPanel->GetCurDir(strCurDir);
+		else
+			strCurDir = PSubstData->strCmdDir;
 
-  // !\       Текущий путь
-  // !/       Короткое имя текущего пути
-  // Ниже идет совмещение кода для разбора как !\ так и !/
-  if (StrCmpN(CurStr,L"!\\",2)==0 || StrCmpN(CurStr,L"!=\\",3)==0 || (StrCmpN(CurStr,L"!/",2)==0) || StrCmpN(CurStr,L"!=/",3)==0)
-  {
-    string strCurDir;
-    bool ShortN0 = FALSE;
-    int RealPath= CurStr[1]==L'='?1:0;
+		GetPathRoot(strCurDir,strRootDir);
+		DeleteEndSlash(strRootDir);
+		strOut += strRootDir;
+		CurStr+=2;
+		return CurStr;
+	}
 
-    if (CurStr[1] == L'/' || (RealPath && CurStr[2] == L'/'))
-    {
-      ShortN0 = TRUE;
-    }
-    if (PSubstData->PassivePanel)
-      PSubstData->AnotherPanel->GetCurDir(strCurDir);
-    else
-      strCurDir = PSubstData->strCmdDir;
+	// !\       Текущий путь
+	// !/       Короткое имя текущего пути
+	// Ниже идет совмещение кода для разбора как !\ так и !/
+	if (StrCmpN(CurStr,L"!\\",2)==0 || StrCmpN(CurStr,L"!=\\",3)==0 || (StrCmpN(CurStr,L"!/",2)==0) || StrCmpN(CurStr,L"!=/",3)==0)
+	{
+		string strCurDir;
+		bool ShortN0 = FALSE;
+		int RealPath= CurStr[1]==L'='?1:0;
 
-    if(RealPath)
-    {
-      _MakePath1(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
-      Unquote(strCurDir);
-    }
+		if (CurStr[1] == L'/' || (RealPath && CurStr[2] == L'/'))
+		{
+			ShortN0 = TRUE;
+		}
 
-    if (ShortN0)
-        ConvertNameToShort(strCurDir,strCurDir);
+		if (PSubstData->PassivePanel)
+			PSubstData->AnotherPanel->GetCurDir(strCurDir);
+		else
+			strCurDir = PSubstData->strCmdDir;
 
-    AddEndSlash(strCurDir);
-    if(RealPath)
-      QuoteSpaceOnly(strCurDir);
+		if (RealPath)
+		{
+			_MakePath1(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
+			Unquote(strCurDir);
+		}
 
-    CurStr+=2+RealPath;
+		if (ShortN0)
+			ConvertNameToShort(strCurDir,strCurDir);
 
-    if (*CurStr==L'!')
-    {
-      if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=NULL)
-        strCurDir.Clear();
-    }
+		AddEndSlash(strCurDir);
 
-    strOut +=  strCurDir;
-    return CurStr;
-  }
+		if (RealPath)
+			QuoteSpaceOnly(strCurDir);
 
-  // !?<title>?<init>!
-  if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=NULL)
-  {
-    int j;
-    int i = IsReplaceVariable(CurStr);
-    if (i == -1)  // if bad format string
-    {             // skip 1 char
-      j = 1;
-    }
-    else
-    {
-      j = i + 1;
-    }
-    strOut.Append(CurStr, j);
-    CurStr += j;
-    return CurStr;
-  }
+		CurStr+=2+RealPath;
 
-  // !        Длинное имя файла без расширения
-  if (*CurStr==L'!')
-  {
-    strOut += PointToName(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly : PSubstData->strNameOnly);
-    CurStr++;
-  }
+		if (*CurStr==L'!')
+		{
+			if (wcspbrk(PSubstData->PassivePanel?(const wchar_t *)PSubstData->strAnotherName:PSubstData->Name,L"\\:")!=NULL)
+				strCurDir.Clear();
+		}
 
-  return CurStr;
+		strOut +=  strCurDir;
+		return CurStr;
+	}
+
+	// !?<title>?<init>!
+	if (StrCmpN(CurStr,L"!?",2)==0 && wcschr(CurStr+2,L'!')!=NULL)
+	{
+		int j;
+		int i = IsReplaceVariable(CurStr);
+
+		if (i == -1)  // if bad format string
+		{             // skip 1 char
+			j = 1;
+		}
+		else
+		{
+			j = i + 1;
+		}
+
+		strOut.Append(CurStr, j);
+		CurStr += j;
+		return CurStr;
+	}
+
+	// !        Длинное имя файла без расширения
+	if (*CurStr==L'!')
+	{
+		strOut += PointToName(PSubstData->PassivePanel ? PSubstData->strAnotherNameOnly : PSubstData->strNameOnly);
+		CurStr++;
+	}
+
+	return CurStr;
 }
 
 
@@ -391,355 +403,340 @@ int SubstFileName(string &strStr,            // результирующая строка
                   int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
                   const wchar_t *CmdLineDir)     // Каталог исполнения
 {
-    if ( pListName )
-        pListName->Clear();
+	if (pListName)
+		pListName->Clear();
 
-    if ( pAnotherListName )
-        pAnotherListName->Clear();
+	if (pAnotherListName)
+		pAnotherListName->Clear();
 
-    if ( pShortListName )
-        pShortListName->Clear();
+	if (pShortListName)
+		pShortListName->Clear();
 
-    if ( pAnotherShortListName )
-        pAnotherShortListName->Clear();
+	if (pAnotherShortListName)
+		pAnotherShortListName->Clear();
 
-  /* $ 19.06.2001 SVS
-    ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
-    нужно будет либо убрать эту проверку либо изменить условие (последнее
-    предпочтительнее!)
-  */
-  if(!wcschr(strStr,L'!'))
-    return FALSE;
+	/* $ 19.06.2001 SVS
+	  ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
+	  нужно будет либо убрать эту проверку либо изменить условие (последнее
+	  предпочтительнее!)
+	*/
+	if (!wcschr(strStr,L'!'))
+		return FALSE;
 
 	TSubstData SubstData, *PSubstData=&SubstData;
+	PSubstData->Name=Name;                    // Длинное имя
+	PSubstData->ShortName=ShortName;          // Короткое имя
+	PSubstData->pListName=pListName;            // Длинное имя файла-списка
+	PSubstData->pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
+	PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
+	PSubstData->pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
+	// Если имя текущего каталога не задано...
+	if (CmdLineDir!=NULL)
+		PSubstData->strCmdDir = CmdLineDir;
+	else // ...спросим у ком.строки
+		CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
 
-  PSubstData->Name=Name;                    // Длинное имя
-  PSubstData->ShortName=ShortName;          // Короткое имя
+	size_t pos;
+	// Предварительно получим некоторые "константы" :-)
+	PSubstData->strNameOnly = Name;
 
-  PSubstData->pListName=pListName;            // Длинное имя файла-списка
-  PSubstData->pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
-  PSubstData->pShortListName=pShortListName;  // Короткое имя файла-списка
-  PSubstData->pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
+	if (PSubstData->strNameOnly.RPos(pos,L'.'))
+		PSubstData->strNameOnly.SetLength(pos);
 
-  // Если имя текущего каталога не задано...
-  if (CmdLineDir!=NULL)
-    PSubstData->strCmdDir = CmdLineDir;
-  else // ...спросим у ком.строки
-    CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
+	PSubstData->strShortNameOnly = ShortName;
 
-  size_t pos;
+	if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
+		PSubstData->strShortNameOnly.SetLength(pos);
 
-  // Предварительно получим некоторые "константы" :-)
-  PSubstData->strNameOnly = Name;
+	PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
+	PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
+	PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
+	PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 
-  if (PSubstData->strNameOnly.RPos(pos,L'.'))
-    PSubstData->strNameOnly.SetLength(pos);
+	if (PSubstData->strAnotherNameOnly.RPos(pos,L'.'))
+		PSubstData->strAnotherNameOnly.SetLength(pos);
 
-  PSubstData->strShortNameOnly = ShortName;
+	PSubstData->strAnotherShortNameOnly = PSubstData->strAnotherShortName;
 
-  if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
-    PSubstData->strShortNameOnly.SetLength(pos);
+	if (PSubstData->strAnotherShortNameOnly.RPos(pos,L'.'))
+		PSubstData->strAnotherShortNameOnly.SetLength(pos);
 
-  PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
-  PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
+	PSubstData->PreserveLFN=FALSE;
+	PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
+	string strTmp = strStr;
 
-  PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
+	if (!IgnoreInput)
+		ReplaceVariables(strTmp,PSubstData);
 
-  PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
+	const wchar_t *CurStr = strTmp;
+	string strOut;
 
-  if (PSubstData->strAnotherNameOnly.RPos(pos,L'.'))
-    PSubstData->strAnotherNameOnly.SetLength(pos);
+	while (*CurStr)
+	{
+		if (*CurStr == L'!')
+		{
+			CurStr=_SubstFileName(CurStr,PSubstData,strOut);
+		}
+		else
+		{
+			strOut.Append(CurStr,1);
+			CurStr++;
+		}
+	}
 
-  PSubstData->strAnotherShortNameOnly = PSubstData->strAnotherShortName;
-
-  if (PSubstData->strAnotherShortNameOnly.RPos(pos,L'.'))
-    PSubstData->strAnotherShortNameOnly.SetLength(pos);
-
-  PSubstData->PreserveLFN=FALSE;
-  PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
-
-  string strTmp = strStr;
-
-  if (!IgnoreInput)
-    ReplaceVariables(strTmp,PSubstData);
-
-  const wchar_t *CurStr = strTmp;
-
-  string strOut;
-
-  while (*CurStr)
-  {
-    if(*CurStr == L'!')
-    {
-      CurStr=_SubstFileName(CurStr,PSubstData,strOut);
-    }
-    else
-    {
-      strOut.Append(CurStr,1);
-      CurStr++;
-    }
-  }
-
-  strStr = strOut;
-
-  return(PSubstData->PreserveLFN);
+	strStr = strOut;
+	return(PSubstData->PreserveLFN);
 }
 
 int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 {
-  const int MaxSize=20;
+	const int MaxSize=20;
+	const wchar_t *Str=strStr;
+	const wchar_t * const StartStr=Str;
 
-  const wchar_t *Str=strStr;
-  const wchar_t * const StartStr=Str;
-
-  if (*Str==L'\"')
-    while (*Str && *Str!=L'\"')
-      Str++;
+	if (*Str==L'\"')
+		while (*Str && *Str!=L'\"')
+			Str++;
 
 	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
-  string HistoryName[MaxSize];
-  int DlgSize=0;
-  int StrPos[128],StrEndPos[128],StrPosSize=0;
+	string HistoryName[MaxSize];
+	int DlgSize=0;
+	int StrPos[128],StrEndPos[128],StrPosSize=0;
 
-  while (*Str && DlgSize<MaxSize)
-  {
-    if (*(Str++)!=L'!')
-      continue;
-    if(!*Str)
-      break;
-    if (*(Str++)!=L'?')
-      continue;
-    if(!*Str)
-      break;
+	while (*Str && DlgSize<MaxSize)
+	{
+		if (*(Str++)!=L'!')
+			continue;
 
-    // теперича все не просто
-    // придется сразу определить наличие операторных скобок
-    // запомнить их позицию
-    int scr,end, beg_t,end_t,beg_s,end_s;
-    scr = end = beg_t = end_t = beg_s = end_s = 0;
-    int ii = IsReplaceVariable(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
-    if (ii == -1)
-    {
-      delete [] DlgData;
-      strStr.Clear();
-      return 0;
-    }
+		if (!*Str)
+			break;
 
-    StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
-    StrPos[StrPosSize++]=(int)(Str-StartStr-2);
+		if (*(Str++)!=L'?')
+			continue;
 
-    DlgData[DlgSize].Clear();
-    DlgData[DlgSize].Type=DI_TEXT;
-    DlgData[DlgSize].X1=5;
-    DlgData[DlgSize].Y1=DlgSize+2;
-    DlgData[DlgSize+1].Clear();
-    DlgData[DlgSize+1].Type=DI_EDIT;
-    DlgData[DlgSize+1].X1=5;
-    DlgData[DlgSize+1].X2=70;
-    DlgData[DlgSize+1].Y1=DlgSize+3;
-    DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
+		if (!*Str)
+			break;
 
-    int HistoryNumber=DlgSize/2;
-    HistoryName[HistoryNumber].Format(L"UserVar%d",HistoryNumber);
-    DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
+		// теперича все не просто
+		// придется сразу определить наличие операторных скобок
+		// запомнить их позицию
+		int scr,end, beg_t,end_t,beg_s,end_s;
+		scr = end = beg_t = end_t = beg_s = end_s = 0;
+		int ii = IsReplaceVariable(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
 
-    if (DlgSize==0)
-    {
-      DlgData[DlgSize+1].Focus=1;
-      DlgData[DlgSize+1].DefaultButton=1;
-    }
+		if (ii == -1)
+		{
+			delete [] DlgData;
+			strStr.Clear();
+			return 0;
+		}
 
-    string strTitle;
+		StrEndPos[StrPosSize] = (int)(Str - StartStr - 2) + ii ; //+1
+		StrPos[StrPosSize++]=(int)(Str-StartStr-2);
+		DlgData[DlgSize].Clear();
+		DlgData[DlgSize].Type=DI_TEXT;
+		DlgData[DlgSize].X1=5;
+		DlgData[DlgSize].Y1=DlgSize+2;
+		DlgData[DlgSize+1].Clear();
+		DlgData[DlgSize+1].Type=DI_EDIT;
+		DlgData[DlgSize+1].X1=5;
+		DlgData[DlgSize+1].X2=70;
+		DlgData[DlgSize+1].Y1=DlgSize+3;
+		DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
+		int HistoryNumber=DlgSize/2;
+		HistoryName[HistoryNumber].Format(L"UserVar%d",HistoryNumber);
+		DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
 
-    if (scr > 2)          // if between !? and ? exist some
-      strTitle.Append(Str,scr-2);
+		if (DlgSize==0)
+		{
+			DlgData[DlgSize+1].Focus=1;
+			DlgData[DlgSize+1].DefaultButton=1;
+		}
 
-    size_t hist_correct = 0;
+		string strTitle;
 
-    if (!strTitle.IsEmpty())
-    {
-      if (strTitle[0] == L'$')        // begin of history name
-      {
-        const wchar_t *p = &strTitle[1];
-        const wchar_t *p1 = wcschr(p,L'$');
-        if (p1)
-        {
-          HistoryName[HistoryNumber].Copy(p,p1-p);
-          DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
-          strTitle = ++p1;
-          hist_correct = p1 - p;
-        }
-      }
-    }
+		if (scr > 2)          // if between !? and ? exist some
+			strTitle.Append(Str,scr-2);
 
-    if ((beg_t == -1) || (end_t == -1))
-    {
-      //
-    }
-    else if ((end_t - beg_t) > 1) //if between ( and ) exist some
-    {
+		size_t hist_correct = 0;
+
+		if (!strTitle.IsEmpty())
+		{
+			if (strTitle[0] == L'$')        // begin of history name
+			{
+				const wchar_t *p = &strTitle[1];
+				const wchar_t *p1 = wcschr(p,L'$');
+
+				if (p1)
+				{
+					HistoryName[HistoryNumber].Copy(p,p1-p);
+					DlgData[DlgSize+1].History=HistoryName[HistoryNumber];
+					strTitle = ++p1;
+					hist_correct = p1 - p;
+				}
+			}
+		}
+
+		if ((beg_t == -1) || (end_t == -1))
+		{
+			//
+		}
+		else if ((end_t - beg_t) > 1) //if between ( and ) exist some
+		{
 			string strTitle2;
 			string strTitle3;
+			strTitle2.Append(strTitle.CPtr()+(end_t-2)+1-hist_correct,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
+			//                  ^   ^
+			strTitle3.Append(strTitle.CPtr()+(beg_t-2)+1-hist_correct,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
+			//            ^    ^
+			strTitle.SetLength(beg_t-2-hist_correct);    // !?$zz$xxxx(fffff)ddddd
+			//       ^  ^
+			string strTmp;
+			const wchar_t *CurStr = strTitle3;
 
-      strTitle2.Append(strTitle.CPtr()+(end_t-2)+1-hist_correct,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
-                                                                              //                  ^   ^
+			while (*CurStr)
+			{
+				if (*CurStr == L'!')
+				{
+					CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
+				}
+				else
+				{
+					strTmp.Append(CurStr,1);
+					CurStr++;
+				}
+			}
 
-      strTitle3.Append(strTitle.CPtr()+(beg_t-2)+1-hist_correct,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
-                                                                                 //            ^    ^
+			strTitle += strTmp;
+			strTitle += strTitle2;
+		}
 
-      strTitle.SetLength(beg_t-2-hist_correct);    // !?$zz$xxxx(fffff)ddddd
-                                                   //       ^  ^
+		//do it - типа здесь все уже раскрыто и преобразовано
+		DlgData[DlgSize].strData = strTitle;
+		// Заполняем поле ввода заданным шаблоном - если есть
+		string strTxt;
 
-      string strTmp;
-      const wchar_t *CurStr = strTitle3;
-      while (*CurStr)
-      {
-        if (*CurStr == L'!')
-        {
-          CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
-        }
-        else
-        {
-          strTmp.Append(CurStr,1);
-          CurStr++;
-        }
-      }
+		if ((end-scr) > 1)  //if between ? and ! exist some
+			strTxt.Append((Str-2)+scr+1,(end-scr)-1);
 
-      strTitle += strTmp;
-      strTitle += strTitle2;
-    }
-
-    //do it - типа здесь все уже раскрыто и преобразовано
-    DlgData[DlgSize].strData = strTitle;
-
-    // Заполняем поле ввода заданным шаблоном - если есть
-    string strTxt;
-
-    if ((end-scr) > 1)  //if between ? and ! exist some
-      strTxt.Append((Str-2)+scr+1,(end-scr)-1);
-
-    if ((beg_s == -1) || (end_s == -1))
-    {
-      //
-    }
-    else if ((end_s - beg_s) > 1) //if between ( and ) exist some
-    {
+		if ((beg_s == -1) || (end_s == -1))
+		{
+			//
+		}
+		else if ((end_s - beg_s) > 1) //if between ( and ) exist some
+		{
 			string strTxt2;
 			string strTxt3;
+			strTxt2.Copy(strTxt.CPtr()+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+			//                                  ^   ^
+			strTxt3.Copy(strTxt.CPtr()+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
+			//                              ^  ^
+			strTxt.SetLength(beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+			//                        ^  ^
+			string strTmp;
+			const wchar_t *CurStr = strTxt3;
 
-      strTxt2.Copy(strTxt.CPtr()+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
-                                                           //                                  ^   ^
+			while (*CurStr)
+			{
+				if (*CurStr == L'!')
+				{
+					CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
+				}
+				else
+				{
+					strTmp.Append(CurStr,1);
+					CurStr++;
+				}
+			}
 
-      strTxt3.Copy(strTxt.CPtr()+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
-                                                              //                              ^  ^
+			strTxt += strTmp;
+			strTxt += strTxt2;
+		}
 
-      strTxt.SetLength(beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
-                                       //                        ^  ^
+		DlgData[DlgSize+1].strData = strTxt;
+		apiExpandEnvironmentStrings(DlgData[DlgSize].strData,DlgData[DlgSize].strData);
+		DlgSize+=2;
+	}
 
-      string strTmp;
-      const wchar_t *CurStr = strTxt3;
-      while (*CurStr)
-      {
-        if (*CurStr == L'!')
-        {
-          CurStr=_SubstFileName(CurStr,PSubstData,strTmp);
-        }
-        else
-        {
-          strTmp.Append(CurStr,1);
-          CurStr++;
-        }
-      }
+	if (DlgSize==0)
+	{
+		delete [] DlgData;
+		return 0;
+	}
 
-      strTxt += strTmp;
-      strTxt += strTxt2;
-    }
+	DlgData[DlgSize].Clear();
+	DlgData[DlgSize].Type=DI_DOUBLEBOX;
+	DlgData[DlgSize].X1=3;
+	DlgData[DlgSize].Y1=1;
+	DlgData[DlgSize].X2=72;
+	DlgData[DlgSize].Y2=DlgSize+2;
+	DlgSize++;
+	int ExitCode;
+	{
+		Dialog Dlg(DlgData,DlgSize);
+		Dlg.SetPosition(-1,-1,76,DlgSize+3);
+		Dlg.Process();
+		ExitCode=Dlg.GetExitCode();
+	}
 
-    DlgData[DlgSize+1].strData = strTxt;
+	if (ExitCode==-1)
+	{
+		delete [] DlgData;
+		strStr.Clear();
+		return 0;
+	}
 
-    apiExpandEnvironmentStrings (DlgData[DlgSize].strData,DlgData[DlgSize].strData);
-    DlgSize+=2;
-  }
+	string strTmpStr;
 
-  if (DlgSize==0)
-  {
-  	delete [] DlgData;
-    return 0;
-  }
+	for (Str=StartStr; *Str!=0; Str++)
+	{
+		int Replace=-1;
+		int end_pos=0;
 
-  DlgData[DlgSize].Clear();
-  DlgData[DlgSize].Type=DI_DOUBLEBOX;
-  DlgData[DlgSize].X1=3;
-  DlgData[DlgSize].Y1=1;
-  DlgData[DlgSize].X2=72;
-  DlgData[DlgSize].Y2=DlgSize+2;
-  DlgSize++;
+		for (int I=0; I<StrPosSize; I++)
+		{
+			if (Str-StartStr==StrPos[I])
+			{
+				Replace=I;
+				end_pos = StrEndPos[I];
+				break;
+			}
+		}
 
-  int ExitCode;
-  {
-    Dialog Dlg(DlgData,DlgSize);
-    Dlg.SetPosition(-1,-1,76,DlgSize+3);
-    Dlg.Process();
-    ExitCode=Dlg.GetExitCode();
-  }
+		if (Replace!=-1)
+		{
+			strTmpStr += DlgData[Replace*2+1].strData;
+			Str = StartStr+end_pos;
+		}
+		else
+		{
+			strTmpStr.Append(Str,1);
+		}
+	}
 
-  if (ExitCode==-1)
-  {
-    delete [] DlgData;
-    strStr.Clear();
-    return 0;
-  }
-
-  string strTmpStr;
-
-  for (Str=StartStr;*Str!=0;Str++)
-  {
-    int Replace=-1;
-    int end_pos=0;
-    for (int I=0;I<StrPosSize;I++)
-    {
-      if (Str-StartStr==StrPos[I])
-      {
-        Replace=I;
-        end_pos = StrEndPos[I];
-        break;
-      }
-    }
-    if (Replace!=-1)
-    {
-      strTmpStr += DlgData[Replace*2+1].strData;
-
-      Str = StartStr+end_pos;
-    }
-    else
-    {
-      strTmpStr.Append(Str,1);
-    }
-  }
-
-  strStr = strTmpStr;
-
-  apiExpandEnvironmentStrings(strStr,strStr);
-
-  delete [] DlgData;
-
-  return 1;
+	strStr = strTmpStr;
+	apiExpandEnvironmentStrings(strStr,strStr);
+	delete [] DlgData;
+	return 1;
 }
 
 bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *Modifers)
 {
 	bool Ret=false;
-	if(FarMkTempEx(strListFileName))
+
+	if (FarMkTempEx(strListFileName))
 	{
 		HANDLE hListFile=apiCreateFile(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,CREATE_ALWAYS,0);
-		if(hListFile!=INVALID_HANDLE_VALUE)
+
+		if (hListFile!=INVALID_HANDLE_VALUE)
 		{
 			UINT CodePage=CP_OEMCP;
 			LPCVOID Eol="\r\n";
 			DWORD EolSize=2;
-			if(Modifers && *Modifers)
+
+			if (Modifers && *Modifers)
 			{
-				if(wcschr(Modifers,L'A')) // ANSI
+				if (wcschr(Modifers,L'A')) // ANSI
 				{
 					CodePage=CP_ACP;
 				}
@@ -747,7 +744,8 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				{
 					DWORD Signature=0;
 					int SignatureSize=0;
-					if(wcschr(Modifers,L'W')) // UTF16LE
+
+					if (wcschr(Modifers,L'W')) // UTF16LE
 					{
 						CodePage=CP_UNICODE;
 						Signature=SIGN_UNICODE;
@@ -757,58 +755,70 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					}
 					else
 					{
-						if(wcschr(Modifers,L'U')) // UTF8
+						if (wcschr(Modifers,L'U')) // UTF8
 						{
 							CodePage=CP_UTF8;
 							Signature=SIGN_UTF8;
 							SignatureSize=3;
 						}
 					}
-					if(Signature && SignatureSize)
+
+					if (Signature && SignatureSize)
 					{
 						DWORD NumberOfBytesWritten;
 						WriteFile(hListFile,&Signature,SignatureSize,&NumberOfBytesWritten,NULL);
 					}
 				}
 			}
+
 			string strFileName,strShortName;
 			DWORD FileAttr;
 			GetSelName(NULL,FileAttr);
-			while(GetSelName(&strFileName,FileAttr,&strShortName))
+
+			while (GetSelName(&strFileName,FileAttr,&strShortName))
 			{
-				if(ShortNames)
+				if (ShortNames)
 					strFileName = strShortName;
-				if(Modifers && *Modifers)
+
+				if (Modifers && *Modifers)
 				{
-					if(wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.CPtr()) // 'F' - использовать полный путь; //BUGBUG ?
+					if (wcschr(Modifers,L'F') && PointToName(strFileName) == strFileName.CPtr()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
 						string strTempFileName=strCurDir;
-						if(ShortNames)
+
+						if (ShortNames)
 							ConvertNameToShort(strTempFileName,strTempFileName);
+
 						AddEndSlash(strTempFileName);
 						strTempFileName+=strFileName; //BUGBUG ?
 						strFileName=strTempFileName;
 					}
-					if(wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+
+					if (wcschr(Modifers,L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
 						QuoteSpaceOnly(strFileName);
-					if(wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+
+					if (wcschr(Modifers,L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
 					{
 						size_t Len=strFileName.GetLength();
 						wchar_t *FileName=strFileName.GetBuffer();
-						for(size_t i=0;i<Len;i++)
+
+						for (size_t i=0; i<Len; i++)
 						{
-							if(FileName[i]==L'\\')
+							if (FileName[i]==L'\\')
 							{
 								FileName[i]=L'/';
 							}
 						}
-						strFileName.ReleaseBuffer ();
+
+						strFileName.ReleaseBuffer();
 					}
 				}
+
 				LPCVOID Ptr=NULL;
 				LPSTR Buffer=NULL;
 				DWORD NumberOfBytesToWrite=0,NumberOfBytesWritten=0;
-				if(CodePage==CP_UNICODE)
+
+				if (CodePage==CP_UNICODE)
 				{
 					Ptr=strFileName.CPtr();
 					NumberOfBytesToWrite=static_cast<DWORD>(strFileName.GetLength()*sizeof(WCHAR));
@@ -816,22 +826,27 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 				else
 				{
 					int Size=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),NULL,0,NULL,NULL);
-					if(Size)
+
+					if (Size)
 					{
 						Buffer=static_cast<LPSTR>(xf_malloc(Size));
-						if(Buffer)
+
+						if (Buffer)
 						{
 							NumberOfBytesToWrite=WideCharToMultiByte(CodePage,0,strFileName,static_cast<int>(strFileName.GetLength()),Buffer,Size,NULL,NULL);
 							Ptr=Buffer;
 						}
 					}
 				}
+
 				BOOL Written=WriteFile(hListFile,Ptr,NumberOfBytesToWrite,&NumberOfBytesWritten,NULL);
-				if(Buffer)
+
+				if (Buffer)
 					xf_free(Buffer);
-				if(Written && NumberOfBytesWritten==NumberOfBytesToWrite)
+
+				if (Written && NumberOfBytesWritten==NumberOfBytesToWrite)
 				{
-					if(WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,NULL) && NumberOfBytesWritten==EolSize)
+					if (WriteFile(hListFile,Eol,EolSize,&NumberOfBytesWritten,NULL) && NumberOfBytesWritten==EolSize)
 					{
 						Ret=true;
 					}
@@ -843,6 +858,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 					break;
 				}
 			}
+
 			CloseHandle(hListFile);
 		}
 		else
@@ -854,161 +870,173 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 	{
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
 	}
+
 	return Ret;
 }
 
 static int IsReplaceVariable(const wchar_t *str,
-                                int *scr,
-                                int *end,
-                                int *beg_scr_break,
-                                int *end_scr_break,
-                                int *beg_txt_break,
-                                int *end_txt_break)
+                             int *scr,
+                             int *end,
+                             int *beg_scr_break,
+                             int *end_scr_break,
+                             int *beg_txt_break,
+                             int *end_txt_break)
 // все очень сложно - посл-иe 4 указателя - это смещения от str
 // начало скобок в строке описания, конец этих скобок, начало скобок в строке начального заполнения, ну и соотв конец.
 // Вообще при простом вызове (который я собираюсь юзать) это выглядит просто:
 // i = IsReplaceVariable(str) - ведь нам надо только проверять семантику скобок и всяких ?!
 // где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
 {
-  const wchar_t *s      = str;
-  const wchar_t *scrtxt = str;
+	const wchar_t *s      = str;
+	const wchar_t *scrtxt = str;
+	int count_scob = 0;
+	int second_count_scob = 0;
+	bool was_quest = false;         //  ?
+	bool was_asterics = false;      //  !
+	bool in_firstpart_was_scob = false;
+	const wchar_t *beg_firstpart_scob = NULL;
+	const wchar_t *end_firstpart_scob = NULL;
+	bool in_secondpart_was_scob = false;
+	const wchar_t *beg_secondpart_scob = NULL;
+	const wchar_t *end_secondpart_scob = NULL;
 
-  int count_scob = 0;
-  int second_count_scob = 0;
+	if (!s)
+		return -1;
 
-  bool was_quest = false;         //  ?
-  bool was_asterics = false;      //  !
+	if (StrCmpN(s,L"!?",2) == 0)
+		s = s + 2;
+	else
+		return -1;
 
-  bool in_firstpart_was_scob = false;
-  const wchar_t *beg_firstpart_scob = NULL;
-  const wchar_t *end_firstpart_scob = NULL;
+	//
+	for (;;)   // analize from !? to ?
+	{
+		if (!*s)
+			return -1;
 
-  bool in_secondpart_was_scob = false;
-  const wchar_t *beg_secondpart_scob = NULL;
-  const wchar_t *end_secondpart_scob = NULL;
+		if (*s == L'(')
+		{
+			if (in_firstpart_was_scob)
+			{
+				//return -1;
+			}
+			else
+			{
+				in_firstpart_was_scob = true;
+				beg_firstpart_scob = s;     //remember where is first break
+			}
 
-  if (!s)
-    return -1;
+			count_scob += 1;
+		}
+		else if (*s == L')')
+		{
+			count_scob -= 1;
 
-  if (StrCmpN(s,L"!?",2) == 0)
-    s = s + 2;
-  else
-    return -1;
-  //
-	for(;;)    // analize from !? to ?
-  {
-    if (!*s)
-      return -1;
+			if (count_scob == 0)
+			{
+				if (!end_firstpart_scob)
+					end_firstpart_scob = s;   //remember where is last break
+			}
+			else if (count_scob < 0)
+				return -1;
+		}
+		else if ((*s == L'?') && ((!beg_firstpart_scob && !end_firstpart_scob) || (beg_firstpart_scob && end_firstpart_scob)))
+		{
+			was_quest = true;
+		}
 
-    if (*s == L'(')
-    {
-      if (in_firstpart_was_scob)
-      {
-        //return -1;
-      }
-      else
-      {
-        in_firstpart_was_scob = true;
-        beg_firstpart_scob = s;     //remember where is first break
-      }
-      count_scob += 1;
-    }
-    else if (*s == L')')
-    {
-      count_scob -= 1;
-      if (count_scob == 0)
-      {
-        if (!end_firstpart_scob)
-          end_firstpart_scob = s;   //remember where is last break
-      }
-      else if (count_scob < 0)
-        return -1;
-    }
-    else if ((*s == L'?') && ((!beg_firstpart_scob && !end_firstpart_scob) || (beg_firstpart_scob && end_firstpart_scob)))
-    {
-      was_quest = true;
-    }
+		s++;
 
-    s++;
-    if (was_quest) break;
-  }
-  if (count_scob != 0) return -1;
-  scrtxt = s - 1; //remember s for return
+		if (was_quest) break;
+	}
 
-	for(;;)    //analize from ? or !
-  {
-    if (!*s)
-      return -1;
+	if (count_scob != 0) return -1;
 
-    if (*s == L'(')
-    {
-      if (in_secondpart_was_scob)
-      {
-        //return -1;
-      }
-      else
-      {
-        in_secondpart_was_scob = true;
-        beg_secondpart_scob = s;    //remember where is first break
-      }
-      second_count_scob += 1;
-    }
-    else if (*s == L')')
-    {
-      second_count_scob -= 1;
-      if (second_count_scob == 0)
-      {
-        if (!end_secondpart_scob)
-          end_secondpart_scob = s;  //remember where is last break
-      }
-      else if (second_count_scob < 0)
-        return -1;
-    }
-    else if ((*s == L'!') && ((!beg_secondpart_scob && !end_secondpart_scob) || (beg_secondpart_scob && end_secondpart_scob)))
-    {
-      was_asterics = true;
-    }
+	scrtxt = s - 1; //remember s for return
 
-    s++;
-    if (was_asterics) break;
-  }
-  if (second_count_scob != 0) return -1;
+	for (;;)   //analize from ? or !
+	{
+		if (!*s)
+			return -1;
 
-  //
-  if (scr != NULL)
-    *scr = (int)(scrtxt - str);
-  if (end != NULL)
-    *end = (int)(s - str) - 1;
+		if (*s == L'(')
+		{
+			if (in_secondpart_was_scob)
+			{
+				//return -1;
+			}
+			else
+			{
+				in_secondpart_was_scob = true;
+				beg_secondpart_scob = s;    //remember where is first break
+			}
 
-  if (in_firstpart_was_scob)
-  {
-    if (beg_scr_break != NULL)
-      *beg_scr_break = (int)(beg_firstpart_scob - str);
-    if (end_scr_break != NULL)
-      *end_scr_break = (int)(end_firstpart_scob - str);
-  }
-  else
-  {
-    if (beg_scr_break != NULL)
-      *beg_scr_break = -1;
-    if (end_scr_break != NULL)
-      *end_scr_break = -1;
-  }
+			second_count_scob += 1;
+		}
+		else if (*s == L')')
+		{
+			second_count_scob -= 1;
 
-  if (in_secondpart_was_scob)
-  {
-    if (beg_txt_break != NULL)
-      *beg_txt_break = (int)(beg_secondpart_scob - str);
-    if (end_txt_break != NULL)
-      *end_txt_break = (int)(end_secondpart_scob - str);
-  }
-  else
-  {
-    if (beg_txt_break != NULL)
-      *beg_txt_break = -1;
-    if (end_txt_break != NULL)
-      *end_txt_break = -1;
-  }
+			if (second_count_scob == 0)
+			{
+				if (!end_secondpart_scob)
+					end_secondpart_scob = s;  //remember where is last break
+			}
+			else if (second_count_scob < 0)
+				return -1;
+		}
+		else if ((*s == L'!') && ((!beg_secondpart_scob && !end_secondpart_scob) || (beg_secondpart_scob && end_secondpart_scob)))
+		{
+			was_asterics = true;
+		}
 
-  return (int)((s - str) - 1);
+		s++;
+
+		if (was_asterics) break;
+	}
+
+	if (second_count_scob != 0) return -1;
+
+	//
+	if (scr != NULL)
+		*scr = (int)(scrtxt - str);
+
+	if (end != NULL)
+		*end = (int)(s - str) - 1;
+
+	if (in_firstpart_was_scob)
+	{
+		if (beg_scr_break != NULL)
+			*beg_scr_break = (int)(beg_firstpart_scob - str);
+
+		if (end_scr_break != NULL)
+			*end_scr_break = (int)(end_firstpart_scob - str);
+	}
+	else
+	{
+		if (beg_scr_break != NULL)
+			*beg_scr_break = -1;
+
+		if (end_scr_break != NULL)
+			*end_scr_break = -1;
+	}
+
+	if (in_secondpart_was_scob)
+	{
+		if (beg_txt_break != NULL)
+			*beg_txt_break = (int)(beg_secondpart_scob - str);
+
+		if (end_txt_break != NULL)
+			*end_txt_break = (int)(end_secondpart_scob - str);
+	}
+	else
+	{
+		if (beg_txt_break != NULL)
+			*beg_txt_break = -1;
+
+		if (end_txt_break != NULL)
+			*end_txt_break = -1;
+	}
+
+	return (int)((s - str) - 1);
 }

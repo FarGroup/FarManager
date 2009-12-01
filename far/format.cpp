@@ -46,25 +46,28 @@ void BaseFormat::Reset()
 
 void BaseFormat::Put(LPCWSTR Data,size_t Length)
 {
-	if(_Precision==static_cast<size_t>(-1))
+	if (_Precision==static_cast<size_t>(-1))
 	{
 		_Precision=Length;
 	}
+
 	string OutStr(Data,Min(_Precision,Length));
-	if(_Align==fmt::A_RIGHT)
+
+	if (_Align==fmt::A_RIGHT)
 	{
-		while(OutStr.GetLength()<_Width)
+		while (OutStr.GetLength()<_Width)
 		{
 			OutStr.Insert(0,_FillChar);
 		}
 	}
 	else
 	{
-		while(OutStr.GetLength()<_Width)
+		while (OutStr.GetLength()<_Width)
 		{
 			OutStr.Append(_FillChar);
 		}
 	}
+
 	Commit(OutStr);
 	Reset();
 }

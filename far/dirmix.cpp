@@ -51,56 +51,57 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 {
-  if(!NewDir || *NewDir == 0)
-    return FALSE;
+	if (!NewDir || *NewDir == 0)
+		return FALSE;
 
-  BOOL rc=FALSE;
-  wchar_t Drive[4]=L"=A:";
+	BOOL rc=FALSE;
+	wchar_t Drive[4]=L"=A:";
+	string strCurDir;
 
-  string strCurDir;
+	if (*NewDir && NewDir[1]==L':' && NewDir[2]==0)// если указана только
+	{                                                     // буква диска, то путь
+		Drive[1]=Upper(*NewDir);                          // возьмем из переменной
 
-  if(*NewDir && NewDir[1]==L':' && NewDir[2]==0)// если указана только
-  {                                                     // буква диска, то путь
-    Drive[1]=Upper(*NewDir);                          // возьмем из переменной
+		if (!apiGetEnvironmentVariable(Drive, strCurDir))
+		{
+			strCurDir = NewDir;
+			AddEndSlash(strCurDir);
+			ReplaceSlashToBSlash(strCurDir);
+		}
 
-    if ( !apiGetEnvironmentVariable (Drive, strCurDir) )
-    {
-      strCurDir = NewDir;
-      AddEndSlash(strCurDir);
-      ReplaceSlashToBSlash(strCurDir);
-    }
-    //*CurDir=toupper(*CurDir); бред!
-    if(ChangeDir)
-    {
-      rc=apiSetCurrentDirectory(strCurDir);
-    }
-  }
-  else
-  {
-    if(ChangeDir)
-    {
-    strCurDir = NewDir;
+		//*CurDir=toupper(*CurDir); бред!
+		if (ChangeDir)
+		{
+			rc=apiSetCurrentDirectory(strCurDir);
+		}
+	}
+	else
+	{
+		if (ChangeDir)
+		{
+			strCurDir = NewDir;
 
-    if(!StrCmp(strCurDir,L"\\"))
-      apiGetCurrentDirectory(strCurDir); // здесь берем корень
+			if (!StrCmp(strCurDir,L"\\"))
+				apiGetCurrentDirectory(strCurDir); // здесь берем корень
 
-    ReplaceSlashToBSlash(strCurDir);
-		ConvertNameToFull(NewDir,strCurDir);
-    PrepareDiskPath(strCurDir,FALSE); // TRUE ???
-    rc=apiSetCurrentDirectory(strCurDir);
-    }
-  }
+			ReplaceSlashToBSlash(strCurDir);
+			ConvertNameToFull(NewDir,strCurDir);
+			PrepareDiskPath(strCurDir,FALSE); // TRUE ???
+			rc=apiSetCurrentDirectory(strCurDir);
+		}
+	}
 
-  if(rc || !ChangeDir)
-  {
-    if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
-      strCurDir.At(0) && strCurDir.At(1)==L':')
-    {
-      Drive[1]=Upper(strCurDir.At(0));
+	if (rc || !ChangeDir)
+	{
+		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
+		        strCurDir.At(0) && strCurDir.At(1)==L':')
+		{
+			Drive[1]=Upper(strCurDir.At(0));
 			SetEnvironmentVariable(Drive,strCurDir);
-    }
-  }
-  return rc;
+		}
+	}
+
+	return rc;
 }
 
 /*
@@ -114,70 +115,70 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 */
 int CheckFolder(const wchar_t *Path)
 {
-  if(!(Path && *Path)) // проверка на вшивость
-    return CHKFLD_ERROR;
+	if (!(Path && *Path)) // проверка на вшивость
+		return CHKFLD_ERROR;
 
-  HANDLE FindHandle;
-  FAR_FIND_DATA_EX fdata;
-  int Done=FALSE;
-
-  string strFindPath = Path;
-
-  // сообразим маску для поиска.
-  AddEndSlash(strFindPath);
-
+	HANDLE FindHandle;
+	FAR_FIND_DATA_EX fdata;
+	int Done=FALSE;
+	string strFindPath = Path;
+	// сообразим маску для поиска.
+	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 
-  // первая проверка - че-нить считать можем?
-  if((FindHandle=apiFindFirstFile(strFindPath,&fdata)) == INVALID_HANDLE_VALUE)
-  {
-    GuardLastError lstError;
-    if(lstError.Get() == ERROR_FILE_NOT_FOUND)
-      return CHKFLD_EMPTY;
+	// первая проверка - че-нить считать можем?
+	if ((FindHandle=apiFindFirstFile(strFindPath,&fdata)) == INVALID_HANDLE_VALUE)
+	{
+		GuardLastError lstError;
 
-    // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
-    // поэтому посмотрим на Root
-    GetPathRoot(Path,strFindPath);
+		if (lstError.Get() == ERROR_FILE_NOT_FOUND)
+			return CHKFLD_EMPTY;
 
-    if(!StrCmp(Path,strFindPath))
-    {
-      // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-      if(apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
-      {
-        if(lstError.Get() == ERROR_ACCESS_DENIED)
-          return CHKFLD_NOTACCESS;
-        return CHKFLD_EMPTY;
-      }
-    }
+		// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
+		// поэтому посмотрим на Root
+		GetPathRoot(Path,strFindPath);
 
-    strFindPath = Path;
+		if (!StrCmp(Path,strFindPath))
+		{
+			// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+			if (apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
+			{
+				if (lstError.Get() == ERROR_ACCESS_DENIED)
+					return CHKFLD_NOTACCESS;
 
-    if(CheckShortcutFolder(&strFindPath,FALSE,TRUE))
-    {
-      if(StrCmp(Path,strFindPath))
-        return CHKFLD_NOTFOUND;
-    }
+				return CHKFLD_EMPTY;
+			}
+		}
 
-    return CHKFLD_NOTACCESS;
-  }
+		strFindPath = Path;
 
-  // Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
-  while(!Done)
-  {
-    if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)))
-      ; // игнорируем "." и ".."
-    else
-    {
-      // что-то есть, отличное от "." и ".." - каталог не пуст
-      apiFindClose(FindHandle);
-      return CHKFLD_NOTEMPTY;
-    }
-    Done=!apiFindNextFile(FindHandle,&fdata);
-  }
+		if (CheckShortcutFolder(&strFindPath,FALSE,TRUE))
+		{
+			if (StrCmp(Path,strFindPath))
+				return CHKFLD_NOTFOUND;
+		}
 
-  // однозначно каталог пуст
-  apiFindClose(FindHandle);
-  return CHKFLD_EMPTY;
+		return CHKFLD_NOTACCESS;
+	}
+
+	// Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
+	while (!Done)
+	{
+		if (fdata.strFileName.At(0) == L'.' && (fdata.strFileName.At(1) == 0 || (fdata.strFileName.At(1) == L'.' && fdata.strFileName.At(2) == 0)))
+			; // игнорируем "." и ".."
+		else
+		{
+			// что-то есть, отличное от "." и ".." - каталог не пуст
+			apiFindClose(FindHandle);
+			return CHKFLD_NOTEMPTY;
+		}
+
+		Done=!apiFindNextFile(FindHandle,&fdata);
+	}
+
+	// однозначно каталог пуст
+	apiFindClose(FindHandle);
+	return CHKFLD_EMPTY;
 }
 
 /*
@@ -194,89 +195,95 @@ int CheckFolder(const wchar_t *Path)
 */
 int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 {
-  if( pTestPath && !pTestPath->IsEmpty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
-  {
-    int FoundPath=0;
+	if (pTestPath && !pTestPath->IsEmpty() && apiGetFileAttributes(*pTestPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		int FoundPath=0;
+		string strTarget = *pTestPath;
+		TruncPathStr(strTarget, ScrX-16);
 
-    string strTarget = *pTestPath;
+		if (IsHostFile)
+		{
+			SetLastError(ERROR_FILE_NOT_FOUND);
 
-    TruncPathStr(strTarget, ScrX-16);
+			if (!Silent)
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget, MSG(MOk));
+		}
+		else // попытка найти!
+		{
+			SetLastError(ERROR_PATH_NOT_FOUND);
 
-    if(IsHostFile)
-    {
-      SetLastError(ERROR_FILE_NOT_FOUND);
-      if(!Silent)
-        Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), strTarget, MSG (MOk));
-    }
-    else // попытка найти!
-    {
-      SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), strTarget, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
-      {
-        string strTestPathTemp = *pTestPath;
+			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget, MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
+			{
+				string strTestPathTemp = *pTestPath;
 
-				for(;;)
-        {
-          if (!CutToSlash(strTestPathTemp,true))
-            break;
+				for (;;)
+				{
+					if (!CutToSlash(strTestPathTemp,true))
+						break;
 
-          if(apiGetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
-          {
-            int ChkFld=CheckFolder(strTestPathTemp);
-            if(ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)
-            {
-              if(!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
-              {
-                *pTestPath = strTestPathTemp;
+					if (apiGetFileAttributes(strTestPathTemp) != INVALID_FILE_ATTRIBUTES)
+					{
+						int ChkFld=CheckFolder(strTestPathTemp);
 
-                if( pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-                  AddEndSlash(*pTestPath);
-                FoundPath=1;
-              }
-              break;
-            }
-          }
-        }
-      }
-    }
-    if(!FoundPath)
-      return 0;
-  }
-  if(CtrlObject->Cp()->ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
-    return -1;
-  return 1;
+						if (ChkFld > CHKFLD_ERROR && ChkFld < CHKFLD_NOTFOUND)
+						{
+							if (!(pTestPath->At(0) == L'\\' && pTestPath->At(1) == L'\\' && strTestPathTemp.At(1) == 0))
+							{
+								*pTestPath = strTestPathTemp;
+
+								if (pTestPath->GetLength() == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+									AddEndSlash(*pTestPath);
+
+								FoundPath=1;
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (!FoundPath)
+			return 0;
+	}
+
+	if (CtrlObject->Cp()->ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
+		return -1;
+
+	return 1;
 }
 
 void CreatePath(string &strPath)
 {
-  wchar_t *ChPtr = strPath.GetBuffer ();
-  wchar_t *DirPart = ChPtr;
+	wchar_t *ChPtr = strPath.GetBuffer();
+	wchar_t *DirPart = ChPtr;
+	BOOL bEnd = FALSE;
 
-  BOOL bEnd = FALSE;
+	for (;;)
+	{
+		if ((*ChPtr == 0) || IsSlash(*ChPtr))
+		{
+			if (*ChPtr == 0)
+				bEnd = TRUE;
 
-	for(;;)
-  {
-		if ( (*ChPtr == 0) || IsSlash(*ChPtr) )
-    {
-      if ( *ChPtr == 0 )
-        bEnd = TRUE;
+			*ChPtr = 0;
 
-      *ChPtr = 0;
-
-			if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES) //BUGBUG
+			if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && apiGetFileAttributes(strPath) == INVALID_FILE_ATTRIBUTES)  //BUGBUG
 				CharUpper(DirPart);
 
-			if ( apiCreateDirectory(strPath, NULL) )
-        TreeList::AddTreeName(strPath);
+			if (apiCreateDirectory(strPath, NULL))
+				TreeList::AddTreeName(strPath);
 
-      if ( bEnd )
-        break;
+			if (bEnd)
+				break;
 
-      *ChPtr = L'\\';
-      DirPart = ChPtr+1;
-    }
+			*ChPtr = L'\\';
+			DirPart = ChPtr+1;
+		}
 
-    ChPtr++;
-  }
+		ChPtr++;
+	}
+
 	strPath.ReleaseBuffer();
 }

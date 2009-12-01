@@ -48,29 +48,30 @@ static unsigned char LCOrder[256];
 
 void LocalUpperInit()
 {
-  unsigned char CvtStr[2],ReverseCvtStr[2];
-  CvtStr[1]=0;
+	unsigned char CvtStr[2],ReverseCvtStr[2];
+	CvtStr[1]=0;
 
-  for (unsigned int I=0;I<countof(LowerToUpper);I++)
-  {
-    CvtStr[0]=I;
-    LowerToUpper[I]=UpperToLower[I]=I;
-    OemToCharA((char *)CvtStr,(char *)CvtStr);
-    CharToOemA((char *)CvtStr,(char *)ReverseCvtStr);
-    IsUpperOrLower[I]=0;
-    if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==I)
-    {
-      IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
-      CharUpperA((char *)CvtStr);
-      CharToOemA((char *)CvtStr,(char *)CvtStr);
-      LowerToUpper[I]=CvtStr[0];
-      CvtStr[0]=I;
-      OemToCharA((char *)CvtStr,(char *)CvtStr);
-      CharLowerA((char *)CvtStr);
-      CharToOemA((char *)CvtStr,(char *)CvtStr);
-      UpperToLower[I]=CvtStr[0];
-    }
-  }
+	for (unsigned int I=0; I<countof(LowerToUpper); I++)
+	{
+		CvtStr[0]=I;
+		LowerToUpper[I]=UpperToLower[I]=I;
+		OemToCharA((char *)CvtStr,(char *)CvtStr);
+		CharToOemA((char *)CvtStr,(char *)ReverseCvtStr);
+		IsUpperOrLower[I]=0;
+
+		if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==I)
+		{
+			IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
+			CharUpperA((char *)CvtStr);
+			CharToOemA((char *)CvtStr,(char *)CvtStr);
+			LowerToUpper[I]=CvtStr[0];
+			CvtStr[0]=I;
+			OemToCharA((char *)CvtStr,(char *)CvtStr);
+			CharLowerA((char *)CvtStr);
+			CharToOemA((char *)CvtStr,(char *)CvtStr);
+			UpperToLower[I]=CvtStr[0];
+		}
+	}
 }
 
 /*
@@ -81,28 +82,28 @@ void LocalUpperInit()
 */
 void InitLCIDSort()
 {
-  unsigned char LCSortBuffer[256];
-  unsigned int I;
+	unsigned char LCSortBuffer[256];
+	unsigned int I;
 
-  for (I=0;I<countof(LCSortBuffer);I++)
-    LCSortBuffer[I]=I;
+	for (I=0; I<countof(LCSortBuffer); I++)
+		LCSortBuffer[I]=I;
 
-  Opt.LCIDSort=GetRegKey(L"System",L"LCID",LOCALE_USER_DEFAULT);
-  far_qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
+	Opt.LCIDSort=GetRegKey(L"System",L"LCID",LOCALE_USER_DEFAULT);
+	far_qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
-  for (I=0;I<countof(LCSortBuffer);I++)
-    LCOrder[LCSortBuffer[I]]=I;
+	for (I=0; I<countof(LCSortBuffer); I++)
+		LCOrder[LCSortBuffer[I]]=I;
 
-  LCOrder[0]=0;
-  LCOrder[(unsigned)'\\']=1;
-  LCOrder[(unsigned)'.']=2;
+	LCOrder[0]=0;
+	LCOrder[(unsigned)'\\']=1;
+	LCOrder[(unsigned)'.']=2;
 
-  for (I=0;I<countof(LCSortBuffer)-1;I++)
-    if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)
-      LCOrder[LCSortBuffer[I+1]]=LCOrder[LCSortBuffer[I]];
+	for (I=0; I<countof(LCSortBuffer)-1; I++)
+		if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)
+			LCOrder[LCSortBuffer[I+1]]=LCOrder[LCSortBuffer[I]];
 
-  for (I=0;I<countof(LCOrder);I++)
-    LCOrder[I]=LCOrder[UpperToLower[I]];
+	for (I=0; I<countof(LCOrder); I++)
+		LCOrder[I]=LCOrder[UpperToLower[I]];
 }
 
 int WINAPI LocalIslower(unsigned Ch)
@@ -117,152 +118,158 @@ int WINAPI LocalIsupper(unsigned Ch)
 
 int WINAPI LocalIsalpha(unsigned Ch)
 {
-  if (Ch>=256)
-    return(FALSE);
+	if (Ch>=256)
+		return(FALSE);
 
-  unsigned char CvtStr[1];
-  CvtStr[0]=Ch;
-  OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
-  return(IsCharAlphaA(CvtStr[0]));
+	unsigned char CvtStr[1];
+	CvtStr[0]=Ch;
+	OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
+	return(IsCharAlphaA(CvtStr[0]));
 }
 
 int WINAPI LocalIsalphanum(unsigned Ch)
 {
-  if (Ch>=256)
-    return(FALSE);
+	if (Ch>=256)
+		return(FALSE);
 
-  unsigned char CvtStr[1];
-  CvtStr[0]=Ch;
-  OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
-  return(IsCharAlphaNumericA(CvtStr[0]));
+	unsigned char CvtStr[1];
+	CvtStr[0]=Ch;
+	OemToCharBuffA((char *)CvtStr,(char *)CvtStr,1);
+	return(IsCharAlphaNumericA(CvtStr[0]));
 }
 
 unsigned WINAPI LocalUpper(unsigned LowerChar)
 {
-  return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
+	return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
 }
 
 void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
-  for (int I=0;I<Length;I++)
-    Buf[I]=LocalUpper(Buf[I]);
+	for (int I=0; I<Length; I++)
+		Buf[I]=LocalUpper(Buf[I]);
 }
 
 void WINAPI LocalLowerBuf(char *Buf,int Length)
 {
-  for (int I=0;I<Length;I++)
-    Buf[I]=LocalLower(Buf[I]);
+	for (int I=0; I<Length; I++)
+		Buf[I]=LocalLower(Buf[I]);
 }
 
 unsigned WINAPI LocalLower(unsigned UpperChar)
 {
-  return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
+	return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
 }
 
 void WINAPI LocalStrupr(char *s1)
 {
-  while (*s1)
-  {
-    *s1=LowerToUpper[(unsigned)*s1];
-    s1++;
-  }
+	while (*s1)
+	{
+		*s1=LowerToUpper[(unsigned)*s1];
+		s1++;
+	}
 }
 
 void WINAPI LocalStrlwr(char *s1)
 {
-  while (*s1)
-  {
-    *s1=UpperToLower[(unsigned)*s1];
-    s1++;
-  }
+	while (*s1)
+	{
+		*s1=UpperToLower[(unsigned)*s1];
+		s1++;
+	}
 }
 
 const char * __cdecl LocalStrstri(const char *str1, const char *str2)
 {
-  char *cp = (char *) str1;
-  char *s1, *s2;
+	char *cp = (char *) str1;
+	char *s1, *s2;
 
-  if ( !*str2 )
-      return str1;
+	if (!*str2)
+		return str1;
 
-  while (*cp)
-  {
-    s1 = cp;
-    s2 = (char *) str2;
+	while (*cp)
+	{
+		s1 = cp;
+		s2 = (char *) str2;
 
-    while ( *s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)) )
-    {
-      s1++;
-      s2++;
-    }
+		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
+		{
+			s1++;
+			s2++;
+		}
 
-    if (!*s2)
-      return (const char *)cp;
+		if (!*s2)
+			return (const char *)cp;
 
-    cp++;
-  }
+		cp++;
+	}
 
-  return (const char *)NULL;
+	return (const char *)NULL;
 }
 
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
 {
-  int len1 = (int)strlen(str1);
-  int len2 = (int)strlen(str2);
+	int len1 = (int)strlen(str1);
+	int len2 = (int)strlen(str2);
 
-  if (len2 > len1)
-    return (const char *)NULL;
+	if (len2 > len1)
+		return (const char *)NULL;
 
-  if ( !*str2 )
-    return &str1[len1];
+	if (!*str2)
+		return &str1[len1];
 
-  char *cp = (char *)&str1[len1 - len2];
-  char *s1, *s2;
+	char *cp = (char *)&str1[len1 - len2];
+	char *s1, *s2;
 
-  while (cp >= str1)
-  {
-    s1 = cp;
-    s2 = (char *) str2;
+	while (cp >= str1)
+	{
+		s1 = cp;
+		s2 = (char *) str2;
 
-    while ( *s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)) )
-    {
-      s1++;
-      s2++;
-    }
+		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
+		{
+			s1++;
+			s2++;
+		}
 
-    if (!*s2)
-      return (const char *)cp;
+		if (!*s2)
+			return (const char *)cp;
 
-    cp--;
-  }
+		cp--;
+	}
 
-  return (const char *)NULL;
+	return (const char *)NULL;
 }
 
 int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
-  while (1)
-  {
-    if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
-      return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
-    if (*(s1++) == 0)
-      break;
-    s2++;
-  }
-  return(0);
+	while (1)
+	{
+		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
+
+		if (*(s1++) == 0)
+			break;
+
+		s2++;
+	}
+
+	return(0);
 }
 
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 {
-  while (n-- > 0)
-  {
-    if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
-      return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
-    if (*(s1++) == 0)
-      break;
-    s2++;
-  }
-  return(0);
+	while (n-- > 0)
+	{
+		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
+
+		if (*(s1++) == 0)
+			break;
+
+		s2++;
+	}
+
+	return(0);
 }
 
 int WINAPI LStricmp(const char *s1,const char *s2)
@@ -272,17 +279,17 @@ int WINAPI LStricmp(const char *s1,const char *s2)
 
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 {
-  return LocalStrnicmp(s1,s2,n);
+	return LocalStrnicmp(s1,s2,n);
 }
 
 int _cdecl LCSort(const void *el1,const void *el2)
 {
-  char Str1[3],Str2[3];
-  Str1[0]=*(char *)el1;
-  Str2[0]=*(char *)el2;
-  Str1[1]=Str2[1]=0;
-  Str1[2]=Str2[2]=0;
-  OemToCharBuffA(Str1,Str1,1);
-  OemToCharBuffA(Str2,Str2,1);
-  return(CompareStringA(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
+	char Str1[3],Str2[3];
+	Str1[0]=*(char *)el1;
+	Str2[0]=*(char *)el2;
+	Str1[1]=Str2[1]=0;
+	Str1[2]=Str2[2]=0;
+	OemToCharBuffA(Str1,Str1,1);
+	OemToCharBuffA(Str2,Str2,1);
+	return(CompareStringA(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }

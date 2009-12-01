@@ -36,13 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syntax.hpp"
 #include "tvar.hpp"
 
-enum MACRODISABLEONLOAD{
+enum MACRODISABLEONLOAD
+{
 	MDOL_ALL            = 0x80000000, // дисаблим все макросы при загрузке
 	MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
 };
 
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
-enum MACROMODEAREA {
+enum MACROMODEAREA
+{
 	MACRO_FUNCS        =  -3,
 	MACRO_CONSTS       =  -2,
 	MACRO_VARS         =  -1,
@@ -67,7 +69,8 @@ enum MACROMODEAREA {
 	MACRO_LAST                // Должен быть всегда последним! Используется в циклах
 };
 
-enum MACROFLAGS_MFLAGS{
+enum MACROFLAGS_MFLAGS
+{
 	MFLAGS_MODEMASK            =0x000000FF, // маска для выделения области действия (области начала исполнения) макроса
 
 	MFLAGS_DISABLEOUTPUT       =0x00000100, // подавить обновление экрана во время выполнения макроса
@@ -101,7 +104,8 @@ enum MACROFLAGS_MFLAGS{
 
 
 // коды возврата для KeyMacro::GetCurRecord()
-enum MACRORECORDANDEXECUTETYPE{
+enum MACRORECORDANDEXECUTETYPE
+{
 	MACROMODE_NOMACRO          =0,  // не в режиме макро
 	MACROMODE_EXECUTING        =1,  // исполнение: без передачи плагину пимп
 	MACROMODE_EXECUTING_COMMON =2,  // исполнение: с передачей плагину пимп
@@ -218,7 +222,7 @@ class KeyMacro
 
 		int PushState(bool CopyLocalVars=FALSE);
 		int PopState();
-		int GetLevelState(){return CurPCStack;};
+		int GetLevelState() {return CurPCStack;};
 
 		int  IsRecording() {return(Recording);};
 		int  IsExecuting() {return(Work.Executing);};
@@ -248,7 +252,7 @@ class KeyMacro
 		bool GetPlainText(string& Dest);
 		int  GetPlainTextSize();
 
-		void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
+		void SetRedrawEditor(int Sets) {IsRedrawEditor=Sets;}
 
 		void RestartAutoMacro(int Mode);
 

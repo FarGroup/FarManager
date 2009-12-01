@@ -1,3 +1,13 @@
+t-rex 01.12.2009 03:13:36 +0200 - build 1255
+
+1. Все изменения в коде только косметические. Тупо надоела уже мешанина табов и пробелов и т.п.
+   Прогрнал на сорцы следующее:
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks
+   Не идеально конечно, но уже намного приятней.
+  
+   Так что не забываем, в коде нужно использовать табы. Таб == 4 пробела.
+   Надо будет собраться и написать хоть какой то документ по стилю кода.
+
 t-rex 01.12.2009 00:37:09 +0200 - build 1254
 
 1. Ещё немного чистки в global.hpp.

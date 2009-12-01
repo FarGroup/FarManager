@@ -79,35 +79,36 @@
 #define RE_CHAR_COUNT (1<<sizeof(rechar)*8)
 
 //! Possible compile and runtime errors returned by LastError.
-enum REError{
-  //! No errors
-  errNone=0,
-  //! RegExp wasn't even tried to compile
-  errNotCompiled,
-  //! expression contain syntax error
-  errSyntax,
-  //! Unbalanced brackets
-  errBrackets,
-  //! Max recursive brackets level reached. Controled in compile time
-  errMaxDepth,
-  //! Invalid options combination
-  errOptions,
-  //! Reference to nonexistent bracket
-  errInvalidBackRef,
-  //! Invalid escape char
-  errInvalidEscape,
-  //! Invalid range value
-  errInvalidRange,
-  //! Quantifier applyed to invalid object. f.e. lookahed assertion
-  errInvalidQuantifiersCombination,
-  //! Size of match array isn't large enough.
-  errNotEnoughMatches,
-  //! Attempt to match RegExp with Named Brackets, and no storage class provided.
-  errNoStorageForNB,
-  //! Reference to undefined named bracket
-  errReferenceToUndefinedNamedBracket,
-  //! Only fixed length look behind assertions are supported
-  errVariableLengthLookBehind
+enum REError
+{
+	//! No errors
+	errNone=0,
+	//! RegExp wasn't even tried to compile
+	errNotCompiled,
+	//! expression contain syntax error
+	errSyntax,
+	//! Unbalanced brackets
+	errBrackets,
+	//! Max recursive brackets level reached. Controled in compile time
+	errMaxDepth,
+	//! Invalid options combination
+	errOptions,
+	//! Reference to nonexistent bracket
+	errInvalidBackRef,
+	//! Invalid escape char
+	errInvalidEscape,
+	//! Invalid range value
+	errInvalidRange,
+	//! Quantifier applyed to invalid object. f.e. lookahed assertion
+	errInvalidQuantifiersCombination,
+	//! Size of match array isn't large enough.
+	errNotEnoughMatches,
+	//! Attempt to match RegExp with Named Brackets, and no storage class provided.
+	errNoStorageForNB,
+	//! Reference to undefined named bracket
+	errReferenceToUndefinedNamedBracket,
+	//! Only fixed length look behind assertions are supported
+	errVariableLengthLookBehind
 };
 
 //! Used internally
@@ -189,9 +190,10 @@ static const int STACK_PAGE_SIZE=16;
 typedef struct RegExpMatch SMatch,*PMatch;
 #else
 //! Structure that contain single bracket info
-typedef struct tag_Match{
-  int start,end;
-}SMatch,*PMatch;
+typedef struct tag_Match
+{
+	int start,end;
+} SMatch,*PMatch;
 #endif
 
 //! Add named brackets and named backrefs
@@ -209,44 +211,49 @@ class RegExp;
 typedef Hash<RegExp*> RELib;
 typedef RELib *PRELib;
 class MatchList;
-struct SMatchListItem{
-  int start,end;
-  prechar name;
-  MatchList *sublist;
+struct SMatchListItem
+{
+	int start,end;
+	prechar name;
+	MatchList *sublist;
 };
-class MatchList:public List<SMatchListItem>{
-public:
-  MatchList *parent;
+class MatchList:public List<SMatchListItem>
+{
+	public:
+		MatchList *parent;
 };
 typedef MatchList *PMatchList;
 
-struct SCallStackItem{
-  prechar name;
-  int strpos;
+struct SCallStackItem
+{
+	prechar name;
+	int strpos;
 };
 typedef List<SCallStackItem> CallStack;
 #endif
 
 //! Used internally
-typedef struct StateStackItem{
-  int op;
-  REOpCode* pos;
-  const prechar savestr;
-  const prechar startstr;
-  int min;
-  int cnt;
-  int max;
-  int forward;
-  #ifdef RE_NO_NEWARRAY
-    static void OnCreate(void *ptr);
-  #endif
+typedef struct StateStackItem
+{
+	int op;
+	REOpCode* pos;
+	const prechar savestr;
+	const prechar startstr;
+	int min;
+	int cnt;
+	int max;
+	int forward;
+#ifdef RE_NO_NEWARRAY
+	static void OnCreate(void *ptr);
+#endif
 }*PStateStackItem;
 
 //! Used internally
-typedef struct StateStackPage{
-  PStateStackItem stack;
-  StateStackPage* prev;
-  StateStackPage* next;
+typedef struct StateStackPage
+{
+	PStateStackItem stack;
+	StateStackPage* prev;
+	StateStackPage* next;
 }*PStateStackPage;
 
 #ifdef UNICODE
@@ -258,280 +265,281 @@ struct UniSet;
 Expressions must be Compile'ed first,
 and than Match string or Search for matching fragment.
 */
-class RegExp{
-private:
-  // code
-  PREOpCode code;
+class RegExp
+{
+	private:
+		// code
+		PREOpCode code;
 #ifdef RE_DEBUG
-  prechar resrc;
+		prechar resrc;
 #endif
 
-  StateStackItem initstack[STACK_PAGE_SIZE];
-  StateStackPage initstackpage;
+		StateStackItem initstack[STACK_PAGE_SIZE];
+		StateStackPage initstackpage;
 
 // current stack page and upper stack element
-  PStateStackItem stack,st;
-  int stackcount;
+		PStateStackItem stack,st;
+		int stackcount;
 #ifdef RELIB
-  int stackusage;
-  int reclevel;
+		int stackusage;
+		int reclevel;
 #endif
 
-  char slashChar;
-  char backslashChar;
+		char slashChar;
+		char backslashChar;
 
-  PStateStackPage firstpage;
-  PStateStackPage lastpage;
+		PStateStackPage firstpage;
+		PStateStackPage lastpage;
 
 #ifndef UNICODE
-  // locale info
+		// locale info
 #ifdef RE_EXTERNAL_CTYPE
-  LOCALEDEF prechar lc;
-  LOCALEDEF prechar uc;
-  LOCALEDEF prechar chartypes;
-  LOCALEDEF rechar charbits[256];
+		LOCALEDEF prechar lc;
+		LOCALEDEF prechar uc;
+		LOCALEDEF prechar chartypes;
+		LOCALEDEF rechar charbits[256];
 #else
-  LOCALEDEF int ilc[256/sizeof(int)];
-  LOCALEDEF int iuc[256/sizeof(int)];
-  LOCALEDEF int ichartypes[256/sizeof(int)];
-  LOCALEDEF int icharbits[256/sizeof(int)];
+		LOCALEDEF int ilc[256/sizeof(int)];
+		LOCALEDEF int iuc[256/sizeof(int)];
+		LOCALEDEF int ichartypes[256/sizeof(int)];
+		LOCALEDEF int icharbits[256/sizeof(int)];
 
-  LOCALEDEF rechar *lc;
-  LOCALEDEF rechar *uc;
-  LOCALEDEF rechar *chartypes;
-  LOCALEDEF rechar *charbits;
+		LOCALEDEF rechar *lc;
+		LOCALEDEF rechar *uc;
+		LOCALEDEF rechar *chartypes;
+		LOCALEDEF rechar *charbits;
 #endif
 #endif
 
 #ifdef UNICODE
-  UniSet *firstptr;
+		UniSet *firstptr;
 #else
-  rechar first[256];
+		rechar first[256];
 #endif
-  int havefirst;
-  int havelookahead;
+		int havefirst;
+		int havelookahead;
 
-  int minlength;
+		int minlength;
 
-  // error info
-  int errorcode;
-  int errorpos;
+		// error info
+		int errorcode;
+		int errorpos;
 
-  // options
-  int ignorecase;
+		// options
+		int ignorecase;
 
-  int bracketscount;
-  int maxbackref;
+		int bracketscount;
+		int maxbackref;
 #ifdef NAMEDBRACKETS
-  int havenamedbrackets;
+		int havenamedbrackets;
 #endif
 
-  const prechar start;
-  const prechar end;
-  const prechar trimend;
+		const prechar start;
+		const prechar end;
+		const prechar trimend;
 
 #ifdef RELIB
-  PRELib relib;
-  PMatchList matchlist;
+		PRELib relib;
+		PMatchList matchlist;
 #endif
 
 #ifdef RE_NO_NEWARRAY
-  typedef void (*ON_CREATE_FUNC)(void *Item);
-  typedef void (*ON_DELETE_FUNC)(void *Item);
-  static void *CreateArray(const unsigned int size, const unsigned int total,
-    ON_CREATE_FUNC Create);
-  static void DeleteArray(void **array, ON_DELETE_FUNC Delete);
+		typedef void (*ON_CREATE_FUNC)(void *Item);
+		typedef void (*ON_DELETE_FUNC)(void *Item);
+		static void *CreateArray(const unsigned int size, const unsigned int total,
+		                         ON_CREATE_FUNC Create);
+		static void DeleteArray(void **array, ON_DELETE_FUNC Delete);
 #endif
-  int CalcLength(const prechar src,int srclength);
-  int InnerCompile(const prechar src,int srclength,int options);
+		int CalcLength(const prechar src,int srclength);
+		int InnerCompile(const prechar src,int srclength,int options);
 
-  int InnerMatch(const prechar str,const prechar end,PMatch match,int& matchcount
+		int InnerMatch(const prechar str,const prechar end,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch
+		               ,PMatchHash hmatch
 #endif
-                 );
+		              );
 
-  void TrimTail(const prechar& end);
+		void TrimTail(const prechar& end);
 
-  int SetError(int _code,int pos){errorcode=_code;errorpos=pos;return 0;}
+		int SetError(int _code,int pos) {errorcode=_code; errorpos=pos; return 0;}
 
-  int GetNum(const prechar src,int& i);
+		int GetNum(const prechar src,int& i);
 
-  static inline void SetBit(prechar bitset,int charindex)
-  {
-    bitset[charindex>>3]|=1<<(charindex&7);
-  }
-  static inline int GetBit(prechar bitset,int charindex)
-  {
-    return bitset[charindex>>3]&(1<<(charindex&7));
-  }
+		static inline void SetBit(prechar bitset,int charindex)
+		{
+			bitset[charindex>>3]|=1<<(charindex&7);
+		}
+		static inline int GetBit(prechar bitset,int charindex)
+		{
+			return bitset[charindex>>3]&(1<<(charindex&7));
+		}
 
-  void PushState();
-  StateStackItem* GetState();
-  StateStackItem* FindStateByPos(PREOpCode pos,int op);
-  int PopState();
+		void PushState();
+		StateStackItem* GetState();
+		StateStackItem* FindStateByPos(PREOpCode pos,int op);
+		int PopState();
 
 
-  int StrCmp(const prechar& str,const prechar start,const prechar end);
+		int StrCmp(const prechar& str,const prechar start,const prechar end);
 
-  void Init(const prechar,int options);
-  RegExp(const RegExp& re){};
+		void Init(const prechar,int options);
+		RegExp(const RegExp& re) {};
 
-public:
-  //! Default constructor.
-  RegExp();
-  /*! Create object with compiled expression
+	public:
+		//! Default constructor.
+		RegExp();
+		/*! Create object with compiled expression
 
-     \param expr - source of expression
-     \param options - compilation options
+		   \param expr - source of expression
+		   \param options - compilation options
 
-     By default expression in perl style expected,
-     and will be optimized after compilation.
+		   By default expression in perl style expected,
+		   and will be optimized after compilation.
 
-     Compilation status can be verified with LastError method.
-     \sa LastError
-  */
-  RegExp(const RECHAR* expr,int options=OP_PERLSTYLE|OP_OPTIMIZE);
-  virtual ~RegExp();
+		   Compilation status can be verified with LastError method.
+		   \sa LastError
+		*/
+		RegExp(const RECHAR* expr,int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		virtual ~RegExp();
 
 #ifndef UNICODE
-  /*! Set locale specific information
-      \param newlc - table that convert any symbol to it's lowercase state if possible, or left unchanged
-      \param newuc - table that convert any symbol to it's uppercase state if possible, or left unchanged
-      \param newchartypes - table with locale info bits.
+		/*! Set locale specific information
+		    \param newlc - table that convert any symbol to it's lowercase state if possible, or left unchanged
+		    \param newuc - table that convert any symbol to it's uppercase state if possible, or left unchanged
+		    \param newchartypes - table with locale info bits.
 
-      all tables have 256 elements
-      \sa localebits
-  */
-  #ifndef RE_EXTERNAL_CTYPE
-  LOCALEDEF void InitLocale();
-  #else
-  LOCALEDEF void InitLocale() {}
-  #endif
-  LOCALEDEF void SetLocaleInfo(prechar newlc,prechar newuc,prechar newchartypes);
+		    all tables have 256 elements
+		    \sa localebits
+		*/
+#ifndef RE_EXTERNAL_CTYPE
+		LOCALEDEF void InitLocale();
+#else
+		LOCALEDEF void InitLocale() {}
+#endif
+		LOCALEDEF void SetLocaleInfo(prechar newlc,prechar newuc,prechar newchartypes);
 #else // ifdef UNICODE
-  LOCALEDEF void InitLocale() {}
+		LOCALEDEF void InitLocale() {}
 #endif
 
 #ifdef RELIB
-  void SetRELib(PRELib newlib){relib=newlib;}
-  void SetMatchList(PMatchList newlist){matchlist=newlist;}
-  void ResetRecursion(){reclevel=0;stackusage=0;}
-  CallStack cs;
+		void SetRELib(PRELib newlib) {relib=newlib;}
+		void SetMatchList(PMatchList newlist) {matchlist=newlist;}
+		void ResetRecursion() {reclevel=0; stackusage=0;}
+		CallStack cs;
 #endif
 
-  /*! Compile regular expression
-      Generate internall op-codes of expression.
+		/*! Compile regular expression
+		    Generate internall op-codes of expression.
 
-      \param src - source of expression
-      \param options - compile options
-      \return 1 on success, 0 otherwise
+		    \param src - source of expression
+		    \param options - compile options
+		    \return 1 on success, 0 otherwise
 
-      If compilation fails error code can be obtained with LastError function,
-      position of error in a expression can be obtained with ErrorPosition function.
-      See error codes in REError enumeration.
-      \sa LastError
-      \sa REError
-      \sa ErrorPosition
-      \sa options
-  */
-  int Compile(const RECHAR* src,int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		    If compilation fails error code can be obtained with LastError function,
+		    position of error in a expression can be obtained with ErrorPosition function.
+		    See error codes in REError enumeration.
+		    \sa LastError
+		    \sa REError
+		    \sa ErrorPosition
+		    \sa options
+		*/
+		int Compile(const RECHAR* src,int options=OP_PERLSTYLE|OP_OPTIMIZE);
 
-  /*! Try to optimize regular expression
-      Significally speedup Search mode in some cases.
-      \return 1 on success, 0 if optimization failed.
-  */
-  int Optimize();
+		/*! Try to optimize regular expression
+		    Significally speedup Search mode in some cases.
+		    \return 1 on success, 0 if optimization failed.
+		*/
+		int Optimize();
 
-  /*! Try to match string with regular expression
-      \param textstart - start of string to match
-      \param textend - point to symbol after last symbols of the string.
-      \param match - array of SMatch structures that receive brackets positions.
-      \param matchcount - in/out parameter that indicate number of items in
-      match array on input, and number of brackets on output.
-      \param hmatch - storage of named brackets if NAMEDBRACKETS feature enabled.
-      \return 1 on success, 0 if match failed.
-      \sa SMatch
-  */
-  int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		/*! Try to match string with regular expression
+		    \param textstart - start of string to match
+		    \param textend - point to symbol after last symbols of the string.
+		    \param match - array of SMatch structures that receive brackets positions.
+		    \param matchcount - in/out parameter that indicate number of items in
+		    match array on input, and number of brackets on output.
+		    \param hmatch - storage of named brackets if NAMEDBRACKETS feature enabled.
+		    \return 1 on success, 0 if match failed.
+		    \sa SMatch
+		*/
+		int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		          ,PMatchHash hmatch=NULL
 #endif
-  );
-  /*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
-      textend calculated automatically.
-  */
-  int Match(const RECHAR* textstart,PMatch match,int& matchcount
+		         );
+		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
+		    textend calculated automatically.
+		*/
+		int Match(const RECHAR* textstart,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		          ,PMatchHash hmatch=NULL
 #endif
-  );
-  /*! Advanced version of match. Can be used for multiple matches
-      on one string (to imitate /g modifier of perl regexp
-  */
-  int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		         );
+		/*! Advanced version of match. Can be used for multiple matches
+		    on one string (to imitate /g modifier of perl regexp
+		*/
+		int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		            ,PMatchHash hmatch=NULL
 #endif
-  );
-  /*! Try to find substring that will match regexp.
-      Parameters and return value are the same as for Match.
-      It is highly recommended to call Optimize before Search.
-  */
-  int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		           );
+		/*! Try to find substring that will match regexp.
+		    Parameters and return value are the same as for Match.
+		    It is highly recommended to call Optimize before Search.
+		*/
+		int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		           ,PMatchHash hmatch=NULL
 #endif
-  );
-  /*! Same as Search with specified textend, but for ASCIIZ strings only.
-      textend calculated automatically.
-  */
-  int Search(const RECHAR* textstart,PMatch match,int& matchcount
+		          );
+		/*! Same as Search with specified textend, but for ASCIIZ strings only.
+		    textend calculated automatically.
+		*/
+		int Search(const RECHAR* textstart,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		           ,PMatchHash hmatch=NULL
 #endif
-  );
-  /*! Advanced version of search. Can be used for multiple searches
-      on one string (to imitate /g modifier of perl regexp
-  */
-  int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		          );
+		/*! Advanced version of search. Can be used for multiple searches
+		    on one string (to imitate /g modifier of perl regexp
+		*/
+		int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
 #ifdef NAMEDBRACKETS
-                 ,PMatchHash hmatch=NULL
+		             ,PMatchHash hmatch=NULL
 #endif
-  );
+		            );
 
-  /*! Clean regexp execution stack.
-      After match large string with complex regexp, significant
-      amount of memory can be allocated for execution stack.
-  */
-  void CleanStack();
+		/*! Clean regexp execution stack.
+		    After match large string with complex regexp, significant
+		    amount of memory can be allocated for execution stack.
+		*/
+		void CleanStack();
 
-  /*! Get last error
-      \return code of the last error
-      Check REError for explanation
-      \sa REError
-      \sa ErrorPosition
-  */
-  int LastError() const {return errorcode;}
-  /*! Get last error position.
-      \return position of the last error in the regexp source.
-      \sa LastError
-  */
-  int ErrorPosition() const {return errorpos;}
-  /*! Get number of brackets in expression
-      \return number of brackets, excluding brackets of type (:expr)
-      and named brackets.
-  */
-  int GetBracketsCount() const {return bracketscount;}
-  typedef bool(*BracketHandler)(void* data,int action,int brindex,int start,int end);
-  void SetBracketHandler(BracketHandler bh,void* data)
-  {
-    brhandler=bh;
-    brhdata=data;
-  }
-protected:
-  BracketHandler brhandler;
-  void* brhdata;
+		/*! Get last error
+		    \return code of the last error
+		    Check REError for explanation
+		    \sa REError
+		    \sa ErrorPosition
+		*/
+		int LastError() const {return errorcode;}
+		/*! Get last error position.
+		    \return position of the last error in the regexp source.
+		    \sa LastError
+		*/
+		int ErrorPosition() const {return errorpos;}
+		/*! Get number of brackets in expression
+		    \return number of brackets, excluding brackets of type (:expr)
+		    and named brackets.
+		*/
+		int GetBracketsCount() const {return bracketscount;}
+		typedef bool(*BracketHandler)(void* data,int action,int brindex,int start,int end);
+		void SetBracketHandler(BracketHandler bh,void* data)
+		{
+			brhandler=bh;
+			brhdata=data;
+		}
+	protected:
+		BracketHandler brhandler;
+		void* brhdata;
 };
 
 #ifdef RELIB

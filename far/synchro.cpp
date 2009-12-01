@@ -50,9 +50,9 @@ PluginSynchro::~PluginSynchro()
 
 void PluginSynchro::Synchro(INT_PTR ModuleNumber,void* Param)
 {
-	if(Mutex)
+	if (Mutex)
 	{
-		if(WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
+		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{
 			SynchroData* item=Data.Push();
 			item->ModuleNumber=ModuleNumber;
@@ -65,30 +65,37 @@ void PluginSynchro::Synchro(INT_PTR ModuleNumber,void* Param)
 bool PluginSynchro::Process(void)
 {
 	bool res=false;
-	if(Mutex)
+
+	if (Mutex)
 	{
 		bool process=false; INT_PTR module=0; void* param=NULL;
-		if(WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
+
+		if (WaitForSingleObject(Mutex,INFINITE)==WAIT_OBJECT_0)
 		{
 			SynchroData* item=Data.First();
-			if(item)
+
+			if (item)
 			{
 				process=true;
 				module=item->ModuleNumber;
 				param=item->Param;
 				Data.Delete(item);
 			}
+
 			ReleaseMutex(Mutex);
 		}
-		if(process)
+
+		if (process)
 		{
 			Plugin* pPlugin=(Plugin*)module;
-			if(pPlugin)
+
+			if (pPlugin)
 			{
 				pPlugin->ProcessSynchroEvent(SE_COMMONSYNCHRO,param);
 				res=true;
 			}
 		}
 	}
+
 	return res;
 }

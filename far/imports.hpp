@@ -36,172 +36,173 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-typedef DWORD (__stdcall *PCMGETDEVNODEREGISTRYPROPERTY) (
-		DEVINST dnDevInst,
-		ULONG ulProperty,
-		PULONG pulRegDataType,
-		PVOID Buffer,
-		PULONG pulLength,
-		ULONG ulFlags
-		);
+typedef DWORD (__stdcall *PCMGETDEVNODEREGISTRYPROPERTY)(
+    DEVINST dnDevInst,
+    ULONG ulProperty,
+    PULONG pulRegDataType,
+    PVOID Buffer,
+    PULONG pulLength,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVNODESTATUS) (
-		PULONG pulStatus,
-		PULONG pulProblemNumber,
-		DEVINST dnDevInst,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVNODESTATUS)(
+    PULONG pulStatus,
+    PULONG pulProblemNumber,
+    DEVINST dnDevInst,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVICEID) (
-		DEVINST dnDevInst,
-		wchar_t *Buffer,
-		ULONG BufferLen,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVICEID)(
+    DEVINST dnDevInst,
+    wchar_t *Buffer,
+    ULONG BufferLen,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVICEIDLISTSIZE) (
-		PULONG pulLen,
-		const wchar_t *pszFilter,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVICEIDLISTSIZE)(
+    PULONG pulLen,
+    const wchar_t *pszFilter,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVICEIDLIST) (
-		const wchar_t *pszFilter,
-		wchar_t *Buffer,
-		ULONG BufferLen,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVICEIDLIST)(
+    const wchar_t *pszFilter,
+    wchar_t *Buffer,
+    ULONG BufferLen,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVICEINTERFACELISTSIZE) (
-		PULONG pulLen,
-		LPGUID InterfaceClassGuid,
-		DEVINSTID_W pDeviceID,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVICEINTERFACELISTSIZE)(
+    PULONG pulLen,
+    LPGUID InterfaceClassGuid,
+    DEVINSTID_W pDeviceID,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETDEVICEINTERFACELIST) (
-		LPGUID InterfaceClassGuid,
-		DEVINSTID_W pDeviceID,
-		wchar_t *Buffer,
-		ULONG BufferLen,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETDEVICEINTERFACELIST)(
+    LPGUID InterfaceClassGuid,
+    DEVINSTID_W pDeviceID,
+    wchar_t *Buffer,
+    ULONG BufferLen,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMLOCATEDEVNODE) (
-		PDEVINST pdnDevInst,
-		DEVINSTID_W pDeviceID,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMLOCATEDEVNODE)(
+    PDEVINST pdnDevInst,
+    DEVINSTID_W pDeviceID,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMGETCHILD) (
-		PDEVINST pdnDevInst,
-		DEVINST DevInst,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETCHILD)(
+    PDEVINST pdnDevInst,
+    DEVINST DevInst,
+    ULONG ulFlags
+);
 
 
-typedef CONFIGRET (__stdcall *PCMGETSIBLING) (
-		PDEVINST pdnDevInst,
-		DEVINST DevInst,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMGETSIBLING)(
+    PDEVINST pdnDevInst,
+    DEVINST DevInst,
+    ULONG ulFlags
+);
 
-typedef CONFIGRET (__stdcall *PCMREQUESTDEVICEEJECT) (
-		DEVINST dnDevInst,
-		PPNP_VETO_TYPE pVetoType,
-		wchar_t *pszVetoName,
-		ULONG ulNameLength,
-		ULONG ulFlags
-		);
+typedef CONFIGRET(__stdcall *PCMREQUESTDEVICEEJECT)(
+    DEVINST dnDevInst,
+    PPNP_VETO_TYPE pVetoType,
+    wchar_t *pszVetoName,
+    ULONG ulNameLength,
+    ULONG ulFlags
+);
 
 typedef BOOL (__stdcall *PGETCONSOLEKEYBOARDLAYOUTNAME)(wchar_t*);
 
 
 typedef BOOL (WINAPI *PCREATESYMBOLICLINK)(
-		const wchar_t *lpSymlinkFileName,
-		const wchar_t *lpTargetFileName,
-		DWORD dwFlags);
+    const wchar_t *lpSymlinkFileName,
+    const wchar_t *lpTargetFileName,
+    DWORD dwFlags);
 
-typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE) (
-		HANDLE hConsoleOutput,
-		DWORD dwFlags,
-		PCOORD lpNewScreenBufferDimensions
-		);
+typedef BOOL (__stdcall *PSETCONSOLEDISPLAYMODE)(
+    HANDLE hConsoleOutput,
+    DWORD dwFlags,
+    PCOORD lpNewScreenBufferDimensions
+);
 
-typedef HRESULT (WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
+typedef HRESULT(WINAPI *PSHCREATEASSOCIATIONREGISTRATION)(REFIID, void **);
 
-typedef HANDLE(WINAPI *FINDFIRSTFILENAMEW) (
-		LPCWSTR lpFileName,
-		DWORD dwFlags,
-		LPDWORD StringLength,
-		LPWSTR LinkName
-		);
+typedef HANDLE(WINAPI *FINDFIRSTFILENAMEW)(
+    LPCWSTR lpFileName,
+    DWORD dwFlags,
+    LPDWORD StringLength,
+    LPWSTR LinkName
+);
 
-typedef BOOL(WINAPI *FINDNEXTFILENAMEW) (
-		HANDLE hFindStream,
-		LPDWORD StringLength,
-		PWCHAR LinkName
+typedef BOOL(WINAPI *FINDNEXTFILENAMEW)(
+    HANDLE hFindStream,
+    LPDWORD StringLength,
+    PWCHAR LinkName
 );
 
 typedef HANDLE(WINAPI *FINDFIRSTSTREAMW)(
-	LPCWSTR lpFileName,
-	STREAM_INFO_LEVELS InfoLevel,
-	LPVOID lpFindStreamData,
-	DWORD dwFlags
-	);
+    LPCWSTR lpFileName,
+    STREAM_INFO_LEVELS InfoLevel,
+    LPVOID lpFindStreamData,
+    DWORD dwFlags
+);
 
 typedef BOOL(WINAPI * FINDNEXTSTREAMW)(
-	HANDLE hFindStream,
-	LPVOID lpFindStreamData
-	);
+    HANDLE hFindStream,
+    LPVOID lpFindStreamData
+);
 
-typedef NTSTATUS (WINAPI *NTQUERYINFORMATIONFILE)(
-	HANDLE FileHandle,
-	PIO_STATUS_BLOCK IoStatusBlock,
-	PVOID FileInformation,
-	ULONG Length,
-	FILE_INFORMATION_CLASS FileInformationClass
-	);
+typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONFILE)(
+    HANDLE FileHandle,
+    PIO_STATUS_BLOCK IoStatusBlock,
+    PVOID FileInformation,
+    ULONG Length,
+    FILE_INFORMATION_CLASS FileInformationClass
+);
 
 typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(
-	HANDLE hFile,
-	LPTSTR lpszFilePath,
-	DWORD cchFilePath,
-	DWORD dwFlags
+    HANDLE hFile,
+    LPTSTR lpszFilePath,
+    DWORD cchFilePath,
+    DWORD dwFlags
 );
 
-typedef NTSTATUS (NTAPI *NTQUERYOBJECT) (
-	HANDLE Handle,
-	OBJECT_INFORMATION_CLASS ObjectInformationClass,
-	PVOID ObjectInformation,
-	ULONG ObjectInformationLength,
-	PULONG ReturnLength
+typedef NTSTATUS(NTAPI *NTQUERYOBJECT)(
+    HANDLE Handle,
+    OBJECT_INFORMATION_CLASS ObjectInformationClass,
+    PVOID ObjectInformation,
+    ULONG ObjectInformationLength,
+    PULONG ReturnLength
 );
 
-typedef NTSTATUS (NTAPI *NTOPENSYMBOLICLINKOBJECT)(
-	PHANDLE LinkHandle,
-	ACCESS_MASK DesiredAccess,
-	POBJECT_ATTRIBUTES ObjectAttributes
+typedef NTSTATUS(NTAPI *NTOPENSYMBOLICLINKOBJECT)(
+    PHANDLE LinkHandle,
+    ACCESS_MASK DesiredAccess,
+    POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-typedef NTSTATUS (NTAPI *NTQUERYSYMBOLICLINKOBJECT)(
-	HANDLE LinkHandle,
-	PUNICODE_STRING LinkTarget,
-	PULONG ReturnedLength
+typedef NTSTATUS(NTAPI *NTQUERYSYMBOLICLINKOBJECT)(
+    HANDLE LinkHandle,
+    PUNICODE_STRING LinkTarget,
+    PULONG ReturnedLength
 );
 
-typedef NTSTATUS (NTAPI *NTCLOSE)(
-	HANDLE Handle
+typedef NTSTATUS(NTAPI *NTCLOSE)(
+    HANDLE Handle
 );
 
 typedef BOOL (WINAPI *GETVOLUMEPATHNAMESFORVOLUMENAME)(
-	LPCTSTR lpszVolumeName,
-	LPTSTR lpszVolumePathNames,
-	DWORD cchBufferLength,
-	PDWORD lpcchReturnLength
+    LPCTSTR lpszVolumeName,
+    LPTSTR lpszVolumePathNames,
+    DWORD cchBufferLength,
+    PDWORD lpcchReturnLength
 );
 
-struct ImportedFunctions {
+struct ImportedFunctions
+{
 
 	//
 	PCMGETDEVNODEREGISTRYPROPERTY pfnGetDevNodeRegistryProperty;

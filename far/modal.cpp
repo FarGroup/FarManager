@@ -43,103 +43,109 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Modal::Modal()
 {
-  ExitCode=-1;
-  WriteKey=-1;
-  EndLoop=0;
-  strHelpTopic.Clear();
+	ExitCode=-1;
+	WriteKey=-1;
+	EndLoop=0;
+	strHelpTopic.Clear();
 }
 
 
 void Modal::Process()
 {
-  Show();
+	Show();
 
-  while (!Done())
-  {
-    ReadInput();
-    ProcessInput();
-  }
-  GetDialogObjectsData();
+	while (!Done())
+	{
+		ReadInput();
+		ProcessInput();
+	}
+
+	GetDialogObjectsData();
 }
 
 
 int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 {
-  if(GetReadRec)
-    memset(GetReadRec,0,sizeof(INPUT_RECORD));
-  if (WriteKey>=0)
-  {
-    ReadKey=WriteKey;
-    WriteKey=-1;
-  }
-  else
-  {
-    ReadKey=GetInputRecord(&ReadRec);
-    if(GetReadRec)
-      memmove(GetReadRec,&ReadRec,sizeof(INPUT_RECORD));
-  }
-  if(ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
-  {
-    LockScreen LckScr;
-    Hide();
-    Show();
-  }
-  if (CloseFARMenu)
+	if (GetReadRec)
+		memset(GetReadRec,0,sizeof(INPUT_RECORD));
+
+	if (WriteKey>=0)
+	{
+		ReadKey=WriteKey;
+		WriteKey=-1;
+	}
+	else
+	{
+		ReadKey=GetInputRecord(&ReadRec);
+
+		if (GetReadRec)
+			memmove(GetReadRec,&ReadRec,sizeof(INPUT_RECORD));
+	}
+
+	if (ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
+	{
+		LockScreen LckScr;
+		Hide();
+		Show();
+	}
+
+	if (CloseFARMenu)
 	{
 		SetExitCode(-1);
 	}
-  return(ReadKey);
+
+	return(ReadKey);
 }
 
 
 void Modal::WriteInput(int Key)
 {
-  WriteKey=Key;
+	WriteKey=Key;
 }
 
 
 void Modal::ProcessInput()
 {
-  if (ReadRec.EventType==MOUSE_EVENT)
-    ProcessMouse(&ReadRec.Event.MouseEvent);
-  else
-    ProcessKey(ReadKey);
+	if (ReadRec.EventType==MOUSE_EVENT)
+		ProcessMouse(&ReadRec.Event.MouseEvent);
+	else
+		ProcessKey(ReadKey);
 }
 
 
 int Modal::Done()
 {
-  return(EndLoop);
+	return(EndLoop);
 }
 
 
 void Modal::ClearDone()
 {
-  EndLoop=0;
+	EndLoop=0;
 }
 
 
 int Modal::GetExitCode()
 {
-  return(ExitCode);
+	return(ExitCode);
 }
 
 
 void Modal::SetExitCode(int Code)
 {
-  ExitCode=Code;
-  EndLoop=TRUE;
+	ExitCode=Code;
+	EndLoop=TRUE;
 }
 
 
 void Modal::SetHelp(const wchar_t *Topic)
 {
-  strHelpTopic = Topic;
+	strHelpTopic = Topic;
 }
 
 
 void Modal::ShowHelp()
 {
-  if ( !strHelpTopic.IsEmpty() )
-    Help Hlp (strHelpTopic);
+	if (!strHelpTopic.IsEmpty())
+		Help Hlp(strHelpTopic);
 }

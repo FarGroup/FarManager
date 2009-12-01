@@ -34,15 +34,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class CachedWrite
 {
-	LPBYTE Buffer;
-	HANDLE hFile;
-	enum {BufferSize=0x10000};
-	size_t FreeSize;
-	bool Flushed;
+		LPBYTE Buffer;
+		HANDLE hFile;
+		enum {BufferSize=0x10000};
+		size_t FreeSize;
+		bool Flushed;
 
-public:
-	CachedWrite(HANDLE hFile);
-	~CachedWrite();
-	bool Write(LPCVOID Data,size_t DataSize);
-	bool Flush();
+	public:
+		CachedWrite(HANDLE hFile);
+		~CachedWrite();
+		bool Write(LPCVOID Data,size_t DataSize);
+		bool Flush();
 };

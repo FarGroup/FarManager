@@ -52,103 +52,114 @@ static int RequestSameKey=FALSE;
 
 void SetRegRootKey(HKEY hRootKey)
 {
-  hRegRootKey=hRootKey;
+	hRegRootKey=hRootKey;
 }
 
 
 void UseSameRegKey()
 {
-  CloseSameRegKey();
-  RequestSameKey=TRUE;
+	CloseSameRegKey();
+	RequestSameKey=TRUE;
 }
 
 
 void CloseSameRegKey()
 {
-  if (hRegCurrentKey!=NULL)
-  {
-    RegCloseKey(hRegCurrentKey);
-    hRegCurrentKey=NULL;
-  }
-  RequestSameKey=FALSE;
+	if (hRegCurrentKey!=NULL)
+	{
+		RegCloseKey(hRegCurrentKey);
+		hRegCurrentKey=NULL;
+	}
+
+	RequestSameKey=FALSE;
 }
 
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData, int SizeData, DWORD Type)
 {
-  HKEY hKey;
-  LONG Ret=ERROR_SUCCESS;
+	HKEY hKey;
+	LONG Ret=ERROR_SUCCESS;
 
-  if((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != NULL)
 		Ret=RegSetValueEx(hKey,ValueName,0,Type,(unsigned char *)ValueData,(int)SizeData);
-  CloseRegKey(hKey);
-  return Ret;
+
+	CloseRegKey(hKey);
+	return Ret;
 }
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const wchar_t * const ValueData)
 {
-  HKEY hKey;
-  LONG Ret=ERROR_SUCCESS;
+	HKEY hKey;
+	LONG Ret=ERROR_SUCCESS;
 
-  if((hKey=CreateRegKey(Key)) != NULL)
+	if ((hKey=CreateRegKey(Key)) != NULL)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,(int)(StrLength(ValueData)+1)*sizeof(wchar_t));
-  CloseRegKey(hKey);
-  return Ret;
+
+	CloseRegKey(hKey);
+	return Ret;
 }
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD ValueData)
 {
-  HKEY hKey;
-  LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKey(Key)) != NULL)
+	HKEY hKey;
+	LONG Ret=ERROR_SUCCESS;
+
+	if ((hKey=CreateRegKey(Key)) != NULL)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
-  CloseRegKey(hKey);
-  return Ret;
+
+	CloseRegKey(hKey);
+	return Ret;
 }
 
 
 LONG SetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 ValueData)
 {
-  HKEY hKey;
-  LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKey(Key)) != NULL)
+	HKEY hKey;
+	LONG Ret=ERROR_SUCCESS;
+
+	if ((hKey=CreateRegKey(Key)) != NULL)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_QWORD,(BYTE *)&ValueData,sizeof(ValueData));
-  CloseRegKey(hKey);
-  return Ret;
+
+	CloseRegKey(hKey);
+	return Ret;
 }
 
 LONG SetRegKey(const wchar_t *Key,const wchar_t *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
-  HKEY hKey;
-  LONG Ret=ERROR_SUCCESS;
-  if((hKey=CreateRegKey(Key)) != NULL)
+	HKEY hKey;
+	LONG Ret=ERROR_SUCCESS;
+
+	if ((hKey=CreateRegKey(Key)) != NULL)
 		Ret=RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
-  CloseRegKey(hKey);
-  return Ret;
+
+	CloseRegKey(hKey);
+	return Ret;
 }
 
 
 
 int GetRegKeySize(const wchar_t *Key,const wchar_t *ValueName)
 {
-  HKEY hKey=OpenRegKey(Key);
-  DWORD QueryDataSize=GetRegKeySize(hKey,ValueName);
-  CloseRegKey(hKey);
-  return QueryDataSize;
+	HKEY hKey=OpenRegKey(Key);
+	DWORD QueryDataSize=GetRegKeySize(hKey,ValueName);
+	CloseRegKey(hKey);
+	return QueryDataSize;
 }
 
 
 int GetRegKeySize(HKEY hKey,const wchar_t *ValueName)
 {
-  if(hKey)
-  {
-    BYTE Buffer;
-    DWORD Type,QueryDataSize=sizeof(Buffer);
+	if (hKey)
+	{
+		BYTE Buffer;
+		DWORD Type,QueryDataSize=sizeof(Buffer);
 		int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)&Buffer,&QueryDataSize);
-    if(ExitCode==ERROR_SUCCESS || ExitCode == ERROR_MORE_DATA)
-      return QueryDataSize;
-  }
-  return 0;
+
+		if (ExitCode==ERROR_SUCCESS || ExitCode == ERROR_MORE_DATA)
+			return QueryDataSize;
+	}
+
+	return 0;
 }
 
 
@@ -159,124 +170,144 @@ int GetRegKeySize(HKEY hKey,const wchar_t *ValueName)
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,string &strValueData,const wchar_t *Default,DWORD *pType)
 {
-  int ExitCode=!ERROR_SUCCESS;
-  HKEY hKey=OpenRegKey(Key);
-  if(hKey) // надобно проверить!
-  {
-    DWORD Type,QueryDataSize=0;
+	int ExitCode=!ERROR_SUCCESS;
+	HKEY hKey=OpenRegKey(Key);
 
-		if ( (ExitCode = RegQueryValueEx(
-            hKey,
-            ValueName,
-            0,
-            &Type,
-            NULL,
-            &QueryDataSize
-            )) == ERROR_SUCCESS )
-    {
-      wchar_t *TempBuffer = strValueData.GetBuffer (QueryDataSize/sizeof(wchar_t)+1); // ...то выделим сколько надо
+	if (hKey) // надобно проверить!
+	{
+		DWORD Type,QueryDataSize=0;
+
+		if ((ExitCode = RegQueryValueEx(
+		                    hKey,
+		                    ValueName,
+		                    0,
+		                    &Type,
+		                    NULL,
+		                    &QueryDataSize
+		                )) == ERROR_SUCCESS)
+		{
+			wchar_t *TempBuffer = strValueData.GetBuffer(QueryDataSize/sizeof(wchar_t)+1);  // ...то выделим сколько надо
 			ExitCode = RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize);
-      strValueData.ReleaseBuffer(QueryDataSize/sizeof(wchar_t));
+			strValueData.ReleaseBuffer(QueryDataSize/sizeof(wchar_t));
 
-      if (strValueData.GetLength() > 0 && strValueData.At(strValueData.GetLength()-1) == 0)
-        strValueData.SetLength(strValueData.GetLength()-1);
-    }
-    if(pType)
-      *pType=Type;
-    CloseRegKey(hKey);
-  }
-  if (ExitCode!=ERROR_SUCCESS)
-  {
-    strValueData = Default;
-    return(FALSE);
-  }
-  return(TRUE);
+			if (strValueData.GetLength() > 0 && strValueData.At(strValueData.GetLength()-1) == 0)
+				strValueData.SetLength(strValueData.GetLength()-1);
+		}
+
+		if (pType)
+			*pType=Type;
+
+		CloseRegKey(hKey);
+	}
+
+	if (ExitCode!=ERROR_SUCCESS)
+	{
+		strValueData = Default;
+		return(FALSE);
+	}
+
+	return(TRUE);
 }
 
 /* SVS $ */
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,int &ValueData,DWORD Default)
 {
-  int ExitCode=!ERROR_SUCCESS;
-  HKEY hKey=OpenRegKey(Key);
-  if(hKey)
-  {
-    DWORD Type,Size=sizeof(ValueData);
+	int ExitCode=!ERROR_SUCCESS;
+	HKEY hKey=OpenRegKey(Key);
+
+	if (hKey)
+	{
+		DWORD Type,Size=sizeof(ValueData);
 		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
-    CloseRegKey(hKey);
-  }
-  if (ExitCode!=ERROR_SUCCESS)
-  {
-    ValueData=Default;
-    return(FALSE);
-  }
-  return(TRUE);
+		CloseRegKey(hKey);
+	}
+
+	if (ExitCode!=ERROR_SUCCESS)
+	{
+		ValueData=Default;
+		return(FALSE);
+	}
+
+	return(TRUE);
 }
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,DWORD Default)
 {
-  int ValueData;
-  GetRegKey(Key,ValueName,ValueData,Default);
-  return(ValueData);
+	int ValueData;
+	GetRegKey(Key,ValueName,ValueData,Default);
+	return(ValueData);
 }
 
 int GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,__int64 &ValueData,unsigned __int64 Default)
 {
-  int ExitCode=!ERROR_SUCCESS;
-  HKEY hKey=OpenRegKey(Key);
-  if(hKey)
-  {
-    DWORD Type,Size=sizeof(ValueData);
+	int ExitCode=!ERROR_SUCCESS;
+	HKEY hKey=OpenRegKey(Key);
+
+	if (hKey)
+	{
+		DWORD Type,Size=sizeof(ValueData);
 		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
-    CloseRegKey(hKey);
-  }
-  if (ExitCode!=ERROR_SUCCESS)
-  {
-    ValueData=Default;
-    return(FALSE);
-  }
-  return(TRUE);
+		CloseRegKey(hKey);
+	}
+
+	if (ExitCode!=ERROR_SUCCESS)
+	{
+		ValueData=Default;
+		return(FALSE);
+	}
+
+	return(TRUE);
 }
 
 __int64 GetRegKey64(const wchar_t *Key,const wchar_t *ValueName,unsigned __int64 Default)
 {
-  __int64 ValueData;
-  GetRegKey64(Key,ValueName,ValueData,Default);
-  return(ValueData);
+	__int64 ValueData;
+	GetRegKey64(Key,ValueName,ValueData,Default);
+	return(ValueData);
 }
 
 int GetRegKey(const wchar_t *Key,const wchar_t *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize,DWORD *pType)
 {
-  int ExitCode=!ERROR_SUCCESS;
-  HKEY hKey=OpenRegKey(Key);
-  DWORD Required=DataSize;
-  if(hKey)
-  {
-    DWORD Type;
+	int ExitCode=!ERROR_SUCCESS;
+	HKEY hKey=OpenRegKey(Key);
+	DWORD Required=DataSize;
+
+	if (hKey)
+	{
+		DWORD Type;
 		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&Required);
-    if(ExitCode == ERROR_MORE_DATA) // если размер не подход€щие...
-    {
-      char *TempBuffer=new char[Required+1]; // ...то выделим сколько надо
-      if(TempBuffer) // ≈сли с пам€тью все нормально...
-      {
-				if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&Required)) == ERROR_SUCCESS)
-          memcpy(ValueData,TempBuffer,DataSize);  // скопируем сколько надо.
-        delete[] TempBuffer;
-      }
-    }
-    if(pType)
-      *pType=Type;
-    CloseRegKey(hKey);
-  }
-  if (ExitCode!=ERROR_SUCCESS)
-  {
-    if (Default!=NULL)
-      memcpy(ValueData,Default,DataSize);
-    else
-      memset(ValueData,0,DataSize);
-    return(0);
-  }
-  return(Required);
+
+		if (ExitCode == ERROR_MORE_DATA) // если размер не подход€щие...
+		{
+			char *TempBuffer=new char[Required+1]; // ...то выделим сколько надо
+
+			if (TempBuffer) // ≈сли с пам€тью все нормально...
+			{
+				if ((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&Required)) == ERROR_SUCCESS)
+					memcpy(ValueData,TempBuffer,DataSize);  // скопируем сколько надо.
+
+				delete[] TempBuffer;
+			}
+		}
+
+		if (pType)
+			*pType=Type;
+
+		CloseRegKey(hKey);
+	}
+
+	if (ExitCode!=ERROR_SUCCESS)
+	{
+		if (Default!=NULL)
+			memcpy(ValueData,Default,DataSize);
+		else
+			memset(ValueData,0,DataSize);
+
+		return(0);
+	}
+
+	return(Required);
 }
 
 static string &MkKeyName(const wchar_t *Key, string &strDest)
@@ -284,281 +315,311 @@ static string &MkKeyName(const wchar_t *Key, string &strDest)
 	int len = (int)Opt.strRegRoot.GetLength();
 	int len2 = StrLength(Key);
 	wchar_t *p = strDest.GetBuffer(len + len2 + 2);
+	wcscpy(p, Opt.strRegRoot);
+	p+=len;
 
-  wcscpy(p, Opt.strRegRoot);
-  p+=len;
+	if (*Key)
+	{
+		if (len)
+		{
+			*(p++) = L'\\';
+			*p = 0;
+			len++;
+		}
 
-  if (*Key)
-  {
-    if (len)
-    {
-      *(p++) = L'\\';
-      *p = 0;
-      len++;
-    }
-    wcscpy(p, Key);
-    len+=len2;
-  }
+		wcscpy(p, Key);
+		len+=len2;
+	}
 
-  strDest.ReleaseBuffer(len);
-
-  return strDest;
+	strDest.ReleaseBuffer(len);
+	return strDest;
 }
 
 
 HKEY CreateRegKey(const wchar_t *Key)
 {
-  if (hRegCurrentKey)
-    return(hRegCurrentKey);
-  HKEY hKey;
-  DWORD Disposition;
+	if (hRegCurrentKey)
+		return(hRegCurrentKey);
 
-  static string strFullKeyName;
-  MkKeyName(Key,strFullKeyName);
-	if(RegCreateKeyEx(hRegRootKey,strFullKeyName,0,NULL,0,KEY_WRITE,NULL,
-                 &hKey,&Disposition) != ERROR_SUCCESS)
-    hKey=NULL;
-  if (RequestSameKey)
-  {
-    RequestSameKey=FALSE;
-    hRegCurrentKey=hKey;
-  }
-  return(hKey);
+	HKEY hKey;
+	DWORD Disposition;
+	static string strFullKeyName;
+	MkKeyName(Key,strFullKeyName);
+
+	if (RegCreateKeyEx(hRegRootKey,strFullKeyName,0,NULL,0,KEY_WRITE,NULL,
+	                   &hKey,&Disposition) != ERROR_SUCCESS)
+		hKey=NULL;
+
+	if (RequestSameKey)
+	{
+		RequestSameKey=FALSE;
+		hRegCurrentKey=hKey;
+	}
+
+	return(hKey);
 }
 
 
 HKEY OpenRegKey(const wchar_t *Key)
 {
-  if (hRegCurrentKey)
-    return(hRegCurrentKey);
-  HKEY hKey;
-  static string strFullKeyName;
-  MkKeyName(Key,strFullKeyName);
+	if (hRegCurrentKey)
+		return(hRegCurrentKey);
+
+	HKEY hKey;
+	static string strFullKeyName;
+	MkKeyName(Key,strFullKeyName);
+
 	if (RegOpenKeyEx(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS,&hKey)!=ERROR_SUCCESS)
-  {
-    CloseSameRegKey();
-    return(NULL);
-  }
-  if (RequestSameKey)
-  {
-    RequestSameKey=FALSE;
-    hRegCurrentKey=hKey;
-  }
-  return(hKey);
+	{
+		CloseSameRegKey();
+		return(NULL);
+	}
+
+	if (RequestSameKey)
+	{
+		RequestSameKey=FALSE;
+		hRegCurrentKey=hKey;
+	}
+
+	return(hKey);
 }
 
 
 void DeleteRegKey(const wchar_t *Key)
 {
-  string strFullKeyName;
-  MkKeyName(Key,strFullKeyName);
+	string strFullKeyName;
+	MkKeyName(Key,strFullKeyName);
 	RegDeleteKey(hRegRootKey,strFullKeyName);
 }
 
 
 void DeleteRegValue(const wchar_t *Key,const wchar_t *Value)
 {
-  HKEY hKey;
-  string strFullKeyName;
-  MkKeyName(Key,strFullKeyName);
+	HKEY hKey;
+	string strFullKeyName;
+	MkKeyName(Key,strFullKeyName);
+
 	if (RegOpenKeyEx(hRegRootKey,strFullKeyName,0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
-  {
+	{
 		RegDeleteValue(hKey,Value);
-    CloseRegKey(hKey);
-  }
+		CloseRegKey(hKey);
+	}
 }
 
 void DeleteKeyRecord(const wchar_t *KeyMask,int Position)
 {
-  string strFullKeyName, strNextFullKeyName;
-  string strMaskKeyName;
+	string strFullKeyName, strNextFullKeyName;
+	string strMaskKeyName;
+	MkKeyName(KeyMask, strMaskKeyName);
 
-  MkKeyName(KeyMask, strMaskKeyName);
+	for (;;)
+	{
+		strFullKeyName.Format((const wchar_t*)strMaskKeyName,Position++);
+		strNextFullKeyName.Format((const wchar_t*)strMaskKeyName,Position);
 
-	for(;;)
-  {
-    strFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position++);
-    strNextFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position);
-    if (!CopyKeyTree(strNextFullKeyName,strFullKeyName))
-    {
-      DeleteFullKeyTree(strFullKeyName);
-      break;
-    }
-  }
+		if (!CopyKeyTree(strNextFullKeyName,strFullKeyName))
+		{
+			DeleteFullKeyTree(strFullKeyName);
+			break;
+		}
+	}
 }
 
 void InsertKeyRecord(const wchar_t *KeyMask,int Position,int TotalKeys)
 {
-  string strFullKeyName, strPrevFullKeyName;
-  string strMaskKeyName;
+	string strFullKeyName, strPrevFullKeyName;
+	string strMaskKeyName;
+	MkKeyName(KeyMask,strMaskKeyName);
 
-  MkKeyName(KeyMask,strMaskKeyName);
-  for (int CurPos=TotalKeys;CurPos>Position;CurPos--)
-  {
-    strFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos);
-    strPrevFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos-1);
-    if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
-      break;
-  }
-  strFullKeyName.Format ((const wchar_t*)strMaskKeyName,Position);
-  DeleteFullKeyTree(strFullKeyName);
+	for (int CurPos=TotalKeys; CurPos>Position; CurPos--)
+	{
+		strFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos);
+		strPrevFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos-1);
+
+		if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
+			break;
+	}
+
+	strFullKeyName.Format((const wchar_t*)strMaskKeyName,Position);
+	DeleteFullKeyTree(strFullKeyName);
 }
 
 
 class KeyRecordItem
 {
-  public:
-   int ItemIdx;
-   KeyRecordItem() { ItemIdx=0; }
-   bool operator==(const KeyRecordItem &rhs) const{
-     return ItemIdx == rhs.ItemIdx;
-   };
-   int operator<(const KeyRecordItem &rhs) const{
-     return ItemIdx < rhs.ItemIdx;
-   };
-   const KeyRecordItem& operator=(const KeyRecordItem &rhs)
-   {
-     ItemIdx = rhs.ItemIdx;
-     return *this;
-   };
+	public:
+		int ItemIdx;
+		KeyRecordItem() { ItemIdx=0; }
+		bool operator==(const KeyRecordItem &rhs) const
+		{
+			return ItemIdx == rhs.ItemIdx;
+		};
+		int operator<(const KeyRecordItem &rhs) const
+		{
+			return ItemIdx < rhs.ItemIdx;
+		};
+		const KeyRecordItem& operator=(const KeyRecordItem &rhs)
+		{
+			ItemIdx = rhs.ItemIdx;
+			return *this;
+		};
 
-   ~KeyRecordItem()
-   {
-   }
+		~KeyRecordItem()
+		{
+		}
 };
 
 void RenumKeyRecord(const wchar_t *KeyRoot,const wchar_t *KeyMask,const wchar_t *KeyMask0)
 {
-  TArray<KeyRecordItem> KAItems;
-  KeyRecordItem KItem;
-  string strRegKey;
-  string strFullKeyName, strPrevFullKeyName;
-  string strMaskKeyName;
-  BOOL Processed=FALSE;
+	TArray<KeyRecordItem> KAItems;
+	KeyRecordItem KItem;
+	string strRegKey;
+	string strFullKeyName, strPrevFullKeyName;
+	string strMaskKeyName;
+	BOOL Processed=FALSE;
 
-  // сбор данных
-  for (int CurPos=0;;CurPos++)
-  {
-    if(!EnumRegKey(KeyRoot,CurPos,strRegKey))
-      break;
-    KItem.ItemIdx=_wtoi((const wchar_t*)strRegKey+StrLength(KeyMask0));
-    if(KItem.ItemIdx != CurPos)
-      Processed=TRUE;
-    KAItems.addItem(KItem);
-  }
+	// сбор данных
+	for (int CurPos=0;; CurPos++)
+	{
+		if (!EnumRegKey(KeyRoot,CurPos,strRegKey))
+			break;
 
-  if(Processed)
-  {
-    KAItems.Sort();
+		KItem.ItemIdx=_wtoi((const wchar_t*)strRegKey+StrLength(KeyMask0));
 
-    MkKeyName(KeyMask,strMaskKeyName);
-    for(int CurPos=0;;++CurPos)
-    {
-      KeyRecordItem *Item=KAItems.getItem(CurPos);
-      if(!Item)
-        break;
+		if (KItem.ItemIdx != CurPos)
+			Processed=TRUE;
 
-      // провер€м существование CurPos
-      strFullKeyName.Format (KeyMask,CurPos);
-      if(!CheckRegKey(strFullKeyName))
-      {
-        strFullKeyName.Format ((const wchar_t*)strMaskKeyName,CurPos);
-        strPrevFullKeyName.Format ((const wchar_t*)strMaskKeyName,Item->ItemIdx);
-        if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
-          break;
-        DeleteFullKeyTree(strPrevFullKeyName);
-      }
-    }
-  }
+		KAItems.addItem(KItem);
+	}
+
+	if (Processed)
+	{
+		KAItems.Sort();
+		MkKeyName(KeyMask,strMaskKeyName);
+
+		for (int CurPos=0;; ++CurPos)
+		{
+			KeyRecordItem *Item=KAItems.getItem(CurPos);
+
+			if (!Item)
+				break;
+
+			// провер€м существование CurPos
+			strFullKeyName.Format(KeyMask,CurPos);
+
+			if (!CheckRegKey(strFullKeyName))
+			{
+				strFullKeyName.Format((const wchar_t*)strMaskKeyName,CurPos);
+				strPrevFullKeyName.Format((const wchar_t*)strMaskKeyName,Item->ItemIdx);
+
+				if (!CopyKeyTree(strPrevFullKeyName,strFullKeyName))
+					break;
+
+				DeleteFullKeyTree(strPrevFullKeyName);
+			}
+		}
+	}
 }
 
 
 int CopyKeyTree(const wchar_t *Src,const wchar_t *Dest,const wchar_t *Skip)
 {
-  HKEY hSrcKey,hDestKey;
+	HKEY hSrcKey,hDestKey;
+
 	if (RegOpenKeyEx(hRegRootKey,Src,0,KEY_READ,&hSrcKey)!=ERROR_SUCCESS)
-    return(FALSE);
-  DeleteFullKeyTree(Dest);
-  DWORD Disposition;
+		return(FALSE);
+
+	DeleteFullKeyTree(Dest);
+	DWORD Disposition;
+
 	if (RegCreateKeyEx(hRegRootKey,Dest,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
-  {
-    CloseRegKey(hSrcKey);
-    return(FALSE);
-  }
+	{
+		CloseRegKey(hSrcKey);
+		return(FALSE);
+	}
 
-  int I;
-  wchar_t ValueDataStatic[1000];
-  DWORD AllocDataSize=sizeof(ValueDataStatic);
-  bool allocData=false;
-  wchar_t *ValueData=ValueDataStatic;
+	int I;
+	wchar_t ValueDataStatic[1000];
+	DWORD AllocDataSize=sizeof(ValueDataStatic);
+	bool allocData=false;
+	wchar_t *ValueData=ValueDataStatic;
 
-  for (I=0;;I++)
-  {
-    wchar_t ValueName[200];
-    DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
+	for (I=0;; I++)
+	{
+		wchar_t ValueName[200];
+		DWORD Type,NameSize=countof(ValueName),DataSize=AllocDataSize;
 		int ExitCode=RegEnumValue(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
-    if (ExitCode != ERROR_SUCCESS)
-    {
-      if(ExitCode != ERROR_MORE_DATA)
-        break;
 
-      if(DataSize > AllocDataSize)
-      {
-        AllocDataSize=DataSize;
-        wchar_t *NewValueData=(wchar_t *)xf_malloc(AllocDataSize);
+		if (ExitCode != ERROR_SUCCESS)
+		{
+			if (ExitCode != ERROR_MORE_DATA)
+				break;
 
-        if(!NewValueData)
-          break;
+			if (DataSize > AllocDataSize)
+			{
+				AllocDataSize=DataSize;
+				wchar_t *NewValueData=(wchar_t *)xf_malloc(AllocDataSize);
 
-        allocData=true;
-        ValueData=NewValueData;
-      }
+				if (!NewValueData)
+					break;
+
+				allocData=true;
+				ValueData=NewValueData;
+			}
 
 			ExitCode=RegEnumValue(hSrcKey,I,ValueName,&NameSize,NULL,&Type,(BYTE *)ValueData,&DataSize);
-      if (ExitCode != ERROR_SUCCESS)
-        break;
-    }
+
+			if (ExitCode != ERROR_SUCCESS)
+				break;
+		}
+
 		RegSetValueEx(hDestKey,ValueName,0,Type,(BYTE *)ValueData,DataSize);
-  }
+	}
 
-  if(allocData && ValueData)
-    xf_free(ValueData);
+	if (allocData && ValueData)
+		xf_free(ValueData);
 
-  CloseRegKey(hDestKey);
+	CloseRegKey(hDestKey);
 
-  for (I=0;;I++)
-  {
-    string strSubkeyName, strSrcKeyName, strDestKeyName;
+	for (I=0;; I++)
+	{
+		string strSubkeyName, strSrcKeyName, strDestKeyName;
 
-    if (apiRegEnumKeyEx(hSrcKey,I,strSubkeyName)!=ERROR_SUCCESS)
-      break;
+		if (apiRegEnumKeyEx(hSrcKey,I,strSubkeyName)!=ERROR_SUCCESS)
+			break;
 
-    strSrcKeyName  = Src;
-    strSrcKeyName += L"\\";
-    strSrcKeyName += strSubkeyName;
-    if (Skip!=NULL)
-    {
-      bool Found=false;
-      const wchar_t *SkipName=Skip;
-      while (!Found && *SkipName)
-        if (StrCmpI(strSrcKeyName,SkipName)==0)
-          Found=true;
-        else
-          SkipName+=StrLength(SkipName)+1;
-      if (Found)
-        continue;
-    }
+		strSrcKeyName  = Src;
+		strSrcKeyName += L"\\";
+		strSrcKeyName += strSubkeyName;
 
-    strDestKeyName = Dest;
-    strDestKeyName += L"\\";
-    strDestKeyName += strSubkeyName;
+		if (Skip!=NULL)
+		{
+			bool Found=false;
+			const wchar_t *SkipName=Skip;
+
+			while (!Found && *SkipName)
+				if (StrCmpI(strSrcKeyName,SkipName)==0)
+					Found=true;
+				else
+					SkipName+=StrLength(SkipName)+1;
+
+			if (Found)
+				continue;
+		}
+
+		strDestKeyName = Dest;
+		strDestKeyName += L"\\";
+		strDestKeyName += strSubkeyName;
+
 		if (RegCreateKeyEx(hRegRootKey,strDestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
-      break;
-    CloseRegKey(hDestKey);
-    CopyKeyTree(strSrcKeyName,strDestKeyName);
-  }
-  CloseRegKey(hSrcKey);
-  return(TRUE);
+			break;
+
+		CloseRegKey(hDestKey);
+		CopyKeyTree(strSrcKeyName,strDestKeyName);
+	}
+
+	CloseRegKey(hSrcKey);
+	return(TRUE);
 }
 
 int CopyLocalKeyTree(const wchar_t *Src,const wchar_t *Dst)
@@ -571,39 +632,45 @@ int CopyLocalKeyTree(const wchar_t *Src,const wchar_t *Dst)
 
 void DeleteKeyTree(const wchar_t *KeyName)
 {
-  string strFullKeyName;
-  MkKeyName(KeyName,strFullKeyName);
-  DeleteFullKeyTree(strFullKeyName);
+	string strFullKeyName;
+	MkKeyName(KeyName,strFullKeyName);
+	DeleteFullKeyTree(strFullKeyName);
 }
 
 void DeleteFullKeyTree(const wchar_t *KeyName)
 {
-  do
-  {
-    DeleteCount=0;
-    DeleteKeyTreePart(KeyName);
-  } while (DeleteCount!=0);
+	do
+	{
+		DeleteCount=0;
+		DeleteKeyTreePart(KeyName);
+	}
+	while (DeleteCount!=0);
 }
 
 void DeleteKeyTreePart(const wchar_t *KeyName)
 {
-  HKEY hKey;
-	if (RegOpenKeyEx(hRegRootKey,KeyName,0,KEY_READ,&hKey)!=ERROR_SUCCESS)
-    return;
-  for (int I=0;;I++)
-  {
-    string strSubkeyName,strFullKeyName;
-    if (apiRegEnumKeyEx(hKey,I,strSubkeyName)!=ERROR_SUCCESS)
-      break;
+	HKEY hKey;
 
-    strFullKeyName = KeyName;
-    strFullKeyName += L"\\";
-    strFullKeyName += strSubkeyName;
-    DeleteKeyTreePart(strFullKeyName);
-  }
-  CloseRegKey(hKey);
+	if (RegOpenKeyEx(hRegRootKey,KeyName,0,KEY_READ,&hKey)!=ERROR_SUCCESS)
+		return;
+
+	for (int I=0;; I++)
+	{
+		string strSubkeyName,strFullKeyName;
+
+		if (apiRegEnumKeyEx(hKey,I,strSubkeyName)!=ERROR_SUCCESS)
+			break;
+
+		strFullKeyName = KeyName;
+		strFullKeyName += L"\\";
+		strFullKeyName += strSubkeyName;
+		DeleteKeyTreePart(strFullKeyName);
+	}
+
+	CloseRegKey(hKey);
+
 	if (RegDeleteKey(hRegRootKey,KeyName)==ERROR_SUCCESS)
-    DeleteCount++;
+		DeleteCount++;
 }
 
 
@@ -614,59 +681,64 @@ void DeleteKeyTreePart(const wchar_t *KeyName)
 
 int DeleteEmptyKey(HKEY hRoot, const wchar_t *FullKeyName)
 {
-  HKEY hKey;
+	HKEY hKey;
 	int Exist=RegOpenKeyEx(hRoot,FullKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
-  if(Exist)
-  {
-     int RetCode=FALSE;
-     if(hKey)
-     {
-        string strSubName;
 
-        LONG ExitCode=apiRegEnumKeyEx(hKey,0,strSubName);
+	if (Exist)
+	{
+		int RetCode=FALSE;
 
-        if(ExitCode!=ERROR_SUCCESS)
-        {
-          wchar_t SubName[1];	// no matter
-          DWORD SubSize=countof(SubName);
-					ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
-        }
-        CloseRegKey(hKey);
+		if (hKey)
+		{
+			string strSubName;
+			LONG ExitCode=apiRegEnumKeyEx(hKey,0,strSubName);
 
-        if(ExitCode!=ERROR_SUCCESS)
-          {
-            string strKeyName = FullKeyName;
-            wchar_t *pKeyName = strKeyName.GetBuffer ();
-            wchar_t *pSubKey = pKeyName;
+			if (ExitCode!=ERROR_SUCCESS)
+			{
+				wchar_t SubName[1];	// no matter
+				DWORD SubSize=countof(SubName);
+				ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+			}
 
-            if(NULL!=(pSubKey=wcsrchr(pSubKey,L'\\')))
-              {
-                 *pSubKey=0;
-                 pSubKey++;
-									Exist=RegOpenKeyEx(hRoot,pKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
-                 if(Exist && hKey)
-                 {
-										RetCode=RegDeleteKey(hKey, pSubKey)==ERROR_SUCCESS;
-                   CloseRegKey(hKey);
-                 }
-              }
+			CloseRegKey(hKey);
 
-            //strKeyName.ReleaseBuffer (); не надо, строка все ровно удал€етс€
-          }
-     }
-     return RetCode;
-  }
-  return TRUE;
+			if (ExitCode!=ERROR_SUCCESS)
+			{
+				string strKeyName = FullKeyName;
+				wchar_t *pKeyName = strKeyName.GetBuffer();
+				wchar_t *pSubKey = pKeyName;
+
+				if (NULL!=(pSubKey=wcsrchr(pSubKey,L'\\')))
+				{
+					*pSubKey=0;
+					pSubKey++;
+					Exist=RegOpenKeyEx(hRoot,pKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
+
+					if (Exist && hKey)
+					{
+						RetCode=RegDeleteKey(hKey, pSubKey)==ERROR_SUCCESS;
+						CloseRegKey(hKey);
+					}
+				}
+
+				//strKeyName.ReleaseBuffer (); не надо, строка все ровно удал€етс€
+			}
+		}
+
+		return RetCode;
+	}
+
+	return TRUE;
 }
 
 int CheckRegKey(const wchar_t *Key)
 {
-  HKEY hKey;
-  string strFullKeyName;
-  MkKeyName(Key,strFullKeyName);
+	HKEY hKey;
+	string strFullKeyName;
+	MkKeyName(Key,strFullKeyName);
 	int Exist=RegOpenKeyEx(hRegRootKey,strFullKeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS;
-  CloseRegKey(hKey);
-  return(Exist);
+	CloseRegKey(hKey);
+	return(Exist);
 }
 
 /* 15.09.2000 IS
@@ -675,51 +747,59 @@ int CheckRegKey(const wchar_t *Key)
 */
 int CheckRegValue(const wchar_t *Key,const wchar_t *ValueName)
 {
-  int ExitCode=!ERROR_SUCCESS;
-  DWORD DataSize=0;
-  HKEY hKey=OpenRegKey(Key);
-  if(hKey)
-  {
-    DWORD Type;
+	int ExitCode=!ERROR_SUCCESS;
+	DWORD DataSize=0;
+	HKEY hKey=OpenRegKey(Key);
+
+	if (hKey)
+	{
+		DWORD Type;
 		ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,NULL,&DataSize);
-    CloseRegKey(hKey);
-  }
-  if (ExitCode!=ERROR_SUCCESS || !DataSize)
-    return(FALSE);
-  return(TRUE);
+		CloseRegKey(hKey);
+	}
+
+	if (ExitCode!=ERROR_SUCCESS || !DataSize)
+		return(FALSE);
+
+	return(TRUE);
 }
 
 int EnumRegKey(const wchar_t *Key,DWORD Index,string &strDestName)
 {
-  HKEY hKey=OpenRegKey(Key);
-  if(hKey)
-  {
+	HKEY hKey=OpenRegKey(Key);
+
+	if (hKey)
+	{
 		int ExitCode=apiRegEnumKeyEx(hKey,Index,strDestName);
-    CloseRegKey(hKey);
-    if (ExitCode==ERROR_SUCCESS)
-    {
-      string strTempName = Key;
-      if ( !strTempName.IsEmpty() )
-        AddEndSlash(strTempName);
+		CloseRegKey(hKey);
 
-      strTempName += strDestName;
+		if (ExitCode==ERROR_SUCCESS)
+		{
+			string strTempName = Key;
 
-      strDestName = strTempName; //???
-      return(TRUE);
-    }
-  }
-  return(FALSE);
+			if (!strTempName.IsEmpty())
+				AddEndSlash(strTempName);
+
+			strTempName += strDestName;
+			strDestName = strTempName; //???
+			return(TRUE);
+		}
+	}
+
+	return(FALSE);
 }
 
 int EnumRegValue(const wchar_t *Key,DWORD Index, string &strDestName,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
 {
 	string strSData;
 	int ExitCode=EnumRegValueEx(Key,Index,strDestName,strSData,IData,IData64);
-	if(ExitCode != REG_NONE)
+
+	if (ExitCode != REG_NONE)
 	{
 		// ??? need check ExitCode ???
 		memcpy(SData,(const wchar_t*)strSData,Min(SDataSize,(DWORD)(strSData.GetLength()*sizeof(wchar_t))));
 	}
+
 	return ExitCode;
 }
 
@@ -736,7 +816,7 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 		LONG ExitCode=ERROR_MORE_DATA;
 
 		// get size value name
-		for(;ExitCode==ERROR_MORE_DATA;ValNameSize<<=1)
+		for (; ExitCode==ERROR_MORE_DATA; ValNameSize<<=1)
 		{
 			wchar_t *Name=strValueName.GetBuffer(ValNameSize);
 			ValNameSize0=ValNameSize;
@@ -744,10 +824,9 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 			strValueName.ReleaseBuffer();
 		}
 
-		if(ExitCode != ERROR_NO_MORE_ITEMS)
+		if (ExitCode != ERROR_NO_MORE_ITEMS)
 		{
 			DWORD Size = 0, Size0;
-
 			ValNameSize0=ValNameSize;
 			// Get DataSize
 			/*ExitCode = */RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0, NULL, &Type, NULL, &Size);
@@ -756,22 +835,22 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 			// корректировка размера
 			if (Type == REG_DWORD)
 			{
-				if(Size < sizeof(DWORD))
+				if (Size < sizeof(DWORD))
 					Size = sizeof(DWORD);
 			}
 			else if (Type == REG_QWORD)
 			{
-				if(Size < sizeof(__int64))
+				if (Size < sizeof(__int64))
 					Size = sizeof(__int64);
 			}
 
-			wchar_t *Data = strSData.GetBuffer (Size/sizeof (wchar_t)+1);
-			wmemset(Data,0,Size/sizeof (wchar_t)+1);
+			wchar_t *Data = strSData.GetBuffer(Size/sizeof(wchar_t)+1);
+			wmemset(Data,0,Size/sizeof(wchar_t)+1);
 			ValNameSize0=ValNameSize;
 			Size0=Size;
 			ExitCode=RegEnumValue(hKey,Index,(LPWSTR)(const wchar_t*)strValueName,&ValNameSize0,NULL,&Type,(LPBYTE)Data,&Size0);
 
-			if(ExitCode == ERROR_SUCCESS)
+			if (ExitCode == ERROR_SUCCESS)
 			{
 				if (Type == REG_DWORD)
 				{
@@ -787,7 +866,8 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 				RetCode=Type;
 				strDestName = strValueName;
 			}
-			strSData.ReleaseBuffer (Size/sizeof (wchar_t));
+
+			strSData.ReleaseBuffer(Size/sizeof(wchar_t));
 		}
 
 		CloseRegKey(hKey);
@@ -802,88 +882,87 @@ int EnumRegValueEx(const wchar_t *Key,DWORD Index, string &strDestName, string &
 
 LONG CloseRegKey(HKEY hKey)
 {
-  if (hRegCurrentKey || !hKey)
-    return ERROR_SUCCESS;
-  return(RegCloseKey(hKey));
+	if (hRegCurrentKey || !hKey)
+		return ERROR_SUCCESS;
+
+	return(RegCloseKey(hKey));
 }
 
 
-int RegQueryStringValueEx (
-        HKEY hKey,
-        const wchar_t *lpwszValueName,
-        string &strData,
-        const wchar_t *lpwszDefault
-        )
+int RegQueryStringValueEx(
+    HKEY hKey,
+    const wchar_t *lpwszValueName,
+    string &strData,
+    const wchar_t *lpwszDefault
+)
 {
 	DWORD cbSize = 0;
-
 	int nResult = RegQueryValueEx(
-					hKey,
-					lpwszValueName,
-					NULL,
-					NULL,
-					NULL,
-					&cbSize
-					);
+	                  hKey,
+	                  lpwszValueName,
+	                  NULL,
+	                  NULL,
+	                  NULL,
+	                  &cbSize
+	              );
 
-	if ( nResult == ERROR_SUCCESS )
+	if (nResult == ERROR_SUCCESS)
 	{
-		wchar_t *lpwszData = strData.GetBuffer (cbSize/sizeof(wchar_t)+1);
-
+		wchar_t *lpwszData = strData.GetBuffer(cbSize/sizeof(wchar_t)+1);
 		nResult = RegQueryValueEx(
-				hKey,
-				lpwszValueName,
-				NULL,
-				NULL,
-				(LPBYTE)lpwszData,
-				&cbSize
-				);
-
+		              hKey,
+		              lpwszValueName,
+		              NULL,
+		              NULL,
+		              (LPBYTE)lpwszData,
+		              &cbSize
+		          );
 		lpwszData[cbSize/sizeof(wchar_t)] = 0;
 		strData.ReleaseBuffer();
 	}
 
-	if ( nResult != ERROR_SUCCESS )
+	if (nResult != ERROR_SUCCESS)
 		strData = lpwszDefault;
 
 	return nResult;
 }
 
-int RegQueryStringValue (
-        HKEY hKey,
-        const wchar_t *lpwszSubKey,
-        string &strData,
-        const wchar_t *lpwszDefault
-        )
+int RegQueryStringValue(
+    HKEY hKey,
+    const wchar_t *lpwszSubKey,
+    string &strData,
+    const wchar_t *lpwszDefault
+)
 {
 	DWORD cbSize = 0;
-
 	int nResult = RegQueryValueEx(
-					hKey,
-					lpwszSubKey,
-					NULL,
-					NULL,
-					NULL,
-					&cbSize
-					);
+	                  hKey,
+	                  lpwszSubKey,
+	                  NULL,
+	                  NULL,
+	                  NULL,
+	                  &cbSize
+	              );
 
-	if ( nResult == ERROR_SUCCESS )
+	if (nResult == ERROR_SUCCESS)
 	{
-		wchar_t *lpwszData = strData.GetBuffer (cbSize/sizeof(wchar_t)+1);
+		wchar_t *lpwszData = strData.GetBuffer(cbSize/sizeof(wchar_t)+1);
 		DWORD Type=REG_SZ;
 		nResult = RegQueryValueEx(
-				hKey,
-				lpwszSubKey,
-				NULL,
-				&Type,
-				(LPBYTE)lpwszData,
-				&cbSize
-				);
+		              hKey,
+		              lpwszSubKey,
+		              NULL,
+		              &Type,
+		              (LPBYTE)lpwszData,
+		              &cbSize
+		          );
 		int Size=cbSize/sizeof(wchar_t);
+
 		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
 		{
 			if (!lpwszData[Size-1])
 				Size--;
+
 			strData.ReleaseBuffer(Size);
 		}
 		else
@@ -893,7 +972,7 @@ int RegQueryStringValue (
 		}
 	}
 
-	if ( nResult != ERROR_SUCCESS )
+	if (nResult != ERROR_SUCCESS)
 		strData = lpwszDefault;
 
 	return nResult;

@@ -58,207 +58,211 @@ enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
 class FileViewer;
 class KeyBar;
 
-struct ViewerString {
-    wchar_t *lpData /*[MAX_VIEWLINEB]*/;
-    __int64 nFilePos;
-    __int64 nSelStart;
-    __int64 nSelEnd;
-		bool bSelection;
+struct ViewerString
+{
+	wchar_t *lpData /*[MAX_VIEWLINEB]*/;
+	__int64 nFilePos;
+	__int64 nSelStart;
+	__int64 nSelEnd;
+	bool bSelection;
 };
 
-struct InternalViewerBookMark{
-  __int64 SavePosAddr[BOOKMARK_COUNT];
-  __int64 SavePosLeft[BOOKMARK_COUNT];
+struct InternalViewerBookMark
+{
+	__int64 SavePosAddr[BOOKMARK_COUNT];
+	__int64 SavePosLeft[BOOKMARK_COUNT];
 };
 
 struct ViewerUndoData
 {
-  __int64 UndoAddr;
-  __int64 UndoLeft;
+	__int64 UndoAddr;
+	__int64 UndoLeft;
 };
 
-enum SEARCH_FLAGS {
-  SEARCH_MODE2   = 0x00000001,
-  REVERSE_SEARCH = 0x00000002
+enum SEARCH_FLAGS
+{
+	SEARCH_MODE2   = 0x00000001,
+	REVERSE_SEARCH = 0x00000002
 };
 
-enum SHOW_MODES {
-    SHOW_RELOAD,
-    SHOW_HEX,
-    SHOW_UP,
-    SHOW_DOWN
+enum SHOW_MODES
+{
+	SHOW_RELOAD,
+	SHOW_HEX,
+	SHOW_UP,
+	SHOW_DOWN
 };
 
 class Viewer:public ScreenObject
 {
-  friend class FileViewer;
+		friend class FileViewer;
 
-  private:
+	private:
 
-    BitFlags SearchFlags;
+		BitFlags SearchFlags;
 
-    struct ViewerOptions ViOpt;
+		struct ViewerOptions ViOpt;
 
 		bool Signature;
 
-    NamesList ViewNamesList;
-    KeyBar *ViewKeyBar;
+		NamesList ViewNamesList;
+		KeyBar *ViewKeyBar;
 
-    ViewerString *Strings[MAXSCRY+1];
+		ViewerString *Strings[MAXSCRY+1];
 
-    string strFileName;
-    string strFullFileName;
+		string strFileName;
+		string strFullFileName;
 
-    FILE *ViewFile;
+		FILE *ViewFile;
 
-    FAR_FIND_DATA_EX ViewFindData;
+		FAR_FIND_DATA_EX ViewFindData;
 
-    string strTempViewName;
+		string strTempViewName;
 
-    BOOL DeleteFolder;
+		BOOL DeleteFolder;
 
-    string strLastSearchStr;
-    int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
+		string strLastSearchStr;
+		int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
 
-    struct ViewerMode VM;
+		struct ViewerMode VM;
 
-    __int64 FilePos;
-    __int64 SecondPos;
-    __int64 LastScrPos;
-    __int64 FileSize;
-    __int64 LastSelPos;
+		__int64 FilePos;
+		__int64 SecondPos;
+		__int64 LastScrPos;
+		__int64 FileSize;
+		__int64 LastSelPos;
 
-    __int64 LeftPos;
-    __int64 LastPage;
-    int CRSym;
-    __int64 SelectPos,SelectSize;
-    DWORD SelectFlags;
-    __int64 SelectPosOffSet; // Используется для коррекции позиции выделения в юникодных файлах
-    int ShowStatusLine,HideCursor;
+		__int64 LeftPos;
+		__int64 LastPage;
+		int CRSym;
+		__int64 SelectPos,SelectSize;
+		DWORD SelectFlags;
+		__int64 SelectPosOffSet; // Используется для коррекции позиции выделения в юникодных файлах
+		int ShowStatusLine,HideCursor;
 
-    string strTitle;
+		string strTitle;
 
-    string strPluginData;
+		string strPluginData;
 		int CodePageChangedByUser;
-    int ReadStdin;
-    int InternalKey;
+		int ReadStdin;
+		int InternalKey;
 
-    struct InternalViewerBookMark BMSavePos;
-    struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
+		struct InternalViewerBookMark BMSavePos;
+		struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
 
-    int LastKeyUndo;
-    int Width,XX2;  // , используется при расчете ширины при скролбаре
-    int ViewerID;
-    bool OpenFailed;
-    bool bVE_READ_Sent;
-    FileViewer *HostFileViewer;
-    bool AdjustSelPosition;
+		int LastKeyUndo;
+		int Width,XX2;  // , используется при расчете ширины при скролбаре
+		int ViewerID;
+		bool OpenFailed;
+		bool bVE_READ_Sent;
+		FileViewer *HostFileViewer;
+		bool AdjustSelPosition;
 
-    bool m_bQuickView;
+		bool m_bQuickView;
 
-	UINT DefCodePage;
-  private:
-    virtual void DisplayObject();
+		UINT DefCodePage;
+	private:
+		virtual void DisplayObject();
 
-    void ShowPage (int nMode);
+		void ShowPage(int nMode);
 
-    void Up();
-    void ShowHex();
-    void ShowStatus();
-    /* $ 27.04.2001 DJ
-       функции для рисования скроллбара, для корректировки ширины в
-       зависимости от наличия скроллбара и для корректировки позиции файла
-       на границу строки
-    */
-    void DrawScrollbar();
-    void AdjustWidth();
-    void AdjustFilePos();
+		void Up();
+		void ShowHex();
+		void ShowStatus();
+		/* $ 27.04.2001 DJ
+		   функции для рисования скроллбара, для корректировки ширины в
+		   зависимости от наличия скроллбара и для корректировки позиции файла
+		   на границу строки
+		*/
+		void DrawScrollbar();
+		void AdjustWidth();
+		void AdjustFilePos();
 
-    void ReadString(ViewerString *pString, int MaxSize, int StrSize);
-    int CalcStrSize(const wchar_t *Str,int Length);
-    void ChangeViewKeyBar();
-    void SetCRSym();
-    void Search(int Next,int FirstChar);
-    void ConvertToHex(char *SearchStr,int &SearchLength);
-    int HexToNum(int Hex);
-    int vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw=false);
-    int vseek(FILE *SrcFile,__int64 Offset,int Whence);
-    __int64 vtell(FILE *SrcFile);
+		void ReadString(ViewerString *pString, int MaxSize, int StrSize);
+		int CalcStrSize(const wchar_t *Str,int Length);
+		void ChangeViewKeyBar();
+		void SetCRSym();
+		void Search(int Next,int FirstChar);
+		void ConvertToHex(char *SearchStr,int &SearchLength);
+		int HexToNum(int Hex);
+		int vread(wchar_t *Buf,int Count,FILE *SrcFile,bool Raw=false);
+		int vseek(FILE *SrcFile,__int64 Offset,int Whence);
+		__int64 vtell(FILE *SrcFile);
 		bool vgetc(FILE *SrcFile,WCHAR& C);
-    void SetFileSize();
-	int GetStrBytesNum(const wchar_t *Str, int Length);
+		void SetFileSize();
+		int GetStrBytesNum(const wchar_t *Str, int Length);
 
-  public:
-    Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
-    virtual ~Viewer();
+	public:
+		Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
+		virtual ~Viewer();
 
 
-  public:
-    int OpenFile(const wchar_t *Name,int warning);
-    void SetViewKeyBar(KeyBar *ViewKeyBar);
+	public:
+		int OpenFile(const wchar_t *Name,int warning);
+		void SetViewKeyBar(KeyBar *ViewKeyBar);
 
-    virtual int ProcessKey(int Key);
-    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
+		virtual int ProcessKey(int Key);
+		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 
-    void SetStatusMode(int Mode);
-    void EnableHideCursor(int HideCursor);
-    int GetWrapMode();
-    void SetWrapMode(int Wrap);
-    int GetWrapType();
-    void SetWrapType(int TypeWrap);
-    void KeepInitParameters();
-    void GetFileName(string &strName);
-    virtual void ShowConsoleTitle();
+		void SetStatusMode(int Mode);
+		void EnableHideCursor(int HideCursor);
+		int GetWrapMode();
+		void SetWrapMode(int Wrap);
+		int GetWrapType();
+		void SetWrapType(int TypeWrap);
+		void KeepInitParameters();
+		void GetFileName(string &strName);
+		virtual void ShowConsoleTitle();
 
-    void SetTempViewName(const wchar_t *Name, BOOL DeleteFolder);
+		void SetTempViewName(const wchar_t *Name, BOOL DeleteFolder);
 
-    void SetTitle(const wchar_t *Title);
-    string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
+		void SetTitle(const wchar_t *Title);
+		string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-    void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
-    __int64 GetFilePos() const { return FilePos; };
-    __int64 GetViewFilePos() const { return FilePos; };
-    __int64 GetViewFileSize() const { return FileSize; };
+		void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
+		__int64 GetFilePos() const { return FilePos; };
+		__int64 GetViewFilePos() const { return FilePos; };
+		__int64 GetViewFileSize() const { return FileSize; };
 
-    void SetPluginData(const wchar_t *PluginData);
-    void SetNamesList(NamesList *List);
+		void SetPluginData(const wchar_t *PluginData);
+		void SetNamesList(NamesList *List);
 
-    int  ViewerControl(int Command,void *Param);
-    void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
+		int  ViewerControl(int Command,void *Param);
+		void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
 
-    void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
-    void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
-    // Функция выделения - как самостоятельная функция
-    void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
+		void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
+		void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
+		// Функция выделения - как самостоятельная функция
+		void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
 
-    int GetTabSize() const { return ViOpt.TabSize; }
-    void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }
+		int GetTabSize() const { return ViOpt.TabSize; }
+		void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }
 
 		int GetAutoDetectCodePage() const { return ViOpt.AutoDetectCodePage; }
 		void SetAutoDetectCodePage(int newValue) { ViOpt.AutoDetectCodePage=newValue; }
 
-    int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
-    void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }
+		int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
+		void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }
 
-    int GetShowArrows() const { return ViOpt.ShowArrows; }
-    void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
-    /* IS $ */
-    int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
-    void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
+		int GetShowArrows() const { return ViOpt.ShowArrows; }
+		void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
+		/* IS $ */
+		int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
+		void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
 
-    int GetHexMode() const { return VM.Hex; }
+		int GetHexMode() const { return VM.Hex; }
 
-    UINT GetCodePage() const { return VM.CodePage; }
+		UINT GetCodePage() const { return VM.CodePage; }
 
-    NamesList *GetNamesList() { return &ViewNamesList; }
+		NamesList *GetNamesList() { return &ViewNamesList; }
 
-    /* $ 08.12.2001 OT
-      возвращает признак того, является ли файл временным
-      используется для принятия решения переходить в каталог по */
-    BOOL isTemporary();
+		/* $ 08.12.2001 OT
+		  возвращает признак того, является ли файл временным
+		  используется для принятия решения переходить в каталог по */
+		BOOL isTemporary();
 
-    int ProcessHexMode(int newMode, bool isRedraw=TRUE);
-    int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
-    int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
+		int ProcessHexMode(int newMode, bool isRedraw=TRUE);
+		int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
+		int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
 };

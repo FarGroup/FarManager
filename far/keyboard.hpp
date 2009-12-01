@@ -35,10 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farqueue.hpp"
 
-enum {
-  SKEY_VK_KEYS           = 0x40000000,
-  SKEY_IDLE              = 0x80000000,
-  SKEY_NOTMACROS         = 0x00000001,
+enum
+{
+	SKEY_VK_KEYS           = 0x40000000,
+	SKEY_IDLE              = 0x80000000,
+	SKEY_NOTMACROS         = 0x00000001,
 };
 
 #define MOUSE_ANY_BUTTON_PRESSED (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED|FROM_LEFT_2ND_BUTTON_PRESSED|FROM_LEFT_3RD_BUTTON_PRESSED|FROM_LEFT_4TH_BUTTON_PRESSED)
@@ -59,7 +60,7 @@ int KeyToKeyLayout(int Key);
 DWORD IsMouseButtonPressed();
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
 int WINAPI KeyNameToKey(const wchar_t *Name);
-BOOL WINAPI KeyToText (int Key, string &strKeyText);
+BOOL WINAPI KeyToText(int Key, string &strKeyText);
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse=false);
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);

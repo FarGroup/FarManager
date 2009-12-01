@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class SaveFilePos
 {
-  private:
-    FILE *SaveFile;
-    __int64 SavePos;
-  public:
-    SaveFilePos(FILE *SaveFile);
-    ~SaveFilePos();
+	private:
+		FILE *SaveFile;
+		__int64 SavePos;
+	public:
+		SaveFilePos(FILE *SaveFile);
+		~SaveFilePos();
 };

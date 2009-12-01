@@ -38,35 +38,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Modal: public Frame
 {
-  private:
-    int     ReadKey;
-    int     WriteKey;
-    typedef ScreenObject inherited;
+	private:
+		int     ReadKey;
+		int     WriteKey;
+		typedef ScreenObject inherited;
 
-  protected:
-    INPUT_RECORD ReadRec;
-    string strHelpTopic;
-    int  ExitCode;
-    int  EndLoop;
+	protected:
+		INPUT_RECORD ReadRec;
+		string strHelpTopic;
+		int  ExitCode;
+		int  EndLoop;
 
-  public:
-    Modal();
-    virtual ~Modal() {}
+	public:
+		Modal();
+		virtual ~Modal() {}
 
-  public:
-    virtual void GetDialogObjectsData() {};
-    int Done();
-    void ClearDone();
-    int  GetExitCode();
-    virtual void SetExitCode(int Code);
+	public:
+		virtual void GetDialogObjectsData() {};
+		int Done();
+		void ClearDone();
+		int  GetExitCode();
+		virtual void SetExitCode(int Code);
 
-    virtual void Process();
+		virtual void Process();
 
-    virtual int ReadInput(INPUT_RECORD *GetReadRec=NULL);
-    void WriteInput(int Key);
-    void ProcessInput();
+		virtual int ReadInput(INPUT_RECORD *GetReadRec=NULL);
+		void WriteInput(int Key);
+		void ProcessInput();
 
-    void SetHelp(const wchar_t *Topic);
-    void ShowHelp();
+		void SetHelp(const wchar_t *Topic);
+		void ShowHelp();
 
 };

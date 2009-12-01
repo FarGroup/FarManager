@@ -35,14 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ConsoleTitle
 {
-  private:
-    string strOldTitle;
+	private:
+		string strOldTitle;
 
-  public:
-    ConsoleTitle(const wchar_t *title=NULL);
-    ~ConsoleTitle();
+	public:
+		ConsoleTitle(const wchar_t *title=NULL);
+		~ConsoleTitle();
 
-  public:
-    void Set(const wchar_t *fmt,...);
+	public:
+		void Set(const wchar_t *fmt,...);
 
 };

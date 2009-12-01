@@ -50,6 +50,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 	strUserName.Clear();
 	const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',cDrive,L'\0'};
 	HKEY hKey;
+
 	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
 	{
 		RegQueryStringValueEx(hKey, L"UserName", strUserName);
@@ -65,6 +66,7 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 	{
 		DWORD bufsz = 16*1024;
 		NETRESOURCE *netResource = (NETRESOURCE *)xf_malloc(bufsz);
+
 		if (netResource)
 		{
 			while (1)
@@ -73,12 +75,15 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 				bufsz = 16*1024;
 				memset(netResource,0,bufsz);
 				DWORD res = WNetEnumResource(hEnum, &size, netResource, &bufsz);
+
 				if (res == NO_ERROR && size > 0 && netResource->lpLocalName != NULL)
 				{
 					wchar_t letter = Lower(netResource->lpLocalName[0]);
+
 					if (letter >= L'a' && letter <= L'z' && !wcscmp(netResource->lpLocalName+1, L":"))
 					{
 						int CurrBit = 1 << (letter - L'a');
+
 						if (!(Mask&CurrBit))
 						{
 							Mask |= CurrBit;
@@ -91,8 +96,10 @@ void AddSavedNetworkDisks(DWORD& Mask, DWORD& NetworkMask)
 					break;
 				}
 			}
+
 			xf_free(netResource);
 		}
+
 		WNetCloseEnum(hEnum);
 	}
 }
@@ -109,6 +116,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 	netResource.lpRemoteName = (wchar_t *)strRemoteName.CPtr();
 	netResource.lpProvider = 0;
 	DWORD res = WNetAddConnection2(&netResource, 0, strUserName, 0);
+
 	if (res == ERROR_SESSION_CREDENTIAL_CONFLICT)
 		res = WNetAddConnection2(&netResource, 0, 0, 0);
 
@@ -124,7 +132,7 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 			if (!res)
 				break;
 
-			if ( res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
+			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
 				string strMsgStr;
 				GetErrorString(strMsgStr);
@@ -137,79 +145,76 @@ void ConnectToNetworkDrive(const wchar_t *NewDir)
 
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 {
-  string strNetDir;
+	string strNetDir;
+	strComputerName.Clear();
 
-  strComputerName.Clear();
+	if (CurDir[0]==L'\\' && CurDir[1]==L'\\')
+	{
+		strNetDir = CurDir;
+	}
+	else
+	{
+		/* $ 28.03.2002 KM
+		   - Падение VC на
+		     char *LocalName="A:";
+		     *LocalName=*CurDir;
+		     Так как память в LocalName ReadOnly.
+		*/
+		wchar_t LocalName[3];
+		xwcsncpy(LocalName, CurDir, 2);
+		apiWNetGetConnection(LocalName, strNetDir);
+	}
 
-  if ( CurDir[0]==L'\\' && CurDir[1]==L'\\')
-  {
-    strNetDir = CurDir;
-  }
-  else
-  {
-    /* $ 28.03.2002 KM
-       - Падение VC на
-         char *LocalName="A:";
-         *LocalName=*CurDir;
-         Так как память в LocalName ReadOnly.
-    */
-    wchar_t LocalName[3];
+	if (strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
+	{
+		strComputerName = (const wchar_t*)strNetDir+2;
+		size_t pos;
 
-    xwcsncpy (LocalName, CurDir, 2);
-
-    apiWNetGetConnection (LocalName, strNetDir);
-  }
-
-  if ( strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
-  {
-    strComputerName = (const wchar_t*)strNetDir+2;
-
-    size_t pos;
 		if (!FirstSlash(strComputerName,pos))
-    {
-      strComputerName.Clear();
-    }
-    else
-    {
-      strComputerName.SetLength(pos);
-    }
-  }
+		{
+			strComputerName.Clear();
+		}
+		else
+		{
+			strComputerName.SetLength(pos);
+		}
+	}
 
-  return strComputerName;
+	return strComputerName;
 }
 
 string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 {
-  int NetPathShown=FALSE, IsOK=FALSE;
-  wchar_t LocalName[8]=L" :\0\0\0";
-  string strRemoteName;
+	int NetPathShown=FALSE, IsOK=FALSE;
+	wchar_t LocalName[8]=L" :\0\0\0";
+	string strRemoteName;
+	*LocalName=Letter;
+	strDest.Clear();
 
-  *LocalName=Letter;
-  strDest.Clear();
+	if (DriveType == DRIVE_UNKNOWN)
+	{
+		LocalName[2]=L'\\';
+		DriveType = FAR_GetDriveType(LocalName);
+		LocalName[2]=0;
+	}
 
-  if(DriveType == DRIVE_UNKNOWN)
-  {
-    LocalName[2]=L'\\';
-    DriveType = FAR_GetDriveType(LocalName);
-    LocalName[2]=0;
-  }
+	if (IsDriveTypeRemote(DriveType))
+	{
+		DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
 
-  if (IsDriveTypeRemote(DriveType))
-  {
-    DWORD res = apiWNetGetConnection(LocalName,strRemoteName);
-    if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
-    {
-      NetPathShown=TRUE;
-      IsOK=TRUE;
-    }
-  }
+		if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
+		{
+			NetPathShown=TRUE;
+			IsOK=TRUE;
+		}
+	}
 
-  if (!NetPathShown)
-    if (GetSubstName(DriveType,LocalName,strRemoteName))
-      IsOK=TRUE;
+	if (!NetPathShown)
+		if (GetSubstName(DriveType,LocalName,strRemoteName))
+			IsOK=TRUE;
 
-  if(IsOK)
-    strDest = strRemoteName;
+	if (IsOK)
+		strDest = strRemoteName;
 
-  return strDest;
+	return strDest;
 }

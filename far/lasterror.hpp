@@ -35,13 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class GuardLastError
 {
-  private:
-    DWORD LastError;
+	private:
+		DWORD LastError;
 
-  public:
-    GuardLastError(){LastError=GetLastError();}
-    ~GuardLastError(){SetLastError(LastError);}
+	public:
+		GuardLastError() {LastError=GetLastError();}
+		~GuardLastError() {SetLastError(LastError);}
 
-  public:
-    DWORD Get(){return LastError;}
+	public:
+		DWORD Get() {return LastError;}
 };

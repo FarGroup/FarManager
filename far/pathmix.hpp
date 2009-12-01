@@ -35,50 +35,51 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class NTPath
 {
-public:
-	string Str;
-	NTPath(LPCWSTR Src);
+	public:
+		string Str;
+		NTPath(LPCWSTR Src);
 
-	operator LPCWSTR() const
-	{
-		return Str;
-	}
+		operator LPCWSTR() const
+		{
+			return Str;
+		}
 };
 
 class CurrentDirectoryGuard
 {
-	string strSaveDir;
-	bool bSaved;
+		string strSaveDir;
+		bool bSaved;
 
-public:
+	public:
 
-	explicit CurrentDirectoryGuard(const bool bAuto=true)
-	{
-		bSaved = false;
-		if (bAuto)
-			On();
-	}
-
-	void On()
-	{
-		if (!bSaved)
+		explicit CurrentDirectoryGuard(const bool bAuto=true)
 		{
-			bSaved = true;
-			DWORD dwSize = GetCurrentDirectory(0,NULL);
-			wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
-			GetCurrentDirectory(dwSize,CurrentDirectory);
-			strSaveDir.ReleaseBuffer();
-			string strNewDir;
-			apiGetCurrentDirectory(strNewDir);
-			SetCurrentDirectory(strNewDir);
-		}
-	}
+			bSaved = false;
 
-	~CurrentDirectoryGuard()
-	{
-		if (bSaved)
-			SetCurrentDirectory(strSaveDir);
-	}
+			if (bAuto)
+				On();
+		}
+
+		void On()
+		{
+			if (!bSaved)
+			{
+				bSaved = true;
+				DWORD dwSize = GetCurrentDirectory(0,NULL);
+				wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
+				GetCurrentDirectory(dwSize,CurrentDirectory);
+				strSaveDir.ReleaseBuffer();
+				string strNewDir;
+				apiGetCurrentDirectory(strNewDir);
+				SetCurrentDirectory(strNewDir);
+			}
+		}
+
+		~CurrentDirectoryGuard()
+		{
+			if (bSaved)
+				SetCurrentDirectory(strSaveDir);
+		}
 };
 
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }

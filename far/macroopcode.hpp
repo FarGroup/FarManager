@@ -42,7 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-enum MACRO_OP_CODE {
+enum MACRO_OP_CODE
+{
 	/* ************************************************************************* */
 	MCODE_OP_EXIT=KEY_MACRO_OP_BASE,  // принудительно закончить выполнение макропоследовательности
 

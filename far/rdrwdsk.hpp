@@ -35,13 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class RedrawDesktop
 {
-  private:
-    int LeftVisible;
-    int RightVisible;
-    int KeyBarVisible;
-    int TopMenuBarVisible;
+	private:
+		int LeftVisible;
+		int RightVisible;
+		int KeyBarVisible;
+		int TopMenuBarVisible;
 
-  public:
-    RedrawDesktop(BOOL IsHidden=FALSE);
-    ~RedrawDesktop();
+	public:
+		RedrawDesktop(BOOL IsHidden=FALSE);
+		~RedrawDesktop();
 };

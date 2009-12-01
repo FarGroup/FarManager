@@ -40,11 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve)
 {
 	PreserveLongName::Preserve=Preserve;
+
 	if (Preserve)
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if ( apiGetFindDataEx(ShortName, &FindData) )
+		if (apiGetFindDataEx(ShortName, &FindData))
 			strSaveLongName = FindData.strFileName;
 		else
 			strSaveLongName.Clear();
@@ -60,17 +61,17 @@ PreserveLongName::~PreserveLongName()
 	{
 		FAR_FIND_DATA_EX FindData;
 
-		if ( !apiGetFindDataEx (strSaveShortName, &FindData) || StrCmp(strSaveLongName,FindData.strFileName)!=0)
+		if (!apiGetFindDataEx(strSaveShortName, &FindData) || StrCmp(strSaveLongName,FindData.strFileName)!=0)
 		{
 			string strNewName;
-
 			strNewName = strSaveShortName;
 
-			if(CutToSlash(strNewName,true))
+			if (CutToSlash(strNewName,true))
 			{
 				strNewName += "\\";
 				strNewName += strSaveLongName;
 			}
+
 			apiMoveFile(strSaveShortName, strNewName);
 		}
 	}

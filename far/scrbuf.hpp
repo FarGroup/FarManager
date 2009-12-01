@@ -38,52 +38,52 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ScreenBuf
 {
-  private:
-    BitFlags SBFlags;
+	private:
+		BitFlags SBFlags;
 
-    CHAR_INFO *Buf;
-    CHAR_INFO *Shadow;
-    CHAR_INFO MacroChar;
-    HANDLE hScreen;
+		CHAR_INFO *Buf;
+		CHAR_INFO *Shadow;
+		CHAR_INFO MacroChar;
+		HANDLE hScreen;
 
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
-    int CurVisible,CurSize;
+		int CurVisible,CurSize;
 
-    int LockCount;
+		int LockCount;
 
-    CriticalSection CS;
+		CriticalSection CS;
 
-  public:
-    ScreenBuf();
-    ~ScreenBuf();
+	public:
+		ScreenBuf();
+		~ScreenBuf();
 
-  public:
-    void AllocBuf(int X,int Y);
-    void Lock();
-    void Unlock();
-    int  GetLockCount() {return(LockCount);};
-    void SetLockCount(int Count) {LockCount=Count;};
-    void SetHandle(HANDLE hScreen);
-    void ResetShadow();
-    void MoveCursor(int X,int Y);
-    void GetCursorPos(SHORT& X,SHORT& Y);
-    void SetCursorType(int Visible,int Size);
-    void GetCursorType(int &Visible,int &Size);
+	public:
+		void AllocBuf(int X,int Y);
+		void Lock();
+		void Unlock();
+		int  GetLockCount() {return(LockCount);};
+		void SetLockCount(int Count) {LockCount=Count;};
+		void SetHandle(HANDLE hScreen);
+		void ResetShadow();
+		void MoveCursor(int X,int Y);
+		void GetCursorPos(SHORT& X,SHORT& Y);
+		void SetCursorType(int Visible,int Size);
+		void GetCursorType(int &Visible,int &Size);
 
-  public:
-    void FillBuf();
-    void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength);
-    void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
-    void RestoreMacroChar();
+	public:
+		void FillBuf();
+		void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength);
+		void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
+		void RestoreMacroChar();
 
-    void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
-    void ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color);
-	void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor);
-    void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color);
+		void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
+		void ApplyColor(int X1,int Y1,int X2,int Y2,WORD Color);
+		void ApplyColor(int X1,int Y1,int X2,int Y2,int Color,WORD ExceptColor);
+		void FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,WORD Color);
 
-    void Scroll(int);
-    void Flush();
+		void Scroll(int);
+		void Flush();
 };
 
 extern ScreenBuf ScrBuf;

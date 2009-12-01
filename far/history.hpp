@@ -72,6 +72,7 @@ struct HistoryRecord
 			Timestamp.dwLowDateTime  = rhs.Timestamp.dwLowDateTime;
 			Timestamp.dwHighDateTime = rhs.Timestamp.dwHighDateTime;
 		}
+
 		return *this;
 	}
 };

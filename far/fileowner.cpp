@@ -41,99 +41,110 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct SIDCacheRecord
 {
-  PSID sid;
-  wchar_t *username;
-  SIDCacheRecord *next;
+	PSID sid;
+	wchar_t *username;
+	SIDCacheRecord *next;
 };
 
 static SIDCacheRecord *sid_cache=NULL;
 
 void SIDCacheFlush()
 {
-  SIDCacheRecord *tmp_rec;
-  while(sid_cache)
-  {
-    tmp_rec=sid_cache;
-    sid_cache=sid_cache->next;
-    xf_free(tmp_rec->sid);
-    xf_free(tmp_rec->username);
-    xf_free(tmp_rec);
-  }
+	SIDCacheRecord *tmp_rec;
+
+	while (sid_cache)
+	{
+		tmp_rec=sid_cache;
+		sid_cache=sid_cache->next;
+		xf_free(tmp_rec->sid);
+		xf_free(tmp_rec->username);
+		xf_free(tmp_rec);
+	}
 }
 
 static const wchar_t *add_sid_cache(const wchar_t *computer,PSID sid)
 {
-  const wchar_t *res=NULL;
-  SIDCacheRecord *new_rec=(SIDCacheRecord *)xf_malloc(sizeof(SIDCacheRecord));
-  if(new_rec)
-  {
-    memset(new_rec,0,sizeof(SIDCacheRecord));
-    new_rec->sid=(PSID)xf_malloc(GetLengthSid(sid));
-    if(new_rec->sid)
-    {
-      CopySid(GetLengthSid(sid),new_rec->sid,sid);
-      DWORD AccountLength=0,DomainLength=0;
-      SID_NAME_USE snu;
+	const wchar_t *res=NULL;
+	SIDCacheRecord *new_rec=(SIDCacheRecord *)xf_malloc(sizeof(SIDCacheRecord));
+
+	if (new_rec)
+	{
+		memset(new_rec,0,sizeof(SIDCacheRecord));
+		new_rec->sid=(PSID)xf_malloc(GetLengthSid(sid));
+
+		if (new_rec->sid)
+		{
+			CopySid(GetLengthSid(sid),new_rec->sid,sid);
+			DWORD AccountLength=0,DomainLength=0;
+			SID_NAME_USE snu;
 			LookupAccountSid(computer,new_rec->sid,NULL,&AccountLength,NULL,&DomainLength,&snu);
-      if(AccountLength && DomainLength)
-      {
-        wchar_t* AccountName=(wchar_t*)xf_malloc(AccountLength*sizeof(wchar_t));
-        wchar_t* DomainName=(wchar_t*)xf_malloc(DomainLength*sizeof(wchar_t));
-        if(AccountName && DomainName)
-        {
+
+			if (AccountLength && DomainLength)
+			{
+				wchar_t* AccountName=(wchar_t*)xf_malloc(AccountLength*sizeof(wchar_t));
+				wchar_t* DomainName=(wchar_t*)xf_malloc(DomainLength*sizeof(wchar_t));
+
+				if (AccountName && DomainName)
+				{
 					if (LookupAccountSid(computer,new_rec->sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
-          {
-            if((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
-            {
-              size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
-              new_rec->username[Len+1]=0;
-              new_rec->username[Len]=L'\\';
-              wcscat(new_rec->username,AccountName);
-              res=new_rec->username;
-              new_rec->next=sid_cache;
-              sid_cache=new_rec;
-            }
-            else
-            {
-              xf_free(new_rec->sid);
-              xf_free(new_rec);
-            }
-          }
-          else
-          {
-            xf_free(new_rec->sid);
-            xf_free(new_rec);
-          }
-        }
-        if(AccountName) xf_free(AccountName);
-        if(DomainName) xf_free(DomainName);
-      }
-      else
-      {
-        xf_free(new_rec->sid);
-        xf_free(new_rec);
-      }
-    }
-    else
-     xf_free(new_rec);
-  }
-  return res;
+					{
+						if ((new_rec->username=(wchar_t*)xf_malloc((AccountLength+DomainLength+16)*sizeof(wchar_t))) != NULL)
+						{
+							size_t Len=StrLength(wcscpy(new_rec->username,DomainName));
+							new_rec->username[Len+1]=0;
+							new_rec->username[Len]=L'\\';
+							wcscat(new_rec->username,AccountName);
+							res=new_rec->username;
+							new_rec->next=sid_cache;
+							sid_cache=new_rec;
+						}
+						else
+						{
+							xf_free(new_rec->sid);
+							xf_free(new_rec);
+						}
+					}
+					else
+					{
+						xf_free(new_rec->sid);
+						xf_free(new_rec);
+					}
+				}
+
+				if (AccountName) xf_free(AccountName);
+
+				if (DomainName) xf_free(DomainName);
+			}
+			else
+			{
+				xf_free(new_rec->sid);
+				xf_free(new_rec);
+			}
+		}
+		else
+			xf_free(new_rec);
+	}
+
+	return res;
 }
 
 static const wchar_t *get_sid_cache(PSID sid)
 {
-  wchar_t *res=NULL;
-  SIDCacheRecord *tmp_rec=sid_cache;
-  while(tmp_rec)
-  {
-    if(EqualSid(tmp_rec->sid,sid))
-    {
-      res=tmp_rec->username;
-      break;
-    }
-    tmp_rec=tmp_rec->next;
-  }
-  return res;
+	wchar_t *res=NULL;
+	SIDCacheRecord *tmp_rec=sid_cache;
+
+	while (tmp_rec)
+	{
+		if (EqualSid(tmp_rec->sid,sid))
+		{
+			res=tmp_rec->username;
+			break;
+		}
+
+		tmp_rec=tmp_rec->next;
+	}
+
+	return res;
 }
 
 
@@ -148,40 +159,47 @@ bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &st
 	}
 	*/
 	strOwner.Clear();
-
 	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
 	DWORD LengthNeeded=0;
 	string strName(NTPath(Name).Str);
 	GetFileSecurity(strName,si,NULL,0,&LengthNeeded);
-	if(LengthNeeded)
+
+	if (LengthNeeded)
 	{
 		PSECURITY_DESCRIPTOR sd=reinterpret_cast<PSECURITY_DESCRIPTOR>(xf_malloc(LengthNeeded));
-		if(sd)
+
+		if (sd)
 		{
-			if(GetFileSecurity(strName,si,sd,LengthNeeded,&LengthNeeded))
+			if (GetFileSecurity(strName,si,sd,LengthNeeded,&LengthNeeded))
 			{
 				PSID pOwner;
 				BOOL OwnerDefaulted;
-				if(GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
+
+				if (GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
 				{
 					const wchar_t *SID=NULL;
-					if(IsValidSid(pOwner))
+
+					if (IsValidSid(pOwner))
 					{
 						SID=get_sid_cache(pOwner);
-						if(!SID)
+
+						if (!SID)
 						{
 							SID=add_sid_cache(Computer,pOwner);
 						}
 					}
-					if(SID)
+
+					if (SID)
 					{
 						strOwner=SID;
 						Result=true;
 					}
 				}
 			}
+
 			xf_free(sd);
 		}
 	}
+
 	return Result;
 }

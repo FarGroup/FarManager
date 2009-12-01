@@ -133,15 +133,13 @@ static BOOL PrepareModulePath(const wchar_t *ModuleName)
 {
 	string strModulePath;
 	strModulePath = ModuleName;
-
 	CutToSlash(strModulePath); //??
-
 	return FarChDir(strModulePath);
 }
 
 static void CheckScreenLock()
 {
-	if ( ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey() )
+	if (ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
 	{
 		ScrBuf.SetLockCount(0);
 		ScrBuf.Flush();
@@ -150,16 +148,23 @@ static void CheckScreenLock()
 
 static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
 {
-  string strKT;
-  if (!KeyToText(Key,strKT))
-      return 0;
-  size_t len = strKT.GetLength();
-  if (Size && KeyText) {
-    if (Size <= len) len = Size-1;
-    wmemcpy(KeyText, (const wchar_t*)strKT, len);
-    KeyText[len] = 0;
-  } else if(KeyText) *KeyText = 0;
-  return (len+1);
+	string strKT;
+
+	if (!KeyToText(Key,strKT))
+		return 0;
+
+	size_t len = strKT.GetLength();
+
+	if (Size && KeyText)
+	{
+		if (Size <= len) len = Size-1;
+
+		wmemcpy(KeyText, (const wchar_t*)strKT, len);
+		KeyText[len] = 0;
+	}
+	else if (KeyText) *KeyText = 0;
+
+	return (len+1);
 }
 
 int WINAPI KeyNameToKeyW(const wchar_t *Name)
@@ -168,28 +173,27 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 	return KeyNameToKey(strN);
 }
 
-PluginW::PluginW (
-		PluginManager *owner,
-		const wchar_t *lpwszModuleName
-		)
+PluginW::PluginW(
+    PluginManager *owner,
+    const wchar_t *lpwszModuleName
+)
 {
 	m_hModule = NULL;
 	//more initialization here!!!
-
 	m_owner = owner;
-
 	m_strModuleName = lpwszModuleName;
 	m_strCacheName = lpwszModuleName;
-
 	wchar_t *p = m_strCacheName.GetBuffer();
+
 	while (*p)
 	{
 		if (*p == L'\\')
 			*p = L'/';
+
 		p++;
 	}
-	m_strCacheName.ReleaseBuffer();
 
+	m_strCacheName.ReleaseBuffer();
 	ClearExports();
 }
 
@@ -199,36 +203,31 @@ PluginW::~PluginW()
 }
 
 
-bool PluginW::LoadFromCache (const FAR_FIND_DATA_EX &FindData)
+bool PluginW::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 {
 	string strRegKey;
+	strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 
-	strRegKey.Format (FmtPluginsCache_PluginS, m_strCacheName.CPtr());
-
-	if ( CheckRegKey(strRegKey) )
+	if (CheckRegKey(strRegKey))
 	{
-		if ( GetRegKey(strRegKey,wszReg_Preload,0) == 1 ) //PF_PRELOAD plugin, skip cache
-			return Load ();
+		if (GetRegKey(strRegKey,wszReg_Preload,0) == 1)   //PF_PRELOAD plugin, skip cache
+			return Load();
 
 		{
 			string strPluginID, strCurPluginID;
-
-			strCurPluginID.Format (
-					L"%I64x%x%x",
-					FindData.nFileSize,
-					FindData.ftCreationTime.dwLowDateTime,
-					FindData.ftLastWriteTime.dwLowDateTime
-					);
-
+			strCurPluginID.Format(
+			    L"%I64x%x%x",
+			    FindData.nFileSize,
+			    FindData.ftCreationTime.dwLowDateTime,
+			    FindData.ftLastWriteTime.dwLowDateTime
+			);
 			GetRegKey(strRegKey, L"ID", strPluginID, L"");
 
-			if ( StrCmp(strPluginID, strCurPluginID) != 0 ) //одинаковые ли бинарники?
+			if (StrCmp(strPluginID, strCurPluginID) != 0)   //одинаковые ли бинарники?
 				return false;
 		}
-
 		strRegKey += L"\\Exports";
 		SysID=GetRegKey(strRegKey,wszReg_SysID,0);
-
 		pOpenPluginW=(PLUGINOPENPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenPlugin,0);
 		pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)(INT_PTR)GetRegKey(strRegKey,wszReg_OpenFilePlugin,0);
 		pSetFindListW=(PLUGINSETFINDLISTW)(INT_PTR)GetRegKey(strRegKey,wszReg_SetFindList,0);
@@ -239,9 +238,7 @@ bool PluginW::LoadFromCache (const FAR_FIND_DATA_EX &FindData)
 		pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)(INT_PTR)GetRegKey(strRegKey,wszReg_ProcessSynchroEvent,0);
 		pConfigureW=(PLUGINCONFIGUREW)(INT_PTR)GetRegKey(strRegKey,wszReg_Configure,0);
 		pAnalyseW=(PLUGINANALYSEW)(INT_PTR)GetRegKey(strRegKey, wszReg_Analyse, 0);
-
 		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
-
 		return true;
 	}
 
@@ -250,66 +247,54 @@ bool PluginW::LoadFromCache (const FAR_FIND_DATA_EX &FindData)
 
 bool PluginW::SaveToCache()
 {
-	if ( pGetPluginInfoW ||
-		 pOpenPluginW ||
-		 pOpenFilePluginW ||
-		 pSetFindListW ||
-		 pProcessEditorInputW ||
-		 pProcessEditorEventW ||
-		 pProcessViewerEventW ||
-		 pProcessDialogEventW ||
-		 pProcessSynchroEventW ||
-		 pAnalyseW
-	)
+	if (pGetPluginInfoW ||
+	        pOpenPluginW ||
+	        pOpenFilePluginW ||
+	        pSetFindListW ||
+	        pProcessEditorInputW ||
+	        pProcessEditorEventW ||
+	        pProcessViewerEventW ||
+	        pProcessDialogEventW ||
+	        pProcessSynchroEventW ||
+	        pAnalyseW
+	   )
 	{
 		PluginInfo Info;
-
 		GetPluginInfo(&Info);
-
 		SysID = Info.SysID; //LAME!!!
-
 		string strRegKey;
-
-		strRegKey.Format (FmtPluginsCache_PluginS, m_strCacheName.CPtr());
-
+		strRegKey.Format(FmtPluginsCache_PluginS, m_strCacheName.CPtr());
 		DeleteKeyTree(strRegKey);
-
 		{
 			bool bPreload = (Info.Flags & PF_PRELOAD);
-
 			SetRegKey(strRegKey, wszReg_Preload, bPreload?1:0);
 			WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
-			if ( bPreload )
+			if (bPreload)
 				return true;
 		}
-
 		{
 			string strCurPluginID;
 			FAR_FIND_DATA_EX fdata;
 			apiGetFindDataEx(m_strModuleName, &fdata);
-
-			strCurPluginID.Format (
-					L"%I64x%x%x",
-					fdata.nFileSize,
-					fdata.ftCreationTime.dwLowDateTime,
-					fdata.ftLastWriteTime.dwLowDateTime
-					);
-
+			strCurPluginID.Format(
+			    L"%I64x%x%x",
+			    fdata.nFileSize,
+			    fdata.ftCreationTime.dwLowDateTime,
+			    fdata.ftLastWriteTime.dwLowDateTime
+			);
 			SetRegKey(strRegKey, L"ID", strCurPluginID);
 		}
 
 		for (int i = 0; i < Info.DiskMenuStringsNumber; i++)
 		{
 			string strValue;
-
-			strValue.Format (FmtDiskMenuStringD, i);
-
+			strValue.Format(FmtDiskMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.DiskMenuStrings[i]);
 
-			if ( Info.DiskMenuNumbers )
+			if (Info.DiskMenuNumbers)
 			{
-				strValue.Format (FmtDiskMenuNumberD, i);
+				strValue.Format(FmtDiskMenuNumberD, i);
 				SetRegKey(strRegKey, strValue, Info.DiskMenuNumbers[i]);
 			}
 		}
@@ -317,24 +302,20 @@ bool PluginW::SaveToCache()
 		for (int i = 0; i < Info.PluginMenuStringsNumber; i++)
 		{
 			string strValue;
-
-			strValue.Format (FmtPluginMenuStringD, i);
+			strValue.Format(FmtPluginMenuStringD, i);
 			SetRegKey(strRegKey, strValue, Info.PluginMenuStrings[i]);
 		}
 
 		for (int i = 0; i < Info.PluginConfigStringsNumber; i++)
 		{
 			string strValue;
-
-			strValue.Format (FmtPluginConfigStringD, i);
+			strValue.Format(FmtPluginConfigStringD, i);
 			SetRegKey(strRegKey,strValue,Info.PluginConfigStrings[i]);
 		}
 
 		SetRegKey(strRegKey, L"CommandPrefix", NullToEmpty(Info.CommandPrefix));
 		SetRegKey(strRegKey, L"Flags", Info.Flags);
-
 		strRegKey += L"\\Exports";
-
 		SetRegKey(strRegKey, wszReg_SysID, SysID);
 		SetRegKey(strRegKey, wszReg_OpenPlugin, pOpenPluginW!=NULL);
 		SetRegKey(strRegKey, wszReg_OpenFilePlugin, pOpenFilePluginW!=NULL);
@@ -346,7 +327,6 @@ bool PluginW::SaveToCache()
 		SetRegKey(strRegKey, wszReg_ProcessSynchroEvent, pProcessSynchroEventW!=NULL);
 		SetRegKey(strRegKey, wszReg_Configure, pConfigureW!=NULL);
 		SetRegKey(strRegKey, wszReg_Analyse, pAnalyseW != NULL);
-
 		return true;
 	}
 
@@ -355,55 +335,48 @@ bool PluginW::SaveToCache()
 
 bool PluginW::Load()
 {
-	if ( WorkFlags.Check(PIWF_DONTLOADAGAIN) )
+	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
 
-	if ( m_hModule )
+	if (m_hModule)
 		return true; //BUGBUG
 
-	if( !m_hModule )
+	if (!m_hModule)
 	{
 		string strCurPath, strCurPlugDiskPath;
 		wchar_t Drive[4];
-
 		Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
 		apiGetCurrentDirectory(strCurPath);
 
-		if( IsLocalPath(m_strModuleName) ) // если указан локальный путь, то...
+		if (IsLocalPath(m_strModuleName))  // если указан локальный путь, то...
 		{
 			wcscpy(Drive,L"= :");
 			Drive[1] = m_strModuleName.At(0);
-			apiGetEnvironmentVariable (Drive,strCurPlugDiskPath);
+			apiGetEnvironmentVariable(Drive,strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);
-
 		m_hModule = LoadLibraryEx(m_strModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
-
 		GuardLastError Err;
-
 		FarChDir(strCurPath);
 
-		if(Drive[0]) // вернем ее (переменную окружения) обратно
+		if (Drive[0]) // вернем ее (переменную окружения) обратно
 			SetEnvironmentVariable(Drive,strCurPlugDiskPath);
 	}
 
-	if ( !m_hModule )
+	if (!m_hModule)
 	{
 		if (!Opt.LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
-
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
 		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
-
 		return false;
 	}
 
 	WorkFlags.Clear(PIWF_CACHED);
-
 	pSetStartupInfoW=(PLUGINSETSTARTUPINFOW)GetProcAddress(m_hModule,NFMP_SetStartupInfo);
 	pOpenPluginW=(PLUGINOPENPLUGINW)GetProcAddress(m_hModule,NFMP_OpenPlugin);
 	pOpenFilePluginW=(PLUGINOPENFILEPLUGINW)GetProcAddress(m_hModule,NFMP_OpenFilePlugin);
@@ -433,142 +406,139 @@ bool PluginW::Load()
 	pProcessSynchroEventW=(PLUGINPROCESSSYNCHROEVENTW)GetProcAddress(m_hModule,NFMP_ProcessSynchroEvent);
 	pMinFarVersionW=(PLUGINMINFARVERSIONW)GetProcAddress(m_hModule,NFMP_GetMinFarVersion);
 	pAnalyseW=(PLUGINANALYSEW)GetProcAddress(m_hModule, NFMP_Analyse);
-
 	bool bUnloaded = false;
 
-	if ( !CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded) )
+	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
 	{
-		if ( !bUnloaded )
+		if (!bUnloaded)
 			Unload();
 
 		return false;
 	}
 
 	FuncFlags.Set(PICFF_LOADED);
-
 	SaveToCache();
-
 	return true;
 }
 
-void CreatePluginStartupInfo (Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
-  static PluginStartupInfo StartupInfo={0};
-  static FarStandardFunctions StandardFunctions={0};
+	static PluginStartupInfo StartupInfo={0};
+	static FarStandardFunctions StandardFunctions={0};
 
-  // заполняем структуру StandardFunctions один раз!!!
-  if (!StandardFunctions.StructSize)
-  {
-    StandardFunctions.StructSize=sizeof(StandardFunctions);
+	// заполняем структуру StandardFunctions один раз!!!
+	if (!StandardFunctions.StructSize)
+	{
+		StandardFunctions.StructSize=sizeof(StandardFunctions);
 #pragma warning(push)
 #pragma warning(disable:4996)
 		// swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter.
 		StandardFunctions.sprintf=swprintf;
 #pragma warning(pop)
-    StandardFunctions.snprintf=_snwprintf;
-    StandardFunctions.sscanf=swscanf;
-    StandardFunctions.qsort=FarQsort;
-    StandardFunctions.qsortex=FarQsortEx;
-    StandardFunctions.atoi=FarAtoi;
-    StandardFunctions.atoi64=FarAtoi64;
-    StandardFunctions.itoa=FarItoa;
-    StandardFunctions.itoa64=FarItoa64;
-    StandardFunctions.bsearch=FarBsearch;
-    StandardFunctions.LIsLower = farIsLower;
-    StandardFunctions.LIsUpper = farIsUpper;
-    StandardFunctions.LIsAlpha = farIsAlpha;
-    StandardFunctions.LIsAlphanum = farIsAlphaNum;
-    StandardFunctions.LUpper = farUpper;
-    StandardFunctions.LUpperBuf = farUpperBuf;
-    StandardFunctions.LLowerBuf = farLowerBuf;
-    StandardFunctions.LLower = farLower;
-    StandardFunctions.LStrupr = farStrUpper;
-    StandardFunctions.LStrlwr = farStrLower;
-    StandardFunctions.LStricmp = farStrCmpI;
-    StandardFunctions.LStrnicmp = farStrCmpNI;
+		StandardFunctions.snprintf=_snwprintf;
+		StandardFunctions.sscanf=swscanf;
+		StandardFunctions.qsort=FarQsort;
+		StandardFunctions.qsortex=FarQsortEx;
+		StandardFunctions.atoi=FarAtoi;
+		StandardFunctions.atoi64=FarAtoi64;
+		StandardFunctions.itoa=FarItoa;
+		StandardFunctions.itoa64=FarItoa64;
+		StandardFunctions.bsearch=FarBsearch;
+		StandardFunctions.LIsLower = farIsLower;
+		StandardFunctions.LIsUpper = farIsUpper;
+		StandardFunctions.LIsAlpha = farIsAlpha;
+		StandardFunctions.LIsAlphanum = farIsAlphaNum;
+		StandardFunctions.LUpper = farUpper;
+		StandardFunctions.LUpperBuf = farUpperBuf;
+		StandardFunctions.LLowerBuf = farLowerBuf;
+		StandardFunctions.LLower = farLower;
+		StandardFunctions.LStrupr = farStrUpper;
+		StandardFunctions.LStrlwr = farStrLower;
+		StandardFunctions.LStricmp = farStrCmpI;
+		StandardFunctions.LStrnicmp = farStrCmpNI;
+		StandardFunctions.Unquote=Unquote;
+		StandardFunctions.LTrim=RemoveLeadingSpaces;
+		StandardFunctions.RTrim=RemoveTrailingSpaces;
+		StandardFunctions.Trim=RemoveExternalSpaces;
+		StandardFunctions.TruncStr=TruncStr;
+		StandardFunctions.TruncPathStr=TruncPathStr;
+		StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
+		StandardFunctions.PointToName=PointToName;
+		StandardFunctions.GetPathRoot=farGetPathRoot;
+		StandardFunctions.AddEndSlash=AddEndSlash;
+		StandardFunctions.CopyToClipboard=CopyToClipboard;
+		StandardFunctions.PasteFromClipboard=PasteFromClipboard;
+		StandardFunctions.FarKeyToName=FarKeyToName;
+		StandardFunctions.FarNameToKey=KeyNameToKeyW;
+		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+		StandardFunctions.XLat=Xlat;
+		StandardFunctions.GetFileOwner=farGetFileOwner;
+		StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
+		StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
+		StandardFunctions.MkTemp=FarMkTemp;
+		StandardFunctions.DeleteBuffer=DeleteBuffer;
+		StandardFunctions.ProcessName=ProcessName;
+		StandardFunctions.MkLink=FarMkLink;
+		StandardFunctions.ConvertPath=farConvertPath;
+		StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
+		StandardFunctions.GetCurrentDirectory=farGetCurrentDirectory;
+	}
 
-    StandardFunctions.Unquote=Unquote;
-    StandardFunctions.LTrim=RemoveLeadingSpaces;
-    StandardFunctions.RTrim=RemoveTrailingSpaces;
-    StandardFunctions.Trim=RemoveExternalSpaces;
-    StandardFunctions.TruncStr=TruncStr;
-    StandardFunctions.TruncPathStr=TruncPathStr;
-    StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
-    StandardFunctions.PointToName=PointToName;
-    StandardFunctions.GetPathRoot=farGetPathRoot;
-    StandardFunctions.AddEndSlash=AddEndSlash;
-    StandardFunctions.CopyToClipboard=CopyToClipboard;
-    StandardFunctions.PasteFromClipboard=PasteFromClipboard;
-    StandardFunctions.FarKeyToName=FarKeyToName;
-    StandardFunctions.FarNameToKey=KeyNameToKeyW;
-    StandardFunctions.FarInputRecordToKey=InputRecordToKey;
-    StandardFunctions.XLat=Xlat;
-    StandardFunctions.GetFileOwner=farGetFileOwner;
-    StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
-    StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
-    StandardFunctions.MkTemp=FarMkTemp;
-    StandardFunctions.DeleteBuffer=DeleteBuffer;
-    StandardFunctions.ProcessName=ProcessName;
-    StandardFunctions.MkLink=FarMkLink;
-    StandardFunctions.ConvertPath=farConvertPath;
-    StandardFunctions.GetReparsePointInfo=farGetReparsePointInfo;
-    StandardFunctions.GetCurrentDirectory=farGetCurrentDirectory;
-  }
+	if (!StartupInfo.StructSize)
+	{
+		StartupInfo.StructSize=sizeof(StartupInfo);
+		StartupInfo.Menu=FarMenuFn; //BUGBUG
+		StartupInfo.GetMsg=FarGetMsgFn;
+		StartupInfo.Message=FarMessageFn;
+		StartupInfo.Control=FarControl;
+		StartupInfo.SaveScreen=FarSaveScreen;
+		StartupInfo.RestoreScreen=FarRestoreScreen;
+		StartupInfo.GetDirList=FarGetDirList;
+		StartupInfo.GetPluginDirList=FarGetPluginDirList;
+		StartupInfo.FreeDirList=FarFreeDirList;
+		StartupInfo.Viewer=FarViewer;
+		StartupInfo.Editor=FarEditor;
+		StartupInfo.CmpName=FarCmpName;
+		StartupInfo.Text=FarText;
+		StartupInfo.EditorControl=FarEditorControl;
+		StartupInfo.ViewerControl=FarViewerControl;
+		StartupInfo.ShowHelp=FarShowHelp;
+		StartupInfo.AdvControl=FarAdvControl;
+		StartupInfo.DialogInit=FarDialogInit;
+		StartupInfo.DialogRun=FarDialogRun;
+		StartupInfo.DialogFree=FarDialogFree;
+		StartupInfo.SendDlgMessage=FarSendDlgMessage;
+		StartupInfo.DefDlgProc=FarDefDlgProc;
+		StartupInfo.InputBox=FarInputBox;
+		StartupInfo.PluginsControl=farPluginsControl;
+		StartupInfo.FileFilterControl=farFileFilterControl;
+		StartupInfo.RegExpControl=farRegExpControl;
+	}
 
-  if (!StartupInfo.StructSize)
-  {
-    StartupInfo.StructSize=sizeof(StartupInfo);
-    StartupInfo.Menu=FarMenuFn; //BUGBUG
-    StartupInfo.GetMsg=FarGetMsgFn;
-    StartupInfo.Message=FarMessageFn;
-    StartupInfo.Control=FarControl;
-    StartupInfo.SaveScreen=FarSaveScreen;
-    StartupInfo.RestoreScreen=FarRestoreScreen;
-    StartupInfo.GetDirList=FarGetDirList;
-    StartupInfo.GetPluginDirList=FarGetPluginDirList;
-    StartupInfo.FreeDirList=FarFreeDirList;
-    StartupInfo.Viewer=FarViewer;
-    StartupInfo.Editor=FarEditor;
-    StartupInfo.CmpName=FarCmpName;
-    StartupInfo.Text=FarText;
-    StartupInfo.EditorControl=FarEditorControl;
-    StartupInfo.ViewerControl=FarViewerControl;
-    StartupInfo.ShowHelp=FarShowHelp;
-    StartupInfo.AdvControl=FarAdvControl;
-    StartupInfo.DialogInit=FarDialogInit;
-    StartupInfo.DialogRun=FarDialogRun;
-    StartupInfo.DialogFree=FarDialogFree;
-    StartupInfo.SendDlgMessage=FarSendDlgMessage;
-    StartupInfo.DefDlgProc=FarDefDlgProc;
-    StartupInfo.InputBox=FarInputBox;
-    StartupInfo.PluginsControl=farPluginsControl;
-    StartupInfo.FileFilterControl=farFileFilterControl;
-    StartupInfo.RegExpControl=farRegExpControl;
-  }
+	memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
+	memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
+	PSI->FSF=FSF;
+	PSI->RootKey=NULL;
+	PSI->ModuleNumber=(INT_PTR)pPlugin;
 
-  memcpy(PSI,&StartupInfo,sizeof(StartupInfo));
-  memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
-
-  PSI->FSF=FSF;
-
-  PSI->RootKey=NULL;
-
-  PSI->ModuleNumber=(INT_PTR)pPlugin;
-  if (pPlugin)
-  {
-    PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
-  }
+	if (pPlugin)
+	{
+		PSI->ModuleName = (const wchar_t*)pPlugin->GetModuleName();
+	}
 }
 
-struct ExecuteStruct {
+struct ExecuteStruct
+{
 	int id; //function id
-	union {
+	union
+	{
 		INT_PTR nResult;
 		HANDLE hResult;
 		BOOL bResult;
 	};
 
-	union {
+	union
+	{
 		INT_PTR nDefaultResult;
 		HANDLE hDefaultResult;
 		BOOL bDefaultResult;
@@ -623,27 +593,22 @@ struct ExecuteStruct {
 			es.nResult = (INT_PTR)function; \
 	}
 
-bool PluginW::SetStartupInfo (bool &bUnloaded)
+bool PluginW::SetStartupInfo(bool &bUnloaded)
 {
-	if ( pSetStartupInfoW && !ProcessException )
+	if (pSetStartupInfoW && !ProcessException)
 	{
 		PluginStartupInfo _info;
 		FarStandardFunctions _fsf;
-
 		CreatePluginStartupInfo((Plugin *)this, &_info, &_fsf);
-
 		// скорректирем адреса и плагино-зависимые поля
 		strRootKey = Opt.strRegRoot;
 		strRootKey += L"\\Plugins";
-
 		_info.RootKey = (const wchar_t*)strRootKey;
-
 		ExecuteStruct es;
 		es.id = EXCEPT_SETSTARTUPINFO;
-
 		EXECUTE_FUNCTION(pSetStartupInfoW(&_info), es);
 
-		if ( es.bUnloaded )
+		if (es.bUnloaded)
 		{
 			bUnloaded = true;
 			return false;
@@ -657,27 +622,24 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required
 {
 	string strMsg1, strMsg2;
 	string strPlgName;
-
 	strMsg1.Format(MSG(MPlgRequired),
-					(WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
+	               (WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
 	strMsg2.Format(MSG(MPlgRequired2),
-					(WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
+	               (WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
 	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
 
-bool PluginW::CheckMinFarVersion (bool &bUnloaded)
+bool PluginW::CheckMinFarVersion(bool &bUnloaded)
 {
-	if ( pMinFarVersionW && !ProcessException )
+	if (pMinFarVersionW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_MINFARVERSION;
 		es.nDefaultResult = 0;
-
 		EXECUTE_FUNCTION_EX(pMinFarVersionW(), es);
 
-		if ( es.bUnloaded )
+		if (es.bUnloaded)
 		{
 			bUnloaded = true;
 			return false;
@@ -685,9 +647,9 @@ bool PluginW::CheckMinFarVersion (bool &bUnloaded)
 
 		DWORD FVer = (DWORD)es.nResult;
 
-		if ( LOWORD(FVer) >  LOWORD(FAR_VERSION) ||
-			(LOWORD(FVer) == LOWORD(FAR_VERSION) &&
-			HIWORD(FVer) >  HIWORD(FAR_VERSION)) )
+		if (LOWORD(FVer) >  LOWORD(FAR_VERSION) ||
+		        (LOWORD(FVer) == LOWORD(FAR_VERSION) &&
+		         HIWORD(FVer) >  HIWORD(FAR_VERSION)))
 		{
 			ShowMessageAboutIllegalPluginVersion(m_strModuleName,FVer);
 			return false;
@@ -697,14 +659,14 @@ bool PluginW::CheckMinFarVersion (bool &bUnloaded)
 	return true;
 }
 
-int PluginW::Unload (bool bExitFAR)
+int PluginW::Unload(bool bExitFAR)
 {
 	int nResult = TRUE;
 
-	if ( bExitFAR )
+	if (bExitFAR)
 		ExitFAR();
 
-	if ( !WorkFlags.Check(PIWF_CACHED) )
+	if (!WorkFlags.Check(PIWF_CACHED))
 	{
 		nResult = FreeLibrary(m_hModule);
 		ClearExports();
@@ -712,136 +674,121 @@ int PluginW::Unload (bool bExitFAR)
 
 	m_hModule = NULL;
 	FuncFlags.Clear(PICFF_LOADED); //??
-
 	return nResult;
 }
 
 bool PluginW::IsPanelPlugin()
 {
 	return pSetFindListW ||
-		pGetFindDataW ||
-		pGetVirtualFindDataW ||
-		pSetDirectoryW ||
-		pGetFilesW ||
-		pPutFilesW ||
-		pDeleteFilesW ||
-		pMakeDirectoryW ||
-		pProcessHostFileW ||
-		pProcessKeyW ||
-		pProcessEventW ||
-		pCompareW ||
-		pGetOpenPluginInfoW ||
-		pFreeFindDataW ||
-		pFreeVirtualFindDataW ||
-		pClosePluginW;
+	       pGetFindDataW ||
+	       pGetVirtualFindDataW ||
+	       pSetDirectoryW ||
+	       pGetFilesW ||
+	       pPutFilesW ||
+	       pDeleteFilesW ||
+	       pMakeDirectoryW ||
+	       pProcessHostFileW ||
+	       pProcessKeyW ||
+	       pProcessEventW ||
+	       pCompareW ||
+	       pGetOpenPluginInfoW ||
+	       pFreeFindDataW ||
+	       pFreeVirtualFindDataW ||
+	       pClosePluginW;
 }
 
-int PluginW::Analyse (const AnalyseData *pData)
+int PluginW::Analyse(const AnalyseData *pData)
 {
-  	if ( Load() && pAnalyseW && !ProcessException )
-  	{
+	if (Load() && pAnalyseW && !ProcessException)
+	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_ANALYSE;
 		es.bDefaultResult = FALSE;
 		es.bResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pAnalyseW(pData), es);
-
 		return es.bResult;
-  	}
+	}
 
-  	return FALSE;
+	return FALSE;
 }
 
-HANDLE PluginW::OpenPlugin (int OpenFrom, INT_PTR Item)
+HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 {
-  //BUGBUG???
-  //AY - непонятно нафига нужно, в других вызовах нету,
-  //     притом ещё делает варнинги при сборке из за того что внизу есть SEH.
-  //     Если это да надо, то надо выносить вызов SEH в отдельную функцию.
-  //ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
-  CheckScreenLock(); //??
-
-  {
+	//BUGBUG???
+	//AY - непонятно нафига нужно, в других вызовах нету,
+	//     притом ещё делает варнинги при сборке из за того что внизу есть SEH.
+	//     Если это да надо, то надо выносить вызов SEH в отдельную функцию.
+	//ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	CheckScreenLock(); //??
+	{
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
 		g_strDirToSet.Clear();
-  }
+	}
 
-
-  if ( Load() && pOpenPluginW && !ProcessException )
-  {
+	if (Load() && pOpenPluginW && !ProcessException)
+	{
 		//CurPluginItem=this; //BUGBUG
-
 		ExecuteStruct es;
-
 		es.id = EXCEPT_OPENPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
-
 		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Item), es);
-
 		return es.hResult;
-    //CurPluginItem=NULL; //BUGBUG
+		//CurPluginItem=NULL; //BUGBUG
+		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
-/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
+		    if ( !es.bUnloaded )
+		    {
 
-    if ( !es.bUnloaded )
-    {
+		      if(OpenFrom == OPEN_EDITOR &&
+		         !CtrlObject->Macro.IsExecuting() &&
+		         CtrlObject->Plugins.CurEditor &&
+		         CtrlObject->Plugins.CurEditor->IsVisible() )
+		      {
+		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+		        CtrlObject->Plugins.CurEditor->Show();
+		      }
+		      if (hInternal!=INVALID_HANDLE_VALUE)
+		      {
+		        PluginHandle *hPlugin=new PluginHandle;
+		        hPlugin->InternalHandle=es.hResult;
+		        hPlugin->PluginNumber=(INT_PTR)this;
+		        return((HANDLE)hPlugin);
+		      }
+		      else
+		        if ( !g_strDirToSet.IsEmpty() )
+		        {
+							CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
+		          CtrlObject->Cp()->ActivePanel->Redraw();
+		        }
+		    } */
+	}
 
-      if(OpenFrom == OPEN_EDITOR &&
-         !CtrlObject->Macro.IsExecuting() &&
-         CtrlObject->Plugins.CurEditor &&
-         CtrlObject->Plugins.CurEditor->IsVisible() )
-      {
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-        CtrlObject->Plugins.CurEditor->Show();
-      }
-      if (hInternal!=INVALID_HANDLE_VALUE)
-      {
-        PluginHandle *hPlugin=new PluginHandle;
-        hPlugin->InternalHandle=es.hResult;
-        hPlugin->PluginNumber=(INT_PTR)this;
-        return((HANDLE)hPlugin);
-      }
-      else
-        if ( !g_strDirToSet.IsEmpty() )
-        {
-					CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
-          CtrlObject->Cp()->ActivePanel->Redraw();
-        }
-    } */
-  }
-
-  return(INVALID_HANDLE_VALUE);
+	return(INVALID_HANDLE_VALUE);
 }
 
 //////////////////////////////////
 
-HANDLE PluginW::OpenFilePlugin (
-		const wchar_t *Name,
-		const unsigned char *Data,
-		int DataSize,
-		int OpMode
-		)
+HANDLE PluginW::OpenFilePlugin(
+    const wchar_t *Name,
+    const unsigned char *Data,
+    int DataSize,
+    int OpMode
+)
 {
 //	if ( m_bCached && HAS_EXPORT(EXPORT_OPENFILEPLUGIN) )
 //		Load (FORCE_LOAD);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
-	if ( Load() && pOpenFilePluginW && !ProcessException )
+	if (Load() && pOpenFilePluginW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_OPENFILEPLUGIN;
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
-
 		EXECUTE_FUNCTION_EX(pOpenFilePluginW(Name, Data, DataSize, OpMode), es);
-
 		hResult = es.hResult;
 	}
 
@@ -849,100 +796,88 @@ HANDLE PluginW::OpenFilePlugin (
 }
 
 
-int PluginW::SetFindList (
-		HANDLE hPlugin,
-		const PluginPanelItem *PanelItem,
-		int ItemsNumber
-		)
+int PluginW::SetFindList(
+    HANDLE hPlugin,
+    const PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pSetFindListW && !ProcessException )
+	if (pSetFindListW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_SETFINDLIST;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pSetFindListW(hPlugin, PanelItem, ItemsNumber), es);
-
 		bResult = es.bResult;
 	}
 
 	return bResult;
 }
 
-int PluginW::ProcessEditorInput (
-		const INPUT_RECORD *D
-		)
+int PluginW::ProcessEditorInput(
+    const INPUT_RECORD *D
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( Load() && pProcessEditorInputW && !ProcessException )
+	if (Load() && pProcessEditorInputW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSEDITORINPUT;
 		es.bDefaultResult = TRUE; //(TRUE) treat the result as a completed request on exception!
-
 		EXECUTE_FUNCTION_EX(pProcessEditorInputW(D), es);
-
 		bResult = es.bResult;
 	}
 
 	return bResult;
 }
 
-int PluginW::ProcessEditorEvent (
-		int Event,
-		PVOID Param
-		)
+int PluginW::ProcessEditorEvent(
+    int Event,
+    PVOID Param
+)
 {
-	if ( Load() && pProcessEditorEventW && !ProcessException )
+	if (Load() && pProcessEditorEventW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSEDITOREVENT;
 		es.nDefaultResult = 0;
-
 		EXECUTE_FUNCTION_EX(pProcessEditorEventW(Event, Param), es);
 	}
 
 	return 0; //oops!
 }
 
-int PluginW::ProcessViewerEvent (
-		int Event,
-		void *Param
-		)
+int PluginW::ProcessViewerEvent(
+    int Event,
+    void *Param
+)
 {
-	if ( Load() && pProcessViewerEventW && !ProcessException )
+	if (Load() && pProcessViewerEventW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
 		es.nDefaultResult = 0;
-
 		EXECUTE_FUNCTION_EX(pProcessViewerEventW(Event, Param), es);
 	}
 
 	return 0; //oops, again!
 }
 
-int PluginW::ProcessDialogEvent (
-		int Event,
-		void *Param
-		)
+int PluginW::ProcessDialogEvent(
+    int Event,
+    void *Param
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( Load() && pProcessDialogEventW && !ProcessException )
+	if (Load() && pProcessDialogEventW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pProcessDialogEventW(Event, Param), es);
 		bResult = es.bResult;
 	}
@@ -950,42 +885,37 @@ int PluginW::ProcessDialogEvent (
 	return bResult;
 }
 
-int PluginW::ProcessSynchroEvent (
-		int Event,
-		void *Param
-		)
+int PluginW::ProcessSynchroEvent(
+    int Event,
+    void *Param
+)
 {
-	if ( Load() && pProcessSynchroEventW && !ProcessException )
+	if (Load() && pProcessSynchroEventW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSSYNCHROEVENT;
 		es.nDefaultResult = 0;
-
 		EXECUTE_FUNCTION_EX(pProcessSynchroEventW(Event, Param), es);
 	}
 
 	return 0; //oops, again!
 }
 
-int PluginW::GetVirtualFindData (
-		HANDLE hPlugin,
-		PluginPanelItem **pPanelItem,
-		int *pItemsNumber,
-		const wchar_t *Path
-		)
+int PluginW::GetVirtualFindData(
+    HANDLE hPlugin,
+    PluginPanelItem **pPanelItem,
+    int *pItemsNumber,
+    const wchar_t *Path
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pGetVirtualFindDataW && !ProcessException )
+	if (pGetVirtualFindDataW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pGetVirtualFindDataW(hPlugin, pPanelItem, pItemsNumber, Path), es);
-
 		bResult = es.bResult;
 	}
 
@@ -993,43 +923,39 @@ int PluginW::GetVirtualFindData (
 }
 
 
-void PluginW::FreeVirtualFindData (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber
-		)
+void PluginW::FreeVirtualFindData(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
 {
-	if ( pFreeVirtualFindDataW && !ProcessException )
+	if (pFreeVirtualFindDataW && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
-
 		EXECUTE_FUNCTION(pFreeVirtualFindDataW(hPlugin, PanelItem, ItemsNumber), es);
 	}
 }
 
 
 
-int PluginW::GetFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int Move,
-		const wchar_t **DestPath,
-		int OpMode
-		)
+int PluginW::GetFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int Move,
+    const wchar_t **DestPath,
+    int OpMode
+)
 {
 	int nResult = -1;
 
-	if ( pGetFilesW && !ProcessException )
+	if (pGetFilesW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_GETFILES;
 		es.nDefaultResult = -1;
-
 		EXECUTE_FUNCTION_EX(pGetFilesW(hPlugin, PanelItem, ItemsNumber, Move, DestPath, OpMode), es);
-
 		nResult = (int)es.nResult;
 	}
 
@@ -1037,50 +963,45 @@ int PluginW::GetFiles (
 }
 
 
-int PluginW::PutFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int Move,
-		int OpMode
-		)
+int PluginW::PutFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int Move,
+    int OpMode
+)
 {
 	int nResult = -1;
 
-	if ( pPutFilesW && !ProcessException )
+	if (pPutFilesW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PUTFILES;
 		es.nDefaultResult = -1;
 		static string strCurrentDirectory;
 		apiGetCurrentDirectory(strCurrentDirectory);
 		EXECUTE_FUNCTION_EX(pPutFilesW(hPlugin, PanelItem, ItemsNumber, Move, strCurrentDirectory, OpMode), es);
-
 		nResult = (int)es.nResult;
 	}
 
 	return nResult;
 }
 
-int PluginW::DeleteFiles (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int OpMode
-		)
+int PluginW::DeleteFiles(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int OpMode
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pDeleteFilesW && !ProcessException )
+	if (pDeleteFilesW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_DELETEFILES;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pDeleteFilesW(hPlugin, PanelItem, ItemsNumber, OpMode), es);
-
 		bResult = (int)es.bResult;
 	}
 
@@ -1088,23 +1009,20 @@ int PluginW::DeleteFiles (
 }
 
 
-int PluginW::MakeDirectory (
-		HANDLE hPlugin,
-		const wchar_t **Name,
-		int OpMode
-		)
+int PluginW::MakeDirectory(
+    HANDLE hPlugin,
+    const wchar_t **Name,
+    int OpMode
+)
 {
 	int nResult = -1;
 
-	if ( pMakeDirectoryW && !ProcessException )
+	if (pMakeDirectoryW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_MAKEDIRECTORY;
 		es.nDefaultResult = -1;
-
 		EXECUTE_FUNCTION_EX(pMakeDirectoryW(hPlugin, Name, OpMode), es);
-
 		nResult = (int)es.nResult;
 	}
 
@@ -1112,24 +1030,21 @@ int PluginW::MakeDirectory (
 }
 
 
-int PluginW::ProcessHostFile (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber,
-		int OpMode
-		)
+int PluginW::ProcessHostFile(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber,
+    int OpMode
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pProcessHostFileW && !ProcessException )
+	if (pProcessHostFileW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSHOSTFILE;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pProcessHostFileW(hPlugin, PanelItem, ItemsNumber, OpMode), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1137,23 +1052,20 @@ int PluginW::ProcessHostFile (
 }
 
 
-int PluginW::ProcessEvent (
-		HANDLE hPlugin,
-		int Event,
-		PVOID Param
-		)
+int PluginW::ProcessEvent(
+    HANDLE hPlugin,
+    int Event,
+    PVOID Param
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pProcessEventW && !ProcessException )
+	if (pProcessEventW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSEVENT;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pProcessEventW(hPlugin, Event, Param), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1161,24 +1073,21 @@ int PluginW::ProcessEvent (
 }
 
 
-int PluginW::Compare (
-		HANDLE hPlugin,
-		const PluginPanelItem *Item1,
-		const PluginPanelItem *Item2,
-		DWORD Mode
-		)
+int PluginW::Compare(
+    HANDLE hPlugin,
+    const PluginPanelItem *Item1,
+    const PluginPanelItem *Item2,
+    DWORD Mode
+)
 {
 	int nResult = -2;
 
-	if ( pCompareW && !ProcessException )
+	if (pCompareW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_COMPARE;
 		es.nDefaultResult = -2;
-
 		EXECUTE_FUNCTION_EX(pCompareW(hPlugin, Item1, Item2, Mode), es);
-
 		nResult = (int)es.nResult;
 	}
 
@@ -1186,24 +1095,21 @@ int PluginW::Compare (
 }
 
 
-int PluginW::GetFindData (
-		HANDLE hPlugin,
-		PluginPanelItem **pPanelItem,
-		int *pItemsNumber,
-		int OpMode
-		)
+int PluginW::GetFindData(
+    HANDLE hPlugin,
+    PluginPanelItem **pPanelItem,
+    int *pItemsNumber,
+    int OpMode
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pGetFindDataW && !ProcessException )
+	if (pGetFindDataW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_GETFINDDATA;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pGetFindDataW(hPlugin, pPanelItem, pItemsNumber, OpMode), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1211,38 +1117,34 @@ int PluginW::GetFindData (
 }
 
 
-void PluginW::FreeFindData (
-		HANDLE hPlugin,
-		PluginPanelItem *PanelItem,
-		int ItemsNumber
-		)
+void PluginW::FreeFindData(
+    HANDLE hPlugin,
+    PluginPanelItem *PanelItem,
+    int ItemsNumber
+)
 {
-	if ( pFreeFindDataW && !ProcessException )
+	if (pFreeFindDataW && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
-
 		EXECUTE_FUNCTION(pFreeFindDataW(hPlugin, PanelItem, ItemsNumber), es);
 	}
 }
 
-int PluginW::ProcessKey (
-		HANDLE hPlugin,
-		int Key,
-		unsigned int dwControlState
-		)
+int PluginW::ProcessKey(
+    HANDLE hPlugin,
+    int Key,
+    unsigned int dwControlState
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pProcessKeyW && !ProcessException )
+	if (pProcessKeyW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_PROCESSKEY;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
-
 		EXECUTE_FUNCTION_EX(pProcessKeyW(hPlugin, Key, dwControlState), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1250,16 +1152,14 @@ int PluginW::ProcessKey (
 }
 
 
-void PluginW::ClosePlugin (
-		HANDLE hPlugin
-		)
+void PluginW::ClosePlugin(
+    HANDLE hPlugin
+)
 {
-	if ( pClosePluginW && !ProcessException )
+	if (pClosePluginW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_CLOSEPLUGIN;
-
 		EXECUTE_FUNCTION(pClosePluginW(hPlugin), es);
 	}
 
@@ -1267,23 +1167,20 @@ void PluginW::ClosePlugin (
 }
 
 
-int PluginW::SetDirectory (
-		HANDLE hPlugin,
-		const wchar_t *Dir,
-		int OpMode
-		)
+int PluginW::SetDirectory(
+    HANDLE hPlugin,
+    const wchar_t *Dir,
+    int OpMode
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( pSetDirectoryW && !ProcessException )
+	if (pSetDirectoryW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_SETDIRECTORY;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pSetDirectoryW(hPlugin, Dir, OpMode), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1291,40 +1188,35 @@ int PluginW::SetDirectory (
 }
 
 
-void PluginW::GetOpenPluginInfo (
-		HANDLE hPlugin,
-		OpenPluginInfo *pInfo
-		)
+void PluginW::GetOpenPluginInfo(
+    HANDLE hPlugin,
+    OpenPluginInfo *pInfo
+)
 {
 //	m_pManager->m_pCurrentPlugin = this;
-
 	pInfo->StructSize = sizeof(OpenPluginInfo);
 
-	if ( pGetOpenPluginInfoW && !ProcessException )
+	if (pGetOpenPluginInfoW && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPLUGININFO;
-
 		EXECUTE_FUNCTION(pGetOpenPluginInfoW(hPlugin, pInfo), es);
 	}
 }
 
 
 int PluginW::Configure(
-		int MenuItem
-		)
+    int MenuItem
+)
 {
 	BOOL bResult = FALSE;
 
-	if ( Load() && pConfigureW && !ProcessException )
+	if (Load() && pConfigureW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_CONFIGURE;
 		es.bDefaultResult = FALSE;
-
 		EXECUTE_FUNCTION_EX(pConfigureW(MenuItem), es);
-
 		bResult = es.bResult;
 	}
 
@@ -1332,19 +1224,17 @@ int PluginW::Configure(
 }
 
 
-bool PluginW::GetPluginInfo (PluginInfo *pi)
+bool PluginW::GetPluginInfo(PluginInfo *pi)
 {
-	memset (pi, 0, sizeof (PluginInfo));
+	memset(pi, 0, sizeof(PluginInfo));
 
-	if ( pGetPluginInfoW && !ProcessException )
+	if (pGetPluginInfoW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_GETPLUGININFO;
-
 		EXECUTE_FUNCTION(pGetPluginInfoW(pi), es);
 
-		if ( !es.bUnloaded )
+		if (!es.bUnloaded)
 			return true;
 	}
 
@@ -1353,12 +1243,10 @@ bool PluginW::GetPluginInfo (PluginInfo *pi)
 
 void PluginW::ExitFAR()
 {
-	if ( pExitFARW && !ProcessException )
+	if (pExitFARW && !ProcessException)
 	{
 		ExecuteStruct es;
-
 		es.id = EXCEPT_EXITFAR;
-
 		EXECUTE_FUNCTION(pExitFARW(), es);
 	}
 }

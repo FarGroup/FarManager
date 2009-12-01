@@ -49,11 +49,15 @@ FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 void FileMasksProcessor::Free()
 {
 	Masks.Free();
+
 	if (re)
 		delete re;
+
 	re = NULL;
+
 	if (m)
 		xf_free(m);
+
 	m = NULL;
 	n = 0;
 	bRE = false;
@@ -68,9 +72,9 @@ void FileMasksProcessor::Free()
 bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 {
 	Free();
-
 	// разделителем масок является не только запятая, но и точка с запятой!
 	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
+
 	if (Flags&FMPF_ADDASTERISK)
 		flags|=ULF_ADDASTERISK;
 
@@ -79,17 +83,21 @@ bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
 	if (bRE)
 	{
 		re = new RegExp;
+
 		if (re && re->Compile(masks, OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
+
 			if (m == NULL)
 			{
 				n = 0;
 				return false;
 			}
+
 			return true;
 		}
+
 		return false;
 	}
 
@@ -127,11 +135,13 @@ bool FileMasksProcessor::Compare(const wchar_t *FileName)
 	}
 
 	Masks.Reset();
-	while(NULL!=(MaskPtr=Masks.GetNext()))
+
+	while (NULL!=(MaskPtr=Masks.GetNext()))
 	{
 		// SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
 		if (CmpName(MaskPtr,FileName, FALSE))
 			return true;
 	}
+
 	return false;
 }
