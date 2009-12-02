@@ -1019,7 +1019,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					size_t pos;
 
 					// проверим путь к файлу, может его уже снесли...
-					if (LastSlash(strFullFileName,pos))
+					if (FindLastSlash(pos,strFullFileName))
 					{
 						wchar_t *lpwszPtr = strFullFileName.GetBuffer();
 						wchar_t wChr = lpwszPtr[pos+1];

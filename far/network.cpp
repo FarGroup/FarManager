@@ -167,27 +167,24 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 
 	if (strNetDir.At(0)==L'\\' && strNetDir.At(1) == L'\\')
 	{
-		strComputerName = (const wchar_t*)strNetDir+2;
+		strComputerName = strNetDir.CPtr()+2;
 		size_t pos;
 
-		if (!FirstSlash(strComputerName,pos))
-		{
+		if (!FindSlash(pos,strComputerName))
 			strComputerName.Clear();
-		}
 		else
-		{
 			strComputerName.SetLength(pos);
-		}
 	}
 
 	return strComputerName;
 }
 
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
+string &DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 {
-	int NetPathShown=FALSE, IsOK=FALSE;
+	bool NetPathShown=false, IsOK=false;
 	wchar_t LocalName[8]=L" :\0\0\0";
 	string strRemoteName;
+
 	*LocalName=Letter;
 	strDest.Clear();
 
@@ -204,14 +201,13 @@ string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest)
 
 		if (res == NO_ERROR || res == ERROR_CONNECTION_UNAVAIL)
 		{
-			NetPathShown=TRUE;
-			IsOK=TRUE;
+			NetPathShown=true;
+			IsOK=true;
 		}
 	}
 
-	if (!NetPathShown)
-		if (GetSubstName(DriveType,LocalName,strRemoteName))
-			IsOK=TRUE;
+	if (!NetPathShown && GetSubstName(DriveType,LocalName,strRemoteName))
+		IsOK=true;
 
 	if (IsOK)
 		strDest = strRemoteName;

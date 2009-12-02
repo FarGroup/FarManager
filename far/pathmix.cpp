@@ -109,9 +109,25 @@ bool IsLocalVolumeRootPath(const wchar_t *Path)
 	return IsLocalVolumePath(Path) && (!Path[48] || (IsSlash(Path[48]) && !Path[49]));
 }
 
-bool PathCanHoldRegularFile(const string &Path)
+bool PathCanHoldRegularFile(const wchar_t *Path)
 {
-	return !(IsNetworkPath(Path) && IsRootPath(Path));
+	if (!IsNetworkPath(Path))
+		return true;
+
+	/* \\ */
+	unsigned offset = 2;
+
+	/* \\?\UNC\ */
+	if (Path[2] == L'?')
+		offset = 8;
+
+	const wchar_t *p = FirstSlash(Path + offset);
+
+	/* server || server\ */
+	if (!p || !*(p+1))
+		return false;
+
+	return true;
 }
 
 bool TestParentFolderName(const wchar_t *Name)
@@ -122,6 +138,16 @@ bool TestParentFolderName(const wchar_t *Name)
 bool TestCurrentFolderName(const wchar_t *Name)
 {
 	return Name[0] == L'.' && (!Name[1] || (IsSlash(Name[1]) && !Name[2]));
+}
+
+bool TestCurrentDirectory(const wchar_t *TestDir)
+{
+	string strCurDir;
+
+	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir,TestDir))
+		return true;
+
+	return false;
 }
 
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
@@ -311,10 +337,7 @@ BOOL AddEndSlash(string &strPath)
 	return AddEndSlash(strPath, 0);
 }
 
-BOOL AddEndSlash(
-    string &strPath,
-    wchar_t TypeSlash
-)
+BOOL AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
 	wchar_t *lpwszPath = strPath.GetBuffer(strPath.GetLength()+2);
 	BOOL Result = AddEndSlash(lpwszPath, TypeSlash);
@@ -322,7 +345,7 @@ BOOL AddEndSlash(
 	return Result;
 }
 
-bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash)
+bool DeleteEndSlash(wchar_t *Path, bool AllEndSlash)
 {
 	bool Ret = false;
 	size_t len = StrLength(Path);
@@ -366,7 +389,7 @@ BOOL WINAPI DeleteEndSlash(string &strPath, bool AllEndSlash)
 bool CutToSlash(string &strStr, bool bInclude)
 {
 	size_t pos;
-	bool bFound=LastSlash(strStr,pos);
+	bool bFound=FindLastSlash(pos,strStr);
 
 	if (pos==3 && HasPathPrefix(strStr))
 	{
@@ -384,7 +407,7 @@ bool CutToSlash(string &strStr, bool bInclude)
 	return bFound;
 }
 
-string& CutToNameUNC(string &strPath)
+string &CutToNameUNC(string &strPath)
 {
 	wchar_t *lpwszPath = strPath.GetBuffer();
 
@@ -417,7 +440,7 @@ string& CutToNameUNC(string &strPath)
 	return strPath;
 }
 
-string& CutToFolderNameIfFolder(string &strPath)
+string &CutToFolderNameIfFolder(string &strPath)
 {
 	wchar_t *lpwszPath = strPath.GetBuffer();
 	wchar_t *lpwszNamePtr=lpwszPath, *lpwszprevNamePtr=lpwszPath;
@@ -442,7 +465,7 @@ string& CutToFolderNameIfFolder(string &strPath)
 	return strPath;
 }
 
-const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
+const wchar_t *PointToNameUNC(const wchar_t *lpwszPath)
 {
 	if (!lpwszPath)
 		return NULL;
@@ -474,7 +497,7 @@ const wchar_t* PointToNameUNC(const wchar_t *lpwszPath)
 	return lpwszNamePtr;
 }
 
-string& ReplaceSlashToBSlash(string& strStr)
+string &ReplaceSlashToBSlash(string &strStr)
 {
 	wchar_t *lpwszStr = strStr.GetBuffer();
 
@@ -502,20 +525,6 @@ const wchar_t *FirstSlash(const wchar_t *String)
 	return NULL;
 }
 
-bool FirstSlash(const wchar_t *String,size_t &pos)
-{
-	bool Ret=false;
-	const wchar_t *Ptr=FirstSlash(String);
-
-	if (Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-
-	return Ret;
-}
-
 const wchar_t *LastSlash(const wchar_t *String)
 {
 	const wchar_t *Start = String;
@@ -529,68 +538,36 @@ const wchar_t *LastSlash(const wchar_t *String)
 	return IsSlash(*String)?String:NULL;
 }
 
-bool LastSlash(const wchar_t *String,size_t &pos)
+bool FindSlash(size_t &Pos, const string &Str, size_t StartPos)
 {
-	bool Ret=false;
-	const wchar_t *Ptr=LastSlash(String);
-
-	if (Ptr)
-	{
-		pos=Ptr-String;
-		Ret=true;
-	}
-
-	return Ret;
-}
-
-bool TestCurrentDirectory(const wchar_t *TestDir)
-{
-	string strCurDir;
-
-	if (apiGetCurrentDirectory(strCurDir) && !StrCmpI(strCurDir,TestDir))
-		return true;
-
-	return false;
-}
-
-bool FindSlash(size_t& Pos, const string& Str, size_t StartPos = 0)
-{
-	size_t p = StartPos;
-
-	while (p < Str.GetLength())
+	for (size_t p = StartPos; p < Str.GetLength(); p++)
 	{
 		if (IsSlash(Str[p]))
 		{
 			Pos = p;
 			return true;
 		}
-
-		p++;
 	}
 
 	return false;
 }
 
-bool FindLastSlash(size_t& Pos, const string& Str)
+bool FindLastSlash(size_t &Pos, const string &Str)
 {
-	size_t p = Str.GetLength();
-
-	while (p > 0)
+	for (size_t p = Str.GetLength(); p > 0; p--)
 	{
 		if (IsSlash(Str[p - 1]))
 		{
 			Pos = p - 1;
 			return true;
 		}
-
-		p--;
 	}
 
 	return false;
 }
 
 // find path root component (drive letter / volume name / server share) and calculate its length
-size_t GetPathRootLength(const string& Path)
+size_t GetPathRootLength(const string &Path)
 {
 	unsigned PrefixLen = 0;
 	bool IsUNC = false;
@@ -625,7 +602,7 @@ size_t GetPathRootLength(const string& Path)
 	return p;
 }
 
-string ExtractPathRoot(const string& Path)
+string ExtractPathRoot(const string &Path)
 {
 	size_t PathRootLen = GetPathRootLength(Path);
 
@@ -635,7 +612,7 @@ string ExtractPathRoot(const string& Path)
 		return string();
 }
 
-string ExtractFileName(const string& Path)
+string ExtractFileName(const string &Path)
 {
 	size_t p;
 
@@ -652,7 +629,7 @@ string ExtractFileName(const string& Path)
 	return string(Path.CPtr() + p, Path.GetLength() - p);
 }
 
-string ExtractFilePath(const string& Path)
+string ExtractFilePath(const string &Path)
 {
 	size_t p;
 
@@ -667,7 +644,7 @@ string ExtractFilePath(const string& Path)
 	return string(Path.CPtr(), p);
 }
 
-bool IsRootPath(const string& Path)
+bool IsRootPath(const string &Path)
 {
 	size_t PathRootLen = GetPathRootLength(Path);
 
@@ -680,7 +657,7 @@ bool IsRootPath(const string& Path)
 	return false;
 }
 
-bool PathStartsWith(const string& Path, const string& Start)
+bool PathStartsWith(const string &Path, const string &Start)
 {
 	string PathPart(Start);
 	DeleteEndSlash(PathPart, true);

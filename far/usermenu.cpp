@@ -303,7 +303,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 							// подымаемся выше...
 							size_t pos;
 
-							if (LastSlash(strMenuFilePath,pos))
+							if (FindLastSlash(pos,strMenuFilePath))
 							{
 								strMenuFilePath.SetLength(pos--);
 
@@ -384,7 +384,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				{
 					size_t pos;
 
-					if (LastSlash(strMenuFilePath,pos))
+					if (FindLastSlash(pos,strMenuFilePath))
 					{
 						strMenuFilePath.SetLength(pos--);
 
@@ -396,7 +396,9 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					MenuMode=MM_FAR;
 				}
 				else
+				{
 					MenuMode=MM_MAIN;
+				}
 
 				break;
 			}

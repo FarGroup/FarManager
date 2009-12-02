@@ -371,7 +371,7 @@ void FileList::ShowFileList(int Fast)
 				strCurDir=ListData[CurFile]->strName;
 				size_t pos;
 
-				if (LastSlash(strCurDir,pos))
+				if (FindLastSlash(pos,strCurDir))
 				{
 					if (pos)
 					{

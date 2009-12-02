@@ -1304,34 +1304,32 @@ int FileList::ProcessKey(int Key)
 								PluginMode=FALSE;
 							}
 
+							size_t pos;
+
+							// проверим путь к файлу
+							if (FindLastSlash(pos,strFileName) && pos!=0)
 							{
-								size_t pos;
-
-								// проверим путь к файлу
-								if (LastSlash(strFileName,pos) && pos!=0)
+								if (!(HasPathPrefix(strFileName) && pos==3))
 								{
-									if (!(HasPathPrefix(strFileName) && pos==3))
+									wchar_t *lpwszFileName = strFileName.GetBuffer();
+									wchar_t wChr = lpwszFileName[pos+1];
+									lpwszFileName[pos+1]=0;
+									DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
+
+									if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
 									{
-										wchar_t *lpwszFileName = strFileName.GetBuffer();
-										wchar_t wChr = lpwszFileName[pos+1];
-										lpwszFileName[pos+1]=0;
-										DWORD CheckFAttr=apiGetFileAttributes(lpwszFileName);
+										SetMessageHelp(L"WarnEditorPath");
 
-										if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
-										{
-											SetMessageHelp(L"WarnEditorPath");
-
-											if (Message(MSG_WARNING,2,MSG(MWarning),
-											            MSG(MEditNewPath1),
-											            MSG(MEditNewPath2),
-											            MSG(MEditNewPath3),
-											            MSG(MHYes),MSG(MHNo))!=0)
-												return FALSE;
-										}
-
-										lpwszFileName[pos+1]=wChr;
-										//strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
+										if (Message(MSG_WARNING,2,MSG(MWarning),
+													MSG(MEditNewPath1),
+													MSG(MEditNewPath2),
+													MSG(MEditNewPath3),
+													MSG(MHYes),MSG(MHNo))!=0)
+											return FALSE;
 									}
+
+									lpwszFileName[pos+1]=wChr;
+									//strFileName.ReleaseBuffer (); это не надо так как строка не поменялась
 								}
 							}
 						}
@@ -1345,7 +1343,9 @@ int FileList::ProcessKey(int Key)
 								return(FALSE);
 						}
 						else
+						{
 							strFileName = MSG(MNewFileName);
+						}
 					}
 					while (strFileName.IsEmpty());
 				}
@@ -2500,7 +2500,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 					if (PtrS1 && !FirstSlash(PtrS1+1))
 					{
-						if (CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)(const wchar_t *)strNewCurDir)) // NetWork Plugin :-)
+						if (CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
 							return(FALSE);
 					}
 				}
@@ -3840,7 +3840,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 			{
 				size_t pos;
 
-				if (LastSlash(strFileName,pos))
+				if (FindLastSlash(pos,strFileName))
 					strFileName.Upper(0,pos);
 				else
 					strFileName.Upper();
@@ -3851,7 +3851,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 		{
 			size_t pos;
 
-			if (LastSlash(strFileName,pos) && !IsCaseMixed((const wchar_t *)strFileName+pos))
+			if (FindLastSlash(pos,strFileName) && !IsCaseMixed(strFileName.CPtr()+pos))
 				strFileName.Lower(pos);
 		}
 
@@ -3859,7 +3859,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 		{
 			size_t pos;
 
-			if (LastSlash(strFileName,pos))
+			if (FindLastSlash(pos,strFileName))
 				strFileName.Lower(pos);
 		}
 	}
@@ -3884,7 +3884,9 @@ void FileList::SetTitle()
 			strTitleDir += strPluginTitle;
 		}
 		else
+		{
 			strTitleDir += strCurDir;
+		}
 
 		strTitleDir += L"}";
 		strLastFarTitle = strTitleDir; //BUGBUG;

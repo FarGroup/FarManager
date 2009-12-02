@@ -823,7 +823,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			string strNewDir(strSelName);
 			size_t pos;
 
-			if (LastSlash(strNewDir,pos))
+			if (FindLastSlash(pos,strNewDir))
 			{
 				strNewDir.SetLength(pos);
 
@@ -1815,7 +1815,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 
 			size_t pos;
 
-			if (LastSlash(strNewPath,pos))
+			if (FindLastSlash(pos,strNewPath))
 			{
 				strNewPath.SetLength(pos);
 
@@ -1838,6 +1838,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 				}
 			}
 		}
+
 		DestAttr=apiGetFileAttributes(Dest);
 	}
 

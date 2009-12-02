@@ -220,7 +220,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		{
 			size_t pos;
 
-			if (FirstSlash(strDirName,pos))
+			if (FindSlash(pos,strDirName))
 				strDirName.SetLength(pos);
 
 			if (!SrcPanel->GoToFile(strDirName) && strDirName.At(strDirName.GetLength()-1)==L'.')

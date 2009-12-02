@@ -2733,7 +2733,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	{
 		size_t pos;
 
-		if (LastSlash(strPathName,pos))
+		if (FindLastSlash(pos,strPathName))
 			strPathName.SetLength(pos);
 		else
 			strPathName.Clear();

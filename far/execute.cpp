@@ -1653,7 +1653,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 		{
 			size_t pos;
 
-			if (LastSlash(strExpandedDir,pos))
+			if (FindLastSlash(pos,strExpandedDir))
 				strExpandedDir.SetLength(pos+1);
 			else
 				strExpandedDir.Clear();

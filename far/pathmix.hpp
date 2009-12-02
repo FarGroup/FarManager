@@ -92,17 +92,17 @@ bool IsLocalPrefixRootPath(const wchar_t *Path);
 bool IsLocalVolumePath(const wchar_t *Path);
 bool IsLocalVolumeRootPath(const wchar_t *Path);
 bool IsAbsolutePath(const wchar_t *Path);
-bool IsRootPath(const string& Path);
+bool IsRootPath(const string &Path);
 bool HasPathPrefix(const wchar_t *Path);
-bool PathStartsWith(const string& Path, const string& Start);
-bool PathCanHoldRegularFile(const string &Path);
+bool PathStartsWith(const string &Path, const string &Start);
+bool PathCanHoldRegularFile(const wchar_t *Path);
 
 bool CutToSlash(string &strStr, bool bInclude = false);
 string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
-const wchar_t* PointToName(string& strPath);
+const wchar_t* PointToName(string &strPath);
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath);
@@ -115,17 +115,17 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 BOOL WINAPI AddEndSlash(wchar_t *Path);
 bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash = false);
 BOOL WINAPI DeleteEndSlash(string &strPath,bool AllEndSlash = false);
-string& ReplaceSlashToBSlash(string& strStr);
+string &ReplaceSlashToBSlash(string &strStr);
 
 const wchar_t *FirstSlash(const wchar_t *String);
-bool FirstSlash(const wchar_t *String,size_t &pos);
 const wchar_t *LastSlash(const wchar_t *String);
-bool LastSlash(const wchar_t *String,size_t &pos);
+bool FindSlash(size_t &Pos, const string &Str, size_t StartPos = 0);
+bool FindLastSlash(size_t &Pos, const string &Str);
 
 bool TestParentFolderName(const wchar_t *Name);
 bool TestCurrentFolderName(const wchar_t *Name);
 bool TestCurrentDirectory(const wchar_t *TestDir);
 
-string ExtractPathRoot(const string& Path);
-string ExtractFileName(const string& Path);
-string ExtractFilePath(const string& Path);
+string ExtractPathRoot(const string &Path);
+string ExtractFileName(const string &Path);
+string ExtractFilePath(const string &Path);
