@@ -265,6 +265,7 @@ DEFINES=\
 	/D "SYSLOG_FARSYSLOG"\
 !endif
 	/D "_CRT_SECURE_NO_WARNINGS"\
+	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
 # common
 CPPFLAGS=/nologo $(MP) /W3 $(FARSYSLOG) /EHs-c- $(DEFINES) /GS- /GR- /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c /FAcs /Fa"$(CODDIR)\\"

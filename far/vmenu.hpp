@@ -194,9 +194,6 @@ class ConsoleTitle;
 
 class VMenu: public Modal
 {
-#ifdef _MSC_VER
-#pragma warning(disable:4250)
-#endif //_MSC_VER
 	private:
 		string strTitle;
 		string strBottomTitle;

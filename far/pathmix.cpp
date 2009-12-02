@@ -389,22 +389,21 @@ BOOL WINAPI DeleteEndSlash(string &strPath, bool AllEndSlash)
 bool CutToSlash(string &strStr, bool bInclude)
 {
 	size_t pos;
-	bool bFound=FindLastSlash(pos,strStr);
 
-	if (pos==3 && HasPathPrefix(strStr))
+	if (FindLastSlash(pos,strStr))
 	{
-		bFound=false;
-	}
+		if (pos==3 && HasPathPrefix(strStr))
+			return false;
 
-	if (bFound)
-	{
 		if (bInclude)
 			strStr.SetLength(pos);
 		else
 			strStr.SetLength(pos+1);
+
+		return true;
 	}
 
-	return bFound;
+	return false;
 }
 
 string &CutToNameUNC(string &strPath)
@@ -437,6 +436,7 @@ string &CutToNameUNC(string &strPath)
 
 	*lpwszNamePtr = 0;
 	strPath.ReleaseBuffer();
+
 	return strPath;
 }
 

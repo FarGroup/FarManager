@@ -430,11 +430,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	if (!StandardFunctions.StructSize)
 	{
 		StandardFunctions.StructSize=sizeof(StandardFunctions);
-#pragma warning(push)
-#pragma warning(disable:4996)
-		// swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter.
 		StandardFunctions.sprintf=swprintf;
-#pragma warning(pop)
 		StandardFunctions.snprintf=_snwprintf;
 		StandardFunctions.sscanf=swscanf;
 		StandardFunctions.qsort=FarQsort;
@@ -487,7 +483,7 @@ void CreatePluginStartupInfo(Plugin *pPlugin, PluginStartupInfo *PSI, FarStandar
 	if (!StartupInfo.StructSize)
 	{
 		StartupInfo.StructSize=sizeof(StartupInfo);
-		StartupInfo.Menu=FarMenuFn; //BUGBUG
+		StartupInfo.Menu=FarMenuFn;
 		StartupInfo.GetMsg=FarGetMsgFn;
 		StartupInfo.Message=FarMessageFn;
 		StartupInfo.Control=FarControl;

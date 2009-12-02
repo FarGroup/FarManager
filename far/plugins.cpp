@@ -63,10 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "interf.hpp"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4509)
-#endif
-
 const wchar_t *FmtPluginsCache_PluginS=L"PluginsCache\\%s";
 const wchar_t *FmtDiskMenuStringD=L"DiskMenuString%d";
 const wchar_t *FmtDiskMenuNumberD=L"DiskMenuNumber%d";
