@@ -251,20 +251,28 @@ bool WMIConnection::Connect(LPCTSTR pMachineName, LPCTSTR pUser, LPCTSTR pPasswo
     pCoInitializeSecurity(0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT,
                           RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
 
-    if(!pMachineName || !*pMachineName)
-        pMachineName = _T(".");
-
-    if(NORM_M_PREFIX(pMachineName) || REV_M_PREFIX(pMachineName))
-        pMachineName += 2*sizeof(TCHAR);
-
     IWbemLocator *pIWbemLocator = NULL;
 
     if((hrLast=CoCreateInstance(CLSID_WbemLocator,
         NULL, CLSCTX_INPROC_SERVER, IID_IWbemLocator,
         (LPVOID *) &pIWbemLocator)) == S_OK)
     {
+        if(!pMachineName || !*pMachineName)
+          pMachineName = _T(".");
+
+        if(NORM_M_PREFIX(pMachineName) || REV_M_PREFIX(pMachineName))
+#ifndef UNICODE
+          pMachineName += 2*sizeof(TCHAR);
+#else
+          pMachineName += 2;
+#endif
+
         wchar_t Namespace[128];
+#ifndef UNICODE
         wsprintfW(Namespace, L"\\\\%S\\root\\cimv2", pMachineName);
+#else
+        wsprintfW(Namespace, L"\\\\%s\\root\\cimv2", pMachineName);
+#endif
 
         if((hrLast=pIWbemLocator->ConnectServer(Namespace, BStr(pUser), BStr(pPassword),0,0,0,0,
                         &pIWbemServices)) != S_OK)
