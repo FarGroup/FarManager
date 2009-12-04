@@ -95,7 +95,7 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 		IMAGE_DOS_HEADER DOSHeader;
 		DWORD ReadSize;
 
-		if (ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,NULL))
+		if (ReadFile(hModuleFile,&DOSHeader,sizeof(DOSHeader),&ReadSize,NULL) && ReadSize==sizeof(DOSHeader))
 		{
 			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
 			{
@@ -106,7 +106,7 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 				{
 					IMAGE_HEADERS PEHeader;
 
-					if (ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,NULL))
+					if (ReadFile(hModuleFile,&PEHeader,sizeof(PEHeader),&ReadSize,NULL) && ReadSize==sizeof(PEHeader))
 					{
 						if (PEHeader.Signature==IMAGE_NT_SIGNATURE)
 						{
@@ -117,11 +117,13 @@ static bool GetImageSubsystem(const wchar_t *FileName,DWORD& ImageSubsystem)
 									ImageSubsystem=PEHeader.OptionalHeader32.Subsystem;
 								}
 								break;
+
 								case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
 								{
 									ImageSubsystem=PEHeader.OptionalHeader64.Subsystem;
 								}
 								break;
+
 								/*default:
 									{
 										// unknown magic
@@ -277,28 +279,28 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
 			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey, &hUserKey) == ERROR_SUCCESS)
+			{
 				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 				{
 					strType = strFoundValue;
 				}
+			}
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
 		if (strType.IsEmpty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext, &hCRKey) == ERROR_SUCCESS))
+		{
 			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
 			{
 				strType = strFoundValue;
 			}
+		}
 
 		if (strType.IsEmpty() && hUserKey)
-		{
 			SearchExtHandlerFromList(hUserKey, strType);
-		}
 
 		if (strType.IsEmpty() && hCRKey)
-		{
 			SearchExtHandlerFromList(hCRKey, strType);
-		}
 
 		if (hUserKey)
 			RegCloseKey(hUserKey);
@@ -352,7 +354,7 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 	if (RetQuery == ERROR_SUCCESS)
 	{
 		UserDefinedList ActionList(0,0,ULF_UNIQUE);
-		RetPtr = (strAction.IsEmpty() ? NULL : (const wchar_t *)strAction);
+		RetPtr = (strAction.IsEmpty() ? NULL : strAction.CPtr());
 		const wchar_t *ActionPtr;
 		LONG RetEnum = ERROR_SUCCESS;
 
@@ -378,7 +380,9 @@ const wchar_t *GetShellAction(const wchar_t *FileName,DWORD& ImageSubsystem,DWOR
 			} /* while */
 		} /* if */
 		else
+		{
 			strValue += strAction;
+		}
 
 		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
 			RetPtr=NULL;
@@ -499,7 +503,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 	bool Result=false;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-	if (Module&&*Module)
+	if (Module && *Module)
 	{
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
@@ -523,7 +527,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		{
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(Module,L'.');
-			string strPathExt=L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH";
+			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
 			UserDefinedList PathExtList;
 			PathExtList.Set(strPathExt);
@@ -541,7 +545,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 				DWORD Attr=apiGetFileAttributes(strTmpName);
 
-				if ((Attr!=INVALID_FILE_ATTRIBUTES)&&!(Attr&FILE_ATTRIBUTE_DIRECTORY))
+				if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
 				{
 					ConvertNameToFull(strTmpName,strFullName);
 					Result=true;
@@ -732,7 +736,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
 	{
 		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			*(ParPtr++)=0;     //    он добавляется заново в Execute.
+			*(ParPtr++)=0;   //    он добавляется заново в Execute.
 
 		strNewCmdPar = ParPtr;
 		*ParPtr = 0;
@@ -756,16 +760,15 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	string strNewCmdStr;
 	string strNewCmdPar;
 	string strExecLine;
-	PartCmdLine(
-	    CmdStr,
-	    strNewCmdStr,
-	    strNewCmdPar
-	);
+
+	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
+
 	/* $ 05.04.2005 AY: Это не правильно, надо убирать только первый пробел,
 	                    что теперь и делает PartCmdLine.
 	if(*NewCmdPar)
 	  RemoveExternalSpaces(NewCmdPar);
 	AY $ */
+
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
 	if (SeparateWindow == 1)
@@ -778,8 +781,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		}
 	}
 
-	STARTUPINFO si={sizeof(si)};
-	PROCESS_INFORMATION pi;
 	string strComspec;
 	apiGetEnvironmentVariable(L"COMSPEC", strComspec);
 
@@ -792,24 +793,33 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 	int Visible, Size;
 	GetCursorType(Visible,Size);
 	SetInitialCursorType();
+
 	// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
 	// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
 	ScrBuf.SetLockCount(0);
+
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
 	int ConsoleCP = GetConsoleCP();
 	int ConsoleOutputCP = GetConsoleOutputCP();
+
 	FlushInputBuffer();
 	ChangeConsoleMode(InitialConsoleMode);
+
 	CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
 	GetConsoleScreenBufferInfo(hConOut,&sbi);
+
 	ConsoleTitle OldTitle;
+
 	DWORD dwSubSystem;
 	DWORD dwError = 0;
 	HANDLE hProcess = NULL, hThread = NULL;
-	LPCWSTR lpVerb=NULL;
+	LPCWSTR lpVerb = NULL;
 
 	if (FolderRun && SeparateWindow==2)
+	{
 		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+	}
 	else
 	{
 		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
@@ -817,10 +827,11 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		if (/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
 		{
 			DWORD Error=0, dwSubSystem2=0;
-			wchar_t *ExtPtr=(wchar_t *)wcsrchr(strNewCmdStr,L'.');
+			size_t pos;
 
-			if (ExtPtr)
+			if (strNewCmdStr.RPos(pos,L'.'))
 			{
+				const wchar_t *ExtPtr=strNewCmdStr.CPtr()+pos;
 				if (!(StrCmpI(ExtPtr,L".exe")==0 || StrCmpI(ExtPtr,L".com")==0 || IsBatchExtType(ExtPtr)))
 				{
 					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);
@@ -833,11 +844,11 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 				if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN && !StrCmpNI(strNewCmdStr,L"ECHO.",5)) // вариант "echo."
 				{
-					*ExtPtr=L' ';
+					strNewCmdStr.Replace(pos,1,L' ');
 					PartCmdLine(strNewCmdStr,strNewCmdStr,strNewCmdPar);
 
 					if (strNewCmdPar.IsEmpty())
-						*ExtPtr=L'.';
+						strNewCmdStr+=L'.';
 
 					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 				}
@@ -871,7 +882,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 				StartExecTime=clock();
 			}
 			else
+			{
 				dwError = GetLastError();
+			}
 		}
 	}
 	else
@@ -894,9 +907,6 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		}
 
 		SetConsoleTitle(strFarTitle);
-
-		if (SeparateWindow)
-			si.lpTitle=(wchar_t*)(const wchar_t*)strFarTitle;
 
 		QuoteSpace(strNewCmdStr);
 		strExecLine = strComspec;
@@ -922,12 +932,19 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
 		// // попытка борьбы с синим фоном в 4NT при старте консоль
 		SetRealColor(COL_COMMANDLINEUSERSCREEN);
+
 		string strCurDir;
 		apiGetCurrentDirectory(strCurDir);
 
+		PROCESS_INFORMATION pi;
+		STARTUPINFO si={sizeof(si)};
+
+		if (SeparateWindow)
+			si.lpTitle=(wchar_t*)strFarTitle.CPtr();
+
 		if (CreateProcess(
 		            NULL,
-		            (wchar_t*)(const wchar_t*)strExecLine,
+		            (wchar_t*)strExecLine.CPtr(),
 		            NULL,
 		            NULL,
 		            false,
@@ -943,7 +960,9 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 			StartExecTime=clock();
 		}
 		else
+		{
 			dwError = GetLastError();
+		}
 	}
 
 	if (!dwError)
@@ -1084,8 +1103,8 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 		else
 		{
 			ScrBuf.Flush();
-			strOutStr.Format(MSG(MExecuteErrorMessage),(const wchar_t *)strNewCmdStr);
-			string strPtrStr=FarFormatText(strOutStr,ScrX, strPtrStr,L"\n",0);
+			strOutStr.Format(MSG(MExecuteErrorMessage),strNewCmdStr.CPtr());
+			string strPtrStr=FarFormatText(strOutStr,ScrX,strPtrStr,L"\n",0);
 			wprintf(strPtrStr);
 			ScrBuf.FillBuf();
 		}
@@ -1149,10 +1168,12 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,int AlwaysWaitFinish,int Sepa
 		if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 			FarChDir(strCurDir);
 
-		CmdStr.SetString(L"");
+		SetString(L"", FALSE);
 
 		if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
+		{
 			Code=-1;
+		}
 		else
 		{
 			string strTempStr;
@@ -1236,7 +1257,8 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 		// ExtractIfExistCommand в filetype.cpp
 		PtrCmd++;
 
-		while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+		while (*PtrCmd && IsSpace(*PtrCmd))
+			++PtrCmd;
 	}
 
 	for (;;)
@@ -1244,19 +1266,37 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3))
 			break;
 
-		PtrCmd+=3; while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if (!*PtrCmd) break;
+		PtrCmd+=3;
+
+		while (*PtrCmd && IsSpace(*PtrCmd))
+			++PtrCmd;
+
+		if (!*PtrCmd)
+			break;
 
 		if (StrCmpNI(PtrCmd,L"NOT ",4)==0)
 		{
 			Not=TRUE;
 
-			PtrCmd+=4; while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if (!*PtrCmd) break;
+			PtrCmd+=4;
+
+			while (*PtrCmd && IsSpace(*PtrCmd))
+				++PtrCmd;
+
+			if (!*PtrCmd)
+				break;
 		}
 
 		if (*PtrCmd && !StrCmpNI(PtrCmd,L"EXIST ",6))
 		{
 
-			PtrCmd+=6; while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if (!*PtrCmd) break;
+			PtrCmd+=6;
+
+			while (*PtrCmd && IsSpace(*PtrCmd))
+				++PtrCmd;
+
+			if (!*PtrCmd)
+				break;
 
 			CmdStart=PtrCmd;
 			/* $ 25.04.01 DJ
@@ -1276,11 +1316,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 
 			if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 			{
-				{
-					wchar_t *lpwszCmd = strCmd.GetBuffer(PtrCmd-CmdStart+1);
-					wmemcpy(lpwszCmd,CmdStart,PtrCmd-CmdStart);
-					strCmd.ReleaseBuffer(PtrCmd-CmdStart);
-				}
+				strCmd.Copy(CmdStart,PtrCmd-CmdStart);
 				Unquote(strCmd);
 
 //_SVS(SysLog(L"Cmd='%s'",(const wchar_t *)strCmd));
@@ -1301,7 +1337,7 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 					strFullPath += strExpandedStr;
 					DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
-					if (wcspbrk((const wchar_t *)strExpandedStr+(HasPathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
+					if (wcspbrk(strExpandedStr.CPtr()+(HasPathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
 					{
 						FAR_FIND_DATA_EX wfd;
 
@@ -1317,12 +1353,15 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
 					if ((FileAttr != INVALID_FILE_ATTRIBUTES && !Not) || (FileAttr == INVALID_FILE_ATTRIBUTES && Not))
 					{
-						while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+						while (*PtrCmd && IsSpace(*PtrCmd))
+							++PtrCmd;
 
 						Exist++;
 					}
 					else
+					{
 						return L"";
+					}
 				}
 			}
 		}
@@ -1330,7 +1369,13 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 		else if (*PtrCmd && !StrCmpNI(PtrCmd,L"DEFINED ",8))
 		{
 
-			PtrCmd+=8; while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if (!*PtrCmd) break;
+			PtrCmd+=8;
+
+			while (*PtrCmd && IsSpace(*PtrCmd))
+				++PtrCmd;
+
+			if (!*PtrCmd)
+				break;
 
 			CmdStart=PtrCmd;
 
@@ -1343,22 +1388,22 @@ const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine)
 
 				if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
 				{
-					{
-						wchar_t *lpwszCmd = strCmd.GetBuffer(PtrCmd-CmdStart+1);
-						wmemcpy(lpwszCmd,CmdStart,PtrCmd-CmdStart);
-						strCmd.ReleaseBuffer(PtrCmd-CmdStart);
-					}
+					strCmd.Copy(CmdStart,PtrCmd-CmdStart);
+
 					DWORD ERet=apiGetEnvironmentVariable(strCmd,strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
 					{
-						while (*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
+						while (*PtrCmd && IsSpace(*PtrCmd))
+							++PtrCmd;
 
 						Exist++;
 					}
 					else
+					{
 						return L"";
+					}
 				}
 			}
 		}
@@ -1424,7 +1469,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 		{
 			string strExpandedStr;
 
-			if (apiExpandEnvironmentStrings((const wchar_t *)strCmdLine+pos+1,strExpandedStr) != 0)
+			if (apiExpandEnvironmentStrings(strCmdLine.CPtr()+pos+1,strExpandedStr) != 0)
 			{
 				strCmdLine.SetLength(pos);
 				SetEnvironmentVariable(strCmdLine,strExpandedStr);
@@ -1436,14 +1481,14 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	// REM все остальное
 	else if ((!StrCmpNI(strCmdLine,L"REM",Length=3) && IsSpaceOrEos(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",Length=2))
 	{
-		if (Length == 3 && CheckCmdLineForHelp((const wchar_t*)strCmdLine+Length))
+		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.CPtr()+Length))
 			return FALSE; // отдадимся COMSPEC`у
 
 		return TRUE;
 	}
 	else if (!StrCmpNI(strCmdLine,L"CLS",3) && IsSpaceOrEos(strCmdLine.At(3)))
 	{
-		if (CheckCmdLineForHelp((const wchar_t*)strCmdLine+3))
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+3))
 			return FALSE; // отдадимся COMSPEC`у
 
 		ClearScreen(COL_COMMANDLINEUSERSCREEN);
@@ -1477,7 +1522,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
 	else if (!StrCmpNI(CmdLine,L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
-		if (CheckCmdLineForHelp((const wchar_t *)strCmdLine+4))
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
 		PushPopRecord prec;
@@ -1508,15 +1553,16 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
 		strCmdLine.LShift(4);
+
 		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
 
 		if (CheckCmdLineForHelp(Ptr))
 			return FALSE; // отдадимся COMSPEC`у
 
-		wchar_t Chr;
-
 		if (!iswdigit(*Ptr))
 			return FALSE;
+
+		wchar_t Chr;
 
 		while ((Chr=*Ptr) != 0)
 		{
@@ -1542,11 +1588,13 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 			return TRUE;
 		}
 		else  // про траблы внешняя chcp сама скажет ;-)
+		{
 			return FALSE;
+		}
 	}
 	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpaceOrEos(strCmdLine.At(2)))
 	{
-		if (CheckCmdLineForHelp((const wchar_t*)strCmdLine+2))
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+2))
 			return FALSE; // отдадимся COMSPEC`у
 
 		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
@@ -1572,8 +1620,16 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 				return FALSE;
 		}
 
-		strCmdLine = (const wchar_t*)strCmdLine+Length;
+		strCmdLine.LShift(Length);
 		RemoveLeadingSpaces(strCmdLine);
+
+		//проигнорируем /D
+		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
+		if (StrCmpNI(strCmdLine,L"/D",2)==0 && IsSpaceOrEos(strCmdLine.At(2)))
+		{
+			strCmdLine.LShift(2);
+			RemoveLeadingSpaces(strCmdLine);
+		}
 
 		if (strCmdLine.IsEmpty() || CheckCmdLineForHelp(strCmdLine))
 			return FALSE; // отдадимся COMSPEC`у
@@ -1583,7 +1639,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 	}
 	else if (!StrCmpNI(strCmdLine,L"EXIT",4) && IsSpaceOrEos(strCmdLine.At(4)))
 	{
-		if (CheckCmdLineForHelp((const wchar_t*)strCmdLine+4))
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
 			return FALSE; // отдадимся COMSPEC`у
 
 		FrameManager->ExitMainLoop(FALSE);
@@ -1609,7 +1665,8 @@ bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
 
 bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
 {
-	if (CmdLine.GetLength()>1&&CmdLine.At(0)==L'/'&&IsSpaceOrEos(CmdLine.At(2))) return true;
+	if (CmdLine.GetLength()>1 && CmdLine.At(0)==L'/' && IsSpaceOrEos(CmdLine.At(2)))
+		return true;
 
 	return false;
 }
@@ -1622,13 +1679,9 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
 		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
 
-	string strExpandedDir;
-	strExpandedDir = (const wchar_t*)CmdLine;
+	string strExpandedDir(CmdLine);
 	Unquote(strExpandedDir);
 	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
-	// скорректируем букву диска на "подступах"
-//    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG
-//      ExpandedDir[0]=towupper(ExpandedDir[0]);
 
 	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
 	{
@@ -1638,7 +1691,7 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 		if (strExpandedDir.At(1))
 		{
 			AddEndSlash(strTemp);
-			strTemp += (const wchar_t*)strExpandedDir+2;
+			strTemp += strExpandedDir.CPtr()+2;
 		}
 
 		DeleteEndSlash(strTemp);
@@ -1721,29 +1774,29 @@ BOOL CommandLine::IntChDir(const wchar_t *CmdLine,int ClosePlugin,bool Selent)
 // Проверить "Это батник?"
 bool IsBatchExtType(const wchar_t *ExtPtr)
 {
-	bool Result=false;
 	UserDefinedList BatchExtList;
 	BatchExtList.Set(Opt.strExecuteBatchType);
 
-	while (!Result&&!BatchExtList.IsEmpty())
+	while (!BatchExtList.IsEmpty())
 	{
 		if (!StrCmpI(ExtPtr,BatchExtList.GetNext()))
-		{
-			Result=true;
-		}
+			return true;
 	}
 
-	return Result;
+	return false;
 }
 
 bool ProcessOSAliases(string &strStr)
 {
 	string strNewCmdStr;
 	string strNewCmdPar;
+
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
+
 	string strModuleName;
 	apiGetModuleFileName(NULL,strModuleName);
-	const wchar_t* lpwszExeName=PointToName(strModuleName);
+
+	const wchar_t *lpwszExeName=PointToName(strModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
 	int ret=GetConsoleAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),(wchar_t*)lpwszExeName);

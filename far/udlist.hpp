@@ -58,9 +58,7 @@ class UserDefinedListItem
 	public:
 		unsigned int index;
 		wchar_t *Str;
-		UserDefinedListItem():index(0), Str(NULL)
-		{
-		}
+		UserDefinedListItem():index(0), Str(NULL) {}
 		bool operator==(const UserDefinedListItem &rhs) const;
 		int operator<(const UserDefinedListItem &rhs) const;
 		const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
