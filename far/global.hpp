@@ -83,8 +83,6 @@ extern BOOL ProcessException;
 
 extern BOOL ProcessShowClock;
 
-extern const wchar_t *FarTitleAddons;
-
 extern const wchar_t *HelpFileMask;
 extern const wchar_t *HelpFormatLinkModule;
 

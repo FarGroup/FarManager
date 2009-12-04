@@ -96,8 +96,6 @@ const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;
 
-const wchar_t *FarTitleAddons=L" - Far";
-
 const wchar_t *HelpFileMask=L"*.hlf";
 const wchar_t *HelpFormatLinkModule=L"<%s>%s";
 

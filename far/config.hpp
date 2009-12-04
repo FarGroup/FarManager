@@ -612,6 +612,9 @@ struct Options
 	InfoPanelOptions InfoPanel;
 
 	DWORD CPMenuMode;
+
+	BOOL IsUserAdmin;
+	string TitleAddons;
 };
 
 extern Options Opt;

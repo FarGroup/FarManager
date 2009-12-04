@@ -184,41 +184,6 @@ void RestoreConsoleWindowInfo()
 	SetConsoleWindowInfo(hConOut,TRUE,&windowholder_csbi.srWindow);
 }
 
-void SetFarTitle(const wchar_t *Title)
-{
-	static string strFarTitle;
-	string strOldFarTitle;
-
-	if (Title)
-	{
-		apiGetConsoleTitle(strOldFarTitle);
-		strFarTitle=Title;
-		strFarTitle.SetLength(0x100);
-		strFarTitle+=FarTitleAddons;
-		TitleModified=TRUE;
-
-		if (StrCmp(strOldFarTitle, strFarTitle) &&
-		        ((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
-		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()))
-		{
-			SetConsoleTitle(strFarTitle);
-			TitleModified=FALSE;
-		}
-	}
-	else
-	{
-		/*
-			Title=NULL для случая, когда нужно выставить пред.заголовок
-			SetFarTitle(NULL) - это не для всех!
-			Этот вызов имеет право делать только макро-движок!
-		*/
-		SetConsoleTitle(strFarTitle);
-		TitleModified=FALSE;
-		//_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
-	}
-}
-
-
 void FlushInputBuffer()
 {
 	FlushConsoleInputBuffer(hConInp);

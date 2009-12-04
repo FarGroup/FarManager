@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exitcode.hpp"
 #include "CachedWrite.hpp"
+#include "constitle.hpp"
 
 enum enumOpenEditor
 {
@@ -2037,7 +2038,7 @@ void FileEditor::ShowConsoleTitle()
 {
 	string strTitle;
 	strTitle.Format(MSG(MInEditor), PointToName(strFileName));
-	SetFarTitle(strTitle);
+	ConsoleTitle::SetFarTitle(strTitle);
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 

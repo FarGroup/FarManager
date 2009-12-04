@@ -45,4 +45,7 @@ class ConsoleTitle
 	public:
 		void Set(const wchar_t *fmt,...);
 
+	public:
+		static void SetFarTitle(const wchar_t *Title);
+
 };

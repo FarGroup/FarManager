@@ -83,6 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
+#include "constitle.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
@@ -3890,7 +3891,7 @@ void FileList::SetTitle()
 
 		strTitleDir += L"}";
 		strLastFarTitle = strTitleDir; //BUGBUG;
-		SetFarTitle(strTitleDir);
+		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }
 

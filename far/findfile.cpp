@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
+#include "constitle.hpp"
 
 #define CHAR_TABLE_SIZE 5
 
@@ -2533,7 +2534,7 @@ void FindFiles::DoPrepareFileList(HANDLE hDlg)
 	strFindPercentMessage.Clear();
 	FindMessagePercentReady=true;
 	strFindMessage.Format(MSG(MFindDone),FindFileCount,FindDirCount);
-	SetFarTitle(strFindMessage);
+	ConsoleTitle::SetFarTitle(strFindMessage);
 	SearchDone=TRUE;
 	FindMessageReady=TRUE;
 	statusCS.Leave();
@@ -3066,7 +3067,7 @@ void FindFiles::DoWriteDialogData(HANDLE hDlg)
 						strDataStr.Clear();
 						SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_SEPARATOR1, reinterpret_cast<LONG_PTR>(strDataStr.CPtr()));
 						SendDlgMessage(hDlg, DM_ENABLEREDRAW, TRUE, 0);
-						SetFarTitle(strFindMessage);
+						ConsoleTitle::SetFarTitle(strFindMessage);
 						StopSearch=TRUE;
 					}
 					else

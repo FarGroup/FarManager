@@ -105,7 +105,6 @@ enum BOX_DEF_SYMBOLS
 	BS_X_DF,          // 0xDF
 };
 
-void SetFarTitle(const wchar_t *Title);
 void ShowTime(int ShowAlways);
 
 /*$ 14.02.2001 SKV

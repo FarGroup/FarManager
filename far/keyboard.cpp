@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 #include "strmix.hpp"
 #include "synchro.hpp"
+#include "constitle.hpp"
 
 /* start Глобальные переменные */
 
@@ -920,7 +921,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 					SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT);
 				}
 
-				SetFarTitle(NULL);//LastFarTitle);
+				ConsoleTitle::SetFarTitle(NULL);//LastFarTitle);
 			}
 
 			if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&

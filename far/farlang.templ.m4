@@ -16891,6 +16891,15 @@ MBadFileSizeFormat
 "A fájlméret mező rosszul van kitöltve!"
 "Rozmiar pliku jest niepoprawny!"
 
+MFarTitleAddonsAdmin
+l:
+" (Администратор)"
+" (Administrator)"
+upd:" (Administrator)"
+upd:" (Administrator)"
+upd:" (Administrator)"
+upd:" (Administrator)"
+
 #Must be the last
 MNewFileName
 l:

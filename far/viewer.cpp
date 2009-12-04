@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "filestr.hpp"
 #include "mix.hpp"
+#include "constitle.hpp"
 
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *Name,int Percent);
@@ -2663,7 +2664,7 @@ void Viewer::ShowConsoleTitle()
 {
 	string strTitle;
 	strTitle.Format(MSG(MInViewer), PointToName(strFileName));
-	SetFarTitle(strTitle);
+	ConsoleTitle::SetFarTitle(strTitle);
 }
 
 

@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
+#include "constitle.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -204,6 +205,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Menu.Value",         MCODE_V_MENU_VALUE,0},
 
 	{2,  L"Windowed",           MCODE_C_WINDOWEDMODE,0},
+	{2,  L"IsUserAdmin",        MCODE_C_ISUSERADMIN,0},
 };
 
 TMacroKeywords MKeywordsArea[] =
@@ -885,6 +887,9 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					break;
 				case MCODE_C_WINDOWEDMODE: // Windowed?
 					Cond=FarAltEnter(-2)==0?1:0;
+					break;
+				case MCODE_C_ISUSERADMIN: // IsUserAdmin?
+					Cond=(__int64)Opt.IsUserAdmin;
 					break;
 				case MCODE_C_ICLIP:
 					Cond=(__int64)UseInternalClipboard;
@@ -3191,7 +3196,7 @@ int KeyMacro::GetKey()
 			}
 
 			if (TitleModified)
-				SetFarTitle(NULL);
+				ConsoleTitle::SetFarTitle(NULL);
 
 			UseInternalClipboard=0; //??
 			//_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
@@ -3275,7 +3280,7 @@ done:
 			Work.ExecLIBPos=0;
 		}
 
-		if (TitleModified) SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
+		if (TitleModified) ConsoleTitle::SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
 
 		//FrameManager->RefreshFrame();
 		//FrameManager->PluginCommit();
@@ -3936,7 +3941,7 @@ return_func:
 		Work.Executing=MACROMODE_NOMACRO;
 
 		if (TitleModified)
-			SetFarTitle(NULL);
+			ConsoleTitle::SetFarTitle(NULL);
 	}
 
 #endif

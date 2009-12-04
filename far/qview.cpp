@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
+#include "constitle.hpp"
 
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
@@ -542,7 +543,7 @@ void QuickView::SetTitle()
 
 		strTitleDir += L"}";
 		strLastFarTitle = strTitleDir;
-		SetFarTitle(strTitleDir);
+		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }
 

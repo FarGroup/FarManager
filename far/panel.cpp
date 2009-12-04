@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "imports.hpp"
+#include "constitle.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1966,7 +1967,7 @@ void Panel::SetTitle()
 
 		strTitleDir += L"}";
 		strLastFarTitle = strTitleDir; //BUGBUG
-		SetFarTitle(strTitleDir);
+		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }
 

@@ -2329,7 +2329,7 @@ void VMenu::SetTitle(const wchar_t *Title)
 			if (!OldTitle)
 				OldTitle=new ConsoleTitle;
 
-			SetFarTitle(strTitle);
+			ConsoleTitle::SetFarTitle(strTitle);
 		}
 		else
 		{
