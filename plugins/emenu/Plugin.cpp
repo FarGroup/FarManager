@@ -1291,8 +1291,8 @@ bool CPlugin::ShowTextMenu(HMENU hMenu
     {
       if (m_enHelptext != AS_HELPTEXT /*&& m_enHelptext != AS_VERB*/) {
         auto_sz szSub;
-        if (GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub, FALSE)
-            || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub))
+        if (GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub)
+            || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub, FALSE))
         {
           szItem=_T("{");
 

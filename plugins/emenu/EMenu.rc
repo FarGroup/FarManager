@@ -2,7 +2,7 @@
 #include <windows.h>
 #include "resource.h"
 
-#define PLUGIN_BUILD 33
+#define PLUGIN_BUILD 34
 #define PLUGIN_DESC "EMenu Plugin for FAR Manager"
 #define PLUGIN_NAME "EMenu"
 #define PLUGIN_FILENAME "EMenu.dll"
