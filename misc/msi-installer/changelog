@@ -1,3 +1,7 @@
+chupakabra 04.12.2009 12:38:00 +0200
+
+1. UpdateFeatureState() сделана более универсальной.
+
 chupakabra 30.11.2009 10:25:00 +0200
 
 1. Опциональная регистрация App Paths и Far Here.

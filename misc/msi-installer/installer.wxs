@@ -87,7 +87,7 @@
       <UpgradeVersion Property="PREVIOUSVERSIONSINSTALLED" MigrateFeatures="yes" Minimum="0.0.0" />
     </Upgrade>
     <InstallExecuteSequence>
-      <Custom Action="UpdateFeatureState" After="CostFinalize" />
+      <Custom Action="UpdateFeatureState" Before="InstallValidate" />
       <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
     <UIRef Id="WixUI_FeatureTree" />

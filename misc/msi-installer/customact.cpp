@@ -1,18 +1,6 @@
 #include <windows.h>
 #include <msiquery.h>
 
-#if _PLATFORM == 1
-  #ifdef _M_X64
-    #error Platform mismatch
-  #endif
-#elif _PLATFORM == 2
-  #ifdef _M_IX86
-    #error Platform mismatch
-  #endif
-#else
-  #error Unknown platform
-#endif
-
 bool is_inst(MSIHANDLE h_install, const char* name) {
   INSTALLSTATE st_inst, st_action;
   if (MsiGetFeatureState(h_install, name, &st_inst, &st_action) != ERROR_SUCCESS) return false;
@@ -23,76 +11,46 @@ bool is_inst(MSIHANDLE h_install, const char* name) {
   return true;
 }
 
-#define UPDATE_FEATURE(f1, f2) if (MsiSetFeatureState(h_install, f1##f2, is_inst(h_install, f1) && is_inst(h_install, f2) ? INSTALLSTATE_LOCAL : INSTALLSTATE_ABSENT) != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE
-
 UINT __stdcall UpdateFeatureState(MSIHANDLE h_install) {
-  UPDATE_FEATURE("Docs", "Russian");
-  UPDATE_FEATURE("Enc", "Russian");
-  UPDATE_FEATURE("Align", "Russian");
-  UPDATE_FEATURE("AutoWrap", "Russian");
-  UPDATE_FEATURE("Brackets", "Russian");
-  UPDATE_FEATURE("DrawLine", "Russian");
-  UPDATE_FEATURE("EditCase", "Russian");
-  UPDATE_FEATURE("Compare", "Russian");
-  UPDATE_FEATURE("EMenu", "Russian");
-  UPDATE_FEATURE("FARCmds", "Russian");
-  UPDATE_FEATURE("FileCase", "Russian");
-  UPDATE_FEATURE("FarFtp", "Russian");
-  UPDATE_FEATURE("HlfViewer", "Russian");
-  UPDATE_FEATURE("MacroView", "Russian");
-  UPDATE_FEATURE("MultiArc", "Russian");
-  UPDATE_FEATURE("Network", "Russian");
-  UPDATE_FEATURE("Proclist", "Russian");
-  UPDATE_FEATURE("TmpPanel", "Russian");
+  PMSIHANDLE h_db = MsiGetActiveDatabase(h_install);
+  if (h_db == 0) return ERROR_INSTALL_FAILURE;
+  PMSIHANDLE h_view;
+  if (MsiDatabaseOpenView(h_db, "SELECT Feature FROM Feature WHERE Display = 0", &h_view) != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE;
+  if (MsiViewExecute(h_view, 0) != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE;
+  PMSIHANDLE h_record;
+  while (true) {
+    UINT res = MsiViewFetch(h_view, &h_record);
+    if (res == ERROR_NO_MORE_ITEMS) break;
+    if (res != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE;
 
-  UPDATE_FEATURE("Align", "Changelogs");
-  UPDATE_FEATURE("AutoWrap", "Changelogs");
-  UPDATE_FEATURE("Brackets", "Changelogs");
-  UPDATE_FEATURE("DrawLine", "Changelogs");
-  UPDATE_FEATURE("EditCase", "Changelogs");
-  UPDATE_FEATURE("Compare", "Changelogs");
-  UPDATE_FEATURE("EMenu", "Changelogs");
-  UPDATE_FEATURE("FARCmds", "Changelogs");
-  UPDATE_FEATURE("FileCase", "Changelogs");
-  UPDATE_FEATURE("FarFtp", "Changelogs");
-  UPDATE_FEATURE("HlfViewer", "Changelogs");
-  UPDATE_FEATURE("MacroView", "Changelogs");
-  UPDATE_FEATURE("MultiArc", "Changelogs");
-  UPDATE_FEATURE("Network", "Changelogs");
-  UPDATE_FEATURE("Proclist", "Changelogs");
-  UPDATE_FEATURE("TmpPanel", "Changelogs");
+    const unsigned c_buf_size = 256;
+    char feature_id[c_buf_size];
+    DWORD size = ARRAYSIZE(feature_id);
+    if (MsiRecordGetString(h_record, 1, feature_id, &size) != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE;
 
-#if _PLATFORM == 1
-  UPDATE_FEATURE("Align", "FExcept");
-  UPDATE_FEATURE("AutoWrap", "FExcept");
-  UPDATE_FEATURE("Brackets", "FExcept");
-  UPDATE_FEATURE("DrawLine", "FExcept");
-  UPDATE_FEATURE("EditCase", "FExcept");
-  UPDATE_FEATURE("Compare", "FExcept");
-  UPDATE_FEATURE("EMenu", "FExcept");
-  UPDATE_FEATURE("FARCmds", "FExcept");
-  UPDATE_FEATURE("FileCase", "FExcept");
-  UPDATE_FEATURE("FarFtp", "FExcept");
-  UPDATE_FEATURE("ftpDirList", "FExcept");
-  UPDATE_FEATURE("ftpProgress", "FExcept");
-  UPDATE_FEATURE("HlfViewer", "FExcept");
-  UPDATE_FEATURE("MacroView", "FExcept");
-  UPDATE_FEATURE("MultiArc", "FExcept");
-  UPDATE_FEATURE("Ace", "FExcept");
-  UPDATE_FEATURE("Arc", "FExcept");
-  UPDATE_FEATURE("Arj", "FExcept");
-  UPDATE_FEATURE("Cab", "FExcept");
-  UPDATE_FEATURE("Custom", "FExcept");
-  UPDATE_FEATURE("Ha", "FExcept");
-  UPDATE_FEATURE("Lzh", "FExcept");
-  UPDATE_FEATURE("Rar", "FExcept");
-  UPDATE_FEATURE("TarGz", "FExcept");
-  UPDATE_FEATURE("Zip", "FExcept");
-  UPDATE_FEATURE("Network", "FExcept");
-  UPDATE_FEATURE("Proclist", "FExcept");
-  UPDATE_FEATURE("TmpPanel", "FExcept");
+    char names[c_buf_size];
+    lstrcpy(names, feature_id);
+    unsigned name_cnt = 1;
+    for (char* ch = names; *ch; ch++) {
+      if (*ch == '.') {
+        *ch = 0;
+        ch++;
+        name_cnt++;
+      }
+    }
+    if (name_cnt <= 1) return ERROR_INSTALL_FAILURE;
 
-  UPDATE_FEATURE("Changelogs", "FExcept");
-#endif
+    bool inst = true;
+    const char* name = names;
+    for (unsigned i = 0; i < name_cnt; i++) {
+      if (!is_inst(h_install, name)) {
+        inst = false;
+        break;
+      }
+      name += lstrlen(name) + 1;
+    }
+    if (MsiSetFeatureState(h_install, feature_id, inst ? INSTALLSTATE_LOCAL : INSTALLSTATE_ABSENT) != ERROR_SUCCESS) return ERROR_INSTALL_FAILURE;
+  }
+
   return ERROR_SUCCESS;
 }

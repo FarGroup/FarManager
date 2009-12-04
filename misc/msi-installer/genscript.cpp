@@ -40,24 +40,14 @@ int main(int argc, char* argv[]) {
     }
 
     // determine Far platform
-    string platform_str = argv[2];
-    unsigned platform_idx;
-    if (platform_str == "x86") {
-      platform_idx = 1;
-    }
-    else if (platform_str == "x64") {
-      platform_str = "x64";
-      platform_idx = 2;
-    }
-    else
-      throw exception("unknown machine type");
+    string platform = argv[2];
 
     // generate makefile
     ostringstream fmt;
     fmt << ver_major << "." << ver_minor << "." << ver_build;
     string version = fmt.str();
     fmt.str(string());
-    fmt << "Far" << ver_major << ver_minor << "b" << ver_build << "." << platform_str << ".msi";
+    fmt << "Far" << ver_major << ver_minor << "b" << ver_build << "." << platform << ".msi";
     string msi_name = fmt.str();
 
 #ifdef SPECIAL
@@ -68,8 +58,8 @@ int main(int argc, char* argv[]) {
     makefile.exceptions(ios_base::badbit | ios_base::failbit | ios_base::eofbit);
     makefile.open("makefile");
     makefile << "all:" << endl;
-    makefile << "  cl -nologo -O1 -GS- -D_PLATFORM=" << platform_idx << " customact.cpp -link -dll -nodefaultlib -noentry -out:CustomActions.dll -export:UpdateFeatureState msi.lib" << endl;
-    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform_str << " -dVersion=" << version << " installer.wxs" << endl;
+    makefile << "  cl -nologo -O1 -GS- customact.cpp -link -dll -nodefaultlib -noentry -out:CustomActions.dll -export:UpdateFeatureState kernel32.lib msi.lib" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs" << endl;
     makefile << "  light -nologo -ext"
 #ifdef SPECIAL
     << " c:\\src\\WixUIExtension.dll"
