@@ -595,7 +595,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						else
 							HiData.swapItems(RealSelectPos,RealSelectPos-1);
 
-						HiMenu.SetSelection(--SelectPos);
+						HiMenu.SetCheck(--SelectPos);
 						NeedUpdate=TRUE;
 						break;
 					}
@@ -631,7 +631,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						else
 							HiData.swapItems(RealSelectPos,RealSelectPos+1);
 
-						HiMenu.SetSelection(++SelectPos);
+						HiMenu.SetCheck(++SelectPos);
 						NeedUpdate=TRUE;
 					}
 

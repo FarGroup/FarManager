@@ -84,9 +84,8 @@ enum
 #define VMENU_COMBOBOX              0x00400000  // меню является комбобоксом и обрабатывается менеджером по-особому.
 #define VMENU_MOUSEDOWN             0x00800000  //
 #define VMENU_CHANGECONSOLETITLE    0x01000000  //
-#define VMENU_SELECTPOSNONE         0x02000000  //
-#define VMENU_MOUSEREACTION         0x04000000  // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
-#define VMENU_DISABLED              0x08000000  //
+#define VMENU_MOUSEREACTION         0x02000000  // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+#define VMENU_DISABLED              0x04000000  //
 
 class Dialog;
 class SaveScreen;
@@ -103,7 +102,7 @@ struct MenuItemEx
 	union                          // Пользовательские данные:
 	{
 		char  *UserData;             // - указатель!
-		char   Str4[4];              // - strlen(строка)+1 <= 4
+		char   Str4[sizeof(char*)];  // - strlen(строка)+1 <= sizeof(char*)
 	};
 
 	short AmpPos;                  // Позиция автоназначенной подсветки
@@ -122,7 +121,9 @@ struct MenuItemEx
 			if (Value!=1) Flags|=Value&0xFFFF;
 		}
 		else
+		{
 			Flags&=~(0xFFFF|LIF_CHECKED);
+		}
 
 		return Flags;
 	}
@@ -230,8 +231,7 @@ class VMenu: public Modal
 
 		int ItemCount;
 		int ItemHiddenCount;
-
-		int LastAddedItem;
+		int ItemSubMenusCount;
 
 		BYTE Colors[VMENU_COLOR_COUNT];
 
@@ -242,16 +242,26 @@ class VMenu: public Modal
 
 	private:
 		virtual void DisplayObject();
-		void ShowMenu(int IsParent=0);
+		void ShowMenu(bool IsParent=false);
 		void DrawTitles();
-		int  GetItemPosition(int Position);
+		int GetItemPosition(int Position);
 		static int _SetUserData(MenuItemEx *PItem,const void *Data,int Size);
 		static void* _GetUserData(MenuItemEx *PItem,void *Data,int Size);
-		BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
+		bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
 		int CheckHighlights(wchar_t Chr,int StartPos=0);
 		wchar_t GetHighlights(const struct MenuItemEx *_item);
-		BOOL ShiftItemShowPos(int Pos,int Direct);
-		int RecalcItemHiddenCount();
+		bool ShiftItemShowPos(int Pos,int Direct);
+		bool ItemCanHaveFocus(DWORD Flags);
+		bool ItemCanBeEntered(DWORD Flags);
+		bool ItemIsVisible(DWORD Flags);
+		void UpdateMaxLengthFromTitles();
+		void UpdateMaxLength(int Length);
+		void UpdateItemFlags(int Pos, DWORD NewFlags);
+		void UpdateInternalCounters(DWORD OldFlags, DWORD NewFlags);
+		bool IsFilterEditKey(int Key);
+		bool ShouldSendKeyToFilter(int Key);
+		//коректировка текущей позиции и флагов SELECTED
+		void UpdateSelectPos();
 
 	public:
 
@@ -273,31 +283,30 @@ class VMenu: public Modal
 
 		void SetTitle(const wchar_t *Title);
 		virtual string &GetTitle(string &strDest,int SubLen=-1,int TruncSize=0);
-		const wchar_t *GetPtrTitle() { return (const wchar_t*)strTitle; }
-
+		const wchar_t *GetPtrTitle() { return strTitle.CPtr(); }
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
 		string &GetBottomTitle(string &strDest);
-		void SetDialogStyle(int Style) {VMFlags.Change(VMENU_WARNDIALOG,Style); SetColors(NULL);}
-		void SetUpdateRequired(int SetUpdate) {VMFlags.Change(VMENU_UPDATEREQUIRED,SetUpdate);}
+		void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(NULL);}
+		void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
 		void SetBoxType(int BoxType);
 
 		void SetFlags(DWORD Flags) { VMFlags.Set(Flags); }
 		void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
 		BOOL CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
+		DWORD GetFlags() const { return VMFlags.Flags; }
 		DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
 
 		void AssignHighlights(int Reverse);
 
-		void SetColors(struct FarListColors *Colors=NULL);
-		void GetColors(struct FarListColors *Colors);
+		void SetColors(struct FarListColors *ColorsIn=NULL);
+		void GetColors(struct FarListColors *ColorsOut);
 		void SetOneColor(int Index, short Color);
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=NULL,__int64 iParam=0);
 		virtual int ReadInput(INPUT_RECORD *GetReadRec=NULL);
-		BOOL UpdateRequired();
 
 		void DeleteItems();
 		int  DeleteItem(int ID,int Count=1);
@@ -311,24 +320,24 @@ class VMenu: public Modal
 		int  FindItem(const FarListFind *FindItem);
 		int  FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags=0);
 
-		int  GetItemCount() {return(ItemCount);};
-		int  GetShowItemCount() {return(ItemCount-ItemHiddenCount);};
+		int  GetItemCount() { return ItemCount; };
+		int  GetShowItemCount() { return ItemCount-ItemHiddenCount; };
 		int  GetVisualPos(int Pos);
+		int  VisualPosToReal(int VPos);
 
 		void *GetUserData(void *Data,int Size,int Position=-1);
 		int  GetUserDataSize(int Position=-1);
 		int  SetUserData(LPCVOID Data,int Size=0,int Position=-1);
 
-		int  GetSelectPos() {return VMFlags.Check(VMENU_SELECTPOSNONE)?-1:SelectPos;}
+		int  GetSelectPos() { return SelectPos; }
 		int  GetSelectPos(struct FarListPos *ListPos);
-		int  SetSelectPos(int Pos,int Direct);
 		int  SetSelectPos(struct FarListPos *ListPos);
-		int  GetSelection(int Position=-1);
-		void SetSelection(int Selection,int Position=-1);
-		//   функция, проверяющая корректность текущей позиции и флагов SELECTED
-		void AdjustSelectPos();
+		int  SetSelectPos(int Pos, int Direct);
+		int  GetCheck(int Position=-1);
+		void SetCheck(int Check, int Position=-1);
 
-		virtual void Process();
+		bool UpdateRequired();
+
 		virtual void ResizeConsole();
 
 		struct MenuItemEx *GetItemPtr(int Position=-1);

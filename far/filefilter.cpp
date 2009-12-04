@@ -217,7 +217,7 @@ bool FileFilter::FilterEdit()
 				if (SelPos==(int)FilterData.getCount())
 					break;
 
-				int Check=FilterList.GetSelection(SelPos);
+				int Check=FilterList.GetCheck(SelPos);
 				int NewCheck;
 
 				if (Key==KEY_BS)
@@ -227,7 +227,7 @@ bool FileFilter::FilterEdit()
 				else
 					NewCheck = (Check == Key) ? 0 : Key;
 
-				FilterList.SetSelection(NewCheck,SelPos);
+				FilterList.SetCheck(NewCheck,SelPos);
 				FilterList.SetSelectPos(SelPos,1);
 				FilterList.SetUpdateRequired(TRUE);
 				FilterList.FastShow();
@@ -238,7 +238,7 @@ bool FileFilter::FilterEdit()
 			{
 				for (int I=0; I < FilterList.GetItemCount(); I++)
 				{
-					FilterList.SetSelection(FALSE, I);
+					FilterList.SetCheck(FALSE, I);
 				}
 
 				FilterList.SetUpdateRequired(TRUE);
@@ -262,7 +262,6 @@ bool FileFilter::FilterEdit()
 
 						FilterList.DeleteItem(SelPos);
 						FilterList.AddItem(&ListItem,SelPos);
-						FilterList.AdjustSelectPos();
 						FilterList.SetSelectPos(SelPos,1);
 						FilterList.SetUpdateRequired(TRUE);
 						FilterList.FastShow();
@@ -330,7 +329,6 @@ bool FileFilter::FilterEdit()
 					ListItem.Clear();
 					MenuString(ListItem.strName,NewFilter);
 					FilterList.AddItem(&ListItem,SelPos);
-					FilterList.AdjustSelectPos();
 					FilterList.SetSelectPos(SelPos,1);
 					FilterList.SetPosition(-1,-1,0,0);
 					FilterList.Show();
@@ -356,7 +354,6 @@ bool FileFilter::FilterEdit()
 					{
 						FilterData.deleteItem(SelPos);
 						FilterList.DeleteItem(SelPos);
-						FilterList.AdjustSelectPos();
 						FilterList.SetSelectPos(SelPos,1);
 						FilterList.SetPosition(-1,-1,0,0);
 						FilterList.Show();
@@ -395,7 +392,6 @@ bool FileFilter::FilterEdit()
 						FilterList.AddItem(&CurItem,NewPos);
 					}
 
-					FilterList.AdjustSelectPos();
 					FilterList.SetSelectPos(NewPos,1);
 					FilterList.SetUpdateRequired(TRUE);
 					FilterList.FastShow();
@@ -493,7 +489,7 @@ void FileFilter::ProcessSelection(VMenu *FilterList)
 
 	for (int i=0,j=0; i < FilterList->GetItemCount(); i++)
 	{
-		int Check=FilterList->GetSelection(i);
+		int Check=FilterList->GetCheck(i);
 		CurFilterData=NULL;
 
 		if (i < (int)FilterData.getCount())

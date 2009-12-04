@@ -2577,7 +2577,7 @@ int Dialog::ProcessKey(int Key)
 			case KEY_ENTER:
 				VMenu *List=Item[FocusPos]->ListPtr;
 				int CurListPos=List->GetSelectPos();
-				int CheckedListItem=List->GetSelection(-1);
+				int CheckedListItem=List->GetCheck(-1);
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
 
@@ -2586,7 +2586,7 @@ int Dialog::ProcessKey(int Key)
 					if (!DialogMode.Check(DMODE_SHOW))
 						return TRUE;
 
-					List->SetSelection(CheckedListItem,CurListPos);
+					List->SetCheck(CheckedListItem,CurListPos);
 
 					if (DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos]->Flags&DIF_HIDDEN))
 						ShowDialog(FocusPos); // FocusPos
@@ -2880,7 +2880,7 @@ int Dialog::ProcessKey(int Key)
 			{
 				VMenu *List=Item[FocusPos]->ListPtr;
 				int CurListPos=List->GetSelectPos();
-				int CheckedListItem=List->GetSelection(-1);
+				int CheckedListItem=List->GetCheck(-1);
 				List->ProcessKey(Key);
 				int NewListPos=List->GetSelectPos();
 
@@ -2889,7 +2889,7 @@ int Dialog::ProcessKey(int Key)
 					if (!DialogMode.Check(DMODE_SHOW))
 						return TRUE;
 
-					List->SetSelection(CheckedListItem,CurListPos);
+					List->SetCheck(CheckedListItem,CurListPos);
 
 					if (DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos]->Flags&DIF_HIDDEN))
 						ShowDialog(FocusPos); // FocusPos
@@ -3201,7 +3201,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			VMenu *List=Item[I]->ListPtr;
 			int Pos=List->GetSelectPos();
-			int CheckedListItem=List->GetSelection(-1);
+			int CheckedListItem=List->GetCheck(-1);
 
 			if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
@@ -3218,7 +3218,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 					if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
 					{
-						List->SetSelection(CheckedListItem,Pos);
+						List->SetCheck(CheckedListItem,Pos);
 
 						if (DialogMode.Check(DMODE_SHOW) && !(Item[I]->Flags&DIF_HIDDEN))
 							ShowDialog(I); // FocusPos
@@ -3240,7 +3240,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					        NewListPos != Pos &&                                                                 // позиция изменилась и
 					        !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))                      // и плагин сказал в морг
 					{
-						List->SetSelection(CheckedListItem,Pos);
+						List->SetCheck(CheckedListItem,Pos);
 
 						if (DialogMode.Check(DMODE_SHOW) && !(Item[I]->Flags&DIF_HIDDEN))
 							ShowDialog(I); // FocusPos
@@ -3286,7 +3286,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 						if (NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(LONG_PTR)NewListPos))
 						{
-							List->SetSelection(CheckedListItem,Pos);
+							List->SetCheck(CheckedListItem,Pos);
 
 							if (DialogMode.Check(DMODE_SHOW) && !(Item[I]->Flags&DIF_HIDDEN))
 								ShowDialog(I); // FocusPos
@@ -5279,10 +5279,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
 						{
 							ListBox->SortItems((int)Param2);
-							/* $ 23.02.2002 DJ
-							   корректировка позиции нужна, чтобы не было двух выделенных элементов
-							*/
-							ListBox->AdjustSelectPos();
 							break;
 						}
 						case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
@@ -5293,7 +5289,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 						case DM_LISTADDSTR: // Param1=ID Param2=String
 						{
 							Ret=ListBox->AddItem((wchar_t*)Param2);
-							ListBox->AdjustSelectPos();
 							break;
 						}
 						case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
@@ -5304,7 +5299,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 								return FALSE;
 
 							Ret=ListBox->AddItem(ListItems);
-							ListBox->AdjustSelectPos();
 							break;
 						}
 						case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
@@ -5324,7 +5318,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 							if ((Ret=ListBox->InsertItem((FarListInsert *)Param2)) == -1)
 								return -1;
 
-							ListBox->AdjustSelectPos();
 							break;
 						}
 						case DM_LISTUPDATE: // Param1=ID Param2=FarListUpdate: Index=Index, Items=Src
@@ -5405,7 +5398,6 @@ LONG_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 
 							ListBox->DeleteItems();
 							Ret=ListBox->AddItem(ListItems);
-							ListBox->AdjustSelectPos();
 							break;
 						}
 						//case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest

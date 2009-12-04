@@ -1314,12 +1314,13 @@ int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
 	/*
 			&&      = '&'
 			&&&     = '&'
-								 ^H
+                       ^H
 			&&&&    = '&&'
 			&&&&&   = '&&'
-								 ^H
+                       ^H
 			&&&&&&  = '&&&'
 	*/
+
 	if (ShowAmp)
 	{
 		return Pos;
@@ -1351,4 +1352,65 @@ int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
 	}
 
 	return RealPos;
+}
+
+int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
+{
+	/*
+			&&      = '&'
+			&&&     = '&'
+                       ^H
+			&&&&    = '&&'
+			&&&&&   = '&&'
+                       ^H
+			&&&&&&  = '&&&'
+	*/
+
+	if (Str)
+	{
+		if (Direct < 0)
+		{
+			if (!Pos || Pos == 1)
+				return 0;
+
+			if (Str[Pos-1] != L'&')
+			{
+				if (Str[Pos-2] == L'&')
+				{
+					if (Pos-3 >= 0 && Str[Pos-3] == L'&')
+						return Pos-1;
+
+					return Pos-2;
+				}
+
+				return Pos-1;
+			}
+			else
+			{
+				if (Pos-3 >= 0 && Str[Pos-3] == L'&')
+					return Pos-3;
+
+				return Pos-2;
+			}
+		}
+		else
+		{
+			if (!Str[Pos])
+				return Pos+1;
+
+			if (Str[Pos] == L'&')
+			{
+				if (Str[Pos+1] == L'&' && Str[Pos+2] == L'&')
+					return Pos+3;
+
+				return Pos+2;
+			}
+			else
+			{
+				return Pos+1;
+			}
+		}
+	}
+
+	return 0;
 }

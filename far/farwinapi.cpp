@@ -812,25 +812,31 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	DWORD BufSize = NT_MAX_PATH;
+	if (!ifn.pfnGetFinalPathNameByHandle)
+	{
+		FinalFilePath.Clear();
+		return false;
+	}
+
+	DWORD BufLen = NT_MAX_PATH;
 	DWORD Len;
 
 	// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
 	__try
 	{
-		Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+		Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 	}
 	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
 	{
 		Len = 0;
 	}
 
-	if (Len > BufSize + 1)
+	if (Len > BufLen)
 	{
-		BufSize = Len - 1;
+		BufLen = Len;
 		__try
 		{
-			Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+			Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 		}
 		__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
 		{
@@ -838,9 +844,10 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		}
 	}
 
-	if (Len <= BufSize)
-	{
+	if (Len <= BufLen)
 		FinalFilePath.ReleaseBuffer(Len);
-	}
-	return Len != 0 && Len <= BufSize;
+	else
+		FinalFilePath.Clear();
+
+	return Len != 0 && Len <= BufLen;
 }

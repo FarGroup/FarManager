@@ -460,7 +460,6 @@ void ProcessSelected(bool select)
 		}
 
 		// Устанавливаем позицию в меню
-		CodePages->AdjustSelectPos();
 		CodePages->SetSelectPos(position>=CodePages->GetItemCount() ? CodePages->GetItemCount()-1 : position, 1);
 
 		// Показываем меню

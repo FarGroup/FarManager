@@ -460,11 +460,8 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 	string FullPath;
 	ConvertNameToFull(Src, FullPath);
 	strDest = FullPath;
-	//RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
 
-	/* $ 14.06.2003 IS
-	   Для нелокальных дисков даже и не пытаемся анализировать симлинки
-	*/
+	// Для нелокальных дисков даже и не пытаемся анализировать симлинки
 	// также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
 	// корректную информацию про объект, на который указывает симлинк (т.е. невозможно
 	// "разыменовать симлинк")
@@ -490,12 +487,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 		{
 			string FinalFilePath;
 
-			if (ifn.pfnGetFinalPathNameByHandle)
-			{
-				if (!apiGetFinalPathNameByHandle(hFile, FinalFilePath))
-					FinalFilePath.Clear();
-			}
-			else if (ifn.pfnNtQueryObject)
+			if (!apiGetFinalPathNameByHandle(hFile, FinalFilePath) && ifn.pfnNtQueryObject)
 			{
 				ULONG RetLen;
 				ULONG BufSize = NT_MAX_PATH;

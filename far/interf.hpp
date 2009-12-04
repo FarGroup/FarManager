@@ -184,5 +184,6 @@ inline void SetVidChar(CHAR_INFO& CI,wchar_t Chr)
 
 int HiStrlen(const wchar_t *Str);
 int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp);
+int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct);
 string& HiText2Str(string& strDest, const wchar_t *Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
