@@ -45,9 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OSVERSIONINFO WinVer={0};
 
-// флаг на запрет юзание Ctrl-Alt-Shift
-BOOL NotUseCAS=FALSE;
-
 // идет процесс назначения клавиши в макросе?
 BOOL IsProcessAssignMacroKey=FALSE;
 
@@ -69,9 +66,6 @@ clock_t StartExecTime=0;
 
 string g_strFarPath;
 
-string strLastFarTitle;
-int  TitleModified=FALSE;
-
 string strGlobalSearchString;
 int GlobalSearchCase=FALSE;
 int GlobalSearchWholeWords=FALSE; // значение "Whole words" для поиска
@@ -82,16 +76,9 @@ int ScreenSaverActive=FALSE;
 
 int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
-int CmpNameSearchMode=FALSE;
 int DisablePluginsOutput=FALSE;
-int CmdMode=FALSE;
 
 int WidthNameForMessage=0;
-
-const wchar_t DOS_EOL_fmt[]  = L"\r\n";
-const wchar_t UNIX_EOL_fmt[] = L"\n";
-const wchar_t MAC_EOL_fmt[]  = L"\r";
-const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
 
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;
@@ -116,14 +103,10 @@ int PrevFarAltEnterMode=-1;
 
 int _localLastError=0;
 
-const wchar_t *ReservedFilenameSymbols=L"<>|";
-
 int KeepUserScreen;
 string g_strDirToSet;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
-
-const wchar_t *FavoriteCodePagesKey=L"CodePages\\Favorites";
 
 // Macro Const
 const wchar_t constMsX[]=L"MsX";
@@ -134,7 +117,5 @@ const wchar_t constMsCtrlState[]=L"MsCtrlState";
 DWORD RedrawTimeout=200;
 
 SYSTEM_INFO SystemInfo;
-
-string g_strMacroCONVFMT;
 
 FormatScreen FS;

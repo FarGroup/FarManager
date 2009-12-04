@@ -36,6 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "local.hpp"
 
+const wchar_t DOS_EOL_fmt[]  = L"\r\n";
+const wchar_t UNIX_EOL_fmt[] = L"\n";
+const wchar_t MAC_EOL_fmt[]  = L"\r";
+const wchar_t WIN_EOL_fmt[]  = L"\r\r\n";
+
 const wchar_t * __cdecl StrStrI(const wchar_t *str1, const wchar_t *str2)
 {
 	wchar_t *cp = (wchar_t *) str1;

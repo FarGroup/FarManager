@@ -41,7 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "ctrlobj.hpp"
 
-static string& GetFarTitleAddons();
+static const string& GetFarTitleAddons();
+
+bool ConsoleTitle::TitleModified = false;
 
 ConsoleTitle::ConsoleTitle(const wchar_t *title)
 {
@@ -53,31 +55,28 @@ ConsoleTitle::ConsoleTitle(const wchar_t *title)
 
 ConsoleTitle::~ConsoleTitle()
 {
-	wchar_t *lpwszTitle = strOldTitle.GetBuffer();
+	const string &strTitleAddons = GetFarTitleAddons();
+	size_t OldLen = strOldTitle.GetLength();
+	size_t AddonsLen = strTitleAddons.GetLength();
 
-	if (*lpwszTitle)
+	if (AddonsLen <= OldLen)
 	{
-		string titleAddons = GetFarTitleAddons();
 
-		lpwszTitle += StrLength(lpwszTitle);
-		lpwszTitle -= StrLength(titleAddons);
-
-		if (!StrCmpI(lpwszTitle, titleAddons))
-			*lpwszTitle = 0;
+		if (!StrCmpI(strOldTitle.CPtr()+OldLen-AddonsLen, strTitleAddons))
+			strOldTitle.SetLength(OldLen-AddonsLen);
 	}
 
-	strOldTitle.ReleaseBuffer();
 	ConsoleTitle::SetFarTitle(strOldTitle);
 }
 
-void ConsoleTitle::Set(const wchar_t *fmt,...)
+void ConsoleTitle::Set(const wchar_t *fmt, ...)
 {
 	wchar_t msg[2048];
 	va_list argptr;
 	va_start(argptr, fmt);
 	vsnwprintf(msg, countof(msg)-1, fmt, argptr);
 	va_end(argptr);
-	ConsoleTitle::SetFarTitle(msg);
+	SetFarTitle(msg);
 }
 
 void ConsoleTitle::SetFarTitle(const wchar_t *Title)
@@ -91,30 +90,30 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title)
 		strFarTitle=Title;
 		strFarTitle.SetLength(0x100);
 		strFarTitle+=GetFarTitleAddons();
-		TitleModified=TRUE;
+		TitleModified=true;
 
 		if (StrCmp(strOldFarTitle, strFarTitle) &&
 		        ((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
 		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()))
 		{
 			SetConsoleTitle(strFarTitle);
-			TitleModified=FALSE;
+			TitleModified=true;
 		}
 	}
 	else
 	{
 		/*
-			Title=NULL ¤«ï á«ãç ï, ª®£¤  ­ã¦­® ¢ëáâ ¢¨âì ¯à¥¤.§ £®«®¢®ª
-			SetFarTitle(NULL) - íâ® ­¥ ¤«ï ¢á¥å!
-			â®â ¢ë§®¢ ¨¬¥¥â ¯à ¢® ¤¥« âì â®«ìª® ¬ ªà®-¤¢¨¦®ª!
+			Title=NULL äëÿ ñëó÷àÿ, êîãäà íóæíî âûñòàâèòü ïðåä.çàãîëîâîê
+			SetFarTitle(NULL) - ýòî íå äëÿ âñåõ!
+			Ýòîò âûçîâ èìååò ïðàâî äåëàòü òîëüêî ìàêðî-äâèæîê!
 		*/
 		SetConsoleTitle(strFarTitle);
-		TitleModified=FALSE;
+		TitleModified=false;
 		//_SVS(SysLog(L"  (NULL)FarTitle='%s'",FarTitle));
 	}
 }
 
-static string& GetFarTitleAddons()
+static const string& GetFarTitleAddons()
 {
 	// " - Far%Ver%Admin"
 	/*
@@ -122,15 +121,16 @@ static string& GetFarTitleAddons()
 		%Build - 1259
 		%Admin - MFarTitleAddonsAdmin
     */
-	static string TitleAddons = Opt.TitleAddons;
+	static string strTitleAddons;
+	strTitleAddons = Opt.strTitleAddons;
 	string Ver, Build;
 
 	Ver.Format(L" %u.%u",HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)));
 	Build.Format(L" %u",HIWORD(FAR_VERSION));
 
-	ReplaceStrings(TitleAddons,L"%Ver",Ver);
-	ReplaceStrings(TitleAddons,L"%Build",Build);
-	ReplaceStrings(TitleAddons,L"%Admin",(Opt.IsUserAdmin && WinVer.dwMajorVersion >= 6?MSG(MFarTitleAddonsAdmin):L""));
+	ReplaceStrings(strTitleAddons,L"%Ver",Ver);
+	ReplaceStrings(strTitleAddons,L"%Build",Build);
+	ReplaceStrings(strTitleAddons,L"%Admin",(Opt.IsUserAdmin && WinVer.dwMajorVersion >= 6?MSG(MFarTitleAddonsAdmin):L""));
 
-	return TitleAddons;
+	return strTitleAddons;
 }

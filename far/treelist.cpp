@@ -1563,11 +1563,8 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
 	{
-		CmpNameSearchMode=(I==CurFile);
-
-		if (CmpName(strMask,ListData[I]->strName,TRUE))
+		if (CmpName(strMask,ListData[I]->strName,true,(I==CurFile)))
 		{
-			CmpNameSearchMode=FALSE;
 			CurFile=I;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
 			DisplayTree(TRUE);
@@ -1575,15 +1572,13 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 		}
 	}
 
-	CmpNameSearchMode=FALSE;
-
 	for (
 	    I=(Direct > 0)?0:TreeCount-1;
 	    (Direct > 0) ? I < CurFile:I > CurFile;
 	    I+=Direct
 	)
 	{
-		if (CmpName(strMask,ListData[I]->strName,TRUE))
+		if (CmpName(strMask,ListData[I]->strName,true))
 		{
 			CurFile=I;
 			CurTopFile=CurFile-(Y2-Y1-1)/2;
@@ -1931,12 +1926,14 @@ long TreeList::FindFirst(const wchar_t *Name)
 long TreeList::FindNext(int StartPos, const wchar_t *Name)
 {
 	if ((DWORD)StartPos < (DWORD)TreeCount)
+	{
 		for (int I=StartPos; I < TreeCount; I++)
 		{
-			if (CmpName(Name,ListData[I]->strName,TRUE))
+			if (CmpName(Name,ListData[I]->strName,true))
 				if (!TestParentFolderName(ListData[I]->strName))
 					return I;
 		}
+	}
 
 	return -1;
 }
@@ -2098,18 +2095,18 @@ void TreeList::SetTitle()
 {
 	if (GetFocus())
 	{
-		string strTitleDir; //BUGBUG
+		string strTitleDir(L"{");
+
 		const wchar_t *Ptr=ListData?ListData[CurFile]->strName:L"";
-		strTitleDir=L"{";
 
 		if (*Ptr)
 		{
-			strTitleDir+=Ptr;
-			strTitleDir+=L" - ";
+			strTitleDir += Ptr;
+			strTitleDir += L" - ";
 		}
 
-		strTitleDir+= L"Tree}";
-		strLastFarTitle = strTitleDir;
+		strTitleDir += L"Tree}";
+
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }

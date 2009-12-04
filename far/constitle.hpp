@@ -37,6 +37,7 @@ class ConsoleTitle
 {
 	private:
 		string strOldTitle;
+		static bool TitleModified;
 
 	public:
 		ConsoleTitle(const wchar_t *title=NULL);
@@ -47,5 +48,5 @@ class ConsoleTitle
 
 	public:
 		static void SetFarTitle(const wchar_t *Title);
-
+		static bool WasTitleModified() { return TitleModified; }
 };

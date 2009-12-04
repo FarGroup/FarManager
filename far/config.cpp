@@ -1204,8 +1204,8 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeySystem, L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
 
-	{1, REG_DWORD,  NKeyInterface, L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
-	{0, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.TitleAddons, 0, L" - Far%Ver%Admin"},
+	{1, REG_DWORD,  NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
+	{0, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L" - Far%Ver%Admin"},
 
 	{1, REG_DWORD,  NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"InactivityExit",&Opt.InactivityExit,0, 0},
@@ -1353,7 +1353,7 @@ static struct FARConfig
 
 	{0, REG_DWORD,  NKeyKeyMacros,L"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
 	{0, REG_SZ,     NKeyKeyMacros,L"DateFormat",&Opt.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
-	{0, REG_SZ,     NKeyKeyMacros,L"CONVFMT",&g_strMacroCONVFMT, 0, L"%.6g"},
+	{0, REG_SZ,     NKeyKeyMacros,L"CONVFMT",&Opt.strMacroCONVFMT, 0, L"%.6g"},
 
 	{0, REG_DWORD,  NKeyPolicies,L"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
 	{0, REG_DWORD,  NKeyPolicies,L"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},

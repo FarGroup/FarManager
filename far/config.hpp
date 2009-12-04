@@ -521,6 +521,7 @@ struct Options
 	int ShiftsKeyRules;
 	int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
 	DWORD DisableMacro; // параметры /m или /ma или /m....
+	string strMacroCONVFMT;
 
 	DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
 	DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
@@ -614,7 +615,7 @@ struct Options
 	DWORD CPMenuMode;
 
 	BOOL IsUserAdmin;
-	string TitleAddons;
+	string strTitleAddons;
 };
 
 extern Options Opt;

@@ -33,6 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+extern const wchar_t DOS_EOL_fmt[];
+extern const wchar_t UNIX_EOL_fmt[];
+extern const wchar_t MAC_EOL_fmt[];
+extern const wchar_t WIN_EOL_fmt[];
+
 inline int __cdecl StrLength(const wchar_t *str) { return (int) wcslen(str); }
 
 inline int IsSpace(wchar_t x) { return x==L' ' || x==L'\t';  }

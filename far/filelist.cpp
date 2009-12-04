@@ -2968,7 +2968,7 @@ long FileList::FindNext(int StartPos, const wchar_t *Name)
 	if ((DWORD)StartPos < (DWORD)FileCount)
 		for (long I=StartPos; I < FileCount; I++)
 		{
-			if (CmpName(Name,ListData[I]->strName,TRUE))
+			if (CmpName(Name,ListData[I]->strName,true))
 				if (!TestParentFolderName(ListData[I]->strName))
 					return I;
 		}
@@ -3009,26 +3009,27 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < FileCount; I+=Direct)
 	{
-		CmpNameSearchMode=(I==CurFile);
-
-		if (CmpName(strMask,ListData[I]->strName,TRUE))
+		if (CmpName(strMask,ListData[I]->strName,true,I==CurFile))
+		{
 			if (!TestParentFolderName(ListData[I]->strName))
+			{
 				if (!DirFind || (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					CmpNameSearchMode=FALSE;
 					CurFile=I;
 					CurTopFile=CurFile-(Y2-Y1)/2;
 					ShowFileList(TRUE);
 					return(TRUE);
 				}
+			}
+		}
 	}
-
-	CmpNameSearchMode=FALSE;
 
 	for (int I=(Direct > 0)?0:FileCount-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
 	{
-		if (CmpName(strMask,ListData[I]->strName,TRUE))
+		if (CmpName(strMask,ListData[I]->strName,true))
+		{
 			if (!TestParentFolderName(ListData[I]->strName))
+			{
 				if (!DirFind || (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					CurFile=I;
@@ -3036,6 +3037,8 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 					ShowFileList(TRUE);
 					return(TRUE);
 				}
+			}
+		}
 	}
 
 	return(FALSE);
@@ -3874,7 +3877,7 @@ void FileList::SetTitle()
 {
 	if (GetFocus() || CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
 	{
-		string strTitleDir = L"{";
+		string strTitleDir(L"{");
 
 		if (PanelMode==PLUGIN_PANEL)
 		{
@@ -3890,7 +3893,7 @@ void FileList::SetTitle()
 		}
 
 		strTitleDir += L"}";
-		strLastFarTitle = strTitleDir; //BUGBUG;
+
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }

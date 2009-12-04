@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
+const wchar_t *ReservedFilenameSymbols = L"<>|";
+
 NTPath::NTPath(LPCWSTR Src)
 {
 	if (Src&&*Src)

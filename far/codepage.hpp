@@ -42,6 +42,8 @@ enum CPSelectType
 	CPST_FIND = 2
 };
 
+extern const wchar_t *FavoriteCodePagesKey;
+
 const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
 
 inline bool IsStandardCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }

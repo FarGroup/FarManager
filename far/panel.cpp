@@ -1954,10 +1954,12 @@ void Panel::SetTitle()
 {
 	if (GetFocus())
 	{
-		string strTitleDir = L"{";
+		string strTitleDir(L"{");
 
 		if (!strCurDir.IsEmpty())
+		{
 			strTitleDir += strCurDir;
+		}
 		else
 		{
 			string strCmdText;
@@ -1966,7 +1968,7 @@ void Panel::SetTitle()
 		}
 
 		strTitleDir += L"}";
-		strLastFarTitle = strTitleDir; //BUGBUG
+
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }

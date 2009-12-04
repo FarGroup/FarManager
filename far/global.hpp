@@ -55,17 +55,12 @@ extern int GlobalSearchReverse;
 
 extern int ScreenSaverActive;
 
-extern string strLastFarTitle;
-extern int TitleModified;
 extern int CloseFAR, CloseFARMenu;
 
-extern int CmpNameSearchMode;
 extern int DisablePluginsOutput;
-extern int CmdMode;
 
 extern const DWORD FAR_VERSION;
 
-extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
 extern BOOL IsRedrawFramesInProcess;
@@ -73,11 +68,6 @@ extern BOOL IsRedrawFramesInProcess;
 extern const char *Copyright;
 
 extern int WidthNameForMessage;
-
-extern const wchar_t DOS_EOL_fmt[];
-extern const wchar_t UNIX_EOL_fmt[];
-extern const wchar_t MAC_EOL_fmt[];
-extern const wchar_t WIN_EOL_fmt[];
 
 extern BOOL ProcessException;
 
@@ -103,14 +93,10 @@ extern int PrevFarAltEnterMode;
 
 extern int _localLastError;
 
-extern const wchar_t *ReservedFilenameSymbols;
-
 extern int KeepUserScreen;
 extern string g_strDirToSet; //RAVE!!!
 
 extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
-
-extern const wchar_t *FavoriteCodePagesKey;
 
 // Macro Const
 extern const wchar_t constMsX[];
@@ -121,7 +107,5 @@ extern const wchar_t constMsCtrlState[];
 extern DWORD RedrawTimeout;
 
 extern SYSTEM_INFO SystemInfo;
-
-extern string g_strMacroCONVFMT;
 
 extern FormatScreen FS;

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "tvar.hpp"
+#include "config.hpp"
 
 //#define TVAR_USE_STRMUN
 
@@ -246,8 +247,7 @@ static const wchar_t *toString(__int64 num)
 static const wchar_t *toString(double num)
 {
 	static wchar_t str[256];
-	extern string g_strMacroCONVFMT;
-	_snwprintf(str, countof(str)-1, g_strMacroCONVFMT.CPtr(), num);
+	_snwprintf(str, countof(str)-1, Opt.strMacroCONVFMT.CPtr(), num);
 	return str;
 };
 

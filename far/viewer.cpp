@@ -226,7 +226,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	SelectSize = 0; // —бросим выделение
 	strFileName = Name;
 
-	if (CmdMode && StrCmp(strFileName, L"-")==0)
+	if (Opt.OnlyEditorViewerUsed && StrCmp(strFileName, L"-")==0)
 	{
 		HANDLE OutHandle;
 		string strTempName;

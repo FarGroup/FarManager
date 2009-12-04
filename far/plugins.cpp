@@ -537,7 +537,7 @@ void PluginManager::LoadPlugins()
 			// ...и пройдемся по нему
 			while (ScTree.GetNextName(&FindData,strFullName))
 			{
-				if (CmpName(L"*.dll",FindData.strFileName,FALSE) && (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+				if (CmpName(L"*.dll",FindData.strFileName,false) && (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
 				{
 					LoadPlugin(strFullName, FindData);
 				}

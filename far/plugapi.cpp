@@ -1299,9 +1299,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,int Param1,LONG_PTR Param2)
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
-		return CmdMode == FALSE?TRUE:FALSE;
+		return Opt.OnlyEditorViewerUsed == 0 ? TRUE : FALSE;
 
-	if (CmdMode || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
+	if (Opt.OnlyEditorViewerUsed || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=CtrlObject->Cp();
@@ -2085,7 +2085,7 @@ int WINAPI FarEditor(
 
 int WINAPI FarCmpName(const wchar_t *pattern,const wchar_t *string,int skippath)
 {
-	return(CmpName(pattern,string,skippath));
+	return(CmpName(pattern,string,skippath!=0));
 }
 
 
@@ -2102,7 +2102,9 @@ void WINAPI FarText(int X,int Y,int Color,const wchar_t *Str)
 		ScrBuf.SetLockCount(PrevLockCount);
 	}
 	else
+	{
 		Text(X,Y,Color,Str);
+	}
 }
 
 

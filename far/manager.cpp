@@ -1015,7 +1015,7 @@ int  Manager::ProcessKey(DWORD Key)
 						if (!(Opt.CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
 							break;
 
-						if (!NotUseCAS)
+						if (!Opt.OnlyEditorViewerUsed)
 						{
 							if (CurrentFrame->FastHide())
 							{

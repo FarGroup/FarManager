@@ -527,7 +527,7 @@ void QuickView::SetTitle()
 {
 	if (GetFocus())
 	{
-		string strTitleDir = L"{";
+		string strTitleDir(L"{");
 
 		if (!strCurFileName.IsEmpty())
 		{
@@ -542,7 +542,7 @@ void QuickView::SetTitle()
 		}
 
 		strTitleDir += L"}";
-		strLastFarTitle = strTitleDir;
+
 		ConsoleTitle::SetFarTitle(strTitleDir);
 	}
 }

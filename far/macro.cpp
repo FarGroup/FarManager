@@ -3195,7 +3195,7 @@ int KeyMacro::GetKey()
 				LockScr=NULL;
 			}
 
-			if (TitleModified)
+			if (ConsoleTitle::WasTitleModified())
 				ConsoleTitle::SetFarTitle(NULL);
 
 			UseInternalClipboard=0; //??
@@ -3280,7 +3280,8 @@ done:
 			Work.ExecLIBPos=0;
 		}
 
-		if (TitleModified) ConsoleTitle::SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
+		if (ConsoleTitle::WasTitleModified())
+			ConsoleTitle::SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
 
 		//FrameManager->RefreshFrame();
 		//FrameManager->PluginCommit();
@@ -3940,7 +3941,7 @@ return_func:
 		ReleaseWORKBuffer();
 		Work.Executing=MACROMODE_NOMACRO;
 
-		if (TitleModified)
+		if (ConsoleTitle::WasTitleModified())
 			ConsoleTitle::SetFarTitle(NULL);
 	}
 
@@ -4495,7 +4496,7 @@ void KeyMacro::RunStartMacro()
 	// временно отсавим старый вариант
 #if 1
 
-	if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded()))
+	if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins.IsPluginsLoaded()))
 		return;
 
 	static int IsRunStartMacro=FALSE;
@@ -4531,7 +4532,7 @@ void KeyMacro::RunStartMacro()
 	if (AutoRunMacroStarted || !MacroLIB || !IndexMode[Mode][1])
 		return;
 
-	//if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded()))
+	//if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins.IsPluginsLoaded()))
 	if (!(CtrlObject && CtrlObject->Plugins.IsPluginsLoaded()))
 		return;
 

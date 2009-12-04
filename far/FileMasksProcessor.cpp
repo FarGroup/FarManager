@@ -139,7 +139,7 @@ bool FileMasksProcessor::Compare(const wchar_t *FileName)
 	while (NULL!=(MaskPtr=Masks.GetNext()))
 	{
 		// SkipPath=FALSE, ע.ך. ג CFileMask גûחûגאועסÿ PointToName
-		if (CmpName(MaskPtr,FileName, FALSE))
+		if (CmpName(MaskPtr,FileName, false))
 			return true;
 	}
 

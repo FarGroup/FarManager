@@ -148,10 +148,8 @@ static int MainProcess(
 
 		if (*lpwszEditName || *lpwszViewName)
 		{
-			NotUseCAS=TRUE;
 			Opt.OnlyEditorViewerUsed=1;
 			Panel *DummyPanel=new Panel;
-			CmdMode=TRUE;
 			_tran(SysLog(L"create dummy panels"));
 			CtrlObj.CreateFilePanels();
 			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
@@ -168,18 +166,18 @@ static int MainProcess(
 					FrameManager->ExitMainLoop(0);
 				}
 			}
-			else // TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
-				if (*lpwszViewName)
+			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
+			else if (*lpwszViewName)
+			{
+				FileViewer *ShellViewer=new FileViewer(lpwszViewName,FALSE);
+
+				if (!ShellViewer->GetExitCode())
 				{
-					FileViewer *ShellViewer=new FileViewer(lpwszViewName,FALSE);
-
-					if (!ShellViewer->GetExitCode())
-					{
-						FrameManager->ExitMainLoop(0);
-					}
-
-					_tran(SysLog(L"make shellviewer, %p",ShellViewer));
+					FrameManager->ExitMainLoop(0);
 				}
+
+				_tran(SysLog(L"make shellviewer, %p",ShellViewer));
+			}
 
 			FrameManager->EnterMainLoop();
 			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
@@ -189,7 +187,6 @@ static int MainProcess(
 		else
 		{
 			Opt.OnlyEditorViewerUsed=0;
-			NotUseCAS=FALSE;
 			Opt.SetupArgv=0;
 			string strPath;
 
@@ -341,7 +338,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	string DestNames[2];
 	int StartLine=-1,StartChar=-1,RectoreConsole=FALSE;
 	int CntDestName=0; // количество параметров-имен каталогов
-	CmdMode=FALSE;
 	WinVer.dwOSVersionInfoSize=sizeof(WinVer);
 	GetVersionEx(&WinVer);
 	/*$ 18.04.2002 SKV

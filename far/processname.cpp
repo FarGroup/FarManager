@@ -41,7 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD flags)
 {
-	int skippath=flags&PN_SKIPPATH;
+	bool skippath = (flags&PN_SKIPPATH)!=0;
+
 	flags &= ~PN_SKIPPATH;
 
 	if (flags == PN_CMPNAME)
@@ -70,7 +71,7 @@ int WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, DWORD size, DWORD
 	{
 		string strResult;
 		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
-		xwcsncpy(param2, strResult, size); //?? а разве не size-1
+		xwcsncpy(param2, strResult, size-1);
 		return nResult;
 	}
 
@@ -116,7 +117,7 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 
 	xwcsncpy(PartBeforeName, Src, BeforeNameLength);
 
-	const wchar_t *SrcNameDot=wcsrchr(SrcNamePtr, L'.');
+	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
 
 	const wchar_t *CurWildPtr = strWildName;
 
@@ -142,7 +143,9 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 							break;
 					}
 					else if (*SrcNamePtr==*CurWildPtr)
+					{
 						break;
+					}
 
 					*(DestNamePtr++)=*(SrcNamePtr++);
 				}
@@ -185,16 +188,11 @@ int ConvertWildcards(const wchar_t *SrcName, string &strDest, int SelectedFolder
 	return(TRUE);
 }
 
-/* $ 10.05.2003 IS
-   + Облегчим CmpName за счет выноса проверки skippath наружу
-   - Ошибка: *Name*.* не находило Name
-*/
 
 // IS: это реальное тело функции сравнения с маской, но использовать
 // IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
 // IS: после CmpName_Body)
-
-int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
+static int CmpName_Body(const wchar_t *pattern,const wchar_t *str, bool CmpNameSearchMode)
 {
 	wchar_t stringc,patternc,rangec;
 	int match;
@@ -250,7 +248,7 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 
 				while (*str)
 				{
-					if (CmpName(pattern,str++,FALSE))
+					if (CmpName(pattern,str++,false,CmpNameSearchMode))
 						return(TRUE);
 				}
 
@@ -308,7 +306,7 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 				if (patternc != stringc)
 				{
 					if (patternc==L'.' && stringc==0 && !CmpNameSearchMode)
-						return(*pattern!=L'.' && CmpName(pattern,str));
+						return(*pattern!=L'.' && CmpName(pattern,str,true,CmpNameSearchMode));
 					else
 						return(FALSE);
 				}
@@ -319,12 +317,13 @@ int CmpName_Body(const wchar_t *pattern,const wchar_t *str)
 }
 
 // IS: функция для внешнего мира, использовать ее
-int CmpName(const wchar_t *pattern,const wchar_t *str,int skippath)
+int CmpName(const wchar_t *pattern,const wchar_t *str, bool skippath, bool CmpNameSearchMode)
 {
-	if (!pattern||!str) return FALSE;
+	if (!pattern || !str)
+		return FALSE;
 
 	if (skippath)
 		str=PointToName(str);
 
-	return CmpName_Body(pattern,str);
+	return CmpName_Body(pattern,str,CmpNameSearchMode);
 }

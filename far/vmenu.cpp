@@ -2649,7 +2649,7 @@ int VMenu::FindItem(int StartIndex,const wchar_t *Pattern,DWORD Flags)
 			}
 			else
 			{
-				if (CmpName(Pattern,strTmpBuf,1))
+				if (CmpName(Pattern,strTmpBuf,true))
 					return I;
 			}
 		}
