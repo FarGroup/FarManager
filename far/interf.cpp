@@ -1138,9 +1138,14 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 	_GetRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
 
+bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)
+{
+	return Length>2 && ItemsCount && Length<ItemsCount;
+}
+
 bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 {
-	if (Length>2 && ItemsCount && Length<ItemsCount)
+	if (ScrollBarRequired(Length, ItemsCount))
 	{
 		Length-=2;
 		ItemsCount-=2;

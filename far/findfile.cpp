@@ -1524,8 +1524,12 @@ LONG_PTR WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR P
 				case KEY_NUMPAD1:
 				case KEY_MSWHEEL_UP:
 				case KEY_MSWHEEL_DOWN:
-				case KEY_MSWHEEL_LEFT:
-				case KEY_MSWHEEL_RIGHT:
+				case KEY_ALTLEFT: case KEY_NUMPAD4|KEY_ALT: case KEY_MSWHEEL_LEFT:
+				case KEY_ALTRIGHT: case KEY_NUMPAD6|KEY_ALT: case KEY_MSWHEEL_RIGHT:
+				case KEY_ALTSHIFTLEFT: case KEY_NUMPAD4|KEY_ALT|KEY_SHIFT:
+				case KEY_ALTSHIFTRIGHT: case KEY_NUMPAD6|KEY_ALT|KEY_SHIFT:
+				case KEY_ALTHOME: case KEY_NUMPAD7|KEY_ALT:
+				case KEY_ALTEND: case KEY_NUMPAD1|KEY_ALT:
 				{
 					ListBox->ProcessKey((int)Param2);
 					return TRUE;
@@ -2650,58 +2654,31 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 
 	MenuItemEx ListItem;
 	ListItem.Clear();
-	string strSizeText;
 
+	FormatString MenuText;
+
+	// Отображаем дату последнего изменения
+	string strDateStr, strTimeStr;
+	ConvertDate(FindData->ftLastWriteTime, strDateStr, strTimeStr, 5);
+	MenuText << L' ' << fmt::Width(8) << fmt::Precision(8) << strDateStr << L' ' << fmt::Width(5) << fmt::Precision(5) << strTimeStr << BoxSymbols[BS_V1];
+
+	MenuText << fmt::Width(13);
 	if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		strSizeText.Format(L"%13s", MSG(MFindFileFolder));
+		MenuText << MSG(MFindFileFolder);
 	else
-		strSizeText.Format(L"%13I64d", FindData->nFileSize);
+		MenuText << FindData->nFileSize;
+	MenuText << BoxSymbols[BS_V1];
 
-	string strDateText;
-	/* $ 05.10.2003 KM
-		При использовании фильтра по дате будем отображать тот тип
-		даты, который задан в фильтре.
-
-		$ 24.01.2007 AY
-		Так как теперь есть больше чем один фильтр то этот момент я
-		пока не знаю как красиво сделать.
-
-	if (UseFilter && Filter->GetParams()->FDate.Used)
-	{
-		switch(Filter->GetParams()->FDate.DateType)
-		{
-			case FDATE_MODIFIED:
-				// Отображаем дату последнего изменения
-				ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-				break;
-			case FDATE_CREATED:
-				// Отображаем дату создания
-				ConvertDate(FindData->ftCreationTime,strDateStr,strTimeStr,5);
-				break;
-			case FDATE_OPENED:
-				// Отображаем дату последнего доступа
-				ConvertDate(FindData->ftLastAccessTime,strDateStr,strTimeStr,5);
-				break;
-		}
-	}
-	else
-	*/
-	{
-		// Отображаем дату последнего изменения
-		string strDateStr, strTimeStr;
-		ConvertDate(FindData->ftLastWriteTime,strDateStr,strTimeStr,5);
-		strDateText.Format(L"%8.8s %5.5s", strDateStr.CPtr(), strTimeStr.CPtr());
-	}
 	/* $ 05.10.2003 KM
 	   Отобразим в панели поиска атрибуты найденных файлов
 	*/
 	const wchar_t AttrStr[]=
 	{
-		FindData->dwFileAttributes&FILE_ATTRIBUTE_READONLY? L'R':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_READONLY?L'R':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_SYSTEM?L'S':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_HIDDEN?L'H':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE?L'A':L' ',
-		FindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? L'L':FindData->dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
+		FindData->dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?L'L':FindData->dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE?L'$':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED?L'C':FindData->dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED?L'E':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY?L'T':L' ',
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?L'I':L' ',
@@ -2709,12 +2686,9 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 		FindData->dwFileAttributes&FILE_ATTRIBUTE_VIRTUAL?L'V':L' ',
 		0
 	};
-	string strMenuText;
-	strMenuText.Append(BoxSymbols[BS_V1]).Append(strSizeText).Append(BoxSymbols[BS_V1]).Append(strDateText).Append(BoxSymbols[BS_V1]).Append(AttrStr);
-	int MaxMenuTextLength = DlgWidth - 8 - 4; // depends on VMenu implementation
-	int DisplayNameWidth = MaxMenuTextLength - static_cast<int>(strMenuText.GetLength()) - 2 /* 2 spaces */;
-	const wchar_t *DisplayName=FindData->strFileName;
+	MenuText << AttrStr << BoxSymbols[BS_V1];
 
+	const wchar_t *DisplayName=FindData->strFileName;
 	/* $ 24.03.2002 KM
 		В плагинах принудительно поставим указатель в имени на имя
 		для корректного его отображения в списке, отбросив путь,
@@ -2723,12 +2697,8 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 	*/
 	if (FindFileArcIndex != LIST_INDEX_NONE)
 		DisplayName = PointToName(DisplayName);
+	MenuText << DisplayName;
 
-	string strDisplayName = DisplayName;
-	TruncStrFromCenter(strDisplayName, DisplayNameWidth);
-	string strNameText;
-	strNameText.Format(L" %-*.*s ", DisplayNameWidth, DisplayNameWidth, strDisplayName.CPtr());
-	strMenuText = strNameText + strMenuText;
 	string strPathName=FullName;
 	{
 		size_t pos;
@@ -2766,7 +2736,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 			strPathName = strArcPathName;
 		}
 
-		ListItem.strName = TruncStrFromCenter(strPathName, MaxMenuTextLength);
+		ListItem.strName = strPathName;
 		size_t ItemIndex = AddFindListItem(FindData);
 
 		if (ItemIndex != LIST_INDEX_NONE)
@@ -2814,7 +2784,7 @@ void FindFiles::AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, FAR_FIND_DATA
 			FindList[ItemIndex]->ArcIndex = FindFileArcIndex;
 	}
 
-	ListItem.strName = strMenuText;
+	ListItem.strName = MenuText.strValue();
 	ffCS.Leave();
 	int ListPos = ListBox->AddItem(&ListItem);
 	ListBox->SetUserData((void*)(DWORD_PTR)ItemIndex,sizeof(ItemIndex), ListPos);

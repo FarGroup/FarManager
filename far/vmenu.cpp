@@ -493,6 +493,9 @@ void VMenu::ShowMenu(int IsParent)
 	if (!CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) && HasSubMenus)
 		MaxLineWidth -= 2; // sub menu arrow
 
+	if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && BoxType==NO_BOX && ScrollBarRequired(Y2-Y1+1, GetShowItemCount()))
+		MaxLineWidth -= 1; // scrollbar
+
 	if (MaxItemLength > MaxLineWidth)
 	{
 		HasRightScroll = true;
@@ -818,7 +821,7 @@ void VMenu::ShowMenu(int IsParent)
 
 				SetColor(VMenu::Colors[(Item[I]->Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Item[I]->Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
 
-				if (/*BoxType!=NO_BOX && */Item[I]->ShowPos > 0)
+				if (Item[I]->ShowPos > 0)
 				{
 					GotoXY(X1+(BoxType!=NO_BOX?1:0)+1,Y);
 					BoxText(L'\xab'); // '<<'
@@ -826,11 +829,8 @@ void VMenu::ShowMenu(int IsParent)
 
 				if (strMItemPtrLen > MaxLineWidth)
 				{
-					//if ((VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount))
-					//	GotoXY(WhereX()-1,Y);
-					//else
 					GotoXY(X1+(BoxType!=NO_BOX?1:0)+2+MaxLineWidth,Y);
-					BoxText(L'\xbb');// '>>'
+					BoxText(L'\xbb'); // '>>'
 				}
 			}
 		}

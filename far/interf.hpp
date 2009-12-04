@@ -167,6 +167,7 @@ int GetColor();
 
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
+bool ScrollBarRequired(UINT Length, UINT64 ItemsCount);
 bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount);
 void DrawLine(int Length,int Type, const wchar_t* UserSep=NULL);
 #define ShowSeparator(Length,Type) DrawLine(Length,Type)
