@@ -312,3 +312,8 @@ BOOL apiFindNextStream(
 bool apiGetLogicalDriveStrings(
     string& DriveStrings
 );
+
+bool apiGetFinalPathNameByHandle(
+    HANDLE hFile,
+    string& FinalFilePath
+);

@@ -809,3 +809,38 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 
 	return false;
 }
+
+bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+{
+	DWORD BufSize = NT_MAX_PATH;
+	DWORD Len;
+
+	// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
+	__try
+	{
+		Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+	}
+	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+	{
+		Len = 0;
+	}
+
+	if (Len > BufSize + 1)
+	{
+		BufSize = Len - 1;
+		__try
+		{
+			Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
+		}
+		__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+		{
+			Len = 0;
+		}
+	}
+
+	if (Len <= BufSize)
+	{
+		FinalFilePath.ReleaseBuffer(Len);
+	}
+	return Len != 0 && Len <= BufSize;
+}

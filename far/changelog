@@ -1,3 +1,7 @@
+chupakabra 04.12.2009 17:32:00 +0200 - build 1264
+
+1. GetFinalPathNameByHandle() завернута в __try __except чтобы предотвратить падение на Windows 7 + Ext2FSD.
+
 t-rex 04.12.2009 10:53:20 +0200 - build 1263
 
 1. from Igor Braginskiy: для CD/CHDIR "обработаем" (проигнорируем) /D,

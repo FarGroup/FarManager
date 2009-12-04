@@ -492,16 +492,8 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 
 			if (ifn.pfnGetFinalPathNameByHandle)
 			{
-				DWORD BufSize = NT_MAX_PATH;
-				DWORD Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
-
-				if (Len > BufSize + 1)
-				{
-					BufSize = Len - 1;
-					Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufSize), BufSize, VOLUME_NAME_GUID);
-				}
-
-				FinalFilePath.ReleaseBuffer(Len);
+				if (!apiGetFinalPathNameByHandle(hFile, FinalFilePath))
+					FinalFilePath.Clear();
 			}
 			else if (ifn.pfnNtQueryObject)
 			{
