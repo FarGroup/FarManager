@@ -121,16 +121,24 @@ static const string& GetFarTitleAddons()
 		%Build - 1259
 		%Admin - MFarTitleAddonsAdmin
     */
+	static wchar_t Ver[10], Build[10];
+	static bool bFirstRun = true;
 	static string strTitleAddons;
-	strTitleAddons = Opt.strTitleAddons;
-	string Ver, Build;
 
-	Ver.Format(L" %u.%u",HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)));
-	Build.Format(L" %u",HIWORD(FAR_VERSION));
+	strTitleAddons.Copy(L" - Far ",7);
+	strTitleAddons += Opt.strTitleAddons;
+
+	if (bFirstRun)
+	{
+		bFirstRun = false;
+		_snwprintf(Ver,countof(Ver),L"%u.%u",HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)));
+		_snwprintf(Build,countof(Build),L"%u",HIWORD(FAR_VERSION));
+	}
 
 	ReplaceStrings(strTitleAddons,L"%Ver",Ver);
 	ReplaceStrings(strTitleAddons,L"%Build",Build);
 	ReplaceStrings(strTitleAddons,L"%Admin",(Opt.IsUserAdmin && WinVer.dwMajorVersion >= 6?MSG(MFarTitleAddonsAdmin):L""));
+	RemoveTrailingSpaces(strTitleAddons);
 
 	return strTitleAddons;
 }

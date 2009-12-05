@@ -1516,6 +1516,14 @@ upd:"ClearType friendly redraw (can be slow)"
 upd:"ClearType friendly redraw (can be slow)"
 upd:"ClearType friendly redraw (can be slow)"
 
+MConfigTitleAddons
+upd:"Far window title addons:"
+"Far window title addons:"
+upd:"Far window title addons:"
+upd:"Far window title addons:"
+upd:"Far window title addons:"
+upd:"Far window title addons:"
+
 MConfigDlgSetsTitle
 l:
 "Настройки диалогов"
@@ -16893,12 +16901,12 @@ MBadFileSizeFormat
 
 MFarTitleAddonsAdmin
 l:
-" (Администратор)"
-" (Administrator)"
-upd:" (Administrator)"
-upd:" (Administrator)"
-upd:" (Administrator)"
-upd:" (Administrator)"
+"Администратор"
+"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
 
 #Must be the last
 MNewFileName

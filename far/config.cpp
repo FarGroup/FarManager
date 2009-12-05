@@ -331,13 +331,15 @@ void InterfaceSettings()
 		DLG_INTERF_DELSHOWTOTAL,
 		DLG_INTERF_PGUPCHANGEDISK,
 		DLG_INTERF_CLEARTYPE,
+		DLG_INTERF_TITLEADDONS_TITLE,
+		DLG_INTERF_TITLEADDONS,
 		DLG_INTERF_SEPARATOR,
 		DLG_INTERF_OK,
 		DLG_INTERF_CANCEL
 	};
 	DialogDataEx CfgDlgData[]=
 	{
-		DI_DOUBLEBOX,3, 1,54,16,0,0,0,0,MSG(MConfigInterfaceTitle),
+		DI_DOUBLEBOX,3, 1,54,18,0,0,0,0,MSG(MConfigInterfaceTitle),
 		DI_CHECKBOX, 5, 2, 0, 2,1,Opt.Clock,0,0,MSG(MConfigClock),
 		DI_CHECKBOX, 5, 3, 0, 3,0,Opt.ViewerEditorClock,0,0,MSG(MConfigViewerEditorClock),
 		DI_CHECKBOX, 5, 4, 0, 4,0,Opt.Mouse,DIF_AUTOMATION,0,MSG(MConfigMouse),
@@ -351,16 +353,20 @@ void InterfaceSettings()
 		DI_CHECKBOX, 5,11, 0,11,0,Opt.DelOpt.DelShowTotal,0,0,MSG(MConfigDeleteTotal),
 		DI_CHECKBOX, 5,12, 0,12,0,Opt.PgUpChangeDisk,0,0,MSG(MConfigPgUpChangeDisk),
 		DI_CHECKBOX, 5,13, 0,13,0,Opt.ClearType,0,0,MSG(MConfigClearType),
-		DI_TEXT,     3,14, 0,14,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
-		DI_BUTTON,   0,15, 0,15,0,0,DIF_CENTERGROUP,1,MSG(MOk),
-		DI_BUTTON,   0,15, 0,15,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
+		DI_TEXT,     5,14, 0,14,0,0,0,0,MSG(MConfigTitleAddons),
+		DI_EDIT,     5,15,52,15,0,0,0,0,Opt.strTitleAddons,
+		DI_TEXT,     3,16, 0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,L"",
+		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,1,MSG(MOk),
+		DI_BUTTON,   0,17, 0,17,0,0,DIF_CENTERGROUP,0,MSG(MCancel),
 	};
 	MakeDialogItemsEx(CfgDlgData,CfgDlg);
+
 	CfgDlg[DLG_INTERF_SCREENSAVERTIME].strData.Format(L"%u", Opt.ScreenSaverTime);
+
 	{
 		Dialog Dlg(CfgDlg,countof(CfgDlg));
 		Dlg.SetHelp(L"InterfSettings");
-		Dlg.SetPosition(-1,-1,58,18);
+		Dlg.SetPosition(-1,-1,58,20);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.Process();
@@ -368,6 +374,7 @@ void InterfaceSettings()
 		if (Dlg.GetExitCode() != DLG_INTERF_OK)
 			return;
 	}
+
 	Opt.Clock=CfgDlg[DLG_INTERF_CLOCK].Selected;
 	Opt.ViewerEditorClock=CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected;
 	Opt.Mouse=CfgDlg[DLG_INTERF_MOUSE].Selected;
@@ -385,6 +392,8 @@ void InterfaceSettings()
 		Opt.CMOpt.CopyTimeRule=3;
 
 	Opt.ClearType=CfgDlg[DLG_INTERF_CLEARTYPE].Selected;
+	Opt.strTitleAddons=CfgDlg[DLG_INTERF_TITLEADDONS].strData;
+
 	SetFarConsoleMode();
 	CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 	CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1205,7 +1214,7 @@ static struct FARConfig
 	{1, REG_DWORD,  NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
 
 	{1, REG_DWORD,  NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
-	{0, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L" - Far%Ver%Admin"},
+	{1, REG_SZ,     NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Admin"},
 
 	{1, REG_DWORD,  NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, REG_DWORD,  NKeySystem,L"InactivityExit",&Opt.InactivityExit,0, 0},
