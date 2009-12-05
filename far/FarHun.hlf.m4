@@ -66,7 +66,7 @@ $^(help file last translated for build 882)
    ~Fájlmaszkok~@FileMasks@
    ~Makrók~@KeyMacro@
 
-   
+
 @Help
 $ # FAR: a súgó használata#
     A súgó oldalain hivatkozásokat találunk, amelyek további súgóoldalakra
@@ -572,7 +572,7 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
   ~Parancs előzmények~@History@ megjelenítése                            #Alt-F8#
 
   A FAR konzolablak méretének átkapcsolása                    #Alt-F9#
-                                                              
+
     Ablakban futtatás módban ezzel a paranccsal váltogatni lehet az
     aktuális ablakméret és a konzolablak lehető legnagyobb mérete
     között. Teljes képernyős módban az #Alt-F9# váltogat a 25 soros
@@ -2521,7 +2521,7 @@ a képernyő alján
     Megjegyzések:
 
     1. ^<wrap>Az #Alt-U#/#Alt-I# a sor behúzását állítja, ha nincs
-kijelölt blokk. 
+kijelölt blokk.
 
     2. ^<wrap>Lenyomott #Alt#-tal a karaktereket decimális kódjukkal
 írhatjuk be a numerikus billentyűzeten (0-65535).

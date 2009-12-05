@@ -235,12 +235,7 @@ int GetItemsCount()
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
 int GetCodePageInsertPosition(UINT codePage, int start, int length)
 {
-	if (length==0)
-		return start;
-
-	int position = start;
-
-	do
+	for (int position=start; position < start+length; position++)
 	{
 		UINT itemCodePage;
 
@@ -252,9 +247,8 @@ int GetCodePageInsertPosition(UINT codePage, int start, int length)
 		if (itemCodePage >= codePage)
 			return position;
 	}
-	while (position++<start+length);
 
-	return position-1;
+	return start+length;
 }
 
 // Callback-функция получения таблиц символов
@@ -313,7 +307,7 @@ BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		    codePage,
 		    GetCodePageInsertPosition(
 		        codePage,
-		        GetItemsCount()-normalCodePages-favoriteCodePages-(favoriteCodePages?1:0)-(normalCodePages?1:0),
+		        GetItemsCount()-normalCodePages-favoriteCodePages-(normalCodePages?1:0),
 		        favoriteCodePages
 		    ),
 		    true,

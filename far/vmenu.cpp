@@ -444,6 +444,9 @@ int VMenu::AddItem(const MenuItemEx *NewItem,int PosAdd)
 	if (PosAdd < ItemCount)
 		memmove(Item+PosAdd+1,Item+PosAdd,sizeof(*Item)*(ItemCount-PosAdd)); //??
 
+	if (PosAdd <= SelectPos)
+		SelectPos++;
+
 	ItemCount++;
 
 	Item[PosAdd] = new MenuItemEx;

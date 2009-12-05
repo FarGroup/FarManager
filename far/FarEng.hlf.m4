@@ -51,7 +51,7 @@ $^#Copyright (C) 1996-2000 Eugene Roshal#
    ~Panel settings~@PanelSettings@
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
-	 ~Command line settings~@CmdlineSettings@
+         ~Command line settings~@CmdlineSettings@
 
    ~Files highlighting and sort groups~@Highlight@
    ~File descriptions~@FileDiz@
@@ -806,28 +806,28 @@ name regardless a file panel type.
 @PluginCommands
 $ #Plugin commands#
     This menu provides user with ability to use plugins functionality (other
-ways are listed in ~"Plugins support"~@Plugins@). 
-The contents of the menu and actions triggered on menu items selection are 
+ways are listed in ~"Plugins support"~@Plugins@).
+The contents of the menu and actions triggered on menu items selection are
 controlled by plugins.
 
     The menu can be invoked in the following ways:
 
-  - #F11# at file panels or #Plugins# item at ~commands menu~@CmdMenu@, herewith 
+  - #F11# at file panels or #Plugins# item at ~commands menu~@CmdMenu@, herewith
     the commands intended for use from file panels are shown;
-  - #F11# in viewer or editor, herewith the commands intended for use from 
+  - #F11# in viewer or editor, herewith the commands intended for use from
     viewer and editor accordingly are shown.
 
-    Each item of plugin commands menu can be assigned a hotkey with #F4#, this 
-possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is 
+    Each item of plugin commands menu can be assigned a hotkey with #F4#, this
+possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
 displayed left to the item. The #A# symbol in leftmost menu column means that
-the corresponding plugin is written for Far 1.7x and it does not support all 
-possibilities available in Far 2 (these are, in particular, Unicode characters 
+the corresponding plugin is written for Far 1.7x and it does not support all
+possibilities available in Far 2 (these are, in particular, Unicode characters
 in filenames and in editor).
 
     #Plugin commands# menu hotkeys:
 
-    #Shift-F1#    - help on use for selected menu item. The text of the help 
-                  is taken from HLF file, associated with the plugin 
+    #Shift-F1#    - help on use for selected menu item. The text of the help
+                  is taken from HLF file, associated with the plugin
                   that owns the menu item.
     #F4#          - assign a hotkey for selected menu item. If #Space# is
                   entered, then Far sets the hotkey automatically.
@@ -852,10 +852,10 @@ help file, the context-sensitive help will not be shown.
 topic for the selected plugin will be shown.
 
     Each item of plugins configuration menu can be assigned a hotkey with #F4#,
-this possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is 
+this possibility is widely used in ~key macros~@KeyMacro@. The assigned hotkey is
 displayed left to the item. The #A# symbol in leftmost menu column means that
-the corresponding plugin is written for Far 1.7x and it does not support all 
-possibilities available in Far 2 (these are, in particular, Unicode characters 
+the corresponding plugin is written for Far 1.7x and it does not support all
+possibilities available in Far 2 (these are, in particular, Unicode characters
 in filenames and in editor).
 
 
@@ -1068,7 +1068,7 @@ enabled.
 file.
 
     См. так же список ~макроклавиш~@KeyMacroQViewList@, доступных в панели быстрого просмотра.
-    
+
 @DragAndDrop
 $ #Copying: drag and drop files#
     It is possible to perform #Copy# and #Move# file operations using #drag and
@@ -2533,7 +2533,7 @@ $ #Editor: Open/Create file#
     According to ~editor settings~@EditorSettings@, newly created file
 is assigned to OEM or ANSI codepage. You can change the codepage with #Shift-F8#.
 
-    For existing file, changing the codepage has sense if it hasn't been 
+    For existing file, changing the codepage has sense if it hasn't been
 correctly detected at open.
 
 
@@ -2633,7 +2633,7 @@ the external program will be lost.
 
 @CodePagesMenu
 $ #Code pages menu#
-    This menu allows codepage selection in editor and viewer.
+    This menu allows codepage selection in the editor and viewer.
 
     The menu is divided into several parts:
 
@@ -2643,14 +2643,14 @@ $ #Code pages menu#
 
     #Unicode# - Unicode codepages;
 
-    #Favorites# - codepages selected by user;
+    #Favorites# - user controlled list of codepages;
 
-    #Other# - the rest of codepages installed in system.
+    #Other# - the rest of codepages installed in the system.
 
-    The menu has two modes: full mode with visible #Other# section and short 
-mode with hidden #Other# section. The modes are switched with #Ctrl-H#.
+    The menu has two modes: full mode with visible #Other# section and brief
+mode with hidden #Other# section. The modes can be switched by pressing #Ctrl-H#.
 
-    #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the 
+    #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the
 codepage back.
 
 @DriveDlg
@@ -2935,7 +2935,7 @@ $ #Settings dialog: editor#
   #Show scrollbar#          Show scrollbar.
 
   #Pick up the word#        При вызове диалога поиска/замены в строку
-                          поиска будет подставляться слово, на 
+                          поиска будет подставляться слово, на
                           котором стоит курсор.
 
   #Auto detect#             ~Auto detect~@CodePage@ the code page of
@@ -3324,7 +3324,7 @@ a list.
     File mask surrounded with slashes #/# is treated as ~Perl regular expression~@RegExp@.
 
     Example:
-    #/(eng|rus)/i#  any files with filenames containing string “eng” or “rus”, 
+    #/(eng|rus)/i#  any files with filenames containing string “eng” or “rus”,
                   the character case is not taken into account.
 
     In some commands (~find files~@FindFile@, ~filter~@Filter@,
@@ -3899,7 +3899,7 @@ big amounts of data are processed.
          /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
          ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
 
-    #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is an integer from 0 to 15. 
+    #\NN#  - ^<wrap>reference to earlier matched parentheses . NN is an integer from 0 to 15.
 Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern) and (?<!pattern)
 have a number (in the order of appearance).
 
@@ -3926,14 +3926,14 @@ have a number (in the order of appearance).
 
 @RegExpRepl
 $ #Regular expressions in replace#
-    In "Replace with" line one can use special replace string regular 
+    In "Replace with" line one can use special replace string regular
 expressions:
 
-    #$0#..#$9#, #$A#..#$Z#    
+    #$0#..#$9#, #$A#..#$Z#
 
-    The found group numbers, they are replaced with appropriate groups. 
-The numbers are assigned to the groups in order of opening parentheses 
-sequence in regular expression. #$0# means the whole found sequence. 
+    The found group numbers, they are replaced with appropriate groups.
+The numbers are assigned to the groups in order of opening parentheses
+sequence in regular expression. #$0# means the whole found sequence.
 #$*# is replaced with '*' character.
 
 
