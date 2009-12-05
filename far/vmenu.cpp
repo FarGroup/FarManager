@@ -527,7 +527,7 @@ int VMenu::DeleteItem(int ID, int Count)
 		if (PtrItem->UserDataSize > (int)sizeof(PtrItem->UserData) && PtrItem->UserData)
 			xf_free(PtrItem->UserData);
 
-		UpdateInternalCounters(0,PtrItem->Flags);
+		UpdateInternalCounters(PtrItem->Flags,0);
 	}
 
 	// а вот теперь перемещения
