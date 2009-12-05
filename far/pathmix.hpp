@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern const wchar_t *ReservedFilenameSymbols;
 
+const size_t cVolumeGuidLen = 48;
+
 class NTPath
 {
 	public:
@@ -131,3 +133,5 @@ bool TestCurrentDirectory(const wchar_t *TestDir);
 string ExtractPathRoot(const string &Path);
 string ExtractFileName(const string &Path);
 string ExtractFilePath(const string &Path);
+
+int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName);

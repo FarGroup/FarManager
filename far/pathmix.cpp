@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "imports.hpp"
 
 const wchar_t *ReservedFilenameSymbols = L"<>|";
 
@@ -664,6 +665,51 @@ bool PathStartsWith(const string &Path, const string &Start)
 	string PathPart(Start);
 	DeleteEndSlash(PathPart, true);
 	return Path.Equal(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
+}
+
+int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
+{
+	string TargetPath;
+	DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
+
+	if (Res)
+	{
+		TargetPath.ReleaseBuffer();
+
+		if (PathStartsWith(NtPath, TargetPath))
+			return static_cast<int>(TargetPath.GetLength());
+
+		// path could be an Object Manager symlink, try to resolve
+		UNICODE_STRING ObjName;
+		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
+		ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
+		OBJECT_ATTRIBUTES ObjAttrs;
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
+		HANDLE hSymLink;
+		NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+
+		if (Res == STATUS_SUCCESS)
+		{
+			ULONG BufSize = 0x7FFF;
+			string Buffer;
+			UNICODE_STRING LinkTarget;
+			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
+			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
+
+			if (Res == STATUS_SUCCESS)
+			{
+				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+			}
+
+			ifn.pfnNtClose(hSymLink);
+
+			if (PathStartsWith(NtPath, TargetPath))
+				return static_cast<int>(TargetPath.GetLength());
+		}
+	}
+
+	return 0;
 }
 
 SELF_TEST(

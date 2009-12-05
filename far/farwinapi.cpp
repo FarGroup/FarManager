@@ -810,30 +810,102 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 	return false;
 }
 
+bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+{
+	if (ifn.pfnNtQueryObject)
+	{
+		ULONG RetLen;
+		ULONG BufSize = NT_MAX_PATH;
+		OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
+		NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+
+		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
+		{
+			BufSize = RetLen;
+			oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+			Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+		}
+
+		string NtPath;
+
+		if (Res == STATUS_SUCCESS)
+		{
+			NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+		}
+
+		xf_free(oni);
+
+		FinalFilePath.Clear();
+
+		if (Res == STATUS_SUCCESS)
+		{
+			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+			string DriveStrings;
+
+			if (apiGetLogicalDriveStrings(DriveStrings))
+			{
+				wchar_t DiskName[3] = L"A:";
+				const wchar_t* Drive = DriveStrings.CPtr();
+
+				while (*Drive)
+				{
+					DiskName[0] = *Drive;
+					int Len = MatchNtPathRoot(NtPath, DiskName);
+
+					if (Len)
+					{
+						FinalFilePath = NtPath.Replace(0, Len, DiskName);
+						break;
+					}
+
+					Drive += StrLength(Drive) + 1;
+				}
+			}
+
+			if (FinalFilePath.IsEmpty())
+			{
+				// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+				wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
+				HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
+				BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+
+				while (Res)
+				{
+					if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
+					{
+						DeleteEndSlash(VolumeName);
+						int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+
+						if (Len)
+						{
+							FinalFilePath = NtPath.Replace(0, Len, VolumeName);
+							break;
+						}
+					}
+
+					Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
+				}
+
+				if (hEnum != INVALID_HANDLE_VALUE)
+					FindVolumeClose(hEnum);
+			}
+		}
+
+		return !FinalFilePath.IsEmpty();
+	}
+
+	FinalFilePath.Clear();
+	return false;
+}
+
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (!ifn.pfnGetFinalPathNameByHandle)
+	if (ifn.pfnGetFinalPathNameByHandle)
 	{
-		FinalFilePath.Clear();
-		return false;
-	}
+		DWORD BufLen = NT_MAX_PATH;
+		DWORD Len;
 
-	DWORD BufLen = NT_MAX_PATH;
-	DWORD Len;
-
-	// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
-	__try
-	{
-		Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
-	}
-	__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-	{
-		Len = 0;
-	}
-
-	if (Len > BufLen)
-	{
-		BufLen = Len;
+		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
 		__try
 		{
 			Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
@@ -842,12 +914,27 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 		{
 			Len = 0;
 		}
+
+		if (Len > BufLen)
+		{
+			BufLen = Len;
+			__try
+			{
+				Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
+			}
+			__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+			{
+				Len = 0;
+			}
+		}
+
+		if (Len <= BufLen)
+			FinalFilePath.ReleaseBuffer(Len);
+		else
+			FinalFilePath.Clear();
+
+		return Len != 0 && Len <= BufLen;
 	}
 
-	if (Len <= BufLen)
-		FinalFilePath.ReleaseBuffer(Len);
-	else
-		FinalFilePath.Clear();
-
-	return Len != 0 && Len <= BufLen;
+	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
 }

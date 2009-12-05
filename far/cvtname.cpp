@@ -333,53 +333,6 @@ void ConvertNameToFull(const wchar_t *lpwszSrc, string &strDest)
 	MixToFullPath(strSrc,strDest,strCurDir);
 }
 
-int MatchNtPathRoot(const string& NtPath, const wchar_t* DeviceName)
-{
-	string TargetPath;
-	DWORD Res = QueryDosDeviceW(DeviceName, TargetPath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH);
-
-	if (Res)
-	{
-		TargetPath.ReleaseBuffer();
-
-		if (PathStartsWith(NtPath, TargetPath))
-			return static_cast<int>(TargetPath.GetLength());
-
-		// path could be an Object Manager symlink, try to resolve
-		UNICODE_STRING ObjName;
-		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.GetLength() * sizeof(wchar_t));
-		ObjName.Buffer = const_cast<PWSTR>(TargetPath.CPtr());
-		OBJECT_ATTRIBUTES ObjAttrs;
-		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, NULL, NULL);
-		HANDLE hSymLink;
-		NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
-
-		if (Res == STATUS_SUCCESS)
-		{
-			ULONG BufSize = 0x7FFF;
-			string Buffer;
-			UNICODE_STRING LinkTarget;
-			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, NULL);
-
-			if (Res == STATUS_SUCCESS)
-			{
-				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
-			}
-
-			ifn.pfnNtClose(hSymLink);
-
-			if (PathStartsWith(NtPath, TargetPath))
-				return static_cast<int>(TargetPath.GetLength());
-		}
-	}
-
-	return 0;
-}
-
-static const size_t cVolumeGuidLen = 48;
-
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
 string TryConvertVolumeGuidToDrivePath(const string& Path)
@@ -487,85 +440,10 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 		{
 			string FinalFilePath;
 
-			if (!apiGetFinalPathNameByHandle(hFile, FinalFilePath) && ifn.pfnNtQueryObject)
-			{
-				ULONG RetLen;
-				ULONG BufSize = NT_MAX_PATH;
-				OBJECT_NAME_INFORMATION* oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-				NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-
-				if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
-				{
-					BufSize = RetLen;
-					oni = reinterpret_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-					Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-				}
-
-				string NtPath;
-
-				if (Res == STATUS_SUCCESS)
-				{
-					NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
-				}
-
-				xf_free(oni);
-
-				if (Res == STATUS_SUCCESS)
-				{
-					// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-					string DriveStrings;
-
-					if (apiGetLogicalDriveStrings(DriveStrings))
-					{
-						wchar_t DiskName[3] = L"A:";
-						const wchar_t* Drive = DriveStrings.CPtr();
-
-						while (*Drive)
-						{
-							DiskName[0] = *Drive;
-							int Len = MatchNtPathRoot(NtPath, DiskName);
-
-							if (Len)
-							{
-								FinalFilePath = NtPath.Replace(0, Len, DiskName);
-								break;
-							}
-
-							Drive += StrLength(Drive) + 1;
-						}
-					}
-
-					if (FinalFilePath.IsEmpty())
-					{
-						// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-						wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
-						HANDLE hEnum = FindFirstVolumeW(VolumeName, countof(VolumeName));
-						BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-
-						while (Res)
-						{
-							if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
-							{
-								DeleteEndSlash(VolumeName);
-								int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
-
-								if (Len)
-								{
-									FinalFilePath = NtPath.Replace(0, Len, VolumeName);
-									break;
-								}
-							}
-
-							Res = FindNextVolumeW(hEnum, VolumeName, countof(VolumeName));
-						}
-
-						if (hEnum != INVALID_HANDLE_VALUE)
-							FindVolumeClose(hEnum);
-					}
-				}
-			}
+			apiGetFinalPathNameByHandle(hFile, FinalFilePath);
 
 			CloseHandle(hFile);
+
 			assert(!FinalFilePath.IsEmpty());
 
 			if (!FinalFilePath.IsEmpty())
