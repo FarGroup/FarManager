@@ -614,7 +614,7 @@ struct Options
 
 	DWORD CPMenuMode;
 
-	BOOL IsUserAdmin;
+	bool IsUserAdmin;
 	string strTitleAddons;
 };
 
