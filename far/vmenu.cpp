@@ -617,6 +617,56 @@ void VMenu::SetCheck(int Check, int Position)
 	Item[ItemPos]->SetCheck(Check);
 }
 
+void VMenu::RestoreFilteredItems()
+{
+	for (int i=0; i < ItemCount; i++)
+	{
+		Item[i]->Flags &= ~LIF_HIDDEN;
+	}
+
+	ItemHiddenCount=0;
+
+	if (SelectPos < 0)
+		SetSelectPos(0,1);
+}
+
+void VMenu::FilterStringUpdated(bool bLonger)
+{
+
+	if (bLonger)
+	{
+		//строка фильтра увеличилась
+		for (int i=0; i < ItemCount; i++)
+		{
+			if (ItemIsVisible(Item[i]->Flags) && !StrStrI(Item[i]->strName, strFilter))
+			{
+				Item[i]->Flags |= LIF_HIDDEN;
+				ItemHiddenCount++;
+				if (SelectPos == i)
+				{
+					Item[i]->Flags &= ~LIF_SELECTED;
+					SelectPos = -1;
+				}
+			}
+		}
+	}
+	else
+	{
+		//строка фильтра сократилась
+		for (int i=0; i < ItemCount; i++)
+		{
+			if (!ItemIsVisible(Item[i]->Flags) && StrStrI(Item[i]->strName, strFilter))
+			{
+				Item[i]->Flags &= ~LIF_HIDDEN;
+				ItemHiddenCount--;
+			}
+		}
+	}
+
+	if (SelectPos<0)
+		SetSelectPos(0,1);
+}
+
 bool VMenu::IsFilterEditKey(int Key)
 {
 	return (Key>=(int)KEY_SPACE && Key<0xffff) || Key==KEY_BS;
@@ -858,64 +908,27 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_PGUP:         case KEY_NUMPAD9:
 		{
-			//CHECKCHECK
-			int y=((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
-			int I=0;
+			int dy = ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
 
-			if (ItemHiddenCount)
-			{
-				int p=GetVisualPos(SelectPos)-y;
-				int i=0;
+			int p = VisualPosToReal(GetVisualPos(SelectPos)-dy);
 
-				for (int v=0; i < ItemCount && v < p; i++)
-				{
-					if (ItemIsVisible(Item[i]->Flags))
-						v++;
-				}
+			if (p < 0)
+				p = 0;
 
-				I=i;
-			}
-			else
-			{
-				I=SelectPos-y;
-			}
-
-			if (I < 0)
-				I=0;
-
-			SetSelectPos(I,1);
+			SetSelectPos(p,1);
 			ShowMenu(true);
 			break;
 		}
 		case KEY_PGDN:         case KEY_NUMPAD3:
 		{
-			int y=((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
-			int I=0;
+			int dy = ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1);
 
-			if (ItemHiddenCount)
-			{
-				int i=SelectPos;
+			int p = VisualPosToReal(GetVisualPos(SelectPos)+dy);;
 
-				for (int v=0; i < ItemCount && v < y; i++)
-				{
-					if (ItemIsVisible(Item[i]->Flags))
-						v++;
-				}
+			if (p >= ItemCount)
+				p = ItemCount-1;
 
-				while (i<ItemCount && !ItemIsVisible(Item[i]->Flags))
-					i++;
-
-				I=i;
-			}
-			else
-			{
-				I=SelectPos+y;
-			}
-
-			if (I >= ItemCount)
-				I=ItemCount-1;
-
-			SetSelectPos(I,-1);
+			SetSelectPos(p,-1);
 			ShowMenu(true);
 			break;
 		}
@@ -991,17 +1004,7 @@ int VMenu::ProcessKey(int Key)
 			strFilter.Clear();
 
 			if (!bFilterEnabled)
-			{
-				for (int i=0; i < ItemCount; i++)
-				{
-					Item[i]->Flags &= ~LIF_HIDDEN;
-				}
-
-				ItemHiddenCount=0;
-
-				if (SelectPos < 0)
-					SetSelectPos(0,1);
-			}
+				RestoreFilteredItems();
 
 			DisplayObject();
 			break;
@@ -1029,16 +1032,7 @@ int VMenu::ProcessKey(int Key)
 
 						if (strFilter.IsEmpty())
 						{
-							for (int i=0; i < ItemCount; i++)
-							{
-								Item[i]->Flags &= ~LIF_HIDDEN;
-							}
-
-							ItemHiddenCount=0;
-
-							if (SelectPos < 0)
-								SetSelectPos(0,1);
-
+							RestoreFilteredItems();
 							DisplayObject();
 							return TRUE;
 						}
@@ -1056,28 +1050,9 @@ int VMenu::ProcessKey(int Key)
 					strFilter += (wchar_t)Key;
 				}
 
-				ItemHiddenCount=0;
-
-				for (int i=0; i < ItemCount; i++)
-				{
-					Item[i]->Flags &= ~LIF_HIDDEN;
-
-					if (!StrStrI(Item[i]->strName, strFilter))
-					{
-						Item[i]->Flags |= LIF_HIDDEN;
-						ItemHiddenCount++;
-						if (SelectPos == i)
-						{
-							Item[i]->Flags &= ~LIF_SELECTED;
-							SelectPos = -1;
-						}
-					}
-				}
-
-				if (SelectPos<0)
-					SetSelectPos(0,1);
-
+				FilterStringUpdated(Key!=KEY_BS);
 				DisplayObject();
+
 				return TRUE;
 			}
 
@@ -1290,8 +1265,11 @@ int VMenu::GetVisualPos(int Pos)
 	if (!ItemHiddenCount)
 		return Pos;
 
-	if (Pos < 0 || Pos >= ItemCount)
-		return Pos;
+	if (Pos < 0)
+		return -1;
+
+	if (Pos >= ItemCount)
+		return GetShowItemCount();
 
 	int v=0;
 
@@ -1309,8 +1287,11 @@ int VMenu::VisualPosToReal(int VPos)
 	if (!ItemHiddenCount)
 		return VPos;
 
-	if (VPos < 0 || VPos >= GetShowItemCount())
+	if (VPos < 0)
 		return -1;
+
+	if (VPos >= GetShowItemCount())
+		return ItemCount;
 
 	for (int i=0; i < ItemCount; i++)
 	{
@@ -1592,7 +1573,6 @@ void VMenu::ShowMenu(bool IsParent)
 
 	int MaxItemLength = 0;
 	bool HasRightScroll = false;
-
 	bool HasSubMenus = ItemSubMenusCount > 0;
 
 	//BUGBUG, this must be optimized
@@ -1632,33 +1612,6 @@ void VMenu::ShowMenu(bool IsParent)
 	{
 		if (!(CheckFlags(VMENU_SHOWNOBOX) && Y2==Y1))
 			return;
-	}
-
-	int VisualSelectPos = GetVisualPos(SelectPos);
-
-	// коррекция Top`а
-	if (GetVisualPos(TopPos)+GetShowItemCount() >= Y2-Y1 && VisualSelectPos == GetShowItemCount()-1)
-	{
-		//CHECKCHECK
-		if (ItemHiddenCount > 0)
-		{
-			int i=TopPos;
-
-			for (int v=0; i > 0 && v < 1; i--)
-			{
-				if (ItemIsVisible(Item[i]->Flags))
-					v++;
-			}
-
-			TopPos=i;
-		}
-		else
-		{
-			TopPos--;
-
-			if (TopPos<0)
-				TopPos=0;
-		}
 	}
 
 	if (CheckFlags(VMENU_LISTBOX))
@@ -1712,30 +1665,35 @@ void VMenu::ShowMenu(bool IsParent)
 	if (CheckFlags(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
 		AssignHighlights(CheckFlags(VMENU_REVERSEHIGHLIGHT));
 
-	//CHECKCHECK
-	if (VisualSelectPos > GetVisualPos(TopPos)+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
+	int VisualSelectPos = GetVisualPos(SelectPos);
+	int VisualTopPos = GetVisualPos(TopPos);
+
+	// коррекция Top`а
+	if (VisualTopPos+GetShowItemCount() >= Y2-Y1 && VisualSelectPos == GetShowItemCount()-1)
 	{
-		if (ItemHiddenCount > 0)
-		{
-			int p = VisualSelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
-			int i = 0;
+		VisualTopPos--;
 
-			for (int v=0; i < ItemCount && v < p; i++)
-			{
-				if (ItemIsVisible(Item[i]->Flags))
-					v++;
-			}
-
-			TopPos=i;
-		}
-		else
-		{
-			TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
-		}
+		if (VisualTopPos<0)
+			VisualTopPos=0;
 	}
 
-	if (SelectPos < TopPos)
+	if (VisualSelectPos > VisualTopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
+	{
+		VisualTopPos=VisualSelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
+	}
+
+	if (VisualSelectPos < VisualTopPos)
+	{
 		TopPos=SelectPos;
+		VisualTopPos=VisualSelectPos;
+	}
+	else
+	{
+		TopPos=VisualPosToReal(VisualTopPos);
+	}
+
+	if (VisualTopPos<0)
+		VisualTopPos=0;
 
 	if (TopPos<0)
 		TopPos=0;
@@ -1807,8 +1765,7 @@ void VMenu::ShowMenu(bool IsParent)
 						ItemWidth = X2-X1-3;
 
 					GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-					//BUGBUG, use FS
-					mprintf(L" %*.*s ",ItemWidth,ItemWidth,(const wchar_t*)Item[I]->strName);
+					FS << L" " << fmt::LeftAlign() << fmt::Width(ItemWidth) << fmt::Precision(ItemWidth) << Item[I]->strName << L" ";
 				}
 
 				strTmpStr.ReleaseBuffer();
@@ -1955,9 +1912,9 @@ void VMenu::ShowMenu(bool IsParent)
 		SetColor(Colors[VMenuColorScrollBar]);
 
 		if (BoxType!=NO_BOX)
-			ScrollBarEx(X2,Y1+1,Y2-Y1-1,GetVisualPos(TopPos),GetShowItemCount());
+			ScrollBarEx(X2,Y1+1,Y2-Y1-1,VisualTopPos,GetShowItemCount());
 		else
-			ScrollBarEx(X2,Y1,Y2-Y1+1,GetVisualPos(TopPos),GetShowItemCount());
+			ScrollBarEx(X2,Y1,Y2-Y1+1,VisualTopPos,GetShowItemCount());
 	}
 }
 

@@ -258,6 +258,8 @@ class VMenu: public Modal
 		void UpdateMaxLength(int Length);
 		void UpdateItemFlags(int Pos, DWORD NewFlags);
 		void UpdateInternalCounters(DWORD OldFlags, DWORD NewFlags);
+		void RestoreFilteredItems();
+		void FilterStringUpdated(bool bLonger);
 		bool IsFilterEditKey(int Key);
 		bool ShouldSendKeyToFilter(int Key);
 		//коректировка текущей позиции и флагов SELECTED
