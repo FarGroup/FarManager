@@ -21,6 +21,12 @@
           <Shortcut Id="ClearPluginsCache" Name="Clear plugins cache" Target="[INSTALLDIR]ClearPluginsCache.$(var.ScriptExt)" WorkingDirectory="INSTALLDIR" />
         </Component>
       </Directory>
+      <Component Id="EnglishEncShortcut" Guid="$(var.Guid.EnglishEncShortcut)" Win64="$(var.Win64)">
+        <Shortcut Id="EnglishEncyclopediaShortcut" Name="English Encyclopedia" Target="[INSTALLDIR]Encyclopedia\FarEncyclopedia.en.chm" />
+      </Component>
+      <Component Id="RussianEncShortcut" Guid="$(var.Guid.RussianEncShortcut)" Win64="$(var.Win64)">
+        <Shortcut Id="RussianEncyclopediaShortcut" Name="Russian Encyclopedia" Target="[INSTALLDIR]Encyclopedia\FarEncyclopedia.ru.chm" />
+      </Component>
     </Directory>
   </Directory>
   <Directory Id="DesktopFolder">

@@ -255,6 +255,12 @@
         <ComponentRef Id="FarProgramsShortcut" />
         <ComponentRef Id="UninstallProduct" />
         <ComponentRef Id="Scripts" />
+        <Feature Id="FarProgramsShortcut.Enc" Level="2" Display="hidden" AllowAdvertise="no">
+          <ComponentRef Id="EnglishEncShortcut" />
+        </Feature>
+        <Feature Id="FarProgramsShortcut.Enc.Russian" Level="2" Display="hidden" AllowAdvertise="no">
+          <ComponentRef Id="RussianEncShortcut" />
+        </Feature>
       </Feature>
       <Feature Id="FarDesktopShortcut" Level="2" Title="!(loc.Feature.Title.FarDesktopShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarDesktopShortcut" />

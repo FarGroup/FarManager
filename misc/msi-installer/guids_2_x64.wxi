@@ -15,6 +15,8 @@
 <?define Guid.FarDesktopShortcut = "7F42F62C-5FB4-47D1-8AF1-AF507DE70907" ?>
 <?define Guid.FarStartMenuShortcut = "F21171B6-AB66-4C0D-96DF-32375EEBF68E" ?>
 <?define Guid.FarQuickLaunchShortcut = "DB886DBA-0965-4CA9-8242-E22FEAD59E97" ?>
+<?define Guid.EnglishEncShortcut = "BBE30D08-671F-4957-A5B1-844864CC6DD9" ?>
+<?define Guid.RussianEncShortcut = "E8B2A9E5-EC8A-42D6-A13B-A345CCE34432" ?>
 <!-- files -->
 <?define Guid.changelog = "13DFB140-158D-4B2E-BEF0-D56D10A9DC83" ?>
 <?define Guid.Far.exe = "BF8C8599-F076-4784-83AF-A9A4CF6B74E9" ?>
