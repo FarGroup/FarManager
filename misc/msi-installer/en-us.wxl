@@ -2,6 +2,7 @@
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
 <String Id="Language">1033</String> <!-- English - United States -->
 <String Id="Codepage">1252</String>
+<String Id="WelcomeDlgUpgradeDescription">The Setup Wizard will upgrade [ProductName] on your computer. Click Next to continue or Cancel to exit the Setup Wizard.</String>
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Addons</String>
 <String Id="Feature.Title.Archivers">Archivers</String>

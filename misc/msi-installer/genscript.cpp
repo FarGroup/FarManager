@@ -59,14 +59,14 @@ int main(int argc, char* argv[]) {
     makefile.open("makefile");
     makefile << "all:" << endl;
     makefile << "  cl -nologo -O1 -GS- customact.cpp -link -dll -nodefaultlib -noentry -out:CustomActions.dll -export:UpdateFeatureState kernel32.lib msi.lib" << endl;
-    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -ext"
 #ifdef SPECIAL
     << " c:\\src\\WixUIExtension.dll"
 #else
     << " WixUIExtension"
 #endif
-    << " -cultures:en-us -loc en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj" << endl;
+    << " -cultures:en-us -loc en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
 
 
     return 0;
