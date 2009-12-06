@@ -49,43 +49,6 @@ class NTPath
 		}
 };
 
-class CurrentDirectoryGuard
-{
-		string strSaveDir;
-		bool bSaved;
-
-	public:
-
-		explicit CurrentDirectoryGuard(const bool bAuto=true)
-		{
-			bSaved = false;
-
-			if (bAuto)
-				On();
-		}
-
-		void On()
-		{
-			if (!bSaved)
-			{
-				bSaved = true;
-				DWORD dwSize = GetCurrentDirectory(0,NULL);
-				wchar_t *CurrentDirectory = strSaveDir.GetBuffer(dwSize);
-				GetCurrentDirectory(dwSize,CurrentDirectory);
-				strSaveDir.ReleaseBuffer();
-				string strNewDir;
-				apiGetCurrentDirectory(strNewDir);
-				SetCurrentDirectory(strNewDir);
-			}
-		}
-
-		~CurrentDirectoryGuard()
-		{
-			if (bSaved)
-				SetCurrentDirectory(strSaveDir);
-		}
-};
-
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
 bool IsNetworkPath(const wchar_t *Path);
@@ -135,3 +98,5 @@ string ExtractFileName(const string &Path);
 string ExtractFilePath(const string &Path);
 
 int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName);
+
+void SynchronizeCurrentDirectory();

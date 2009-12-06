@@ -712,6 +712,13 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 	return 0;
 }
 
+void SynchronizeCurrentDirectory()
+{
+	string strNewDir;
+	apiGetCurrentDirectory(strNewDir);
+	SetCurrentDirectory(strNewDir);
+}
+
 SELF_TEST(
     assert(ExtractPathRoot(L"") == L"");
     assert(ExtractPathRoot(L"\\") == L"");

@@ -339,7 +339,7 @@ bool PluginW::Load()
 		return false;
 
 	if (m_hModule)
-		return true; //BUGBUG
+		return true;
 
 	if (!m_hModule)
 	{
@@ -372,7 +372,9 @@ bool PluginW::Load()
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
-		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
+		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		WorkFlags.Set(PIWF_DONTLOADAGAIN);
+
 		return false;
 	}
 
@@ -710,18 +712,18 @@ int PluginW::Analyse(const AnalyseData *pData)
 
 HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 {
-	//BUGBUG???
-	//AY - непонятно нафига нужно, в других вызовах нету,
-	//     притом ещё делает варнинги при сборке из за того что внизу есть SEH.
-	//     Если это да надо, то надо выносить вызов SEH в отдельную функцию.
-	//ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
+
 	CheckScreenLock(); //??
+
 	{
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
 		g_strDirToSet.Clear();
 	}
+
+	HANDLE hResult = INVALID_HANDLE_VALUE;
 
 	if (Load() && pOpenPluginW && !ProcessException)
 	{
@@ -731,7 +733,7 @@ HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 		es.hDefaultResult = INVALID_HANDLE_VALUE;
 		es.hResult = INVALID_HANDLE_VALUE;
 		EXECUTE_FUNCTION_EX(pOpenPluginW(OpenFrom,Item), es);
-		return es.hResult;
+		hResult = es.hResult;
 		//CurPluginItem=NULL; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
@@ -763,7 +765,9 @@ HANDLE PluginW::OpenPlugin(int OpenFrom, INT_PTR Item)
 		    } */
 	}
 
-	return(INVALID_HANDLE_VALUE);
+	delete ChPriority;
+
+	return hResult;
 }
 
 //////////////////////////////////
@@ -775,8 +779,6 @@ HANDLE PluginW::OpenFilePlugin(
     int OpMode
 )
 {
-//	if ( m_bCached && HAS_EXPORT(EXPORT_OPENFILEPLUGIN) )
-//		Load (FORCE_LOAD);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
 	if (Load() && pOpenFilePluginW && !ProcessException)

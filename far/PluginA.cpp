@@ -316,7 +316,7 @@ bool PluginA::Load()
 		return false;
 
 	if (m_hModule)
-		return true; //BUGBUG
+		return true;
 
 	if (!m_hModule)
 	{
@@ -349,7 +349,9 @@ bool PluginA::Load()
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
 		}
 
-		//WorkFlags.Set(PIWF_DONTLOADAGAIN); //это с чего бы вдруг?
+		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
+		WorkFlags.Set(PIWF_DONTLOADAGAIN);
+
 		return false;
 	}
 
@@ -439,10 +441,10 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 		StandardFunctions.AddEndSlash=AddEndSlashA;
 		StandardFunctions.CopyToClipboard=CopyToClipboardA;
 		StandardFunctions.PasteFromClipboard=PasteFromClipboardA;
-		StandardFunctions.FarKeyToName=FarKeyToNameA; //BUGBUG или нет?
+		StandardFunctions.FarKeyToName=FarKeyToNameA;
 		StandardFunctions.FarNameToKey=KeyNameToKeyA;
-		StandardFunctions.FarInputRecordToKey=InputRecordToKey;//BUGBUG или нет?
-		StandardFunctions.XLat=XlatA; //BUGBUG или нет?
+		StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+		StandardFunctions.XLat=XlatA;
 		StandardFunctions.GetFileOwner=GetFileOwnerA;
 		StandardFunctions.GetNumberOfLinks=GetNumberOfLinksA;
 		StandardFunctions.FarRecursiveSearch=FarRecursiveSearchA;
@@ -473,7 +475,7 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 		StartupInfo.CmpName=FarCmpNameA;
 		StartupInfo.CharTable=FarCharTableA;
 		StartupInfo.Text=FarTextA;
-		StartupInfo.EditorControl=FarEditorControlA; //почти не заглушка
+		StartupInfo.EditorControl=FarEditorControlA;
 		StartupInfo.ViewerControl=FarViewerControlA;
 		StartupInfo.ShowHelp=FarShowHelpA;
 		StartupInfo.AdvControl=FarAdvControlA;
@@ -513,7 +515,7 @@ struct ExecuteStruct
 
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
-		CurrentDirectoryGuard *cdg=new CurrentDirectoryGuard; \
+		SynchronizeCurrentDirectory(); \
 		SetFileApisToOEM(); \
 		es.nResult = 0; \
 		es.nDefaultResult = 0; \
@@ -535,39 +537,12 @@ struct ExecuteStruct
 		{ \
 			function; \
 		} \
-		delete cdg; \
 	}
 
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
-		CurrentDirectoryGuard *cdg=new CurrentDirectoryGuard; \
-		SetFileApisToOEM(); \
-		es.bUnloaded = false; \
-		es.nResult = 0; \
-		if ( Opt.ExceptRules ) \
-		{ \
-			__try \
-			{ \
-				es.nResult = (INT_PTR)function; \
-			} \
-			__except(xfilter(es.id, GetExceptionInformation(), (Plugin *)this, 0)) \
-			{ \
-				m_owner->UnloadPlugin((Plugin *)this, es.id, true); \
-				es.bUnloaded = true; \
-				es.nResult = es.nDefaultResult; \
-				ProcessException=FALSE; \
-			} \
-		} \
-		else \
-		{ \
-			es.nResult = (INT_PTR)function; \
-		} \
-		delete cdg; \
-	}
-
-#define EXECUTE_FUNCTION_EX_NOCURDIRGUARD(function, es) \
-	{ \
+		SynchronizeCurrentDirectory(); \
 		SetFileApisToOEM(); \
 		es.bUnloaded = false; \
 		es.nResult = 0; \
@@ -590,7 +565,6 @@ struct ExecuteStruct
 			es.nResult = (INT_PTR)function; \
 		} \
 	}
-
 
 
 bool PluginA::SetStartupInfo(bool &bUnloaded)
@@ -622,11 +596,8 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
 {
 	string strMsg1, strMsg2;
-	string strPlgName;
-	strMsg1.Format(MSG(MPlgRequired),
-	               (WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
-	strMsg2.Format(MSG(MPlgRequired2),
-	               (WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
+	strMsg1.Format(MSG(MPlgRequired),(WORD)HIBYTE(LOWORD(required)),(WORD)LOBYTE(LOWORD(required)),HIWORD(required));
+	strMsg2.Format(MSG(MPlgRequired2),(WORD)HIBYTE(LOWORD(FAR_VERSION)),(WORD)LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
 	Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 
@@ -700,18 +671,18 @@ bool PluginA::IsPanelPlugin()
 
 HANDLE PluginA::OpenPlugin(int OpenFrom, INT_PTR Item)
 {
-	//BUGBUG???
-	//AY - непонятно нафига нужно, в других вызовах нету,
-	//     притом ещё делает варнинги при сборке из за того что внизу есть SEH.
-	//     Если это да надо, то надо выносить вызов SEH в отдельную функцию.
-	//ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
+
 	CheckScreenLock(); //??
+
 	{
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
 		g_strDirToSet.Clear();
 	}
+
+	HANDLE hResult = INVALID_HANDLE_VALUE;
 
 	if (Load() && pOpenPlugin && !ProcessException)
 	{
@@ -732,7 +703,7 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, INT_PTR Item)
 
 		if (ItemA) xf_free(ItemA);
 
-		return es.hResult;
+		hResult = es.hResult;
 		//CurPluginItem=NULL; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
@@ -764,7 +735,9 @@ HANDLE PluginA::OpenPlugin(int OpenFrom, INT_PTR Item)
 		    } */
 	}
 
-	return(INVALID_HANDLE_VALUE);
+	delete ChPriority;
+
+	return hResult;
 }
 
 //////////////////////////////////
@@ -776,8 +749,6 @@ HANDLE PluginA::OpenFilePlugin(
     int OpMode
 )
 {
-//	if ( m_bCached && HAS_EXPORT(EXPORT_OPENFILEPLUGIN) )
-//		Load (FORCE_LOAD);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 
 	if (Load() && pOpenFilePlugin && !ProcessException)
@@ -845,7 +816,7 @@ int PluginA::ProcessEditorInput(
 			Ptr=&OemRecord;
 		}
 
-		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessEditorInput(Ptr), es);
+		EXECUTE_FUNCTION_EX(pProcessEditorInput(Ptr), es);
 		bResult = es.bResult;
 	}
 
@@ -862,7 +833,7 @@ int PluginA::ProcessEditorEvent(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITOREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessEditorEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(pProcessEditorEvent(Event, Param), es);
 	}
 
 	return 0; //oops!
@@ -878,7 +849,7 @@ int PluginA::ProcessViewerEvent(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessViewerEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(pProcessViewerEvent(Event, Param), es);
 	}
 
 	return 0; //oops, again!
@@ -896,7 +867,7 @@ int PluginA::ProcessDialogEvent(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
 		es.bDefaultResult = FALSE;
-		EXECUTE_FUNCTION_EX_NOCURDIRGUARD(pProcessDialogEvent(Event, Param), es);
+		EXECUTE_FUNCTION_EX(pProcessDialogEvent(Event, Param), es);
 		bResult = es.bResult;
 	}
 
