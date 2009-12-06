@@ -55,6 +55,7 @@
     <CustomAction Id="SetUserInstallDir" Property="INSTALLDIR" Value="[USERINSTALLDIR]" Execute="immediate" />
     <CustomAction Id="SetUserInstallScope" Property="InstallScope" Value="User" Execute="immediate" />
     <CustomAction Id="SetALLUSERS" Property="ALLUSERS" Value="" Execute="immediate" />
+    <CustomAction Id="LaunchApplication" ExeCommand="" FileKey="Far.exe" Impersonate="yes" Return="asyncNoWait" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.PFiles)">
         <Directory Id="INSTALLDIR" Name="$(var.DefInstallDir)">
@@ -109,6 +110,7 @@
       <FindRelatedProducts After="SetALLUSERS" />
     </InstallUISequence>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.ExitDialogOptionalCheckboxText)" />
     <UIRef Id="WixUI_Mod" />
     <UIRef Id="WixUI_ErrorProgressText" />
     <Icon Id="Far.ico" SourceFile="rsrc\far.ico" />
