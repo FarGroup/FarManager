@@ -1,3 +1,7 @@
+t-rex 06.12.2009 23:01:16 +0200 - build 1276
+
+1. Разная мелочь.
+
 t-rex 06.12.2009 20:52:04 +0200 - build 1275
 
 1. Убрал CurrentDirectoryGuard, теперь есть только SynchronizeCurrentDirectory() без востановления,

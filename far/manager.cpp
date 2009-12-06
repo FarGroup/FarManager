@@ -760,7 +760,7 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 #endif
 
 
-int  Manager::ProcessKey(DWORD Key)
+int Manager::ProcessKey(DWORD Key)
 {
 	int ret=FALSE;
 
@@ -1088,7 +1088,7 @@ int  Manager::ProcessKey(DWORD Key)
 	return ret;
 }
 
-int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+int Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
 	// При каптюренной мыши отдаем управление заданному объекту
 //    if (ScreenObject::CaptureMouseObject)
@@ -1160,7 +1160,7 @@ BOOL Manager::IsPanelsActive()
 
 Frame *Manager::operator[](int Index)
 {
-	if (Index<0||Index>=FrameCount ||FrameList==0)
+	if (Index<0 || Index>=FrameCount || FrameList==0)
 	{
 		return NULL;
 	}

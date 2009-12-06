@@ -33,14 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern int UseInternalClipboard;
 extern const wchar_t FAR_VerticalBlock[];
 extern const wchar_t FAR_VerticalBlock_Unicode[];
+
+//Sets UseInternalClipboard to State, and returns previous state
+bool SetUseInternalClipboardState(bool State);
+bool GetUseInternalClipboardState();
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 int CopyFormatToClipboard(const wchar_t *Format,const wchar_t *Data);
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
-BOOL EmptyInternalClipboard();
 int WINAPI CopyToClipboard(const wchar_t *Data);
 wchar_t* WINAPI PasteFromClipboard();
-wchar_t* WINAPI PasteFromClipboardEx(int max);
+wchar_t* PasteFromClipboardEx(int max);
+
+BOOL EmptyInternalClipboard();

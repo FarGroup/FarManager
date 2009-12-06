@@ -892,7 +892,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode,DWORD& Err)
 					Cond=(__int64)Opt.IsUserAdmin;
 					break;
 				case MCODE_C_ICLIP:
-					Cond=(__int64)UseInternalClipboard;
+					Cond=(__int64)GetUseInternalClipboardState();
 					break;
 				case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 					Cond=(__int64)Macro_DskShowPosType;
@@ -2606,22 +2606,20 @@ static bool clipFunc()
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			int OldUseInternalClipboard=UseInternalClipboard;
+			bool OldUseInternalClipboard=SetUseInternalClipboardState(cmdType-3?true:false);
+			TVar varClip(L"");
+			wchar_t *ClipText=PasteFromClipboard();
+
+			if (ClipText)
 			{
-				TVar varClip(L"");
-				UseInternalClipboard=cmdType-3;
-				wchar_t *ClipText=PasteFromClipboard();
-
-				if (ClipText)
-				{
-					varClip=ClipText;
-					xf_free(ClipText);
-				}
-
-				UseInternalClipboard=UseInternalClipboard==0?1:0;
-				Ret=CopyToClipboard(varClip.s());
+				varClip=ClipText;
+				xf_free(ClipText);
 			}
-			UseInternalClipboard=OldUseInternalClipboard;
+
+			SetUseInternalClipboardState(!GetUseInternalClipboardState());
+			Ret=CopyToClipboard(varClip.s());
+
+			SetUseInternalClipboardState(OldUseInternalClipboard);
 			VMStack.Push(TVar((__int64)Ret)); // 0!  ???
 			return Ret?true:false;
 		}
@@ -3198,7 +3196,7 @@ int KeyMacro::GetKey()
 			if (ConsoleTitle::WasTitleModified())
 				ConsoleTitle::SetFarTitle(NULL);
 
-			UseInternalClipboard=0; //??
+			SetUseInternalClipboardState(false); //??
 			//_KEYMACRO(SysLog(L"[%d] return RetKey=%d",__LINE__,RetKey));
 			return RetKey;
 		}
@@ -3269,7 +3267,7 @@ done:
 			LockScr=NULL;
 		}
 
-		UseInternalClipboard=0; //??
+		SetUseInternalClipboardState(false); //??
 		Work.Executing=MACROMODE_NOMACRO;
 		ReleaseWORKBuffer();
 
@@ -3374,7 +3372,7 @@ done:
 			*/
 		case MCODE_OP_ICLIP:              // $IClip
 		{
-			UseInternalClipboard=UseInternalClipboard==0?1:0;
+			SetUseInternalClipboardState(!GetUseInternalClipboardState());
 			goto begin;
 		}
 		case MCODE_OP_SWITCHKBD:          // $KbdSwitch
@@ -5300,7 +5298,7 @@ int KeyMacro::PushState(bool CopyLocalVars)
 		return FALSE;
 
 	++CurPCStack;
-	Work.UseInternalClipboard=::UseInternalClipboard;
+	Work.UseInternalClipboard=GetUseInternalClipboardState();
 	memcpy(PCStack+CurPCStack,&Work,sizeof(MacroState));
 	Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:NULL);
 	return TRUE;
@@ -5312,7 +5310,7 @@ int KeyMacro::PopState()
 		return FALSE;
 
 	memcpy(&Work,PCStack+CurPCStack,sizeof(MacroState));
-	::UseInternalClipboard=Work.UseInternalClipboard;
+	SetUseInternalClipboardState(Work.UseInternalClipboard);
 	CurPCStack--;
 	return TRUE;
 }
@@ -5806,7 +5804,7 @@ void KeyMacro::DropProcess()
 		if (LockScr) delete LockScr;
 
 		LockScr=NULL;
-		UseInternalClipboard=0; //??
+		SetUseInternalClipboardState(false); //??
 		Work.Executing=MACROMODE_NOMACRO;
 		ReleaseWORKBuffer();
 	}

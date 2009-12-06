@@ -1928,8 +1928,7 @@ int Editor::ProcessKey(int Key)
 				int SelStart,SelEnd;
 				CurLine->GetSelection(SelStart,SelEnd);
 				Pasting++;
-				int OldUseInternalClipboard=UseInternalClipboard;
-				UseInternalClipboard=1;
+				bool OldUseInternalClipboard=SetUseInternalClipboardState(true);
 				ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
 				/* $ 10.04.2001 SVS
@@ -1947,7 +1946,7 @@ int Editor::ProcessKey(int Key)
 				ProcessKey(KEY_SHIFTINS);
 				Pasting--;
 				EmptyInternalClipboard();
-				UseInternalClipboard=OldUseInternalClipboard;
+				SetUseInternalClipboardState(OldUseInternalClipboard);
 				/*$ 08.02.2001 SKV
 				  всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
 				  сделаем его.

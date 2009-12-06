@@ -37,16 +37,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "iswind.hpp"
 
-int UseInternalClipboard = 0;
 const wchar_t FAR_VerticalBlock[] = L"FAR_VerticalBlock";
 const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
 
 /* ------------------------------------------------------------ */
 // CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-static HGLOBAL hInternalClipboard[5]={0};
-static UINT    uInternalClipboardFormat[5]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
-static BOOL    OppenedClipboard=FALSE;
+static HGLOBAL hInternalClipboard[5] = {0};
+static UINT    uInternalClipboardFormat[5] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 
+static bool OppenedClipboard = false;
+static bool UseInternalClipboard = false;
+
+//Sets UseInternalClipboard to State, and returns previous state
+bool SetUseInternalClipboardState(bool State)
+{
+	bool OldState = UseInternalClipboard;
+	UseInternalClipboard = State;
+	return OldState;
+}
+
+bool GetUseInternalClipboardState()
+{
+	return UseInternalClipboard;
+}
 
 static UINT FAR_RegisterClipboardFormat(LPCWSTR lpszFormat)
 {
@@ -74,7 +87,7 @@ static BOOL FAR_OpenClipboard()
 	{
 		if (!OppenedClipboard)
 		{
-			OppenedClipboard=TRUE;
+			OppenedClipboard=true;
 			return TRUE;
 		}
 
@@ -90,7 +103,7 @@ static BOOL FAR_CloseClipboard()
 	{
 		if (OppenedClipboard)
 		{
-			OppenedClipboard=FALSE;
+			OppenedClipboard=false;
 			return TRUE;
 		}
 
@@ -383,7 +396,7 @@ wchar_t* WINAPI PasteFromClipboard()
 
 
 // max - без учета символа конца строки!
-wchar_t* WINAPI PasteFromClipboardEx(int max)
+wchar_t *PasteFromClipboardEx(int max)
 {
 	if (!FAR_OpenClipboard())
 		return NULL;
@@ -521,8 +534,11 @@ wchar_t* PasteFormatFromClipboard(const wchar_t *Format)
 
 BOOL EmptyInternalClipboard()
 {
-	if (UseInternalClipboard)
-		return FAR_EmptyClipboard();
+	bool OldState = SetUseInternalClipboardState(true);
 
-	return FALSE;
+	BOOL ret = FAR_EmptyClipboard();
+
+	SetUseInternalClipboardState(OldState);
+
+	return ret;
 }

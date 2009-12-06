@@ -1392,7 +1392,6 @@ int Edit::ProcessKey(int Key)
 			else
 				ClipText=PasteFromClipboardEx(MaxLength);
 
-			/* tran $ */
 			if (ClipText==NULL)
 				return(TRUE);
 
@@ -1405,6 +1404,7 @@ int Edit::ProcessKey(int Key)
 				Str[I]=0;
 
 			for (I=0; ClipText[I]; I++)
+			{
 				if (IsEol(ClipText[I]))
 				{
 					if (IsEol(ClipText[I+1]))
@@ -1415,6 +1415,7 @@ int Edit::ProcessKey(int Key)
 					else
 						ClipText[I]=L' ';
 				}
+			}
 
 			if (Flags.Check(FEDITLINE_CLEARFLAG))
 			{
@@ -1423,7 +1424,9 @@ int Edit::ProcessKey(int Key)
 				Flags.Clear(FEDITLINE_CLEARFLAG);
 			}
 			else
+			{
 				InsertString(ClipText);
+			}
 
 			if (ClipText)
 				xf_free(ClipText);

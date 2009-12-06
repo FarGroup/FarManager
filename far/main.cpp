@@ -65,31 +65,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int DirectRT=0;
 #endif
 
-class TConsoleRestore
+class ConsoleRestore
 {
 	private:
 		string strOldTitle;
 		CONSOLE_SCREEN_BUFFER_INFO sbi;
 		HANDLE hOutput;
-		BOOL IsRectoreConsole;
+		bool IsRestoreConsole;
 	public:
-		TConsoleRestore(BOOL RectoreConsole)
+		ConsoleRestore(bool RestoreConsole)
 		{
 			hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 			apiGetConsoleTitle(strOldTitle);
 			GetConsoleScreenBufferInfo(hOutput,&sbi);
-			IsRectoreConsole=RectoreConsole;
-		};
-		~TConsoleRestore()
+			IsRestoreConsole=RestoreConsole;
+		}
+
+		~ConsoleRestore()
 		{
-			if (IsRectoreConsole)
+			if (IsRestoreConsole)
 			{
 				SetConsoleTitle(strOldTitle);
 				//SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
 				SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
 				SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
 			}
-		};
+		}
 };
 
 static void CopyGlobalSettings();
@@ -336,7 +337,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	string strEditName;
 	string strViewName;
 	string DestNames[2];
-	int StartLine=-1,StartChar=-1,RectoreConsole=FALSE;
+	int StartLine=-1,StartChar=-1;
+	bool RestoreConsole=false;
 	int CntDestName=0; // количество параметров-имен каталогов
 	WinVer.dwOSVersionInfoSize=sizeof(WinVer);
 	GetVersionEx(&WinVer);
@@ -432,7 +434,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						case L'C':
 
 							if (!Argv[I][3])
-								RectoreConsole=TRUE;
+								RestoreConsole=true;
 
 							break;
 					}
@@ -492,18 +494,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						apiExpandEnvironmentStrings(&Argv[I][2], Opt.LoadPlug.strCustomPluginsPath);
 						Unquote(Opt.LoadPlug.strCustomPluginsPath);
 						ConvertNameToFull(Opt.LoadPlug.strCustomPluginsPath,Opt.LoadPlug.strCustomPluginsPath);
-						/*
-						            if(Argv[I][2]==L'.' && (Argv[I][3]==0 || Argv[I][3]==L'\\' || Argv[I][3]==L'.'))
-						            {
-													GetCurrentDirectoryEx(Opt.LoadPlug.strCustomPluginsPath);
-													AddEndSlash(Opt.LoadPlug.strCustomPluginsPath);
-						              Opt.LoadPlug.strCustomPluginsPath += Argv[I][2];
-						            }
-						            else
-						                Opt.LoadPlug.strCustomPluginsPath = Argv[I][2];
-						*/
-						//xstrncpy(Opt.LoadPlug.CustomPluginsPath,szPath,sizeof(Opt.LoadPlug.CustomPluginsPath));
-						//CharToOemA(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
 					}
 					else
 					{
@@ -558,7 +548,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	//Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
 	InitKeysArray();
 	WaitForInputIdle(GetCurrentProcess(),0);
-	TConsoleRestore __ConsoleRestore(RectoreConsole);
+	ConsoleRestore __ConsoleRestore(RestoreConsole);
 	std::set_new_handler(0);
 
 	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
@@ -600,9 +590,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		Result=wmain_sehed(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 	}
 	else
+	{
 		Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
+	}
 
-	UseInternalClipboard=1;
 	EmptyInternalClipboard();
 	doneMacroVarTable(1);
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
