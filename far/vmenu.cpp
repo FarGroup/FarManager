@@ -210,6 +210,15 @@ void VMenu::UpdateItemFlags(int Pos, DWORD NewFlags)
 
 	if (SelectPos < 0)
 		SetSelectPos(0,1);
+
+	if(LOWORD(Item[Pos]->Flags))
+	{
+		Item[Pos]->Flags|=LIF_CHECKED;
+		if(LOWORD(Item[Pos]->Flags)==1)
+		{
+			Item[Pos]->Flags&=0xFFFF0000;
+		}
+	}
 }
 
 // переместить курсор c учётом пунктов которые не могу получать фокус

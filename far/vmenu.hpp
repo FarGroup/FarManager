@@ -67,25 +67,28 @@ enum
 	VMENU_COLOR_COUNT,                     // всегда последняя - размерность массива
 };
 
-#define VMENU_ALWAYSSCROLLBAR       0x00000100  // всегда показывать скроллбар
-#define VMENU_LISTBOX               0x00000200  // Это список в диалоге
-#define VMENU_SHOWNOBOX             0x00000400  // показать без рамки
-#define VMENU_AUTOHIGHLIGHT         0x00000800  // автоматически выбирать симолы подсветки
-#define VMENU_REVERSEHIGHLIGHT      0x00001000  // ... только с конца
-#define VMENU_UPDATEREQUIRED        0x00002000  // лист необходимо обновить (перерисовать)
-#define VMENU_DISABLEDRAWBACKGROUND 0x00004000  // подложку не рисовать
-#define VMENU_WRAPMODE              0x00008000  // зацикленный список (при перемещении)
-#define VMENU_SHOWAMPERSAND         0x00010000  // символ '&' показывать AS IS
-#define VMENU_WARNDIALOG            0x00020000  //
-#define VMENU_NOTCENTER             0x00040000  // не цитровать
-#define VMENU_LEFTMOST              0x00080000  // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
-#define VMENU_NOTCHANGE             0x00100000  //
-#define VMENU_LISTHASFOCUS          0x00200000  // меню является списком в диалоге и имеет фокус
-#define VMENU_COMBOBOX              0x00400000  // меню является комбобоксом и обрабатывается менеджером по-особому.
-#define VMENU_MOUSEDOWN             0x00800000  //
-#define VMENU_CHANGECONSOLETITLE    0x01000000  //
-#define VMENU_MOUSEREACTION         0x02000000  // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
-#define VMENU_DISABLED              0x04000000  //
+enum VMENU_FLAGS
+{
+	VMENU_ALWAYSSCROLLBAR      =0x00000100, // всегда показывать скроллбар
+	VMENU_LISTBOX              =0x00000200, // Это список в диалоге
+	VMENU_SHOWNOBOX            =0x00000400, // показать без рамки
+	VMENU_AUTOHIGHLIGHT        =0x00000800, // автоматически выбирать симолы подсветки
+	VMENU_REVERSEHIGHLIGHT     =0x00001000, // ... только с конца
+	VMENU_UPDATEREQUIRED       =0x00002000, // лист необходимо обновить (перерисовать)
+	VMENU_DISABLEDRAWBACKGROUND=0x00004000, // подложку не рисовать
+	VMENU_WRAPMODE             =0x00008000, // зацикленный список (при перемещении)
+	VMENU_SHOWAMPERSAND        =0x00010000, // символ '&' показывать AS IS
+	VMENU_WARNDIALOG           =0x00020000, //
+	VMENU_NOTCENTER            =0x00040000, // не цитровать
+	VMENU_LEFTMOST             =0x00080000, // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
+	VMENU_NOTCHANGE            =0x00100000, //
+	VMENU_LISTHASFOCUS         =0x00200000, // меню является списком в диалоге и имеет фокус
+	VMENU_COMBOBOX             =0x00400000, // меню является комбобоксом и обрабатывается менеджером по-особому.
+	VMENU_MOUSEDOWN            =0x00800000, //
+	VMENU_CHANGECONSOLETITLE   =0x01000000, //
+	VMENU_MOUSEREACTION        =0x02000000, // реагировать на движение мыши? (перемещать позицию при перемещении курсора мыши?)
+	VMENU_DISABLED             =0x04000000, //
+};
 
 class Dialog;
 class SaveScreen;
