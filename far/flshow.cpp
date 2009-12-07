@@ -382,6 +382,10 @@ void FileList::ShowFileList(int Fast)
 					}
 				}
 			}
+			else
+			{
+				strCurDir = strOriginalCurDir;
+			}
 		}
 
 		if (GetFocus())

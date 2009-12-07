@@ -121,6 +121,7 @@ FileList::FileList()
 	}
 	Type=FILE_PANEL;
 	apiGetCurrentDirectory(strCurDir);
+	strOriginalCurDir=strCurDir;
 	hPlugin=INVALID_HANDLE_VALUE;
 	Filter=NULL;
 	ListData=NULL;
@@ -733,12 +734,7 @@ int FileList::ProcessKey(int Key)
 					}
 
 					/**/
-					OpenFilePlugin(strPluginFile,FALSE);
-
-					if (!strShortcutFolder.IsEmpty())
-						SetCurDir(strShortcutFolder,FALSE);
-
-					Show();
+					OpenFilePlugin(strPluginFile,TRUE,strShortcutFolder);
 				}
 				else
 				{
@@ -2250,8 +2246,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		}
 		else if (SetCurPath())
 		{
-			HANDLE hOpen=NULL;
-			/* $ 02.08.2001 IS обработаем ассоциации для ctrl-pgdn */
+			HANDLE hOpen=INVALID_HANDLE_VALUE;
 
 			if (EnableAssoc &&
 			        !EnableExec &&     // не запускаем и не в отдельном окне,
@@ -4383,9 +4378,10 @@ int FileList::GetPrevNumericSort()
 }
 
 
-HANDLE FileList::OpenFilePlugin(const wchar_t *FileName,int PushPrev)
+HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev, const wchar_t *SetDir)
 {
 	if (!PushPrev && PanelMode==PLUGIN_PANEL)
+	{
 		for (;;)
 		{
 			if (ProcessPluginEvent(FE_CLOSE,NULL))
@@ -4394,6 +4390,7 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName,int PushPrev)
 			if (!PopPlugin(TRUE))
 				break;
 		}
+	}
 
 	HANDLE hNewPlugin=OpenPluginForFile(FileName);
 
@@ -4413,19 +4410,21 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName,int PushPrev)
 		}
 
 		BOOL WasFullscreen = IsFullScreen();
-		SetPluginMode(hNewPlugin,FileName);  // SendOnFocus??? true???
-		PanelMode=PLUGIN_PANEL;
-		UpperFolderTopFile=CurTopFile;
-		CurFile=0;
-		Update(0);
-		Redraw();
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *NewPanel = CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+		NewPanel->SetPluginMode(hNewPlugin,FileName,TRUE);
+		NewPanel->Update(0);
+
+		if (SetDir && *SetDir)
+			NewPanel->SetCurDir(SetDir, FALSE);
+
+		NewPanel->Show();
 
 		if ((AnotherPanel->GetType()==INFO_PANEL) || WasFullscreen)
 			AnotherPanel->Redraw();
 	}
 
-	return(hNewPlugin);
+	return hNewPlugin;
 }
 
 

@@ -977,8 +977,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			        !strCurDir.IsEmpty() &&
 			        (StrCmpN(strCurDir,L"\\\\",2) != 0))
 			{
-				wchar_t RootDir[10]; //BUGBUG
-				xwcsncpy(RootDir,strCurDir,3);
+				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
 					ChDisk.ClearDone();

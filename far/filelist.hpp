@@ -183,6 +183,7 @@ class FileList:public Panel
 		*/
 		wchar_t openBracket[2], closeBracket[2];
 
+		string strOriginalCurDir;
 		string strPluginDizName;
 		FileListItem **ListData;
 		int FileCount;
@@ -330,7 +331,7 @@ class FileList:public Panel
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
 		virtual int GetPrevNumericSort();
-		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev);
+		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev, const wchar_t *SetDir=NULL);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
