@@ -515,7 +515,6 @@ struct ExecuteStruct
 
 #define EXECUTE_FUNCTION(function, es) \
 	{ \
-		SynchronizeCurrentDirectory(); \
 		SetFileApisToOEM(); \
 		es.nResult = 0; \
 		es.nDefaultResult = 0; \
@@ -542,7 +541,6 @@ struct ExecuteStruct
 
 #define EXECUTE_FUNCTION_EX(function, es) \
 	{ \
-		SynchronizeCurrentDirectory(); \
 		SetFileApisToOEM(); \
 		es.bUnloaded = false; \
 		es.nResult = 0; \

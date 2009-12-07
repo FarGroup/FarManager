@@ -98,5 +98,3 @@ string ExtractFileName(const string &Path);
 string ExtractFilePath(const string &Path);
 
 int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName);
-
-void SynchronizeCurrentDirectory();

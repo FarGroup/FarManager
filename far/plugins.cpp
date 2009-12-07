@@ -1212,7 +1212,7 @@ void PluginManager::GetOpenPluginInfo(
 		Info->CurDir = L"";
 
 	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir)
-		strCurrentDirectory() = Info->CurDir;
+		apiSetCurrentDirectory(Info->CurDir);
 }
 
 

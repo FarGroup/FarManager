@@ -267,7 +267,7 @@ BOOL apiSetFileAttributes(
     DWORD dwFileAttributes
 );
 
-string& strCurrentDirectory();
+void InitCurrentDirectory();
 
 BOOL apiSetCurrentDirectory(
     LPCWSTR lpPathName

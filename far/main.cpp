@@ -198,7 +198,7 @@ static int MainProcess(
 				Opt.SetupArgv++;
 				strPath = lpwszDestName1;
 				CutToNameUNC(strPath);
-				DeleteEndSlash(strPath); // BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
 				if ((strPath.At(1)==L':' && !strPath.At(2)) || (HasPathPrefix(strPath) && strPath.At(5)==L':' && !strPath.At(6)))
 					AddEndSlash(strPath);
@@ -222,7 +222,7 @@ static int MainProcess(
 					Opt.SetupArgv++;
 					strPath = lpwszDestName2;
 					CutToNameUNC(strPath);
-					DeleteEndSlash(strPath); //BUGBUG
+					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
 					if ((strPath.At(1)==L':' && !strPath.At(2)) || (HasPathPrefix(strPath) && strPath.At(5)==L':' && !strPath.At(6)))
 						AddEndSlash(strPath);
@@ -324,15 +324,7 @@ int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	ifn.Load();
-	// BUGBUG, function
-	// get real curdir:
-	DWORD Size=GetCurrentDirectory(0,NULL);
-	string strInitCurDir;
-	LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
-	GetCurrentDirectory(Size,InitCurDir);
-	strInitCurDir.ReleaseBuffer(Size-1);
-	//set virtual curdir:
-	apiSetCurrentDirectory(strInitCurDir);
+	InitCurrentDirectory();
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 	string strEditName;
 	string strViewName;

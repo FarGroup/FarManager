@@ -168,16 +168,23 @@ string& strCurrentDirectory()
 	return strCurrentDirectory;
 }
 
+void InitCurrentDirectory()
+{
+	//get real curdir:
+	DWORD Size=GetCurrentDirectory(0,NULL);
+	string strInitCurDir;
+	LPWSTR InitCurDir=strInitCurDir.GetBuffer(Size);
+	GetCurrentDirectory(Size,InitCurDir);
+	strInitCurDir.ReleaseBuffer(Size-1);
+	//set virtual curdir:
+	apiSetCurrentDirectory(strInitCurDir);
+}
+
 DWORD apiGetCurrentDirectory(string &strCurDir)
 {
-	DeleteEndSlash(strCurrentDirectory());
-	LPCWSTR CD=strCurrentDirectory();
-	int Offset=HasPathPrefix(CD)?4:0;
-
-	if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
-		AddEndSlash(strCurrentDirectory());
-
-	strCurDir=strCurrentDirectory();
+	//never give outside world a direct pointer to our internal string
+	//who knows what they gonna do
+	strCurDir.Copy(strCurrentDirectory().CPtr(),strCurrentDirectory().GetLength());
 	return static_cast<DWORD>(strCurDir.GetLength());
 }
 
@@ -191,8 +198,18 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	if (apiGetFindDataEx(strDir,&fd) || GetLastError()==ERROR_FILE_NOT_FOUND) // root dir on empty disk
 	{
 		strCurrentDirectory()=lpPathName;
+
+		//correct it to our standard
 		ReplaceSlashToBSlash(strCurrentDirectory());
-		SynchronizeCurrentDirectory();
+		DeleteEndSlash(strCurrentDirectory());
+		LPCWSTR CD=strCurrentDirectory();
+		int Offset=HasPathPrefix(CD)?4:0;
+		if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
+			AddEndSlash(strCurrentDirectory());
+
+		//try to synchronize far cur dir with process cur dir
+		SetCurrentDirectory(strCurrentDirectory());
+
 		return TRUE;
 	}
 
