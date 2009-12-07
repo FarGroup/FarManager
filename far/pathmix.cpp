@@ -714,9 +714,7 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 
 void SynchronizeCurrentDirectory()
 {
-	string strNewDir;
-	apiGetCurrentDirectory(strNewDir);
-	SetCurrentDirectory(strNewDir);
+	SetCurrentDirectory(strCurrentDirectory());
 }
 
 SELF_TEST(

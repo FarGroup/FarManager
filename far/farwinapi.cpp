@@ -192,6 +192,7 @@ BOOL apiSetCurrentDirectory(LPCWSTR lpPathName)
 	{
 		strCurrentDirectory()=lpPathName;
 		ReplaceSlashToBSlash(strCurrentDirectory());
+		SynchronizeCurrentDirectory();
 		return TRUE;
 	}
 
