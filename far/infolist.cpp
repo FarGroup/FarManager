@@ -300,7 +300,7 @@ void InfoList::DisplayObject()
 
 		GotoXY(X1+2,CurY);
 		PrintText(MInfoPageFileTotal);
-		InsertCommas(ms.ullAvailPageFile,strOutStr);
+		InsertCommas(ms.ullTotalPageFile,strOutStr);
 		PrintInfo(strOutStr);
 		CurY++;
 

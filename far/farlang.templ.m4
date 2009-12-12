@@ -8458,7 +8458,7 @@ MInfoVirtualFree
 "Wolna wirtualna"
 
 MInfoPageFileTotal
-"Всего в файле подкачки"
+"Всего файла подкачки"
 "Total paging file"
 upd:"Total paging file"
 upd:"Total paging file"
@@ -8466,7 +8466,7 @@ upd:"Total paging file"
 upd:"Total paging file"
 
 MInfoPageFileFree
-"Свободно в файле подкачки"
+"Свободно файла подкачки"
 "Free paging file"
 upd:"Free paging file"
 upd:"Free paging file"
