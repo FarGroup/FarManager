@@ -504,7 +504,9 @@ void PluginManager::LoadPlugins()
 				PluginPathList.AddItem(Opt.LoadPlug.strPersonalPluginsPath);
 		}
 		else if (!Opt.LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
+		{
 			PluginPathList.AddItem(Opt.LoadPlug.strCustomPluginsPath);
+		}
 
 		const wchar_t *NamePtr;
 		PluginPathList.Reset();
@@ -556,29 +558,19 @@ void PluginManager::LoadPluginsFromCache()
 	/*
 		[HKEY_CURRENT_USER\Software\Far2\PluginsCache\C:/PROGRAM FILES/FAR/Plugins/ABOOK/AddrBook.dll]
 	*/
+	size_t ShiftLen = wcslen(RKN_PluginsCache)+1;
 	string strModuleName;
-	int i = 0;
 
-	while (EnumRegKey(RKN_PluginsCache, i, strModuleName))
+	for (int i=0; EnumRegKey(RKN_PluginsCache, i, strModuleName); i++)
 	{
-		strModuleName.LShift(wcslen(RKN_PluginsCache)+1);
-		wchar_t *p = strModuleName.GetBuffer();
+		strModuleName.LShift(ShiftLen);
 
-		while (*p)
-		{
-			if (*p == L'/')
-				*p = L'\\';
+		ReplaceSlashToBSlash(strModuleName);
 
-			p++;
-		}
-
-		strModuleName.ReleaseBuffer();
 		FAR_FIND_DATA_EX FindData;
 
 		if (apiGetFindDataEx(strModuleName, &FindData, false))
 			LoadPlugin(strModuleName, FindData);
-
-		i++;
 	}
 }
 
@@ -1633,6 +1625,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		ScrBuf.Flush();
 		item = *(PluginMenuItemData*)PluginList.GetUserData(NULL,0,ExitCode);
 	}
+
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	int OpenCode=OPEN_PLUGINSMENU;
 	INT_PTR Item=item.nItem;
@@ -1763,16 +1756,12 @@ bool PluginManager::SetHotKeyDialog(
 	return false;
 }
 
-
-/* $ 21.08.2002 IS
-   + Параметр PluginTextSize, чтобы знать, сколько брать
-*/
-int PluginManager::GetDiskMenuItem(
-    Plugin *pPlugin,
-    int PluginItem,
-    bool &ItemPresent,
-    int &PluginTextNumber,
-    string &strPluginText
+bool PluginManager::GetDiskMenuItem(
+     Plugin *pPlugin,
+     int PluginItem,
+     bool &ItemPresent,
+     int &PluginTextNumber,
+     string &strPluginText
 )
 {
 	LoadIfCacheAbsent();
@@ -1786,7 +1775,8 @@ int PluginManager::GetDiskMenuItem(
 		strValue.Format(FmtDiskMenuNumberD,PluginItem);
 		GetRegKey(strRegKey,strValue,PluginTextNumber,0);
 		ItemPresent=!strPluginText.IsEmpty();
-		return(TRUE);
+
+		return true;
 	}
 
 	PluginInfo Info;
@@ -1806,7 +1796,7 @@ int PluginManager::GetDiskMenuItem(
 		ItemPresent=true;
 	}
 
-	return(TRUE);
+	return true;
 }
 
 int PluginManager::UseFarCommand(HANDLE hPlugin,int CommandType)

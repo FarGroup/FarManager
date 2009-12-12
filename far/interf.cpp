@@ -154,7 +154,8 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
-	int Mode=ENABLE_WINDOW_INPUT;
+	//ENABLE_EXTENDED_FLAGS actually disables all the extended flags.
+	int Mode=ENABLE_WINDOW_INPUT|ENABLE_EXTENDED_FLAGS;
 
 	if (Opt.Mouse)
 		Mode|=ENABLE_MOUSE_INPUT;

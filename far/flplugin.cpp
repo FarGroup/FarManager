@@ -56,7 +56,9 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 {
 	PluginsStackItem *stItem = new PluginsStackItem;
 	stItem->hPlugin=hPlugin;
-	stItem->strHostFile = HostFile; //??NULL??
+	stItem->strHostFile = HostFile;
+	stItem->strPrevOriginalCurDir = strOriginalCurDir;
+	strOriginalCurDir = strCurDir;
 	stItem->Modified=FALSE;
 	stItem->PrevViewMode=ViewMode;
 	stItem->PrevSortMode=SortMode;
@@ -87,6 +89,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	if (PluginsStackSize>0)
 	{
 		hPlugin=PluginsStack[PluginsStackSize-1]->hPlugin;
+		strOriginalCurDir=PStack->strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
 		{
@@ -103,7 +106,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 			apiGetCurrentDirectory(strSaveDir);
 
 			if (FileNameToPluginItem(PStack->strHostFile,&PanelItem))
+			{
 				CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
+			}
 			else
 			{
 				PanelItem.FindData.lpwszFileName = xf_wcsdup(PointToName(PStack->strHostFile));
@@ -113,6 +118,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 			FarChDir(strSaveDir);
 		}
+
 
 		CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
@@ -137,7 +143,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	delete PluginsStack[PluginsStackSize];
 
 	if (PluginsStackSize)
+	{
 		PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
+	}
 	else
 	{
 		xf_free(PluginsStack);

@@ -733,8 +733,12 @@ int FileList::ProcessKey(int Key)
 						}
 					}
 
-					/**/
-					OpenFilePlugin(strPluginFile,TRUE,strShortcutFolder);
+					OpenFilePlugin(strPluginFile,FALSE);
+
+					if (!strShortcutFolder.IsEmpty())
+							SetCurDir(strShortcutFolder,FALSE);
+
+					Show();
 				}
 				else
 				{
@@ -4369,7 +4373,7 @@ int FileList::GetPrevNumericSort()
 }
 
 
-HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev, const wchar_t *SetDir)
+HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev)
 {
 	if (!PushPrev && PanelMode==PLUGIN_PANEL)
 	{
@@ -4401,15 +4405,13 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev, const wch
 		}
 
 		BOOL WasFullscreen = IsFullScreen();
-		Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
-		Panel *NewPanel = CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-		NewPanel->SetPluginMode(hNewPlugin,FileName,TRUE);
-		NewPanel->Update(0);
-
-		if (SetDir && *SetDir)
-			NewPanel->SetCurDir(SetDir, FALSE);
-
-		NewPanel->Show();
+		SetPluginMode(hNewPlugin,FileName);  // SendOnFocus??? true???
+		PanelMode=PLUGIN_PANEL;
+		UpperFolderTopFile=CurTopFile;
+		CurFile=0;
+		Update(0);
+		Redraw();
+		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if ((AnotherPanel->GetType()==INFO_PANEL) || WasFullscreen)
 			AnotherPanel->Redraw();
