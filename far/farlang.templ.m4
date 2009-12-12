@@ -8417,6 +8417,14 @@ MInfoMemoryLoad
 "Használt memória"
 "Użycie pamięci"
 
+MInfoMemoryInstalled
+"Установлено памяти"
+"Installed memory"
+upd:"Installed memory"
+upd:"Installed memory"
+upd:"Installed memory"
+upd:"Installed memory"
+
 MInfoMemoryTotal
 "Всего памяти"
 "Total memory"
@@ -8448,6 +8456,22 @@ MInfoVirtualFree
 "Virtueller Speicher frei"
 "Szabad virtuális"
 "Wolna wirtualna"
+
+MInfoPageFileTotal
+"Всего в файле подкачки"
+"Total paging file"
+upd:"Total paging file"
+upd:"Total paging file"
+upd:"Total paging file"
+upd:"Total paging file"
+
+MInfoPageFileFree
+"Свободно в файле подкачки"
+"Free paging file"
+upd:"Free paging file"
+upd:"Free paging file"
+upd:"Free paging file"
+upd:"Free paging file"
 
 MInfoDizAbsent
 "Файл описания папки отсутствует"

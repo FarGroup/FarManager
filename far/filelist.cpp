@@ -3042,21 +3042,12 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 int FileList::GetSelCount()
 {
-	if (FileCount==0)
-		return(0);
-
-	if ((SelFileCount==0 || ReturnCurrentFile) && !TestParentFolderName(ListData[CurFile]->strName))
-		return(1);
-
-	return(SelFileCount);
+	return FileCount?((ReturnCurrentFile||!SelFileCount)?(TestParentFolderName(ListData[CurFile]->strName)?0:1):SelFileCount):0;
 }
 
 int FileList::GetRealSelCount()
 {
-	if (FileCount==0)
-		return(0);
-
-	return(SelFileCount);
+	return FileCount?SelFileCount:0;
 }
 
 

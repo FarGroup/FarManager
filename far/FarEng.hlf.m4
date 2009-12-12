@@ -1015,7 +1015,7 @@ $ #Panels: info panel#
 name, total and free space, disk volume label and serial number;
 
  - #memory# load percentage (100% means all of available memory is used),
-total and free size of the physical and virtual memory;
+total and free size of the physical memory, virtual memory and paging file;
 
  - #folder description# file
 

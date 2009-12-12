@@ -250,36 +250,68 @@ void InfoList::DisplayObject()
 	TruncStr(strTitle,X2-X1-3);
 	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,Y1+8);
 	PrintText(strTitle);
+	int CurY=9;
+	if(ifn.pfnGetPhysicallyInstalledSystemMemory)
+	{
+		ULONGLONG TotalMemoryInKilobytes=0;
+		if(ifn.pfnGetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+		{
+			GotoXY(X1+2,CurY);
+			PrintText(MInfoMemoryInstalled);
+			InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
+			PrintInfo(strOutStr);
+			CurY++;
+		}
+	}
 	MEMORYSTATUSEX ms={sizeof(ms)};
-
 	if (GlobalMemoryStatusEx(&ms))
 	{
 		if (ms.dwMemoryLoad==0)
 			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
-
-		GotoXY(X1+2,Y1+9);
+		GotoXY(X1+2,CurY);
 		PrintText(MInfoMemoryLoad);
 		strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
 		PrintInfo(strOutStr);
-		GotoXY(X1+2,Y1+10);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
 		PrintText(MInfoMemoryTotal);
-		InsertCommas((__int64)ms.ullTotalPhys,strOutStr);
+		InsertCommas(ms.ullTotalPhys,strOutStr);
 		PrintInfo(strOutStr);
-		GotoXY(X1+2,Y1+11);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
 		PrintText(MInfoMemoryFree);
-		InsertCommas((__int64)ms.ullAvailPhys,strOutStr);
+		InsertCommas(ms.ullAvailPhys,strOutStr);
 		PrintInfo(strOutStr);
-		GotoXY(X1+2,Y1+12);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
 		PrintText(MInfoVirtualTotal);
-		InsertCommas((__int64)ms.ullTotalPageFile,strOutStr);
+		InsertCommas(ms.ullTotalVirtual,strOutStr);
 		PrintInfo(strOutStr);
-		GotoXY(X1+2,Y1+13);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
 		PrintText(MInfoVirtualFree);
-		InsertCommas((__int64)ms.ullAvailPageFile,strOutStr);
+		InsertCommas(ms.ullAvailVirtual,strOutStr);
 		PrintInfo(strOutStr);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
+		PrintText(MInfoPageFileTotal);
+		InsertCommas(ms.ullAvailPageFile,strOutStr);
+		PrintInfo(strOutStr);
+		CurY++;
+
+		GotoXY(X1+2,CurY);
+		PrintText(MInfoPageFileFree);
+		InsertCommas(ms.ullAvailPageFile,strOutStr);
+		PrintInfo(strOutStr);
+		CurY++;
 	}
 
-	ShowDirDescription();
+	ShowDirDescription(CurY);
 	ShowPluginDescription();
 }
 
@@ -485,10 +517,10 @@ void InfoList::PrintInfo(int MsgID)
 }
 
 
-void InfoList::ShowDirDescription()
+void InfoList::ShowDirDescription(int YPos)
 {
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-	DrawSeparator(Y1+14);
+	DrawSeparator(YPos);
 
 	if (AnotherPanel->GetMode()==FILE_PANEL)
 	{
@@ -514,14 +546,14 @@ void InfoList::ShowDirDescription()
 			CutToSlash(strFullDizName, false);
 			strFullDizName += FindData.strFileName;
 
-			if (OpenDizFile(strFullDizName))
+			if (OpenDizFile(strFullDizName,YPos))
 				return;
 		}
 	}
 
 	CloseFile();
 	SetColor(COL_PANELTEXT);
-	GotoXY(X1+2,Y1+15);
+	GotoXY(X1+2,YPos+1);
 	PrintText(MInfoDizAbsent);
 }
 
@@ -597,7 +629,7 @@ void InfoList::CloseFile()
 	strDizFileName.Clear();
 }
 
-int InfoList::OpenDizFile(const wchar_t *DizFile)
+int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 {
 	bool bOK=true;
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
@@ -611,7 +643,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
 
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(FALSE);
-		DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
+		DizView->SetPosition(X1+1,YPos+1,X2-1,Y2-1);
 		DizView->SetStatusMode(0);
 		DizView->EnableHideCursor(0);
 		OldWrapMode = DizView->GetWrapMode();
@@ -642,7 +674,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile)
 	string strTitle;
 	strTitle.Format(L" %s ", (const wchar_t*)PointToName(strDizFileName));
 	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y1+14);
+	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos);
 	SetColor(COL_PANELTEXT);
 	PrintText(strTitle);
 	return(TRUE);

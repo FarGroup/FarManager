@@ -170,6 +170,10 @@ typedef DWORD (WINAPI *GETFINALPATHNAMEBYHANDLE)(
     DWORD dwFlags
 );
 
+typedef BOOL (WINAPI* GETPHYSICALLYINSTALLEDSYSTEMMEMORY)(
+	PULONGLONG TotalMemoryInKilobytes
+);
+
 typedef NTSTATUS(NTAPI *NTQUERYOBJECT)(
     HANDLE Handle,
     OBJECT_INFORMATION_CLASS ObjectInformationClass,
@@ -235,6 +239,7 @@ struct ImportedFunctions
 	NTQUERYINFORMATIONFILE pfnNtQueryInformationFile;
 
 	GETFINALPATHNAMEBYHANDLE pfnGetFinalPathNameByHandle;
+	GETPHYSICALLYINSTALLEDSYSTEMMEMORY pfnGetPhysicallyInstalledSystemMemory;
 	NTQUERYOBJECT pfnNtQueryObject;
 	NTOPENSYMBOLICLINKOBJECT pfnNtOpenSymbolicLinkObject;
 	NTQUERYSYMBOLICLINKOBJECT pfnNtQuerySymbolicLinkObject;

@@ -74,7 +74,7 @@ class InfoList:public Panel
 
 	private:
 		virtual void DisplayObject();
-		void ShowDirDescription();
+		void ShowDirDescription(int YPos);
 		void ShowPluginDescription();
 
 		void PrintText(const wchar_t *Str);
@@ -83,7 +83,7 @@ class InfoList:public Panel
 		void PrintInfo(int MsgID);
 
 
-		int  OpenDizFile(const wchar_t *DizFile);
+		int  OpenDizFile(const wchar_t *DizFile,int YPos);
 		void SetMacroMode(int Restore = FALSE);
 		void DynamicUpdateKeyBar();
 
