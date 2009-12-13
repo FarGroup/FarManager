@@ -2544,7 +2544,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
 				return KEY_DECIMAL;
 
-			return Modif|KEY_NUMDEL;
+			return Modif|(Opt.UseNumPad?KEY_NUMDEL:KEY_DEL);
 	}
 
 	switch (KeyCode)
