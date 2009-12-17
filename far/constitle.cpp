@@ -117,9 +117,10 @@ static const string& GetFarTitleAddons()
 {
 	// " - Far%Ver%Admin"
 	/*
-		%Ver   - 2.0
-		%Build - 1259
-		%Admin - MFarTitleAddonsAdmin
+		%Ver      - 2.0
+		%Build    - 1259
+		%Platform - x86
+		%Admin    - MFarTitleAddonsAdmin
     */
 	static string strVer, strBuild;
 	static bool bFirstRun = true;
@@ -135,9 +136,20 @@ static const string& GetFarTitleAddons()
 		strBuild.Format(L"%u",HIWORD(FAR_VERSION));
 	}
 
-	ReplaceStrings(strTitleAddons,L"%Ver",strVer);
-	ReplaceStrings(strTitleAddons,L"%Build",strBuild);
-	ReplaceStrings(strTitleAddons,L"%Admin",Opt.IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"");
+	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
+	ReplaceStrings(strTitleAddons,L"%Build",strBuild,-1,true);
+	ReplaceStrings(strTitleAddons,L"%Platform",
+#ifdef _WIN64
+#ifdef _M_IA64
+	L"IA64",
+#else
+	L"x64",
+#endif
+#else
+	L"x86",
+#endif
+	-1,true);
+	ReplaceStrings(strTitleAddons,L"%Admin",Opt.IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"",-1,true);
 	RemoveTrailingSpaces(strTitleAddons);
 
 	return strTitleAddons;

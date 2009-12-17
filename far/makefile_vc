@@ -35,7 +35,7 @@
 !include $(DEFFILE)
 !endif
 
-!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64"
+!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64"
 !undef CPU
 AMD64=1
 DIRBIT=64
