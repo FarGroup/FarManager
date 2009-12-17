@@ -9,7 +9,7 @@
   <Directory Id="ProgramMenuFolder">
     <Directory Id="ApplicationProgramsFolder" Name="$(var.Product)">
       <Component Id="FarProgramsShortcut" Guid="$(var.Guid.FarProgramsShortcut)" Win64="$(var.Win64)">
-        <Shortcut Id="FarProgramsShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" />
+        <Shortcut Id="FarProgramsShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" Description="!(loc.ProductDescription)" />
       </Component>
       <Component Id="UninstallProduct" Guid="$(var.Guid.UninstallProduct)" Win64="$(var.Win64)">
         <Shortcut Id="UninstallProduct" Name="Uninstall" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
@@ -31,12 +31,12 @@
   </Directory>
   <Directory Id="DesktopFolder">
     <Component Id="FarDesktopShortcut" Guid="$(var.Guid.FarDesktopShortcut)" Win64="$(var.Win64)">
-      <Shortcut Id="FarDesktopShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" />
+      <Shortcut Id="FarDesktopShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" Description="!(loc.ProductDescription)" />
     </Component>
   </Directory>
   <Directory Id="StartMenuFolder">
     <Component Id="FarStartMenuShortcut" Guid="$(var.Guid.FarStartMenuShortcut)" Win64="$(var.Win64)">
-      <Shortcut Id="FarStartMenuShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" />
+      <Shortcut Id="FarStartMenuShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" Description="!(loc.ProductDescription)" />
     </Component>
   </Directory>
   <Directory Id="AppDataFolder">
@@ -44,7 +44,7 @@
       <Directory Id="InternetExplorer" Name="Internet Explorer">
         <Directory Id="QuickLaunchFolder" Name="Quick Launch">
           <Component Id="FarQuickLaunchShortcut" Guid="$(var.Guid.FarQuickLaunchShortcut)" Win64="$(var.Win64)">
-            <Shortcut Id="FarQuickLaunchShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" />
+            <Shortcut Id="FarQuickLaunchShortcut" Name="$(var.Product)" Target="[INSTALLDIR]Far.exe" WorkingDirectory="INSTALLDIR" Description="!(loc.ProductDescription)" />
           </Component>
         </Directory>
       </Directory>

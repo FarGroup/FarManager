@@ -250,8 +250,8 @@
       </Feature>
 <?endif?>
     </Feature>
-    <Feature Id="FarShortcuts" Level="2" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
-      <Feature Id="FarProgramsShortcut" Level="2" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
+    <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
+      <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
         <ComponentRef Id="FarProgramsShortcut" />
         <ComponentRef Id="UninstallProduct" />
         <ComponentRef Id="Scripts" />

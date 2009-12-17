@@ -47,10 +47,10 @@ struct Error {
   throw error; \
 }
 
-#define CHECK_SYS(code) { if (!(code)) FAIL(HRESULT_FROM_WIN32(SystemError())); }
+#define CHECK_SYS(code) { if (!(code)) FAIL(HRESULT_FROM_WIN32(GetLastError())); }
 #define CHECK_ADVSYS(code) { DWORD __ret = (code); if (__ret != ERROR_SUCCESS) FAIL(HRESULT_FROM_WIN32(__ret)); }
 #define CHECK_COM(code) { HRESULT __ret = (code); if (FAILED(__ret)) FAIL(__ret); }
-#define ASSERT(code) { if (!(code)) FAIL_MSG(L#code); }
+#define CHECK(code) { if (!(code)) FAIL_MSG(L#code); }
 
 template<class CharType> basic_string<CharType> strip(const basic_string<CharType>& str) {
   basic_string<CharType>::size_type hp = 0;
@@ -220,7 +220,7 @@ wstring add_trailing_slash(const wstring& path) {
 list<wstring> get_shortcut_list(MSIHANDLE h_install) {
   list<wstring> result;
   PMSIHANDLE h_db = MsiGetActiveDatabase(h_install);
-  ASSERT(h_db);
+  CHECK(h_db);
   PMSIHANDLE h_view;
   CHECK_ADVSYS(MsiDatabaseOpenView(h_db, "SELECT Shortcut, Directory_, Name FROM Shortcut", &h_view));
   CHECK_ADVSYS(MsiViewExecute(h_view, 0));
@@ -357,7 +357,7 @@ void restore_shortcut_props(MSIHANDLE h_install) {
 
   wstring data = get_property(h_install, L"CustomActionData");
   list<wstring> str_list = split(data, L'\n');
-  ASSERT(str_list.size() % 2 == 0);
+  CHECK(str_list.size() % 2 == 0);
   init_progress(h_install, L"RestoreShortcutProps", L"Restoring shortcut properties", str_list.size());
   for (list<wstring>::const_iterator str = str_list.begin(); str != str_list.end(); str++) {
     BEGIN_ERROR_HANDLER
@@ -383,7 +383,7 @@ bool is_inst(MSIHANDLE h_install, const wstring& feature) {
 
 void update_feature_state(MSIHANDLE h_install) {
   PMSIHANDLE h_db = MsiGetActiveDatabase(h_install);
-  ASSERT(h_db);
+  CHECK(h_db);
   PMSIHANDLE h_view;
   CHECK_ADVSYS(MsiDatabaseOpenView(h_db, "SELECT Feature FROM Feature WHERE Display = 0", &h_view));
   CHECK_ADVSYS(MsiViewExecute(h_view, 0));
@@ -396,7 +396,7 @@ void update_feature_state(MSIHANDLE h_install) {
     wstring feature_id = get_field(h_record, 1);
 
     list<wstring> sub_features = split(feature_id, L'.');
-    ASSERT(sub_features.size() > 1);
+    CHECK(sub_features.size() > 1);
 
     bool inst = true;
     for (list<wstring>::const_iterator feature = sub_features.begin(); feature != sub_features.end(); feature++) {
