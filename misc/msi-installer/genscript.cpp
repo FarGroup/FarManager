@@ -58,7 +58,8 @@ int main(int argc, char* argv[]) {
     makefile.exceptions(ios_base::badbit | ios_base::failbit | ios_base::eofbit);
     makefile.open("makefile");
     makefile << "all:" << endl;
-    makefile << "  cl -nologo -O1 -GS- customact.cpp -link -dll -nodefaultlib -noentry -out:CustomActions.dll -export:UpdateFeatureState kernel32.lib msi.lib" << endl;
+    makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
+    makefile << "  -upx --lzma CustomActions.dll" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -ext"
 #ifdef SPECIAL
