@@ -617,7 +617,7 @@
         <Feature Id="TarGz" Level="1" Title="!(loc.Feature.Title.TarGz)" AllowAdvertise="no">
           <ComponentRef Id="TarGz.fmt" />
 <?if $(var.Platform) = x86 ?>
-          <Feature Id="Tar.GzFExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="TarGz.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TarGz.map" />
           </Feature>
 <?endif?>
