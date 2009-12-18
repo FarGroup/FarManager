@@ -154,11 +154,18 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
-	//ENABLE_EXTENDED_FLAGS actually disables all the extended flags.
-	int Mode=ENABLE_WINDOW_INPUT|ENABLE_EXTENDED_FLAGS;
+	int Mode=ENABLE_WINDOW_INPUT;
 
 	if (Opt.Mouse)
-		Mode|=ENABLE_MOUSE_INPUT;
+	{
+		//ENABLE_EXTENDED_FLAGS actually disables all the extended flags.
+		Mode|=ENABLE_MOUSE_INPUT|ENABLE_EXTENDED_FLAGS;
+	}
+	else
+	{
+		//если вдруг изменили опцию во время работы фара, то включим то что надо
+		Mode|=InitialConsoleMode&(ENABLE_EXTENDED_FLAGS|ENABLE_QUICK_EDIT_MODE);
+	}
 
 	if (SetsActiveBuffer)
 		SetConsoleActiveScreenBuffer(hConOut);
