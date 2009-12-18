@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
+#include "palette.hpp"
 
 static int ReplaceMode,ReplaceAll;
 
@@ -4103,16 +4104,7 @@ BOOL Editor::Search(int Next)
 					if (!ReplaceAll)
 					{
 						Show();
-						SHORT CurX,CurY;
-						GetCursorPos(CurX,CurY);
-						GotoXY(CurX,CurY);
-						SetColor(COL_EDITORSELECTEDTEXT);
-						const wchar_t *Str=CurPtr->GetStringAddr()+CurPtr->GetCurPos();
-						wchar_t *TmpStr=new wchar_t[SearchLength+1];
-						xwcsncpy(TmpStr,Str,SearchLength);
-						Text(TmpStr);
-						delete[] TmpStr;
-						string strQSearchStr(Str,SearchLength), strQReplaceStr=strReplaceStrCurrent;
+						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
 						PreRedrawItem pitem=PreRedraw.Pop();

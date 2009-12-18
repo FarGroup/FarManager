@@ -936,13 +936,19 @@ int RegExp::CalcLength(const prechar src,int srclength)
 			if (src[i]=='x')
 			{
 				i++;
-				int c=TOLOWER(src[i]);
-
-				if ((c>='0' && c<='9')||(c>='a' && c<='f'))
+				if(isxdigit(src[i]))
 				{
-					int c2=TOLOWER(src[i+1]);
-
-					if ((c2>='0' && c2<='9')||(c2>='a' && c2<='f'))i++;
+					for(int j=1,k=i;j<4;j++)
+					{
+						if(isxdigit(src[k+j]))
+						{
+							i++;
+						}
+						else
+						{
+							break;
+						}
+					}
 				}
 				else return SetError(errSyntax,i);
 			}
@@ -1474,47 +1480,39 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 #endif
 				case 'x':
 				{
-					int c=0;
 					i++;
 
 					if (i>=srclength)return SetError(errSyntax,i-1);
 
-					c=TOLOWER(src[i]);
-
-					if ((c>='0' && c<='9') ||
-					        (c>='a' && c<='f'))
+					if(isxdigit(src[i]))
 					{
-						c-='0';
+						int c=TOLOWER(src[i])-'0';
 
 						if (c>9)c-='a'-'0'-10;
 
 						op->op=ignorecase?opSymbolIgnoreCase:opSymbol;
 						op->symbol=c;
-
-						if (i+1<srclength)
+						for(int j=1,k=i;j<4 && k+j<srclength;j++)
 						{
-							c=TOLOWER(src[i+1]);
-
-							if ((c>='0' && c<='9') ||
-							        (c>='a' && c<='f'))
+							if(isxdigit(src[k+j]))
 							{
 								i++;
-								c-='0';
-
+								c=TOLOWER(src[k+j])-'0';
 								if (c>9)c-='a'-'0'-10;
-
 								op->symbol<<=4;
 								op->symbol|=c;
 							}
-
-							if (ignorecase)
+							else
 							{
-								op->symbol=TOLOWER(op->symbol);
-
-								if (TOUPPER(op->symbol)==TOLOWER(op->symbol))
-								{
-									op->op=opSymbol;
-								}
+								break;
+							}
+						}
+						if (ignorecase)
+						{
+							op->symbol=TOLOWER(op->symbol);
+							if (TOUPPER(op->symbol)==TOLOWER(op->symbol))
+							{
+								op->op=opSymbol;
 							}
 						}
 					}
@@ -1812,39 +1810,35 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 							case 'e':lastchar=27; break;
 							case 'x':
 							{
-								int c=0;
 								i++;
 
 								if (i>=srclength)return SetError(errSyntax,i-1);
 
-								c=TOLOWER(src[i]);
-
-								if ((c>='0' && c<='9') ||
-								        (c>='a' && c<='f'))
+								if (isxdigit(src[i]))
 								{
-									c-='0';
+									int c=TOLOWER(src[i])-'0';
 
 									if (c>9)c-='a'-'0'-10;
 
 									lastchar=c;
 
-									if (i+1<srclength)
+									for(int j=1,k=i;j<4 && k+j<srclength;j++)
 									{
-										c=TOLOWER(src[i+1]);
-
-										if ((c>='0' && c<='9') ||
-										        (c>='a' && c<='f'))
+										if (isxdigit(src[k+j]))
 										{
 											i++;
-											c-='0';
+											c=TOLOWER(src[k+j])-'0';
 
 											if (c>9)c-='a'-'0'-10;
 
 											lastchar<<=4;
 											lastchar|=c;
 										}
+										else
+										{
+											break;
+										}
 									}
-
 									dpf(("Last char=%c(%02x)\n",lastchar,lastchar));
 								}
 								else return SetError(errSyntax,i);
@@ -1939,19 +1933,16 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 									i+=2;
 									to=TOLOWER(src[i+1]);
 
-									if ((to>='0' && to<='9') ||
-									        (to>='a' && to<='f'))
+									if(isxdigit(to))
 									{
 										to-='0';
 
 										if (to>9)to-='a'-'0'-10;
 
-										if (i+1<srclength)
+										for(int j=1,k=i;j<4 && k+j<srclength;j++)
 										{
-											int c=TOLOWER(src[i+2]);
-
-											if ((c>='0' && c<='9') ||
-											        (c>='a' && c<='f'))
+											int c=TOLOWER(src[k+j]);
+											if(isxdigit(c))
 											{
 												i++;
 												c-='0';
@@ -1960,6 +1951,10 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 
 												to<<=4;
 												to|=c;
+											}
+											else
+											{
+												break;
 											}
 										}
 									}

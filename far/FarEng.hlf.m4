@@ -2100,54 +2100,62 @@ $ #Settings dialog: panel#
 
 @InterfSettings
 $ #Settings dialog: interface#
-  #Clock in panels#         Show clock at the right top corner of
-                          the screen.
+  #Clock in panels#
+  Show clock at the right top corner of the screen.
 
-  #Clock in viewer#         Show clock in viewer and editor.
-  #and editor#
+  #Clock in viewer and editor#
+  Show clock in viewer and editor.
 
-  #Mouse#                   Use the mouse.
+  #Mouse#
+  Use the mouse.
 
-  #Show key bar#            Show the functional key bar at the bottom
-                          line. This option also may be switched
-                          by #Ctrl-B#.
+  #Show key bar#
+  Show the functional key bar at the bottom line.
+This option also may be switched by #Ctrl-B#.
 
-  #Always show menu bar#    Show top screen menu bar even when
-                          it is inactive.
+  #Always show menu bar#
+  Show top screen menu bar even when it is inactive.
 
-  #Screen saver#            Run screen saver after the inactivity
-                          interval in minutes. When this option
-                          is enabled, screen saver will also
-                          activate when mouse pointer is brought
-                          to the upper right corner of FAR window.
+  #Screen saver#
+  Run screen saver after the inactivity шnterval in minutes. When this option
+is enabled, screen saver will also activate when mouse pointer is brought
+to the upper right corner of FAR window.
 
-  #Show total copy#         Show total progress bar, when performing
-  #indicator#               a file copy operation. This may require
-                          some additional time before starting
-                          copying to calculate the total files size.
+  #Show total copy indicator#
+  Show total progress bar, when performing a file copy operation.
+This may require some additional time before starting copying
+to calculate the total files size.
 
-  #Show copying time#       Show information about average copying
-  #information#             speed, copying time and estimated remaining
-                          time in the copy dialog.
+  #Show copying time information#
+  Show information about average copying speed, copying time and
+estimated remaining time in the copy dialog.
 
-    Since this function requires some time to gather statistics,
-    it is likely that you won't see any information if you're
-    copying many small files and the option "Show total copy
-    progress indicator" is disabled.
+  Since this function requires some time to gather statistics, it is likely
+that you won't see any information if you're copying many small files
+and the option "Show total copy progress indicator" is disabled.
 
-  #Use Ctrl-PgUp#           Pressing #Ctrl-PgUp# in the root directory:
-  #to change drive#         - for local drives - shows the drive
-                            selection menu;
-                          - for network drives - activates the
-                            Network plugin (if it is available)
-                            or the drive selection menu (if the
-                            Network plugin is not available).
+  #Show total delete indicator#
+  Show total progress bar, when performing a file delete operation.
+This may require some additional time before starting deleting
+to calculate the total files count.
 
-  #ClearType friendly#      Redraw the window in such a way that
-  #redraw#                  ClearType related artifacts do not appear.
-                          #Attention!#: Enabling this option can
-                          considerably slow down the redraw speed.
+  #Use Ctrl-PgUp to change drive#
+  Pressing #Ctrl-PgUp# in the root directory:
+  - for local drives - shows the drive selection menu;
+  - for network drives - activates the Network plugin (if it is available)
+or the drive selection menu (if the Network plugin is not available).
 
+  #ClearType friendly redraw#
+  Redraw the window in such a way that ClearType related artifacts do not appear.
+  #Attention!#: Enabling this option can considerably slow down the redraw speed.
+
+  #Far window title addons#
+  Дополнительная информация, выводимая в заголовке окна консоли.
+Может содержать любой текст, включая следующие переменные:
+  #%Ver# - версия FAR;
+  #%Build# - номер сборки FAR;
+  #%Platform# - архитектура FAR;
+  #%Admin# - слово "Администратор", если FAR запущен от имени администратора, иначе пустая строка.
 
 @DialogSettings
 $ #Settings dialog: dialogs#
@@ -3869,7 +3877,7 @@ the options then this can be any symbol.
     #\f#   - form feed (0x0c)
     #\a#   - bell (0x07)
     #\e#   - escape (0x1b)
-    #\xNN# - hex character, where N - [0-9A-Fa-f].
+    #\xNNNN# - hex character, where N - [0-9A-Fa-f].
     #\Q#   - ^<wrap>the beginning of metacharacters quoting - the whole quoted
 text is treated as text itself, not the regular expression
     #\E#   - the end of metacharacters quoting
