@@ -113,13 +113,7 @@
       <Custom Action="SetALLUSERS" After="SetUserInstallScope">USERINSTALLDIR</Custom>
       <FindRelatedProducts After="SetALLUSERS" />
     </InstallUISequence>
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
-    <Property Id="WIXUI_INSTALLDIR_VALID" Value="1" />
     <UIRef Id="WixUI_Mod" />
-    <UIRef Id="WixUI_ErrorProgressText" />
     <Icon Id="Far.ico" SourceFile="rsrc\far.ico" />
-    <WixVariable Id="WixUILicenseRtf" Value="rsrc\license$(var.Branch).rtf" />
-    <WixVariable Id="WixUIBannerBmp" Value="rsrc\banner.jpg" />
-    <WixVariable Id="WixUIDialogBmp" Value="rsrc\dialog.jpg" />
   </Product>
 </Wix>

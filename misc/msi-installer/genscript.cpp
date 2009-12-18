@@ -61,14 +61,7 @@ int main(int argc, char* argv[]) {
     makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
     makefile << "  -upx --lzma CustomActions.dll" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " installer.wxs ui.wxs" << endl;
-    makefile << "  light -nologo -ext"
-#ifdef SPECIAL
-    << " c:\\src\\WixUIExtension.dll"
-#else
-    << " WixUIExtension"
-#endif
-    << " -cultures:en-us -loc en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
-
+    makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
 
     return 0;
   }
