@@ -114,6 +114,7 @@
       <FindRelatedProducts After="SetALLUSERS" />
     </InstallUISequence>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <Property Id="WIXUI_INSTALLDIR_VALID" Value="1" />
     <UIRef Id="WixUI_Mod" />
     <UIRef Id="WixUI_ErrorProgressText" />
     <Icon Id="Far.ico" SourceFile="rsrc\far.ico" />
