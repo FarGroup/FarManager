@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     if (argc < 2)
       throw exception("source path not specified");
 
-#ifdef SPECIAL
+#ifdef NIGHTLY
     if (argc < 3)
       throw exception("platform not specified");
 #endif
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     }
 
     // determine Far platform
-#ifdef SPECIAL
+#ifdef NIGHTLY
     string platform = argv[2];
 #else
     string far_exe_path = source_dir + "\\Far.exe";
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     // generate makefile
-#ifdef SPECIAL
+#ifdef NIGHTLY
     string msi_name = source_dir + "\\final.msi";
 #else
     ostringstream fmt;
@@ -75,24 +75,28 @@ int main(int argc, char* argv[]) {
     string msi_name = fmt.str();
 #endif
 
-#ifdef SPECIAL
-  #define CUSTOM_ACTIONS "CustomActions.dll"
-#else
-  #define CUSTOM_ACTIONS "customact.dll"
-#endif
-    
     ofstream makefile;
     makefile.exceptions(ios_base::badbit | ios_base::failbit | ios_base::eofbit);
     makefile.open("makefile");
+#ifdef NIGHTLY
     makefile << "all:" << endl;
-#ifdef SPECIAL
 //    makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:" CUSTOM_ACTIONS " -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
 //    makefile << "  upx --lzma " CUSTOM_ACTIONS << endl;
-#else
-    makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -out:" CUSTOM_ACTIONS " -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
-#endif
-    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=" CUSTOM_ACTIONS " installer.wxs ui.wxs" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=CustomActions.dll installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
+#else
+    makefile << msi_name << ": installer.wixobj ui.wixobj en-us.wxl ui_en-us.wxl customact.dll" << endl;
+    makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -cc . -reusecab -O2 -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
+    makefile << "customact.dll: customact.cpp" << endl;
+    makefile << "  cl -nologo -Zi -EHsc customact.cpp -link -dll -debug -incremental:no -out:customact.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
+    makefile << "installer.wxs: files.wxi features.wxi shortcuts.wxi guids_" << ver_major << "_" << platform << ".wxi" << endl;
+    makefile << ".wxs.wixobj::" << endl;
+    makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=customact.dll $<" << endl;
+    makefile << "clean:" << endl;
+    makefile << "  del /q /f *.wixobj customact.dll customact.obj #far.cab" << endl;
+    makefile << ".SUFFIXES: .wxs" << endl;
+    makefile << ".PHONY: clean" << endl;
+#endif
 
     return 0;
   }

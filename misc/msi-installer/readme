@@ -26,7 +26,7 @@ cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:Upd
 upx --lzma CustomActions.dll
 
 1. —обираем вспомогательную тулзу:
-cl -nologo -EHsc -DSPECIAL genscript.cpp
+cl -nologo -EHsc -DNIGHTLY genscript.cpp
 
 2. ”казываем ей где лежат файлы из дистрибутива и платформу:
 genscript с:\path\far x86
