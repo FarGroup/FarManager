@@ -64,12 +64,13 @@ int main(int argc, char* argv[]) {
 #endif
 
     // generate makefile
-#ifdef NIGHTLY
-    string msi_name = source_dir + "\\final.msi";
-#else
     ostringstream fmt;
     fmt << ver_major << "." << ver_minor << "." << ver_build;
     string version = fmt.str();
+
+#ifdef NIGHTLY
+    string msi_name = source_dir + "\\final.msi";
+#else
     fmt.str(string());
     fmt << "Far" << ver_major << ver_minor << "b" << ver_build << "." << platform << ".msi";
     string msi_name = fmt.str();
@@ -80,8 +81,8 @@ int main(int argc, char* argv[]) {
     makefile.open("makefile");
 #ifdef NIGHTLY
     makefile << "all:" << endl;
-//    makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:" CUSTOM_ACTIONS " -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
-//    makefile << "  upx --lzma " CUSTOM_ACTIONS << endl;
+//    makefile << "  cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib" << endl;
+//    makefile << "  upx --lzma CustomActions.dll" << endl;
     makefile << "  candle -nologo -dSourceDir=\"" << source_dir << "\" -dBranch=" << ver_major << " -dPlatform=" << platform << " -dVersion=" << version << " -dCustomActions=CustomActions.dll installer.wxs ui.wxs" << endl;
     makefile << "  light -nologo -cultures:en-us -loc en-us.wxl -loc ui_en-us.wxl -spdb -sval -sh -dcl:high -out " << msi_name << " installer.wixobj ui.wixobj" << endl;
 #else
