@@ -1,12 +1,32 @@
 Что требуется для сборки:
 1. Windows Installer XML (WiX) toolset (http://wix.sourceforge.net/)
-2. С++ компилятор Microsoft (cl.exe)
+2. С++ компилятор Microsoft (cl.exe).
+Желательно чтобы компилятор умел собирать исполнимые модули, совместимые со старыми операционными системами.
+Иначе инсталлятор не будет работать на Win98 к примеру.
 3. Windows SDK (для msi.lib)
 
-Как собирать:
+
+Как собирать (для отладки):
 
 1. Собираем вспомогательную тулзу:
-cl -EHsc genscript.cpp
+cl -nologo -EHsc genscript.cpp imagehlp.lib
+
+2. Указываем ей где лежат файлы из дистрибутива:
+genscript с:\path\far
+Тулза создает makefile.
+
+3. Запускаем сборку MSI:
+nmake -nologo
+
+
+Как собирать (для nightly):
+
+Для сборки требуется готовая CustomActions.dll. Собирать её рекомендуется так:
+cl -nologo -O1 -EHsc customact.cpp -link -dll -out:CustomActions.dll -export:UpdateFeatureState -export:SaveShortcutProps -export:RestoreShortcutProps msi.lib
+upx --lzma CustomActions.dll
+
+1. Собираем вспомогательную тулзу:
+cl -nologo -EHsc -DSPECIAL genscript.cpp
 
 2. Указываем ей где лежат файлы из дистрибутива и платформу:
 genscript с:\path\far x86
