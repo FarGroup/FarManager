@@ -574,16 +574,19 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 						while (!PathExtList.IsEmpty())
 						{
+							string strDest;
 							LPCWSTR Ext=PathExtList.GetNext();
-							DWORD dwSize=SearchPath(Path,strFullName,Ext,0,NULL,NULL);
 
-							if (dwSize)
+							if (apiSearchPath(Path,strFullName,Ext,strDest))
 							{
-								wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
-								SearchPath(Path,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
-								strFullName.ReleaseBuffer();
-								Result=true;
-								break;
+								DWORD Attr=apiGetFileAttributes(strDest);
+
+								if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+								{
+									strFullName=strDest;
+									Result=true;
+									break;
+								}
 							}
 						}
 					}
@@ -595,24 +598,28 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 					while (!PathExtList.IsEmpty())
 					{
+						string strDest;
 						LPCWSTR Ext=PathExtList.GetNext();
-						DWORD dwSize=SearchPath(NULL,strFullName,Ext,0,NULL,NULL);
 
-						if (dwSize)
+						if (apiSearchPath(NULL,strFullName,Ext,strDest))
 						{
-							wchar_t *lpwszFullName=strFullName.GetBuffer(dwSize);
-							SearchPath(NULL,string(lpwszFullName),Ext,dwSize,lpwszFullName,NULL);
-							strFullName.ReleaseBuffer();
-							Result=true;
-							break;
+							DWORD Attr=apiGetFileAttributes(strDest);
+
+							if ((Attr!=INVALID_FILE_ATTRIBUTES) && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+							{
+								strFullName=strDest;
+								Result=true;
+								break;
+							}
 						}
 					}
 				}
 
-				if (!Result && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
+				// третий проход - лезим в реестр в "App Paths"
+				if (!Result && Opt.ExecuteUseAppPath && !strFullName.Contains(L'\\'))
 				{
 					LPCWSTR RegPath=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-					// В строке Module заменть исполняемый модуль на полный путь, который
+					// В строке Module заменить исполняемый модуль на полный путь, который
 					// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
 					// Сначала смотрим в HKCU, затем - в HKLM
 					HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
@@ -642,7 +649,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					{
 						PathExtList.Reset();
 
-						while (!PathExtList.IsEmpty()&&!Result)
+						while (!PathExtList.IsEmpty() && !Result)
 						{
 							LPCWSTR Ext=PathExtList.GetNext();
 							strFullName=RegPath;

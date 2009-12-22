@@ -507,14 +507,6 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	return(CmdStr.ProcessMouse(MouseEvent));
 }
 
-void add_char(string &str, wchar_t c)  //BUGBUG
-{
-	wchar_t cc[2];
-	cc[0] = c;
-	cc[1] = 0;
-	str += (const wchar_t*)&cc;
-}
-
 void CommandLine::GetPrompt(string &strDestStr)
 {
 	if (Opt.CmdLine.UsePromptFormat)
@@ -547,7 +539,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 				{
 					if (ChrFmt[I][0] == Chr)
 					{
-						add_char(strDestStr, ChrFmt[I][1]);
+						strDestStr += ChrFmt[I][1];
 						break;
 					}
 				}
@@ -592,13 +584,13 @@ void CommandLine::GetPrompt(string &strDestStr)
 						case L'N': // $N - Current drive
 
 							if (IsLocalPath(strCurDir) && IsSlash(strCurDir.At(2)))
-								add_char(strDestStr, Upper(strCurDir.At(0)));
+								strDestStr += Upper(strCurDir.At(0));
 							else
-								add_char(strDestStr, L'?');
+								strDestStr += L'?';
 
 							break;
 						case L'P': // $P - Current drive and path
-							strDestStr+=strCurDir;
+							strDestStr += strCurDir;
 							break;
 					}
 				}
@@ -606,7 +598,9 @@ void CommandLine::GetPrompt(string &strDestStr)
 				Format++;
 			}
 			else
-				add_char(strDestStr, *(Format++));
+			{
+				strDestStr += *(Format++);
+			}
 		}
 	}
 	else // default prompt = "$p$g"

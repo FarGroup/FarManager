@@ -4803,26 +4803,14 @@ void Editor::GoToPosition()
 		DI_EDIT,     5,2,19,2,1,(DWORD_PTR)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE,1,L"",
 	};
 	MakeDialogItemsEx(GoToDlgData,GoToDlg);
-	/* $ 01.08.2000 tran
-	  PrevLine теперь не нужно - USELASTHISTORY рулит */
-	//  static char PrevLine[40]={0};
-	//  strcpy(GoToDlg[1].Data,PrevLine);
 	Dialog Dlg(GoToDlg,countof(GoToDlg));
 	Dlg.SetPosition(-1,-1,25,5);
 	Dlg.SetHelp(L"EditorGotoPos");
 	Dlg.Process();
-	/* $ 06.05.2002 KM
-	    Прибъём ShadowSaveScr для предотвращения мелькания
-	    изображения.
-	*/
-	SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
 
-	// tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
 	if (Dlg.GetExitCode()!=1)
 		return ;
 
-	// Запомним ранее введенное значение в текущем сеансе работы FAR`а
-	//  xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
 	GetRowCol(GoToDlg[1].strData,&NewLine,&NewCol);
 	//_D(SysLog(L"GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol));
 	GoToLine(NewLine);
@@ -4833,7 +4821,9 @@ void Editor::GoToPosition()
 		CurLine->SetLeftPos(LeftPos);
 	}
 	else
+	{
 		CurLine->SetTabCurPos(NewCol);
+	}
 
 // <GOTO_UNMARK:3>
 //  if (!EdOpt.PersistentBlocks)

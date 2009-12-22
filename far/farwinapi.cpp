@@ -956,3 +956,18 @@ bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 
 	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
 }
+
+bool apiSearchPath(const wchar_t *Path, const wchar_t *FileName, const wchar_t *Extension, string &strDest)
+{
+	DWORD dwSize = SearchPath(Path,FileName,Extension,0,NULL,NULL);
+
+	if (dwSize)
+	{
+		wchar_t *lpwszFullName=strDest.GetBuffer(dwSize);
+		dwSize = SearchPath(Path,FileName,Extension,dwSize,lpwszFullName,NULL);
+		strDest.ReleaseBuffer(dwSize);
+		return true;
+	}
+
+	return false;
+}

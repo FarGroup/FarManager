@@ -317,3 +317,10 @@ bool apiGetFinalPathNameByHandle(
     HANDLE hFile,
     string& FinalFilePath
 );
+
+bool apiSearchPath(
+	const wchar_t *Path,
+	const wchar_t *FileName,
+	const wchar_t *Extension,
+	string &strDest
+);

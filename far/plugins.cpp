@@ -1384,7 +1384,6 @@ void PluginManager::Configure(int StartPos)
 						if (!FarShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
 						        !FarShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
 						{
-							//strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
 							FarShowHelp(strPluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 						}
 
@@ -1433,8 +1432,6 @@ void PluginManager::Configure(int StartPos)
 	}
 }
 
-
-///int PluginManager::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
 	int MenuItemNumber=0;

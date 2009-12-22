@@ -2857,8 +2857,6 @@ bool Viewer::vgetc(FILE *SrcFile,WCHAR& C)
 #define RB_HEX 4
 #define RB_DEC 5
 
-//   ! »зменен вызов функции GoTo() - два дополнительных параметра
-//   - ”странение вис€чих строк при переходе (функци€ GoTo)
 void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
 	__int64 Relative=0;
@@ -2873,11 +2871,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 		/* 5 */ DI_RADIOBUTTON,5,6,0,6,0,0,0,0,(const wchar_t *)MGoToDecimal,
 	};
 	MakeDialogItemsEx(GoToDlgData,GoToDlg);
-	/* $ 01.08.2000 tran
-	   с DIF_USELASTHISTORY эот не нужно*/
-	//  static char PrevLine[20];
 	static int PrevMode=0;
-	// strcpy(GoToDlg[1].Data,PrevLine);
 	GoToDlg[3].Selected=GoToDlg[4].Selected=GoToDlg[5].Selected=0;
 
 	if (VM.Hex)
@@ -2891,21 +2885,10 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 			Dlg.SetHelp(L"ViewerGotoPos");
 			Dlg.SetPosition(-1,-1,35,9);
 			Dlg.Process();
-			/* $ 17.07.2000 tran
-			   - remove isdigit check()
-			     кстати, тут баг был
-			     если ввести ffff при hex offset, то фар все равно никуда не шел */
 
-			/* $ 22.03.2001 IS
-			   - ѕереход происходил только тогда, когда в момент закрыти€ диалога
-			     курсор находилс€ в строке ввода.
-			*/
-			if (Dlg.GetExitCode()<=0)  //|| !isdigit(*GoToDlg[1].Data))
+			if (Dlg.GetExitCode()<=0)
 				return;
 
-			// xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
-			/* $ 17.07.2000 tran
-			   тут дл€ сокращени€ кода ввел ptr, который и анализирую */
 			if (GoToDlg[1].strData.At(0)==L'+' || GoToDlg[1].strData.At(0)==L'-')       // юзер хочет относительности
 			{
 				if (GoToDlg[1].strData.At(0)==L'+')
@@ -3014,11 +2997,6 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 	if (!(Flags&VSP_NOREDRAW))
 		Show();
 }
-
-
-/* $ 27.04.2001 DJ
-   корректировка позиции вынесена в отдельную функцию
-*/
 
 void Viewer::AdjustFilePos()
 {

@@ -66,8 +66,6 @@ enum ReadDizFlags
 	RDF_NO_UPDATE         = 0x00000001UL,
 };
 
-int _cdecl SortSearchList(const void *el1,const void *el2);
-
 void FileList::Update(int Mode)
 {
 	_ALGO(CleverSysLog clv(L"FileList::Update"));
@@ -641,6 +639,11 @@ void FileList::CloseChangeNotification()
 	}
 }
 
+static int _cdecl SortSearchList(const void *el1,const void *el2)
+{
+	FileListItem **SPtr1=(FileListItem **)el1,**SPtr2=(FileListItem **)el2;
+	return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
+}
 
 void FileList::MoveSelection(FileListItem **ListData,long FileCount,
                              FileListItem **OldData,long OldFileCount)

@@ -90,7 +90,6 @@ extern size_t SizeViewSettingsArray;
 
 
 static int _cdecl SortList(const void *el1,const void *el2);
-int _cdecl SortSearchList(const void *el1,const void *el2);
 
 static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive,ListNumericSort;
@@ -290,7 +289,6 @@ void FileList::SortFileList(int KeepPosition)
 		ListSelectedFirst=SelectedFirst;
 		ListPanelMode=PanelMode;
 		ListCaseSensitive=ViewSettingsArray[ViewMode].CaseSensitiveSort;
-		//ListCaseSensitive=ViewSettings.CaseSensitiveSort;
 		ListNumericSort=NumericSort;
 
 		if (KeepPosition)
@@ -511,14 +509,6 @@ int _cdecl SortList(const void *el1,const void *el2)
 		NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
 
 	return(NameCmp);
-}
-
-
-int _cdecl SortSearchList(const void *el1,const void *el2)
-{
-	FileListItem **SPtr1=(FileListItem **)el1,**SPtr2=(FileListItem **)el2;
-	return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
-//  return NumStrcmp(SPtr1->Name,SPtr2->Name);
 }
 
 void FileList::SetFocus()
@@ -3166,21 +3156,6 @@ int FileList::GetLastSelectedItem(FileListItem *LastItem)
 	return(FALSE);
 }
 
-
-/*int FileList::GetCurName(char *Name,char *ShortName)
-{
-  if (FileCount==0)
-  {
-    *Name=*ShortName=0;
-    return(FALSE);
-  }
-  strcpy(Name,ListData[CurFile]->Name);
-  strcpy(ShortName,ListData[CurFile]->ShortName);
-  if (*ShortName==0)
-    strcpy(ShortName,Name);
-  return(TRUE);
-}
-*/
 int FileList::GetCurName(string &strName, string &strShortName)
 {
 	if (FileCount==0)
@@ -3198,28 +3173,6 @@ int FileList::GetCurName(string &strName, string &strShortName)
 
 	return(TRUE);
 }
-
-
-/*int FileList::GetCurBaseName(char *Name,char *ShortName)
-{
-  *Name=*ShortName=0;
-  if (FileCount==0)
-    return(FALSE);
-  if(PanelMode==PLUGIN_PANEL && PluginsList) // для плагинов
-  {
-    // берем самую основу (при вложенных)
-    strcpy(Name,PointToName(NullToEmpty(PluginsList->HostFile)));
-  }
-  else if(PanelMode==NORMAL_PANEL)
-  {
-    strcpy(Name,ListData[CurFile].Name);
-    strcpy(ShortName,ListData[CurFile].ShortName);
-  }
-
-  if (*ShortName==0)
-    strcpy(ShortName,Name);
-  return(TRUE);
-}*/
 
 int FileList::GetCurBaseName(string &strName, string &strShortName)
 {
@@ -3245,8 +3198,6 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 
 	return(TRUE);
 }
-
-extern void add_char(string &str, wchar_t c);  //BUGBUG
 
 void FileList::SelectFiles(int Mode)
 {
@@ -3373,19 +3324,21 @@ void FileList::SelectFiles(int Mode)
 
 	if (!bUseFilter && WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
 	{                               // работоспособную маску
-		const wchar_t *src=(const wchar_t*)strRawMask;
-		strMask=(const wchar_t*)L"";
+		const wchar_t *src = strRawMask;
+		strMask.Clear();
 
 		while (*src)
 		{
 			if (*src==L']' || *src==L'[')
 			{
-				add_char(strMask, L'[');
-				add_char(strMask, *src);
-				add_char(strMask, L']');
+				strMask += L'[';
+				strMask += *src;
+				strMask += L']';
 			}
 			else
-				add_char(strMask, *src);
+			{
+				strMask += *src;
+			}
 
 			src++;
 		}
@@ -3599,7 +3552,6 @@ void FileList::CompareDir()
 #endif
 
 			if (StrCmpI(PtrTempName1,PtrTempName2)==0)
-				//if (LocalStricmp(CurPtr->Name,Another->ListData[J]->Name)==0)
 			{
 				if (CompareFatTime)
 				{
