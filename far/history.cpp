@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "interf.hpp"
 
-History::History(enumHISTORYTYPE TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
+History::History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType)
 {
 	strRegKey = RegKey;
 	History::SaveType=SaveType;
@@ -114,7 +114,7 @@ void History::AddToHistoryLocal(const wchar_t *Str, const wchar_t *Prefix, int T
 		}
 	}
 
-	if (HistoryList.Length==HistoryCount)
+	if (HistoryList.Count()==HistoryCount)
 	{
 		HistoryList.Delete(HistoryList.First());
 	}
@@ -129,7 +129,7 @@ bool History::SaveHistory()
 	if (!*EnableSave)
 		return true;
 
-	if (!HistoryList.Length)
+	if (!HistoryList.Count())
 	{
 		DeleteRegKey(strRegKey);
 		return true;
@@ -139,7 +139,7 @@ bool History::SaveHistory()
 
 	if (SaveType)
 	{
-		TypesBuffer=(wchar_t *)xf_malloc((HistoryList.Length+1)*sizeof(wchar_t));
+		TypesBuffer=(wchar_t *)xf_malloc((HistoryList.Count()+1)*sizeof(wchar_t));
 
 		if (!TypesBuffer)
 			return false;
@@ -147,7 +147,7 @@ bool History::SaveHistory()
 
 	wchar_t *LocksBuffer=NULL;
 
-	if (!(LocksBuffer=(wchar_t *)xf_malloc((HistoryList.Length+1)*sizeof(wchar_t))))
+	if (!(LocksBuffer=(wchar_t *)xf_malloc((HistoryList.Count()+1)*sizeof(wchar_t))))
 	{
 		if (TypesBuffer)
 			xf_free(TypesBuffer);
@@ -157,7 +157,7 @@ bool History::SaveHistory()
 
 	FILETIME *TimesBuffer=NULL;
 
-	if (!(TimesBuffer=(FILETIME *)xf_malloc((HistoryList.Length+1)*sizeof(FILETIME))))
+	if (!(TimesBuffer=(FILETIME *)xf_malloc((HistoryList.Count()+1)*sizeof(FILETIME))))
 	{
 		if (LocksBuffer)
 			xf_free(LocksBuffer);
@@ -168,17 +168,18 @@ bool History::SaveHistory()
 		return false;
 	}
 
-	memset(TimesBuffer,0,(HistoryList.Length+1)*sizeof(FILETIME));
-	wmemset(LocksBuffer,0,HistoryList.Length+1);
+	memset(TimesBuffer,0,(HistoryList.Count()+1)*sizeof(FILETIME));
+	wmemset(LocksBuffer,0,HistoryList.Count()+1);
 
 	if (SaveType)
-		wmemset(TypesBuffer,0,HistoryList.Length+1);
+		wmemset(TypesBuffer,0,HistoryList.Count()+1);
 
 	bool ret = false;
 	HKEY hKey = NULL;
 	wchar_t *BufferLines=NULL, *PtrBuffer;
 	size_t SizeLines=0, SizeTypes=0, SizeLocks=0, SizeTimes=0;
-	int Position = -1, i=HistoryList.Length-1;
+	int Position = -1;
+	size_t i=HistoryList.Count()-1;
 
 	for (const HistoryRecord *HistoryItem=HistoryList.Last(); HistoryItem != NULL; HistoryItem=HistoryList.Prev(HistoryItem))
 	{
@@ -201,7 +202,7 @@ bool History::SaveHistory()
 		SizeTimes++;
 
 		if (HistoryItem == CurrentItem)
-			Position = i;
+			Position = static_cast<int>(i);
 
 		i--;
 	}
@@ -366,7 +367,7 @@ bool History::ReadHistory(bool bOnlyLines)
 		wchar_t *TypesBuf=TypesBuffer;
 		wchar_t *LockBuf=LocksBuffer;
 		FILETIME *TimeBuf=TimesBuffer;
-		int StrPos=0;
+		size_t StrPos=0;
 		wchar_t *Buf=Buffer;
 		Size/=sizeof(wchar_t);
 		Buf[Size-1]=0; //safety
@@ -408,7 +409,7 @@ bool History::ReadHistory(bool bOnlyLines)
 			{
 				HistoryList.Unshift(&AddRecord);
 
-				if (StrPos == Position)
+				if (StrPos == static_cast<size_t>(Position))
 					CurrentItem=HistoryList.First();
 			}
 
@@ -497,7 +498,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 	bool Done=false;
 	bool SetUpMenuPos=false;
 
-	if (TypeHistory == HISTORYTYPE_DIALOG && HistoryList.Length==0)
+	if (TypeHistory == HISTORYTYPE_DIALOG && HistoryList.Empty())
 		return 0;
 
 	while (!Done)
@@ -554,7 +555,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 
 		if (SetUpMenuPos)
 		{
-			Pos.SelectPos=Pos.SelectPos < (int)HistoryList.Length ? Pos.SelectPos : (int)HistoryList.Length-1;
+			Pos.SelectPos=Pos.SelectPos < (int)HistoryList.Count() ? Pos.SelectPos : (int)HistoryList.Count()-1;
 			Pos.TopPos=Min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
 			HistoryMenu.SetSelectPos(&Pos);
 			SetUpMenuPos=false;
@@ -577,7 +578,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 
 		while (!HistoryMenu.Done())
 		{
-			if (TypeHistory == HISTORYTYPE_DIALOG && (!Dlg->GetDropDownOpened() || HistoryList.Length==0))
+			if (TypeHistory == HISTORYTYPE_DIALOG && (!Dlg->GetDropDownOpened() || HistoryList.Empty()))
 			{
 				HistoryMenu.ProcessKey(KEY_ESC);
 				continue;

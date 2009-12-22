@@ -140,8 +140,6 @@ FileList::FileList()
 	NumericSort=0;
 	Columns=PreparePanelView(&ViewSettings);
 	Height=0;
-	PluginsStack=NULL;
-	PluginsStackSize=0;
 	ShiftSelection=-1;
 	hListChange=INVALID_HANDLE_VALUE;
 	SelFileCount=0;
@@ -152,8 +150,6 @@ FileList::FileList()
 	ReturnCurrentFile=FALSE;
 	LastUpdateTime=0;
 	PluginCommand=-1;
-	PrevDataStack=NULL;
-	PrevDataStackSize=0;
 	LeftPos=0;
 	UpdateRequired=FALSE;
 	AccessTimeUpdateRequired=FALSE;
@@ -170,13 +166,13 @@ FileList::~FileList()
 	_OT(SysLog(L"[%p] FileList::~FileList()", this));
 	CloseChangeNotification();
 
-	for (int I=0; I < PrevDataStackSize; I++)
+	for (PrevDataItem **i=PrevDataList.First();i;i=PrevDataList.Next(i))
 	{
-		DeleteListData(PrevDataStack[I]->PrevListData,PrevDataStack[I]->PrevFileCount);
-		delete PrevDataStack[I];
+		DeleteListData((*i)->PrevListData,(*i)->PrevFileCount);
+		delete *i;
 	}
 
-	if (PrevDataStack) xf_free(PrevDataStack);
+	PrevDataList.Clear();
 
 	DeleteListData(ListData,FileCount);
 
@@ -726,10 +722,12 @@ int FileList::ProcessKey(int Key)
 						GoToFile(PointToName(strPluginFile));
 
 						// удалим пред.значение.
-						if (PrevDataStackSize>0)
+						if (!PrevDataList.Empty())
 						{
-							for (--PrevDataStackSize; PrevDataStackSize > 0; PrevDataStackSize--)
-								DeleteListData(PrevDataStack[PrevDataStackSize]->PrevListData,PrevDataStack[PrevDataStackSize]->PrevFileCount);
+							for(PrevDataItem* i=*PrevDataList.Last();i;i=*PrevDataList.Prev(&i))
+							{
+								DeleteListData(i->PrevListData,i->PrevFileCount);
+							}
 						}
 					}
 
@@ -1160,7 +1158,7 @@ int FileList::ProcessKey(int Key)
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 			BOOL NeedChangeDir=TRUE;
 
-			if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
+			if (PanelMode==PLUGIN_PANEL)// && *PluginsList[PluginsListSize-1].HostFile)
 			{
 				int CheckFullScreen=IsFullScreen();
 				OpenPluginInfo Info;
@@ -2411,20 +2409,20 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		else
 			Update(UPDATE_KEEP_SELECTION);
 
-		if (PluginClosed && PrevDataStackSize>0)
+		if (PluginClosed && !PrevDataList.Empty())
 		{
-			PrevDataStackSize--;
-
-			if (PrevDataStack[PrevDataStackSize]->PrevFileCount>0)
+			PrevDataItem* Item=*PrevDataList.Last();
+			PrevDataList.Delete(PrevDataList.Last());
+			if (Item->PrevFileCount>0)
 			{
-				MoveSelection(ListData,FileCount,PrevDataStack[PrevDataStackSize]->PrevListData,PrevDataStack[PrevDataStackSize]->PrevFileCount);
-				UpperFolderTopFile = PrevDataStack[PrevDataStackSize]->PrevTopFile;
+				MoveSelection(ListData,FileCount,Item->PrevListData,Item->PrevFileCount);
+				UpperFolderTopFile = Item->PrevTopFile;
 
 				if (!GoToPanelFile)
-					strFindDir = PrevDataStack[PrevDataStackSize]->strPrevName;
+					strFindDir = Item->strPrevName;
 
-				DeleteListData(PrevDataStack[PrevDataStackSize]->PrevListData,PrevDataStack[PrevDataStackSize]->PrevFileCount);
-				delete PrevDataStack[PrevDataStackSize];
+				DeleteListData(Item->PrevListData,Item->PrevFileCount);
+				delete Item;
 
 				if (ListSelectedFirst)
 					SortFileList(FALSE);
@@ -3207,10 +3205,10 @@ int FileList::GetCurName(string &strName, string &strShortName)
   *Name=*ShortName=0;
   if (FileCount==0)
     return(FALSE);
-  if(PanelMode==PLUGIN_PANEL && PluginsStack) // для плагинов
+  if(PanelMode==PLUGIN_PANEL && PluginsList) // для плагинов
   {
     // берем самую основу (при вложенных)
-    strcpy(Name,PointToName(NullToEmpty(PluginsStack->HostFile)));
+    strcpy(Name,PointToName(NullToEmpty(PluginsList->HostFile)));
   }
   else if(PanelMode==NORMAL_PANEL)
   {
@@ -3232,9 +3230,9 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 		return(FALSE);
 	}
 
-	if (PanelMode==PLUGIN_PANEL && PluginsStack) // для плагинов
+	if (PanelMode==PLUGIN_PANEL && !PluginsList.Empty()) // для плагинов
 	{
-		strName = PointToName(PluginsStack[0]->strHostFile);
+		strName = PointToName((*PluginsList.First())->strHostFile);
 	}
 	else if (PanelMode==NORMAL_PANEL)
 	{
@@ -4340,36 +4338,24 @@ void FileList::CountDirSize(DWORD PluginFlags)
 
 int FileList::GetPrevViewMode()
 {
-	if (PanelMode==PLUGIN_PANEL && PluginsStackSize>0)
-		return(PluginsStack[0]->PrevViewMode);
-	else
-		return(ViewMode);
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevViewMode:ViewMode;
 }
 
 
 int FileList::GetPrevSortMode()
 {
-	if (PanelMode==PLUGIN_PANEL && PluginsStackSize>0)
-		return(PluginsStack[0]->PrevSortMode);
-	else
-		return(SortMode);
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevSortMode:SortMode;
 }
 
 
 int FileList::GetPrevSortOrder()
 {
-	if (PanelMode==PLUGIN_PANEL && PluginsStackSize>0)
-		return(PluginsStack[0]->PrevSortOrder);
-	else
-		return(SortOrder);
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevSortOrder:SortOrder;
 }
 
 int FileList::GetPrevNumericSort()
 {
-	if (PanelMode==PLUGIN_PANEL && PluginsStackSize>0)
-		return(PluginsStack[0]->PrevNumericSort);
-	else
-		return(NumericSort);
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevNumericSort:NumericSort;
 }
 
 
@@ -4393,13 +4379,12 @@ HANDLE FileList::OpenFilePlugin(const wchar_t *FileName, int PushPrev)
 	{
 		if (PushPrev)
 		{
-			PrevDataStack=(PrevDataItem **)xf_realloc(PrevDataStack,(PrevDataStackSize+1)*sizeof(PrevDataItem*));
-			PrevDataStack[PrevDataStackSize] = new PrevDataItem;
-			PrevDataStack[PrevDataStackSize]->PrevListData=ListData;
-			PrevDataStack[PrevDataStackSize]->PrevFileCount=FileCount;
-			PrevDataStack[PrevDataStackSize]->PrevTopFile = CurTopFile;
-			PrevDataStack[PrevDataStackSize]->strPrevName = FileName;
-			PrevDataStackSize++;
+			PrevDataItem* Item=new PrevDataItem;;
+			Item->PrevListData=ListData;
+			Item->PrevFileCount=FileCount;
+			Item->PrevTopFile = CurTopFile;
+			Item->strPrevName = FileName;
+			PrevDataList.Push(&Item);
 			ListData=NULL;
 			FileCount=0;
 		}

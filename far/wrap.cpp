@@ -1166,54 +1166,58 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 	return ret;
 }
 
-struct DlgData
+typedef struct DialogData
 {
 	FARWINDOWPROC DlgProc;
 	HANDLE hDlg;
 	oldfar::FarDialogItem *diA;
 	FarDialogItem *di;
 	FarList *l;
-	DlgData* Prev;
-}
-*DialogData=NULL;
+} *PDialogData;
+
+DList<PDialogData>DialogList;
 
 oldfar::FarDialogItem* OneDialogItem=NULL;
 
-DlgData* FindCurrentDlgData(HANDLE hDlg)
+PDialogData FindCurrentDialogData(HANDLE hDlg)
 {
-	DlgData* TmpDialogData=DialogData;
-
-	while (TmpDialogData && TmpDialogData->hDlg!=hDlg)
-		TmpDialogData=TmpDialogData->Prev;
-
-	return TmpDialogData;
+	PDialogData Result=NULL;
+	for(PDialogData* i=DialogList.Last();i;i=DialogList.Prev(i))
+	{
+		if((*i)->hDlg==hDlg)
+		{
+			Result=*i;
+			break;
+		}
+	}
+	return Result;
 }
 
 oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
-	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	return TmpDialogData?&TmpDialogData->diA[ItemNumber]:NULL;
+	PDialogData Data=FindCurrentDialogData(hDlg);
+	return Data?&Data->diA[ItemNumber]:NULL;
 }
 
 FarDialogItem* CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
-	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	return TmpDialogData?&TmpDialogData->di[ItemNumber]:NULL;
+	PDialogData Data=FindCurrentDialogData(hDlg);
+	return Data?&Data->di[ItemNumber]:NULL;
 }
 
 FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 {
-	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
-	return TmpDialogData?&TmpDialogData->l[ItemNumber]:NULL;
+	PDialogData Data=FindCurrentDialogData(hDlg);
+	return Data?&Data->l[ItemNumber]:NULL;
 }
 
 LONG_PTR WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 {
 	LONG_PTR Ret=0;
-	DlgData* TmpDialogData=FindCurrentDlgData(hDlg);
+	PDialogData Data=FindCurrentDialogData(hDlg);
 
-	if (TmpDialogData && TmpDialogData->DlgProc)
-		Ret=TmpDialogData->DlgProc(TmpDialogData->hDlg,Msg,Param1,Param2);
+	if (Data && Data->DlgProc)
+		Ret=Data->DlgProc(Data->hDlg,Msg,Param1,Param2);
 
 	return Ret;
 }
@@ -2416,14 +2420,13 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 	int ret = -1;
 	HANDLE hDlg = FarDialogInit(PluginNumber, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():NULL), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProc?DlgProcA:0, Param);
-	DlgData* NewDialogData=(DlgData*)xf_malloc(sizeof(DlgData));
+	PDialogData NewDialogData=new DialogData;
 	NewDialogData->DlgProc=DlgProc;
 	NewDialogData->hDlg=hDlg;
-	NewDialogData->Prev=DialogData;
 	NewDialogData->diA=diA;
 	NewDialogData->di=di;
 	NewDialogData->l=l;
-	DialogData=NewDialogData;
+	DialogList.Push(&NewDialogData);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{
@@ -2469,9 +2472,8 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		}
 	}
 
-	DlgData* TmpDlgData=DialogData;
-	DialogData=DialogData->Prev;
-	xf_free(TmpDlgData);
+	delete *DialogList.Last();
+	DialogList.Delete(DialogList.Last());
 
 	if (diA)
 		xf_free(diA);

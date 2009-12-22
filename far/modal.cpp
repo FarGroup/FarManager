@@ -79,7 +79,9 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 		ReadKey=GetInputRecord(&ReadRec);
 
 		if (GetReadRec)
-			memmove(GetReadRec,&ReadRec,sizeof(INPUT_RECORD));
+		{
+			*GetReadRec=ReadRec;
+		}
 	}
 
 	if (ReadKey == KEY_CONSOLE_BUFFER_RESIZE)

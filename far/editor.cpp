@@ -4962,7 +4962,7 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 
 	if (EdOpt.UndoSize>0)
 	{
-		while (UndoData.Length && (UndoData.Length>EdOpt.UndoSize || UndoSkipLevel>0))
+		while (!UndoData.Empty() && (UndoData.Count()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
 			EditorUndoData *u=UndoData.First();
 

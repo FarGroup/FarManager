@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "dizlist.hpp"
 #include "filefilterparams.hpp"
+#include "DList.hpp"
 
 class FileFilter;
 
@@ -141,7 +142,7 @@ struct FileListItem
 	}
 };
 
-struct PluginsStackItem
+struct PluginsListItem
 {
 	HANDLE hPlugin;
 	string strHostFile;
@@ -189,10 +190,8 @@ class FileList:public Panel
 		FileListItem **ListData;
 		int FileCount;
 		HANDLE hPlugin;
-		PrevDataItem **PrevDataStack;
-		int PrevDataStackSize;
-		PluginsStackItem **PluginsStack;
-		int PluginsStackSize;
+		DList<PrevDataItem*>PrevDataList;
+		DList<PluginsListItem*>PluginsList;
 		HANDLE hListChange;
 		long UpperFolderTopFile,LastCurFile;
 		long ReturnCurrentFile;

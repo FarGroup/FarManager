@@ -84,7 +84,7 @@ class History
 		bool EnableAdd, KeepSelectedPos, SaveType;
 		int RemoveDups;
 		enumHISTORYTYPE TypeHistory;
-		int HistoryCount;
+		size_t HistoryCount;
 		const int *EnableSave;
 
 		DList<HistoryRecord> HistoryList;
@@ -97,7 +97,7 @@ class History
 		int ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 
 	public:
-		History(enumHISTORYTYPE TypeHistory, int HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, size_t HistoryCount, const wchar_t *RegKey, const int *EnableSave, bool SaveType);
 		~History();
 
 	public:

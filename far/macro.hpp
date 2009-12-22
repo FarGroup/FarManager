@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "syntax.hpp"
 #include "tvar.hpp"
+#include "DList.hpp"
 
 enum MACRODISABLEONLOAD
 {
@@ -134,9 +135,8 @@ struct MacroState
 	int Executing;
 	int MacroPC;
 	int ExecLIBPos;
-	int MacroWORKCount;
 	bool UseInternalClipboard;
-	struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+	DList<MacroRecord*>MacroWORK; // т.н. текущее исполнение
 
 	bool AllocVarTable;
 	TVarTable *locVarTable;

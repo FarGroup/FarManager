@@ -5,6 +5,7 @@ DList.cpp
 */
 /*
 Copyright (c) 2009 lort
+Copyright (c) 2009 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CDList::CDList()
 {
-	Length=0;
+	count=0;
 	root.next=&root;
 	root.prev=&root;
 }
@@ -52,7 +53,7 @@ void CDList::Clear()
 		DeleteNode(f1);
 	}
 
-	Length=0;
+	count=0;
 	root.next=&root;
 	root.prev=&root;
 }
@@ -64,11 +65,11 @@ void CDList::CSwap(CDList &l)
 	pr=l.root.prev;
 	l.root.next->prev=&root;
 	pr->next=&root;
-	int tLength=Length;
+	size_t tcount=count;
 	Node troot=root;
-	Length=l.Length;
+	count=l.count;
 	root=l.root;
-	l.Length=tLength;
+	l.count=tcount;
 	l.root=troot;
 }
 void *CDList::CInsertBefore(void *b, void *item)
@@ -79,7 +80,7 @@ void *CDList::CInsertBefore(void *b, void *item)
 	node->next=Before;
 	Before->prev->next=node;
 	Before->prev=node;
-	++Length;
+	++count;
 	return ((BYTE*)node)+sizeof(Node);
 }
 void *CDList::CInsertAfter(void *a, void *item)
@@ -94,7 +95,7 @@ void *CDList::CDelete(void *item)
 	Node *nx=node->next;
 	pr->next=nx;
 	nx->prev=pr;
-	--Length;
+	--count;
 	DeleteNode(node);
 	return pr==&root ? NULL : ((BYTE*)pr)+sizeof(Node);
 }

@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class CDList
 {
+		size_t count;
 	protected:
 		struct Node
 		{
@@ -56,7 +57,8 @@ class CDList
 
 	public:
 		void Clear();
-		int Length;
+		size_t Count()const {return count;};
+		bool Empty()const {return count==0;};
 };
 
 template <typename Type>

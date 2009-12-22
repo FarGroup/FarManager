@@ -121,8 +121,6 @@ copy.cpp
    drkns 20.04.2009 14:07:34 +0200
 
 Повторные имплементации стека/списка/вектора которые в общем надо убить:
-   PluginsStack
-   sid_cache
    FarQueue?
    Frame
    CallBackStack
@@ -130,7 +128,6 @@ copy.cpp
    FilePositionCache?
    TPreRedrawFunc
    TreeListCache
-   wrap.cpp::DialogData
 
    Есть наверно ещё но эти сразу в глаза бросаются.
 

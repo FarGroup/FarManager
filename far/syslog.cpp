@@ -476,7 +476,7 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const CHAR_INFO *Buffer,int X1,in
 
 
 
-void PluginsStackItem_Dump(const wchar_t *Title,const PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
+void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems,int ItemNumber,FILE *fp)
 {
 #if defined(SYSLOG)
 
@@ -507,7 +507,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsStackItem *StackIte
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
 		};
 
-		if (!StackItems || !ItemNumber)
+		if (!ListItems || !ItemNumber)
 			fwprintf(fp,L"\tPluginsStackItem <EMPTY>");
 		else
 		{
@@ -521,14 +521,14 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsStackItem *StackIte
 				         L"PrevNumericSort=%02d "
 				         L"HostFile=%s\n",
 				         I,
-				         StackItems[I].hPlugin,
-				         (StackItems[I].Modified?L"True ":L"False"),
-				         StackItems[I].PrevViewMode,
-				         StackItems[I].PrevSortMode,
-				         (StackItems[I].PrevSortMode<BY_STREAMSSIZE?__SORT[StackItems[I].PrevSortMode].Name:L"<Unknown>"),
-				         StackItems[I].PrevSortOrder,
-				         StackItems[I].PrevNumericSort,
-				         (const wchar_t*)StackItems[I].strHostFile);
+				         ListItems[I].hPlugin,
+				         (ListItems[I].Modified?L"True ":L"False"),
+				         ListItems[I].PrevViewMode,
+				         ListItems[I].PrevSortMode,
+				         (ListItems[I].PrevSortMode<BY_STREAMSSIZE?__SORT[ListItems[I].PrevSortMode].Name:L"<Unknown>"),
+				         ListItems[I].PrevSortOrder,
+				         ListItems[I].PrevNumericSort,
+				         (const wchar_t*)ListItems[I].strHostFile);
 		}
 
 		fwprintf(fp,L"\n");

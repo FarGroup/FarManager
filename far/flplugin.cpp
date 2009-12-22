@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 {
-	PluginsStackItem *stItem = new PluginsStackItem;
+	PluginsListItem* stItem = new PluginsListItem;
 	stItem->hPlugin=hPlugin;
 	stItem->strHostFile = HostFile;
 	stItem->strPrevOriginalCurDir = strOriginalCurDir;
@@ -64,10 +64,8 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->PrevSortMode=SortMode;
 	stItem->PrevSortOrder=SortOrder;
 	stItem->PrevNumericSort=NumericSort;
-	memmove(&stItem->PrevViewSettings,&ViewSettings,sizeof(PanelViewSettings));
-	PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
-	PluginsStack[PluginsStackSize] = stItem;
-	PluginsStackSize++;
+	stItem->PrevViewSettings=ViewSettings;
+	PluginsList.Push(&stItem);
 }
 
 
@@ -75,20 +73,18 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 {
 	OpenPluginInfo Info={0};
 
-	if (PluginsStackSize==0)
+	if (PluginsList.Empty())
 	{
 		PanelMode=NORMAL_PANEL;
 		return(FALSE);
 	}
 
-	PluginsStackSize--;
 	// закрываем текущий плагин.
 	CtrlObject->Plugins.ClosePlugin(hPlugin);
-	PluginsStackItem *PStack=PluginsStack[PluginsStackSize]; // указатель на плагин, с которого уходим
-
-	if (PluginsStackSize>0)
+	PluginsListItem *PStack=*PluginsList.Last(); // указатель на плагин, с которого уходим
+	if (PluginsList.Prev(PluginsList.Last()))
 	{
-		hPlugin=PluginsStack[PluginsStackSize-1]->hPlugin;
+		hPlugin=(*PluginsList.Prev(PluginsList.Last()))->hPlugin;
 		strOriginalCurDir=PStack->strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
@@ -140,17 +136,8 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 		}
 	}
 
-	delete PluginsStack[PluginsStackSize];
-
-	if (PluginsStackSize)
-	{
-		PluginsStack=(PluginsStackItem **)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
-	}
-	else
-	{
-		xf_free(PluginsStack);
-		PluginsStack=NULL;
-	}
+	delete PStack;
+	PluginsList.Delete(PluginsList.Last());
 
 	if (EnableRestoreViewMode)
 		CtrlObject->Cp()->RedrawKeyBar();
@@ -903,7 +890,7 @@ void FileList::ProcessHostFile()
 		int Done=FALSE;
 		SaveSelection();
 
-		if (PanelMode==PLUGIN_PANEL && !PluginsStack[PluginsStackSize-1]->strHostFile.IsEmpty())
+		if (PanelMode==PLUGIN_PANEL && !(*PluginsList.Last())->strHostFile.IsEmpty())
 		{
 			PluginPanelItem *ItemList;
 			int ItemNumber;
@@ -1156,8 +1143,10 @@ void FileList::ProcessPluginCommand()
 
 void FileList::SetPluginModified()
 {
-	if (PluginsStackSize>0)
-		PluginsStack[PluginsStackSize-1]->Modified=TRUE;
+	if(PluginsList.Last())
+	{
+		(*PluginsList.Last())->Modified=TRUE;
+	}
 }
 
 

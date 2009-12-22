@@ -2126,8 +2126,7 @@ void Viewer::ChangeViewKeyBar()
 		ViewKeyBar->Redraw();
 	}
 
-	ViewerMode vm;
-	memmove(&vm,&VM,sizeof(ViewerMode));
+	ViewerMode vm=VM;
 	CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
@@ -3182,8 +3181,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;
-				memmove(&Info->CurMode,&VM,sizeof(ViewerMode));
-				Info->CurMode.CodePage=VM.CodePage;
+				Info->CurMode=VM;
 				Info->Options=0;
 
 				if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;

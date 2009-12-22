@@ -68,7 +68,7 @@ PreRedrawItem TPreRedrawFunc::SetParam(PreRedrawParamStruct Param)
 {
 	if (Top)
 	{
-		memmove(&Top->Item.Param,&Param,sizeof(PreRedrawParamStruct));
+		Top->Item.Param=Param;
 		return Top->Item;
 	}
 
@@ -95,7 +95,7 @@ PreRedrawItem TPreRedrawFunc::Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Para
 	Source.PreRedrawFunc=Func;
 
 	if (Param)
-		memmove(&Source.Param,Param,sizeof(PreRedrawParamStruct));
+		Source.Param=*Param;
 	else
 		memset(&Source.Param,0,sizeof(PreRedrawParamStruct));
 
