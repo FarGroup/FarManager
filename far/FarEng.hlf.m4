@@ -2219,7 +2219,7 @@ $ #Command line prompt format#
    FAR allows to change the command line prompt format.
 To change it you have to enter the needed sequence of variables and
 special code words in the #Set command line prompt format# input field
-of the ~Interface settings~@InterfSettings@ dialog, this will allow showing
+of the ~Command line settings~@CmdlineSettings@ dialog, this will allow showing
 additional information in the command prompt.
 
    It is allowed to use environment variables and the following special

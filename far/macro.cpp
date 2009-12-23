@@ -463,6 +463,7 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 
 				if ((*i)->Description)
 					xf_free((*i)->Description);
+				delete *i;
 			}
 
 			Work.MacroWORK.Clear();
@@ -493,6 +494,7 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 				//Work.locVarTable=NULL;
 				//Work.AllocVarTable=false;
 			}
+			delete *Work.MacroWORK.First();
 			Work.MacroWORK.Delete(Work.MacroWORK.First());
 		}
 	}
@@ -5078,7 +5080,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,DWORD Flags,DWORD AKey,BOOL onlyCheck)
 {
-	MacroRecord* NewMacroWORK=new MacroRecord;
+	MacroRecord* NewMacroWORK=new MacroRecord();
 	wchar_t *Buffer=(wchar_t *)PlainText;
 	bool allocBuffer=false;
 
